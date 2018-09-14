@@ -1,0 +1,20 @@
+{
+  "name": "game-panel",
+  "version": "0.0.1",
+  "private": true,
+  "scripts": {
+    "start": "node app.js",
+    "test": "mocha"
+  },
+  "dependencies": {
+    "chai": "^4.1.2",
+    "chai-http": "^4.2.0",
+    "compression": "^1.7.3",
+    "cookie-parser": "^1.4.1",
+    "express": "^4.16.3",
+    "method-override": "^3.0.0",
+    "mocha": "^5.2.0",
+    "morgan": "^1.9.1",
+    "nodemon": "^1.18.4"
+  }
+}
