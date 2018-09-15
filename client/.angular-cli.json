@@ -55,6 +55,7 @@
   },
   "defaults": {
     "styleExt": "css",
-    "component": {}
+    "component": {},
+	"lintFix": true
   }
 }
