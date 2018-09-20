@@ -22,7 +22,7 @@ module.exports = (app, config) => {
 	app.use(passport.initialize());
 
 	passport.use(new SteamStrategy({
-		returnURL: config.baseUrl + '/auth/steam/return',
+		returnURL: config.baseUrl + '/api/auth/steam/return',
 		realm: config.baseUrl,
 		apiKey: config.steam.webAPIKey
 	}, (openID, profile, done) => {
