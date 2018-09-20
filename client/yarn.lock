@@ -180,6 +180,12 @@
   dependencies:
     tslib "^1.9.0"
 
+"@auth0/angular-jwt@^2.0.0":
+  version "2.0.0"
+  resolved "https://registry.yarnpkg.com/@auth0/angular-jwt/-/angular-jwt-2.0.0.tgz#c0b2861824a24fb62d9d2e1fdb03a326e8a1e203"
+  dependencies:
+    url "^0.11.0"
+
 "@ngtools/webpack@6.2.2":
   version "6.2.2"
   resolved "https://registry.yarnpkg.com/@ngtools/webpack/-/webpack-6.2.2.tgz#e3500f43a530c41470ea2b2cc470c5bbae3fbecd"
@@ -3908,6 +3914,10 @@ negotiator@0.6.1:
 neo-async@^2.5.0:
   version "2.5.2"
   resolved "https://registry.yarnpkg.com/neo-async/-/neo-async-2.5.2.tgz#489105ce7bc54e709d736b195f82135048c50fcc"
+
+ngx-cookie-service@^1.0.10:
+  version "1.0.10"
+  resolved "https://registry.yarnpkg.com/ngx-cookie-service/-/ngx-cookie-service-1.0.10.tgz#dc17ff4f1a0224cf3b0c7a7f52bff2b798396e3d"
 
 nice-try@^1.0.4:
   version "1.0.5"
