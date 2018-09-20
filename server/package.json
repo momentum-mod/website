@@ -12,9 +12,13 @@
     "compression": "^1.7.3",
     "cookie-parser": "^1.4.1",
     "express": "^4.16.3",
+    "jsonwebtoken": "^8.3.0",
     "method-override": "^3.0.0",
     "mocha": "^5.2.0",
     "morgan": "^1.9.1",
-    "nodemon": "^1.18.4"
+    "nodemon": "^1.18.4",
+    "passport": "^0.4.0",
+    "passport-jwt": "^4.0.0",
+    "passport-steam": "^1.0.10"
   }
 }

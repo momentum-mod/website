@@ -2,11 +2,16 @@ const express = require('express'),
 	path = require('path'),
 	logger = require('morgan'),
 	compress = require('compression'),
-	methodOverride = require('method-override');
+	methodOverride = require('method-override'),
+	passport = require('passport'),
+	SteamStrategy = require('passport-steam').Strategy,
+	JwtStrategy = require('passport-jwt').Strategy,
+	ExtractJwt = require('passport-jwt').ExtractJwt,
+	user = require('../src/models/user');
 
 module.exports = (app, config) => {
 
-	if (app.get('env') === 'developement') {
+	if (app.get('env') === 'development') {
 		app.use(logger('dev'));
 	}
 
@@ -14,13 +19,38 @@ module.exports = (app, config) => {
     app.use(compress());
     app.use(express.static(config.root + '/public'));
     app.use(methodOverride());
+	app.use(passport.initialize());
+
+	passport.use(new SteamStrategy({
+		returnURL: config.baseUrl + '/auth/steam/return',
+		realm: config.baseUrl,
+		apiKey: config.steam.webAPIKey
+	}, (openID, profile, done) => {
+		user.findOrCreate(openID, profile)
+		.then((userInfo) => {
+			profile = Object.assign(profile, userInfo);
+			done(null, profile);
+		}).catch((err) => {
+			done(err, false);
+		});
+	}));
+
+	passport.use(new JwtStrategy({
+		jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
+		secretOrKey: config.accessToken.secret,
+		issuer: config.domain,
+		audience: ''
+	}, (jwtPayload, done) => {
+		done(null, jwtPayload);
+	}));
 
 	app.use('/example', require(config.root + '/src/routes/example'));
+	app.use('/auth', require(config.root + '/src/routes/auth'));
 
     app.use('*', (req, res, next) => {
 		try {
         	res.sendFile(path.resolve(config.root + '/public/index.html'));
-		} catch(next) {
+		} catch(err) {
 			next(err);
 		}
     });
