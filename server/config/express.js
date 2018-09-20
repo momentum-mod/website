@@ -45,7 +45,7 @@ module.exports = (app, config) => {
 	}));
 
 	app.use('/example', require(config.root + '/src/routes/example'));
-	app.use('/auth', require(config.root + '/src/routes/auth'));
+	app.use('/api', require(config.root + '/src/routes/api'));
 
     app.use('*', (req, res, next) => {
 		try {
