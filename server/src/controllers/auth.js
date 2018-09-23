@@ -1,7 +1,9 @@
 'use strict';
 const express = require('express'),
     router = express.Router(),
-	auth = require('../models/auth');
+	auth = require('../models/auth'),
+	axios = require('axios'),
+	config = require('../../config/config');
 
 module.exports = {
 
@@ -16,6 +18,30 @@ module.exports = {
 			res.cookie('accessToken', accessToken);
 			res.redirect('/');
 		}).catch(next);
-	}
+	},
 
-}
+	verifyUserTicket: (req, res, next) => {
+		var userTicket = req.body['ticket'];
+
+		if (userTicket) {
+			axios({
+				method: 'get',
+				url: 'https://api.steampowered.com/ISteamUserAuth/AuthenticateUserTicket/v1/',
+				params: {
+					key: config.steam.webAPIKey,
+					appid: 669270,
+					ticket: userTicket
+				}
+			}).then((sres) => {
+				console.log(sres.status);
+				console.log(sres.body);
+				// TODO verify the steamID here
+				sres.sendStatus(200);
+			}).catch((err) => {
+				res.sendStatus(err.response.status);
+			});
+		}
+		else
+			res.sendStatus(400); // Bad request
+	}
+};
