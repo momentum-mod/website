@@ -11,7 +11,6 @@ $nb-themes: nb-register-theme((
   sidebar-header-gap: 2rem,
   sidebar-header-height: initial,
   layout-content-width: 1400px,
-
   font-main: Roboto,
   font-secondary: Exo,
 
@@ -41,7 +40,8 @@ $nb-themes: nb-register-theme((
   sidebar-header-gap: 2rem,
   sidebar-header-height: initial,
   layout-content-width: 1400px,
-
+  color-bg: #222222,
+  layout-bg: black,
   font-main: Roboto,
   font-secondary: Exo,
 
