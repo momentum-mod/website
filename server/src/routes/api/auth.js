@@ -17,4 +17,10 @@ router.route('/steam/return')
 	.put(errorCtrl.send405)
 	.delete(errorCtrl.send405);
 
+router.route('/steam/user')
+	.get(errorCtrl.send405)
+	.post(authCtrl.verifyUserTicket)
+	.put(errorCtrl.send405)
+	.delete(errorCtrl.send405);
+
 module.exports = router;
