@@ -14,6 +14,12 @@ const config = {
 		},
 		steam: {
 			webAPIKey: process.env.STEAM_WEB_API_KEY
+		},
+		db: {
+			name: 'momentum',
+			userName: 'mom',
+			password: '',
+			host: 'localhost'
 		}
 	},
 	development: {
@@ -27,6 +33,12 @@ const config = {
 		},
 		steam: {
 			webAPIKey: process.env.STEAM_WEB_API_KEY
+		},
+		db: {
+			name: 'momentum',
+			userName: 'mom',
+			password: '',
+			host: 'localhost'
 		}
 	},
 	production: {
@@ -40,6 +52,12 @@ const config = {
 		},
 		steam: {
 			webAPIKey: process.env.STEAM_WEB_API_KEY
+		},
+		db: {
+			name: 'momentum',
+			userName: process.env.MOM_DATABASE_USER,
+			password: process.env.MOM_DATABASE_PW,
+			host: process.env.MOM_DATABASE_HOST
 		}
 	}
 }

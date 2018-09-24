@@ -1,5 +1,6 @@
 'use strict';
-const config = require('../../config/config');
+const config = require('../../config/config'),
+	User = require('../../config/sqlize');
 
 module.exports = {
 
@@ -7,12 +8,11 @@ module.exports = {
 		return new Promise((resolve, reject) => {
 			// should use db module to create user if doesn't exist
 			// then return the info for the user
-			const userInfo = {
-				id: 1337,
-				alias: '',
-				permissions: 0
-			}
-			resolve(userInfo);
+			User.findOne({ where: {id: openID}}).then((usr) => {
+				resolve(usr);
+			}).catch((err) => {
+				reject(err);
+			});
 		});
 	}
 
