@@ -9,7 +9,4 @@ require('./config/express')(app, config);
 const server = http.createServer(app);
 server.listen(config.port, '0.0.0.0');
 
-const httpApp = express();
-const httpRouter = express.Router();
-
 module.exports = server;
