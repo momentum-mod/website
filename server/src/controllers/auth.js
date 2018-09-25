@@ -37,9 +37,7 @@ module.exports = {
 				console.log(sres.body);
 				// TODO verify the steamID here
 				sres.sendStatus(200);
-			}).catch((err) => {
-				res.sendStatus(err.response.status);
-			});
+			}).catch(next);
 		}
 		else
 			res.sendStatus(400); // Bad request

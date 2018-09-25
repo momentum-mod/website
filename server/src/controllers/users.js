@@ -8,10 +8,7 @@ module.exports = {
 		if (req.params.id) {
 			user.find(req.params.id).then(usr => {
 				res.status(200).json(usr.toJSON());
-			}).catch(err => {
-				console.error(err);
-				res.sendStatus(500);
-			});
+			}).catch(next);
 		} else {
 			res.sendStatus(400);
 		}
@@ -23,10 +20,7 @@ module.exports = {
 				.then((usr) => {
 					res.status(200).send(usr.toJSON())
 				})
-				.catch((err) => {
-					console.error(err);
-					res.sendStatus(500);
-				});
+				.catch(next);
 		}
 		else {
 			res.sendStatus(400);

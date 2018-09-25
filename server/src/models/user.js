@@ -1,17 +1,10 @@
 'use strict';
-const config = require('../../config/config'),
-	{ User } = require('../../config/sqlize');
+const { User } = require('../../config/sqlize');
 
 module.exports = {
 
 	find: (steamID) => {
-		return new Promise((resolve, reject) => {
-			User.findOne({ where: {id: steamID}}).then((usr) => {
-				resolve(usr);
-			}).catch((err) => {
-				reject(err);
-			})
-		})
+		return User.findOne({ where: {id: steamID}});
 	},
 
 	findOrCreate: (openID) => {
@@ -21,9 +14,7 @@ module.exports = {
 			User.findOrCreate({ where: {id: openID}}).spread((usr, created) => {
 				console.log(created);
 				resolve(usr);
-			}).catch((err) => {
-				reject(err);
-			});
+			}).catch(reject);
 		});
 	}
 
