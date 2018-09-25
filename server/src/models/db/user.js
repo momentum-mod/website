@@ -7,6 +7,9 @@ module.exports = (sequelize, type) => {
 			primaryKey: true
 		},
 		alias: type.STRING,
-		permission: type.INTEGER
+		permission: {
+			type: type.INTEGER,
+			defaultValue: 0
+		}
 	})
 };
