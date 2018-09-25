@@ -5,7 +5,7 @@ const Sequelize = require('sequelize'),
 
 const sequelize = new Sequelize({
 	database: config.db.name,
-	user: config.db.userName,
+	username: config.db.userName,
 	password: config.db.password,
 	host: config.db.host,
 	dialect: 'mysql',
@@ -32,7 +32,7 @@ sequelize.sync({force: true})
 	.then(() => {
 		console.log(`Database & tables created!`)
 	}).catch((err) => {
-
+	console.warn(err);
 });
 
 module.exports = {

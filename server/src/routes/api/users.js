@@ -2,8 +2,8 @@
 const express = require('express'),
 	router = express.Router(),
 	passport = require('passport'),
-	errorCtrl = require('../../controllers/error');//,
-	//userCtrl = require('../../controllers/auth');
+	errorCtrl = require('../../controllers/error'),
+	userCtrl = require('../../controllers/users');
 
 router.route('/')
 	.get(errorCtrl.send405)
@@ -12,8 +12,8 @@ router.route('/')
 	.delete(errorCtrl.send405);
 
 router.route('/:id')
-	.get(errorCtrl.send405)
-	.post(errorCtrl.send405)
+	.get(userCtrl.find)
+	.post(userCtrl.findOrCreate)
 	.put(errorCtrl.send405)
 	.delete(errorCtrl.send405);
 

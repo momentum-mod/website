@@ -2,11 +2,21 @@
 
 ## Downloads
 
-Download Node.js.
+Download Node.js. Install the yarn package manager.
 
-In the command line, navigate to this directory and type `npm install` to install all project dependencies.
+In the command line, navigate to this directory and type `yarn install` to install all project dependencies.
 
 ## Development server
+
+For your database, run the following:
+
+```
+CREATE DATABASE momentum;
+CREATE USER mom;
+GRANT ALL PRIVILEGES ON momentum.* TO mom;
+```
+
+This will set up a simple test user for the database.
 
 Run `nodemon server.js` for a dev server. Navigate to `http://localhost:3002/`. The app will automatically reload if you change any of the source files.
 

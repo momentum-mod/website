@@ -60,6 +60,6 @@ const config = {
 			host: process.env.MOM_DATABASE_HOST
 		}
 	}
-}
+};
 
 module.exports = config[env];
