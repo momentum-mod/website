@@ -4,8 +4,8 @@ const user = require('../models/user');
 module.exports = {
 
 	find: (req, res, next) => {
-		if (req.params.id) {
-			user.find(req.params.id).then(usr => {
+		if (req.params.userID) {
+			user.find(req.params.userID).then(usr => {
 				res.status(200).json(usr.toJSON());
 			}).catch(next);
 		} else {
@@ -14,8 +14,8 @@ module.exports = {
 	},
 
 	findOrCreate: (req, res, next) => {
-		if (req.params.id) {
-			user.findOrCreate(req.params.id)
+		if (req.params.userID) {
+			user.findOrCreate(req.params.userID, null)
 				.then((usr) => {
 					res.status(200).send(usr.toJSON())
 				})
@@ -27,10 +27,10 @@ module.exports = {
 	},
 
 	update: (req, res, next) => {
-		user.update(req.userID, req.body)
+		user.update(req.params.userID, req.body)
 		.then(() => {
 			res.sendStatus(204);
 		}).catch(next);
 	}
 
-}
+};

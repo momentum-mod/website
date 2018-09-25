@@ -26,7 +26,7 @@ module.exports = (app, config) => {
 		realm: config.baseUrl,
 		apiKey: config.steam.webAPIKey
 	}, (openID, profile, done) => {
-		user.findOrCreate(openID)
+		user.findOrCreate(null, profile)
 		.then((userInfo) => {
 			profile = Object.assign(profile, userInfo);
 			done(null, profile);
@@ -58,6 +58,7 @@ module.exports = (app, config) => {
 	if (app.get('env') === 'development') {
 		app.use((err, req, res, next) => {
 			const status = err.status || 500;
+			console.error(err);
 			res.status(status).json({
 				error: {
 					code: status,
