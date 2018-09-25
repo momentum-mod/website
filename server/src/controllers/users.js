@@ -1,7 +1,6 @@
 'use strict';
 const user = require('../models/user');
 
-
 module.exports = {
 
 	find: (req, res, next) => {
@@ -25,6 +24,13 @@ module.exports = {
 		else {
 			res.sendStatus(400);
 		}
+	},
+
+	update: (req, res, next) => {
+		user.update(req.userID, req.body)
+		.then(() => {
+			res.sendStatus(204);
+		}).catch(next);
 	}
 
-};
+}
