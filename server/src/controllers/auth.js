@@ -21,12 +21,10 @@ module.exports = {
 	},
 
 	verifyUserTicket: (req, res, next) => {
-		var userTicket = req.body['ticket'];
+		var userTicket = req.body.ticket;
 
 		if (userTicket) {
-			axios({
-				method: 'get',
-				url: 'https://api.steampowered.com/ISteamUserAuth/AuthenticateUserTicket/v1/',
+			axios.get('https://api.steampowered.com/ISteamUserAuth/AuthenticateUserTicket/v1/', {
 				params: {
 					key: config.steam.webAPIKey,
 					appid: 669270,

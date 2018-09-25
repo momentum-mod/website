@@ -2,11 +2,16 @@
 const jwt = require('jsonwebtoken'),
 	util = require('util'),
 	config = require('../../config/config'),
-	createJwt = util.promisify(jwt.sign);
+	createJwt = util.promisify(jwt.sign),
+	userMdl = require('./user');
 
 module.exports = {
 
+	// For what user is, look here: https://github.com/liamcurry/passport-steam/blob/master/lib/passport-steam/strategy.js#L25
 	genAccessToken: (user) => {
+
+		userMdl.findOrCreate(null, user);
+
 		const payload = {
 			id: user.id,
 			displayName: user.displayName,

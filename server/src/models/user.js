@@ -1,21 +1,68 @@
 'use strict';
-const { User } = require('../../config/sqlize');
+const { User } = require('../../config/sqlize'),
+	config = require('../../config/config'),
+	axios = require('axios');
 
 module.exports = {
 
 	Permission: Object.freeze({
-		BANNED: 1 << 0,
-		ADMIN: 1 << 1,
-		MAPPER: 1 << 2
+		MAPPER: 1 << 0,
+		MODERATOR: 1 << 1,
+		ADMIN: 1 << 2,
+		BANNED_LEADERBOARDS: 1 << 3,
+		BANNED_ALIAS: 1 << 4,
+		BANNED_AVATAR: 1 << 5
 	}),
 
-	findOrCreate: (openID) => {
+	updateSteamInfo: (usr, avatar, personaname) => {
+		if ((usr.permission & module.exports.Permission.BANNED_AVATAR) === 0)
+			usr.avatar_url = avatar;
+
+		if ((usr.permission & module.exports.Permission.BANNED_ALIAS) === 0)
+			usr.alias = personaname;
+
+		return usr.save();
+	},
+
+	getSteamInfo: (usr, resolve, reject) => {
+		axios.get('https://api.steampowered.com/ISteamUser/GetPlayerSummaries/v2/', {
+			params: {
+				key: config.steam.webAPIKey,
+				steamids: usr.id
+			}
+		}).then(resp => {
+			var respData = resp.data.response.players[0];
+			if (respData) {
+				module.exports.updateSteamInfo(usr, respData.avatarfull, respData.personaname).then(() => {
+					resolve(usr);
+				}).catch(reject);
+			}
+			else {
+				reject(usr);
+			}
+		});
+	},
+
+	findOrCreate: (userID, userObj) => {
 		return new Promise((resolve, reject) => {
 			// should use db module to create user if doesn't exist
 			// then return the info for the user
-			User.findOrCreate({ where: {id: openID}}).spread((usr, created) => {
+			User.findOrCreate({ where: {id: userObj ? userObj.id : userID}}).spread((usr, created) => {
 				console.log(created);
-				resolve(usr);
+				if (created) {
+					// Update the user object with latest steam alias and profile URL
+					if (userObj)
+					{
+						module.exports.updateSteamInfo(usr, userObj.photos[2].value, userObj.displayName).then(() => {
+							resolve(usr);
+						}).catch(reject);
+					}
+					else
+						module.exports.getSteamInfo(usr, resolve, reject);
+				}
+				else {
+					resolve(usr);
+				}
 			}).catch(reject);
 		});
 	},
