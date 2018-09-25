@@ -8,6 +8,11 @@ export const MENU_ITEMS: NbMenuItem[] = [
     home: true,
   },
   {
+    title: 'User Management',
+    icon: 'nb-tables',
+    link: '/pages/tables/smart-table',
+  },
+  {
     title: 'FEATURES',
     group: true,
   },
@@ -128,16 +133,6 @@ export const MENU_ITEMS: NbMenuItem[] = [
       {
         title: 'CKEditor',
         link: '/pages/editors/ckeditor',
-      },
-    ],
-  },
-  {
-    title: 'Tables',
-    icon: 'nb-tables',
-    children: [
-      {
-        title: 'Smart Table',
-        link: '/pages/tables/smart-table',
       },
     ],
   },
