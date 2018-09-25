@@ -10,7 +10,7 @@ router.route('/')
 	.all(errorCtrl.send405);
 
 router.route('/:userID')
-	.get(userCtrl.findOrCreate) //TODO: make it just find
+	.get(userCtrl.find)
 	.patch([authMiddleware.requireLogin], userCtrl.update)
 	.all(errorCtrl.send405);
 
