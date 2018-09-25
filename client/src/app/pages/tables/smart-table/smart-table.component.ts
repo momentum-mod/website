@@ -50,8 +50,8 @@ export class SmartTableComponent {
         title: 'E-mail',
         type: 'string',
       },
-      age: {
-        title: 'Age',
+      permissions: {
+        title: 'Permissions',
         type: 'number',
       },
     },
