@@ -1,7 +1,11 @@
 import { NgModule, ModuleWithProviders } from '@angular/core';
 import { CommonModule } from '@angular/common';
 
-import { UserService } from './users.service';
+import { CookieService } from 'ngx-cookie-service';
+import { JwtModule } from '@auth0/angular-jwt';
+
+import { UserService } from './user.service';
+import { AuthService } from './auth.service';
 import { ElectricityService } from './electricity.service';
 import { StateService } from './state.service';
 import { SmartTableService } from './smart-table.service';
@@ -19,6 +23,9 @@ import { LayoutService } from './layout.service';
 
 const SERVICES = [
   UserService,
+  AuthService,
+  JwtModule,
+  CookieService,
   ElectricityService,
   StateService,
   SmartTableService,
@@ -35,9 +42,20 @@ const SERVICES = [
   LayoutService,
 ];
 
+export function tokenGetter() {
+  return localStorage.getItem('accessToken');
+}
+
 @NgModule({
   imports: [
     CommonModule,
+    JwtModule.forRoot({
+      config: {
+          tokenGetter: tokenGetter,
+          whitelistedDomains: ['localhost:4200'],
+          // blacklistedRoutes: ['localhost:4200']
+      },
+    }),
   ],
   providers: [
     ...SERVICES,

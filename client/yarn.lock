@@ -199,6 +199,12 @@
   version "3.0.1"
   resolved "https://registry.yarnpkg.com/@asymmetrik/ngx-leaflet/-/ngx-leaflet-3.0.1.tgz#89a390f77dace1aefb7887162937b51c39571a24"
 
+"@auth0/angular-jwt@1":
+  version "1.2.0"
+  resolved "https://registry.yarnpkg.com/@auth0/angular-jwt/-/angular-jwt-1.2.0.tgz#cfac04fe3f93e36ab9881d469df2c0556f2e7392"
+  dependencies:
+    url "^0.11.0"
+
 "@compodoc/compodoc@1.0.1":
   version "1.0.1"
   resolved "https://registry.yarnpkg.com/@compodoc/compodoc/-/compodoc-1.0.1.tgz#6f2706ce3dc524ce6612fffbd9b557c41c74d88a"
@@ -5279,6 +5285,10 @@ ng2-smart-table@1.3.5:
   resolved "https://registry.yarnpkg.com/ng2-smart-table/-/ng2-smart-table-1.3.5.tgz#141b0b71f89273dfda414c4ded2d59390f8238ea"
   dependencies:
     lodash "^4.17.10"
+
+ngx-cookie-service@^1.0.10:
+  version "1.0.10"
+  resolved "https://registry.yarnpkg.com/ngx-cookie-service/-/ngx-cookie-service-1.0.10.tgz#dc17ff4f1a0224cf3b0c7a7f52bff2b798396e3d"
 
 ngx-echarts@2.0.1:
   version "2.0.1"
