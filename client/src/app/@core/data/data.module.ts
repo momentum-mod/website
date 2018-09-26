@@ -43,19 +43,19 @@ const SERVICES = [
 ];
 
 export function tokenGetter() {
-	return localStorage.getItem('accessToken');
+  return localStorage.getItem('accessToken');
 }
 
 @NgModule({
   imports: [
     CommonModule,
-	JwtModule.forRoot({
-		config: {
-			tokenGetter: tokenGetter,
-			whitelistedDomains: ['localhost:4200']//,
-			//blacklistedRoutes: ['localhost:4200']
-		}
-	})
+    JwtModule.forRoot({
+      config: {
+          tokenGetter: tokenGetter,
+          whitelistedDomains: ['localhost:4200'],
+          // blacklistedRoutes: ['localhost:4200']
+      },
+    }),
   ],
   providers: [
     ...SERVICES,

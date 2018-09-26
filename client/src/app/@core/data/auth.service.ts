@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { CookieService } from 'ngx-cookie-service';
-import { JwtModule, JwtHelperService } from '@auth0/angular-jwt';
+import { JwtHelperService } from '@auth0/angular-jwt';
 
 interface AccessTokenPayload {
   id: number;
@@ -12,7 +12,7 @@ interface AccessTokenPayload {
 @Injectable()
 export class AuthService {
 
-  constructor(private cookieService: CookieService, private jwtModule: JwtModule) {
+  constructor(private cookieService: CookieService) {
     const cookieExists = this.cookieService.check('accessToken');
     if (cookieExists) {
       const accessToken = this.cookieService.get('accessToken');

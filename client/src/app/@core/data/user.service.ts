@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { AuthService } from './auth.service';
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class UserService {
 
@@ -26,8 +26,8 @@ export class UserService {
       id: this.id,
       displayName: this.displayName,
       avatar: this.avatar,
-      permissions: this.permissions
-    }
+      permissions: this.permissions,
+  };
   }
 
 }
