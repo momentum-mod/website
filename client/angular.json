@@ -20,12 +20,7 @@
             "assets": [
               "src/assets",
               "src/favicon.ico",
-              "src/favicon.png",
-              {
-                "glob": "**/*",
-                "input": "node_modules/leaflet/dist/images",
-                "output": "/assets/img/markers"
-              }
+              "src/favicon.png"
             ],
             "styles": [
               "node_modules/bootstrap/dist/css/bootstrap.css",
@@ -37,7 +32,6 @@
               "node_modules/nebular-icons/scss/nebular-icons.scss",
               "node_modules/angular-tree-component/dist/angular-tree-component.css",
               "node_modules/pace-js/templates/pace-theme-flash.tmpl.css",
-              "node_modules/leaflet/dist/leaflet.css",
               "src/app/@theme/styles/styles.scss"
             ],
             "scripts": [
@@ -121,12 +115,7 @@
             "assets": [
               "src/assets",
               "src/favicon.ico",
-              "src/favicon.png",
-              {
-                "glob": "**/*",
-                "input": "node_modules/leaflet/dist/images",
-                "output": "/assets/img/markers"
-              }
+              "src/favicon.png"
             ]
           }
         },

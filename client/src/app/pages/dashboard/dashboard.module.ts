@@ -27,11 +27,6 @@ import { ECommerceUserActivityComponent } from './user-activity/user-activity.co
 import { ECommerceProgressSectionComponent } from './follow-maps/progress-section.component';
 import { SlideOutComponent } from './slide-out/slide-out.component';
 
-import { CountryOrdersComponent } from './country-orders/country-orders.component';
-import { CountryOrdersMapComponent } from './country-orders/map/country-orders-map.component';
-import { CountryOrdersMapService } from './country-orders/map/country-orders-map.service';
-import { LeafletModule } from '@asymmetrik/ngx-leaflet';
-import { CountryOrdersChartComponent } from './country-orders/chart/country-orders-chart.component';
 import { EarningCardComponent } from './earning-card/earning-card.component';
 import { EarningCardBackComponent } from './earning-card/back-side/earning-card-back.component';
 import { EarningPieChartComponent } from './earning-card/back-side/earning-pie-chart.component';
@@ -44,7 +39,6 @@ import { EarningLiveUpdateChartComponent } from './earning-card/front-side/earni
     ChartModule,
     NgxEchartsModule,
     NgxChartsModule,
-    LeafletModule,
   ],
   declarations: [
     DashboardComponent,
@@ -62,9 +56,6 @@ import { EarningLiveUpdateChartComponent } from './earning-card/front-side/earni
     TrafficBackCardComponent,
     TrafficBarComponent,
     TrafficCardsHeaderComponent,
-    CountryOrdersComponent,
-    CountryOrdersMapComponent,
-    CountryOrdersChartComponent,
     ECommerceVisitorsStatisticsComponent,
     ECommerceLegendChartComponent,
     ECommerceUserActivityComponent,
@@ -76,8 +67,6 @@ import { EarningLiveUpdateChartComponent } from './earning-card/front-side/earni
     EarningPieChartComponent,
     EarningLiveUpdateChartComponent,
   ],
-  providers: [
-    CountryOrdersMapService,
-  ],
+  providers: [],
 })
 export class DashboardModule { }
