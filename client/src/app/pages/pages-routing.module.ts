@@ -18,9 +18,6 @@ const routes: Routes = [{
     path: 'components',
     loadChildren: './components/components.module#ComponentsModule',
   }, {
-    path: 'maps',
-    loadChildren: './maps/maps.module#MapsModule',
-  }, {
     path: 'charts',
     loadChildren: './charts/charts.module#ChartsModule',
   }, {
