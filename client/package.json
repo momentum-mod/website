@@ -34,7 +34,7 @@
   },
   "husky": {
     "hooks": {
-      "precommit": "npm run lint:ci"
+      "pre-commit": "npm run lint:ci"
     }
   },
   "dependencies": {
