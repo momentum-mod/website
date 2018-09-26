@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { UserService } from '../../../@core/data/user.service';
 
 @Component({
@@ -6,7 +6,7 @@ import { UserService } from '../../../@core/data/user.service';
   styleUrls: ['./profile-card.scss'],
   templateUrl: './profile-card.component.html',
 })
-export class ProfileCardComponent {
+export class ProfileCardComponent implements OnInit {
 
   flipped = false;
 
