@@ -13,6 +13,11 @@ export const MENU_ITEMS: NbMenuItem[] = [
     link: '/pages/tables/smart-table',
   },
   {
+    title: 'Community',
+    icon: 'nb-compose',
+    link: '/pages/forms/layouts',
+  },
+  {
     title: 'FEATURES',
     group: true,
   },
@@ -55,20 +60,7 @@ export const MENU_ITEMS: NbMenuItem[] = [
       },
     ],
   },
-  {
-    title: 'Forms',
-    icon: 'nb-compose',
-    children: [
-      {
-        title: 'Form Inputs',
-        link: '/pages/forms/inputs',
-      },
-      {
-        title: 'Form Layouts',
-        link: '/pages/forms/layouts',
-      },
-    ],
-  },
+
   {
     title: 'Components',
     icon: 'nb-gear',
