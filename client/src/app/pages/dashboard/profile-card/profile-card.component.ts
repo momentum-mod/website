@@ -1,4 +1,5 @@
 import { Component } from '@angular/core';
+import { UserService } from '../../../@core/data/user.service';
 
 @Component({
   selector: 'ngx-profile-card',
@@ -8,6 +9,14 @@ import { Component } from '@angular/core';
 export class ProfileCardComponent {
 
   flipped = false;
+
+  user: any;
+
+  constructor(private userService: UserService) {}
+
+  ngOnInit() {
+    this.user = this.userService.getInfo();
+  }
 
   toggleView() {
     this.flipped = !this.flipped;
