@@ -23,12 +23,13 @@ export class AuthService {
 
   public logout(): void {
     localStorage.setItem('accessToken', '');
+	window.location.href = '/';
   }
 
   public isAuthenticated(): boolean {
     const accessToken = localStorage.getItem('accessToken');
     const jwtHelperService = new JwtHelperService();
-    if (accessToken === null) {
+    if (!accessToken) {
       return false;
     }
     const isTokenExpired = jwtHelperService.isTokenExpired(accessToken);
@@ -38,7 +39,7 @@ export class AuthService {
   public getAccessTokenPayload(): AccessTokenPayload {
     const accessToken = localStorage.getItem('accessToken');
     const jwtHelperService = new JwtHelperService();
-    if (accessToken === null) {
+    if (!accessToken) {
       return null;
     }
     const payload = jwtHelperService.decodeToken(accessToken);
