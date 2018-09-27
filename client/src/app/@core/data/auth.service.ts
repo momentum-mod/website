@@ -23,7 +23,7 @@ export class AuthService {
 
   public logout(): void {
     localStorage.setItem('accessToken', '');
-	window.location.href = '/';
+    window.location.href = '/';
   }
 
   public isAuthenticated(): boolean {
