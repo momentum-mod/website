@@ -14,7 +14,7 @@ import { Component } from '@angular/core';
       <a href="https://discordapp.com/invite/wQWkRb6" target="_blank">
         <img src="assets\\images\\Discord-Logo-White.png" height="35px" width="35px"></a>
       <a href="https://trello.com/momentum_mod" target="_blank">
-        <img src="assets\\images\\trelloo.png" height="35px" width="35px"></a>
+        <img src="assets\\images\\trello.png" height="35px" width="35px"></a>
     </div>
   `,
 })
