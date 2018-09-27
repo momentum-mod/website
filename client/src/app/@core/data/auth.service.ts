@@ -25,7 +25,7 @@ export class AuthService {
     localStorage.setItem('accessToken', '');
   }
 
-  public isLoggedIn(): boolean {
+  public isAuthenticated(): boolean {
     const accessToken = localStorage.getItem('accessToken');
     const jwtHelperService = new JwtHelperService();
     if (accessToken === null) {
