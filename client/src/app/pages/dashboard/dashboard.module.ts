@@ -32,16 +32,21 @@ import { EarningCardBackComponent } from './earning-card/back-side/earning-card-
 import { EarningPieChartComponent } from './earning-card/back-side/earning-pie-chart.component';
 import { EarningCardFrontComponent } from './earning-card/front-side/earning-card-front.component';
 import { EarningLiveUpdateChartComponent } from './earning-card/front-side/earning-live-update-chart.component';
+import {DashboardRoutingModule} from './dashboard-routing.module';
+import {NotFoundComponent} from '../miscellaneous/not-found/not-found.component';
+import {DashboardHomeComponent} from './home/dashboard-home.component';
 
 @NgModule({
   imports: [
     ThemeModule,
+    DashboardRoutingModule,
     ChartModule,
     NgxEchartsModule,
     NgxChartsModule,
   ],
   declarations: [
     DashboardComponent,
+    DashboardHomeComponent,
     StatsCardFrontComponent,
     StatsBarAnimationChartComponent,
     ProfileCardComponent,
@@ -66,6 +71,7 @@ import { EarningLiveUpdateChartComponent } from './earning-card/front-side/earni
     EarningCardBackComponent,
     EarningPieChartComponent,
     EarningLiveUpdateChartComponent,
+    NotFoundComponent,
   ],
   providers: [],
 })

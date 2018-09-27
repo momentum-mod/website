@@ -271,11 +271,6 @@
   resolved "https://registry.yarnpkg.com/@fortawesome/fontawesome-free/-/fontawesome-free-5.3.1.tgz#5466b8f31c1f493a96754c1426c25796d0633dd9"
   integrity sha512-jt6yi7iZVtkY9Jc6zFo+G2vqL4M81pb3IA3WmnnDt9ci7Asz+mPg4gbZL8pjx0nGFBsG0Bmd7BjU9IQkebqxFA==
 
-"@nebular/auth@2.0.0-rc.10":
-  version "2.0.0-rc.10"
-  resolved "https://registry.yarnpkg.com/@nebular/auth/-/auth-2.0.0-rc.10.tgz#ce35c0c7bda1246604ba4ca5dbf14fe54731a46a"
-  integrity sha512-5jswHe7CxiLagZu9Mct5oa0FwwelTC2XeHESDUK+tqPO14axikrdM9IFnftMqlQ2NkIMCNeMnIt/91M3dPjGZA==
-
 "@nebular/security@2.0.0-rc.10":
   version "2.0.0-rc.10"
   resolved "https://registry.yarnpkg.com/@nebular/security/-/security-2.0.0-rc.10.tgz#e3f5947840ecd2a1cca5efa2cd0fd5c05087f45d"

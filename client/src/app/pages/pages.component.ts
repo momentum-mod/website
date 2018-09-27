@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
 
-import { MENU_ITEMS } from './pages-menu';
+import { MENU_ITEMS } from './dashboard/dashboard-menu';
 
 @Component({
   selector: 'ngx-pages',

@@ -108,12 +108,6 @@
       "ngx",
       "camelCase"
     ],
-    "component-selector": [
-      true,
-      "element",
-      "ngx",
-      "kebab-case"
-    ],
     "ban": [
       true,
       "eval",
