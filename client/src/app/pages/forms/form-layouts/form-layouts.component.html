@@ -1,31 +1,60 @@
 <div class="row">
-  <div class="col-md-12">
+  <div class="col-sm-9">
+
+  </div>
+
+  <div class="col-md-12 col-lg-12 col-xxxl-12">
     <nb-card class="inline-form-card">
-      <nb-card-header><h1>Community</h1></nb-card-header>
+
+      <nb-card-header><h1>Community</h1>
+
+        <div class="tip-msg">
+
+          <h6>Current Users</h6>
+
+          <span>218 / 2,450</span>
+        </div>
+
+      </nb-card-header>
 
       <nb-card-body>
+
+        <form>
+          <div class="input-group">
+            <input type="text" class="form-control full-width" placeholder="Search users...">
+
+            <button class="search-btn" type="submit">
+              <i class="fa fa-search fa-fw"></i>
+            </button>
+          </div>
+
+        </form>
+
+      </nb-card-body>
+
+      <nb-card-body>
+
         <form class="form-inline">
 
           <div class="input-group full-width">
-            <nb-action icon="nb-search"></nb-action>
-            <div class="input-group-addon">search</div>
-            <input type="text" class="form-control full-width" placeholder="Search users">
+
+            <nb-tabset>
+              <nb-tab tabTitle="News">
+                <p>9/26/18: Recent updates have been made.</p>
+              </nb-tab>
+              <nb-tab tabTitle="Twitch Streams">
+                <span>Insert here</span>
+              </nb-tab>
+              <nb-tab tabTitle="Reviews">
+                <span>Insert Here</span>
+              </nb-tab>
+            </nb-tabset>
           </div>
 
         </form>
       </nb-card-body>
     </nb-card>
+
   </div>
-
-
-  <div class="col-md-12">
-    <nb-card class="inline-form-card">
-      <nb-card-header><h1>News</h1></nb-card-header>
-
-      <nb-card-body>
-
-      </nb-card-body>
-    </nb-card>
-  </div>
-
 </div>
+
