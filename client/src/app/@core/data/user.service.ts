@@ -43,6 +43,10 @@ export class UserService {
     return this.authService.isAuthenticated();
   }
 
+  public logout() {
+    this.authService.logout();
+  }
+
   public hasPermission(permission: Permission) {
     return permission & this.permissions;
   }
