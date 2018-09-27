@@ -10,7 +10,7 @@ export const MENU_ITEMS: NbMenuItem[] = [
   {
     title: 'User Management',
     icon: 'nb-tables',
-    link: '/pages/tables/smart-table',
+    link: '/dashboard/users',
   },
   {
     title: 'Community',
