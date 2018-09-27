@@ -35,14 +35,17 @@ import { EarningLiveUpdateChartComponent } from './earning-card/front-side/earni
 import {DashboardRoutingModule} from './dashboard-routing.module';
 import {NotFoundComponent} from '../miscellaneous/not-found/not-found.component';
 import {DashboardHomeComponent} from './home/dashboard-home.component';
+import {UserListComponent} from './user-list/user-list.component';
+import {SmartTableModule} from './smart-table/smart-table.module';
 
 @NgModule({
   imports: [
     ThemeModule,
-    DashboardRoutingModule,
     ChartModule,
     NgxEchartsModule,
     NgxChartsModule,
+    SmartTableModule,
+    DashboardRoutingModule,
   ],
   declarations: [
     DashboardComponent,
@@ -72,6 +75,7 @@ import {DashboardHomeComponent} from './home/dashboard-home.component';
     EarningPieChartComponent,
     EarningLiveUpdateChartComponent,
     NotFoundComponent,
+    UserListComponent,
   ],
   providers: [],
 })
