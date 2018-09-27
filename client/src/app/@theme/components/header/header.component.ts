@@ -29,9 +29,9 @@ export class HeaderComponent implements OnInit {
   }
 
   onContecxtItemSelection(title) {
-    if (title === "Log out") {
-		this.userService.logout();
-	}
+    if (title === 'Log out') {
+      this.userService.logout();
+    }
   }
 
   ngOnInit() {
