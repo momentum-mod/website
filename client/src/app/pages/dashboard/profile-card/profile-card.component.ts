@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { UserService } from '../../../@core/data/user.service';
+import { UserService, Permission } from '../../../@core/data/user.service';
 
 @Component({
   selector: 'ngx-profile-card',
@@ -9,8 +9,8 @@ import { UserService } from '../../../@core/data/user.service';
 export class ProfileCardComponent implements OnInit {
 
   flipped = false;
-
   user: any;
+  permission = Permission;
 
   constructor(private userService: UserService) {}
 
