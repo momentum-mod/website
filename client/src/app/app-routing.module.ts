@@ -1,4 +1,4 @@
-import { ExtraOptions, RouterModule, Routes } from '@angular/router';
+import {ExtraOptions, PreloadAllModules, RouterModule, Routes} from '@angular/router';
 import { NgModule } from '@angular/core';
 import {MainPageComponent} from './pages/main/main-page.component';
 
@@ -17,6 +17,7 @@ const routes: Routes = [
 
 const config: ExtraOptions = {
   useHash: false,
+  preloadingStrategy: PreloadAllModules,
 };
 
 @NgModule({
