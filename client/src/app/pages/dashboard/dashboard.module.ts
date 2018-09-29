@@ -37,6 +37,7 @@ import {NotFoundComponent} from '../miscellaneous/not-found/not-found.component'
 import {DashboardHomeComponent} from './home/dashboard-home.component';
 import {UserListComponent} from './user-list/user-list.component';
 import {SmartTableModule} from './smart-table/smart-table.module';
+import {CommunityHomeComponent} from './community/community-home.component';
 
 @NgModule({
   imports: [
@@ -50,6 +51,7 @@ import {SmartTableModule} from './smart-table/smart-table.module';
   declarations: [
     DashboardComponent,
     DashboardHomeComponent,
+    CommunityHomeComponent,
     StatsCardFrontComponent,
     StatsBarAnimationChartComponent,
     ProfileCardComponent,

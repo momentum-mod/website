@@ -15,7 +15,7 @@ export const MENU_ITEMS: NbMenuItem[] = [
   {
     title: 'Community',
     icon: 'nb-compose',
-    link: '/pages/forms/layouts',
+    link: '/dashboard/community',
   },
   {
     title: 'FEATURES',
