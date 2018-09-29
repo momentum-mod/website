@@ -1,11 +1,40 @@
 import { RouterModule, Routes } from '@angular/router';
 import { NgModule } from '@angular/core';
+import {DashboardComponent} from './dashboard.component';
+import {DashboardHomeComponent} from './home/dashboard-home.component';
+import {UserListComponent} from './user-list/user-list.component';
+import {CommunityHomeComponent} from './community/community-home.component';
 
-import { PagesComponent } from './pages.component';
-import { DashboardComponent } from './dashboard/dashboard.component';
-import { NotFoundComponent } from './miscellaneous/not-found/not-found.component';
 
-const routes: Routes = [{
+const routes: Routes = [
+  {
+    path: '',
+    component: DashboardComponent,
+    children: [
+      {
+        path: 'users',
+        component: UserListComponent,
+      },
+      {
+        path: 'community',
+        component: CommunityHomeComponent,
+      },
+      {
+        path: '',
+        component: DashboardHomeComponent,
+      },
+    ],
+  },
+/*  {
+    path: '',
+    redirectTo: 'dashboard',
+    pathMatch: 'full',
+  },*/
+/*  {
+    path: '**',
+    component: NotFoundComponent,
+  },*/
+/*  {
   path: '',
   component: PagesComponent,
   children: [{
@@ -32,6 +61,7 @@ const routes: Routes = [{
   }, {
     path: 'miscellaneous',
     loadChildren: './miscellaneous/miscellaneous.module#MiscellaneousModule',
+<<<<<<< HEAD:client/src/app/pages/pages-routing.module.ts
   }, {
     path: 'profile',
     loadChildren: './profile/profile.module#ProfileModule',
@@ -44,10 +74,14 @@ const routes: Routes = [{
     component: NotFoundComponent,
   }],
 }];
+=======
+  }*/
+];
+>>>>>>> master:client/src/app/pages/dashboard/dashboard-routing.module.ts
 
 @NgModule({
   imports: [RouterModule.forChild(routes)],
   exports: [RouterModule],
 })
-export class PagesRoutingModule {
+export class DashboardRoutingModule {
 }

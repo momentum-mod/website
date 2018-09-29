@@ -13,16 +13,25 @@ import { LayoutService } from '../../../@core/data/layout.service';
 export class HeaderComponent implements OnInit {
 
   @Input() position = 'normal';
-
   user: any;
-
   userMenu = [{ title: 'Profile' }, { title: 'Log out' }];
+  tag = 'my-context-menu';
 
   constructor(private sidebarService: NbSidebarService,
               private menuService: NbMenuService,
               private userService: UserService,
               private analyticsService: AnalyticsService,
               private layoutService: LayoutService) {
+  this.menuService.onItemClick()
+    .subscribe((event) => {
+      this.onContecxtItemSelection(event.item.title);
+    });
+  }
+
+  onContecxtItemSelection(title) {
+    if (title === 'Log out') {
+      this.userService.logout();
+    }
   }
 
   ngOnInit() {

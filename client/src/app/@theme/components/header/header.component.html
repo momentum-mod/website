@@ -1,25 +1,25 @@
 <div class="header-container"
-     [class.left]="position === 'normal'"
-     [class.right]="position === 'inverse'">
+   [class.left]="position === 'normal'"
+   [class.right]="position === 'inverse'">
   <div class="logo-containter">
-    <a (click)="toggleSidebar()" href="#" class="navigation"><i class="nb-menu"></i></a>
-    <div class="logo" (click)="goToHome()"><img src="assets/images/logo-newer.png"></div>
+  <a (click)="toggleSidebar()" href="#" class="navigation"><i class="nb-menu"></i></a>
+  <div class="logo" (click)="goToHome()"><img src="assets/images/logo-newer.png"></div>
   </div>
 </div>
 
 <div class="header-container">
   <nb-actions
-    size="medium"
-    [class.right]="position === 'normal'"
-    [class.left]="position === 'inverse'">
-    <nb-action icon="nb-gear" class="toggle-layout" (click)="toggleSettings()"></nb-action>
-    <nb-action *nbIsGranted="['view', 'user']" >
-      <nb-user [nbContextMenu]="userMenu" [name]="user?.displayName" [picture]="user?.avatar"></nb-user>
-    </nb-action>
-    <nb-action class="control-item" disabled icon="nb-notifications"></nb-action>
-    <nb-action class="control-item" icon="nb-email"></nb-action>
-    <nb-action class="control-item">
-      <nb-search type="rotate-layout" (click)="startSearch()"></nb-search>
-    </nb-action>
+  size="medium"
+  [class.right]="position === 'normal'"
+  [class.left]="position === 'inverse'">
+  <nb-action icon="nb-gear" class="toggle-layout" (click)="toggleSettings()"></nb-action>
+  <nb-action *nbIsGranted="['view', 'user']" >
+    <nb-user [nbContextMenu]="userMenu" [name]="user?.displayName" [picture]="user?.avatar"></nb-user>
+  </nb-action>
+  <nb-action class="control-item" disabled icon="nb-notifications"></nb-action>
+  <nb-action class="control-item" icon="nb-email"></nb-action>
+  <nb-action class="control-item">
+    <nb-search type="rotate-layout" (click)="startSearch()"></nb-search>
+  </nb-action>
   </nb-actions>
 </div>

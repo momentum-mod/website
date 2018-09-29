@@ -4,18 +4,18 @@ export const MENU_ITEMS: NbMenuItem[] = [
   {
     title: 'Dashboard',
     icon: 'nb-home',
-    link: '/pages/dashboard',
+    link: '/dashboard',
     home: true,
   },
   {
     title: 'User Management',
     icon: 'nb-tables',
-    link: '/pages/tables/smart-table',
+    link: '/dashboard/users',
   },
   {
     title: 'Community',
     icon: 'nb-compose',
-    link: '/pages/forms/layouts',
+    link: '/dashboard/community',
   },
   {
     title: 'FEATURES',
@@ -124,28 +124,6 @@ export const MENU_ITEMS: NbMenuItem[] = [
       {
         title: '404',
         link: '/pages/miscellaneous/404',
-      },
-    ],
-  },
-  {
-    title: 'Auth',
-    icon: 'nb-locked',
-    children: [
-      {
-        title: 'Login',
-        link: '/auth/login',
-      },
-      {
-        title: 'Register',
-        link: '/auth/register',
-      },
-      {
-        title: 'Request Password',
-        link: '/auth/request-password',
-      },
-      {
-        title: 'Reset Password',
-        link: '/auth/reset-password',
       },
     ],
   },
