@@ -3,6 +3,7 @@ import { NgModule } from '@angular/core';
 import {DashboardComponent} from './dashboard.component';
 import {DashboardHomeComponent} from './home/dashboard-home.component';
 import {UserListComponent} from './user-list/user-list.component';
+import {CommunityHomeComponent} from './community/community-home.component';
 
 
 const routes: Routes = [
@@ -13,6 +14,10 @@ const routes: Routes = [
       {
         path: 'users',
         component: UserListComponent,
+      },
+      {
+        path: 'community',
+        component: CommunityHomeComponent,
       },
       {
         path: '',
