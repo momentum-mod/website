@@ -1,4 +1,5 @@
 import { NbMenuItem } from '@nebular/theme';
+import { Permission } from '../../@core/data/user.service';
 
 export const MENU_ITEMS: NbMenuItem[] = [
   {
@@ -11,6 +12,12 @@ export const MENU_ITEMS: NbMenuItem[] = [
     title: 'User Management',
     icon: 'nb-tables',
     link: '/dashboard/users',
+    data: {
+      permissions: [
+        Permission.ADMIN,
+        Permission.MODERATOR,
+      ],
+    },
   },
   {
     title: 'Community',
