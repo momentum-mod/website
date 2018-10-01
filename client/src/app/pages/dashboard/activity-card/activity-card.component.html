@@ -1,8 +1,19 @@
 <nb-card>
   <nb-card-header>
     <h2>{{headerTitle}}</h2>
+    <!--TODO: Have a dropdown on the right to filter activity-->
+    <select #box name="Example" (click)="filterSelected(box.value)">
+      <option [value]="0">All</option>
+      <option [value]="1">Runs Only</option>
+      <option [value]="2">Maps Only</option>
+    </select>
   </nb-card-header>
   <nb-card-body>
     <!--TODO: Fill the body with an ngFor that goes through all of the activity given the filters/data/etc-->
+    <ul>
+      <li *ngFor="let act of activities">
+        <a href="/dashboard/user/{{act.userID}}">{{act.userID}}</a> did event {{act.type}}
+      </li>
+    </ul>
   </nb-card-body>
 </nb-card>
