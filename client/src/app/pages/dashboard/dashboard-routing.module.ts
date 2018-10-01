@@ -61,7 +61,6 @@ const routes: Routes = [
   }, {
     path: 'miscellaneous',
     loadChildren: './miscellaneous/miscellaneous.module#MiscellaneousModule',
-<<<<<<< HEAD:client/src/app/pages/pages-routing.module.ts
   }, {
     path: 'profile',
     loadChildren: './profile/profile.module#ProfileModule',
@@ -74,10 +73,8 @@ const routes: Routes = [
     component: NotFoundComponent,
   }],
 }];
-=======
   }*/
 ];
->>>>>>> master:client/src/app/pages/dashboard/dashboard-routing.module.ts
 
 @NgModule({
   imports: [RouterModule.forChild(routes)],
