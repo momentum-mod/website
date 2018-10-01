@@ -22,16 +22,6 @@ export const MENU_ITEMS: NbMenuItem[] = [
     group: true,
   },
   {
-    title: 'Profile',
-    icon: 'nb-compose',
-    children: [
-      {
-        title: 'Your User Profile',
-        link: '/pages/profile/profile-card',
-      },
-    ],
-  },
-  {
     title: 'UI Features',
     icon: 'nb-keypad',
     link: '/pages/ui-features',

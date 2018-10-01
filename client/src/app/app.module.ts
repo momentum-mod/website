@@ -15,6 +15,7 @@ import { AppRoutingModule } from './app-routing.module';
 import { ThemeModule } from './@theme/theme.module';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import {MainPageModule} from './pages/main/main-page.module';
+import {NotFoundModule} from './pages/not-found/not-found.module';
 
 @NgModule({
   declarations: [AppComponent],
@@ -23,6 +24,7 @@ import {MainPageModule} from './pages/main/main-page.module';
     BrowserAnimationsModule,
     HttpClientModule,
     MainPageModule,
+    NotFoundModule,
     AppRoutingModule,
 
     NgbModule.forRoot(),

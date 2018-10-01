@@ -1,6 +1,7 @@
 import {ExtraOptions, PreloadAllModules, RouterModule, Routes} from '@angular/router';
 import { NgModule } from '@angular/core';
 import {MainPageComponent} from './pages/main/main-page.component';
+import {NotFoundMainComponent} from './pages/not-found/main/not-found-main.component';
 
 const routes: Routes = [
   {
@@ -10,6 +11,10 @@ const routes: Routes = [
   {
     path: 'dashboard',
     loadChildren: 'app/pages/dashboard/dashboard.module#DashboardModule',
+  },
+  {
+    path: '**',
+    component: NotFoundMainComponent,
   },
 /*  { path: '', redirectTo: 'pages', pathMatch: 'full' },*/
 /*  { path: '**', redirectTo: 'pages' },*/
