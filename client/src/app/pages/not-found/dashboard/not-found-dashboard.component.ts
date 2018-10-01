@@ -2,11 +2,11 @@ import { NbMenuService } from '@nebular/theme';
 import { Component } from '@angular/core';
 
 @Component({
-  selector: 'ngx-not-found',
-  styleUrls: ['./not-found.component.scss'],
-  templateUrl: './not-found.component.html',
+  selector: 'not-found-dashboard',
+  styleUrls: ['./not-found-dashboard.component.scss'],
+  templateUrl: './not-found-dashboard.component.html',
 })
-export class NotFoundComponent {
+export class NotFoundDashboardComponent {
 
   constructor(private menuService: NbMenuService) {
   }

@@ -33,11 +33,12 @@ import { EarningPieChartComponent } from './earning-card/back-side/earning-pie-c
 import { EarningCardFrontComponent } from './earning-card/front-side/earning-card-front.component';
 import { EarningLiveUpdateChartComponent } from './earning-card/front-side/earning-live-update-chart.component';
 import {DashboardRoutingModule} from './dashboard-routing.module';
-import {NotFoundComponent} from '../miscellaneous/not-found/not-found.component';
 import {DashboardHomeComponent} from './home/dashboard-home.component';
 import {UserListComponent} from './user-list/user-list.component';
 import {SmartTableModule} from './smart-table/smart-table.module';
 import {CommunityHomeComponent} from './community/community-home.component';
+import {ActivityCardComponent} from './activity-card/activity-card.component';
+import {NotFoundModule} from '../not-found/not-found.module';
 
 @NgModule({
   imports: [
@@ -46,6 +47,7 @@ import {CommunityHomeComponent} from './community/community-home.component';
     NgxEchartsModule,
     NgxChartsModule,
     SmartTableModule,
+    NotFoundModule,
     DashboardRoutingModule,
   ],
   declarations: [
@@ -76,8 +78,8 @@ import {CommunityHomeComponent} from './community/community-home.component';
     EarningCardBackComponent,
     EarningPieChartComponent,
     EarningLiveUpdateChartComponent,
-    NotFoundComponent,
     UserListComponent,
+    ActivityCardComponent,
   ],
   providers: [],
 })
