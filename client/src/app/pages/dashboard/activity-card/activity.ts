@@ -1,6 +1,7 @@
 
 
 export enum Activity_Type {
+  ALL = 0,
   TIME_SUBMITTED = 1,
   MAP_UPLOADED = 2,
 }
