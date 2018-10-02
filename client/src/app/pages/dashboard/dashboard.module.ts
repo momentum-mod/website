@@ -12,8 +12,6 @@ import { ProfitChartComponent } from './charts-panel/charts/profit-chart.compone
 import { ChartPanelHeaderComponent } from './charts-panel/chart-panel-header/chart-panel-header.component';
 import { ChartPanelSummaryComponent } from './charts-panel/chart-panel-summary/chart-panel-summary.component';
 import { ChartModule } from 'angular2-chartjs';
-import { StatsBarAnimationChartComponent } from './profile-card/front-side/stats-bar-animation-chart.component';
-import { StatsCardFrontComponent } from './profile-card/front-side/stats-card-front.component';
 import { TrafficRevealCardComponent } from './traffic-reveal-card/traffic-reveal-card.component';
 import { TrafficBarComponent } from './traffic-reveal-card/front-side/traffic-bar/traffic-bar.component';
 import { TrafficFrontCardComponent } from './traffic-reveal-card/front-side/traffic-front-card.component';
@@ -56,8 +54,6 @@ import {SmartTableModule} from './smart-table/smart-table.module';
     DashboardComponent,
     DashboardHomeComponent,
     CommunityHomeComponent,
-    StatsCardFrontComponent,
-    StatsBarAnimationChartComponent,
     ProfileCardComponent,
     ECommerceChartsPanelComponent,
     ChartPanelHeaderComponent,
