@@ -8,7 +8,6 @@ import { UserService, Permission } from '../../../@core/data/user.service';
 })
 export class ProfileCardComponent implements OnInit {
 
-  flipped = false;
   user: any;
   permission = Permission;
 
@@ -18,7 +17,4 @@ export class ProfileCardComponent implements OnInit {
     this.user = this.userService.getInfo();
   }
 
-  toggleView() {
-    this.flipped = !this.flipped;
-  }
 }
