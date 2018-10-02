@@ -5,6 +5,7 @@ import { CookieService } from 'ngx-cookie-service';
 import { JwtModule } from '@auth0/angular-jwt';
 
 import { UserService } from './user.service';
+import { UsersService } from './users.service';
 import { AuthService } from './auth.service';
 import { ElectricityService } from './electricity.service';
 import { StateService } from './state.service';
@@ -23,6 +24,7 @@ import { LayoutService } from './layout.service';
 
 const SERVICES = [
   UserService,
+  UsersService,
   AuthService,
   JwtModule,
   CookieService,
