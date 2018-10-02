@@ -12,30 +12,24 @@ export class ActivityCardComponent {
   constructor() {
     this.headerTitle = 'Activity';
     this.activities = this.activitiesAll;
+    this.filterValue = Activity_Type.ALL;
   }
   activityType = Activity_Type;
+  filterValue: Activity_Type;
 
-  filterValue: Activity_Type = 0;
-
-  // TODO use a service for these
+  // TODO use a service for the following
   activitiesAll: Activity[] = [
     new Activity(Activity_Type.MAP_UPLOADED, 1, new MapActivityData(1)),
   ];
   activities: Activity[];
   getActivities(): Activity[] {
-    if (this.filterValue > 0) {
-      return this.activitiesAll.filter((value => value.type === this.filterValue));
-    } else {
+    if (this.filterValue === this.activityType.ALL)
       return this.activitiesAll;
-    }
+
+    return this.activitiesAll.filter((value => value.type === this.filterValue));
   }
-  // TODO figure out why this doesn't work
-  filterSelected(value: Activity_Type) {
-    this.filterValue = value;
-    /*console.log('Check ' + value);
-    console.log('Before: ');
-    console.log(this.activities);*/
+  filterSelected(value: string) {
+    this.filterValue = Number(value);
     this.activities = this.getActivities();
-    // console.log(this.activities);
   }
 }

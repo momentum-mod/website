@@ -4,7 +4,7 @@
       <h2 class="col-10">{{headerTitle}}</h2>
       <div class="col-2">
         <label [for]="box">Filter: </label>
-        <select #box name="ActivityType" (click)="filterSelected(box.value)">
+        <select #box name="ActivityType" (change)="filterSelected(box.value)">
           <option [value]="activityType.ALL">All</option>
           <option [value]="activityType.TIME_SUBMITTED">Runs Only</option>
           <option [value]="activityType.MAP_UPLOADED">Maps Only</option>
