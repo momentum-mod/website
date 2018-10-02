@@ -1,7 +1,7 @@
-import { Component } from '@angular/core';
-import { LocalDataSource } from 'ng2-smart-table';
+import {Component} from '@angular/core';
+import {LocalDataSource} from 'ng2-smart-table';
 
-import { UsersService } from '../../../@core/data/users.service';
+import {UsersService} from '../../../@core/data/users.service';
 
 @Component({
   selector: 'app-user-list',
@@ -17,7 +17,7 @@ export class UserListComponent {
   settings = {
     actions: {
       add: false,
-	  delete: false,
+      delete: false,
     },
     edit: {
       editButtonContent: '<i class="nb-edit"></i>',
@@ -28,7 +28,7 @@ export class UserListComponent {
       id: {
         title: 'Steam ID',
         type: 'number',
-		editable: false,
+        editable: false,
       },
       alias: {
         title: 'Alias',
@@ -41,12 +41,12 @@ export class UserListComponent {
       createdAt: {
         title: 'Created At',
         type: 'string',
-		editable: false,
+        editable: false,
       },
       updatedAt: {
         title: 'Updated At',
         type: 'string',
-		editable: false,
+        editable: false,
       },
       permission: {
         title: 'Permissions',
@@ -59,9 +59,9 @@ export class UserListComponent {
 
   constructor(private usersService: UsersService) {
     const data = this.usersService.getUsers();
-	if (data) {
+    if (data) {
       this.source.load(data);
-	}
+    }
   }
 
   onDeleteConfirm(event): void {

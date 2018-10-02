@@ -39,6 +39,7 @@ import {UserListComponent} from './user-list/user-list.component';
 import {CommunityHomeComponent} from './community/community-home.component';
 import {ActivityCardComponent} from './activity-card/activity-card.component';
 import {NotFoundModule} from '../not-found/not-found.module';
+import {SmartTableModule} from './smart-table/smart-table.module';
 
 @NgModule({
   imports: [
@@ -46,13 +47,10 @@ import {NotFoundModule} from '../not-found/not-found.module';
     ChartModule,
     NgxEchartsModule,
     NgxChartsModule,
-<<<<<<< HEAD
     SmartTableModule,
+    Ng2SmartTableModule,
     NotFoundModule,
-=======
->>>>>>> Added to user management
     DashboardRoutingModule,
-	Ng2SmartTableModule,
   ],
   declarations: [
     DashboardComponent,
@@ -82,13 +80,8 @@ import {NotFoundModule} from '../not-found/not-found.module';
     EarningCardBackComponent,
     EarningPieChartComponent,
     EarningLiveUpdateChartComponent,
-<<<<<<< HEAD
     UserListComponent,
     ActivityCardComponent,
-=======
-    NotFoundComponent,
-	UserListComponent,
->>>>>>> Added to user management
   ],
   providers: [],
 })
