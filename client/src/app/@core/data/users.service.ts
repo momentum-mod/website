@@ -1,38 +1,39 @@
-
-import { of as observableOf,  Observable } from 'rxjs';
 import { Injectable } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
 
+// export interface Users {
+// 	data: Array<User>;
+// }
 
-let counter = 0;
+// export interface User {
+// 	id: string;
+// 	alias: string;
+// 	permission: number;
+// 	avatar_url: string;
+// 	createdAt: string;
+// 	updatedAt: string;
+// }
 
 @Injectable()
-export class UserService {
+export class UsersService {
 
-  private users = {
-    nick: { name: 'Nick Jones', picture: 'assets/images/nick.png' },
-    eva: { name: 'Eva Moor', picture: 'assets/images/eva.png' },
-    jack: { name: 'Jack Williams', picture: 'assets/images/jack.png' },
-    lee: { name: 'Lee Wong', picture: 'assets/images/lee.png' },
-    alan: { name: 'Alan Thompson', picture: 'assets/images/alan.png' },
-    kate: { name: 'Kate Martinez', picture: 'assets/images/kate.png' },
-  };
-
-  private userArray: any[];
-
-  constructor() {
-    // this.userArray = Object.values(this.users);
+  constructor(private http: HttpClient) {
   }
 
-  getUsers(): Observable<any> {
-    return observableOf(this.users);
+  getUsers() {
+    // this.http.get('http://localhost:3002/api/users/')
+	//   .subscribe(data => {
+	// 	  console.log(data);
+	// 	  return data;
+	//   });
+	return [{
+		id: "25474197999996633",
+		alias: "Cate",
+		permission: 5,
+		avatar_url: "https://steamcdn-a.akamaihd.net/steamcommunity/public/images/avatars/13/13d6e1103950ab69d6eec0c7758897887a05c08c_full.jpg",
+		createdAt: "2018-09-27T07:29:17.000Z",
+		updatedAt: "2018-09-27T07:29:17.000Z",
+    }];
   }
 
-  getUserArray(): Observable<any[]> {
-    return observableOf(this.userArray);
-  }
-
-  getUser(): Observable<any> {
-    counter = (counter + 1) % this.userArray.length;
-    return observableOf(this.userArray[counter]);
-  }
 }

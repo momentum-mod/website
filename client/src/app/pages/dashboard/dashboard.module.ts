@@ -1,6 +1,7 @@
 import { NgModule } from '@angular/core';
 import { NgxEchartsModule } from 'ngx-echarts';
 import { NgxChartsModule } from '@swimlane/ngx-charts';
+import { Ng2SmartTableModule } from 'ng2-smart-table';
 
 import { ThemeModule } from '../../@theme/theme.module';
 import { DashboardComponent } from './dashboard.component';
@@ -35,7 +36,6 @@ import { EarningLiveUpdateChartComponent } from './earning-card/front-side/earni
 import {DashboardRoutingModule} from './dashboard-routing.module';
 import {DashboardHomeComponent} from './home/dashboard-home.component';
 import {UserListComponent} from './user-list/user-list.component';
-import {SmartTableModule} from './smart-table/smart-table.module';
 import {CommunityHomeComponent} from './community/community-home.component';
 import {ActivityCardComponent} from './activity-card/activity-card.component';
 import {NotFoundModule} from '../not-found/not-found.module';
@@ -46,9 +46,13 @@ import {NotFoundModule} from '../not-found/not-found.module';
     ChartModule,
     NgxEchartsModule,
     NgxChartsModule,
+<<<<<<< HEAD
     SmartTableModule,
     NotFoundModule,
+=======
+>>>>>>> Added to user management
     DashboardRoutingModule,
+	Ng2SmartTableModule,
   ],
   declarations: [
     DashboardComponent,
@@ -78,8 +82,13 @@ import {NotFoundModule} from '../not-found/not-found.module';
     EarningCardBackComponent,
     EarningPieChartComponent,
     EarningLiveUpdateChartComponent,
+<<<<<<< HEAD
     UserListComponent,
     ActivityCardComponent,
+=======
+    NotFoundComponent,
+	UserListComponent,
+>>>>>>> Added to user management
   ],
   providers: [],
 })
