@@ -13,7 +13,7 @@ branches:
   - nick
 
 cache:
-  - yarn
+  # - yarn
   directories:
   - client/node_modules
 
