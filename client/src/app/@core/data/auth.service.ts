@@ -14,10 +14,14 @@ export class AuthService {
 
   constructor(private cookieService: CookieService) {
     const cookieExists = this.cookieService.check('accessToken');
+    const jwtHelperService = new JwtHelperService();
     if (cookieExists) {
       const accessToken = this.cookieService.get('accessToken');
       localStorage.setItem('accessToken', accessToken);
       this.cookieService.delete('accessToken');
+    }
+    if (jwtHelperService.isTokenExpired(localStorage.getItem('accessToken'))) {
+      localStorage.setItem('accessToken', '');
     }
   }
 
