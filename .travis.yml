@@ -10,7 +10,6 @@ node_js:
 branches:
   only:
   - master
-  - nick
 
 cache:
   yarn: true
