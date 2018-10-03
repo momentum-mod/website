@@ -12,9 +12,10 @@ branches:
   - master
   - nick
 
-cache: yarn
-  #directories:
-  #- client/node_modules
+cache:
+  yarn: true
+  directories:
+  - client/node_modules
 
 addons:
   apt:
