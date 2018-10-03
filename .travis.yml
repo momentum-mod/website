@@ -11,8 +11,10 @@ node_js:
 branches:
   only:
   - master
-  - starter-kit
-  - demo
+
+cache:
+  directories:
+  - client/node_modules
 
 addons:
   apt:
@@ -20,6 +22,7 @@ addons:
       - ubuntu-toolchain-r-test
     packages:
       - g++-4.8
+  chrome: stable
 
 before_install:
   - npm i -g npm@latest
@@ -30,8 +33,10 @@ install:
 before_script:
 
 script:
+  - cd ./client/
   - npm run lint:ci
   - npm run build:prod
+  #- xvfb-run npm run e2e TODO uncomment when we have unit tests
 
 git:
   depth: 1
