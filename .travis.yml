@@ -12,10 +12,9 @@ branches:
   - master
   - nick
 
-cache:
-  # - yarn
-  directories:
-  - client/node_modules
+cache: yarn
+  #directories:
+  #- client/node_modules
 
 addons:
   apt:
@@ -36,7 +35,6 @@ install:
 before_script:
 
 script:
-  - cd ./client/
   - npm run lint:ci
   - npm run build:prod
   #- xvfb-run npm run e2e TODO uncomment when we have unit tests
