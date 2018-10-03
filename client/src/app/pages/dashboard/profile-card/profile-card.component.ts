@@ -12,7 +12,7 @@ export class ProfileCardComponent implements OnInit {
   user: any;
   permission = Permission;
 
-  constructor(private userService: UserService) {}
+  constructor(public userService: UserService) {}
 
   ngOnInit() {
     this.user = this.userService.getInfo();
