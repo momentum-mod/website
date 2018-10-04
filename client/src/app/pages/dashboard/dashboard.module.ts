@@ -16,6 +16,8 @@ import {ActivityCardComponent} from './activity-card/activity-card.component';
 import {NotFoundModule} from '../not-found/not-found.module';
 import {SmartTableModule} from './smart-table/smart-table.module';
 import { UserEditModalComponent } from './user-list/user-edit-modal/user-edit-modal.component';
+import { VisitorsStatisticsComponent } from './follow-runs/visitors-statistics/visitors-statistics.component';
+import { ProgressSectionComponent } from './follow-maps/progress-section.component';
 
 @NgModule({
   imports: [
@@ -37,6 +39,8 @@ import { UserEditModalComponent } from './user-list/user-edit-modal/user-edit-mo
     UserListComponent,
     ActivityCardComponent,
     UserEditModalComponent,
+    VisitorsStatisticsComponent,
+    ProgressSectionComponent,
   ],
   entryComponents: [
     UserEditModalComponent,
