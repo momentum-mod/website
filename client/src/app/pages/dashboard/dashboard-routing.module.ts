@@ -6,7 +6,6 @@ import {UserListComponent} from './user-list/user-list.component';
 import {CommunityHomeComponent} from './community/community-home.component';
 import {NotFoundDashboardComponent} from '../not-found/dashboard/not-found-dashboard.component';
 
-
 const routes: Routes = [
   {
     path: '',
@@ -15,6 +14,10 @@ const routes: Routes = [
       {
         path: 'users',
         component: UserListComponent,
+      },
+      {
+        path: 'maps',
+        loadChildren: 'app/pages/dashboard/maps/map.module#MapModule',
       },
       {
         path: 'community',
