@@ -18,6 +18,7 @@ import {SmartTableModule} from './smart-table/smart-table.module';
 import { UserEditModalComponent } from './user-list/user-edit-modal/user-edit-modal.component';
 import { VisitorsStatisticsComponent } from './follow-runs/visitors-statistics/visitors-statistics.component';
 import { ProgressSectionComponent } from './follow-maps/progress-section.component';
+import {UserProfileModule} from './user-profile/user-profile.module';
 
 @NgModule({
   imports: [
@@ -28,6 +29,7 @@ import { ProgressSectionComponent } from './follow-maps/progress-section.compone
     SmartTableModule,
     Ng2SmartTableModule,
     NotFoundModule,
+    UserProfileModule,
     DashboardRoutingModule,
     FormsModule,
   ],
