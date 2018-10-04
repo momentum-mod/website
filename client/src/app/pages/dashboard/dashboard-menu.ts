@@ -25,6 +25,24 @@ export const MENU_ITEMS: NbMenuItem[] = [
     link: '/dashboard/community',
   },
   {
+    title: 'Maps',
+    icon: 'ion-map',
+    link: '/dashboard/maps',
+    children: [
+      {
+        title: 'Upload Map',
+        link: '/dashboard/maps/upload-map',
+      },
+      {
+        title: 'View Maps',
+        link: '/dashboard/maps/view-maps',
+      },
+      {
+        title: 'View Map Queue',
+        link: '/dashboard/maps/map-queue',
+       } ],
+  },
+  {
     title: 'FEATURES',
     group: true,
   },
