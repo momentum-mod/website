@@ -2,7 +2,6 @@ import {ExtraOptions, PreloadAllModules, RouterModule, Routes} from '@angular/ro
 import { NgModule } from '@angular/core';
 import {MainPageComponent} from './pages/main/main-page.component';
 import {NotFoundMainComponent} from './pages/not-found/main/not-found-main.component';
-import {UserProfileComponent} from './pages/user-profile/user-profile.component';
 
 const routes: Routes = [
   {
@@ -12,10 +11,6 @@ const routes: Routes = [
   {
     path: 'dashboard',
     loadChildren: 'app/pages/dashboard/dashboard.module#DashboardModule',
-  },
-  {
-    path: 'user-profile',
-    component: UserProfileComponent,
   },
   {
     path: '**',
