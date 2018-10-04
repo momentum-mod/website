@@ -6,7 +6,8 @@ import {MapQueueComponent} from './map-queue/map-queue.component';
 import {MapRoutingModule} from './map-routing.module';
 import {ThemeModule} from '../../../@theme/theme.module';
 import {ViewMapsComponent} from './view-maps/view-maps.component';
-import {UploadMapComponent} from './upload-map/upload-map.component';
+import {UploadsComponent} from './uploads/uploads.component';
+import {UploadStatusComponent} from './upload-status/upload-status.component';
 
 @NgModule({
   imports: [
@@ -15,9 +16,8 @@ import {UploadMapComponent} from './upload-map/upload-map.component';
     MapRoutingModule,
   ],
   declarations: [
-    MapComponent, MapQueueComponent, ViewMapsComponent, UploadMapComponent,
+    MapComponent, MapQueueComponent, ViewMapsComponent, UploadsComponent, UploadStatusComponent,
   ],
-  exports: [MapComponent, MapQueueComponent],
   providers: [],
 })
 export class MapModule { }

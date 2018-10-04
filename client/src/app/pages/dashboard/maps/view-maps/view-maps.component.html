@@ -1,27 +1,30 @@
 <div class="row">
-  <div class="col-md-12 col-lg-6">
-    <nb-card class="nb-icons">
-      <nb-card-header>
-        Submitted Maps
-      </nb-card-header>
+
+  <div class="col-md-12 col-lg-12 col-xxxl-12">
+    <nb-card class="inline-form-card">
+
+      <nb-card-header><h1>Search for a Map</h1></nb-card-header>
+
       <nb-card-body>
-        <div class="icons"
-             *ngFor="let icon of icons.nebular">
-          <i class="{{ icon }}" [nbPopover]="icon"><p>Your submitted maps will appear here!</p></i>
-        </div>
+        <form>
+          <div class="input-group">
+            <input type="text" class="form-control full-width" placeholder="Search Maps...">
+
+            <button class="btn-dark" type="submit">
+              <i class="fa fa-search fa-fw"></i>
+            </button>
+          </div>
+        </form>
       </nb-card-body>
     </nb-card>
-  </div>
 
-  <div class="col-md-12 col-lg-6">
-    <nb-card class="nb-icons">
-      <nb-card-header>
-        Approved Maps
-      </nb-card-header>
+  </div>
+      <div class="col-md-12 col-lg-12">
+    <nb-card>
+      <nb-card-header><h1>All Available Maps</h1></nb-card-header>
       <nb-card-body>
-        <div class="icons"
-             *ngFor="let icon of icons.nebular">
-          <i class="{{ icon }}" [nbPopover]="icon"><p>Your approved maps will appear here!</p></i>
+        <div>
+          <i><p>All available maps will appear here</p></i>
         </div>
       </nb-card-body>
     </nb-card>
