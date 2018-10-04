@@ -16,9 +16,10 @@ import { ThemeModule } from './@theme/theme.module';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import {MainPageModule} from './pages/main/main-page.module';
 import {NotFoundModule} from './pages/not-found/not-found.module';
+import { UserProfileComponent } from './pages/user-profile/user-profile.component';
 
 @NgModule({
-  declarations: [AppComponent],
+  declarations: [AppComponent, UserProfileComponent],
   imports: [
     BrowserModule,
     BrowserAnimationsModule,

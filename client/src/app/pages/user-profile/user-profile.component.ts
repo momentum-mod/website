@@ -1,12 +1,13 @@
 import { Component, OnInit } from '@angular/core';
-import { UserService } from '../../../@core/data/user.service';
+import { UserService } from '../../@core/data/user.service';
+
 
 @Component({
-  selector: 'ngx-profile-card',
-  styleUrls: ['./profile-card.scss'],
-  templateUrl: './profile-card.component.html',
+  selector: 'ngx-user-profile',
+  templateUrl: './user-profile.component.html',
+  styleUrls: ['./user-profile.component.scss'],
 })
-export class ProfileCardComponent implements OnInit {
+export class UserProfileComponent implements OnInit {
 
   flipped = false;
 

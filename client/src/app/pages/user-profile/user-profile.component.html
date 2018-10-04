@@ -1,0 +1,90 @@
+<nb-layout [center]="layout.id === 'center-column'" windowMode>
+  <nb-layout-header fixed>
+    <ngx-header [position]="sidebar.id === 'start' ? 'normal': 'inverse'"></ngx-header>
+  </nb-layout-header>
+
+<nb-layout-column>
+
+
+  <nb-card>
+
+    <div class="row">
+
+      <div class="col-sm-3">
+        <img [src]="user?.avatar" height="150px" width="150px">
+      </div>
+      <div class="col-sm-3">
+        <h1>{{ user?.displayName }}</h1>
+        <h4>Rank #1</h4>
+        <h4>Mapper</h4>
+        <img src="assets/images/crown.png" nbPopover="Admin" nbPopoverMode="hover" nbPopoverPlacement="bottom">
+      </div>
+
+      <div class="col-sm-6">
+        <nb-card-body>
+          <h4>Bio:</h4>
+          <p>I've been a fan of the game since its development. I love making different kinds of maps so be sure to check them out!</p>
+          <h4>Links:</h4>
+          <div class="socials">
+            <a href="https://twitter.com/momentummod" target="_blank" class="ion ion-social-twitter"></a>
+            <a href="https://www.moddb.com/mods/momentum2" target="_blank" class="ion-wrench"></a>
+            <a href="https://discordapp.com/invite/wQWkRb6" target="_blank">
+              <img src="assets\images\Discord-Logo-White.png" height="35px" width="35px"></a>
+            <a href="https://trello.com/momentum_mod" target="_blank">
+              <img src="assets\images\trello.png" height="35px" width="35px"></a>
+          </div>
+        </nb-card-body>
+      </div>
+
+    </div>
+
+  </nb-card>
+
+
+
+
+  <div class = "row">
+
+
+    <div class="col-sm-2">
+      <nb-card>
+        <nb-card-header>
+          <h4>Player Stats</h4>
+        </nb-card-header>
+        <nb-card-body>
+          <h6>Maps Completed:</h6> <p>37</p>
+          <h6>Totals Jumps:</h6> <p>411</p>
+          <h6>Total Strafes:</h6> <p>102</p>
+        </nb-card-body>
+      </nb-card>
+    </div>
+
+    <div class="col-sm-10">
+
+      <nb-card size="medium">
+        <nb-card-header>
+          <h5>Recent Maps</h5>
+        </nb-card-header>
+        <nb-card-body>
+        </nb-card-body>
+      </nb-card>
+      <nb-card size="medium">
+        <nb-card-header>
+          <h5>Recent Runs</h5>
+        </nb-card-header>
+        <nb-card-body>
+        </nb-card-body>
+      </nb-card>
+
+    </div>
+
+  </div>
+
+
+</nb-layout-column>
+  <nb-layout-footer fixed>
+    <ngx-footer></ngx-footer>
+  </nb-layout-footer>
+
+
+</nb-layout>

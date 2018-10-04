@@ -32,6 +32,10 @@ export class HeaderComponent implements OnInit {
     if (title === 'Log out') {
       this.userService.logout();
     }
+    if (title === 'Profile') {
+      // window.location.href = 'user/:id';
+       window.location.href = '/user-profile';
+    }
   }
 
   ngOnInit() {
