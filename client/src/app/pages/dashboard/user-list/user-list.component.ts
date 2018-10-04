@@ -1,7 +1,9 @@
 import {Component} from '@angular/core';
 import {LocalDataSource} from 'ng2-smart-table';
+import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 
 import {UsersService} from '../../../@core/data/users.service';
+import { UserEditModalComponent } from './user-edit-modal/user-edit-modal.component';
 
 @Component({
   selector: 'app-user-list',
@@ -15,14 +17,13 @@ import {UsersService} from '../../../@core/data/users.service';
 export class UserListComponent {
 
   settings = {
+    mode: 'external',
     actions: {
       add: false,
       delete: false,
     },
     edit: {
       editButtonContent: '<i class="nb-edit"></i>',
-      saveButtonContent: '<i class="nb-checkmark"></i>',
-      cancelButtonContent: '<i class="nb-close"></i>',
     },
     columns: {
       id: {
@@ -34,7 +35,7 @@ export class UserListComponent {
         title: 'Alias',
         type: 'string',
       },
-      avatar_url: {
+      avatarUrl: {
         title: 'Avatar',
         type: 'string',
       },
@@ -48,7 +49,7 @@ export class UserListComponent {
         type: 'string',
         editable: false,
       },
-      permission: {
+      permissions: {
         title: 'Permissions',
         type: 'number',
       },
@@ -57,18 +58,30 @@ export class UserListComponent {
 
   source: LocalDataSource = new LocalDataSource();
 
-  constructor(private usersService: UsersService) {
-    const data = this.usersService.getUsers();
-    if (data) {
-      this.source.load(data);
-    }
+  constructor(private usersService: UsersService, private modalService: NgbModal) {
+    this.usersService.getUsers().subscribe(data => {
+      if (data) {
+        this.source.load(data);
+      }
+    }, error => {
+      this.source.load([{
+        id: '25474197999996633',
+        alias: 'Cate',
+        permissions: 6,
+        avatarUrl: 'https://steamcdn-a.akamaihd.net/steamcommunity/public/images/avatars/13/' +
+          '13d6e1103950ab69d6eec0c7758897887a05c08c_full.jpg',
+        createdAt: '2018-09-27T07:29:17.000Z',
+        updatedAt: '2018-09-27T07:29:17.000Z',
+      }]);
+    });
   }
 
-  onDeleteConfirm(event): void {
-    if (window.confirm('Are you sure you want to delete?')) {
-      event.confirm.resolve();
-    } else {
-      event.confirm.reject();
-    }
+  onEdit(event): void {
+    const activeModal = this.modalService.open(UserEditModalComponent, { size: 'lg' });
+    activeModal.componentInstance.loadUserData(event.data);
+    activeModal.componentInstance.onEditSuccess.subscribe(newUserData => {
+      event.setData(newUserData);
+      activeModal.close();
+    });
   }
 }
