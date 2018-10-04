@@ -1,0 +1,65 @@
+/*!
+ * Start Bootstrap - Grayscale v5.0.2 (https://startbootstrap.com/template-overviews/grayscale)
+ * Copyright 2013-2018 Start Bootstrap
+ * Licensed under MIT (https://github.com/BlackrockDigital/startbootstrap-grayscale/blob/master/LICENSE)
+ */
+
+.btn {
+  -webkit-box-shadow: 0 0.1875rem 0.1875rem 0 rgba(0, 0, 0, 0.1) !important;
+  box-shadow: 0 0.1875rem 0.1875rem 0 rgba(0, 0, 0, 0.1) !important;
+  padding: 1.25rem 2rem;
+  font-family: 'Varela Round';
+  font-size: 80%;
+  text-transform: uppercase;
+  letter-spacing: .15rem;
+  border: 0;
+}
+
+.btn-primary {
+  background-color: #64a19d;
+  color: #FFF;
+}
+
+.btn-primary:hover {
+  background-color: #4f837f;
+}
+
+.btn-primary:focus {
+  background-color: #4f837f;
+  color: white;
+}
+
+.btn-primary:active {
+  background-color: #467370 !important;
+}
+
+
+body {
+  font-family: 'Nunito';
+  letter-spacing: 0.0625em;
+}
+
+a {
+  color: #64a19d;
+}
+
+a:focus, a:hover {
+  text-decoration: none;
+  color: #3c6360;
+}
+
+.bg-black {
+  background-color: #161616 !important;
+}
+
+.bg-primary {
+  background-color: #64a19d !important;
+}
+
+.text-primary {
+  color: #64a19d !important;
+}
+
+footer {
+  padding: 5rem 0;
+}
