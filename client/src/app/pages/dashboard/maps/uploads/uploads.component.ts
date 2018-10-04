@@ -2,7 +2,7 @@ import { Component } from '@angular/core';
 
 @Component({
   selector: 'app-map-queue',
-  templateUrl: './map-queue.component.html',
+  templateUrl: './uploads.component.html',
 })
-export class MapQueueComponent {
+export class UploadsComponent {
 }

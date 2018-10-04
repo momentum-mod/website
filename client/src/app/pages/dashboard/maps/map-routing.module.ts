@@ -4,7 +4,8 @@ import { MapComponent} from './map.component';
 import {NotFoundDashboardComponent} from '../../not-found/dashboard/not-found-dashboard.component';
 import {MapQueueComponent} from './map-queue/map-queue.component';
 import {ViewMapsComponent} from './view-maps/view-maps.component';
-import {UploadMapComponent} from './upload-map/upload-map.component';
+import {UploadsComponent} from './uploads/uploads.component';
+import {UploadStatusComponent} from './upload-status/upload-status.component';
 
 const routes: Routes = [
   {
@@ -12,16 +13,21 @@ const routes: Routes = [
     component: MapComponent,
     children: [
       {
-      path: 'upload-map',
-      component: UploadMapComponent,
+        path: '',
+        pathMatch: 'full',
+        component: ViewMapsComponent,
       },
       {
-       path: 'view-maps',
-       component: ViewMapsComponent,
+      path: 'uploads',
+      component: UploadsComponent,
       },
       {
         path: 'map-queue',
         component: MapQueueComponent,
+      },
+      {
+        path: 'upload-status',
+        component: UploadStatusComponent,
       },
       {
         path: '**',

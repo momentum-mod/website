@@ -30,17 +30,22 @@ export const MENU_ITEMS: NbMenuItem[] = [
     link: '/dashboard/maps',
     children: [
       {
-        title: 'Upload Map',
-        link: '/dashboard/maps/upload-map',
+        title: 'View Maps',
+        link: '/dashboard/maps',
       },
       {
-        title: 'View Maps',
-        link: '/dashboard/maps/view-maps',
+        title: 'Upload Map',
+        link: '/dashboard/maps/uploads',
       },
       {
         title: 'View Map Queue',
         link: '/dashboard/maps/map-queue',
-       } ],
+       },
+      {
+        title: 'Upload Status',
+        link: '/dashboard/maps/upload-status',
+      },
+      ],
   },
   {
     title: 'FEATURES',
