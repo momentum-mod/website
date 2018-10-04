@@ -9,7 +9,7 @@ import { LayoutService } from '../../../../@core/data/layout.service';
   styleUrls: ['./visitors-statistics.component.scss'],
   templateUrl: './visitors-statistics.component.html',
 })
-export class ECommerceVisitorsStatisticsComponent implements AfterViewInit, OnDestroy {
+export class VisitorsStatisticsComponent implements AfterViewInit, OnDestroy {
 
   private alive = true;
   private value = 75;
