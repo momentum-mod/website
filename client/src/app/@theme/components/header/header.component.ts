@@ -34,7 +34,7 @@ export class HeaderComponent implements OnInit {
     }
     if (title === 'Profile') {
       // window.location.href = 'user/:id';
-       window.location.href = '/user-profile';
+       window.location.href = '/dashboard/profile';
     }
   }
 
