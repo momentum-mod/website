@@ -6,11 +6,10 @@ module.exports = (sequelize, type) => {
 			type: type.BIGINT,
 			primaryKey: true
 		},
-		alias: type.STRING,
-		permission: {
+		permissions: {
 			type: type.INTEGER,
 			defaultValue: 0
 		},
-		avatar_url: type.STRING
+		refreshToken: type.STRING
 	})
 };
