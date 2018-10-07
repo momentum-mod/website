@@ -1,7 +1,7 @@
 'use strict';
 
 module.exports = (sequelize, type) => {
-	return sequelize.define('map_credit', {
+	return sequelize.define('mapCredit', {
 		id: {
 			type: type.BIGINT,
 			primaryKey: true,

@@ -35,12 +35,14 @@ const Tag = TagModel(sequelize, Sequelize)
 Blog.belongsToMany(Tag, { through: BlogTag, unique: false })
 Tag.belongsToMany(Blog, { through: BlogTag, unique: false })
 Blog.belongsTo(User);*/
-Profile.belongsTo(User, { foreignKey: 'userID' });
-MapInfo.belongsTo(Map, { foreignKey: 'mapID' });
-MapCredit.belongsTo(Map, { foreignKey: 'mapID' });
+
+User.hasOne(Profile, { foreignKey: 'userID' });
+Map.hasMany(MapCredit, { foreignKey: 'mapID' });
+Map.hasOne(MapInfo, { foreignKey: 'mapID' });
 MapCredit.belongsTo(User, { foreignKey: 'userID' });
 
-sequelize.query('SET FOREIGN_KEY_CHECKS = 0', { raw: true }).then(() => { // temp override
+sequelize.query('SET FOREIGN_KEY_CHECKS = 0', { raw: true }) // temporary
+.then(() => {
 	sequelize.sync({force: true})
 		.then(() => {
 			console.log(`Database & tables created!`)
@@ -50,6 +52,8 @@ sequelize.query('SET FOREIGN_KEY_CHECKS = 0', { raw: true }).then(() => { // tem
 });
 
 module.exports = {
+	Op: Sequelize.Op,
+	sequelize,
 	User,
 	Profile,
 	Map,

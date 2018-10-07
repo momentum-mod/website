@@ -3,7 +3,7 @@
 module.exports = (sequelize, type) => {
 	return sequelize.define('user', {
 		id: {
-			type: type.BIGINT,
+			type: type.STRING,
 			primaryKey: true
 		},
 		permissions: {
