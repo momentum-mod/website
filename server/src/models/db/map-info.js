@@ -1,7 +1,7 @@
 'use strict';
 
 module.exports = (sequelize, type) => {
-	return sequelize.define('map_info', {
+	return sequelize.define('mapInfo', {
 		id: {
 			type: type.BIGINT,
 			primaryKey: true,
