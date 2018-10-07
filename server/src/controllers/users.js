@@ -1,34 +1,54 @@
 'use strict';
 const user = require('../models/user');
 
+// TODO: handle these controller errors better!?
+const genUserNotFoundErr = () => {
+	const err = new Error("User Not Found");
+	err.status = 404;
+	return err;
+}
+
 module.exports = {
 
-	find: (req, res, next) => {
-		if (req.params.userID) {
-			user.find(req.params.userID).then(usr => {
-				res.status(200).json(usr.toJSON());
-			}).catch(next);
-		} else {
-			res.sendStatus(400);
-		}
+	getAll: (req, res, next) => {
+		user.getAll(req.query)
+		.then(users => {
+	        res.json({
+	        	users: users
+	        });
+		}).catch(next);
 	},
 
-	findOrCreate: (req, res, next) => {
-		if (req.params.userID) {
-			user.findOrCreate(req.params.userID, null)
-				.then((usr) => {
-					res.status(200).send(usr.toJSON())
-				})
-				.catch(next);
-		}
-		else {
-			res.sendStatus(400);
-		}
+	get: (req, res, next) => {
+		user.get(req.params.userID)
+		.then(user => {
+			if (user) {
+				return res.json(user);
+			}
+			next(genUserNotFoundErr());
+		}).catch(next);
 	},
 
 	update: (req, res, next) => {
 		user.update(req.params.userID, req.body)
-		.then(() => {
+		.then((user) => {
+			res.sendStatus(204);
+		}).catch(next);
+	},
+
+	getProfile: (req, res, next) => {
+		user.getProfile(req.params.userID)
+		.then(profile => {
+			if (profile) {
+				res.json(profile);
+			}
+			next(genUserNotFoundErr());
+		}).catch(next);
+	},
+
+	updateProfile: (req, res, next) => {
+		user.updateProfile(req.params.userID, req.body)
+		.then(profile => {
 			res.sendStatus(204);
 		}).catch(next);
 	}

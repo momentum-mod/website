@@ -6,12 +6,17 @@ const express = require('express'),
 	userCtrl = require('../../controllers/users');
 
 router.route('/')
-	.get(userCtrl.find)
+	.get(userCtrl.getAll)
 	.all(errorCtrl.send405);
 
 router.route('/:userID')
-	.get(userCtrl.find)
+	.get(userCtrl.get)
 	.patch([authMiddleware.requireLogin], userCtrl.update)
+	.all(errorCtrl.send405);
+
+router.route('/:userID/profile')
+	.get(userCtrl.getProfile)
+	.patch([authMiddleware.requireLogin], userCtrl.updateProfile)
 	.all(errorCtrl.send405);
 
 module.exports = router;
