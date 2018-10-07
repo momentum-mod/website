@@ -1,5 +1,5 @@
 'use strict';
-const { User } = require('../../config/sqlize'),
+const { Op, User, Profile } = require('../../config/sqlize'),
 	config = require('../../config/config'),
 	axios = require('axios');
 
@@ -14,95 +14,93 @@ module.exports = {
 		BANNED_AVATAR: 1 << 5
 	}),
 
-	updateSteamInfo: (usr, avatar, personaname) => {
-		if ((usr.permission & module.exports.Permission.BANNED_AVATAR) === 0)
-			usr.avatar_url = avatar;
-
-		if ((usr.permission & module.exports.Permission.BANNED_ALIAS) === 0)
-			usr.alias = personaname;
-
+	updateSteamInfo: (usr, avatarURL, alias) => {
+		if ((usr.permissions & module.exports.Permission.BANNED_AVATAR) === 0)
+			usr.avatarURL = avatarURL;
+		if ((usr.permissions & module.exports.Permission.BANNED_ALIAS) === 0)
+			usr.alias = alias;
 		return usr.save();
 	},
 
-	getSteamInfo: (usr, resolve, reject) => {
-		axios.get('https://api.steampowered.com/ISteamUser/GetPlayerSummaries/v2/', {
-			params: {
-				key: config.steam.webAPIKey,
-				steamids: usr.id
+	create: (usr) => {
+		return User.create({
+			id: usr.id,
+			profile: {
+				alias: usr.alias,
+				avatarURL: usr.avatarURL
 			}
-		}).then(resp => {
-			var respData = resp.data.response.players[0];
-			if (respData) {
-				module.exports.updateSteamInfo(usr, respData.avatarfull, respData.personaname).then(() => {
-					resolve(usr);
-				}).catch(reject);
-			}
-			else {
-				reject(usr);
-			}
-		});
+		}, { include: Profile });
 	},
 
-	findOrCreate: (userID, userObj) => {
+	findOrCreate: (profile) => {
+		profile.alias = profile.displayName;
+		profile.avatarURL = profile.photos[2].value;
 		return new Promise((resolve, reject) => {
-			// should use db module to create user if doesn't exist
-			// then return the info for the user
-			User.findOrCreate({ where: {id: userObj ? userObj.id : userID}}).spread((usr, created) => {
-				console.log(created);
-				if (created) {
-					// Update the user object with latest steam alias and profile URL
-					if (userObj)
-					{
-						module.exports.updateSteamInfo(usr, userObj.photos[2].value, userObj.displayName).then(() => {
-							resolve(usr);
-						}).catch(reject);
-					}
-					else
-						module.exports.getSteamInfo(usr, resolve, reject);
+			User.find({ where: { id: profile.id }})
+			.then(usr => {
+				if (usr) {
+					return module.exports.updateSteamInfo(usr, profile.avatarURL, profile.alias);
+				} else {
+					return module.exports.create(profile);
 				}
-				else {
-					resolve(usr);
-				}
+			}).then(usr => {
+				resolve(usr);
 			}).catch(reject);
 		});
 	},
 
-	find: (steamID) => {
-		return User.findOne({ where: {id: steamID}});
+	get: (userID) => {
+		return User.find({
+			include: [Profile],
+			where: { id: userID },
+			attributes: {
+				exclude: ['refreshToken']
+			}
+		})
 	},
 
-	// find: (context) => {
-	// 	return new Promise((resolve, reject) => {
-	// 		// fetch user from db using context given
-	// 		resolve([{
-	// 			id: 42,
-	// 			name: "Gabe Newell",
-	// 			alias: "Gaben",
-	// 			permissions: 0
-	// 		}]);
-	// 	});
-	// },
+	getAll: (context) => {
+		const queryContext = {
+			include: [{
+				model: Profile,
+				where: {
+					alias: {
+						[Op.like]: '%' + (context.search || '') + '%' // 2 spooky 5 me O:
+					}
+				}
+			}],
+			attributes: {
+				exclude: ['refreshToken']
+			},
+			offset: parseInt(context.offset) || 0,
+			limit: parseInt(context.limit) || 20
+		};
+		return User.findAll(queryContext);
+	},
 
-	update: (userID, userInfo) => {
-		return new Promise((resolve, reject) => {
-			// update user in db
-			resolve();
+	update: (userID, usr) => {
+		const updates = [
+			User.update(usr, { where: { id: userID }})
+		];
+		if (usr.profile) {
+			updates.push(
+				Profile.update(usr.profile, {
+					where: { userID: userID }
+				})
+			);
+		}
+		return Promise.all(updates);
+	},
+
+	getProfile: (userID) => {
+		return Profile.find({
+			where: { userID: userID }
 		});
 	},
 
-	addPermission: (userID, permission) => {
-		return new Promise((resolve, reject) => {
-			// update permission in db to
-			// current permission | permission
-			resolve();
-		});
-	},
-
-	removePermission: (userID, permission) => {
-		return new Promise((resolve, reject) => {
-			// update permission in db to
-			// current permission & ~permission
-			resolve();
+	updateProfile: (userID, profile) => {
+		return Profile.update(profile, {
+			where: { userID: userID }
 		});
 	}
 
