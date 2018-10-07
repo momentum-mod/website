@@ -5,6 +5,7 @@ const express = require('express'),
 	user = require('../../models/user');
 
 router.use('/auth', require('./auth'));
+router.use('/maps', require('./maps'));
 router.use('/users', require('./users'));
 router.use('/admin', [
 	authMiddleware.requireLogin,
