@@ -11,7 +11,7 @@ module.exports = {
 		const payload = {
 			id: usr.id,
 			displayName: usr.alias,
-			avatar: usr.avatar_url,
+			avatar: usr.avatarURL,
 			permissions: usr.permission
 		};
 		const options = {
