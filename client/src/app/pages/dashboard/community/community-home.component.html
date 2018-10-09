@@ -1,18 +1,26 @@
-<div class="row">
-  <div class="col-sm-9">
+<div class="card card-image" style="background-image: url(./assets/images/logoBG.png);   background-attachment: fixed; background-repeat: no-repeat; background-size: cover; background-position: center center; background-color: black; ">
+
+
+
+<div class="col-xxl-12 ">
 
   </div>
+  <nb-card-header>
+    <h1><img src="assets/images/comlogo.png" align="center" ></h1>
+  </nb-card-header>
 
-  <div class="col-md-12 col-lg-12 col-xxxl-12">
+
+  <div class.containter="col-sm-4 " >
     <nb-card class="inline-form-card">
 
-      <nb-card-header><h1>Community</h1>
+      <nb-card-header>
+
 
         <div class="tip-msg">
 
-          <h6>Current Users</h6>
+          <H1>Current Users</H1>
 
-          <span>218 / 2,450</span>
+          <p><span>2,450</span></p>
         </div>
 
       </nb-card-header>
@@ -21,7 +29,13 @@
 
         <form>
           <div class="input-group">
-            <input type="text" class="form-control full-width" placeholder="Search users...">
+            <input name="search_text_box" id="search_text_box"
+                   class="form-control"
+                   value onkeyup="CommunitySearch.OnKeyUp(event)"
+                   autocomplete="off"
+                   autofocus="off"
+                   placeholder="Search users...">
+
 
             <button class="search-btn" type="submit">
               <i class="fa fa-search fa-fw"></i>
@@ -32,6 +46,11 @@
 
       </nb-card-body>
 
+    </nb-card>
+
+    <div class.containter="col-sm-4 " >
+
+    <nb-card class="inline-form-card">
       <nb-card-body>
 
         <form class="form-inline">
@@ -40,20 +59,79 @@
 
             <nb-tabset>
               <nb-tab tabTitle="News">
+                <p></p>
+                <img src="assets/images/newTxt.png" >
+                <p></p>
+
+                <div>
                 <p>9/26/18: Recent updates have been made.</p>
+                </div>
+
               </nb-tab>
               <nb-tab tabTitle="Twitch Streams">
-                <span>Insert here</span>
+                <p></p>
+
+
+                <script src= "http://player.twitch.tv/js/embed/v1.js"></script>
+                <div id="{PLAYER_DIV_ID}"></div>
+                <script type="text/javascript">
+                  var options = {
+                    width: 854,
+                    height: 480,
+                    channel: "{CHANNEL}",
+                    //video: "{VIDEO_ID}"
+                  };
+                  var player = new Twitch.Player("{PLAYER_DIV_ID}", options);
+                  player.setVolume(0.5);
+                </script>
+
+                <p></p>
+                <iframe src="https://player.twitch.tv/?autoplay=false&video=v316078819"
+                        frameborder="0"
+                        allowfullscreen="true"
+                        scrolling="no"
+                        height="378"
+                        width="620">
+                </iframe>
+
+                <iframe src="https://player.twitch.tv/?autoplay=false&video=v316004987"
+                        frameborder="0"
+                        allowfullscreen="true"
+                        scrolling="no"
+
+                        height="378" width="620">
+                </iframe>
+
+                <p></p>
+                <iframe src="https://player.twitch.tv/?autoplay=false&video=v315996197"
+                        frameborder="0"
+                        allowfullscreen="true"
+                        scrolling="no"
+                        height="378"
+                        width="620">
+                </iframe>
+
+                <iframe src="https://player.twitch.tv/?autoplay=false&video=v317831071"
+                        frameborder="0"
+                        allowfullscreen="true"
+                        scrolling="no"
+                        height="378"
+                        width="620">
+                </iframe>
+
+
               </nb-tab>
-              <nb-tab tabTitle="Reviews">
-                <span>Insert Here</span>
-              </nb-tab>
+
             </nb-tabset>
           </div>
 
         </form>
       </nb-card-body>
     </nb-card>
-    <activity-card [header]="'Recent Activity'"></activity-card>
+
+    <activity-card [header]="'Recent Activity'">></activity-card>
   </div>
+
+
 </div>
+
