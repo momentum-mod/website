@@ -44,7 +44,7 @@ module.exports = {
 	},
 
 	update: (req, res, next) => {
-		map.verifyOwner(req.params.mapID, req.user.id)
+		map.verifySubmitter(req.params.mapID, req.user.id)
 		.then(() => {
 			return map.update(req.params.mapID, req.body);
 		}).then(() => {
@@ -63,8 +63,10 @@ module.exports = {
 	},
 
 	updateInfo: (req, res, next) => {
-		map.updateInfo(req.params.mapID, req.body)
+		map.verifySubmitter(req.params.mapID, req.user.id)
 		.then(() => {
+			return map.updateInfo(req.params.mapID, req.body);
+		}).then(() => {
 			res.sendStatus(204);
 		}).catch(next);
 	},
@@ -89,14 +91,16 @@ module.exports = {
 	},
 
 	createCredit: (req, res, next) => {
-		map.createCredit(req.params.mapID, req.body)
-		.then(mapCredit => {
+		map.verifySubmitter(req.params.mapID, req.user.id)
+		.then(() => {
+			map.createCredit(req.params.mapID, req.body);
+		}).then(mapCredit => {
 			res.json(mapCredit);
 		}).catch(next);
 	},
 
 	updateCredit: (req, res, next) => {
-		map.verifyOwner(req.params.mapID, req.user.id)
+		map.verifySubmitter(req.params.mapID, req.user.id)
 		.then(() => {
 			return map.updateCredit(req.params.mapID, req.params.mapCredID, req.body);
 		}).then(() => {
@@ -105,7 +109,7 @@ module.exports = {
 	},
 
 	deleteCredit: (req, res, next) => {
-		map.verifyOwner(req.params.mapID, req.user.id)
+		map.verifySubmitter(req.params.mapID, req.user.id)
 		.then(() => {
 			return map.deleteCredit(req.params.mapID, req.params.mapCredID);
 		}).then(() => {

@@ -95,22 +95,19 @@ module.exports = {
 		});
 	},
 
-	verifyOwner: (mapID, userID) => {
+	verifySubmitter: (mapID, userID) => {
 		return new Promise((resolve, reject) => {
 			Map.find({
 				where: { id: mapID }
 			}).then(map => {
-				resolve(true);
-				// TODO: resolve this conflict
-				// if (!map || map.uploader === userID) {
-				// 	resolve(false);
-				// } else {
-				// 	resolve(true);
-				// }
-				const err = new Error("Forbidden");
-				err.status = 403;
-				reject(err);
-			})
+				if (map && map.submitterID == userID) {
+					resolve();
+				} else {
+					const err = new Error("Forbidden");
+					err.status = 403;
+					reject(err);
+				}
+			});
 		});
 	}
 
