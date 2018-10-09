@@ -36,6 +36,7 @@ module.exports = {
 	},
 
 	create: (req, res, next) => {
+		req.body.submitterID = req.user.id;
 		map.create(req.body)
 		.then(map => {
 			res.json(map);

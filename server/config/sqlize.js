@@ -39,6 +39,7 @@ Blog.belongsTo(User);*/
 User.hasOne(Profile, { foreignKey: 'userID' });
 Map.hasMany(MapCredit, { foreignKey: 'mapID' });
 Map.hasOne(MapInfo, { foreignKey: 'mapID' });
+Map.belongsTo(User, { foreignKey: 'submitterID' });
 MapCredit.belongsTo(User, { foreignKey: 'userID' });
 
 sequelize.query('SET FOREIGN_KEY_CHECKS = 0', { raw: true }) // temporary
