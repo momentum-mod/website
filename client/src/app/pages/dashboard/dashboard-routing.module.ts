@@ -5,7 +5,7 @@ import {DashboardHomeComponent} from './home/dashboard-home.component';
 import {UserListComponent} from './user-list/user-list.component';
 import {CommunityHomeComponent} from './community/community-home.component';
 import {NotFoundDashboardComponent} from '../not-found/dashboard/not-found-dashboard.component';
-import {UserProfileComponent} from './user-profile/user-profile.component';
+import {UserProfileComponent} from './profile/user-profile.component';
 
 const routes: Routes = [
   {
