@@ -5,13 +5,12 @@
           <nb-card-header><h1>Submit a Map</h1></nb-card-header>
 
           <nb-card-body>
-            <div class="input-group">
-              <input type="text" placeholder="Upload Map File" class="form-control"/>
-              <button class="btn-primary" type="submit">
-                <i>Browse</i>
-              </button>
+            <input class= "form-control" placeholder="Map File" disabled="disabled" [value]="fileToUpload?.name" #uploadFile/>
+            <div class="fileUpload btn btn-outline-info">
+              <span>Browse</span>
+              <input id="uploadBtn" type="file" accept=".bsp" class="upload" (change)="onFileSelected($event);"/>
             </div>
-            <br>
+
             <div class="form-group">
               <input type="text" placeholder="Map Name" class="form-control"/>
             </div>
