@@ -1,0 +1,48 @@
+@import '../../../@theme/styles/themes';
+
+@include nb-install-component() {
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+
+  .socials {
+    font-size: 2rem;
+
+    a {
+      padding: 0.4rem;
+      color: nb-theme(color-fg);
+      transition: color ease-out 0.1s;
+
+      &:hover {
+        color: nb-theme(color-fg-heading);
+      }
+    }
+  }
+
+
+
+  .nb-arrow-right {
+    position: absolute;
+    right: 0;
+    top: 0;
+    @include nb-rtl(right, auto);
+    @include nb-rtl(left, 0);
+    padding: 1.5rem;
+    cursor: pointer;
+  }
+
+  ::ng-deep .flipped {
+    .back-container {
+      .nb-arrow-right {
+        transform: scaleX(-1);
+      }
+    }
+
+    .front-container {
+      .nb-arrow-right {
+        display: none;
+      }
+    }
+  }
+}
