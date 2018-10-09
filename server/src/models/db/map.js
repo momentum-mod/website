@@ -11,6 +11,10 @@ module.exports = (sequelize, type) => {
 			type: type.STRING,
 			unique: true
 		},
+		statusFlag: {
+			type: type.TINYINT,
+			defaultValue: 0
+		},
 		leaderboardID: type.BIGINT,
 		info: type.STRING,
 		download: type.STRING
