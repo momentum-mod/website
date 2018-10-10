@@ -72,7 +72,7 @@ module.exports = {
 			attributes: {
 				exclude: ['refreshToken']
 			},
-			offset: parseInt(context.offset) || 0,
+			offset: parseInt(context.page) || 0,
 			limit: parseInt(context.limit) || 20
 		};
 		return User.findAll(queryContext);
