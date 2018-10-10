@@ -43,9 +43,9 @@ const config = {
 	},
 	production: {
 		root: rootPath,
-		baseUrl: 'https://momentum-mod.org',
+		baseUrl: process.env.BASE_URL,
 		domain: 'momentum-mod.org',
-		port: 3002,
+		port: process.env.NODE_PORT,
 		accessToken: {
 			secret: process.env.JWT_SECRET,
 			expTime: '8h'
