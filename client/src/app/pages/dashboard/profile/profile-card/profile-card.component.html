@@ -1,29 +1,25 @@
 <nb-card>
   <nb-card-body>
     <div class="row">
-      <div class="col-sm-2">
-        <img [src]="user?.avatar" height="150px" width="150px">
+      <div class="col-sm-3">
+        <img [src]="hasPerm(permission.BANNED_AVATAR) ? 'assets/images/blank_avatar.jpg' : user?.avatar" height="150px" width="150px">
       </div>
       <div class="col-sm-4">
         <h1>{{ user?.displayName }}</h1>
         <h4>Rank #1</h4>
-        <!-- <h4>Mapper</h4> -->
-		<br>
-		<br>
+        <br>
+        <br>
         <div class="badges">
-		  <div *ngIf="this.userService.hasPermission(permission.ADMIN)" class="badge">
-		    <img src="assets/images/badges/admin.png" nbPopover="Admin" nbPopoverMode="hover" nbPopoverPlacement="bottom">
-		  </div>
-		  <div *ngIf="this.userService.hasPermission(permission.MODERATOR)" class="badge">
-		    <img src="assets/images/badges/moderator.png" nbPopover="Moderator" nbPopoverMode="hover" nbPopoverPlacement="bottom">
-		  </div>
-		  <div *ngIf="this.userService.hasPermission(permission.MAPPER)" class="badge">
-		    <img src="assets/images/badges/mapper.png" nbPopover="Mapper" nbPopoverMode="hover" nbPopoverPlacement="bottom">
-		  </div>
+          <div *ngIf="hasPerm(permission.ADMIN)" class="badge">
+            <img src="assets/images/badges/admin.png" nbPopover="Admin" nbPopoverMode="hover" nbPopoverPlacement="bottom">
+          </div>
+          <div *ngIf="hasPerm(permission.MODERATOR)" class="badge">
+            <img src="assets/images/badges/moderator.png" nbPopover="Moderator" nbPopoverMode="hover" nbPopoverPlacement="bottom">
+          </div>
+          <div *ngIf="hasPerm(permission.MAPPER)" class="badge">
+            <img src="assets/images/badges/mapper.png" nbPopover="Mapper" nbPopoverMode="hover" nbPopoverPlacement="bottom">
+          </div>
         </div>
-      </div>
-      <div class="col-sm-6">
-
       </div>
     </div>
   </nb-card-body>

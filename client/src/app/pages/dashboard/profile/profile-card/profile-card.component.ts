@@ -16,5 +16,7 @@ export class ProfileCardComponent implements OnInit {
   ngOnInit() {
     this.user = this.userService.getInfo();
   }
-
+  hasPerm(perm) {
+    return this.userService.hasPermission(perm);
+  }
 }
