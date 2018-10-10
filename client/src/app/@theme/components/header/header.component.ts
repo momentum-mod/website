@@ -36,11 +36,11 @@ export class HeaderComponent implements OnInit {
               private layoutService: LayoutService) {
   this.menuService.onItemClick()
     .subscribe((event) => {
-      this.onContecxtItemSelection(event.item.title);
+      this.onContextItemSelection(event.item.title);
     });
   }
 
-  onContecxtItemSelection(title) {
+  onContextItemSelection(title) {
     if (title === 'Log out') {
       this.userService.logout();
     }
