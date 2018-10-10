@@ -1,8 +1,8 @@
+
 <div class="card card-image" style="background-image: url(./assets/images/logoBG.png);   background-attachment: fixed; background-repeat: no-repeat; background-size: cover; background-position: center center; background-color: black; ">
 
 
-
-<div class="col-xxl-12 ">
+  <div class="col-xxl-12 ">
 
   </div>
   <nb-card-header>
@@ -10,45 +10,8 @@
   </nb-card-header>
 
 
-  <div class.containter="col-sm-4 " >
-    <nb-card class="inline-form-card">
+  <div class.containter="col-md-12 col-lg-12 col-xxl-12" >
 
-      <nb-card-header>
-
-
-        <div class="tip-msg">
-
-          <H1>Current Users</H1>
-
-          <p><span>2,450</span></p>
-        </div>
-
-      </nb-card-header>
-
-      <nb-card-body>
-
-        <form>
-          <div class="input-group">
-            <input name="search_text_box" id="search_text_box"
-                   class="form-control"
-                   value onkeyup="CommunitySearch.OnKeyUp(event)"
-                   autocomplete="off"
-                   autofocus="off"
-                   placeholder="Search users...">
-
-
-            <button class="search-btn" type="submit">
-              <i class="fa fa-search fa-fw"></i>
-            </button>
-          </div>
-
-        </form>
-
-      </nb-card-body>
-
-    </nb-card>
-
-    <div class.containter="col-sm-4 " >
 
     <nb-card class="inline-form-card">
       <nb-card-body>
@@ -64,8 +27,33 @@
                 <p></p>
 
                 <div>
-                <p>9/26/18: Recent updates have been made.</p>
+                  <p>9/26/18: Recent updates have been made.</p>
                 </div>
+
+              </nb-tab>
+              <nb-tab tabTitle="User Search">
+                <form>
+
+                  <div class="tip-msg">
+                    <p></p>
+                    <H2>Current Users</H2>
+
+                  </div>
+
+                  <nb-card>
+
+  <nb-card-body>
+
+    <ng2-smart-table [settings]="settings" [source]="source" (edit)="onEdit($event)">
+
+    </ng2-smart-table>
+
+  </nb-card-body>
+
+</nb-card>
+
+                </form>
+                <p></p>
 
               </nb-tab>
               <nb-tab tabTitle="Twitch Streams">

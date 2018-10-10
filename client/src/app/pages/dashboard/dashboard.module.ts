@@ -11,7 +11,7 @@ import { ProfileCardComponent } from './profile-card/profile-card.component';
 import {DashboardRoutingModule} from './dashboard-routing.module';
 import {DashboardHomeComponent} from './home/dashboard-home.component';
 import {UserListComponent} from './user-list/user-list.component';
-import {CommunityHomeComponent} from './community/community-home.component';
+import {CommunityListComponent} from './community/community-list.component';
 import {ActivityCardComponent} from './activity-card/activity-card.component';
 import {NotFoundModule} from '../not-found/not-found.module';
 import {SmartTableModule} from './smart-table/smart-table.module';
@@ -34,7 +34,7 @@ import { ProgressSectionComponent } from './follow-maps/progress-section.compone
   declarations: [
     DashboardComponent,
     DashboardHomeComponent,
-    CommunityHomeComponent,
+    CommunityListComponent,
     ProfileCardComponent,
     UserListComponent,
     ActivityCardComponent,
