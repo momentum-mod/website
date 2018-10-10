@@ -34,16 +34,16 @@ export const MENU_ITEMS: NbMenuItem[] = [
         link: '/dashboard/maps',
       },
       {
-        title: 'Upload Map',
+        title: 'Upload Status',
         link: '/dashboard/maps/uploads',
       },
       {
-        title: 'Upload Status',
-        link: '/dashboard/maps/upload-status',
+        title: 'Upload a Map',
+        link: '/dashboard/maps/uploads/new',
       },
       {
         title: 'View Map Queue',
-        link: '/dashboard/maps/map-queue',
+        link: '/dashboard/maps/queue',
       },
       ],
   },

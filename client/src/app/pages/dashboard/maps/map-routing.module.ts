@@ -18,16 +18,16 @@ const routes: Routes = [
         component: ViewMapsComponent,
       },
       {
-      path: 'uploads',
-      component: UploadsComponent,
-      },
-      {
-        path: 'map-queue',
-        component: MapQueueComponent,
-      },
-      {
-        path: 'upload-status',
+        path: 'uploads',
         component: UploadStatusComponent,
+      },
+      {
+        path: 'uploads/new',
+        component: UploadsComponent,
+      },
+      {
+        path: 'queue',
+        component: MapQueueComponent,
       },
       {
         path: '**',
