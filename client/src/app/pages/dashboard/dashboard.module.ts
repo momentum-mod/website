@@ -16,8 +16,10 @@ import {ActivityCardComponent} from './activity-card/activity-card.component';
 import {NotFoundModule} from '../not-found/not-found.module';
 import {SmartTableModule} from './smart-table/smart-table.module';
 import { UserEditModalComponent } from './user-list/user-edit-modal/user-edit-modal.component';
-import {UserProfileModule} from './profile/user-profile.module';
 import {CommunityHomeComponent} from './community/community-home/community-home.component';
+import {ProfileCardComponent} from './profile/profile-card/profile-card.component';
+import {UserProfileComponent} from './profile/user-profile.component';
+import {ProfileInfoComponent} from './profile/profile-info/profile-info.component';
 
 @NgModule({
   imports: [
@@ -28,7 +30,6 @@ import {CommunityHomeComponent} from './community/community-home/community-home.
     SmartTableModule,
     Ng2SmartTableModule,
     NotFoundModule,
-    UserProfileModule,
     DashboardRoutingModule,
     FormsModule,
   ],
@@ -40,6 +41,9 @@ import {CommunityHomeComponent} from './community/community-home/community-home.
     UserListComponent,
     ActivityCardComponent,
     UserEditModalComponent,
+    ProfileCardComponent,
+    UserProfileComponent,
+    ProfileInfoComponent,
   ],
   entryComponents: [
     UserEditModalComponent,
