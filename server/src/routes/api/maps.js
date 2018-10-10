@@ -15,17 +15,17 @@ router.route('/:mapID')
 	.patch([authMiddleware.requireLogin], mapCtrl.update)
 	.all(errorCtrl.send405);
 
-router.route('/:mapID/map-info')
+router.route('/:mapID/info')
 	.get(mapCtrl.getInfo)
 	.patch([authMiddleware.requireLogin], mapCtrl.updateInfo)
 	.all(errorCtrl.send405);
 
-router.route('/:mapID/map-credits')
+router.route('/:mapID/credits')
 	.get(mapCtrl.getCredits)
 	.post([authMiddleware.requireLogin], mapCtrl.createCredit)
 	.all(errorCtrl.send405);
 
-router.route('/:mapID/map-credits/:mapCredID')
+router.route('/:mapID/credits/:mapCredID')
 	.get(mapCtrl.getCredit)
 	.patch([authMiddleware.requireLogin], mapCtrl.updateCredit)
 	.delete([authMiddleware.requireLogin], mapCtrl.deleteCredit)

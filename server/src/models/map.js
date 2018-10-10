@@ -1,5 +1,6 @@
 'use strict';
 const { Op, Map, MapInfo, MapCredit, User } = require('../../config/sqlize'),
+	ActivityMdl = require('./activity'),
 	config = require('../../config/config');
 
 module.exports = {
@@ -112,7 +113,7 @@ module.exports = {
 			Map.find({
 				where: { id: mapID }
 			}).then(map => {
-				if (map && map.submitterID == userID) {
+				if (map && map.submitterID === userID) {
 					resolve();
 				} else {
 					const err = new Error('Forbidden');
@@ -137,10 +138,25 @@ module.exports = {
 				return Promise.reject(err);
 			}
 			const mapFileName = map.name + '.bsp';
-			return mapFile.mv(__dirname + '/../../public/maps/' + mapFileName);
+			mapFile.mv(__dirname + '/../../public/maps/' + mapFileName, (err) => {
+				if (err)
+					return Promise.reject(err);
+			});
 		}).then(() => {
-			return Map.update({ statusFlag: 1 }, {
+			Map.update({ statusFlag: 1 }, {
 				where: { id: mapID }
+			}).then((map) => {
+
+				// Create the activity for this
+				var act = ActivityMdl.createActivity({
+					type: ActivityMdl.ACTIVITY_TYPES.MAP_SUBMITTED,
+					userID: map.submitterID, // TODO: Consider firing this for every author?
+					data: mapID,
+				});
+
+				console.log(act); // TODO REMOVEME
+
+				return Promise.resolve(map)
 			});
 		});
 	},

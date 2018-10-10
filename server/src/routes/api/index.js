@@ -11,6 +11,7 @@ router.use('/admin', [
 	authMiddleware.requireLogin,
 	authMiddleware.requireAdmin
 ], require('./admin'));
+router.use('/activities', require('./activities'));
 router.use('*', require('./404'));
 
 module.exports = router;

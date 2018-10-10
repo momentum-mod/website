@@ -5,7 +5,8 @@ const Sequelize = require('sequelize'),
 	ProfileModel = require('../src/models/db/profile'),
 	MapModel = require('../src/models/db/map'),
 	MapInfoModel = require('../src/models/db/map-info'),
-	MapCreditModel = require('../src/models/db/map-credit');
+	MapCreditModel = require('../src/models/db/map-credit'),
+	ActivityModel = require('../src/models/db/activity');
 
 const sequelize = new Sequelize({
 	database: config.db.name,
@@ -26,20 +27,14 @@ const Profile = ProfileModel(sequelize, Sequelize);
 const Map = MapModel(sequelize, Sequelize);
 const MapInfo = MapInfoModel(sequelize, Sequelize);
 const MapCredit = MapCreditModel(sequelize, Sequelize);
-/*// BlogTag will be our way of tracking relationship between Blog and Tag models
-// each Blog can have multiple tags and each Tag can have multiple blogs
-const BlogTag = sequelize.define('blog_tag', {})
-const Blog = BlogModel(sequelize, Sequelize)
-const Tag = TagModel(sequelize, Sequelize)
+const Activity = ActivityModel(sequelize, Sequelize);
 
-Blog.belongsToMany(Tag, { through: BlogTag, unique: false })
-Tag.belongsToMany(Blog, { through: BlogTag, unique: false })
-Blog.belongsTo(User);*/
-
-User.hasOne(Profile, { foreignKey: 'userID' });
-Map.hasMany(MapCredit, { foreignKey: 'mapID' });
-Map.hasOne(MapInfo, { foreignKey: 'mapID' });
-Map.belongsTo(User, { foreignKey: 'submitterID' });
+User.hasOne(Profile, { as: 'profile', foreignKey: 'userID' });
+User.hasMany(Activity, {foreignKey: 'userID'});
+Activity.belongsTo(User, {foreignKey: 'userID'});
+Map.hasMany(MapCredit, { as: 'Credits', foreignKey: 'mapID' });
+MapInfo.belongsTo(Map, {as: 'Map', foreignKey: 'mapID'});
+Map.belongsTo(User, { as: 'Submitter', foreignKey: 'submitterID' });
 MapCredit.belongsTo(User, { foreignKey: 'userID' });
 
 sequelize.query('SET FOREIGN_KEY_CHECKS = 0', { raw: true }) // temporary
@@ -59,7 +54,6 @@ module.exports = {
 	Profile,
 	Map,
 	MapInfo,
-	MapCredit/*,
-	Blog,
-	Tag*/
+	MapCredit,
+	Activity
 };

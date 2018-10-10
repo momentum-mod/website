@@ -16,7 +16,6 @@ module.exports = (sequelize, type) => {
 			defaultValue: 0
 		},
 		leaderboardID: type.BIGINT,
-		info: type.STRING,
 		download: type.STRING
 	})
 };
