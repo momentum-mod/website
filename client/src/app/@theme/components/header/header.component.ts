@@ -1,6 +1,6 @@
 import { Component, Input, OnInit } from '@angular/core';
 
-import { NbMenuService, NbSidebarService } from '@nebular/theme';
+import {NbMenuItem, NbMenuService, NbSidebarService} from '@nebular/theme';
 import { UserService } from '../../../@core/data/user.service';
 import { AnalyticsService } from '../../../@core/utils/analytics.service';
 import { LayoutService } from '../../../@core/data/layout.service';
@@ -14,7 +14,7 @@ export class HeaderComponent implements OnInit {
 
   @Input() position = 'normal';
   user: any;
-  userMenu = [{ title: 'Profile' }, { title: 'Log out' }];
+  userMenu: NbMenuItem[] = [{ title: 'Profile', link: '/dashboard/profile' }, { title: 'Log out' }];
   tag = 'my-context-menu';
 
   constructor(private sidebarService: NbSidebarService,
