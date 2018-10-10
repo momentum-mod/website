@@ -14,7 +14,19 @@ export class HeaderComponent implements OnInit {
 
   @Input() position = 'normal';
   user: any;
-  userMenu: NbMenuItem[] = [{ title: 'Profile', link: '/dashboard/profile' }, { title: 'Log out' }];
+  userMenu: NbMenuItem[] = [
+    {
+      title: 'Profile',
+      link: '/dashboard/profile',
+    },
+    {
+      title: 'Edit Profile',
+      link: '/dashboard/profile/edit',
+    },
+    {
+      title: 'Log out',
+    },
+    ];
   tag = 'my-context-menu';
 
   constructor(private sidebarService: NbSidebarService,
@@ -31,10 +43,6 @@ export class HeaderComponent implements OnInit {
   onContecxtItemSelection(title) {
     if (title === 'Log out') {
       this.userService.logout();
-    }
-    if (title === 'Profile') {
-      // window.location.href = 'user/:id';
-       window.location.href = '/dashboard/profile';
     }
   }
 
