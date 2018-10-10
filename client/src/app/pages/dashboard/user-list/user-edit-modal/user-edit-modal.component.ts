@@ -50,9 +50,12 @@ export class UserEditModalComponent {
   convertInputToUser(): User {
     const user = {
       id: this.form.id,
-      alias: this.form.alias,
-      avatarUrl: this.form.avatarUrl,
       permissions: 0,
+      profile: {
+        id: this.form.id,
+        alias: this.form.alias,
+        avatarUrl: this.form.avatarUrl,
+      },
     };
     for (const perm in this.form.perms) {
       if (this.form.perms[perm].checked) {

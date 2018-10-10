@@ -1,5 +1,9 @@
 import { Component, OnInit } from '@angular/core';
-import { UserService, Permission } from '../../../../@core/data/user.service';
+import { Permission } from '../../../../@core/data/user.service';
+import {ProfileService, UserProfile} from '../../../../@core/data/profile.service';
+import {ActivatedRoute, ParamMap} from '@angular/router';
+import {switchMap} from 'rxjs/operators';
+import {Observable} from 'rxjs';
 
 @Component({
   selector: 'profile-info',
@@ -8,13 +12,19 @@ import { UserService, Permission } from '../../../../@core/data/user.service';
 })
 export class ProfileInfoComponent implements OnInit {
 
-  user: any;
+  userProfile$: Observable<UserProfile>;
   permission = Permission;
 
-  constructor(public userService: UserService) { }
+  constructor(private route: ActivatedRoute,
+              private profileService: ProfileService) { }
 
   ngOnInit() {
-    this.user = this.userService.getInfo();
+    this.userProfile$ = this.route.paramMap.pipe(
+      switchMap((params: ParamMap) =>
+        params.has('id') ?
+        this.profileService.getUserProfile(params.get('id')) :
+        this.profileService.getLocalProfile(),
+      ),
+    );
   }
-
 }

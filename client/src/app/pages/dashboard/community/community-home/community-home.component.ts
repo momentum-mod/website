@@ -52,9 +52,12 @@ export class CommunityHomeComponent {
   convertInputToUser(): User {
     const user = {
       id: this.form.id,
-      avatarUrl: this.form.avatarUrl,
-      alias: this.form.alias,
       permissions: 0,
+      profile: {
+        id: this.form.id,
+        avatarUrl: this.form.avatarUrl,
+        alias: this.form.alias,
+      },
     };
     return user;
   }
