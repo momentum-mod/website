@@ -16,8 +16,6 @@ import {ActivityCardComponent} from './activity-card/activity-card.component';
 import {NotFoundModule} from '../not-found/not-found.module';
 import {SmartTableModule} from './smart-table/smart-table.module';
 import { UserEditModalComponent } from './user-list/user-edit-modal/user-edit-modal.component';
-import { VisitorsStatisticsComponent } from './follow-runs/visitors-statistics/visitors-statistics.component';
-import { ProgressSectionComponent } from './follow-maps/progress-section.component';
 import {UserProfileModule} from './profile/user-profile.module';
 import {CommunityHomeComponent} from './community/community-home/community-home.component';
 
@@ -42,8 +40,6 @@ import {CommunityHomeComponent} from './community/community-home/community-home.
     UserListComponent,
     ActivityCardComponent,
     UserEditModalComponent,
-    VisitorsStatisticsComponent,
-    ProgressSectionComponent,
   ],
   entryComponents: [
     UserEditModalComponent,
