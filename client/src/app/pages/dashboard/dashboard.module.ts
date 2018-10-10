@@ -20,6 +20,7 @@ import {CommunityHomeComponent} from './community/community-home/community-home.
 import {ProfileCardComponent} from './profile/profile-card/profile-card.component';
 import {UserProfileComponent} from './profile/user-profile.component';
 import {ProfileInfoComponent} from './profile/profile-info/profile-info.component';
+import {ProfileEditComponent} from './profile/profile-edit/profile-edit.component';
 
 @NgModule({
   imports: [
@@ -44,6 +45,7 @@ import {ProfileInfoComponent} from './profile/profile-info/profile-info.componen
     ProfileCardComponent,
     UserProfileComponent,
     ProfileInfoComponent,
+    ProfileEditComponent,
   ],
   entryComponents: [
     UserEditModalComponent,

@@ -10,10 +10,12 @@ import { AuthService } from './auth.service';
 import { StateService } from './state.service';
 import { SmartTableService } from './smart-table.service';
 import { LayoutService } from './layout.service';
+import {ProfileService} from './profile.service';
 
 const SERVICES = [
   UserService,
   UsersService,
+  ProfileService,
   AuthService,
   JwtModule,
   CookieService,

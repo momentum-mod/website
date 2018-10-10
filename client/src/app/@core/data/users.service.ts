@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import {UserProfile} from './profile.service';
 
 export interface Users {
   data: Array<User>;
@@ -8,11 +9,10 @@ export interface Users {
 
 export interface User {
   id: string;
-  alias: string;
   permissions: number;
-  avatarUrl: string;
   createdAt?: string;
   updatedAt?: string;
+  profile: UserProfile;
 }
 
 @Injectable()

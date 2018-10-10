@@ -1,4 +1,4 @@
-import {Component, ElementRef, OnInit, ViewChild} from '@angular/core';
+import {Component, OnInit} from '@angular/core';
 
 @Component({
   selector: 'ngx-main-page',
@@ -7,7 +7,7 @@ import {Component, ElementRef, OnInit, ViewChild} from '@angular/core';
 })
 export class MainPageComponent implements OnInit {
 
-  @ViewChild('mainNav') mainNav: ElementRef;
+  /*@ViewChild('mainNav') mainNav: ElementRef;
   mainNavClass: string;
 
   navBarCollapse(): void {
@@ -16,9 +16,9 @@ export class MainPageComponent implements OnInit {
     } else {
       this.mainNavClass = '';
     }
-  }
+  }*/
   ngOnInit(): void {
-    this.navBarCollapse();
+    // this.navBarCollapse();
 
     /*// Smooth scrolling using jQuery easing
     jqr('a.js-scroll-trigger[href*="#"]:not([href="#"])').click(function() {

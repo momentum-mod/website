@@ -1,15 +1,16 @@
 <div class="col-sm-12">
   <nb-card>
         <nb-card-body>
-            <h4>Bio:</h4>
-            <!--  <p>{{ user?.getBio }}</p> -->
-            <p>I've been a fan of the game since its development. I love making different kinds of maps so be sure to check them out!</p>
+          <h4>Bio:</h4>
+          <p>{{(userProfile$ | async).bio}}</p>
 
           <h4>Links:</h4>
           <div class="socials">
-            <a href="https://twitter.com/momentummod" target="_blank" class="ion ion-social-twitter"></a>
-            <a href="https://discordapp.com/invite/wQWkRb6" target="_blank">
-              <img src="assets\images\Discord-Logo-White.png" height="35px" width="35px"></a>
+            <a *ngIf="(userProfile$ | async).twitter" href="https://twitter.com/{{(userProfile$ | async).twitter}}" target="_blank" class="ion ion-social-twitter"></a>
+            <a *ngIf="(userProfile$ | async).discord" title="{{(userProfile$ | async).discord}}" target="_blank">
+              <img src="assets\images\Discord-Logo-White.png" height="35px" width="35px">
+            </a>
+            <a *ngIf="(userProfile$ | async).youtube" href="https://youtube.com/user/{{(userProfile$ | async).youtube}}" target="_blank" class="ion ion-social-youtube"></a>
           </div>
         </nb-card-body>
   </nb-card>

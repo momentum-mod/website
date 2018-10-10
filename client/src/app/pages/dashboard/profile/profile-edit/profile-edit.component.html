@@ -1,0 +1,30 @@
+<nb-card>
+  <nb-card-header>
+    <h2>EDIT PROFILE</h2>
+  </nb-card-header>
+  <nb-card-body>
+    <form #editForm="ngForm" (ngSubmit)="onSubmit()">
+      <div class="form-group">
+        <label for="alias">Username: </label>
+        <input class="form-control" placeholder="{{model.alias}}" type="text" id="alias" name="alias" required [(ngModel)]="model.alias">
+      </div>
+      <div class="form-group">
+        <label for="bio">Bio: </label>
+        <input class="form-control" type="text" id="bio" name="bio" required [(ngModel)]="model.bio">
+      </div>
+      <div class="form-group">
+        <label for="twitter">Twitter: </label>
+        <input class="form-control" type="text" id="twitter" name="twitter" required [(ngModel)]="model.twitter">
+      </div>
+      <div class="form-group">
+        <label for="discord">Discord: </label>
+        <input class="form-control" type="text" id="discord" name="discord" required [(ngModel)]="model.discord">
+      </div>
+      <div class="form-group">
+        <label for="youtube">Youtube: </label>
+        <input class="form-control" type="text" id="youtube" name="youtube" required [(ngModel)]="model.youtube">
+      </div>
+      <button class="btn btn-md btn-primary" (click)="onSubmit()">Save changes</button>
+    </form>
+  </nb-card-body>
+</nb-card>

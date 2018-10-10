@@ -6,6 +6,7 @@ import {UserListComponent} from './user-list/user-list.component';
 import {CommunityListComponent} from './community/community-list.component';
 import {NotFoundDashboardComponent} from '../not-found/dashboard/not-found-dashboard.component';
 import {UserProfileComponent} from './profile/user-profile.component';
+import {ProfileEditComponent} from './profile/profile-edit/profile-edit.component';
 
 const routes: Routes = [
   {
@@ -26,8 +27,15 @@ const routes: Routes = [
       },
       {
         path: 'profile',
-        component: UserProfileComponent,
         children: [
+          {
+            path: '',
+            component: UserProfileComponent,
+          },
+          {
+            path: 'edit',
+            component: ProfileEditComponent,
+          },
           {
             path: ':id',
             component: UserProfileComponent,
