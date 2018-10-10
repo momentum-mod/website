@@ -95,7 +95,7 @@ module.exports = {
 	createCredit: (req, res, next) => {
 		map.verifySubmitter(req.params.mapID, req.user.id)
 		.then(() => {
-			map.createCredit(req.params.mapID, req.body);
+			return map.createCredit(req.params.mapID, req.body);
 		}).then(mapCredit => {
 			res.json(mapCredit);
 		}).catch(next);
