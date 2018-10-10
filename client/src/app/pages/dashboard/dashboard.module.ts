@@ -7,7 +7,7 @@ import { ChartModule } from 'angular2-chartjs';
 
 import { ThemeModule } from '../../@theme/theme.module';
 import { DashboardComponent } from './dashboard.component';
-import { ProfileCardComponent } from './profile-card/profile-card.component';
+
 import {DashboardRoutingModule} from './dashboard-routing.module';
 import {DashboardHomeComponent} from './home/dashboard-home.component';
 import {UserListComponent} from './user-list/user-list.component';
@@ -37,7 +37,6 @@ import {UserProfileModule} from './profile/user-profile.module';
     DashboardComponent,
     DashboardHomeComponent,
     CommunityHomeComponent,
-    ProfileCardComponent,
     UserListComponent,
     ActivityCardComponent,
     UserEditModalComponent,

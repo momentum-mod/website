@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { UserService, Permission } from '../../../@core/data/user.service';
+import { UserService, Permission } from '../../../../@core/data/user.service';
 
 @Component({
   selector: 'profile-info',
