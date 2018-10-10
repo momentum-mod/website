@@ -7,42 +7,6 @@
     flex: 0.15 !important;
   }
 
-  nb-sidebar.settings-sidebar {
-    $sidebar-width: 7.5rem;
-
-    transition: width 0.3s ease;
-    width: $sidebar-width;
-    overflow: hidden;
-
-    &.collapsed {
-      width: 0;
-
-      /deep/ .main-container {
-        width: 0;
-
-        .scrollable {
-          width: $sidebar-width;
-          padding: 1.25rem;
-        }
-      }
-    }
-
-    /deep/ .main-container {
-      width: $sidebar-width;
-      background: nb-theme(color-bg);
-      transition: width 0.3s ease;
-      overflow: hidden;
-
-      .scrollable {
-        width: $sidebar-width;
-      }
-
-      @include nb-for-theme(cosmic) {
-        background: nb-theme(layout-bg);
-      }
-    }
-  }
-
   nb-sidebar.menu-sidebar {
 
     margin-top: nb-theme(sidebar-header-gap);
