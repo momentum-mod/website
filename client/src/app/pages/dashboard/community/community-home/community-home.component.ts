@@ -11,7 +11,7 @@ import { Permission } from '../../../../@core/data/user.service';
 
 export class CommunityHomeComponent {
   @Output() onEditSuccess: EventEmitter<any> = new EventEmitter();
-
+  alias: string = '';
   form = {
     id: '',
     avatarUrl: '',
