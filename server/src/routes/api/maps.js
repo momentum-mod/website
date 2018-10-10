@@ -31,8 +31,12 @@ router.route('/:mapID/map-credits/:mapCredID')
 	.delete([authMiddleware.requireLogin], mapCtrl.deleteCredit)
 	.all(errorCtrl.send405);
 
-router.route('/download/:mapID')
+router.route('/:mapID/download')
 	.get(mapCtrl.download)
+	.all(errorCtrl.send405);
+
+router.route('/:mapID/upload')
+	.post([authMiddleware.requireLogin], mapCtrl.upload)
 	.all(errorCtrl.send405);
 
 module.exports = router;
