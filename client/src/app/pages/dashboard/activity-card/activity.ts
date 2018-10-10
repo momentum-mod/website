@@ -1,9 +1,11 @@
 
 
+// See the server file "server/src/models/activity.js" for values here
 export enum Activity_Type {
   ALL = 0,
-  TIME_SUBMITTED = 1,
-  MAP_UPLOADED = 2,
+  MAP_SUBMITTED = 1,
+  PB_ACHIEVED = 2,
+  WR_ACHIEVED = 3,
 }
 
 export class MapActivityData {

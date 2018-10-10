@@ -29,7 +29,9 @@ module.exports = {
 				alias: usr.alias,
 				avatarURL: usr.avatarURL
 			}
-		}, { include: Profile });
+		}, {
+			model: [Profile]
+		});
 	},
 
 	findOrCreate: (profile) => {

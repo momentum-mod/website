@@ -19,7 +19,7 @@ export class ActivityCardComponent {
 
   // TODO use a service for the following
   activitiesAll: Activity[] = [
-    new Activity(Activity_Type.MAP_UPLOADED, 1, new MapActivityData(1)),
+    new Activity(Activity_Type.MAP_SUBMITTED, 1, new MapActivityData(1)),
   ];
   activities: Activity[];
   getActivities(): Activity[] {
