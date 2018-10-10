@@ -3,3 +3,4 @@ dist/
 *.iml
 npm-debug.log
 *.bsp
+public/
