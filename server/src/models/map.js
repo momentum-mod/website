@@ -10,7 +10,8 @@ module.exports = {
 			where: {
 				name: {
 					[Op.like]: '%' + (context.search || '') + '%' // 2 spooky 5 me O:
-				}
+				},
+				statusFlag: 1
 			},
 			offset: parseInt(context.offset) || 0,
 			limit: parseInt(context.limit) || 20
@@ -21,13 +22,24 @@ module.exports = {
 	get: (mapID) => {
 		return Map.find({
 			include: [MapInfo, MapCredit],
-			where: { id: mapID }
+			where: { id: mapID, statusFlag: 1 }
 		});
 	},
 
 	create: (map) => {
-		return Map.create(map, {
-			include: [MapInfo, MapCredit]
+		// TODO: add regex map name check when Joi validation added
+		// something like this /^[a-zA-Z0-9_!]+$/ (alphanum + )
+		return Map.find({
+			where: { name: map.name }
+		}).then(mapWithSameName => {
+			if (mapWithSameName) {
+				const err = new Error('Map name already used');
+				err.status = 409;
+				return Promise.reject(err);
+			}
+			return Map.create(map, {
+				include: [MapInfo, MapCredit]
+			});
 		});
 	},
 
@@ -103,12 +115,49 @@ module.exports = {
 				if (map && map.submitterID == userID) {
 					resolve();
 				} else {
-					const err = new Error("Forbidden");
+					const err = new Error('Forbidden');
 					err.status = 403;
 					reject(err);
 				}
 			});
 		});
+	},
+
+	upload: (mapID, mapFile) => {
+		return Map.find({
+			where: { id: mapID }
+		}).then(map => {
+			if (!map) {
+				const err = new Error('Map does not exist');
+				err.status = 404;
+				return Promise.reject(err);
+			} else if (map.statusFlag !== 0) {
+				const err = new Error('Map file cannot be uploaded again');
+				err.status = 409;
+				return Promise.reject(err);
+			}
+			const mapFileName = map.name + '.bsp';
+			return mapFile.mv(__dirname + '/../../public/maps/' + mapFileName);
+		}).then(() => {
+			return Map.update({ statusFlag: 1 }, {
+				where: { id: mapID }
+			});
+		});
+	},
+
+	getFilePath: (mapID) => {
+		return Map.find({
+			where: { id: mapID }
+		}).then(map => {
+			if (!map) {
+				const err = new Error('Map does not exist');
+				err.status = 404;
+				return Promise.reject(err);
+			}
+			const mapFileName = map.name + '.bsp';
+			const filePath = __dirname + '/../../public/maps/' + mapFileName;
+			return Promise.resolve(filePath);
+		})
 	}
 
 };

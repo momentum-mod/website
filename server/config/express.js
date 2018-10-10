@@ -7,6 +7,7 @@ const express = require('express'),
 	SteamStrategy = require('passport-steam').Strategy,
 	JwtStrategy = require('passport-jwt').Strategy,
 	ExtractJwt = require('passport-jwt').ExtractJwt,
+	fileUpload = require('express-fileupload'),
 	user = require('../src/models/user');
 
 module.exports = (app, config) => {
@@ -20,6 +21,9 @@ module.exports = (app, config) => {
     app.use(express.static(config.root + '/public'));
     app.use(methodOverride());
 	app.use(passport.initialize());
+	app.use(fileUpload({
+		limits: { filesize: 200 * 1024 * 1024 },
+	}));
 
 	passport.use(new SteamStrategy({
 		returnURL: config.baseUrl + '/api/auth/steam/return',

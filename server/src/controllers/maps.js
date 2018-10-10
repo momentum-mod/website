@@ -1,15 +1,16 @@
 'use strict';
-const map = require('../models/map');
+const map = require('../models/map'),
+	config = require('../../config/config');
 
 // TODO: handle these controller errors better!?
 const genMapNotFoundErr = () => {
-	const err = new Error("Map Not Found");
+	const err = new Error('Map Not Found');
 	err.status = 404;
 	return err;
 }
 
 const genMapCreditNotFoundErr = () => {
-	const err = new Error("Map Credit Not Found");
+	const err = new Error('Map Credit Not Found');
 	err.status = 404;
 	return err;
 }
@@ -39,6 +40,7 @@ module.exports = {
 		req.body.submitterID = req.user.id;
 		map.create(req.body)
 		.then(map => {
+			res.set('Location', config.baseUrl + '/maps/' + map.id + '/upload');
 			res.json(map);
 		}).catch(next);
 	},
@@ -117,9 +119,26 @@ module.exports = {
 		}).catch(next);
 	},
 
+	upload: (req, res, next) => {
+		if (req.files && req.files.mapFile) {
+			map.verifySubmitter(req.params.mapID, req.user.id)
+			.then(() => {
+				return map.upload(req.params.mapID, req.files.mapFile);
+			}).then(result => {
+				res.sendStatus(200);
+			}).catch(next);
+		} else {
+			const err = new Error('No map file uploaded');
+			err.status = 400;
+			next(err);
+		}
+	},
+
 	download: (req, res, next) => {
-		const err = new Error("Not implemented yet");
-		next(err);
+		map.getFilePath(req.params.mapID)
+		.then(path => {
+			res.download(path);
+		}).catch(next);
 	}
 
 }
