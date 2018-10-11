@@ -45,6 +45,7 @@ $nb-themes: nb-register-theme((
   color-fg-text: #fff,
   tabs-fg-text: #fff,
   chat-fg-text: #fff,
+  chat-form-bg: #222,
   // accordion-item-fg-text: #fff,
   layout-bg: black,
   smart-table-bg-even: #525252,
@@ -70,6 +71,7 @@ $nb-themes: nb-register-theme((
   font-main: Roboto,
   font-secondary: Exo,
   context-menu-active-bg: #2e66a5,
+  context-menu-border: #2e66a5,
 
   btn-primary-bg: #2e66a5,
 
