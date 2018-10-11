@@ -7,7 +7,10 @@ module.exports = {
 
 	getAll: (context) => {
 		const queryContext = {
-			include: [MapInfo, MapCredit],
+			include: [
+				{ model: MapInfo, as: 'info' },
+				{ model: MapCredit, as: 'credits' }
+			],
 			where: {
 				name: {
 					[Op.like]: '%' + (context.search || '') + '%' // 2 spooky 5 me O:
@@ -22,7 +25,10 @@ module.exports = {
 
 	get: (mapID) => {
 		return Map.find({
-			include: [MapInfo, MapCredit],
+			include: [
+				{ model: MapInfo, as: 'info' },
+				{ model: MapCredit, as: 'credits' }
+			],
 			where: { id: mapID, statusFlag: 1 }
 		});
 	},
@@ -39,7 +45,10 @@ module.exports = {
 				return Promise.reject(err);
 			}
 			return Map.create(map, {
-				include: [MapInfo, MapCredit]
+				include: [
+					{ model: MapInfo, as: 'info' },
+					{ model: MapCredit, as: 'credits' }
+				]
 			});
 		});
 	},

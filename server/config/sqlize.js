@@ -29,12 +29,12 @@ const MapInfo = MapInfoModel(sequelize, Sequelize);
 const MapCredit = MapCreditModel(sequelize, Sequelize);
 const Activity = ActivityModel(sequelize, Sequelize);
 
-User.hasOne(Profile, { as: 'profile', foreignKey: 'userID' });
-User.hasMany(Activity, {foreignKey: 'userID'});
-Activity.belongsTo(User, {foreignKey: 'userID'});
-Map.hasMany(MapCredit, { as: 'Credits', foreignKey: 'mapID' });
-MapInfo.belongsTo(Map, {as: 'Map', foreignKey: 'mapID'});
-Map.belongsTo(User, { as: 'Submitter', foreignKey: 'submitterID' });
+User.hasOne(Profile, { foreignKey: 'userID' });
+User.hasMany(Activity, { foreignKey: 'userID' });
+Activity.belongsTo(User, { foreignKey: 'userID' });
+Map.hasMany(MapCredit, { as: 'credits', foreignKey: 'mapID' });
+Map.hasOne(MapInfo, { as: 'info', foreignKey: 'mapID' });
+Map.belongsTo(User, { foreignKey: 'submitterID' });
 MapCredit.belongsTo(User, { foreignKey: 'userID' });
 
 sequelize.query('SET FOREIGN_KEY_CHECKS = 0', { raw: true }) // temporary
