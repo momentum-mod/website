@@ -26,7 +26,7 @@ module.exports = {
 	},
 
 	getFollowedActivities: (req, res, next) => {
-		res.status(501);
+		res.sendStatus(501);
 		// act.getFollowedActivities()
 	}
 };
