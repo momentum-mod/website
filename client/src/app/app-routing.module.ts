@@ -2,6 +2,7 @@ import {ExtraOptions, PreloadAllModules, RouterModule, Routes} from '@angular/ro
 import { NgModule } from '@angular/core';
 import {MainPageComponent} from './pages/main/main-page.component';
 import {NotFoundMainComponent} from './pages/not-found/main/not-found-main.component';
+import {AuthGuard} from './@core/guards/auth.guard';
 
 const routes: Routes = [
   {
@@ -10,14 +11,13 @@ const routes: Routes = [
   },
   {
     path: 'dashboard',
+    canActivate: [AuthGuard],
     loadChildren: 'app/pages/dashboard/dashboard.module#DashboardModule',
   },
   {
     path: '**',
     component: NotFoundMainComponent,
   },
-/*  { path: '', redirectTo: 'pages', pathMatch: 'full' },*/
-/*  { path: '**', redirectTo: 'pages' },*/
 ];
 
 const config: ExtraOptions = {
@@ -28,6 +28,7 @@ const config: ExtraOptions = {
 @NgModule({
   imports: [RouterModule.forRoot(routes, config)],
   exports: [RouterModule],
+  providers: [AuthGuard],
 })
 export class AppRoutingModule {
 }
