@@ -25,6 +25,10 @@ export class UsersService {
     return this.http.get('/api/users/');
   }
 
+  getUser(userID: string): Observable<any> {
+    return this.http.get('http://localhost:3002/api/users/' + userID);
+  }
+
   updateUser(user: User): Observable<any> {
     // console.log("Editing user...");
     // console.log(user);

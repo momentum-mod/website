@@ -2,10 +2,10 @@
   <nb-card-body>
     <div class="row">
       <div class="col-sm-3">
-        <img [src]="hasPerm(permission.BANNED_AVATAR) ? 'assets/images/blank_avatar.jpg' : user?.avatar" height="150px" width="150px">
+        <img [src]="hasPerm(permission.BANNED_AVATAR) ? 'assets/images/blank_avatar.jpg' : user?.profile.avatarURL" height="150px" width="150px">
       </div>
       <div class="col-sm-4">
-        <h1>{{ user?.displayName }}</h1>
+        <h1>{{ user?.profile.alias }}</h1>
         <h4>Rank #1</h4>
         <br>
         <br>

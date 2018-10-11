@@ -3,9 +3,7 @@ import { CookieService } from 'ngx-cookie-service';
 import { JwtHelperService } from '@auth0/angular-jwt';
 
 interface AccessTokenPayload {
-  id: number;
-  displayName: string;
-  avatar: string;
+  id: string;
   permissions: number;
 }
 

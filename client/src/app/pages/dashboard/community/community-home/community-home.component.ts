@@ -1,7 +1,7 @@
 import { Component, EventEmitter, Output } from '@angular/core';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { User, UsersService } from '../../../../@core/data/users.service';
-import { Permission } from '../../../../@core/data/user.service';
+import { Permission } from '../../../../@core/data/local-user.service';
 
 
 @Component({
@@ -55,7 +55,7 @@ export class CommunityHomeComponent {
       permissions: 0,
       profile: {
         id: this.form.id,
-        avatarUrl: this.form.avatarUrl,
+        avatarURL: this.form.avatarUrl,
         alias: this.form.alias,
       },
     };

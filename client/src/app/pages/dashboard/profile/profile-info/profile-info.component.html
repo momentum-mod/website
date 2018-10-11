@@ -2,15 +2,15 @@
   <nb-card>
         <nb-card-body>
           <h4>Bio:</h4>
-          <p>{{(userProfile$ | async).bio}}</p>
+          <p>{{userProfile?.bio}}</p>
 
           <h4>Links:</h4>
           <div class="socials">
-            <a *ngIf="(userProfile$ | async).twitter" href="https://twitter.com/{{(userProfile$ | async).twitter}}" target="_blank" class="ion ion-social-twitter"></a>
-            <a *ngIf="(userProfile$ | async).discord" title="{{(userProfile$ | async).discord}}" target="_blank">
+            <a *ngIf="userProfile?.twitter" href="https://twitter.com/{{userProfile?.twitter}}" target="_blank" class="ion ion-social-twitter"></a>
+            <a *ngIf="userProfile?.discord" title="{{userProfile?.discord}}" target="_blank">
               <img src="assets\images\Discord-Logo-White.png" height="35px" width="35px">
             </a>
-            <a *ngIf="(userProfile$ | async).youtube" href="https://youtube.com/user/{{(userProfile$ | async).youtube}}" target="_blank" class="ion ion-social-youtube"></a>
+            <a *ngIf="userProfile?.youtube" href="https://youtube.com/user/{{userProfile?.youtube}}" target="_blank" class="ion ion-social-youtube"></a>
           </div>
         </nb-card-body>
   </nb-card>

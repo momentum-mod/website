@@ -1,22 +1,20 @@
-import { Component, OnInit } from '@angular/core';
-import { UserService, Permission } from '../../../../@core/data/user.service';
+import {Component, Input} from '@angular/core';
+import { LocalUserService, Permission } from '../../../../@core/data/local-user.service';
+import {User} from '../../../../@core/data/users.service';
 
 @Component({
   selector: 'ngx-profile-card',
   styleUrls: ['./profile-card.scss'],
   templateUrl: './profile-card.component.html',
 })
-export class ProfileCardComponent implements OnInit {
+export class ProfileCardComponent {
 
-  user: any;
+  @Input('user') user: User;
   permission = Permission;
 
-  constructor(public userService: UserService) {}
+  constructor(public userService: LocalUserService) {}
 
-  ngOnInit() {
-    this.user = this.userService.getInfo();
-  }
   hasPerm(perm) {
-    return this.userService.hasPermission(perm);
+    return this.userService.hasPermission(perm, this.user);
   }
 }

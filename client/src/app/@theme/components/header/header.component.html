@@ -13,7 +13,7 @@
   [class.right]="position === 'normal'"
   [class.left]="position === 'inverse'">
   <nb-action *nbIsGranted="['view', 'user']" >
-    <nb-user [nbContextMenu]="userMenu" [name]="user?.displayName" [picture]="user?.avatar"></nb-user>
+    <nb-user [nbContextMenu]="userMenu" [name]="(user$ | async)?.profile.alias" [picture]="(user$ | async)?.profile.avatarURL"></nb-user>
   </nb-action>
   <nb-action class="control-item" disabled icon="nb-notifications"></nb-action>
   <nb-action class="control-item">

@@ -47,9 +47,9 @@ export class CommunityListComponent {
       }
     }, error => {
       this.source.load([{
-        avatarUrl: '../assets/images/kate.png', alias: 'Kate',
-      }, {avatarUrl: '../assets/images/jack.png', alias: 'Jack',
-      }, {avatarUrl: '../assets/images/eva.png', alias: 'Eva',
+        avatarURL: '../assets/images/kate.png', alias: 'Kate',
+      }, {avatarURL: '../assets/images/jack.png', alias: 'Jack',
+      }, {avatarURL: '../assets/images/eva.png', alias: 'Eva',
       },
       ]);
     });

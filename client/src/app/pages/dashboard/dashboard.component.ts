@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { NbMenuItem } from '@nebular/theme';
 import { MENU_ITEMS } from './dashboard-menu';
-import { UserService } from '../../@core/data/user.service';
+import { LocalUserService } from '../../@core/data/local-user.service';
 
 @Component({
   selector: 'dashboard',
@@ -15,7 +15,7 @@ import { UserService } from '../../@core/data/user.service';
 export class DashboardComponent implements OnInit {
   menu = MENU_ITEMS;
 
-  constructor(private userService: UserService) {
+  constructor(private userService: LocalUserService) {
   }
 
   ngOnInit() {

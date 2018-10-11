@@ -3,10 +3,10 @@
     <h2>EDIT PROFILE</h2>
   </nb-card-header>
   <nb-card-body>
-    <form #editForm="ngForm" (ngSubmit)="onSubmit()">
+    <form #editForm="ngForm" *ngIf="model" (ngSubmit)="onSubmit()">
       <div class="form-group">
         <label for="alias">Username: </label>
-        <input class="form-control" placeholder="{{model.alias}}" type="text" id="alias" name="alias" required [(ngModel)]="model.alias">
+        <input class="form-control" placeholder="{{model?.alias}}" type="text" id="alias" name="alias" required [(ngModel)]="model.alias">
       </div>
       <div class="form-group">
         <label for="bio">Bio: </label>

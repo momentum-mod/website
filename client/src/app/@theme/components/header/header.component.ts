@@ -1,9 +1,11 @@
 import { Component, Input, OnInit } from '@angular/core';
 
 import {NbMenuItem, NbMenuService, NbSidebarService} from '@nebular/theme';
-import { UserService } from '../../../@core/data/user.service';
+import { LocalUserService } from '../../../@core/data/local-user.service';
 import { AnalyticsService } from '../../../@core/utils/analytics.service';
 import { LayoutService } from '../../../@core/data/layout.service';
+import {Observable} from 'rxjs';
+import {User} from '../../../@core/data/users.service';
 
 @Component({
   selector: 'ngx-header',
@@ -13,7 +15,7 @@ import { LayoutService } from '../../../@core/data/layout.service';
 export class HeaderComponent implements OnInit {
 
   @Input() position = 'normal';
-  user: any;
+  user$: Observable<User>;
   userMenu: NbMenuItem[] = [
     {
       title: 'Profile',
@@ -27,11 +29,10 @@ export class HeaderComponent implements OnInit {
       title: 'Log out',
     },
     ];
-  tag = 'my-context-menu';
 
   constructor(private sidebarService: NbSidebarService,
               private menuService: NbMenuService,
-              private userService: UserService,
+              private userService: LocalUserService,
               private analyticsService: AnalyticsService,
               private layoutService: LayoutService) {
   this.menuService.onItemClick()
@@ -47,7 +48,7 @@ export class HeaderComponent implements OnInit {
   }
 
   ngOnInit() {
-    this.user = this.userService.getInfo();
+    this.user$ = this.userService.getLocal();
   }
 
   toggleSidebar(): boolean {

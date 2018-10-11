@@ -1,7 +1,7 @@
 import { Component, EventEmitter, Output } from '@angular/core';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { User, UsersService } from '../../../../@core/data/users.service';
-import { Permission } from '../../../../@core/data/user.service';
+import { Permission } from '../../../../@core/data/local-user.service';
 
 @Component({
   selector: 'ngx-modal',
@@ -54,7 +54,7 @@ export class UserEditModalComponent {
       profile: {
         id: this.form.id,
         alias: this.form.alias,
-        avatarUrl: this.form.avatarUrl,
+        avatarURL: this.form.avatarUrl,
       },
     };
     for (const perm in this.form.perms) {

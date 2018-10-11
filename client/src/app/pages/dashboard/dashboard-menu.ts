@@ -1,5 +1,5 @@
 import { NbMenuItem } from '@nebular/theme';
-import { Permission } from '../../@core/data/user.service';
+import { Permission } from '../../@core/data/local-user.service';
 
 export const MENU_ITEMS: NbMenuItem[] = [
   {
