@@ -4,16 +4,18 @@ import { CommonModule } from '@angular/common';
 import { CookieService } from 'ngx-cookie-service';
 import { JwtModule } from '@auth0/angular-jwt';
 
-import { UserService } from './user.service';
+import { LocalUserService } from './local-user.service';
 import { UsersService } from './users.service';
 import { AuthService } from './auth.service';
 import { StateService } from './state.service';
 import { SmartTableService } from './smart-table.service';
 import { LayoutService } from './layout.service';
 import {ProfileService} from './profile.service';
+import {ActivityService} from './activity.service';
 
 const SERVICES = [
-  UserService,
+  ActivityService,
+  LocalUserService,
   UsersService,
   ProfileService,
   AuthService,

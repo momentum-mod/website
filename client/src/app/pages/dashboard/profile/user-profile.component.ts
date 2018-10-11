@@ -1,5 +1,9 @@
 import { Component, OnInit } from '@angular/core';
-import { UserService } from '../../../@core/data/user.service';
+import { LocalUserService } from '../../../@core/data/local-user.service';
+import {switchMap} from 'rxjs/operators';
+import {ActivatedRoute, ParamMap} from '@angular/router';
+import {Observable} from 'rxjs';
+import {User, UsersService} from '../../../@core/data/users.service';
 
 
 @Component({
@@ -8,18 +12,20 @@ import { UserService } from '../../../@core/data/user.service';
   styleUrls: ['./user-profile.component.scss'],
 })
 export class UserProfileComponent implements OnInit {
+  user$: Observable<User>;
 
-  flipped = false;
-
-  user: any;
-
-  constructor(public userService: UserService) {}
-
-  ngOnInit() {
-    this.user = this.userService.getInfo();
+  constructor(private route: ActivatedRoute,
+              public userService: LocalUserService,
+              private usersService: UsersService) {
   }
 
-  toggleView() {
-    this.flipped = !this.flipped;
+  ngOnInit() {
+    this.user$ = this.route.paramMap.pipe(
+      switchMap((params: ParamMap) =>
+        params.has('id') ?
+          this.usersService.getUser(params.get('id')) :
+          this.userService.getLocal(),
+      ),
+    );
   }
 }

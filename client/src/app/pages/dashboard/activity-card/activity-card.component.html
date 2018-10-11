@@ -16,7 +16,6 @@
     </div>
   </nb-card-header>
   <nb-card-body>
-    <!--TODO: Fill the body with an ngFor that goes through all of the activity given the filters/data/etc-->
     <ul>
       <li *ngFor="let act of activities">
         <a href="/dashboard/user/{{act.userID}}">{{act.userID}}</a> did event {{activityType[act.type]}}

@@ -4,7 +4,7 @@ import {Observable, of} from 'rxjs';
 export interface UserProfile {
   id: string;
   alias: string;
-  avatarUrl: string;
+  avatarURL: string;
   bio?: string;
   twitter?: string;
   discord?: string;
@@ -13,12 +13,12 @@ export interface UserProfile {
 @Injectable()
 export class ProfileService {
   constructor(/*private http: HttpClient,
-              private usrService: UserService*/) {
+              private usrService: LocalUserService*/) {
   }
   private prof: UserProfile = {
     id: '1234',
     alias: 'Gocnak',
-    avatarUrl: 'https://i.imgur.com/Kt1XMxo.png',
+    avatarURL: 'https://i.imgur.com/Kt1XMxo.png',
     bio: 'Test this bio shee',
     twitter: 'Gocnak',
     discord: 'Gocnak#1234',

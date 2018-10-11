@@ -10,8 +10,6 @@ module.exports = {
 	genAccessToken: (usr) => {
 		const payload = {
 			id: usr.id,
-			displayName: usr.alias,
-			avatar: usr.avatarURL,
 			permissions: usr.permission
 		};
 		const options = {
