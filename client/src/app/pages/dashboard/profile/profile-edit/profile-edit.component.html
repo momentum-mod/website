@@ -3,6 +3,7 @@
     <h2>EDIT PROFILE</h2>
   </nb-card-header>
   <nb-card-body>
+    <toaster-container [toasterconfig]="this.toasterConfig"></toaster-container>
     <form #editForm="ngForm" *ngIf="model" (ngSubmit)="onSubmit()">
       <div class="form-group">
         <label for="alias">Username: </label>

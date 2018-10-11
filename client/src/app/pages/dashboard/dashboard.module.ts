@@ -21,6 +21,7 @@ import {ProfileCardComponent} from './profile/profile-card/profile-card.componen
 import {UserProfileComponent} from './profile/user-profile.component';
 import {ProfileInfoComponent} from './profile/profile-info/profile-info.component';
 import {ProfileEditComponent} from './profile/profile-edit/profile-edit.component';
+import {ToasterModule} from 'angular2-toaster';
 
 @NgModule({
   imports: [
@@ -30,9 +31,10 @@ import {ProfileEditComponent} from './profile/profile-edit/profile-edit.componen
     NgxChartsModule,
     SmartTableModule,
     Ng2SmartTableModule,
+    ToasterModule.forRoot(),
+    FormsModule,
     NotFoundModule,
     DashboardRoutingModule,
-    FormsModule,
   ],
   declarations: [
     DashboardComponent,
