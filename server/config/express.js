@@ -8,15 +8,12 @@ const express = require('express'),
 	JwtStrategy = require('passport-jwt').Strategy,
 	ExtractJwt = require('passport-jwt').ExtractJwt,
 	fileUpload = require('express-fileupload'),
-  cors = require('cors'),
 	user = require('../src/models/user');
 
 module.exports = (app, config) => {
 
 	if (app.get('env') === 'development') {
 		app.use(logger('dev'));
-    app.use(cors());
-    console.log('CORS is enabled for all origins');
 	}
 
     app.use(express.json());
