@@ -9,5 +9,5 @@ To run, you need NodeJS and Yarn installed. Then, in this directory run:
 ```
 npm install -g @angular/cli
 yarn install
-ng serve
+npm start
 ```
