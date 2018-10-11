@@ -7,16 +7,14 @@ export interface UserProfile {
   alias: string;
   avatarURL: string;
   bio?: string;
-  twitter?: string;
-  discord?: string;
-  youtube?: string;
+  twitterName?: string;
+  discordName?: string;
+  youtubeName?: string;
 }
 @Injectable()
 export class ProfileService {
   constructor(private http: HttpClient) {}
   updateUserProfile(userID: string, userProfile: UserProfile): Observable<any> {
-    // return of(userProfile);
-    const httpOptions = {};
-    return this.http.patch('http://localhost:3002/api/users/' + userID + '/profile', userProfile, httpOptions);
+    return this.http.patch('/api/users/' + userID + '/profile', userProfile);
   }
 }

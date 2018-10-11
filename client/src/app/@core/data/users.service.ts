@@ -26,7 +26,7 @@ export class UsersService {
   }
 
   getUser(userID: string): Observable<any> {
-    return this.http.get('http://localhost:3002/api/users/' + userID);
+    return this.http.get('/api/users/' + userID);
   }
 
   updateUser(user: User): Observable<any> {

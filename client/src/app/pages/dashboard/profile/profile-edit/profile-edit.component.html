@@ -15,15 +15,15 @@
       </div>
       <div class="form-group">
         <label for="twitter">Twitter: </label>
-        <input class="form-control" type="text" id="twitter" name="twitter" required [(ngModel)]="model.twitter">
+        <input class="form-control" type="text" id="twitter" name="twitter" required [(ngModel)]="model.twitterName">
       </div>
       <div class="form-group">
         <label for="discord">Discord: </label>
-        <input class="form-control" type="text" id="discord" name="discord" required [(ngModel)]="model.discord">
+        <input class="form-control" type="text" id="discord" name="discord" required [(ngModel)]="model.discordName">
       </div>
       <div class="form-group">
         <label for="youtube">Youtube: </label>
-        <input class="form-control" type="text" id="youtube" name="youtube" required [(ngModel)]="model.youtube">
+        <input class="form-control" type="text" id="youtube" name="youtube" required [(ngModel)]="model.youtubeName">
       </div>
       <button class="btn btn-md btn-primary" (click)="onSubmit()">Save changes</button>
     </form>
