@@ -18,6 +18,10 @@ import {MainPageModule} from './pages/main/main-page.module';
 import {NotFoundModule} from './pages/not-found/not-found.module';
 import {JwtModule} from '@auth0/angular-jwt';
 
+export function tokenGetter() {
+  return localStorage.getItem('accessToken');
+}
+
 @NgModule({
   declarations: [AppComponent],
   imports: [
@@ -29,9 +33,7 @@ import {JwtModule} from '@auth0/angular-jwt';
     HttpClientModule,
     JwtModule.forRoot({
       config: {
-        tokenGetter: () => {
-          return localStorage.getItem('accessToken');
-        },
+        tokenGetter: tokenGetter,
         whitelistedDomains: [
           'localhost:3002',
           'localhost:4200',
