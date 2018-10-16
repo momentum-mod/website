@@ -12,8 +12,8 @@ For your database, run the following:
 
 ```
 CREATE DATABASE momentum;
-CREATE USER mom;
-GRANT ALL PRIVILEGES ON momentum.* TO mom;
+CREATE USER mom@localhost;
+GRANT ALL PRIVILEGES ON momentum.* TO mom@localhost;
 ```
 
 This will set up a simple test user for the database.
