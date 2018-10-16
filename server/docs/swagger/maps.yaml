@@ -1,0 +1,338 @@
+paths:
+  /maps:
+    post:
+      tags:
+        - maps
+      summary: Creates a map
+      parameters:
+        - in: body
+          description: Map that we want to create
+          schema:
+            $ref: '#/definitions/Map'
+      responses:
+        200:
+          description: New map is created
+          headers:
+            Location:
+              schema:
+                type: string
+              description: A URL pointing to the location to upload the map file
+          schema:
+            $ref: '#/definitions/Map'
+        409:
+          description: Map name already used
+    get:
+      tags:
+        - maps
+      summary: Retrieves a list of maps
+      parameters:
+        - name: limit
+          in: query
+          description: The maximum number of results to show
+          type: integer
+          default: 20
+        - name: page
+          in: query
+          description: The page of results to show
+          type: integer
+          default: 0
+        - name: name
+          in: query
+          description: Filter by partial name match
+      responses:
+        200:
+          description: OK
+          schema:
+            $ref: '#/definitions/Maps'
+  /maps/{mapID}:
+    parameters:
+      - name: mapID
+        in: path
+        required: true
+        description: ID of the map to find
+        type: string
+    get:
+      tags:
+        - maps
+      summary: Retrieves a specific map
+      responses:
+        200:
+          description: OK
+          schema:
+            $ref: '#/definitions/Maps'
+        404:
+          description: Map is not found
+    patch:
+      tags:
+        - maps
+      summary: Updates a specific map
+      parameters:
+        - in: body
+          description: Map with new values of properties
+          schema:
+            $ref: '#/definitions/Map'
+      responses:
+        204:
+          description: Map is updated
+  /maps/{mapID}/info:
+    parameters:
+      - name: mapID
+        in: path
+        required: true
+        description: ID of the map to find
+        type: string
+    get:
+      tags:
+        - maps
+      summary: Retrieves info about a specific map
+      responses:
+        200:
+          description: OK
+          schema:
+            $ref: '#/definitions/MapInfo'
+        404:
+          description: Map info is not found
+    patch:
+      tags:
+        - maps
+      summary: Updates info for a specific map
+      parameters:
+        - in: body
+          description: Map info with new values of properties
+          schema:
+            $ref: '#/definitions/MapInfo'
+      responses:
+        204:
+          description: Map info is updated
+  /maps/{mapID}/credits:
+    parameters:
+      - name: mapID
+        in: path
+        required: true
+        description: ID of the map to find
+        type: string
+    get:
+      tags:
+        - maps
+      summary: Retrieves a map's credits
+      responses:
+        200:
+          description: OK
+          schema:
+            $ref: '#/definitions/MapCredits'
+        404:
+          description: Map is not found
+    post:
+      tags:
+        - maps
+      summary: Creates a map credit
+      parameters:
+        - in: body
+          description: Map credit with new values of properties
+          schema:
+            $ref: '#/definitions/MapCredit'
+      responses:
+        200:
+          description: Map info is updated
+          schema:
+            $ref: '#/definitions/MapCredit'
+  /maps/{mapID}/credits/{mapCredID}:
+    parameters:
+      - name: mapID
+        in: path
+        required: true
+        description: ID of the map to find
+        type: string
+      - name: mapCredID
+        in: path
+        required: true
+        description: ID of the credit to find
+        type: integer
+    get:
+      tags:
+        - maps
+      summary: Retrieves a specific map credit
+      responses:
+        200:
+          description: OK
+          schema:
+            $ref: '#/definitions/MapCredit'
+        404:
+          description: Map credit is not found
+    patch:
+      tags:
+        - maps
+      summary: Updates a specific map credit
+      parameters:
+        - in: body
+          description: Map credit with new values of properties
+          schema:
+            $ref: '#/definitions/MapCredit'
+      responses:
+        204:
+          description: Map credit is updated
+    delete:
+      tags:
+        - maps
+      summary: Deletes a specific map credit
+      responses:
+        200:
+          description: Map credit is deleted
+  /maps/{mapID}/upload:
+    parameters:
+      - name: mapID
+        in: path
+        required: true
+        description: ID of the map to find
+        type: string
+    post:
+      tags:
+        - maps
+      summary: Uploads the map file for a map
+      parameters:
+        - name: mapFile
+          in: formData
+          required: true
+          description: The map file to upload
+          type: file
+      responses:
+        200:
+          description: OK
+        400:
+          description: No map file found
+        404:
+          description: Map is not found
+        409:
+          description: Map file has already been uploaded for map
+  /maps/{mapID}/download:
+    parameters:
+      - name: mapID
+        in: path
+        required: true
+        description: ID of the map to find
+        type: string
+    get:
+      tags:
+        - maps
+      summary: Downloads the map file for a map
+      responses:
+        200:
+          description: A map file in BSP format
+          schema:
+            type: file
+        404:
+          description: Map is not found
+definitions:
+  Map:
+    required:
+      - name
+    properties:
+      id:
+        type: integer
+        format: int64
+        readOnly: true
+      submitterID:
+        type: string
+        format: int64
+        readOnly: true
+      name:
+        type: string
+      statusFlag:
+        type: integer
+      leaderboardID:
+        type: integer
+        readOnly: true
+      download:
+        type: string
+      info:
+        $ref: '#/definitions/MapInfo'
+      credits:
+        type: array
+        items:
+          $ref: '#/definitions/MapCredits'
+      createdAt:
+        type: string
+        format: date-time
+        readOnly: true
+      updatedAt:
+        type: string
+        format: date-time
+        readOnly: true
+  Maps:
+    properties:
+      maps:
+        type: array
+        items:
+          $ref: '#/definitions/Map'
+  MapInfo:
+    properties:
+      id:
+        type: integer
+        format: int64
+        readOnly: true
+      mapID:
+        type: integer
+        format: int64
+        readOnly: true
+      description:
+        type: string
+        nullable: true
+      numBonuses:
+        type: integer
+        format: int64
+        nullable: true
+      numCheckpoints:
+        type: integer
+        format: int64
+        nullable: true
+      numStages:
+        type: integer
+        format: int64
+        nullable: true
+      difficulty:
+        type: integer
+        format: int64
+        nullable: true
+      createdAt:
+        type: string
+        format: date-time
+        readOnly: true
+      updatedAt:
+        type: string
+        format: date-time
+        readOnly: true
+  MapCredit:
+    required:
+      - mapID
+      - type
+      - userID
+    properties:
+      id:
+        type: integer
+        format: int64
+        readOnly: true
+      mapID:
+        type: integer
+        format: int64
+        readOnly: true
+      type:
+        type: integer
+        format: int64
+        minimum: 0
+      userID:
+        type: string
+        format: int64
+      createdAt:
+        type: string
+        format: date-time
+        readOnly: true
+      updatedAt:
+        type: string
+        format: date-time
+        readOnly: true
+  MapCredits:
+    properties:
+      mapCredits:
+        type: array
+        items:
+          $ref: '#/definitions/MapCredit'

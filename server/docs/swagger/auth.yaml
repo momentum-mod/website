@@ -1,0 +1,29 @@
+paths:
+  /auth/steam:
+    get:
+      tags:
+        - auth
+      summary:
+        Starts OpenID Steam authentication by redirecting to Steam OpenID URL
+      responses:
+        302:
+          description: Redirection to Steam OpenID URL will occur
+          headers:
+            Location:
+              schema:
+                type: string
+              description: Steam OpenID URL
+  /auth/steam/return:
+    get:
+      tags:
+        - auth
+      summary:
+        The return URL for Steam OpenID authentication
+      responses:
+        302:
+          description: Redirection to the dashboard on login success
+          headers:
+            Location:
+              schema:
+                type: string
+              description: Web app dashboard URL
