@@ -9,7 +9,6 @@ import {
   NbLayoutModule,
   NbMenuModule,
   NbRouteTabsetModule,
-  NbSearchModule,
   NbSidebarModule,
   NbTabsetModule,
   NbThemeModule,
@@ -48,6 +47,7 @@ import {
 import { DEFAULT_THEME } from './styles/theme.default';
 import { COSMIC_THEME } from './styles/theme.cosmic';
 import { CORPORATE_THEME } from './styles/theme.corporate';
+import {NbSearchModule} from './components/search/search.module';
 
 const BASE_MODULES = [CommonModule, FormsModule, ReactiveFormsModule];
 
