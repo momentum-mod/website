@@ -18,7 +18,7 @@ GRANT ALL PRIVILEGES ON momentum.* TO mom@localhost;
 
 This will set up a simple test user for the database.
 
-Run `nodemon server.js` for a dev server. Navigate to `http://localhost:3002/`. The app will automatically reload if you change any of the source files.
+Run `nodemon server.js` for a development server. Navigate to `http://localhost:3002/`. The app will automatically reload if you change any of the source files.
 
 Note that you can also run the server using `node server.js`, but it will not automatically reload if you change any of the source files.
 
