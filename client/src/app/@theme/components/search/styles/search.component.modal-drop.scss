@@ -63,11 +63,15 @@
       margin: 5rem 0 2rem;
     }
 
+    search-results {
+      opacity: 0;
+    }
+
     input {
       font-size: 6vw;
       width: 60%;
       padding: 0.25rem;
-      text-align: center;
+      text-align: left;
       opacity: 0;
       transition: opacity 0.4s;
     }
@@ -129,7 +133,9 @@
         transition: opacity 0s 0.4s;
       }
 
-
+      search-results {
+        opacity: 1;
+      }
 
       span {
         opacity: 1;

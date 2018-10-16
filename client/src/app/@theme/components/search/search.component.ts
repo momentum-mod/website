@@ -5,7 +5,6 @@
  */
 
 import {
-  ChangeDetectionStrategy,
   Component,
   ElementRef,
   Input,
@@ -22,7 +21,6 @@ import { filter, delay, takeWhile } from 'rxjs/operators';
 import { NbSearchService } from './search.service';
 
 import {NbOverlayRef, NbOverlayService, NbPortalDirective, NbThemeService} from '@nebular/theme';
-
 /**
  * Beautiful full-page search control.
  *
@@ -67,24 +65,10 @@ import {NbOverlayRef, NbOverlayService, NbPortalDirective, NbThemeService} from 
  */
 @Component({
   selector: 'mom-search',
-  changeDetection: ChangeDetectionStrategy.OnPush,
   styleUrls: ['styles/search.component.scss'],
-  template: `
-    <button #searchButton class="start-search" (click)="openSearch()">
-      <i class="nb-search"></i>
-    </button>
-    <mom-search-field
-      *nbPortal
-      [show]="showSearchField"
-      [type]="type"
-      [placeholder]="placeholder"
-      [hint]="hint"
-      (search)="search($event)"
-      (close)="hideSearch()">
-    </mom-search-field>
-  `,
+  templateUrl: './search.component.html',
 })
-export class NbSearchComponent implements OnInit, OnDestroy {
+export class SearchComponent implements OnInit, OnDestroy {
 
   private alive = true;
   private overlayRef: NbOverlayRef;
@@ -182,9 +166,8 @@ export class NbSearchComponent implements OnInit, OnDestroy {
     this.searchButton.nativeElement.focus();
   }
 
-  search(term) {
-    this.searchService.submitSearch(term, this.tag);
-    this.hideSearch();
+  search(term: string) {
+    this.searchService.submitSearch(term, this.tag); // TODO figure out what to do with this service
   }
 
   private removeLayoutClasses() {

@@ -5,11 +5,12 @@
  */
 import { NgModule } from '@angular/core';
 
-import { NbSearchComponent } from './search.component';
+import { SearchComponent } from './search.component';
 import { NbSearchService } from './search.service';
 import {NbSharedModule} from '@nebular/theme/components/shared/shared.module';
 import {NbOverlayModule, NbThemeModule} from '@nebular/theme';
 import {SearchFieldComponent} from './search-field.component';
+import {SearchResultsComponent} from './search-results.component';
 
 @NgModule({
   imports: [
@@ -18,12 +19,14 @@ import {SearchFieldComponent} from './search-field.component';
     NbOverlayModule,
   ],
   declarations: [
-    NbSearchComponent,
+    SearchComponent,
     SearchFieldComponent,
+    SearchResultsComponent,
   ],
   exports: [
-    NbSearchComponent,
+    SearchComponent,
     SearchFieldComponent,
+    SearchResultsComponent,
   ],
   providers: [
     NbSearchService,

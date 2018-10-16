@@ -1,0 +1,12 @@
+<button #searchButton class="start-search" (click)="openSearch()">
+  <i class="nb-search"></i>
+</button>
+<mom-search-field
+  *nbPortal
+  [show]="showSearchField"
+  [type]="type"
+  [placeholder]="placeholder"
+  [hint]="hint"
+  (search)="search($event)"
+  (close)="hideSearch()">
+</mom-search-field>

@@ -25,6 +25,10 @@ export class UsersService {
     return this.http.get('/api/users/');
   }
 
+  searchUsers(query: string): Observable<any> {
+    return this.http.get('/api/users/?search=' + query);
+  }
+
   getUser(userID: string): Observable<any> {
     return this.http.get('/api/users/' + userID);
   }
