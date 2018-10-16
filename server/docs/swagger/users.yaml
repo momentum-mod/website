@@ -1,0 +1,147 @@
+paths:
+  /users:
+    get:
+      tags:
+        - users
+      summary: Retrieves a list of users
+      parameters:
+        - name: limit
+          in: query
+          description: The maximum number of results to show
+          type: integer
+          default: 20
+        - name: page
+          in: query
+          description: The page of results to show
+          type: integer
+          default: 0
+        - name: alias
+          in: query
+          description: Filter by partial alias match
+          type: string
+      responses:
+        200:
+          description: OK
+          schema:
+            $ref: '#/definitions/Users'
+  /users/{userID}:
+    parameters:
+      - name: userID
+        in: path
+        required: true
+        description: ID of the user to find
+        type: string
+    get:
+      tags:
+        - users
+      summary: Retrieves a specific user
+      responses:
+        200:
+          description: User is found
+          schema:
+            $ref: '#/definitions/User'
+        404:
+          description: User is not found
+    patch:
+      summary: Updates a specific user
+      tags:
+        - users
+
+      parameters:
+        - in: body
+          description: User with new values of properties
+          schema:
+            $ref: '#/definitions/User'
+      responses:
+        204:
+          description: User is updated
+  /users/{userID}/profile:
+    parameters:
+      - name: userID
+        in: path
+        required: true
+        description: ID of the user to find
+        type: string
+    get:
+      tags:
+        - users
+      summary: Retrieves a specific user's profile
+      responses:
+        200:
+          description: User profile is found
+          schema:
+            $ref: '#/definitions/Profile'
+        404:
+          description: User profile is not found
+    patch:
+      summary: Update a specific user's profile
+      tags:
+        - users
+      parameters:
+        - in: body
+          description: Profile with new values of properties
+          schema:
+            $ref: '#/definitions/Profile'
+      responses:
+        204:
+          description: User profile is updated
+definitions:
+  User:
+    properties:
+      id:
+        type: string
+        format: int64
+        readOnly: true
+      permissions:
+        type: integer
+        format: int64
+      profile:
+        $ref: '#/definitions/Profile'
+      createdAt:
+        type: string
+        format: date-time
+        readOnly: true
+      updatedAt:
+        type: string
+        format: date-time
+        readOnly: true
+  Users:
+    properties:
+      users:
+        type: array
+        items:
+          $ref: '#/definitions/User'
+  Profile:
+    properties:
+      id:
+        type: integer
+        format: int64
+        readOnly: true
+      userID:
+        type: string
+        format: int64
+        readOnly: true
+      alias:
+        type: string
+      avatarURL:
+        type: string
+      bio:
+        type: string
+        nullable: true
+      twitterName:
+        type: string
+        nullable: true
+      discordName:
+        type: string
+        nullable: true
+      youtubeName:
+        type: string
+        nullable: true
+      createdAt:
+        type: string
+        format: date-time
+        readOnly: true
+      updatedAt:
+        type: string
+        format: date-time
+        readOnly: true
