@@ -1,6 +1,5 @@
 import {
   AfterViewInit,
-  ChangeDetectionStrategy,
   Component, ElementRef,
   EventEmitter, HostBinding,
   Input,
@@ -8,6 +7,8 @@ import {
   Output, SimpleChanges,
   ViewChild,
 } from '@angular/core';
+import {User, UsersService} from '../../../@core/data/users.service';
+import {MapsService, MomentumMap} from '../../../@core/data/maps.service';
 
 /**
  * search-field-component is used under the hood by nb-search component
@@ -15,7 +16,6 @@ import {
  */
 @Component({
   selector: 'mom-search-field',
-  changeDetection: ChangeDetectionStrategy.OnPush,
   styleUrls: [
     'styles/search.component.modal-zoomin.scss',
     'styles/search.component.layout-rotate.scss',
@@ -36,6 +36,9 @@ export class SearchFieldComponent implements OnChanges, AfterViewInit {
   static readonly TYPE_COLUMN_CURTAIN = 'column-curtain';
   static readonly TYPE_MODAL_DROP = 'modal-drop';
   static readonly TYPE_MODAL_HALF = 'modal-half';
+
+  users: User[] = null;
+  maps: MomentumMap[] = null;
 
   @Input() type: string;
   @Input() placeholder: string;
@@ -86,6 +89,9 @@ export class SearchFieldComponent implements OnChanges, AfterViewInit {
   get modalHalf() {
     return this.type === SearchFieldComponent.TYPE_MODAL_HALF;
   }
+  constructor(private usersService: UsersService,
+              private mapsService: MapsService) {
+  }
 
   ngOnChanges({ show }: SimpleChanges) {
     const becameHidden = !show.isFirstChange() && show.currentValue === false;
@@ -102,11 +108,24 @@ export class SearchFieldComponent implements OnChanges, AfterViewInit {
 
   emitClose() {
     this.close.emit();
+    this.users = null;
+    this.maps = null;
   }
 
   submitSearch(term) {
     if (term) {
       this.search.emit(term);
+
+      const onlyUsers: boolean = term.startsWith('user:');
+      const onlyMaps: boolean = term.startsWith('map:');
+      if (!onlyMaps)
+        this.usersService.searchUsers(term.substring(onlyUsers ? 5 : 0).trim()).subscribe(resp => {
+          this.users = resp.users;
+        });
+      if (!onlyUsers)
+        this.mapsService.searchMaps(term.substring(onlyMaps ? 4 : 0).trim()).subscribe(maps => {
+          this.maps = maps;
+        });
     }
   }
 

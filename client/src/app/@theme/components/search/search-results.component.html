@@ -1,0 +1,11 @@
+<div *ngIf="elems?.length">
+  <div class="row">
+    {{usersResults ? 'Users:' : 'Maps:'}}
+  </div>
+  <div class="row">
+    <ul *ngFor="let elem of elems">
+      <li>{{usersResults ? 'USER' : 'MAP'}} FOUND! <a href="{{getElemURL(elem)}}">{{getElemName(elem)}}</a></li>
+    </ul>
+  </div>
+</div>
+<span *ngIf="elems?.length === 0">No {{usersResults ? 'users' : 'maps'}} found.</span>

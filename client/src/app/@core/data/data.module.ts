@@ -11,11 +11,13 @@ import { SmartTableService } from './smart-table.service';
 import { LayoutService } from './layout.service';
 import {ProfileService} from './profile.service';
 import {ActivityService} from './activity.service';
+import {MapsService} from './maps.service';
 
 const SERVICES = [
   ActivityService,
   LocalUserService,
   UsersService,
+  MapsService,
   ProfileService,
   AuthService,
   CookieService,
