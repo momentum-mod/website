@@ -1,21 +1,18 @@
-import { Component, Input, OnInit } from '@angular/core';
+import { Component, Input } from '@angular/core';
 
 import {NbMenuItem, NbMenuService, NbSidebarService} from '@nebular/theme';
 import { LocalUserService } from '../../../@core/data/local-user.service';
 import { AnalyticsService } from '../../../@core/utils/analytics.service';
 import { LayoutService } from '../../../@core/data/layout.service';
-import {Observable} from 'rxjs';
-import {User} from '../../../@core/data/users.service';
 
 @Component({
   selector: 'ngx-header',
   styleUrls: ['./header.component.scss'],
   templateUrl: './header.component.html',
 })
-export class HeaderComponent implements OnInit {
+export class HeaderComponent {
 
   @Input() position = 'normal';
-  user$: Observable<User>;
   userMenu: NbMenuItem[] = [
     {
       title: 'Profile',
@@ -32,7 +29,7 @@ export class HeaderComponent implements OnInit {
 
   constructor(private sidebarService: NbSidebarService,
               private menuService: NbMenuService,
-              private userService: LocalUserService,
+              public userService: LocalUserService,
               private analyticsService: AnalyticsService,
               private layoutService: LayoutService) {
   this.menuService.onItemClick()
@@ -46,11 +43,6 @@ export class HeaderComponent implements OnInit {
       this.userService.logout();
     }
   }
-
-  ngOnInit() {
-    this.user$ = this.userService.getLocal();
-  }
-
   toggleSidebar(): boolean {
     this.sidebarService.toggle(true, 'menu-sidebar');
     this.layoutService.changeLayoutSize();

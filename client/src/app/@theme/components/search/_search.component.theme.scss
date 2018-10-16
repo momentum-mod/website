@@ -1,0 +1,94 @@
+/**
+ * @license
+ * Copyright Akveo. All Rights Reserved.
+ * Licensed under the MIT License. See License.txt in the project root for license information.
+ */
+
+@mixin mom-search-theme() {
+
+  mom-search-field {
+
+    .search {
+      background: nb-theme(search-bg);
+
+      button {
+        color: nb-theme(search-btn-close-fg);
+      }
+
+      span {
+        color: nb-theme(search-info);
+      }
+
+      input {
+        color: nb-theme(search-text);
+        border-bottom: 4px solid nb-theme(search-dash);
+
+        &::placeholder {
+          color: nb-theme(search-placeholder);
+        }
+
+        &::-ms-clear {
+          display: none;
+        }
+      }
+    }
+
+    &.rotate-layout {
+      opacity: 0;
+      background: nb-theme(search-bg);
+    }
+
+    &.modal-zoomin {
+      .search::before,
+      .search::after {
+        border: 1.5rem solid nb-theme(search-bg-secondary);
+      }
+
+    }
+
+		&.modal-half {
+			.form-wrapper {
+				background: nb-theme(search-bg);
+			}
+      .search::before {
+        background: nb-theme(search-bg-secondary);
+      }
+    }
+
+    &.modal-drop {
+      .form-content::after {
+        background: nb-theme(search-dash);
+      }
+      .search::before {
+        background: nb-theme(search-bg);
+      }
+    }
+
+    &.curtain {
+      .search::after {
+        background: nb-theme(search-bg);
+      }
+      .search {
+        background: nb-theme(search-bg);
+      }
+    }
+
+		&.column-curtain {
+      &::before {
+        background: nb-theme(search-bg);
+      }
+      &::after {
+        background: transparent;
+      }
+      &.show::after {
+        background: nb-theme(search-bg-secondary);
+      }
+		}
+  }
+
+  mom-search {
+    button {
+      color: nb-theme(search-btn-open-fg);
+    }
+  }
+}

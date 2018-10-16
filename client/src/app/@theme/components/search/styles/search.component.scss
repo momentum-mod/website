@@ -1,0 +1,29 @@
+/**
+ * @license
+ * Copyright Akveo. All Rights Reserved.
+ * Licensed under the MIT License. See License.txt in the project root for license information.
+ */
+
+
+:host {
+  button {
+    font-size: 2rem;
+
+    margin: 0 auto;
+    padding: 0;
+    cursor: pointer;
+    border: none;
+    background: none;
+
+    &:focus {
+      box-shadow: none;
+      outline: none;
+    }
+  }
+}
+
+/deep/ nb-layout.with-search .scrollable-container {
+  position: relative;
+  z-index: 0;
+}
+

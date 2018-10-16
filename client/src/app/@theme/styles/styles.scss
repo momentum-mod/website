@@ -12,6 +12,7 @@
 @import './pace.theme';
 
 @import './bootstrap-rtl';
+@import '../components/search/search.component.theme';
 
 // install the framework and custom global styles
 @include nb-install() {
@@ -24,4 +25,6 @@
   @include ngx-pace-theme();
 
   @include bootstrap-rtl();
+
+  @include mom-search-theme();
 };
