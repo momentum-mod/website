@@ -40,7 +40,7 @@ export class LocalUserService {
     return this.locUsr$;
   }
 
-  public isLoggedIn() {
+  public isLoggedIn(): boolean {
     return this.authService.isAuthenticated();
   }
 
