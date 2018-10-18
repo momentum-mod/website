@@ -8,9 +8,8 @@ router.route('/users/:userID')
 	.patch(adminCtrl.updateUser)
 	.all(errorCtrl.send405);
 
-router.route('/users/:userID/permissions/:permID')
-	.post(adminCtrl.giveUserPermission)
-	.delete(adminCtrl.removeUserPermission)
+router.route('/maps/:mapID')
+	.patch(adminCtrl.updateMap)
 	.all(errorCtrl.send405);
 
 module.exports = router;
