@@ -40,7 +40,7 @@ module.exports = (app, config) => {
 	}, (openID, profile, done) => {
 		user.findOrCreate(profile)
 		.then((userInfo) => {
-			profile = Object.assign(profile, userInfo);
+			profile = Object.assign(userInfo, profile);
 			done(null, profile);
 		}).catch((err) => {
 			done(err, false);
