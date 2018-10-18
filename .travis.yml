@@ -4,7 +4,6 @@ sudo: false
 dist: trusty
 
 node_js:
-  - '8'
   - '10'
 
 branches:
@@ -36,6 +35,7 @@ before_script:
 
 script:
   - npm run lint:ci
+  - npm run test
   - npm run build:prod
   #- xvfb-run npm run e2e TODO uncomment when we have unit tests
 
