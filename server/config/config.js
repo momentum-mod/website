@@ -19,7 +19,8 @@ const config = {
 			name: 'momentum',
 			userName: 'mom',
 			password: '',
-			host: 'localhost'
+			host: 'localhost',
+			logging: false
 		}
 	},
 	development: {
@@ -38,7 +39,8 @@ const config = {
 			name: 'momentum',
 			userName: 'mom',
 			password: '',
-			host: 'localhost'
+			host: 'localhost',
+			logging: true
 		}
 	},
 	production: {
@@ -57,7 +59,8 @@ const config = {
 			name: 'momentum',
 			userName: process.env.MOM_DATABASE_USER,
 			password: process.env.MOM_DATABASE_PW,
-			host: process.env.MOM_DATABASE_HOST
+			host: process.env.MOM_DATABASE_HOST,
+			logging: false
 		}
 	}
 };

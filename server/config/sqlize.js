@@ -6,13 +6,15 @@ const Sequelize = require('sequelize'),
 	MapModel = require('../src/models/db/map'),
 	MapInfoModel = require('../src/models/db/map-info'),
 	MapCreditModel = require('../src/models/db/map-credit'),
-	ActivityModel = require('../src/models/db/activity');
+	ActivityModel = require('../src/models/db/activity'),
+	env = process.env.NODE_ENV || 'development';
 
 const sequelize = new Sequelize({
 	database: config.db.name,
 	username: config.db.userName,
 	password: config.db.password,
 	host: config.db.host,
+	logging: config.db.logging,
 	dialect: 'mysql',
 	pool: {
 		max: 10,
@@ -21,6 +23,15 @@ const sequelize = new Sequelize({
 		idle: 10000
 	}
 });
+
+const forceSyncDB = () => {
+	return sequelize.query('SET FOREIGN_KEY_CHECKS = 0', { raw: true })
+	.then(() => {
+		return sequelize.sync({force: true});
+	}).then(() => {
+		return sequelize.query('SET FOREIGN_KEY_CHECKS = 1', { raw: true });
+	});
+}
 
 const User = UserModel(sequelize, Sequelize);
 const Profile = ProfileModel(sequelize, Sequelize);
@@ -37,19 +48,19 @@ Map.hasOne(MapInfo, { as: 'info', foreignKey: 'mapID' });
 Map.belongsTo(User, { foreignKey: 'submitterID' });
 MapCredit.belongsTo(User, { foreignKey: 'userID' });
 
-sequelize.query('SET FOREIGN_KEY_CHECKS = 0', { raw: true }) // temporary
-.then(() => {
-	sequelize.sync({force: true})
-		.then(() => {
-			console.log(`Database & tables created!`)
-		}).catch((err) => {
-		console.warn(err);
+if (env === 'development') {
+	forceSyncDB()
+	.then(() => {
+		console.log(`Database & tables created!`)
+	}).catch(err => {
+		console.error(err);
 	});
-});
+}
 
 module.exports = {
 	Op: Sequelize.Op,
 	sequelize,
+	forceSyncDB,
 	User,
 	Profile,
 	Map,
