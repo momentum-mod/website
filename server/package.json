@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "start": "node app.js",
-    "test": "mocha"
+    "test": "mocha --exit"
   },
   "dependencies": {
     "axios": "^0.18.0",
