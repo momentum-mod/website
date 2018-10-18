@@ -35,9 +35,9 @@ before_script:
 
 script:
   - npm run lint:ci
-  - npm run test
+  - npm run test --watch false -cc
   - npm run build:prod
-  #- xvfb-run npm run e2e TODO uncomment when we have unit tests
+  #- xvfb-run npm run e2e TODO uncomment when we have integration tests?
 
 git:
   depth: 1
