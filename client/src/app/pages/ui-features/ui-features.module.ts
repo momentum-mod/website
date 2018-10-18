@@ -16,6 +16,7 @@ import {
   NgxPopoverCardComponent, NgxPopoverFormComponent,
   NgxPopoverTabsComponent,
 } from './popovers/popover-examples.component';
+import {NbSearchModule} from '@nebular/theme';
 
 const components = [
   UiFeaturesComponent,
@@ -39,6 +40,7 @@ const components = [
     ThemeModule,
     UiFeaturesRoutingModule,
     ButtonsModule,
+    NbSearchModule,
   ],
   declarations: [
     ...components,
