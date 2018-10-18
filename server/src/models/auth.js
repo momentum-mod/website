@@ -10,7 +10,7 @@ module.exports = {
 	genAccessToken: (usr) => {
 		const payload = {
 			id: usr.id,
-			permissions: usr.permission
+			permissions: usr.permissions
 		};
 		const options = {
 			issuer: config.domain,
