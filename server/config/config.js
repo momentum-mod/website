@@ -40,7 +40,7 @@ const config = {
 			userName: 'mom',
 			password: '',
 			host: 'localhost',
-			logging: true
+			logging: console.log
 		}
 	},
 	production: {
