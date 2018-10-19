@@ -56,7 +56,6 @@ module.exports = (app, config) => {
 		done(null, jwtPayload);
 	}));
 
-	app.use('/example', require(config.root + '/src/routes/example'));
 	app.use('/api', require(config.root + '/src/routes/api'));
 	app.use('/api-docs', swaggerUI.serve, swaggerUI.setup(swaggerSpec));
 
