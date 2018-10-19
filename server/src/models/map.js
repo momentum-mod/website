@@ -162,7 +162,7 @@ module.exports = {
 					where: { id: mapID },
 					transaction: t
 				}).then(() => {
-					return ActivityMdl.createActivity({
+					return ActivityMdl.create({
 						type: ActivityMdl.ACTIVITY_TYPES.MAP_SUBMITTED,
 						userID: mapInfo.submitterID, // TODO: Consider firing this for every author?
 						data: mapInfo.id,
