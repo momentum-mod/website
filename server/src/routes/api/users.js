@@ -12,7 +12,6 @@ router.route('/')
 
 router.route('/:userID')
 	.get(userCtrl.get)
-	.patch([authMiddleware.requireLogin], userCtrl.update)
 	.all(errorCtrl.send405);
 
 router.route('/:userID/profile')

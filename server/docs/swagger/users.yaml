@@ -42,19 +42,6 @@ paths:
             $ref: '#/definitions/User'
         404:
           description: User is not found
-    patch:
-      summary: Updates a specific user
-      tags:
-        - users
-
-      parameters:
-        - in: body
-          description: User with new values of properties
-          schema:
-            $ref: '#/definitions/User'
-      responses:
-        204:
-          description: User is updated
   /users/{userID}/profile:
     parameters:
       - name: userID
