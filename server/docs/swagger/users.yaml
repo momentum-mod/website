@@ -85,6 +85,42 @@ paths:
       responses:
         204:
           description: User profile is updated
+  /{userID}/activities:
+    parameters:
+      - name: userID
+        in: path
+        required: true
+        description: ID of the user to find
+        type: string
+    get:
+      summary: Retrieves a list of activities related to a specific user
+      tags:
+        - users
+      parameters:
+        - name: limit
+          in: query
+          description: The maximum number of results to show
+          type: integer
+          default: 20
+        - name: page
+          in: query
+          description: The page of results to show
+          type: integer
+          default: 0
+        - name: userID
+          in: query
+          description: Filter by user ID
+        - name: type
+          in: query
+          description: Filter by activity type
+        - name: data
+          in: query
+          description: Filter by activity data
+      responses:
+        200:
+          description: OK
+          schema:
+            $ref: '#/definitions/Activities'
 definitions:
   User:
     properties:

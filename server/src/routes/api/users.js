@@ -21,7 +21,7 @@ router.route('/:userID/profile')
 	.all(errorCtrl.send405);
 
 router.route('/:userID/activities')
-	.get(actCtrl.getUserActivities)
+	.get(actCtrl.getAll)
 	.all(errorCtrl.send405);
 
 module.exports = router;

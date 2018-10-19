@@ -1,8 +1,7 @@
 'use strict';
-
 const { Op, User, Activity, Map } = require('../../config/sqlize');
 
-var ACTIVITY_TYPES = Object.freeze({
+const ACTIVITY_TYPES = Object.freeze({
 	ALL: 0,
 	MAP_SUBMITTED: 1,
 	PB_ACHIEVED: 2,
@@ -12,32 +11,23 @@ var ACTIVITY_TYPES = Object.freeze({
 module.exports = {
 	ACTIVITY_TYPES,
 
-	createActivity: (actObject) => {
-		return Activity.create(actObject);
-	},
-
-	getActivitiesForUser: (userID) => {
-		return new Promise((resolve, reject) => {
-			User.findOne({where: {id: String(userID)}}).then((usr) => {
-				resolve(usr.getActivities({ limit: 10 }));
-			}).catch(reject);
-		});
-	},
-
-	getRecentActivities() {
-		return Activity.findAll({
-			where: {
-				createdAt: {
-					[Op.lt]: new Date(),
-				}
-			},
+	getAll: (context) => {
+		const queryContext = {
+			where: {},
+			offset: parseInt(context.page) || 0,
+			limit: parseInt(context.limit) || 10,
 			order: [
 				['createdAt', 'DESC']
-			],
-			attributes: [
-				'id', 'type', 'data', 'userID'
 			]
-		});
+		};
+		if (context.userID) queryContext.where.userID = context.userID;
+		if (context.data) queryContext.where.data = context.data;
+		if (context.type) queryContext.where.type = context.type;
+		return Activity.findAll(queryContext);
 	},
+
+	getFollowedActivities: (userID) => {
+		return Promise.resolve(); // TODO implement after following table added
+	}
 
 };

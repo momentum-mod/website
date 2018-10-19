@@ -1,0 +1,60 @@
+paths:
+  /activities:
+    get:
+      summary: Retrieves a list of activities
+      tags:
+        - activities
+      parameters:
+        - name: limit
+          in: query
+          description: The maximum number of results to show
+          type: integer
+          default: 20
+        - name: page
+          in: query
+          description: The page of results to show
+          type: integer
+          default: 0
+        - name: userID
+          in: query
+          description: Filter by user ID
+        - name: type
+          in: query
+          description: Filter by activity type
+        - name: data
+          in: query
+          description: Filter by activity data
+      responses:
+        200:
+          description: OK
+          schema:
+            $ref: '#/definitions/Activities'
+definitions:
+  Activity:
+    properties:
+      id:
+        type: string
+        format: int64
+        readOnly: true
+      type:
+        type: integer
+        readOnly: true
+      data:
+        type: integer
+        format: int64
+        readOnly: true
+        description: The ID of the resource related to the activity
+      createdAt:
+        type: string
+        format: date-time
+        readOnly: true
+      updatedAt:
+        type: string
+        format: date-time
+        readOnly: true
+  Activities:
+    properties:
+      activities:
+        type: array
+        items:
+          $ref: '#/definitions/Activity'
