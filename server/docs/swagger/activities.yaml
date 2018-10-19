@@ -9,7 +9,7 @@ paths:
           in: query
           description: The maximum number of results to show
           type: integer
-          default: 20
+          default: 10
         - name: page
           in: query
           description: The page of results to show

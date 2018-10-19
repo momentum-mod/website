@@ -10,7 +10,7 @@ module.exports = {
 			res.json({
 				activities: activities
 			});
-		});
+		}).catch(next);
 	},
 
 	getFollowedActivities: (req, res, next) => {

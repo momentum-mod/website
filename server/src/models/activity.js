@@ -28,6 +28,10 @@ module.exports = {
 
 	getFollowedActivities: (userID) => {
 		return Promise.resolve(); // TODO implement after following table added
+	},
+
+	create: (activity) => {
+		return Activity.create(activity);
 	}
 
 };
