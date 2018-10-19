@@ -29,13 +29,6 @@ module.exports = {
 		}).catch(next);
 	},
 
-	update: (req, res, next) => {
-		user.update(req.params.userID, req.body)
-		.then((user) => {
-			res.sendStatus(204);
-		}).catch(next);
-	},
-
 	getProfile: (req, res, next) => {
 		user.getProfile(req.params.userID)
 		.then(profile => {
