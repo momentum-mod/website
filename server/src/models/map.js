@@ -1,5 +1,5 @@
 'use strict';
-const { Op, Map, MapInfo, MapCredit, User } = require('../../config/sqlize'),
+const { sequelize, Op, Map, MapInfo, MapCredit, User } = require('../../config/sqlize'),
 	ActivityMdl = require('./activity'),
 	config = require('../../config/config');
 
@@ -134,6 +134,7 @@ module.exports = {
 	},
 
 	upload: (mapID, mapFile) => {
+		let mapInfo = null;
 		return Map.find({
 			where: { id: mapID }
 		}).then(map => {
@@ -146,26 +147,27 @@ module.exports = {
 				err.status = 409;
 				return Promise.reject(err);
 			}
+			mapInfo = map;
 			const mapFileName = map.name + '.bsp';
 			mapFile.mv(__dirname + '/../../public/maps/' + mapFileName, (err) => {
-				if (err)
+				if (err) {
 					return Promise.reject(err);
+				}
 			});
 		}).then(() => {
-			Map.update({ statusFlag: 1 }, {
-				where: { id: mapID }
-			}).then((map) => {
-
-				// Create the activity for this
-				var act = ActivityMdl.createActivity({
-					type: ActivityMdl.ACTIVITY_TYPES.MAP_SUBMITTED,
-					userID: map.submitterID, // TODO: Consider firing this for every author?
-					data: mapID,
+			return sequelize.transaction(t => {
+				return Map.update({
+					statusFlag: 1
+				}, {
+					where: { id: mapID },
+					transaction: t
+				}).then(() => {
+					return ActivityMdl.createActivity({
+						type: ActivityMdl.ACTIVITY_TYPES.MAP_SUBMITTED,
+						userID: mapInfo.submitterID, // TODO: Consider firing this for every author?
+						data: mapInfo.id,
+					}, {transaction: t});
 				});
-
-				console.log(act); // TODO REMOVEME
-
-				return Promise.resolve(map)
 			});
 		});
 	},
