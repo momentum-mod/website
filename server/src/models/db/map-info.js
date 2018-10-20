@@ -7,6 +7,7 @@ module.exports = (sequelize, type) => {
 			primaryKey: true,
 			autoIncrement: true
 		},
+		avatarURL: type.STRING,
 		description: type.STRING,
 		numBonuses: type.INTEGER,
 		numCheckpoints: type.INTEGER,

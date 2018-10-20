@@ -178,6 +178,30 @@ paths:
       responses:
         200:
           description: Map credit is deleted
+  /maps/{mapID}/avatar:
+    parameters:
+      - name: mapID
+        in: path
+        required: true
+        description: ID of the map to find
+        type: string
+    put:
+      tags:
+        - maps
+      summary: Uploads and updates the avatar for a map
+      parameters:
+        - name: avatarFile
+          in: formData
+          required: true
+          description: The avatar image file to upload
+          type: file
+      responses:
+        200:
+          description: Map avatar is updated
+        400:
+          description: No avatar file provided
+        404:
+          description: Map is not found
   /maps/{mapID}/upload:
     parameters:
       - name: mapID
@@ -197,9 +221,9 @@ paths:
           type: file
       responses:
         200:
-          description: OK
+          description: Map file is uploaded
         400:
-          description: No map file found
+          description: No map file provided
         404:
           description: Map is not found
         409:
@@ -244,6 +268,7 @@ definitions:
         readOnly: true
       download:
         type: string
+        readOnly: true
       info:
         $ref: '#/definitions/MapInfo'
       credits:
@@ -273,6 +298,9 @@ definitions:
       mapID:
         type: integer
         format: int64
+        readOnly: true
+      avatarURL:
+        type: string
         readOnly: true
       description:
         type: string
