@@ -5,40 +5,32 @@
           <nb-card-header><h1>Submit a Map</h1></nb-card-header>
 
           <nb-card-body>
-            <input class= "form-control" placeholder="Map File" disabled="disabled" [value]="fileToUpload?.name" #uploadFile/>
+            <label>Map File</label><br>
+            <input class= "form-control col-md-10" disabled="disabled" style="display: inline;" [value]="fileToUpload?.name" #uploadFile/>
             <div class="fileUpload btn btn-outline-info">
-              <span>Browse</span>
+              <span>Choose File</span>
               <input id="uploadBtn" type="file" accept=".bsp" class="upload" (change)="onFileSelected($event);"/>
             </div>
 
+            <label>Map Name</label>
             <div class="form-group">
-              <input type="text" placeholder="Map Name" class="form-control"/>
+              <input type="text" class="form-control col-md-10"/>
             </div>
 
-            <div class="row full-name-inputs">
-              <div class="col-sm-6 form-group">
-                <input type="text" placeholder="Author's Name" class="form-control"/>
+              <label>Author</label>
+              <div class="form-group">
+                <input type="text" class="form-control col-md-10" style="display: inline;"/>&nbsp;
+                <button type="button" class="btn btn-outline-info">+</button>
               </div>
 
-              <div class="col-sm-6 input-group">
-                <input type="text" placeholder="Co-authors" class="form-control"/>
-              </div>
+            <label>Date Created</label>
+            <div class="form-group">
+              <input type="date" class="form-control col-md-10"/>
             </div>
 
+            <label>Map Description</label>
             <div class="form-group">
-              <input type="text" placeholder="Testers" class="form-control"/>
-            </div>
-
-            <div class="form-group">
-              <input type="text" placeholder="Special Thanks" class="form-control"/>
-            </div>
-
-            <div class="form-group">
-              <input type="text" placeholder="Date Created" class="form-control"/>
-            </div>
-
-            <div class="form-group">
-              <textarea rows="5" placeholder="Map Description" class="form-control"></textarea>
+              <textarea rows="4" class="form-control col-md-10"></textarea>
             </div>
 
             <div class="form-group validation-checkboxes row">
@@ -46,7 +38,7 @@
             </div>
 
             <div>
-              <button type="button" class="btn btn-outline-info btn-block">Submit Map</button>
+              <button type="button" class="btn btn-outline-info">Submit Map</button>
             </div>
 
           </nb-card-body>
