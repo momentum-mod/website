@@ -31,6 +31,10 @@ router.route('/:mapID/credits/:mapCredID')
 	.delete([authMiddleware.requireLogin], mapCtrl.deleteCredit)
 	.all(errorCtrl.send405);
 
+router.route('/:mapID/avatar')
+	.put([authMiddleware.requireLogin], mapCtrl.updateAvatar)
+	.all(errorCtrl.send405);
+
 router.route('/:mapID/download')
 	.get(mapCtrl.download)
 	.all(errorCtrl.send405);

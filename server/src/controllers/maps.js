@@ -119,6 +119,21 @@ module.exports = {
 		}).catch(next);
 	},
 
+	updateAvatar: (req, res, next) => {
+		if (req.files && req.files.avatarFile) {
+			map.verifySubmitter(req.params.mapID, req.user.id)
+			.then(() => {
+				return map.updateAvatar(req.params.mapID, req.files.avatarFile);
+			}).then(result => {
+				res.sendStatus(200);
+			}).catch(next);
+		} else {
+			const err = new Error('No avatar file provided');
+			err.status = 400;
+			next(err);
+		}
+	},
+
 	upload: (req, res, next) => {
 		if (req.files && req.files.mapFile) {
 			map.verifySubmitter(req.params.mapID, req.user.id)
@@ -128,7 +143,7 @@ module.exports = {
 				res.sendStatus(200);
 			}).catch(next);
 		} else {
-			const err = new Error('No map file uploaded');
+			const err = new Error('No map file provided');
 			err.status = 400;
 			next(err);
 		}

@@ -1,5 +1,6 @@
 'use strict';
-const { sequelize, Op, Map, MapInfo, MapCredit, User } = require('../../config/sqlize'),
+const util = require('util'),
+	{ sequelize, Op, Map, MapInfo, MapCredit, User } = require('../../config/sqlize'),
 	ActivityMdl = require('./activity'),
 	config = require('../../config/config');
 
@@ -117,6 +118,29 @@ module.exports = {
 		});
 	},
 
+	updateAvatar: (mapID, avatarFile) => {
+		const moveAvatarTo = util.promisify(avatarFile.mv);
+		let avatarFileLocation = 'img/maps/';
+		return Map.find({
+			where: { id: mapID }
+		}).then(map => {
+			if (!map) {
+				const err = new Error('Map does not exist');
+				err.status = 404;
+				return Promise.reject(err);
+			}
+			// TODO: resize/edit image?
+			avatarFileLocation += map.name + '.jpg';
+			return moveAvatarTo(__dirname + '/../../public/' + avatarFileLocation);
+		}).then((results) => {
+			return MapInfo.update({
+				avatarURL: config.baseUrl + '/' + avatarFileLocation
+			}, {
+				where: { id: mapID }
+			});
+		});
+	},
+
 	verifySubmitter: (mapID, userID) => {
 		return new Promise((resolve, reject) => {
 			Map.find({
@@ -134,6 +158,8 @@ module.exports = {
 	},
 
 	upload: (mapID, mapFile) => {
+		const moveMapFileTo = util.promisify(mapFile.mv);
+		let mapFileLocation = 'maps/';
 		let mapInfo = null;
 		return Map.find({
 			where: { id: mapID }
@@ -148,16 +174,13 @@ module.exports = {
 				return Promise.reject(err);
 			}
 			mapInfo = map;
-			const mapFileName = map.name + '.bsp';
-			mapFile.mv(__dirname + '/../../public/maps/' + mapFileName, (err) => {
-				if (err) {
-					return Promise.reject(err);
-				}
-			});
+			mapFileLocation += map.name + '.bsp';
+			return moveMapFileTo(__dirname + '/../../public/' + mapFileLocation);
 		}).then(() => {
 			return sequelize.transaction(t => {
 				return Map.update({
-					statusFlag: 1
+					statusFlag: 1,
+					download: config.baseUrl + '/api/maps/' + mapInfo.id + '/download'
 				}, {
 					where: { id: mapID },
 					transaction: t
