@@ -20,7 +20,7 @@
     "start": "ng serve --proxy-config proxy.conf.json",
     "build": "ng build",
     "build:prod": "npm run build -- --prod --aot",
-    "test": "ng test --watch false -cc",
+    "test": "ng test",
     "test:coverage": "rimraf coverage && npm run test -- --code-coverage",
     "lint": "ng lint",
     "lint:fix": "ng lint ngx-admin-demo --fix",
