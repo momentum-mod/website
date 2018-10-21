@@ -6,12 +6,15 @@ dist: trusty
 node_js:
   - '10'
 
+env:
+  - NODE_ENV=test
+
 branches:
   only:
   - master
 
 git:
-  depth: 1
+  depth: false
 
 cache:
   yarn: true
@@ -27,20 +30,20 @@ addons:
     - yarn
   chrome: stable
 
-jobs:
-  include:
-  - stage: "Install"
-    name: "Install Client Packages"
-    script: cd ./client/ && npm install -g @angular/cli && yarn install
-  - name: "Install Server Packages"
-    script: cd ./server/ && yarn install
-  - stage: "Lint"
-    script: cd ./client/ && npm run lint:ci
-  - stage: "Tests"
-    name: "Client Unit Tests"
-    script: cd ./client/ && npm run test
-    # TODO: Uncomment when we have client integration tests
-  #- script: cd ./client/ && xvfb-run npm run e2e
-    #name: "Client Integration Tests"
-  - stage: "Build"
-    script: cd ./client/ && npm run build:prod
+install:
+  - cd ./client/
+  - npm install -g @angular/cli
+  - yarn install
+  - cd ../server/
+  - yarn install
+  - bash setup-db.sh
+  - cd ../client/
+
+script:
+  - npm run lint:ci
+  - npm run test
+  # TODO uncomment when we have client integration tests
+  #- xvfb-run npm run e2e
+  - npm run build:prod
+  - cd ../server/
+  - npm test
