@@ -39,6 +39,9 @@ paths:
         - name: search
           in: query
           description: Filter by partial name match
+        - name: submitterID
+          in: query
+          description: Filter by the submitter ID
       responses:
         200:
           description: OK

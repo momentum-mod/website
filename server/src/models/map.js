@@ -4,7 +4,16 @@ const util = require('util'),
 	ActivityMdl = require('./activity'),
 	config = require('../../config/config');
 
+const STATUS = Object.freeze({
+	APPROVED: 0,
+	NEEDS_UPLOAD: 1,
+	PENDING: 2,
+	NEEDS_REVISION: 3,
+	DENIED: 4,
+});
+
 module.exports = {
+	STATUS,
 
 	getAll: (context) => {
 		const queryContext = {
@@ -15,23 +24,26 @@ module.exports = {
 			where: {
 				name: {
 					[Op.like]: '%' + (context.search || '') + '%' // 2 spooky 5 me O:
-				},
-				statusFlag: 1
+				}
 			},
 			offset: parseInt(context.page) || 0,
 			limit: parseInt(context.limit) || 20
 		};
+		if (context.submitterID) queryContext.where.submitterID = context.submitterID;
+		if ('statusFlag' in context) queryContext.where.statusFlag = context.statusFlag;
 		return Map.findAll(queryContext);
 	},
 
-	get: (mapID) => {
-		return Map.find({
+	get: (mapID, context) => {
+		const queryContext = {
 			include: [
 				{ model: MapInfo, as: 'info' },
 				{ model: MapCredit, as: 'credits' }
 			],
-			where: { id: mapID, statusFlag: 1 }
-		});
+			where: { id: mapID }
+		};
+		if ('statusFlag' in context) queryContext.where.statusFlag = context.statusFlag;
+		return Map.find(queryContext);
 	},
 
 	create: (map) => {
@@ -168,8 +180,8 @@ module.exports = {
 				const err = new Error('Map does not exist');
 				err.status = 404;
 				return Promise.reject(err);
-			} else if (map.statusFlag !== 0) {
-				const err = new Error('Map file cannot be uploaded again');
+			} else if (map.statusFlag !== STATUS.NEEDS_UPLOAD) {
+				const err = new Error('Map file cannot be uploaded given the map state');
 				err.status = 409;
 				return Promise.reject(err);
 			}
@@ -179,7 +191,7 @@ module.exports = {
 		}).then(() => {
 			return sequelize.transaction(t => {
 				return Map.update({
-					statusFlag: 1,
+					statusFlag: STATUS.PENDING,
 					download: config.baseUrl + '/api/maps/' + mapInfo.id + '/download'
 				}, {
 					where: { id: mapID },

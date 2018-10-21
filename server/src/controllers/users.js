@@ -1,5 +1,6 @@
 'use strict';
-const user = require('../models/user');
+const user = require('../models/user'),
+	activity = require('../models/activity');
 
 // TODO: handle these controller errors better!?
 const genUserNotFoundErr = () => {
@@ -44,6 +45,16 @@ module.exports = {
 		.then(profile => {
 			res.sendStatus(204);
 		}).catch(next);
+	},
+
+	getActivities: (req, res, next) => {
+		req.query.userID = req.params.userID;
+		activity.getAll(req.query)
+		.then(activities => {
+			res.json({
+				activities: activities
+			});
+		});
 	}
 
 }
