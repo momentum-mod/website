@@ -1,6 +1,7 @@
 'use strict';
 const util = require('util'),
 	{ sequelize, Op, Map, MapInfo, MapCredit, User } = require('../../config/sqlize'),
+	Sequelize = require('sequelize'),
 	ActivityMdl = require('./activity'),
 	config = require('../../config/config');
 
@@ -220,6 +221,14 @@ module.exports = {
 			const filePath = __dirname + '/../../public/maps/' + mapFileName;
 			return Promise.resolve(filePath);
 		})
+	},
+
+	incrementDownloadCount: (mapID) => {
+		MapInfo.update({
+			totalDownloads: Sequelize.literal('totalDownloads + 1')
+		}, {
+			where: { mapID: mapID }
+		});
 	}
 
 };
