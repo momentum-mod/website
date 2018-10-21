@@ -7,10 +7,7 @@ module.exports = (sequelize, type) => {
 			primaryKey: true,
 			autoIncrement: true
 		},
-		name: {
-			type: type.STRING,
-			unique: true
-		},
+		name: type.STRING,
 		statusFlag: {
 			type: type.TINYINT,
 			defaultValue: 1

@@ -51,13 +51,19 @@ module.exports = {
 		// TODO: add regex map name check when Joi validation added
 		// something like this /^[a-zA-Z0-9_!]+$/ (alphanum + )
 		return Map.find({
-			where: { name: map.name }
+			where: {
+				name: map.name,
+				statusFlag: {
+					[Op.ne]: STATUS.DENIED
+				}
+			}
 		}).then(mapWithSameName => {
 			if (mapWithSameName) {
 				const err = new Error('Map name already used');
 				err.status = 409;
 				return Promise.reject(err);
 			}
+			if (!map.info) map.info = {};
 			return Map.create(map, {
 				include: [
 					{ model: MapInfo, as: 'info' },
