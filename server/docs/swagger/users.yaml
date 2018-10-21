@@ -15,7 +15,7 @@ paths:
           description: The page of results to show
           type: integer
           default: 0
-        - name: alias
+        - name: search
           in: query
           description: Filter by partial alias match
           type: string
