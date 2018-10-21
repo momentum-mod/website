@@ -10,6 +10,9 @@ branches:
   only:
   - master
 
+git:
+  depth: 1
+
 cache:
   yarn: true
   directories:
@@ -24,20 +27,20 @@ addons:
     - yarn
   chrome: stable
 
-before_install:
-  - cd ./client/
-
-install:
-  - npm install -g @angular/cli
-  - yarn install
-
-before_script:
-
-script:
-  - npm run lint:ci
-  #- npm run test
-  - npm run build:prod
-  #- xvfb-run npm run e2e TODO uncomment when we have integration tests?
-
-git:
-  depth: 1
+jobs:
+  include:
+  - stage: "Install"
+    name: "Install Client Packages"
+    script: cd ./client/ && npm install -g @angular/cli && yarn install
+  - name: "Install Server Packages"
+    script: cd ./server/ && yarn install
+  - stage: "Lint"
+    script: cd ./client/ && npm run lint:ci
+  - stage: "Tests"
+    name: "Client Unit Tests"
+    script: cd ./client/ && npm run test
+    # TODO: Uncomment when we have client integration tests
+  #- script: cd ./client/ && xvfb-run npm run e2e
+    #name: "Client Integration Tests"
+  - stage: "Build"
+    script: cd ./client/ && npm run build:prod
