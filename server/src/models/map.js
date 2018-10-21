@@ -2,7 +2,7 @@
 const util = require('util'),
 	{ sequelize, Op, Map, MapInfo, MapCredit, User } = require('../../config/sqlize'),
 	Sequelize = require('sequelize'),
-	ActivityMdl = require('./activity'),
+	Activity = require('./activity'),
 	config = require('../../config/config');
 
 const STATUS = Object.freeze({
@@ -74,17 +74,33 @@ module.exports = {
 	},
 
 	update: (mapID, map) => {
-		const updates = [
-			Map.update(map, { where: { id: mapID }})
-		];
-		if (map.mapInfo) {
-			updates.push(
-				MapInfo.update(map.mapInfo, {
-					where: { mapID: mapID }
-				})
-			);
-		}
-		return Promise.all(updates);
+		return sequelize.transaction(t => {
+			let mapInfo = null;
+			return Map.find({
+				where: { id: mapID },
+				transaction: t
+			}).then(mapToUpdate => {
+				mapInfo = mapToUpdate;
+				return Map.update(map, {
+					where: {
+						id: mapID,
+						statusFlag: {
+							[Op.ne]: STATUS.DENIED
+						}
+					},
+					transaction: t
+				});
+			}).then(() => {
+				if (map.statusFlag !== STATUS.APPROVED) {
+					return Promise.resolve(mapInfo);
+				}
+				return Activity.create({
+					type: Activity.ACTIVITY_TYPES.MAP_SUBMITTED,
+					userID: mapInfo.submitterID, // TODO: Consider firing this for every author?
+					data: mapInfo.id,
+				}, {transaction: t});
+			});
+		});
 	},
 
 	getInfo: (mapID) => {
@@ -179,7 +195,6 @@ module.exports = {
 	upload: (mapID, mapFile) => {
 		const moveMapFileTo = util.promisify(mapFile.mv);
 		let mapFileLocation = 'maps/';
-		let mapInfo = null;
 		return Map.find({
 			where: { id: mapID }
 		}).then(map => {
@@ -192,24 +207,14 @@ module.exports = {
 				err.status = 409;
 				return Promise.reject(err);
 			}
-			mapInfo = map;
 			mapFileLocation += map.name + '.bsp';
 			return moveMapFileTo(__dirname + '/../../public/' + mapFileLocation);
 		}).then(() => {
-			return sequelize.transaction(t => {
-				return Map.update({
-					statusFlag: STATUS.PENDING,
-					download: config.baseUrl + '/api/maps/' + mapInfo.id + '/download'
-				}, {
-					where: { id: mapID },
-					transaction: t
-				}).then(() => {
-					return ActivityMdl.create({
-						type: ActivityMdl.ACTIVITY_TYPES.MAP_SUBMITTED,
-						userID: mapInfo.submitterID, // TODO: Consider firing this for every author?
-						data: mapInfo.id,
-					}, {transaction: t});
-				});
+			return Map.update({
+				statusFlag: STATUS.PENDING,
+				download: config.baseUrl + '/api/maps/' + mapInfo.id + '/download'
+			}, {
+				where: { id: mapID }
 			});
 		});
 	},
