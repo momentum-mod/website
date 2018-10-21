@@ -16,8 +16,8 @@ const config = {
 			webAPIKey: process.env.STEAM_WEB_API_KEY
 		},
 		db: {
-			name: 'momentum',
-			userName: 'mom',
+			name: 'momentum_test',
+			userName: 'mom_test',
 			password: '',
 			host: 'localhost',
 			logging: false
