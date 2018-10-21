@@ -60,18 +60,6 @@ paths:
             $ref: '#/definitions/Profile'
         404:
           description: User profile is not found
-    patch:
-      summary: Update a specific user's profile
-      tags:
-        - users
-      parameters:
-        - in: body
-          description: Profile with new values of properties
-          schema:
-            $ref: '#/definitions/Profile'
-      responses:
-        204:
-          description: User profile is updated
   /users/{userID}/activities:
     parameters:
       - name: userID

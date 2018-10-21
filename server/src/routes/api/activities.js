@@ -2,7 +2,7 @@
 const express = require('express'),
 	router = express.Router(),
 	errorCtrl = require('../../controllers/error'),
-	actCtrl = require('../../controllers/activity');
+	actCtrl = require('../../controllers/activities');
 
 router.route('/')
 	.get(actCtrl.getAll)

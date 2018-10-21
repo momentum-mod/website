@@ -18,6 +18,7 @@ const genMapCreditNotFoundErr = () => {
 module.exports = {
 
 	getAll: (req, res, next) => {
+		req.query.statusFlag = map.STATUS.APPROVED;
 		map.getAll(req.query)
 		.then(maps => {
 	        res.json({
@@ -27,7 +28,8 @@ module.exports = {
 	},
 
 	get: (req, res, next) => {
-		map.get(req.params.mapID)
+		req.query.statusFlag = map.STATUS.APPROVED;
+		map.get(req.params.mapID, req.query)
 		.then(map => {
 			if (map) {
 				return res.json(map);

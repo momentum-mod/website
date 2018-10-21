@@ -13,7 +13,7 @@ module.exports = (sequelize, type) => {
 		},
 		statusFlag: {
 			type: type.TINYINT,
-			defaultValue: 0
+			defaultValue: 1
 		},
 		leaderboardID: type.BIGINT,
 		download: type.STRING

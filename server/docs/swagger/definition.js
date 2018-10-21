@@ -17,6 +17,10 @@ module.exports = {
         "description": "API for authenticating with the system"
       },
       {
+        "name": "user",
+        "description": "API for the authenticated user in the system"
+      },
+      {
         "name": "users",
         "description": "API for users in the system"
       },
