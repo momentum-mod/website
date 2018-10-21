@@ -1,6 +1,7 @@
 'use strict';
 const { Op, User, Profile } = require('../../config/sqlize'),
 	config = require('../../config/config'),
+	queryHelper = require('../helpers/query'),
 	axios = require('axios');
 
 module.exports = {
@@ -49,14 +50,17 @@ module.exports = {
 		});
 	},
 
-	get: (userID) => {
-		return User.find({
-			include: [Profile],
+	get: (userID, context) => {
+		const allowedExpansions = ['profile'];
+		const queryContext = {
+			include: [],
 			where: { id: userID },
 			attributes: {
 				exclude: ['refreshToken']
 			}
-		})
+		};
+		queryHelper.addExpansions(queryContext, context.expand, allowedExpansions);
+		return User.find(queryContext);
 	},
 
 	getAll: (context) => {
@@ -73,8 +77,11 @@ module.exports = {
 				exclude: ['refreshToken']
 			},
 			offset: parseInt(context.page) || 0,
-			limit: parseInt(context.limit) || 20
+			limit: Math.min(parseInt(context.limit) || 20, 20)
 		};
+		if (!(context.expand && context.expand.includes('profile'))) {
+			queryContext.include[0].attributes = [];
+		}
 		return User.findAll(queryContext);
 	},
 

@@ -21,7 +21,7 @@ module.exports = {
 	},
 
 	get: (req, res, next) => {
-		user.get(req.params.userID)
+		user.get(req.params.userID, req.query)
 		.then(user => {
 			if (user) {
 				return res.json(user);

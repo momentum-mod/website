@@ -1,8 +1,9 @@
 'use strict';
 const util = require('util'),
-	{ sequelize, Op, Map, MapInfo, MapCredit, User } = require('../../config/sqlize'),
+	{ sequelize, Op, Map, MapInfo, MapCredit, User, Profile } = require('../../config/sqlize'),
 	Sequelize = require('sequelize'),
-	Activity = require('./activity'),
+	activity = require('./activity'),
+	queryHelper = require('../helpers/query'),
 	config = require('../../config/config');
 
 const STATUS = Object.freeze({
@@ -17,33 +18,32 @@ module.exports = {
 	STATUS,
 
 	getAll: (context) => {
+		const allowedExpansions = ['mapInfo', 'mapCredits', 'submitter'];
 		const queryContext = {
-			include: [
-				{ model: MapInfo, as: 'info' },
-				{ model: MapCredit, as: 'credits' }
-			],
-			where: {
-				name: {
-					[Op.like]: '%' + (context.search || '') + '%' // 2 spooky 5 me O:
-				}
-			},
+			include: [],
+			where: {},
 			offset: parseInt(context.page) || 0,
-			limit: parseInt(context.limit) || 20
+			limit: Math.min(parseInt(context.limit) || 20, 20)
 		};
 		if (context.submitterID) queryContext.where.submitterID = context.submitterID;
 		if ('statusFlag' in context) queryContext.where.statusFlag = context.statusFlag;
+		if (context.search) {
+			queryContext.where.name = {
+				[Op.like]: '%' + context.search + '%' // 2 spooky 5 me O:
+			}
+		}
+		queryHelper.addExpansions(queryContext, context.expand, allowedExpansions);
 		return Map.findAll(queryContext);
 	},
 
 	get: (mapID, context) => {
+		const allowedExpansions = ['mapInfo', 'mapCredits', 'submitter'];
 		const queryContext = {
-			include: [
-				{ model: MapInfo, as: 'info' },
-				{ model: MapCredit, as: 'credits' }
-			],
+			include: [],
 			where: { id: mapID }
 		};
 		if ('statusFlag' in context) queryContext.where.statusFlag = context.statusFlag;
+		queryHelper.addExpansions(queryContext, context.expand, allowedExpansions);
 		return Map.find(queryContext);
 	},
 
@@ -94,8 +94,8 @@ module.exports = {
 				if (map.statusFlag !== STATUS.APPROVED) {
 					return Promise.resolve(mapInfo);
 				}
-				return Activity.create({
-					type: Activity.ACTIVITY_TYPES.MAP_SUBMITTED,
+				return activity.create({
+					type: activity.ACTIVITY_TYPES.MAP_SUBMITTED,
 					userID: mapInfo.submitterID, // TODO: Consider firing this for every author?
 					data: mapInfo.id,
 				}, {transaction: t});
@@ -116,18 +116,22 @@ module.exports = {
 	},
 
 	getCredits: (mapID, context) => {
-		return MapCredit.findAll({
-			where: { mapID: mapID }
-		});
+		const allowedExpansions = ['user'];
+		const queryContext = { where: { mapID: mapID }};
+		queryHelper.addExpansions(queryContext, context.expand, allowedExpansions);
+		return MapCredit.findAll(queryContext);
 	},
 
-	getCredit: (mapID, mapCredID) => {
-		return MapCredit.find({
+	getCredit: (mapID, mapCredID, context) => {
+		const allowedExpansions = ['user'];
+		const queryContext = {
 			where: {
 				id: mapCredID,
 				mapID: mapID
 			}
-		});
+		};
+		queryHelper.addExpansions(queryContext, context.expand, allowedExpansions);
+		return MapCredit.find(queryContext);
 	},
 
 	createCredit: (mapID, mapCredit) => {

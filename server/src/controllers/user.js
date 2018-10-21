@@ -6,7 +6,7 @@ const user = require('../models/user'),
 module.exports = {
 
 	get: (req, res, next) => {
-		user.get(req.user.id)
+		user.get(req.user.id, req.query)
 		.then(user => {
 			return res.json(user);
 		}).catch(next);

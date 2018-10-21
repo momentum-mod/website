@@ -39,9 +39,19 @@ paths:
         - name: search
           in: query
           description: Filter by partial name match
+          type: string
         - name: submitterID
           in: query
           description: Filter by the submitter ID
+          type: string
+        - name: expand
+          in: query
+          description: The names of resources to attach/expand, specified by a comma-separated list of names.
+          type: array
+          collectionFormat: csv
+          items:
+            type: string
+            enum: [mapInfo, submitter, mapCredits]
       responses:
         200:
           description: OK
@@ -58,6 +68,15 @@ paths:
       tags:
         - maps
       summary: Retrieves a specific map
+      parameters:
+        - name: expand
+          in: query
+          description: The names of resources to attach/expand, specified by a comma-separated list of names.
+          type: array
+          collectionFormat: csv
+          items:
+            type: string
+            enum: [mapInfo, submitter, mapCredits]
       responses:
         200:
           description: OK
@@ -118,6 +137,15 @@ paths:
       tags:
         - maps
       summary: Retrieves a map's credits
+      parameters:
+        - name: expand
+          in: query
+          description: The names of resources to attach/expand, specified by a comma-separated list of names.
+          type: array
+          collectionFormat: csv
+          items:
+            type: string
+            enum: [user]
       responses:
         200:
           description: OK
@@ -155,6 +183,15 @@ paths:
       tags:
         - maps
       summary: Retrieves a specific map credit
+      parameters:
+        - name: expand
+          in: query
+          description: The names of resources to attach/expand, specified by a comma-separated list of names.
+          type: array
+          collectionFormat: csv
+          items:
+            type: string
+            enum: [user]
       responses:
         200:
           description: OK
@@ -272,12 +309,6 @@ definitions:
       download:
         type: string
         readOnly: true
-      info:
-        $ref: '#/definitions/MapInfo'
-      credits:
-        type: array
-        items:
-          $ref: '#/definitions/MapCredits'
       createdAt:
         type: string
         format: date-time

@@ -46,7 +46,7 @@ User.hasMany(Activity, { foreignKey: 'userID' });
 Activity.belongsTo(User, { foreignKey: 'userID' });
 Map.hasMany(MapCredit, { as: 'credits', foreignKey: 'mapID' });
 Map.hasOne(MapInfo, { as: 'info', foreignKey: 'mapID' });
-Map.belongsTo(User, { foreignKey: 'submitterID' });
+Map.belongsTo(User, { as: 'submitter', foreignKey: 'submitterID' });
 MapCredit.belongsTo(User, { foreignKey: 'userID' });
 
 if (env === 'development') {
