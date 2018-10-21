@@ -4,6 +4,15 @@ paths:
       tags:
         - user
       summary: Retrieves the authenticated user
+      parameters:
+        - name: expand
+          in: query
+          description: The names of resources to attach/expand, specified by a comma-separated list of names.
+          type: array
+          collectionFormat: csv
+          items:
+            type: string
+            enum: [profile]
       responses:
         200:
           description: User is retrieved
@@ -37,7 +46,7 @@ paths:
       responses:
         204:
           description: User profile is updated
-  /maps:
+  /user/maps:
     get:
       tags:
         - user
@@ -56,12 +65,20 @@ paths:
         - name: search
           in: query
           description: Filter by partial name match
+        - name: expand
+          in: query
+          description: The names of resources to attach/expand, specified by a comma-separated list of names.
+          type: array
+          collectionFormat: csv
+          items:
+            type: string
+            enum: [mapInfo, submitter, mapCredits]
       responses:
         200:
           description: OK
           schema:
             $ref: '#/definitions/Maps'
-  /activities:
+  /user/activities:
     get:
       summary: Retrieves a list of authenticated user's activities
       tags:
@@ -83,6 +100,14 @@ paths:
         - name: data
           in: query
           description: Filter by activity data
+        - name: expand
+          in: query
+          description: The names of resources to attach/expand, specified by a comma-separated list of names.
+          type: array
+          collectionFormat: csv
+          items:
+            type: string
+            enum: [user]
       responses:
         200:
           description: OK
