@@ -36,7 +36,7 @@ paths:
           description: The page of results to show
           type: integer
           default: 0
-        - name: name
+        - name: search
           in: query
           description: Filter by partial name match
       responses:
