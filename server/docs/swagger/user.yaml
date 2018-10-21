@@ -1,0 +1,90 @@
+paths:
+  /user:
+    get:
+      tags:
+        - user
+      summary: Retrieves the authenticated user
+      responses:
+        200:
+          description: User is retrieved
+          schema:
+            $ref: '#/definitions/User'
+  /user/profile:
+    parameters:
+      - name: userID
+        in: path
+        required: true
+        description: ID of the user to find
+        type: string
+    get:
+      tags:
+        - user
+      summary: Retrieves the authenticated user's profile
+      responses:
+        200:
+          description: User profile is retrieved
+          schema:
+            $ref: '#/definitions/Profile'
+    patch:
+      summary: Update the authenticated user's profile
+      tags:
+        - user
+      parameters:
+        - in: body
+          description: Profile with new values of properties
+          schema:
+            $ref: '#/definitions/Profile'
+      responses:
+        204:
+          description: User profile is updated
+  /maps:
+    get:
+      tags:
+        - user
+      summary: Retrieves a list of maps submitted by the authenticated user
+      parameters:
+        - name: limit
+          in: query
+          description: The maximum number of results to show
+          type: integer
+          default: 20
+        - name: page
+          in: query
+          description: The page of results to show
+          type: integer
+          default: 0
+        - name: search
+          in: query
+          description: Filter by partial name match
+      responses:
+        200:
+          description: OK
+          schema:
+            $ref: '#/definitions/Maps'
+  /activities:
+    get:
+      summary: Retrieves a list of authenticated user's activities
+      tags:
+        - user
+      parameters:
+        - name: limit
+          in: query
+          description: The maximum number of results to show
+          type: integer
+          default: 10
+        - name: page
+          in: query
+          description: The page of results to show
+          type: integer
+          default: 0
+        - name: type
+          in: query
+          description: Filter by activity type
+        - name: data
+          in: query
+          description: Filter by activity data
+      responses:
+        200:
+          description: OK
+          schema:
+            $ref: '#/definitions/Activities'
