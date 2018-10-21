@@ -7,6 +7,10 @@ module.exports = (sequelize, type) => {
 			primaryKey: true,
 			autoIncrement: true
 		},
+		totalDownloads: {
+			type: type.BIGINT,
+			defaultValue: 0
+		},
 		avatarURL: type.STRING,
 		description: type.STRING,
 		numBonuses: type.INTEGER,

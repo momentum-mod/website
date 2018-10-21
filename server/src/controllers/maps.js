@@ -155,6 +155,7 @@ module.exports = {
 		map.getFilePath(req.params.mapID)
 		.then(path => {
 			res.download(path);
+			map.incrementDownloadCount(req.params.mapID);
 		}).catch(next);
 	}
 
