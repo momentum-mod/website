@@ -4,7 +4,7 @@
   </button>
   <div class="form-wrapper">
     <form class="form" (keyup.enter)="submitSearch(searchInput.value)">
-      <search-results [user]="true" [elems]="users"></search-results>
+      <search-results [user]="true" [onlyMaps]="onlyMaps" [onlyUsers]="onlyUsers" [elems]="users"></search-results>
       <div class="form-content">
         <input class="search-input"
                #searchInput
@@ -14,7 +14,7 @@
                (blur)="focusInput()"/>
       </div>
       <span class="info">{{ hint }}</span>
-      <search-results [user]="false" [elems]="maps"></search-results>
+      <search-results [user]="false" [onlyMaps]="onlyMaps" [onlyUsers]="onlyUsers" [elems]="maps"></search-results>
     </form>
   </div>
 </div>
