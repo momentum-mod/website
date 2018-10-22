@@ -22,6 +22,7 @@ import {UserProfileComponent} from './profile/user-profile.component';
 import {ProfileInfoComponent} from './profile/profile-info/profile-info.component';
 import {ProfileEditComponent} from './profile/profile-edit/profile-edit.component';
 import {ToasterModule} from 'angular2-toaster';
+import {MarkdownModule} from 'ngx-markdown';
 
 @NgModule({
   imports: [
@@ -32,6 +33,7 @@ import {ToasterModule} from 'angular2-toaster';
     SmartTableModule,
     Ng2SmartTableModule,
     ToasterModule.forRoot(),
+    MarkdownModule.forChild(),
     FormsModule,
     NotFoundModule,
     DashboardRoutingModule,
