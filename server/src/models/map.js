@@ -38,10 +38,7 @@ module.exports = {
 
 	get: (mapID, context) => {
 		const allowedExpansions = ['mapInfo', 'mapCredits', 'submitter'];
-		const queryContext = {
-			include: [],
-			where: { id: mapID }
-		};
+		const queryContext = { where: { id: mapID }};
 		if ('statusFlag' in context) queryContext.where.statusFlag = context.statusFlag;
 		queryHelper.addExpansions(queryContext, context.expand, allowedExpansions);
 		return Map.find(queryContext);
@@ -216,7 +213,7 @@ module.exports = {
 		}).then(() => {
 			return Map.update({
 				statusFlag: STATUS.PENDING,
-				download: config.baseUrl + '/api/maps/' + mapInfo.id + '/download'
+				download: config.baseUrl + '/api/maps/' + mapID + '/download'
 			}, {
 				where: { id: mapID }
 			});
