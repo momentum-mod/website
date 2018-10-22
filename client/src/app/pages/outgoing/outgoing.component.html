@@ -1,0 +1,15 @@
+<header class="masthead">
+  <div class="container d-flex h-100 align-items-center">
+    <div class="mx-auto text-center">
+      <h1 class="mx-auto my-0 text-uppercase">Outgoing Link</h1>
+      <h2 class="text-white-50 mx-auto mt-2 mb-5">You are going to visit the URL:</h2>
+      <h2 class="text-white-50 mx-auto mt-2 mb-5">
+        <a class="allowed" href="{{outgoingUrl$ | async}}">{{outgoingUrl$ | async}}</a>
+      </h2>
+      <h2 class="text-white-50 mx-auto mt-2 mb-5">Be careful, and make sure this site is legitimate!</h2>
+      <nav>
+        <a href="/dashboard" class="btn btn-primary">Return to Dashboard</a>
+      </nav>
+    </div>
+  </div>
+</header>

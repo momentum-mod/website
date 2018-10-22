@@ -396,11 +396,6 @@
   resolved "https://registry.yarnpkg.com/@nebular/bootstrap/-/bootstrap-2.0.1.tgz#0e5e83bd5d5c7424ffeb0f11dd7b9ba6b3d8e30a"
   integrity sha512-rL5PF7HmKrPTpG3H2wkgjm1pcxXTcKJW6sLPAtrfkLDatlKsZSBdobrQ1LeqMs2NOay76OAhr37f986iXQstIA==
 
-"@nebular/security@^2.0.1":
-  version "2.0.1"
-  resolved "https://registry.yarnpkg.com/@nebular/security/-/security-2.0.1.tgz#4853f946cfc8c662e4425358980a6e4739b44f7e"
-  integrity sha512-5TDaEfdSEsAQeFg9S9oQ0+OPtMDWIkxBicIFwqqv/UMcg4or87GCvLWJnc3j2XKFH/GWTUeJ32aGqj1NT5Ul7Q==
-
 "@nebular/theme@^2.0.1":
   version "2.0.1"
   resolved "https://registry.yarnpkg.com/@nebular/theme/-/theme-2.0.1.tgz#9903de5f9ab94598e5ad265258b78fc8ac02c20d"
