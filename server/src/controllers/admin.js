@@ -18,6 +18,15 @@ module.exports = {
 		.then(() => {
 			res.sendStatus(204);
 		}).catch(next);
+	},
+
+	getMaps: (req, res, next) => {
+		map.getAll(req.query)
+		.then(maps => {
+			res.json({
+				maps: maps
+			});
+		}).catch(next);
 	}
 
 }
