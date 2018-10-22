@@ -39,6 +39,8 @@ export class SearchFieldComponent implements OnChanges, AfterViewInit {
 
   users: User[] = null;
   maps: MomentumMap[] = null;
+  onlyUsers: boolean = false;
+  onlyMaps: boolean = false;
 
   @Input() type: string;
   @Input() placeholder: string;
@@ -116,14 +118,14 @@ export class SearchFieldComponent implements OnChanges, AfterViewInit {
     if (term) {
       this.search.emit(term);
 
-      const onlyUsers: boolean = term.startsWith('user:');
-      const onlyMaps: boolean = term.startsWith('map:');
-      if (!onlyMaps)
-        this.usersService.searchUsers(term.substring(onlyUsers ? 5 : 0).trim()).subscribe(resp => {
+      this.onlyUsers = term.startsWith('user:');
+      this.onlyMaps = term.startsWith('map:');
+      if (!this.onlyMaps)
+        this.usersService.searchUsers(term.substring(this.onlyUsers ? 5 : 0).trim()).subscribe(resp => {
           this.users = resp.users;
         });
-      if (!onlyUsers)
-        this.mapsService.searchMaps(term.substring(onlyMaps ? 4 : 0).trim()).subscribe(maps => {
+      if (!this.onlyUsers)
+        this.mapsService.searchMaps(term.substring(this.onlyMaps ? 4 : 0).trim()).subscribe(maps => {
           this.maps = maps;
         });
     }
