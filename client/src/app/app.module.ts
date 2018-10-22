@@ -18,6 +18,7 @@ import {MainPageModule} from './pages/main/main-page.module';
 import {NotFoundModule} from './pages/not-found/not-found.module';
 import {JwtModule} from '@auth0/angular-jwt';
 import {OutgoingModule} from './pages/outgoing/outgoing.module';
+import {MarkdownModule, MarkedOptions} from 'ngx-markdown';
 
 export function tokenGetter() {
   return localStorage.getItem('accessToken');
@@ -42,6 +43,16 @@ export function tokenGetter() {
           '141.210.25.113',
         ],
         throwNoTokenError: true,
+      },
+    }),
+    MarkdownModule.forRoot({
+      markedOptions: {
+        provide: MarkedOptions,
+        useValue: {
+          gfm: false,
+          smartLists: true,
+          smartypants: false,
+        },
       },
     }),
 

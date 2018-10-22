@@ -2,7 +2,8 @@
   <nb-card>
         <nb-card-body>
           <h4>Bio:</h4>
-          <p>{{userProfile?.bio}}</p>
+          <markdown [data]="userProfile?.bio">
+          </markdown>
 
           <h4>Links:</h4>
           <div class="socials">
