@@ -9,7 +9,7 @@ router.route('/users/:userID')
 	.all(errorCtrl.send405);
 
 router.route('/maps')
-	.get(adminCtrl.getMapQueue)
+	.get(adminCtrl.getMaps)
 	.all(errorCtrl.send405);
 
 router.route('/maps/:mapID')
