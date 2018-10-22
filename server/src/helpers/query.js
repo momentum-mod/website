@@ -2,7 +2,7 @@
 const { MapInfo, MapCredit, User, Profile } = require('../../config/sqlize');
 
 const expansionMap = {
-	mapInfo: {
+	info: {
 		model: MapInfo,
 		as: 'info'
 	},
@@ -14,7 +14,7 @@ const expansionMap = {
 		},
 		include: [Profile]
 	},
-	mapCredits: {
+	credits: {
 		model: MapCredit,
 		as: 'credits',
 		include: {

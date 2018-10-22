@@ -72,7 +72,7 @@ paths:
           collectionFormat: csv
           items:
             type: string
-            enum: [mapInfo, submitter, mapCredits]
+            enum: [info, submitter, credits]
       responses:
         200:
           description: OK
