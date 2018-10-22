@@ -19,7 +19,7 @@ module.exports = {
 	STATUS,
 
 	getAll: (context) => {
-		const allowedExpansions = ['mapInfo', 'mapCredits'];
+		const allowedExpansions = ['info', 'credits'];
 		const queryContext = {
 			include: [],
 			where: {},
@@ -73,7 +73,7 @@ module.exports = {
 	},
 
 	get: (mapID, context) => {
-		const allowedExpansions = ['mapInfo', 'mapCredits', 'submitter'];
+		const allowedExpansions = ['info', 'credits', 'submitter'];
 		const queryContext = { where: { id: mapID }};
 		if ('status' in context) {
 			queryContext.where.statusFlag = {

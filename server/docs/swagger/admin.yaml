@@ -55,7 +55,7 @@ paths:
           collectionFormat: csv
           items:
             type: string
-            enum: [mapInfo, submitter, mapCredits]
+            enum: [info, submitter, credits]
         - name: status
           in: query
           description: Filter by status, specified by a comma-separated list of statuses to show
