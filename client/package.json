@@ -50,7 +50,6 @@
     "@angular/router": "^6.1.10",
     "@auth0/angular-jwt": "^2.0.0",
     "@nebular/bootstrap": "^2.0.1",
-    "@nebular/security": "^2.0.1",
     "@nebular/theme": "^2.0.1",
     "@ng-bootstrap/ng-bootstrap": "^3.3.0",
     "@swimlane/ngx-charts": "^9.0.0",

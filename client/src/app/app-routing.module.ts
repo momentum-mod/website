@@ -3,6 +3,7 @@ import { NgModule } from '@angular/core';
 import {MainPageComponent} from './pages/main/main-page.component';
 import {NotFoundMainComponent} from './pages/not-found/main/not-found-main.component';
 import {AuthGuard} from './@core/guards/auth.guard';
+import {OutgoingComponent} from './pages/outgoing/outgoing.component';
 
 const routes: Routes = [
   {
@@ -13,6 +14,10 @@ const routes: Routes = [
     path: 'dashboard',
     canActivate: [AuthGuard],
     loadChildren: 'app/pages/dashboard/dashboard.module#DashboardModule',
+  },
+  {
+    path: 'outgoing/:url',
+    component: OutgoingComponent,
   },
   {
     path: '**',
