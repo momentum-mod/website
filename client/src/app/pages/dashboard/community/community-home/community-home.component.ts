@@ -1,7 +1,8 @@
 import { Component, EventEmitter, Output } from '@angular/core';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
-import { User, UsersService } from '../../../../@core/data/users.service';
-import { Permission } from '../../../../@core/data/local-user.service';
+import { UsersService } from '../../../../@core/data/users.service';
+import {User} from '../../../../@core/models/user.model';
+import {Permission} from '../../../../@core/models/permissions.model';
 
 
 @Component({

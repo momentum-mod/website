@@ -1,6 +1,7 @@
 import {Component, Input} from '@angular/core';
-import { LocalUserService, Permission } from '../../../../@core/data/local-user.service';
-import {User} from '../../../../@core/data/users.service';
+import { LocalUserService } from '../../../../@core/data/local-user.service';
+import {User} from '../../../../@core/models/user.model';
+import {Permission} from '../../../../@core/models/permissions.model';
 
 @Component({
   selector: 'ngx-profile-card',

@@ -2,7 +2,8 @@ import { Component, OnInit } from '@angular/core';
 import { LocalUserService } from '../../../@core/data/local-user.service';
 import {switchMap} from 'rxjs/operators';
 import {ActivatedRoute, ParamMap} from '@angular/router';
-import {User, UsersService} from '../../../@core/data/users.service';
+import {UsersService} from '../../../@core/data/users.service';
+import {User} from '../../../@core/models/user.model';
 
 
 @Component({

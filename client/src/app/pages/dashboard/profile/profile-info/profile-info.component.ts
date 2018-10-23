@@ -1,5 +1,5 @@
 import {Component, Input} from '@angular/core';
-import {UserProfile} from '../../../../@core/data/profile.service';
+import {UserProfile} from '../../../../@core/models/profile.model';
 
 @Component({
   selector: 'profile-info',

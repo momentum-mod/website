@@ -7,8 +7,10 @@ import {
   Output, SimpleChanges,
   ViewChild,
 } from '@angular/core';
-import {User, UsersService} from '../../../@core/data/users.service';
-import {MapsService, MomentumMap} from '../../../@core/data/maps.service';
+import {UsersService} from '../../../@core/data/users.service';
+import {MapsService} from '../../../@core/data/maps.service';
+import {User} from '../../../@core/models/user.model';
+import {MomentumMap} from '../../../@core/models/momentum-map.model';
 
 /**
  * search-field-component is used under the hood by nb-search component
