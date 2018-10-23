@@ -1,18 +1,10 @@
 import {Injectable} from '@angular/core';
 import { AuthService } from './auth.service';
-import {User} from './users.service';
 import {Observable, ReplaySubject, Subject} from 'rxjs';
 import {HttpClient} from '@angular/common/http';
-import {UserProfile} from './profile.service';
-
-export enum Permission {
-  MAPPER = 1 << 0,
-  MODERATOR = 1 << 1,
-  ADMIN = 1 << 2,
-  BANNED_LEADERBOARDS = 1 << 3,
-  BANNED_ALIAS = 1 << 4,
-  BANNED_AVATAR = 1 << 5,
-}
+import {UserProfile} from '../models/profile.model';
+import {User} from '../models/user.model';
+import {Permission} from '../models/permissions.model';
 
 @Injectable({
   providedIn: 'root',

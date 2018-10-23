@@ -2,11 +2,6 @@ import { Injectable } from '@angular/core';
 import { CookieService } from 'ngx-cookie-service';
 import { JwtHelperService } from '@auth0/angular-jwt';
 
-interface AccessTokenPayload {
-  id: string;
-  permissions: number;
-}
-
 @Injectable()
 export class AuthService {
 
@@ -36,16 +31,6 @@ export class AuthService {
     }
     const isTokenExpired = jwtHelperService.isTokenExpired(accessToken);
     return !isTokenExpired;
-  }
-
-  public getAccessTokenPayload(): AccessTokenPayload {
-    const accessToken = localStorage.getItem('accessToken');
-    const jwtHelperService = new JwtHelperService();
-    if (!accessToken) {
-      return null;
-    }
-    const payload = jwtHelperService.decodeToken(accessToken);
-    return payload;
   }
 
 }

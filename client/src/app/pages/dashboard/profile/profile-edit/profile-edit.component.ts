@@ -1,9 +1,9 @@
 import {ChangeDetectorRef, Component, EventEmitter, OnInit, Output} from '@angular/core';
-import {UserProfile} from '../../../../@core/data/profile.service';
 import {LocalUserService} from '../../../../@core/data/local-user.service';
 import {BodyOutputType, Toast, ToasterConfig, ToasterService} from 'angular2-toaster';
 
 import 'style-loader!angular2-toaster/toaster.css';
+import {UserProfile} from '../../../../@core/models/profile.model';
 
 @Component({
   selector: 'profile-edit',

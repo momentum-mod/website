@@ -1,5 +1,6 @@
-import {MapsService, MomentumMap} from './maps.service';
+import {MapsService} from './maps.service';
 import {of} from 'rxjs';
+import {MomentumMap} from '../models/momentum-map.model';
 
 let httpClientSpy: { get: jasmine.Spy };
 let mapsService: MapsService;

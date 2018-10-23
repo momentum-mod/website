@@ -1,19 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import {UserProfile} from './profile.service';
-
-export interface Users {
-  data: Array<User>;
-}
-
-export interface User {
-  id: string;
-  permissions: number;
-  createdAt?: string;
-  updatedAt?: string;
-  profile: UserProfile;
-}
+import {User} from '../models/user.model';
 
 @Injectable()
 export class UsersService {
