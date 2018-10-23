@@ -1,6 +1,4 @@
 import {Injectable} from '@angular/core';
-import {Observable} from 'rxjs';
-import {HttpClient} from '@angular/common/http';
 
 export interface UserProfile {
   id: string;
@@ -13,8 +11,5 @@ export interface UserProfile {
 }
 @Injectable()
 export class ProfileService {
-  constructor(private http: HttpClient) {}
-  updateUserProfile(userProfile: UserProfile): Observable<any> {
-    return this.http.patch('/api/user/profile', userProfile);
-  }
+  constructor() {}
 }

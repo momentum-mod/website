@@ -29,19 +29,13 @@ export class UsersService {
     return this.http.get('/api/users/?search=' + query);
   }
 
-  getLocalUser(): Observable<any> {
-    return this.http.get('/api/user?expand=profile');
-  }
-
   getUser(userID: string): Observable<any> {
     return this.http.get('/api/users/' + userID + '?expand=profile');
   }
 
   updateUser(user: User): Observable<any> {
-    // console.log("Editing user...");
-    // console.log(user);
     const httpOptions = {};
-    return this.http.put('/api/users/' + user.id, user, httpOptions);
+    return this.http.patch('/api/admin/users/' + user.id, user, httpOptions);
   }
 
 }
