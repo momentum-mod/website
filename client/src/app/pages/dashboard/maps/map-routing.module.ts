@@ -6,6 +6,7 @@ import {MapQueueComponent} from './map-queue/map-queue.component';
 import {ViewMapsComponent} from './view-maps/view-maps.component';
 import {UploadsComponent} from './uploads/uploads.component';
 import {UploadStatusComponent} from './upload-status/upload-status.component';
+import {MapInfoComponent} from './map-info/map-info.component';
 
 const routes: Routes = [
   {
@@ -20,6 +21,10 @@ const routes: Routes = [
       {
         path: 'uploads',
         component: UploadStatusComponent,
+      },
+      {
+        path: ':id',
+        component: MapInfoComponent,
       },
       {
         path: 'uploads/new',
