@@ -19,13 +19,12 @@ export class UserProfileComponent implements OnInit {
   }
 
   ngOnInit() {
-    const user$ = this.route.paramMap.pipe(
+    this.route.paramMap.pipe(
       switchMap((params: ParamMap) =>
         params.has('id') ?
           this.usersService.getUser(params.get('id')) :
           this.userService.getLocal(),
       ),
-    );
-    user$.subscribe(usr => this.user = usr);
+    ).subscribe(usr => this.user = usr);
   }
 }

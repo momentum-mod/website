@@ -1,7 +1,6 @@
 import {Component, Input, OnInit} from '@angular/core';
 import {Activity, Activity_Type} from './activity';
 import {ActivityService} from '../../../@core/data/activity.service';
-import {Observable} from 'rxjs';
 
 @Component({
   selector: 'activity-card',
@@ -14,21 +13,28 @@ export class ActivityCardComponent implements OnInit {
   @Input('userID')
   set user(user: string) {
     this._user = user;
-    if (this._user)
+    if (this._user) {
       this.getActivities();
+      this.initialAct = true;
+    }
   }
   _user: string;
 
   constructor(private actService: ActivityService) {
     this.headerTitle = 'Activity';
     this.filterValue = Activity_Type.ALL;
+    this.initialAct = false;
   }
   activityType = Activity_Type;
   filterValue: Activity_Type;
   activities: Activity[];
+  initialAct: boolean;
 
   ngOnInit(): void {
-    this.getActivities();
+    if (!this.initialAct) {
+      this.getActivities();
+      this.initialAct = true;
+    }
   }
 
   filterActivites(acts: Activity[]): void {
@@ -38,18 +44,12 @@ export class ActivityCardComponent implements OnInit {
         this.activities = acts.filter((value => value.type === this.filterValue));
   }
   getActivities(): void {
-    let observable: Observable<Activity[]> = null;
     if (this.follow)
-      observable = this.actService.getFollowedActivity();
+      this.actService.getFollowedActivity().subscribe(acts => this.filterActivites(acts));
     else if (this._user)
-      observable = this.actService.getUserActivity(this._user);
+      this.actService.getUserActivity(this._user).subscribe(acts => this.filterActivites(acts));
     else if (this.recent)
-      observable = this.actService.getRecentActivity();
-
-    if (observable)
-      observable.subscribe(acts => {
-        this.filterActivites(acts);
-      });
+      this.actService.getRecentActivity().subscribe(acts => this.filterActivites(acts));
   }
   filterSelected(value: string) {
     this.filterValue = Number(value);

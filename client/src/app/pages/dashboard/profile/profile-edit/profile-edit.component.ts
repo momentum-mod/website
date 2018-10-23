@@ -1,5 +1,5 @@
-import {Component, EventEmitter, OnInit, Output} from '@angular/core';
-import {ProfileService, UserProfile} from '../../../../@core/data/profile.service';
+import {ChangeDetectorRef, Component, EventEmitter, OnInit, Output} from '@angular/core';
+import {UserProfile} from '../../../../@core/data/profile.service';
 import {LocalUserService} from '../../../../@core/data/local-user.service';
 import {BodyOutputType, Toast, ToasterConfig, ToasterService} from 'angular2-toaster';
 
@@ -15,9 +15,9 @@ export class ProfileEditComponent implements OnInit {
   @Output() onEditSuccess: EventEmitter<any> = new EventEmitter();
 
   toasterConfig: ToasterConfig;
-  constructor(private profileService: ProfileService,
-              private localUserService: LocalUserService,
-              private toasterService: ToasterService) {
+  constructor(private localUserService: LocalUserService,
+              private toasterService: ToasterService,
+              private changeDet: ChangeDetectorRef) {
     this.toasterConfig = new ToasterConfig({
       positionClass: 'toast-top-full-width',
       timeout: 5000,
@@ -31,11 +31,12 @@ export class ProfileEditComponent implements OnInit {
   ngOnInit(): void {
     this.localUserService.getLocal().subscribe(usr => {
       this.model = usr.profile;
+      this.changeDet.detectChanges();
     });
   }
 
   onSubmit(): void {
-    this.profileService.updateUserProfile(this.model).subscribe(data => {
+    this.localUserService.updateProfile(this.model).subscribe(data => {
       // console.log('Response: ' + data);
       this.onEditSuccess.emit(this.model);
       this.localUserService.refreshLocal();
