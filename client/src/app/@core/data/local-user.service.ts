@@ -27,13 +27,10 @@ export class LocalUserService {
 
   public refreshLocal(): void {
     this.localUser = null;
-    const userInfo = this.authService.getAccessTokenPayload();
-    if (userInfo !== null) {
-      this.locUsr$ = this.usersService.getUser(userInfo.id);
-      this.locUsr$.subscribe(usr => {
-        this.localUser = usr;
-      });
-    }
+    this.locUsr$ = this.usersService.getLocalUser();
+    this.locUsr$.subscribe(usr => {
+      this.localUser = usr;
+    });
   }
 
   public getLocal(): Observable<User> {

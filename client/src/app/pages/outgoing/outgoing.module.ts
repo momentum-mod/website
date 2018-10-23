@@ -9,6 +9,7 @@ import {ThemeModule} from '../../@theme/theme.module';
 })
 export class OutgoingModule {
   static readonly whitelistedOutgoingDomains: string[] = [
+    'localhost',
     'twitter.com',
     'youtube.com',
     'steamcommunity.com',

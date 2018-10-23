@@ -1,7 +1,6 @@
 import {Component, EventEmitter, OnInit, Output} from '@angular/core';
 import {ProfileService, UserProfile} from '../../../../@core/data/profile.service';
 import {LocalUserService} from '../../../../@core/data/local-user.service';
-import {User} from '../../../../@core/data/users.service';
 import {BodyOutputType, Toast, ToasterConfig, ToasterService} from 'angular2-toaster';
 
 import 'style-loader!angular2-toaster/toaster.css';
@@ -13,7 +12,6 @@ import 'style-loader!angular2-toaster/toaster.css';
 })
 export class ProfileEditComponent implements OnInit {
   model: UserProfile;
-  user: User;
   @Output() onEditSuccess: EventEmitter<any> = new EventEmitter();
 
   toasterConfig: ToasterConfig;
@@ -32,13 +30,12 @@ export class ProfileEditComponent implements OnInit {
   }
   ngOnInit(): void {
     this.localUserService.getLocal().subscribe(usr => {
-      this.user = usr;
       this.model = usr.profile;
     });
   }
 
   onSubmit(): void {
-    this.profileService.updateUserProfile(this.user.id, this.model).subscribe(data => {
+    this.profileService.updateUserProfile(this.model).subscribe(data => {
       // console.log('Response: ' + data);
       this.onEditSuccess.emit(this.model);
       this.localUserService.refreshLocal();

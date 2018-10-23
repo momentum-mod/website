@@ -14,7 +14,7 @@ export interface UserProfile {
 @Injectable()
 export class ProfileService {
   constructor(private http: HttpClient) {}
-  updateUserProfile(userID: string, userProfile: UserProfile): Observable<any> {
-    return this.http.patch('/api/users/' + userID + '/profile', userProfile);
+  updateUserProfile(userProfile: UserProfile): Observable<any> {
+    return this.http.patch('/api/user/profile', userProfile);
   }
 }

@@ -29,8 +29,12 @@ export class UsersService {
     return this.http.get('/api/users/?search=' + query);
   }
 
+  getLocalUser(): Observable<any> {
+    return this.http.get('/api/user?expand=profile');
+  }
+
   getUser(userID: string): Observable<any> {
-    return this.http.get('/api/users/' + userID);
+    return this.http.get('/api/users/' + userID + '?expand=profile');
   }
 
   updateUser(user: User): Observable<any> {
