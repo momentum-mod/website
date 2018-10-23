@@ -1,15 +1,15 @@
 import {of} from 'rxjs';
-import {User, UsersService} from './users.service';
+import {UsersService} from './users.service';
+import {User} from '../models/user.model';
 
-let httpClientSpy: { get: jasmine.Spy, put: jasmine.Spy };
+let httpClientSpy: { get: jasmine.Spy, patch: jasmine.Spy };
 let usersService: UsersService;
 let expectedUsers: User[];
 let expectedUser: User;
 
 describe('UsersService', () => {
   beforeEach(() => {
-    // TODO: spy on other methods too
-    httpClientSpy = jasmine.createSpyObj('HttpClient', ['get', 'put']);
+    httpClientSpy = jasmine.createSpyObj('HttpClient', ['get', 'patch']);
     usersService = new UsersService(<any> httpClientSpy);
     expectedUser = {
         id: '1',
@@ -60,12 +60,12 @@ describe('UsersService', () => {
       expect(httpClientSpy.get.calls.count()).toBe(1, 'one call');
     });
     it('#updateUser() should return updated user account', () => {
-      httpClientSpy.put.and.returnValue(of(expectedUser));
+      httpClientSpy.patch.and.returnValue(of(expectedUser));
       usersService.updateUser(expectedUser).subscribe(value =>
           expect(value).toEqual(expectedUser, 'expected user'),
         fail,
       );
-      expect(httpClientSpy.put.calls.count()).toBe(1, 'one call');
+      expect(httpClientSpy.patch.calls.count()).toBe(1, 'one call');
     });
   });
 });

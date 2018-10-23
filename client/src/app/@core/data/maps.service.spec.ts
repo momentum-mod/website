@@ -7,7 +7,6 @@ let mapsService: MapsService;
 
 describe('MapsService', () => {
   beforeEach(() => {
-    // TODO: spy on other methods too
     httpClientSpy = jasmine.createSpyObj('HttpClient', ['get']);
     mapsService = new MapsService(<any> httpClientSpy);
   });
