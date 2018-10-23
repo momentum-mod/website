@@ -14,7 +14,7 @@ export class MapsService {
   getMap(id: string): Observable<any> {
     return of({
       id: id,
-      name: 'name',
+      name: 'Lego Land',
       info: {
         id: id,
         totalDownloads: '100',
