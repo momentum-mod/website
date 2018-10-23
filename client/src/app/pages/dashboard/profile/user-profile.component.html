@@ -1,9 +1,9 @@
 <div class= "row">
   <div class="col-sm-6">
-    <ngx-profile-card [user]="(this.user$ | async)"></ngx-profile-card>
+    <ngx-profile-card [user]="this.user"></ngx-profile-card>
   </div>
   <div class="col-sm-6">
-    <profile-info [userProfile]="(this.user$ | async)?.profile"></profile-info>
+    <profile-info [userProfile]="this.user?.profile"></profile-info>
   </div>
 </div>
 <div class = "row">
@@ -19,7 +19,7 @@
       </nb-card-body>
     </nb-card>
   </div>
-  <div class="col-sm-10" *ngIf="this.user$ | async">
-    <activity-card [header]="'User Activity'" [userID]="(this.user$ | async)?.id"></activity-card>
+  <div class="col-sm-10" *ngIf="this.user">
+    <activity-card [header]="'User Activity'" [userID]="this.user?.id"></activity-card>
   </div>
 </div>
