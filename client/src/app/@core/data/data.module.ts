@@ -9,7 +9,6 @@ import { AuthService } from './auth.service';
 import { StateService } from './state.service';
 import { SmartTableService } from './smart-table.service';
 import { LayoutService } from './layout.service';
-import {ProfileService} from './profile.service';
 import {ActivityService} from './activity.service';
 import {MapsService} from './maps.service';
 
@@ -18,7 +17,6 @@ const SERVICES = [
   LocalUserService,
   UsersService,
   MapsService,
-  ProfileService,
   AuthService,
   CookieService,
   StateService,
