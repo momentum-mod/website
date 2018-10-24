@@ -36,6 +36,12 @@ export class MapsService {
     });
   }
 
+  getMapFileUploadLocation(id: string): Observable<any> {
+    return this.http.get('/api/maps/' + id + '/upload', {
+      observe: 'response',
+    });
+  }
+
   uploadMapFile(uploadLocation: string, mapFile: File): Observable<any> {
     const formData = new FormData();
     formData.append('mapFile', mapFile, mapFile.name);
