@@ -136,6 +136,14 @@ module.exports = {
 		}
 	},
 
+	getUploadLocation: (req, res, next) => {
+		map.verifySubmitter(req.params.mapID, req.user.id)
+		.then(() => {
+			res.set('Location', '/api/maps/' + req.params.mapID + '/upload');
+			res.sendStatus(204);
+		}).catch(next);
+	},
+
 	upload: (req, res, next) => {
 		if (req.files && req.files.mapFile) {
 			map.verifySubmitter(req.params.mapID, req.user.id)
