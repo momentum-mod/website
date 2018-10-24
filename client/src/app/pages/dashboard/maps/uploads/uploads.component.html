@@ -1,47 +1,57 @@
 <div class="row">
   <div class="col-md-12 col-lg-12">
-      <div class="col-lg-12">
-        <nb-card>
-          <nb-card-header><h1>Submit a Map</h1></nb-card-header>
+    <div class="col-lg-12">
+      <nb-card>
+        <nb-card-header><h1>Submit a Map</h1></nb-card-header>
 
-          <nb-card-body>
+        <nb-card-body>
+          <form [formGroup]="mapUploadFormGroup" (ngSubmit)="onSubmit()">
             <label>Map File</label><br>
-            <input class="form-control col-md-10" disabled="disabled" style="display: inline;" [value]="mapFile?.name" #uploadFile/>
+            <input title="uploadMapFile" class="form-control col-md-10" disabled="disabled" style="display: inline;" [value]="mapFile?.name" #uploadFile/>
             <div class="fileUpload btn btn-outline-info">
               <span>Choose File</span>
-              <input id="uploadBtn" type="file" accept=".bsp" class="upload" (change)="onMapFileSelected($event);"/>
+              <input id="uploadBtnMap" type="file" accept=".bsp" class="upload" (change)="onMapFileSelected($event);"/>
             </div>
             <br>
             <label>Map Avatar</label><br>
-            <input class= "form-control col-md-10" disabled="disabled" style="display: inline;" [value]="avatarFile?.name" #uploadFile/>
+            <input class="form-control col-md-10" disabled="disabled" style="display: inline;"
+                   [value]="avatarFile?.name" #uploadFile/>
             <div class="fileUpload btn btn-outline-info">
               <span>Choose File</span>
-              <input id="uploadBtn" type="file" accept="image/*" class="upload" (change)="onAvatarFileSelected($event);"/>
+              <input id="uploadBtnAvatar" type="file" accept="image/*" class="upload"
+                     (change)="onAvatarFileSelected($event);"/>
             </div>
 
             <div class="form-group">
               <label>Map Name</label>
-              <input type="text" class="form-control col-md-10" name="name" required [(ngModel)]="formData.name"/>
+              <input type="text" class="form-control col-md-10" name="name" required formControlName="name"
+                     [ngClass]="(name.invalid && (name.dirty || name.touched)) ? 'form-control-danger' : ''"/>
             </div>
 
-            <div class="form-group">
-              <label>Number of Bonuses</label>
-              <input type="number" class="form-control col-md-10" [(ngModel)]="formData.info.numBonuses"/>
-            </div>
+            <div formGroupName="info">
+              <div class="form-group">
+                <label>Map Description</label>
+                <textarea rows="4" class="form-control col-md-10" formControlName="description"></textarea>
+              </div>
+              <div class="form-group">
+                <label>Number of Bonuses</label>
+                <input type="number" class="form-control col-md-10" formControlName="numBonuses"/>
+              </div>
 
-            <div class="form-group">
-              <label>Number of Checkpoints</label>
-              <input type="number" class="form-control col-md-10" [(ngModel)]="formData.info.numCheckpoints"/>
-            </div>
+              <div class="form-group">
+                <label>Number of Checkpoints</label>
+                <input type="number" class="form-control col-md-10" formControlName="numCheckpoints"/>
+              </div>
 
-            <div class="form-group">
-              <label>Number of Stages</label>
-              <input type="number" class="form-control col-md-10" [(ngModel)]="formData.info.numStages"/>
-            </div>
+              <div class="form-group">
+                <label>Number of Stages</label>
+                <input type="number" class="form-control col-md-10" formControlName="numStages"/>
+              </div>
 
-            <div class="form-group">
-              <label>Difficulty</label>
-              <input type="number" class="form-control col-md-10" [(ngModel)]="formData.info.difficulty"/>
+              <div class="form-group">
+                <label>Difficulty</label>
+                <input type="number" class="form-control col-md-10" formControlName="difficulty"/>
+              </div>
             </div>
 
             <div class="form-group">
@@ -55,25 +65,21 @@
               <input type="date" class="form-control col-md-10"/>
             </div>
 
-            <div class="form-group">
-              <label>Map Description</label>
-              <textarea rows="4" class="form-control col-md-10" [(ngModel)]="formData.info.description"></textarea>
-            </div>
 
             <div class="form-group validation-checkboxes row">
               <nb-checkbox status="success" class="col-sm-4">I created this map</nb-checkbox>
             </div>
 
             <div>
-              <button (click)="onSubmit()" type="button" class="btn btn-outline-info">Submit Map</button>
+              <button type="submit" class="btn btn-outline-info" [disabled]="!mapUploadFormGroup.valid">Submit Map</button>
               <br>
               <div *ngIf="mapUploadPercentage">
                 Uploading map... {{mapUploadPercentage}}%
               </div>
             </div>
-
-          </nb-card-body>
-    </nb-card>
+          </form>
+        </nb-card-body>
+      </nb-card>
+    </div>
   </div>
-</div>
 </div>
