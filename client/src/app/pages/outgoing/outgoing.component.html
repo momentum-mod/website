@@ -1,15 +1,56 @@
+
+
+
 <header class="masthead">
-  <div class="container d-flex h-100 align-items-center">
-    <div class="mx-auto text-center">
-      <h1 class="mx-auto my-0 text-uppercase">Outgoing Link</h1>
-      <h2 class="text-white-50 mx-auto mt-2 mb-5">You are going to visit the URL:</h2>
-      <h2 class="text-white-50 mx-auto mt-2 mb-5">
-        <a class="allowed" href="{{outgoingUrl$ | async}}">{{outgoingUrl$ | async}}</a>
-      </h2>
-      <h2 class="text-white-50 mx-auto mt-2 mb-5">Be careful, and make sure this site is legitimate!</h2>
-      <nav>
-        <a href="/dashboard" class="btn btn-primary">Return to Dashboard</a>
-      </nav>
+  <div class="container d-flex justify-content-center h-100 align-items-center">
+    <div class="row">
+      <div class=" col-md-12 ">
+        <div class="card bg-black">
+
+          <div class="card-header">
+
+              <img src="assets/images/caution.png" width="80" height="80" />
+
+              <div id="title" style="display:inline;">
+
+                <h6 class="text-white text-center" style="display:inline;">  You are now leaving Momentum Mod...</h6>
+              </div>
+          </div>
+          <div class="card-body">
+            <div class="mx-auto text-center">
+              <h2 class="text-white mx-auto mt-2 mb-4">You are being redirected to</h2>
+              <h2 class="text-white mx-auto mt-2 mb-4">"{{outgoingUrl$ | async}}"</h2>
+              <h2 class="text-white mx-auto mt-2 mb-5">which is not part of the official Momentum Mod site.</h2>
+
+
+
+              <div class = "allowed">
+                <nav>
+                  <a href="/dashboard" class="btn btn-return">Return to dashboard </a>
+
+                  <a href="{{outgoingUrl$ | async}}" class="btn btn-primary allowed">Proceed to external site </a>
+                </nav>
+              </div>
+              <p></p>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
 </header>
+
+
+
+<!--
+
+
+   <h2 class="text-white mx-auto mt-2 mb-5">You are going to visit the URL:</h2>
+   <h2 class="text-white mx-auto mt-2 mb-5">Be careful, and make sure this site is legitimate!</h2>
+
+    <nav>
+        <a href="/dashboard" class="btn btn-primary">Return to dashboard </a>
+    </nav>
+
+-->
+
