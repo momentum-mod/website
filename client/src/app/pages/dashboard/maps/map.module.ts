@@ -10,6 +10,7 @@ import {UploadsComponent} from './uploads/uploads.component';
 import {UploadStatusComponent} from './upload-status/upload-status.component';
 import {MapInfoComponent} from './map-info/map-info.component';
 import {ToasterModule} from 'angular2-toaster';
+import { MapStatusComponent } from './upload-status/map-status/map-status.component';
 
 @NgModule({
   imports: [
@@ -25,6 +26,7 @@ import {ToasterModule} from 'angular2-toaster';
     UploadsComponent,
     UploadStatusComponent,
     MapInfoComponent,
+    MapStatusComponent,
   ],
   providers: [],
 })
