@@ -12,10 +12,9 @@
 }
 
 .card-header {
-  height: 100px;
-  font-size: 3rem;
-  line-height: 3rem;
+  height: auto;
   background: linear-gradient(to top, #cc382e, rgb(250, 99, 94));
+  font-size: 3.5vw;
 }
 
 img {
@@ -30,7 +29,6 @@ img {
 .bg-black {
   background-color: #000000 !important;
 }
-
 
 .btn {
   font-family: 'Arial';
