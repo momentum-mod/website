@@ -7,6 +7,7 @@ import {CommunityListComponent} from './community/community-list.component';
 import {NotFoundDashboardComponent} from '../not-found/dashboard/not-found-dashboard.component';
 import {UserProfileComponent} from './profile/user-profile.component';
 import {ProfileEditComponent} from './profile/profile-edit/profile-edit.component';
+import {PermissionGuard} from '../../@core/guards/permission.guard';
 
 const routes: Routes = [
   {
@@ -57,6 +58,7 @@ const routes: Routes = [
 @NgModule({
   imports: [RouterModule.forChild(routes)],
   exports: [RouterModule],
+  providers: [PermissionGuard],
 })
 export class DashboardRoutingModule {
 }

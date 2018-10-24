@@ -1,11 +1,13 @@
-import { Component, OnInit } from '@angular/core';
-import { NbMenuItem } from '@nebular/theme';
-import { MENU_ITEMS } from './dashboard-menu';
-import { LocalUserService } from '../../@core/data/local-user.service';
+import {Component, OnInit} from '@angular/core';
+import {NbMenuItem} from '@nebular/theme';
+import {MENU_ITEMS} from './dashboard-menu';
+import {LocalUserService} from '../../@core/data/local-user.service';
+import {ToasterConfig} from 'angular2-toaster';
 
 @Component({
   selector: 'dashboard',
   template: `
+    <toaster-container [toasterconfig]="toasterConfig"></toaster-container>
     <ngx-sample-layout>
       <nb-menu [items]="menu"></nb-menu>
       <router-outlet></router-outlet>
@@ -14,6 +16,18 @@ import { LocalUserService } from '../../@core/data/local-user.service';
 })
 export class DashboardComponent implements OnInit {
   menu = MENU_ITEMS;
+  // Toaster config things
+  readonly timeout: number = 5000; // in milliseconds
+  readonly toasterConfig: ToasterConfig = new ToasterConfig({
+    positionClass: 'toast-top-full-width',
+    timeout: this.timeout,
+    newestOnTop: true,
+    tapToDismiss: true,
+    preventDuplicates: true,
+    animation: 'fade',
+    limit: 5,
+    showCloseButton: true,
+  });
 
   constructor(private userService: LocalUserService) {
   }

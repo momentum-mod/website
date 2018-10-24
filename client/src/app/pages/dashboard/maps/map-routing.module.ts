@@ -1,6 +1,6 @@
-import { RouterModule, Routes } from '@angular/router';
-import { NgModule } from '@angular/core';
-import { MapComponent} from './map.component';
+import {RouterModule, Routes} from '@angular/router';
+import {NgModule} from '@angular/core';
+import {MapComponent} from './map.component';
 import {NotFoundDashboardComponent} from '../../not-found/dashboard/not-found-dashboard.component';
 import {MapQueueComponent} from './map-queue/map-queue.component';
 import {ViewMapsComponent} from './view-maps/view-maps.component';
@@ -34,6 +34,11 @@ const routes: Routes = [
       {
         path: 'queue',
         pathMatch: 'full',
+        // TODO: uncomment this when ready to guard!
+/*        canActivate: [PermissionGuard],
+        data: {
+          onlyAllow: [Permission.MODERATOR | Permission.ADMIN],
+        },*/
         component: MapQueueComponent,
       },
       {
