@@ -116,7 +116,6 @@ export class UploadsComponent {
 
   private isFormDataValid(): boolean {
     // TODO: there a more 'angular' way to do this?
-    let isValid = true;
     let invalidMessage = '';
     if (!this.formData.name) {
       invalidMessage = 'Please provide a map name';
