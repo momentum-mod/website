@@ -9,7 +9,7 @@ export class MapsService {
   }
 
   searchMaps(query: string): Observable<any> {
-    return this.http.get('/api/maps/?search=' + query);
+    return this.http.get('/api/maps?expand=info&search=' + query);
   }
 
   getMap(id: string): Observable<any> {
