@@ -1,9 +1,9 @@
-import {ChangeDetectorRef, Component, EventEmitter, OnInit, Output} from '@angular/core';
+import {Component, EventEmitter, OnInit, Output} from '@angular/core';
 import {LocalUserService} from '../../../../@core/data/local-user.service';
 import {BodyOutputType, Toast, ToasterConfig, ToasterService} from 'angular2-toaster';
 
 import 'style-loader!angular2-toaster/toaster.css';
-import {UserProfile} from '../../../../@core/models/profile.model';
+import {FormBuilder, FormGroup, Validators} from '@angular/forms';
 
 @Component({
   selector: 'profile-edit',
@@ -11,13 +11,20 @@ import {UserProfile} from '../../../../@core/models/profile.model';
   styleUrls: ['./profile-edit.component.scss'],
 })
 export class ProfileEditComponent implements OnInit {
-  model: UserProfile;
+  profileEditFormGroup: FormGroup = this.fb.group({
+    'alias': ['', [Validators.required, Validators.minLength(3)]],
+    'bio': ['', Validators.maxLength(1000)],
+    'twitterName': ['', Validators.maxLength(32)],
+    'discordName': [''],
+    'youtubeName': [''],
+  });
+
   @Output() onEditSuccess: EventEmitter<any> = new EventEmitter();
 
   toasterConfig: ToasterConfig;
   constructor(private localUserService: LocalUserService,
               private toasterService: ToasterService,
-              private changeDet: ChangeDetectorRef) {
+              private fb: FormBuilder) {
     this.toasterConfig = new ToasterConfig({
       positionClass: 'toast-top-full-width',
       timeout: 5000,
@@ -30,15 +37,14 @@ export class ProfileEditComponent implements OnInit {
   }
   ngOnInit(): void {
     this.localUserService.getLocal().subscribe(usr => {
-      this.model = usr.profile;
-      this.changeDet.detectChanges();
+      this.profileEditFormGroup.patchValue(usr.profile);
     });
   }
 
   onSubmit(): void {
-    this.localUserService.updateProfile(this.model).subscribe(data => {
+    this.localUserService.updateProfile(this.profileEditFormGroup.value).subscribe(data => {
       // console.log('Response: ' + data);
-      this.onEditSuccess.emit(this.model);
+      this.onEditSuccess.emit(this.profileEditFormGroup.value);
       this.localUserService.refreshLocal();
       // TODO: redirect to user profile?
       this.showToast('success', 'Updated user profile!', '');

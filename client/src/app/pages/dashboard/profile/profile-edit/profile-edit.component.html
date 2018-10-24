@@ -4,28 +4,44 @@
   </nb-card-header>
   <nb-card-body>
     <toaster-container [toasterconfig]="this.toasterConfig"></toaster-container>
-    <form #editForm="ngForm" *ngIf="model" (ngSubmit)="onSubmit()">
-      <div class="form-group">
-        <label for="alias">Username: </label>
-        <input class="form-control" placeholder="{{model?.alias}}" type="text" id="alias" name="alias" required [(ngModel)]="model.alias">
-      </div>
-      <div class="form-group">
-        <label for="bio">Bio: </label>
-        <input class="form-control" type="text" id="bio" name="bio" required [(ngModel)]="model.bio">
-      </div>
-      <div class="form-group">
-        <label for="twitter">Twitter: </label>
-        <input class="form-control" type="text" id="twitter" name="twitter" required [(ngModel)]="model.twitterName">
-      </div>
-      <div class="form-group">
-        <label for="discord">Discord: </label>
-        <input class="form-control" type="text" id="discord" name="discord" required [(ngModel)]="model.discordName">
-      </div>
-      <div class="form-group">
-        <label for="youtube">Youtube: </label>
-        <input class="form-control" type="text" id="youtube" name="youtube" required [(ngModel)]="model.youtubeName">
-      </div>
-      <button class="btn btn-md btn-primary" (click)="onSubmit()">Save changes</button>
+    <form [formGroup]="profileEditFormGroup" (ngSubmit)="onSubmit()">
+      <nb-tabset>
+        <nb-tab tabTitle="Profile">
+          <div class="form-group">
+            <label>
+              Username:
+              <input class="form-control" formControlName="alias" type="text">
+            </label>
+          </div>
+          <div class="form-group">
+            <label>Bio:</label>
+            <textarea class="form-control" formControlName="bio"></textarea>
+          </div>
+        </nb-tab>
+        <nb-tab tabTitle="Social Links">
+          <div class="form-group">
+            <label>
+              Twitter:
+              <input class="form-control" type="text" formControlName="twitterName">
+            </label>
+          </div>
+          <div class="form-group">
+            <label>
+              Discord:
+              <input class="form-control" type="text" formControlName="discordName">
+            </label>
+          </div>
+          <div class="form-group">
+            <label>
+              Youtube:
+              <input class="form-control" type="text" formControlName="youtubeName">
+            </label>
+          </div>
+        </nb-tab>
+      </nb-tabset>
+      <button class="btn btn-md btn-primary" type="submit" [disabled]="!profileEditFormGroup.valid">
+        Save changes
+      </button>
     </form>
   </nb-card-body>
 </nb-card>
