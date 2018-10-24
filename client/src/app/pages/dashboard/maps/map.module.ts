@@ -9,15 +9,22 @@ import {ViewMapsComponent} from './view-maps/view-maps.component';
 import {UploadsComponent} from './uploads/uploads.component';
 import {UploadStatusComponent} from './upload-status/upload-status.component';
 import {MapInfoComponent} from './map-info/map-info.component';
+import {ToasterModule} from 'angular2-toaster';
 
 @NgModule({
   imports: [
     ThemeModule,
     NotFoundModule,
     MapRoutingModule,
+    ToasterModule.forRoot(),
   ],
   declarations: [
-    MapComponent, MapQueueComponent, ViewMapsComponent, UploadsComponent, UploadStatusComponent, MapInfoComponent,
+    MapComponent,
+    MapQueueComponent,
+    ViewMapsComponent,
+    UploadsComponent,
+    UploadStatusComponent,
+    MapInfoComponent,
   ],
   providers: [],
 })

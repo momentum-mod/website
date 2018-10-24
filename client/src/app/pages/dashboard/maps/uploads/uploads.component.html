@@ -5,32 +5,60 @@
           <nb-card-header><h1>Submit a Map</h1></nb-card-header>
 
           <nb-card-body>
+            <toaster-container [toasterconfig]="this.toasterConfig"></toaster-container>
             <label>Map File</label><br>
-            <input class= "form-control col-md-10" disabled="disabled" style="display: inline;" [value]="fileToUpload?.name" #uploadFile/>
+            <input class="form-control col-md-10" disabled="disabled" style="display: inline;" [value]="mapFile?.name" #uploadFile/>
             <div class="fileUpload btn btn-outline-info">
               <span>Choose File</span>
-              <input id="uploadBtn" type="file" accept=".bsp" class="upload" (change)="onFileSelected($event);"/>
+              <input id="uploadBtn" type="file" accept=".bsp" class="upload" (change)="onMapFileSelected($event);"/>
+            </div>
+            <br>
+            <label>Map Avatar</label><br>
+            <input class= "form-control col-md-10" disabled="disabled" style="display: inline;" [value]="avatarFile?.name" #uploadFile/>
+            <div class="fileUpload btn btn-outline-info">
+              <span>Choose File</span>
+              <input id="uploadBtn" type="file" accept="image/*" class="upload" (change)="onAvatarFileSelected($event);"/>
             </div>
 
-            <label>Map Name</label>
             <div class="form-group">
-              <input type="text" class="form-control col-md-10"/>
+              <label>Map Name</label>
+              <input type="text" class="form-control col-md-10" name="name" required [(ngModel)]="formData.name"/>
             </div>
 
-              <label>Author</label>
-              <div class="form-group">
-                <input type="text" class="form-control col-md-10" style="display: inline;"/>&nbsp;
-                <button type="button" class="btn btn-outline-info">+</button>
-              </div>
-
-            <label>Date Created</label>
             <div class="form-group">
+              <label>Number of Bonuses</label>
+              <input type="number" class="form-control col-md-10" [(ngModel)]="formData.info.numBonuses"/>
+            </div>
+
+            <div class="form-group">
+              <label>Number of Checkpoints</label>
+              <input type="number" class="form-control col-md-10" [(ngModel)]="formData.info.numCheckpoints"/>
+            </div>
+
+            <div class="form-group">
+              <label>Number of Stages</label>
+              <input type="number" class="form-control col-md-10" [(ngModel)]="formData.info.numStages"/>
+            </div>
+
+            <div class="form-group">
+              <label>Difficulty</label>
+              <input type="number" class="form-control col-md-10" [(ngModel)]="formData.info.difficulty"/>
+            </div>
+
+            <div class="form-group">
+              <label>Author</label><br>
+              <input type="text" class="form-control col-md-10" style="display: inline;"/>&nbsp;
+              <button type="button" class="btn btn-outline-info">+</button>
+            </div>
+
+            <div class="form-group">
+              <label>Date Created</label>
               <input type="date" class="form-control col-md-10"/>
             </div>
 
-            <label>Map Description</label>
             <div class="form-group">
-              <textarea rows="4" class="form-control col-md-10"></textarea>
+              <label>Map Description</label>
+              <textarea rows="4" class="form-control col-md-10" [(ngModel)]="formData.info.description"></textarea>
             </div>
 
             <div class="form-group validation-checkboxes row">
@@ -38,7 +66,11 @@
             </div>
 
             <div>
-              <button type="button" class="btn btn-outline-info">Submit Map</button>
+              <button (click)="onSubmit()" type="button" class="btn btn-outline-info">Submit Map</button>
+              <br>
+              <div *ngIf="mapUploadPercentage">
+                Uploading map... {{mapUploadPercentage}}%
+              </div>
             </div>
 
           </nb-card-body>

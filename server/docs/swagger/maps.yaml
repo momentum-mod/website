@@ -249,6 +249,18 @@ paths:
         required: true
         description: ID of the map to find
         type: string
+    get:
+      tags:
+        - maps
+      summary: Rerieves the location to upload a map file to for a specific map
+      responses:
+        204:
+          description: Map upload location is retrieved
+          headers:
+            Location:
+              schema:
+                type: string
+              description: A URL pointing to the location to upload the map file
     post:
       tags:
         - maps

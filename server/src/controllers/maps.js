@@ -42,7 +42,7 @@ module.exports = {
 		req.body.submitterID = req.user.id;
 		map.create(req.body)
 		.then(map => {
-			res.set('Location', config.baseUrl + '/maps/' + map.id + '/upload');
+			res.set('Location', '/api/maps/' + map.id + '/upload');
 			res.json(map);
 		}).catch(next);
 	},
@@ -134,6 +134,14 @@ module.exports = {
 			err.status = 400;
 			next(err);
 		}
+	},
+
+	getUploadLocation: (req, res, next) => {
+		map.verifySubmitter(req.params.mapID, req.user.id)
+		.then(() => {
+			res.set('Location', '/api/maps/' + req.params.mapID + '/upload');
+			res.sendStatus(204);
+		}).catch(next);
 	},
 
 	upload: (req, res, next) => {
