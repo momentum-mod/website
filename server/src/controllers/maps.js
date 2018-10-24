@@ -42,7 +42,7 @@ module.exports = {
 		req.body.submitterID = req.user.id;
 		map.create(req.body)
 		.then(map => {
-			res.set('Location', config.baseUrl + '/maps/' + map.id + '/upload');
+			res.set('Location', '/api/maps/' + map.id + '/upload');
 			res.json(map);
 		}).catch(next);
 	},
