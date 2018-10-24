@@ -1,10 +1,15 @@
 <div class="row">
   <div class="col-md-12 col-lg-12">
     <nb-card>
-      <nb-card-header><h1>Uploads</h1></nb-card-header>
+      <nb-card-header><h1>Uploads</h1></nb-card-header> <!--TODO: filter button in the header like activity card-->
       <nb-card-body>
-        <div>
-          <i><p>The status of your map submission will appear here </p></i>
+        <i *ngIf="maps === undefined || maps?.length === 0">
+          You have not uploaded any maps. Try <a href="/dashboard/maps/uploads/new">uploading a new one!</a>
+        </i>
+        <div *ngIf="maps?.length > 0">
+          <nb-card-body *ngFor="let map of maps">
+            <map-status [map]="map"></map-status>
+          </nb-card-body>
         </div>
       </nb-card-body>
     </nb-card>

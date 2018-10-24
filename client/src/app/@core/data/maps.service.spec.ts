@@ -14,12 +14,16 @@ describe('MapsService', () => {
   it('should return expected maps', () => {
     const expectedMaps: MomentumMap[] = [
       {
-        id: 9,
+        id: '9',
         name: 'testmap1',
+        statusFlag: 0,
+        createdAt: new Date(),
       },
       {
-        id: 40000,
+        id: '40000',
         name: 'testmap2',
+        statusFlag: 0,
+        createdAt: new Date(),
       },
     ];
 
