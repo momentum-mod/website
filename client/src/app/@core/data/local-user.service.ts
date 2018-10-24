@@ -1,6 +1,6 @@
 import {Injectable} from '@angular/core';
 import { AuthService } from './auth.service';
-import {Observable, of, ReplaySubject, Subject} from 'rxjs';
+import {Observable, ReplaySubject, Subject} from 'rxjs';
 import {HttpClient} from '@angular/common/http';
 import {UserProfile} from '../models/profile.model';
 import {User} from '../models/user.model';
@@ -53,7 +53,7 @@ export class LocalUserService {
   }
 
   public getLocalUserMaps(): Observable<any> {
-    return of({
+/*    return of({
       maps: [
         {
           id: '123',
@@ -86,11 +86,11 @@ export class LocalUserService {
               },
             },
           ],
-/*          leaderboardID?: string;
-          download?: string;*/
+/!*          leaderboardID?: string;
+          download?: string;*!/
         },
       ],
-    });
-    // return this.http.get('/api/user/maps'); // TODO: ?expand=info?
+    });*/
+    return this.http.get('/api/user/maps?expand=info,credits');
   }
 }
