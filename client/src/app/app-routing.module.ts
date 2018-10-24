@@ -1,5 +1,5 @@
 import {ExtraOptions, PreloadAllModules, RouterModule, Routes} from '@angular/router';
-import { NgModule } from '@angular/core';
+import {NgModule} from '@angular/core';
 import {MainPageComponent} from './pages/main/main-page.component';
 import {NotFoundMainComponent} from './pages/not-found/main/not-found-main.component';
 import {AuthGuard} from './@core/guards/auth.guard';

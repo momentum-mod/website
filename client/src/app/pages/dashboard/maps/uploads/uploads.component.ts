@@ -1,7 +1,7 @@
 import {Component, ViewChild} from '@angular/core';
 import {HttpEvent, HttpEventType} from '@angular/common/http';
 import {Router} from '@angular/router';
-import {BodyOutputType, Toast, ToasterConfig, ToasterService} from 'angular2-toaster';
+import {ToasterService} from 'angular2-toaster';
 import {MapsService} from '../../../../@core/data/maps.service';
 import 'rxjs/add/operator/mergeMap';
 
@@ -14,7 +14,6 @@ import 'rxjs/add/operator/mergeMap';
 export class UploadsComponent {
   @ViewChild('uploadFile') uploadFile;
 
-  toasterConfig: ToasterConfig;
   mapFile: File;
   avatarFile: File;
   mapUploadPercentage: number;
@@ -32,15 +31,6 @@ export class UploadsComponent {
   constructor(private mapsService: MapsService,
               private router: Router,
               private toasterService: ToasterService) {
-    this.toasterConfig = new ToasterConfig({
-      positionClass: 'toast-top-full-width',
-      timeout: 5000,
-      newestOnTop: true,
-      tapToDismiss: true,
-      preventDuplicates: true,
-      animation: 'fade',
-      limit: 5,
-    });
   }
 
   onMapFileSelected(event) {
@@ -61,7 +51,7 @@ export class UploadsComponent {
       mapID = res.body.id;
       uploadLocation = res.headers.get('Location');
       mapCreated = true;
-      this.showToast('success', 'Map successfully created', 'Please wait for the map file to upload');
+      this.toasterService.popAsync('success', 'Map successfully created', 'Please wait for the map file to upload');
       return this.mapsService.updateMapAvatar(mapID, this.avatarFile);
     }).mergeMap(() => {
       return this.mapsService.uploadMapFile(uploadLocation, this.mapFile);
@@ -89,7 +79,7 @@ export class UploadsComponent {
       if (mapCreated) {
         this.onSubmitSuccess();
       }
-      this.showToast('error', 'Failed to create map', errorMessage);
+      this.toasterService.popAsync('error', 'Failed to create map', errorMessage);
     });
   }
 
@@ -126,22 +116,7 @@ export class UploadsComponent {
     } else {
       return true;
     }
-    this.showToast('error', invalidMessage, '');
+    this.toasterService.popAsync('error', invalidMessage, '');
     return false;
   }
-
-  showToast(type: string, title: string, body: string) {
-    // types: ['default', 'info', 'success', 'warning', 'error']
-    const toast: Toast = {
-      type: type,
-      title: title,
-      body: body,
-      timeout: 5000,
-      showCloseButton: true,
-      bodyOutputType: BodyOutputType.TrustedHtml,
-    };
-
-    this.toasterService.popAsync(toast);
-  }
-
 }
