@@ -18,8 +18,8 @@ export class MapsService {
       info: {
         id: id,
         totalDownloads: '100',
-        avatarURL: 'test',
-        description: 'it\'s pretty',
+        avatarURL: '<img src="assets\\images\\Lego2.jpg" height="250px" width="px">',
+        description: 'test',
         numBonuses: 10,
         numCheckpoints: 12,
         numStages: 7,
