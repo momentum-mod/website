@@ -17,7 +17,12 @@ import {MapInfoComponent} from './map-info/map-info.component';
     MapRoutingModule,
   ],
   declarations: [
-    MapComponent, MapQueueComponent, ViewMapsComponent, UploadsComponent, UploadStatusComponent, MapInfoComponent,
+    MapComponent,
+    MapQueueComponent,
+    ViewMapsComponent,
+    UploadsComponent,
+    UploadStatusComponent,
+    MapInfoComponent,
   ],
   providers: [],
 })
