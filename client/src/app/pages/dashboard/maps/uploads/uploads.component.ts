@@ -4,6 +4,7 @@ import {Router} from '@angular/router';
 import {ToasterService} from 'angular2-toaster';
 import {MapsService} from '../../../../@core/data/maps.service';
 import 'rxjs/add/operator/mergeMap';
+import {FormBuilder, FormGroup, Validators} from '@angular/forms';
 
 @Component({
   selector: 'app-map-queue',
@@ -17,24 +18,30 @@ export class UploadsComponent {
   mapFile: File;
   avatarFile: File;
   mapUploadPercentage: number;
-  formData = {
-    name: '',
-    info: {
-      description: '',
-      numBonuses: 0,
-      numCheckpoints: 0,
-      numStages: 0,
-      difficulty: 0,
-    },
-  };
+
+  mapUploadFormGroup: FormGroup = this.fb.group({
+    'name': ['', Validators.required],
+    'info': this.fb.group({
+      'description': ['', [Validators.required, Validators.maxLength(1000)]],
+      'numBonuses': [0, [Validators.required, Validators.min(0), Validators.max(64)]],
+      'numCheckpoints': [0, [Validators.required, Validators.min(0), Validators.max(64)]],
+      'numStages': [0, [Validators.required, Validators.min(0), Validators.max(64)]],
+      'difficulty': [0, [Validators.required, Validators.min(0), Validators.max(6)]],
+    }),
+  });
+  get name() { return this.mapUploadFormGroup.get('name'); }
 
   constructor(private mapsService: MapsService,
               private router: Router,
-              private toasterService: ToasterService) {
+              private toasterService: ToasterService,
+              private fb: FormBuilder) {
   }
 
   onMapFileSelected(event) {
     this.mapFile = event.target.files[0];
+    this.mapUploadFormGroup.patchValue({
+      name: this.mapFile.name.replace(/.bsp/g, ''),
+    });
   }
 
   onAvatarFileSelected(event) {
@@ -42,11 +49,12 @@ export class UploadsComponent {
   }
 
   onSubmit() {
-    if (!this.isFormDataValid()) return;
+    if (!this.mapUploadFormGroup.valid)
+      return;
     let mapCreated = false;
     let mapID = '';
     let uploadLocation = '';
-    this.mapsService.createMap(this.formData)
+    this.mapsService.createMap(this.mapUploadFormGroup.value)
     .mergeMap(res => {
       mapID = res.body.id;
       uploadLocation = res.headers.get('Location');
@@ -89,34 +97,9 @@ export class UploadsComponent {
   }
 
   private resetForm() {
-    this.formData = {
-      name: '',
-      info: {
-        description: '',
-        numBonuses: 0,
-        numCheckpoints: 0,
-        numStages: 0,
-        difficulty: 0,
-      },
-    };
+    this.mapUploadFormGroup.reset();
     this.mapFile = null;
     this.avatarFile = null;
     this.mapUploadPercentage = 0;
-  }
-
-  private isFormDataValid(): boolean {
-    // TODO: there a more 'angular' way to do this?
-    let invalidMessage = '';
-    if (!this.formData.name) {
-      invalidMessage = 'Please provide a map name';
-    } else if (!this.mapFile) {
-      invalidMessage = 'Please choose a map file to upload';
-    } else if (!this.avatarFile) {
-      invalidMessage = 'Please choose an avatar file to upload';
-    } else {
-      return true;
-    }
-    this.toasterService.popAsync('error', invalidMessage, '');
-    return false;
   }
 }
