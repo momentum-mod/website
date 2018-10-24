@@ -5,6 +5,7 @@
           <nb-card-header><h1>Submit a Map</h1></nb-card-header>
 
           <nb-card-body>
+            <toaster-container [toasterconfig]="this.toasterConfig"></toaster-container>
             <label>Map File</label><br>
             <input class="form-control col-md-10" disabled="disabled" style="display: inline;" [value]="mapFile?.name" #uploadFile/>
             <div class="fileUpload btn btn-outline-info">
