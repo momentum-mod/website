@@ -20,19 +20,25 @@ const routes: Routes = [
       },
       {
         path: 'uploads',
-        component: UploadStatusComponent,
+        children: [
+          {
+            path: '',
+            component: UploadStatusComponent,
+          },
+          {
+            path: 'new',
+            component: UploadsComponent,
+          },
+        ],
+      },
+      {
+        path: 'queue',
+        pathMatch: 'full',
+        component: MapQueueComponent,
       },
       {
         path: ':id',
         component: MapInfoComponent,
-      },
-      {
-        path: 'uploads/new',
-        component: UploadsComponent,
-      },
-      {
-        path: 'queue',
-        component: MapQueueComponent,
       },
       {
         path: '**',
