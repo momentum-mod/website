@@ -4,15 +4,57 @@
   height: auto;
   min-height: 35rem;
   padding: 15rem 0;
-  background: -webkit-gradient(linear, left top, left bottom, from(rgba(22, 22, 22, 0.1)), color-stop(75%,
-    rgba(22, 22, 22, 0.5)), to(#161616)), url('/assets/images/bg-main.jpg');
-  background: linear-gradient(to bottom, rgba(22, 22, 22, 0.1) 0%, rgba(22, 22, 22, 0.5) 75%, #161616 100%),
-  url('/assets/images/bg-main.jpg');
+  background-color: rgb(26, 26, 26);
   background-position: center;
   background-repeat: no-repeat;
   background-attachment: scroll;
   background-size: cover;
 }
+
+.card-header {
+  height: 100px;
+  font-size: 3rem;
+  line-height: 3rem;
+  background: linear-gradient(to top, #cc382e, rgb(250, 99, 94));
+}
+
+img {
+  display: inline-block;
+  margin-left: 30px;
+  margin-right: 50px;
+}
+
+.row {
+  width: 900px;
+}
+.bg-black {
+  background-color: #000000 !important;
+}
+
+
+.btn {
+  font-family: 'Arial';
+}
+.btn-return {
+  background-color: #009cff;
+  color: white;
+}
+
+.btn-primary {
+  background-color: #414141;
+  border-color: black;
+  margin-left: 20px;
+}
+
+.card {
+  border-color: #373737;
+  padding-bottom: 20px;
+}
+
+.text-white {
+  font-size: 2rem;
+}
+
 
 .masthead h1 {
   font-family: 'Varela Round';
