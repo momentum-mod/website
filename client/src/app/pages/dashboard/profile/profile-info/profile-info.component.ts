@@ -1,5 +1,5 @@
 import {Component, Input} from '@angular/core';
-import {UserProfile} from '../../../../@core/models/profile.model';
+import {User} from '../../../../@core/models/user.model';
 
 @Component({
   selector: 'profile-info',
@@ -8,7 +8,7 @@ import {UserProfile} from '../../../../@core/models/profile.model';
 })
 export class ProfileInfoComponent {
 
-  @Input('userProfile') userProfile: UserProfile;
+  @Input('user') user: User;
 
   constructor() {}
 }

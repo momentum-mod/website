@@ -49,7 +49,9 @@ export function tokenGetter() {
       markedOptions: {
         provide: MarkedOptions,
         useValue: {
-          gfm: false,
+          gfm: true,
+          breaks: true,
+          tables: false,
           smartLists: true,
           smartypants: false,
         },

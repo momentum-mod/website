@@ -1,19 +1,20 @@
 <div class="col-sm-12">
   <nb-card>
-        <nb-card-body>
-          <h4>Bio:</h4>
-          <markdown [data]="userProfile?.bio" ngPreserveWhitespaces>
-          </markdown>
+    <nb-card-body>
+      <h4>Bio:</h4>
+      <markdown [data]="user?.profile?.bio" ngPreserveWhitespaces>
+      </markdown>
 
-          <h4>Links:</h4>
-          <div class="socials">
-            <a *ngIf="userProfile?.twitterName" href="https://twitter.com/{{userProfile?.twitterName}}" target="_blank" class="ion ion-social-twitter"></a>
-            <a *ngIf="userProfile?.discordName" title="{{userProfile?.discordName}}" target="_blank">
-              <img src="assets\images\Discord-Logo-White.png" height="35px" width="35px">
-            </a>
-            <a *ngIf="userProfile?.youtubeName" href="https://youtube.com/user/{{userProfile?.youtubeName}}" target="_blank" class="ion ion-social-youtube"></a>
-          </div>
-        </nb-card-body>
+      <h4>Links:</h4>
+      <div class="socials">
+        <a href="https://steamcommunity.com/profiles/{{user?.id}}" target="_blank" class="ion ion-steam"></a>
+        <a *ngIf="user?.profile?.twitterName" href="https://twitter.com/{{user?.profile?.twitterName}}" target="_blank" class="ion ion-social-twitter"></a>
+        <a *ngIf="user?.profile?.discordName" title="{{user?.profile?.discordName}}" target="_blank">
+          <img src="assets\images\Discord-Logo-White.png" height="35px" width="35px">
+        </a>
+        <a *ngIf="user?.profile?.youtubeName" href="https://youtube.com/user/{{user?.profile?.youtubeName}}" target="_blank" class="ion ion-social-youtube"></a>
+      </div>
+    </nb-card-body>
   </nb-card>
 </div>
 
