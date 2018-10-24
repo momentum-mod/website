@@ -40,6 +40,7 @@ router.route('/:mapID/download')
 	.all(errorCtrl.send405);
 
 router.route('/:mapID/upload')
+	.get([authMiddleware.requireLogin], mapCtrl.getUploadLocation)
 	.post([authMiddleware.requireLogin], mapCtrl.upload)
 	.all(errorCtrl.send405);
 
