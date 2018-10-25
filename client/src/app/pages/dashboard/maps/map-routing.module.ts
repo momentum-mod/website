@@ -4,7 +4,7 @@ import {MapComponent} from './map.component';
 import {NotFoundDashboardComponent} from '../../not-found/dashboard/not-found-dashboard.component';
 import {MapQueueComponent} from './map-queue/map-queue.component';
 import {ViewMapsComponent} from './view-maps/view-maps.component';
-import {UploadsComponent} from './uploads/uploads.component';
+import {MapUploadFormComponent} from './upload-form/map-upload-form.component';
 import {UploadStatusComponent} from './upload-status/upload-status.component';
 import {MapInfoComponent} from './map-info/map-info.component';
 
@@ -27,7 +27,7 @@ const routes: Routes = [
           },
           {
             path: 'new',
-            component: UploadsComponent,
+            component: MapUploadFormComponent,
           },
         ],
       },

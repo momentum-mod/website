@@ -6,7 +6,7 @@ import {MapQueueComponent} from './map-queue/map-queue.component';
 import {MapRoutingModule} from './map-routing.module';
 import {ThemeModule} from '../../../@theme/theme.module';
 import {ViewMapsComponent} from './view-maps/view-maps.component';
-import {UploadsComponent} from './uploads/uploads.component';
+import {MapUploadFormComponent} from './upload-form/map-upload-form.component';
 import {UploadStatusComponent} from './upload-status/upload-status.component';
 import {MapInfoComponent} from './map-info/map-info.component';
 import {MapStatusComponent} from './upload-status/map-status/map-status.component';
@@ -21,7 +21,7 @@ import {MapStatusComponent} from './upload-status/map-status/map-status.componen
     MapComponent,
     MapQueueComponent,
     ViewMapsComponent,
-    UploadsComponent,
+    MapUploadFormComponent,
     UploadStatusComponent,
     MapInfoComponent,
     MapStatusComponent,
