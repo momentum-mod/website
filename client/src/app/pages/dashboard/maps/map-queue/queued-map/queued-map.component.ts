@@ -18,7 +18,6 @@ export class QueuedMapComponent implements OnInit {
     private toasterService: ToasterService) { }
 
   ngOnInit() {
-    this.toasterService.popAsync('error', 'Failed to update map status', '');
   }
 
   updateMapStatus(mapID: string, statusFlag: number) {

@@ -41,6 +41,6 @@ img {
   @include map-status-col(green);
 }
 
-.REJECTED {
+.DENIED {
   @include map-status-col(red);
 }
