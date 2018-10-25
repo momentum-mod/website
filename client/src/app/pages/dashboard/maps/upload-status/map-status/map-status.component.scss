@@ -15,44 +15,27 @@ img {
   display: block;
 }
 
-.PENDING {
+@mixin map-status-col($color) {
   .mapStatus {
-    color: orange;
+    color: #{$color};
   }
-
   &.outer {
-    border: 1px solid orange;
+    border: 1px solid #{$color};
   }
 
   &.outer:hover {
-    box-shadow: 0 2px 8px 0 orange;
+    box-shadow: 0 2px 8px 0 #{$color};
   }
+}
+
+.PENDING {
+  @include map-status-col(orange);
 }
 
 .APPROVED {
-  .mapStatus {
-    color: green;
-  }
-
-  &.outer {
-    border: 1px solid green;
-  }
-
-  &.outer:hover {
-    box-shadow: 0 2px 8px 0 green;
-  }
+  @include map-status-col(green);
 }
 
 .REJECTED {
-  .mapStatus {
-    color: red;
-  }
-
-  &.outer {
-    border: 1px solid red;
-  }
-
-  &.outer:hover {
-    box-shadow: 0 2px 8px 0 red;
-  }
+  @include map-status-col(red);
 }
