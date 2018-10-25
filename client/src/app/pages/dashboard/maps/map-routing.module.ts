@@ -8,6 +8,8 @@ import {MapUploadFormComponent} from './upload-form/map-upload-form.component';
 import {UploadStatusComponent} from './upload-status/upload-status.component';
 import {MapInfoComponent} from './map-info/map-info.component';
 import {MapLibraryComponent} from './map-library/map-library.component';
+import {PermissionGuard} from '../../../@core/guards/permission.guard';
+import {Permission} from '../../../@core/models/permissions.model';
 
 const routes: Routes = [
   {
@@ -40,10 +42,10 @@ const routes: Routes = [
         path: 'queue',
         pathMatch: 'full',
         // TODO: uncomment this when ready to guard!
-/*        canActivate: [PermissionGuard],
+        canActivate: [PermissionGuard],
         data: {
           onlyAllow: [Permission.MODERATOR | Permission.ADMIN],
-        },*/
+        },
         component: MapQueueComponent,
       },
       {
