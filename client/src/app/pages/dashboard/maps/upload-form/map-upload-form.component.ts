@@ -7,12 +7,11 @@ import 'rxjs/add/operator/mergeMap';
 import {FormBuilder, FormGroup, Validators} from '@angular/forms';
 
 @Component({
-  selector: 'app-map-queue',
-  templateUrl: './uploads.component.html',
-  styleUrls: ['./uploads.component.scss'],
+  selector: 'map-upload-form',
+  templateUrl: './map-upload-form.component.html',
+  styleUrls: ['./map-upload-form.component.scss'],
 })
-
-export class UploadsComponent {
+export class MapUploadFormComponent {
   @ViewChild('uploadFile') uploadFile;
 
   mapFile: File;
