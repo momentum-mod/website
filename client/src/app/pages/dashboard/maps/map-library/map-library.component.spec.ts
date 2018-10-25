@@ -1,4 +1,4 @@
-import { async, ComponentFixture, TestBed } from '@angular/core/testing';
+/*import { async, ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { MapLibraryComponent } from './map-library.component';
 
@@ -22,4 +22,4 @@ describe('MapLibraryComponent', () => {
   it('should create', () => {
     expect(component).toBeTruthy();
   });
-});
+});*/
