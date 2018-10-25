@@ -10,11 +10,13 @@ import {MapUploadFormComponent} from './upload-form/map-upload-form.component';
 import {UploadStatusComponent} from './upload-status/upload-status.component';
 import {MapInfoComponent} from './map-info/map-info.component';
 import {MapStatusComponent} from './upload-status/map-status/map-status.component';
+import {MarkdownModule} from 'ngx-markdown';
 
 @NgModule({
   imports: [
     ThemeModule,
     NotFoundModule,
+    MarkdownModule.forChild(),
     MapRoutingModule,
   ],
   declarations: [
