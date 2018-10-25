@@ -3,13 +3,12 @@
     <h1>{{map?.name}}</h1>
   </nb-card-header>
   <nb-card-body>
-    <div><img src="assets\images\Lego2.jpg"></div>
+    <div><img [src]="map?.info?.avatarURL"></div>
     <div>
-      <div>Lego Land is the premier map to release your inner childhood.
-          Containing various giant-sized lego pieces, this map will have tons of obstacles for you to conquer.
-        Now is your chance to explore a map where you get to feel like a kid again!</div><br>
-    <div>Release Date: July 1, 2017</div><br>
-    <button type="button" class="btn btn-outline-info">Play</button>
+      <markdown [data]="map?.info?.description" ngPreserveWhitespaces></markdown>
+      <br>
+      <div>Release Date: {{map?.createdAt | date}}</div><br>
+      <button type="button" class="btn btn-outline-info">Add to My Library</button>
     </div>
   </nb-card-body>
 </nb-card>
