@@ -1,0 +1,58 @@
+img {
+  max-width: 10vw;
+  padding: 2vh;
+  margin: auto;
+  display: block;
+}
+
+.content {
+  margin: auto;
+}
+
+.mapStatus {
+  margin: auto;
+  text-align: center;
+  display: block;
+}
+
+.PENDING {
+  .mapStatus {
+    color: orange;
+  }
+
+  &.outer {
+    border: 1px solid orange;
+  }
+
+  &.outer:hover {
+    box-shadow: 0 2px 8px 0 orange;
+  }
+}
+
+.APPROVED {
+  .mapStatus {
+    color: green;
+  }
+
+  &.outer {
+    border: 1px solid green;
+  }
+
+  &.outer:hover {
+    box-shadow: 0 2px 8px 0 green;
+  }
+}
+
+.REJECTED {
+  .mapStatus {
+    color: red;
+  }
+
+  &.outer {
+    border: 1px solid red;
+  }
+
+  &.outer:hover {
+    box-shadow: 0 2px 8px 0 red;
+  }
+}

@@ -1,33 +1,41 @@
-<div class="row">
-  <div class="col-6">
+<div class="row no-gutters outer" [ngClass]="statusEnum[map.statusFlag]">
+  <div class="col-9">
     <div class="row">
       <div class="col-2">
-        <span>MAP NAME:</span>
+        <img [src]="map.info.avatarURL">
       </div>
-      <div class="col-4">
-        <span>{{map.name}}</span>
-      </div>
-    </div>
-    <div class="row">
-      <div class="col-2">
-        <span>SUBMITTED:</span>
-      </div>
-      <div class="col-4">
-        <span>{{map.createdAt}}</span>
-      </div>
-    </div>
-    <div class="row">
-      <div class="col-2">
-        <span>AUTHOR(S):</span>
-      </div>
-      <div class="col-4">
-        <div *ngFor="let credit of map.credits">
-          <span>{{credit.user.profile.alias}}</span>
+      <div class="col-10 content">
+        <div class="row">
+          <div class="col-2">
+            <span>MAP NAME:</span>
+          </div>
+          <div class="col-4">
+            <span>{{map.name}}</span>
+          </div>
+        </div>
+        <div class="row">
+          <div class="col-2">
+            <span>SUBMITTED:</span>
+          </div>
+          <div class="col-4">
+            <span>{{map.createdAt | date}}</span>
+          </div>
+        </div>
+        <div class="row">
+          <div class="col-2">
+            <span>AUTHOR(S):</span>
+          </div>
+          <div class="col-4">
+            <span *ngIf="!map.credits || map.credits.length === 0">No authors</span>
+            <div *ngFor="let credit of map.credits">
+              <span>{{credit.user.profile.alias}}</span>
+            </div>
+          </div>
         </div>
       </div>
     </div>
   </div>
-  <div class="col-6">
-    <span>{{statusEnum[map.statusFlag]}}</span>
+  <div class="col-3 mapStatus">
+    {{statusEnum[map.statusFlag]}}
   </div>
 </div>
