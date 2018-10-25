@@ -7,6 +7,7 @@ import {ViewMapsComponent} from './view-maps/view-maps.component';
 import {MapUploadFormComponent} from './upload-form/map-upload-form.component';
 import {UploadStatusComponent} from './upload-status/upload-status.component';
 import {MapInfoComponent} from './map-info/map-info.component';
+import {MapLibraryComponent} from './map-library/map-library.component';
 
 const routes: Routes = [
   {
@@ -17,6 +18,10 @@ const routes: Routes = [
         path: '',
         pathMatch: 'full',
         component: ViewMapsComponent,
+      },
+      {
+        path: 'library',
+        component: MapLibraryComponent,
       },
       {
         path: 'uploads',
