@@ -1,6 +1,7 @@
 import {Component, Input, OnInit} from '@angular/core';
-import {Activity, Activity_Type} from './activity';
 import {ActivityService} from '../../../@core/data/activity.service';
+import {Activity_Type} from '../../../@core/models/activity-type.model';
+import {Activity} from '../../../@core/models/activity.model';
 
 @Component({
   selector: 'activity-card',
