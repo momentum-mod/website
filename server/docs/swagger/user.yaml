@@ -46,7 +46,60 @@ paths:
       responses:
         204:
           description: User profile is updated
-  /user/maps:
+  /user/maps/library:
+    get:
+      summary: Retrieves a list of maps in the authenticated user's library
+      tags:
+        - user
+      responses:
+        200:
+          description: OK
+          # TODO: schema
+    post:
+      summary: Adds a new map to the authenticated user's library
+      tags:
+        - user
+      parameters:
+        - in: body
+          name: mapID
+          description: The map ID to add to the library
+          required: true
+          type: integer
+      responses:
+        200:
+          description: The library is updated
+          # TODO: schema
+  /user/maps/library/{mapID}:
+    get:
+      summary: Checks to see if a map exists in the authenticated user's library
+      tags:
+        - user
+      parameters:
+        - in: path
+          name: mapID
+          description: The map's ID
+          required: true
+          type: integer
+      responses:
+        200:
+          description: The map exists in the user's library
+        404:
+          description: The map does not exist in the user's library
+    delete:
+      summary: Deletes a library entry from the authenticated user's library
+      tags:
+        - user
+      parameters:
+        - in: path
+          name: mapID
+          description: The map's ID
+          required: true
+          type: integer
+      responses:
+        200:
+          description: The library entry was successfully deleted
+          # TODO schema
+  /user/maps/submitted:
     get:
       tags:
         - user

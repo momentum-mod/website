@@ -7,6 +7,7 @@ const Sequelize = require('sequelize'),
 	MapInfoModel = require('../src/models/db/map-info'),
 	MapCreditModel = require('../src/models/db/map-credit'),
 	ActivityModel = require('../src/models/db/activity'),
+	MapLibraryModel = require('../src/models/db/map-library'),
 	env = process.env.NODE_ENV || 'development';
 
 const sequelize = new Sequelize({
@@ -32,7 +33,7 @@ const forceSyncDB = () => {
 	}).then(() => {
 		return sequelize.query('SET FOREIGN_KEY_CHECKS = 1', { raw: true });
 	});
-}
+};
 
 const User = UserModel(sequelize, Sequelize);
 const Profile = ProfileModel(sequelize, Sequelize);
@@ -40,6 +41,7 @@ const Map = MapModel(sequelize, Sequelize);
 const MapInfo = MapInfoModel(sequelize, Sequelize);
 const MapCredit = MapCreditModel(sequelize, Sequelize);
 const Activity = ActivityModel(sequelize, Sequelize);
+const MapLibrary = MapLibraryModel(sequelize, Sequelize);
 
 User.hasOne(Profile, { foreignKey: 'userID' });
 User.hasMany(Activity, { foreignKey: 'userID' });
@@ -48,6 +50,8 @@ Map.hasMany(MapCredit, { as: 'credits', foreignKey: 'mapID' });
 Map.hasOne(MapInfo, { as: 'info', foreignKey: 'mapID' });
 Map.belongsTo(User, { as: 'submitter', foreignKey: 'submitterID' });
 MapCredit.belongsTo(User, { foreignKey: 'userID' });
+MapLibrary.belongsTo(User, { foreignKey: 'userID' });
+MapLibrary.belongsTo(Map, { foreignKey: 'mapID' });
 
 if (env === 'development') {
 	forceSyncDB()
@@ -67,5 +71,6 @@ module.exports = {
 	Map,
 	MapInfo,
 	MapCredit,
-	Activity
+	Activity,
+	MapLibrary
 };

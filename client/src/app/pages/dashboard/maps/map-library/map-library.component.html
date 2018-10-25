@@ -1,3 +1,10 @@
-<p>
-  map-library works!
-</p>
+<nb-card>
+  <nb-card-header>
+    <h2>My Library</h2>
+  </nb-card-header>
+  <nb-card-body>
+    <nb-card-body *ngFor="let entry of entries">
+      <map-status [map]="entry.map"></map-status>
+    </nb-card-body>
+  </nb-card-body>
+</nb-card>
