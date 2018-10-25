@@ -127,8 +127,8 @@ export class SearchFieldComponent implements OnChanges, AfterViewInit {
           this.users = resp.users;
         });
       if (!this.onlyUsers)
-        this.mapsService.searchMaps(term.substring(this.onlyMaps ? 4 : 0).trim()).subscribe(maps => {
-          this.maps = maps;
+        this.mapsService.searchMaps(term.substring(this.onlyMaps ? 4 : 0).trim()).subscribe(resp => {
+          this.maps = resp.maps;
         });
     }
   }
