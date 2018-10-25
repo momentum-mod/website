@@ -1,0 +1,46 @@
+.btn-group-vertical > button {
+    margin-bottom:10px;
+    border-radius:10px !important;
+}
+
+img {
+  max-width: 10vw;
+  padding: 2vh;
+  margin: auto;
+  display: block;
+}
+
+.content {
+  margin: auto;
+}
+
+.mapStatus {
+  margin: auto;
+  text-align: center;
+  display: block;
+}
+
+/* @mixin map-status-col($color) {
+  .mapStatus {
+    color: #{$color};
+  }
+  &.outer {
+    border: 1px solid #{$color};
+  }
+
+  &.outer:hover {
+    box-shadow: 0 2px 8px 0 #{$color};
+  }
+} */
+
+.PENDING {
+  @include map-status-col(orange);
+}
+
+.APPROVED {
+  @include map-status-col(green);
+}
+
+.REJECTED {
+  @include map-status-col(red);
+}

@@ -12,6 +12,7 @@ import {MapInfoComponent} from './map-info/map-info.component';
 import {MapStatusComponent} from './upload-status/map-status/map-status.component';
 import {MarkdownModule} from 'ngx-markdown';
 import { MapLibraryComponent } from './map-library/map-library.component';
+import {QueuedMapComponent} from './map-queue/queued-map/queued-map.component';
 
 @NgModule({
   imports: [
@@ -28,7 +29,11 @@ import { MapLibraryComponent } from './map-library/map-library.component';
     UploadStatusComponent,
     MapInfoComponent,
     MapStatusComponent,
+<<<<<<< 89a913cc0f0268e948aa33edf871543c48d0bc41
     MapLibraryComponent,
+=======
+    QueuedMapComponent,
+>>>>>>> Started map queue client server connection
   ],
   providers: [],
 })
