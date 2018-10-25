@@ -1,11 +1,18 @@
 <div class="row">
   <div class="col-md-12 col-lg-12">
     <nb-card>
-      <nb-card-header><h1>Uploads</h1></nb-card-header> <!--TODO: filter button in the header like activity card-->
+      <nb-card-header class="row">
+        <div class="col-3">
+          <h1>Uploads</h1>
+        </div>
+        <div class="col-9">
+          <button type="button" routerLink="/dashboard/maps/uploads/new" class="btn btn-outline-info uploadBtn">Upload a Map</button>
+        </div>
+      </nb-card-header> <!--TODO: filter button in the header like activity card-->
       <nb-card-body>
-        <i *ngIf="maps === undefined || maps?.length === 0">
-          You have not uploaded any maps. Try <a href="/dashboard/maps/uploads/new">uploading a new one!</a>
-        </i>
+        <h1 *ngIf="maps === undefined || maps?.length === 0" class="noUpload">
+          <i>You have not uploaded any maps. Try <a routerLink="/dashboard/maps/uploads/new">uploading a new one!</a></i>
+        </h1>
         <div *ngIf="maps?.length > 0">
           <nb-card-body *ngFor="let map of maps">
             <map-status [map]="map"></map-status>

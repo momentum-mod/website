@@ -11,6 +11,7 @@ import {UploadStatusComponent} from './upload-status/upload-status.component';
 import {MapInfoComponent} from './map-info/map-info.component';
 import {MapStatusComponent} from './upload-status/map-status/map-status.component';
 import {MarkdownModule} from 'ngx-markdown';
+import { MapLibraryComponent } from './map-library/map-library.component';
 
 @NgModule({
   imports: [
@@ -27,6 +28,7 @@ import {MarkdownModule} from 'ngx-markdown';
     UploadStatusComponent,
     MapInfoComponent,
     MapStatusComponent,
+    MapLibraryComponent,
   ],
   providers: [],
 })
