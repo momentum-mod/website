@@ -10,10 +10,10 @@
         </div>
       </nb-card-header> <!--TODO: filter button in the header like activity card-->
       <nb-card-body>
-        <h1 *ngIf="maps === undefined || maps?.length === 0" class="noUpload">
+        <h1 *ngIf="(maps === undefined || maps?.length === 0) && fetchedMaps" class="noUpload">
           <i>You have not uploaded any maps. Try <a routerLink="/dashboard/maps/uploads/new">uploading a new one!</a></i>
         </h1>
-        <div *ngIf="maps?.length > 0">
+        <div *ngIf="(maps?.length > 0) && fetchedMaps">
           <nb-card-body *ngFor="let map of maps">
             <map-status [map]="map"></map-status>
           </nb-card-body>

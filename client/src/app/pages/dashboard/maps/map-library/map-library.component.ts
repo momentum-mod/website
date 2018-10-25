@@ -1,4 +1,6 @@
-import { Component, OnInit } from '@angular/core';
+import {Component, OnInit} from '@angular/core';
+import {LocalUserService} from '../../../../@core/data/local-user.service';
+import {MapLibraryEntry} from '../../../../@core/models/map-library-entry';
 
 @Component({
   selector: 'map-library',
@@ -7,9 +9,13 @@ import { Component, OnInit } from '@angular/core';
 })
 export class MapLibraryComponent implements OnInit {
 
-  constructor() { }
-
-  ngOnInit() {
+  entries: MapLibraryEntry[];
+  constructor(private locUsrService: LocalUserService) {
   }
 
+  ngOnInit() {
+    this.locUsrService.getMapLibrary().subscribe(resp => {
+      this.entries = resp.entries;
+    });
+  }
 }

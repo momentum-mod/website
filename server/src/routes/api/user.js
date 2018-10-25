@@ -14,8 +14,18 @@ router.route('/profile')
 	.patch(userCtrl.updateProfile)
 	.all(errorCtrl.send405);
 
-router.route('/maps')
+router.route('/maps/submitted')
 	.get(userCtrl.getSubmittedMaps)
+	.all(errorCtrl.send405);
+
+router.route('/maps/library')
+	.get(userCtrl.getUserLibrary)
+	.post(userCtrl.addMapToLibrary)
+	.all(errorCtrl.send405);
+
+router.route('/maps/library/:mapID')
+	.get(userCtrl.isMapInLibrary)
+	.delete(userCtrl.removeMapFromLibrary)
 	.all(errorCtrl.send405);
 
 router.route('/activities')

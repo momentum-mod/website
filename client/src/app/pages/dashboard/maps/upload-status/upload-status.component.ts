@@ -1,6 +1,7 @@
 import {Component, OnInit} from '@angular/core';
 import {LocalUserService} from '../../../../@core/data/local-user.service';
 import {MomentumMap} from '../../../../@core/models/momentum-map.model';
+import {ToasterService} from 'angular2-toaster';
 
 @Component({
   selector: 'app-map-queue',
@@ -9,10 +10,19 @@ import {MomentumMap} from '../../../../@core/models/momentum-map.model';
 })
 export class UploadStatusComponent implements OnInit {
   maps: MomentumMap[];
-  constructor(private localUserService: LocalUserService) {}
+  fetchedMaps: boolean;
+  constructor(private localUserService: LocalUserService,
+              private toastService: ToasterService) {
+    this.fetchedMaps = false;
+  }
+
   ngOnInit(): void {
-    this.localUserService.getLocalUserMaps().subscribe(res => {
+    this.localUserService.getSubmittedMaps().subscribe(res => {
       this.maps = res.maps;
+    }, er => {
+      this.toastService.popAsync('error', 'Error fetching submitted maps', er.message);
+    }, () => {
+      this.fetchedMaps = true;
     });
   }
 }

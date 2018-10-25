@@ -52,7 +52,7 @@ export class LocalUserService {
     return this.http.patch('/api/user/profile', profile);
   }
 
-  public getLocalUserMaps(): Observable<any> {
+  public getMapLibrary(): Observable<any> {
 /*    return of({
       maps: [
         {
@@ -86,11 +86,26 @@ export class LocalUserService {
               },
             },
           ],
-/!*          leaderboardID?: string;
-          download?: string;*!/
+          /!*          leaderboardID?: string;
+		  download?: string;*!/
         },
       ],
     });*/
-    return this.http.get('/api/user/maps?expand=info,credits');
+    return this.http.get('/api/user/maps/library');
+  }
+  public addMapToLibrary(mapID: string): Observable<any> {
+    return this.http.post('/api/user/maps/library', {mapID: mapID});
+  }
+  public removeMapFromLibrary(mapID: string): Observable<any> {
+    return this.http.delete('/api/user/maps/library/' + mapID, {
+      responseType: 'text',
+    });
+  }
+  public isMapInLibrary(mapID: number): Observable<any> {
+    return this.http.get('/api/user/maps/library/' + mapID);
+  }
+
+  public getSubmittedMaps(): Observable<any> {
+    return this.http.get('/api/user/maps/submitted?expand=info,credits');
   }
 }
