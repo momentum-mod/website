@@ -29,11 +29,8 @@ import {QueuedMapComponent} from './map-queue/queued-map/queued-map.component';
     UploadStatusComponent,
     MapInfoComponent,
     MapStatusComponent,
-<<<<<<< 89a913cc0f0268e948aa33edf871543c48d0bc41
     MapLibraryComponent,
-=======
     QueuedMapComponent,
->>>>>>> Started map queue client server connection
   ],
   providers: [],
 })
