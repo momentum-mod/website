@@ -54,6 +54,7 @@ export function tokenGetter() {
           tables: false,
           smartLists: true,
           smartypants: false,
+          baseUrl: 'https://',
         },
       },
     }),
