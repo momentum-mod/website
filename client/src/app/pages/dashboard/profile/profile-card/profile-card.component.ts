@@ -5,7 +5,7 @@ import {Permission} from '../../../../@core/models/permissions.model';
 
 @Component({
   selector: 'ngx-profile-card',
-  styleUrls: ['./profile-card.scss'],
+  styleUrls: ['./profile-card.component.scss'],
   templateUrl: './profile-card.component.html',
 })
 export class ProfileCardComponent {
