@@ -32,4 +32,14 @@ router.route('/activities')
 	.get(userCtrl.getActivities)
 	.all(errorCtrl.send405);
 
+router.route('/follow')
+	.post(userCtrl.followUser)
+	.all(errorCtrl.send405);
+
+router.route('/follow/:userID')
+	.get(userCtrl.isFollowingUser)
+	.put(userCtrl.updateFollowStatus)
+	.delete(userCtrl.unfollowUser)
+	.all(errorCtrl.send405);
+
 module.exports = router;

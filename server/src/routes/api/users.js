@@ -21,4 +21,12 @@ router.route('/:userID/activities')
 	.get(usersCtrl.getActivities)
 	.all(errorCtrl.send405);
 
+router.route('/:userID/followers')
+	.get(usersCtrl.getFollowers)
+	.all(errorCtrl.send405);
+
+router.route('/:userID/follows')
+	.get(usersCtrl.getFollowed)
+	.all(errorCtrl.send405);
+
 module.exports = router;

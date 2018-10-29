@@ -81,6 +81,30 @@ module.exports = {
 				activities: activities
 			});
 		});
-	}
+	},
+
+	isFollowingUser: (req, res, next) => {
+		user.isFollowingUser(req.user.id, req.params.userID).then(result => {
+			res.json(result);
+		}).catch(next);
+	},
+
+	followUser: (req, res, next) => {
+		user.followUser(req.user.id, req.body.userID).then(result => {
+			res.json(result);
+		}).catch(next);
+	},
+
+	updateFollowStatus: (req, res, next) => {
+		user.updateFollowStatus(req.user.id, req.params.userID, req.body.notify).then(result => {
+			res.json(result);
+		}).catch(next);
+	},
+
+	unfollowUser: (req, res, next) => {
+		user.unfollowUser(req.user.id, req.params.userID).then(() => {
+			res.sendStatus(200);
+		}).catch(next);
+	},
 
 };

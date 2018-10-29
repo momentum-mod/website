@@ -1,5 +1,5 @@
 'use strict';
-const { Op, User, Profile } = require('../../config/sqlize'),
+const { Op, User, Profile, UserFollows } = require('../../config/sqlize'),
 	config = require('../../config/config'),
 	queryHelper = require('../helpers/query'),
 	axios = require('axios');
@@ -109,6 +109,65 @@ module.exports = {
 		return Profile.update(profile, {
 			where: { userID: userID }
 		});
-	}
+	},
+
+	getFollowers: (userID) => {
+		return UserFollows.findAndCountAll({
+			where: { followedID: userID },
+			include: [
+				{
+					model: User,
+					include: [
+						{
+							model: Profile,
+							as: 'profile'
+						}
+					]
+				},
+			]
+		});
+	},
+
+	getFollowing: (userID) => {
+		return UserFollows.findAndCountAll({
+			where: { followeeID: userID },
+			include: [
+				{
+					model: User,
+					include: [
+						{
+							model: Profile,
+							as: 'profile'
+						}
+					]
+				},
+			]
+		});
+	},
+
+	isFollowingUser: (followeeID, followedID) => {
+		return UserFollows.findOne({
+			where: { followeeID: followeeID, followedID: followedID}
+		});
+	},
+
+	followUser: (followeeID, followedID) => {
+		return UserFollows.findOrCreate({
+			where: { followeeID: followeeID, followedID: followedID }
+		});
+	},
+
+	updateFollowStatus: (followeeID, followedID, notify) => {
+		return UserFollows.update(
+			{ notify: notify },
+			{ where: { followeeID: followeeID, followedID: followedID } },
+		);
+	},
+
+	unfollowUser: (followeeID, followedID) => {
+		return UserFollows.destroy({
+			where: { followedID: followedID, followeeID: followeeID }
+		});
+	},
 
 };

@@ -54,7 +54,25 @@ module.exports = {
 			res.json({
 				activities: activities
 			});
-		});
-	}
+		}).catch(next);
+	},
 
-}
+	getFollowers: (req, res, next) => {
+		user.getFollowers(req.params.userID).then(result => {
+			res.json({
+				count: result.count,
+				followers: result.rows,
+			})
+		}).catch(next);
+	},
+
+	getFollowed: (req, res, next) => {
+		user.getFollowing(req.params.userID).then(result => {
+			res.json({
+				count: result.count,
+				followed: result.rows,
+			})
+		}).catch(next);
+	},
+
+};
