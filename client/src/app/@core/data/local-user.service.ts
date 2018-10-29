@@ -17,7 +17,7 @@ export class LocalUserService {
 
   constructor(private authService: AuthService,
               private http: HttpClient) {
-    this.locUserObtEmit = new ReplaySubject<User>();
+    this.locUserObtEmit = new ReplaySubject<User>(1);
     this.refreshLocal();
   }
 

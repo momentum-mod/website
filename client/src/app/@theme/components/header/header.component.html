@@ -1,7 +1,7 @@
 <div class="header-container"
    [class.left]="position === 'normal'"
    [class.right]="position === 'inverse'">
-  <div class="logo-containter">
+  <div class="logo-container">
   <a (click)="toggleSidebar()" href="#" class="navigation"><i class="nb-menu"></i></a>
   <div class="logo" (click)="goToHome()"><img src="assets/images/logo-newer.png"></div>
   </div>
@@ -13,7 +13,7 @@
   [class.right]="position === 'normal'"
   [class.left]="position === 'inverse'">
   <nb-action>
-    <nb-user [nbContextMenu]="userMenu" [name]="(this.userService.getLocal() | async)?.profile.alias" [picture]="(this.userService.getLocal() | async)?.profile.avatarURL"></nb-user>
+    <nb-user [nbContextMenu]="userMenu" [name]="user?.profile.alias" [picture]="user?.profile.avatarURL"></nb-user>
   </nb-action>
   <nb-action class="control-item" disabled icon="nb-notifications"></nb-action>
   <nb-action class="control-item">
