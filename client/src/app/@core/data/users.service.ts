@@ -26,4 +26,11 @@ export class UsersService {
     return this.http.patch('/api/admin/users/' + user.id, user, httpOptions);
   }
 
+  getFollowersOfUser(user: User): Observable<any> {
+    return this.http.get('/api/users/' + user.id + '/followers');
+  }
+
+  getUserFollows(user: User): Observable<any> {
+    return this.http.get('/api/users/' + user.id + '/follows');
+  }
 }

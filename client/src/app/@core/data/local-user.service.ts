@@ -108,4 +108,24 @@ export class LocalUserService {
   public getSubmittedMaps(): Observable<any> {
     return this.http.get('/api/user/maps/submitted?expand=info,credits');
   }
+
+  public isFollowingUser(user: User) {
+    return this.http.get('/api/user/follow/' + user.id);
+  }
+
+  public followUser(user: User) {
+    return this.http.post('/api/user/follow', {userID: user.id});
+  }
+
+  public updateFollowStatus(user: User, notify: boolean) {
+    return this.http.put('/api/user/follow/' + user.id, {
+      notify: notify,
+    });
+  }
+
+  public unfollowUser(user: User) {
+    return this.http.delete('/api/user/follow/' + user.id, {
+      responseType: 'text',
+    });
+  }
 }

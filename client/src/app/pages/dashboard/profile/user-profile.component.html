@@ -1,9 +1,9 @@
 <div class= "row">
   <div class="col-sm-6">
-    <ngx-profile-card [user]="this.user"></ngx-profile-card>
+    <ngx-profile-card [userSubj]="this.user"></ngx-profile-card>
   </div>
   <div class="col-sm-6">
-    <profile-info [user]="this.user"></profile-info>
+    <profile-info [local]="isLocal" [userSubj]="this.user"></profile-info>
   </div>
 </div>
 <div class = "row">

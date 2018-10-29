@@ -8,6 +8,7 @@ const Sequelize = require('sequelize'),
 	MapCreditModel = require('../src/models/db/map-credit'),
 	ActivityModel = require('../src/models/db/activity'),
 	MapLibraryModel = require('../src/models/db/map-library'),
+	UserFollowsModel = require('../src/models/db/user-follow'),
 	env = process.env.NODE_ENV || 'development';
 
 const sequelize = new Sequelize({
@@ -42,6 +43,7 @@ const MapInfo = MapInfoModel(sequelize, Sequelize);
 const MapCredit = MapCreditModel(sequelize, Sequelize);
 const Activity = ActivityModel(sequelize, Sequelize);
 const MapLibrary = MapLibraryModel(sequelize, Sequelize);
+const UserFollows = UserFollowsModel(sequelize, Sequelize);
 
 User.hasOne(Profile, { foreignKey: 'userID' });
 User.hasMany(Activity, { foreignKey: 'userID' });
@@ -52,6 +54,8 @@ Map.belongsTo(User, { as: 'submitter', foreignKey: 'submitterID' });
 MapCredit.belongsTo(User, { foreignKey: 'userID' });
 MapLibrary.belongsTo(User, { foreignKey: 'userID' });
 MapLibrary.belongsTo(Map, { foreignKey: 'mapID' });
+UserFollows.belongsTo(User, { foreignKey: 'followeeID'});
+UserFollows.belongsTo(User, { foreignKey: 'followedID'});
 
 if (env === 'development') {
 	forceSyncDB()
@@ -72,5 +76,6 @@ module.exports = {
 	MapInfo,
 	MapCredit,
 	Activity,
-	MapLibrary
+	MapLibrary,
+	UserFollows
 };

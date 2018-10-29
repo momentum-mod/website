@@ -14,6 +14,15 @@
         </a>
         <a *ngIf="user?.profile?.youtubeName" href="https://youtube.com/user/{{user?.profile?.youtubeName}}" target="_blank" class="ion ion-social-youtube"></a>
       </div>
+      <h4>Follows:</h4>
+      <div class="follow">
+        <span>Following: {{followingUsers?.length}}</span>
+        <span>Followers: {{followedByUsers?.length}}</span>
+      </div>
+      <div *ngIf="!isLocal">
+        <button>{{isFollowingUser ? 'Unfollow' : 'Follow'}}</button>
+        <button *ngIf="isFollowingUser" [ngClass]="isNotifiedOfUser ? 'notified' : 'unnotified'"></button>
+      </div>
     </nb-card-body>
   </nb-card>
 </div>
