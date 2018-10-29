@@ -1,16 +1,17 @@
-import { Component, Input } from '@angular/core';
+import {Component, Input, OnInit} from '@angular/core';
 
 import {NbMenuItem, NbMenuService, NbSidebarService} from '@nebular/theme';
 import { LocalUserService } from '../../../@core/data/local-user.service';
 import { AnalyticsService } from '../../../@core/utils/analytics.service';
 import { LayoutService } from '../../../@core/data/layout.service';
+import {User} from '../../../@core/models/user.model';
 
 @Component({
   selector: 'ngx-header',
   styleUrls: ['./header.component.scss'],
   templateUrl: './header.component.html',
 })
-export class HeaderComponent {
+export class HeaderComponent implements OnInit {
 
   @Input() position = 'normal';
   userMenu: NbMenuItem[] = [
@@ -27,14 +28,22 @@ export class HeaderComponent {
     },
     ];
 
+  user: User;
+
   constructor(private sidebarService: NbSidebarService,
               private menuService: NbMenuService,
-              public userService: LocalUserService,
+              private userService: LocalUserService,
               private analyticsService: AnalyticsService,
               private layoutService: LayoutService) {
   this.menuService.onItemClick()
     .subscribe((event) => {
       this.onContextItemSelection(event.item.title);
+    });
+  }
+
+  ngOnInit() {
+    this.userService.getLocal().subscribe(usr => {
+      this.user = usr;
     });
   }
 
