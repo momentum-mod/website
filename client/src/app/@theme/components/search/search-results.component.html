@@ -5,12 +5,19 @@
     </div>
     <div class="col-xl-11">
       <div class="col-sm result-elem" *ngFor="let elem of elems">
-        <a [href]="getElemURL(elem)">
-          <div>
-            <img class="avatar" [src]="getElemPicture(elem)">
-            <span class="name">{{getElemName(elem)}}</span>
-          </div>
-        </a>
+        <div *ngIf="usersResults">
+          <a [href]="getElemURL(elem)">
+            <nb-user class="name" [picture]="getElemPicture(elem)" [name]="getElemName(elem)" [size]="'large'"></nb-user>
+          </a>
+        </div>
+        <div *ngIf="!usersResults">
+          <a [href]="getElemURL(elem)">
+            <div>
+              <img class="avatar" [src]="getElemPicture(elem)">
+              <span class="name">{{getElemName(elem)}}</span>
+            </div>
+          </a>
+        </div>
       </div>
     </div>
   </div>

@@ -27,7 +27,9 @@ export class UserProfileComponent implements OnInit {
     this.route.paramMap.pipe(
       switchMap((params: ParamMap) => {
         if (params.has('id')) {
-          this.isLocal = false;
+          this.userService.getLocal().subscribe(usr => {
+            this.isLocal = params.get('id') === usr.id;
+          });
           return this.usersService.getUser(params.get('id'));
         } else {
           this.isLocal = true;
