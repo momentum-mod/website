@@ -85,7 +85,10 @@ module.exports = {
 
 	isFollowingUser: (req, res, next) => {
 		user.isFollowingUser(req.user.id, req.params.userID).then(result => {
-			res.json(result);
+			if (result)
+				res.json(result);
+			else
+				res.sendStatus(404);
 		}).catch(next);
 	},
 

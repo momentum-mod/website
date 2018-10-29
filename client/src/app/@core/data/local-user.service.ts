@@ -5,6 +5,7 @@ import {HttpClient} from '@angular/common/http';
 import {UserProfile} from '../models/profile.model';
 import {User} from '../models/user.model';
 import {Permission} from '../models/permissions.model';
+import {UserFollowObject} from '../models/follow.model';
 
 @Injectable({
   providedIn: 'root',
@@ -109,21 +110,21 @@ export class LocalUserService {
     return this.http.get('/api/user/maps/submitted?expand=info,credits');
   }
 
-  public isFollowingUser(user: User) {
-    return this.http.get('/api/user/follow/' + user.id);
+  public isFollowingUser(user: User): Observable<UserFollowObject> {
+    return this.http.get<UserFollowObject>('/api/user/follow/' + user.id);
   }
 
-  public followUser(user: User) {
+  public followUser(user: User): Observable<any> {
     return this.http.post('/api/user/follow', {userID: user.id});
   }
 
-  public updateFollowStatus(user: User, notify: boolean) {
+  public updateFollowStatus(user: User, notify: boolean): Observable<any> {
     return this.http.put('/api/user/follow/' + user.id, {
       notify: notify,
     });
   }
 
-  public unfollowUser(user: User) {
+  public unfollowUser(user: User): Observable<any> {
     return this.http.delete('/api/user/follow/' + user.id, {
       responseType: 'text',
     });

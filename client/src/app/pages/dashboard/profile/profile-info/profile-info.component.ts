@@ -43,6 +43,7 @@ export class ProfileInfoComponent implements OnInit {
       if (!this.isLocal) {
         this.localUserService.isFollowingUser(this.user).subscribe(resp => {
           this.isFollowingUser = true;
+          this.isNotifiedOfUser = resp.notify;
         }, err => {
           this.isFollowingUser = false;
         });
@@ -51,11 +52,18 @@ export class ProfileInfoComponent implements OnInit {
   }
 
   followClick() {
-    this.localUserService.followUser(this.user).subscribe(resp => {
-      this.isFollowingUser = true;
-    }, err => {
+    if (!this.isFollowingUser) {
+      this.localUserService.followUser(this.user).subscribe(resp => {
+        this.isFollowingUser = true;
+      }, err => {
         this.toastService.popAsync('error', 'Could not follow user', err.message);
-    });
+      });
+    } else {
+      this.localUserService.unfollowUser(this.user).subscribe(resp => {
+        this.isFollowingUser = false;
+        this.isNotifiedOfUser = false;
+      });
+    }
   }
 
   followNotifyClick() {
