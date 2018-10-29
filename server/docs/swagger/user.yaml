@@ -166,3 +166,54 @@ paths:
           description: OK
           schema:
             $ref: '#/definitions/Activities'
+  /user/follow:
+    post:
+      summary: Adds a user to the local user's follow list
+      tags:
+        - user
+      parameters:
+        - name: userID
+          type: string
+          description: The ID of the user to follow
+          in: body
+          required: true
+      responses:
+        200:
+          description: OK
+          # TODO schema?
+  /user/follow/{userID}:
+    parameters:
+      - name: userID
+        in: path
+        required: true
+        description: ID of the user in question
+        type: string
+    get:
+      summary: Checks to see if the local user is following a given user
+      tags:
+        - user
+      responses:
+        200:
+          description: OK
+        404:
+          description: The local user is not following the given user
+      # TODO schema?
+    put:
+      summary: Updates the following status
+      tags:
+        - user
+      parameters:
+        - name: notify
+          type: boolean
+          description: Whether the player wants to be notified of activity of the followed user
+          in: body
+      responses:
+        200:
+          description: OK
+    delete:
+      summary: Removes the user from the local user's follow list
+      tags:
+        - user
+      responses:
+        200:
+          description: OK

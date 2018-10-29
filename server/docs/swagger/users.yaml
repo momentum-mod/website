@@ -121,6 +121,36 @@ paths:
           description: OK
           schema:
             $ref: '#/definitions/Activities'
+  /user/{userID}/follows:
+    parameters:
+      - name: userID
+        in: path
+        required: true
+        description: ID of the user to find
+        type: string
+    get:
+      summary: Retrieves a list of users that the given user follows.
+      tags:
+        - users
+      responses:
+        200:
+          description: OK
+          # TODO: schema
+  /user/{userID}/followers:
+    parameters:
+      - name: userID
+        in: path
+        required: true
+        description: ID of the user to find
+        type: string
+    get:
+      summary: Retrieves a list of users that follow the given user.
+      tags:
+        - users
+      responses:
+        200:
+          description: OK
+          # TODO: schema
 definitions:
   User:
     properties:
