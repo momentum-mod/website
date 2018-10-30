@@ -19,7 +19,8 @@ const Sequelize = require('sequelize'),
 	MapImageModel = require('../src/models/db/map-image'),
 	RunStatsModel = require('../src/models/db/run-stats'),
 	RunZoneStatsModel = require('../src/models/db/run-zone-stats'),
-
+	LeaderboardModel = require('../src/models/db/leaderboard'),
+	LeaderboardEntryModel = require('../src/models/db/leaderboard-entry'),
 	env = process.env.NODE_ENV || 'development';
 
 const sequelize = new Sequelize({
@@ -65,6 +66,8 @@ const MapReview = MapReviewModel(sequelize, Sequelize);
 const MapImage = MapImageModel(sequelize, Sequelize);
 const RunStats = RunStatsModel(sequelize, Sequelize);
 const RunZoneStats = RunZoneStatsModel(sequelize, Sequelize);
+const Leaderboard = LeaderboardModel(sequelize, Sequelize);
+const LeaderboardEntry = LeaderboardEntryModel(sequelize, Sequelize);
 
 User.hasOne(Profile, { foreignKey: 'userID' });
 User.hasMany(Activity, { foreignKey: 'userID' });
@@ -90,7 +93,10 @@ MapReview.belongsTo(User, {as: 'reviewer', foreignKey: 'reviewerID'});
 MapReview.belongsTo(Map, {as: 'map', foreignKey: 'mapID'});
 Map.hasMany(MapImage, {as: 'images', foreignKey: 'mapID'});
 MapImage.hasOne(MapInfo, {as: 'thumbnail', foreignKey: 'thumbnailID'});
-// TODO: do the run (+ zone) stats
+// // TODO: do the run (+ zone) stats
+Leaderboard.belongsTo(Map, { foreignKey: 'leaderboardID' });
+LeaderboardEntry.belongsTo(Leaderboard, { foreignKey: 'leaderboardID' });
+LeaderboardEntry.belongsTo(User, { foreignKey: 'playerID' });
 
 if (env === 'development') {
 	forceSyncDB()
@@ -123,4 +129,6 @@ module.exports = {
 	MapImage,
 	RunStats,
 	RunZoneStats,
+	Leaderboard,
+	LeaderboardEntry,
 };

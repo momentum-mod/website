@@ -9,6 +9,7 @@ router.use('/users', require('./users'));
 router.use('/user', [authMiddleware.requireLogin], require('./user'));
 router.use('/admin', [authMiddleware.requireLogin, authMiddleware.requireAdmin], require('./admin'));
 router.use('/activities', require('./activities'));
+router.use('/leaderboards', require('./leaderboards'));
 router.use('*', require('./404'));
 
 module.exports = router;
