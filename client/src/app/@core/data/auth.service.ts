@@ -4,7 +4,10 @@ import { JwtHelperService } from '@auth0/angular-jwt';
 
 @Injectable()
 export class AuthService {
-
+  /**
+   * @param cookieService Starts OpenID Steam authentication by redirecting to Steam OpenID URL
+   * @return Redirection to Steam OpenID URL will occur
+   */
   constructor(private cookieService: CookieService) {
     const cookieExists = this.cookieService.check('accessToken');
     const jwtHelperService = new JwtHelperService();
