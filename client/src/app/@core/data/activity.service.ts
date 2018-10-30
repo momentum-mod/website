@@ -6,12 +6,24 @@ import {Observable} from 'rxjs';
 export class ActivityService {
   constructor(private http: HttpClient) {}
 
+  /**
+   * @return activities of users you follow
+   */
   getFollowedActivity(): Observable<any> {
     return this.http.get('/api/activities/followed');
   }
+
+  /**
+   * @param userID
+   * @return a list of specific users's activity
+   */
   getUserActivity(userID: string): Observable<any> {
     return this.http.get('/api/user/' + userID + '/activities');
   }
+
+  /**
+   * @return a list of the most recent activities
+   */
   getRecentActivity(): Observable<any> {
     return this.http.get('/api/activities');
   }
