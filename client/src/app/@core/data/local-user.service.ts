@@ -45,10 +45,19 @@ export class LocalUserService {
     return user ? (permission & user.permissions) === permission : false;
   }
 
+  /**
+   * @param none
+   * @return specific user's profile
+   */
   public getLocalUser(): Observable<any> {
     return this.http.get('/api/user?expand=profile');
   }
 
+  /**
+   *
+   * @param profile
+   * @return updated specific user's profile
+   */
   public updateProfile(profile: UserProfile): Observable<any> {
     return this.http.patch('/api/user/profile', profile);
   }
