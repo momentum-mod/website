@@ -221,7 +221,7 @@ module.exports = {
 			return MapInfo.update({
 				avatarURL: config.baseUrl + '/' + avatarFileLocation
 			}, {
-				where: { id: mapID }
+				where: { mapID: mapID }
 			});
 		});
 	},
