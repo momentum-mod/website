@@ -18,6 +18,7 @@ export class MapUploadFormComponent implements OnInit {
   mapFile: File;
   avatarFile: File;
   mapUploadPercentage: number;
+  isUploadingMap: boolean;
 
   mapUploadFormGroup: FormGroup = this.fb.group({
     'name': ['', Validators.required],
@@ -36,6 +37,8 @@ export class MapUploadFormComponent implements OnInit {
               private router: Router,
               private toasterService: ToasterService,
               private fb: FormBuilder) {
+    this.isUploadingMap = false;
+    this.mapUploadPercentage = 0;
   }
   ngOnInit() {
     this.datePicker.max = new Date();
@@ -72,14 +75,15 @@ export class MapUploadFormComponent implements OnInit {
       switch (event.type) {
         case HttpEventType.Sent:
           // upload started
+          this.isUploadingMap = true;
           break;
         case HttpEventType.Response:
           this.onSubmitSuccess();
           break;
         case 1: {
-          if (Math.round(this.mapUploadPercentage) !== Math.round(event['loaded'] / event['total'] * 100)) {
-            this.mapUploadPercentage = event['loaded'] / event['total'] * 100;
-            this.mapUploadPercentage = Math.round(this.mapUploadPercentage);
+          const calc: number = Math.round(event['loaded'] / event['total'] * 100);
+          if (this.mapUploadPercentage !== calc) {
+            this.mapUploadPercentage = calc;
             break;
           }
         }
@@ -89,6 +93,7 @@ export class MapUploadFormComponent implements OnInit {
         err.error.error.message
         : 'Something went wrong!';
       console.error(errorMessage);
+      this.isUploadingMap = false;
       if (mapCreated) {
         this.onSubmitSuccess();
       }
@@ -98,6 +103,7 @@ export class MapUploadFormComponent implements OnInit {
 
   private onSubmitSuccess() {
     this.resetForm();
+    this.isUploadingMap = false;
     this.router.navigate(['/dashboard/maps/uploads']);
   }
 
