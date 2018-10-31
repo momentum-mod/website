@@ -13,11 +13,13 @@ import {MapStatusComponent} from './upload-status/map-status/map-status.componen
 import {MarkdownModule} from 'ngx-markdown';
 import { MapLibraryComponent } from './map-library/map-library.component';
 import {QueuedMapComponent} from './map-queue/queued-map/queued-map.component';
+import {NbDatepickerModule} from '@nebular/theme';
 
 @NgModule({
   imports: [
     ThemeModule,
     NotFoundModule,
+    NbDatepickerModule,
     MarkdownModule.forChild(),
     MapRoutingModule,
   ],

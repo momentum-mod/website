@@ -6,70 +6,69 @@
 
         <nb-card-body>
           <form [formGroup]="mapUploadFormGroup" (ngSubmit)="onSubmit()">
-            <label>Map File</label><br>
-            <input title="uploadMapFile" class="form-control col-md-10" disabled="disabled" style="display: inline;" [value]="mapFile?.name" #uploadFile/>
-            <div class="fileUpload btn btn-outline-info">
-              <span>Choose File</span>
-              <input id="uploadBtnMap" type="file" accept=".bsp" class="upload" (change)="onMapFileSelected($event);"/>
-            </div>
-            <br>
-            <label>Map Avatar</label><br>
-            <input class="form-control col-md-10" disabled="disabled" style="display: inline;"
-                   [value]="avatarFile?.name" #uploadFile/>
-            <div class="fileUpload btn btn-outline-info">
-              <span>Choose File</span>
-              <input id="uploadBtnAvatar" type="file" accept="image/*" class="upload"
-                     (change)="onAvatarFileSelected($event);"/>
-            </div>
+            <nb-tabset>
+              <nb-tab tabTitle="Files">
+                <label>Map File</label><br>
+                <div class="fileUpload btn btn-outline-info">
+                  <span>Choose File</span>
+                  <input id="uploadBtnMap" type="file" accept=".bsp" class="upload" (change)="onMapFileSelected($event);"/>
+                </div>
+                <input title="uploadMapFile" class="form-control col-md-10" disabled="disabled" style="display: inline;" [value]="mapFile?.name" #uploadFile/>
+                <br>
+                <label>Map Avatar</label><br>
+                <div class="fileUpload btn btn-outline-info">
+                  <span>Choose File</span>
+                  <input id="uploadBtnAvatar" type="file" accept="image/*" class="upload"
+                         (change)="onAvatarFileSelected($event);"/>
+                </div>
+                <input class="form-control col-md-10" disabled="disabled" style="display: inline;"
+                       [value]="avatarFile?.name" #uploadFile/>
+              </nb-tab>
+              <nb-tab tabTitle="Map Info" [ngClass]="">
+                <div class="form-group">
+                  <label>Map Name</label>
+                  <input type="text" class="form-control col-md-10" name="name" required formControlName="name"
+                         [ngClass]="(name.invalid && (name.dirty || name.touched)) ? 'form-control-danger' : ''"/>
+                </div>
+                <div formGroupName="info">
+                  <div class="form-group">
+                    <label>Map Description</label>
+                    <textarea rows="4" class="form-control col-md-10" formControlName="description"></textarea>
+                  </div>
+                  <div class="form-group">
+                    <label>Number of Bonuses</label>
+                    <input type="number" class="form-control col-md-10" formControlName="numBonuses"/>
+                  </div>
 
-            <div class="form-group">
-              <label>Map Name</label>
-              <input type="text" class="form-control col-md-10" name="name" required formControlName="name"
-                     [ngClass]="(name.invalid && (name.dirty || name.touched)) ? 'form-control-danger' : ''"/>
-            </div>
+                  <div class="form-group">
+                    <label>Number of Checkpoints</label>
+                    <input type="number" class="form-control col-md-10" formControlName="numCheckpoints"/>
+                  </div>
 
-            <div formGroupName="info">
-              <div class="form-group">
-                <label>Map Description</label>
-                <textarea rows="4" class="form-control col-md-10" formControlName="description"></textarea>
-              </div>
-              <div class="form-group">
-                <label>Number of Bonuses</label>
-                <input type="number" class="form-control col-md-10" formControlName="numBonuses"/>
-              </div>
+                  <div class="form-group">
+                    <label>Number of Stages</label>
+                    <input type="number" class="form-control col-md-10" formControlName="numStages"/>
+                  </div>
 
-              <div class="form-group">
-                <label>Number of Checkpoints</label>
-                <input type="number" class="form-control col-md-10" formControlName="numCheckpoints"/>
-              </div>
-
-              <div class="form-group">
-                <label>Number of Stages</label>
-                <input type="number" class="form-control col-md-10" formControlName="numStages"/>
-              </div>
-
-              <div class="form-group">
-                <label>Difficulty</label>
-                <input type="number" class="form-control col-md-10" formControlName="difficulty"/>
-              </div>
-            </div>
-
-            <div class="form-group">
-              <label>Author</label><br>
-              <input type="text" class="form-control col-md-10" style="display: inline;"/>&nbsp;
-              <button type="button" class="btn btn-outline-info">+</button>
-            </div>
-
-            <div class="form-group">
-              <label>Date Created</label>
-              <input type="date" class="form-control col-md-10"/>
-            </div>
-
-
-            <div class="form-group validation-checkboxes row">
-              <nb-checkbox status="success" class="col-sm-4">I created this map</nb-checkbox>
-            </div>
-
+                  <div class="form-group">
+                    <label>Difficulty</label>
+                    <input type="number" class="form-control col-md-10" formControlName="difficulty"/>
+                  </div>
+                  <div class="form-group">
+                    <label>Date Created</label>
+                    <input formControlName="created" [nbDatepicker]="datepicker" class="form-control col-md-10"/>
+                    <nb-datepicker #datepicker></nb-datepicker>
+                  </div>
+                </div>
+              </nb-tab>
+              <nb-tab tabTitle="Credits">
+                <div class="form-group">
+                  <label>Author</label><br>
+                  <input type="text" class="form-control col-md-10" style="display: inline;"/>&nbsp;
+                  <button type="button" class="btn btn-outline-info">+</button>
+                </div>
+              </nb-tab>
+            </nb-tabset>
             <div>
               <button type="submit" class="btn btn-outline-info" [disabled]="!mapUploadFormGroup.valid">Submit Map</button>
               <br>
