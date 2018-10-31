@@ -24,7 +24,9 @@
                 <input class="form-control col-md-10" disabled="disabled" style="display: inline;"
                        [value]="avatarFile?.name" #uploadFile/>
               </nb-tab>
-              <nb-tab tabTitle="Map Info" [ngClass]="">
+              <nb-tab tabTitle="Map Info"
+                      [badgeText]="(info.invalid && (info.dirty || info.touched)) ? '!' : ''"
+                      [badgeStatus]="(info.invalid && (info.dirty || info.touched)) ? 'danger' : ''">
                 <div class="form-group">
                   <label>Map Name</label>
                   <input type="text" class="form-control col-md-10" name="name" required formControlName="name"
@@ -33,40 +35,43 @@
                 <div formGroupName="info">
                   <div class="form-group">
                     <label>Map Description</label>
-                    <textarea rows="4" class="form-control col-md-10" formControlName="description"></textarea>
+                    <textarea rows="4" class="form-control col-md-10" formControlName="description"
+                              [ngClass]="(description.invalid && (description.dirty || description.touched)) ? 'form-control-danger' : ''">
+                    </textarea>
                   </div>
                   <div class="form-group">
                     <label>Number of Bonuses</label>
-                    <input type="number" class="form-control col-md-10" formControlName="numBonuses"/>
+                    <input type="number" class="form-control col-md-10" formControlName="numBonuses"
+                           [ngClass]="(numBonuses.invalid && (numBonuses.dirty || numBonuses.touched)) ? 'form-control-danger' : ''"/>
                   </div>
 
                   <div class="form-group">
                     <label>Number of Checkpoints</label>
-                    <input type="number" class="form-control col-md-10" formControlName="numCheckpoints"/>
+                    <input type="number" class="form-control col-md-10" formControlName="numCheckpoints"
+                           [ngClass]="(numCheckpoints.invalid && (numCheckpoints.dirty || numCheckpoints.touched)) ? 'form-control-danger' : ''"/>
                   </div>
 
                   <div class="form-group">
                     <label>Number of Stages</label>
-                    <input type="number" class="form-control col-md-10" formControlName="numStages"/>
+                    <input type="number" class="form-control col-md-10" formControlName="numStages"
+                           [ngClass]="(numStages.invalid && (numStages.dirty || numStages.touched)) ? 'form-control-danger' : ''"/>
                   </div>
 
                   <div class="form-group">
                     <label>Difficulty</label>
-                    <input type="number" class="form-control col-md-10" formControlName="difficulty"/>
+                    <input type="number" class="form-control col-md-10" formControlName="difficulty"
+                           [ngClass]="(difficulty.invalid && (difficulty.dirty || difficulty.touched)) ? 'form-control-danger' : ''"/>
                   </div>
                   <div class="form-group">
                     <label>Date Created</label>
-                    <input formControlName="created" [nbDatepicker]="datepicker" class="form-control col-md-10"/>
-                    <nb-datepicker #datepicker></nb-datepicker>
+                    <input formControlName="created" [nbDatepicker]="datepicker" class="form-control col-md-10"
+                           [ngClass]="(created.invalid && (created.dirty || created.touched)) ? 'form-control-danger' : ''"/>
+                    <nb-datepicker #datepicker [boundingMonth]="false"></nb-datepicker>
                   </div>
                 </div>
               </nb-tab>
               <nb-tab tabTitle="Credits">
-                <div class="form-group">
-                  <label>Author</label><br>
-                  <input type="text" class="form-control col-md-10" style="display: inline;"/>&nbsp;
-                  <button type="button" class="btn btn-outline-info">+</button>
-                </div>
+                <map-credits [authors]="authors" [testers]="testers" [special-thanks]="specialThanks"></map-credits>
               </nb-tab>
             </nb-tabset>
             <div>

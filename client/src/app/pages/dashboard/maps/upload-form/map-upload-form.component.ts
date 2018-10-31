@@ -1,17 +1,18 @@
-import {Component, OnInit, ViewChild} from '@angular/core';
+import {AfterViewInit, Component, ViewChild} from '@angular/core';
 import {HttpEvent, HttpEventType} from '@angular/common/http';
 import {Router} from '@angular/router';
 import {ToasterService} from 'angular2-toaster';
 import {MapsService} from '../../../../@core/data/maps.service';
 import 'rxjs/add/operator/mergeMap';
 import {FormBuilder, FormGroup, Validators} from '@angular/forms';
+import {User} from '../../../../@core/models/user.model';
 
 @Component({
   selector: 'map-upload-form',
   templateUrl: './map-upload-form.component.html',
   styleUrls: ['./map-upload-form.component.scss'],
 })
-export class MapUploadFormComponent implements OnInit {
+export class MapUploadFormComponent implements AfterViewInit {
   @ViewChild('uploadFile') uploadFile;
   @ViewChild('datepicker') datePicker;
 
@@ -19,6 +20,9 @@ export class MapUploadFormComponent implements OnInit {
   avatarFile: File;
   mapUploadPercentage: number;
   isUploadingMap: boolean;
+  authors: User[];
+  testers: User[];
+  specialThanks: User[];
 
   mapUploadFormGroup: FormGroup = this.fb.group({
     'name': ['', Validators.required],
@@ -32,6 +36,13 @@ export class MapUploadFormComponent implements OnInit {
     }),
   });
   get name() { return this.mapUploadFormGroup.get('name'); }
+  get info() { return this.mapUploadFormGroup.get('info'); }
+  get description() { return this.info.get('description'); }
+  get numBonuses() { return this.info.get('numBonuses'); }
+  get numCheckpoints() { return this.info.get('numCheckpoints'); }
+  get numStages() { return this.info.get('numStages'); }
+  get difficulty() { return this.info.get('difficulty'); }
+  get created() { return this.info.get('created'); }
 
   constructor(private mapsService: MapsService,
               private router: Router,
@@ -39,8 +50,11 @@ export class MapUploadFormComponent implements OnInit {
               private fb: FormBuilder) {
     this.isUploadingMap = false;
     this.mapUploadPercentage = 0;
+    this.authors = [];
+    this.testers = [];
+    this.specialThanks = [];
   }
-  ngOnInit() {
+  ngAfterViewInit() {
     this.datePicker.max = new Date();
     this.datePicker.date = new Date();
   }

@@ -13,13 +13,18 @@ import {MapStatusComponent} from './upload-status/map-status/map-status.componen
 import {MarkdownModule} from 'ngx-markdown';
 import { MapLibraryComponent } from './map-library/map-library.component';
 import {QueuedMapComponent} from './map-queue/queued-map/queued-map.component';
-import {NbDatepickerModule} from '@nebular/theme';
+import {NbDatepickerModule, NbListModule} from '@nebular/theme';
+import { MapCreditsComponent } from './map-credits/map-credits.component';
+import {UserModule} from '../user/user.module';
+import { MapCreditComponent } from './map-credits/map-credit/map-credit.component';
 
 @NgModule({
   imports: [
     ThemeModule,
     NotFoundModule,
     NbDatepickerModule,
+    NbListModule,
+    UserModule,
     MarkdownModule.forChild(),
     MapRoutingModule,
   ],
@@ -33,6 +38,8 @@ import {NbDatepickerModule} from '@nebular/theme';
     MapStatusComponent,
     MapLibraryComponent,
     QueuedMapComponent,
+    MapCreditsComponent,
+    MapCreditComponent,
   ],
   providers: [],
 })
