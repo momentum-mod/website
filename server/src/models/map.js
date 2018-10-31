@@ -1,6 +1,6 @@
 'use strict';
 const util = require('util'),
-	{ sequelize, Op, Map, MapInfo, MapCredit, User, Profile } = require('../../config/sqlize'),
+	{ sequelize, Op, Map, MapInfo, MapCredit, User, Profile, Leaderboard } = require('../../config/sqlize'),
 	Sequelize = require('sequelize'),
 	user = require('./user'),
 	activity = require('./activity'),
@@ -88,8 +88,6 @@ module.exports = {
 	},
 
 	create: (map) => {
-		// TODO: add regex map name check when Joi validation added
-		// something like this /^[a-zA-Z0-9_!]+$/ (alphanum + )
 		return Map.find({
 			where: {
 				name: map.name,
@@ -103,12 +101,20 @@ module.exports = {
 				err.status = 409;
 				return Promise.reject(err);
 			}
-			if (!map.info) map.info = {};
-			return Map.create(map, {
-				include: [
-					{ model: MapInfo, as: 'info' },
-					{ model: MapCredit, as: 'credits' }
-				]
+			return sequelize.transaction(t => {
+				return Leaderboard.create({}, {
+					transaction: t,
+				}).then(leaderboard => {
+					map.leaderboardID = leaderboard.id;
+					if (!map.info) map.info = {};
+					return Map.create(map, {
+						include: [
+							{ model: MapInfo, as: 'info' },
+							{ model: MapCredit, as: 'credits' }
+						],
+						transaction: t,
+					});
+				});
 			});
 		});
 	},
