@@ -5,7 +5,7 @@
         <nb-card-header><h1>Submit a Map</h1></nb-card-header>
 
         <nb-card-body>
-          <form [formGroup]="mapUploadFormGroup" (ngSubmit)="onSubmit()">
+          <form [formGroup]="mapUploadFormGroup" (ngSubmit)="onSubmit()" *ngIf="!isUploadingMap">
             <nb-tabset>
               <nb-tab tabTitle="Files">
                 <label>Map File</label><br>
@@ -71,12 +71,9 @@
             </nb-tabset>
             <div>
               <button type="submit" class="btn btn-outline-info" [disabled]="!mapUploadFormGroup.valid">Submit Map</button>
-              <br>
-              <div *ngIf="mapUploadPercentage">
-                Uploading map... {{mapUploadPercentage}}%
-              </div>
             </div>
           </form>
+          <nb-progress-bar *ngIf="isUploadingMap" [value]="mapUploadPercentage" [size]="'xlg'" [displayValue]="true"></nb-progress-bar>
         </nb-card-body>
       </nb-card>
     </div>
