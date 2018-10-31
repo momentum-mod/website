@@ -1,4 +1,4 @@
-import {Component, ViewChild} from '@angular/core';
+import {Component, OnInit, ViewChild} from '@angular/core';
 import {HttpEvent, HttpEventType} from '@angular/common/http';
 import {Router} from '@angular/router';
 import {ToasterService} from 'angular2-toaster';
@@ -11,8 +11,9 @@ import {FormBuilder, FormGroup, Validators} from '@angular/forms';
   templateUrl: './map-upload-form.component.html',
   styleUrls: ['./map-upload-form.component.scss'],
 })
-export class MapUploadFormComponent {
+export class MapUploadFormComponent implements OnInit {
   @ViewChild('uploadFile') uploadFile;
+  @ViewChild('datepicker') datePicker;
 
   mapFile: File;
   avatarFile: File;
@@ -26,6 +27,7 @@ export class MapUploadFormComponent {
       'numCheckpoints': [0, [Validators.required, Validators.min(0), Validators.max(64)]],
       'numStages': [0, [Validators.required, Validators.min(0), Validators.max(64)]],
       'difficulty': [0, [Validators.required, Validators.min(0), Validators.max(6)]],
+      'created': [new Date(), [Validators.required, Validators.max(Date.now())]],
     }),
   });
   get name() { return this.mapUploadFormGroup.get('name'); }
@@ -34,6 +36,10 @@ export class MapUploadFormComponent {
               private router: Router,
               private toasterService: ToasterService,
               private fb: FormBuilder) {
+  }
+  ngOnInit() {
+    this.datePicker.max = new Date();
+    this.datePicker.date = new Date();
   }
 
   onMapFileSelected(event) {

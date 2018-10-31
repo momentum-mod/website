@@ -19,6 +19,7 @@ import {NotFoundModule} from './pages/not-found/not-found.module';
 import {JwtModule} from '@auth0/angular-jwt';
 import {OutgoingModule} from './pages/outgoing/outgoing.module';
 import {MarkdownModule, MarkedOptions} from 'ngx-markdown';
+import {NbDatepickerModule} from '@nebular/theme';
 
 export function tokenGetter() {
   return localStorage.getItem('accessToken');
@@ -58,6 +59,7 @@ export function tokenGetter() {
         },
       },
     }),
+    NbDatepickerModule.forRoot(),
 
     NgbModule,
     ThemeModule.forRoot(),
