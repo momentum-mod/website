@@ -46,7 +46,6 @@ export class LocalUserService {
   }
 
   /**
-   * @param none
    * @return specific user's profile
    */
   public getLocalUser(): Observable<any> {
@@ -55,7 +54,7 @@ export class LocalUserService {
 
   /**
    *
-   * @param profile
+   * @param profile Profile with new values of properties
    * @return updated specific user's profile
    */
   public updateProfile(profile: UserProfile): Observable<any> {
@@ -103,36 +102,71 @@ export class LocalUserService {
     });*/
     return this.http.get('/api/user/maps/library');
   }
+
+  /**
+   * @param mapID ID of a specific map
+   * @return adds map to user library
+   */
   public addMapToLibrary(mapID: string): Observable<any> {
     return this.http.post('/api/user/maps/library', {mapID: mapID});
   }
+
+  /**
+   * @param mapID ID of a specific map
+   * @return remove map from user library
+   */
   public removeMapFromLibrary(mapID: string): Observable<any> {
     return this.http.delete('/api/user/maps/library/' + mapID, {
       responseType: 'text',
     });
   }
+
+  /**
+   * @param mapID ID of a specific map
+   * @return the added map in library
+   */
   public isMapInLibrary(mapID: number): Observable<any> {
     return this.http.get('/api/user/maps/library/' + mapID);
   }
 
+  /**
+   * @return retrieve all submitted maps
+   */
   public getSubmittedMaps(): Observable<any> {
     return this.http.get('/api/user/maps/submitted?expand=info,credits');
   }
 
+  /**
+   * @param user username of user
+   * @return following user
+   */
   public isFollowingUser(user: User): Observable<UserFollowObject> {
     return this.http.get<UserFollowObject>('/api/user/follow/' + user.id);
   }
 
+  /**
+   * @param user specific user's profile
+   * @return update user following
+   */
   public followUser(user: User): Observable<any> {
     return this.http.post('/api/user/follow', {userID: user.id});
   }
 
+  /**
+   * @param user Specific user's profile
+   * @param notify user notifications
+   * @return update the following status on the user's profile
+   */
   public updateFollowStatus(user: User, notify: boolean): Observable<any> {
     return this.http.put('/api/user/follow/' + user.id, {
       notify: notify,
     });
   }
 
+  /**
+   * @param user specific user's profile
+   * @return user us unfollowed
+   */
   public unfollowUser(user: User): Observable<any> {
     return this.http.delete('/api/user/follow/' + user.id, {
       responseType: 'text',
