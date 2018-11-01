@@ -14,7 +14,7 @@ export class ActivityService {
   }
 
   /**
-   * @param userID
+   * @param userID ID of user we are retieving
    * @return a list of specific users's activity
    */
   getUserActivity(userID: string): Observable<any> {

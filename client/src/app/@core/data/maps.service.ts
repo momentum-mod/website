@@ -45,8 +45,8 @@ export class MapsService {
   }
 
   /**
-   * @param uploadLocation
-   * @param mapFile
+   * @param uploadLocation updated location of map
+   * @param mapFile the map file to upload
    * @return uploads a map file of a map
    */
   uploadMapFile(uploadLocation: string, mapFile: File): Observable<any> {
@@ -60,8 +60,8 @@ export class MapsService {
   }
 
   /**
-   * @param id
-   * @param avatarFile
+   * @param id ID of a map avatar
+   * @param avatarFile file of a map avatar
    * @return updated map avatar
    */
   updateMapAvatar(id: string, avatarFile: File): Observable<any> {

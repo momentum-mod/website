@@ -10,8 +10,8 @@ export class AdminService {
   constructor(private http: HttpClient) { }
 
   /**
-   * @param mapID
-   * @param map
+   * @param mapID ID of the map to find
+   * @param map Map with new values of properties
    * @return updates a specific map
    */
   updateMap(mapID: string, map: object): Observable<any> {
@@ -19,7 +19,7 @@ export class AdminService {
   }
 
   /**
-   * @param context
+   * @param context the contexts of the map
    * @return a list of maps
    */
   getMaps(context?: object): Observable<any> {
