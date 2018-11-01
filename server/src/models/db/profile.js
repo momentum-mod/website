@@ -7,6 +7,7 @@ module.exports = (sequelize, type) => {
 		bio: type.STRING,
 		twitterName: type.STRING,
 		discordName: type.STRING,
-		youtubeName: type.STRING
+		youtubeName: type.STRING,
+		twitchName: type.STRING,
 	})
 };

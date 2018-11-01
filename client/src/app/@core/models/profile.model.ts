@@ -6,4 +6,5 @@ export interface UserProfile {
   twitterName?: string;
   discordName?: string;
   youtubeName?: string;
+  twitchName?: string;
 }
