@@ -31,6 +31,8 @@ module.exports = (app, config) => {
 	app.use(passport.initialize());
 	app.use(fileUpload({
 		limits: { filesize: 200 * 1024 * 1024 },
+		createParentPath: true,
+		abortOnLimit: true,
 	}));
 
 	passport.use(new SteamStrategy({
