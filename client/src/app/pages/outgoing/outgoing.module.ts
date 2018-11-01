@@ -11,6 +11,7 @@ export class OutgoingModule {
   static readonly whitelistedOutgoingDomains: string[] = [
     'localhost',
     'twitter.com',
+    'twitch.tv',
     'youtube.com',
     'steamcommunity.com',
     'steampowered.com',
