@@ -17,6 +17,7 @@ export class ProfileEditComponent implements OnInit {
     'twitterName': ['', Validators.maxLength(32)],
     'discordName': [''],
     'youtubeName': [''],
+    'twitchName': [''],
   });
 
   @Output() onEditSuccess: EventEmitter<any> = new EventEmitter();

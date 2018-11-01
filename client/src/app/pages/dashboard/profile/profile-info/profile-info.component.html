@@ -8,6 +8,7 @@
       <h4>Links:</h4>
       <div class="socials">
         <a href="https://steamcommunity.com/profiles/{{user?.id}}" target="_blank" class="ion ion-steam"></a>
+        <a *ngIf="user?.profile?.twitchName" href="https://twitch.tv/{{user?.profile?.twitchName}}" target="_blank" class="ion ion-social-twitch"></a>
         <a *ngIf="user?.profile?.twitterName" href="https://twitter.com/{{user?.profile?.twitterName}}" target="_blank" class="ion ion-social-twitter"></a>
         <a *ngIf="user?.profile?.discordName" title="{{user?.profile?.discordName}}" target="_blank">
           <img src="assets\images\Discord-Logo-White.png" height="35px" width="35px">
