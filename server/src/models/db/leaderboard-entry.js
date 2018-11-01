@@ -11,5 +11,6 @@ module.exports = (sequelize, type) => {
 		dateAchieved: type.DATE,
 		time: type.FLOAT.UNSIGNED,
 		flags: type.INTEGER.UNSIGNED,
+		file: type.STRING,
 	})
 };

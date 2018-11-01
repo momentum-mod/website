@@ -4,9 +4,7 @@ const leaderboard = require('../models/leaderboard');
 module.exports = {
 
 	get: (req, res, next) => {
-		const err = new Error('Not implemented yet');
-		return next(err);
-		// leaderboard.getAll(req.params.leaderboardID, req.query)
+		// leaderboard.get(req.params.leaderboardID, req.query)
 		// .then(activities => {
 		// 	res.json({
 		// 		activities: activities
@@ -37,7 +35,7 @@ module.exports = {
 
 	createRun: (req, res, next) => {
 		if (req.files && req.files.runFile) {
-			leaderboard.createRun(req.files.runFile)
+			leaderboard.createRun(req.params.lbID, req.files.runFile)
 			.then(leaderboardEntry => {
 				res.json(leaderboardEntry);
 			}).catch(next);

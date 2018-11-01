@@ -7,6 +7,9 @@ module.exports = (sequelize, type) => {
 			primaryKey: true,
 			autoIncrement: true
 		},
-		enabled: type.BOOLEAN,
+		enabled: {
+			type: type.BOOLEAN,
+			defaultValue: true,
+		},
 	})
 };
