@@ -4,3 +4,18 @@
   text-align: center;
   display: block;
 }
+
+.add-user, .remove-user {
+  display: block;
+  margin: auto;
+
+  .btn-outline-danger {
+    padding: 0.5rem 1rem;
+  }
+}
+
+nb-card {
+  nb-card-header {
+    text-align: center;
+  }
+}

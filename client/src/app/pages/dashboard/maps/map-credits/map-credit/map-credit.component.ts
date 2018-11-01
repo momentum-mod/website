@@ -1,4 +1,4 @@
-import {Component, Input, OnInit, ViewChild} from '@angular/core';
+import {Component, Input, ViewChild} from '@angular/core';
 import {User} from '../../../../../@core/models/user.model';
 import {NbPopoverDirective} from '@nebular/theme';
 
@@ -7,7 +7,7 @@ import {NbPopoverDirective} from '@nebular/theme';
   templateUrl: './map-credit.component.html',
   styleUrls: ['./map-credit.component.scss'],
 })
-export class MapCreditComponent implements OnInit {
+export class MapCreditComponent {
 
   @Input('category') category: string;
   @Input('categoryArr') categoryArray: User[];
@@ -16,9 +16,6 @@ export class MapCreditComponent implements OnInit {
   alreadySelected: boolean;
   constructor() {
     this.alreadySelected = false;
-  }
-
-  ngOnInit() {
   }
   addUser(user: User) {
     if (this.categoryArray.find((val => val.id === user.id))) {
