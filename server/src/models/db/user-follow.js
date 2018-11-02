@@ -19,6 +19,6 @@ module.exports = (sequelize, type) => {
 				key: 'id',
 			}
 		},
-		notify: type.BOOLEAN,
+		notifyOn: type.TINYINT.UNSIGNED,
 	});
 };

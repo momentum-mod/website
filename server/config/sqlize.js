@@ -9,6 +9,17 @@ const Sequelize = require('sequelize'),
 	ActivityModel = require('../src/models/db/activity'),
 	MapLibraryModel = require('../src/models/db/map-library'),
 	UserFollowsModel = require('../src/models/db/user-follow'),
+	NotificationModel = require('../src/models/db/notification'),
+	BadgeModel = require('../src/models/db/badge'),
+	UserBadgeModel = require('../src/models/db/user-badge'),
+	ReportModel = require('../src/models/db/report'),
+	MapStatsModel = require('../src/models/db/map-stats'),
+	MapZoneStatsModel = require('../src/models/db/map-zone-stats'),
+	MapReviewModel = require('../src/models/db/map-review'),
+	MapImageModel = require('../src/models/db/map-image'),
+	RunStatsModel = require('../src/models/db/run-stats'),
+	RunZoneStatsModel = require('../src/models/db/run-zone-stats'),
+
 	env = process.env.NODE_ENV || 'development';
 
 const sequelize = new Sequelize({
@@ -44,6 +55,16 @@ const MapCredit = MapCreditModel(sequelize, Sequelize);
 const Activity = ActivityModel(sequelize, Sequelize);
 const MapLibrary = MapLibraryModel(sequelize, Sequelize);
 const UserFollows = UserFollowsModel(sequelize, Sequelize);
+const Notification = NotificationModel(sequelize, Sequelize);
+const Badge = BadgeModel(sequelize, Sequelize);
+const UserBadge = UserBadgeModel(sequelize, Sequelize);
+const Report = ReportModel(sequelize, Sequelize);
+const MapStats = MapStatsModel(sequelize, Sequelize);
+const MapZoneStats = MapZoneStatsModel(sequelize, Sequelize);
+const MapReview = MapReviewModel(sequelize, Sequelize);
+const MapImage = MapImageModel(sequelize, Sequelize);
+const RunStats = RunStatsModel(sequelize, Sequelize);
+const RunZoneStats = RunZoneStatsModel(sequelize, Sequelize);
 
 User.hasOne(Profile, { foreignKey: 'userID' });
 User.hasMany(Activity, { foreignKey: 'userID' });
@@ -56,6 +77,20 @@ MapLibrary.belongsTo(User, { foreignKey: 'userID' });
 MapLibrary.belongsTo(Map, { foreignKey: 'mapID' });
 UserFollows.belongsTo(User, { foreignKey: 'followeeID'});
 UserFollows.belongsTo(User, { foreignKey: 'followedID'});
+Notification.belongsTo(User, { as: 'recipientUser', foreignKey: 'recipUserID'});
+Activity.hasMany(Notification, { as: 'notifications', foreignKey: 'activityID'});
+UserBadge.belongsTo(Badge, { as: 'badge', foreignKey: 'badgeID'});
+UserBadge.belongsTo(User, { as: 'user', foreignKey: 'userID'});
+UserBadge.hasOne(Profile, {as: 'featuredBadge', foreignKey: 'featuredBadgeID'});
+Report.belongsTo(User, {as: 'submitter', foreignKey: 'submitterID'});
+Report.belongsTo(User, {as: 'resolver', foreignKey: 'resolverID'});
+Map.hasOne(MapStats, {as: 'stats', foreignKey: 'mapID'});
+MapStats.hasMany(MapZoneStats, {as: 'zoneStats', foreignKey: 'mapStatsID'});
+MapReview.belongsTo(User, {as: 'reviewer', foreignKey: 'reviewerID'});
+MapReview.belongsTo(Map, {as: 'map', foreignKey: 'mapID'});
+Map.hasMany(MapImage, {as: 'images', foreignKey: 'mapID'});
+MapImage.hasOne(MapInfo, {as: 'thumbnail', foreignKey: 'thumbnailID'});
+// TODO: do the run (+ zone) stats
 
 if (env === 'development') {
 	forceSyncDB()
@@ -77,5 +112,15 @@ module.exports = {
 	MapCredit,
 	Activity,
 	MapLibrary,
-	UserFollows
+	UserFollows,
+	Notification,
+	Badge,
+	UserBadge,
+	Report,
+	MapStats,
+	MapZoneStats,
+	MapReview,
+	MapImage,
+	RunStats,
+	RunZoneStats,
 };
