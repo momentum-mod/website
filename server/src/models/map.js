@@ -9,10 +9,13 @@ const util = require('util'),
 
 const STATUS = Object.freeze({
 	APPROVED: 0,
-	NEEDS_UPLOAD: 1,
-	PENDING: 2,
-	NEEDS_REVISION: 3,
-	DENIED: 4,
+	PENDING: 1,
+	NEEDS_REVISION: 2,
+	PRIVATE_TESTING: 3,
+	PUBLIC_TESTING: 4,
+	READY_FOR_RELEASE: 5,
+	REJECTED: 6,
+	REMOVED: 7,
 });
 
 module.exports = {
