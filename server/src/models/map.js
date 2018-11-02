@@ -101,20 +101,13 @@ module.exports = {
 				err.status = 409;
 				return Promise.reject(err);
 			}
-			return sequelize.transaction(t => {
-				return Leaderboard.create({}, {
-					transaction: t,
-				}).then(leaderboard => {
-					map.leaderboardID = leaderboard.id;
-					if (!map.info) map.info = {};
-					return Map.create(map, {
-						include: [
-							{ model: MapInfo, as: 'info' },
-							{ model: MapCredit, as: 'credits' }
-						],
-						transaction: t,
-					});
-				});
+			if (!map.info) map.info = {};
+			return Map.create(map, {
+				include: [
+					{ model: MapInfo, as: 'info' },
+					{ model: MapCredit, as: 'credits' }
+				],
+				transaction: t,
 			});
 		});
 	},
@@ -138,13 +131,19 @@ module.exports = {
 				});
 			}).then(() => {
 				if (map.statusFlag !== STATUS.APPROVED) {
-					return Promise.resolve(mapInfo);
+					return Promise.resolve();
 				}
 				return activity.create({
 					type: activity.ACTIVITY_TYPES.MAP_SUBMITTED,
 					userID: mapInfo.submitterID, // TODO: Consider firing this for every author?
 					data: mapInfo.id,
-				}, {transaction: t});
+				}, {
+					transaction: t
+				}).then(activity => {
+					return Leaderboard.create({
+						mapID: mapID,
+					}, {transaction: t});
+				});
 			});
 		});
 	},
