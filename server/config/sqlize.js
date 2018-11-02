@@ -94,7 +94,9 @@ MapReview.belongsTo(Map, {as: 'map', foreignKey: 'mapID'});
 Map.hasMany(MapImage, {as: 'images', foreignKey: 'mapID'});
 MapImage.hasOne(MapInfo, {as: 'thumbnail', foreignKey: 'thumbnailID'});
 // // TODO: do the run (+ zone) stats
-Leaderboard.belongsTo(Map, { foreignKey: 'leaderboardID' });
+UserFollows.belongsTo(User, { foreignKey: 'followeeID' });
+UserFollows.belongsTo(User, { foreignKey: 'followedID' });
+Leaderboard.belongsTo(Map, { foreignKey: 'mapID' });
 LeaderboardEntry.belongsTo(Leaderboard, { foreignKey: 'leaderboardID' });
 LeaderboardEntry.belongsTo(User, { foreignKey: 'playerID' });
 
