@@ -1,0 +1,27 @@
+.no-notifs {
+  font-family: 'Exo', serif;
+  color: white;
+}
+
+nb-list-item {
+  position: relative;
+}
+
+nb-list-item:hover .button {
+  opacity: 1;
+}
+
+.button {
+  position: absolute;
+  width: auto;
+  right: 1%;
+  top: 2%;
+  text-align: center;
+  opacity: 0;
+  transition: opacity 0.15s ease;
+
+  .btn {
+    width: 1rem;
+    padding: 0;
+  }
+}

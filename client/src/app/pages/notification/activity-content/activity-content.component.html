@@ -1,3 +1,11 @@
-<p>
-  activity-content works!
-</p>
+<div class="row no-gutters">
+  <div class="col-auto profile">
+    <nb-user [name]="activity.user.profile.alias" [picture]="activity.user.profile.avatarURL"></nb-user>
+  </div>
+  <div class="col-auto text">
+    <span>{{actionText}} <span [ngStyle]="{'color': eventColor}"><b>{{eventText}}</b></span>!</span>
+  </div>
+  <div class="col-auto text icon" [ngStyle]="{'color': eventColor}">
+    <i [class]="activityIcon"></i>
+  </div>
+</div>

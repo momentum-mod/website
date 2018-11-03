@@ -4,4 +4,5 @@ export enum Activity_Type {
   MAP_SUBMITTED = 1,
   PB_ACHIEVED = 2,
   WR_ACHIEVED = 3,
+  USER_JOIN = 4,
 }

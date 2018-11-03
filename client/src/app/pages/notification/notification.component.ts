@@ -18,8 +18,19 @@ export class NotificationComponent implements OnInit {
   }
   onClickNotification(notif: SiteNotification) {
     if (!notif.read) {
+      notif.read = true;
+      this.notificationService.markNotificationAsRead(notif);
+    }
+  }
+  onHoverNotif(notif: SiteNotification) {
+    if (!notif.read) {
+      notif.read = true;
       this.notificationService.markNotificationAsRead(notif);
     }
   }
 
+  removeNotifcation(notification: SiteNotification) {
+    this.notifications.splice(this.notifications.findIndex(notif => notif.id === notification.id), 1);
+    this.notificationService.dismissNotification(notification);
+  }
 }

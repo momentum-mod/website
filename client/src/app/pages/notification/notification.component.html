@@ -1,3 +1,16 @@
-<p>
-  notification works!
-</p>
+<nb-list class="list">
+  <nb-list-item *ngIf="notifications.length === 0">
+    <span class="no-notifs">No notifications.</span>
+  </nb-list-item>
+  <nb-list-item *ngFor="let notification of notifications">
+    <div class="button">
+      <button class="btn btn-outline-danger btn-xs btn-icon" (click)="removeNotifcation(notification)">
+        <i class="ion ion-close-round"></i>
+      </button>
+    </div>
+    <activity-content [activity]="notification.activity"
+                      (mouseenter)="onHoverNotif(notification)"
+                      (click)="onClickNotification(notification)">
+    </activity-content>
+  </nb-list-item>
+</nb-list>

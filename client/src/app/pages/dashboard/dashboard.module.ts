@@ -32,7 +32,7 @@ import {MarkdownModule} from 'ngx-markdown';
     NgxChartsModule,
     SmartTableModule,
     Ng2SmartTableModule,
-    ToasterModule.forRoot(),
+    ToasterModule.forChild(),
     MarkdownModule.forChild(),
     FormsModule,
     NotFoundModule,

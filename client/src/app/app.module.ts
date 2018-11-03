@@ -20,6 +20,7 @@ import {JwtModule} from '@auth0/angular-jwt';
 import {OutgoingModule} from './pages/outgoing/outgoing.module';
 import {MarkdownModule, MarkedOptions} from 'ngx-markdown';
 import {NbDatepickerModule} from '@nebular/theme';
+import {ToasterModule} from 'angular2-toaster';
 
 export function tokenGetter() {
   return localStorage.getItem('accessToken');
@@ -60,6 +61,7 @@ export function tokenGetter() {
       },
     }),
     NbDatepickerModule.forRoot(),
+    ToasterModule.forRoot(),
 
     NgbModule,
     ThemeModule.forRoot(),
