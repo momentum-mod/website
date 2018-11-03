@@ -1,0 +1,138 @@
+paths:
+  /leaderboards/{lbID}/runs:
+    parameters:
+      - name: lbID
+        in: path
+        required: true
+        description: ID of the leaderboard to find
+        type: string
+    post:
+      summary: Submit a run file to a specific leaderboard
+      tags:
+        - leaderboards
+      parameters:
+        - name: runFile
+          in: formData
+          required: true
+          description: The run file to upload
+          type: file
+      responses:
+        200:
+          description: Run file is submitted
+          schema:
+            $ref: '#/definitions/Run'
+        400:
+          description: No run file provided or run file is invalid
+        409:
+          description: The leaderboard is not accepting submissions (disabled)
+    get:
+      summary: Retrieves a list of runs for specific leaderboard
+      tags:
+        - leaderboards
+      parameters:
+        - name: limit
+          in: query
+          description: The maximum number of results to show
+          type: integer
+          default: 10
+        - name: page
+          in: query
+          description: The page of results to show
+          type: integer
+          default: 0
+        - name: playerID
+          in: query
+          description: Filter by player ID
+      responses:
+        200:
+          description: OK
+          schema:
+            $ref: '#/definitions/Runs'
+  /leaderboards/{lbID}/runs/{runID}:
+    parameters:
+      - name: lbID
+        in: path
+        required: true
+        description: ID of the leaderboard to find
+        type: string
+      - name: runID
+        in: path
+        required: true
+        description: ID of the run to find
+        type: string
+    get:
+      summary: Retrieves a specific run for specific leaderboard
+      tags:
+        - leaderboards
+      responses:
+        200:
+          description: OK
+          schema:
+            $ref: '#/definitions/Run'
+        404:
+          description: The run is not found
+          schema:
+            $ref: '#/definitions/Error'
+  /leaderboards/{lbID}/runs/{runID}/download:
+    parameters:
+      - name: lbID
+        in: path
+        required: true
+        description: ID of the leaderboard to find
+        type: string
+      - name: runID
+        in: path
+        required: true
+        description: ID of the run to find
+        type: string
+    get:
+      tags:
+        - leaderboards
+      summary: Downloads the run replay file for a run
+      responses:
+        200:
+          description: A run replay file in binary format
+          schema:
+            type: file
+        404:
+          description: Run is not found
+definitions:
+  Run:
+    properties:
+      id:
+        type: string
+        format: int64
+        readOnly: true
+      tickrate:
+        type: number
+        format: double
+        readOnly: true
+      dateAchieved:
+        type: string
+        format: date-time
+        readOnly: true
+      time:
+        type: number
+        format: double
+        readOnly: true
+      flags:
+        type: integer
+        format: int32
+        readOnly: true
+      file:
+        type: string
+        readOnly: true
+      createdAt:
+        type: string
+        format: date-time
+        readOnly: true
+      updatedAt:
+        type: string
+        format: date-time
+        readOnly: true
+  Runs:
+    properties:
+      runs:
+        type: array
+        items:
+          $ref: '#/definitions/Run'
