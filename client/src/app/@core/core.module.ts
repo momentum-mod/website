@@ -6,6 +6,7 @@ import { DataModule } from './data/data.module';
 import { AnalyticsService } from './utils/analytics.service';
 import {ScreenerService} from './utils/screener.service';
 import {NotificationsService} from './utils/notifications.service';
+import {ToasterModule} from 'angular2-toaster';
 
 export const NB_CORE_PROVIDERS = [
   ...DataModule.forRoot().providers,
@@ -17,6 +18,7 @@ export const NB_CORE_PROVIDERS = [
 @NgModule({
   imports: [
     CommonModule,
+    ToasterModule.forChild(),
   ],
   exports: [
   ],
