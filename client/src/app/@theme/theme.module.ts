@@ -46,8 +46,9 @@ import { DEFAULT_THEME } from './styles/theme.default';
 import { COSMIC_THEME } from './styles/theme.cosmic';
 import { CORPORATE_THEME } from './styles/theme.corporate';
 import {NbSearchModule} from './components/search/search.module';
+import {NotificationModule} from '../pages/notification/notification.module';
 
-const BASE_MODULES = [CommonModule, FormsModule, ReactiveFormsModule];
+const BASE_MODULES = [CommonModule, FormsModule, ReactiveFormsModule, NotificationModule];
 
 const NB_MODULES = [
   NbCardModule,

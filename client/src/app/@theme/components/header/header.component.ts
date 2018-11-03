@@ -5,6 +5,8 @@ import { LocalUserService } from '../../../@core/data/local-user.service';
 import { AnalyticsService } from '../../../@core/utils/analytics.service';
 import { LayoutService } from '../../../@core/data/layout.service';
 import {User} from '../../../@core/models/user.model';
+import {NotificationsService} from '../../../@core/utils/notifications.service';
+import {SiteNotification} from '../../../@core/models/notification.model';
 
 @Component({
   selector: 'ngx-header',
@@ -29,14 +31,18 @@ export class HeaderComponent implements OnInit {
     ];
 
   user: User;
+  notifications: SiteNotification[];
+  numUnreadNotifs: number;
 
   constructor(private sidebarService: NbSidebarService,
               private menuService: NbMenuService,
               private userService: LocalUserService,
               private analyticsService: AnalyticsService,
-              private layoutService: LayoutService) {
-  this.menuService.onItemClick()
-    .subscribe((event) => {
+              private layoutService: LayoutService,
+              private notificationService: NotificationsService) {
+    this.notifications = [];
+    this.numUnreadNotifs = 0;
+    this.menuService.onItemClick().subscribe((event) => {
       this.onContextItemSelection(event.item.title);
     });
   }
@@ -44,6 +50,10 @@ export class HeaderComponent implements OnInit {
   ngOnInit() {
     this.userService.getLocal().subscribe(usr => {
       this.user = usr;
+    });
+    this.notificationService.notifications.subscribe(notifs => {
+      this.notifications = notifs;
+      this.numUnreadNotifs = this.notifications.filter(notif => notif.read === false).length;
     });
   }
 
@@ -65,5 +75,13 @@ export class HeaderComponent implements OnInit {
 
   startSearch() {
     this.analyticsService.trackEvent('startSearch');
+  }
+
+  getNotificationIconClass() {
+    if (this.notifications.length === 0)
+      return 'far fa-bell';
+    else {
+      return 'fa fa-bell';
+    }
   }
 }
