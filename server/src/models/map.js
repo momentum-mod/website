@@ -1,6 +1,6 @@
 'use strict';
 const util = require('util'),
-	{ sequelize, Op, Map, MapInfo, MapCredit, User, Profile, Leaderboard } = require('../../config/sqlize'),
+	{ sequelize, Op, Map, MapInfo, MapCredit, User, Profile, Leaderboard, Activity } = require('../../config/sqlize'),
 	Sequelize = require('sequelize'),
 	user = require('./user'),
 	activity = require('./activity'),
@@ -107,7 +107,6 @@ module.exports = {
 					{ model: MapInfo, as: 'info' },
 					{ model: MapCredit, as: 'credits' }
 				],
-				transaction: t,
 			});
 		});
 	},
@@ -133,7 +132,7 @@ module.exports = {
 				if (map.statusFlag !== STATUS.APPROVED) {
 					return Promise.resolve();
 				}
-				return activity.create({
+				return Activity.create({
 					type: activity.ACTIVITY_TYPES.MAP_SUBMITTED,
 					userID: mapInfo.submitterID, // TODO: Consider firing this for every author?
 					data: mapInfo.id,
