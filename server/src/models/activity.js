@@ -7,6 +7,7 @@ const ACTIVITY_TYPES = Object.freeze({
 	MAP_SUBMITTED: 1,
 	PB_ACHIEVED: 2,
 	WR_ACHIEVED: 3,
+	USER_JOINED: 4,
 });
 
 module.exports = {

@@ -1,5 +1,6 @@
 'use strict';
-const { Op, User, Profile, UserFollows } = require('../../config/sqlize'),
+const { sequelize, Activity, Op, User, Profile, UserFollows } = require('../../config/sqlize'),
+	activity = require('./activity'),
 	config = require('../../config/config'),
 	queryHelper = require('../helpers/query'),
 	axios = require('axios');
@@ -24,13 +25,28 @@ module.exports = {
 	},
 
 	create: (usr) => {
-		return User.create({
-			id: usr.id,
-			profile: {
-				alias: usr.alias,
-				avatarURL: usr.avatarURL
-			}
-		}, { include: Profile });
+		return sequelize.transaction(t => {
+			let userInfo = {};
+			return User.create({
+				id: usr.id,
+				profile: {
+					alias: usr.alias,
+					avatarURL: usr.avatarURL
+				}
+			}, {
+				include: Profile,
+				transaction: t,
+			}).then(user => {
+				userInfo = user;
+				return Activity.create({
+					type: activity.ACTIVITY_TYPES.USER_JOINED,
+					data: user.id,
+					userID: user.id,
+				}, {transaction: t});
+			}).then(act => {
+				return Promise.resolve(userInfo);
+			});
+		});
 	},
 
 	findOrCreate: (profile) => {
