@@ -5,11 +5,13 @@ import { throwIfAlreadyLoaded } from './module-import-guard';
 import { DataModule } from './data/data.module';
 import { AnalyticsService } from './utils/analytics.service';
 import {ScreenerService} from './utils/screener.service';
+import {NotificationsService} from './utils/notifications.service';
 
 export const NB_CORE_PROVIDERS = [
   ...DataModule.forRoot().providers,
   AnalyticsService,
   ScreenerService,
+  NotificationsService,
 ];
 
 @NgModule({

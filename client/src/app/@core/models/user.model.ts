@@ -5,5 +5,5 @@ export interface User {
   permissions: number;
   createdAt?: string;
   updatedAt?: string;
-  profile: UserProfile;
+  profile?: UserProfile;
 }

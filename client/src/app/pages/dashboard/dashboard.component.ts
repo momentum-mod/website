@@ -3,6 +3,7 @@ import {NbMenuItem} from '@nebular/theme';
 import {MENU_ITEMS} from './dashboard-menu';
 import {LocalUserService} from '../../@core/data/local-user.service';
 import {ToasterConfig} from 'angular2-toaster';
+import {NotificationsService} from '../../@core/utils/notifications.service';
 
 @Component({
   selector: 'dashboard',
@@ -29,7 +30,9 @@ export class DashboardComponent implements OnInit {
     showCloseButton: true,
   });
 
-  constructor(private userService: LocalUserService) {
+  constructor(private userService: LocalUserService,
+              private notificationService: NotificationsService) {
+    this.notificationService.inject();
   }
 
   ngOnInit() {
