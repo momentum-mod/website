@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { AdminService } from '../../../../@core/data/admin.service';
 import { MomentumMap } from '../../../../@core/models/momentum-map.model';
+import { MapUploadStatus } from '../../../../@core/models/map-upload-status.model';
 
 @Component({
   selector: 'app-map-queue',
@@ -30,7 +31,7 @@ export class MapQueueComponent implements OnInit {
         page: priority ? this.priorityQueuePage : this.nonPriorityQueuePage,
         limit: 5,
         priority: priority,
-        status: 2, // TODO: replace with status enums
+        status: MapUploadStatus.PENDING,
       },
     }).subscribe(res => {
       if (priority) this.priorityQueue = res.maps;
