@@ -7,6 +7,40 @@ const util = require('util'),
 	queryHelper = require('../helpers/query'),
 	config = require('../../config/config');
 
+const storeMapImage = (imageFile, mapName) => {
+	const moveImageTo = util.promisify(imageFile.mv);
+	const fileName = mapName + '.jpg';
+	const basePath = __dirname + '/../../public/img/maps';
+	const fullPath =  basePath + '/' + fileName;
+	const downloadURL = config.baseUrl + '/img/maps/' + fileName;
+	// TODO: resize/edit image?
+	return moveImageTo(fullPath).then(() => {
+		return Promise.resolve({
+			fileName: fileName,
+			basePath: basePath,
+			fullPath: fullPath,
+			downloadURL: downloadURL,
+		});
+	});
+}
+
+const storeMapFile = (mapFile, mapName) => {
+	const moveMapTo = util.promisify(mapFile.mv);
+	const fileName = mapName + '.bsp';
+	const basePath = __dirname + '/../../public/maps';
+	const fullPath =  basePath + '/' + fileName;
+	const downloadURL = config.baseUrl + '/maps/' + fileName;
+	// TODO: resize/edit image?
+	return moveMapTo(fullPath).then(() => {
+		return Promise.resolve({
+			fileName: fileName,
+			basePath: basePath,
+			fullPath: fullPath,
+			downloadURL: downloadURL,
+		});
+	});
+}
+
 const STATUS = Object.freeze({
 	APPROVED: 0,
 	PENDING: 1,
@@ -37,10 +71,17 @@ module.exports = {
 				[Op.like]: '%' + context.search + '%' // 2 spooky 5 me O:
 			}
 		}
-		if (context.status) {
+		if (context.status && context.statusNot) {
 			queryContext.where.statusFlag = {
-				[Op.in]: context.status.split(',')
+				[Op.and]: {
+					[Op.in]: context.status.split(','),
+					[Op.notIn]: context.statusNot.split(','),
+				}
 			}
+		} else if (context.status) {
+			queryContext.where.statusFlag = {[Op.in]: context.status.split(',')};
+		} else if (context.statusNot) {
+			queryContext.where.statusFlag = {[Op.notIn]: context.statusNot.split(',')};
 		}
 		if (context.priority || (context.expand && context.expand.includes('submitter'))) {
 			queryContext.include.push({
@@ -92,7 +133,7 @@ module.exports = {
 			where: {
 				name: map.name,
 				statusFlag: {
-					[Op.ne]: STATUS.DENIED
+					[Op.notIn]: [STATUS.REJECTED, STATUS.REMOVED],
 				}
 			}
 		}).then(mapWithSameName => {
@@ -133,7 +174,7 @@ module.exports = {
 					return Promise.resolve();
 				}
 				return Activity.create({
-					type: activity.ACTIVITY_TYPES.MAP_SUBMITTED,
+					type: activity.ACTIVITY_TYPES.MAP_APPROVED,
 					userID: mapInfo.submitterID, // TODO: Consider firing this for every author?
 					data: mapInfo.id,
 				}, {
@@ -202,24 +243,23 @@ module.exports = {
 	},
 
 	updateAvatar: (mapID, avatarFile) => {
-		const moveAvatarTo = util.promisify(avatarFile.mv);
-		let avatarFileLocation = 'img/maps/';
+		let mapModel = null;
 		return Map.find({
-			where: { id: mapID }
+			where: { id: mapID },
+			include: [
+				{ model: MapInfo, as: 'info' }
+			],
 		}).then(map => {
 			if (!map) {
 				const err = new Error('Map does not exist');
 				err.status = 404;
 				return Promise.reject(err);
 			}
-			// TODO: resize/edit image?
-			avatarFileLocation += map.name + '.jpg';
-			return moveAvatarTo(__dirname + '/../../public/' + avatarFileLocation);
+			mapModel = map;
+			return storeMapImage(avatarFile, map.name);
 		}).then((results) => {
-			return MapInfo.update({
-				avatarURL: config.baseUrl + '/' + avatarFileLocation
-			}, {
-				where: { mapID: mapID }
+			return mapModel.info.update({
+				avatarURL: results.downloadURL,
 			});
 		});
 	},
@@ -241,8 +281,7 @@ module.exports = {
 	},
 
 	upload: (mapID, mapFile) => {
-		const moveMapFileTo = util.promisify(mapFile.mv);
-		let mapFileLocation = 'maps/';
+		let mapModel = null;
 		return Map.find({
 			where: { id: mapID }
 		}).then(map => {
@@ -250,19 +289,18 @@ module.exports = {
 				const err = new Error('Map does not exist');
 				err.status = 404;
 				return Promise.reject(err);
-			} else if (map.statusFlag !== STATUS.NEEDS_UPLOAD) {
+			} else if (map.statusFlag !== STATUS.NEEDS_REVISION) {
 				const err = new Error('Map file cannot be uploaded given the map state');
 				err.status = 409;
 				return Promise.reject(err);
 			}
-			mapFileLocation += map.name + '.bsp';
-			return moveMapFileTo(__dirname + '/../../public/' + mapFileLocation);
-		}).then(() => {
-			return Map.update({
+			mapModel = map;
+			return storeMapFile(mapFile, map.name);
+		}).then((results) => {
+			mapModel.update({
 				statusFlag: STATUS.PENDING,
-				download: config.baseUrl + '/api/maps/' + mapID + '/download'
-			}, {
-				where: { id: mapID }
+				downloadURL: results.downloadURL,
+				//hash: mapFile.md5(), // (adds considerable time to response time) (SHA preferred?)
 			});
 		});
 	},
@@ -279,15 +317,13 @@ module.exports = {
 			const mapFileName = map.name + '.bsp';
 			const filePath = __dirname + '/../../public/maps/' + mapFileName;
 			return Promise.resolve(filePath);
-		})
+		});
 	},
 
 	incrementDownloadCount: (mapID) => {
 		MapInfo.update({
 			totalDownloads: Sequelize.literal('totalDownloads + 1')
-		}, {
-			where: { mapID: mapID }
-		});
+		}, { where: { mapID: mapID }});
 	}
 
 };
