@@ -54,7 +54,7 @@ describe('maps', () => {
 	});
 
 	after(() => {
-		//return forceSyncDB();
+		return forceSyncDB();
 	});
 
 	describe('modules', () => {
