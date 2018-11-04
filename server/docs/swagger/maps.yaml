@@ -20,7 +20,7 @@ paths:
           schema:
             $ref: '#/definitions/Map'
         409:
-          description: Map name already used
+          description: Map name already used or map creation limit reached
     get:
       tags:
         - maps

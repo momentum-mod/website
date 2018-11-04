@@ -129,13 +129,26 @@ module.exports = {
 	},
 
 	create: (map) => {
-		return Map.find({
+		const mapUploadLimit = 3;
+		return Map.count({
 			where: {
-				name: map.name,
-				statusFlag: {
-					[Op.notIn]: [STATUS.REJECTED, STATUS.REMOVED],
-				}
+				submitterID: map.submitterID,
+				statusFlag: STATUS.PENDING,
+			},
+		}).then(count => {
+			if (count >= mapUploadLimit) {
+				const err = new Error('Map creation limit reached');
+				err.status = 409;
+				return Promise.reject(err);
 			}
+			return Map.find({
+				where: {
+					name: map.name,
+					statusFlag: {
+						[Op.notIn]: [STATUS.REJECTED, STATUS.REMOVED],
+					}
+				}
+			});
 		}).then(mapWithSameName => {
 			if (mapWithSameName) {
 				const err = new Error('Map name already used');
