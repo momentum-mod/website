@@ -4,10 +4,13 @@ const { Op, User, Activity, Map } = require('../../config/sqlize'),
 
 const ACTIVITY_TYPES = Object.freeze({
 	ALL: 0,
-	MAP_SUBMITTED: 1,
-	PB_ACHIEVED: 2,
-	WR_ACHIEVED: 3,
-	USER_JOINED: 4,
+	MAP_UPLOADED: 1,
+	MAP_APPROVED: 2,
+	REVIEW_MADE: 3,
+	PB_ACHIEVED: 4,
+	WR_ACHIEVED: 5,
+	REPORT_FILED: 6,
+	USER_JOINED: 7,
 });
 
 module.exports = {
