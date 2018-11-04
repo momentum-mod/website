@@ -177,7 +177,7 @@ module.exports = {
 					where: {
 						id: mapID,
 						statusFlag: {
-							[Op.ne]: STATUS.DENIED
+							[Op.notIn]: [STATUS.REJECTED, STATUS.REMOVED]
 						}
 					},
 					transaction: t
