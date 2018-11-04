@@ -154,12 +154,12 @@ export class LocalUserService {
 
   /**
    * @param user Specific user's profile
-   * @param notify user notifications
+   * @param notifyOn The flags to notify the followee on
    * @return update the following status on the user's profile
    */
-  public updateFollowStatus(user: User, notify: boolean): Observable<any> {
-    return this.http.put('/api/user/follow/' + user.id, {
-      notify: notify,
+  public updateFollowStatus(user: User, notifyOn: number): Observable<any> {
+    return this.http.patch('/api/user/follow/' + user.id, {
+      notifyOn: notifyOn,
     });
   }
 

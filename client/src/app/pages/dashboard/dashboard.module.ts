@@ -22,8 +22,12 @@ import {ProfileInfoComponent} from './profile/profile-info/profile-info.componen
 import {ProfileEditComponent} from './profile/profile-edit/profile-edit.component';
 import {ToasterModule} from 'angular2-toaster';
 import {MarkdownModule} from 'ngx-markdown';
-import {NbListModule} from '@nebular/theme';
+import {NbDialogModule, NbListModule} from '@nebular/theme';
 import {ActivityModule} from '../activity/activity.module';
+import {
+  ProfileFollowComponent,
+  ProfileNotifyEditComponent,
+} from './profile/profile-info/profile-follow/profile-follow.component';
 
 @NgModule({
   imports: [
@@ -35,6 +39,7 @@ import {ActivityModule} from '../activity/activity.module';
     NbListModule,
     ActivityModule,
     Ng2SmartTableModule,
+    NbDialogModule.forChild(),
     ToasterModule.forChild(),
     MarkdownModule.forChild(),
     FormsModule,
@@ -52,9 +57,12 @@ import {ActivityModule} from '../activity/activity.module';
     UserProfileComponent,
     ProfileInfoComponent,
     ProfileEditComponent,
+    ProfileFollowComponent,
+    ProfileNotifyEditComponent,
   ],
   entryComponents: [
     UserEditModalComponent,
+    ProfileNotifyEditComponent,
   ],
   providers: [],
 })

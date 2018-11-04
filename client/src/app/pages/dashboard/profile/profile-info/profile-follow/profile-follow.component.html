@@ -1,0 +1,6 @@
+<div [ngClass]="isFollowingUser ? 'btn-group' : ''">
+  <button class="btn btn-info btn-group-divider" (click)="followClick()">{{isFollowingUser ? 'Unfollow' : 'Follow'}}</button>
+  <button class="btn btn-info" *ngIf="isFollowingUser" (click)="editNotificationSettings()">
+    <i class="ion" [ngClass]="notifiesOnEvents === 0 ? 'ion-ios-bell-outline' : 'ion-ios-bell'"></i>
+  </button>
+</div>

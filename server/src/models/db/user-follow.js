@@ -19,6 +19,9 @@ module.exports = (sequelize, type) => {
 				key: 'id',
 			}
 		},
-		notifyOn: type.TINYINT.UNSIGNED,
+		notifyOn: {
+			type: type.TINYINT.UNSIGNED,
+			defaultValue: 0,
+		},
 	});
 };
