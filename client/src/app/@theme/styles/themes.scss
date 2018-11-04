@@ -33,6 +33,9 @@ $nb-themes: nb-register-theme((
   ecommerce-card-border-width: 1px,
 
   progress-bar-background: linear-gradient(90deg, #3edd81 0%, #3bddaf 100%),
+
+  // Custom definitions
+  notif-unread-bg: rgba(0, 130, 350, 0.25),
 ), default, default);
 
 $nb-themes: nb-register-theme((
@@ -116,6 +119,10 @@ $nb-themes: nb-register-theme((
   sidebar-shadow: 0 8px 20px 0 rgba(46, 102, 165, 0.6),
 
   progress-bar-background: linear-gradient(90deg, #00c7c7 0%, #00d977 100%),
+
+  // Custom definitions
+  notif-unread-bg: rgba(0, 130, 350, 0.25),
+
 ), cosmic, cosmic);
 
 $nb-themes: nb-register-theme((
@@ -146,4 +153,6 @@ $nb-themes: nb-register-theme((
   ecommerce-card-border-width: 1px,
 
   progress-bar-background: linear-gradient(90deg, #ff9f6f 0%, #ff8b97 100%),
+  // Custom definitions
+  notif-unread-bg: rgba(0, 130, 350, 0.25),
 ), corporate, corporate);

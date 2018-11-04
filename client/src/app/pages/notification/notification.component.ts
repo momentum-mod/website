@@ -13,23 +13,36 @@ export class NotificationComponent implements OnInit {
 
   constructor(private notificationService: NotificationsService) { }
 
+  // This gets called every time the bell is clicked (to view notifications)
   ngOnInit() {
-    // This gets called every time the bell is clicked (to view notifications)
+    this.notifications.sort((a, b) => {
+      if (!a.read) {
+        if (!b.read) {
+          return 0;
+        } else {
+          return -1;
+        }
+      } else if (!b.read) {
+        return 1;
+      } else {
+        return b.createdAt.getTime() - a.createdAt.getTime();
+      }
+    });
   }
-  onClickNotification(notif: SiteNotification) {
+  readNotif(notif: SiteNotification) {
     if (!notif.read) {
       notif.read = true;
       this.notificationService.markNotificationAsRead(notif);
     }
+  }
+  onClickNotif(notif: SiteNotification) {
+    this.readNotif(notif);
   }
   onHoverNotif(notif: SiteNotification) {
-    if (!notif.read) {
-      notif.read = true;
-      this.notificationService.markNotificationAsRead(notif);
-    }
+    this.readNotif(notif);
   }
 
-  removeNotifcation(notification: SiteNotification) {
+  removeNotif(notification: SiteNotification) {
     this.notifications.splice(this.notifications.findIndex(notif => notif.id === notification.id), 1);
     this.notificationService.dismissNotification(notification);
   }

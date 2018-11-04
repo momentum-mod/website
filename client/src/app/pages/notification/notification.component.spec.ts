@@ -52,6 +52,7 @@ describe('NotificationComponent', () => {
           data: 'lol',
         },
         read: false,
+        createdAt: new Date(),
       },
       {
         id: 1,
@@ -75,6 +76,7 @@ describe('NotificationComponent', () => {
           data: 'lol',
         },
         read: false,
+        createdAt: new Date(),
       },
     ];
     fixture.detectChanges();
