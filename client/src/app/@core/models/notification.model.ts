@@ -6,4 +6,5 @@ export interface SiteNotification {
   forUser: User;
   activity: Activity;
   read: boolean;
+  createdAt: Date;
 }

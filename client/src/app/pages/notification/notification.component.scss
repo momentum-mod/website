@@ -1,6 +1,12 @@
+@import '../../@theme/styles/themes';
+
 .no-notifs {
   font-family: 'Exo', serif;
   color: white;
+}
+
+.unread {
+  background-color: nb-theme(notif-unread-bg);
 }
 
 nb-list-item {

@@ -11,13 +11,13 @@ import {ToasterService} from 'angular2-toaster';
 @Injectable()
 export class NotificationsService {
   notifications$: ReplaySubject<SiteNotification[]>;
-  notifs: SiteNotification[];
+  notifs: SiteNotification[]; // TODO removeme
 
   constructor(private router: Router,
               private http: HttpClient,
               private toasterService: ToasterService) {
     this.notifications$ = new ReplaySubject<SiteNotification[]>(1);
-    this.notifs = [
+    this.notifs = [ // TODO removeme
       {
         id: 1,
         forUser: {
@@ -40,6 +40,7 @@ export class NotificationsService {
           data: 'lol',
         },
         read: false,
+        createdAt: new Date(),
       },
       {
         id: 1,
@@ -63,6 +64,7 @@ export class NotificationsService {
           data: 'lol',
         },
         read: false,
+        createdAt: new Date(Date.now() - 1000),
       },
     ];
   }
@@ -76,9 +78,7 @@ export class NotificationsService {
   }
   checkNotifications() {
     // this.notifications$.next(this.notifs);
-    this.http.get<any>('/api/user/notifications').subscribe(resp => {
-      this.notifications$.next(resp.notifications);
-    });
+    this.http.get<any>('/api/user/notifications').subscribe(resp => this.notifications$.next(resp.notifications));
   }
   get notifications(): Observable<SiteNotification[]> { return this.notifications$.asObservable(); }
 
@@ -91,7 +91,7 @@ export class NotificationsService {
     });
   }
   dismissNotification(notif: SiteNotification) {
-    this.http.delete('/api/user/notifications/' + notif.id)
+    this.http.delete('/api/user/notifications/' + notif.id, { responseType: 'text'})
       .pipe(finalize(() => this.checkNotifications()))
       .subscribe(resp => {
     }, err => {
