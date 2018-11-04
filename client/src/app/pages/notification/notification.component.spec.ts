@@ -2,7 +2,7 @@ import {async, ComponentFixture, TestBed} from '@angular/core/testing';
 
 import {NotificationComponent} from './notification.component';
 import {NbListModule, NbUserModule} from '@nebular/theme';
-import {ActivityContentComponent} from './activity-content/activity-content.component';
+import {ActivityContentComponent} from '../activity/activity-content/activity-content.component';
 import {CoreModule} from '../../@core/core.module';
 import {RouterModule} from '@angular/router';
 import {APP_BASE_HREF} from '@angular/common';

@@ -39,10 +39,10 @@ export class ActivityCardComponent implements OnInit {
   }
 
   filterActivites(acts: Activity[]): void {
-      if (this.filterValue === this.activityType.ALL)
-        this.activities = acts;
-      else
-        this.activities = acts.filter((value => value.type === this.filterValue));
+    if (this.filterValue === this.activityType.ALL)
+      this.activities = acts;
+    else
+      this.activities = acts.filter((value => value.type === this.filterValue));
   }
   getActivities(): void {
     if (this.follow)
