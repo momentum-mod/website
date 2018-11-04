@@ -1,5 +1,5 @@
 'use strict';
-const { Op, User, Activity, Map } = require('../../config/sqlize'),
+const { Op, User, Activity, Map, Profile } = require('../../config/sqlize'),
 	queryHelper = require('../helpers/query');
 
 const ACTIVITY_TYPES = Object.freeze({
@@ -17,9 +17,15 @@ module.exports = {
 	ACTIVITY_TYPES,
 
 	getAll: (context) => {
-		const allowedExpansions = ['user'];
 		const queryContext = {
 			where: {},
+			include: [{
+				model: User,
+				attributes: {
+					exclude: ['refreshToken']
+				},
+				include: [Profile]
+			}],
 			offset: parseInt(context.page) || 0,
 			limit: Math.min(parseInt(context.limit) || 10, 10),
 			order: [
@@ -29,7 +35,6 @@ module.exports = {
 		if (context.userID) queryContext.where.userID = context.userID;
 		if (context.data) queryContext.where.data = context.data;
 		if (context.type) queryContext.where.type = context.type;
-		queryHelper.addExpansions(queryContext, context.expand, allowedExpansions);
 		return Activity.findAll(queryContext);
 	},
 
