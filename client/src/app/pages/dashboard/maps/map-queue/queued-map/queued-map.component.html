@@ -48,8 +48,8 @@
   <div class="col-1">
     <div class="text-right" role="toolbar">
       <div class="btn-group-vertical" role="group">
-        <button type="button" class="btn btn-success" (click)="updateMapStatus(map.id, 0)"><span class="ion-checkmark-round"></span></button>
-        <button type="button" class="btn btn-danger" (click)="updateMapStatus(map.id, 4)"><span class="ion-close-round"></span></button>
+        <button type="button" class="btn btn-success" (click)="updateMapStatus(map.id, statusEnum.APPROVED)"><span class="ion-checkmark-round"></span></button>
+        <button type="button" class="btn btn-danger" (click)="updateMapStatus(map.id, statusEnum.REJECTED)"><span class="ion-close-round"></span></button>
       </div>
     </div>
   </div>
