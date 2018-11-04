@@ -217,3 +217,30 @@ paths:
       responses:
         200:
           description: OK
+  /user/activities/followed:
+     get:
+       summary: Retrieves a list of activities from followed users
+       tags:
+         - user
+       parameters:
+         - name: limit
+           in: query
+           description: The maximum number of results to show
+           type: integer
+           default: 10
+         - name: page
+           in: query
+           description: The page of results to show
+           type: integer
+           default: 0
+         - name: type
+           in: query
+           description: Filter by activity type
+         - name: data
+           in: query
+           description: Filter by activity data
+       responses:
+         200:
+           description: OK
+           schema:
+             $ref: '#/definitions/Activities'

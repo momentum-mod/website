@@ -8,8 +8,4 @@ router.route('/')
 	.get(actCtrl.getAll)
 	.all(errorCtrl.send405);
 
-router.route('/followed')
-	.get(actCtrl.getFollowedActivities)
-	.all(errorCtrl.send405);
-
 module.exports = router;

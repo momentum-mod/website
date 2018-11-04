@@ -12,8 +12,4 @@ module.exports = {
 		}).catch(next);
 	},
 
-	getFollowedActivities: (req, res, next) => {
-		res.sendStatus(501);
-		// act.getFollowedActivities()
-	}
 };

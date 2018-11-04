@@ -254,6 +254,29 @@ module.exports = {
 		return Notification.destroy({
 			where: { id: notifID, forUserID: userID }
 		});
+
+	},
+
+	getFollowedActivities: (userID, context) => {
+		const queryContext = {
+			where: {},
+			include: [{
+				model: User,
+				include: [{
+					model: Profile,
+				}, {
+					model: UserFollows,
+					where: { followeeID: userID },
+					attributes: [],
+				}]
+			}],
+			offset: parseInt(context.page) || 0,
+			limit: Math.min(parseInt(context.limit) || 10, 10),
+			order: [['createdAt', 'DESC']],
+		};
+		if (context.data) queryContext.where.data = context.data;
+		if (context.type) queryContext.where.type = context.type;
+		return Activity.findAll(queryContext);
 	}
 
 };

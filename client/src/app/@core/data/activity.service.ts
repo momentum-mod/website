@@ -10,7 +10,7 @@ export class ActivityService {
    * @return activities of users you follow
    */
   getFollowedActivity(): Observable<any> {
-    return this.http.get('/api/activities/followed');
+    return this.http.get('/api/user/activities/followed');
   }
 
   /**
