@@ -1,5 +1,5 @@
 'use strict';
-const { sequelize, Activity, Op, User, Profile, UserFollows } = require('../../config/sqlize'),
+const { sequelize, Op, User, Profile, UserFollows, Notification, Activity } = require('../../config/sqlize'),
 	activity = require('./activity'),
 	config = require('../../config/config'),
 	queryHelper = require('../helpers/query'),
@@ -185,5 +185,36 @@ module.exports = {
 			where: { followedID: followedID, followeeID: followeeID }
 		});
 	},
+
+	getNotifications: (userID) => {
+		return Notification.findAll({
+			where: { forUserID: userID },
+			include: {
+				model: Activity,
+				as: 'activity',
+				include: {
+					model: User,
+					as: 'user',
+					include: {
+						model: Profile,
+						as: 'profile',
+					}
+				}
+			}
+		});
+	},
+
+	updateNotification: (userID, notifID, read) => {
+		return Notification.update(
+			{ read: read },
+			{ where: { id: notifID, forUserID: userID }}
+		);
+	},
+
+	deleteNotification: (userID, notifID) => {
+		return Notification.destroy({
+			where: { id: notifID, forUserID: userID }
+		});
+	}
 
 };

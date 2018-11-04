@@ -42,4 +42,13 @@ router.route('/follow/:userID')
 	.delete(userCtrl.unfollowUser)
 	.all(errorCtrl.send405);
 
+router.route('/notifications')
+	.get(userCtrl.getNotifications)
+	.all(errorCtrl.send405);
+
+router.route('/notifications/:notifID')
+	.patch(userCtrl.updateNotification)
+	.delete(userCtrl.deleteNotification)
+	.all(errorCtrl.send405);
+
 module.exports = router;

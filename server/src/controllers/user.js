@@ -110,4 +110,24 @@ module.exports = {
 		}).catch(next);
 	},
 
+	getNotifications: (req, res, next) => {
+		user.getNotifications(req.user.id).then(result => {
+			res.json({
+				notifications: result
+			});
+		}).catch(next);
+	},
+
+	updateNotification: (req, res, next) => {
+		user.updateNotification(req.user.id, req.params.notifID, req.body.read).then(() => {
+			res.sendStatus(204);
+		}).catch(next);
+	},
+
+	deleteNotification: (req, res, next) => {
+		user.deleteNotification(req.user.id, req.params.notifID).then(() => {
+			res.sendStatus(200);
+		}).catch(next);
+	}
+
 };

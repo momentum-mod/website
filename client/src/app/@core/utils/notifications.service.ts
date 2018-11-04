@@ -75,8 +75,10 @@ export class NotificationsService {
       });
   }
   checkNotifications() {
-    this.notifications$.next(this.notifs);
-    // this.http.get('/api/user/notifications').subscribe(resp => {this.notifications.next(resp.notifications})
+    // this.notifications$.next(this.notifs);
+    this.http.get<any>('/api/user/notifications').subscribe(resp => {
+      this.notifications$.next(resp.notifications);
+    });
   }
   get notifications(): Observable<SiteNotification[]> { return this.notifications$.asObservable(); }
 
