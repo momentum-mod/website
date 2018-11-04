@@ -110,6 +110,7 @@ module.exports = {
 		}).catch(next);
 	},
 
+
 	getNotifications: (req, res, next) => {
 		user.getNotifications(req.user.id).then(result => {
 			res.json({
@@ -127,6 +128,15 @@ module.exports = {
 	deleteNotification: (req, res, next) => {
 		user.deleteNotification(req.user.id, req.params.notifID).then(() => {
 			res.sendStatus(200);
+		}).catch(next);
+
+	},
+
+	getFollowedActivities: (req, res, next) => {
+		user.getFollowedActivities(req.user.id, req.query).then(activities => {
+			res.json({
+				activities: activities
+			});
 		}).catch(next);
 	}
 

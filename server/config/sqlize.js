@@ -85,6 +85,7 @@ MapLibrary.belongsTo(Map, { foreignKey: 'mapID' });
 UserFollows.belongsTo(User, { foreignKey: 'followeeID'});
 UserFollows.belongsTo(User, { foreignKey: 'followedID'});
 Notification.belongsTo(User, { as: 'forUser', foreignKey: 'forUserID'});
+User.hasMany(UserFollows, { foreignKey: 'followeeID' });
 Activity.hasMany(Notification, { as: 'notifications', foreignKey: 'activityID'});
 Notification.belongsTo(Activity, { as: 'activity', foreignKey: 'activityID'});
 UserBadge.belongsTo(Badge, { as: 'badge', foreignKey: 'badgeID'});
@@ -99,8 +100,6 @@ MapReview.belongsTo(Map, {as: 'map', foreignKey: 'mapID'});
 Map.hasMany(MapImage, {as: 'images', foreignKey: 'mapID'});
 MapImage.hasOne(MapInfo, {as: 'thumbnail', foreignKey: 'thumbnailID'});
 // // TODO: do the run (+ zone) stats
-UserFollows.belongsTo(User, { foreignKey: 'followeeID' });
-UserFollows.belongsTo(User, { foreignKey: 'followedID' });
 Leaderboard.belongsTo(Map, { foreignKey: 'mapID' });
 LeaderboardEntry.belongsTo(Leaderboard, { foreignKey: 'leaderboardID' });
 LeaderboardEntry.belongsTo(User, { foreignKey: 'playerID' });

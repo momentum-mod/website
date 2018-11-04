@@ -33,10 +33,6 @@ module.exports = {
 		return Activity.findAll(queryContext);
 	},
 
-	getFollowedActivities: (userID) => {
-		return Promise.resolve(); // TODO implement after following table added
-	},
-
 	create: (activity) => {
 		return Activity.create(activity);
 	}
