@@ -59,35 +59,6 @@
     }
   }
 
-  @include nb-for-theme(corporate) {
-    $menu-action-separator-color: #3f4550;
-
-    nb-action {
-      @include nb-ltr(border-left-color, $menu-action-separator-color);
-      @include nb-rtl(border-right-color, $menu-action-separator-color);
-    }
-
-    .header-container .logo {
-      @include nb-ltr(border, none);
-      @include nb-rtl(border, none);
-    }
-
-    .header-container /deep/ ngx-theme-switcher .dropdown-toggle {
-      color: nb-theme(color-white);
-      background: transparent;
-    }
-  }
-
-  ngx-layout-direction-switcher {
-    margin: 0 1.5rem;
-  }
-
-  ngx-theme-switcher {
-    margin: nb-theme(layout-padding);
-    margin-top: 0;
-    margin-bottom: 0;
-  }
-
   @include media-breakpoint-down(xl) {
     ngx-layout-direction-switcher {
       display: none;
@@ -166,14 +137,6 @@
     .toggle-layout {
       padding: 0;
     }
-
-    ngx-layout-direction-switcher {
-      display: none;
-    }
-
-    ngx-theme-switcher {
-      margin: 0 0.5rem;
-    }
   }
 
   @include media-breakpoint-down(sm) {
@@ -192,10 +155,6 @@
     }
 
     .toggle-layout {
-      display: none;
-    }
-
-    ngx-theme-switcher {
       display: none;
     }
 
