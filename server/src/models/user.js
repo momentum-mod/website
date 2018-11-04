@@ -175,7 +175,7 @@ module.exports = {
 
 	updateFollowStatus: (followeeID, followedID, notify) => {
 		return UserFollows.update(
-			{ notify: notify },
+			{ notifyOn: notify },
 			{ where: { followeeID: followeeID, followedID: followedID } },
 		);
 	},

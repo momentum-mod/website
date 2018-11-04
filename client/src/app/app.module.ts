@@ -19,7 +19,7 @@ import {NotFoundModule} from './pages/not-found/not-found.module';
 import {JwtModule} from '@auth0/angular-jwt';
 import {OutgoingModule} from './pages/outgoing/outgoing.module';
 import {MarkdownModule, MarkedOptions} from 'ngx-markdown';
-import {NbDatepickerModule} from '@nebular/theme';
+import {NbDatepickerModule, NbDialogModule} from '@nebular/theme';
 import {ToasterModule} from 'angular2-toaster';
 
 export function tokenGetter() {
@@ -62,6 +62,12 @@ export function tokenGetter() {
     }),
     NbDatepickerModule.forRoot(),
     ToasterModule.forRoot(),
+    NbDialogModule.forRoot({
+      hasBackdrop: true,
+      closeOnBackdropClick: true,
+      closeOnEsc: true,
+      autoFocus: true,
+    }),
 
     NgbModule,
     ThemeModule.forRoot(),

@@ -198,7 +198,7 @@ paths:
         404:
           description: The local user is not following the given user
       # TODO schema?
-    put:
+    patch:
       summary: Updates the following status
       tags:
         - user

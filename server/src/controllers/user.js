@@ -99,8 +99,8 @@ module.exports = {
 	},
 
 	updateFollowStatus: (req, res, next) => {
-		user.updateFollowStatus(req.user.id, req.params.userID, req.body.notify).then(result => {
-			res.json(result);
+		user.updateFollowStatus(req.user.id, req.params.userID, req.body.notifyOn).then(() => {
+			res.sendStatus(204);
 		}).catch(next);
 	},
 

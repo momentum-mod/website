@@ -21,10 +21,7 @@
         <span>Followers: {{followedByUsers?.length}}</span>
       </div>
       <div *ngIf="!isLocal">
-        <button (click)="followClick()">{{isFollowingUser ? 'Unfollow' : 'Follow'}}</button>
-        <button *ngIf="isFollowingUser" (click)="followNotifyClick()">
-          <span class="ion" [ngClass]="isNotifiedOfUser ? 'ion-ios-bell-outline' : 'ion-ios-bell'"></span>
-        </button>
+        <profile-follow [userSubj]="userSubj"></profile-follow>
       </div>
     </nb-card-body>
   </nb-card>

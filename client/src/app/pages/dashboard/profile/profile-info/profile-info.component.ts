@@ -1,8 +1,6 @@
 import {Component, Input, OnInit} from '@angular/core';
 import {User} from '../../../../@core/models/user.model';
 import {UsersService} from '../../../../@core/data/users.service';
-import {LocalUserService} from '../../../../@core/data/local-user.service';
-import {ToasterService} from 'angular2-toaster';
 import {ReplaySubject} from 'rxjs';
 
 @Component({
@@ -18,17 +16,10 @@ export class ProfileInfoComponent implements OnInit {
   followingUsers: User[];
   followedByUsers: User[];
 
-  isFollowingUser: boolean;
-  isNotifiedOfUser: boolean;
-
-  constructor(private usersService: UsersService,
-              private localUserService: LocalUserService,
-              private toastService: ToasterService) {
+  constructor(private usersService: UsersService) {
     this.followingUsers = [];
     this.followedByUsers = [];
     this.user = null;
-    this.isFollowingUser = false;
-    this.isNotifiedOfUser = false;
   }
 
   ngOnInit() {
@@ -40,35 +31,6 @@ export class ProfileInfoComponent implements OnInit {
       this.usersService.getFollowersOfUser(this.user).subscribe(resp => {
         this.followedByUsers = resp.followers;
       });
-      if (!this.isLocal) {
-        this.localUserService.isFollowingUser(this.user).subscribe(resp => {
-          this.isFollowingUser = true;
-          this.isNotifiedOfUser = resp.notify;
-        }, err => {
-          this.isFollowingUser = false;
-        });
-      }
-    });
-  }
-
-  followClick() {
-    if (!this.isFollowingUser) {
-      this.localUserService.followUser(this.user).subscribe(resp => {
-        this.isFollowingUser = true;
-      }, err => {
-        this.toastService.popAsync('error', 'Could not follow user', err.message);
-      });
-    } else {
-      this.localUserService.unfollowUser(this.user).subscribe(resp => {
-        this.isFollowingUser = false;
-        this.isNotifiedOfUser = false;
-      });
-    }
-  }
-
-  followNotifyClick() {
-    this.localUserService.updateFollowStatus(this.user, !this.isNotifiedOfUser).subscribe(resp => {
-      this.isNotifiedOfUser = !this.isNotifiedOfUser;
     });
   }
 }
