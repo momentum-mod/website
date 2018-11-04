@@ -1,6 +1,10 @@
 import { async, ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { ActivityCardComponent } from './activity-card.component';
+import {NbCardModule, NbListModule, NbUserModule} from '@nebular/theme';
+import {ActivityContentComponent} from '../activity-content/activity-content.component';
+import {ActivityService} from '../../../@core/data/activity.service';
+import {HttpClientTestingModule} from '@angular/common/http/testing';
 
 describe('ActivityCardComponent', () => {
   let component: ActivityCardComponent;
@@ -8,7 +12,9 @@ describe('ActivityCardComponent', () => {
 
   beforeEach(async(() => {
     TestBed.configureTestingModule({
-      declarations: [ ActivityCardComponent ],
+      imports: [NbCardModule, NbListModule, NbUserModule, HttpClientTestingModule ],
+      declarations: [ ActivityCardComponent, ActivityContentComponent ],
+      providers: [ActivityService ],
     })
     .compileComponents();
   }));
