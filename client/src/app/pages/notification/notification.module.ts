@@ -1,13 +1,13 @@
 import {NgModule} from '@angular/core';
 import {NotificationComponent} from './notification.component';
-import { ActivityContentComponent } from './activity-content/activity-content.component';
-import {NbListModule, NbUserModule} from '@nebular/theme';
+import {NbListModule} from '@nebular/theme';
 import {CommonModule} from '@angular/common';
+import {ActivityModule} from '../activity/activity.module';
 
 
 @NgModule({
-  imports: [CommonModule, NbListModule, NbUserModule],
-  declarations: [NotificationComponent, ActivityContentComponent],
-  exports: [NotificationComponent, ActivityContentComponent],
+  imports: [CommonModule, NbListModule, ActivityModule],
+  declarations: [NotificationComponent],
+  exports: [NotificationComponent],
 })
 export class NotificationModule {}
