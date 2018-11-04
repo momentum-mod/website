@@ -19,7 +19,7 @@ import {
   NbUserModule,
 } from '@nebular/theme';
 
-import {FooterComponent, HeaderComponent, SearchInputComponent, TinyMCEComponent} from './components';
+import {FooterComponent, HeaderComponent, SearchInputComponent} from './components';
 import {CapitalizePipe, NumberWithCommasPipe, PluralPipe, RoundPipe, TimingPipe} from './pipes';
 import {
   OneColumnLayoutComponent,
@@ -53,7 +53,6 @@ const COMPONENTS = [
   HeaderComponent,
   FooterComponent,
   SearchInputComponent,
-  TinyMCEComponent,
   OneColumnLayoutComponent,
   SampleLayoutComponent,
   ThreeColumnsLayoutComponent,
