@@ -1,6 +1,6 @@
 'use strict';
 const util = require('util'),
-	{ sequelize, Op, Map, Leaderboard, LeaderboardEntry } = require('../../config/sqlize'),
+	{ sequelize, Op, Map, Leaderboard, LeaderboardEntry, User, Profile } = require('../../config/sqlize'),
 	activity = require('./activity'),
 	Sequelize = require('sequelize'),
 	config = require('../../config/config');
@@ -165,9 +165,18 @@ module.exports = {
 
 	getAllRuns: (context) => {
 		const queryContext = {
-			where: {},
+			where: { flags: 0 },
 			offset: parseInt(context.page) || 0,
 			limit: Math.min(parseInt(context.limit) || 10, 20),
+			include: [{
+				model: User,
+				include: [{
+					model: Profile,
+				}],
+				attributes: {
+					exclude: ['refreshToken'],
+				}
+			}],
 			order: [['time', 'ASC']],
 		};
 		if (context.leaderboardID) {
@@ -176,18 +185,25 @@ module.exports = {
 		if (context.playerID) {
 			queryContext.where.playerID = context.playerID;
 		}
-		// if (context.flags) {
-		// 	const flags = parseInt(context.flags) || 0;
-		// 	queryContext.where.flags = {
-		// 		Sequelize.where(Sequelize.literal('flags & ' + flags)
-		// 	};
-		// }
+		if (context.flags) {
+			const flags = parseInt(context.flags) || 0;
+			queryContext.where.flags = flags;
+		}
 		return LeaderboardEntry.findAll(queryContext);
 	},
 
 	getRun: (runID, context) => {
 		const queryContext = {
 			where: { id: runID },
+			include: [{
+				model: User,
+				include: [{
+					model: Profile,
+				}],
+				attributes: {
+					exclude: ['refreshToken'],
+				}
+			}],
 		};
 		if (context.leaderboardID) {
 			queryContext.where.leaderboardID = context.leaderboardID;
