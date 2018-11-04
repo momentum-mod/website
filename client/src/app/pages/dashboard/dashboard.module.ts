@@ -23,6 +23,7 @@ import {ProfileInfoComponent} from './profile/profile-info/profile-info.componen
 import {ProfileEditComponent} from './profile/profile-edit/profile-edit.component';
 import {ToasterModule} from 'angular2-toaster';
 import {MarkdownModule} from 'ngx-markdown';
+import {NbListModule} from '@nebular/theme';
 
 @NgModule({
   imports: [
@@ -31,6 +32,7 @@ import {MarkdownModule} from 'ngx-markdown';
     NgxEchartsModule,
     NgxChartsModule,
     SmartTableModule,
+    NbListModule,
     Ng2SmartTableModule,
     ToasterModule.forChild(),
     MarkdownModule.forChild(),
