@@ -86,8 +86,6 @@ export class NotificationsService {
       .subscribe(resp => {
     }, err => {
       this.toasterService.popAsync('error', 'Could not mark notification as read', err.message);
-    }, () => {
-      this.checkNotifications();
     });
   }
   dismissNotification(notif: SiteNotification) {

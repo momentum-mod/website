@@ -16,10 +16,10 @@
     </div>
   </nb-card-header>
   <nb-card-body>
-    <ul>
-      <li *ngFor="let act of activities">
-        <a href="/dashboard/user/{{act.userID}}">{{act.userID}}</a> did event {{activityType[act.type]}}
-      </li>
-    </ul>
+    <nb-list>
+      <nb-list-item *ngFor="let act of activities">
+        <activity-content [activity]="act"></activity-content>
+      </nb-list-item>
+    </nb-list>
   </nb-card-body>
 </nb-card>
