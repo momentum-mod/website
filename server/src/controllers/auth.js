@@ -22,7 +22,6 @@ module.exports = {
 	verifyUserTicket: (req, res, next) => {
 		const userTicket = Buffer.from(req.body, 'utf8').toString('hex');
 		const idToVerify = req.get('id');
-		console.log("Id: ", idToVerify);
 
 		if (userTicket && idToVerify) {
 			axios.get('https://api.steampowered.com/ISteamUserAuth/AuthenticateUserTicket/v1/', {
@@ -32,23 +31,23 @@ module.exports = {
 					ticket: userTicket
 				}
 			}).then((sres) => {
-				if (sres.data.response.error)
-					next(sres); // TODO parse the error
-				else if (sres.data.response.params.result === 'OK') {
+				if (sres.data.response.params.result === 'OK') {
 					if (idToVerify === sres.data.response.params.steamid) {
 						console.log("They match!");
-						// TODO:
-						// Generate some sort of key? to send back for the game auth
-						// Return that key back to them
-						user.findOrCreateFromGame(idToVerify).then((resp) => {
-							res.send(resp);
+						user.findOrCreateFromGame(idToVerify).then((usr) => {
+							auth.genAccessToken(usr, true).then(token => {
+								res.json({
+									token: token,
+									length: token.length,
+								});
+							}).catch(next);
 						}).catch(next);
 					}
 					else
 						res.sendStatus(401); // Generate an error here
 				}
 				else
-					res.send(sres.data);
+					res.send(sres.data); // TODO parse the error?
 			}).catch(next);
 		}
 		else
