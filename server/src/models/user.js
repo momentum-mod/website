@@ -89,7 +89,7 @@ module.exports = {
 	findOrCreateFromWeb: (openIDProfile) => {
 		let profile = {
 			alias: openIDProfile.displayName,
-			avatarURL: profile.photos[2].value,
+			avatarURL: openIDProfile.photos[2].value,
 		};
 		return new Promise((resolve, reject) => {
 			User.find({ where: { id: openIDProfile.id }, include: Profile})
