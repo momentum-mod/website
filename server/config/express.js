@@ -42,7 +42,7 @@ module.exports = (app, config) => {
 		realm: config.baseUrl,
 		apiKey: config.steam.webAPIKey
 	}, (openID, profile, done) => {
-		user.findOrCreate(profile)
+		user.findOrCreateFromWeb(profile)
 		.then((userInfo) => {
 			profile = Object.assign(userInfo, profile);
 			done(null, profile);

@@ -1,7 +1,8 @@
 'use strict';
 const auth = require('../models/auth'),
 	axios = require('axios'),
-	config = require('../../config/config');
+	config = require('../../config/config'),
+	user = require('../models/user');
 
 module.exports = {
 
@@ -36,12 +37,12 @@ module.exports = {
 				else if (sres.data.response.params.result === 'OK') {
 					if (idToVerify === sres.data.response.params.steamid) {
 						console.log("They match!");
-
 						// TODO:
-						// Check if the user exists, if not, create them
 						// Generate some sort of key? to send back for the game auth
 						// Return that key back to them
-						res.sendStatus(200);
+						user.findOrCreateFromGame(idToVerify).then((resp) => {
+							res.send(resp);
+						}).catch(next);
 					}
 					else
 						res.sendStatus(401); // Generate an error here
