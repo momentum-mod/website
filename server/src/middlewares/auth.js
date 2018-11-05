@@ -10,6 +10,17 @@ module.exports = {
 	}),
 
 	// Requires requireLogin to be called before
+	denyGameLogin: (req, res, next) => {
+		const gameAuth = req.user && req.user.gameAuth;
+		if (gameAuth) {
+			const err = new Error('Forbidden');
+			err.status  = 403;
+			return next(err);
+		}
+		return next();
+	},
+
+	// Requires requireLogin to be called before
 	requireAdmin: (req, res, next) => {
 		const isAdmin = req.user && (req.user.permissions & user.Permission.ADMIN);
 		if (!isAdmin) {

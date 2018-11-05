@@ -7,15 +7,18 @@ const jwt = require('jsonwebtoken'),
 
 module.exports = {
 
-	genAccessToken: (usr) => {
+	genAccessToken: (usr, gameAuth) => {
 		const payload = {
 			id: usr.id,
-			permissions: usr.permissions
+			permissions: usr.permissions,
+			gameAuth: gameAuth ? true : false,
 		};
 		const options = {
 			issuer: config.domain,
 			subject: String(usr.id),
-			expiresIn: config.accessToken.expTime
+			expiresIn: gameAuth ?
+				config.accessToken.gameExpTime
+				: config.accessToken.expTime,
 		};
 		return createJwt(payload, config.accessToken.secret, options);
 	}

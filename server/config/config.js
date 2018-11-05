@@ -10,7 +10,8 @@ const config = {
 		port: 3002,
 		accessToken: {
 			secret: 'G-KaNdRgUkXp2s5v8y/B?E(H+MbQeShVmYq3t6w9z$C&F)J@NcRfUjWnZr4u7x!A',
-			expTime: '8h'
+			expTime: '8h',
+			gameExpTime: '24h'
 		},
 		steam: {
 			webAPIKey: process.env.STEAM_WEB_API_KEY
@@ -30,7 +31,8 @@ const config = {
 		port: 3002,
 		accessToken: {
 			secret: 'G-KaNdRgUkXp2s5v8y/B?E(H+MbQeShVmYq3t6w9z$C&F)J@NcRfUjWnZr4u7x!A',
-			expTime: '8h'
+			expTime: '8h',
+			gameExpTime: '24h'
 		},
 		steam: {
 			webAPIKey: process.env.STEAM_WEB_API_KEY
@@ -50,7 +52,8 @@ const config = {
 		port: process.env.NODE_PORT,
 		accessToken: {
 			secret: process.env.JWT_SECRET,
-			expTime: '8h'
+			expTime: '8h',
+			gameExpTime: '24h'
 		},
 		steam: {
 			webAPIKey: process.env.STEAM_WEB_API_KEY
