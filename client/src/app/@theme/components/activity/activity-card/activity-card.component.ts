@@ -8,6 +8,7 @@ import {User} from '../../../../@core/models/user.model';
 @Component({
   selector: 'activity-card',
   templateUrl: './activity-card.component.html',
+  styleUrls: ['./activity-card.component.scss'],
 })
 export class ActivityCardComponent implements OnInit {
   @Input('header') headerTitle: string;
@@ -40,14 +41,18 @@ export class ActivityCardComponent implements OnInit {
       this.activities = acts.filter((value => value.type === this.filterValue));
   }
   getActivities(): void {
+    const func = (resp) => {
+      this.initialAct = true;
+      this.filterActivites(resp.activities);
+    };
     if (this.follow)
-      this.actService.getFollowedActivity().subscribe(resp => this.filterActivites(resp.activities));
+      this.actService.getFollowedActivity().subscribe(func);
     else if (this.userSubj$)
       this.userSubj$.subscribe(usr => {
-        this.actService.getUserActivity(usr.id).subscribe(resp => this.filterActivites(resp.activities));
+        this.actService.getUserActivity(usr.id).subscribe(func);
       });
     else if (this.recent)
-      this.actService.getRecentActivity().subscribe(resp => this.filterActivites(resp.activities));
+      this.actService.getRecentActivity().subscribe(func);
   }
   filterSelected(value: string) {
     this.filterValue = Number(value);
