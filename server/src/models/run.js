@@ -3,7 +3,7 @@ const { Op, Replay } = require('../../config/sqlize'),
 	config = require('../../config/config'),
 	queryHelper = require('../helpers/query');
 
-const validateRun = (runData) {
+const validateRun = (runData) => {
 	return new Promise((resolve, reject) => {
 		resolve(runData);
 	});
