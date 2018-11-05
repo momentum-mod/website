@@ -1,7 +1,5 @@
 'use strict';
-const express = require('express'),
-    router = express.Router(),
-	auth = require('../models/auth'),
+const auth = require('../models/auth'),
 	axios = require('axios'),
 	config = require('../../config/config');
 
@@ -21,9 +19,11 @@ module.exports = {
 	},
 
 	verifyUserTicket: (req, res, next) => {
-		var userTicket = req.body.ticket;
+		const userTicket = Buffer.from(req.body, 'utf8').toString('hex');
+		const idToVerify = req.get('id');
+		console.log("Id: ", idToVerify);
 
-		if (userTicket) {
+		if (userTicket && idToVerify) {
 			axios.get('https://api.steampowered.com/ISteamUserAuth/AuthenticateUserTicket/v1/', {
 				params: {
 					key: config.steam.webAPIKey,
@@ -31,10 +31,23 @@ module.exports = {
 					ticket: userTicket
 				}
 			}).then((sres) => {
-				console.log(sres.status);
-				console.log(sres.body);
-				// TODO verify the steamID here
-				sres.sendStatus(200);
+				if (sres.data.response.error)
+					next(sres); // TODO parse the error
+				else if (sres.data.response.params.result === 'OK') {
+					if (idToVerify === sres.data.response.params.steamid) {
+						console.log("They match!");
+
+						// TODO:
+						// Check if the user exists, if not, create them
+						// Generate some sort of key? to send back for the game auth
+						// Return that key back to them
+						res.sendStatus(200);
+					}
+					else
+						res.sendStatus(401); // Generate an error here
+				}
+				else
+					res.send(sres.data);
 			}).catch(next);
 		}
 		else

@@ -11,7 +11,8 @@ const express = require('express'),
 	swaggerUI = require('swagger-ui-express'),
 	swaggerJSDoc = require('swagger-jsdoc'),
 	swaggerDefinition = require('../docs/swagger/definition'),
-	user = require('../src/models/user');
+	user = require('../src/models/user'),
+	bodyParser = require('body-parser');
 
 const swaggerSpec = swaggerJSDoc({
 	swaggerDefinition: swaggerDefinition,
@@ -25,6 +26,7 @@ module.exports = (app, config) => {
 	}
 
 	app.use(express.json());
+	app.use(bodyParser.raw());
 	app.use(compress());
 	app.use(express.static(config.root + '/public'));
 	app.use(methodOverride());
