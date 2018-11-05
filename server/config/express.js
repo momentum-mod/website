@@ -26,7 +26,9 @@ module.exports = (app, config) => {
 	}
 
 	app.use(express.json());
-	app.use(bodyParser.raw());
+	app.use(bodyParser.raw({
+		limit: '2kb'
+	}));
 	app.use(compress());
 	app.use(express.static(config.root + '/public'));
 	app.use(methodOverride());
