@@ -33,7 +33,6 @@ module.exports = {
 			}).then((sres) => {
 				if (sres.data.response.params.result === 'OK') {
 					if (idToVerify === sres.data.response.params.steamid) {
-						console.log("They match!");
 						user.findOrCreateFromGame(idToVerify).then((usr) => {
 							auth.genAccessToken(usr, true).then(token => {
 								res.json({
