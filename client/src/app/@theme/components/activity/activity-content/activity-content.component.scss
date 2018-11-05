@@ -6,7 +6,7 @@
 .text {
   color: white;
   display: block;
-  margin-left: 5px;
+  margin-left: 0.25rem;
   margin-top: auto;
   margin-bottom: auto;
   text-align: center;
@@ -15,6 +15,17 @@
 
 .icon {
   font-size: 2rem;
+  margin-left: 0;
+  padding-left: 0.5rem;
+}
+
+.date {
   margin-left: auto;
-  padding-left: 1rem;
+  padding-left: 0.5rem;
+}
+
+.date-abs {
+  position: absolute;
+  right: 1%;
+  bottom: 1%;
 }

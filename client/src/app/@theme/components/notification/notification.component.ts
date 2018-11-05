@@ -1,6 +1,6 @@
 import {Component, Input, OnInit} from '@angular/core';
-import {NotificationsService} from '../../@core/utils/notifications.service';
-import {SiteNotification} from '../../@core/models/notification.model';
+import {SiteNotification} from '../../../@core/models/notification.model';
+import {NotificationsService} from '../../../@core/utils/notifications.service';
 
 @Component({
   selector: 'notifications',

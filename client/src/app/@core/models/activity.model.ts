@@ -6,4 +6,5 @@ export interface Activity {
   type: Activity_Type;
   user: User;
   data: string;
+  createdAt: Date;
 }

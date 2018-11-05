@@ -3,12 +3,13 @@ import {async, ComponentFixture, TestBed} from '@angular/core/testing';
 import {NotificationComponent} from './notification.component';
 import {NbListModule, NbUserModule} from '@nebular/theme';
 import {ActivityContentComponent} from '../activity/activity-content/activity-content.component';
-import {CoreModule} from '../../@core/core.module';
+import {CoreModule} from '../../../@core/core.module';
 import {RouterModule} from '@angular/router';
 import {APP_BASE_HREF} from '@angular/common';
 import {HttpClientTestingModule} from '@angular/common/http/testing';
 import {ToasterModule} from 'angular2-toaster';
-import {Activity_Type} from '../../@core/models/activity-type.model';
+import {Activity_Type} from '../../../@core/models/activity-type.model';
+import {TimeAgoPipe} from 'time-ago-pipe';
 
 describe('NotificationComponent', () => {
   let component: NotificationComponent;
@@ -18,7 +19,7 @@ describe('NotificationComponent', () => {
     TestBed.configureTestingModule({
       imports: [NbListModule, NbUserModule, RouterModule.forRoot([]), HttpClientTestingModule,
         ToasterModule.forRoot(), CoreModule.forRoot()],
-      declarations: [ NotificationComponent, ActivityContentComponent ],
+      declarations: [ TimeAgoPipe, NotificationComponent, ActivityContentComponent ],
       providers: [
         { provide: APP_BASE_HREF, useValue: '/' },
       ],
@@ -48,8 +49,9 @@ describe('NotificationComponent', () => {
               avatarURL: '/assets/images/caution.png',
             },
           },
-          type: Activity_Type.USER_JOIN,
+          type: Activity_Type.USER_JOINED,
           data: 'lol',
+          createdAt: new Date(),
         },
         read: false,
         createdAt: new Date(),
@@ -74,6 +76,7 @@ describe('NotificationComponent', () => {
           },
           type: Activity_Type.PB_ACHIEVED,
           data: 'lol',
+          createdAt: new Date(),
         },
         read: false,
         createdAt: new Date(),

@@ -21,7 +21,7 @@ import {Activity_Type} from '../../../../../@core/models/activity-type.model';
           {{ActivityType[ActivityType.WR_ACHIEVED]}}
         </nb-checkbox>
         <nb-checkbox [(ngModel)]="checkboxFlags.MAP_SUBMIT.checked">
-          {{ActivityType[ActivityType.MAP_SUBMITTED]}}
+          {{ActivityType[ActivityType.MAP_UPLOADED]}}
         </nb-checkbox>
       </nb-card-body>
       <nb-card-footer>
@@ -38,7 +38,7 @@ export class ProfileNotifyEditComponent implements OnInit {
   checkboxFlags = {
     PB: {checked: false, value: Activity_Type.PB_ACHIEVED},
     WR: {checked: false, value: Activity_Type.WR_ACHIEVED},
-    MAP_SUBMIT: {checked: false, value: Activity_Type.MAP_SUBMITTED},
+    MAP_SUBMIT: {checked: false, value: Activity_Type.MAP_UPLOADED},
     // TODO add more
   };
   constructor(protected dialogRef: NbDialogRef<ProfileNotifyEditComponent>) {

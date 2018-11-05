@@ -9,6 +9,7 @@
       </button>
     </div>
     <activity-content [activity]="notification.activity"
+                      [date-abs]="true"
                       (mouseenter)="onHoverNotif(notification)"
                       (click)="onClickNotif(notification)">
     </activity-content>
