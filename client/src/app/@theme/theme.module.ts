@@ -9,6 +9,7 @@ import {
   NbCheckboxModule,
   NbContextMenuModule,
   NbLayoutModule,
+  NbListModule,
   NbMenuModule,
   NbPopoverModule,
   NbProgressBarModule,
@@ -19,7 +20,14 @@ import {
   NbUserModule,
 } from '@nebular/theme';
 
-import {FooterComponent, HeaderComponent, SearchInputComponent} from './components';
+import {
+  ActivityCardComponent,
+  ActivityContentComponent,
+  FooterComponent,
+  HeaderComponent,
+  NotificationComponent,
+  SearchInputComponent,
+} from './components';
 import {CapitalizePipe, NumberWithCommasPipe, PluralPipe, RoundPipe, TimingPipe} from './pipes';
 import {
   OneColumnLayoutComponent,
@@ -28,9 +36,10 @@ import {
   TwoColumnsLayoutComponent,
 } from './layouts';
 import {NbSearchModule} from './components/search/search.module';
-import {NotificationModule} from '../pages/notification/notification.module';
+import {TimeAgoPipe} from 'time-ago-pipe';
+import {RouterModule} from '@angular/router';
 
-const BASE_MODULES = [CommonModule, FormsModule, ReactiveFormsModule, NotificationModule];
+const BASE_MODULES = [CommonModule, FormsModule, ReactiveFormsModule, RouterModule];
 
 const NB_MODULES = [
   NbCardModule,
@@ -39,6 +48,7 @@ const NB_MODULES = [
   NbRouteTabsetModule,
   NbMenuModule,
   NbUserModule,
+  NbListModule,
   NbActionsModule,
   NbSearchModule,
   NbSidebarModule,
@@ -57,6 +67,9 @@ const COMPONENTS = [
   SampleLayoutComponent,
   ThreeColumnsLayoutComponent,
   TwoColumnsLayoutComponent,
+  NotificationComponent,
+  ActivityCardComponent,
+  ActivityContentComponent,
 ];
 
 const PIPES = [
@@ -65,6 +78,7 @@ const PIPES = [
   RoundPipe,
   TimingPipe,
   NumberWithCommasPipe,
+  TimeAgoPipe,
 ];
 
 const NB_THEME_PROVIDERS = [

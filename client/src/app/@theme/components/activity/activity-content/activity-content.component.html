@@ -1,11 +1,16 @@
 <div class="row no-gutters">
   <div class="col-auto profile">
-    <nb-user [name]="activity.user.profile.alias" [picture]="activity.user.profile.avatarURL"></nb-user>
+    <a routerLink="/dashboard/profile/{{activity.user.id}}">
+      <nb-user [name]="activity.user.profile.alias" [picture]="activity.user.profile.avatarURL"></nb-user>
+    </a>
   </div>
   <div class="col-auto text">
     <span>{{actionText}} <span [ngStyle]="{'color': eventColor}"><b>{{eventText}}</b></span>!</span>
   </div>
   <div class="col-auto text icon" [ngStyle]="{'color': eventColor}">
     <i [class]="activityIcon"></i>
+  </div>
+  <div class="col-auto text date" [ngClass]="dateAbs ? 'date-abs' : ''">
+    <span>{{activity.createdAt | timeAgo}}</span>
   </div>
 </div>

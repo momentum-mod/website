@@ -22,8 +22,7 @@ import {ProfileInfoComponent} from './profile/profile-info/profile-info.componen
 import {ProfileEditComponent} from './profile/profile-edit/profile-edit.component';
 import {ToasterModule} from 'angular2-toaster';
 import {MarkdownModule} from 'ngx-markdown';
-import {NbDialogModule, NbListModule} from '@nebular/theme';
-import {ActivityModule} from '../activity/activity.module';
+import {NbDialogModule} from '@nebular/theme';
 import {
   ProfileFollowComponent,
   ProfileNotifyEditComponent,
@@ -36,8 +35,6 @@ import {
     NgxEchartsModule,
     NgxChartsModule,
     SmartTableModule,
-    NbListModule,
-    ActivityModule,
     Ng2SmartTableModule,
     NbDialogModule.forChild(),
     ToasterModule.forChild(),

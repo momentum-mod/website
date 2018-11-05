@@ -1,9 +1,9 @@
 import {Component, Input, OnInit} from '@angular/core';
-import {ActivityService} from '../../../@core/data/activity.service';
-import {Activity_Type} from '../../../@core/models/activity-type.model';
-import {Activity} from '../../../@core/models/activity.model';
+import {ActivityService} from '../../../../@core/data/activity.service';
+import {Activity_Type} from '../../../../@core/models/activity-type.model';
+import {Activity} from '../../../../@core/models/activity.model';
 import {ReplaySubject} from 'rxjs';
-import {User} from '../../../@core/models/user.model';
+import {User} from '../../../../@core/models/user.model';
 
 @Component({
   selector: 'activity-card',
@@ -19,6 +19,7 @@ export class ActivityCardComponent implements OnInit {
     this.headerTitle = 'Activity';
     this.filterValue = Activity_Type.ALL;
     this.initialAct = false;
+    this.activities = [];
   }
   activityType = Activity_Type;
   filterValue: Activity_Type;
@@ -40,13 +41,13 @@ export class ActivityCardComponent implements OnInit {
   }
   getActivities(): void {
     if (this.follow)
-      this.actService.getFollowedActivity().subscribe(acts => this.filterActivites(acts));
+      this.actService.getFollowedActivity().subscribe(resp => this.filterActivites(resp.activities));
     else if (this.userSubj$)
       this.userSubj$.subscribe(usr => {
-        this.actService.getUserActivity(usr.id).subscribe(acts => this.filterActivites(acts));
+        this.actService.getUserActivity(usr.id).subscribe(resp => this.filterActivites(resp.activities));
       });
     else if (this.recent)
-      this.actService.getRecentActivity().subscribe(acts => this.filterActivites(acts));
+      this.actService.getRecentActivity().subscribe(resp => this.filterActivites(resp.activities));
   }
   filterSelected(value: string) {
     this.filterValue = Number(value);
