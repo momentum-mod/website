@@ -200,9 +200,23 @@ module.exports = {
 		});
 	},
 
-	isFollowingUser: (followeeID, followedID) => {
+	checkFollowStatus: (localUserID, userToCheck) => {
+		let followStatus = {
+		};
 		return UserFollows.findOne({
-			where: { followeeID: followeeID, followedID: followedID}
+			where: { followeeID: localUserID, followedID: userToCheck}
+		}).then(resp => {
+			if (resp)
+				followStatus.local = resp;
+
+			return UserFollows.findOne({
+				where: { followeeID: userToCheck, followedID: localUserID}
+			})
+		}).then(resp => {
+			if (resp)
+				followStatus.target = resp;
+
+			return Promise.resolve(followStatus);
 		});
 	},
 

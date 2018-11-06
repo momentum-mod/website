@@ -5,7 +5,7 @@ import {ActivatedRoute, ParamMap} from '@angular/router';
 import {UsersService} from '../../../@core/data/users.service';
 import {User} from '../../../@core/models/user.model';
 import {ReplaySubject} from 'rxjs';
-
+import {Permission} from '../../../@core/models/permissions.model';
 
 @Component({
   selector: 'ngx-user-profile',
@@ -13,14 +13,21 @@ import {ReplaySubject} from 'rxjs';
   styleUrls: ['./user-profile.component.scss'],
 })
 export class UserProfileComponent implements OnInit {
-  user: ReplaySubject<User>;
+  userSubj$: ReplaySubject<User>;
+  user: User;
   isLocal: boolean;
+  isMapper: boolean;
+  isMod: boolean;
+  isAdmin: boolean;
 
   constructor(private route: ActivatedRoute,
               public userService: LocalUserService,
               private usersService: UsersService) {
     this.isLocal = true;
-    this.user = new ReplaySubject<User>(1);
+    this.userSubj$ = new ReplaySubject<User>(1);
+    this.isMapper = false;
+    this.isMod = false;
+    this.isAdmin = false;
   }
 
   ngOnInit() {
@@ -37,6 +44,12 @@ export class UserProfileComponent implements OnInit {
         }
       },
       ),
-    ).subscribe(usr => this.user.next(usr));
+    ).subscribe(usr => {
+      this.user = usr;
+      this.isMapper = (this.user.permissions & Permission.MAPPER) === Permission.MAPPER;
+      this.isMod = (this.user.permissions & Permission.MODERATOR) === Permission.MODERATOR;
+      this.isAdmin = (this.user.permissions & Permission.ADMIN) === Permission.ADMIN;
+      this.userSubj$.next(usr);
+    });
   }
 }

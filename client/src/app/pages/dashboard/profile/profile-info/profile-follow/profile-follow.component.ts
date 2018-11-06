@@ -5,6 +5,8 @@ import {LocalUserService} from '../../../../../@core/data/local-user.service';
 import {ToasterService} from 'angular2-toaster';
 import {NbDialogRef, NbDialogService} from '@nebular/theme';
 import {Activity_Type} from '../../../../../@core/models/activity-type.model';
+import {finalize} from 'rxjs/operators';
+import {UserFollowObject} from '../../../../../@core/models/follow.model';
 
 @Component({
   selector: 'profile-notify-edit',
@@ -75,49 +77,56 @@ export class ProfileFollowComponent implements OnInit {
 
   @Input('userSubj') userSubj$: ReplaySubject<User>;
   user: User;
-  isFollowingUser: boolean;
-  notifiesOnEvents: number; // Flag of notifications
+  localFollowStatus: UserFollowObject; // The follow object of the local user following target user
+  targetFollowStatus: UserFollowObject; // The follow object of the target user following local user
+  checked: boolean;
   constructor(private localUserService: LocalUserService,
               private toastService: ToasterService,
               private dialogService: NbDialogService) {
     this.user = null;
-    this.notifiesOnEvents = 0;
+    this.checked = false;
+    this.localFollowStatus = null;
+    this.targetFollowStatus = null;
   }
 
   ngOnInit() {
     this.userSubj$.subscribe(usr => {
       this.user = usr;
-      this.localUserService.isFollowingUser(this.user).subscribe(resp => {
-        this.isFollowingUser = true;
-        this.notifiesOnEvents = resp.notifyOn;
+      this.localUserService.checkFollowStatus(this.user)
+        .pipe(finalize(() => this.checked = true))
+        .subscribe(resp => {
+          this.localFollowStatus = resp.local;
+          this.targetFollowStatus = resp.target;
       }, err => {
-        this.isFollowingUser = false;
+        // TODO error reporting
       });
     });
   }
   followClick() {
-    if (!this.isFollowingUser) {
+    if (!this.localFollowStatus) {
       this.localUserService.followUser(this.user).subscribe(resp => {
-        this.isFollowingUser = true;
+        this.localFollowStatus = resp;
       }, err => {
         this.toastService.popAsync('error', 'Could not follow user', err.message);
       });
     } else {
       this.localUserService.unfollowUser(this.user).subscribe(resp => {
-        this.isFollowingUser = false;
+        this.localFollowStatus = null;
       });
     }
   }
 
   editNotificationSettings() {
+    if (!this.localFollowStatus)
+      return;
     this.dialogService.open(ProfileNotifyEditComponent, {
       context: {
-        flags: this.notifiesOnEvents,
+        flags: this.localFollowStatus.notifyOn,
       },
     }).onClose.subscribe(resp => {
       if (resp) {
         this.localUserService.updateFollowStatus(this.user, resp.newFlags).subscribe(() => {
-          this.notifiesOnEvents = resp.newFlags;
+          this.localFollowStatus.notifyOn = resp.newFlags;
         });
       }
     });

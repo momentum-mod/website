@@ -1,0 +1,39 @@
+@import '../../../../../@theme/styles/themes';
+
+.follow-status {
+  color: nb-theme(user-follow-fg);
+  opacity: 0.75;
+  font-style: italic;
+  padding-bottom: 1vh;
+  display: inline-block;
+}
+
+.btn span {
+  color: white;
+  text-decoration: none;
+  text-align: center;
+  display: block;
+}
+
+.btn {
+  height: 3em;
+  font: normal normal 500 1em/3em Exo, sans-serif;
+  overflow: hidden;
+  padding-top: 0;
+}
+
+.btn-group {
+  display: block;
+}
+
+.btn, .c-anim-btn {
+  transition: 0.3s;
+}
+
+.c-anim-btn {
+  margin-top: 0;
+}
+
+.btn:hover .c-anim-btn {
+  margin-top: -3em;
+}

@@ -1,25 +1,39 @@
-<div class= "row">
-  <div class="col-sm-6">
-    <ngx-profile-card [userSubj]="this.user"></ngx-profile-card>
-  </div>
-  <div class="col-sm-6">
-    <profile-info [local]="isLocal" [userSubj]="this.user"></profile-info>
-  </div>
-</div>
-<div class = "row">
-  <div class="col-sm-2">
+<div class="row">
+  <div class="col">
     <nb-card>
       <nb-card-header>
-        <h4>Player Stats</h4>
+        <div class="header">
+          <div *ngIf="user" class="user-image" [ngStyle]="{'background-image':'url(' + user?.profile.avatarURL + ')'}">
+          </div>
+          <div *ngIf="user" class="user-name">
+            <span class="text"><h3 class="user-name">{{user?.profile.alias}}</h3></span>
+          </div>
+          <div *ngIf="user" class="user-rank">
+            <span class="text"><h6>Rank #1</h6></span>
+          </div>
+          <profile-follow *ngIf="!isLocal" [userSubj]="userSubj$"></profile-follow>
+        </div>
       </nb-card-header>
       <nb-card-body>
-        <h6>Maps Completed:</h6> <p>37</p>
-        <h6>Totals Jumps:</h6> <p>411</p>
-        <h6>Total Strafes:</h6> <p>102</p>
+        <nb-tabset [fullWidth]="true">
+          <nb-tab [tabTitle]="'About'">
+            <profile-info [local]="isLocal" [userSubj]="userSubj$"></profile-info>
+          </nb-tab>
+          <nb-tab [tabTitle]="'Activity'">
+            <activity-card [header]="'User Activity'" [userSubj]="userSubj$"></activity-card>
+          </nb-tab>
+          <nb-tab [tabTitle]="'Stats'">
+            <!--TODO put their user stats in here-->
+            <h6>Maps Completed:</h6> <p>37</p>
+            <h6>Totals Jumps:</h6> <p>411</p>
+            <h6>Total Strafes:</h6> <p>102</p>
+          </nb-tab>
+          <nb-tab *ngIf="isMapper" [tabTitle]="'Maps'">
+            <!--TODO put the map list of their maps in here-->
+          </nb-tab>
+
+        </nb-tabset>
       </nb-card-body>
     </nb-card>
-  </div>
-  <div class="col-sm-10" *ngIf="this.user">
-    <activity-card [header]="'User Activity'" [userSubj]="this.user"></activity-card>
   </div>
 </div>

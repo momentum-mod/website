@@ -189,23 +189,23 @@ paths:
         description: ID of the user in question
         type: string
     get:
-      summary: Checks to see if the local user is following a given user
+      summary: Checks the followhood relationship of the given user and the local user
       tags:
         - user
       responses:
         200:
           description: OK
         404:
-          description: The local user is not following the given user
+          description: Object with two keys, local = local user's followship of given user, target = target's relationship to local user, if the key doesn't exist, the relationship doesn't
       # TODO schema?
     patch:
       summary: Updates the following status
       tags:
         - user
       parameters:
-        - name: notify
-          type: boolean
-          description: Whether the player wants to be notified of activity of the followed user
+        - name: notifyOn
+          type: integer
+          description: What activities the player wants to be notified of from the given user
           in: body
       responses:
         200:

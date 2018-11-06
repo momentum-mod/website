@@ -83,8 +83,8 @@ module.exports = {
 		});
 	},
 
-	isFollowingUser: (req, res, next) => {
-		user.isFollowingUser(req.user.id, req.params.userID).then(result => {
+	checkFollowStatus: (req, res, next) => {
+		user.checkFollowStatus(req.user.id, req.params.userID).then(result => {
 			if (result)
 				res.json(result);
 			else
@@ -94,7 +94,7 @@ module.exports = {
 
 	followUser: (req, res, next) => {
 		user.followUser(req.user.id, req.body.userID).then(result => {
-			res.json(result);
+			res.json(result[0]);
 		}).catch(next);
 	},
 
