@@ -1,5 +1,7 @@
 'use strict';
 const util = require('util'),
+	fs = require('fs'),
+	crypto = require('crypto'),
 	{ sequelize, Op, Map, MapInfo, MapCredit, User, Profile, Leaderboard, Activity } = require('../../config/sqlize'),
 	Sequelize = require('sequelize'),
 	user = require('./user'),
@@ -22,24 +24,38 @@ const storeMapImage = (imageFile, mapName) => {
 			downloadURL: downloadURL,
 		});
 	});
-}
+};
 
-const storeMapFile = (mapFile, mapName) => {
-	const moveMapTo = util.promisify(mapFile.mv);
-	const fileName = mapName + '.bsp';
-	const basePath = __dirname + '/../../public/maps';
-	const fullPath =  basePath + '/' + fileName;
-	const downloadURL = config.baseUrl + '/maps/' + fileName;
-	// TODO: resize/edit image?
-	return moveMapTo(fullPath).then(() => {
-		return Promise.resolve({
-			fileName: fileName,
-			basePath: basePath,
-			fullPath: fullPath,
-			downloadURL: downloadURL,
+const genFileHash = (mapPath) => {
+	return new Promise((resolve, reject) => {
+		const hash = crypto.createHash('sha1').setEncoding('hex');
+		fs.createReadStream(mapPath).pipe(hash)
+		.on('error', err => reject(err))
+		.on('finish', () => {
+			resolve(hash.read())
 		});
 	});
-}
+};
+
+const storeMapFile = (mapFile, mapModel) => {
+	const moveMapTo = util.promisify(mapFile.mv);
+	const fileName = mapModel.name + '.bsp';
+	const basePath = __dirname + '/../../public/maps';
+	const fullPath =  basePath + '/' + fileName;
+	const downloadURL = config.baseUrl + '/maps/' + mapModel.id + '/download';
+	// TODO: resize/edit image?
+	return moveMapTo(fullPath).then(() => {
+		return genFileHash(fullPath).then(hash => {
+			return Promise.resolve({
+				fileName: fileName,
+				basePath: basePath,
+				fullPath: fullPath,
+				downloadURL: downloadURL,
+				hash: hash
+			})
+		});
+	});
+};
 
 const STATUS = Object.freeze({
 	APPROVED: 0,
@@ -307,12 +323,12 @@ module.exports = {
 				return Promise.reject(err);
 			}
 			mapModel = map;
-			return storeMapFile(mapFile, map.name);
+			return storeMapFile(mapFile, map);
 		}).then((results) => {
 			mapModel.update({
 				statusFlag: STATUS.PENDING,
 				downloadURL: results.downloadURL,
-				//hash: mapFile.md5(), // (adds considerable time to response time) (SHA preferred?)
+				hash: results.hash,
 			});
 		});
 	},
