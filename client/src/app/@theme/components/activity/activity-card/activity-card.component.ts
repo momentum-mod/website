@@ -30,7 +30,6 @@ export class ActivityCardComponent implements OnInit {
   ngOnInit(): void {
     if (!this.initialAct) {
       this.getActivities();
-      this.initialAct = true;
     }
   }
 
