@@ -1,31 +1,36 @@
-<div class="col-sm-12">
-  <nb-card>
-    <nb-card-body>
-      <h4>Bio:</h4>
+<div>
+  <div>
+    <h4>Bio:</h4>
+    <div>
       <markdown [data]="user?.profile?.bio" ngPreserveWhitespaces>
       </markdown>
-
-      <h4>Links:</h4>
-      <div class="socials">
-        <a href="https://steamcommunity.com/profiles/{{user?.id}}" target="_blank" class="ion ion-steam"></a>
-        <a *ngIf="user?.profile?.twitchName" href="https://twitch.tv/{{user?.profile?.twitchName}}" target="_blank" class="ion ion-social-twitch"></a>
-        <a *ngIf="user?.profile?.twitterName" href="https://twitter.com/{{user?.profile?.twitterName}}" target="_blank" class="ion ion-social-twitter"></a>
-        <a *ngIf="user?.profile?.discordName" title="{{user?.profile?.discordName}}" target="_blank">
-          <img src="assets\images\Discord-Logo-White.png" height="35px" width="35px">
-        </a>
-        <a *ngIf="user?.profile?.youtubeName" href="https://youtube.com/user/{{user?.profile?.youtubeName}}" target="_blank" class="ion ion-social-youtube"></a>
+    </div>
+  </div>
+  <div>
+    <h4>Links:</h4>
+    <div class="socials">
+      <a href="https://steamcommunity.com/profiles/{{user?.id}}" target="_blank" class="ion ion-steam"></a>
+      <a *ngIf="user?.profile?.twitchName" href="https://twitch.tv/{{user?.profile?.twitchName}}" target="_blank" class="ion ion-social-twitch"></a>
+      <a *ngIf="user?.profile?.twitterName" href="https://twitter.com/{{user?.profile?.twitterName}}" target="_blank" class="ion ion-social-twitter"></a>
+      <a *ngIf="user?.profile?.discordName" title="{{user?.profile?.discordName}}" target="_blank">
+        <img src="assets\images\Discord-Logo-White.png" height="35px" width="35px">
+      </a>
+      <a *ngIf="user?.profile?.youtubeName" href="https://youtube.com/user/{{user?.profile?.youtubeName}}" target="_blank" class="ion ion-social-youtube"></a>
+    </div>
+  </div>
+  <div>
+    <h4>Follows:</h4>
+    <div class="follow">
+      <div>
+        <h4>Following: {{followingUsers?.length}}</h4>
       </div>
-      <h4>Follows:</h4>
-      <div class="follow">
-        <span>Following: {{followingUsers?.length}}</span>
-        <span>Followers: {{followedByUsers?.length}}</span>
+      <div>
+        <h4>Followers: {{followedByUsers?.length}}</h4>
       </div>
-      <div *ngIf="!isLocal">
-        <profile-follow [userSubj]="userSubj"></profile-follow>
-      </div>
-    </nb-card-body>
-  </nb-card>
+    </div>
+  </div>
 </div>
+
 
 
 

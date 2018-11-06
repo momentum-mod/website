@@ -40,7 +40,7 @@ router.route('/follow')
 	.all(errorCtrl.send405);
 
 router.route('/follow/:userID')
-	.get(userCtrl.isFollowingUser)
+	.get(userCtrl.checkFollowStatus)
 	.patch(userCtrl.updateFollowStatus)
 	.delete(userCtrl.unfollowUser)
 	.all(errorCtrl.send405);

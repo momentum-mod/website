@@ -6,6 +6,7 @@ import {UserProfile} from '../models/profile.model';
 import {User} from '../models/user.model';
 import {Permission} from '../models/permissions.model';
 import {UserFollowObject} from '../models/follow.model';
+import {FollowStatus} from '../models/follow-status.model';
 
 @Injectable({
   providedIn: 'root',
@@ -137,19 +138,19 @@ export class LocalUserService {
   }
 
   /**
-   * @param user username of user
-   * @return following user
+   * @param user The user to check the follow status of
+   * @return A json object with two booleans determining follow relationship
    */
-  public isFollowingUser(user: User): Observable<UserFollowObject> {
-    return this.http.get<UserFollowObject>('/api/user/follow/' + user.id);
+  public checkFollowStatus(user: User): Observable<FollowStatus> {
+    return this.http.get<FollowStatus>('/api/user/follow/' + user.id);
   }
 
   /**
    * @param user specific user's profile
    * @return update user following
    */
-  public followUser(user: User): Observable<any> {
-    return this.http.post('/api/user/follow', {userID: user.id});
+  public followUser(user: User): Observable<UserFollowObject> {
+    return this.http.post<UserFollowObject>('/api/user/follow', {userID: user.id});
   }
 
   /**
