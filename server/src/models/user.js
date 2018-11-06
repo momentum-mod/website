@@ -276,6 +276,7 @@ module.exports = {
 			where: {},
 			include: [{
 				model: User,
+				attributes: { exclude: ['refreshToken']},
 				include: [{
 					model: Profile,
 				}, {
