@@ -195,6 +195,7 @@ module.exports = {
 				}).then(activity => {
 					return Leaderboard.create({
 						mapID: mapID,
+						enabled: true,
 					}, {transaction: t});
 				});
 			});
