@@ -17,7 +17,7 @@
     </nb-action>
     <nb-action class="control-item" [icon]="getNotificationIconClass()"
                [nbPopover]="notifTempl8" nbPopoverPlacement="bottom"
-               badgePosition="top right" badgeStatus="danger" [badgeText]="numUnreadNotifs === 0 ? '' : +numUnreadNotifs"></nb-action>
+               badgePosition="top" badgeStatus="danger" [badgeText]="numUnreadNotifs === 0 ? '' : +numUnreadNotifs"></nb-action>
     <ng-template #notifTempl8>
       <notifications [notifications]="notifications"></notifications>
     </ng-template>
