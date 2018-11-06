@@ -121,7 +121,7 @@ paths:
           description: OK
           schema:
             $ref: '#/definitions/Activities'
-  /user/{userID}/follows:
+  /users/{userID}/follows:
     parameters:
       - name: userID
         in: path
@@ -136,7 +136,7 @@ paths:
         200:
           description: OK
           # TODO: schema
-  /user/{userID}/followers:
+  /users/{userID}/followers:
     parameters:
       - name: userID
         in: path

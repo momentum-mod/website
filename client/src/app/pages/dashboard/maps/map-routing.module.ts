@@ -41,7 +41,6 @@ const routes: Routes = [
       {
         path: 'queue',
         pathMatch: 'full',
-        // TODO: uncomment this when ready to guard!
         canActivate: [PermissionGuard],
         data: {
           onlyAllow: [Permission.MODERATOR | Permission.ADMIN],
