@@ -1,13 +1,20 @@
 <div>
+  <div class="follow">
+    <h5>Following: {{followingUsers?.length}}</h5>
+  </div>
+    <div Class="follow">
+      <h5>Followers: {{followedByUsers?.length}}</h5>
+    </div>
+
   <div>
-    <h4>Bio:</h4>
+    <h4 class="bio">Bio:</h4>
     <div>
       <markdown [data]="user?.profile?.bio" ngPreserveWhitespaces>
       </markdown>
     </div>
   </div>
   <div>
-    <h4>Links:</h4>
+    <h4>Social:</h4>
     <div class="socials">
       <a href="https://steamcommunity.com/profiles/{{user?.id}}" target="_blank" class="ion ion-steam"></a>
       <a *ngIf="user?.profile?.twitchName" href="https://twitch.tv/{{user?.profile?.twitchName}}" target="_blank" class="ion ion-social-twitch"></a>
@@ -18,19 +25,4 @@
       <a *ngIf="user?.profile?.youtubeName" href="https://youtube.com/user/{{user?.profile?.youtubeName}}" target="_blank" class="ion ion-social-youtube"></a>
     </div>
   </div>
-  <div>
-    <h4>Follows:</h4>
-    <div class="follow">
-      <div>
-        <h4>Following: {{followingUsers?.length}}</h4>
-      </div>
-      <div>
-        <h4>Followers: {{followedByUsers?.length}}</h4>
-      </div>
-    </div>
-  </div>
 </div>
-
-
-
-
