@@ -22,12 +22,14 @@
           <nb-tab [tabTitle]="'Activity'">
             <activity-card [header]="'User Activity'" [userSubj]="userSubj$"></activity-card>
           </nb-tab>
+
           <nb-tab [tabTitle]="'Stats'">
             <!--TODO put their user stats in here-->
-            <h6>Maps Completed:</h6> <p>37</p>
-            <h6>Totals Jumps:</h6> <p>411</p>
-            <h6>Total Strafes:</h6> <p>102</p>
+            <div class="Spacing"><h5>MAPS COMPLETED:</h5> <p>37</p></div>
+            <div class="Spacing"> <h5>TOTAL JUMPS:</h5> <p>411</p></div>
+            <div class="Spacing"><h5>TOTAL STRAFES:</h5> <p>102</p></div>
           </nb-tab>
+
           <nb-tab *ngIf="isMapper" [tabTitle]="'Maps'">
             <!--TODO put the map list of their maps in here-->
           </nb-tab>
