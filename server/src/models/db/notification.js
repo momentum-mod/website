@@ -2,6 +2,9 @@
 
 module.exports = (sequelize, type) => {
 	return sequelize.define('notification', {
-		read: type.BOOLEAN,
+		read: {
+			type: type.BOOLEAN,
+			defaultValue: false,
+		},
 	})
 };
