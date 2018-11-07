@@ -109,7 +109,7 @@ const saveRun = (leaderboardID, runResults, runFile) => {
 				type: activity.ACTIVITY_TYPES.PB_ACHIEVED,
 				userID: runResults.playerID,
 				data: leaderboardEntry.id,
-			}, {transaction: t});
+			}, t);
 		}).then(() => {
 			if (!runResults.isNewWorldRecord)
 				return Promise.resolve(runResults);
@@ -117,7 +117,7 @@ const saveRun = (leaderboardID, runResults, runFile) => {
 				type: activity.ACTIVITY_TYPES.WR_ACHIEVED,
 				userID: runResults.playerID,
 				data: leaderboardEntry.id,
-			}, {transaction: t});
+			}, t);
 		}).then(() => {
 			return Promise.resolve(leaderboardEntry);
 		});

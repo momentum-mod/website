@@ -1,6 +1,29 @@
 'use strict';
-const { Op, User, Activity, Map, Profile } = require('../../config/sqlize'),
+const { sequelize, Op, User, Activity, Map, Profile, Notification, UserFollows } = require('../../config/sqlize'),
 	queryHelper = require('../helpers/query');
+
+const genNotifications = (activityModel, transaction) => {
+	return UserFollows.findAll({
+		attributes: [['followeeID', 'forUserID']],
+		where: {
+			followedID: activityModel.userID,
+			[Op.and]: [
+				sequelize.literal('notifyOn & ' + (1 << activityModel.type) + ' != 0')
+			],
+		},
+		raw: true,
+	}).then(usersToNotify => {
+		if (!usersToNotify.length)
+			return Promise.resolve();
+		const notifications = usersToNotify;
+		for (let i = 0; i < notifications.length; i++) {
+			notifications[i].activityID = activityModel.id;
+		}
+		return Notification.bulkCreate(notifications, {
+			transaction: transaction,
+		});
+	});
+};
 
 const ACTIVITY_TYPES = Object.freeze({
 	ALL: 0,
@@ -38,8 +61,11 @@ module.exports = {
 		return Activity.findAll(queryContext);
 	},
 
-	create: (activity) => {
-		return Activity.create(activity);
-	}
+	create: (activity, transaction) => {
+		return Activity.create(activity, transaction)
+		.then(act => {
+			return genNotifications(act, transaction);
+		});
+	},
 
 };

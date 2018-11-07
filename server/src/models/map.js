@@ -186,13 +186,11 @@ module.exports = {
 				if (map.statusFlag !== STATUS.APPROVED) {
 					return Promise.resolve();
 				}
-				return Activity.create({
+				return activity.create({
 					type: activity.ACTIVITY_TYPES.MAP_APPROVED,
 					userID: mapInfo.submitterID, // TODO: Consider firing this for every author?
 					data: mapInfo.id,
-				}, {
-					transaction: t
-				}).then(activity => {
+				}, t).then(() => {
 					return Leaderboard.create({
 						mapID: mapID,
 						enabled: true,
