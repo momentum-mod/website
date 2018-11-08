@@ -36,10 +36,10 @@ describe('auth', () => {
 
 	describe('endpoints', () => {
 
-		describe('GET /api/auth/steam', () => {
+		describe('GET /auth/steam', () => {
 			it('should redirect to steam login', () => {
 				return chai.request(server)
-				.get('/api/auth/steam')
+				.get('/auth/steam')
 				.then(res => {
 					expect(res).to.redirect;
 					expect(res).to.have.status(200);
@@ -47,10 +47,10 @@ describe('auth', () => {
 			});
 		});
 
-		describe('GET /api/auth/steam/return', () => {
+		describe('GET /auth/steam/return', () => {
 			it('should redirect to steam login', () => {
 				return chai.request(server)
-				.get('/api/auth/steam/return')
+				.get('/auth/steam/return')
 				.then(res => {
 					expect(res).to.redirect;
 					expect(res).to.have.status(200);

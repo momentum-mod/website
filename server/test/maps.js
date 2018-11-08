@@ -67,6 +67,7 @@ describe('maps', () => {
 			it('should respond with map data', () => {
 				return chai.request(server)
 				.get('/api/maps')
+				.set('Authorization', 'Bearer ' + accessToken)
 				.then(res => {
 					expect(res).to.have.status(200);
 					expect(res).to.be.json;
@@ -114,6 +115,7 @@ describe('maps', () => {
 			it('should respond with 404', () => {
 				return chai.request(server)
 				.get('/api/maps/1337')
+				.set('Authorization', 'Bearer ' + accessToken)
 				.then(res => {
 					expect(res).to.have.status(404);
 					expect(res).to.be.json;
@@ -128,6 +130,7 @@ describe('maps', () => {
 			it('should respond with map info', () => {
 				return chai.request(server)
 				.get('/api/maps/' + testMap.id + '/info')
+				.set('Authorization', 'Bearer ' + accessToken)
 				.then(res => {
 					expect(res).to.have.status(200);
 					expect(res).to.be.json;
