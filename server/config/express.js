@@ -12,6 +12,7 @@ const express = require('express'),
 	swaggerJSDoc = require('swagger-jsdoc'),
 	swaggerDefinition = require('../docs/swagger/definition'),
 	user = require('../src/models/user'),
+	authMiddleware = require('../src/middlewares/auth'),
 	bodyParser = require('body-parser');
 
 const swaggerSpec = swaggerJSDoc({
@@ -40,7 +41,7 @@ module.exports = (app, config) => {
 	}));
 
 	passport.use(new SteamStrategy({
-		returnURL: config.baseUrl + '/api/auth/steam/return',
+		returnURL: config.baseUrl + '/auth/steam/return',
 		realm: config.baseUrl,
 		apiKey: config.steam.webAPIKey
 	}, (openID, profile, done) => {
@@ -62,7 +63,8 @@ module.exports = (app, config) => {
 		done(null, jwtPayload);
 	}));
 
-	app.use('/api', require(config.root + '/src/routes/api'));
+	app.use('/api', [authMiddleware.requireLogin], require(config.root + '/src/routes/api'));
+	app.use('/auth', require(config.root + '/src/routes/auth'));
 	app.use('/api-docs', swaggerUI.serve, swaggerUI.setup(swaggerSpec));
 
 	app.use('*', (req, res, next) => {
