@@ -154,6 +154,32 @@ describe('maps', () => {
 			it('should download the map file');
 		});
 
+        describe('GET /api/maps/{mapID}', () => {
+            it('should respond with map data', () => {
+                return chai.request(server)
+                    .get('/api/maps/' + testMap.id)
+                    .then(res => {
+                        expect(res).to.have.status(200);
+                        expect(res).to.be.json;
+                    });
+            });
+        });
+
+
+		/*
+		describe('GET /api/user/maps/submitted', () => {
+			it('should respond with a list of maps submitted by the user', () => {
+				return chai.request(server)
+					.get('api/user/maps/submitted')
+                    .set('Authorization', 'Bearer ' + accessToken)
+					.then(res => {
+						expect(res).to.have.status(200);
+						expect(res).to.be.json;
+					});
+			});
+		});
+		*/
+
 	});
 
 });
