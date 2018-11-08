@@ -38,6 +38,7 @@ import {
 import {NbSearchModule} from './components/search/search.module';
 import {TimeAgoPipe} from 'time-ago-pipe';
 import {RouterModule} from '@angular/router';
+import { ActivityListComponent } from './components/activity/activity-list/activity-list.component';
 
 const BASE_MODULES = [CommonModule, FormsModule, ReactiveFormsModule, RouterModule];
 
@@ -70,6 +71,7 @@ const COMPONENTS = [
   NotificationComponent,
   ActivityCardComponent,
   ActivityContentComponent,
+  ActivityListComponent,
 ];
 
 const PIPES = [

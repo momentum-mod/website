@@ -1,125 +1,41 @@
-
-<div class="card card-image" style="background-size: cover; background: black url('../../../../assets/images/logoBG.png') no-repeat fixed center center;">
+<div class="card card-image"
+     style="background-size: cover; background: black url('../../../../assets/images/logoBG.png') no-repeat fixed center center;">
 
 
   <div class="col-xxl-12 ">
 
   </div>
   <nb-card-header>
-    <h1><img src="assets/images/comlogo.png" align="center" ></h1>
+    <h1>COMMUNITY</h1>
   </nb-card-header>
 
 
-  <div class.containter="col-md-12 col-lg-12 col-xxl-12" >
-
+  <div class.containter="col-md-12 col-lg-12 col-xxl-12">
 
     <nb-card class="inline-form-card">
+
       <nb-card-body>
-
         <form class="form-inline">
-
           <div class="input-group full-width">
 
             <nb-tabset>
               <nb-tab tabTitle="News">
-                <p></p>
-                <img src="assets/images/newTxt.png" >
-                <p></p>
-
-                <div>
-                  <p>9/26/18: Recent updates have been made.</p>
-                </div>
-
+                <community-news></community-news>
               </nb-tab>
-              <nb-tab tabTitle="User Search">
-                <form>
 
-                  <div class="tip-msg">
-                    <p></p>
-                    <H2>Current Users</H2>
-
-                  </div>
-
-                  <nb-card>
-
-  <nb-card-body>
-
-    <ng2-smart-table [settings]="settings" [source]="source" (edit)="onEdit($event)">
-
-    </ng2-smart-table>
-
-  </nb-card-body>
-
-</nb-card>
-
-                </form>
-                <p></p>
-
+              <nb-tab tabTitle="Twitch Streams"><script src="http://player.twitch.tv/js/embed/v1.js"></script>
+                <community-twitch-stream></community-twitch-stream>
               </nb-tab>
-              <nb-tab tabTitle="Twitch Streams">
-                <p></p>
 
-
-                <script src= "http://player.twitch.tv/js/embed/v1.js"></script>
-                <div id="{PLAYER_DIV_ID}"></div>
-                <script type="text/javascript">
-                  var options = {
-                    width: 854,
-                    height: 480,
-                    channel: "{CHANNEL}",
-                    //video: "{VIDEO_ID}"
-                  };
-                  var player = new Twitch.Player("{PLAYER_DIV_ID}", options);
-                  player.setVolume(0.5);
-                </script>
-
-                <p></p>
-                <iframe src="https://player.twitch.tv/?autoplay=false&video=v316078819"
-                        frameborder="0"
-                        allowfullscreen="true"
-                        scrolling="no"
-                        height="378"
-                        width="620">
-                </iframe>
-
-                <iframe src="https://player.twitch.tv/?autoplay=false&video=v316004987"
-                        frameborder="0"
-                        allowfullscreen="true"
-                        scrolling="no"
-
-                        height="378" width="620">
-                </iframe>
-
-                <p></p>
-                <iframe src="https://player.twitch.tv/?autoplay=false&video=v315996197"
-                        frameborder="0"
-                        allowfullscreen="true"
-                        scrolling="no"
-                        height="378"
-                        width="620">
-                </iframe>
-
-                <iframe src="https://player.twitch.tv/?autoplay=false&video=v317831071"
-                        frameborder="0"
-                        allowfullscreen="true"
-                        scrolling="no"
-                        height="378"
-                        width="620">
-                </iframe>
-
-
+              <nb-tab tabTitle="Activity">
+                <community-activity></community-activity>
               </nb-tab>
 
             </nb-tabset>
           </div>
-
         </form>
       </nb-card-body>
     </nb-card>
-
-    <activity-card [header]="'Recent Activity'" [recent]="true">></activity-card>
   </div>
-
-
 </div>
 
