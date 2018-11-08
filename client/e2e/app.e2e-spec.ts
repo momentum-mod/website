@@ -2,6 +2,7 @@
 
 // app.e2e-spec.ts
 import {NgHomePage} from './app.po';
+// import {browser, protractor} from 'protractor';
 
 /*
 import {MapsService} from '../src/app/@core/data/maps.service';
@@ -39,7 +40,17 @@ describe('ng-home App', function() {
     expect(page.getHeadingText()).toEqual('A free, open source movement game based on Counter-Strike: Source physics.');
   });
 
+  /*
+  it('should redirect to /#about', () => {
+    page.getNavAbout().click();
+    const expectCond = protractor.ExpectedConditions;
+    browser.wait(expectCond.urlContains('/about'), 4000).then(res => {
+      expect(res).toEqual(true);
+    });
+  });
+*/
 });
+
 
 /*
   it('should take user to map page ', () => {
