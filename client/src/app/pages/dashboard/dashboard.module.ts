@@ -27,6 +27,9 @@ import {
   ProfileFollowComponent,
   ProfileNotifyEditComponent,
 } from './profile/profile-info/profile-follow/profile-follow.component';
+import { CommunityNewsComponent } from './community/community-news/community-news.component';
+import { CommunityTwitchStreamComponent } from './community/community-twitch-stream/community-twitch-stream.component';
+import { CommunityActivityComponent } from './community/community-activity/community-activity.component';
 
 @NgModule({
   imports: [
@@ -56,6 +59,9 @@ import {
     ProfileEditComponent,
     ProfileFollowComponent,
     ProfileNotifyEditComponent,
+    CommunityNewsComponent,
+    CommunityTwitchStreamComponent,
+    CommunityActivityComponent,
   ],
   entryComponents: [
     UserEditModalComponent,
