@@ -1,34 +1,29 @@
 
+<div class="modal-header"></div>
+  <div class="modal-body">
+    <form (ngSubmit)="onSubmit()">
 
-                  <div class="modal-header">
+      <div class="form-group row">
+        <div class="col-sm-1">
+          <input type="text" class="form-control" [(ngModel)]="form.avatarUrl" name="avatarUrl">
+        </div>
+      </div>
 
-                  </div>
-                  <div class="modal-body">
-                    <form (ngSubmit)="onSubmit()">
+      <div class="form-group row">
+        <div class="col-sm-12">
+          <input type="text" class="form-control" [(ngModel)]="alias" name="UserSearch">
+        </div>
+      </div>
 
-                      <div class="form-group row">
-
-                        <div class="col-sm-1">
-                          <input type="text" class="form-control" [(ngModel)]="form.avatarUrl" name="avatarUrl">
-                        </div>
-                      </div>
-
-                      <div class="form-group row">
-                        <div class="col-sm-12">
-                          <input type="text" class="form-control" [(ngModel)]="alias" name="UserSearch">
-                        </div>
-                      </div>
-
-                      <tfoot>
-                      <tr>
-                        <td colspan="5" class="text-center">
-                          <div st-pagination="" st-items-by-page="itemsByPage" st-displayed-pages="7"></div>
-                        </td>
-                      </tr>
-                      </tfoot>
-
-                    </form>
-                  </div>
+      <tfoot>
+        <tr>
+          <td colspan="5" class="text-center">
+            <div st-pagination="" st-items-by-page="itemsByPage" st-displayed-pages="7"></div>
+          </td>
+        </tr>
+      </tfoot>
+    </form>
+  </div>
 
 
 
