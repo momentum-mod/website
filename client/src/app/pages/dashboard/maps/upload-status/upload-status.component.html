@@ -1,14 +1,17 @@
+<div class="card card-image" style="background-size: cover; background: black url('../../../../../assets/images/logoBG.png') no-repeat fixed center center;">
 <div class="row">
   <div class="col-md-12 col-lg-12">
-    <nb-card>
       <nb-card-header class="row">
         <div class="col-3">
-          <h1>Uploads</h1>
+          <h1>UPLOADS</h1>
         </div>
+
         <div class="col-9">
           <button type="button" routerLink="/dashboard/maps/uploads/new" class="btn btn-outline-info uploadBtn">Upload a Map</button>
         </div>
+
       </nb-card-header> <!--TODO: filter button in the header like activity card-->
+    <nb-card>
       <nb-card-body>
         <h1 *ngIf="(maps === undefined || maps?.length === 0) && fetchedMaps" class="noUpload">
           <i>You have not uploaded any maps. Try <a routerLink="/dashboard/maps/uploads/new">uploading a new one!</a></i>
@@ -21,4 +24,5 @@
       </nb-card-body>
     </nb-card>
   </div>
+</div>
 </div>

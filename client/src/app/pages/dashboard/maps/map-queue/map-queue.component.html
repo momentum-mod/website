@@ -1,9 +1,9 @@
+<div class="card card-image" style="background-size: cover; background: black url('../../../../../assets/images/logoBG.png') no-repeat fixed center center;">
 <div class="row">
   <div class="col-lg-12">
-    <nb-card>
-      <nb-card-body>
 
-        <h1>MAPPER SUBMISSIONS</h1>
+    <h1>MAPPER SUBMISSIONS</h1>
+      <nb-card>
         <i *ngIf="!priorityQueue?.length">
           There are currently no maps in this queue.
         </i>
@@ -12,18 +12,18 @@
             <queued-map [map]="map"></queued-map>
           </nb-card-body>
         </div>
+      </nb-card>
 
         <h1>NON-MAPPER SUBMISSIONS</h1>
-        <i *ngIf="!nonPriorityQueue?.length">
-            There are currently no maps in this queue.
-        </i>
+          <nb-card>
+         <i *ngIf="!nonPriorityQueue?.length">
+            There are currently no maps in this queue.</i>
         <div *ngIf="nonPriorityQueue?.length">
           <nb-card-body *ngFor="let map of nonPriorityQueue">
             <queued-map [map]="map"></queued-map>
           </nb-card-body>
         </div>
-
-      </nb-card-body>
-    </nb-card>
+        </nb-card>
   </div>
+</div>
 </div>

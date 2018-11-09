@@ -1,9 +1,10 @@
+<div class="card card-image" style="background-size: cover; background: black url('../../../../../assets/images/logoBG.png') no-repeat fixed center center;">
 <div class="row">
   <div class="col-md-12 col-lg-12">
     <div class="col-lg-12">
-      <nb-card>
-        <nb-card-header><h1>Submit a Map</h1></nb-card-header>
+        <nb-card-header><h1>SUBMIT A MAP</h1></nb-card-header>
 
+      <nb-card class="inline-form-card">
         <nb-card-body>
           <form [formGroup]="mapUploadFormGroup" (ngSubmit)="onSubmit()" *ngIf="!isUploadingMap">
             <nb-tabset>
@@ -83,4 +84,5 @@
       </nb-card>
     </div>
   </div>
+</div>
 </div>
