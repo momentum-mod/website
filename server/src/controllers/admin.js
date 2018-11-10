@@ -1,7 +1,5 @@
 'use strict';
-const express = require('express'),
-    router = express.Router(),
-	user = require('../models/user'),
+const user = require('../models/user'),
 	map = require('../models/map');
 
 module.exports = {
