@@ -7,6 +7,7 @@ import {ActivityContentComponent} from '../..';
 import {TimeAgoPipe} from 'time-ago-pipe';
 import {NbCardModule, NbListModule, NbUserModule} from '@nebular/theme';
 import {RouterModule} from '@angular/router';
+import {ActivityListComponent} from '../activity-list/activity-list.component';
 
 describe('ActivityCardComponent', () => {
   let component: ActivityCardComponent;
@@ -15,7 +16,7 @@ describe('ActivityCardComponent', () => {
   beforeEach(async(() => {
     TestBed.configureTestingModule({
       imports: [NbCardModule, NbListModule, NbUserModule, HttpClientTestingModule, RouterModule ],
-      declarations: [ TimeAgoPipe, ActivityCardComponent, ActivityContentComponent ],
+      declarations: [ TimeAgoPipe, ActivityCardComponent, ActivityContentComponent, ActivityListComponent],
       providers: [ActivityService ],
     })
     .compileComponents();

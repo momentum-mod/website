@@ -12,6 +12,7 @@ export class ActivityListComponent implements OnInit {
   @Input('hasRequested') hasRequested: boolean;
   constructor() {
     this.hasRequested = false;
+    this.activities = [];
   }
 
   ngOnInit() {
