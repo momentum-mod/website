@@ -7,32 +7,32 @@ const express = require('express'),
 
 router.route('/')
 	.get(mapCtrl.getAll)
-	.post([authMiddleware.requireLogin], mapCtrl.create)
+	.post(mapCtrl.create)
 	.all(errorCtrl.send405);
 
 router.route('/:mapID')
 	.get(mapCtrl.get)
-	.patch([authMiddleware.requireLogin], mapCtrl.update)
+	.patch(mapCtrl.update)
 	.all(errorCtrl.send405);
 
 router.route('/:mapID/info')
 	.get(mapCtrl.getInfo)
-	.patch([authMiddleware.requireLogin], mapCtrl.updateInfo)
+	.patch(mapCtrl.updateInfo)
 	.all(errorCtrl.send405);
 
 router.route('/:mapID/credits')
 	.get(mapCtrl.getCredits)
-	.post([authMiddleware.requireLogin], mapCtrl.createCredit)
+	.post(mapCtrl.createCredit)
 	.all(errorCtrl.send405);
 
 router.route('/:mapID/credits/:mapCredID')
 	.get(mapCtrl.getCredit)
-	.patch([authMiddleware.requireLogin], mapCtrl.updateCredit)
-	.delete([authMiddleware.requireLogin], mapCtrl.deleteCredit)
+	.patch(mapCtrl.updateCredit)
+	.delete(mapCtrl.deleteCredit)
 	.all(errorCtrl.send405);
 
 router.route('/:mapID/avatar')
-	.put([authMiddleware.requireLogin], mapCtrl.updateAvatar)
+	.put(mapCtrl.updateAvatar)
 	.all(errorCtrl.send405);
 
 router.route('/:mapID/download')
@@ -40,8 +40,8 @@ router.route('/:mapID/download')
 	.all(errorCtrl.send405);
 
 router.route('/:mapID/upload')
-	.get([authMiddleware.requireLogin], mapCtrl.getUploadLocation)
-	.post([authMiddleware.requireLogin], mapCtrl.upload)
+	.get(mapCtrl.getUploadLocation)
+	.post(mapCtrl.upload)
 	.all(errorCtrl.send405);
 
 module.exports = router;
