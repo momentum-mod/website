@@ -3,7 +3,7 @@
    [class.right]="position === 'inverse'">
   <div class="logo-container">
   <a (click)="toggleSidebar()" href="#" class="navigation"><i class="nb-menu"></i></a>
-  <div class="logo" (click)="goToHome()"><img src="assets/images/logo-newer.png"></div>
+  <div class="logo pointer" (click)="goToHome()"><img src="assets/images/logo-newer.png"></div>
   </div>
 </div>
 
@@ -13,7 +13,7 @@
   [class.right]="position === 'normal'"
   [class.left]="position === 'inverse'">
     <nb-action>
-      <nb-user class = "User" [nbContextMenu]="userMenu" [name]="user?.profile.alias" [picture]="user?.profile.avatarURL"></nb-user>
+      <nb-user class = "pointer" [nbContextMenu]="userMenu" [name]="user?.profile.alias" [picture]="user?.profile.avatarURL"></nb-user>
     </nb-action>
     <nb-action class="control-item" [icon]="getNotificationIconClass()"
                [nbPopover]="notifTempl8" nbPopoverPlacement="bottom"
