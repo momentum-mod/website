@@ -2,6 +2,7 @@
 const Sequelize = require('sequelize'),
 	config = require('./config'),
 	UserModel = require('../src/models/db/user'),
+	UserAuthModel = require('../src/models/db/user-auth'),
 	ProfileModel = require('../src/models/db/profile'),
 	MapModel = require('../src/models/db/map'),
 	MapInfoModel = require('../src/models/db/map-info'),
@@ -52,6 +53,7 @@ const forceSyncDB = () => {
 };
 
 const User = UserModel(sequelize, Sequelize);
+const UserAuth = UserAuthModel(sequelize, Sequelize);
 const Profile = ProfileModel(sequelize, Sequelize);
 const Map = MapModel(sequelize, Sequelize);
 const MapInfo = MapInfoModel(sequelize, Sequelize);
@@ -73,6 +75,7 @@ const RunZoneStats = RunZoneStatsModel(sequelize, Sequelize);
 
 User.hasOne(Profile, { foreignKey: 'userID' });
 User.hasMany(Activity, { foreignKey: 'userID' });
+User.hasOne(UserAuth, { as: 'auth', foreignKey: 'userID' });
 Activity.belongsTo(User, { foreignKey: 'userID' });
 Map.hasMany(MapCredit, { as: 'credits', foreignKey: 'mapID' });
 Map.hasOne(MapInfo, { as: 'info', foreignKey: 'mapID' });
@@ -115,6 +118,7 @@ module.exports = {
 	sequelize,
 	forceSyncDB,
 	User,
+	UserAuth,
 	Profile,
 	Map,
 	MapInfo,
