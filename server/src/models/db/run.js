@@ -1,7 +1,7 @@
 'use strict';
 
 module.exports = (sequelize, type) => {
-	return sequelize.define('leaderboardEntry', {
+	return sequelize.define('run', {
 		id: {
 			type: type.BIGINT.UNSIGNED,
 			primaryKey: true,

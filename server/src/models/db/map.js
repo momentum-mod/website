@@ -14,6 +14,5 @@ module.exports = (sequelize, type) => {
 		},
 		downloadURL: type.STRING,
 		hash: type.CHAR(40),
-		leaderboardID: type.BIGINT,
 	})
 };

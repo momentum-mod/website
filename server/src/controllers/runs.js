@@ -3,21 +3,46 @@ const run = require('../models/run');
 
 module.exports = {
 
+	getAll: (req, res, next) => {
+		run.getAll(req.query)
+		.then(runs => {
+			res.json({
+				runs: runs
+			});
+		}).catch(next);
+	},
+
 	get: (req, res, next) => {
-		const err = new Error('Not implemented yet');
-		return next(err);
-		run.getReplayFilePath()
-		.then(path => {
-			res.download(path);
+		run.get(req.params.runID, req.query)
+		.then(run => {
+			if (!run) {
+				const err = new Error('Run not found');
+				err.status = 400;
+				return next(err);
+			}
+			res.json(run);
 		}).catch(next);
 	},
 
 	create: (req, res, next) => {
-		const err = new Error('Not implemented yet');
-		return next(err);
-		run.create(/* run data here */)
-		.then(() => {
-			res.sendStatus(200); // return something here?
+		if (req.files && req.files.runFile) {
+			run.create(req.files.runFile)
+			.then(runResults => {
+				res.json(runResults);
+			}).catch(next);
+		} else {
+			const err = new Error('No run file provided');
+			err.status = 400;
+			next(err);
+		}
+	},
+
+	download: (req, res, next) => {
+		run.getFilePath(req.params.runID)
+		.then(path => {
+			if (!path)
+				return next(run.genNotFoundErr());
+			res.download(path);
 		}).catch(next);
 	}
 
