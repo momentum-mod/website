@@ -1,7 +1,6 @@
 'use strict';
 const express = require('express'),
 	router = express.Router(),
-	authMiddleware = require('../../middlewares/auth'),
 	errorCtrl = require('../../controllers/error'),
 	mapCtrl = require('../../controllers/maps');
 
