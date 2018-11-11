@@ -33,10 +33,6 @@ module.exports = {
         "description": "API for runs in the system"
       },
       {
-        "name": "leaderboards",
-        "description": "API for leaderboards in the system"
-      },
-      {
         "name": "activities",
         "description": "API for activities in the system"
       },

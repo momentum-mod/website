@@ -17,10 +17,9 @@ const Sequelize = require('sequelize'),
 	MapZoneStatsModel = require('../src/models/db/map-zone-stats'),
 	MapReviewModel = require('../src/models/db/map-review'),
 	MapImageModel = require('../src/models/db/map-image'),
+	RunModel = require('../src/models/db/run'),
 	RunStatsModel = require('../src/models/db/run-stats'),
 	RunZoneStatsModel = require('../src/models/db/run-zone-stats'),
-	LeaderboardModel = require('../src/models/db/leaderboard'),
-	LeaderboardEntryModel = require('../src/models/db/leaderboard-entry'),
 	env = process.env.NODE_ENV || 'development';
 
 const sequelize = new Sequelize({
@@ -68,10 +67,9 @@ const MapStats = MapStatsModel(sequelize, Sequelize);
 const MapZoneStats = MapZoneStatsModel(sequelize, Sequelize);
 const MapReview = MapReviewModel(sequelize, Sequelize);
 const MapImage = MapImageModel(sequelize, Sequelize);
+const Run = RunModel(sequelize, Sequelize);
 const RunStats = RunStatsModel(sequelize, Sequelize);
 const RunZoneStats = RunZoneStatsModel(sequelize, Sequelize);
-const Leaderboard = LeaderboardModel(sequelize, Sequelize);
-const LeaderboardEntry = LeaderboardEntryModel(sequelize, Sequelize);
 
 User.hasOne(Profile, { foreignKey: 'userID' });
 User.hasMany(Activity, { foreignKey: 'userID' });
@@ -99,10 +97,9 @@ MapReview.belongsTo(User, {as: 'reviewer', foreignKey: 'reviewerID'});
 MapReview.belongsTo(Map, {as: 'map', foreignKey: 'mapID'});
 Map.hasMany(MapImage, {as: 'images', foreignKey: 'mapID'});
 MapImage.hasOne(MapInfo, {as: 'thumbnail', foreignKey: 'thumbnailID'});
+Map.hasMany(Run, {as: 'runs', foreignKey: 'mapID'});
+Run.belongsTo(User, { foreignKey: 'playerID' });
 // // TODO: do the run (+ zone) stats
-Leaderboard.belongsTo(Map, { foreignKey: 'mapID' });
-LeaderboardEntry.belongsTo(Leaderboard, { foreignKey: 'leaderboardID' });
-LeaderboardEntry.belongsTo(User, { foreignKey: 'playerID' });
 
 if (env === 'development') {
 	forceSyncDB()
@@ -133,8 +130,7 @@ module.exports = {
 	MapZoneStats,
 	MapReview,
 	MapImage,
+	Run,
 	RunStats,
 	RunZoneStats,
-	Leaderboard,
-	LeaderboardEntry,
 };

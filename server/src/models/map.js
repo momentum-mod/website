@@ -2,7 +2,7 @@
 const util = require('util'),
 	fs = require('fs'),
 	crypto = require('crypto'),
-	{ sequelize, Op, Map, MapInfo, MapCredit, User, Profile, Leaderboard, Activity } = require('../../config/sqlize'),
+	{ sequelize, Op, Map, MapInfo, MapCredit, User, Profile, Activity } = require('../../config/sqlize'),
 	Sequelize = require('sequelize'),
 	user = require('./user'),
 	activity = require('./activity'),
@@ -206,12 +206,7 @@ module.exports = {
 					type: activity.ACTIVITY_TYPES.MAP_APPROVED,
 					userID: mapInfo.submitterID, // TODO: Consider firing this for every author?
 					data: mapInfo.id,
-				}, t).then(() => {
-					return Leaderboard.create({
-						mapID: mapID,
-						enabled: true,
-					}, {transaction: t});
-				});
+				}, t);
 			});
 		});
 	},
