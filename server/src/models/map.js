@@ -3,7 +3,6 @@ const util = require('util'),
 	fs = require('fs'),
 	crypto = require('crypto'),
 	{ sequelize, Op, Map, MapInfo, MapCredit, User, Profile, Activity } = require('../../config/sqlize'),
-	Sequelize = require('sequelize'),
 	user = require('./user'),
 	activity = require('./activity'),
 	queryHelper = require('../helpers/query'),
@@ -79,14 +78,10 @@ module.exports = {
 			offset: parseInt(context.page) || 0,
 			limit: Math.min(parseInt(context.limit) || 20, 20)
 		};
-		if (context.submitterID) {
+		if (context.submitterID)
 			queryContext.where.submitterID = context.submitterID;
-		}
-		if (context.search) {
-			queryContext.where.name = {
-				[Op.like]: '%' + context.search + '%' // 2 spooky 5 me O:
-			}
-		}
+		if (context.search)
+			queryContext.where.name = {[Op.like]: '%' + context.search + '%'}
 		if (context.status && context.statusNot) {
 			queryContext.where.statusFlag = {
 				[Op.and]: {
@@ -120,7 +115,7 @@ module.exports = {
 			const permChecks = [];
 			for (let i = 0; i < priorityPerms.length; i++) {
 				permChecks.push(
-					Sequelize.literal('permissions & ' + priorityPerms[i]
+					sequelize.literal('permissions & ' + priorityPerms[i]
 						+ (priority ? ' != ' : ' = ') + '0')
 				);
 			}
@@ -135,11 +130,8 @@ module.exports = {
 	get: (mapID, context) => {
 		const allowedExpansions = ['info', 'credits', 'submitter'];
 		const queryContext = { where: { id: mapID }};
-		if ('status' in context) {
-			queryContext.where.statusFlag = {
-				[Op.in]: context.status.split(',')
-			}
-		}
+		if ('status' in context)
+			queryContext.where.statusFlag = {[Op.in]: context.status.split(',')}
 		queryHelper.addExpansions(queryContext, context.expand, allowedExpansions);
 		return Map.find(queryContext);
 	},
@@ -199,9 +191,8 @@ module.exports = {
 					transaction: t
 				});
 			}).then(() => {
-				if (map.statusFlag !== STATUS.APPROVED) {
+				if (map.statusFlag !== STATUS.APPROVED)
 					return Promise.resolve();
-				}
 				return activity.create({
 					type: activity.ACTIVITY_TYPES.MAP_APPROVED,
 					userID: mapInfo.submitterID, // TODO: Consider firing this for every author?
@@ -345,7 +336,7 @@ module.exports = {
 
 	incrementDownloadCount: (mapID) => {
 		MapInfo.update({
-			totalDownloads: Sequelize.literal('totalDownloads + 1')
+			totalDownloads: sequelize.literal('totalDownloads + 1')
 		}, { where: { mapID: mapID }});
 	}
 
