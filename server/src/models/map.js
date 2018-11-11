@@ -75,9 +75,12 @@ module.exports = {
 		const queryContext = {
 			include: [],
 			where: {},
-			offset: parseInt(context.page) || 0,
-			limit: Math.min(parseInt(context.limit) || 20, 20)
+			limit: 20,
 		};
+		if (context.limit && !isNaN(context.limit))
+			queryContext.limit = Math.min(Math.max(parseInt(context.limit), 1), 20);
+		if (context.page && !isNaN(context.page))
+			queryContext.offset = (Math.max(parseInt(context.page), 0) * queryContext.limit);
 		if (context.submitterID)
 			queryContext.where.submitterID = context.submitterID;
 		if (context.search)

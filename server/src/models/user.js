@@ -128,15 +128,15 @@ module.exports = {
 					}
 				}
 			}],
-			attributes: {
-				exclude: ['refreshToken']
-			},
-			offset: parseInt(context.page) || 0,
-			limit: Math.min(parseInt(context.limit) || 20, 20)
+			attributes: { exclude: ['refreshToken'] },
+			limit: 20
 		};
-		if (!(context.expand && context.expand.includes('profile'))) {
+		if (context.limit && !isNaN(context.limit))
+			queryContext.limit = Math.min(Math.max(parseInt(context.limit), 1), 20);
+		if (context.page && !isNaN(context.page))
+			queryContext.offset = (Math.max(parseInt(context.page), 0) * queryContext.limit);
+		if (!(context.expand && context.expand.includes('profile')))
 			queryContext.include[0].attributes = [];
-		}
 		return User.findAll(queryContext);
 	},
 
@@ -285,12 +285,17 @@ module.exports = {
 					attributes: [],
 				}]
 			}],
-			offset: parseInt(context.page) || 0,
-			limit: Math.min(parseInt(context.limit) || 10, 10),
+			limit: 10,
 			order: [['createdAt', 'DESC']],
 		};
-		if (context.data) queryContext.where.data = context.data;
-		if (context.type) queryContext.where.type = context.type;
+		if (context.limit && !isNaN(context.limit))
+			queryContext.limit = Math.min(Math.max(parseInt(context.limit), 1), 20);
+		if (context.page && !isNaN(context.page))
+			queryContext.offset = (Math.max(parseInt(context.page), 0) * queryContext.limit);
+		if (context.data)
+			queryContext.where.data = context.data;
+		if (context.type)
+			queryContext.where.type = context.type;
 		return Activity.findAll(queryContext);
 	}
 
