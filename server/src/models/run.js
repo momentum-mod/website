@@ -167,8 +167,7 @@ module.exports = {
 	getAll: (context) => {
 		const queryContext = {
 			where: { flags: 0 },
-			offset: parseInt(context.page) || 0,
-			limit: Math.min(parseInt(context.limit) || 10, 20),
+			limit: 10,
 			include: [{
 				model: User,
 				include: [{
@@ -180,6 +179,10 @@ module.exports = {
 			}],
 			order: [['time', 'ASC']],
 		};
+		if (context.limit && !isNaN(context.limit))
+			queryContext.limit = Math.min(Math.max(parseInt(context.limit), 1), 20);
+		if (context.page && !isNaN(context.page))
+			queryContext.offset = (Math.max(parseInt(context.page), 0) * queryContext.limit);
 		if (context.mapID)
 			queryContext.where.mapID = context.mapID;
 		if (context.playerID)
