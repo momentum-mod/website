@@ -44,9 +44,6 @@ module.exports = {
 			where: {},
 			include: [{
 				model: User,
-				attributes: {
-					exclude: ['refreshToken']
-				},
 				include: [Profile]
 			}],
 			limit: 10,

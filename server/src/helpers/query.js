@@ -9,9 +9,6 @@ const expansionMap = {
 	submitter: {
 		model: User,
 		as: 'submitter',
-		attributes: {
-			exclude: ['refreshToken']
-		},
 		include: [Profile]
 	},
 	credits: {
@@ -19,17 +16,11 @@ const expansionMap = {
 		as: 'credits',
 		include: {
 			model: User,
-			attributes: {
-				exclude: ['refreshToken']
-			},
 			include: [Profile]
 		}
 	},
 	user: {
 		model: User,
-		attributes: {
-			exclude: ['refreshToken']
-		},
 		include: [Profile]
 	},
 	profile: {

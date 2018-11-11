@@ -101,9 +101,6 @@ module.exports = {
 			queryContext.include.push({
 				model: User,
 				as: 'submitter',
-				attributes: {
-					exclude: ['refreshToken']
-				},
 				include: [Profile],
 				where: {}
 			});

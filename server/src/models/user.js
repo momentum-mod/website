@@ -1,5 +1,5 @@
 'use strict';
-const { sequelize, Op, User, Profile, UserFollows, Notification, Activity } = require('../../config/sqlize'),
+const { sequelize, Op, User, UserAuth, Profile, UserFollows, Notification, Activity } = require('../../config/sqlize'),
 	activity = require('./activity'),
 	config = require('../../config/config'),
 	queryHelper = require('../helpers/query'),
@@ -32,9 +32,17 @@ module.exports = {
 				profile: {
 					alias: profile.alias,
 					avatarURL: profile.avatarURL
+				},
+				auth: {
+					userID: id,
 				}
 			}, {
-				include: Profile,
+				include: [{
+					model: Profile,
+				}, {
+					model: UserAuth,
+					as: 'auth',
+				}],
 				transaction: t,
 			}).then(user => {
 				userInfo = user;
@@ -110,9 +118,6 @@ module.exports = {
 		const queryContext = {
 			include: [],
 			where: { id: userID },
-			attributes: {
-				exclude: ['refreshToken']
-			}
 		};
 		queryHelper.addExpansions(queryContext, context.expand, allowedExpansions);
 		return User.find(queryContext);
@@ -128,7 +133,6 @@ module.exports = {
 					}
 				}
 			}],
-			attributes: { exclude: ['refreshToken'] },
 			limit: 20
 		};
 		if (context.limit && !isNaN(context.limit))
@@ -276,7 +280,6 @@ module.exports = {
 			where: {},
 			include: [{
 				model: User,
-				attributes: { exclude: ['refreshToken']},
 				include: [{
 					model: Profile,
 				}, {

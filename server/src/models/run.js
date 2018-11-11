@@ -173,9 +173,6 @@ module.exports = {
 				include: [{
 					model: Profile,
 				}],
-				attributes: {
-					exclude: ['refreshToken'],
-				}
 			}],
 			order: [['time', 'ASC']],
 		};
@@ -200,9 +197,6 @@ module.exports = {
 				include: [{
 					model: Profile,
 				}],
-				attributes: {
-					exclude: ['refreshToken'],
-				}
 			}],
 		};
 		return Run.find(queryContext);

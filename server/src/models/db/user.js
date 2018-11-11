@@ -10,6 +10,5 @@ module.exports = (sequelize, type) => {
 			type: type.INTEGER,
 			defaultValue: 0
 		},
-		refreshToken: type.STRING
 	})
 };
