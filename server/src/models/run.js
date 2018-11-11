@@ -35,7 +35,7 @@ const storeRunFile = (runFile, runID) => {
 	const fileName = runID;
 	const basePath = __dirname + '/../../public/runs';
 	const fullPath = basePath + '/' + fileName;
-	const downloadURL = config.baseUrl + '/runs/' + runID + '/download';
+	const downloadURL = config.baseUrl + '/api/runs/' + runID + '/download';
 	return moveFileTo(fullPath).then(() => {
 		return Promise.resolve({
 			fileName: fileName,
