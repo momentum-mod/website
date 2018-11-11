@@ -1,12 +1,10 @@
-<div class="card card-image" style="background-size: cover; background: black url('../../../../assets/images/logoBG.png') no-repeat fixed center center;">
-  <nb-card-header>
-    <h1>MY LIBRARY</h1>
-  </nb-card-header>
-  <nb-card>
+<nb-card-header>
+  <h1>MY LIBRARY</h1>
+</nb-card-header>
+<nb-card>
   <nb-card-body>
     <nb-card-body *ngFor="let entry of entries">
       <map-status [map]="entry.map"></map-status>
     </nb-card-body>
   </nb-card-body>
 </nb-card>
-</div>
