@@ -1,21 +1,10 @@
-<div class="row">
-  <div class="col-sm-9">
-    <ngx-profile-card [userSubj]="this.locUsrService.getLocal()"></ngx-profile-card>
-  </div>
-  <div class="col-sm-3">
-    <nb-card>
-      <nb-card-body>
-        <a href="/api/auth/steam" class="btn btn-hero-info main-btn">
-          <i class="ion ion-social-github"></i> <span>Support Us</span>
-        </a>
-        <br><br>
-        Momentum Mod is an ever growing community, we would love to have you a part of it.
-      </nb-card-body>
-    </nb-card>
-  </div>
-</div>
+<div class="card card-image" style="background-size: cover; background: black url('../../../../assets/images/logoBG.png') no-repeat fixed center center;">
+
+  <home-stats></home-stats>
+
 <div class="row">
   <div class="col-xxl-12">
     <activity-card [header]="'Followed Activity'" [follow]="true"></activity-card>
   </div>
+</div>
 </div>

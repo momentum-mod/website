@@ -31,6 +31,7 @@ import { CommunityNewsComponent } from './community/community-news/community-new
 import { CommunityTwitchStreamComponent } from './community/community-twitch-stream/community-twitch-stream.component';
 import { CommunityActivityComponent } from './community/community-activity/community-activity.component';
 import {AdminModule} from './admin/admin.module';
+import { HomeStatsComponent } from './home/home-stats/home-stats.component';
 
 @NgModule({
   imports: [
@@ -64,6 +65,7 @@ import {AdminModule} from './admin/admin.module';
     CommunityNewsComponent,
     CommunityTwitchStreamComponent,
     CommunityActivityComponent,
+    HomeStatsComponent,
   ],
   entryComponents: [
     UserEditModalComponent,
