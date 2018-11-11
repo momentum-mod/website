@@ -1,0 +1,20 @@
+.Spacing {
+  margin-left: auto;
+  margin-right: auto;
+  text-align: Center;
+}
+
+.approved {
+  color:green;
+  border-bottom: 3px solid green;
+}
+
+.pending {
+  color:darkorange;
+  border-bottom: 3px solid darkorange;
+}
+
+.rejected {
+  color:red;
+  border-bottom: 3px solid red;
+}

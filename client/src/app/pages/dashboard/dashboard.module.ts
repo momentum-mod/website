@@ -22,7 +22,7 @@ import {ProfileInfoComponent} from './profile/profile-info/profile-info.componen
 import {ProfileEditComponent} from './profile/profile-edit/profile-edit.component';
 import {ToasterModule} from 'angular2-toaster';
 import {MarkdownModule} from 'ngx-markdown';
-import {NbDialogModule} from '@nebular/theme';
+import {NbAccordionModule, NbDialogModule} from '@nebular/theme';
 import {
   ProfileFollowComponent,
   ProfileNotifyEditComponent,
@@ -32,10 +32,12 @@ import { CommunityTwitchStreamComponent } from './community/community-twitch-str
 import { CommunityActivityComponent } from './community/community-activity/community-activity.component';
 import {AdminModule} from './admin/admin.module';
 import { HomeStatsComponent } from './home/home-stats/home-stats.component';
+import { HomeUserMapsComponent } from './home/home-user-maps/home-user-maps.component';
 
 @NgModule({
   imports: [
     ThemeModule,
+    NbAccordionModule,
     ChartModule,
     NgxEchartsModule,
     NgxChartsModule,
@@ -66,6 +68,7 @@ import { HomeStatsComponent } from './home/home-stats/home-stats.component';
     CommunityTwitchStreamComponent,
     CommunityActivityComponent,
     HomeStatsComponent,
+    HomeUserMapsComponent,
   ],
   entryComponents: [
     UserEditModalComponent,
