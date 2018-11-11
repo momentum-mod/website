@@ -10,7 +10,9 @@
       </div>
     </nb-list-item>
     <nb-list-item *ngIf="editable">
-      <button class="btn btn-primary add-user" [nbPopover]="addUserTemplate" (click)="alreadySelected = false">Add</button>
+      <button class="btn btn-primary add-user" [nbPopover]="addUserTemplate" (click)="alreadySelected = false">
+        <i class="ion ion-plus"></i>
+      </button>
       <ng-template #addUserTemplate>
         <span class="error" *ngIf="alreadySelected">User already selected!</span>
         <user-search (selectedUserEmit)="addUser($event)" ></user-search>

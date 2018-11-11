@@ -1,83 +1,134 @@
 <div class="row">
   <div class="col-md-12 col-lg-12">
     <div class="col-lg-12">
-        <nb-card-header><h1>SUBMIT A MAP</h1></nb-card-header>
+      <h1>SUBMIT A MAP</h1>
 
       <nb-card class="inline-form-card">
         <nb-card-body>
-          <form [formGroup]="mapUploadFormGroup" (ngSubmit)="onSubmit()" *ngIf="!isUploadingMap">
-            <nb-tabset>
-              <nb-tab tabTitle="Files">
-                <label>Map File</label><br>
-                <div class="fileUpload btn btn-outline-info">
-                  <span>Choose File</span>
-                  <input id="uploadBtnMap" type="file" accept=".bsp" class="upload" (change)="onMapFileSelected($event);"/>
-                </div>
-                <input title="uploadMapFile" class="form-control col-md-10" disabled="disabled" style="display: inline;" [value]="mapFile?.name" #uploadFile/>
-                <br>
-                <label>Map Avatar</label><br>
-                <div class="fileUpload btn btn-outline-info">
-                  <span>Choose File</span>
-                  <input id="uploadBtnAvatar" type="file" accept="image/*" class="upload"
-                         (change)="onAvatarFileSelected($event);"/>
-                </div>
-                <input class="form-control col-md-10" disabled="disabled" style="display: inline;"
-                       [value]="avatarFile?.name" #uploadFile/>
-              </nb-tab>
-              <nb-tab tabTitle="Map Info"
-                      [badgeText]="(info.invalid && (info.dirty || info.touched)) ? '!' : ''"
-                      [badgeStatus]="(info.invalid && (info.dirty || info.touched)) ? 'danger' : ''">
-                <div class="form-group">
-                  <label>Map Name</label>
-                  <input type="text" class="form-control col-md-10" name="name" required formControlName="name"
-                         [ngClass]="(name.invalid && (name.dirty || name.touched)) ? 'form-control-danger' : ''"/>
-                </div>
-                <div formGroupName="info">
-                  <div class="form-group">
-                    <label>Map Description</label>
-                    <textarea rows="4" class="form-control col-md-10" formControlName="description"
-                              [ngClass]="(description.invalid && (description.dirty || description.touched)) ? 'form-control-danger' : ''">
-                    </textarea>
+          <nb-stepper orientation="vertical" #stepper>
+            <nb-step label="Files" [stepControl]="filesForm">
+              <form [formGroup]="filesForm">
+                <div class="row">
+                  <div class="col-auto">
+                    <div>
+                      <h2>Map File</h2>
+                    </div>
+                    <div>
+                      <input [readonly]="true" title="uploadMapFile" formControlName="map" class="form-control col-md-10" style="display: inline;"
+                             [ngClass]="{'form-control-danger': map.invalid && (map.dirty || map.touched)}" #uploadFile/>
+                    </div>
+                    <div>
+                      <input [hidden]="true" id="uploadBtnMap" type="file" accept=".bsp" class="upload" (change)="onMapFileSelected($event);" #mapUpload/>
+                      <button class="fileUpload btn btn-outline-info col-auto" type="button" (click)="mapUpload.click()">Choose File</button>
+                    </div>
                   </div>
-                  <div class="form-group">
-                    <label>Number of Bonuses</label>
-                    <input type="number" class="form-control col-md-10" formControlName="numBonuses"
-                           [ngClass]="(numBonuses.invalid && (numBonuses.dirty || numBonuses.touched)) ? 'form-control-danger' : ''"/>
+                  <div class="col-auto">
+                    <div>
+                      <h2>Map Thumbnail</h2>
+                    </div>
+                    <div>
+                      <input [readonly]="true" class="form-control col-md-10" style="display: inline;" formControlName="avatar"
+                             [ngClass]="{'form-control-danger': avatar.invalid && (avatar.dirty || avatar.touched)}"
+                             #uploadFile/>
+                    </div>
+                    <div>
+                      <input [hidden]="true" id="uploadBtnAvatar" type="file" accept="image/*" class="upload"
+                             (change)="onAvatarFileSelected($event); " #avatarUpload/>
+                      <button class="fileUpload btn btn-outline-info" type="button" (click)="avatarUpload.click()">Choose File</button>
+                    </div>
                   </div>
+                  <div class="col-auto">
+                    <div>
+                      <h2><i>Optional: Additional Map Photos</i></h2>
+                    </div>
+                    <div class="row">
+                      <div class="col-auto" *ngFor="let img of extraImages">
+                        <img [src]="img.dataBlobURL" style="max-width: 200px;">
+                      </div>
+                      <input [hidden]="true" id="uploadImageFile" type="file" accept="image/*" class="upload" (change)="onExtraImageSelected($event)" #extraUpload>
+                      <button class="btn btn-outline-info" type="button" (click)="extraUpload.click()" *ngIf="extraImages.length < 5">
+                        <i class="ion ion-plus"></i>
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </form>
+            </nb-step>
+            <nb-step label="Info" [stepControl]="infoForm">
+              <form [formGroup]="infoForm">
+                <div class="row">
+                  <div class="col-auto">
+                    <div class="form-group">
+                      <label>Map Name</label>
+                      <input type="text" class="form-control col-md-10" name="name" required formControlName="name"
+                             [ngClass]="(name.invalid && (name.dirty || name.touched)) ? 'form-control-danger' : ''"/>
+                    </div>
+                    <div class="form-group">
+                      <label>Map Description</label>
+                      <textarea rows="4" class="form-control col-md-10" formControlName="description"
+                                [ngClass]="(description.invalid && (description.dirty || description.touched)) ? 'form-control-danger' : ''"></textarea>
+                    </div>
+                    <div class="form-group">
+                      <label>Date Created</label>
+                      <input formControlName="created" [nbDatepicker]="datepicker" class="form-control col-md-10"
+                             [ngClass]="(created.invalid && (created.dirty || created.touched)) ? 'form-control-danger' : ''"/>
+                      <nb-datepicker #datepicker [boundingMonth]="false"></nb-datepicker>
+                    </div>
+                  </div>
+                  <div class="col-auto">
+                    <div class="form-group">
+                      <label>Number of Bonuses</label>
+                      <input type="number" class="form-control col-md-10" formControlName="numBonuses"
+                             [ngClass]="(numBonuses.invalid && (numBonuses.dirty || numBonuses.touched)) ? 'form-control-danger' : ''"/>
+                    </div>
 
-                  <div class="form-group">
-                    <label>Number of Checkpoints</label>
-                    <input type="number" class="form-control col-md-10" formControlName="numCheckpoints"
-                           [ngClass]="(numCheckpoints.invalid && (numCheckpoints.dirty || numCheckpoints.touched)) ? 'form-control-danger' : ''"/>
-                  </div>
+                    <div class="form-group">
+                      <label>Number of Checkpoints</label>
+                      <input type="number" class="form-control col-md-10" formControlName="numCheckpoints"
+                             [ngClass]="(numCheckpoints.invalid && (numCheckpoints.dirty || numCheckpoints.touched)) ? 'form-control-danger' : ''"/>
+                    </div>
 
-                  <div class="form-group">
-                    <label>Number of Stages</label>
-                    <input type="number" class="form-control col-md-10" formControlName="numStages"
-                           [ngClass]="(numStages.invalid && (numStages.dirty || numStages.touched)) ? 'form-control-danger' : ''"/>
-                  </div>
+                    <div class="form-group">
+                      <label>Number of Stages</label>
+                      <input type="number" class="form-control col-md-10" formControlName="numStages"
+                             [ngClass]="(numStages.invalid && (numStages.dirty || numStages.touched)) ? 'form-control-danger' : ''"/>
+                    </div>
 
-                  <div class="form-group">
-                    <label>Difficulty</label>
-                    <input type="number" class="form-control col-md-10" formControlName="difficulty"
-                           [ngClass]="(difficulty.invalid && (difficulty.dirty || difficulty.touched)) ? 'form-control-danger' : ''"/>
-                  </div>
-                  <div class="form-group">
-                    <label>Date Created</label>
-                    <input formControlName="created" [nbDatepicker]="datepicker" class="form-control col-md-10"
-                           [ngClass]="(created.invalid && (created.dirty || created.touched)) ? 'form-control-danger' : ''"/>
-                    <nb-datepicker #datepicker [boundingMonth]="false"></nb-datepicker>
+                    <div class="form-group">
+                      <label>Difficulty</label>
+                      <input type="number" class="form-control col-md-10" formControlName="difficulty"
+                             [ngClass]="(difficulty.invalid && (difficulty.dirty || difficulty.touched)) ? 'form-control-danger' : ''"/>
+                    </div>
                   </div>
                 </div>
-              </nb-tab>
-              <nb-tab tabTitle="Credits">
-                <map-credits [authors]="authors" [testers]="testers" [special-thanks]="specialThanks" [editable]="true"></map-credits>
-              </nb-tab>
-            </nb-tabset>
-            <div>
-              <button type="submit" class="btn btn-outline-info" [disabled]="!mapUploadFormGroup.valid">Submit Map</button>
-            </div>
-          </form>
+              </form>
+            </nb-step>
+            <nb-step label="Credits" [stepControl]="creditsForm">
+              <div class="row">
+                <div class="col-xl-12">
+                  <form style="" [formGroup]="creditsForm">
+                    <map-credits [authors]="authors" [testers]="testers" [special-thanks]="specialThanks" [editable]="true"
+                    (authorChange)="onAuthorChange($event)" (testerChange)="onTesterAdd($event)" (specialThanksChange)="onSTAdd($event)"></map-credits>
+                  </form>
+                </div>
+              </div>
+            </nb-step>
+            <nb-step label="Review">
+              <h1>Verify that the info is correct.</h1>
+            </nb-step>
+
+            <!-- TODO: Maybe add another tab here for "Summary"? Let them preview the info page?-->
+          </nb-stepper>
+          <div [ngClass]="{'btn-group': stepper.selectedIndex !== stepper.steps?.length && stepper.selectedIndex !== 0}">
+            <button class="btn btn-outline-info" type="submit" *ngIf="stepper.selectedIndex !== 0"
+                    (click)="touchForm(stepper.selectedIndex); stepper.previous()">
+              <i class="ion ion-chevron-up"></i>
+            </button>
+            <button class="btn btn-outline-info" type="submit" *ngIf="stepper.selectedIndex !== stepper.steps?.length - 1"
+                    (click)="touchForm(stepper.selectedIndex); stepper.next()">
+              <i class="ion ion-chevron-down"></i>
+            </button>
+          </div>
           <nb-progress-bar *ngIf="isUploadingMap" [value]="mapUploadPercentage" [size]="'xlg'" [displayValue]="true"></nb-progress-bar>
         </nb-card-body>
       </nb-card>

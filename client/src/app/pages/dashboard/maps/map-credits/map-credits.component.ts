@@ -1,5 +1,10 @@
-import {Component, Input} from '@angular/core';
+import {Component, EventEmitter, Input, Output} from '@angular/core';
 import {User} from '../../../../@core/models/user.model';
+
+export interface UserCreditChangeEvent {
+  user: User;
+  added: boolean;
+}
 
 @Component({
   selector: 'map-credits',
@@ -12,10 +17,16 @@ export class MapCreditsComponent {
   @Input('testers') testers: User[];
   @Input('special-thanks') specialThanks: User[];
   @Input('editable') editable: boolean;
+  @Output() authorChange: EventEmitter<UserCreditChangeEvent>;
+  @Output() testerChange: EventEmitter<UserCreditChangeEvent>;
+  @Output() specialThanksChange: EventEmitter<UserCreditChangeEvent>;
   constructor() {
     this.authors = [];
     this.testers = [];
     this.specialThanks = [];
     this.editable = false;
+    this.authorChange = new EventEmitter<UserCreditChangeEvent>();
+    this.testerChange = new EventEmitter<UserCreditChangeEvent>();
+    this.specialThanksChange = new EventEmitter<UserCreditChangeEvent>();
   }
 }

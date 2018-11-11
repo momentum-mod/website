@@ -7,6 +7,11 @@ import 'rxjs/add/operator/mergeMap';
 import {FormBuilder, FormGroup, Validators} from '@angular/forms';
 import {User} from '../../../../@core/models/user.model';
 
+export interface ImageFilePreview {
+  dataBlobURL: string;
+  file: File;
+}
+
 @Component({
   selector: 'map-upload-form',
   templateUrl: './map-upload-form.component.html',
@@ -18,31 +23,43 @@ export class MapUploadFormComponent implements AfterViewInit {
 
   mapFile: File;
   avatarFile: File;
+  extraImages: ImageFilePreview[];
   mapUploadPercentage: number;
   isUploadingMap: boolean;
   authors: User[];
   testers: User[];
   specialThanks: User[];
 
-  mapUploadFormGroup: FormGroup = this.fb.group({
-    'name': ['', Validators.required],
-    'info': this.fb.group({
-      'description': ['', [Validators.required, Validators.maxLength(1000)]],
-      'numBonuses': [0, [Validators.required, Validators.min(0), Validators.max(64)]],
-      'numCheckpoints': [0, [Validators.required, Validators.min(0), Validators.max(64)]],
-      'numStages': [0, [Validators.required, Validators.min(0), Validators.max(64)]],
-      'difficulty': [0, [Validators.required, Validators.min(0), Validators.max(6)]],
-      'created': [new Date(), [Validators.required, Validators.max(Date.now())]],
-    }),
+  filesForm: FormGroup = this.fb.group({
+    'map': ['', Validators.required],
+    'avatar': ['', Validators.required],
+    // TODO: the 5 optional image files
   });
-  get name() { return this.mapUploadFormGroup.get('name'); }
-  get info() { return this.mapUploadFormGroup.get('info'); }
-  get description() { return this.info.get('description'); }
-  get numBonuses() { return this.info.get('numBonuses'); }
-  get numCheckpoints() { return this.info.get('numCheckpoints'); }
-  get numStages() { return this.info.get('numStages'); }
-  get difficulty() { return this.info.get('difficulty'); }
-  get created() { return this.info.get('created'); }
+  infoForm: FormGroup = this.fb.group( {
+    'name': ['', Validators.required],
+    'description': ['', [Validators.required, Validators.maxLength(1000)]],
+    'numBonuses': [0, [Validators.required, Validators.min(0), Validators.max(64)]],
+    'numCheckpoints': [0, [Validators.required, Validators.min(0), Validators.max(64)]],
+    'numStages': [0, [Validators.required, Validators.min(0), Validators.max(64)]],
+    'difficulty': [0, [Validators.required, Validators.min(0), Validators.max(6)]],
+    'created': [new Date(), [Validators.required, Validators.max(Date.now())]],
+  });
+  creditsForm: FormGroup = this.fb.group({
+    'authors': [[], Validators.required],
+    'testers': this.fb.array([]),
+    'specialThanks': this.fb.array([]),
+  });
+  forms: FormGroup[] = [this.filesForm, this.infoForm, this.creditsForm];
+
+  get map() { return this.filesForm.get('map'); }
+  get avatar() { return this.filesForm.get('avatar'); }
+  get name() { return this.infoForm.get('name'); }
+  get description() { return this.infoForm.get('description'); }
+  get numBonuses() { return this.infoForm.get('numBonuses'); }
+  get numCheckpoints() { return this.infoForm.get('numCheckpoints'); }
+  get numStages() { return this.infoForm.get('numStages'); }
+  get difficulty() { return this.infoForm.get('difficulty'); }
+  get created() { return this.infoForm.get('created'); }
 
   constructor(private mapsService: MapsService,
               private router: Router,
@@ -53,6 +70,7 @@ export class MapUploadFormComponent implements AfterViewInit {
     this.authors = [];
     this.testers = [];
     this.specialThanks = [];
+    this.extraImages = [];
   }
   ngAfterViewInit() {
     this.datePicker.max = new Date();
@@ -61,22 +79,27 @@ export class MapUploadFormComponent implements AfterViewInit {
 
   onMapFileSelected(event) {
     this.mapFile = event.target.files[0];
-    this.mapUploadFormGroup.patchValue({
-      name: this.mapFile.name.replace(/.bsp/g, ''),
+    this.filesForm.patchValue({
+      map: this.mapFile.name,
     });
+    const nameVal = this.mapFile.name.replace(/.bsp/g, '');
+    this.name.patchValue(nameVal);
   }
 
   onAvatarFileSelected(event) {
     this.avatarFile = event.target.files[0];
+    this.filesForm.patchValue({
+      avatar: this.avatarFile.name,
+    });
   }
 
   onSubmit() {
-    if (!this.mapUploadFormGroup.valid)
+    if (!(this.filesForm.valid || this.infoForm.valid || this.creditsForm.valid))
       return;
     let mapCreated = false;
     let mapID = '';
     let uploadLocation = '';
-    this.mapsService.createMap(this.mapUploadFormGroup.value)
+    this.mapsService.createMap(this.infoForm.value)
     .mergeMap(res => {
       mapID = res.body.id;
       uploadLocation = res.headers.get('Location');
@@ -122,9 +145,61 @@ export class MapUploadFormComponent implements AfterViewInit {
   }
 
   private resetForm() {
-    this.mapUploadFormGroup.reset();
+    this.filesForm.reset();
+    this.infoForm.reset();
+    this.creditsForm.reset();
     this.mapFile = null;
     this.avatarFile = null;
     this.mapUploadPercentage = 0;
+  }
+
+  markFormAsDirty(formG: FormGroup) {
+    for (const i in formG.controls)
+      formG.controls[i].markAsTouched();
+  }
+
+  touchForm(selected: number) {
+    if (selected >= 0 && selected < this.forms.length )
+      this.markFormAsDirty(this.forms[selected]);
+  }
+
+  onAuthorChange($event) {
+    if ($event.added) {
+      this.creditsForm.patchValue({
+        authors: this.authors,
+      });
+    } else {
+      this.creditsForm.setValue({
+        authors: this.authors,
+        testers: this.testers,
+        specialThanks: this.specialThanks,
+      });
+    }
+  }
+
+  onTesterAdd($event) {
+    // TODO: implement
+  }
+
+  onSTAdd($event) {
+    // TODO: implement
+  }
+
+  getFileSource(img: File) {
+    let reader = new FileReader();
+    const handler = (e) => {
+      this.extraImages.push({
+        dataBlobURL: e.target.result,
+        file: img,
+      });
+      reader.removeEventListener('load', handler, false);
+      reader = null;
+    };
+    reader.addEventListener('load', handler, false);
+    reader.readAsDataURL(img);
+  }
+
+  onExtraImageSelected($event) {
+    this.getFileSource($event.target.files[0]);
   }
 }
