@@ -88,6 +88,8 @@ $nb-themes: nb-register-theme((
 
   progress-bar-background: linear-gradient(90deg, #00c7c7 0%, #00d977 100%),
 
+  stepper-label-font-size: 1.25rem,
+  stepper-index-size: 3rem,
   // Custom definitions
   notif-unread-bg: rgba(0, 130, 350, 0.25),
   user-follow-fg: #2e66a5,

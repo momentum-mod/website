@@ -1,4 +1,4 @@
-import {Component, Input, ViewChild} from '@angular/core';
+import {Component, EventEmitter, Input, Output, ViewChild} from '@angular/core';
 import {User} from '../../../../../@core/models/user.model';
 import {NbPopoverDirective} from '@nebular/theme';
 
@@ -13,9 +13,13 @@ export class MapCreditComponent {
   @Input('categoryArr') categoryArray: User[];
   @Input('editable') editable: boolean;
   @ViewChild(NbPopoverDirective) popover;
+  @Output() userAdded: EventEmitter<User>;
+  @Output() userRemoved: EventEmitter<User>;
   alreadySelected: boolean;
   constructor() {
     this.alreadySelected = false;
+    this.userAdded = new EventEmitter<User>();
+    this.userRemoved = new EventEmitter<User>();
   }
   addUser(user: User) {
     if (this.categoryArray.find((val => val.id === user.id))) {
@@ -23,6 +27,7 @@ export class MapCreditComponent {
     } else {
       this.alreadySelected = false;
       this.categoryArray.push(user);
+      this.userAdded.emit(user);
       this.popover.hide();
     }
   }
@@ -30,6 +35,7 @@ export class MapCreditComponent {
     const indx = this.categoryArray.indexOf(user);
     if (indx > -1) {
       this.categoryArray.splice(indx, 1);
+      this.userRemoved.emit(user);
     }
   }
 }

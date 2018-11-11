@@ -1,5 +1,16 @@
 <div class="row">
-  <map-credit class="col" [editable]="editable" category="Authors" [categoryArr]="authors"></map-credit>
-  <map-credit class="col" [editable]="editable" category="Testers" [categoryArr]="testers"></map-credit>
-  <map-credit class="col" [editable]="editable" category="Special Thanks" [categoryArr]="specialThanks"></map-credit>
+  <map-credit class="col" [editable]="editable" category="Authors"
+              [categoryArr]="authors" (userAdded)="authorChange.emit({user: $event, added: true})"
+              (userRemoved)="authorChange.emit({user: $event, added: false})">
+
+  </map-credit>
+  <map-credit class="col" [editable]="editable" category="Testers"
+              [categoryArr]="testers" (userAdded)="testerChange.emit({user: $event, added: true})"
+              (userRemoved)="testerChange.emit({user: $event, added: false})">
+
+  </map-credit>
+  <map-credit class="col" [editable]="editable" category="Special Thanks"
+              [categoryArr]="specialThanks" (userAdded)="specialThanksChange.emit({user: $event, added: true})"
+              (userRemoved)="specialThanksChange.emit({user: $event, added: false})">
+  </map-credit>
 </div>
