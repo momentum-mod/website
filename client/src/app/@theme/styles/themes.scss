@@ -66,6 +66,7 @@ $nb-themes: nb-register-theme((
   btn-success-bg: #2e66a5,
   checkbox-checked-border-color: #2e66a5,
 
+  popover-shadow: 0 8px 20px 0 rgba(46, 102, 165, 0.6),
   switcher-background: #4e41a5,
   switcher-background-percentage: 14%,
   drops-icon-line-gadient: -webkit-linear-gradient(#a258fe, #7958fa),
@@ -90,8 +91,11 @@ $nb-themes: nb-register-theme((
 
   stepper-label-font-size: 1.25rem,
   stepper-index-size: 3rem,
+  stepper-step-padding: 0.5rem,
   // Custom definitions
   notif-unread-bg: rgba(0, 130, 350, 0.25),
   user-follow-fg: #2e66a5,
+  file-upload-border-color: #1b3d64,
+  file-upload-border-color-hover: #2e66a5,
 
 ), dark, cosmic);

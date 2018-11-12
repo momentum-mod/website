@@ -31,8 +31,8 @@ export class MapUploadFormComponent implements AfterViewInit {
   specialThanks: User[];
 
   filesForm: FormGroup = this.fb.group({
-    'map': ['', Validators.required],
-    'avatar': ['', Validators.required],
+    'map': ['', [Validators.required, Validators.pattern('.+(\\.bsp)')]],
+    'avatar': ['', [Validators.required, Validators.pattern('.+(\\.(pn|jpe?)g)')]],
     // TODO: the 5 optional image files
   });
   infoForm: FormGroup = this.fb.group( {
@@ -77,8 +77,8 @@ export class MapUploadFormComponent implements AfterViewInit {
     this.datePicker.date = new Date();
   }
 
-  onMapFileSelected(event) {
-    this.mapFile = event.target.files[0];
+  onMapFileSelected(file: File) {
+    this.mapFile = file;
     this.filesForm.patchValue({
       map: this.mapFile.name,
     });
@@ -86,8 +86,8 @@ export class MapUploadFormComponent implements AfterViewInit {
     this.name.patchValue(nameVal);
   }
 
-  onAvatarFileSelected(event) {
-    this.avatarFile = event.target.files[0];
+  onAvatarFileSelected(file: File) {
+    this.avatarFile = file;
     this.filesForm.patchValue({
       avatar: this.avatarFile.name,
     });
@@ -199,7 +199,11 @@ export class MapUploadFormComponent implements AfterViewInit {
     reader.readAsDataURL(img);
   }
 
-  onExtraImageSelected($event) {
-    this.getFileSource($event.target.files[0]);
+  onExtraImageSelected(file: File) {
+    this.getFileSource(file);
+  }
+
+  removeExtraImage(img: ImageFilePreview) {
+    this.extraImages.splice(this.extraImages.findIndex(i => i === img), 1);
   }
 }

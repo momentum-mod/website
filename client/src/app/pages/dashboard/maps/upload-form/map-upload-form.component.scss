@@ -1,16 +1,61 @@
-.fileUpload {
-  position: relative;
-  overflow: hidden;
-  margin: 10px;
+.file-col {
+  text-align: center;
+  border-right: 3px dashed white;
 }
-.fileUpload input.upload {
-  position: absolute;
-  top: 0;
-  right: 0;
-  margin: 0;
-  padding: 0;
+
+.optional-col {
+  text-align: center;
+
+  .col-title {
+    font-style: italic;
+    font-weight: 200;
+  }
+}
+
+.next-button {
+  float: right;
+}
+
+.col-title {
+  text-align: center;
+  font-size: 2em;
+  font-family: 'Exo', serif;
+  font-weight: 500;
+  margin-bottom: 3%;
+  display: block;
+}
+
+.input-title {
   font-size: 20px;
-  cursor: pointer;
+  font-family: 'Exo', serif;
+  display: block;
+  margin-bottom: 3%;
+}
+
+.extra-images {
+  margin-left: 5%;
+  margin-right: 5%;
+}
+
+.extra-image {
+  max-width: 200px;
+}
+
+.button {
+  position: absolute;
+  width: auto;
+  right: 6%;
+  top: 2%;
+  text-align: center;
   opacity: 0;
-  filter: alpha(opacity=0);
+  transition: opacity 0.15s ease;
+
+  .btn {
+    width: 1rem;
+    padding: 0;
+  }
+}
+
+.extra-image-cont:hover .button {
+  opacity: 1;
 }

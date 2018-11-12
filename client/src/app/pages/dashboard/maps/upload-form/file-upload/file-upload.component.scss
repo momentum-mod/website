@@ -1,0 +1,23 @@
+@import '../../../../../@theme/styles/styles';
+
+.drop_zone {
+  border: 0.25rem dashed nb-theme(file-upload-border-color);
+  -webkit-border-radius: 0.5rem;
+  -moz-border-radius: 0.5rem;
+  border-radius: 0.5rem;
+}
+
+.files-ready {
+  border: 0.25rem solid nb-theme(file-upload-border-color-hover);
+}
+
+.upload-content {
+  margin-top: 1rem;
+  display: block;
+  text-align: center;
+  height: 100%;
+}
+
+.danger {
+  color: nb-theme(color-danger);
+}

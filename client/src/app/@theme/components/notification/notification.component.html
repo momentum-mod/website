@@ -2,7 +2,7 @@
   <nb-list-item *ngIf="notifications.length === 0">
     <span class="no-notifs">No notifications.</span>
   </nb-list-item>
-  <nb-list-item *ngFor="let notification of notifications" [ngClass]="notification.read ? '' : 'unread'">
+  <nb-list-item *ngFor="let notification of notifications" [ngClass]="{'unread': notification.read}">
     <div class="button">
       <button class="btn btn-outline-danger btn-xs btn-icon" (click)="removeNotif(notification)">
         <i class="ion ion-close-round"></i>
