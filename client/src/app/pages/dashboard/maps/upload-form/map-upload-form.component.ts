@@ -94,12 +94,17 @@ export class MapUploadFormComponent implements AfterViewInit {
   }
 
   onSubmit() {
-    if (!(this.filesForm.valid || this.infoForm.valid || this.creditsForm.valid))
+    if (!(this.filesForm.valid && this.infoForm.valid && this.creditsForm.valid))
       return;
     let mapCreated = false;
     let mapID = '';
     let uploadLocation = '';
-    this.mapsService.createMap(this.infoForm.value)
+
+    const mapObject = {
+      name: this.name.value,
+      info: this.infoForm.value,
+    };
+    this.mapsService.createMap(mapObject)
     .mergeMap(res => {
       mapID = res.body.id;
       uploadLocation = res.headers.get('Location');
@@ -126,10 +131,10 @@ export class MapUploadFormComponent implements AfterViewInit {
         }
       }
     }, err => {
+      console.error(err);
       const errorMessage = err.error.error ?
         err.error.error.message
         : 'Something went wrong!';
-      console.error(errorMessage);
       this.isUploadingMap = false;
       if (mapCreated) {
         this.onSubmitSuccess();
