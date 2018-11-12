@@ -1,5 +1,5 @@
 import { NbMenuItem } from '@nebular/theme';
-import {Permission} from '../../@core/models/permissions.model';
+// import {Permission} from '../../@core/models/permissions.model';
 
 export const MENU_ITEMS: NbMenuItem[] = [
   {
@@ -7,17 +7,6 @@ export const MENU_ITEMS: NbMenuItem[] = [
     icon: 'nb-home',
     link: '/dashboard',
     home: true,
-  },
-  {
-    title: 'User Management',
-    icon: 'nb-tables',
-    link: '/dashboard/users',
-    data: {
-      permissions: [
-        Permission.ADMIN,
-        Permission.MODERATOR,
-      ],
-    },
   },
   {
     title: 'Community',
@@ -35,10 +24,6 @@ export const MENU_ITEMS: NbMenuItem[] = [
         pathMatch: 'partial',
       },
       {
-        title: 'Map Queue',
-        link: '/dashboard/maps/queue',
-      },
-      {
         title: 'My Library',
         link: '/dashboard/maps/library',
       },
@@ -47,6 +32,27 @@ export const MENU_ITEMS: NbMenuItem[] = [
         pathMatch: 'partial',
         link: '/dashboard/maps',
       },
-      ],
+    ],
+  },
+  {
+    title: 'Administration',
+    icon: 'nb-locked',
+    link: '/dashboard/admin',
+    // data: {
+    //   permissions: [
+    //     Permission.ADMIN,
+    //     Permission.MODERATOR,
+    //   ],
+    // },
+    children: [
+      {
+        title: 'Map Queue',
+        link: '/dashboard/admin/map-queue',
+      },
+      {
+        title: 'Report Queue',
+        link: '/dashboard/admin/report-queue',
+      },
+    ],
   },
 ];

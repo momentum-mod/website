@@ -30,6 +30,7 @@ import {
 import { CommunityNewsComponent } from './community/community-news/community-news.component';
 import { CommunityTwitchStreamComponent } from './community/community-twitch-stream/community-twitch-stream.component';
 import { CommunityActivityComponent } from './community/community-activity/community-activity.component';
+import {AdminModule} from './admin/admin.module';
 
 @NgModule({
   imports: [
@@ -45,6 +46,7 @@ import { CommunityActivityComponent } from './community/community-activity/commu
     FormsModule,
     NotFoundModule,
     DashboardRoutingModule,
+    AdminModule,
   ],
   declarations: [
     DashboardComponent,
