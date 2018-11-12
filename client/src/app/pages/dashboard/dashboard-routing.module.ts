@@ -8,6 +8,7 @@ import {NotFoundDashboardComponent} from '../not-found/dashboard/not-found-dashb
 import {UserProfileComponent} from './profile/user-profile.component';
 import {ProfileEditComponent} from './profile/profile-edit/profile-edit.component';
 import {PermissionGuard} from '../../@core/guards/permission.guard';
+import {Permission} from '../../@core/models/permissions.model';
 
 const routes: Routes = [
   {
@@ -42,6 +43,14 @@ const routes: Routes = [
             component: UserProfileComponent,
           },
         ],
+      },
+      {
+        path: 'admin',
+        loadChildren: 'app/pages/dashboard/admin/admin.module#AdminModule',
+        canActivate: [PermissionGuard],
+        data: {
+          onlyAllow: [Permission.MODERATOR | Permission.ADMIN],
+        },
       },
       {
         path: '',
