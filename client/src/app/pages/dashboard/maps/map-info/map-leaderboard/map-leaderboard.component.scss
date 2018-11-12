@@ -1,0 +1,51 @@
+table {
+  font-family: arial, sans-serif;
+  border-collapse: collapse;
+  width: 100%;
+}
+
+td {
+  border: 1px solid #303030;
+  text-align: left;
+  padding: 8px;
+}
+
+tr:nth-child(even) {
+  background-color: #303030;
+}
+
+th {
+  border: 1px solid #303030;
+  text-align: left;
+  padding: 8px;
+  font-size: 20px;
+}
+
+.header {
+  margin-bottom: 2%;
+}
+
+.filter-active, .filter-btn.main:hover {
+  background-color: #555;
+}
+
+.filter-content {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.2s ease-out;
+  // background-color: #222222;
+
+  .filter-active {
+    background-color: #555;
+  }
+}
+
+.name {
+  font-family: 'Exo', serif;
+  font-size: 2rem;
+  font-weight: 500;
+}
+
+.filter-btn {
+  float: right;
+}

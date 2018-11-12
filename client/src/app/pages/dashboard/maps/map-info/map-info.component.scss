@@ -1,41 +1,9 @@
-table {
-  font-family: arial, sans-serif;
-  border-collapse: collapse;
-  width: 100%;
-}
-
-td {
-  border: 1px solid #303030;
-  text-align: left;
-  padding: 8px;
-}
-
-tr:nth-child(even) {
-  background-color: #303030;
-}
-
-th {
-  border: 1px solid #303030;
-  text-align: left;
-  padding: 8px;
-  font-size: 20px;
-}
-
 img {
   float:left;
   height: 250px;
   margin-right: 25px;
 }
 
-.active, .collapsible:hover {
-  background-color: #555;
+map-leaderboard {
+  margin: 2%;
 }
-
-.content {
-  padding: 0 18px;
-  max-height: 0;
-  overflow: hidden;
-  transition: max-height 0.2s ease-out;
-  background-color: #222222;
-}
-

@@ -36,7 +36,6 @@ export class MapInfoComponent implements OnInit {
         // TODO: if there's ever server error (500) print some text?
       });
     });
-    this.collapse();
   }
 
   onLibraryUpdate() {
@@ -49,23 +48,6 @@ export class MapInfoComponent implements OnInit {
         this.mapInLibrary = true;
       }, error => {
         this.toastService.popAsync('error', 'Cannot add map to library', error.message);
-      });
-    }
-  }
-
-  collapse() {
-    const coll = document.getElementsByClassName('collapsible');
-    let i;
-
-    for (i = 0; i < coll.length; i++) {
-      coll[i].addEventListener('click', function() {
-        this.classList.toggle('active');
-        const content = this.nextElementSibling;
-        if (content.style.maxHeight) {
-          content.style.maxHeight = null;
-        } else {
-          content.style.maxHeight = content.scrollHeight + 'px';
-        }
       });
     }
   }
