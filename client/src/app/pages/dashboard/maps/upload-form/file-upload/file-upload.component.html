@@ -1,0 +1,15 @@
+<div class="drop_zone" (drop)="dropHandler($event);"
+     (dragover)="dragOverHandler($event);" (dragenter)="dragOver = true;" (dragexit)="dragOver = false;"
+      [ngClass]="{'files-ready': dragOver}">
+  <input [hidden]="true" id="uploadFile" type="file" [accept]="acceptString" class="upload" (change)="onFileSelected($event);" #fileUploadInput/>
+  <div class="upload-content">
+    <h4 *ngIf="showSelected && selectedFile">{{selectedFile.name}}</h4>
+    <h4><span class="danger" *ngIf="invalidSize">File too big!</span></h4>
+    <h4><span class="danger" *ngIf="invalidType">Wrong type of file!</span></h4>
+    <button class="fileUpload btn btn-outline-info col-auto" type="button"
+            (click)="fileUploadInput.click(); invalidType = false; invalidSize = false;">
+      Choose File
+    </button>
+    <h6><i>Or drag file here</i></h6>
+  </div>
+</div>

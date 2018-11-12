@@ -2,53 +2,68 @@
   <div class="col-md-12 col-lg-12">
     <div class="col-lg-12">
       <h1>SUBMIT A MAP</h1>
-
       <nb-card class="inline-form-card">
         <nb-card-body>
-          <nb-stepper orientation="vertical" #stepper>
+          <nb-stepper orientation="horizontal" #stepper>
             <nb-step label="Files" [stepControl]="filesForm">
               <form [formGroup]="filesForm">
-                <div class="row">
-                  <div class="col-auto">
-                    <div>
-                      <h2>Map File</h2>
-                    </div>
-                    <div>
-                      <input [readonly]="true" title="uploadMapFile" formControlName="map" class="form-control col-md-10" style="display: inline;"
-                             [ngClass]="{'form-control-danger': map.invalid && (map.dirty || map.touched)}" #uploadFile/>
-                    </div>
-                    <div>
-                      <input [hidden]="true" id="uploadBtnMap" type="file" accept=".bsp" class="upload" (change)="onMapFileSelected($event);" #mapUpload/>
-                      <button class="fileUpload btn btn-outline-info col-auto" type="button" (click)="mapUpload.click()">Choose File</button>
-                    </div>
-                  </div>
-                  <div class="col-auto">
-                    <div>
-                      <h2>Map Thumbnail</h2>
-                    </div>
-                    <div>
-                      <input [readonly]="true" class="form-control col-md-10" style="display: inline;" formControlName="avatar"
-                             [ngClass]="{'form-control-danger': avatar.invalid && (avatar.dirty || avatar.touched)}"
-                             #uploadFile/>
-                    </div>
-                    <div>
-                      <input [hidden]="true" id="uploadBtnAvatar" type="file" accept="image/*" class="upload"
-                             (change)="onAvatarFileSelected($event); " #avatarUpload/>
-                      <button class="fileUpload btn btn-outline-info" type="button" (click)="avatarUpload.click()">Choose File</button>
-                    </div>
-                  </div>
-                  <div class="col-auto">
-                    <div>
-                      <h2><i>Optional: Additional Map Photos</i></h2>
-                    </div>
-                    <div class="row">
-                      <div class="col-auto" *ngFor="let img of extraImages">
-                        <img [src]="img.dataBlobURL" style="max-width: 200px;">
+                <div class="row no-gutters">
+                  <div class="col-6 file-col">
+                    <span class="col-title">Required</span>
+                    <div class="row no-gutters">
+                      <div class="col-4 offset-1">
+                        <div>
+                          <span class="input-title">Map File</span>
+                        </div>
+                        <div>
+                          <input [readonly]="true" title="uploadMapFile" formControlName="map" class="form-control"
+                                 [ngClass]="{'form-control-danger': map.invalid && (map.dirty || map.touched)}" #uploadFile/>
+                        </div>
+                        <div>
+                          <file-upload [map]="true" [limit-size]="200" type=".bsp" (fileSelected)="onMapFileSelected($event)"></file-upload>
+                        </div>
                       </div>
-                      <input [hidden]="true" id="uploadImageFile" type="file" accept="image/*" class="upload" (change)="onExtraImageSelected($event)" #extraUpload>
-                      <button class="btn btn-outline-info" type="button" (click)="extraUpload.click()" *ngIf="extraImages.length < 5">
-                        <i class="ion ion-plus"></i>
-                      </button>
+                      <div class="col-4 offset-2">
+                        <div>
+                          <span class="input-title">Map Thumbnail
+                          <i class="ion ion-help-circled"
+                             nbPopover="Make sure to choose the image that represents your map the best!
+                             This will be the main image that shows up in the map selector for your map!"
+                             nbPopoverMode="hint"></i>
+                          </span>
+                        </div>
+                        <div>
+                          <input [readonly]="true" class="form-control" formControlName="avatar"
+                                 [ngClass]="{'form-control-danger': avatar.invalid && (avatar.dirty || avatar.touched)}"
+                                 #uploadFile/>
+                        </div>
+                        <div>
+                          <file-upload [image]="true" (fileSelected)="onAvatarFileSelected($event)"></file-upload>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="col-6 optional-col">
+                    <span class="col-title">Optional</span>
+                    <div>
+                      <span class="input-title">Additional Map Photos
+                        <i class="ion ion-help-circled" nbPopover="You may upload up to 5 extra photos that also best represent your map."
+                        nbPopoverMode="hint"></i>
+                      </span>
+                    </div>
+                    <div class="extra-images">
+                      <div class="row">
+                        <div class="col-auto extra-image-cont" *ngFor="let img of extraImages">
+                          <img class="extra-image" [src]="img.dataBlobURL">
+                          <div class="button">
+                            <button class="btn btn-outline-danger btn-xs btn-icon" (click)="removeExtraImage(img)">
+                              <i class="ion ion-close-round"></i>
+                            </button>
+                          </div>
+                        </div>
+                        <file-upload [image]="true" (fileSelected)="onExtraImageSelected($event)" *ngIf="extraImages.length < 5"
+                        [ngStyle]="{'margin': extraImages.length === 0 ? 'auto' : ''}"></file-upload>
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -119,14 +134,14 @@
 
             <!-- TODO: Maybe add another tab here for "Summary"? Let them preview the info page?-->
           </nb-stepper>
-          <div [ngClass]="{'btn-group': stepper.selectedIndex !== stepper.steps?.length && stepper.selectedIndex !== 0}">
-            <button class="btn btn-outline-info" type="submit" *ngIf="stepper.selectedIndex !== 0"
+          <div>
+            <button class="btn btn-outline-info previous-button" type="submit" *ngIf="stepper.selectedIndex !== 0"
                     (click)="touchForm(stepper.selectedIndex); stepper.previous()">
-              <i class="ion ion-chevron-up"></i>
+              <i class="ion ion-chevron-left"></i>
             </button>
-            <button class="btn btn-outline-info" type="submit" *ngIf="stepper.selectedIndex !== stepper.steps?.length - 1"
+            <button class="btn btn-outline-info next-button" type="submit" *ngIf="stepper.selectedIndex !== stepper.steps?.length - 1"
                     (click)="touchForm(stepper.selectedIndex); stepper.next()">
-              <i class="ion ion-chevron-down"></i>
+              <i class="ion ion-chevron-right"></i>
             </button>
           </div>
           <nb-progress-bar *ngIf="isUploadingMap" [value]="mapUploadPercentage" [size]="'xlg'" [displayValue]="true"></nb-progress-bar>

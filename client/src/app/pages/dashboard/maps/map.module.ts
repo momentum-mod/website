@@ -17,6 +17,7 @@ import {NbDatepickerModule, NbListModule, NbStepperModule} from '@nebular/theme'
 import {MapCreditsComponent} from './map-credits/map-credits.component';
 import {UserModule} from '../user/user.module';
 import {MapCreditComponent} from './map-credits/map-credit/map-credit.component';
+import {FileUploadComponent} from './upload-form/file-upload/file-upload.component';
 
 @NgModule({
   imports: [
@@ -41,6 +42,7 @@ import {MapCreditComponent} from './map-credits/map-credit/map-credit.component'
     QueuedMapComponent,
     MapCreditsComponent,
     MapCreditComponent,
+    FileUploadComponent,
   ],
   providers: [],
 })
