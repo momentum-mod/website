@@ -18,6 +18,40 @@
     <h1>Leaderboard</h1>
   </nb-card-header>
   <nb-card-body>
+    <button class="collapsible btn btn-outline-info">Filter</button>
+    <div class="content">
+      <br>
+        <div class="row">
+          <div class="col-md-3">
+            <input type="text" class="form-control full-width" placeholder="Rank">
+          </div>
+          <div class="col-md-3">
+            <input type="text" class="form-control full-width" placeholder="Name">
+          </div>
+          <div class="col-md-3">
+            <div>
+            <input type="checkbox" name="wonly" value="W-Only"> W-Only<br>
+            <input type="checkbox" name="backwards" value="Backwards"> Backwards<br>
+            </div>
+          </div>
+          <div class="col-md-3">
+          </div>
+        </div>
+      <br>
+      <div class="row">
+        <div class="col-md-3">
+          <button class="btn btn-outline-primary">Clear</button>
+        </div>
+        <div class="col-md-3">
+        </div>
+        <div class="col-md-3">
+        </div>
+        <div class="col-md-3">
+          <button class="btn btn-outline-info">Update</button>
+        </div>
+      </div>
+      <br>
+    </div>
     <table>
       <tr>
         <th>Rank</th>
