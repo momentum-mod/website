@@ -21,7 +21,7 @@ describe('auth', () => {
 	};
 
 	describe('modules', () => {
-		it('should generate a valid JWT', () => {
+		it('should generate a valid access token', () => {
 			return auth.genAccessToken({
 				id: testUser.id,
 				permissions: testUser.permissions
