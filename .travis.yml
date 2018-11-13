@@ -30,41 +30,26 @@ addons:
     - yarn
   chrome: stable
 
-#install:
-#  - cd ./client/
-#  - npm install -g @angular/cli
-#  - yarn install
-#  - cd ../server/
-#  - yarn install
-#  - bash setup-db.sh
-#  - cd ../client/
-#
-#script:
-#  - npm run lint:ci
-#  - npm run test
-#  # TODO uncomment when we have client integration tests
-#  #- xvfb-run npm run e2e
-#  - npm run build:prod
-#  - cd ../server/
-#  - npm test
-  
 jobs:
   include:
-  - stage: "Lint"
+  - stage: "Pre-build"
     name: "Client Lint"
-    install: cd ./client/ && npm install -g @angular/cli && yarn install
+    before_install: cd ./client/
+    install: npm install -g @angular/cli && yarn install
     script: npm run lint:ci
-  - stage: "Tests"
-    name: "Client Tests"
-    install: cd ./client/ && npm install -g @angular/cli && yarn install
+  - name: "Client Tests"
+    before_install: cd ./client/
+    install: npm install -g @angular/cli && yarn install
     script: npm run test
   - name: "Server Tests"
-    install: cd ./server/ && yarn install
+    before_install: cd ./server/
+    install: yarn install
     before_script: bash setup-db.sh
     script: npm test
   #- name: "Client Integration Tests"
     # TODO: Uncomment when we have client integration tests
     #- script: cd ./client/ && xvfb-run npm run e2e
   - stage: "Build"
-    install: cd ./client/ && npm install -g @angular/cli && yarn install
+    before_install: cd ./client/
+    install: npm install -g @angular/cli && yarn install
     script: npm run build:prod
