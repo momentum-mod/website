@@ -4,18 +4,18 @@ import { NbMenuItem } from '@nebular/theme';
 export const MENU_ITEMS: NbMenuItem[] = [
   {
     title: 'Dashboard',
-    icon: 'nb-home',
+    icon: 'ion-home',
     link: '/dashboard',
     home: true,
   },
   {
     title: 'Community',
-    icon: 'nb-compose',
+    icon: 'ion-android-people',
     link: '/dashboard/community',
   },
   {
     title: 'Maps',
-    icon: 'ion-map',
+    icon: 'ion-code-download',
     link: '/dashboard/maps',
     children: [
       {
@@ -35,8 +35,13 @@ export const MENU_ITEMS: NbMenuItem[] = [
     ],
   },
   {
+    title: 'Statistics',
+    icon: 'ion-stats-bars',
+    link: '/dashboard/stats',
+  },
+  {
     title: 'Administration',
-    icon: 'nb-locked',
+    icon: 'ion-locked',
     link: '/dashboard/admin',
     // data: {
     //   permissions: [
