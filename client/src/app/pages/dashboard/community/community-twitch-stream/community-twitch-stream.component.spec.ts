@@ -1,6 +1,8 @@
-import { async, ComponentFixture, TestBed } from '@angular/core/testing';
+import {async, ComponentFixture, TestBed} from '@angular/core/testing';
 
-import { CommunityTwitchStreamComponent } from './community-twitch-stream.component';
+import {CommunityTwitchStreamComponent} from './community-twitch-stream.component';
+import {DataModule} from '../../../../@core/data/data.module';
+import {HttpClientModule} from '@angular/common/http';
 
 describe('CommunityTwitchStreamComponent', () => {
   let component: CommunityTwitchStreamComponent;
@@ -8,6 +10,7 @@ describe('CommunityTwitchStreamComponent', () => {
 
   beforeEach(async(() => {
     TestBed.configureTestingModule({
+      imports: [DataModule.forRoot(), HttpClientModule],
       declarations: [ CommunityTwitchStreamComponent ],
     })
     .compileComponents();
