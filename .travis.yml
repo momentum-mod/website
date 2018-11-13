@@ -32,10 +32,6 @@ addons:
 
 jobs:
   include:
-  - name: "Client Lint"
-    before_install: cd ./client/
-    install: npm install -g @angular/cli && yarn install
-    script: npm run lint:ci
   - name: "Client Tests"
     before_install: cd ./client/
     install: npm install -g @angular/cli && yarn install
