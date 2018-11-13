@@ -7,6 +7,7 @@ import {User} from '../models/user.model';
 import {Permission} from '../models/permissions.model';
 import {UserFollowObject} from '../models/follow.model';
 import {FollowStatus} from '../models/follow-status.model';
+import { CookieService } from 'ngx-cookie-service';
 
 @Injectable({
   providedIn: 'root',
@@ -17,9 +18,20 @@ export class LocalUserService {
   private locUserObtEmit: Subject<User>;
 
   constructor(private authService: AuthService,
+              private cookieService: CookieService,
               private http: HttpClient) {
     this.locUserObtEmit = new ReplaySubject<User>(1);
-    this.refreshLocal();
+    const userCookieExists = this.cookieService.check('user');
+    if (userCookieExists) {
+      const userCookie = decodeURIComponent(this.cookieService.get('user'));
+      localStorage.setItem('user', userCookie);
+      this.cookieService.delete('user');
+    }
+    const user = localStorage.getItem('user');
+    if (user) {
+      this.localUser = JSON.parse(localStorage.getItem('user'));
+      this.locUserObtEmit.next(this.localUser);
+    }
   }
 
   public refreshLocal(): void {
@@ -27,6 +39,7 @@ export class LocalUserService {
     this.getLocalUser().subscribe(usr => {
       this.locUserObtEmit.next(usr);
       this.localUser = usr;
+      localStorage.setItem('user', JSON.stringify(usr));
     });
   }
 
