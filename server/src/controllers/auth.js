@@ -14,6 +14,7 @@ module.exports = {
 		auth.genAccessToken(req.user)
 		.then((accessToken) => {
 			res.cookie('accessToken', accessToken);
+			res.cookie('user', JSON.stringify(req.user));
 			res.redirect('/dashboard');
 		}).catch(next);
 	},

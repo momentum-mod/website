@@ -25,6 +25,7 @@ export class AuthService {
 
   public logout(): void {
     localStorage.setItem('accessToken', '');
+    localStorage.setItem('user', '');
     window.location.href = '/';
   }
 
