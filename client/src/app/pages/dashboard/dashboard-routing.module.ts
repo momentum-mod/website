@@ -24,6 +24,10 @@ const routes: Routes = [
         loadChildren: 'app/pages/dashboard/maps/map.module#MapModule',
       },
       {
+        path: 'stats',
+        loadChildren: 'app/pages/dashboard/stats/stats.module#StatsModule',
+      },
+      {
         path: 'community',
         component: CommunityListComponent,
       },
