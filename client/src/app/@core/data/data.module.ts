@@ -11,6 +11,7 @@ import { SmartTableService } from './smart-table.service';
 import { LayoutService } from './layout.service';
 import {ActivityService} from './activity.service';
 import {MapsService} from './maps.service';
+import {TwitchAPIService} from './twitch-api.service';
 
 const SERVICES = [
   ActivityService,
@@ -22,6 +23,7 @@ const SERVICES = [
   StateService,
   SmartTableService,
   LayoutService,
+  TwitchAPIService,
 ];
 
 @NgModule({
