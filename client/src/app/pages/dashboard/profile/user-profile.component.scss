@@ -3,12 +3,22 @@
 .header {
   margin: auto;
   text-align: center;
+  position: relative;
 
   .text {
     display: inline-block;
     padding-top: 1vh;
     padding-bottom: 1vh;
   }
+}
+
+.user-name {
+  display: inline-block;
+}
+
+.edit-profile {
+  right: 0;
+  position: absolute;
 }
 
 .user-image {
