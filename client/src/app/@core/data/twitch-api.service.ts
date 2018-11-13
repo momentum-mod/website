@@ -1,43 +1,32 @@
 import {Injectable} from '@angular/core';
 import {Observable} from 'rxjs';
-import {HttpClient, HttpHeaders, HttpParams} from '@angular/common/http';
+import {HttpClient, HttpHeaders} from '@angular/common/http';
 
 @Injectable()
 export class TwitchAPIService {
-  private baseURL: string = 'https://api.twitch.tv/helix';
-  private clientID: string = '5aerrhj5xm0lgbrpdjw50wjh6pnmbc';
-  private gameID: string = '492973';
-  private readonly options;
+  private readonly baseURL: string;
+  private readonly clientID: string;
+  private readonly gameID: string;
+  private readonly headers: HttpHeaders;
   constructor(private http: HttpClient) {
-    const headers = new HttpHeaders();
-    headers.set('Client-ID', this.clientID);
-    this.options = {
-      headers: headers,
-    };
+    this.baseURL = 'https://api.twitch.tv/helix';
+    this.clientID = '5aerrhj5xm0lgbrpdjw50wjh6pnmbc';
+    this.gameID = '492973';
+    this.headers = new HttpHeaders({
+      'Client-ID': this.clientID,
+    });
   }
 
   public getGameStreams(): Observable<any> {
-    const params: HttpParams = new HttpParams();
-    params.set('game_id', this.gameID);
-    const options = Object.create(this.options);
-    options.params = params;
-    return this.http.get(this.baseURL + '/streams', options);
+    return this.http.get(this.baseURL + '/streams?game_id=' + this.gameID, {headers: this.headers});
   }
 
   public isUserLive(userID: string): Observable<any> {
-    const params: HttpParams = new HttpParams();
-    params.set('game_id', this.gameID);
-    params.set('user_id', userID);
-    const options = Object.create(this.options);
-    options.params = params;
-    return this.http.get(this.baseURL + '/streams', options);
+    return this.http.get(this.baseURL + '/streams?game_id=' + this.gameID + '&user_id=' + userID,
+      {headers: this.headers});
   }
 
   public getGameVideos(): Observable<any> {
-    const params: HttpParams = new HttpParams();
-    params.set('game_id', this.gameID);
-    const options = Object.create(this.options);
-    options.params = params;
-    return this.http.get(this.baseURL + '/videos', options);
+    return this.http.get(this.baseURL + '/videos?game_id=' + this.gameID, {headers: this.headers});
   }
 }
