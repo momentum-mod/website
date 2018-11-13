@@ -8,7 +8,7 @@ const { forceSyncDB, Map, MapInfo, User } = require('../config/sqlize'),
 	server = require('../server.js'),
 	auth = require('../src/models/auth');
 
-	chai.use(chaiHttp);
+chai.use(chaiHttp);
 
 describe('maps', () => {
 
@@ -136,6 +136,22 @@ describe('maps', () => {
 					expect(res).to.be.json;
 				});
 			});
+		});
+
+		describe('GET /api/maps/{mapID}/upload', () => {
+			it('should respond with the location for where to upload the map file');
+		});
+
+		describe('POST /maps/{mapID}/upload', () => {
+			it('should respond with a 400 when no map file is provided');
+			it('should respond with a 404 when the map is not found');
+			it('should respond with a 409 when the map is not accepting uploads');
+			it('should should upload the map file');
+		});
+
+		describe('GET /api/maps/{mapID}/download', () => {
+			it('should respond with a 404 when the map is not found');
+			it('should download the map file');
 		});
 
 	});
