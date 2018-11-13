@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { CookieService } from 'ngx-cookie-service';
 import { JwtHelperService } from '@auth0/angular-jwt';
+import { AccessTokenPayload } from '../models/access-token-payload';
 
 @Injectable()
 export class AuthService {
@@ -34,6 +35,13 @@ export class AuthService {
     }
     const isTokenExpired = jwtHelperService.isTokenExpired(accessToken);
     return !isTokenExpired;
+  }
+
+  public getAccessTokenPayload(): AccessTokenPayload {
+    const accessToken = localStorage.getItem('accessToken');
+    const jwtHelperService = new JwtHelperService();
+    const decodedToken = jwtHelperService.decodeToken(accessToken);
+    return decodedToken;
   }
 
 }
