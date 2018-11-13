@@ -1,7 +1,7 @@
-import { Component, OnInit } from '@angular/core';
-import { LocalUserService } from '../../../@core/data/local-user.service';
+import {Component, OnInit} from '@angular/core';
+import {LocalUserService} from '../../../@core/data/local-user.service';
 import {switchMap} from 'rxjs/operators';
-import {ActivatedRoute, ParamMap} from '@angular/router';
+import {ActivatedRoute, ParamMap, Router} from '@angular/router';
 import {UsersService} from '../../../@core/data/users.service';
 import {User} from '../../../@core/models/user.model';
 import {ReplaySubject} from 'rxjs';
@@ -19,8 +19,11 @@ export class UserProfileComponent implements OnInit {
   isMapper: boolean;
   isMod: boolean;
   isAdmin: boolean;
+  avatar_url: string;
+  avatar_loaded: boolean;
 
   constructor(private route: ActivatedRoute,
+              private router: Router,
               public userService: LocalUserService,
               private usersService: UsersService) {
     this.isLocal = true;
@@ -50,6 +53,25 @@ export class UserProfileComponent implements OnInit {
       this.isMod = (this.user.permissions & Permission.MODERATOR) === Permission.MODERATOR;
       this.isAdmin = (this.user.permissions & Permission.ADMIN) === Permission.ADMIN;
       this.userSubj$.next(usr);
+      if (!this.hasPerm(Permission.BANNED_AVATAR)) {
+        this.avatar_url = this.user.profile.avatarURL;
+      }
+      this.avatar_loaded = true;
     });
+  }
+
+  hasPerm(perm) {
+    if (!this.user)
+      return false;
+    return this.userService.hasPermission(perm, this.user);
+  }
+
+  onEditProfile() {
+    // TODO: Make this open the edit dialog
+    this.router.navigate(['/dashboard/profile/edit']);
+  }
+
+  canEdit(): boolean {
+    return this.isLocal || this.userService.hasPermission(Permission.MODERATOR | Permission.ADMIN);
   }
 }

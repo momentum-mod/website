@@ -1,41 +1,53 @@
-<div class="row">
-  <div class="col">
-    <nb-card>
-      <nb-card-header>
-        <div class="header">
-          <div *ngIf="user" class="user-image" [ngStyle]="{'background-image':'url(' + user?.profile.avatarURL + ')'}">
+<nb-card>
+  <nb-card-header>
+    <div class="header">
+      <div *ngIf="user && canEdit()" class="edit-profile">
+        <button class="btn btn-outline-info" type="button" (click)="onEditProfile()">Edit Profile</button>
+      </div>
+      <div *ngIf="user && avatar_loaded" class="user-image" [ngStyle]="{'background-image':'url(' + avatar_url + ')'}">
+      </div>
+      <div class="user-name">
+        <div *ngIf="user" class="row no-gutters">
+          <span class="text col"><h3>{{user.profile.alias}}</h3></span>
+          <div class="badges col">
+            <div *ngIf="isAdmin" class="badge">
+              <img src="assets/images/badges/admin.png" nbPopover="Admin" nbPopoverMode="hint" nbPopoverPlacement="bottom">
+            </div>
+            <div *ngIf="isMod" class="badge">
+              <img src="assets/images/badges/moderator.png" nbPopover="Moderator" nbPopoverMode="hint" nbPopoverPlacement="bottom">
+            </div>
+            <div *ngIf="isMapper" class="badge">
+              <img src="assets/images/badges/mapper.png" nbPopover="Mapper" nbPopoverMode="hint" nbPopoverPlacement="bottom">
+            </div>
           </div>
-          <div *ngIf="user" class="user-name">
-            <span class="text"><h3 class="user-name">{{user?.profile.alias}}</h3></span>
-          </div>
-          <div *ngIf="user" class="user-rank">
-            <span class="text"><h6>Rank #1</h6></span>
-          </div>
-          <profile-follow *ngIf="!isLocal" [userSubj]="userSubj$"></profile-follow>
         </div>
-      </nb-card-header>
-      <nb-card-body>
-        <nb-tabset [fullWidth]="true">
-          <nb-tab [tabTitle]="'About'">
-            <profile-info [local]="isLocal" [userSubj]="userSubj$"></profile-info>
-          </nb-tab>
-          <nb-tab [tabTitle]="'Activity'">
-            <activity-card [header]="'User Activity'" [userSubj]="userSubj$"></activity-card>
-          </nb-tab>
+      </div>
+      <div *ngIf="user" class="user-rank">
+        <span class="text"><h6>Rank #1</h6></span>
+      </div>
+      <profile-follow *ngIf="!isLocal" [userSubj]="userSubj$"></profile-follow>
+    </div>
+  </nb-card-header>
+  <nb-card-body>
+    <nb-tabset [fullWidth]="true">
+      <nb-tab [tabTitle]="'About'">
+        <profile-info [local]="isLocal" [userSubj]="userSubj$"></profile-info>
+      </nb-tab>
+      <nb-tab [tabTitle]="'Activity'">
+        <activity-card [header]="'User Activity'" [userSubj]="userSubj$"></activity-card>
+      </nb-tab>
 
-          <nb-tab [tabTitle]="'Stats'">
-            <!--TODO put their user stats in here-->
-            <div class="Spacing"><h5>MAPS COMPLETED:</h5> <p>37</p></div>
-            <div class="Spacing"> <h5>TOTAL JUMPS:</h5> <p>411</p></div>
-            <div class="Spacing"><h5>TOTAL STRAFES:</h5> <p>102</p></div>
-          </nb-tab>
+      <nb-tab [tabTitle]="'Stats'">
+        <!--TODO put their user stats in here-->
+        <div class="Spacing"><h5>MAPS COMPLETED:</h5> <p>37</p></div>
+        <div class="Spacing"> <h5>TOTAL JUMPS:</h5> <p>411</p></div>
+        <div class="Spacing"><h5>TOTAL STRAFES:</h5> <p>102</p></div>
+      </nb-tab>
 
-          <nb-tab *ngIf="isMapper" [tabTitle]="'Maps'">
-            <!--TODO put the map list of their maps in here-->
-          </nb-tab>
+      <nb-tab *ngIf="isMapper" [tabTitle]="'Maps'">
+        <!--TODO put the map list of their maps in here-->
+      </nb-tab>
 
-        </nb-tabset>
-      </nb-card-body>
-    </nb-card>
-  </div>
-</div>
+    </nb-tabset>
+  </nb-card-body>
+</nb-card>

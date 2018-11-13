@@ -32,7 +32,6 @@ export class ProfileCardComponent implements OnInit {
       this.avatar_loaded = true;
     });
   }
-
   hasPerm(perm) {
     if (!this.user)
       return false;
