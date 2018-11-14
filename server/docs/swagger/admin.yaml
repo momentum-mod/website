@@ -18,13 +18,7 @@ paths:
        responses:
          204:
            description: User is updated
-  /admin/maps/{mapID}:
-    parameters:
-      - name: mapID
-        in: path
-        required: true
-        description: ID of the map to find
-        type: string
+  /admin/maps:
     get:
       tags:
         - admin

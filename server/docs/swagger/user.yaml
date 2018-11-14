@@ -54,21 +54,33 @@ paths:
       responses:
         200:
           description: OK
-          # TODO: schema
+          schema:
+            $ref: '#/definitions/MapLibraryEntries'
     post:
       summary: Adds a new map to the authenticated user's library
       tags:
         - user
       parameters:
         - in: body
-          name: mapID
-          description: The map ID to add to the library
+          description: An object with the map ID to add to the library
           required: true
-          type: integer
+          schema:
+            type: object
+            properties:
+              mapID:
+                type: integer
       responses:
         200:
           description: The library is updated
-          # TODO: schema
+          schema:
+            type: object
+            properties:
+              entry:
+                type: array
+                items:
+                  oneOf:
+                    - $ref: '#/definitions/MapLibraryEntry'
+                    - type: boolean
   /user/maps/library/{mapID}:
     get:
       summary: Checks to see if a map exists in the authenticated user's library
@@ -98,7 +110,6 @@ paths:
       responses:
         200:
           description: The library entry was successfully deleted
-          # TODO schema
   /user/maps/submitted:
     get:
       tags:
@@ -172,15 +183,19 @@ paths:
       tags:
         - user
       parameters:
-        - name: userID
-          type: string
-          description: The ID of the user to follow
-          in: body
+        - in: body
           required: true
+          description: An object containing the ID of the user to follow
+          type: object
+          properties:
+            userID:
+              type: string
+              description: The ID of the user to follow
       responses:
         200:
           description: OK
-          # TODO schema?
+          schema:
+            $ref: '#/defintions/UserFollow'
   /user/follow/{userID}:
     parameters:
       - name: userID
@@ -194,19 +209,28 @@ paths:
         - user
       responses:
         200:
-          description: OK
-        404:
           description: Object with two keys, local = local user's followship of given user, target = target's relationship to local user, if the key doesn't exist, the relationship doesn't
-      # TODO schema?
+          schema:
+            type: object
+            properties:
+              local:
+                $ref: '#/definitions/UserFollow'
+              target:
+                $ref: '#/definitions/UserFollow'
+        404:
+          description: The user is not found
     patch:
       summary: Updates the following status
       tags:
         - user
       parameters:
-        - name: notifyOn
-          type: integer
+        - in: body
+          required: true
           description: What activities the player wants to be notified of from the given user
-          in: body
+          type: object
+          properties:
+            notifyOn:
+              type: integer
       responses:
         200:
           description: OK
@@ -244,3 +268,31 @@ paths:
            description: OK
            schema:
              $ref: '#/definitions/Activities'
+definitions:
+  MapLibraryEntry:
+    properties:
+      id:
+        type: integer
+        readOnly: true
+      userID:
+        type: string
+        readOnly: true
+      mapID:
+        type: integer
+        readOnly: true
+      createdAt:
+        type: string
+        format: date-time
+        readOnly: true
+      updatedAt:
+        type: string
+        format: date-time
+        readOnly: true
+      map:
+        $ref: '#/definitions/Map'
+  MapLibraryEntries:
+    properties:
+      entries:
+        type: array
+        items:
+          $ref: '#/definitions/MapLibraryEntry'
