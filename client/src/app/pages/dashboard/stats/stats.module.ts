@@ -7,7 +7,8 @@ import {NotFoundModule} from '../../not-found/not-found.module';
 @NgModule ({
   imports: [
     NotFoundModule,
-    StatsRoutingModule],
+    StatsRoutingModule,
+  ],
   declarations: [StatsComponent, GlobalStatsComponent],
 })
 export class StatsModule {

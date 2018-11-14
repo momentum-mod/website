@@ -1,12 +1,19 @@
-<div *ngFor="let blogPost of blogPosts">
-  <div class="row">
-    <h4 class="col">{{blogPost.title}}</h4>
-    <h5 class="col">{{blogPost.timestamp | date}}</h5>
-  </div>
+<nb-card>
+  <nb-card-header>
+    <h1>Blog Posts</h1>
+  </nb-card-header>
+  <nb-card-body>
+    <div *ngFor="let blogPost of blogPosts">
+      <div class="row">
+        <h4 class="col">{{blogPost.title}}</h4>
+        <h5 class="col">{{blogPost.timestamp | date}}</h5>
+      </div>
 
-  <p>
-    {{blogPost.text}}
-    <a [href]="blogPost.post_url">Read More</a>
-  </p>
-</div>
-<h3 *ngIf="loadedPosts">Read more official posts <a href="https://blog.momentum-mod.org">here</a>!</h3>
+      <p>
+        {{blogPost.text}}
+        <a [href]="blogPost.post_url">Read More</a>
+      </p>
+    </div>
+    <h3 *ngIf="loadedPosts">Read more official posts <a href="https://blog.momentum-mod.org">here</a>!</h3>
+  </nb-card-body>
+</nb-card>
