@@ -6,11 +6,13 @@ import {CommunityTwitchStreamComponent} from './community-twitch-stream/communit
 import {CommunityActivityComponent} from './community-activity/community-activity.component';
 import {ThemeModule} from '../../../@theme/theme.module';
 import {NotFoundModule} from '../../not-found/not-found.module';
+import {NgxTwitterTimelineModule} from 'ngx-twitter-timeline';
 
 @NgModule({
   imports: [
     ThemeModule,
     NotFoundModule,
+    NgxTwitterTimelineModule.forRoot(),
     CommunityRoutingModule,
   ],
   declarations: [
