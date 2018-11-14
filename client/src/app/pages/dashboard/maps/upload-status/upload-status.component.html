@@ -1,26 +1,19 @@
-<div class="row">
-  <div class="col-md-12 col-lg-12">
-      <nb-card-header class="row">
-        <div class="col-3">
-          <h1>UPLOADS</h1>
-        </div>
-
-        <div class="col-9">
-          <button type="button" routerLink="/dashboard/maps/uploads/new" class="btn btn-outline-info uploadBtn">Upload a Map</button>
-        </div>
-
-      </nb-card-header> <!--TODO: filter button in the header like activity card-->
-    <nb-card>
-      <nb-card-body>
-        <h1 *ngIf="(maps === undefined || maps?.length === 0) && fetchedMaps" class="noUpload">
-          <i>You have not uploaded any maps. Try <a routerLink="/dashboard/maps/uploads/new">uploading a new one!</a></i>
-        </h1>
-        <div *ngIf="(maps?.length > 0) && fetchedMaps">
-          <nb-card-body *ngFor="let map of maps">
-            <map-status [map]="map"></map-status>
-          </nb-card-body>
-        </div>
-      </nb-card-body>
-    </nb-card>
+<div class="row no-gutters">
+  <h1 class="col">UPLOADS</h1>
+  <div class="col uploadBtn">
+    <button class="btn btn-outline-info uploadBtn" type="button" routerLink="/dashboard/maps/uploads/new">Upload a Map</button>
   </div>
+  <!--TODO: filter button in the header like activity card-->
 </div>
+<nb-card>
+  <nb-card-body>
+    <h1 *ngIf="(maps === undefined || maps?.length === 0) && fetchedMaps" class="noUpload">
+      <i>You have not uploaded any maps. Try <a routerLink="/dashboard/maps/uploads/new">uploading a new one!</a></i>
+    </h1>
+    <div *ngIf="(maps?.length > 0) && fetchedMaps">
+      <nb-card-body *ngFor="let map of maps">
+        <map-status [map]="map"></map-status>
+      </nb-card-body>
+    </div>
+  </nb-card-body>
+</nb-card>
