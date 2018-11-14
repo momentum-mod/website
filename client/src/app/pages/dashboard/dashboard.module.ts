@@ -16,7 +16,6 @@ import {NotFoundModule} from '../not-found/not-found.module';
 import {SmartTableModule} from './smart-table/smart-table.module';
 import { UserEditModalComponent } from './user-list/user-edit-modal/user-edit-modal.component';
 import {CommunityHomeComponent} from './community/community-home/community-home.component';
-import {ProfileCardComponent} from './profile/profile-card/profile-card.component';
 import {UserProfileComponent} from './profile/user-profile.component';
 import {ProfileInfoComponent} from './profile/profile-info/profile-info.component';
 import {ProfileEditComponent} from './profile/profile-edit/profile-edit.component';
@@ -60,7 +59,6 @@ import { HomeUserLibraryComponent } from './home/home-user-library/home-user-lib
     CommunityListComponent,
     UserListComponent,
     UserEditModalComponent,
-    ProfileCardComponent,
     UserProfileComponent,
     ProfileInfoComponent,
     ProfileEditComponent,
