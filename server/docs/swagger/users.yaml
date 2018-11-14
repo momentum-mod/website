@@ -135,7 +135,14 @@ paths:
       responses:
         200:
           description: OK
-          # TODO: schema
+          schema:
+            type: object
+            properties:
+              count:
+                type: integer
+              followed:
+                $ref: '#/definitions/UserFollows'
+
   /users/{userID}/followers:
     parameters:
       - name: userID
@@ -150,7 +157,13 @@ paths:
       responses:
         200:
           description: OK
-          # TODO: schema
+          schema:
+            type: object
+            properties:
+              count:
+                type: integer
+              followers:
+                $ref: '#/definitions/UserFollows'
 definitions:
   User:
     properties:
@@ -209,3 +222,16 @@ definitions:
         type: string
         format: date-time
         readOnly: true
+  UserFollow:
+    properties:
+      followeeID:
+        type: string
+      followedID:
+        type: string
+      notifyOn:
+        type: integer
+      user:
+        $ref: '#/definitions/User'
+  UserFollows:
+    items:
+      $ref: '#/definitions/UserFollow'
