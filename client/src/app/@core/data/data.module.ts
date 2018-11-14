@@ -12,6 +12,7 @@ import { LayoutService } from './layout.service';
 import {ActivityService} from './activity.service';
 import {MapsService} from './maps.service';
 import {TwitchAPIService} from './twitch-api.service';
+import {TumblrAPIService} from './tumblr-api.service';
 
 const SERVICES = [
   ActivityService,
@@ -24,6 +25,7 @@ const SERVICES = [
   SmartTableService,
   LayoutService,
   TwitchAPIService,
+  TumblrAPIService,
 ];
 
 @NgModule({
