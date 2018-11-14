@@ -15,7 +15,7 @@ export const MENU_ITEMS: NbMenuItem[] = [
   },
   {
     title: 'Maps',
-    icon: 'ion-code-download',
+    icon: 'ion-android-download',
     link: '/dashboard/maps',
     children: [
       {
