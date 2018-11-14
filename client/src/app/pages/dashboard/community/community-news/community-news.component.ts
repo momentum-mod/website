@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import {Component, OnInit} from '@angular/core';
 import {TumblrAPIService} from '../../../../@core/data/tumblr-api.service';
 import {BlogPost} from '../../../../@core/models/blog-post.model';
 
@@ -11,9 +11,20 @@ export class CommunityNewsComponent implements OnInit {
 
   blogPosts: BlogPost[];
   loadedPosts: boolean;
+  twitterData;
+  twitterOpts;
   constructor(private tumblrAPI: TumblrAPIService) {
     this.blogPosts = [];
     this.loadedPosts = false;
+    this.twitterData = {
+      screenName: 'MomentumMod',
+      sourceType: 'profile',
+    };
+    this.twitterOpts = {
+      tweetLimit: 4,
+      chrome: ['nofooter'],
+      'theme': 'dark',
+    };
   }
 
   ngOnInit() {
