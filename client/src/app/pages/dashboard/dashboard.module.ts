@@ -32,7 +32,6 @@ import { CommunityActivityComponent } from './community/community-activity/commu
 import {AdminModule} from './admin/admin.module';
 import { HomeStatsComponent } from './home/home-stats/home-stats.component';
 import { HomeUserMapsComponent } from './home/home-user-maps/home-user-maps.component';
-import { HomeActivityComponent } from './home/home-activity/home-activity.component';
 import { HomeUserLibraryComponent } from './home/home-user-library/home-user-library.component';
 
 @NgModule({
@@ -69,7 +68,6 @@ import { HomeUserLibraryComponent } from './home/home-user-library/home-user-lib
     CommunityActivityComponent,
     HomeStatsComponent,
     HomeUserMapsComponent,
-    HomeActivityComponent,
     HomeUserLibraryComponent,
   ],
   entryComponents: [

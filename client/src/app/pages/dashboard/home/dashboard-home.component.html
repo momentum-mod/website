@@ -1,8 +1,6 @@
-<home-stats></home-stats>
-
-  <div>
-  <home-user-maps></home-user-maps>
-
-  <home-user-library></home-user-library>
-  </div>
-  <home-activity></home-activity>
+<home-stats class="home-card"></home-stats>
+<div class="row">
+  <home-user-maps class="col home-card"></home-user-maps>
+  <home-user-library class="col home-card"></home-user-library>
+</div>
+<activity-card [header]="'Followed Activity'" [follow]="true"></activity-card>
