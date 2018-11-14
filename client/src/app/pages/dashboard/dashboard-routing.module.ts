@@ -3,7 +3,6 @@ import { NgModule } from '@angular/core';
 import {DashboardComponent} from './dashboard.component';
 import {DashboardHomeComponent} from './home/dashboard-home.component';
 import {UserListComponent} from './user-list/user-list.component';
-import {CommunityListComponent} from './community/community-list.component';
 import {NotFoundDashboardComponent} from '../not-found/dashboard/not-found-dashboard.component';
 import {UserProfileComponent} from './profile/user-profile.component';
 import {ProfileEditComponent} from './profile/profile-edit/profile-edit.component';
@@ -29,7 +28,7 @@ const routes: Routes = [
       },
       {
         path: 'community',
-        component: CommunityListComponent,
+        loadChildren: 'app/pages/dashboard/community/community.module#CommunityModule',
       },
       {
         path: 'profile',

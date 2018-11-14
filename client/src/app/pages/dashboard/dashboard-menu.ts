@@ -11,7 +11,20 @@ export const MENU_ITEMS: NbMenuItem[] = [
   {
     title: 'Community',
     icon: 'ion-android-people',
-    link: '/dashboard/community',
+    children: [
+      {
+        'title': 'Momentum Official',
+        'link': '/dashboard/community/news',
+      },
+      {
+        'title': 'Twitch Streams',
+        'link': '/dashboard/community/twitch',
+      },
+      {
+        'title': 'Recent Activity',
+        'link': '/dashboard/community/activity',
+      },
+    ],
   },
   {
     title: 'Maps',

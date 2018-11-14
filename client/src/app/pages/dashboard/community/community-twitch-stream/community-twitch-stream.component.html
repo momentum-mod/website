@@ -1,13 +1,20 @@
-<div class="row">
-  <h2 *ngIf="streams.length === 0 && queriedStreams">No streams found.</h2>
-  <div class="col" *ngFor="let stream of streams">
-    <h2>{{stream.title}}</h2>
-  </div>
-</div>
+<nb-card>
+  <nb-card-header>
+    <h1>Twitch Streams</h1>
+  </nb-card-header>
+  <nb-card-body>
+    <div class="row">
+      <h2 *ngIf="streams.length === 0 && queriedStreams">No streams found.</h2>
+      <div class="col" *ngFor="let stream of streams">
+        <h2>{{stream.title}}</h2>
+      </div>
+    </div>
 
-<div class="row">
-  <h2 *ngIf="videos.length === 0 && queriedVideos">No videos found.</h2>
-  <div class="col" *ngFor="let video of videos">
-    <h2>{{video.title}}</h2>
-  </div>
-</div>
+    <div class="row">
+      <h2 *ngIf="videos.length === 0 && queriedVideos">No videos found.</h2>
+      <div class="col" *ngFor="let video of videos">
+        <h2>{{video.title}}</h2>
+      </div>
+    </div>
+  </nb-card-body>
+</nb-card>
