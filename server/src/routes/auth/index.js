@@ -19,7 +19,7 @@ router.route('/steam/user')
 	.all(errorCtrl.send405);
 
 router.route('/twitter')
-	.get([authMiddleware.requireLoginQuery], passport.authorize('twitter'))
+	.get([authMiddleware.requireLoginQuery], passport.authorize('twit-authz'), passport.authorize('twitter'))
 	.all(errorCtrl.send405);
 
 router.route('/twitter/return')
