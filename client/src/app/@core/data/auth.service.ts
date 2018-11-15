@@ -1,15 +1,16 @@
-import { Injectable } from '@angular/core';
-import { CookieService } from 'ngx-cookie-service';
-import { JwtHelperService } from '@auth0/angular-jwt';
-import { AccessTokenPayload } from '../models/access-token-payload';
+import {Injectable} from '@angular/core';
+import {CookieService} from 'ngx-cookie-service';
+import {JwtHelperService} from '@auth0/angular-jwt';
+import {AccessTokenPayload} from '../models/access-token-payload';
+import {HttpClient} from '@angular/common/http';
+import {Observable} from 'rxjs';
+import 'rxjs-compat/add/operator/switchMap';
+import 'rxjs-compat/add/observable/throw';
 
 @Injectable()
 export class AuthService {
-  /**
-   * @param cookieService Starts OpenID Steam authentication by redirecting to Steam OpenID URL
-   * @return Redirection to Steam OpenID URL will occur
-   */
-  constructor(private cookieService: CookieService) {
+  constructor(private cookieService: CookieService,
+              private http: HttpClient) {
     const cookieExists = this.cookieService.check('accessToken');
     const jwtHelperService = new JwtHelperService();
     if (cookieExists) {
@@ -42,6 +43,14 @@ export class AuthService {
     const jwtHelperService = new JwtHelperService();
     const decodedToken = jwtHelperService.decodeToken(accessToken);
     return decodedToken;
+  }
+
+  public createAuth(authType: string, authData: any): Observable<any> {
+    return this.http.post('/api/user/profile/social/' + authType, authData);
+  }
+
+  public createTwitterAuth(authData): Observable<boolean> {
+    return this.createAuth('twitter', authData);
   }
 
 }

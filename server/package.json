@@ -15,6 +15,7 @@
     "cookie-parser": "^1.4.1",
     "express": "^4.16.3",
     "express-fileupload": "^1.0.0-alpha.1",
+    "express-session": "^1.15.6",
     "jsonwebtoken": "^8.3.0",
     "method-override": "^3.0.0",
     "mocha": "^5.2.0",
@@ -24,6 +25,7 @@
     "passport": "^0.4.0",
     "passport-jwt": "^4.0.0",
     "passport-steam": "^1.0.10",
+    "passport-twitter": "^1.0.4",
     "sequelize": "^4.38.1",
     "swagger-jsdoc": "^3.2.3",
     "swagger-ui-express": "^4.0.1"

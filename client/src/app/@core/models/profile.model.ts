@@ -1,10 +1,14 @@
+import {TwitterAuth} from './auth-twitter.model';
+import {DiscordAuth} from './auth-discord.model';
+import {TwitchAuth} from './auth-twitch.model';
+
 export interface UserProfile {
   id: string;
   alias: string;
   avatarURL: string;
   bio?: string;
-  twitterName?: string;
-  discordName?: string;
+  twitterAuth?: TwitterAuth;
+  discordAuth?: DiscordAuth;
   youtubeName?: string;
-  twitchName?: string;
+  twitchAuth?: TwitchAuth;
 }

@@ -13,6 +13,10 @@ const config = {
 			expTime: '8h',
 			gameExpTime: '24h'
 		},
+		twitter: {
+			consumerKey: process.env.TWITTER_CONSUMER_KEY,
+			consumerSecret: process.env.TWITTER_CONSUMER_SECRET,
+		},
 		steam: {
 			webAPIKey: process.env.STEAM_WEB_API_KEY
 		},
@@ -22,7 +26,10 @@ const config = {
 			password: '',
 			host: 'localhost',
 			logging: false
-		}
+		},
+		session: {
+			secret: 'keyboard cat',
+		},
 	},
 	development: {
 		root: rootPath,
@@ -34,6 +41,10 @@ const config = {
 			expTime: '8h',
 			gameExpTime: '24h'
 		},
+		twitter: {
+			consumerKey: process.env.TWITTER_CONSUMER_KEY,
+			consumerSecret: process.env.TWITTER_CONSUMER_SECRET,
+		},
 		steam: {
 			webAPIKey: process.env.STEAM_WEB_API_KEY
 		},
@@ -43,7 +54,10 @@ const config = {
 			password: '',
 			host: 'localhost',
 			logging: console.log
-		}
+		},
+		session: {
+			secret: 'keyboard cat',
+		},
 	},
 	production: {
 		root: rootPath,
@@ -55,6 +69,10 @@ const config = {
 			expTime: '8h',
 			gameExpTime: '24h'
 		},
+		twitter: {
+			consumerKey: process.env.TWITTER_CONSUMER_KEY,
+			consumerSecret: process.env.TWITTER_CONSUMER_SECRET,
+		},
 		steam: {
 			webAPIKey: process.env.STEAM_WEB_API_KEY
 		},
@@ -64,7 +82,10 @@ const config = {
 			password: process.env.MOM_DATABASE_PW,
 			host: process.env.MOM_DATABASE_HOST,
 			logging: false
-		}
+		},
+		session: {
+			secret: process.env.EXPRESS_SESSION_SECRET,
+		},
 	}
 };
 

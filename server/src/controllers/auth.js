@@ -4,12 +4,11 @@ const auth = require('../models/auth'),
 	config = require('../../config/config'),
 	user = require('../models/user');
 
-module.exports = {
+const postAuthData = (res, data) => {
+	res.send('<script>window.opener.postMessage(' + data + ', "*"); window.close();</script>');
+};
 
-	throughSteam: (req, res, next) => {
-		// Redirected to the steam login page
-		// Code here won't be executed
-	},
+module.exports = {
 
 	throughSteamReturn: (req, res, next) => {
 		auth.genAccessToken(req.user)
@@ -17,6 +16,19 @@ module.exports = {
 			res.cookie('accessToken', accessToken);
 			res.redirect('/dashboard');
 		}).catch(next);
+	},
+
+	twitterReturn: (req, res, next) => {
+		const twitterJSON = JSON.stringify({
+			type: 'twitter',
+			auth: {
+				twitterID: req.account.id,
+				displayName: req.account.username,
+				oauthKey: req.account.token,
+				oauthSecret: req.account.secret,
+			}
+		});
+		postAuthData(res, twitterJSON);
 	},
 
 	verifyUserTicket: (req, res, next) => {
