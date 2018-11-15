@@ -143,14 +143,32 @@ describe('maps', () => {
 		});
 
 		describe('POST /maps/{mapID}/upload', () => {
-			it('should respond with a 400 when no map file is provided');
+			it('should respond with a 400 when no map file is provided', () => {
+				return chai.request(server)
+					.post('/api/maps/1/upload')
+					.type('form')
+					.set('Authorization', 'Bearer ' + accessToken)
+					.send(null)
+					.then(res => {
+						expect(res).to.have.status(400);
+						expect(res).to.be.json;
+					});
+			});
 			it('should respond with a 404 when the map is not found');
 			it('should respond with a 409 when the map is not accepting uploads');
 			it('should should upload the map file');
 		});
 
 		describe('GET /api/maps/{mapID}/download', () => {
-			it('should respond with a 404 when the map is not found');
+			it('should respond with a 404 when the map is not found', () => {
+				return chai.request(server)
+					.get('/api/maps/12345/download')
+					.set('Authorization', 'Bearer ' + accessToken)
+					.then(res => {
+						expect(res).to.have.status(404);
+						expect(res).to.be.json;
+					});
+			});
 			it('should download the map file');
 		});
 

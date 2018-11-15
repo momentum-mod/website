@@ -8,6 +8,7 @@ const express = require('express'),
 	JwtStrategy = require('passport-jwt').Strategy,
 	ExtractJwt = require('passport-jwt').ExtractJwt,
 	TwitterStrategy = require('passport-twitter').Strategy,
+	CustomStrategy = require('passport-custom').Strategy,
 	fileUpload = require('express-fileupload'),
 	swaggerUI = require('swagger-ui-express'),
 	swaggerJSDoc = require('swagger-jsdoc'),
@@ -22,6 +23,14 @@ const swaggerSpec = swaggerJSDoc({
 });
 
 module.exports = (app, config) => {
+
+	const twitStrat = new TwitterStrategy({
+		consumerKey: config.twitter.consumerKey,
+		consumerSecret: config.twitter.consumerSecret,
+		callbackURL: config.baseUrl + '/auth/twitter/return',
+		passReqToCallback: true,
+	}, (req, token, tokenSecret, profile, cb) => {
+	});
 
 	if (app.get('env') === 'development') {
 		app.use(logger('dev'));
@@ -73,16 +82,16 @@ module.exports = (app, config) => {
 		done(null, jwtPayload);
 	}));
 
-	passport.use(new TwitterStrategy({
-		consumerKey: config.twitter.consumerKey,
-		consumerSecret: config.twitter.consumerSecret,
-		callbackURL: config.baseUrl + '/auth/twitter/return',
-		passReqToCallback: true,
-	}, (req, token, tokenSecret, profile, cb) => {
-		console.log(req.account);
-		profile.token = token;
-		profile.secret = tokenSecret;
-		cb(null, profile);
+	passport.use('twitter', twitStrat);
+
+	passport.use('twit-authz', new CustomStrategy((req, cb) => {
+		twitStrat._verify = (req1, token, tokenSecret, profile, cb) => {
+			profile.user = req.user;
+			profile.token = profile.token = token;
+			profile.secret = tokenSecret;
+			cb(null, profile);
+		};
+		cb(null, req.user);
 	}));
 
 	app.use(require('express-session')({ secret: config.session.secret, resave: true, saveUninitialized: true }));

@@ -28,7 +28,9 @@ module.exports = {
 				oauthSecret: req.account.secret,
 			}
 		});
-		postAuthData(res, twitterJSON);
+		console.log(req.account);
+		res.sendStatus(200);
+		// postAuthData(res, twitterJSON);
 	},
 
 	verifyUserTicket: (req, res, next) => {
