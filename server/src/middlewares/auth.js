@@ -1,8 +1,16 @@
 'use strict';
 const passport = require('passport'),
-	user = require('../models/user');
+	user = require('../models/user'),
+	jwtModule = require('jsonwebtoken'),
+	config = require('../../config/config');
 
 module.exports = {
+
+	requireLoginQuery: passport.authenticate('jwt-authz', {
+		session: false,
+		failWithError: true,
+		passReqToCallback: true,
+	}),
 
 	requireLogin: passport.authenticate('jwt', {
 		session: false,

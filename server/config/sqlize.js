@@ -21,6 +21,9 @@ const Sequelize = require('sequelize'),
 	RunModel = require('../src/models/db/run'),
 	RunStatsModel = require('../src/models/db/run-stats'),
 	RunZoneStatsModel = require('../src/models/db/run-zone-stats'),
+	TwitterAuthModel = require('../src/models/db/auth-twitter'),
+	TwitchAuthModel = require('../src/models/db/auth-twitch'),
+	DiscordAuthModel = require('../src/models/db/auth-discord'),
 	env = process.env.NODE_ENV || 'development';
 
 const sequelize = new Sequelize({
@@ -46,7 +49,7 @@ const sequelize = new Sequelize({
 const forceSyncDB = () => {
 	return sequelize.query('SET FOREIGN_KEY_CHECKS = 0', { raw: true })
 	.then(() => {
-		return sequelize.sync({force: true});
+		return sequelize.sync({force: false});
 	}).then(() => {
 		return sequelize.query('SET FOREIGN_KEY_CHECKS = 1', { raw: true });
 	});
@@ -54,6 +57,9 @@ const forceSyncDB = () => {
 
 const User = UserModel(sequelize, Sequelize);
 const UserAuth = UserAuthModel(sequelize, Sequelize);
+const TwitterAuth = TwitterAuthModel(sequelize, Sequelize);
+const TwitchAuth = TwitchAuthModel(sequelize, Sequelize);
+const DiscordAuth = DiscordAuthModel(sequelize, Sequelize);
 const Profile = ProfileModel(sequelize, Sequelize);
 const Map = MapModel(sequelize, Sequelize);
 const MapInfo = MapInfoModel(sequelize, Sequelize);
@@ -76,6 +82,9 @@ const RunZoneStats = RunZoneStatsModel(sequelize, Sequelize);
 User.hasOne(Profile, { foreignKey: 'userID' });
 User.hasMany(Activity, { foreignKey: 'userID' });
 User.hasOne(UserAuth, { as: 'auth', foreignKey: 'userID' });
+Profile.hasOne(DiscordAuth, {foreignKey: 'profileID'});
+Profile.hasOne(TwitchAuth, {foreignKey: 'profileID'});
+Profile.hasOne(TwitterAuth, {foreignKey: 'profileID'});
 Activity.belongsTo(User, { foreignKey: 'userID' });
 Map.hasMany(MapCredit, { as: 'credits', foreignKey: 'mapID' });
 Map.hasOne(MapInfo, { as: 'info', foreignKey: 'mapID' });
@@ -119,6 +128,9 @@ module.exports = {
 	forceSyncDB,
 	User,
 	UserAuth,
+	DiscordAuth,
+	TwitterAuth,
+	TwitchAuth,
 	Profile,
 	Map,
 	MapInfo,

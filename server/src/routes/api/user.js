@@ -13,6 +13,11 @@ router.route('/profile')
 	.patch(userCtrl.updateProfile)
 	.all(errorCtrl.send405);
 
+router.route('/profile/social/:type')
+	.post(userCtrl.createSocialLink)
+	.delete(userCtrl.destroySocialLink)
+	.all(errorCtrl.send405);
+
 router.route('/maps/submitted')
 	.get(userCtrl.getSubmittedMaps)
 	.all(errorCtrl.send405);

@@ -7,6 +7,7 @@ const express = require('express'),
 	SteamStrategy = require('passport-steam').Strategy,
 	JwtStrategy = require('passport-jwt').Strategy,
 	ExtractJwt = require('passport-jwt').ExtractJwt,
+	TwitterStrategy = require('passport-twitter').Strategy,
 	fileUpload = require('express-fileupload'),
 	swaggerUI = require('swagger-ui-express'),
 	swaggerJSDoc = require('swagger-jsdoc'),
@@ -63,6 +64,28 @@ module.exports = (app, config) => {
 		done(null, jwtPayload);
 	}));
 
+	passport.use('jwt-authz', new JwtStrategy({
+		jwtFromRequest: ExtractJwt.fromUrlQueryParameter('jwt'),
+		secretOrKey: config.accessToken.secret,
+		issuer: config.domain,
+		audience: '',
+	}, (jwtPayload, done) => {
+		done(null, jwtPayload);
+	}));
+
+	passport.use(new TwitterStrategy({
+		consumerKey: config.twitter.consumerKey,
+		consumerSecret: config.twitter.consumerSecret,
+		callbackURL: config.baseUrl + '/auth/twitter/return',
+		passReqToCallback: true,
+	}, (req, token, tokenSecret, profile, cb) => {
+		console.log(req.account);
+		profile.token = token;
+		profile.secret = tokenSecret;
+		cb(null, profile);
+	}));
+
+	app.use(require('express-session')({ secret: config.session.secret, resave: true, saveUninitialized: true }));
 	app.use('/api', [authMiddleware.requireLogin], require(config.root + '/src/routes/api'));
 	app.use('/auth', require(config.root + '/src/routes/auth'));
 	app.use('/api-docs', swaggerUI.serve, swaggerUI.setup(swaggerSpec));

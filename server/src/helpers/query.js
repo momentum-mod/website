@@ -1,5 +1,5 @@
 'use strict';
-const { MapInfo, MapCredit, User, Profile } = require('../../config/sqlize');
+const { MapInfo, MapCredit, User, Profile, DiscordAuth, TwitterAuth, TwitchAuth } = require('../../config/sqlize');
 
 const expansionMap = {
 	info: {
@@ -24,7 +24,8 @@ const expansionMap = {
 		include: [Profile]
 	},
 	profile: {
-		model: Profile
+		model: Profile,
+		include: [DiscordAuth, TwitterAuth, TwitchAuth]
 	},
 };
 

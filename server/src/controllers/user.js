@@ -33,6 +33,23 @@ module.exports = {
 		}).catch(next);
 	},
 
+	createSocialLink: (req, res, next) => {
+		user.getProfile(req.user.id).then(profile => {
+			return user.createSocialLink(profile, req.params.type, req.body);
+		}).then(resp => {
+			res.status(201);
+			res.json(resp);
+		}).catch(next);
+	},
+
+	destroySocialLink: (req, res, next) => {
+		user.getProfile(req.user.id).then(profile => {
+			return user.destroySocialLink(profile, req.params.type);
+		}).then(resp => {
+			res.sendStatus(200);
+		}).catch(next);
+	},
+
 	getSubmittedMaps: (req, res, next) => {
 		req.query.submitterID = req.user.id;
 		map.getAll(req.query)

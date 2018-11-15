@@ -1,5 +1,6 @@
 'use strict';
-const { sequelize, Op, User, UserAuth, Profile, UserFollows, Notification, Activity } = require('../../config/sqlize'),
+const { sequelize, Op, User, UserAuth, Profile, UserFollows, Notification, Activity,
+	DiscordAuth, TwitchAuth, TwitterAuth } = require('../../config/sqlize'),
 	activity = require('./activity'),
 	config = require('../../config/config'),
 	queryHelper = require('../helpers/query'),
@@ -160,7 +161,17 @@ module.exports = {
 
 	getProfile: (userID) => {
 		return Profile.find({
-			where: { userID: userID }
+			where: { userID: userID },
+			include: [
+				DiscordAuth,
+				{
+					model: TwitterAuth,
+					attributes: {
+						exclude: ['oauthKey', 'oauthSecret'],
+					},
+				},
+				TwitchAuth,
+			]
 		});
 	},
 
@@ -168,6 +179,62 @@ module.exports = {
 		return Profile.update(profile, {
 			where: { userID: userID }
 		});
+	},
+
+	createSocialLink: (profile, type, authData) => {
+		if (type) {
+			let model = null;
+			switch (type) {
+				case 'twitter':
+					model = TwitterAuth;
+					break;
+				case 'twitch':
+					model = TwitchAuth;
+					break;
+				case 'discord':
+					model = DiscordAuth;
+					break;
+				default:
+					break;
+			}
+			if (model) {
+				return model.findOrCreate({
+					where: { profileID: profile.id },
+					defaults: authData,
+				}).spread((authMdl, created) => {
+					return Promise.resolve(authMdl);
+				})
+			}
+		}
+		// TODO: make an error here
+		return Promise.reject();
+	},
+
+	destroySocialLink: (profile, type) => {
+		if (type) {
+			let model = null;
+			switch (type) {
+				case 'twitter':
+					// TODO: deauthorize their oauth keys?
+					model = TwitterAuth;
+					break;
+				case 'twitch':
+					model = TwitchAuth;
+					break;
+				case 'discord':
+					model = DiscordAuth;
+					break;
+				default:
+					break;
+			}
+			if (model) {
+				return model.destroy({
+					where: { profileID: profile.id }
+				})
+			}
+		}
+		// TODO make an error here
+		return Promise.reject();
 	},
 
 	getFollowers: (userID) => {
