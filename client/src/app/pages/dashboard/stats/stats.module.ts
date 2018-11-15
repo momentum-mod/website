@@ -7,6 +7,7 @@ import {ThemeModule} from '../../../@theme/theme.module';
 import { GlobalStatsBaseComponent } from './global-stats/global-stats-base/global-stats-base.component';
 import { GlobalStatsMapsComponent } from './global-stats/global-stats-maps/global-stats-maps.component';
 import {NgxEchartsModule} from 'ngx-echarts';
+import { GlobalStatsTopsComponent } from './global-stats/global-stats-tops/global-stats-tops.component';
 
 @NgModule ({
   imports: [
@@ -19,7 +20,8 @@ import {NgxEchartsModule} from 'ngx-echarts';
     StatsComponent,
     GlobalStatsComponent,
     GlobalStatsBaseComponent,
-    GlobalStatsMapsComponent
+    GlobalStatsMapsComponent,
+    GlobalStatsTopsComponent,
   ],
 })
 export class StatsModule {

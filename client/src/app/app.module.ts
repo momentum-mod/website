@@ -21,14 +21,13 @@ import {OutgoingModule} from './pages/outgoing/outgoing.module';
 import {MarkdownModule, MarkedOptions} from 'ngx-markdown';
 import {NbDatepickerModule, NbDialogModule} from '@nebular/theme';
 import {ToasterModule} from 'angular2-toaster';
-import { GlobalStatsTopsComponent } from './global-stats-tops/global-stats-tops.component';
 
 export function tokenGetter() {
   return localStorage.getItem('accessToken');
 }
 
 @NgModule({
-  declarations: [AppComponent, GlobalStatsTopsComponent],
+  declarations: [AppComponent],
   imports: [
     BrowserModule,
     BrowserAnimationsModule,
