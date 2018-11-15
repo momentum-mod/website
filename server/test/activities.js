@@ -123,6 +123,7 @@ describe('activities', () => {
 							});
 					});
 			});
+
             it('should respond with a list of activities', () => {
                 return chai.request(server)
                     .get('/api/activities')
