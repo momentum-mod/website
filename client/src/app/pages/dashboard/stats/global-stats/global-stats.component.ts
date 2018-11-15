@@ -6,10 +6,10 @@ import { Component, OnInit } from '@angular/core';
   styleUrls: ['./global-stats.component.scss'],
 })
 export class GlobalStatsComponent implements OnInit {
-
   constructor() { }
 
   ngOnInit() {
   }
 
 }
+
