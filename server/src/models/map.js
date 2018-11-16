@@ -2,7 +2,7 @@
 const util = require('util'),
 	fs = require('fs'),
 	crypto = require('crypto'),
-	{ sequelize, Op, Map, MapInfo, MapCredit, User, Profile, Activity } = require('../../config/sqlize'),
+	{ sequelize, Op, Map, MapInfo, MapCredit, User, Profile, Activity, MapStats } = require('../../config/sqlize'),
 	user = require('./user'),
 	activity = require('./activity'),
 	queryHelper = require('../helpers/query'),
@@ -55,6 +55,37 @@ const storeMapFile = (mapFile, mapModel) => {
 		});
 	});
 };
+
+const verifyMapNameNotTaken = (mapName) => {
+	return Map.find({
+		where: {
+			name: mapName,
+			statusFlag: {[Op.notIn]: [STATUS.REJECTED, STATUS.REMOVED]}
+		}
+	}).then(mapWithSameName => {
+		if (mapWithSameName) {
+			const err = new Error('Map name already used');
+			err.status = 409;
+			return Promise.reject(err);
+		}
+	});
+}
+
+const verifyMapUploadLimitNotReached = (submitterID) => {
+	const mapUploadLimit = 1;
+	return Map.count({
+		where: {
+			submitterID: submitterID,
+			statusFlag: STATUS.PENDING,
+		},
+	}).then(count => {
+		if (count >= mapUploadLimit) {
+			const err = new Error('Map creation limit reached');
+			err.status = 409;
+			return Promise.reject(err);
+		}
+	});
+}
 
 const STATUS = Object.freeze({
 	APPROVED: 0,
@@ -137,38 +168,29 @@ module.exports = {
 	},
 
 	create: (map) => {
-		const mapUploadLimit = 3;
-		return Map.count({
-			where: {
-				submitterID: map.submitterID,
-				statusFlag: STATUS.PENDING,
-			},
-		}).then(count => {
-			if (count >= mapUploadLimit) {
-				const err = new Error('Map creation limit reached');
-				err.status = 409;
-				return Promise.reject(err);
-			}
-			return Map.find({
-				where: {
-					name: map.name,
-					statusFlag: {
-						[Op.notIn]: [STATUS.REJECTED, STATUS.REMOVED],
-					}
-				}
-			});
-		}).then(mapWithSameName => {
-			if (mapWithSameName) {
-				const err = new Error('Map name already used');
-				err.status = 409;
-				return Promise.reject(err);
-			}
-			if (!map.info) map.info = {};
-			return Map.create(map, {
-				include: [
-					{ model: MapInfo, as: 'info' },
-					{ model: MapCredit, as: 'credits' }
-				],
+		return verifyMapUploadLimitNotReached(map.submitterID)
+		.then((count) => {
+			console.log(count);
+			return verifyMapNameNotTaken(map.name);
+		}).then(() => {
+			return sequelize.transaction(t => {
+				let newMap = null;
+				if (!map.info) map.info = {};
+				return Map.create(map, {
+					include: [
+						{ model: MapInfo, as: 'info' },
+						{ model: MapCredit, as: 'credits' }
+					],
+					transaction: t
+				}).then(createdMap => {
+					newMap = createdMap;
+					return MapStats.create(
+						{ mapID: newMap.id },
+						{ transaction: t }
+					);
+				}).then(() => {
+					return Promise.resolve(newMap);
+				});
 			});
 		});
 	},
@@ -335,7 +357,7 @@ module.exports = {
 	},
 
 	incrementDownloadCount: (mapID) => {
-		MapInfo.update({
+		MapStats.update({
 			totalDownloads: sequelize.literal('totalDownloads + 1')
 		}, { where: { mapID: mapID }});
 	}
