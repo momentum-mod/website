@@ -25,7 +25,16 @@ const expansionMap = {
 	},
 	profile: {
 		model: Profile,
-		include: [DiscordAuth, TwitterAuth, TwitchAuth]
+		include: [
+			DiscordAuth,
+			{
+				model: TwitterAuth,
+				attributes: {
+					exclude: ['oauthKey', 'oauthSecret'], // Sorry, thieves
+				},
+			},
+			TwitchAuth
+		]
 	},
 };
 

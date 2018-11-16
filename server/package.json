@@ -23,7 +23,6 @@
     "mysql2": "^1.6.1",
     "nodemon": "^1.18.4",
     "passport": "^0.4.0",
-    "passport-custom": "^1.0.5",
     "passport-jwt": "^4.0.0",
     "passport-steam": "^1.0.10",
     "passport-twitter": "^1.0.4",

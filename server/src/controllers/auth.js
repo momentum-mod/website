@@ -4,8 +4,8 @@ const auth = require('../models/auth'),
 	config = require('../../config/config'),
 	user = require('../models/user');
 
-const postAuthData = (res, data) => {
-	res.send('<script>window.opener.postMessage(' + data + ', "*"); window.close();</script>');
+const postAuthData = (res) => {
+	res.send('<script>window.close();</script>');
 };
 
 module.exports = {
@@ -19,18 +19,19 @@ module.exports = {
 	},
 
 	twitterReturn: (req, res, next) => {
-		const twitterJSON = JSON.stringify({
-			type: 'twitter',
-			auth: {
-				twitterID: req.account.id,
-				displayName: req.account.username,
-				oauthKey: req.account.token,
-				oauthSecret: req.account.secret,
-			}
-		});
-		console.log(req.account);
-		res.sendStatus(200);
-		// postAuthData(res, twitterJSON);
+		if (req.user && req.user.user) {
+			user.getProfile(req.user.user.id).then(profile => {
+				if (profile) {
+					user.createSocialLink(profile, 'twitter', {
+						twitterID: req.user.id,
+						displayName: req.user.username,
+						oauthKey: req.user.token,
+						oauthSecret: req.user.secret,
+					})
+				}
+			}).catch(next);
+		}
+		postAuthData(res);
 	},
 
 	verifyUserTicket: (req, res, next) => {

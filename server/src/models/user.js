@@ -202,7 +202,10 @@ module.exports = {
 					where: { profileID: profile.id },
 					defaults: authData,
 				}).spread((authMdl, created) => {
-					return Promise.resolve(authMdl);
+					return Promise.resolve({
+						created: created,
+						data: authMdl,
+					});
 				})
 			}
 		}
