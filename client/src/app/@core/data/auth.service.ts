@@ -45,12 +45,10 @@ export class AuthService {
     return decodedToken;
   }
 
-  public createAuth(authType: string, authData: any): Observable<any> {
-    return this.http.post('/api/user/profile/social/' + authType, authData);
-  }
-
-  public createTwitterAuth(authData): Observable<boolean> {
-    return this.createAuth('twitter', authData);
+  public removeSocialAuth(authType: string): Observable<any> {
+    return this.http.delete('/api/user/profile/social/' + authType, {
+      responseType: 'text',
+    });
   }
 
 }

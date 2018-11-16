@@ -18,7 +18,11 @@
         <nb-tab tabTitle="Social Links">
           <div class="form-group">
             <label>Twitter:</label>
-            <img src="/assets/images/signInTwit.png" (click)="twitterAuth()">
+            <img *ngIf="profile && !profile.twitterAuth" src="/assets/images/signInTwit.png" (click)="auth('twitter')">
+            <div *ngIf="profile && profile.twitterAuth">
+              <span>Authorized as {{profile.twitterAuth.displayName}}</span>
+              <button class="btn btn-outline-danger" type="button" (click)="unAuth('twitter')">Unauthorize</button>
+            </div>
           </div>
           <div class="form-group">
             <label>

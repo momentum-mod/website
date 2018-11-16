@@ -47,7 +47,10 @@ module.exports = {
 			return user.destroySocialLink(profile, req.params.type);
 		}).then(resp => {
 			res.sendStatus(200);
-		}).catch(next);
+		}).catch(err => {
+			console.log("CAUGHT AND ERRRRPAJNDLKJ");
+			next(err);
+		});
 	},
 
 	getSubmittedMaps: (req, res, next) => {

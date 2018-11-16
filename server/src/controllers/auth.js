@@ -27,6 +27,36 @@ module.exports = {
 						displayName: req.user.username,
 						oauthKey: req.user.token,
 						oauthSecret: req.user.secret,
+						timestamp: Math.round(new Date().getTime() / 1000),
+					})
+				}
+			}).catch(next);
+		}
+		postAuthData(res);
+	},
+
+	twitchReturn: (req, res, next) => {
+		if (req.user && req.user.user) {
+			user.getProfile(req.user.user.id).then(profile => {
+				if (profile) {
+					user.createSocialLink(profile, 'twitch', {
+						twitchID: req.user.id,
+						displayName: req.user.username,
+						token: req.user.token,
+					})
+				}
+			}).catch(next);
+		}
+		postAuthData(res);
+	},
+
+	discordReturn: (req, res, next) => {
+		if (req.user && req.user.user) {
+			user.getProfile(req.user.user.id).then(profile => {
+				if (profile) {
+					user.createSocialLink(profile, 'discord', {
+						discordID: req.user.id,
+						token: req.user.token,
 					})
 				}
 			}).catch(next);
