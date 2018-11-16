@@ -43,4 +43,15 @@ router.route('/:mapID/upload')
 	.post(mapCtrl.upload)
 	.all(errorCtrl.send405);
 
+router.route('/:mapID/images')
+	.get(mapCtrl.getImages)
+	.post(mapCtrl.createImage)
+	.all(errorCtrl.send405);
+
+router.route('/:mapID/images/:imgID')
+	.get(mapCtrl.getImage)
+	.put(mapCtrl.updateImage)
+	.delete(mapCtrl.deleteImage)
+	.all(errorCtrl.send405);
+
 module.exports = router;
