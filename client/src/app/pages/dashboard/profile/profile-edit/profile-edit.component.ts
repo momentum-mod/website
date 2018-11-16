@@ -3,7 +3,8 @@ import {LocalUserService} from '../../../../@core/data/local-user.service';
 import {ToasterService} from 'angular2-toaster';
 import 'style-loader!angular2-toaster/toaster.css';
 import {FormBuilder, FormGroup, Validators} from '@angular/forms';
-// import {AuthService} from '../../../../@core/data/auth.service';
+import {UserProfile} from '../../../../@core/models/profile.model';
+import {AuthService} from '../../../../@core/data/auth.service';
 
 @Component({
   selector: 'profile-edit',
@@ -17,26 +18,18 @@ export class ProfileEditComponent implements OnInit {
   });
 
   @Output() onEditSuccess: EventEmitter<any> = new EventEmitter();
-
+  profile: UserProfile;
   constructor(private localUserService: LocalUserService,
+              private authService: AuthService,
               private toasterService: ToasterService,
-              private fb: FormBuilder,
-              /*private authService: AuthService*/) {
+              private fb: FormBuilder) {
+    this.profile = null;
   }
   ngOnInit(): void {
     this.localUserService.getLocal().subscribe(usr => {
+      this.profile = usr.profile;
       this.profileEditFormGroup.patchValue(usr.profile);
     });
-/*    window.addEventListener('message', (e) => {
-      console.log(e.origin);
-      if (e.data.type) {
-        this.authService.createAuth(e.data.type, e.data.auth).subscribe(res => {
-          console.log(res);
-        }, err => {
-          this.toasterService.popAsync('error', 'Cannot authorize twitter', err.message);
-        });
-      }
-    }, false);*/
   }
 
   onSubmit(): void {
@@ -49,7 +42,25 @@ export class ProfileEditComponent implements OnInit {
     });
   }
 
-  twitterAuth() {
-    window.open('/auth/twitter?jwt=' + localStorage.getItem('accessToken'), 'myWindow', 'width=500,height=500');
+  onAuthWindowClose(): void {
+    this.localUserService.refreshLocal();
+  }
+
+  auth(platform: string) {
+    const childWnd = window.open(`/auth/${platform}?jwt=` + localStorage.getItem('accessToken'), 'myWindow',
+      'width=500,height=500');
+    const timer = setInterval(() => {
+      if (childWnd.closed) {
+        this.onAuthWindowClose();
+        clearInterval(timer);
+      }
+    }, 500);
+  }
+  unAuth(platform: string) {
+    this.authService.removeSocialAuth(platform).subscribe(resp => {
+      this.localUserService.refreshLocal();
+    }, err => {
+      this.toasterService.popAsync('error', `Failed to unauthorize ${platform} account`, err.message);
+    });
   }
 }

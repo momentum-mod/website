@@ -2,6 +2,7 @@
 const { sequelize, Op, User, UserAuth, Profile, UserFollows, Notification, Activity,
 	DiscordAuth, TwitchAuth, TwitterAuth } = require('../../config/sqlize'),
 	activity = require('./activity'),
+	OAuth = require('OAuth'),
 	config = require('../../config/config'),
 	queryHelper = require('../helpers/query'),
 	axios = require('axios');
@@ -202,10 +203,7 @@ module.exports = {
 					where: { profileID: profile.id },
 					defaults: authData,
 				}).spread((authMdl, created) => {
-					return Promise.resolve({
-						created: created,
-						data: authMdl,
-					});
+					return Promise.resolve(authMdl);
 				})
 			}
 		}
@@ -213,31 +211,91 @@ module.exports = {
 		return Promise.reject();
 	},
 
-	destroySocialLink: (profile, type) => {
-		if (type) {
-			let model = null;
-			switch (type) {
-				case 'twitter':
-					// TODO: deauthorize their oauth keys?
-					model = TwitterAuth;
-					break;
-				case 'twitch':
-					model = TwitchAuth;
-					break;
-				case 'discord':
-					model = DiscordAuth;
-					break;
-				default:
-					break;
+	destroyTwitterLink: (profile) => {
+		return TwitterAuth.findOne({
+			where: { profileID: profile.id }
+		}).then(mdl => {
+			if (mdl) {
+				return new Promise((res, rej) => {
+					let oauth = new OAuth.OAuth(
+						'https://api.twitter.com/oauth/request_token',
+						'https://api.twitter.com/oauth/access_token',
+						config.twitter.consumerKey,
+						config.twitter.consumerSecret,
+						'1.0A',
+						null,
+						'HMAC-SHA1');
+					oauth.post(
+						`https://api.twitter.com/1.1/oauth/invalidate_token.json?access_token=${mdl.oauthKey}&access_token_secret=${mdl.oauthSecret}`,
+						mdl.oauthKey,
+						mdl.oauthSecret,
+						null,
+						null,
+						(err, data, response) => {
+							if (err)
+								rej(err);
+							else
+								res(mdl);
+						});
+				});
 			}
-			if (model) {
-				return model.destroy({
-					where: { profileID: profile.id }
+			return Promise.reject('FAIL!'); // TODO error
+		}).then(mdl => {
+			return TwitterAuth.destroy({
+				where: {id: mdl.id}
+			});
+		});
+	},
+
+	destroyTwitchLink: (profile) => {
+		return TwitchAuth.findOne({
+			where: { profileID: profile.id }
+		}).then(mdl => {
+			if (mdl) {
+				return axios.post('https://id.twitch.tv/oauth2/revoke', {
+					params: {
+						client_id: config.twitch.client_id,
+						token: mdl.token,
+					}
+				}).then(sres => {
+					if (sres.status === 200)
+						return Promise.resolve(mdl);
 				})
 			}
-		}
-		// TODO make an error here
-		return Promise.reject();
+		}).then(mdl => {
+			return TwitchAuth.destroy(mdl);
+		});
+	},
+
+	destroyDiscordLink: (profile) => {
+		return DiscordAuth.findOne({
+			where: {profileID: profile.id}
+		}).then(mdl => {
+			if (mdl) {
+				return axios.post('https://discordapp.com/api/oauth2/token/revoke', {
+					params: {
+						client_id: config.discord.client_id,
+						token: mdl.token,
+					}
+				}).then(sres => {
+					if (sres.status === 200)
+						return Promise.resolve(mdl);
+				})
+			}
+		}).then(mdl => {
+			DiscordAuth.destroy(mdl);
+		});
+	},
+
+	destroySocialLink: (profile, type) => {
+		if (type === 'twitter')
+			return module.exports.destroyTwitterLink(profile);
+		else if (type === 'twitch')
+			return module.exports.destroyTwitchLink(profile);
+		else if (type === 'discord')
+			return module.exports.destroyDiscordLink(profile);
+		else
+			return Promise.reject(); // TODO make an error here
 	},
 
 	getFollowers: (userID) => {

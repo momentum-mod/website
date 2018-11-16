@@ -14,7 +14,6 @@ router.route('/profile')
 	.all(errorCtrl.send405);
 
 router.route('/profile/social/:type')
-	.post(userCtrl.createSocialLink)
 	.delete(userCtrl.destroySocialLink)
 	.all(errorCtrl.send405);
 

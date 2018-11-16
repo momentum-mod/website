@@ -28,6 +28,7 @@
     "passport-twitter": "^1.0.4",
     "sequelize": "^4.38.1",
     "swagger-jsdoc": "^3.2.3",
-    "swagger-ui-express": "^4.0.1"
+    "swagger-ui-express": "^4.0.1",
+    "OAuth": "latest"
   }
 }
