@@ -76,7 +76,7 @@ paths:
           collectionFormat: csv
           items:
             type: string
-            enum: [info, submitter, credits]
+            enum: [info, submitter, credits, images]
       responses:
         200:
           description: OK
@@ -164,7 +164,7 @@ paths:
             $ref: '#/definitions/MapCredit'
       responses:
         200:
-          description: Map info is updated
+          description: Map info is created
           schema:
             $ref: '#/definitions/MapCredit'
   /maps/{mapID}/credits/{mapCredID}:
@@ -298,6 +298,76 @@ paths:
             type: file
         404:
           description: Map is not found
+  /maps/{mapID}/images:
+    parameters:
+      - name: mapID
+        in: path
+        required: true
+        description: ID of the map to find
+        type: string
+    get:
+      tags:
+        - maps
+      summary: Retrieves a specific map's images
+      responses:
+        200:
+          description: A list of map images
+          schema:
+            $ref: '#/definitions/MapImages'
+    post:
+      tags:
+        - maps
+      summary: Create an image for a specific map
+      responses:
+        200:
+          description: Map image is created
+          schema:
+            $ref: '#/definitions/MapImage'
+        400:
+          description: No map image file provided
+        409:
+          description: Map image file limit reached
+  /maps/{mapID}/images/{imgID}:
+    parameters:
+      - name: mapID
+        in: path
+        required: true
+        description: ID of the map to find
+        type: string
+      - name: imgID
+        in: path
+        required: true
+        description: ID of the map image to find
+        type: string
+    get:
+      tags:
+        - maps
+      summary: Retrieves a specific map image
+      responses:
+        200:
+          description: A map image
+          schema:
+            $ref: '#/definitions/MapImage'
+        404:
+          description: The map image is not found
+    put:
+      tags:
+        - maps
+      summary: Updates a specific map image
+      responses:
+        204:
+          description: Map image is updated
+        400:
+          description: No map image file provided
+        404:
+          description: Map image not found
+    delete:
+      tags:
+        - maps
+      summary: Deletes a specific map image
+      responses:
+        200:
+          description: Map image is deleted
 definitions:
   Map:
     required:
@@ -410,3 +480,27 @@ definitions:
         type: array
         items:
           $ref: '#/definitions/MapCredit'
+  MapImage:
+    properties:
+      id:
+        type: integer
+        readOnly: true
+      mapID:
+        type: integer
+        readOnly: true
+      URL:
+        type: string
+      createdAt:
+        type: string
+        format: date-time
+        readOnly: true
+      updatedAt:
+        type: string
+        format: date-time
+        readOnly: true
+  MapImages:
+    properties:
+      images:
+        type: array
+        items:
+          $ref: '#/definitions/MapImage'

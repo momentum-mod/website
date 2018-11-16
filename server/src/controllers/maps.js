@@ -4,13 +4,19 @@ const map = require('../models/map'),
 
 // TODO: handle these controller errors better!?
 const genMapNotFoundErr = () => {
-	const err = new Error('Map Not Found');
+	const err = new Error('Map not found');
 	err.status = 404;
 	return err;
 }
 
 const genMapCreditNotFoundErr = () => {
-	const err = new Error('Map Credit Not Found');
+	const err = new Error('Map credit not found');
+	err.status = 404;
+	return err;
+}
+
+const genMapImageNotFoundErr = () => {
+	const err = new Error('Map image not found');
 	err.status = 404;
 	return err;
 }
@@ -174,6 +180,62 @@ module.exports = {
 		.then(path => {
 			res.download(path);
 			map.incrementDownloadCount(req.params.mapID);
+		}).catch(next);
+	},
+
+	getImages: (req, res, next) => {
+		map.getImages(req.params.mapID)
+		.then(images => {
+			res.json({ images: images });
+		}).catch(next);
+	},
+
+	createImage: (req, res, next) => {
+		if (req.files && req.files.mapImageFile) {
+			map.verifySubmitter(req.params.mapID, req.user.id)
+			.then(() => {
+				return map.createImage(req.params.mapID, req.files.mapImageFile);
+			}).then(image => {
+				res.json(image);
+			}).catch(next);
+		} else {
+			const err = new Error('No map image file provided');
+			err.status = 400;
+			next(err);
+		}
+	},
+
+	getImage: (req, res, next) => {
+		map.getImage(req.params.imgID)
+		.then(image => {
+			if (image) {
+				return res.json(image);
+			}
+			next(genMapImageNotFoundErr());
+		}).catch(next);
+	},
+
+	updateImage: (req, res, next) => {
+		if (req.files && req.files.mapImageFile) {
+			map.verifySubmitter(req.params.mapID, req.user.id)
+			.then(() => {
+				return map.updateImage(req.params.imgID, req.files.mapImageFile);
+			}).then(() => {
+				res.sendStatus(204);
+			}).catch(next);
+		} else {
+			const err = new Error('No map image file provided');
+			err.status = 400;
+			next(err);
+		}
+	},
+
+	deleteImage: (req, res, next) => {
+		map.verifySubmitter(req.params.mapID, req.user.id)
+		.then(() => {
+			return map.deleteImage(req.params.imgID);
+		}).then(() => {
+			res.sendStatus(204);
 		}).catch(next);
 	}
 
