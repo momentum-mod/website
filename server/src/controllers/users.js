@@ -4,7 +4,7 @@ const user = require('../models/user'),
 
 // TODO: handle these controller errors better!?
 const genUserNotFoundErr = () => {
-	const err = new Error("User Not Found");
+	const err = new Error('User Not Found');
 	err.status = 404;
 	return err;
 }
@@ -25,9 +25,8 @@ module.exports = {
 			req.query.expand = req.query.expand.replace(/stats/g, 'userStats');
 		user.get(req.params.userID, req.query)
 		.then(user => {
-			if (user) {
+			if (user)
 				return res.json(user);
-			}
 			next(genUserNotFoundErr());
 		}).catch(next);
 	},
@@ -35,9 +34,8 @@ module.exports = {
 	getProfile: (req, res, next) => {
 		user.getProfile(req.params.userID)
 		.then(profile => {
-			if (profile) {
-				res.json(profile);
-			}
+			if (profile)
+				return res.json(profile);
 			next(genUserNotFoundErr());
 		}).catch(next);
 	},

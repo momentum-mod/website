@@ -174,22 +174,15 @@ module.exports = {
 			return verifyMapNameNotTaken(map.name);
 		}).then(() => {
 			return sequelize.transaction(t => {
-				let newMap = null;
 				if (!map.info) map.info = {};
+				map.stats = {};
 				return Map.create(map, {
 					include: [
 						{ model: MapInfo, as: 'info' },
-						{ model: MapCredit, as: 'credits' }
+						{ model: MapCredit, as: 'credits' },
+						{ model: MapStats, as: 'stats' }
 					],
 					transaction: t
-				}).then(createdMap => {
-					newMap = createdMap;
-					return MapStats.create(
-						{ mapID: newMap.id },
-						{ transaction: t }
-					);
-				}).then(() => {
-					return Promise.resolve(newMap);
 				});
 			});
 		});
@@ -206,9 +199,7 @@ module.exports = {
 				return Map.update(map, {
 					where: {
 						id: mapID,
-						statusFlag: {
-							[Op.notIn]: [STATUS.REJECTED, STATUS.REMOVED]
-						}
+						statusFlag: {[Op.notIn]: [STATUS.REJECTED, STATUS.REMOVED]}
 					},
 					transaction: t
 				});
