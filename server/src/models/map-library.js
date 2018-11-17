@@ -1,5 +1,5 @@
 'use strict';
-const { MapLibrary, Map, MapInfo, MapCredit } = require('../../config/sqlize');
+const { sequelize, MapLibrary, Map, MapInfo, MapCredit, MapStats } = require('../../config/sqlize');
 
 module.exports = {
 
@@ -25,20 +25,48 @@ module.exports = {
 	},
 
 	removeMapFromLibrary: (userID, mapID) => {
-		return MapLibrary.destroy({
-			where: {
-				userID: userID,
-				mapID: mapID
-			}
+		return sequelize.transaction(t => {
+			return MapLibrary.destroy({
+				where: {
+					userID: userID,
+					mapID: mapID
+				},
+				transaction: t
+			}).then(rowsAffected => {
+				if (!rowsAffected)
+					return Promise.resolve();
+				return MapStats.update({
+					totalSubscriptions: sequelize.literal('totalSubscriptions - 1')
+				}, {
+					where: { mapID: mapID },
+					transaction: t
+				});
+			});
 		});
 	},
 
 	addMapToLibrary: (userID, mapID) => {
-		return MapLibrary.findOrCreate({
-			where: {
-				userID: userID,
-				mapID: mapID
-			}
+		return sequelize.transaction(t => {
+			let mapLibModel = null;
+			return MapLibrary.findOrCreate({
+				where: {
+					userID: userID,
+					mapID: mapID
+				},
+				transaction: t
+			}).spread((mapLibEntry, created) => {
+				mapLibModel = mapLibEntry;
+				if (!created)
+					return Promise.resolve();
+				return MapStats.update({
+					totalSubscriptions: sequelize.literal('totalSubscriptions + 1')
+				}, {
+					where: { mapID: mapID },
+					transaction: t
+				});
+			}).then(() => {
+				return Promise.resolve(mapLibModel);
+			});
 		});
 	},
 
