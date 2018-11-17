@@ -48,7 +48,6 @@ module.exports = {
 		}).then(resp => {
 			res.sendStatus(200);
 		}).catch(err => {
-			console.log("CAUGHT AND ERRRRPAJNDLKJ");
 			next(err);
 		});
 	},

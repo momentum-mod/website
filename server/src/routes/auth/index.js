@@ -95,4 +95,26 @@ router.route('/discord/return')
 	}, authCtrl.discordReturn)
 	.all(errorCtrl.send405);
 
+router.route('/twitch')
+	.get([authMiddleware.requireLoginQuery], (req, res, next) => {
+		passport.authorize('twitch', {state: req.user.id})(req, res, next);
+	})
+	.all(errorCtrl.send405);
+
+router.route('/twitch/return')
+	.get((req, res, next) => {
+		passport.authorize('twitch', (err, user, info) => {
+			if (err)
+				return next(err); // will generate a 500 error
+			if (!user)
+				return next(new Error('No user object!'));
+			else {
+				req.userID = req.query.state;
+				req.account = user;
+				next(null, user);
+			}
+		})(req, res, next);
+	}, authCtrl.twitchReturn)
+	.all(errorCtrl.send405);
+
 module.exports = router;

@@ -17,6 +17,10 @@ const config = {
 			clientID: process.env.DISCORD_CLIENT_ID,
 			clientSecret: process.env.DISCORD_CLIENT_SECRET,
 		},
+		twitch: {
+			clientID: process.env.TWITCH_CLIENT_ID,
+			clientSecret: process.env.TWITCH_CLIENT_SECRET,
+		},
 		twitter: {
 			consumerKey: process.env.TWITTER_CONSUMER_KEY,
 			consumerSecret: process.env.TWITTER_CONSUMER_SECRET,
@@ -49,6 +53,10 @@ const config = {
 			clientID: process.env.DISCORD_CLIENT_ID,
 			clientSecret: process.env.DISCORD_CLIENT_SECRET,
 		},
+		twitch: {
+			clientID: process.env.TWITCH_CLIENT_ID,
+			clientSecret: process.env.TWITCH_CLIENT_SECRET,
+		},
 		twitter: {
 			consumerKey: process.env.TWITTER_CONSUMER_KEY,
 			consumerSecret: process.env.TWITTER_CONSUMER_SECRET,
@@ -80,6 +88,10 @@ const config = {
 		discord: {
 			clientID: process.env.DISCORD_CLIENT_ID,
 			clientSecret: process.env.DISCORD_CLIENT_SECRET,
+		},
+		twitch: {
+			clientID: process.env.TWITCH_CLIENT_ID,
+			clientSecret: process.env.TWITCH_CLIENT_SECRET,
 		},
 		twitter: {
 			consumerKey: process.env.TWITTER_CONSUMER_KEY,

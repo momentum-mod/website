@@ -43,7 +43,13 @@
           <div class="form-group">
             <label>
               Twitch.tv:
-              <input class="form-control" type="text">
+              <img *ngIf="profile && !profile.twitchAuth" src="/assets/images/signInTwit.png" (click)="auth('twitch')">
+              <div *ngIf="profile && profile.twitchAuth">
+                <span>Authorized as {{profile.twitchAuth.displayName}}</span>
+                <button class="btn btn-outline-danger" type="button" (click)="unAuth('twitch')">Unauthorize</button>
+                <span>Note: You'll also have to manually disconnect "Momentum" from your <a href="https://www.twitch.tv/settings/connections">connections page</a>.
+                Twitch is the only site that doesn't do this automatically.</span>
+              </div>
             </label>
           </div>
         </nb-tab>

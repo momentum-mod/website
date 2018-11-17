@@ -2329,10 +2329,10 @@ passport-strategy@1.x.x, passport-strategy@^1.0.0:
   resolved "https://registry.yarnpkg.com/passport-strategy/-/passport-strategy-1.0.0.tgz#b5539aa8fc225a3d1ad179476ddf236b440f52e4"
   integrity sha1-tVOaqPwiWj0a0XlHbd8ja0QPUuQ=
 
-passport-twitch@^1.0.3:
-  version "1.0.3"
-  resolved "https://registry.yarnpkg.com/passport-twitch/-/passport-twitch-1.0.3.tgz#82a4a1fbe19368d44e62f057e93c414a9d4fe7cc"
-  integrity sha1-gqSh++GTaNROYvBX6TxBSp1P58w=
+passport-twitch-helix@^1.1.0:
+  version "1.1.0"
+  resolved "https://registry.yarnpkg.com/passport-twitch-helix/-/passport-twitch-helix-1.1.0.tgz#ac8a5e54b1e98531f26942d9926c21145acec6e8"
+  integrity sha512-8tItfW3w73ADcdwTcf3UdMfHu0VgtBj6xqvyP2SX8GrTDVJzGqpYUfI7XgFp/GwTT9DH1l1msVmhxr3442VIEw==
   dependencies:
     passport-oauth2 "^1.1.2"
     pkginfo "0.2.x"
