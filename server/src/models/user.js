@@ -1,5 +1,5 @@
 'use strict';
-const { sequelize, Op, User, UserAuth, Profile, UserFollows, Notification, Activity,
+const { sequelize, Op, User, UserAuth, UserStats, Profile, UserFollows, Notification, Activity,
 	DiscordAuth, TwitchAuth, TwitterAuth } = require('../../config/sqlize'),
 	activity = require('./activity'),
 	OAuth = require('oauth'),
@@ -35,16 +35,14 @@ module.exports = {
 					alias: profile.alias,
 					avatarURL: profile.avatarURL
 				},
-				auth: {
-					userID: id,
-				}
+				auth: { userID: id },
+				stats: { userID: id }
 			}, {
-				include: [{
-					model: Profile,
-				}, {
-					model: UserAuth,
-					as: 'auth',
-				}],
+				include: [
+					{ model: Profile },
+					{ model: UserAuth, as: 'auth' },
+					{ model: UserStats, as: 'stats' }
+				],
 				transaction: t,
 			}).then(user => {
 				userInfo = user;
@@ -116,7 +114,7 @@ module.exports = {
 	},
 
 	get: (userID, context) => {
-		const allowedExpansions = ['profile'];
+		const allowedExpansions = ['profile', 'userStats'];
 		const queryContext = {
 			include: [],
 			where: { id: userID },
