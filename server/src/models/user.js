@@ -2,7 +2,7 @@
 const { sequelize, Op, User, UserAuth, Profile, UserFollows, Notification, Activity,
 	DiscordAuth, TwitchAuth, TwitterAuth } = require('../../config/sqlize'),
 	activity = require('./activity'),
-	OAuth = require('OAuth'),
+	OAuth = require('oauth'),
 	config = require('../../config/config'),
 	queryHelper = require('../helpers/query'),
 	axios = require('axios');
@@ -263,7 +263,9 @@ module.exports = {
 				})
 			}
 		}).then(mdl => {
-			return TwitchAuth.destroy(mdl);
+			return TwitchAuth.destroy({
+				where: {id: mdl.id}
+			});
 		});
 	},
 
@@ -272,18 +274,20 @@ module.exports = {
 			where: {profileID: profile.id}
 		}).then(mdl => {
 			if (mdl) {
-				return axios.post('https://discordapp.com/api/oauth2/token/revoke', {
-					params: {
-						client_id: config.discord.client_id,
-						token: mdl.token,
-					}
+				return axios.post('https://discordapp.com/api/oauth2/token/revoke', `token=${mdl.refreshToken}&token_type_hint=refresh_token`, {
+					headers: {
+						'Authorization': 'Bearer ' + mdl.accessToken,
+						'Content-Type': 'application/x-www-form-urlencoded',
+					},
 				}).then(sres => {
 					if (sres.status === 200)
 						return Promise.resolve(mdl);
 				})
 			}
 		}).then(mdl => {
-			DiscordAuth.destroy(mdl);
+			return DiscordAuth.destroy({
+				where: {id: mdl.id}
+			});
 		});
 	},
 

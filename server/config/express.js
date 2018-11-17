@@ -6,6 +6,7 @@ const express = require('express'),
 	passport = require('passport'),
 	SteamStrategy = require('passport-steam').Strategy,
 	JwtStrategy = require('passport-jwt').Strategy,
+	DiscordStrategy = require('passport-discord').Strategy,
 	ExtractJwt = require('passport-jwt').ExtractJwt,
 	fileUpload = require('express-fileupload'),
 	swaggerUI = require('swagger-ui-express'),
@@ -70,6 +71,17 @@ module.exports = (app, config) => {
 		audience: '',
 	}, (jwtPayload, done) => {
 		done(null, jwtPayload);
+	}));
+
+	passport.use(new DiscordStrategy({
+		clientID: config.discord.clientID,
+		clientSecret: config.discord.clientSecret,
+		callbackURL: config.baseUrl + '/auth/discord/return',
+		scope: ['identify'],
+	}, (token, refresh, profile, cb) => {
+		profile.token = token;
+		profile.refresh = refresh;
+		cb(null, profile);
 	}));
 
 	app.use(require('express-session')({ secret: config.session.secret, resave: true, saveUninitialized: true }));

@@ -27,7 +27,11 @@
           <div class="form-group">
             <label>
               Discord:
-              <input class="form-control" type="text">
+              <img *ngIf="profile && !profile.discordAuth" src="/assets/images/signInTwit.png" (click)="auth('discord')">
+              <div *ngIf="profile && profile.discordAuth">
+                <span>Authorized as {{profile.discordAuth.displayName}}</span>
+                <button class="btn btn-outline-danger" type="button" (click)="unAuth('discord')">Unauthorize</button>
+              </div>
             </label>
           </div>
           <div class="form-group">

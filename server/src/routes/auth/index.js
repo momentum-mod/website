@@ -60,20 +60,39 @@ router.route('/twitter/return')
 			if (err)
 				return next(err); // will generate a 500 error
 			if (!user)
-				return next(); // TODO: generate err?
+				return next(new Error('No user object!'));
 			// Here's that security I was talking about earlier. We're going to make sure the request returned for
 			// the user in question.
 			else if (user.user && user.user.id === req.query.id) {
 				// Unuse this strategy, we're done here.
 				passport.unuse('twitter-' + user.user.id);
-				// This will create the "user" object with everything, but I don't mind...
-				// ... I also can't find where it sets it for "account" sooo... *shrug*
-				req.logIn(user, {session: false}, (err) => {
-					return next(err, user);
-				});
+				req.account = user;
+				next(null, user);
 			}
 		})(req, res, next)
 	}, authCtrl.twitterReturn) // And last but not least, pass this through to our actual controller that generates links
+	.all(errorCtrl.send405);
+
+router.route('/discord')
+	.get([authMiddleware.requireLoginQuery], (req, res, next) => {
+		passport.authorize('discord', {state: req.user.id})(req, res, next);
+	})
+	.all(errorCtrl.send405);
+
+router.route('/discord/return')
+	.get((req, res, next) => {
+		passport.authorize('discord', (err, user, info) => {
+			if (err)
+				return next(err); // will generate a 500 error
+			if (!user)
+				return next(new Error('No user object!'));
+			else {
+				req.userID = req.query.state;
+				req.account = user;
+				next(null, user);
+			}
+		})(req, res, next)
+	}, authCtrl.discordReturn)
 	.all(errorCtrl.send405);
 
 module.exports = router;
