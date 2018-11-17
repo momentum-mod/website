@@ -6,7 +6,6 @@ import { Component, OnInit } from '@angular/core';
   styleUrls: ['./global-stats-filter.component.scss'],
 })
 export class GlobalStatsFilterComponent implements OnInit {
-
   constructor() { }
 
   ngOnInit() {
