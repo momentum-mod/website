@@ -49,7 +49,7 @@ const sequelize = new Sequelize({
 const forceSyncDB = () => {
 	return sequelize.query('SET FOREIGN_KEY_CHECKS = 0', { raw: true })
 	.then(() => {
-		return sequelize.sync({force: false});
+		return sequelize.sync({force: true});
 	}).then(() => {
 		return sequelize.query('SET FOREIGN_KEY_CHECKS = 1', { raw: true });
 	});
