@@ -12,7 +12,7 @@ paths:
           collectionFormat: csv
           items:
             type: string
-            enum: [profile]
+            enum: [profile, stats]
       responses:
         200:
           description: User is retrieved

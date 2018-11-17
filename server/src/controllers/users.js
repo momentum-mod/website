@@ -21,6 +21,8 @@ module.exports = {
 	},
 
 	get: (req, res, next) => {
+		if (req.query.expand)
+			req.query.expand = req.query.expand.replace(/stats/g, 'userStats');
 		user.get(req.params.userID, req.query)
 		.then(user => {
 			if (user) {
