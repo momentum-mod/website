@@ -17,9 +17,12 @@
     <h4>Social:</h4>
     <div class="socials">
       <a href="https://steamcommunity.com/profiles/{{user?.id}}" target="_blank" class="ion ion-steam"></a>
-      <a *ngIf="user?.profile?.twitchName" href="https://twitch.tv/{{user?.profile?.twitchName}}" target="_blank" class="ion ion-social-twitch"></a>
-      <a *ngIf="user?.profile?.twitterName" href="https://twitter.com/{{user?.profile?.twitterName}}" target="_blank" class="ion ion-social-twitter"></a>
-      <a *ngIf="user?.profile?.discordName" title="{{user?.profile?.discordName}}" target="_blank">
+      <a *ngIf="user?.profile?.twitchAuth" href="https://twitch.tv/{{user?.profile?.twitchAuth.displayName}}"
+         target="_blank" class="ion ion-social-twitch"></a>
+      <a *ngIf="user?.profile?.twitterAuth" href="https://twitter.com/{{user?.profile.twitterAuth.displayName}}"
+         target="_blank" class="ion ion-social-twitter"></a>
+      <a *ngIf="user?.profile?.discordAuth" [href]="'https://discordapp.com/users/' + user.profile.discordAuth.discordID"
+         title="{{user?.profile?.discordAuth.displayName}}" target="_blank">
         <img src="assets\images\Discord-Logo-White.png" height="35px" width="35px">
       </a>
       <a *ngIf="user?.profile?.youtubeName" href="https://youtube.com/user/{{user?.profile?.youtubeName}}" target="_blank" class="ion ion-social-youtube"></a>

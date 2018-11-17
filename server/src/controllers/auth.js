@@ -19,15 +19,14 @@ module.exports = {
 	},
 
 	twitterReturn: (req, res, next) => {
-		if (req.user && req.user.user) {
-			user.getProfile(req.user.user.id).then(profile => {
+		if (req.account && req.account.user) {
+			user.getProfile(req.account.user.id).then(profile => {
 				if (profile) {
 					user.createSocialLink(profile, 'twitter', {
-						twitterID: req.user.id,
-						displayName: req.user.username,
-						oauthKey: req.user.token,
-						oauthSecret: req.user.secret,
-						timestamp: Math.round(new Date().getTime() / 1000),
+						twitterID: req.account.id,
+						displayName: req.account.username,
+						oauthKey: req.account.token,
+						oauthSecret: req.account.secret,
 					})
 				}
 			}).catch(next);
@@ -51,12 +50,14 @@ module.exports = {
 	},
 
 	discordReturn: (req, res, next) => {
-		if (req.user && req.user.user) {
-			user.getProfile(req.user.user.id).then(profile => {
+		if (req.userID && req.account) {
+			user.getProfile(req.userID).then(profile => {
 				if (profile) {
 					user.createSocialLink(profile, 'discord', {
-						discordID: req.user.id,
-						token: req.user.token,
+						discordID: req.account.id,
+						displayName: req.account.username,
+						accessToken: req.account.token,
+						refreshToken: req.account.refresh,
 					})
 				}
 			}).catch(next);
