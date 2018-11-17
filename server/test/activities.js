@@ -47,19 +47,16 @@ describe('activities', () => {
 
 	const testActivities = [
 		{
-	        type: 2,
 	        userID: testUser.id,
 	        data: 1337,
 			type: activity.ACTIVITY_TYPES.ALL,
 	    },
 		{
-	        type: 3,
 	        userID: testUser2.id,
 	        data: 1337,
 			type: activity.ACTIVITY_TYPES.ALL,
 	    },
 		{
-	        type: 4,
 	        userID: testUser2.id,
 	        data: 1337,
 			type: activity.ACTIVITY_TYPES.ALL,
