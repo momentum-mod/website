@@ -35,13 +35,13 @@ module.exports = {
 	},
 
 	twitchReturn: (req, res, next) => {
-		if (req.user && req.user.user) {
-			user.getProfile(req.user.user.id).then(profile => {
+		if (req.userID && req.account) {
+			user.getProfile(req.userID).then(profile => {
 				if (profile) {
 					user.createSocialLink(profile, 'twitch', {
-						twitchID: req.user.id,
-						displayName: req.user.username,
-						token: req.user.token,
+						twitchID: req.account.id,
+						displayName: req.account.username,
+						token: req.account.refresh,
 					})
 				}
 			}).catch(next);

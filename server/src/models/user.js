@@ -252,10 +252,10 @@ module.exports = {
 			where: { profileID: profile.id }
 		}).then(mdl => {
 			if (mdl) {
-				return axios.post('https://id.twitch.tv/oauth2/revoke', {
-					params: {
-						client_id: config.twitch.client_id,
-						token: mdl.token,
+				return axios.post('https://id.twitch.tv/oauth2/revoke', `token=${mdl.token}&token_type_hint=refresh_token`, {
+					headers: {
+						'Content-Type': 'application/x-www-form-urlencoded',
+						'Client-ID': config.twitch.clientID,
 					}
 				}).then(sres => {
 					if (sres.status === 200)
