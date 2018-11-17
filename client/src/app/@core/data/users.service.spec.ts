@@ -12,14 +12,14 @@ describe('UsersService', () => {
     httpClientSpy = jasmine.createSpyObj('HttpClient', ['get', 'patch']);
     usersService = new UsersService(<any> httpClientSpy);
     expectedUser = {
-        id: '1',
-        permissions: 0,
-        profile: {
-          id: '0',
-          alias: 'test1',
-          avatarURL: 'url',
-        },
-      };
+      id: '1',
+      permissions: 0,
+      profile: {
+        id: '0',
+        alias: 'test1',
+        avatarURL: 'url',
+      },
+    };
     expectedUsers = [
       expectedUser,
       {
@@ -66,6 +66,25 @@ describe('UsersService', () => {
         fail,
       );
       expect(httpClientSpy.patch.calls.count()).toBe(1, 'one call');
+    });
+    //
+    // getFollowersOfUser
+    it('#getFollowersOfUser() should return followers of the user', () => {
+      httpClientSpy.get.and.returnValue(of(expectedUser));
+      usersService.getFollowersOfUser(expectedUser).subscribe(value =>
+          expect(value).toEqual(expectedUser, 'expected user'),
+        fail,
+      );
+      expect(httpClientSpy.get.calls.count()).toBe(1, 'one call');
+    });
+    // getUserFollows
+    it('#getUserFollows() should return the users the local user is following', () => {
+      httpClientSpy.get.and.returnValue(of(expectedUser));
+      usersService.getUserFollows(expectedUser).subscribe(value =>
+          expect(value).toEqual(expectedUser, 'expected user'),
+        fail,
+      );
+      expect(httpClientSpy.get.calls.count()).toBe(1, 'one call');
     });
   });
 });

@@ -2,17 +2,15 @@ import {MapsService} from './maps.service';
 import {of} from 'rxjs';
 import {MomentumMap} from '../models/momentum-map.model';
 
-let httpClientSpy: { get: jasmine.Spy };
+let httpClientSpy: { get: jasmine.Spy, patch: jasmine.Spy  };
 let mapsService: MapsService;
+let expectedMaps: MomentumMap[];
 
 describe('MapsService', () => {
   beforeEach(() => {
-    httpClientSpy = jasmine.createSpyObj('HttpClient', ['get']);
+    httpClientSpy = jasmine.createSpyObj('HttpClient', ['get', 'patch']);
     mapsService = new MapsService(<any> httpClientSpy);
-  });
-
-  it('should return expected maps', () => {
-    const expectedMaps: MomentumMap[] = [
+    expectedMaps = [
       {
         id: '9',
         name: 'testmap1',
@@ -28,39 +26,30 @@ describe('MapsService', () => {
         createdAt: new Date(),
       },
     ];
+  });
 
 
-    httpClientSpy.get.and.returnValue(of(expectedMaps));
-    mapsService.searchMaps('whatever').subscribe(value =>
-        expect(value).toEqual(expectedMaps, 'expected maps == 3'),
+  describe('Unit Tests', () => {
+
+
+    it('should return expected maps', () => {
+      httpClientSpy.get.and.returnValue(of(expectedMaps));
+      mapsService.searchMaps('whatever').subscribe(value =>
+          expect(value).toEqual(expectedMaps, 'expected maps == 3'),
         fail,
       );
-    expect(httpClientSpy.get.calls.count()).toBe(1, 'one call');
-  });
-/*
-  it('should return expected heroes (HttpClient called once)', () => {
-    const expectedHeroes: Hero[] =
-      [{ id: 1, name: 'A' }, { id: 2, name: 'B' }];
-
-    httpClientSpy.get.and.returnValue(asyncData(expectedHeroes));
-
-    heroService.getHeroes().subscribe(
-      heroes => expect(heroes).toEqual(expectedHeroes, 'expected heroes'),
-      fail,
-    );
-  });
-
-  it('should return an error when the server returns a 404', () => {
-    const errorResponse = new HttpErrorResponse({
-      error: 'test 404 error',
-      status: 404, statusText: 'Not Found'
+      expect(httpClientSpy.get.calls.count()).toBe(1, 'one call');
     });
 
-    httpClientSpy.get.and.returnValue(asyncError(errorResponse));
+    it('#getMap() should return expected map ID', () => {
+      httpClientSpy.get.and.returnValue(of(expectedMaps));
+      mapsService.getMap('mapID').subscribe(value =>
+          expect(value).toEqual(expectedMaps, 'expected map'),
+        fail,
+      );
+      expect(httpClientSpy.get.calls.count()).toBe(1, 'one call');
+    });
+// TODO: Test methods for downloading maps
+  });
 
-    heroService.getHeroes().subscribe(
-      heroes => fail('expected an error, not heroes'),
-      error  => expect(error.message).toContain('test 404 error')
-    );
-  });*/
 });
