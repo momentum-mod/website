@@ -184,6 +184,8 @@ definitions:
         readOnly: true
   Users:
     properties:
+      count:
+        type: integer
       users:
         type: array
         items:

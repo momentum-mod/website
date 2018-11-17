@@ -156,7 +156,7 @@ module.exports = {
 			};
 		}
 		queryHelper.addExpansions(queryContext, context.expand, allowedExpansions);
-		return Map.findAll(queryContext);
+		return Map.findAndCountAll(queryContext);
 	},
 
 	get: (mapID, context) => {

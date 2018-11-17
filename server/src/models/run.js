@@ -186,7 +186,7 @@ module.exports = {
 			queryContext.where.playerID = context.playerID;
 		if (context.flags)
 			queryContext.where.flags = parseInt(context.flags) || 0;
-		return Run.findAll(queryContext);
+		return Run.findAndCountAll(queryContext);
 	},
 
 	get: (runID, context) => {

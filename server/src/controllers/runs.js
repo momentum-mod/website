@@ -5,9 +5,10 @@ module.exports = {
 
 	getAll: (req, res, next) => {
 		run.getAll(req.query)
-		.then(runs => {
+		.then(results => {
 			res.json({
-				runs: runs
+				count: results.count,
+				runs: results.rows
 			});
 		}).catch(next);
 	},
