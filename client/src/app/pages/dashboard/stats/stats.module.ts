@@ -8,10 +8,13 @@ import { GlobalStatsBaseComponent } from './global-stats/global-stats-base/globa
 import { GlobalStatsMapsComponent } from './global-stats/global-stats-maps/global-stats-maps.component';
 import {NgxEchartsModule} from 'ngx-echarts';
 import { GlobalStatsTopsComponent } from './global-stats/global-stats-tops/global-stats-tops.component';
+import { GlobalStatsFilterComponent } from './global-stats/global-stats-filter/global-stats-filter.component';
+import {NbSelectModule} from '@nebular/theme';
 
 @NgModule ({
   imports: [
     ThemeModule,
+    NbSelectModule,
     NgxEchartsModule,
     NotFoundModule,
     StatsRoutingModule,
@@ -22,6 +25,7 @@ import { GlobalStatsTopsComponent } from './global-stats/global-stats-tops/globa
     GlobalStatsBaseComponent,
     GlobalStatsMapsComponent,
     GlobalStatsTopsComponent,
+    GlobalStatsFilterComponent,
   ],
 })
 export class StatsModule {
