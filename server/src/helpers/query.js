@@ -1,5 +1,5 @@
 'use strict';
-const { MapInfo, MapCredit, User, Profile, MapImage, DiscordAuth, TwitterAuth, TwitchAuth } = require('../../config/sqlize');
+const { MapInfo, MapCredit, MapStats, User, Profile, MapImage, DiscordAuth, TwitterAuth, TwitchAuth } = require('../../config/sqlize');
 
 const expansionMap = {
 	info: {
@@ -22,6 +22,10 @@ const expansionMap = {
 	images: {
 		model: MapImage,
 		as: 'images'
+	},
+	mapStats: {
+		model: MapStats,
+		as: 'stats'
 	},
 	user: {
 		model: User,
@@ -58,11 +62,13 @@ module.exports = {
 		if (!expandString) return;
 		if (!queryContext.include) queryContext.include = [];
 		const expansionNames = expandString.split(',');
+		const addedExpansions = [];
 		for (let i = 0; i < expansionNames.length; i++) {
 			if (allowedExpansions && !allowedExpansions.includes(expansionNames[i])) {
 				continue;
 			}
-			if (expansionNames[i] in expansionMap) {
+			if (expansionNames[i] in expansionMap && !addedExpansions.includes(expansionNames[i])) {
+				addedExpansions.push(expansionNames[i]);
 				queryContext.include.push(expansionMap[expansionNames[i]]);
 			}
 		}

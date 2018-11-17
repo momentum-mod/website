@@ -76,7 +76,7 @@ paths:
           collectionFormat: csv
           items:
             type: string
-            enum: [info, submitter, credits, images]
+            enum: [info, submitter, credits, images, stats]
       responses:
         200:
           description: OK

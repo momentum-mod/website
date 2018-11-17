@@ -160,7 +160,7 @@ module.exports = {
 	},
 
 	get: (mapID, context) => {
-		const allowedExpansions = ['info', 'credits', 'submitter', 'images'];
+		const allowedExpansions = ['info', 'credits', 'submitter', 'images', 'mapStats'];
 		const queryContext = { where: { id: mapID }};
 		if ('status' in context)
 			queryContext.where.statusFlag = {[Op.in]: context.status.split(',')}
@@ -171,7 +171,6 @@ module.exports = {
 	create: (map) => {
 		return verifyMapUploadLimitNotReached(map.submitterID)
 		.then((count) => {
-			console.log(count);
 			return verifyMapNameNotTaken(map.name);
 		}).then(() => {
 			return sequelize.transaction(t => {

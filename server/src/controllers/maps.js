@@ -45,6 +45,8 @@ module.exports = {
 			map.STATUS.REJECTED.toString(),
 			map.STATUS.REMOVED.toString(),
 		].join(',');
+		if (req.query.expand)
+			req.query.expand = req.query.expand.replace(/stats/g, 'mapStats');
 		map.get(req.params.mapID, req.query)
 		.then(map => {
 			if (map) {
