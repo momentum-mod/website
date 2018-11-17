@@ -128,9 +128,7 @@ module.exports = {
 			include: [{
 				model: Profile,
 				where: {
-					alias: {
-						[Op.like]: '%' + (context.search || '') + '%' // 2 spooky 5 me O:
-					}
+					alias: {[Op.like]: '%' + (context.search || '') + '%'}
 				}
 			}],
 			limit: 20
@@ -141,7 +139,7 @@ module.exports = {
 			queryContext.offset = (Math.max(parseInt(context.page), 0) * queryContext.limit);
 		if (!(context.expand && context.expand.includes('profile')))
 			queryContext.include[0].attributes = [];
-		return User.findAll(queryContext);
+		return User.findAndCountAll(queryContext);
 	},
 
 	update: (userID, usr) => {

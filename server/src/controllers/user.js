@@ -57,17 +57,19 @@ module.exports = {
 	getSubmittedMaps: (req, res, next) => {
 		req.query.submitterID = req.user.id;
 		map.getAll(req.query)
-		.then(maps => {
+		.then(results => {
 			res.json({
-				maps: maps
+				count: results.count,
+				maps: results.rows
 			});
 		}).catch(next);
 	},
 
 	getUserLibrary: (req, res, next) => {
-		mapLibrary.getUserLibrary(req.user.id).then(entries => {
+		mapLibrary.getUserLibrary(req.user.id).then(results => {
 			res.json({
-				entries: entries
+				count: results.count,
+				entries: results.rows
 			});
 		}).catch(next);
 	},
@@ -133,9 +135,10 @@ module.exports = {
 
 
 	getNotifications: (req, res, next) => {
-		user.getNotifications(req.user.id).then(result => {
+		user.getNotifications(req.user.id).then(results => {
 			res.json({
-				notifications: result
+				count: results.count,
+				notifications: results.rows
 			});
 		}).catch(next);
 	},

@@ -4,7 +4,7 @@ const { sequelize, MapLibrary, Map, MapInfo, MapCredit, MapStats } = require('..
 module.exports = {
 
 	getUserLibrary: (userID) => {
-		return MapLibrary.findAll({
+		return MapLibrary.findAndCountAll({
 			where: { userID: userID },
 			include: [
 				{

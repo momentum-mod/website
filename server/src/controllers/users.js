@@ -13,9 +13,10 @@ module.exports = {
 
 	getAll: (req, res, next) => {
 		user.getAll(req.query)
-		.then(users => {
+		.then(results => {
 	        res.json({
-	        	users: users
+				count: results.count,
+	        	users: results.rows
 	        });
 		}).catch(next);
 	},
@@ -50,9 +51,10 @@ module.exports = {
 	getActivities: (req, res, next) => {
 		req.query.userID = req.params.userID;
 		activity.getAll(req.query)
-		.then(activities => {
+		.then(results => {
 			res.json({
-				activities: activities
+				count: results.count,
+				activities: results.rows
 			});
 		}).catch(next);
 	},

@@ -401,6 +401,8 @@ definitions:
         readOnly: true
   Maps:
     properties:
+      count:
+        type: integer
       maps:
         type: array
         items:

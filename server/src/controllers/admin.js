@@ -20,9 +20,10 @@ module.exports = {
 
 	getMaps: (req, res, next) => {
 		map.getAll(req.query)
-		.then(maps => {
+		.then(results => {
 			res.json({
-				maps: maps
+				count: results.count,
+				maps: results.rows
 			});
 		}).catch(next);
 	}

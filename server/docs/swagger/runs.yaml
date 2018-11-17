@@ -140,6 +140,8 @@ definitions:
         readOnly: true
   Runs:
     properties:
+      count:
+        type: integer
       runs:
         type: array
         items:
