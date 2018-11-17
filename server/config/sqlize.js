@@ -3,6 +3,7 @@ const Sequelize = require('sequelize'),
 	config = require('./config'),
 	UserModel = require('../src/models/db/user'),
 	UserAuthModel = require('../src/models/db/user-auth'),
+	UserStatsModel = require('../src/models/db/user-stats'),
 	ProfileModel = require('../src/models/db/profile'),
 	MapModel = require('../src/models/db/map'),
 	MapInfoModel = require('../src/models/db/map-info'),
@@ -57,6 +58,7 @@ const forceSyncDB = () => {
 
 const User = UserModel(sequelize, Sequelize);
 const UserAuth = UserAuthModel(sequelize, Sequelize);
+const UserStats = UserStatsModel(sequelize, Sequelize);
 const TwitterAuth = TwitterAuthModel(sequelize, Sequelize);
 const TwitchAuth = TwitchAuthModel(sequelize, Sequelize);
 const DiscordAuth = DiscordAuthModel(sequelize, Sequelize);
@@ -82,6 +84,7 @@ const RunZoneStats = RunZoneStatsModel(sequelize, Sequelize);
 User.hasOne(Profile, { foreignKey: 'userID' });
 User.hasMany(Activity, { foreignKey: 'userID' });
 User.hasOne(UserAuth, { as: 'auth', foreignKey: 'userID' });
+User.hasOne(UserStats, { as: 'stats', foreignKey: 'userID' });
 Profile.hasOne(DiscordAuth, {foreignKey: 'profileID'});
 Profile.hasOne(TwitchAuth, {foreignKey: 'profileID'});
 Profile.hasOne(TwitterAuth, {foreignKey: 'profileID'});
@@ -128,6 +131,7 @@ module.exports = {
 	forceSyncDB,
 	User,
 	UserAuth,
+	UserStats,
 	DiscordAuth,
 	TwitterAuth,
 	TwitchAuth,
