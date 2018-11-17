@@ -1,6 +1,5 @@
 
 .title {
-  margin: auto;
   font-size: 2vw;
 }
 
@@ -11,10 +10,23 @@
 }
 
 .result-elem {
-  float: left;
-  text-align: left;
+  text-align: center;
 }
 
 .avatar {
   max-width: 5%;
 }
+
+h3 {
+  text-align: left;
+}
+
+.center {
+  margin: auto;
+  width: 75%;
+}
+
+hr {
+  border-top: 1px solid white;
+}
+
