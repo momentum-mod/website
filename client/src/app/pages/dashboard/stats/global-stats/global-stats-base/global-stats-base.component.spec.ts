@@ -1,6 +1,7 @@
 import { async, ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { GlobalStatsBaseComponent } from './global-stats-base.component';
+import {ThemeModule} from '../../../../../@theme/theme.module';
 
 describe('GlobalStatsBaseComponent', () => {
   let component: GlobalStatsBaseComponent;
@@ -8,6 +9,7 @@ describe('GlobalStatsBaseComponent', () => {
 
   beforeEach(async(() => {
     TestBed.configureTestingModule({
+      imports: [ThemeModule],
       declarations: [ GlobalStatsBaseComponent ],
     })
     .compileComponents();
