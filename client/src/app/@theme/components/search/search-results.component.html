@@ -1,25 +1,19 @@
-<div class="container-fluid no-gutters" *ngIf="elems?.length">
-  <div class="row">
-    <div class="col-xl-1">
-      <span class="title">{{usersResults ? 'Users' : 'Maps'}}</span>
-    </div>
-    <div class="col-xl-11">
-      <div class="col-sm result-elem" *ngFor="let elem of elems">
-        <div *ngIf="usersResults">
-          <a [href]="getElemURL(elem)">
-            <nb-user class="name" [picture]="getElemPicture(elem)" [name]="getElemName(elem)" [size]="'large'"></nb-user>
-          </a>
-        </div>
-        <div *ngIf="!usersResults">
-          <a [href]="getElemURL(elem)">
-            <div>
-              <img class="avatar" [src]="getElemPicture(elem)">
-              <span class="name">{{getElemName(elem)}}</span>
-            </div>
-          </a>
-        </div>
+<h3><i class="fa" [ngClass]="usersResults ? 'fa-users' : 'fa-map'" aria-hidden="true"></i> {{usersResults ? 'Users' :
+  'Maps'}}</h3>
+<hr>
+<span *ngIf="shouldShowEmpty()">No {{usersResults ? 'users' : 'maps'}} found</span>
+<div class="center result-elem" *ngFor="let elem of elems">
+  <div *ngIf="usersResults">
+    <a [href]="getElemURL(elem)">
+      <nb-user class="name" [picture]="getElemPicture(elem)" [name]="getElemName(elem)" [size]="'large'"></nb-user>
+    </a>
+  </div>
+  <div *ngIf="!usersResults">
+    <a [href]="getElemURL(elem)">
+      <div>
+        <img class="avatar" [src]="getElemPicture(elem)">
+        <span class="name">{{getElemName(elem)}}</span>
       </div>
-    </div>
+    </a>
   </div>
 </div>
-<span class="title" *ngIf="shouldShowEmpty()">No {{usersResults ? 'users' : 'maps'}} found</span>
