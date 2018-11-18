@@ -288,6 +288,17 @@ paths:
       summary: Retrieves a list of notifications for the authenticated user
       tags:
         - user
+      parameters:
+        - name: limit
+          in: query
+          description: The maximum number of results to show
+          type: integer
+          default: 10
+        - name: page
+          in: query
+          description: The page of results to show
+          type: integer
+          default: 0
       responses:
         200:
           description: OK

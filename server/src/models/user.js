@@ -371,8 +371,8 @@ module.exports = {
 		});
 	},
 
-	getNotifications: (userID) => {
-		return Notification.findAndCountAll({
+	getNotifications: (userID, context) => {
+		const queryContext = {
 			where: { forUserID: userID },
 			include: {
 				model: Activity,
@@ -385,8 +385,15 @@ module.exports = {
 						as: 'profile',
 					}
 				}
-			}
-		});
+			},
+			limit: 10,
+			order: [['createdAt', 'DESC']],
+		};
+		if (context.limit && !isNaN(context.limit))
+			queryContext.limit = Math.min(Math.max(parseInt(context.limit), 1), 20);
+		if (context.page && !isNaN(context.page))
+			queryContext.offset = (Math.max(parseInt(context.page), 0) * queryContext.limit);
+		return Notification.findAndCountAll(queryContext);
 	},
 
 	updateNotification: (userID, notifID, read) => {

@@ -135,7 +135,7 @@ module.exports = {
 
 
 	getNotifications: (req, res, next) => {
-		user.getNotifications(req.user.id).then(results => {
+		user.getNotifications(req.user.id, req.query).then(results => {
 			res.json({
 				count: results.count,
 				notifications: results.rows
