@@ -111,8 +111,8 @@ describe('maps', () => {
 			});
 		});
 
-		describe('GET /api/maps/1337', () => {
-			it('should respond with 404', () => {
+		describe('GET /api/maps/{mapID}', () => {
+			it('should respond with 404 when the map is not found', () => {
 				return chai.request(server)
 				.get('/api/maps/1337')
 				.set('Authorization', 'Bearer ' + accessToken)
@@ -198,6 +198,25 @@ describe('maps', () => {
             });
         });
         */
+
+		describe('GET /api/maps/{mapID}/images', () => {
+			it('should respond with a list of images');
+		});
+
+		describe('GET /api/maps/{mapID}/images/{imgID}', () => {
+			it('should respond with 404 when the image is not found');
+			it('should respond with image info');
+		});
+
+		describe('PUT /api/maps/{mapID}/images/{imgID}', () => {
+			it('should respond with 404 when the image is not found');
+			it('should respond with 400 when no map image is provided');
+			it('should update the map image');
+		});
+
+		describe('PUT /api/maps/{mapID}/images/{imgID}', () => {
+			it('should delete the map image');
+		});
 
 	});
 

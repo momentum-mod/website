@@ -10,7 +10,7 @@ const { forceSyncDB, Map, MapInfo, User } = require('../config/sqlize'),
 
 chai.use(chaiHttp);
 
-describe('admin', () => {
+describe('runs', () => {
 
 	before(() => {
 
@@ -47,7 +47,7 @@ describe('admin', () => {
 			it('should respond with the run');
 		});
 
-		describe('GET /api/runs/{runID}', () => {
+		describe('GET /api/runs/{runID}/download', () => {
 			it('should respond with a 404 when the run is not found');
 			it('should download the run replay file');
 		});
