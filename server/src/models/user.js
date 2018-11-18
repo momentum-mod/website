@@ -372,7 +372,7 @@ module.exports = {
 	},
 
 	getNotifications: (userID) => {
-		return Notification.findAll({
+		return Notification.findAndCountAll({
 			where: { forUserID: userID },
 			include: {
 				model: Activity,
