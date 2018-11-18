@@ -184,7 +184,18 @@ describe('user', () => {
             });
         });
 
+		describe('GET /api/user/notifications', () => {
+			it('should respond with notification data');
+		});
+
+		describe('PATCH /api/user/notifications/{notifID}', () => {
+			it('should update the notification');
+		});
+
+		describe('DELETE /api/user/notifications/{notifID}', () => {
+			it('should delete the notification');
+		});
+
     });
 
 });
-
