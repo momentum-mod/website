@@ -353,8 +353,17 @@ module.exports = {
 	},
 
 	followUser: (followeeID, followedID) => {
-		return UserFollows.findOrCreate({
-			where: { followeeID: followeeID, followedID: followedID }
+		return User.find({
+			where: { id: followedID }
+		}).then(user => {
+			if (!user) {
+				const err = new Error('User not found');
+				err.status = 404;
+				return Promise.reject(err);
+			}
+			return UserFollows.findOrCreate({
+				where: { followeeID: followeeID, followedID: followedID }
+			});
 		});
 	},
 
