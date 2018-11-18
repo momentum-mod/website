@@ -51,10 +51,9 @@ module.exports = {
 	getActivities: (req, res, next) => {
 		req.query.userID = req.params.userID;
 		activity.getAll(req.query)
-		.then(results => {
+		.then(activities => {
 			res.json({
-				count: results.count,
-				activities: results.rows
+				activities: activities
 			});
 		}).catch(next);
 	},
