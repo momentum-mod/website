@@ -46,6 +46,21 @@ paths:
       responses:
         204:
           description: User profile is updated
+  /user/profile/social/{type}:
+    delete:
+      summary: Unlinks the social account from the authenticated user
+      tags:
+        - user
+      parameters:
+        - name: type
+          in: path
+          required: true
+          description: type of social account to unlink
+          type: string
+          enum: [twitter, discord, twitch]
+      responses:
+        200:
+          description: The social account is unlinked from the authenticated user
   /user/maps/library:
     get:
       summary: Retrieves a list of maps in the authenticated user's library
@@ -268,6 +283,32 @@ paths:
            description: OK
            schema:
              $ref: '#/definitions/Activities'
+  /user/notifications:
+    get:
+      summary: Retrieves a list of notifications for the authenticated user
+      tags:
+        - user
+      responses:
+        200:
+          description: OK
+          schema:
+            $ref: '#/definitions/Notifications'
+  /user/notifications/{notifID}:
+    patch:
+      summary: Updates the notification
+        (Usually used to mark the notification as read/unread)
+      tags:
+        - user
+      responses:
+        204:
+          description: Notification is updated
+    delete:
+      summary: Deletes the notification
+      tags:
+        - user
+      responses:
+        200:
+          description: Notification is deleted
 definitions:
   MapLibraryEntry:
     properties:
@@ -296,3 +337,35 @@ definitions:
         type: array
         items:
           $ref: '#/definitions/MapLibraryEntry'
+  Notification:
+    properties:
+      id:
+        type: integer
+        readOnly: true
+      forUserID:
+        type: string
+        readOnly: true
+      activityID:
+        type: integer
+        readOnly: true
+      read:
+        type: boolean
+        description: whether or not the notification has been read
+      createdAt:
+        type: string
+        format: date-time
+        readOnly: true
+      updatedAt:
+        type: string
+        format: date-time
+        readOnly: true
+      activity:
+        $ref: '#/definitions/Activity'
+  Notifications:
+    properties:
+      count:
+        type: integer
+      notifications:
+        type: array
+        items:
+          $ref: '#/definitions/Notification'

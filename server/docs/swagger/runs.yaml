@@ -3,6 +3,8 @@ paths:
     parameters:
     post:
       summary: Submit a run file
+      consumes:
+        - multipart/form-data
       tags:
         - runs
       parameters:
@@ -67,7 +69,7 @@ paths:
         description: ID of the run to find
         type: string
     get:
-      summary: Retrieves a specific run for specific leaderboard
+      summary: Retrieves a specific run
       tags:
         - runs
       responses:
@@ -90,6 +92,8 @@ paths:
       tags:
         - runs
       summary: Downloads the run replay file for a run
+      produces:
+        - application/octet-steam
       responses:
         200:
           description: A run replay file in binary format

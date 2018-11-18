@@ -3,8 +3,7 @@ paths:
     get:
       tags:
         - auth
-      summary:
-        Starts OpenID Steam authentication by redirecting to Steam OpenID URL
+      summary: Starts OpenID Steam authentication by redirecting to Steam OpenID URL
       responses:
         302:
           description: Redirection to Steam OpenID URL will occur
@@ -17,8 +16,7 @@ paths:
     get:
       tags:
         - auth
-      summary:
-        The return URL for Steam OpenID authentication
+      summary: The return URL for Steam OpenID authentication
       responses:
         302:
           description: Redirection to the dashboard on login success
@@ -27,3 +25,69 @@ paths:
               schema:
                 type: string
               description: Web app dashboard URL
+  /auth/twitter:
+    get:
+      tags:
+        - auth
+      summary: Starts OAuth authentication by redirecting to Twitter OAuth URL
+        (Used to link Twitter account to currently authenticated user only)
+      responses:
+        302:
+          description: Redirection to Twitter OAuth URL will occur
+          headers:
+            Location:
+              schema:
+                type: string
+              description: Twitter OAuth URL
+  /auth/twitter/return:
+    get:
+      tags:
+        - auth
+      summary: The return URL for Twitter OAuth authentication
+      responses:
+        200:
+          description: Twitter account is successfully linked
+  /auth/discord:
+    get:
+      tags:
+        - auth
+      summary: Starts OAuth authentication by redirecting to Discord OAuth URL
+        (Used to link Discord account to currently authenticated user only)
+      responses:
+        302:
+          description: Redirection to Discord OAuth URL will occur
+          headers:
+            Location:
+              schema:
+                type: string
+              description: Discord OAuth URL
+  /auth/discord/return:
+    get:
+      tags:
+        - auth
+      summary: The return URL for Discord OAuth authentication
+      responses:
+        200:
+          description: Discord account is successfully linked
+  /auth/twitch:
+    get:
+      tags:
+        - auth
+      summary: Starts OAuth authentication by redirecting to Twitch OAuth URL
+        (Used to link Twitch account to currently authenticated user only)
+      responses:
+        302:
+          description: Redirection to Twitch OAuth URL will occur
+          headers:
+            Location:
+              schema:
+                type: string
+              description: Twitch OAuth URL
+  /auth/twitch/return:
+    get:
+      tags:
+        - auth
+      summary: The return URL for Twitch OAuth authentication
+      responses:
+        200:
+          description: Twitch account is successfully linked
