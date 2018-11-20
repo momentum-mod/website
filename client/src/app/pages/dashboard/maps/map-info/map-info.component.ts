@@ -34,6 +34,7 @@ export class MapInfoComponent implements OnInit {
       }, error => {
         this.mapInLibrary = error.status !== 404;
         // TODO: if there's ever server error (500) print some text?
+        this.toastService.popAsync('error', 'No maps in library', error.message);
       });
     });
   }
