@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { AdminService } from '../../../../@core/data/admin.service';
 import { MomentumMap } from '../../../../@core/models/momentum-map.model';
 import { MapUploadStatus } from '../../../../@core/models/map-upload-status.model';
+import {ToasterService} from 'angular2-toaster';
 
 @Component({
   selector: 'app-map-queue',
@@ -15,7 +16,8 @@ export class MapQueueComponent implements OnInit {
   priorityQueuePage: number;
   nonPriorityQueuePage: number;
 
-  constructor(private adminService: AdminService) {
+  constructor(private adminService: AdminService,
+              private toasterService: ToasterService) {
     this.priorityQueuePage = 0;
     this.nonPriorityQueuePage = 0;
   }
@@ -40,7 +42,7 @@ export class MapQueueComponent implements OnInit {
       // console.log(res.maps);
     }, err => {
       console.error(err);
-      alert('Failed to load priority queue!');
+      this.toasterService.popAsync('error', 'Failed to load priority queue', 'error');
     });
   }
 

@@ -3,6 +3,7 @@ import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { UsersService } from '../../../../@core/data/users.service';
 import {User} from '../../../../@core/models/user.model';
 import {Permission} from '../../../../@core/models/permissions.model';
+import {ToasterService} from 'angular2-toaster';
 
 @Component({
   selector: 'ngx-modal',
@@ -26,7 +27,9 @@ export class UserEditModalComponent {
     },
   };
 
-  constructor(private activeModal: NgbActiveModal, private usersService: UsersService) { }
+  constructor(private activeModal: NgbActiveModal,
+              private usersService: UsersService,
+              private toastService: ToasterService) { }
 
   loadUserData(userData) {
     Object.assign(this.form, userData);
@@ -44,7 +47,7 @@ export class UserEditModalComponent {
       user.updatedAt = new Date().toISOString();
       this.onEditSuccess.emit(user);
     }, error => {
-      alert(error.message); // TODO: replace with toaster!!! :)
+      this.toastService.popAsync('error', 'Cannot update user', error.message);
     });
   }
 
