@@ -5,14 +5,14 @@
         <img [src]="map.info.avatarURL">
       </div>
       <div class="col-3">
-        <ul style="list-style: none">
+        <ul>
           <li>MAP NAME:</li>
           <li>SUBMITTED:</li>
           <li>SUBMITTED BY:</li>
         </ul>
       </div>
       <div class="col-6 text-left">
-        <ul style="list-style: none">
+        <ul>
           <li>{{map.name}}</li>
           <li>{{map.createdAt | date}}</li>
           <li><nb-user [name]="map.submitter.profile.alias" [picture]="map.submitter.profile.avatarURL" size="small" class="d-inline-block"></nb-user></li>
@@ -27,8 +27,12 @@
   <div class="col-1">
     <div class="text-right" role="toolbar">
       <div class="btn-group-vertical" role="group">
-        <button type="button" class="btn btn-success" (click)="updateMapStatus(map.id, statusEnum.APPROVED)"><span class="ion-checkmark-round"></span></button>
-        <button type="button" class="btn btn-danger" (click)="updateMapStatus(map.id, statusEnum.REJECTED)"><span class="ion-close-round"></span></button>
+        <button type="button" class="btn btn-success" (click)="updateMapStatus(map.id, statusEnum.APPROVED)">
+          <span class="ion-checkmark-round"></span>
+        </button>
+        <button type="button" class="btn btn-danger" (click)="updateMapStatus(map.id, statusEnum.REJECTED)">
+          <span class="ion-close-round"></span>
+        </button>
       </div>
     </div>
   </div>
