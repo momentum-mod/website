@@ -76,11 +76,7 @@ describe('users', () => {
                         as: 'profile',
                     }]
                 })
-            })
-            //.then(() => {
-             //     return User.followUser(testUser, testUser2);
-            //})
-            .then(user => {
+            }).then(user => {
                     testUser.id = user.id;
                     return Promise.resolve();
                 });
@@ -88,7 +84,7 @@ describe('users', () => {
     });
 
     after(() => {
-        //return forceSyncDB();
+        return forceSyncDB();
     });
 
     describe('modules', () => {

@@ -17,6 +17,7 @@ describe('AdminService', () => {
       name: 'testmap1',
       statusFlag: 0,
       createdAt: new Date(),
+      submitterID: '12345',
     };
     expectedMaps = [
       expectedMap,
@@ -25,6 +26,7 @@ describe('AdminService', () => {
         name: 'testmap2',
         statusFlag: 0,
         createdAt: new Date(),
+        submitterID: '123456',
       },
     ];
   });
