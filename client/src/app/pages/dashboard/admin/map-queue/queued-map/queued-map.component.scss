@@ -1,0 +1,18 @@
+.btn-group-vertical > button {
+    margin-bottom: 10px;
+    border-radius: 10px !important;
+}
+.btn-group-vertical button:last-of-type {
+  margin-bottom: 0;
+}
+img {
+  max-width: 6vw;
+  min-width: 105px;
+}
+ul {
+  margin-bottom: 0;
+}
+li {
+  font-family: 'Exo', serif;
+  list-style: none;
+}

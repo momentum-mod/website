@@ -1,5 +1,6 @@
 import {MomentumMapInfo} from './map-info.model';
 import {MapCredit} from './map-credit.model';
+import {User} from './user.model';
 
 export interface MomentumMap {
   id: string;
@@ -10,4 +11,6 @@ export interface MomentumMap {
   credits?: MapCredit[];
   leaderboardID?: string;
   download?: string;
+  submitterID: string;
+  submitter?: User;
 }
