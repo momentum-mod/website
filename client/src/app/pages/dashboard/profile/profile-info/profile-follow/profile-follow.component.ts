@@ -98,7 +98,7 @@ export class ProfileFollowComponent implements OnInit {
           this.localFollowStatus = resp.local;
           this.targetFollowStatus = resp.target;
       }, err => {
-        // TODO error reporting
+          this.toastService.popAsync('error', 'Could not check follow status', err.message);
       });
     });
   }
@@ -112,6 +112,8 @@ export class ProfileFollowComponent implements OnInit {
     } else {
       this.localUserService.unfollowUser(this.user).subscribe(resp => {
         this.localFollowStatus = null;
+      }, err => {
+        this.toastService.popAsync('error', 'Could not unfollow user', err.message);
       });
     }
   }
@@ -127,6 +129,8 @@ export class ProfileFollowComponent implements OnInit {
       if (resp) {
         this.localUserService.updateFollowStatus(this.user, resp.newFlags).subscribe(() => {
           this.localFollowStatus.notifyOn = resp.newFlags;
+        }, err => {
+          this.toastService.popAsync('error', 'Could not update follow status', err.message);
         });
       }
     });

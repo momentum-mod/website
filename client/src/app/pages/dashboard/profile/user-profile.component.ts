@@ -6,6 +6,7 @@ import {UsersService} from '../../../@core/data/users.service';
 import {User} from '../../../@core/models/user.model';
 import {ReplaySubject} from 'rxjs';
 import {Permission} from '../../../@core/models/permissions.model';
+import {ToasterService} from 'angular2-toaster';
 
 @Component({
   selector: 'ngx-user-profile',
@@ -25,7 +26,8 @@ export class UserProfileComponent implements OnInit {
   constructor(private route: ActivatedRoute,
               private router: Router,
               public userService: LocalUserService,
-              private usersService: UsersService) {
+              private usersService: UsersService,
+              private toastService: ToasterService) {
     this.isLocal = true;
     this.userSubj$ = new ReplaySubject<User>(1);
     this.isMapper = false;
@@ -39,6 +41,8 @@ export class UserProfileComponent implements OnInit {
         if (params.has('id')) {
           this.userService.getLocal().subscribe(usr => {
             this.isLocal = params.get('id') === usr.id;
+          }, error => {
+            this.toastService.popAsync('error', 'Cannot get user profile', error.message);
           });
           return this.usersService.getUser(params.get('id'));
         } else {
@@ -57,6 +61,8 @@ export class UserProfileComponent implements OnInit {
         this.avatar_url = this.user.profile.avatarURL;
       }
       this.avatar_loaded = true;
+    }, error => {
+      this.toastService.popAsync('error', 'Cannot get user details', error.message);
     });
   }
 
