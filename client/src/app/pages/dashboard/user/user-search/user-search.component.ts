@@ -3,6 +3,7 @@ import {UsersService} from '../../../../@core/data/users.service';
 import {User} from '../../../../@core/models/user.model';
 import {FormBuilder, FormGroup} from '@angular/forms';
 import {debounceTime, distinctUntilChanged} from 'rxjs/operators';
+import {ToasterService} from 'angular2-toaster';
 
 @Component({
   selector: 'user-search',
@@ -21,7 +22,8 @@ export class UserSearchComponent implements OnInit {
   @Output() selectedUserEmit: EventEmitter<User>;
   @ViewChild('searchInput') searchInput: ElementRef;
   constructor(private fb: FormBuilder,
-              private usersService: UsersService) {
+              private usersService: UsersService,
+              private toastService: ToasterService) {
     this.selectedUserEmit = new EventEmitter<User>();
     this.foundUsers = [];
   }
@@ -35,6 +37,8 @@ export class UserSearchComponent implements OnInit {
         if ((val = val.trim())) {
           this.usersService.searchUsers(val).subscribe(resp => {
             this.foundUsers = resp.users;
+          }, error => {
+            this.toastService.popAsync('error', 'Cannot retrieve list of users', error.message);
           });
         }
       });
