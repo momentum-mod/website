@@ -1,49 +1,28 @@
-<div class="row no-gutters outer" [ngClass]="statusEnum[map.statusFlag]">
-  <div class="col-9">
-    <div class="row">
-      <div class="col-2">
+<div class="row no-gutters align-items-center">
+  <div class="col-12 col-sm-6">
+    <div class="row align-items-center">
+      <div class="col-3">
         <img [src]="map.info.avatarURL">
       </div>
-      <div class="col-8 content">
-        <div class="row">
-          <div class="col-2">
-            <span>MAP NAME:</span>
-          </div>
-          <div class="col-4">
-            <span>{{map.name}}</span>
-          </div>
-        </div>
-        <div class="row">
-          <div class="col-2">
-            <span>SUBMITTED:</span>
-          </div>
-          <div class="col-4">
-            <span>{{map.createdAt | date}}</span>
-          </div>
-        </div>
-        <div class="row">
-          <div class="col-2">
-            <span>AUTHOR(S):</span>
-          </div>
-          <div class="col-4">
-            <span *ngIf="!map.credits || map.credits.length === 0">No authors</span>
-            <div *ngFor="let credit of map.credits">
-              <span>{{credit.user.profile.alias}}</span>
-            </div>
-          </div>
-        </div>
+      <div class="col-3">
+        <ul style="list-style: none">
+          <li>MAP NAME:</li>
+          <li>SUBMITTED:</li>
+          <li>SUBMITTED BY:</li>
+        </ul>
       </div>
-      <div class="col-2">
-        <div class="row">
-          <div class="text-center">
-            <a class="btn btn-outline-info" href="{{map.download}}">DOWNLOAD</a>
-          </div>
-        </div>
+      <div class="col-6 text-left">
+        <ul style="list-style: none">
+          <li>{{map.name}}</li>
+          <li>{{map.createdAt | date}}</li>
+          <li><nb-user [name]="map.submitter.profile.alias" [picture]="map.submitter.profile.avatarURL" size="small" class="d-inline-block"></nb-user></li>
+        </ul>
       </div>
     </div>
   </div>
-  <div class="col-2 mapStatus">
-    {{statusEnum[map.statusFlag]}}
+  <div class="col-1"></div>
+  <div class="col-4">
+    <a class="btn btn-outline-info" href="{{map.download}}">DOWNLOAD</a>
   </div>
   <div class="col-1">
     <div class="text-right" role="toolbar">

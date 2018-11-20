@@ -6,6 +6,7 @@ import { MapUploadStatus } from '../../../../@core/models/map-upload-status.mode
 @Component({
   selector: 'app-map-queue',
   templateUrl: './map-queue.component.html',
+  styleUrls: ['./map-queue.component.scss'],
 })
 export class MapQueueComponent implements OnInit {
 
@@ -24,7 +25,7 @@ export class MapQueueComponent implements OnInit {
     this.loadMapQueue(false);
   }
 
-  loadMapQueue(priority: boolean, page?: number) {
+  loadMapQueue(priority: boolean) {
     this.adminService.getMaps({
       params: {
         expand: 'info,submitter',

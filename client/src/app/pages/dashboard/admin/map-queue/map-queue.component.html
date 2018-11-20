@@ -1,27 +1,29 @@
-<div class="row">
-  <div class="col-lg-12">
-
-    <h1>MAPPER SUBMISSIONS</h1>
-      <nb-card>
+<nb-card>
+  <nb-card-header>
+    <h1>Map Queue</h1>
+  </nb-card-header>
+  <nb-card-body>
+    <nb-tabset>
+      <nb-tab tabTitle="Mapper Submissions">
         <i *ngIf="!priorityQueue?.length">
           There are currently no maps in this queue.
         </i>
-        <div *ngIf="priorityQueue?.length">
-          <nb-card-body *ngFor="let map of priorityQueue">
-            <queued-map [map]="map"></queued-map>
-          </nb-card-body>
-        </div>
-      </nb-card>
-
-        <h1>NON-MAPPER SUBMISSIONS</h1>
-          <nb-card>
-         <i *ngIf="!nonPriorityQueue?.length">
-            There are currently no maps in this queue.</i>
-        <div *ngIf="nonPriorityQueue?.length">
-          <nb-card-body *ngFor="let map of nonPriorityQueue">
-            <queued-map [map]="map"></queued-map>
-          </nb-card-body>
-        </div>
-        </nb-card>
-  </div>
-</div>
+        <nb-list>
+          <nb-list-item *ngFor="let map of priorityQueue">
+            <queued-map [map]="map" (onStatusUpdate)="loadMapQueue(true)"></queued-map>
+          </nb-list-item>
+        </nb-list>
+      </nb-tab>
+      <nb-tab tabTitle="Non-Mapper Submissions">
+        <i *ngIf="!nonPriorityQueue?.length">
+          There are currently no maps in this queue.
+        </i>
+        <nb-list>
+          <nb-list-item *ngFor="let map of nonPriorityQueue">
+            <queued-map [map]="map" (onStatusUpdate)="loadMapQueue(false)"></queued-map>
+          </nb-list-item>
+        </nb-list>
+      </nb-tab>
+    </nb-tabset>
+  </nb-card-body>
+</nb-card>
