@@ -1,6 +1,7 @@
 import {Component, OnInit} from '@angular/core';
 import {TumblrAPIService} from '../../../../@core/data/tumblr-api.service';
 import {BlogPost} from '../../../../@core/models/blog-post.model';
+import {ToasterService} from 'angular2-toaster';
 
 @Component({
   selector: 'community-news',
@@ -13,7 +14,8 @@ export class CommunityNewsComponent implements OnInit {
   loadedPosts: boolean;
   twitterData;
   twitterOpts;
-  constructor(private tumblrAPI: TumblrAPIService) {
+  constructor(private tumblrAPI: TumblrAPIService,
+              private toastService: ToasterService) {
     this.blogPosts = [];
     this.loadedPosts = false;
     this.twitterData = {
@@ -40,6 +42,8 @@ export class CommunityNewsComponent implements OnInit {
         }
         this.loadedPosts = true;
       }
+    }, error => {
+      this.toastService.popAsync('error', 'Cannot retrieve recent blog posts', error.message);
     });
   }
 
