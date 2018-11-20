@@ -21,7 +21,7 @@
               <span>Twitter:</span>
             </div>
             <div>
-              <img *ngIf="profile && !profile.twitterAuth" src="/assets/images/signInTwit.png" (click)="auth('twitter')">
+              <img *ngIf="profile && !profile.twitterAuth" src="/assets/images/twitter_button.png" (click)="auth('twitter')">
               <div *ngIf="profile && profile.twitterAuth">
                 <span class="authorized">Authorized as {{profile.twitterAuth.displayName}}</span>
                 <button class="btn btn-outline-danger" type="button" (click)="unAuth('twitter')">Unauthorize</button>
@@ -33,7 +33,7 @@
               <span>Discord:</span>
             </div>
             <div>
-              <button class="btn btn-outline-info" type="button" *ngIf="profile && !profile.discordAuth" (click)="auth('discord')">Link Discord Account</button>
+              <img *ngIf="profile && !profile.discordAuth" src="/assets/images/discord_button.png" (click)="auth('discord')">
               <div *ngIf="profile && profile.discordAuth">
                 <span class="authorized">Authorized as {{profile.discordAuth.displayName}}</span>
                 <button class="btn btn-outline-danger" type="button" (click)="unAuth('discord')">Unauthorize</button>
@@ -45,7 +45,7 @@
               <span>Twitch.tv</span>
             </div>
             <div>
-              <button class="btn btn-outline-info" type="button" *ngIf="profile && !profile.twitchAuth" (click)="auth('twitch')">Link Twitch Account</button>
+              <img *ngIf="profile && !profile.twitchAuth" src="/assets/images/twitch_button.png" (click)="auth('twitch')">
               <div *ngIf="profile && profile.twitchAuth">
                 <span class="authorized">Authorized as {{profile.twitchAuth.displayName}}</span>
                 <button class="btn btn-outline-danger" type="button" (click)="unAuth('twitch')">Unauthorize</button>
