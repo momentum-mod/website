@@ -29,6 +29,8 @@ export class ProfileEditComponent implements OnInit {
     this.localUserService.getLocal().subscribe(usr => {
       this.profile = usr.profile;
       this.profileEditFormGroup.patchValue(usr.profile);
+    }, error => {
+      this.toasterService.popAsync('error', 'Cannot retrieve user details', error.message);
     });
   }
 
