@@ -20,6 +20,7 @@ describe('MapStatusComponent', () => {
       id: '123',
       name: 'testmap1',
       statusFlag: 0,
+      submitterID: '1337',
       createdAt: new Date(),
       info: {
         id: '1234',
