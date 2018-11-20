@@ -14,8 +14,6 @@ chai.use(chaiHttp);
 
 describe('user', () => {
 
-   //let param[];
-
     let accessToken = null;
     let adminAccessToken = null;
     const testUser = {
