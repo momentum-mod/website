@@ -54,7 +54,7 @@ export class FileUploadComponent implements OnInit {
       this.invalidSize = true;
       return false;
     }
-    const match = file.name.match(this.map ? '.+(\\.bsp)' : '.+(\\.(pn|jpe?)g)');
+    const match = file.name.match(this.map ? '.+(\\.bsp)' : /.+(\.(pn|jpe?)g)/i);
     if (!match && (this.map || this.image)) {
       this.invalidType = true;
       return false;

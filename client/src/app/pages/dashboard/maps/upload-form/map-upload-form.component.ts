@@ -32,7 +32,7 @@ export class MapUploadFormComponent implements AfterViewInit {
 
   filesForm: FormGroup = this.fb.group({
     'map': ['', [Validators.required, Validators.pattern('.+(\\.bsp)')]],
-    'avatar': ['', [Validators.required, Validators.pattern('.+(\\.(pn|jpe?)g)')]],
+    'avatar': ['', [Validators.required, Validators.pattern(/.+(\.(pn|jpe?)g)/i)]],
     // TODO: the 5 optional image files
   });
   infoForm: FormGroup = this.fb.group( {
