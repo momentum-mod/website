@@ -107,9 +107,6 @@ describe('admin', () => {
             }).then(user => {
                 return Map.create(testMap3);
             })
-            //.then((token) => {
-            //    return User.create(testAdmin)
-            //})
             .then(user => {
                 return Map.create(testMap4);
             }).then(user => {
