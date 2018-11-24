@@ -8,7 +8,8 @@ const { forceSyncDB, User, Profile, Map, MapInfo } = require('../config/sqlize')
     server = require('../server.js'),
     auth = require('../src/models/auth');
 
-
+// twitterName, discordName, and youtubeName do not exist in the db for user
+// remove from swagger for get and patch user/profile ?
 
 chai.use(chaiHttp);
 
@@ -17,13 +18,12 @@ describe('user', () => {
     let accessToken = null;
     let adminAccessToken = null;
     const testUser = {
-        //id: '2759389285395352',
         id: '76561198131664084',
         permissions: 0,
         profile: {
             alias: 'cjshiner',
             avatarURL: 'https://steamcdn-a.akamaihd.net/steamcommunity/public/images/avatars/e4/e4db45e6d6472d9e61b131a04ad2f18a299daafc_full.jpg',
-            bio: 'test',
+            bio: '',
         }
     };
     const testUser2 = {
@@ -35,11 +35,45 @@ describe('user', () => {
             bio: 'test2',
         }
     };
+    const testUser3 = {
+        id: '777',
+        permissions: 0,
+        profile: {
+            alias: 'test3',
+            avatarURL: 'http://google.com',
+            bio: 'test3',
+        }
+    };
 
     const testMap = {
-        name: 'test_map',
+        id: '222',
+        name: 'test_map_one',
         info: {
             description: 'My first map!!!!',
+            numBonuses: 1,
+            numCheckpoints: 1,
+            numStages: 1,
+            difficulty: 5,
+        }
+    };
+
+    const testMap2 = {
+        id: '444',
+        name: 'test_map_two',
+        info: {
+            description: 'test2',
+            numBonuses: 1,
+            numCheckpoints: 1,
+            numStages: 1,
+            difficulty: 5,
+        }
+    };
+
+    const testMap3 = {
+        id: '456',
+        name: 'test_map_three',
+        info: {
+            description: 'test3',
             numBonuses: 1,
             numCheckpoints: 1,
             numStages: 1,
@@ -71,13 +105,36 @@ describe('user', () => {
                         as: 'info',
                     }]
                 })
+            })
+            .then(() => {
+                return Map.create(testMap2, {
+                    include: [{
+                        model: MapInfo,
+                        as: 'info',
+                    }]
+                })
+            })
+            .then(() => {
+                return Map.create(testMap3, {
+                    include: [{
+                        model: MapInfo,
+                        as: 'info',
+                    }]
+                })
             }).then(() => {
                 return User.create(testUser2, {
                     include: [{
                         model: Profile,
                         as: 'profile',
                     }]
-            }).then(user => {
+            })}).then(() => {
+                    return User.create(testUser3, {
+                        include: [{
+                            model: Profile,
+                            as: 'profile',
+                        }]
+                    })
+                .then(user => {
                     testUser.id = user.id;
                     return Promise.resolve();
                 });
@@ -124,7 +181,7 @@ describe('user', () => {
                         expect(res).to.have.status(200);
                         expect(res).to.be.json;
                         expect(res.body).to.have.property('id');
-                      //  expect(res.body).to.have.property('alias');
+                        expect(res.body.profile).to.have.property('alias');
                     });
             });
 
@@ -151,6 +208,7 @@ describe('user', () => {
                         expect(res).to.be.json;
                         expect(res.body).to.have.property('id');
                         expect(res.body).to.have.property('alias');
+                        expect(res.body).to.have.property('bio');
                     });
             });
         });
@@ -161,7 +219,7 @@ describe('user', () => {
                    .patch('/api/user/profile')
                    .set('Authorization', 'Bearer ' + accessToken)
                    .send({
-                       twitterName: 'test'
+                       bio: 'test'
                    })
                    .then(res => {
                        expect(res).to.have.status(204);
@@ -169,24 +227,46 @@ describe('user', () => {
             });
         });
 
+// Doesnt respond with a 404 if no relationship exists,
+        // still gives a 200 code, but the response contains nothing
+        // update swagger~
 
-     /*   describe('GET /api/user/follow/{userID}', () => {
-            it('should respond with a 404 error since no followed relationship exists', () => {
+
+        describe('GET /api/user/follow/{userID}', () => {
+            it('should check the relationship of the given and local user', () => {
+                return chai.request(server)
+                    .post('/api/user/follow')
+                    .set('Authorization', 'Bearer ' + accessToken)
+                    .send({
+                        userID: testUser2.id
+                    })
+                    .then(res => {
+                        return chai.request(server)
+                            .get('/api/user/follow/' + testUser2.id)
+                            .set('Authorization', 'Bearer ' + accessToken)
+                            .then(res2 => {
+                                    expect(res).to.have.status(200);
+                                    expect(res).to.be.json;
+                                    expect(res2).to.have.status(200);
+                                    expect(res2).to.be.json;
+                                    expect(res2.body).to.have.property('local');
+                                    expect(res2.body.local).to.have.property('followeeID');
+                            });
+                    });
+            });
+
+            it('should only respond with the 200 code since the followed relationship does not exist', () => {
                 return chai.request(server)
                     .get('/api/user/follow/12345')
                     .set('Authorization', 'Bearer ' + accessToken)
                     .then(res => {
-                       expect(res).to.have.status(404);
-                        expect(res).to.be.json;
-                        expect(res.body).to.have.property('error');
-                        expect(res.body.error.code).equal(404);
-                        expect(res.body.error.message).to.be.a('string');
+                        expect(res).to.have.status(200);
+                        expect(res).to.not.have.property('local');
                     });
 
             });
         });
 
-        */
 
 
 
@@ -196,22 +276,8 @@ describe('user', () => {
                     .post('/api/user/follow')
                     .set('Authorization', 'Bearer ' + accessToken)
                     .send({
-                        userID: '2759389285395352'
+                        userID: testUser2.id
                     })
-                    .then(res => {
-                       expect(res).to.have.status(200);
-                       expect(res).to.be.json;
-                    });
-            });
-        });
-
-
-        // Successful no matter what UserID i give???
-        describe('GET /api/user/follow/{userID}', () => {
-            it('should check the relationship of the given and local user', () => {
-                return chai.request(server)
-                    .get('/api/user/follow/12345')
-                    .set('Authorization', 'Bearer ' + accessToken)
                     .then(res => {
                        expect(res).to.have.status(200);
                        expect(res).to.be.json;
@@ -222,14 +288,35 @@ describe('user', () => {
         describe('DELETE /api/user/follow/{userID}', () => {
            it('should remove the user from the local users follow list', () => {
                return chai.request(server)
-                   .delete('/api/user/follow/12345')
+                   .post('/api/user/follow')
                    .set('Authorization', 'Bearer ' + accessToken)
+                   .send({
+                       userID: testUser3.id
+                   })
                    .then(res => {
-                       expect(res).to.have.status(200);
+                       return chai.request(server)
+                           .get('/api/user/follow/' + testUser3.id)
+                           .set('Authorization', 'Bearer ' + accessToken)
+                           .then(res2 => {
+                               return chai.request(server)
+                                   .delete('/api/user/follow/' + testUser3.id )
+                                   .set('Authorization', 'Bearer ' + accessToken)
+                                   .then(res3 => {
+                                       expect(res).to.have.status(200);
+                                       expect(res).to.be.json;
+                                       expect(res2).to.have.status(200);
+                                       expect(res2).to.be.json;
+                                       expect(res2.body).to.have.property('local');
+                                       expect(res2.body.local).to.have.property('followeeID');
+                                       expect(res3).to.have.status(200);
+                                   });
+                           });
                    });
             });
         });
-        
+
+
+
 		describe('GET /api/user/notifications', () => {
 			it('should respond with notification data');
 		});
@@ -243,8 +330,95 @@ describe('user', () => {
 		});
 
 
+
+
+        describe('GET /api/user/maps/library', () => {
+            it('should retrieve the list of maps in the local users library', ()=> {
+                return chai.request(server)
+                    .post('/api/user/maps/library')
+                    .set('Authorization', 'Bearer ' + accessToken)
+                    .send({
+                        mapID: testMap.id
+                    })
+                    .then(res => {
+                        return chai.request(server)
+                            .get('/api/user/maps/library')
+                            .set('Authorization', 'Bearer ' + accessToken)
+                            .then(res2 => {
+                                expect(res).to.have.status(200);
+                                expect(res2).to.have.status(200);
+                                expect(res2).to.be.json;
+                                expect(res2.body.entries).to.be.an('array');
+                                expect(res2.body.entries).to.have.length(1);
+                            })
+
+                    });
+            });
+        });
+
+
         describe('POST /api/user/maps/library', () => {
-            it('should create a new map', () => {
+            it('should add a new map to the local users library', () => {
+                return chai.request(server)
+                    .post('/api/user/maps/library')
+                    .set('Authorization', 'Bearer ' + accessToken)
+                    .send({
+                        mapID: testMap2.id
+                    })
+                    .then(res => {
+                        expect(res).to.have.status(200);
+                        expect(res).to.be.json;
+                    });
+            }) ;
+        });
+
+        describe('GET /api/user/maps/library/{mapID}', () => {
+            it('should check if a map exists in the local users library', () => {
+                return chai.request(server)
+                    .post('/api/user/maps/library')
+                    .set('Authorization', 'Bearer ' + accessToken)
+                    .send({
+                        mapID: testMap3.id
+                    })
+                    .then(res => {
+                        return chai.request(server)
+                            .get('/api/user/maps/library/' + testMap3.id)
+                            .set('Authorization', 'Bearer ' + accessToken)
+                            .then(res2 => {
+                                expect(res).to.have.status(200);
+                                expect(res).to.be.json;
+                                expect(res2).to.have.status(200);
+                            });
+                    });
+            });
+
+            it('should return 404 since the map is not in the local users library', () => {
+                return chai.request(server)
+                    .get('/api/user/maps/library/89898')
+                    .set('Authorization', 'Bearer ' + accessToken)
+                    .then(res => {
+                        expect(res).to.have.status(404);
+                        expect(res).to.be.json;
+                        expect(res.body).to.have.property('error');
+                        expect(res.body.error.code).equal(404);
+                        expect(res.body.error.message).to.be.a('string');
+                    });
+            })
+        });
+
+         describe('DELETE /api/user/maps/library/{mapID}', () => {
+            it('should delete a library entry from the local users library', () => {
+               return chai.request(server)
+                   .delete('/api/user/maps/library/' + testMap.id)
+                   .set('Authorization', 'Bearer ' + accessToken)
+                   .then(res => {
+                       expect(res).to.have.status(200);
+                   });
+            });
+         });
+
+        describe('GET /api/user/maps/submitted', () => {
+            it('should retrieve a list of maps submitted by the local user', () => {
                 return chai.request(server)
                     .post('/api/maps')
                     .set('Authorization', 'Bearer ' + accessToken)
@@ -259,78 +433,18 @@ describe('user', () => {
                             difficulty: 2
                         }
                     }).then(res => {
-                        expect(res).to.have.status(200);
-                        expect(res).to.be.json;
-                        expect(res.body).to.have.property('id');
-                        expect(res.body).to.have.property('name');
-                    });
-            });
-
-            it('should add a new map to the local users library', () => {
-                return chai.request(server)
-                    .post('/api/user/maps/library')
-                    .set('Authorization', 'Bearer ' + accessToken)
-                    .send({
-                        mapID: testMap.id
-                    })
-                    .then(res => {
-                        expect(res).to.have.status(200);
-                        expect(res).to.be.json;
-                    });
-            }) ;
-        });
-
-        describe('GET /api/user/maps/library', () => {
-            it('should retrieve the list of maps in the local users library', ()=> {
-                return chai.request(server)
-                    .get('/api/user/maps/library')
-                    .set('Authorization', 'Bearer ' + accessToken)
-                    .then(res => {
-                        expect(res).to.have.status(200);
-                        expect(res).to.be.json;
-                    });
-            }) ;
-        });
-
-
-        // does not find testMap in the user's library
-        // do in before statement
-        describe('GET /api/user/maps/library/{mapID}', () => {
-            it('should check if a map exists in the local users library', () => {
-                return chai.request(server)
-                    .get('/api/user/library/' + testMap.id)
-                    .set('Authorization', 'Bearer ' + accessToken)
-                    .then(res => {
-                        // expect(res).to.have.status(200);
-                        expect(res).to.have.status(404);
-                        expect(res).to.be.json;
-                    });
-            });
-        });
-
-         describe('DELETE /api/user/maps/library/{mapID}', () => {
-            it('should delete a library entry from the local users library', () => {
-               return chai.request(server)
-                   .delete('/api/user/maps/11111')
-                   .set('Authorization', 'Bearer ' + accessToken)
-                   .then(res => {
-                       expect(res).to.have.status(404);
-                       expect(res).to.be.json;
-                       expect(res.body).to.have.property('error');
-                       expect(res.body.error.code).equal(404);
-                       expect(res.body.error.message).to.be.a('string');
-                   });
-            });
-         });
-
-        describe('GET /api/user/maps/submitted', () => {
-            it('should retrieve a list of maps submitted by the local user', () => {
-                return chai.request(server)
-                    .get('/api/user/maps/submitted')
-                    .set('Authorization', 'Bearer ' + accessToken)
-                    .then(res => {
-                        expect(res).to.have.status(200);
-                        expect(res).to.be.json;
+                        return chai.request(server)
+                            .get('/api/user/maps/submitted')
+                            .set('Authorization', 'Bearer ' + accessToken)
+                            .then(res2 => {
+                                expect(res).to.have.status(200);
+                                expect(res2).to.have.status(200);
+                                expect(res2).to.be.json;
+                                expect(res2.body).to.have.property('count');
+                                expect(res2.body).to.have.property('maps');
+                                expect(res2.body.maps).to.be.an('array');
+                                expect(res2.body.maps).to.have.length(1);
+                            });
                     });
             });
         });
