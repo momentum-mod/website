@@ -10,18 +10,21 @@ const { forceSyncDB, Map, MapInfo, User } = require('../config/sqlize'),
 
 chai.use(chaiHttp);
 
-// todo: game auth tests
-
 describe('admin', () => {
 
     let accessToken = null;
     let adminAccessToken = null;
+    let adminGameAccessToken = null;
     const testUser = {
         id: '2759389285395352',
         permissions: 0
     };
     const testAdmin = {
         id: '2759381234567890',
+        permissions: 4
+    };
+    const testAdminGame = {
+        id: '222',
         permissions: 4
     };
     const testMap = {
@@ -58,20 +61,56 @@ describe('admin', () => {
         return forceSyncDB()
             .then(() => {
                 return auth.genAccessToken(testUser);
-            }).then((token) => {
+            })
+            .then((token) => {
+                accessToken = token;
+                return User.create(testUser);
+            })
+            .then(() => {
+                testAdmin.permissions = 4;
+                return auth.genAccessToken(testAdmin);
+            })
+            .then((token) => {
+                adminAccessToken = token;
+                return User.create(testAdmin);
+            })
+            .then(() => {
+                testAdminGame.permissions = 4;
+                return auth.genAccessToken(testAdminGame, true);
+            })
+            .then((token) => {
+                adminGameAccessToken = token;
+                return User.create(testAdminGame);
+            })
+
+
+            /*
+            .then((token) => {
                 accessToken = token;
                 testAdmin.permissions = 4;
                 return auth.genAccessToken(testAdmin);
             }).then((token) => {
                 adminAccessToken = token;
+                testAdminGame.permissions = 4;
                 return User.create(testUser);
-            }).then(user => {
+            }).then(() => {
+                return auth.genAccessToken(testAdminGame, true);
+            }).then((token) => {
+                adminGameAccessToken = token;
+                return User.create(testAdminGame);
+            })
+
+            */
+
+            .then(user => {
                 return Map.create(testMap2);
             }).then(user => {
                 return Map.create(testMap3);
-            }).then((token) => {
-                return User.create(testAdmin)
-            }).then(user => {
+            })
+            //.then((token) => {
+            //    return User.create(testAdmin)
+            //})
+            .then(user => {
                 return Map.create(testMap4);
             }).then(user => {
                 return Map.create(testMap5);
@@ -111,7 +150,7 @@ describe('admin', () => {
                     .patch('/api/admin/users/' + testUser.id)
                     .set('Authorization', 'Bearer ' + accessToken)
                     .send({
-                        twitterName: '1234'
+                        permissions: 2
                     })
                     .then(res => {
                         expect(res).to.have.status(403);
@@ -121,18 +160,31 @@ describe('admin', () => {
                         expect(res.body.error.message).to.be.a('string');
                     });
             });
-            it('should respond with 403 when authenticated from game');
+            it('should respond with 403 when authenticated from game', () => {
+                return chai.request(server)
+                    .patch('/api/admin/users/' + testUser.id)
+                    .set('Authorization', 'Bearer ' + adminGameAccessToken)
+                    .send({
+                        permissions: 2
+                    })
+                    .then(res => {
+                        expect(res).to.have.status(403);
+                        expect(res).to.be.json;
+                        expect(res.body).to.have.property('error');
+                        expect(res.body.error.code).equal(403);
+                        expect(res.body.error.message).to.be.a('string');
+                    });
+            });
 
             it('should update a specific user', () => {
                 return chai.request(server)
                     .patch('/api/admin/users/' + testUser.id)
                     .set('Authorization', 'Bearer ' + adminAccessToken)
                     .send({
-                        twitterName: 'test'
+                        permissions: 2
                     })
                     .then(res => {
                         expect(res).to.have.status(204);
-                        //expect(res).to.be.json;
                     });
             });
         });
@@ -157,6 +209,7 @@ describe('admin', () => {
                         expect(res).to.be.json;
                         expect(res.body).to.have.property('id');
                         expect(res.body).to.have.property('name');
+                        expect(res.body.info).to.have.property('description');
                     });
             });
             it('should respond with 403 when not an admin', () => {
@@ -171,7 +224,18 @@ describe('admin', () => {
                         expect(res.body.error.message).to.be.a('string');
                     });
             });
-            it('should respond with 403 when authenticated from game');
+            it('should respond with 403 when authenticated from game', () => {
+                return chai.request(server)
+                    .get('/api/admin/maps/')
+                    .set('Authorization', 'Bearer ' + adminGameAccessToken)
+                    .then(res => {
+                        expect(res).to.have.status(403);
+                        expect(res).to.be.json;
+                        expect(res.body).to.have.property('error');
+                        expect(res.body.error.code).equal(403);
+                        expect(res.body.error.message).to.be.a('string');
+                    });
+            });
             it('should respond with a list of maps', () => {
                 return chai.request(server)
                     .get('/api/admin/maps/')
@@ -181,6 +245,8 @@ describe('admin', () => {
                         expect(res).to.be.json;
                         expect(res.body).to.have.property('maps');
                         expect(res.body.maps).to.be.an('array');
+                        expect(res.body.maps).to.have.length(8);
+                        expect(res.body.maps[0]).to.have.property('name');
                     });
             });
             it('should respond with a limited list of maps when using the limit query param', () => {
@@ -196,8 +262,7 @@ describe('admin', () => {
                         expect(res.body).to.have.property('maps');
                         expect(res.body.maps).to.be.an('array');
                         expect(res.body.maps).to.have.length(2);
-
-                        //expect(res.body.maps).to.have.property('name');
+                        expect(res.body.maps[0]).to.have.property('name');
                     });
             });
 
@@ -205,15 +270,14 @@ describe('admin', () => {
                 return chai.request(server)
                     .get('/api/admin/maps/')
                     .set('Authorization', 'Bearer ' + adminAccessToken)
-                    .query({
-                        page: 2
-                    })
+                    .query({ page: 0, limit: 1 })
                     .then(res => {
                         expect(res).to.have.status(200);
                         expect(res).to.be.json;
                         expect(res.body).to.have.property('maps');
                         expect(res.body.maps).to.be.an('array');
-                        expect(res.body.maps).to.have.length(0);
+                        expect(res.body.maps).to.have.length(1);
+                        expect(res.body.maps[0]).to.have.property('name');
                     });
             });
             it('should respond with a filtered list of maps when using the search query param', () => {
@@ -229,6 +293,7 @@ describe('admin', () => {
                         expect(res.body).to.have.property('maps');
                         expect(res.body.maps).to.be.an('array');
                         expect(res.body.maps).to.have.length(1);
+                        expect(res.body.maps[0]).to.have.property('name');
                     });
             });
             it('should respond with a filtered list of maps when using the submitterID query param', () => {
@@ -244,6 +309,7 @@ describe('admin', () => {
                         expect(res.body).to.have.property('maps');
                         expect(res.body.maps).to.be.an('array');
                         expect(res.body.maps).to.have.length(1);
+                        expect(res.body.maps[0]).to.have.property('name');
                     });
             });
         });
@@ -264,7 +330,21 @@ describe('admin', () => {
                         expect(res.body.error.message).to.be.a('string');
                     });
             });
-            it('should respond with 403 when authenticated from game');
+            it('should respond with 403 when authenticated from game', () => {
+                return chai.request(server)
+                    .patch('/api/admin/maps/' + testMap.id)
+                    .set('Authorization', 'Bearer ' + adminGameAccessToken)
+                    .send({
+                        name: 'testname'
+                    })
+                    .then(res => {
+                        expect(res).to.have.status(403);
+                        expect(res).to.be.json;
+                        expect(res.body).to.have.property('error');
+                        expect(res.body.error.code).equal(403);
+                        expect(res.body.error.message).to.be.a('string');
+                    });
+            });
             it('should update a specific map', () => {
                 return chai.request(server)
                     .patch('/api/admin/maps/' + testMap.id)
@@ -274,7 +354,6 @@ describe('admin', () => {
                     })
                     .then(res => {
                         expect(res).to.have.status(204);
-                        //expect(res).to.be.json;
                     });
             });
         });
