@@ -16,6 +16,7 @@ chai.use(chaiHttp);
 describe('user', () => {
 
     let accessToken = null;
+    let accessToken2 = null;
     let adminAccessToken = null;
     const testUser = {
         id: '76561198131664084',
@@ -42,6 +43,16 @@ describe('user', () => {
             alias: 'test3',
             avatarURL: 'http://google.com',
             bio: 'test3',
+        }
+    };
+
+    const testAdmin = {
+        id: '0909',
+        permissions: 0,
+        profile: {
+            alias: 'testAdmin',
+            avatarURL: 'http://google.com',
+            bio: 'testAdmin',
         }
     };
 
@@ -85,16 +96,29 @@ describe('user', () => {
     before(() => {
         return forceSyncDB()
             .then(() => {
-                testUser2.permissions = 4;
-                return auth.genAccessToken(testUser2);
+                testAdmin.permissions = 4;
+                return auth.genAccessToken(testAdmin);
             })
             .then((token) => {
                 adminAccessToken = token;
-                return User.create(testUser2,{
+                return User.create(testAdmin,{
                     include: [{
                         model: Profile,
                         as: 'profile',
                     }]
+                })
+            })
+            .then(() => {
+                return auth.genAccessToken(testUser2);
+            })
+            .then((token) => {
+                accessToken2 = token;
+                return User.create(testUser2, {
+                    include: [{
+                        model: Profile,
+                        as: 'profile',
+                    }]
+
                 })
             })
             .then(() => {
@@ -110,24 +134,7 @@ describe('user', () => {
 
                 })
             })
-
-           /* .then(() => {
-                return auth.genAccessToken(testUser2);
-            }).then((token) => {
-                accessToken = token;
-                testUser.permissions = 6;
-                return auth.genAccessToken(testUser);
-            }).then((token) => {
-                adminAccessToken = token;
-                return User.create(testUser, {
-                    include: [{
-                        model: Profile,
-                        as: 'profile',
-                    }]
-                })
-            })
-
-            */.then(() => {
+            .then(() => {
                 return Map.create(testMap, {
                     include: [{
                         model: MapInfo,
@@ -369,10 +376,10 @@ describe('user', () => {
                             .then(res2 => {
                                 return chai.request(server)
                                     .post('/api/maps')
-                                    .set('Authorization', 'Bearer ' + adminAccessToken)
+                                    .set('Authorization', 'Bearer ' + accessToken2)
                                     .send({
                                         id: 6789,
-                                        name: 'test_map_admin',
+                                        name: 'test_map_notif',
                                         info: {
                                             description: 'notify map',
                                             numBonuses: 1,
@@ -384,7 +391,7 @@ describe('user', () => {
                                         return chai.request(server)
                                             .patch('/api/admin/maps/6789')
                                             .set('Authorization', 'Bearer ' + adminAccessToken)
-                                            .send({statusFlag: map.STATUS.APPROVED, submitterId: testUser2.id})
+                                            .send({statusFlag: map.STATUS.APPROVED})
                                             .then(res4 => {
                                                 return chai.request(server)
                                                     .get('/api/user/notifications')
