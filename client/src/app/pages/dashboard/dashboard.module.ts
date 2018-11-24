@@ -28,6 +28,7 @@ import {AdminModule} from './admin/admin.module';
 import {HomeStatsComponent} from './home/home-stats/home-stats.component';
 import {HomeUserMapsComponent} from './home/home-user-maps/home-user-maps.component';
 import {HomeUserLibraryComponent} from './home/home-user-library/home-user-library.component';
+import {NgxPaginationModule} from 'ngx-pagination';
 
 @NgModule({
   imports: [
@@ -45,6 +46,7 @@ import {HomeUserLibraryComponent} from './home/home-user-library/home-user-libra
     NotFoundModule,
     DashboardRoutingModule,
     AdminModule,
+    NgxPaginationModule,
   ],
   declarations: [
     DashboardComponent,

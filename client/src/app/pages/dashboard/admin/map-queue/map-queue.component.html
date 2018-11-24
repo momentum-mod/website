@@ -9,20 +9,32 @@
           There are currently no maps in this queue.
         </i>
         <nb-list>
-          <nb-list-item *ngFor="let map of priorityQueue">
+          <nb-list-item *ngFor="let map of priorityQueue| paginate: {
+            id: 'priority-page-ctrl',
+            itemsPerPage: pageLimit,
+            currentPage: priorityQueuePage,
+            totalItems: priorityQueueCount
+          }">
             <queued-map [map]="map" (onStatusUpdate)="loadMapQueue(true)"></queued-map>
           </nb-list-item>
         </nb-list>
+        <pagination-controls id="priority-page-ctrl" (pageChange)="onPageChange($event, true)"></pagination-controls>
       </nb-tab>
       <nb-tab tabTitle="Non-Mapper Submissions">
         <i *ngIf="!nonPriorityQueue?.length">
           There are currently no maps in this queue.
         </i>
         <nb-list>
-          <nb-list-item *ngFor="let map of nonPriorityQueue">
+          <nb-list-item *ngFor="let map of nonPriorityQueue | paginate: {
+            id: 'non-priority-page-ctrl',
+            itemsPerPage: pageLimit,
+            currentPage: nonPriorityQueuePage,
+            totalItems: nonPriorityQueueCount
+          }">
             <queued-map [map]="map" (onStatusUpdate)="loadMapQueue(false)"></queued-map>
           </nb-list-item>
         </nb-list>
+        <pagination-controls id="non-priority-page-ctrl" (pageChange)="onPageChange($event, false)"></pagination-controls>
       </nb-tab>
     </nb-tabset>
   </nb-card-body>
