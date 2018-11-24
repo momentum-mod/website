@@ -19,6 +19,7 @@ describe('MapStatusComponent', () => {
     component.map = {
       id: '123',
       name: 'testmap1',
+      hash: '',
       statusFlag: 0,
       submitterID: '1337',
       createdAt: new Date(),

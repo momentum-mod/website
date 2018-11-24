@@ -1,4 +1,5 @@
 import {UserProfile} from './profile.model';
+import {UserStats} from './user-stats.model';
 
 export interface User {
   id: string;
@@ -6,4 +7,5 @@ export interface User {
   createdAt?: string;
   updatedAt?: string;
   profile?: UserProfile;
+  stats?: UserStats;
 }

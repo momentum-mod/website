@@ -15,8 +15,10 @@ describe('AdminService', () => {
     expectedMap = {
       id: '9',
       name: 'testmap1',
+      hash: '',
       statusFlag: 0,
       createdAt: new Date(),
+      updatedAt: new Date(),
       submitterID: '12345',
     };
     expectedMaps = [
@@ -24,8 +26,10 @@ describe('AdminService', () => {
       {
         id: '40000',
         name: 'testmap2',
+        hash: '',
         statusFlag: 0,
         createdAt: new Date(),
+        updatedAt: new Date(),
         submitterID: '123456',
       },
     ];

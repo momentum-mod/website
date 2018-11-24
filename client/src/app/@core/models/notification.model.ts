@@ -4,7 +4,9 @@ import {Activity} from './activity.model';
 export interface SiteNotification {
   id: number;
   forUser: User;
+  activityID?: number;
   activity: Activity;
   read: boolean;
-  createdAt: Date;
+  createdAt?: Date;
+  updatedAt?: Date;
 }
