@@ -1,6 +1,6 @@
 'use strict';
 const util = require('util'),
-	{ sequelize, Op, Map, Run, User, Profile } = require('../../config/sqlize'),
+	{ sequelize, Op, Map, MapStats, Run, RunStats, User, UserStats, Profile } = require('../../config/sqlize'),
 	activity = require('./activity'),
 	config = require('../../config/config');
 
@@ -19,12 +19,16 @@ const processRunFile = (runFile) => {
 		// could maybe go before validateRunFile function
 		// should return an object with these required properties:
 		// 	{
-		// 		"mapName": string,
+		// 		"mapID": number,
 		// 		"playerID": string,
 		// 		"tickrate": number,
 		// 		"dateAchieved": string,
 		// 		"time": number,
-		// 		"flags": number
+		// 		"flags": number,
+		//		"stats": {
+		//			"totalJumps": number,
+		//			"totalStrafes": number
+		//		}
 		// 	}
 		resolve(JSON.parse(runFile.data.toString()));
 	});
@@ -46,9 +50,9 @@ const storeRunFile = (runFile, runID) => {
 	});
 }
 
-const verifyMap = (mapName) => {
+const verifyMap = (mapID) => {
 	return Map.find({
-		name: mapName
+		where: { id: mapID },
 	}).then(map => {
 		if (!map) {
 			const err = new Error('Bad request');
@@ -87,17 +91,33 @@ const isNewWorldRecord = (runResults) => {
 const saveRun = (runResults, runFile) => {
 	return sequelize.transaction(t => {
 		let runModel = {};
-		return Run.create(runResults, {
-			transaction: t
+		return updateStats(runResults, t)
+		.then(() => {
+			return Run.create(runResults, {
+				include: { as: 'stats', model: RunStats },
+				transaction: t
+			});
 		}).then(run => {
 			runModel = run;
-			return storeRunFile(runFile, run.id);
-		}).then((results) => {
+			if (!runResults.isPersonalBest)
+				return new Promise.resolve();
+			return Run.update({
+				isPersonalBest: false,
+			}, {
+				transaction: t,
+				where: {
+					isPersonalBest: true,
+					id: {[Op.ne]: runModel.id },
+				},
+			});
+		}).then(() => {
+			return storeRunFile(runFile, runModel.id);
+		}).then(results => {
 			return runModel.update({ file: results.downloadURL }, {
 				transaction: t,
 			});
 		}).then(() => {
-			if (!runResults.isNewPersonalBest || runResults.isNewWorldRecord)
+			if (!runResults.isPersonalBest || runResults.isNewWorldRecord)
 				return Promise.resolve(runResults);
 			return activity.create({
 				type: activity.ACTIVITY_TYPES.PB_ACHIEVED,
@@ -114,6 +134,39 @@ const saveRun = (runResults, runFile) => {
 			}, t);
 		}).then(() => {
 			return Promise.resolve(runModel);
+		});
+	});
+}
+
+const updateStats = (runResults, transaction) => {
+	let isFirstTimeCompletingMap = false;
+	return Run.find({
+		where: {
+			mapID: runResults.mapID,
+			playerID: runResults.playerID,
+		},
+	}).then(run => {
+		const mapStatsUpdate = {
+			totalCompletions: sequelize.literal('totalCompletions + 1'),
+		};
+		if (!run) {
+			isFirstTimeCompletingMap = true;
+			mapStatsUpdate.totalUniqueCompletions = sequelize.literal('totalUniqueCompletions + 1');
+		}
+		return MapStats.update(mapStatsUpdate, {
+			where: { mapID: runResults.mapID },
+			transaction: transaction,
+		});
+	}).then(() => {
+		const userStatsUpdate = {
+			totalJumps: sequelize.literal('totalJumps + ' + runResults.stats.totalJumps),
+			totalStrafes: sequelize.literal('totalStrafes + ' + runResults.stats.totalStrafes),
+		};
+		if (isFirstTimeCompletingMap)
+			userStatsUpdate.mapsCompleted = sequelize.literal('mapsCompleted + 1');
+		return UserStats.update(userStatsUpdate, {
+			where: { userID: runResults.playerID },
+			transaction: transaction,
 		});
 	});
 }
@@ -141,12 +194,12 @@ module.exports = {
 			return processRunFile(runFile);
 		}).then(results => {
 			runResults = results;
-			return verifyMap(runResults.mapName);
-		}).then((map) => {
+			return verifyMap(runResults.mapID);
+		}).then(map => {
 			runResults.mapID = map.id
 			return isNewPersonalBest(runResults);
 		}).then(isNewPB => {
-			runResults.isNewPersonalBest = isNewPB;
+			runResults.isPersonalBest = isNewPB;
 			if (isNewPB) return isNewWorldRecord(runResults);
 			else return Promise.resolve(false);
 		}).then(isNewWR => {
@@ -155,9 +208,6 @@ module.exports = {
 		}).then(run => {
 			if (run) {
 				run = run.toJSON();
-				// TODO: Move these below to better part of the response?
-				// or maybe require different endpoints to get this info?
-				run.isNewPersonalBest = runResults.isNewPersonalBest;
 				run.isNewWorldRecord = runResults.isNewWorldRecord;
 			}
 			return Promise.resolve(run);
@@ -186,6 +236,8 @@ module.exports = {
 			queryContext.where.playerID = context.playerID;
 		if (context.flags)
 			queryContext.where.flags = parseInt(context.flags) || 0;
+		if (context.isPersonalBest)
+			queryContext.where.isPersonalBest = context.isPersonalBest == 'true';
 		return Run.findAndCountAll(queryContext);
 	},
 
