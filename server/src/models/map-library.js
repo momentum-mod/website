@@ -3,8 +3,8 @@ const { sequelize, MapLibrary, Map, MapInfo, MapCredit, MapStats } = require('..
 
 module.exports = {
 
-	getUserLibrary: (userID) => {
-		return MapLibrary.findAndCountAll({
+	getUserLibrary: (userID, context) => {
+		const queryContext = {
 			where: { userID: userID },
 			include: [
 				{
@@ -21,7 +21,12 @@ module.exports = {
 					]
 				},
 			]
-		});
+		};
+		if (context.limit && !isNaN(context.limit))
+			queryContext.limit = Math.min(Math.max(parseInt(context.limit), 1), 20);
+		if (context.offset && !isNaN(context.offset))
+			queryContext.offset = Math.min(Math.max(parseInt(context.offset), 0), 5000);
+		return MapLibrary.findAndCountAll(queryContext);
 	},
 
 	removeMapFromLibrary: (userID, mapID) => {

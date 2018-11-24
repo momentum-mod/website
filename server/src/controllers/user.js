@@ -66,7 +66,7 @@ module.exports = {
 	},
 
 	getUserLibrary: (req, res, next) => {
-		mapLibrary.getUserLibrary(req.user.id).then(results => {
+		mapLibrary.getUserLibrary(req.user.id, req.query).then(results => {
 			res.json({
 				count: results.count,
 				entries: results.rows
