@@ -4,6 +4,7 @@ import {TwitchAuth} from './auth-twitch.model';
 
 export interface UserProfile {
   id: string;
+  userID?: string;
   alias: string;
   avatarURL: string;
   bio?: string;
@@ -11,4 +12,6 @@ export interface UserProfile {
   discordAuth?: DiscordAuth;
   youtubeName?: string;
   twitchAuth?: TwitchAuth;
+  createdAt?: Date;
+  updatedAt?: Date;
 }

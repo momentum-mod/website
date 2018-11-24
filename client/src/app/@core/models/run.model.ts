@@ -1,4 +1,5 @@
 import {User} from './user.model';
+import {RunStats} from './run-stats.model';
 
 export interface Run {
   id: number;
@@ -9,7 +10,8 @@ export interface Run {
   file: string;
   mapID: number;
   playerID: number;
-  createdAt: Date;
-  updatedAt: Date;
+  createdAt?: Date;
+  updatedAt?: Date;
   user: User;
+  stats: RunStats;
 }

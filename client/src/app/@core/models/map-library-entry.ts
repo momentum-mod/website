@@ -2,6 +2,9 @@ import {MomentumMap} from './momentum-map.model';
 
 export interface MapLibraryEntry {
   id: number;
-  createdAt: Date;
+  userID: string;
+  mapID: number;
+  createdAt?: Date;
+  updatedAt?: Date;
   map: MomentumMap;
 }

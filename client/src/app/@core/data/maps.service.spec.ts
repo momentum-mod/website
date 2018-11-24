@@ -14,16 +14,20 @@ describe('MapsService', () => {
       {
         id: '9',
         name: 'testmap1',
+        hash: '',
         submitterID: '1337',
         statusFlag: 0,
         createdAt: new Date(),
+        updatedAt: new Date(),
       },
       {
         id: '40000',
         name: 'testmap2',
+        hash: '',
         submitterID: '1337',
         statusFlag: 0,
         createdAt: new Date(),
+        updatedAt: new Date(),
       },
     ];
   });
