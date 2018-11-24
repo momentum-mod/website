@@ -1,12 +1,14 @@
 'use strict';
 process.env.NODE_ENV = 'test';
 
-const { forceSyncDB, User, Profile, Map, MapInfo } = require('../config/sqlize'),
+const { forceSyncDB, User, Profile, Map, MapInfo, Activity } = require('../config/sqlize'),
     chai = require('chai'),
     chaiHttp = require('chai-http'),
     expect = chai.expect,
     server = require('../server.js'),
-    auth = require('../src/models/auth');
+    auth = require('../src/models/auth'),
+    map = require('../src/models/map'),
+    activity = require('../src/models/activity');
 
 chai.use(chaiHttp);
 
@@ -15,7 +17,6 @@ describe('users', () => {
     let accessToken = null;
     let adminAccessToken = null;
     const testUser = {
-        //id: '2759389285395352',
         id: '76561198131664084',
         permissions: 0,
         profile: {
@@ -45,6 +46,24 @@ describe('users', () => {
         }
     };
 
+
+    const testActivities = [
+        {
+            userID: testUser.id,
+            data: 1337,
+            type: activity.ACTIVITY_TYPES.ALL,
+        },
+        {
+            userID: testUser2.id,
+            data: 1337,
+            type: activity.ACTIVITY_TYPES.ALL,
+        },
+        {
+            userID: testUser2.id,
+            data: 1337,
+            type: activity.ACTIVITY_TYPES.ALL,
+        }
+    ];
 
     before(() => {
         return forceSyncDB()
@@ -76,15 +95,15 @@ describe('users', () => {
                         as: 'profile',
                     }]
                 })
-            }).then(user => {
-                    testUser.id = user.id;
-                    return Promise.resolve();
-                });
+            }).then(map => {
+                testMap.id = map.id;
+                return Activity.bulkCreate(testActivities);
+            });
 
     });
 
     after(() => {
-        return forceSyncDB();
+         return forceSyncDB();
     });
 
     describe('modules', () => {
@@ -127,20 +146,29 @@ describe('users', () => {
 
             it('should respond with array of users with page parameter', () => {
                 return chai.request(server)
-                    .get('/api/users')
+                    .get('/api/users/')
                     .set('Authorization', 'Bearer ' + accessToken)
-                    .query({
-                        // Do pages start at 0 or 1?
-                        // page: 1   doesnt return any users
-                        page: 0
-                    })
+                    .query({ page: 0, limit: 1 })
                     .then(res => {
-                        expect(res).to.have.status(200);
-                        expect(res).to.be.json;
-                        expect(res.body.users).to.be.an('array');
-                        expect(res.body.users).to.have.length(2);
-                        expect(res.body.users[0]).to.have.property('id');
-                        expect(res.body.users[0]).to.have.property('createdAt');
+                        return chai.request(server)
+                            .get('/api/users/')
+                            .set('Authorization', 'Bearer ' + accessToken)
+                            .query({ page: 1, limit: 1 })
+                            .then(res2 => {
+                                expect(res).to.have.status(200);
+                                expect(res).to.be.json;
+                                expect(res.body.users).to.be.an('array');
+                                expect(res.body.users).to.have.length(1);
+                                expect(res.body.users[0]).to.have.property('id');
+                                expect(res.body.users[0]).to.have.property('createdAt');
+                                expect(res).to.have.status(200);
+                                expect(res).to.be.json;
+                                expect(res.body.users).to.be.an('array');
+                                expect(res.body.users).to.have.length(1);
+                                expect(res.body.users[0]).to.have.property('id');
+                                expect(res.body.users[0]).to.have.property('createdAt');
+                                expect(res.body.users[0].id).to.not.equal(res2.body.users[0].id);
+                            });
                     });
             });
 
@@ -149,7 +177,7 @@ describe('users', () => {
                     .get('/api/users')
                     .set('Authorization', 'Bearer ' + accessToken)
                     .query({
-                        search: 'cjshiner'
+                        search: testUser.profile.alias
                     })
                     .then(res => {
                         expect(res).to.have.status(200);
@@ -266,7 +294,7 @@ describe('users', () => {
 
 
         describe('GET /api/users/{userID}/profile', () => {
-            it('should respond with authenticated users profile info', () => {
+            it('should respond with the specified users profile info', () => {
                 return chai.request(server)
                     .get('/api/users/' + testUser.id +'/profile')
                     .set('Authorization', 'Bearer ' + accessToken)
@@ -307,45 +335,54 @@ describe('users', () => {
         describe('GET /api/users/{userID}/activities', () => {
             it('should respond with a list of activities related to the specified user', () => {
                 return chai.request(server)
-                    .get('/api/users/' + testUser.id + '/activities')
+                    .get('/api/users/' + testUser2.id + '/activities')
                     .set('Authorization', 'Bearer ' + accessToken)
                     .then(res => {
                         expect(res).to.have.status(200);
                         expect(res).to.be.json;
                         expect(res.body).to.have.property('activities');
                         expect(res.body.activities).to.be.an('array');
-                        expect(res.body.activities).to.have.length(0)
+                        expect(res.body.activities).to.have.length(2);
                     });
             });
 
             it('should respond with a limited list of activities for the user when using the limit query param', () => {
                 return chai.request(server)
-                    .get('/api/users/' + testUser.id + '/activities')
+                    .get('/api/users/' + testUser2.id + '/activities')
                     .set('Authorization', 'Bearer ' + accessToken)
-                    .query({
-                        limit: 10
-                    })
-                    .then(res => {
-                        expect(res).to.have.status(200);
-                        expect(res).to.be.json;
-                        expect(res.body).to.have.property('activities');
-                        expect(res.body.activities).to.be.an('array');
-                    });
+                    .query({ limit: 1 })
+                        .then(res => {
+                            expect(res).to.have.status(200);
+                            expect(res).to.be.json;
+                            expect(res.body).to.have.property('activities');
+                            expect(res.body.activities).to.be.an('array');
+                            expect(res.body.activities).to.have.lengthOf(1);
+                        });
+
             });
             it('should respond with a different list of activities for the user when using the page query param', () => {
                 return chai.request(server)
-                    .get('/api/users/' + testUser.id + '/activities')
+                    .get('/api/users/' + testUser2.id + '/activities')
                     .set('Authorization', 'Bearer ' + accessToken)
-                    .query({
-                        page: 2
-                    })
+                    .query({ page: 0, limit: 1 })
                     .then(res => {
-                        expect(res).to.have.status(200);
-                        expect(res).to.be.json;
-                        expect(res.body).to.have.property('activities');
-                        expect(res.body.activities).to.be.an('array');
-                        expect(res.body.activities).to.have.length(0);
-
+                        return chai.request(server)
+                            .get('/api/users/' + testUser2.id + '/activities')
+                            .set('Authorization', 'Bearer ' + accessToken)
+                            .query({ page: 1, limit: 1 })
+                            .then(res2 => {
+                                expect(res).to.have.status(200);
+                                expect(res).to.be.json;
+                                expect(res.body).to.have.property('activities');
+                                expect(res.body.activities).to.be.an('array');
+                                expect(res.body.activities).to.have.lengthOf(1);
+                                expect(res2).to.have.status(200);
+                                expect(res2).to.be.json;
+                                expect(res2.body).to.have.property('activities');
+                                expect(res2.body.activities).to.be.an('array');
+                                expect(res2.body.activities).to.have.lengthOf(1);
+                                expect(res.body.activities[0].id).to.not.equal(res2.body.activities[0].id);
+                            });
                     });
             });
             it('should respond with a filtered list of activities for the user when using the userID query param', () => {
@@ -353,13 +390,14 @@ describe('users', () => {
                     .get('/api/users/' + testUser.id + '/activities')
                     .set('Authorization', 'Bearer ' + accessToken)
                     .query({
-                        userID: 76561198131664084
+                        userID: testUser2.id
                     })
                     .then(res => {
                         expect(res).to.have.status(200);
                         expect(res).to.be.json;
                         expect(res.body).to.have.property('activities');
                         expect(res.body.activities).to.be.an('array');
+                        expect(res.body.activities).to.have.length(1);
                     });
             });
             it('should respond with a filtered list of activities for the user when using the type query param', () => {
@@ -367,40 +405,39 @@ describe('users', () => {
                     .get('/api/users/' + testUser.id + '/activities')
                     .set('Authorization', 'Bearer ' + accessToken)
                     .query({
-                        type: 1
+                        type: activity.ACTIVITY_TYPES.ALL
                     })
                     .then(res => {
                         expect(res).to.have.status(200);
                         expect(res).to.be.json;
                         expect(res.body).to.have.property('activities');
                         expect(res.body.activities).to.be.an('array');
+                        expect(res.body.activities).to.have.length(1);
                     });
             });
 
-            // need to find out what to put in a data query
-
-            /*it('should respond with a filtered list of activities for the user when using the data query param', () => {
+            it('should respond with a filtered list of activities for the user when using the data query param', () => {
                 return chai.request(server)
-                  .get('/api/users/' + testUser.id + '/activities')
+                  .get('/api/users/' + testUser2.id + '/activities')
                     .set('Authorization', 'Bearer ' + accessToken)
-                    .query({data: ''})
+                    .query({data: 1337})
                     .then(res => {
                         expect(res).to.have.status(200);
                         expect(res).to.be.json;
                         expect(res.body).to.have.property('activities');
                         expect(res.body.activities).to.be.an('array');
+                        expect(res.body.activities).to.have.length(2);
                     });
             });
-            */
         });
-/*
+
         describe('POST /api/user/follow', () => {
             it('should add user to authenticated users follow list', () => {
                 return chai.request(server)
                     .post('/api/user/follow')
                     .set('Authorization', 'Bearer ' + accessToken)
                     .send({
-                        userID: "2759389285395352"
+                        userID: testUser2.id
                     })
                     .then(res => {
                         expect(res).to.have.status(200);
@@ -430,16 +467,19 @@ describe('users', () => {
         describe('GET /api/users/{userID}/followers', () => {
             it('should respond with a list of users that follow the specified user', () => {
                 return chai.request(server)
-                    .get('/api/users/'+ testUser.id + '/followers')
+                    .get('/api/users/'+ testUser2.id + '/followers')
                     .set('Authorization', 'Bearer ' + accessToken)
                     .then(res => {
                         expect(res).to.have.status(200);
                         expect(res).to.be.json;
-
+                        expect(res.body).to.have.property('count');
+                        expect(res.body).to.have.property('followers');
+                        expect(res.body.followers).to.be.an('array');
+                        expect(res.body.followers).to.have.length(1);
                     });
             });
         });
-        */
+
 
     });
 
