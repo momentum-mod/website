@@ -10,9 +10,9 @@ paths:
           description: The maximum number of results to show
           type: integer
           default: 10
-        - name: page
+        - name: offset
           in: query
-          description: The page of results to show
+          description: The offset for the results to show
           type: integer
           default: 0
         - name: userID
