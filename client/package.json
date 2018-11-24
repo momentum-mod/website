@@ -71,6 +71,7 @@
     "ngx-cookie-service": "^1.0.10",
     "ngx-echarts": "4.0.1",
     "ngx-markdown": "^7.0.0",
+    "ngx-pagination": "^3.2.1",
     "ngx-twitter-timeline": "^0.1.4",
     "normalize.css": "6.0.0",
     "pace-js": "1.0.2",

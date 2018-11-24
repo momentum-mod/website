@@ -6128,6 +6128,7 @@ ngx-cookie-service@^1.0.10:
 ngx-echarts@4.0.1:
   version "4.0.1"
   resolved "https://registry.yarnpkg.com/ngx-echarts/-/ngx-echarts-4.0.1.tgz#ace456b7b2a6c4d1a0a3fb5228b54b5dc6910105"
+  integrity sha512-ZhmEammXZq7y+FPZj9cmDhBUzS8XmQ3ldCJHU1cGFm9HjdJOxu0nqVvaA8Lkl020sLk7jLxFBFph8JP1GaH5Aw==
   dependencies:
     tslib "^1.9.0"
 
@@ -6140,6 +6141,11 @@ ngx-markdown@^7.0.0:
     marked "^0.5.1"
     prismjs "^1.15.0"
     tslib "^1.9.0"
+
+ngx-pagination@^3.2.1:
+  version "3.2.1"
+  resolved "https://registry.yarnpkg.com/ngx-pagination/-/ngx-pagination-3.2.1.tgz#d82fe15b03a628621dabb835ebc90011f2557689"
+  integrity sha512-+dprQkYoiNYDZkNAe/1HX0wDFbwCTE31mC2bEQVdI7ZbjEIvGB7R3zp5QoCKgz6cPFatUj4Iw6Ukqp5zx0oT/Q==
 
 ngx-twitter-timeline@^0.1.4:
   version "0.1.4"

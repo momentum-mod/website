@@ -13,11 +13,17 @@ export class MapQueueComponent implements OnInit {
 
   priorityQueue: MomentumMap[];
   nonPriorityQueue: MomentumMap[];
+  priorityQueueCount: number;
+  nonPriorityQueueCount: number;
+  pageLimit: number;
   priorityQueuePage: number;
   nonPriorityQueuePage: number;
 
   constructor(private adminService: AdminService,
               private toasterService: ToasterService) {
+    this.priorityQueueCount = 0;
+    this.nonPriorityQueueCount = 0;
+    this.pageLimit = 5;
     this.priorityQueuePage = 0;
     this.nonPriorityQueuePage = 0;
   }
@@ -31,19 +37,31 @@ export class MapQueueComponent implements OnInit {
     this.adminService.getMaps({
       params: {
         expand: 'info,submitter',
-        page: priority ? this.priorityQueuePage : this.nonPriorityQueuePage,
-        limit: 5,
+        offset: ((priority ? this.priorityQueuePage : this.nonPriorityQueuePage) - 1) * this.pageLimit,
+        limit: this.pageLimit,
         priority: priority,
         status: MapUploadStatus.PENDING,
       },
     }).subscribe(res => {
-      if (priority) this.priorityQueue = res.maps;
-      else this.nonPriorityQueue = res.maps;
-      // console.log(res.maps);
+      if (priority) {
+        this.priorityQueueCount = res.count;
+        this.priorityQueue = res.maps;
+      } else {
+        this.nonPriorityQueueCount = res.count;
+        this.nonPriorityQueue = res.maps;
+      }
     }, err => {
       console.error(err);
       this.toasterService.popAsync('error', 'Failed to load priority queue', 'error');
     });
+  }
+
+  onPageChange(pageNum, isPriority: boolean) {
+    if (isPriority)
+      this.priorityQueuePage = pageNum;
+    else
+      this.nonPriorityQueuePage = pageNum;
+    this.loadMapQueue(isPriority);
   }
 
 }

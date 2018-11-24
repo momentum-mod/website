@@ -6,12 +6,14 @@ import {ThemeModule} from '../../../@theme/theme.module';
 import {QueuedMapComponent} from './map-queue/queued-map/queued-map.component';
 import {AdminComponent} from './admin.component';
 import {AdminRoutingModule} from './admin-routing.module';
+import {NgxPaginationModule} from 'ngx-pagination';
 
 @NgModule({
   imports: [
     ThemeModule,
     NotFoundModule,
     AdminRoutingModule,
+    NgxPaginationModule,
   ],
   declarations: [
     MapQueueComponent,
