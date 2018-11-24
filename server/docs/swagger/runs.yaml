@@ -21,10 +21,12 @@ paths:
               - $ref: '#/definitions/Run'
               - type: object
                 properties:
-                  isNewPersonalBest:
+                  isPersonalBest:
                     type: boolean
                   isNewWorldRecord:
                     type: boolean
+                  stats:
+                    $ref: '#/definitions/RunStats'
         400:
           description: No run file provided or run file is invalid
         409:
@@ -56,6 +58,10 @@ paths:
           in: query
           description: Filter by map ID
           type: integer
+        - name: isPersonalBest
+          in: query
+          description: Whether or not to filter out runs which are not a personal best
+          type: boolean
       responses:
         200:
           description: OK
@@ -108,6 +114,9 @@ definitions:
         type: string
         format: int64
         readOnly: true
+      isPersonalBest:
+        type: boolean
+        readOnly: true
       tickrate:
         type: number
         format: double
@@ -150,3 +159,9 @@ definitions:
         type: array
         items:
           $ref: '#/definitions/Run'
+  RunStats:
+    properties:
+      totalJumps:
+        type: integer
+      totalStrafes:
+        type: integer
