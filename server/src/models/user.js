@@ -135,8 +135,8 @@ module.exports = {
 		};
 		if (context.limit && !isNaN(context.limit))
 			queryContext.limit = Math.min(Math.max(parseInt(context.limit), 1), 20);
-		if (context.page && !isNaN(context.page))
-			queryContext.offset = (Math.max(parseInt(context.page), 0) * queryContext.limit);
+		if (context.offset && !isNaN(context.offset))
+			queryContext.offset = Math.min(Math.max(parseInt(context.offset), 0), 5000);
 		if (!(context.expand && context.expand.includes('profile')))
 			queryContext.include[0].attributes = [];
 		return User.findAndCountAll(queryContext);
@@ -400,8 +400,8 @@ module.exports = {
 		};
 		if (context.limit && !isNaN(context.limit))
 			queryContext.limit = Math.min(Math.max(parseInt(context.limit), 1), 20);
-		if (context.page && !isNaN(context.page))
-			queryContext.offset = (Math.max(parseInt(context.page), 0) * queryContext.limit);
+		if (context.offset && !isNaN(context.offset))
+			queryContext.offset = Math.min(Math.max(parseInt(context.offset), 0), 5000);
 		return Notification.findAndCountAll(queryContext);
 	},
 
@@ -437,8 +437,8 @@ module.exports = {
 		};
 		if (context.limit && !isNaN(context.limit))
 			queryContext.limit = Math.min(Math.max(parseInt(context.limit), 1), 20);
-		if (context.page && !isNaN(context.page))
-			queryContext.offset = (Math.max(parseInt(context.page), 0) * queryContext.limit);
+		if (context.offset && !isNaN(context.offset))
+			queryContext.offset = Math.min(Math.max(parseInt(context.offset), 0), 5000);
 		if (context.data)
 			queryContext.where.data = context.data;
 		if (context.type)
