@@ -428,11 +428,11 @@ describe('user', () => {
                     })
 
             });
-            it('should respond with filtered notification data using the page parameter', () => {
+            it('should respond with filtered notification data using the offset parameter', () => {
                 return chai.request(server)
                     .get('/api/user/notifications')
                     .set('Authorization', 'Bearer ' + accessToken)
-                    .query({page: 0, limit: 1})
+                    .query({offset: 0, limit: 1})
                     .then( res => {
                         expect(res).to.have.status(200);
                     })

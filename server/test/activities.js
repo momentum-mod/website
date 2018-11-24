@@ -143,16 +143,16 @@ describe('activities', () => {
 						expect(res.body.activities).to.have.lengthOf(1);
                     });
             });
-            it('should respond with a different list of activities when using the page query param', () => {
+            it('should respond with a different list of activities when using the offset query param', () => {
                 return chai.request(server)
                     .get('/api/activities')
                     .set('Authorization', 'Bearer ' + accessToken)
-                    .query({ page: 0, limit: 1 })
+                    .query({ offset: 0, limit: 1 })
                     .then(res => {
 						return chai.request(server)
 		                    .get('/api/activities')
 		                    .set('Authorization', 'Bearer ' + accessToken)
-		                    .query({ page: 1, limit: 1 })
+		                    .query({ offset: 1, limit: 1 })
 		                    .then(res2 => {
 								expect(res).to.have.status(200);
 		                        expect(res).to.be.json;

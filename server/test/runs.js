@@ -36,7 +36,7 @@ describe('runs', () => {
 		describe('GET /api/runs', () => {
 			it('should respond with a list of runs');
 			it('should respond with a limited list of runs when using the limit query param');
-			it('should respond with a different list of runs when using the page query param');
+			it('should respond with a different list of runs when using the offset query param');
 			it('should respond with a filtered list of runs when using the playerID query param');
 			it('should respond with a filtered list of runs when using the flags query param');
 			it('should respond with a filtered list of runs when using the mapID query param');

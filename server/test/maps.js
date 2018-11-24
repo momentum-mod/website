@@ -244,11 +244,11 @@ describe('maps', () => {
                         expect(res.body.maps[0]).to.have.property('name');
                     });
             });
-            it('should respond with filtered map data using the page parameter', () => {
+            it('should respond with filtered map data using the offset parameter', () => {
                 return chai.request(server)
                     .get('/api/maps')
                     .set('Authorization', 'Bearer ' + accessToken)
-                    .query({page: 0})
+                    .query({offset: 0})
                     .then(res => {
                         expect(res).to.have.status(200);
                         expect(res).to.be.json;

@@ -144,16 +144,16 @@ describe('users', () => {
                     });
             });
 
-            it('should respond with array of users with page parameter', () => {
+            it('should respond with array of users with offset parameter', () => {
                 return chai.request(server)
                     .get('/api/users/')
                     .set('Authorization', 'Bearer ' + accessToken)
-                    .query({ page: 0, limit: 1 })
+                    .query({ offset: 0, limit: 1 })
                     .then(res => {
                         return chai.request(server)
                             .get('/api/users/')
                             .set('Authorization', 'Bearer ' + accessToken)
-                            .query({ page: 1, limit: 1 })
+                            .query({ offset: 1, limit: 1 })
                             .then(res2 => {
                                 expect(res).to.have.status(200);
                                 expect(res).to.be.json;
@@ -360,16 +360,16 @@ describe('users', () => {
                         });
 
             });
-            it('should respond with a different list of activities for the user when using the page query param', () => {
+            it('should respond with a different list of activities for the user when using the offset query param', () => {
                 return chai.request(server)
                     .get('/api/users/' + testUser2.id + '/activities')
                     .set('Authorization', 'Bearer ' + accessToken)
-                    .query({ page: 0, limit: 1 })
+                    .query({ offset: 0, limit: 1 })
                     .then(res => {
                         return chai.request(server)
                             .get('/api/users/' + testUser2.id + '/activities')
                             .set('Authorization', 'Bearer ' + accessToken)
-                            .query({ page: 1, limit: 1 })
+                            .query({ offset: 1, limit: 1 })
                             .then(res2 => {
                                 expect(res).to.have.status(200);
                                 expect(res).to.be.json;
