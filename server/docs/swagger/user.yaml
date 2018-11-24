@@ -64,6 +64,17 @@ paths:
   /user/maps/library:
     get:
       summary: Retrieves a list of maps in the authenticated user's library
+      parameters:
+        - name: limit
+          in: query
+          description: The maximum number of results to show
+          type: integer
+          default: 20
+        - name: offset
+          in: query
+          description: The offset for the results to show
+          type: integer
+          default: 0
       tags:
         - user
       responses:
