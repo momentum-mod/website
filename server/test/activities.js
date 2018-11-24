@@ -1,8 +1,6 @@
 'use strict';
 //import {Activity_Type} from "../../client/src/app/@core/models/activity-type.model";
 
-
-// activities not generating properly -> FIX
 process.env.NODE_ENV = 'test';
 
 const { forceSyncDB, Activity, Map, MapInfo, User } = require('../config/sqlize'),
