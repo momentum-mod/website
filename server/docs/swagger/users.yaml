@@ -237,3 +237,32 @@ definitions:
   UserFollows:
     items:
       $ref: '#/definitions/UserFollow'
+  UserStats:
+    properties:
+      id:
+        type: integer
+        format: int64
+        readOnly: true
+      totalJumps:
+        type: integer
+        readOnly: true
+      totalStrafes:
+        type: integer
+        readOnly: true
+      rankXP:
+        type: integer
+        readOnly: true
+      cosXP:
+        type: integer
+        readOnly: true
+      mapsCompleted:
+        type: integer
+        readOnly: true
+      createdAt:
+        type: string
+        format: date-time
+        readOnly: true
+      updatedAt:
+        type: string
+        format: date-time
+        readOnly: true

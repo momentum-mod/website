@@ -514,3 +514,40 @@ definitions:
         type: array
         items:
           $ref: '#/definitions/MapImage'
+  MapStats:
+    properties:
+      id:
+        type: integer
+        readOnly: true
+      mapID:
+        type: integer
+        readOnly: true
+      totalReviews:
+        type: integer
+        readOnly: true
+      totalDownloads:
+        type: integer
+        readOnly: true
+      totalSubscriptions:
+        type: integer
+        readOnly: true
+      totalPlays:
+        type: integer
+        readOnly: true
+      totalCompletions:
+        type: integer
+        readOnly: true
+      totalUniqueCompletions:
+        type: integer
+        readOnly: true
+      totalTimePlayed:
+        type: integer
+        readOnly: true
+      createdAt:
+        type: string
+        format: date-time
+        readOnly: true
+      updatedAt:
+        type: string
+        format: date-time
+        readOnly: true
