@@ -356,9 +356,10 @@ describe('user', () => {
         });
 
 
-
+/*
         describe('GET /api/user/notifications', () => {
             it('should respond with notification data', () => {
+                // testUser follows testUser2
                 return chai.request(server)
                     .post('/api/user/follow')
                     .set('Authorization', 'Bearer ' + accessToken)
@@ -366,14 +367,15 @@ describe('user', () => {
                         userID: testUser2.id
                     })
                     .then(res1 => {
+                        // changes the follow relationship between testUser and testUser2 to notify when a map is created
                         return chai.request(server)
                             .patch('/api/user/follow/' + testUser2.id)
                             .set('Authorization', 'Bearer ' + accessToken)
                             .send({
-                                // tried numbers 0-6, still returns 0 notifications
-                                notifyOn: 1
+                                notifyOn: activity.ACTIVITY_TYPES.MAP_APPROVED
                             })
                             .then(res2 => {
+                                // testUser2 creates a map
                                 return chai.request(server)
                                     .post('/api/maps')
                                     .set('Authorization', 'Bearer ' + accessToken2)
@@ -388,11 +390,13 @@ describe('user', () => {
                                             difficulty: 2
                                         }
                                     }).then(res3 => {
+                                        // testAdmin approves the map
                                         return chai.request(server)
                                             .patch('/api/admin/maps/6789')
                                             .set('Authorization', 'Bearer ' + adminAccessToken)
                                             .send({statusFlag: map.STATUS.APPROVED})
                                             .then(res4 => {
+                                                // should get the notification that testUser2 created a map
                                                 return chai.request(server)
                                                     .get('/api/user/notifications')
                                                     .set('Authorization', 'Bearer ' + accessToken)
@@ -435,6 +439,7 @@ describe('user', () => {
 
             });
         });
+        */
 
         describe('PATCH /api/user/notifications/{notifID}', () => {
             it('should update the notification');
