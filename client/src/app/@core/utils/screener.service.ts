@@ -19,7 +19,7 @@ export class ScreenerService {
     const tEvent = _event || window.event;
 
     const element = tEvent.target || tEvent.srcElement;
-    if (element.tagName === 'A' && !element.classList.contains('allowed')) {
+    if (element.href && element.tagName === 'A' && !element.classList.contains('allowed')) {
       const url: URL = new URL(element.href);
       if (!ScreenerService.checkHref(url)) {
         window.location.href = '/outgoing/' + encodeURIComponent(element.href);
