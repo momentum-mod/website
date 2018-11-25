@@ -1,15 +1,20 @@
 <nb-card>
   <nb-card-header>
-    <h1>{{map?.name}}</h1>
+    <h1> Lego Land{{map?.name}}</h1>
   </nb-card-header>
-  <nb-card-body>
-    <div><img [src]="map?.info?.avatarURL"></div>
-    <div>
-      <markdown [data]="map?.info?.description" ngPreserveWhitespaces></markdown>
-      <br>
-      <div>Release Date: {{map?.createdAt | date}}</div><br>
-      <button type="button" class="btn btn-outline-info" (click)="onLibraryUpdate()">{{mapInLibrary ? 'Remove from My Library' : 'Add to My Library'}}</button>
-    </div>
+  <nb-card-body class="row">
+    <!--<div class="col-auto"><img [src]="map?.info?.avatarURL"></div>-->
+    <a class="col-auto"><img src="https://wallpaperbrowse.com/media/images/750913.jpg"> </a>
+
+    <nb-tabset class="col-lg-6" [fullWidth]="true">
+      <nb-tab [tabTitle]="'Description'">
+        <map-info-description></map-info-description>
+      </nb-tab>
+
+      <nb-tab [tabTitle]="'Credits'">
+        <map-info-credits></map-info-credits>
+      </nb-tab>
+    </nb-tabset>
   </nb-card-body>
 </nb-card>
 

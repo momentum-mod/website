@@ -1,10 +1,11 @@
 <div class="header">
   <span class="name">Leaderboard</span>
-  <button class="filter-btn main btn btn-outline-info" type="button" (click)="filterActive = !filterActive">Filter</button>
+  <button class="filter-btn btn btn btn-outline-info" type="button" (click)="filterActive = !filterActive">Filter</button>
 </div>
 <div class="filter-content" [ngClass]="{'filter-active': filterActive}"
      [ngStyle]="{'max-height': filterActive ? filterContent.scrollHeight + 'px' : null}" #filterContent>
   <br>
+  <div class="space">
   <div class="row">
     <div class="col-md-3">
       <input type="text" class="form-control full-width" placeholder="Rank">
@@ -14,27 +15,23 @@
     </div>
     <div class="col-md-3">
       <div>
-        <input type="checkbox" name="wonly" value="W-Only"> W-Only<br>
-        <input type="checkbox" name="backwards" value="Backwards"> Backwards<br>
+        <input type="checkbox" name="wonly" value="W-Only" id="wonly">
+        <label for="wonly">W-Only</label> <br>
+        <input type="checkbox" name="backwards" value="Backwards" id="backward">
+        <label for="backward">Backwards</label>
       </div>
-    </div>
-    <div class="col-md-3">
     </div>
   </div>
   <br>
   <div class="row">
-    <div class="col-md-3">
-      <button class="btn btn-outline-primary">Clear</button>
+    <div class="col-auto">
+      <button class="btn btn-outline-info">Update</button>
     </div>
-    <div class="col-md-3">
-    </div>
-    <div class="col-md-3">
-    </div>
-    <div class="col-md-3">
-      <button class="btn btn-outline-info filter-btn">Update</button>
+    <div class="col-auto">
+      <button class="btn btn-outline-warning">Clear</button>
     </div>
   </div>
-  <br>
+  </div>
 </div>
 <table>
   <tr>
