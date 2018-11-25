@@ -33,7 +33,8 @@ th {
   max-height: 0;
   overflow: hidden;
   transition: max-height 0.2s ease-out;
-  // background-color: #222222;
+  background-color: #181818;
+  margin-bottom: 2%;
 
   .filter-active {
     background-color: #555;
@@ -48,4 +49,16 @@ th {
 
 .filter-btn {
   float: right;
+}
+
+.space {
+  margin-left: 2%;
+  margin-bottom: 2%;
+}
+
+input[type=checkbox] + label {
+  color: #ccc;
+}
+input[type=checkbox]:checked + label {
+  color: seagreen;
 }

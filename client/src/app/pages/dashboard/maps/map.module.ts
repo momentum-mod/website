@@ -18,6 +18,8 @@ import {MapCreditComponent} from './map-credits/map-credit/map-credit.component'
 import {FileUploadComponent} from './upload-form/file-upload/file-upload.component';
 import { MapLeaderboardComponent } from './map-info/map-leaderboard/map-leaderboard.component';
 import {NgxPaginationModule} from 'ngx-pagination';
+import { MapInfoDescriptionComponent } from './map-info/map-info-description/map-info-description.component';
+import { MapInfoCreditsComponent } from './map-info/map-info-credits/map-info-credits.component';
 
 @NgModule({
   imports: [
@@ -43,6 +45,8 @@ import {NgxPaginationModule} from 'ngx-pagination';
     MapCreditComponent,
     FileUploadComponent,
     MapLeaderboardComponent,
+    MapInfoDescriptionComponent,
+    MapInfoCreditsComponent,
   ],
   providers: [],
 })
