@@ -17,6 +17,7 @@ import {UserModule} from '../user/user.module';
 import {MapCreditComponent} from './map-credits/map-credit/map-credit.component';
 import {FileUploadComponent} from './upload-form/file-upload/file-upload.component';
 import { MapLeaderboardComponent } from './map-info/map-leaderboard/map-leaderboard.component';
+import {NgxPaginationModule} from 'ngx-pagination';
 
 @NgModule({
   imports: [
@@ -28,6 +29,7 @@ import { MapLeaderboardComponent } from './map-info/map-leaderboard/map-leaderbo
     UserModule,
     MarkdownModule.forChild(),
     MapRoutingModule,
+    NgxPaginationModule,
   ],
   declarations: [
     MapComponent,

@@ -9,20 +9,42 @@ import {ToasterService} from 'angular2-toaster';
   styleUrls: ['./upload-status.component.scss'],
 })
 export class UploadStatusComponent implements OnInit {
+  mapCount: number;
   maps: MomentumMap[];
   fetchedMaps: boolean;
+  pageLimit: number;
+  currentPage: number;
   constructor(private localUserService: LocalUserService,
               private toastService: ToasterService) {
     this.fetchedMaps = false;
+    this.pageLimit = 5;
+    this.currentPage = 1;
   }
 
   ngOnInit(): void {
-    this.localUserService.getSubmittedMaps().subscribe(res => {
+    this.loadSubmittedMaps();
+  }
+
+  loadSubmittedMaps() {
+    this.localUserService.getSubmittedMaps({
+      params: {
+        expand: 'info,credits',
+        offset: (this.currentPage - 1) * this.pageLimit,
+        limit: this.pageLimit,
+        // status: MapUploadStatus.PENDING,
+      },
+    }).subscribe(res => {
+      this.mapCount = res.count;
       this.maps = res.maps;
     }, er => {
       this.toastService.popAsync('error', 'Error fetching submitted maps', er.message);
     }, () => {
       this.fetchedMaps = true;
     });
+   }
+
+  onPageChange(pageNum) {
+    this.currentPage = pageNum;
+    this.loadSubmittedMaps();
   }
 }
