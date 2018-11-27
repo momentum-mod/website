@@ -34,7 +34,7 @@ export class CommunityNewsComponent implements OnInit {
           this.blogPosts.push({
             title: post.title,
             post_url: post.post_url,
-            text: post.body.substring(0, 500) + '...',
+            body: post.body.substring(0, 500) + '...',
             timestamp: new Date(post.timestamp * 1000),
           });
         }
