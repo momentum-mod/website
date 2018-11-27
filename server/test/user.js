@@ -386,7 +386,9 @@ describe('user', () => {
         });
 
 
-/*
+// uncommented for the time being so I could test the activity generation tests at the bottom of the file
+// this test is still broken though
+// notifications array should have length of 1 and not 0
         describe('GET /api/user/notifications', () => {
             it('should respond with notification data', () => {
                 // testUser follows testUser2
@@ -448,6 +450,7 @@ describe('user', () => {
                             });
                     });
             });
+            /*
             it('should respond with filtered notification data using the limit parameter', () => {
                 return chai.request(server)
                     .get('/api/user/notifications')
@@ -467,9 +470,9 @@ describe('user', () => {
                         expect(res).to.have.status(200);
                     })
 
-            });
+            });*/
         });
-        */
+
 
         describe('PATCH /api/user/notifications/{notifID}', () => {
             it('should update the notification');
@@ -695,12 +698,23 @@ describe('user', () => {
                     .then(res => {
                        expect(res).to.have.status(200);
                        expect(res.body.activities).to.be.an('array');
-                       //expect(res.body.activities).to.have.length(2);
-                       //expect(res.body.activities[0]).to.have.property('id');
+                       expect(res.body.activities).to.have.length(1);
+                       expect(res.body.activities[0]).to.have.property('id');
                     });
             });
 
-            it('should retrieve the filtered local users activities using the limit parameter');
+            it('should retrieve the filtered local users activities using the limit parameter', () => {
+                return chai.request(server)
+                    .get('/api/user/activities')
+                    .set('Authorization', 'Bearer ' + accessToken2)
+                    .query({limit: 1})
+                    .then(res => {
+                        expect(res).to.have.status(200);
+                        expect(res.body.activities).to.be.an('array');
+                        expect(res.body.activities).to.have.length(1);
+                        expect(res.body.activities[0]).to.have.property('id');
+                    });
+            });
             it('should retrieve the filtered local users activities using the offset parameter');
             it('should retrieve the filtered local users activities using the type parameter');
             it('should retrieve the filtered local users activities using the data parameter');
@@ -715,8 +729,8 @@ describe('user', () => {
                     .then(res => {
                         expect(res).to.have.status(200);
                         expect(res.body.activities).to.be.an('array');
-                        //expect(res.body.activities).to.have.length(2);
-                        //expect(res.body.activities[0]).to.have.property('id');
+                        expect(res.body.activities).to.have.length(1);
+                        expect(res.body.activities[0]).to.have.property('id');
                     });
             });
 

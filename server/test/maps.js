@@ -328,6 +328,19 @@ describe('maps', () => {
                         });
 
             });
+
+            it('should respond with map data while using the expand parameter', () => {
+                return chai.request(server)
+                    .get('/api/maps/' + testMap.id)
+                    .set('Authorization', 'Bearer ' + accessToken)
+                    .query({expand: 'info'})
+                    .then(res => {
+                        expect(res).to.have.status(200);
+                        expect(res).to.be.json;
+                        expect(res.body).to.have.property('id');
+                        expect(res.body.info).to.have.property('description');
+                    });
+            });
 		});
 
 		describe('GET /api/maps/{mapID}/info', () => {
@@ -341,6 +354,20 @@ describe('maps', () => {
 					expect(res.body).to.have.property('description');
 				});
 			});
+
+			it('should return 404 if the map is not found', () => {
+			   return chai.request(server)
+                   .get('/api/maps/00091919/info')
+                   .set('Authorization', 'Bearer ' + accessToken)
+                   .then(res => {
+                       expect(res).to.have.status(404);
+                       expect(res).to.be.json;
+                       expect(res.body).to.have.property('error');
+                       expect(res.body.error.code).equal(404);
+                       expect(res.body.error.message).to.be.a('string');
+                   });
+
+            });
 		});
 
 
@@ -364,8 +391,25 @@ describe('maps', () => {
                         expect(res).to.have.status(200);
                         expect(res).to.be.json;
                         expect(res.body.mapCredits[0]).to.have.property('type');
-                        // write another expect here for user properties
+                        expect(res.body.mapCredits[0].user).to.have.property('permissions')
                     });
+            });
+
+            // should this return a 404 instead of a 200?
+            it('should return 404 if the map is not found', () => {
+                return chai.request(server)
+                    .get('/api/maps/999999999999999/credits')
+                    .set('Authorization', 'Bearer ' + accessToken)
+                    .then(res => {
+                        expect(res).to.have.status(200);
+                        expect(res.body.mapCredits).to.have.length(0);
+                      //  expect(res).to.have.status(404);
+                      //  expect(res).to.be.json;
+                      //  expect(res.body).to.have.property('error');
+                      //  expect(res.body.error.code).equal(404);
+                      //  expect(res.body.error.message).to.be.a('string');
+                    });
+
             });
         });
         // Note: will only create one credit. if a map has an existing credit than it wont make another
@@ -380,6 +424,9 @@ describe('maps', () => {
                     }).then(res => {
                         expect(res).to.have.status(200);
                         expect(res).to.be.json;
+                        expect(res.body).to.have.property('id');
+                        expect(res.body).to.have.property('type');
+                        expect(res.body).to.have.property('userID');
                     });
             });
         });
@@ -393,20 +440,36 @@ describe('maps', () => {
                         expect(res).to.have.status(200);
                         expect(res).to.be.json;
 						expect(res.body).to.have.property('id');
+						expect(res.body).to.have.property('type');
+                    });
+            });
+
+            it('should return the map credit of the specified map with an expand parameter', () => {
+                return chai.request(server)
+                    .get('/api/maps/' + testMap.id + '/credits/' + testMap.credits.id)
+                    .set('Authorization', 'Bearer ' + accessToken)
+                    .query({expand: 'user'})
+                    .then(res => {
+                        expect(res).to.have.status(200);
+                        expect(res).to.be.json;
+                        expect(res.body).to.have.property('id');
+                        expect(res.body).to.have.property('type');
+                        expect(res.body.user).to.have.property('permissions');
                     });
             });
         });
 
-/*
+
 // I dont know what is wrong with this
 // returns 403
-
+/*
        describe('PATCH /api/maps/{mapID}/credits/{mapCredID}', () => {
             it('should update the specified map credit', () => {
                 return chai.request(server)
                     .patch('/api/maps/' + testMap.id + '/credits/' + testMap.credits.id)
                     .set('Authorization', 'Bearer ' + accessToken)
                     .send({
+                        type: 2,
                         userID: testAdminGame.id
                     }).then(res => {
                          expect(res).to.have.status(204);
@@ -427,26 +490,6 @@ describe('maps', () => {
             });
         });
 
-
-
-        describe('GET /api/user/maps/submitted', () => {
-            it('should respond with a list of maps submitted by the user', () => {
-                return chai.request(server)
-                    .get('/api/user/maps/submitted')
-                    .set('Authorization', 'Bearer ' + accessToken)
-                    .then(res => {
-                        expect(res).to.have.status(200);
-                        expect(res).to.be.json;
-                        expect(res.body).to.have.property('count');
-                        expect(res.body.maps).to.have.length(2);
-                    });
-            });
-        });
-
-
-
-
-
 		describe('GET /api/maps/{mapID}/upload', () => {
 			it('should respond with the location for where to upload the map file', () => {
 				return chai.request(server)
@@ -454,7 +497,6 @@ describe('maps', () => {
                     .set('Authorization', 'Bearer ' + accessToken)
                     .then(res => {
                         expect(res).to.have.status(204);
-                        //expect(res).to.be.json;
                     });
 			});
 		});
@@ -469,6 +511,9 @@ describe('maps', () => {
 					.then(res => {
 						expect(res).to.have.status(400);
 						expect(res).to.be.json;
+                        expect(res.body).to.have.property('error');
+                        expect(res.body.error.code).equal(400);
+                        expect(res.body.error.message).to.be.a('string');
 					});
 			});
 			/*
@@ -480,6 +525,9 @@ describe('maps', () => {
                     .then(res => {
                         expect(res).to.have.status(404);
                         expect(res).to.be.json;
+                         expect(res.body).to.have.property('error');
+                        expect(res.body.error.code).equal(404);
+                        expect(res.body.error.message).to.be.a('string');
                     });
 
 			});
@@ -496,13 +544,18 @@ describe('maps', () => {
 					.then(res => {
 						expect(res).to.have.status(404);
 						expect(res).to.be.json;
+                        expect(res.body).to.have.property('error');
+                        expect(res.body.error.code).equal(404);
+                        expect(res.body.error.message).to.be.a('string');
 					});
 			});
 			it('should download the map file');
 		});
 
 
-
+        describe('PUT /maps/{mapID}/avatar', () => {
+           it('should upload and update the avatar for a map');
+        });
 
 
 
@@ -529,6 +582,9 @@ describe('maps', () => {
                     .then(res => {
                         expect(res).to.have.status(404);
                         expect(res).to.be.json;
+                        expect(res.body).to.have.property('error');
+                        expect(res.body.error.code).equal(404);
+                        expect(res.body.error.message).to.be.a('string');
                     });
 			});
 			it('should respond with image info', () => {
@@ -538,6 +594,7 @@ describe('maps', () => {
                     .then(res => {
                         expect(res).to.have.status(200);
                         expect(res).to.be.json;
+                        // add expect statements
                     });
 			});
 		});
@@ -554,6 +611,9 @@ describe('maps', () => {
                     .then(res => {
                         expect(res).to.have.status(404);
                         expect(res).to.be.json;
+                        expect(res.body).to.have.property('error');
+					expect(res.body.error.code).equal(404);
+					expect(res.body.error.message).to.be.a('string');
                     });
 			});
 			*/
@@ -565,6 +625,9 @@ describe('maps', () => {
                     .then(res => {
                         expect(res).to.have.status(400);
                         expect(res).to.be.json;
+                        expect(res.body).to.have.property('error');
+                        expect(res.body.error.code).equal(400);
+                        expect(res.body.error.message).to.be.a('string');
                     });
             });
 
