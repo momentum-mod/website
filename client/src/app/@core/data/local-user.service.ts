@@ -75,7 +75,7 @@ export class LocalUserService {
     return this.http.patch('/api/user/profile', profile);
   }
 
-  public getMapLibrary(): Observable<any> {
+  public getMapLibrary(options?: object): Observable<any> {
 /*    return of({
       maps: [
         {
@@ -114,7 +114,7 @@ export class LocalUserService {
         },
       ],
     });*/
-    return this.http.get('/api/user/maps/library');
+    return this.http.get('/api/user/maps/library', options || {});
   }
 
   /**

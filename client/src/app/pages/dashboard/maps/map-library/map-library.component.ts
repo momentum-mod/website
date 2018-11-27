@@ -11,20 +11,41 @@ import {ToasterService} from 'angular2-toaster';
 })
 export class MapLibraryComponent implements OnInit {
 
+  entryCount: number;
   entries: MapLibraryEntry[];
   sentRequest: boolean;
+  pageLimit: number;
+  currentPage: number;
+
   constructor(private locUsrService: LocalUserService, private toastService: ToasterService) {
     this.entries = [];
     this.sentRequest = false;
+    this.pageLimit = 5;
+    this.currentPage = 1;
   }
 
   ngOnInit() {
-    this.locUsrService.getMapLibrary()
+    this.loadMapLibrary();
+  }
+
+  loadMapLibrary() {
+    this.locUsrService.getMapLibrary({
+      params: {
+        offset: (this.currentPage - 1) * this.pageLimit,
+        limit: this.pageLimit,
+      },
+    })
       .pipe(finalize(() => this.sentRequest = true))
-      .subscribe(resp => {
-      this.entries = resp.entries;
-    }, error => {
-        this.toastService.popAsync('error', 'Cannot get map library', error.message);
+      .subscribe(res => {
+        this.entryCount = res.count;
+        this.entries = res.entries;
+      }, err => {
+        this.toastService.popAsync('error', 'Cannot get map library', err.message);
       });
+  }
+
+  onPageChange(pageNum) {
+    this.currentPage = pageNum;
+    this.loadMapLibrary();
   }
 }
