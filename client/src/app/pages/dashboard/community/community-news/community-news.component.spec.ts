@@ -16,7 +16,7 @@ describe('CommunityNewsComponent', () => {
     const blogPost: BlogPost = {
       title: 'Testy blog postarooni',
       post_url: 'localhost',
-      text: 'This is a blog post, wow!',
+      body: 'This is a blog post, wow!',
       timestamp: new Date(),
     };
     tumblrAPIStub = {
