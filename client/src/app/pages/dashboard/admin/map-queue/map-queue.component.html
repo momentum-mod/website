@@ -18,7 +18,7 @@
             <queued-map [map]="map" (onStatusUpdate)="loadMapQueue(true)"></queued-map>
           </nb-list-item>
         </nb-list>
-        <pagination-controls id="priority-page-ctrl" (pageChange)="onPageChange($event, true)"></pagination-controls>
+        <pagination-controls id="priority-page-ctrl" (pageChange)="onPageChange($event, true)" [autoHide]="true"></pagination-controls>
       </nb-tab>
       <nb-tab tabTitle="Non-Mapper Submissions">
         <i *ngIf="!nonPriorityQueue?.length">
@@ -34,7 +34,7 @@
             <queued-map [map]="map" (onStatusUpdate)="loadMapQueue(false)"></queued-map>
           </nb-list-item>
         </nb-list>
-        <pagination-controls id="non-priority-page-ctrl" (pageChange)="onPageChange($event, false)"></pagination-controls>
+        <pagination-controls id="non-priority-page-ctrl" (pageChange)="onPageChange($event, false)" [autoHide]="true"></pagination-controls>
       </nb-tab>
     </nb-tabset>
   </nb-card-body>
