@@ -71,4 +71,33 @@ export class MapsService {
       responseType: 'text',
     });
   }
+
+  /**
+   * @param id
+   * @param mapImageFile
+   */
+  createMapImage(id: string, mapImageFile: File): Observable<any> {
+    const formData = new FormData();
+    formData.append('mapImageFile', mapImageFile, mapImageFile.name);
+    return this.http.post('/api/maps/' + id + '/images', formData);
+  }
+
+  /**
+   * @param id
+   * @param mapImageID
+   * @param mapImageFile
+   */
+  updateMapImage(id: string, mapImageID: string, mapImageFile: File): Observable<any> {
+    const formData = new FormData();
+    formData.append('mapImageFile', mapImageFile, mapImageFile.name);
+    return this.http.put('/api/maps/' + id + '/images/' + mapImageID, formData);
+  }
+
+  /**
+   * @param id
+   * @param mapImageID
+   */
+  deleteMapImage(id: string, mapImageID: string): Observable<any> {
+    return this.http.delete('/api/maps/' + id + '/images/' + mapImageID);
+  }
 }

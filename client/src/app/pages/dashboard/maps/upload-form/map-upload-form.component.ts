@@ -4,8 +4,11 @@ import {Router} from '@angular/router';
 import {ToasterService} from 'angular2-toaster';
 import {MapsService} from '../../../../@core/data/maps.service';
 import 'rxjs/add/operator/mergeMap';
+import 'rxjs/add/observable/forkJoin';
 import {FormBuilder, FormGroup, Validators} from '@angular/forms';
 import {User} from '../../../../@core/models/user.model';
+import {Map_Credit_Type} from '../../../../@core/models/map-credit-type.model';
+import {Observable, of} from 'rxjs';
 
 export interface ImageFilePreview {
   dataBlobURL: string;
@@ -33,6 +36,7 @@ export class MapUploadFormComponent implements AfterViewInit {
   filesForm: FormGroup = this.fb.group({
     'map': ['', [Validators.required, Validators.pattern('.+(\\.bsp)')]],
     'avatar': ['', [Validators.required, Validators.pattern(/.+(\.(pn|jpe?)g)/i)]],
+    // 'images': new FormArray()
     // TODO: the 5 optional image files
   });
   infoForm: FormGroup = this.fb.group( {
@@ -103,6 +107,7 @@ export class MapUploadFormComponent implements AfterViewInit {
     const mapObject = {
       name: this.name.value,
       info: this.infoForm.value,
+      credits: this.getAllCredits(),
     };
     this.mapsService.createMap(mapObject)
     .mergeMap(res => {
@@ -111,6 +116,13 @@ export class MapUploadFormComponent implements AfterViewInit {
       mapCreated = true;
       this.toasterService.popAsync('success', 'Map successfully created', 'Please wait for the map file to upload');
       return this.mapsService.updateMapAvatar(mapID, this.avatarFile);
+    }).mergeMap(() => {
+      const extraImageCreations = [];
+      for (let i = 0; i < this.extraImages.length; i++)
+        extraImageCreations.push(this.mapsService.createMapImage(mapID, this.extraImages[i].file));
+      if (extraImageCreations.length)
+        return Observable.forkJoin(extraImageCreations);
+      return of({});
     }).mergeMap(() => {
       return this.mapsService.uploadMapFile(uploadLocation, this.mapFile);
     }).subscribe((event: HttpEvent<any>) => {
@@ -210,5 +222,16 @@ export class MapUploadFormComponent implements AfterViewInit {
 
   removeExtraImage(img: ImageFilePreview) {
     this.extraImages.splice(this.extraImages.findIndex(i => i === img), 1);
+  }
+
+  getAllCredits() {
+    const credits = [];
+    for (let i = 0; i < this.authors.length; i++)
+      credits.push({ userID: this.authors[i].id, type: Map_Credit_Type.AUTHOR });
+    for (let i = 0; i < this.testers.length; i++)
+      credits.push({ userID: this.testers[i].id, type: Map_Credit_Type.TESTER });
+    for (let i = 0; i < this.specialThanks.length; i++)
+      credits.push({ userID: this.specialThanks[i].id, type: Map_Credit_Type.SPECIAL_THANKS });
+    return credits;
   }
 }
