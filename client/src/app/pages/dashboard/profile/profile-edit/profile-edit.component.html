@@ -4,15 +4,31 @@
     <form [formGroup]="profileEditFormGroup" (ngSubmit)="onSubmit()">
       <nb-tabset>
         <nb-tab tabTitle="Profile">
-          <div class="form-group">
+          <div class="form-group" [ngClass]="{'has-error':!profileEditFormGroup.controls['alias'].valid}">
             <label>
               Username:
-              <input class="form-control" formControlName="alias" type="text">
+              <input class="form-control" formControlName="alias" type="alias">
+              <p class="alert alert-danger" *ngIf="profileEditFormGroup.controls['alias'].hasError('minlength')">
+                Username must be at least 3 characters.
+              </p>
+              <p class="alert alert-danger" *ngIf="profileEditFormGroup.controls['alias'].hasError('maxlength')">
+                Username cannot exceed 25 characters.
+              </p>
+              <p class="alert alert-danger" *ngIf="profileEditFormGroup.controls['alias'].hasError('required') && profileEditFormGroup.controls['alias'].dirty">
+                Username is required.
+              </p>
             </label>
           </div>
-          <div class="form-group">
+
+
+          <div class="form-group" [ngClass]="{'has-error':!profileEditFormGroup.controls['bio'].valid}">
             <label>Bio:</label>
-            <textarea class="form-control" formControlName="bio"></textarea>
+            <textarea class="form-control" formControlName="bio" type="bio"></textarea>
+
+            <p class="alert alert-danger" *ngIf="profileEditFormGroup.controls['bio'].hasError('maxlength')">
+              Text cannot exceed 500 characters.
+            </p>
+
           </div>
         </nb-tab>
         <nb-tab tabTitle="Social Links">

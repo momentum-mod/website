@@ -13,8 +13,8 @@ import {AuthService} from '../../../../@core/data/auth.service';
 })
 export class ProfileEditComponent implements OnInit {
   profileEditFormGroup: FormGroup = this.fb.group({
-    'alias': ['', [Validators.required, Validators.minLength(3)]],
-    'bio': ['', Validators.maxLength(1000)],
+    'alias': [ '' , [Validators.required, Validators.minLength(3), Validators.maxLength(24)]],
+    'bio': ['', [Validators.required, Validators.maxLength(500)]],
   });
 
   @Output() onEditSuccess: EventEmitter<any> = new EventEmitter();
