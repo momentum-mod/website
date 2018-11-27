@@ -263,11 +263,11 @@ describe('admin', () => {
                     });
             });
 
-            it('should respond with a different list of maps when using the page query param', () => {
+            it('should respond with a different list of maps when using the offset query param', () => {
                 return chai.request(server)
                     .get('/api/admin/maps/')
                     .set('Authorization', 'Bearer ' + adminAccessToken)
-                    .query({ page: 0, limit: 1 })
+                    .query({ offset: 0, limit: 1 })
                     .then(res => {
                         expect(res).to.have.status(200);
                         expect(res).to.be.json;
