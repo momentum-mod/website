@@ -1,5 +1,5 @@
-<nb-card>
-  <nb-card-header>{{category}}</nb-card-header>
+<div class="custom-card">
+<h4>{{category}}</h4>
   <nb-list>
     <nb-list-item *ngFor="let user of categoryArray" class="row no-gutters">
       <nb-user class="col-11" [name]="user.profile.alias" [picture]="user.profile.avatarURL"></nb-user>
@@ -19,4 +19,4 @@
       </ng-template>
     </nb-list-item>
   </nb-list>
-</nb-card>
+</div>
