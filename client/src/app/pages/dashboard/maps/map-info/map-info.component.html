@@ -8,7 +8,7 @@
 
     <nb-tabset class="col-lg-6" [fullWidth]="true">
       <nb-tab [tabTitle]="'Description'">
-        <map-info-description></map-info-description>
+        <map-info-description [map]="map" [mapInLibrary]="mapInLibrary" (libraryUpdate)="onLibraryUpdate()"></map-info-description>
       </nb-tab>
 
       <nb-tab [tabTitle]="'Credits'">

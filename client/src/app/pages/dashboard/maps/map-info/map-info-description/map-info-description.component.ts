@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import {Component, EventEmitter, Input, OnInit, Output} from '@angular/core';
 
 @Component({
   selector: 'map-info-description',
@@ -7,9 +7,16 @@ import { Component, OnInit } from '@angular/core';
 })
 export class MapInfoDescriptionComponent implements OnInit {
 
+  @Input('map') map;
+  @Input('mapInLibrary') mapInLibrary;
+  @Output () libraryUpdate = new EventEmitter();
   constructor() { }
 
   ngOnInit() {
+  }
+
+  onLibraryUpdate () {
+    this.libraryUpdate.emit();
   }
 
 }
