@@ -4,8 +4,13 @@
     <div *ngIf="sentRequest && entries.length === 0">
       <h2>No maps in your library. Try <a routerLink="/dashboard/maps">adding some</a>!</h2>
     </div>
-    <div *ngFor="let entry of entries">
+    <div *ngFor="let entry of entries | paginate: {
+            itemsPerPage: pageLimit,
+            currentPage: currentPage,
+            totalItems: entryCount
+          }">
       <map-status [map]="entry.map"></map-status>
     </div>
   </nb-card-body>
+  <pagination-controls (pageChange)="onPageChange($event)"></pagination-controls>
 </nb-card>

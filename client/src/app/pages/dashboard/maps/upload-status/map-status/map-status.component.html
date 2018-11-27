@@ -28,7 +28,7 @@
           <div class="col-4">
             <span *ngIf="!map.credits || map.credits.length === 0">No authors</span>
             <div *ngFor="let credit of map.credits">
-              <span>{{credit.user.profile.alias}}</span>
+              <span>{{credit.user?.profile.alias}}</span>
             </div>
           </div>
         </div>
