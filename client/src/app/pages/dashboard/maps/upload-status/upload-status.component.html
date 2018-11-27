@@ -11,9 +11,14 @@
       <i>You have not uploaded any maps. Try <a routerLink="/dashboard/maps/uploads/new">uploading a new one!</a></i>
     </h1>
     <div *ngIf="(maps?.length > 0) && fetchedMaps">
-      <nb-card-body *ngFor="let map of maps">
+      <nb-card-body *ngFor="let map of maps | paginate: {
+            itemsPerPage: pageLimit,
+            currentPage: currentPage,
+            totalItems: mapCount
+          }">
         <map-status [map]="map"></map-status>
       </nb-card-body>
+      <pagination-controls (pageChange)="onPageChange($event)"></pagination-controls>
     </div>
   </nb-card-body>
 </nb-card>

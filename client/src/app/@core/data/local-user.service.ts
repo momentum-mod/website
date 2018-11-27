@@ -144,10 +144,11 @@ export class LocalUserService {
   }
 
   /**
+   * @param options
    * @return retrieve all submitted maps
    */
-  public getSubmittedMaps(): Observable<any> {
-    return this.http.get('/api/user/maps/submitted?expand=info,credits');
+  public getSubmittedMaps(options?: object): Observable<any> {
+    return this.http.get('/api/user/maps/submitted', options || {});
   }
 
   /**
