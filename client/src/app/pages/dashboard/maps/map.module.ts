@@ -20,6 +20,7 @@ import { MapLeaderboardComponent } from './map-info/map-leaderboard/map-leaderbo
 import {NgxPaginationModule} from 'ngx-pagination';
 import { MapInfoDescriptionComponent } from './map-info/map-info-description/map-info-description.component';
 import { MapInfoCreditsComponent } from './map-info/map-info-credits/map-info-credits.component';
+import { MapInfoStatsComponent } from './map-info/map-info-stats/map-info-stats.component';
 
 @NgModule({
   imports: [
@@ -47,6 +48,7 @@ import { MapInfoCreditsComponent } from './map-info/map-info-credits/map-info-cr
     MapLeaderboardComponent,
     MapInfoDescriptionComponent,
     MapInfoCreditsComponent,
+    MapInfoStatsComponent,
   ],
   providers: [],
 })
