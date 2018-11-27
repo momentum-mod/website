@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import {Component, Input, OnInit} from '@angular/core';
 
 @Component({
   selector: 'map-info-credits',
@@ -6,6 +6,7 @@ import { Component, OnInit } from '@angular/core';
   styleUrls: ['./map-info-credits.component.scss'],
 })
 export class MapInfoCreditsComponent implements OnInit {
+  @Input('map') map;
 
   constructor() { }
 
