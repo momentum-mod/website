@@ -44,10 +44,14 @@ export class UserProfileComponent implements OnInit {
           }, error => {
             this.toastService.popAsync('error', 'Cannot get user profile', error.message);
           });
-          return this.usersService.getUser(params.get('id'));
+          return this.usersService.getUser(params.get('id'), {
+            params: { expand: 'profile,stats' },
+          });
         } else {
           this.isLocal = true;
-          return this.userService.getLocal();
+          return this.userService.getLocalUser({
+            params: { expand: 'profile,stats' },
+          });
         }
       },
       ),
