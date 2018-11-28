@@ -1,4 +1,4 @@
-import {Component, OnInit} from '@angular/core';
+import {Component, OnInit, ViewChild} from '@angular/core';
 import {ActivatedRoute, ParamMap} from '@angular/router';
 import {switchMap} from 'rxjs/operators';
 import {MapsService} from '../../../../@core/data/maps.service';
@@ -14,26 +14,32 @@ import {ToasterService} from 'angular2-toaster';
 })
 
 export class MapInfoComponent implements OnInit {
+
+  @ViewChild('leaderboard') leaderboard;
   map: MomentumMap;
   mapInLibrary: boolean;
+
   constructor(private route: ActivatedRoute,
               private mapService: MapsService,
               private locUserService: LocalUserService,
               private toastService: ToasterService) {
     this.mapInLibrary = false;
   }
+
   ngOnInit() {
     this.route.paramMap.pipe(
       switchMap((params: ParamMap) =>
-          this.mapService.getMap(params.get('id')),
+          this.mapService.getMap(params.get('id'), {
+            params: { expand: 'info,credits,submitter,stats' },
+          }),
       ),
     ).subscribe(map => {
       this.map = map;
+      this.leaderboard.loadLeaderboardRuns(map.id);
       this.locUserService.isMapInLibrary(map.id).subscribe(() => {
         this.mapInLibrary = true;
       }, error => {
         this.mapInLibrary = error.status !== 404;
-        this.toastService.popAsync('error', 'No maps in library', error.message);
       });
     });
   }

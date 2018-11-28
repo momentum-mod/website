@@ -1,5 +1,5 @@
 import { async, ComponentFixture, TestBed } from '@angular/core/testing';
-
+import {NbUserModule} from '@nebular/theme';
 import { MapInfoCreditsComponent } from './map-info-credits.component';
 
 describe('MapInfoCreditsComponent', () => {
@@ -8,6 +8,7 @@ describe('MapInfoCreditsComponent', () => {
 
   beforeEach(async(() => {
     TestBed.configureTestingModule({
+      imports: [NbUserModule],
       declarations: [ MapInfoCreditsComponent ],
     })
     .compileComponents();
