@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import {Component, Input, OnInit} from '@angular/core';
 
 @Component({
   selector: 'map-info-stats',
@@ -6,6 +6,8 @@ import { Component, OnInit } from '@angular/core';
   styleUrls: ['./map-info-stats.component.scss'],
 })
 export class MapInfoStatsComponent implements OnInit {
+
+  @Input('map') map;
 
   constructor() { }
 
