@@ -100,7 +100,7 @@ const saveRun = (runResults, runFile) => {
 		}).then(run => {
 			runModel = run;
 			if (!runResults.isPersonalBest)
-				return new Promise.resolve();
+				return Promise.resolve();
 			return Run.update({
 				isPersonalBest: false,
 			}, {
