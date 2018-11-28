@@ -52,7 +52,7 @@ const routes: Routes = [
         loadChildren: 'app/pages/dashboard/admin/admin.module#AdminModule',
         canActivate: [PermissionGuard],
         data: {
-          onlyAllow: [Permission.MODERATOR | Permission.ADMIN],
+          onlyAllow: [Permission.MODERATOR, Permission.ADMIN],
         },
       },
       {
