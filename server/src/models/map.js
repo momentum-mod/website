@@ -105,6 +105,7 @@ module.exports = {
 	getAll: (context) => {
 		const allowedExpansions = ['info', 'credits'];
 		const queryContext = {
+			distinct: true,
 			include: [],
 			where: {},
 			limit: 20,
