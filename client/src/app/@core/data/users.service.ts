@@ -26,10 +26,11 @@ export class UsersService {
 
   /**
    * @param userID ID of a specific User
+   * @param options The options for the request
    * @return Retrieves a specific user
    */
-  getUser(userID: string): Observable<any> {
-    return this.http.get('/api/users/' + userID + '?expand=profile');
+  getUser(userID: string, options?: object): Observable<any> {
+    return this.http.get('/api/users/' + userID, options || {});
   }
 
   /**
