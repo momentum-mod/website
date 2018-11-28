@@ -36,7 +36,9 @@ export class LocalUserService {
 
   public refreshLocal(): void {
     this.localUser = null;
-    this.getLocalUser().subscribe(usr => {
+    this.getLocalUser({
+      params: { expand: 'profile' },
+    }).subscribe(usr => {
       this.locUserObtEmit.next(usr);
       this.localUser = usr;
       localStorage.setItem('user', JSON.stringify(usr));
@@ -60,10 +62,11 @@ export class LocalUserService {
   }
 
   /**
+   * @param options The options for the request
    * @return specific user's profile
    */
-  public getLocalUser(): Observable<any> {
-    return this.http.get('/api/user?expand=profile');
+  public getLocalUser(options?: object): Observable<any> {
+    return this.http.get('/api/user', options || {});
   }
 
   /**

@@ -1,8 +1,6 @@
-<!--<markdown [data]="map?.info?.description" ngPreserveWhitespaces></markdown>-->
-<div class ="divider">Lorem ipsum dolor sit amet, consectetur adipiscing elit,
-  sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
-  Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi
-  ut aliquip ex ea commodo consequat. </div>
-<div><button type="button" class="btn btn-outline-info" (click)="onLibraryUpdate()">
-  {{mapInLibrary ? 'Remove from My Library' : 'Add to My Library'}}</button>
+<markdown [data]="map?.info?.description" ngPreserveWhitespaces></markdown>
+<br>
+<div>
+  <h6>RELEASE DATE: <span class="text">{{map?.createdAt | date}}</span></h6>
+  <h6>SUBMITTED BY: <nb-user [name]="map?.submitter?.profile.alias" [picture]="map?.submitter?.profile.avatarURL" size="small" class="d-inline-block"></nb-user></h6>
 </div>

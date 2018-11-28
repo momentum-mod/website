@@ -1,23 +1,38 @@
 <nb-card>
   <nb-card-header>
-    <h1> Lego Land{{map?.name}}</h1>
+    <h1>{{map?.name}}</h1>
   </nb-card-header>
   <nb-card-body class="row">
-    <!--<div class="col-auto"><img [src]="map?.info?.avatarURL"></div>-->
-    <a class="col-auto"><img src="https://wallpaperbrowse.com/media/images/750913.jpg"> </a>
+    <div class="col-auto"><img [src]="map?.info?.avatarURL"></div>
+    <!--<a class="col-auto"><img src="https://wallpaperbrowse.com/media/images/750913.jpg"> </a>-->
 
-    <nb-tabset class="col-lg-6" [fullWidth]="true">
-      <nb-tab [tabTitle]="'Description'">
-        <map-info-description [map]="map" [mapInLibrary]="mapInLibrary" (libraryUpdate)="onLibraryUpdate()"></map-info-description>
+    <nb-tabset class="col-lg-8" [fullWidth]="true">
+      <nb-tab [tabTitle]="'DESCRIPTION'">
+        <map-info-description [map]="map" (libraryUpdate)="onLibraryUpdate()"></map-info-description>
       </nb-tab>
 
-      <nb-tab [tabTitle]="'Credits'">
-        <map-info-credits [map]="map"></map-info-credits>
+      <nb-tab [tabTitle]="'STATISTICS'">
+        <map-info-stats [map]="map"></map-info-stats>
+      </nb-tab>
+
+      <nb-tab [tabTitle]="'CREDITS'">
+      <map-info-credits [map]="map"></map-info-credits>
       </nb-tab>
     </nb-tabset>
-  </nb-card-body>
+
+    <div class="row library-stats">
+      <div class="col-auto">
+        <button type="button" class="btn btn-outline-info" (click)="onLibraryUpdate()">
+          {{mapInLibrary ? 'Remove from My Library' : 'Add to My Library'}}</button>
+      </div>
+      <div class="ion-android-download picture col-auto"> {{map?.stats?.totalDownloads}}</div>
+      <div class="ion-folder picture col-auto"> {{map?.stats?.totalSubscriptions}}</div>
+      <div class="ion-play picture col-auto"> {{map?.stats?.totalPlays}}</div>
+    </div>
+
+    </nb-card-body>
 </nb-card>
 
 <nb-card>
-  <map-leaderboard></map-leaderboard>
+  <map-leaderboard #leaderboard [mapID]="map?.id"></map-leaderboard>
 </nb-card>

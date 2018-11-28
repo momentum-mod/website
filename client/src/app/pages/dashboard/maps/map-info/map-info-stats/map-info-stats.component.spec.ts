@@ -1,21 +1,20 @@
-/*
 import { async, ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { MapLeaderboardComponent } from './map-leaderboard.component';
+import { MapInfoStatsComponent } from './map-info-stats.component';
 
-describe('MapLeaderboardComponent', () => {
-  let component: MapLeaderboardComponent;
-  let fixture: ComponentFixture<MapLeaderboardComponent>;
+describe('MapInfoStatsComponent', () => {
+  let component: MapInfoStatsComponent;
+  let fixture: ComponentFixture<MapInfoStatsComponent>;
 
   beforeEach(async(() => {
     TestBed.configureTestingModule({
-      declarations: [ MapLeaderboardComponent ],
+      declarations: [ MapInfoStatsComponent ],
     })
     .compileComponents();
   }));
 
   beforeEach(() => {
-    fixture = TestBed.createComponent(MapLeaderboardComponent);
+    fixture = TestBed.createComponent(MapInfoStatsComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });
@@ -24,6 +23,3 @@ describe('MapLeaderboardComponent', () => {
     expect(component).toBeTruthy();
   });
 });
-
-TODO: Fix tests
-*/

@@ -1,4 +1,20 @@
-<div>Release Date: July 1, 2018 {{map?.createdAt | date}}</div>
-<div>Author: Salty Pepper</div>
-<div class="ion-android-download picture"> 6.3k</div>
-<div class="ion-play picture"> 5.4k</div>
+<div class="row">
+  <div class="col-6 col-sm-4">
+    <h6>AUTHOR(S):</h6>
+    <ul class="list-unstyled" *ngFor="let credit of filterMapCredits(map?.credits, Map_Credit_Type.AUTHOR)">
+      <li><nb-user [name]="credit?.user.profile.alias" [picture]="credit?.user.profile.avatarURL" size="small" class="d-inline-block"></nb-user></li>
+    </ul>
+  </div>
+  <div class="col-6 col-sm-4">
+    <h6>TESTERS(S):</h6>
+    <ul class="list-unstyled" *ngFor="let credit of filterMapCredits(map?.credits, Map_Credit_Type.TESTER)">
+      <li><nb-user [name]="credit?.user.profile.alias" [picture]="credit?.user.profile.avatarURL" size="small" class="d-inline-block"></nb-user></li>
+    </ul>
+  </div>
+  <div class="col-6 col-sm-4">
+    <h6>SPECIAL THANKS:</h6>
+    <ul class="list-unstyled" *ngFor="let credit of filterMapCredits(map?.credits, Map_Credit_Type.SPECIAL_THANKS)">
+      <li><nb-user [name]="credit?.user.profile.alias" [picture]="credit?.user.profile.avatarURL" size="small" class="d-inline-block"></nb-user></li>
+    </ul>
+  </div>
+</div>
