@@ -4,6 +4,7 @@ const run = require('../models/run');
 module.exports = {
 
 	getAll: (req, res, next) => {
+		req.query.mapID = req.params.mapID;
 		run.getAll(req.query)
 		.then(results => {
 			res.json({
@@ -14,7 +15,7 @@ module.exports = {
 	},
 
 	get: (req, res, next) => {
-		run.get(req.params.runID, req.query)
+		run.get(req.params.mapID, req.params.runID, req.query)
 		.then(run => {
 			if (!run) {
 				const err = new Error('Run not found');
@@ -27,7 +28,7 @@ module.exports = {
 
 	create: (req, res, next) => {
 		if (req.body) {
-			run.create(req.user.id, Buffer.from(req.body))
+			run.create(req.params.mapID, req.user.id, Buffer.from(req.body))
 			.then(runResults => {
 				res.json(runResults);
 			}).catch(next);

@@ -4,18 +4,44 @@ const util = require('util'),
 	activity = require('./activity'),
 	config = require('../../config/config');
 
-const validateRunFile = (runFile) => {
+const validateRunFile = (resultObj) => {
 	return new Promise((resolve, reject) => {
-		// TODO: any run file validation here
-		// reject with error when validation check doesn't pass and delete file
-		// make sure auth user ID === playerID from header, time > 0
-		// TODO: consider checking endianness of the system and flipping bytes
+
+		// TODO: consider checking endianness of the system and flipping bytes if needed
+
+		let replay = {
+			magic: readInt32(resultObj.bin, true),
+			version: readInt8(resultObj.bin, true),
+			header: {
+				mapName: readString(resultObj.bin),
+				mapHash: readString(resultObj.bin),
+				playerName: readString(resultObj.bin),
+				steamID: readString(resultObj.bin),
+				tickRate: readFloat(resultObj.bin),
+				runTime: readFloat(resultObj.bin),
+				runFlags: readInt32(resultObj.bin, true),
+				runDate: new Date(Number(readString(resultObj.bin))),
+				startDif: readInt32(resultObj.bin),
+				bonusZone: readInt32(resultObj.bin),
+			},
+			stats: [],
+			frames: [],
+		};
+
 		const magicLE = 0x524D4F4D;
-		if (runFile.readUInt32LE(0) === magicLE) {
-			resolve();
+		if (replay.magic === magicLE &&
+			replay.header.steamID === resultObj.playerID &&
+			replay.header.mapHash === map.hash &&
+			replay.header.mapName === map.name &&
+			replay.header.runTime > 0)
+		// TODO: date check (reject "old" replays)
+		{
+			resolve(replay);
 		}
 		else {
-			reject();
+			const err = new Error('Bad request');
+			err.status = 400;
+			reject(err);
 		}
 	});
 };
@@ -46,81 +72,64 @@ const readInt8 = (o, unsigned = false) => {
 	return val;
 };
 
-const processRunFile = (runFile) => {
+const processRunFile = (resultObj) => {
 	return new Promise((resolve, reject) => {
-		let bin = {
-			buf: runFile,
-			offset: 0,
-		};
 
-		let replay = {
-			magic: readInt32(bin, true), //runFile.readUInt32LE(),
-			version: readInt8(bin, true), // runFile.readUInt8(4),
-			header: {
-				mapName: readString(bin),
-				mapHash: readString(bin),
-				playerName: readString(bin),
-				steamID: readString(bin),
-				tickRate: readFloat(bin),
-				runTime: readFloat(bin),
-				runFlags: readInt32(bin, true),
-				runDate: readString(bin), // new Date(Number(readString(bin));
-				startDif: readInt32(bin),
-				bonusZone: readInt32(bin),
-			},
-			stats: [],
-			frames: [],
-		};
-
-		const hasStats = readInt8(bin);
+		const hasStats = readInt8(resultObj.bin);
 		if (hasStats)
 		{
-			const numZones = readInt8(bin, true);
+			const numZones = readInt8(resultObj.bin, true);
+			// 0 = total, 1 -> numZones + 1 = individual zones
 			for (let i = 0; i < numZones + 1; i++)
 			{
 				let zoneStat = {
-					zoneJumps: readInt32(bin, true),
-					zoneStrafes: readInt32(bin, true),
-					zoneStrafeSyncAvg: readFloat(bin),
-					zoneStrafeSyncAvg2: readFloat(bin),
-					zoneEnterTime: readFloat(bin),
-					zoneTime: readFloat(bin),
-					zoneVelMax3D: readFloat(bin),
-					zoneVelMax2D: readFloat(bin),
-					zoneVelAvg3D: readFloat(bin),
-					zoneVelAvg2D: readFloat(bin),
-					zoneEnterSpeed3D: readFloat(bin),
-					zoneEnterSpeed2D: readFloat(bin),
-					zoneExitSpeed3D: readFloat(bin),
-					zoneExitSpeed2D: readFloat(bin),
+					jumps: readInt32(resultObj.bin, true),
+					strafes: readInt32(resultObj.bin, true),
+					strafeSyncAvg: readFloat(resultObj.bin),
+					strafeSyncAvg2: readFloat(resultObj.bin),
+					enterTime: readFloat(resultObj.bin),
+					totalTime: readFloat(resultObj.bin),
+					velMax3D: readFloat(resultObj.bin),
+					velMax2D: readFloat(resultObj.bin),
+					velAvg3D: readFloat(resultObj.bin),
+					velAvg2D: readFloat(resultObj.bin),
+					enterSpeed3D: readFloat(resultObj.bin),
+					enterSpeed2D: readFloat(resultObj.bin),
+					exitSpeed3D: readFloat(resultObj.bin),
+					exitSpeed2D: readFloat(resultObj.bin),
 				};
-				replay.stats.push(zoneStat);
+				resultObj.replay.stats.push(zoneStat);
 			}
 		}
 
-		const runFrames = readInt32(bin, true);
+		const runFrames = readInt32(resultObj.bin, true);
 		if (runFrames)
 		{
 			for (let i = 0; i < runFrames; i++)
 			{
 				let runFrame = {
-					eyeAngleX: readFloat(bin),
-					eyeAngleY: readFloat(bin),
-					eyeAngleZ: readFloat(bin),
-					posX: readFloat(bin),
-					posY: readFloat(bin),
-					posZ: readFloat(bin),
-					viewOffset: readFloat(bin),
-					buttons: readInt32(bin),
+					eyeAngleX: readFloat(resultObj.bin),
+					eyeAngleY: readFloat(resultObj.bin),
+					eyeAngleZ: readFloat(resultObj.bin),
+					posX: readFloat(resultObj.bin),
+					posY: readFloat(resultObj.bin),
+					posZ: readFloat(resultObj.bin),
+					viewOffset: readFloat(resultObj.bin),
+					buttons: readInt32(resultObj.bin),
 				};
-				replay.frames.push(runFrame);
+				resultObj.replay.frames.push(runFrame);
 			}
 		}
 
-		const res = JSON.stringify(replay);
-		console.log(res);
+		resultObj.runModel = {
+			tickrate: resultObj.replay.header.tickRate,
+			dateAchieved: resultObj.replay.header.runDate,
+			time: resultObj.replay.header.runTime,
+			flags: resultObj.replay.header.runFlags,
+			stats: resultObj.replay.stats[0],
+		};
 
-		resolve(replay);
+		resolve(resultObj);
 
 		// uint32 magic (4 bytes)
 		// uint8 version number (1 byte)
@@ -164,24 +173,8 @@ const processRunFile = (runFile) => {
 		// 		     posZ float
 		// 		     viewOffset float
 		// 		     buttons int32
-
-		// should return an object with these required properties:
-		// 	{
-		// 		"mapID": number,
-		// 		"playerID": string,
-		// 		"tickrate": number,
-		// 		"dateAchieved": string,
-		// 		"time": number,
-		// 		"flags": number,
-		//		"stats": {
-		//			"totalJumps": number,
-		//			"totalStrafes": number
-		//		}
-		// 	}
-
-		// resolve(JSON.parse(runFile.data.toString()));
 	});
-}
+};
 
 const storeRunFile = (runFile, runID) => {
 	const moveFileTo = util.promisify(runFile.mv);
@@ -197,58 +190,46 @@ const storeRunFile = (runFile, runID) => {
 			downloadURL: downloadURL,
 		});
 	});
-}
+};
 
-const verifyMap = (mapID) => {
-	return Map.find({
-		where: { id: mapID },
-	}).then(map => {
-		if (!map) {
-			const err = new Error('Bad request');
-			err.status = 400;
-			return Promise.reject(err);
-		}
-		return Promise.resolve(map);
-	}); // TODO: error if map is not accepting runs?
-}
-
-const isNewPersonalBest = (runResults) => {
+const isNewPersonalBest = (resultObj) => {
 	return Run.min('time', {
 		where: {
-			mapID: runResults.mapID,
-			playerID: runResults.playerID,
-			flags: runResults.flags,
+			mapID: resultObj.map.id,
+			playerID: resultObj.playerID,
+			flags: resultObj.replay.header.runFlags,
 		}
 	}).then(minTime => {
-		let isNewPB = !minTime || (minTime > runResults.time);
+		let isNewPB = !minTime || (minTime > resultObj.replay.header.runTime);
 		return Promise.resolve(isNewPB);
 	});
-}
+};
 
-const isNewWorldRecord = (runResults) => {
+const isNewWorldRecord = (resultObj) => {
 	return Run.min('time', {
 		where: {
-			mapID: runResults.mapID,
-			flags: runResults.flags,
+			mapID: resultObj.map.id,
+			flags: resultObj.replay.header.runFlags,
 		}
 	}).then(minTime => {
-		let isNewWR = !minTime || (minTime > runResults.time);
+		let isNewWR = !minTime || (minTime > resultObj.replay.header.runTime);
 		return Promise.resolve(isNewWR);
 	});
-}
+};
 
-const saveRun = (runResults, runFile) => {
+// TODO: rip this apart and make it flow a bit better -- stats should be in own methods, etc
+const saveRun = (resultObj, runFile) => {
 	return sequelize.transaction(t => {
 		let runModel = {};
-		return updateStats(runResults, t)
+		return updateStats(resultObj, t)
 		.then(() => {
-			return Run.create(runResults, {
+			return Run.create(resultObj.runModel, {
 				include: { as: 'stats', model: RunStats },
 				transaction: t
 			});
 		}).then(run => {
 			runModel = run;
-			if (!runResults.isPersonalBest)
+			if (!resultObj.runModel.isPersonalBest)
 				return Promise.resolve();
 			return Run.update({
 				isPersonalBest: false,
@@ -266,33 +247,33 @@ const saveRun = (runResults, runFile) => {
 				transaction: t,
 			});
 		}).then(() => {
-			if (!runResults.isPersonalBest || runResults.isNewWorldRecord)
-				return Promise.resolve(runResults);
+			if (!resultObj.runModel.isPersonalBest || resultObj.isNewWorldRecord)
+				return Promise.resolve();
 			return activity.create({
 				type: activity.ACTIVITY_TYPES.PB_ACHIEVED,
-				userID: runResults.playerID,
+				userID: resultObj.playerID,
 				data: runModel.id,
 			}, t);
 		}).then(() => {
-			if (!runResults.isNewWorldRecord)
-				return Promise.resolve(runResults);
+			if (!resultObj.isNewWorldRecord)
+				return Promise.resolve();
 			return activity.create({
 				type: activity.ACTIVITY_TYPES.WR_ACHIEVED,
-				userID: runResults.playerID,
+				userID: resultObj.playerID,
 				data: runModel.id,
 			}, t);
 		}).then(() => {
 			return Promise.resolve(runModel);
 		});
 	});
-}
+};
 
-const updateStats = (runResults, transaction) => {
+const updateStats = (resultObj, transaction) => {
 	let isFirstTimeCompletingMap = false;
 	return Run.find({
 		where: {
-			mapID: runResults.mapID,
-			playerID: runResults.playerID,
+			mapID: resultObj.map.id,
+			playerID: resultObj.playerID,
 		},
 	}).then(run => {
 		const mapStatsUpdate = {
@@ -303,28 +284,28 @@ const updateStats = (runResults, transaction) => {
 			mapStatsUpdate.totalUniqueCompletions = sequelize.literal('totalUniqueCompletions + 1');
 		}
 		return MapStats.update(mapStatsUpdate, {
-			where: { mapID: runResults.mapID },
+			where: { mapID: resultObj.map.id },
 			transaction: transaction,
 		});
 	}).then(() => {
 		const userStatsUpdate = {
-			totalJumps: sequelize.literal('totalJumps + ' + runResults.stats.totalJumps),
-			totalStrafes: sequelize.literal('totalStrafes + ' + runResults.stats.totalStrafes),
+			totalJumps: sequelize.literal('totalJumps + ' + resultObj.replay.stats[0].jumps),
+			totalStrafes: sequelize.literal('totalStrafes + ' + resultObj.replay.stats[0].strafes),
 		};
 		if (isFirstTimeCompletingMap)
 			userStatsUpdate.mapsCompleted = sequelize.literal('mapsCompleted + 1');
 		return UserStats.update(userStatsUpdate, {
-			where: { userID: runResults.playerID },
+			where: { userID: resultObj.playerID },
 			transaction: transaction,
 		});
 	});
-}
+};
 
 const genNotFoundErr = () => {
 	const err = new Error('Run Not Found');
 	err.status = 404;
 	return err;
-}
+};
 
 const Flag = Object.freeze({
 	BACKWARDS: 1 << 0,
@@ -336,39 +317,48 @@ module.exports = {
 
 	genNotFoundErr,
 
-	create: (userID, runFile) => {
-		let runResults = {};
-		return validateRunFile(runFile)
-		.then(() => {
-			return processRunFile(runFile);
-		}).then(file => {
-			return Promise.resolve(file);
-		});
+	create: (mapID, userID, runFile) => {
+		let resultObj = {
+			bin: {
+				buf: runFile,
+				offset: 0,
+			},
+			playerID: userID,
+		};
 
-		/*.then(results => {
-			runResults = results;
-			return verifyMap(runResults.mapID);
+		return Map.find({
+			where: {id: mapID}
 		}).then(map => {
-			runResults.mapID = map.id
-			return isNewPersonalBest(runResults);
-		}).then(isNewPB => {
-			runResults.isPersonalBest = isNewPB;
-			if (isNewPB) return isNewWorldRecord(runResults);
-			else return Promise.resolve(false);
-		}).then(isNewWR => {
-			runResults.isNewWorldRecord = isNewWR;
-			return saveRun(runResults, runFile);
-		}).then(run => {
-			if (run) {
-				run = run.toJSON();
-				run.isNewWorldRecord = runResults.isNewWorldRecord;
+			if (!map) {
+				const err = new Error('Bad request');
+				err.status = 400;
+				return Promise.reject(err);
 			}
-			return Promise.resolve(run);
-		});*/
+			return Promise.resolve(map);
+		}).then(map => {
+			resultObj.map = map;
+			return validateRunFile(resultObj)
+		}).then(replay => {
+			resultObj.replay = replay;
+			return processRunFile(resultObj);
+		}).then(() => {
+			return isNewPersonalBest(resultObj);
+		}).then(isNewPB => {
+			resultObj.runModel.isPersonalBest = isNewPB;
+			return isNewPB ? isNewWorldRecord(resultObj) : Promise.resolve(false);
+		}).then(isNewWR => {
+			resultObj.isNewWorldRecord = isNewWR;
+			return saveRun(resultObj, runFile);
+		}).then(run => {
+			const runJSON = run.toJSON();
+			runJSON.isNewWorldRecord = resultObj.isNewWorldRecord;
+			return Promise.resolve(runJSON);
+		});
 	},
 
 	getAll: (context) => {
 		const queryContext = {
+			distinct: true,
 			where: { flags: 0 },
 			limit: 10,
 			include: [{
@@ -394,17 +384,29 @@ module.exports = {
 		return Run.findAndCountAll(queryContext);
 	},
 
-	get: (runID, context) => {
-		const queryContext = {
-			where: { id: runID },
-			include: [{
-				model: User,
-				include: [{
-					model: Profile,
-				}],
-			}],
-		};
-		return Run.find(queryContext);
+	get: (mapID, runID, context) => {
+		return Map.find({
+			where: {mapID: mapID}
+		}).then(map => {
+			if (map) {
+				const queryContext = {
+					where: { id: runID },
+					include: [{
+						model: User,
+						include: [{
+							model: Profile,
+						}],
+					}],
+				};
+				return Run.find(queryContext);
+			}
+			else {
+				const err = new Error("Failed to find map!");
+				err.status = 404;
+				return Promise.reject(err);
+			}
+		});
+
 	},
 
 	getFilePath: (runID) => {
