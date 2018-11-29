@@ -7,7 +7,7 @@
       <div class="col-10 content">
         <div class="row">
           <div class="col-2">
-            <span>MAP NAME:</span>
+            <span>Map Name:</span>
           </div>
           <div class="col-4">
             <span>{{map.name}}</span>
@@ -15,7 +15,7 @@
         </div>
         <div class="row">
           <div class="col-2">
-            <span>SUBMITTED:</span>
+            <span>Submitted:</span>
           </div>
           <div class="col-4">
             <span>{{map.createdAt | date}}</span>
@@ -23,7 +23,7 @@
         </div>
         <div class="row">
           <div class="col-2">
-            <span>AUTHOR(S):</span>
+            <span>Author(s):</span>
           </div>
           <div class="col-4">
             <span *ngIf="!map.credits || map.credits.length === 0">No authors</span>

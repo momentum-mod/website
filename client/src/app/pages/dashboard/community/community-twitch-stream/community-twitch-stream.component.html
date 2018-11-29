@@ -1,19 +1,19 @@
 <nb-card>
   <nb-card-header>
-    <h1>Twitch Streams</h1>
+    <h2>TWITCH STREAMS</h2>
   </nb-card-header>
   <nb-card-body>
-    <div class="row">
-      <h2 *ngIf="streams.length === 0 && queriedStreams">No streams found.</h2>
+    <div class="row spacing">
+      <h3 *ngIf="streams.length === 0 && queriedStreams">No streams found</h3>
       <div class="col" *ngFor="let stream of streams">
-        <h2>{{stream.title}}</h2>
+        <h3>{{stream.title}}</h3>
       </div>
     </div>
 
-    <div class="row">
-      <h2 *ngIf="videos.length === 0 && queriedVideos">No videos found.</h2>
+    <div class="row spacing">
+      <h3 *ngIf="videos.length === 0 && queriedVideos">No videos found</h3>
       <div class="col" *ngFor="let video of videos">
-        <h2>{{video.title}}</h2>
+        <h3>{{video.title}}</h3>
       </div>
     </div>
   </nb-card-body>

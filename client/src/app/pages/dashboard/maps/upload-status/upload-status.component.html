@@ -1,11 +1,15 @@
-<div class="row no-gutters">
-  <h1 class="col">UPLOADS</h1>
-  <div class="col uploadBtn">
-    <button class="btn btn-outline-info uploadBtn" type="button" routerLink="/dashboard/maps/uploads/new">Upload a Map</button>
-  </div>
-  <!--TODO: filter button in the header like activity card-->
-</div>
+<!--TODO: filter button in the header like activity card-->
 <nb-card>
+  <nb-card-header>
+    <div class="row">
+        <h1 class="col-auto">UPLOADS</h1>
+        <div class="col">
+          <button class="btn btn-outline-info uploadBtn" type="button" routerLink="/dashboard/maps/uploads/new">Upload a
+            Map
+          </button>
+        </div>
+    </div>
+  </nb-card-header>
   <nb-card-body>
     <h1 *ngIf="(maps === undefined || maps?.length === 0) && fetchedMaps" class="noUpload">
       <i>You have not uploaded any maps. Try <a routerLink="/dashboard/maps/uploads/new">uploading a new one!</a></i>

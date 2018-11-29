@@ -1,5 +1,5 @@
-<h1>SUBMIT A MAP</h1>
 <nb-card>
+  <nb-card-header><h2>SUBMIT A MAP</h2></nb-card-header>
   <nb-card-body>
     <nb-stepper orientation="horizontal" #stepper>
       <nb-step label="Files" [stepControl]="filesForm">
@@ -17,7 +17,8 @@
                            [ngClass]="{'form-control-danger': map.invalid && (map.dirty || map.touched)}" #uploadFile/>
                   </div>
                   <div>
-                    <file-upload [map]="true" [limit-size]="200" type=".bsp" (fileSelected)="onMapFileSelected($event)"></file-upload>
+                    <file-upload [map]="true" [limit-size]="200" type=".bsp"
+                                 (fileSelected)="onMapFileSelected($event)"></file-upload>
                   </div>
                 </div>
                 <div class="col-4 offset-2">
@@ -44,8 +45,9 @@
               <span class="col-title">Optional</span>
               <div>
                 <span class="input-title">Additional Map Photos
-                  <i class="ion ion-help-circled" nbPopover="You may upload up to 5 extra photos that also best represent your map."
-                  nbPopoverMode="hint"></i>
+                  <i class="ion ion-help-circled"
+                     nbPopover="You may upload up to 5 extra photos that also best represent your map."
+                     nbPopoverMode="hint"></i>
                 </span>
               </div>
               <div class="extra-images">
@@ -58,8 +60,9 @@
                       </button>
                     </div>
                   </div>
-                  <file-upload [image]="true" (fileSelected)="onExtraImageSelected($event)" *ngIf="extraImages.length < 5"
-                  [ngStyle]="{'margin': extraImages.length === 0 ? 'auto' : ''}"></file-upload>
+                  <file-upload [image]="true" (fileSelected)="onExtraImageSelected($event)"
+                               *ngIf="extraImages.length < 5"
+                               [ngStyle]="{'margin': extraImages.length === 0 ? 'auto' : ''}"></file-upload>
                 </div>
               </div>
             </div>
@@ -120,7 +123,8 @@
           <div class="col-xl-12">
             <form style="" [formGroup]="creditsForm">
               <map-credits [authors]="authors" [testers]="testers" [special-thanks]="specialThanks" [editable]="true"
-              (authorChange)="onAuthorChange($event)" (testerChange)="onTesterAdd($event)" (specialThanksChange)="onSTAdd($event)"></map-credits>
+                           (authorChange)="onAuthorChange($event)" (testerChange)="onTesterAdd($event)"
+                           (specialThanksChange)="onSTAdd($event)"></map-credits>
             </form>
           </div>
         </div>
@@ -136,11 +140,13 @@
               (click)="touchForm(stepper.selectedIndex); stepper.previous()">
         <i class="ion ion-chevron-left"></i>
       </button>
-      <button class="btn btn-outline-info next-button" type="submit" *ngIf="stepper.selectedIndex !== stepper.steps?.length - 1"
+      <button class="btn btn-outline-info next-button" type="submit"
+              *ngIf="stepper.selectedIndex !== stepper.steps?.length - 1"
               (click)="touchForm(stepper.selectedIndex); stepper.next()">
         <i class="ion ion-chevron-right"></i>
       </button>
     </div>
-    <nb-progress-bar *ngIf="isUploadingMap" [value]="mapUploadPercentage" [size]="'xlg'" [displayValue]="true"></nb-progress-bar>
+    <nb-progress-bar *ngIf="isUploadingMap" [value]="mapUploadPercentage" [size]="'xlg'"
+                     [displayValue]="true"></nb-progress-bar>
   </nb-card-body>
 </nb-card>

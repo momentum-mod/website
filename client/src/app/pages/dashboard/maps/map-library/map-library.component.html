@@ -1,8 +1,8 @@
-<h1>MY LIBRARY</h1>
 <nb-card>
+  <nb-card-header><h2>MY LIBRARY</h2></nb-card-header>
   <nb-card-body>
     <div *ngIf="sentRequest && entries.length === 0">
-      <h2>No maps in your library. Try <a routerLink="/dashboard/maps">adding some</a>!</h2>
+      <h3>No maps in your library. Try <a routerLink="/dashboard/maps">adding some</a>!</h3>
     </div>
     <div *ngFor="let entry of entries | paginate: {
             itemsPerPage: pageLimit,
