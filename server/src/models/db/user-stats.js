@@ -23,5 +23,9 @@ module.exports = (sequelize, type) => {
 			type: type.INTEGER.UNSIGNED,
 			defaultValue: 0,
 		},
+		runsSubmitted: {
+			type: type.BIGINT.UNSIGNED,
+			defaultValue: 0,
+		}
 	})
 };

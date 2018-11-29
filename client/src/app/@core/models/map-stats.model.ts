@@ -8,6 +8,8 @@ export interface MapStats {
   totalCompletions: number;
   totalUniqueCompletions: number;
   totalTimePlayed: number;
+  totalJumps: number;
+  totalStrafes: number;
   createdAt?: Date;
   updatedAt?: Date;
 }
