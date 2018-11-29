@@ -1,10 +1,10 @@
 <nb-card>
   <nb-card-header>
-    <h1>Map Queue</h1>
+    <h2>MAP QUEUE</h2>
   </nb-card-header>
   <nb-card-body>
     <nb-tabset>
-      <nb-tab tabTitle="Mapper Submissions">
+      <nb-tab tabTitle="MAPPER SUBMISSIONS">
         <i *ngIf="!priorityQueue?.length">
           There are currently no maps in this queue.
         </i>
@@ -20,7 +20,7 @@
         </nb-list>
         <pagination-controls id="priority-page-ctrl" (pageChange)="onPageChange($event, true)" [autoHide]="true"></pagination-controls>
       </nb-tab>
-      <nb-tab tabTitle="Non-Mapper Submissions">
+      <nb-tab tabTitle="NON-MAPPER SUBMISSIONS">
         <i *ngIf="!nonPriorityQueue?.length">
           There are currently no maps in this queue.
         </i>
