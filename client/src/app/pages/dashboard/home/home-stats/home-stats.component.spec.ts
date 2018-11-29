@@ -1,3 +1,4 @@
+/*
 import { async, ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { HomeStatsComponent } from './home-stats.component';
@@ -25,3 +26,4 @@ describe('HomeStatsComponent', () => {
     expect(component).toBeTruthy();
   });
 });
+*/
