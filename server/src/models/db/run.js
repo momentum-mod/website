@@ -8,7 +8,7 @@ module.exports = (sequelize, type) => {
 			autoIncrement: true
 		},
 		isPersonalBest: type.BOOLEAN,
-		tickrate: type.SMALLINT.UNSIGNED,
+		tickRate: type.SMALLINT.UNSIGNED,
 		dateAchieved: type.DATE,
 		time: type.DOUBLE.UNSIGNED, // TODO: investigate decimal, float and double (got weird up results with float)
 		flags: type.INTEGER.UNSIGNED,
