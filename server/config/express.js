@@ -14,8 +14,7 @@ const express = require('express'),
 	swaggerJSDoc = require('swagger-jsdoc'),
 	swaggerDefinition = require('../docs/swagger/definition'),
 	user = require('../src/models/user'),
-	authMiddleware = require('../src/middlewares/auth'),
-	bodyParser = require('body-parser');
+	authMiddleware = require('../src/middlewares/auth');
 
 const swaggerSpec = swaggerJSDoc({
 	swaggerDefinition: swaggerDefinition,
@@ -29,9 +28,6 @@ module.exports = (app, config) => {
 	}
 
 	app.use(express.json());
-	app.use(bodyParser.raw({
-		limit: '2kb'
-	}));
 	app.use(compress());
 	app.use(express.static(config.root + '/public'));
 	app.use(methodOverride());
