@@ -6,6 +6,7 @@ export interface UserStats {
   rankXP: number;
   cosXP: number;
   mapsCompleted: number;
+  runsSubmitted: number;
   createdAt?: Date;
   updatedAt?: Date;
 }

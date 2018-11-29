@@ -285,6 +285,8 @@ const updateStats = (resultObj, transaction) => {
 	}).then(run => {
 		const mapStatsUpdate = {
 			totalCompletions: sequelize.literal('totalCompletions + 1'),
+			totalJumps: sequelize.literal('totalJumps + ' + resultObj.replay.stats[0].jumps),
+			totalStrafes: sequelize.literal('totalStrafes + ' + resultObj.replay.stats[0].strafes),
 		};
 		if (!run) {
 			isFirstTimeCompletingMap = true;
@@ -298,6 +300,9 @@ const updateStats = (resultObj, transaction) => {
 		const userStatsUpdate = {
 			totalJumps: sequelize.literal('totalJumps + ' + resultObj.replay.stats[0].jumps),
 			totalStrafes: sequelize.literal('totalStrafes + ' + resultObj.replay.stats[0].strafes),
+			rankXP: sequelize.literal('rankXP + 100'),
+			cosXP: sequelize.literal('cosXP + 75'),
+			runsSubmitted: sequelize.literal('runsSubmitted + 1'),
 		};
 		if (isFirstTimeCompletingMap)
 			userStatsUpdate.mapsCompleted = sequelize.literal('mapsCompleted + 1');
