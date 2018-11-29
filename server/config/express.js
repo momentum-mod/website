@@ -92,7 +92,7 @@ module.exports = (app, config) => {
 		cb(null, profile);
 	}));
 
-	app.use(require('express-session')({ secret: config.session.secret, resave: true, saveUninitialized: true }));
+	app.use(require('cookie-session')({ secret: config.session.secret }));
 	app.use('/api', [authMiddleware.requireLogin], require(config.root + '/src/routes/api'));
 	app.use('/auth', require(config.root + '/src/routes/auth'));
 	app.use('/api-docs', swaggerUI.serve, swaggerUI.setup(swaggerSpec));
