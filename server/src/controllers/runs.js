@@ -26,8 +26,8 @@ module.exports = {
 	},
 
 	create: (req, res, next) => {
-		if (req.files && req.files.runFile) {
-			run.create(req.files.runFile)
+		if (req.body) {
+			run.create(req.user.id, Buffer.from(req.body))
 			.then(runResults => {
 				res.json(runResults);
 			}).catch(next);

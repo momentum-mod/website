@@ -6,7 +6,8 @@ const express = require('express'),
 	config = require('../../../config/config'),
 	errorCtrl = require('../../controllers/error'),
 	authMiddleware = require('../../middlewares/auth'),
-	authCtrl = require('../../controllers/auth');
+	authCtrl = require('../../controllers/auth'),
+	bodyParser = require('body-parser');
 
 router.route('/steam')
 	.get(passport.authenticate('steam', { session: false }))
@@ -17,7 +18,7 @@ router.route('/steam/return')
 	.all(errorCtrl.send405);
 
 router.route('/steam/user')
-	.post(authCtrl.verifyUserTicket)
+	.post([bodyParser.raw({limit: '2kb'})], authCtrl.verifyUserTicket)
 	.all(errorCtrl.send405);
 
 router.route('/twitter')
