@@ -4,6 +4,7 @@ import {NotFoundModule} from '../../not-found/not-found.module';
 import {MapComponent} from './map.component';
 import {MapRoutingModule} from './map-routing.module';
 import {ThemeModule} from '../../../@theme/theme.module';
+import {NgxGalleryModule} from 'ngx-gallery';
 import {ViewMapsComponent} from './view-maps/view-maps.component';
 import {MapUploadFormComponent} from './upload-form/map-upload-form.component';
 import {UploadStatusComponent} from './upload-status/upload-status.component';
@@ -33,6 +34,7 @@ import { MapInfoStatsComponent } from './map-info/map-info-stats/map-info-stats.
     MarkdownModule.forChild(),
     MapRoutingModule,
     NgxPaginationModule,
+    NgxGalleryModule,
   ],
   declarations: [
     MapComponent,

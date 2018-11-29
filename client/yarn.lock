@@ -6132,6 +6132,11 @@ ngx-echarts@4.0.1:
   dependencies:
     tslib "^1.9.0"
 
+ngx-gallery@^5.9.0:
+  version "5.9.0"
+  resolved "https://registry.yarnpkg.com/ngx-gallery/-/ngx-gallery-5.9.0.tgz#7b3043122e1ca7a4db4afdc067ec9512345d7b44"
+  integrity sha512-u9AopTkF048fOG969Toe25+OkBlfcfU8T85DkuEuz8iDd6Fk4ktxwL4YmeGm9aMJ563X6C5SCFusDWz9cV8kdg==
+
 ngx-markdown@^7.0.0:
   version "7.0.2"
   resolved "https://registry.yarnpkg.com/ngx-markdown/-/ngx-markdown-7.0.2.tgz#68407e699a21db59ead94e36e56ce02de95eade8"
