@@ -13,12 +13,14 @@
                (blur)="focusInput()"/>
       </div>
       <span class="info">{{ hint }}</span>
-      <div class="row">
-        <div class="col-md-6" *ngIf="users?.length">
-          <search-results [user]="true" [onlyMaps]="onlyMaps" [onlyUsers]="onlyUsers" [elems]="users"></search-results>
-        </div>
-        <div class="col-md-6" *ngIf="maps?.length">
-          <search-results [user]="false" [onlyMaps]="onlyMaps" [onlyUsers]="onlyUsers" [elems]="maps"></search-results>
+      <div class="content">
+        <div class="row">
+          <div class="col" *ngIf="users?.length">
+            <search-results [user]="true" [onlyMaps]="onlyMaps" [onlyUsers]="onlyUsers" [elems]="users"></search-results>
+          </div>
+          <div class="col" *ngIf="maps?.length">
+            <search-results [user]="false" [onlyMaps]="onlyMaps" [onlyUsers]="onlyUsers" [elems]="maps"></search-results>
+          </div>
         </div>
       </div>
     </form>
