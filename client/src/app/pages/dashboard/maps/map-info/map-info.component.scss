@@ -1,11 +1,15 @@
-img {
-  float:left;
-  height: 250px;
-  margin-right: 25px;
-}
+@import '../../../../@theme/styles/styles';
 
 map-leaderboard {
   margin: 2%;
+}
+
+.map-info {
+  background: nb-theme(color-bg-dark);
+}
+
+.image-gallery {
+  min-height: 300px;
 }
 
 .library-stats {
