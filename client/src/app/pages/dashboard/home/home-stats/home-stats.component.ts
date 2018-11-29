@@ -1,4 +1,5 @@
-import { Component, OnInit } from '@angular/core';
+import {Component, Input, OnInit} from '@angular/core';
+import {UserStats} from '../../../../@core/models/user-stats.model';
 
 @Component({
   selector: 'home-stats',
@@ -7,7 +8,9 @@ import { Component, OnInit } from '@angular/core';
 })
 export class HomeStatsComponent implements OnInit {
 
-  constructor() { }
+  @Input('userStats') userStats: UserStats;
+
+  constructor() {}
 
   ngOnInit() {
   }
