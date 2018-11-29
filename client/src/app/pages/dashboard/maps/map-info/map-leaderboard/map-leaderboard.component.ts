@@ -21,9 +21,8 @@ export class MapLeaderboardComponent implements OnInit {
   }
 
   loadLeaderboardRuns(mapID?: number) {
-    this.runService.getRuns({
+    this.runService.getMapRuns(mapID || this.mapID, {
       params: {
-        mapID: mapID || this.mapID,
         isPersonalBest: true,
         limit: 10,
       },
