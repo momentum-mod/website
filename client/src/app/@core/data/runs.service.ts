@@ -13,4 +13,8 @@ export class RunsService {
     return this.http.get('/api/runs', options || {});
   }
 
+  getMapRuns(mapID: number, options?: object): Observable<any> {
+    return this.http.get(`/api/maps/${mapID}/runs`, options || {});
+  }
+
 }

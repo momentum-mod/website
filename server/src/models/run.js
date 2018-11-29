@@ -2,7 +2,8 @@
 const util = require('util'),
 	{ sequelize, Op, Map, MapStats, Run, RunStats, User, UserStats, Profile } = require('../../config/sqlize'),
 	activity = require('./activity'),
-	config = require('../../config/config');
+	config = require('../../config/config'),
+	fs = require('fs');
 
 const validateRunFile = (resultObj) => {
 	return new Promise((resolve, reject) => {
@@ -31,8 +32,8 @@ const validateRunFile = (resultObj) => {
 		const magicLE = 0x524D4F4D;
 		if (replay.magic === magicLE &&
 			replay.header.steamID === resultObj.playerID &&
-			replay.header.mapHash === map.hash &&
-			replay.header.mapName === map.name &&
+			replay.header.mapHash === resultObj.map.hash &&
+			replay.header.mapName === resultObj.map.name &&
 			replay.header.runTime > 0)
 		// TODO: date check (reject "old" replays)
 		{
@@ -127,6 +128,8 @@ const processRunFile = (resultObj) => {
 			time: resultObj.replay.header.runTime,
 			flags: resultObj.replay.header.runFlags,
 			stats: resultObj.replay.stats[0],
+			mapID: resultObj.map.id,
+			playerID: resultObj.playerID,
 		};
 
 		resolve(resultObj);
@@ -176,18 +179,22 @@ const processRunFile = (resultObj) => {
 	});
 };
 
-const storeRunFile = (runFile, runID) => {
-	const moveFileTo = util.promisify(runFile.mv);
-	const fileName = runID;
-	const basePath = __dirname + '/../../public/runs';
-	const fullPath = basePath + '/' + fileName;
-	const downloadURL = config.baseUrl + '/api/runs/' + runID + '/download';
-	return moveFileTo(fullPath).then(() => {
-		return Promise.resolve({
-			fileName: fileName,
-			basePath: basePath,
-			fullPath: fullPath,
-			downloadURL: downloadURL,
+const storeRunFile = (runFile, mapID, runID) => {
+	return new Promise((res, rej) => {
+		const fileName = runID;
+		const basePath = __dirname + '/../../public/runs';
+		const fullPath = basePath + '/' + fileName;
+		const downloadURL = config.baseUrl + `/api/maps/${mapID}/runs/${runID}/download`;
+
+		fs.writeFile(fullPath, runFile, (err) => {
+			if (err)
+				rej(err);
+			res({
+				fileName: fileName,
+				basePath: basePath,
+				fullPath: fullPath,
+				downloadURL: downloadURL,
+			})
 		});
 	});
 };
@@ -241,7 +248,7 @@ const saveRun = (resultObj, runFile) => {
 				},
 			});
 		}).then(() => {
-			return storeRunFile(runFile, runModel.id);
+			return storeRunFile(runFile, resultObj.map.id, runModel.id);
 		}).then(results => {
 			return runModel.update({ file: results.downloadURL }, {
 				transaction: t,
