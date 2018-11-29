@@ -5,7 +5,9 @@ module.exports = {
 
 	getUserLibrary: (userID, context) => {
 		const queryContext = {
+			distinct: true,
 			where: { userID: userID },
+			order: [['createdAt', 'DESC']],
 			include: [
 				{
 					model: Map,
