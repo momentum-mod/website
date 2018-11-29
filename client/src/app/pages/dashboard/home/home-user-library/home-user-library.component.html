@@ -4,8 +4,8 @@
     <nb-accordion-item-body>
       <div class="row col-auto">
         <div class="Spacing">
-          <h1 class="text">32 Maps Downloaded</h1>
-          <h6>Most recently added: "Lego Land"</h6>
+          <h1 class="text">{{mapLibraryCount}} Maps In Library</h1>
+          <h6 *ngIf="mostRecentlyAddedMap">Most recently added: "{{mostRecentlyAddedMap.name}}"</h6>
         </div>
       </div>
     </nb-accordion-item-body>
