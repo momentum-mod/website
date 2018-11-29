@@ -24,6 +24,7 @@ export class MapLeaderboardComponent implements OnInit {
     this.runService.getRuns({
       params: {
         mapID: mapID || this.mapID,
+        isPersonalBest: true,
         limit: 10,
       },
     }).subscribe(res => {
