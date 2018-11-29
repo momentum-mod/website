@@ -26,6 +26,7 @@ import {MomentumMap} from '../../../@core/models/momentum-map.model';
     'styles/search.component.column-curtain.scss',
     'styles/search.component.modal-drop.scss',
     'styles/search.component.modal-half.scss',
+    './search-field.component.scss',
   ],
   templateUrl: './search-field.component.html',
 })

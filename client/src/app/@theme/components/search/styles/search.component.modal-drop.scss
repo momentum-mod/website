@@ -21,6 +21,10 @@
 
 :host.modal-drop {
 
+  .search-input {
+    margin-top: 10%;
+  }
+
   .search {
     display: flex;
     flex-direction: column;
