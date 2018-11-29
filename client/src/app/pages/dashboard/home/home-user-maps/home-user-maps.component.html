@@ -6,13 +6,13 @@
     <nb-accordion-item-body>
       <div class="content row col-auto">
         <div class ="Spacing approved">
-          <h4>13 <br>Approved</h4>
+          <h4>{{submittedMapStatusSummary[MapUploadStatus.APPROVED] || 0}} <br>Approved</h4>
         </div>
         <div class ="Spacing pending">
-          <h4>2 <br>Pending</h4>
+          <h4>{{submittedMapStatusSummary[MapUploadStatus.PENDING] || 0}} <br>Pending</h4>
         </div>
         <div class ="Spacing rejected">
-          <h4>1 <br> Rejected</h4>
+          <h4>{{submittedMapStatusSummary[MapUploadStatus.REJECTED] || 0}} <br> Rejected</h4>
         </div>
       </div>
     </nb-accordion-item-body>
