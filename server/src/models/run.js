@@ -21,7 +21,7 @@ const validateRunFile = (resultObj) => {
 				tickRate: readFloat(resultObj.bin),
 				runTime: readFloat(resultObj.bin),
 				runFlags: readInt32(resultObj.bin, true),
-				runDate: new Date(Number(readString(resultObj.bin))),
+				runDate: new Date(Number(readString(resultObj.bin)) * 1000),
 				startDif: readInt32(resultObj.bin),
 				bonusZone: readInt32(resultObj.bin),
 			},
