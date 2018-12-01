@@ -21,6 +21,10 @@ router.route('/maps/submitted')
 	.get(userCtrl.getSubmittedMaps)
 	.all(errorCtrl.send405);
 
+router.route('/maps/submitted/summary')
+	.get(userCtrl.getSubmittedMapSummary)
+	.all(errorCtrl.send405);
+
 router.route('/maps/library')
 	.get(userCtrl.getUserLibrary)
 	.post(userCtrl.addMapToLibrary)
