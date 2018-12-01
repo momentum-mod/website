@@ -1,5 +1,5 @@
 import { NbMenuItem } from '@nebular/theme';
-// import {Permission} from '../../@core/models/permissions.model';
+import {Permission} from '../../@core/models/permissions.model';
 
 export const MENU_ITEMS: NbMenuItem[] = [
   {
@@ -17,7 +17,7 @@ export const MENU_ITEMS: NbMenuItem[] = [
         'link': '/dashboard/community/news',
       },
       {
-        'title': 'Twitch Streams',
+        'title': 'Twitch',
         'link': '/dashboard/community/twitch',
       },
       {
@@ -56,12 +56,12 @@ export const MENU_ITEMS: NbMenuItem[] = [
     title: 'Administration',
     icon: 'ion-locked',
     link: '/dashboard/admin',
-    // data: {
-    //   permissions: [
-    //     Permission.ADMIN,
-    //     Permission.MODERATOR,
-    //   ],
-    // },
+    data: {
+      permissions: [
+        Permission.ADMIN,
+        Permission.MODERATOR,
+      ],
+    },
     children: [
       {
         title: 'Map Queue',
