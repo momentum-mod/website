@@ -211,14 +211,11 @@ describe('user', () => {
             });
 
 
-            it('should respond with user data', () => {
+            it('should respond with user data and expand profile data', () => {
                 return chai.request(server)
-
                     .get('/api/user')
                     .set('Authorization', 'Bearer ' + accessToken)
-                    .query({
-                        expand: "profile"
-                    })
+                    .query({ expand: "profile"})
                     .then(res => {
                         expect(res).to.have.status(200);
                         expect(res).to.be.json;
@@ -226,6 +223,8 @@ describe('user', () => {
                         expect(res.body.profile).to.have.property('alias');
                     });
             });
+
+            it('should respond with user data and expand user stats');
 
             it('should respond with 401 when no access token is provided', () => {
                 return chai.request(server)
@@ -274,9 +273,27 @@ describe('user', () => {
 
         /*
         describe('DELETE /api/user/profile/social/{type}', () => {
-            it('should return 200 and unlink the specified social account from the authd user', () => {
+            it('should return 200 and unlink the twitter account from the authd user', () => {
                 return chai.request(server)
                 .delete('/api/user/profile/social/' + 'twitter')
+                .set('Authorization', 'Bearer ' + accessToken)
+                .then(res => {
+                    expect(res).to.have.status(200);
+                    expect(res).to.be.json;
+                });
+            });
+             it('should return 200 and unlink the discord account from the authd user', () => {
+                return chai.request(server)
+                .delete('/api/user/profile/social/' + 'discord')
+                .set('Authorization', 'Bearer ' + accessToken)
+                .then(res => {
+                    expect(res).to.have.status(200);
+                    expect(res).to.be.json;
+                });
+            });
+             it('should return 200 and unlink the twitch account from the authd user', () => {
+                return chai.request(server)
+                .delete('/api/user/profile/social/' + 'twitch')
                 .set('Authorization', 'Bearer ' + accessToken)
                 .then(res => {
                     expect(res).to.have.status(200);
@@ -509,6 +526,10 @@ describe('user', () => {
 
                     });
             });
+
+            it('should retrieve a filtered list of maps in the local users library using the limit query');
+            it('should retrieve a filtered list of maps in the local users library using the offset query');
+
         });
 
 
@@ -642,12 +663,11 @@ describe('user', () => {
                     });
             });
 
-            // add other half to this
             it('should should retrieve a list of maps submitted by the local user filtered with the offset query', () => {
                 return chai.request(server)
                     .get('/api/user/maps/submitted')
                     .set('Authorization', 'Bearer ' + accessToken)
-                    .query({offset: 0, limit: 1})
+                    .query({offset: 1})
                     .then(res => {
                         expect(res).to.have.status(200);
                         expect(res).to.be.json;

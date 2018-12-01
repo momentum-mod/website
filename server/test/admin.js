@@ -39,7 +39,8 @@ describe('admin', () => {
     };
 
     const testMap2 ={
-        name: 'test_map2'
+        name: 'test_map2',
+        statusFlag: 1
     };
     const testMap3 ={
         name: 'test_map3'
@@ -82,26 +83,6 @@ describe('admin', () => {
                 adminGameAccessToken = token;
                 return User.create(testAdminGame);
             })
-
-
-            /*
-            .then((token) => {
-                accessToken = token;
-                testAdmin.permissions = 4;
-                return auth.genAccessToken(testAdmin);
-            }).then((token) => {
-                adminAccessToken = token;
-                testAdminGame.permissions = 4;
-                return User.create(testUser);
-            }).then(() => {
-                return auth.genAccessToken(testAdminGame, true);
-            }).then((token) => {
-                adminGameAccessToken = token;
-                return User.create(testAdminGame);
-            })
-
-            */
-
             .then(user => {
                 return Map.create(testMap2);
             }).then(user => {
@@ -267,13 +248,13 @@ describe('admin', () => {
                 return chai.request(server)
                     .get('/api/admin/maps/')
                     .set('Authorization', 'Bearer ' + adminAccessToken)
-                    .query({ offset: 0, limit: 1 })
+                    .query({ offset: 2 })
                     .then(res => {
                         expect(res).to.have.status(200);
                         expect(res).to.be.json;
                         expect(res.body).to.have.property('maps');
                         expect(res.body.maps).to.be.an('array');
-                        expect(res.body.maps).to.have.length(1);
+                        expect(res.body.maps).to.have.length(6);
                         expect(res.body.maps[0]).to.have.property('name');
                     });
             });
@@ -309,6 +290,66 @@ describe('admin', () => {
                         expect(res.body.maps[0]).to.have.property('name');
                     });
             });
+
+            it('should respond with a list of maps when using the expand query param', () => {
+                return chai.request(server)
+                    .get('/api/admin/maps/')
+                    .set('Authorization', 'Bearer ' + adminAccessToken)
+                    .query({
+                       // expand: ['info', 'submitter', 'credits']
+                        expand: 'submitter'
+                    })
+                    .then(res => {
+                        expect(res).to.have.status(200);
+                        expect(res).to.be.json;
+                        expect(res.body).to.have.property('maps');
+                        expect(res.body.maps).to.be.an('array');
+                        expect(res.body.maps).to.have.length(1);
+                        expect(res.body.maps[0]).to.have.property('name');
+                        expect(res.body.maps[0].submitter).to.have.property('permissions');
+                    });
+            });
+
+
+            // Note: Unless I set the status myself, maps created in a post don't seem
+            //     to have a default status, since nothing turned up when i put in
+            //     numbers -1 to 5 in the status query
+
+            it('should respond with a filtered list of maps when using the status query param', () => {
+                return chai.request(server)
+                    .get('/api/admin/maps/')
+                    .set('Authorization', 'Bearer ' + adminAccessToken)
+                    .query({
+                        status: 1
+                    })
+                    .then(res => {
+                        expect(res).to.have.status(200);
+                        expect(res).to.be.json;
+                        expect(res.body).to.have.property('maps');
+                        expect(res.body.maps).to.be.an('array');
+                        expect(res.body.maps).to.have.length(1);
+                        expect(res.body.maps[0]).to.have.property('name');
+                    });
+            });
+
+
+            it('should respond with a filtered list of maps when using the priority query param', () => {
+                return chai.request(server)
+                    .get('/api/admin/maps/')
+                    .set('Authorization', 'Bearer ' + adminAccessToken)
+                    .query({
+                        priority: true
+                    })
+                    .then(res => {
+                        expect(res).to.have.status(200);
+                        expect(res).to.be.json;
+                        expect(res.body).to.have.property('maps');
+                        expect(res.body.maps).to.be.an('array');
+                        expect(res.body.maps).to.have.length(1);
+                        expect(res.body.maps[0]).to.have.property('name');
+                    });
+            });
+
         });
 
         describe('PATCH /api/admin/maps/{mapID}', () => {
@@ -317,7 +358,8 @@ describe('admin', () => {
                     .patch('/api/admin/maps/' + testMap.id)
                     .set('Authorization', 'Bearer ' + accessToken)
                     .send({
-                        name: 'testname'
+                        name: 'testname',
+                        statusFlag: 1
                     })
                     .then(res => {
                         expect(res).to.have.status(403);

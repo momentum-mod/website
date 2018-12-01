@@ -189,7 +189,7 @@ describe('users', () => {
                     });
             });
 
-            it('should respond with array of users with search by alias parameter', () => {
+            it('should respond with an empty array of users using a search by parameter containing a nonexistent alias', () => {
                 return chai.request(server)
                     .get('/api/users')
                     .set('Authorization', 'Bearer ' + accessToken)
@@ -204,7 +204,7 @@ describe('users', () => {
                     });
             });
 
-            it('should respond with array of users with expand parameter', () => {
+            it('should respond with array of users with expanded profiles when using an expand parameter', () => {
                 return chai.request(server)
                     .get('/api/users')
                     .set('Authorization', 'Bearer ' + accessToken)
@@ -360,6 +360,9 @@ describe('users', () => {
                         });
 
             });
+
+            // throws an error in travis
+
             // it('should respond with a different list of activities for the user when using the offset query param', () => {
             //     return chai.request(server)
             //         .get('/api/users/' + testUser2.id + '/activities')
@@ -427,6 +430,21 @@ describe('users', () => {
                         expect(res.body).to.have.property('activities');
                         expect(res.body.activities).to.be.an('array');
                         expect(res.body.activities).to.have.length(2);
+                    });
+            });
+
+            it('should respond with a filtered list of activities for the user when using the data query param', () => {
+                return chai.request(server)
+                    .get('/api/users/' + testUser2.id + '/activities')
+                    .set('Authorization', 'Bearer ' + accessToken)
+                    .query({expand: 'user'})
+                    .then(res => {
+                        expect(res).to.have.status(200);
+                        expect(res).to.be.json;
+                        expect(res.body).to.have.property('activities');
+                        expect(res.body.activities).to.be.an('array');
+                        expect(res.body.activities).to.have.length(2);
+                        expect(res.body.activities[0].user).to.have.property('permissions');
                     });
             });
         });
