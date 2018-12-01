@@ -2,32 +2,30 @@ import {MapsService} from './maps.service';
 import {of} from 'rxjs';
 import {MomentumMap} from '../models/momentum-map.model';
 
-let httpClientSpy: { get: jasmine.Spy, patch: jasmine.Spy  };
+let httpClientSpy: { get: jasmine.Spy, post: jasmine.Spy  };
 let mapsService: MapsService;
+let expectedMap: MomentumMap;
 let expectedMaps: MomentumMap[];
 
 describe('MapsService', () => {
   beforeEach(() => {
-    httpClientSpy = jasmine.createSpyObj('HttpClient', ['get', 'patch']);
+    httpClientSpy = jasmine.createSpyObj('HttpClient', ['get', 'post']);
     mapsService = new MapsService(<any> httpClientSpy);
+    expectedMap = {
+      id: '9',
+      hash: null,
+      name: 'testmap1',
+      statusFlag: 0,
+      createdAt: new Date(),
+    };
     expectedMaps = [
-      {
-        id: '9',
-        name: 'testmap1',
-        hash: '',
-        submitterID: '1337',
-        statusFlag: 0,
-        createdAt: new Date(),
-        updatedAt: new Date(),
-      },
+      expectedMap,
       {
         id: '40000',
+        hash: null,
         name: 'testmap2',
-        hash: '',
-        submitterID: '1337',
         statusFlag: 0,
         createdAt: new Date(),
-        updatedAt: new Date(),
       },
     ];
   });
@@ -36,24 +34,42 @@ describe('MapsService', () => {
   describe('Unit Tests', () => {
 
 
-    it('should return expected maps', () => {
+    it('#searchMaps should return expected maps', () => {
       httpClientSpy.get.and.returnValue(of(expectedMaps));
-      mapsService.searchMaps('whatever').subscribe(value =>
-          expect(value).toEqual(expectedMaps, 'expected maps == 3'),
+      mapsService.searchMaps('whatever').subscribe(
+        value => expect(value).toEqual(expectedMaps, 'expected maps == 3'),
         fail,
       );
       expect(httpClientSpy.get.calls.count()).toBe(1, 'one call');
     });
 
-    it('#getMap() should return expected map ID', () => {
-      httpClientSpy.get.and.returnValue(of(expectedMaps));
-      mapsService.getMap('mapID').subscribe(value =>
-          expect(value).toEqual(expectedMaps, 'expected map'),
+    it('#getMap should return expected map ', () => {
+      httpClientSpy.get.and.returnValue(of(expectedMap));
+      mapsService.getMap(expectedMap.id).subscribe(
+        value => expect(value).toEqual(expectedMap, 'expected map'),
         fail,
       );
       expect(httpClientSpy.get.calls.count()).toBe(1, 'one call');
     });
-// TODO: Test methods for downloading maps
+
+
+    it('#createMap should return expected map ', () => {
+      httpClientSpy.post.and.returnValue(of(expectedMap));
+      mapsService.createMap(expectedMap).subscribe(
+        value => expect(value).toEqual(expectedMap, 'expected map'),
+        fail,
+      );
+      expect(httpClientSpy.post.calls.count()).toBe(1, 'one call');
+    });
+
+    // STILL NEEDED
+
+    // getMapFileUploadLocation
+    // uploadMapFile
+    // updateMapAvatar
+    // createMapImage
+    // updateMapImage
+    // deleteMapImage
   });
 
 });
