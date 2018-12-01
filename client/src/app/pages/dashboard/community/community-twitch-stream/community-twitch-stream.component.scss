@@ -1,13 +1,16 @@
-iframe {
-  frameborder:0;
-  allowfullscreen:true;
-  scrolling:no;
-  height:210px;
-  width:330px;
-  float:left;
-  margin: 10px;
-}
-
 .spacing {
   margin:auto;
+}
+
+.twitch-data {
+  padding-bottom: 2%;
+}
+
+.none-found {
+  text-align: center;
+}
+
+.view-more {
+  text-align: right;
+  margin: auto;
 }
