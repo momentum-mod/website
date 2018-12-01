@@ -22,6 +22,7 @@ import {NgxPaginationModule} from 'ngx-pagination';
 import { MapInfoDescriptionComponent } from './map-info/map-info-description/map-info-description.component';
 import { MapInfoCreditsComponent } from './map-info/map-info-credits/map-info-credits.component';
 import { MapInfoStatsComponent } from './map-info/map-info-stats/map-info-stats.component';
+import { MapListItemComponent } from './view-maps/map-list-item/map-list-item.component';
 
 @NgModule({
   imports: [
@@ -51,6 +52,7 @@ import { MapInfoStatsComponent } from './map-info/map-info-stats/map-info-stats.
     MapInfoDescriptionComponent,
     MapInfoCreditsComponent,
     MapInfoStatsComponent,
+    MapListItemComponent,
   ],
   providers: [],
 })
