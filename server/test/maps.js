@@ -248,13 +248,13 @@ describe('maps', () => {
                 return chai.request(server)
                     .get('/api/maps')
                     .set('Authorization', 'Bearer ' + accessToken)
-                    .query({offset: 0})
+                    .query({offset: 1})
                     .then(res => {
                         expect(res).to.have.status(200);
                         expect(res).to.be.json;
                         expect(res.body).to.have.property('maps');
                         expect(res.body.maps).to.be.an('array');
-                        expect(res.body.maps).to.have.length(2);
+                        expect(res.body.maps).to.have.length(1);
                         expect(res.body.maps[0]).to.have.property('name');
                     });
             });
@@ -273,8 +273,7 @@ describe('maps', () => {
                     });
             });
 
-            // search by submitterID doesn't seem to work, always returns 0 no matter what userID i put in
-            it('should respond with filtered map data using the submitter id parameter', () => {
+         it('should respond with filtered map data using the submitter id parameter', () => {
                 return chai.request(server)
                     .get('/api/maps')
                     .set('Authorization', 'Bearer ' + accessToken)
@@ -391,7 +390,7 @@ describe('maps', () => {
                         expect(res).to.have.status(200);
                         expect(res).to.be.json;
                         expect(res.body.mapCredits[0]).to.have.property('type');
-                        expect(res.body.mapCredits[0].user).to.have.property('permissions')
+                        expect(res.body.mapCredits[0].user).to.have.property('permissions');
                     });
             });
 
@@ -469,8 +468,8 @@ describe('maps', () => {
                     .patch('/api/maps/' + testMap.id + '/credits/' + testMap.credits.id)
                     .set('Authorization', 'Bearer ' + accessToken)
                     .send({
-                        type: 2,
-                        userID: testAdminGame.id
+                        type: 1,
+                        userID: testAdmin.id
                     }).then(res => {
                          expect(res).to.have.status(204);
                          //expect(res).to.have.status(403);
