@@ -1,43 +1,33 @@
-/*
- import {HttpClient} from '@angular/common/http';
-import {UserProfile} from '../models/profile.model';
-import {User} from '../models/user.model';
-import {Permission} from '../models/permissions.model';
-import {UserFollowObject} from '../models/follow.model';
-import {FollowStatus} from '../models/follow-status.model';
 
-import { CookieService } from 'ngx-cookie-service';
+import {async, TestBed} from '@angular/core/testing';
+
 import {LocalUserService} from './local-user.service';
+import {AuthService} from './auth.service';
+import {CookieService} from 'ngx-cookie-service';
 import {of} from 'rxjs';
 import {MomentumMap} from '../models/momentum-map.model';
-import {AuthService} from './auth.service';
-import {TestBed} from '@angular/core/testing';
+import {User} from '../models/user.model';
+
+import {UserFollowObject} from '../models/follow.model';
+import {FollowStatus} from '../models/follow-status.model';
+import {RouterModule} from '@angular/router';
+import {ThemeModule} from '../../@theme/theme.module';
 
 let httpClientSpy: { get: jasmine.Spy, patch: jasmine.Spy, post: jasmine.Spy, delete: jasmine.Spy  };
-let localUserService: LocalUserService;
-let authService: AuthService;
-// let cookieService: CookieService;
 let expectedUser: User;
 let expectedMaps: MomentumMap[];
 let expectedMap: MomentumMap;
-let authServiceSpy: jasmine.SpyObj<AuthService>;
+let expectedFollow: UserFollowObject;
+let expectedFollow2: UserFollowObject;
+let expectedFollowStatus: FollowStatus;
+let localUserService: LocalUserService;
+
 
 describe('LocalUserService', () => {
-  beforeEach(() => {
 
-    // const authServiceSpy = jasmine.createSpyObj('AuthService', [])
-    TestBed.configureTestingModule({
-       // providers: LocalUserService, {provide: AuthService, useValue: authServiceSpy},
-    });
+  let cookieServiceStub: Partial<CookieService>;
 
-    // TestBed.configureTestingModule({providers: [CookieService]});
-    // const authServiceSpy = jasmine.createSpyObj('')
-    // authService = new AuthService(<any> CookieService, <any> httpClientSpy);
-
-    // cookieService = TestBed.get(CookieService);
-    // authService = TestBed.get(AuthService);
-    httpClientSpy = jasmine.createSpyObj('HttpClient', ['get', 'patch', 'post', 'delete']);
-    localUserService = new LocalUserService( authService,  <any> httpClientSpy);
+  beforeEach(async(() => {
     expectedUser = {
       id: '76561198131664084',
       permissions: 0,
@@ -48,8 +38,11 @@ describe('LocalUserService', () => {
         bio: 'test',
       },
     };
+
+
     expectedMap = {
       id: '9',
+      hash: null,
       name: 'testmap1',
       statusFlag: 0,
       createdAt: new Date(),
@@ -58,12 +51,52 @@ describe('LocalUserService', () => {
       expectedMap,
       {
         id: '40000',
+        hash: null,
         name: 'testmap2',
         statusFlag: 0,
         createdAt: new Date(),
       },
     ];
-  });
+    expectedFollow = {
+      followeeID: '9',
+      followedID: '40000',
+      notifyOn: 2,
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    };
+
+    expectedFollow2 = {
+      followeeID: '40000',
+      followedID: '9',
+      notifyOn: 2,
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    };
+    expectedFollowStatus = {
+      local: expectedFollow,
+      target: expectedFollow2,
+    };
+
+    cookieServiceStub = {
+      check: (name: 'user') => true,
+      get: (name: 'user') => 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9',
+      delete: (name: 'user') =>  null,
+    };
+
+    TestBed.configureTestingModule({
+      imports: [ThemeModule, RouterModule.forRoot([])],
+      providers: [
+        LocalUserService,
+        { provide: CookieService, useValue: cookieServiceStub },
+      ],
+    });
+    const spy =
+      jasmine.createSpyObj('CookieService', ['check', 'get', 'delete']);
+
+    httpClientSpy = jasmine.createSpyObj('HttpClient', ['get', 'patch', 'post', 'delete']);
+    localUserService = new LocalUserService(new AuthService(spy, <any> httpClientSpy), spy, <any> httpClientSpy);
+  }));
+
 
   describe('Unit Tests', () => {
 
@@ -76,14 +109,14 @@ describe('LocalUserService', () => {
       );
       expect(httpClientSpy.get.calls.count()).toBe(1, 'one call');
     });
-/*
+
     it('#updateProfile() should update the users profile and return the updated version', () => {
       httpClientSpy.patch.and.returnValue(of(expectedUser));
       localUserService.updateProfile({id: '1', alias: 'cjs', avatarURL: '', bio: 'testNewBio'}).subscribe(value =>
           expect(value).toEqual(expectedUser, 'expected user'),
         fail,
       );
-      expect(httpClientSpy.get.calls.count()).toBe(1, 'one call');
+      expect(httpClientSpy.patch.calls.count()).toBe(1, 'one call');
     });
     it('#getMapLibrary() should return the maps in the specified users library', () => {
       httpClientSpy.get.and.returnValue(of(expectedMaps));
@@ -98,12 +131,12 @@ describe('LocalUserService', () => {
 
 
     it('#addMapToLibrary() adds map to the local users library', () => {
-      httpClientSpy.post.and.returnValue(of(expectedUser));
+      httpClientSpy.post.and.returnValue(of(expectedMap));
       localUserService.addMapToLibrary(expectedMap.id).subscribe(value =>
-          expect(value).toEqual(expectedUser, 'expected user'),
+          expect(value).toEqual(expectedMap, 'expected map'),
         fail,
       );
-      expect(httpClientSpy.get.calls.count()).toBe(1, 'one call');
+      expect(httpClientSpy.post.calls.count()).toBe(1, 'one call');
     });
     it('#removeMapFromLibrary() should remove the specified map from the users library', () => {
       httpClientSpy.delete.and.returnValue(of(expectedMap));
@@ -111,12 +144,12 @@ describe('LocalUserService', () => {
           expect(value).toEqual(expectedMap, 'expected map'),
         fail,
       );
-      expect(httpClientSpy.get.calls.count()).toBe(1, 'one call');
+      expect(httpClientSpy.delete.calls.count()).toBe(1, 'one call');
     });
     it('#isMapInLibrary() should return specified map in the users library', () => {
-      httpClientSpy.get.and.returnValue(of(expectedMaps));
+      httpClientSpy.get.and.returnValue(of(expectedMap));
       localUserService.isMapInLibrary(12345).subscribe(value =>
-          expect(value).toEqual(expectedMaps, 'expected maps'),
+          expect(value).toEqual(expectedMap, 'expected map'),
         fail,
       );
       expect(httpClientSpy.get.calls.count()).toBe(1, 'one call');
@@ -130,42 +163,41 @@ describe('LocalUserService', () => {
       expect(httpClientSpy.get.calls.count()).toBe(1, 'one call');
     });
 
-
-/*
     it('#checkFollowStatus() should return a json obj with two booleans to represent follow status ', () => {
-      httpClientSpy.get.and.returnValue(of(<FollowStatus>));
+      httpClientSpy.get.and.returnValue(of(expectedFollowStatus));
       localUserService.checkFollowStatus(expectedUser).subscribe(value =>
-          expect(value).toEqual(, 'expected true'),
+          expect(value).toEqual(expectedFollowStatus, 'expected follow status'),
         fail,
       );
       expect(httpClientSpy.get.calls.count()).toBe(1, 'one call');
     });
     it('#followUser() should update the user following', () => {
-      httpClientSpy.post.and.returnValue(of(expectedUser));
+      httpClientSpy.post.and.returnValue(of(expectedFollow));
       localUserService.followUser(expectedUser).subscribe(value =>
-          expect(value).toEqual(expectedUser, 'expected maps'),
+          expect(value).toEqual(expectedFollow, 'expected follow obj'),
         fail,
       );
-      expect(httpClientSpy.get.calls.count()).toBe(1, 'one call');
-    });*/
-/*
-    it('#updateFollowStatus() should update the following status on the users profile ', () => {
-      httpClientSpy.patch.and.returnValue(of(expectedMap, 1));
-      localUserService.updateFollowStatus(expectedUser, 1).subscribe(value =>
-          expect(value).toEqual(expectedMap, 'expected map'),
-        fail,
-      );
-      expect(httpClientSpy.get.calls.count()).toBe(1, 'one call');
+      expect(httpClientSpy.post.calls.count()).toBe(1, 'one call');
     });
-    it('#unfollowUser() should remove the s', () => {
+
+    it('#updateFollowStatus() should update the following status on the users profile ', () => {
+       httpClientSpy.patch.and.returnValue(of(expectedUser));
+      localUserService.updateFollowStatus(expectedUser, 1).subscribe(value =>
+          expect(value).toEqual(expectedUser,  'expected user'),
+        fail,
+      );
+      expect(httpClientSpy.patch.calls.count()).toBe(1, 'one call');
+    });
+    it('#unfollowUser() should remove the following status from the users profile', () => {
       httpClientSpy.delete.and.returnValue(of(expectedUser));
       localUserService.unfollowUser(expectedUser).subscribe(value =>
-          expect(value).toEqual(expectedUser, 'expected maps'),
+          expect(value).toEqual(expectedUser, 'expected user'),
         fail,
       );
-      expect(httpClientSpy.get.calls.count()).toBe(1, 'one call');
+      expect(httpClientSpy.delete.calls.count()).toBe(1, 'one call');
     });
+
   });
 });
-*/
+
 
