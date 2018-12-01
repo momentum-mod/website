@@ -7,6 +7,7 @@ import {CommunityActivityComponent} from './community-activity/community-activit
 import {ThemeModule} from '../../../@theme/theme.module';
 import {NotFoundModule} from '../../not-found/not-found.module';
 import {NgxTwitterTimelineModule} from 'ngx-twitter-timeline';
+import { TwitchDataComponent } from './community-twitch-stream/twitch-data/twitch-data.component';
 
 @NgModule({
   imports: [
@@ -20,6 +21,7 @@ import {NgxTwitterTimelineModule} from 'ngx-twitter-timeline';
     CommunityNewsComponent,
     CommunityTwitchStreamComponent,
     CommunityActivityComponent,
+    TwitchDataComponent,
   ],
 })
 export class CommunityModule {

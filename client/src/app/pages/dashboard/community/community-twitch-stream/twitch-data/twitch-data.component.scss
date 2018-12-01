@@ -1,0 +1,30 @@
+.title {
+  text-align: center;
+  overflow: hidden;
+  -ms-text-overflow: ellipsis;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  position: absolute;
+  left: 7%;
+  right: 7%;
+  top: 1%;
+  color: #6441a4;
+}
+
+.user {
+  position: absolute;
+  bottom: 13%;
+  left: 7%;
+  color: #6441a4;
+}
+
+.views {
+  position: absolute;
+  right: 7%;
+  bottom: 13%;
+  color: #6441a4;
+}
+
+img {
+  width: 100%;
+}

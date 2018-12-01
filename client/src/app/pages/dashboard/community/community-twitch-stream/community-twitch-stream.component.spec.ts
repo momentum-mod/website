@@ -6,19 +6,33 @@ import {TwitchAPIService} from '../../../../@core/data/twitch-api.service';
 import {of} from 'rxjs';
 import {TwitchStream} from '../../../../@core/models/twitch-stream.model';
 import {TwitchVideo} from '../../../../@core/models/twitch-video.model';
+import {NO_ERRORS_SCHEMA} from '@angular/core';
 
 describe('CommunityTwitchStreamComponent', () => {
   let component: CommunityTwitchStreamComponent;
   let fixture: ComponentFixture<CommunityTwitchStreamComponent>;
 
   let twitchAPIStub: Partial<TwitchAPIService>;
+  const twitchStream: TwitchStream = {
+    title: 'This is a test stream!',
+    user_name: 'Testy',
+    viewer_count: 1000,
+    started_at: new Date(),
+    thumbnail_url: '',
+  };
+  const twitchVideo: TwitchVideo = {
+    title: 'This is a sample video!',
+    url: '',
+    created_at: new Date(),
+    views: 1000, // TODO removeme when below is uncommented
+    length: 1250, // length in seconds TODO removeme
+    channel: { // TODO removeme
+      display_name: 'Testy',
+    },
+    preview: '', // TODO removeme
+  };
+
   beforeEach(async(() => {
-    const twitchStream: TwitchStream = {
-      title: 'This is a test stream!',
-    };
-    const twitchVideo: TwitchVideo = {
-      title: 'This is a sample video!',
-    };
     twitchAPIStub = {
       getGameStreams: () => {
         return of({
@@ -29,7 +43,7 @@ describe('CommunityTwitchStreamComponent', () => {
       },
       getGameVideos: () => {
         return of({
-          data: [
+          videos: [
             twitchVideo,
           ],
         });
@@ -41,6 +55,7 @@ describe('CommunityTwitchStreamComponent', () => {
       providers: [
         { provide: TwitchAPIService, useValue: twitchAPIStub },
       ],
+      schemas: [ NO_ERRORS_SCHEMA ],
     })
     .compileComponents();
   }));
