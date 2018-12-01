@@ -1,7 +1,6 @@
 import {NgModule} from '@angular/core';
 import {FormsModule} from '@angular/forms';
 import {NgxEchartsModule} from 'ngx-echarts';
-import {NgxChartsModule} from '@swimlane/ngx-charts';
 import {Ng2SmartTableModule} from 'ng2-smart-table';
 import {ChartModule} from 'angular2-chartjs';
 
@@ -37,7 +36,6 @@ import { RunInfoComponent } from './runs/run-info/run-info.component';
     NbAccordionModule,
     ChartModule,
     NgxEchartsModule,
-    NgxChartsModule,
     SmartTableModule,
     Ng2SmartTableModule,
     NbDialogModule.forChild(),
