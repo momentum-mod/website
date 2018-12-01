@@ -26,6 +26,14 @@ export class MapsService {
   }
 
   /**
+   * @param options
+   * @return a list of maps
+   */
+  getMaps(options?: object): Observable<any> {
+    return this.http.get('/api/maps', options || {});
+  }
+
+  /**
    * @param mapData
    * @return Create a map
    */

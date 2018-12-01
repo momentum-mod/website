@@ -109,6 +109,7 @@ module.exports = {
 			include: [],
 			where: {},
 			limit: 20,
+			order: [['createdAt', 'DESC']]
 		};
 		if (context.limit && !isNaN(context.limit))
 			queryContext.limit = Math.min(Math.max(parseInt(context.limit), 1), 20);
