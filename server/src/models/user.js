@@ -1,6 +1,6 @@
 'use strict';
 const { sequelize, Op, User, UserAuth, UserStats, Profile, UserFollows, Notification, Activity,
-	DiscordAuth, TwitchAuth, TwitterAuth } = require('../../config/sqlize'),
+	DiscordAuth, TwitchAuth, TwitterAuth, Map } = require('../../config/sqlize'),
 	activity = require('./activity'),
 	OAuth = require('oauth'),
 	config = require('../../config/config'),
@@ -444,6 +444,14 @@ module.exports = {
 		if (context.type)
 			queryContext.where.type = context.type;
 		return Activity.findAll(queryContext);
-	}
+	},
+
+	getSubmittedMapSummary: (userID) => {
+		return Map.findAll({
+			where: { submitterID: userID },
+			group: ['statusFlag'],
+			attributes: ['statusFlag', [sequelize.fn('COUNT', 'statusFlag'), 'statusCount']],
+		});
+	},
 
 };

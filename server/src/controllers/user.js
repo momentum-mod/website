@@ -65,6 +65,13 @@ module.exports = {
 		}).catch(next);
 	},
 
+	getSubmittedMapSummary: (req, res, next) => {
+		user.getSubmittedMapSummary(req.user.id)
+		.then(results => {
+			res.json(results);
+		}).catch(next);
+	},
+
 	getUserLibrary: (req, res, next) => {
 		mapLibrary.getUserLibrary(req.user.id, req.query).then(results => {
 			res.json({

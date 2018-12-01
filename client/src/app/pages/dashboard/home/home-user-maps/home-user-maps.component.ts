@@ -17,14 +17,10 @@ export class HomeUserMapsComponent implements OnInit {
   }
 
   ngOnInit() {
-    // TODO: create and use a special server endpoint for getting this summary
-    this.userService.getSubmittedMaps().subscribe(res => {
+    this.userService.getSubmittedMapSummary().subscribe(res => {
       this.submittedMapStatusSummary = {};
-      for (const map of res.maps) {
-        if (!this.submittedMapStatusSummary[map.statusFlag])
-          this.submittedMapStatusSummary[map.statusFlag] = 0;
-        this.submittedMapStatusSummary[map.statusFlag]++;
-      }
+      for (const sum of res)
+        this.submittedMapStatusSummary[sum.statusFlag] = sum.statusCount;
     }, err => {
       console.error(err);
     });
