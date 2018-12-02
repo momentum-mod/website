@@ -338,9 +338,7 @@ module.exports = {
 			playerID: userID,
 		};
 
-		return Map.find({
-			where: {id: mapID}
-		}).then(map => {
+		return Map.findById(mapID).then(map => {
 			if (!map) {
 				const err = new Error('Bad request');
 				err.status = 400;
@@ -397,9 +395,7 @@ module.exports = {
 	},
 
 	get: (mapID, runID, context) => {
-		return Map.find({
-			where: {mapID: mapID}
-		}).then(map => {
+		return Map.findById(mapID).then(map => {
 			if (map) {
 				const queryContext = {
 					where: { id: runID },
@@ -422,9 +418,7 @@ module.exports = {
 	},
 
 	getFilePath: (runID) => {
-		return Run.find({
-			where: { id: runID }
-		}).then(run => {
+		return Run.findById(runID).then(run => {
 			const runFilePath = __dirname + '/../../public/runs/' + runID;
 			return Promise.resolve(run ? runFilePath : '');
 		});

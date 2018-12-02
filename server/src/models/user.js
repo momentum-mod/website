@@ -78,8 +78,7 @@ module.exports = {
 			}
 			return Promise.resolve(null);
 		}).then(playerData => {
-			return User.findOne({
-				where: { id: id },
+			return User.findById(id, {
 				include: Profile
 			}).then(usr => {
 				return Promise.resolve({usr: usr, playerData: playerData})
@@ -100,7 +99,7 @@ module.exports = {
 			avatarURL: openIDProfile.photos[2].value,
 		};
 		return new Promise((resolve, reject) => {
-			User.find({ where: { id: openIDProfile.id }, include: Profile})
+			User.findById(openIDProfile.id, {include: Profile})
 			.then(usr => {
 				if (usr) {
 					return module.exports.updateSteamInfo(usr, profile);
@@ -160,14 +159,24 @@ module.exports = {
 		return Profile.find({
 			where: { userID: userID },
 			include: [
-				DiscordAuth,
+				{
+					model: DiscordAuth,
+					attributes: {
+						exclude: ['accessToken', 'refreshToken']
+					}
+				},
 				{
 					model: TwitterAuth,
 					attributes: {
 						exclude: ['oauthKey', 'oauthSecret'],
 					},
 				},
-				TwitchAuth,
+				{
+					model: TwitchAuth,
+					attributes: {
+						exclude: ['token']
+					}
+				},
 			]
 		});
 	},
@@ -353,9 +362,7 @@ module.exports = {
 	},
 
 	followUser: (followeeID, followedID) => {
-		return User.find({
-			where: { id: followedID }
-		}).then(user => {
+		return User.findById(followedID).then(user => {
 			if (!user) {
 				const err = new Error('User not found');
 				err.status = 404;
