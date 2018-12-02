@@ -1,6 +1,8 @@
 import { async, ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { MapListItemComponent } from './map-list-item.component';
+import {NbUserModule} from '@nebular/theme';
+import {RouterTestingModule} from '@angular/router/testing';
 
 describe('MapListItemComponent', () => {
   let component: MapListItemComponent;
@@ -8,6 +10,7 @@ describe('MapListItemComponent', () => {
 
   beforeEach(async(() => {
     TestBed.configureTestingModule({
+      imports: [NbUserModule, RouterTestingModule],
       declarations: [ MapListItemComponent ],
     })
     .compileComponents();
