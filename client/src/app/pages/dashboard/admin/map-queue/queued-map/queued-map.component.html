@@ -2,7 +2,7 @@
   <div class="col-12 col-sm-6">
     <div class="row align-items-center">
       <div class="col-3">
-        <img [src]="map.info.avatarURL">
+        <img [src]="map?.info.avatarURL">
       </div>
       <div class="col-3">
         <ul>
@@ -13,24 +13,25 @@
       </div>
       <div class="col-6 text-left">
         <ul>
-          <li>{{map.name}}</li>
-          <li>{{map.createdAt | date}}</li>
-          <li><nb-user [name]="map.submitter.profile.alias" [picture]="map.submitter.profile.avatarURL" size="small"></nb-user></li>
+          <li>{{map?.name}}</li>
+          <li>{{map?.createdAt | date}}</li>
+          <li><nb-user [name]="map?.submitter.profile.alias" [picture]="map?.submitter.profile.avatarURL" size="small"></nb-user></li>
         </ul>
       </div>
     </div>
   </div>
   <div class="col-1"></div>
   <div class="col-4">
-    <a class="btn btn-outline-info" href="{{map.downloadURL}}">DOWNLOAD</a>
+    <a #mapFileDownloadLink class="allowed"></a>
+    <button class="btn btn-outline-info" (click)="onMapFileDownload(map?.id)">DOWNLOAD</button>
   </div>
   <div class="col-1">
     <div class="text-right" role="toolbar">
       <div class="btn-group-vertical" role="group">
-        <button type="button" class="btn btn-success" (click)="updateMapStatus(map.id, statusEnum.APPROVED)">
+        <button type="button" class="btn btn-success" (click)="updateMapStatus(map?.id, MapUploadStatus.APPROVED)">
           <span class="ion-checkmark-round"></span>
         </button>
-        <button type="button" class="btn btn-danger" (click)="updateMapStatus(map.id, statusEnum.REJECTED)">
+        <button type="button" class="btn btn-danger" (click)="updateMapStatus(map?.id, MapUploadStatus.REJECTED)">
           <span class="ion-close-round"></span>
         </button>
       </div>

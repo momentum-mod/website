@@ -69,6 +69,16 @@ export class MapsService {
   }
 
   /**
+   * @param id
+   * @return downloads a map file of a map
+   */
+  downloadMapFile(id: string): Observable<any> {
+    return this.http.get('/api/maps/' + id + '/download', {
+      responseType: 'text',
+    });
+  }
+
+  /**
    * @param id ID of a map avatar
    * @param avatarFile file of a map avatar
    * @return updated map avatar
