@@ -8,6 +8,7 @@ import {UserProfileComponent} from './profile/user-profile.component';
 import {ProfileEditComponent} from './profile/profile-edit/profile-edit.component';
 import {PermissionGuard} from '../../@core/guards/permission.guard';
 import {Permission} from '../../@core/models/permissions.model';
+import {RunInfoComponent} from './runs/run-info/run-info.component';
 
 const routes: Routes = [
   {
@@ -54,6 +55,10 @@ const routes: Routes = [
         data: {
           onlyAllow: [Permission.MODERATOR, Permission.ADMIN],
         },
+      },
+      {
+        path: 'runs/:id',
+        component: RunInfoComponent,
       },
       {
         path: '',
