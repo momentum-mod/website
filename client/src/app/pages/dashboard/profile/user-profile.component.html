@@ -33,9 +33,6 @@
       <nb-tab [tabTitle]="'ABOUT'">
         <profile-info [local]="isLocal" [userSubj]="userSubj$"></profile-info>
       </nb-tab>
-      <nb-tab [tabTitle]="'ACTIVITY'">
-        <activity-card [header]="'User Activity'" [userSubj]="userSubj$"></activity-card>
-      </nb-tab>
 
       <nb-tab [tabTitle]="'STATISTICS'">
         <!--TODO put their user stats in here-->
@@ -48,7 +45,8 @@
       <nb-tab *ngIf="isMapper" [tabTitle]="'MAPS'">
         <!--TODO put the map list of their maps in here-->
       </nb-tab>
-
     </nb-tabset>
   </nb-card-body>
 </nb-card>
+
+<div><activity-card [header]="'User Activity'" [userSubj]="userSubj$"></activity-card></div>
