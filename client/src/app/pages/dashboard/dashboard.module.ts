@@ -2,7 +2,6 @@ import {NgModule} from '@angular/core';
 import {FormsModule} from '@angular/forms';
 import {NgxEchartsModule} from 'ngx-echarts';
 import {Ng2SmartTableModule} from 'ng2-smart-table';
-import {ChartModule} from 'angular2-chartjs';
 
 import {ThemeModule} from '../../@theme/theme.module';
 import {DashboardComponent} from './dashboard.component';
@@ -34,7 +33,6 @@ import { RunInfoComponent } from './runs/run-info/run-info.component';
   imports: [
     ThemeModule,
     NbAccordionModule,
-    ChartModule,
     NgxEchartsModule,
     SmartTableModule,
     Ng2SmartTableModule,
