@@ -193,8 +193,7 @@ module.exports = {
 	update: (mapID, map) => {
 		return sequelize.transaction(t => {
 			let mapInfo = null;
-			return Map.find({
-				where: { id: mapID },
+			return Map.findById(mapID, {
 				transaction: t
 			}).then(mapToUpdate => {
 				mapInfo = mapToUpdate;
@@ -273,8 +272,7 @@ module.exports = {
 
 	updateAvatar: (mapID, avatarFile) => {
 		let mapModel = null;
-		return Map.find({
-			where: { id: mapID },
+		return Map.findById(mapID, {
 			include: [
 				{ model: MapInfo, as: 'info' }
 			],
@@ -295,9 +293,7 @@ module.exports = {
 
 	verifySubmitter: (mapID, userID) => {
 		return new Promise((resolve, reject) => {
-			Map.find({
-				where: { id: mapID }
-			}).then(map => {
+			Map.findById(mapID).then(map => {
 				if (map && map.submitterID === userID) {
 					resolve();
 				} else {
@@ -311,9 +307,7 @@ module.exports = {
 
 	upload: (mapID, mapFile) => {
 		let mapModel = null;
-		return Map.find({
-			where: { id: mapID }
-		}).then(map => {
+		return Map.findById(mapID).then(map => {
 			if (!map) {
 				const err = new Error('Map does not exist');
 				err.status = 404;
@@ -335,9 +329,7 @@ module.exports = {
 	},
 
 	getFilePath: (mapID) => {
-		return Map.find({
-			where: { id: mapID }
-		}).then(map => {
+		return Map.findById(mapID).then(map => {
 			if (!map) {
 				const err = new Error('Map does not exist');
 				err.status = 404;
@@ -388,16 +380,12 @@ module.exports = {
 	},
 
 	getImage: (imgID) => {
-		return MapImage.find({
-			where: { id: imgID }
-		});
+		return MapImage.findById(imgID);
 	},
 
 	updateImage: (imgID, mapImageFile) => {
 		let mapImageModel = null;
-		return MapImage.find({
-			where: { id: imgID }
-		}).then(mapImage => {
+		return MapImage.findById(imgID).then(mapImage => {
 			if (!mapImage) {
 				const err = new Error('Map image not found');
 				err.status = 404;
