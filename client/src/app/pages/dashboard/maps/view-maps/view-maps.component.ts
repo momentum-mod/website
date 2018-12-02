@@ -2,6 +2,8 @@ import {Component, OnInit} from '@angular/core';
 import {MomentumMap} from '../../../../@core/models/momentum-map.model';
 import {MapsService} from '../../../../@core/data/maps.service';
 import {ToasterService} from 'angular2-toaster';
+import {MapAPIQueryParams} from '../../../../@core/models/map-api-query-params.model';
+import {FormControl, FormGroup} from '@angular/forms';
 
 @Component({
   selector: 'app-map-queue',
@@ -14,24 +16,36 @@ export class ViewMapsComponent implements OnInit {
   maps: MomentumMap[];
   pageLimit: number;
   currentPage: number;
+  searchOptions: FormGroup;
 
   constructor(private mapService: MapsService,
               private toasterService: ToasterService) {
     this.pageLimit = 10;
     this.currentPage = 1;
+    this.searchOptions = new FormGroup({
+      search: new FormControl(''),
+    });
   }
 
   ngOnInit() {
     this.loadMaps();
   }
 
-  loadMaps() {
-    const queryParams = {
+  genQueryParams(): MapAPIQueryParams {
+    const searchOptions = this.searchOptions.value;
+    const queryParams: MapAPIQueryParams = {
       expand: 'info,submitter',
       limit: this.pageLimit,
       offset: (this.currentPage - 1) * this.pageLimit,
     };
-    this.mapService.getMaps({ params: queryParams }).subscribe(res => {
+    if (searchOptions.search)
+      queryParams.search = searchOptions.search;
+    return queryParams;
+  }
+
+  loadMaps() {
+    const options = { params: this.genQueryParams() };
+    this.mapService.getMaps(options).subscribe(res => {
       this.mapCount = res.count;
       this.maps =  res.maps;
     }, err => {

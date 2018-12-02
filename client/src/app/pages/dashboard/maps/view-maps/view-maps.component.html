@@ -3,10 +3,10 @@
     <nb-card>
       <nb-card-header><h2>BROWSE MAPS</h2></nb-card-header>
       <nb-card-body>
-        <form>
+        <form [formGroup]="searchOptions" (ngSubmit)="loadMaps()">
           <div class="input-group">
-            <input type="text" class="form-control full-width" placeholder="Search Maps...">
-            <button class="btn-dark" type="submit">
+            <input type="text" class="form-control full-width" placeholder="Search Maps..." formControlName="search">
+            <button class="btn-dark" type="submit" (click)="loadMaps()">
               <i class="fa fa-search fa-fw"></i>
             </button>
           </div>
