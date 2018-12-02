@@ -21,10 +21,12 @@ export class ActivityCardComponent implements OnInit {
     this.filterValue = Activity_Type.ALL;
     this.initialAct = false;
     this.activities = [];
+    this.actsFiltered = [];
   }
   activityType = Activity_Type;
   filterValue: Activity_Type;
   activities: Activity[];
+  actsFiltered: Activity[];
   initialAct: boolean;
 
   ngOnInit(): void {
@@ -35,14 +37,15 @@ export class ActivityCardComponent implements OnInit {
 
   filterActivites(acts: Activity[]): void {
     if (this.filterValue === this.activityType.ALL)
-      this.activities = acts;
+      this.actsFiltered = acts;
     else
-      this.activities = acts.filter((value => value.type === this.filterValue));
+      this.actsFiltered = acts.filter((value => value.type === this.filterValue));
   }
   getActivities(): void {
     const func = (resp) => {
       this.initialAct = true;
-      this.filterActivites(resp.activities);
+      this.activities = resp.activities;
+      this.filterActivites(this.activities);
     };
     if (this.follow)
       this.actService.getFollowedActivity().subscribe(func);
