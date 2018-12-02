@@ -34,6 +34,8 @@ export class MapInfoComponent implements OnInit {
         height: '400px',
         thumbnailsColumns: 4,
         imageAnimation: NgxGalleryAnimation.Slide,
+        previewCloseOnClick: true,
+        previewCloseOnEsc: true,
       },
       // max-width 800
       {
