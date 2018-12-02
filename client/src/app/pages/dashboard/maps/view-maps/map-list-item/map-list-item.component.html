@@ -1,0 +1,26 @@
+<div class="row no-gutters align-items-center map-list-item">
+  <div class="col-12 col-sm-6">
+    <div class="row align-items-center">
+      <div class="col-3">
+        <a [routerLink]="'/dashboard/maps/' + map?.id">
+          <img [src]="map?.info?.avatarURL">
+        </a>
+      </div>
+      <div class="col-3">
+        <ul>
+          <li>Map Name:</li>
+          <li>Submitted:</li>
+          <li>Submitted By:</li>
+        </ul>
+      </div>
+      <div class="col-6 text-left">
+        <ul>
+          <li>{{map?.name}}</li>
+          <li>{{map?.createdAt | date}}</li>
+          <li><nb-user [name]="map?.submitter?.profile?.alias" [picture]="map?.submitter?.profile?.avatarURL" size="small"></nb-user></li>
+        </ul>
+      </div>
+    </div>
+  </div>
+  <div class="col-6"></div>
+</div>

@@ -155,6 +155,13 @@ export class LocalUserService {
   }
 
   /**
+   * @return retrieve summary of the user's submitted maps
+   */
+  public getSubmittedMapSummary(): Observable<any> {
+    return this.http.get('/api/user/maps/submitted/summary');
+  }
+
+  /**
    * @param user The user to check the follow status of
    * @return A json object with two booleans determining follow relationship
    */

@@ -168,6 +168,23 @@ paths:
           description: OK
           schema:
             $ref: '#/definitions/Maps'
+  /user/maps/submitted/summary:
+    get:
+      tags:
+        - user
+      summary: Retrieves a summary of maps submitted by the authenticated user
+      responses:
+        200:
+          description: An array of objects for each map status count
+          schema:
+            type: array
+            items:
+              type: object
+              properties:
+                statusFlag:
+                  type: integer
+                statusCount:
+                  type: integer
   /user/activities:
     get:
       summary: Retrieves a list of authenticated user's activities
