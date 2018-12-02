@@ -1,6 +1,7 @@
 import { async, ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { RunInfoComponent } from './run-info.component';
+import {ThemeModule} from '../../../../@theme/theme.module';
 
 describe('RunInfoComponent', () => {
   let component: RunInfoComponent;
@@ -8,6 +9,7 @@ describe('RunInfoComponent', () => {
 
   beforeEach(async(() => {
     TestBed.configureTestingModule({
+      imports: [ThemeModule],
       declarations: [ RunInfoComponent ],
     })
     .compileComponents();
