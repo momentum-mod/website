@@ -8425,6 +8425,16 @@ typeface-exo@0.0.22:
   resolved "https://registry.yarnpkg.com/typeface-exo/-/typeface-exo-0.0.22.tgz#8308dfd4e52d0f538cacff9f2aa176e9e18d894f"
   integrity sha1-gwjf1OUtD1OMrP+fKqF26eGNiU8=
 
+typeface-nunito@^0.0.54:
+  version "0.0.54"
+  resolved "https://registry.yarnpkg.com/typeface-nunito/-/typeface-nunito-0.0.54.tgz#5046f24d8d1492ca8fd823896d6e1cdefbe63203"
+  integrity sha512-hxC+o6vc0vkXPDNGRWZ26ghXPTzVC2gJbUGSJEmoMByb02yM94PiVOLoBa0ChC+HgNbAGbHeQh7k6ok+59gjZw==
+
+typeface-varela-round@^0.0.54:
+  version "0.0.54"
+  resolved "https://registry.yarnpkg.com/typeface-varela-round/-/typeface-varela-round-0.0.54.tgz#0b3b7bb0f90abe6d73cc12b208437da42aa75e4a"
+  integrity sha512-HqFwlenpXJglZgxyHWQm6J8FPCT90OA7dt5MAABkZftiAfaVSlOsZp1m5xEG9qhIt1Shp+FozOTCHY3ceQaKVw==
+
 typescript@2.7.2:
   version "2.7.2"
   resolved "https://registry.yarnpkg.com/typescript/-/typescript-2.7.2.tgz#2d615a1ef4aee4f574425cdff7026edf81919836"

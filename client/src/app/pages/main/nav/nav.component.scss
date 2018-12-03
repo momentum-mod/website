@@ -59,15 +59,13 @@
     color: white;
   }
   #mainNav.navbar-shrink {
-    background-color: #fff;
+    background-color: rgba(0, 0, 0, 0.5);
   }
   #mainNav.navbar-shrink .navbar-brand {
-    color: #161616;
+    color: white;
   }
   #mainNav.navbar-shrink .nav-link {
-    color: #161616;
-    padding: 1.5rem 1.5rem 1.25rem;
-    border-bottom: 0.25rem solid transparent;
+    color: white;
   }
   #mainNav.navbar-shrink .nav-link:hover {
     color: #64a19d;
