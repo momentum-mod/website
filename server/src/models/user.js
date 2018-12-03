@@ -313,6 +313,17 @@ module.exports = {
 			include: [
 				{
 					model: User,
+					as: 'followed',
+					include: [
+						{
+							model: Profile,
+							as: 'profile'
+						}
+					]
+				},
+				{
+					model: User,
+					as: 'followee',
 					include: [
 						{
 							model: Profile,
@@ -330,6 +341,17 @@ module.exports = {
 			include: [
 				{
 					model: User,
+					as: 'followed',
+					include: [
+						{
+							model: Profile,
+							as: 'profile'
+						}
+					]
+				},
+				{
+					model: User,
+					as: 'followee',
 					include: [
 						{
 							model: Profile,

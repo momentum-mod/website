@@ -22,7 +22,6 @@ import {
   ProfileFollowComponent,
   ProfileNotifyEditComponent,
 } from './profile/profile-info/profile-follow/profile-follow.component';
-import {AdminModule} from './admin/admin.module';
 import {HomeStatsComponent} from './home/home-stats/home-stats.component';
 import {HomeUserMapsComponent} from './home/home-user-maps/home-user-maps.component';
 import {HomeUserLibraryComponent} from './home/home-user-library/home-user-library.component';
@@ -41,9 +40,8 @@ import { RunInfoComponent } from './runs/run-info/run-info.component';
     MarkdownModule.forChild(),
     FormsModule,
     NotFoundModule,
-    DashboardRoutingModule,
-    AdminModule,
     NgxPaginationModule,
+    DashboardRoutingModule,
   ],
   declarations: [
     DashboardComponent,
