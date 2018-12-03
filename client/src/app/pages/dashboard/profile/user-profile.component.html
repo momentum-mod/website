@@ -30,16 +30,30 @@
   </nb-card-header>
   <nb-card-body>
     <nb-tabset [fullWidth]="true">
-      <nb-tab [tabTitle]="'ABOUT'">
+      <nb-tab [tabTitle]="'INFO'">
         <profile-info [local]="isLocal" [userSubj]="userSubj$"></profile-info>
+      </nb-tab>
+      <nb-tab [tabTitle]="'FOLLOWING (' + followingUsers.length + ')'">
+        <nb-list>
+          <nb-list-item *ngFor="let usr of followingUsers">
+            <nb-user [name]="usr.followed?.profile.alias" [picture]="usr.followed?.profile.avatarURL" (click)="clickUser(usr.followed)"></nb-user>
+          </nb-list-item>
+        </nb-list>
+      </nb-tab>
+      <nb-tab [tabTitle]="'FOLLOWERS (' + followedByUsers.length + ')'">
+        <nb-list>
+          <nb-list-item *ngFor="let usr of followedByUsers">
+            <nb-user [name]="usr.followee?.profile.alias" [picture]="usr.followee?.profile.avatarURL" (click)="clickUser(usr.followee)"></nb-user>
+          </nb-list-item>
+        </nb-list>
       </nb-tab>
 
       <nb-tab [tabTitle]="'STATISTICS'">
         <!--TODO put their user stats in here-->
         <div class="row">
-          <div class="Spacing"><h5>MAPS COMPLETED:</h5> <p>{{user?.stats.mapsCompleted}}</p></div>
-          <div class="Spacing"> <h5>TOTAL JUMPS:</h5> <p>{{user?.stats.totalJumps}}</p></div>
-          <div class="Spacing"><h5>TOTAL STRAFES:</h5> <p>{{user?.stats.totalStrafes}}</p></div>
+          <div class="Spacing"><h5>MAPS COMPLETED:</h5> <p>{{user?.stats?.mapsCompleted}}</p></div>
+          <div class="Spacing"> <h5>TOTAL JUMPS:</h5> <p>{{user?.stats?.totalJumps}}</p></div>
+          <div class="Spacing"><h5>TOTAL STRAFES:</h5> <p>{{user?.stats?.totalStrafes}}</p></div>
         </div>
       </nb-tab>
       <nb-tab *ngIf="isMapper" [tabTitle]="'MAPS'">
@@ -49,4 +63,4 @@
   </nb-card-body>
 </nb-card>
 
-<div><activity-card [header]="'User Activity'" [userSubj]="userSubj$"></activity-card></div>
+<activity-card [header]="'User Activity'" [userSubj]="userSubj$"></activity-card>

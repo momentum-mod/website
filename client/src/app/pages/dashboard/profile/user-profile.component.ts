@@ -7,6 +7,7 @@ import {User} from '../../../@core/models/user.model';
 import {ReplaySubject} from 'rxjs';
 import {Permission} from '../../../@core/models/permissions.model';
 import {ToasterService} from 'angular2-toaster';
+import {UserFollowObject} from '../../../@core/models/follow.model';
 
 @Component({
   selector: 'ngx-user-profile',
@@ -22,6 +23,8 @@ export class UserProfileComponent implements OnInit {
   isAdmin: boolean;
   avatar_url: string;
   avatar_loaded: boolean;
+  followingUsers: UserFollowObject[];
+  followedByUsers: UserFollowObject[];
 
   constructor(private route: ActivatedRoute,
               private router: Router,
@@ -33,6 +36,8 @@ export class UserProfileComponent implements OnInit {
     this.isMapper = false;
     this.isMod = false;
     this.isAdmin = false;
+    this.followingUsers = [];
+    this.followedByUsers = [];
   }
 
   ngOnInit() {
@@ -65,6 +70,16 @@ export class UserProfileComponent implements OnInit {
         this.avatar_url = this.user.profile.avatarURL;
       }
       this.avatar_loaded = true;
+      this.usersService.getUserFollows(this.user).subscribe(resp => {
+        this.followingUsers = resp.followed;
+      }, err => {
+        this.toastService.popAsync('error', 'Could not retrieve user follows', err.message);
+      });
+      this.usersService.getFollowersOfUser(this.user).subscribe(resp => {
+        this.followedByUsers = resp.followers;
+      }, err => {
+        this.toastService.popAsync('error', 'Could not retrieve user following', err.message);
+      });
     }, error => {
       this.toastService.popAsync('error', 'Cannot get user details', error.message);
     });
@@ -83,5 +98,10 @@ export class UserProfileComponent implements OnInit {
 
   canEdit(): boolean {
     return this.isLocal || this.userService.hasPermission(Permission.MODERATOR | Permission.ADMIN);
+  }
+
+  clickUser(user: User) {
+    if (user)
+      this.router.navigate(['/dashboard/profile/' + user.id]);
   }
 }
