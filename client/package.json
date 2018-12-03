@@ -78,6 +78,8 @@
     "time-ago-pipe": "^1.3.2",
     "tinymce": "4.5.7",
     "typeface-exo": "0.0.22",
+    "typeface-nunito": "^0.0.54",
+    "typeface-varela-round": "^0.0.54",
     "web-animations-js": "2.2.5",
     "zone.js": "^0.8.26"
   },
