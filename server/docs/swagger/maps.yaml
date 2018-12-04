@@ -376,6 +376,170 @@ paths:
       responses:
         200:
           description: Map image is deleted
+  /maps/{mapID}/runs:
+    parameters:
+      - name: mapID
+        in: path
+        required: true
+        description: ID of the map to find
+        type: string
+    post:
+      summary: Submit a run file
+      consumes:
+        - application/octet-stream
+      tags:
+        - maps
+      parameters:
+        - in: body
+          required: true
+          description: The run file binary data to upload
+          type: file
+      responses:
+        200:
+          description: Run file is submitted
+          schema:
+            allOf:
+              - $ref: '#/definitions/Run'
+              - type: object
+                properties:
+                  isPersonalBest:
+                    type: boolean
+                  isNewWorldRecord:
+                    type: boolean
+                  stats:
+                    $ref: '#/definitions/RunStats'
+        400:
+          description: No run file provided or run file is invalid
+        409:
+          description: The map is not accepting submissions (disabled)
+    get:
+      summary: Retrieves a list of runs for a specific map
+      tags:
+        - maps
+      parameters:
+        - name: limit
+          in: query
+          description: The maximum number of results to show
+          type: integer
+          default: 10
+        - name: offset
+          in: query
+          description: The offset for the results to show
+          type: integer
+          default: 0
+        - name: playerID
+          in: query
+          description: Filter by player ID
+        - name: playerIDs
+          in: query
+          description: Filter by player IDs
+          type: array
+          collectionFormat: csv
+        - name: flags
+          in: query
+          description: Filter by a specific flags value
+          type: integer
+          default: 0
+        - name: isPersonalBest
+          in: query
+          description: Whether or not to filter out runs which are not a personal best
+          type: boolean
+      responses:
+        200:
+          description: OK
+          schema:
+            $ref: '#/definitions/Runs'
+  /maps/{mapID}/runs/friends:
+    parameters:
+      - name: runID
+        in: path
+        required: true
+        description: ID of the run to find
+        type: string
+      - name: runID
+        in: path
+        required: true
+        description: ID of the run to find
+        type: string
+    get:
+      summary: Retrieves a list of runs for a specific map from the authenticated user's Steam friends
+      tags:
+        - maps
+      parameters:
+        - name: limit
+          in: query
+          description: The maximum number of results to show
+          type: integer
+          default: 10
+        - name: offset
+          in: query
+          description: The offset for the results to show
+          type: integer
+          default: 0
+        - name: flags
+          in: query
+          description: Filter by a specific flags value
+          type: integer
+          default: 0
+        - name: isPersonalBest
+          in: query
+          description: Whether or not to filter out runs which are not a personal best
+          type: boolean
+      responses:
+        200:
+          description: OK
+          schema:
+            $ref: '#/definitions/Runs'
+  /maps/{mapID}/runs/{runID}:
+    parameters:
+      - name: mapID
+        in: path
+        required: true
+        description: ID of the map to find
+        type: string
+      - name: runID
+        in: path
+        required: true
+        description: ID of the run to find
+        type: string
+    get:
+      summary: Retrieves a specific run
+      tags:
+        - maps
+      responses:
+        200:
+          description: OK
+          schema:
+            $ref: '#/definitions/Run'
+        404:
+          description: The run is not found
+          schema:
+            $ref: '#/definitions/Error'
+  /maps/{mapID}/runs/{runID}/download:
+    parameters:
+      - name: mapID
+        in: path
+        required: true
+        description: ID of the map to find
+        type: string
+      - name: runID
+        in: path
+        required: true
+        description: ID of the run to find
+        type: string
+    get:
+      tags:
+        - maps
+      summary: Downloads the run replay file for a run
+      produces:
+        - application/octet-steam
+      responses:
+        200:
+          description: A run replay file in binary format
+          schema:
+            type: file
+        404:
+          description: Run is not found
 definitions:
   Map:
     required:
