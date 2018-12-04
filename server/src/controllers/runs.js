@@ -15,20 +15,21 @@ module.exports = {
 		}).catch(next);
 	},
 
-	get: (req, res, next) => {
+	getByID: (req, res, next) => {
 		if (req.params.runID === 'friends') {
 			user.getSteamFriendIDs(req.user.id)
-			.then(steamIDs => {
-				req.query.playerIDs = steamIDs.join(',');
-				module.exports.getAll(req, res, next);
-			}).catch(next);
+				.then(steamIDs => {
+					req.query.playerIDs = steamIDs.join(',');
+					module.exports.getAll(req, res, next);
+				}).catch(next);
 		} else {
-			run.get(req.params.mapID, req.params.runID, req.query)
-			.then(run => {
+			if (req.params.mapID)
+				req.query.mapID = req.params.mapID;
+			run.getByID(req.params.runID, req.query).then(run => {
 				if (!run) {
 					const err = new Error('Run not found');
-					err.status = 400;
-					return next(err);
+					err.status = 404;
+					next(err);
 				}
 				res.json(run);
 			}).catch(next);

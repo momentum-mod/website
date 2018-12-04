@@ -113,6 +113,7 @@ MapReview.belongsTo(Map, {as: 'map', foreignKey: 'mapID'});
 Map.hasMany(MapImage, {as: 'images', foreignKey: 'mapID'});
 MapImage.hasOne(MapInfo, {as: 'thumbnail', foreignKey: 'thumbnailID'});
 Map.hasMany(Run, {as: 'runs', foreignKey: 'mapID'});
+Run.belongsTo(Map, {as: 'map', foreignKey: 'mapID'});
 Run.belongsTo(User, { foreignKey: 'playerID' });
 Run.hasOne(RunStats, { as: 'stats', foreignKey: 'runID' });
 RunStats.hasMany(RunZoneStats, { as: 'zoneStats', foreignKey: 'runStatsID' });

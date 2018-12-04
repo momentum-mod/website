@@ -63,7 +63,7 @@ router.route('/:mapID/runs')
 	.all(errorCtrl.send405);
 
 router.route('/:mapID/runs/:runID')
-	.get(runsCtrl.get)
+	.get(runsCtrl.getByID)
 	.all(errorCtrl.send405);
 
 router.route('/:mapID/runs/:runID/download')

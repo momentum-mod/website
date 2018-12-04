@@ -64,3 +64,12 @@
 </nb-card>
 
 <activity-card [header]="'User Activity'" [userSubj]="userSubj$"></activity-card>
+
+<nb-card *ngIf="user">
+  <nb-card-header>
+    <h2>Comments</h2>
+  </nb-card-header>
+  <nb-card-body>
+    <disqus [url]="'https://momentum-mod.org/dashboard/profile/' + user.id" [identifier]="'users/' + user.id"></disqus>
+  </nb-card-body>
+</nb-card>
