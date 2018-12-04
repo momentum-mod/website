@@ -1,28 +1,30 @@
 <nb-card>
   <nb-card-header>
-    <div class="header">
-      <div *ngIf="user && canEdit()" class="edit-profile">
+    <div class="header" *ngIf="user">
+      <div *ngIf="canEdit()" class="edit-profile">
         <button class="btn btn-outline-info" type="button" (click)="onEditProfile()">Edit Profile</button>
       </div>
-      <div *ngIf="user && avatar_loaded" class="user-image" [ngStyle]="{'background-image':'url(' + avatar_url + ')'}">
+      <div *ngIf="avatar_loaded" class="user-image" [ngStyle]="{'background-image':'url(' + avatar_url + ')'}">
       </div>
-      <div class="user-name">
-        <div *ngIf="user" class="row no-gutters">
-          <span class="text"><h3>{{user.profile.alias}}</h3></span>
-          <div class="badges col">
-            <div *ngIf="isAdmin" class="badge">
-              <img src="assets/images/badges/admin.png" nbPopover="Admin" nbPopoverMode="hint" nbPopoverPlacement="bottom">
-            </div>
-            <div *ngIf="isMod" class="badge">
-              <img src="assets/images/badges/moderator.png" nbPopover="Moderator" nbPopoverMode="hint" nbPopoverPlacement="bottom">
-            </div>
-            <div *ngIf="isMapper" class="badge">
-              <img src="assets/images/badges/mapper.png" nbPopover="Mapper" nbPopoverMode="hint" nbPopoverPlacement="bottom">
-            </div>
+        <div class="user-name row no-gutters">
+          <div class="col">
+            <span class="text"><h3>{{user.profile.alias}}</h3></span>
+            <img *ngIf="isVerified" class="verified" src="assets/images/badges/BadgeVerified.png"
+                   nbPopover="Verified" nbPopoverMode="hint" nbPopoverPlacement="bottom">
           </div>
         </div>
+      <div class="badges col">
+        <div *ngIf="isMapper" class="badge">
+          <img src="assets/images/badges/BadgeMapper.png" nbPopover="Mapper" nbPopoverMode="hint" nbPopoverPlacement="bottom">
+        </div>
+        <div *ngIf="isMod" class="badge">
+          <img src="assets/images/badges/BadgeMod.png" nbPopover="Moderator" nbPopoverMode="hint" nbPopoverPlacement="bottom">
+        </div>
+        <div *ngIf="isAdmin" class="badge">
+          <img src="assets/images/badges/BadgeAdmin.png" nbPopover="Admin" nbPopoverMode="hint" nbPopoverPlacement="bottom">
+        </div>
       </div>
-      <div *ngIf="user" class="user-rank">
+      <div class="user-rank">
         <span class="text"><h6>Rank #1</h6></span>
       </div>
       <profile-follow *ngIf="!isLocal" [userSubj]="userSubj$"></profile-follow>
