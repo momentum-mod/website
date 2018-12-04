@@ -130,7 +130,9 @@ const CreditType = Object.freeze({
 });
 
 module.exports = {
+
 	STATUS,
+	CreditType,
 
 	getAll: (context) => {
 		const allowedExpansions = ['info', 'credits'];
