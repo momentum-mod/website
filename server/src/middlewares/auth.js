@@ -37,6 +37,16 @@ module.exports = {
 			return next(err);
 		}
 		return next();
-	}
+	},
+
+	requirePower: (req, res, next) => {
+		const hasPower = req.user && (req.user.permissions & (user.Permission.ADMIN | user.Permission.MODERATOR));
+		if (!hasPower) {
+			const err = new Error('Forbidden');
+			err.status = 403;
+			return next(err);
+		}
+		return next();
+	},
 
 }

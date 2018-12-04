@@ -1,13 +1,22 @@
 <nb-card>
-  <nb-card-header><h2>EDIT PROFILE</h2></nb-card-header>
+  <nb-card-header>
+    <div class="row">
+      <h2 class="col title">EDIT PROFILE</h2>
+      <div class="col">
+        <button class="btn btn-outline-info return-btn" (click)="returnToProfile()">
+          Return to Profile
+        </button>
+      </div>
+    </div>
+  </nb-card-header>
   <nb-card-body>
-    <form [formGroup]="profileEditFormGroup" (ngSubmit)="onSubmit()">
+    <form (ngSubmit)="onSubmit()">
       <nb-tabset>
-        <nb-tab tabTitle="PROFILE">
+        <nb-tab tabTitle="PROFILE" [formGroup]="profileEditFormGroup">
           <div class="form-group" [ngClass]="{'has-error':!profileEditFormGroup.controls['alias'].valid}">
             <label>
-              Username:
-              <input class="form-control" formControlName="alias" type="alias">
+              Alias:
+              <input class="form-control" formControlName="alias" type="text">
               <p class="alert alert-danger" *ngIf="profileEditFormGroup.controls['alias'].hasError('minlength')">
                 Username must be at least 3 characters.
               </p>
@@ -20,26 +29,47 @@
             </label>
           </div>
 
-
           <div class="form-group" [ngClass]="{'has-error':!profileEditFormGroup.controls['bio'].valid}">
             <label>Bio:</label>
             <textarea class="form-control" formControlName="bio" type="bio"></textarea>
-
             <p class="alert alert-danger" *ngIf="profileEditFormGroup.controls['bio'].hasError('maxlength')">
               Text cannot exceed 500 characters.
             </p>
-
           </div>
         </nb-tab>
-        <nb-tab tabTitle="SOCIAL LINKS">
+        <nb-tab *ngIf="isAdmin && user" [formGroup]="adminEditFg" tabTitle="ADMIN USER SETTINGS">
+          <div class="row">
+            <div class="col">
+              <h2>Bans</h2>
+              <nb-checkbox (change)="togglePerm(permissions.BANNED_ALIAS)" formControlName="banAlias">Ban changing alias</nb-checkbox>
+              <br/>
+              <nb-checkbox (change)="togglePerm(permissions.BANNED_BIO)" formControlName="banBio">Ban changing bio</nb-checkbox>
+              <br/>
+              <nb-checkbox (change)="togglePerm(permissions.BANNED_AVATAR)" formControlName="banAvatar">Ban avatar</nb-checkbox>
+              <br/>
+              <nb-checkbox (change)="togglePerm(permissions.BANNED_LEADERBOARDS)" formControlName="banLeaderboards">
+                Ban submitting to leaderboards
+              </nb-checkbox>
+            </div>
+            <div class="col">
+              <h2>Permissions</h2>
+              <nb-checkbox (change)="togglePerm(permissions.MAPPER)" formControlName="mapper">Mapper</nb-checkbox>
+              <br/>
+              <nb-checkbox *ngIf="isAdmin" (change)="togglePerm(permissions.MODERATOR)" formControlName="moderator">Moderator</nb-checkbox>
+              <br/>
+              <nb-checkbox *ngIf="isAdmin" (change)="togglePerm(permissions.ADMIN)" formControlName="admin">Admin</nb-checkbox>
+            </div>
+          </div>
+        </nb-tab>
+        <nb-tab *ngIf="isLocal && user" tabTitle="SOCIAL LINKS">
           <div class="form-group">
             <div>
               <span>Twitter:</span>
             </div>
             <div>
-              <img *ngIf="profile && !profile.twitterAuth" src="/assets/images/twitter_button.png" (click)="auth('twitter')">
-              <div *ngIf="profile && profile.twitterAuth">
-                <span class="authorized">Authorized as {{profile.twitterAuth.displayName}}</span>
+              <img *ngIf="!user.profile.twitterAuth" src="/assets/images/twitter_button.png" (click)="auth('twitter')">
+              <div *ngIf="user.profile.twitterAuth">
+                <span class="authorized">Authorized as {{user.profile.twitterAuth.displayName}}</span>
                 <button class="btn btn-outline-danger" type="button" (click)="unAuth('twitter')">Unauthorize</button>
               </div>
             </div>
@@ -49,9 +79,9 @@
               <span>Discord:</span>
             </div>
             <div>
-              <img *ngIf="profile && !profile.discordAuth" src="/assets/images/discord_button.png" (click)="auth('discord')">
-              <div *ngIf="profile && profile.discordAuth">
-                <span class="authorized">Authorized as {{profile.discordAuth.displayName}}</span>
+              <img *ngIf="!user.profile.discordAuth" src="/assets/images/discord_button.png" (click)="auth('discord')">
+              <div *ngIf="user.profile.discordAuth">
+                <span class="authorized">Authorized as {{user.profile.discordAuth.displayName}}</span>
                 <button class="btn btn-outline-danger" type="button" (click)="unAuth('discord')">Unauthorize</button>
               </div>
             </div>
@@ -61,9 +91,9 @@
               <span>Twitch.tv</span>
             </div>
             <div>
-              <img *ngIf="profile && !profile.twitchAuth" src="/assets/images/twitch_button.png" (click)="auth('twitch')">
-              <div *ngIf="profile && profile.twitchAuth">
-                <span class="authorized">Authorized as {{profile.twitchAuth.displayName}}</span>
+              <img *ngIf="!user.profile.twitchAuth" src="/assets/images/twitch_button.png" (click)="auth('twitch')">
+              <div *ngIf="user.profile.twitchAuth">
+                <span class="authorized">Authorized as {{user.profile.twitchAuth.displayName}}</span>
                 <button class="btn btn-outline-danger" type="button" (click)="unAuth('twitch')">Unauthorize</button>
                 <div>
                   <span>
@@ -74,15 +104,9 @@
               </div>
             </div>
           </div>
-          <div class="form-group">
-            <label>
-              Youtube:
-              <input class="form-control" type="text">
-            </label>
-          </div>
         </nb-tab>
       </nb-tabset>
-      <button class="btn btn-md btn-primary" type="submit" [disabled]="!profileEditFormGroup.valid">
+      <button class="btn btn-md btn-outline-primary" type="submit" [disabled]="(profileEditFormGroup.touched && !profileEditFormGroup.valid)">
         Save changes
       </button>
     </form>

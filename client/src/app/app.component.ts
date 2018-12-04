@@ -17,7 +17,7 @@ import {ToasterConfig} from 'angular2-toaster';
 export class AppComponent implements OnInit {
 
   // Toaster config things
-  readonly timeout: number = 5000; // in milliseconds
+  readonly timeout: number = 2500; // in milliseconds
   readonly toasterConfig: ToasterConfig = new ToasterConfig({
     positionClass: 'toast-top-full-width',
     timeout: this.timeout,

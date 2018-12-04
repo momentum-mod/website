@@ -15,7 +15,8 @@ module.exports = {
 		ADMIN: 1 << 2,
 		BANNED_LEADERBOARDS: 1 << 3,
 		BANNED_ALIAS: 1 << 4,
-		BANNED_AVATAR: 1 << 5
+		BANNED_AVATAR: 1 << 5,
+		BANNED_BIO: 1 << 6,
 	}),
 
 	updateSteamInfo: (usr, newProfile) => {
@@ -141,18 +142,46 @@ module.exports = {
 		return User.findAndCountAll(queryContext);
 	},
 
-	update: (userID, usr) => {
-		const updates = [
-			User.update(usr, { where: { id: userID }})
-		];
-		if (usr.profile) {
-			updates.push(
-				Profile.update(usr.profile, {
-					where: { userID: userID }
-				})
-			);
-		}
-		return Promise.all(updates);
+	update: (powerUser, userID, usr) => {
+		return User.findById(userID).then(foundUsr => {
+			if (foundUsr) {
+				const foundUsrAdmin = (foundUsr.permissions & module.exports.Permission.ADMIN) !== 0;
+				const foundUsrMod = (foundUsr.permissions & module.exports.Permission.MODERATOR) !== 0;
+				// Moderators are limited in what they can update
+				if (powerUser.permissions & module.exports.Permission.MODERATOR) {
+					if ((foundUsrAdmin || foundUsrMod) && (powerUser.id !== foundUsr.id)) {
+						const err = new Error('Cannot update user with >= power to you');
+						err.status = 403;
+						return Promise.reject(err);
+					} else {
+						// Hard cap their permission to what they have by ensuring it won't be erased
+						usr.permissions |= ((foundUsrAdmin ? module.exports.Permission.ADMIN : 0) |
+							(foundUsrMod ? module.exports.Permission.MODERATOR : 0));
+					}
+				} else if (foundUsrAdmin && powerUser.id !== foundUsr.id) {
+					const err = new Error('Cannot update other admins');
+					err.status = 403;
+					return Promise.reject(err);
+				}
+
+				// Only allow updating permissions (it's also the only field that really can be)
+				const usrUpd8 = {
+					permissions: usr.permissions
+				};
+
+				const updates = [
+					foundUsr.update(usrUpd8)
+				];
+				if (usr.profile) {
+					updates.push(module.exports.updateProfile(foundUsr.id, usr.profile));
+				}
+				return Promise.all(updates);
+			} else {
+				const err = new Error('User not found');
+				err.status = 404;
+				return Promise.reject(err);
+			}
+		});
 	},
 
 	getProfile: (userID) => {
@@ -182,7 +211,12 @@ module.exports = {
 	},
 
 	updateProfile: (userID, profile) => {
-		return Profile.update(profile, {
+		// Only allow updating certain things
+		const profUpd8 = {
+			alias: profile.alias,
+			bio: profile.bio,
+		};
+		return Profile.update(profUpd8, {
 			where: { userID: userID }
 		});
 	},
@@ -210,10 +244,16 @@ module.exports = {
 				}).spread((authMdl, created) => {
 					return Promise.resolve(authMdl);
 				})
+			} else {
+				const err = new Error('Unsupported social link type');
+				err.status = 400;
+				return Promise.reject(err);
 			}
+		} else {
+			const err = new Error('Bad request');
+			err.status = 400;
+			return Promise.reject(err);
 		}
-		// TODO: make an error here
-		return Promise.reject();
 	},
 
 	destroyTwitterLink: (profile) => {
@@ -243,8 +283,11 @@ module.exports = {
 								res(mdl);
 						});
 				});
+			} else {
+				const err = new Error('Failed to destroy twitter auth, none currently stored!');
+				err.status = 400;
+				return Promise.reject(err);
 			}
-			return Promise.reject('FAIL!'); // TODO error
 		}).then(mdl => {
 			return TwitterAuth.destroy({
 				where: {id: mdl.id}
@@ -265,7 +308,13 @@ module.exports = {
 				}).then(sres => {
 					if (sres.status === 200)
 						return Promise.resolve(mdl);
+					else
+						return Promise.reject();
 				})
+			} else {
+				const err = new Error('Failed to destroy twitch auth, none currently stored!');
+				err.status = 400;
+				return Promise.reject(err);
 			}
 		}).then(mdl => {
 			return TwitchAuth.destroy({
@@ -287,7 +336,13 @@ module.exports = {
 				}).then(sres => {
 					if (sres.status === 200)
 						return Promise.resolve(mdl);
+					else
+						return Promise.reject();
 				})
+			} else {
+				const err = new Error('Failed to destroy discord auth, none currently stored!');
+				err.status = 400;
+				return Promise.reject(err);
 			}
 		}).then(mdl => {
 			return DiscordAuth.destroy({

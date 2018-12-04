@@ -59,14 +59,6 @@ describe('UsersService', () => {
       );
       expect(httpClientSpy.get.calls.count()).toBe(1, 'one call');
     });
-    it('#updateUser() should return updated user account', () => {
-      httpClientSpy.patch.and.returnValue(of(expectedUser));
-      usersService.updateUser(expectedUser).subscribe(value =>
-          expect(value).toEqual(expectedUser, 'expected user'),
-        fail,
-      );
-      expect(httpClientSpy.patch.calls.count()).toBe(1, 'one call');
-    });
     //
     // getFollowersOfUser
     it('#getFollowersOfUser() should return followers of the user', () => {
