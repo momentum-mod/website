@@ -38,6 +38,7 @@ export class UserProfileComponent implements OnInit {
     this.isAdmin = false;
     this.followingUsers = [];
     this.followedByUsers = [];
+    this.avatar_url = '/assets/images/blank_avatar.jpg';
   }
 
   ngOnInit() {
@@ -92,12 +93,12 @@ export class UserProfileComponent implements OnInit {
   }
 
   onEditProfile() {
-    // TODO: Make this open the edit dialog
-    this.router.navigate(['/dashboard/profile/edit']);
+    this.router.navigate([`/dashboard/profile/${this.isLocal ? '' : this.user.id + '/'}edit`]);
   }
 
   canEdit(): boolean {
-    return this.isLocal || this.userService.hasPermission(Permission.MODERATOR | Permission.ADMIN);
+    return this.isLocal ||
+      this.userService.hasPermission(Permission.MODERATOR | Permission.ADMIN);
   }
 
   clickUser(user: User) {

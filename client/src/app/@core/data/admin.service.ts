@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import {HttpClient} from '@angular/common/http';
 import {Observable} from 'rxjs';
+import {User} from '../models/user.model';
 
 @Injectable({
   providedIn: 'root',
@@ -24,6 +25,16 @@ export class AdminService {
    */
   getMaps(context?: object): Observable<any> {
     return this.http.get('/api/admin/maps/', context);
+  }
+
+  /**
+   * @param user specific user's profile
+   * @return Update a specific user
+   */
+  updateUser(user: User): Observable<any> {
+    return this.http.patch('/api/admin/users/' + user.id, user, {
+      responseType: 'text',
+    });
   }
 
 }

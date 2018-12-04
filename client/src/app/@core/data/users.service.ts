@@ -35,15 +35,6 @@ export class UsersService {
 
   /**
    * @param user specific user's profile
-   * @return Update a specific user
-   */
-  updateUser(user: User): Observable<any> {
-    const httpOptions = {};
-    return this.http.patch('/api/admin/users/' + user.id, user, httpOptions);
-  }
-
-  /**
-   * @param user specific user's profile
    * @return followers of that user
    */
   getFollowersOfUser(user: User): Observable<any> {

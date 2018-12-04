@@ -8,10 +8,8 @@ import {DashboardComponent} from './dashboard.component';
 
 import {DashboardRoutingModule} from './dashboard-routing.module';
 import {DashboardHomeComponent} from './home/dashboard-home.component';
-import {UserListComponent} from './user-list/user-list.component';
 import {NotFoundModule} from '../not-found/not-found.module';
 import {SmartTableModule} from './smart-table/smart-table.module';
-import {UserEditModalComponent} from './user-list/user-edit-modal/user-edit-modal.component';
 import {UserProfileComponent} from './profile/user-profile.component';
 import {ProfileInfoComponent} from './profile/profile-info/profile-info.component';
 import {ProfileEditComponent} from './profile/profile-edit/profile-edit.component';
@@ -48,8 +46,6 @@ import {DisqusModule} from 'ngx-disqus';
   declarations: [
     DashboardComponent,
     DashboardHomeComponent,
-    UserListComponent,
-    UserEditModalComponent,
     UserProfileComponent,
     ProfileInfoComponent,
     ProfileEditComponent,
@@ -61,7 +57,6 @@ import {DisqusModule} from 'ngx-disqus';
     RunInfoComponent,
   ],
   entryComponents: [
-    UserEditModalComponent,
     ProfileNotifyEditComponent,
   ],
   providers: [],

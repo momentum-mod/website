@@ -2,16 +2,27 @@
 import {AdminService} from './admin.service';
 import {of} from 'rxjs';
 import {MomentumMap} from '../models/momentum-map.model';
+import {User} from '../models/user.model';
 
 let httpClientSpy: { get: jasmine.Spy, patch: jasmine.Spy  };
 let adminService: AdminService;
 let expectedMaps: MomentumMap[];
 let expectedMap: MomentumMap;
+let expectedUser: User;
 
 describe('AdminService', () => {
   beforeEach(() => {
     httpClientSpy = jasmine.createSpyObj('HttpClient', ['get', 'patch']);
     adminService = new AdminService(<any> httpClientSpy);
+    expectedUser = {
+      id: '1',
+      permissions: 0,
+      profile: {
+        id: '0',
+        alias: 'test1',
+        avatarURL: 'url',
+      },
+    };
     expectedMap = {
       id: '9',
       name: 'testmap1',
@@ -49,6 +60,14 @@ describe('AdminService', () => {
       httpClientSpy.patch.and.returnValue(of(expectedMaps));
       adminService.updateMap(expectedMap.id, expectedMap).subscribe(value =>
           expect(value).toEqual(expectedMaps, 'expected maps'),
+        fail,
+      );
+      expect(httpClientSpy.patch.calls.count()).toBe(1, 'one call');
+    });
+    it('#updateUser() should return updated user account', () => {
+      httpClientSpy.patch.and.returnValue(of(expectedUser));
+      adminService.updateUser(expectedUser).subscribe(value =>
+          expect(value).toEqual(expectedUser, 'expected user'),
         fail,
       );
       expect(httpClientSpy.patch.calls.count()).toBe(1, 'one call');

@@ -5,7 +5,7 @@ const user = require('../models/user'),
 module.exports = {
 
 	updateUser: (req, res, next) => {
-		user.update(req.params.userID, req.body)
+		user.update(req.user, req.params.userID, req.body)
 		.then(() => {
 			res.sendStatus(204);
 		}).catch(next);

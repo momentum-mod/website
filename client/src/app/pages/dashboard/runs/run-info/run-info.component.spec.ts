@@ -1,7 +1,10 @@
-import { async, ComponentFixture, TestBed } from '@angular/core/testing';
+import {async, ComponentFixture, TestBed} from '@angular/core/testing';
 
-import { RunInfoComponent } from './run-info.component';
+import {RunInfoComponent} from './run-info.component';
+import {DisqusModule} from 'ngx-disqus';
 import {ThemeModule} from '../../../../@theme/theme.module';
+import {RouterTestingModule} from '@angular/router/testing';
+import {HttpClientTestingModule} from '@angular/common/http/testing';
 
 describe('RunInfoComponent', () => {
   let component: RunInfoComponent;
@@ -9,7 +12,12 @@ describe('RunInfoComponent', () => {
 
   beforeEach(async(() => {
     TestBed.configureTestingModule({
-      imports: [ThemeModule],
+      imports: [
+        ThemeModule,
+        DisqusModule.forRoot('momentum-mod'),
+        RouterTestingModule,
+        HttpClientTestingModule,
+      ],
       declarations: [ RunInfoComponent ],
     })
     .compileComponents();
