@@ -11,7 +11,6 @@ import {DashboardHomeComponent} from './home/dashboard-home.component';
 import {NotFoundModule} from '../not-found/not-found.module';
 import {SmartTableModule} from './smart-table/smart-table.module';
 import {UserProfileComponent} from './profile/user-profile.component';
-import {ProfileInfoComponent} from './profile/profile-info/profile-info.component';
 import {ProfileEditComponent} from './profile/profile-edit/profile-edit.component';
 import {ToasterModule} from 'angular2-toaster';
 import {MarkdownModule} from 'ngx-markdown';
@@ -19,7 +18,7 @@ import {NbAccordionModule, NbDialogModule} from '@nebular/theme';
 import {
   ProfileFollowComponent,
   ProfileNotifyEditComponent,
-} from './profile/profile-info/profile-follow/profile-follow.component';
+} from './profile/profile-follow/profile-follow.component';
 import {HomeStatsComponent} from './home/home-stats/home-stats.component';
 import {HomeUserMapsComponent} from './home/home-user-maps/home-user-maps.component';
 import {HomeUserLibraryComponent} from './home/home-user-library/home-user-library.component';
@@ -47,7 +46,6 @@ import {DisqusModule} from 'ngx-disqus';
     DashboardComponent,
     DashboardHomeComponent,
     UserProfileComponent,
-    ProfileInfoComponent,
     ProfileEditComponent,
     ProfileFollowComponent,
     ProfileNotifyEditComponent,

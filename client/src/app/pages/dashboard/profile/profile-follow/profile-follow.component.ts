@@ -1,12 +1,12 @@
 import {Component, Input, OnInit} from '@angular/core';
 import {ReplaySubject} from 'rxjs';
-import {User} from '../../../../../@core/models/user.model';
-import {LocalUserService} from '../../../../../@core/data/local-user.service';
+import {User} from '../../../../@core/models/user.model';
+import {LocalUserService} from '../../../../@core/data/local-user.service';
 import {ToasterService} from 'angular2-toaster';
 import {NbDialogRef, NbDialogService} from '@nebular/theme';
-import {Activity_Type} from '../../../../../@core/models/activity-type.model';
+import {Activity_Type} from '../../../../@core/models/activity-type.model';
 import {finalize} from 'rxjs/operators';
-import {UserFollowObject} from '../../../../../@core/models/follow.model';
+import {UserFollowObject} from '../../../../@core/models/follow.model';
 
 @Component({
   selector: 'profile-notify-edit',
