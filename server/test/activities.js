@@ -1,9 +1,7 @@
 'use strict';
-//import {Activity_Type} from "../../client/src/app/@core/models/activity-type.model";
-
 process.env.NODE_ENV = 'test';
 
-const { forceSyncDB, Activity, Map, MapInfo, User } = require('../config/sqlize'),
+const { forceSyncDB, Activity, Map, MapInfo, MapCredit, User } = require('../config/sqlize'),
     chai = require('chai'),
     chaiHttp = require('chai-http'),
     expect = chai.expect,
@@ -34,13 +32,18 @@ describe('activities', () => {
     };
     const testMap = {
         name: 'test_map',
+		statusFlag: map.STATUS.PENDING,
         info: {
             description: 'My first map!!!!',
             numBonuses: 1,
             numCheckpoints: 1,
             numStages: 1,
             difficulty: 5,
-        }
+        },
+		credits: [{
+			userID: testUser2.id,
+			type: map.CreditType.AUTHOR,
+		}]
     };
 
 	const testActivities = [
@@ -76,10 +79,10 @@ describe('activities', () => {
 				return User.create(testUser);
 			}).then(user => {
                 return Map.create(testMap, {
-                    include: [{
-                        model: MapInfo,
-                        as: 'info',
-                    }]
+                    include: [
+						{ model: MapInfo, as: 'info' },
+						{ model: MapCredit, as: 'credits' }
+					]
                 });
             }).then(map => {
 				testMap.id = map.id;
@@ -98,7 +101,7 @@ describe('activities', () => {
     describe('endpoints', () => {
 
         describe('GET /api/activities', () => {
-			it('should respond with an activity after a map is approved', () => {
+			it('should respond with an activity for an author after a map is approved', () => {
 				return chai.request(server)
 					.patch('/api/admin/maps/' + testMap.id)
 					.set('Authorization', 'Bearer ' + adminAccessToken)
@@ -115,6 +118,7 @@ describe('activities', () => {
 								expect(res2.body).to.have.property('activities');
 		                        expect(res2.body.activities).to.be.an('array');
 								expect(res2.body.activities).to.have.lengthOf(1);
+								expect(res2.body.activities[0].userID).to.equal(testUser2.id);
 							});
 					});
 			});
