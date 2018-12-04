@@ -3,12 +3,19 @@
   <nb-card-body>
     <div class="top">
       <h5>Top Played</h5>
-      <h3>Lego Land</h3>
+      <h3>{{globalMapStats?.topPlayedMap}}</h3>
     </div>
-
     <div class="top">
       <h5>Top Subscribed</h5>
-      <h3>Inverted Boomerang</h3>
+      <h3>{{globalMapStats?.topSubscribedMap}}</h3>
+    </div>
+    <div class="top">
+      <h5>Top Downloaded Map</h5>
+      <h3>{{globalMapStats?.topDownloadedMap}}</h3>
+    </div>
+    <div class="top">
+      <h5>Top Uniquely Completed Map</h5>
+      <h3>{{globalMapStats?.topUniquelyCompletedMap}}</h3>
     </div>
   </nb-card-body>
 </nb-card>

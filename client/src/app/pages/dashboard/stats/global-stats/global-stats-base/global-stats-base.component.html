@@ -3,24 +3,25 @@
     <nb-card-header><h2>BASE STATISTICS</h2></nb-card-header>
     <nb-card-body class="row col-auto">
       <div class="base">
+        <h5>Total Maps</h5>
+        <h1>{{globalMapStats?.totalMaps}}</h1>
+      </div>
+
+      <div class="base">
         <h5>Runs submitted</h5>
-        <h1>1,543</h1>
+        <h1>{{globalBaseStats?.runsSubmitted || 0}}</h1>
       </div>
 
       <div class="base">
         <h5>Total Jumps</h5>
-        <h1>44,598</h1>
+        <h1>{{globalBaseStats?.totalJumps || 0}}</h1>
       </div>
 
       <div class="base">
         <h5>Total Strafes</h5>
-        <h1>98,508</h1>
+        <h1>{{globalBaseStats?.totalStrafes || 0}}</h1>
       </div>
 
-      <div class="base">
-        <h5>Average Sync</h5>
-        <h1>11:43</h1>
-      </div>
     </nb-card-body>
   </nb-card>
 </div>
