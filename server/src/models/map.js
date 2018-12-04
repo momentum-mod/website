@@ -349,7 +349,7 @@ module.exports = {
 
 	getImages: (mapID) => {
 		return MapImage.findAll({
-			mapID: mapID
+			where: {mapID: mapID},
 		});
 	},
 
