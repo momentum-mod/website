@@ -12,6 +12,23 @@
   }
 }
 
+.badge {
+  display: inline-block;
+}
+
+.verified {
+  vertical-align: sub;
+  padding-left: 3%;
+  margin: auto;
+  max-width: 2rem;
+}
+
+.badges {
+  img {
+    max-width: 7vh;
+  }
+}
+
 .user-name {
   display: inline-block;
 }

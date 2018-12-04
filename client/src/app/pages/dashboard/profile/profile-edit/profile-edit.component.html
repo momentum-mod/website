@@ -53,6 +53,8 @@
             </div>
             <div class="col">
               <h2>Permissions</h2>
+              <nb-checkbox (change)="togglePerm(permissions.VERIFIED)" formControlName="verified">Verified</nb-checkbox>
+              <br/>
               <nb-checkbox (change)="togglePerm(permissions.MAPPER)" formControlName="mapper">Mapper</nb-checkbox>
               <br/>
               <nb-checkbox *ngIf="isAdmin" (change)="togglePerm(permissions.MODERATOR)" formControlName="moderator">Moderator</nb-checkbox>

@@ -19,6 +19,7 @@ export class UserProfileComponent implements OnInit {
   user: User;
   isLocal: boolean;
   isMapper: boolean;
+  isVerified: boolean;
   isMod: boolean;
   isAdmin: boolean;
   avatar_url: string;
@@ -36,6 +37,7 @@ export class UserProfileComponent implements OnInit {
     this.isMapper = false;
     this.isMod = false;
     this.isAdmin = false;
+    this.isVerified = false;
     this.followingUsers = [];
     this.followedByUsers = [];
     this.avatar_url = '/assets/images/blank_avatar.jpg';
@@ -63,9 +65,10 @@ export class UserProfileComponent implements OnInit {
       ),
     ).subscribe(usr => {
       this.user = usr;
-      this.isMapper = (this.user.permissions & Permission.MAPPER) === Permission.MAPPER;
-      this.isMod = (this.user.permissions & Permission.MODERATOR) === Permission.MODERATOR;
-      this.isAdmin = (this.user.permissions & Permission.ADMIN) === Permission.ADMIN;
+      this.isMapper = this.hasPerm(Permission.MAPPER);
+      this.isMod = this.hasPerm(Permission.MODERATOR);
+      this.isAdmin = this.hasPerm(Permission.ADMIN);
+      this.isVerified = this.hasPerm(Permission.VERIFIED);
       this.userSubj$.next(usr);
       if (!this.hasPerm(Permission.BANNED_AVATAR)) {
         this.avatar_url = this.user.profile.avatarURL;
