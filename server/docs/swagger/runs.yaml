@@ -1,36 +1,5 @@
 paths:
   /runs:
-    parameters:
-    post:
-      summary: Submit a run file
-      consumes:
-        - multipart/form-data
-      tags:
-        - runs
-      parameters:
-        - name: runFile
-          in: formData
-          required: true
-          description: The run file to upload
-          type: file
-      responses:
-        200:
-          description: Run file is submitted
-          schema:
-            allOf:
-              - $ref: '#/definitions/Run'
-              - type: object
-                properties:
-                  isPersonalBest:
-                    type: boolean
-                  isNewWorldRecord:
-                    type: boolean
-                  stats:
-                    $ref: '#/definitions/RunStats'
-        400:
-          description: No run file provided or run file is invalid
-        409:
-          description: The map is not accepting submissions (disabled)
     get:
       summary: Retrieves a list of runs
       tags:
@@ -49,6 +18,11 @@ paths:
         - name: playerID
           in: query
           description: Filter by player ID
+        - name: playerIDs
+          in: query
+          description: Filter by player IDs
+          type: array
+          collectionFormat: csv
         - name: flags
           in: query
           description: Filter by a specific flags value
