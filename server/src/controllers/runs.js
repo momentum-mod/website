@@ -27,13 +27,13 @@ module.exports = {
 	},
 
 	create: (req, res, next) => {
-		if (req.body) {
+		if (req.body && Buffer.isBuffer(req.body)) {
 			run.create(req.params.mapID, req.user.id, Buffer.from(req.body))
 			.then(runResults => {
 				res.json(runResults);
 			}).catch(next);
 		} else {
-			const err = new Error('No run file provided');
+			const err = new Error('Bad Request');
 			err.status = 400;
 			next(err);
 		}
