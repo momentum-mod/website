@@ -483,4 +483,26 @@ module.exports = {
 		});
 	},
 
+	getSteamFriendIDs: (steamID) => {
+		return axios.get('https://api.steampowered.com/ISteamUser/GetFriendList/v1/', {
+			params: {
+				key: config.steam.webAPIKey,
+				steamid: steamID,
+			}
+		}).then(res => {
+			return new Promise((resolve, reject) => {
+				if (res && res.data) {
+					const friendIDs = [];
+					for (let i = 0; i < res.data.friendslist.friends.length; i++)
+						friendIDs.push(res.data.friendslist.friends[i].steamid);
+					resolve(friendIDs);
+				} else {
+					const err = new Error('Failed to get Steam friends list');
+					err.status = 500;
+					reject(err);
+				}
+			});
+		});
+	},
+
 };

@@ -1,5 +1,6 @@
 'use strict';
-const run = require('../models/run');
+const run = require('../models/run'),
+	user = require('../models/user');
 
 module.exports = {
 
@@ -15,15 +16,23 @@ module.exports = {
 	},
 
 	get: (req, res, next) => {
-		run.get(req.params.mapID, req.params.runID, req.query)
-		.then(run => {
-			if (!run) {
-				const err = new Error('Run not found');
-				err.status = 400;
-				return next(err);
-			}
-			res.json(run);
-		}).catch(next);
+		if (req.params.runID === 'friends') {
+			user.getSteamFriendIDs(req.user.id)
+			.then(steamIDs => {
+				req.query.playerIDs = steamIDs.join(',');
+				module.exports.getAll(req, res, next);
+			}).catch(next);
+		} else {
+			run.get(req.params.mapID, req.params.runID, req.query)
+			.then(run => {
+				if (!run) {
+					const err = new Error('Run not found');
+					err.status = 400;
+					return next(err);
+				}
+				res.json(run);
+			}).catch(next);
+		}
 	},
 
 	create: (req, res, next) => {

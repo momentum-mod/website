@@ -387,6 +387,8 @@ module.exports = {
 			queryContext.where.mapID = context.mapID;
 		if (context.playerID)
 			queryContext.where.playerID = context.playerID;
+		if (context.playerIDs)
+			queryContext.where.playerID = { [Op.in]: context.playerIDs.split(',') };
 		if (context.flags)
 			queryContext.where.flags = parseInt(context.flags) || 0;
 		if (context.isPersonalBest)
