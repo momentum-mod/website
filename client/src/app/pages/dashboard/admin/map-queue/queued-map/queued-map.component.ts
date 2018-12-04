@@ -24,7 +24,7 @@ export class QueuedMapComponent implements OnInit {
   ngOnInit() {
   }
 
-  updateMapStatus(mapID: string, statusFlag: number) {
+  updateMapStatus(mapID: number, statusFlag: number) {
     this.adminService.updateMap(mapID, {
       statusFlag: statusFlag,
     }).subscribe(() => {
@@ -35,7 +35,7 @@ export class QueuedMapComponent implements OnInit {
     });
   }
 
-  onMapFileDownload(mapID: string) {
+  onMapFileDownload(mapID: number) {
     this.mapService.downloadMapFile(mapID).subscribe(data => {
       const blob = new Blob([data], { type: 'application/octect-stream' });
       const url = window.URL.createObjectURL(blob);

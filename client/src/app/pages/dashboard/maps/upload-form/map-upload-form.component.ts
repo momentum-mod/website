@@ -101,7 +101,7 @@ export class MapUploadFormComponent implements AfterViewInit {
     if (!(this.filesForm.valid && this.infoForm.valid && this.creditsForm.valid))
       return;
     let mapCreated = false;
-    let mapID = '';
+    let mapID: number = -1;
     let uploadLocation = '';
 
     const mapObject = {
