@@ -1,8 +1,8 @@
 export interface RunStats {
   id: number;
   runID: number;
-  totalJumps: number;
-  totalStrafes: number;
+  jumps: number;
+  strafes: number;
   createdAt?: Date;
   updatedAt?: Date;
 }

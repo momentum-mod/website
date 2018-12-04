@@ -21,6 +21,7 @@ import {OutgoingModule} from './pages/outgoing/outgoing.module';
 import {MarkdownModule, MarkedOptions} from 'ngx-markdown';
 import {NbDatepickerModule, NbDialogModule} from '@nebular/theme';
 import {ToasterModule} from 'angular2-toaster';
+import {DISQUS_SHORTNAME, DisqusModule} from 'ngx-disqus';
 
 export function tokenGetter() {
   return localStorage.getItem('accessToken');
@@ -60,6 +61,7 @@ export function tokenGetter() {
         },
       },
     }),
+    DisqusModule.forRoot('momentum-mod'),
     NbDatepickerModule.forRoot(),
     ToasterModule.forRoot(),
     NbDialogModule.forRoot({
@@ -76,6 +78,7 @@ export function tokenGetter() {
   bootstrap: [AppComponent],
   providers: [
     { provide: APP_BASE_HREF, useValue: '/' },
+    { provide: DISQUS_SHORTNAME, useValue: 'momentum-mod' },
   ],
 })
 export class AppModule {

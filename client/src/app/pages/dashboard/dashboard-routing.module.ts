@@ -57,8 +57,13 @@ const routes: Routes = [
         },
       },
       {
-        path: 'runs/:id',
-        component: RunInfoComponent,
+        path: 'runs',
+        children: [
+          {
+            path: ':id',
+            component: RunInfoComponent,
+          },
+        ],
       },
       {
         path: '',

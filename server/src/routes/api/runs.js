@@ -10,6 +10,7 @@ router.route('/')
 
 
 router.route('/:runID')
+	.get(runCtrl.getByID)
 	.all(errorCtrl.send405);
 
 

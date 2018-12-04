@@ -1,8 +1,9 @@
 'use strict';
 const util = require('util'),
-	{ sequelize, Op, Map, MapStats, Run, RunStats, User, UserStats, Profile } = require('../../config/sqlize'),
+	{ sequelize, Op, Map, MapInfo, MapStats, Run, RunStats, User, UserStats, Profile } = require('../../config/sqlize'),
 	activity = require('./activity'),
 	config = require('../../config/config'),
+	queryHelper = require('../helpers/query'),
 	fs = require('fs');
 
 const validateRunFile = (resultObj) => {
@@ -396,27 +397,14 @@ module.exports = {
 		return Run.findAndCountAll(queryContext);
 	},
 
-	get: (mapID, runID, context) => {
-		return Map.findById(mapID).then(map => {
-			if (map) {
-				const queryContext = {
-					where: { id: runID },
-					include: [{
-						model: User,
-						include: [{
-							model: Profile,
-						}],
-					}],
-				};
-				return Run.find(queryContext);
-			}
-			else {
-				const err = new Error("Failed to find map!");
-				err.status = 404;
-				return Promise.reject(err);
-			}
-		});
-
+	getByID: (runID, context) => {
+		const queryContext = {
+			where: { flags: 0 }
+		};
+		if (context.mapID)
+			queryContext.where.mapID = context.mapID;
+		queryHelper.addExpansions(queryContext, context.expand, ['user', 'map', 'runStats']);
+		return Run.findById(runID, queryContext);
 	},
 
 	getFilePath: (runID) => {
