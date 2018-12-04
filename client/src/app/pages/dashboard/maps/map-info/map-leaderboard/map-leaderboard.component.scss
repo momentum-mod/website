@@ -5,9 +5,11 @@ table {
 }
 
 td {
-  border: 1px solid #303030;
   text-align: left;
-  padding: 8px;
+  padding-top: 0.5%;
+  padding-bottom: 0.5%;
+  padding-left: 1%;
+  font-size: 1.2rem;
 }
 
 tr:nth-child(even) {
@@ -16,8 +18,9 @@ tr:nth-child(even) {
 
 th {
   text-align: left;
-  padding: 8px;
-  font-size: 20px;
+  padding: 1%;
+  font-size: 1.3rem;
+  color: gray;
 }
 
 .header {
