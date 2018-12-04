@@ -1,28 +1,27 @@
-<nb-card>
+<nb-card *ngIf="map">
   <nb-card-header>
-    <h2>{{map?.name}}</h2>
+    <h2>{{map.name}}</h2>
   </nb-card-header>
   <nb-card-body class="row">
     <div class="col-lg-5 col-md-12 bury">
       <ngx-gallery class="image-gallery bury" [options]="galleryOptions" [images]="galleryImages"></ngx-gallery>
     </div>
-
     <div class="col-lg-7 col-md-12">
       <nb-tabset [fullWidth]="true">
         <nb-tab [tabTitle]="'DESCRIPTION'">
-          <map-info-description [map]="map" (libraryUpdate)="onLibraryUpdate()"></map-info-description>
-        </nb-tab>
-        <nb-tab [tabTitle]="'STATISTICS'">
-          <map-info-stats [map]="map"></map-info-stats>
+          <map-info-description [map]="map"></map-info-description>
         </nb-tab>
         <nb-tab [tabTitle]="'CREDITS'">
           <map-info-credits [map]="map"></map-info-credits>
         </nb-tab>
+        <nb-tab [tabTitle]="'STATISTICS'">
+          <map-info-stats [map]="map"></map-info-stats>
+        </nb-tab>
       </nb-tabset>
       <div>
-        <div class="ion-android-download picture col-auto d-inline-block"> {{map?.stats?.totalDownloads}}</div>
-        <div class="ion-folder picture col-auto d-inline-block"> {{map?.stats?.totalSubscriptions}}</div>
-        <div class="ion-play picture col-auto d-inline-block"> {{map?.stats?.totalPlays}}</div>
+        <div class="ion-android-download picture col-auto d-inline-block"> {{map.stats?.totalDownloads}}</div>
+        <div class="ion-folder picture col-auto d-inline-block"> {{map.stats?.totalSubscriptions}}</div>
+        <div class="ion-play picture col-auto d-inline-block"> {{map.stats?.totalPlays}}</div>
         <br>
         <br>
         <button type="button" class="btn btn-outline-info" (click)="onLibraryUpdate()">
@@ -34,5 +33,5 @@
 </nb-card>
 
 <nb-card>
-  <map-leaderboard #leaderboard [mapID]="map?.id"></map-leaderboard>
+  <map-leaderboard #leaderboard [mapID]="map.id"></map-leaderboard>
 </nb-card>

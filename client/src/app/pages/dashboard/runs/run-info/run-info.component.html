@@ -1,22 +1,24 @@
-<nb-card>
+<nb-card *ngIf="run">
   <nb-card-header>
-    <h2>{{run?.user.profile.alias}} on {{run?.map.name}}</h2>
+    <h2>
+      <a [routerLink]="'/dashboard/profile/' + run.user.id">{{run.user.profile.alias}}</a> on
+      <a [routerLink]="'/dashboard/maps/' + run.mapID">{{run.map.name}}</a></h2>
   </nb-card-header>
   <nb-card-body>
     <div class="row">
       <div class="base">
         <h5>Time</h5>
-        <h1>{{run?.time | timing}}</h1>
+        <h1>{{run.time | timing}}</h1>
       </div>
 
       <div class="base">
         <h5>Jumps</h5>
-        <h1>{{run?.stats.jumps}}</h1>
+        <h1>{{run.stats.jumps}}</h1>
       </div>
 
       <div class="base">
         <h5>Strafes</h5>
-        <h1>{{run?.stats.strafes}}</h1>
+        <h1>{{run.stats.strafes}}</h1>
       </div>
 
       <div class="base">

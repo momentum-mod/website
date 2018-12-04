@@ -1,8 +1,10 @@
+import {MomentumMap} from './momentum-map.model';
+
 export interface GlobalMapStats {
   totalCompletedMaps: number;
   totalMaps: number;
-  topSubscribedMap: string;
-  topPlayedMap: string;
-  topDownloadedMap: string;
-  topUniquelyCompletedMap: string;
+  topSubscribedMap: MomentumMap;
+  topPlayedMap: MomentumMap;
+  topDownloadedMap: MomentumMap;
+  topUniquelyCompletedMap: MomentumMap;
 }
