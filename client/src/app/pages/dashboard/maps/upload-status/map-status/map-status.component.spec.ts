@@ -17,7 +17,7 @@ describe('MapStatusComponent', () => {
     fixture = TestBed.createComponent(MapStatusComponent);
     component = fixture.componentInstance;
     component.map = {
-      id: '123',
+      id: 123,
       name: 'testmap1',
       hash: '',
       statusFlag: 0,

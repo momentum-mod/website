@@ -17,11 +17,11 @@ export class MapsService {
   }
 
   /**
-   * @param id
+   * @param id The ID of the map
    * @param options The options for the request
    * @return Retrieves a specific map
    */
-  getMap(id: string, options?: object): Observable<any> {
+  getMap(id: number, options?: object): Observable<any> {
     return this.http.get('/api/maps/' + id, options || {});
   }
 

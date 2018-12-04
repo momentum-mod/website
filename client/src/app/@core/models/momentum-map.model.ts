@@ -5,7 +5,7 @@ import {MapStats} from './map-stats.model';
 import {MapImage} from './map-image.model';
 
 export interface MomentumMap {
-  id: string;
+  id: number;
   name: string;
   hash: string;
   statusFlag: number;

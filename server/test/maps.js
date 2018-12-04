@@ -32,7 +32,7 @@ describe('maps', () => {
 
 	const testMap = {
 		name: 'test_map',
-		id: '8888',
+		id: 8888,
 		info: {
 			description: 'My first map!!!!',
 			numBonuses: 1,
@@ -52,7 +52,7 @@ describe('maps', () => {
 	};
 
     const testMap2 = {
-        id: '222',
+        id: 222,
         name: 'test_map_two',
         info: {
             description: 'My test map!!!!',
@@ -73,7 +73,7 @@ describe('maps', () => {
     };
 
     const testMap3 = {
-        id: '444',
+        id: 444,
         name: 'test_map_three',
         info: {
             description: 'test3',
@@ -85,7 +85,7 @@ describe('maps', () => {
     };
 
     const uniMap = {
-        id: '456',
+        id: 456,
         name: 'unimap',
         info: {
             description: 'unimap desc',
