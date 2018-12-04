@@ -41,14 +41,14 @@ export class ActivityContentComponent implements OnInit {
         this.eventText = 'world record';
         this.activityIcon = 'ion ion-android-globe';
         this.eventColor = 'yellow';
-        this.eventLink = '/dashboard/'; // TODO put proper route
+        this.eventLink = '/dashboard/runs/' + this.activity.data;
         break;
       case Activity_Type.PB_ACHIEVED:
         this.actionText = ' achieved a ';
         this.eventText = 'personal best';
         this.activityIcon = 'ion ion-trophy';
         this.eventColor = 'silver';
-        this.eventLink = '/dashboard'; // TODO put proper route
+        this.eventLink = '/dashboard/runs/' + this.activity.data;
         break;
       case Activity_Type.USER_JOINED:
         this.actionText = ' has ';
