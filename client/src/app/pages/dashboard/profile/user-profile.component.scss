@@ -1,8 +1,6 @@
 @import '../../../@theme/styles/themes';
 
 .header {
-  margin: auto;
-  text-align: center;
   position: relative;
 
   .text {
@@ -17,15 +15,34 @@
 }
 
 .verified {
-  vertical-align: sub;
+  vertical-align: super;
   padding-left: 3%;
   margin: auto;
   max-width: 2rem;
 }
 
+.user-info {
+  padding-left: 2%;
+  padding-top: 1%;
+}
+
+.socials {
+  font-size: 3rem;
+
+  a {
+    padding: 0.4rem;
+    color: nb-theme(color-fg);
+    transition: color ease-out 0.1s;
+
+    &:hover {
+      color: nb-theme(color-fg-heading);
+    }
+  }
+}
+
 .badges {
   img {
-    max-width: 7vh;
+    max-width: 6vh;
   }
 }
 
@@ -36,6 +53,10 @@
 .edit-profile {
   right: 0;
   position: absolute;
+}
+
+profile-follow {
+  float: right;
 }
 
 .user-image {
@@ -55,9 +76,10 @@
   inset 0 0 2vh nb-theme(user-fg-highlight),
   inset 0 0 2vh nb-theme(user-fg-highlight),
   inset 0 0 2vh nb-theme(user-fg-highlight);
+  max-width: 25vh;
   width: 25vh;
+  max-height: 25vh;
   height: 25vh;
-  margin: auto;
 }
 h5 {
   color: lightgray;
