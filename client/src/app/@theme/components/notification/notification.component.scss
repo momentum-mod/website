@@ -13,6 +13,9 @@ nb-list-item {
   position: relative;
 }
 
+nb-list-item:first-child {
+  border: none;
+}
 nb-list-item:hover .button {
   opacity: 1;
 }
