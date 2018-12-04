@@ -12,6 +12,8 @@ const { forceSyncDB, Map, MapInfo, MapCredit, MapImage, User } = require('../con
 
 chai.use(chaiHttp);
 
+let fs = require('fs');
+
 describe('maps', () => {
 
 	let accessToken = null;
@@ -31,7 +33,7 @@ describe('maps', () => {
     };
 
 	const testMap = {
-		name: 'test_map',
+		name: 'map1',
 		id: '8888',
 		info: {
 			description: 'My first map!!!!',
@@ -94,6 +96,23 @@ describe('maps', () => {
             numStages: 1,
             difficulty: 5,
         }
+    };
+
+    const postMap = {
+        id: '567890098765',
+        name: 'poster',
+        info: {
+            description: 'poster desc',
+            numBonuses: 1,
+            numCheckpoints: 1,
+            numStages: 1,
+            difficulty: 5,
+        },
+        credits: {
+            id: 2020,
+            type: 2,
+            userID: '2759389285395352',
+        },
     };
 
 	before(() => {
@@ -268,7 +287,7 @@ describe('maps', () => {
                         expect(res).to.be.json;
                         expect(res.body).to.have.property('maps');
                         expect(res.body.maps).to.be.an('array');
-                        expect(res.body.maps).to.have.length(2);
+                        expect(res.body.maps).to.have.length(1);
                         expect(res.body.maps[0]).to.have.property('name');
                     });
             });
@@ -370,6 +389,51 @@ describe('maps', () => {
 		});
 
 
+		// either this user needs to be the submitter or it cant be a map that was already submitted...
+        describe('PATCH /api/maps/{mapID}/info', () => {
+            it('should respond with map info', () => {
+                return chai.request(server)
+                    .post('/api/maps')
+                    .set('Authorization', 'Bearer ' + accessToken)
+                    .send({
+                       id: postMap.id,
+                       name: postMap.name,
+                       info: postMap.info
+                    })
+                    .then(res => {
+                        return chai.request(server)
+                            .patch('/api/maps/' + postMap.id + '/info')
+                            .set('Authorization', 'Bearer ' + accessToken)
+                            .send({
+                                description: 'tesdsfdt'
+                            })
+                            .then(res2 => {
+                                expect(res).to.have.status(200);
+                                expect(res2).to.have.status(204);
+                            });
+                    });
+            });
+
+
+            // swagger says this should return 404 if the map is not found,
+            // but it won't get past the check for if the map was submitted
+            // by that user or not
+            it('should return 403 if the map was not submitted by that user', () => {
+                return chai.request(server)
+                    .patch('/api/maps/00091919/info')
+                    .set('Authorization', 'Bearer ' + accessToken)
+                    .then(res => {
+                        expect(res).to.have.status(403);
+                        expect(res).to.be.json;
+                        expect(res.body).to.have.property('error');
+                        expect(res.body.error.code).equal(403);
+                        expect(res.body.error.message).to.be.a('string');
+                    });
+
+            });
+        });
+
+
         describe('GET /api/maps/{mapID}/credits', () => {
             it('should respond with the specified maps credits', () => {
                 return chai.request(server)
@@ -395,18 +459,13 @@ describe('maps', () => {
             });
 
             // should this return a 404 instead of a 200?
-            it('should return 404 if the map is not found', () => {
+            it('should return 200 with an empty array', () => {
                 return chai.request(server)
                     .get('/api/maps/999999999999999/credits')
                     .set('Authorization', 'Bearer ' + accessToken)
                     .then(res => {
                         expect(res).to.have.status(200);
                         expect(res.body.mapCredits).to.have.length(0);
-                      //  expect(res).to.have.status(404);
-                      //  expect(res).to.be.json;
-                      //  expect(res.body).to.have.property('error');
-                      //  expect(res.body.error.code).equal(404);
-                      //  expect(res.body.error.message).to.be.a('string');
                     });
 
             });
@@ -456,28 +515,52 @@ describe('maps', () => {
                         expect(res.body.user).to.have.property('permissions');
                     });
             });
+
+            it('should return a 404 if the map is not found', () => {
+                return chai.request(server)
+                    .get('/api/maps/20090909/credits/222')
+                    .set('Authorization', 'Bearer ' + accessToken)
+                    .then(res => {
+                        expect(res).to.have.status(404);
+                        expect(res).to.be.json;
+                        expect(res.body).to.have.property('error');
+                        expect(res.body.error.code).equal(404);
+                        expect(res.body.error.message).to.be.a('string');
+                    });
+            });
         });
 
 
-// I dont know what is wrong with this
-// returns 403
-/*
        describe('PATCH /api/maps/{mapID}/credits/{mapCredID}', () => {
             it('should update the specified map credit', () => {
                 return chai.request(server)
-                    .patch('/api/maps/' + testMap.id + '/credits/' + testMap.credits.id)
+                    .patch('/api/maps/' + postMap.id + '/credits/' + postMap.credits.id)
                     .set('Authorization', 'Bearer ' + accessToken)
                     .send({
                         type: 1,
                         userID: testAdmin.id
                     }).then(res => {
                          expect(res).to.have.status(204);
-                         //expect(res).to.have.status(403);
-                         expect(res).to.be.json;
                     });
             });
+
+           it('should return 403 if the map was not submitted by that user', () => {
+               return chai.request(server)
+                   .patch('/api/maps/3938282929/credits/234532')
+                   .set('Authorization', 'Bearer ' + accessToken)
+                   .send({
+                       type: 1,
+                       userID: testAdmin.id
+                   }) .then(res => {
+                       expect(res).to.have.status(403);
+                       expect(res).to.be.json;
+                       expect(res.body).to.have.property('error');
+                       expect(res.body.error.code).equal(403);
+                       expect(res.body.error.message).to.be.a('string');
+                   });
+           });
         });
-*/
+
         describe('DELETE /api/maps/{mapID}/credits{mapCredID}', () => {
             it('should delete the specified map credit', () => {
                 return chai.request(server)
@@ -488,6 +571,61 @@ describe('maps', () => {
                     });
             });
         });
+
+        describe('PUT /maps/{mapID}/avatar', () => {
+            it('should upload and update the avatar for a map', () => {
+                return chai.request(server)
+                    .put('/api/maps/' + postMap.id + '/avatar')
+                    .set('Authorization', 'Bearer ' + accessToken)
+                    .attach('avatarFile', fs.readFileSync('test/testImage.jpg'), 'testImage.jpg')
+                    .then(res => {
+                        expect(res).to.have.status(200);
+
+                    });
+            });
+            it('should return a 400 if no avatar file is provided', () => {
+                return chai.request(server)
+                    .put('/api/maps/' + testMap.id + '/avatar')
+                    .set('Authorization', 'Bearer ' + accessToken)
+                    .then(res => {
+                        expect(res).to.have.status(400);
+                        expect(res).to.be.json;
+                        expect(res.body).to.have.property('error');
+                        expect(res.body.error.code).equal(400);
+                        expect(res.body.error.message).to.be.a('string');
+                    });
+            });
+
+            it('should return a 403 if the submitter ID does not match the userId', () => {
+                return chai.request(server)
+                    .put('/api/maps/12133122/avatar')
+                    .set('Authorization', 'Bearer ' + accessToken)
+                    .attach('avatarFile', fs.readFileSync('test/testImage.jpg'), 'testImage.jpg')
+                    .then(res => {
+                        expect(res).to.have.status(403);
+                        expect(res).to.be.json;
+                        expect(res.body).to.have.property('error');
+                        expect(res.body.error.code).equal(403);
+                        expect(res.body.error.message).to.be.a('string');
+                    });
+            });
+        });
+
+/*
+        describe('POST /maps/{mapID}/images', () => {
+           it('should create a map image for the specified map', () => {
+               return chai.request(server)
+                   .put('/api/maps/' + postMap.id + '/images')
+                   .set('Authorization', 'Bearer ' + accessToken)
+                   .attach('mapImageFile', fs.readFileSync('test/testImage.jpg'), 'testImage.jpg')
+                   .then(res => {
+                       expect(res).to.have.status(200);
+                   });
+           }) ;
+        });
+        */
+
+
 
 		describe('GET /api/maps/{mapID}/upload', () => {
 			it('should respond with the location for where to upload the map file', () => {
@@ -515,24 +653,34 @@ describe('maps', () => {
                         expect(res.body.error.message).to.be.a('string');
 					});
 			});
-			/*
-			it('should respond with a 404 when the map is not found', () => {
+
+		    it('should respond with a 403 when the submitterID does not match the userID', () => {
 				return chai.request(server)
 					.post('/api/maps/12133122/upload')
-                    .type('form')
                     .set('Authorization', 'Bearer ' + accessToken)
+                    .attach('mapFile', fs.readFileSync('test/testMap.bsp'), 'testMap.bsp')
                     .then(res => {
-                        expect(res).to.have.status(404);
+                        expect(res).to.have.status(403);
                         expect(res).to.be.json;
-                         expect(res.body).to.have.property('error');
-                        expect(res.body.error.code).equal(404);
+                        expect(res.body).to.have.property('error');
+                        expect(res.body.error.code).equal(403);
                         expect(res.body.error.message).to.be.a('string');
                     });
 
 			});
-			*/
+
+
 			it('should respond with a 409 when the map is not accepting uploads');
-			it('should upload the map file');
+			it('should upload the map file', () => {
+                return chai.request(server)
+                    .post('/api/maps/' + postMap.id + '/upload')
+                    .set('Authorization', 'Bearer ' + accessToken)
+                    .attach('mapFile', fs.readFileSync('test/testMap.bsp'), 'testMap.bsp')
+                    .then(res => {
+                        expect(res).to.have.status(200);
+
+                    });
+            });
 		});
 
 		describe('GET /api/maps/{mapID}/download', () => {
@@ -548,13 +696,16 @@ describe('maps', () => {
                         expect(res.body.error.message).to.be.a('string');
 					});
 			});
-			it('should download the map file');
+			it('should download the map file', () => {
+			    return chai.request(server)
+                    .get('/api/maps/' + postMap.id + '/download')
+                    .set('Authorization', 'Bearer ' + accessToken)
+                    .then(res => {
+                        expect(res).to.have.status(200);
+
+                    });
+            });
 		});
-
-
-        describe('PUT /maps/{mapID}/avatar', () => {
-           it('should upload and update the avatar for a map');
-        });
 
 
 
@@ -599,27 +750,28 @@ describe('maps', () => {
 		});
 
 
-		describe('PUT /api/maps/{mapID}/images/{imgID}', () => {
-		    /*
-			it('should respond with 404 when the image is not found', () => {
+
+
+        describe('PUT /api/maps/{mapID}/images/{imgID}', () => {
+
+            it('should respond with 404 when the image is not found', () => {
                 return chai.request(server)
-                    .put('/api/maps/' + testMap.id + '/images/' + testMap.images.id)
-                    .type('form')
+                    .put('/api/maps/' + postMap.id + '/images/0')
                     .set('Authorization', 'Bearer ' + accessToken)
-                    .send(null)
+                    .attach('mapImageFile', fs.readFileSync('test/testImage2.jpg'), 'testImage2.jpg')
                     .then(res => {
                         expect(res).to.have.status(404);
                         expect(res).to.be.json;
                         expect(res.body).to.have.property('error');
-					expect(res.body.error.code).equal(404);
-					expect(res.body.error.message).to.be.a('string');
+                        expect(res.body.error.code).equal(404);
+                        expect(res.body.error.message).to.be.a('string');
                     });
-			});
-			*/
-			it('should respond with 400 when no map image is provided', () => {
+            });
+
+            it('should respond with 400 when no map image is provided', () => {
                 return chai.request(server)
                     .put('/api/maps/' + testMap.id + '/images/' + testMap.images.id)
-					.type('form')
+                    .type('form')
                     .set('Authorization', 'Bearer ' + accessToken)
                     .then(res => {
                         expect(res).to.have.status(400);
@@ -630,36 +782,31 @@ describe('maps', () => {
                     });
             });
 
-/*
-			it('should update the map image', () => {
-				return chai.request(server)
-				.put('/api/maps/' + testMap.id + '/images/' + testMap.images.id)
-                    .type('form')
-					.set('Authorization', 'Bearer ' + accessToken)
-                    .attach('files', 'test/testImage.jpg', 'testImage.jpg')
-                .then(res => {
-                    expect(res).to.have.status(200);
-                    expect(res).to.be.json;
-                });
+            it('should update the map image', () => {
+                return chai.request(server)
+                    .put('/api/maps/' + postMap.id + '/images/2')
+                    .set('Authorization', 'Bearer ' + accessToken)
+                    .attach('mapImageFile', fs.readFileSync('test/testImage2.jpg'), 'testImage2.jpg')
+                    .then(res => {
+                        expect(res).to.have.status(204);
+                    });
 
-			});
-			*/
-		});
+            });
 
-// returns 500
-        /*
+        });
+
+
 		describe('DELETE /api/maps/{mapID}/images/{imgID}', () => {
 			it('should delete the map image', () => {
 				return chai.request(server)
-				.delete('/api/maps/' + testMap2.id + '/images/' + testMap2.images.id)
+				.delete('/api/maps/' + postMap.id + '/images/2')
                     .set('Authorization', 'Bearer ' + accessToken)
                     .then(res => {
-                        expect(res).to.have.status(200);
-                        expect(res).to.be.json;
+                        expect(res).to.have.status(204);
                     });
 			});
 		});
-*/
+
 	});
 
 });
