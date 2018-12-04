@@ -86,7 +86,7 @@ export class LocalUserService {
    * @param mapID ID of a specific map
    * @return adds map to user library
    */
-  public addMapToLibrary(mapID: string): Observable<any> {
+  public addMapToLibrary(mapID: number): Observable<any> {
     return this.http.post('/api/user/maps/library', {mapID: mapID});
   }
 
@@ -94,7 +94,7 @@ export class LocalUserService {
    * @param mapID ID of a specific map
    * @return remove map from user library
    */
-  public removeMapFromLibrary(mapID: string): Observable<any> {
+  public removeMapFromLibrary(mapID: number): Observable<any> {
     return this.http.delete('/api/user/maps/library/' + mapID, {
       responseType: 'text',
     });

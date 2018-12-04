@@ -11,11 +11,11 @@ export class AdminService {
   constructor(private http: HttpClient) { }
 
   /**
-   * @param mapID ID of the map to find
+   * @param mapID ID of the map to update
    * @param map Map with new values of properties
    * @return updates a specific map
    */
-  updateMap(mapID: string, map: object): Observable<any> {
+  updateMap(mapID: number, map: object): Observable<any> {
     return this.http.patch('/api/admin/maps/' + mapID, map);
   }
 

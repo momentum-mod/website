@@ -27,10 +27,30 @@ describe('StatsService', () => {
     expectedGlobalMapStats = {
       totalCompletedMaps: 1,
       totalMaps: 2,
-      topSubscribedMap: 'triggertests',
-      topPlayedMap: 'triggertests',
-      topDownloadedMap: 'triggertests',
-      topUniquelyCompletedMap: 'triggertests',
+      topSubscribedMap: {
+        id: 123,
+        name: 'triggertests',
+        hash: 'hashlol',
+        statusFlag: 0,
+      },
+      topPlayedMap: {
+        id: 123,
+        name: 'triggertests',
+        hash: 'hashlol',
+        statusFlag: 0,
+      },
+      topDownloadedMap: {
+        id: 123,
+        name: 'triggertests',
+        hash: 'hashlol',
+        statusFlag: 0,
+      },
+      topUniquelyCompletedMap: {
+        id: 123,
+        name: 'triggertests',
+        hash: 'hashlol',
+        statusFlag: 0,
+      },
     };
   });
 

@@ -3,7 +3,7 @@
 module.exports = (sequelize, type) => {
 	return sequelize.define('map', {
 		id: {
-			type: type.BIGINT,
+			type: type.INTEGER.UNSIGNED,
 			primaryKey: true,
 			autoIncrement: true
 		},

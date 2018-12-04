@@ -12,7 +12,7 @@ describe('MapsService', () => {
     httpClientSpy = jasmine.createSpyObj('HttpClient', ['get', 'post']);
     mapsService = new MapsService(<any> httpClientSpy);
     expectedMap = {
-      id: '9',
+      id: 9,
       hash: null,
       name: 'testmap1',
       statusFlag: 0,
@@ -21,7 +21,7 @@ describe('MapsService', () => {
     expectedMaps = [
       expectedMap,
       {
-        id: '40000',
+        id: 40000,
         hash: null,
         name: 'testmap2',
         statusFlag: 0,

@@ -24,7 +24,7 @@ describe('AdminService', () => {
       },
     };
     expectedMap = {
-      id: '9',
+      id: 9,
       name: 'testmap1',
       hash: '',
       statusFlag: 0,
@@ -35,7 +35,7 @@ describe('AdminService', () => {
     expectedMaps = [
       expectedMap,
       {
-        id: '40000',
+        id: 40000,
         name: 'testmap2',
         hash: '',
         statusFlag: 0,
