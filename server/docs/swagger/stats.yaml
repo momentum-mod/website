@@ -1,5 +1,5 @@
 paths:
-  /global:
+  /stats/global:
     get:
       tags:
         - stats
@@ -19,7 +19,7 @@ paths:
               runsSubmitted:
                 type: string
                 readOnly: true
-  /global/maps:
+  /stats/global/maps:
     get:
       tags:
         - stats
