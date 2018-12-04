@@ -1,5 +1,5 @@
 <div class="header">
-  <span class="name">Leaderboard</span>
+  <span class="name">LEADERBOARD</span>
   <button class="filter-btn btn btn btn-outline-info" type="button" (click)="filterActive = !filterActive">Filter</button>
 </div>
 <div class="filter-content" [ngClass]="{'filter-active': filterActive}"
@@ -39,6 +39,7 @@
     <th>USER</th>
     <th>FLAGS</th>
     <th>TIME</th>
+    <th>ACHIEVED</th>
     <th>VIEW</th>
   </tr>
   <tr *ngFor="let run of leaderboardRuns; index as i">
@@ -46,6 +47,7 @@
     <td><nb-user [name]="run?.user.profile.alias" [picture]="run?.user.profile.avatarURL" size="small" class="d-inline-block"></nb-user></td>
     <td></td>
     <td>{{run?.time}}</td>
+    <td>{{run?.dateAchieved | timeAgo}}</td>
     <td><button type="button" class="btn btn-outline-info btn-round ion ion-play"></button></td>
   </tr>
 </table>
