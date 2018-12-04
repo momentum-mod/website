@@ -28,7 +28,14 @@ import {
   NotificationComponent,
   SearchInputComponent,
 } from './components';
-import {CapitalizePipe, NumberWithCommasPipe, PluralPipe, RoundPipe, TimingPipe} from './pipes';
+import {
+  CapitalizePipe,
+  NumberTrimPipe,
+  NumberWithCommasPipe,
+  PluralPipe,
+  RoundPipe,
+  TimingPipe,
+} from './pipes';
 import {
   OneColumnLayoutComponent,
   SampleLayoutComponent,
@@ -38,7 +45,7 @@ import {
 import {NbSearchModule} from './components/search/search.module';
 import {TimeAgoPipe} from 'time-ago-pipe';
 import {RouterModule} from '@angular/router';
-import { ActivityListComponent } from './components/activity/activity-list/activity-list.component';
+import {ActivityListComponent} from './components/activity/activity-list/activity-list.component';
 
 const BASE_MODULES = [CommonModule, FormsModule, ReactiveFormsModule, RouterModule];
 
@@ -81,6 +88,7 @@ const PIPES = [
   TimingPipe,
   NumberWithCommasPipe,
   TimeAgoPipe,
+  NumberTrimPipe,
 ];
 
 const NB_THEME_PROVIDERS = [

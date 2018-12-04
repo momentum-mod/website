@@ -1,6 +1,7 @@
 import {Component, Input, OnInit} from '@angular/core';
 import {RunsService} from '../../../../../@core/data/runs.service';
 import {Run} from '../../../../../@core/models/run.model';
+import {Router} from '@angular/router';
 
 @Component({
   selector: 'map-leaderboard',
@@ -13,7 +14,8 @@ export class MapLeaderboardComponent implements OnInit {
   filterActive: boolean;
   leaderboardRuns: Run[];
 
-  constructor(private runService: RunsService) {
+  constructor(private runService: RunsService,
+              private router: Router) {
     this.filterActive = false;
   }
 
@@ -33,4 +35,7 @@ export class MapLeaderboardComponent implements OnInit {
     });
   }
 
+  viewRun(run: Run) {
+    this.router.navigate(['/dashboard/runs/' + run.id]);
+  }
 }
