@@ -1,7 +1,7 @@
 <div class="row">
-  <nb-card class="col-7">
+  <nb-card class="col-7" *ngIf="user">
     <nb-card-header>
-      <div class="header" *ngIf="user">
+      <div class="header">
         <div *ngIf="canEdit()" class="edit-profile">
           <button class="btn btn-outline-info" type="button" (click)="onEditProfile()">Edit Profile</button>
         </div>
@@ -35,17 +35,17 @@
         <div class="row">
           <div class="col">
             <div class="socials">
-              <a href="https://steamcommunity.com/profiles/{{user?.id}}" target="_blank" class="ion ion-steam"></a>
-              <a *ngIf="user?.profile?.twitchAuth" href="https://twitch.tv/{{user?.profile?.twitchAuth.displayName}}"
+              <a href="https://steamcommunity.com/profiles/{{user.id}}" target="_blank" class="ion ion-steam"></a>
+              <a *ngIf="user.profile?.twitchAuth" href="https://twitch.tv/{{user.profile?.twitchAuth.displayName}}"
                  target="_blank" class="ion ion-social-twitch"></a>
-              <a *ngIf="user?.profile?.twitterAuth" href="https://twitter.com/{{user?.profile.twitterAuth.displayName}}"
+              <a *ngIf="user.profile?.twitterAuth" href="https://twitter.com/{{user.profile.twitterAuth.displayName}}"
                  target="_blank" class="ion ion-social-twitter"></a>
-              <a *ngIf="user?.profile?.discordAuth"
+              <a *ngIf="user.profile?.discordAuth"
                  [href]="'https://discordapp.com/users/' + user.profile.discordAuth.discordID"
-                 title="{{user?.profile?.discordAuth.displayName}}" target="_blank">
+                 title="{{user.profile?.discordAuth.displayName}}" target="_blank">
                 <img src="assets\images\Discord-Logo-White.png" height="35px" width="35px">
               </a>
-              <a *ngIf="user?.profile?.youtubeName" href="https://youtube.com/user/{{user?.profile?.youtubeName}}"
+              <a *ngIf="user.profile?.youtubeName" href="https://youtube.com/user/{{user.profile?.youtubeName}}"
                  target="_blank" class="ion ion-social-youtube"></a>
             </div>
           </div>
@@ -58,7 +58,8 @@
     <nb-card-body>
       <nb-tabset [fullWidth]="true">
         <nb-tab [tabTitle]="'INFO'">
-          <markdown [data]="user?.profile?.bio" ngPreserveWhitespaces></markdown>
+          <span class="no-bio" *ngIf="!user.profile?.bio || user.profile?.bio?.length === 0"><h5><i>No bio found</i></h5></span>
+          <markdown *ngIf="user.profile?.bio?.length > 0" [data]="user?.profile?.bio" ngPreserveWhitespaces></markdown>
         </nb-tab>
         <nb-tab [tabTitle]="'FOLLOWING (' + followingUsers.length + ')'">
           <nb-list>
@@ -75,12 +76,14 @@
           </nb-list>
         </nb-tab>
 
-        <nb-tab [tabTitle]="'STATISTICS'">
-          <!--TODO put their user stats in here-->
+        <nb-tab [tabTitle]="'STATISTICS'" *ngIf="user.stats">
           <div class="row">
-            <div class="Spacing"><h5>MAPS COMPLETED:</h5> <p>{{user?.stats?.mapsCompleted}}</p></div>
-            <div class="Spacing"> <h5>TOTAL JUMPS:</h5> <p>{{user?.stats?.totalJumps}}</p></div>
-            <div class="Spacing"><h5>TOTAL STRAFES:</h5> <p>{{user?.stats?.totalStrafes}}</p></div>
+            <div class="spacing"><h5>Maps Completed</h5> <p>{{user.stats.mapsCompleted}}</p></div>
+            <div class="spacing"> <h5>Total Jumps</h5> <p>{{user.stats.totalJumps}}</p></div>
+            <div class="spacing"><h5>Total Strafes</h5> <p>{{user.stats.totalStrafes}}</p></div>
+            <div class="spacing"><h5>Runs Submitted</h5> <p>{{user.stats.runsSubmitted}}</p></div>
+            <div class="spacing"> <h5>Rank XP</h5> <p>{{user.stats.rankXP}}</p></div>
+            <div class="spacing"><h5>Cosmetic XP </h5> <p>{{user.stats.cosXP}}</p></div>
           </div>
         </nb-tab>
         <nb-tab *ngIf="isMapper" [tabTitle]="'MAPS'">
@@ -89,12 +92,12 @@
       </nb-tabset>
     </nb-card-body>
   </nb-card>
-  <activity-card class="col-5" [header]="'User Activity'" [userSubj]="userSubj$"></activity-card>
+  <activity-card *ngIf="user" class="col-5" [header]="'USER ACTIVITY'" [userSubj]="userSubj$"></activity-card>
 </div>
 
 <nb-card *ngIf="user">
   <nb-card-header>
-    <h2>Comments</h2>
+    <h2>COMMENTS</h2>
   </nb-card-header>
   <nb-card-body>
     <disqus [url]="'https://momentum-mod.org/dashboard/profile/' + user.id" [identifier]="'users/' + user.id"></disqus>
