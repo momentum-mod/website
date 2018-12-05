@@ -1,6 +1,7 @@
 import {MapsService} from './maps.service';
 import {of} from 'rxjs';
 import {MomentumMap} from '../models/momentum-map.model';
+import {MomentumMapType} from '../models/map-type.model';
 
 let httpClientSpy: { get: jasmine.Spy, post: jasmine.Spy  };
 let mapsService: MapsService;
@@ -15,6 +16,7 @@ describe('MapsService', () => {
       id: 9,
       hash: null,
       name: 'testmap1',
+      type: MomentumMapType.UNKNOWN,
       statusFlag: 0,
       createdAt: new Date(),
     };
@@ -24,6 +26,7 @@ describe('MapsService', () => {
         id: 40000,
         hash: null,
         name: 'testmap2',
+        type: MomentumMapType.UNKNOWN,
         statusFlag: 0,
         createdAt: new Date(),
       },

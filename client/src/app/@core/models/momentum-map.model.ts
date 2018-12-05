@@ -3,10 +3,12 @@ import {MapCredit} from './map-credit.model';
 import {User} from './user.model';
 import {MapStats} from './map-stats.model';
 import {MapImage} from './map-image.model';
+import {MomentumMapType} from './map-type.model';
 
 export interface MomentumMap {
   id: number;
   name: string;
+  type: MomentumMapType;
   hash: string;
   statusFlag: number;
   createdAt?: Date;

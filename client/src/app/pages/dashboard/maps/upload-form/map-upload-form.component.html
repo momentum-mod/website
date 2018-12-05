@@ -14,7 +14,7 @@
                   </div>
                   <div>
                     <input [readonly]="true" title="uploadMapFile" formControlName="map" class="form-control"
-                           [ngClass]="{'form-control-danger': map.invalid && (map.dirty || map.touched)}" #uploadFile/>
+                           [ngClass]="{'form-control-danger': map.invalid && (map.dirty || map.touched)}"/>
                   </div>
                   <div>
                     <file-upload [map]="true" [limit-size]="200" type=".bsp"
@@ -72,46 +72,75 @@
       <nb-step label="Info" [stepControl]="infoForm">
         <form [formGroup]="infoForm">
           <div class="row">
-            <div class="col-auto">
-              <div class="form-group">
-                <label>Map Name</label>
-                <input type="text" class="form-control col-md-10" name="name" required formControlName="name"
-                       [ngClass]="(name.invalid && (name.dirty || name.touched)) ? 'form-control-danger' : ''"/>
+            <div class="col-6">
+              <div class="row">
+                <div class="form-group col-4">
+                  <label>Map Name</label>
+                  <input type="text" class="form-control" name="name" required formControlName="name"
+                         [ngClass]="(name.invalid && (name.dirty || name.touched)) ? 'form-control-danger' : ''"/>
+                </div>
+                <div class="form-group col-4">
+                  <label>Map Type
+                    <i class="ion ion-help-circled"
+                       nbPopover="This is the style of gameplay found predominantly throughout the map."
+                       nbPopoverMode="hint"></i>
+                  </label>
+                  <nb-select placeholder="Map Type" formControlName="type" (selectedChange)="inferredMapType = false">
+                    <nb-option [value]="MapTypes.UNKNOWN">Unknown</nb-option>
+                    <nb-option [value]="MapTypes.SURF">Surf</nb-option>
+                    <nb-option [value]="MapTypes.BHOP">Bhop</nb-option>
+                    <nb-option [value]="MapTypes.KZ">KZ (Kreedz Climb)</nb-option>
+                    <nb-option [value]="MapTypes.RJ">RJ (Jump)</nb-option>
+                    <nb-option [value]="MapTypes.TRICKSURF">Tricksurf</nb-option>
+                    <nb-option [value]="MapTypes.TRIKZ">Trikz</nb-option>
+                  </nb-select>
+                  <div>
+                    <span class="warning" *ngIf="inferredMapType"><i>Map type inferred from file name</i></span>
+                  </div>
+                </div>
+                <div class="form-group col-4">
+                  <label>Date Created</label>
+                  <input formControlName="created" [nbDatepicker]="datepicker" class="form-control"
+                         [ngClass]="(created.invalid && (created.dirty || created.touched)) ? 'form-control-danger' : ''"/>
+                  <nb-datepicker #datepicker [boundingMonth]="false"></nb-datepicker>
+                </div>
               </div>
               <div class="form-group">
                 <label>Map Description</label>
-                <textarea rows="4" class="form-control col-md-10" formControlName="description"
-                          [ngClass]="(description.invalid && (description.dirty || description.touched)) ? 'form-control-danger' : ''"></textarea>
-              </div>
-              <div class="form-group">
-                <label>Date Created</label>
-                <input formControlName="created" [nbDatepicker]="datepicker" class="form-control col-md-10"
-                       [ngClass]="(created.invalid && (created.dirty || created.touched)) ? 'form-control-danger' : ''"/>
-                <nb-datepicker #datepicker [boundingMonth]="false"></nb-datepicker>
+                <textarea rows="4" class="form-control" formControlName="description" [maxLength]="1000"
+                          [ngClass]="{'form-control-danger': (description.invalid && (description.dirty || description.touched))}"></textarea>
+                <div class="form-text">
+                  <div class="row">
+                    <span class="col">
+                      <i><a href="https://help.github.com/articles/basic-writing-and-formatting-syntax/">Markdown</a> is supported</i>
+                    </span>
+                    <span class="col remaining">{{1000 - description.value.length | ngxPlural:'character'}} remaining</span>
+                  </div>
+                </div>
               </div>
             </div>
-            <div class="col-auto">
+            <div class="col-6">
               <div class="form-group">
                 <label>Number of Bonuses</label>
-                <input type="number" class="form-control col-md-10" formControlName="numBonuses"
+                <input type="number" class="form-control" formControlName="numBonuses"
                        [ngClass]="(numBonuses.invalid && (numBonuses.dirty || numBonuses.touched)) ? 'form-control-danger' : ''"/>
               </div>
 
               <div class="form-group">
                 <label>Number of Checkpoints</label>
-                <input type="number" class="form-control col-md-10" formControlName="numCheckpoints"
+                <input type="number" class="form-control" formControlName="numCheckpoints"
                        [ngClass]="(numCheckpoints.invalid && (numCheckpoints.dirty || numCheckpoints.touched)) ? 'form-control-danger' : ''"/>
               </div>
 
               <div class="form-group">
                 <label>Number of Stages</label>
-                <input type="number" class="form-control col-md-10" formControlName="numStages"
+                <input type="number" class="form-control" formControlName="numStages"
                        [ngClass]="(numStages.invalid && (numStages.dirty || numStages.touched)) ? 'form-control-danger' : ''"/>
               </div>
 
               <div class="form-group">
                 <label>Difficulty</label>
-                <input type="number" class="form-control col-md-10" formControlName="difficulty"
+                <input type="number" class="form-control" formControlName="difficulty"
                        [ngClass]="(difficulty.invalid && (difficulty.dirty || difficulty.touched)) ? 'form-control-danger' : ''"/>
               </div>
             </div>
