@@ -129,10 +129,21 @@ const CreditType = Object.freeze({
 	SPECIAL_THANKS: 2,
 });
 
+const MAP_TYPE = Object.freeze({
+	UNKNOWN: 0,
+	SURF: 1,
+	BHOP: 2,
+	KZ: 3,
+	RJ: 4,
+	TRICKSURF: 5,
+	TRIKZ: 6,
+});
+
 module.exports = {
 
 	STATUS,
 	CreditType,
+	MAP_TYPE,
 
 	getAll: (context) => {
 		const allowedExpansions = ['info', 'credits'];
@@ -150,7 +161,9 @@ module.exports = {
 		if (context.submitterID)
 			queryContext.where.submitterID = context.submitterID;
 		if (context.search)
-			queryContext.where.name = {[Op.like]: '%' + context.search + '%'}
+			queryContext.where.name = {[Op.like]: '%' + context.search + '%'};
+		if (context.type)
+			queryContext.where.type = {[Op.in]: context.type.split(',')};
 		if (context.status && context.statusNot) {
 			queryContext.where.statusFlag = {
 				[Op.and]: {

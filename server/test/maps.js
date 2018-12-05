@@ -32,6 +32,7 @@ describe('maps', () => {
 
 	const testMap = {
 		name: 'test_map',
+		type: map.MAP_TYPE.UNKNOWN,
 		id: 8888,
 		info: {
 			description: 'My first map!!!!',
@@ -54,6 +55,7 @@ describe('maps', () => {
     const testMap2 = {
         id: 222,
         name: 'test_map_two',
+	    type: map.MAP_TYPE.BHOP,
         info: {
             description: 'My test map!!!!',
             numBonuses: 1,
@@ -75,6 +77,7 @@ describe('maps', () => {
     const testMap3 = {
         id: 444,
         name: 'test_map_three',
+	    type: map.MAP_TYPE.SURF,
         info: {
             description: 'test3',
             numBonuses: 1,
@@ -87,6 +90,7 @@ describe('maps', () => {
     const uniMap = {
         id: 456,
         name: 'unimap',
+	    type: map.MAP_TYPE.RJ,
         info: {
             description: 'unimap desc',
             numBonuses: 1,
@@ -302,6 +306,8 @@ describe('maps', () => {
                         expect(res.body.maps[0].info).to.have.property('description');
                     });
             });
+            it('should respond with filtered map data based on the map type');
+
         });
 		describe('GET /api/maps/{mapID}', () => {
 			it('should respond with 404 when the map is not found', () => {
