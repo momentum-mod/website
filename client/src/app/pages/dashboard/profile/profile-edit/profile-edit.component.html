@@ -31,7 +31,7 @@
 
           <div class="form-group" [ngClass]="{'has-error':!profileEditFormGroup.controls['bio'].valid}">
             <label>Bio:</label>
-            <textarea class="form-control" formControlName="bio" type="bio"></textarea>
+            <textarea rows="6" class="form-control" formControlName="bio" type="bio"></textarea>
             <p class="alert alert-danger" *ngIf="profileEditFormGroup.controls['bio'].hasError('maxlength')">
               Text cannot exceed 500 characters.
             </p>
