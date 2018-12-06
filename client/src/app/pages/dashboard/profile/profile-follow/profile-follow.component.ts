@@ -22,8 +22,8 @@ import {UserFollowObject} from '../../../../@core/models/follow.model';
         <nb-checkbox [(ngModel)]="checkboxFlags.WR.checked">
           {{ActivityType[ActivityType.WR_ACHIEVED]}}
         </nb-checkbox>
-        <nb-checkbox [(ngModel)]="checkboxFlags.MAP_SUBMIT.checked">
-          {{ActivityType[ActivityType.MAP_UPLOADED]}}
+        <nb-checkbox [(ngModel)]="checkboxFlags.MAP_APPROVED.checked">
+          {{ActivityType[ActivityType.MAP_APPROVED]}}
         </nb-checkbox>
       </nb-card-body>
       <nb-card-footer>
@@ -40,7 +40,7 @@ export class ProfileNotifyEditComponent implements OnInit {
   checkboxFlags = {
     PB: {checked: false, value: Activity_Type.PB_ACHIEVED},
     WR: {checked: false, value: Activity_Type.WR_ACHIEVED},
-    MAP_SUBMIT: {checked: false, value: Activity_Type.MAP_UPLOADED},
+    MAP_APPROVED: {checked: false, value: Activity_Type.MAP_APPROVED},
     // TODO add more
   };
   constructor(protected dialogRef: NbDialogRef<ProfileNotifyEditComponent>) {
