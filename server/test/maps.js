@@ -1,14 +1,14 @@
 'use strict';
 process.env.NODE_ENV = 'test';
 
-const { forceSyncDB, Map, MapInfo, MapCredit, MapImage, User } = require('../config/sqlize'),
+const { forceSyncDB, Map, MapInfo, MapCredit, MapImage, MapStats, User } = require('../config/sqlize'),
 	chai = require('chai'),
 	chaiHttp = require('chai-http'),
 	expect = chai.expect,
 	server = require('../server.js'),
+    user = require('../src/models/user'),
 	auth = require('../src/models/auth'),
-	 map = require('../src/models/map');
-    // activity = require('../src/models/activity');
+    map = require('../src/models/map');
 
 chai.use(chaiHttp);
 
@@ -20,22 +20,24 @@ describe('maps', () => {
 	let adminAccessToken = null;
 	let adminGameAccessToken = null;
 	const testUser = {
-		id: '2759389285395352',
-		permissions: 6
+		id: '1',
+		permissions: user.Permission.VERIFIED
 	};
     const testAdmin = {
-        id: '2759381234567890',
-        permissions: 4
+        id: '3',
+        permissions: user.Permission.ADMIN
     };
     const testAdminGame = {
         id: '222',
-        permissions: 4
+        permissions: user.Permission.ADMIN
     };
 
 	const testMap = {
 		name: 'test_map',
 		type: map.MAP_TYPE.UNKNOWN,
 		id: 8888,
+        statusFlag: map.STATUS.APPROVED,
+        submitterID: testUser.id,
 		info: {
 			description: 'My first map!!!!',
 			numBonuses: 1,
@@ -45,19 +47,25 @@ describe('maps', () => {
 		},
         credits: {
             id: 1,
-            type: 2,
-            userID: '2759389285395352',
+            type: map.CreditType.AUTHOR,
+            userID: testUser.id,
         },
 		images: {
-			id: 2,
+			id: 1,
 			URL: 'https://media.moddb.com/cache/images/mods/1/29/28895/thumb_620x2000/Wallpaper.jpg'
-		}
+		},
+        stats: {
+            id: 1,
+            totalReviews: 1,
+        }
 	};
 
     const testMap2 = {
         id: 222,
         name: 'test_map_two',
 	    type: map.MAP_TYPE.BHOP,
+        statusFlag: map.STATUS.APPROVED,
+        submitterID: testUser.id,
         info: {
             description: 'My test map!!!!',
             numBonuses: 1,
@@ -67,8 +75,8 @@ describe('maps', () => {
         },
         credits: {
         	id: 2,
-            type: 2,
-            userID: '2759389285395352',
+            type: map.CreditType.AUTHOR,
+            userID: testUser.id,
     	},
         images: {
             id: 3,
@@ -80,6 +88,8 @@ describe('maps', () => {
         id: 444,
         name: 'test_map_three',
 	    type: map.MAP_TYPE.SURF,
+        submitterID: testUser.id,
+        statusFlag: map.STATUS.NEEDS_REVISION,
         info: {
             description: 'test3',
             numBonuses: 1,
@@ -102,23 +112,6 @@ describe('maps', () => {
         }
     };
 
-    const postMap = {
-        id: '567890098765',
-        name: 'poster',
-        info: {
-            description: 'poster desc',
-            numBonuses: 1,
-            numCheckpoints: 1,
-            numStages: 1,
-            difficulty: 5,
-        },
-        credits: {
-            id: 2020,
-            type: 2,
-            userID: '2759389285395352',
-        },
-    };
-
 	before(() => {
 		return forceSyncDB()
             .then(() => {
@@ -127,13 +120,13 @@ describe('maps', () => {
                 accessToken = token;
                 return User.create(testUser);
             }).then(() => {
-                testAdmin.permissions = 4;
+                testAdmin.permissions = user.Permission.ADMIN;
                 return auth.genAccessToken(testAdmin);
             }).then((token) => {
                 adminAccessToken = token;
                 return User.create(testAdmin);
             }).then(() => {
-                testAdminGame.permissions = 4;
+                testAdminGame.permissions = user.Permission.ADMIN;
                 return auth.genAccessToken(testAdminGame, true);
             }).then((token) => {
                 adminGameAccessToken = token;
@@ -143,8 +136,9 @@ describe('maps', () => {
                 return Map.create(testMap, {
                     include: [
                     	{  model: MapInfo, as: 'info',},
-						{  model : MapCredit, as: 'credits'},
-						{  model: MapImage, as: 'images'}
+						{  model: MapCredit, as: 'credits'},
+						{  model: MapImage, as: 'images'},
+                        {  model: MapStats, as: 'stats'}
                     ]
                 })
             })
@@ -153,7 +147,6 @@ describe('maps', () => {
                     include: [
                         {  model: MapInfo, as: 'info',},
                         {  model: MapImage, as: 'images'}
-                        //{  model : MapCredit, as: 'credits'}
                     ]
                 })
             })
@@ -207,7 +200,7 @@ describe('maps', () => {
 				.send({
 					name: 'test_map_5',
 					info: {
-						description: 'My second map!!!!',
+						description: 'newmap_5',
 						numBonuses: 1,
 						numCheckpoints: 1,
 						numStages: 1,
@@ -228,29 +221,28 @@ describe('maps', () => {
         describe('GET /api/maps', () => {
             it('should respond with map data', () => {
                 return chai.request(server)
-                    .patch('/api/admin/maps/' + testMap.id)
+                    .get('/api/maps/')
                     .set('Authorization', 'Bearer ' + adminAccessToken)
-                    .send({ statusFlag: map.STATUS.APPROVED, submitterId: testUser.id })
                     .then(res => {
-                        return chai.request(server)
-                            .patch('/api/admin/maps/' + testMap2.id)
-                            .set('Authorization', 'Bearer ' + adminAccessToken)
-                            .send({ statusFlag: map.STATUS.APPROVED, submitterID: testUser.id })
-                            .then(res2 => {
-                                return chai.request(server)
-                                    .get('/api/maps/')
-                                    .set('Authorization', 'Bearer ' + adminAccessToken)
-                                    .then(res3 => {
-                                        expect(res3).to.have.status(200);
-                                        expect(res3).to.be.json;
-                                        expect(res3.body).to.have.property('maps');
-                                        expect(res3.body.maps).to.be.an('array');
-                                        expect(res3.body.maps).to.have.length(2);
-                                        expect(res3.body.maps[0]).to.have.property('name');
-                                        expect(res).to.have.status(204);
-                                        expect(res2).to.have.status(204);
-                                    });
-                            });
+                        expect(res).to.have.status(200);
+                        expect(res).to.be.json;
+                        expect(res.body).to.have.property('maps');
+                        expect(res.body.maps).to.be.an('array');
+                        expect(res.body.maps).to.have.length(2);
+                        expect(res.body.count).to.equal(2);
+                        expect(res.body.maps[0]).to.have.property('name');
+
+                    });
+            });
+            it('should respond with 401 when no access token is provided', () => {
+                return chai.request(server)
+                    .get('/api/maps')
+                    .then(res => {
+                        expect(res).to.have.status(401);
+                        expect(res).to.be.json;
+                        expect(res.body).to.have.property('error');
+                        expect(res.body.error.code).equal(401);
+                        expect(res.body.error.message).to.be.a('string');
                     });
             });
             it('should respond with filtered map data using the limit parameter', () => {
@@ -264,6 +256,7 @@ describe('maps', () => {
                         expect(res.body).to.have.property('maps');
                         expect(res.body.maps).to.be.an('array');
                         expect(res.body.maps).to.have.length(1);
+                        expect(res.body.count).to.equal(2);
                         expect(res.body.maps[0]).to.have.property('name');
                     });
             });
@@ -278,6 +271,7 @@ describe('maps', () => {
                         expect(res.body).to.have.property('maps');
                         expect(res.body.maps).to.be.an('array');
                         expect(res.body.maps).to.have.length(1);
+                        expect(res.body.count).to.equal(2);
                         expect(res.body.maps[0]).to.have.property('name');
                     });
             });
@@ -292,11 +286,12 @@ describe('maps', () => {
                         expect(res.body).to.have.property('maps');
                         expect(res.body.maps).to.be.an('array');
                         expect(res.body.maps).to.have.length(2);
+                        expect(res.body.count).to.equal(2);
                         expect(res.body.maps[0]).to.have.property('name');
                     });
             });
 
-         it('should respond with filtered map data using the submitter id parameter', () => {
+            it('should respond with filtered map data using the submitter id parameter', () => {
                 return chai.request(server)
                     .get('/api/maps')
                     .set('Authorization', 'Bearer ' + accessToken)
@@ -306,11 +301,26 @@ describe('maps', () => {
                         expect(res).to.be.json;
                         expect(res.body).to.have.property('maps');
                         expect(res.body.maps).to.be.an('array');
+                        expect(res.body.maps).to.have.length(2);
+                        expect(res.body.count).to.equal(2);
+                        expect(res.body.maps[0]).to.have.property('name');
+                    });
+            });
+            it('should respond with filtered map data based on the map type', () => {
+                return chai.request(server)
+                    .get('/api/maps')
+                    .set('Authorization', 'Bearer ' + accessToken)
+                    .query({ type: testMap.type})
+                    .then(res => {
+                        expect(res).to.have.status(200);
+                        expect(res).to.be.json;
+                        expect(res.body).to.have.property('maps');
+                        expect(res.body.maps).to.be.an('array');
                         expect(res.body.maps).to.have.length(1);
                         expect(res.body.maps[0]).to.have.property('name');
                     });
             });
-            it('should respond with filtered map data using the expand parameter', () => {
+            it('should respond with filtered map data using the expand info parameter', () => {
                 return chai.request(server)
                     .get('/api/maps')
                     .set('Authorization', 'Bearer ' + accessToken)
@@ -321,13 +331,46 @@ describe('maps', () => {
                         expect(res.body).to.have.property('maps');
                         expect(res.body.maps).to.be.an('array');
                         expect(res.body.maps).to.have.length(2);
+                        expect(res.body.count).to.equal(2);
                         expect(res.body.maps[0]).to.have.property('name');
                         expect(res.body.maps[0].info).to.have.property('description');
                     });
             });
-            it('should respond with filtered map data based on the map type');
 
+            it('should respond with filtered map data using the expand submitter parameter', () => {
+                return chai.request(server)
+                    .get('/api/maps')
+                    .set('Authorization', 'Bearer ' + accessToken)
+                    .query({ expand: 'submitter'})
+                    .then(res => {
+                        expect(res).to.have.status(200);
+                        expect(res).to.be.json;
+                        expect(res.body).to.have.property('maps');
+                        expect(res.body.maps).to.be.an('array');
+                        expect(res.body.maps).to.have.length(2);
+                        expect(res.body.count).to.equal(2);
+                        expect(res.body.maps[0]).to.have.property('name');
+                        expect(res.body.maps[0].submitter).to.have.property('permissions');
+                    });
+            });
+            it('should respond with filtered map data using the expand credits parameter', () => {
+                return chai.request(server)
+                    .get('/api/maps')
+                    .set('Authorization', 'Bearer ' + accessToken)
+                    .query({ expand: 'credits'})
+                    .then(res => {
+                        expect(res).to.have.status(200);
+                        expect(res).to.be.json;
+                        expect(res.body).to.have.property('maps');
+                        expect(res.body.maps).to.be.an('array');
+                        expect(res.body.maps).to.have.length(2);
+                        expect(res.body.count).to.equal(2);
+                        expect(res.body.maps[0]).to.have.property('name');
+                        expect(res.body.maps[0].credits[0]).to.have.property('type');
+                    });
+            });
         });
+
 		describe('GET /api/maps/{mapID}', () => {
 			it('should respond with 404 when the map is not found', () => {
 				return chai.request(server)
@@ -341,19 +384,29 @@ describe('maps', () => {
 					expect(res.body.error.message).to.be.a('string');
 				});
 			});
+            it('should respond with 401 when no access token is provided', () => {
+                return chai.request(server)
+                    .get('/api/maps/' + testMap.id)
+                    .then(res => {
+                        expect(res).to.have.status(401);
+                        expect(res).to.be.json;
+                        expect(res.body).to.have.property('error');
+                        expect(res.body.error.code).equal(401);
+                        expect(res.body.error.message).to.be.a('string');
+                    });
+            });
             it('should respond with map data', () => {
-                    return chai.request(server)
-                        .get('/api/maps/' + testMap.id)
-                        .set('Authorization', 'Bearer ' + accessToken)
-                        .then(res => {
-                            expect(res).to.have.status(200);
-                            expect(res).to.be.json;
-                            expect(res.body).to.have.property('id');
-                        });
-
+                return chai.request(server)
+                    .get('/api/maps/' + testMap.id)
+                    .set('Authorization', 'Bearer ' + accessToken)
+                    .then(res => {
+                        expect(res).to.have.status(200);
+                        expect(res).to.be.json;
+                        expect(res.body).to.have.property('id');
+                    });
             });
 
-            it('should respond with map data while using the expand parameter', () => {
+            it('should respond with map data while using the expand info parameter', () => {
                 return chai.request(server)
                     .get('/api/maps/' + testMap.id)
                     .set('Authorization', 'Bearer ' + accessToken)
@@ -365,7 +418,60 @@ describe('maps', () => {
                         expect(res.body.info).to.have.property('description');
                     });
             });
+            it('should respond with map data while using the expand submitter parameter', () => {
+                return chai.request(server)
+                    .get('/api/maps/' + testMap.id)
+                    .set('Authorization', 'Bearer ' + accessToken)
+                    .query({expand: 'submitter'})
+                    .then(res => {
+                        expect(res).to.have.status(200);
+                        expect(res).to.be.json;
+                        expect(res.body).to.have.property('id');
+                        expect(res.body).to.have.property('name');
+                        expect(res.body.submitter).to.have.property('permissions');
+                    });
+            });
+            it('should respond with map data while using the expand credits parameter', () => {
+                return chai.request(server)
+                    .get('/api/maps/' + testMap.id)
+                    .set('Authorization', 'Bearer ' + accessToken)
+                    .query({expand: 'credits'})
+                    .then(res => {
+                        expect(res).to.have.status(200);
+                        expect(res).to.be.json;
+                        expect(res.body).to.have.property('id');
+                        expect(res.body.credits[0]).to.have.property('type');
+                    });
+            });
+            it('should respond with map data while using the expand images parameter', () => {
+                return chai.request(server)
+                    .get('/api/maps/' + testMap.id)
+                    .set('Authorization', 'Bearer ' + accessToken)
+                    .query({expand: 'images'})
+                    .then(res => {
+                        expect(res).to.have.status(200);
+                        expect(res).to.be.json;
+                        expect(res.body).to.have.property('id');
+                        expect(res.body.images[0]).to.have.property('URL');
+                    });
+            });
+
+            it('should respond with map data while using the expand stats parameter', () => {
+                return chai.request(server)
+                    .get('/api/maps/' + testMap.id)
+                    .set('Authorization', 'Bearer ' + accessToken)
+                    .query({expand: 'stats'})
+                    .then(res => {
+                        expect(res).to.have.status(200);
+                        expect(res).to.be.json;
+                        expect(res.body).to.have.property('id');
+                        expect(res.body.stats).to.have.property('totalReviews');
+                    });
+            });
 		});
+
+
+
 
 		describe('GET /api/maps/{mapID}/info', () => {
 			it('should respond with map info', () => {
@@ -392,32 +498,34 @@ describe('maps', () => {
                    });
 
             });
+
+            it('should respond with 401 when no access token is provided', () => {
+                return chai.request(server)
+                    .get('/api/maps/' + testMap.id + '/info')
+                    .then(res => {
+                        expect(res).to.have.status(401);
+                        expect(res).to.be.json;
+                        expect(res.body).to.have.property('error');
+                        expect(res.body.error.code).equal(401);
+                        expect(res.body.error.message).to.be.a('string');
+                    });
+            });
+
 		});
 
 
-		// either this user needs to be the submitter or it cant be a map that was already submitted...
         describe('PATCH /api/maps/{mapID}/info', () => {
             it('should respond with map info', () => {
                 return chai.request(server)
-                    .post('/api/maps')
+                    .patch('/api/maps/' + testMap.id + '/info')
                     .set('Authorization', 'Bearer ' + accessToken)
                     .send({
-                       id: postMap.id,
-                       name: postMap.name,
-                       info: postMap.info
+                        description: 'testnewdesc'
                     })
                     .then(res => {
-                        return chai.request(server)
-                            .patch('/api/maps/' + postMap.id + '/info')
-                            .set('Authorization', 'Bearer ' + accessToken)
-                            .send({
-                                description: 'tesdsfdt'
-                            })
-                            .then(res2 => {
-                                expect(res).to.have.status(200);
-                                expect(res2).to.have.status(204);
-                            });
+                        expect(res).to.have.status(204);
                     });
+
             });
 
 
@@ -436,6 +544,17 @@ describe('maps', () => {
                         expect(res.body.error.message).to.be.a('string');
                     });
 
+            });
+            it('should respond with 401 when no access token is provided', () => {
+                return chai.request(server)
+                    .patch('/api/maps/' + testMap.id + '/info')
+                    .then(res => {
+                        expect(res).to.have.status(401);
+                        expect(res).to.be.json;
+                        expect(res.body).to.have.property('error');
+                        expect(res.body.error.code).equal(401);
+                        expect(res.body.error.message).to.be.a('string');
+                    });
             });
         });
 
@@ -475,15 +594,26 @@ describe('maps', () => {
                     });
 
             });
+            it('should respond with 401 when no access token is provided', () => {
+                return chai.request(server)
+                    .get('/api/maps/' + testMap.id + '/credits')
+                    .then(res => {
+                        expect(res).to.have.status(401);
+                        expect(res).to.be.json;
+                        expect(res.body).to.have.property('error');
+                        expect(res.body.error.code).equal(401);
+                        expect(res.body.error.message).to.be.a('string');
+                    });
+            });
         });
         // Note: will only create one credit. if a map has an existing credit than it wont make another
         describe('POST /api/maps/{mapID}/credits', () => {
             it('should create a map credit for the specified map', () => {
                 return chai.request(server)
-                    .post('/api/maps/' + testMap2.id +'/credits')
+                    .post('/api/maps/' + testMap.id +'/credits')
                     .set('Authorization', 'Bearer ' + accessToken)
                     .send({
-                        type: 1,
+                        type: map.CreditType.SPECIAL_THANKS,
                         userID: testAdmin.id
                     }).then(res => {
                         expect(res).to.have.status(200);
@@ -491,6 +621,17 @@ describe('maps', () => {
                         expect(res.body).to.have.property('id');
                         expect(res.body).to.have.property('type');
                         expect(res.body).to.have.property('userID');
+                    });
+            });
+            it('should respond with 401 when no access token is provided', () => {
+                return chai.request(server)
+                    .post('/api/maps/' + testMap.id +'/credits')
+                    .then(res => {
+                        expect(res).to.have.status(401);
+                        expect(res).to.be.json;
+                        expect(res.body).to.have.property('error');
+                        expect(res.body.error.code).equal(401);
+                        expect(res.body.error.message).to.be.a('string');
                     });
             });
         });
@@ -534,46 +675,79 @@ describe('maps', () => {
                         expect(res.body.error.message).to.be.a('string');
                     });
             });
+            it('should respond with 401 when no access token is provided', () => {
+                return chai.request(server)
+                    .get('/api/maps/' + testMap.id + '/credits/' + testMap.credits.id)
+                    .then(res => {
+                        expect(res).to.have.status(401);
+                        expect(res).to.be.json;
+                        expect(res.body).to.have.property('error');
+                        expect(res.body.error.code).equal(401);
+                        expect(res.body.error.message).to.be.a('string');
+                    });
+            });
         });
 
 
-       describe('PATCH /api/maps/{mapID}/credits/{mapCredID}', () => {
+        describe('PATCH /api/maps/{mapID}/credits/{mapCredID}', () => {
             it('should update the specified map credit', () => {
                 return chai.request(server)
-                    .patch('/api/maps/' + postMap.id + '/credits/' + postMap.credits.id)
+                    .patch('/api/maps/' + testMap.id + '/credits/' + testMap.credits.id)
                     .set('Authorization', 'Bearer ' + accessToken)
                     .send({
-                        type: 1,
+                        type: map.CreditType.TESTER,
                         userID: testAdmin.id
                     }).then(res => {
                          expect(res).to.have.status(204);
                     });
             });
 
-           it('should return 403 if the map was not submitted by that user', () => {
+            it('should return 403 if the map was not submitted by that user', () => {
+                return chai.request(server)
+                    .patch('/api/maps/3938282929/credits/234532')
+                    .set('Authorization', 'Bearer ' + accessToken)
+                    .send({
+                        type: map.CreditType.AUTHOR,
+                        userID: testAdmin.id
+                    }) .then(res => {
+                        expect(res).to.have.status(403);
+                        expect(res).to.be.json;
+                        expect(res.body).to.have.property('error');
+                        expect(res.body.error.code).equal(403);
+                        expect(res.body.error.message).to.be.a('string');
+                    });
+            });
+            it('should respond with 401 when no access token is provided', () => {
                return chai.request(server)
-                   .patch('/api/maps/3938282929/credits/234532')
-                   .set('Authorization', 'Bearer ' + accessToken)
-                   .send({
-                       type: 1,
-                       userID: testAdmin.id
-                   }) .then(res => {
-                       expect(res).to.have.status(403);
+                   .patch('/api/maps/' + testMap.id + '/credits/' + testMap.credits.id)
+                   .then(res => {
+                       expect(res).to.have.status(401);
                        expect(res).to.be.json;
                        expect(res.body).to.have.property('error');
-                       expect(res.body.error.code).equal(403);
+                       expect(res.body.error.code).equal(401);
                        expect(res.body.error.message).to.be.a('string');
                    });
-           });
+            });
         });
 
         describe('DELETE /api/maps/{mapID}/credits{mapCredID}', () => {
             it('should delete the specified map credit', () => {
                 return chai.request(server)
-                    .delete('/api/maps/' + testMap2.id + '/credits/' + testMap2.credits.id)
+                    .delete('/api/maps/' + testMap.id + '/credits/' + testMap.credits.id)
                     .set('Authorization', 'Bearer ' + accessToken)
                     .then(res => {
                         expect(res).to.have.status(200);
+                    });
+            });
+            it('should respond with 401 when no access token is provided', () => {
+                return chai.request(server)
+                    .delete('/api/maps/' + testMap.id + '/credits/' + testMap.credits.id)
+                    .then(res => {
+                        expect(res).to.have.status(401);
+                        expect(res).to.be.json;
+                        expect(res.body).to.have.property('error');
+                        expect(res.body.error.code).equal(401);
+                        expect(res.body.error.message).to.be.a('string');
                     });
             });
         });
@@ -581,12 +755,12 @@ describe('maps', () => {
         describe('PUT /maps/{mapID}/avatar', () => {
             it('should upload and update the avatar for a map', () => {
                 return chai.request(server)
-                    .put('/api/maps/' + postMap.id + '/avatar')
+                    .put('/api/maps/' + testMap.id + '/avatar')
                     .set('Authorization', 'Bearer ' + accessToken)
                     .attach('avatarFile', fs.readFileSync('test/testImage.jpg'), 'testImage.jpg')
                     .then(res => {
                         expect(res).to.have.status(200);
-
+                        // needs some expect statements
                     });
             });
             it('should return a 400 if no avatar file is provided', () => {
@@ -603,51 +777,84 @@ describe('maps', () => {
             });
 
             it('should return a 403 if the submitter ID does not match the userId', () => {
+                 return chai.request(server)
+                     .put('/api/maps/12133122/avatar')
+                     .set('Authorization', 'Bearer ' + accessToken)
+                     .attach('avatarFile', fs.readFileSync('test/testImage.jpg'), 'testImage.jpg')
+                     .then(res => {
+                         expect(res).to.have.status(403);
+                         expect(res).to.be.json;
+                         expect(res.body).to.have.property('error');
+                         expect(res.body.error.code).equal(403);
+                         expect(res.body.error.message).to.be.a('string');
+                     });
+            });
+            it('should respond with 401 when no access token is provided', () => {
                 return chai.request(server)
-                    .put('/api/maps/12133122/avatar')
-                    .set('Authorization', 'Bearer ' + accessToken)
-                    .attach('avatarFile', fs.readFileSync('test/testImage.jpg'), 'testImage.jpg')
+                    .put('/api/maps/' + testMap.id + '/avatar')
                     .then(res => {
-                        expect(res).to.have.status(403);
+                        expect(res).to.have.status(401);
                         expect(res).to.be.json;
                         expect(res.body).to.have.property('error');
-                        expect(res.body.error.code).equal(403);
+                        expect(res.body.error.code).equal(401);
                         expect(res.body.error.message).to.be.a('string');
                     });
             });
         });
 
-/*
+
         describe('POST /maps/{mapID}/images', () => {
-           it('should create a map image for the specified map', () => {
-               return chai.request(server)
-                   .put('/api/maps/' + postMap.id + '/images')
+            it('should create a map image for the specified map', () => {
+                return chai.request(server)
+                   .post('/api/maps/' + testMap.id + '/images')
                    .set('Authorization', 'Bearer ' + accessToken)
                    .attach('mapImageFile', fs.readFileSync('test/testImage.jpg'), 'testImage.jpg')
                    .then(res => {
                        expect(res).to.have.status(200);
                    });
-           }) ;
+            });
+            it('should respond with 401 when no access token is provided', () => {
+                return chai.request(server)
+                    .post('/api/maps/' + testMap.id + '/images')
+                    .then(res => {
+                        expect(res).to.have.status(401);
+                        expect(res).to.be.json;
+                        expect(res.body).to.have.property('error');
+                        expect(res.body.error.code).equal(401);
+                        expect(res.body.error.message).to.be.a('string');
+                    });
+            });
         });
-        */
+
 
 
 
 		describe('GET /api/maps/{mapID}/upload', () => {
 			it('should respond with the location for where to upload the map file', () => {
 				return chai.request(server)
-					.get('/api/maps/' + testMap2.id + '/upload')
+					.get('/api/maps/' + testMap3.id + '/upload')
                     .set('Authorization', 'Bearer ' + accessToken)
                     .then(res => {
                         expect(res).to.have.status(204);
                     });
 			});
+            it('should respond with 401 when no access token is provided', () => {
+                return chai.request(server)
+                    .get('/api/maps/' + testMap3.id + '/upload')
+                    .then(res => {
+                        expect(res).to.have.status(401);
+                        expect(res).to.be.json;
+                        expect(res.body).to.have.property('error');
+                        expect(res.body.error.code).equal(401);
+                        expect(res.body.error.message).to.be.a('string');
+                    });
+            });
 		});
 
 		describe('POST /maps/{mapID}/upload', () => {
 			it('should respond with a 400 when no map file is provided', () => {
 				return chai.request(server)
-					.post('/api/maps/1/upload')
+					.post('/api/maps/' + testMap3.id + '/upload')
 					.type('form')
 					.set('Authorization', 'Bearer ' + accessToken)
 					.send(null)
@@ -676,10 +883,24 @@ describe('maps', () => {
 			});
 
 
-			it('should respond with a 409 when the map is not accepting uploads');
+			it('should respond with a 409 when the map is not accepting uploads', () => {
+                return chai.request(server)
+                    .post('/api/maps/' + testMap.id + '/upload')
+                    .set('Authorization', 'Bearer ' + accessToken)
+                    .attach('mapFile', fs.readFileSync('test/testMap.bsp'), 'testMap.bsp')
+                    .then(res => {
+                        expect(res).to.have.status(409);
+                        expect(res).to.be.json;
+                        expect(res.body).to.have.property('error');
+                        expect(res.body.error.code).equal(409);
+                        expect(res.body.error.message).to.be.a('string');
+
+                    });
+            });
+
 			it('should upload the map file', () => {
                 return chai.request(server)
-                    .post('/api/maps/' + postMap.id + '/upload')
+                    .post('/api/maps/' + testMap3.id + '/upload')
                     .set('Authorization', 'Bearer ' + accessToken)
                     .attach('mapFile', fs.readFileSync('test/testMap.bsp'), 'testMap.bsp')
                     .then(res => {
@@ -687,6 +908,18 @@ describe('maps', () => {
 
                     });
             });
+            it('should respond with 401 when no access token is provided', () => {
+                return chai.request(server)
+                    .post('/api/maps/' + testMap3.id + '/upload')
+                    .then(res => {
+                        expect(res).to.have.status(401);
+                        expect(res).to.be.json;
+                        expect(res.body).to.have.property('error');
+                        expect(res.body.error.code).equal(401);
+                        expect(res.body.error.message).to.be.a('string');
+                    });
+            });
+
 		});
 
 		describe('GET /api/maps/{mapID}/download', () => {
@@ -704,11 +937,23 @@ describe('maps', () => {
 			});
 			it('should download the map file', () => {
 			    return chai.request(server)
-                    .get('/api/maps/' + postMap.id + '/download')
+                    .get('/api/maps/' + testMap3.id + '/download')
                     .set('Authorization', 'Bearer ' + accessToken)
                     .then(res => {
                         expect(res).to.have.status(200);
+                        // needs expect statement to check if response is octet-stream
+                    });
+            });
 
+            it('should respond with 401 when no access token is provided', () => {
+                return chai.request(server)
+                    .get('/api/maps/' + testMap3.id + '/download')
+                    .then(res => {
+                        expect(res).to.have.status(401);
+                        expect(res).to.be.json;
+                        expect(res.body).to.have.property('error');
+                        expect(res.body.error.code).equal(401);
+                        expect(res.body.error.message).to.be.a('string');
                     });
             });
 		});
@@ -721,15 +966,28 @@ describe('maps', () => {
 		describe('GET /api/maps/{mapID}/images', () => {
 			it('should respond with a list of images', () => {
 				return chai.request(server)
-					.get('/api/maps/' + testMap.id + '/images/')
+					.get('/api/maps/' + testMap.id + '/images')
                     .set('Authorization', 'Bearer ' + accessToken)
                     .then(res => {
                         expect(res).to.have.status(200);
                         expect(res).to.be.json;
+                        expect(res.body.images[0]).to.have.property('URL');
+                        expect(res.body.images[0]).to.have.property('mapID');
+                        expect(res.body.images[0].mapID).to.equal(testMap.id);
                     });
 			});
+            it('should respond with 401 when no access token is provided', () => {
+                return chai.request(server)
+                    .get('/api/maps/' + testMap.id + '/images')
+                    .then(res => {
+                        expect(res).to.have.status(401);
+                        expect(res).to.be.json;
+                        expect(res.body).to.have.property('error');
+                        expect(res.body.error.code).equal(401);
+                        expect(res.body.error.message).to.be.a('string');
+                    });
+            });
 		});
-
 		describe('GET /api/maps/{mapID}/images/{imgID}', () => {
 			it('should respond with 404 when the image is not found', () => {
                 return chai.request(server)
@@ -750,9 +1008,22 @@ describe('maps', () => {
                     .then(res => {
                         expect(res).to.have.status(200);
                         expect(res).to.be.json;
-                        // add expect statements
+                        expect(res.body).to.have.property('URL');
+                        expect(res.body).to.have.property('mapID');
+                        expect(res.body.mapID).to.equal(testMap.id);
                     });
 			});
+            it('should respond with 401 when no access token is provided', () => {
+                return chai.request(server)
+                    .get('/api/maps/' + testMap.id + '/images/' + testMap.images.id)
+                    .then(res => {
+                        expect(res).to.have.status(401);
+                        expect(res).to.be.json;
+                        expect(res.body).to.have.property('error');
+                        expect(res.body.error.code).equal(401);
+                        expect(res.body.error.message).to.be.a('string');
+                    });
+            });
 		});
 
 
@@ -762,7 +1033,7 @@ describe('maps', () => {
 
             it('should respond with 404 when the image is not found', () => {
                 return chai.request(server)
-                    .put('/api/maps/' + postMap.id + '/images/0')
+                    .put('/api/maps/' + testMap.id + '/images/99')
                     .set('Authorization', 'Bearer ' + accessToken)
                     .attach('mapImageFile', fs.readFileSync('test/testImage2.jpg'), 'testImage2.jpg')
                     .then(res => {
@@ -790,7 +1061,7 @@ describe('maps', () => {
 
             it('should update the map image', () => {
                 return chai.request(server)
-                    .put('/api/maps/' + postMap.id + '/images/2')
+                    .put('/api/maps/' + testMap.id + '/images/' + testMap.images.id)
                     .set('Authorization', 'Bearer ' + accessToken)
                     .attach('mapImageFile', fs.readFileSync('test/testImage2.jpg'), 'testImage2.jpg')
                     .then(res => {
@@ -798,21 +1069,39 @@ describe('maps', () => {
                     });
 
             });
-
+            it('should respond with 401 when no access token is provided', () => {
+                return chai.request(server)
+                    .put('/api/maps/' + testMap.id + '/images/' + testMap.images.id)
+                    .then(res => {
+                        expect(res).to.have.status(401);
+                        expect(res).to.be.json;
+                        expect(res.body).to.have.property('error');
+                        expect(res.body.error.code).equal(401);
+                        expect(res.body.error.message).to.be.a('string');
+                    });
+            });
         });
 
-
-		describe('DELETE /api/maps/{mapID}/images/{imgID}', () => {
+        describe('DELETE /api/maps/{mapID}/images/{imgID}', () => {
 			it('should delete the map image', () => {
 				return chai.request(server)
-				.delete('/api/maps/' + postMap.id + '/images/2')
+				.delete('/api/maps/' + testMap.id + '/images/' + testMap.images.id)
                     .set('Authorization', 'Bearer ' + accessToken)
                     .then(res => {
                         expect(res).to.have.status(204);
                     });
 			});
+            it('should respond with 401 when no access token is provided', () => {
+                return chai.request(server)
+                    .delete('/api/maps/' + testMap.id + '/images/' + testMap.images.id)
+                    .then(res => {
+                        expect(res).to.have.status(401);
+                        expect(res).to.be.json;
+                        expect(res.body).to.have.property('error');
+                        expect(res.body.error.code).equal(401);
+                        expect(res.body.error.message).to.be.a('string');
+                    });
+            });
 		});
-
 	});
-
 });
