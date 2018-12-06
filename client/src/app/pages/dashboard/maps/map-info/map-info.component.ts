@@ -58,7 +58,7 @@ export class MapInfoComponent implements OnInit {
   ngOnInit() {
     this.route.paramMap.pipe(
       switchMap((params: ParamMap) =>
-          this.mapService.getMap(params.get('id'), {
+          this.mapService.getMap(Number(params.get('id')), {
             params: { expand: 'info,credits,submitter,stats,images' },
           }),
       ),

@@ -88,6 +88,30 @@ const verifyMapUploadLimitNotReached = (submitterID) => {
 	});
 }
 
+const onMapStatusUpdate = (mapID, previousStatus, newStatus, transaction) => {
+	if (previousStatus === STATUS.PENDING && newStatus === STATUS.APPROVED)
+		return onMapApproval(mapID, transaction);
+}
+
+const onMapApproval = (mapID, transaction) => {
+	return MapCredit.findAll({
+		where: { mapID: mapID, type: CreditType.AUTHOR },
+	}).then(credits => {
+		const activities = [];
+		for (const credit of credits) {
+			activities.push(
+				activity.create({
+					type: activity.ACTIVITY_TYPES.MAP_APPROVED,
+					userID: credit.userID,
+					data: mapID,
+				}, transaction)
+			);
+		}
+		if (activities.length)
+			return Promise.all(activities);
+	});
+}
+
 const STATUS = Object.freeze({
 	APPROVED: 0,
 	PENDING: 1,
@@ -99,8 +123,27 @@ const STATUS = Object.freeze({
 	REMOVED: 7,
 });
 
+const CreditType = Object.freeze({
+	AUTHOR: 0,
+	TESTER: 1,
+	SPECIAL_THANKS: 2,
+});
+
+const MAP_TYPE = Object.freeze({
+	UNKNOWN: 0,
+	SURF: 1,
+	BHOP: 2,
+	KZ: 3,
+	RJ: 4,
+	TRICKSURF: 5,
+	TRIKZ: 6,
+});
+
 module.exports = {
+
 	STATUS,
+	CreditType,
+	MAP_TYPE,
 
 	getAll: (context) => {
 		const allowedExpansions = ['info', 'credits'];
@@ -118,7 +161,9 @@ module.exports = {
 		if (context.submitterID)
 			queryContext.where.submitterID = context.submitterID;
 		if (context.search)
-			queryContext.where.name = {[Op.like]: '%' + context.search + '%'}
+			queryContext.where.name = {[Op.like]: '%' + context.search + '%'};
+		if (context.type)
+			queryContext.where.type = {[Op.in]: context.type.split(',')};
 		if (context.status && context.statusNot) {
 			queryContext.where.statusFlag = {
 				[Op.and]: {
@@ -172,7 +217,7 @@ module.exports = {
 
 	create: (map) => {
 		return verifyMapUploadLimitNotReached(map.submitterID)
-		.then((count) => {
+		.then(() => {
 			return verifyMapNameNotTaken(map.name);
 		}).then(() => {
 			return sequelize.transaction(t => {
@@ -192,26 +237,19 @@ module.exports = {
 
 	update: (mapID, map) => {
 		return sequelize.transaction(t => {
-			let mapInfo = null;
 			return Map.findById(mapID, {
+				statusFlag: {[Op.notIn]: [STATUS.REJECTED, STATUS.REMOVED]},
 				transaction: t
 			}).then(mapToUpdate => {
-				mapInfo = mapToUpdate;
-				return Map.update(map, {
-					where: {
-						id: mapID,
-						statusFlag: {[Op.notIn]: [STATUS.REJECTED, STATUS.REMOVED]}
-					},
-					transaction: t
-				});
-			}).then(() => {
-				if (map.statusFlag !== STATUS.APPROVED)
-					return Promise.resolve();
-				return activity.create({
-					type: activity.ACTIVITY_TYPES.MAP_APPROVED,
-					userID: mapInfo.submitterID, // TODO: Consider firing this for every author?
-					data: mapInfo.id,
-				}, t);
+				if (mapToUpdate) {
+					const previousMapStatus = mapToUpdate.statusFlag;
+					return mapToUpdate.update(map, {
+						transaction: t
+					}).then(() => {
+						if ('statusFlag' in map && previousMapStatus !== map.statusFlag)
+							return onMapStatusUpdate(mapID, previousMapStatus, map.statusFlag, t);
+					});
+				}
 			});
 		});
 	},
@@ -349,7 +387,7 @@ module.exports = {
 
 	getImages: (mapID) => {
 		return MapImage.findAll({
-			mapID: mapID
+			where: {mapID: mapID},
 		});
 	},
 

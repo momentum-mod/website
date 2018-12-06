@@ -12,6 +12,7 @@ import {UserFollowObject} from '../models/follow.model';
 import {FollowStatus} from '../models/follow-status.model';
 import {RouterModule} from '@angular/router';
 import {ThemeModule} from '../../@theme/theme.module';
+import {MomentumMapType} from '../models/map-type.model';
 
 let httpClientSpy: { get: jasmine.Spy, patch: jasmine.Spy, post: jasmine.Spy, delete: jasmine.Spy  };
 let expectedUser: User;
@@ -41,19 +42,21 @@ describe('LocalUserService', () => {
 
 
     expectedMap = {
-      id: '9',
+      id: 9,
       hash: null,
       name: 'testmap1',
+      type: MomentumMapType.UNKNOWN,
       statusFlag: 0,
       createdAt: new Date(),
     };
     expectedMaps = [
       expectedMap,
       {
-        id: '40000',
+        id: 40000,
         hash: null,
         name: 'testmap2',
         statusFlag: 0,
+        type: MomentumMapType.UNKNOWN,
         createdAt: new Date(),
       },
     ];

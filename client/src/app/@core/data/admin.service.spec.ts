@@ -1,8 +1,8 @@
-
 import {AdminService} from './admin.service';
 import {of} from 'rxjs';
 import {MomentumMap} from '../models/momentum-map.model';
 import {User} from '../models/user.model';
+import {MomentumMapType} from '../models/map-type.model';
 
 let httpClientSpy: { get: jasmine.Spy, patch: jasmine.Spy  };
 let adminService: AdminService;
@@ -24,8 +24,9 @@ describe('AdminService', () => {
       },
     };
     expectedMap = {
-      id: '9',
+      id: 9,
       name: 'testmap1',
+      type: MomentumMapType.UNKNOWN,
       hash: '',
       statusFlag: 0,
       createdAt: new Date(),
@@ -35,8 +36,9 @@ describe('AdminService', () => {
     expectedMaps = [
       expectedMap,
       {
-        id: '40000',
+        id: 40000,
         name: 'testmap2',
+        type: MomentumMapType.UNKNOWN,
         hash: '',
         statusFlag: 0,
         createdAt: new Date(),

@@ -1,6 +1,7 @@
 import { async, ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { MapStatusComponent } from './map-status.component';
+import {MomentumMapType} from '../../../../../@core/models/map-type.model';
 
 describe('MapStatusComponent', () => {
   let component: MapStatusComponent;
@@ -17,8 +18,9 @@ describe('MapStatusComponent', () => {
     fixture = TestBed.createComponent(MapStatusComponent);
     component = fixture.componentInstance;
     component.map = {
-      id: '123',
+      id: 123,
       name: 'testmap1',
+      type: MomentumMapType.UNKNOWN,
       hash: '',
       statusFlag: 0,
       submitterID: '1337',

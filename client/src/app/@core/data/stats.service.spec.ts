@@ -4,6 +4,7 @@ import { GlobalBaseStats } from '../models/global-base-stats.model';
 import { GlobalMapStats } from '../models/global-map-stats.model';
 import {of} from 'rxjs';
 import {HttpClientModule} from '@angular/common/http';
+import {MomentumMapType} from '../models/map-type.model';
 
 let httpClientSpy: { get: jasmine.Spy  };
 let statsService: StatsService;
@@ -27,10 +28,34 @@ describe('StatsService', () => {
     expectedGlobalMapStats = {
       totalCompletedMaps: 1,
       totalMaps: 2,
-      topSubscribedMap: 'triggertests',
-      topPlayedMap: 'triggertests',
-      topDownloadedMap: 'triggertests',
-      topUniquelyCompletedMap: 'triggertests',
+      topSubscribedMap: {
+        id: 123,
+        name: 'triggertests',
+        type: MomentumMapType.UNKNOWN,
+        hash: 'hashlol',
+        statusFlag: 0,
+      },
+      topPlayedMap: {
+        id: 123,
+        name: 'triggertests',
+        type: MomentumMapType.UNKNOWN,
+        hash: 'hashlol',
+        statusFlag: 0,
+      },
+      topDownloadedMap: {
+        id: 123,
+        name: 'triggertests',
+        type: MomentumMapType.UNKNOWN,
+        hash: 'hashlol',
+        statusFlag: 0,
+      },
+      topUniquelyCompletedMap: {
+        id: 123,
+        name: 'triggertests',
+        type: MomentumMapType.UNKNOWN,
+        hash: 'hashlol',
+        statusFlag: 0,
+      },
     };
   });
 

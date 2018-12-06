@@ -17,11 +17,11 @@ export class MapsService {
   }
 
   /**
-   * @param id
+   * @param id The ID of the map
    * @param options The options for the request
    * @return Retrieves a specific map
    */
-  getMap(id: string, options?: object): Observable<any> {
+  getMap(id: number, options?: object): Observable<any> {
     return this.http.get('/api/maps/' + id, options || {});
   }
 
@@ -47,7 +47,7 @@ export class MapsService {
    * @param id
    * @return map file upload location
    */
-  getMapFileUploadLocation(id: string): Observable<any> {
+  getMapFileUploadLocation(id: number): Observable<any> {
     return this.http.get('/api/maps/' + id + '/upload', {
       observe: 'response',
     });
@@ -72,7 +72,7 @@ export class MapsService {
    * @param id
    * @return downloads a map file of a map
    */
-  downloadMapFile(id: string): Observable<any> {
+  downloadMapFile(id: number): Observable<any> {
     return this.http.get('/api/maps/' + id + '/download', {
       responseType: 'text',
     });
@@ -83,7 +83,7 @@ export class MapsService {
    * @param avatarFile file of a map avatar
    * @return updated map avatar
    */
-  updateMapAvatar(id: string, avatarFile: File): Observable<any> {
+  updateMapAvatar(id: number, avatarFile: File): Observable<any> {
     const formData = new FormData();
     formData.append('avatarFile', avatarFile, avatarFile.name);
     return this.http.put('/api/maps/' + id + '/avatar', formData, {
@@ -95,7 +95,7 @@ export class MapsService {
    * @param id
    * @param mapImageFile
    */
-  createMapImage(id: string, mapImageFile: File): Observable<any> {
+  createMapImage(id: number, mapImageFile: File): Observable<any> {
     const formData = new FormData();
     formData.append('mapImageFile', mapImageFile, mapImageFile.name);
     return this.http.post('/api/maps/' + id + '/images', formData);
@@ -106,7 +106,7 @@ export class MapsService {
    * @param mapImageID
    * @param mapImageFile
    */
-  updateMapImage(id: string, mapImageID: string, mapImageFile: File): Observable<any> {
+  updateMapImage(id: number, mapImageID: number, mapImageFile: File): Observable<any> {
     const formData = new FormData();
     formData.append('mapImageFile', mapImageFile, mapImageFile.name);
     return this.http.put('/api/maps/' + id + '/images/' + mapImageID, formData);
@@ -116,7 +116,7 @@ export class MapsService {
    * @param id
    * @param mapImageID
    */
-  deleteMapImage(id: string, mapImageID: string): Observable<any> {
+  deleteMapImage(id: number, mapImageID: number): Observable<any> {
     return this.http.delete('/api/maps/' + id + '/images/' + mapImageID);
   }
 }

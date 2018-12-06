@@ -1,12 +1,13 @@
 'use strict';
 process.env.NODE_ENV = 'test';
 
-const { forceSyncDB, User, Profile, Map, MapInfo } = require('../config/sqlize'),
+const { forceSyncDB, User, Profile, Map, MapInfo, Activity } = require('../config/sqlize'),
     chai = require('chai'),
     chaiHttp = require('chai-http'),
     expect = chai.expect,
     server = require('../server.js'),
     auth = require('../src/models/auth'),
+	user = require('../src/models/user'),
     map = require('../src/models/map'),
     activity = require('../src/models/activity');
 
@@ -104,11 +105,29 @@ describe('user', () => {
         }
     };
 
+	const testActivities = [
+		{
+	        userID: testUser.id,
+	        data: 1337,
+			type: activity.ACTIVITY_TYPES.ALL,
+	    },
+		{
+	        userID: testUser2.id,
+	        data: 1337,
+			type: activity.ACTIVITY_TYPES.ALL,
+	    },
+		{
+	        userID: testUser2.id,
+	        data: 1337,
+			type: activity.ACTIVITY_TYPES.ALL,
+	    }
+	];
+
 
     before(() => {
         return forceSyncDB()
             .then(() => {
-                testAdmin.permissions = 4;
+                testAdmin.permissions = user.Permission.ADMIN;
                 return auth.genAccessToken(testAdmin);
             })
             .then((token) => {
@@ -178,7 +197,7 @@ describe('user', () => {
                     })
                 .then(user => {
                     testUser.id = user.id;
-                    return Promise.resolve();
+                    return Activity.bulkCreate(testActivities);
                 });
             });
 
@@ -718,7 +737,7 @@ describe('user', () => {
                     .then(res => {
                        expect(res).to.have.status(200);
                        expect(res.body.activities).to.be.an('array');
-                       expect(res.body.activities).to.have.length(1);
+                       expect(res.body.activities).to.have.length(2);
                        expect(res.body.activities[0]).to.have.property('id');
                     });
             });
@@ -749,7 +768,7 @@ describe('user', () => {
                     .then(res => {
                         expect(res).to.have.status(200);
                         expect(res.body.activities).to.be.an('array');
-                        expect(res.body.activities).to.have.length(1);
+                        expect(res.body.activities).to.have.length(2);
                         expect(res.body.activities[0]).to.have.property('id');
                     });
             });

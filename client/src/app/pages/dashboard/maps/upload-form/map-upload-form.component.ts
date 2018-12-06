@@ -9,6 +9,7 @@ import {FormBuilder, FormGroup, Validators} from '@angular/forms';
 import {User} from '../../../../@core/models/user.model';
 import {Map_Credit_Type} from '../../../../@core/models/map-credit-type.model';
 import {Observable, of} from 'rxjs';
+import {MomentumMapType} from '../../../../@core/models/map-type.model';
 
 export interface ImageFilePreview {
   dataBlobURL: string;
@@ -21,7 +22,6 @@ export interface ImageFilePreview {
   styleUrls: ['./map-upload-form.component.scss'],
 })
 export class MapUploadFormComponent implements AfterViewInit {
-  @ViewChild('uploadFile') uploadFile;
   @ViewChild('datepicker') datePicker;
 
   mapFile: File;
@@ -32,6 +32,8 @@ export class MapUploadFormComponent implements AfterViewInit {
   authors: User[];
   testers: User[];
   specialThanks: User[];
+  inferredMapType: boolean;
+  MapTypes: typeof MomentumMapType = MomentumMapType;
 
   filesForm: FormGroup = this.fb.group({
     'map': ['', [Validators.required, Validators.pattern('.+(\\.bsp)')]],
@@ -40,7 +42,8 @@ export class MapUploadFormComponent implements AfterViewInit {
     // TODO: the 5 optional image files
   });
   infoForm: FormGroup = this.fb.group( {
-    'name': ['', Validators.required],
+    'name': ['', [Validators.required, Validators.maxLength(32)]],
+    'type': [this.MapTypes.UNKNOWN, Validators.required],
     'description': ['', [Validators.required, Validators.maxLength(1000)]],
     'numBonuses': [0, [Validators.required, Validators.min(0), Validators.max(64)]],
     'numCheckpoints': [0, [Validators.required, Validators.min(0), Validators.max(64)]],
@@ -58,6 +61,7 @@ export class MapUploadFormComponent implements AfterViewInit {
   get map() { return this.filesForm.get('map'); }
   get avatar() { return this.filesForm.get('avatar'); }
   get name() { return this.infoForm.get('name'); }
+  get type() { return this.infoForm.get('type'); }
   get description() { return this.infoForm.get('description'); }
   get numBonuses() { return this.infoForm.get('numBonuses'); }
   get numCheckpoints() { return this.infoForm.get('numCheckpoints'); }
@@ -75,6 +79,7 @@ export class MapUploadFormComponent implements AfterViewInit {
     this.testers = [];
     this.specialThanks = [];
     this.extraImages = [];
+    this.inferredMapType = false;
   }
   ngAfterViewInit() {
     this.datePicker.max = new Date();
@@ -86,8 +91,22 @@ export class MapUploadFormComponent implements AfterViewInit {
     this.filesForm.patchValue({
       map: this.mapFile.name,
     });
-    const nameVal = this.mapFile.name.replace(/.bsp/g, '');
+    const nameVal = this.mapFile.name.replace(/.bsp/g, '').toLowerCase();
     this.name.patchValue(nameVal);
+    // Infer type from name
+    let type = MomentumMapType.UNKNOWN;
+    if (nameVal.startsWith('surf_'))
+      type = MomentumMapType.SURF;
+    else if (nameVal.startsWith('bhop_'))
+      type = MomentumMapType.BHOP;
+    else if (nameVal.startsWith('kz_'))
+      type = MomentumMapType.KZ;
+    else if (nameVal.startsWith('trikz_'))
+      type = MomentumMapType.TRIKZ;
+    else if (nameVal.startsWith('jump_'))
+      type = MomentumMapType.RJ;
+    this.type.patchValue(type);
+    this.inferredMapType = type !== MomentumMapType.UNKNOWN;
   }
 
   onAvatarFileSelected(file: File) {
@@ -101,11 +120,12 @@ export class MapUploadFormComponent implements AfterViewInit {
     if (!(this.filesForm.valid && this.infoForm.valid && this.creditsForm.valid))
       return;
     let mapCreated = false;
-    let mapID = '';
+    let mapID: number = -1;
     let uploadLocation = '';
 
     const mapObject = {
       name: this.name.value,
+      type: this.type.value,
       info: this.infoForm.value,
       credits: this.getAllCredits(),
     };
@@ -168,6 +188,7 @@ export class MapUploadFormComponent implements AfterViewInit {
     this.mapFile = null;
     this.avatarFile = null;
     this.mapUploadPercentage = 0;
+    this.inferredMapType = false;
   }
 
   markFormAsDirty(formG: FormGroup) {

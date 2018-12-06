@@ -1,5 +1,5 @@
 <nb-card>
-  <nb-card-header><h2>STATISTICS</h2></nb-card-header>
+  <nb-card-header><h2>FILTERS</h2></nb-card-header>
   <nb-card-body>
     <h4>Filter by:</h4>
     <div class="row">
@@ -11,7 +11,8 @@
       </div>
     </div>
 
-    <div class="row filter">
+    <!--TODO: implement with timeseries DB-->
+    <div class="row filter" *ngIf="false">
       <div class="col-auto">All</div>
       <div class="col-auto">PAST YEAR</div>
       <div class="col-auto">PAST MONTH</div>
