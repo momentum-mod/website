@@ -4,71 +4,17 @@ import {filter, finalize} from 'rxjs/operators';
 import {HttpClient} from '@angular/common/http';
 import {Observable, ReplaySubject} from 'rxjs';
 import {SiteNotification} from '../models/notification.model';
-import {Activity_Type} from '../models/activity-type.model';
 import {ToasterService} from 'angular2-toaster';
 
 
 @Injectable()
 export class NotificationsService {
   notifications$: ReplaySubject<SiteNotification[]>;
-  notifs: SiteNotification[]; // TODO removeme
 
   constructor(private router: Router,
               private http: HttpClient,
               private toasterService: ToasterService) {
     this.notifications$ = new ReplaySubject<SiteNotification[]>(1);
-    this.notifs = [ // TODO removeme
-      {
-        id: 1,
-        forUser: {
-          id: '1',
-          permissions: 0,
-        },
-        activity: {
-          id: 1,
-          user: {
-            id: '1',
-            permissions: 0,
-            profile: {
-              id: '1',
-              alias: 'Ninja',
-              bio: '',
-              avatarURL: '/assets/images/caution.png',
-            },
-          },
-          type: Activity_Type.USER_JOINED,
-          data: 'lol',
-          createdAt: new Date(Date.now() - 1000),
-        },
-        read: false,
-        createdAt: new Date(),
-      },
-      {
-        id: 1,
-        forUser: {
-          id: '1',
-          permissions: 0,
-        },
-        activity: {
-          id: 1,
-          user: {
-            id: '1',
-            permissions: 0,
-            profile: {
-              id: '1',
-              alias: 'TESSSSSSSSSSSSSSSSSSST',
-              bio: '',
-              avatarURL: '/assets/images/caution.png',
-            },
-          },
-          type: Activity_Type.PB_ACHIEVED,
-          data: 'lol',
-          createdAt: new Date(Date.now() - 2000),
-        },
-        read: false,
-        createdAt: new Date(Date.now() - 1000),
-      },
-    ];
   }
   public inject(): void {
     this.router.events.pipe(
@@ -79,7 +25,6 @@ export class NotificationsService {
       });
   }
   checkNotifications() {
-    // this.notifications$.next(this.notifs);
     this.http.get<any>('/api/user/notifications').subscribe(resp => this.notifications$.next(resp.notifications));
   }
   get notifications(): Observable<SiteNotification[]> { return this.notifications$.asObservable(); }

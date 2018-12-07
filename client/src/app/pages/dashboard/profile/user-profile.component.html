@@ -2,6 +2,8 @@
   <nb-card class="col-7" *ngIf="user">
     <nb-card-header>
       <div class="header">
+        <span *ngIf="user.country && user.country.length === 2"
+              class="flg flag-icon flag-icon-{{user.country.toLowerCase()}}"></span>
         <div *ngIf="canEdit()" class="edit-profile">
           <button class="btn btn-outline-info" type="button" (click)="onEditProfile()">Edit Profile</button>
         </div>

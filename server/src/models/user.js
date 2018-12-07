@@ -21,10 +21,10 @@ module.exports = {
 	}),
 
 	updateSteamInfo: (usr, newProfile) => {
+		if (newProfile.country && usr.country !== newProfile.country)
+			usr.country = newProfile.country;
 		if ((usr.permissions & module.exports.Permission.BANNED_AVATAR) === 0)
 			usr.profile.avatarURL = newProfile.avatarURL;
-		if ((usr.permissions & module.exports.Permission.BANNED_ALIAS) === 0)
-			usr.profile.alias = newProfile.alias;
 		return usr.save();
 	},
 
@@ -37,6 +37,7 @@ module.exports = {
 					alias: profile.alias,
 					avatarURL: profile.avatarURL
 				},
+				country: profile.country,
 				auth: { userID: id },
 				stats: { userID: id }
 			}, {
@@ -73,6 +74,7 @@ module.exports = {
 				if (id === playerData.steamid) {
 					return Promise.resolve({
 						id: id,
+						country: playerData.loccountrycode,
 						alias: playerData.personaname,
 						avatarURL: playerData.avatarfull,
 					})
@@ -91,7 +93,7 @@ module.exports = {
 			else if (userData.playerData)
 				return module.exports.create(id, userData.playerData);
 			else
-				return Promise.error(new Error('Could not find player on Steam'));
+				return Promise.reject(new Error('Could not find player on Steam'));
 		});
 	},
 
@@ -99,6 +101,7 @@ module.exports = {
 		let profile = {
 			alias: openIDProfile.displayName,
 			avatarURL: openIDProfile.photos[2].value,
+			country: openIDProfile._json.loccountrycode,
 		};
 		return new Promise((resolve, reject) => {
 			User.findById(openIDProfile.id, {include: Profile})
