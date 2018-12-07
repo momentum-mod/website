@@ -58,6 +58,7 @@
     "classlist.js": "1.1.20150312",
     "core-js": "2.5.1",
     "echarts": "^4.0.2",
+    "flag-icon-css": "^3.2.1",
     "intl": "1.2.5",
     "ionicons": "2.0.1",
     "nebular-icons": "^1.1.0",

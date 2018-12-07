@@ -10,5 +10,6 @@ module.exports = (sequelize, type) => {
 			type: type.INTEGER,
 			defaultValue: 0
 		},
+		country: type.STRING(2),
 	})
 };

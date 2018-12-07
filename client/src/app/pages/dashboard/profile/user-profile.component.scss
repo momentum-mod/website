@@ -31,6 +31,16 @@
   display: block;
 }
 
+.flg {
+  background-size: 5%;
+  background-position: 0 0;
+  width: 100%;
+  height: 100%;
+  position: absolute;
+  left: -2%;
+  top: -3%;
+}
+
 .socials {
   font-size: 3rem;
 
@@ -58,6 +68,7 @@
 .edit-profile {
   right: 0;
   position: absolute;
+  z-index: 500;
 }
 
 profile-follow {
