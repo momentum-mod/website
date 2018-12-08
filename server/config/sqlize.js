@@ -10,6 +10,7 @@ const Sequelize = require('sequelize'),
 	MapCreditModel = require('../src/models/db/map-credit'),
 	ActivityModel = require('../src/models/db/activity'),
 	MapLibraryModel = require('../src/models/db/map-library'),
+	MapFavoriteModel = require('../src/models/db/map-favorite'),
 	UserFollowsModel = require('../src/models/db/user-follow'),
 	NotificationModel = require('../src/models/db/notification'),
 	BadgeModel = require('../src/models/db/badge'),
@@ -68,6 +69,7 @@ const MapInfo = MapInfoModel(sequelize, Sequelize);
 const MapCredit = MapCreditModel(sequelize, Sequelize);
 const Activity = ActivityModel(sequelize, Sequelize);
 const MapLibrary = MapLibraryModel(sequelize, Sequelize);
+const MapFavorite = MapFavoriteModel(sequelize, Sequelize);
 const UserFollows = UserFollowsModel(sequelize, Sequelize);
 const Notification = NotificationModel(sequelize, Sequelize);
 const Badge = BadgeModel(sequelize, Sequelize);
@@ -95,6 +97,8 @@ Map.belongsTo(User, { as: 'submitter', foreignKey: 'submitterID' });
 MapCredit.belongsTo(User, { foreignKey: 'userID' });
 MapLibrary.belongsTo(User, { foreignKey: 'userID' });
 MapLibrary.belongsTo(Map, { foreignKey: 'mapID' });
+MapFavorite.belongsTo(User, { foreignKey: 'userID' });
+MapFavorite.belongsTo(Map, { foreignKey: 'mapID' });
 UserFollows.belongsTo(User, { as: 'followee', foreignKey: 'followeeID' });
 UserFollows.belongsTo(User, { as: 'followed', foreignKey: 'followedID' });
 Notification.belongsTo(User, { as: 'forUser', foreignKey: 'forUserID' });
@@ -143,6 +147,7 @@ module.exports = {
 	MapCredit,
 	Activity,
 	MapLibrary,
+	MapFavorite,
 	UserFollows,
 	Notification,
 	Badge,
