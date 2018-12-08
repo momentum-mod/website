@@ -221,7 +221,7 @@ module.exports = {
 		const allowedExpansions = ['info', 'credits', 'submitter', 'images', 'mapStats'];
 		const queryContext = { where: { id: mapID }};
 		if ('status' in context)
-			queryContext.where.statusFlag = {[Op.in]: context.status.split(',')}
+			queryContext.where.statusFlag = {[Op.in]: context.status.split(',')};
 		queryHelper.addExpansions(queryContext, context.expand, allowedExpansions);
 		return Map.find(queryContext);
 	},
@@ -241,7 +241,7 @@ module.exports = {
 						{ model: MapStats, as: 'stats' }
 					],
 					transaction: t
-				});
+				}); // TODO create the mapZoneStats here for each zone. Needs numZones first though
 			});
 		});
 	},

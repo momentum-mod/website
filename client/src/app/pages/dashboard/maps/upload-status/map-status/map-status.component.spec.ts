@@ -41,6 +41,7 @@ describe('MapStatusComponent', () => {
           type: 0,
           user: {
             id: '1234',
+            country: 'US',
             permissions: 0,
             profile: {
               id: '244',

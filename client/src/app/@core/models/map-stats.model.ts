@@ -1,3 +1,5 @@
+import {MapZoneStats} from './map-zone-stats.model';
+
 export interface MapStats {
   id: number;
   mapID?: number;
@@ -9,8 +11,7 @@ export interface MapStats {
   totalCompletions: number;
   totalUniqueCompletions: number;
   totalTimePlayed: number;
-  totalJumps: number;
-  totalStrafes: number;
+  zoneStats: MapZoneStats[];
   createdAt?: Date;
   updatedAt?: Date;
 }

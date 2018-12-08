@@ -31,6 +31,7 @@ describe('LocalUserService', () => {
   beforeEach(async(() => {
     expectedUser = {
       id: '76561198131664084',
+      country: 'US',
       permissions: 0,
       profile: {
         id: '1',

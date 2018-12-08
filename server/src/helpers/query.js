@@ -1,6 +1,6 @@
 'use strict';
 const { Map, MapInfo, MapCredit, MapStats, User, Profile, UserStats, MapImage,
-	DiscordAuth, TwitterAuth, TwitchAuth, RunStats } = require('../../config/sqlize');
+	DiscordAuth, TwitterAuth, TwitchAuth, RunStats, MapZoneStats, RunZoneStats, BaseStats } = require('../../config/sqlize');
 
 const expansionMap = {
 	info: {
@@ -30,7 +30,17 @@ const expansionMap = {
 	},
 	mapStats: {
 		model: MapStats,
-		as: 'stats'
+		as: 'stats',
+		include: [
+			{
+				model: MapZoneStats,
+				as: 'zoneStats',
+				include: [{
+					model: BaseStats,
+					as: 'baseStats',
+				}]
+			}
+		]
 	},
 	userStats: {
 		model: UserStats,
@@ -65,7 +75,15 @@ const expansionMap = {
 	},
 	runStats: {
 		model: RunStats,
-		as: 'stats'
+		as: 'stats',
+		include: [{
+				model: RunZoneStats,
+				as: 'zoneStats',
+				include: [{
+					model: BaseStats,
+					as: 'baseStats',
+				}]
+			}]
 	}
 };
 

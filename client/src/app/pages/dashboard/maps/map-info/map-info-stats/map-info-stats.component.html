@@ -2,12 +2,12 @@
 
   <div class="base">
     <h6>Total Jumps</h6>
-    <h1>{{map?.stats.totalJumps || 0}}</h1>
+    <h1>{{map?.stats.zoneStats[0].baseStats.jumps || 0}}</h1>
   </div>
 
   <div class="base">
     <h6>Total Strafes</h6>
-    <h1>{{map?.stats.totalStrafes || 0}}</h1>
+    <h1>{{map?.stats.zoneStats[0].baseStats.strafes || 0}}</h1>
   </div>
 
   <div class="base">
