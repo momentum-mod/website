@@ -23,6 +23,7 @@ import {MapInfoDescriptionComponent} from './map-info/map-info-description/map-i
 import {MapInfoCreditsComponent} from './map-info/map-info-credits/map-info-credits.component';
 import {MapInfoStatsComponent} from './map-info/map-info-stats/map-info-stats.component';
 import {MapListItemComponent} from './view-maps/map-list-item/map-list-item.component';
+import { MapEditComponent } from './map-edit/map-edit.component';
 
 @NgModule({
   imports: [
@@ -54,6 +55,7 @@ import {MapListItemComponent} from './view-maps/map-list-item/map-list-item.comp
     MapInfoCreditsComponent,
     MapInfoStatsComponent,
     MapListItemComponent,
+    MapEditComponent,
   ],
   providers: [],
 })

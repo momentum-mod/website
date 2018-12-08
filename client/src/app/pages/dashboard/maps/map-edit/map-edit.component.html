@@ -1,0 +1,45 @@
+<nb-card>
+  <nb-card-header>
+    <div class="row">
+      <h2 class="col-6 title">EDIT MAP</h2>
+      <div class="col-6 text-right">
+        <a class="btn btn-outline-info" [routerLink]="'/dashboard/maps/' + map?.id">
+          Return to Map
+        </a>
+      </div>
+    </div>
+  </nb-card-header>
+  <nb-card-body>
+    <form (ngSubmit)="onSubmit()">
+      <nb-tabset>
+        <nb-tab tabTitle="INFO" [formGroup]="mapInfoEditFormGroup">
+          <div class="form-group" [ngClass]="{'has-error':!mapInfoEditFormGroup.controls['description'].valid}">
+            <label>Map Description:</label>
+            <textarea rows="6" class="form-control" formControlName="description" type="description"></textarea>
+            <div class="form-text">
+              <div class="row">
+                    <span class="col">
+                      <i><a href="https://help.github.com/articles/basic-writing-and-formatting-syntax/">Markdown</a> is supported</i>
+                    </span>
+                <span class="col text-right remaining">{{1000 - description.value.length | ngxPlural:'character'}} remaining</span>
+              </div>
+            </div>
+            <p class="alert alert-danger" *ngIf="mapInfoEditFormGroup.controls['description'].hasError('maxlength')">
+              Text cannot exceed 1000 characters.
+            </p>
+          </div>
+        </nb-tab>
+        <nb-tab tabTitle="IMAGES">
+
+        </nb-tab>
+        <nb-tab tabTitle="CREDITS">
+
+        </nb-tab>
+        <nb-tab *ngIf="(isAdmin || isModerator) && map" [formGroup]="adminEditFormGroup" tabTitle="ADMIN MAP SETTINGS">
+
+        </nb-tab>
+      </nb-tabset>
+    </form>
+  </nb-card-body>
+</nb-card>
+

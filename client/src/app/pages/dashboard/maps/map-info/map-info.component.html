@@ -1,6 +1,9 @@
 <nb-card *ngIf="map">
   <nb-card-header>
-    <h2>{{map.name}}</h2>
+    <div class="d-inline-block">
+      <h2>{{map.name}}</h2>
+    </div>
+    <button *ngIf="isSubmitter || isAdmin || isModerator" class="btn btn-outline-info float-right" type="button" (click)="onEditMap()">Edit Map</button>
   </nb-card-header>
   <nb-card-body class="row">
     <div class="col-lg-5 col-md-12 bury">
@@ -33,5 +36,5 @@
 </nb-card>
 
 <nb-card>
-  <map-leaderboard #leaderboard [mapID]="map.id"></map-leaderboard>
+  <map-leaderboard #leaderboard [mapID]="map?.id"></map-leaderboard>
 </nb-card>

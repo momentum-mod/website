@@ -7,6 +7,7 @@ import {MapUploadFormComponent} from './upload-form/map-upload-form.component';
 import {UploadStatusComponent} from './upload-status/upload-status.component';
 import {MapInfoComponent} from './map-info/map-info.component';
 import {MapLibraryComponent} from './map-library/map-library.component';
+import {MapEditComponent} from './map-edit/map-edit.component';
 
 const routes: Routes = [
   {
@@ -38,6 +39,10 @@ const routes: Routes = [
       {
         path: ':id',
         component: MapInfoComponent,
+      },
+      {
+        path: ':id/edit',
+        component: MapEditComponent,
       },
       {
         path: '**',
