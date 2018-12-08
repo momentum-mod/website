@@ -94,11 +94,13 @@ const onMapStatusUpdate = (mapID, previousStatus, newStatus, transaction) => {
 }
 
 const onMapApproval = (mapID, transaction) => {
+	const authorIDs = [];
 	return MapCredit.findAll({
 		where: { mapID: mapID, type: CreditType.AUTHOR },
 	}).then(credits => {
 		const activities = [];
 		for (const credit of credits) {
+			authorIDs.push(credit.userID);
 			activities.push(
 				activity.create({
 					type: activity.ACTIVITY_TYPES.MAP_APPROVED,
@@ -109,6 +111,15 @@ const onMapApproval = (mapID, transaction) => {
 		}
 		if (activities.length)
 			return Promise.all(activities);
+		else
+			return Promise.resolve();
+	}).then(() => {
+		return User.update({
+			permissions: sequelize.literal('permissions | ' + user.Permission.MAPPER),
+		}, {
+			where: { id: {[Op.in]: authorIDs }},
+			transaction: transaction,
+		});
 	});
 }
 
