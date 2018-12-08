@@ -7,6 +7,7 @@ module.exports = {
 		const queryContext = {
 			distinct: true,
 			where: { userID: userID },
+			limit: 20,
 			order: [['createdAt', 'DESC']],
 			include: [
 				{
