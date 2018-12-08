@@ -21,6 +21,7 @@ export class MapInfoComponent implements OnInit {
   @ViewChild('leaderboard') leaderboard;
   map: MomentumMap;
   mapInLibrary: boolean;
+  mapInFavorites: boolean;
   isSubmitter: boolean;
   isAdmin: boolean;
   isModerator: boolean;
@@ -33,6 +34,7 @@ export class MapInfoComponent implements OnInit {
               private locUserService: LocalUserService,
               private toastService: ToasterService) {
     this.mapInLibrary = false;
+    this.mapInFavorites = false;
     this.galleryOptions = [
       {
         width: '100%',
@@ -81,6 +83,9 @@ export class MapInfoComponent implements OnInit {
       }, error => {
         this.mapInLibrary = error.status !== 404;
       });
+      this.locUserService.getMapFavorite(map.id).subscribe(mapFavorite => {
+        this.mapInFavorites = true;
+      });
       this.locUserService.getLocal().subscribe(locUser => {
         this.isAdmin = this.locUserService.hasPermission(Permission.ADMIN, locUser);
         this.isModerator = this.locUserService.hasPermission(Permission.MODERATOR, locUser);
@@ -94,12 +99,30 @@ export class MapInfoComponent implements OnInit {
     if (this.mapInLibrary) {
       this.locUserService.removeMapFromLibrary(this.map.id).subscribe(() => {
         this.mapInLibrary = false;
+        this.map.stats.totalSubscriptions--;
       });
     } else {
       this.locUserService.addMapToLibrary(this.map.id).subscribe(resp => {
         this.mapInLibrary = true;
+        this.map.stats.totalSubscriptions++;
       }, error => {
         this.toastService.popAsync('error', 'Cannot add map to library', error.message);
+      });
+    }
+  }
+
+  onFavoriteUpdate() {
+    if (this.mapInFavorites) {
+      this.locUserService.removeMapFromFavorites(this.map.id).subscribe(() => {
+        this.mapInFavorites = false;
+        this.map.stats.totalFavorites--;
+      });
+    } else {
+      this.locUserService.addMapToFavorites(this.map.id).subscribe(resp => {
+        this.mapInFavorites = true;
+        this.map.stats.totalFavorites++;
+      }, error => {
+        this.toastService.popAsync('error', 'Failed to add map to favorites', error.message);
       });
     }
   }

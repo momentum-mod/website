@@ -78,6 +78,10 @@ export class LocalUserService {
     return this.http.patch('/api/user/profile', profile);
   }
 
+  /**
+   * @param options The options for the request
+   * @return a list of map library entries
+   */
   public getMapLibrary(options?: object): Observable<any> {
     return this.http.get('/api/user/maps/library', options || {});
   }
@@ -105,7 +109,43 @@ export class LocalUserService {
    * @return the added map in library
    */
   public isMapInLibrary(mapID: number): Observable<any> {
-    return this.http.get('/api/user/maps/library/' + mapID);
+    return this.http.get('/api/user/maps/library/' + mapID, {
+      responseType: 'text',
+    });
+  }
+
+  /**
+   * @param options The options for the request
+   * @return a list of map favorites
+   */
+  public getMapFavorites(options?: object): Observable<any> {
+    return this.http.get('/api/user/maps/favorites', options || {});
+  }
+
+  /**
+   * @param mapID ID of a specific map
+   * @return a map favorite
+   */
+  public getMapFavorite(mapID: number): Observable<any> {
+    return this.http.get('/api/user/maps/favorites/' + mapID);
+  }
+
+  /**
+   * @param mapID
+   */
+  public addMapToFavorites(mapID: number): Observable<any> {
+    return this.http.put('/api/user/maps/favorites/' + mapID, {}, {
+      responseType: 'text',
+    });
+  }
+
+  /**
+   * @param mapID
+   */
+  public removeMapFromFavorites(mapID: number): Observable<any> {
+    return this.http.delete('/api/user/maps/favorites/' + mapID, {
+      responseType: 'text',
+    });
   }
 
   /**
