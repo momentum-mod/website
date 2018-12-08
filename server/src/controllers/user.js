@@ -49,9 +49,7 @@ module.exports = {
 			return user.destroySocialLink(profile, req.params.type);
 		}).then(resp => {
 			res.sendStatus(200);
-		}).catch(err => {
-			next(err);
-		});
+		}).catch(next);
 	},
 
 	getSubmittedMaps: (req, res, next) => {
@@ -98,7 +96,7 @@ module.exports = {
 	isMapInLibrary: (req, res, next) => {
 		mapLibrary.isMapInLibrary(req.user.id, req.params.mapID).then(entry => {
 			if (entry)
-				res.sendStatus(200);
+				return res.sendStatus(200);
 			next(genMapLibraryEntryNotFound());
 		}).catch(next);
 	},
