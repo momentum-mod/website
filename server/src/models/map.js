@@ -249,7 +249,7 @@ module.exports = {
 	update: (mapID, map) => {
 		return sequelize.transaction(t => {
 			return Map.findById(mapID, {
-				statusFlag: {[Op.notIn]: [STATUS.REJECTED, STATUS.REMOVED]},
+				where: { statusFlag: {[Op.notIn]: [STATUS.REJECTED, STATUS.REMOVED]}},
 				transaction: t
 			}).then(mapToUpdate => {
 				if (mapToUpdate) {
@@ -259,6 +259,8 @@ module.exports = {
 					}).then(() => {
 						if ('statusFlag' in map && previousMapStatus !== map.statusFlag)
 							return onMapStatusUpdate(mapID, previousMapStatus, map.statusFlag, t);
+						else
+							return Promise.resolve();
 					});
 				}
 			});
