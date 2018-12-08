@@ -1,5 +1,5 @@
 import {Component, OnInit, ViewChild} from '@angular/core';
-import {ActivatedRoute, ParamMap} from '@angular/router';
+import {ActivatedRoute, ParamMap, Router} from '@angular/router';
 import {switchMap} from 'rxjs/operators';
 import {MapsService} from '../../../../@core/data/maps.service';
 import {MomentumMap} from '../../../../@core/models/momentum-map.model';
@@ -7,6 +7,7 @@ import {LocalUserService} from '../../../../@core/data/local-user.service';
 import {ToasterService} from 'angular2-toaster';
 import {NgxGalleryAnimation, NgxGalleryImage, NgxGalleryOptions} from 'ngx-gallery';
 import {MapImage} from '../../../../@core/models/map-image.model';
+import {Permission} from '../../../../@core/models/permissions.model';
 
 
 @Component({
@@ -20,10 +21,14 @@ export class MapInfoComponent implements OnInit {
   @ViewChild('leaderboard') leaderboard;
   map: MomentumMap;
   mapInLibrary: boolean;
+  isSubmitter: boolean;
+  isAdmin: boolean;
+  isModerator: boolean;
   galleryOptions: NgxGalleryOptions[];
   galleryImages: NgxGalleryImage[];
 
   constructor(private route: ActivatedRoute,
+              private router: Router,
               private mapService: MapsService,
               private locUserService: LocalUserService,
               private toastService: ToasterService) {
@@ -76,6 +81,12 @@ export class MapInfoComponent implements OnInit {
       }, error => {
         this.mapInLibrary = error.status !== 404;
       });
+      this.locUserService.getLocal().subscribe(locUser => {
+        this.isAdmin = this.locUserService.hasPermission(Permission.ADMIN, locUser);
+        this.isModerator = this.locUserService.hasPermission(Permission.MODERATOR, locUser);
+        if (this.map.submitterID === locUser.id)
+          this.isSubmitter = true;
+      });
     });
   }
 
@@ -102,6 +113,10 @@ export class MapInfoComponent implements OnInit {
         big: mapImages[i].URL,
       });
     }
+  }
+
+  onEditMap() {
+    this.router.navigate(['/dashboard/maps/' + this.map.id + '/edit']);
   }
 
 }

@@ -29,7 +29,7 @@ export class LocalUserService {
     }
     const user = localStorage.getItem('user');
     if (user) {
-      this.localUser = JSON.parse(localStorage.getItem('user'));
+      this.localUser = JSON.parse(user);
       this.locUserObtEmit.next(this.localUser);
     }
   }
