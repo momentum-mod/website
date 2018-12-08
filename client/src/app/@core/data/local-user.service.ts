@@ -109,9 +109,7 @@ export class LocalUserService {
    * @return the added map in library
    */
   public isMapInLibrary(mapID: number): Observable<any> {
-    return this.http.get('/api/user/maps/library/' + mapID, {
-      responseType: 'text',
-    });
+    return this.http.get('/api/user/maps/library/' + mapID);
   }
 
   /**
