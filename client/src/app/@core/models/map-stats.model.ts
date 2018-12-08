@@ -4,6 +4,7 @@ export interface MapStats {
   totalReviews: number;
   totalDownloads: number;
   totalSubscriptions: number;
+  totalFavorites: number;
   totalPlays: number;
   totalCompletions: number;
   totalUniqueCompletions: number;

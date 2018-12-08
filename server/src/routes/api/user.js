@@ -35,6 +35,16 @@ router.route('/maps/library/:mapID')
 	.delete(userCtrl.removeMapFromLibrary)
 	.all(errorCtrl.send405);
 
+router.route('/maps/favorites')
+	.get(userCtrl.getUserFavorites)
+	.all(errorCtrl.send405);
+
+router.route('/maps/favorites/:mapID')
+	.get(userCtrl.getUserFavorite)
+	.put(userCtrl.addMapToFavorites)
+	.delete(userCtrl.removeMapFromFavorites)
+	.all(errorCtrl.send405);
+
 router.route('/activities')
 	.get(userCtrl.getActivities)
 	.all(errorCtrl.send405);

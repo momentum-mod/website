@@ -108,16 +108,16 @@ paths:
                     - $ref: '#/definitions/MapLibraryEntry'
                     - type: boolean
   /user/maps/library/{mapID}:
+    parameters:
+      - in: path
+        name: mapID
+        description: The map's ID
+        required: true
+        type: integer
     get:
       summary: Checks to see if a map exists in the authenticated user's library
       tags:
         - user
-      parameters:
-        - in: path
-          name: mapID
-          description: The map's ID
-          required: true
-          type: integer
       responses:
         200:
           description: The map exists in the user's library
@@ -127,15 +127,62 @@ paths:
       summary: Deletes a library entry from the authenticated user's library
       tags:
         - user
-      parameters:
-        - in: path
-          name: mapID
-          description: The map's ID
-          required: true
-          type: integer
       responses:
         200:
           description: The library entry was successfully deleted
+  /user/maps/favorites:
+    get:
+      tags:
+        - user
+      summary: Retrieves a list of favorited maps for the authenticated user
+      parameters:
+        - name: limit
+          in: query
+          description: The maximum number of results to show
+          type: integer
+          default: 20
+        - name: offset
+          in: query
+          description: The offset for the results to show
+          type: integer
+          default: 0
+      responses:
+        200:
+          description: The list of map favorites
+          schema:
+            $ref: '#/definitions/MapFavorites'
+  /user/maps/favorites/{mapID}:
+    parameters:
+      - in: path
+        name: mapID
+        description: The map's ID
+        required: true
+        type: integer
+    get:
+      tags:
+        - user
+      summary: Retrieves a map favorite for the authenticated user
+      responses:
+        200:
+          description: The map favorite
+          schema:
+            $ref: '#/definitions/MapFavorite'
+        404:
+          description: The map does not exist in the user's favorites
+    put:
+      tags:
+        - user
+      summary: Adds a specified map to the authenticated user's favorites
+      responses:
+        204:
+          description: The map is favorited
+    delete:
+      tags:
+        - user
+      summary: Removes a specified map from the authenticated user's favorites
+      responses:
+        204:
+          description: The map is removed from favorites
   /user/maps/submitted:
     get:
       tags:
@@ -376,6 +423,30 @@ definitions:
         type: array
         items:
           $ref: '#/definitions/MapLibraryEntry'
+  MapFavorite:
+    properties:
+      id:
+        type: integer
+        readOnly: true
+      userID:
+        type: string
+        readOnly: true
+      createdAt:
+        type: string
+        format: date-time
+        readOnly: true
+      updatedAt:
+        type: string
+        format: date-time
+        readOnly: true
+      map:
+        $ref: '#/definitions/Map'
+  MapFavorites:
+    properties:
+      favorites:
+        type: array
+        items:
+          $ref: '#/definitions/MapFavorite'
   Notification:
     properties:
       id:

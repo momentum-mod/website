@@ -18,6 +18,10 @@ module.exports = (sequelize, type) => {
 			type: type.INTEGER.UNSIGNED,
 			defaultValue: 0,
 		},
+		totalFavorites: {
+			type: type.INTEGER.UNSIGNED,
+			defaultValue: 0,
+		},
 		totalCompletions: {
 			type: type.INTEGER.UNSIGNED,
 			defaultValue: 0,

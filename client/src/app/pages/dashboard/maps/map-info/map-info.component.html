@@ -24,12 +24,18 @@
       <div>
         <div class="ion-android-download picture col-auto d-inline-block"> {{map.stats?.totalDownloads}}</div>
         <div class="ion-folder picture col-auto d-inline-block"> {{map.stats?.totalSubscriptions}}</div>
+        <div class="ion-star picture col-auto d-inline-block"> {{map.stats?.totalFavorites}}</div>
         <div class="ion-play picture col-auto d-inline-block"> {{map.stats?.totalPlays}}</div>
         <br>
         <br>
-        <button type="button" class="btn btn-outline-info" (click)="onLibraryUpdate()">
-          {{mapInLibrary ? 'Remove from My Library' : 'Add to My Library'}}
-        </button>
+        <div class="btn-toolbar">
+          <button type="button" class="btn btn-outline-info" (click)="onLibraryUpdate()">
+            {{mapInLibrary ? 'Remove from My Library' : 'Add to My Library'}}
+          </button>
+          <button type="button" class="btn btn-outline-info" (click)="onFavoriteUpdate()">
+            {{mapInFavorites ? 'Remove from Favorites' : 'Add to Favorites'}}
+          </button>
+        </div>
       </div>
     </div>
   </nb-card-body>

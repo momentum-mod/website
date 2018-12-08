@@ -2,13 +2,20 @@
 const user = require('../models/user'),
 	map = require('../models/map'),
 	activity = require('../models/activity'),
-	mapLibrary = require('../models/map-library');
+	mapLibrary = require('../models/map-library'),
+	mapFavorite = require('../models/map-favorite');
 
 const genMapLibraryEntryNotFound = () => {
 	const err = new Error('Map Library Entry Not Found');
 	err.status = 404;
 	return err;
 };
+
+const genMapFavoriteNotFound = () => {
+	const err = new Error('Map Favorite Not Found');
+	err.status = 404;
+	return err;
+}
 
 module.exports = {
 
@@ -99,6 +106,35 @@ module.exports = {
 				return res.sendStatus(200);
 			next(genMapLibraryEntryNotFound());
 		}).catch(next);
+	},
+
+	getUserFavorite: (req, res, next) => {
+		mapFavorite.getUserFavorite(req.user.id, req.params.mapID).then(favorite => {
+			if (favorite)
+				return res.json(favorite);
+			next(genMapFavoriteNotFound());
+		}).catch(next);
+	},
+
+	getUserFavorites: (req, res, next) => {
+		mapFavorite.getUserFavorites(req.user.id, req.query).then(results => {
+			res.json({
+				count: results.count,
+				favorites: results.rows
+			});
+		}).catch(next);
+	},
+
+	addMapToFavorites: (req, res, next) => {
+		mapFavorite.addMapToFavorites(req.user.id, req.params.mapID).then(() => {
+			res.sendStatus(204);
+		}).catch(next);
+	},
+
+	removeMapFromFavorites: (req, res, next) => {
+		mapFavorite.removeMapFromFavorites(req.user.id, req.params.mapID).then(() => {
+			res.sendStatus(204);
+		});
 	},
 
 	getActivities: (req, res, next) => {
