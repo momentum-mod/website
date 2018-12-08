@@ -26,6 +26,7 @@ const Sequelize = require('sequelize'),
 	TwitterAuthModel = require('../src/models/db/auth-twitter'),
 	TwitchAuthModel = require('../src/models/db/auth-twitch'),
 	DiscordAuthModel = require('../src/models/db/auth-discord'),
+	BaseStatsModel = require('../src/models/db/base-stats'),
 	env = process.env.NODE_ENV || 'development';
 
 const sequelize = new Sequelize({
@@ -82,6 +83,7 @@ const MapImage = MapImageModel(sequelize, Sequelize);
 const Run = RunModel(sequelize, Sequelize);
 const RunStats = RunStatsModel(sequelize, Sequelize);
 const RunZoneStats = RunZoneStatsModel(sequelize, Sequelize);
+const BaseStats = BaseStatsModel(sequelize, Sequelize);
 
 User.hasOne(Profile, { foreignKey: 'userID' });
 User.hasMany(Activity, { foreignKey: 'userID' });
@@ -112,6 +114,7 @@ Report.belongsTo(User, {as: 'submitter', foreignKey: 'submitterID'});
 Report.belongsTo(User, {as: 'resolver', foreignKey: 'resolverID'});
 Map.hasOne(MapStats, {as: 'stats', foreignKey: 'mapID'});
 MapStats.hasMany(MapZoneStats, {as: 'zoneStats', foreignKey: 'mapStatsID'});
+MapZoneStats.belongsTo(BaseStats, {as: 'baseStats', foreignKey: 'baseStatsID'});
 MapReview.belongsTo(User, {as: 'reviewer', foreignKey: 'reviewerID'});
 MapReview.belongsTo(Map, {as: 'map', foreignKey: 'mapID'});
 Map.hasMany(MapImage, {as: 'images', foreignKey: 'mapID'});
@@ -121,6 +124,7 @@ Run.belongsTo(Map, {as: 'map', foreignKey: 'mapID'});
 Run.belongsTo(User, { foreignKey: 'playerID' });
 Run.hasOne(RunStats, { as: 'stats', foreignKey: 'runID' });
 RunStats.hasMany(RunZoneStats, { as: 'zoneStats', foreignKey: 'runStatsID' });
+RunZoneStats.belongsTo(BaseStats, { as: 'baseStats', foreignKey: 'baseStatsID'});
 
 if (env === 'development') {
 	forceSyncDB()
@@ -160,4 +164,5 @@ module.exports = {
 	Run,
 	RunStats,
 	RunZoneStats,
+	BaseStats,
 };

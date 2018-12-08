@@ -13,6 +13,7 @@ describe('UsersService', () => {
     usersService = new UsersService(<any> httpClientSpy);
     expectedUser = {
       id: '1',
+      country: 'US',
       permissions: 0,
       profile: {
         id: '0',
@@ -24,6 +25,7 @@ describe('UsersService', () => {
       expectedUser,
       {
         id: '2',
+        country: 'US',
         permissions: 1,
         profile: {
           id: '1',

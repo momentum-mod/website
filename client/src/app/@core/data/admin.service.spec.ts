@@ -16,6 +16,7 @@ describe('AdminService', () => {
     adminService = new AdminService(<any> httpClientSpy);
     expectedUser = {
       id: '1',
+      country: 'US',
       permissions: 0,
       profile: {
         id: '0',

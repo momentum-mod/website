@@ -34,13 +34,5 @@ module.exports = (sequelize, type) => {
 			type: type.BIGINT.UNSIGNED,
 			defaultValue: 0,
 		},
-		totalJumps: {
-			type: type.BIGINT.UNSIGNED,
-			defaultValue: 0,
-		},
-		totalStrafes: {
-			type: type.BIGINT.UNSIGNED,
-			defaultValue: 0,
-		},
 	})
 };

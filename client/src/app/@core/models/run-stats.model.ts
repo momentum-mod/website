@@ -1,8 +1,9 @@
+import {RunZoneStats} from './run-zone-stats.model';
+
 export interface RunStats {
   id: number;
   runID: number;
-  jumps: number;
-  strafes: number;
+  zoneStats: RunZoneStats[];
   createdAt?: Date;
   updatedAt?: Date;
 }

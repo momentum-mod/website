@@ -1,4 +1,5 @@
 import {Component, Input, OnInit} from '@angular/core';
+import {MomentumMap} from '../../../../../@core/models/momentum-map.model';
 
 @Component({
   selector: 'map-info-stats',
@@ -7,7 +8,7 @@ import {Component, Input, OnInit} from '@angular/core';
 })
 export class MapInfoStatsComponent implements OnInit {
 
-  @Input('map') map;
+  @Input('map') map: MomentumMap;
 
   constructor() { }
 

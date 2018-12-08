@@ -35,12 +35,14 @@ describe('NotificationComponent', () => {
         id: 1,
         forUser: {
           id: '1',
+          country: 'US',
           permissions: 0,
         },
         activity: {
           id: 1,
           user: {
             id: '1',
+            country: 'US',
             permissions: 0,
             profile: {
               id: '1',
@@ -60,12 +62,14 @@ describe('NotificationComponent', () => {
         id: 1,
         forUser: {
           id: '1',
+          country: 'US',
           permissions: 0,
         },
         activity: {
           id: 1,
           user: {
             id: '1',
+            country: 'US',
             permissions: 0,
             profile: {
               id: '1',

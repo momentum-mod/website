@@ -29,6 +29,7 @@ describe('ActivityContentComponent', () => {
       id: 1,
       user: {
         id: '1',
+        country: 'US',
         permissions: 0,
         profile: {
           id: '1',

@@ -1,6 +1,6 @@
 'use strict';
 const util = require('util'),
-	{ sequelize, Op, Map, MapInfo, MapStats, Run, RunStats, User, UserStats, Profile } = require('../../config/sqlize'),
+	{ sequelize, Op, Map, MapInfo, MapStats, Run, RunStats, RunZoneStats, BaseStats, User, UserStats, Profile } = require('../../config/sqlize'),
 	activity = require('./activity'),
 	config = require('../../config/config'),
 	queryHelper = require('../helpers/query'),
@@ -85,20 +85,23 @@ const processRunFile = (resultObj) => {
 			for (let i = 0; i < numZones + 1; i++)
 			{
 				let zoneStat = {
-					jumps: readInt32(resultObj.bin, true),
-					strafes: readInt32(resultObj.bin, true),
-					strafeSyncAvg: readFloat(resultObj.bin),
-					strafeSyncAvg2: readFloat(resultObj.bin),
-					enterTime: readFloat(resultObj.bin),
-					totalTime: readFloat(resultObj.bin),
-					velMax3D: readFloat(resultObj.bin),
-					velMax2D: readFloat(resultObj.bin),
-					velAvg3D: readFloat(resultObj.bin),
-					velAvg2D: readFloat(resultObj.bin),
-					enterSpeed3D: readFloat(resultObj.bin),
-					enterSpeed2D: readFloat(resultObj.bin),
-					exitSpeed3D: readFloat(resultObj.bin),
-					exitSpeed2D: readFloat(resultObj.bin),
+					zoneNum: i,
+					baseStats: {
+						jumps: readInt32(resultObj.bin, true),
+						strafes: readInt32(resultObj.bin, true),
+						avgStrafeSync: readFloat(resultObj.bin),
+						avgStrafeSync2: readFloat(resultObj.bin),
+						enterTime: readFloat(resultObj.bin),
+						totalTime: readFloat(resultObj.bin),
+						velMax3D: readFloat(resultObj.bin),
+						velMax2D: readFloat(resultObj.bin),
+						velAvg3D: readFloat(resultObj.bin),
+						velAvg2D: readFloat(resultObj.bin),
+						velEnter3D: readFloat(resultObj.bin),
+						velEnter2D: readFloat(resultObj.bin),
+						velExit3D: readFloat(resultObj.bin),
+						velExit2D: readFloat(resultObj.bin),
+					},
 				};
 				resultObj.replay.stats.push(zoneStat);
 			}
@@ -124,11 +127,13 @@ const processRunFile = (resultObj) => {
 		}
 
 		resultObj.runModel = {
-			tickrate: resultObj.replay.header.tickRate,
+			tickRate: resultObj.replay.header.tickRate,
 			dateAchieved: resultObj.replay.header.runDate,
 			time: resultObj.replay.header.runTime,
 			flags: resultObj.replay.header.runFlags,
-			stats: resultObj.replay.stats[0],
+			stats: {
+				zoneStats: resultObj.replay.stats,
+			},
 			mapID: resultObj.map.id,
 			playerID: resultObj.playerID,
 		};
@@ -232,7 +237,24 @@ const saveRun = (resultObj, runFile) => {
 		return updateStats(resultObj, t)
 		.then(() => {
 			return Run.create(resultObj.runModel, {
-				include: { as: 'stats', model: RunStats },
+				include: [
+					{
+						as: 'stats',
+						model: RunStats,
+						include: [
+							{
+								model: RunZoneStats,
+								as: 'zoneStats',
+								include: [
+									{
+										model: BaseStats,
+										as: 'baseStats',
+									}
+								]
+							}
+						]
+					},
+				],
 				transaction: t
 			});
 		}).then(run => {
@@ -284,10 +306,11 @@ const updateStats = (resultObj, transaction) => {
 			playerID: resultObj.playerID,
 		},
 	}).then(run => {
+		// TODO: Update mapZoneStats here
 		const mapStatsUpdate = {
 			totalCompletions: sequelize.literal('totalCompletions + 1'),
-			totalJumps: sequelize.literal('totalJumps + ' + resultObj.replay.stats[0].jumps),
-			totalStrafes: sequelize.literal('totalStrafes + ' + resultObj.replay.stats[0].strafes),
+			totalJumps: sequelize.literal('totalJumps + ' + resultObj.replay.stats[0].baseStats.jumps),
+			totalStrafes: sequelize.literal('totalStrafes + ' + resultObj.replay.stats[0].baseStats.strafes),
 		};
 		if (!run) {
 			isFirstTimeCompletingMap = true;
@@ -299,8 +322,8 @@ const updateStats = (resultObj, transaction) => {
 		});
 	}).then(() => {
 		const userStatsUpdate = {
-			totalJumps: sequelize.literal('totalJumps + ' + resultObj.replay.stats[0].jumps),
-			totalStrafes: sequelize.literal('totalStrafes + ' + resultObj.replay.stats[0].strafes),
+			totalJumps: sequelize.literal('totalJumps + ' + resultObj.replay.stats[0].baseStats.jumps),
+			totalStrafes: sequelize.literal('totalStrafes + ' + resultObj.replay.stats[0].baseStats.strafes),
 			rankXP: sequelize.literal('rankXP + 100'),
 			cosXP: sequelize.literal('cosXP + 75'),
 			runsSubmitted: sequelize.literal('runsSubmitted + 1'),
