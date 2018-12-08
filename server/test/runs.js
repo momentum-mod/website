@@ -1,20 +1,28 @@
 'use strict';
 process.env.NODE_ENV = 'test';
 
-const { forceSyncDB, Map, MapInfo, MapCredit, MapImage, User } = require('../config/sqlize'),
+const { forceSyncDB, Map, MapInfo, MapCredit, MapImage, Run, RunStats, User } = require('../config/sqlize'),
 	chai = require('chai'),
 	chaiHttp = require('chai-http'),
 	expect = chai.expect,
 	server = require('../server.js'),
     user = require('../src/models/user'),
     auth = require('../src/models/auth'),
-    map = require('../src/models/map');
-//	run = require('../src/models/run');
+    map = require('../src/models/map'),
+	run = require('../src/models/run');
+
 
 chai.use(chaiHttp);
 
+let fs = require('fs');
+
 describe('runs', () => {
 
+   // let runFile = {
+    //    fileName: "triggertests-1544253465-5.802.momrec",
+   // };
+
+    let testRunFile = fs.readFileSync(__dirname + '/triggertests-1544253465-5.802.momrec');
     let accessToken = null;
     let adminAccessToken = null;
     let adminGameAccessToken = null;
@@ -53,6 +61,20 @@ describe('runs', () => {
         }
     };
 
+    const testRun = {
+        id: testUser.id,
+        isPersonalBest: true,
+        tickrate: 60,
+       //  dateAchieved:
+        // time:
+        // flags:
+        // file:
+         playerID: 1,
+         mapID: 1,
+        // createdAt:
+        // updatedAt:
+    };
+
 	before(() => {
         return forceSyncDB()
             .then(() => {
@@ -73,7 +95,7 @@ describe('runs', () => {
                 adminGameAccessToken = token;
                 return User.create(testAdminGame);
             })
-            .then(user => {
+            .then(() => {
                 return Map.create(testMap, {
                     include: [
                         {  model: MapInfo, as: 'info',},
@@ -81,6 +103,13 @@ describe('runs', () => {
                         {  model: MapImage, as: 'images'}
                     ]
                 })
+            })
+            .then((user) => {
+
+                return Run.create(testUser.id, testMap.id,  testRunFile)
+
+                // return Run.create(testUser.id, testMap.id, runFile)
+                    //fs.readFileSync('test/triggertests-1544253465-5.802.momrec'))
             })
 
 
@@ -96,30 +125,17 @@ describe('runs', () => {
 
 	describe('endpoints', () => {
 
-		describe('POST /api/runs', () => {
-/*
-			it('should return a 400 when no run file is provided', () => {
-				return chai.request(server)
-					.post('/api/runs')
-                    .set('Authorization', 'Bearer ' + accessToken)
-					.type('form')
-					.send(null)
-                    .then(res => {
-                        expect(res).to.have.status(400);
-                        expect(res).to.be.json;
-                        expect(res.body).to.have.property('error');
-                        expect(res.body.error.code).equal(400);
-                        expect(res.body.error.message).to.be.a('string');
-                    });
-			});
-*/
-			it('should return a 400 when the run file is invalid');
-			it('should return a 409 when the map is not accepting submissions');
-			it('should create a new run');
-		});
-
 		describe('GET /api/runs', () => {
-			it('should respond with a list of runs');
+			it('should respond with a list of runs', () => {
+                return chai.request(server)
+                    .get('/api/runs')
+                    .set('Authorization', 'Bearer ' + accessToken)
+                    .then(res => {
+                        expect(res).to.have.status(200);
+                        expect(res).to.be.json;
+                      //  expect(res.body.runs).to.have.length(1);
+                    });
+            });
 			it('should respond with a limited list of runs when using the limit query param');
 			it('should respond with a different list of runs when using the offset query param');
 			it('should respond with a filtered list of runs when using the playerID query param');
@@ -129,8 +145,8 @@ describe('runs', () => {
 		});
 
 		describe('GET /api/runs/{runID}', () => {
-			// Returns 200
-		/*	it('should respond with a 404 when the run is not found', () => {
+	/*		// Returns 200
+			it('should respond with a 404 when the run is not found', () => {
                 return chai.request(server)
                     .get('/api/runs/9191')
                     .set('Authorization', 'Bearer ' + accessToken)
@@ -146,7 +162,7 @@ describe('runs', () => {
 		});
 
 		describe('GET /api/runs/{runID}/download', () => {
-			/*
+ /*
 			it('should respond with a 404 when the run is not found', () => {
                 return chai.request(server)
                     .get('/api/runs/9191/download')
@@ -159,7 +175,7 @@ describe('runs', () => {
                         expect(res.body.error.message).to.be.a('string');
                     });
 			});
-			*/
+ */
 			it('should download the run replay file');
 		});
 

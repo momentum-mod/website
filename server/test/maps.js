@@ -917,7 +917,7 @@ describe('maps', () => {
                     .attach('mapFile', fs.readFileSync('test/testMap.bsp'), 'testMap.bsp')
                     .then(res => {
                         expect(res).to.have.status(200);
-
+                        // needs more expect statements
                     });
             });
             it('should respond with 401 when no access token is provided', () => {
