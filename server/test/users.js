@@ -38,11 +38,12 @@ describe('users', () => {
     const testMap = {
         name: 'test_map',
         info: {
-            description: 'My first map!!!!',
+            description: 'newmap_5',
             numBonuses: 1,
-            numCheckpoints: 1,
-            numStages: 1,
-            difficulty: 5,
+            numZones: 1,
+            difficulty: 2,
+            isLinear: false,
+            creationDate: new Date(),
         }
     };
 

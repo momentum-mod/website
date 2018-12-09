@@ -21,15 +21,18 @@ describe('maps', () => {
 	let adminGameAccessToken = null;
 	const testUser = {
 		id: '1',
-		permissions: user.Permission.VERIFIED
+		permissions: user.Permission.VERIFIED,
+		country: 'US',
 	};
     const testAdmin = {
         id: '3',
-        permissions: user.Permission.ADMIN
+        permissions: user.Permission.ADMIN,
+	    country: 'US',
     };
     const testAdminGame = {
         id: '222',
-        permissions: user.Permission.ADMIN
+        permissions: user.Permission.ADMIN,
+	    country: 'US',
     };
 
 	const testMap = {
@@ -41,9 +44,10 @@ describe('maps', () => {
 		info: {
 			description: 'My first map!!!!',
 			numBonuses: 1,
-			numCheckpoints: 1,
-			numStages: 1,
+			numZones: 1,
+			isLinear: false,
 			difficulty: 5,
+			creationDate: new Date(),
 		},
         credits: {
             id: 1,
@@ -66,13 +70,14 @@ describe('maps', () => {
 	    type: map.MAP_TYPE.BHOP,
         statusFlag: map.STATUS.APPROVED,
         submitterID: testUser.id,
-        info: {
-            description: 'My test map!!!!',
-            numBonuses: 1,
-            numCheckpoints: 1,
-            numStages: 1,
-            difficulty: 5,
-        },
+	    info: {
+		    description: 'My test map!!!!',
+		    numBonuses: 1,
+		    numZones: 1,
+		    isLinear: false,
+		    difficulty: 5,
+		    creationDate: new Date(),
+	    },
         credits: {
         	id: 2,
             type: map.CreditType.AUTHOR,
@@ -90,26 +95,28 @@ describe('maps', () => {
 	    type: map.MAP_TYPE.SURF,
         submitterID: testUser.id,
         statusFlag: map.STATUS.NEEDS_REVISION,
-        info: {
-            description: 'test3',
-            numBonuses: 1,
-            numCheckpoints: 1,
-            numStages: 1,
-            difficulty: 5,
-        }
+	    info: {
+		    description: 'test3',
+		    numBonuses: 1,
+		    numZones: 1,
+		    isLinear: false,
+		    difficulty: 5,
+		    creationDate: new Date(),
+	    },
     };
 
     const uniMap = {
         id: 456,
         name: 'unimap',
 	    type: map.MAP_TYPE.RJ,
-        info: {
-            description: 'unimap desc',
-            numBonuses: 1,
-            numCheckpoints: 1,
-            numStages: 1,
-            difficulty: 5,
-        }
+	    info: {
+		    description: 'newmap_5',
+		    numBonuses: 1,
+		    numZones: 1,
+		    difficulty: 2,
+		    isLinear: false,
+		    creationDate: new Date(),
+	    }
     };
 
 	before(() => {
@@ -202,9 +209,10 @@ describe('maps', () => {
 					info: {
 						description: 'newmap_5',
 						numBonuses: 1,
-						numCheckpoints: 1,
-						numStages: 1,
-						difficulty: 2
+						numZones: 1,
+						difficulty: 2,
+						isLinear: false,
+						creationDate: new Date(),
 					}
 				})
 					.then((res) => {
