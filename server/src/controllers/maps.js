@@ -30,7 +30,7 @@ module.exports = {
 			map.STATUS.REJECTED.toString(),
 			map.STATUS.REMOVED.toString(),
 		].join(',');
-		map.getAll(req.query)
+		map.getAll(req.user.id, req.query)
 		.then(results => {
 	        res.json({
 				count: results.count,
@@ -48,7 +48,7 @@ module.exports = {
 		].join(',');
 		if (req.query.expand)
 			req.query.expand = req.query.expand.replace(/stats/g, 'mapStats');
-		map.get(req.params.mapID, req.query)
+		map.get(req.params.mapID, req.user.id, req.query)
 		.then(map => {
 			if (map) {
 				return res.json(map);

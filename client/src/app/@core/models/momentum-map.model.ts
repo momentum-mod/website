@@ -4,6 +4,8 @@ import {User} from './user.model';
 import {MapStats} from './map-stats.model';
 import {MapImage} from './map-image.model';
 import {MomentumMapType} from './map-type.model';
+import {MapFavorite} from './map-favorite.model';
+import {MapLibraryEntry} from './map-library-entry';
 
 export interface MomentumMap {
   id: number;
@@ -17,6 +19,8 @@ export interface MomentumMap {
   credits?: MapCredit[];
   images?: MapImage[];
   stats?: MapStats;
+  favorites?: MapFavorite[];
+  libraryEntries?: MapLibraryEntry[];
   downloadURL?: string;
   submitterID?: string;
   submitter?: User;

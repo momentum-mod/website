@@ -3,7 +3,7 @@ const util = require('util'),
 	fs = require('fs'),
 	crypto = require('crypto'),
 	{ sequelize, Op, Map, MapInfo, MapCredit, User, Profile, Activity,
-		MapStats, MapZoneStats, BaseStats, MapImage } = require('../../config/sqlize'),
+		MapStats, MapZoneStats, BaseStats, MapImage, MapFavorite, MapLibrary } = require('../../config/sqlize'),
 	user = require('./user'),
 	activity = require('./activity'),
 	queryHelper = require('../helpers/query'),
@@ -157,7 +157,7 @@ module.exports = {
 	CreditType,
 	MAP_TYPE,
 
-	getAll: (context) => {
+	getAll: (userID, context) => {
 		const allowedExpansions = ['info', 'credits'];
 		const queryContext = {
 			distinct: true,
@@ -214,16 +214,54 @@ module.exports = {
 				[priority ? Op.or : Op.and]: permChecks
 			};
 		}
-		queryHelper.addExpansions(queryContext, context.expand, allowedExpansions);
+		if (context.expand) {
+			queryHelper.addExpansions(queryContext, context.expand, allowedExpansions);
+			const expansionNames = context.expand.split(',');
+			if (expansionNames.includes('favorite')) {
+				queryContext.include.push({
+					model: MapFavorite,
+					as: 'favorites',
+					where: { userID: userID },
+					required: false,
+				});
+			}
+			if (expansionNames.includes('libraryEntry')) {
+				queryContext.include.push({
+					model: MapLibrary,
+					as: 'libraryEntries',
+					where: { userID: userID },
+					required: false,
+				});
+			}
+		}
 		return Map.findAndCountAll(queryContext);
 	},
 
-	get: (mapID, context) => {
+	get: (mapID, userID, context) => {
 		const allowedExpansions = ['info', 'credits', 'submitter', 'images', 'mapStats'];
-		const queryContext = { where: { id: mapID }};
+		const queryContext = { include: [], where: { id: mapID }};
 		if ('status' in context)
 			queryContext.where.statusFlag = {[Op.in]: context.status.split(',')};
-		queryHelper.addExpansions(queryContext, context.expand, allowedExpansions);
+		if (context.expand) {
+			queryHelper.addExpansions(queryContext, context.expand, allowedExpansions);
+			const expansionNames = context.expand.split(',');
+			if (expansionNames.includes('favorite')) {
+				queryContext.include.push({
+					model: MapFavorite,
+					as: 'favorites',
+					where: { userID: userID },
+					required: false,
+				});
+			}
+			if (expansionNames.includes('libraryEntry')) {
+				queryContext.include.push({
+					model: MapLibrary,
+					as: 'libraryEntries',
+					where: { userID: userID },
+					required: false,
+				});
+			}
+		}
 		return Map.find(queryContext);
 	},
 
