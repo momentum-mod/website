@@ -2,6 +2,7 @@
 const user = require('../models/user'),
 	map = require('../models/map'),
 	activity = require('../models/activity'),
+	mapCredit = require('../models/map-credit'),
 	mapLibrary = require('../models/map-library'),
 	mapFavorite = require('../models/map-favorite');
 
@@ -56,6 +57,15 @@ module.exports = {
 			return user.destroySocialLink(profile, req.params.type);
 		}).then(resp => {
 			res.sendStatus(200);
+		}).catch(next);
+	},
+
+	getMapCredits: (req, res, next) => {
+		mapCredit.getCreditsByUser(req.user.id, req.query).then(credits => {
+			res.json({
+				count: credits.count,
+				credits: credits.rows
+			});
 		}).catch(next);
 	},
 

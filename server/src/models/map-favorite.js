@@ -21,6 +21,7 @@ module.exports = {
 			include: [
 				{
 					model: Map,
+					as: 'map',
 					include: [
 						{
 							model: MapInfo,

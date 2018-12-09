@@ -25,6 +25,7 @@ import {HomeUserLibraryComponent} from './home/home-user-library/home-user-libra
 import {NgxPaginationModule} from 'ngx-pagination';
 import {RunInfoComponent} from './runs/run-info/run-info.component';
 import {DisqusModule} from 'ngx-disqus';
+import { ProfileCreditsComponent } from './profile/profile-credits/profile-credits.component';
 
 @NgModule({
   imports: [
@@ -53,6 +54,7 @@ import {DisqusModule} from 'ngx-disqus';
     HomeUserMapsComponent,
     HomeUserLibraryComponent,
     RunInfoComponent,
+    ProfileCreditsComponent,
   ],
   entryComponents: [
     ProfileNotifyEditComponent,

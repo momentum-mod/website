@@ -17,6 +17,10 @@ router.route('/profile/social/:type')
 	.delete(userCtrl.destroySocialLink)
 	.all(errorCtrl.send405);
 
+router.route('/maps/credits')
+	.get(userCtrl.getMapCredits)
+	.all(errorCtrl.send405);
+
 router.route('/maps/submitted')
 	.get(userCtrl.getSubmittedMaps)
 	.all(errorCtrl.send405);

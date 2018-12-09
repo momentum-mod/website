@@ -76,14 +76,10 @@ export class UserProfileComponent implements OnInit {
       this.avatar_loaded = true;
       this.usersService.getUserFollows(this.user).subscribe(resp => {
         this.followingUsers = resp.followed;
-      }, err => {
-        this.toastService.popAsync('error', 'Could not retrieve user follows', err.message);
-      });
+      }, err => this.toastService.popAsync('error', 'Could not retrieve user follows', err.message));
       this.usersService.getFollowersOfUser(this.user).subscribe(resp => {
         this.followedByUsers = resp.followers;
-      }, err => {
-        this.toastService.popAsync('error', 'Could not retrieve user following', err.message);
-      });
+      }, err => this.toastService.popAsync('error', 'Could not retrieve user following', err.message));
     }, error => {
       this.toastService.popAsync('error', 'Cannot get user details', error.message);
     });

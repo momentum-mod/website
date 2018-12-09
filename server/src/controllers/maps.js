@@ -1,5 +1,6 @@
 'use strict';
 const map = require('../models/map'),
+	mapCredit = require('../models/map-credit'),
 	config = require('../../config/config');
 
 // TODO: handle these controller errors better!?
@@ -116,7 +117,7 @@ module.exports = {
 	createCredit: (req, res, next) => {
 		map.verifySubmitter(req.params.mapID, req.user.id)
 		.then(() => {
-			return map.createCredit(req.params.mapID, req.body);
+			return mapCredit.createCredit(req.params.mapID, req.body);
 		}).then(mapCredit => {
 			res.json(mapCredit);
 		}).catch(next);
@@ -125,7 +126,7 @@ module.exports = {
 	updateCredit: (req, res, next) => {
 		map.verifySubmitter(req.params.mapID, req.user.id)
 		.then(() => {
-			return map.updateCredit(req.params.mapID, req.params.mapCredID, req.body);
+			return mapCredit.updateCredit(req.params.mapID, req.params.mapCredID, req.body);
 		}).then(() => {
 			res.sendStatus(204);
 		}).catch(next);
@@ -134,7 +135,7 @@ module.exports = {
 	deleteCredit: (req, res, next) => {
 		map.verifySubmitter(req.params.mapID, req.user.id)
 		.then(() => {
-			return map.deleteCredit(req.params.mapID, req.params.mapCredID);
+			return mapCredit.deleteCredit(req.params.mapID, req.params.mapCredID);
 		}).then(() => {
 			res.sendStatus(200);
 		}).catch(next);

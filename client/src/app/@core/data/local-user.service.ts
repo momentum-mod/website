@@ -1,5 +1,5 @@
 import {Injectable} from '@angular/core';
-import { AuthService } from './auth.service';
+import {AuthService} from './auth.service';
 import {Observable, ReplaySubject, Subject} from 'rxjs';
 import {HttpClient} from '@angular/common/http';
 import {UserProfile} from '../models/profile.model';
@@ -7,7 +7,7 @@ import {User} from '../models/user.model';
 import {Permission} from '../models/permissions.model';
 import {UserFollowObject} from '../models/follow.model';
 import {FollowStatus} from '../models/follow-status.model';
-import { CookieService } from 'ngx-cookie-service';
+import {CookieService} from 'ngx-cookie-service';
 
 @Injectable({
   providedIn: 'root',
@@ -144,6 +144,14 @@ export class LocalUserService {
     return this.http.delete('/api/user/maps/favorites/' + mapID, {
       responseType: 'text',
     });
+  }
+
+  /**
+   * @param options An object of options
+   * @return A list of credits featuring the local user
+   */
+  public getMapCredits(options?: object): Observable<any> {
+    return this.http.get('/api/user/maps/credits', options || {});
   }
 
   /**

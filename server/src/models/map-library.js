@@ -1,5 +1,5 @@
 'use strict';
-const { sequelize, MapLibrary, Map, MapInfo, MapCredit, MapStats,
+const { sequelize, MapLibraryEntry, Map, MapInfo, MapCredit, MapStats,
 	MapFavorite, User, Profile } = require('../../config/sqlize');
 
 module.exports = {
@@ -13,6 +13,7 @@ module.exports = {
 			include: [
 				{
 					model: Map,
+					as: 'map',
 					include: [
 						{
 							model: MapInfo,
@@ -39,12 +40,12 @@ module.exports = {
 			if (expansionNames.includes('libraryEntry'))
 				queryContext.include[0].include.push({ model: MapLibrary, as: 'libraryEntries' });
 		}
-		return MapLibrary.findAndCountAll(queryContext);
+		return MapLibraryEntry.findAndCountAll(queryContext);
 	},
 
 	removeMapFromLibrary: (userID, mapID) => {
 		return sequelize.transaction(t => {
-			return MapLibrary.destroy({
+			return MapLibraryEntry.destroy({
 				where: {
 					userID: userID,
 					mapID: mapID
@@ -66,7 +67,7 @@ module.exports = {
 	addMapToLibrary: (userID, mapID) => {
 		return sequelize.transaction(t => {
 			let mapLibModel = null;
-			return MapLibrary.findOrCreate({
+			return MapLibraryEntry.findOrCreate({
 				where: {
 					userID: userID,
 					mapID: mapID
@@ -89,7 +90,7 @@ module.exports = {
 	},
 
 	isMapInLibrary: (userID, mapID) => {
-		return MapLibrary.find({
+		return MapLibraryEntry.find({
 			where: {
 				userID: userID,
 				mapID: mapID,
