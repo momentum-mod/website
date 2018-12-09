@@ -66,7 +66,7 @@ export class MapInfoComponent implements OnInit {
     this.route.paramMap.pipe(
       switchMap((params: ParamMap) =>
           this.mapService.getMap(Number(params.get('id')), {
-            params: { expand: 'info,credits,submitter,stats,images' },
+            params: { expand: 'info,credits,submitter,stats,images,favorite,libraryEntry' },
           }),
       ),
     ).subscribe(map => {
@@ -76,21 +76,16 @@ export class MapInfoComponent implements OnInit {
         mapID: map.id,
         URL: map.info.avatarURL,
       }].concat(this.map.images);
+      if (this.map.favorites && this.map.favorites.length)
+        this.mapInFavorites = true;
+      if (this.map.libraryEntries && this.map.libraryEntries.length)
+        this.mapInLibrary = true;
       this.updateGalleryImages(map.images);
       this.leaderboard.loadLeaderboardRuns(map.id);
-      this.locUserService.isMapInLibrary(map.id).subscribe(() => {
-        this.mapInLibrary = true;
-      }, error => {
-        this.mapInLibrary = error.status !== 404;
-      });
-      this.locUserService.getMapFavorite(map.id).subscribe(mapFavorite => {
-        this.mapInFavorites = true;
-      });
       this.locUserService.getLocal().subscribe(locUser => {
         this.isAdmin = this.locUserService.hasPermission(Permission.ADMIN, locUser);
         this.isModerator = this.locUserService.hasPermission(Permission.MODERATOR, locUser);
-        if (this.map.submitterID === locUser.id)
-          this.isSubmitter = true;
+        this.isSubmitter = this.map.submitterID === locUser.id;
       });
     });
   }

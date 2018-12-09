@@ -51,7 +51,7 @@ paths:
           collectionFormat: csv
           items:
             type: string
-            enum: [info, submitter, credits]
+            enum: [info, submitter, credits, favorite, libraryEntry]
       responses:
         200:
           description: OK
@@ -76,7 +76,7 @@ paths:
           collectionFormat: csv
           items:
             type: string
-            enum: [info, submitter, credits, images, stats]
+            enum: [info, submitter, credits, images, stats, favorite, libraryEntry]
       responses:
         200:
           description: OK

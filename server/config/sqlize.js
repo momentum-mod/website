@@ -101,6 +101,8 @@ MapLibrary.belongsTo(User, { foreignKey: 'userID' });
 MapLibrary.belongsTo(Map, { foreignKey: 'mapID' });
 MapFavorite.belongsTo(User, { foreignKey: 'userID' });
 MapFavorite.belongsTo(Map, { foreignKey: 'mapID' });
+Map.hasMany(MapLibrary, { as: 'libraryEntries', foreignKey: 'mapID' });
+Map.hasMany(MapFavorite, { as: 'favorites', foreignKey: 'mapID' });
 UserFollows.belongsTo(User, { as: 'followee', foreignKey: 'followeeID' });
 UserFollows.belongsTo(User, { as: 'followed', foreignKey: 'followedID' });
 Notification.belongsTo(User, { as: 'forUser', foreignKey: 'forUserID' });
