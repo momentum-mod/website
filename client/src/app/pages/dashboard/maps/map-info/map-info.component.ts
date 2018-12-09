@@ -1,4 +1,4 @@
-import {Component, OnInit, ViewChild} from '@angular/core';
+import {Component, Input, OnInit, ViewChild} from '@angular/core';
 import {ActivatedRoute, ParamMap, Router} from '@angular/router';
 import {switchMap} from 'rxjs/operators';
 import {MapsService} from '../../../../@core/data/maps.service';
@@ -19,6 +19,9 @@ import {Permission} from '../../../../@core/models/permissions.model';
 export class MapInfoComponent implements OnInit {
 
   @ViewChild('leaderboard') leaderboard;
+  @Input('previewMap') previewMap: MomentumMap;
+  @Input('previewImage') previewImage;
+  isPreview: boolean;
   map: MomentumMap;
   mapInLibrary: boolean;
   mapInFavorites: boolean;
@@ -34,6 +37,10 @@ export class MapInfoComponent implements OnInit {
               private locUserService: LocalUserService,
               private toastService: ToasterService) {
     this.mapInLibrary = false;
+    this.isPreview = false;
+    this.map = null;
+    this.previewMap = null;
+    this.previewImage = null;
     this.mapInFavorites = false;
     this.galleryOptions = [
       {
@@ -60,34 +67,44 @@ export class MapInfoComponent implements OnInit {
         preview: false,
       },
     ];
+    this.galleryImages = [];
   }
 
   ngOnInit() {
-    this.route.paramMap.pipe(
-      switchMap((params: ParamMap) =>
-          this.mapService.getMap(Number(params.get('id')), {
-            params: { expand: 'info,credits,submitter,stats,images,favorite,libraryEntry' },
-          }),
-      ),
-    ).subscribe(map => {
-      this.map = map;
-      this.map.images = [{
-        id: 0,
-        mapID: map.id,
-        URL: map.info.avatarURL,
-      }].concat(this.map.images);
-      if (this.map.favorites && this.map.favorites.length)
-        this.mapInFavorites = true;
-      if (this.map.libraryEntries && this.map.libraryEntries.length)
-        this.mapInLibrary = true;
-      this.updateGalleryImages(map.images);
-      this.leaderboard.loadLeaderboardRuns(map.id);
-      this.locUserService.getLocal().subscribe(locUser => {
-        this.isAdmin = this.locUserService.hasPermission(Permission.ADMIN, locUser);
-        this.isModerator = this.locUserService.hasPermission(Permission.MODERATOR, locUser);
-        this.isSubmitter = this.map.submitterID === locUser.id;
+    if (this.previewMap) {
+      this.isPreview = true;
+      this.galleryImages.push({
+        small: this.previewImage.dataBlobURL,
+        medium: this.previewImage.dataBlobURL,
+        big: this.previewImage.dataBlobURL,
       });
-    });
+    } else {
+      this.route.paramMap.pipe(
+        switchMap((params: ParamMap) =>
+          this.mapService.getMap(Number(params.get('id')), {
+            params: {expand: 'info,credits,submitter,stats,images,favorite,libraryEntry'},
+          }),
+        ),
+      ).subscribe(map => {
+        this.map = map;
+        this.map.images = [{
+          id: 0,
+          mapID: map.id,
+          URL: map.info.avatarURL,
+        }].concat(this.map.images);
+        if (this.map.favorites && this.map.favorites.length)
+          this.mapInFavorites = true;
+        if (this.map.libraryEntries && this.map.libraryEntries.length)
+          this.mapInLibrary = true;
+        this.updateGalleryImages(map.images);
+        this.leaderboard.loadLeaderboardRuns(map.id);
+        this.locUserService.getLocal().subscribe(locUser => {
+          this.isAdmin = this.locUserService.hasPermission(Permission.ADMIN, locUser);
+          this.isModerator = this.locUserService.hasPermission(Permission.MODERATOR, locUser);
+          this.isSubmitter = this.map.submitterID === locUser.id;
+        });
+      });
+    }
   }
 
   onLibraryUpdate() {

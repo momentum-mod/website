@@ -14,7 +14,7 @@ import {CookieService} from 'ngx-cookie-service';
 })
 export class LocalUserService {
 
-  private localUser: User;
+  public localUser: User;
   private locUserObtEmit: Subject<User>;
 
   constructor(private authService: AuthService,

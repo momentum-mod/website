@@ -156,9 +156,7 @@
         </div>
       </nb-step>
       <nb-step label="Review">
-        <h1>Verify that the info is correct.</h1>
-        <button class="btn btn-primary" type="button" (click)="onSubmit()">Submit Map</button>
-        <!--TODO: display the review map info component-->
+        <h1 class="text-center">Verify that the info below is correct!</h1>
       </nb-step>
     </nb-stepper>
     <div>
@@ -171,8 +169,13 @@
               (click)="touchForm(stepper.selectedIndex); stepper.next()">
         <i class="ion ion-chevron-right"></i>
       </button>
+      <button *ngIf="stepper.selectedIndex === stepper.steps?.length - 1" class="btn btn-outline-info next-button"
+              type="button" (click)="onSubmit()">Submit Map</button>
     </div>
     <nb-progress-bar *ngIf="isUploadingMap" [value]="mapUploadPercentage" [size]="'xlg'"
                      [displayValue]="true"></nb-progress-bar>
   </nb-card-body>
 </nb-card>
+
+<map-info *ngIf="stepper.selectedIndex === stepper.steps?.length - 1 && !isUploadingMap"
+          [previewMap]="getMapPreview()" [previewImage]="avatarFilePreview"></map-info>

@@ -10,6 +10,8 @@ import {User} from '../../../../@core/models/user.model';
 import {MapCreditType} from '../../../../@core/models/map-credit-type.model';
 import {Observable, of} from 'rxjs';
 import {MomentumMapType} from '../../../../@core/models/map-type.model';
+import {MomentumMap} from '../../../../@core/models/momentum-map.model';
+import {LocalUserService} from '../../../../@core/data/local-user.service';
 
 export interface ImageFilePreview {
   dataBlobURL: string;
@@ -26,6 +28,7 @@ export class MapUploadFormComponent implements AfterViewInit {
 
   mapFile: File;
   avatarFile: File;
+  avatarFilePreview: ImageFilePreview;
   extraImages: ImageFilePreview[];
   mapUploadPercentage: number;
   isUploadingMap: boolean;
@@ -71,6 +74,7 @@ export class MapUploadFormComponent implements AfterViewInit {
 
   constructor(private mapsService: MapsService,
               private router: Router,
+              private localUsrService: LocalUserService,
               private toasterService: ToasterService,
               private fb: FormBuilder) {
     this.isUploadingMap = false;
@@ -111,6 +115,12 @@ export class MapUploadFormComponent implements AfterViewInit {
 
   onAvatarFileSelected(file: File) {
     this.avatarFile = file;
+    this.getFileSource(file, ((blobURL, img) => {
+      this.avatarFilePreview = {
+        dataBlobURL: blobURL,
+        file: img,
+      };
+    }));
     this.filesForm.patchValue({
       avatar: this.avatarFile.name,
     });
@@ -223,13 +233,10 @@ export class MapUploadFormComponent implements AfterViewInit {
     // TODO: implement
   }
 
-  getFileSource(img: File) {
+  getFileSource(img: File, callback: (blobURL, img: File) => void) {
     let reader = new FileReader();
     const handler = (e) => {
-      this.extraImages.push({
-        dataBlobURL: e.target.result,
-        file: img,
-      });
+      callback(e.target.result, img);
       reader.removeEventListener('load', handler, false);
       reader = null;
     };
@@ -238,7 +245,12 @@ export class MapUploadFormComponent implements AfterViewInit {
   }
 
   onExtraImageSelected(file: File) {
-    this.getFileSource(file);
+    this.getFileSource(file, (blobURL, img) => {
+      this.extraImages.push({
+        dataBlobURL: blobURL,
+        file: img,
+      });
+    });
   }
 
   removeExtraImage(img: ImageFilePreview) {
@@ -248,11 +260,34 @@ export class MapUploadFormComponent implements AfterViewInit {
   getAllCredits() {
     const credits = [];
     for (let i = 0; i < this.authors.length; i++)
-      credits.push({ userID: this.authors[i].id, type: MapCreditType.AUTHOR });
+      credits.push({userID: this.authors[i].id, user: this.authors[i], type: MapCreditType.AUTHOR });
     for (let i = 0; i < this.testers.length; i++)
-      credits.push({ userID: this.testers[i].id, type: MapCreditType.TESTER });
+      credits.push({userID: this.testers[i].id, user: this.testers[i], type: MapCreditType.TESTER });
     for (let i = 0; i < this.specialThanks.length; i++)
-      credits.push({ userID: this.specialThanks[i].id, type: MapCreditType.SPECIAL_THANKS });
+      credits.push({userID: this.specialThanks[i].id, user: this.specialThanks[i], type: MapCreditType.SPECIAL_THANKS});
     return credits;
+  }
+
+  getMapPreview(): MomentumMap {
+    return {
+      id: 0,
+      name: this.name.value,
+      type: this.type.value,
+      hash: 'not-important-yet',
+      statusFlag: 0,
+      info: {
+        id: '0',
+        mapID: 0,
+        avatarURL: 'not-important-yet',
+        description: this.description.value,
+        numBonuses: this.numBonuses.value,
+        numZones: this.numZones.value,
+        isLinear: this.isLinear.value,
+        difficulty: this.difficulty.value,
+        creationDate: this.creationDate.value,
+      },
+      credits: this.getAllCredits(),
+      submitter: this.localUsrService.localUser,
+    };
   }
 }
