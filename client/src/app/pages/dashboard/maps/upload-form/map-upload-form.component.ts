@@ -45,11 +45,11 @@ export class MapUploadFormComponent implements AfterViewInit {
     'name': ['', [Validators.required, Validators.maxLength(32)]],
     'type': [this.MapTypes.UNKNOWN, Validators.required],
     'description': ['', [Validators.required, Validators.maxLength(1000)]],
-    'numBonuses': [0, [Validators.required, Validators.min(0), Validators.max(64)]],
-    'numCheckpoints': [0, [Validators.required, Validators.min(0), Validators.max(64)]],
-    'numStages': [0, [Validators.required, Validators.min(0), Validators.max(64)]],
+    'numBonuses': [0, [Validators.required, Validators.min(0), Validators.max(255)]],
+    'numZones': [1, [Validators.required, Validators.min(1), Validators.max(255)]],
+    'isLinear': [false, [Validators.required]],
     'difficulty': [0, [Validators.required, Validators.min(0), Validators.max(6)]],
-    'created': [new Date(), [Validators.required, Validators.max(Date.now())]],
+    'creationDate': [new Date(), [Validators.required, Validators.max(Date.now())]],
   });
   creditsForm: FormGroup = this.fb.group({
     'authors': [[], Validators.required],
@@ -64,10 +64,10 @@ export class MapUploadFormComponent implements AfterViewInit {
   get type() { return this.infoForm.get('type'); }
   get description() { return this.infoForm.get('description'); }
   get numBonuses() { return this.infoForm.get('numBonuses'); }
-  get numCheckpoints() { return this.infoForm.get('numCheckpoints'); }
-  get numStages() { return this.infoForm.get('numStages'); }
+  get numZones() { return this.infoForm.get('numZones'); }
+  get isLinear() { return this.infoForm.get('isLinear'); }
   get difficulty() { return this.infoForm.get('difficulty'); }
-  get created() { return this.infoForm.get('created'); }
+  get creationDate() { return this.infoForm.get('creationDate'); }
 
   constructor(private mapsService: MapsService,
               private router: Router,

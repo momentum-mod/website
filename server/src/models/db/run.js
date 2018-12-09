@@ -13,5 +13,11 @@ module.exports = (sequelize, type) => {
 		time: type.DOUBLE.UNSIGNED, // TODO: investigate decimal, float and double (got weird up results with float)
 		flags: type.INTEGER.UNSIGNED,
 		file: type.STRING,
-	})
+	}, {
+		indexes: [
+			{
+				fields: ['flags'],
+			}
+		]
+	});
 };

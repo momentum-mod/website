@@ -1,13 +1,13 @@
 export interface MomentumMapInfo {
   id: string;
   mapID?: number;
-  totalDownloads: string;
   avatarURL: string;
   description: string;
   numBonuses: number;
-  numCheckpoints: number;
-  numStages: number;
+  numZones: number;
+  isLinear: boolean;
   difficulty: number;
+  creationDate: Date;
   createdAt?: Date;
   updatedAt?: Date;
 }

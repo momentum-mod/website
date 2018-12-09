@@ -2,7 +2,8 @@
 const util = require('util'),
 	fs = require('fs'),
 	crypto = require('crypto'),
-	{ sequelize, Op, Map, MapInfo, MapCredit, User, Profile, Activity, MapStats, MapImage } = require('../../config/sqlize'),
+	{ sequelize, Op, Map, MapInfo, MapCredit, User, Profile, Activity,
+		MapStats, MapZoneStats, BaseStats, MapImage } = require('../../config/sqlize'),
 	user = require('./user'),
 	activity = require('./activity'),
 	queryHelper = require('../helpers/query'),
@@ -227,21 +228,52 @@ module.exports = {
 	},
 
 	create: (map) => {
+		if (!map.info) {
+			const err = new Error("Missing info block");
+			err.status = 400;
+			return Promise.reject(err);
+		}
 		return verifyMapUploadLimitNotReached(map.submitterID)
 		.then(() => {
 			return verifyMapNameNotTaken(map.name);
 		}).then(() => {
 			return sequelize.transaction(t => {
-				if (!map.info) map.info = {};
-				map.stats = {};
-				return Map.create(map, {
-					include: [
-						{ model: MapInfo, as: 'info' },
-						{ model: MapCredit, as: 'credits' },
-						{ model: MapStats, as: 'stats' }
-					],
-					transaction: t
-				}); // TODO create the mapZoneStats here for each zone. Needs numZones first though
+				if (map.info.numZones) {
+					const zoneStats = [];
+					for (let i = 0; i < map.info.numZones + 1; i++) {
+						zoneStats.push({
+							zoneNum: i,
+							baseStats: {},
+						});
+					}
+					map.stats = {
+						zoneStats: zoneStats,
+					};
+					return Map.create(map, {
+						include: [
+							{ model: MapInfo, as: 'info' },
+							{ model: MapCredit, as: 'credits' },
+							{
+								model: MapStats,
+								as: 'stats',
+								include: [{
+									model: MapZoneStats,
+									as: 'zoneStats',
+									include: [{
+										model: BaseStats,
+										as: 'baseStats',
+									}]
+								}]
+							}
+						],
+						transaction: t
+					});
+				} else {
+					const err = new Error('Invalid number of zones in map');
+					err.status = 400;
+					return Promise.reject(err);
+				}
+
 			});
 		});
 	},
