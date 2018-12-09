@@ -19,7 +19,7 @@ module.exports = {
 	},
 
 	getMaps: (req, res, next) => {
-		map.getAll(req.query)
+		map.getAll(req.user.id, req.query)
 		.then(results => {
 			res.json({
 				count: results.count,

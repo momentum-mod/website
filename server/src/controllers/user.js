@@ -61,7 +61,7 @@ module.exports = {
 
 	getSubmittedMaps: (req, res, next) => {
 		req.query.submitterID = req.user.id;
-		map.getAll(req.query)
+		map.getAll(req.user.id, req.query)
 		.then(results => {
 			res.json({
 				count: results.count,
