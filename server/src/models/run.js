@@ -1,6 +1,7 @@
 'use strict';
 const util = require('util'),
-	{ sequelize, Op, Map, MapInfo, MapStats, Run, RunStats, RunZoneStats, BaseStats, User, UserStats, Profile } = require('../../config/sqlize'),
+	{ sequelize, Op, Map, MapInfo, MapStats, Run, RunStats,
+		RunZoneStats, MapZoneStats, BaseStats, User, UserStats, Profile } = require('../../config/sqlize'),
 	activity = require('./activity'),
 	config = require('../../config/config'),
 	queryHelper = require('../helpers/query'),
@@ -237,24 +238,18 @@ const saveRun = (resultObj, runFile) => {
 		return updateStats(resultObj, t)
 		.then(() => {
 			return Run.create(resultObj.runModel, {
-				include: [
-					{
+				include: [{
 						as: 'stats',
 						model: RunStats,
-						include: [
-							{
-								model: RunZoneStats,
-								as: 'zoneStats',
-								include: [
-									{
-										model: BaseStats,
-										as: 'baseStats',
-									}
-								]
-							}
-						]
-					},
-				],
+						include: [{
+							model: RunZoneStats,
+							as: 'zoneStats',
+							include: [{
+								model: BaseStats,
+								as: 'baseStats',
+							}]
+						}]
+					}],
 				transaction: t
 			});
 		}).then(run => {
@@ -300,17 +295,43 @@ const saveRun = (resultObj, runFile) => {
 
 const updateStats = (resultObj, transaction) => {
 	let isFirstTimeCompletingMap = false;
-	return Run.find({
-		where: {
-			mapID: resultObj.map.id,
-			playerID: resultObj.playerID,
-		},
+
+	const zoneUpdates = [];
+	for (const zoneStat of resultObj.map.stats.zoneStats) {
+		const zoneNum = zoneStat.zoneNum;
+		const zoneBaseStats = resultObj.replay.stats[zoneNum].baseStats;
+		zoneUpdates.push(zoneStat.baseStats.update({
+			// Totals
+			jumps: sequelize.literal(`if(jumps = 0, ${zoneBaseStats.jumps}, jumps + ${zoneBaseStats.jumps})`),
+			strafes: sequelize.literal(`if(strafes = 0, ${zoneBaseStats.strafes}, strafes + ${zoneBaseStats.strafes})`),
+			totalTime: sequelize.literal(`if(totalTime = 0, ${zoneBaseStats.totalTime}, totalTime + ${zoneBaseStats.totalTime})`),
+			// Averages
+			avgStrafeSync: sequelize.literal(`if(avgStrafeSync = 0, ${zoneBaseStats.avgStrafeSync}, avgStrafeSync / 2.0 + ${zoneBaseStats.avgStrafeSync / 2.0})`),
+			avgStrafeSync2: sequelize.literal(`if(avgStrafeSync2 = 0, ${zoneBaseStats.avgStrafeSync2}, avgStrafeSync2 / 2.0 + ${zoneBaseStats.avgStrafeSync2 / 2.0})`),
+			enterTime: sequelize.literal(`if(enterTime = 0, ${zoneBaseStats.enterTime}, enterTime / 2.0 + ${zoneBaseStats.enterTime / 2.0})`),
+			velAvg3D: sequelize.literal(`if(velAvg3D = 0, ${zoneBaseStats.velAvg3D}, velAvg3D / 2.0 + ${zoneBaseStats.velAvg3D / 2.0})`),
+			velAvg2D: sequelize.literal(`if(velAvg2D = 0, ${zoneBaseStats.velAvg2D}, velAvg2D / 2.0 + ${zoneBaseStats.velAvg2D / 2.0})`),
+			velMax3D: sequelize.literal(`if(velMax3D = 0, ${zoneBaseStats.velMax3D}, velMax3D / 2.0 + ${zoneBaseStats.velMax3D / 2.0})`),
+			velMax2D: sequelize.literal(`if(velMax2D = 0, ${zoneBaseStats.velMax2D}, velMax2D / 2.0 + ${zoneBaseStats.velMax2D / 2.0})`),
+			velEnter3D: sequelize.literal(`if(velEnter3D = 0, ${zoneBaseStats.velEnter3D}, velEnter3D / 2.0 + ${zoneBaseStats.velEnter3D / 2.0})`),
+			velEnter2D: sequelize.literal(`if(velEnter2D = 0, ${zoneBaseStats.velEnter2D}, velEnter2D / 2.0 + ${zoneBaseStats.velEnter2D / 2.0})`),
+			velExit3D: sequelize.literal(`if(velExit3D = 0, ${zoneBaseStats.velExit3D}, velExit3D / 2.0 + ${zoneBaseStats.velExit3D / 2.0})`),
+			velExit2D: sequelize.literal(`if(velExit2D = 0, ${zoneBaseStats.velExit2D}, velExit2D / 2.0 + ${zoneBaseStats.velExit2D / 2.0})`),
+		}, {
+			transaction: transaction
+		}));
+	}
+
+	return Promise.all(zoneUpdates).then(() => {
+		return Run.find({
+			where: {
+				mapID: resultObj.map.id,
+				playerID: resultObj.playerID,
+			},
+		})
 	}).then(run => {
-		// TODO: Update mapZoneStats here
 		const mapStatsUpdate = {
 			totalCompletions: sequelize.literal('totalCompletions + 1'),
-			totalJumps: sequelize.literal('totalJumps + ' + resultObj.replay.stats[0].baseStats.jumps),
-			totalStrafes: sequelize.literal('totalStrafes + ' + resultObj.replay.stats[0].baseStats.strafes),
 		};
 		if (!run) {
 			isFirstTimeCompletingMap = true;
@@ -362,7 +383,12 @@ module.exports = {
 			playerID: userID,
 		};
 
-		return Map.findById(mapID).then(map => {
+		return Map.findById(mapID, {
+				include: [
+					{model: MapInfo, as: 'info'},
+					{model: MapStats, as: 'stats', include: [{model: MapZoneStats, as: 'zoneStats', include: [{model: BaseStats, as: 'baseStats'}]}]}
+					]})
+			.then(map => {
 			if (!map) {
 				const err = new Error('Bad request');
 				err.status = 400;

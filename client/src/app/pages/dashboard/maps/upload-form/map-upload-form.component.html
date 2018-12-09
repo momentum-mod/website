@@ -32,8 +32,7 @@
                   </div>
                   <div>
                     <input [readonly]="true" class="form-control" formControlName="avatar"
-                           [ngClass]="{'form-control-danger': avatar.invalid && (avatar.dirty || avatar.touched)}"
-                           #uploadFile/>
+                           [ngClass]="{'form-control-danger': avatar.invalid && (avatar.dirty || avatar.touched)}"/>
                   </div>
                   <div>
                     <file-upload [image]="true" (fileSelected)="onAvatarFileSelected($event)"></file-upload>
@@ -77,7 +76,7 @@
                 <div class="form-group col-4">
                   <label>Map Name</label>
                   <input type="text" class="form-control" name="name" required formControlName="name"
-                         [ngClass]="(name.invalid && (name.dirty || name.touched)) ? 'form-control-danger' : ''"/>
+                         [ngClass]="{'form-control-danger': (name.invalid && (name.dirty || name.touched)) }"/>
                 </div>
                 <div class="form-group col-4">
                   <label>Map Type
@@ -100,8 +99,8 @@
                 </div>
                 <div class="form-group col-4">
                   <label>Date Created</label>
-                  <input formControlName="created" [nbDatepicker]="datepicker" class="form-control"
-                         [ngClass]="(created.invalid && (created.dirty || created.touched)) ? 'form-control-danger' : ''"/>
+                  <input formControlName="creationDate" [nbDatepicker]="datepicker" class="form-control"
+                         [ngClass]="{'form-control-danger': (creationDate.invalid && (creationDate.dirty || creationDate.touched))}"/>
                   <nb-datepicker #datepicker [boundingMonth]="false"></nb-datepicker>
                 </div>
               </div>
@@ -123,25 +122,23 @@
               <div class="form-group">
                 <label>Number of Bonuses</label>
                 <input type="number" class="form-control" formControlName="numBonuses"
-                       [ngClass]="(numBonuses.invalid && (numBonuses.dirty || numBonuses.touched)) ? 'form-control-danger' : ''"/>
+                       [ngClass]="{'form-control-danger': (numBonuses.invalid && (numBonuses.dirty || numBonuses.touched))}"/>
               </div>
-
               <div class="form-group">
-                <label>Number of Checkpoints</label>
-                <input type="number" class="form-control" formControlName="numCheckpoints"
-                       [ngClass]="(numCheckpoints.invalid && (numCheckpoints.dirty || numCheckpoints.touched)) ? 'form-control-danger' : ''"/>
+                <nb-checkbox formControlName="isLinear"
+                [ngClass]="{'form-control-danger': (isLinear.invalid && (isLinear.dirty || isLinear.touched))}">
+                  Is Linear
+                </nb-checkbox>
               </div>
-
               <div class="form-group">
-                <label>Number of Stages</label>
-                <input type="number" class="form-control" formControlName="numStages"
-                       [ngClass]="(numStages.invalid && (numStages.dirty || numStages.touched)) ? 'form-control-danger' : ''"/>
+                <label>Number of Zones</label>
+                <input type="number" class="form-control" formControlName="numZones"
+                       [ngClass]="{'form-control-danger': (numZones.invalid && (numZones.dirty || numZones.touched))}"/>
               </div>
-
               <div class="form-group">
                 <label>Difficulty</label>
                 <input type="number" class="form-control" formControlName="difficulty"
-                       [ngClass]="(difficulty.invalid && (difficulty.dirty || difficulty.touched)) ? 'form-control-danger' : ''"/>
+                       [ngClass]="{'form-control-danger': (difficulty.invalid && (difficulty.dirty || difficulty.touched))}"/>
               </div>
             </div>
           </div>
