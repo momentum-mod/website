@@ -33,13 +33,14 @@ describe('activities', () => {
     const testMap = {
         name: 'test_map',
 		statusFlag: map.STATUS.PENDING,
-        info: {
-            description: 'My first map!!!!',
-            numBonuses: 1,
-            numCheckpoints: 1,
-            numStages: 1,
-            difficulty: 5,
-        },
+	    info: {
+		    description: 'newmap_5',
+		    numBonuses: 1,
+		    numZones: 1,
+		    difficulty: 2,
+		    isLinear: false,
+		    creationDate: new Date(),
+	    },
 		credits: [{
 			userID: testUser2.id,
 			type: map.CreditType.AUTHOR,

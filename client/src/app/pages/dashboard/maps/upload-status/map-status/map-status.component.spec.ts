@@ -24,16 +24,15 @@ describe('MapStatusComponent', () => {
       hash: '',
       statusFlag: 0,
       submitterID: '1337',
-      createdAt: new Date(),
       info: {
         id: '1234',
-        totalDownloads: '123',
         avatarURL: '',
         description: 'This is a testmap1',
         numBonuses: 0,
-        numCheckpoints: 2,
-        numStages: 3,
+        numZones: 3,
+        isLinear: false,
         difficulty: 4,
+        creationDate: new Date(),
       },
       credits: [
         {

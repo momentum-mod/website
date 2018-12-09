@@ -22,6 +22,7 @@ describe('user', () => {
     const testUser = {
         id: '76561198131664084',
         permissions: 0,
+        country: 'US',
         profile: {
             alias: 'cjshiner',
             avatarURL: 'https://steamcdn-a.akamaihd.net/steamcommunity/public/images/avatars/e4/e4db45e6d6472d9e61b131a04ad2f18a299daafc_full.jpg',
@@ -31,6 +32,7 @@ describe('user', () => {
     const testUser2 = {
         id: '2759389285395352',
         permissions: 0,
+        country: 'US',
         profile: {
             alias: 'test2',
             avatarURL: 'https://steamcdn-a.akamaihd.net/steamcommunity/public/images/avatars/e4/e4db45e6d6472d9e61b131a04ad2f18a299daafc_full.jpg',
@@ -40,6 +42,7 @@ describe('user', () => {
     const testUser3 = {
         id: '777',
         permissions: 0,
+        country: 'US',
         profile: {
             alias: 'test3',
             avatarURL: 'http://google.com',
@@ -50,6 +53,7 @@ describe('user', () => {
     const testAdmin = {
         id: '0909',
         permissions: 0,
+        country: 'US',
         profile: {
             alias: 'testAdmin',
             avatarURL: 'http://google.com',
@@ -63,10 +67,11 @@ describe('user', () => {
         info: {
             description: 'My first map!!!!',
             numBonuses: 1,
-            numCheckpoints: 1,
-            numStages: 1,
+            numZones: 1,
+            isLinear: false,
             difficulty: 5,
-        }
+            creationDate: new Date(),
+        },
     };
 
     const testMap2 = {
@@ -75,10 +80,11 @@ describe('user', () => {
         info: {
             description: 'test2',
             numBonuses: 1,
-            numCheckpoints: 1,
-            numStages: 1,
+            numZones: 1,
+            isLinear: false,
             difficulty: 5,
-        }
+            creationDate: new Date(),
+        },
     };
 
     const testMap3 = {
@@ -87,10 +93,11 @@ describe('user', () => {
         info: {
             description: 'test3',
             numBonuses: 1,
-            numCheckpoints: 1,
-            numStages: 1,
+            numZones: 1,
+            isLinear: false,
             difficulty: 5,
-        }
+            creationDate: new Date(),
+        },
     };
 
     const testmappost = {
@@ -99,10 +106,11 @@ describe('user', () => {
         info: {
             description: 'testpost',
             numBonuses: 1,
-            numCheckpoints: 1,
-            numStages: 1,
-            difficulty: 2
-        }
+            numZones: 1,
+            isLinear: false,
+            difficulty: 2,
+            creationDate: new Date(),
+        },
     };
 
 	const testActivities = [
@@ -451,11 +459,12 @@ describe('user', () => {
                                         id: 6789,
                                         name: 'test_map_notif',
                                         info: {
-                                            description: 'notify map',
+                                            description: 'newmap_5',
                                             numBonuses: 1,
-                                            numCheckpoints: 1,
-                                            numStages: 1,
-                                            difficulty: 2
+                                            numZones: 1,
+                                            difficulty: 2,
+                                            isLinear: false,
+                                            creationDate: new Date(),
                                         }
                                     }).then(res3 => {
                                         // testAdmin approves the map
@@ -635,11 +644,12 @@ describe('user', () => {
                         id: 1234,
                         name: 'test_map_2',
                         info: {
-                            description: 'My second map!!!!',
+                            description: 'newmap_5',
                             numBonuses: 1,
-                            numCheckpoints: 1,
-                            numStages: 1,
-                            difficulty: 2
+                            numZones: 1,
+                            difficulty: 2,
+                            isLinear: false,
+                            creationDate: new Date(),
                         }
                     }).then(res => {
                         return chai.request(server)

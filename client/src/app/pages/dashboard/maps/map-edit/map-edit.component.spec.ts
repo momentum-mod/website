@@ -28,6 +28,7 @@ describe('MapEditComponent', () => {
     submitter: {
       id: '2',
       permissions: 2,
+      country: 'US',
       profile: {
         id: '7',
         alias: 'dude',
