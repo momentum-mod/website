@@ -7,7 +7,7 @@ import 'rxjs/add/operator/mergeMap';
 import 'rxjs/add/observable/forkJoin';
 import {FormBuilder, FormGroup, Validators} from '@angular/forms';
 import {User} from '../../../../@core/models/user.model';
-import {Map_Credit_Type} from '../../../../@core/models/map-credit-type.model';
+import {MapCreditType} from '../../../../@core/models/map-credit-type.model';
 import {Observable, of} from 'rxjs';
 import {MomentumMapType} from '../../../../@core/models/map-type.model';
 
@@ -248,11 +248,11 @@ export class MapUploadFormComponent implements AfterViewInit {
   getAllCredits() {
     const credits = [];
     for (let i = 0; i < this.authors.length; i++)
-      credits.push({ userID: this.authors[i].id, type: Map_Credit_Type.AUTHOR });
+      credits.push({ userID: this.authors[i].id, type: MapCreditType.AUTHOR });
     for (let i = 0; i < this.testers.length; i++)
-      credits.push({ userID: this.testers[i].id, type: Map_Credit_Type.TESTER });
+      credits.push({ userID: this.testers[i].id, type: MapCreditType.TESTER });
     for (let i = 0; i < this.specialThanks.length; i++)
-      credits.push({ userID: this.specialThanks[i].id, type: Map_Credit_Type.SPECIAL_THANKS });
+      credits.push({ userID: this.specialThanks[i].id, type: MapCreditType.SPECIAL_THANKS });
     return credits;
   }
 }

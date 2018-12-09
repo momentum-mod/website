@@ -9,7 +9,7 @@ const Sequelize = require('sequelize'),
 	MapInfoModel = require('../src/models/db/map-info'),
 	MapCreditModel = require('../src/models/db/map-credit'),
 	ActivityModel = require('../src/models/db/activity'),
-	MapLibraryModel = require('../src/models/db/map-library'),
+	MapLibraryEntryModel = require('../src/models/db/map-library'),
 	MapFavoriteModel = require('../src/models/db/map-favorite'),
 	UserFollowsModel = require('../src/models/db/user-follow'),
 	NotificationModel = require('../src/models/db/notification'),
@@ -69,7 +69,7 @@ const Map = MapModel(sequelize, Sequelize);
 const MapInfo = MapInfoModel(sequelize, Sequelize);
 const MapCredit = MapCreditModel(sequelize, Sequelize);
 const Activity = ActivityModel(sequelize, Sequelize);
-const MapLibrary = MapLibraryModel(sequelize, Sequelize);
+const MapLibraryEntry = MapLibraryEntryModel(sequelize, Sequelize);
 const MapFavorite = MapFavoriteModel(sequelize, Sequelize);
 const UserFollows = UserFollowsModel(sequelize, Sequelize);
 const Notification = NotificationModel(sequelize, Sequelize);
@@ -97,12 +97,13 @@ Map.hasMany(MapCredit, { as: 'credits', foreignKey: 'mapID' });
 Map.hasOne(MapInfo, { as: 'info', foreignKey: 'mapID' });
 Map.belongsTo(User, { as: 'submitter', foreignKey: 'submitterID' });
 MapCredit.belongsTo(User, { foreignKey: 'userID' });
-MapLibrary.belongsTo(User, { foreignKey: 'userID' });
-MapLibrary.belongsTo(Map, { foreignKey: 'mapID' });
+MapLibraryEntry.belongsTo(User, { foreignKey: 'userID' });
+MapLibraryEntry.belongsTo(Map, { as: 'map', foreignKey: 'mapID' });
 MapFavorite.belongsTo(User, { foreignKey: 'userID' });
-MapFavorite.belongsTo(Map, { foreignKey: 'mapID' });
 Map.hasMany(MapLibrary, { as: 'libraryEntries', foreignKey: 'mapID' });
 Map.hasMany(MapFavorite, { as: 'favorites', foreignKey: 'mapID' });
+MapFavorite.belongsTo(Map, { as: 'map', foreignKey: 'mapID' });
+MapCredit.belongsTo(Map, { as: 'map', foreignKey: 'mapID'});
 UserFollows.belongsTo(User, { as: 'followee', foreignKey: 'followeeID' });
 UserFollows.belongsTo(User, { as: 'followed', foreignKey: 'followedID' });
 Notification.belongsTo(User, { as: 'forUser', foreignKey: 'forUserID' });
@@ -152,7 +153,7 @@ module.exports = {
 	MapInfo,
 	MapCredit,
 	Activity,
-	MapLibrary,
+	MapLibraryEntry,
 	MapFavorite,
 	UserFollows,
 	Notification,

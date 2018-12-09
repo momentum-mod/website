@@ -88,8 +88,8 @@
             <div class="spacing"><h5>Cosmetic XP </h5> <p>{{user.stats.cosXP}}</p></div>
           </div>
         </nb-tab>
-        <nb-tab *ngIf="isMapper" [tabTitle]="'MAPS'">
-          <!--TODO put the map list of their maps in here-->
+        <nb-tab tabTitle="CREDITS">
+          <profile-credits></profile-credits>
         </nb-tab>
       </nb-tabset>
     </nb-card-body>

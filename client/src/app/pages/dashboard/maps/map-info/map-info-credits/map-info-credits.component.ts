@@ -1,6 +1,6 @@
 import {Component, Input, OnInit} from '@angular/core';
 import {MapCredit} from '../../../../../@core/models/map-credit.model';
-import {Map_Credit_Type} from '../../../../../@core/models/map-credit-type.model';
+import {MapCreditType} from '../../../../../@core/models/map-credit-type.model';
 
 @Component({
   selector: 'map-info-credits',
@@ -10,14 +10,14 @@ import {Map_Credit_Type} from '../../../../../@core/models/map-credit-type.model
 export class MapInfoCreditsComponent implements OnInit {
 
   @Input('map') map;
-  Map_Credit_Type: typeof Map_Credit_Type = Map_Credit_Type;
+  Map_Credit_Type: typeof MapCreditType = MapCreditType;
 
   constructor() {}
 
   ngOnInit() {
   }
 
-  filterMapCredits(mapCredits: MapCredit[], creditType: Map_Credit_Type): MapCredit[] {
+  filterMapCredits(mapCredits: MapCredit[], creditType: MapCreditType): MapCredit[] {
     if (!mapCredits)
       return [];
     const credits = [];

@@ -28,6 +28,11 @@ const expansionMap = {
 		model: Map,
 		as: 'map',
 	},
+	mapWithInfo: {
+		model: Map,
+		as: 'map',
+		include: [{model: MapInfo, as: 'info'}],
+	},
 	mapStats: {
 		model: MapStats,
 		as: 'stats',

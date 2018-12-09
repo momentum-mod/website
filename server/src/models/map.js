@@ -373,41 +373,6 @@ module.exports = {
 		return MapCredit.findAll(queryContext);
 	},
 
-	getCredit: (mapID, mapCredID, context) => {
-		const allowedExpansions = ['user'];
-		const queryContext = {
-			where: {
-				id: mapCredID,
-				mapID: mapID
-			}
-		};
-		queryHelper.addExpansions(queryContext, context.expand, allowedExpansions);
-		return MapCredit.find(queryContext);
-	},
-
-	createCredit: (mapID, mapCredit) => {
-		mapCredit.mapID = mapID;
-		return MapCredit.create(mapCredit);
-	},
-
-	updateCredit: (mapID, mapCredID, mapCredit) => {
-		return MapCredit.update(mapCredit, {
-			where: {
-				id: mapCredID,
-				mapID: mapID
-			}
-		});
-	},
-
-	deleteCredit: (mapID, mapCredID) => {
-		return MapCredit.destroy({
-			where: {
-				id: mapCredID,
-				mapID: mapID
-			}
-		});
-	},
-
 	updateAvatar: (mapID, avatarFile) => {
 		let mapModel = null;
 		return Map.findById(mapID, {
