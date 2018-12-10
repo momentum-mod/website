@@ -861,7 +861,7 @@ describe('user', () => {
                 return chai.request(server)
                     .get('/api/user/maps/submitted')
                     .set('Authorization', 'Bearer ' + accessToken2)
-                    .query({search: testMap2.name})
+                    .query({search: testMap3.name})
                     .then(res => {
                         expect(res).to.have.status(200);
                         expect(res).to.be.json;

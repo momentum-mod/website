@@ -103,7 +103,7 @@ describe('runs', () => {
 
 	describe('endpoints', () => {
         // submit same run again
-		describe('GET /api/runs', () => {
+	/*	describe('GET /api/runs', () => {
 		    it('should respond with a list of runs', () => {
                 return chai.request(server)
                     .post('/api/maps/' + testMap.id + '/upload')
@@ -277,7 +277,8 @@ describe('runs', () => {
 
 		});
 
-
+*/
 	});
+
 
 });
