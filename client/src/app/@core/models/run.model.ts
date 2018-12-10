@@ -10,7 +10,7 @@ export interface Run {
   flags: number;
   file: string;
   mapID: number;
-  playerID: number;
+  playerID: string;
   isPersonalBest: boolean;
   createdAt?: Date;
   updatedAt?: Date;
