@@ -25,6 +25,9 @@ import {UserFollowObject} from '../../../../@core/models/follow.model';
         <nb-checkbox [(ngModel)]="checkboxFlags.MAP_APPROVED.checked">
           {{ActivityType[ActivityType.MAP_APPROVED]}}
         </nb-checkbox>
+        <nb-checkbox [(ngModel)]="checkboxFlags.MAP_UPLOADED.checked">
+          {{ActivityType[ActivityType.MAP_UPLOADED]}}
+        </nb-checkbox>
       </nb-card-body>
       <nb-card-footer>
         <button class="btn btn-danger" (click)="close()">Close</button>
@@ -36,12 +39,12 @@ import {UserFollowObject} from '../../../../@core/models/follow.model';
 })
 export class ProfileNotifyEditComponent implements OnInit {
   @Input() flags: number;
-  ActivityType = Activity_Type;
+  ActivityType: typeof Activity_Type = Activity_Type;
   checkboxFlags = {
     PB: {checked: false, value: Activity_Type.PB_ACHIEVED},
     WR: {checked: false, value: Activity_Type.WR_ACHIEVED},
     MAP_APPROVED: {checked: false, value: Activity_Type.MAP_APPROVED},
-    // TODO add more
+    MAP_UPLOADED: {checked: false, value: Activity_Type.MAP_UPLOADED},
   };
   constructor(protected dialogRef: NbDialogRef<ProfileNotifyEditComponent>) {
   }
