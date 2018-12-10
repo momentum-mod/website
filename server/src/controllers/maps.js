@@ -105,7 +105,7 @@ module.exports = {
 	},
 
 	getCredit: (req, res, next) => {
-		map.getCredit(req.params.mapID, req.params.mapCredID, req.query)
+		mapCredit.getCredit(req.params.mapID, req.params.mapCredID, req.query)
 		.then(mapCredit => {
 			if (mapCredit) {
 				return res.json(mapCredit);
