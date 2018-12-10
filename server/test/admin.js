@@ -55,31 +55,103 @@ describe('admin', () => {
         id: 2,
         name: 'test_map2',
         submitterID: testUser.id,
+        info: {
+            description: 'My first map!!!!',
+            numBonuses: 1,
+            numCheckpoints: 1,
+            numStages: 1,
+            difficulty: 5,
+        },
+        credits: {
+            id: 2,
+            type: map.CreditType.AUTHOR,
+            userID: testUser.id,
+        },
     };
     const testMap3 ={
         id: 3,
         name: 'test_map3',
         submitterID: testUser.id,
+        info: {
+            description: 'My first map!!!!',
+            numBonuses: 1,
+            numCheckpoints: 1,
+            numStages: 1,
+            difficulty: 5,
+        },
+        credits: {
+            id: 3,
+            type: map.CreditType.AUTHOR,
+            userID: testUser.id,
+        },
     };
     const testMap4 ={
         id: 4,
         name: 'test_map4',
         submitterID: testUser.id,
+        info: {
+            description: 'My first map!!!!',
+            numBonuses: 1,
+            numCheckpoints: 1,
+            numStages: 1,
+            difficulty: 5,
+        },
+        credits: {
+            id: 4,
+            type: map.CreditType.AUTHOR,
+            userID: testUser.id,
+        },
     };
     const testMap5 ={
         id: 5,
         name: 'test_map5',
         submitterID: testAdmin.id,
+        info: {
+            description: 'My first map!!!!',
+            numBonuses: 1,
+            numCheckpoints: 1,
+            numStages: 1,
+            difficulty: 5,
+        },
+        credits: {
+            id: 5,
+            type: map.CreditType.AUTHOR,
+            userID: testAdmin.id,
+        },
     };
     const testMap6 ={
         id: 6,
         name: 'test_map6',
         submitterID: testAdmin.id,
+        info: {
+            description: 'My first map!!!!',
+            numBonuses: 1,
+            numCheckpoints: 1,
+            numStages: 1,
+            difficulty: 5,
+        },
+        credits: {
+            id: 6,
+            type: map.CreditType.AUTHOR,
+            userID: testAdmin.id,
+        },
     };
     const uniqueMap ={
         id: 7,
         name: 'unique_map7',
         submitterID: testAdmin.id,
+        info: {
+            description: 'My first map!!!!',
+            numBonuses: 1,
+            numCheckpoints: 1,
+            numStages: 1,
+            difficulty: 5,
+        },
+        credits: {
+            id: 7,
+            type: map.CreditType.AUTHOR,
+            userID: testAdmin.id,
+        },
     };
 
     before(() => {
@@ -110,17 +182,47 @@ describe('admin', () => {
                     ],
                 });
             }).then(user => {
-                return Map.create(testMap2);
+                return Map.create(testMap2, {
+                    include: [
+                        {  model: MapInfo, as: 'info',},
+                        {  model: MapCredit, as: 'credits'}
+                    ],
+                });
             }).then(user => {
-                return Map.create(testMap3);
+                return Map.create(testMap3, {
+                    include: [
+                        {  model: MapInfo, as: 'info',},
+                        {  model: MapCredit, as: 'credits'}
+                    ],
+                });
             }).then(user => {
-                return Map.create(testMap4);
+                return Map.create(testMap4, {
+                    include: [
+                        {  model: MapInfo, as: 'info',},
+                        {  model: MapCredit, as: 'credits'}
+                    ],
+                });
             }).then(user => {
-                return Map.create(testMap5);
+                return Map.create(testMap5, {
+                    include: [
+                        {  model: MapInfo, as: 'info',},
+                        {  model: MapCredit, as: 'credits'}
+                    ],
+                });
             }).then(user => {
-                return Map.create(testMap6);
+                return Map.create(testMap6, {
+                    include: [
+                        {  model: MapInfo, as: 'info',},
+                        {  model: MapCredit, as: 'credits'}
+                    ],
+                });
             }).then(user => {
-                return Map.create(uniqueMap);
+                return Map.create(uniqueMap, {
+                    include: [
+                        {  model: MapInfo, as: 'info',},
+                        {  model: MapCredit, as: 'credits'}
+                    ],
+                });
             }).then(() => {
                 uniqueMap.id = map.id;
                 return Promise.resolve();
@@ -315,7 +417,7 @@ describe('admin', () => {
                         expect(res.body.maps).to.have.length(7);
                         expect(res.body.maps[0]).to.have.property('name');
                         expect(res.body.maps[0]).to.have.property('info');
-                        // expect(res.body.maps[0].info).to.have.property('description');
+                        expect(res.body.maps[0].info).to.have.property('description');
                     });
             });
 
@@ -348,7 +450,7 @@ describe('admin', () => {
                         expect(res.body.maps).to.have.length(7);
                         expect(res.body.maps[0]).to.have.property('name');
                         expect(res.body.maps[0]).to.have.property('credits');
-                        // expect(res.body.maps[0].credits[1]).to.have.property('type');
+                        expect(res.body.maps[0].credits[0]).to.have.property('type');
                     });
             });
 

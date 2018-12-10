@@ -361,34 +361,47 @@ describe('users', () => {
                         });
 
             });
+/*
+             it('should respond with a different list of activities for the user when using the offset query param', () => {
+                 return chai.request(server)
+                     .get('/api/users/' + testUser2.id + '/activities')
+                     .set('Authorization', 'Bearer ' + accessToken)
+                     .query({ offset: 0, limit: 1 })
+                     .then(res => {
+                         return chai.request(server)
+                             .get('/api/users/' + testUser2.id + '/activities')
+                             .set('Authorization', 'Bearer ' + accessToken)
+                             .query({ offset: 1, limit: 1 })
+                             .then(res2 => {
+                                 expect(res).to.have.status(200);
+                                 expect(res).to.be.json;
+                                 expect(res.body).to.have.property('activities');
+                                 expect(res.body.activities).to.be.an('array');
+                                 expect(res.body.activities).to.have.lengthOf(1);
+                                 expect(res2).to.have.status(200);
+                                 expect(res2).to.be.json;
+                                 expect(res2.body).to.have.property('activities');
+                                 expect(res2.body.activities).to.be.an('array');
+                                 expect(res2.body.activities).to.have.lengthOf(1);
+                                 expect(res.body.activities[0].id).to.not.equal(res2.body.activities[0].id);
+                             });
+                     });
+             });
+             */
 
-            // throws an error in travis
-
-            // it('should respond with a different list of activities for the user when using the offset query param', () => {
-            //     return chai.request(server)
-            //         .get('/api/users/' + testUser2.id + '/activities')
-            //         .set('Authorization', 'Bearer ' + accessToken)
-            //         .query({ offset: 0, limit: 1 })
-            //         .then(res => {
-            //             return chai.request(server)
-            //                 .get('/api/users/' + testUser2.id + '/activities')
-            //                 .set('Authorization', 'Bearer ' + accessToken)
-            //                 .query({ offset: 1, limit: 1 })
-            //                 .then(res2 => {
-            //                     expect(res).to.have.status(200);
-            //                     expect(res).to.be.json;
-            //                     expect(res.body).to.have.property('activities');
-            //                     expect(res.body.activities).to.be.an('array');
-            //                     expect(res.body.activities).to.have.lengthOf(1);
-            //                     expect(res2).to.have.status(200);
-            //                     expect(res2).to.be.json;
-            //                     expect(res2.body).to.have.property('activities');
-            //                     expect(res2.body.activities).to.be.an('array');
-            //                     expect(res2.body.activities).to.have.lengthOf(1);
-            //                     expect(res.body.activities[0].id).to.not.equal(res2.body.activities[0].id);
-            //                 });
-            //         });
-            // });
+            it('should respond with a different list of activities for the user when using the offset query param', () => {
+                return chai.request(server)
+                    .get('/api/users/' + testUser2.id + '/activities')
+                    .set('Authorization', 'Bearer ' + accessToken)
+                    .query({offset: 1})
+                    .then(res => {
+                        expect(res).to.have.status(200);
+                        expect(res).to.be.json;
+                        expect(res.body).to.have.property('activities');
+                        expect(res.body.activities).to.be.an('array');
+                        expect(res.body.activities).to.have.lengthOf(1);
+                    });
+            });
             it('should respond with a filtered list of activities for the user when using the userID query param', () => {
                 return chai.request(server)
                     .get('/api/users/' + testUser.id + '/activities')
@@ -448,6 +461,17 @@ describe('users', () => {
                         expect(res.body.activities[0].user).to.have.property('permissions');
                     });
             });
+            it('should respond with 401 when no access token is provided', () => {
+                return chai.request(server)
+                    .get('/api/users/' + testUser2.id + '/activities')
+                    .then(res => {
+                        expect(res).to.have.status(401);
+                        expect(res).to.be.json;
+                        expect(res.body).to.have.property('error');
+                        expect(res.body.error.code).equal(401);
+                        expect(res.body.error.message).to.be.a('string');
+                    });
+            });
         });
 
         describe('POST /api/user/follow', () => {
@@ -463,25 +487,45 @@ describe('users', () => {
                         expect(res).to.be.json;
                     });
             });
+            it('should respond with 401 when no access token is provided', () => {
+                return chai.request(server)
+                    .get('/api/users/follow')
+                    .then(res => {
+                        expect(res).to.have.status(401);
+                        expect(res).to.be.json;
+                        expect(res.body).to.have.property('error');
+                        expect(res.body.error.code).equal(401);
+                        expect(res.body.error.message).to.be.a('string');
+                    });
+            });
         });
 
-            describe('GET /api/users/{userID}/follows', () => {
-               it('should respond with a list of users the specified user follows', () => {
-                   return chai.request(server)
-                       .get('/api/users/'+ testUser.id + '/follows')
-                       .set('Authorization', 'Bearer ' + accessToken)
-                       .then(res => {
-                          expect(res).to.have.status(200);
-                          expect(res).to.be.json;
-                          expect(res.body).to.have.property('count');
-                          expect(res.body).to.have.property('followed');
-                          expect(res.body.followed).to.be.an('array');
-                          expect(res.body.followed).to.have.length(1);
-
-                       });
-
-               });
+        describe('GET /api/users/{userID}/follows', () => {
+            it('should respond with a list of users the specified user follows', () => {
+                return chai.request(server)
+                    .get('/api/users/' + testUser.id + '/follows')
+                    .set('Authorization', 'Bearer ' + accessToken)
+                    .then(res => {
+                        expect(res).to.have.status(200);
+                        expect(res).to.be.json;
+                        expect(res.body).to.have.property('count');
+                        expect(res.body).to.have.property('followed');
+                        expect(res.body.followed).to.be.an('array');
+                        expect(res.body.followed).to.have.length(1);
+                    });
             });
+            it('should respond with 401 when no access token is provided', () => {
+                return chai.request(server)
+                    .get('/api/users/' + testUser.id + '/follows')
+                    .then(res => {
+                        expect(res).to.have.status(401);
+                        expect(res).to.be.json;
+                        expect(res.body).to.have.property('error');
+                        expect(res.body.error.code).equal(401);
+                        expect(res.body.error.message).to.be.a('string');
+                    });
+            });
+        });
 
         describe('GET /api/users/{userID}/followers', () => {
             it('should respond with a list of users that follow the specified user', () => {
@@ -497,9 +541,17 @@ describe('users', () => {
                         expect(res.body.followers).to.have.length(1);
                     });
             });
+            it('should respond with 401 when no access token is provided', () => {
+                return chai.request(server)
+                    .get('/api/users/' + testUser2.id + '/followers')
+                    .then(res => {
+                        expect(res).to.have.status(401);
+                        expect(res).to.be.json;
+                        expect(res.body).to.have.property('error');
+                        expect(res.body.error.code).equal(401);
+                        expect(res.body.error.message).to.be.a('string');
+                    });
+            });
         });
-
-
     });
-
 });

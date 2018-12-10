@@ -61,6 +61,17 @@ describe('activities', () => {
 						expect(res.body).to.have.property('runsSubmitted');
 					});
 			});
+            it('should respond with 401 when no access token is provided', () => {
+                return chai.request(server)
+                    .get('/api/stats/global')
+                    .then(res => {
+                        expect(res).to.have.status(401);
+                        expect(res).to.be.json;
+                        expect(res.body).to.have.property('error');
+                        expect(res.body.error.code).equal(401);
+                        expect(res.body.error.message).to.be.a('string');
+                    });
+            });
 		});
 
 		describe('GET /api/stats/global/maps', () => {
@@ -79,6 +90,17 @@ describe('activities', () => {
 						expect(res.body).to.have.property('topUniquelyCompletedMap');
 					});
 			});
+            it('should respond with 401 when no access token is provided', () => {
+                return chai.request(server)
+                    .get('/api/stats/global/maps')
+                    .then(res => {
+                        expect(res).to.have.status(401);
+                        expect(res).to.be.json;
+                        expect(res.body).to.have.property('error');
+                        expect(res.body.error.code).equal(401);
+                        expect(res.body.error.message).to.be.a('string');
+                    });
+            });
 		});
 
 	});
