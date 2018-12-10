@@ -4,7 +4,6 @@ const user = require('../models/user'),
 	runMdl = require('../models/run'),
 	activity = require('../models/activity');
 
-// TODO: handle these controller errors better!?
 const genUserNotFoundErr = () => {
 	const err = new Error('User Not Found');
 	err.status = 404;

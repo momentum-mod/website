@@ -231,12 +231,12 @@ const isNewWorldRecord = (resultObj) => {
 	});
 };
 
-// TODO: rip this apart and make it flow a bit better -- stats should be in own methods, etc
 const saveRun = (resultObj, runFile) => {
 	return sequelize.transaction(t => {
 		let runModel = {};
+		// First do MapZoneStats -> MapStats -> UserStats updating
 		return updateStats(resultObj, t)
-		.then(() => {
+		.then(() => { // Create the run
 			return Run.create(resultObj.runModel, {
 				include: [{
 						as: 'stats',
@@ -252,7 +252,7 @@ const saveRun = (resultObj, runFile) => {
 					}],
 				transaction: t
 			});
-		}).then(run => {
+		}).then(run => { // Update old PB run to be no longer PB
 			runModel = run;
 			if (!resultObj.runModel.isPersonalBest)
 				return Promise.resolve();
@@ -265,13 +265,13 @@ const saveRun = (resultObj, runFile) => {
 					id: {[Op.ne]: runModel.id },
 				},
 			});
-		}).then(() => {
+		}).then(() => { // Store the run file
 			return storeRunFile(runFile, resultObj.map.id, runModel.id);
-		}).then(results => {
+		}).then(results => { // Update the download URL for the run
 			return runModel.update({ file: results.downloadURL }, {
 				transaction: t,
 			});
-		}).then(() => {
+		}).then(() => { // Generate PB notif if needed
 			if (!resultObj.runModel.isPersonalBest || resultObj.isNewWorldRecord)
 				return Promise.resolve();
 			return activity.create({
@@ -279,7 +279,7 @@ const saveRun = (resultObj, runFile) => {
 				userID: resultObj.playerID,
 				data: runModel.id,
 			}, t);
-		}).then(() => {
+		}).then(() => { // Generate WR notif if needed
 			if (!resultObj.isNewWorldRecord)
 				return Promise.resolve();
 			return activity.create({
@@ -322,14 +322,14 @@ const updateStats = (resultObj, transaction) => {
 		}));
 	}
 
-	return Promise.all(zoneUpdates).then(() => {
+	return Promise.all(zoneUpdates).then(() => { // MapZoneStats
 		return Run.find({
 			where: {
 				mapID: resultObj.map.id,
 				playerID: resultObj.playerID,
 			},
 		})
-	}).then(run => {
+	}).then(run => { // MapStats
 		const mapStatsUpdate = {
 			totalCompletions: sequelize.literal('totalCompletions + 1'),
 		};
@@ -341,7 +341,7 @@ const updateStats = (resultObj, transaction) => {
 			where: { mapID: resultObj.map.id },
 			transaction: transaction,
 		});
-	}).then(() => {
+	}).then(() => { // UserStats
 		const userStatsUpdate = {
 			totalJumps: sequelize.literal('totalJumps + ' + resultObj.replay.stats[0].baseStats.jumps),
 			totalStrafes: sequelize.literal('totalStrafes + ' + resultObj.replay.stats[0].baseStats.strafes),

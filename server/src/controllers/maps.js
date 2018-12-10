@@ -3,7 +3,6 @@ const map = require('../models/map'),
 	mapCredit = require('../models/map-credit'),
 	config = require('../../config/config');
 
-// TODO: handle these controller errors better!?
 const genMapNotFoundErr = () => {
 	const err = new Error('Map not found');
 	err.status = 404;

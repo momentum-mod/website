@@ -63,7 +63,6 @@ export class ActivityContentComponent implements OnInit {
         this.activityIcon = 'ion ion-android-contacts';
         this.eventColor = 'orange';
         break;
-        // TODO: the other activity types
       default:
         break;
     }
