@@ -35,10 +35,8 @@ module.exports = {
 			const expansionNames = context.expand.split(',');
 			if (expansionNames.includes('submitter'))
 				queryContext.include[0].include.push({ model: User, as: 'submitter', include: [Profile] });
-			if (expansionNames.includes('favorite'))
+			if (expansionNames.includes('inFavorites'))
 				queryContext.include[0].include.push({ model: MapFavorite, as: 'favorites' });
-			if (expansionNames.includes('libraryEntry'))
-				queryContext.include[0].include.push({ model: MapLibrary, as: 'libraryEntries' });
 		}
 		return MapLibraryEntry.findAndCountAll(queryContext);
 	},

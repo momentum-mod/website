@@ -100,7 +100,7 @@ MapCredit.belongsTo(User, { foreignKey: 'userID' });
 MapLibraryEntry.belongsTo(User, { foreignKey: 'userID' });
 MapLibraryEntry.belongsTo(Map, { as: 'map', foreignKey: 'mapID' });
 MapFavorite.belongsTo(User, { foreignKey: 'userID' });
-Map.hasMany(MapLibrary, { as: 'libraryEntries', foreignKey: 'mapID' });
+Map.hasMany(MapLibraryEntry, { as: 'libraryEntries', foreignKey: 'mapID' });
 Map.hasMany(MapFavorite, { as: 'favorites', foreignKey: 'mapID' });
 MapFavorite.belongsTo(Map, { as: 'map', foreignKey: 'mapID' });
 MapCredit.belongsTo(Map, { as: 'map', foreignKey: 'mapID'});

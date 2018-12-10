@@ -82,7 +82,7 @@ export class MapInfoComponent implements OnInit {
       this.route.paramMap.pipe(
         switchMap((params: ParamMap) =>
           this.mapService.getMap(Number(params.get('id')), {
-            params: {expand: 'info,credits,submitter,stats,images,favorite,libraryEntry'},
+            params: {expand: 'info,credits,submitter,stats,images,inFavorites,inLibrary'},
           }),
         ),
       ).subscribe(map => {

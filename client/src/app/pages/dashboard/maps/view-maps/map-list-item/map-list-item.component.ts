@@ -11,6 +11,7 @@ import {ToasterService} from 'angular2-toaster';
 export class MapListItemComponent implements OnInit {
 
   @Input('map') map: MomentumMap;
+  @Input('inLibrary') inLibrary: boolean;
   @Input('showDownloadButton') showDownloadButton: boolean;
   @Output() onLibraryUpdate = new EventEmitter();
   mapInFavorites: boolean;
@@ -24,8 +25,7 @@ export class MapListItemComponent implements OnInit {
   ngOnInit() {
     if (this.map.favorites && this.map.favorites.length)
       this.mapInFavorites = true;
-    if (this.map.libraryEntries && this.map.libraryEntries.length)
-      this.mapInLibrary = true;
+    this.mapInLibrary = this.inLibrary;
   }
 
   toggleMapInFavorites() {

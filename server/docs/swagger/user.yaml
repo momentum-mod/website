@@ -82,7 +82,7 @@ paths:
           collectionFormat: csv
           items:
             type: string
-            enum: [submitter, favorite, libraryEntry]
+            enum: [submitter, inFavorites]
       tags:
         - user
       responses:
