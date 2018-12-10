@@ -15,17 +15,15 @@ import {ProfileEditComponent} from './profile/profile-edit/profile-edit.componen
 import {ToasterModule} from 'angular2-toaster';
 import {MarkdownModule} from 'ngx-markdown';
 import {NbAccordionModule, NbDialogModule} from '@nebular/theme';
-import {
-  ProfileFollowComponent,
-  ProfileNotifyEditComponent,
-} from './profile/profile-follow/profile-follow.component';
+import {ProfileFollowComponent, ProfileNotifyEditComponent} from './profile/profile-follow/profile-follow.component';
 import {HomeStatsComponent} from './home/home-stats/home-stats.component';
 import {HomeUserMapsComponent} from './home/home-user-maps/home-user-maps.component';
 import {HomeUserLibraryComponent} from './home/home-user-library/home-user-library.component';
 import {NgxPaginationModule} from 'ngx-pagination';
 import {RunInfoComponent} from './runs/run-info/run-info.component';
 import {DisqusModule} from 'ngx-disqus';
-import { ProfileCreditsComponent } from './profile/profile-credits/profile-credits.component';
+import {ProfileCreditsComponent} from './profile/profile-credits/profile-credits.component';
+import {ProfileRunHistoryComponent} from './profile/profile-run-history/profile-run-history.component';
 
 @NgModule({
   imports: [
@@ -55,6 +53,7 @@ import { ProfileCreditsComponent } from './profile/profile-credits/profile-credi
     HomeUserLibraryComponent,
     RunInfoComponent,
     ProfileCreditsComponent,
+    ProfileRunHistoryComponent,
   ],
   entryComponents: [
     ProfileNotifyEditComponent,

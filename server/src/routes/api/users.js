@@ -32,4 +32,8 @@ router.route('/:userID/credits')
 	.get(usersCtrl.getCredits)
 	.all(errorCtrl.send405);
 
+router.route('/:userID/runs')
+	.get(usersCtrl.getRuns)
+	.all(errorCtrl.send405);
+
 module.exports = router;

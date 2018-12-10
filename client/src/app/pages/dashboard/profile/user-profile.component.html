@@ -77,7 +77,6 @@
             </nb-list-item>
           </nb-list>
         </nb-tab>
-
         <nb-tab [tabTitle]="'STATS'" *ngIf="user.stats">
           <div class="row">
             <div class="spacing"><h5>Maps Completed</h5> <p>{{user.stats.mapsCompleted}}</p></div>
@@ -87,6 +86,9 @@
             <div class="spacing"> <h5>Rank XP</h5> <p>{{user.stats.rankXP}}</p></div>
             <div class="spacing"><h5>Cosmetic XP </h5> <p>{{user.stats.cosXP}}</p></div>
           </div>
+        </nb-tab>
+        <nb-tab tabTitle="RUNS">
+          <profile-run-history [userSubj]="userSubj$"></profile-run-history>
         </nb-tab>
         <nb-tab tabTitle="CREDITS">
           <profile-credits [userSubj]="userSubj$"></profile-credits>
