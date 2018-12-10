@@ -1,38 +1,40 @@
 <span class="text-center" *ngIf="loadedRuns && runHistory.length === 0"><h5><i>No runs found</i></h5></span>
-<button nbButton outline shape="round" size="xsmall" status="info" [fullWidth]="true" (click)="showFilters = !showFilters">Filters</button>
-<div class="filter-content" [ngStyle]="{'max-height': showFilters ? filterContent.scrollHeight + 'px' : null}" #filterContent>
-  <div class="row filter-controls" [formGroup]="filterFG">
-    <div class="col-2">
-      <nb-checkbox formControlName="isPersonalBest">Is PB</nb-checkbox>
-    </div>
-    <div class="col">
-      <input nbInput class="form-control" type="text" placeholder="Map" formControlName="map">
-    </div>
-    <div class="col">
-      <nb-select placeholder="Sort by" formControlName="order">
-        <nb-option [value]="'date'">Sort by Date</nb-option>
-        <nb-option [value]="'time'">Sort by Time</nb-option>
-      </nb-select>
+<div *ngIf="loadedRuns && runHistory.length > 0">
+  <button nbButton outline shape="round" size="xsmall" status="info" [fullWidth]="true" (click)="showFilters = !showFilters">Filters</button>
+  <div class="filter-content" [ngStyle]="{'max-height': showFilters ? filterContent.scrollHeight + 'px' : null}" #filterContent>
+    <div class="row filter-controls" [formGroup]="filterFG">
+      <div class="col-2">
+        <nb-checkbox formControlName="isPersonalBest">Is PB</nb-checkbox>
+      </div>
+      <div class="col">
+        <input nbInput class="form-control" type="text" placeholder="Map" formControlName="map">
+      </div>
+      <div class="col">
+        <nb-select placeholder="Sort by" formControlName="order">
+          <nb-option [value]="'date'">Sort by Date</nb-option>
+          <nb-option [value]="'time'">Sort by Time</nb-option>
+        </nb-select>
+      </div>
     </div>
   </div>
-</div>
-<nb-list>
-  <nb-list-item *ngFor="let run of runHistory | paginate: {
+  <nb-list>
+    <nb-list-item *ngFor="let run of runHistory | paginate: {
      itemsPerPage: pageLimit,
      currentPage: currentPage,
      totalItems: runCount
   }">
-    <div class="row no-gutters">
-      <div class="col-1">
-        <i *ngIf="run.isPersonalBest" class="icon ion ion-trophy" nbPopover="Personal Best" nbPopoverMode="hint"></i>
+      <div class="row no-gutters">
+        <div class="col-1">
+          <i *ngIf="run.isPersonalBest" class="icon ion ion-trophy" nbPopover="Personal Best" nbPopoverMode="hint"></i>
+        </div>
+        <div class="col d-block m-auto">
+          <a routerLink="/dashboard/runs/{{run.id}}">
+            <span class="text">{{run.time | timing}} on {{run.map?.name}}</span>
+          </a>
+        </div>
+        <span class="col text text-right m-auto">{{run.dateAchieved | timeAgo}}</span>
       </div>
-      <div class="col d-block m-auto">
-        <a routerLink="/dashboard/runs/{{run.id}}">
-          <span class="text">{{run.time | timing}} on {{run.map?.name}}</span>
-        </a>
-      </div>
-      <span class="col text text-right m-auto">{{run.dateAchieved | timeAgo}}</span>
-    </div>
-  </nb-list-item>
-</nb-list>
-<pagination-controls (pageChange)="onPageChange($event)" [autoHide]="true"></pagination-controls>
+    </nb-list-item>
+  </nb-list>
+  <pagination-controls (pageChange)="onPageChange($event)" [autoHide]="true"></pagination-controls>
+</div>
