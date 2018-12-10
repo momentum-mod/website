@@ -50,6 +50,10 @@ export class UsersService {
   }
 
   getMapCredits(userID: string, options?: object): Observable<any> {
-    return this.http.get(`api/users/${userID}/credits`, options || {});
+    return this.http.get(`/api/users/${userID}/credits`, options || {});
+  }
+
+  getRunHistory(userID: string, options?: object): Observable<any> {
+    return this.http.get(`/api/users/${userID}/runs`, options || {});
   }
 }

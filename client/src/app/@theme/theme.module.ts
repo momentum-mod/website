@@ -4,7 +4,7 @@ import {FormsModule, ReactiveFormsModule} from '@angular/forms';
 import {NgbModule} from '@ng-bootstrap/ng-bootstrap';
 
 import {
-  NbActionsModule,
+  NbActionsModule, NbButtonModule,
   NbCardModule,
   NbCheckboxModule,
   NbContextMenuModule,
@@ -13,7 +13,7 @@ import {
   NbMenuModule,
   NbPopoverModule,
   NbProgressBarModule,
-  NbRouteTabsetModule,
+  NbRouteTabsetModule, NbSelectModule,
   NbSidebarModule,
   NbTabsetModule,
   NbThemeModule,
@@ -65,6 +65,8 @@ const NB_MODULES = [
   NbContextMenuModule,
   NgbModule,
   NbProgressBarModule,
+  NbButtonModule,
+  NbSelectModule,
 ];
 
 const COMPONENTS = [

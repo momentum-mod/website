@@ -1,4 +1,4 @@
-<span class="none" *ngIf="loadedCredits && mapCredits.length === 0"><h5><i>No credits found</i></h5></span>
+<span class="text-center" *ngIf="loadedCredits && mapCredits.length === 0"><h5><i>No credits found</i></h5></span>
 <nb-list>
   <nb-list-item *ngFor="let mapCredit of mapCredits | paginate: {
      itemsPerPage: pageLimit,

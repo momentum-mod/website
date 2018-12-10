@@ -443,6 +443,11 @@ module.exports = {
 			queryContext.where.flags = parseInt(context.flags) || 0;
 		if (context.isPersonalBest)
 			queryContext.where.isPersonalBest = (context.isPersonalBest === 'true');
+		if (context.order) {
+			if (context.order === 'date')
+				queryContext.order = [['createdAt', 'DESC']];
+		}
+		queryHelper.addExpansions(queryContext, context.expand, ['map', 'mapWithInfo']);
 		return Run.findAndCountAll(queryContext);
 	},
 
@@ -452,7 +457,7 @@ module.exports = {
 		};
 		if (context.mapID)
 			queryContext.where.mapID = context.mapID;
-		queryHelper.addExpansions(queryContext, context.expand, ['user', 'map', 'runStats']);
+		queryHelper.addExpansions(queryContext, context.expand, ['user', 'map', 'mapWithInfo', 'runStats']);
 		return Run.findById(runID, queryContext);
 	},
 
