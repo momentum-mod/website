@@ -362,8 +362,11 @@ module.exports = {
 			return module.exports.destroyTwitchLink(profile);
 		else if (type === 'discord')
 			return module.exports.destroyDiscordLink(profile);
-		else
-			return Promise.reject(); // TODO make an error here
+		else {
+			const err = new Error('Invalid social link type: ' + type);
+			err.status = 400;
+			return Promise.reject(err);
+		}
 	},
 
 	getFollowers: (userID) => {

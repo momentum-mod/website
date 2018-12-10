@@ -10,7 +10,6 @@ module.exports = (sequelize, type) => {
 			type: type.BIGINT.UNSIGNED,
 			defaultValue: 0,
 		},
-		// TODO: finish me
 		rankXP: {
 			type: type.BIGINT.UNSIGNED,
 			defaultValue: 0,

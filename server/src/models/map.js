@@ -44,7 +44,6 @@ const storeMapFile = (mapFile, mapModel) => {
 	const basePath = __dirname + '/../../public/maps';
 	const fullPath =  basePath + '/' + fileName;
 	const downloadURL = config.baseUrl + '/api/maps/' + mapModel.id + '/download';
-	// TODO: resize/edit image?
 	return moveMapTo(fullPath).then(() => {
 		return genFileHash(fullPath).then(hash => {
 			return Promise.resolve({
