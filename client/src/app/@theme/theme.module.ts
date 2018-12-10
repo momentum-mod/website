@@ -37,10 +37,7 @@ import {
   TimingPipe,
 } from './pipes';
 import {
-  OneColumnLayoutComponent,
   SampleLayoutComponent,
-  ThreeColumnsLayoutComponent,
-  TwoColumnsLayoutComponent,
 } from './layouts';
 import {NbSearchModule} from './components/search/search.module';
 import {TimeAgoPipe} from 'time-ago-pipe';
@@ -73,10 +70,7 @@ const COMPONENTS = [
   HeaderComponent,
   FooterComponent,
   SearchInputComponent,
-  OneColumnLayoutComponent,
   SampleLayoutComponent,
-  ThreeColumnsLayoutComponent,
-  TwoColumnsLayoutComponent,
   NotificationComponent,
   ActivityCardComponent,
   ActivityContentComponent,
