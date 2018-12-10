@@ -1,9 +1,11 @@
-import {Component, OnInit} from '@angular/core';
-import {LocalUserService} from '../../../../@core/data/local-user.service';
+import {Component, Input, OnInit} from '@angular/core';
 import {MapCredit} from '../../../../@core/models/map-credit.model';
 import {ToasterService} from 'angular2-toaster';
 import {finalize} from 'rxjs/operators';
 import {MapCreditType} from '../../../../@core/models/map-credit-type.model';
+import {Observable} from 'rxjs';
+import {User} from '../../../../@core/models/user.model';
+import {UsersService} from '../../../../@core/data/users.service';
 
 @Component({
   selector: 'profile-credits',
@@ -12,6 +14,9 @@ import {MapCreditType} from '../../../../@core/models/map-credit-type.model';
 })
 export class ProfileCreditsComponent implements OnInit {
 
+  @Input('userSubj') userSubj$: Observable<User>;
+
+  user: User;
   mapCredType: typeof MapCreditType = MapCreditType;
   mapCredits: MapCredit[];
   loadedCredits: boolean;
@@ -19,7 +24,7 @@ export class ProfileCreditsComponent implements OnInit {
   currentPage: number;
   creditCount: number;
 
-  constructor(private userService: LocalUserService,
+  constructor(private usersService: UsersService,
               private toastService: ToasterService) {
     this.loadedCredits = false;
     this.pageLimit = 10;
@@ -28,11 +33,14 @@ export class ProfileCreditsComponent implements OnInit {
   }
 
   ngOnInit() {
-    this.loadCredits();
+    this.userSubj$.subscribe(usr => {
+      this.user = usr;
+      this.loadCredits();
+    });
   }
 
   loadCredits() {
-    this.userService.getMapCredits({
+    this.usersService.getMapCredits(this.user.id, {
       params: {
         expand: 'mapWithInfo',
         limit: this.pageLimit,

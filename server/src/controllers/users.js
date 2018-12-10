@@ -1,5 +1,6 @@
 'use strict';
 const user = require('../models/user'),
+	mapCredits = require('../models/map-credit'),
 	activity = require('../models/activity');
 
 // TODO: handle these controller errors better!?
@@ -72,6 +73,15 @@ module.exports = {
 			res.json({
 				count: result.count,
 				followed: result.rows,
+			})
+		}).catch(next);
+	},
+
+	getCredits: (req, res, next) => {
+		mapCredits.getCreditsByUser(req.params.userID, req.query).then(result => {
+			res.json({
+				count: result.count,
+				credits: result.rows,
 			})
 		}).catch(next);
 	},
