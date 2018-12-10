@@ -78,7 +78,7 @@
           </nb-list>
         </nb-tab>
 
-        <nb-tab [tabTitle]="'STATISTICS'" *ngIf="user.stats">
+        <nb-tab [tabTitle]="'STATS'" *ngIf="user.stats">
           <div class="row">
             <div class="spacing"><h5>Maps Completed</h5> <p>{{user.stats.mapsCompleted}}</p></div>
             <div class="spacing"> <h5>Total Jumps</h5> <p>{{user.stats.totalJumps}}</p></div>
@@ -89,7 +89,7 @@
           </div>
         </nb-tab>
         <nb-tab tabTitle="CREDITS">
-          <profile-credits></profile-credits>
+          <profile-credits [userSubj]="userSubj$"></profile-credits>
         </nb-tab>
       </nb-tabset>
     </nb-card-body>

@@ -48,4 +48,8 @@ export class UsersService {
   getUserFollows(user: User): Observable<any> {
     return this.http.get('/api/users/' + user.id + '/follows');
   }
+
+  getMapCredits(userID: string, options?: object): Observable<any> {
+    return this.http.get(`api/users/${userID}/credits`, options || {});
+  }
 }

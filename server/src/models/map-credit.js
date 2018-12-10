@@ -18,6 +18,8 @@ module.exports = {
 			queryContext.limit = Math.min(Math.max(parseInt(context.limit), 1), 20);
 		if (context.offset && !isNaN(context.offset))
 			queryContext.offset = Math.min(Math.max(parseInt(context.offset), 0), 5000);
+		if (context.map && !isNaN(context.map))
+			queryContext.where.mapID = context.map;
 		queryHelper.addExpansions(queryContext, context.expand, ['map', 'mapWithInfo']);
 		return MapCredit.findAndCountAll(queryContext);
 	},

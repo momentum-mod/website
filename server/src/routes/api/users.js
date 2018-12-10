@@ -28,4 +28,8 @@ router.route('/:userID/follows')
 	.get(usersCtrl.getFollowed)
 	.all(errorCtrl.send405);
 
+router.route('/:userID/credits')
+	.get(usersCtrl.getCredits)
+	.all(errorCtrl.send405);
+
 module.exports = router;
