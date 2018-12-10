@@ -50,18 +50,18 @@ describe('activities', () => {
 	const testActivities = [
 		{
 	        userID: testUser.id,
-	        data: 1337,
-			type: activity.ACTIVITY_TYPES.ALL,
+	        data: 122,
+			type: activity.ACTIVITY_TYPES.MAP_APPROVED,
 	    },
 		{
 	        userID: testUser2.id,
-	        data: 1337,
-			type: activity.ACTIVITY_TYPES.ALL,
+	        data: 223,
+			type: activity.ACTIVITY_TYPES.MAP_UPLOADED,
 	    },
 		{
 	        userID: testUser2.id,
-	        data: 1337,
-			type: activity.ACTIVITY_TYPES.ALL,
+	        data: 125,
+			type: activity.ACTIVITY_TYPES.WR_ACHIEVED,
 	    }
 	];
 
@@ -157,7 +157,7 @@ describe('activities', () => {
 						return chai.request(server)
 		                    .get('/api/activities')
 		                    .set('Authorization', 'Bearer ' + accessToken)
-		                    .query({ offset: 1, limit: 1 })
+		                    .query({ offset: 2, limit: 1 })
 		                    .then(res2 => {
 								expect(res).to.have.status(200);
 		                        expect(res).to.be.json;
@@ -190,13 +190,13 @@ describe('activities', () => {
                 return chai.request(server)
                     .get('/api/activities')
                     .set('Authorization', 'Bearer ' + accessToken)
-                    .query({ type: activity.ACTIVITY_TYPES.ALL })
+                    .query({ type: activity.ACTIVITY_TYPES.WR_ACHIEVED })
                     .then(res => {
                         expect(res).to.have.status(200);
                         expect(res).to.be.json;
                         expect(res.body).to.have.property('activities');
                         expect(res.body.activities).to.be.an('array');
-						expect(res.body.activities).to.have.lengthOf(3);
+						expect(res.body.activities).to.have.lengthOf(1);
                     });
             });
             it('should respond with 401 when no access token is provided', () => {

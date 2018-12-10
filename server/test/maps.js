@@ -344,7 +344,7 @@ describe('maps', () => {
                         expect(res.body.maps).to.be.an('array');
                         expect(res.body.maps).to.have.length(2);
                         expect(res.body.count).to.equal(2);
-                        expect(res.body.maps[0]).to.have.property('name');
+                        expect(res.body.maps[0]).to.have.property('info');
                         expect(res.body.maps[0].info).to.have.property('description');
                     });
             });
@@ -361,7 +361,7 @@ describe('maps', () => {
                         expect(res.body.maps).to.be.an('array');
                         expect(res.body.maps).to.have.length(2);
                         expect(res.body.count).to.equal(2);
-                        expect(res.body.maps[0]).to.have.property('name');
+                        expect(res.body.maps[0]).to.have.property('submitter');
                         expect(res.body.maps[0].submitter).to.have.property('permissions');
                     });
             });
@@ -377,7 +377,7 @@ describe('maps', () => {
                         expect(res.body.maps).to.be.an('array');
                         expect(res.body.maps).to.have.length(2);
                         expect(res.body.count).to.equal(2);
-                        expect(res.body.maps[0]).to.have.property('name');
+                        expect(res.body.maps[0]).to.have.property('credits');
                         expect(res.body.maps[0].credits[0]).to.have.property('type');
                     });
             });
