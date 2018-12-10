@@ -29,11 +29,18 @@ export class ActivityContentComponent implements OnInit {
 
   ngOnInit() {
     switch (this.activity.type) {
-      case Activity_Type.MAP_APPROVED:
+      case Activity_Type.MAP_UPLOADED:
         this.actionText = ' uploaded a new ';
         this.eventText = 'map';
         this.activityIcon = 'ion ion-map';
         this.eventColor = 'purple';
+        this.eventLink = '';
+        break;
+      case Activity_Type.MAP_APPROVED:
+        this.actionText = ' added a new ';
+        this.eventText = 'map';
+        this.activityIcon = 'ion ion-map';
+        this.eventColor = 'green';
         this.eventLink = '/dashboard/maps/' + this.activity.data;
         break;
       case Activity_Type.WR_ACHIEVED:

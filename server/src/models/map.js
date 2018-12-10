@@ -305,13 +305,30 @@ module.exports = {
 							}
 						],
 						transaction: t
+					}).then(mapModel => {
+						const activities = [];
+						for (const credit of map.credits) {
+							activities.push(
+								activity.create({
+									type: activity.ACTIVITY_TYPES.MAP_UPLOADED,
+									userID: credit.userID,
+									data: mapModel.id,
+								}, t)
+							);
+						}
+						if (activities.length) {
+							return Promise.all(activities).then(() => {
+								return Promise.resolve(mapModel);
+							});
+						} else {
+							return Promise.resolve(mapModel);
+						}
 					});
 				} else {
 					const err = new Error('Invalid number of zones in map');
 					err.status = 400;
 					return Promise.reject(err);
 				}
-
 			});
 		});
 	},
