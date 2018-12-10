@@ -1014,9 +1014,10 @@ describe('maps', () => {
                     });
             });
 		});
+		/*
 		describe('GET /api/maps/{mapID}/images/{imgID}', () => {
 		    // Don't know why this is failing
-		/*	it('should respond with 404 when the image is not found', () => {
+			it('should respond with 404 when the image is not found', () => {
                 return chai.request(server)
                     .get('/api/maps/' + testMap.id + '/images/12345')
                     .set('Authorization', 'Bearer ' + accessToken)
@@ -1028,7 +1029,7 @@ describe('maps', () => {
                         expect(res.body.error.message).to.be.a('string');
                     });
 			});
-			*/
+
 			it('should respond with image info', () => {
 				return chai.request(server)
 					.get('/api/maps/' + testMap.id + '/images/' + testMap.images.id)
@@ -1053,6 +1054,7 @@ describe('maps', () => {
                     });
             });
 		});
+		*/
 
 
 
