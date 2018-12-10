@@ -3,7 +3,7 @@ const util = require('util'),
 	fs = require('fs'),
 	crypto = require('crypto'),
 	{ sequelize, Op, Map, MapInfo, MapCredit, User, Profile, Activity,
-		MapStats, MapZoneStats, BaseStats, MapImage, MapFavorite, MapLibrary } = require('../../config/sqlize'),
+		MapStats, MapZoneStats, BaseStats, MapImage, MapFavorite, MapLibraryEntry } = require('../../config/sqlize'),
 	user = require('./user'),
 	activity = require('./activity'),
 	queryHelper = require('../helpers/query'),
@@ -217,7 +217,7 @@ module.exports = {
 		if (context.expand) {
 			queryHelper.addExpansions(queryContext, context.expand, allowedExpansions);
 			const expansionNames = context.expand.split(',');
-			if (expansionNames.includes('favorite')) {
+			if (expansionNames.includes('inFavorites')) {
 				queryContext.include.push({
 					model: MapFavorite,
 					as: 'favorites',
@@ -225,9 +225,9 @@ module.exports = {
 					required: false,
 				});
 			}
-			if (expansionNames.includes('libraryEntry')) {
+			if (expansionNames.includes('inLibrary')) {
 				queryContext.include.push({
-					model: MapLibrary,
+					model: MapLibraryEntry,
 					as: 'libraryEntries',
 					where: { userID: userID },
 					required: false,
@@ -245,7 +245,7 @@ module.exports = {
 		if (context.expand) {
 			queryHelper.addExpansions(queryContext, context.expand, allowedExpansions);
 			const expansionNames = context.expand.split(',');
-			if (expansionNames.includes('favorite')) {
+			if (expansionNames.includes('inFavorites')) {
 				queryContext.include.push({
 					model: MapFavorite,
 					as: 'favorites',
@@ -253,9 +253,9 @@ module.exports = {
 					required: false,
 				});
 			}
-			if (expansionNames.includes('libraryEntry')) {
+			if (expansionNames.includes('inLibrary')) {
 				queryContext.include.push({
-					model: MapLibrary,
+					model: MapLibraryEntry,
 					as: 'libraryEntries',
 					where: { userID: userID },
 					required: false,

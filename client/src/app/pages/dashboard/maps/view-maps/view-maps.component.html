@@ -17,7 +17,7 @@
             currentPage: currentPage,
             totalItems: mapCount
           }">
-            <map-list-item [map]="map"></map-list-item>
+            <map-list-item [map]="map" [inLibrary]="map.libraryEntries && map.libraryEntries.length"></map-list-item>
           </nb-list-item>
         </nb-list>
         <pagination-controls (pageChange)="onPageChange($event)" [autoHide]="true"></pagination-controls>

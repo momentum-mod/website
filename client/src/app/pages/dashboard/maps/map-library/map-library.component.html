@@ -10,7 +10,7 @@
             currentPage: currentPage,
             totalItems: entryCount
           }">
-        <map-list-item [map]="entry.map" (onLibraryUpdate)="loadMapLibrary()"></map-list-item>
+        <map-list-item [map]="entry.map" [inLibrary]="true" (onLibraryUpdate)="loadMapLibrary()"></map-list-item>
       </nb-list-item>
     </nb-list>
 
