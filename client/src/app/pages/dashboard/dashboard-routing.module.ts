@@ -3,8 +3,6 @@ import {NgModule} from '@angular/core';
 import {DashboardComponent} from './dashboard.component';
 import {DashboardHomeComponent} from './home/dashboard-home.component';
 import {NotFoundDashboardComponent} from '../not-found/dashboard/not-found-dashboard.component';
-import {UserProfileComponent} from './profile/user-profile.component';
-import {ProfileEditComponent} from './profile/profile-edit/profile-edit.component';
 import {PermissionGuard} from '../../@core/guards/permission.guard';
 import {Permission} from '../../@core/models/permissions.model';
 import {RunInfoComponent} from './runs/run-info/run-info.component';
@@ -28,32 +26,7 @@ const routes: Routes = [
       },
       {
         path: 'profile',
-        children: [
-          {
-            path: '',
-            component: UserProfileComponent,
-          },
-          {
-            path: 'edit',
-            component: ProfileEditComponent,
-          },
-          {
-            path: ':id',
-            children: [
-              {
-                path: '',
-                component: UserProfileComponent,
-              },
-              {
-                path: 'edit',
-                component: ProfileEditComponent,
-                data: {
-                  onlyAllow: [Permission.MODERATOR, Permission.ADMIN],
-                },
-              },
-            ],
-          },
-        ],
+        loadChildren: 'app/pages/dashboard/profile/profile.module#ProfileModule',
       },
       {
         path: 'admin',
