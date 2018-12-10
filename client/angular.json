@@ -3,7 +3,7 @@
   "version": 1,
   "newProjectRoot": "projects",
   "projects": {
-    "ngx-admin-demo": {
+    "momentum-site": {
       "root": "",
       "sourceRoot": "src",
       "projectType": "application",
@@ -32,7 +32,6 @@
               "node_modules/@fortawesome/fontawesome-free/css/all.css",
               "node_modules/socicon/css/socicon.css",
               "node_modules/nebular-icons/scss/nebular-icons.scss",
-              "node_modules/angular-tree-component/dist/angular-tree-component.css",
               "node_modules/pace-js/templates/pace-theme-flash.tmpl.css",
               "src/app/@theme/styles/styles.scss",
               "node_modules/flag-icon-css/css/flag-icon.min.css"
@@ -72,18 +71,18 @@
         "serve": {
           "builder": "@angular-devkit/build-angular:dev-server",
           "options": {
-            "browserTarget": "ngx-admin-demo:build"
+            "browserTarget": "momentum-site:build"
           },
           "configurations": {
             "production": {
-              "browserTarget": "ngx-admin-demo:build:production"
+              "browserTarget": "momentum-site:build:production"
             }
           }
         },
         "extract-i18n": {
           "builder": "@angular-devkit/build-angular:extract-i18n",
           "options": {
-            "browserTarget": "ngx-admin-demo:build"
+            "browserTarget": "momentum-site:build"
           }
         },
         "test": {
@@ -138,7 +137,7 @@
         }
       }
     },
-    "ngx-admin-demo-e2e": {
+    "momentum-site-e2e": {
       "root": "",
       "sourceRoot": "",
       "projectType": "application",
@@ -147,7 +146,7 @@
           "builder": "@angular-devkit/build-angular:protractor",
           "options": {
             "protractorConfig": "./protractor.conf.js",
-            "devServerTarget": "ngx-admin-demo:serve"
+            "devServerTarget": "momentum-site:serve"
           }
         },
         "lint": {
@@ -162,5 +161,5 @@
       }
     }
   },
-  "defaultProject": "ngx-admin-demo"
+  "defaultProject": "momentum-site"
 }
