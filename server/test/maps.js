@@ -213,7 +213,11 @@ describe('maps', () => {
 						difficulty: 2,
 						isLinear: false,
 						creationDate: new Date(),
-					}
+					},
+					credits: [{
+						userID: testUser.id,
+						type: map.CreditType.AUTHOR,
+					}]
 				})
 					.then((res) => {
                         expect(res).to.have.status(200);

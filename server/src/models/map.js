@@ -306,17 +306,17 @@ module.exports = {
 						],
 						transaction: t
 					}).then(mapModel => {
-						const activities = [];
-						for (const credit of map.credits) {
-							activities.push(
-								activity.create({
-									type: activity.ACTIVITY_TYPES.MAP_UPLOADED,
-									userID: credit.userID,
-									data: mapModel.id,
-								}, t)
-							);
-						}
-						if (activities.length) {
+						if (map.credits && map.credits.length) {
+							const activities = [];
+							for (const credit of map.credits) {
+								activities.push(
+									activity.create({
+										type: activity.ACTIVITY_TYPES.MAP_UPLOADED,
+										userID: credit.userID,
+										data: mapModel.id,
+									}, t)
+								);
+							}
 							return Promise.all(activities).then(() => {
 								return Promise.resolve(mapModel);
 							});
