@@ -1,6 +1,5 @@
 img {
-  max-width: 6vw;
-  min-width: 105px;
+  max-width: 80%;
 }
 ul {
   margin-bottom: 0;
@@ -9,6 +8,23 @@ li {
   font-family: 'Exo', serif;
   list-style: none;
 }
+li a {
+  color: white;
+}
+.btn-group-vertical > button {
+  margin-bottom: 10px;
+  border-radius: 10px !important;
+}
+.btn-group-vertical button:last-of-type {
+  margin-bottom: 0;
+}
 .map-list-item {
   min-height: 100px;
+}
+.map-image-container {
+  overflow: hidden;
+  max-height: 105px;
+}
+.icon {
+  font-size: 1.25rem;
 }
