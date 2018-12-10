@@ -75,6 +75,14 @@ paths:
           description: The offset for the results to show
           type: integer
           default: 0
+        - name: expand
+          in: query
+          description: The names of resources to attach/expand, specified by a comma-separated list of names.
+          type: array
+          collectionFormat: csv
+          items:
+            type: string
+            enum: [submitter, favorite, libraryEntry]
       tags:
         - user
       responses:

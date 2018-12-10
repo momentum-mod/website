@@ -1,9 +1,9 @@
-<div class="row no-gutters align-items-center map-list-item">
-  <div class="col-12 col-sm-6">
+<div *ngIf="map" class="row no-gutters align-items-center map-list-item">
+  <div class="col-6">
     <div class="row align-items-center">
-      <div class="col-3">
+      <div class="col-12 col-sm-4 map-image-container">
         <a [routerLink]="'/dashboard/maps/' + map?.id">
-          <img [src]="map?.info?.avatarURL">
+          <img [src]="map.info?.avatarURL">
         </a>
       </div>
       <div class="col-3">
@@ -13,14 +13,30 @@
           <li>Submitted By:</li>
         </ul>
       </div>
-      <div class="col-6 text-left">
+      <div class="col-3 text-left">
         <ul>
-          <li>{{map?.name}}</li>
-          <li>{{map?.createdAt | date}}</li>
-          <li><nb-user [name]="map?.submitter?.profile?.alias" [picture]="map?.submitter?.profile?.avatarURL" size="small"></nb-user></li>
+          <li><a [routerLink]="'/dashboard/maps/' + map?.id">{{map.name}}</a></li>
+          <li>{{map.createdAt | date}}</li>
+          <li><nb-user [name]="map.submitter?.profile?.alias" [picture]="map.submitter?.profile?.avatarURL" size="small"></nb-user></li>
         </ul>
       </div>
     </div>
   </div>
-  <div class="col-6"></div>
+  <div class="col-1"></div>
+  <div class="col" *ngIf="showDownloadButton">
+    <a #mapFileDownloadLink class="allowed"></a>
+    <button class="btn btn-outline-info">DOWNLOAD</button>
+  </div>
+  <div class="col text-right">
+    <div class="text-right" role="toolbar">
+      <div class="btn-group-vertical" role="group">
+        <button type="button" class="btn btn-success" (click)="toggleMapInFavorites()">
+          <span [ngClass]="mapInFavorites ? 'ion-android-star' : 'ion-android-star-outline'" class="icon"></span>
+        </button>
+        <button type="button" class="btn btn-dark" (click)="toggleMapInLibrary()">
+          <span [ngClass]="mapInLibrary ? 'ion-ios-folder' : 'ion-ios-folder-outline'" class="icon"></span>
+        </button>
+      </div>
+    </div>
+  </div>
 </div>
