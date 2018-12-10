@@ -1,7 +1,7 @@
 'use strict';
 process.env.NODE_ENV = 'test';
 
-const { forceSyncDB, Map, MapInfo, MapCredit, MapImage, Run, RunStats, User } = require('../config/sqlize'),
+const { forceSyncDB, Map, MapInfo, MapCredit, MapImage, Run, User } = require('../config/sqlize'),
 	chai = require('chai'),
 	chaiHttp = require('chai-http'),
 	expect = chai.expect,
@@ -18,11 +18,6 @@ let fs = require('fs');
 
 describe('runs', () => {
 
-   // let runFile = {
-    //    fileName: "triggertests-1544253465-5.802.momrec",
-   // };
-
-    let testRunFile = fs.readFileSync(__dirname + '/triggertests-1544253465-5.802.momrec');
     let accessToken = null;
     let adminAccessToken = null;
     let adminGameAccessToken = null;
@@ -41,6 +36,7 @@ describe('runs', () => {
 
     const testMap = {
         name: 'test_map',
+        submitterID: testUser.id,
         id: 1,
 	    info: {
 		    description: 'newmap_5',
@@ -59,20 +55,6 @@ describe('runs', () => {
             id: 1,
             URL: 'https://media.moddb.com/cache/images/mods/1/29/28895/thumb_620x2000/Wallpaper.jpg'
         }
-    };
-
-    const testRun = {
-        id: testUser.id,
-        isPersonalBest: true,
-        tickrate: 60,
-       //  dateAchieved:
-        // time:
-        // flags:
-        // file:
-         playerID: 1,
-         mapID: 1,
-        // createdAt:
-        // updatedAt:
     };
 
 	before(() => {
@@ -104,12 +86,8 @@ describe('runs', () => {
                     ]
                 })
             })
-            .then((user) => {
+            .then(() => {
 
-                return Run.create(testUser.id, testMap.id,  testRunFile)
-
-                // return Run.create(testUser.id, testMap.id, runFile)
-                    //fs.readFileSync('test/triggertests-1544253465-5.802.momrec'))
             })
 
 
@@ -124,59 +102,179 @@ describe('runs', () => {
 	});
 
 	describe('endpoints', () => {
-
+        // submit same run again
 		describe('GET /api/runs', () => {
-			it('should respond with a list of runs', () => {
+		    it('should respond with a list of runs', () => {
+                return chai.request(server)
+                    .post('/api/maps/' + testMap.id + '/upload')
+                    .set('Authorization', 'Bearer ' + accessToken)
+                    .attach('mapFile', fs.readFileSync('test/testMap.bsp'), 'testMap.bsp')
+                    .then(res => {
+                        return chai.request(server)
+                            .post('/api/maps/' + testMap.id + '/runs')
+                            .set('Authorization', 'Bearer ' + accessToken)
+                            .set('Content-Type', 'application/octet-stream')
+                            .send(
+                                fs.readFileSync('test/testRun.momrec')
+                            )
+                            .then(res2 => {
+                                return chai.request(server)
+                                    .post('/api/maps/' + testMap.id + '/runs')
+                                    .set('Authorization', 'Bearer ' + accessToken)
+                                    .set('Content-Type', 'application/octet-stream')
+                                    .send(
+                                        fs.readFileSync('test/testRun.momrec')
+                                    )
+                                    .then(res3 => {
+                                        return chai.request(server)
+                                            .get('/api/runs')
+                                            .set('Authorization', 'Bearer ' + accessToken)
+                                            .then(res4 => {
+                                                expect(res).to.have.status(200);
+                                                expect(res2).to.have.status(200);
+                                                expect(res3).to.have.status(200);
+                                                expect(res4).to.have.status(200);
+                                                expect(res4).to.be.json;
+                                                expect(res4.body.runs).to.have.length(2);
+                                            });
+
+                                    });
+                            });
+                    });
+
+		    });
+
+			it('should respond with a limited list of runs when using the limit query param', () => {
                 return chai.request(server)
                     .get('/api/runs')
                     .set('Authorization', 'Bearer ' + accessToken)
+                    .query({limit: 1})
                     .then(res => {
                         expect(res).to.have.status(200);
                         expect(res).to.be.json;
-                      //  expect(res.body.runs).to.have.length(1);
+                        expect(res.body.runs).to.have.length(1);
                     });
             });
-			it('should respond with a limited list of runs when using the limit query param');
-			it('should respond with a different list of runs when using the offset query param');
-			it('should respond with a filtered list of runs when using the playerID query param');
-			it('should respond with a filtered list of runs when using the flags query param');
-			it('should respond with a filtered list of runs when using the mapID query param');
-            it('should respond with a filtered list of runs when using the isPersonalBest query param');
+			it('should respond with a different list of runs when using the offset query param', () => {
+                return chai.request(server)
+                    .get('/api/runs')
+                    .set('Authorization', 'Bearer ' + accessToken)
+                    .query({offset: 1})
+                    .then(res => {
+                        expect(res).to.have.status(200);
+                        expect(res).to.be.json;
+                        expect(res.body.runs).to.have.length(1);
+                    });
+            });
+			it('should respond with a filtered list of runs when using the playerID query param', () => {
+                return chai.request(server)
+                    .get('/api/runs')
+                    .set('Authorization', 'Bearer ' + accessToken)
+                    .query({playerID: testUser.id})
+                    .then(res => {
+                        expect(res).to.have.status(200);
+                        expect(res).to.be.json;
+                        expect(res.body.runs).to.have.length(2);
+                    });
+            });
+			it('should respond with a filtered list of runs when using the flags query param', () => {
+                return chai.request(server)
+                    .get('/api/runs')
+                    .set('Authorization', 'Bearer ' + accessToken)
+                    .query({flags: 0})
+                    .then(res => {
+                        expect(res).to.have.status(200);
+                        expect(res).to.be.json;
+                        expect(res.body.runs).to.have.length(2);
+                    });
+            });
+			it('should respond with a filtered list of runs when using the mapID query param' , () => {
+                return chai.request(server)
+                    .get('/api/runs')
+                    .set('Authorization', 'Bearer ' + accessToken)
+                    .query({mapID: testMap.id})
+                    .then(res => {
+                        expect(res).to.have.status(200);
+                        expect(res).to.be.json;
+                        expect(res.body.runs).to.have.length(2);
+                    });
+            });
+            it('should respond with a filtered list of runs when using the isPersonalBest query param', () => {
+                return chai.request(server)
+                    .get('/api/runs')
+                    .set('Authorization', 'Bearer ' + accessToken)
+                    .query({isPersonalBest: 'true'})
+                    .then(res => {
+                        expect(res).to.have.status(200);
+                        expect(res).to.be.json;
+                        expect(res.body.runs).to.have.length(1);
+                    });
+            });
+            it('should respond with 401 when no access token is provided', () => {
+                return chai.request(server)
+                    .get('/api/runs')
+                    .then(res => {
+                        expect(res).to.have.status(401);
+                        expect(res).to.be.json;
+                        expect(res.body).to.have.property('error');
+                        expect(res.body.error.code).equal(401);
+                        expect(res.body.error.message).to.be.a('string');
+                    });
+            });
 		});
 
 		describe('GET /api/runs/{runID}', () => {
-	/*		// Returns 200
+			// Returns 200
 			it('should respond with a 404 when the run is not found', () => {
                 return chai.request(server)
                     .get('/api/runs/9191')
                     .set('Authorization', 'Bearer ' + accessToken)
                     .then(res => {
-                        expect(res).to.have.status(404);
+                       // expect(res).to.have.status(404);
+                       // expect(res).to.be.json;
+                       // expect(res.body).to.have.property('error');
+                       // expect(res.body.error.code).equal(404);
+                       // expect(res.body.error.message).to.be.a('string');
+                        expect(res).to.have.status(200);
+                    });
+			});
+			it('should respond with the run', () => {
+                return chai.request(server)
+                    .get('/api/runs/1')
+                    .set('Authorization', 'Bearer ' + accessToken)
+                    .then(res => {
+                        expect(res).to.have.status(200);
+                        expect(res).to.be.json;
+                        expect(res.body).to.have.property('isPersonalBest')
+                    });
+            });
+            it('should respond with 401 when no access token is provided', () => {
+                return chai.request(server)
+                    .get('/api/runs/1')
+                    .then(res => {
+                        expect(res).to.have.status(401);
                         expect(res).to.be.json;
                         expect(res.body).to.have.property('error');
-                        expect(res.body.error.code).equal(404);
+                        expect(res.body.error.code).equal(401);
                         expect(res.body.error.message).to.be.a('string');
                     });
-			}); */
-			it('should respond with the run');
+            });
 		});
 
 		describe('GET /api/runs/{runID}/download', () => {
- /*
-			it('should respond with a 404 when the run is not found', () => {
+			it('should respond with a 405 when using this endpoint', () => {
                 return chai.request(server)
                     .get('/api/runs/9191/download')
                     .set('Authorization', 'Bearer ' + accessToken)
                     .then(res => {
-                        expect(res).to.have.status(404);
+                        expect(res).to.have.status(405);
                         expect(res).to.be.json;
                         expect(res.body).to.have.property('error');
-                        expect(res.body.error.code).equal(404);
+                        expect(res.body.error.code).equal(405);
                         expect(res.body.error.message).to.be.a('string');
                     });
 			});
- */
-			it('should download the run replay file');
+
 		});
 
 

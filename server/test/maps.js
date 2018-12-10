@@ -9,6 +9,7 @@ const { forceSyncDB, Map, MapInfo, MapCredit, MapImage, MapStats, User } = requi
     user = require('../src/models/user'),
 	auth = require('../src/models/auth'),
     map = require('../src/models/map');
+//    run = require('../src/models/run');
 
 chai.use(chaiHttp);
 
@@ -36,9 +37,9 @@ describe('maps', () => {
     };
 
 	const testMap = {
-		name: 'test_map',
+		name: 'test_map_one',
 		type: map.MAP_TYPE.UNKNOWN,
-		id: 8888,
+		id: 1,
         statusFlag: map.STATUS.APPROVED,
         submitterID: testUser.id,
 		info: {
@@ -91,7 +92,7 @@ describe('maps', () => {
 
     const testMap3 = {
         id: 444,
-        name: 'test_map_three',
+        name: 'test_map',
 	    type: map.MAP_TYPE.SURF,
         submitterID: testUser.id,
         statusFlag: map.STATUS.NEEDS_REVISION,
@@ -103,6 +104,11 @@ describe('maps', () => {
 		    difficulty: 5,
 		    creationDate: new Date(),
 	    },
+        credits: {
+            id: 3,
+            type: map.CreditType.AUTHOR,
+            userID: testUser.id,
+        },
     };
 
     const uniMap = {
@@ -116,7 +122,12 @@ describe('maps', () => {
 		    difficulty: 2,
 		    isLinear: false,
 		    creationDate: new Date(),
-	    }
+	    },
+        credits: {
+            id: 4,
+            type: map.CreditType.AUTHOR,
+            userID: testUser.id,
+        },
     };
 
 	before(() => {
@@ -153,14 +164,16 @@ describe('maps', () => {
                 return Map.create(testMap2, {
                     include: [
                         {  model: MapInfo, as: 'info',},
-                        {  model: MapImage, as: 'images'}
+                        {  model: MapImage, as: 'images'},
+                        {  model: MapCredit, as: 'credits'},
                     ]
                 })
             })
             .then(user => {
                 return Map.create(testMap3, {
                     include: [
-                        {  model: MapInfo, as: 'info',}
+                        {  model: MapInfo, as: 'info',},
+                        {  model: MapCredit, as: 'credits'},
                     ]
                 })
             })
@@ -168,6 +181,7 @@ describe('maps', () => {
                 return Map.create(uniMap, {
                     include: [
                         { model: MapInfo, as: 'info',},
+                        {  model: MapCredit, as: 'credits'},
                     ]
                 }).then(map => {
 				    uniMap.id = map.id;
@@ -297,8 +311,8 @@ describe('maps', () => {
                         expect(res).to.be.json;
                         expect(res.body).to.have.property('maps');
                         expect(res.body.maps).to.be.an('array');
-                        expect(res.body.maps).to.have.length(2);
-                        expect(res.body.count).to.equal(2);
+                        expect(res.body.maps).to.have.length(1);
+                        expect(res.body.count).to.equal(1);
                         expect(res.body.maps[0]).to.have.property('name');
                     });
             });
@@ -1115,5 +1129,121 @@ describe('maps', () => {
                     });
             });
 		});
+
+        describe('POST /api/maps/{mapID}/runs', () => {
+            it('should upload a run file', () => {
+               return chai.request(server)
+                    .post('/api/maps/' + testMap3.id + '/runs')
+                    .set('Authorization', 'Bearer ' + accessToken)
+                    .set('Content-Type', 'application/octet-stream')
+                    .send(
+                        fs.readFileSync('test/testRun.momrec')
+                    )
+                    .then(res => {
+                        expect(res).to.have.status(200);
+                    });
+            });
+            it('should respond with 401 when no access token is provided', () => {
+                return chai.request(server)
+                    .post('/api/maps/' + testMap3.id + '/runs')
+                    .set('Content-Type', 'application/octet-stream')
+                    .send(
+                        fs.readFileSync('test/testRun.momrec')
+                    )
+                    .then(res => {
+                        expect(res).to.have.status(401);
+                        expect(res).to.be.json;
+                        expect(res.body).to.have.property('error');
+                        expect(res.body.error.code).equal(401);
+                        expect(res.body.error.message).to.be.a('string');
+                    });
+            });
+
+        });
+
+        describe('GET /api/maps/{mapID}/runs', () => {
+            it('should return run files for the specified map', () => {
+                return chai.request(server)
+                    .post('/api/maps/' + testMap3.id + '/runs')
+                    .set('Authorization', 'Bearer ' + accessToken)
+                    .set('Content-Type', 'application/octet-stream')
+                    .send(
+                        fs.readFileSync('test/testRun.momrec')
+                    )
+                    .then(res => {
+                        return chai.request(server)
+                            .get('/api/maps/' + testMap3.id + '/runs')
+                            .set('Authorization', 'Bearer ' + accessToken)
+                            .then(res2 => {
+                                expect(res).to.have.status(200);
+                                expect(res2).to.have.status(200);
+                                expect(res2.body).to.have.property('runs');
+                                expect(res2.body.runs).to.have.length(2);
+                                expect(res2.body.runs[0]).to.have.property('isPersonalBest');
+                            });
+                    });
+
+            });
+            it('should respond with 401 when no access token is provided', () => {
+                return chai.request(server)
+                    .get('/api/maps/' + testMap3.id + '/runs')
+                    .then(res => {
+                        expect(res).to.have.status(401);
+                        expect(res).to.be.json;
+                        expect(res.body).to.have.property('error');
+                        expect(res.body.error.code).equal(401);
+                        expect(res.body.error.message).to.be.a('string');
+                    });
+            });
+        });
+
+        describe('GET /api/maps/{mapID}/runs/{runID}', () => {
+            it('should return the specified run', () => {
+                return chai.request(server)
+                    .get('/api/maps/' + testMap3.id + '/runs/1')
+                    .set('Authorization', 'Bearer ' + accessToken)
+                    .then(res => {
+                        expect(res).to.have.status(200);
+                        expect(res.body).to.have.property('isPersonalBest');
+                     });
+            });
+            it('should respond with 401 when no access token is provided', () => {
+                return chai.request(server)
+                    .get('/api/maps/' + testMap3.id + '/runs/1')
+                    .then(res => {
+                        expect(res).to.have.status(401);
+                        expect(res).to.be.json;
+                        expect(res.body).to.have.property('error');
+                        expect(res.body.error.code).equal(401);
+                        expect(res.body.error.message).to.be.a('string');
+                    });
+            });
+        });
+
+
+        describe('GET /api/maps/{mapID}/runs/{runID}/download', () => {
+            it('should download the run', () => {
+                return chai.request(server)
+                    .get('/api/maps/' + testMap3.id + '/runs/1/download')
+                    .set('Authorization', 'Bearer ' + accessToken)
+                    .then(res => {
+                        expect(res).to.have.status(200);
+                        // expect to return octet-stream
+                    });
+            });
+            it('should respond with 401 when no access token is provided', () => {
+                return chai.request(server)
+                    .get('/api/maps/' + testMap3.id + '/runs/1/download')
+                    .then(res => {
+                        expect(res).to.have.status(401);
+                        expect(res).to.be.json;
+                        expect(res.body).to.have.property('error');
+                        expect(res.body.error.code).equal(401);
+                        expect(res.body.error.message).to.be.a('string');
+                    });
+            });
+
+        });
+
 	});
 });
