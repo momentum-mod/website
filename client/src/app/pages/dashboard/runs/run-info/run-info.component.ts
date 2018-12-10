@@ -3,6 +3,7 @@ import {ActivatedRoute, ParamMap} from '@angular/router';
 import {RunsService} from '../../../../@core/data/runs.service';
 import {switchMap} from 'rxjs/operators';
 import {Run} from '../../../../@core/models/run.model';
+import {UsersService} from '../../../../@core/data/users.service';
 
 @Component({
   selector: 'run-info',
@@ -12,9 +13,12 @@ import {Run} from '../../../../@core/models/run.model';
 export class RunInfoComponent implements OnInit {
 
   run: Run;
+  personalBestRun: Run;
   constructor(private route: ActivatedRoute,
-              private runService: RunsService) {
+              private runService: RunsService,
+              private usersService: UsersService) {
     this.run = null;
+    this.personalBestRun = null;
   }
 
   ngOnInit() {
@@ -26,6 +30,17 @@ export class RunInfoComponent implements OnInit {
       ),
     ).subscribe(run => {
       this.run = run;
+
+      if (!this.run.isPersonalBest) {
+        this.usersService.getRunHistory(this.run.playerID, {
+          params: { isPersonalBest: true, mapID: this.run.mapID, limit: 1 },
+        }).subscribe(resp => {
+          if (resp.count && resp.count === 1)
+            this.personalBestRun = resp.runs[0];
+        });
+      } else {
+        this.personalBestRun = this.run;
+      }
     });
   }
 

@@ -1,8 +1,24 @@
 <nb-card *ngIf="run">
   <nb-card-header>
-    <h2>
-      <a [routerLink]="'/dashboard/profile/' + run.user.id">{{run.user.profile.alias}}</a> on
-      <a [routerLink]="'/dashboard/maps/' + run.mapID">{{run.map.name}}</a></h2>
+    <div class="row">
+      <div class="col row no-gutters">
+        <div class="col-auto user">
+          <nb-user [routerLink]="'/dashboard/profile/' + run.user.id" [picture]="run.user.profile.avatarURL"
+                   [name]="run.user.profile.alias" size="large"></nb-user>
+        </div>
+        <div class="col d-block m-auto">
+          <h2>on <a [routerLink]="'/dashboard/maps/' + run.mapID">{{run.map.name}}</a></h2>
+        </div>
+      </div>
+      <div class="col text-right">
+        <div *ngIf="personalBestRun.id !== run.id" class="row">
+          <h4 class="col notice">Note: Not viewing their current PB!</h4>
+          <div class="col-auto">
+            <button class="btn btn-outline-info" type="button" routerLink="/dashboard/runs/{{personalBestRun.id}}">Go to PB run</button>
+          </div>
+        </div>
+      </div>
+    </div>
   </nb-card-header>
   <nb-card-body>
     <div class="row">
