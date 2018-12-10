@@ -33,11 +33,11 @@ import { MapEditComponent } from './map-edit/map-edit.component';
     NbListModule,
     NbSelectModule,
     NbStepperModule,
+    NgxPaginationModule,
+    NgxGalleryModule,
     UserModule,
     MarkdownModule.forChild(),
     MapRoutingModule,
-    NgxPaginationModule,
-    NgxGalleryModule,
   ],
   declarations: [
     MapComponent,
