@@ -23,7 +23,7 @@ const validateRunFile = (resultObj) => {
 				tickRate: readFloat(resultObj.bin),
 				runTime: readFloat(resultObj.bin),
 				runFlags: readInt32(resultObj.bin, true),
-				runDate: new Date(Number(readString(resultObj.bin)) * 1000),
+				runDate_s: readString(resultObj.bin),
 				startDif: readInt32(resultObj.bin),
 				bonusZone: readInt32(resultObj.bin),
 			},
@@ -32,13 +32,15 @@ const validateRunFile = (resultObj) => {
 		};
 
 		const magicLE = 0x524D4F4D;
-		if (replay.magic === magicLE &&
+		if (resultObj.bin.ok &&
+			replay.magic === magicLE &&
 			replay.header.steamID === resultObj.playerID &&
 			replay.header.mapHash === resultObj.map.hash &&
 			replay.header.mapName === resultObj.map.name &&
 			replay.header.runTime > 0)
-		// TODO: date check (reject "old" replays)
 		{
+			// TODO: date check (reject "old" replays)
+			replay.header.runDate = new Date(Number(replay.header.runDate_s) * 1000); // We're good til 2038...
 			resolve(replay);
 		}
 		else {
@@ -49,7 +51,15 @@ const validateRunFile = (resultObj) => {
 	});
 };
 
+const checkBuf = (o) => {
+	let inRange = o.offset < o.buf.length;
+	if (!inRange && o.ok)
+		o.ok = false;
+	return inRange;
+};
+
 const readString = (o) => {
+	if (!checkBuf(o)) return null;
 	const strLen = o.buf.readUInt16LE(o.offset);
 	o.offset += 2;
 	const str = o.buf.toString('ascii', o.offset, o.offset + strLen);
@@ -58,18 +68,21 @@ const readString = (o) => {
 };
 
 const readFloat = (o) => {
+	if (!checkBuf(o)) return null;
 	const val = o.buf.readFloatLE(o.offset);
 	o.offset += 4;
 	return val;
 };
 
 const readInt32 = (o, unsigned = false) => {
+	if (!checkBuf(o)) return null;
 	const val = unsigned ? o.buf.readUInt32LE(o.offset) : o.buf.readInt32LE(o.offset);
 	o.offset += 4;
 	return val;
 };
 
 const readInt8 = (o, unsigned = false) => {
+	if (!checkBuf(o)) return null;
 	const val = unsigned ? o.buf.readUInt8(o.offset) : o.buf.readInt8(o.offset);
 	o.offset++;
 	return val;
@@ -83,7 +96,7 @@ const processRunFile = (resultObj) => {
 		{
 			const numZones = readInt8(resultObj.bin, true);
 			// 0 = total, 1 -> numZones + 1 = individual zones
-			for (let i = 0; i < numZones + 1; i++)
+			for (let i = 0; i < numZones + 1 && resultObj.bin.ok; i++)
 			{
 				let zoneStat = {
 					zoneNum: i,
@@ -111,7 +124,7 @@ const processRunFile = (resultObj) => {
 		const runFrames = readInt32(resultObj.bin, true);
 		if (runFrames)
 		{
-			for (let i = 0; i < runFrames; i++)
+			for (let i = 0; i < runFrames && resultObj.bin.ok; i++)
 			{
 				let runFrame = {
 					eyeAngleX: readFloat(resultObj.bin),
@@ -127,19 +140,26 @@ const processRunFile = (resultObj) => {
 			}
 		}
 
-		resultObj.runModel = {
-			tickRate: resultObj.replay.header.tickRate,
-			dateAchieved: resultObj.replay.header.runDate,
-			time: resultObj.replay.header.runTime,
-			flags: resultObj.replay.header.runFlags,
-			stats: {
-				zoneStats: resultObj.replay.stats,
-			},
-			mapID: resultObj.map.id,
-			playerID: resultObj.playerID,
-		};
+		if (!resultObj.bin.ok) {
+			const err = new Error('Bad request');
+			err.status = 400;
+			reject(err);
+		}
+		else {
+			resultObj.runModel = {
+				tickRate: resultObj.replay.header.tickRate,
+				dateAchieved: resultObj.replay.header.runDate,
+				time: resultObj.replay.header.runTime,
+				flags: resultObj.replay.header.runFlags,
+				stats: {
+					zoneStats: resultObj.replay.stats,
+				},
+				mapID: resultObj.map.id,
+				playerID: resultObj.playerID,
+			};
 
-		resolve(resultObj);
+			resolve(resultObj);
+		}
 
 		// uint32 magic (4 bytes)
 		// uint8 version number (1 byte)
@@ -375,10 +395,17 @@ module.exports = {
 	genNotFoundErr,
 
 	create: (mapID, userID, runFile) => {
+		if (runFile.length === 0) {
+			const err = new Error('Bad request');
+			err.status = 400;
+			return Promise.reject(err);
+		}
+
 		let resultObj = {
 			bin: {
 				buf: runFile,
 				offset: 0,
+				ok: true,
 			},
 			playerID: userID,
 		};
