@@ -15,7 +15,6 @@ module.exports = {
 		};
 		const options = {
 			issuer: config.domain,
-			subject: String(usr.id),
 			expiresIn: gameAuth ?
 				config.accessToken.gameExpTime
 				: config.accessToken.expTime,
