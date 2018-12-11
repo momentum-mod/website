@@ -1,11 +1,16 @@
 import {of} from 'rxjs';
 import {UsersService} from './users.service';
 import {User} from '../models/user.model';
+import {Users} from '../models/users.model';
+import {Followed} from '../models/followed.model';
+import {Followers} from '../models/followers.model';
 
 let httpClientSpy: { get: jasmine.Spy, patch: jasmine.Spy };
 let usersService: UsersService;
-let expectedUsers: User[];
+let expectedUsers: Users;
 let expectedUser: User;
+let expectedFollowed: Followed;
+let expectedFollowers: Followers;
 
 describe('UsersService', () => {
   beforeEach(() => {
@@ -21,19 +26,38 @@ describe('UsersService', () => {
         avatarURL: 'url',
       },
     };
-    expectedUsers = [
-      expectedUser,
-      {
-        id: '2',
-        country: 'US',
-        permissions: 1,
-        profile: {
-          id: '1',
-          alias: 'test2',
-          avatarURL: 'url1',
+    expectedUsers = {
+      count: 2,
+      users: [
+        expectedUser,
+        {
+          id: '2',
+          country: 'US',
+          permissions: 1,
+          profile: {
+            id: '1',
+            alias: 'test2',
+            avatarURL: 'url1',
+          },
         },
-      },
-    ];
+      ],
+    };
+    expectedFollowed = {
+      count: 1,
+      followed: [{
+        followeeID: '82582825252',
+        followedID: '82582852353',
+        notifyOn: 1,
+      }],
+    };
+    expectedFollowers = {
+      count: 1,
+      followers: [{
+        followeeID: '82582825252',
+        followedID: '82582852353',
+        notifyOn: 1,
+      }],
+    };
   });
 
   describe('Unit Tests', () => {
@@ -54,9 +78,9 @@ describe('UsersService', () => {
       expect(httpClientSpy.get.calls.count()).toBe(1, 'one call');
     });
     it('#getUser() should return expected user ID', () => {
-      httpClientSpy.get.and.returnValue(of(expectedUsers));
+      httpClientSpy.get.and.returnValue(of(expectedUser));
       usersService.getUser('userID').subscribe(value =>
-          expect(value).toEqual(expectedUsers, 'expected user'),
+          expect(value).toEqual(expectedUser, 'expected user'),
         fail,
       );
       expect(httpClientSpy.get.calls.count()).toBe(1, 'one call');
@@ -64,18 +88,18 @@ describe('UsersService', () => {
     //
     // getFollowersOfUser
     it('#getFollowersOfUser() should return followers of the user', () => {
-      httpClientSpy.get.and.returnValue(of(expectedUser));
+      httpClientSpy.get.and.returnValue(of(expectedFollowers));
       usersService.getFollowersOfUser(expectedUser).subscribe(value =>
-          expect(value).toEqual(expectedUser, 'expected user'),
+          expect(value).toEqual(expectedFollowers, 'expected user'),
         fail,
       );
       expect(httpClientSpy.get.calls.count()).toBe(1, 'one call');
     });
     // getUserFollows
     it('#getUserFollows() should return the users the local user is following', () => {
-      httpClientSpy.get.and.returnValue(of(expectedUser));
+      httpClientSpy.get.and.returnValue(of(expectedFollowed));
       usersService.getUserFollows(expectedUser).subscribe(value =>
-          expect(value).toEqual(expectedUser, 'expected user'),
+          expect(value).toEqual(expectedFollowed, 'expected user'),
         fail,
       );
       expect(httpClientSpy.get.calls.count()).toBe(1, 'one call');

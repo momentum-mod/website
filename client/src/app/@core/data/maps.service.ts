@@ -1,6 +1,9 @@
 import {Injectable} from '@angular/core';
 import {Observable} from 'rxjs';
-import {HttpClient, HttpHeaders} from '@angular/common/http';
+import {HttpClient, HttpHeaders, HttpResponse} from '@angular/common/http';
+import {MomentumMaps} from '../models/momentum-maps.model';
+import {MomentumMap} from '../models/momentum-map.model';
+import {MapImage} from '../models/map-image.model';
 
 @Injectable()
 export class MapsService {
@@ -12,8 +15,8 @@ export class MapsService {
    * @param query
    * @return a list of maps
    */
-  searchMaps(query: string): Observable<any> {
-    return this.http.get('/api/maps?expand=info&search=' + query);
+  searchMaps(query: string): Observable<MomentumMaps> {
+    return this.http.get<MomentumMaps>('/api/maps?expand=info&search=' + query);
   }
 
   /**
@@ -21,24 +24,24 @@ export class MapsService {
    * @param options The options for the request
    * @return Retrieves a specific map
    */
-  getMap(id: number, options?: object): Observable<any> {
-    return this.http.get('/api/maps/' + id, options || {});
+  getMap(id: number, options?: object): Observable<MomentumMap> {
+    return this.http.get<MomentumMap>('/api/maps/' + id, options || {});
   }
 
   /**
    * @param options
    * @return a list of maps
    */
-  getMaps(options?: object): Observable<any> {
-    return this.http.get('/api/maps', options || {});
+  getMaps(options?: object): Observable<MomentumMaps> {
+    return this.http.get<MomentumMaps>('/api/maps', options || {});
   }
 
   /**
    * @param mapData
    * @return Create a map
    */
-  createMap(mapData: object): Observable<any> {
-    return this.http.post('/api/maps', mapData, {
+  createMap(mapData: object): Observable<HttpResponse<MomentumMap>> {
+    return this.http.post<MomentumMap>('/api/maps', mapData, {
       observe: 'response',
     });
   }
@@ -103,13 +106,13 @@ export class MapsService {
    * @param id
    * @param mapImageFile
    */
-  createMapImage(id: number, mapImageFile: File): Observable<any> {
+  createMapImage(id: number, mapImageFile: File): Observable<MapImage> {
     const formData = new FormData();
     const headers = new HttpHeaders({
       'Content-Length': mapImageFile.size.toString(),
     });
     formData.append('mapImageFile', mapImageFile, mapImageFile.name);
-    return this.http.post('/api/maps/' + id + '/images', formData, { headers: headers });
+    return this.http.post<MapImage>('/api/maps/' + id + '/images', formData, { headers: headers });
   }
 
   /**

@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import {HttpClient} from '@angular/common/http';
 import {Observable} from 'rxjs';
 import {User} from '../models/user.model';
+import {MomentumMaps} from '../models/momentum-maps.model';
 
 @Injectable({
   providedIn: 'root',
@@ -23,8 +24,8 @@ export class AdminService {
    * @param context the contexts of the map
    * @return a list of maps
    */
-  getMaps(context?: object): Observable<any> {
-    return this.http.get('/api/admin/maps/', context);
+  getMaps(context?: object): Observable<MomentumMaps> {
+    return this.http.get<MomentumMaps>('/api/admin/maps/', context);
   }
 
   /**

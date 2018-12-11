@@ -12,11 +12,14 @@ import {FollowStatus} from '../models/follow-status.model';
 import {Router, RouterModule} from '@angular/router';
 import {ThemeModule} from '../../@theme/theme.module';
 import {MomentumMapType} from '../models/map-type.model';
+import {MapLibrary} from '../models/map-library.model';
+import {MomentumMaps} from '../models/momentum-maps.model';
 
 let httpClientSpy: { get: jasmine.Spy, patch: jasmine.Spy, post: jasmine.Spy, delete: jasmine.Spy  };
 let expectedUser: User;
-let expectedMaps: MomentumMap[];
+let expectedMaps: MomentumMaps;
 let expectedMap: MomentumMap;
+let expectedMapLibrary: MapLibrary;
 let expectedFollow: UserFollowObject;
 let expectedFollow2: UserFollowObject;
 let expectedFollowStatus: FollowStatus;
@@ -49,17 +52,19 @@ describe('LocalUserService', () => {
       statusFlag: 0,
       createdAt: new Date(),
     };
-    expectedMaps = [
-      expectedMap,
-      {
-        id: 40000,
-        hash: null,
-        name: 'testmap2',
-        statusFlag: 0,
-        type: MomentumMapType.UNKNOWN,
-        createdAt: new Date(),
-      },
-    ];
+    expectedMaps = {
+      count: 1,
+      maps: [expectedMap],
+    };
+    expectedMapLibrary = {
+      count: 2,
+      entries: [{
+        id: 1,
+        userID: '76561198131664084',
+        mapID: 9,
+        map: expectedMap,
+      }],
+    };
     expectedFollow = {
       followeeID: '9',
       followedID: '40000',
@@ -128,9 +133,9 @@ describe('LocalUserService', () => {
       expect(httpClientSpy.patch.calls.count()).toBe(1, 'one call');
     });
     it('#getMapLibrary() should return the maps in the specified users library', () => {
-      httpClientSpy.get.and.returnValue(of(expectedMaps));
+      httpClientSpy.get.and.returnValue(of(expectedMapLibrary));
       localUserService.getMapLibrary().subscribe(value =>
-          expect(value).toEqual(expectedMaps, 'expected maps'),
+          expect(value).toEqual(expectedMapLibrary, 'expected maps'),
         fail,
       );
       expect(httpClientSpy.get.calls.count()).toBe(1, 'one call');

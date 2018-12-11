@@ -2,11 +2,14 @@ import {MapsService} from './maps.service';
 import {of} from 'rxjs';
 import {MomentumMap} from '../models/momentum-map.model';
 import {MomentumMapType} from '../models/map-type.model';
+import {MomentumMaps} from '../models/momentum-maps.model';
+import {HttpResponse} from '@angular/common/http';
 
 let httpClientSpy: { get: jasmine.Spy, post: jasmine.Spy  };
 let mapsService: MapsService;
 let expectedMap: MomentumMap;
-let expectedMaps: MomentumMap[];
+let expectedMaps: MomentumMaps;
+let expectedCreatedMap: HttpResponse<MomentumMap>;
 
 describe('MapsService', () => {
   beforeEach(() => {
@@ -20,17 +23,23 @@ describe('MapsService', () => {
       statusFlag: 0,
       createdAt: new Date(),
     };
-    expectedMaps = [
-      expectedMap,
-      {
-        id: 40000,
-        hash: null,
-        name: 'testmap2',
-        type: MomentumMapType.UNKNOWN,
-        statusFlag: 0,
-        createdAt: new Date(),
-      },
-    ];
+    expectedMaps = {
+      count: 2,
+      maps: [
+        expectedMap,
+        {
+          id: 40000,
+          hash: null,
+          name: 'testmap2',
+          type: MomentumMapType.UNKNOWN,
+          statusFlag: 0,
+          createdAt: new Date(),
+        },
+      ],
+    };
+    expectedCreatedMap = new HttpResponse({
+      body: expectedMap,
+    });
   });
 
 
@@ -57,9 +66,9 @@ describe('MapsService', () => {
 
 
     it('#createMap should return expected map ', () => {
-      httpClientSpy.post.and.returnValue(of(expectedMap));
+      httpClientSpy.post.and.returnValue(of(expectedCreatedMap));
       mapsService.createMap(expectedMap).subscribe(
-        value => expect(value).toEqual(expectedMap, 'expected map'),
+        value => expect(value).toEqual(expectedCreatedMap, 'expected map'),
         fail,
       );
       expect(httpClientSpy.post.calls.count()).toBe(1, 'one call');
