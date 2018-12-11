@@ -45,7 +45,7 @@ export function tokenGetter() {
           'localhost:4200',
           '141.210.25.113',
         ],
-        throwNoTokenError: true,
+        throwNoTokenError: false,
       },
     }),
     MarkdownModule.forRoot({

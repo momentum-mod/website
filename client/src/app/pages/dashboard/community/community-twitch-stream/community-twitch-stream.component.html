@@ -4,9 +4,9 @@
   </nb-card-header>
   <nb-card-body>
     <div>
-      <h3 class="none-found" *ngIf="streams.length === 0 && queriedStreams"><i>Nobody is streaming Momentum</i></h3>
+      <h3 class="text-center" *ngIf="streams.length === 0 && queriedStreams"><i>Nobody is streaming Momentum</i></h3>
     </div>
-    <div class="row spacing">
+    <div class="row m-auto">
       <div class="col-3 twitch-data" *ngFor="let stream of streams">
         <twitch-data [stream]="stream"></twitch-data>
       </div>
@@ -18,12 +18,12 @@
   <nb-card-header>
     <div class="row">
       <h2 class="col">RECENT VIDEOS</h2>
-      <h4 class="col view-more"><a href="https://www.twitch.tv/directory/game/Momentum%20Mod/videos/all?sort=time">View more videos</a></h4>
+      <h4 class="col text-right m-auto"><a href="https://www.twitch.tv/directory/game/Momentum%20Mod/videos/all?sort=time">View more videos</a></h4>
     </div>
   </nb-card-header>
   <nb-card-body>
-    <h3 class="none-found" *ngIf="videos.length === 0 && queriedVideos"><i>No videos of Momentum found</i></h3>
-    <div class="row spacing">
+    <h3 class="text-center" *ngIf="videos.length === 0 && queriedVideos"><i>No videos of Momentum found</i></h3>
+    <div class="row m-auto">
       <div class="col-3 twitch-data" *ngFor="let video of videos">
         <twitch-data [vod]="video"></twitch-data>
       </div>

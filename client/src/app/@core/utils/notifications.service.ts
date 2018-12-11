@@ -5,6 +5,7 @@ import {HttpClient} from '@angular/common/http';
 import {Observable, ReplaySubject} from 'rxjs';
 import {SiteNotification} from '../models/notification.model';
 import {ToasterService} from 'angular2-toaster';
+import {AuthService} from '../data/auth.service';
 
 
 @Injectable()
@@ -13,6 +14,7 @@ export class NotificationsService {
 
   constructor(private router: Router,
               private http: HttpClient,
+              private authService: AuthService,
               private toasterService: ToasterService) {
     this.notifications$ = new ReplaySubject<SiteNotification[]>(1);
   }
@@ -29,7 +31,8 @@ export class NotificationsService {
     }, 1000 * 60 * 3);
   }
   checkNotifications() {
-    this.http.get<any>('/api/user/notifications').subscribe(resp => this.notifications$.next(resp.notifications));
+    if (this.authService.isAuthenticated())
+      this.http.get<any>('/api/user/notifications').subscribe(resp => this.notifications$.next(resp.notifications));
   }
   get notifications(): Observable<SiteNotification[]> { return this.notifications$.asObservable(); }
 
