@@ -1,4 +1,3 @@
-/*
 import { async, ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { MapInfoDescriptionComponent } from './map-info-description.component';
@@ -11,7 +10,7 @@ describe('MapInfoDescriptionComponent', () => {
 
   beforeEach(async(() => {
     TestBed.configureTestingModule({
-      imports: [MarkdownModule, NbUserModule],
+      imports: [MarkdownModule.forRoot(), NbUserModule],
       declarations: [ MapInfoDescriptionComponent ],
     })
     .compileComponents();
@@ -27,6 +26,3 @@ describe('MapInfoDescriptionComponent', () => {
     expect(component).toBeTruthy();
   });
 });
-
-TODO: Fix tests
-*/
