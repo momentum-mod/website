@@ -32,7 +32,7 @@ export class MapListItemComponent implements OnInit {
     if (this.mapInFavorites) {
       this.localUserService.removeMapFromFavorites(this.map.id).subscribe(() => {
         this.mapInFavorites = false;
-        this.toastService.popAsync('success', 'Removed map to favorites');
+        this.toastService.popAsync('success', 'Removed map from favorites');
       }, err => {
         this.toastService.popAsync('error', 'Failed to remove map from favorites');
       });
