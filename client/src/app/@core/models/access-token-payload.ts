@@ -5,5 +5,4 @@ export interface AccessTokenPayload {
   iat: number;
   exp: number;
   iss: string;
-  sub: string;
 }
