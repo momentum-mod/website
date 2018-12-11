@@ -23,7 +23,7 @@ export class ActivityContentComponent implements OnInit {
     this.activityIcon = '';
     this.actionText = '';
     this.eventText = '';
-    this.eventLink = '';
+    this.eventLink = null;
     this.dateAbs = false;
   }
 
@@ -34,7 +34,6 @@ export class ActivityContentComponent implements OnInit {
         this.eventText = 'map';
         this.activityIcon = 'ion ion-map';
         this.eventColor = 'purple';
-        this.eventLink = '';
         break;
       case Activity_Type.MAP_APPROVED:
         this.actionText = ' added a new ';

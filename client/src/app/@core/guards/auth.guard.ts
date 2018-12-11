@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { CanActivate, ActivatedRouteSnapshot } from '@angular/router';
+import {CanActivate, ActivatedRouteSnapshot, Router} from '@angular/router';
 import { LocalUserService } from '../data/local-user.service';
 
 @Injectable({
@@ -7,7 +7,8 @@ import { LocalUserService } from '../data/local-user.service';
 })
 export class AuthGuard implements CanActivate {
 
-  constructor(private userService: LocalUserService) {
+  constructor(private userService: LocalUserService,
+              private router: Router) {
   }
 
   canActivate(route: ActivatedRouteSnapshot): boolean {
@@ -18,7 +19,7 @@ export class AuthGuard implements CanActivate {
     if (hasPermission && this.userService.isLoggedIn()) {
       return true;
     }
-    window.location.href = '/auth/steam';
+    this.router.navigate(['/auth/steam']);
   }
 
   checkPermissions(permissions): boolean {

@@ -6,11 +6,13 @@ import {HttpClient} from '@angular/common/http';
 import {Observable} from 'rxjs';
 import 'rxjs-compat/add/operator/switchMap';
 import 'rxjs-compat/add/observable/throw';
+import {Router} from '@angular/router';
 
 @Injectable()
 export class AuthService {
   constructor(private cookieService: CookieService,
-              private http: HttpClient) {
+              private http: HttpClient,
+              private router: Router) {
     const cookieExists = this.cookieService.check('accessToken');
     const jwtHelperService = new JwtHelperService();
     if (cookieExists) {
@@ -26,15 +28,15 @@ export class AuthService {
   public logout(): void {
     localStorage.setItem('accessToken', '');
     localStorage.setItem('user', '');
-    window.location.href = '/';
+    this.router.navigate(['/']);
   }
 
   public isAuthenticated(): boolean {
     const accessToken = localStorage.getItem('accessToken');
-    const jwtHelperService = new JwtHelperService();
     if (!accessToken) {
       return false;
     }
+    const jwtHelperService = new JwtHelperService();
     const isTokenExpired = jwtHelperService.isTokenExpired(accessToken);
     return !isTokenExpired;
   }
