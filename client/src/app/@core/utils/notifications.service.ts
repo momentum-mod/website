@@ -23,6 +23,10 @@ export class NotificationsService {
       .subscribe(() => {
         this.checkNotifications();
       });
+    setInterval(() => {
+      if (document.hasFocus())
+        this.checkNotifications();
+    }, 1000 * 60 * 3);
   }
   checkNotifications() {
     this.http.get<any>('/api/user/notifications').subscribe(resp => this.notifications$.next(resp.notifications));
