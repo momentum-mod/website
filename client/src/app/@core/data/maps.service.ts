@@ -1,6 +1,6 @@
 import {Injectable} from '@angular/core';
 import {Observable} from 'rxjs';
-import {HttpClient} from '@angular/common/http';
+import {HttpClient, HttpHeaders} from '@angular/common/http';
 
 @Injectable()
 export class MapsService {
@@ -60,8 +60,12 @@ export class MapsService {
    */
   uploadMapFile(uploadLocation: string, mapFile: File): Observable<any> {
     const formData = new FormData();
+    const headers = new HttpHeaders({
+      'Content-Length': mapFile.size.toString(),
+    });
     formData.append('mapFile', mapFile, mapFile.name);
     return this.http.post(uploadLocation, formData, {
+      headers: headers,
       reportProgress: true,
       observe: 'events',
       responseType: 'text',
@@ -85,8 +89,12 @@ export class MapsService {
    */
   updateMapAvatar(id: number, avatarFile: File): Observable<any> {
     const formData = new FormData();
+    const headers = new HttpHeaders({
+      'Content-Length': avatarFile.size.toString(),
+    });
     formData.append('avatarFile', avatarFile, avatarFile.name);
     return this.http.put('/api/maps/' + id + '/avatar', formData, {
+      headers: headers,
       responseType: 'text',
     });
   }
@@ -97,8 +105,11 @@ export class MapsService {
    */
   createMapImage(id: number, mapImageFile: File): Observable<any> {
     const formData = new FormData();
+    const headers = new HttpHeaders({
+      'Content-Length': mapImageFile.size.toString(),
+    });
     formData.append('mapImageFile', mapImageFile, mapImageFile.name);
-    return this.http.post('/api/maps/' + id + '/images', formData);
+    return this.http.post('/api/maps/' + id + '/images', formData, { headers: headers });
   }
 
   /**
@@ -108,8 +119,11 @@ export class MapsService {
    */
   updateMapImage(id: number, mapImageID: number, mapImageFile: File): Observable<any> {
     const formData = new FormData();
+    const headers = new HttpHeaders({
+      'Content-Length': mapImageFile.size.toString(),
+    });
     formData.append('mapImageFile', mapImageFile, mapImageFile.name);
-    return this.http.put('/api/maps/' + id + '/images/' + mapImageID, formData);
+    return this.http.put('/api/maps/' + id + '/images/' + mapImageID, formData, { headers: headers });
   }
 
   /**
