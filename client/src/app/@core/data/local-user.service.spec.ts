@@ -1,4 +1,3 @@
-
 import {async, TestBed} from '@angular/core/testing';
 
 import {LocalUserService} from './local-user.service';
@@ -10,7 +9,7 @@ import {User} from '../models/user.model';
 
 import {UserFollowObject} from '../models/follow.model';
 import {FollowStatus} from '../models/follow-status.model';
-import {RouterModule} from '@angular/router';
+import {Router, RouterModule} from '@angular/router';
 import {ThemeModule} from '../../@theme/theme.module';
 import {MomentumMapType} from '../models/map-type.model';
 
@@ -86,19 +85,25 @@ describe('LocalUserService', () => {
       get: (name: 'user') => 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9',
       delete: (name: 'user') =>  null,
     };
+    const routerStub = {
+      navigate(commands: any): void {},
+    };
 
     TestBed.configureTestingModule({
       imports: [ThemeModule, RouterModule.forRoot([])],
       providers: [
         LocalUserService,
         { provide: CookieService, useValue: cookieServiceStub },
+        { provide: Router, useValue: routerStub },
       ],
     });
     const spy =
       jasmine.createSpyObj('CookieService', ['check', 'get', 'delete']);
 
     httpClientSpy = jasmine.createSpyObj('HttpClient', ['get', 'patch', 'post', 'delete']);
-    localUserService = new LocalUserService(new AuthService(spy, <any> httpClientSpy), spy, <any> httpClientSpy);
+    const routerSpy = jasmine.createSpyObj('Router', ['navigate']);
+    localUserService = new LocalUserService(new AuthService(spy, <any> httpClientSpy, <any> routerSpy),
+      spy, <any> httpClientSpy);
   }));
 
 
