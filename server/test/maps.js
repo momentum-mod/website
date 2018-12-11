@@ -17,6 +17,8 @@ let fs = require('fs');
 
 describe('maps', () => {
 
+	server.timeout = 0;
+
 	let accessToken = null;
 	let adminAccessToken = null;
 	let adminGameAccessToken = null;
@@ -1062,10 +1064,11 @@ describe('maps', () => {
         describe('PUT /api/maps/{mapID}/images/{imgID}', () => {
 
             it('should respond with 404 when the image is not found', () => {
+            	const file = fs.readFileSync('test/testImage2.jpg');
                 return chai.request(server)
                     .put('/api/maps/' + testMap.id + '/images/99')
                     .set('Authorization', 'Bearer ' + accessToken)
-                    .attach('mapImageFile', fs.readFileSync('test/testImage2.jpg'), 'testImage2.jpg')
+                    .attach('mapImageFile', file, 'testImage2.jpg')
                     .then(res => {
                         expect(res).to.have.status(404);
                         expect(res).to.be.json;
