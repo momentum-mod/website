@@ -3,10 +3,11 @@ import {of} from 'rxjs';
 import {MomentumMap} from '../models/momentum-map.model';
 import {User} from '../models/user.model';
 import {MomentumMapType} from '../models/map-type.model';
+import {MomentumMaps} from '../models/momentum-maps.model';
 
 let httpClientSpy: { get: jasmine.Spy, patch: jasmine.Spy  };
 let adminService: AdminService;
-let expectedMaps: MomentumMap[];
+let expectedMaps: MomentumMaps;
 let expectedMap: MomentumMap;
 let expectedUser: User;
 
@@ -34,19 +35,22 @@ describe('AdminService', () => {
       updatedAt: new Date(),
       submitterID: '12345',
     };
-    expectedMaps = [
-      expectedMap,
-      {
-        id: 40000,
-        name: 'testmap2',
-        type: MomentumMapType.UNKNOWN,
-        hash: '',
-        statusFlag: 0,
-        createdAt: new Date(),
-        updatedAt: new Date(),
-        submitterID: '123456',
-      },
-    ];
+    expectedMaps = {
+      count: 2,
+      maps: [
+        expectedMap,
+        {
+          id: 40000,
+          name: 'testmap2',
+          type: MomentumMapType.UNKNOWN,
+          hash: '',
+          statusFlag: 0,
+          createdAt: new Date(),
+          updatedAt: new Date(),
+          submitterID: '123456',
+        },
+      ],
+    };
   });
 
   describe('Unit Tests', () => {

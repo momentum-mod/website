@@ -8,6 +8,12 @@ import {Permission} from '../models/permissions.model';
 import {UserFollowObject} from '../models/follow.model';
 import {FollowStatus} from '../models/follow-status.model';
 import {CookieService} from 'ngx-cookie-service';
+import {MapFavorites} from '../models/map-favorites.model';
+import {MapLibrary} from '../models/map-library.model';
+import {MapFavorite} from '../models/map-favorite.model';
+import {MomentumMaps} from '../models/momentum-maps.model';
+import {MapSubmissionSummaryElement} from '../models/map-submission-summary-element.model';
+import {UserCredits} from '../models/user-credits.model';
 
 @Injectable({
   providedIn: 'root',
@@ -65,8 +71,8 @@ export class LocalUserService {
    * @param options The options for the request
    * @return specific user's profile
    */
-  public getLocalUser(options?: object): Observable<any> {
-    return this.http.get('/api/user', options || {});
+  public getLocalUser(options?: object): Observable<User> {
+    return this.http.get<User>('/api/user', options || {});
   }
 
   /**
@@ -82,8 +88,8 @@ export class LocalUserService {
    * @param options The options for the request
    * @return a list of map library entries
    */
-  public getMapLibrary(options?: object): Observable<any> {
-    return this.http.get('/api/user/maps/library', options || {});
+  public getMapLibrary(options?: object): Observable<MapLibrary> {
+    return this.http.get<MapLibrary>('/api/user/maps/library', options || {});
   }
 
   /**
@@ -116,16 +122,16 @@ export class LocalUserService {
    * @param options The options for the request
    * @return a list of map favorites
    */
-  public getMapFavorites(options?: object): Observable<any> {
-    return this.http.get('/api/user/maps/favorites', options || {});
+  public getMapFavorites(options?: object): Observable<MapFavorites> {
+    return this.http.get<MapFavorites>('/api/user/maps/favorites', options || {});
   }
 
   /**
    * @param mapID ID of a specific map
    * @return a map favorite
    */
-  public getMapFavorite(mapID: number): Observable<any> {
-    return this.http.get('/api/user/maps/favorites/' + mapID);
+  public getMapFavorite(mapID: number): Observable<MapFavorite> {
+    return this.http.get<MapFavorite>('/api/user/maps/favorites/' + mapID);
   }
 
   /**
@@ -150,23 +156,23 @@ export class LocalUserService {
    * @param options An object of options
    * @return A list of credits featuring the local user
    */
-  public getMapCredits(options?: object): Observable<any> {
-    return this.http.get('/api/user/maps/credits', options || {});
+  public getMapCredits(options?: object): Observable<UserCredits> {
+    return this.http.get<UserCredits>('/api/user/maps/credits', options || {});
   }
 
   /**
    * @param options
    * @return retrieve all submitted maps
    */
-  public getSubmittedMaps(options?: object): Observable<any> {
-    return this.http.get('/api/user/maps/submitted', options || {});
+  public getSubmittedMaps(options?: object): Observable<MomentumMaps> {
+    return this.http.get<MomentumMaps>('/api/user/maps/submitted', options || {});
   }
 
   /**
    * @return retrieve summary of the user's submitted maps
    */
-  public getSubmittedMapSummary(): Observable<any> {
-    return this.http.get('/api/user/maps/submitted/summary');
+  public getSubmittedMapSummary(): Observable<MapSubmissionSummaryElement[]> {
+    return this.http.get<MapSubmissionSummaryElement[]>('/api/user/maps/submitted/summary');
   }
 
   /**
