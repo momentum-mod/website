@@ -7,9 +7,9 @@ import {Component, ElementRef, HostListener, ViewChild} from '@angular/core';
 })
 export class NavComponent {
 
-  @HostListener('window:scroll', ['$event'])
-  onWindowScroll($event) {
-    if ($event.pageY > 200) {
+  @HostListener('window:scroll', [])
+  onWindowScroll() {
+    if (window.pageYOffset > 200) {
       this.mainNavClass = 'navbar-shrink';
     } else {
       this.mainNavClass = '';
