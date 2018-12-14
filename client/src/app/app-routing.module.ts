@@ -13,7 +13,7 @@ const routes: Routes = [
   {
     path: 'dashboard',
     canActivate: [AuthGuard],
-    loadChildren: 'app/pages/dashboard/dashboard.module#DashboardModule',
+    loadChildren: './pages/dashboard/dashboard.module#DashboardModule',
   },
   {
     path: 'outgoing/:url',
