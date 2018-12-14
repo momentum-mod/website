@@ -1,6 +1,6 @@
 import {Injectable} from '@angular/core';
 import {Observable} from 'rxjs';
-import {HttpClient, HttpHeaders, HttpResponse} from '@angular/common/http';
+import {HttpClient, HttpResponse} from '@angular/common/http';
 import {MomentumMaps} from '../models/momentum-maps.model';
 import {MomentumMap} from '../models/momentum-map.model';
 import {MapImage} from '../models/map-image.model';
@@ -63,12 +63,8 @@ export class MapsService {
    */
   uploadMapFile(uploadLocation: string, mapFile: File): Observable<any> {
     const formData = new FormData();
-    const headers = new HttpHeaders({
-      'Content-Length': mapFile.size.toString(),
-    });
     formData.append('mapFile', mapFile, mapFile.name);
     return this.http.post(uploadLocation, formData, {
-      headers: headers,
       reportProgress: true,
       observe: 'events',
       responseType: 'text',
@@ -92,12 +88,8 @@ export class MapsService {
    */
   updateMapAvatar(id: number, avatarFile: File): Observable<any> {
     const formData = new FormData();
-    const headers = new HttpHeaders({
-      'Content-Length': avatarFile.size.toString(),
-    });
     formData.append('avatarFile', avatarFile, avatarFile.name);
     return this.http.put('/api/maps/' + id + '/avatar', formData, {
-      headers: headers,
       responseType: 'text',
     });
   }
@@ -108,11 +100,8 @@ export class MapsService {
    */
   createMapImage(id: number, mapImageFile: File): Observable<MapImage> {
     const formData = new FormData();
-    const headers = new HttpHeaders({
-      'Content-Length': mapImageFile.size.toString(),
-    });
     formData.append('mapImageFile', mapImageFile, mapImageFile.name);
-    return this.http.post<MapImage>('/api/maps/' + id + '/images', formData, { headers: headers });
+    return this.http.post<MapImage>('/api/maps/' + id + '/images', formData);
   }
 
   /**
@@ -122,11 +111,8 @@ export class MapsService {
    */
   updateMapImage(id: number, mapImageID: number, mapImageFile: File): Observable<any> {
     const formData = new FormData();
-    const headers = new HttpHeaders({
-      'Content-Length': mapImageFile.size.toString(),
-    });
     formData.append('mapImageFile', mapImageFile, mapImageFile.name);
-    return this.http.put('/api/maps/' + id + '/images/' + mapImageID, formData, { headers: headers });
+    return this.http.put('/api/maps/' + id + '/images/' + mapImageID, formData);
   }
 
   /**
