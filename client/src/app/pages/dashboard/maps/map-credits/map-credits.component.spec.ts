@@ -1,21 +1,26 @@
-/*import {async, ComponentFixture, TestBed} from '@angular/core/testing';
+import {async, ComponentFixture, TestBed} from '@angular/core/testing';
 
 import {MapCreditsComponent} from './map-credits.component';
 import {MapCreditComponent} from './map-credit/map-credit.component';
 import {NbCardModule, NbListModule, NbPopoverModule, NbThemeModule, NbUserModule} from '@nebular/theme';
 import {UserModule} from '../../user/user.module';
-import {HttpClientModule} from '@angular/common/http';
-import {DOCUMENT} from '@angular/common';
+import {HttpClientTestingModule} from '@angular/common/http/testing';
 
 describe('MapCreditsComponent', () => {
   let component: MapCreditsComponent;
   let fixture: ComponentFixture<MapCreditsComponent>;
-  class DocumentMock {}
   beforeEach(async(() => {
     TestBed.configureTestingModule({
-      imports: [NbThemeModule, NbListModule, NbCardModule, NbPopoverModule, NbUserModule, UserModule, HttpClientModule],
+      imports: [
+        NbThemeModule.forRoot(),
+        NbListModule,
+        NbCardModule,
+        NbPopoverModule,
+        NbUserModule,
+        UserModule,
+        HttpClientTestingModule,
+      ],
       declarations: [ MapCreditsComponent, MapCreditComponent ],
-      providers: [{provide: DOCUMENT, useValue: DocumentMock}],
     })
     .compileComponents();
   }));
@@ -29,4 +34,4 @@ describe('MapCreditsComponent', () => {
   it('should create', () => {
     expect(component).toBeTruthy();
   });
-});*/
+});
