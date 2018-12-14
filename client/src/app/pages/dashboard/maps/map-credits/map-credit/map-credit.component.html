@@ -1,5 +1,5 @@
 <div class="custom-card">
-<h4>{{category}}</h4>
+  <h4 class="text-center">{{category}}</h4>
   <nb-list>
     <nb-list-item *ngFor="let user of categoryArray" class="row no-gutters">
       <nb-user class="col-11" [name]="user.profile.alias" [picture]="user.profile.avatarURL"></nb-user>
@@ -9,14 +9,21 @@
         </button>
       </div>
     </nb-list-item>
+    <nb-list-item *ngFor="let userSearch of userSearches">
+      <span class="error" *ngIf="userSearch.alreadySelected">User already selected!</span>
+      <div class="row no-gutters">
+        <user-search class="col-11" (selectedUserEmit)="addUser($event, userSearch)"></user-search>
+        <div class="col-1">
+          <button class="btn btn-outline-danger btn-xs" (click)="removeUserSearch(userSearch)">
+            <i class="ion ion-close-round"></i>
+          </button>
+        </div>
+      </div>
+    </nb-list-item>
     <nb-list-item *ngIf="editable">
-      <button class="btn btn-primary add-user" [nbPopover]="addUserTemplate" (click)="alreadySelected = false">
+      <button class="btn btn-primary add-user" (click)="addUserSearch()">
         <i class="ion ion-plus"></i>
       </button>
-      <ng-template #addUserTemplate>
-        <span class="error" *ngIf="alreadySelected">User already selected!</span>
-        <user-search (selectedUserEmit)="addUser($event)" ></user-search>
-      </ng-template>
     </nb-list-item>
   </nb-list>
 </div>

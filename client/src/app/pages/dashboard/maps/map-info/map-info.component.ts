@@ -21,7 +21,7 @@ export class MapInfoComponent implements OnInit {
   @ViewChild('leaderboard') leaderboard;
   @Input('previewMap') previewMap: MomentumMap;
   @Input('previewImage') previewImage;
-  isPreview: boolean;
+  @Input('isPreview') isPreview: boolean;
   map: MomentumMap;
   mapInLibrary: boolean;
   mapInFavorites: boolean;
@@ -71,8 +71,7 @@ export class MapInfoComponent implements OnInit {
   }
 
   ngOnInit() {
-    if (this.previewMap) {
-      this.isPreview = true;
+    if (this.isPreview) {
       this.galleryImages.push({
         small: this.previewImage.dataBlobURL,
         medium: this.previewImage.dataBlobURL,
