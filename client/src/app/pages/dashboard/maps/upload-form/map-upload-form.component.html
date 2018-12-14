@@ -25,9 +25,8 @@
                   <div>
                     <span class="input-title">Map Thumbnail
                     <i class="ion ion-help-circled"
-                       nbPopover="Make sure to choose the image that represents your map the best!
-                       This will be the main image that shows up in the map selector for your map!"
-                       nbPopoverMode="hint"></i>
+                       [nbPopover]="'Make sure to choose the image that represents your map the best! This will be the main image that shows up in the map selector for your map!'"
+                       [nbPopoverMode]="'hint'"></i>
                     </span>
                   </div>
                   <div>
@@ -45,8 +44,8 @@
               <div>
                 <span class="input-title">Additional Map Photos
                   <i class="ion ion-help-circled"
-                     nbPopover="You may upload up to 5 extra photos that also best represent your map."
-                     nbPopoverMode="hint"></i>
+                     [nbPopover]="'You may upload up to 5 extra photos that also best represent your map.'"
+                     [nbPopoverMode]="'hint'"></i>
                 </span>
               </div>
               <div class="extra-images">
@@ -81,8 +80,8 @@
                 <div class="form-group col-4">
                   <label>Map Type
                     <i class="ion ion-help-circled"
-                       nbPopover="This is the style of gameplay found predominantly throughout the map."
-                       nbPopoverMode="hint"></i>
+                       [nbPopover]="'This is the style of gameplay found predominantly throughout the map.'"
+                       [nbPopoverMode]="'hint'"></i>
                   </label>
                   <nb-select placeholder="Map Type" formControlName="type" (selectedChange)="inferredMapType = false">
                     <nb-option [value]="MapTypes.UNKNOWN">Unknown</nb-option>

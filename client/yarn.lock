@@ -353,15 +353,15 @@
     call-me-maybe "^1.0.1"
     glob-to-regexp "^0.3.0"
 
-"@nebular/bootstrap@^3.0.1":
-  version "3.0.1"
-  resolved "https://registry.yarnpkg.com/@nebular/bootstrap/-/bootstrap-3.0.1.tgz#fb961e33f17aae654e207fd3feba79f47a25619e"
-  integrity sha512-Nzk9FuRQ+1NPWU/ocQcUXFxNuw5Xjb9JaYuZrtpEkw/Hck9L5c9vnon30NzUYIwI6n7hKPve7mq9MIFiTxHPeA==
+"@nebular/bootstrap@^2.0.2":
+  version "2.0.2"
+  resolved "https://registry.yarnpkg.com/@nebular/bootstrap/-/bootstrap-2.0.2.tgz#2ad24e0e8cd5441d400a6ed8ffad62be5940c1ab"
+  integrity sha512-2Bh7FhXXorRZkOmo3Mq6EuoW2VicqSMZgrfH48WLwwvuc+/TcLE8KgTEiUI6sYfdVDsoWLCb53iyE7zWWBS5Mg==
 
-"@nebular/theme@^3.0.1":
-  version "3.0.1"
-  resolved "https://registry.yarnpkg.com/@nebular/theme/-/theme-3.0.1.tgz#a48d9eb74f9c9a0fa2bdc33dd0940e0e95ed0b9a"
-  integrity sha512-Smu/Y+J0uUHntBz9lIMsuYRquk5hStkGL4dV4i+JsVQynNvxIyLLqsh1Kk+myeAmK3fDDCl1i7hf633jKRsjfQ==
+"@nebular/theme@^2.0.2":
+  version "2.0.2"
+  resolved "https://registry.yarnpkg.com/@nebular/theme/-/theme-2.0.2.tgz#5af12eff07e84bdbe4c45aebffa6611049c22669"
+  integrity sha512-wJZ/hIckGNes+OgvWtG/TB2cXQ1YUfiC3CPSa9hBZ6KLohqmg8AWZEUIuCsdpjLcma8DFOypsvj+VSDeDEaZyw==
   dependencies:
     intersection-observer "0.5.0"
 
