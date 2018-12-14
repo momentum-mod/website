@@ -177,5 +177,5 @@
   </nb-card-body>
 </nb-card>
 
-<map-info *ngIf="stepper.selectedIndex === stepper.steps?.length - 1 && !isUploadingMap"
-          [previewMap]="getMapPreview()" [previewImage]="avatarFilePreview"></map-info>
+<map-info *ngIf="stepper.selectedIndex === stepper.steps?.length - 1 && !isUploadingMap" [isPreview]="true"
+          [previewMap]="mapPreview" [previewImage]="avatarFilePreview"></map-info>

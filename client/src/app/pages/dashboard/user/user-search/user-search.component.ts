@@ -32,7 +32,7 @@ export class UserSearchComponent implements OnInit {
       debounceTime(500),
       distinctUntilChanged())
       .subscribe(val => {
-        if ((val = val.trim())) {
+        if ((val = val.trim()).length > 2) {
           this.usersService.searchUsers(val).subscribe(resp => {
             this.foundUsers = resp.users;
           });

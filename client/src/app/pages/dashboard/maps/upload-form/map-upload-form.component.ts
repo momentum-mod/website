@@ -1,4 +1,4 @@
-import {AfterViewInit, Component, ViewChild} from '@angular/core';
+import {AfterViewInit, Component, OnInit, ViewChild} from '@angular/core';
 import {HttpEvent, HttpEventType} from '@angular/common/http';
 import {Router} from '@angular/router';
 import {ToasterService} from 'angular2-toaster';
@@ -23,7 +23,7 @@ export interface ImageFilePreview {
   templateUrl: './map-upload-form.component.html',
   styleUrls: ['./map-upload-form.component.scss'],
 })
-export class MapUploadFormComponent implements AfterViewInit {
+export class MapUploadFormComponent implements OnInit, AfterViewInit {
   @ViewChild('datepicker') datePicker;
 
   mapFile: File;
@@ -37,6 +37,7 @@ export class MapUploadFormComponent implements AfterViewInit {
   specialThanks: User[];
   inferredMapType: boolean;
   MapTypes: typeof MomentumMapType = MomentumMapType;
+  mapPreview: MomentumMap;
 
   filesForm: FormGroup = this.fb.group({
     'map': ['', [Validators.required, Validators.pattern('.+(\\.bsp)')]],
@@ -88,6 +89,10 @@ export class MapUploadFormComponent implements AfterViewInit {
   ngAfterViewInit() {
     this.datePicker.max = new Date();
     this.datePicker.date = new Date();
+  }
+  ngOnInit(): void {
+    this.creditsForm.valueChanges.subscribe(() => this.generatePreviewMap());
+    this.infoForm.valueChanges.subscribe(() => this.generatePreviewMap());
   }
 
   onMapFileSelected(file: File) {
@@ -267,9 +272,8 @@ export class MapUploadFormComponent implements AfterViewInit {
       credits.push({userID: this.specialThanks[i].id, user: this.specialThanks[i], type: MapCreditType.SPECIAL_THANKS});
     return credits;
   }
-
-  getMapPreview(): MomentumMap {
-    return {
+  generatePreviewMap(): void {
+    this.mapPreview = {
       id: 0,
       name: this.name.value,
       type: this.type.value,

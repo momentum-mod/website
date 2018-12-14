@@ -1,6 +1,9 @@
-import {Component, EventEmitter, Input, Output, ViewChild} from '@angular/core';
+import {Component, EventEmitter, Input, Output} from '@angular/core';
 import {User} from '../../../../../@core/models/user.model';
-import {NbPopoverDirective} from '@nebular/theme';
+
+export interface UserSearch {
+  alreadySelected: boolean;
+}
 
 @Component({
   selector: 'map-credit',
@@ -12,23 +15,21 @@ export class MapCreditComponent {
   @Input('category') category: string;
   @Input('categoryArr') categoryArray: User[];
   @Input('editable') editable: boolean;
-  @ViewChild(NbPopoverDirective) popover;
   @Output() userAdded: EventEmitter<User>;
   @Output() userRemoved: EventEmitter<User>;
-  alreadySelected: boolean;
+  userSearches: UserSearch[];
   constructor() {
-    this.alreadySelected = false;
     this.userAdded = new EventEmitter<User>();
     this.userRemoved = new EventEmitter<User>();
+    this.userSearches = [];
   }
-  addUser(user: User) {
+  addUser(user: User, userSearch: any) {
     if (this.categoryArray.find((val => val.id === user.id))) {
-      this.alreadySelected = true;
+      userSearch.alreadySelected = true;
     } else {
-      this.alreadySelected = false;
       this.categoryArray.push(user);
       this.userAdded.emit(user);
-      this.popover.hide();
+      this.removeUserSearch(userSearch);
     }
   }
   removeUser(user: User) {
@@ -36,6 +37,19 @@ export class MapCreditComponent {
     if (indx > -1) {
       this.categoryArray.splice(indx, 1);
       this.userRemoved.emit(user);
+    }
+  }
+
+  addUserSearch() {
+    this.userSearches.push({
+      alreadySelected: false,
+    });
+  }
+
+  removeUserSearch(userSearch: any) {
+    const index = this.userSearches.indexOf(userSearch, 0);
+    if (index > -1) {
+      this.userSearches.splice(index, 1);
     }
   }
 }
