@@ -28,7 +28,7 @@ export class AuthService {
   public logout(): void {
     localStorage.setItem('accessToken', '');
     localStorage.setItem('user', '');
-    this.router.navigate(['/']);
+    this.router.navigateByUrl('/');
   }
 
   public isAuthenticated(): boolean {
