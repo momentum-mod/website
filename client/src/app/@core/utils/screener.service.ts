@@ -19,7 +19,7 @@ export class ScreenerService {
   intercept(_event) {
     const tEvent = _event || window.event;
     const element = tEvent.target || tEvent.srcElement;
-    if (tEvent.which === 1 &&
+    if ((tEvent.which === 1 || tEvent.which === 2) &&
       element.href && element.tagName === 'A' &&
       !window.location.pathname.startsWith('/outgoing')) {
       const url: URL = new URL(element.href);
