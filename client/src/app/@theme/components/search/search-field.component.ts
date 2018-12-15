@@ -11,6 +11,7 @@ import {UsersService} from '../../../@core/data/users.service';
 import {MapsService} from '../../../@core/data/maps.service';
 import {User} from '../../../@core/models/user.model';
 import {MomentumMap} from '../../../@core/models/momentum-map.model';
+import {Router} from '@angular/router';
 
 /**
  * search-field-component is used under the hood by nb-search component
@@ -95,7 +96,8 @@ export class SearchFieldComponent implements OnChanges, AfterViewInit {
     return this.type === SearchFieldComponent.TYPE_MODAL_HALF;
   }
   constructor(private usersService: UsersService,
-              private mapsService: MapsService) {
+              private mapsService: MapsService,
+              private router: Router) {
   }
 
   ngOnChanges({ show }: SimpleChanges) {
@@ -138,5 +140,10 @@ export class SearchFieldComponent implements OnChanges, AfterViewInit {
     if (this.show && this.inputElement) {
       this.inputElement.nativeElement.focus();
     }
+  }
+
+  selectedElem($event: string) {
+    this.router.navigateByUrl($event);
+    this.emitClose();
   }
 }
