@@ -1,4 +1,4 @@
-import {Component, Input} from '@angular/core';
+import {Component, EventEmitter, Input, Output} from '@angular/core';
 
 @Component({
   selector: 'search-results',
@@ -10,6 +10,7 @@ export class SearchResultsComponent {
   @Input('onlyUsers') onlyUsers: boolean;
   @Input('onlyMaps') onlyMaps: boolean;
   @Input('elems') elems: any[];
+  @Output() selectedURL: EventEmitter<string> = new EventEmitter();
   constructor() {
   }
 
@@ -39,5 +40,9 @@ export class SearchResultsComponent {
     } else {
       return !this.onlyUsers && this.elems && this.elems.length === 0;
     }
+  }
+
+  clickElem(elem: any) {
+    this.selectedURL.emit(this.getElemURL(elem));
   }
 }

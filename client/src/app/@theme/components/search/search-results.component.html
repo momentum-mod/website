@@ -3,17 +3,11 @@
 <hr>
 <span *ngIf="shouldShowEmpty()">No {{usersResults ? 'users' : 'maps'}} found</span>
 <div class="center result-elem" *ngFor="let elem of elems">
-  <div *ngIf="usersResults">
-    <a [routerLink]="getElemURL(elem)">
-      <nb-user class="name" [picture]="getElemPicture(elem)" [name]="getElemName(elem)" [size]="'large'"></nb-user>
-    </a>
+  <div *ngIf="usersResults" (click)="clickElem(elem)" class="clickable">
+    <nb-user class="name" [picture]="getElemPicture(elem)" [name]="getElemName(elem)" [size]="'large'"></nb-user>
   </div>
-  <div *ngIf="!usersResults">
-    <a [routerLink]="getElemURL(elem)">
-      <div>
-        <img class="avatar" [src]="getElemPicture(elem)">
-        <span class="name">{{getElemName(elem)}}</span>
-      </div>
-    </a>
+  <div *ngIf="!usersResults" (click)="clickElem(elem)" class="clickable">
+    <img class="avatar" [src]="getElemPicture(elem)">
+    <span class="name">{{getElemName(elem)}}</span>
   </div>
 </div>

@@ -16,10 +16,12 @@
       <div class="content">
         <div class="row">
           <div class="col" *ngIf="users?.length">
-            <search-results [user]="true" [onlyMaps]="onlyMaps" [onlyUsers]="onlyUsers" [elems]="users"></search-results>
+            <search-results [user]="true" [onlyMaps]="onlyMaps" [onlyUsers]="onlyUsers" [elems]="users"
+                            (selectedURL)="selectedElem($event)"></search-results>
           </div>
           <div class="col" *ngIf="maps?.length">
-            <search-results [user]="false" [onlyMaps]="onlyMaps" [onlyUsers]="onlyUsers" [elems]="maps"></search-results>
+            <search-results [user]="false" [onlyMaps]="onlyMaps" [onlyUsers]="onlyUsers" [elems]="maps"
+                            (selectedURL)="selectedElem($event)"></search-results>
           </div>
         </div>
       </div>
