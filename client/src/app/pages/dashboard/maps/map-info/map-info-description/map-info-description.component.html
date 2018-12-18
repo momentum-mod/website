@@ -1,8 +1,11 @@
-<markdown [data]="map?.info?.description" ngPreserveWhitespaces></markdown>
-<br>
-<div>
-  <h6>Release Date: <span class="text">{{map?.createdAt | date}}</span></h6>
-  <h6>Submitted By: <nb-user [name]="map?.submitter?.alias" [picture]="map?.submitter?.avatarURL"
-                             size="small" class="d-inline-block align-middle"></nb-user>
-  </h6>
+<div class="desc">
+  <div class="space">
+    <markdown [data]="map.info.description"></markdown>
+  </div>
+</div>
+<div class="info">
+  <h6>{{map.info.isLinear ? 'Linear' : 'Staged'}} map</h6>
+  <h6>Num zones: {{map.info.numZones}}</h6>
+  <h6>Num bonuses: {{map.info.numBonuses}}</h6>
+  <h6>Difficulty: {{map.info.difficulty}}</h6>
 </div>

@@ -1,18 +1,17 @@
 <nb-card *ngIf="(isPreview && previewMap) || map">
   <nb-card-header>
-    <div class="d-inline-block">
-      <h2>{{(isPreview ? previewMap : map).name}}</h2>
+    <div class="row">
+      <h2 class="col d-block m-auto">{{(isPreview ? previewMap : map).name}}</h2>
+      <div class="col" *ngIf="!isPreview && (isSubmitter || isAdmin || isModerator)">
+        <button class="btn btn-outline-info float-right" type="button" (click)="onEditMap()">Edit Map</button>
+      </div>
     </div>
-    <button *ngIf="!isPreview && (isSubmitter || isAdmin || isModerator)" class="btn btn-outline-info float-right"
-            type="button" (click)="onEditMap()">
-      Edit Map
-    </button>
   </nb-card-header>
   <nb-card-body class="row">
     <div class="col-lg-5 col-md-12 bury">
       <ngx-gallery class="image-gallery bury" [options]="galleryOptions" [images]="galleryImages"></ngx-gallery>
     </div>
-    <div class="col-lg-7 col-md-12">
+    <div class="col-lg-7 col-md-12 map-info">
       <nb-tabset [fullWidth]="true">
         <nb-tab [tabTitle]="'DESCRIPTION'">
           <map-info-description [map]="isPreview ? previewMap : map"></map-info-description>
@@ -24,20 +23,39 @@
           <map-info-stats [map]="map"></map-info-stats>
         </nb-tab>
       </nb-tabset>
-      <div *ngIf="!isPreview">
-        <div class="ion-android-download picture col-auto d-inline-block"> {{map.stats?.totalDownloads}}</div>
-        <div class="ion-folder picture col-auto d-inline-block"> {{map.stats?.totalSubscriptions}}</div>
-        <div class="ion-star picture col-auto d-inline-block"> {{map.stats?.totalFavorites}}</div>
-        <div class="ion-play picture col-auto d-inline-block"> {{map.stats?.totalPlays}}</div>
-        <br>
-        <br>
-        <div class="btn-toolbar">
-          <button type="button" class="btn btn-outline-info" (click)="onLibraryUpdate()">
-            {{mapInLibrary ? 'Remove from My Library' : 'Add to My Library'}}
-          </button>
-          <button type="button" class="btn btn-outline-info" (click)="onFavoriteUpdate()">
-            {{mapInFavorites ? 'Remove from Favorites' : 'Add to Favorites'}}
-          </button>
+      <div class="row bottom-info">
+        <div class="col">
+          <h6>Added On: {{(isPreview ? previewMap : map).createdAt | date}}</h6>
+          <h6>Original Release Date: {{(isPreview ? previewMap : map).info?.creationDate | date}}</h6>
+          <h6>Submitted By: <nb-user [name]="map?.submitter?.alias" [picture]="map?.submitter?.avatarURL"
+                                     size="small" class="d-inline-block align-middle"></nb-user>
+          </h6>
+        </div>
+        <div *ngIf="!isPreview" class="col">
+          <div class="row q-stats">
+            <span class="ion-android-download picture col-auto" nbPopover="Downloads" [nbPopoverMode]="'hint'">
+              {{map.stats?.totalDownloads | numberThousands:1}}
+            </span>
+            <span class="ion-folder picture col-auto" nbPopover="Libraries" [nbPopoverMode]="'hint'">
+              {{map.stats?.totalSubscriptions | numberThousands:1}}
+            </span>
+            <span class="ion-star picture col-auto" nbPopover="Favorites" [nbPopoverMode]="'hint'">
+              {{map.stats?.totalFavorites | numberThousands:1}}
+            </span>
+            <span class="ion-play picture col-auto" nbPopover="Plays" [nbPopoverMode]="'hint'">
+              {{map.stats?.totalPlays | numberThousands:1}}
+            </span>
+          </div>
+          <div class="btn-group float-right">
+            <button type="button" class="btn btn-outline-info btn-group-divider" (click)="onLibraryUpdate()">
+              <span [ngClass]="{'c-anim-btn': mapInLibrary}">{{mapInLibrary ? 'In Library' : 'Add Map to Library'}}</span>
+              <span *ngIf="mapInLibrary">Remove from Library</span>
+            </button>
+            <button type="button" class="btn btn-outline-info" (click)="onFavoriteUpdate()"
+                    nbPopover="{{mapInFavorites ? 'Remove from Favorites' : 'Add to Favorites'}}" [nbPopoverMode]="'hint'">
+              <span [ngClass]="mapInFavorites ? 'ion-android-star' : 'ion-android-star-outline'" class="icon"></span>
+            </button>
+          </div>
         </div>
       </div>
     </div>
