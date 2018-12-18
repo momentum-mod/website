@@ -2,7 +2,7 @@
   <h4 class="text-center">{{category}}</h4>
   <nb-list>
     <nb-list-item *ngFor="let user of categoryArray" class="row no-gutters">
-      <nb-user class="col-11" [name]="user.profile.alias" [picture]="user.profile.avatarURL"></nb-user>
+      <nb-user class="col-11" [name]="user.alias" [picture]="user.avatarURL"></nb-user>
       <div class="col-1 remove-user" *ngIf="editable">
         <button class="btn btn-outline-danger btn-xs btn-icon" (click)="removeUser(user)">
           <i class="ion ion-close-round"></i>

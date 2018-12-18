@@ -1,7 +1,7 @@
 <div class="row no-gutters">
   <div class="col-auto profile">
     <a routerLink="/dashboard/profile/{{activity.user.id}}">
-      <nb-user [name]="activity.user.profile.alias" [picture]="activity.user.profile.avatarURL"></nb-user>
+      <nb-user [name]="activity.user.alias" [picture]="activity.user.avatarURL"></nb-user>
     </a>
   </div>
   <div class="col-auto text">

@@ -18,12 +18,13 @@ describe('UsersService', () => {
     usersService = new UsersService(<any> httpClientSpy);
     expectedUser = {
       id: '1',
+      alias: 'test1',
+      avatarURL: 'url',
       country: 'US',
       permissions: 0,
       profile: {
         id: '0',
-        alias: 'test1',
-        avatarURL: 'url',
+        bio: 'i am a banana!',
       },
     };
     expectedUsers = {
@@ -32,12 +33,13 @@ describe('UsersService', () => {
         expectedUser,
         {
           id: '2',
+          alias: 'test2',
+          avatarURL: 'url1',
           country: 'US',
           permissions: 1,
           profile: {
             id: '1',
-            alias: 'test2',
-            avatarURL: 'url1',
+            bio: '',
           },
         },
       ],

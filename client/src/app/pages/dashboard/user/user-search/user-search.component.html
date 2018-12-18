@@ -2,7 +2,7 @@
   <input formControlName="search" class="form-control" type="text" #searchInput/>
   <nb-list>
     <nb-list-item *ngFor="let user of foundUsers">
-      <nb-user [name]="user.profile.alias" [picture]="user.profile.avatarURL" (click)="confirmUser(user)"></nb-user>
+      <nb-user [name]="user.alias" [picture]="user.avatarURL" (click)="confirmUser(user)"></nb-user>
     </nb-list-item>
   </nb-list>
 </form>

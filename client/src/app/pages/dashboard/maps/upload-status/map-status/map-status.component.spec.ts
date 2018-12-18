@@ -40,12 +40,12 @@ describe('MapStatusComponent', () => {
           type: 0,
           user: {
             id: '1234',
+            alias: 'Mapperooni',
+            avatarURL: '',
             country: 'US',
             permissions: 0,
             profile: {
               id: '244',
-              alias: 'Mapperooni',
-              avatarURL: '',
               bio: 'Testy',
             },
           },

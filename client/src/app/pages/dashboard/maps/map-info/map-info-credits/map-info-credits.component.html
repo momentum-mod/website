@@ -2,19 +2,19 @@
   <div class="col-6 col-sm-4">
     <h6>Author(s):</h6>
     <ul class="list-unstyled" *ngFor="let credit of filterMapCredits(map?.credits, Map_Credit_Type.AUTHOR)">
-      <li><nb-user [name]="credit?.user.profile.alias" [picture]="credit?.user.profile.avatarURL" size="small" class="d-inline-block"></nb-user></li>
+      <li><nb-user [name]="credit?.user.alias" [picture]="credit?.user.avatarURL" size="small" class="d-inline-block"></nb-user></li>
     </ul>
   </div>
   <div class="col-6 col-sm-4">
     <h6>Tester(s):</h6>
     <ul class="list-unstyled" *ngFor="let credit of filterMapCredits(map?.credits, Map_Credit_Type.TESTER)">
-      <li><nb-user [name]="credit?.user.profile.alias" [picture]="credit?.user.profile.avatarURL" size="small" class="d-inline-block"></nb-user></li>
+      <li><nb-user [name]="credit?.user.alias" [picture]="credit?.user.avatarURL" size="small" class="d-inline-block"></nb-user></li>
     </ul>
   </div>
   <div class="col-6 col-sm-4">
     <h6>Special Thanks:</h6>
     <ul class="list-unstyled" *ngFor="let credit of filterMapCredits(map?.credits, Map_Credit_Type.SPECIAL_THANKS)">
-      <li><nb-user [name]="credit?.user.profile.alias" [picture]="credit?.user.profile.avatarURL" size="small" class="d-inline-block"></nb-user></li>
+      <li><nb-user [name]="credit?.user.alias" [picture]="credit?.user.avatarURL" size="small" class="d-inline-block"></nb-user></li>
     </ul>
   </div>
 </div>

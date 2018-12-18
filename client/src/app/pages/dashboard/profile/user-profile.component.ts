@@ -71,7 +71,7 @@ export class UserProfileComponent implements OnInit {
       this.isVerified = this.hasPerm(Permission.VERIFIED);
       this.userSubj$.next(usr);
       if (!this.hasPerm(Permission.BANNED_AVATAR)) {
-        this.avatar_url = this.user.profile.avatarURL;
+        this.avatar_url = this.user.avatarURL;
       }
       this.avatar_loaded = true;
       this.usersService.getUserFollows(this.user).subscribe(resp => {

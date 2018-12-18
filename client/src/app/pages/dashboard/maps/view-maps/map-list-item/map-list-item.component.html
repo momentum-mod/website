@@ -17,7 +17,7 @@
         <ul>
           <li><a [routerLink]="'/dashboard/maps/' + map?.id">{{map.name}}</a></li>
           <li>{{map.createdAt | date}}</li>
-          <li><nb-user [name]="map.submitter?.profile?.alias" [picture]="map.submitter?.profile?.avatarURL" size="small"></nb-user></li>
+          <li><nb-user [name]="map.submitter?.alias" [picture]="map.submitter?.avatarURL" size="small"></nb-user></li>
         </ul>
       </div>
     </div>

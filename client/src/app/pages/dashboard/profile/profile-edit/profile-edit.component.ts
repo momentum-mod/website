@@ -95,7 +95,7 @@ export class ProfileEditComponent implements OnInit {
         this.toasterService.popAsync('success', 'Updated user profile!', '');
       }, error => this.err('Failed to update user profile!', error.message));
     } else {
-      this.user.profile.alias = this.alias.value;
+      this.user.alias = this.alias.value;
       this.user.profile.bio = this.bio.value;
       this.adminService.updateUser(this.user).subscribe(() => {
         if (this.isLocal)

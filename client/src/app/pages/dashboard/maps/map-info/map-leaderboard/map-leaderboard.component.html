@@ -46,7 +46,7 @@
     <td>{{i + 1}}</td>
     <td>
       <a [routerLink]="'/dashboard/profile/' + run.user.id">
-        <nb-user [name]="run.user.profile.alias" [picture]="run.user.profile.avatarURL" size="large"></nb-user>
+        <nb-user [name]="run.user.alias" [picture]="run.user.avatarURL" size="large"></nb-user>
       </a>
     </td>
     <td></td>

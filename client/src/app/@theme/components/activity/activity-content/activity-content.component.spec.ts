@@ -29,13 +29,13 @@ describe('ActivityContentComponent', () => {
       id: 1,
       user: {
         id: '1',
+        alias: 'Ninja',
+        avatarURL: '/assets/images/caution.png',
         country: 'US',
         permissions: 0,
         profile: {
           id: '1',
-          alias: 'Ninja',
           bio: '',
-          avatarURL: '/assets/images/caution.png',
         },
       },
       type: Activity_Type.USER_JOINED,

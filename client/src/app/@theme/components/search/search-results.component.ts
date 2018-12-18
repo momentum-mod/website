@@ -16,7 +16,7 @@ export class SearchResultsComponent {
 
   getElemName(elem: any): string {
     if (this.usersResults)
-      return elem.profile.alias;
+      return elem.alias;
     else
       return elem.name;
   }
@@ -29,9 +29,9 @@ export class SearchResultsComponent {
 
   getElemPicture(elem: any) {
     if (this.usersResults)
-      return elem.profile.avatarURL;
+      return elem.avatarURL;
     else
-      return elem.info.avatarURL; // TODO make sure this is right
+      return elem.info.avatarURL;
   }
 
   shouldShowEmpty(): boolean {

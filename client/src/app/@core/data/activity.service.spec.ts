@@ -18,6 +18,8 @@ describe('ActivityService', () => {
         userID: '828288828528',
         user: {
           id: '828288828528',
+          alias: 'Spooderman',
+          avatarURL: '',
           permissions: 0,
           country: 'US',
         },

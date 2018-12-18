@@ -21,11 +21,11 @@ describe('user', () => {
     let adminAccessToken = null;
     const testUser = {
         id: '76561198131664084',
+		alias: 'cjshiner',
+		avatarURL: 'https://steamcdn-a.akamaihd.net/steamcommunity/public/images/avatars/e4/e4db45e6d6472d9e61b131a04ad2f18a299daafc_full.jpg',
         permissions: 0,
         country: 'US',
         profile: {
-            alias: 'cjshiner',
-            avatarURL: 'https://steamcdn-a.akamaihd.net/steamcommunity/public/images/avatars/e4/e4db45e6d6472d9e61b131a04ad2f18a299daafc_full.jpg',
             bio: '',
         },
         stats: {
@@ -34,32 +34,32 @@ describe('user', () => {
     };
     const testUser2 = {
         id: '2759389285395352',
+		alias: 'test2',
+		avatarURL: 'https://steamcdn-a.akamaihd.net/steamcommunity/public/images/avatars/e4/e4db45e6d6472d9e61b131a04ad2f18a299daafc_full.jpg',
         permissions: 0,
         country: 'US',
         profile: {
-            alias: 'test2',
-            avatarURL: 'https://steamcdn-a.akamaihd.net/steamcommunity/public/images/avatars/e4/e4db45e6d6472d9e61b131a04ad2f18a299daafc_full.jpg',
             bio: 'test2',
         }
     };
     const testUser3 = {
         id: '777',
+		alias: 'test3',
+		avatarURL: 'http://google.com',
         permissions: 0,
         country: 'US',
         profile: {
-            alias: 'test3',
-            avatarURL: 'http://google.com',
             bio: 'test3',
         }
     };
 
     const testAdmin = {
         id: '0909',
+		alias: 'testAdmin',
+		avatarURL: 'http://google.com',
         permissions: 0,
         country: 'US',
         profile: {
-            alias: 'testAdmin',
-            avatarURL: 'http://google.com',
             bio: 'testAdmin',
         }
     };
@@ -280,7 +280,7 @@ describe('user', () => {
                         expect(res).to.have.status(200);
                         expect(res).to.be.json;
                         expect(res.body).to.have.property('id');
-                        expect(res.body.profile).to.have.property('alias');
+                        expect(res.body.profile).to.have.property('bio');
                     });
             });
 
@@ -320,7 +320,6 @@ describe('user', () => {
                         expect(res).to.have.status(200);
                         expect(res).to.be.json;
                         expect(res.body).to.have.property('id');
-                        expect(res.body).to.have.property('alias');
                         expect(res.body).to.have.property('bio');
                     });
             });

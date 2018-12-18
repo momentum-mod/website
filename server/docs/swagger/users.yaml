@@ -171,6 +171,10 @@ definitions:
         type: string
         format: int64
         readOnly: true
+      alias:
+        type: string
+      avatarURL:
+        type: string
       permissions:
         type: integer
         format: int64
@@ -200,10 +204,6 @@ definitions:
         type: string
         format: int64
         readOnly: true
-      alias:
-        type: string
-      avatarURL:
-        type: string
       bio:
         type: string
         nullable: true

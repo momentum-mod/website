@@ -27,12 +27,13 @@ describe('MapEditComponent', () => {
     statusFlag: MapUploadStatus.APPROVED,
     submitter: {
       id: '2',
+      alias: 'dude',
+      avatarURL: 'IJJJ',
       permissions: 2,
       country: 'US',
       profile: {
         id: '7',
-        alias: 'dude',
-        avatarURL: 'IJJJ',
+        bio: 'Just another paper cut survivor.',
       },
     },
     createdAt: new Date(),

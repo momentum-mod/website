@@ -18,19 +18,19 @@ describe('users', () => {
     let adminAccessToken = null;
     const testUser = {
         id: '76561198131664084',
+        alias: 'cjshiner',
+        avatarURL: 'https://steamcdn-a.akamaihd.net/steamcommunity/public/images/avatars/e4/e4db45e6d6472d9e61b131a04ad2f18a299daafc_full.jpg',
         permissions: 0,
         profile: {
-            alias: 'cjshiner',
-            avatarURL: 'https://steamcdn-a.akamaihd.net/steamcommunity/public/images/avatars/e4/e4db45e6d6472d9e61b131a04ad2f18a299daafc_full.jpg',
             bio: 'test',
         }
     };
     const testUser2 = {
         id: '2759389285395352',
+        alias: 'test2',
+        avatarURL: 'https://steamcdn-a.akamaihd.net/steamcommunity/public/images/avatars/e4/e4db45e6d6472d9e61b131a04ad2f18a299daafc_full.jpg',
         permissions: 0,
         profile: {
-            alias: 'test2',
-            avatarURL: 'https://steamcdn-a.akamaihd.net/steamcommunity/public/images/avatars/e4/e4db45e6d6472d9e61b131a04ad2f18a299daafc_full.jpg',
             bio: 'test2',
         }
     };
@@ -147,7 +147,7 @@ describe('users', () => {
 
             it('should respond with array of users with offset parameter', () => {
                 return chai.request(server)
-                    .get('/api/users/')
+                    .get('/api/users')
                     .set('Authorization', 'Bearer ' + accessToken)
                     .query({ offset: 0, limit: 1 })
                     .then(res => {
@@ -178,7 +178,7 @@ describe('users', () => {
                     .get('/api/users')
                     .set('Authorization', 'Bearer ' + accessToken)
                     .query({
-                        search: testUser.profile.alias
+                        search: testUser.alias
                     })
                     .then(res => {
                         expect(res).to.have.status(200);
@@ -217,8 +217,8 @@ describe('users', () => {
                         expect(res).to.be.json;
                         expect(res.body.users).to.be.an('array');
                         expect(res.body.users).to.have.length(2);
-                        expect(res.body.users[0].profile).to.have.property('alias');
-                        expect(res.body.users[0].profile).to.have.property('avatarURL');
+                        expect(res.body.users[0]).to.have.property('alias');
+                        expect(res.body.users[0]).to.have.property('avatarURL');
                     });
             });
 
@@ -262,8 +262,7 @@ describe('users', () => {
                         expect(res).to.be.json;
                         expect(res.body).to.have.property('id');
                         expect(res.body).to.have.property('createdAt');
-                        expect(res.body.profile).to.have.property('alias');
-                        expect(res.body.profile).to.have.property('avatarURL');
+                        expect(res.body.profile).to.have.property('bio');
                     });
             });
 
@@ -303,7 +302,7 @@ describe('users', () => {
                         expect(res).to.have.status(200);
                         expect(res).to.be.json;
                         expect(res.body).to.have.property('id');
-                        expect(res.body).to.have.property('alias');
+                        expect(res.body).to.have.property('bio');
                     });
             });
 

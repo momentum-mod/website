@@ -35,6 +35,8 @@ describe('NotificationComponent', () => {
         id: 1,
         forUser: {
           id: '1',
+          alias: 'Ninjaz',
+          avatarURL: '/assets/images/caution.png',
           country: 'US',
           permissions: 0,
         },
@@ -42,13 +44,13 @@ describe('NotificationComponent', () => {
           id: 1,
           user: {
             id: '1',
+            alias: 'Ninja',
+            avatarURL: '/assets/images/caution.png',
             country: 'US',
             permissions: 0,
             profile: {
               id: '1',
-              alias: 'Ninja',
               bio: '',
-              avatarURL: '/assets/images/caution.png',
             },
           },
           type: Activity_Type.USER_JOINED,
@@ -62,6 +64,8 @@ describe('NotificationComponent', () => {
         id: 1,
         forUser: {
           id: '1',
+          alias: 'Ninjazzz',
+          avatarURL: '/assets/images/caution.png',
           country: 'US',
           permissions: 0,
         },
@@ -69,13 +73,13 @@ describe('NotificationComponent', () => {
           id: 1,
           user: {
             id: '1',
+            alias: 'TESSSSSSSSSSSSSSSSSSST',
+            avatarURL: '/assets/images/caution.png',
             country: 'US',
             permissions: 0,
             profile: {
               id: '1',
-              alias: 'TESSSSSSSSSSSSSSSSSSST',
               bio: '',
-              avatarURL: '/assets/images/caution.png',
             },
           },
           type: Activity_Type.PB_ACHIEVED,

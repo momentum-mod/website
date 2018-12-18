@@ -191,7 +191,6 @@ module.exports = {
 			queryContext.include.push({
 				model: User,
 				as: 'submitter',
-				include: [Profile],
 				where: {}
 			});
 		}
