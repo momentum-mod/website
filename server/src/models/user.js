@@ -24,7 +24,7 @@ module.exports = {
 		if (newProfile.country && usr.country !== newProfile.country)
 			usr.country = newProfile.country;
 		if ((usr.permissions & module.exports.Permission.BANNED_AVATAR) === 0)
-			usr.profile.avatarURL = newProfile.avatarURL;
+			usr.avatarURL = newProfile.avatarURL;
 		return usr.save();
 	},
 
@@ -33,18 +33,17 @@ module.exports = {
 			let userInfo = {};
 			return User.create({
 				id: id,
-				profile: {
-					alias: profile.alias,
-					avatarURL: profile.avatarURL
-				},
+				alias: profile.alias,
+				avatarURL: profile.avatarURL,
 				country: profile.country,
+				profile: {},
 				auth: { userID: id },
 				stats: { userID: id }
 			}, {
 				include: [
-					{ model: Profile },
+					Profile,
 					{ model: UserAuth, as: 'auth' },
-					{ model: UserStats, as: 'stats' }
+					{ model: UserStats, as: 'stats' },
 				],
 				transaction: t,
 			}).then(user => {
@@ -129,20 +128,21 @@ module.exports = {
 
 	getAll: (context) => {
 		const queryContext = {
-			include: [{
-				model: Profile,
-				where: {
-					alias: {[Op.like]: '%' + (context.search || '') + '%'}
-				}
-			}],
+			where: {},
+			include: [],
 			limit: 20
 		};
 		if (context.limit && !isNaN(context.limit))
 			queryContext.limit = Math.min(Math.max(parseInt(context.limit), 1), 20);
 		if (context.offset && !isNaN(context.offset))
 			queryContext.offset = Math.min(Math.max(parseInt(context.offset), 0), 5000);
-		if (!(context.expand && context.expand.includes('profile')))
-			queryContext.include[0].attributes = [];
+		if (context.search)
+			queryContext.where.alias = {[Op.like]: '%' + (context.search || '') + '%'};
+		if (context.expand) {
+			const expansions = context.expand.split(',');
+			if (expansions.includes('profile'))
+				queryContext.include.push({ model: Profile });
+		}
 		return User.findAndCountAll(queryContext);
 	},
 

@@ -50,6 +50,8 @@ describe('ProfileCreditsComponent', () => {
     component = fixture.componentInstance;
     component.userSubj$ = of({
       id: '1',
+      alias: 'IAmWhoIAmWhoAmI',
+      avatarURL: '',
       country: 'US',
       permissions: 0,
     });

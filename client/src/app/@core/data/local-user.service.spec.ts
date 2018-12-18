@@ -33,12 +33,12 @@ describe('LocalUserService', () => {
   beforeEach(async(() => {
     expectedUser = {
       id: '76561198131664084',
+      avatarURL: '',
+      alias: 'cjshiner',
       country: 'US',
       permissions: 0,
       profile: {
         id: '1',
-        avatarURL: '',
-        alias: 'cjshiner',
         bio: 'test',
       },
     };
@@ -126,7 +126,7 @@ describe('LocalUserService', () => {
 
     it('#updateProfile() should update the users profile and return the updated version', () => {
       httpClientSpy.patch.and.returnValue(of(expectedUser));
-      localUserService.updateProfile({id: '1', alias: 'cjs', avatarURL: '', bio: 'testNewBio'}).subscribe(value =>
+      localUserService.updateProfile({id: '1', bio: 'testNewBio'}).subscribe(value =>
           expect(value).toEqual(expectedUser, 'expected user'),
         fail,
       );
@@ -213,5 +213,3 @@ describe('LocalUserService', () => {
 
   });
 });
-
-

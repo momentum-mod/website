@@ -21,12 +21,13 @@ describe('CommunityActivityComponent', () => {
         type: Activity_Type.MAP_APPROVED,
         user: {
           id: '2',
+          alias: 'dude',
+          avatarURL: 'IJJJ',
           country: 'US',
           permissions: 2,
           profile: {
             id: '7',
-            alias: 'dude',
-            avatarURL: 'IJJJ',
+            bio: '>:)',
           },
         },
         data: 'test',

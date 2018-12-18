@@ -13,7 +13,7 @@
           <div class="col-7 user-info">
             <div class="user-name row no-gutters">
               <div class="col">
-                <span class="text"><h1>{{user.profile.alias}}</h1></span>
+                <span class="text"><h1>{{user.alias}}</h1></span>
                 <img *ngIf="isVerified" class="verified" src="assets/images/badges/BadgeVerified.png"
                      nbPopover="Verified" nbPopoverMode="hint" nbPopoverPlacement="bottom">
               </div>
@@ -65,14 +65,14 @@
         <nb-tab [tabTitle]="'FOLLOWING (' + followingUsers.length + ')'">
           <nb-list>
             <nb-list-item *ngFor="let usr of followingUsers">
-              <nb-user [name]="usr.followed?.profile.alias" [picture]="usr.followed?.profile.avatarURL" (click)="clickUser(usr.followed)"></nb-user>
+              <nb-user [name]="usr.followed?.alias" [picture]="usr.followed?.avatarURL" (click)="clickUser(usr.followed)"></nb-user>
             </nb-list-item>
           </nb-list>
         </nb-tab>
         <nb-tab [tabTitle]="'FOLLOWERS (' + followedByUsers.length + ')'">
           <nb-list>
             <nb-list-item *ngFor="let usr of followedByUsers">
-              <nb-user [name]="usr.followee?.profile.alias" [picture]="usr.followee?.profile.avatarURL" (click)="clickUser(usr.followee)"></nb-user>
+              <nb-user [name]="usr.followee?.alias" [picture]="usr.followee?.avatarURL" (click)="clickUser(usr.followee)"></nb-user>
             </nb-list-item>
           </nb-list>
         </nb-tab>

@@ -6,6 +6,8 @@ module.exports = (sequelize, type) => {
 			type: type.STRING,
 			primaryKey: true
 		},
+		alias: type.STRING(32),
+		avatarURL: type.STRING,
 		permissions: {
 			type: type.INTEGER,
 			defaultValue: 0

@@ -15,8 +15,8 @@
     [class.right]="position === 'normal'"
     [class.left]="position === 'inverse'">
     <nb-action>
-      <nb-user class="pointer" [nbContextMenu]="userMenu" [name]="user?.profile.alias"
-               [picture]="user?.profile.avatarURL"></nb-user>
+      <nb-user class="pointer" [nbContextMenu]="userMenu" [name]="user?.alias"
+               [picture]="user?.avatarURL"></nb-user>
     </nb-action>
     <nb-action class="control-item" [icon]="getNotificationIconClass()"
                [nbPopover]="notifTempl8" nbPopoverPlacement="bottom"

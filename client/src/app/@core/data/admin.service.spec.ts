@@ -17,12 +17,13 @@ describe('AdminService', () => {
     adminService = new AdminService(<any> httpClientSpy);
     expectedUser = {
       id: '1',
+      alias: 'test1',
+      avatarURL: 'url',
       country: 'US',
       permissions: 0,
       profile: {
         id: '0',
-        alias: 'test1',
-        avatarURL: 'url',
+        bio: 'I r 1337 ok',
       },
     };
     expectedMap = {
@@ -81,5 +82,3 @@ describe('AdminService', () => {
     });
   });
 });
-
-

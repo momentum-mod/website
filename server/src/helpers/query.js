@@ -9,16 +9,12 @@ const expansionMap = {
 	},
 	submitter: {
 		model: User,
-		as: 'submitter',
-		include: [Profile]
+		as: 'submitter'
 	},
 	credits: {
 		model: MapCredit,
 		as: 'credits',
-		include: {
-			model: User,
-			include: [Profile]
-		}
+		include: [User],
 	},
 	images: {
 		model: MapImage,

@@ -5,8 +5,6 @@ import {TwitchAuth} from './auth-twitch.model';
 export interface UserProfile {
   id: string;
   userID?: string;
-  alias: string;
-  avatarURL: string;
   bio?: string;
   twitterAuth?: TwitterAuth;
   discordAuth?: DiscordAuth;
