@@ -2,6 +2,8 @@ import {Component, Input, OnInit} from '@angular/core';
 import {RunsService} from '../../../../../@core/data/runs.service';
 import {Run} from '../../../../../@core/models/run.model';
 import {Router} from '@angular/router';
+import {ToasterService} from 'angular2-toaster';
+import {finalize} from 'rxjs/operators';
 
 @Component({
   selector: 'map-leaderboard',
@@ -13,10 +15,14 @@ export class MapLeaderboardComponent implements OnInit {
   @Input('mapID') mapID: number;
   filterActive: boolean;
   leaderboardRuns: Run[];
+  searchedRuns: boolean;
 
   constructor(private runService: RunsService,
-              private router: Router) {
+              private router: Router,
+              private toasterService: ToasterService) {
     this.filterActive = false;
+    this.searchedRuns = false;
+    this.leaderboardRuns = [];
   }
 
   ngOnInit() {
@@ -28,10 +34,11 @@ export class MapLeaderboardComponent implements OnInit {
         isPersonalBest: true,
         limit: 10,
       },
-    }).subscribe(res => {
+    }).pipe(finalize(() => this.searchedRuns = true))
+      .subscribe(res => {
       this.leaderboardRuns = res.runs;
     }, err => {
-      console.error(err);
+      this.toasterService.popAsync('error', 'Could not find runs', err.message);
     });
   }
 
