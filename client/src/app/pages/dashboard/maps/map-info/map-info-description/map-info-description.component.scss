@@ -1,4 +1,14 @@
-.divider {
-  margin-bottom: 3%;
-  line-height: 2;
+.desc {
+  overflow-y: auto;
+  max-height: 130px;
+  background-color: #101010;
+  font-family: 'Exo', serif;
+}
+
+.info {
+  padding-top: 1%;
+}
+
+.space {
+  padding: 1%;
 }

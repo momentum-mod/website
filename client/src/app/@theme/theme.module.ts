@@ -29,7 +29,7 @@ import {
   SearchInputComponent,
 } from './components';
 import {
-  CapitalizePipe,
+  CapitalizePipe, NumberThousandsPipe,
   NumberTrimPipe,
   NumberWithCommasPipe,
   PluralPipe,
@@ -85,6 +85,7 @@ const PIPES = [
   NumberWithCommasPipe,
   TimeAgoPipe,
   NumberTrimPipe,
+  NumberThousandsPipe,
 ];
 
 const NB_THEME_PROVIDERS = [

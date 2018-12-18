@@ -4,3 +4,4 @@ export * from './round.pipe';
 export * from './timing.pipe';
 export * from './number-with-commas.pipe';
 export * from './number-trim.pipe';
+export * from './number-thousands.pipe';

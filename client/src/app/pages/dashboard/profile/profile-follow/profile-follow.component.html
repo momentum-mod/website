@@ -4,9 +4,9 @@
     Follows you
   </span>
 </div>
-<div *ngIf="checked" [ngClass]="localFollowStatus ? 'btn-group' : ''">
+<div *ngIf="checked" [ngClass]="{'btn-group': localFollowStatus}">
   <button class="btn btn-primary btn-group-divider" (click)="followClick()">
-    <span [ngClass]="localFollowStatus ? 'c-anim-btn' : ''">{{localFollowStatus ? 'Following' : 'Follow'}}</span>
+    <span [ngClass]="{'c-anim-btn': localFollowStatus}">{{localFollowStatus ? 'Following' : 'Follow'}}</span>
     <span *ngIf="localFollowStatus">Unfollow</span>
   </button>
   <button class="btn btn-primary" *ngIf="localFollowStatus" (click)="editNotificationSettings()">
