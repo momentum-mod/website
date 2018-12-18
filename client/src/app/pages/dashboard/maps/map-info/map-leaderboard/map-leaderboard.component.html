@@ -1,57 +1,66 @@
-<div class="header">
-  <span class="name">LEADERBOARD</span>
-  <button class="filter-btn btn btn btn-outline-info" type="button" (click)="filterActive = !filterActive">Filter</button>
-</div>
-<div class="filter-content" [ngClass]="{'filter-active': filterActive}"
-     [ngStyle]="{'max-height': filterActive ? filterContent.scrollHeight + 'px' : null}" #filterContent>
-  <br>
-  <div class="space">
-  <div class="row">
-    <div class="col-md-3">
-      <input type="text" class="form-control full-width" placeholder="Rank">
-    </div>
-    <div class="col-md-3">
-      <input type="text" class="form-control full-width" placeholder="Name">
-    </div>
-    <div class="col-md-3">
-      <div>
-        <input type="checkbox" name="wonly" value="W-Only" id="wonly">
-        <label for="wonly">W-Only</label> <br>
-        <input type="checkbox" name="backwards" value="Backwards" id="backward">
-        <label for="backward">Backwards</label>
+<nb-card>
+  <nb-card-header>
+    <div class="row">
+      <h2 class="col d-block m-auto">LEADERBOARD</h2>
+      <div class="col">
+        <button class="btn btn-outline-info float-right" type="button" (click)="filterActive = !filterActive">Filter</button>
       </div>
     </div>
-  </div>
-  <br>
-  <div class="row">
-    <div class="col-auto">
-      <button class="btn btn-outline-info">Update</button>
+  </nb-card-header>
+  <nb-card-body>
+    <div class="filter-content" [ngClass]="{'filter-active': filterActive}"
+         [ngStyle]="{'max-height': filterActive ? filterContent.scrollHeight + 'px' : null}" #filterContent>
+      <br>
+      <div class="space">
+        <div class="row">
+          <div class="col-md-3">
+            <input type="text" class="form-control full-width" placeholder="Rank">
+          </div>
+          <div class="col-md-3">
+            <input type="text" class="form-control full-width" placeholder="Name">
+          </div>
+          <div class="col-md-3">
+            <div>
+              <input type="checkbox" name="wonly" value="W-Only" id="wonly">
+              <label for="wonly">W-Only</label> <br>
+              <input type="checkbox" name="backwards" value="Backwards" id="backward">
+              <label for="backward">Backwards</label>
+            </div>
+          </div>
+        </div>
+        <br>
+        <div class="row">
+          <div class="col-auto">
+            <button class="btn btn-outline-info">Update</button>
+          </div>
+          <div class="col-auto">
+            <button class="btn btn-outline-warning">Clear</button>
+          </div>
+        </div>
+      </div>
     </div>
-    <div class="col-auto">
-      <button class="btn btn-outline-warning">Clear</button>
-    </div>
-  </div>
-  </div>
-</div>
-<table>
-  <tr>
-    <th>RANK</th>
-    <th>USER</th>
-    <th>FLAGS</th>
-    <th>TIME</th>
-    <th>ACHIEVED</th>
-    <th>VIEW</th>
-  </tr>
-  <tr *ngFor="let run of leaderboardRuns; index as i">
-    <td>{{i + 1}}</td>
-    <td>
-      <a [routerLink]="'/dashboard/profile/' + run.user.id">
-        <nb-user [name]="run.user.alias" [picture]="run.user.avatarURL" size="large"></nb-user>
-      </a>
-    </td>
-    <td></td>
-    <td>{{run.time | numberTrim}}</td>
-    <td>{{run.dateAchieved | timeAgo}}</td>
-    <td><button type="button" class="btn btn-outline-info btn-round ion ion-play" (click)="viewRun(run)"></button></td>
-  </tr>
-</table>
+    <h4 *ngIf="searchedRuns && leaderboardRuns.length === 0" class="text-center">No runs found</h4>
+    <table *ngIf="searchedRuns && leaderboardRuns.length > 0">
+      <tr>
+        <th>RANK</th>
+        <th>USER</th>
+        <th>FLAGS</th>
+        <th>TIME</th>
+        <th>ACHIEVED</th>
+        <th>VIEW</th>
+      </tr>
+      <tr *ngFor="let run of leaderboardRuns; index as i">
+        <td>{{i + 1}}</td>
+        <td>
+          <a [routerLink]="'/dashboard/profile/' + run.user.id">
+            <nb-user [name]="run.user.alias" [picture]="run.user.avatarURL" size="large"></nb-user>
+          </a>
+        </td>
+        <td></td>
+        <td>{{run.time | numberTrim}}</td>
+        <td>{{run.dateAchieved | timeAgo}}</td>
+        <td><button type="button" class="btn btn-outline-info btn-round ion ion-play" (click)="viewRun(run)"></button></td>
+      </tr>
+    </table>
+  </nb-card-body>
+</nb-card>

@@ -44,6 +44,4 @@
   </nb-card-body>
 </nb-card>
 
-<nb-card *ngIf="!isPreview">
-  <map-leaderboard #leaderboard [mapID]="map?.id"></map-leaderboard>
-</nb-card>
+<map-leaderboard *ngIf="!isPreview" [mapID]="map?.id" #leaderboard></map-leaderboard>
