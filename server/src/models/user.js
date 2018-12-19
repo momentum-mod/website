@@ -146,7 +146,25 @@ module.exports = {
 		return User.findAndCountAll(queryContext);
 	},
 
-	update: (powerUser, userID, usr) => {
+	updateAsLocal: (locUsr, body) => {
+		return sequelize.transaction(t => {
+
+			// Only allow updating certain things
+			const usrUpd8 = {
+				profile: {},
+			};
+
+			if ((locUsr.permissions & module.exports.Permission.BANNED_ALIAS) === 0)
+				usrUpd8.alias = body.alias;
+
+			return User.update(usrUpd8, {where: {id: locUsr.id}, transaction: t}).then(() => {
+				if (body.profile)
+					return module.exports.updateProfile(locUsr, false, body.profile, t);
+			});
+		});
+	},
+
+	updateAsAdmin: (powerUser, userID, usr) => {
 		return User.findById(userID).then(foundUsr => {
 			if (foundUsr) {
 				const foundUsrAdmin = (foundUsr.permissions & module.exports.Permission.ADMIN) !== 0;
@@ -168,16 +186,17 @@ module.exports = {
 					return Promise.reject(err);
 				}
 
-				// Only allow updating permissions (it's also the only field that really can be)
+				// Only allow updating alias & permissions
 				const usrUpd8 = {
-					permissions: usr.permissions
+					permissions: usr.permissions,
+					alias: usr.alias,
 				};
 
 				const updates = [
 					foundUsr.update(usrUpd8)
 				];
 				if (usr.profile) {
-					updates.push(module.exports.updateProfile(foundUsr.id, usr.profile));
+					updates.push(module.exports.updateProfile(foundUsr, true, usr.profile));
 				}
 				return Promise.all(updates);
 			} else {
@@ -214,15 +233,19 @@ module.exports = {
 		});
 	},
 
-	updateProfile: (userID, profile) => {
+	updateProfile: (userBeingUpdated, asAdmin, profile, transaction) => {
+		const profUpd8 = {};
 		// Only allow updating certain things
-		const profUpd8 = {
-			alias: profile.alias,
-			bio: profile.bio,
+		if (!asAdmin && (userBeingUpdated.permissions & module.exports.Permission.BANNED_BIO) === 0)
+			profUpd8.bio = profile.bio;
+
+		const opts = {
+			where: { userID: userBeingUpdated.id }
 		};
-		return Profile.update(profUpd8, {
-			where: { userID: userID }
-		});
+		if (transaction)
+			opts.transaction = transaction;
+
+		return Profile.update(profUpd8, opts);
 	},
 
 	createSocialLink: (profile, type, authData) => {

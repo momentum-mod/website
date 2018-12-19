@@ -18,6 +18,18 @@ paths:
           description: User is retrieved
           schema:
             $ref: '#/definitions/User'
+    patch:
+      summary: Update the authenticated user's profile
+      tags:
+        - user
+      parameters:
+        - in: body
+          description: Profile with new values of properties
+          schema:
+            $ref: '#/definitions/Profile'
+      responses:
+        204:
+          description: User profile is updated
   /user/profile:
     parameters:
       - name: userID
@@ -34,18 +46,6 @@ paths:
           description: User profile is retrieved
           schema:
             $ref: '#/definitions/Profile'
-    patch:
-      summary: Update the authenticated user's profile
-      tags:
-        - user
-      parameters:
-        - in: body
-          description: Profile with new values of properties
-          schema:
-            $ref: '#/definitions/Profile'
-      responses:
-        204:
-          description: User profile is updated
   /user/profile/social/{type}:
     delete:
       summary: Unlinks the social account from the authenticated user

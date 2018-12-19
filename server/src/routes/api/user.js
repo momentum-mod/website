@@ -6,11 +6,11 @@ const express = require('express'),
 
 router.route('/')
 	.get(userCtrl.get)
+	.patch(userCtrl.update)
 	.all(errorCtrl.send405);
 
 router.route('/profile')
 	.get(userCtrl.getProfile)
-	.patch(userCtrl.updateProfile)
 	.all(errorCtrl.send405);
 
 router.route('/profile/social/:type')

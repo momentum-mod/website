@@ -124,9 +124,9 @@ describe('LocalUserService', () => {
       expect(httpClientSpy.get.calls.count()).toBe(1, 'one call');
     });
 
-    it('#updateProfile() should update the users profile and return the updated version', () => {
+    it('#updateUser() should update the users profile and return the updated version', () => {
       httpClientSpy.patch.and.returnValue(of(expectedUser));
-      localUserService.updateProfile({id: '1', bio: 'testNewBio'}).subscribe(value =>
+      localUserService.updateUser(<any>{id: '1', profile: { id: '1', bio: 'testNewBio'}}).subscribe(value =>
           expect(value).toEqual(expectedUser, 'expected user'),
         fail,
       );
