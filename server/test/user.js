@@ -311,6 +311,34 @@ describe('user', () => {
             });
         });
 
+        describe('PATCH /api/user', () => {
+            it('should update the authenticated users profile', () => {
+                return chai.request(server)
+                    .patch('/api/user')
+                    .set('Authorization', 'Bearer ' + accessToken)
+                    .send({
+                        alias: 'test2',
+                        profile: {
+                            bio: 'test',
+                        },
+                    })
+                    .then(res => {
+                        expect(res).to.have.status(204);
+                    });
+            });
+            it('should respond with 401 when no access token is provided', () => {
+                return chai.request(server)
+                    .patch('/api/user')
+                    .then(res => {
+                        expect(res).to.have.status(401);
+                        expect(res).to.be.json;
+                        expect(res.body).to.have.property('error');
+                        expect(res.body.error.code).equal(401);
+                        expect(res.body.error.message).to.be.a('string');
+                    });
+            });
+        });
+
         describe('GET /api/user/profile', () => {
             it('should respond with authenticated users profile info', () => {
                 return chai.request(server)
@@ -326,31 +354,6 @@ describe('user', () => {
             it('should respond with 401 when no access token is provided', () => {
                 return chai.request(server)
                     .get('/api/user/profile/')
-                    .then(res => {
-                        expect(res).to.have.status(401);
-                        expect(res).to.be.json;
-                        expect(res.body).to.have.property('error');
-                        expect(res.body.error.code).equal(401);
-                        expect(res.body.error.message).to.be.a('string');
-                    });
-            });
-        });
-
-        describe('PATCH /api/user/profile', () => {
-            it('should update the authenticated users profile', () => {
-                return chai.request(server)
-                    .patch('/api/user/profile')
-                    .set('Authorization', 'Bearer ' + accessToken)
-                    .send({
-                        bio: 'test'
-                    })
-                    .then(res => {
-                        expect(res).to.have.status(204);
-                    });
-            });
-            it('should respond with 401 when no access token is provided', () => {
-                return chai.request(server)
-                    .get('/api/user/profile')
                     .then(res => {
                         expect(res).to.have.status(401);
                         expect(res).to.be.json;

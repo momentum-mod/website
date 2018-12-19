@@ -2,7 +2,6 @@ import {Injectable} from '@angular/core';
 import {AuthService} from './auth.service';
 import {Observable, ReplaySubject, Subject} from 'rxjs';
 import {HttpClient} from '@angular/common/http';
-import {UserProfile} from '../models/profile.model';
 import {User} from '../models/user.model';
 import {Permission} from '../models/permissions.model';
 import {UserFollowObject} from '../models/follow.model';
@@ -77,11 +76,11 @@ export class LocalUserService {
 
   /**
    *
-   * @param profile Profile with new values of properties
-   * @return updated specific user's profile
+   * @param user User with new values of properties
+   * @return response
    */
-  public updateProfile(profile: UserProfile): Observable<any> {
-    return this.http.patch('/api/user/profile', profile);
+  public updateUser(user: User): Observable<any> {
+    return this.http.patch('/api/user', user);
   }
 
   /**

@@ -19,14 +19,16 @@ import {AdminService} from '../../../../@core/data/admin.service';
 })
 export class ProfileEditComponent implements OnInit {
   profileEditFormGroup: FormGroup = this.fb.group({
-    'alias': [ '' , [Validators.minLength(3), Validators.maxLength(32)]],
-    'bio': ['', [Validators.maxLength(1000)]],
+    'alias': [ '' , [Validators.required, Validators.minLength(3), Validators.maxLength(32)]],
+    'profile': this.fb.group({
+      'bio': ['', [Validators.maxLength(1000)]],
+    }),
   });
   get alias() {
     return this.profileEditFormGroup.get('alias');
   }
   get bio() {
-    return this.profileEditFormGroup.get('bio');
+    return this.profileEditFormGroup.get('profile').get('bio');
   }
   adminEditFg: FormGroup = this.fb.group({
     'banAlias': [ false ],
@@ -76,7 +78,7 @@ export class ProfileEditComponent implements OnInit {
         ),
       ).subscribe(usr => {
         this.user = usr;
-        this.profileEditFormGroup.patchValue(usr.profile);
+        this.profileEditFormGroup.patchValue(usr);
         this.checkUserPermissions();
       }, error => this.err('Cannot retrieve user details', error.message));
     });
@@ -90,7 +92,7 @@ export class ProfileEditComponent implements OnInit {
     if (this.isLocal && !this.isAdmin) {
       if (!this.profileEditFormGroup.valid)
         return;
-      this.localUserService.updateProfile(this.profileEditFormGroup.value).subscribe(data => {
+      this.localUserService.updateUser(this.profileEditFormGroup.value).subscribe(data => {
         this.localUserService.refreshLocal();
         this.toasterService.popAsync('success', 'Updated user profile!', '');
       }, error => this.err('Failed to update user profile!', error.message));

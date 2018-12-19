@@ -13,27 +13,27 @@
     <form (ngSubmit)="onSubmit()">
       <nb-tabset>
         <nb-tab tabTitle="PROFILE" [formGroup]="profileEditFormGroup">
-          <div class="form-group" [ngClass]="{'has-error':!profileEditFormGroup.controls['alias'].valid}">
+          <div class="form-group" [ngClass]="{'has-error':!alias.valid}">
             <label>
               Alias:
               <input class="form-control" formControlName="alias" type="text">
-              <p class="alert alert-danger" *ngIf="profileEditFormGroup.controls['alias'].hasError('minlength')">
+              <p class="alert alert-danger" *ngIf="alias.hasError('minlength')">
                 Username must be at least 3 characters.
               </p>
-              <p class="alert alert-danger" *ngIf="profileEditFormGroup.controls['alias'].hasError('maxlength')">
-                Username cannot exceed 25 characters.
+              <p class="alert alert-danger" *ngIf="alias.hasError('maxlength')">
+                Username cannot exceed 32 characters.
               </p>
-              <p class="alert alert-danger" *ngIf="profileEditFormGroup.controls['alias'].hasError('required') && profileEditFormGroup.controls['alias'].dirty">
+              <p class="alert alert-danger" *ngIf="alias.hasError('required') && alias.dirty">
                 Username is required.
               </p>
             </label>
           </div>
 
-          <div class="form-group" [ngClass]="{'has-error':!profileEditFormGroup.controls['bio'].valid}">
+          <div class="form-group" [ngClass]="{'has-error':!bio.valid}" formGroupName="profile">
             <label>Bio:</label>
             <textarea rows="6" class="form-control" formControlName="bio" type="bio" #description></textarea>
-            <p class="alert alert-danger" *ngIf="profileEditFormGroup.controls['bio'].hasError('maxlength')">
-              Text cannot exceed 500 characters.
+            <p class="alert alert-danger" *ngIf="bio.hasError('maxlength')">
+              Text cannot exceed 1000 characters.
             </p>
             <div class="form-text">
               <div class="row">

@@ -29,17 +29,16 @@ module.exports = {
 		}).catch(next);
 	},
 
+	update: (req, res, next) => {
+		user.updateAsLocal(req.user, req.body)
+			.then(() => res.sendStatus(204))
+			.catch(next);
+	},
+
 	getProfile: (req, res, next) => {
 		user.getProfile(req.user.id)
 		.then(profile => {
 			res.json(profile);
-		}).catch(next);
-	},
-
-	updateProfile: (req, res, next) => {
-		user.updateProfile(req.user.id, req.body)
-		.then(profile => {
-			res.sendStatus(204);
 		}).catch(next);
 	},
 
