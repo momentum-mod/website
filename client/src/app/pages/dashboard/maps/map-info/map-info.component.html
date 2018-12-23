@@ -25,9 +25,10 @@
       </nb-tabset>
       <div class="row bottom-info">
         <div class="col">
-          <h6>Added On: {{(isPreview ? previewMap : map).createdAt | date}}</h6>
+          <h6>Added On: {{(isPreview ? '(some future date)' : (map.createdAt | date))}}</h6>
           <h6>Original Release Date: {{(isPreview ? previewMap : map).info?.creationDate | date}}</h6>
-          <h6>Submitted By: <nb-user [name]="map?.submitter?.alias" [picture]="map?.submitter?.avatarURL"
+          <h6>Submitted By: <nb-user [name]="(isPreview ? previewMap : map).submitter?.alias"
+                                     [picture]="(isPreview ? previewMap : map).submitter?.avatarURL"
                                      size="small" class="d-inline-block align-middle"></nb-user>
           </h6>
         </div>
