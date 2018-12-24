@@ -13,6 +13,7 @@ module.exports = (sequelize, type) => {
 		time: type.DOUBLE.UNSIGNED,
 		flags: type.INTEGER.UNSIGNED,
 		file: type.STRING,
+		hash: type.STRING(40),
 	}, {
 		indexes: [
 			{
