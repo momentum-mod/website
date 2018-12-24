@@ -1,7 +1,8 @@
 'use strict';
 const util = require('util'),
+	crypto = require('crypto'),
 	{ sequelize, Op, Map, MapInfo, MapStats, Run, RunStats,
-		RunZoneStats, MapZoneStats, BaseStats, User, UserStats, Profile } = require('../../config/sqlize'),
+		RunZoneStats, MapZoneStats, BaseStats, User, UserStats } = require('../../config/sqlize'),
 	activity = require('./activity'),
 	config = require('../../config/config'),
 	queryHelper = require('../helpers/query'),
@@ -44,9 +45,7 @@ const validateRunFile = (resultObj) => {
 			resolve(replay);
 		}
 		else {
-			const err = new Error('Bad request');
-			err.status = 400;
-			reject(err);
+			reject(genBadRequest());
 		}
 	});
 };
@@ -60,11 +59,15 @@ const checkBuf = (o) => {
 
 const readString = (o) => {
 	if (!checkBuf(o)) return null;
-	const strLen = o.buf.readUInt16LE(o.offset);
-	o.offset += 2;
-	const str = o.buf.toString('ascii', o.offset, o.offset + strLen);
-	o.offset += strLen;
-	return str;
+	const endOfStr = o.buf.indexOf('\0', o.offset, 'ascii');
+	if (endOfStr !== -1 && endOfStr < o.buf.length) {
+		const str = o.buf.toString('ascii', o.offset, endOfStr);
+		o.offset = endOfStr + 1;
+		return str;
+	} else {
+		o.ok = false;
+		return '';
+	}
 };
 
 const readFloat = (o) => {
@@ -146,11 +149,15 @@ const processRunFile = (resultObj) => {
 			reject(err);
 		}
 		else {
+			const hash = crypto.createHash('sha1');
+			hash.update(resultObj.bin);
+
 			resultObj.runModel = {
 				tickRate: resultObj.replay.header.tickRate,
 				dateAchieved: resultObj.replay.header.runDate,
 				time: resultObj.replay.header.runTime,
 				flags: resultObj.replay.header.runFlags,
+				hash: hash.digest('hex'),
 				stats: {
 					zoneStats: resultObj.replay.stats,
 				},
@@ -206,14 +213,14 @@ const processRunFile = (resultObj) => {
 	});
 };
 
-const storeRunFile = (runFile, mapID, runID) => {
+const storeRunFile = (resultObj, runID) => {
 	return new Promise((res, rej) => {
 		const fileName = runID;
 		const basePath = __dirname + '/../../public/runs';
 		const fullPath = basePath + '/' + fileName;
-		const downloadURL = config.baseUrl + `/api/maps/${mapID}/runs/${runID}/download`;
+		const downloadURL = config.baseUrl + `/api/maps/${resultObj.map.id}/runs/${runID}/download`;
 
-		fs.writeFile(fullPath, runFile, (err) => {
+		fs.writeFile(fullPath, resultObj.bin.buf, (err) => {
 			if (err)
 				rej(err);
 			res({
@@ -251,7 +258,7 @@ const isNewWorldRecord = (resultObj) => {
 	});
 };
 
-const saveRun = (resultObj, runFile) => {
+const saveRun = (resultObj) => {
 	return sequelize.transaction(t => {
 		let runModel = {};
 		// First do MapZoneStats -> MapStats -> UserStats updating
@@ -286,7 +293,7 @@ const saveRun = (resultObj, runFile) => {
 				},
 			});
 		}).then(() => { // Store the run file
-			return storeRunFile(runFile, resultObj.map.id, runModel.id);
+			return storeRunFile(resultObj, runModel.id);
 		}).then(results => { // Update the download URL for the run
 			return runModel.update({ file: results.downloadURL }, {
 				transaction: t,
@@ -384,6 +391,12 @@ const genNotFoundErr = () => {
 	return err;
 };
 
+const genBadRequest = () => {
+	const err = new Error('Bad request');
+	err.status = 400;
+	return err;
+}
+
 const Flag = Object.freeze({
 	BACKWARDS: 1 << 0,
 	LOW_GRAVITY: 1 << 1,
@@ -396,9 +409,7 @@ module.exports = {
 
 	create: (mapID, userID, runFile) => {
 		if (runFile.length === 0) {
-			const err = new Error('Bad request');
-			err.status = 400;
-			return Promise.reject(err);
+			return Promise.reject(genBadRequest());
 		}
 
 		let resultObj = {
@@ -414,12 +425,10 @@ module.exports = {
 				include: [
 					{model: MapInfo, as: 'info'},
 					{model: MapStats, as: 'stats', include: [{model: MapZoneStats, as: 'zoneStats', include: [{model: BaseStats, as: 'baseStats'}]}]}
-					]})
-			.then(map => {
+				]
+		}).then(map => {
 			if (!map) {
-				const err = new Error('Bad request');
-				err.status = 400;
-				return Promise.reject(err);
+				return Promise.reject(genBadRequest());
 			}
 			return Promise.resolve(map);
 		}).then(map => {
@@ -435,7 +444,7 @@ module.exports = {
 			return isNewPB ? isNewWorldRecord(resultObj) : Promise.resolve(false);
 		}).then(isNewWR => {
 			resultObj.isNewWorldRecord = isNewWR;
-			return saveRun(resultObj, runFile);
+			return saveRun(resultObj);
 		}).then(run => {
 			const runJSON = run.toJSON();
 			runJSON.isNewWorldRecord = resultObj.isNewWorldRecord;
@@ -449,10 +458,7 @@ module.exports = {
 			where: { flags: 0 },
 			limit: 10,
 			include: [{
-				model: User,
-				include: [{
-					model: Profile,
-				}],
+				model: User
 			}],
 			order: [['time', 'ASC']],
 		};
