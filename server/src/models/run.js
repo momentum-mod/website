@@ -150,7 +150,7 @@ const processRunFile = (resultObj) => {
 		}
 		else {
 			const hash = crypto.createHash('sha1');
-			hash.update(resultObj.bin);
+			hash.update(resultObj.bin.buf);
 
 			resultObj.runModel = {
 				tickRate: resultObj.replay.header.tickRate,
