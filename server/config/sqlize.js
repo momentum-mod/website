@@ -27,6 +27,7 @@ const Sequelize = require('sequelize'),
 	TwitchAuthModel = require('../src/models/db/auth-twitch'),
 	DiscordAuthModel = require('../src/models/db/auth-discord'),
 	BaseStatsModel = require('../src/models/db/base-stats'),
+	MapRankModel = require('../src/models/db/map-rank'),
 	env = process.env.NODE_ENV || 'development';
 
 const sequelize = new Sequelize({
@@ -84,11 +85,13 @@ const Run = RunModel(sequelize, Sequelize);
 const RunStats = RunStatsModel(sequelize, Sequelize);
 const RunZoneStats = RunZoneStatsModel(sequelize, Sequelize);
 const BaseStats = BaseStatsModel(sequelize, Sequelize);
+const UserMapRank = MapRankModel(sequelize, Sequelize);
 
 User.hasOne(Profile, { foreignKey: 'userID' });
 User.hasMany(Activity, { foreignKey: 'userID' });
 User.hasOne(UserAuth, { as: 'auth', foreignKey: 'userID' });
 User.hasOne(UserStats, { as: 'stats', foreignKey: 'userID' });
+User.hasMany(UserMapRank, { as: 'mapRanks', foreignKey: 'userID'});
 Profile.hasOne(DiscordAuth, {foreignKey: 'profileID'});
 Profile.hasOne(TwitchAuth, {foreignKey: 'profileID'});
 Profile.hasOne(TwitterAuth, {foreignKey: 'profileID'});
@@ -102,6 +105,7 @@ MapLibraryEntry.belongsTo(Map, { as: 'map', foreignKey: 'mapID' });
 MapFavorite.belongsTo(User, { foreignKey: 'userID' });
 Map.hasMany(MapLibraryEntry, { as: 'libraryEntries', foreignKey: 'mapID' });
 Map.hasMany(MapFavorite, { as: 'favorites', foreignKey: 'mapID' });
+Map.hasMany(UserMapRank, { as: 'mapRanks', foreignKey: 'mapID'});
 MapFavorite.belongsTo(Map, { as: 'map', foreignKey: 'mapID' });
 MapCredit.belongsTo(Map, { as: 'map', foreignKey: 'mapID'});
 UserFollows.belongsTo(User, { as: 'followee', foreignKey: 'followeeID' });
@@ -128,6 +132,9 @@ Run.belongsTo(User, { foreignKey: 'playerID' });
 Run.hasOne(RunStats, { as: 'stats', foreignKey: 'runID' });
 RunStats.hasMany(RunZoneStats, { as: 'zoneStats', foreignKey: 'runStatsID' });
 RunZoneStats.belongsTo(BaseStats, { as: 'baseStats', foreignKey: 'baseStatsID'});
+UserMapRank.belongsTo(Run, { as: 'run', foreignKey: 'runID'});
+UserMapRank.belongsTo(User, { as: 'user', foreignKey: 'userID'});
+UserMapRank.belongsTo(Map, { as: 'map', foreignKey: 'mapID'});
 
 if (env === 'development') {
 	forceSyncDB()
@@ -168,4 +175,5 @@ module.exports = {
 	RunStats,
 	RunZoneStats,
 	BaseStats,
+	UserMapRank,
 };

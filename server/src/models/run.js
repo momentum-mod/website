@@ -2,7 +2,7 @@
 const util = require('util'),
 	crypto = require('crypto'),
 	{ sequelize, Op, Map, MapInfo, MapStats, Run, RunStats,
-		RunZoneStats, MapZoneStats, BaseStats, User, UserStats } = require('../../config/sqlize'),
+		RunZoneStats, MapZoneStats, BaseStats, User, UserStats, UserMapRank } = require('../../config/sqlize'),
 	activity = require('./activity'),
 	config = require('../../config/config'),
 	queryHelper = require('../helpers/query'),
@@ -33,18 +33,19 @@ const validateRunFile = (resultObj) => {
 		};
 
 		const magicLE = 0x524D4F4D;
-		if (resultObj.bin.ok &&
-			replay.magic === magicLE &&
-			replay.header.steamID === resultObj.playerID &&
-			replay.header.mapHash === resultObj.map.hash &&
-			replay.header.mapName === resultObj.map.name &&
-			replay.header.runTime > 0)
+		const b1 = resultObj.bin.ok, b2 = replay.magic === magicLE,
+			b3 = replay.header.steamID === resultObj.playerID,
+			b4 = replay.header.mapHash === resultObj.map.hash,
+			b5 = replay.header.mapName === resultObj.map.name,
+			b6 = replay.header.runTime > 0;
+		if (b1 && b2 && b3 && b4 && b5 && b6)
 		{
 			// TODO: date check (reject "old" replays)
 			replay.header.runDate = new Date(Number(replay.header.runDate_s) * 1000); // We're good til 2038...
 			resolve(replay);
 		}
 		else {
+			// console.log([b1, b2, b3, b4, b5, b6]);
 			reject(genBadRequest());
 		}
 	});
@@ -234,15 +235,30 @@ const storeRunFile = (resultObj, runID) => {
 };
 
 const isNewPersonalBest = (resultObj) => {
-	return Run.min('time', {
+	return UserMapRank.findOrCreate({
 		where: {
 			mapID: resultObj.map.id,
-			playerID: resultObj.playerID,
-			flags: resultObj.replay.header.runFlags,
+			userID: resultObj.playerID,
+		},
+		defaults: {
+			mapID: resultObj.map.id,
+			userID: resultObj.playerID,
+		},
+		include: [
+			{
+				model: Run,
+				as: 'run',
+			}
+		]
+	}).spread((mapRank, created) => {
+		resultObj.mapRank = mapRank;
+		if (created) {
+			// It's definitely a PB
+			return Promise.resolve(true);
+		} else {
+			let isNewPB = !mapRank.run.time || (mapRank.run.time > resultObj.replay.header.runTime);
+			return Promise.resolve(isNewPB);
 		}
-	}).then(minTime => {
-		let isNewPB = !minTime || (minTime > resultObj.replay.header.runTime);
-		return Promise.resolve(isNewPB);
 	});
 };
 
@@ -261,7 +277,7 @@ const isNewWorldRecord = (resultObj) => {
 const saveRun = (resultObj) => {
 	return sequelize.transaction(t => {
 		let runModel = {};
-		// First do MapZoneStats -> MapStats -> UserStats updating
+		// First do MapZoneStats -> MapStats -> UserStats -> UserMapRank updating
 		return updateStats(resultObj, t)
 		.then(() => { // Create the run
 			return Run.create(resultObj.runModel, {
@@ -283,21 +299,19 @@ const saveRun = (resultObj) => {
 			runModel = run;
 			if (!resultObj.runModel.isPersonalBest)
 				return Promise.resolve();
-			return Run.update({
-				isPersonalBest: false,
-			}, {
-				transaction: t,
-				where: {
-					isPersonalBest: true,
-					id: {[Op.ne]: runModel.id },
-				},
+			return resultObj.mapRank.update({runID: run.id}, {transaction: t}).then(() => {
+				return Run.update({isPersonalBest: false}, {
+					transaction: t,
+					where: {
+						isPersonalBest: true,
+						id: {[Op.ne]: runModel.id },
+					},
+				});
 			});
 		}).then(() => { // Store the run file
 			return storeRunFile(resultObj, runModel.id);
 		}).then(results => { // Update the download URL for the run
-			return runModel.update({ file: results.downloadURL }, {
-				transaction: t,
-			});
+			return runModel.update({ file: results.downloadURL }, {transaction: t});
 		}).then(() => { // Generate PB notif if needed
 			if (!resultObj.runModel.isPersonalBest || resultObj.isNewWorldRecord)
 				return Promise.resolve();
@@ -317,6 +331,22 @@ const saveRun = (resultObj) => {
 		}).then(() => {
 			return Promise.resolve(runModel);
 		});
+	});
+};
+
+const updateUserRankXP = (userID, transaction) => {
+	return UserMapRank.sum('rankXP', {
+		where: {
+			userID: userID
+		},
+		transaction: transaction
+	}).then(sum => {
+		return UserStats.update({rankXP: sum}, {
+			where: {
+				userID: userID,
+			},
+			transaction: transaction
+		})
 	});
 };
 
@@ -355,6 +385,7 @@ const updateStats = (resultObj, transaction) => {
 				mapID: resultObj.map.id,
 				playerID: resultObj.playerID,
 			},
+			transaction: transaction,
 		})
 	}).then(run => { // MapStats
 		const mapStatsUpdate = {
@@ -368,11 +399,56 @@ const updateStats = (resultObj, transaction) => {
 			where: { mapID: resultObj.map.id },
 			transaction: transaction,
 		});
+	}).then(() => { // UserMapRank
+		if (resultObj.runModel.isPersonalBest) {
+			// Update the UserMapRank for this user only if a new PB is achieved
+			return Run.count({
+				where: {
+					time: {
+						[Op.lte]: resultObj.runModel.time,
+					},
+					flags: resultObj.runModel.flags,
+				},
+				transaction: transaction,
+			}).then(count => { // With the count, set our rank and rankXP
+				resultObj.mapRank.rank = count + 1;
+				// TODO: calculate rankXP based on the factors determined by community
+				resultObj.mapRank.rankXP = Math.round(2000 / (count + 1));
+				return resultObj.mapRank.save({transaction: transaction});
+			}).then(() => { // Update this user's rank XP total
+				return updateUserRankXP(resultObj.playerID, transaction);
+			}).then(() => { // Update everyone else
+				return UserMapRank.findAll({
+					where: {
+						mapID: resultObj.map.id,
+						userID: {
+							[Op.ne]: resultObj.playerID,
+						},
+						rank: {
+							[Op.gte]: resultObj.mapRank.rank,
+						}
+					},
+					transaction: transaction,
+				}).then(results => {
+					const updates = [];
+					for (const result of results) {
+						result.rank += 1;
+						// TODO: calculate rankXP based on the factors determined by community
+						result.rankXP = (2000 / (result.rank));
+						updates.push(result.save({transaction: transaction}).then(() => {
+							// And update their profile's rankXP
+							return updateUserRankXP(result.userID, transaction);
+						}));
+					}
+					return Promise.all(updates);
+				})
+			})
+		} else return Promise.resolve();
 	}).then(() => { // UserStats
 		const userStatsUpdate = {
 			totalJumps: sequelize.literal('totalJumps + ' + resultObj.replay.stats[0].baseStats.jumps),
 			totalStrafes: sequelize.literal('totalStrafes + ' + resultObj.replay.stats[0].baseStats.strafes),
-			rankXP: sequelize.literal('rankXP + 100'),
+			// TODO: calculate cosmetic XP for getting a (PB/WR/etc) run based on community input
 			cosXP: sequelize.literal('cosXP + 75'),
 			runsSubmitted: sequelize.literal('runsSubmitted + 1'),
 		};
@@ -395,7 +471,7 @@ const genBadRequest = () => {
 	const err = new Error('Bad request');
 	err.status = 400;
 	return err;
-}
+};
 
 const Flag = Object.freeze({
 	BACKWARDS: 1 << 0,
@@ -419,6 +495,7 @@ module.exports = {
 				ok: true,
 			},
 			playerID: userID,
+			mapRank: null,
 		};
 
 		return Map.findById(mapID, {
@@ -427,12 +504,11 @@ module.exports = {
 					{model: MapStats, as: 'stats', include: [{model: MapZoneStats, as: 'zoneStats', include: [{model: BaseStats, as: 'baseStats'}]}]}
 				]
 		}).then(map => {
-			if (!map) {
+			if (!map)
 				return Promise.reject(genBadRequest());
-			}
-			return Promise.resolve(map);
-		}).then(map => {
 			resultObj.map = map;
+			return Promise.resolve();
+		}).then(() => {
 			return validateRunFile(resultObj)
 		}).then(replay => {
 			resultObj.replay = replay;
