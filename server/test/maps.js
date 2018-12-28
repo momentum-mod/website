@@ -222,6 +222,7 @@ describe('maps', () => {
 				.set('Authorization', 'Bearer ' + accessToken)
 				.send({
 					name: 'test_map_5',
+					type: map.MAP_TYPE.SURF,
 					info: {
 						description: 'newmap_5',
 						numBonuses: 1,

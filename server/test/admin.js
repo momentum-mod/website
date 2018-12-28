@@ -498,8 +498,7 @@ describe('admin', () => {
                     .patch('/api/admin/maps/' + testMap.id)
                     .set('Authorization', 'Bearer ' + accessToken)
                     .send({
-                        name: 'testname',
-                        statusFlag: 1
+                        statusFlag: 1,
                     })
                     .then(res => {
                         expect(res).to.have.status(403);
@@ -514,7 +513,7 @@ describe('admin', () => {
                     .patch('/api/admin/maps/' + testMap.id)
                     .set('Authorization', 'Bearer ' + adminGameAccessToken)
                     .send({
-                        name: 'testname'
+                        statusFlag: 1,
                     })
                     .then(res => {
                         expect(res).to.have.status(403);
@@ -529,7 +528,7 @@ describe('admin', () => {
                     .patch('/api/admin/maps/' + testMap.id)
                     .set('Authorization', 'Bearer ' + adminAccessToken)
                     .send({
-                        name: 'testname'
+                        statusFlag: 1,
                     })
                     .then(res => {
                         expect(res).to.have.status(204);

@@ -187,15 +187,14 @@ module.exports = {
 		} else if (context.statusNot) {
 			queryContext.where.statusFlag = {[Op.notIn]: context.statusNot.split(',')};
 		}
-		if (context.priority || (context.expand && context.expand.includes('submitter'))) {
+		if ('priority' in context || (context.expand && context.expand.includes('submitter'))) {
 			queryContext.include.push({
 				model: User,
 				as: 'submitter',
 				where: {}
 			});
 		}
-		if (context.priority) { // :'(
-			const priority = context.priority === 'true';
+		if ('priority' in context) {
 			const priorityPerms = [
 				user.Permission.ADMIN,
 				user.Permission.MODERATOR,
@@ -205,11 +204,11 @@ module.exports = {
 			for (let i = 0; i < priorityPerms.length; i++) {
 				permChecks.push(
 					sequelize.literal('permissions & ' + priorityPerms[i]
-						+ (priority ? ' != ' : ' = ') + '0')
+						+ (context.priority ? ' != ' : ' = ') + '0')
 				);
 			}
 			queryContext.include[0].where.permissions = {
-				[priority ? Op.or : Op.and]: permChecks
+				[context.priority ? Op.or : Op.and]: permChecks
 			};
 		}
 		if (context.expand) {
