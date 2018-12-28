@@ -533,9 +533,16 @@ module.exports = {
 			distinct: true,
 			where: { flags: 0 },
 			limit: 10,
-			include: [{
-				model: User
-			}],
+			include: [
+				{
+					model: User
+				},
+				{
+					model: UserMapRank,
+					as: 'rank',
+					attributes: ['rank']
+				}
+			],
 			order: [['time', 'ASC']],
 		};
 		if (queryParams.limit && !isNaN(queryParams.limit))
@@ -568,6 +575,47 @@ module.exports = {
 			queryOptions.where.mapID = queryParams.mapID;
 		queryHelper.addExpansions(queryOptions, queryParams.expand, ['user', 'map', 'mapWithInfo', 'runStats']);
 		return Run.findById(runID, queryOptions);
+	},
+
+	getAround: (userID, mapID, queryParams) => {
+		return UserMapRank.find({
+			where: {
+				mapID: mapID,
+				userID: userID,
+			}
+		}).then(userMapRank => {
+			if (userMapRank) {
+				const queryOptions = {
+					where: {
+						mapID: mapID,
+					},
+					order: [
+						['rank', 'ASC'],
+					],
+					include: [{
+						model: Run,
+						as: 'run',
+						include: [{
+							model: User,
+							as: 'user'
+						}]
+					}],
+					offset: Math.max(userMapRank.rank - 5, 0),
+					limit: 11, // 5 + yours + 5
+					attributes: ['rank']
+				};
+
+				if (queryParams.limit)
+					queryOptions.limit = Math.min(Math.max(1, context.limit), 21);
+
+				return UserMapRank.findAndCountAll(queryOptions)
+			} else {
+				// They don't have a time, error out
+				const err = new Error('No personal best detected');
+				err.status = 403;
+				return Promise.reject(err);
+			}
+		});
 	},
 
 	getFilePath: (runID) => {

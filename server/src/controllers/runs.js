@@ -22,6 +22,8 @@ module.exports = {
 					req.query.playerIDs = steamIDs.join(',');
 					module.exports.getAll(req, res, next);
 				}).catch(next);
+		} else if (req.params.runID === 'around') {
+			module.exports.getAroundUser(req, res, next);
 		} else {
 			if (req.params.mapID)
 				req.query.mapID = req.params.mapID;
@@ -34,6 +36,15 @@ module.exports = {
 				res.json(run);
 			}).catch(next);
 		}
+	},
+
+	getAroundUser: (req, res, next) => {
+		run.getAround(req.user.id, req.params.mapID, req.query).then(runs => {
+			res.json({
+				count: runs.count,
+				runs: runs.rows
+			})
+		}).catch(next);
 	},
 
 	create: (req, res, next) => {
