@@ -16,6 +16,8 @@
     "cookie-session": "^2.0.0-beta.3",
     "express": "^4.16.3",
     "express-fileupload": "^1.0.0-alpha.1",
+    "express-validation": "^1.0.2",
+    "joi": "^14.3.0",
     "jsonwebtoken": "^8.3.0",
     "method-override": "^3.0.0",
     "mocha": "^5.2.0",

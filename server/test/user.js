@@ -567,8 +567,8 @@ describe('user', () => {
                                     .post('/api/maps')
                                     .set('Authorization', 'Bearer ' + accessToken2)
                                     .send({
-                                        id: 6789,
                                         name: 'test_map_notif',
+										type: map.MAP_TYPE.SURF,
                                         info: {
                                             description: 'newmap_5',
                                             numBonuses: 1,
@@ -580,7 +580,7 @@ describe('user', () => {
                                     }).then(res3 => {
                                         // testAdmin approves the map
                                         return chai.request(server)
-                                            .patch('/api/admin/maps/6789')
+                                            .patch('/api/admin/maps/' + res3.body.id)
                                             .set('Authorization', 'Bearer ' + adminAccessToken)
                                             .send({statusFlag: map.STATUS.APPROVED})
                                             .then(res4 => {
