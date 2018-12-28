@@ -573,14 +573,29 @@ module.exports = {
 			params: {
 				key: config.steam.webAPIKey,
 				steamid: steamID,
+				relationship: 'friend',
 			}
 		}).then(res => {
 			return new Promise((resolve, reject) => {
-				if (res && res.data) {
-					const friendIDs = [];
-					for (let i = 0; i < res.data.friendslist.friends.length; i++)
-						friendIDs.push(res.data.friendslist.friends[i].steamid);
-					resolve(friendIDs);
+				if (res) {
+					if (res.status === 401) {
+						// Their profile/friends list is private, let them know
+						const err = new Error('Friends list or profile is private');
+						err.status = 409;
+						reject(err);
+					} else if (res.data) {
+						const friendIDs = [];
+						for (let i = 0; i < res.data.friendslist.friends.length; i++)
+							friendIDs.push(res.data.friendslist.friends[i].steamid);
+						if (friendIDs.length > 0)
+							resolve(friendIDs);
+						else {
+							// They don't have any friends :(
+							const err = new Error('No friends detected :(');
+							err.status = 418; // I'm a little teapot~
+							reject(err);
+						}
+					}
 				} else {
 					const err = new Error('Failed to get Steam friends list');
 					err.status = 500;

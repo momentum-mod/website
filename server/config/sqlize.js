@@ -130,6 +130,7 @@ Map.hasMany(Run, {as: 'runs', foreignKey: 'mapID'});
 Run.belongsTo(Map, {as: 'map', foreignKey: 'mapID'});
 Run.belongsTo(User, { foreignKey: 'playerID' });
 Run.hasOne(RunStats, { as: 'stats', foreignKey: 'runID' });
+Run.hasOne(UserMapRank, { as: 'rank', foreignKey: 'runID'});
 RunStats.hasMany(RunZoneStats, { as: 'zoneStats', foreignKey: 'runStatsID' });
 RunZoneStats.belongsTo(BaseStats, { as: 'baseStats', foreignKey: 'baseStatsID'});
 UserMapRank.belongsTo(Run, { as: 'run', foreignKey: 'runID'});
