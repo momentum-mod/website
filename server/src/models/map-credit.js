@@ -5,8 +5,8 @@ const { sequelize, Op, Map, MapInfo, MapCredit, User, Profile, Activity } = requ
 	config = require('../../config/config');
 
 module.exports = {
-	getCreditsByUser: (userID, context) => {
-		const queryContext = {
+	getCreditsByUser: (userID, queryParams) => {
+		const queryOptions = {
 			distinct: true,
 			where: {
 				userID: userID,
@@ -14,26 +14,26 @@ module.exports = {
 			include: [],
 			order: [['createdAt', 'DESC']],
 		};
-		if (context.limit && !isNaN(context.limit))
-			queryContext.limit = Math.min(Math.max(parseInt(context.limit), 1), 20);
-		if (context.offset && !isNaN(context.offset))
-			queryContext.offset = Math.min(Math.max(parseInt(context.offset), 0), 5000);
-		if (context.map && !isNaN(context.map))
-			queryContext.where.mapID = context.map;
-		queryHelper.addExpansions(queryContext, context.expand, ['map', 'mapWithInfo']);
-		return MapCredit.findAndCountAll(queryContext);
+		if (queryParams.limit && !isNaN(queryParams.limit))
+			queryOptions.limit = Math.min(Math.max(parseInt(queryParams.limit), 1), 20);
+		if (queryParams.offset && !isNaN(queryParams.offset))
+			queryOptions.offset = Math.min(Math.max(parseInt(queryParams.offset), 0), 5000);
+		if (queryParams.map && !isNaN(queryParams.map))
+			queryOptions.where.mapID = queryParams.map;
+		queryHelper.addExpansions(queryOptions, queryParams.expand, ['map', 'mapWithInfo']);
+		return MapCredit.findAndCountAll(queryOptions);
 	},
 
-	getCredit: (mapID, mapCredID, context) => {
+	getCredit: (mapID, mapCredID, queryParams) => {
 		const allowedExpansions = ['user'];
-		const queryContext = {
+		const queryOptions = {
 			where: {
 				id: mapCredID,
 				mapID: mapID
 			}
 		};
-		queryHelper.addExpansions(queryContext, context.expand, allowedExpansions);
-		return MapCredit.find(queryContext);
+		queryHelper.addExpansions(queryOptions, queryParams.expand, allowedExpansions);
+		return MapCredit.find(queryOptions);
 	},
 
 	createCredit: (mapID, mapCredit) => {

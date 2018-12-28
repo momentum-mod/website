@@ -116,34 +116,34 @@ module.exports = {
 		});
 	},
 
-	get: (userID, context) => {
+	get: (userID, queryParams) => {
 		const allowedExpansions = ['profile', 'userStats'];
-		const queryContext = {
+		const queryOptions = {
 			include: [],
 			where: { id: userID },
 		};
-		queryHelper.addExpansions(queryContext, context.expand, allowedExpansions);
-		return User.find(queryContext);
+		queryHelper.addExpansions(queryOptions, queryParams.expand, allowedExpansions);
+		return User.find(queryOptions);
 	},
 
-	getAll: (context) => {
-		const queryContext = {
+	getAll: (queryParams) => {
+		const queryOptions = {
 			where: {},
 			include: [],
 			limit: 20
 		};
-		if (context.limit && !isNaN(context.limit))
-			queryContext.limit = Math.min(Math.max(parseInt(context.limit), 1), 20);
-		if (context.offset && !isNaN(context.offset))
-			queryContext.offset = Math.min(Math.max(parseInt(context.offset), 0), 5000);
-		if (context.search)
-			queryContext.where.alias = {[Op.like]: '%' + (context.search || '') + '%'};
-		if (context.expand) {
-			const expansions = context.expand.split(',');
+		if (queryParams.limit && !isNaN(queryParams.limit))
+			queryOptions.limit = Math.min(Math.max(parseInt(queryParams.limit), 1), 20);
+		if (queryParams.offset && !isNaN(queryParams.offset))
+			queryOptions.offset = Math.min(Math.max(parseInt(queryParams.offset), 0), 5000);
+		if (queryParams.search)
+			queryOptions.where.alias = {[Op.like]: '%' + (queryParams.search || '') + '%'};
+		if (queryParams.expand) {
+			const expansions = queryParams.expand.split(',');
 			if (expansions.includes('profile'))
-				queryContext.include.push({ model: Profile });
+				queryOptions.include.push({ model: Profile });
 		}
-		return User.findAndCountAll(queryContext);
+		return User.findAndCountAll(queryOptions);
 	},
 
 	updateAsLocal: (locUsr, body) => {
@@ -494,8 +494,8 @@ module.exports = {
 		});
 	},
 
-	getNotifications: (userID, context) => {
-		const queryContext = {
+	getNotifications: (userID, queryParams) => {
+		const queryOptions = {
 			where: { forUserID: userID },
 			include: {
 				model: Activity,
@@ -512,11 +512,11 @@ module.exports = {
 			limit: 10,
 			order: [['createdAt', 'DESC']],
 		};
-		if (context.limit && !isNaN(context.limit))
-			queryContext.limit = Math.min(Math.max(parseInt(context.limit), 1), 20);
-		if (context.offset && !isNaN(context.offset))
-			queryContext.offset = Math.min(Math.max(parseInt(context.offset), 0), 5000);
-		return Notification.findAndCountAll(queryContext);
+		if (queryParams.limit && !isNaN(queryParams.limit))
+			queryOptions.limit = Math.min(Math.max(parseInt(queryParams.limit), 1), 20);
+		if (queryParams.offset && !isNaN(queryParams.offset))
+			queryOptions.offset = Math.min(Math.max(parseInt(queryParams.offset), 0), 5000);
+		return Notification.findAndCountAll(queryOptions);
 	},
 
 	updateNotification: (userID, notifID, read) => {
@@ -533,8 +533,8 @@ module.exports = {
 
 	},
 
-	getFollowedActivities: (userID, context) => {
-		const queryContext = {
+	getFollowedActivities: (userID, queryParams) => {
+		const queryOptions = {
 			where: {},
 			include: [{
 				model: User,
@@ -549,15 +549,15 @@ module.exports = {
 			limit: 10,
 			order: [['createdAt', 'DESC']],
 		};
-		if (context.limit && !isNaN(context.limit))
-			queryContext.limit = Math.min(Math.max(parseInt(context.limit), 1), 20);
-		if (context.offset && !isNaN(context.offset))
-			queryContext.offset = Math.min(Math.max(parseInt(context.offset), 0), 5000);
-		if (context.data)
-			queryContext.where.data = context.data;
-		if (context.type)
-			queryContext.where.type = context.type;
-		return Activity.findAll(queryContext);
+		if (queryParams.limit && !isNaN(queryParams.limit))
+			queryOptions.limit = Math.min(Math.max(parseInt(queryParams.limit), 1), 20);
+		if (queryParams.offset && !isNaN(queryParams.offset))
+			queryOptions.offset = Math.min(Math.max(parseInt(queryParams.offset), 0), 5000);
+		if (queryParams.data)
+			queryOptions.where.data = queryParams.data;
+		if (queryParams.type)
+			queryOptions.where.type = queryParams.type;
+		return Activity.findAll(queryOptions);
 	},
 
 	getSubmittedMapSummary: (userID) => {

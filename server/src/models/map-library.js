@@ -4,8 +4,8 @@ const { sequelize, MapLibraryEntry, Map, MapInfo, MapCredit, MapStats,
 
 module.exports = {
 
-	getUserLibrary: (userID, context) => {
-		const queryContext = {
+	getUserLibrary: (userID, queryParams) => {
+		const queryOptions = {
 			distinct: true,
 			where: { userID: userID },
 			limit: 20,
@@ -27,18 +27,18 @@ module.exports = {
 				},
 			]
 		};
-		if (context.limit && !isNaN(context.limit))
-			queryContext.limit = Math.min(Math.max(parseInt(context.limit), 1), 20);
-		if (context.offset && !isNaN(context.offset))
-			queryContext.offset = Math.min(Math.max(parseInt(context.offset), 0), 5000);
-		if (context.expand) {
-			const expansionNames = context.expand.split(',');
+		if (queryParams.limit && !isNaN(queryParams.limit))
+			queryOptions.limit = Math.min(Math.max(parseInt(queryParams.limit), 1), 20);
+		if (queryParams.offset && !isNaN(queryParams.offset))
+			queryOptions.offset = Math.min(Math.max(parseInt(queryParams.offset), 0), 5000);
+		if (queryParams.expand) {
+			const expansionNames = queryParams.expand.split(',');
 			if (expansionNames.includes('submitter'))
-				queryContext.include[0].include.push({ model: User, as: 'submitter', include: [Profile] });
+				queryOptions.include[0].include.push({ model: User, as: 'submitter', include: [Profile] });
 			if (expansionNames.includes('inFavorites'))
-				queryContext.include[0].include.push({ model: MapFavorite, as: 'favorites' });
+				queryOptions.include[0].include.push({ model: MapFavorite, as: 'favorites' });
 		}
-		return MapLibraryEntry.findAndCountAll(queryContext);
+		return MapLibraryEntry.findAndCountAll(queryOptions);
 	},
 
 	removeMapFromLibrary: (userID, mapID) => {

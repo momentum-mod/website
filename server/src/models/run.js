@@ -443,8 +443,8 @@ module.exports = {
 		});
 	},
 
-	getAll: (context) => {
-		const queryContext = {
+	getAll: (queryParams) => {
+		const queryOptions = {
 			distinct: true,
 			where: { flags: 0 },
 			limit: 10,
@@ -456,36 +456,36 @@ module.exports = {
 			}],
 			order: [['time', 'ASC']],
 		};
-		if (context.limit && !isNaN(context.limit))
-			queryContext.limit = Math.min(Math.max(parseInt(context.limit), 1), 20);
-		if (context.offset && !isNaN(context.offset))
-			queryContext.offset = Math.min(Math.max(parseInt(context.offset), 0), 5000);
-		if (context.mapID)
-			queryContext.where.mapID = context.mapID;
-		if (context.playerID)
-			queryContext.where.playerID = context.playerID;
-		if (context.playerIDs)
-			queryContext.where.playerID = { [Op.in]: context.playerIDs.split(',') };
-		if (context.flags)
-			queryContext.where.flags = parseInt(context.flags) || 0;
-		if (context.isPersonalBest)
-			queryContext.where.isPersonalBest = (context.isPersonalBest === 'true');
-		if (context.order) {
-			if (context.order === 'date')
-				queryContext.order = [['createdAt', 'DESC']];
+		if (queryParams.limit && !isNaN(queryParams.limit))
+			queryOptions.limit = Math.min(Math.max(parseInt(queryParams.limit), 1), 20);
+		if (queryParams.offset && !isNaN(queryParams.offset))
+			queryOptions.offset = Math.min(Math.max(parseInt(queryParams.offset), 0), 5000);
+		if (queryParams.mapID)
+			queryOptions.where.mapID = queryParams.mapID;
+		if (queryParams.playerID)
+			queryOptions.where.playerID = queryParams.playerID;
+		if (queryParams.playerIDs)
+			queryOptions.where.playerID = { [Op.in]: queryParams.playerIDs.split(',') };
+		if (queryParams.flags)
+			queryOptions.where.flags = parseInt(queryParams.flags) || 0;
+		if (queryParams.isPersonalBest)
+			queryOptions.where.isPersonalBest = (queryParams.isPersonalBest === 'true');
+		if (queryParams.order) {
+			if (queryParams.order === 'date')
+				queryOptions.order = [['createdAt', 'DESC']];
 		}
-		queryHelper.addExpansions(queryContext, context.expand, ['map', 'mapWithInfo']);
-		return Run.findAndCountAll(queryContext);
+		queryHelper.addExpansions(queryOptions, queryParams.expand, ['map', 'mapWithInfo']);
+		return Run.findAndCountAll(queryOptions);
 	},
 
-	getByID: (runID, context) => {
-		const queryContext = {
+	getByID: (runID, queryParams) => {
+		const queryOptions = {
 			where: { flags: 0 }
 		};
-		if (context.mapID)
-			queryContext.where.mapID = context.mapID;
-		queryHelper.addExpansions(queryContext, context.expand, ['user', 'map', 'mapWithInfo', 'runStats']);
-		return Run.findById(runID, queryContext);
+		if (queryParams.mapID)
+			queryOptions.where.mapID = queryParams.mapID;
+		queryHelper.addExpansions(queryOptions, queryParams.expand, ['user', 'map', 'mapWithInfo', 'runStats']);
+		return Run.findById(runID, queryOptions);
 	},
 
 	getFilePath: (runID) => {
