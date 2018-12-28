@@ -39,8 +39,8 @@ const ACTIVITY_TYPES = Object.freeze({
 module.exports = {
 	ACTIVITY_TYPES,
 
-	getAll: (context) => {
-		const queryContext = {
+	getAll: (queryParams) => {
+		const queryOptions = {
 			where: {},
 			include: [{
 				model: User,
@@ -49,17 +49,17 @@ module.exports = {
 			limit: 10,
 			order: [['createdAt', 'DESC']]
 		};
-		if (context.limit && !isNaN(context.limit))
-			queryContext.limit = Math.min(Math.max(parseInt(context.limit), 1), 20);
-		if (context.offset && !isNaN(context.offset))
-			queryContext.offset = Math.min(Math.max(parseInt(context.offset), 0), 5000);
-		if (context.userID)
-			queryContext.where.userID = context.userID;
-		if (context.data)
-			queryContext.where.data = context.data;
-		if (context.type)
-			queryContext.where.type = context.type;
-		return Activity.findAll(queryContext);
+		if (queryParams.limit && !isNaN(queryParams.limit))
+			queryOptions.limit = Math.min(Math.max(parseInt(queryParams.limit), 1), 20);
+		if (queryParams.offset && !isNaN(queryParams.offset))
+			queryOptions.offset = Math.min(Math.max(parseInt(queryParams.offset), 0), 5000);
+		if (queryParams.userID)
+			queryOptions.where.userID = queryParams.userID;
+		if (queryParams.data)
+			queryOptions.where.data = queryParams.data;
+		if (queryParams.type)
+			queryOptions.where.type = queryParams.type;
+		return Activity.findAll(queryOptions);
 	},
 
 	create: (activity, transaction) => {

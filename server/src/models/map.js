@@ -156,45 +156,45 @@ module.exports = {
 	CreditType,
 	MAP_TYPE,
 
-	getAll: (userID, context) => {
+	getAll: (userID, queryParams) => {
 		const allowedExpansions = ['info', 'credits'];
-		const queryContext = {
+		const queryOptions = {
 			distinct: true,
 			include: [],
 			where: {},
 			limit: 20,
 			order: [['createdAt', 'DESC']]
 		};
-		if (context.limit && !isNaN(context.limit))
-			queryContext.limit = Math.min(Math.max(parseInt(context.limit), 1), 20);
-		if (context.offset && !isNaN(context.offset))
-			queryContext.offset = Math.min(Math.max(parseInt(context.offset), 0), 5000);
-		if (context.submitterID)
-			queryContext.where.submitterID = context.submitterID;
-		if (context.search)
-			queryContext.where.name = {[Op.like]: '%' + context.search + '%'};
-		if (context.type)
-			queryContext.where.type = {[Op.in]: context.type.split(',')};
-		if (context.status && context.statusNot) {
-			queryContext.where.statusFlag = {
+		if (queryParams.limit && !isNaN(queryParams.limit))
+			queryOptions.limit = Math.min(Math.max(parseInt(queryParams.limit), 1), 20);
+		if (queryParams.offset && !isNaN(queryParams.offset))
+			queryOptions.offset = Math.min(Math.max(parseInt(queryParams.offset), 0), 5000);
+		if (queryParams.submitterID)
+			queryOptions.where.submitterID = queryParams.submitterID;
+		if (queryParams.search)
+			queryOptions.where.name = {[Op.like]: '%' + queryParams.search + '%'};
+		if (queryParams.type)
+			queryOptions.where.type = {[Op.in]: queryParams.type.split(',')};
+		if (queryParams.status && queryParams.statusNot) {
+			queryOptions.where.statusFlag = {
 				[Op.and]: {
-					[Op.in]: context.status.split(','),
-					[Op.notIn]: context.statusNot.split(','),
+					[Op.in]: queryParams.status.split(','),
+					[Op.notIn]: queryParams.statusNot.split(','),
 				}
 			}
-		} else if (context.status) {
-			queryContext.where.statusFlag = {[Op.in]: context.status.split(',')};
-		} else if (context.statusNot) {
-			queryContext.where.statusFlag = {[Op.notIn]: context.statusNot.split(',')};
+		} else if (queryParams.status) {
+			queryOptions.where.statusFlag = {[Op.in]: queryParams.status.split(',')};
+		} else if (queryParams.statusNot) {
+			queryOptions.where.statusFlag = {[Op.notIn]: queryParams.statusNot.split(',')};
 		}
-		if ('priority' in context || (context.expand && context.expand.includes('submitter'))) {
-			queryContext.include.push({
+		if ('priority' in queryParams || (queryParams.expand && queryParams.expand.includes('submitter'))) {
+			queryOptions.include.push({
 				model: User,
 				as: 'submitter',
 				where: {}
 			});
 		}
-		if ('priority' in context) {
+		if ('priority' in queryParams) {
 			const priorityPerms = [
 				user.Permission.ADMIN,
 				user.Permission.MODERATOR,
@@ -204,18 +204,18 @@ module.exports = {
 			for (let i = 0; i < priorityPerms.length; i++) {
 				permChecks.push(
 					sequelize.literal('permissions & ' + priorityPerms[i]
-						+ (context.priority ? ' != ' : ' = ') + '0')
+						+ (queryParams.priority ? ' != ' : ' = ') + '0')
 				);
 			}
-			queryContext.include[0].where.permissions = {
-				[context.priority ? Op.or : Op.and]: permChecks
+			queryOptions.include[0].where.permissions = {
+				[queryParams.priority ? Op.or : Op.and]: permChecks
 			};
 		}
-		if (context.expand) {
-			queryHelper.addExpansions(queryContext, context.expand, allowedExpansions);
-			const expansionNames = context.expand.split(',');
+		if (queryParams.expand) {
+			queryHelper.addExpansions(queryOptions, queryParams.expand, allowedExpansions);
+			const expansionNames = queryParams.expand.split(',');
 			if (expansionNames.includes('inFavorites')) {
-				queryContext.include.push({
+				queryOptions.include.push({
 					model: MapFavorite,
 					as: 'favorites',
 					where: { userID: userID },
@@ -223,7 +223,7 @@ module.exports = {
 				});
 			}
 			if (expansionNames.includes('inLibrary')) {
-				queryContext.include.push({
+				queryOptions.include.push({
 					model: MapLibraryEntry,
 					as: 'libraryEntries',
 					where: { userID: userID },
@@ -231,19 +231,19 @@ module.exports = {
 				});
 			}
 		}
-		return Map.findAndCountAll(queryContext);
+		return Map.findAndCountAll(queryOptions);
 	},
 
-	get: (mapID, userID, context) => {
+	get: (mapID, userID, queryParams) => {
 		const allowedExpansions = ['info', 'credits', 'submitter', 'images', 'mapStats'];
-		const queryContext = { include: [], where: { id: mapID }};
-		if ('status' in context)
-			queryContext.where.statusFlag = {[Op.in]: context.status.split(',')};
-		if (context.expand) {
-			queryHelper.addExpansions(queryContext, context.expand, allowedExpansions);
-			const expansionNames = context.expand.split(',');
+		const queryOptions = { include: [], where: { id: mapID }};
+		if ('status' in queryParams)
+			queryOptions.where.statusFlag = {[Op.in]: queryParams.status.split(',')};
+		if (queryParams.expand) {
+			queryHelper.addExpansions(queryOptions, queryParams.expand, allowedExpansions);
+			const expansionNames = queryParams.expand.split(',');
 			if (expansionNames.includes('inFavorites')) {
-				queryContext.include.push({
+				queryOptions.include.push({
 					model: MapFavorite,
 					as: 'favorites',
 					where: { userID: userID },
@@ -251,7 +251,7 @@ module.exports = {
 				});
 			}
 			if (expansionNames.includes('inLibrary')) {
-				queryContext.include.push({
+				queryOptions.include.push({
 					model: MapLibraryEntry,
 					as: 'libraryEntries',
 					where: { userID: userID },
@@ -259,7 +259,7 @@ module.exports = {
 				});
 			}
 		}
-		return Map.find(queryContext);
+		return Map.find(queryOptions);
 	},
 
 	create: (map) => {
@@ -363,11 +363,11 @@ module.exports = {
 		});
 	},
 
-	getCredits: (mapID, context) => {
+	getCredits: (mapID, queryParams) => {
 		const allowedExpansions = ['user'];
-		const queryContext = { where: { mapID: mapID }};
-		queryHelper.addExpansions(queryContext, context.expand, allowedExpansions);
-		return MapCredit.findAll(queryContext);
+		const queryOptions = { where: { mapID: mapID }};
+		queryHelper.addExpansions(queryOptions, queryParams.expand, allowedExpansions);
+		return MapCredit.findAll(queryOptions);
 	},
 
 	updateAvatar: (mapID, avatarFile) => {

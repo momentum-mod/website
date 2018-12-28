@@ -12,8 +12,8 @@ module.exports = {
 		});
 	},
 
-	getUserFavorites: (userID, context) => {
-		const queryContext = {
+	getUserFavorites: (userID, queryParams) => {
+		const queryOptions = {
 			distinct: true,
 			where: { userID: userID },
 			limit: 20,
@@ -35,11 +35,11 @@ module.exports = {
 				},
 			]
 		};
-		if (context.limit && !isNaN(context.limit))
-			queryContext.limit = Math.min(Math.max(parseInt(context.limit), 1), 20);
-		if (context.offset && !isNaN(context.offset))
-			queryContext.offset = Math.min(Math.max(parseInt(context.offset), 0), 5000);
-		return MapFavorite.findAndCountAll(queryContext);
+		if (queryParams.limit && !isNaN(queryParams.limit))
+			queryOptions.limit = Math.min(Math.max(parseInt(queryParams.limit), 1), 20);
+		if (queryParams.offset && !isNaN(queryParams.offset))
+			queryOptions.offset = Math.min(Math.max(parseInt(queryParams.offset), 0), 5000);
+		return MapFavorite.findAndCountAll(queryOptions);
 	},
 
 	removeMapFromFavorites: (userID, mapID) => {
