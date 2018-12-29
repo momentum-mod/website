@@ -1,6 +1,7 @@
 import {User} from './user.model';
 import {RunStats} from './run-stats.model';
 import {MomentumMap} from './momentum-map.model';
+import {UserMapRank} from './user-map-rank.model';
 
 export interface Run {
   id: number;
@@ -17,4 +18,5 @@ export interface Run {
   user?: User;
   stats?: RunStats;
   map?: MomentumMap;
+  rank?: UserMapRank;
 }

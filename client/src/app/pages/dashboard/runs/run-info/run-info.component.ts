@@ -25,7 +25,7 @@ export class RunInfoComponent implements OnInit {
     this.route.paramMap.pipe(
       switchMap((params: ParamMap) =>
         this.runService.getRun(params.get('id'), {
-          params: { expand: 'user,map,runStats'},
+          params: { expand: 'user,map,runStats,rank'},
         }),
       ),
     ).subscribe(run => {

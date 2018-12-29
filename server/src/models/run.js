@@ -573,7 +573,7 @@ module.exports = {
 		};
 		if (queryParams.mapID)
 			queryOptions.where.mapID = queryParams.mapID;
-		queryHelper.addExpansions(queryOptions, queryParams.expand, ['user', 'map', 'mapWithInfo', 'runStats']);
+        queryHelper.addExpansions(queryOptions, queryParams.expand, ['user', 'map', 'mapWithInfo', 'runStats', 'rank']);
 		return Run.findById(runID, queryOptions);
 	},
 

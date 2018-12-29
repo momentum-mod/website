@@ -11,8 +11,8 @@
         </div>
       </div>
       <div class="col text-right">
-        <div *ngIf="personalBestRun.id !== run.id" class="row">
-          <h4 class="col notice">Note: Not viewing their current PB!</h4>
+        <div *ngIf="personalBestRun && personalBestRun.id !== run.id" class="row">
+          <h4 class="col notice">Note: Not viewing their personal best!</h4>
           <div class="col-auto">
             <button class="btn btn-outline-info" type="button" routerLink="/dashboard/runs/{{personalBestRun.id}}">Go to PB run</button>
           </div>
@@ -39,7 +39,7 @@
 
       <div class="base">
         <h5>Rank</h5>
-        <h1>TODO</h1>
+        <h1>{{run.rank?.rank || 'N/A'}}</h1>
       </div>
     </div>
   </nb-card-body>
