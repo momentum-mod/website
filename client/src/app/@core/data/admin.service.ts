@@ -29,11 +29,12 @@ export class AdminService {
   }
 
   /**
+   * @param userID ID of the user to update
    * @param user specific user's profile
    * @return Update a specific user
    */
-  updateUser(user: User): Observable<any> {
-    return this.http.patch('/api/admin/users/' + user.id, user, {
+  updateUser(userID: string, user: User): Observable<any> {
+    return this.http.patch('/api/admin/users/' + userID, user, {
       responseType: 'text',
     });
   }

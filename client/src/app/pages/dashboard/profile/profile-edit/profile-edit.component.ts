@@ -92,14 +92,14 @@ export class ProfileEditComponent implements OnInit {
     if (this.isLocal && !this.isAdmin) {
       if (!this.profileEditFormGroup.valid)
         return;
-      this.localUserService.updateUser(this.profileEditFormGroup.value).subscribe(data => {
+      this.localUserService.updateUser(this.profileEditFormGroup.value).subscribe(() => {
         this.localUserService.refreshLocal();
         this.toasterService.popAsync('success', 'Updated user profile!', '');
       }, error => this.err('Failed to update user profile!', error.message));
     } else {
-      this.user.alias = this.alias.value;
-      this.user.profile.bio = this.bio.value;
-      this.adminService.updateUser(this.user).subscribe(() => {
+      const userUpdate: User = this.profileEditFormGroup.value;
+      userUpdate.permissions = this.user.permissions;
+      this.adminService.updateUser(this.user.id, userUpdate).subscribe(() => {
         if (this.isLocal)
           this.localUserService.refreshLocal();
         this.toasterService.popAsync('success', 'Updated user profile!', '');

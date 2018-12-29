@@ -22,15 +22,15 @@ describe('runs', () => {
     let adminAccessToken = null;
     let adminGameAccessToken = null;
     const testUser = {
-        id: '1',
+        id: '00000000000000001',
         permissions: user.Permission.VERIFIED
     };
     const testAdmin = {
-        id: '2',
+        id: '00000000000000002',
         permissions: user.Permission.ADMIN
     };
     const testAdminGame = {
-        id: '3',
+        id: '00000000000000003',
         permissions: user.Permission.ADMIN
     };
 

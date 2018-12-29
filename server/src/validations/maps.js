@@ -43,8 +43,6 @@ module.exports = {
 			name: validation.map.name.required(),
 			type: validation.map.type.required(),
 			info: Joi.object().keys({
-				name: validation.map.name, // extra data to remove
-				type: validation.map.type, // extra data to remove
 				description: validation.mapInfo.description.required(),
 				numBonuses: validation.mapInfo.numBonuses.required(),
 				numZones: validation.mapInfo.numZones.required(),

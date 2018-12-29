@@ -74,7 +74,7 @@ describe('AdminService', () => {
     });
     it('#updateUser() should return updated user account', () => {
       httpClientSpy.patch.and.returnValue(of(expectedUser));
-      adminService.updateUser(expectedUser).subscribe(value =>
+      adminService.updateUser(expectedUser.id, expectedUser).subscribe(value =>
           expect(value).toEqual(expectedUser, 'expected user'),
         fail,
       );

@@ -24,8 +24,8 @@ export class MapQueueComponent implements OnInit {
     this.priorityQueueCount = 0;
     this.nonPriorityQueueCount = 0;
     this.pageLimit = 5;
-    this.priorityQueuePage = 0;
-    this.nonPriorityQueuePage = 0;
+    this.priorityQueuePage = 1;
+    this.nonPriorityQueuePage = 1;
   }
 
   ngOnInit() {

@@ -23,17 +23,17 @@ describe('maps', () => {
 	let adminAccessToken = null;
 	let adminGameAccessToken = null;
 	const testUser = {
-		id: '1',
+		id: '00000000000000001',
 		permissions: user.Permission.VERIFIED,
 		country: 'US',
 	};
     const testAdmin = {
-        id: '3',
+        id: '00000000000000003',
         permissions: user.Permission.ADMIN,
 	    country: 'US',
     };
     const testAdminGame = {
-        id: '222',
+        id: '00000000000000002',
         permissions: user.Permission.ADMIN,
 	    country: 'US',
     };

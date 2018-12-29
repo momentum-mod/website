@@ -18,7 +18,7 @@ describe('activities', () => {
     let accessToken = null;
     let adminAccessToken = null;
 	const testUser = {
-        id: '2759389285395352',
+        id: '00000000000000001',
         permissions: 0
     };
     const testUser2 = {

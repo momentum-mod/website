@@ -26,7 +26,7 @@ describe('users', () => {
         }
     };
     const testUser2 = {
-        id: '2759389285395352',
+        id: '00000000000000002',
         alias: 'test2',
         avatarURL: 'https://steamcdn-a.akamaihd.net/steamcommunity/public/images/avatars/e4/e4db45e6d6472d9e61b131a04ad2f18a299daafc_full.jpg',
         permissions: 0,
@@ -279,7 +279,7 @@ describe('users', () => {
             });
             it('should respond with 404 if the user is not found', () => {
                 return chai.request(server)
-                    .get('/api/users/' + 12345)
+                    .get('/api/users/00000000000000009')
                     .set('Authorization', 'Bearer ' + accessToken)
                     .then(res => {
                         expect(res).to.have.status(404);
@@ -320,7 +320,7 @@ describe('users', () => {
 
             it('should respond with 404 if the profile is not found', () => {
                 return chai.request(server)
-                    .get('/api/users/' + 12345 + 'profile')
+                    .get('/api/users/00000000000000009/profile')
                     .set('Authorization', 'Bearer ' + accessToken)
                     .then(res => {
                         expect(res).to.have.status(404);
