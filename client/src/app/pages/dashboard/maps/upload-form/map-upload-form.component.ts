@@ -144,6 +144,8 @@ export class MapUploadFormComponent implements OnInit, AfterViewInit {
       info: this.infoForm.value,
       credits: this.getAllCredits(),
     };
+    delete mapObject.info.name;
+    delete mapObject.info.type;
     this.mapsService.createMap(mapObject)
     .mergeMap(res => {
       mapID = res.body.id;

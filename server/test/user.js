@@ -33,7 +33,7 @@ describe('user', () => {
         },
     };
     const testUser2 = {
-        id: '2759389285395352',
+        id: '00000000000000002',
 		alias: 'test2',
 		avatarURL: 'https://steamcdn-a.akamaihd.net/steamcommunity/public/images/avatars/e4/e4db45e6d6472d9e61b131a04ad2f18a299daafc_full.jpg',
         permissions: 0,
@@ -43,7 +43,7 @@ describe('user', () => {
         }
     };
     const testUser3 = {
-        id: '777',
+        id: '00000000000000003',
 		alias: 'test3',
 		avatarURL: 'http://google.com',
         permissions: 0,
