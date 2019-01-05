@@ -34,6 +34,6 @@ module.exports = {
 			data: validation.activity.data,
 			expand: validation.queryParam.expand,
 		}),
-	}
+	},
 
 };
