@@ -88,7 +88,7 @@ module.exports = {
 			mapID: validation.map.id,
 			type: validation.mapCredit.type,
 			userID: validation.user.id,
-		}),
+		}).unknown(false),
 	},
 
 	getCredit: {
@@ -101,7 +101,7 @@ module.exports = {
 		body: Joi.object().keys({
 			type: validation.mapCredit.type,
 			userID: validation.user.id,
-		}),
+		}).unknown(false),
 	},
 
 };

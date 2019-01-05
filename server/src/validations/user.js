@@ -83,7 +83,7 @@ module.exports = {
 	notifID: {
 		params: {
 			notifID: validation.notification.id,
-		}
+		},
 	},
 
 	getNotifications: {
