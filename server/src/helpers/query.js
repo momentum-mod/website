@@ -15,7 +15,10 @@ const expansionMap = {
 	credits: {
 		model: MapCredit,
 		as: 'credits',
-		include: [User],
+		include: [{
+			model: User,
+			as: 'user',
+		}],
 	},
 	images: {
 		model: MapImage,

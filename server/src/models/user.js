@@ -1,6 +1,6 @@
 'use strict';
 const { sequelize, Op, User, UserAuth, UserStats, Profile, UserFollows, Notification, Activity,
-	DiscordAuth, TwitchAuth, TwitterAuth, Map } = require('../../config/sqlize'),
+	DiscordAuth, TwitchAuth, TwitterAuth, Map, UserMapRank, Run } = require('../../config/sqlize'),
 	activity = require('./activity'),
 	OAuth = require('oauth'),
 	config = require('../../config/config'),
@@ -122,7 +122,20 @@ module.exports = {
 			include: [],
 			where: { id: userID },
 		};
-		queryHelper.addExpansions(queryOptions, queryParams.expand, allowedExpansions);
+        if (queryParams.mapRank && !isNaN(queryParams.mapRank)) {
+            queryContext.include.push({
+                model: UserMapRank,
+                as: 'mapRanks',
+                where: {
+                    mapID: queryParams.mapRank,
+                },
+                include: [{
+                    model: Run,
+                    as: 'run'
+                }]
+            })
+        }
+        queryHelper.addExpansions(queryOptions, queryParams.expand, allowedExpansions);
 		return User.find(queryOptions);
 	},
 

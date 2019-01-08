@@ -7,6 +7,6 @@ module.exports = (sequelize, type) => {
 			primaryKey: true,
 			autoIncrement: true
 		},
-		type: type.INTEGER
+		type: type.TINYINT
 	})
 };
