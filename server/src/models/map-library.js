@@ -1,13 +1,15 @@
 'use strict';
-const { sequelize, MapLibraryEntry, Map, MapInfo, MapCredit, MapStats,
-	MapFavorite, User, Profile } = require('../../config/sqlize');
+const {
+	sequelize, MapLibraryEntry, Map, MapInfo, MapCredit, MapStats,
+	MapFavorite, User, Profile
+} = require('../../config/sqlize');
 
 module.exports = {
 
 	getUserLibrary: (userID, queryParams) => {
 		const queryOptions = {
 			distinct: true,
-			where: { userID: userID },
+			where: {userID: userID},
 			limit: 20,
 			order: [['createdAt', 'DESC']],
 			include: [
@@ -22,33 +24,30 @@ module.exports = {
 						{
 							model: MapCredit,
 							as: 'credits',
-							include: [{
-								model: User,
-								as: 'user'
-							}]
+							include: [User]
 						}
 					]
 				},
 			]
 		};
 		if (queryParams.limit && !isNaN(queryParams.limit)) {
-            if (queryParams.limit === 0) {
-                delete queryOptions.limit;
-            } else {
-                queryOptions.limit = Math.min(Math.max(parseInt(queryParams.limit), 1), 20);
-            }
-        }
+			if (queryParams.limit === 0) {
+				delete queryOptions.limit;
+			} else {
+				queryOptions.limit = Math.min(Math.max(parseInt(queryParams.limit), 1), 20);
+			}
+		}
 		if (queryParams.offset && !isNaN(queryParams.offset))
 			queryOptions.offset = Math.min(Math.max(parseInt(queryParams.offset), 0), 5000);
 		if (queryParams.expand) {
-            const expansionNames = queryParams.expand.split(',');
-            // TODO uncomment the following
-            /*if (expansionNames.includes('gallery'))
-                queryContext.include[0].include.push({ })*/
+			const expansionNames = queryParams.expand.split(',');
+			// TODO uncomment the following
+			/*if (expansionNames.includes('gallery'))
+				queryContext.include[0].include.push({ })*/
 			if (expansionNames.includes('submitter'))
-				queryOptions.include[0].include.push({ model: User, as: 'submitter', include: [Profile] });
+				queryOptions.include[0].include.push({model: User, as: 'submitter', include: [Profile]});
 			if (expansionNames.includes('inFavorites'))
-				queryOptions.include[0].include.push({ model: MapFavorite, as: 'favorites' });
+				queryOptions.include[0].include.push({model: MapFavorite, as: 'favorites'});
 		}
 		return MapLibraryEntry.findAndCountAll(queryOptions);
 	},
@@ -67,7 +66,7 @@ module.exports = {
 				return MapStats.update({
 					totalSubscriptions: sequelize.literal('totalSubscriptions - 1')
 				}, {
-					where: { mapID: mapID },
+					where: {mapID: mapID},
 					transaction: t
 				});
 			});
@@ -90,7 +89,7 @@ module.exports = {
 				return MapStats.update({
 					totalSubscriptions: sequelize.literal('totalSubscriptions + 1')
 				}, {
-					where: { mapID: mapID },
+					where: {mapID: mapID},
 					transaction: t
 				});
 			}).then(() => {

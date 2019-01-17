@@ -1,6 +1,8 @@
 'use strict';
-const { sequelize, Op, User, UserAuth, UserStats, Profile, UserFollows, Notification, Activity,
-	DiscordAuth, TwitchAuth, TwitterAuth, Map, UserMapRank, Run } = require('../../config/sqlize'),
+const {
+		sequelize, Op, User, UserAuth, UserStats, Profile, UserFollows, Notification, Activity,
+		DiscordAuth, TwitchAuth, TwitterAuth, Map, UserMapRank, Run
+	} = require('../../config/sqlize'),
 	activity = require('./activity'),
 	OAuth = require('oauth'),
 	config = require('../../config/config'),
@@ -37,13 +39,13 @@ module.exports = {
 				avatarURL: profile.avatarURL,
 				country: profile.country,
 				profile: {},
-				auth: { userID: id },
-				stats: { userID: id }
+				auth: {userID: id},
+				stats: {userID: id}
 			}, {
 				include: [
 					Profile,
-					{ model: UserAuth, as: 'auth' },
-					{ model: UserStats, as: 'stats' },
+					{model: UserAuth, as: 'auth'},
+					{model: UserStats, as: 'stats'},
 				],
 				transaction: t,
 			}).then(user => {
@@ -104,13 +106,13 @@ module.exports = {
 		};
 		return new Promise((resolve, reject) => {
 			User.findById(openIDProfile.id, {include: Profile})
-			.then(usr => {
-				if (usr) {
-					return module.exports.updateSteamInfo(usr, profile);
-				} else {
-					return module.exports.create(openIDProfile.id, profile);
-				}
-			}).then(usr => {
+				.then(usr => {
+					if (usr) {
+						return module.exports.updateSteamInfo(usr, profile);
+					} else {
+						return module.exports.create(openIDProfile.id, profile);
+					}
+				}).then(usr => {
 				resolve(usr);
 			}).catch(reject);
 		});
@@ -120,22 +122,22 @@ module.exports = {
 		const allowedExpansions = ['profile', 'userStats'];
 		const queryOptions = {
 			include: [],
-			where: { id: userID },
+			where: {id: userID},
 		};
-        if (queryParams.mapRank && !isNaN(queryParams.mapRank)) {
-            queryContext.include.push({
-                model: UserMapRank,
-                as: 'mapRanks',
-                where: {
-                    mapID: queryParams.mapRank,
-                },
-                include: [{
-                    model: Run,
-                    as: 'run'
-                }]
-            })
-        }
-        queryHelper.addExpansions(queryOptions, queryParams.expand, allowedExpansions);
+		if (queryParams.mapRank && !isNaN(queryParams.mapRank)) {
+			queryContext.include.push({
+				model: UserMapRank,
+				as: 'mapRanks',
+				where: {
+					mapID: queryParams.mapRank,
+				},
+				include: [{
+					model: Run,
+					as: 'run'
+				}]
+			})
+		}
+		queryHelper.addExpansions(queryOptions, queryParams.expand, allowedExpansions);
 		return User.find(queryOptions);
 	},
 
@@ -154,7 +156,7 @@ module.exports = {
 		if (queryParams.expand) {
 			const expansions = queryParams.expand.split(',');
 			if (expansions.includes('profile'))
-				queryOptions.include.push({ model: Profile });
+				queryOptions.include.push({model: Profile});
 		}
 		return User.findAndCountAll(queryOptions);
 	},
@@ -222,7 +224,7 @@ module.exports = {
 
 	getProfile: (userID) => {
 		return Profile.find({
-			where: { userID: userID },
+			where: {userID: userID},
 			include: [
 				{
 					model: DiscordAuth,
@@ -253,7 +255,7 @@ module.exports = {
 			profUpd8.bio = profile.bio;
 
 		const opts = {
-			where: { userID: userBeingUpdated.id }
+			where: {userID: userBeingUpdated.id}
 		};
 		if (transaction)
 			opts.transaction = transaction;
@@ -279,7 +281,7 @@ module.exports = {
 			}
 			if (model) {
 				return model.findOrCreate({
-					where: { profileID: profile.id },
+					where: {profileID: profile.id},
 					defaults: authData,
 				}).spread((authMdl, created) => {
 					return Promise.resolve(authMdl);
@@ -298,7 +300,7 @@ module.exports = {
 
 	destroyTwitterLink: (profile) => {
 		return TwitterAuth.findOne({
-			where: { profileID: profile.id }
+			where: {profileID: profile.id}
 		}).then(mdl => {
 			if (mdl) {
 				return new Promise((res, rej) => {
@@ -337,7 +339,7 @@ module.exports = {
 
 	destroyTwitchLink: (profile) => {
 		return TwitchAuth.findOne({
-			where: { profileID: profile.id }
+			where: {profileID: profile.id}
 		}).then(mdl => {
 			if (mdl) {
 				return axios.post('https://id.twitch.tv/oauth2/revoke', `token=${mdl.token}&token_type_hint=refresh_token`, {
@@ -407,7 +409,7 @@ module.exports = {
 
 	getFollowers: (userID) => {
 		return UserFollows.findAndCountAll({
-			where: { followedID: userID },
+			where: {followedID: userID},
 			include: [
 				{
 					model: User,
@@ -435,7 +437,7 @@ module.exports = {
 
 	getFollowing: (userID) => {
 		return UserFollows.findAndCountAll({
-			where: { followeeID: userID },
+			where: {followeeID: userID},
 			include: [
 				{
 					model: User,
@@ -462,16 +464,15 @@ module.exports = {
 	},
 
 	checkFollowStatus: (localUserID, userToCheck) => {
-		let followStatus = {
-		};
+		let followStatus = {};
 		return UserFollows.findOne({
-			where: { followeeID: localUserID, followedID: userToCheck}
+			where: {followeeID: localUserID, followedID: userToCheck}
 		}).then(resp => {
 			if (resp)
 				followStatus.local = resp;
 
 			return UserFollows.findOne({
-				where: { followeeID: userToCheck, followedID: localUserID}
+				where: {followeeID: userToCheck, followedID: localUserID}
 			})
 		}).then(resp => {
 			if (resp)
@@ -489,27 +490,27 @@ module.exports = {
 				return Promise.reject(err);
 			}
 			return UserFollows.findOrCreate({
-				where: { followeeID: followeeID, followedID: followedID }
+				where: {followeeID: followeeID, followedID: followedID}
 			});
 		});
 	},
 
 	updateFollowStatus: (followeeID, followedID, notify) => {
 		return UserFollows.update(
-			{ notifyOn: notify },
-			{ where: { followeeID: followeeID, followedID: followedID } },
+			{notifyOn: notify},
+			{where: {followeeID: followeeID, followedID: followedID}},
 		);
 	},
 
 	unfollowUser: (followeeID, followedID) => {
 		return UserFollows.destroy({
-			where: { followedID: followedID, followeeID: followeeID }
+			where: {followedID: followedID, followeeID: followeeID}
 		});
 	},
 
 	getNotifications: (userID, queryParams) => {
 		const queryOptions = {
-			where: { forUserID: userID },
+			where: {forUserID: userID},
 			include: {
 				model: Activity,
 				as: 'activity',
@@ -534,14 +535,14 @@ module.exports = {
 
 	updateNotification: (userID, notifID, read) => {
 		return Notification.update(
-			{ read: read },
-			{ where: { id: notifID, forUserID: userID }}
+			{read: read},
+			{where: {id: notifID, forUserID: userID}}
 		);
 	},
 
 	deleteNotification: (userID, notifID) => {
 		return Notification.destroy({
-			where: { id: notifID, forUserID: userID }
+			where: {id: notifID, forUserID: userID}
 		});
 
 	},
@@ -555,7 +556,7 @@ module.exports = {
 					model: Profile,
 				}, {
 					model: UserFollows,
-					where: { followeeID: userID },
+					where: {followeeID: userID},
 					attributes: [],
 				}]
 			}],
@@ -575,7 +576,7 @@ module.exports = {
 
 	getSubmittedMapSummary: (userID) => {
 		return Map.findAll({
-			where: { submitterID: userID },
+			where: {submitterID: userID},
 			group: ['statusFlag'],
 			attributes: ['statusFlag', [sequelize.fn('COUNT', 'statusFlag'), 'statusCount']],
 		});
