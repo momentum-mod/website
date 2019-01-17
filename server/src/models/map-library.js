@@ -22,17 +22,29 @@ module.exports = {
 						{
 							model: MapCredit,
 							as: 'credits',
+							include: [{
+								model: User,
+								as: 'user'
+							}]
 						}
 					]
 				},
 			]
 		};
-		if (queryParams.limit && !isNaN(queryParams.limit))
-			queryOptions.limit = Math.min(Math.max(parseInt(queryParams.limit), 1), 20);
+		if (queryParams.limit && !isNaN(queryParams.limit)) {
+            if (queryParams.limit === 0) {
+                delete queryOptions.limit;
+            } else {
+                queryOptions.limit = Math.min(Math.max(parseInt(queryParams.limit), 1), 20);
+            }
+        }
 		if (queryParams.offset && !isNaN(queryParams.offset))
 			queryOptions.offset = Math.min(Math.max(parseInt(queryParams.offset), 0), 5000);
 		if (queryParams.expand) {
-			const expansionNames = queryParams.expand.split(',');
+            const expansionNames = queryParams.expand.split(',');
+            // TODO uncomment the following
+            /*if (expansionNames.includes('gallery'))
+                queryContext.include[0].include.push({ })*/
 			if (expansionNames.includes('submitter'))
 				queryOptions.include[0].include.push({ model: User, as: 'submitter', include: [Profile] });
 			if (expansionNames.includes('inFavorites'))
