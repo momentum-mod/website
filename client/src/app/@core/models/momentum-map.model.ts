@@ -17,6 +17,8 @@ export interface MomentumMap {
   updatedAt?: Date;
   info?: MomentumMapInfo;
   credits?: MapCredit[];
+  thumbnailID?: number;
+  thumbnail?: MapImage;
   images?: MapImage[];
   stats?: MapStats;
   favorites?: MapFavorite[];

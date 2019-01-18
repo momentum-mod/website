@@ -34,7 +34,7 @@ export class ViewMapsComponent implements OnInit {
   genQueryParams(): MapAPIQueryParams {
     const searchOptions = this.searchOptions.value;
     const queryParams: MapAPIQueryParams = {
-      expand: 'info,submitter,inFavorites,inLibrary',
+      expand: 'info,submitter,thumbnail,inFavorites,inLibrary',
       limit: this.pageLimit,
       offset: (this.currentPage - 1) * this.pageLimit,
     };

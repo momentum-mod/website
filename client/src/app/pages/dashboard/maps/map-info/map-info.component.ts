@@ -86,11 +86,6 @@ export class MapInfoComponent implements OnInit {
         ),
       ).subscribe(map => {
         this.map = map;
-        this.map.images = [{
-          id: 0,
-          mapID: map.id,
-          URL: map.info.avatarURL,
-        }].concat(this.map.images);
         if (this.map.favorites && this.map.favorites.length)
           this.mapInFavorites = true;
         if (this.map.libraryEntries && this.map.libraryEntries.length)
@@ -142,9 +137,9 @@ export class MapInfoComponent implements OnInit {
     this.galleryImages = [];
     for (let i = 0; i < mapImages.length; i++) {
       this.galleryImages.push({
-        small: mapImages[i].URL,
-        medium: mapImages[i].URL,
-        big: mapImages[i].URL,
+        small: mapImages[i].small,
+        medium: mapImages[i].medium,
+        big: mapImages[i].large,
       });
     }
   }

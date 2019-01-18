@@ -31,7 +31,7 @@ export class MapLibraryComponent implements OnInit {
   loadMapLibrary() {
     this.locUsrService.getMapLibrary({
       params: {
-        expand: 'submitter,inFavorites',
+        expand: 'submitter,thumbnail,inFavorites',
         offset: (this.currentPage - 1) * this.pageLimit,
         limit: this.pageLimit,
       },

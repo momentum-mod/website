@@ -26,7 +26,6 @@ describe('MapStatusComponent', () => {
       submitterID: '1337',
       info: {
         id: '1234',
-        avatarURL: '',
         description: 'This is a testmap1',
         numBonuses: 0,
         numZones: 3,

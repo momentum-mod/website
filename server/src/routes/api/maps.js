@@ -35,8 +35,8 @@ router.route('/:mapID/credits/:mapCredID')
 	.delete(mapCtrl.deleteCredit)
 	.all(errorCtrl.send405);
 
-router.route('/:mapID/avatar')
-	.put(mapCtrl.updateAvatar)
+router.route('/:mapID/thumbnail')
+	.put(mapCtrl.updateThumbnail)
 	.all(errorCtrl.send405);
 
 router.route('/:mapID/download')

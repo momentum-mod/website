@@ -2,6 +2,8 @@
 
 module.exports = (sequelize, type) => {
 	return sequelize.define('mapImage', {
-		URL: type.STRING,
+		small: type.STRING,
+		medium: type.STRING,
+		large: type.STRING,
 	})
 };

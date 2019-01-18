@@ -1,7 +1,8 @@
 'use strict';
 process.env.NODE_ENV = 'test';
 
-const { forceSyncDB, Map, MapInfo, MapCredit, MapImage, MapStats, User } = require('../config/sqlize'),
+const { forceSyncDB, Map, MapInfo, MapCredit, MapImage, 
+    MapStats, User } = require('../config/sqlize'),
 	chai = require('chai'),
 	chaiHttp = require('chai-http'),
 	expect = chai.expect,
@@ -57,10 +58,12 @@ describe('maps', () => {
             type: map.CreditType.AUTHOR,
             userID: testUser.id,
         },
-		images: {
-			id: 1,
-			URL: 'https://media.moddb.com/cache/images/mods/1/29/28895/thumb_620x2000/Wallpaper.jpg'
-		},
+        images: [{
+            id: 1,
+            small: '',
+            medium: '',
+            large: '',
+        }],
         stats: {
             id: 1,
             totalReviews: 1,
@@ -85,11 +88,13 @@ describe('maps', () => {
         	id: 2,
             type: map.CreditType.AUTHOR,
             userID: testUser.id,
-    	},
-        images: {
+        },
+        images: [{
             id: 3,
-            URL: 'http://localhost:3002/img/maps/testmap.jpg'
-        }
+            small: '',
+            medium: '',
+            large: '',
+        }],
     };
 
     const testMap3 = {
@@ -155,19 +160,19 @@ describe('maps', () => {
             .then(user => {
                 return Map.create(testMap, {
                     include: [
-                    	{  model: MapInfo, as: 'info',},
-						{  model: MapCredit, as: 'credits'},
-						{  model: MapImage, as: 'images'},
-                        {  model: MapStats, as: 'stats'}
+                    	{ model: MapInfo, as: 'info' },
+						{ model: MapCredit, as: 'credits' },
+						{ model: MapImage, as: 'images' },
+                        { model: MapStats, as: 'stats'},
                     ]
                 })
             })
             .then(user => {
                 return Map.create(testMap2, {
                     include: [
-                        {  model: MapInfo, as: 'info',},
-                        {  model: MapImage, as: 'images'},
-                        {  model: MapCredit, as: 'credits'},
+                        { model: MapInfo, as: 'info',},
+                        { model: MapImage, as: 'images' },
+                        { model: MapCredit, as: 'credits'},
                     ]
                 })
             })
@@ -481,7 +486,9 @@ describe('maps', () => {
                         expect(res).to.have.status(200);
                         expect(res).to.be.json;
                         expect(res.body).to.have.property('id');
-                        expect(res.body.images[0]).to.have.property('URL');
+                        expect(res.body.images[0]).to.have.property('small');
+                        expect(res.body.images[0]).to.have.property('medium');
+                        expect(res.body.images[0]).to.have.property('large');
                     });
             });
 
@@ -781,20 +788,20 @@ describe('maps', () => {
             });
         });
 
-        describe('PUT /maps/{mapID}/avatar', () => {
-            it('should upload and update the avatar for a map', () => {
+        describe('PUT /maps/{mapID}/thumbnail', () => {
+            it('should upload and update the thumbnail for a map', () => {
                 return chai.request(server)
-                    .put('/api/maps/' + testMap.id + '/avatar')
+                    .put('/api/maps/' + testMap.id + '/thumbnail')
                     .set('Authorization', 'Bearer ' + accessToken)
-                    .attach('avatarFile', fs.readFileSync('test/testImage.jpg'), 'testImage.jpg')
+                    .attach('thumbnailFile', fs.readFileSync('test/testImage.jpg'), 'testImage.jpg')
                     .then(res => {
-                        expect(res).to.have.status(200);
+                        expect(res).to.have.status(204);
                         // needs some expect statements
                     });
             });
-            it('should return a 400 if no avatar file is provided', () => {
+            it('should return a 400 if no thumbnail file is provided', () => {
                 return chai.request(server)
-                    .put('/api/maps/' + testMap.id + '/avatar')
+                    .put('/api/maps/' + testMap.id + '/thumbnail')
                     .set('Authorization', 'Bearer ' + accessToken)
                     .then(res => {
                         expect(res).to.have.status(400);
@@ -807,9 +814,9 @@ describe('maps', () => {
 
             it('should return a 403 if the submitter ID does not match the userId', () => {
                  return chai.request(server)
-                     .put('/api/maps/12133122/avatar')
+                     .put('/api/maps/12133122/thumbnail')
                      .set('Authorization', 'Bearer ' + accessToken)
-                     .attach('avatarFile', fs.readFileSync('test/testImage.jpg'), 'testImage.jpg')
+                     .attach('thumbnailFile', fs.readFileSync('test/testImage.jpg'), 'testImage.jpg')
                      .then(res => {
                          expect(res).to.have.status(403);
                          expect(res).to.be.json;
@@ -820,7 +827,7 @@ describe('maps', () => {
             });
             it('should respond with 401 when no access token is provided', () => {
                 return chai.request(server)
-                    .put('/api/maps/' + testMap.id + '/avatar')
+                    .put('/api/maps/' + testMap.id + '/thumbnail')
                     .then(res => {
                         expect(res).to.have.status(401);
                         expect(res).to.be.json;
@@ -1000,9 +1007,10 @@ describe('maps', () => {
                     .then(res => {
                         expect(res).to.have.status(200);
                         expect(res).to.be.json;
-                        expect(res.body.images[0]).to.have.property('URL');
+                        expect(res.body.images[0]).to.have.property('small');
+                        expect(res.body.images[0]).to.have.property('medium');
+                        expect(res.body.images[0]).to.have.property('large');
                         expect(res.body.images[0]).to.have.property('mapID');
-                        expect(res.body.images[0].mapID).to.equal(testMap.id);
                     });
 			});
             it('should respond with 401 when no access token is provided', () => {
@@ -1081,7 +1089,7 @@ describe('maps', () => {
 
             it('should respond with 400 when no map image is provided', () => {
                 return chai.request(server)
-                    .put('/api/maps/' + testMap.id + '/images/' + testMap.images.id)
+                    .put('/api/maps/' + testMap.id + '/images/' + testMap.images[0].id)
                     .type('form')
                     .set('Authorization', 'Bearer ' + accessToken)
                     .then(res => {
@@ -1095,7 +1103,7 @@ describe('maps', () => {
 
             it('should update the map image', () => {
                 return chai.request(server)
-                    .put('/api/maps/' + testMap.id + '/images/' + testMap.images.id)
+                    .put('/api/maps/' + testMap.id + '/images/' + testMap.images[0].id)
                     .set('Authorization', 'Bearer ' + accessToken)
                     .attach('mapImageFile', fs.readFileSync('test/testImage2.jpg'), 'testImage2.jpg')
                     .then(res => {
@@ -1119,7 +1127,7 @@ describe('maps', () => {
         describe('DELETE /api/maps/{mapID}/images/{imgID}', () => {
 			it('should delete the map image', () => {
 				return chai.request(server)
-				.delete('/api/maps/' + testMap.id + '/images/' + testMap.images.id)
+				.delete('/api/maps/' + testMap.id + '/images/' + testMap.images[0].id)
                     .set('Authorization', 'Bearer ' + accessToken)
                     .then(res => {
                         expect(res).to.have.status(204);

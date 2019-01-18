@@ -284,7 +284,6 @@ export class MapUploadFormComponent implements OnInit, AfterViewInit {
       info: {
         id: '0',
         mapID: 0,
-        avatarURL: 'not-important-yet',
         description: this.description.value,
         numBonuses: this.numBonuses.value,
         numZones: this.numZones.value,

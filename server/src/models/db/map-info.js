@@ -2,7 +2,6 @@
 
 module.exports = (sequelize, type) => {
 	return sequelize.define('mapInfo', {
-		avatarURL: type.STRING,
 		description: type.STRING(1000),
 		numBonuses: type.TINYINT.UNSIGNED,
 		numZones: type.TINYINT.UNSIGNED,
