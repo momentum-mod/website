@@ -28,7 +28,6 @@ describe('MapInfoDescriptionComponent', () => {
       statusFlag: 0,
       info: {
         id: '1',
-        avatarURL: '',
         description: 'Test',
         numBonuses: 2,
         numZones: 3,

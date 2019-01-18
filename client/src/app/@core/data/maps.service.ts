@@ -83,13 +83,13 @@ export class MapsService {
 
   /**
    * @param id ID of a map avatar
-   * @param avatarFile file of a map avatar
+   * @param thumbnailFile file of a map avatar
    * @return updated map avatar
    */
-  updateMapAvatar(id: number, avatarFile: File): Observable<any> {
+  updateMapAvatar(id: number, thumbnailFile: File): Observable<any> {
     const formData = new FormData();
-    formData.append('avatarFile', avatarFile, avatarFile.name);
-    return this.http.put('/api/maps/' + id + '/avatar', formData, {
+    formData.append('thumbnailFile', thumbnailFile, thumbnailFile.name);
+    return this.http.put('/api/maps/' + id + '/thumbnail', formData, {
       responseType: 'text',
     });
   }

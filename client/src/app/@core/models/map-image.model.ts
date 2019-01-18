@@ -1,7 +1,9 @@
 export interface MapImage {
   id: number;
   mapID: number;
-  URL: string;
+  small: string;
+  medium: string;
+  large: string;
   createdAt?: Date;
   updatedAt?: Date;
 }

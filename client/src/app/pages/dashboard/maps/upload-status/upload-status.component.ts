@@ -28,7 +28,7 @@ export class UploadStatusComponent implements OnInit {
   loadSubmittedMaps() {
     this.localUserService.getSubmittedMaps({
       params: {
-        expand: 'info,credits',
+        expand: 'info,credits,thumbnail',
         offset: (this.currentPage - 1) * this.pageLimit,
         limit: this.pageLimit,
         // status: MapUploadStatus.PENDING,

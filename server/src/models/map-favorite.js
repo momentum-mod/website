@@ -30,6 +30,10 @@ module.exports = {
 						{
 							model: MapCredit,
 							as: 'credits',
+						},
+						{
+							model: MapImage,
+							as: 'thumbnail',
 						}
 					]
 				},

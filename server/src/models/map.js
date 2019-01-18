@@ -2,30 +2,12 @@
 const util = require('util'),
 	fs = require('fs'),
 	crypto = require('crypto'),
-	{ sequelize, Op, Map, MapInfo, MapCredit, User, Profile, Activity,
-		MapStats, MapZoneStats, BaseStats, MapImage, MapFavorite, MapLibraryEntry } = require('../../config/sqlize'),
+	{ sequelize, Op, Map, MapInfo, MapCredit, User, MapStats, 
+	MapZoneStats, BaseStats, MapFavorite, MapLibraryEntry } = require('../../config/sqlize'),
 	user = require('./user'),
 	activity = require('./activity'),
 	queryHelper = require('../helpers/query'),
-	config = require('../../config/config'),
-	deleteFile = util.promisify(fs.unlink);
-
-const storeMapImage = (imageFile, imageName) => {
-	const moveImageTo = util.promisify(imageFile.mv);
-	const fileName = imageName + '.jpg';
-	const basePath = __dirname + '/../../public/img/maps';
-	const fullPath =  basePath + '/' + fileName;
-	const downloadURL = config.baseUrl + '/img/maps/' + fileName;
-	// TODO: resize/edit image?
-	return moveImageTo(fullPath).then(() => {
-		return Promise.resolve({
-			fileName: fileName,
-			basePath: basePath,
-			fullPath: fullPath,
-			downloadURL: downloadURL,
-		});
-	});
-};
+	config = require('../../config/config');
 
 const genFileHash = (mapPath) => {
 	return new Promise((resolve, reject) => {
@@ -157,7 +139,7 @@ module.exports = {
 	MAP_TYPE,
 
 	getAll: (userID, queryParams) => {
-		const allowedExpansions = ['info', 'credits'];
+		const allowedExpansions = ['info', 'credits', 'thumbnail'];
 		const queryOptions = {
 			distinct: true,
 			include: [],
@@ -235,7 +217,7 @@ module.exports = {
 	},
 
 	get: (mapID, userID, queryParams) => {
-		const allowedExpansions = ['info', 'credits', 'submitter', 'images', 'mapStats'];
+		const allowedExpansions = ['info', 'credits', 'submitter', 'images', 'thumbnail', 'mapStats'];
 		const queryOptions = { include: [], where: { id: mapID }};
 		if ('status' in queryParams)
 			queryOptions.where.statusFlag = {[Op.in]: queryParams.status.split(',')};
@@ -370,27 +352,6 @@ module.exports = {
 		return MapCredit.findAll(queryOptions);
 	},
 
-	updateAvatar: (mapID, avatarFile) => {
-		let mapModel = null;
-		return Map.findById(mapID, {
-			include: [
-				{ model: MapInfo, as: 'info' }
-			],
-		}).then(map => {
-			if (!map) {
-				const err = new Error('Map does not exist');
-				err.status = 404;
-				return Promise.reject(err);
-			}
-			mapModel = map;
-			return storeMapImage(avatarFile, map.name);
-		}).then((results) => {
-			return mapModel.info.update({
-				avatarURL: results.downloadURL,
-			});
-		});
-	},
-
 	verifySubmitter: (mapID, userID) => {
 		return new Promise((resolve, reject) => {
 			Map.findById(mapID).then(map => {
@@ -445,73 +406,6 @@ module.exports = {
 		MapStats.update({
 			totalDownloads: sequelize.literal('totalDownloads + 1')
 		}, { where: { mapID: mapID }});
-	},
-
-	getImages: (mapID) => {
-		return MapImage.findAll({
-			where: {mapID: mapID},
-		});
-	},
-
-	createImage: (mapID, mapImageFile) => {
-		const mapImageLimit = 5;
-		return MapImage.count({
-			where: { mapID: mapID }
-		}).then(count => {
-			if (count >= mapImageLimit) {
-				const err = new Error('Map image file limit reached');
-				err.status = 409;
-				return Promise.reject(err);
-			}
-			return sequelize.transaction(t => {
-				let newMapImage = null;
-				return MapImage.create({
-					mapID: mapID
-				}).then(mapImage => {
-					newMapImage = mapImage;
-					return storeMapImage(mapImageFile, mapImage.id);
-				}).then(results => {
-					return newMapImage.update({
-						URL: results.downloadURL
-					});
-				});
-			});
-		});
-	},
-
-	getImage: (imgID) => {
-		return MapImage.findById(imgID);
-	},
-
-	updateImage: (imgID, mapImageFile) => {
-		let mapImageModel = null;
-		return MapImage.findById(imgID).then(mapImage => {
-			if (!mapImage) {
-				const err = new Error('Map image not found');
-				err.status = 404;
-				return Promise.reject(err);
-			}
-			mapImageModel = mapImage;
-			return storeMapImage(mapImageFile, imgID);
-		}).then(results => {
-			return mapImageModel.update({
-				URL: results.downloadURL
-			});
-		});
-	},
-
-	deleteImage: (imgID) => {
-		if (isNaN(imgID)) {
-			const err = new Error('Invalid image ID');
-			err.status = 400;
-			return Promise.reject(err);
-		}
-		return deleteFile(__dirname + '/../../public/img/maps/' + imgID + '.jpg')
-		.then(() => {
-			return MapImage.destroy({
-				where: { id: imgID }
-			});
-		});
 	},
 
 };

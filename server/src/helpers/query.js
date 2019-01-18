@@ -20,9 +20,13 @@ const expansionMap = {
 			as: 'user',
 		}],
 	},
+	thumbnail: {
+		model: MapImage,
+		as: 'thumbnail',
+	},
 	images: {
 		model: MapImage,
-		as: 'images'
+		as: 'images',
 	},
 	map: {
 		model: Map,

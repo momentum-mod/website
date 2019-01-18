@@ -51,7 +51,7 @@ paths:
           collectionFormat: csv
           items:
             type: string
-            enum: [info, submitter, credits, inFavorites, inLibrary]
+            enum: [info, submitter, credits, thumbnail, inFavorites, inLibrary]
       responses:
         200:
           description: OK
@@ -76,7 +76,7 @@ paths:
           collectionFormat: csv
           items:
             type: string
-            enum: [info, submitter, credits, images, stats, inFavorites, inLibrary]
+            enum: [info, submitter, credits, thumbnail, images, stats, inFavorites, inLibrary]
       responses:
         200:
           description: OK
@@ -218,7 +218,7 @@ paths:
       responses:
         200:
           description: Map credit is deleted
-  /maps/{mapID}/avatar:
+  /maps/{mapID}/thumbnail:
     parameters:
       - name: mapID
         in: path
@@ -228,20 +228,20 @@ paths:
     put:
       tags:
         - maps
-      summary: Uploads and updates the avatar for a map
+      summary: Uploads and updates the thumbnail for a map
       consumes:
         - multipart/form-data
       parameters:
-        - name: avatarFile
+        - name: thumbnailFile
           in: formData
           required: true
-          description: The avatar image file to upload
+          description: The thumbnail image file to upload
           type: file
       responses:
-        200:
-          description: Map avatar is updated
+        204:
+          description: Map thumbnail is updated
         400:
-          description: No avatar file provided
+          description: No image file provided or image is invalid format
         404:
           description: Map is not found
   /maps/{mapID}/upload:
@@ -333,6 +333,8 @@ paths:
             $ref: '#/definitions/MapImage'
         400:
           description: No map image file provided
+        404:
+          description: Map not found
         409:
           description: Map image file limit reached
   /maps/{mapID}/images/{imgID}:
@@ -662,7 +664,11 @@ definitions:
       mapID:
         type: integer
         readOnly: true
-      URL:
+      small:
+        type: string
+      medium:
+        type: string
+      large:
         type: string
       createdAt:
         type: string

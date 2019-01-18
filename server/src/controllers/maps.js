@@ -1,6 +1,7 @@
 'use strict';
 const map = require('../models/map'),
 	mapCredit = require('../models/map-credit'),
+	mapImage = require('../models/map-image'),
 	config = require('../../config/config');
 
 const genMapNotFoundErr = () => {
@@ -140,16 +141,16 @@ module.exports = {
 		}).catch(next);
 	},
 
-	updateAvatar: (req, res, next) => {
-		if (req.files && req.files.avatarFile) {
+	updateThumbnail: (req, res, next) => {
+		if (req.files && req.files.thumbnailFile) {
 			map.verifySubmitter(req.params.mapID, req.user.id)
 			.then(() => {
-				return map.updateAvatar(req.params.mapID, req.files.avatarFile);
-			}).then(result => {
-				res.sendStatus(200);
+				return mapImage.updateThumbnail(req.params.mapID, req.files.thumbnailFile.data);
+			}).then(() => {
+				res.sendStatus(204);
 			}).catch(next);
 		} else {
-			const err = new Error('No avatar file provided');
+			const err = new Error('No image file provided');
 			err.status = 400;
 			next(err);
 		}
@@ -187,9 +188,11 @@ module.exports = {
 	},
 
 	getImages: (req, res, next) => {
-		map.getImages(req.params.mapID)
+		mapImage.getAll(req.params.mapID)
 		.then(images => {
-			res.json({ images: images });
+			if (images)
+				return res.json({ images: images });
+			next(genMapNotFoundErr());
 		}).catch(next);
 	},
 
@@ -197,7 +200,7 @@ module.exports = {
 		if (req.files && req.files.mapImageFile) {
 			map.verifySubmitter(req.params.mapID, req.user.id)
 			.then(() => {
-				return map.createImage(req.params.mapID, req.files.mapImageFile);
+				return mapImage.create(req.params.mapID, req.files.mapImageFile.data);
 			}).then(image => {
 				res.json(image);
 			}).catch(next);
@@ -209,11 +212,10 @@ module.exports = {
 	},
 
 	getImage: (req, res, next) => {
-		map.getImage(req.params.imgID)
+		mapImage.get(req.params.imgID)
 		.then(image => {
-			if (image) {
+			if (image)
 				return res.json(image);
-			}
 			next(genMapImageNotFoundErr());
 		}).catch(next);
 	},
@@ -222,7 +224,7 @@ module.exports = {
 		if (req.files && req.files.mapImageFile) {
 			map.verifySubmitter(req.params.mapID, req.user.id)
 			.then(() => {
-				return map.updateImage(req.params.imgID, req.files.mapImageFile);
+				return mapImage.update(req.params.imgID, req.files.mapImageFile.data);
 			}).then(() => {
 				res.sendStatus(204);
 			}).catch(next);
@@ -236,7 +238,7 @@ module.exports = {
 	deleteImage: (req, res, next) => {
 		map.verifySubmitter(req.params.mapID, req.user.id)
 		.then(() => {
-			return map.deleteImage(req.params.imgID);
+			return mapImage.delete(req.params.imgID);
 		}).then(() => {
 			res.sendStatus(204);
 		}).catch(next);
