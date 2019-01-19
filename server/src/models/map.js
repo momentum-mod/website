@@ -2,8 +2,9 @@
 const util = require('util'),
 	fs = require('fs'),
 	crypto = require('crypto'),
-	{ sequelize, Op, Map, MapInfo, MapCredit, User, MapStats, 
-	MapZoneStats, BaseStats, MapFavorite, MapLibraryEntry } = require('../../config/sqlize'),
+	{ sequelize, Op, Map, MapInfo, MapCredit, User,
+		MapStats, MapZoneStats, BaseStats, MapFavorite, MapLibraryEntry, UserMapRank, Run
+	} = require('../../config/sqlize'),
 	user = require('./user'),
 	activity = require('./activity'),
 	queryHelper = require('../helpers/query'),
@@ -209,6 +210,18 @@ module.exports = {
 					model: MapLibraryEntry,
 					as: 'libraryEntries',
 					where: { userID: userID },
+					required: false,
+				});
+			}
+			if (expansionNames.includes('mapRank')) {
+				queryOptions.include.push({
+					model: UserMapRank,
+					as: 'mapRanks',
+					where: { userID: userID },
+					include: [{
+						model: Run,
+						as: 'run',
+					}],
 					required: false,
 				});
 			}
