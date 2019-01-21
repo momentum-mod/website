@@ -1,7 +1,7 @@
 'use strict';
 const {
 	sequelize, MapLibraryEntry, Map, MapInfo, MapCredit, MapStats,
-	MapFavorite, User, Profile, UserMapRank, Run
+	MapFavorite, User, Profile, UserMapRank, Run, MapImage
 } = require('../../config/sqlize');
 
 module.exports = {
@@ -44,6 +44,9 @@ module.exports = {
 			// TODO uncomment the following
 			/*if (expansionNames.includes('gallery'))
 				queryContext.include[0].include.push({ })*/
+			if (expansionNames.includes('thumbnail')) {
+				queryOptions.include[0].include.push({ model: MapImage, as: 'thumbnail'});
+			}
 			if (expansionNames.includes('mapRank')) {
 				queryOptions.include[0].include.push({
 					model: UserMapRank,
