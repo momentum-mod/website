@@ -125,7 +125,7 @@ module.exports = {
 			where: {id: userID},
 		};
 		if (queryParams.mapRank && !isNaN(queryParams.mapRank)) {
-			queryContext.include.push({
+			queryOptions.include.push({
 				model: UserMapRank,
 				as: 'mapRanks',
 				where: {
@@ -134,11 +134,12 @@ module.exports = {
 				include: [{
 					model: Run,
 					as: 'run'
-				}]
+				}],
+				required: false,
 			})
 		}
 		queryHelper.addExpansions(queryOptions, queryParams.expand, allowedExpansions);
-		return User.find(queryOptions);
+		return User.findOne(queryOptions);
 	},
 
 	getAll: (queryParams) => {
