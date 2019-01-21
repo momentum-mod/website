@@ -150,7 +150,7 @@ module.exports = {
 			err.status = 404;
 			return Promise.reject(err);
 		}).then(thumbnailImage => {
-			thumbnailImageModel = thumbnailImage
+			thumbnailImageModel = thumbnailImage;
 			return storeMapImage(mapImageFile, thumbnailImage.id);
 		}).then(results => {
 			return sequelize.transaction(t => {
