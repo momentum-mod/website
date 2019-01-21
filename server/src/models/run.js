@@ -540,7 +540,8 @@ module.exports = {
 				{
 					model: UserMapRank,
 					as: 'rank',
-					attributes: ['rank']
+					attributes: ['rank'],
+					required: false,
 				}
 			],
 			order: [['time', 'ASC']],
@@ -558,7 +559,7 @@ module.exports = {
 		if (queryParams.flags)
 			queryOptions.where.flags = parseInt(queryParams.flags) || 0;
 		if (queryParams.isPersonalBest)
-			queryOptions.where.isPersonalBest = (queryParams.isPersonalBest === 'true');
+			queryOptions.where.isPersonalBest = (queryParams.isPersonalBest === true);
 		if (queryParams.order) {
 			if (queryParams.order === 'date')
 				queryOptions.order = [['createdAt', 'DESC']];
