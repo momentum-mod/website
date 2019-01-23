@@ -47,15 +47,21 @@ module.exports = {
 			if (expansionNames.includes('thumbnail')) {
 				queryOptions.include[0].include.push({ model: MapImage, as: 'thumbnail'});
 			}
-			if (expansionNames.includes('mapRank')) {
+			if (expansionNames.includes('worldRecord')) {
 				queryOptions.include[0].include.push({
 					model: UserMapRank,
-					as: 'mapRanks',
+					as: 'worldRecord',
+					where: { rank: 1 },
+					include: [Run],
+					required: false,
+				});
+			}
+			if (expansionNames.includes('personalBest')) {
+				queryOptions.include[0].include.push({
+					model: UserMapRank,
+					as: 'personalBest',
 					where: { userID: userID },
-					include: [{
-						model: Run,
-						as: 'run',
-					}],
+					include: [Run],
 					required: false,
 				})
 			}

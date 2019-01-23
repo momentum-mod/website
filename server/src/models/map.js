@@ -154,8 +154,9 @@ module.exports = {
 			queryOptions.offset = Math.min(Math.max(parseInt(queryParams.offset), 0), 5000);
 		if (queryParams.submitterID)
 			queryOptions.where.submitterID = queryParams.submitterID;
-		if (queryParams.search)
-			queryOptions.where.name = {[Op.like]: '%' + queryParams.search + '%'};
+		let nameSearch = queryParams.search || queryParams.name;
+		if (nameSearch)
+			queryOptions.where.name = {[Op.like]: '%' + nameSearch + '%'};
 		if (queryParams.type)
 			queryOptions.where.type = {[Op.in]: queryParams.type.split(',')};
 		if (queryParams.status && queryParams.statusNot) {
@@ -213,15 +214,21 @@ module.exports = {
 					required: false,
 				});
 			}
-			if (expansionNames.includes('mapRank')) {
+			if (expansionNames.includes('personalBest')) {
 				queryOptions.include.push({
 					model: UserMapRank,
-					as: 'mapRanks',
+					as: 'personalBest',
 					where: { userID: userID },
-					include: [{
-						model: Run,
-						as: 'run',
-					}],
+					include: [Run],
+					required: false,
+				});
+			}
+			if (expansionNames.includes('worldRecord')) {
+				queryOptions.include.push({
+					model: UserMapRank,
+					as: 'worldRecord',
+					where: { rank: 1 },
+					include: [Run],
 					required: false,
 				});
 			}

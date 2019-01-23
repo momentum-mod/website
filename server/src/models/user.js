@@ -127,14 +127,9 @@ module.exports = {
 		if (queryParams.mapRank && !isNaN(queryParams.mapRank)) {
 			queryOptions.include.push({
 				model: UserMapRank,
-				as: 'mapRanks',
-				where: {
-					mapID: queryParams.mapRank,
-				},
-				include: [{
-					model: Run,
-					as: 'run'
-				}],
+				as: 'mapRank',
+				where: { mapID: queryParams.mapRank },
+				include: [Run],
 				required: false,
 			})
 		}

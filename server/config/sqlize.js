@@ -91,7 +91,8 @@ User.hasOne(Profile, { foreignKey: 'userID' });
 User.hasMany(Activity, { foreignKey: 'userID' });
 User.hasOne(UserAuth, { as: 'auth', foreignKey: 'userID' });
 User.hasOne(UserStats, { as: 'stats', foreignKey: 'userID' });
-User.hasMany(UserMapRank, { as: 'mapRanks', foreignKey: 'userID'});
+User.hasMany(UserMapRank, { foreignKey: 'userID'});
+User.hasOne(UserMapRank, { as: 'mapRank', foreignKey: 'userID', constraints: false});
 Profile.hasOne(DiscordAuth, {foreignKey: 'profileID'});
 Profile.hasOne(TwitchAuth, {foreignKey: 'profileID'});
 Profile.hasOne(TwitterAuth, {foreignKey: 'profileID'});
@@ -105,7 +106,9 @@ MapLibraryEntry.belongsTo(Map, { as: 'map', foreignKey: 'mapID' });
 MapFavorite.belongsTo(User, { foreignKey: 'userID' });
 Map.hasMany(MapLibraryEntry, { as: 'libraryEntries', foreignKey: 'mapID' });
 Map.hasMany(MapFavorite, { as: 'favorites', foreignKey: 'mapID' });
-Map.hasMany(UserMapRank, { as: 'mapRanks', foreignKey: 'mapID'});
+Map.hasMany(UserMapRank, { foreignKey: 'mapID'});
+Map.hasOne(UserMapRank, { as: 'personalBest', foreignKey: 'mapID', constraints: false});
+Map.hasOne(UserMapRank, { as: 'worldRecord', foreignKey: 'mapID', constraints: false});
 MapFavorite.belongsTo(Map, { as: 'map', foreignKey: 'mapID' });
 MapCredit.belongsTo(Map, { as: 'map', foreignKey: 'mapID'});
 UserFollows.belongsTo(User, { as: 'followee', foreignKey: 'followeeID' });
@@ -133,9 +136,9 @@ Run.hasOne(RunStats, { as: 'stats', foreignKey: 'runID' });
 Run.hasOne(UserMapRank, { as: 'rank', foreignKey: 'runID'});
 RunStats.hasMany(RunZoneStats, { as: 'zoneStats', foreignKey: 'runStatsID' });
 RunZoneStats.belongsTo(BaseStats, { as: 'baseStats', foreignKey: 'baseStatsID'});
-UserMapRank.belongsTo(Run, { as: 'run', foreignKey: 'runID'});
-UserMapRank.belongsTo(User, { as: 'user', foreignKey: 'userID'});
-UserMapRank.belongsTo(Map, { as: 'map', foreignKey: 'mapID'});
+UserMapRank.belongsTo(Run, { foreignKey: 'runID'});
+UserMapRank.belongsTo(User, { foreignKey: 'userID'});
+UserMapRank.belongsTo(Map, { foreignKey: 'mapID'});
 
 if (env === 'development') {
 	forceSyncDB()
