@@ -219,7 +219,7 @@ module.exports = {
 					model: UserMapRank,
 					as: 'personalBest',
 					where: { userID: userID },
-					include: [Run],
+					include: [Run, User],
 					required: false,
 				});
 			}
@@ -228,7 +228,7 @@ module.exports = {
 					model: UserMapRank,
 					as: 'worldRecord',
 					where: { rank: 1 },
-					include: [Run],
+					include: [Run, User],
 					required: false,
 				});
 			}
