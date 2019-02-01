@@ -7,7 +7,7 @@ import { APP_BASE_HREF } from '@angular/common';
 import { BrowserModule } from '@angular/platform-browser';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { NgModule } from '@angular/core';
-import { HttpClientModule } from '@angular/common/http';
+import {HTTP_INTERCEPTORS, HttpClientModule} from '@angular/common/http';
 import { CoreModule } from './@core/core.module';
 
 import { AppComponent } from './app.component';
@@ -22,6 +22,7 @@ import {MarkdownModule, MarkedOptions} from 'ngx-markdown';
 import {NbDatepickerModule, NbDialogModule} from '@nebular/theme';
 import {ToasterModule} from 'angular2-toaster';
 import {DISQUS_SHORTNAME, DisqusModule} from 'ngx-disqus';
+import {RefreshTokenInterceptorService} from './@core/utils/refresh-token-interceptor.service';
 
 export function tokenGetter() {
   return localStorage.getItem('accessToken');
@@ -79,6 +80,7 @@ export function tokenGetter() {
   providers: [
     { provide: APP_BASE_HREF, useValue: '/' },
     { provide: DISQUS_SHORTNAME, useValue: 'momentum-mod' },
+    { provide: HTTP_INTERCEPTORS, useClass: RefreshTokenInterceptorService, multi: true },
   ],
 })
 export class AppModule {
