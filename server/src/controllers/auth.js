@@ -11,9 +11,13 @@ const postAuthData = (res) => {
 module.exports = {
 
 	throughSteamReturn: (req, res, next) => {
-		auth.genAccessToken(req.user)
-		.then((accessToken) => {
+		let accessToken = null;
+		auth.genAccessToken(req.user).then(token => {
+			accessToken = token;
+			return auth.createRefreshToken(req.user, false);
+		}).then(refreshToken => {
 			res.cookie('accessToken', accessToken);
+			res.cookie('refreshToken', refreshToken);
 			res.cookie('user', JSON.stringify(req.user));
 			res.redirect('/dashboard');
 		}).catch(next);
@@ -98,5 +102,30 @@ module.exports = {
 		}
 		else
 			res.sendStatus(400); // Bad request
-	}
+	},
+
+	refreshToken: (req, res, next) => {
+		auth.verifyToken(req.body.refreshToken).then(tokenPayload => {
+			return auth.refreshToken(tokenPayload.id, req.body.refreshToken);
+		}).then(newAccessToken => {
+			res.json({ accessToken: newAccessToken });
+		}).catch(next);
+	},
+
+	revokeToken: (req, res, next) => {
+		const authHeader = req.get('Authorization');
+		if (authHeader) {
+			const accessToken = authHeader.replace('Bearer ', '');
+			auth.verifyToken(accessToken).then(tokenPayload => {
+				return auth.revokeToken(tokenPayload.id);
+			}).then(() => {
+				res.sendStatus(204);
+			}).catch(next);
+		} else {
+			const err = new Error('Bad Request');
+			err.status = 400;
+			next(err);
+		}
+	},
+
 };

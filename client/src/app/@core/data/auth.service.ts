@@ -3,46 +3,51 @@ import {CookieService} from 'ngx-cookie-service';
 import {JwtHelperService} from '@auth0/angular-jwt';
 import {AccessTokenPayload} from '../models/access-token-payload';
 import {HttpClient} from '@angular/common/http';
-import {Observable} from 'rxjs';
+import {Observable, of} from 'rxjs';
 import 'rxjs-compat/add/operator/switchMap';
 import 'rxjs-compat/add/observable/throw';
 import {Router} from '@angular/router';
+import {finalize, map, share} from 'rxjs/operators';
+
+export interface TokenRefreshResponse {
+  accessToken: string;
+}
 
 @Injectable()
 export class AuthService {
   constructor(private cookieService: CookieService,
               private http: HttpClient,
               private router: Router) {
-    const cookieExists = this.cookieService.check('accessToken');
-    const jwtHelperService = new JwtHelperService();
-    if (cookieExists) {
-      const accessToken = this.cookieService.get('accessToken');
-      localStorage.setItem('accessToken', accessToken);
-      this.cookieService.delete('accessToken');
-    }
-    if (jwtHelperService.isTokenExpired(localStorage.getItem('accessToken'))) {
-      localStorage.setItem('accessToken', '');
-    }
+    this.moveCookieToLocalStorage('accessToken');
+    this.moveCookieToLocalStorage('refreshToken');
   }
 
   public logout(): void {
-    localStorage.setItem('accessToken', '');
-    localStorage.setItem('user', '');
-    this.router.navigateByUrl('/');
+    this.http.post('/auth/revoke', {}).pipe(
+      finalize(() => {
+        localStorage.removeItem('accessToken');
+        localStorage.removeItem('refreshToken');
+        localStorage.removeItem('user');
+        this.router.navigateByUrl('/');
+      }),
+    ).subscribe();
   }
 
   public isAuthenticated(): boolean {
-    const accessToken = localStorage.getItem('accessToken');
+    const accessToken = this.getAccessToken();
     if (!accessToken) {
       return false;
     }
     const jwtHelperService = new JwtHelperService();
-    const isTokenExpired = jwtHelperService.isTokenExpired(accessToken);
+    let isTokenExpired = true;
+    try {
+      isTokenExpired = jwtHelperService.isTokenExpired(accessToken);
+    } catch (err) {}
     return !isTokenExpired;
   }
 
   public getAccessTokenPayload(): AccessTokenPayload {
-    const accessToken = localStorage.getItem('accessToken');
+    const accessToken = this.getAccessToken();
     const jwtHelperService = new JwtHelperService();
     const decodedToken = jwtHelperService.decodeToken(accessToken);
     return decodedToken;
@@ -52,6 +57,35 @@ export class AuthService {
     return this.http.delete('/api/user/profile/social/' + authType, {
       responseType: 'text',
     });
+  }
+
+  private moveCookieToLocalStorage(cookieName: string): void {
+    const cookieExists = this.cookieService.check(cookieName);
+    if (cookieExists) {
+      const cookieValue = this.cookieService.get(cookieName);
+      localStorage.setItem(cookieName, cookieValue);
+      this.cookieService.delete(cookieName);
+    }
+  }
+
+  public refreshAccessToken(): Observable<string> {
+    const refreshToken = localStorage.getItem('refreshToken');
+    if (!refreshToken) {
+      return of(null);
+    }
+    return this.http.post('/auth/refresh', { refreshToken: refreshToken }).pipe(
+      share(),
+      map((res: TokenRefreshResponse) => {
+        const newAccessToken = res.accessToken;
+        localStorage.setItem('accessToken', newAccessToken);
+        return newAccessToken;
+      }),
+    );
+  }
+
+  public getAccessToken(): string {
+    const accessToken = localStorage.getItem('accessToken');
+    return accessToken;
   }
 
 }

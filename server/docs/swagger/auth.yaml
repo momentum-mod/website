@@ -1,4 +1,31 @@
 paths:
+  /auth/refresh:
+    post:
+      tags:
+        - auth
+      summary: Retrieves a new access token using a valid refresh token
+      responses:
+        400:
+          description: Bad request
+        401:
+          description: Invalid token given
+        200:
+          description: A new access token
+          schema:
+            type: object
+            properties:
+              accessToken:
+                type: string
+  /auth/revoke:
+    post:
+      tags:
+        - auth
+      summary: Ends the validity of any valid refresh token for the authenticated user (Logout)
+      responses:
+        204:
+          description: The action was a success
+        401:
+          description: Invalid token given
   /auth/steam:
     get:
       tags:

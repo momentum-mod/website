@@ -1,24 +1,45 @@
 'use strict';
 process.env.NODE_ENV = 'test';
 
-const chai = require('chai'),
+const { forceSyncDB, User, UserAuth } = require('../config/sqlize'),
+	chai = require('chai'),
 	chaiHttp = require('chai-http'),
 	expect = chai.expect,
 	jwt = require('jsonwebtoken'),
 	util = require('util'),
-	verifyJwt = util.promisify(jwt.verify),
+	verifyJWT = util.promisify(jwt.verify),
 	config = require('../config/config'),
 	server = require('../server'),
 	auth = require('../src/models/auth');
 
-	chai.use(chaiHttp);
+chai.use(chaiHttp);
 
 describe('auth', () => {
 
+	let accessToken = null;
 	const testUser = {
 		id: '2759389285395352',
-		permissions: 0
+		permissions: 0,
+		auth: {},
 	};
+
+	before(() => {
+		return forceSyncDB().then(() => {
+			return auth.genAccessToken(testUser);
+		}).then(token => {
+			accessToken = token;
+            return User.create(testUser, { include: [{ model: UserAuth, as: 'auth' }]});
+		}).then(() => {
+            return auth.createRefreshToken(testUser);
+        }).then(refreshToken => {
+            testUser.auth.refreshToken = refreshToken;
+            return Promise.resolve();
+        });
+	});
+
+	after(() => {
+		return forceSyncDB();
+	});
 
 	describe('modules', () => {
 		it('should generate a valid access token', () => {
@@ -26,7 +47,7 @@ describe('auth', () => {
 				id: testUser.id,
 				permissions: testUser.permissions
 			}).then(token => {
-				return verifyJwt(token, config.accessToken.secret);
+				return verifyJWT(token, config.accessToken.secret);
 			}).then(decodedToken => {
 				expect(decodedToken).to.have.property('id');
 				expect(decodedToken).to.have.property('permissions');
@@ -124,6 +145,65 @@ describe('auth', () => {
 		});
 
 		*/
+
+		describe('POST /auth/refresh', () => {
+            it('should respond with a 403 when a bad refresh token is provided', () => {
+                return chai.request(server)
+                .post('/auth/refresh')
+                .send({ refreshToken: 'xD.xD.xD' })
+                .then(res => {
+                    expect(res).to.have.status(401);
+                    expect(res).to.be.json;
+                    expect(res.body).to.have.property('error');
+                });
+            });
+            it('should respond with a new access token', () => {
+                return chai.request(server)
+                .post('/auth/refresh')
+                .send({ refreshToken: testUser.auth.refreshToken })
+                .then(res => {
+                    expect(res).to.have.status(200);
+                    expect(res).to.be.json;
+                    expect(res.body).to.have.property('accessToken').that.is.a('string');
+                });
+            });
+        });
+
+        describe('POST /auth/revoke', () => {
+            it('should respond with a 400 when no auth header is provided', () => {
+                return chai.request(server)
+                .post('/auth/revoke')
+                .then(res => {
+                    expect(res).to.have.status(400);
+                });
+            });
+            it('should respond with a 401 when the auth header is invalid', () => {
+                return chai.request(server)
+                .post('/auth/revoke')
+                .set('Authorization', 'Bearer xD.xD.xD')
+                .then(res => {
+                    expect(res).to.have.status(401);
+                });
+            });
+            it('should respond with a 204 when the auth header is valid', () => {
+				console.log(accessToken);
+                return chai.request(server)
+                .post('/auth/revoke')
+                .set('Authorization', 'Bearer ' + accessToken)
+                .then(res => {
+                    expect(res).to.have.status(204);
+                });
+            });
+            it('should make the refresh token unusable on success', () => {
+                return chai.request(server)
+                .post('/auth/refresh')
+                .send({ refreshToken: testUser.auth.refreshToken })
+                .then(res => {
+                    expect(res).to.have.status(401);
+                    expect(res).to.be.json;
+                });
+            });
+        });
 
 	});
 

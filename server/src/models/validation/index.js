@@ -2,6 +2,7 @@
 
 module.exports = {
 	activity: require('./activity'),
+	auth: require('./auth'),
 	mapCredit: require('./map-credit'),
 	mapImage: require('./map-image'),
 	mapInfo: require('./map-info'),
