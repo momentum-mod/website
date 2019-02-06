@@ -2,19 +2,13 @@
 const user = require('../models/user'),
 	mapCredits = require('../models/map-credit'),
 	runMdl = require('../models/run'),
-	activity = require('../models/activity');
-
-const genUserNotFoundErr = () => {
-	const err = new Error('User Not Found');
-	err.status = 404;
-	return err;
-}
+	activity = require('../models/activity'),
+	ServerError = require('../helpers/server-error');
 
 module.exports = {
 
 	getAll: (req, res, next) => {
-		user.getAll(req.query)
-		.then(results => {
+		user.getAll(req.query).then(results => {
 	        res.json({
 				count: results.count,
 	        	users: results.rows
@@ -25,27 +19,24 @@ module.exports = {
 	get: (req, res, next) => {
 		if (req.query.expand)
 			req.query.expand = req.query.expand.replace(/stats/g, 'userStats');
-		user.get(req.params.userID, req.query)
-		.then(user => {
+		user.get(req.params.userID, req.query).then(user => {
 			if (user)
 				return res.json(user);
-			next(genUserNotFoundErr());
+			next(new ServerError(404, 'User not found'));
 		}).catch(next);
 	},
 
 	getProfile: (req, res, next) => {
-		user.getProfile(req.params.userID)
-		.then(profile => {
+		user.getProfile(req.params.userID).then(profile => {
 			if (profile)
 				return res.json(profile);
-			next(genUserNotFoundErr());
+			next(new ServerError(404, 'User not found'));
 		}).catch(next);
 	},
 
 	getActivities: (req, res, next) => {
 		req.query.userID = req.params.userID;
-		activity.getAll(req.query)
-		.then(activities => {
+		activity.getAll(req.query).then(activities => {
 			res.json({
 				activities: activities
 			});
@@ -57,7 +48,7 @@ module.exports = {
 			res.json({
 				count: result.count,
 				followers: result.rows,
-			})
+			});
 		}).catch(next);
 	},
 
@@ -66,7 +57,7 @@ module.exports = {
 			res.json({
 				count: result.count,
 				followed: result.rows,
-			})
+			});
 		}).catch(next);
 	},
 
@@ -75,7 +66,7 @@ module.exports = {
 			res.json({
 				count: result.count,
 				credits: result.rows,
-			})
+			});
 		}).catch(next);
 	},
 

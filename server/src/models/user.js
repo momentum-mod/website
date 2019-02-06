@@ -7,6 +7,7 @@ const {
 	OAuth = require('oauth'),
 	config = require('../../config/config'),
 	queryHelper = require('../helpers/query'),
+	ServerError = require('../helpers/server-error'),
 	axios = require('axios');
 
 module.exports = {
@@ -88,13 +89,13 @@ module.exports = {
 			}).then(usr => {
 				return Promise.resolve({usr: usr, playerData: playerData})
 			});
-		}).then((userData) => {
+		}).then(userData => {
 			if (userData.usr)
 				return module.exports.updateSteamInfo(userData.usr, userData.playerData);
 			else if (userData.playerData)
 				return module.exports.create(id, userData.playerData);
 			else
-				return Promise.reject(new Error('Could not find player on Steam'));
+				return Promise.reject(new ServerError(500, 'Could not find player on Steam'));
 		});
 	},
 
@@ -105,14 +106,13 @@ module.exports = {
 			country: openIDProfile._json.loccountrycode,
 		};
 		return new Promise((resolve, reject) => {
-			User.findById(openIDProfile.id, {include: Profile})
-				.then(usr => {
-					if (usr) {
-						return module.exports.updateSteamInfo(usr, profile);
-					} else {
-						return module.exports.create(openIDProfile.id, profile);
-					}
-				}).then(usr => {
+			User.findById(openIDProfile.id, {include: Profile}).then(usr => {
+				if (usr) {
+					return module.exports.updateSteamInfo(usr, profile);
+				} else {
+					return module.exports.create(openIDProfile.id, profile);
+				}
+			}).then(usr => {
 				resolve(usr);
 			}).catch(reject);
 		});
@@ -143,10 +143,10 @@ module.exports = {
 			include: [],
 			limit: 20
 		};
-		if (queryParams.limit && !isNaN(queryParams.limit))
-			queryOptions.limit = Math.min(Math.max(parseInt(queryParams.limit), 1), 20);
-		if (queryParams.offset && !isNaN(queryParams.offset))
-			queryOptions.offset = Math.min(Math.max(parseInt(queryParams.offset), 0), 5000);
+		if (queryParams.limit)
+			queryOptions.limit = queryParams.limit;
+		if (queryParams.offset)
+			queryOptions.offset = queryParams.offset;
 		if (queryParams.search)
 			queryOptions.where.alias = {[Op.like]: '%' + (queryParams.search || '') + '%'};
 		if (queryParams.expand) {
@@ -183,18 +183,14 @@ module.exports = {
 				// Moderators are limited in what they can update
 				if (powerUser.permissions & module.exports.Permission.MODERATOR) {
 					if ((foundUsrAdmin || foundUsrMod) && (powerUser.id !== foundUsr.id)) {
-						const err = new Error('Cannot update user with >= power to you');
-						err.status = 403;
-						return Promise.reject(err);
+						return Promise.reject(new ServerError(403, 'Cannot update user with >= power to you'));
 					} else {
 						// Hard cap their permission to what they have by ensuring it won't be erased
 						usr.permissions |= ((foundUsrAdmin ? module.exports.Permission.ADMIN : 0) |
 							(foundUsrMod ? module.exports.Permission.MODERATOR : 0));
 					}
 				} else if (foundUsrAdmin && powerUser.id !== foundUsr.id) {
-					const err = new Error('Cannot update other admins');
-					err.status = 403;
-					return Promise.reject(err);
+					return Promise.reject(new ServerError(403, 'Cannot update other admins'));
 				}
 
 				// Only allow updating alias & permissions
@@ -211,9 +207,7 @@ module.exports = {
 				}
 				return Promise.all(updates);
 			} else {
-				const err = new Error('User not found');
-				err.status = 404;
-				return Promise.reject(err);
+				return Promise.reject(new ServerError(404, 'User not found'));
 			}
 		});
 	},
@@ -260,38 +254,26 @@ module.exports = {
 	},
 
 	createSocialLink: (profile, type, authData) => {
-		if (type) {
-			let model = null;
-			switch (type) {
-				case 'twitter':
-					model = TwitterAuth;
-					break;
-				case 'twitch':
-					model = TwitchAuth;
-					break;
-				case 'discord':
-					model = DiscordAuth;
-					break;
-				default:
-					break;
-			}
-			if (model) {
-				return model.findOrCreate({
-					where: {profileID: profile.id},
-					defaults: authData,
-				}).spread((authMdl, created) => {
-					return Promise.resolve(authMdl);
-				})
-			} else {
-				const err = new Error('Unsupported social link type');
-				err.status = 400;
-				return Promise.reject(err);
-			}
-		} else {
-			const err = new Error('Bad request');
-			err.status = 400;
-			return Promise.reject(err);
+		let model = null;
+		switch (type) {
+			case 'twitter':
+				model = TwitterAuth;
+				break;
+			case 'twitch':
+				model = TwitchAuth;
+				break;
+			case 'discord':
+				model = DiscordAuth;
+				break;
+			default:
+				break;
 		}
+		return model.findOrCreate({
+			where: {profileID: profile.id},
+			defaults: authData,
+		}).spread((authMdl, created) => {
+			return Promise.resolve(authMdl);
+		});
 	},
 
 	destroyTwitterLink: (profile) => {
@@ -322,9 +304,7 @@ module.exports = {
 						});
 				});
 			} else {
-				const err = new Error('Failed to destroy twitter auth, none currently stored!');
-				err.status = 400;
-				return Promise.reject(err);
+				return Promise.reject(new ServerError(400, 'Failed to destroy twitter auth, none currently stored!'));
 			}
 		}).then(mdl => {
 			return TwitterAuth.destroy({
@@ -350,9 +330,7 @@ module.exports = {
 						return Promise.reject();
 				})
 			} else {
-				const err = new Error('Failed to destroy twitch auth, none currently stored!');
-				err.status = 400;
-				return Promise.reject(err);
+				return Promise.reject(new ServerError(400, 'Failed to destroy twitch auth, none currently stored!'));
 			}
 		}).then(mdl => {
 			return TwitchAuth.destroy({
@@ -378,9 +356,7 @@ module.exports = {
 						return Promise.reject();
 				})
 			} else {
-				const err = new Error('Failed to destroy discord auth, none currently stored!');
-				err.status = 400;
-				return Promise.reject(err);
+				return Promise.reject(new ServerError(400, 'Failed to destroy discord auth, none currently stored!'));
 			}
 		}).then(mdl => {
 			return DiscordAuth.destroy({
@@ -396,11 +372,6 @@ module.exports = {
 			return module.exports.destroyTwitchLink(profile);
 		else if (type === 'discord')
 			return module.exports.destroyDiscordLink(profile);
-		else {
-			const err = new Error('Invalid social link type: ' + type);
-			err.status = 400;
-			return Promise.reject(err);
-		}
 	},
 
 	getFollowers: (userID) => {
@@ -480,11 +451,8 @@ module.exports = {
 
 	followUser: (followeeID, followedID) => {
 		return User.findById(followedID).then(user => {
-			if (!user) {
-				const err = new Error('User not found');
-				err.status = 404;
-				return Promise.reject(err);
-			}
+			if (!user)
+				return Promise.reject(new ServerError(404, 'User not found'));
 			return UserFollows.findOrCreate({
 				where: {followeeID: followeeID, followedID: followedID}
 			});
@@ -522,10 +490,10 @@ module.exports = {
 			limit: 10,
 			order: [['createdAt', 'DESC']],
 		};
-		if (queryParams.limit && !isNaN(queryParams.limit))
-			queryOptions.limit = Math.min(Math.max(parseInt(queryParams.limit), 1), 20);
-		if (queryParams.offset && !isNaN(queryParams.offset))
-			queryOptions.offset = Math.min(Math.max(parseInt(queryParams.offset), 0), 5000);
+		if (queryParams.limit)
+			queryOptions.limit = queryParams.limit;
+		if (queryParams.offset)
+			queryOptions.offset = queryParams.offset;
 		return Notification.findAndCountAll(queryOptions);
 	},
 
@@ -559,10 +527,10 @@ module.exports = {
 			limit: 10,
 			order: [['createdAt', 'DESC']],
 		};
-		if (queryParams.limit && !isNaN(queryParams.limit))
-			queryOptions.limit = Math.min(Math.max(parseInt(queryParams.limit), 1), 20);
-		if (queryParams.offset && !isNaN(queryParams.offset))
-			queryOptions.offset = Math.min(Math.max(parseInt(queryParams.offset), 0), 5000);
+		if (queryParams.limit)
+			queryOptions.limit = queryParams.limit;
+		if (queryParams.offset)
+			queryOptions.offset = queryParams.offset;
 		if (queryParams.data)
 			queryOptions.where.data = queryParams.data;
 		if (queryParams.type)
@@ -590,9 +558,7 @@ module.exports = {
 				if (res) {
 					if (res.status === 401) {
 						// Their profile/friends list is private, let them know
-						const err = new Error('Friends list or profile is private');
-						err.status = 409;
-						reject(err);
+						reject(new ServerError('Friends list or profile is private'));
 					} else if (res.data) {
 						const friendIDs = [];
 						for (let i = 0; i < res.data.friendslist.friends.length; i++)
@@ -601,15 +567,11 @@ module.exports = {
 							resolve(friendIDs);
 						else {
 							// They don't have any friends :(
-							const err = new Error('No friends detected :(');
-							err.status = 418; // I'm a little teapot~
-							reject(err);
+							reject(new ServerError(418, 'No friends detected :(')); // I'm a little teapot~
 						}
 					}
 				} else {
-					const err = new Error('Failed to get Steam friends list');
-					err.status = 500;
-					reject(err);
+					reject(new ServerError(500, 'Failed to get Steam friends list'));
 				}
 			});
 		});

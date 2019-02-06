@@ -186,7 +186,6 @@ describe('auth', () => {
                 });
             });
             it('should respond with a 204 when the auth header is valid', () => {
-				console.log(accessToken);
                 return chai.request(server)
                 .post('/auth/revoke')
                 .set('Authorization', 'Bearer ' + accessToken)

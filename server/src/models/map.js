@@ -8,6 +8,7 @@ const util = require('util'),
 	user = require('./user'),
 	activity = require('./activity'),
 	queryHelper = require('../helpers/query'),
+	ServerError = require('../helpers/server-error'),
 	config = require('../../config/config');
 
 const genFileHash = (mapPath) => {
@@ -47,11 +48,8 @@ const verifyMapNameNotTaken = (mapName) => {
 			statusFlag: {[Op.notIn]: [STATUS.REJECTED, STATUS.REMOVED]}
 		}
 	}).then(mapWithSameName => {
-		if (mapWithSameName) {
-			const err = new Error('Map name already used');
-			err.status = 409;
-			return Promise.reject(err);
-		}
+		if (mapWithSameName)
+			return Promise.reject(new ServerError(409, 'Map name already used'));
 	});
 }
 
@@ -63,11 +61,8 @@ const verifyMapUploadLimitNotReached = (submitterID) => {
 			statusFlag: STATUS.PENDING,
 		},
 	}).then(count => {
-		if (count >= mapUploadLimit) {
-			const err = new Error('Map creation limit reached');
-			err.status = 409;
-			return Promise.reject(err);
-		}
+		if (count >= mapUploadLimit)
+			return Promise.reject(new ServerError(409, 'Map creation limit reached'));
 	});
 }
 
@@ -148,10 +143,10 @@ module.exports = {
 			limit: 20,
 			order: [['createdAt', 'DESC']]
 		};
-		if (queryParams.limit && !isNaN(queryParams.limit))
-			queryOptions.limit = Math.min(Math.max(parseInt(queryParams.limit), 1), 20);
-		if (queryParams.offset && !isNaN(queryParams.offset))
-			queryOptions.offset = Math.min(Math.max(parseInt(queryParams.offset), 0), 5000);
+		if (queryParams.limit)
+			queryOptions.limit = queryParams.limit;
+		if (queryParams.offset)
+			queryOptions.offset = queryParams.offset;
 		if (queryParams.submitterID)
 			queryOptions.where.submitterID = queryParams.submitterID;
 		if (queryParams.search)
@@ -289,69 +284,57 @@ module.exports = {
 	},
 
 	create: (map) => {
-		if (!map.info) {
-			const err = new Error("Missing info block");
-			err.status = 400;
-			return Promise.reject(err);
-		}
-		return verifyMapUploadLimitNotReached(map.submitterID)
-		.then(() => {
+		return verifyMapUploadLimitNotReached(map.submitterID).then(() => {
 			return verifyMapNameNotTaken(map.name);
 		}).then(() => {
 			return sequelize.transaction(t => {
-				if (map.info.numZones) {
-					const zoneStats = [];
-					for (let i = 0; i < map.info.numZones + 1; i++) {
-						zoneStats.push({
-							zoneNum: i,
-							baseStats: {},
-						});
-					}
-					map.stats = {
-						zoneStats: zoneStats,
-					};
-					return Map.create(map, {
-						include: [
-							{ model: MapInfo, as: 'info' },
-							{ model: MapCredit, as: 'credits' },
-							{
-								model: MapStats,
-								as: 'stats',
-								include: [{
-									model: MapZoneStats,
-									as: 'zoneStats',
-									include: [{
-										model: BaseStats,
-										as: 'baseStats',
-									}]
-								}]
-							}
-						],
-						transaction: t
-					}).then(mapModel => {
-						if (map.credits && map.credits.length) {
-							const activities = [];
-							for (const credit of map.credits) {
-								activities.push(
-									activity.create({
-										type: activity.ACTIVITY_TYPES.MAP_UPLOADED,
-										userID: credit.userID,
-										data: mapModel.id,
-									}, t)
-								);
-							}
-							return Promise.all(activities).then(() => {
-								return Promise.resolve(mapModel);
-							});
-						} else {
-							return Promise.resolve(mapModel);
-						}
+				const zoneStats = [];
+				for (let i = 0; i < map.info.numZones + 1; i++) {
+					zoneStats.push({
+						zoneNum: i,
+						baseStats: {},
 					});
-				} else {
-					const err = new Error('Invalid number of zones in map');
-					err.status = 400;
-					return Promise.reject(err);
 				}
+				map.stats = {
+					zoneStats: zoneStats,
+				};
+				return Map.create(map, {
+					include: [
+						{ model: MapInfo, as: 'info' },
+						{ model: MapCredit, as: 'credits' },
+						{
+							model: MapStats,
+							as: 'stats',
+							include: [{
+								model: MapZoneStats,
+								as: 'zoneStats',
+								include: [{
+									model: BaseStats,
+									as: 'baseStats',
+								}]
+							}]
+						}
+					],
+					transaction: t
+				}).then(mapModel => {
+					if (map.credits && map.credits.length) {
+						const activities = [];
+						for (const credit of map.credits) {
+							activities.push(
+								activity.create({
+									type: activity.ACTIVITY_TYPES.MAP_UPLOADED,
+									userID: credit.userID,
+									data: mapModel.id,
+								}, t)
+							);
+						}
+						return Promise.all(activities).then(() => {
+							return Promise.resolve(mapModel);
+						});
+					} else {
+						return Promise.resolve(mapModel);
+					}
+				});
 			});
 		});
 	},
@@ -399,13 +382,10 @@ module.exports = {
 	verifySubmitter: (mapID, userID) => {
 		return new Promise((resolve, reject) => {
 			Map.findById(mapID).then(map => {
-				if (map && map.submitterID === userID) {
+				if (map && map.submitterID === userID)
 					resolve();
-				} else {
-					const err = new Error('Forbidden');
-					err.status = 403;
-					reject(err);
-				}
+				else
+					reject(new ServerError(403, 'Forbidden'));
 			});
 		});
 	},
@@ -413,15 +393,10 @@ module.exports = {
 	upload: (mapID, mapFile) => {
 		let mapModel = null;
 		return Map.findById(mapID).then(map => {
-			if (!map) {
-				const err = new Error('Map does not exist');
-				err.status = 404;
-				return Promise.reject(err);
-			} else if (map.statusFlag !== STATUS.NEEDS_REVISION) {
-				const err = new Error('Map file cannot be uploaded given the map state');
-				err.status = 409;
-				return Promise.reject(err);
-			}
+			if (!map)
+				return Promise.reject(new ServerError(404, 'Map not found'));
+			else if (map.statusFlag !== STATUS.NEEDS_REVISION)
+				return Promise.reject(new ServerError(409, 'Map file cannot be uploaded given the map state'));
 			mapModel = map;
 			return storeMapFile(mapFile, map);
 		}).then((results) => {
@@ -435,11 +410,8 @@ module.exports = {
 
 	getFilePath: (mapID) => {
 		return Map.findById(mapID).then(map => {
-			if (!map) {
-				const err = new Error('Map does not exist');
-				err.status = 404;
-				return Promise.reject(err);
-			}
+			if (!map)
+				return Promise.reject(new ServerError(404, 'Map not found'));
 			const mapFileName = map.name + '.bsp';
 			const filePath = __dirname + '/../../public/maps/' + mapFileName;
 			return Promise.resolve(filePath);

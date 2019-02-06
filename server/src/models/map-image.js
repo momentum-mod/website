@@ -2,6 +2,7 @@
 const imageEditor = require('sharp'),
 	fs = require('fs'),
 	config = require('../../config/config'),
+	ServerError = require('../helpers/server-error'),
 	{ sequelize, Map, MapImage } = require('../../config/sqlize');
 
 const editAndSaveMapImageFile = (imageFileBuffer, fileName, width, height) => {
@@ -64,17 +65,12 @@ module.exports = {
 				mapModel = map;
 				return MapImage.count({ where: { mapID: mapID }});
 			}
-			const err = new Error('Map not found');
-			err.status = 404;
-			return Promise.reject(err);
+			return Promise.reject(new ServerError(404, 'Map not found'));
 		}).then(imageCount => {
 			if (!mapModel.thumbnailID)
 				imageCount++; // compensate for missing thumbnail image that can exist
-			if (imageCount >= MAP_IMAGE_UPLOAD_LIMIT) {
-				const err = new Error('Map image file limit reached');
-				err.status = 409;
-				return Promise.reject(err);
-			}
+			if (imageCount >= MAP_IMAGE_UPLOAD_LIMIT)
+				return Promise.reject(new ServerError(409, 'Map image file limit reached'));
 			return sequelize.transaction(t => {
 				let newMapImage = null;
 				return MapImage.create({ mapID: mapID }, {
@@ -104,9 +100,7 @@ module.exports = {
 				mapImageModel = mapImage;
 				return storeMapImage(mapImageFile, imgID);
 			}
-			const err = new Error('Map image not found');
-			err.status = 404;
-			return Promise.reject(err);
+			return Promise.reject(new ServerError(404, 'Map image not found'));
 		}).then(results => {
 			return mapImageModel.update({
 				small: results[0].downloadURL,
@@ -117,11 +111,6 @@ module.exports = {
 	},
 
 	delete: (imgID) => {
-		if (isNaN(imgID)) {
-			const err = new Error('Invalid image ID');
-			err.status = 400;
-			return Promise.reject(err);
-		}
 		return Promise.all([
 			deleteMapImageFile(__dirname + '/../../public/img/maps/' + imgID + '-small.jpg'),
 			deleteMapImageFile(__dirname + '/../../public/img/maps/' + imgID + '-medium.jpg'),
@@ -146,9 +135,7 @@ module.exports = {
 				else
 					return MapImage.create({ mapID: mapID });
 			}
-			const err = new Error('Map does not exist');
-			err.status = 404;
-			return Promise.reject(err);
+			return Promise.reject(new ServerError(404, 'Map not found'));
 		}).then(thumbnailImage => {
 			thumbnailImageModel = thumbnailImage;
 			return storeMapImage(mapImageFile, thumbnailImage.id);

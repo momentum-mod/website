@@ -114,18 +114,12 @@ module.exports = {
 
 	revokeToken: (req, res, next) => {
 		const authHeader = req.get('Authorization');
-		if (authHeader) {
-			const accessToken = authHeader.replace('Bearer ', '');
-			auth.verifyToken(accessToken).then(tokenPayload => {
-				return auth.revokeToken(tokenPayload.id);
-			}).then(() => {
-				res.sendStatus(204);
-			}).catch(next);
-		} else {
-			const err = new Error('Bad Request');
-			err.status = 400;
-			next(err);
-		}
+		const accessToken = authHeader.replace('Bearer ', '');
+		auth.verifyToken(accessToken).then(tokenPayload => {
+			return auth.revokeToken(tokenPayload.id);
+		}).then(() => {
+			res.sendStatus(204);
+		}).catch(next);
 	},
 
 };

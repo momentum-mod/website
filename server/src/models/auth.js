@@ -3,6 +3,7 @@ const jwt = require('jsonwebtoken'),
 	util = require('util'),
 	{ User, UserAuth } = require('../../config/sqlize'),
 	config = require('../../config/config'),
+	ServerError = require('../helpers/server-error'),
 	createJWT = util.promisify(jwt.sign),
 	verifyJWT = util.promisify(jwt.verify);
 
@@ -28,9 +29,7 @@ module.exports = {
 		}).then(user => {
 			if (user)
 				return module.exports.genAccessToken(user);
-			const err = new Error('Forbidden');
-			err.status = 401;
-			return Promise.reject(err);
+			return Promise.reject(new ServerError(401, 'Forbidden'));
 		});
 	},
 
