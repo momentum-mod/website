@@ -1,10 +1,9 @@
 'use strict';
-
-const { sequelize, Op, Map, MapInfo, MapCredit, User, Profile, Activity } = require('../../config/sqlize'),
-	queryHelper = require('../helpers/query'),
-	config = require('../../config/config');
+const { MapCredit } = require('../../config/sqlize'),
+	queryHelper = require('../helpers/query');
 
 module.exports = {
+
 	getCreditsByUser: (userID, queryParams) => {
 		const queryOptions = {
 			distinct: true,
@@ -14,11 +13,11 @@ module.exports = {
 			include: [],
 			order: [['createdAt', 'DESC']],
 		};
-		if (queryParams.limit && !isNaN(queryParams.limit))
-			queryOptions.limit = Math.min(Math.max(parseInt(queryParams.limit), 1), 20);
-		if (queryParams.offset && !isNaN(queryParams.offset))
-			queryOptions.offset = Math.min(Math.max(parseInt(queryParams.offset), 0), 5000);
-		if (queryParams.map && !isNaN(queryParams.map))
+		if (queryParams.limit)
+			queryOptions.limit = queryParams.limit;
+		if (queryParams.offset)
+			queryOptions.offset = queryParams.offset;
+		if (queryParams.map)
 			queryOptions.where.mapID = queryParams.map;
 		queryHelper.addExpansions(queryOptions, queryParams.expand, ['map', 'mapWithInfo']);
 		return MapCredit.findAndCountAll(queryOptions);
@@ -58,4 +57,5 @@ module.exports = {
 			}
 		});
 	},
+
 };

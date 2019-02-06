@@ -4,27 +4,15 @@ const user = require('../models/user'),
 	activity = require('../models/activity'),
 	mapCredit = require('../models/map-credit'),
 	mapLibrary = require('../models/map-library'),
-	mapFavorite = require('../models/map-favorite');
-
-const genMapLibraryEntryNotFound = () => {
-	const err = new Error('Map Library Entry Not Found');
-	err.status = 404;
-	return err;
-};
-
-const genMapFavoriteNotFound = () => {
-	const err = new Error('Map Favorite Not Found');
-	err.status = 404;
-	return err;
-}
+	mapFavorite = require('../models/map-favorite'),
+	ServerError = require('../helpers/server-error');
 
 module.exports = {
 
 	get: (req, res, next) => {
 		if (req.query.expand)
 			req.query.expand = req.query.expand.replace(/stats/g, 'userStats');
-		user.get(req.user.id, req.query)
-		.then(user => {
+		user.get(req.user.id, req.query).then(user => {
 			return res.json(user);
 		}).catch(next);
 	},
@@ -36,8 +24,7 @@ module.exports = {
 	},
 
 	getProfile: (req, res, next) => {
-		user.getProfile(req.user.id)
-		.then(profile => {
+		user.getProfile(req.user.id).then(profile => {
 			res.json(profile);
 		}).catch(next);
 	},
@@ -46,8 +33,7 @@ module.exports = {
 		user.getProfile(req.user.id).then(profile => {
 			return user.createSocialLink(profile, req.params.type, req.body);
 		}).then(resp => {
-			res.status(201);
-			res.json(resp);
+			res.status(201).json(resp);
 		}).catch(next);
 	},
 
@@ -70,8 +56,7 @@ module.exports = {
 
 	getSubmittedMaps: (req, res, next) => {
 		req.query.submitterID = req.user.id;
-		map.getAll(req.user.id, req.query)
-		.then(results => {
+		map.getAll(req.user.id, req.query).then(results => {
 			res.json({
 				count: results.count,
 				maps: results.rows
@@ -80,8 +65,7 @@ module.exports = {
 	},
 
 	getSubmittedMapSummary: (req, res, next) => {
-		user.getSubmittedMapSummary(req.user.id)
-		.then(results => {
+		user.getSubmittedMapSummary(req.user.id).then(results => {
 			res.json(results);
 		}).catch(next);
 	},
@@ -113,7 +97,7 @@ module.exports = {
 		mapLibrary.isMapInLibrary(req.user.id, req.params.mapID).then(entry => {
 			if (entry)
 				return res.sendStatus(200);
-			next(genMapLibraryEntryNotFound());
+			next(new ServerError(404, 'Map library entry not found'));
 		}).catch(next);
 	},
 
@@ -121,7 +105,7 @@ module.exports = {
 		mapFavorite.getUserFavorite(req.user.id, req.params.mapID).then(favorite => {
 			if (favorite)
 				return res.json(favorite);
-			next(genMapFavoriteNotFound());
+			next(new ServerError(404, 'Map favorite not found'));
 		}).catch(next);
 	},
 

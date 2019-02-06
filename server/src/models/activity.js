@@ -1,6 +1,5 @@
 'use strict';
-const { sequelize, Op, User, Activity, Map, Profile, Notification, UserFollows } = require('../../config/sqlize'),
-	queryHelper = require('../helpers/query');
+const { sequelize, Op, User, Activity, Profile, Notification, UserFollows } = require('../../config/sqlize');
 
 const genNotifications = (activityModel, transaction) => {
 	return UserFollows.findAll({
@@ -49,10 +48,10 @@ module.exports = {
 			limit: 10,
 			order: [['createdAt', 'DESC']]
 		};
-		if (queryParams.limit && !isNaN(queryParams.limit))
-			queryOptions.limit = Math.min(Math.max(parseInt(queryParams.limit), 1), 20);
-		if (queryParams.offset && !isNaN(queryParams.offset))
-			queryOptions.offset = Math.min(Math.max(parseInt(queryParams.offset), 0), 5000);
+		if (queryParams.limit)
+			queryOptions.limit = queryParams.limit;
+		if (queryParams.offset)
+			queryOptions.offset = queryParams.offset;
 		if (queryParams.userID)
 			queryOptions.where.userID = queryParams.userID;
 		if (queryParams.data)
@@ -63,8 +62,7 @@ module.exports = {
 	},
 
 	create: (activity, transaction) => {
-		return Activity.create(activity, transaction)
-		.then(act => {
+		return Activity.create(activity, transaction).then(act => {
 			return genNotifications(act, transaction);
 		});
 	},

@@ -1,11 +1,11 @@
 'use strict';
-const util = require('util'),
-	crypto = require('crypto'),
+const crypto = require('crypto'),
 	{ sequelize, Op, Map, MapInfo, MapStats, Run, RunStats,
 		RunZoneStats, MapZoneStats, BaseStats, User, UserStats, UserMapRank } = require('../../config/sqlize'),
 	activity = require('./activity'),
 	config = require('../../config/config'),
 	queryHelper = require('../helpers/query'),
+	ServerError = require('../helpers/server-error'),
 	fs = require('fs');
 
 const validateRunFile = (resultObj) => {
@@ -46,7 +46,7 @@ const validateRunFile = (resultObj) => {
 		}
 		else {
 			// console.log([b1, b2, b3, b4, b5, b6]);
-			reject(genBadRequest());
+			reject(new ServerError(400, 'Bad request'));
 		}
 	});
 };
@@ -145,9 +145,7 @@ const processRunFile = (resultObj) => {
 		}
 
 		if (!resultObj.bin.ok) {
-			const err = new Error('Bad request');
-			err.status = 400;
-			reject(err);
+			reject(new ServerError(400, 'Bad request'));
 		}
 		else {
 			const hash = crypto.createHash('sha1');
@@ -278,8 +276,7 @@ const saveRun = (resultObj) => {
 	return sequelize.transaction(t => {
 		let runModel = {};
 		// First do MapZoneStats -> MapStats -> UserStats -> UserMapRank updating
-		return updateStats(resultObj, t)
-		.then(() => { // Create the run
+		return updateStats(resultObj, t).then(() => { // Create the run
 			return Run.create(resultObj.runModel, {
 				include: [{
 						as: 'stats',
@@ -461,18 +458,6 @@ const updateStats = (resultObj, transaction) => {
 	});
 };
 
-const genNotFoundErr = () => {
-	const err = new Error('Run Not Found');
-	err.status = 404;
-	return err;
-};
-
-const genBadRequest = () => {
-	const err = new Error('Bad request');
-	err.status = 400;
-	return err;
-};
-
 const Flag = Object.freeze({
 	BACKWARDS: 1 << 0,
 	LOW_GRAVITY: 1 << 1,
@@ -481,11 +466,9 @@ const Flag = Object.freeze({
 
 module.exports = {
 
-	genNotFoundErr,
-
 	create: (mapID, userID, runFile) => {
 		if (runFile.length === 0) {
-			return Promise.reject(genBadRequest());
+			return Promise.reject(new ServerError(400, 'Bad request'));
 		}
 
 		let resultObj = {
@@ -505,7 +488,7 @@ module.exports = {
 				]
 		}).then(map => {
 			if (!map)
-				return Promise.reject(genBadRequest());
+				return Promise.reject(new ServerError(400, 'Bad request'));
 			resultObj.map = map;
 			return Promise.resolve();
 		}).then(() => {
@@ -546,10 +529,10 @@ module.exports = {
 			],
 			order: [['time', 'ASC']],
 		};
-		if (queryParams.limit && !isNaN(queryParams.limit))
-			queryOptions.limit = Math.min(Math.max(parseInt(queryParams.limit), 1), 20);
-		if (queryParams.offset && !isNaN(queryParams.offset))
-			queryOptions.offset = Math.min(Math.max(parseInt(queryParams.offset), 0), 5000);
+		if (queryParams.limit)
+			queryOptions.limit = queryParams.limit;
+		if (queryParams.offset)
+			queryOptions.offset = queryParams.offset;
 		if (queryParams.mapID)
 			queryOptions.where.mapID = queryParams.mapID;
 		if (queryParams.playerID)
@@ -612,9 +595,7 @@ module.exports = {
 				return UserMapRank.findAndCountAll(queryOptions)
 			} else {
 				// They don't have a time, error out
-				const err = new Error('No personal best detected');
-				err.status = 403;
-				return Promise.reject(err);
+				return Promise.reject(new ServerError(403, 'No personal best detected'));
 			}
 		});
 	},
