@@ -9,7 +9,8 @@ module.exports = {
 			where: {
 				userID: userID,
 				mapID: mapID,
-			}
+			},
+			raw: true,
 		});
 	},
 
@@ -115,7 +116,8 @@ module.exports = {
 					userID: userID,
 					mapID: mapID
 				},
-				transaction: t
+				raw: true,
+				transaction: t,
 			}).spread((mapFavorite, created) => {
 				mapFavModel = mapFavorite;
 				if (!created)

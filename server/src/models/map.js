@@ -46,7 +46,8 @@ const verifyMapNameNotTaken = (mapName) => {
 		where: {
 			name: mapName,
 			statusFlag: {[Op.notIn]: [STATUS.REJECTED, STATUS.REMOVED]}
-		}
+		},
+		raw: true,
 	}).then(mapWithSameName => {
 		if (mapWithSameName)
 			return Promise.reject(new ServerError(409, 'Map name already used'));
@@ -75,6 +76,7 @@ const onMapApproval = (mapID, transaction) => {
 	const authorIDs = [];
 	return MapCredit.findAll({
 		where: { mapID: mapID, type: CreditType.AUTHOR },
+		raw: true,
 	}).then(credits => {
 		const activities = [];
 		for (const credit of credits) {
@@ -362,7 +364,8 @@ module.exports = {
 
 	getInfo: (mapID) => {
 		return MapInfo.find({
-			where: { mapID: mapID }
+			where: { mapID: mapID },
+			raw: true,
 		});
 	},
 
@@ -381,7 +384,9 @@ module.exports = {
 
 	verifySubmitter: (mapID, userID) => {
 		return new Promise((resolve, reject) => {
-			Map.findById(mapID).then(map => {
+			Map.findById(mapID, {
+				raw: true,
+			}).then(map => {
 				if (map && map.submitterID === userID)
 					resolve();
 				else
@@ -409,7 +414,9 @@ module.exports = {
 	},
 
 	getFilePath: (mapID) => {
-		return Map.findById(mapID).then(map => {
+		return Map.findById(mapID, {
+			raw: true,
+		}).then(map => {
 			if (!map)
 				return Promise.reject(new ServerError(404, 'Map not found'));
 			const mapFileName = map.name + '.bsp';

@@ -278,7 +278,8 @@ module.exports = {
 
 	destroyTwitterLink: (profile) => {
 		return TwitterAuth.findOne({
-			where: {profileID: profile.id}
+			where: {profileID: profile.id},
+			raw: true,
 		}).then(mdl => {
 			if (mdl) {
 				return new Promise((res, rej) => {
@@ -315,7 +316,8 @@ module.exports = {
 
 	destroyTwitchLink: (profile) => {
 		return TwitchAuth.findOne({
-			where: {profileID: profile.id}
+			where: {profileID: profile.id},
+			raw: true,
 		}).then(mdl => {
 			if (mdl) {
 				return axios.post('https://id.twitch.tv/oauth2/revoke', `token=${mdl.token}&token_type_hint=refresh_token`, {
@@ -341,7 +343,8 @@ module.exports = {
 
 	destroyDiscordLink: (profile) => {
 		return DiscordAuth.findOne({
-			where: {profileID: profile.id}
+			where: {profileID: profile.id},
+			raw: true,
 		}).then(mdl => {
 			if (mdl) {
 				return axios.post('https://discordapp.com/api/oauth2/token/revoke', `token=${mdl.refreshToken}&token_type_hint=refresh_token`, {
@@ -433,13 +436,15 @@ module.exports = {
 	checkFollowStatus: (localUserID, userToCheck) => {
 		let followStatus = {};
 		return UserFollows.findOne({
-			where: {followeeID: localUserID, followedID: userToCheck}
+			where: {followeeID: localUserID, followedID: userToCheck},
+			raw: true,
 		}).then(resp => {
 			if (resp)
 				followStatus.local = resp;
 
 			return UserFollows.findOne({
-				where: {followeeID: userToCheck, followedID: localUserID}
+				where: {followeeID: userToCheck, followedID: localUserID},
+				raw: true,
 			})
 		}).then(resp => {
 			if (resp)
@@ -454,7 +459,8 @@ module.exports = {
 			if (!user)
 				return Promise.reject(new ServerError(404, 'User not found'));
 			return UserFollows.findOrCreate({
-				where: {followeeID: followeeID, followedID: followedID}
+				where: {followeeID: followeeID, followedID: followedID},
+				raw: true,
 			});
 		});
 	},
@@ -543,6 +549,7 @@ module.exports = {
 			where: {submitterID: userID},
 			group: ['statusFlag'],
 			attributes: ['statusFlag', [sequelize.fn('COUNT', 'statusFlag'), 'statusCount']],
+			raw: true,
 		});
 	},
 
