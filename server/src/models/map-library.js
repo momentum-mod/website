@@ -102,6 +102,7 @@ module.exports = {
 					userID: userID,
 					mapID: mapID
 				},
+				raw: true,
 				transaction: t
 			}).spread((mapLibEntry, created) => {
 				mapLibModel = mapLibEntry;
@@ -124,7 +125,8 @@ module.exports = {
 			where: {
 				userID: userID,
 				mapID: mapID,
-			}
+			},
+			raw: true,
 		});
 	}
 };

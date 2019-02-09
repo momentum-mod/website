@@ -382,6 +382,7 @@ const updateStats = (resultObj, transaction) => {
 				mapID: resultObj.map.id,
 				playerID: resultObj.playerID,
 			},
+			raw: true,
 			transaction: transaction,
 		})
 	}).then(run => { // MapStats
@@ -566,7 +567,8 @@ module.exports = {
 			where: {
 				mapID: mapID,
 				userID: userID,
-			}
+			},
+			raw: true,
 		}).then(userMapRank => {
 			if (userMapRank) {
 				const queryOptions = {

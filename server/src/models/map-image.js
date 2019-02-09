@@ -60,7 +60,9 @@ module.exports = {
 
 	create: (mapID, mapImageFile) => {
 		let mapModel = null;
-		return Map.findById(mapID).then(map => {
+		return Map.findById(mapID, {
+			raw: true
+		}).then(map => {
 			if (map) {
 				mapModel = map;
 				return MapImage.count({ where: { mapID: mapID }});
@@ -90,7 +92,9 @@ module.exports = {
 	},
 
 	get: (imgID) => {
-		return MapImage.findById(imgID);
+		return MapImage.findById(imgID, {
+			raw: true,
+		});
 	},
 
 	update: (imgID, mapImageFile) => {
