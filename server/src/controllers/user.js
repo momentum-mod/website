@@ -135,8 +135,8 @@ module.exports = {
 	},
 
 	addMapToFavorites: (req, res, next) => {
-		mapFavorite.addMapToFavorites(req.user.id, req.params.mapID).then(() => {
-			res.sendStatus(204);
+		mapFavorite.addMapToFavorites(req.user.id, req.params.mapID).then(favorite => {
+			res.json(favorite);
 		}).catch(next);
 	},
 

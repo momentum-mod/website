@@ -182,8 +182,10 @@ paths:
         - user
       summary: Adds a specified map to the authenticated user's favorites
       responses:
-        204:
+        200:
           description: The map is favorited
+          schema:
+            $ref: '#/definitions/MapFavorite'
     delete:
       tags:
         - user
