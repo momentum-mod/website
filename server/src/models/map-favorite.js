@@ -1,5 +1,6 @@
 'use strict';
-const { sequelize, Map, MapInfo, MapCredit, MapStats, MapFavorite, MapImage, MapLibraryEntry } = require('../../config/sqlize');
+const { sequelize, Map, MapInfo, MapCredit, MapStats, MapFavorite, MapImage,
+	MapLibraryEntry, UserMapRank, Run } = require('../../config/sqlize');
 
 module.exports = {
 
@@ -35,12 +36,6 @@ module.exports = {
 							model: MapImage,
 							as: 'thumbnail',
 						},
-						{
-							model: MapLibraryEntry,
-							as: 'libraryEntries',
-							where: { userID: userID },
-							required: false,
-						}
 					]
 				},
 			]
@@ -53,6 +48,35 @@ module.exports = {
 		}
 		if (queryParams.offset && !isNaN(queryParams.offset))
 			queryOptions.offset = Math.min(Math.max(parseInt(queryParams.offset), 0), 5000);
+		if (queryParams.expand) {
+			const expansionNames = queryParams.expand.split(',');
+			if (expansionNames.includes('inLibrary')) {
+				queryOptions.include[0].include.push({
+					model: MapLibraryEntry,
+					as: 'libraryEntries',
+					where: { userID: userID },
+					required: false,
+				});
+			}
+			if (expansionNames.includes('personalBest')) {
+				queryOptions.include[0].include.push({
+					model: UserMapRank,
+					as: 'personalBest',
+					where: { userID: userID },
+					include: [Run, User],
+					required: false,
+				});
+			}
+			if (expansionNames.includes('worldRecord')) {
+				queryOptions.include[0].include.push({
+					model: UserMapRank,
+					as: 'worldRecord',
+					where: { rank: 1 },
+					include: [Run, User],
+					required: false,
+				});
+			}
+		}
 		return MapFavorite.findAndCountAll(queryOptions);
 	},
 
