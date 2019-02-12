@@ -96,16 +96,16 @@ module.exports = {
 	},
 
 	addMapToLibrary: (req, res, next) => {
-		mapLibrary.addMapToLibrary(req.user.id, req.body.mapID).then(entry => {
-			res.json({
-				entry: entry,
-			});
+		mapLibrary.addMapToLibrary(req.user.id, req.params.mapID).then(entry => {
+			res.json(entry);
 		}).catch(next);
 	},
 
 	removeMapFromLibrary: (req, res, next) => {
 		mapLibrary.removeMapFromLibrary(req.user.id, req.params.mapID).then(() => {
-			res.sendStatus(200)
+			res.json({
+				mapID: req.params.mapID,
+			})
 		}).catch(next);
 	},
 
@@ -142,18 +142,19 @@ module.exports = {
 
 	removeMapFromFavorites: (req, res, next) => {
 		mapFavorite.removeMapFromFavorites(req.user.id, req.params.mapID).then(() => {
-			res.sendStatus(204);
-		});
+			res.json({
+				mapID: req.params.mapID,
+			});
+		}).catch(next);
 	},
 
 	getActivities: (req, res, next) => {
 		req.query.userID = req.user.id;
-		activity.getAll(req.query)
-		.then(activities => {
+		activity.getAll(req.query).then(activities => {
 			res.json({
 				activities: activities
 			});
-		});
+		}).catch(next);
 	},
 
 	checkFollowStatus: (req, res, next) => {

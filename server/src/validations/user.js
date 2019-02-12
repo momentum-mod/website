@@ -27,12 +27,6 @@ module.exports = {
 		}),
 	},
 
-	addMapToLibrary: {
-		body: Joi.object().keys({
-			mapID: validation.map.id,
-		}).unknown(false),
-	},
-
 	getUserFavorites: {
 		query: Joi.object().keys({
 			limit: validation.queryParam.limit,

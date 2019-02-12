@@ -34,11 +34,11 @@ router.route('/maps/submitted/summary')
 
 router.route('/maps/library')
 	.get(validate(userValidation.getMapLibrary), userCtrl.getUserLibrary)
-	.post(validate(userValidation.addMapToLibrary), userCtrl.addMapToLibrary)
 	.all(errorCtrl.send405);
 
 router.route('/maps/library/:mapID')
 	.get(userCtrl.isMapInLibrary)
+	.put(userCtrl.addMapToLibrary)
 	.delete(userCtrl.removeMapFromLibrary)
 	.all(errorCtrl.send405);
 
