@@ -96,7 +96,7 @@ export class LocalUserService {
    * @return adds map to user library
    */
   public addMapToLibrary(mapID: number): Observable<any> {
-    return this.http.post('/api/user/maps/library', {mapID: mapID});
+    return this.http.put('/api/user/maps/library/' + mapID, {});
   }
 
   /**
@@ -104,9 +104,7 @@ export class LocalUserService {
    * @return remove map from user library
    */
   public removeMapFromLibrary(mapID: number): Observable<any> {
-    return this.http.delete('/api/user/maps/library/' + mapID, {
-      responseType: 'text',
-    });
+    return this.http.delete('/api/user/maps/library/' + mapID);
   }
 
   /**
@@ -137,18 +135,14 @@ export class LocalUserService {
    * @param mapID
    */
   public addMapToFavorites(mapID: number): Observable<any> {
-    return this.http.put('/api/user/maps/favorites/' + mapID, {}, {
-      responseType: 'text',
-    });
+    return this.http.put('/api/user/maps/favorites/' + mapID, {});
   }
 
   /**
    * @param mapID
    */
   public removeMapFromFavorites(mapID: number): Observable<any> {
-    return this.http.delete('/api/user/maps/favorites/' + mapID, {
-      responseType: 'text',
-    });
+    return this.http.delete('/api/user/maps/favorites/' + mapID);
   }
 
   /**

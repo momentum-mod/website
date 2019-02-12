@@ -1,5 +1,5 @@
 'use strict';
-const { sequelize, Map, MapInfo, MapCredit, MapStats, MapFavorite } = require('../../config/sqlize');
+const { sequelize, Map, MapInfo, MapCredit, MapStats, MapFavorite, MapImage, MapLibraryEntry } = require('../../config/sqlize');
 
 module.exports = {
 
@@ -34,13 +34,23 @@ module.exports = {
 						{
 							model: MapImage,
 							as: 'thumbnail',
+						},
+						{
+							model: MapLibraryEntry,
+							as: 'libraryEntries',
+							where: { userID: userID },
+							required: false,
 						}
 					]
 				},
 			]
 		};
-		if (queryParams.limit && !isNaN(queryParams.limit))
-			queryOptions.limit = Math.min(Math.max(parseInt(queryParams.limit), 1), 20);
+		if (queryParams.limit && !isNaN(queryParams.limit)) {
+			if (queryParams.limit === 0)
+				delete queryOptions.limit;
+			else
+				queryOptions.limit = Math.min(Math.max(parseInt(queryParams.limit), 1), 20);
+		}
 		if (queryParams.offset && !isNaN(queryParams.offset))
 			queryOptions.offset = Math.min(Math.max(parseInt(queryParams.offset), 0), 5000);
 		return MapFavorite.findAndCountAll(queryOptions);

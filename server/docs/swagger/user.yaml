@@ -67,7 +67,7 @@ paths:
       parameters:
         - name: limit
           in: query
-          description: The maximum number of results to show
+          description: The maximum number of results to show. 0 = all
           type: integer
           default: 20
         - name: offset
@@ -90,31 +90,6 @@ paths:
           description: OK
           schema:
             $ref: '#/definitions/MapLibraryEntries'
-    post:
-      summary: Adds a new map to the authenticated user's library
-      tags:
-        - user
-      parameters:
-        - in: body
-          description: An object with the map ID to add to the library
-          required: true
-          schema:
-            type: object
-            properties:
-              mapID:
-                type: integer
-      responses:
-        200:
-          description: The library is updated
-          schema:
-            type: object
-            properties:
-              entry:
-                type: array
-                items:
-                  oneOf:
-                    - $ref: '#/definitions/MapLibraryEntry'
-                    - type: boolean
   /user/maps/library/{mapID}:
     parameters:
       - in: path
@@ -131,6 +106,15 @@ paths:
           description: The map exists in the user's library
         404:
           description: The map does not exist in the user's library
+    put:
+      summary: Adds a new map to the authenticated user's library
+      tags:
+        - user
+      responses:
+        200:
+          description: The library is updated
+          schema:
+            $ref: '#/definitions/MapLibraryEntry'
     delete:
       summary: Deletes a library entry from the authenticated user's library
       tags:
@@ -138,6 +122,11 @@ paths:
       responses:
         200:
           description: The library entry was successfully deleted
+          schema:
+            type: object
+            properties:
+              mapID:
+                type: integer
   /user/maps/favorites:
     get:
       tags:
@@ -146,7 +135,7 @@ paths:
       parameters:
         - name: limit
           in: query
-          description: The maximum number of results to show
+          description: The maximum number of results to show. 0 = all
           type: integer
           default: 20
         - name: offset
@@ -191,8 +180,13 @@ paths:
         - user
       summary: Removes a specified map from the authenticated user's favorites
       responses:
-        204:
+        200:
           description: The map is removed from favorites
+          schema:
+            type: object
+            properties:
+              mapID:
+                type: integer
   /user/maps/submitted:
     get:
       tags:
