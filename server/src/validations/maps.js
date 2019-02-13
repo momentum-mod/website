@@ -29,6 +29,10 @@ module.exports = {
 			search: validation.queryParam.search,
 			submitterID: validation.user.id,
 			expand: validation.queryParam.expand,
+			type: validation.map.type,
+			difficulty_low: validation.mapInfo.difficulty,
+			difficulty_high: validation.mapInfo.difficulty,
+			isLinear: validation.mapInfo.isLinear,
 		}),
 	},
 
