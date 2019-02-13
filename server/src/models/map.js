@@ -140,10 +140,10 @@ module.exports = {
 	MAP_TYPE,
 
 	getAll: (userID, queryParams) => {
-		const allowedExpansions = ['info', 'credits', 'thumbnail'];
+		const allowedExpansions = ['credits', 'thumbnail'];
 		const queryOptions = {
 			distinct: true,
-			include: [],
+			include: [{model: MapInfo, as: 'info', where: {}}],
 			where: {},
 			limit: 20,
 			order: [['createdAt', 'DESC']]
@@ -154,11 +154,11 @@ module.exports = {
 			queryOptions.offset = Math.min(Math.max(parseInt(queryParams.offset), 0), 5000);
 		if (queryParams.submitterID)
 			queryOptions.where.submitterID = queryParams.submitterID;
-		let nameSearch = queryParams.search || queryParams.name;
-		if (nameSearch)
-			queryOptions.where.name = {[Op.like]: '%' + nameSearch + '%'};
-		if (queryParams.type)
-			queryOptions.where.type = {[Op.in]: queryParams.type.split(',')};
+		if (queryParams.search)
+			queryOptions.where.name = {[Op.like]: '%' + queryParams.search + '%'};
+		if (queryParams.type) {
+			queryOptions.where.type = queryParams.type;
+		}
 		if (queryParams.status && queryParams.statusNot) {
 			queryOptions.where.statusFlag = {
 				[Op.and]: {
@@ -191,9 +191,33 @@ module.exports = {
 						+ (queryParams.priority ? ' != ' : ' = ') + '0')
 				);
 			}
-			queryOptions.include[0].where.permissions = {
+			queryOptions.include[1].where.permissions = {
 				[queryParams.priority ? Op.or : Op.and]: permChecks
 			};
+		}
+		let difficultyOp = null;
+		let diffs = [];
+		if (queryParams.difficulty_low) {
+			difficultyOp = Op.gte;
+			diffs.push(queryParams.difficulty_low);
+		}
+		if (queryParams.difficulty_high) {
+			if (difficultyOp)
+				difficultyOp = Op.between;
+			else
+				difficultyOp = Op.lte;
+			diffs.push(queryParams.difficulty_high);
+		}
+		if (difficultyOp) {
+			queryOptions.include[0].where.difficulty = {
+				[difficultyOp]: diffs,
+			}
+		}
+		if (queryParams.layout && queryParams.layout > 0) {
+			if (queryParams.layout === 1)
+				queryOptions.include[0].where.isLinear = false;
+			else if (queryParams.layout === 2)
+				queryOptions.include[0].where.isLinear = true;
 		}
 		if (queryParams.expand) {
 			queryHelper.addExpansions(queryOptions, queryParams.expand, allowedExpansions);
