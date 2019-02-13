@@ -1,6 +1,6 @@
 'use strict';
 const { sequelize, Map, MapInfo, MapCredit, MapStats, MapFavorite, MapImage,
-	MapLibraryEntry, UserMapRank, Run } = require('../../config/sqlize');
+	MapLibraryEntry, UserMapRank, Run, User } = require('../../config/sqlize');
 
 module.exports = {
 
@@ -23,20 +23,7 @@ module.exports = {
 				{
 					model: Map,
 					as: 'map',
-					include: [
-						{
-							model: MapInfo,
-							as: 'info'
-						},
-						{
-							model: MapCredit,
-							as: 'credits',
-						},
-						{
-							model: MapImage,
-							as: 'thumbnail',
-						},
-					]
+					include: []
 				},
 			]
 		};
@@ -50,6 +37,25 @@ module.exports = {
 			queryOptions.offset = Math.min(Math.max(parseInt(queryParams.offset), 0), 5000);
 		if (queryParams.expand) {
 			const expansionNames = queryParams.expand.split(',');
+			if (expansionNames.includes('info')) {
+				queryOptions.include[0].include.push({
+					model: MapInfo,
+					as: 'info'
+				});
+			}
+			if (expansionNames.includes('credits')) {
+				queryOptions.include[0].include.push({
+					model: MapCredit,
+					as: 'credits',
+					include: [User],
+				});
+			}
+			if (expansionNames.includes('thumbnail')) {
+				queryOptions.include[0].include.push({
+					model: MapImage,
+					as: 'thumbnail',
+				});
+			}
 			if (expansionNames.includes('inLibrary')) {
 				queryOptions.include[0].include.push({
 					model: MapLibraryEntry,
