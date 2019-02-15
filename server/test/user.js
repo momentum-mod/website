@@ -639,22 +639,15 @@ describe('user', () => {
 
 
 
-
-
-
-        describe('POST /api/user/maps/library', () => {
+        describe('PUT /api/user/maps/library/{mapID}', () => {
             it('should add a new map to the local users library', () => {
                 return chai.request(server)
-                    .post('/api/user/maps/library')
+                    .put('/api/user/maps/library/' + testMap2.id)
                     .set('Authorization', 'Bearer ' + accessToken)
-                    .send({
-                        mapID: testMap2.id
-                    })
                     .then(res => {
                         expect(res).to.have.status(200);
                         expect(res).to.be.json;
-                        expect(res.body).to.have.property('entry');
-                        expect(res.body.entry).to.have.property('id');
+                        expect(res.body).to.have.property('id');
                     });
             });
             it('should respond with 401 when no access token is provided', () => {
@@ -673,11 +666,8 @@ describe('user', () => {
         describe('GET /api/user/maps/library', () => {
             it('should retrieve the list of maps in the local users library', ()=> {
                 return chai.request(server)
-                    .post('/api/user/maps/library')
+                    .put('/api/user/maps/library/' + testMap.id)
                     .set('Authorization', 'Bearer ' + accessToken)
-                    .send({
-                        mapID: testMap.id
-                    })
                     .then(res => {
                         return chai.request(server)
                             .get('/api/user/maps/library')
@@ -739,11 +729,8 @@ describe('user', () => {
         describe('GET /api/user/maps/library/{mapID}', () => {
             it('should check if a map exists in the local users library', () => {
                 return chai.request(server)
-                    .post('/api/user/maps/library')
+                    .put('/api/user/maps/library/' + testMap3.id)
                     .set('Authorization', 'Bearer ' + accessToken)
-                    .send({
-                        mapID: testMap3.id
-                    })
                     .then(res => {
                         return chai.request(server)
                             .get('/api/user/maps/library/' + testMap3.id)
