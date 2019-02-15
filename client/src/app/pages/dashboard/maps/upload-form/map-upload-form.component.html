@@ -1,7 +1,7 @@
 <nb-card>
   <nb-card-header><h2>SUBMIT A MAP</h2></nb-card-header>
   <nb-card-body>
-    <nb-stepper orientation="horizontal" #stepper>
+    <nb-stepper orientation="horizontal" [linear]="true" #stepper>
       <nb-step label="Files" [stepControl]="filesForm">
         <form [formGroup]="filesForm">
           <div class="row no-gutters">
