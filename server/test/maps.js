@@ -41,7 +41,7 @@ describe('maps', () => {
 
 	const testMap = {
 		name: 'test_map_one',
-		type: map.MAP_TYPE.UNKNOWN,
+		type: map.MAP_TYPE.TRICKSURF,
 		id: 1,
         statusFlag: map.STATUS.APPROVED,
         submitterID: testUser.id,
