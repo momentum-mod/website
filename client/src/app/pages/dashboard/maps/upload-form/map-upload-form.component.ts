@@ -36,7 +36,7 @@ export class MapUploadFormComponent implements OnInit, AfterViewInit {
   testers: User[];
   specialThanks: User[];
   inferredMapType: boolean;
-  MapTypes: typeof MomentumMapType = MomentumMapType;
+  MapTypes = MomentumMapType;
   mapPreview: MomentumMap;
 
   filesForm: FormGroup = this.fb.group({
@@ -47,7 +47,7 @@ export class MapUploadFormComponent implements OnInit, AfterViewInit {
   });
   infoForm: FormGroup = this.fb.group( {
     'name': ['', [Validators.required, Validators.maxLength(32)]],
-    'type': [this.MapTypes.UNKNOWN, Validators.required],
+    'type': [ MomentumMapType.UNKNOWN, Validators.required],
     'description': ['', [Validators.required, Validators.maxLength(1000)]],
     'numBonuses': [0, [Validators.required, Validators.min(0), Validators.max(255)]],
     'numZones': [1, [Validators.required, Validators.min(1), Validators.max(255)]],

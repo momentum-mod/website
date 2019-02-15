@@ -1,6 +1,6 @@
 <div class="follow-status">
   <span *ngIf="targetFollowStatus" class="text"
-        [nbPopover]="'Following since: ' + (targetFollowStatus?.createdAt | date)" nbPopoverMode="hint">
+        [nbPopover]="'Following since: ' + (targetFollowStatus?.createdAt | date)" nbPopoverTrigger="hint">
     Follows you
   </span>
 </div>
