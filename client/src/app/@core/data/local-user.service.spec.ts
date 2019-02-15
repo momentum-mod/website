@@ -15,7 +15,7 @@ import {MomentumMapType} from '../models/map-type.model';
 import {MapLibrary} from '../models/map-library.model';
 import {MomentumMaps} from '../models/momentum-maps.model';
 
-let httpClientSpy: { get: jasmine.Spy, patch: jasmine.Spy, post: jasmine.Spy, delete: jasmine.Spy  };
+let httpClientSpy: { get: jasmine.Spy, patch: jasmine.Spy, post: jasmine.Spy, put: jasmine.Spy, delete: jasmine.Spy  };
 let expectedUser: User;
 let expectedMaps: MomentumMaps;
 let expectedMap: MomentumMap;
@@ -105,7 +105,7 @@ describe('LocalUserService', () => {
     const spy =
       jasmine.createSpyObj('CookieService', ['check', 'get', 'delete']);
 
-    httpClientSpy = jasmine.createSpyObj('HttpClient', ['get', 'patch', 'post', 'delete']);
+    httpClientSpy = jasmine.createSpyObj('HttpClient', ['get', 'patch', 'post', 'put', 'delete']);
     const routerSpy = jasmine.createSpyObj('Router', ['navigate']);
     localUserService = new LocalUserService(new AuthService(spy, <any> httpClientSpy, <any> routerSpy),
       spy, <any> httpClientSpy);
@@ -145,12 +145,12 @@ describe('LocalUserService', () => {
 
 
     it('#addMapToLibrary() adds map to the local users library', () => {
-      httpClientSpy.post.and.returnValue(of(expectedMap));
+      httpClientSpy.put.and.returnValue(of(expectedMap));
       localUserService.addMapToLibrary(expectedMap.id).subscribe(value =>
           expect(value).toEqual(expectedMap, 'expected map'),
         fail,
       );
-      expect(httpClientSpy.post.calls.count()).toBe(1, 'one call');
+      expect(httpClientSpy.put.calls.count()).toBe(1, 'one call');
     });
     it('#removeMapFromLibrary() should remove the specified map from the users library', () => {
       httpClientSpy.delete.and.returnValue(of(expectedMap));
