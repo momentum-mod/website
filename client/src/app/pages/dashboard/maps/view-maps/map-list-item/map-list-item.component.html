@@ -31,11 +31,11 @@
     <div class="text-right" role="toolbar">
       <div class="btn-group-vertical" role="group">
         <button type="button" class="btn btn-success" (click)="toggleMapInFavorites()"
-                [nbPopover]="mapInFavorites ? 'Remove map from favorites' : 'Add map to favorites'" [nbPopoverMode]="'hint'">
+                [nbPopover]="mapInFavorites ? 'Remove map from favorites' : 'Add map to favorites'" [nbPopoverTrigger]="'hint'">
           <span [ngClass]="mapInFavorites ? 'ion-android-star' : 'ion-android-star-outline'" class="icon"></span>
         </button>
         <button type="button" class="btn btn-dark" (click)="toggleMapInLibrary()"
-                [nbPopover]="mapInLibrary ? 'Remove map from library' : 'Add map to library'" [nbPopoverMode]="'hint'">
+                [nbPopover]="mapInLibrary ? 'Remove map from library' : 'Add map to library'" [nbPopoverTrigger]="'hint'">
           <span [ngClass]="mapInLibrary ? 'ion-ios-folder' : 'ion-ios-folder-outline'" class="icon"></span>
         </button>
       </div>

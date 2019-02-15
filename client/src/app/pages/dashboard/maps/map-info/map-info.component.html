@@ -34,16 +34,16 @@
         </div>
         <div *ngIf="!isPreview" class="col">
           <div class="row q-stats">
-            <span class="ion-android-download picture col-auto" nbPopover="Downloads" [nbPopoverMode]="'hint'">
+            <span class="ion-android-download picture col-auto" nbPopover="Downloads" [nbPopoverTrigger]="'hint'">
               {{map.stats?.totalDownloads | numberThousands:1}}
             </span>
-            <span class="ion-folder picture col-auto" nbPopover="Libraries" [nbPopoverMode]="'hint'">
+            <span class="ion-folder picture col-auto" nbPopover="Libraries" [nbPopoverTrigger]="'hint'">
               {{map.stats?.totalSubscriptions | numberThousands:1}}
             </span>
-            <span class="ion-star picture col-auto" nbPopover="Favorites" [nbPopoverMode]="'hint'">
+            <span class="ion-star picture col-auto" nbPopover="Favorites" [nbPopoverTrigger]="'hint'">
               {{map.stats?.totalFavorites | numberThousands:1}}
             </span>
-            <span class="ion-play picture col-auto" nbPopover="Plays" [nbPopoverMode]="'hint'">
+            <span class="ion-play picture col-auto" nbPopover="Plays" [nbPopoverTrigger]="'hint'">
               {{map.stats?.totalPlays | numberThousands:1}}
             </span>
           </div>
@@ -53,7 +53,7 @@
               <span *ngIf="mapInLibrary">Remove from Library</span>
             </button>
             <button type="button" class="btn btn-outline-info" (click)="onFavoriteUpdate()"
-                    nbPopover="{{mapInFavorites ? 'Remove from Favorites' : 'Add to Favorites'}}" [nbPopoverMode]="'hint'">
+                    nbPopover="{{mapInFavorites ? 'Remove from Favorites' : 'Add to Favorites'}}" [nbPopoverTrigger]="'hint'">
               <span [ngClass]="mapInFavorites ? 'ion-android-star' : 'ion-android-star-outline'" class="icon"></span>
             </button>
           </div>
