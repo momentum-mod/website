@@ -31,11 +31,11 @@ router.route('/:userID/follows')
 	.all(errorCtrl.send405);
 
 router.route('/:userID/credits')
-	.get(usersCtrl.getCredits)
+	.get(validate(usersValidation.getCredits), usersCtrl.getCredits)
 	.all(errorCtrl.send405);
 
 router.route('/:userID/runs')
-	.get(usersCtrl.getRuns)
+	.get(validate(usersValidation.getRuns), usersCtrl.getRuns)
 	.all(errorCtrl.send405);
 
 router.param('userID', validate(usersValidation.urlParamID));

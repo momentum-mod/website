@@ -36,4 +36,21 @@ module.exports = {
 		}),
 	},
 
+	getCredits: {
+		query: Joi.object().keys({
+			limit: validation.queryParam.limit,
+			offset: validation.queryParam.offset,
+			map: validation.map.id,
+			expand: validation.queryParam.expand,
+		}),
+	},
+
+	getRuns: {
+		query: Joi.object().keys({
+			limit: validation.queryParam.limit,
+			offset: validation.queryParam.offset,
+			expand: validation.queryParam.expand,
+		}),
+	},
+
 };
