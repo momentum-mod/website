@@ -30,6 +30,7 @@ export class ProfileCreditsComponent implements OnInit {
     this.pageLimit = 10;
     this.currentPage = 1;
     this.creditCount = 0;
+    this.mapCredits = [];
   }
 
   ngOnInit() {

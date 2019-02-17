@@ -37,6 +37,7 @@ export class ProfileRunHistoryComponent implements OnInit {
     this.currentPage = 1;
     this.runCount = 0;
     this.showFilters = false;
+    this.runHistory = [];
   }
 
   ngOnInit() {
