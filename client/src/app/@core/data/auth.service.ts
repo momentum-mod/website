@@ -35,15 +35,7 @@ export class AuthService {
 
   public isAuthenticated(): boolean {
     const accessToken = this.getAccessToken();
-    if (!accessToken) {
-      return false;
-    }
-    const jwtHelperService = new JwtHelperService();
-    let isTokenExpired = true;
-    try {
-      isTokenExpired = jwtHelperService.isTokenExpired(accessToken);
-    } catch (err) {}
-    return !isTokenExpired;
+    return !!accessToken;
   }
 
   public getAccessTokenPayload(): AccessTokenPayload {
