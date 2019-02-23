@@ -33,7 +33,7 @@ module.exports = (app, config) => {
 	app.use(methodOverride());
 	app.use(passport.initialize());
 	app.use(fileUpload({
-		limits: { fileSize: 200 * 1024 * 1024 },
+		limits: { fileSize: 300 * 1024 * 1024 },
 		createParentPath: true,
 		abortOnLimit: true,
 	}));
