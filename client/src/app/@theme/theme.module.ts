@@ -4,7 +4,8 @@ import {FormsModule, ReactiveFormsModule} from '@angular/forms';
 import {NgbModule} from '@ng-bootstrap/ng-bootstrap';
 
 import {
-  NbActionsModule, NbButtonModule,
+  NbActionsModule,
+  NbButtonModule,
   NbCardModule,
   NbCheckboxModule,
   NbContextMenuModule,
@@ -13,7 +14,9 @@ import {
   NbMenuModule,
   NbPopoverModule,
   NbProgressBarModule,
-  NbRouteTabsetModule, NbSelectModule,
+  NbRadioModule,
+  NbRouteTabsetModule,
+  NbSelectModule,
   NbSidebarModule,
   NbTabsetModule,
   NbThemeModule,
@@ -43,6 +46,8 @@ import {NbSearchModule} from './components/search/search.module';
 import {TimeAgoPipe} from 'time-ago-pipe';
 import {RouterModule} from '@angular/router';
 import {ActivityListComponent} from './components/activity/activity-list/activity-list.component';
+import { ReportButtonComponent } from './components/report/report-button/report-button.component';
+import { CreateReportDialogComponent } from './components/report/create-report-dialog/create-report-dialog.component';
 
 const BASE_MODULES = [CommonModule, FormsModule, ReactiveFormsModule, RouterModule];
 
@@ -58,6 +63,7 @@ const NB_MODULES = [
   NbSearchModule,
   NbSidebarModule,
   NbCheckboxModule,
+  NbRadioModule,
   NbPopoverModule,
   NbContextMenuModule,
   NgbModule,
@@ -75,6 +81,8 @@ const COMPONENTS = [
   ActivityCardComponent,
   ActivityContentComponent,
   ActivityListComponent,
+  ReportButtonComponent,
+  CreateReportDialogComponent,
 ];
 
 const PIPES = [
@@ -99,10 +107,15 @@ const NB_THEME_PROVIDERS = [
   ...NbMenuModule.forRoot().providers,
 ];
 
+const ENTRY_COMPONENTS = [
+  CreateReportDialogComponent,
+];
+
 @NgModule({
   imports: [...BASE_MODULES, ...NB_MODULES],
   exports: [...BASE_MODULES, ...NB_MODULES, ...COMPONENTS, ...PIPES],
   declarations: [...COMPONENTS, ...PIPES],
+  entryComponents: [...ENTRY_COMPONENTS],
 })
 export class ThemeModule {
   static forRoot(): ModuleWithProviders {

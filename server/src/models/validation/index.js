@@ -10,6 +10,7 @@ module.exports = {
 	notification: require('./notification'),
 	profile: require('./profile'),
 	queryParam: require('./query-param'),
+	report: require('./report'),
 	run: require('./run'),
 	userFollow: require('./user-follow'),
 	user: require('./user'),

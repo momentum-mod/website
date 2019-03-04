@@ -78,3 +78,55 @@ paths:
       responses:
         204:
           description: Map is updated
+  /admin/reports:
+    get:
+      tags:
+        - admin
+      summary: Retrieves a list of reports
+      parameters:
+        - name: limit
+          in: query
+          description: The maximum number of results to show
+          type: integer
+          default: 20
+        - name: offset
+          in: query
+          description: The offset for the of results to show
+          type: integer
+          default: 0
+        - name: resolved
+          in: query
+          description: Filter by resolved
+          type: string
+        - name: expand
+          in: query
+          description: The names of resources to attach/expand, specified by a comma-separated list of names
+          type: array
+          collectionFormat: csv
+          items:
+            type: string
+            enum: [submitter, resolver]
+      responses:
+        200:
+          description: OK
+          schema:
+            $ref: '#/definitions/Reports'
+  /admin/reports/{reportID}:
+    parameters:
+      - name: reportID
+        in: path
+        required: true
+        description: ID of the report to find
+        type: string
+    patch:
+      summary: Updates a specific report
+      tags:
+        - admin
+      parameters:
+        - in: body
+          description: Report with new values of properties
+          schema:
+            $ref: '#/definitions/Report'
+      responses:
+        204:
+          description: Report is updated

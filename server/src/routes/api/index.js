@@ -9,6 +9,7 @@ router.use('/user', require('./user'));
 router.use('/activities', require('./activities'));
 router.use('/runs', require('./runs'));
 router.use('/stats', require('./stats'));
+router.use('/reports', require('./reports'));
 router.use('/admin', [authMiddleware.denyGameLogin, authMiddleware.requirePower], require('./admin'));
 router.use('*', require('./404'));
 

@@ -1,14 +1,15 @@
 'use strict';
 process.env.NODE_ENV = 'test';
 
-const { forceSyncDB, Map, MapInfo, MapCredit, User } = require('../config/sqlize'),
+const { forceSyncDB, Map, MapInfo, MapCredit, User, Report } = require('../config/sqlize'),
     chai = require('chai'),
     chaiHttp = require('chai-http'),
     expect = chai.expect,
     server = require('../server.js'),
     auth = require('../src/models/auth'),
     map = require('../src/models/map'),
-    user = require('../src/models/user');
+    user = require('../src/models/user'),
+    report = require('../src/models/report');
 
 chai.use(chaiHttp);
 
@@ -153,6 +154,26 @@ describe('admin', () => {
             userID: testAdmin.id,
         },
     };
+    const testReport = {
+        id: 1,
+        data: 1,
+        type: report.ReportType.USER_PROFILE_REPORT,
+        category: report.ReportCategory.OTHER,
+        submitterID: testUser.id,
+        message: 'I am who I am who am I?',
+        resolved: false,
+        resolutionMessage: '',
+    };
+    const testReport2 = {
+        id: 2,
+        data: 1,
+        tpe: report.ReportType.MAP_REPORT,
+        category: report.ReportCategory.OTHER,
+        submitterID: testUser.id,
+        message: 'What are you doing',
+        resolved: true,
+        resolutionMessage: 'idk what im doing',
+    };
 
     before(() => {
         return forceSyncDB()
@@ -173,8 +194,7 @@ describe('admin', () => {
             }).then((token) => {
                 adminGameAccessToken = token;
                 return User.create(testAdminGame);
-            })
-            .then(user => {
+            }).then(user => {
                 return Map.create(testMap, {
                     include: [
                         {  model: MapInfo, as: 'info',},
@@ -225,7 +245,10 @@ describe('admin', () => {
                 });
             }).then(() => {
                 uniqueMap.id = map.id;
-                return Promise.resolve();
+                return Report.bulkCreate([
+                    testReport,
+                    testReport2,
+                ]);
             });
     });
 
@@ -543,6 +566,48 @@ describe('admin', () => {
                         expect(res.body).to.have.property('error');
                         expect(res.body.error.code).equal(401);
                         expect(res.body.error.message).to.be.a('string');
+                    });
+            });
+        });
+
+        describe('GET /api/admin/reports', () => {
+            it('should respond with a list of reports', () => {
+                return chai.request(server)
+                    .get('/api/admin/reports')
+                    .set('Authorization', 'Bearer ' + adminAccessToken)
+                    .then(res => {
+                        expect(res).to.have.status(200);
+                        expect(res).to.be.json;
+                        expect(res.body).to.have.property('count');
+                        expect(res.body.count).to.be.a('number');
+                        expect(res.body).to.have.property('reports');
+						expect(res.body.reports).to.be.an('array');
+                    });
+            });
+            it('should limit the result set when using the limit query param', () => {
+                return chai.request(server)
+                    .get('/api/admin/reports')
+                    .set('Authorization', 'Bearer ' + adminAccessToken)
+                    .query({ limit: 1 })
+                    .then(res => {
+                        expect(res.body.reports).to.have.lengthOf(1);
+                    });
+            });
+            it('should offset the result set when using the offset query param');
+            it('should filter with the resolved query param');
+        });
+
+        describe('PATCH /api/admin/reports/{reportID}', () => {
+            it('should update a report', () => {
+                return chai.request(server)
+                    .patch('/api/admin/reports/' + testReport.id)
+                    .set('Authorization', 'Bearer ' + adminAccessToken)
+                    .send({
+                        resolved: true,
+                        resolutionMessage: 'I gave the reporter the bepis they wanted',
+                    })
+                    .then(res => {
+                        expect(res).to.have.status(204);
                     });
             });
         });

@@ -8,6 +8,7 @@ import {ReplaySubject} from 'rxjs';
 import {Permission} from '../../../@core/models/permissions.model';
 import {ToasterService} from 'angular2-toaster';
 import {UserFollowObject} from '../../../@core/models/follow.model';
+import {ReportType} from '../../../@core/models/report-type.model';
 
 @Component({
   selector: 'ngx-user-profile',
@@ -15,6 +16,7 @@ import {UserFollowObject} from '../../../@core/models/follow.model';
   styleUrls: ['./user-profile.component.scss'],
 })
 export class UserProfileComponent implements OnInit {
+  ReportType: typeof ReportType;
   userSubj$: ReplaySubject<User>;
   user: User;
   isLocal: boolean;
@@ -32,6 +34,7 @@ export class UserProfileComponent implements OnInit {
               public userService: LocalUserService,
               private usersService: UsersService,
               private toastService: ToasterService) {
+    this.ReportType = ReportType;
     this.isLocal = true;
     this.userSubj$ = new ReplaySubject<User>(1);
     this.isMapper = false;

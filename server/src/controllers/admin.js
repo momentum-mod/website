@@ -1,6 +1,7 @@
 'use strict';
 const user = require('../models/user'),
-	map = require('../models/map');
+	map = require('../models/map'),
+	report = require('../models/report');
 
 module.exports = {
 
@@ -20,9 +21,26 @@ module.exports = {
 		map.getAll(req.user.id, req.query).then(results => {
 			res.json({
 				count: results.count,
-				maps: results.rows
+				maps: results.rows,
 			});
 		}).catch(next);
-	}
+	},
+
+	getReports: (req, res, next) => {
+		report.getAll(req.query).then(results => {
+			res.json({
+				count: results.count,
+				reports: results.rows,
+			});
+		}).catch(next);
+	},
+
+	updateReport: (req, res, next) => {
+		if ('resolved' in req.body && req.body.resolved === true)
+			req.body.resolverID = req.user.id;
+		report.update(req.params.reportID, req.body).then(() => {
+			res.sendStatus(204);
+		}).catch(next);
+	},
 
 }

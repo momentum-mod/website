@@ -8,6 +8,7 @@ import {ToasterService} from 'angular2-toaster';
 import {NgxGalleryAnimation, NgxGalleryImage, NgxGalleryOptions} from 'ngx-gallery';
 import {MapImage} from '../../../../@core/models/map-image.model';
 import {Permission} from '../../../../@core/models/permissions.model';
+import {ReportType} from '../../../../@core/models/report-type.model';
 
 
 @Component({
@@ -22,6 +23,7 @@ export class MapInfoComponent implements OnInit {
   @Input('previewMap') previewMap: MomentumMap;
   @Input('previewImage') previewImage;
   @Input('isPreview') isPreview: boolean;
+  ReportType: typeof ReportType;
   map: MomentumMap;
   mapInLibrary: boolean;
   mapInFavorites: boolean;
@@ -36,6 +38,7 @@ export class MapInfoComponent implements OnInit {
               private mapService: MapsService,
               private locUserService: LocalUserService,
               private toastService: ToasterService) {
+    this.ReportType = ReportType;
     this.mapInLibrary = false;
     this.isPreview = false;
     this.map = null;
