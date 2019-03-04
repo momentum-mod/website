@@ -32,4 +32,19 @@ module.exports = {
 		}).unknown(false),
 	},
 
+	getReports: {
+		query: Joi.object().keys({
+			limit: validation.queryParam.limit,
+			offset: validation.queryParam.offset,
+			resolved: validation.report.resolved,
+		}),
+	},
+
+	updateReport: {
+		body: Joi.object().keys({
+			resolved: validation.report.resolved,
+			resolutionMessage: validation.report.resolutionMessage,
+		}).unknown(false),
+	},
+
 };

@@ -41,6 +41,10 @@ module.exports = {
         "description": "API for stats in the system"
       },
       {
+        "name": "reports",
+        "description": "API for reports in the system"
+      },
+      {
         "name": "admin",
         "description": "API for administrating resources in the system"
       }

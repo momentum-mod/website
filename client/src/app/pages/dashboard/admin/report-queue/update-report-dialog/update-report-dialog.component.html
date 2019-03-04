@@ -1,0 +1,23 @@
+<nb-card id="report-dialog-content">
+  <nb-card-header>Update Report {{report.id}}</nb-card-header>
+  <nb-card-body>
+    <form [formGroup]="updateReportForm">
+      <div class="form-group">
+        Resolved
+        <br>
+        <nb-radio-group formControlName="resolved">
+          <nb-radio [value]="true" class="d-inline-block">Yes</nb-radio>
+          <nb-radio [value]="false" class="d-inline-block">No</nb-radio>
+        </nb-radio-group>
+      </div>
+      <div class="form-group">
+        <label>Resolution Message</label>
+        <textarea rows="8" class="form-control" [maxLength]="1000" formControlName="resolutionMessage"></textarea>
+      </div>
+    </form>
+  </nb-card-body>
+  <nb-card-footer>
+    <button class="btn btn-dark footer-button" (click)="cancel()">Cancel</button>
+    <button class="btn btn-success footer-button" (click)="save()" [disabled]="!updateReportForm.valid">Save</button>
+  </nb-card-footer>
+</nb-card>

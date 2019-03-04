@@ -6,6 +6,10 @@ module.exports = (sequelize, type) => {
 		type: type.TINYINT.UNSIGNED,
 		category: type.SMALLINT.UNSIGNED,
 		message: type.STRING(1000),
-		resolved: type.BOOLEAN,
+		resolved: {
+			type: type.BOOLEAN,
+			defaultValue: false,
+		},
+		resolutionMessage: type.STRING(1000),
 	})
 };

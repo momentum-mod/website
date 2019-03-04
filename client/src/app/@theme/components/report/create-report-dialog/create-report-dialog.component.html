@@ -1,0 +1,24 @@
+<nb-card id="report-dialog-content">
+  <nb-card-header>Report</nb-card-header>
+  <nb-card-body>
+    <form [formGroup]="createReportForm">
+      <div class="form-group">
+        <label>Category</label>
+        <nb-select placeholder="Choose one" formControlName="category">
+          <nb-option [value]="ReportCategory.INAPPROPRIATE_CONTENT">Inappropriate Content</nb-option>
+          <nb-option [value]="ReportCategory.SPAM">Spam</nb-option>
+          <nb-option [value]="ReportCategory.PLAGIARISM">Plagiarism</nb-option>
+          <nb-option [value]="ReportCategory.OTHER">Other</nb-option>
+        </nb-select>
+      </div>
+      <div class="form-group">
+        <label>Message</label>
+        <textarea rows="8" class="form-control" [maxLength]="1000" formControlName="message"></textarea>
+      </div>
+    </form>
+  </nb-card-body>
+  <nb-card-footer>
+    <button class="btn btn-dark footer-button" (click)="cancel()">Cancel</button>
+    <button class="btn btn-success footer-button" (click)="submit()" [disabled]="!createReportForm.valid">Submit</button>
+  </nb-card-footer>
+</nb-card>

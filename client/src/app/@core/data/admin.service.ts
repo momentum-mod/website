@@ -3,6 +3,7 @@ import {HttpClient} from '@angular/common/http';
 import {Observable} from 'rxjs';
 import {User} from '../models/user.model';
 import {MomentumMaps} from '../models/momentum-maps.model';
+import {Reports} from '../models/reports.model';
 
 @Injectable({
   providedIn: 'root',
@@ -37,6 +38,22 @@ export class AdminService {
     return this.http.patch('/api/admin/users/' + userID, user, {
       responseType: 'text',
     });
+  }
+
+  /**
+   * @param options the request options
+   * @return a list of reports
+   */
+  getReports(options?: object): Observable<Reports> {
+    return this.http.get<Reports>('/api/admin/reports', options || {});
+  }
+
+  /**
+   * @param reportID ID of the report to update
+   * @param report Report with new values of properties
+   */
+  updateReport(reportID: number, report: object): Observable<any> {
+    return this.http.patch('/api/admin/reports/' + reportID, report);
   }
 
 }

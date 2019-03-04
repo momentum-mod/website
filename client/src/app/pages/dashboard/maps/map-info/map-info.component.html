@@ -2,8 +2,13 @@
   <nb-card-header>
     <div class="row">
       <h2 class="col d-block m-auto">{{(isPreview ? previewMap : map).name}}</h2>
-      <div class="col" *ngIf="!isPreview && (isSubmitter || isAdmin || isModerator)">
-        <button class="btn btn-outline-info float-right" type="button" (click)="onEditMap()">Edit Map</button>
+      <div class="col">
+        <div class="btn-toolbar float-right text-right" *ngIf="!isPreview">
+          <report-button *ngIf="!isSubmitter" [reportType]="ReportType.MAP_REPORT" [reportData]="map.id" class="mr-1"></report-button>
+          <div *ngIf="!isPreview && (isSubmitter || isAdmin || isModerator)">
+            <button class="btn btn-outline-info" type="button" (click)="onEditMap()">Edit Map</button>
+          </div>
+        </div>
       </div>
     </div>
   </nb-card-header>

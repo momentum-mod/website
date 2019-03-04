@@ -4,9 +4,13 @@
       <div class="header">
         <span *ngIf="user.country && user.country.length === 2"
               class="flg flag-icon flag-icon-{{user.country.toLowerCase()}}"></span>
-        <div *ngIf="canEdit()" class="edit-profile">
-          <button class="btn btn-outline-info" type="button" (click)="onEditProfile()">Edit Profile</button>
+        <div class="top-right-toolbar btn-toolbar">
+          <report-button *ngIf="!isLocal" [reportType]="ReportType.USER_PROFILE_REPORT" [reportData]="user.id" class="mr-1"></report-button>
+          <div *ngIf="canEdit()">
+            <button class="btn btn-outline-info" type="button" (click)="onEditProfile()">Edit Profile</button>
+          </div>
         </div>
+
         <div class="row no-gutters">
           <div *ngIf="avatar_loaded" class="user-image col" [ngStyle]="{'background-image':'url(' + avatar_url + ')'}">
           </div>
