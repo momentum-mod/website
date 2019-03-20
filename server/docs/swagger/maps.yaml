@@ -557,6 +557,7 @@ definitions:
         readOnly: true
       name:
         type: string
+        readOnly: true
       statusFlag:
         type: integer
       leaderboardID:

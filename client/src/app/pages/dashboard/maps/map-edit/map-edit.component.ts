@@ -1,13 +1,15 @@
 import {Component, OnInit} from '@angular/core';
 import {MomentumMap} from '../../../../@core/models/momentum-map.model';
 import {MapsService} from '../../../../@core/data/maps.service';
-// import {AdminService} from '../../../../@core/data/admin.service';
-// import {ToasterService} from 'angular2-toaster';
 import {switchMap} from 'rxjs/operators';
 import {ActivatedRoute, ParamMap, Router} from '@angular/router';
 import {FormBuilder, FormGroup, Validators} from '@angular/forms';
 import {Permission} from '../../../../@core/models/permissions.model';
 import {LocalUserService} from '../../../../@core/data/local-user.service';
+import {AdminService} from '../../../../@core/data/admin.service';
+import {NbDialogService} from '@nebular/theme';
+import {ConfirmDialogComponent} from '../../../../@theme/components/confirm-dialog/confirm-dialog.component';
+import {ToasterService} from 'angular2-toaster';
 
 @Component({
   selector: 'map-edit',
@@ -33,8 +35,9 @@ export class MapEditComponent implements OnInit {
               private router: Router,
               private mapService: MapsService,
               private localUserService: LocalUserService,
-              // private adminService: AdminService,
-              // private toasterService: ToasterService,
+              private adminService: AdminService,
+              private dialogService: NbDialogService,
+              private toasterService: ToasterService,
               private fb: FormBuilder) { }
 
   ngOnInit() {
@@ -63,5 +66,22 @@ export class MapEditComponent implements OnInit {
   }
 
   get description() { return this.mapInfoEditFormGroup.get('description'); }
+
+  showMapDeleteDialog() {
+    this.dialogService.open(ConfirmDialogComponent, {
+      context: {
+        title: 'Are you sure?',
+        message: 'You are about to permanently delete this map. Are you sure you want to proceed?',
+      },
+    }).onClose.subscribe(response => {
+      if (response) {
+        this.adminService.deleteMap(this.map.id).subscribe(res => {
+          this.toasterService.popAsync('success', 'Success', 'Successfully deleted the map');
+        }, err => {
+          this.toasterService.popAsync('error', 'Failed', 'Failed to delete the map');
+        });
+      }
+    });
+  }
 
 }

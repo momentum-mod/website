@@ -607,6 +607,31 @@ module.exports = {
 			const runFilePath = __dirname + '/../../public/runs/' + runID;
 			return Promise.resolve(run ? runFilePath : '');
 		});
-	}
+	},
+
+	deleteRunFile: (runID) => {
+		const runFilePath = __dirname + '/../../public/runs/' + runID;
+		return new Promise((resolve, reject) => {
+			fs.stat(runFilePath, err => {
+				if (err) {
+					if (err.code === 'ENOENT')
+						return resolve();
+					else
+						return reject(err);
+				}
+				fs.unlink(runFilePath, err => {
+					if (err)
+						return reject(err);
+					resolve();
+				});  
+			});
+		});
+	},
+
+	delete: (runID) => {
+		return module.exports.deleteRunFile(runID).then(() => {
+			return Run.destroy({ where: { id: runID }});
+		});
+	},
 
 };

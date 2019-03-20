@@ -71,6 +71,10 @@ export const MENU_ITEMS: NbMenuItem[] = [
         title: 'Report Queue',
         link: '/dashboard/admin/report-queue',
       },
+      {
+        title: 'Utilities',
+        link: '/dashboard/admin/utilities',
+      },
     ],
   },
 ];

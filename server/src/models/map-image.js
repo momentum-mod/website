@@ -114,14 +114,18 @@ module.exports = {
 		});
 	},
 
-	delete: (imgID) => {
+	deleteMapImageFiles: (imgID) => {
 		return Promise.all([
 			deleteMapImageFile(__dirname + '/../../public/img/maps/' + imgID + '-small.jpg'),
 			deleteMapImageFile(__dirname + '/../../public/img/maps/' + imgID + '-medium.jpg'),
 			deleteMapImageFile(__dirname + '/../../public/img/maps/' + imgID + '-large.jpg')
-		]).then(() => {
+		]);
+	},
+
+	delete: (imgID) => {
+		return module.exports.deleteMapImageFiles(imgID).then(() => {
 			return MapImage.destroy({
-				where: { id: imgID }
+				where: { id: imgID },
 			});
 		});
 	},

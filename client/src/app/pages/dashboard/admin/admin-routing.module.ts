@@ -4,6 +4,7 @@ import {NotFoundDashboardComponent} from '../../not-found/dashboard/not-found-da
 import {MapQueueComponent} from './map-queue/map-queue.component';
 import {AdminComponent} from './admin.component';
 import {ReportQueueComponent} from './report-queue/report-queue.component';
+import {UtilitiesComponent} from './utilities/utilities.component';
 
 const routes: Routes = [
   {
@@ -19,6 +20,11 @@ const routes: Routes = [
         path: 'report-queue',
         pathMatch: 'full',
         component: ReportQueueComponent,
+      },
+      {
+        path: 'utilities',
+        pathMatch: 'full',
+        component: UtilitiesComponent,
       },
       {
         path: '**',

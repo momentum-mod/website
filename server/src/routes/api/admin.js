@@ -13,12 +13,17 @@ router.route('/users/:userID')
 	.patch(validate(adminValidation.updateUser), adminCtrl.updateUser)
 	.all(errorCtrl.send405);
 
+router.route('/user-stats')
+	.patch(validate(adminValidation.updateAllUserStats), adminCtrl.updateAllUserStats)
+	.all(errorCtrl.send405);
+
 router.route('/maps')
 	.get(validate(adminValidation.getMaps), adminCtrl.getMaps)
 	.all(errorCtrl.send405);
 
 router.route('/maps/:mapID')
 	.patch(validate(adminValidation.updateMap), adminCtrl.updateMap)
+	.delete(adminCtrl.deleteMap)
 	.all(errorCtrl.send405);
 
 router.route('/reports')

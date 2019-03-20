@@ -14,6 +14,13 @@ module.exports = {
 		}).unknown(false),
 	},
 
+	updateAllUserStats: {
+		body: Joi.object().keys({
+			rankXP: validation.userStats.rankXP,
+			cosXP: validation.userStats.cosXP,
+		}).unknown(false),
+	},
+
 	getMaps: {
 		query: Joi.object().keys({
 			limit: validation.queryParam.limit,

@@ -239,7 +239,7 @@ describe('admin', () => {
             }).then(user => {
                 return Map.create(uniqueMap, {
                     include: [
-                        {  model: MapInfo, as: 'info',},
+                        {  model: MapInfo, as: 'info'},
                         {  model: MapCredit, as: 'credits'}
                     ],
                 });
@@ -605,6 +605,32 @@ describe('admin', () => {
                     .send({
                         resolved: true,
                         resolutionMessage: 'I gave the reporter the bepis they wanted',
+                    })
+                    .then(res => {
+                        expect(res).to.have.status(204);
+                    });
+            });
+        });
+
+        describe('DELETE /api/admin/maps/{mapID}', () => {
+            it('should delete a map', () => {
+                return chai.request(server)
+                    .delete('/api/admin/maps/' + testMap.id)
+                    .set('Authorization', 'Bearer ' + adminAccessToken)
+                    .then(res => {
+                        expect(res).to.have.status(200);
+                    });
+            });
+        });
+
+        describe('PATCH /api/admin/user-stats', () => {
+            it('should update all user stats', () => {
+                return chai.request(server)
+                    .patch('/api/admin/user-stats')
+                    .set('Authorization', 'Bearer ' + adminAccessToken)
+                    .send({
+                        rankXP: 1337,
+                        cosXP: 1337,
                     })
                     .then(res => {
                         expect(res).to.have.status(204);
