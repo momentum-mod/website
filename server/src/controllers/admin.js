@@ -1,5 +1,6 @@
 'use strict';
 const user = require('../models/user'),
+	userStats = require('../models/user-stats'),
 	map = require('../models/map'),
 	report = require('../models/report');
 
@@ -11,9 +12,21 @@ module.exports = {
 		}).catch(next);
 	},
 
+	updateAllUserStats: (req, res, next) => {
+		userStats.updateAll(req.body).then(() => {
+			res.sendStatus(204);
+		}).catch(next);
+	},
+
 	updateMap: (req, res, next) => {
 		map.update(req.params.mapID, req.body).then(() => {
 			res.sendStatus(204);
+		}).catch(next);
+	},
+
+	deleteMap: (req, res, next) => {
+		map.delete(req.params.mapID).then(() => {
+			res.sendStatus(200);
 		}).catch(next);
 	},
 

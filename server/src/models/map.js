@@ -2,11 +2,13 @@
 const util = require('util'),
 	fs = require('fs'),
 	crypto = require('crypto'),
-	{ sequelize, Op, Map, MapInfo, MapCredit, User,
+	{ sequelize, Op, Map, MapInfo, MapCredit, User, MapReview, MapImage,
 		MapStats, MapZoneStats, BaseStats, MapFavorite, MapLibraryEntry, UserMapRank, Run
 	} = require('../../config/sqlize'),
 	user = require('./user'),
 	activity = require('./activity'),
+	mapImage = require('./map-image'),
+	run = require('./run'),
 	queryHelper = require('../helpers/query'),
 	ServerError = require('../helpers/server-error'),
 	config = require('../../config/config');
@@ -358,6 +360,50 @@ module.exports = {
 							return Promise.resolve();
 					});
 				}
+			});
+		});
+	},
+
+	delete: (mapID) => {
+		return sequelize.transaction(t => {
+			// Note: The raw SQL below is MySQL specific!
+			return sequelize.query(`
+				UPDATE userstats
+				INNER JOIN mapranks
+					ON mapranks.userID = userstats.userID
+					AND mapranks.mapID = $mapID
+				SET userstats.rankXP = userstats.rankXP - mapranks.rankXP
+			`, {
+				bind: { mapID: mapID },
+				type: sequelize.QueryTypes.UPDATE,
+				transaction: t,
+			}).then(() => {
+				return MapImage.findAll({
+					attributes: ['id'],
+					where: { mapID: mapID },
+					transaction: t,
+				});
+			}).then(mapImages => {
+				const mapImageFileDeletes = [];
+				for (const image of mapImages)
+					mapImageFileDeletes.push(mapImage.deleteMapImageFiles(image.id));
+				return Promise.all(mapImageFileDeletes);
+			}).then(() => {
+				return Run.findAll({
+					attributes: ['id'],
+					where: { mapID: mapID },
+					transaction: t,
+				});
+			}).then(runs => {
+				const runFileDeletes = [];
+				for (const r of runs)
+					runFileDeletes.push(run.deleteRunFile(r.id));
+				return Promise.all(runFileDeletes);
+			}).then(() => {
+				return Map.destroy({
+					where: { id: mapID },
+					transaction: t,
+				});
 			});
 		});
 	},

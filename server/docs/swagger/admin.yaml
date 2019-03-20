@@ -1,23 +1,33 @@
 paths:
   /admin/users/{userID}:
-     parameters:
-       - name: userID
-         in: path
-         required: true
-         description: ID of the user to find
-         type: string
-     patch:
-       summary: Updates a specific user
-       tags:
-         - admin
-       parameters:
-         - in: body
-           description: User with new values of properties
-           schema:
-             $ref: '#/definitions/User'
-       responses:
-         204:
-           description: User is updated
+    parameters:
+      - name: userID
+        in: path
+        required: true
+        description: ID of the user to find
+        type: string
+    patch:
+      summary: Updates a specific user
+      tags:
+        - admin
+      parameters:
+        - in: body
+          description: User with new values of properties
+          schema:
+            $ref: '#/definitions/User'
+      responses:
+        204:
+          description: User is updated
+  /admin/user-stats:
+    patch:
+      summary: Updates every user's stats
+      tags:
+        - admin
+      parameters:
+        - in: body
+          description: User stats with new values of properties
+          schema:
+            $ref: '#/definitions/UserStats'
   /admin/maps:
     get:
       tags:
@@ -78,6 +88,32 @@ paths:
       responses:
         204:
           description: Map is updated
+  /admin/maps/{mapID}:
+    parameters:
+      - name: mapID
+        in: path
+        required: true
+        description: ID of the map to find
+        type: string
+    patch:
+      summary: Updates a specific map
+      tags:
+        - admin
+      parameters:
+        - in: body
+          description: Map with new values of properties
+          schema:
+            $ref: '#/definitions/Map'
+      responses:
+        204:
+          description: Map is updated
+    delete:
+      summary: Deletes a specific map
+      tags:
+        - admin
+      responses:
+        200:
+          description: Map is deleted
   /admin/reports:
     get:
       tags:

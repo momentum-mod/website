@@ -36,7 +36,7 @@
 
         </nb-tab>
         <nb-tab *ngIf="(isAdmin || isModerator) && map" [formGroup]="adminEditFormGroup" tabTitle="ADMIN MAP SETTINGS">
-
+          <button class="btn btn-outline-danger" (click)="showMapDeleteDialog()">Delete Map</button>
         </nb-tab>
       </nb-tabset>
     </form>

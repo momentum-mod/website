@@ -1,0 +1,10 @@
+<nb-card class="confirm-dialog">
+  <nb-card-header>{{title}}</nb-card-header>
+  <nb-card-body>
+    {{message}}
+  </nb-card-body>
+  <nb-card-footer>
+    <button class="btn btn-dark footer-button" (click)="close(false)">No</button>
+    <button class="btn btn-danger footer-button" (click)="close(true)">Yes</button>
+  </nb-card-footer>
+</nb-card>

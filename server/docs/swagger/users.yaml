@@ -251,10 +251,8 @@ definitions:
         readOnly: true
       rankXP:
         type: integer
-        readOnly: true
       cosXP:
         type: integer
-        readOnly: true
       mapsCompleted:
         type: integer
         readOnly: true

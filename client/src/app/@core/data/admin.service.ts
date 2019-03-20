@@ -29,6 +29,12 @@ export class AdminService {
     return this.http.get<MomentumMaps>('/api/admin/maps/', context);
   }
 
+  deleteMap(mapID: number): Observable<any> {
+    return this.http.delete('/api/admin/maps/' + mapID, {
+      responseType: 'text',
+    });
+  }
+
   /**
    * @param userID ID of the user to update
    * @param user specific user's profile
@@ -54,6 +60,13 @@ export class AdminService {
    */
   updateReport(reportID: number, report: object): Observable<any> {
     return this.http.patch('/api/admin/reports/' + reportID, report);
+  }
+
+  /**
+   * @param userStats UserStats with new values of properties
+   */
+  updateAllUserStats(userStats: object): Observable<any> {
+    return this.http.patch('/api/admin/user-stats', userStats);
   }
 
 }

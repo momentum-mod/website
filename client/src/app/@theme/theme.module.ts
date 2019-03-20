@@ -48,6 +48,7 @@ import {RouterModule} from '@angular/router';
 import {ActivityListComponent} from './components/activity/activity-list/activity-list.component';
 import { ReportButtonComponent } from './components/report/report-button/report-button.component';
 import { CreateReportDialogComponent } from './components/report/create-report-dialog/create-report-dialog.component';
+import { ConfirmDialogComponent } from './components/confirm-dialog/confirm-dialog.component';
 
 const BASE_MODULES = [CommonModule, FormsModule, ReactiveFormsModule, RouterModule];
 
@@ -83,6 +84,7 @@ const COMPONENTS = [
   ActivityListComponent,
   ReportButtonComponent,
   CreateReportDialogComponent,
+  ConfirmDialogComponent,
 ];
 
 const PIPES = [
@@ -109,6 +111,7 @@ const NB_THEME_PROVIDERS = [
 
 const ENTRY_COMPONENTS = [
   CreateReportDialogComponent,
+  ConfirmDialogComponent,
 ];
 
 @NgModule({

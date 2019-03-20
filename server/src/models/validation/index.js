@@ -13,5 +13,6 @@ module.exports = {
 	report: require('./report'),
 	run: require('./run'),
 	userFollow: require('./user-follow'),
+	userStats: require('./user-stats'),
 	user: require('./user'),
 };
