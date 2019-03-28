@@ -13,7 +13,7 @@ import { TwitchDataComponent } from './community-twitch-stream/twitch-data/twitc
   imports: [
     ThemeModule,
     NotFoundModule,
-    NgxTwitterTimelineModule.forRoot(),
+    NgxTwitterTimelineModule,
     CommunityRoutingModule,
   ],
   declarations: [
