@@ -368,11 +368,11 @@ module.exports = {
 		return sequelize.transaction(t => {
 			// Note: The raw SQL below is MySQL specific!
 			return sequelize.query(`
-				UPDATE userstats
-				INNER JOIN mapranks
-					ON mapranks.userID = userstats.userID
-					AND mapranks.mapID = $mapID
-				SET userstats.rankXP = userstats.rankXP - mapranks.rankXP
+				UPDATE userStats
+				INNER JOIN mapRanks
+					ON mapRanks.userID = userStats.userID
+				SET userStats.rankXP = userStats.rankXP - mapRanks.rankXP
+				WHERE mapRanks.mapID = $mapID
 			`, {
 				bind: { mapID: mapID },
 				type: sequelize.QueryTypes.UPDATE,
