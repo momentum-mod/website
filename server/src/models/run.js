@@ -153,7 +153,6 @@ const processRunFile = (resultObj) => {
 
 			resultObj.runModel = {
 				tickRate: resultObj.replay.header.tickRate,
-				dateAchieved: resultObj.replay.header.runDate,
 				time: resultObj.replay.header.runTime,
 				flags: resultObj.replay.header.runFlags,
 				hash: hash.digest('hex'),
@@ -166,49 +165,6 @@ const processRunFile = (resultObj) => {
 
 			resolve(resultObj);
 		}
-
-		// uint32 magic (4 bytes)
-		// uint8 version number (1 byte)
-		// ==> header
-		// 		mapName (uint16 length + data) 2 bytes + data length bytes
-		// 		mapHash (uint16 length + data) 2 bytes + data length bytes
-		// 		playerName (uint16 length + data) 2 bytes + data length bytes
-		// 		steamID (uint64) 8 bytes
-		// 		tickRate (float) 4 bytes
-		// 		runTime (float) 4 bytes
-		// 		runFlags (uint32) 4 bytes
-		// 		runDate (int64) 8 bytes
-		// 		startDif (int32) 4 bytes
-		// 		bonusZone (int32) 4 bytes
-		// uint8 bool hasStats 1 byte
-		// ==> run stats
-		//      uint8 numZones (1 byte)
-		//      for (i = 0 : numZones + 1) {
-		//          zoneJumps[i] uint32 4 bytes
-		//          zoneStrafes[i] uint32 4 bytes
-		//          zoneStrafeSyncAvg[i] float 4 bytes
-		//          zoneStrafeSyncAvg2[i] float 4 bytes
-		//          zoneEnterTime[i] float 4 bytes
-		//          zoneTime[i] float 4 bytes
-		//          zoneVelMax3D[i] float 4 bytes
-		//          zoneVelMax2D[i] float 4 bytes
-		//          zoneVelAvg3D[i] float 4 bytes
-		//          zoneVelAvg2D[i] float 4 bytes
-		//          zoneEnterSpeed3D[i] float 4 bytes
-		//          zoneEnterSpeed2D[i] float 4 bytes
-		//          zoneExitSpeed3D[i] float 4 bytes
-		//          zoneExitSpeed2D[i] float 4 bytes
-		// ==> run frames
-		//  int32 frameCount (4 bytes)
-		// 		for (i = 0; i < frameCount)
-		// 		     eyeAngleX float
-		// 		     eyeAngleY float
-		// 		     eyeAngleZ float
-		// 		     posX float
-		// 		     posY float
-		// 		     posZ float
-		// 		     viewOffset float
-		// 		     buttons int32
 	});
 };
 

@@ -58,7 +58,7 @@
         </td>
         <td></td>
         <td>{{run.time | numberTrim}}</td>
-        <td>{{run.dateAchieved | timeAgo}}</td>
+        <td>{{run.createdAt | timeAgo}}</td>
         <td><button type="button" class="btn btn-outline-info btn-round ion ion-play" (click)="viewRun(run)"></button></td>
       </tr>
     </table>
