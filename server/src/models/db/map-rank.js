@@ -22,6 +22,18 @@ module.exports = (sequelize, type) => {
 				key: 'id',
 			}
 		},
+		flags: {
+			type: type.INTEGER.UNSIGNED,
+			primaryKey: true,
+		},
+		trackNum: {
+			type: type.TINYINT.UNSIGNED,
+			primaryKey: true,
+		},
+		zoneNum: {
+			type: type.TINYINT.UNSIGNED,
+			primaryKey: true,
+		},
 		runID: {
 			type: type.BIGINT.UNSIGNED,
 			foreignKey: true,

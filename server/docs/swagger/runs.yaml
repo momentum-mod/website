@@ -91,6 +91,10 @@ definitions:
       isPersonalBest:
         type: boolean
         readOnly: true
+      ticks:
+        type: number
+        format: uint32
+        readOnly: true
       tickrate:
         type: number
         format: double
@@ -98,6 +102,14 @@ definitions:
       time:
         type: number
         format: double
+        readOnly: true
+      trackNum:
+        type: number
+        format: uint32
+        readOnly: true
+      zoneNum:
+        type: number
+        format: uint32
         readOnly: true
       flags:
         type: integer
