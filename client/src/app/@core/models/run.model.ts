@@ -6,14 +6,13 @@ import {UserMapRank} from './user-map-rank.model';
 export interface Run {
   id: number;
   tickRate: number;
-  dateAchieved: Date;
   time: number;
   flags: number;
   file: string;
   mapID: number;
   playerID: string;
   isPersonalBest: boolean;
-  createdAt?: Date;
+  createdAt: Date; // aka dateAchieved
   updatedAt?: Date;
   user?: User;
   stats?: RunStats;

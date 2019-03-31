@@ -9,7 +9,6 @@ module.exports = (sequelize, type) => {
 		},
 		isPersonalBest: type.BOOLEAN,
 		tickRate: type.FLOAT,
-		dateAchieved: type.DATE,
 		time: type.DOUBLE.UNSIGNED,
 		flags: type.INTEGER.UNSIGNED,
 		file: type.STRING,
