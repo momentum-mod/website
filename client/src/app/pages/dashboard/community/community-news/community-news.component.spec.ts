@@ -31,7 +31,7 @@ describe('CommunityNewsComponent', () => {
       },
     };
     TestBed.configureTestingModule({
-      imports: [NbCardModule, NgxTwitterTimelineModule.forRoot()],
+      imports: [NbCardModule, NgxTwitterTimelineModule],
       declarations: [ CommunityNewsComponent ],
       providers: [
         { provide: TumblrAPIService, useValue: tumblrAPIStub },
