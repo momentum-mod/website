@@ -8,8 +8,16 @@ module.exports = (sequelize, type) => {
 			autoIncrement: true
 		},
 		isPersonalBest: type.BOOLEAN,
+		trackNum: type.TINYINT.UNSIGNED,
+		zoneNum: type.TINYINT.UNSIGNED,
+		ticks: type.INTEGER.UNSIGNED,
 		tickRate: type.FLOAT,
-		time: type.DOUBLE.UNSIGNED,
+		time: {
+			type: type.VIRTUAL,
+			get() {
+				return this.getDataValue('ticks') * this.getDataValue('tickRate');
+			}
+		},
 		flags: type.INTEGER.UNSIGNED,
 		file: type.STRING,
 		hash: type.STRING(40),

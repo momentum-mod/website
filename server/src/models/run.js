@@ -22,11 +22,12 @@ const validateRunFile = (resultObj) => {
 				playerName: readString(resultObj.bin),
 				steamID: readString(resultObj.bin),
 				tickRate: readFloat(resultObj.bin),
-				runTime: readFloat(resultObj.bin),
 				runFlags: readInt32(resultObj.bin, true),
 				runDate_s: readString(resultObj.bin),
-				startDif: readInt32(resultObj.bin),
-				bonusZone: readInt32(resultObj.bin),
+				startTick: readInt32(resultObj.bin, true),
+				stopTick: readInt32(resultObj.bin, true),
+				trackNum: readInt8(resultObj.bin, true),
+				zoneNum: readInt8(resultObj.bin, true),
 			},
 			stats: [],
 			frames: [],
@@ -37,15 +38,18 @@ const validateRunFile = (resultObj) => {
 			b3 = replay.header.steamID === resultObj.playerID,
 			b4 = replay.header.mapHash === resultObj.map.hash,
 			b5 = replay.header.mapName === resultObj.map.name,
-			b6 = replay.header.runTime > 0;
-		if (b1 && b2 && b3 && b4 && b5 && b6)
+			b6 = replay.header.stopTick > replay.header.startTick,
+			b7 = replay.header.trackNum >= 0,
+			b8 = replay.header.runFlags === 0, // TODO removeme when we support runFlags (0.9.0)
+			b9 = replay.header.zoneNum === 0; // TODO removeme when we support ILs (0.9.0)
+		if (b1 && b2 && b3 && b4 && b5 && b6 && b7 && b8 && b9)
 		{
 			// TODO: date check (reject "old" replays)
 			replay.header.runDate = new Date(Number(replay.header.runDate_s) * 1000); // We're good til 2038...
+			replay.header.ticks = replay.header.stopTick - replay.header.startTick;
 			resolve(replay);
 		}
 		else {
-			// console.log([b1, b2, b3, b4, b5, b6]);
 			reject(new ServerError(400, 'Bad request'));
 		}
 	});
@@ -98,6 +102,7 @@ const processRunFile = (resultObj) => {
 		const hasStats = readInt8(resultObj.bin);
 		if (hasStats)
 		{
+			// TODO: ensure numZones == 1 when replay.header.zoneNum > 0 (0.9.0)
 			const numZones = readInt8(resultObj.bin, true);
 			// 0 = total, 1 -> numZones + 1 = individual zones
 			for (let i = 0; i < numZones + 1 && resultObj.bin.ok; i++)
@@ -109,8 +114,8 @@ const processRunFile = (resultObj) => {
 						strafes: readInt32(resultObj.bin, true),
 						avgStrafeSync: readFloat(resultObj.bin),
 						avgStrafeSync2: readFloat(resultObj.bin),
-						enterTime: readFloat(resultObj.bin),
-						totalTime: readFloat(resultObj.bin),
+						enterTime: readInt32(resultObj.bin, true) * resultObj.replay.header.tickRate,
+						totalTime: readInt32(resultObj.bin, true) * resultObj.replay.header.tickRate,
 						velMax3D: readFloat(resultObj.bin),
 						velMax2D: readFloat(resultObj.bin),
 						velAvg3D: readFloat(resultObj.bin),
@@ -126,8 +131,7 @@ const processRunFile = (resultObj) => {
 		}
 
 		const runFrames = readInt32(resultObj.bin, true);
-		if (runFrames)
-		{
+		if (runFrames && runFrames >= resultObj.replay.header.stopTick) {
 			for (let i = 0; i < runFrames && resultObj.bin.ok; i++)
 			{
 				let runFrame = {
@@ -142,6 +146,8 @@ const processRunFile = (resultObj) => {
 				};
 				resultObj.replay.frames.push(runFrame);
 			}
+		} else {
+			reject(new ServerError(400, 'Bad request'));
 		}
 
 		if (!resultObj.bin.ok) {
@@ -152,15 +158,17 @@ const processRunFile = (resultObj) => {
 			hash.update(resultObj.bin.buf);
 
 			resultObj.runModel = {
+				mapID: resultObj.map.id,
+				playerID: resultObj.playerID,
+				trackNum: resultObj.replay.header.trackNum,
+				zoneNum: resultObj.replay.header.zoneNum,
+				ticks: resultObj.replay.header.ticks,
 				tickRate: resultObj.replay.header.tickRate,
-				time: resultObj.replay.header.runTime,
 				flags: resultObj.replay.header.runFlags,
 				hash: hash.digest('hex'),
 				stats: {
 					zoneStats: resultObj.replay.stats,
 				},
-				mapID: resultObj.map.id,
-				playerID: resultObj.playerID,
 			};
 
 			resolve(resultObj);
@@ -188,102 +196,115 @@ const storeRunFile = (resultObj, runID) => {
 	});
 };
 
-const isNewPersonalBest = (resultObj) => {
+const isNewPersonalBest = (resultObj, transact) => {
 	return UserMapRank.findOrCreate({
 		where: {
 			mapID: resultObj.map.id,
 			userID: resultObj.playerID,
+			trackNum: resultObj.replay.header.trackNum,
+			zoneNum: resultObj.replay.header.zoneNum,
+			flags: resultObj.replay.header.runFlags,
 		},
 		defaults: {
 			mapID: resultObj.map.id,
 			userID: resultObj.playerID,
+			trackNum: resultObj.replay.header.trackNum,
+			zoneNum: resultObj.replay.header.zoneNum,
+			flags: resultObj.replay.header.runFlags,
 		},
 		include: [
 			{
 				model: Run,
 				as: 'run',
 			}
-		]
+		],
+		transaction: transact,
 	}).spread((mapRank, created) => {
 		resultObj.mapRank = mapRank;
 		if (created) {
 			// It's definitely a PB
 			return Promise.resolve(true);
 		} else {
-			let isNewPB = !mapRank.run.time || (mapRank.run.time > resultObj.replay.header.runTime);
+			let isNewPB = !mapRank.run.ticks || (mapRank.run.ticks > resultObj.replay.header.ticks);
 			return Promise.resolve(isNewPB);
 		}
 	});
 };
 
-const isNewWorldRecord = (resultObj) => {
-	return Run.min('time', {
+const isNewWorldRecord = (resultObj, transact) => {
+	return UserMapRank.findOne({
 		where: {
 			mapID: resultObj.map.id,
+			rank: 1,
 			flags: resultObj.replay.header.runFlags,
+			trackNum: resultObj.replay.header.trackNum,
+			zoneNum: resultObj.replay.header.zoneNum,
+		},
+		include: [{model: Run, as: 'run'}],
+		transaction: transact,
+	}).then(found => {
+		let isNewWR = true;
+		if (found) {
+			isNewWR = !found.run.ticks || (found.run.ticks > resultObj.replay.header.ticks);
 		}
-	}).then(minTime => {
-		let isNewWR = !minTime || (minTime > resultObj.replay.header.runTime);
 		return Promise.resolve(isNewWR);
 	});
 };
 
-const saveRun = (resultObj) => {
-	return sequelize.transaction(t => {
-		let runModel = {};
-		// First do MapZoneStats -> MapStats -> UserStats -> UserMapRank updating
-		return updateStats(resultObj, t).then(() => { // Create the run
-			return Run.create(resultObj.runModel, {
-				include: [{
-						as: 'stats',
-						model: RunStats,
+const saveRun = (resultObj, transact) => {
+	let runModel = {};
+	// First do MapZoneStats -> MapStats -> UserStats -> UserMapRank updating
+	return updateStats(resultObj, transact).then(() => { // Create the run
+		return Run.create(resultObj.runModel, {
+			include: [{
+					as: 'stats',
+					model: RunStats,
+					include: [{
+						model: RunZoneStats,
+						as: 'zoneStats',
 						include: [{
-							model: RunZoneStats,
-							as: 'zoneStats',
-							include: [{
-								model: BaseStats,
-								as: 'baseStats',
-							}]
+							model: BaseStats,
+							as: 'baseStats',
 						}]
-					}],
-				transaction: t
-			});
-		}).then(run => { // Update old PB run to be no longer PB
-			runModel = run;
-			if (!resultObj.runModel.isPersonalBest)
-				return Promise.resolve();
-			return resultObj.mapRank.update({runID: run.id}, {transaction: t}).then(() => {
-				return Run.update({isPersonalBest: false}, {
-					transaction: t,
-					where: {
-						isPersonalBest: true,
-						id: {[Op.ne]: runModel.id },
-					},
-				});
-			});
-		}).then(() => { // Store the run file
-			return storeRunFile(resultObj, runModel.id);
-		}).then(results => { // Update the download URL for the run
-			return runModel.update({ file: results.downloadURL }, {transaction: t});
-		}).then(() => { // Generate PB notif if needed
-			if (!resultObj.runModel.isPersonalBest || resultObj.isNewWorldRecord)
-				return Promise.resolve();
-			return activity.create({
-				type: activity.ACTIVITY_TYPES.PB_ACHIEVED,
-				userID: resultObj.playerID,
-				data: runModel.id,
-			}, t);
-		}).then(() => { // Generate WR notif if needed
-			if (!resultObj.isNewWorldRecord)
-				return Promise.resolve();
-			return activity.create({
-				type: activity.ACTIVITY_TYPES.WR_ACHIEVED,
-				userID: resultObj.playerID,
-				data: runModel.id,
-			}, t);
-		}).then(() => {
-			return Promise.resolve(runModel);
+					}]
+				}],
+			transaction: transact
 		});
+	}).then(run => { // Update old PB run to be no longer PB
+		runModel = run;
+		if (!resultObj.runModel.isPersonalBest)
+			return Promise.resolve();
+		return resultObj.mapRank.update({runID: run.id}, {transaction: transact}).then(() => {
+			return Run.update({isPersonalBest: false}, {
+				transaction: transact,
+				where: {
+					isPersonalBest: true,
+					id: {[Op.ne]: runModel.id },
+				},
+			});
+		});
+	}).then(() => { // Store the run file
+		return storeRunFile(resultObj, runModel.id);
+	}).then(results => { // Update the download URL for the run
+		return runModel.update({ file: results.downloadURL }, {transaction: transact});
+	}).then(() => { // Generate PB notif if needed
+		if (!resultObj.runModel.isPersonalBest || resultObj.isNewWorldRecord)
+			return Promise.resolve();
+		return activity.create({
+			type: activity.ACTIVITY_TYPES.PB_ACHIEVED,
+			userID: resultObj.playerID,
+			data: runModel.id,
+		}, transact);
+	}).then(() => { // Generate WR notif if needed
+		if (!resultObj.isNewWorldRecord)
+			return Promise.resolve();
+		return activity.create({
+			type: activity.ACTIVITY_TYPES.WR_ACHIEVED,
+			userID: resultObj.playerID,
+			data: runModel.id,
+		}, transact);
+	}).then(() => {
+		return Promise.resolve(runModel);
 	});
 };
 
@@ -358,8 +379,8 @@ const updateStats = (resultObj, transaction) => {
 			// Update the UserMapRank for this user only if a new PB is achieved
 			return Run.count({
 				where: {
-					time: {
-						[Op.lte]: resultObj.runModel.time,
+					ticks: {
+						[Op.lte]: resultObj.runModel.ticks,
 					},
 					flags: resultObj.runModel.flags,
 				},
@@ -437,34 +458,36 @@ module.exports = {
 			playerID: userID,
 			mapRank: null,
 		};
-
-		return Map.findById(mapID, {
+		return sequelize.transaction(t => {
+			return Map.findById(mapID, {
 				include: [
 					{model: MapInfo, as: 'info'},
 					{model: MapStats, as: 'stats', include: [{model: MapZoneStats, as: 'zoneStats', include: [{model: BaseStats, as: 'baseStats'}]}]}
-				]
-		}).then(map => {
-			if (!map)
-				return Promise.reject(new ServerError(400, 'Bad request'));
-			resultObj.map = map;
-			return Promise.resolve();
-		}).then(() => {
-			return validateRunFile(resultObj)
-		}).then(replay => {
-			resultObj.replay = replay;
-			return processRunFile(resultObj);
-		}).then(() => {
-			return isNewPersonalBest(resultObj);
-		}).then(isNewPB => {
-			resultObj.runModel.isPersonalBest = isNewPB;
-			return isNewPB ? isNewWorldRecord(resultObj) : Promise.resolve(false);
-		}).then(isNewWR => {
-			resultObj.isNewWorldRecord = isNewWR;
-			return saveRun(resultObj);
-		}).then(run => {
-			const runJSON = run.toJSON();
-			runJSON.isNewWorldRecord = resultObj.isNewWorldRecord;
-			return Promise.resolve(runJSON);
+				],
+				transaction: t,
+			}).then(map => {
+				if (!map)
+					return Promise.reject(new ServerError(400, 'Bad request'));
+				resultObj.map = map;
+				return Promise.resolve();
+			}).then(() => {
+				return validateRunFile(resultObj)
+			}).then(replay => {
+				resultObj.replay = replay;
+				return processRunFile(resultObj);
+			}).then(() => {
+				return isNewPersonalBest(resultObj, t);
+			}).then(isNewPB => {
+				resultObj.runModel.isPersonalBest = isNewPB;
+				return isNewPB ? isNewWorldRecord(resultObj, t) : Promise.resolve(false);
+			}).then(isNewWR => {
+				resultObj.isNewWorldRecord = isNewWR;
+				return saveRun(resultObj, t);
+			}).then(run => {
+				const runJSON = run.toJSON();
+				runJSON.isNewWorldRecord = resultObj.isNewWorldRecord;
+				return Promise.resolve(runJSON);
+			});
 		});
 	},
 
@@ -484,7 +507,7 @@ module.exports = {
 					required: false,
 				}
 			],
-			order: [['time', 'ASC']],
+			order: [['ticks', 'ASC']],
 		};
 		if (queryParams.limit)
 			queryOptions.limit = queryParams.limit;
