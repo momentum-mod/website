@@ -28,3 +28,8 @@
 
   @include mom-search-theme();
 };
+
+.nb-theme-dark input[type='number'] {
+  padding-top: 0;
+  padding-bottom: 0;
+}
