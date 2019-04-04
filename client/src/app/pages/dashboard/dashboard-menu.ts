@@ -35,6 +35,12 @@ export const MENU_ITEMS: NbMenuItem[] = [
         title: 'Map Uploads',
         link: '/dashboard/maps/uploads',
         pathMatch: 'partial',
+        data: {
+          permissions: [
+            Permission.MAPPER,
+            Permission.ADMIN,
+          ],
+        },
       },
       {
         title: 'My Library',

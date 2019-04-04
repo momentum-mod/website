@@ -39,4 +39,11 @@ module.exports = {
 		next(new ServerError(403, 'Forbidden'));
 	},
 
+	requireMapper: (req, res, next) => {
+		const hasMapperPermissions = req.user && (req.user.permissions & (user.Permission.MAPPER | user.Permission.ADMIN));
+		if (hasMapperPermissions)
+			return next();
+		next(new ServerError(403, 'Forbidden'));
+	},
+
 }
