@@ -37,5 +37,10 @@ export class DashboardComponent implements OnInit {
       });
       menuItem.hidden = hideMenuItem;
     }
+    if (menuItem.children) {
+      menuItem.children.forEach(item => {
+        this.authMenuItem(item);
+      });
+    }
   }
 }

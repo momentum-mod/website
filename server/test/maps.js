@@ -25,7 +25,7 @@ describe('maps', () => {
 	let adminGameAccessToken = null;
 	const testUser = {
 		id: '00000000000000001',
-		permissions: user.Permission.VERIFIED,
+		permissions: user.Permission.VERIFIED | user.Permission.MAPPER,
 		country: 'US',
 	};
     const testAdmin = {
