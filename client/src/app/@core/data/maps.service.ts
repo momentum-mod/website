@@ -12,14 +12,6 @@ export class MapsService {
   }
 
   /**
-   * @param query
-   * @return a list of maps
-   */
-  searchMaps(query: string): Observable<MomentumMaps> {
-    return this.http.get<MomentumMaps>('/api/maps?expand=info&search=' + query);
-  }
-
-  /**
    * @param id The ID of the map
    * @param options The options for the request
    * @return Retrieves a specific map

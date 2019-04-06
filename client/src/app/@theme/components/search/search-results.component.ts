@@ -31,7 +31,7 @@ export class SearchResultsComponent {
     if (this.usersResults)
       return elem.avatarURL;
     else
-      return elem.info.avatarURL;
+      return elem.thumbnail.small;
   }
 
   shouldShowEmpty(): boolean {
