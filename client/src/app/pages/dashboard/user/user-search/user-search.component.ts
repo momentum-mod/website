@@ -33,7 +33,12 @@ export class UserSearchComponent implements OnInit {
       distinctUntilChanged())
       .subscribe(val => {
         if ((val = val.trim()).length > 2) {
-          this.usersService.searchUsers(val).subscribe(resp => {
+          this.usersService.getUsers({
+            params: {
+              expand: 'profile',
+              search: val,
+            },
+          }).subscribe(resp => {
             this.foundUsers = resp.users;
           });
         }

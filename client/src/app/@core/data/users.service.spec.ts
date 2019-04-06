@@ -71,14 +71,6 @@ describe('UsersService', () => {
       );
       expect(httpClientSpy.get.calls.count()).toBe(1, 'one call');
     });
-    it('#searchUsers() should return expected users', () => {
-      httpClientSpy.get.and.returnValue(of(expectedUsers));
-      usersService.searchUsers('users').subscribe(value =>
-          expect(value).toEqual(expectedUsers, 'expected users'),
-        fail,
-      );
-      expect(httpClientSpy.get.calls.count()).toBe(1, 'one call');
-    });
     it('#getUser() should return expected user ID', () => {
       httpClientSpy.get.and.returnValue(of(expectedUser));
       usersService.getUser('userID').subscribe(value =>

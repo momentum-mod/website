@@ -45,16 +45,6 @@ describe('MapsService', () => {
 
   describe('Unit Tests', () => {
 
-
-    it('#searchMaps should return expected maps', () => {
-      httpClientSpy.get.and.returnValue(of(expectedMaps));
-      mapsService.searchMaps('whatever').subscribe(
-        value => expect(value).toEqual(expectedMaps, 'expected maps == 3'),
-        fail,
-      );
-      expect(httpClientSpy.get.calls.count()).toBe(1, 'one call');
-    });
-
     it('#getMap should return expected map ', () => {
       httpClientSpy.get.and.returnValue(of(expectedMap));
       mapsService.getMap(expectedMap.id).subscribe(

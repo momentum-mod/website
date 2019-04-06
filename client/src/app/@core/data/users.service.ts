@@ -17,16 +17,8 @@ export class UsersService {
   /**
    * @return a list of users
    */
-  getUsers(): Observable<Users> {
-    return this.http.get<Users>('/api/users/');
-  }
-
-  /**
-   * @param query Filter by partial alias match
-   * @return expanded list of users
-   */
-  searchUsers(query: string): Observable<Users> {
-    return this.http.get<Users>('/api/users?expand=profile&search=' + query);
+  getUsers(options?: object): Observable<Users> {
+    return this.http.get<Users>('/api/users', options || {});
   }
 
   /**

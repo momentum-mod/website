@@ -115,25 +115,41 @@ export class SearchFieldComponent implements OnChanges, AfterViewInit {
 
   emitClose() {
     this.close.emit();
-    this.users = null;
-    this.maps = null;
+    this.clearSearchResults();
   }
 
   submitSearch(term) {
     if (term) {
       this.search.emit(term);
 
+      this.clearSearchResults();
       this.onlyUsers = term.startsWith('user:');
       this.onlyMaps = term.startsWith('map:');
-      if (!this.onlyMaps)
-        this.usersService.searchUsers(term.substring(this.onlyUsers ? 5 : 0).trim()).subscribe(resp => {
+      if (!this.onlyMaps) {
+        this.usersService.getUsers({
+          params: {
+            search: term.substring(this.onlyUsers ? 5 : 0).trim(),
+          },
+        }).subscribe(resp => {
           this.users = resp.users;
         });
-      if (!this.onlyUsers)
-        this.mapsService.searchMaps(term.substring(this.onlyMaps ? 4 : 0).trim()).subscribe(resp => {
+      }
+      if (!this.onlyUsers) {
+        this.mapsService.getMaps({
+          params: {
+            expand: 'thumbnail',
+            search: term.substring(this.onlyMaps ? 4 : 0).trim(),
+          },
+        }).subscribe(resp => {
           this.maps = resp.maps;
         });
+      }
     }
+  }
+
+  clearSearchResults() {
+    this.users = null;
+    this.maps = null;
   }
 
   focusInput() {
