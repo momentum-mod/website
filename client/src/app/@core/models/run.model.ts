@@ -1,7 +1,8 @@
 import {User} from './user.model';
-import {RunStats} from './run-stats.model';
 import {MomentumMap} from './momentum-map.model';
 import {UserMapRank} from './user-map-rank.model';
+import {BaseStats} from './base-stats.model';
+import {RunZoneStats} from './run-zone-stats.model';
 
 export interface Run {
   id: number;
@@ -15,7 +16,8 @@ export interface Run {
   createdAt: Date; // aka dateAchieved
   updatedAt?: Date;
   user?: User;
-  stats?: RunStats;
+  overallStats?: BaseStats;
+  zoneStats?: RunZoneStats[];
   map?: MomentumMap;
   rank?: UserMapRank;
 }

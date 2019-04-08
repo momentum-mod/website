@@ -1,5 +1,12 @@
 import {Component, EventEmitter, Input, OnInit, Output} from '@angular/core';
 
+export enum FileUploadType {
+  ALL = '',
+  MAP = 'map',
+  IMAGE = 'image',
+  ZONES = 'zones',
+}
+
 @Component({
   selector: 'file-upload',
   templateUrl: './file-upload.component.html',
@@ -10,8 +17,7 @@ export class FileUploadComponent implements OnInit {
   /**
    * The type of files this component allows to be uploaded
    */
-  @Input('map') map: boolean;
-  @Input('image') image: boolean;
+  @Input('type') type: FileUploadType;
   /**
    * The total size, in MB, allowed for the size of the file
    */
@@ -26,25 +32,30 @@ export class FileUploadComponent implements OnInit {
   invalidType: boolean;
   selectedFile: File;
   acceptString: string;
+  matchString: any;
   constructor() {
     this.selectedFile = null;
     this.limit_size = 0;
     this.fileSelected = new EventEmitter<File>();
     this.dragOver = false;
     this.acceptString = '';
-    this.map = false;
-    this.image = false;
+    this.matchString = '';
+    this.type = FileUploadType.ALL;
     this.invalidType = false;
     this.invalidSize = false;
     this.showSelected = false;
   }
 
   ngOnInit() {
-    if (this.map) {
-      this.acceptString += '.bsp,';
-    }
-    if (this.image) {
-      this.acceptString += 'image/png,image/jpeg';
+    if (this.type === FileUploadType.MAP) {
+      this.acceptString = '.bsp';
+      this.matchString = '.+(\\.bsp)';
+    } else if (this.type === FileUploadType.IMAGE) {
+      this.acceptString = 'image/png,image/jpeg';
+      this.matchString = /.+(\.(pn|jpe?)g)/i;
+    } else if (this.type === FileUploadType.ZONES) {
+      this.acceptString = '.zon';
+      this.matchString = '.+(\\.zon)';
     }
   }
 
@@ -54,8 +65,8 @@ export class FileUploadComponent implements OnInit {
       this.invalidSize = true;
       return false;
     }
-    const match = file.name.match(this.map ? '.+(\\.bsp)' : /.+(\.(pn|jpe?)g)/i);
-    if (!match && (this.map || this.image)) {
+    const match = file.name.match(this.matchString);
+    if (!match) {
       this.invalidType = true;
       return false;
     }

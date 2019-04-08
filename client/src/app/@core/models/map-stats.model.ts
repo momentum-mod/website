@@ -1,17 +1,17 @@
-import {MapZoneStats} from './map-zone-stats.model';
+import {BaseStats} from './base-stats.model';
 
 export interface MapStats {
-  id: number;
+  id?: number;
   mapID?: number;
-  totalReviews: number;
-  totalDownloads: number;
-  totalSubscriptions: number;
-  totalFavorites: number;
-  totalPlays: number;
-  totalCompletions: number;
-  totalUniqueCompletions: number;
-  totalTimePlayed: number;
-  zoneStats: MapZoneStats[];
+  totalReviews?: number;
+  totalDownloads?: number;
+  totalSubscriptions?: number;
+  totalFavorites?: number;
+  totalPlays?: number;
+  totalCompletions?: number;
+  totalUniqueCompletions?: number;
+  totalTimePlayed?: number;
+  baseStats?: BaseStats;
   createdAt?: Date;
   updatedAt?: Date;
 }

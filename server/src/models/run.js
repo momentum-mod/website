@@ -1,6 +1,6 @@
 'use strict';
 const crypto = require('crypto'),
-	{ sequelize, Op, Map, MapInfo, MapStats, Run, RunStats,
+	{ sequelize, Op, Map, MapInfo, MapStats, Run,
 		RunZoneStats, MapZoneStats, BaseStats, User, UserStats, UserMapRank } = require('../../config/sqlize'),
 	activity = require('./activity'),
 	config = require('../../config/config'),
@@ -257,8 +257,8 @@ const saveRun = (resultObj, transact) => {
 	return updateStats(resultObj, transact).then(() => { // Create the run
 		return Run.create(resultObj.runModel, {
 			include: [{
-					as: 'stats',
-					model: RunStats,
+					as: 'overallStats',
+					model: BaseStats,
 					include: [{
 						model: RunZoneStats,
 						as: 'zoneStats',
@@ -537,7 +537,7 @@ module.exports = {
 		};
 		if (queryParams.mapID)
 			queryOptions.where.mapID = queryParams.mapID;
-        queryHelper.addExpansions(queryOptions, queryParams.expand, ['user', 'map', 'mapWithInfo', 'runStats', 'rank']);
+        queryHelper.addExpansions(queryOptions, queryParams.expand, ['user', 'map', 'mapWithInfo', 'runStats', 'runZoneStats', 'rank']);
 		return Run.findById(runID, queryOptions);
 	},
 

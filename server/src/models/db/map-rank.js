@@ -22,17 +22,24 @@ module.exports = (sequelize, type) => {
 				key: 'id',
 			}
 		},
+		gameType: {
+			type: type.TINYINT.UNSIGNED,
+			primaryKey: true,
+		},
 		flags: {
 			type: type.INTEGER.UNSIGNED,
 			primaryKey: true,
+			defaultValue: 0,
 		},
 		trackNum: {
 			type: type.TINYINT.UNSIGNED,
 			primaryKey: true,
+			defaultValue: 0,
 		},
 		zoneNum: {
 			type: type.TINYINT.UNSIGNED,
 			primaryKey: true,
+			defaultValue: 0,
 		},
 		runID: {
 			type: type.BIGINT.UNSIGNED,
@@ -43,6 +50,9 @@ module.exports = (sequelize, type) => {
 			}
 		},
 		rank: type.INTEGER.UNSIGNED,
-		rankXP: type.INTEGER.UNSIGNED,
+		rankXP: {
+			type: type.INTEGER.UNSIGNED,
+			defaultValue: 0,
+		},
 	});
 };

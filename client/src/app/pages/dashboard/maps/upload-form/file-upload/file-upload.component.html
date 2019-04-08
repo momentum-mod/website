@@ -8,8 +8,8 @@
     <h4><span class="danger" *ngIf="invalidType">Wrong type of file!</span></h4>
     <button class="fileUpload btn btn-outline-info col-auto" type="button"
             (click)="fileUploadInput.click(); invalidType = false; invalidSize = false;">
-      Choose File
+      Choose {{type}} File
     </button>
-    <h6><i>Or drag file here</i></h6>
+    <h6><i>Or drag {{type}} file here</i></h6>
   </div>
 </div>

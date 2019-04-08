@@ -14,6 +14,8 @@
 @import './bootstrap-rtl';
 @import '../components/search/search.component.theme';
 
+$nb-breaking-notice-enable: false;
+
 // install the framework and custom global styles
 @include nb-install() {
 

@@ -29,12 +29,16 @@ describe('MapInfoDescriptionComponent', () => {
       info: {
         id: '1',
         description: 'Test',
-        numBonuses: 2,
-        numZones: 3,
-        isLinear: false,
-        difficulty: 0,
+        numTracks: 1,
         creationDate: new Date(),
       },
+      tracks: [{
+        trackNum: 0,
+        mapID: 1,
+        numZones: 1,
+        isLinear: false,
+        difficulty: 5,
+      }],
     };
     fixture.detectChanges();
   });

@@ -17,7 +17,6 @@ module.exports = {
 
 	updateAllUserStats: {
 		body: Joi.object().keys({
-			rankXP: validation.userStats.rankXP,
 			cosXP: validation.userStats.cosXP,
 		}).unknown(false),
 	},

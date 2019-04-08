@@ -9,7 +9,7 @@ module.exports = (sequelize, type) => {
 		},
 		name: type.STRING(32),
 		type: {
-			type: type.SMALLINT.UNSIGNED,
+			type: type.TINYINT.UNSIGNED,
 			defaultValue: 0,
 		},
 		statusFlag: {

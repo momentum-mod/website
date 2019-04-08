@@ -350,22 +350,22 @@
     call-me-maybe "^1.0.1"
     glob-to-regexp "^0.3.0"
 
-"@nebular/bootstrap@^3.4.1":
-  version "3.4.1"
-  resolved "https://registry.yarnpkg.com/@nebular/bootstrap/-/bootstrap-3.4.1.tgz#30cf5602754625dd273349c4294636cbfb7e44ec"
-  integrity sha512-mUgU1pL7CO6iKIZgn8hW9eE2ADpta1GzYR2Dr0oRfoAt6Rhazmzk4B0ZEu4I/GcirJmOxLT17eBN942A20iaAA==
+"@nebular/bootstrap@^3.4.2":
+  version "3.4.2"
+  resolved "https://registry.yarnpkg.com/@nebular/bootstrap/-/bootstrap-3.4.2.tgz#ebd4bed91ae21b390493e39319c2aa58296f9ee1"
+  integrity sha512-W/U9XPPk4dIdyg8ohZP114JGh8Fxjh9HwlgpsCkp8PLvUhaZS4u2Zs9bjbFo/Z38+NX/5U5eqmWgC/VigLA5XA==
 
-"@nebular/theme@^3.4.1":
-  version "3.4.1"
-  resolved "https://registry.yarnpkg.com/@nebular/theme/-/theme-3.4.1.tgz#4a79c900499ef35c12a38ace7ccfa8a7cb2db3bf"
-  integrity sha512-bDy42mVR+43Z7xWV5ZcM8zf4AAfFlLep3Dax9ZwRAPYilMDSzdS3I5ZMBKp3LMpl1anGIuFuHmnIW5TLsxZGKQ==
+"@nebular/theme@^3.4.2":
+  version "3.4.2"
+  resolved "https://registry.yarnpkg.com/@nebular/theme/-/theme-3.4.2.tgz#070bbccad92878d1cce49d172548d2fd38b35973"
+  integrity sha512-PB17tkTdITYMvRrch0M0o8nQiKa2ULEsk0CaV1FVysyiSANwR4VIYGlDb4JkZPTyK4SlPZ1mwVMImWAK7jlzLw==
   dependencies:
     intersection-observer "0.5.0"
 
-"@ng-bootstrap/ng-bootstrap@^4.1.0":
-  version "4.1.0"
-  resolved "https://registry.yarnpkg.com/@ng-bootstrap/ng-bootstrap/-/ng-bootstrap-4.1.0.tgz#84c542e7dbb1e03944c87a2615199edc39c3d6c7"
-  integrity sha512-7THBEgwDW9bs3R6JQ3glDXAxyihrUqM8p71Es2GpN21xLs2fcxUUcLO4ioRcWGGlR6QKwamzNVAHNUDB5IMY+Q==
+"@ng-bootstrap/ng-bootstrap@^4.1.1":
+  version "4.1.1"
+  resolved "https://registry.yarnpkg.com/@ng-bootstrap/ng-bootstrap/-/ng-bootstrap-4.1.1.tgz#5e9c477ed9cc19114b56a0abc87e9c8483fb6bbf"
+  integrity sha512-OgbmPVhbDdNpIwogEXsycUJG0caNtb2+wCABfLUClgi9YcfNXhZ9Phu2GQq7Pk/LO66okth6s77RBQnbTJuysg==
   dependencies:
     tslib "^1.9.0"
 
@@ -379,6 +379,11 @@
     rxjs "6.3.3"
     tree-kill "1.2.1"
     webpack-sources "1.3.0"
+
+"@node-steam/vdf@^2.0.1":
+  version "2.0.1"
+  resolved "https://registry.yarnpkg.com/@node-steam/vdf/-/vdf-2.0.1.tgz#2f0349a1da0354d8eafe41f0004b9b2e59ee0901"
+  integrity sha512-Iu8OCpd0aVM6vH5JZaCpEMvNL5+0c6S7Vv+HwPP3YHWEV9kcOaifJiEchYDGATKGV6SN883n2WBDo6spQUAo3A==
 
 "@nodelib/fs.stat@^1.1.2":
   version "1.1.3"

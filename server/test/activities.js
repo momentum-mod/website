@@ -38,12 +38,15 @@ describe('activities', () => {
 		statusFlag: map.STATUS.PENDING,
 	    info: {
 		    description: 'newmap_5',
-		    numBonuses: 1,
-		    numZones: 1,
-		    difficulty: 2,
-		    isLinear: false,
+		    numTracks: 1,
 		    creationDate: new Date(),
 	    },
+	    tracks: [{
+        	trackNum: 0,
+        	numZones: 1,
+		    difficulty: 2,
+		    isLinear: false,
+	    }],
 		credits: [{
 			userID: testUser2.id,
 			type: map.CreditType.AUTHOR,

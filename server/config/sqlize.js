@@ -21,13 +21,17 @@ const Sequelize = require('sequelize'),
 	MapReviewModel = require('../src/models/db/map-review'),
 	MapImageModel = require('../src/models/db/map-image'),
 	RunModel = require('../src/models/db/run'),
-	RunStatsModel = require('../src/models/db/run-stats'),
 	RunZoneStatsModel = require('../src/models/db/run-zone-stats'),
 	TwitterAuthModel = require('../src/models/db/auth-twitter'),
 	TwitchAuthModel = require('../src/models/db/auth-twitch'),
 	DiscordAuthModel = require('../src/models/db/auth-discord'),
 	BaseStatsModel = require('../src/models/db/base-stats'),
 	MapRankModel = require('../src/models/db/map-rank'),
+	MapTrackModel = require('../src/models/db/map-track'),
+	MapTrackStatsModel = require('../src/models/db/map-track-stats'),
+	MapZoneModel = require('../src/models/db/map-zone'),
+	MapZoneGeometryModel = require('../src/models/db/map-zone-geometry'),
+	MapZonePropsModel = require('../src/models/db/map-zone-properties'),
 	env = process.env.NODE_ENV || 'development';
 
 const sequelize = new Sequelize({
@@ -67,6 +71,10 @@ const TwitchAuth = TwitchAuthModel(sequelize, Sequelize);
 const DiscordAuth = DiscordAuthModel(sequelize, Sequelize);
 const Profile = ProfileModel(sequelize, Sequelize);
 const Map = MapModel(sequelize, Sequelize);
+const MapTrack = MapTrackModel(sequelize, Sequelize);
+const MapZone = MapZoneModel(sequelize, Sequelize);
+const MapZoneGeometry = MapZoneGeometryModel(sequelize, Sequelize);
+const MapZoneProperties = MapZonePropsModel(sequelize, Sequelize);
 const MapInfo = MapInfoModel(sequelize, Sequelize);
 const MapCredit = MapCreditModel(sequelize, Sequelize);
 const Activity = ActivityModel(sequelize, Sequelize);
@@ -78,11 +86,11 @@ const Badge = BadgeModel(sequelize, Sequelize);
 const UserBadge = UserBadgeModel(sequelize, Sequelize);
 const Report = ReportModel(sequelize, Sequelize);
 const MapStats = MapStatsModel(sequelize, Sequelize);
+const MapTrackStats = MapTrackStatsModel(sequelize, Sequelize);
 const MapZoneStats = MapZoneStatsModel(sequelize, Sequelize);
 const MapReview = MapReviewModel(sequelize, Sequelize);
 const MapImage = MapImageModel(sequelize, Sequelize);
 const Run = RunModel(sequelize, Sequelize);
-const RunStats = RunStatsModel(sequelize, Sequelize);
 const RunZoneStats = RunZoneStatsModel(sequelize, Sequelize);
 const BaseStats = BaseStatsModel(sequelize, Sequelize);
 const UserMapRank = MapRankModel(sequelize, Sequelize);
@@ -100,6 +108,14 @@ Activity.belongsTo(User, { foreignKey: 'userID' });
 Map.hasMany(MapCredit, { as: 'credits', foreignKey: 'mapID', onDelete: 'CASCADE' });
 Map.hasOne(MapInfo, { as: 'info', foreignKey: 'mapID', onDelete: 'CASCADE' });
 Map.belongsTo(User, { as: 'submitter', foreignKey: 'submitterID' });
+Map.hasMany(MapTrack, { as: 'tracks', foreignKey: 'mapID', onDelete: 'CASCADE' });
+Map.hasOne(MapTrack, { as: 'mainTrack', foreignKey: 'mapID', constraints: false });
+MapTrack.belongsTo(Map, { foreignKey: 'mapID' });
+MapTrack.hasOne(MapTrackStats, { as: 'stats', foreignKey: 'mapTrackID', onDelete: 'CASCADE' });
+MapTrack.hasMany(MapZone, { as: 'zones', foreignKey: 'mapTrackID', onDelete: 'CASCADE' });
+MapZone.hasOne(MapZoneGeometry, { as: 'geometry', foreignKey: 'mapZoneID', onDelete: 'CASCADE' });
+MapZone.hasOne(MapZoneProperties, { as: 'zoneProps', foreignKey: 'mapZoneID', onDelete: 'CASCADE'});
+MapZone.hasOne(MapZoneStats, { as: 'stats', foreignKey: 'mapZoneID', onDelete: 'CASCADE' });
 MapCredit.belongsTo(User, { foreignKey: 'userID' });
 MapLibraryEntry.belongsTo(User, { foreignKey: 'userID' });
 MapLibraryEntry.belongsTo(Map, { as: 'map', foreignKey: 'mapID' });
@@ -123,8 +139,9 @@ UserBadge.hasOne(Profile, {as: 'featuredBadge', foreignKey: 'featuredBadgeID'});
 Report.belongsTo(User, {as: 'submitter', foreignKey: 'submitterID'});
 Report.belongsTo(User, {as: 'resolver', foreignKey: 'resolverID'});
 Map.hasOne(MapStats, {as: 'stats', foreignKey: 'mapID', onDelete: 'CASCADE'});
-MapStats.hasMany(MapZoneStats, {as: 'zoneStats', foreignKey: 'mapStatsID', onDelete: 'CASCADE'});
-MapZoneStats.belongsTo(BaseStats, {as: 'baseStats', foreignKey: 'baseStatsID'});
+MapStats.belongsTo(BaseStats, {as: 'baseStats', foreignKey: 'baseStatsID', onDelete: 'CASCADE'});
+MapTrackStats.belongsTo(BaseStats, {as: 'baseStats', foreignKey: 'baseStatsID', onDelete: 'CASCADE'});
+MapZoneStats.belongsTo(BaseStats, {as: 'baseStats', foreignKey: 'baseStatsID', onDelete: 'CASCADE'});
 MapReview.belongsTo(User, {as: 'reviewer', foreignKey: 'reviewerID'});
 MapReview.belongsTo(Map, {as: 'map', foreignKey: 'mapID'});
 Map.hasMany(MapImage, { as: 'images', foreignKey: 'mapID', onDelete: 'CASCADE' });
@@ -132,10 +149,10 @@ Map.belongsTo(MapImage, { as: 'thumbnail', foreignKey: 'thumbnailID', constraint
 Map.hasMany(Run, {as: 'runs', foreignKey: 'mapID', onDelete: 'CASCADE'});
 Run.belongsTo(Map, {as: 'map', foreignKey: 'mapID'});
 Run.belongsTo(User, { foreignKey: 'playerID' });
-Run.hasOne(RunStats, { as: 'stats', foreignKey: 'runID', onDelete: 'CASCADE' });
+Run.belongsTo(BaseStats, { as: 'overallStats', foreignKey: 'baseStatsID', onDelete: 'CASCADE' });
 Run.hasOne(UserMapRank, { as: 'rank', foreignKey: 'runID', onDelete: 'CASCADE'});
-RunStats.hasMany(RunZoneStats, { as: 'zoneStats', foreignKey: 'runStatsID', onDelete: 'CASCADE' });
-RunZoneStats.belongsTo(BaseStats, { as: 'baseStats', foreignKey: 'baseStatsID'});
+Run.hasMany(RunZoneStats, { as: 'zoneStats', foreignKey: 'runID', onDelete: 'CASCADE'});
+RunZoneStats.belongsTo(BaseStats, { as: 'baseStats', foreignKey: 'baseStatsID', onDelete: 'CASCADE'});
 UserMapRank.belongsTo(Run, { foreignKey: 'runID'});
 UserMapRank.belongsTo(User, { foreignKey: 'userID'});
 UserMapRank.belongsTo(Map, { foreignKey: 'mapID'});
@@ -176,8 +193,12 @@ module.exports = {
 	MapReview,
 	MapImage,
 	Run,
-	RunStats,
 	RunZoneStats,
 	BaseStats,
 	UserMapRank,
+	MapTrack,
+	MapTrackStats,
+	MapZone,
+	MapZoneGeometry,
+	MapZoneProperties,
 };

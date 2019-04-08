@@ -3,7 +3,9 @@ const util = require('util'),
 	fs = require('fs'),
 	crypto = require('crypto'),
 	{ sequelize, Op, Map, MapInfo, MapCredit, User, MapReview, MapImage,
-		MapStats, MapZoneStats, BaseStats, MapFavorite, MapLibraryEntry, UserMapRank, Run
+		MapStats, MapZoneStats, MapTrack, MapTrackStats, MapZone, MapZoneGeometry,
+		BaseStats, MapFavorite, MapZoneProperties,
+		MapLibraryEntry, UserMapRank, Run
 	} = require('../../config/sqlize'),
 	user = require('./user'),
 	activity = require('./activity'),
@@ -277,6 +279,21 @@ module.exports = {
 					required: false,
 				});
 			}
+			if (expansionNames.includes('tracks')) {
+				queryOptions.include.push({
+					model: MapTrack,
+					as: 'mainTrack',
+					where: {
+						trackNum: 0,
+					},
+					required: false,
+				});
+				queryOptions.include.push({
+					model: MapTrack,
+					as: 'tracks',
+					required: false,
+				});
+			}
 		}
 		return Map.find(queryOptions);
 	},
@@ -286,16 +303,7 @@ module.exports = {
 			return verifyMapNameNotTaken(map.name);
 		}).then(() => {
 			return sequelize.transaction(t => {
-				const zoneStats = [];
-				for (let i = 0; i < map.info.numZones + 1; i++) {
-					zoneStats.push({
-						zoneNum: i,
-						baseStats: {},
-					});
-				}
-				map.stats = {
-					zoneStats: zoneStats,
-				};
+				let mapMdl = null;
 				return Map.create(map, {
 					include: [
 						{ model: MapInfo, as: 'info' },
@@ -303,18 +311,56 @@ module.exports = {
 						{
 							model: MapStats,
 							as: 'stats',
-							include: [{
-								model: MapZoneStats,
-								as: 'zoneStats',
-								include: [{
-									model: BaseStats,
-									as: 'baseStats',
-								}]
-							}]
+							include: [{model: BaseStats, as: 'baseStats'}],
+						},
+						{
+							model: MapTrack,
+							required: false,
+							as: 'tracks',
+							include: [
+								{
+									model: MapZone,
+									as: 'zones',
+									include: [
+										{
+											model: MapZoneStats,
+											as: 'stats',
+											include: [{model: BaseStats, as: 'baseStats'}]
+										},
+										{
+											model: MapZoneGeometry,
+											as: 'geometry',
+										},
+										{
+											model: MapZoneProperties,
+											as: 'zoneProps',
+										}
+									]
+								},
+								{
+									model: MapTrackStats,
+									as: 'stats',
+									include: [{model: BaseStats, as: 'baseStats'}]
+								}
+							]
 						}
 					],
 					transaction: t
 				}).then(mapModel => {
+					mapMdl = mapModel;
+					// Set our mainTrack
+					return MapTrack.findOne({
+						where: {
+							trackNum: 0,
+							mapID: mapModel.id,
+						},
+						transaction: t,
+					});
+				}).then(mainTrack => {
+					return mapMdl.update({
+						mainTrack: mainTrack,
+					}, {transaction: t})
+				}).then(() => {
 					if (map.credits && map.credits.length) {
 						const activities = [];
 						for (const credit of map.credits) {
@@ -322,15 +368,15 @@ module.exports = {
 								activity.create({
 									type: activity.ACTIVITY_TYPES.MAP_UPLOADED,
 									userID: credit.userID,
-									data: mapModel.id,
+									data: mapMdl.id,
 								}, t)
 							);
 						}
 						return Promise.all(activities).then(() => {
-							return Promise.resolve(mapModel);
+							return Promise.resolve(mapMdl);
 						});
 					} else {
-						return Promise.resolve(mapModel);
+						return Promise.resolve(mapMdl);
 					}
 				});
 			});
@@ -360,23 +406,10 @@ module.exports = {
 
 	delete: (mapID) => {
 		return sequelize.transaction(t => {
-			// Note: The raw SQL below is MySQL specific!
-			return sequelize.query(`
-				UPDATE userStats
-				INNER JOIN mapRanks
-					ON mapRanks.userID = userStats.userID
-				SET userStats.rankXP = userStats.rankXP - mapRanks.rankXP
-				WHERE mapRanks.mapID = $mapID
-			`, {
-				bind: { mapID: mapID },
-				type: sequelize.QueryTypes.UPDATE,
+			return MapImage.findAll({
+				attributes: ['id'],
+				where: { mapID: mapID },
 				transaction: t,
-			}).then(() => {
-				return MapImage.findAll({
-					attributes: ['id'],
-					where: { mapID: mapID },
-					transaction: t,
-				});
 			}).then(mapImages => {
 				const mapImageFileDeletes = [];
 				for (const image of mapImages)

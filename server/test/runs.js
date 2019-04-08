@@ -43,12 +43,15 @@ describe('runs', () => {
         id: 1,
 	    info: {
 		    description: 'newmap_5',
-		    numBonuses: 1,
-		    numZones: 1,
-		    difficulty: 2,
-		    isLinear: false,
+		    numTracks: 1,
 		    creationDate: new Date(),
 	    },
+	    tracks: [{
+		    trackNum: 0,
+		    numZones: 1,
+		    isLinear: false,
+		    difficulty: 5,
+	    }],
         credits: {
             id: 1,
             type: map.CreditType.AUTHOR,

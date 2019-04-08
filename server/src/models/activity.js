@@ -62,7 +62,7 @@ module.exports = {
 	},
 
 	create: (activity, transaction) => {
-		return Activity.create(activity, transaction).then(act => {
+		return Activity.create(activity, {transaction: transaction}).then(act => {
 			return genNotifications(act, transaction);
 		});
 	},
