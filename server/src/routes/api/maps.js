@@ -25,6 +25,10 @@ router.route('/:mapID/info')
 	.patch([authMiddleware.requireMapper, validate(mapsValidation.updateInfo)], mapCtrl.updateInfo)
 	.all(errorCtrl.send405);
 
+router.route('/:mapID/zones')
+	.get(mapCtrl.getZones)
+	.all(errorCtrl.send405);
+
 router.route('/:mapID/credits')
 	.get(validate(mapsValidation.getCredits), mapCtrl.getCredits)
 	.post([authMiddleware.requireMapper, validate(mapsValidation.createCredit)], mapCtrl.createCredit)

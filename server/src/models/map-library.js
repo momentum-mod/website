@@ -1,7 +1,7 @@
 'use strict';
 const {
 	sequelize, MapLibraryEntry, Map, MapInfo, MapCredit, MapStats,
-	MapFavorite, User, Profile, UserMapRank, Run, MapImage
+	MapFavorite, User, Profile, UserMapRank, Run, MapImage, MapTrack
 } = require('../../config/sqlize');
 
 module.exports = {
@@ -25,6 +25,12 @@ module.exports = {
 							model: MapCredit,
 							as: 'credits',
 							include: [User]
+						},
+						{
+							model: MapTrack,
+							as: 'mainTrack',
+							required: false,
+							where: {trackNum: 0}
 						}
 					]
 				},

@@ -63,6 +63,15 @@ module.exports = {
 		}).catch(next);
 	},
 
+	getZones: (req, res, next) => {
+		map.getZones(req.params.mapID).then(map => {
+			if (map) {
+				return res.json(map);
+			}
+			next(new ServerError(404, 'Map not found'));
+		}).catch(next);
+	},
+
 	updateInfo: (req, res, next) => {
 		map.verifySubmitter(req.params.mapID, req.user.id).then(() => {
 			return map.updateInfo(req.params.mapID, req.body);

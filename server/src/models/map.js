@@ -138,7 +138,10 @@ module.exports = {
 		const allowedExpansions = ['credits', 'thumbnail'];
 		const queryOptions = {
 			distinct: true,
-			include: [{model: MapInfo, as: 'info', where: {}}],
+			include: [
+				{model: MapTrack, as: 'mainTrack', where: {trackNum: 0}, required: false},
+				{model: MapInfo, as: 'info', where: {}}
+			],
 			where: {},
 			limit: 20,
 			order: [['createdAt', 'DESC']]
@@ -257,7 +260,7 @@ module.exports = {
 
 	get: (mapID, userID, queryParams) => {
 		const allowedExpansions = ['info', 'credits', 'submitter', 'images', 'thumbnail', 'mapStats'];
-		const queryOptions = { include: [], where: { id: mapID }};
+		const queryOptions = { include: [{model: MapTrack, as: 'mainTrack', required: false, where: {trackNum: 0}}]};
 		if ('status' in queryParams)
 			queryOptions.where.statusFlag = {[Op.in]: queryParams.status.split(',')};
 		if (queryParams.expand) {
@@ -282,20 +285,12 @@ module.exports = {
 			if (expansionNames.includes('tracks')) {
 				queryOptions.include.push({
 					model: MapTrack,
-					as: 'mainTrack',
-					where: {
-						trackNum: 0,
-					},
-					required: false,
-				});
-				queryOptions.include.push({
-					model: MapTrack,
 					as: 'tracks',
 					required: false,
 				});
 			}
 		}
-		return Map.find(queryOptions);
+		return Map.findById(mapID, queryOptions);
 	},
 
 	create: (map) => {
@@ -445,6 +440,30 @@ module.exports = {
 	updateInfo: (mapID, mapInfo) => {
 		return MapInfo.update(mapInfo, {
 			where: { mapID: mapID }
+		});
+	},
+
+	getZones: (mapID) => {
+		return Map.findById(mapID,{
+			include: [{
+				model: MapTrack,
+				as: 'tracks',
+				include: [{
+					model: MapZone,
+					as: 'zones',
+					include: [
+						{
+							model: MapZoneProperties,
+							required: false,
+							as: 'zoneProps'
+						},
+						{
+							model: MapZoneGeometry,
+							as: 'geometry',
+						}
+					]
+				}]
+			}],
 		});
 	},
 

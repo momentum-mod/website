@@ -28,6 +28,7 @@ export interface ImageFilePreview {
 })
 export class MapUploadFormComponent implements OnInit, AfterViewInit {
   @ViewChild('datepicker') datePicker;
+  @ViewChild('stepper') stepper;
 
   mapFile: File;
   avatarFile: File;
@@ -77,6 +78,7 @@ export class MapUploadFormComponent implements OnInit, AfterViewInit {
               private localUsrService: LocalUserService,
               private toasterService: ToasterService,
               private fb: FormBuilder) {
+    this.stepper = null;
     this.isUploadingMap = false;
     this.mapUploadPercentage = 0;
     this.authors = [];
@@ -140,7 +142,7 @@ export class MapUploadFormComponent implements OnInit, AfterViewInit {
       trackNum: trackNum,
       numZones: 0,
       isLinear: false,
-      difficulty: 1, // TODO get the proper difficulty
+      difficulty: 1,
       zones: [],
       stats: {
         baseStats: {},
@@ -151,28 +153,11 @@ export class MapUploadFormComponent implements OnInit, AfterViewInit {
         const zoneNum = Number(zone);
         trackReturn.numZones = Math.max(trackReturn.numZones, zoneNum);
         trackReturn.isLinear = track[zone].zone_type === 3;
-        // Parse out our geometry
-        const pointsArray = [];
-        for (const pt in track[zone].geometry.points) {
-          if (track[zone].geometry.points.hasOwnProperty(pt)) {
-            const ptStr = track[zone].geometry.points[pt].split(' ');
-            pointsArray.push([ Number(ptStr[0]), Number(ptStr[1]) ]);
-          }
-        }
-        // Hooray for only supporting POLYGON and not MULTIPOINT....
-        pointsArray.push(pointsArray[0]);
 
         const zoneMdl: MapZone = {
           zoneNum: zoneNum,
           zoneType: track[zone].zoneType,
-          geometry: {
-            pointsHeight: track[zone].geometry.pointsHeight,
-            pointsZPos: track[zone].geometry.pointsZPos,
-            points: {
-              type: 'Polygon',
-              coordinates: [pointsArray],
-            },
-          },
+          geometry: track[zone].geometry,
           stats: {
             baseStats: {},
           },
