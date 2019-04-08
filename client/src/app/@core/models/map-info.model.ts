@@ -2,10 +2,7 @@ export interface MomentumMapInfo {
   id: string;
   mapID?: number;
   description: string;
-  numBonuses: number;
-  numZones: number;
-  isLinear: boolean;
-  difficulty: number;
+  numTracks: number;
   creationDate: Date;
   createdAt?: Date;
   updatedAt?: Date;

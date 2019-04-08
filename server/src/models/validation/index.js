@@ -1,4 +1,4 @@
-'user strict';
+'use strict';
 
 module.exports = {
 	activity: require('./activity'),
@@ -7,6 +7,9 @@ module.exports = {
 	mapImage: require('./map-image'),
 	mapInfo: require('./map-info'),
 	map: require('./map'),
+	mapTrack: require('./map-track'),
+	mapZone: require('./map-zone'),
+	mapZoneGeometry: require('./map-zone-geometry'),
 	notification: require('./notification'),
 	profile: require('./profile'),
 	queryParam: require('./query-param'),

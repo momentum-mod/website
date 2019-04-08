@@ -50,12 +50,15 @@ describe('maps', () => {
         submitterID: testUser.id,
 		info: {
 			description: 'My first map!!!!',
-			numBonuses: 1,
+			numTracks: 1,
+			creationDate: new Date(),
+		},
+		tracks: [{
+			trackNum: 0,
 			numZones: 1,
 			isLinear: false,
 			difficulty: 5,
-			creationDate: new Date(),
-		},
+		}],
         credits: {
             id: 1,
             type: map.CreditType.AUTHOR,
@@ -81,12 +84,15 @@ describe('maps', () => {
         submitterID: testUser.id,
 	    info: {
 		    description: 'My test map!!!!',
-		    numBonuses: 1,
+		    numTracks: 1,
+		    creationDate: new Date(),
+	    },
+	    tracks: [{
+		    trackNum: 0,
 		    numZones: 1,
 		    isLinear: false,
 		    difficulty: 5,
-		    creationDate: new Date(),
-	    },
+	    }],
         credits: {
         	id: 2,
             type: map.CreditType.AUTHOR,
@@ -108,12 +114,15 @@ describe('maps', () => {
         statusFlag: map.STATUS.NEEDS_REVISION,
 	    info: {
 		    description: 'test3',
-		    numBonuses: 1,
+		    numTracks: 1,
+		    creationDate: new Date(),
+	    },
+	    tracks: [{
+		    trackNum: 0,
 		    numZones: 1,
 		    isLinear: false,
 		    difficulty: 5,
-		    creationDate: new Date(),
-	    },
+	    }],
         credits: {
             id: 3,
             type: map.CreditType.AUTHOR,
@@ -127,12 +136,15 @@ describe('maps', () => {
 	    type: map.MAP_TYPE.RJ,
 	    info: {
 		    description: 'newmap_5',
-		    numBonuses: 1,
-		    numZones: 1,
-		    difficulty: 2,
-		    isLinear: false,
+		    numTracks: 1,
 		    creationDate: new Date(),
 	    },
+	    tracks: [{
+		    trackNum: 0,
+		    numZones: 1,
+		    isLinear: false,
+		    difficulty: 5,
+	    }],
         credits: {
             id: 4,
             type: map.CreditType.AUTHOR,
@@ -233,12 +245,15 @@ describe('maps', () => {
 					type: map.MAP_TYPE.SURF,
 					info: {
 						description: 'newmap_5',
-						numBonuses: 1,
-						numZones: 1,
-						difficulty: 2,
-						isLinear: false,
+						numTracks: 1,
 						creationDate: new Date(),
 					},
+					tracks: [{
+						trackNum: 0,
+						numZones: 1,
+						isLinear: false,
+						difficulty: 5,
+					}],
 					credits: [{
 						userID: testUser.id,
 						type: map.CreditType.AUTHOR,

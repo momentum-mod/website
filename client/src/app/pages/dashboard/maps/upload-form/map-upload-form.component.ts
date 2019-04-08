@@ -12,6 +12,9 @@ import {Observable, of} from 'rxjs';
 import {MomentumMapType} from '../../../../@core/models/map-type.model';
 import {MomentumMap} from '../../../../@core/models/momentum-map.model';
 import {LocalUserService} from '../../../../@core/data/local-user.service';
+import {MapTrack} from '../../../../@core/models/map-track.model';
+import * as VDF from '@node-steam/vdf';
+import {MapZone} from '../../../../@core/models/map-zone.model';
 
 export interface ImageFilePreview {
   dataBlobURL: string;
@@ -28,6 +31,7 @@ export class MapUploadFormComponent implements OnInit, AfterViewInit {
 
   mapFile: File;
   avatarFile: File;
+  zoneFile: File;
   avatarFilePreview: ImageFilePreview;
   extraImages: ImageFilePreview[];
   mapUploadPercentage: number;
@@ -39,6 +43,7 @@ export class MapUploadFormComponent implements OnInit, AfterViewInit {
   inferredMapType: boolean;
   MapTypes = MomentumMapType;
   mapPreview: MomentumMap;
+  tracks: MapTrack[];
 
   filesForm: FormGroup = this.fb.group({
     'map': ['', [Validators.required, Validators.pattern('.+(\\.bsp)')]],
@@ -50,10 +55,6 @@ export class MapUploadFormComponent implements OnInit, AfterViewInit {
     'name': ['', [Validators.required, Validators.maxLength(32)]],
     'type': [ MomentumMapType.UNKNOWN, Validators.required],
     'description': ['', [Validators.required, Validators.maxLength(1000)]],
-    'numBonuses': [0, [Validators.required, Validators.min(0), Validators.max(255)]],
-    'numZones': [1, [Validators.required, Validators.min(1), Validators.max(255)]],
-    'isLinear': [false, [Validators.required]],
-    'difficulty': [0, [Validators.required, Validators.min(0), Validators.max(6)]],
     'creationDate': [new Date(), [Validators.required, Validators.max(Date.now())]],
   });
   creditsForm: FormGroup = this.fb.group({
@@ -69,10 +70,6 @@ export class MapUploadFormComponent implements OnInit, AfterViewInit {
   get name() { return this.infoForm.get('name'); }
   get type() { return this.infoForm.get('type'); }
   get description() { return this.infoForm.get('description'); }
-  get numBonuses() { return this.infoForm.get('numBonuses'); }
-  get numZones() { return this.infoForm.get('numZones'); }
-  get isLinear() { return this.infoForm.get('isLinear'); }
-  get difficulty() { return this.infoForm.get('difficulty'); }
   get creationDate() { return this.infoForm.get('creationDate'); }
 
   constructor(private mapsService: MapsService,
@@ -87,7 +84,11 @@ export class MapUploadFormComponent implements OnInit, AfterViewInit {
     this.testers = [];
     this.specialThanks = [];
     this.extraImages = [];
+    this.tracks = [];
     this.inferredMapType = false;
+    this.zoneFile = null;
+    this.avatarFile = null;
+    this.mapFile = null;
   }
   ngAfterViewInit() {
     this.datePicker.max = new Date();
@@ -123,7 +124,7 @@ export class MapUploadFormComponent implements OnInit, AfterViewInit {
 
   onAvatarFileSelected(file: File) {
     this.avatarFile = file;
-    this.getFileSource(file, ((blobURL, img) => {
+    this.getFileSource(file, true, ((blobURL, img) => {
       this.avatarFilePreview = {
         dataBlobURL: blobURL,
         file: img,
@@ -131,6 +132,71 @@ export class MapUploadFormComponent implements OnInit, AfterViewInit {
     }));
     this.filesForm.patchValue({
       avatar: this.avatarFile.name,
+    });
+  }
+
+  parseTrack(trackNum: number, track: Object): MapTrack {
+    const trackReturn: MapTrack = {
+      trackNum: trackNum,
+      numZones: 0,
+      isLinear: false,
+      difficulty: 1, // TODO get the proper difficulty
+      zones: [],
+      stats: {
+        baseStats: {},
+      },
+    };
+    for (const zone in track) {
+      if (track.hasOwnProperty(zone)) {
+        const zoneNum = Number(zone);
+        trackReturn.numZones = Math.max(trackReturn.numZones, zoneNum);
+        trackReturn.isLinear = track[zone].zone_type === 3;
+        // Parse out our geometry
+        const pointsArray = [];
+        for (const pt in track[zone].geometry.points) {
+          if (track[zone].geometry.points.hasOwnProperty(pt)) {
+            const ptStr = track[zone].geometry.points[pt].split(' ');
+            pointsArray.push([ Number(ptStr[0]), Number(ptStr[1]) ]);
+          }
+        }
+        // Hooray for only supporting POLYGON and not MULTIPOINT....
+        pointsArray.push(pointsArray[0]);
+
+        const zoneMdl: MapZone = {
+          zoneNum: zoneNum,
+          zoneType: track[zone].zoneType,
+          geometry: {
+            pointsHeight: track[zone].geometry.pointsHeight,
+            pointsZPos: track[zone].geometry.pointsZPos,
+            points: {
+              type: 'Polygon',
+              coordinates: [pointsArray],
+            },
+          },
+          stats: {
+            baseStats: {},
+          },
+        };
+        if (track[zone].zoneProps)
+          zoneMdl.zoneProps = {properties: track[zone].zoneProps};
+        trackReturn.zones.push(zoneMdl);
+      }
+    }
+    return trackReturn;
+  }
+
+  onZoneFileSelected(file: File) {
+    this.tracks = [];
+    this.zoneFile = file;
+    this.getFileSource(file, false, (result, originalFile) => {
+      const zoneFile = VDF.parse(result);
+      const tracks = zoneFile.tracks;
+      for (const trackNum in tracks) {
+        if (tracks.hasOwnProperty(trackNum)) {
+          this.tracks.push(this.parseTrack(Number(trackNum), tracks[trackNum]));
+        }
+      }
+      this.generatePreviewMap();
     });
   }
 
@@ -145,8 +211,11 @@ export class MapUploadFormComponent implements OnInit, AfterViewInit {
       name: this.name.value,
       type: this.type.value,
       info: this.infoForm.value,
+      tracks: this.tracks,
       credits: this.getAllCredits(),
+      stats: {baseStats: {}},
     };
+    mapObject.info.numTracks = this.tracks.length;
     delete mapObject.info.name;
     delete mapObject.info.type;
     this.mapsService.createMap(mapObject)
@@ -174,12 +243,12 @@ export class MapUploadFormComponent implements OnInit, AfterViewInit {
         case HttpEventType.Response:
           this.onSubmitSuccess();
           break;
-        case 1: {
+        case HttpEventType.UploadProgress: {
           const calc: number = Math.round(event['loaded'] / event['total'] * 100);
           if (this.mapUploadPercentage !== calc) {
             this.mapUploadPercentage = calc;
-            break;
           }
+          break;
         }
       }
     }, err => {
@@ -244,7 +313,7 @@ export class MapUploadFormComponent implements OnInit, AfterViewInit {
     // TODO: implement
   }
 
-  getFileSource(img: File, callback: (blobURL, img: File) => void) {
+  getFileSource(img: File, isImage: boolean, callback: (result: any, originalFile: File) => void) {
     let reader = new FileReader();
     const handler = (e) => {
       callback(e.target.result, img);
@@ -252,11 +321,14 @@ export class MapUploadFormComponent implements OnInit, AfterViewInit {
       reader = null;
     };
     reader.addEventListener('load', handler, false);
-    reader.readAsDataURL(img);
+    if (isImage)
+      reader.readAsDataURL(img);
+    else
+      reader.readAsText(img);
   }
 
   onExtraImageSelected(file: File) {
-    this.getFileSource(file, (blobURL, img) => {
+    this.getFileSource(file, true, (blobURL, img) => {
       this.extraImages.push({
         dataBlobURL: blobURL,
         file: img,
@@ -291,14 +363,18 @@ export class MapUploadFormComponent implements OnInit, AfterViewInit {
         id: '0',
         mapID: 0,
         description: this.description.value,
-        numBonuses: this.numBonuses.value,
-        numZones: this.numZones.value,
-        isLinear: this.isLinear.value,
-        difficulty: this.difficulty.value,
+        numTracks: this.tracks.length,
         creationDate: this.creationDate.value,
       },
+      mainTrack: this.tracks.length > 0 ? this.tracks[0] : null,
+      tracks: this.tracks,
       credits: this.getAllCredits(),
       submitter: this.localUsrService.localUser,
     };
+  }
+
+  onRemoveZones() {
+    this.tracks = [];
+    this.zoneFile = null;
   }
 }

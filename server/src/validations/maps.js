@@ -30,9 +30,9 @@ module.exports = {
 			submitterID: validation.user.id,
 			expand: validation.queryParam.expand,
 			type: validation.map.type,
-			difficulty_low: validation.mapInfo.difficulty,
-			difficulty_high: validation.mapInfo.difficulty,
-			isLinear: validation.mapInfo.isLinear,
+			difficulty_low: validation.mapTrack.difficulty,
+			difficulty_high: validation.mapTrack.difficulty,
+			isLinear: validation.mapTrack.isLinear,
 		}),
 	},
 
@@ -48,12 +48,38 @@ module.exports = {
 			type: validation.map.type.required(),
 			info: Joi.object().keys({
 				description: validation.mapInfo.description.required(),
-				numBonuses: validation.mapInfo.numBonuses.required(),
-				numZones: validation.mapInfo.numZones.required(),
-				isLinear: validation.mapInfo.isLinear.required(),
-				difficulty: validation.mapInfo.difficulty.required(),
+				numTracks: validation.mapInfo.numTracks.required(),
 				creationDate: validation.mapInfo.creationDate,
 			}).unknown(false),
+			tracks: Joi.array().items(
+				Joi.object().keys({
+					trackNum: validation.mapTrack.trackNum.required(),
+					isLinear: validation.mapTrack.isLinear.required(),
+					numZones: validation.mapTrack.numZones.required(),
+					difficulty: validation.mapTrack.difficulty.required(),
+					zones: Joi.array().items(
+						Joi.object().keys({
+							zoneNum: validation.mapZone.zoneNum.required(),
+							zoneType: validation.mapZone.zoneType.required(),
+							zoneProps: validation.mapZone.zoneProps,
+							geometry: Joi.object().keys({
+								pointsHeight: validation.mapZoneGeometry.pointsHeight.required(),
+								pointsZPos: validation.mapZoneGeometry.pointsZPos.required(),
+								points: validation.mapZoneGeometry.points.required(),
+							}).unknown(false),
+							stats: Joi.object().keys({
+								baseStats: Joi.object(),
+							}),
+						}).unknown(false),
+					),
+					stats: Joi.object().keys({
+						baseStats: Joi.object(),
+					}),
+				}).unknown(false),
+			),
+			stats: Joi.object().keys({
+				baseStats: Joi.object(),
+			}),
 			credits: Joi.array().items(
 				Joi.object().keys({
 					userID: validation.user.id,
@@ -73,10 +99,7 @@ module.exports = {
 	updateInfo: {
 		body: Joi.object().keys({
 			description: validation.mapInfo.description,
-			numBonuses: validation.mapInfo.numBonuses,
-			numZones: validation.mapInfo.numZones,
-			isLinear: validation.mapInfo.isLinear,
-			difficulty: validation.mapInfo.difficulty,
+			numTracks: validation.mapInfo.numTracks,
 			creationDate: validation.mapInfo.creationDate,
 		}).unknown(false),
 	},

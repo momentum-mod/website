@@ -3,7 +3,6 @@ export interface UserStats {
   userID?: string;
   totalJumps: number;
   totalStrafes: number;
-  rankXP: number;
   cosXP: number;
   mapsCompleted: number;
   runsSubmitted: number;

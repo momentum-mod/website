@@ -10,10 +10,6 @@ module.exports = (sequelize, type) => {
 			type: type.BIGINT.UNSIGNED,
 			defaultValue: 0,
 		},
-		rankXP: {
-			type: type.BIGINT.UNSIGNED,
-			defaultValue: 0,
-		},
 		cosXP: {
 			type: type.BIGINT.UNSIGNED,
 			defaultValue: 0,

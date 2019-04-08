@@ -6,6 +6,7 @@ import {MapImage} from './map-image.model';
 import {MomentumMapType} from './map-type.model';
 import {MapFavorite} from './map-favorite.model';
 import {MapLibraryEntry} from './map-library-entry';
+import {MapTrack} from './map-track.model';
 
 export interface MomentumMap {
   id: number;
@@ -26,4 +27,6 @@ export interface MomentumMap {
   downloadURL?: string;
   submitterID?: string;
   submitter?: User;
+  tracks?: MapTrack[];
+  mainTrack?: MapTrack;
 }

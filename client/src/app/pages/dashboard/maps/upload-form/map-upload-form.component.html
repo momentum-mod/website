@@ -17,7 +17,7 @@
                            [ngClass]="{'form-control-danger': map.invalid && (map.dirty || map.touched)}"/>
                   </div>
                   <div>
-                    <file-upload [map]="true" [limit-size]="300" type=".bsp"
+                    <file-upload [type]="'map'" [limit-size]="300"
                                  (fileSelected)="onMapFileSelected($event)"></file-upload>
                   </div>
                 </div>
@@ -34,7 +34,7 @@
                            [ngClass]="{'form-control-danger': avatar.invalid && (avatar.dirty || avatar.touched)}"/>
                   </div>
                   <div>
-                    <file-upload [image]="true" (fileSelected)="onAvatarFileSelected($event)"></file-upload>
+                    <file-upload [type]="'image'" (fileSelected)="onAvatarFileSelected($event)"></file-upload>
                   </div>
                 </div>
               </div>
@@ -58,7 +58,7 @@
                       </button>
                     </div>
                   </div>
-                  <file-upload [image]="true" (fileSelected)="onExtraImageSelected($event)"
+                  <file-upload [type]="'image'" (fileSelected)="onExtraImageSelected($event)"
                                *ngIf="extraImages.length < 5"
                                [ngStyle]="{'margin': extraImages.length === 0 ? 'auto' : ''}"></file-upload>
                 </div>
@@ -118,26 +118,26 @@
               </div>
             </div>
             <div class="col-6">
-              <div class="form-group">
-                <label>Number of Bonuses</label>
-                <input type="number" class="form-control" formControlName="numBonuses"
-                       [ngClass]="{'form-control-danger': (numBonuses.invalid && (numBonuses.dirty || numBonuses.touched))}"/>
+              <div *ngIf="!zoneFile">
+                <file-upload [type]="'zones'" (fileSelected)="onZoneFileSelected($event)"></file-upload>
               </div>
-              <div class="form-group">
-                <nb-checkbox formControlName="isLinear"
-                [ngClass]="{'form-control-danger': (isLinear.invalid && (isLinear.dirty || isLinear.touched))}">
-                  Is Linear
-                </nb-checkbox>
-              </div>
-              <div class="form-group">
-                <label>Number of Zones</label>
-                <input type="number" class="form-control" formControlName="numZones"
-                       [ngClass]="{'form-control-danger': (numZones.invalid && (numZones.dirty || numZones.touched))}"/>
-              </div>
-              <div class="form-group">
-                <label>Difficulty</label>
-                <input type="number" class="form-control" formControlName="difficulty"
-                       [ngClass]="{'form-control-danger': (difficulty.invalid && (difficulty.dirty || difficulty.touched))}"/>
+              <div *ngIf="zoneFile">
+                <nb-list>
+                  <nb-list-item *ngFor="let track of tracks">
+                    <div class="row no-gutters">
+                      <span class="col-6">
+                        {{track.trackNum ? 'Bonus Track ' + track.trackNum : 'Main Track'}} with
+                        {{track.numZones | ngxPlural:(track.isLinear ? 'checkpoint' : 'stage')}}.
+                      </span>
+                      <div class="col-6">
+                        <label for="trackDiff">Difficulty:</label>
+                        <input nbInput id="trackDiff" [type]="'number'" min="1" max="12"
+                               [(ngModel)]="track.difficulty" [ngModelOptions]="{standalone: true}">
+                      </div>
+                    </div>
+                  </nb-list-item>
+                </nb-list>
+                <button nbButton outline fullWidth [status]="'danger'" (click)="onRemoveZones()">Remove Zones</button>
               </div>
             </div>
           </div>

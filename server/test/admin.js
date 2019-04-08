@@ -42,12 +42,15 @@ describe('admin', () => {
         submitterID: testUser.id,
         info: {
             description: 'newmap_5',
-            numBonuses: 1,
+            numTracks: 1,
+            creationDate: new Date(),
+        },
+        tracks: [{
+            trackNum: 0,
             numZones: 1,
             difficulty: 2,
             isLinear: false,
-            creationDate: new Date(),
-        },
+        }],
         credits: {
             id: 1,
             type: map.CreditType.AUTHOR,
@@ -61,11 +64,15 @@ describe('admin', () => {
         submitterID: testUser.id,
         info: {
             description: 'My first map!!!!',
-            numBonuses: 1,
-            numCheckpoints: 1,
-            numStages: 1,
-            difficulty: 5,
+            numTracks: 1,
+            creationDate: new Date(),
         },
+        tracks: [{
+            trackNum: 0,
+            numZones: 1,
+            difficulty: 5,
+            isLinear: true,
+        }],
         credits: {
             id: 2,
             type: map.CreditType.AUTHOR,
@@ -78,11 +85,15 @@ describe('admin', () => {
         submitterID: testUser.id,
         info: {
             description: 'My first map!!!!',
-            numBonuses: 1,
-            numCheckpoints: 1,
-            numStages: 1,
-            difficulty: 5,
+            numTracks: 1,
+            creationDate: new Date(),
         },
+        tracks: [{
+            trackNum: 0,
+            numZones: 1,
+            isLinear: false,
+            difficulty: 5,
+        }],
         credits: {
             id: 3,
             type: map.CreditType.AUTHOR,
@@ -95,11 +106,15 @@ describe('admin', () => {
         submitterID: testUser.id,
         info: {
             description: 'My first map!!!!',
-            numBonuses: 1,
-            numCheckpoints: 1,
-            numStages: 1,
-            difficulty: 5,
+            numTracks: 1,
+            creationDate: new Date(),
         },
+        tracks: [{
+            trackNum: 0,
+            numZones: 1,
+            isLinear: false,
+            difficulty: 5,
+        }],
         credits: {
             id: 4,
             type: map.CreditType.AUTHOR,
@@ -112,11 +127,15 @@ describe('admin', () => {
         submitterID: testAdmin.id,
         info: {
             description: 'My first map!!!!',
-            numBonuses: 1,
-            numCheckpoints: 1,
-            numStages: 1,
-            difficulty: 5,
+            numTracks: 1,
+            creationDate: new Date(),
         },
+        tracks: [{
+            trackNum: 0,
+            numZones: 1,
+            isLinear: false,
+            difficulty: 5,
+        }],
         credits: {
             id: 5,
             type: map.CreditType.AUTHOR,
@@ -129,11 +148,15 @@ describe('admin', () => {
         submitterID: testAdmin.id,
         info: {
             description: 'My first map!!!!',
-            numBonuses: 1,
-            numCheckpoints: 1,
-            numStages: 1,
-            difficulty: 5,
+            numTracks: 1,
+            creationDate: new Date(),
         },
+        tracks: [{
+            trackNum: 0,
+            numZones: 1,
+            isLinear: false,
+            difficulty: 5,
+        }],
         credits: {
             id: 6,
             type: map.CreditType.AUTHOR,
@@ -146,11 +169,15 @@ describe('admin', () => {
         submitterID: testAdmin.id,
         info: {
             description: 'My first map!!!!',
-            numBonuses: 1,
-            numCheckpoints: 1,
-            numStages: 1,
-            difficulty: 5,
+            numTracks: 1,
+            creationDate: new Date(),
         },
+        tracks: [{
+            trackNum: 0,
+            numZones: 1,
+            isLinear: false,
+            difficulty: 5,
+        }],
         credits: {
             id: 7,
             type: map.CreditType.AUTHOR,
@@ -632,7 +659,6 @@ describe('admin', () => {
                     .patch('/api/admin/user-stats')
                     .set('Authorization', 'Bearer ' + adminAccessToken)
                     .send({
-                        rankXP: 1337,
                         cosXP: 1337,
                     })
                     .then(res => {

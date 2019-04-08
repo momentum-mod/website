@@ -76,12 +76,15 @@ describe('user', () => {
         submitterID: testUser.id,
         info: {
             description: 'My first map!!!!',
-            numBonuses: 1,
+            numTracks: 1,
+            creationDate: new Date(),
+        },
+        tracks: [{
+            trackNum: 0,
             numZones: 1,
             isLinear: false,
             difficulty: 5,
-            creationDate: new Date(),
-        },
+        }],
         credits: {
             id: 1,
             type: map.CreditType.AUTHOR,
@@ -105,12 +108,15 @@ describe('user', () => {
         submitterID: testUser.id,
         info: {
             description: 'My test map!!!!',
-            numBonuses: 1,
+            numTracks: 1,
+            creationDate: new Date(),
+        },
+        tracks: [{
+            trackNum: 0,
             numZones: 1,
             isLinear: false,
             difficulty: 5,
-            creationDate: new Date(),
-        },
+        }],
         credits: {
             id: 2,
             type: map.CreditType.AUTHOR,
@@ -130,12 +136,15 @@ describe('user', () => {
         statusFlag: map.STATUS.NEEDS_REVISION,
         info: {
             description: 'test3',
-            numBonuses: 1,
+            numTracks: 1,
+            creationDate: new Date(),
+        },
+        tracks: [{
+            trackNum: 0,
             numZones: 1,
             isLinear: false,
             difficulty: 5,
-            creationDate: new Date(),
-        },
+        }],
         credits: {
             id: 3,
             type: map.CreditType.AUTHOR,
@@ -148,12 +157,15 @@ describe('user', () => {
         name: 'test_map_post',
         info: {
             description: 'testpost',
-            numBonuses: 1,
-            numZones: 1,
-            isLinear: false,
-            difficulty: 2,
+            numTracks: 1,
             creationDate: new Date(),
         },
+        tracks: [{
+            trackNum: 0,
+            numZones: 1,
+            isLinear: false,
+            difficulty: 5,
+        }],
     };
 
 	const testActivities = [
@@ -575,12 +587,15 @@ describe('user', () => {
 										type: map.MAP_TYPE.SURF,
                                         info: {
                                             description: 'newmap_5',
-                                            numBonuses: 1,
-                                            numZones: 1,
-                                            difficulty: 2,
-                                            isLinear: false,
+                                            numTracks: 1,
                                             creationDate: new Date(),
-                                        }
+                                        },
+                                        tracks: [{
+                                            trackNum: 0,
+                                            numZones: 1,
+                                            isLinear: false,
+                                            difficulty: 5,
+                                        }],
                                     }).then(res3 => {
                                         // testAdmin approves the map
                                         return chai.request(server)

@@ -27,12 +27,16 @@ describe('MapStatusComponent', () => {
       info: {
         id: '1234',
         description: 'This is a testmap1',
-        numBonuses: 0,
-        numZones: 3,
-        isLinear: false,
-        difficulty: 4,
+        numTracks: 1,
         creationDate: new Date(),
       },
+      tracks: [{
+        trackNum: 0,
+        mapID: 123,
+        numZones: 1,
+        isLinear: false,
+        difficulty: 5,
+      }],
       credits: [
         {
           id: '1234',

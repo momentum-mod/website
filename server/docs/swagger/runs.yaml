@@ -141,9 +141,3 @@ definitions:
         type: array
         items:
           $ref: '#/definitions/Run'
-  RunStats:
-    properties:
-      totalJumps:
-        type: integer
-      totalStrafes:
-        type: integer

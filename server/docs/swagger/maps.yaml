@@ -592,27 +592,12 @@ definitions:
         type: integer
         format: int64
         readOnly: true
-      avatarURL:
-        type: string
-        readOnly: true
       description:
         type: string
         nullable: true
-      numBonuses:
+      numTracks:
         type: integer
-        format: int64
-        nullable: true
-      numCheckpoints:
-        type: integer
-        format: int64
-        nullable: true
-      numStages:
-        type: integer
-        format: int64
-        nullable: true
-      difficulty:
-        type: integer
-        format: int64
+        format: int32
         nullable: true
       createdAt:
         type: string
@@ -621,6 +606,28 @@ definitions:
       updatedAt:
         type: string
         format: date-time
+        readOnly: true
+  MapTrack:
+    properties:
+      trackNum:
+        type: integer
+        format: int8
+        readOnly: true
+      mapID:
+        type: integer
+        format: int32
+        readOnly: true
+      numZones:
+        type: integer
+        format: int8
+        readOnly: true
+      isLinear:
+        type: boolean
+        format: boolean
+        readOnly: true
+      difficulty:
+        type: integer
+        format: int8
         readOnly: true
   MapCredit:
     required:
@@ -634,7 +641,7 @@ definitions:
         readOnly: true
       mapID:
         type: integer
-        format: int64
+        format: int32
         readOnly: true
       type:
         type: integer
