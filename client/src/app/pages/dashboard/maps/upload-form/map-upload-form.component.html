@@ -1,180 +1,182 @@
 <nb-card>
   <nb-card-header><h2>SUBMIT A MAP</h2></nb-card-header>
   <nb-card-body>
-    <nb-stepper orientation="horizontal" [linear]="true" #stepper>
-      <nb-step label="Files" [stepControl]="filesForm">
-        <form [formGroup]="filesForm">
-          <div class="row no-gutters">
-            <div class="col-6 file-col">
-              <span class="col-title">Required</span>
-              <div class="row no-gutters">
-                <div class="col-4 offset-1">
-                  <div>
-                    <span class="input-title">Map File</span>
+    <div *ngIf="!isUploadingMap">
+      <nb-stepper orientation="horizontal" [linear]="true" #stepper>
+        <nb-step label="Files" [stepControl]="filesForm">
+          <form [formGroup]="filesForm">
+            <div class="row no-gutters">
+              <div class="col-6 file-col">
+                <span class="col-title">Required</span>
+                <div class="row no-gutters">
+                  <div class="col-4 offset-1">
+                    <div>
+                      <span class="input-title">Map File</span>
+                    </div>
+                    <div>
+                      <input [readonly]="true" title="uploadMapFile" formControlName="map" class="form-control"
+                             [ngClass]="{'form-control-danger': map.invalid && (map.dirty || map.touched)}"/>
+                    </div>
+                    <div>
+                      <file-upload [type]="'map'" [limit-size]="300"
+                                   (fileSelected)="onMapFileSelected($event)"></file-upload>
+                    </div>
                   </div>
-                  <div>
-                    <input [readonly]="true" title="uploadMapFile" formControlName="map" class="form-control"
-                           [ngClass]="{'form-control-danger': map.invalid && (map.dirty || map.touched)}"/>
-                  </div>
-                  <div>
-                    <file-upload [type]="'map'" [limit-size]="300"
-                                 (fileSelected)="onMapFileSelected($event)"></file-upload>
-                  </div>
-                </div>
-                <div class="col-4 offset-2">
-                  <div>
+                  <div class="col-4 offset-2">
+                    <div>
                     <span class="input-title">Map Thumbnail
                     <i class="ion ion-help-circled"
                        [nbPopover]="'Make sure to choose the image that represents your map the best! This will be the main image that shows up in the map selector for your map!'"
                        [nbPopoverTrigger]="'hint'"></i>
                     </span>
-                  </div>
-                  <div>
-                    <input [readonly]="true" class="form-control" formControlName="avatar"
-                           [ngClass]="{'form-control-danger': avatar.invalid && (avatar.dirty || avatar.touched)}"/>
-                  </div>
-                  <div>
-                    <file-upload [type]="'image'" (fileSelected)="onAvatarFileSelected($event)"></file-upload>
+                    </div>
+                    <div>
+                      <input [readonly]="true" class="form-control" formControlName="avatar"
+                             [ngClass]="{'form-control-danger': avatar.invalid && (avatar.dirty || avatar.touched)}"/>
+                    </div>
+                    <div>
+                      <file-upload [type]="'image'" (fileSelected)="onAvatarFileSelected($event)"></file-upload>
+                    </div>
                   </div>
                 </div>
               </div>
-            </div>
-            <div class="col-6 optional-col">
-              <span class="col-title">Optional</span>
-              <div>
+              <div class="col-6 optional-col">
+                <span class="col-title">Optional</span>
+                <div>
                 <span class="input-title">Additional Map Photos
                   <i class="ion ion-help-circled"
                      [nbPopover]="'You may upload up to 5 extra photos that also best represent your map.'"
                      [nbPopoverTrigger]="'hint'"></i>
                 </span>
-              </div>
-              <div class="extra-images">
-                <div class="row">
-                  <div class="col-auto extra-image-cont" *ngFor="let img of extraImages">
-                    <img class="extra-image" [src]="img.dataBlobURL">
-                    <div class="button">
-                      <button class="btn btn-outline-danger btn-xs btn-icon" (click)="removeExtraImage(img)">
-                        <i class="ion ion-close-round"></i>
-                      </button>
+                </div>
+                <div class="extra-images">
+                  <div class="row">
+                    <div class="col-auto extra-image-cont" *ngFor="let img of extraImages">
+                      <img class="extra-image" [src]="img.dataBlobURL">
+                      <div class="button">
+                        <button class="btn btn-outline-danger btn-xs btn-icon" (click)="removeExtraImage(img)">
+                          <i class="ion ion-close-round"></i>
+                        </button>
+                      </div>
                     </div>
+                    <file-upload [type]="'image'" (fileSelected)="onExtraImageSelected($event)"
+                                 *ngIf="extraImages.length < 5"
+                                 [ngStyle]="{'margin': extraImages.length === 0 ? 'auto' : ''}"></file-upload>
                   </div>
-                  <file-upload [type]="'image'" (fileSelected)="onExtraImageSelected($event)"
-                               *ngIf="extraImages.length < 5"
-                               [ngStyle]="{'margin': extraImages.length === 0 ? 'auto' : ''}"></file-upload>
                 </div>
               </div>
             </div>
-          </div>
-        </form>
-      </nb-step>
-      <nb-step label="Info" [stepControl]="infoForm">
-        <form [formGroup]="infoForm">
-          <div class="row">
-            <div class="col-6">
-              <div class="row">
-                <div class="form-group col-4">
-                  <label>Map Name</label>
-                  <input type="text" class="form-control" name="name" required formControlName="name"
-                         [ngClass]="{'form-control-danger': (name.invalid && (name.dirty || name.touched)) }"/>
-                </div>
-                <div class="form-group col-4">
-                  <label>Map Type
-                    <i class="ion ion-help-circled"
-                       [nbPopover]="'This is the style of gameplay found predominantly throughout the map.'"
-                       [nbPopoverTrigger]="'hint'"></i>
-                  </label>
-                  <nb-select placeholder="Map Type" formControlName="type" (selectedChange)="inferredMapType = false">
-                    <nb-option [value]="MapTypes.UNKNOWN">Unknown</nb-option>
-                    <nb-option [value]="MapTypes.SURF">Surf</nb-option>
-                    <nb-option [value]="MapTypes.BHOP">Bhop</nb-option>
-                    <nb-option [value]="MapTypes.KZ">KZ (Kreedz Climb)</nb-option>
-                    <nb-option [value]="MapTypes.RJ">RJ (Jump)</nb-option>
-                    <nb-option [value]="MapTypes.TRICKSURF">Tricksurf</nb-option>
-                    <nb-option [value]="MapTypes.TRIKZ">Trikz</nb-option>
-                  </nb-select>
-                  <div>
-                    <span class="warning" *ngIf="inferredMapType"><i>Map type inferred from file name</i></span>
+          </form>
+        </nb-step>
+        <nb-step label="Info" [stepControl]="infoForm">
+          <form [formGroup]="infoForm">
+            <div class="row">
+              <div class="col-6">
+                <div class="row">
+                  <div class="form-group col-4">
+                    <label>Map Name</label>
+                    <input type="text" class="form-control" name="name" required formControlName="name"
+                           [ngClass]="{'form-control-danger': (name.invalid && (name.dirty || name.touched)) }"/>
+                  </div>
+                  <div class="form-group col-4">
+                    <label>Map Type
+                      <i class="ion ion-help-circled"
+                         [nbPopover]="'This is the style of gameplay found predominantly throughout the map.'"
+                         [nbPopoverTrigger]="'hint'"></i>
+                    </label>
+                    <nb-select placeholder="Map Type" formControlName="type" (selectedChange)="inferredMapType = false">
+                      <nb-option [value]="MapTypes.UNKNOWN">Unknown</nb-option>
+                      <nb-option [value]="MapTypes.SURF">Surf</nb-option>
+                      <nb-option [value]="MapTypes.BHOP">Bhop</nb-option>
+                      <nb-option [value]="MapTypes.KZ">KZ (Kreedz Climb)</nb-option>
+                      <nb-option [value]="MapTypes.RJ">RJ (Jump)</nb-option>
+                      <nb-option [value]="MapTypes.TRICKSURF">Tricksurf</nb-option>
+                      <nb-option [value]="MapTypes.TRIKZ">Trikz</nb-option>
+                    </nb-select>
+                    <div>
+                      <span class="warning" *ngIf="inferredMapType"><i>Map type inferred from file name</i></span>
+                    </div>
+                  </div>
+                  <div class="form-group col-4">
+                    <label>Date Created</label>
+                    <input formControlName="creationDate" [nbDatepicker]="datepicker" class="form-control"
+                           [ngClass]="{'form-control-danger': (creationDate.invalid && (creationDate.dirty || creationDate.touched))}"/>
+                    <nb-datepicker #datepicker [boundingMonth]="false"></nb-datepicker>
                   </div>
                 </div>
-                <div class="form-group col-4">
-                  <label>Date Created</label>
-                  <input formControlName="creationDate" [nbDatepicker]="datepicker" class="form-control"
-                         [ngClass]="{'form-control-danger': (creationDate.invalid && (creationDate.dirty || creationDate.touched))}"/>
-                  <nb-datepicker #datepicker [boundingMonth]="false"></nb-datepicker>
-                </div>
-              </div>
-              <div class="form-group">
-                <label>Map Description</label>
-                <textarea rows="4" class="form-control" formControlName="description" [maxLength]="1000"
-                          [ngClass]="{'form-control-danger': (description.invalid && (description.dirty || description.touched))}"></textarea>
-                <div class="form-text">
-                  <div class="row">
+                <div class="form-group">
+                  <label>Map Description</label>
+                  <textarea rows="4" class="form-control" formControlName="description" [maxLength]="1000"
+                            [ngClass]="{'form-control-danger': (description.invalid && (description.dirty || description.touched))}"></textarea>
+                  <div class="form-text">
+                    <div class="row">
                     <span class="col">
                       <i><a href="https://help.github.com/articles/basic-writing-and-formatting-syntax/">Markdown</a> is supported</i>
                     </span>
-                    <span class="col text-right">{{1000 - description.value.length | ngxPlural:'character'}} remaining</span>
+                      <span class="col text-right">{{1000 - description.value.length | ngxPlural:'character'}} remaining</span>
+                    </div>
                   </div>
                 </div>
               </div>
-            </div>
-            <div class="col-6">
-              <div *ngIf="!zoneFile">
-                <file-upload [type]="'zones'" (fileSelected)="onZoneFileSelected($event)"></file-upload>
-              </div>
-              <div *ngIf="zoneFile">
-                <nb-list>
-                  <nb-list-item *ngFor="let track of tracks">
-                    <div class="row no-gutters">
+              <div class="col-6">
+                <div *ngIf="!zoneFile">
+                  <file-upload [type]="'zones'" (fileSelected)="onZoneFileSelected($event)"></file-upload>
+                </div>
+                <div *ngIf="zoneFile">
+                  <nb-list>
+                    <nb-list-item *ngFor="let track of tracks">
+                      <div class="row no-gutters">
                       <span class="col-6">
                         {{track.trackNum ? 'Bonus Track ' + track.trackNum : 'Main Track'}} with
                         {{track.numZones | ngxPlural:(track.isLinear ? 'checkpoint' : 'stage')}}.
                       </span>
-                      <div class="col-6">
-                        <label for="trackDiff">Difficulty:</label>
-                        <input nbInput id="trackDiff" [type]="'number'" min="1" max="12"
-                               [(ngModel)]="track.difficulty" [ngModelOptions]="{standalone: true}">
+                        <div class="col-6">
+                          <label for="trackDiff">Difficulty:</label>
+                          <input nbInput id="trackDiff" [type]="'number'" min="1" max="12"
+                                 [(ngModel)]="track.difficulty" [ngModelOptions]="{standalone: true}">
+                        </div>
                       </div>
-                    </div>
-                  </nb-list-item>
-                </nb-list>
-                <button nbButton outline fullWidth [status]="'danger'" (click)="onRemoveZones()">Remove Zones</button>
+                    </nb-list-item>
+                  </nb-list>
+                  <button nbButton outline fullWidth [status]="'danger'" (click)="onRemoveZones()">Remove Zones</button>
+                </div>
               </div>
             </div>
+          </form>
+        </nb-step>
+        <nb-step label="Credits" [stepControl]="creditsForm">
+          <div class="row">
+            <div class="col-xl-12">
+              <form style="" [formGroup]="creditsForm">
+                <map-credits [authors]="authors" [coauthors]="coauthors" [testers]="testers" [special-thanks]="specialThanks"
+                             [editable]="true" (authorChange)="onAuthorChange($event)" (testerChange)="onTesterAdd($event)"
+                             (specialThanksChange)="onSTAdd($event)"></map-credits>
+              </form>
+            </div>
           </div>
-        </form>
-      </nb-step>
-      <nb-step label="Credits" [stepControl]="creditsForm">
-        <div class="row">
-          <div class="col-xl-12">
-            <form style="" [formGroup]="creditsForm">
-              <map-credits [authors]="authors" [coauthors]="coauthors" [testers]="testers" [special-thanks]="specialThanks"
-                           [editable]="true" (authorChange)="onAuthorChange($event)" (testerChange)="onTesterAdd($event)"
-                           (specialThanksChange)="onSTAdd($event)"></map-credits>
-            </form>
-          </div>
-        </div>
-      </nb-step>
-      <nb-step label="Review">
-        <h1 class="text-center">Verify that the info below is correct!</h1>
-      </nb-step>
-    </nb-stepper>
-    <div>
-      <button class="btn btn-outline-info previous-button" type="submit" *ngIf="stepper.selectedIndex !== 0"
-              (click)="touchForm(stepper.selectedIndex); stepper.previous()">
-        <i class="ion ion-chevron-left"></i>
-      </button>
-      <button class="btn btn-outline-info next-button" type="submit"
-              *ngIf="stepper.selectedIndex !== stepper.steps?.length - 1"
-              (click)="touchForm(stepper.selectedIndex); stepper.next()">
-        <i class="ion ion-chevron-right"></i>
-      </button>
-      <button *ngIf="stepper.selectedIndex === stepper.steps?.length - 1" class="btn btn-outline-info next-button"
-              type="button" (click)="onSubmit()">Submit Map</button>
+        </nb-step>
+        <nb-step label="Review">
+          <h1 class="text-center">Verify that the info below is correct!</h1>
+        </nb-step>
+      </nb-stepper>
+      <div>
+        <button class="btn btn-outline-info previous-button" type="submit" *ngIf="stepper.selectedIndex !== 0"
+                (click)="touchForm(stepper.selectedIndex); stepper.previous()">
+          <i class="ion ion-chevron-left"></i>
+        </button>
+        <button class="btn btn-outline-info next-button" type="submit"
+                *ngIf="stepper.selectedIndex !== stepper.steps?.length - 1"
+                (click)="touchForm(stepper.selectedIndex); stepper.next()">
+          <i class="ion ion-chevron-right"></i>
+        </button>
+        <button *ngIf="stepper.selectedIndex === stepper.steps?.length - 1" class="btn btn-outline-info next-button"
+                type="button" (click)="onSubmit()">Submit Map</button>
+      </div>
     </div>
     <nb-progress-bar *ngIf="isUploadingMap" [value]="mapUploadPercentage" [size]="'xlg'"
                      [displayValue]="true"></nb-progress-bar>
   </nb-card-body>
 </nb-card>
 
-<map-info *ngIf="stepper.selectedIndex === stepper.steps?.length - 1 && !isUploadingMap" [isPreview]="true"
+<map-info *ngIf="stepper?.selectedIndex === stepper?.steps?.length - 1 && !isUploadingMap" [isPreview]="true"
           [previewMap]="mapPreview" [previewImage]="avatarFilePreview"></map-info>
