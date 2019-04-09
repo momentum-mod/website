@@ -43,7 +43,7 @@ export class ProfileCreditsComponent implements OnInit {
   loadCredits() {
     this.usersService.getMapCredits(this.user.id, {
       params: {
-        expand: 'mapWithInfo',
+        expand: 'map,mapInfo,mapThumbnail',
         limit: this.pageLimit,
         offset: (this.currentPage - 1) * this.pageLimit,
       },

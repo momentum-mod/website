@@ -152,6 +152,7 @@ Run.belongsTo(User, { foreignKey: 'playerID' });
 Run.belongsTo(BaseStats, { as: 'overallStats', foreignKey: 'baseStatsID', onDelete: 'CASCADE' });
 Run.hasOne(UserMapRank, { as: 'rank', foreignKey: 'runID', onDelete: 'CASCADE'});
 Run.hasMany(RunZoneStats, { as: 'zoneStats', foreignKey: 'runID', onDelete: 'CASCADE'});
+RunZoneStats.belongsTo(Run, {foreignKey: 'runID'});
 RunZoneStats.belongsTo(BaseStats, { as: 'baseStats', foreignKey: 'baseStatsID', onDelete: 'CASCADE'});
 UserMapRank.belongsTo(Run, { foreignKey: 'runID'});
 UserMapRank.belongsTo(User, { foreignKey: 'userID'});

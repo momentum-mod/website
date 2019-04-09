@@ -1,4 +1,4 @@
-<span class="text-center" *ngIf="loadedCredits && mapCredits.length === 0"><h5><i>No credits found</i></h5></span>
+<h5 class="text-center" *ngIf="loadedCredits && mapCredits.length === 0"><i>No credits found</i></h5>
 <nb-list>
   <nb-list-item *ngFor="let mapCredit of mapCredits | paginate: {
      itemsPerPage: pageLimit,
@@ -8,7 +8,7 @@
     <div class="text-center">
       <span class="col">{{mapCredType[mapCredit.type]}} on</span>
       <a routerLink="/dashboard/maps/{{mapCredit.map?.id}}">
-        <img class="map-image" [src]="mapCredit.map?.info?.avatarURL">
+        <img class="map-image" [src]="mapCredit.map?.thumbnail?.small">
         <span class="col">{{mapCredit.map?.name}}</span>
       </a>
     </div>
