@@ -1,5 +1,5 @@
 'use strict';
-const { MapCredit } = require('../../config/sqlize'),
+const { Map, MapCredit, MapInfo, MapImage } = require('../../config/sqlize'),
 	queryHelper = require('../helpers/query');
 
 module.exports = {
@@ -19,7 +19,28 @@ module.exports = {
 			queryOptions.offset = queryParams.offset;
 		if (queryParams.map)
 			queryOptions.where.mapID = queryParams.map;
-		queryHelper.addExpansions(queryOptions, queryParams.expand, ['map', 'mapWithInfo']);
+		const expansion = queryParams.expand.split(',');
+		if (expansion.includes('map')) {
+			const mapIncl = {
+				model: Map,
+				as: 'map',
+				include: [],
+			};
+			if (expansion.includes('mapInfo')) {
+				mapIncl.include.push({
+					model: MapInfo,
+					as: 'info',
+				});
+			}
+			if (expansion.includes('mapThumbnail')) {
+				mapIncl.include.push({
+					model: MapImage,
+					as: 'thumbnail',
+				})
+			}
+
+			queryOptions.include.push(mapIncl);
+		}
 		return MapCredit.findAndCountAll(queryOptions);
 	},
 

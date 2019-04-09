@@ -1,59 +1,14 @@
 'use strict';
 const crypto = require('crypto'),
 	{ sequelize, Op, Map, MapInfo, MapStats, Run,
-		RunZoneStats, MapZoneStats, BaseStats, User, UserStats, UserMapRank } = require('../../config/sqlize'),
+		RunZoneStats, BaseStats, User, UserStats, UserMapRank,
+		MapTrack, MapTrackStats, MapZone, MapZoneStats,
+	} = require('../../config/sqlize'),
 	activity = require('./activity'),
 	config = require('../../config/config'),
 	queryHelper = require('../helpers/query'),
 	ServerError = require('../helpers/server-error'),
 	fs = require('fs');
-
-const validateRunFile = (resultObj) => {
-	return new Promise((resolve, reject) => {
-
-		// TODO: consider checking endianness of the system and flipping bytes if needed
-
-		let replay = {
-			magic: readInt32(resultObj.bin, true),
-			version: readInt8(resultObj.bin, true),
-			header: {
-				mapName: readString(resultObj.bin),
-				mapHash: readString(resultObj.bin),
-				playerName: readString(resultObj.bin),
-				steamID: readString(resultObj.bin),
-				tickRate: readFloat(resultObj.bin),
-				runFlags: readInt32(resultObj.bin, true),
-				runDate_s: readString(resultObj.bin),
-				startTick: readInt32(resultObj.bin, true),
-				stopTick: readInt32(resultObj.bin, true),
-				trackNum: readInt8(resultObj.bin, true),
-				zoneNum: readInt8(resultObj.bin, true),
-			},
-			stats: [],
-			frames: [],
-		};
-
-		const magicLE = 0x524D4F4D;
-		const b1 = resultObj.bin.ok, b2 = replay.magic === magicLE,
-			b3 = replay.header.steamID === resultObj.playerID,
-			b4 = replay.header.mapHash === resultObj.map.hash,
-			b5 = replay.header.mapName === resultObj.map.name,
-			b6 = replay.header.stopTick > replay.header.startTick,
-			b7 = replay.header.trackNum >= 0,
-			b8 = replay.header.runFlags === 0, // TODO removeme when we support runFlags (0.9.0)
-			b9 = replay.header.zoneNum === 0; // TODO removeme when we support ILs (0.9.0)
-		if (b1 && b2 && b3 && b4 && b5 && b6 && b7 && b8 && b9)
-		{
-			// TODO: date check (reject "old" replays)
-			replay.header.runDate = new Date(Number(replay.header.runDate_s) * 1000); // We're good til 2038...
-			replay.header.ticks = replay.header.stopTick - replay.header.startTick;
-			resolve(replay);
-		}
-		else {
-			reject(new ServerError(400, 'Bad request'));
-		}
-	});
-};
 
 const checkBuf = (o) => {
 	let inRange = o.offset < o.buf.length;
@@ -96,40 +51,106 @@ const readInt8 = (o, unsigned = false) => {
 	return val;
 };
 
+const validateRunFile = (resultObj) => {
+	return new Promise((resolve, reject) => {
+
+		// TODO: consider checking endianness of the system and flipping bytes if needed
+
+		let replay = {
+			magic: readInt32(resultObj.bin, true),
+			version: readInt8(resultObj.bin, true),
+			header: {
+				mapName: readString(resultObj.bin),
+				mapHash: readString(resultObj.bin),
+				playerName: readString(resultObj.bin),
+				steamID: readString(resultObj.bin),
+				tickRate: readFloat(resultObj.bin),
+				runFlags: readInt32(resultObj.bin, true),
+				runDate_s: readString(resultObj.bin),
+				startTick: readInt32(resultObj.bin, true),
+				stopTick: readInt32(resultObj.bin, true),
+				trackNum: readInt8(resultObj.bin, true),
+				zoneNum: readInt8(resultObj.bin, true),
+			},
+			overallStats: {},
+			zoneStats: [],
+			frames: [],
+		};
+
+		const magicLE = 0x524D4F4D;
+		const b1 = resultObj.bin.ok, b2 = replay.magic === magicLE,
+			b3 = replay.header.steamID === resultObj.playerID,
+			b4 = replay.header.mapHash === resultObj.map.hash,
+			b5 = replay.header.mapName === resultObj.map.name,
+			b6 = replay.header.stopTick > replay.header.startTick,
+			b7 = replay.header.trackNum >= 0 && replay.header.trackNum < resultObj.map.info.numTracks,
+			b8 = replay.header.runFlags === 0, // TODO removeme when we support runFlags (0.9.0)
+			b9 = replay.header.zoneNum === 0; // TODO removeme when we support ILs (0.9.0)
+		if (b1 && b2 && b3 && b4 && b5 && b6 && b7 && b8 && b9)
+		{
+			// TODO: date check (reject "old" replays)
+			replay.header.runDate = new Date(Number(replay.header.runDate_s) * 1000); // We're good til 2038...
+			replay.header.ticks = replay.header.stopTick - replay.header.startTick;
+			resolve(replay);
+		}
+		else {
+			reject(new ServerError(400, 'Bad request'));
+		}
+	});
+};
+
+const parseBaseStats = (resultObj) => {
+	return {
+		jumps: readInt32(resultObj.bin, true),
+		strafes: readInt32(resultObj.bin, true),
+		avgStrafeSync: readFloat(resultObj.bin),
+		avgStrafeSync2: readFloat(resultObj.bin),
+		enterTime: readInt32(resultObj.bin, true) * resultObj.replay.header.tickRate,
+		totalTime: readInt32(resultObj.bin, true) * resultObj.replay.header.tickRate,
+		velMax3D: readFloat(resultObj.bin),
+		velMax2D: readFloat(resultObj.bin),
+		velAvg3D: readFloat(resultObj.bin),
+		velAvg2D: readFloat(resultObj.bin),
+		velEnter3D: readFloat(resultObj.bin),
+		velEnter2D: readFloat(resultObj.bin),
+		velExit3D: readFloat(resultObj.bin),
+		velExit2D: readFloat(resultObj.bin),
+	};
+};
+
 const processRunFile = (resultObj) => {
 	return new Promise((resolve, reject) => {
 
+		// Stats
+		let bReadStats = false;
 		const hasStats = readInt8(resultObj.bin);
-		if (hasStats)
-		{
-			// TODO: ensure numZones == 1 when replay.header.zoneNum > 0 (0.9.0)
+		if (hasStats) {
 			const numZones = readInt8(resultObj.bin, true);
-			// 0 = total, 1 -> numZones + 1 = individual zones
-			for (let i = 0; i < numZones + 1 && resultObj.bin.ok; i++)
-			{
-				let zoneStat = {
-					zoneNum: i,
-					baseStats: {
-						jumps: readInt32(resultObj.bin, true),
-						strafes: readInt32(resultObj.bin, true),
-						avgStrafeSync: readFloat(resultObj.bin),
-						avgStrafeSync2: readFloat(resultObj.bin),
-						enterTime: readInt32(resultObj.bin, true) * resultObj.replay.header.tickRate,
-						totalTime: readInt32(resultObj.bin, true) * resultObj.replay.header.tickRate,
-						velMax3D: readFloat(resultObj.bin),
-						velMax2D: readFloat(resultObj.bin),
-						velAvg3D: readFloat(resultObj.bin),
-						velAvg2D: readFloat(resultObj.bin),
-						velEnter3D: readFloat(resultObj.bin),
-						velEnter2D: readFloat(resultObj.bin),
-						velExit3D: readFloat(resultObj.bin),
-						velExit2D: readFloat(resultObj.bin),
-					},
-				};
-				resultObj.replay.stats.push(zoneStat);
+			if (numZones) {
+				if (resultObj.replay.header.zoneNum === 0) {
+					// 0 = overallStats, 1 -> numZones + 1 = individual zone stats
+					for (let i = 0; i < numZones + 1 && resultObj.bin.ok; i++) {
+						if (i === 0)
+							resultObj.replay.overallStats = parseBaseStats(resultObj);
+						else
+							resultObj.replay.zoneStats.push({
+								zoneNum: i,
+								baseStats: parseBaseStats(resultObj),
+							});
+					}
+					bReadStats = resultObj.bin.ok;
+				}
+				else if (numZones === 1) {
+					// There's only one zone stats, no need for a loop or creating zone stats
+					resultObj.replay.overallStats = parseBaseStats(resultObj);
+					bReadStats = resultObj.bin.ok;
+				}
 			}
 		}
+		if (!bReadStats)
+			reject(new ServerError(400, 'Bad request'));
 
+		// Frames
 		const runFrames = readInt32(resultObj.bin, true);
 		if (runFrames && runFrames >= resultObj.replay.header.stopTick) {
 			for (let i = 0; i < runFrames && resultObj.bin.ok; i++)
@@ -166,10 +187,11 @@ const processRunFile = (resultObj) => {
 				tickRate: resultObj.replay.header.tickRate,
 				flags: resultObj.replay.header.runFlags,
 				hash: hash.digest('hex'),
-				stats: {
-					zoneStats: resultObj.replay.stats,
-				},
+				overallStats: resultObj.replay.overallStats,
 			};
+
+			if (resultObj.replay.zoneStats.length)
+				resultObj.runModel.zoneStats = resultObj.replay.zoneStats;
 
 			resolve(resultObj);
 		}
@@ -197,34 +219,27 @@ const storeRunFile = (resultObj, runID) => {
 };
 
 const isNewPersonalBest = (resultObj, transact) => {
+	const attrs = {
+		mapID: resultObj.map.id,
+		userID: resultObj.playerID,
+		gameType: resultObj.map.type,
+		trackNum: resultObj.replay.header.trackNum,
+		zoneNum: resultObj.replay.header.zoneNum,
+		flags: resultObj.replay.header.runFlags,
+	};
 	return UserMapRank.findOrCreate({
-		where: {
-			mapID: resultObj.map.id,
-			userID: resultObj.playerID,
-			trackNum: resultObj.replay.header.trackNum,
-			zoneNum: resultObj.replay.header.zoneNum,
-			flags: resultObj.replay.header.runFlags,
-		},
-		defaults: {
-			mapID: resultObj.map.id,
-			userID: resultObj.playerID,
-			trackNum: resultObj.replay.header.trackNum,
-			zoneNum: resultObj.replay.header.zoneNum,
-			flags: resultObj.replay.header.runFlags,
-		},
-		include: [
-			{
-				model: Run,
-				as: 'run',
-			}
-		],
+		where: attrs,
+		defaults: attrs,
+		include: [{model: Run, as: 'run'}],
 		transaction: transact,
 	}).spread((mapRank, created) => {
 		resultObj.mapRank = mapRank;
 		if (created) {
+			resultObj.createdMapRank = true;
 			// It's definitely a PB
 			return Promise.resolve(true);
 		} else {
+			resultObj.createdMapRank = false;
 			let isNewPB = !mapRank.run.ticks || (mapRank.run.ticks > resultObj.replay.header.ticks);
 			return Promise.resolve(isNewPB);
 		}
@@ -234,8 +249,9 @@ const isNewPersonalBest = (resultObj, transact) => {
 const isNewWorldRecord = (resultObj, transact) => {
 	return UserMapRank.findOne({
 		where: {
-			mapID: resultObj.map.id,
 			rank: 1,
+			mapID: resultObj.map.id,
+			gameType: resultObj.map.type,
 			flags: resultObj.replay.header.runFlags,
 			trackNum: resultObj.replay.header.trackNum,
 			zoneNum: resultObj.replay.header.zoneNum,
@@ -253,41 +269,46 @@ const isNewWorldRecord = (resultObj, transact) => {
 
 const saveRun = (resultObj, transact) => {
 	let runModel = {};
-	// First do MapZoneStats -> MapStats -> UserStats -> UserMapRank updating
+	// First do TrackStats -> (ZoneStats / MapStats) -> UserMapRank updating -> UserStats
 	return updateStats(resultObj, transact).then(() => { // Create the run
 		return Run.create(resultObj.runModel, {
-			include: [{
-					as: 'overallStats',
+			include: [
+				{
 					model: BaseStats,
-					include: [{
-						model: RunZoneStats,
-						as: 'zoneStats',
-						include: [{
-							model: BaseStats,
-							as: 'baseStats',
-						}]
-					}]
+					as: 'overallStats',
+				},
+				{
+					model: RunZoneStats,
+					as: 'zoneStats',
+					include: [{model: BaseStats, as: 'baseStats'}]
 				}],
 			transaction: transact
 		});
-	}).then(run => { // Update old PB run to be no longer PB
+	}).then(run => { // Update old PB run to be no-longer PB, if there was one
 		runModel = run;
 		if (!resultObj.runModel.isPersonalBest)
 			return Promise.resolve();
+
+		const oldRunID = resultObj.mapRank.runID;
 		return resultObj.mapRank.update({runID: run.id}, {transaction: transact}).then(() => {
-			return Run.update({isPersonalBest: false}, {
-				transaction: transact,
-				where: {
-					isPersonalBest: true,
-					id: {[Op.ne]: runModel.id },
-				},
-			});
+			// TODO: remove this after Run.isPersonalBest is removed
+			if (!resultObj.createdMapRank) {
+				return Run.update({isPersonalBest: false}, {
+					where: {
+						id: oldRunID,
+						isPersonalBest: true,
+					},
+					transaction: transact,
+				});
+			}
+			else
+				return Promise.resolve();
 		});
 	}).then(() => { // Store the run file
 		return storeRunFile(resultObj, runModel.id);
 	}).then(results => { // Update the download URL for the run
 		return runModel.update({ file: results.downloadURL }, {transaction: transact});
-	}).then(() => { // Generate PB notif if needed
+	}).then(() => { // Generate PB notifications
 		if (!resultObj.runModel.isPersonalBest || resultObj.isNewWorldRecord)
 			return Promise.resolve();
 		return activity.create({
@@ -295,7 +316,7 @@ const saveRun = (resultObj, transact) => {
 			userID: resultObj.playerID,
 			data: runModel.id,
 		}, transact);
-	}).then(() => { // Generate WR notif if needed
+	}).then(() => { // Generate WR notifications if needed
 		if (!resultObj.isNewWorldRecord)
 			return Promise.resolve();
 		return activity.create({
@@ -308,100 +329,206 @@ const saveRun = (resultObj, transact) => {
 	});
 };
 
-const updateUserRankXP = (userID, transaction) => {
-	return UserMapRank.sum('rankXP', {
-		where: {
-			userID: userID
-		},
-		transaction: transaction
-	}).then(sum => {
-		return UserStats.update({rankXP: sum}, {
-			where: {
-				userID: userID,
-			},
-			transaction: transaction
-		})
-	});
+const updateBaseStats = (baseStats) => {
+	return {
+		// Totals
+		jumps: sequelize.literal(`if(jumps = 0, ${baseStats.jumps}, jumps + ${baseStats.jumps})`),
+		strafes: sequelize.literal(`if(strafes = 0, ${baseStats.strafes}, strafes + ${baseStats.strafes})`),
+		totalTime: sequelize.literal(`if(totalTime = 0, ${baseStats.totalTime}, totalTime + ${baseStats.totalTime})`),
+		// Averages
+		avgStrafeSync: sequelize.literal(`if(avgStrafeSync = 0, ${baseStats.avgStrafeSync}, avgStrafeSync / 2.0 + ${baseStats.avgStrafeSync / 2.0})`),
+		avgStrafeSync2: sequelize.literal(`if(avgStrafeSync2 = 0, ${baseStats.avgStrafeSync2}, avgStrafeSync2 / 2.0 + ${baseStats.avgStrafeSync2 / 2.0})`),
+		enterTime: sequelize.literal(`if(enterTime = 0, ${baseStats.enterTime}, enterTime / 2.0 + ${baseStats.enterTime / 2.0})`),
+		velAvg3D: sequelize.literal(`if(velAvg3D = 0, ${baseStats.velAvg3D}, velAvg3D / 2.0 + ${baseStats.velAvg3D / 2.0})`),
+		velAvg2D: sequelize.literal(`if(velAvg2D = 0, ${baseStats.velAvg2D}, velAvg2D / 2.0 + ${baseStats.velAvg2D / 2.0})`),
+		velMax3D: sequelize.literal(`if(velMax3D = 0, ${baseStats.velMax3D}, velMax3D / 2.0 + ${baseStats.velMax3D / 2.0})`),
+		velMax2D: sequelize.literal(`if(velMax2D = 0, ${baseStats.velMax2D}, velMax2D / 2.0 + ${baseStats.velMax2D / 2.0})`),
+		velEnter3D: sequelize.literal(`if(velEnter3D = 0, ${baseStats.velEnter3D}, velEnter3D / 2.0 + ${baseStats.velEnter3D / 2.0})`),
+		velEnter2D: sequelize.literal(`if(velEnter2D = 0, ${baseStats.velEnter2D}, velEnter2D / 2.0 + ${baseStats.velEnter2D / 2.0})`),
+		velExit3D: sequelize.literal(`if(velExit3D = 0, ${baseStats.velExit3D}, velExit3D / 2.0 + ${baseStats.velExit3D / 2.0})`),
+		velExit2D: sequelize.literal(`if(velExit2D = 0, ${baseStats.velExit2D}, velExit2D / 2.0 + ${baseStats.velExit2D / 2.0})`),
+	}
 };
 
 const updateStats = (resultObj, transaction) => {
-	let isFirstTimeCompletingMap = false;
 
-	const zoneUpdates = [];
-	for (const zoneStat of resultObj.map.stats.zoneStats) {
-		const zoneNum = zoneStat.zoneNum;
-		const zoneBaseStats = resultObj.replay.stats[zoneNum].baseStats;
-		zoneUpdates.push(zoneStat.baseStats.update({
-			// Totals
-			jumps: sequelize.literal(`if(jumps = 0, ${zoneBaseStats.jumps}, jumps + ${zoneBaseStats.jumps})`),
-			strafes: sequelize.literal(`if(strafes = 0, ${zoneBaseStats.strafes}, strafes + ${zoneBaseStats.strafes})`),
-			totalTime: sequelize.literal(`if(totalTime = 0, ${zoneBaseStats.totalTime}, totalTime + ${zoneBaseStats.totalTime})`),
-			// Averages
-			avgStrafeSync: sequelize.literal(`if(avgStrafeSync = 0, ${zoneBaseStats.avgStrafeSync}, avgStrafeSync / 2.0 + ${zoneBaseStats.avgStrafeSync / 2.0})`),
-			avgStrafeSync2: sequelize.literal(`if(avgStrafeSync2 = 0, ${zoneBaseStats.avgStrafeSync2}, avgStrafeSync2 / 2.0 + ${zoneBaseStats.avgStrafeSync2 / 2.0})`),
-			enterTime: sequelize.literal(`if(enterTime = 0, ${zoneBaseStats.enterTime}, enterTime / 2.0 + ${zoneBaseStats.enterTime / 2.0})`),
-			velAvg3D: sequelize.literal(`if(velAvg3D = 0, ${zoneBaseStats.velAvg3D}, velAvg3D / 2.0 + ${zoneBaseStats.velAvg3D / 2.0})`),
-			velAvg2D: sequelize.literal(`if(velAvg2D = 0, ${zoneBaseStats.velAvg2D}, velAvg2D / 2.0 + ${zoneBaseStats.velAvg2D / 2.0})`),
-			velMax3D: sequelize.literal(`if(velMax3D = 0, ${zoneBaseStats.velMax3D}, velMax3D / 2.0 + ${zoneBaseStats.velMax3D / 2.0})`),
-			velMax2D: sequelize.literal(`if(velMax2D = 0, ${zoneBaseStats.velMax2D}, velMax2D / 2.0 + ${zoneBaseStats.velMax2D / 2.0})`),
-			velEnter3D: sequelize.literal(`if(velEnter3D = 0, ${zoneBaseStats.velEnter3D}, velEnter3D / 2.0 + ${zoneBaseStats.velEnter3D / 2.0})`),
-			velEnter2D: sequelize.literal(`if(velEnter2D = 0, ${zoneBaseStats.velEnter2D}, velEnter2D / 2.0 + ${zoneBaseStats.velEnter2D / 2.0})`),
-			velExit3D: sequelize.literal(`if(velExit3D = 0, ${zoneBaseStats.velExit3D}, velExit3D / 2.0 + ${zoneBaseStats.velExit3D / 2.0})`),
-			velExit2D: sequelize.literal(`if(velExit2D = 0, ${zoneBaseStats.velExit2D}, velExit2D / 2.0 + ${zoneBaseStats.velExit2D / 2.0})`),
-		}, {
-			transaction: transaction
-		}));
-	}
+	let isEntireTrack = resultObj.replay.header.zoneNum === 0;
+	let isEntireMainTrack = resultObj.replay.header.trackNum === 0 && isEntireTrack;
+	let playerCompletedMainTrackBefore = !resultObj.createdMapRank && isEntireMainTrack;
+	let playerCompletedThisTrackBefore = false;
+	let playerCompletedThisZoneBefore = false;
 
-	return Promise.all(zoneUpdates).then(() => { // MapZoneStats
-		return Run.find({
+	return Run.findOne({
+		where: {
+			mapID: resultObj.map.id,
+			playerID: resultObj.playerID,
+			trackNum: resultObj.replay.header.trackNum,
+			zoneNum: 0,
+		},
+		transaction: transaction,
+	}).then(run => {
+		if (run)
+			playerCompletedThisTrackBefore = true;
+
+		if (isEntireTrack) {
+			playerCompletedThisZoneBefore = playerCompletedThisTrackBefore;
+			return Promise.resolve();
+		}
+		else {
+			return RunZoneStats.findOne({
+				where: {
+					zoneNum: resultObj.replay.header.zoneNum,
+				},
+				include: [{
+					model: Run,
+					where: {
+						mapID: resultObj.map.id,
+						playerID: resultObj.playerID,
+					}
+				}],
+				transaction: transaction,
+			}).then(runZoneStats => {
+				if (runZoneStats)
+					playerCompletedThisZoneBefore = true;
+				return Promise.resolve();
+			});
+		}
+	}).then(() => {
+		// All runs have a particular track, so get that and its related stats
+		return MapTrack.findOne({
 			where: {
 				mapID: resultObj.map.id,
-				playerID: resultObj.playerID,
+				trackNum: resultObj.replay.header.trackNum,
 			},
-			raw: true,
-			transaction: transaction,
-		})
-	}).then(run => { // MapStats
-		const mapStatsUpdate = {
-			totalCompletions: sequelize.literal('totalCompletions + 1'),
-		};
-		if (!run) {
-			isFirstTimeCompletingMap = true;
-			mapStatsUpdate.totalUniqueCompletions = sequelize.literal('totalUniqueCompletions + 1');
-		}
-		return MapStats.update(mapStatsUpdate, {
-			where: { mapID: resultObj.map.id },
+			include: [
+				{
+					model: MapTrackStats,
+					as: 'stats',
+					include: [{model: BaseStats, as: 'baseStats'}],
+				},
+				{
+					model: MapZone,
+					as: 'zones',
+					include: [{model: MapZoneStats, as: 'stats', include: [{model: BaseStats, as: 'baseStats'}]}]
+				}
+			],
 			transaction: transaction,
 		});
-	}).then(() => { // UserMapRank
+	}).then(track => {
+		if (!track)
+			return Promise.reject(new ServerError(400, 'Bad request'));
+
+		// Now, depending on if we're a singular zone or the whole track, we need to update our stats accordingly
+
+		let updates = [];
+
+		if (isEntireTrack) {
+			// It's the entire track. Update the track's stats, each of its zones, and the map's stats as well
+			// The track's stats come from replay.overallStats
+			const trackUpd8Obj = {
+				completions: sequelize.literal('completions + 1'),
+			};
+
+			if (!playerCompletedThisTrackBefore)
+				trackUpd8Obj.uniqueCompletions = sequelize.literal('uniqueCompletions + 1');
+
+			updates.push(track.stats.update(trackUpd8Obj, {transaction: transaction}));
+			updates.push(track.stats.baseStats.update(updateBaseStats(resultObj.replay.overallStats)), {transaction: transaction});
+
+			for (const zone of track.zones) {
+				if (zone.zoneNum === 0) continue;
+				const zoneUpd8Obj = {
+					completions: sequelize.literal('completions + 1'),
+				};
+				if (!playerCompletedThisZoneBefore)
+					zoneUpd8Obj.uniqueCompletions = sequelize.literal('uniqueCompletions + 1');
+
+				updates.push(zone.stats.update(zoneUpd8Obj, {transaction: transaction}));
+				updates.push(zone.stats.baseStats.update(
+					updateBaseStats(resultObj.replay.zoneStats[zone.zoneNum - 1].baseStats), {transaction: transaction}));
+			}
+
+			// Lastly update the map stats as well, if it was the main track
+			if (isEntireMainTrack)
+			{
+				const mapUpd8Obj = {
+					totalCompletions: sequelize.literal('totalCompletions + 1'),
+				};
+
+				if (!playerCompletedMainTrackBefore)
+					mapUpd8Obj.totalUniqueCompletions = sequelize.literal('totalUniqueCompletions + 1');
+
+				updates.push(resultObj.map.stats.update(mapUpd8Obj, {transaction: transaction}));
+				updates.push(resultObj.map.stats.baseStats.update(updateBaseStats(resultObj.replay.overallStats), {transaction: transaction}));
+			}
+		}
+		else {
+			// It's a particular zone, so update just it.
+			// The zone's stats are from replay.overallStats
+			for (const zone of track.zones) {
+				if (zone.zoneNum === resultObj.replay.header.zoneNum) {
+					const zoneUpd8Obj = {
+						completions: sequelize.literal('completions + 1'),
+					};
+					if (!playerCompletedThisZoneBefore)
+						zoneUpd8Obj.uniqueCompletions = sequelize.literal('uniqueCompletions + 1');
+
+					updates.push(zone.stats.update(zoneUpd8Obj, {transaction: transaction}));
+					updates.push(zone.stats.baseStats.update(updateBaseStats(resultObj.replay.overallStats), {transaction: transaction}));
+					break;
+				}
+			}
+		}
+
+		return Promise.all(updates);
+	}).then(() => {
+		// Phew, out of the map related stats, now let's go onwards to the UserMapRank
+		// We only care to update our UserMapRank if we were a PB (or if we created the UMR object; same thing)
 		if (resultObj.runModel.isPersonalBest) {
-			// Update the UserMapRank for this user only if a new PB is achieved
-			return Run.count({
+			return UserMapRank.count({
 				where: {
-					ticks: {
-						[Op.lte]: resultObj.runModel.ticks,
-					},
-					flags: resultObj.runModel.flags,
+					mapID: resultObj.map.id,
+					gameType: resultObj.map.type,
+					flags: resultObj.replay.header.runFlags,
+					trackNum: resultObj.replay.header.trackNum,
+					zoneNum: resultObj.replay.header.zoneNum,
 				},
+				include: [{
+					model: Run,
+					where: {ticks: {[Op.lte]: resultObj.runModel.ticks}}
+				}],
 				transaction: transaction,
-			}).then(count => { // With the count, set our rank and rankXP
+			}).then(count => { // With our placement, set our rank and rankXP
+				if (!resultObj.createdMapRank) {
+					resultObj.oldRankXP = resultObj.mapRank.rankXP;
+					resultObj.oldRank = resultObj.mapRank.rank;
+				}
+
 				resultObj.mapRank.rank = count + 1;
 				// TODO: calculate rankXP based on the factors determined by community
 				resultObj.mapRank.rankXP = Math.round(2000 / (count + 1));
 				return resultObj.mapRank.save({transaction: transaction});
-			}).then(() => { // Update this user's rank XP total
-				return updateUserRankXP(resultObj.playerID, transaction);
 			}).then(() => { // Update everyone else
+
+				// If we only improved our rank (and therefore didn't create a UMR object), the range of updates
+				// is [newRank, oldRank) people, otherwise, it's everyone below (and including) our new rank.
+				let rankSearch = resultObj.createdMapRank ?
+					{[Op.gte]: resultObj.mapRank.rank} :
+					{[Op.between]: [resultObj.mapRank.rank, resultObj.oldRank - 1]};
+
 				return UserMapRank.findAll({
 					where: {
 						mapID: resultObj.map.id,
+						gameType: resultObj.map.type,
+						flags: resultObj.replay.header.runFlags,
+						trackNum: resultObj.replay.header.trackNum,
+						zoneNum: resultObj.replay.header.zoneNum,
 						userID: {
+							// Because we go below (and including) our new rank, we gotta
+							// filter out ourselves.
 							[Op.ne]: resultObj.playerID,
 						},
-						rank: {
-							[Op.gte]: resultObj.mapRank.rank,
-						}
+						rank: rankSearch,
 					},
 					transaction: transaction,
 				}).then(results => {
@@ -410,24 +537,23 @@ const updateStats = (resultObj, transaction) => {
 						result.rank += 1;
 						// TODO: calculate rankXP based on the factors determined by community
 						result.rankXP = (2000 / (result.rank));
-						updates.push(result.save({transaction: transaction}).then(() => {
-							// And update their profile's rankXP
-							return updateUserRankXP(result.userID, transaction);
-						}));
+						updates.push(result.save({transaction: transaction}));
 					}
 					return Promise.all(updates);
 				})
-			})
-		} else return Promise.resolve();
-	}).then(() => { // UserStats
+			});
+		}
+		else return Promise.resolve();
+	}).then(() => {
+		// Last but not least, user stats
 		const userStatsUpdate = {
-			totalJumps: sequelize.literal('totalJumps + ' + resultObj.replay.stats[0].baseStats.jumps),
-			totalStrafes: sequelize.literal('totalStrafes + ' + resultObj.replay.stats[0].baseStats.strafes),
+			totalJumps: sequelize.literal('totalJumps + ' + resultObj.replay.overallStats.jumps),
+			totalStrafes: sequelize.literal('totalStrafes + ' + resultObj.replay.overallStats.strafes),
 			// TODO: calculate cosmetic XP for getting a (PB/WR/etc) run based on community input
 			cosXP: sequelize.literal('cosXP + 75'),
 			runsSubmitted: sequelize.literal('runsSubmitted + 1'),
 		};
-		if (isFirstTimeCompletingMap)
+		if (!playerCompletedMainTrackBefore)
 			userStatsUpdate.mapsCompleted = sequelize.literal('mapsCompleted + 1');
 		return UserStats.update(userStatsUpdate, {
 			where: { userID: resultObj.playerID },
@@ -462,7 +588,7 @@ module.exports = {
 			return Map.findById(mapID, {
 				include: [
 					{model: MapInfo, as: 'info'},
-					{model: MapStats, as: 'stats', include: [{model: MapZoneStats, as: 'zoneStats', include: [{model: BaseStats, as: 'baseStats'}]}]}
+					{model: MapStats, as: 'stats', include: [{model: BaseStats, as: 'baseStats'}]}
 				],
 				transaction: t,
 			}).then(map => {

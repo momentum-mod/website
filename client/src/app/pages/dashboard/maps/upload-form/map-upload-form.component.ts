@@ -164,6 +164,8 @@ export class MapUploadFormComponent implements OnInit, AfterViewInit {
         };
         if (track[zone].zoneProps)
           zoneMdl.zoneProps = {properties: track[zone].zoneProps};
+        if (zoneNum === 0)
+          delete zoneMdl.stats;
         trackReturn.zones.push(zoneMdl);
       }
     }
