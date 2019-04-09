@@ -77,19 +77,22 @@ const validateRunFile = (resultObj) => {
 			frames: [],
 		};
 
+		const runDate = new Date(Number(replay.header.runDate_s) * 1000).getTime(); // We're good til 2038...
+		const nowDate = Date.now();
 		const magicLE = 0x524D4F4D;
-		const b1 = resultObj.bin.ok, b2 = replay.magic === magicLE,
+
+		const b1 = resultObj.bin.ok,
+			b2 = replay.magic === magicLE,
 			b3 = replay.header.steamID === resultObj.playerID,
 			b4 = replay.header.mapHash === resultObj.map.hash,
 			b5 = replay.header.mapName === resultObj.map.name,
 			b6 = replay.header.stopTick > replay.header.startTick,
 			b7 = replay.header.trackNum >= 0 && replay.header.trackNum < resultObj.map.info.numTracks,
 			b8 = replay.header.runFlags === 0, // TODO removeme when we support runFlags (0.9.0)
-			b9 = replay.header.zoneNum === 0; // TODO removeme when we support ILs (0.9.0)
-		if (b1 && b2 && b3 && b4 && b5 && b6 && b7 && b8 && b9)
+			b9 = replay.header.zoneNum === 0, // TODO change to >= 0 when we support ILs (0.9.0)
+			b10 = runDate <= nowDate && runDate > (nowDate - 10000);
+		if (b1 && b2 && b3 && b4 && b5 && b6 && b7 && b8 && b9 && b10)
 		{
-			// TODO: date check (reject "old" replays)
-			replay.header.runDate = new Date(Number(replay.header.runDate_s) * 1000); // We're good til 2038...
 			replay.header.ticks = replay.header.stopTick - replay.header.startTick;
 			resolve(replay);
 		}
