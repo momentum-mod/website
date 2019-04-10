@@ -2,7 +2,8 @@
 const user = require('../models/user'),
 	userStats = require('../models/user-stats'),
 	map = require('../models/map'),
-	report = require('../models/report');
+	report = require('../models/report'),
+	xpSystems = require('../models/xp-systems');
 
 module.exports = {
 
@@ -56,4 +57,15 @@ module.exports = {
 		}).catch(next);
 	},
 
-}
+	getXPSystems: (req, res, next) => {
+		xpSystems.getXPSystems().then(systems => {
+			res.json(systems);
+		}).catch(next);
+	},
+
+	updateXPSystems: (req, res, next) => {
+		xpSystems.updateXPSystems(req.body).then(() => {
+			res.sendStatus(204);
+		}).catch(next);
+	},
+};

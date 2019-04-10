@@ -166,3 +166,21 @@ paths:
       responses:
         204:
           description: Report is updated
+  /admin/xpsys:
+    get:
+      summary: Gets the XP system variables
+      tags:
+        - admin
+      responses:
+        200:
+          description: XP system variables returned
+    put:
+      summary: Update the XP system variables
+      tags:
+        - admin
+      parameters:
+        - in: body
+          description: The whole XP system variable object
+      responses:
+        204:
+          description: XP system variables updated

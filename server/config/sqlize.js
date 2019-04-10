@@ -32,6 +32,7 @@ const Sequelize = require('sequelize'),
 	MapZoneModel = require('../src/models/db/map-zone'),
 	MapZoneGeometryModel = require('../src/models/db/map-zone-geometry'),
 	MapZonePropsModel = require('../src/models/db/map-zone-properties'),
+	XPSystemsModel = require('../src/models/db/xp-systems'),
 	env = process.env.NODE_ENV || 'development';
 
 const sequelize = new Sequelize({
@@ -94,6 +95,7 @@ const Run = RunModel(sequelize, Sequelize);
 const RunZoneStats = RunZoneStatsModel(sequelize, Sequelize);
 const BaseStats = BaseStatsModel(sequelize, Sequelize);
 const UserMapRank = MapRankModel(sequelize, Sequelize);
+const XPSystems = XPSystemsModel(sequelize, Sequelize);
 
 User.hasOne(Profile, { foreignKey: 'userID', onDelete: 'CASCADE' });
 User.hasMany(Activity, { foreignKey: 'userID', onDelete: 'CASCADE' });
@@ -159,8 +161,10 @@ UserMapRank.belongsTo(User, { foreignKey: 'userID'});
 UserMapRank.belongsTo(Map, { foreignKey: 'mapID'});
 
 if (env === 'development') {
-	forceSyncDB()
-	.then(() => {
+	forceSyncDB().then(() => {
+		// Create our default XP systems table if we don't already have it
+		return XPSystems.findOrCreate({where: {id: 1}});
+	}).then(() => {
 		console.log(`Database & tables created!`)
 	}).catch(err => {
 		console.error(err);
@@ -202,4 +206,5 @@ module.exports = {
 	MapZone,
 	MapZoneGeometry,
 	MapZoneProperties,
+	XPSystems,
 };

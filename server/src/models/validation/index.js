@@ -18,4 +18,5 @@ module.exports = {
 	userFollow: require('./user-follow'),
 	userStats: require('./user-stats'),
 	user: require('./user'),
+	xpSystems: require('./xp-systems'),
 };

@@ -34,6 +34,11 @@ router.route('/reports/:reportID')
 	.patch(validate(adminValidation.updateReport), adminCtrl.updateReport)
 	.all(errorCtrl.send405);
 
+router.route('/xpsys')
+	.get(adminCtrl.getXPSystems)
+	.put(validate(adminValidation.updateXPSystems), adminCtrl.updateXPSystems)
+	.all(errorCtrl.send405);
+
 router.param('userID', validate(usersValidation.urlParamID));
 router.param('mapID', validate(mapsValidation.urlParamID));
 router.param('reportID', validate(reportsValidation.urlParamID));
