@@ -69,4 +69,19 @@ export class AdminService {
     return this.http.patch('/api/admin/user-stats', userStats);
   }
 
+  /**
+   * @return The XP systems and their settings
+   */
+  getXPSystems(): Observable<any> {
+    return this.http.get('/api/admin/xpsys');
+  }
+
+  /**
+   * @param xpSystems The new XP system variables
+   * @return status code 204 means it was updated
+   */
+  updateXPSystems(xpSystems: object): Observable<any> {
+    return this.http.put('/api/admin/xpsys', xpSystems);
+  }
+
 }

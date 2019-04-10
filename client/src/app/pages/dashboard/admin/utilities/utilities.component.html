@@ -3,7 +3,90 @@
     <h2 class="col-10">Utilities</h2>
   </nb-card-header>
   <nb-card-body>
-    <button class="btn btn-outline-danger mr-2" (click)="showResetCosXPConfigDialog()">Reset Cosmetic XP Globally</button>
+    <h2 class="text-center">XP Systems</h2>
+    <form class="row" *ngIf="xpSystems" [formGroup]="xpSystemsFormGroup">
+      <div class="col-6" formGroupName="rankXP">
+        <div class="row">
+          <h4 class="text-center d-block m-auto">Rank XP</h4>
+        </div>
+        <div class="row">
+          <div class="col-3" formGroupName="top10">
+            <label>
+              WR Points:
+              <input nbInput type="number" formControlName="WRPoints">
+            </label>
+            <div formArrayName="rankPercentages">
+              <div *ngFor="let _ of top10RankPercts.controls; let i=index">
+                <label>
+                  Rank {{i + 1}} Percentage:
+                  <input nbInput type="number" [formControlName]="i">
+                </label>
+              </div>
+            </div>
+          </div>
+          <div class="col-3" formGroupName="formula">
+            <label>
+              A:
+              <input nbInput type="number" formControlName="A">
+            </label>
+            <label>
+              B:
+              <input nbInput type="number" formControlName="B">
+            </label>
+          </div>
+          <div class="col-3" formGroupName="groups">
+            <label>
+              Max groups:
+              <input nbInput type="number" formControlName="maxGroups">
+            </label>
+            <div formArrayName="groupScaleFactors">
+              <div *ngFor="let _ of groupScaleFactors.controls; let i=index">
+                <label>
+                  Group {{i + 1}} Scale Factor:
+                  <input nbInput type="number" [formControlName]="i">
+                </label>
+              </div>
+            </div>
+
+            <div formArrayName="groupExponents">
+              <div *ngFor="let _ of groupExponents.controls; let i=index">
+                <label>
+                  Group {{i + 1}} Exponent:
+                  <input nbInput type="number" [formControlName]="i">
+                </label>
+              </div>
+            </div>
+
+            <div formArrayName="groupMinSizes">
+              <div *ngFor="let _ of groupMinSizes.controls; let i=index">
+                <label>
+                  Group {{i + 1}} Minimum Size:
+                  <input nbInput type="number" [formControlName]="i">
+                </label>
+              </div>
+            </div>
+
+            <div formArrayName="groupPointPcts">
+              <div *ngFor="let _ of groupPointPcts.controls; let i=index">
+                <label>
+                  Group {{i + 1}} WRPoints Percentage:
+                  <input nbInput type="number" [formControlName]="i">
+                </label>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="col-6" formGroupName="cosXP">
+        <div class="row">
+          <h4 class="text-center d-block m-auto">Cosmetic XP</h4>
+        </div>
+        <h4 class="text-center d-block m-auto" style="padding-top: 20%;">TODO</h4>
+      </div>
+      <button nbButton class="d-block m-auto" type="button" (click)="submitXPSystems()">Submit</button>
+    </form>
+    <button class="btn btn-outline-danger mr-2" (click)="showResetCosXPConfigDialog()">Reset Cosmetic XP Globally
+    </button>
     <button class="btn btn-outline-danger" (click)="showResetRankXPConfirmDialog()">Reset Rank XP Globally</button>
   </nb-card-body>
 </nb-card>

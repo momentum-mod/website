@@ -2,7 +2,7 @@
 const crypto = require('crypto'),
 	{ sequelize, Op, Map, MapInfo, MapStats, Run,
 		RunZoneStats, BaseStats, User, UserStats, UserMapRank,
-		MapTrack, MapTrackStats, MapZone, MapZoneStats,
+		MapTrack, MapTrackStats, MapZone, MapZoneStats, XPSystems,
 	} = require('../../config/sqlize'),
 	activity = require('./activity'),
 	config = require('../../config/config'),
@@ -87,7 +87,7 @@ const validateRunFile = (resultObj) => {
 			b4 = replay.header.mapHash === resultObj.map.hash,
 			b5 = replay.header.mapName === resultObj.map.name,
 			b6 = replay.header.stopTick > replay.header.startTick,
-			b7 = replay.header.trackNum >= 0 && replay.header.trackNum < resultObj.map.info.numTracks,
+			b7 = replay.header.trackNum === 0, // TODO (0.9.0) trackNum >= 0 && replay.header.trackNum < resultObj.map.info.numTracks,
 			b8 = replay.header.runFlags === 0, // TODO removeme when we support runFlags (0.9.0)
 			b9 = replay.header.zoneNum === 0, // TODO change to >= 0 when we support ILs (0.9.0)
 			b10 = runDate <= nowDate && runDate > (nowDate - 10000);
@@ -353,6 +353,50 @@ const updateBaseStats = (baseStats) => {
 	}
 };
 
+const getRankXP = (rank, completions, params) => {
+	let rankObj = {
+		rankXP: 0,
+		group: {},
+		formula: 0,
+		top10: 0,
+	};
+
+	// Regardless of run, we want to calculate formula points
+	const formulaPoints = Math.ceil(params.formula.A / (rank + params.formula.B));
+	rankObj.formula = formulaPoints;
+	rankObj.rankXP += formulaPoints;
+
+	// Calculate Top10 points if in there
+	if (rank < 11) {
+		const top10Points = Math.ceil(params.top10.rankPercentages[rank - 1] * params.top10.WRPoints);
+		rankObj.top10 = top10Points;
+		rankObj.rankXP += top10Points;
+	} else {
+		// Otherwise we calculate group points depending on group location
+
+		// Going to have to calculate groupSizes dynamically
+		const groupSizes = [];
+		for (let i = 0; i < params.groups.maxGroups; i++) {
+			groupSizes[i] = Math.max(params.groups.groupScaleFactors[i] * (completions ^ params.groups.groupExponents[i]), params.groups.groupMinSizes[i]);
+		}
+
+		let rankOffset = 11;
+		for (let i = 0; i < params.groups.maxGroups; i++) {
+			if (rank < rankOffset + groupSizes[i]) {
+				const groupPoints = Math.ceil(params.top10.WRPoints * params.groups.groupPointPcts[i]);
+				rankObj.group.groupNum = i + 1;
+				rankObj.group.groupPoints = groupPoints;
+				rankObj.rankXP += groupPoints;
+				break;
+			} else {
+				rankOffset += groupSizes[i];
+			}
+		}
+	}
+
+	return rankObj;
+};
+
 const updateStats = (resultObj, transaction) => {
 
 	let isEntireTrack = resultObj.replay.header.zoneNum === 0;
@@ -488,19 +532,37 @@ const updateStats = (resultObj, transaction) => {
 		// Phew, out of the map related stats, now let's go onwards to the UserMapRank
 		// We only care to update our UserMapRank if we were a PB (or if we created the UMR object; same thing)
 		if (resultObj.runModel.isPersonalBest) {
+			const runCategory = {
+				mapID: resultObj.map.id,
+				gameType: resultObj.map.type,
+				flags: resultObj.replay.header.runFlags,
+				trackNum: resultObj.replay.header.trackNum,
+				zoneNum: resultObj.replay.header.zoneNum,
+			};
+
+			// First we need overall completions for this category
+			let completions = 0;
+			let xpSystemParams = {};
 			return UserMapRank.count({
-				where: {
-					mapID: resultObj.map.id,
-					gameType: resultObj.map.type,
-					flags: resultObj.replay.header.runFlags,
-					trackNum: resultObj.replay.header.trackNum,
-					zoneNum: resultObj.replay.header.zoneNum,
-				},
-				include: [{
-					model: Run,
-					where: {ticks: {[Op.lte]: resultObj.runModel.ticks}}
-				}],
+				where: runCategory,
 				transaction: transaction,
+			}).then(count => {
+				completions = count;
+				return XPSystems.findOne({where: {id: 1}, transaction: transaction})
+			}).then(systemsInfo => {
+				if (!systemsInfo)
+					return Promise.reject(new ServerError(400, 'No XP system data!'));
+				xpSystemParams = systemsInfo;
+				return Promise.resolve();
+			}).then(() => {
+				return UserMapRank.count({
+					where: runCategory,
+					include: [{
+						model: Run,
+						where: {ticks: {[Op.lte]: resultObj.runModel.ticks}}
+					}],
+					transaction: transaction,
+				})
 			}).then(count => { // With our placement, set our rank and rankXP
 				if (!resultObj.createdMapRank) {
 					resultObj.oldRankXP = resultObj.mapRank.rankXP;
@@ -508,8 +570,8 @@ const updateStats = (resultObj, transaction) => {
 				}
 
 				resultObj.mapRank.rank = count + 1;
-				// TODO: calculate rankXP based on the factors determined by community
-				resultObj.mapRank.rankXP = Math.round(2000 / (count + 1));
+				resultObj.xp.rankXP = getRankXP(count + 1, completions, xpSystemParams.rankXP);
+				resultObj.mapRank.rankXP = resultObj.xp.rankXP.rankXP;
 				return resultObj.mapRank.save({transaction: transaction});
 			}).then(() => { // Update everyone else
 
@@ -538,8 +600,7 @@ const updateStats = (resultObj, transaction) => {
 					const updates = [];
 					for (const result of results) {
 						result.rank += 1;
-						// TODO: calculate rankXP based on the factors determined by community
-						result.rankXP = (2000 / (result.rank));
+						result.rankXP = getRankXP(result.rank, completions, xpSystemParams.rankXP).rankXP;
 						updates.push(result.save({transaction: transaction}));
 					}
 					return Promise.all(updates);
@@ -586,6 +647,7 @@ module.exports = {
 			},
 			playerID: userID,
 			mapRank: null,
+			xp: {},
 		};
 		return sequelize.transaction(t => {
 			return Map.findById(mapID, {
@@ -613,9 +675,12 @@ module.exports = {
 				resultObj.isNewWorldRecord = isNewWR;
 				return saveRun(resultObj, t);
 			}).then(run => {
-				const runJSON = run.toJSON();
-				runJSON.isNewWorldRecord = resultObj.isNewWorldRecord;
-				return Promise.resolve(runJSON);
+				return Promise.resolve({
+					isNewWorldRecord: resultObj.isNewWorldRecord,
+					isNewPersonalBest: run.isPersonalBest,
+					run: run.toJSON(),
+					xp: resultObj.xp,
+				});
 			});
 		});
 	},

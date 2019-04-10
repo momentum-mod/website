@@ -54,4 +54,11 @@ module.exports = {
 		}).unknown(false),
 	},
 
+	updateXPSystems: {
+		body: Joi.object().keys({
+			rankXP: validation.xpSystems.rankXP,
+			cosXP: validation.xpSystems.cosXP,
+		}).unknown(false),
+	},
+
 };
