@@ -8,7 +8,7 @@ module.exports = {
 	},
 
 	updateXPSystems: (systemsObj) => {
-		return XPSystems.update(systemsObj, {where: {id: 1}})
+		return XPSystems.update(systemsObj, {where: {id: 1}});
 	},
 
 };
