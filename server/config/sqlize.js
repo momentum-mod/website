@@ -1,6 +1,7 @@
 'use strict';
 const Sequelize = require('sequelize'),
 	config = require('./config'),
+	xpSystems = require('../src/models/xp-systems'),
 	UserModel = require('../src/models/db/user'),
 	UserAuthModel = require('../src/models/db/user-auth'),
 	UserStatsModel = require('../src/models/db/user-stats'),
@@ -163,7 +164,7 @@ UserMapRank.belongsTo(Map, { foreignKey: 'mapID'});
 if (env === 'development') {
 	forceSyncDB().then(() => {
 		// Create our default XP systems table if we don't already have it
-		return XPSystems.findOrCreate({where: {id: 1}});
+		return xpSystems.initXPSystems(XPSystems);
 	}).then(() => {
 		console.log(`Database & tables created!`)
 	}).catch(err => {

@@ -56,7 +56,34 @@ module.exports = (sequelize, type) => {
 		cosXP: {
 			type: type.JSON,
 			defaultValue: JSON.stringify({
-				todo: 'implement me',
+				levels: {
+					maxLevels: 500,
+					startingValue: 20000,
+					linearScaleBaseIncrease: 1000,
+					linearScaleInterval: 10,
+					linearScaleIntervalMultiplier: 1.0,
+					staticScaleStart: 101,
+					staticScaleBaseMultiplier: 1.5,
+					staticScaleInterval: 25,
+					staticScaleIntervalMultiplier: 0.5,
+				},
+				completions: {
+					unique: {
+						tierScale: {
+							linear: 2500,
+							staged: 2500,
+							// bonus is static, as (tierScale.linear * (initialScale(tier3)) + tierScale.linear * (initialScale(tier4))) / 2
+						},
+					},
+					repeat: {
+						tierScale: {
+							linear: 20,
+							staged: 40,
+							stages: 5,
+							bonus: 40, // = staged
+						}
+					},
+				}
 			}),
 		},
 	})

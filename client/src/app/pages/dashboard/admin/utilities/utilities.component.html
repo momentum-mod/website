@@ -5,7 +5,7 @@
   <nb-card-body>
     <h2 class="text-center">XP Systems</h2>
     <form class="row" *ngIf="xpSystems" [formGroup]="xpSystemsFormGroup">
-      <div class="col-6" formGroupName="rankXP">
+      <div class="col-5" formGroupName="rankXP">
         <div class="row">
           <h4 class="text-center d-block m-auto">Rank XP</h4>
         </div>
@@ -77,11 +77,86 @@
           </div>
         </div>
       </div>
-      <div class="col-6" formGroupName="cosXP">
+      <div class="col-7" formGroupName="cosXP">
         <div class="row">
           <h4 class="text-center d-block m-auto">Cosmetic XP</h4>
         </div>
-        <h4 class="text-center d-block m-auto" style="padding-top: 20%;">TODO</h4>
+        <div class="row">
+          <div class="col-6" formGroupName="levels">
+            <label>
+              Max Levels:
+              <input nbInput type="number" formControlName="maxLevels">
+            </label>
+            <label>
+              Starting Value:
+              <input nbInput type="number" formControlName="startingValue">
+            </label>
+            <label>
+              Linear Scale Base Increase:
+              <input nbInput type="number" formControlName="linearScaleBaseIncrease">
+            </label>
+            <label>
+              Linear Scale Interval:
+              <input nbInput type="number" formControlName="linearScaleInterval">
+            </label>
+            <label>
+              Linear Scale Interval Multiplier:
+              <input nbInput type="number" formControlName="linearScaleIntervalMultiplier">
+            </label>
+            <label>
+              Static Scale Start Level:
+              <input nbInput type="number" formControlName="staticScaleStart">
+            </label>
+            <label>
+              Static Scale Base Multiplier:
+              <input nbInput type="number" formControlName="staticScaleBaseMultiplier">
+            </label>
+            <label>
+              Static Scale Interval:
+              <input nbInput type="number" formControlName="staticScaleInterval">
+            </label>
+            <label>
+              Static Scale Interval Multiplier:
+              <input nbInput type="number" formControlName="staticScaleIntervalMultiplier">
+            </label>
+          </div>
+          <div class="col-6" formGroupName="completions">
+            <div class="row">
+              <div class="col-6" formGroupName="unique">
+                <div formGroupName="tierScale">
+                  <label>
+                      Unique Linear Scale:
+                    <input nbInput type="number" formControlName="linear">
+                  </label>
+                  <label>
+                      Unique Staged Scale:
+                    <input nbInput type="number" formControlName="staged">
+                  </label>
+                </div>
+              </div>
+              <div class="col-6" formGroupName="repeat">
+                <div formGroupName="tierScale">
+                  <label>
+                    Repeat Linear Scale:
+                    <input nbInput type="number" formControlName="linear">
+                  </label>
+                  <label>
+                    Repeat Staged Scale:
+                    <input nbInput type="number" formControlName="staged">
+                  </label>
+                  <label>
+                    Repeat Individual Stage Scale:
+                    <input nbInput type="number" formControlName="stages">
+                  </label>
+                  <label>
+                    Repeat Bonus Scale:
+                    <input nbInput type="number" formControlName="bonus">
+                  </label>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
       <button nbButton class="d-block m-auto" type="button" (click)="submitXPSystems()">Submit</button>
     </form>

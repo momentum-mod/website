@@ -65,7 +65,34 @@ export class UtilitiesComponent implements OnInit {
       }),
     }),
     'cosXP': this.fb.group({
-      'todo': [],
+      'levels': this.fb.group({
+        'maxLevels': [500, Validators.required],
+        'startingValue': [20000, Validators.required],
+        'linearScaleBaseIncrease': [1000, Validators.required],
+        'linearScaleInterval': [10, Validators.required],
+        'linearScaleIntervalMultiplier': [1.0, Validators.required],
+        'staticScaleStart': [101, Validators.required],
+        'staticScaleBaseMultiplier': [1.5, Validators.required],
+        'staticScaleInterval': [25, Validators.required],
+        'staticScaleIntervalMultiplier': [0.5, Validators.required],
+      }),
+      'completions': this.fb.group({
+        'unique': this.fb.group({
+          'tierScale': this.fb.group({
+            'linear': [2500, Validators.required],
+            'staged': [2500, Validators.required],
+            // bonus is static
+          }),
+        }),
+        'repeat': this.fb.group({
+          'tierScale': this.fb.group({
+            'linear': [20, Validators.required],
+            'staged': [40, Validators.required],
+            'stages': [5, Validators.required],
+            'bonus': [40, Validators.required], // = staged
+          }),
+        }),
+      }),
     }),
   });
 
@@ -129,6 +156,7 @@ export class UtilitiesComponent implements OnInit {
 
   resetCosmeticXPGlobally() {
     this.adminService.updateAllUserStats({
+      level: 1,
       cosXP: 0,
     }).subscribe(res => {
       this.toasterService.popAsync('success', 'Success', 'Successfully reset cosmetic XP globally');
