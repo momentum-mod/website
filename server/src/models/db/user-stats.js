@@ -10,6 +10,10 @@ module.exports = (sequelize, type) => {
 			type: type.BIGINT.UNSIGNED,
 			defaultValue: 0,
 		},
+		level: {
+			type: type.SMALLINT.UNSIGNED,
+			defaultValue: 1,
+		},
 		cosXP: {
 			type: type.BIGINT.UNSIGNED,
 			defaultValue: 0,
@@ -19,7 +23,7 @@ module.exports = (sequelize, type) => {
 			defaultValue: 0,
 		},
 		runsSubmitted: {
-			type: type.BIGINT.UNSIGNED,
+			type: type.INTEGER.UNSIGNED,
 			defaultValue: 0,
 		}
 	})

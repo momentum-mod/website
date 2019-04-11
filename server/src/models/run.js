@@ -5,6 +5,7 @@ const crypto = require('crypto'),
 		MapTrack, MapTrackStats, MapZone, MapZoneStats, XPSystems,
 	} = require('../../config/sqlize'),
 	activity = require('./activity'),
+	xpSystems = require('./xp-systems'),
 	config = require('../../config/config'),
 	queryHelper = require('../helpers/query'),
 	ServerError = require('../helpers/server-error'),
@@ -353,50 +354,6 @@ const updateBaseStats = (baseStats) => {
 	}
 };
 
-const getRankXP = (rank, completions, params) => {
-	let rankObj = {
-		rankXP: 0,
-		group: {},
-		formula: 0,
-		top10: 0,
-	};
-
-	// Regardless of run, we want to calculate formula points
-	const formulaPoints = Math.ceil(params.formula.A / (rank + params.formula.B));
-	rankObj.formula = formulaPoints;
-	rankObj.rankXP += formulaPoints;
-
-	// Calculate Top10 points if in there
-	if (rank < 11) {
-		const top10Points = Math.ceil(params.top10.rankPercentages[rank - 1] * params.top10.WRPoints);
-		rankObj.top10 = top10Points;
-		rankObj.rankXP += top10Points;
-	} else {
-		// Otherwise we calculate group points depending on group location
-
-		// Going to have to calculate groupSizes dynamically
-		const groupSizes = [];
-		for (let i = 0; i < params.groups.maxGroups; i++) {
-			groupSizes[i] = Math.max(params.groups.groupScaleFactors[i] * (completions ^ params.groups.groupExponents[i]), params.groups.groupMinSizes[i]);
-		}
-
-		let rankOffset = 11;
-		for (let i = 0; i < params.groups.maxGroups; i++) {
-			if (rank < rankOffset + groupSizes[i]) {
-				const groupPoints = Math.ceil(params.top10.WRPoints * params.groups.groupPointPcts[i]);
-				rankObj.group.groupNum = i + 1;
-				rankObj.group.groupPoints = groupPoints;
-				rankObj.rankXP += groupPoints;
-				break;
-			} else {
-				rankOffset += groupSizes[i];
-			}
-		}
-	}
-
-	return rankObj;
-};
-
 const updateStats = (resultObj, transaction) => {
 
 	let isEntireTrack = resultObj.replay.header.zoneNum === 0;
@@ -404,6 +361,8 @@ const updateStats = (resultObj, transaction) => {
 	let playerCompletedMainTrackBefore = !resultObj.createdMapRank && isEntireMainTrack;
 	let playerCompletedThisTrackBefore = false;
 	let playerCompletedThisZoneBefore = false;
+
+	let mapTrack = {};
 
 	return Run.findOne({
 		where: {
@@ -465,6 +424,8 @@ const updateStats = (resultObj, transaction) => {
 		if (!track)
 			return Promise.reject(new ServerError(400, 'Bad request'));
 
+		mapTrack = track;
+
 		// Now, depending on if we're a singular zone or the whole track, we need to update our stats accordingly
 
 		let updates = [];
@@ -496,8 +457,7 @@ const updateStats = (resultObj, transaction) => {
 			}
 
 			// Lastly update the map stats as well, if it was the main track
-			if (isEntireMainTrack)
-			{
+			if (isEntireMainTrack) {
 				const mapUpd8Obj = {
 					totalCompletions: sequelize.literal('totalCompletions + 1'),
 				};
@@ -542,19 +502,11 @@ const updateStats = (resultObj, transaction) => {
 
 			// First we need overall completions for this category
 			let completions = 0;
-			let xpSystemParams = {};
 			return UserMapRank.count({
 				where: runCategory,
 				transaction: transaction,
 			}).then(count => {
 				completions = count;
-				return XPSystems.findOne({where: {id: 1}, transaction: transaction})
-			}).then(systemsInfo => {
-				if (!systemsInfo)
-					return Promise.reject(new ServerError(400, 'No XP system data!'));
-				xpSystemParams = systemsInfo;
-				return Promise.resolve();
-			}).then(() => {
 				return UserMapRank.count({
 					where: runCategory,
 					include: [{
@@ -570,7 +522,7 @@ const updateStats = (resultObj, transaction) => {
 				}
 
 				resultObj.mapRank.rank = count + 1;
-				resultObj.xp.rankXP = getRankXP(count + 1, completions, xpSystemParams.rankXP);
+				resultObj.xp.rankXP = xpSystems.getRankXPForRank(count + 1, completions);
 				resultObj.mapRank.rankXP = resultObj.xp.rankXP.rankXP;
 				return resultObj.mapRank.save({transaction: transaction});
 			}).then(() => { // Update everyone else
@@ -600,7 +552,7 @@ const updateStats = (resultObj, transaction) => {
 					const updates = [];
 					for (const result of results) {
 						result.rank += 1;
-						result.rankXP = getRankXP(result.rank, completions, xpSystemParams.rankXP).rankXP;
+						result.rankXP = xpSystems.getRankXPForRank(result.rank, completions).rankXP;
 						updates.push(result.save({transaction: transaction}));
 					}
 					return Promise.all(updates);
@@ -608,20 +560,46 @@ const updateStats = (resultObj, transaction) => {
 			});
 		}
 		else return Promise.resolve();
-	}).then(() => {
-		// Last but not least, user stats
-		const userStatsUpdate = {
-			totalJumps: sequelize.literal('totalJumps + ' + resultObj.replay.overallStats.jumps),
-			totalStrafes: sequelize.literal('totalStrafes + ' + resultObj.replay.overallStats.strafes),
-			// TODO: calculate cosmetic XP for getting a (PB/WR/etc) run based on community input
-			cosXP: sequelize.literal('cosXP + 75'),
-			runsSubmitted: sequelize.literal('runsSubmitted + 1'),
-		};
-		if (!playerCompletedMainTrackBefore)
-			userStatsUpdate.mapsCompleted = sequelize.literal('mapsCompleted + 1');
-		return UserStats.update(userStatsUpdate, {
-			where: { userID: resultObj.playerID },
+	}).then(() => { // Last but not least, user stats
+
+		const cosXPGain = xpSystems.getCosmeticXPForCompletion({
+			tier: mapTrack.difficulty,
+			isLinear: mapTrack.isLinear,
+			isBonus: mapTrack.trackNum > 0,
+			isUnique: isEntireTrack ? !playerCompletedThisTrackBefore : !playerCompletedThisZoneBefore,
+			isStageIL: resultObj.replay.header.zoneNum > 0,
+		});
+
+		return UserStats.findOne({
+			where: {userID: resultObj.playerID},
 			transaction: transaction,
+		}).then(userStats => {
+			if (!userStats)
+				return Promise.reject(new ServerError(400, 'Bad request'));
+
+			const currentLevel = userStats.level;
+			const nextLevel = currentLevel+1;
+			let gainedLevels = 0;
+			let reqXP = xpSystems.getCosmeticXPForLevel(nextLevel);
+			while (reqXP > -1 && userStats.cosXP + cosXPGain >= reqXP) {
+				gainedLevels++;
+				reqXP = xpSystems.getCosmeticXPForLevel(nextLevel + gainedLevels);
+			}
+
+			resultObj.xp.cosXP = {
+				gainLvl: gainedLevels,
+				oldXP: userStats.cosXP,
+				gainXP: cosXPGain,
+			};
+
+			return userStats.increment({
+				'totalJumps': resultObj.replay.overallStats.jumps,
+				'totalStrafes': resultObj.replay.overallStats.strafes,
+				'level': gainedLevels,
+				'cosXP': cosXPGain,
+				'runsSubmitted': 1,
+				'mapsCompleted': playerCompletedMainTrackBefore ? 0 : 1,
+			}, {transaction: transaction});
 		});
 	});
 };

@@ -9,6 +9,7 @@ const {forceSyncDB, Map, MapInfo, MapCredit, User, Report, XPSystems} = require(
 	auth = require('../src/models/auth'),
 	map = require('../src/models/map'),
 	user = require('../src/models/user'),
+	xpSystems = require('../src/models/xp-systems'),
 	report = require('../src/models/report');
 
 chai.use(chaiHttp);
@@ -281,7 +282,7 @@ describe('admin', () => {
 				]);
 			}).then(() => {
 				// Create our default XP systems table if we don't already have it
-				return XPSystems.findOrCreate({where: {id: 1}});
+				return xpSystems.initXPSystems(XPSystems);
 			});
 	});
 
