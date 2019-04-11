@@ -679,7 +679,9 @@ describe('admin', () => {
 						expect(res).to.have.status(200);
 					});
 			});
+		});
 
+		describe('PUT /api/admin/xpsys', () => {
 			it('should update the XP system variables', () => {
 				return chai.request(server)
 					.put('/api/admin/xpsys')
@@ -740,7 +742,6 @@ describe('admin', () => {
 					});
 			});
 		});
-
 	});
 
 });
