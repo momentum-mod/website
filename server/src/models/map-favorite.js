@@ -1,6 +1,8 @@
 'use strict';
-const { sequelize, Map, MapInfo, MapCredit, MapStats, MapFavorite, MapImage,
-	MapLibraryEntry, UserMapRank, Run, User } = require('../../config/sqlize');
+const {
+		sequelize, Map, MapInfo, MapCredit, MapStats, MapFavorite, MapImage,
+		MapLibraryEntry, UserMapRank, Run, User, Profile
+	} = require('../../config/sqlize');
 
 module.exports = {
 
@@ -57,6 +59,8 @@ module.exports = {
 					as: 'thumbnail',
 				});
 			}
+			if (expansionNames.includes('submitter'))
+				queryOptions.include[0].include.push({model: User, as: 'submitter', include: [Profile]});
 			if (expansionNames.includes('inLibrary')) {
 				queryOptions.include[0].include.push({
 					model: MapLibraryEntry,

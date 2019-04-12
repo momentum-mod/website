@@ -9,7 +9,6 @@ import {ViewMapsComponent} from './view-maps/view-maps.component';
 import {MapUploadFormComponent} from './upload-form/map-upload-form.component';
 import {UploadStatusComponent} from './upload-status/upload-status.component';
 import {MapInfoComponent} from './map-info/map-info.component';
-import {MapStatusComponent} from './upload-status/map-status/map-status.component';
 import {MarkdownModule} from 'ngx-markdown';
 import {MapLibraryComponent} from './map-library/map-library.component';
 import {NbDatepickerModule, NbListModule, NbSelectModule, NbStepperModule} from '@nebular/theme';
@@ -22,8 +21,10 @@ import {NgxPaginationModule} from 'ngx-pagination';
 import {MapInfoDescriptionComponent} from './map-info/map-info-description/map-info-description.component';
 import {MapInfoCreditsComponent} from './map-info/map-info-credits/map-info-credits.component';
 import {MapInfoStatsComponent} from './map-info/map-info-stats/map-info-stats.component';
-import {MapListItemComponent} from './view-maps/map-list-item/map-list-item.component';
+import {MapListItemComponent} from './map-list/map-list-item/map-list-item.component';
 import {MapEditComponent} from './map-edit/map-edit.component';
+import { MapFavoritesComponent } from './map-favorites/map-favorites.component';
+import { MapListComponent } from './map-list/map-list.component';
 
 @NgModule({
   imports: [
@@ -45,7 +46,6 @@ import {MapEditComponent} from './map-edit/map-edit.component';
     MapUploadFormComponent,
     UploadStatusComponent,
     MapInfoComponent,
-    MapStatusComponent,
     MapLibraryComponent,
     MapCreditsComponent,
     MapCreditComponent,
@@ -56,6 +56,8 @@ import {MapEditComponent} from './map-edit/map-edit.component';
     MapInfoStatsComponent,
     MapListItemComponent,
     MapEditComponent,
+    MapFavoritesComponent,
+    MapListComponent,
   ],
   providers: [],
 })

@@ -10,6 +10,7 @@ import {MapLibraryComponent} from './map-library/map-library.component';
 import {MapEditComponent} from './map-edit/map-edit.component';
 import {RoleGuard} from '../../../@core/guards/role.guard';
 import {Role} from '../../../@core/models/role.model';
+import {MapFavoritesComponent} from './map-favorites/map-favorites.component';
 
 const routes: Routes = [
   {
@@ -24,6 +25,10 @@ const routes: Routes = [
       {
         path: 'library',
         component: MapLibraryComponent,
+      },
+      {
+        path: 'favorites',
+        component: MapFavoritesComponent,
       },
       {
         path: 'uploads',
