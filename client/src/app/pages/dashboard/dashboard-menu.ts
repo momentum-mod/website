@@ -47,6 +47,10 @@ export const MENU_ITEMS: NbMenuItem[] = [
         link: '/dashboard/maps/library',
       },
       {
+        title: 'Favorite Maps',
+        link: '/dashboard/maps/favorites',
+      },
+      {
         title: 'Browse Maps',
         pathMatch: 'partial',
         link: '/dashboard/maps',

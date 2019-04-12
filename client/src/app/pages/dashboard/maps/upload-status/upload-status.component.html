@@ -1,28 +1,15 @@
-<!--TODO: filter button in the header like activity card-->
 <nb-card>
   <nb-card-header>
     <div class="row">
         <h1 class="col-auto">UPLOADS</h1>
         <div class="col">
-          <button class="btn btn-outline-info float-right" type="button" routerLink="/dashboard/maps/uploads/new">Upload a
-            Map
+          <button class="btn btn-outline-info float-right" type="button" routerLink="/dashboard/maps/uploads/new">
+            Upload a Map
           </button>
         </div>
     </div>
   </nb-card-header>
   <nb-card-body>
-    <h1 *ngIf="(maps === undefined || maps?.length === 0) && fetchedMaps" class="text-center">
-      <i>You have not uploaded any maps. Try <a routerLink="/dashboard/maps/uploads/new">uploading a new one!</a></i>
-    </h1>
-    <div *ngIf="(maps?.length > 0) && fetchedMaps">
-      <nb-card-body *ngFor="let map of maps | paginate: {
-            itemsPerPage: pageLimit,
-            currentPage: currentPage,
-            totalItems: mapCount
-          }">
-        <map-status [map]="map"></map-status>
-      </nb-card-body>
-      <pagination-controls (pageChange)="onPageChange($event)" [autoHide]="true"></pagination-controls>
-    </div>
+    <map-list [type]="'uploads'"></map-list>
   </nb-card-body>
 </nb-card>

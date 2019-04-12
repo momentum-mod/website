@@ -2,6 +2,7 @@ import {Component, EventEmitter, Input, OnInit, Output} from '@angular/core';
 import {MomentumMap} from '../../../../../@core/models/momentum-map.model';
 import {LocalUserService} from '../../../../../@core/data/local-user.service';
 import {ToasterService} from 'angular2-toaster';
+import {MapUploadStatus} from '../../../../../@core/models/map-upload-status.model';
 
 @Component({
   selector: 'map-list-item',
@@ -10,21 +11,27 @@ import {ToasterService} from 'angular2-toaster';
 })
 export class MapListItemComponent implements OnInit {
 
+  statusEnum = MapUploadStatus;
   @Input('map') map: MomentumMap;
+  @Input('isUpload') isUpload: boolean;
   @Input('inLibrary') inLibrary: boolean;
+  @Input('inFavorites') inFavorites: boolean;
   @Input('showDownloadButton') showDownloadButton: boolean;
   @Output() onLibraryUpdate = new EventEmitter();
+  @Output() onFavoriteUpdate = new EventEmitter();
   mapInFavorites: boolean;
   mapInLibrary: boolean;
 
   constructor(private localUserService: LocalUserService,
               private toastService: ToasterService) {
-
+    this.inLibrary = false;
+    this.inFavorites = false;
+    this.isUpload = false;
+    this.map = null;
   }
 
   ngOnInit() {
-    if (this.map.favorites && this.map.favorites.length)
-      this.mapInFavorites = true;
+    this.mapInFavorites = this.inFavorites;
     this.mapInLibrary = this.inLibrary;
   }
 
@@ -32,6 +39,7 @@ export class MapListItemComponent implements OnInit {
     if (this.mapInFavorites) {
       this.localUserService.removeMapFromFavorites(this.map.id).subscribe(() => {
         this.mapInFavorites = false;
+        this.onFavoriteUpdate.emit(false);
         this.toastService.popAsync('success', 'Removed map from favorites');
       }, err => {
         this.toastService.popAsync('error', 'Failed to remove map from favorites');
@@ -39,6 +47,7 @@ export class MapListItemComponent implements OnInit {
     } else {
       this.localUserService.addMapToFavorites(this.map.id).subscribe(() => {
         this.mapInFavorites = true;
+        this.onFavoriteUpdate.emit(true);
         this.toastService.popAsync('success', 'Added map to favorites');
       }, err => {
         this.toastService.popAsync('error', 'Failed to add map to favorites');
