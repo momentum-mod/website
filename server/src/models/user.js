@@ -173,7 +173,7 @@ module.exports = {
 
 			return User.update(usrUpd8, {where: {id: locUsr.id}, transaction: t}).then(() => {
 				if (body.profile)
-					return module.exports.updateProfile(locUsr, false, body.profile, t);
+					return module.exports.updateProfile(locUsr, body.profile, t);
 			});
 		});
 	},
@@ -200,7 +200,7 @@ module.exports = {
 					foundUsr.update(usr)
 				];
 				if (usr.profile) {
-					updates.push(module.exports.updateProfile(foundUsr, true, usr.profile));
+					updates.push(module.exports.updateProfile(foundUsr, usr.profile));
 				}
 				return Promise.all(updates);
 			} else {
@@ -235,19 +235,16 @@ module.exports = {
 		});
 	},
 
-	updateProfile: (userBeingUpdated, asAdmin, profile, transaction) => {
-		const profUpd8 = {};
-		// Only allow updating certain things
-		if (!asAdmin && (userBeingUpdated.bans & module.exports.Ban.BANNED_BIO) === 0)
-			profUpd8.bio = profile.bio;
-
+	updateProfile: (userBeingUpdated, profile, transaction) => {
+		if (profile.bio && (userBeingUpdated.bans & module.exports.Ban.BANNED_BIO === 1))
+			delete profile.bio;
 		const opts = {
 			where: {userID: userBeingUpdated.id}
 		};
 		if (transaction)
 			opts.transaction = transaction;
 
-		return Profile.update(profUpd8, opts);
+		return Profile.update(profile, opts);
 	},
 
 	createSocialLink: (profile, type, authData) => {
