@@ -122,7 +122,7 @@ module.exports = (app, config) => {
 	if (app.get('env') === 'test') {
 		app.use((err, req, res, next) => {
 			const status = err.status || 500;
-			if (status == 500)
+			if (status === 500)
 				console.error(err);
 			res.status(status).json({
 				error: {

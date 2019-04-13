@@ -6,13 +6,14 @@ import {RunZoneStats} from './run-zone-stats.model';
 
 export interface Run {
   id: number;
+  trackNum: number;
+  zoneNum: number;
   tickRate: number;
-  time: number;
+  ticks: number;
   flags: number;
   file: string;
   mapID: number;
   playerID: string;
-  isPersonalBest: boolean;
   createdAt: Date; // aka dateAchieved
   updatedAt?: Date;
   user?: User;

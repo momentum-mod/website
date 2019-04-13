@@ -32,10 +32,6 @@ paths:
           in: query
           description: Filter by map ID
           type: integer
-        - name: isPersonalBest
-          in: query
-          description: Whether or not to filter out runs which are not a personal best
-          type: boolean
       responses:
         200:
           description: OK
@@ -87,9 +83,6 @@ definitions:
       id:
         type: string
         format: int64
-        readOnly: true
-      isPersonalBest:
-        type: boolean
         readOnly: true
       ticks:
         type: number

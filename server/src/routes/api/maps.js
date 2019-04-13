@@ -5,9 +5,11 @@ const express = require('express'),
 	mapsValidation = require('../../validations/maps'),
 	runsValidation = require('../../validations/runs'),
 	authMiddleware = require('../../middlewares/auth'),
+	ranksValidation = require('../../validations/ranks'),
 	errorCtrl = require('../../controllers/error'),
 	mapCtrl = require('../../controllers/maps'),
 	runsCtrl = require('../../controllers/runs'),
+	ranksCtrl = require('../../controllers/ranks'),
 	bodyParser = require('body-parser');
 
 router.route('/')
@@ -72,6 +74,14 @@ router.route('/:mapID/runs')
 
 router.route('/:mapID/runs/:runID')
 	.get(validate(runsValidation.getAll), runsCtrl.getByID)
+	.all(errorCtrl.send405);
+
+router.route('/:mapID/ranks')
+	.get(validate(ranksValidation.getAll), ranksCtrl.getAll)
+	.all(errorCtrl.send405);
+
+router.route('/:mapID/ranks/:rankNum')
+	.get(validate(ranksValidation.getAll), ranksCtrl.getByRank)
 	.all(errorCtrl.send405);
 
 router.route('/:mapID/runs/:runID/download')

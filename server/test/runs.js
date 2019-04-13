@@ -205,17 +205,6 @@ describe('runs', () => {
                         expect(res.body.runs).to.have.length(2);
                     });
             });
-            it('should respond with a filtered list of runs when using the isPersonalBest query param', () => {
-                return chai.request(server)
-                    .get('/api/runs')
-                    .set('Authorization', 'Bearer ' + accessToken)
-                    .query({isPersonalBest: 'true'})
-                    .then(res => {
-                        expect(res).to.have.status(200);
-                        expect(res).to.be.json;
-                        expect(res.body.runs).to.have.length(1);
-                    });
-            });
             it('should respond with 401 when no access token is provided', () => {
                 return chai.request(server)
                     .get('/api/runs')

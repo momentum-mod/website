@@ -14,14 +14,27 @@ describe('RunsService', () => {
     runsServiceMock = new RunsService(<any>httpClientSpy);
     expectedRun = {
       id: 1,
-      tickRate: 60,
+      tickRate: 0.015,
       createdAt: new Date(),
-      time: 53,
+      ticks: 53,
       flags: 0,
+      zoneNum: 0,
+      trackNum: 0,
       file: '',
       mapID: 1,
       playerID: '825825825828',
-      isPersonalBest: true,
+      rank: {
+        id: 1,
+        mapID: 0,
+        userID: '825825825828',
+        runID: '1',
+        rank: 0,
+        rankXP: 0,
+        gameType: 0,
+        trackNum: 0,
+        zoneNum: 0,
+        flags: 0,
+      },
     };
     expectedRuns = {
       count: 1,
