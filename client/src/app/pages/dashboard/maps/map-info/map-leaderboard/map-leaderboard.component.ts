@@ -1,9 +1,10 @@
 import {Component, Input, OnInit} from '@angular/core';
-import {RunsService} from '../../../../../@core/data/runs.service';
 import {Run} from '../../../../../@core/models/run.model';
 import {Router} from '@angular/router';
 import {ToasterService} from 'angular2-toaster';
 import {finalize} from 'rxjs/operators';
+import {RanksService} from '../../../../../@core/data/ranks.service';
+import {UserMapRank} from '../../../../../@core/models/user-map-rank.model';
 
 @Component({
   selector: 'map-leaderboard',
@@ -14,29 +15,30 @@ export class MapLeaderboardComponent implements OnInit {
 
   @Input('mapID') mapID: number;
   filterActive: boolean;
-  leaderboardRuns: Run[];
-  searchedRuns: boolean;
+  leaderboardRanks: UserMapRank[];
+  searchedRanks: boolean;
 
-  constructor(private runService: RunsService,
+  constructor(private rankService: RanksService,
               private router: Router,
               private toasterService: ToasterService) {
     this.filterActive = false;
-    this.searchedRuns = false;
-    this.leaderboardRuns = [];
+    this.searchedRanks = false;
+    this.leaderboardRanks = [];
   }
 
   ngOnInit() {
   }
 
   loadLeaderboardRuns(mapID?: number) {
-    this.runService.getMapRuns(mapID || this.mapID, {
+    this.rankService.getRanks(mapID || this.mapID, {
       params: {
-        isPersonalBest: true,
+        // TODO do further filtering here
         limit: 10,
       },
-    }).pipe(finalize(() => this.searchedRuns = true))
+    }).pipe(finalize(() => this.searchedRanks = true))
       .subscribe(res => {
-      this.leaderboardRuns = res.runs;
+        if (res.count)
+          this.leaderboardRanks = res.ranks;
     }, err => {
       this.toasterService.popAsync('error', 'Could not find runs', err.message);
     });

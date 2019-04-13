@@ -7,6 +7,10 @@ export interface UserMapRank {
   mapID: number;
   userID: string;
   runID: string;
+  gameType: number;
+  flags: number;
+  trackNum: number;
+  zoneNum: number;
   rank: number;
   rankXP?: number;
   map?: MomentumMap;

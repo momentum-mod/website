@@ -442,10 +442,6 @@ paths:
           description: Filter by a specific flags value
           type: integer
           default: 0
-        - name: isPersonalBest
-          in: query
-          description: Whether or not to filter out runs which are not a personal best
-          type: boolean
       responses:
         200:
           description: OK
@@ -483,10 +479,6 @@ paths:
           description: Filter by a specific flags value
           type: integer
           default: 0
-        - name: isPersonalBest
-          in: query
-          description: Whether or not to filter out runs which are not a personal best
-          type: boolean
       responses:
         200:
           description: OK

@@ -1217,7 +1217,6 @@ describe('maps', () => {
                                 expect(res2).to.have.status(200);
                                 expect(res2.body).to.have.property('runs');
                                 expect(res2.body.runs).to.have.length(2);
-                                expect(res2.body.runs[0]).to.have.property('isPersonalBest');
                             });
                     });
 
@@ -1242,7 +1241,7 @@ describe('maps', () => {
                     .set('Authorization', 'Bearer ' + accessToken)
                     .then(res => {
                         expect(res).to.have.status(200);
-                        expect(res.body).to.have.property('isPersonalBest');
+                        expect(res.body).to.have.property('rank');
                      });
             });
             it('should respond with 401 when no access token is provided', () => {

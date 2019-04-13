@@ -7,7 +7,6 @@ module.exports = (sequelize, type) => {
 			primaryKey: true,
 			autoIncrement: true
 		},
-		isPersonalBest: type.BOOLEAN,
 		trackNum: type.TINYINT.UNSIGNED,
 		zoneNum: type.TINYINT.UNSIGNED,
 		ticks: type.INTEGER.UNSIGNED,

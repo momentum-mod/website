@@ -290,30 +290,16 @@ const saveRun = (resultObj, transact) => {
 		});
 	}).then(run => { // Update old PB run to be no-longer PB, if there was one
 		runModel = run;
-		if (!resultObj.runModel.isPersonalBest)
+		if (!resultObj.isPersonalBest)
 			return Promise.resolve();
 
-		const oldRunID = resultObj.mapRank.runID;
-		return resultObj.mapRank.update({runID: run.id}, {transaction: transact}).then(() => {
-			// TODO: remove this after Run.isPersonalBest is removed
-			if (!resultObj.createdMapRank) {
-				return Run.update({isPersonalBest: false}, {
-					where: {
-						id: oldRunID,
-						isPersonalBest: true,
-					},
-					transaction: transact,
-				});
-			}
-			else
-				return Promise.resolve();
-		});
+		return resultObj.mapRank.update({runID: run.id}, {transaction: transact});
 	}).then(() => { // Store the run file
 		return storeRunFile(resultObj, runModel.id);
 	}).then(results => { // Update the download URL for the run
 		return runModel.update({ file: results.downloadURL }, {transaction: transact});
 	}).then(() => { // Generate PB notifications
-		if (!resultObj.runModel.isPersonalBest || resultObj.isNewWorldRecord)
+		if (!resultObj.isPersonalBest || resultObj.isNewWorldRecord)
 			return Promise.resolve();
 		return activity.create({
 			type: activity.ACTIVITY_TYPES.PB_ACHIEVED,
@@ -491,7 +477,7 @@ const updateStats = (resultObj, transaction) => {
 	}).then(() => {
 		// Phew, out of the map related stats, now let's go onwards to the UserMapRank
 		// We only care to update our UserMapRank if we were a PB (or if we created the UMR object; same thing)
-		if (resultObj.runModel.isPersonalBest) {
+		if (resultObj.isPersonalBest) {
 			const runCategory = {
 				mapID: resultObj.map.id,
 				gameType: resultObj.map.type,
@@ -647,7 +633,7 @@ module.exports = {
 			}).then(() => {
 				return isNewPersonalBest(resultObj, t);
 			}).then(isNewPB => {
-				resultObj.runModel.isPersonalBest = isNewPB;
+				resultObj.isPersonalBest = isNewPB;
 				return isNewPB ? isNewWorldRecord(resultObj, t) : Promise.resolve(false);
 			}).then(isNewWR => {
 				resultObj.isNewWorldRecord = isNewWR;
@@ -655,7 +641,7 @@ module.exports = {
 			}).then(run => {
 				return Promise.resolve({
 					isNewWorldRecord: resultObj.isNewWorldRecord,
-					isNewPersonalBest: run.isPersonalBest,
+					isNewPersonalBest: resultObj.isPersonalBest,
 					run: run.toJSON(),
 					xp: resultObj.xp,
 				});
@@ -693,8 +679,6 @@ module.exports = {
 			queryOptions.where.playerID = { [Op.in]: queryParams.playerIDs.split(',') };
 		if (queryParams.flags)
 			queryOptions.where.flags = parseInt(queryParams.flags) || 0;
-		if (queryParams.isPersonalBest)
-			queryOptions.where.isPersonalBest = (queryParams.isPersonalBest === true);
 		if (queryParams.order) {
 			if (queryParams.order === 'date')
 				queryOptions.order = [['createdAt', 'DESC']];
@@ -711,46 +695,6 @@ module.exports = {
 			queryOptions.where.mapID = queryParams.mapID;
         queryHelper.addExpansions(queryOptions, queryParams.expand, ['user', 'map', 'mapWithInfo', 'runStats', 'runZoneStats', 'rank']);
 		return Run.findById(runID, queryOptions);
-	},
-
-	getAround: (userID, mapID, queryParams) => {
-		return UserMapRank.find({
-			where: {
-				mapID: mapID,
-				userID: userID,
-			},
-			raw: true,
-		}).then(userMapRank => {
-			if (userMapRank) {
-				const queryOptions = {
-					where: {
-						mapID: mapID,
-					},
-					order: [
-						['rank', 'ASC'],
-					],
-					include: [{
-						model: Run,
-						as: 'run',
-						include: [{
-							model: User,
-							as: 'user'
-						}]
-					}],
-					offset: Math.max(userMapRank.rank - 5, 0),
-					limit: 11, // 5 + yours + 5
-					attributes: ['rank']
-				};
-
-				if (queryParams.limit)
-					queryOptions.limit = Math.min(Math.max(1, context.limit), 21);
-
-				return UserMapRank.findAndCountAll(queryOptions)
-			} else {
-				// They don't have a time, error out
-				return Promise.reject(new ServerError(403, 'No personal best detected'));
-			}
-		});
 	},
 
 	getFilePath: (runID) => {

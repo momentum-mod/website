@@ -16,30 +16,12 @@ module.exports = {
 	},
 
 	getByID: (req, res, next) => {
-		if (req.params.runID === 'friends') {
-			user.getSteamFriendIDs(req.user.id).then(steamIDs => {
-					req.query.playerIDs = steamIDs.join(',');
-					module.exports.getAll(req, res, next);
-				}).catch(next);
-		} else if (req.params.runID === 'around') {
-			module.exports.getAroundUser(req, res, next);
-		} else {
-			if (req.params.mapID)
-				req.query.mapID = req.params.mapID;
-			run.getByID(req.params.runID, req.query).then(run => {
-				if (run)
-					return res.json(run);
-				next(new ServerError(404, 'Run not found'));
-			}).catch(next);
-		}
-	},
-
-	getAroundUser: (req, res, next) => {
-		run.getAround(req.user.id, req.params.mapID, req.query).then(runs => {
-			res.json({
-				count: runs.count,
-				runs: runs.rows
-			})
+		if (req.params.mapID)
+			req.query.mapID = req.params.mapID;
+		run.getByID(req.params.runID, req.query).then(run => {
+			if (run)
+				return res.json(run);
+			next(new ServerError(404, 'Run not found'));
 		}).catch(next);
 	},
 

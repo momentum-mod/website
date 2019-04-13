@@ -1,9 +1,9 @@
-import { Component, OnInit } from '@angular/core';
+import {Component, OnInit} from '@angular/core';
 import {ActivatedRoute, ParamMap} from '@angular/router';
 import {RunsService} from '../../../../@core/data/runs.service';
 import {switchMap} from 'rxjs/operators';
 import {Run} from '../../../../@core/models/run.model';
-import {UsersService} from '../../../../@core/data/users.service';
+import {RanksService} from '../../../../@core/data/ranks.service';
 
 @Component({
   selector: 'run-info',
@@ -16,7 +16,7 @@ export class RunInfoComponent implements OnInit {
   personalBestRun: Run;
   constructor(private route: ActivatedRoute,
               private runService: RunsService,
-              private usersService: UsersService) {
+              private rankService: RanksService) {
     this.run = null;
     this.personalBestRun = null;
   }
@@ -30,16 +30,22 @@ export class RunInfoComponent implements OnInit {
       ),
     ).subscribe(run => {
       this.run = run;
-
-      if (!this.run.isPersonalBest) {
-        this.usersService.getRunHistory(this.run.playerID, {
-          params: { isPersonalBest: true, mapID: this.run.mapID, limit: 1 },
-        }).subscribe(resp => {
-          if (resp.count && resp.count === 1)
-            this.personalBestRun = resp.runs[0];
-        });
-      } else {
+      if (this.run.rank)
         this.personalBestRun = this.run;
+      else {
+        const options = {
+          params: {
+            playerID: this.run.playerID,
+            track: this.run.trackNum,
+            zone: this.run.zoneNum,
+            flags: this.run.flags,
+            limit: 1,
+          },
+        };
+        this.rankService.getRanks(this.run.mapID, options).subscribe(resp => {
+          if (resp.count && resp.count === 1)
+            this.personalBestRun = resp.ranks[0].run;
+        });
       }
     });
   }

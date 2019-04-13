@@ -4,12 +4,6 @@ const Joi = require('joi'),
 
 module.exports = {
 
-	urlParamID: {
-		param: Joi.object().keys({
-			runID: validation.run.id,
-		}),
-	},
-
 	getAll: {
 		query: Joi.object().keys({
 			limit: validation.queryParam.limit,
@@ -18,6 +12,9 @@ module.exports = {
 			playerIDs: validation.queryParam.playerIDs,
 			flags: validation.run.flags,
 			mapID: validation.map.id,
+			track: validation.mapTrack.trackNum,
+			zone: validation.mapZone.zoneNum,
+			order: Joi.string().valid('date', 'rank'),
 		}),
 	},
 

@@ -39,8 +39,8 @@
         </div>
       </div>
     </div>
-    <h4 *ngIf="searchedRuns && leaderboardRuns.length === 0" class="text-center">No runs found</h4>
-    <table *ngIf="searchedRuns && leaderboardRuns.length > 0">
+    <h4 *ngIf="searchedRanks && leaderboardRanks.length === 0" class="text-center">No runs found</h4>
+    <table *ngIf="searchedRanks && leaderboardRanks.length > 0">
       <tr>
         <th>RANK</th>
         <th>USER</th>
@@ -49,17 +49,17 @@
         <th>ACHIEVED</th>
         <th>VIEW</th>
       </tr>
-      <tr *ngFor="let run of leaderboardRuns; index as i">
+      <tr *ngFor="let rank of leaderboardRanks; index as i">
         <td>{{i + 1}}</td>
         <td>
-          <a [routerLink]="'/dashboard/profile/' + run.user.id">
-            <nb-user [name]="run.user.alias" [picture]="run.user.avatarURL" size="large"></nb-user>
+          <a [routerLink]="'/dashboard/profile/' + rank.user.id">
+            <nb-user [name]="rank.user.alias" [picture]="rank.user.avatarURL" size="large"></nb-user>
           </a>
         </td>
         <td></td>
-        <td>{{run.time | numberTrim}}</td>
-        <td>{{run.createdAt | timeAgo}}</td>
-        <td><button type="button" class="btn btn-outline-info btn-round ion ion-play" (click)="viewRun(run)"></button></td>
+        <td>{{rank.run.ticks * rank.run.tickRate | numberTrim}}</td>
+        <td>{{rank.run.createdAt.toString() | timeAgo}}</td>
+        <td><button type="button" class="btn btn-outline-info btn-round ion ion-play" (click)="viewRun(rank.run)"></button></td>
       </tr>
     </table>
   </nb-card-body>
