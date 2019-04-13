@@ -6,6 +6,7 @@ const { forceSyncDB, User } = require('../config/sqlize'),
     chaiHttp = require('chai-http'),
     expect = chai.expect,
     server = require('../server.js'),
+    user = require('../src/models/user'),
     auth = require('../src/models/auth');
 
 chai.use(chaiHttp);
@@ -16,7 +17,8 @@ describe('activities', () => {
     let adminAccessToken = null;
     const testUser = {
         id: '76561198131664084',
-        permissions: 0,
+        roles: 0,
+        bans: 0,
         profile: {
             alias: 'cjshiner',
             avatarURL: 'https://steamcdn-a.akamaihd.net/steamcommunity/public/images/avatars/e4/e4db45e6d6472d9e61b131a04ad2f18a299daafc_full.jpg',
@@ -30,7 +32,7 @@ describe('activities', () => {
                 return auth.genAccessToken(testUser);
             }).then((token) => {
                 accessToken = token;
-                testUser.permissions = 6;
+                testUser.roles |= user.Role.ADMIN;
                 return auth.genAccessToken(testUser);
             }).then((token) => {
                 adminAccessToken = token;

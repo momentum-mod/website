@@ -8,7 +8,8 @@ import {ActivatedRoute, ParamMap, Router} from '@angular/router';
 import {UsersService} from '../../../../@core/data/users.service';
 import {switchMap} from 'rxjs/operators';
 import {of} from 'rxjs';
-import {Permission} from '../../../../@core/models/permissions.model';
+import {Role} from '../../../../@core/models/role.model';
+import {Ban} from '../../../../@core/models/ban.model';
 import {User} from '../../../../@core/models/user.model';
 import {AdminService} from '../../../../@core/data/admin.service';
 
@@ -45,7 +46,9 @@ export class ProfileEditComponent implements OnInit {
   isLocal: boolean;
   isAdmin: boolean;
   isModerator: boolean;
-  permissions = Permission;
+  Role: typeof Role = Role;
+  Ban: typeof Ban = Ban;
+
   constructor(private route: ActivatedRoute,
               private router: Router,
               private localUserService: LocalUserService,
@@ -60,8 +63,8 @@ export class ProfileEditComponent implements OnInit {
   }
   ngOnInit(): void {
     this.localUserService.getLocal().subscribe(locUsr => {
-      this.isAdmin = this.localUserService.hasPermission(Permission.ADMIN, locUsr);
-      this.isModerator = this.localUserService.hasPermission(Permission.MODERATOR, locUsr);
+      this.isAdmin = this.localUserService.hasRole(Role.ADMIN, locUsr);
+      this.isModerator = this.localUserService.hasRole(Role.MODERATOR, locUsr);
       this.route.paramMap.pipe(
         switchMap((params: ParamMap) => {
             if (params.has('id')) {
@@ -98,7 +101,8 @@ export class ProfileEditComponent implements OnInit {
       }, error => this.err('Failed to update user profile!', error.message));
     } else {
       const userUpdate: User = this.profileEditFormGroup.value;
-      userUpdate.permissions = this.user.permissions;
+      userUpdate.roles = this.user.roles;
+      userUpdate.bans = this.user.bans;
       this.adminService.updateUser(this.user.id, userUpdate).subscribe(() => {
         if (this.isLocal)
           this.localUserService.refreshLocal();
@@ -129,28 +133,42 @@ export class ProfileEditComponent implements OnInit {
     });
   }
 
-  togglePerm(perm: Permission) {
-    if (this.hasPerm(perm)) {
-      this.user.permissions &= ~perm;
+  toggleRole(role: Role) {
+    if (this.hasRole(role)) {
+      this.user.roles &= ~role;
     } else {
-      this.user.permissions |= perm;
+      this.user.roles |= role;
     }
     this.checkUserPermissions();
   }
 
-  hasPerm(perm: Permission) {
-    return this.localUserService.hasPermission(perm, this.user);
+  toggleBan(ban: Ban) {
+    if (this.hasBan(ban)) {
+      this.user.bans &= ~ban;
+    } else {
+      this.user.bans |= ban;
+    }
+    this.checkUserPermissions();
+  }
+
+  hasRole(role: Role) {
+    return this.localUserService.hasRole(role, this.user);
+  }
+
+  hasBan(ban: Ban) {
+    return this.localUserService.hasBan(ban, this.user);
   }
 
   checkUserPermissions() {
     const permStatus = {
-      banAlias: this.hasPerm(Permission.BANNED_ALIAS),
-      banBio: this.hasPerm(Permission.BANNED_BIO),
-      banAvatar: this.hasPerm(Permission.BANNED_AVATAR),
-      verified: this.hasPerm(Permission.VERIFIED),
-      mapper: this.hasPerm(Permission.MAPPER),
-      moderator: this.hasPerm(Permission.MODERATOR),
-      admin: this.hasPerm(Permission.ADMIN),
+      banAlias: this.hasBan(Ban.BANNED_ALIAS),
+      banBio: this.hasBan(Ban.BANNED_BIO),
+      banAvatar: this.hasBan(Ban.BANNED_AVATAR),
+      banLeaderboards: this.hasBan(Ban.BANNED_LEADERBOARDS),
+      verified: this.hasRole(Role.VERIFIED),
+      mapper: this.hasRole(Role.MAPPER),
+      moderator: this.hasRole(Role.MODERATOR),
+      admin: this.hasRole(Role.ADMIN),
     };
 
     permStatus.banAlias && !(this.isAdmin || this.isModerator) ? this.alias.disable() : this.alias.enable();

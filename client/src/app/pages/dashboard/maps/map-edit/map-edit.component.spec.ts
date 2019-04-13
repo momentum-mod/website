@@ -31,7 +31,8 @@ describe('MapEditComponent', () => {
       id: '2',
       alias: 'dude',
       avatarURL: 'IJJJ',
-      permissions: 2,
+      roles: 0,
+      bans: 0,
       country: 'US',
       profile: {
         id: '7',

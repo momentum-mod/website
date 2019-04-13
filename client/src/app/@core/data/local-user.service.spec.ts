@@ -36,13 +36,13 @@ describe('LocalUserService', () => {
       avatarURL: '',
       alias: 'cjshiner',
       country: 'US',
-      permissions: 0,
+      roles: 0,
+      bans: 0,
       profile: {
         id: '1',
         bio: 'test',
       },
     };
-
 
     expectedMap = {
       id: 9,

@@ -175,7 +175,10 @@ definitions:
         type: string
       avatarURL:
         type: string
-      permissions:
+      roles:
+        type: integer
+        format: int64
+      bans:
         type: integer
         format: int64
       createdAt:

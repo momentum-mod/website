@@ -23,15 +23,18 @@ describe('runs', () => {
     let adminGameAccessToken = null;
     const testUser = {
         id: '00000000000000001',
-        permissions: user.Permission.VERIFIED
+        roles: user.Role.VERIFIED,
+        bans: 0,
     };
     const testAdmin = {
         id: '00000000000000002',
-        permissions: user.Permission.ADMIN
+        roles: user.Role.ADMIN,
+        bans: 0,
     };
     const testAdminGame = {
         id: '00000000000000003',
-        permissions: user.Permission.ADMIN
+        roles: user.Role.ADMIN,
+        bans: 0,
     };
 
     const testMap = {
@@ -65,13 +68,13 @@ describe('runs', () => {
                 accessToken = token;
                 return User.create(testUser);
             }).then(() => {
-                testAdmin.permissions = user.Permission.ADMIN;
+                testAdmin.roles |= user.Role.ADMIN;
                 return auth.genAccessToken(testAdmin);
             }).then((token) => {
                 adminAccessToken = token;
                 return User.create(testAdmin);
             }).then(() => {
-                testAdminGame.permissions = user.Permission.ADMIN;
+                testAdminGame.roles |= user.Role.ADMIN;
                 return auth.genAccessToken(testAdminGame, true);
             }).then((token) => {
                 adminGameAccessToken = token;

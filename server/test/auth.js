@@ -19,7 +19,8 @@ describe('auth', () => {
 	let accessToken = null;
 	const testUser = {
 		id: '2759389285395352',
-		permissions: 0,
+		roles: 0,
+		bans: 0,
 		auth: {},
 	};
 
@@ -45,12 +46,13 @@ describe('auth', () => {
 		it('should generate a valid access token', () => {
 			return auth.genAccessToken({
 				id: testUser.id,
-				permissions: testUser.permissions
+				roles: testUser.roles,
+				bans: testUser.bans,
 			}).then(token => {
 				return verifyJWT(token, config.accessToken.secret);
 			}).then(decodedToken => {
 				expect(decodedToken).to.have.property('id');
-				expect(decodedToken).to.have.property('permissions');
+				expect(decodedToken).to.have.property('roles');
 			});
 		});
 	});

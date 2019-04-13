@@ -3,7 +3,8 @@ import {UserStats} from './user-stats.model';
 
 export interface User {
   id: string;
-  permissions: number;
+  roles: number;
+  bans: number;
   alias: string;
   avatarURL: string;
   country: string;

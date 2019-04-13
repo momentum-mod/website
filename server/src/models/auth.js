@@ -42,7 +42,8 @@ module.exports = {
 	genAccessToken: (usr, gameAuth) => {
 		const payload = {
 			id: usr.id,
-			permissions: usr.permissions,
+			roles: usr.roles,
+			bans: usr.bans,
 			gameAuth: gameAuth ? true : false,
 		};
 		const options = {

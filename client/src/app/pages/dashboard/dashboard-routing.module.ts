@@ -3,8 +3,8 @@ import {NgModule} from '@angular/core';
 import {DashboardComponent} from './dashboard.component';
 import {DashboardHomeComponent} from './home/dashboard-home.component';
 import {NotFoundDashboardComponent} from '../not-found/dashboard/not-found-dashboard.component';
-import {PermissionGuard} from '../../@core/guards/permission.guard';
-import {Permission} from '../../@core/models/permissions.model';
+import {RoleGuard} from '../../@core/guards/role.guard';
+import {Role} from '../../@core/models/role.model';
 import {RunInfoComponent} from './runs/run-info/run-info.component';
 
 const routes: Routes = [
@@ -31,9 +31,12 @@ const routes: Routes = [
       {
         path: 'admin',
         loadChildren: 'app/pages/dashboard/admin/admin.module#AdminModule',
-        canActivate: [PermissionGuard],
+        canActivate: [RoleGuard],
         data: {
-          onlyAllow: [Permission.MODERATOR, Permission.ADMIN],
+          onlyAllow: [
+            Role.MODERATOR,
+            Role.ADMIN,
+          ],
         },
       },
       {
@@ -60,7 +63,7 @@ const routes: Routes = [
 @NgModule({
   imports: [RouterModule.forChild(routes)],
   exports: [RouterModule],
-  providers: [PermissionGuard],
+  providers: [RoleGuard],
 })
 export class DashboardRoutingModule {
 }

@@ -6,7 +6,7 @@ import {ToasterService} from 'angular2-toaster';
 @Injectable({
   providedIn: 'root',
 })
-export class PermissionGuard implements CanActivate {
+export class RoleGuard implements CanActivate {
   constructor(private userService: LocalUserService,
               private toastService: ToasterService) {
   }
@@ -24,10 +24,10 @@ export class PermissionGuard implements CanActivate {
     }
   }
 
-  checkPermissions(permissions): boolean {
+  checkPermissions(roles): boolean {
     let hasPermission = false;
-    permissions.forEach(permission => {
-      if (this.userService.hasPermission(permission)) {
+    roles.forEach(role => {
+      if (this.userService.hasRole(role)) {
         hasPermission = true;
       }
     });

@@ -12,21 +12,24 @@ const {
 
 module.exports = {
 
-	Permission: Object.freeze({
+	Role: Object.freeze({
 		VERIFIED: 1 << 0,
 		MAPPER: 1 << 1,
 		MODERATOR: 1 << 2,
 		ADMIN: 1 << 3,
-		BANNED_LEADERBOARDS: 1 << 4,
-		BANNED_ALIAS: 1 << 5,
-		BANNED_AVATAR: 1 << 6,
-		BANNED_BIO: 1 << 7,
+	}),
+
+	Ban: Object.freeze({
+		BANNED_LEADERBOARDS: 1 << 0,
+		BANNED_ALIAS: 1 << 1,
+		BANNED_AVATAR: 1 << 2,
+		BANNED_BIO: 1 << 3,
 	}),
 
 	updateSteamInfo: (usr, newProfile) => {
 		if (newProfile.country && usr.country !== newProfile.country)
 			usr.country = newProfile.country;
-		if ((usr.permissions & module.exports.Permission.BANNED_AVATAR) === 0)
+		if ((usr.bans & module.exports.Ban.BANNED_AVATAR) === 0)
 			usr.avatarURL = newProfile.avatarURL;
 		return usr.save();
 	},
@@ -165,7 +168,7 @@ module.exports = {
 				profile: {},
 			};
 
-			if ((locUsr.permissions & module.exports.Permission.BANNED_ALIAS) === 0)
+			if ((locUsr.bans & module.exports.Ban.BANNED_ALIAS) === 0)
 				usrUpd8.alias = body.alias;
 
 			return User.update(usrUpd8, {where: {id: locUsr.id}, transaction: t}).then(() => {
@@ -178,29 +181,23 @@ module.exports = {
 	updateAsAdmin: (powerUser, userID, usr) => {
 		return User.findById(userID).then(foundUsr => {
 			if (foundUsr) {
-				const foundUsrAdmin = (foundUsr.permissions & module.exports.Permission.ADMIN) !== 0;
-				const foundUsrMod = (foundUsr.permissions & module.exports.Permission.MODERATOR) !== 0;
+				const foundUsrAdmin = (foundUsr.roles & module.exports.Role.ADMIN) !== 0;
+				const foundUsrMod = (foundUsr.roles & module.exports.Role.MODERATOR) !== 0;
 				// Moderators are limited in what they can update
-				if (powerUser.permissions & module.exports.Permission.MODERATOR) {
+				if (powerUser.roles & module.exports.Role.MODERATOR) {
 					if ((foundUsrAdmin || foundUsrMod) && (powerUser.id !== foundUsr.id)) {
 						return Promise.reject(new ServerError(403, 'Cannot update user with >= power to you'));
 					} else {
 						// Hard cap their permission to what they have by ensuring it won't be erased
-						usr.permissions |= ((foundUsrAdmin ? module.exports.Permission.ADMIN : 0) |
-							(foundUsrMod ? module.exports.Permission.MODERATOR : 0));
+						usr.roles |= ((foundUsrAdmin ? module.exports.Role.ADMIN : 0) |
+							(foundUsrMod ? module.exports.Role.MODERATOR : 0));
 					}
 				} else if (foundUsrAdmin && powerUser.id !== foundUsr.id) {
 					return Promise.reject(new ServerError(403, 'Cannot update other admins'));
 				}
 
-				// Only allow updating alias & permissions
-				const usrUpd8 = {
-					permissions: usr.permissions,
-					alias: usr.alias,
-				};
-
 				const updates = [
-					foundUsr.update(usrUpd8)
+					foundUsr.update(usr)
 				];
 				if (usr.profile) {
 					updates.push(module.exports.updateProfile(foundUsr, true, usr.profile));
@@ -241,7 +238,7 @@ module.exports = {
 	updateProfile: (userBeingUpdated, asAdmin, profile, transaction) => {
 		const profUpd8 = {};
 		// Only allow updating certain things
-		if (!asAdmin && (userBeingUpdated.permissions & module.exports.Permission.BANNED_BIO) === 0)
+		if (!asAdmin && (userBeingUpdated.bans & module.exports.Ban.BANNED_BIO) === 0)
 			profUpd8.bio = profile.bio;
 
 		const opts = {

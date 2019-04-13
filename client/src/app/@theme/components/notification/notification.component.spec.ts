@@ -38,7 +38,8 @@ describe('NotificationComponent', () => {
           alias: 'Ninjaz',
           avatarURL: '/assets/images/caution.png',
           country: 'US',
-          permissions: 0,
+          roles: 0,
+          bans: 0,
         },
         activity: {
           id: 1,
@@ -47,7 +48,8 @@ describe('NotificationComponent', () => {
             alias: 'Ninja',
             avatarURL: '/assets/images/caution.png',
             country: 'US',
-            permissions: 0,
+            roles: 0,
+            bans: 0,
             profile: {
               id: '1',
               bio: '',
@@ -67,7 +69,8 @@ describe('NotificationComponent', () => {
           alias: 'Ninjazzz',
           avatarURL: '/assets/images/caution.png',
           country: 'US',
-          permissions: 0,
+          roles: 0,
+          bans: 0,
         },
         activity: {
           id: 1,
@@ -76,7 +79,8 @@ describe('NotificationComponent', () => {
             alias: 'TESSSSSSSSSSSSSSSSSSST',
             avatarURL: '/assets/images/caution.png',
             country: 'US',
-            permissions: 0,
+            roles: 0,
+            bans: 0,
             profile: {
               id: '1',
               bio: '',

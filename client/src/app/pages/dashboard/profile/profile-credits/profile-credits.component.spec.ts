@@ -53,7 +53,8 @@ describe('ProfileCreditsComponent', () => {
       alias: 'IAmWhoIAmWhoAmI',
       avatarURL: '',
       country: 'US',
-      permissions: 0,
+      roles: 0,
+      bans: 0,
     });
     fixture.detectChanges();
   });

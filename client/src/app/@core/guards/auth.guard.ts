@@ -21,10 +21,10 @@ export class AuthGuard implements CanActivate {
     window.location.href = '/auth/steam';
   }
 
-  checkPermissions(permissions): boolean {
+  checkPermissions(roles): boolean {
     let hasPermission = false;
-    permissions.forEach(permission => {
-      if (this.userService.hasPermission(permission)) {
+    roles.forEach(role => {
+      if (this.userService.hasRole(role)) {
         hasPermission = true;
       }
     });

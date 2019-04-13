@@ -3,7 +3,8 @@ import {AuthService} from './auth.service';
 import {Observable, ReplaySubject, Subject} from 'rxjs';
 import {HttpClient} from '@angular/common/http';
 import {User} from '../models/user.model';
-import {Permission} from '../models/permissions.model';
+import {Role} from '../models/role.model';
+import {Ban} from '../models/ban.model';
 import {UserFollowObject} from '../models/follow.model';
 import {FollowStatus} from '../models/follow-status.model';
 import {CookieService} from 'ngx-cookie-service';
@@ -62,8 +63,12 @@ export class LocalUserService {
     this.authService.logout();
   }
 
-  public hasPermission(permission: number|Permission, user: User = this.localUser): boolean {
-    return user ? (permission & user.permissions) !== 0 : false;
+  public hasRole(role: number|Role, user: User = this.localUser): boolean {
+    return user ? (role & user.roles) !== 0 : false;
+  }
+
+  public hasBan(ban: number|Ban, user: User = this.localUser): boolean {
+    return user ? (ban & user.bans) !== 0 : false;
   }
 
   /**

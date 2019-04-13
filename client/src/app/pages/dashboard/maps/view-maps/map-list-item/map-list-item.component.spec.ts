@@ -49,7 +49,8 @@ describe('MapListItemComponent', () => {
       statusFlag: MapUploadStatus.APPROVED,
       submitter: {
         id: '2',
-        permissions: 2,
+        roles: 0,
+        bans: 0,
         country: 'US',
         profile: {
           id: '7',

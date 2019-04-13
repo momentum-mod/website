@@ -1,8 +1,8 @@
 import {RouterModule, Routes} from '@angular/router';
 import {UserProfileComponent} from './user-profile.component';
 import {ProfileEditComponent} from './profile-edit/profile-edit.component';
-import {Permission} from '../../../@core/models/permissions.model';
-import {PermissionGuard} from '../../../@core/guards/permission.guard';
+import {Role} from '../../../@core/models/role.model';
+import {RoleGuard} from '../../../@core/guards/role.guard';
 import {NotFoundDashboardComponent} from '../../not-found/dashboard/not-found-dashboard.component';
 import {NgModule} from '@angular/core';
 import {ProfileComponent} from './profile.component';
@@ -27,7 +27,7 @@ const routes: Routes = [
             path: 'edit',
             component: ProfileEditComponent,
             data: {
-              onlyAllow: [Permission.MODERATOR, Permission.ADMIN],
+              onlyAllow: [Role.MODERATOR, Role.ADMIN],
             },
           },
         ],
@@ -47,7 +47,7 @@ const routes: Routes = [
 @NgModule({
   imports: [RouterModule.forChild(routes)],
   exports: [RouterModule],
-  providers: [PermissionGuard],
+  providers: [RoleGuard],
 })
 export class ProfileRoutingModule {
 }

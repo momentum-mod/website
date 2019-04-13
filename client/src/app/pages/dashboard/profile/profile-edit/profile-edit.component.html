@@ -93,25 +93,25 @@
           <div class="row">
             <div class="col">
               <h2>Bans</h2>
-              <nb-checkbox (change)="togglePerm(permissions.BANNED_ALIAS)" formControlName="banAlias">Ban changing alias</nb-checkbox>
+              <nb-checkbox (change)="toggleBan(Ban.BANNED_ALIAS)" formControlName="banAlias">Ban changing alias</nb-checkbox>
               <br/>
-              <nb-checkbox (change)="togglePerm(permissions.BANNED_BIO)" formControlName="banBio">Ban changing bio</nb-checkbox>
+              <nb-checkbox (change)="toggleBan(Ban.BANNED_BIO)" formControlName="banBio">Ban changing bio</nb-checkbox>
               <br/>
-              <nb-checkbox (change)="togglePerm(permissions.BANNED_AVATAR)" formControlName="banAvatar">Ban avatar</nb-checkbox>
+              <nb-checkbox (change)="toggleBan(Ban.BANNED_AVATAR)" formControlName="banAvatar">Ban avatar</nb-checkbox>
               <br/>
-              <nb-checkbox (change)="togglePerm(permissions.BANNED_LEADERBOARDS)" formControlName="banLeaderboards">
+              <nb-checkbox (change)="toggleBan(Ban.BANNED_LEADERBOARDS)" formControlName="banLeaderboards">
                 Ban submitting to leaderboards
               </nb-checkbox>
             </div>
             <div class="col">
-              <h2>Permissions</h2>
-              <nb-checkbox (change)="togglePerm(permissions.VERIFIED)" formControlName="verified">Verified</nb-checkbox>
+              <h2>Roles</h2>
+              <nb-checkbox (change)="toggleRole(Role.VERIFIED)" formControlName="verified">Verified</nb-checkbox>
               <br/>
-              <nb-checkbox (change)="togglePerm(permissions.MAPPER)" formControlName="mapper">Mapper</nb-checkbox>
+              <nb-checkbox (change)="toggleRole(Role.MAPPER)" formControlName="mapper">Mapper</nb-checkbox>
               <br/>
-              <nb-checkbox *ngIf="isAdmin" (change)="togglePerm(permissions.MODERATOR)" formControlName="moderator">Moderator</nb-checkbox>
+              <nb-checkbox *ngIf="isAdmin" (change)="toggleRole(Role.MODERATOR)" formControlName="moderator">Moderator</nb-checkbox>
               <br/>
-              <nb-checkbox *ngIf="isAdmin" (change)="togglePerm(permissions.ADMIN)" formControlName="admin">Admin</nb-checkbox>
+              <nb-checkbox *ngIf="isAdmin" (change)="toggleRole(Role.ADMIN)" formControlName="admin">Admin</nb-checkbox>
             </div>
           </div>
         </nb-tab>

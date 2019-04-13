@@ -8,7 +8,11 @@ module.exports = (sequelize, type) => {
 		},
 		alias: type.STRING(32),
 		avatarURL: type.STRING,
-		permissions: {
+		roles: {
+			type: type.INTEGER,
+			defaultValue: 0
+		},
+		bans: {
 			type: type.INTEGER,
 			defaultValue: 0
 		},

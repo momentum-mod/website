@@ -20,15 +20,18 @@ describe('admin', () => {
     let adminGameAccessToken = null;
     const testUser = {
         id: '00000000000000001',
-        permissions: user.Permission.VERIFIED
+        roles: user.Role.VERIFIED,
+        bans: 0,
     };
     const testAdmin = {
         id: '00000000000000002',
-        permissions: user.Permission.ADMIN
+        roles: user.Role.ADMIN,
+        bans: 0,
     };
     const testAdminGame = {
         id: '00000000000000003',
-        permissions: user.Permission.ADMIN
+        roles: user.Role.ADMIN,
+        bans: 0,
     };
 
     const testMap = {
@@ -183,13 +186,13 @@ describe('admin', () => {
                 accessToken = token;
                 return User.create(testUser);
             }).then(() => {
-                testAdmin.permissions = user.Permission.ADMIN;
+                testAdmin.roles |= user.Role.ADMIN;
                 return auth.genAccessToken(testAdmin);
             }).then((token) => {
                 adminAccessToken = token;
                 return User.create(testAdmin);
             }).then(() => {
-                testAdminGame.permissions = user.Permission.ADMIN;
+                testAdminGame.roles = user.Role.ADMIN;
                 return auth.genAccessToken(testAdminGame, true);
             }).then((token) => {
                 adminGameAccessToken = token;
@@ -269,7 +272,7 @@ describe('admin', () => {
                     .patch('/api/admin/users/' + testUser.id)
                     .set('Authorization', 'Bearer ' + accessToken)
                     .send({
-                        permissions: user.Permission.BANNED_BIO
+                        bans: user.Ban.BANNED_BIO
                     })
                     .then(res => {
                         expect(res).to.have.status(403);
@@ -284,7 +287,7 @@ describe('admin', () => {
                     .patch('/api/admin/users/' + testUser.id)
                     .set('Authorization', 'Bearer ' + adminGameAccessToken)
                     .send({
-                        permissions: user.Permission.BANNED_BIO
+                        bans: user.Ban.BANNED_BIO
                     })
                     .then(res => {
                         expect(res).to.have.status(403);
@@ -300,7 +303,7 @@ describe('admin', () => {
                     .patch('/api/admin/users/' + testUser.id)
                     .set('Authorization', 'Bearer ' + adminAccessToken)
                     .send({
-                        permissions: user.Permission.BANNED_BIO
+                        bans: user.Ban.BANNED_BIO
                     })
                     .then(res => {
                         expect(res).to.have.status(204);
@@ -456,7 +459,7 @@ describe('admin', () => {
                         expect(res.body.maps).to.be.an('array');
                         expect(res.body.maps).to.have.length(7);
                         expect(res.body.maps[0]).to.have.property('name');
-                        expect(res.body.maps[0].submitter).to.have.property('permissions');
+                        expect(res.body.maps[0].submitter).to.have.property('roles');
                     });
             });
 
