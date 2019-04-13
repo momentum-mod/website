@@ -7,7 +7,20 @@ module.exports = (sequelize, type) => {
 			primaryKey: true
 		},
 		alias: type.STRING(32),
-		avatarURL: type.STRING,
+		avatar: {
+			type: type.STRING,
+			get() {}, // hidden (use avatarURL)
+		},
+		avatarURL: {
+			type: type.VIRTUAL,
+			get() {
+				return 'https://steamcdn-a.akamaihd.net/steamcommunity/public/images/avatars/' + this.getDataValue('avatar')
+			},
+			set(val) {
+				let newVal = val.replace('https://steamcdn-a.akamaihd.net/steamcommunity/public/images/avatars/', '');
+				this.setDataValue('avatar', newVal);
+			},
+		},
 		roles: {
 			type: type.INTEGER,
 			defaultValue: 0
