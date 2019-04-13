@@ -25,17 +25,20 @@ describe('maps', () => {
 	let adminGameAccessToken = null;
 	const testUser = {
 		id: '00000000000000001',
-		permissions: user.Permission.VERIFIED | user.Permission.MAPPER,
+		roles: user.Role.VERIFIED | user.Role.MAPPER,
+        bans: 0,
 		country: 'US',
 	};
     const testAdmin = {
         id: '00000000000000003',
-        permissions: user.Permission.ADMIN,
+        roles: user.Role.ADMIN,
+        bans: 0,
 	    country: 'US',
     };
     const testAdminGame = {
         id: '00000000000000002',
-        permissions: user.Permission.ADMIN,
+        roles: user.Role.ADMIN,
+        bans: 0,
 	    country: 'US',
     };
 
@@ -145,13 +148,13 @@ describe('maps', () => {
                 accessToken = token;
                 return User.create(testUser);
             }).then(() => {
-                testAdmin.permissions = user.Permission.ADMIN;
+                testAdmin.roles |= user.Role.ADMIN;
                 return auth.genAccessToken(testAdmin);
             }).then((token) => {
                 adminAccessToken = token;
                 return User.create(testAdmin);
             }).then(() => {
-                testAdminGame.permissions = user.Permission.ADMIN;
+                testAdminGame.roles |= user.Role.ADMIN;
                 return auth.genAccessToken(testAdminGame, true);
             }).then((token) => {
                 adminGameAccessToken = token;
@@ -384,7 +387,7 @@ describe('maps', () => {
                         expect(res.body.maps).to.have.length(2);
                         expect(res.body.count).to.equal(2);
                         expect(res.body.maps[0]).to.have.property('submitter');
-                        expect(res.body.maps[0].submitter).to.have.property('permissions');
+                        expect(res.body.maps[0].submitter).to.have.property('roles');
                     });
             });
             it('should respond with filtered map data using the expand credits parameter', () => {
@@ -462,7 +465,7 @@ describe('maps', () => {
                         expect(res).to.be.json;
                         expect(res.body).to.have.property('id');
                         expect(res.body).to.have.property('name');
-                        expect(res.body.submitter).to.have.property('permissions');
+                        expect(res.body.submitter).to.have.property('roles');
                     });
             });
             it('should respond with map data while using the expand credits parameter', () => {
@@ -615,7 +618,7 @@ describe('maps', () => {
                         expect(res).to.have.status(200);
                         expect(res).to.be.json;
                         expect(res.body.mapCredits[0]).to.have.property('type');
-                        expect(res.body.mapCredits[0].user).to.have.property('permissions');
+                        expect(res.body.mapCredits[0].user).to.have.property('roles');
                     });
             });
 
@@ -695,7 +698,7 @@ describe('maps', () => {
                         expect(res).to.be.json;
                         expect(res.body).to.have.property('id');
                         expect(res.body).to.have.property('type');
-                        expect(res.body.user).to.have.property('permissions');
+                        expect(res.body.user).to.have.property('roles');
                     });
             });
 

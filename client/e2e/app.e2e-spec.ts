@@ -71,7 +71,8 @@ describe('ng-home App', function() {
  //   const testUser: User[] = [
  //     {
   //      id: '2759389285395352',
-  //      permissions: 0,
+  //      roles: 0,
+  //      bans: 0,
   //    },
   //  ];
     httpClientSpy.get.and.returnValue(of(expectedMaps));

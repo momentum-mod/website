@@ -20,7 +20,8 @@ describe('AdminService', () => {
       alias: 'test1',
       avatarURL: 'url',
       country: 'US',
-      permissions: 0,
+      roles: 0,
+      bans: 0,
       profile: {
         id: '0',
         bio: 'I r 1337 ok',

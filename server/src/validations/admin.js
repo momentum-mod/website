@@ -7,7 +7,8 @@ module.exports = {
 	updateUser: {
 		body: Joi.object().keys({
 			alias: validation.user.alias,
-			permissions: validation.user.permissions,
+			roles: validation.user.roles,
+			bans: validation.user.bans,
 			profile: Joi.object().keys({
 				bio: validation.profile.bio,
 			}).unknown(false),

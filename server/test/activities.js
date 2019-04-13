@@ -7,7 +7,8 @@ const { forceSyncDB, Activity, Map, MapInfo, MapCredit, User } = require('../con
     expect = chai.expect,
     server = require('../server.js'),
     auth = require('../src/models/auth'),
-	map = require('../src/models/map'),
+    map = require('../src/models/map'),
+    user = require('../src/models/user'),
 	activity = require('../src/models/activity');
 
 chai.use(chaiHttp);
@@ -19,13 +20,15 @@ describe('activities', () => {
     let adminAccessToken = null;
 	const testUser = {
         id: '00000000000000001',
-        permissions: 0
+        roles: 0,
+        bans: 0,
     };
     const testUser2 = {
         id: '76561198131664084',
 		alias: 'cjshiner',
 		avatarURL: 'https://steamcdn-a.akamaihd.net/steamcommunity/public/images/avatars/e4/e4db45e6d6472d9e61b131a04ad2f18a299daafc_full.jpg',
-        permissions: 0,
+        roles: 0,
+        bans: 0,
         profile: {
             bio: 'test',
         }
@@ -71,7 +74,7 @@ describe('activities', () => {
                 return auth.genAccessToken(testUser2);
             }).then((token) => {
                 accessToken = token;
-                testUser2.permissions = 6;
+                testUser2.roles |= user.Role.ADMIN;
                 return auth.genAccessToken(testUser2);
             }).then((token) => {
                 adminAccessToken = token;

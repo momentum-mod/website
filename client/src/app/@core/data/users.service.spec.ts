@@ -21,7 +21,8 @@ describe('UsersService', () => {
       alias: 'test1',
       avatarURL: 'url',
       country: 'US',
-      permissions: 0,
+      roles: 0,
+      bans: 0,
       profile: {
         id: '0',
         bio: 'i am a banana!',
@@ -36,7 +37,8 @@ describe('UsersService', () => {
           alias: 'test2',
           avatarURL: 'url1',
           country: 'US',
-          permissions: 1,
+          roles: 0,
+          bans: 0,
           profile: {
             id: '1',
             bio: '',

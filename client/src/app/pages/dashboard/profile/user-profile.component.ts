@@ -5,7 +5,8 @@ import {ActivatedRoute, ParamMap, Router} from '@angular/router';
 import {UsersService} from '../../../@core/data/users.service';
 import {User} from '../../../@core/models/user.model';
 import {ReplaySubject} from 'rxjs';
-import {Permission} from '../../../@core/models/permissions.model';
+import {Role} from '../../../@core/models/role.model';
+import {Ban} from '../../../@core/models/ban.model';
 import {ToasterService} from 'angular2-toaster';
 import {UserFollowObject} from '../../../@core/models/follow.model';
 import {ReportType} from '../../../@core/models/report-type.model';
@@ -68,12 +69,12 @@ export class UserProfileComponent implements OnInit {
       ),
     ).subscribe(usr => {
       this.user = usr;
-      this.isMapper = this.hasPerm(Permission.MAPPER);
-      this.isMod = this.hasPerm(Permission.MODERATOR);
-      this.isAdmin = this.hasPerm(Permission.ADMIN);
-      this.isVerified = this.hasPerm(Permission.VERIFIED);
+      this.isMapper = this.hasRole(Role.MAPPER);
+      this.isMod = this.hasRole(Role.MODERATOR);
+      this.isAdmin = this.hasRole(Role.ADMIN);
+      this.isVerified = this.hasRole(Role.VERIFIED);
       this.userSubj$.next(usr);
-      if (!this.hasPerm(Permission.BANNED_AVATAR)) {
+      if (!this.hasBan(Ban.BANNED_AVATAR)) {
         this.avatar_url = this.user.avatarURL;
       }
       this.avatar_loaded = true;
@@ -88,10 +89,16 @@ export class UserProfileComponent implements OnInit {
     });
   }
 
-  hasPerm(perm) {
+  hasRole(role: Role) {
     if (!this.user)
       return false;
-    return this.userService.hasPermission(perm, this.user);
+    return this.userService.hasRole(role, this.user);
+  }
+
+  hasBan(ban: Ban) {
+    if (!this.user)
+      return false;
+    return this.userService.hasBan(ban, this.user);
   }
 
   onEditProfile() {
@@ -100,7 +107,7 @@ export class UserProfileComponent implements OnInit {
 
   canEdit(): boolean {
     return this.isLocal ||
-      this.userService.hasPermission(Permission.MODERATOR | Permission.ADMIN);
+      this.userService.hasRole(Role.MODERATOR | Role.ADMIN);
   }
 
   clickUser(user: User) {

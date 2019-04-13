@@ -95,13 +95,6 @@ const onMapApproval = (mapID, transaction) => {
 			return Promise.all(activities);
 		else
 			return Promise.resolve();
-	}).then(() => {
-		return User.update({
-			permissions: sequelize.literal('permissions | ' + user.Permission.MAPPER),
-		}, {
-			where: { id: {[Op.in]: authorIDs }},
-			transaction: transaction,
-		});
 	});
 }
 
@@ -178,19 +171,19 @@ module.exports = {
 			});
 		}
 		if ('priority' in queryParams) {
-			const priorityPerms = [
-				user.Permission.ADMIN,
-				user.Permission.MODERATOR,
-				user.Permission.MAPPER
+			const priorityRoles = [
+				user.Role.ADMIN,
+				user.Role.MODERATOR,
+				user.Role.MAPPER
 			];
 			const permChecks = [];
-			for (let i = 0; i < priorityPerms.length; i++) {
+			for (let i = 0; i < priorityRoles.length; i++) {
 				permChecks.push(
-					sequelize.literal('permissions & ' + priorityPerms[i]
+					sequelize.literal('roles & ' + priorityRoles[i]
 						+ (queryParams.priority ? ' != ' : ' = ') + '0')
 				);
 			}
-			queryOptions.include[1].where.permissions = {
+			queryOptions.include[1].where.roles = {
 				[queryParams.priority ? Op.or : Op.and]: permChecks
 			};
 		}

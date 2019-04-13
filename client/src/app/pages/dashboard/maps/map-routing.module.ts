@@ -8,8 +8,8 @@ import {UploadStatusComponent} from './upload-status/upload-status.component';
 import {MapInfoComponent} from './map-info/map-info.component';
 import {MapLibraryComponent} from './map-library/map-library.component';
 import {MapEditComponent} from './map-edit/map-edit.component';
-import {PermissionGuard} from '../../../@core/guards/permission.guard';
-import {Permission} from '../../../@core/models/permissions.model';
+import {RoleGuard} from '../../../@core/guards/role.guard';
+import {Role} from '../../../@core/models/role.model';
 
 const routes: Routes = [
   {
@@ -27,9 +27,12 @@ const routes: Routes = [
       },
       {
         path: 'uploads',
-        canActivate: [PermissionGuard],
+        canActivate: [RoleGuard],
         data: {
-          onlyAllow: [Permission.MAPPER, Permission.ADMIN],
+          onlyAllow: [
+            Role.MAPPER,
+            Role.ADMIN,
+          ],
         },
         children: [
           {

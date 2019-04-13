@@ -8,6 +8,7 @@ const { forceSyncDB, User, Profile, Map, MapInfo, Activity } = require('../confi
     server = require('../server.js'),
     auth = require('../src/models/auth'),
     map = require('../src/models/map'),
+    user = require('../src/models/user'),
     activity = require('../src/models/activity');
 
 chai.use(chaiHttp);
@@ -20,7 +21,8 @@ describe('users', () => {
         id: '76561198131664084',
         alias: 'cjshiner',
         avatarURL: 'https://steamcdn-a.akamaihd.net/steamcommunity/public/images/avatars/e4/e4db45e6d6472d9e61b131a04ad2f18a299daafc_full.jpg',
-        permissions: 0,
+        roles: 0,
+        bans: 0,
         profile: {
             bio: 'test',
         }
@@ -29,7 +31,8 @@ describe('users', () => {
         id: '00000000000000002',
         alias: 'test2',
         avatarURL: 'https://steamcdn-a.akamaihd.net/steamcommunity/public/images/avatars/e4/e4db45e6d6472d9e61b131a04ad2f18a299daafc_full.jpg',
-        permissions: 0,
+        roles: 0,
+        bans: 0,
         profile: {
             bio: 'test2',
         }
@@ -72,7 +75,7 @@ describe('users', () => {
                 return auth.genAccessToken(testUser);
             }).then((token) => {
                 accessToken = token;
-                testUser.permissions = 6;
+                testUser.roles |= user.Role.ADMIN;
                 return auth.genAccessToken(testUser);
             }).then((token) => {
                 adminAccessToken = token;
@@ -457,7 +460,7 @@ describe('users', () => {
                         expect(res.body).to.have.property('activities');
                         expect(res.body.activities).to.be.an('array');
                         expect(res.body.activities).to.have.length(2);
-                        expect(res.body.activities[0].user).to.have.property('permissions');
+                        expect(res.body.activities[0].user).to.have.property('roles');
                     });
             });
             it('should respond with 401 when no access token is provided', () => {

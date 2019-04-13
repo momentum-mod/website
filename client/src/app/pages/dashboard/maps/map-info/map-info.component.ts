@@ -7,7 +7,7 @@ import {LocalUserService} from '../../../../@core/data/local-user.service';
 import {ToasterService} from 'angular2-toaster';
 import {NgxGalleryAnimation, NgxGalleryImage, NgxGalleryOptions} from 'ngx-gallery';
 import {MapImage} from '../../../../@core/models/map-image.model';
-import {Permission} from '../../../../@core/models/permissions.model';
+import {Role} from '../../../../@core/models/role.model';
 import {ReportType} from '../../../../@core/models/report-type.model';
 
 
@@ -96,8 +96,8 @@ export class MapInfoComponent implements OnInit {
         this.updateGalleryImages(map.images);
         this.leaderboard.loadLeaderboardRuns(map.id);
         this.locUserService.getLocal().subscribe(locUser => {
-          this.isAdmin = this.locUserService.hasPermission(Permission.ADMIN, locUser);
-          this.isModerator = this.locUserService.hasPermission(Permission.MODERATOR, locUser);
+          this.isAdmin = this.locUserService.hasRole(Role.ADMIN, locUser);
+          this.isModerator = this.locUserService.hasRole(Role.MODERATOR, locUser);
           this.isSubmitter = this.map.submitterID === locUser.id;
         });
       });

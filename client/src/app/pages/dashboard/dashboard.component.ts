@@ -28,10 +28,10 @@ export class DashboardComponent implements OnInit {
   }
 
   authMenuItem(menuItem: NbMenuItem) {
-    if (menuItem.data && menuItem.data.permissions) {
+    if (menuItem.data && menuItem.data.roles) {
       let hideMenuItem = true;
-      menuItem.data.permissions.forEach(permission => {
-        if (this.userService.hasPermission(permission)) {
+      menuItem.data.roles.forEach(role => {
+        if (this.userService.hasRole(role)) {
           hideMenuItem = false;
         }
       });

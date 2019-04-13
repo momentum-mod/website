@@ -4,7 +4,7 @@ import {MapsService} from '../../../../@core/data/maps.service';
 import {switchMap} from 'rxjs/operators';
 import {ActivatedRoute, ParamMap, Router} from '@angular/router';
 import {FormBuilder, FormGroup, Validators} from '@angular/forms';
-import {Permission} from '../../../../@core/models/permissions.model';
+import {Role} from '../../../../@core/models/role.model';
 import {LocalUserService} from '../../../../@core/data/local-user.service';
 import {AdminService} from '../../../../@core/data/admin.service';
 import {NbDialogService} from '@nebular/theme';
@@ -42,8 +42,8 @@ export class MapEditComponent implements OnInit {
 
   ngOnInit() {
     this.localUserService.getLocal().subscribe(locUser => {
-      this.isAdmin = this.localUserService.hasPermission(Permission.ADMIN, locUser);
-      this.isModerator = this.localUserService.hasPermission(Permission.MODERATOR, locUser);
+      this.isAdmin = this.localUserService.hasRole(Role.ADMIN, locUser);
+      this.isModerator = this.localUserService.hasRole(Role.MODERATOR, locUser);
       this.route.paramMap.pipe(
         switchMap((params: ParamMap) =>
           this.mapService.getMap(Number(params.get('id')), {

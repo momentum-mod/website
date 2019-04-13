@@ -24,7 +24,8 @@ describe('CommunityActivityComponent', () => {
           alias: 'dude',
           avatarURL: 'IJJJ',
           country: 'US',
-          permissions: 2,
+          roles: 0,
+          bans: 0,
           profile: {
             id: '7',
             bio: '>:)',

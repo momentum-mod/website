@@ -32,7 +32,8 @@ describe('ActivityContentComponent', () => {
         alias: 'Ninja',
         avatarURL: '/assets/images/caution.png',
         country: 'US',
-        permissions: 0,
+        roles: 0,
+        bans: 0,
         profile: {
           id: '1',
           bio: '',
