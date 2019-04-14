@@ -5310,13 +5310,6 @@ ngx-cookie-service@^1.0.10:
   resolved "https://registry.yarnpkg.com/ngx-cookie-service/-/ngx-cookie-service-1.0.10.tgz#dc17ff4f1a0224cf3b0c7a7f52bff2b798396e3d"
   integrity sha512-TAXpQsIONAupTqkUDcH44hFQsLTvsXpxM80eKgxvy3vhBFfT1uIdR7BRhM7VpUW5J7BN9qCbGNgLN5lsnVu7pw==
 
-ngx-disqus@^2.4.3:
-  version "2.4.3"
-  resolved "https://registry.yarnpkg.com/ngx-disqus/-/ngx-disqus-2.4.3.tgz#1080b91cd20771b4499396da06f1431ce8d8bf68"
-  integrity sha512-Fyby5h8LnLuQBW8t8vv1r9XsiMh3+71+gCxhHu6dAhqkjUemeq3PO6DiPGgy+Ojt2aIDIWJd72wq99xDEhHxUg==
-  dependencies:
-    tslib "^1.9.0"
-
 ngx-echarts@^4.0.1:
   version "4.0.1"
   resolved "https://registry.yarnpkg.com/ngx-echarts/-/ngx-echarts-4.0.1.tgz#ace456b7b2a6c4d1a0a3fb5228b54b5dc6910105"

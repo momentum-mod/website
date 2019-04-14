@@ -21,7 +21,6 @@ import {OutgoingModule} from './pages/outgoing/outgoing.module';
 import {MarkdownModule, MarkedOptions} from 'ngx-markdown';
 import {NbDatepickerModule, NbDialogModule} from '@nebular/theme';
 import {ToasterModule} from 'angular2-toaster';
-import {DISQUS_SHORTNAME, DisqusModule} from 'ngx-disqus';
 import {RefreshTokenInterceptorService} from './@core/utils/refresh-token-interceptor.service';
 
 export function tokenGetter() {
@@ -62,7 +61,6 @@ export function tokenGetter() {
         },
       },
     }),
-    DisqusModule.forRoot('momentum-mod'),
     NbDatepickerModule.forRoot(),
     ToasterModule.forRoot(),
     NbDialogModule.forRoot({
@@ -79,7 +77,6 @@ export function tokenGetter() {
   bootstrap: [AppComponent],
   providers: [
     { provide: APP_BASE_HREF, useValue: '/' },
-    { provide: DISQUS_SHORTNAME, useValue: 'momentum-mod' },
     { provide: HTTP_INTERCEPTORS, useClass: RefreshTokenInterceptorService, multi: true },
   ],
 })

@@ -12,7 +12,6 @@ import {NbAccordionModule, NbDialogModule} from '@nebular/theme';
 import {NgxEchartsModule} from 'ngx-echarts';
 import {ToasterModule} from 'angular2-toaster';
 import {MarkdownModule} from 'ngx-markdown';
-import {DisqusModule} from 'ngx-disqus';
 import {FormsModule} from '@angular/forms';
 import {NgxPaginationModule} from 'ngx-pagination';
 
@@ -24,7 +23,6 @@ import {NgxPaginationModule} from 'ngx-pagination';
     NbDialogModule.forChild(),
     ToasterModule.forChild(),
     MarkdownModule.forChild(),
-    DisqusModule,
     FormsModule,
     NgxPaginationModule,
     NotFoundModule,
