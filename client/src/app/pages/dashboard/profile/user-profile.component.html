@@ -102,12 +102,3 @@
   </nb-card>
   <activity-card *ngIf="user" class="col-5" [header]="'USER ACTIVITY'" [userSubj]="userSubj$"></activity-card>
 </div>
-
-<nb-card class="comments-card" *ngIf="user">
-  <nb-card-header>
-    <h2>COMMENTS</h2>
-  </nb-card-header>
-  <nb-card-body>
-    <disqus [url]="'https://momentum-mod.org/dashboard/profile/' + user.id" [identifier]="'users/' + user.id"></disqus>
-  </nb-card-body>
-</nb-card>

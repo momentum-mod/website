@@ -16,7 +16,6 @@ import {HomeUserMapsComponent} from './home/home-user-maps/home-user-maps.compon
 import {HomeUserLibraryComponent} from './home/home-user-library/home-user-library.component';
 import {NgxPaginationModule} from 'ngx-pagination';
 import {RunInfoComponent} from './runs/run-info/run-info.component';
-import {DisqusModule} from 'ngx-disqus';
 
 @NgModule({
   imports: [
@@ -26,7 +25,6 @@ import {DisqusModule} from 'ngx-disqus';
     NbDialogModule.forChild(),
     ToasterModule.forChild(),
     MarkdownModule.forChild(),
-    DisqusModule,
     FormsModule,
     NotFoundModule,
     NgxPaginationModule,

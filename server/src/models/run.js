@@ -238,12 +238,11 @@ const isNewPersonalBest = (resultObj, transact) => {
 		transaction: transact,
 	}).spread((mapRank, created) => {
 		resultObj.mapRank = mapRank;
+		resultObj.createdMapRank = created;
 		if (created) {
-			resultObj.createdMapRank = true;
 			// It's definitely a PB
 			return Promise.resolve(true);
 		} else {
-			resultObj.createdMapRank = false;
 			let isNewPB = !mapRank.run.ticks || (mapRank.run.ticks > resultObj.replay.header.ticks);
 			return Promise.resolve(isNewPB);
 		}

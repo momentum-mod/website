@@ -44,12 +44,3 @@
     </div>
   </nb-card-body>
 </nb-card>
-
-<nb-card>
-  <nb-card-header>
-    <h3>Comments</h3>
-  </nb-card-header>
-  <nb-card-body *ngIf="run">
-    <disqus [url]="'https://momentum-mod.org/dashboard/runs'" [identifier]="'runs/' + run.id"></disqus>
-  </nb-card-body>
-</nb-card>
