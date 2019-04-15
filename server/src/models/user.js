@@ -1,6 +1,6 @@
 'use strict';
 const {
-		sequelize, Op, User, UserAuth, UserStats, Profile, UserFollows, Notification, Activity,
+		sequelize, Op, User, UserAuth, UserStats, Profile, UserFollows, MapCredit, Notification, Activity,
 		DiscordAuth, TwitchAuth, TwitterAuth, Map, UserMapRank, Run
 	} = require('../../config/sqlize'),
 	activity = require('./activity'),
@@ -17,6 +17,7 @@ module.exports = {
 		MAPPER: 1 << 1,
 		MODERATOR: 1 << 2,
 		ADMIN: 1 << 3,
+		PLACEHOLDER: 1 << 4,
 	}),
 
 	Ban: Object.freeze({
@@ -32,6 +33,154 @@ module.exports = {
 		if ((usr.bans & module.exports.Ban.BANNED_AVATAR) === 0)
 			usr.avatarURL = newProfile.avatarURL;
 		return usr.save();
+	},
+
+	createPlaceholder: (alias) => {
+		return User.count({
+			where: {
+				roles: sequelize.literal(`roles & ${module.exports.Role.PLACEHOLDER} != 0`)
+			}
+		}).then(count => {
+			let nMax = count + 1;
+			return User.create({
+				id: nMax,
+				alias: alias,
+				roles: module.exports.Role.PLACEHOLDER,
+				profile: {},
+			}, {
+				include: [
+					Profile,
+				]
+			});
+		});
+	},
+
+	mergeUsers: (body) => {
+		return sequelize.transaction(t => {
+			// First find both users
+			let placeholderUser = null, realUser = null;
+			return User.findById(body.placeholderID, {
+				transaction: t
+			}).then(placeholder => {
+				if (!placeholder)
+					return Promise.reject(new ServerError(400, 'Placeholder user not found!'));
+				else if (placeholder.roles & module.exports.Role.PLACEHOLDER === 0)
+					return Promise.reject(new ServerError(400), 'placeholderID does not represent a placeholder user!');
+
+				placeholderUser = placeholder;
+				return User.findById(body.realID, {
+					transaction: t,
+				});
+			}).then(real => {
+				if (!real)
+					return Promise.reject(new ServerError(400, 'Merging into user not found!'));
+				realUser = real;
+
+				// Can't merge the same user to itself
+				if (placeholderUser.id === realUser.id)
+					return Promise.reject(new ServerError(400, 'Merging the same account is not allowed!'));
+
+				// First we want to update the credits we're featured in to point to the new ID
+				return MapCredit.update({userID: realUser.id}, {
+					where: {
+						userID: placeholderUser.id,
+					},
+					transaction: t,
+				});
+			}).then(() => {
+				// Follows
+				// First edge case: delete the follow entry if the realUser is following the placeholder (can't follow yourself)
+				return UserFollows.destroy({
+					where: {
+						followedID: placeholderUser.id,
+						followeeID: realUser.id,
+					},
+					transaction: t,
+				}).then(() => {
+					// Second edge case: a user is following both placeholder and real user
+					return User.findAll({
+						having: sequelize.literal('count = 2'),
+						group: [sequelize.col('following.followeeID')],
+						attributes: ['id', [sequelize.fn('COUNT', sequelize.col('following.followedID')), 'count']],
+						include: [
+							{
+								model: UserFollows,
+								as: 'following',
+								attributes: ['followeeID', 'followedID', 'createdAt'],
+								where: {
+									followedID: {
+										[Op.or]: [
+											{[Op.eq]: placeholderUser.id},
+											{[Op.eq]: realUser.id},
+										]
+									}
+								}
+							}
+						],
+						transaction: t,
+					}).then(users => {
+						if (users) {
+							const updates = [];
+							for (const u of users) {
+								updates.push(UserFollows.findAll({
+									where: {
+										followeeID: u.id,
+										followedID: {
+											[Op.or]: [
+												{[Op.eq]: placeholderUser.id},
+												{[Op.eq]: realUser.id},
+											]
+										}
+									},
+									transaction: t,
+								}).then(follows => {
+									if (!follows || follows.length !== 2)
+										return Promise.reject(new ServerError(400, 'User somehow not following both!'));
+
+									let realFollow = follows.find(val => val.followedID === realUser.id);
+									let placeholderFollow = follows.find(val => val.followedID === placeholderUser.id);
+									if (realFollow.createdAt.getTime() < placeholderFollow.createdAt.getTime())
+										return placeholderFollow.destroy({transaction: t});
+									else
+										return realFollow.destroy({transaction: t});
+								}));
+							}
+							return Promise.all(updates);
+						}
+						return Promise.resolve();
+					})
+				}).then(() => {
+					// Now we update all of the user follows where we are the followed user
+					return UserFollows.update({followedID: realUser.id}, {
+						where: {
+							followedID: placeholderUser.id,
+						},
+						transaction: t,
+					});
+				});
+			}).then(() => {
+				// Next up, activities
+				return Activity.update({userID: realUser.id}, {
+					where: {
+						userID: placeholderUser.id,
+					},
+					transaction: t,
+				});
+			}).then(() => {
+				// Lastly, delete our placeholder user
+				return placeholderUser.destroy({
+					transaction: t,
+				});
+			});
+		});
+	},
+
+	destroyUser: (id) => {
+		return User.destroy({
+			where: {
+				id: id,
+			}
+		}); // TODO clean up activities with this user?
 	},
 
 	create: (id, profile) => {
@@ -520,6 +669,7 @@ module.exports = {
 					model: Profile,
 				}, {
 					model: UserFollows,
+					as: 'followers',
 					where: {followeeID: userID},
 					attributes: [],
 				}]

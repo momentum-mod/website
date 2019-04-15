@@ -3,8 +3,8 @@
 module.exports = (sequelize, type) => {
 	return sequelize.define('user', {
 		id: {
-			type: type.STRING,
-			primaryKey: true
+			type: type.STRING(20),
+			primaryKey: true,
 		},
 		alias: type.STRING(32),
 		avatar: {
@@ -14,7 +14,8 @@ module.exports = (sequelize, type) => {
 		avatarURL: {
 			type: type.VIRTUAL,
 			get() {
-				return 'https://steamcdn-a.akamaihd.net/steamcommunity/public/images/avatars/' + this.getDataValue('avatar')
+				const val = this.getDataValue('avatar');
+				return val ? `https://steamcdn-a.akamaihd.net/steamcommunity/public/images/avatars/${val}` : null;
 			},
 			set(val) {
 				let newVal = val.replace('https://steamcdn-a.akamaihd.net/steamcommunity/public/images/avatars/', '');
@@ -22,11 +23,11 @@ module.exports = (sequelize, type) => {
 			},
 		},
 		roles: {
-			type: type.INTEGER,
+			type: type.INTEGER.UNSIGNED,
 			defaultValue: 0
 		},
 		bans: {
-			type: type.INTEGER,
+			type: type.INTEGER.UNSIGNED,
 			defaultValue: 0
 		},
 		country: type.STRING(2),

@@ -4,7 +4,7 @@ module.exports = (sequelize, type) => {
 	// Followee follows the followed
 	return sequelize.define('follow', {
 		followeeID: {
-			type: type.STRING,
+			type: type.STRING(20),
 			primaryKey: true,
 			references: {
 				model: 'users',
@@ -12,7 +12,7 @@ module.exports = (sequelize, type) => {
 			}
 		},
 		followedID: {
-			type: type.STRING,
+			type: type.STRING(20),
 			primaryKey: true,
 			references: {
 				model: 'users',

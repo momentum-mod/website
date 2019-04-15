@@ -14,7 +14,7 @@ module.exports = (sequelize, type) => {
 			}
 		},
 		userID: {
-			type: type.STRING,
+			type: type.STRING(20),
 			primaryKey: true,
 			foreignKey: true,
 			references: {

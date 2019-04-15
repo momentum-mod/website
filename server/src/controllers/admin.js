@@ -7,6 +7,24 @@ const user = require('../models/user'),
 
 module.exports = {
 
+	createUser: (req, res, next) => {
+		user.createPlaceholder(req.body.alias).then(usr => {
+			res.json(usr);
+		}).catch(next);
+	},
+
+	deleteUser: (req, res, next) => {
+		user.destroyUser(req.params.userID).then(() => {
+			res.sendStatus(200);
+		}).catch(next);
+	},
+
+	mergeUsers: (req, res, next) => {
+		user.mergeUsers(req.body).then(() => {
+			res.sendStatus(200);
+		}).catch(next);
+	},
+
 	updateUser: (req, res, next) => {
 		user.updateAsAdmin(req.user, req.params.userID, req.body).then(() => {
 			res.sendStatus(204);

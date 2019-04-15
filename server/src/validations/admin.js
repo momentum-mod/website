@@ -15,6 +15,19 @@ module.exports = {
 		}).unknown(false),
 	},
 
+	createUser: {
+		body: Joi.object().keys({
+			alias: validation.user.alias,
+		}),
+	},
+
+	mergeUsers: {
+		body: Joi.object().keys({
+			placeholderID: validation.user.id,
+			realID: validation.user.id,
+		})
+	},
+
 	updateAllUserStats: {
 		body: Joi.object().keys({
 			cosXP: validation.userStats.cosXP,

@@ -84,4 +84,32 @@ export class AdminService {
     return this.http.put('/api/admin/xpsys', xpSystems);
   }
 
+  /**
+   * Creates a placeholder user
+   * @param alias The params of the user to use.
+   */
+  createUser(alias: string): Observable<any> {
+    return this.http.post('/api/admin/users', {alias: alias});
+  }
+
+  /**
+   * Deletes a user.
+   * @param id The ID of the user to delete
+   */
+  deleteUser(id: string): Observable<any> {
+    return this.http.delete(`/api/admin/users/${id}`, {
+      responseType: 'text',
+    });
+  }
+
+  /**
+   * Merges a placeholder user to a real user.
+   * @param placeholder The placeholder user
+   * @param realUser The real user
+   */
+  mergeUsers(placeholder: User, realUser: User): Observable<any> {
+    return this.http.post('/api/admin/users/merge', {placeholderID: placeholder.id, realID: realUser.id}, {
+      responseType: 'text',
+    });
+  }
 }

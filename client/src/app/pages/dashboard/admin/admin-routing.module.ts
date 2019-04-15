@@ -5,6 +5,7 @@ import {MapQueueComponent} from './map-queue/map-queue.component';
 import {AdminComponent} from './admin.component';
 import {ReportQueueComponent} from './report-queue/report-queue.component';
 import {UtilitiesComponent} from './utilities/utilities.component';
+import {XPSystemComponent} from './xp-system/xp-system.component';
 
 const routes: Routes = [
   {
@@ -23,8 +24,11 @@ const routes: Routes = [
       },
       {
         path: 'utilities',
-        pathMatch: 'full',
         component: UtilitiesComponent,
+      },
+      {
+        path: 'xp-systems',
+        component: XPSystemComponent,
       },
       {
         path: '**',

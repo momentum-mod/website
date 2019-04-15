@@ -12,11 +12,12 @@ import {UserFollowObject} from '../../../@core/models/follow.model';
 import {ReportType} from '../../../@core/models/report-type.model';
 
 @Component({
-  selector: 'ngx-user-profile',
+  selector: 'user-profile',
   templateUrl: './user-profile.component.html',
   styleUrls: ['./user-profile.component.scss'],
 })
 export class UserProfileComponent implements OnInit {
+  role: typeof Role;
   ReportType: typeof ReportType;
   userSubj$: ReplaySubject<User>;
   user: User;
@@ -36,6 +37,7 @@ export class UserProfileComponent implements OnInit {
               private usersService: UsersService,
               private toastService: ToasterService) {
     this.ReportType = ReportType;
+    this.role = Role;
     this.isLocal = true;
     this.userSubj$ = new ReplaySubject<User>(1);
     this.isMapper = false;
@@ -74,7 +76,7 @@ export class UserProfileComponent implements OnInit {
       this.isAdmin = this.hasRole(Role.ADMIN);
       this.isVerified = this.hasRole(Role.VERIFIED);
       this.userSubj$.next(usr);
-      if (!this.hasBan(Ban.BANNED_AVATAR)) {
+      if (!this.hasBan(Ban.BANNED_AVATAR) && this.user.avatarURL) {
         this.avatar_url = this.user.avatarURL;
       }
       this.avatar_loaded = true;
