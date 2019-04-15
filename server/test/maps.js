@@ -24,19 +24,19 @@ describe('maps', () => {
 	let adminAccessToken = null;
 	let adminGameAccessToken = null;
 	const testUser = {
-		id: '00000000000000001',
+		id: '65465432154',
 		roles: user.Role.VERIFIED | user.Role.MAPPER,
         bans: 0,
 		country: 'US',
 	};
     const testAdmin = {
-        id: '00000000000000003',
+        id: '54132121685476543',
         roles: user.Role.ADMIN,
         bans: 0,
 	    country: 'US',
     };
     const testAdminGame = {
-        id: '00000000000000002',
+        id: '5416876413213874',
         roles: user.Role.ADMIN,
         bans: 0,
 	    country: 'US',
@@ -172,7 +172,7 @@ describe('maps', () => {
                 adminGameAccessToken = token;
                 return User.create(testAdminGame);
             })
-            .then(user => {
+            .then(() => {
                 return Map.create(testMap, {
                     include: [
                     	{ model: MapInfo, as: 'info' },
@@ -182,7 +182,7 @@ describe('maps', () => {
                     ]
                 })
             })
-            .then(user => {
+            .then(() => {
                 return Map.create(testMap2, {
                     include: [
                         { model: MapInfo, as: 'info',},
@@ -191,7 +191,7 @@ describe('maps', () => {
                     ]
                 })
             })
-            .then(user => {
+            .then(() => {
                 return Map.create(testMap3, {
                     include: [
                         {  model: MapInfo, as: 'info',},
@@ -199,7 +199,7 @@ describe('maps', () => {
                     ]
                 })
             })
-			.then(user => {
+			.then(() => {
                 return Map.create(uniMap, {
                     include: [
                         { model: MapInfo, as: 'info',},
@@ -524,9 +524,6 @@ describe('maps', () => {
             });
 		});
 
-
-
-
 		describe('GET /api/maps/{mapID}/info', () => {
 			it('should respond with map info', () => {
 				return chai.request(server)
@@ -566,7 +563,6 @@ describe('maps', () => {
             });
 
 		});
-
 
         describe('PATCH /api/maps/{mapID}/info', () => {
             it('should respond with map info', () => {

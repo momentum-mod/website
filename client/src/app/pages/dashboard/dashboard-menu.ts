@@ -85,6 +85,10 @@ export const MENU_ITEMS: NbMenuItem[] = [
         title: 'Utilities',
         link: '/dashboard/admin/utilities',
       },
+      {
+        title: 'XP Systems',
+        link: '/dashboard/admin/xp-systems',
+      },
     ],
   },
 ];

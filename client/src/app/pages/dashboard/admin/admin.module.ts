@@ -12,6 +12,7 @@ import { QueuedReportComponent } from './report-queue/queued-report/queued-repor
 import {UpdateReportDialogComponent} from './report-queue/update-report-dialog/update-report-dialog.component';
 import {NbDialogModule} from '@nebular/theme';
 import { UtilitiesComponent } from './utilities/utilities.component';
+import { XPSystemComponent } from './xp-system/xp-system.component';
 
 @NgModule({
   imports: [
@@ -29,6 +30,7 @@ import { UtilitiesComponent } from './utilities/utilities.component';
     QueuedReportComponent,
     UpdateReportDialogComponent,
     UtilitiesComponent,
+    XPSystemComponent,
   ],
   providers: [],
   entryComponents: [UpdateReportDialogComponent],

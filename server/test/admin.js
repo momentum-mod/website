@@ -20,17 +20,17 @@ describe('admin', () => {
 	let adminAccessToken = null;
 	let adminGameAccessToken = null;
 	const testUser = {
-		id: '00000000000000001',
+		id: '1254652365',
 		roles: user.Role.VERIFIED,
 		bans: 0,
 	};
 	const testAdmin = {
-		id: '00000000000000002',
+		id: '9856321549856',
 		roles: user.Role.ADMIN,
 		bans: 0,
 	};
 	const testAdminGame = {
-		id: '00000000000000003',
+		id: '5698752164498',
 		roles: user.Role.ADMIN,
 		bans: 0,
 	};
@@ -283,6 +283,10 @@ describe('admin', () => {
 			}).then(() => {
 				// Create our default XP systems table if we don't already have it
 				return xpSystems.initXPSystems(XPSystems);
+			}).then(() => {
+				return user.createPlaceholder('Placeholder1');
+			}).then(() => {
+				return user.createPlaceholder('Placeholder2');
 			});
 	});
 
@@ -297,13 +301,56 @@ describe('admin', () => {
 
 	describe('endpoints', () => {
 
+		describe('POST /api/admin/users', () => {
+			it('should create a placeholder user', () => {
+				return chai.request(server)
+					.post('/api/admin/users')
+					.set('Authorization', 'Bearer ' + adminAccessToken)
+					.send({
+						alias: 'Placeholder3'
+					})
+					.then(res => {
+						expect(res).to.have.status(200);
+						expect(res).to.be.json;
+						expect(res.body).to.have.property('alias');
+						expect(res.body.alias).equal('Placeholder3');
+					});
+			});
+		});
+
+		describe('POST /api/admin/users/merge', () => {
+			it('should merge two accounts together', () => {
+				return chai.request(server)
+					.post('/api/admin/users/merge')
+					.set('Authorization', 'Bearer ' + adminAccessToken)
+					.send({
+						placeholderID: '1',
+						realID: '2',
+					})
+					.then(res => {
+						expect(res).to.have.status(200);
+					});
+			})
+		});
+
+		describe('DELETE /api/admin/users/{userID}', () => {
+			it('should delete a user', () => {
+				return chai.request(server)
+					.delete('/api/admin/users/3')
+					.set('Authorization', 'Bearer ' + adminAccessToken)
+					.then(res => {
+						expect(res).to.have.status(200);
+					});
+			})
+		});
+
 		describe('PATCH /api/admin/users/{userID}', () => {
 			it('should respond with 403 when not an admin', () => {
 				return chai.request(server)
 					.patch('/api/admin/users/' + testUser.id)
 					.set('Authorization', 'Bearer ' + accessToken)
 					.send({
-						permissions: user.Permission.BANNED_BIO
+						bans: user.Ban.BANNED_BIO
 					})
 					.then(res => {
 						expect(res).to.have.status(403);
@@ -318,7 +365,7 @@ describe('admin', () => {
 					.patch('/api/admin/users/' + testUser.id)
 					.set('Authorization', 'Bearer ' + adminGameAccessToken)
 					.send({
-						permissions: user.Permission.BANNED_BIO
+						bans: user.Ban.BANNED_BIO
 					})
 					.then(res => {
 						expect(res).to.have.status(403);
@@ -334,7 +381,7 @@ describe('admin', () => {
 					.patch('/api/admin/users/' + testUser.id)
 					.set('Authorization', 'Bearer ' + adminAccessToken)
 					.send({
-						permissions: user.Permission.BANNED_BIO
+						bans: user.Ban.BANNED_BIO
 					})
 					.then(res => {
 						expect(res).to.have.status(204);
@@ -490,7 +537,7 @@ describe('admin', () => {
 						expect(res.body.maps).to.be.an('array');
 						expect(res.body.maps).to.have.length(7);
 						expect(res.body.maps[0]).to.have.property('name');
-						expect(res.body.maps[0].submitter).to.have.property('permissions');
+						expect(res.body.maps[0].submitter).to.have.property('roles');
 					});
 			});
 

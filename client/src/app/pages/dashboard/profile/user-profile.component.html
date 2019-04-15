@@ -33,7 +33,7 @@
                 <img src="assets/images/badges/BadgeAdmin.png" nbPopover="Admin" nbPopoverTrigger="hint" nbPopoverPlacement="bottom">
               </div>
             </div>
-            <div class="user-rank">
+            <div class="user-rank" *ngIf="!hasRole(role.PLACEHOLDER)">
               <span class="text"><h5>Level {{user.stats?.level}}</h5></span>
             </div>
           </div>
@@ -41,7 +41,7 @@
         <div class="row">
           <div class="col">
             <div class="socials">
-              <a href="https://steamcommunity.com/profiles/{{user.id}}" target="_blank" class="ion ion-steam"></a>
+              <a *ngIf="!hasRole(role.PLACEHOLDER)" href="https://steamcommunity.com/profiles/{{user.id}}" target="_blank" class="ion ion-steam"></a>
               <a *ngIf="user.profile?.twitchAuth" href="https://twitch.tv/{{user.profile?.twitchAuth.displayName}}"
                  target="_blank" class="ion ion-social-twitch"></a>
               <a *ngIf="user.profile?.twitterAuth" href="https://twitter.com/{{user.profile.twitterAuth.displayName}}"
@@ -66,7 +66,7 @@
           <span class="no-bio" *ngIf="!user.profile?.bio || user.profile?.bio?.length === 0"><h5><i>No bio found</i></h5></span>
           <markdown *ngIf="user.profile?.bio?.length > 0" [data]="user?.profile?.bio" ngPreserveWhitespaces></markdown>
         </nb-tab>
-        <nb-tab [tabTitle]="'FOLLOWING (' + followingUsers.length + ')'">
+        <nb-tab [tabTitle]="'FOLLOWING (' + followingUsers.length + ')'" *ngIf="!hasRole(role.PLACEHOLDER)">
           <h5 class="text-center" *ngIf="followingUsers.length === 0"><i>Not following anyone</i></h5>
           <nb-list>
             <nb-list-item *ngFor="let usr of followingUsers">
@@ -91,7 +91,7 @@
             <div class="spacing"><h5>Cosmetic XP </h5> <p>{{user.stats.cosXP}}</p></div>
           </div>
         </nb-tab>
-        <nb-tab tabTitle="RUNS">
+        <nb-tab tabTitle="RUNS" *ngIf="!hasRole(role.PLACEHOLDER)">
           <profile-run-history [userSubj]="userSubj$"></profile-run-history>
         </nb-tab>
         <nb-tab tabTitle="CREDITS">

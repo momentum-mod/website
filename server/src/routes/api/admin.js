@@ -7,14 +7,24 @@ const express = require('express'),
 	reportsValidation = require('../../validations/reports'),
 	mapsValidation = require('../../validations/maps'),
 	errorCtrl = require('../../controllers/error'),
-	adminCtrl = require('../../controllers/admin');
+	adminCtrl = require('../../controllers/admin'),
+	authMiddleware = require("../../middlewares/auth");
+
+router.route('/users')
+	.post([authMiddleware.requireAdmin, validate(adminValidation.createUser)], adminCtrl.createUser)
+	.all(errorCtrl.send405);
+
+router.route('/users/merge')
+	.post([authMiddleware.requireAdmin, validate(adminValidation.mergeUsers)], adminCtrl.mergeUsers)
+	.all(errorCtrl.send405);
 
 router.route('/users/:userID')
 	.patch(validate(adminValidation.updateUser), adminCtrl.updateUser)
+	.delete(authMiddleware.requireAdmin, adminCtrl.deleteUser)
 	.all(errorCtrl.send405);
 
 router.route('/user-stats')
-	.patch(validate(adminValidation.updateAllUserStats), adminCtrl.updateAllUserStats)
+	.patch([authMiddleware.requireAdmin, validate(adminValidation.updateAllUserStats)], adminCtrl.updateAllUserStats)
 	.all(errorCtrl.send405);
 
 router.route('/maps')
@@ -36,7 +46,7 @@ router.route('/reports/:reportID')
 
 router.route('/xpsys')
 	.get(adminCtrl.getXPSystems)
-	.put(validate(adminValidation.updateXPSystems), adminCtrl.updateXPSystems)
+	.put([authMiddleware.requireAdmin, validate(adminValidation.updateXPSystems)], adminCtrl.updateXPSystems)
 	.all(errorCtrl.send405);
 
 router.param('userID', validate(usersValidation.urlParamID));

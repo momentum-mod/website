@@ -14,6 +14,7 @@ import {ToasterModule} from 'angular2-toaster';
 import {MarkdownModule} from 'ngx-markdown';
 import {FormsModule} from '@angular/forms';
 import {NgxPaginationModule} from 'ngx-pagination';
+import {UserModule} from '../user/user.module';
 
 @NgModule({
   imports: [
@@ -27,6 +28,7 @@ import {NgxPaginationModule} from 'ngx-pagination';
     NgxPaginationModule,
     NotFoundModule,
     ProfileRoutingModule,
+    UserModule,
   ],
   declarations: [
     ProfileComponent,

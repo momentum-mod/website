@@ -189,7 +189,7 @@ module.exports = {
 						+ (queryParams.priority ? ' != ' : ' = ') + '0')
 				);
 			}
-			queryOptions.include[1].where.roles = {
+			queryOptions.include[2].where.roles = {
 				[queryParams.priority ? Op.or : Op.and]: permChecks
 			};
 		}

@@ -11,7 +11,7 @@ const { forceSyncDB, User } = require('../config/sqlize'),
 
 chai.use(chaiHttp);
 
-describe('activities', () => {
+describe('stats', () => {
 
     let accessToken = null;
     let adminAccessToken = null;

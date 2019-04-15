@@ -91,7 +91,7 @@
         </nb-tab>
         <nb-tab *ngIf="isAdmin && user" [formGroup]="adminEditFg" tabTitle="ADMIN USER SETTINGS">
           <div class="row">
-            <div class="col">
+            <div class="col-4">
               <h2>Bans</h2>
               <nb-checkbox (change)="toggleBan(Ban.BANNED_ALIAS)" formControlName="banAlias">Ban changing alias</nb-checkbox>
               <br/>
@@ -103,7 +103,7 @@
                 Ban submitting to leaderboards
               </nb-checkbox>
             </div>
-            <div class="col">
+            <div class="col-4">
               <h2>Roles</h2>
               <nb-checkbox (change)="toggleRole(Role.VERIFIED)" formControlName="verified">Verified</nb-checkbox>
               <br/>
@@ -112,6 +112,23 @@
               <nb-checkbox *ngIf="isAdmin" (change)="toggleRole(Role.MODERATOR)" formControlName="moderator">Moderator</nb-checkbox>
               <br/>
               <nb-checkbox *ngIf="isAdmin" (change)="toggleRole(Role.ADMIN)" formControlName="admin">Admin</nb-checkbox>
+            </div>
+            <div class="col-4" *ngIf="isAdmin">
+              <button class="mb-lg-5" type="button" nbButton outline status="danger" (click)="deleteUser()">Delete User</button>
+              <div class="row">
+                <div class="col">
+                  <label>
+                    Merge to Real User:
+                    <user-search (selectedUserEmit)="selectMergeUser($event)" *ngIf="!mergeUser"></user-search>
+                    <span *ngIf="mergeErr" class="text-danger">{{mergeErr}}</span>
+                    <nb-user [name]="mergeUser.alias" [picture]="mergeUser.avatarURL" *ngIf="mergeUser"></nb-user>
+                  </label>
+                  <div *ngIf="mergeUser">
+                    <button type="button" nbButton outline status="info" (click)="cancelMerge()">Cancel</button>
+                    <button type="button" nbButton outline status="danger" (click)="mergeUsers()">Merge To User</button>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
         </nb-tab>

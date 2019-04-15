@@ -130,10 +130,11 @@ Map.hasOne(UserMapRank, { as: 'personalBest', foreignKey: 'mapID', constraints: 
 Map.hasOne(UserMapRank, { as: 'worldRecord', foreignKey: 'mapID', constraints: false});
 MapFavorite.belongsTo(Map, { as: 'map', foreignKey: 'mapID' });
 MapCredit.belongsTo(Map, { as: 'map', foreignKey: 'mapID'});
-UserFollows.belongsTo(User, { as: 'followee', foreignKey: 'followeeID' });
-UserFollows.belongsTo(User, { as: 'followed', foreignKey: 'followedID' });
+UserFollows.belongsTo(User, { as: 'followee', foreignKey: 'followeeID', onDelete: 'CASCADE' });
+UserFollows.belongsTo(User, { as: 'followed', foreignKey: 'followedID', onDelete: 'CASCADE' });
 Notification.belongsTo(User, { as: 'forUser', foreignKey: 'forUserID' });
-User.hasMany(UserFollows, { foreignKey: 'followedID', onDelete: 'CASCADE' });
+User.hasMany(UserFollows, { as: 'followers', foreignKey: 'followedID', onDelete: 'CASCADE' });
+User.hasMany(UserFollows, { as: 'following', foreignKey: 'followeeID', onDelete: 'CASCADE' });
 Activity.hasMany(Notification, { as: 'notifications', foreignKey: 'activityID', onDelete: 'CASCADE'});
 Notification.belongsTo(Activity, { as: 'activity', foreignKey: 'activityID'});
 UserBadge.belongsTo(Badge, { as: 'badge', foreignKey: 'badgeID'});
