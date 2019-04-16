@@ -42,7 +42,6 @@ const sequelize = new Sequelize({
 	password: config.db.password,
 	host: config.db.host,
 	logging: config.db.logging,
-	operatorsAliases: false,
 	dialect: 'mysql',
 	define: { // TODO: consider definition to be at column/table level?
 		charset: 'utf8',

@@ -20,7 +20,7 @@ module.exports = {
 	},
 
 	refreshToken: (userID, refreshToken) => {
-		return User.findById(userID, {
+		return User.findByPk(userID, {
 			include: [{
 				model: UserAuth,
 				as: 'auth',

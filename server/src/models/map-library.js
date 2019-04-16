@@ -127,7 +127,7 @@ module.exports = {
 	},
 
 	isMapInLibrary: (userID, mapID) => {
-		return MapLibraryEntry.find({
+		return MapLibraryEntry.findOne({
 			where: {
 				userID: userID,
 				mapID: mapID,

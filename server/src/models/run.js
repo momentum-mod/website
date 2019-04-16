@@ -614,7 +614,7 @@ module.exports = {
 			xp: {},
 		};
 		return sequelize.transaction(t => {
-			return Map.findById(mapID, {
+			return Map.findByPk(mapID, {
 				include: [
 					{model: MapInfo, as: 'info'},
 					{model: MapStats, as: 'stats', include: [{model: BaseStats, as: 'baseStats'}]}
@@ -694,11 +694,11 @@ module.exports = {
 		if (queryParams.mapID)
 			queryOptions.where.mapID = queryParams.mapID;
         queryHelper.addExpansions(queryOptions, queryParams.expand, ['user', 'map', 'mapWithInfo', 'runStats', 'runZoneStats', 'rank']);
-		return Run.findById(runID, queryOptions);
+		return Run.findByPk(runID, queryOptions);
 	},
 
 	getFilePath: (runID) => {
-		return Run.findById(runID).then(run => {
+		return Run.findByPk(runID).then(run => {
 			const runFilePath = __dirname + '/../../public/runs/' + runID;
 			return Promise.resolve(run ? runFilePath : '');
 		});

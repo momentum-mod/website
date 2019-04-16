@@ -60,7 +60,7 @@ module.exports = {
 
 	create: (mapID, mapImageFile) => {
 		let mapModel = null;
-		return Map.findById(mapID, {
+		return Map.findByPk(mapID, {
 			raw: true
 		}).then(map => {
 			if (map) {
@@ -92,14 +92,14 @@ module.exports = {
 	},
 
 	get: (imgID) => {
-		return MapImage.findById(imgID, {
+		return MapImage.findByPk(imgID, {
 			raw: true,
 		});
 	},
 
 	update: (imgID, mapImageFile) => {
 		let mapImageModel = null;
-		return MapImage.findById(imgID).then(mapImage => {
+		return MapImage.findByPk(imgID).then(mapImage => {
 			if (mapImage) {
 				mapImageModel = mapImage;
 				return storeMapImage(mapImageFile, imgID);
@@ -133,7 +133,7 @@ module.exports = {
 	updateThumbnail: (mapID, mapImageFile) => {
 		let mapModel = null;
 		let thumbnailImageModel = null;
-		return Map.findById(mapID, {
+		return Map.findByPk(mapID, {
 			include: [{ model: MapImage, as: 'thumbnail' }],
 		}).then(map => {
 			if (map) {

@@ -7,7 +7,7 @@ const {
 module.exports = {
 
 	getUserFavorite: (userID, mapID) => {
-		return MapFavorite.find({
+		return MapFavorite.findOne({
 			where: {
 				userID: userID,
 				mapID: mapID,
