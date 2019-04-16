@@ -1,6 +1,7 @@
 import {Component, Input, OnInit} from '@angular/core';
 import {MapCredit} from '../../../../../@core/models/map-credit.model';
 import {MapCreditType} from '../../../../../@core/models/map-credit-type.model';
+import {MomentumMap} from '../../../../../@core/models/momentum-map.model';
 
 @Component({
   selector: 'map-info-credits',
@@ -9,7 +10,7 @@ import {MapCreditType} from '../../../../../@core/models/map-credit-type.model';
 })
 export class MapInfoCreditsComponent implements OnInit {
 
-  @Input('map') map;
+  @Input('map') map: MomentumMap;
   Map_Credit_Type: typeof MapCreditType = MapCreditType;
 
   constructor() {}

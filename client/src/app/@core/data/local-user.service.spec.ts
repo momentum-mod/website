@@ -32,7 +32,8 @@ describe('LocalUserService', () => {
 
   beforeEach(async(() => {
     expectedUser = {
-      id: '76561198131664084',
+      id: 1,
+      steamID: '76561198131664084',
       avatarURL: '',
       alias: 'cjshiner',
       country: 'US',
@@ -60,7 +61,7 @@ describe('LocalUserService', () => {
       count: 2,
       entries: [{
         id: 1,
-        userID: '76561198131664084',
+        userID: 1,
         mapID: 9,
         map: expectedMap,
       }],

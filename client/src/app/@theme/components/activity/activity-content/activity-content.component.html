@@ -13,6 +13,6 @@
     <i [class]="activityIcon"></i>
   </div>
   <div class="col-auto text date" [ngClass]="dateAbs ? 'date-abs' : ''">
-    <span>{{activity.createdAt | timeAgo}}</span>
+    <span>{{activity.createdAt.toString() | timeAgo}}</span>
   </div>
 </div>

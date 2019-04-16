@@ -28,7 +28,8 @@ describe('MapEditComponent', () => {
     hash: '',
     statusFlag: MapUploadStatus.APPROVED,
     submitter: {
-      id: '2',
+      id: 2,
+      steamID: '2',
       alias: 'dude',
       avatarURL: 'IJJJ',
       roles: 0,

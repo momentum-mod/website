@@ -16,7 +16,8 @@ describe('stats', () => {
     let accessToken = null;
     let adminAccessToken = null;
     const testUser = {
-        id: '76561198131664084',
+    	id: 1,
+        steamID: '76561198131664084',
         roles: 0,
         bans: 0,
         profile: {

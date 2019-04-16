@@ -17,7 +17,8 @@ describe('UsersService', () => {
     httpClientSpy = jasmine.createSpyObj('HttpClient', ['get', 'patch']);
     usersService = new UsersService(<any> httpClientSpy);
     expectedUser = {
-      id: '1',
+      id: 1,
+      steamID: '1',
       alias: 'test1',
       avatarURL: 'url',
       country: 'US',
@@ -33,7 +34,8 @@ describe('UsersService', () => {
       users: [
         expectedUser,
         {
-          id: '2',
+          id: 2,
+          steamID: '2',
           alias: 'test2',
           avatarURL: 'url1',
           country: 'US',
@@ -75,7 +77,7 @@ describe('UsersService', () => {
     });
     it('#getUser() should return expected user ID', () => {
       httpClientSpy.get.and.returnValue(of(expectedUser));
-      usersService.getUser('userID').subscribe(value =>
+      usersService.getUser(1).subscribe(value =>
           expect(value).toEqual(expectedUser, 'expected user'),
         fail,
       );

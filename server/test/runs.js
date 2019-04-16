@@ -22,17 +22,20 @@ describe('runs', () => {
     let adminAccessToken = null;
     let adminGameAccessToken = null;
     const testUser = {
-        id: '00000000000000001',
+    	id: 1,
+        steamID: '00000000000000001',
         roles: user.Role.VERIFIED,
         bans: 0,
     };
     const testAdmin = {
-        id: '00000000000000002',
+    	id: 2,
+        steamID: '00000000000000002',
         roles: user.Role.ADMIN,
         bans: 0,
     };
     const testAdminGame = {
-        id: '00000000000000003',
+    	id: 3,
+        steamID: '00000000000000003',
         roles: user.Role.ADMIN,
         bans: 0,
     };

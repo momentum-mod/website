@@ -25,7 +25,7 @@ export interface MomentumMap {
   favorites?: MapFavorite[];
   libraryEntries?: MapLibraryEntry[];
   downloadURL?: string;
-  submitterID?: string;
+  submitterID?: number;
   submitter?: User;
   tracks?: MapTrack[];
   mainTrack?: MapTrack;

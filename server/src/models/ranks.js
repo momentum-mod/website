@@ -70,9 +70,11 @@ module.exports = {
 	getAll: (queryParams) => {
 		const queryOptions = {
 			distinct: true,
-			where: { flags: 0 },
+			where: {
+				flags: 0,
+			},
 			limit: 10,
-			include: [Run, User],
+			include: [Run, {model: User, where: {}}],
 			order: [['rank', 'ASC']],
 		};
 		if (queryParams.limit)
@@ -82,9 +84,9 @@ module.exports = {
 		if (queryParams.mapID)
 			queryOptions.where.mapID = queryParams.mapID;
 		if (queryParams.playerID)
-			queryOptions.where.userID = queryParams.playerID;
+			queryOptions.include[1].where.steamID = queryParams.playerID;
 		if (queryParams.playerIDs)
-			queryOptions.where.userID = { [Op.in]: queryParams.playerIDs.split(',') };
+			queryOptions.include[1].where.steamID = { [Op.in]: queryParams.playerIDs.split(',') };
 		if (queryParams.flags)
 			queryOptions.where.flags = parseInt(queryParams.flags) || 0;
 		if (queryParams.order) {

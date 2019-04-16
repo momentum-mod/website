@@ -10,10 +10,11 @@ export interface Run {
   zoneNum: number;
   tickRate: number;
   ticks: number;
+  time: number; // Virtual column of tickRate * ticks
   flags: number;
   file: string;
   mapID: number;
-  playerID: string;
+  playerID: number;
   createdAt: Date; // aka dateAchieved
   updatedAt?: Date;
   user?: User;

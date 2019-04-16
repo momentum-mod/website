@@ -18,6 +18,8 @@ module.exports = {
 
 	getAll: {
 		query: Joi.object().keys({
+			playerID: validation.user.steamID,
+			playerIDs: validation.queryParam.playerIDs,
 			limit: validation.queryParam.limit,
 			offset: validation.queryParam.offset,
 			search: validation.queryParam.search,

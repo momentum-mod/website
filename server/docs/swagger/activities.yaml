@@ -53,7 +53,7 @@ definitions:
         format: date-time
         readOnly: true
       userID:
-        type: string
+        type: integer
         readOnly: true
       user:
         allOf:

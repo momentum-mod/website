@@ -15,9 +15,10 @@ describe('ActivityService', () => {
       activities: [{
         id: 1,
         type: Activity_Type.MAP_UPLOADED,
-        userID: '828288828528',
+        userID: 1,
         user: {
-          id: '828288828528',
+          id: 1,
+          steamID: '828288828528',
           alias: 'Spooderman',
           avatarURL: '',
           roles: 0,
@@ -40,7 +41,7 @@ describe('ActivityService', () => {
   });
     it('#getUserActivity() should return user Activity', () => {
       httpClientSpy.get.and.returnValue(of(expectedActivities));
-      activityService.getUserActivity('userID').subscribe(value =>
+      activityService.getUserActivity(1).subscribe(value =>
           expect(value).toEqual(expectedActivities, 'expected activity'),
         fail,
       );

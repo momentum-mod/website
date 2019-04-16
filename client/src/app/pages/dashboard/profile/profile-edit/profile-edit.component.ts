@@ -75,9 +75,10 @@ export class ProfileEditComponent implements OnInit {
       this.route.paramMap.pipe(
         switchMap((params: ParamMap) => {
             if (params.has('id')) {
-              this.isLocal = params.get('id') === locUsr.id;
+              const numID: number = Number(params.get('id'));
+              this.isLocal = numID === locUsr.id;
               if (!this.isLocal) {
-                return this.usersService.getUser(params.get('id'), {
+                return this.usersService.getUser(numID, {
                   params: { expand: 'profile' },
                 });
               }
@@ -86,7 +87,7 @@ export class ProfileEditComponent implements OnInit {
             return of(locUsr);
           },
         ),
-      ).subscribe(usr => {
+      ).subscribe((usr: User) => {
         this.user = usr;
         this.profileEditFormGroup.patchValue(usr);
         this.checkUserPermissions();

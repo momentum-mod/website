@@ -84,7 +84,7 @@ const validateRunFile = (resultObj) => {
 
 		const b1 = resultObj.bin.ok,
 			b2 = replay.magic === magicLE,
-			b3 = replay.header.steamID === resultObj.playerID,
+			b3 = replay.header.steamID === resultObj.steamID,
 			b4 = replay.header.mapHash === resultObj.map.hash,
 			b5 = replay.header.mapName === resultObj.map.name,
 			b6 = replay.header.stopTick > replay.header.startTick,
@@ -184,7 +184,7 @@ const processRunFile = (resultObj) => {
 
 			resultObj.runModel = {
 				mapID: resultObj.map.id,
-				playerID: resultObj.playerID,
+				playerID: resultObj.userID,
 				trackNum: resultObj.replay.header.trackNum,
 				zoneNum: resultObj.replay.header.zoneNum,
 				ticks: resultObj.replay.header.ticks,
@@ -225,7 +225,7 @@ const storeRunFile = (resultObj, runID) => {
 const isNewPersonalBest = (resultObj, transact) => {
 	const attrs = {
 		mapID: resultObj.map.id,
-		userID: resultObj.playerID,
+		userID: resultObj.userID,
 		gameType: resultObj.map.type,
 		trackNum: resultObj.replay.header.trackNum,
 		zoneNum: resultObj.replay.header.zoneNum,
@@ -302,7 +302,7 @@ const saveRun = (resultObj, transact) => {
 			return Promise.resolve();
 		return activity.create({
 			type: activity.ACTIVITY_TYPES.PB_ACHIEVED,
-			userID: resultObj.playerID,
+			userID: resultObj.userID,
 			data: runModel.id,
 		}, transact);
 	}).then(() => { // Generate WR notifications if needed
@@ -310,7 +310,7 @@ const saveRun = (resultObj, transact) => {
 			return Promise.resolve();
 		return activity.create({
 			type: activity.ACTIVITY_TYPES.WR_ACHIEVED,
-			userID: resultObj.playerID,
+			userID: resultObj.userID,
 			data: runModel.id,
 		}, transact);
 	}).then(() => {
@@ -352,7 +352,7 @@ const updateStats = (resultObj, transaction) => {
 	return Run.findOne({
 		where: {
 			mapID: resultObj.map.id,
-			playerID: resultObj.playerID,
+			playerID: resultObj.userID,
 			trackNum: resultObj.replay.header.trackNum,
 			zoneNum: 0,
 		},
@@ -374,7 +374,7 @@ const updateStats = (resultObj, transaction) => {
 					model: Run,
 					where: {
 						mapID: resultObj.map.id,
-						playerID: resultObj.playerID,
+						playerID: resultObj.userID,
 					}
 				}],
 				transaction: transaction,
@@ -528,7 +528,7 @@ const updateStats = (resultObj, transaction) => {
 						userID: {
 							// Because we go below (and including) our new rank, we gotta
 							// filter out ourselves.
-							[Op.ne]: resultObj.playerID,
+							[Op.ne]: resultObj.userID,
 						},
 						rank: rankSearch,
 					},
@@ -556,7 +556,7 @@ const updateStats = (resultObj, transaction) => {
 		});
 
 		return UserStats.findOne({
-			where: {userID: resultObj.playerID},
+			where: {userID: resultObj.userID},
 			transaction: transaction,
 		}).then(userStats => {
 			if (!userStats)
@@ -597,7 +597,7 @@ const Flag = Object.freeze({
 
 module.exports = {
 
-	create: (mapID, userID, runFile) => {
+	create: (mapID, userMdl, runFile) => {
 		if (runFile.length === 0) {
 			return Promise.reject(new ServerError(400, 'Bad request'));
 		}
@@ -608,7 +608,8 @@ module.exports = {
 				offset: 0,
 				ok: true,
 			},
-			playerID: userID,
+			userID: userMdl.id,
+			steamID: userMdl.steamID,
 			mapRank: null,
 			xp: {},
 		};

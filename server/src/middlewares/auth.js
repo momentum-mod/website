@@ -26,24 +26,24 @@ module.exports = {
 
 	// Requires requireLogin to be called before
 	requireAdmin: (req, res, next) => {
-		const isAdmin = req.user && (req.user.roles & user.Role.ADMIN);
+		const isAdmin = req.user && ((req.user.roles & user.Role.ADMIN) !== 0);
 		if (isAdmin)
 			return next();
 		next(new ServerError(403, 'Forbidden'));
 	},
 
 	requirePower: (req, res, next) => {
-		const hasPower = req.user && (req.user.roles & (user.Role.ADMIN | user.Role.MODERATOR));
+		const hasPower = req.user && ((req.user.roles & (user.Role.ADMIN | user.Role.MODERATOR)) !== 0);
 		if (hasPower)
 			return next();
 		next(new ServerError(403, 'Forbidden'));
 	},
 
 	requireMapper: (req, res, next) => {
-		const hasMapperPermissions = req.user && (req.user.roles & (user.Role.MAPPER | user.Role.ADMIN));
+		const hasMapperPermissions = req.user && ((req.user.roles & (user.Role.MAPPER | user.Role.ADMIN)) !== 0);
 		if (hasMapperPermissions)
 			return next();
 		next(new ServerError(403, 'Forbidden'));
 	},
 
-}
+};

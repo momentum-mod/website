@@ -20,7 +20,8 @@ describe('CommunityActivityComponent', () => {
         id: 3,
         type: Activity_Type.MAP_APPROVED,
         user: {
-          id: '2',
+          id: 2,
+          steamID: '2',
           alias: 'dude',
           avatarURL: 'IJJJ',
           country: 'US',

@@ -41,8 +41,7 @@ export class AuthService {
   public getAccessTokenPayload(): AccessTokenPayload {
     const accessToken = this.getAccessToken();
     const jwtHelperService = new JwtHelperService();
-    const decodedToken = jwtHelperService.decodeToken(accessToken);
-    return decodedToken;
+    return jwtHelperService.decodeToken(accessToken);
   }
 
   public removeSocialAuth(authType: string): Observable<any> {
@@ -76,8 +75,7 @@ export class AuthService {
   }
 
   public getAccessToken(): string {
-    const accessToken = localStorage.getItem('accessToken');
-    return accessToken;
+    return localStorage.getItem('accessToken');
   }
 
 }

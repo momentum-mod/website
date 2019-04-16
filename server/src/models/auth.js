@@ -42,9 +42,10 @@ module.exports = {
 	genAccessToken: (usr, gameAuth) => {
 		const payload = {
 			id: usr.id,
+			steamID: usr.steamID,
 			roles: usr.roles,
 			bans: usr.bans,
-			gameAuth: gameAuth ? true : false,
+			gameAuth: !!gameAuth,
 		};
 		const options = {
 			issuer: config.domain,

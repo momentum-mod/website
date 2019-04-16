@@ -283,7 +283,7 @@ paths:
           type: object
           properties:
             userID:
-              type: string
+              type: integer
               description: The ID of the user to follow
       responses:
         200:
@@ -406,7 +406,7 @@ definitions:
         type: integer
         readOnly: true
       userID:
-        type: string
+        type: integer
         readOnly: true
       mapID:
         type: integer
@@ -433,7 +433,7 @@ definitions:
         type: integer
         readOnly: true
       userID:
-        type: string
+        type: integer
         readOnly: true
       createdAt:
         type: string
@@ -457,7 +457,7 @@ definitions:
         type: integer
         readOnly: true
       forUserID:
-        type: string
+        type: integer
         readOnly: true
       activityID:
         type: integer

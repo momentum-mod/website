@@ -26,7 +26,7 @@ export class UsersService {
    * @param options The options for the request
    * @return Retrieves a specific user
    */
-  getUser(userID: string, options?: object): Observable<User> {
+  getUser(userID: number, options?: object): Observable<User> {
     return this.http.get<User>('/api/users/' + userID, options || {});
   }
 
@@ -46,11 +46,11 @@ export class UsersService {
     return this.http.get<Followed>('/api/users/' + user.id + '/follows');
   }
 
-  getMapCredits(userID: string, options?: object): Observable<UserCredits> {
+  getMapCredits(userID: number, options?: object): Observable<UserCredits> {
     return this.http.get<UserCredits>(`/api/users/${userID}/credits`, options || {});
   }
 
-  getRunHistory(userID: string, options?: object): Observable<Runs> {
+  getRunHistory(userID: number, options?: object): Observable<Runs> {
     return this.http.get<Runs>(`/api/users/${userID}/runs`, options || {});
   }
 }

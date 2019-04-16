@@ -20,20 +20,33 @@ describe('admin', () => {
 	let adminAccessToken = null;
 	let adminGameAccessToken = null;
 	const testUser = {
-		id: '1254652365',
+		id: 1,
+		steamID: '1254652365',
 		roles: user.Role.VERIFIED,
 		bans: 0,
 	};
+
 	const testAdmin = {
-		id: '9856321549856',
+		id: 2,
+		steamID: '9856321549856',
 		roles: user.Role.ADMIN,
 		bans: 0,
 	};
+
 	const testAdminGame = {
-		id: '5698752164498',
+		id: 3,
+		steamID: '5698752164498',
 		roles: user.Role.ADMIN,
 		bans: 0,
 	};
+	const testDeleteUser = {
+		id: 4,
+		steamID: '1351351321',
+		roles: 0,
+		bans: 0,
+	};
+	let testMergeUser1;
+	let testMergeUser2;
 
 	const testMap = {
 		name: 'test_map',
@@ -219,55 +232,60 @@ describe('admin', () => {
 			}).then((token) => {
 				adminAccessToken = token;
 				return User.create(testAdmin);
-			}).then(() => {
+			}).then((testAd) => {
+				testMap5.submitterID = testAd.id;
+				testMap6.submitterID = testAd.id;
+				uniqueMap.submitterID = testAd.id;
 				testAdminGame.roles = user.Role.ADMIN;
 				return auth.genAccessToken(testAdminGame, true);
 			}).then((token) => {
 				adminGameAccessToken = token;
 				return User.create(testAdminGame);
-			}).then(user => {
+			}).then(() => {
+				return User.create(testDeleteUser);
+			}).then(() => {
 				return Map.create(testMap, {
 					include: [
 						{model: MapInfo, as: 'info',},
 						{model: MapCredit, as: 'credits'}
 					],
 				});
-			}).then(user => {
+			}).then(() => {
 				return Map.create(testMap2, {
 					include: [
 						{model: MapInfo, as: 'info',},
 						{model: MapCredit, as: 'credits'}
 					],
 				});
-			}).then(user => {
+			}).then(() => {
 				return Map.create(testMap3, {
 					include: [
 						{model: MapInfo, as: 'info',},
 						{model: MapCredit, as: 'credits'}
 					],
 				});
-			}).then(user => {
+			}).then(() => {
 				return Map.create(testMap4, {
 					include: [
 						{model: MapInfo, as: 'info',},
 						{model: MapCredit, as: 'credits'}
 					],
 				});
-			}).then(user => {
+			}).then(() => {
 				return Map.create(testMap5, {
 					include: [
 						{model: MapInfo, as: 'info',},
 						{model: MapCredit, as: 'credits'}
 					],
 				});
-			}).then(user => {
+			}).then(() => {
 				return Map.create(testMap6, {
 					include: [
 						{model: MapInfo, as: 'info',},
 						{model: MapCredit, as: 'credits'}
 					],
 				});
-			}).then(user => {
+			}).then(() => {
 				return Map.create(uniqueMap, {
 					include: [
 						{model: MapInfo, as: 'info'},
@@ -285,8 +303,12 @@ describe('admin', () => {
 				return xpSystems.initXPSystems(XPSystems);
 			}).then(() => {
 				return user.createPlaceholder('Placeholder1');
-			}).then(() => {
+			}).then((usr) => {
+				testMergeUser1 = usr;
 				return user.createPlaceholder('Placeholder2');
+			}).then((usr2) => {
+				testMergeUser2 = usr2;
+				return Promise.resolve();
 			});
 	});
 
@@ -324,8 +346,8 @@ describe('admin', () => {
 					.post('/api/admin/users/merge')
 					.set('Authorization', 'Bearer ' + adminAccessToken)
 					.send({
-						placeholderID: '1',
-						realID: '2',
+						placeholderID: testMergeUser1.id,
+						realID: testUser.id,
 					})
 					.then(res => {
 						expect(res).to.have.status(200);
@@ -336,7 +358,7 @@ describe('admin', () => {
 		describe('DELETE /api/admin/users/{userID}', () => {
 			it('should delete a user', () => {
 				return chai.request(server)
-					.delete('/api/admin/users/3')
+					.delete('/api/admin/users/' + testDeleteUser.id)
 					.set('Authorization', 'Bearer ' + adminAccessToken)
 					.then(res => {
 						expect(res).to.have.status(200);

@@ -53,12 +53,13 @@ export class UserProfileComponent implements OnInit {
     this.route.paramMap.pipe(
       switchMap((params: ParamMap) => {
         if (params.has('id')) {
+          const idNum: number = Number(params.get('id'));
           this.userService.getLocal().subscribe(usr => {
-            this.isLocal = params.get('id') === usr.id;
+            this.isLocal = idNum === usr.id;
           }, error => {
             this.toastService.popAsync('error', 'Cannot get user profile', error.message);
           });
-          return this.usersService.getUser(params.get('id'), {
+          return this.usersService.getUser(idNum, {
             params: { expand: 'profile,stats' },
           });
         } else {

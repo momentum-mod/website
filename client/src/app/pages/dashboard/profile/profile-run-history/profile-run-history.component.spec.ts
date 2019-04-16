@@ -27,7 +27,7 @@ describe('ProfileRunHistoryComponent', () => {
   let usersServiceStub: Partial<UsersService>;
   beforeEach(async(() => {
     usersServiceStub = {
-      getRunHistory(userID: string, options?: object): Observable<any> {
+      getRunHistory(userID: number, options?: object): Observable<any> {
         return of({
           count: 1,
           runs: [{
