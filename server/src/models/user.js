@@ -209,7 +209,7 @@ module.exports = {
 	},
 
 	findOrCreateFromGame: (steamID) => {
-		return axios.get('https://api.steampowered.com/ISteamUser/GetPlayerSummaries/v2/', {
+		return axios.get(`${config.steam.apiURL}/ISteamUser/GetPlayerSummaries/v2/`, {
 			params: {
 				key: config.steam.webAPIKey,
 				steamids: steamID,
@@ -696,7 +696,7 @@ module.exports = {
 	},
 
 	getSteamFriendIDs: (steamID) => {
-		return axios.get('https://api.steampowered.com/ISteamUser/GetFriendList/v1/', {
+		return axios.get(`${config.steam.apiURL}/ISteamUser/GetFriendList/v1/`, {
 			params: {
 				key: config.steam.webAPIKey,
 				steamid: steamID,

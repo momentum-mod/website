@@ -75,7 +75,7 @@ module.exports = {
 		const idToVerify = req.get('id');
 
 		if (userTicket && idToVerify) {
-			axios.get('https://api.steampowered.com/ISteamUserAuth/AuthenticateUserTicket/v1/', {
+			axios.get(`${config.steam.apiURL}/ISteamUserAuth/AuthenticateUserTicket/v1/`, {
 				params: {
 					key: config.steam.webAPIKey,
 					appid: 669270,
