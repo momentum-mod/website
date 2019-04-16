@@ -46,7 +46,7 @@ const storeMapFile = (mapFile, mapModel) => {
 };
 
 const verifyMapNameNotTaken = (mapName) => {
-	return Map.find({
+	return Map.findOne({
 		where: {
 			name: mapName,
 			statusFlag: {[Op.notIn]: [STATUS.REJECTED, STATUS.REMOVED]}
@@ -255,7 +255,7 @@ module.exports = {
 				});
 			}
 		}
-		return Map.findAndCount(queryOptions);
+		return Map.findAndCountAll(queryOptions);
 	},
 
 	get: (mapID, userID, queryParams) => {
@@ -290,7 +290,7 @@ module.exports = {
 				});
 			}
 		}
-		return Map.findById(mapID, queryOptions);
+		return Map.findByPk(mapID, queryOptions);
 	},
 
 	create: (map) => {
@@ -380,7 +380,7 @@ module.exports = {
 
 	update: (mapID, map) => {
 		return sequelize.transaction(t => {
-			return Map.findById(mapID, {
+			return Map.findByPk(mapID, {
 				where: { statusFlag: {[Op.notIn]: [STATUS.REJECTED, STATUS.REMOVED]}},
 				transaction: t
 			}).then(mapToUpdate => {
@@ -431,7 +431,7 @@ module.exports = {
 	},
 
 	getInfo: (mapID) => {
-		return MapInfo.find({
+		return MapInfo.findOne({
 			where: { mapID: mapID },
 			raw: true,
 		});
@@ -444,7 +444,7 @@ module.exports = {
 	},
 
 	getZones: (mapID) => {
-		return Map.findById(mapID,{
+		return Map.findByPk(mapID,{
 			include: [{
 				model: MapTrack,
 				as: 'tracks',
@@ -476,7 +476,7 @@ module.exports = {
 
 	verifySubmitter: (mapID, userID) => {
 		return new Promise((resolve, reject) => {
-			Map.findById(mapID, {
+			Map.findByPk(mapID, {
 				raw: true,
 			}).then(map => {
 				if (map && map.submitterID === userID)
@@ -489,7 +489,7 @@ module.exports = {
 
 	upload: (mapID, mapFile) => {
 		let mapModel = null;
-		return Map.findById(mapID).then(map => {
+		return Map.findByPk(mapID).then(map => {
 			if (!map)
 				return Promise.reject(new ServerError(404, 'Map not found'));
 			else if (map.statusFlag !== STATUS.NEEDS_REVISION)
@@ -506,7 +506,7 @@ module.exports = {
 	},
 
 	getFilePath: (mapID) => {
-		return Map.findById(mapID, {
+		return Map.findByPk(mapID, {
 			raw: true,
 		}).then(map => {
 			if (!map)

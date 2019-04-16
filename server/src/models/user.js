@@ -51,7 +51,7 @@ module.exports = {
 		return sequelize.transaction(t => {
 			// First find both users
 			let placeholderUser = null, realUser = null;
-			return User.findById(body.placeholderID, {
+			return User.findByPk(body.placeholderID, {
 				transaction: t
 			}).then(placeholder => {
 				if (!placeholder)
@@ -60,7 +60,7 @@ module.exports = {
 					return Promise.reject(new ServerError(400), 'placeholderID does not represent a placeholder user!');
 
 				placeholderUser = placeholder;
-				return User.findById(body.realID, {
+				return User.findByPk(body.realID, {
 					transaction: t,
 				});
 			}).then(real => {
@@ -318,7 +318,7 @@ module.exports = {
 			if (expansions.includes('userStats'))
 				queryOptions.include.push({model: UserStats, as: 'stats'});
 		}
-		return User.findAndCount(queryOptions);
+		return User.findAndCountAll(queryOptions);
 	},
 
 	updateAsLocal: (locUsr, body) => {
@@ -340,7 +340,7 @@ module.exports = {
 	},
 
 	updateAsAdmin: (powerUser, userID, usr) => {
-		return User.findById(userID).then(foundUsr => {
+		return User.findByPk(userID).then(foundUsr => {
 			if (foundUsr) {
 				const foundUsrAdmin = (foundUsr.roles & module.exports.Role.ADMIN) !== 0;
 				const foundUsrMod = (foundUsr.roles & module.exports.Role.MODERATOR) !== 0;
@@ -371,7 +371,7 @@ module.exports = {
 	},
 
 	getProfile: (userID) => {
-		return Profile.find({
+		return Profile.findOne({
 			where: {userID: userID},
 			include: [
 				{
@@ -533,7 +533,7 @@ module.exports = {
 	},
 
 	getFollowers: (userID) => {
-		return UserFollows.findAndCount({
+		return UserFollows.findAndCountAll({
 			where: {followedID: userID},
 			include: [
 				{
@@ -551,7 +551,7 @@ module.exports = {
 	},
 
 	getFollowing: (userID) => {
-		return UserFollows.findAndCount({
+		return UserFollows.findAndCountAll({
 			where: {followeeID: userID},
 			include: [
 				{
@@ -590,7 +590,7 @@ module.exports = {
 	},
 
 	followUser: (followeeID, followedID) => {
-		return User.findById(followedID).then(user => {
+		return User.findByPk(followedID).then(user => {
 			if (!user)
 				return Promise.reject(new ServerError(404, 'User not found'));
 			return UserFollows.findOrCreate({

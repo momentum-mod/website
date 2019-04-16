@@ -46,7 +46,7 @@ module.exports = {
 			if (queryParams.limit)
 				query.limit = queryParams.limit;
 
-			return UserMapRank.findAndCount(query);
+			return UserMapRank.findAndCountAll(query);
 		});
 	},
 
@@ -94,7 +94,7 @@ module.exports = {
 				queryOptions.order = [['createdAt', 'DESC']];
 		}
 		queryHelper.addExpansions(queryOptions, queryParams.expand, ['map', 'mapWithInfo']);
-		return UserMapRank.findAndCount(queryOptions);
+		return UserMapRank.findAndCountAll(queryOptions);
 	},
 
 };

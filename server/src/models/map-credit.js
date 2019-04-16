@@ -53,7 +53,7 @@ module.exports = {
 			}
 		};
 		queryHelper.addExpansions(queryOptions, queryParams.expand, allowedExpansions);
-		return MapCredit.find(queryOptions);
+		return MapCredit.findOne(queryOptions);
 	},
 
 	createCredit: (mapID, mapCredit) => {
