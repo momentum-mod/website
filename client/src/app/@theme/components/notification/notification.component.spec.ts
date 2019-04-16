@@ -2,7 +2,7 @@ import {async, ComponentFixture, TestBed} from '@angular/core/testing';
 
 import {NotificationComponent} from './notification.component';
 import {NbListModule, NbUserModule} from '@nebular/theme';
-import {ActivityContentComponent} from '../activity/activity-content/activity-content.component';
+import {ActivityContentComponent} from '..';
 import {CoreModule} from '../../../@core/core.module';
 import {RouterModule} from '@angular/router';
 import {APP_BASE_HREF} from '@angular/common';
@@ -34,7 +34,8 @@ describe('NotificationComponent', () => {
       {
         id: 1,
         forUser: {
-          id: '1',
+          id: 1,
+          steamID: '1',
           alias: 'Ninjaz',
           avatarURL: '/assets/images/caution.png',
           country: 'US',
@@ -44,7 +45,8 @@ describe('NotificationComponent', () => {
         activity: {
           id: 1,
           user: {
-            id: '1',
+            id: 1,
+            steamID: '1',
             alias: 'Ninja',
             avatarURL: '/assets/images/caution.png',
             country: 'US',
@@ -65,7 +67,8 @@ describe('NotificationComponent', () => {
       {
         id: 1,
         forUser: {
-          id: '1',
+          id: 1,
+          steamID: '1',
           alias: 'Ninjazzz',
           avatarURL: '/assets/images/caution.png',
           country: 'US',
@@ -75,7 +78,8 @@ describe('NotificationComponent', () => {
         activity: {
           id: 1,
           user: {
-            id: '1',
+            id: 1,
+            steamID: '1',
             alias: 'TESSSSSSSSSSSSSSSSSSST',
             avatarURL: '/assets/images/caution.png',
             country: 'US',

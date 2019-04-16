@@ -3,8 +3,14 @@
 module.exports = (sequelize, type) => {
 	return sequelize.define('user', {
 		id: {
-			type: type.STRING(20),
+			type: type.INTEGER.UNSIGNED,
 			primaryKey: true,
+			autoIncrement: true
+		},
+		steamID: {
+			type: type.STRING(20),
+			allowNull: true,
+			defaultValue: null,
 		},
 		alias: type.STRING(32),
 		avatar: {
@@ -31,5 +37,12 @@ module.exports = (sequelize, type) => {
 			defaultValue: 0
 		},
 		country: type.STRING(2),
+	}, {
+		indexes: [
+			{
+				unique: true,
+				fields: ['steamID'],
+			}
+		]
 	})
 };

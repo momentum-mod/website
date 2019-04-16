@@ -36,22 +36,14 @@ module.exports = {
 	},
 
 	createPlaceholder: (alias) => {
-		return User.count({
-			where: {
-				roles: sequelize.literal(`roles & ${module.exports.Role.PLACEHOLDER} != 0`)
-			}
-		}).then(count => {
-			let nMax = count + 1;
-			return User.create({
-				id: nMax,
-				alias: alias,
-				roles: module.exports.Role.PLACEHOLDER,
-				profile: {},
-			}, {
-				include: [
-					Profile,
-				]
-			});
+		return User.create({
+			alias: alias,
+			roles: module.exports.Role.PLACEHOLDER,
+			profile: {},
+		}, {
+			include: [
+				Profile,
+			]
 		});
 	},
 
@@ -64,7 +56,7 @@ module.exports = {
 			}).then(placeholder => {
 				if (!placeholder)
 					return Promise.reject(new ServerError(400, 'Placeholder user not found!'));
-				else if (placeholder.roles & module.exports.Role.PLACEHOLDER === 0)
+				else if ((placeholder.roles & module.exports.Role.PLACEHOLDER) === 0)
 					return Promise.reject(new ServerError(400), 'placeholderID does not represent a placeholder user!');
 
 				placeholderUser = placeholder;
@@ -100,19 +92,21 @@ module.exports = {
 					// Second edge case: a user is following both placeholder and real user
 					return User.findAll({
 						having: sequelize.literal('count = 2'),
-						group: [sequelize.col('following.followeeID')],
-						attributes: ['id', [sequelize.fn('COUNT', sequelize.col('following.followedID')), 'count']],
+						group: [sequelize.col('following->follow.followeeID')],
+						attributes: ['id', [sequelize.fn('COUNT', sequelize.col('following->follow.followedID')), 'count']],
 						include: [
 							{
-								model: UserFollows,
+								model: User,
 								as: 'following',
-								attributes: ['followeeID', 'followedID', 'createdAt'],
-								where: {
-									followedID: {
-										[Op.or]: [
-											{[Op.eq]: placeholderUser.id},
-											{[Op.eq]: realUser.id},
-										]
+								through: {
+									attributes: ['followeeID', 'followedID', 'createdAt'],
+									where: {
+										followedID: {
+											[Op.or]: [
+												{[Op.eq]: placeholderUser.id},
+												{[Op.eq]: realUser.id},
+											]
+										}
 									}
 								}
 							}
@@ -183,17 +177,17 @@ module.exports = {
 		}); // TODO clean up activities with this user?
 	},
 
-	create: (id, profile) => {
+	create: (steamID, profile) => {
 		return sequelize.transaction(t => {
 			let userInfo = {};
 			return User.create({
-				id: id,
+				steamID: steamID,
 				alias: profile.alias,
 				avatarURL: profile.avatarURL,
 				country: profile.country,
 				profile: {},
-				auth: {userID: id},
-				stats: {userID: id}
+				auth: {},
+				stats: {},
 			}, {
 				include: [
 					Profile,
@@ -214,20 +208,20 @@ module.exports = {
 		});
 	},
 
-	findOrCreateFromGame: (id) => {
+	findOrCreateFromGame: (steamID) => {
 		return axios.get('https://api.steampowered.com/ISteamUser/GetPlayerSummaries/v2/', {
 			params: {
 				key: config.steam.webAPIKey,
-				steamids: id,
+				steamids: steamID,
 			}
 		}).then(sres => {
 			if (sres.data.response.error)
 				next(sres); // TODO parse the error
 			else if (sres.data.response.players[0]) {
 				const playerData = sres.data.response.players[0];
-				if (id === playerData.steamid) {
+				if (steamID === playerData.steamid) {
 					return Promise.resolve({
-						id: id,
+						steamID: steamID,
 						country: playerData.loccountrycode,
 						alias: playerData.personaname,
 						avatarURL: playerData.avatarfull,
@@ -236,7 +230,8 @@ module.exports = {
 			}
 			return Promise.resolve(null);
 		}).then(playerData => {
-			return User.findById(id, {
+			return User.findOne({
+				where: {steamID: steamID},
 				include: Profile
 			}).then(usr => {
 				return Promise.resolve({usr: usr, playerData: playerData})
@@ -245,7 +240,7 @@ module.exports = {
 			if (userData.usr)
 				return module.exports.updateSteamInfo(userData.usr, userData.playerData);
 			else if (userData.playerData)
-				return module.exports.create(id, userData.playerData);
+				return module.exports.create(steamID, userData.playerData);
 			else
 				return Promise.reject(new ServerError(500, 'Could not find player on Steam'));
 		});
@@ -258,7 +253,7 @@ module.exports = {
 			country: openIDProfile._json.loccountrycode,
 		};
 		return new Promise((resolve, reject) => {
-			User.findById(openIDProfile.id, {include: Profile}).then(usr => {
+			User.findOne({where: {steamID: openIDProfile.id}, include: Profile}).then(usr => {
 				if (usr) {
 					return module.exports.updateSteamInfo(usr, profile);
 				} else {
@@ -299,14 +294,31 @@ module.exports = {
 			queryOptions.limit = queryParams.limit;
 		if (queryParams.offset)
 			queryOptions.offset = queryParams.offset;
+		if (queryParams.playerID) {
+			queryOptions.limit = 1;
+			queryOptions.where.steamID = queryParams.playerID;
+		}
+		if (queryParams.playerIDs)
+			queryOptions.where.steamID = {[Op.in]: queryParams.playerIDs.split(',')};
 		if (queryParams.search)
 			queryOptions.where.alias = {[Op.like]: '%' + (queryParams.search || '') + '%'};
+		if (queryParams.mapRank && !isNaN(queryParams.mapRank)) {
+			queryOptions.include.push({
+				model: UserMapRank,
+				as: 'mapRank',
+				where: { mapID: queryParams.mapRank },
+				include: [Run],
+				required: false,
+			});
+		}
 		if (queryParams.expand) {
 			const expansions = queryParams.expand.split(',');
 			if (expansions.includes('profile'))
 				queryOptions.include.push({model: Profile});
+			if (expansions.includes('userStats'))
+				queryOptions.include.push({model: UserStats, as: 'stats'});
 		}
-		return User.findAndCountAll(queryOptions);
+		return User.findAndCount(queryOptions);
 	},
 
 	updateAsLocal: (locUsr, body) => {
@@ -521,56 +533,36 @@ module.exports = {
 	},
 
 	getFollowers: (userID) => {
-		return UserFollows.findAndCountAll({
+		return UserFollows.findAndCount({
 			where: {followedID: userID},
 			include: [
 				{
 					model: User,
 					as: 'followed',
-					include: [
-						{
-							model: Profile,
-							as: 'profile'
-						}
-					]
+					include: [Profile]
 				},
 				{
 					model: User,
 					as: 'followee',
-					include: [
-						{
-							model: Profile,
-							as: 'profile'
-						}
-					]
+					include: [Profile]
 				},
 			]
 		});
 	},
 
 	getFollowing: (userID) => {
-		return UserFollows.findAndCountAll({
+		return UserFollows.findAndCount({
 			where: {followeeID: userID},
 			include: [
 				{
 					model: User,
 					as: 'followed',
-					include: [
-						{
-							model: Profile,
-							as: 'profile'
-						}
-					]
+					include: [Profile]
 				},
 				{
 					model: User,
 					as: 'followee',
-					include: [
-						{
-							model: Profile,
-							as: 'profile'
-						}
-					]
+					include: [Profile]
 				},
 			]
 		});
@@ -665,14 +657,20 @@ module.exports = {
 			where: {},
 			include: [{
 				model: User,
-				include: [{
-					model: Profile,
-				}, {
-					model: UserFollows,
-					as: 'followers',
-					where: {followeeID: userID},
-					attributes: [],
-				}]
+				include: [
+					Profile,
+					{
+						model: User,
+						as: 'followers',
+						where: {
+							id: userID,
+						},
+						attributes: [],
+						/*through: {
+							where: {followeeID: userID},
+						},*/
+					}
+				]
 			}],
 			limit: 10,
 			order: [['createdAt', 'DESC']],

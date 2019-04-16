@@ -18,7 +18,8 @@ describe('auth', () => {
 
 	let accessToken = null;
 	const testUser = {
-		id: '2759389285395352',
+		id: 1,
+		steamID: '2759389285395352',
 		roles: 0,
 		bans: 0,
 		auth: {},

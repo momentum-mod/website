@@ -41,7 +41,7 @@
         <div class="row">
           <div class="col">
             <div class="socials">
-              <a *ngIf="!hasRole(role.PLACEHOLDER)" href="https://steamcommunity.com/profiles/{{user.id}}" target="_blank" class="ion ion-steam"></a>
+              <a *ngIf="!hasRole(role.PLACEHOLDER)" href="https://steamcommunity.com/profiles/{{user.steamID}}" target="_blank" class="ion ion-steam"></a>
               <a *ngIf="user.profile?.twitchAuth" href="https://twitch.tv/{{user.profile?.twitchAuth.displayName}}"
                  target="_blank" class="ion ion-social-twitch"></a>
               <a *ngIf="user.profile?.twitterAuth" href="https://twitter.com/{{user.profile.twitterAuth.displayName}}"

@@ -40,7 +40,7 @@ export class AdminService {
    * @param user specific user's profile
    * @return Update a specific user
    */
-  updateUser(userID: string, user: User): Observable<any> {
+  updateUser(userID: number, user: User): Observable<any> {
     return this.http.patch('/api/admin/users/' + userID, user, {
       responseType: 'text',
     });
@@ -96,7 +96,7 @@ export class AdminService {
    * Deletes a user.
    * @param id The ID of the user to delete
    */
-  deleteUser(id: string): Observable<any> {
+  deleteUser(id: number): Observable<any> {
     return this.http.delete(`/api/admin/users/${id}`, {
       responseType: 'text',
     });

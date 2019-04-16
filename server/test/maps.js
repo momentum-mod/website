@@ -24,19 +24,22 @@ describe('maps', () => {
 	let adminAccessToken = null;
 	let adminGameAccessToken = null;
 	const testUser = {
-		id: '65465432154',
+		id: 1,
+		steamID: '65465432154',
 		roles: user.Role.VERIFIED | user.Role.MAPPER,
         bans: 0,
 		country: 'US',
 	};
     const testAdmin = {
-        id: '54132121685476543',
+    	id: 2,
+        steamID: '54132121685476543',
         roles: user.Role.ADMIN,
         bans: 0,
 	    country: 'US',
     };
     const testAdminGame = {
-        id: '5416876413213874',
+    	id: 3,
+        steamID: '5416876413213874',
         roles: user.Role.ADMIN,
         bans: 0,
 	    country: 'US',

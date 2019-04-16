@@ -5,7 +5,7 @@ import {Run} from './run.model';
 export interface UserMapRank {
   id: number;
   mapID: number;
-  userID: string;
+  userID: number;
   runID: string;
   gameType: number;
   flags: number;

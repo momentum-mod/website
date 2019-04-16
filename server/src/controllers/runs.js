@@ -27,7 +27,7 @@ module.exports = {
 
 	create: (req, res, next) => {
 		if (req.body && Buffer.isBuffer(req.body)) {
-			run.create(req.params.mapID, req.user.id, Buffer.from(req.body)).then(runResults => {
+			run.create(req.params.mapID, req.user, Buffer.from(req.body)).then(runResults => {
 				res.json(runResults);
 			}).catch(next);
 		} else {

@@ -2,7 +2,7 @@ import {MomentumMap} from './momentum-map.model';
 
 export interface MapLibraryEntry {
   id: number;
-  userID: string;
+  userID: number;
   mapID: number;
   createdAt?: Date;
   updatedAt?: Date;

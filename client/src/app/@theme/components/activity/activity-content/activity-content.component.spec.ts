@@ -28,7 +28,8 @@ describe('ActivityContentComponent', () => {
     component.activity = {
       id: 1,
       user: {
-        id: '1',
+        id: 1,
+        steamID: '1',
         alias: 'Ninja',
         avatarURL: '/assets/images/caution.png',
         country: 'US',

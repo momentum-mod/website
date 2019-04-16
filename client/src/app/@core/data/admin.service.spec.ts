@@ -16,7 +16,8 @@ describe('AdminService', () => {
     httpClientSpy = jasmine.createSpyObj('HttpClient', ['get', 'patch']);
     adminService = new AdminService(<any> httpClientSpy);
     expectedUser = {
-      id: '1',
+      id: 1,
+      steamID: '54125',
       alias: 'test1',
       avatarURL: 'url',
       country: 'US',
@@ -35,7 +36,7 @@ describe('AdminService', () => {
       statusFlag: 0,
       createdAt: new Date(),
       updatedAt: new Date(),
-      submitterID: '12345',
+      submitterID: 12345,
     };
     expectedMaps = {
       count: 2,
@@ -49,7 +50,7 @@ describe('AdminService', () => {
           statusFlag: 0,
           createdAt: new Date(),
           updatedAt: new Date(),
-          submitterID: '123456',
+          submitterID: 123456,
         },
       ],
     };

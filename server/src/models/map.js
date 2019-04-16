@@ -255,7 +255,7 @@ module.exports = {
 				});
 			}
 		}
-		return Map.findAndCountAll(queryOptions);
+		return Map.findAndCount(queryOptions);
 	},
 
 	get: (mapID, userID, queryParams) => {

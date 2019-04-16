@@ -19,12 +19,14 @@ describe('activities', () => {
     let accessToken = null;
     let adminAccessToken = null;
 	const testUser = {
-        id: '00000000000000001',
+		id: 1,
+        steamID: '00000000000000001',
         roles: 0,
         bans: 0,
     };
     const testUser2 = {
-        id: '76561198131664084',
+    	id: 2,
+        steamID: '76561198131664084',
 		alias: 'cjshiner',
 		avatarURL: 'https://steamcdn-a.akamaihd.net/steamcommunity/public/images/avatars/e4/e4db45e6d6472d9e61b131a04ad2f18a299daafc_full.jpg',
         roles: 0,
