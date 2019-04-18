@@ -1,7 +1,7 @@
 'use strict';
 process.env.NODE_ENV = 'test';
 
-const { forceSyncDB, Map, MapInfo, MapCredit, MapImage, 
+const { forceSyncDB, Map, MapInfo, MapCredit, MapImage,  MapTrack, MapZone,
     MapStats, User } = require('../config/sqlize'),
 	chai = require('chai'),
 	chaiHttp = require('chai-http'),
@@ -61,6 +61,16 @@ describe('maps', () => {
 			numZones: 1,
 			isLinear: false,
 			difficulty: 5,
+			zones: [
+				{
+					zoneNum: 0,
+					zoneType: 0,
+				},
+				{
+					zoneNum: 1,
+					zoneType: 1,
+				}
+			]
 		}],
         credits: {
             id: 1,
@@ -95,6 +105,16 @@ describe('maps', () => {
 		    numZones: 1,
 		    isLinear: false,
 		    difficulty: 5,
+		    zones: [
+			    {
+				    zoneNum: 0,
+				    zoneType: 0,
+			    },
+			    {
+				    zoneNum: 1,
+				    zoneType: 1,
+			    }
+		    ]
 	    }],
         credits: {
         	id: 2,
@@ -125,6 +145,16 @@ describe('maps', () => {
 		    numZones: 1,
 		    isLinear: false,
 		    difficulty: 5,
+		    zones: [
+			    {
+				    zoneNum: 0,
+				    zoneType: 0,
+			    },
+			    {
+				    zoneNum: 1,
+				    zoneType: 1,
+			    }
+		    ]
 	    }],
         credits: {
             id: 3,
@@ -147,6 +177,16 @@ describe('maps', () => {
 		    numZones: 1,
 		    isLinear: false,
 		    difficulty: 5,
+		    zones: [
+			    {
+				    zoneNum: 0,
+				    zoneType: 0,
+			    },
+			    {
+				    zoneNum: 1,
+				    zoneType: 1,
+			    }
+		    ]
 	    }],
         credits: {
             id: 4,
@@ -182,6 +222,7 @@ describe('maps', () => {
 						{ model: MapCredit, as: 'credits' },
 						{ model: MapImage, as: 'images' },
                         { model: MapStats, as: 'stats'},
+	                    { model: MapTrack, as: 'tracks', include: [{model: MapZone, as: 'zones'}]},
                     ]
                 })
             })
@@ -191,6 +232,7 @@ describe('maps', () => {
                         { model: MapInfo, as: 'info',},
                         { model: MapImage, as: 'images' },
                         { model: MapCredit, as: 'credits'},
+	                    { model: MapTrack, as: 'tracks', include: [{model: MapZone, as: 'zones'}]},
                     ]
                 })
             })
@@ -199,6 +241,7 @@ describe('maps', () => {
                     include: [
                         {  model: MapInfo, as: 'info',},
                         {  model: MapCredit, as: 'credits'},
+	                    { model: MapTrack, as: 'tracks', include: [{model: MapZone, as: 'zones'}]},
                     ]
                 })
             })
@@ -207,6 +250,7 @@ describe('maps', () => {
                     include: [
                         { model: MapInfo, as: 'info',},
                         {  model: MapCredit, as: 'credits'},
+	                    { model: MapTrack, as: 'tracks', include: [{model: MapZone, as: 'zones'}]},
                     ]
                 }).then(map => {
 				    uniMap.id = map.id;
@@ -1280,6 +1324,162 @@ describe('maps', () => {
             });
 
         }); */
+
+        describe('POST /api/maps/:mapID/session', () => {
+        	it('should return 403 if not using a game API key', () => {
+        		return chai.request(server)
+			        .post(`/api/maps/${testMap3.id}/session`)
+			        .set('Authorization', 'Bearer ' + accessToken)
+			        .then(res => {
+			        	expect(res).to.have.status(403);
+				        expect(res).to.be.json;
+				        expect(res.body).to.have.property('error');
+				        expect(res.body.error.code).equal(403);
+				        expect(res.body.error.message).to.be.a('string');
+			        });
+	        });
+
+	        it('should should not create a run session if not given a proper body', () => {
+		        return chai.request(server)
+			        .post(`/api/maps/${testMap3.id}/session`)
+			        .set('Authorization', 'Bearer ' + adminGameAccessToken)
+			        .send(null)
+			        .then(res => {
+				        expect(res).to.have.status(400);
+				        expect(res).to.be.json;
+				        expect(res.body).to.have.property('error');
+				        expect(res.body.error.code).equal(400);
+				        expect(res.body.error.message).to.be.a('string');
+			        });
+	        });
+
+        	it('should return a valid run session object', () => {
+		        return chai.request(server)
+			        .post(`/api/maps/${testMap.id}/session`)
+			        .set('Authorization', 'Bearer ' + adminGameAccessToken)
+			        .send({
+				        trackNum: 0,
+				        zoneNum: 0,
+			        })
+			        .then(res => {
+				        expect(res).to.have.status(200);
+				        expect(res).to.be.json;
+				        expect(res.body).to.have.property('id');
+			        });
+	        });
+
+        	it('should not create a valid run session if the map does not have the trackNum', () => {
+		        return chai.request(server)
+			        .post(`/api/maps/${testMap.id}/session`)
+			        .set('Authorization', 'Bearer ' + adminGameAccessToken)
+			        .send({
+				        trackNum: 2,
+				        zoneNum: 0,
+			        })
+			        .then(res => {
+				        expect(res).to.have.status(400);
+				        expect(res).to.be.json;
+				        expect(res.body).to.have.property('error');
+				        expect(res.body.error.code).equal(400);
+				        expect(res.body.error.message).to.be.a('string');
+			        });
+	        });
+        });
+
+		describe('DELETE /api/maps/:mapID/session', () => {
+			it('should return 403 if not using a game API key', () => {
+				return chai.request(server)
+					.delete(`/api/maps/${testMap3.id}/session`)
+					.set('Authorization', 'Bearer ' + accessToken)
+					.then(res => {
+						expect(res).to.have.status(403);
+						expect(res).to.be.json;
+						expect(res.body).to.have.property('error');
+						expect(res.body.error.code).equal(403);
+						expect(res.body.error.message).to.be.a('string');
+					})
+			});
+		});
+
+		describe('POST /api/maps/:mapID/session/:sesID', () => {
+			it('should return 403 if not using a game API key', () => {
+				return chai.request(server)
+					.post(`/api/maps/${testMap3.id}/session/1`)
+					.set('Authorization', 'Bearer ' + accessToken)
+					.then(res => {
+						expect(res).to.have.status(403);
+						expect(res).to.be.json;
+						expect(res.body).to.have.property('error');
+						expect(res.body.error.code).equal(403);
+						expect(res.body.error.message).to.be.a('string');
+					})
+			});
+
+			it('should update an existing run session with the zone and tick', () => {
+				return chai.request(server)
+					.post(`/api/maps/${testMap.id}/session`)
+					.set('Authorization', 'Bearer ' + adminGameAccessToken)
+					.send({
+						trackNum: 0,
+						zoneNum: 0,
+					})
+					.then(res => {
+						expect(res).to.have.status(200);
+						expect(res).to.be.json;
+						expect(res.body).to.have.property('id');
+
+						let sesID = res.body.id;
+						return chai.request(server)
+							.post(`/api/maps/${testMap.id}/session/${sesID}`)
+							.set('Authorization', 'Bearer ' + adminGameAccessToken)
+							.send({
+								zoneNum: 2,
+								tick: 510,
+							})
+							.then(res2 => {
+								expect(res2).to.have.status(200);
+								expect(res2).to.be.json;
+								expect(res2.body).to.have.property('id');
+							});
+					});
+			});
+		});
+
+		describe('POST /api/maps/:mapID/session/:sesID/end', () => {
+			it('should return 403 if not using a game API key', () => {
+				return chai.request(server)
+					.post(`/api/maps/${testMap3.id}/session/1/end`)
+					.set('Authorization', 'Bearer ' + accessToken)
+					.then(res => {
+						expect(res).to.have.status(403);
+						expect(res).to.be.json;
+						expect(res.body).to.have.property('error');
+						expect(res.body.error.code).equal(403);
+						expect(res.body.error.message).to.be.a('string');
+					})
+			});
+			it('should successfully submit a valid run to the leaderboards');
+			it('should reject if there is no body');
+			it('should reject the run if the track');
+			it('should reject the run if there are timestamps for an IL run');
+			it('should reject the run if the run does not have the proper number of timestamps');
+			it('should reject the run if the run was done out of order');
+			it('should reject the run if there was no timestamps for a track with >1 zones');
+			it('should reject the run if the magic of the replay does not match');
+			it('should reject the run if the SteamID in the replay does not match the submitter');
+			it('should reject the run if the hash of the map stored in the replay does not match the stored hash of the DB map');
+			it('should reject the run if the name of the map does not match the name of the map in the DB');
+			it('should reject the run if the run time in ticks is 0 or negative');
+			it('should reject the run if the replays track number is invalid for the map');
+			it('should reject the run if the replays zone number is invalid for the map');
+			it('should reject the run if the run date is too old (5+ seconds old)');
+			it('should reject the run if the run date is in the future');
+			it('should reject the run if the tickrate is not acceptable');
+			it('should reject the run if the run does not fall within the run session timestamps');
+			it('should reject the run if the run does not have stats');
+			it('should reject the run if the run has no run frames');
+			// TODO make sure all cases are covered
+		});
 
 	});
 });

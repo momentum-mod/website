@@ -6,6 +6,7 @@ const crypto = require('crypto'),
 	} = require('../../config/sqlize'),
 	activity = require('./activity'),
 	xpSystems = require('./xp-systems'),
+	mapMdl = require('./map'),
 	config = require('../../config/config'),
 	queryHelper = require('../helpers/query'),
 	ServerError = require('../helpers/server-error'),
@@ -52,6 +53,43 @@ const readInt8 = (o, unsigned = false) => {
 	return val;
 };
 
+const validateRunSession = (resultObj) => {
+	const tsLen = resultObj.ses.timestamps ? resultObj.ses.timestamps.length : 0;
+	if (resultObj.ses.zoneNum > 0) {
+		if (tsLen !== 0)
+			return Promise.reject(new ServerError(400, 'Invalid timestamps for session'));
+	}
+	else {
+		const sesTrackZones = resultObj.track.numZones;
+
+		if (tsLen > 0) {
+			if (tsLen !== (sesTrackZones - 1)) // - 1 because the start trigger doesn't have a timestamp generated for it
+				return Promise.reject(new ServerError(400, 'Timestamp length does not match!'));
+
+			let prevTick = 0;
+			resultObj.ses.timestamps.sort((left, right) => {
+				if (left.zone < right.zone)
+					return -1;
+				else if (left.zone > right.zone)
+					return 1;
+				else return 0;
+			});
+			for (const ts of resultObj.ses.timestamps) {
+				if (ts.tick <= prevTick)
+					return Promise.reject(new ServerError(400, 'Out of order timestamps!'));
+
+				prevTick = ts.tick;
+			}
+		}
+		else { // tsLen === 0
+			if (sesTrackZones !== 1)
+				return Promise.reject(new ServerError(400, 'Not enough timestamps'));
+		}
+	}
+
+	return Promise.resolve();
+};
+
 const validateRunFile = (resultObj) => {
 	return new Promise((resolve, reject) => {
 
@@ -80,21 +118,32 @@ const validateRunFile = (resultObj) => {
 
 		const runDate = new Date(Number(replay.header.runDate_s) * 1000).getTime(); // We're good til 2038...
 		const nowDate = Date.now();
+		const sesDiff = nowDate - resultObj.ses.createdAt.getTime();
+		const runTimeTick = replay.header.stopTick - replay.header.startTick;
+		const runTime = runTimeTick * replay.header.tickRate;
+		const runSesDiff = Math.abs(sesDiff - (runTime * 1000)) / 1000.0;
 		const magicLE = 0x524D4F4D;
+
+		// TODO allow custom tickrates in the future (1.0.0+)
+		const toCheckTR = mapMdl.getDefaultTickrateForMapType(resultObj.map.type);
+		const epsil = 0.000001;
 
 		const b1 = resultObj.bin.ok,
 			b2 = replay.magic === magicLE,
 			b3 = replay.header.steamID === resultObj.steamID,
 			b4 = replay.header.mapHash === resultObj.map.hash,
 			b5 = replay.header.mapName === resultObj.map.name,
-			b6 = replay.header.stopTick > replay.header.startTick,
-			b7 = replay.header.trackNum === 0, // TODO (0.9.0) trackNum >= 0 && replay.header.trackNum < resultObj.map.info.numTracks,
+			b6 = runTimeTick > 0,
+			b7 = replay.header.trackNum === resultObj.ses.trackNum,
 			b8 = replay.header.runFlags === 0, // TODO removeme when we support runFlags (0.9.0)
-			b9 = replay.header.zoneNum === 0, // TODO change to >= 0 when we support ILs (0.9.0)
-			b10 = runDate <= nowDate && runDate > (nowDate - 10000);
-		if (b1 && b2 && b3 && b4 && b5 && b6 && b7 && b8 && b9 && b10)
+			b9 = replay.header.zoneNum === resultObj.ses.zoneNum,
+			b10 = runDate <= nowDate && runDate > (nowDate - 5000),
+			b11 = Math.abs(replay.header.tickRate - toCheckTR) < epsil,
+			b12 = runSesDiff < 5.0, // TODO is this a good enough leeway for run session times?
+			b13 = (resultObj.map.type === mapMdl.MAP_TYPE.BHOP) || (resultObj.map.type === mapMdl.MAP_TYPE.SURF); // TODO removeme when more game types added
+		if (b1 && b2 && b3 && b4 && b5 && b6 && b7 && b8 && b9 && b10 && b11 && b12 && b13)
 		{
-			replay.header.ticks = replay.header.stopTick - replay.header.startTick;
+			replay.header.ticks = runTimeTick;
 			resolve(replay);
 		}
 		else {
@@ -304,7 +353,7 @@ const saveRun = (resultObj, transact) => {
 			type: activity.ACTIVITY_TYPES.PB_ACHIEVED,
 			userID: resultObj.userID,
 			data: runModel.id,
-		}, transact);
+		}, {transaction: transact});
 	}).then(() => { // Generate WR notifications if needed
 		if (!resultObj.isNewWorldRecord)
 			return Promise.resolve();
@@ -312,7 +361,7 @@ const saveRun = (resultObj, transact) => {
 			type: activity.ACTIVITY_TYPES.WR_ACHIEVED,
 			userID: resultObj.userID,
 			data: runModel.id,
-		}, transact);
+		}, {transaction: transact});
 	}).then(() => {
 		return Promise.resolve(runModel);
 	});
@@ -346,8 +395,6 @@ const updateStats = (resultObj, transaction) => {
 	let playerCompletedMainTrackBefore = !resultObj.createdMapRank && isEntireMainTrack;
 	let playerCompletedThisTrackBefore = false;
 	let playerCompletedThisZoneBefore = false;
-
-	let mapTrack = {};
 
 	return Run.findOne({
 		where: {
@@ -385,34 +432,8 @@ const updateStats = (resultObj, transaction) => {
 			});
 		}
 	}).then(() => {
-		// All runs have a particular track, so get that and its related stats
-		return MapTrack.findOne({
-			where: {
-				mapID: resultObj.map.id,
-				trackNum: resultObj.replay.header.trackNum,
-			},
-			include: [
-				{
-					model: MapTrackStats,
-					as: 'stats',
-					include: [{model: BaseStats, as: 'baseStats'}],
-				},
-				{
-					model: MapZone,
-					as: 'zones',
-					include: [{model: MapZoneStats, as: 'stats', include: [{model: BaseStats, as: 'baseStats'}]}]
-				}
-			],
-			transaction: transaction,
-		});
-	}).then(track => {
-		if (!track)
-			return Promise.reject(new ServerError(400, 'Bad request'));
-
-		mapTrack = track;
 
 		// Now, depending on if we're a singular zone or the whole track, we need to update our stats accordingly
-
 		let updates = [];
 
 		if (isEntireTrack) {
@@ -425,10 +446,10 @@ const updateStats = (resultObj, transaction) => {
 			if (!playerCompletedThisTrackBefore)
 				trackUpd8Obj.uniqueCompletions = sequelize.literal('uniqueCompletions + 1');
 
-			updates.push(track.stats.update(trackUpd8Obj, {transaction: transaction}));
-			updates.push(track.stats.baseStats.update(updateBaseStats(resultObj.replay.overallStats)), {transaction: transaction});
+			updates.push(resultObj.track.stats.update(trackUpd8Obj, {transaction: transaction}));
+			updates.push(resultObj.track.stats.baseStats.update(updateBaseStats(resultObj.replay.overallStats), {transaction: transaction}));
 
-			for (const zone of track.zones) {
+			for (const zone of resultObj.track.zones) {
 				if (zone.zoneNum === 0) continue;
 				const zoneUpd8Obj = {
 					completions: sequelize.literal('completions + 1'),
@@ -457,7 +478,7 @@ const updateStats = (resultObj, transaction) => {
 		else {
 			// It's a particular zone, so update just it.
 			// The zone's stats are from replay.overallStats
-			for (const zone of track.zones) {
+			for (const zone of resultObj.track.zones) {
 				if (zone.zoneNum === resultObj.replay.header.zoneNum) {
 					const zoneUpd8Obj = {
 						completions: sequelize.literal('completions + 1'),
@@ -548,9 +569,9 @@ const updateStats = (resultObj, transaction) => {
 	}).then(() => { // Last but not least, user stats
 
 		const cosXPGain = xpSystems.getCosmeticXPForCompletion({
-			tier: mapTrack.difficulty,
-			isLinear: mapTrack.isLinear,
-			isBonus: mapTrack.trackNum > 0,
+			tier: resultObj.track.difficulty,
+			isLinear: resultObj.track.isLinear,
+			isBonus: resultObj.track.trackNum > 0,
 			isUnique: isEntireTrack ? !playerCompletedThisTrackBefore : !playerCompletedThisZoneBefore,
 			isStageIL: resultObj.replay.header.zoneNum > 0,
 		});
@@ -597,7 +618,7 @@ const Flag = Object.freeze({
 
 module.exports = {
 
-	create: (mapID, userMdl, runFile) => {
+	create: (runSession, userMdl, runFile) => {
 		if (runFile.length === 0) {
 			return Promise.reject(new ServerError(400, 'Bad request'));
 		}
@@ -608,24 +629,16 @@ module.exports = {
 				offset: 0,
 				ok: true,
 			},
+			track: runSession.track,
+			map: runSession.track.map,
+			ses: runSession,
 			userID: userMdl.id,
 			steamID: userMdl.steamID,
 			mapRank: null,
 			xp: {},
 		};
 		return sequelize.transaction(t => {
-			return Map.findByPk(mapID, {
-				include: [
-					{model: MapInfo, as: 'info'},
-					{model: MapStats, as: 'stats', include: [{model: BaseStats, as: 'baseStats'}]}
-				],
-				transaction: t,
-			}).then(map => {
-				if (!map)
-					return Promise.reject(new ServerError(400, 'Bad request'));
-				resultObj.map = map;
-				return Promise.resolve();
-			}).then(() => {
+			return validateRunSession(resultObj).then(() => {
 				return validateRunFile(resultObj)
 			}).then(replay => {
 				resultObj.replay = replay;

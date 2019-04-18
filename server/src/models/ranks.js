@@ -1,5 +1,6 @@
 'use strict';
 const { User, Run, UserMapRank, Op } = require('../../config/sqlize'),
+	ServerError = require('../helpers/server-error'),
 	queryHelper = require('../helpers/query');
 
 const addParams = (queryOptions, queryParams) => {

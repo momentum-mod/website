@@ -39,7 +39,7 @@ module.exports = {
 		ranks.getAround(req.user.id, req.params.mapID, req.query).then(runs => {
 			res.json({
 				count: runs.count,
-				runs: runs.rows
+				ranks: runs.rows
 			})
 		}).catch(next);
 	},

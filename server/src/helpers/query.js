@@ -91,10 +91,7 @@ const expansionMap = {
 	runZoneStats: {
 		model: RunZoneStats,
 		as: 'zoneStats',
-		include: [{
-			model: BaseStats,
-			as: 'baseStats',
-		}]
+		include: [{model: BaseStats, as: 'baseStats'}]
 	}
 };
 

@@ -10,6 +10,12 @@ module.exports = {
 		}),
 	},
 
+	urlParamSessionID: {
+		param: Joi.object().keys({
+			sesID: Joi.number().integer().positive(),
+		})
+	},
+
 	getAll: {
 		query: Joi.object().keys({
 			limit: validation.queryParam.limit,
@@ -20,5 +26,19 @@ module.exports = {
 			mapID: validation.map.id,
 		}),
 	},
+
+	createSession: {
+		body: Joi.object().keys({
+			trackNum: validation.mapTrack.trackNum,
+			zoneNum: validation.mapZone.zoneNum,
+		}).unknown(false)
+	},
+
+	updateSession: {
+		body: Joi.object().keys({
+			zoneNum: validation.mapZone.zoneNum,
+			tick: Joi.number().integer().positive(),
+		}).unknown(false)
+	}
 
 };

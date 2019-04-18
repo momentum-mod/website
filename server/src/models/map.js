@@ -9,8 +9,6 @@ const util = require('util'),
 	} = require('../../config/sqlize'),
 	user = require('./user'),
 	activity = require('./activity'),
-	mapImage = require('./map-image'),
-	run = require('./run'),
 	queryHelper = require('../helpers/query'),
 	ServerError = require('../helpers/server-error'),
 	config = require('../../config/config');
@@ -56,7 +54,7 @@ const verifyMapNameNotTaken = (mapName) => {
 		if (mapWithSameName)
 			return Promise.reject(new ServerError(409, 'Map name already used'));
 	});
-}
+};
 
 const verifyMapUploadLimitNotReached = (submitterID) => {
 	const mapUploadLimit = 1;
@@ -69,12 +67,12 @@ const verifyMapUploadLimitNotReached = (submitterID) => {
 		if (count >= mapUploadLimit)
 			return Promise.reject(new ServerError(409, 'Map creation limit reached'));
 	});
-}
+};
 
 const onMapStatusUpdate = (mapID, previousStatus, newStatus, transaction) => {
 	if (previousStatus === STATUS.PENDING && newStatus === STATUS.APPROVED)
 		return onMapApproval(mapID, transaction);
-}
+};
 
 const onMapApproval = (mapID, transaction) => {
 	const authorIDs = [];
@@ -98,7 +96,7 @@ const onMapApproval = (mapID, transaction) => {
 		else
 			return Promise.resolve();
 	});
-}
+};
 
 const STATUS = Object.freeze({
 	APPROVED: 0,
@@ -133,6 +131,18 @@ module.exports = {
 	STATUS,
 	CreditType,
 	MAP_TYPE,
+
+	getDefaultTickrateForMapType: (type) => {
+		switch (type) {
+			case MAP_TYPE.UNKNOWN:
+			case MAP_TYPE.SURF:
+			default:
+				return 0.015;
+			case MAP_TYPE.BHOP:
+			case MAP_TYPE.TRICKSURF:
+				return 0.01;
+		}
+	},
 
 	getAll: (userID, queryParams) => {
 		const allowedExpansions = ['credits', 'thumbnail'];

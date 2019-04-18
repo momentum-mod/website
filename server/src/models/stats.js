@@ -7,7 +7,7 @@ const findMapWithGreatestStatsColumnValue = (mapStatsColumnName) => {
 		include: [{ model: MapStats, as: 'stats' }],
 		order: [[{ model: MapStats, as: 'stats' }, mapStatsColumnName, 'DESC']]
 	});
-}
+};
 
 module.exports = {
 

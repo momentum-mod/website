@@ -23,6 +23,12 @@ module.exports = {
 			return next(new ServerError(403, 'Forbidden'));
 		next();
 	},
+	requireGameLogin: (req, res, next) => {
+		const gameAuth = req.user && req.user.gameAuth;
+		if (gameAuth)
+			return next();
+		next(new ServerError(403, 'Forbidden'));
+	},
 
 	// Requires requireLogin to be called before
 	requireAdmin: (req, res, next) => {
