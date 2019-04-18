@@ -33,6 +33,7 @@ export class MapUploadFormComponent implements OnInit, AfterViewInit {
   mapUploadPercentage: number;
   isUploadingMap: boolean;
   authors: User[];
+  coauthors: User[];
   testers: User[];
   specialThanks: User[];
   inferredMapType: boolean;
@@ -57,6 +58,7 @@ export class MapUploadFormComponent implements OnInit, AfterViewInit {
   });
   creditsForm: FormGroup = this.fb.group({
     'authors': [[], Validators.required],
+    'coauthors': this.fb.array([]),
     'testers': this.fb.array([]),
     'specialThanks': this.fb.array([]),
   });
@@ -81,6 +83,7 @@ export class MapUploadFormComponent implements OnInit, AfterViewInit {
     this.isUploadingMap = false;
     this.mapUploadPercentage = 0;
     this.authors = [];
+    this.coauthors = [];
     this.testers = [];
     this.specialThanks = [];
     this.extraImages = [];
@@ -226,6 +229,7 @@ export class MapUploadFormComponent implements OnInit, AfterViewInit {
     } else {
       this.creditsForm.setValue({
         authors: this.authors,
+        coauthors: this.coauthors,
         testers: this.testers,
         specialThanks: this.specialThanks,
       });
@@ -268,6 +272,8 @@ export class MapUploadFormComponent implements OnInit, AfterViewInit {
     const credits = [];
     for (let i = 0; i < this.authors.length; i++)
       credits.push({userID: this.authors[i].id, user: this.authors[i], type: MapCreditType.AUTHOR });
+    for (let i = 0; i < this.coauthors.length; i++)
+      credits.push({userID: this.coauthors[i].id, user: this.coauthors[i], type: MapCreditType.COAUTHOR });
     for (let i = 0; i < this.testers.length; i++)
       credits.push({userID: this.testers[i].id, user: this.testers[i], type: MapCreditType.TESTER });
     for (let i = 0; i < this.specialThanks.length; i++)

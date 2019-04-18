@@ -4,6 +4,11 @@
               (userRemoved)="authorChange.emit({user: $event, added: false})">
 
   </map-credit>
+  <map-credit class="col" [editable]="editable" category="Coauthors"
+              [categoryArr]="coauthors" (userAdded)="coauthorChange.emit({user: $event, added: true})"
+              (userRemoved)="coauthorChange.emit({user: $event, added: false})">
+
+  </map-credit>
   <map-credit class="col" [editable]="editable" category="Testers"
               [categoryArr]="testers" (userAdded)="testerChange.emit({user: $event, added: true})"
               (userRemoved)="testerChange.emit({user: $event, added: false})">

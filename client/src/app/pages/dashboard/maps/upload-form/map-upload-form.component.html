@@ -147,8 +147,8 @@
         <div class="row">
           <div class="col-xl-12">
             <form style="" [formGroup]="creditsForm">
-              <map-credits [authors]="authors" [testers]="testers" [special-thanks]="specialThanks" [editable]="true"
-                           (authorChange)="onAuthorChange($event)" (testerChange)="onTesterAdd($event)"
+              <map-credits [authors]="authors" [coauthors]="coauthors" [testers]="testers" [special-thanks]="specialThanks"
+                           [editable]="true" (authorChange)="onAuthorChange($event)" (testerChange)="onTesterAdd($event)"
                            (specialThanksChange)="onSTAdd($event)"></map-credits>
             </form>
           </div>

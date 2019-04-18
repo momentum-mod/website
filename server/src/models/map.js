@@ -111,8 +111,9 @@ const STATUS = Object.freeze({
 
 const CreditType = Object.freeze({
 	AUTHOR: 0,
-	TESTER: 1,
-	SPECIAL_THANKS: 2,
+	COAUTHOR: 1,
+	TESTER: 2,
+	SPECIAL_THANKS: 3,
 });
 
 const MAP_TYPE = Object.freeze({
