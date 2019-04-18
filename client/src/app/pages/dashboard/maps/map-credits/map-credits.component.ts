@@ -14,18 +14,22 @@ export interface UserCreditChangeEvent {
 export class MapCreditsComponent {
 
   @Input('authors') authors: User[];
+  @Input('coauthors') coauthors: User[];
   @Input('testers') testers: User[];
   @Input('special-thanks') specialThanks: User[];
   @Input('editable') editable: boolean;
-  @Output() authorChange: EventEmitter<UserCreditChangeEvent>;
   @Output() testerChange: EventEmitter<UserCreditChangeEvent>;
+  @Output() coauthorChange: EventEmitter<UserCreditChangeEvent>;
+  @Output() authorChange: EventEmitter<UserCreditChangeEvent>;
   @Output() specialThanksChange: EventEmitter<UserCreditChangeEvent>;
   constructor() {
     this.authors = [];
+    this.coauthors = [];
     this.testers = [];
     this.specialThanks = [];
     this.editable = false;
     this.authorChange = new EventEmitter<UserCreditChangeEvent>();
+    this.coauthorChange = new EventEmitter<UserCreditChangeEvent>();
     this.testerChange = new EventEmitter<UserCreditChangeEvent>();
     this.specialThanksChange = new EventEmitter<UserCreditChangeEvent>();
   }
