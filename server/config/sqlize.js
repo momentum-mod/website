@@ -34,6 +34,8 @@ const Sequelize = require('sequelize'),
 	MapZoneGeometryModel = require('../src/models/db/map-zone-geometry'),
 	MapZonePropsModel = require('../src/models/db/map-zone-properties'),
 	XPSystemsModel = require('../src/models/db/xp-systems'),
+	RunSessionModel = require('../src/models/db/run-session'),
+	RunSessionTSModel = require('../src/models/db/run-session-timestamp'),
 	env = process.env.NODE_ENV || 'development';
 
 const sequelize = new Sequelize({
@@ -96,6 +98,8 @@ const RunZoneStats = RunZoneStatsModel(sequelize, Sequelize);
 const BaseStats = BaseStatsModel(sequelize, Sequelize);
 const UserMapRank = MapRankModel(sequelize, Sequelize);
 const XPSystems = XPSystemsModel(sequelize, Sequelize);
+const RunSession = RunSessionModel(sequelize, Sequelize);
+const RunSessionTS = RunSessionTSModel(sequelize, Sequelize);
 
 User.hasOne(Profile, { foreignKey: 'userID', onDelete: 'CASCADE' });
 User.hasMany(Activity, { foreignKey: 'userID', onDelete: 'CASCADE' });
@@ -103,6 +107,9 @@ User.hasOne(UserAuth, { as: 'auth', foreignKey: 'userID', onDelete: 'CASCADE' })
 User.hasOne(UserStats, { as: 'stats', foreignKey: 'userID', onDelete: 'CASCADE' });
 User.hasMany(UserMapRank, { foreignKey: 'userID', onDelete: 'CASCADE'});
 User.hasOne(UserMapRank, { as: 'mapRank', foreignKey: 'userID', constraints: false});
+User.hasOne(RunSession, { foreignKey: 'userID', onDelete: 'CASCADE' });
+RunSession.hasMany(RunSessionTS, { as: 'timestamps', foreignKey: 'sessionID', onDelete: 'CASCADE' });
+RunSessionTS.belongsTo(RunSession, { as: 'session', foreignKey: 'sessionID'});
 Profile.hasOne(DiscordAuth, {foreignKey: 'profileID', onDelete: 'CASCADE'});
 Profile.hasOne(TwitchAuth, {foreignKey: 'profileID', onDelete: 'CASCADE'});
 Profile.hasOne(TwitterAuth, {foreignKey: 'profileID', onDelete: 'CASCADE'});
@@ -115,6 +122,7 @@ Map.hasOne(MapTrack, { as: 'mainTrack', foreignKey: 'mapID', constraints: false 
 MapTrack.belongsTo(Map, { foreignKey: 'mapID' });
 MapTrack.hasOne(MapTrackStats, { as: 'stats', foreignKey: 'mapTrackID', onDelete: 'CASCADE' });
 MapTrack.hasMany(MapZone, { as: 'zones', foreignKey: 'mapTrackID', onDelete: 'CASCADE' });
+RunSession.belongsTo(MapTrack, { as: 'track', foreignKey: 'mapTrackID'});
 MapZone.hasOne(MapZoneGeometry, { as: 'geometry', foreignKey: 'mapZoneID', onDelete: 'CASCADE' });
 MapZone.hasOne(MapZoneProperties, { as: 'zoneProps', foreignKey: 'mapZoneID', onDelete: 'CASCADE'});
 MapZone.hasOne(MapZoneStats, { as: 'stats', foreignKey: 'mapZoneID', onDelete: 'CASCADE' });
@@ -208,4 +216,6 @@ module.exports = {
 	MapZoneGeometry,
 	MapZoneProperties,
 	XPSystems,
+	RunSession,
+	RunSessionTS,
 };

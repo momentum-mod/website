@@ -10,6 +10,7 @@ const express = require('express'),
 	mapCtrl = require('../../controllers/maps'),
 	runsCtrl = require('../../controllers/runs'),
 	ranksCtrl = require('../../controllers/ranks'),
+	runSessionCtrl = require('../../controllers/run-session'),
 	bodyParser = require('body-parser');
 
 router.route('/')
@@ -67,9 +68,21 @@ router.route('/:mapID/images/:imgID')
 	.all(errorCtrl.send405);
 
 router.route('/:mapID/runs')
-	// 80 MB is the upper bound limit of ~10 hours of replay file
-	.post([[bodyParser.raw({limit: '80mb'})]], runsCtrl.create)
 	.get(validate(runsValidation.getAll), runsCtrl.getAll)
+	.all(errorCtrl.send405);
+
+router.route('/:mapID/session')
+	.post([authMiddleware.requireGameLogin, validate(runsValidation.createSession)], runSessionCtrl.createSession)
+	.delete(authMiddleware.requireGameLogin, runSessionCtrl.invalidateSession)
+	.all(errorCtrl.send405);
+
+router.route('/:mapID/session/:sesID')
+	.post([authMiddleware.requireGameLogin, validate(runsValidation.updateSession)], runSessionCtrl.updateSession)
+	.all(errorCtrl.send405);
+
+router.route('/:mapID/session/:sesID/end')
+	// 80 MB is the upper bound limit of ~10 hours of replay file
+	.post([authMiddleware.requireGameLogin, bodyParser.raw({limit: '80mb'})], runSessionCtrl.completeSession)
 	.all(errorCtrl.send405);
 
 router.route('/:mapID/runs/:runID')
@@ -92,5 +105,6 @@ router.param('mapID', validate(mapsValidation.urlParamID));
 router.param('mapCredID', validate(mapsValidation.urlParamCredID));
 router.param('imgID', validate(mapsValidation.urlParamImgID));
 router.param('runID', validate(runsValidation.urlParamID));
+router.param('sesID', validate(runsValidation.urlParamSessionID));
 
 module.exports = router;
