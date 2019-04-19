@@ -11,6 +11,7 @@ const genNotifications = (activityModel, transaction) => {
 			],
 		},
 		raw: true,
+		transaction: transaction,
 	}).then(usersToNotify => {
 		if (!usersToNotify.length)
 			return Promise.resolve();

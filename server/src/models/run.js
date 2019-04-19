@@ -353,7 +353,7 @@ const saveRun = (resultObj, transact) => {
 			type: activity.ACTIVITY_TYPES.PB_ACHIEVED,
 			userID: resultObj.userID,
 			data: runModel.id,
-		}, {transaction: transact});
+		}, transact);
 	}).then(() => { // Generate WR notifications if needed
 		if (!resultObj.isNewWorldRecord)
 			return Promise.resolve();
@@ -361,7 +361,7 @@ const saveRun = (resultObj, transact) => {
 			type: activity.ACTIVITY_TYPES.WR_ACHIEVED,
 			userID: resultObj.userID,
 			data: runModel.id,
-		}, {transaction: transact});
+		}, transact);
 	}).then(() => {
 		return Promise.resolve(runModel);
 	});

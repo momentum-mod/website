@@ -58,9 +58,9 @@ export class MapUploadFormComponent implements OnInit, AfterViewInit {
   });
   creditsForm: FormGroup = this.fb.group({
     'authors': [[], Validators.required],
-    'coauthors': this.fb.array([]),
-    'testers': this.fb.array([]),
-    'specialThanks': this.fb.array([]),
+    'coauthors': [[]],
+    'testers': [[]],
+    'specialThanks': [[]],
   });
   forms: FormGroup[] = [this.filesForm, this.infoForm, this.creditsForm];
 
