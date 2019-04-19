@@ -1,3 +1,15 @@
+@import '../../../../../@theme/styles/styles';
+
+.outer:hover {
+  box-shadow: 0 0 20px 0 #6441a4;
+}
+
+.twitch-text {
+  color: #6441a4;
+  background: nb-theme(color-bg-dark);
+  padding: 3px;
+}
+
 .title {
   text-align: center;
   overflow: hidden;
@@ -8,21 +20,18 @@
   left: 7%;
   right: 7%;
   top: 1%;
-  color: #6441a4;
 }
 
 .user {
   position: absolute;
   bottom: 13%;
   left: 7%;
-  color: #6441a4;
 }
 
 .views {
   position: absolute;
   right: 7%;
   bottom: 13%;
-  color: #6441a4;
 }
 
 img {

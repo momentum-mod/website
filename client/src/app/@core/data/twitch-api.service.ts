@@ -2,7 +2,9 @@ import {Injectable} from '@angular/core';
 import {Observable} from 'rxjs';
 import {HttpClient, HttpHeaders} from '@angular/common/http';
 
-@Injectable()
+@Injectable({
+  providedIn: 'root',
+})
 export class TwitchAPIService {
   private readonly baseURL: string;
   private readonly clientID: string;
@@ -24,13 +26,5 @@ export class TwitchAPIService {
   public isUserLive(userID: string): Observable<any> {
     return this.http.get(this.baseURL + '/streams?game_id=' + this.gameID + '&user_id=' + userID,
       {headers: this.headers});
-  }
-
-  public getGameVideos(): Observable<any> {
-    return this.http.get(
-      'https://api.twitch.tv/kraken/videos/top?game=Momentum Mod&sort=time&broadcast_type=all&period=all&limit=8',
-      {headers: this.headers});
-    // TODO: uncomment the below when Twitch's new API actually returns proper data
-    // return this.http.get(this.baseURL + '/videos?game_id=' + this.gameID, {headers: this.headers});
   }
 }
