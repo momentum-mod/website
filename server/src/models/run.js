@@ -137,7 +137,7 @@ const validateRunFile = (resultObj) => {
 			b7 = replay.header.trackNum === resultObj.ses.trackNum,
 			b8 = replay.header.runFlags === 0, // TODO removeme when we support runFlags (0.9.0)
 			b9 = replay.header.zoneNum === resultObj.ses.zoneNum,
-			b10 = runDate <= nowDate && runDate > (nowDate - 5000),
+			b10 = runDate <= nowDate && runDate > (nowDate - 15000),
 			b11 = Math.abs(replay.header.tickRate - toCheckTR) < epsil,
 			b12 = runSesDiff < 5.0, // TODO is this a good enough leeway for run session times?
 			b13 = (resultObj.map.type === mapMdl.MAP_TYPE.BHOP) || (resultObj.map.type === mapMdl.MAP_TYPE.SURF); // TODO removeme when more game types added
