@@ -1,27 +1,25 @@
 <div class="custom-card">
   <h4 class="text-center">{{category}}</h4>
   <nb-list>
-    <nb-list-item *ngFor="let user of categoryArray" class="row no-gutters">
-      <nb-user class="col-11" [name]="user.alias" [picture]="user.avatarURL"></nb-user>
-      <div class="col-1 remove-user" *ngIf="editable">
-        <button class="btn btn-outline-danger btn-xs btn-icon" (click)="removeUser(user)">
+    <nb-list-item *ngFor="let user of creditArr[this.credType]" class="row no-gutters">
+      <nb-user class="col-9" [name]="user.alias" [picture]="user.avatarURL"></nb-user>
+      <div class="col-3 remove-user" *ngIf="editable">
+        <button class="btn btn-outline-danger btn-xs d-block m-auto" (click)="removeUser(user)">
           <i class="ion ion-close-round"></i>
         </button>
       </div>
     </nb-list-item>
     <nb-list-item *ngFor="let userSearch of userSearches">
       <span class="error" *ngIf="userSearch.alreadySelected">User already selected!</span>
-      <div class="row no-gutters">
-        <user-search class="col-11" (selectedUserEmit)="addUser($event, userSearch)"></user-search>
-        <div class="col-1">
-          <button class="btn btn-outline-danger btn-xs" (click)="removeUserSearch(userSearch)">
-            <i class="ion ion-close-round"></i>
-          </button>
-        </div>
+      <div>
+        <user-search (selectedUserEmit)="addUser($event, userSearch)"></user-search>
+        <button nbButton outline status="danger" size="xsmall" class="cancel-user" (click)="removeUserSearch(userSearch)">
+          <span class="text-center">Cancel</span>
+        </button>
       </div>
     </nb-list-item>
     <nb-list-item *ngIf="editable">
-      <button class="btn btn-primary add-user" (click)="addUserSearch()">
+      <button class="btn btn-outline-info add-user m-auto d-block" (click)="addUserSearch()">
         <i class="ion ion-plus"></i>
       </button>
     </nb-list-item>

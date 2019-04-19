@@ -1,8 +1,15 @@
 import {Component, EventEmitter, Input, Output} from '@angular/core';
 import {User} from '../../../../../@core/models/user.model';
+import {MapCreditType} from '../../../../../@core/models/map-credit-type.model';
 
 export interface UserSearch {
   alreadySelected: boolean;
+}
+
+export interface CreditChangeEvent {
+  user: User;
+  added: boolean;
+  type: MapCreditType;
 }
 
 @Component({
@@ -13,30 +20,48 @@ export interface UserSearch {
 export class MapCreditComponent {
 
   @Input('category') category: string;
-  @Input('categoryArr') categoryArray: User[];
+  @Input('credType') credType: MapCreditType;
+  @Input('creditArr') creditArr: User[][];
   @Input('editable') editable: boolean;
-  @Output() userAdded: EventEmitter<User>;
-  @Output() userRemoved: EventEmitter<User>;
+  @Output() creditChange: EventEmitter<CreditChangeEvent>;
   userSearches: UserSearch[];
+
   constructor() {
-    this.userAdded = new EventEmitter<User>();
-    this.userRemoved = new EventEmitter<User>();
+    this.creditChange = new EventEmitter<CreditChangeEvent>();
     this.userSearches = [];
   }
+
   addUser(user: User, userSearch: any) {
-    if (this.categoryArray.find((val => val.id === user.id))) {
+    // Check if in any category already
+    let alreadySel = false;
+    for (let cred = 0; cred < MapCreditType.LENGTH; cred++) {
+      if (this.creditArr[cred].find(val => val.id === user.id)) {
+        alreadySel = true;
+        break;
+      }
+    }
+    if (alreadySel) {
       userSearch.alreadySelected = true;
     } else {
-      this.categoryArray.push(user);
-      this.userAdded.emit(user);
+      this.creditArr[this.credType].push(user);
+      this.creditChange.emit({
+        type: this.credType,
+        user: user,
+        added: true,
+      });
       this.removeUserSearch(userSearch);
     }
   }
+
   removeUser(user: User) {
-    const indx = this.categoryArray.indexOf(user);
+    const indx = this.creditArr[this.credType].indexOf(user);
     if (indx > -1) {
-      this.categoryArray.splice(indx, 1);
-      this.userRemoved.emit(user);
+      this.creditArr[this.credType].splice(indx, 1);
+      this.creditChange.emit({
+        type: this.credType,
+        user: user,
+        added: false,
+      });
     }
   }
 

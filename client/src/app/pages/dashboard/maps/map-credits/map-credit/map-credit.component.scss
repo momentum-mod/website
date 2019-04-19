@@ -5,11 +5,9 @@
   display: block;
 }
 
-.add-user, .remove-user {
+.cancel-user {
   display: block;
-  margin: auto;
-
-  .btn-outline-danger {
-    padding: 0.5rem 1rem;
-  }
+  margin-left: auto;
+  margin-right: auto;
+  margin-top: 5%;
 }

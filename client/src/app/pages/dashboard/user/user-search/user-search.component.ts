@@ -35,7 +35,6 @@ export class UserSearchComponent implements OnInit {
         if ((val = val.trim()).length > 2) {
           this.usersService.getUsers({
             params: {
-              expand: 'profile',
               search: val,
             },
           }).subscribe(resp => {
