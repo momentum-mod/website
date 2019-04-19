@@ -92,7 +92,7 @@ module.exports = {
 					// Second edge case: a user is following both placeholder and real user
 					return User.findAll({
 						having: sequelize.literal('count = 2'),
-						group: [sequelize.col('following->follow.followeeID')],
+						group: [sequelize.col('following->follow.followeeID'), sequelize.col('user.id')],
 						attributes: ['id', [sequelize.fn('COUNT', sequelize.col('following->follow.followedID')), 'count']],
 						include: [
 							{
