@@ -3,6 +3,7 @@ import {async, ComponentFixture, TestBed} from '@angular/core/testing';
 import {MapCreditComponent} from './map-credit.component';
 import {NbCardModule, NbListModule, NbPopoverModule, NbThemeModule, NbUserModule} from '@nebular/theme';
 import {UserModule} from '../../../user/user.module';
+import {MapCreditType} from '../../../../../@core/models/map-credit-type.model';
 
 describe('MapCreditComponent', () => {
   let component: MapCreditComponent;
@@ -19,6 +20,8 @@ describe('MapCreditComponent', () => {
   beforeEach(() => {
     fixture = TestBed.createComponent(MapCreditComponent);
     component = fixture.componentInstance;
+    component.creditArr = [[], [], [], []];
+    component.credType = MapCreditType.AUTHOR;
     fixture.detectChanges();
   });
 

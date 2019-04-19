@@ -1,7 +1,7 @@
 language: node_js
 
 sudo: false
-dist: trusty
+dist: xenial
 
 node_js:
   - '10'
