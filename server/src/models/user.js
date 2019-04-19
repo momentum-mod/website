@@ -57,10 +57,21 @@ module.exports = {
 				if (!placeholder)
 					return Promise.reject(new ServerError(400, 'Placeholder user not found!'));
 				else if ((placeholder.roles & module.exports.Role.PLACEHOLDER) === 0)
-					return Promise.reject(new ServerError(400), 'placeholderID does not represent a placeholder user!');
+					return Promise.reject(new ServerError(400, 'placeholderID does not represent a placeholder user!'));
 
 				placeholderUser = placeholder;
 				return User.findByPk(body.realID, {
+					include: [{
+						model: User,
+						as: 'followers',
+						include: [{
+							model: User,
+							as: 'following',
+							where: {
+								id: placeholder.id,
+							}
+						}]
+					}],
 					transaction: t,
 				});
 			}).then(real => {
@@ -89,60 +100,43 @@ module.exports = {
 					},
 					transaction: t,
 				}).then(() => {
-					// Second edge case: a user is following both placeholder and real user
-					return User.findAll({
-						having: sequelize.literal('count = 2'),
-						group: [sequelize.col('following->follow.followeeID'), sequelize.col('user.id')],
-						attributes: ['id', [sequelize.fn('COUNT', sequelize.col('following->follow.followedID')), 'count']],
-						include: [
-							{
-								model: User,
-								as: 'following',
-								through: {
-									attributes: ['followeeID', 'followedID', 'createdAt'],
-									where: {
-										followedID: {
-											[Op.or]: [
-												{[Op.eq]: placeholderUser.id},
-												{[Op.eq]: realUser.id},
-											]
-										}
+					// Second edge case: user(s) is (are) following both placeholder and real user
+					if (realUser.followers && realUser.followers.length > 0) {
+						const updates = [];
+						for (const u of realUser.followers) {
+							updates.push(UserFollows.findAll({
+								attributes: ['followedID', 'followeeID', 'createdAt', 'notifyOn'],
+								where: {
+									followeeID: u.id,
+									followedID: {
+										[Op.or]: [
+											{[Op.eq]: placeholderUser.id},
+											{[Op.eq]: realUser.id},
+										]
 									}
-								}
-							}
-						],
-						transaction: t,
-					}).then(users => {
-						if (users) {
-							const updates = [];
-							for (const u of users) {
-								updates.push(UserFollows.findAll({
-									where: {
-										followeeID: u.id,
-										followedID: {
-											[Op.or]: [
-												{[Op.eq]: placeholderUser.id},
-												{[Op.eq]: realUser.id},
-											]
-										}
-									},
-									transaction: t,
-								}).then(follows => {
-									if (!follows || follows.length !== 2)
-										return Promise.reject(new ServerError(400, 'User somehow not following both!'));
+								},
+								transaction: t,
+							}).then(follows => {
+								if (!follows || follows.length !== 2)
+									return Promise.reject(new ServerError(400, 'User somehow not following both!'));
 
-									let realFollow = follows.find(val => val.followedID === realUser.id);
-									let placeholderFollow = follows.find(val => val.followedID === placeholderUser.id);
-									if (realFollow.createdAt.getTime() < placeholderFollow.createdAt.getTime())
-										return placeholderFollow.destroy({transaction: t});
-									else
-										return realFollow.destroy({transaction: t});
-								}));
-							}
-							return Promise.all(updates);
+								let realFollow = follows.find(val => val.followedID === realUser.id);
+								let placeholderFollow = follows.find(val => val.followedID === placeholderUser.id);
+								let notifyOn = (realFollow.notifyOn | placeholderFollow.notifyOn);
+								if (realFollow.createdAt.getTime() < placeholderFollow.createdAt.getTime()) {
+									return placeholderFollow.destroy({transaction: t}).then(() => {
+										return realFollow.update({notifyOn: notifyOn}, {transaction: t})
+									});
+								} else {
+									return realFollow.destroy({transaction: t}).then(() => {
+										return placeholderFollow.update({notifyOn: notifyOn}, {transaction: t});
+									});
+								}
+							}));
 						}
-						return Promise.resolve();
-					})
+						return Promise.all(updates);
+					}
+					return Promise.resolve();
 				}).then(() => {
 					// Now we update all of the user follows where we are the followed user
 					return UserFollows.update({followedID: realUser.id}, {
