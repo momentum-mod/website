@@ -1,10 +1,7 @@
 import {Component, EventEmitter, Input, Output} from '@angular/core';
 import {User} from '../../../../@core/models/user.model';
-
-export interface UserCreditChangeEvent {
-  user: User;
-  added: boolean;
-}
+import {MapCreditType} from '../../../../@core/models/map-credit-type.model';
+import {CreditChangeEvent} from './map-credit/map-credit.component';
 
 @Component({
   selector: 'map-credits',
@@ -13,24 +10,13 @@ export interface UserCreditChangeEvent {
 })
 export class MapCreditsComponent {
 
-  @Input('authors') authors: User[];
-  @Input('coauthors') coauthors: User[];
-  @Input('testers') testers: User[];
-  @Input('special-thanks') specialThanks: User[];
+  creditType: typeof MapCreditType = MapCreditType;
+  @Input('creditArr') creditArr: User[][];
   @Input('editable') editable: boolean;
-  @Output() testerChange: EventEmitter<UserCreditChangeEvent>;
-  @Output() coauthorChange: EventEmitter<UserCreditChangeEvent>;
-  @Output() authorChange: EventEmitter<UserCreditChangeEvent>;
-  @Output() specialThanksChange: EventEmitter<UserCreditChangeEvent>;
+  @Output() creditChange: EventEmitter<CreditChangeEvent>;
   constructor() {
-    this.authors = [];
-    this.coauthors = [];
-    this.testers = [];
-    this.specialThanks = [];
+    this.creditArr = [];
     this.editable = false;
-    this.authorChange = new EventEmitter<UserCreditChangeEvent>();
-    this.coauthorChange = new EventEmitter<UserCreditChangeEvent>();
-    this.testerChange = new EventEmitter<UserCreditChangeEvent>();
-    this.specialThanksChange = new EventEmitter<UserCreditChangeEvent>();
+    this.creditChange = new EventEmitter<CreditChangeEvent>();
   }
 }

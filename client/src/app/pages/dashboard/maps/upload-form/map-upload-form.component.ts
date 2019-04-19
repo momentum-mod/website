@@ -15,6 +15,7 @@ import {LocalUserService} from '../../../../@core/data/local-user.service';
 import {MapTrack} from '../../../../@core/models/map-track.model';
 import * as VDF from '@node-steam/vdf';
 import {MapZone} from '../../../../@core/models/map-zone.model';
+import {CreditChangeEvent} from '../map-credits/map-credit/map-credit.component';
 
 export interface ImageFilePreview {
   dataBlobURL: string;
@@ -37,10 +38,7 @@ export class MapUploadFormComponent implements OnInit, AfterViewInit {
   extraImages: ImageFilePreview[];
   mapUploadPercentage: number;
   isUploadingMap: boolean;
-  authors: User[];
-  coauthors: User[];
-  testers: User[];
-  specialThanks: User[];
+  creditArr: User[][];
   inferredMapType: boolean;
   MapTypes = MomentumMapType;
   mapPreview: MomentumMap;
@@ -81,10 +79,7 @@ export class MapUploadFormComponent implements OnInit, AfterViewInit {
     this.stepper = null;
     this.isUploadingMap = false;
     this.mapUploadPercentage = 0;
-    this.authors = [];
-    this.coauthors = [];
-    this.testers = [];
-    this.specialThanks = [];
+    this.creditArr = [[], [], [], []];
     this.extraImages = [];
     this.tracks = [];
     this.inferredMapType = false;
@@ -277,27 +272,18 @@ export class MapUploadFormComponent implements OnInit, AfterViewInit {
       this.markFormAsDirty(this.forms[selected]);
   }
 
-  onAuthorChange($event) {
+  onCreditChanged($event: CreditChangeEvent) {
     if ($event.added) {
-      this.creditsForm.patchValue({
-        authors: this.authors,
-      });
+      const types = ['authors', 'coauthors', 'tester', 'specialThanks'];
+      this.creditsForm.get(types[$event.type]).patchValue($event.user);
     } else {
       this.creditsForm.setValue({
-        authors: this.authors,
-        coauthors: this.coauthors,
-        testers: this.testers,
-        specialThanks: this.specialThanks,
+        authors: this.creditArr[MapCreditType.AUTHOR],
+        coauthors: this.creditArr[MapCreditType.COAUTHOR],
+        testers: this.creditArr[MapCreditType.TESTER],
+        specialThanks: this.creditArr[MapCreditType.SPECIAL_THANKS],
       });
     }
-  }
-
-  onTesterAdd($event) {
-    // TODO: implement
-  }
-
-  onSTAdd($event) {
-    // TODO: implement
   }
 
   getFileSource(img: File, isImage: boolean, callback: (result: any, originalFile: File) => void) {
@@ -329,14 +315,11 @@ export class MapUploadFormComponent implements OnInit, AfterViewInit {
 
   getAllCredits() {
     const credits = [];
-    for (let i = 0; i < this.authors.length; i++)
-      credits.push({userID: this.authors[i].id, user: this.authors[i], type: MapCreditType.AUTHOR });
-    for (let i = 0; i < this.coauthors.length; i++)
-      credits.push({userID: this.coauthors[i].id, user: this.coauthors[i], type: MapCreditType.COAUTHOR });
-    for (let i = 0; i < this.testers.length; i++)
-      credits.push({userID: this.testers[i].id, user: this.testers[i], type: MapCreditType.TESTER });
-    for (let i = 0; i < this.specialThanks.length; i++)
-      credits.push({userID: this.specialThanks[i].id, user: this.specialThanks[i], type: MapCreditType.SPECIAL_THANKS});
+    for (let credType = 0; credType < MapCreditType.LENGTH; credType++) {
+      for (const usr of this.creditArr[credType]) {
+        credits.push({userID: usr.id, user: usr, type: credType});
+      }
+    }
     return credits;
   }
   generatePreviewMap(): void {
