@@ -1,6 +1,8 @@
-<a [href]="getURL()">
-  <h5 class="title">{{getTitle()}}</h5>
-  <span class="user">{{getUserName()}}</span>
-  <span class="views">{{getViewCount()}}</span>
-  <img [src]="getImage()">
-</a>
+<div class="outer">
+  <a [href]="getURL()">
+    <h5 class="title twitch-text">{{getTitle()}}</h5>
+    <span class="user twitch-text">{{getUserName()}}</span>
+    <span class="views twitch-text">{{getViewCount()}}</span>
+    <img [src]="getImage()">
+  </a>
+</div>

@@ -27,13 +27,5 @@ describe('ActivityService', () => {
       );
       expect(httpClientSpy.get.calls.count()).toBe(1, 'one call');
     });
-    it('#getGameVideos() should return videos', () => {
-      httpClientSpy.get.and.returnValue(of(twitchAPIService));
-      twitchAPIService.getGameVideos().subscribe(value =>
-          expect(value).toEqual(twitchAPIService, 'expected activity'),
-        fail,
-      );
-      expect(httpClientSpy.get.calls.count()).toBe(1, 'one call');
-    });
   });
 });
