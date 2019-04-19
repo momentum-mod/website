@@ -9,6 +9,9 @@ node_js:
 env:
   - NODE_ENV=test
 
+services:
+  - mysql
+
 branches:
   only:
   - master
