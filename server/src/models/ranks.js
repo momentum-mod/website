@@ -84,8 +84,14 @@ module.exports = {
 			queryOptions.offset = queryParams.offset;
 		if (queryParams.mapID)
 			queryOptions.where.mapID = queryParams.mapID;
-		if (queryParams.playerID)
+		if (queryParams.userID) {
+			queryOptions.include[1].where.id = queryParams.userID;
+			queryOptions.limit = 1;
+		}
+		if (queryParams.playerID) {
 			queryOptions.include[1].where.steamID = queryParams.playerID;
+			queryOptions.limit = 1;
+		}
 		if (queryParams.playerIDs)
 			queryOptions.include[1].where.steamID = { [Op.in]: queryParams.playerIDs.split(',') };
 		if (queryParams.flags)

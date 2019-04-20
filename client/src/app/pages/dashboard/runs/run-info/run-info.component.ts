@@ -35,7 +35,7 @@ export class RunInfoComponent implements OnInit {
       else {
         const options = {
           params: {
-            playerID: this.run.playerID,
+            userID: this.run.playerID,
             track: this.run.trackNum,
             zone: this.run.zoneNum,
             flags: this.run.flags,

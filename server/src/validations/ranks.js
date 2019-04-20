@@ -8,7 +8,8 @@ module.exports = {
 		query: Joi.object().keys({
 			limit: validation.queryParam.limit,
 			offset: validation.queryParam.offset,
-			playerID: validation.user.id,
+			userID: validation.user.id,
+			playerID: validation.user.steamID,
 			playerIDs: validation.queryParam.playerIDs,
 			flags: validation.run.flags,
 			mapID: validation.map.id,
