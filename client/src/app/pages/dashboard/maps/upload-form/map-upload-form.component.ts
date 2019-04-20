@@ -274,7 +274,7 @@ export class MapUploadFormComponent implements OnInit, AfterViewInit {
 
   onCreditChanged($event: CreditChangeEvent) {
     if ($event.added) {
-      const types = ['authors', 'coauthors', 'tester', 'specialThanks'];
+      const types = ['authors', 'coauthors', 'testers', 'specialThanks'];
       this.creditsForm.get(types[$event.type]).patchValue($event.user);
     } else {
       this.creditsForm.setValue({
