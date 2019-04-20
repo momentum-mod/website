@@ -60,18 +60,20 @@ module.exports = {
 					zones: Joi.array().items(
 						Joi.object().keys({
 							zoneNum: validation.mapZone.zoneNum.required(),
-							zoneType: validation.mapZone.zoneType.required(),
-							zoneProps: validation.mapZone.zoneProps,
-							geometry: Joi.object().keys({
-								pointsHeight: validation.mapZoneGeometry.pointsHeight.required(),
-								pointsZPos: validation.mapZoneGeometry.pointsZPos.required(),
-								points: validation.mapZoneGeometry.points.required(),
-							}).unknown(false),
+							triggers: Joi.array().items(
+								Joi.object().keys({
+									type: validation.mapZoneTrigger.type.required(),
+									pointsHeight: validation.mapZoneTrigger.pointsHeight.required(),
+									pointsZPos: validation.mapZoneTrigger.pointsZPos.required(),
+									points: validation.mapZoneTrigger.points.required(),
+									zoneProps: validation.mapZoneTrigger.zoneProps,
+								}).unknown(false),
+							).min(1),
 							stats: Joi.object().keys({
 								baseStats: Joi.object(),
 							}),
 						}).unknown(false),
-					),
+					).min(2),
 					stats: Joi.object().keys({
 						baseStats: Joi.object(),
 					}),

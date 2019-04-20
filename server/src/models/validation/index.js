@@ -9,7 +9,7 @@ module.exports = {
 	map: require('./map'),
 	mapTrack: require('./map-track'),
 	mapZone: require('./map-zone'),
-	mapZoneGeometry: require('./map-zone-geometry'),
+	mapZoneTrigger: require('./map-zone-trigger'),
 	notification: require('./notification'),
 	profile: require('./profile'),
 	queryParam: require('./query-param'),

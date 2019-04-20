@@ -31,7 +31,7 @@ const Sequelize = require('sequelize'),
 	MapTrackModel = require('../src/models/db/map-track'),
 	MapTrackStatsModel = require('../src/models/db/map-track-stats'),
 	MapZoneModel = require('../src/models/db/map-zone'),
-	MapZoneGeometryModel = require('../src/models/db/map-zone-geometry'),
+	MapZoneTriggerModel = require('../src/models/db/map-zone-trigger'),
 	MapZonePropsModel = require('../src/models/db/map-zone-properties'),
 	XPSystemsModel = require('../src/models/db/xp-systems'),
 	RunSessionModel = require('../src/models/db/run-session'),
@@ -76,7 +76,7 @@ const Profile = ProfileModel(sequelize, Sequelize);
 const Map = MapModel(sequelize, Sequelize);
 const MapTrack = MapTrackModel(sequelize, Sequelize);
 const MapZone = MapZoneModel(sequelize, Sequelize);
-const MapZoneGeometry = MapZoneGeometryModel(sequelize, Sequelize);
+const MapZoneTrigger = MapZoneTriggerModel(sequelize, Sequelize);
 const MapZoneProperties = MapZonePropsModel(sequelize, Sequelize);
 const MapInfo = MapInfoModel(sequelize, Sequelize);
 const MapCredit = MapCreditModel(sequelize, Sequelize);
@@ -123,8 +123,8 @@ MapTrack.belongsTo(Map, { foreignKey: 'mapID' });
 MapTrack.hasOne(MapTrackStats, { as: 'stats', foreignKey: 'mapTrackID', onDelete: 'CASCADE' });
 MapTrack.hasMany(MapZone, { as: 'zones', foreignKey: 'mapTrackID', onDelete: 'CASCADE' });
 RunSession.belongsTo(MapTrack, { as: 'track', foreignKey: 'mapTrackID'});
-MapZone.hasOne(MapZoneGeometry, { as: 'geometry', foreignKey: 'mapZoneID', onDelete: 'CASCADE' });
-MapZone.hasOne(MapZoneProperties, { as: 'zoneProps', foreignKey: 'mapZoneID', onDelete: 'CASCADE'});
+MapZone.hasMany(MapZoneTrigger, { as: 'triggers', foreignKey: 'mapZoneID', onDelete: 'CASCADE' });
+MapZoneTrigger.hasOne(MapZoneProperties, { as: 'zoneProps', foreignKey: 'triggerID', onDelete: 'CASCADE'});
 MapZone.hasOne(MapZoneStats, { as: 'stats', foreignKey: 'mapZoneID', onDelete: 'CASCADE' });
 MapCredit.belongsTo(User, { foreignKey: 'userID' });
 MapLibraryEntry.belongsTo(User, { foreignKey: 'userID' });
@@ -213,7 +213,7 @@ module.exports = {
 	MapTrack,
 	MapTrackStats,
 	MapZone,
-	MapZoneGeometry,
+	MapZoneTrigger,
 	MapZoneProperties,
 	XPSystems,
 	RunSession,

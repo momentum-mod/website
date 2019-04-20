@@ -3,7 +3,7 @@ const util = require('util'),
 	fs = require('fs'),
 	crypto = require('crypto'),
 	{ sequelize, Op, Map, MapInfo, MapCredit, User, MapReview, MapImage,
-		MapStats, MapZoneStats, MapTrack, MapTrackStats, MapZone, MapZoneGeometry,
+		MapStats, MapZoneStats, MapTrack, MapTrackStats, MapZone, MapZoneTrigger,
 		BaseStats, MapFavorite, MapZoneProperties,
 		MapLibraryEntry, UserMapRank, Run
 	} = require('../../config/sqlize'),
@@ -333,12 +333,12 @@ module.exports = {
 											include: [{model: BaseStats, as: 'baseStats'}]
 										},
 										{
-											model: MapZoneGeometry,
-											as: 'geometry',
-										},
-										{
-											model: MapZoneProperties,
-											as: 'zoneProps',
+											model: MapZoneTrigger,
+											as: 'triggers',
+											include: [{
+												model: MapZoneProperties,
+												as: 'zoneProps',
+											}]
 										}
 									]
 								},
@@ -463,14 +463,14 @@ module.exports = {
 					as: 'zones',
 					include: [
 						{
-							model: MapZoneProperties,
-							required: false,
-							as: 'zoneProps'
+							model: MapZoneTrigger,
+							as: 'triggers',
+							include: [{
+								model: MapZoneProperties,
+								as: 'zoneProps',
+								required: false,
+							}]
 						},
-						{
-							model: MapZoneGeometry,
-							as: 'geometry',
-						}
 					]
 				}]
 			}],

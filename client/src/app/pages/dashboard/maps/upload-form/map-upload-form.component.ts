@@ -16,6 +16,7 @@ import {MapTrack} from '../../../../@core/models/map-track.model';
 import * as VDF from '@node-steam/vdf';
 import {MapZone} from '../../../../@core/models/map-zone.model';
 import {CreditChangeEvent} from '../map-credits/map-credit/map-credit.component';
+import {MapZoneTrigger} from '../../../../@core/models/map-zone-trigger.model';
 
 export interface ImageFilePreview {
   dataBlobURL: string;
@@ -151,14 +152,25 @@ export class MapUploadFormComponent implements OnInit, AfterViewInit {
 
         const zoneMdl: MapZone = {
           zoneNum: zoneNum,
-          zoneType: track[zone].zoneType,
-          geometry: track[zone].geometry,
+          triggers: [],
           stats: {
             baseStats: {},
           },
         };
-        if (track[zone].zoneProps)
-          zoneMdl.zoneProps = {properties: track[zone].zoneProps};
+        for (const trigger in track[zone].triggers) {
+          if (track[zone].triggers.hasOwnProperty(trigger)) {
+            const triggerObj = track[zone].triggers[trigger];
+            const zoneMdlTrigger: MapZoneTrigger = {
+              type: triggerObj.type,
+              points: triggerObj.points,
+              pointsZPos: triggerObj.pointsZPos,
+              pointsHeight: triggerObj.pointsHeight,
+            };
+            if (triggerObj.zoneProps)
+              zoneMdlTrigger.zoneProps = {properties: triggerObj.zoneProps};
+            zoneMdl.triggers.push(zoneMdlTrigger);
+          }
+        }
         if (zoneNum === 0)
           delete zoneMdl.stats;
         trackReturn.zones.push(zoneMdl);
