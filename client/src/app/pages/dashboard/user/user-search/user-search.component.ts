@@ -31,9 +31,9 @@ export class UserSearchComponent implements OnInit {
     this.nameSearch.valueChanges.pipe(
       debounceTime(500),
       distinctUntilChanged())
-      .subscribe(val => {
+      .subscribe((val: string) => {
         val = val.trim();
-        if (val.length() > 0) {
+        if (val.length > 0) {
           this.usersService.getUsers({
             params: {
               search: val,
@@ -42,6 +42,8 @@ export class UserSearchComponent implements OnInit {
           }).subscribe(resp => {
             this.foundUsers = resp.users;
           });
+        } else {
+          this.foundUsers = [];
         }
       });
   }
