@@ -66,7 +66,7 @@ router.route('/twitter/return')
 				return next(new Error('No user object!'));
 			// Here's that security I was talking about earlier. We're going to make sure the request returned for
 			// the user in question.
-			else if (user.user && user.user.id === req.query.id) {
+			else if (user.user && user.user.id === Number(req.query.id)) {
 				// Unuse this strategy, we're done here.
 				passport.unuse('twitter-' + user.user.id);
 				req.account = user;
