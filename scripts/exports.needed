@@ -1,0 +1,29 @@
+#!/bin/bash
+
+# To use this, cp this file to the path ~/exports and fill in the missing values!
+
+# Node related variables, change if you really want to!
+export NODE_ENV=production
+export NODE_PORT=3002
+# The secret used for generating JWTs
+export JWT_SECRET=
+# The Steam API web key (you can get it from https://steamcommunity.com/dev/apikey)
+# NOTE NOTE: If you're using the above link to get this key, make sure to edit server/config/config.js to use the public steam API!
+export STEAM_WEB_API_KEY=
+# The database user, password, and host
+export MOM_DATABASE_USER=
+export MOM_DATABASE_PW=
+export MOM_DATABASE_HOST=
+# The base URL of your website
+export BASE_URL=
+# The Twitter consumer Key and Secret for using their API
+export TWITTER_CONSUMER_KEY=
+export TWITTER_CONSUMER_SECRET=
+# The Discord Client ID and Secret for using their API
+export DISCORD_CLIENT_ID=
+export DISCORD_CLIENT_SECRET=
+# The Twitch Client ID and Secret for using their API
+export TWITCH_CLIENT_ID=
+export TWITCH_CLIENT_SECRET=
+# A generated secret for express' sessions
+export EXPRESS_SESSION_SECRET=
