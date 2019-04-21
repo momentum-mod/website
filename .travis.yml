@@ -15,6 +15,7 @@ services:
 branches:
   only:
   - master
+  - staging
 
 git:
   depth: false
@@ -42,7 +43,7 @@ jobs:
   - name: "Server Tests"
     before_install: cd ./server/
     install: yarn install
-    before_script: bash setup-db.sh
+    before_script: bash ../scripts/setup-db-test.sh
     script: npm test
   #- name: "Client Integration Tests"
     # TODO: Uncomment when we have client integration tests
