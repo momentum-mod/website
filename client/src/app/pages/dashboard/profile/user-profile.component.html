@@ -48,7 +48,7 @@
                  target="_blank" class="ion ion-social-twitter"></a>
               <a *ngIf="user.profile?.discordAuth"
                  [href]="'https://discordapp.com/users/' + user.profile.discordAuth.discordID"
-                 title="{{user.profile?.discordAuth.displayName}}" target="_blank" class="fa fa-discord">
+                 title="{{user.profile?.discordAuth.displayName}}" target="_blank" class="fab fa-discord">
               </a>
               <a *ngIf="user.profile?.youtubeName" href="https://youtube.com/user/{{user.profile?.youtubeName}}"
                  target="_blank" class="ion ion-social-youtube"></a>
