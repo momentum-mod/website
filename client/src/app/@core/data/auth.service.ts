@@ -7,7 +7,7 @@ import {Observable, of} from 'rxjs';
 import 'rxjs-compat/add/operator/switchMap';
 import 'rxjs-compat/add/observable/throw';
 import {Router} from '@angular/router';
-import {finalize, map, share} from 'rxjs/operators';
+import {map, share} from 'rxjs/operators';
 
 export interface TokenRefreshResponse {
   accessToken: string;
@@ -23,14 +23,11 @@ export class AuthService {
   }
 
   public logout(): void {
-    this.http.post('/auth/revoke', {}).pipe(
-      finalize(() => {
-        localStorage.removeItem('accessToken');
-        localStorage.removeItem('refreshToken');
-        localStorage.removeItem('user');
-        this.router.navigateByUrl('/');
-      }),
-    ).subscribe();
+    this.http.post('/auth/revoke', {}).subscribe();
+    localStorage.removeItem('accessToken');
+    localStorage.removeItem('refreshToken');
+    localStorage.removeItem('user');
+    this.router.navigateByUrl('/');
   }
 
   public isAuthenticated(): boolean {
