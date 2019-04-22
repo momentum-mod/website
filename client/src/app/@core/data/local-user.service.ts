@@ -37,6 +37,7 @@ export class LocalUserService {
     if (user) {
       this.localUser = JSON.parse(user);
       this.locUserObtEmit.next(this.localUser);
+      this.refreshLocal();
     }
   }
 
