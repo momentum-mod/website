@@ -1,4 +1,4 @@
-import {Component, OnInit} from '@angular/core';
+import {Component, OnInit, ViewChild} from '@angular/core';
 import {LocalUserService} from '../../../../@core/data/local-user.service';
 import {ToasterService} from 'angular2-toaster';
 import 'style-loader!angular2-toaster/toaster.css';
@@ -14,6 +14,7 @@ import {User} from '../../../../@core/models/user.model';
 import {AdminService} from '../../../../@core/data/admin.service';
 import {ConfirmDialogComponent} from '../../../../@theme/components/confirm-dialog/confirm-dialog.component';
 import {NbDialogService} from '@nebular/theme';
+import {NbTabComponent} from '@nebular/theme/components/tabset/tabset.component';
 
 @Component({
   selector: 'profile-edit',
@@ -52,6 +53,8 @@ export class ProfileEditComponent implements OnInit {
   isModerator: boolean;
   Role: typeof Role = Role;
   Ban: typeof Ban = Ban;
+
+  @ViewChild('socials') socials: NbTabComponent;
 
   constructor(private route: ActivatedRoute,
               private router: Router,
