@@ -45,7 +45,7 @@
             </div>
           </div>
         </nb-tab>
-        <nb-tab *ngIf="isLocal && user" tabTitle="SOCIAL LINKS">
+        <nb-tab *ngIf="isLocal && user" tabTitle="SOCIAL LINKS" #socials>
           <div class="form-group">
             <div>
               <span>Twitter:</span>
@@ -115,7 +115,7 @@
             </div>
             <div class="col-4" *ngIf="isAdmin">
               <button class="mb-lg-5" type="button" nbButton outline status="danger" (click)="deleteUser()">Delete User</button>
-              <div class="row">
+              <div class="row" *ngIf="hasRole(Role.PLACEHOLDER)">
                 <div class="col">
                   <label>
                     Merge to Real User:
@@ -133,7 +133,8 @@
           </div>
         </nb-tab>
       </nb-tabset>
-      <button class="btn btn-md btn-outline-info" type="submit" [disabled]="(profileEditFormGroup.touched && !profileEditFormGroup.valid)">
+      <button class="btn btn-md btn-outline-info" type="submit" *ngIf="!(socials && socials.active)"
+              [disabled]="(profileEditFormGroup.touched && !profileEditFormGroup.valid)">
         Save changes
       </button>
     </form>
