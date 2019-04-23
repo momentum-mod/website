@@ -271,6 +271,7 @@ module.exports = {
 				as: 'mapRank',
 				where: { mapID: queryParams.mapRank },
 				include: [Run],
+				attributes: ['rank', 'rankXP'],
 				required: false,
 			})
 		}

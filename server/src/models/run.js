@@ -128,26 +128,29 @@ const validateRunFile = (resultObj) => {
 		const toCheckTR = mapMdl.getDefaultTickrateForMapType(resultObj.map.type);
 		const epsil = 0.000001;
 
-		const b1 = resultObj.bin.ok,
-			b2 = replay.magic === magicLE,
-			b3 = replay.header.steamID === resultObj.steamID,
-			b4 = replay.header.mapHash === resultObj.map.hash,
-			b5 = replay.header.mapName === resultObj.map.name,
-			b6 = runTimeTick > 0,
-			b7 = replay.header.trackNum === resultObj.ses.trackNum,
-			b8 = replay.header.runFlags === 0, // TODO removeme when we support runFlags (0.9.0)
-			b9 = replay.header.zoneNum === resultObj.ses.zoneNum,
-			b10 = runDate <= nowDate && runDate > (nowDate - 15000),
-			b11 = Math.abs(replay.header.tickRate - toCheckTR) < epsil,
-			b12 = runSesDiff < 5.0, // TODO is this a good enough leeway for run session times?
-			b13 = (resultObj.map.type === mapMdl.MAP_TYPE.BHOP) || (resultObj.map.type === mapMdl.MAP_TYPE.SURF); // TODO removeme when more game types added
-		if (b1 && b2 && b3 && b4 && b5 && b6 && b7 && b8 && b9 && b10 && b11 && b12 && b13)
+		const checks = [
+			resultObj.bin.ok,
+			(replay.magic === magicLE),
+			(replay.header.steamID === resultObj.steamID),
+			replay.header.mapHash === resultObj.map.hash,
+			replay.header.mapName === resultObj.map.name,
+			runTimeTick > 0,
+			replay.header.trackNum === resultObj.ses.trackNum,
+			replay.header.runFlags === 0, // TODO removeme when we support runFlags (0.9.0)
+			replay.header.zoneNum === resultObj.ses.zoneNum,
+			runDate <= nowDate && runDate > (nowDate - 15000),
+			Math.abs(replay.header.tickRate - toCheckTR) < epsil,
+			runSesDiff < 5.0, // TODO is this a good enough leeway for run session times?
+			(resultObj.map.type === mapMdl.MAP_TYPE.BHOP) || (resultObj.map.type === mapMdl.MAP_TYPE.SURF), // TODO removeme when more game types added
+		];
+
+		if (!checks.includes(false))
 		{
 			replay.header.ticks = runTimeTick;
 			resolve(replay);
 		}
 		else {
-			reject(new ServerError(400, 'Bad request'));
+			reject(new ServerError(400, 'Bad request, ' + checks.join(' ')));
 		}
 	});
 };
