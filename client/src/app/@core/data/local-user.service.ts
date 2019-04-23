@@ -42,7 +42,6 @@ export class LocalUserService {
   }
 
   public refreshLocal(): void {
-    this.localUser = null;
     this.getLocalUser({
       params: { expand: 'profile' },
     }).subscribe(usr => {
