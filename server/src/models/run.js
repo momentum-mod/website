@@ -93,8 +93,6 @@ const validateRunSession = (resultObj) => {
 const validateRunFile = (resultObj) => {
 	return new Promise((resolve, reject) => {
 
-		// TODO: consider checking endianness of the system and flipping bytes if needed
-
 		let replay = {
 			magic: readInt32(resultObj.bin, true),
 			version: readInt8(resultObj.bin, true),
@@ -116,7 +114,6 @@ const validateRunFile = (resultObj) => {
 			frames: [],
 		};
 
-		const runDate = new Date(Number(replay.header.runDate_s) * 1000).getTime(); // We're good til 2038...
 		const nowDate = Date.now();
 		const sesDiff = nowDate - resultObj.ses.createdAt.getTime();
 		const runTimeTick = replay.header.stopTick - replay.header.startTick;
@@ -138,7 +135,7 @@ const validateRunFile = (resultObj) => {
 			replay.header.trackNum === resultObj.ses.trackNum,
 			replay.header.runFlags === 0, // TODO removeme when we support runFlags (0.9.0)
 			replay.header.zoneNum === resultObj.ses.zoneNum,
-			runDate <= nowDate && runDate > (nowDate - 15000),
+			!Number.isNaN(Number(replay.header.runDate_s)),
 			Math.abs(replay.header.tickRate - toCheckTR) < epsil,
 			runSesDiff < 5.0, // TODO is this a good enough leeway for run session times?
 			(resultObj.map.type === mapMdl.MAP_TYPE.BHOP) || (resultObj.map.type === mapMdl.MAP_TYPE.SURF), // TODO removeme when more game types added
