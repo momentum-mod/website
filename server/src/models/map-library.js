@@ -74,7 +74,7 @@ module.exports = {
 			if (expansionNames.includes('submitter'))
 				queryOptions.include[0].include.push({model: User, as: 'submitter', include: [Profile]});
 			if (expansionNames.includes('inFavorites'))
-				queryOptions.include[0].include.push({model: MapFavorite, as: 'favorites'});
+				queryOptions.include[0].include.push({model: MapFavorite, as: 'favorites', where: {userID: userID}, required: false});
 		}
 		return MapLibraryEntry.findAndCountAll(queryOptions);
 	},
