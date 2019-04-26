@@ -44,20 +44,20 @@
       <tr>
         <th>RANK</th>
         <th>USER</th>
-        <th>FLAGS</th>
         <th>TIME</th>
+        <th>FLAGS</th>
         <th>ACHIEVED</th>
         <th>VIEW</th>
       </tr>
-      <tr *ngFor="let rank of leaderboardRanks; index as i">
-        <td>{{i + 1}}</td>
+      <tr *ngFor="let rank of leaderboardRanks">
+        <td>{{rank.rank}}</td>
         <td>
           <a [routerLink]="'/dashboard/profile/' + rank.user.id">
             <nb-user [name]="rank.user.alias" [picture]="rank.user.avatarURL" size="large"></nb-user>
           </a>
         </td>
+        <td>{{rank.run.time | timing}}</td>
         <td></td>
-        <td>{{rank.run.ticks * rank.run.tickRate | numberTrim}}</td>
         <td>{{rank.run.createdAt.toString() | timeAgo}}</td>
         <td><button type="button" class="btn btn-outline-info btn-round ion ion-play" (click)="viewRun(rank.run)"></button></td>
       </tr>
