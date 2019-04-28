@@ -69,8 +69,8 @@ module.exports = {
 			}
 			return Promise.reject(new ServerError(404, 'Map not found'));
 		}).then(imageCount => {
-			if (!mapModel.thumbnailID)
-				imageCount++; // compensate for missing thumbnail image that can exist
+			if (mapModel.thumbnailID)
+				imageCount--; // Exclude the thumbnail
 			if (imageCount >= MAP_IMAGE_UPLOAD_LIMIT)
 				return Promise.reject(new ServerError(409, 'Map image file limit reached'));
 			return sequelize.transaction(t => {
