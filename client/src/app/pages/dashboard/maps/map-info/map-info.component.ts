@@ -9,6 +9,7 @@ import {NgxGalleryAnimation, NgxGalleryImage, NgxGalleryOptions} from 'ngx-galle
 import {MapImage} from '../../../../@core/models/map-image.model';
 import {Role} from '../../../../@core/models/role.model';
 import {ReportType} from '../../../../@core/models/report-type.model';
+import {MomentumMapPreview} from '../../../../@core/models/momentum-map-preview.model';
 
 
 @Component({
@@ -20,9 +21,7 @@ import {ReportType} from '../../../../@core/models/report-type.model';
 export class MapInfoComponent implements OnInit {
 
   @ViewChild('leaderboard') leaderboard;
-  @Input('previewMap') previewMap: MomentumMap;
-  @Input('previewImage') previewImage;
-  @Input('isPreview') isPreview: boolean;
+  @Input('previewMap') previewMap: MomentumMapPreview;
   ReportType: typeof ReportType;
   map: MomentumMap;
   mapInLibrary: boolean;
@@ -40,10 +39,8 @@ export class MapInfoComponent implements OnInit {
               private toastService: ToasterService) {
     this.ReportType = ReportType;
     this.mapInLibrary = false;
-    this.isPreview = false;
     this.map = null;
     this.previewMap = null;
-    this.previewImage = null;
     this.mapInFavorites = false;
     this.galleryOptions = [
       {
@@ -74,12 +71,9 @@ export class MapInfoComponent implements OnInit {
   }
 
   ngOnInit() {
-    if (this.isPreview) {
-      this.galleryImages.push({
-        small: this.previewImage.dataBlobURL,
-        medium: this.previewImage.dataBlobURL,
-        big: this.previewImage.dataBlobURL,
-      });
+    if (this.previewMap) {
+      this.map = this.previewMap.map;
+      this.updateGalleryImages(this.previewMap.images);
     } else {
       this.route.paramMap.pipe(
         switchMap((params: ParamMap) =>
