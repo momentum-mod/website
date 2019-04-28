@@ -10,7 +10,6 @@ import {User} from '../../../../@core/models/user.model';
 import {MapCreditType} from '../../../../@core/models/map-credit-type.model';
 import {Observable, of} from 'rxjs';
 import {MomentumMapType} from '../../../../@core/models/map-type.model';
-import {MomentumMap} from '../../../../@core/models/momentum-map.model';
 import {LocalUserService} from '../../../../@core/data/local-user.service';
 import {MapTrack} from '../../../../@core/models/map-track.model';
 import * as VDF from '@node-steam/vdf';
@@ -18,6 +17,8 @@ import {MapZone} from '../../../../@core/models/map-zone.model';
 import {CreditChangeEvent} from '../map-credits/map-credit/map-credit.component';
 import {MapZoneTrigger} from '../../../../@core/models/map-zone-trigger.model';
 import {MapZoneType} from '../../../../@core/models/map-zone-type.model';
+import {MomentumMapPreview} from '../../../../@core/models/momentum-map-preview.model';
+import {MapImage} from '../../../../@core/models/map-image.model';
 
 export interface ImageFilePreview {
   dataBlobURL: string;
@@ -43,14 +44,12 @@ export class MapUploadFormComponent implements OnInit, AfterViewInit {
   creditArr: User[][];
   inferredMapType: boolean;
   MapTypes = MomentumMapType;
-  mapPreview: MomentumMap;
+  mapPreview: MomentumMapPreview;
   tracks: MapTrack[];
 
   filesForm: FormGroup = this.fb.group({
     'map': ['', [Validators.required, Validators.pattern('.+(\\.bsp)')]],
     'avatar': ['', [Validators.required, Validators.pattern(/.+(\.(pn|jpe?)g)/i)]],
-    // 'images': new FormArray()
-    // TODO: the 5 optional image files
   });
   infoForm: FormGroup = this.fb.group( {
     'name': ['', [Validators.required, Validators.maxLength(32)]],
@@ -338,23 +337,42 @@ export class MapUploadFormComponent implements OnInit, AfterViewInit {
   }
   generatePreviewMap(): void {
     this.mapPreview = {
-      id: 0,
-      name: this.name.value,
-      type: this.type.value,
-      hash: 'not-important-yet',
-      statusFlag: 0,
-      info: {
-        id: '0',
-        mapID: 0,
-        description: this.description.value,
-        numTracks: this.tracks.length,
-        creationDate: this.creationDate.value,
+      map: {
+        id: 0,
+        name: this.name.value,
+        type: this.type.value,
+        hash: 'not-important-yet',
+        statusFlag: 0,
+        info: {
+          id: '0',
+          mapID: 0,
+          description: this.description.value,
+          numTracks: this.tracks.length,
+          creationDate: this.creationDate.value,
+        },
+        mainTrack: this.tracks.length > 0 ? this.tracks[0] : null,
+        tracks: this.tracks,
+        credits: this.getAllCredits(),
+        submitter: this.localUsrService.localUser,
       },
-      mainTrack: this.tracks.length > 0 ? this.tracks[0] : null,
-      tracks: this.tracks,
-      credits: this.getAllCredits(),
-      submitter: this.localUsrService.localUser,
+      images: [],
     };
+    if (this.avatarFilePreview) {
+      this.mapPreview.images.push({
+        id: 0,
+        mapID: 0,
+        small: this.avatarFilePreview.dataBlobURL,
+        medium: this.avatarFilePreview.dataBlobURL,
+        large: this.avatarFilePreview.dataBlobURL,
+      });
+    }
+    this.extraImages.map((val: ImageFilePreview) => <MapImage>({
+      id: 0,
+      mapID: 0,
+      small: val.dataBlobURL,
+      medium: val.dataBlobURL,
+      large: val.dataBlobURL,
+    })).forEach((val: MapImage) => this.mapPreview.images.push(val));
   }
 
   onRemoveZones() {
