@@ -454,20 +454,25 @@ module.exports = {
 	},
 
 	getZones: (mapID) => {
-		return Map.findByPk(mapID,{
+		return Map.findByPk(mapID, {
+			attributes: ['id', 'name', 'hash'],
 			include: [{
 				model: MapTrack,
 				as: 'tracks',
+				attributes: ['trackNum', 'numZones', 'isLinear', 'difficulty'],
 				include: [{
 					model: MapZone,
 					as: 'zones',
+					attributes: ['zoneNum'],
 					include: [
 						{
 							model: MapZoneTrigger,
 							as: 'triggers',
+							attributes: ['type', 'pointsHeight', 'pointsZPos', 'points'],
 							include: [{
 								model: MapZoneProperties,
 								as: 'zoneProps',
+								attributes: ['properties'],
 								required: false,
 							}]
 						},
