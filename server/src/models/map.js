@@ -10,6 +10,7 @@ const util = require('util'),
 	user = require('./user'),
 	activity = require('./activity'),
 	queryHelper = require('../helpers/query'),
+	mapImage = require('./map-image'),
 	ServerError = require('../helpers/server-error'),
 	config = require('../../config/config');
 
@@ -369,13 +370,15 @@ module.exports = {
 					if (map.credits && map.credits.length) {
 						const activities = [];
 						for (const credit of map.credits) {
-							activities.push(
-								activity.create({
-									type: activity.ACTIVITY_TYPES.MAP_UPLOADED,
-									userID: credit.userID,
-									data: mapMdl.id,
-								}, t)
-							);
+							if (credit.type === CreditType.AUTHOR) {
+								activities.push(
+									activity.create({
+										type: activity.ACTIVITY_TYPES.MAP_UPLOADED,
+										userID: credit.userID,
+										data: mapMdl.id,
+									}, t)
+								);
+							}
 						}
 						return Promise.all(activities).then(() => {
 							return Promise.resolve(mapMdl);
