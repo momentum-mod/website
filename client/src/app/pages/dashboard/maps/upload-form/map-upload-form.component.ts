@@ -17,6 +17,7 @@ import * as VDF from '@node-steam/vdf';
 import {MapZone} from '../../../../@core/models/map-zone.model';
 import {CreditChangeEvent} from '../map-credits/map-credit/map-credit.component';
 import {MapZoneTrigger} from '../../../../@core/models/map-zone-trigger.model';
+import {MapZoneType} from '../../../../@core/models/map-zone-type.model';
 
 export interface ImageFilePreview {
   dataBlobURL: string;
@@ -148,7 +149,7 @@ export class MapUploadFormComponent implements OnInit, AfterViewInit {
       if (track.hasOwnProperty(zone)) {
         const zoneNum = Number(zone);
         trackReturn.numZones = Math.max(trackReturn.numZones, zoneNum);
-        trackReturn.isLinear = track[zone].zone_type === 3;
+        trackReturn.isLinear = track[zone].type === MapZoneType.ZONE_CHECKPOINT;
 
         const zoneMdl: MapZone = {
           zoneNum: zoneNum,
