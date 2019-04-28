@@ -149,7 +149,6 @@ export class MapUploadFormComponent implements OnInit, AfterViewInit {
       if (track.hasOwnProperty(zone)) {
         const zoneNum = Number(zone);
         trackReturn.numZones = Math.max(trackReturn.numZones, zoneNum);
-        trackReturn.isLinear = track[zone].type === MapZoneType.ZONE_CHECKPOINT;
 
         const zoneMdl: MapZone = {
           zoneNum: zoneNum,
@@ -161,6 +160,8 @@ export class MapUploadFormComponent implements OnInit, AfterViewInit {
         for (const trigger in track[zone].triggers) {
           if (track[zone].triggers.hasOwnProperty(trigger)) {
             const triggerObj = track[zone].triggers[trigger];
+            if (!trackReturn.isLinear)
+              trackReturn.isLinear = triggerObj.type === MapZoneType.ZONE_CHECKPOINT;
             const zoneMdlTrigger: MapZoneTrigger = {
               type: triggerObj.type,
               points: triggerObj.points,
