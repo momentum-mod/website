@@ -64,11 +64,8 @@ module.exports = {
 	},
 
 	getZones: (req, res, next) => {
-		map.getZones(req.params.mapID).then(map => {
-			if (map) {
-				return res.json(map);
-			}
-			next(new ServerError(404, 'Map not found'));
+		map.getZones(req.params.mapID).then(mapMdl => {
+			return res.json(mapMdl);
 		}).catch(next);
 	},
 
