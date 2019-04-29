@@ -137,7 +137,9 @@ const validateRunFile = (resultObj) => {
 			replay.header.zoneNum === resultObj.ses.zoneNum,
 			!Number.isNaN(Number(replay.header.runDate_s)),
 			Math.abs(replay.header.tickRate - toCheckTR) < epsil,
-			runSesDiff < 5.0, // TODO is this a good enough leeway for run session times?
+			(runTime * 1000.0) <= sesDiff,
+			// 5 seconds for the stop tick -> end record -> submit, then we add a second for every minute in the replay
+			runSesDiff < (5.0 + Math.min(Math.floor(runTime / 60.0), 10.0)), // so longer replays have more time to submit, up to a max of 10 seconds
 			(resultObj.map.type === mapMdl.MAP_TYPE.BHOP) || (resultObj.map.type === mapMdl.MAP_TYPE.SURF), // TODO removeme when more game types added
 		];
 
