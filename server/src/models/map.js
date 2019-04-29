@@ -482,6 +482,17 @@ module.exports = {
 					]
 				}]
 			}],
+		}).then(mapMdl => {
+			if (!mapMdl)
+				return Promise.reject(new ServerError(404, 'Map not found'));
+
+			return MapStats.update({totalPlays: sequelize.literal('totalPlays + 1')}, {
+				where: {
+					mapID: mapMdl.id,
+				}
+			}).then(() => {
+				return Promise.resolve(mapMdl);
+			});
 		});
 	},
 
