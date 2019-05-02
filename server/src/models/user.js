@@ -691,33 +691,30 @@ module.exports = {
 	},
 
 	getSteamFriendIDs: (steamID) => {
-		return axios.get(`${config.steam.apiURL}/ISteamUser/GetFriendList/v1/`, {
+		return axios.get(`https://api.steampowered.com/ISteamUser/GetFriendList/v1/`, {
 			params: {
 				key: config.steam.webAPIKey,
 				steamid: steamID,
 				relationship: 'friend',
 			}
 		}).then(res => {
-			return new Promise((resolve, reject) => {
-				if (res) {
-					if (res.status === 401) {
-						// Their profile/friends list is private, let them know
-						reject(new ServerError('Friends list or profile is private'));
-					} else if (res.data) {
-						const friendIDs = [];
-						for (let i = 0; i < res.data.friendslist.friends.length; i++)
-							friendIDs.push(res.data.friendslist.friends[i].steamid);
-						if (friendIDs.length > 0)
-							resolve(friendIDs);
-						else {
-							// They don't have any friends :(
-							reject(new ServerError(418, 'No friends detected :(')); // I'm a little teapot~
-						}
-					}
-				} else {
-					reject(new ServerError(500, 'Failed to get Steam friends list'));
+			if (res.status === 401)
+				return Promise.reject(new ServerError(409, 'Friends list or profile is private'));
+
+			if (res.data) {
+				const friendIDs = [];
+				for (let i = 0; i < res.data.friendslist.friends.length; i++)
+					friendIDs.push(res.data.friendslist.friends[i].steamid);
+
+				if (friendIDs.length === 0) {
+					// They don't have any friends :(
+					return Promise.reject(new ServerError(418, 'No friends detected :(')); // I'm a little teapot~
 				}
-			});
+
+				return Promise.resolve(friendIDs);
+			}
+
+			return Promise.reject(new ServerError(500, 'Failed to get Steam friends list'));
 		});
 	},
 
