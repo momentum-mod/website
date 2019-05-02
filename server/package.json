@@ -1,5 +1,5 @@
 {
-  "name": "game-panel",
+  "name": "momentum-backend",
   "version": "0.0.1",
   "private": true,
   "scripts": {
@@ -34,6 +34,7 @@
     "sequelize": "^5.7.0",
     "sharp": "^0.21.1",
     "swagger-jsdoc": "^3.2.9",
-    "swagger-ui-express": "^4.0.2"
+    "swagger-ui-express": "^4.0.2",
+    "xml2js": "^0.4.19"
   }
 }

@@ -8,6 +8,7 @@ const {
 	config = require('../../config/config'),
 	queryHelper = require('../helpers/query'),
 	ServerError = require('../helpers/server-error'),
+	xml2js = require('xml2js').parseString,
 	axios = require('axios');
 
 module.exports = {
@@ -203,26 +204,50 @@ module.exports = {
 	},
 
 	findOrCreateFromGame: (steamID) => {
-		return axios.get(`${config.steam.apiURL}/ISteamUser/GetPlayerSummaries/v2/`, {
-			params: {
-				key: config.steam.webAPIKey,
-				steamids: steamID,
-			}
-		}).then(sres => {
-			if (sres.data.response.error)
-				next(sres); // TODO parse the error
-			else if (sres.data.response.players[0]) {
-				const playerData = sres.data.response.players[0];
-				if (steamID === playerData.steamid) {
-					return Promise.resolve({
-						steamID: steamID,
-						country: playerData.loccountrycode,
-						alias: playerData.personaname,
-						avatarURL: playerData.avatarfull,
-					})
+		const data = {
+			summaries: {},
+			xmlData: {},
+		};
+		const requests = [
+			axios.get(`https://api.steampowered.com/ISteamUser/GetPlayerSummaries/v2/`, {
+				params: {
+					key: config.steam.webAPIKey,
+					steamids: steamID,
 				}
-			}
-			return Promise.resolve(null);
+			}).then(res => {
+				if (res.data.response.error)
+					return Promise.reject(new ServerError(500, 'Failed to get player summaries.'));
+				if (res.data.response.players[0]) {
+					data.summaries = res.data.response.players[0];
+					return Promise.resolve();
+				}
+				return Promise.reject(new ServerError(500, 'Failed to get player summary.'));
+			}),
+			axios.get(`https://steamcommunity.com/profiles/${steamID}?xml=1`).then(res => {
+				xml2js(res.data, (err, profile) => {
+					if (err)
+						return Promise.reject(err);
+
+					data.xmlData = profile;
+					return Promise.resolve();
+				});
+			})
+		];
+
+		return Promise.all(requests).then(() => {
+			if (data.summaries.profilestate !== 1)
+				return Promise.reject(new ServerError(403, 'We do not authenticate Steam accounts without a profile. Set up your community profile on Steam!'));
+			if (config.steam.preventLimited && data.xmlData.profile.isLimitedAccount[0] === '1')
+				return Promise.reject(new ServerError(403, 'We do not authenticate limited Steam accounts. Buy something on Steam first!'));
+			if (steamID !== data.summaries.steamid)
+				return Promise.reject(new ServerError(400, 'User fetched is not the authenticated user!'));
+
+			return Promise.resolve({
+				steamID: steamID,
+				country: data.summaries.locccountrycode,
+				alias: data.summaries.personaname,
+				avatarURL: data.summaries.avatarfull,
+			})
 		}).then(playerData => {
 			return User.findOne({
 				where: {steamID: steamID},
@@ -241,21 +266,17 @@ module.exports = {
 	},
 
 	findOrCreateFromWeb: (openIDProfile) => {
-		let profile = {
-			alias: openIDProfile.displayName,
-			avatarURL: openIDProfile.photos[2].value,
-			country: openIDProfile._json.loccountrycode,
+		const profile = {
+			alias: openIDProfile.alias,
+			avatarURL: openIDProfile.avatarURL,
+			country: openIDProfile.country,
 		};
-		return new Promise((resolve, reject) => {
-			User.findOne({where: {steamID: openIDProfile.id}, include: Profile}).then(usr => {
-				if (usr) {
-					return module.exports.updateSteamInfo(usr, profile);
-				} else {
-					return module.exports.create(openIDProfile.id, profile);
-				}
-			}).then(usr => {
-				resolve(usr);
-			}).catch(reject);
+		return User.findOne({where: {steamID: openIDProfile.id}, include: Profile}).then(usr => {
+			if (usr) {
+				return module.exports.updateSteamInfo(usr, profile);
+			} else {
+				return module.exports.create(openIDProfile.id, profile);
+			}
 		});
 	},
 

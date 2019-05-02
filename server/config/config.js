@@ -26,7 +26,8 @@ const config = {
 			consumerSecret: '*lemme tell ya somethin youd like to hear*',
 		},
 		steam: {
-			webAPIKey: process.env.STEAM_WEB_API_KEY
+			webAPIKey: process.env.STEAM_WEB_API_KEY,
+			preventLimited: true,
 		},
 		db: {
 			name: 'momentum_test',
@@ -62,7 +63,8 @@ const config = {
 			consumerSecret: process.env.TWITTER_CONSUMER_SECRET,
 		},
 		steam: {
-			webAPIKey: process.env.STEAM_WEB_API_KEY
+			webAPIKey: process.env.STEAM_WEB_API_KEY,
+			preventLimited: true,
 		},
 		db: {
 			name: 'momentum',
@@ -98,7 +100,8 @@ const config = {
 			consumerSecret: process.env.TWITTER_CONSUMER_SECRET,
 		},
 		steam: {
-			webAPIKey: process.env.STEAM_WEB_API_KEY
+			webAPIKey: process.env.STEAM_WEB_API_KEY,
+			preventLimited: true,
 		},
 		db: {
 			name: 'momentum',
