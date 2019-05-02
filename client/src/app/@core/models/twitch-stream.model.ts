@@ -2,6 +2,6 @@ export interface TwitchStream {
   title: string;
   user_name: string;
   viewer_count: number;
-  started_at: Date;
+  started_at: string;
   thumbnail_url: string;
 }

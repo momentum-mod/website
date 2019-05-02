@@ -30,7 +30,7 @@ describe('MapInfoDescriptionComponent', () => {
         id: '1',
         description: 'Test',
         numTracks: 1,
-        creationDate: new Date(),
+        creationDate: new Date().toString(),
       },
       tracks: [{
         trackNum: 0,

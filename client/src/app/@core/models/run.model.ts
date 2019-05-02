@@ -15,8 +15,8 @@ export interface Run {
   file: string;
   mapID: number;
   playerID: number;
-  createdAt: Date; // aka dateAchieved
-  updatedAt?: Date;
+  createdAt: string; // aka dateAchieved
+  updatedAt?: string;
   user?: User;
   overallStats?: BaseStats;
   zoneStats?: RunZoneStats[];

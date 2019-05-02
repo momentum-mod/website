@@ -12,8 +12,8 @@ export interface Report {
   resolutionMessage: string;
   submitterID?: number;
   resolverID?: number;
-  createdAt?: Date;
-  updatedAt?: Date;
+  createdAt?: string;
+  updatedAt?: string;
   submitter?: User;
   resolver?: User;
 }

@@ -15,7 +15,7 @@ describe('RunsService', () => {
     expectedRun = {
       id: 1,
       tickRate: 0.015,
-      createdAt: new Date(),
+      createdAt: new Date().toString(),
       ticks: 53,
       time: 0.795,
       flags: 0,

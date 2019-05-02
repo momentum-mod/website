@@ -16,7 +16,7 @@ describe('CommunityTwitchStreamComponent', () => {
     title: 'This is a test stream!',
     user_name: 'Testy',
     viewer_count: 1000,
-    started_at: new Date(),
+    started_at: new Date().toString(),
     thumbnail_url: '',
   };
 

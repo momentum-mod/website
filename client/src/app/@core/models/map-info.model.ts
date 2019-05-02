@@ -3,7 +3,7 @@ export interface MomentumMapInfo {
   mapID?: number;
   description: string;
   numTracks: number;
-  creationDate: Date;
-  createdAt?: Date;
-  updatedAt?: Date;
+  creationDate: string;
+  createdAt?: string;
+  updatedAt?: string;
 }

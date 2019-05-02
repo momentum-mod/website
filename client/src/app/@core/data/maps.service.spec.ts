@@ -21,7 +21,7 @@ describe('MapsService', () => {
       name: 'testmap1',
       type: MomentumMapType.UNKNOWN,
       statusFlag: 0,
-      createdAt: new Date(),
+      createdAt: new Date().toString(),
     };
     expectedMaps = {
       count: 2,
@@ -33,7 +33,7 @@ describe('MapsService', () => {
           name: 'testmap2',
           type: MomentumMapType.UNKNOWN,
           statusFlag: 0,
-          createdAt: new Date(),
+          createdAt: new Date().toString(),
         },
       ],
     };

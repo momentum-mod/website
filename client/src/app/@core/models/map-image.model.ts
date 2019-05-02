@@ -4,6 +4,6 @@ export interface MapImage {
   small: string;
   medium: string;
   large: string;
-  createdAt?: Date;
-  updatedAt?: Date;
+  createdAt?: string;
+  updatedAt?: string;
 }

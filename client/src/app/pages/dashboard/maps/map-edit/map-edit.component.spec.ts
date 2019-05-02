@@ -40,7 +40,7 @@ describe('MapEditComponent', () => {
         bio: 'Just another paper cut survivor.',
       },
     },
-    createdAt: new Date(),
+    createdAt: new Date().toString(),
   };
 
   mapServiceStub = {
