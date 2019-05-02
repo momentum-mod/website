@@ -7,10 +7,11 @@ import { FooterComponent } from './footer/footer.component';
 import { NavComponent } from './nav/nav.component';
 import {CommonModule} from '@angular/common';
 import {RouterModule} from '@angular/router';
+import {ToasterModule} from 'angular2-toaster';
 
 
 @NgModule({
-  imports: [CommonModule, RouterModule],
+  imports: [CommonModule, RouterModule, ToasterModule.forChild()],
   declarations: [MainPageComponent, AboutComponent, CreditsComponent, HeaderComponent, FooterComponent, NavComponent],
 })
 export class MainPageModule {}

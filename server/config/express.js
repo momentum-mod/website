@@ -14,6 +14,8 @@ const express = require('express'),
 	swaggerJSDoc = require('swagger-jsdoc'),
 	swaggerDefinition = require('../docs/swagger/definition'),
 	user = require('../src/models/user'),
+	xml2js = require('xml2js').parseString,
+	axios = require('axios'),
 	authMiddleware = require('../src/middlewares/auth');
 
 const swaggerSpec = swaggerJSDoc({
@@ -43,13 +45,33 @@ module.exports = (app, config) => {
 		realm: config.baseUrl,
 		apiKey: config.steam.webAPIKey
 	}, (openID, profile, done) => {
-		user.findOrCreateFromWeb(profile)
-		.then((userInfo) => {
-			profile = Object.assign(userInfo, profile);
-			done(null, profile);
-		}).catch((err) => {
-			done(err, false);
-		});
+		const identifierRegex = /^https?:\/\/steamcommunity\.com\/openid\/id\/(\d+)$/;
+		const steamID = identifierRegex.exec(openID)[1];
+		const URL = `https://steamcommunity.com/profiles/${steamID}?xml=1`;
+		axios.get(URL).then(res => {
+			xml2js(res.data, (err, result) => {
+				if (err)
+					return done(err);
+
+				if (profile._json.profilestate !== 1)
+					return done(null, false, {message: 'We do not authenticate Steam accounts without a profile. Set up your community profile on Steam!'});
+
+				if (config.steam.preventLimited && result.profile.isLimitedAccount[0] === '1')
+					return done(null, false, {message: 'We do not authenticate limited Steam accounts. Buy something on Steam first!'});
+
+				const profObj = {
+					id: steamID,
+					alias: result.profile.steamID[0],
+					country: profile._json.loccountrycode, // Fetch from SteamStrategy json
+					avatarURL: result.profile.avatarFull[0],
+					_jsonXML: result,
+					_json: profile._json,
+				};
+				user.findOrCreateFromWeb(profObj).then(userInfo => {
+					return done(null, userInfo);
+				}).catch(done);
+			});
+		}).catch(done);
 	}));
 
 	passport.use(new JwtStrategy({

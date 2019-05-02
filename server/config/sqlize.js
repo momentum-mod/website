@@ -169,7 +169,7 @@ UserMapRank.belongsTo(Run, { foreignKey: 'runID'});
 UserMapRank.belongsTo(User, { foreignKey: 'userID'});
 UserMapRank.belongsTo(Map, { foreignKey: 'mapID'});
 
-if (env === 'development') {
+if (env !== 'test') {
 	forceSyncDB().then(() => {
 		// Create our default XP systems table if we don't already have it
 		return xpSystems.initXPSystems(XPSystems);

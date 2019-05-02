@@ -16,7 +16,21 @@ router.route('/steam')
 	.all(errorCtrl.send405);
 
 router.route('/steam/return')
-	.get(passport.authenticate('steam', { session: false, failureRedirect: '/' }), authCtrl.throughSteamReturn)
+	.get((req, res, next) => {
+		passport.authenticate('steam', { session: false }, (err, user, msg) => {
+			if (err)
+				next(err);
+			else if (!user) {
+				if (msg && msg.message)
+					res.cookie('errMsg', msg.message);
+				res.redirect('/');
+			}
+			else {
+				req.user = user;
+				next();
+			}
+		})(req, res, next)
+	}, authCtrl.throughSteamReturn)
 	.all(errorCtrl.send405);
 
 router.route('/steam/user')
