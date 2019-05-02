@@ -26,7 +26,6 @@ const config = {
 			consumerSecret: '*lemme tell ya somethin youd like to hear*',
 		},
 		steam: {
-			apiURL: 'https://api.steampowered.com',
 			webAPIKey: process.env.STEAM_WEB_API_KEY
 		},
 		db: {
@@ -63,7 +62,6 @@ const config = {
 			consumerSecret: process.env.TWITTER_CONSUMER_SECRET,
 		},
 		steam: {
-			apiURL: 'https://api.steampowered.com',
 			webAPIKey: process.env.STEAM_WEB_API_KEY
 		},
 		db: {
@@ -100,8 +98,6 @@ const config = {
 			consumerSecret: process.env.TWITTER_CONSUMER_SECRET,
 		},
 		steam: {
-			apiURL: 'https://partner.steam-api.com',
-			// Note: to use the above URL, you need to use a steamworks publisher key for the following value
 			webAPIKey: process.env.STEAM_WEB_API_KEY
 		},
 		db: {

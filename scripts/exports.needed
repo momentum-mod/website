@@ -8,7 +8,6 @@ export NODE_PORT=3002
 # The secret used for generating JWTs
 export JWT_SECRET=
 # The Steam API web key (you can get it from https://steamcommunity.com/dev/apikey)
-# NOTE NOTE: If you're using the above link to get this key, make sure to edit server/config/config.js to use the public steam API!
 export STEAM_WEB_API_KEY=
 # The database user, password, and host
 export MOM_DATABASE_USER=
