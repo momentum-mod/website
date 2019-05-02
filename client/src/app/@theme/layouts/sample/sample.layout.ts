@@ -14,7 +14,7 @@ import {StateService} from '../../../@core/data/state.service';
   selector: 'ngx-sample-layout',
   styleUrls: ['./sample.layout.scss'],
   template: `
-    <nb-layout [center]="layout.id === 'center-column'" windowMode [withScroll]="false">
+    <nb-layout [center]="layout.id === 'center-column'" windowMode [withScroll]="true">
       <nb-layout-header fixed>
         <ngx-header [position]="sidebar.id === 'start' ? 'normal': 'inverse'"></ngx-header>
       </nb-layout-header>
