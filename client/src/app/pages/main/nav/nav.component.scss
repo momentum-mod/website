@@ -2,7 +2,7 @@
 
 #mainNav {
   min-height: 56px;
-  background-color: #fff;
+  background-color: rgba(0, 0, 0, 0.5);
 }
 
 #mainNav .navbar-toggler {
@@ -17,7 +17,7 @@
 }
 
 #mainNav .navbar-brand {
-  color: #161616;
+  color: #fff;
   font-weight: 700;
   padding: 0.9rem 0;
 }
@@ -33,7 +33,7 @@
   background-color: transparent;
 }
 
-@media (min-width: 992px) {
+@media (min-width: 450px) {
   #mainNav {
     padding-top: 0;
     padding-bottom: 0;

@@ -40,12 +40,12 @@
 }
 
 a {
-  color: #64a19d;
+  color: #fff;
 }
 
 a:focus, a:hover {
   text-decoration: none;
-  color: #3c6360;
+  color: #2e66a5;
 }
 
 .bg-black {
@@ -57,9 +57,13 @@ a:focus, a:hover {
 }
 
 .text-primary {
-  color: #64a19d !important;
+  color: #2e66a5 !important;
+}
+
+nb-layout-column {
+  padding: 0;
 }
 
 footer {
-  padding: 5rem 0;
+  padding: 2rem 0;
 }
