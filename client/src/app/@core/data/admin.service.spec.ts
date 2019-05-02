@@ -34,8 +34,8 @@ describe('AdminService', () => {
       type: MomentumMapType.UNKNOWN,
       hash: '',
       statusFlag: 0,
-      createdAt: new Date(),
-      updatedAt: new Date(),
+      createdAt: new Date().toString(),
+      updatedAt: new Date().toString(),
       submitterID: 12345,
     };
     expectedMaps = {
@@ -48,8 +48,8 @@ describe('AdminService', () => {
           type: MomentumMapType.UNKNOWN,
           hash: '',
           statusFlag: 0,
-          createdAt: new Date(),
-          updatedAt: new Date(),
+          createdAt: new Date().toString(),
+          updatedAt: new Date().toString(),
           submitterID: 123456,
         },
       ],

@@ -7,6 +7,6 @@ export interface Activity {
   userID?: number;
   user: User;
   data: string;
-  createdAt?: Date;
-  updatedAt?: Date;
+  createdAt?: string; // Date
+  updatedAt?: string; // Date
 }

@@ -7,8 +7,8 @@ export interface MapTrack {
   numZones: number;
   isLinear: boolean;
   difficulty: number;
-  createdAt?: Date;
-  updatedAt?: Date;
+  createdAt?: string;
+  updatedAt?: string;
   zones?: MapZone[];
   stats?: MapTrackStats;
 }

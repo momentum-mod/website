@@ -59,10 +59,10 @@ describe('NotificationComponent', () => {
           },
           type: Activity_Type.USER_JOINED,
           data: 'lol',
-          createdAt: new Date(),
+          createdAt: new Date().toString(),
         },
         read: false,
-        createdAt: new Date(),
+        createdAt: new Date().toString(),
       },
       {
         id: 1,
@@ -92,10 +92,10 @@ describe('NotificationComponent', () => {
           },
           type: Activity_Type.PB_ACHIEVED,
           data: 'lol',
-          createdAt: new Date(),
+          createdAt: new Date().toString(),
         },
         read: false,
-        createdAt: new Date(),
+        createdAt: new Date().toString(),
       },
     ];
     fixture.detectChanges();

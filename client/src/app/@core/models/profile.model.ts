@@ -10,6 +10,6 @@ export interface UserProfile {
   discordAuth?: DiscordAuth;
   youtubeName?: string;
   twitchAuth?: TwitchAuth;
-  createdAt?: Date;
-  updatedAt?: Date;
+  createdAt?: string; // Date
+  updatedAt?: string; // Date
 }

@@ -4,7 +4,7 @@ export interface MapLibraryEntry {
   id: number;
   userID: number;
   mapID: number;
-  createdAt?: Date;
-  updatedAt?: Date;
+  createdAt?: string; // Date
+  updatedAt?: string; // Date
   map: MomentumMap;
 }

@@ -14,8 +14,8 @@ export interface MomentumMap {
   type: MomentumMapType;
   hash: string;
   statusFlag: number;
-  createdAt?: Date;
-  updatedAt?: Date;
+  createdAt?: string;
+  updatedAt?: string;
   info?: MomentumMapInfo;
   credits?: MapCredit[];
   thumbnailID?: number;

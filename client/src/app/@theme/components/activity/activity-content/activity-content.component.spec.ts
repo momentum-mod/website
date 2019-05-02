@@ -42,7 +42,7 @@ describe('ActivityContentComponent', () => {
       },
       type: Activity_Type.USER_JOINED,
       data: 'lol',
-      createdAt: new Date(),
+      createdAt: new Date().toString(),
     };
     fixture.detectChanges();
   });

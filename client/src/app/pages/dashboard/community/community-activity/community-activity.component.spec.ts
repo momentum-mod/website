@@ -33,7 +33,7 @@ describe('CommunityActivityComponent', () => {
           },
         },
         data: 'test',
-        createdAt: new Date(),
+        createdAt: new Date().toString(),
       },
     ];
     actServiceStub = {

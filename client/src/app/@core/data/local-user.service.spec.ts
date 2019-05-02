@@ -51,7 +51,7 @@ describe('LocalUserService', () => {
       name: 'testmap1',
       type: MomentumMapType.UNKNOWN,
       statusFlag: 0,
-      createdAt: new Date(),
+      createdAt: new Date().toString(),
     };
     expectedMaps = {
       count: 1,
@@ -70,16 +70,16 @@ describe('LocalUserService', () => {
       followeeID: '9',
       followedID: '40000',
       notifyOn: 2,
-      createdAt: new Date(),
-      updatedAt: new Date(),
+      createdAt: new Date().toString(),
+      updatedAt: new Date().toString(),
     };
 
     expectedFollow2 = {
       followeeID: '40000',
       followedID: '9',
       notifyOn: 2,
-      createdAt: new Date(),
-      updatedAt: new Date(),
+      createdAt: new Date().toString(),
+      updatedAt: new Date().toString(),
     };
     expectedFollowStatus = {
       local: expectedFollow,

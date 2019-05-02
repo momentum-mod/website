@@ -15,7 +15,7 @@ export class NotificationComponent implements OnInit {
 
   // This gets called every time the bell is clicked (to view notifications)
   ngOnInit() {
-    this.notifications.sort((a, b) => {
+    this.notifications.sort((a: SiteNotification, b: SiteNotification) => {
       if (!a.read) {
         if (!b.read) {
           return 0;
@@ -25,7 +25,7 @@ export class NotificationComponent implements OnInit {
       } else if (!b.read) {
         return 1;
       } else {
-        return b.createdAt.getTime() - a.createdAt.getTime();
+        return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
       }
     });
   }

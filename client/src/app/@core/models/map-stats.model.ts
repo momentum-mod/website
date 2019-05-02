@@ -12,6 +12,6 @@ export interface MapStats {
   totalUniqueCompletions?: number;
   totalTimePlayed?: number;
   baseStats?: BaseStats;
-  createdAt?: Date;
-  updatedAt?: Date;
+  createdAt?: string; // Date
+  updatedAt?: string; // Date
 }
