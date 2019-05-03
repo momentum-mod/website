@@ -719,9 +719,6 @@ module.exports = {
 				relationship: 'friend',
 			}
 		}).then(res => {
-			if (res.status === 401)
-				return Promise.reject(new ServerError(409, 'Friends list or profile is private'));
-
 			if (res.data) {
 				const friendIDs = [];
 				for (let i = 0; i < res.data.friendslist.friends.length; i++)
@@ -734,8 +731,22 @@ module.exports = {
 
 				return Promise.resolve(friendIDs);
 			}
-
 			return Promise.reject(new ServerError(500, 'Failed to get Steam friends list'));
+		}).catch(error => {
+			if (error.response) {
+				// The request was made and the server responded with a status code
+				// that falls out of the range of 2xx
+				if (error.response.status === 401)
+					return Promise.reject(new ServerError(409, 'Friends list or profile is private'));
+				else
+					return Promise.reject(new ServerError(400, 'Bad request'));
+			} else if (error.request) {
+				// The request was made but no response was received
+				return Promise.reject(new ServerError(404, 'Steam servers did not give a response :('));
+			} else {
+				// Something happened in setting up the request that triggered an Error
+				return Promise.reject(error);
+			}
 		});
 	},
 
