@@ -49,12 +49,7 @@ const sequelize = new Sequelize({
 		charset: 'utf8',
 		collate: 'utf8_unicode_ci'
 	},
-	pool: {
-		max: 10,
-		min: 0,
-		acquire: 30000,
-		idle: 10000
-	}
+	pool: config.db.pool,
 });
 
 const forceSyncDB = () => {

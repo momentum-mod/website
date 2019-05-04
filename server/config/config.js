@@ -34,7 +34,13 @@ const config = {
 			userName: 'mom_test',
 			password: '',
 			host: 'localhost',
-			logging: false
+			logging: false,
+			pool: {
+				max: 15,
+				min: 0,
+				acquire: 15000,
+				idle: 500
+			}
 		},
 		session: {
 			secret: 'keyboard cat',
@@ -71,7 +77,13 @@ const config = {
 			userName: 'mom',
 			password: '',
 			host: 'localhost',
-			logging: console.log
+			logging: console.log,
+			pool: {
+				max: 10,
+				min: 0,
+				acquire: 30000,
+				idle: 10000
+			}
 		},
 		session: {
 			secret: 'keyboard cat',
@@ -108,7 +120,13 @@ const config = {
 			userName: process.env.MOM_DATABASE_USER,
 			password: process.env.MOM_DATABASE_PW,
 			host: process.env.MOM_DATABASE_HOST,
-			logging: false
+			logging: false,
+			pool: {
+				max: 10,
+				min: 0,
+				acquire: 30000,
+				idle: 10000
+			}
 		},
 		session: {
 			secret: process.env.EXPRESS_SESSION_SECRET,
