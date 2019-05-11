@@ -1,5 +1,5 @@
 <div class="row">
-  <nb-card class="col-7" *ngIf="user">
+  <nb-card class="col-md-12 col-lg-7" *ngIf="user">
     <nb-card-header>
       <div class="header">
         <span *ngIf="user.country && user.country.length === 2"
@@ -7,7 +7,10 @@
         <div class="top-right-toolbar btn-toolbar">
           <report-button *ngIf="!isLocal" [reportType]="ReportType.USER_PROFILE_REPORT" [reportData]="user.id" class="mr-1"></report-button>
           <div *ngIf="canEdit()">
-            <button class="btn btn-outline-info" type="button" (click)="onEditProfile()">Edit Profile</button>
+            <button class="btn btn-outline-info" type="button" (click)="onEditProfile()">
+              <span class="d-none d-lg-inline-block">Edit Profile</span>
+              <i class="fas fa-user-edit d-inline-block d-lg-none"></i>
+            </button>
           </div>
         </div>
 
@@ -100,5 +103,5 @@
       </nb-tabset>
     </nb-card-body>
   </nb-card>
-  <activity-card *ngIf="user" class="col-5" [header]="'USER ACTIVITY'" [userSubj]="userSubj$"></activity-card>
+  <activity-card *ngIf="user" class="col-md-12 col-lg-5" [header]="'USER ACTIVITY'" [userSubj]="userSubj$"></activity-card>
 </div>
