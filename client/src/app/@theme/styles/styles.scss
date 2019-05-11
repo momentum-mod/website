@@ -35,3 +35,7 @@ $nb-breaking-notice-enable: false;
   padding-top: 0;
   padding-bottom: 0;
 }
+
+.nb-theme-dark .btn:not(:disabled):not(.disabled) {
+  cursor: pointer;
+}
