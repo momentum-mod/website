@@ -247,4 +247,12 @@ export class ProfileEditComponent implements OnInit {
   cancelMerge() {
     this.mergeUser = null;
   }
+
+  resetAlias() {
+    this.localUserService.resetAliasToSteamAlias().subscribe(response => {
+      this.localUserService.refreshLocal();
+    }, err => {
+      this.toasterService.popAsync('error', 'Failed', 'Failed to reset alias to Steam alias!');
+    });
+  }
 }

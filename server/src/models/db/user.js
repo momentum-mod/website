@@ -13,6 +13,10 @@ module.exports = (sequelize, type) => {
 			defaultValue: null,
 		},
 		alias: type.STRING(64),
+		aliasLocked: { // whether or not on to update alias to match latest steam alias on login
+            type: type.BOOLEAN,
+            defaultValue: false,
+        },
 		avatar: {
 			type: type.STRING,
 			get() {}, // hidden (use avatarURL)
