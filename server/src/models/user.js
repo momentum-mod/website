@@ -33,6 +33,8 @@ module.exports = {
 			usr.country = newProfile.country;
 		if ((usr.bans & module.exports.Ban.BANNED_AVATAR) === 0)
 			usr.avatarURL = newProfile.avatarURL;
+		if ((usr.bans & module.exports.Ban.BANNED_ALIAS) === 0 && !usr.aliasLocked)
+			usr.alias = newProfile.alias;
 		return usr.save();
 	},
 
@@ -338,19 +340,35 @@ module.exports = {
 	},
 
 	updateAsLocal: (locUsr, body) => {
+		const usrUpd8 = { profile: {} };
 		return sequelize.transaction(t => {
-
-			// Only allow updating certain things
-			const usrUpd8 = {
-				profile: {},
-			};
-
-			if ((locUsr.bans & module.exports.Ban.BANNED_ALIAS) === 0)
-				usrUpd8.alias = body.alias;
-
-			return User.update(usrUpd8, {where: {id: locUsr.id}, transaction: t}).then(() => {
-				if (body.profile)
-					return module.exports.updateProfile(locUsr, body.profile, t);
+			let userModel;
+			return User.findByPk(locUsr.id, {
+				transaction: t,
+			}).then(user => {
+				userModel = user;
+                if ('alias' in body) {
+                	if ((locUsr.bans & module.exports.Ban.BANNED_ALIAS) === 0) {
+                        if (body.alias === '') {
+                            return module.exports.getSteamUsers([user.steamID]);
+                        } else {
+                            usrUpd8.alias = body.alias;
+                            usrUpd8.aliasLocked = true;
+                        }
+					} else {
+                		delete body.alias;
+					}
+                }
+				return Promise.resolve([]);
+			}).then(steamUsers => {
+				if (steamUsers.length > 0) {
+					usrUpd8.aliasLocked = false;
+					usrUpd8.alias = steamUsers[0].personaname;
+				}
+				return userModel.update(usrUpd8, {transaction: t}).then(() => {
+					if (body.profile)
+						return module.exports.updateProfile(locUsr, body.profile, t);
+				});
 			});
 		});
 	},
@@ -708,6 +726,19 @@ module.exports = {
 			group: ['statusFlag'],
 			attributes: ['statusFlag', [sequelize.fn('COUNT', 'statusFlag'), 'statusCount']],
 			raw: true,
+		});
+	},
+
+	getSteamUsers: (steamIDs) => {
+		return axios.get('https://api.steampowered.com/ISteamUser/GetPlayerSummaries/v0002/', {
+			params: {
+				key: config.steam.webAPIKey,
+				steamids: steamIDs.join(','),
+			}
+		}).then(res => {
+			if (res.data && res.data.response && res.data.response.players)
+                return Promise.resolve(res.data.response.players);
+			return Promise.reject(new ServerError(500, 'Failed to get user(s) from Steam'));
 		});
 	},
 

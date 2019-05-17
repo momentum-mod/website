@@ -209,4 +209,11 @@ export class LocalUserService {
       responseType: 'text',
     });
   }
+
+  public resetAliasToSteamAlias(): Observable<any> {
+    return this.http.patch('/api/user', {
+      alias: '',
+    });
+  }
+
 }
