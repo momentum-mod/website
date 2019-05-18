@@ -12,7 +12,7 @@ module.exports = (sequelize, type) => {
 			allowNull: true,
 			defaultValue: null,
 		},
-		alias: type.STRING(32),
+		alias: type.STRING(64),
 		avatar: {
 			type: type.STRING,
 			get() {}, // hidden (use avatarURL)
