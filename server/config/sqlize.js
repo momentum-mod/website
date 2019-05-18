@@ -46,8 +46,8 @@ const sequelize = new Sequelize({
 	logging: config.db.logging,
 	dialect: 'mysql',
 	define: { // TODO: consider definition to be at column/table level?
-		charset: 'utf8',
-		collate: 'utf8_unicode_ci'
+		charset: 'utf8mb4',
+		collate: 'utf8mb4_unicode_ci'
 	},
 	pool: config.db.pool,
 });
