@@ -657,6 +657,7 @@ module.exports = {
 				return Promise.resolve({
 					isNewWorldRecord: resultObj.isNewWorldRecord,
 					isNewPersonalBest: resultObj.isPersonalBest,
+					rank: resultObj.mapRank,
 					run: run.toJSON(),
 					xp: resultObj.xp,
 				});
