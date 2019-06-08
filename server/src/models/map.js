@@ -2,7 +2,8 @@
 const util = require('util'),
 	fs = require('fs'),
 	crypto = require('crypto'),
-	{ sequelize, Op, Map, MapInfo, MapCredit, User, MapReview, MapImage,
+	{
+		sequelize, Op, Map, MapInfo, MapCredit, User, MapReview, MapImage,
 		MapStats, MapZoneStats, MapTrack, MapTrackStats, MapZone, MapZoneTrigger,
 		BaseStats, MapFavorite, MapZoneProperties,
 		MapLibraryEntry, UserMapRank, Run
@@ -18,10 +19,10 @@ const genFileHash = (mapPath) => {
 	return new Promise((resolve, reject) => {
 		const hash = crypto.createHash('sha1').setEncoding('hex');
 		fs.createReadStream(mapPath).pipe(hash)
-		.on('error', err => reject(err))
-		.on('finish', () => {
-			resolve(hash.read())
-		});
+			.on('error', err => reject(err))
+			.on('finish', () => {
+				resolve(hash.read())
+			});
 	});
 };
 
@@ -29,7 +30,7 @@ const storeMapFile = (mapFile, mapModel) => {
 	const moveMapTo = util.promisify(mapFile.mv);
 	const fileName = mapModel.name + '.bsp';
 	const basePath = __dirname + '/../../public/maps';
-	const fullPath =  basePath + '/' + fileName;
+	const fullPath = basePath + '/' + fileName;
 	const downloadURL = config.baseUrl + '/api/maps/' + mapModel.id + '/download';
 	return moveMapTo(fullPath).then(() => {
 		return genFileHash(fullPath).then(hash => {
@@ -78,7 +79,7 @@ const onMapStatusUpdate = (mapID, previousStatus, newStatus, transaction) => {
 const onMapApproval = (mapID, transaction) => {
 	const authorIDs = [];
 	return MapCredit.findAll({
-		where: { mapID: mapID, type: CreditType.AUTHOR },
+		where: {mapID: mapID, type: CreditType.AUTHOR},
 		raw: true,
 	}).then(credits => {
 		const activities = [];
@@ -235,7 +236,7 @@ module.exports = {
 				queryOptions.include.push({
 					model: MapFavorite,
 					as: 'favorites',
-					where: { userID: userID },
+					where: {userID: userID},
 					required: false,
 				});
 			}
@@ -243,7 +244,7 @@ module.exports = {
 				queryOptions.include.push({
 					model: MapLibraryEntry,
 					as: 'libraryEntries',
-					where: { userID: userID },
+					where: {userID: userID},
 					required: false,
 				});
 			}
@@ -251,7 +252,7 @@ module.exports = {
 				queryOptions.include.push({
 					model: UserMapRank,
 					as: 'personalBest',
-					where: { userID: userID },
+					where: {userID: userID},
 					include: [Run, User],
 					required: false,
 				});
@@ -260,7 +261,7 @@ module.exports = {
 				queryOptions.include.push({
 					model: UserMapRank,
 					as: 'worldRecord',
-					where: { rank: 1 },
+					where: {rank: 1},
 					include: [Run, User],
 					required: false,
 				});
@@ -271,7 +272,7 @@ module.exports = {
 
 	get: (mapID, userID, queryParams) => {
 		const allowedExpansions = ['info', 'credits', 'submitter', 'images', 'thumbnail', 'mapStats'];
-		const queryOptions = { include: [{model: MapTrack, as: 'mainTrack', required: false, where: {trackNum: 0}}]};
+		const queryOptions = {include: [{model: MapTrack, as: 'mainTrack', required: false, where: {trackNum: 0}}]};
 		if ('status' in queryParams)
 			queryOptions.where.statusFlag = {[Op.in]: queryParams.status.split(',')};
 		if (queryParams.expand) {
@@ -281,7 +282,7 @@ module.exports = {
 				queryOptions.include.push({
 					model: MapFavorite,
 					as: 'favorites',
-					where: { userID: userID },
+					where: {userID: userID},
 					required: false,
 				});
 			}
@@ -289,7 +290,25 @@ module.exports = {
 				queryOptions.include.push({
 					model: MapLibraryEntry,
 					as: 'libraryEntries',
-					where: { userID: userID },
+					where: {userID: userID},
+					required: false,
+				});
+			}
+			if (expansionNames.includes('personalBest')) {
+				queryOptions.include.push({
+					model: UserMapRank,
+					as: 'personalBest',
+					where: {userID: userID},
+					include: [Run, User],
+					required: false,
+				});
+			}
+			if (expansionNames.includes('worldRecord')) {
+				queryOptions.include.push({
+					model: UserMapRank,
+					as: 'worldRecord',
+					where: {rank: 1},
+					include: [Run, User],
 					required: false,
 				});
 			}
@@ -312,8 +331,8 @@ module.exports = {
 				let mapMdl = null;
 				return Map.create(map, {
 					include: [
-						{ model: MapInfo, as: 'info' },
-						{ model: MapCredit, as: 'credits' },
+						{model: MapInfo, as: 'info'},
+						{model: MapCredit, as: 'credits'},
 						{
 							model: MapStats,
 							as: 'stats',
@@ -394,7 +413,7 @@ module.exports = {
 	update: (mapID, map) => {
 		return sequelize.transaction(t => {
 			return Map.findByPk(mapID, {
-				where: { statusFlag: {[Op.notIn]: [STATUS.REJECTED, STATUS.REMOVED]}},
+				where: {statusFlag: {[Op.notIn]: [STATUS.REJECTED, STATUS.REMOVED]}},
 				transaction: t
 			}).then(mapToUpdate => {
 				if (mapToUpdate) {
@@ -416,7 +435,7 @@ module.exports = {
 		return sequelize.transaction(t => {
 			return MapImage.findAll({
 				attributes: ['id'],
-				where: { mapID: mapID },
+				where: {mapID: mapID},
 				transaction: t,
 			}).then(mapImages => {
 				const mapImageFileDeletes = [];
@@ -426,7 +445,7 @@ module.exports = {
 			}).then(() => {
 				return Run.findAll({
 					attributes: ['id'],
-					where: { mapID: mapID },
+					where: {mapID: mapID},
 					transaction: t,
 				});
 			}).then(runs => {
@@ -436,7 +455,7 @@ module.exports = {
 				return Promise.all(runFileDeletes);
 			}).then(() => {
 				return Map.destroy({
-					where: { id: mapID },
+					where: {id: mapID},
 					transaction: t,
 				});
 			});
@@ -445,14 +464,14 @@ module.exports = {
 
 	getInfo: (mapID) => {
 		return MapInfo.findOne({
-			where: { mapID: mapID },
+			where: {mapID: mapID},
 			raw: true,
 		});
 	},
 
 	updateInfo: (mapID, mapInfo) => {
 		return MapInfo.update(mapInfo, {
-			where: { mapID: mapID }
+			where: {mapID: mapID}
 		});
 	},
 
@@ -498,7 +517,7 @@ module.exports = {
 
 	getCredits: (mapID, queryParams) => {
 		const allowedExpansions = ['user'];
-		const queryOptions = { where: { mapID: mapID }};
+		const queryOptions = {where: {mapID: mapID}};
 		queryHelper.addExpansions(queryOptions, queryParams.expand, allowedExpansions);
 		return MapCredit.findAll(queryOptions);
 	},
@@ -549,7 +568,7 @@ module.exports = {
 	incrementDownloadCount: (mapID) => {
 		MapStats.update({
 			totalDownloads: sequelize.literal('totalDownloads + 1')
-		}, { where: { mapID: mapID }});
+		}, {where: {mapID: mapID}});
 	},
 
 };
