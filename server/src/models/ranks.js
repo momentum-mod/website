@@ -39,7 +39,9 @@ module.exports = {
 					['rank', 'ASC'],
 				],
 				include: [Run, User],
-				offset: Math.max(userMapRank.rank - 5, 0),
+				// Minus 6 here because MySQL uses offset as a "skip the first X"
+				// Example: if you want to offset to rank 9, you set offset to 8
+				offset: Math.max(userMapRank.rank - 6, 0),
 				limit: 11, // 5 + yours + 5
 				attributes: ['rank']
 			};
