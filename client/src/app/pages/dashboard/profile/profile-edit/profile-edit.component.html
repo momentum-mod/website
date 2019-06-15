@@ -19,7 +19,7 @@
                 <label>Alias:</label>
                 <div class="input-group mb-3">
                   <input nbInput class="form-control" formControlName="alias" type="text">
-                  <div class="input-group-append">
+                  <div class="input-group-append" *ngIf="user.aliasLocked">
                     <button nbButton size="xsmall" class="btn" (click)="resetAlias()">Reset To Steam Alias</button>
                   </div>
                 </div>
