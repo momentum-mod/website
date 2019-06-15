@@ -121,6 +121,19 @@ const validateRunFile = (resultObj) => {
 		const runSesDiff = Math.abs(sesDiff - (runTime * 1000)) / 1000.0;
 		const magicLE = 0x524D4F4D;
 
+		// 5 seconds for the stop tick -> end record -> submit, then we add a second for every minute in the replay
+		// so longer replays have more time to submit, up to a max of 10 seconds
+		// If it goes over we just stuff the resultObj extra with values so we can debug it
+		const sesCheck = runSesDiff < (5.0 + Math.min(Math.floor(runTime / 60.0), 10.0));
+		if (!sesCheck)
+		{
+			resultObj.extra.runSes = {
+				sesDiff: sesDiff,
+				runTime: runTime,
+				runSesDiff: runSesDiff
+			}
+		}
+
 		// TODO allow custom tickrates in the future (1.0.0+)
 		const toCheckTR = mapMdl.getDefaultTickrateForMapType(resultObj.map.type);
 		const epsil = 0.000001;
@@ -138,8 +151,6 @@ const validateRunFile = (resultObj) => {
 			!Number.isNaN(Number(replay.header.runDate_s)),
 			Math.abs(replay.header.tickRate - toCheckTR) < epsil,
 			(runTime * 1000.0) <= sesDiff,
-			// 5 seconds for the stop tick -> end record -> submit, then we add a second for every minute in the replay
-			runSesDiff < (5.0 + Math.min(Math.floor(runTime / 60.0), 10.0)), // so longer replays have more time to submit, up to a max of 10 seconds
 			(resultObj.map.type === mapMdl.MAP_TYPE.BHOP) || (resultObj.map.type === mapMdl.MAP_TYPE.SURF), // TODO removeme when more game types added
 		];
 
@@ -638,6 +649,7 @@ module.exports = {
 			steamID: userMdl.steamID,
 			mapRank: null,
 			xp: {},
+			extra: {},
 		};
 		return sequelize.transaction(t => {
 			return validateRunSession(resultObj).then(() => {
@@ -660,6 +672,7 @@ module.exports = {
 					rank: resultObj.mapRank,
 					run: run.toJSON(),
 					xp: resultObj.xp,
+					extra: resultObj.extra,
 				});
 			});
 		});
