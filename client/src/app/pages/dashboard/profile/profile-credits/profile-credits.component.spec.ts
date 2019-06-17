@@ -4,7 +4,7 @@ import {ProfileCreditsComponent} from './profile-credits.component';
 import {NgxPaginationModule} from 'ngx-pagination';
 import {CommonModule} from '@angular/common';
 import {RouterTestingModule} from '@angular/router/testing';
-import {NbListModule, NbToastrModule} from '@nebular/theme';
+import {NbListModule, NbToastrConfig, NbToastRef, NbToastrService} from '@nebular/theme';
 import {UsersService} from '../../../../@core/data/users.service';
 import {Observable, of} from 'rxjs';
 
@@ -13,6 +13,7 @@ describe('ProfileCreditsComponent', () => {
   let fixture: ComponentFixture<ProfileCreditsComponent>;
 
   let usersServiceStub: Partial<UsersService>;
+  let toastrStub: Partial<NbToastrService>;
   beforeEach(async(() => {
 
     usersServiceStub = {
@@ -27,6 +28,14 @@ describe('ProfileCreditsComponent', () => {
         });
       },
     };
+    toastrStub = {
+      danger(message: any, title?: any, config?: Partial<NbToastrConfig>): NbToastRef {
+        return null;
+      },
+      success(message: any, title?: any, config?: Partial<NbToastrConfig>): NbToastRef {
+        return null;
+      },
+    };
 
     TestBed.configureTestingModule({
       imports: [
@@ -34,11 +43,11 @@ describe('ProfileCreditsComponent', () => {
         NgxPaginationModule,
         RouterTestingModule,
         NbListModule,
-        NbToastrModule.forRoot(),
       ],
       declarations: [ ProfileCreditsComponent ],
       providers: [
         { provide: UsersService, useValue: usersServiceStub },
+        { provide: NbToastrService, useValue: toastrStub },
       ],
     })
     .compileComponents();
