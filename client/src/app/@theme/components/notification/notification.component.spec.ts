@@ -1,7 +1,7 @@
 import {async, ComponentFixture, TestBed} from '@angular/core/testing';
 
 import {NotificationComponent} from './notification.component';
-import {NbListModule, NbToastrModule, NbUserModule} from '@nebular/theme';
+import {NbListModule, NbToastrConfig, NbToastRef, NbToastrService, NbUserModule} from '@nebular/theme';
 import {ActivityContentComponent} from '..';
 import {CoreModule} from '../../../@core/core.module';
 import {RouterModule} from '@angular/router';
@@ -14,13 +14,23 @@ describe('NotificationComponent', () => {
   let component: NotificationComponent;
   let fixture: ComponentFixture<NotificationComponent>;
 
+  let toastrStub: Partial<NbToastrService>;
   beforeEach(async(() => {
+    toastrStub = {
+      danger(message: any, title?: any, config?: Partial<NbToastrConfig>): NbToastRef {
+        return null;
+      },
+      success(message: any, title?: any, config?: Partial<NbToastrConfig>): NbToastRef {
+        return null;
+      },
+    };
+
     TestBed.configureTestingModule({
-      imports: [NbListModule, NbUserModule, RouterModule.forRoot([]), HttpClientTestingModule,
-        NbToastrModule.forRoot(), CoreModule.forRoot()],
+      imports: [NbListModule, NbUserModule, RouterModule.forRoot([]), HttpClientTestingModule, CoreModule.forRoot()],
       declarations: [ TimeAgoPipe, NotificationComponent, ActivityContentComponent ],
       providers: [
         { provide: APP_BASE_HREF, useValue: '/' },
+        { provide: NbToastrService, useValue: toastrStub },
       ],
     })
     .compileComponents();

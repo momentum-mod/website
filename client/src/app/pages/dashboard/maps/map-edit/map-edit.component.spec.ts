@@ -12,7 +12,7 @@ import {MapUploadStatus} from '../../../../@core/models/map-upload-status.model'
 import {AuthService} from '../../../../@core/data/auth.service';
 import {CookieService} from 'ngx-cookie-service';
 import {HttpClientModule} from '@angular/common/http';
-import {NbDialogService, NbToastrService} from '@nebular/theme';
+import {NbDialogService, NbToastrConfig, NbToastRef, NbToastrService} from '@nebular/theme';
 
 describe('MapEditComponent', () => {
 
@@ -49,17 +49,26 @@ describe('MapEditComponent', () => {
     },
   };
 
+  let toastrStub: Partial<NbToastrService>;
   beforeEach(async(() => {
+    toastrStub = {
+      danger(message: any, title?: any, config?: Partial<NbToastrConfig>): NbToastRef {
+        return null;
+      },
+      success(message: any, title?: any, config?: Partial<NbToastrConfig>): NbToastRef {
+        return null;
+      },
+    };
     TestBed.configureTestingModule({
       imports: [RouterTestingModule, ThemeModule, HttpClientModule],
       declarations: [MapEditComponent],
       providers: [
         AuthService,
         CookieService,
-        NbToastrService,
         { provide: NbDialogService, useValue: {}},
         { provide: MapsService, useValue: mapServiceStub },
         { provide: APP_BASE_HREF, useValue: '/' },
+        { provide: NbToastrService, useValue: toastrStub },
       ],
     })
     .compileComponents();
