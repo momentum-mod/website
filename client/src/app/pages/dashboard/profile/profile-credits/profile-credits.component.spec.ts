@@ -4,10 +4,9 @@ import {ProfileCreditsComponent} from './profile-credits.component';
 import {NgxPaginationModule} from 'ngx-pagination';
 import {CommonModule} from '@angular/common';
 import {RouterTestingModule} from '@angular/router/testing';
-import {NbListModule} from '@nebular/theme';
+import {NbListModule, NbToastrModule} from '@nebular/theme';
 import {UsersService} from '../../../../@core/data/users.service';
 import {Observable, of} from 'rxjs';
-import {ToasterModule} from 'angular2-toaster';
 
 describe('ProfileCreditsComponent', () => {
   let component: ProfileCreditsComponent;
@@ -35,7 +34,7 @@ describe('ProfileCreditsComponent', () => {
         NgxPaginationModule,
         RouterTestingModule,
         NbListModule,
-        ToasterModule.forRoot(),
+        NbToastrModule.forRoot(),
       ],
       declarations: [ ProfileCreditsComponent ],
       providers: [

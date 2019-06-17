@@ -7,9 +7,9 @@ import {User} from '../../../@core/models/user.model';
 import {ReplaySubject} from 'rxjs';
 import {Role} from '../../../@core/models/role.model';
 import {Ban} from '../../../@core/models/ban.model';
-import {ToasterService} from 'angular2-toaster';
 import {UserFollowObject} from '../../../@core/models/follow.model';
 import {ReportType} from '../../../@core/models/report-type.model';
+import {NbToastrService} from '@nebular/theme';
 
 @Component({
   selector: 'user-profile',
@@ -35,7 +35,7 @@ export class UserProfileComponent implements OnInit {
               private router: Router,
               public userService: LocalUserService,
               private usersService: UsersService,
-              private toastService: ToasterService) {
+              private toastService: NbToastrService) {
     this.ReportType = ReportType;
     this.role = Role;
     this.isLocal = true;
@@ -57,7 +57,7 @@ export class UserProfileComponent implements OnInit {
           this.userService.getLocal().subscribe(usr => {
             this.isLocal = idNum === usr.id;
           }, error => {
-            this.toastService.popAsync('error', 'Cannot get user profile', error.message);
+            this.toastService.danger(error.message, 'Cannot get user profile');
           });
           return this.usersService.getUser(idNum, {
             params: { expand: 'profile,stats' },
@@ -83,12 +83,12 @@ export class UserProfileComponent implements OnInit {
       this.avatar_loaded = true;
       this.usersService.getUserFollows(this.user).subscribe(resp => {
         this.followingUsers = resp.followed;
-      }, err => this.toastService.popAsync('error', 'Could not retrieve user follows', err.message));
+      }, err => this.toastService.danger(err.message, 'Could not retrieve user follows'));
       this.usersService.getFollowersOfUser(this.user).subscribe(resp => {
         this.followedByUsers = resp.followers;
-      }, err => this.toastService.popAsync('error', 'Could not retrieve user following', err.message));
+      }, err => this.toastService.danger(err.message, 'Could not retrieve user following'));
     }, error => {
-      this.toastService.popAsync('error', 'Cannot get user details', error.message);
+      this.toastService.danger(error.message, 'Cannot get user details');
     });
   }
 

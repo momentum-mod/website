@@ -7,9 +7,8 @@ import {FormBuilder, FormGroup, Validators} from '@angular/forms';
 import {Role} from '../../../../@core/models/role.model';
 import {LocalUserService} from '../../../../@core/data/local-user.service';
 import {AdminService} from '../../../../@core/data/admin.service';
-import {NbDialogService} from '@nebular/theme';
+import {NbDialogService, NbToastrService} from '@nebular/theme';
 import {ConfirmDialogComponent} from '../../../../@theme/components/confirm-dialog/confirm-dialog.component';
-import {ToasterService} from 'angular2-toaster';
 
 @Component({
   selector: 'map-edit',
@@ -37,7 +36,7 @@ export class MapEditComponent implements OnInit {
               private localUserService: LocalUserService,
               private adminService: AdminService,
               private dialogService: NbDialogService,
-              private toasterService: ToasterService,
+              private toasterService: NbToastrService,
               private fb: FormBuilder) { }
 
   ngOnInit() {
@@ -76,9 +75,9 @@ export class MapEditComponent implements OnInit {
     }).onClose.subscribe(response => {
       if (response) {
         this.adminService.deleteMap(this.map.id).subscribe(res => {
-          this.toasterService.popAsync('success', 'Success', 'Successfully deleted the map');
+          this.toasterService.success('Successfully deleted the map', 'Success');
         }, err => {
-          this.toasterService.popAsync('error', 'Failed', 'Failed to delete the map');
+          this.toasterService.danger('Failed to delete the map', 'Failed');
         });
       }
     });

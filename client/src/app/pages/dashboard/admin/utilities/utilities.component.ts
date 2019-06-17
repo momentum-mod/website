@@ -1,6 +1,5 @@
 import {Component, OnInit} from '@angular/core';
-import {NbDialogService} from '@nebular/theme';
-import {ToasterService} from 'angular2-toaster';
+import {NbDialogService, NbToastrService} from '@nebular/theme';
 import {AdminService} from '../../../../@core/data/admin.service';
 import {ConfirmDialogComponent} from '../../../../@theme/components/confirm-dialog/confirm-dialog.component';
 import {FormControl, FormGroup} from '@angular/forms';
@@ -17,7 +16,7 @@ export class UtilitiesComponent implements OnInit {
   });
   get alias() { return this.userForm.get('alias'); }
   constructor(private adminService: AdminService,
-              private toasterService: ToasterService,
+              private toasterService: NbToastrService,
               private dialogService: NbDialogService) {
   }
 
@@ -55,9 +54,9 @@ export class UtilitiesComponent implements OnInit {
       level: 1,
       cosXP: 0,
     }).subscribe(res => {
-      this.toasterService.popAsync('success', 'Success', 'Successfully reset cosmetic XP globally');
+      this.toasterService.success('Successfully reset cosmetic XP globally');
     }, err => {
-      this.toasterService.popAsync('error', 'Failed', 'Failed to reset cosmetic XP globally');
+      this.toasterService.danger('Failed to reset cosmetic XP globally');
     });
   }
 
@@ -65,9 +64,9 @@ export class UtilitiesComponent implements OnInit {
     this.adminService.updateAllUserStats({
       rankXP: 0,
     }).subscribe(res => {
-      this.toasterService.popAsync('success', 'Success', 'Successfully reset rank XP globally');
+      this.toasterService.success('Successfully reset rank XP globally');
     }, err => {
-      this.toasterService.popAsync('error', 'Failed', 'Failed to reset rank XP globally');
+      this.toasterService.danger('Failed to reset rank XP globally');
     });
   }
 
@@ -76,11 +75,11 @@ export class UtilitiesComponent implements OnInit {
       return;
     this.adminService.createUser(this.alias.value).subscribe(res => {
       if (res.alias && res.alias === this.alias.value) {
-        this.toasterService.popAsync('success', 'Success', 'Successfully created user!');
+        this.toasterService.success('Successfully created user!');
         this.userForm.reset();
       }
     }, err => {
-      this.toasterService.popAsync('error', 'Failed', 'Failed to create user!');
+      this.toasterService.danger('Failed to create user!');
     });
   }
 }

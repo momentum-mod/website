@@ -7,16 +7,17 @@ import { NgModule } from '@angular/core';
 
 import { SearchComponent } from './search.component';
 import { NbSearchService } from './search.service';
-import {NbSharedModule} from '@nebular/theme/components/shared/shared.module';
-import {NbOverlayModule, NbThemeModule, NbUserModule} from '@nebular/theme';
+import {NbIconModule, NbOverlayModule, NbThemeModule, NbUserModule} from '@nebular/theme';
 import {SearchFieldComponent} from './search-field.component';
 import {SearchResultsComponent} from './search-results.component';
+import {CommonModule} from '@angular/common';
 
 @NgModule({
   imports: [
     NbThemeModule,
+    CommonModule,
+    NbIconModule,
     NbUserModule,
-    NbSharedModule,
     NbOverlayModule,
   ],
   declarations: [

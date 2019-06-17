@@ -54,7 +54,7 @@ export class SearchFieldComponent implements OnChanges, AfterViewInit {
   @Output() close = new EventEmitter();
   @Output() search = new EventEmitter();
 
-  @ViewChild('searchInput') inputElement: ElementRef<HTMLInputElement>;
+  @ViewChild('searchInput', {static: true}) inputElement: ElementRef<HTMLInputElement>;
 
   @HostBinding('class.show')
   get showClass() {
@@ -161,5 +161,9 @@ export class SearchFieldComponent implements OnChanges, AfterViewInit {
   selectedElem($event: string) {
     this.router.navigateByUrl($event);
     this.emitClose();
+  }
+
+  retFalse() {
+    return false;
   }
 }

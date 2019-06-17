@@ -79,9 +79,9 @@ export class HeaderComponent implements OnInit {
 
   getNotificationIconClass() {
     if (this.notifications.length === 0)
-      return 'far fa-bell';
+      return 'bell-outline';
     else {
-      return 'fa fa-bell';
+      return 'bell';
     }
   }
 }

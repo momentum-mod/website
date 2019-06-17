@@ -34,8 +34,8 @@
     width: auto;
 
     .navigation {
-      @include nb-ltr(padding-right, nb-theme(padding));
-      @include nb-rtl(padding-left, nb-theme(padding));
+      @include nb-ltr(padding-right, 0.25rem /*nb-theme(padding)*/);
+      @include nb-rtl(padding-left, 0.25rem/*nb-theme(padding)*/);
       font-size: 2.5rem;
       text-decoration: none;
 
@@ -46,15 +46,15 @@
     }
 
     .logo {
-      padding: 0 nb-theme(padding);
+      padding: 0 1.25rem /*nb-theme(padding)*/;
       font-size: 1.75rem;
-      font-weight: nb-theme(font-weight-bolder);
-      @include nb-ltr(border-left, 1px solid nb-theme(separator));
-      @include nb-rtl(border-right, 1px solid nb-theme(separator));
+      font-weight: nb-theme(text-heading-2-font-weight);
+      @include nb-ltr(border-left, 1px solid nb-theme(divider-color));
+      @include nb-rtl(border-right, 1px solid nb-theme(divider-color));
       white-space: nowrap;
 
       span {
-        font-weight: nb-theme(font-weight-normal);
+        font-weight: nb-theme(text-subtitle-font-weight);
       }
     }
   }
@@ -65,13 +65,13 @@
     }
   }
 
-  .toggle-layout /deep/ a {
+  .toggle-layout ::ng-deep a {
     display: block;
     text-decoration: none;
     line-height: 1;
 
     i {
-      color: nb-theme(color-fg-highlight);
+      color: nb-theme(color-primary-default);
       font-size: 2.25rem;
       border-radius: 50%;
       position: relative;
@@ -102,13 +102,13 @@
 
   @include keyframes(pulse) {
     0% {
-      box-shadow: 0 0 1px 0 rgba(nb-theme(color-fg-highlight), 0);
+      box-shadow: 0 0 1px 0 rgba(nb-theme(color-primary-default), 0);
     }
     20% {
-      box-shadow: 0 0 3px 10px rgba(nb-theme(color-fg-highlight), 0.4);
+      box-shadow: 0 0 3px 10px rgba(nb-theme(color-primary-default), 0.4);
     }
     100% {
-      box-shadow: 0 0 5px 20px rgba(nb-theme(color-fg-highlight), 0);
+      box-shadow: 0 0 5px 20px rgba(nb-theme(color-primary-default), 0);
     }
   }
 
@@ -141,7 +141,7 @@
 
   @include media-breakpoint-down(sm) {
 
-    nb-user /deep/ .user-name {
+    nb-user ::ng-deep .user-name {
       display: none;
     }
   }
@@ -164,7 +164,7 @@
   }
 
   @include media-breakpoint-down(xs) {
-    .right /deep/ {
+    .right ::ng-deep {
       display: none;
     }
   }

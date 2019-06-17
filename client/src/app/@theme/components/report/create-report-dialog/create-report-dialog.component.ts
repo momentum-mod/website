@@ -1,9 +1,8 @@
 import {Component, Input, OnInit} from '@angular/core';
 import {ReportType} from '../../../../@core/models/report-type.model';
-import {NbDialogRef} from '@nebular/theme';
+import {NbDialogRef, NbToastrService} from '@nebular/theme';
 import {FormBuilder, FormGroup, Validators} from '@angular/forms';
 import {ReportService} from '../../../../@core/data/report.service';
-import {ToasterService} from 'angular2-toaster';
 import {ReportCategory} from '../../../../@core/models/report-category.model';
 
 @Component({
@@ -21,7 +20,7 @@ export class CreateReportDialogComponent implements OnInit {
   constructor(protected ref: NbDialogRef<CreateReportDialogComponent>,
               private fb: FormBuilder,
               private reportService: ReportService,
-              private toastService: ToasterService) {
+              private toastService: NbToastrService) {
     this.ReportCategory = ReportCategory;
     this.createReportForm = this.fb.group({
       'data': ['', Validators.required],
@@ -46,10 +45,10 @@ export class CreateReportDialogComponent implements OnInit {
     this.reportService.createReport(this.createReportForm.value).subscribe(() => {
       this.createReportForm.reset();
       this.ref.close();
-      this.toastService.popAsync('success', 'Success', 'Report submitted');
+      this.toastService.success('Report submitted');
     }, err => {
       console.error(err);
-      this.toastService.popAsync('error', 'Error', 'Failed to submit report: ' + err.error.error.message);
+      this.toastService.danger('Failed to submit report: ' + err.error.error.message, 'Error');
     });
   }
 

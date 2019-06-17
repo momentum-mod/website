@@ -4,8 +4,8 @@ import {filter, finalize} from 'rxjs/operators';
 import {HttpClient} from '@angular/common/http';
 import {Observable, ReplaySubject} from 'rxjs';
 import {SiteNotification} from '../models/notification.model';
-import {ToasterService} from 'angular2-toaster';
 import {AuthService} from '../data/auth.service';
+import {NbToastrService} from '@nebular/theme';
 
 
 @Injectable()
@@ -15,7 +15,7 @@ export class NotificationsService {
   constructor(private router: Router,
               private http: HttpClient,
               private authService: AuthService,
-              private toasterService: ToasterService) {
+              private toasterService: NbToastrService) {
     this.notifications$ = new ReplaySubject<SiteNotification[]>(1);
   }
   public inject(): void {
@@ -41,7 +41,7 @@ export class NotificationsService {
       .pipe(finalize(() => this.checkNotifications()))
       .subscribe(resp => {
     }, err => {
-      this.toasterService.popAsync('error', 'Could not mark notification as read', err.message);
+        this.toasterService.danger(err.message, 'Could not mark notification as read');
     });
   }
   dismissNotification(notif: SiteNotification) {
@@ -49,7 +49,7 @@ export class NotificationsService {
       .pipe(finalize(() => this.checkNotifications()))
       .subscribe(resp => {
     }, err => {
-      this.toasterService.popAsync('error', 'Could not dismiss notification', err.message);
+        this.toasterService.danger(err.message, 'Could not dismiss notification');
     });
   }
 }

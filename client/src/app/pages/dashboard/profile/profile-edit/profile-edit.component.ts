@@ -1,7 +1,5 @@
 import {Component, OnInit, ViewChild} from '@angular/core';
 import {LocalUserService} from '../../../../@core/data/local-user.service';
-import {ToasterService} from 'angular2-toaster';
-import 'style-loader!angular2-toaster/toaster.css';
 import {FormBuilder, FormGroup, Validators} from '@angular/forms';
 import {AuthService} from '../../../../@core/data/auth.service';
 import {ActivatedRoute, ParamMap, Router} from '@angular/router';
@@ -13,8 +11,7 @@ import {Ban} from '../../../../@core/models/ban.model';
 import {User} from '../../../../@core/models/user.model';
 import {AdminService} from '../../../../@core/data/admin.service';
 import {ConfirmDialogComponent} from '../../../../@theme/components/confirm-dialog/confirm-dialog.component';
-import {NbDialogService} from '@nebular/theme';
-import {NbTabComponent} from '@nebular/theme/components/tabset/tabset.component';
+import {NbDialogService, NbTabComponent, NbToastrService} from '@nebular/theme';
 
 @Component({
   selector: 'profile-edit',
@@ -54,7 +51,7 @@ export class ProfileEditComponent implements OnInit {
   Role: typeof Role = Role;
   Ban: typeof Ban = Ban;
 
-  @ViewChild('socials') socials: NbTabComponent;
+  @ViewChild('socials', {static: false}) socials: NbTabComponent;
 
   constructor(private route: ActivatedRoute,
               private router: Router,
@@ -62,7 +59,7 @@ export class ProfileEditComponent implements OnInit {
               private usersService: UsersService,
               private adminService: AdminService,
               private authService: AuthService,
-              private toasterService: ToasterService,
+              private toasterService: NbToastrService,
               private dialogService: NbDialogService,
               private fb: FormBuilder) {
     this.user = null;
@@ -99,7 +96,7 @@ export class ProfileEditComponent implements OnInit {
   }
 
   err(title: string, msg?: string) {
-    this.toasterService.popAsync('error', title, msg || '');
+    this.toasterService.danger(msg || '', title);
   }
 
   onSubmit(): void {
@@ -108,7 +105,7 @@ export class ProfileEditComponent implements OnInit {
         return;
       this.localUserService.updateUser(this.profileEditFormGroup.value).subscribe(() => {
         this.localUserService.refreshLocal();
-        this.toasterService.popAsync('success', 'Updated user profile!', '');
+        this.toasterService.success('Updated user profile');
       }, error => this.err('Failed to update user profile!', error.message));
     } else {
       const userUpdate: User = this.profileEditFormGroup.value;
@@ -117,7 +114,7 @@ export class ProfileEditComponent implements OnInit {
       this.adminService.updateUser(this.user.id, userUpdate).subscribe(() => {
         if (this.isLocal)
           this.localUserService.refreshLocal();
-        this.toasterService.popAsync('success', 'Updated user profile!', '');
+        this.toasterService.success('Updated user profile!');
       }, error => this.err('Failed to update user profile!', error.message));
     }
   }
@@ -140,7 +137,7 @@ export class ProfileEditComponent implements OnInit {
     this.authService.removeSocialAuth(platform).subscribe(resp => {
       this.localUserService.refreshLocal();
     }, err => {
-      this.toasterService.popAsync('error', `Failed to unauthorize ${platform} account`, err.message);
+      this.toasterService.danger(err.message, `Failed to unauthorize ${platform} account`);
     });
   }
 
@@ -203,10 +200,10 @@ export class ProfileEditComponent implements OnInit {
     }).onClose.subscribe(response => {
       if (response) {
         this.adminService.deleteUser(this.user.id).subscribe(() => {
-          this.toasterService.popAsync('success', 'Success', 'Successfully deleted user!');
+          this.toasterService.success('Successfully deleted user!');
           this.router.navigate(['/dashboard']);
         }, err => {
-          this.toasterService.popAsync('error', 'Failed', 'Failed to delete user!');
+          this.toasterService.danger('Failed to delete user!');
         });
       }
     });
@@ -234,11 +231,11 @@ export class ProfileEditComponent implements OnInit {
     }).onClose.subscribe(response => {
       if (response) {
         this.adminService.mergeUsers(this.user, this.mergeUser).subscribe(() => {
-          this.toasterService.popAsync('success', 'Success', 'Successfully merged the two users!');
+          this.toasterService.success('Successfully merged the two users!');
           this.router.navigate([`/dashboard/profile/${this.mergeUser.id}`]);
           this.mergeUser = null;
         }, err => {
-          this.toasterService.popAsync('error', 'Failed', 'Failed to merge users!');
+          this.toasterService.danger('Failed to merge users!');
         });
       }
     });

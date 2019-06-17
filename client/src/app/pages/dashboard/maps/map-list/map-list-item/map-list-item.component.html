@@ -33,7 +33,7 @@
   <div class="col text-right">
     <div class="text-right" role="toolbar">
       <div class="btn-group-vertical" role="group">
-        <button type="button" class="btn btn-success" (click)="toggleMapInFavorites()"
+        <button type="button" class="btn btn-primary" nbButton (click)="toggleMapInFavorites()"
                 [nbPopover]="mapInFavorites ? 'Remove map from favorites' : 'Add map to favorites'" [nbPopoverTrigger]="'hint'">
           <span [ngClass]="mapInFavorites ? 'ion-android-star' : 'ion-android-star-outline'" class="icon"></span>
         </button>

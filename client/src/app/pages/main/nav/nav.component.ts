@@ -15,7 +15,7 @@ export class NavComponent {
       this.mainNavClass = '';
     }
   }
-  @ViewChild('mainNav') mainNav: ElementRef;
+  @ViewChild('mainNav', {static: false}) mainNav: ElementRef;
   mainNavClass: string;
   constructor() {
     this.mainNavClass = '';

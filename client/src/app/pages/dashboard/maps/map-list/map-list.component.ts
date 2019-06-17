@@ -2,11 +2,11 @@ import {Component, Input, OnInit} from '@angular/core';
 import {MomentumMap} from '../../../../@core/models/momentum-map.model';
 import {FormBuilder, FormGroup} from '@angular/forms';
 import {MapsService} from '../../../../@core/data/maps.service';
-import {ToasterService} from 'angular2-toaster';
 import {MapAPIQueryParams} from '../../../../@core/models/map-api-query-params.model';
 import {finalize, map} from 'rxjs/operators';
 import {LocalUserService} from '../../../../@core/data/local-user.service';
 import {Observable} from 'rxjs';
+import {NbToastrService} from '@nebular/theme';
 
 export enum MapListType {
   TYPE_BROWSE = 'browse',
@@ -34,7 +34,7 @@ export class MapListComponent implements OnInit {
     'search': [''],
   });
   constructor(private mapService: MapsService,
-              private toasterService: ToasterService,
+              private toasterService: NbToastrService,
               private locUsrService: LocalUserService,
               private fb: FormBuilder) {
     this.pageLimit = 10;
@@ -81,9 +81,8 @@ export class MapListComponent implements OnInit {
         this.mapCount = res.count;
         this.maps = res.maps;
       }, err => {
-        this.toasterService.popAsync('error',
-          `Failed to get ${this.type === MapListType.TYPE_LIBRARY ? 'map library' : 'maps'}`,
-          err.message);
+        this.toasterService.danger(err.message,
+          `Failed to get ${this.type === MapListType.TYPE_LIBRARY ? 'map library' : 'maps'}`);
       });
   }
 

@@ -2,7 +2,7 @@ import {Component, OnInit} from '@angular/core';
 import {XPSystems} from '../../../../@core/models/xp-systems.model';
 import {FormArray, FormBuilder, FormGroup, Validators} from '@angular/forms';
 import {AdminService} from '../../../../@core/data/admin.service';
-import {ToasterService} from 'angular2-toaster';
+import {NbToastrService} from '@nebular/theme';
 
 @Component({
   selector: 'xp-system',
@@ -116,7 +116,7 @@ export class XPSystemComponent implements OnInit {
 
   constructor(private fb: FormBuilder,
               private adminService: AdminService,
-              private toasterService: ToasterService) {
+              private toasterService: NbToastrService) {
     this.xpSystems = null;
   }
 
@@ -125,7 +125,7 @@ export class XPSystemComponent implements OnInit {
       this.xpSystems = res;
       this.xpSystemsFormGroup.patchValue(this.xpSystems);
     }, err => {
-      this.toasterService.popAsync('error', 'Failed', 'Failed to get the XP system params!');
+      this.toasterService.danger('Failed to get the XP system params!', 'Failed');
     });
   }
   submitXPSystems() {
@@ -133,9 +133,9 @@ export class XPSystemComponent implements OnInit {
       return;
     this.adminService.updateXPSystems(this.xpSystemsFormGroup.value).subscribe(res => {
       this.xpSystems = this.xpSystemsFormGroup.value;
-      this.toasterService.popAsync('success', 'Success', 'Successfully updated XP systems!');
+      this.toasterService.success('Successfully updated XP systems!', 'Success');
     }, err => {
-      this.toasterService.popAsync('error', 'Failed', 'Failed to update the XP systems!');
+      this.toasterService.danger('Failed to update the XP systems!', 'Failed');
     });
   }
 }
