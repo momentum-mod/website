@@ -4,8 +4,8 @@ import {User} from '../../../../@core/models/user.model';
 import {UsersService} from '../../../../@core/data/users.service';
 import {finalize} from 'rxjs/operators';
 import {Run} from '../../../../@core/models/run.model';
-import {ToasterService} from 'angular2-toaster';
 import {FormBuilder, FormGroup} from '@angular/forms';
+import {NbToastrService} from '@nebular/theme';
 
 @Component({
   selector: 'profile-run-history',
@@ -30,7 +30,7 @@ export class ProfileRunHistoryComponent implements OnInit {
   });
 
   constructor(private usersService: UsersService,
-              private toastService: ToasterService,
+              private toastService: NbToastrService,
               private fb: FormBuilder) {
     this.loadedRuns = false;
     this.pageLimit = 10;
@@ -57,7 +57,7 @@ export class ProfileRunHistoryComponent implements OnInit {
       .subscribe(resp => {
         this.runCount = resp.count;
         this.runHistory = resp.runs;
-      }, err => this.toastService.popAsync('error', 'Cannot get user map credits', err.message));
+      }, err => this.toastService.danger(err.message, 'Cannot get user map credits'));
   }
 
   onPageChange(pageNum: number) {

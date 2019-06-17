@@ -4,27 +4,33 @@
  * Licensed under the MIT License. See License.txt in the project root for license information.
  */
 
+@import '../../styles/themes';
+
 @mixin mom-search-theme() {
 
   mom-search-field {
 
     .search {
-      background: nb-theme(search-bg);
+      background: nb-theme(search-background-color);
 
       button {
-        color: nb-theme(search-btn-close-fg);
+        color: #fff;
+      }
+
+      nb-icon {
+        font-size: 2rem;
       }
 
       span {
-        color: nb-theme(search-info);
+        color: nb-theme(search-info-text-color);
       }
 
       input {
-        color: nb-theme(search-text);
-        border-bottom: 4px solid nb-theme(search-dash);
+        color: nb-theme(search-text-color);
+        border-bottom: 4px solid nb-theme(search-divider-color);
 
         &::placeholder {
-          color: nb-theme(search-placeholder);
+          color: nb-theme(search-placeholder-text-color);
         }
 
         &::-ms-clear {
@@ -35,60 +41,60 @@
 
     &.rotate-layout {
       opacity: 0;
-      background: nb-theme(search-bg);
+      background: nb-theme(search-background-color);
     }
 
     &.modal-zoomin {
       .search::before,
       .search::after {
-        border: 1.5rem solid nb-theme(search-bg-secondary);
+        border: 1.5rem solid nb-theme(search-extra-background-color);
       }
 
     }
 
 		&.modal-half {
 			.form-wrapper {
-				background: nb-theme(search-bg);
+				background: nb-theme(search-background-color);
 			}
       .search::before {
-        background: nb-theme(search-bg-secondary);
+        background: nb-theme(search-extra-background-color);
       }
     }
 
     &.modal-drop {
       .form-content::after {
-        background: nb-theme(search-dash);
+        background: nb-theme(search-divider-color);
       }
       .search::before {
-        background: nb-theme(search-bg);
+        background: nb-theme(search-background-color);
       }
     }
 
     &.curtain {
       .search::after {
-        background: nb-theme(search-bg);
+        background: nb-theme(search-background-color);
       }
       .search {
-        background: nb-theme(search-bg);
+        background: nb-theme(search-background-color);
       }
     }
 
 		&.column-curtain {
       &::before {
-        background: nb-theme(search-bg);
+        background: nb-theme(search-background-color);
       }
       &::after {
         background: transparent;
       }
       &.show::after {
-        background: nb-theme(search-bg-secondary);
+        background: nb-theme(search-extra-background-color);
       }
 		}
   }
 
   mom-search {
     button {
-      color: nb-theme(search-btn-open-fg);
+      color: #fff;
     }
   }
 }

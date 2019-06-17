@@ -2,8 +2,7 @@ import {Component, Input, OnInit} from '@angular/core';
 import {ReplaySubject} from 'rxjs';
 import {User} from '../../../../@core/models/user.model';
 import {LocalUserService} from '../../../../@core/data/local-user.service';
-import {ToasterService} from 'angular2-toaster';
-import {NbDialogRef, NbDialogService} from '@nebular/theme';
+import {NbDialogRef, NbDialogService, NbToastrService} from '@nebular/theme';
 import {Activity_Type} from '../../../../@core/models/activity-type.model';
 import {finalize} from 'rxjs/operators';
 import {UserFollowObject} from '../../../../@core/models/follow.model';
@@ -84,7 +83,7 @@ export class ProfileFollowComponent implements OnInit {
   targetFollowStatus: UserFollowObject; // The follow object of the target user following local user
   checked: boolean;
   constructor(private localUserService: LocalUserService,
-              private toastService: ToasterService,
+              private toastService: NbToastrService,
               private dialogService: NbDialogService) {
     this.user = null;
     this.checked = false;
@@ -101,7 +100,7 @@ export class ProfileFollowComponent implements OnInit {
           this.localFollowStatus = resp.local;
           this.targetFollowStatus = resp.target;
       }, err => {
-          this.toastService.popAsync('error', 'Could not check follow status', err.message);
+          this.toastService.danger(err.message, 'Could not check follow status');
       });
     });
   }
@@ -110,13 +109,13 @@ export class ProfileFollowComponent implements OnInit {
       this.localUserService.followUser(this.user).subscribe(resp => {
         this.localFollowStatus = resp;
       }, err => {
-        this.toastService.popAsync('error', 'Could not follow user', err.message);
+        this.toastService.danger(err.message, 'Could not follow user');
       });
     } else {
       this.localUserService.unfollowUser(this.user).subscribe(resp => {
         this.localFollowStatus = null;
       }, err => {
-        this.toastService.popAsync('error', 'Could not unfollow user', err.message);
+        this.toastService.danger(err.message, 'Could not unfollow user');
       });
     }
   }
@@ -133,7 +132,7 @@ export class ProfileFollowComponent implements OnInit {
         this.localUserService.updateFollowStatus(this.user, resp.newFlags).subscribe(() => {
           this.localFollowStatus.notifyOn = resp.newFlags;
         }, err => {
-          this.toastService.popAsync('error', 'Could not update follow status', err.message);
+          this.toastService.danger('Could not update follow status', err.message);
         });
       }
     });

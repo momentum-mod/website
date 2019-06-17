@@ -1,11 +1,11 @@
 import {Component, Input, OnInit} from '@angular/core';
 import {MapCredit} from '../../../../@core/models/map-credit.model';
-import {ToasterService} from 'angular2-toaster';
 import {finalize} from 'rxjs/operators';
 import {MapCreditType} from '../../../../@core/models/map-credit-type.model';
 import {Observable} from 'rxjs';
 import {User} from '../../../../@core/models/user.model';
 import {UsersService} from '../../../../@core/data/users.service';
+import {NbToastrService} from '@nebular/theme';
 
 @Component({
   selector: 'profile-credits',
@@ -25,7 +25,7 @@ export class ProfileCreditsComponent implements OnInit {
   creditCount: number;
 
   constructor(private usersService: UsersService,
-              private toastService: ToasterService) {
+              private toastService: NbToastrService) {
     this.loadedCredits = false;
     this.pageLimit = 10;
     this.currentPage = 1;
@@ -51,7 +51,7 @@ export class ProfileCreditsComponent implements OnInit {
       .subscribe(resp => {
         this.creditCount = resp.count;
         this.mapCredits = resp.credits;
-      }, err => this.toastService.popAsync('error', 'Cannot get user map credits', err.message));
+      }, err => this.toastService.danger(err.message, 'Cannot get user map credits'));
   }
 
   onPageChange(pageNum: number) {

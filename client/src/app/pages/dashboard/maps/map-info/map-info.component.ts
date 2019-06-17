@@ -4,12 +4,12 @@ import {switchMap} from 'rxjs/operators';
 import {MapsService} from '../../../../@core/data/maps.service';
 import {MomentumMap} from '../../../../@core/models/momentum-map.model';
 import {LocalUserService} from '../../../../@core/data/local-user.service';
-import {ToasterService} from 'angular2-toaster';
 import {NgxGalleryAnimation, NgxGalleryImage, NgxGalleryOptions} from 'ngx-gallery';
 import {MapImage} from '../../../../@core/models/map-image.model';
 import {Role} from '../../../../@core/models/role.model';
 import {ReportType} from '../../../../@core/models/report-type.model';
 import {MomentumMapPreview} from '../../../../@core/models/momentum-map-preview.model';
+import {NbToastrService} from '@nebular/theme';
 
 
 @Component({
@@ -20,7 +20,7 @@ import {MomentumMapPreview} from '../../../../@core/models/momentum-map-preview.
 
 export class MapInfoComponent implements OnInit {
 
-  @ViewChild('leaderboard') leaderboard;
+  @ViewChild('leaderboard', {static: false}) leaderboard;
   @Input('previewMap') previewMap: MomentumMapPreview;
   ReportType: typeof ReportType;
   map: MomentumMap;
@@ -36,7 +36,7 @@ export class MapInfoComponent implements OnInit {
               private router: Router,
               private mapService: MapsService,
               private locUserService: LocalUserService,
-              private toastService: ToasterService) {
+              private toastService: NbToastrService) {
     this.ReportType = ReportType;
     this.mapInLibrary = false;
     this.map = null;
@@ -109,7 +109,7 @@ export class MapInfoComponent implements OnInit {
         this.mapInLibrary = true;
         this.map.stats.totalSubscriptions++;
       }, error => {
-        this.toastService.popAsync('error', 'Cannot add map to library', error.message);
+        this.toastService.danger(error.message, 'Cannot add map to library');
       });
     }
   }
@@ -125,7 +125,7 @@ export class MapInfoComponent implements OnInit {
         this.mapInFavorites = true;
         this.map.stats.totalFavorites++;
       }, error => {
-        this.toastService.popAsync('error', 'Failed to add map to favorites', error.message);
+        this.toastService.danger(error.message, 'Failed to add map to favorites');
       });
     }
   }

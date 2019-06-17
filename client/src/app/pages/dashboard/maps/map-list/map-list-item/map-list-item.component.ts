@@ -1,8 +1,8 @@
 import {Component, EventEmitter, Input, OnInit, Output} from '@angular/core';
 import {MomentumMap} from '../../../../../@core/models/momentum-map.model';
 import {LocalUserService} from '../../../../../@core/data/local-user.service';
-import {ToasterService} from 'angular2-toaster';
 import {MapUploadStatus} from '../../../../../@core/models/map-upload-status.model';
+import {NbToastrService} from '@nebular/theme';
 
 @Component({
   selector: 'map-list-item',
@@ -23,7 +23,7 @@ export class MapListItemComponent implements OnInit {
   mapInLibrary: boolean;
 
   constructor(private localUserService: LocalUserService,
-              private toastService: ToasterService) {
+              private toastService: NbToastrService) {
     this.inLibrary = false;
     this.inFavorites = false;
     this.isUpload = false;
@@ -40,17 +40,17 @@ export class MapListItemComponent implements OnInit {
       this.localUserService.removeMapFromFavorites(this.map.id).subscribe(() => {
         this.mapInFavorites = false;
         this.onFavoriteUpdate.emit(false);
-        this.toastService.popAsync('success', 'Removed map from favorites');
+        this.toastService.success('Removed map from favorites', 'Success');
       }, err => {
-        this.toastService.popAsync('error', 'Failed to remove map from favorites');
+        this.toastService.danger('Failed to remove map from favorites', 'Error');
       });
     } else {
       this.localUserService.addMapToFavorites(this.map.id).subscribe(() => {
         this.mapInFavorites = true;
         this.onFavoriteUpdate.emit(true);
-        this.toastService.popAsync('success', 'Added map to favorites');
+        this.toastService.success('Added map to favorites', 'Success');
       }, err => {
-        this.toastService.popAsync('error', 'Failed to add map to favorites');
+        this.toastService.danger('Failed to add map to favorites', 'Error');
       });
     }
   }
@@ -60,17 +60,17 @@ export class MapListItemComponent implements OnInit {
       this.localUserService.removeMapFromLibrary(this.map.id).subscribe(() => {
         this.mapInLibrary = false;
         this.onLibraryUpdate.emit(false);
-        this.toastService.popAsync('success', 'Removed map from library');
+        this.toastService.success('Removed map from library', 'Success');
       }, err => {
-        this.toastService.popAsync('error', 'Failed to remove map from library', err.message);
+        this.toastService.danger(err.message, 'Failed to remove map from library');
       });
     } else {
       this.localUserService.addMapToLibrary(this.map.id).subscribe(resp => {
         this.mapInLibrary = true;
         this.onLibraryUpdate.emit(true);
-        this.toastService.popAsync('success', 'Added map to library');
+        this.toastService.success('Added map to library', 'Success');
       }, err => {
-        this.toastService.popAsync('error', 'Failed to add map to library', err.message);
+        this.toastService.danger(err.message, 'Failed to add map to library');
       });
     }
   }

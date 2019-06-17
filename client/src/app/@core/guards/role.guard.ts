@@ -1,14 +1,14 @@
 import {Injectable} from '@angular/core';
 import {ActivatedRouteSnapshot, CanActivate} from '@angular/router';
 import {LocalUserService} from '../data/local-user.service';
-import {ToasterService} from 'angular2-toaster';
+import {NbToastrService} from '@nebular/theme';
 
 @Injectable({
   providedIn: 'root',
 })
 export class RoleGuard implements CanActivate {
   constructor(private userService: LocalUserService,
-              private toastService: ToasterService) {
+              private toastService: NbToastrService) {
   }
 
   canActivate(route: ActivatedRouteSnapshot): boolean {
@@ -19,7 +19,7 @@ export class RoleGuard implements CanActivate {
     if (this.userService.isLoggedIn() && hasPermission)
       return true;
     else {
-      this.toastService.popAsync('error', 'Not authorized', 'You are not authorized to view this.');
+      this.toastService.danger('You are not authorized to view this.', 'Not Authorized');
       return false;
     }
   }

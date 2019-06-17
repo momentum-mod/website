@@ -1,12 +1,10 @@
-@import '../../../../../@theme/styles/styles';
-
 .outer:hover {
   box-shadow: 0 0 20px 0 #6441a4;
 }
 
 .twitch-text {
   color: #6441a4;
-  background: nb-theme(color-bg-dark);
+  background: nb-theme(background-basic-color-4);
   padding: 3px;
 }
 

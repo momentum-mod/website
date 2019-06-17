@@ -31,11 +31,13 @@ export class RefreshTokenInterceptorService implements HttpInterceptor {
           } else {
             this.refreshInProgress = true;
             this.refreshTokenSubject.next(null);
-            return this.authService.refreshAccessToken().switchMap((token: string) => {
-              this.refreshInProgress = false;
-              this.refreshTokenSubject.next(token);
-              return next.handle(this.addAccessToken((req)));
-            });
+            return this.authService.refreshAccessToken().pipe(
+              switchMap((token: string) => {
+                this.refreshInProgress = false;
+                this.refreshTokenSubject.next(token);
+                return next.handle(this.addAccessToken((req)));
+              }),
+            );
           }
         }
         return throwError(err);

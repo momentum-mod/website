@@ -1,9 +1,8 @@
 import {Component, Input, OnInit} from '@angular/core';
 import {FormBuilder, FormGroup, Validators} from '@angular/forms';
 import {Report} from '../../../../../@core/models/report.model';
-import {NbDialogRef} from '@nebular/theme';
+import {NbDialogRef, NbToastrService} from '@nebular/theme';
 import {AdminService} from '../../../../../@core/data/admin.service';
-import {ToasterService} from 'angular2-toaster';
 
 @Component({
   selector: 'update-report-dialog',
@@ -18,7 +17,7 @@ export class UpdateReportDialogComponent implements OnInit {
   constructor(private ref: NbDialogRef<UpdateReportDialogComponent>,
               private fb: FormBuilder,
               private adminService: AdminService,
-              private toastService: ToasterService) {
+              private toastService: NbToastrService) {
     this.updateReportForm = this.fb.group({
       'resolved': ['', Validators.required],
       'resolutionMessage': ['', [Validators.required, Validators.maxLength(1000)]],
@@ -43,9 +42,9 @@ export class UpdateReportDialogComponent implements OnInit {
     this.adminService.updateReport(this.report.id, this.updateReportForm.value).subscribe(res => {
       this.updateReportForm.reset();
       this.ref.close(this.report);
-      this.toastService.popAsync('success', 'Success', 'Report has been updated');
+      this.toastService.success('Report has been updated');
     }, err => {
-      this.toastService.popAsync('error', 'Error', 'Failed to update the report');
+      this.toastService.danger(err.message, 'Failed to update the report');
     });
   }
 

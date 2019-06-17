@@ -1,7 +1,6 @@
 import {ModuleWithProviders, NgModule} from '@angular/core';
 import {CommonModule} from '@angular/common';
 import {FormsModule, ReactiveFormsModule} from '@angular/forms';
-import {NgbModule} from '@ng-bootstrap/ng-bootstrap';
 
 import {
   NbActionsModule,
@@ -9,6 +8,7 @@ import {
   NbCardModule,
   NbCheckboxModule,
   NbContextMenuModule,
+  NbIconModule,
   NbLayoutModule,
   NbListModule,
   NbMenuModule,
@@ -40,10 +40,14 @@ import {ActivityListComponent} from './components/activity/activity-list/activit
 import {ReportButtonComponent} from './components/report/report-button/report-button.component';
 import {CreateReportDialogComponent} from './components/report/create-report-dialog/create-report-dialog.component';
 import {ConfirmDialogComponent} from './components/confirm-dialog/confirm-dialog.component';
+import {NbEvaIconsModule} from '@nebular/eva-icons';
+
 
 const BASE_MODULES = [CommonModule, FormsModule, ReactiveFormsModule, RouterModule];
 
 const NB_MODULES = [
+  NbEvaIconsModule,
+  NbIconModule,
   NbCardModule,
   NbLayoutModule,
   NbTabsetModule,
@@ -58,7 +62,6 @@ const NB_MODULES = [
   NbRadioModule,
   NbPopoverModule,
   NbContextMenuModule,
-  NgbModule,
   NbProgressBarModule,
   NbButtonModule,
   NbSelectModule,
@@ -91,9 +94,9 @@ const PIPES = [
 const NB_THEME_PROVIDERS = [
   ...NbThemeModule.forRoot(
     {
-      name: 'dark',
+      name: 'mom',
     },
-    [ { name: 'dark', base: 'cosmic'} ],
+    [ { name: 'mom', base: 'dark'} ],
   ).providers,
   ...NbSidebarModule.forRoot().providers,
   ...NbMenuModule.forRoot().providers,

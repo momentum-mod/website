@@ -1,9 +1,9 @@
 import { Component, OnInit } from '@angular/core';
 import {AdminService} from '../../../../@core/data/admin.service';
-import {ToasterService} from 'angular2-toaster';
 import {Report} from '../../../../@core/models/report.model';
 import {ReportType} from '../../../../@core/models/report-type.model';
 import {finalize} from 'rxjs/operators';
+import {NbToastrService} from '@nebular/theme';
 
 @Component({
   selector: 'report-queue',
@@ -21,7 +21,7 @@ export class ReportQueueComponent implements OnInit {
   filters: any;
 
   constructor(private adminService: AdminService,
-              private toasterService: ToasterService) {
+              private toasterService: NbToastrService) {
     this.ReportType = ReportType;
     this.isLoading = false;
     this.reportQueueCount = 0;
@@ -53,7 +53,7 @@ export class ReportQueueComponent implements OnInit {
       this.reportQueue = res.reports;
     }, err => {
       console.error(err);
-      this.toasterService.popAsync('error', 'Failed to load report queue', 'error');
+      this.toasterService.danger('Failed to load report queue');
     });
   }
 

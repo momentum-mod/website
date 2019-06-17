@@ -3,25 +3,24 @@
  * Copyright Akveo. All Rights Reserved.
  * Licensed under the MIT License. See License.txt in the project root for license information.
  */
-import { APP_BASE_HREF } from '@angular/common';
-import { BrowserModule } from '@angular/platform-browser';
-import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
-import { NgModule } from '@angular/core';
+import {APP_BASE_HREF} from '@angular/common';
+import {BrowserModule} from '@angular/platform-browser';
+import {BrowserAnimationsModule} from '@angular/platform-browser/animations';
+import {NgModule} from '@angular/core';
 import {HTTP_INTERCEPTORS, HttpClientModule} from '@angular/common/http';
-import { CoreModule } from './@core/core.module';
+import {CoreModule} from './@core/core.module';
 
-import { AppComponent } from './app.component';
-import { AppRoutingModule } from './app-routing.module';
-import { ThemeModule } from './@theme/theme.module';
-import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
+import {AppComponent} from './app.component';
+import {AppRoutingModule} from './app-routing.module';
+import {ThemeModule} from './@theme/theme.module';
 import {MainPageModule} from './pages/main/main-page.module';
 import {NotFoundModule} from './pages/not-found/not-found.module';
 import {JwtModule} from '@auth0/angular-jwt';
 import {OutgoingModule} from './pages/outgoing/outgoing.module';
 import {MarkdownModule, MarkedOptions} from 'ngx-markdown';
-import {NbDatepickerModule, NbDialogModule} from '@nebular/theme';
-import {ToasterModule} from 'angular2-toaster';
+import {NbDatepickerModule, NbDialogModule, NbGlobalPhysicalPosition, NbToastrModule} from '@nebular/theme';
 import {RefreshTokenInterceptorService} from './@core/utils/refresh-token-interceptor.service';
+import {NbEvaIconsModule} from '@nebular/eva-icons';
 
 export function tokenGetter() {
   return localStorage.getItem('accessToken');
@@ -36,6 +35,7 @@ export function tokenGetter() {
     NotFoundModule,
     OutgoingModule,
     AppRoutingModule,
+    NbEvaIconsModule,
     HttpClientModule,
     JwtModule.forRoot({
       config: {
@@ -63,7 +63,12 @@ export function tokenGetter() {
       },
     }),
     NbDatepickerModule.forRoot(),
-    ToasterModule.forRoot(),
+    NbToastrModule.forRoot({
+      duration: 3000,
+      destroyByClick: true,
+      preventDuplicates: false,
+      position: NbGlobalPhysicalPosition.TOP_RIGHT,
+    }),
     NbDialogModule.forRoot({
       hasBackdrop: true,
       closeOnBackdropClick: true,
@@ -71,7 +76,6 @@ export function tokenGetter() {
       autoFocus: true,
     }),
 
-    NgbModule,
     ThemeModule.forRoot(),
     CoreModule.forRoot(),
   ],

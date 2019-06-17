@@ -2,8 +2,8 @@ import {Component, Input, Output, OnInit, EventEmitter, ViewChild, ElementRef} f
 import { MomentumMap } from '../../../../../@core/models/momentum-map.model';
 import { MapUploadStatus } from '../../../../../@core/models/map-upload-status.model';
 import { AdminService } from '../../../../../@core/data/admin.service';
-import { ToasterService } from 'angular2-toaster';
 import { MapsService } from '../../../../../@core/data/maps.service';
+import {NbToastrService} from '@nebular/theme';
 
 @Component({
   selector: 'queued-map',
@@ -15,11 +15,11 @@ export class QueuedMapComponent implements OnInit {
   MapUploadStatus: typeof MapUploadStatus = MapUploadStatus;
   @Input('map') map: MomentumMap;
   @Output() onStatusUpdate = new EventEmitter();
-  @ViewChild('mapFileDownloadLink') private mapFileDownloadLink: ElementRef;
+  @ViewChild('mapFileDownloadLink', {static: false}) private mapFileDownloadLink: ElementRef;
 
   constructor(private adminService: AdminService,
     private mapService: MapsService,
-    private toasterService: ToasterService) { }
+    private toasterService: NbToastrService) { }
 
   ngOnInit() {
   }
@@ -30,8 +30,7 @@ export class QueuedMapComponent implements OnInit {
     }).subscribe(() => {
       this.onStatusUpdate.emit();
     }, err => {
-      console.error(err);
-      this.toasterService.popAsync('error', 'Failed to update map status', '');
+      this.toasterService.danger(err.message, 'Failed to update map status');
     });
   }
 
@@ -46,7 +45,7 @@ export class QueuedMapComponent implements OnInit {
       window.URL.revokeObjectURL(url);
     }, err => {
       console.error(err);
-      this.toasterService.popAsync('error', 'Failed to start map file download', '');
+      this.toasterService.danger(err.message, 'Failed to start map file download');
     });
   }
 

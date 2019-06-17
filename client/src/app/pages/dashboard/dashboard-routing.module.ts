@@ -14,23 +14,23 @@ const routes: Routes = [
     children: [
       {
         path: 'maps',
-        loadChildren: 'app/pages/dashboard/maps/map.module#MapModule',
+        loadChildren: () => import('app/pages/dashboard/maps/map.module').then(m => m.MapModule),
       },
       {
         path: 'stats',
-        loadChildren: 'app/pages/dashboard/stats/stats.module#StatsModule',
+        loadChildren: () => import('app/pages/dashboard/stats/stats.module').then(m => m.StatsModule),
       },
       {
         path: 'community',
-        loadChildren: 'app/pages/dashboard/community/community.module#CommunityModule',
+        loadChildren: () => import('app/pages/dashboard/community/community.module').then(m => m.CommunityModule),
       },
       {
         path: 'profile',
-        loadChildren: 'app/pages/dashboard/profile/profile.module#ProfileModule',
+        loadChildren: () => import('app/pages/dashboard/profile/profile.module').then(m => m.ProfileModule),
       },
       {
         path: 'admin',
-        loadChildren: 'app/pages/dashboard/admin/admin.module#AdminModule',
+        loadChildren: () => import('app/pages/dashboard/admin/admin.module').then(m => m.AdminModule),
         canActivate: [RoleGuard],
         data: {
           onlyAllow: [
