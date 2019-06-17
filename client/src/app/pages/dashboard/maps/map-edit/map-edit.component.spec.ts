@@ -12,8 +12,7 @@ import {MapUploadStatus} from '../../../../@core/models/map-upload-status.model'
 import {AuthService} from '../../../../@core/data/auth.service';
 import {CookieService} from 'ngx-cookie-service';
 import {HttpClientModule} from '@angular/common/http';
-import {NbDialogService} from '@nebular/theme';
-import {ToasterService} from 'angular2-toaster';
+import {NbDialogService, NbToastrService} from '@nebular/theme';
 
 describe('MapEditComponent', () => {
 
@@ -57,7 +56,7 @@ describe('MapEditComponent', () => {
       providers: [
         AuthService,
         CookieService,
-        ToasterService,
+        NbToastrService,
         { provide: NbDialogService, useValue: {}},
         { provide: MapsService, useValue: mapServiceStub },
         { provide: APP_BASE_HREF, useValue: '/' },

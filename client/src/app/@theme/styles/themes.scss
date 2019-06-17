@@ -1,76 +1,149 @@
 // @nebular theming framework
 @import '~@nebular/theme/styles/theming';
 // @nebular out of the box themes
-@import '~@nebular/theme/styles/themes';
+@import '~@nebular/theme/styles/themes/dark';
 
 // which themes you what to enable (empty to enable all)
-$nb-enabled-themes: (dark);
+// $nb-enabled-themes: (dark, mom);
 
 $nb-themes: nb-register-theme((
-  // app wise variables for each theme
-  sidebar-header-gap: 2rem,
-  sidebar-header-height: initial,
+
+  font-family-primary: Roboto,
+  font-family-secondary: Exo,
+
+  color-primary-100: #d5e0ed,
+  color-primary-200: #abc2db,
+  color-primary-300: #82a3c9,
+  color-primary-400: #5885b7,
+  color-primary-500: #2e66a5,
+  color-primary-600: #255284,
+  color-primary-700: #1c3d63,
+  color-primary-800: #122942,
+  color-primary-900: #091421,
+
+  color-basic-100: #fff,
+  color-basic-200: #d5e0ed,
+  color-basic-300: #abc2db,
+  color-basic-400: #82a3c9,
+  color-basic-500: #5885b7,
+  color-basic-600: #2e66a5,
+  color-basic-700: #255284,
+  color-basic-800: #1c3d63,
+  color-basic-900: #173353,
+  color-basic-1000: #0e1f31,
+  color-basic-1100: #050a10,
+
+  background-basic-color-1:	#222,
+  background-basic-color-2:	#1f1f1f,
+  background-basic-color-3:	#1b1b1b,
+  background-basic-color-4:	#181818,
+
+  color-primary-focus: color-primary-700,
+  color-primary-hover: color-primary-400,
+  color-primary-default: color-primary-500,
+  color-primary-active: color-primary-600,
+  color-primary-disabled: color-primary-300,
+
+
+  color-basic-focus: color-basic-700,
+  color-basic-hover: color-basic-400,
+  color-basic-default: color-basic-100,
+  color-basic-active: color-basic-600,
+  color-basic-disabled: color-basic-300,
+
+  text-hint-color: #fff,
+
+  input-background-color: black,
+  input-border-color: #061f3b,
+  input-focus-border-color: #4172aa,
+
+  layout-background-color: black,
   layout-content-width: 1400px,
+
+  tabset-tab-text-color: #fff,
+  tabset-tab-underline-color: #fff,
+  tabset-tab-active-text-color: color-primary-default,
+  tabset-tab-active-underline-color: color-primary-default,
+  tabset-content-text-color: #fff,
+  tabset-content-padding: 1.25rem,
+
+  menu-text-font-size: 1.15rem,
+  menu-item-active-text-color: #2e66a5,
+  menu-item-icon-active-color: #2e66a5,
+  menu-item-icon-width: 2rem,
+  menu-item-hover-text-color: #2e66a5,
+  menu-submenu-item-active-border-color: #2e66a5,
+
+  popover-border-color: #2e66a5,
+  popover-shadow: 0 8px 20px 0 rgba(46, 102, 165, 0.6),
+
+  shadow: 0 8px 20px 0 rgba(38, 76, 114, 0.6),
+
+  calendar-cell-hover-background-color: #2e66a5,
+  calendar-cell-today-background-color: #061f3b,
+  calendar-cell-selected-background-color: #2e66a5,
+  calendar-cell-active-background-color: #2e66a5,
+
+  stepper-step-text-font-size: 1.25rem,
+  stepper-step-index-width: 3rem,
+  stepper-step-content-padding: 0.5rem,
+  stepper-step-active-text-color: #fff,
+  stepper-step-text-color: #fff,
+
+  datepicker-border-color: #2e66a5,
+  datepicker-text-color: #061f3b,
+
+  progress-bar-default-background-color: linear-gradient(90deg, #00c7c7 0%, #00d977 100%),
+
+  button-filled-primary-background-color: #2e66a5,
+  button-filled-success-background-color: #2e66a5,
+
+  checkbox-default-checked-border-color: #2e66a5,
+
+  search-background-color: linear-gradient(to right, #061f3b, #4172aa),
+
+  divider-color: black,
+
+  icon-primary-color: #fff,
+
+  user-large-name-text-font-size: 1.5rem,
+  user-picture-box-border-color: color-primary-default,
+  user-picture-box-border-width: 2px,
+
+  search-divider-color: #fff,
+
+  // app wise variables for each theme
+  sidebar-header-height: initial,
+  sidebar-shadow: none,
+
   color-bg: #222222,
-  color-bg-dark: #121212,
-  card-fg-text: #fff,
   color-fg-text: #fff,
-  tabs-fg-text: #fff,
-  chat-fg-text: #fff,
-  chat-form-bg: #222,
-  // accordion-item-fg-text: #fff,
-  layout-bg: black,
   smart-table-bg-even: #525252,
   smart-table-bg-active: #3e3e3e,
   smart-table-header-bg: #3e3e3e,
-  card-shadow: 0 8px 20px 0 rgba(38, 76, 114, 0.6),
-  header-shadow: 0 8px 20px 0 rgba(38, 76, 114, 0.6),
   scrollbar-fg: #2e66a5,
   scrollbar-bg: #1b3d64,
   color-fg: #ffffff,
   color-fg-highlight: #2e66a5,
-  color-primary: #2e66a5,
-  menu-active-fg: #2e66a5,
-  menu-icon-active-color: #2e66a5,
-  menu-submenu-hover-fg: #2e66a5,
-  search-bg: linear-gradient(to right, #061f3b, #4172aa),
-  form-control-bg: black,
-  separator: black,
+
+
+
   smart-table-paging-bg-active: #2e66a5,
   smart-table-paging-border-color: #2e66a5,
-  popover-border: #2e66a5,
-  form-control-border-color: #061f3b,
-  form-control-selected-border-color:#4172aa,
-  menu-submenu-active-bg: rgba(0, 130, 350, 0.25),
-  menu-submenu-active-border-color: #2e66a5,
-  menu-submenu-active-shadow: 0 2px 12px 0 #2e66a5,
-  font-main: Roboto,
-  font-secondary: Exo,
-  context-menu-active-bg: #2e66a5,
-  context-menu-border: #2e66a5,
-  accordion-item-shadow: 0 8px 20px 0 rgba(38, 76, 114, 0.6),
 
-  btn-primary-bg: #2e66a5,
+  context-menu-border: #2e66a5,
+
+
+
   link-color: #2e66a5,
   link-color-hover: #1b3d64,
 
-  tabs-selected: #2e66a5,
-  tabs-selected-second-color: #1b3d64,
 
-  tabs-content-padding: 1.25rem,
 
-  datepicker-border: #2e66a5,
-  datepicker-bg: #061f3b,
 
-  calendar-hover-item-bg: #2e66a5,
-  calendar-today-item-bg: #061f3b,
-  calendar-selected-item-bg: #2e66a5,
-  calendar-active-item-bg: #2e66a5,
 
-  btn-success-bg: #2e66a5,
-  checkbox-checked-border-color: #2e66a5,
 
-  popover-shadow: 0 8px 20px 0 rgba(46, 102, 165, 0.6),
+
   switcher-background: #4e41a5,
   switcher-background-percentage: 14%,
   drops-icon-line-gadient: -webkit-linear-gradient(#a258fe, #7958fa),
@@ -87,19 +160,13 @@ $nb-themes: nb-register-theme((
   chart-panel-summary-border-color: #332e73,
   chart-panel-summary-border-width: 1px,
 
-  ecommerce-card-border-width: 1px,
 
-  sidebar-shadow: none,
 
-  progress-bar-background: linear-gradient(90deg, #00c7c7 0%, #00d977 100%),
 
-  stepper-label-font-size: 1.25rem,
-  stepper-index-size: 3rem,
-  stepper-step-padding: 0.5rem,
   // Custom definitions
   notif-unread-bg: rgba(0, 130, 350, 0.25),
   user-follow-fg: #2e66a5,
   file-upload-border-color: #1b3d64,
   file-upload-border-color-hover: #2e66a5,
 
-), dark, cosmic);
+), mom, dark);

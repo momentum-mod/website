@@ -1,10 +1,10 @@
 import {Component, Input, OnInit} from '@angular/core';
 import {Run} from '../../../../../@core/models/run.model';
 import {Router} from '@angular/router';
-import {ToasterService} from 'angular2-toaster';
 import {finalize} from 'rxjs/operators';
 import {RanksService} from '../../../../../@core/data/ranks.service';
 import {UserMapRank} from '../../../../../@core/models/user-map-rank.model';
+import {NbToastrService} from '@nebular/theme';
 
 @Component({
   selector: 'map-leaderboard',
@@ -20,7 +20,7 @@ export class MapLeaderboardComponent implements OnInit {
 
   constructor(private rankService: RanksService,
               private router: Router,
-              private toasterService: ToasterService) {
+              private toasterService: NbToastrService) {
     this.filterActive = false;
     this.searchedRanks = false;
     this.leaderboardRanks = [];
@@ -40,7 +40,7 @@ export class MapLeaderboardComponent implements OnInit {
         if (res.count)
           this.leaderboardRanks = res.ranks;
     }, err => {
-      this.toasterService.popAsync('error', 'Could not find runs', err.message);
+      this.toasterService.danger(err.message, 'Could not find runs');
     });
   }
 

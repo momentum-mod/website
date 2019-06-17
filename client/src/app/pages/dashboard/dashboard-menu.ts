@@ -4,13 +4,13 @@ import {Role} from '../../@core/models/role.model';
 export const MENU_ITEMS: NbMenuItem[] = [
   {
     title: 'Dashboard',
-    icon: 'ion-home',
+    icon: 'home',
     link: '/dashboard',
     home: true,
   },
   {
     title: 'Community',
-    icon: 'ion-android-people',
+    icon: 'people',
     children: [
       {
         'title': 'Momentum Official',
@@ -28,7 +28,7 @@ export const MENU_ITEMS: NbMenuItem[] = [
   },
   {
     title: 'Maps',
-    icon: 'ion-android-download',
+    icon: 'cloud-download',
     link: '/dashboard/maps',
     children: [
       {
@@ -59,12 +59,12 @@ export const MENU_ITEMS: NbMenuItem[] = [
   },
   {
     title: 'Statistics',
-    icon: 'ion-stats-bars',
+    icon: 'bar-chart',
     link: '/dashboard/stats',
   },
   {
     title: 'Administration',
-    icon: 'ion-locked',
+    icon: 'lock',
     link: '/dashboard/admin',
     data: {
       roles: [

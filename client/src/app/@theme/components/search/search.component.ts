@@ -102,8 +102,8 @@ export class SearchComponent implements OnInit, OnDestroy {
    */
   @Input() type: string;
 
-  @ViewChild(NbPortalDirective) searchFieldPortal: NbPortalDirective;
-  @ViewChild('searchButton') searchButton: ElementRef<HTMLElement>;
+  @ViewChild(NbPortalDirective, {static: false}) searchFieldPortal: NbPortalDirective;
+  @ViewChild('searchButton', {static: false}) searchButton: ElementRef<HTMLElement>;
 
   constructor(
     private searchService: NbSearchService,

@@ -2,7 +2,6 @@ import {async, ComponentFixture, TestBed} from '@angular/core/testing';
 
 import {CommunityNewsComponent} from './community-news.component';
 import {NbCardModule} from '@nebular/theme';
-import {NgxTwitterTimelineModule} from 'ngx-twitter-timeline';
 import {TumblrAPIService} from '../../../../@core/data/tumblr-api.service';
 import {of} from 'rxjs';
 import {BlogPost} from '../../../../@core/models/blog-post.model';
@@ -31,7 +30,7 @@ describe('CommunityNewsComponent', () => {
       },
     };
     TestBed.configureTestingModule({
-      imports: [NbCardModule, NgxTwitterTimelineModule],
+      imports: [NbCardModule],
       declarations: [ CommunityNewsComponent ],
       providers: [
         { provide: TumblrAPIService, useValue: tumblrAPIStub },

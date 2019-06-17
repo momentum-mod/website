@@ -4,8 +4,6 @@ import {JwtHelperService} from '@auth0/angular-jwt';
 import {AccessTokenPayload} from '../models/access-token-payload';
 import {HttpClient} from '@angular/common/http';
 import {Observable, of} from 'rxjs';
-import 'rxjs-compat/add/operator/switchMap';
-import 'rxjs-compat/add/observable/throw';
 import {Router} from '@angular/router';
 import {map, share} from 'rxjs/operators';
 

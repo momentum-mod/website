@@ -11,10 +11,7 @@
 // loading progress bar theme
 @import './pace.theme';
 
-@import './bootstrap-rtl';
 @import '../components/search/search.component.theme';
-
-$nb-breaking-notice-enable: false;
 
 // install the framework and custom global styles
 @include nb-install() {
@@ -25,8 +22,6 @@ $nb-breaking-notice-enable: false;
 
   // loading progress bar
   @include ngx-pace-theme();
-
-  @include bootstrap-rtl();
 
   @include mom-search-theme();
 };

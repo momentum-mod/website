@@ -1,10 +1,7 @@
 import {AfterViewInit, Component, OnInit, ViewChild} from '@angular/core';
 import {HttpEvent, HttpEventType} from '@angular/common/http';
 import {Router} from '@angular/router';
-import {ToasterService} from 'angular2-toaster';
 import {MapsService} from '../../../../@core/data/maps.service';
-import 'rxjs/add/operator/mergeMap';
-import 'rxjs/add/observable/forkJoin';
 import {FormBuilder, FormGroup, Validators} from '@angular/forms';
 import {User} from '../../../../@core/models/user.model';
 import {MapCreditType} from '../../../../@core/models/map-credit-type.model';
@@ -19,6 +16,9 @@ import {MapZoneTrigger} from '../../../../@core/models/map-zone-trigger.model';
 import {MapZoneType} from '../../../../@core/models/map-zone-type.model';
 import {MomentumMapPreview} from '../../../../@core/models/momentum-map-preview.model';
 import {MapImage} from '../../../../@core/models/map-image.model';
+import {NbToastrService} from '@nebular/theme';
+import {mergeMap} from 'rxjs/operators';
+import {forkJoin} from 'rxjs';
 
 export interface ImageFilePreview {
   dataBlobURL: string;
@@ -31,8 +31,8 @@ export interface ImageFilePreview {
   styleUrls: ['./map-upload-form.component.scss'],
 })
 export class MapUploadFormComponent implements OnInit, AfterViewInit {
-  @ViewChild('datepicker') datePicker;
-  @ViewChild('stepper') stepper;
+  @ViewChild('datepicker', {static: false}) datePicker;
+  @ViewChild('stepper', {static: false}) stepper;
 
   mapFile: File;
   avatarFile: File;
@@ -75,7 +75,7 @@ export class MapUploadFormComponent implements OnInit, AfterViewInit {
   constructor(private mapsService: MapsService,
               private router: Router,
               private localUsrService: LocalUserService,
-              private toasterService: ToasterService,
+              private toasterService: NbToastrService,
               private fb: FormBuilder) {
     this.stepper = null;
     this.isUploadingMap = false;
@@ -214,22 +214,26 @@ export class MapUploadFormComponent implements OnInit, AfterViewInit {
     delete mapObject.info.name;
     delete mapObject.info.type;
     this.mapsService.createMap(mapObject)
-    .mergeMap(res => {
-      mapID = res.body.id;
-      uploadLocation = res.headers.get('Location');
-      mapCreated = true;
-      this.toasterService.popAsync('success', 'Map successfully created', 'Please wait for the map file to upload');
-      return this.mapsService.updateMapAvatar(mapID, this.avatarFile);
-    }).mergeMap(() => {
-      const extraImageCreations = [];
-      for (let i = 0; i < this.extraImages.length; i++)
-        extraImageCreations.push(this.mapsService.createMapImage(mapID, this.extraImages[i].file));
-      if (extraImageCreations.length)
-        return Observable.forkJoin(extraImageCreations);
-      return of({});
-    }).mergeMap(() => {
-      return this.mapsService.uploadMapFile(uploadLocation, this.mapFile);
-    }).subscribe((event: HttpEvent<any>) => {
+      .pipe(
+        mergeMap(res => {
+          mapID = res.body.id;
+          uploadLocation = res.headers.get('Location');
+          mapCreated = true;
+          this.toasterService.success('Please wait for the map file to upload', 'Map successfully created');
+          return this.mapsService.updateMapAvatar(mapID, this.avatarFile);
+        }),
+        mergeMap(() => {
+          const extraImageCreations = [];
+          for (let i = 0; i < this.extraImages.length; i++)
+            extraImageCreations.push(this.mapsService.createMapImage(mapID, this.extraImages[i].file));
+          if (extraImageCreations.length)
+            return forkJoin(extraImageCreations);
+          return of({});
+        }),
+        mergeMap(() => {
+          return this.mapsService.uploadMapFile(uploadLocation, this.mapFile);
+        }),
+      ).subscribe((event: HttpEvent<any>) => {
       switch (event.type) {
         case HttpEventType.Sent:
           // upload started
@@ -255,7 +259,7 @@ export class MapUploadFormComponent implements OnInit, AfterViewInit {
       if (mapCreated) {
         this.onSubmitSuccess();
       }
-      this.toasterService.popAsync('error', 'Failed to create map', errorMessage);
+      this.toasterService.danger(errorMessage, 'Failed to create map');
     });
   }
 

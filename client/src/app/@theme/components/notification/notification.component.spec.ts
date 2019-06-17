@@ -1,13 +1,12 @@
 import {async, ComponentFixture, TestBed} from '@angular/core/testing';
 
 import {NotificationComponent} from './notification.component';
-import {NbListModule, NbUserModule} from '@nebular/theme';
+import {NbListModule, NbToastrModule, NbUserModule} from '@nebular/theme';
 import {ActivityContentComponent} from '..';
 import {CoreModule} from '../../../@core/core.module';
 import {RouterModule} from '@angular/router';
 import {APP_BASE_HREF} from '@angular/common';
 import {HttpClientTestingModule} from '@angular/common/http/testing';
-import {ToasterModule} from 'angular2-toaster';
 import {Activity_Type} from '../../../@core/models/activity-type.model';
 import {TimeAgoPipe} from 'time-ago-pipe';
 
@@ -18,7 +17,7 @@ describe('NotificationComponent', () => {
   beforeEach(async(() => {
     TestBed.configureTestingModule({
       imports: [NbListModule, NbUserModule, RouterModule.forRoot([]), HttpClientTestingModule,
-        ToasterModule.forRoot(), CoreModule.forRoot()],
+        NbToastrModule.forRoot(), CoreModule.forRoot()],
       declarations: [ TimeAgoPipe, NotificationComponent, ActivityContentComponent ],
       providers: [
         { provide: APP_BASE_HREF, useValue: '/' },

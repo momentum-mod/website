@@ -7,11 +7,10 @@ import {FooterComponent} from './footer/footer.component';
 import {NavComponent} from './nav/nav.component';
 import {CommonModule} from '@angular/common';
 import {RouterModule} from '@angular/router';
-import {ToasterModule} from 'angular2-toaster';
 import {NbButtonModule, NbLayoutModule} from '@nebular/theme';
 
 @NgModule({
-  imports: [CommonModule, RouterModule, ToasterModule.forChild(), NbLayoutModule, NbButtonModule],
+  imports: [CommonModule, RouterModule, NbLayoutModule, NbButtonModule],
   declarations: [
     MainPageComponent,
     AboutComponent,

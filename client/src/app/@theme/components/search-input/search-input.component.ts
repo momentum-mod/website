@@ -14,7 +14,7 @@ import { Component, ElementRef, EventEmitter, Output, ViewChild } from '@angular
   `,
 })
 export class SearchInputComponent {
-  @ViewChild('input') input: ElementRef;
+  @ViewChild('input', {static: false}) input: ElementRef;
 
   @Output() search: EventEmitter<string> = new EventEmitter<string>();
 
@@ -29,7 +29,7 @@ export class SearchInputComponent {
     this.isInputShown = false;
   }
 
-  onInput(val: string) {
+  onInput(val) {
     this.search.emit(val);
   }
 }

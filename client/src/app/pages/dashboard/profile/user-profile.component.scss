@@ -46,11 +46,11 @@
 
   a {
     padding: 0.4rem;
-    color: nb-theme(color-fg);
+    color: nb-theme(text-control-color);
     transition: color ease-out 0.1s;
 
     &:hover {
-      color: nb-theme(color-fg-heading);
+      color: nb-theme(color-primary-default);
     }
   }
 }
@@ -80,18 +80,18 @@ profile-follow {
   -webkit-background-size: cover;
   background-size: cover;
   background-repeat: no-repeat;
-  -webkit-box-shadow: inset 0 0 2vh nb-theme(user-fg-highlight),
-  inset 0 0 2vh nb-theme(user-fg-highlight),
-  inset 0 0 2vh nb-theme(user-fg-highlight),
-  inset 0 0 2vh nb-theme(user-fg-highlight);
-  -moz-box-shadow: inset 0 0 2vh nb-theme(user-fg-highlight),
-  inset 0 0 2vh nb-theme(user-fg-highlight),
-  inset 0 0 2vh nb-theme(user-fg-highlight),
-  inset 0 0 2vh nb-theme(user-fg-highlight);
-  box-shadow: inset 0 0 2vh nb-theme(user-fg-highlight),
-  inset 0 0 2vh nb-theme(user-fg-highlight),
-  inset 0 0 2vh nb-theme(user-fg-highlight),
-  inset 0 0 2vh nb-theme(user-fg-highlight);
+  -webkit-box-shadow: inset 0 0 2vh nb-theme(color-primary-default),
+  inset 0 0 2vh nb-theme(color-primary-default),
+  inset 0 0 2vh nb-theme(color-primary-default),
+  inset 0 0 2vh nb-theme(color-primary-default);
+  -moz-box-shadow: inset 0 0 2vh nb-theme(color-primary-default),
+  inset 0 0 2vh nb-theme(color-primary-default),
+  inset 0 0 2vh nb-theme(color-primary-default),
+  inset 0 0 2vh nb-theme(color-primary-default);
+  box-shadow: inset 0 0 2vh nb-theme(color-primary-default),
+  inset 0 0 2vh nb-theme(color-primary-default),
+  inset 0 0 2vh nb-theme(color-primary-default),
+  inset 0 0 2vh nb-theme(color-primary-default);
   max-width: 25vh;
   width: 25vh;
   max-height: 25vh;
@@ -105,11 +105,11 @@ h5 {
   margin-left: auto;
   margin-right: auto;
   text-align: center;
+  border-bottom: 0.5rem solid dodgerblue;
 }
 
 p {
-  font-size: 4rem;
-  border-bottom: 0.5rem solid dodgerblue;
+  font-size: 2.5rem;
 }
 
 .comments-card {
