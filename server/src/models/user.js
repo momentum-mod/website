@@ -394,9 +394,12 @@ module.exports = {
 					return Promise.reject(new ServerError(403, 'Cannot update other admins'));
 				}
 
-				const updates = [
-					module.exports.updateUserAlias(foundUsr, usr.alias, usr).then(() => foundUsr.update(usr)),
-				];
+				const updates = [];
+				if (usr.alias && usr.alias !== foundUsr.alias)
+					updates.push(module.exports.updateUserAlias(foundUsr, usr.alias, usr).then(() => foundUsr.update(usr)));
+				else
+					updates.push(foundUsr.update(usr));
+
 				if (usr.profile) {
 					updates.push(module.exports.updateProfile(foundUsr, usr.profile));
 				}
