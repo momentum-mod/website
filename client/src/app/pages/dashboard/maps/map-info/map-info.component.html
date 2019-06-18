@@ -39,16 +39,24 @@
         </div>
         <div *ngIf="!previewMap" class="col">
           <div class="row q-stats">
-            <span class="ion-android-download picture col-auto" nbPopover="Downloads" [nbPopoverTrigger]="'hint'">
+            <span class="ion-android-download stat col-auto"
+                  nbPopover="{{map.stats?.totalDownloads | ngxPlural:'Download'}}"
+                  [nbPopoverTrigger]="'hint'">
               {{map.stats?.totalDownloads | numberThousands:1}}
             </span>
-            <span class="ion-folder picture col-auto" nbPopover="Libraries" [nbPopoverTrigger]="'hint'">
+            <span class="ion-folder stat col-auto"
+                  nbPopover="{{map.stats?.totalSubscriptions | ngxPlural:'Library':'Libraries'}}"
+                  [nbPopoverTrigger]="'hint'">
               {{map.stats?.totalSubscriptions | numberThousands:1}}
             </span>
-            <span class="ion-star picture col-auto" nbPopover="Favorites" [nbPopoverTrigger]="'hint'">
+            <span class="ion-star stat col-auto"
+                  nbPopover="{{map.stats?.totalFavorites | ngxPlural:'Favorite'}}"
+                  [nbPopoverTrigger]="'hint'">
               {{map.stats?.totalFavorites | numberThousands:1}}
             </span>
-            <span class="ion-play picture col-auto" nbPopover="Plays" [nbPopoverTrigger]="'hint'">
+            <span class="ion-play stat col-auto"
+                  nbPopover="{{map.stats?.totalPlays | ngxPlural:'Play'}}"
+                  [nbPopoverTrigger]="'hint'">
               {{map.stats?.totalPlays | numberThousands:1}}
             </span>
           </div>
