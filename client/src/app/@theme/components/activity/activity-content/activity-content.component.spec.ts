@@ -31,6 +31,7 @@ describe('ActivityContentComponent', () => {
         id: 1,
         steamID: '1',
         alias: 'Ninja',
+        aliasLocked: false,
         avatarURL: '/assets/images/caution.png',
         country: 'US',
         roles: 0,

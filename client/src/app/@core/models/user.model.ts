@@ -7,6 +7,7 @@ export interface User {
   roles: number;
   bans: number;
   alias: string;
+  aliasLocked: boolean;
   avatarURL: string;
   country: string;
   createdAt?: string;
