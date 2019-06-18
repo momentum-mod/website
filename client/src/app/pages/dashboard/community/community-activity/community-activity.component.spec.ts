@@ -23,6 +23,7 @@ describe('CommunityActivityComponent', () => {
           id: 2,
           steamID: '2',
           alias: 'dude',
+          aliasLocked: false,
           avatarURL: 'IJJJ',
           country: 'US',
           roles: 0,

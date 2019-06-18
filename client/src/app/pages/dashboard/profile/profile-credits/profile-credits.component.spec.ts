@@ -52,6 +52,7 @@ describe('ProfileCreditsComponent', () => {
       id: 1,
       steamID: '2',
       alias: 'IAmWhoIAmWhoAmI',
+      aliasLocked: false,
       avatarURL: '',
       country: 'US',
       roles: 0,
