@@ -1,11 +1,11 @@
-import {Component, OnInit, ViewChild} from '@angular/core';
+import {Component, OnDestroy, OnInit, ViewChild} from '@angular/core';
 import {LocalUserService} from '../../../../@core/data/local-user.service';
 import {FormBuilder, FormGroup, Validators} from '@angular/forms';
 import {AuthService} from '../../../../@core/data/auth.service';
 import {ActivatedRoute, ParamMap, Router} from '@angular/router';
 import {UsersService} from '../../../../@core/data/users.service';
-import {switchMap} from 'rxjs/operators';
-import {of} from 'rxjs';
+import {switchMap, takeUntil} from 'rxjs/operators';
+import {Observable, of, Subject} from 'rxjs';
 import {Role} from '../../../../@core/models/role.model';
 import {Ban} from '../../../../@core/models/ban.model';
 import {User} from '../../../../@core/models/user.model';
@@ -18,7 +18,10 @@ import {NbDialogService, NbTabComponent, NbToastrService} from '@nebular/theme';
   templateUrl: './profile-edit.component.html',
   styleUrls: ['./profile-edit.component.scss'],
 })
-export class ProfileEditComponent implements OnInit {
+export class ProfileEditComponent implements OnInit, OnDestroy {
+
+  private ngUnSub = new Subject();
+
   profileEditFormGroup: FormGroup = this.fb.group({
     'alias': [ '' , [Validators.required, Validators.minLength(3), Validators.maxLength(32)]],
     'profile': this.fb.group({
@@ -69,30 +72,36 @@ export class ProfileEditComponent implements OnInit {
     this.mergeErr = null;
   }
   ngOnInit(): void {
-    this.localUserService.getLocal().subscribe(locUsr => {
-      this.isAdmin = this.localUserService.hasRole(Role.ADMIN, locUsr);
-      this.isModerator = this.localUserService.hasRole(Role.MODERATOR, locUsr);
-      this.route.paramMap.pipe(
-        switchMap((params: ParamMap) => {
-            if (params.has('id')) {
-              const numID: number = Number(params.get('id'));
-              this.isLocal = numID === locUsr.id;
-              if (!this.isLocal) {
-                return this.usersService.getUser(numID, {
-                  params: { expand: 'profile' },
-                });
-              }
-            }
-            this.isLocal = true;
-            return of(locUsr);
-          },
-        ),
-      ).subscribe((usr: User) => {
-        this.user = usr;
-        this.profileEditFormGroup.patchValue(usr);
-        this.checkUserPermissions();
-      }, error => this.err('Cannot retrieve user details', error.message));
+    this.route.paramMap.pipe(
+      switchMap((params: ParamMap) => {
+        return of(params.get('id'));
+      }),
+    ).subscribe((id: string) => {
+      if (id) {
+        const numID: number = Number(id);
+        this.isLocal = numID === this.localUserService.localUser.id;
+        if (!this.isLocal) {
+          this.usersService.getUser(numID, {
+            params: { expand: 'profile' },
+          }).subscribe(usr => this.setUser(usr));
+        }
+      }
+      if (this.isLocal) {
+        this.localUserService.getLocal().pipe(
+          takeUntil(this.ngUnSub),
+        ).subscribe(usr => {
+          this.isAdmin = this.localUserService.hasRole(Role.ADMIN, usr);
+          this.isModerator = this.localUserService.hasRole(Role.MODERATOR, usr);
+          this.setUser(usr);
+        });
+      }
     });
+  }
+
+  setUser(user: User) {
+    this.user = user;
+    this.profileEditFormGroup.patchValue(user);
+    this.checkUserPermissions();
   }
 
   err(title: string, msg?: string) {
@@ -105,7 +114,7 @@ export class ProfileEditComponent implements OnInit {
         return;
       this.localUserService.updateUser(this.profileEditFormGroup.value).subscribe(() => {
         this.localUserService.refreshLocal();
-        this.toasterService.success('Updated user profile');
+        this.toasterService.success('Updated user profile!', 'Success');
       }, error => this.err('Failed to update user profile!', error.message));
     } else {
       const userUpdate: User = this.profileEditFormGroup.value;
@@ -114,7 +123,7 @@ export class ProfileEditComponent implements OnInit {
       this.adminService.updateUser(this.user.id, userUpdate).subscribe(() => {
         if (this.isLocal)
           this.localUserService.refreshLocal();
-        this.toasterService.success('Updated user profile!');
+        this.toasterService.success('Updated user profile!', 'Success');
       }, error => this.err('Failed to update user profile!', error.message));
     }
   }
@@ -248,8 +257,14 @@ export class ProfileEditComponent implements OnInit {
   resetAlias() {
     this.localUserService.resetAliasToSteamAlias().subscribe(response => {
       this.localUserService.refreshLocal();
+      this.toasterService.success('Successfully reset alias to Steam name!', 'Success');
     }, err => {
-      this.toasterService.popAsync('error', 'Failed', 'Failed to reset alias to Steam alias!');
+      this.toasterService.danger('Failed to reset alias to Steam alias!', 'Failed');
     });
+  }
+
+  ngOnDestroy(): void {
+    this.ngUnSub.next();
+    this.ngUnSub.complete();
   }
 }

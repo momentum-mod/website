@@ -1,7 +1,7 @@
-import {Component, OnInit} from '@angular/core';
+import {Component, OnDestroy, OnInit} from '@angular/core';
 import {MomentumMap} from '../../../../@core/models/momentum-map.model';
 import {MapsService} from '../../../../@core/data/maps.service';
-import {switchMap} from 'rxjs/operators';
+import {switchMap, takeUntil} from 'rxjs/operators';
 import {ActivatedRoute, ParamMap, Router} from '@angular/router';
 import {FormBuilder, FormGroup, Validators} from '@angular/forms';
 import {Role} from '../../../../@core/models/role.model';
@@ -9,14 +9,16 @@ import {LocalUserService} from '../../../../@core/data/local-user.service';
 import {AdminService} from '../../../../@core/data/admin.service';
 import {NbDialogService, NbToastrService} from '@nebular/theme';
 import {ConfirmDialogComponent} from '../../../../@theme/components/confirm-dialog/confirm-dialog.component';
+import {Subject} from 'rxjs';
 
 @Component({
   selector: 'map-edit',
   templateUrl: './map-edit.component.html',
   styleUrls: ['./map-edit.component.scss'],
 })
-export class MapEditComponent implements OnInit {
+export class MapEditComponent implements OnInit, OnDestroy {
 
+  private ngUnsub = new Subject();
   map: MomentumMap;
   isSubmitter: boolean;
   isAdmin: boolean;
@@ -40,17 +42,19 @@ export class MapEditComponent implements OnInit {
               private fb: FormBuilder) { }
 
   ngOnInit() {
-    this.localUserService.getLocal().subscribe(locUser => {
-      this.isAdmin = this.localUserService.hasRole(Role.ADMIN, locUser);
-      this.isModerator = this.localUserService.hasRole(Role.MODERATOR, locUser);
-      this.route.paramMap.pipe(
-        switchMap((params: ParamMap) =>
-          this.mapService.getMap(Number(params.get('id')), {
-            params: { expand: 'info,credits,images' },
-          }),
-        ),
-      ).subscribe(map => {
-        this.map = map;
+    this.route.paramMap.pipe(
+      switchMap((params: ParamMap) =>
+        this.mapService.getMap(Number(params.get('id')), {
+          params: { expand: 'info,credits,images' },
+        }),
+      ),
+    ).subscribe(map => {
+      this.map = map;
+      this.localUserService.getLocal().pipe(
+        takeUntil(this.ngUnsub),
+      ).subscribe(locUser => {
+        this.isAdmin = this.localUserService.hasRole(Role.ADMIN, locUser);
+        this.isModerator = this.localUserService.hasRole(Role.MODERATOR, locUser);
         if (this.map.submitterID === locUser.id)
           this.isSubmitter = true;
         if (!(this.isSubmitter || this.isAdmin || this.isModerator))
@@ -81,6 +85,11 @@ export class MapEditComponent implements OnInit {
         });
       }
     });
+  }
+
+  ngOnDestroy(): void {
+    this.ngUnsub.next();
+    this.ngUnsub.complete();
   }
 
 }

@@ -1,4 +1,4 @@
-<nb-card>
+<nb-card *ngIf="user">
   <nb-card-header>
     <div class="row">
       <h2 class="col title">EDIT PROFILE</h2>
@@ -20,7 +20,7 @@
                 <div class="input-group mb-3">
                   <input nbInput class="form-control" formControlName="alias" type="text">
                   <div class="input-group-append" *ngIf="user.aliasLocked">
-                    <button nbButton size="xsmall" class="btn" (click)="resetAlias()">Reset To Steam Alias</button>
+                    <button nbButton size="xsmall" class="btn" type="button" (click)="resetAlias()">Reset To Steam Alias</button>
                   </div>
                 </div>
                 <p class="alert alert-danger" *ngIf="alias.hasError('minlength')">
@@ -53,7 +53,7 @@
             </div>
           </div>
         </nb-tab>
-        <nb-tab *ngIf="isLocal && user" tabTitle="SOCIAL LINKS" #socials>
+        <nb-tab *ngIf="isLocal" tabTitle="SOCIAL LINKS" #socials>
           <div class="form-group">
             <div>
               <span>Twitter:</span>
@@ -97,7 +97,7 @@
             </div>
           </div>
         </nb-tab>
-        <nb-tab *ngIf="isAdmin && user" [formGroup]="adminEditFg" tabTitle="ADMIN USER SETTINGS">
+        <nb-tab *ngIf="isAdmin" [formGroup]="adminEditFg" tabTitle="ADMIN USER SETTINGS">
           <div class="row">
             <div class="col-4">
               <h2>Bans</h2>
