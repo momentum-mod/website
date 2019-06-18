@@ -20,6 +20,7 @@ describe('ActivityService', () => {
           id: 1,
           steamID: '828288828528',
           alias: 'Spooderman',
+          aliasLocked: false,
           avatarURL: '',
           roles: 0,
           bans: 0,

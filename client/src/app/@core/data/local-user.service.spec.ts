@@ -36,6 +36,7 @@ describe('LocalUserService', () => {
       steamID: '76561198131664084',
       avatarURL: '',
       alias: 'cjshiner',
+      aliasLocked: false,
       country: 'US',
       roles: 0,
       bans: 0,

@@ -31,6 +31,7 @@ describe('MapEditComponent', () => {
       id: 2,
       steamID: '2',
       alias: 'dude',
+      aliasLocked: false,
       avatarURL: 'IJJJ',
       roles: 0,
       bans: 0,

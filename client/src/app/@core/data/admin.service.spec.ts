@@ -19,6 +19,7 @@ describe('AdminService', () => {
       id: 1,
       steamID: '54125',
       alias: 'test1',
+      aliasLocked: false,
       avatarURL: 'url',
       country: 'US',
       roles: 0,
