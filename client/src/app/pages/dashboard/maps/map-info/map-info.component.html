@@ -76,4 +76,4 @@
   </nb-card-body>
 </nb-card>
 
-<map-leaderboard *ngIf="!previewMap" [mapID]="map?.id" #leaderboard></map-leaderboard>
+<map-leaderboard *ngIf="!previewMap && map" [mapID]="map?.id" #leaderboard></map-leaderboard>

@@ -1,4 +1,4 @@
-import {Component, Input, OnInit} from '@angular/core';
+import {Component, Input, OnDestroy, OnInit} from '@angular/core';
 
 import {NbMenuItem, NbMenuService, NbSidebarService} from '@nebular/theme';
 import { LocalUserService } from '../../../@core/data/local-user.service';
@@ -7,13 +7,17 @@ import { LayoutService } from '../../../@core/data/layout.service';
 import {User} from '../../../@core/models/user.model';
 import {NotificationsService} from '../../../@core/utils/notifications.service';
 import {SiteNotification} from '../../../@core/models/notification.model';
+import {Subject} from 'rxjs';
+import {takeUntil} from 'rxjs/operators';
 
 @Component({
   selector: 'ngx-header',
   styleUrls: ['./header.component.scss'],
   templateUrl: './header.component.html',
 })
-export class HeaderComponent implements OnInit {
+export class HeaderComponent implements OnInit, OnDestroy {
+
+  private ngUnsub = new Subject();
 
   @Input() position = 'normal';
   userMenu: NbMenuItem[] = [
@@ -48,13 +52,20 @@ export class HeaderComponent implements OnInit {
   }
 
   ngOnInit() {
-    this.userService.getLocal().subscribe(usr => {
+    this.userService.getLocal().pipe(
+      takeUntil(this.ngUnsub),
+    ).subscribe(usr => {
       this.user = usr;
     });
     this.notificationService.notifications.subscribe(notifs => {
       this.notifications = notifs;
       this.numUnreadNotifs = this.notifications.filter(notif => notif.read === false).length;
     });
+  }
+
+  ngOnDestroy(): void {
+    this.ngUnsub.next();
+    this.ngUnsub.complete();
   }
 
   onContextItemSelection(title) {
