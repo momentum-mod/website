@@ -15,7 +15,9 @@
         </div>
 
         <div class="row no-gutters">
-          <div *ngIf="avatar_loaded" class="user-image col" [ngStyle]="{'background-image':'url(' + avatar_url + ')'}">
+          <div>
+            <div *ngIf="avatar_loaded" class="user-image col" [ngStyle]="{'background-image':'url(' + avatar_url + ')'}">
+            </div>
           </div>
           <div class="col-7 user-info">
             <div class="user-name row no-gutters">
