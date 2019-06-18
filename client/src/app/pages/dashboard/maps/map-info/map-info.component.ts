@@ -1,6 +1,6 @@
-import {Component, Input, OnInit, ViewChild} from '@angular/core';
+import {Component, Input, OnDestroy, OnInit, ViewChild} from '@angular/core';
 import {ActivatedRoute, ParamMap, Router} from '@angular/router';
-import {switchMap} from 'rxjs/operators';
+import {switchMap, takeUntil} from 'rxjs/operators';
 import {MapsService} from '../../../../@core/data/maps.service';
 import {MomentumMap} from '../../../../@core/models/momentum-map.model';
 import {LocalUserService} from '../../../../@core/data/local-user.service';
@@ -10,6 +10,7 @@ import {Role} from '../../../../@core/models/role.model';
 import {ReportType} from '../../../../@core/models/report-type.model';
 import {MomentumMapPreview} from '../../../../@core/models/momentum-map-preview.model';
 import {NbToastrService} from '@nebular/theme';
+import {Subject} from 'rxjs';
 
 
 @Component({
@@ -18,8 +19,9 @@ import {NbToastrService} from '@nebular/theme';
   styleUrls: ['./map-info.component.scss'],
 })
 
-export class MapInfoComponent implements OnInit {
+export class MapInfoComponent implements OnInit, OnDestroy {
 
+  private ngUnsub = new Subject();
   @ViewChild('leaderboard', {static: false}) leaderboard;
   @Input('previewMap') previewMap: MomentumMapPreview;
   ReportType: typeof ReportType;
@@ -89,13 +91,19 @@ export class MapInfoComponent implements OnInit {
           this.mapInLibrary = true;
         this.updateGalleryImages(map.images);
         this.leaderboard.loadLeaderboardRuns(map.id);
-        this.locUserService.getLocal().subscribe(locUser => {
+        this.locUserService.getLocal().pipe(
+          takeUntil(this.ngUnsub),
+        ).subscribe(locUser => {
           this.isAdmin = this.locUserService.hasRole(Role.ADMIN, locUser);
           this.isModerator = this.locUserService.hasRole(Role.MODERATOR, locUser);
           this.isSubmitter = this.map.submitterID === locUser.id;
         });
       });
     }
+  }
+  ngOnDestroy(): void {
+    this.ngUnsub.next();
+    this.ngUnsub.complete();
   }
 
   onLibraryUpdate() {

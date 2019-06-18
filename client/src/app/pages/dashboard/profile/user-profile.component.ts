@@ -1,10 +1,10 @@
-import {Component, OnInit} from '@angular/core';
+import {Component, OnDestroy, OnInit} from '@angular/core';
 import {LocalUserService} from '../../../@core/data/local-user.service';
-import {switchMap} from 'rxjs/operators';
+import {switchMap, takeUntil} from 'rxjs/operators';
 import {ActivatedRoute, ParamMap, Router} from '@angular/router';
 import {UsersService} from '../../../@core/data/users.service';
 import {User} from '../../../@core/models/user.model';
-import {ReplaySubject} from 'rxjs';
+import {ReplaySubject, Subject} from 'rxjs';
 import {Role} from '../../../@core/models/role.model';
 import {Ban} from '../../../@core/models/ban.model';
 import {UserFollowObject} from '../../../@core/models/follow.model';
@@ -16,7 +16,8 @@ import {NbToastrService} from '@nebular/theme';
   templateUrl: './user-profile.component.html',
   styleUrls: ['./user-profile.component.scss'],
 })
-export class UserProfileComponent implements OnInit {
+export class UserProfileComponent implements OnInit, OnDestroy {
+  private ngUnsub = new Subject();
   role: typeof Role;
   ReportType: typeof ReportType;
   userSubj$: ReplaySubject<User>;
@@ -54,7 +55,9 @@ export class UserProfileComponent implements OnInit {
       switchMap((params: ParamMap) => {
         if (params.has('id')) {
           const idNum: number = Number(params.get('id'));
-          this.userService.getLocal().subscribe(usr => {
+          this.userService.getLocal().pipe(
+            takeUntil(this.ngUnsub),
+          ).subscribe(usr => {
             this.isLocal = idNum === usr.id;
           }, error => {
             this.toastService.danger(error.message, 'Cannot get user profile');
@@ -90,6 +93,11 @@ export class UserProfileComponent implements OnInit {
     }, error => {
       this.toastService.danger(error.message, 'Cannot get user details');
     });
+  }
+
+  ngOnDestroy(): void {
+    this.ngUnsub.next();
+    this.ngUnsub.complete();
   }
 
   hasRole(role: Role) {
