@@ -339,6 +339,23 @@ module.exports = {
 		return User.findAndCountAll(queryOptions);
 	},
 
+	updateUserAlias: (usrMdl, aliasToUse, updateObj) => {
+		if (!aliasToUse || aliasToUse === '') {
+			return module.exports.getSteamUsers([usrMdl.steamID]).then(users => {
+				if (users.length > 0) {
+					updateObj.alias = users[0].personaname;
+					updateObj.aliasLocked = false;
+				}
+				return Promise.resolve(updateObj);
+			});
+		} else {
+			updateObj.alias = aliasToUse;
+			if ((usrMdl.roles & module.exports.Role.PLACEHOLDER) === 0)
+				updateObj.aliasLocked = usrMdl.alias !== aliasToUse;
+		}
+		return Promise.resolve(updateObj);
+	},
+
 	updateAsLocal: (locUsr, body) => {
 		const usrUpd8 = { profile: {} };
 		return sequelize.transaction(t => {
@@ -347,24 +364,10 @@ module.exports = {
 				transaction: t,
 			}).then(user => {
 				userModel = user;
-                if ('alias' in body) {
-                	if ((locUsr.bans & module.exports.Ban.BANNED_ALIAS) === 0) {
-                        if (body.alias === '') {
-                            return module.exports.getSteamUsers([user.steamID]);
-                        } else {
-                            usrUpd8.alias = body.alias;
-                            usrUpd8.aliasLocked = true;
-                        }
-					} else {
-                		delete body.alias;
-					}
-                }
-				return Promise.resolve([]);
-			}).then(steamUsers => {
-				if (steamUsers.length > 0) {
-					usrUpd8.aliasLocked = false;
-					usrUpd8.alias = steamUsers[0].personaname;
-				}
+				if ((locUsr.bans & module.exports.Ban.BANNED_ALIAS) !== 0)
+					delete body.alias;
+                return module.exports.updateUserAlias(locUsr, body.alias, usrUpd8);
+			}).then(() => {
 				return userModel.update(usrUpd8, {transaction: t}).then(() => {
 					if (body.profile)
 						return module.exports.updateProfile(locUsr, body.profile, t);
@@ -379,7 +382,7 @@ module.exports = {
 				const foundUsrAdmin = (foundUsr.roles & module.exports.Role.ADMIN) !== 0;
 				const foundUsrMod = (foundUsr.roles & module.exports.Role.MODERATOR) !== 0;
 				// Moderators are limited in what they can update
-				if (powerUser.roles & module.exports.Role.MODERATOR) {
+				if ((powerUser.roles & module.exports.Role.MODERATOR) !== 0) {
 					if ((foundUsrAdmin || foundUsrMod) && (powerUser.id !== foundUsr.id)) {
 						return Promise.reject(new ServerError(403, 'Cannot update user with >= power to you'));
 					} else {
@@ -392,7 +395,7 @@ module.exports = {
 				}
 
 				const updates = [
-					foundUsr.update(usr)
+					module.exports.updateUserAlias(foundUsr, usr.alias, usr).then(() => foundUsr.update(usr)),
 				];
 				if (usr.profile) {
 					updates.push(module.exports.updateProfile(foundUsr, usr.profile));
@@ -431,7 +434,7 @@ module.exports = {
 	},
 
 	updateProfile: (userBeingUpdated, profile, transaction) => {
-		if (profile.bio && (userBeingUpdated.bans & module.exports.Ban.BANNED_BIO === 1))
+		if (profile.bio && (userBeingUpdated.bans & module.exports.Ban.BANNED_BIO) !== 0)
 			delete profile.bio;
 		const opts = {
 			where: {userID: userBeingUpdated.id}
@@ -455,7 +458,7 @@ module.exports = {
 				model = DiscordAuth;
 				break;
 			default:
-				break;
+				return Promise.reject(new ServerError(400, 'Invalid social type!'));
 		}
 		return model.findOrCreate({
 			where: {profileID: profile.id},
