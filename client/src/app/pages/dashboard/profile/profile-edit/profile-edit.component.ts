@@ -86,15 +86,14 @@ export class ProfileEditComponent implements OnInit, OnDestroy {
           }).subscribe(usr => this.setUser(usr));
         }
       }
-      if (this.isLocal) {
-        this.localUserService.getLocal().pipe(
-          takeUntil(this.ngUnSub),
-        ).subscribe(usr => {
-          this.isAdmin = this.localUserService.hasRole(Role.ADMIN, usr);
-          this.isModerator = this.localUserService.hasRole(Role.MODERATOR, usr);
+      this.localUserService.getLocal().pipe(
+        takeUntil(this.ngUnSub),
+      ).subscribe(usr => {
+        this.isAdmin = this.localUserService.hasRole(Role.ADMIN, usr);
+        this.isModerator = this.localUserService.hasRole(Role.MODERATOR, usr);
+        if (this.isLocal)
           this.setUser(usr);
-        });
-      }
+      });
     });
   }
 
