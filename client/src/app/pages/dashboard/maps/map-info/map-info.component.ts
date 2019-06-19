@@ -1,4 +1,4 @@
-import {Component, Input, OnDestroy, OnInit, ViewChild} from '@angular/core';
+import {Component, Input, OnDestroy, OnInit} from '@angular/core';
 import {ActivatedRoute, ParamMap, Router} from '@angular/router';
 import {switchMap, takeUntil} from 'rxjs/operators';
 import {MapsService} from '../../../../@core/data/maps.service';
@@ -22,7 +22,6 @@ import {Subject} from 'rxjs';
 export class MapInfoComponent implements OnInit, OnDestroy {
 
   private ngUnsub = new Subject();
-  @ViewChild('leaderboard', {static: true}) leaderboard;
   @Input('previewMap') previewMap: MomentumMapPreview;
   ReportType: typeof ReportType;
   map: MomentumMap;
@@ -90,7 +89,6 @@ export class MapInfoComponent implements OnInit, OnDestroy {
         if (this.map.libraryEntries && this.map.libraryEntries.length)
           this.mapInLibrary = true;
         this.updateGalleryImages(map.images);
-        this.leaderboard.loadLeaderboardRuns(map.id);
         this.locUserService.getLocal().pipe(
           takeUntil(this.ngUnsub),
         ).subscribe(locUser => {
@@ -101,6 +99,7 @@ export class MapInfoComponent implements OnInit, OnDestroy {
       });
     }
   }
+
   ngOnDestroy(): void {
     this.ngUnsub.next();
     this.ngUnsub.complete();

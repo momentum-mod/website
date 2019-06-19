@@ -13,7 +13,12 @@ import {NbToastrService} from '@nebular/theme';
 })
 export class MapLeaderboardComponent implements OnInit {
 
-  @Input('mapID') mapID: number;
+  private _mapID: number;
+  @Input('mapID')
+  set mapID(value: number) {
+    this._mapID = value;
+    this.loadLeaderboardRuns(this._mapID);
+  }
   filterActive: boolean;
   leaderboardRanks: UserMapRank[];
   searchedRanks: boolean;
