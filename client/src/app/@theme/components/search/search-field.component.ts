@@ -54,7 +54,7 @@ export class SearchFieldComponent implements OnChanges, AfterViewInit {
   @Output() close = new EventEmitter();
   @Output() search = new EventEmitter();
 
-  @ViewChild('searchInput', {static: true}) inputElement: ElementRef<HTMLInputElement>;
+  @ViewChild('searchInput', {static: false}) inputElement: ElementRef<HTMLInputElement>;
 
   @HostBinding('class.show')
   get showClass() {
