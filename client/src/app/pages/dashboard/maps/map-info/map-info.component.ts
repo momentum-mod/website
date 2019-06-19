@@ -22,7 +22,7 @@ import {Subject} from 'rxjs';
 export class MapInfoComponent implements OnInit, OnDestroy {
 
   private ngUnsub = new Subject();
-  @ViewChild('leaderboard', {static: false}) leaderboard;
+  @ViewChild('leaderboard', {static: true}) leaderboard;
   @Input('previewMap') previewMap: MomentumMapPreview;
   ReportType: typeof ReportType;
   map: MomentumMap;
