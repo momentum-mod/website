@@ -34,3 +34,7 @@
 .nb-theme-dark .btn:not(:disabled):not(.disabled) {
   cursor: pointer;
 }
+
+body {
+  background-color: nb-theme(layout-background-color);
+}

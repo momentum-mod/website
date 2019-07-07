@@ -31,4 +31,7 @@ export class OutgoingModule {
     'discord.gg',
     'momentum-mod.org',
   ];
+  static readonly whitelistedOutgoingProtocols: string[] = [
+    'blob',
+  ];
 }
