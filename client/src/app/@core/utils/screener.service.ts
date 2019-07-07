@@ -14,6 +14,10 @@ export class ScreenerService {
         href.hostname.includes(domain) || href.host.includes(domain))
         return true;
     }
+    for (const protocol of OutgoingModule.whitelistedOutgoingProtocols) {
+      if (href.protocol === protocol || href.protocol.includes(protocol))
+        return true;
+    }
     return false;
   }
   intercept(_event) {

@@ -36,8 +36,7 @@ export class QueuedMapComponent implements OnInit {
 
   onMapFileDownload(mapID: number) {
     this.mapService.downloadMapFile(mapID).subscribe(data => {
-      const blob = new Blob([data], { type: 'application/octect-stream' });
-      const url = window.URL.createObjectURL(blob);
+      const url = window.URL.createObjectURL(data);
       const link = this.mapFileDownloadLink.nativeElement;
       link.href = url;
       link.download = this.map.name + '.bsp';

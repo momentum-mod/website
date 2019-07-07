@@ -69,7 +69,7 @@ export class MapsService {
    */
   downloadMapFile(id: number): Observable<any> {
     return this.http.get('/api/maps/' + id + '/download', {
-      responseType: 'text',
+      responseType: 'blob',
     });
   }
 
