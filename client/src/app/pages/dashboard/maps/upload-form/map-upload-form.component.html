@@ -42,26 +42,43 @@
               </div>
               <div class="col-6 optional-col">
                 <span class="col-title">Optional</span>
-                <div>
-                <span class="input-title">Additional Map Photos
-                  <i class="ion ion-help-circled"
-                     [nbPopover]="'You may upload up to 5 extra photos that also best represent your map.'"
-                     [nbPopoverTrigger]="'hint'"></i>
-                </span>
-                </div>
-                <div class="extra-images">
-                  <div class="row">
-                    <div class="col-auto extra-image-cont" *ngFor="let img of extraImages">
-                      <img class="extra-image" [src]="img.dataBlobURL">
-                      <div class="button">
-                        <button class="btn btn-outline-danger btn-xs btn-icon" (click)="removeExtraImage(img)">
-                          <i class="ion ion-close-round"></i>
-                        </button>
-                      </div>
+                <div class="row no-gutters mb-3">
+                  <div class="col-4 offset-1 mb-5">
+                    <div>
+                      <span class="input-title">YouTube URL
+                        <i class="ion ion-help-circled"
+                            [nbPopover]="'Any link with youtube video ID or ID itself will work'"
+                            [nbPopoverTrigger]="'hint'"></i>
+                      </span>
                     </div>
-                    <file-upload [type]="'image'" (fileSelected)="onExtraImageSelected($event)"
-                                 *ngIf="extraImages.length < 5"
-                                 [ngStyle]="{'margin': extraImages.length === 0 ? 'auto' : ''}"></file-upload>
+                    <div>
+                      <input type="text" class="form-control" formControlName="youtubeURL"
+                              [ngClass]="{'form-control-danger': (youtubeURL.invalid) }"/>
+                    </div>
+                  </div>
+                  <div class="col-4 offset-2">
+                    <div>
+                      <span class="input-title">Additional Map Photos
+                        <i class="ion ion-help-circled"
+                            [nbPopover]="'You may upload up to 5 extra photos that also best represent your map.'"
+                            [nbPopoverTrigger]="'hint'"></i>
+                      </span>
+                    </div>
+                    <div>
+                      <file-upload [type]="'image'" (fileSelected)="onExtraImageSelected($event)"
+                                    *ngIf="extraImages.length < 5"
+                                    [ngStyle]="{'margin': extraImages.length === 0 ? 'auto' : ''}"></file-upload>
+                    </div>
+                  </div>
+                </div>
+                <div class="row no-gutters justify-content-center">
+                  <div class="extra-image-cont mt-3 mx-2" *ngFor="let img of extraImages">
+                    <img class="extra-image" [src]="img.dataBlobURL">
+                    <div class="button">
+                      <button class="btn btn-outline-danger btn-xs btn-icon d-flex" (click)="removeExtraImage(img)">
+                        <i class="ion ion-close-round"></i>
+                      </button>
+                    </div>
                   </div>
                 </div>
               </div>

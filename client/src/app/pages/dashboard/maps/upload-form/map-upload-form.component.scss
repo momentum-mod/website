@@ -1,10 +1,10 @@
 .file-col {
   text-align: center;
-  border-right: 3px dashed white;
 }
 
 .optional-col {
   text-align: center;
+  border-left: 3px dashed white;
 
   .col-title {
     font-style: italic;
@@ -49,17 +49,18 @@
 
 .button {
   position: absolute;
-  width: auto;
-  right: 6%;
-  top: 2%;
-  text-align: center;
+  right: 0.4rem;
+  top: 0.4rem;
   opacity: 0;
   transition: opacity 0.15s ease;
 
   .btn {
-    width: 1rem;
-    padding: 0;
+    padding: 2px 3px;
   }
+}
+
+.extra-image-cont {
+  position: relative;
 }
 
 .extra-image-cont:hover .button {
