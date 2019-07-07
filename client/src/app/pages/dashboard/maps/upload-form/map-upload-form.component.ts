@@ -25,6 +25,8 @@ export interface ImageFilePreview {
   file: File;
 }
 
+var youtubeRegex = /[a-zA-Z0-9_-]{11}/;
+
 @Component({
   selector: 'map-upload-form',
   templateUrl: './map-upload-form.component.html',
@@ -50,6 +52,7 @@ export class MapUploadFormComponent implements OnInit, AfterViewInit {
   filesForm: FormGroup = this.fb.group({
     'map': ['', [Validators.required, Validators.pattern('.+(\\.bsp)')]],
     'avatar': ['', [Validators.required, Validators.pattern(/.+(\.(pn|jpe?)g)/i)]],
+    'youtubeURL': ['', [Validators.pattern(youtubeRegex)]],
   });
   infoForm: FormGroup = this.fb.group( {
     'name': ['', [Validators.required, Validators.maxLength(32)]],
@@ -67,6 +70,7 @@ export class MapUploadFormComponent implements OnInit, AfterViewInit {
 
   get map() { return this.filesForm.get('map'); }
   get avatar() { return this.filesForm.get('avatar'); }
+  get youtubeURL() { return this.filesForm.get('youtubeURL'); }
   get name() { return this.infoForm.get('name'); }
   get type() { return this.infoForm.get('type'); }
   get description() { return this.infoForm.get('description'); }
@@ -93,11 +97,13 @@ export class MapUploadFormComponent implements OnInit, AfterViewInit {
     this.datePicker.date = new Date();
   }
   ngOnInit(): void {
+    this.youtubeURL.valueChanges.subscribe(() => this.generatePreviewMap());
     this.creditsForm.valueChanges.subscribe(() => this.generatePreviewMap());
     this.infoForm.valueChanges.subscribe(() => this.generatePreviewMap());
   }
 
   onMapFileSelected(file: File) {
+    if (file == null) return;
     this.mapFile = file;
     this.filesForm.patchValue({
       map: this.mapFile.name,
@@ -127,6 +133,7 @@ export class MapUploadFormComponent implements OnInit, AfterViewInit {
         dataBlobURL: blobURL,
         file: img,
       };
+      this.generatePreviewMap();
     }));
     this.filesForm.patchValue({
       avatar: this.avatarFile.name,
@@ -210,6 +217,7 @@ export class MapUploadFormComponent implements OnInit, AfterViewInit {
       credits: this.getAllCredits(),
       stats: {baseStats: {}},
     };
+    mapObject.info.youtubeID = this.mapPreview.map.info.youtubeID;
     mapObject.info.numTracks = this.tracks.length;
     delete mapObject.info.name;
     delete mapObject.info.type;
@@ -323,6 +331,7 @@ export class MapUploadFormComponent implements OnInit, AfterViewInit {
         dataBlobURL: blobURL,
         file: img,
       });
+      this.generatePreviewMap();
     });
   }
 
@@ -340,6 +349,8 @@ export class MapUploadFormComponent implements OnInit, AfterViewInit {
     return credits;
   }
   generatePreviewMap(): void {
+    if (this.isUploadingMap) return;
+    let youtubeIDMatch = this.youtubeURL.value.match(youtubeRegex);
     this.mapPreview = {
       map: {
         id: 0,
@@ -351,6 +362,7 @@ export class MapUploadFormComponent implements OnInit, AfterViewInit {
           id: '0',
           mapID: 0,
           description: this.description.value,
+          youtubeID: youtubeIDMatch ? youtubeIDMatch[0] : null,
           numTracks: this.tracks.length,
           creationDate: this.creationDate.value,
         },
