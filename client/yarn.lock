@@ -435,6 +435,27 @@
     tree-kill "1.2.1"
     webpack-sources "1.3.0"
 
+"@ngx-gallery/core@^4.0.3":
+  version "4.0.3"
+  resolved "https://registry.yarnpkg.com/@ngx-gallery/core/-/core-4.0.3.tgz#e09071bcddb3e29b68240712cee199d14a18924c"
+  integrity sha512-nkfr19jf3LVXoJ4MW398gbD5Y50ivsufOdbSd6gWkR1pCOJogqQRhuSk77Lt7xtco11ZwYRr+MEBV0BpT2wUjw==
+  dependencies:
+    tslib "^1.9.0"
+
+"@ngx-gallery/gallerize@^4.0.3":
+  version "4.0.3"
+  resolved "https://registry.yarnpkg.com/@ngx-gallery/gallerize/-/gallerize-4.0.3.tgz#cdd5ec2e211d353463b9b8a748b3b23f0d3fea3d"
+  integrity sha512-o4Madh23qrx6SYnYR7QSUc83CeOLFe27ZAyzehvnG6OXIe7rjXK2mYMGsVF5iHdA+Rm1UHyQO2kfUdLKPrsq1Q==
+  dependencies:
+    tslib "^1.9.0"
+
+"@ngx-gallery/lightbox@^4.0.3":
+  version "4.0.3"
+  resolved "https://registry.yarnpkg.com/@ngx-gallery/lightbox/-/lightbox-4.0.3.tgz#4dfdd76806ce3f2e8465a765504fe2d4d45d52d8"
+  integrity sha512-KE+XMHt6/xtWBTZxoKjYriPl1T/XzqUwpnpBCec7GHHpvbJHuJMgcz9s5uJOwyRgkMfLI3r451BZ0r0tACIsnQ==
+  dependencies:
+    tslib "^1.9.0"
+
 "@node-steam/vdf@^2.0.1":
   version "2.0.1"
   resolved "https://registry.yarnpkg.com/@node-steam/vdf/-/vdf-2.0.1.tgz#2f0349a1da0354d8eafe41f0004b9b2e59ee0901"
@@ -3494,6 +3515,11 @@ graceful-fs@^4.1.11, graceful-fs@^4.1.15, graceful-fs@^4.1.2, graceful-fs@^4.1.6
   resolved "https://registry.yarnpkg.com/graceful-fs/-/graceful-fs-4.1.15.tgz#ffb703e1066e8a0eeaa4c8b80ba9253eeefbfb00"
   integrity sha512-6uHUhOPEBgQ24HM+r6b/QwWfZq+yiFcipKFrOFiBEnWdy5sdzYoi+pJeQaPI5qOLRFqWmAXUPQNsielzdLoecA==
 
+hammerjs@^2.0.8:
+  version "2.0.8"
+  resolved "https://registry.yarnpkg.com/hammerjs/-/hammerjs-2.0.8.tgz#04ef77862cff2bb79d30f7692095930222bf60f1"
+  integrity sha1-BO93hiz/K7edMPdpIJWTAiK/YPE=
+
 handle-thing@^2.0.0:
   version "2.0.0"
   resolved "https://registry.yarnpkg.com/handle-thing/-/handle-thing-2.0.0.tgz#0e039695ff50c93fc288557d696f3c1dc6776754"
@@ -5353,11 +5379,6 @@ ngx-echarts@^4.1.1:
   integrity sha512-/lg/M8Vulx/amyAEX0U7xTTMW7THp0x8eBccbFFezapxzJzlzdszg8Bq4XM21+7Tw0HO+yR8VWoLkmywBZb0Gg==
   dependencies:
     tslib "^1.9.0"
-
-ngx-gallery@^5.9.1:
-  version "5.9.1"
-  resolved "https://registry.yarnpkg.com/ngx-gallery/-/ngx-gallery-5.9.1.tgz#c56cd21346298931c71273356ebc6e1e5466c223"
-  integrity sha512-T9nPI+8TwQ5huQvPnptp0FwXJrLcAIjmtenOHZulFMkKfai3LBt3zhWRazoL706ywhs+JKIvOY+4lzpBOQ0n3g==
 
 ngx-markdown@^8.0.2:
   version "8.0.2"

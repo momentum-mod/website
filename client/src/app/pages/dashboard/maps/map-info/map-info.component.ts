@@ -4,7 +4,7 @@ import {switchMap, takeUntil} from 'rxjs/operators';
 import {MapsService} from '../../../../@core/data/maps.service';
 import {MomentumMap} from '../../../../@core/models/momentum-map.model';
 import {LocalUserService} from '../../../../@core/data/local-user.service';
-import {NgxGalleryAnimation, NgxGalleryImage, NgxGalleryOptions} from 'ngx-gallery';
+import {Gallery, GalleryRef, GalleryConfig, ImageItem, YoutubeItem} from '@ngx-gallery/core';
 import {MapImage} from '../../../../@core/models/map-image.model';
 import {Role} from '../../../../@core/models/role.model';
 import {ReportType} from '../../../../@core/models/report-type.model';
@@ -30,51 +30,45 @@ export class MapInfoComponent implements OnInit, OnDestroy {
   isSubmitter: boolean;
   isAdmin: boolean;
   isModerator: boolean;
-  galleryOptions: NgxGalleryOptions[];
-  galleryImages: NgxGalleryImage[];
+  galleryConfig: GalleryConfig = {
+    loadingMode: 'indeterminate',
+    loadingStrategy: 'lazy',
+    imageSize: 'cover',
+    thumbMode: 'free',
+    thumbHeight: 68,
+    counter: false,
+  };
+  lightboxConfig: GalleryConfig = {
+    loadingMode: 'indeterminate',
+    loadingStrategy: 'preload',
+    thumb: false,
+    counter: false,
+    dots: true,
+  };
 
   constructor(private route: ActivatedRoute,
               private router: Router,
               private mapService: MapsService,
               private locUserService: LocalUserService,
-              private toastService: NbToastrService) {
+              private toastService: NbToastrService,
+              private gallery: Gallery) {
     this.ReportType = ReportType;
     this.mapInLibrary = false;
     this.map = null;
     this.previewMap = null;
     this.mapInFavorites = false;
-    this.galleryOptions = [
-      {
-        width: '100%',
-        height: '400px',
-        thumbnailsColumns: 4,
-        imageAnimation: NgxGalleryAnimation.Slide,
-        previewCloseOnClick: true,
-        previewCloseOnEsc: true,
-      },
-      // max-width 800
-      {
-        breakpoint: 800,
-        width: '100%',
-        height: '300px',
-        imagePercent: 80,
-        thumbnailsPercent: 20,
-        thumbnailsMargin: 20,
-        thumbnailMargin: 20,
-      },
-      // max-width 400
-      {
-        breakpoint: 400,
-        preview: false,
-      },
-    ];
-    this.galleryImages = [];
   }
 
   ngOnInit() {
+    const galleryRef = this.gallery.ref('image-gallery');
+    const lightboxRef = this.gallery.ref('lightbox');
+
+    galleryRef.setConfig(this.galleryConfig);
+    lightboxRef.setConfig(this.lightboxConfig);
+
     if (this.previewMap) {
       this.map = this.previewMap.map;
-      this.updateGalleryImages(this.previewMap.images);
+      this.updateGallery(galleryRef, this.previewMap.images, this.previewMap.map.info.youtubeID);
     } else {
       this.route.paramMap.pipe(
         switchMap((params: ParamMap) =>
@@ -88,7 +82,7 @@ export class MapInfoComponent implements OnInit, OnDestroy {
           this.mapInFavorites = true;
         if (this.map.libraryEntries && this.map.libraryEntries.length)
           this.mapInLibrary = true;
-        this.updateGalleryImages(map.images);
+        this.updateGallery(galleryRef, map.images, map.info.youtubeID);
         this.locUserService.getLocal().pipe(
           takeUntil(this.ngUnsub),
         ).subscribe(locUser => {
@@ -137,15 +131,21 @@ export class MapInfoComponent implements OnInit, OnDestroy {
     }
   }
 
-  updateGalleryImages(mapImages: MapImage[]) {
-    this.galleryImages = [];
-    for (let i = 0; i < mapImages.length; i++) {
-      this.galleryImages.push({
-        small: mapImages[i].small,
-        medium: mapImages[i].medium,
-        big: mapImages[i].large,
-      });
+  updateGallery(galleryRef: GalleryRef, mapImages: MapImage[], youtubeID?: string) {
+    let galleryItems = [];
+
+    if (youtubeID) {
+      galleryItems.push(new YoutubeItem({src: youtubeID}));
     }
+
+    for (let i = 0; i < mapImages.length; i++) {
+      galleryItems.push(new ImageItem({
+        src: mapImages[i].large,
+        thumb: mapImages[i].small
+      }));
+    }
+
+    galleryRef.load(galleryItems);
   }
 
   onEditMap() {
