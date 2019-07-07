@@ -48,6 +48,7 @@ module.exports = {
 			type: validation.map.type.required(),
 			info: Joi.object().keys({
 				description: validation.mapInfo.description.required(),
+				youtubeID: validation.mapInfo.youtubeID,
 				numTracks: validation.mapInfo.numTracks.required(),
 				creationDate: validation.mapInfo.creationDate,
 			}).unknown(false),
@@ -101,6 +102,7 @@ module.exports = {
 	updateInfo: {
 		body: Joi.object().keys({
 			description: validation.mapInfo.description,
+			youtubeID: validation.mapInfo.youtubeID,
 			numTracks: validation.mapInfo.numTracks,
 			creationDate: validation.mapInfo.creationDate,
 		}).unknown(false),
