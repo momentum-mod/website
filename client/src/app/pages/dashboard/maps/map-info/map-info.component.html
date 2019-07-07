@@ -14,7 +14,7 @@
   </nb-card-header>
   <nb-card-body class="row">
     <div class="col-lg-5 col-md-12 bury">
-      <ngx-gallery class="image-gallery bury" [options]="galleryOptions" [images]="galleryImages"></ngx-gallery>
+      <gallery id="image-gallery" [skipInitConfig]="true" gallerize></gallery>
     </div>
     <div class="col-lg-7 col-md-12 map-info">
       <nb-tabset [fullWidth]="true">
