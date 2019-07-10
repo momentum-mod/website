@@ -5,8 +5,8 @@ import {MapComponent} from './map.component';
 import {MapRoutingModule} from './map-routing.module';
 import {ThemeModule} from '../../../@theme/theme.module';
 import {GalleryModule} from '@ngx-gallery/core';
-import {LightboxModule} from  '@ngx-gallery/lightbox';
-import {GallerizeModule} from  '@ngx-gallery/gallerize';
+import {LightboxModule} from '@ngx-gallery/lightbox';
+import {GallerizeModule} from '@ngx-gallery/gallerize';
 import {ViewMapsComponent} from './view-maps/view-maps.component';
 import {MapUploadFormComponent} from './upload-form/map-upload-form.component';
 import {UploadStatusComponent} from './upload-status/upload-status.component';
@@ -27,7 +27,6 @@ import {MapListItemComponent} from './map-list/map-list-item/map-list-item.compo
 import {MapEditComponent} from './map-edit/map-edit.component';
 import { MapFavoritesComponent } from './map-favorites/map-favorites.component';
 import { MapListComponent } from './map-list/map-list.component';
-import 'hammerjs';
 
 @NgModule({
   imports: [
