@@ -132,7 +132,7 @@ export class MapInfoComponent implements OnInit, OnDestroy {
   }
 
   updateGallery(galleryRef: GalleryRef, mapImages: MapImage[], youtubeID?: string) {
-    let galleryItems = [];
+    const galleryItems = [];
 
     if (youtubeID) {
       galleryItems.push(new YoutubeItem({src: youtubeID}));
@@ -141,7 +141,7 @@ export class MapInfoComponent implements OnInit, OnDestroy {
     for (let i = 0; i < mapImages.length; i++) {
       galleryItems.push(new ImageItem({
         src: mapImages[i].large,
-        thumb: mapImages[i].small
+        thumb: mapImages[i].small,
       }));
     }
 

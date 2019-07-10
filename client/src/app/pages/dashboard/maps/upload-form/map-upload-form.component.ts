@@ -350,7 +350,7 @@ export class MapUploadFormComponent implements OnInit, AfterViewInit {
   }
   generatePreviewMap(): void {
     if (this.isUploadingMap) return;
-    let youtubeIDMatch = this.youtubeURL.value.match(youtubeRegex);
+    const youtubeIDMatch = this.youtubeURL.value.match(youtubeRegex);
     this.mapPreview = {
       map: {
         id: 0,
