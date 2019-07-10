@@ -47,27 +47,27 @@
                     <div>
                       <span class="input-title">YouTube URL
                         <i class="ion ion-help-circled"
-                            [nbPopover]="'Any link with youtube video ID or ID itself will work'"
-                            [nbPopoverTrigger]="'hint'"></i>
+                           [nbPopover]="'Any link with youtube video ID or ID itself will work'"
+                           [nbPopoverTrigger]="'hint'"></i>
                       </span>
                     </div>
                     <div>
                       <input type="text" class="form-control" formControlName="youtubeURL"
-                              [ngClass]="{'form-control-danger': (youtubeURL.invalid) }"/>
+                             [ngClass]="{'form-control-danger': (youtubeURL.invalid) }"/>
                     </div>
                   </div>
                   <div class="col-4 offset-2">
                     <div>
                       <span class="input-title">Additional Map Photos
                         <i class="ion ion-help-circled"
-                            [nbPopover]="'You may upload up to 5 extra photos that also best represent your map.'"
-                            [nbPopoverTrigger]="'hint'"></i>
+                           [nbPopover]="'You may upload up to 5 extra photos that also best represent your map.'"
+                           [nbPopoverTrigger]="'hint'"></i>
                       </span>
                     </div>
                     <div>
                       <file-upload [type]="'image'" (fileSelected)="onExtraImageSelected($event)"
-                                    *ngIf="extraImages.length < 5"
-                                    [ngStyle]="{'margin': extraImages.length === 0 ? 'auto' : ''}"></file-upload>
+                                   *ngIf="extraImages.length < 5"
+                                   [ngStyle]="{'margin': extraImages.length === 0 ? 'auto' : ''}"></file-upload>
                     </div>
                   </div>
                 </div>

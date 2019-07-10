@@ -25,7 +25,7 @@ export interface ImageFilePreview {
   file: File;
 }
 
-var youtubeRegex = /[a-zA-Z0-9_-]{11}/;
+const youtubeRegex = /[a-zA-Z0-9_-]{11}/;
 
 @Component({
   selector: 'map-upload-form',
