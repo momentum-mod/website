@@ -23,7 +23,8 @@ module.exports = {
 		query: Joi.object().keys({
 			limit: Joi.number().integer().min(0).max(20), // TODO: change this back to validation.queryParam.limit (0.9.0)
 			offset: validation.queryParam.offset,
-			expand: validation.queryParam.expand
+			search: validation.queryParam.search,
+			expand: validation.queryParam.expand,
 		}),
 	},
 
@@ -31,6 +32,8 @@ module.exports = {
 		query: Joi.object().keys({
 			limit: Joi.number().integer().min(0).max(20), // TODO: change this back to validation.queryParam.limit (0.9.0)
 			offset: validation.queryParam.offset,
+			search: validation.queryParam.search,
+			expand: validation.queryParam.expand,
 		}),
 	},
 

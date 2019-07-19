@@ -1,6 +1,6 @@
 'use strict';
 const {
-	sequelize, MapLibraryEntry, Map, MapInfo, MapCredit, MapStats,
+	sequelize, Op, MapLibraryEntry, Map, MapInfo, MapCredit, MapStats,
 	MapFavorite, User, Profile, UserMapRank, Run, MapImage, MapTrack
 } = require('../../config/sqlize');
 
@@ -16,6 +16,7 @@ module.exports = {
 				{
 					model: Map,
 					as: 'map',
+					where: {},
 					include: [
 						{
 							model: MapInfo,
@@ -45,6 +46,8 @@ module.exports = {
 		}
 		if (queryParams.offset)
 			queryOptions.offset = queryParams.offset;
+		if (queryParams.search)
+			queryOptions.include[0].where.name = {[Op.like]: '%' + queryParams.search + '%'};
 		if (queryParams.expand) {
 			const expansionNames = queryParams.expand.split(',');
 			// TODO uncomment the following
