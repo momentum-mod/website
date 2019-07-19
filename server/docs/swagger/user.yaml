@@ -75,6 +75,9 @@ paths:
           description: The offset for the results to show
           type: integer
           default: 0
+        - name: search
+          in: query
+          description: Filter by partial name match
         - name: expand
           in: query
           description: The names of resources to attach/expand, specified by a comma-separated list of names.
@@ -143,6 +146,9 @@ paths:
           description: The offset for the results to show
           type: integer
           default: 0
+        - name: search
+          in: query
+          description: Filter by partial name match
       responses:
         200:
           description: The list of map favorites
