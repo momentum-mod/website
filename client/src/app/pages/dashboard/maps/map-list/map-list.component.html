@@ -1,14 +1,14 @@
+<form class="mb-3" [formGroup]="searchOptions" (ngSubmit)="loadMaps()">
+  <!--TODO full filtering based on type of list-->
+  <div class="input-group">
+    <input type="text" class="form-control full-width" placeholder="Search Maps..." formControlName="search">
+    <button class="btn-dark" type="submit">
+      <i class="fa fa-search fa-fw"></i>
+    </button>
+  </div>
+</form>
 <div *ngIf="maps.length && requestSent">
-  <form [formGroup]="searchOptions" (ngSubmit)="loadMaps()">
-    <!--TODO full filtering based on type of list-->
-    <div class="input-group">
-      <input type="text" class="form-control full-width" placeholder="Search Maps..." formControlName="search">
-      <button class="btn-dark" type="submit">
-        <i class="fa fa-search fa-fw"></i>
-      </button>
-    </div>
-  </form>
-  <nb-list>
+  <nb-list class="overflow-hidden">
     <nb-list-item *ngFor="let map of maps | paginate: {
         itemsPerPage: pageLimit,
         currentPage: currentPage,
@@ -21,12 +21,15 @@
   </nb-list>
   <pagination-controls (pageChange)="onPageChange($event)" [autoHide]="true"></pagination-controls>
 </div>
-<div *ngIf="maps.length === 0 && requestSent">
+<div class="text-center" *ngIf="maps.length === 0 && requestSent">
   <div [ngSwitch]="type">
-    <h3 *ngSwitchDefault>No maps found!</h3>
-    <h3 *ngSwitchCase="mapListType.TYPE_LIBRARY">No maps in your library. Try <a routerLink="/dashboard/maps">adding some</a>!</h3>
-    <h3 *ngSwitchCase="mapListType.TYPE_FAVORITES">No favorite maps found. Try <a routerLink="/dashboard/maps">adding some</a>!</h3>
-    <h3 *ngSwitchCase="mapListType.TYPE_UPLOADS">
+    <h3 class="m-0" *ngSwitchDefault>No maps found!</h3>
+    <h3 class="m-0" *ngSwitchCase="mapListType.TYPE_LIBRARY">No maps in your library. Try <a routerLink="/dashboard/maps">adding some</a>!</h3>
+    <h3 class="m-0" *ngSwitchCase="mapListType.TYPE_FAVORITES">No favorite maps found. Try <a routerLink="/dashboard/maps">adding some</a>!</h3>
+    <h3 class="m-0" *ngSwitchCase="mapListType.TYPE_UPLOADS">
       <i>You have not uploaded any maps. Try <a routerLink="/dashboard/maps/uploads/new">uploading a new one!</a></i></h3>
   </div>
+</div>
+<div class="text-center" *ngIf="!requestSent">
+  <h3 class="m-0">Waiting for API response</h3>
 </div>

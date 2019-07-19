@@ -1,46 +1,48 @@
-<div *ngIf="map" class="row no-gutters align-items-center map-list-item outer"
+<div *ngIf="map" class="row no-gutters py-2 pt-sm-0 pb-lg-0 align-items-center outer"
      [ngClass]="isUpload ? statusEnum[map.statusFlag] : ''">
-  <div class="col-6">
-    <div class="row align-items-center">
-      <div class="col-12 col-sm-4 map-image-container">
+  <div class="col-12 col-lg-6 mb-3 mb-lg-0">
+    <div class="row align-items-sm-center">
+      <div class="col-12 col-sm-4 col-lg-5 mb-3 mb-sm-0 text-center text-sm-left map-image-container">
         <a [routerLink]="'/dashboard/maps/' + map?.id">
           <img [src]="map.thumbnail?.small">
         </a>
       </div>
-      <div class="col-3">
+      <div class="col-6 col-sm-4 col-lg-3 text-right text-sm-left">
         <ul>
           <li>Map Name:</li>
           <li>Submitted:</li>
           <li>Submitted By:</li>
         </ul>
       </div>
-      <div class="col-3 text-left">
+      <div class="col-6 col-sm-4 col-lg-3">
         <ul>
           <li><a [routerLink]="'/dashboard/maps/' + map?.id">{{map.name}}</a></li>
           <li>{{map.createdAt | date}}</li>
-          <li><nb-user [name]="map.submitter?.alias" [picture]="map.submitter?.avatarURL" size="small"></nb-user></li>
+          <li><nb-user class="d-inline-block" [name]="map.submitter?.alias" [picture]="map.submitter?.avatarURL" size="small"></nb-user></li>
         </ul>
       </div>
     </div>
   </div>
-  <div class="col-1">
-    <span class="mapStatus" *ngIf="isUpload">{{statusEnum[map.statusFlag]}}</span>
-  </div>
-  <div class="col" *ngIf="showDownloadButton">
-    <a #mapFileDownloadLink class="allowed"></a>
-    <button class="btn btn-outline-info">DOWNLOAD</button>
-  </div>
-  <div class="col text-right">
-    <div class="text-right" role="toolbar">
-      <div class="btn-group-vertical" role="group">
-        <button type="button" class="btn btn-primary" nbButton (click)="toggleMapInFavorites()"
-                [nbPopover]="mapInFavorites ? 'Remove map from favorites' : 'Add map to favorites'" [nbPopoverTrigger]="'hint'">
-          <span [ngClass]="mapInFavorites ? 'ion-android-star' : 'ion-android-star-outline'" class="icon"></span>
-        </button>
-        <button type="button" class="btn btn-dark" (click)="toggleMapInLibrary()"
-                [nbPopover]="mapInLibrary ? 'Remove map from library' : 'Add map to library'" [nbPopoverTrigger]="'hint'">
-          <span [ngClass]="mapInLibrary ? 'ion-ios-folder' : 'ion-ios-folder-outline'" class="icon"></span>
-        </button>
+  <div class="col-12 col-lg-6">
+    <div class="row no-gutters align-items-sm-center">
+      <div class="col-12 col-sm mb-3 mb-sm-0 text-center" *ngIf="isUpload">
+        <span class="mapStatus">{{statusEnum[map.statusFlag]}}</span>
+      </div>
+      <div class="col-12 col-sm mb-2 mb-sm-0 text-center" *ngIf="showDownloadButton">
+        <a #mapFileDownloadLink class="allowed"></a>
+        <button class="btn btn-outline-info">DOWNLOAD</button>
+      </div>
+      <div class="col-auto mx-auto mr-sm-2">
+        <div class="d-flex flex-lg-column button-group">
+          <button type="button" class="btn btn-primary mr-2 mr-lg-0 mb-lg-2" nbButton (click)="toggleMapInFavorites()"
+                  [nbPopover]="mapInFavorites ? 'Remove map from favorites' : 'Add map to favorites'" [nbPopoverTrigger]="'hint'">
+            <span [ngClass]="mapInFavorites ? 'ion-android-star' : 'ion-android-star-outline'" class="icon"></span>
+          </button>
+          <button type="button" class="btn btn-dark" (click)="toggleMapInLibrary()"
+                  [nbPopover]="mapInLibrary ? 'Remove map from library' : 'Add map to library'" [nbPopoverTrigger]="'hint'">
+            <span [ngClass]="mapInLibrary ? 'ion-ios-folder' : 'ion-ios-folder-outline'" class="icon"></span>
+          </button>
+        </div>
       </div>
     </div>
   </div>

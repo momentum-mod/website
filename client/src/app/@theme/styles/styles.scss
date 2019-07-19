@@ -35,6 +35,10 @@
   cursor: pointer;
 }
 
+html {
+  scroll-behavior: smooth;
+}
+
 body {
   background-color: nb-theme(layout-background-color);
 }
