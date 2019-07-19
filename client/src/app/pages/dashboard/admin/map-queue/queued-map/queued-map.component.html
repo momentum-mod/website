@@ -1,39 +1,42 @@
-<div class="row no-gutters align-items-center">
-  <div class="col-12 col-sm-6">
-    <div class="row align-items-center">
-      <div class="col-3">
-        <img [src]="map.thumbnail?.small">
+<div class="row no-gutters py-2 pt-sm-0 pb-lg-0 align-items-center">
+  <div class="col-12 col-lg-6 mb-3 mb-lg-0">
+    <div class="row align-items-sm-center">
+      <div class="col-12 col-sm-4 col-lg-5 mb-3 mb-sm-0 text-center text-sm-left map-image-container">
+        <a [routerLink]="'/dashboard/maps/' + map?.id">
+          <img [src]="map?.thumbnail?.small">
+        </a>
       </div>
-      <div class="col-3">
+      <div class="col-6 col-sm-4 col-lg-3 text-right text-sm-left">
         <ul>
           <li>Map Name:</li>
           <li>Submitted:</li>
           <li>Submitted By:</li>
         </ul>
       </div>
-      <div class="col-6 text-left">
+      <div class="col-6 col-sm-4 col-lg-3">
         <ul>
           <li>{{map?.name}}</li>
           <li>{{map?.createdAt | date}}</li>
-          <li><nb-user [name]="map?.submitter.alias" [picture]="map?.submitter.avatarURL" size="small"></nb-user></li>
+          <li><nb-user class="d-inline-block" [name]="map?.submitter.alias" [picture]="map?.submitter.avatarURL" size="small"></nb-user></li>
         </ul>
       </div>
     </div>
   </div>
-  <div class="col-1"></div>
-  <div class="col-4">
-    <a #mapFileDownloadLink class="allowed"></a>
-    <button class="btn btn-outline-info" (click)="onMapFileDownload(map?.id)">DOWNLOAD</button>
-  </div>
-  <div class="col-1">
-    <div class="text-right" role="toolbar">
-      <div class="btn-group-vertical" role="group">
-        <button type="button" class="btn btn-success" (click)="updateMapStatus(map?.id, MapUploadStatus.APPROVED)">
-          <span class="ion-checkmark-round"></span>
-        </button>
-        <button type="button" class="btn btn-danger" (click)="updateMapStatus(map?.id, MapUploadStatus.REJECTED)">
-          <span class="ion-close-round"></span>
-        </button>
+  <div class="col-12 col-lg-6">
+    <div class="row no-gutters align-items-sm-center">
+      <div class="col-12 col-sm mb-2 mb-sm-0 text-center">
+        <a #mapFileDownloadLink class="allowed"></a>
+        <button class="btn btn-outline-info" (click)="onMapFileDownload(map?.id)">DOWNLOAD</button>
+      </div>
+      <div class="col-auto mx-auto mr-sm-2">
+        <div class="d-flex flex-lg-column button-group">
+          <button type="button" class="btn btn-success mr-2 mr-lg-0 mb-lg-2" (click)="updateMapStatus(map?.id, MapUploadStatus.APPROVED)">
+            <span class="ion-checkmark-round"></span>
+          </button>
+          <button type="button" class="btn btn-danger" (click)="updateMapStatus(map?.id, MapUploadStatus.REJECTED)">
+            <span class="ion-close-round"></span>
+          </button>
+        </div>
       </div>
     </div>
   </div>

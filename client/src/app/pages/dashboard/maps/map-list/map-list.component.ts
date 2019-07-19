@@ -4,9 +4,11 @@ import {FormBuilder, FormGroup} from '@angular/forms';
 import {MapsService} from '../../../../@core/data/maps.service';
 import {MapAPIQueryParams} from '../../../../@core/models/map-api-query-params.model';
 import {finalize, map} from 'rxjs/operators';
+import {ActivatedRoute, ParamMap, Router} from '@angular/router';
 import {LocalUserService} from '../../../../@core/data/local-user.service';
 import {Observable} from 'rxjs';
 import {NbToastrService} from '@nebular/theme';
+import {NbLayoutScrollService} from '@nebular/theme';
 
 export enum MapListType {
   TYPE_BROWSE = 'browse',
@@ -33,8 +35,12 @@ export class MapListComponent implements OnInit {
   searchOptions: FormGroup = this.fb.group({
     'search': [''],
   });
-  constructor(private mapService: MapsService,
+
+  constructor(private route: ActivatedRoute,
+              private router: Router,
+              private mapService: MapsService,
               private toasterService: NbToastrService,
+              private scrollService: NbLayoutScrollService,
               private locUsrService: LocalUserService,
               private fb: FormBuilder) {
     this.pageLimit = 10;
@@ -46,8 +52,12 @@ export class MapListComponent implements OnInit {
   }
 
   ngOnInit() {
-    this.loadMaps();
+    this.route.queryParamMap.subscribe((paramMap: ParamMap) => {
+      this.currentPage = +paramMap.get('page') || 1;
+      this.loadMaps();
+    });
   }
+
   genQueryParams(): MapAPIQueryParams {
     const searchOptions = this.searchOptions.value;
     const queryParams: MapAPIQueryParams = {
@@ -61,7 +71,7 @@ export class MapListComponent implements OnInit {
   }
 
   loadMaps() {
-    const options = { params: this.genQueryParams() };
+    const options = {params: this.genQueryParams()};
 
     let observer: Observable<any>;
     if (this.type === MapListType.TYPE_LIBRARY) {
@@ -87,8 +97,16 @@ export class MapListComponent implements OnInit {
   }
 
   onPageChange(pageNum) {
-    this.currentPage = pageNum;
-    this.loadMaps();
+    this.scrollService.scrollTo(0, 0);
+    this.router.navigate(
+      [],
+      {
+        relativeTo: this.route,
+        queryParams: {
+          page: pageNum === 1 ? undefined : pageNum,
+        },
+        queryParamsHandling: 'merge',
+      });
   }
 
   isMapInLibrary(m: MomentumMap): boolean {
