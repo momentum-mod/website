@@ -14,7 +14,9 @@
           <queued-map [map]="map" (onStatusUpdate)="loadMapQueue(true)"></queued-map>
         </nb-list-item>
       </nb-list>
-      <pagination-controls id="priority-page-ctrl" (pageChange)="onPageChange($event, true)" [autoHide]="true"></pagination-controls>
+      <div class="text-center">
+        <pagination-controls id="priority-page-ctrl" (pageChange)="onPageChange($event, true)" [autoHide]="true" [responsive]="true"></pagination-controls>
+      </div>
       <div class="text-center" *ngIf="!priorityQueue?.length">
         <h3 class="m-0">There are currently no maps in this queue.</h3>
       </div>
@@ -30,7 +32,9 @@
           <queued-map [map]="map" (onStatusUpdate)="loadMapQueue(false)"></queued-map>
         </nb-list-item>
       </nb-list>
-      <pagination-controls id="non-priority-page-ctrl" (pageChange)="onPageChange($event, false)" [autoHide]="true"></pagination-controls>
+      <div class="text-center">
+        <pagination-controls id="non-priority-page-ctrl" (pageChange)="onPageChange($event, false)" [autoHide]="true" [responsive]="true"></pagination-controls>
+      </div>
       <div class="text-center" *ngIf="!nonPriorityQueue?.length">
         <h3 class="m-0">There are currently no maps in this queue.</h3>
       </div>

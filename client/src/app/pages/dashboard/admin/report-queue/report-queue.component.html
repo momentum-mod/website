@@ -38,7 +38,8 @@
         <queued-report [report]="report" (reportUpdate)="loadReportQueue()"></queued-report>
       </nb-list-item>
     </nb-list>
-    <br><br>
-    <pagination-controls id="report-queue-page-ctrl" (pageChange)="onPageChange($event)" [autoHide]="true"></pagination-controls>
+    <div class="text-center">
+      <pagination-controls id="report-queue-page-ctrl" (pageChange)="onPageChange($event)" [autoHide]="true" [responsive]="true"></pagination-controls>
+    </div>
   </nb-card-body>
 </nb-card>

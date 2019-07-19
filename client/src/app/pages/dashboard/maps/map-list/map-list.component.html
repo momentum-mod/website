@@ -19,7 +19,9 @@
                      [inFavorites]="isMapInFavorites(map)" (onFavoriteUpdate)="favoriteUpdate()"></map-list-item>
     </nb-list-item>
   </nb-list>
-  <pagination-controls (pageChange)="onPageChange($event)" [autoHide]="true"></pagination-controls>
+  <div class="text-center">
+    <pagination-controls (pageChange)="onPageChange($event)" [autoHide]="true" [responsive]="true"></pagination-controls>
+  </div>
 </div>
 <div class="text-center" *ngIf="maps.length === 0 && requestSent">
   <div [ngSwitch]="type">
