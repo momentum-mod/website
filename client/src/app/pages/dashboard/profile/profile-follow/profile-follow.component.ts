@@ -12,29 +12,49 @@ import {UserFollowObject} from '../../../../@core/models/follow.model';
   template: `
     <nb-card>
       <nb-card-header>
-        Edit Notification Permissions
+        Edit Notification Settings
       </nb-card-header>
       <nb-card-body>
-        <nb-checkbox [(ngModel)]="checkboxFlags.PB.checked">
-          {{ActivityType[ActivityType.PB_ACHIEVED]}}
-        </nb-checkbox>
-        <nb-checkbox [(ngModel)]="checkboxFlags.WR.checked">
-          {{ActivityType[ActivityType.WR_ACHIEVED]}}
-        </nb-checkbox>
-        <nb-checkbox [(ngModel)]="checkboxFlags.MAP_APPROVED.checked">
-          {{ActivityType[ActivityType.MAP_APPROVED]}}
-        </nb-checkbox>
-        <nb-checkbox [(ngModel)]="checkboxFlags.MAP_UPLOADED.checked">
-          {{ActivityType[ActivityType.MAP_UPLOADED]}}
-        </nb-checkbox>
+        Notify me when this user<br><br>
+        <ul class="list-unstyled">
+          <li>
+            <nb-checkbox [(ngModel)]="checkboxFlags.PB.checked">
+              achieves a personal best
+            </nb-checkbox>
+          </li>
+          <li>
+            <nb-checkbox [(ngModel)]="checkboxFlags.WR.checked">
+              achieves a world record
+            </nb-checkbox>
+          </li>
+          <li>
+            <nb-checkbox [(ngModel)]="checkboxFlags.MAP_APPROVED.checked">
+              gets a map approved
+            </nb-checkbox>
+          </li>
+          <li>
+            <nb-checkbox [(ngModel)]="checkboxFlags.MAP_UPLOADED.checked">
+              uploads a map
+            </nb-checkbox>
+          </li>
+        </ul>
       </nb-card-body>
       <nb-card-footer>
-        <button class="btn btn-danger" (click)="close()">Close</button>
-        <button class="btn btn-primary" (click)="submit()">Submit</button>
+        <div class="row no-gutters">
+          <div class="col-6 pr-1">
+            <button class="btn btn-danger m-0 w-100" (click)="close()">Close</button>
+          </div>
+          <div class="col-6 pl-1">
+            <button class="btn btn-primary m-0 w-100" (click)="submit()">Submit</button>
+          </div>
+        </div>
       </nb-card-footer>
     </nb-card>
   `,
-  styles: [`button { margin: 1rem; }`],
+  styles: [`
+    button { margin: 1rem; }
+    nb-card { min-width: 300px; }
+  `],
 })
 export class ProfileNotifyEditComponent implements OnInit {
   @Input() flags: number;
