@@ -75,7 +75,9 @@
           <h5 class="text-center" *ngIf="followingUsers.length === 0"><i>Not following anyone</i></h5>
           <nb-list>
             <nb-list-item *ngFor="let usr of followingUsers">
-              <nb-user [name]="usr.followed?.alias" [picture]="usr.followed?.avatarURL" (click)="clickUser(usr.followed)"></nb-user>
+              <a [routerLink]="'/dashboard/profile/' + usr.followed?.id">
+                <nb-user [name]="usr.followed?.alias" [picture]="usr.followed?.avatarURL" (click)="clickUser(usr.followed)"></nb-user>
+              </a>
             </nb-list-item>
           </nb-list>
         </nb-tab>
@@ -83,7 +85,9 @@
           <h5 class="text-center" *ngIf="followedByUsers.length === 0"><i>No followers</i></h5>
           <nb-list>
             <nb-list-item *ngFor="let usr of followedByUsers">
-              <nb-user [name]="usr.followee?.alias" [picture]="usr.followee?.avatarURL" (click)="clickUser(usr.followee)"></nb-user>
+              <a [routerLink]="'/dashboard/profile/' + usr.followee?.id">
+                <nb-user [name]="usr.followee?.alias" [picture]="usr.followee?.avatarURL"></nb-user>
+              </a>
             </nb-list-item>
           </nb-list>
         </nb-tab>

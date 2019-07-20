@@ -121,8 +121,4 @@ export class UserProfileComponent implements OnInit, OnDestroy {
       this.userService.hasRole(Role.MODERATOR | Role.ADMIN);
   }
 
-  clickUser(user: User) {
-    if (user)
-      this.router.navigate(['/dashboard/profile/' + user.id]);
-  }
 }
