@@ -33,9 +33,12 @@
           <div class="col-12 col-sm">
             <h6>Added On: {{(previewMap ? '(some future date)' : (map.createdAt | date))}}</h6>
             <h6>Original Release Date: {{map.info?.creationDate | date}}</h6>
-            <h6>Submitted By: <nb-user [name]="map.submitter?.alias"
-                                      [picture]="map.submitter?.avatarURL"
-                                      size="small" class="d-inline-block align-middle"></nb-user>
+            <h6>Submitted By:
+              <a [routerLink]="'/dashboard/profile/' + map.submitter?.id">
+                <nb-user [name]="map.submitter?.alias"
+                         [picture]="map.submitter?.avatarURL" size="small" class="d-inline-block align-middle">
+                </nb-user>
+              </a>
             </h6>
           </div>
           <div *ngIf="!previewMap" class="col-12 col-sm">

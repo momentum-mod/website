@@ -3,7 +3,9 @@
     <h6>Author(s):</h6>
     <ul class="list-unstyled">
       <li *ngFor="let credit of filterMapCredits(map?.credits, Map_Credit_Type.AUTHOR)">
-        <nb-user [name]="credit?.user.alias" [picture]="credit?.user.avatarURL" size="small"></nb-user>
+        <a [routerLink]="'/dashboard/profile/' + credit?.user.id">
+          <nb-user [name]="credit?.user.alias" [picture]="credit?.user.avatarURL" size="small"></nb-user>
+        </a>
       </li>
     </ul>
   </div>
@@ -11,7 +13,9 @@
     <h6>Co-Author(s):</h6>
     <ul class="list-unstyled">
       <li *ngFor="let credit of filterMapCredits(map?.credits, Map_Credit_Type.COAUTHOR)">
-        <nb-user [name]="credit?.user.alias" [picture]="credit?.user.avatarURL" size="small"></nb-user>
+        <a [routerLink]="'/dashboard/profile/' + credit?.user.id">
+          <nb-user [name]="credit?.user.alias" [picture]="credit?.user.avatarURL" size="small"></nb-user>
+        </a>
       </li>
     </ul>
   </div>
@@ -19,7 +23,9 @@
     <h6>Tester(s):</h6>
     <ul class="list-unstyled">
       <li *ngFor="let credit of filterMapCredits(map?.credits, Map_Credit_Type.TESTER)">
-        <nb-user [name]="credit?.user.alias" [picture]="credit?.user.avatarURL" size="small"></nb-user>
+        <a [routerLink]="'/dashboard/profile/' + credit?.user.id">
+          <nb-user [name]="credit?.user.alias" [picture]="credit?.user.avatarURL" size="small"></nb-user>
+        </a>
       </li>
     </ul>
   </div>
@@ -27,7 +33,9 @@
     <h6>Special Thanks:</h6>
     <ul class="list-unstyled">
       <li *ngFor="let credit of filterMapCredits(map?.credits, Map_Credit_Type.SPECIAL_THANKS)">
-        <nb-user [name]="credit?.user.alias" [picture]="credit?.user.avatarURL" size="small"></nb-user>
+        <a [routerLink]="'/dashboard/profile/' + credit?.user.id">
+          <nb-user [name]="credit?.user.alias" [picture]="credit?.user.avatarURL" size="small"></nb-user>
+        </a>
       </li>
     </ul>
   </div>
