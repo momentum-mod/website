@@ -50,7 +50,7 @@ export class AuthService {
     if (cookieExists) {
       const cookieValue = this.cookieService.get(cookieName);
       localStorage.setItem(cookieName, cookieValue);
-      this.cookieService.delete(cookieName);
+      this.cookieService.delete(cookieName, '/');
     }
   }
 

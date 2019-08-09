@@ -18,7 +18,11 @@ export class AuthGuard implements CanActivate {
     if (hasPermission && this.userService.isLoggedIn()) {
       return true;
     }
-    window.location.href = '/auth/steam';
+    const referrer = window.location.pathname;
+    if (referrer !== '/')
+      window.location.href = '/auth/steam?r=' + referrer;
+    else
+      window.location.href = '/auth/steam';
   }
 
   checkPermissions(roles): boolean {
