@@ -31,7 +31,7 @@ export class LocalUserService {
     if (userCookieExists) {
       const userCookie = decodeURIComponent(this.cookieService.get('user'));
       localStorage.setItem('user', userCookie);
-      this.cookieService.delete('user');
+      this.cookieService.delete('user', '/');
     }
     const user = localStorage.getItem('user');
     if (user) {

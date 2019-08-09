@@ -12,7 +12,10 @@ const express = require('express'),
 	bodyParser = require('body-parser');
 
 router.route('/steam')
-	.get(passport.authenticate('steam', { session: false }))
+	.get((req, res, next) => {
+		req.session.referrer = req.query.r;
+		passport.authenticate('steam', { session: false })(req, res, next);
+	})
 	.all(errorCtrl.send405);
 
 router.route('/steam/return')

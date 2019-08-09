@@ -15,7 +15,7 @@ export class MainPageComponent implements OnInit {
   ngOnInit(): void {
     if (this.cookieService.check('errMsg')) {
       this.toasterService.danger(this.cookieService.get('errMsg'), 'Error', {duration: 0});
-      this.cookieService.delete('errMsg');
+      this.cookieService.delete('errMsg', '/');
     }
   }
 }

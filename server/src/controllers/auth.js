@@ -19,7 +19,13 @@ module.exports = {
 			res.cookie('accessToken', accessToken);
 			res.cookie('refreshToken', refreshToken);
 			res.cookie('user', JSON.stringify(req.user));
-			res.redirect('/dashboard');
+			const referrer = req.session.referrer;
+			if (referrer) {
+				delete req.session.referrer;
+				res.redirect(referrer);
+			} else {
+				res.redirect('/dashboard');
+			}
 		}).catch(next);
 	},
 
