@@ -1,4 +1,5 @@
 'use strict';
+const config = require('../../../config/config');
 
 module.exports = (sequelize, type) => {
 	return sequelize.define('user', {
@@ -24,8 +25,14 @@ module.exports = (sequelize, type) => {
 		avatarURL: {
 			type: type.VIRTUAL,
 			get() {
-				const val = this.getDataValue('avatar');
-				return val ? `https://steamcdn-a.akamaihd.net/steamcommunity/public/images/avatars/${val}` : null;
+				const bans = this.getDataValue('bans');
+				const isAvatarBanned = bans & 1 << 2; // TODO: Refactor however needed to use Ban 'enum' (cyclic dep issue occurs when requiring user model in this file)
+				if (isAvatarBanned) {
+                    return config.baseUrl + '/assets/images/blank_avatar.jpg';
+				} else {
+					const avatar = this.getDataValue('avatar');
+					return avatar ? `https://steamcdn-a.akamaihd.net/steamcommunity/public/images/avatars/${avatar}` : null;
+				}
 			},
 			set(val) {
 				let newVal = val.replace('https://steamcdn-a.akamaihd.net/steamcommunity/public/images/avatars/', '');
