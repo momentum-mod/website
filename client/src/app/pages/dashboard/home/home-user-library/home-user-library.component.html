@@ -2,11 +2,9 @@
   <nb-accordion-item [expanded]="true">
     <nb-accordion-item-header><h2>MAP LIBRARY</h2></nb-accordion-item-header>
     <nb-accordion-item-body>
-      <div class="row col-auto">
-        <div class="spacing">
-          <h1 class="text">{{mapLibraryCount}} Maps In Library</h1>
-          <h6 *ngIf="mostRecentlyAddedMap">Most recently added: "{{mostRecentlyAddedMap.name}}"</h6>
-        </div>
+      <div class="text-center">
+        <h1 class="text">{{mapLibraryCount || 0}} Maps In Library</h1>
+        <h6 *ngIf="mostRecentlyAddedMap">Most recently added: "{{mostRecentlyAddedMap.name}}"</h6>
       </div>
     </nb-accordion-item-body>
   </nb-accordion-item>
