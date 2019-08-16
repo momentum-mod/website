@@ -53,7 +53,11 @@ export class MapListComponent implements OnInit {
 
   ngOnInit() {
     this.route.queryParamMap.subscribe((paramMap: ParamMap) => {
+      this.searchOptions.setValue({search: paramMap.get('search') || ''});
       this.currentPage = +paramMap.get('page') || 1;
+      const count = this.pageLimit * this.currentPage;
+      if (count > this.mapCount)
+        this.mapCount = count;
       this.loadMaps();
     });
   }
@@ -103,6 +107,7 @@ export class MapListComponent implements OnInit {
       {
         relativeTo: this.route,
         queryParams: {
+          search: this.searchOptions.value.search || undefined,
           page: pageNum === 1 ? undefined : pageNum,
         },
         queryParamsHandling: 'merge',
