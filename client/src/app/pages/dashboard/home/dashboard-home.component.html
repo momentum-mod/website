@@ -1,6 +1,10 @@
 <home-stats class="home-card" [userStats]="user?.stats"></home-stats>
 <div class="row">
-  <home-user-maps class="col home-card"></home-user-maps>
-  <home-user-library class="col home-card"></home-user-library>
+  <div class="col-12 col-md mb-4">
+    <home-user-maps></home-user-maps>
+  </div>
+  <div class="col-12 col-md mb-4">
+    <home-user-library></home-user-library>
+  </div>
 </div>
 <activity-card [header]="'FOLLOWED ACTIVITY'" [follow]="true"></activity-card>
