@@ -1,4 +1,4 @@
-<form class="mb-3" [formGroup]="searchOptions" (ngSubmit)="loadMaps()">
+<form class="mb-3" [formGroup]="searchOptions" (ngSubmit)="onPageChange(1)">
   <!--TODO full filtering based on type of list-->
   <div class="input-group">
     <input type="text" class="form-control full-width" placeholder="Search Maps..." formControlName="search">
