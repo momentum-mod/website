@@ -1,26 +1,34 @@
 <div class="row">
   <div class="col-6 col-sm-3">
     <h6>Author(s):</h6>
-    <ul class="list-unstyled" *ngFor="let credit of filterMapCredits(map?.credits, Map_Credit_Type.AUTHOR)">
-      <li><nb-user [name]="credit?.user.alias" [picture]="credit?.user.avatarURL" size="small"></nb-user></li>
+    <ul class="list-unstyled">
+      <li *ngFor="let credit of filterMapCredits(map?.credits, Map_Credit_Type.AUTHOR)">
+        <nb-user [name]="credit?.user.alias" [picture]="credit?.user.avatarURL" size="small"></nb-user>
+      </li>
     </ul>
   </div>
   <div class="col-6 col-sm-3">
     <h6>Co-Author(s):</h6>
-    <ul class="list-unstyled" *ngFor="let credit of filterMapCredits(map?.credits, Map_Credit_Type.COAUTHOR)">
-      <li><nb-user [name]="credit?.user.alias" [picture]="credit?.user.avatarURL" size="small"></nb-user></li>
+    <ul class="list-unstyled">
+      <li *ngFor="let credit of filterMapCredits(map?.credits, Map_Credit_Type.COAUTHOR)">
+        <nb-user [name]="credit?.user.alias" [picture]="credit?.user.avatarURL" size="small"></nb-user>
+      </li>
     </ul>
   </div>
   <div class="col-6 col-sm-3">
     <h6>Tester(s):</h6>
-    <ul class="list-unstyled" *ngFor="let credit of filterMapCredits(map?.credits, Map_Credit_Type.TESTER)">
-      <li><nb-user [name]="credit?.user.alias" [picture]="credit?.user.avatarURL" size="small"></nb-user></li>
+    <ul class="list-unstyled">
+      <li *ngFor="let credit of filterMapCredits(map?.credits, Map_Credit_Type.TESTER)">
+        <nb-user [name]="credit?.user.alias" [picture]="credit?.user.avatarURL" size="small"></nb-user>
+      </li>
     </ul>
   </div>
   <div class="col-6 col-sm-3">
     <h6>Special Thanks:</h6>
-    <ul class="list-unstyled" *ngFor="let credit of filterMapCredits(map?.credits, Map_Credit_Type.SPECIAL_THANKS)">
-      <li><nb-user [name]="credit?.user.alias" [picture]="credit?.user.avatarURL" size="small"></nb-user></li>
+    <ul class="list-unstyled">
+      <li *ngFor="let credit of filterMapCredits(map?.credits, Map_Credit_Type.SPECIAL_THANKS)">
+        <nb-user [name]="credit?.user.alias" [picture]="credit?.user.avatarURL" size="small"></nb-user>
+      </li>
     </ul>
   </div>
 </div>

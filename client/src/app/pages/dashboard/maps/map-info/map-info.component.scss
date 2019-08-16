@@ -1,28 +1,12 @@
-map-leaderboard {
-  margin: 2%;
-}
-
 nb-tabset {
   background-color: #181818;
-  height: 75%;
-  max-height: 75%;
+  height: 380px;
 }
 
 nb-tab {
   overflow-y: auto;
-  max-height: 251px;
-}
-
-.map-info {
-  position: relative;
-}
-
-.bottom-info {
-  margin-top: 2%;
-}
-
-.bury {
-  z-index: 500;
+  height: 88%;
+  padding-bottom: 0 !important;
 }
 
 .stat {
@@ -30,38 +14,31 @@ nb-tab {
   font-size: 1.5rem;
 }
 
-.q-stats {
-  float: right;
-  margin-bottom: 5%;
-}
-
 .col h6 {
   font-size: 1.25rem;
 }
 
-.btn span {
-  color: white;
-  text-decoration: none;
-  text-align: center;
-  display: block;
-}
-
 .btn-group {
   display: block;
-}
 
-.btn-group .btn {
-  height: 3em;
-  font: normal normal 500 1em/2.85em Exo, sans-serif;
-  overflow: hidden;
-  padding-top: 0;
-}
+  .btn {
+    height: 3em;
+    font: normal normal 500 1em/2.85em Exo, sans-serif;
+    overflow: hidden;
+    padding-top: 0;
 
-.c-anim-btn {
-  transition: 0.3s;
-  margin-top: 0;
-}
+    span {
+      color: white;
+      display: block;
+    }
 
-.btn:hover .c-anim-btn {
-  margin-top: -2.85em;
+    .c-anim-btn {
+      transition: 0.3s;
+      margin-top: 0;
+    }
+
+    &:hover .c-anim-btn {
+      margin-top: -2.85em;
+    }
+  }
 }

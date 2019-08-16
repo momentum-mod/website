@@ -5,10 +5,7 @@ table {
 }
 
 td {
-  text-align: left;
-  padding-top: 0.5%;
-  padding-bottom: 0.5%;
-  padding-left: 1%;
+  padding: 0.5rem 0 0.5rem 1rem;
   font-size: 1.3rem;
 }
 
@@ -17,35 +14,20 @@ tr:nth-child(even) {
 }
 
 th {
-  text-align: left;
-  padding: 1%;
+  padding: 1rem;
   font-size: 1.4rem;
   color: gray;
-}
-
-.header {
-  margin-bottom: 2%;
-}
-
-.filter-active, .filter-btn.main:hover {
-  background-color: #555;
 }
 
 .filter-content {
   max-height: 0;
   overflow: hidden;
-  transition: max-height 0.2s ease-out;
+  transition: max-height 0.2s ease-out, margin-bottom 0.2s ease-out 0.2s;
   background-color: #181818;
-  margin-bottom: 2%;
 
-  .filter-active {
-    background-color: #555;
+  &.filter-active {
+    margin-bottom: 1rem;
   }
-}
-
-.space {
-  margin-left: 2%;
-  margin-bottom: 2%;
 }
 
 input[type=checkbox] + label {

@@ -1,74 +1,76 @@
-<nb-card *ngIf="(previewMap || map)">
+<nb-card *ngIf="previewMap || map">
   <nb-card-header>
     <div class="row">
-      <h2 class="col d-block m-auto">{{map.name}}</h2>
-      <div class="col">
-        <div class="btn-toolbar float-right text-right" *ngIf="!previewMap">
-          <report-button *ngIf="!isSubmitter" [reportType]="ReportType.MAP_REPORT" [reportData]="map.id" class="mr-1"></report-button>
-          <div *ngIf="!previewMap && (isSubmitter || isAdmin || isModerator)">
-            <button class="btn btn-outline-info" type="button" (click)="onEditMap()">Edit Map</button>
+      <h2 class="col my-auto">{{map.name}}</h2>
+      <div class="col-auto ml-auto">
+        <div class="d-flex" *ngIf="!previewMap">
+          <report-button *ngIf="!isSubmitter" [reportType]="ReportType.MAP_REPORT" [reportData]="map.id"></report-button>
+          <div *ngIf="isSubmitter || isAdmin || isModerator">
+            <button class="btn btn-outline-info ml-2" type="button" (click)="onEditMap()">Edit Map</button>
           </div>
         </div>
       </div>
     </div>
   </nb-card-header>
-  <nb-card-body class="row">
-    <div class="col-lg-5 col-md-12 bury">
-      <gallery id="image-gallery" [skipInitConfig]="true" gallerize></gallery>
-    </div>
-    <div class="col-lg-7 col-md-12 map-info">
-      <nb-tabset [fullWidth]="true">
-        <nb-tab [tabTitle]="'DESCRIPTION'">
-          <map-info-description [map]="map"></map-info-description>
-        </nb-tab>
-        <nb-tab [tabTitle]="'CREDITS'">
-          <map-info-credits [map]="map"></map-info-credits>
-        </nb-tab>
-        <nb-tab [tabTitle]="'STATISTICS'" *ngIf="!previewMap">
-          <map-info-stats [map]="map"></map-info-stats>
-        </nb-tab>
-      </nb-tabset>
-      <div class="row bottom-info">
-        <div class="col">
-          <h6>Added On: {{(previewMap ? '(some future date)' : (map.createdAt | date))}}</h6>
-          <h6>Original Release Date: {{map.info?.creationDate | date}}</h6>
-          <h6>Submitted By: <nb-user [name]="map.submitter?.alias"
-                                     [picture]="map.submitter?.avatarURL"
-                                     size="small" class="d-inline-block align-middle"></nb-user>
-          </h6>
-        </div>
-        <div *ngIf="!previewMap" class="col">
-          <div class="row q-stats">
-            <span class="ion-android-download stat col-auto"
-                  nbPopover="{{map.stats?.totalDownloads | ngxPlural:'Download'}}"
-                  [nbPopoverTrigger]="'hint'">
-              {{map.stats?.totalDownloads | numberThousands:1}}
-            </span>
-            <span class="ion-folder stat col-auto"
-                  nbPopover="{{map.stats?.totalSubscriptions | ngxPlural:'Library':'Libraries'}}"
-                  [nbPopoverTrigger]="'hint'">
-              {{map.stats?.totalSubscriptions | numberThousands:1}}
-            </span>
-            <span class="ion-star stat col-auto"
-                  nbPopover="{{map.stats?.totalFavorites | ngxPlural:'Favorite'}}"
-                  [nbPopoverTrigger]="'hint'">
-              {{map.stats?.totalFavorites | numberThousands:1}}
-            </span>
-            <span class="ion-play stat col-auto"
-                  nbPopover="{{map.stats?.totalPlays | ngxPlural:'Play'}}"
-                  [nbPopoverTrigger]="'hint'">
-              {{map.stats?.totalPlays | numberThousands:1}}
-            </span>
+  <nb-card-body>
+    <div class="row">
+      <div class="col-12 col-lg-5 mb-3 mb-lg-0">
+        <gallery id="image-gallery" [skipInitConfig]="true" gallerize></gallery>
+      </div>
+      <div class="col-12 col-lg-7">
+        <nb-tabset [fullWidth]="true" class="overflow-hidden mb-4">
+          <nb-tab [tabTitle]="'DESCRIPTION'" [tabIcon]="'file-text-outline'" responsive>
+            <map-info-description [map]="map"></map-info-description>
+          </nb-tab>
+          <nb-tab [tabTitle]="'CREDITS'" [tabIcon]="'people-outline'" responsive>
+            <map-info-credits [map]="map"></map-info-credits>
+          </nb-tab>
+          <nb-tab [tabTitle]="'STATISTICS'" [tabIcon]="'pie-chart-outline'" responsive *ngIf="!previewMap">
+            <map-info-stats [map]="map"></map-info-stats>
+          </nb-tab>
+        </nb-tabset>
+        <div class="row no-gutters">
+          <div class="col-12 col-sm">
+            <h6>Added On: {{(previewMap ? '(some future date)' : (map.createdAt | date))}}</h6>
+            <h6>Original Release Date: {{map.info?.creationDate | date}}</h6>
+            <h6>Submitted By: <nb-user [name]="map.submitter?.alias"
+                                      [picture]="map.submitter?.avatarURL"
+                                      size="small" class="d-inline-block align-middle"></nb-user>
+            </h6>
           </div>
-          <div class="btn-group float-right">
-            <button type="button" class="btn btn-outline-info btn-group-divider" (click)="onLibraryUpdate()">
-              <span [ngClass]="{'c-anim-btn': mapInLibrary}">{{mapInLibrary ? 'In Library' : 'Add Map to Library'}}</span>
-              <span *ngIf="mapInLibrary">Remove from Library</span>
-            </button>
-            <button type="button" class="btn btn-outline-info" (click)="onFavoriteUpdate()"
-                    nbPopover="{{mapInFavorites ? 'Remove from Favorites' : 'Add to Favorites'}}" [nbPopoverTrigger]="'hint'">
-              <span [ngClass]="mapInFavorites ? 'ion-android-star' : 'ion-android-star-outline'" class="icon"></span>
-            </button>
+          <div *ngIf="!previewMap" class="col-12 col-sm">
+            <div class="d-flex flex-wrap justify-content-around justify-content-sm-end mt-1 mb-3">
+              <span class="ion-folder stat"
+                    nbPopover="{{map.stats?.totalSubscriptions | ngxPlural:'Library':'Libraries'}}"
+                    [nbPopoverTrigger]="'hint'">
+                {{map.stats?.totalSubscriptions | numberThousands:1}}
+              </span>
+              <span class="ion-star ml-sm-4 stat"
+                    nbPopover="{{map.stats?.totalFavorites | ngxPlural:'Favorite'}}"
+                    [nbPopoverTrigger]="'hint'">
+                {{map.stats?.totalFavorites | numberThousands:1}}
+              </span>
+              <span class="ion-android-download ml-sm-4 stat"
+                    nbPopover="{{map.stats?.totalDownloads | ngxPlural:'Download'}}"
+                    [nbPopoverTrigger]="'hint'">
+                {{map.stats?.totalDownloads | numberThousands:1}}
+              </span>
+              <span class="ion-play ml-sm-4 stat"
+                    nbPopover="{{map.stats?.totalPlays | ngxPlural:'Play'}}"
+                    [nbPopoverTrigger]="'hint'">
+                {{map.stats?.totalPlays | numberThousands:1}}
+              </span>
+            </div>
+            <div class="btn-group text-center text-sm-right">
+              <button type="button" class="btn btn-outline-info anim-btn" (click)="onLibraryUpdate()">
+                <span [ngClass]="{'c-anim-btn': mapInLibrary}">{{mapInLibrary ? 'In Library' : 'Add Map to Library'}}</span>
+                <span *ngIf="mapInLibrary">Remove from Library</span>
+              </button>
+              <button type="button" class="btn btn-outline-info anim-btn" (click)="onFavoriteUpdate()"
+                      nbPopover="{{mapInFavorites ? 'Remove from Favorites' : 'Add to Favorites'}}" [nbPopoverTrigger]="'hint'">
+                <span [ngClass]="mapInFavorites ? 'ion-android-star' : 'ion-android-star-outline'" class="icon"></span>
+              </button>
+            </div>
           </div>
         </div>
       </div>
