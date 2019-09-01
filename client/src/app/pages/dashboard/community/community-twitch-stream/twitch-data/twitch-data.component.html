@@ -1,8 +1,8 @@
-<div class="outer">
-  <a [href]="getURL()">
-    <h5 class="title twitch-text">{{getTitle()}}</h5>
-    <span class="user twitch-text">{{getUserName()}}</span>
-    <span class="views twitch-text">{{getViewCount()}}</span>
+<div class="shadow overlay-backdrop outer">
+  <a [href]="getURL()" target="_blank">
+    <h5 class=" py-1 px-2 text-truncate text-center twitch-text title">{{getTitle()}}</h5>
+    <span class=" py-1 px-2 twitch-text user">{{getUserName()}}</span>
+    <span class=" py-1 px-2 twitch-text views">{{getViewCount()}}</span>
     <img [src]="getImage()">
   </a>
 </div>

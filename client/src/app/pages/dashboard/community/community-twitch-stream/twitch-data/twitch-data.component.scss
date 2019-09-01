@@ -1,35 +1,35 @@
-.outer:hover {
-  box-shadow: 0 0 20px 0 #6441a4;
+.outer {
+  position: relative;
+  min-height: 70px;
 }
 
+.outer:hover {
+  box-shadow: 0 0 20px 0 #6441a4 !important;
+}
+
+
 .twitch-text {
-  color: #6441a4;
-  background: nb-theme(background-basic-color-4);
-  padding: 3px;
+  position: absolute;
+  color: white;
+  background: rgba(0, 0, 0, 0.288);
+  text-shadow: 0.02em 0 0.14em black, 0 0.02em 0.14em black,
+    -0.02em 0 0.14em black, 0 -0.02em 0.14em black;
 }
 
 .title {
-  text-align: center;
-  overflow: hidden;
-  -ms-text-overflow: ellipsis;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  position: absolute;
-  left: 7%;
-  right: 7%;
-  top: 1%;
+  left: 0;
+  right: 0;
+  top: 0;
 }
 
 .user {
-  position: absolute;
-  bottom: 13%;
-  left: 7%;
+  left: 0.25rem;
+  bottom: 0.25rem;
 }
 
 .views {
-  position: absolute;
-  right: 7%;
-  bottom: 13%;
+  right: 0.25rem;
+  bottom: 0.25rem;
 }
 
 img {
