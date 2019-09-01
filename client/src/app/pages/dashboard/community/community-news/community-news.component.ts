@@ -1,6 +1,7 @@
 import {Component, OnInit} from '@angular/core';
 import {TumblrAPIService} from '../../../../@core/data/tumblr-api.service';
 import {BlogPost} from '../../../../@core/models/blog-post.model';
+import {finalize} from 'rxjs/operators';
 
 @Component({
   selector: 'community-news',
@@ -28,7 +29,9 @@ export class CommunityNewsComponent implements OnInit {
   }
 
   ngOnInit() {
-    this.tumblrAPI.getRecentBlogPosts().subscribe(resp => {
+    this.tumblrAPI.getRecentBlogPosts().pipe(
+      finalize(() => this.loadedPosts = true),
+    ).subscribe(resp => {
       if (resp.response && resp.response.posts) {
         for (const post of resp.response.posts) {
           this.blogPosts.push({
@@ -38,7 +41,6 @@ export class CommunityNewsComponent implements OnInit {
             timestamp: new Date(post.timestamp * 1000),
           });
         }
-        this.loadedPosts = true;
       }
     });
   }
