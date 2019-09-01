@@ -5,7 +5,6 @@ import {MapsService} from '../../../../@core/data/maps.service';
 import {FormBuilder, FormGroup, Validators} from '@angular/forms';
 import {User} from '../../../../@core/models/user.model';
 import {MapCreditType} from '../../../../@core/models/map-credit-type.model';
-import {Observable, of} from 'rxjs';
 import {MomentumMapType} from '../../../../@core/models/map-type.model';
 import {LocalUserService} from '../../../../@core/data/local-user.service';
 import {MapTrack} from '../../../../@core/models/map-track.model';
@@ -18,7 +17,7 @@ import {MomentumMapPreview} from '../../../../@core/models/momentum-map-preview.
 import {MapImage} from '../../../../@core/models/map-image.model';
 import {NbToastrService} from '@nebular/theme';
 import {mergeMap} from 'rxjs/operators';
-import {forkJoin} from 'rxjs';
+import {forkJoin, of} from 'rxjs';
 
 export interface ImageFilePreview {
   dataBlobURL: string;
@@ -41,6 +40,7 @@ export class MapUploadFormComponent implements OnInit, AfterViewInit {
   zoneFile: File;
   avatarFilePreview: ImageFilePreview;
   extraImages: ImageFilePreview[];
+  extraImagesLimit: number;
   mapUploadPercentage: number;
   isUploadingMap: boolean;
   creditArr: User[][];
@@ -50,7 +50,7 @@ export class MapUploadFormComponent implements OnInit, AfterViewInit {
   tracks: MapTrack[];
 
   filesForm: FormGroup = this.fb.group({
-    'map': ['', [Validators.required, Validators.pattern('.+(\\.bsp)')]],
+    'map': ['', [Validators.required, Validators.pattern(/.+(\.bsp)/)]],
     'avatar': ['', [Validators.required, Validators.pattern(/.+(\.(pn|jpe?)g)/i)]],
     'youtubeURL': ['', [Validators.pattern(youtubeRegex)]],
   });
@@ -59,6 +59,7 @@ export class MapUploadFormComponent implements OnInit, AfterViewInit {
     'type': [ MomentumMapType.UNKNOWN, Validators.required],
     'description': ['', [Validators.required, Validators.maxLength(1000)]],
     'creationDate': [new Date(), [Validators.required, Validators.max(Date.now())]],
+    'zones': ['', [Validators.required, Validators.pattern(/.+(\.zon)/)]],
   });
   creditsForm: FormGroup = this.fb.group({
     'authors': [[], Validators.required],
@@ -84,6 +85,7 @@ export class MapUploadFormComponent implements OnInit, AfterViewInit {
     this.stepper = null;
     this.isUploadingMap = false;
     this.mapUploadPercentage = 0;
+    this.extraImagesLimit = 5;
     this.creditArr = [[], [], [], []];
     this.extraImages = [];
     this.tracks = [];
@@ -103,11 +105,8 @@ export class MapUploadFormComponent implements OnInit, AfterViewInit {
   }
 
   onMapFileSelected(file: File) {
-    if (file == null) return;
     this.mapFile = file;
-    this.filesForm.patchValue({
-      map: this.mapFile.name,
-    });
+    this.map.patchValue(this.mapFile.name);
     const nameVal = this.mapFile.name.replace(/.bsp/g, '').toLowerCase();
     this.name.patchValue(nameVal);
     // Infer type from name
@@ -135,9 +134,7 @@ export class MapUploadFormComponent implements OnInit, AfterViewInit {
       };
       this.generatePreviewMap();
     }));
-    this.filesForm.patchValue({
-      avatar: this.avatarFile.name,
-    });
+    this.avatar.patchValue(this.avatarFile.name);
   }
 
   parseTrack(trackNum: number, track: Object): MapTrack {
@@ -200,11 +197,15 @@ export class MapUploadFormComponent implements OnInit, AfterViewInit {
       }
       this.generatePreviewMap();
     });
+    this.infoForm.patchValue({zones: this.zoneFile.name});
   }
 
-  onSubmit() {
+  onSubmit($event) {
     if (!(this.filesForm.valid && this.infoForm.valid && this.creditsForm.valid))
       return;
+    // Prevent from spamming submit button
+    $event.target.disabled = true;
+
     let mapCreated = false;
     let mapID: number = -1;
     let uploadLocation = '';
@@ -212,15 +213,16 @@ export class MapUploadFormComponent implements OnInit, AfterViewInit {
     const mapObject = {
       name: this.name.value,
       type: this.type.value,
-      info: this.infoForm.value,
+      info: {
+        description: this.description.value,
+        youtubeID: this.mapPreview.map.info.youtubeID,
+        numTracks: this.tracks.length,
+        creationDate: this.creationDate.value,
+      },
       tracks: this.tracks,
       credits: this.getAllCredits(),
       stats: {baseStats: {}},
     };
-    mapObject.info.youtubeID = this.mapPreview.map.info.youtubeID;
-    mapObject.info.numTracks = this.tracks.length;
-    delete mapObject.info.name;
-    delete mapObject.info.type;
     this.mapsService.createMap(mapObject)
       .pipe(
         mergeMap(res => {
@@ -263,6 +265,7 @@ export class MapUploadFormComponent implements OnInit, AfterViewInit {
       const errorMessage = err.error.error ?
         err.error.error.message
         : 'Something went wrong!';
+      $event.target.disabled = false;
       this.isUploadingMap = false;
       if (mapCreated) {
         this.onSubmitSuccess();
@@ -272,19 +275,8 @@ export class MapUploadFormComponent implements OnInit, AfterViewInit {
   }
 
   private onSubmitSuccess() {
-    this.resetForm();
     this.isUploadingMap = false;
     this.router.navigate(['/dashboard/maps/uploads']);
-  }
-
-  private resetForm() {
-    this.filesForm.reset();
-    this.infoForm.reset();
-    this.creditsForm.reset();
-    this.mapFile = null;
-    this.avatarFile = null;
-    this.mapUploadPercentage = 0;
-    this.inferredMapType = false;
   }
 
   markFormAsDirty(formG: FormGroup) {
@@ -326,6 +318,8 @@ export class MapUploadFormComponent implements OnInit, AfterViewInit {
   }
 
   onExtraImageSelected(file: File) {
+    if (this.extraImages.length >= this.extraImagesLimit)
+      return;
     this.getFileSource(file, true, (blobURL, img) => {
       this.extraImages.push({
         dataBlobURL: blobURL,
@@ -348,8 +342,8 @@ export class MapUploadFormComponent implements OnInit, AfterViewInit {
     }
     return credits;
   }
+
   generatePreviewMap(): void {
-    if (this.isUploadingMap) return;
     const youtubeIDMatch = this.youtubeURL.value.match(youtubeRegex);
     this.mapPreview = {
       map: {
@@ -394,5 +388,6 @@ export class MapUploadFormComponent implements OnInit, AfterViewInit {
   onRemoveZones() {
     this.tracks = [];
     this.zoneFile = null;
+    this.infoForm.patchValue({zones: ''});
   }
 }

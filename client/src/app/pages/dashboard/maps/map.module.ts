@@ -1,5 +1,5 @@
 import {NgModule} from '@angular/core';
-
+import {DragDropModule} from '@angular/cdk/drag-drop';
 import {NotFoundModule} from '../../not-found/not-found.module';
 import {MapComponent} from './map.component';
 import {MapRoutingModule} from './map-routing.module';
@@ -25,12 +25,13 @@ import {MapInfoCreditsComponent} from './map-info/map-info-credits/map-info-cred
 import {MapInfoStatsComponent} from './map-info/map-info-stats/map-info-stats.component';
 import {MapListItemComponent} from './map-list/map-list-item/map-list-item.component';
 import {MapEditComponent} from './map-edit/map-edit.component';
-import { MapFavoritesComponent } from './map-favorites/map-favorites.component';
-import { MapListComponent } from './map-list/map-list.component';
+import {MapFavoritesComponent} from './map-favorites/map-favorites.component';
+import {MapListComponent} from './map-list/map-list.component';
 
 @NgModule({
   imports: [
     ThemeModule,
+    DragDropModule,
     NotFoundModule,
     NbDatepickerModule,
     NbListModule,

@@ -1,13 +1,31 @@
-.error {
-  color: red;
-  margin: auto;
-  text-align: center;
-  display: block;
+$timing-func: cubic-bezier(0, 0, 0.2, 1);
+
+nb-list {
+  border-top: 1px solid black;
 }
 
-.cancel-user {
-  display: block;
-  margin-left: auto;
-  margin-right: auto;
-  margin-top: 5%;
+nb-list-item:first-child {
+  border-top: none;
+}
+
+.cdk-drag {
+  cursor: move;
+  transition: box-shadow 0.2s $timing-func;
+}
+
+.cdk-drag-preview {
+  background: #222;
+  box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+}
+
+.cdk-drag-placeholder {
+  opacity: 0;
+}
+
+.cdk-drag-animating {
+  transition: transform 0.25s $timing-func;
+}
+
+.cdk-drop-list-dragging .cdk-drag:not(.cdk-drag-placeholder) {
+  transition: transform 0.25s $timing-func;
 }

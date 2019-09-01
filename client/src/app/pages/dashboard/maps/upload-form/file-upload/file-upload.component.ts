@@ -26,8 +26,12 @@ export class FileUploadComponent implements OnInit {
    * Whether this component should show the selected file's name
    */
   @Input('show-selected') showSelected: boolean;
+  /**
+   * Whether allow multiple selections
+   */
+  @Input('multiple') multiple: boolean;
   @Output() fileSelected: EventEmitter<File>;
-  dragOver: boolean;
+  dragOver: number;
   invalidSize: boolean;
   invalidType: boolean;
   selectedFile: File;
@@ -37,25 +41,26 @@ export class FileUploadComponent implements OnInit {
     this.selectedFile = null;
     this.limit_size = 0;
     this.fileSelected = new EventEmitter<File>();
-    this.dragOver = false;
+    this.dragOver = 0;
     this.acceptString = '';
     this.matchString = '';
     this.type = FileUploadType.ALL;
     this.invalidType = false;
     this.invalidSize = false;
     this.showSelected = false;
+    this.multiple = false;
   }
 
   ngOnInit() {
     if (this.type === FileUploadType.MAP) {
       this.acceptString = '.bsp';
-      this.matchString = '.+(\\.bsp)';
+      this.matchString = /.+(\.bsp)/;
     } else if (this.type === FileUploadType.IMAGE) {
       this.acceptString = 'image/png,image/jpeg';
       this.matchString = /.+(\.(pn|jpe?)g)/i;
     } else if (this.type === FileUploadType.ZONES) {
       this.acceptString = '.zon';
-      this.matchString = '.+(\\.zon)';
+      this.matchString = /.+(\.zon)/;
     }
   }
 
@@ -81,29 +86,31 @@ export class FileUploadComponent implements OnInit {
 
     if ($event.dataTransfer.items) {
       // Use DataTransferItemList interface to access the file(s)
-      for (let i = 0; i < $event.dataTransfer.items.length; i++) {
+      for (const item of $event.dataTransfer.items) {
         // If dropped items aren't files, reject them
-        if ($event.dataTransfer.items[i].kind === 'file') {
-          const file = $event.dataTransfer.items[i].getAsFile();
+        if (item.kind === 'file') {
+          const file = item.getAsFile();
           if (this.validateFile(file)) {
             this.selectedFile = file;
             this.fileSelected.emit(file);
           }
-          break;
+          if (!this.multiple)
+            break;
         }
       }
     } else {
       // Use DataTransfer interface to access the file(s)
-      if ($event.dataTransfer.files.length > 0) {
-        const file = $event.dataTransfer.files[0];
+      for (const file of $event.dataTransfer.files) {
         if (this.validateFile(file)) {
           this.selectedFile = file;
           this.fileSelected.emit(file);
         }
+        if (!this.multiple)
+          break;
       }
     }
 
-    this.dragOver = false;
+    this.dragOver = 0;
 
     // Pass event to removeDragData for cleanup
     this.removeDragData($event);
@@ -125,6 +132,13 @@ export class FileUploadComponent implements OnInit {
   }
 
   onFileSelected($event) {
-    this.fileSelected.emit($event.target.files[0]);
+    for (const file of $event.target.files) {
+      if (this.validateFile(file)) {
+        this.selectedFile = file;
+        this.fileSelected.emit(file);
+      }
+    }
+    // Clear value to allow same file(s) selected
+    $event.target.value = '';
   }
 }

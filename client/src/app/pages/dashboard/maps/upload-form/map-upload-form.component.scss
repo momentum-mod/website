@@ -1,10 +1,15 @@
-.file-col {
-  text-align: center;
+nb-stepper ::ng-deep .header {
+  overflow-y: auto;
+  padding-bottom: 0.5rem;
+}
+
+nb-select ::ng-deep .select-button {
+  min-width: 0;
 }
 
 .optional-col {
   text-align: center;
-  border-left: 3px dashed white;
+  border-top: 3px dashed white;
 
   .col-title {
     font-style: italic;
@@ -12,57 +17,43 @@
   }
 }
 
-.next-button {
-  float: right;
+@media (min-width: 768px) {
+  .optional-col {
+    border-left: 3px dashed white;
+    border-top: none;
+  }
+}
+
+.input-col {
+  max-width: 265px;
 }
 
 .warning {
   color: orange;
-  text-align: center;
-  display: block;
 }
 
 .col-title {
-  text-align: center;
-  font-size: 2em;
-  font-family: 'Exo', serif;
   font-weight: 500;
-  margin-bottom: 3%;
-  display: block;
-}
-
-.input-title {
-  font-size: 20px;
-  font-family: 'Exo', serif;
-  display: block;
-  margin-bottom: 3%;
-}
-
-.extra-images {
-  margin-left: 5%;
-  margin-right: 5%;
 }
 
 .extra-image {
   max-width: 200px;
 }
 
-.button {
-  position: absolute;
-  right: 0.4rem;
-  top: 0.4rem;
-  opacity: 0;
-  transition: opacity 0.15s ease;
+.extra-image-cont {
+  position: relative;
 
   .btn {
-    padding: 2px 3px;
+    position: absolute;
+    right: 0.4rem;
+    top: 0.4rem;
+    opacity: 0;
+    transition: opacity 0.15s ease;
+    padding: 1px 3px;
+  }
+
+  &:hover .btn {
+    opacity: 1;
   }
 }
 
-.extra-image-cont {
-  position: relative;
-}
-
-.extra-image-cont:hover .button {
-  opacity: 1;
-}

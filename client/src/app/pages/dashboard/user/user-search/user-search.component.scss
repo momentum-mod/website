@@ -1,10 +1,11 @@
-nb-user {
-  color: white;
-}
 nb-list-item {
-  border: 1px solid transparent;
+  border: 2px solid transparent;
+
+  &:first-child {
+    border: 2px solid transparent;
+  }
 
   &:hover {
-    border: 1px solid white;
+    border: 2px dashed gray;
   }
 }
