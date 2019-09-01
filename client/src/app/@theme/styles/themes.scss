@@ -86,6 +86,8 @@ $nb-themes: nb-register-theme((
 
   stepper-step-text-font-size: 1.25rem,
   stepper-step-index-width: 3rem,
+  stepper-horizontal-connector-margin: calc(1.5rem - 1px) 1rem,
+  stepper-vertical-connector-margin:  1rem calc(1.5rem - 1px),
   stepper-step-content-padding: 0.5rem,
   stepper-step-active-text-color: #fff,
   stepper-step-text-color: #fff,

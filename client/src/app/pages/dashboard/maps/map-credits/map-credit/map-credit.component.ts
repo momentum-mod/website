@@ -1,6 +1,7 @@
 import {Component, EventEmitter, Input, Output} from '@angular/core';
 import {User} from '../../../../../@core/models/user.model';
 import {MapCreditType} from '../../../../../@core/models/map-credit-type.model';
+import {CdkDragDrop, moveItemInArray} from '@angular/cdk/drag-drop';
 
 export interface UserSearch {
   alreadySelected: boolean;
@@ -24,14 +25,13 @@ export class MapCreditComponent {
   @Input('creditArr') creditArr: User[][];
   @Input('editable') editable: boolean;
   @Output() creditChange: EventEmitter<CreditChangeEvent>;
-  userSearches: UserSearch[];
+  userSearch: UserSearch;
 
   constructor() {
     this.creditChange = new EventEmitter<CreditChangeEvent>();
-    this.userSearches = [];
   }
 
-  addUser(user: User, userSearch: any) {
+  addUser(user: User) {
     // Check if in any category already
     let alreadySel = false;
     for (let cred = 0; cred < MapCreditType.LENGTH; cred++) {
@@ -41,7 +41,7 @@ export class MapCreditComponent {
       }
     }
     if (alreadySel) {
-      userSearch.alreadySelected = true;
+      this.userSearch.alreadySelected = true;
     } else {
       this.creditArr[this.credType].push(user);
       this.creditChange.emit({
@@ -49,7 +49,7 @@ export class MapCreditComponent {
         user: user,
         added: true,
       });
-      this.removeUserSearch(userSearch);
+      this.removeUserSearch();
     }
   }
 
@@ -66,15 +66,23 @@ export class MapCreditComponent {
   }
 
   addUserSearch() {
-    this.userSearches.push({
+    this.userSearch = {
       alreadySelected: false,
-    });
+    };
   }
 
-  removeUserSearch(userSearch: any) {
-    const index = this.userSearches.indexOf(userSearch, 0);
-    if (index > -1) {
-      this.userSearches.splice(index, 1);
+  removeUserSearch() {
+    delete this.userSearch;
+  }
+
+  drop(event: CdkDragDrop<User[]>) {
+    if (this.editable) {
+      moveItemInArray(this.creditArr[this.credType], event.previousIndex, event.currentIndex);
+      this.creditChange.emit({
+        type: this.credType,
+        user: null,
+        added: false,
+      });
     }
   }
 }
