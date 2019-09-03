@@ -318,9 +318,9 @@ export class MapUploadFormComponent implements OnInit, AfterViewInit {
   }
 
   onExtraImageSelected(file: File) {
-    if (this.extraImages.length >= this.extraImagesLimit)
-      return;
     this.getFileSource(file, true, (blobURL, img) => {
+      if (this.extraImages.length >= this.extraImagesLimit)
+        return;
       this.extraImages.push({
         dataBlobURL: blobURL,
         file: img,
