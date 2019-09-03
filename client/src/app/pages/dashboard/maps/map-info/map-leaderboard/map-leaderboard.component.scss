@@ -22,7 +22,8 @@ th {
 .filter-content {
   max-height: 0;
   overflow: hidden;
-  transition: max-height 0.2s ease-out, margin-bottom 0.2s ease-out 0.2s;
+  transition: max-height 0.2s ease-out,
+              margin-bottom 0.2s ease-out 0.1s;
   background-color: #181818;
 
   &.filter-active {

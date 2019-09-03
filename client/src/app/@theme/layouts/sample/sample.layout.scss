@@ -13,3 +13,22 @@
     }
   }
 }
+
+::ng-deep body {
+  &::before {
+    content: '';
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    height: 100vh;
+    z-index: -1;
+    will-change: transform;
+    background: url('/assets/images/logoBG.png') no-repeat center;
+    background-size: auto 100%;
+  }
+
+  .layout {
+    background-color: unset !important;
+  }
+}
