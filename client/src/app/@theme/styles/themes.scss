@@ -8,8 +8,8 @@
 
 $nb-themes: nb-register-theme((
 
-  font-family-primary: Roboto,
-  font-family-secondary: Exo,
+  font-family-primary: unquote('Roboto, sans-serif'),
+  font-family-secondary: unquote('Exo, sans-serif'),
 
   color-primary-100: #d5e0ed,
   color-primary-200: #abc2db,
@@ -53,12 +53,14 @@ $nb-themes: nb-register-theme((
 
   text-hint-color: #fff,
 
-  input-background-color: black,
+  input-background-color: layout-background-color,
   input-border-color: #061f3b,
   input-focus-border-color: #4172aa,
 
-  layout-background-color: black,
+  layout-background-color: #080808,
   layout-content-width: 1400px,
+
+  accordion-header-border-color: layout-background-color,
 
   tabset-tab-text-color: #fff,
   tabset-tab-underline-color: #fff,
@@ -75,9 +77,8 @@ $nb-themes: nb-register-theme((
   menu-submenu-item-active-border-color: #2e66a5,
 
   popover-border-color: #2e66a5,
-  popover-shadow: 0 8px 20px 0 rgba(46, 102, 165, 0.6),
 
-  shadow: 0 8px 20px 0 rgba(38, 76, 114, 0.6),
+  shadow: 0 0.25rem 0.5rem 0 rgba(0, 0, 0, 0.5),
 
   calendar-cell-hover-background-color: #2e66a5,
   calendar-cell-today-background-color: #061f3b,
@@ -104,7 +105,7 @@ $nb-themes: nb-register-theme((
 
   search-background-color: linear-gradient(to right, #061f3b, #4172aa),
 
-  divider-color: black,
+  divider-color: layout-background-color,
 
   icon-primary-color: #fff,
 
@@ -116,7 +117,6 @@ $nb-themes: nb-register-theme((
 
   // app wise variables for each theme
   sidebar-header-height: initial,
-  sidebar-shadow: none,
 
   color-bg: #222222,
   color-fg-text: #fff,
