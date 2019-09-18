@@ -8,7 +8,7 @@ import {ProfileRoutingModule} from './profile-routing.module';
 import {NotFoundModule} from '../../not-found/not-found.module';
 import {ProfileComponent} from './profile.component';
 import {ThemeModule} from '../../../@theme/theme.module';
-import {NbAccordionModule, NbDialogModule} from '@nebular/theme';
+import {NbAccordionModule, NbDialogModule, NbAlertModule} from '@nebular/theme';
 import {NgxEchartsModule} from 'ngx-echarts';
 import {MarkdownModule} from 'ngx-markdown';
 import {FormsModule} from '@angular/forms';
@@ -20,6 +20,7 @@ import {ProfileNotifyEditComponent} from './profile-follow/profile-notify-edit/p
   imports: [
     ThemeModule,
     NbAccordionModule,
+    NbAlertModule,
     NgxEchartsModule,
     NbDialogModule.forChild(),
     MarkdownModule.forChild(),
