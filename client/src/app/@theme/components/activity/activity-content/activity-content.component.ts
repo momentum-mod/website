@@ -11,9 +11,10 @@ export class ActivityContentComponent implements OnInit {
 
   @Input('activity') activity: Activity;
   /**
-   * Whether the date should be in the absolute position (for notifications) or in the same column
+   * Whether the date should have display property set to none
+   * and limit content width on md media query (for notifications)
    */
-  @Input('date-abs') dateAbs: boolean;
+  @Input('date-non') dateNon: boolean;
   activityIcon: string;
   actionText: string;
   eventText: string;
@@ -24,7 +25,7 @@ export class ActivityContentComponent implements OnInit {
     this.actionText = '';
     this.eventText = '';
     this.eventLink = null;
-    this.dateAbs = false;
+    this.dateNon = false;
   }
 
   ngOnInit() {

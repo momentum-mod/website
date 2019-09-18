@@ -56,8 +56,4 @@ export class ActivityCardComponent implements OnInit {
     else if (this.recent)
       this.actService.getRecentActivity().subscribe(func);
   }
-  filterSelected(value: string) {
-    this.filterValue = Number(value);
-    this.filterActivites(this.activities);
-  }
 }

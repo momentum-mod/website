@@ -1,31 +1,13 @@
-.profile {
-  color: white;
-  margin: auto 0;
-}
-
 .text {
-  color: white;
-  display: block;
-  margin-left: 0.25rem;
-  margin-top: auto;
-  margin-bottom: auto;
-  text-align: center;
-  font-family: 'Exo', serif;
+  font-family: 'Exo', sans-serif;
 }
 
 .icon {
   font-size: 2rem;
-  margin-left: 0;
-  padding-left: 0.5rem;
 }
 
-.date {
-  margin-left: auto;
-  padding-left: 0.5rem;
-}
-
-.date-abs {
-  position: absolute;
-  right: 1%;
-  bottom: 1%;
+@media (max-width: 767.98px) {
+  .cont {
+    width: 14rem;
+  }
 }

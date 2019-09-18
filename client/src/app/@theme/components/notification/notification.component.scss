@@ -1,8 +1,7 @@
 @import '../../styles/themes';
 
 .no-notifs {
-  font-family: 'Exo', serif;
-  color: white;
+  font-family: 'Exo', sans-serif;
 }
 
 .unread {
@@ -11,26 +10,40 @@
 
 nb-list-item {
   position: relative;
-}
 
-nb-list-item:first-child {
-  border: none;
-}
-nb-list-item:hover .button {
-  opacity: 1;
-}
+  &:first-child {
+    border-top: none;
+  }
 
-.button {
-  position: absolute;
-  width: auto;
-  right: 1%;
-  top: 2%;
-  text-align: center;
-  opacity: 0;
-  transition: opacity 0.15s ease;
+  &:last-child {
+    border-bottom: none;
+  }
+
+  .date {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0.2rem;
+    transform: translate(0, 1.45rem);
+    transition: transform 0.15s ease-out;
+  }
 
   .btn {
-    width: 1rem;
-    padding: 0;
+    position: absolute;
+    right: 0.4rem;
+    top: 0.4rem;
+    opacity: 0;
+    transition: opacity 0.15s ease-out;
+    padding: 2px 3px 1px;
+  }
+
+  &:hover {
+    .date {
+      transform: translate(0, 0);
+    }
+
+    .btn {
+      opacity: 1;
+    }
   }
 }
