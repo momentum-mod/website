@@ -1,14 +1,13 @@
-import {Component, Input, OnDestroy, OnInit} from '@angular/core';
-
+import {Component, OnDestroy, OnInit} from '@angular/core';
 import {NbMenuItem, NbMenuService, NbSidebarService} from '@nebular/theme';
-import { LocalUserService } from '../../../@core/data/local-user.service';
-import { AnalyticsService } from '../../../@core/utils/analytics.service';
-import { LayoutService } from '../../../@core/data/layout.service';
+import {LocalUserService} from '../../../@core/data/local-user.service';
+import {AnalyticsService} from '../../../@core/utils/analytics.service';
+import {LayoutService} from '../../../@core/data/layout.service';
 import {User} from '../../../@core/models/user.model';
 import {NotificationsService} from '../../../@core/utils/notifications.service';
 import {SiteNotification} from '../../../@core/models/notification.model';
+import {takeUntil, map} from 'rxjs/operators';
 import {Subject} from 'rxjs';
-import {takeUntil} from 'rxjs/operators';
 
 @Component({
   selector: 'ngx-header',
@@ -19,7 +18,6 @@ export class HeaderComponent implements OnInit, OnDestroy {
 
   private ngUnsub = new Subject();
 
-  @Input() position = 'normal';
   userMenu: NbMenuItem[] = [
     {
       title: 'Profile',
@@ -32,7 +30,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
     {
       title: 'Log out',
     },
-    ];
+  ];
 
   user: User;
   notifications: SiteNotification[];
@@ -73,6 +71,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
       this.userService.logout();
     }
   }
+
   toggleSidebar(): boolean {
     this.sidebarService.toggle(true, 'menu-sidebar');
     this.layoutService.changeLayoutSize();
@@ -80,8 +79,9 @@ export class HeaderComponent implements OnInit, OnDestroy {
     return false;
   }
 
-  goToHome() {
+  navigateHome() {
     this.menuService.navigateHome();
+    return false;
   }
 
   startSearch() {

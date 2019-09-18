@@ -7,169 +7,70 @@
   justify-content: space-between;
   width: 100%;
 
-  .left {
-    display: flex;
-    width: 100%;
-    order: 0;
-    flex-direction: row;
-  }
-  .right {
-    order: 1;
-    flex-direction: row-reverse;
-  }
-
   .logo-container {
     display: flex;
     align-items: center;
     width: calc(#{nb-theme(sidebar-width)} - #{nb-theme(header-padding)});
   }
 
-  .control-item {
-    display: block;
+  nb-action {
+    display: flex;
+    align-content: center;
+  }
+
+  nb-user {
+    cursor: pointer;
   }
 
   .header-container {
     display: flex;
     align-items: center;
-    width: auto;
 
-    .navigation {
-      @include nb-ltr(padding-right, 0.25rem /*nb-theme(padding)*/);
-      @include nb-rtl(padding-left, 0.25rem/*nb-theme(padding)*/);
-      font-size: 2.5rem;
+    .sidebar-toggle {
+      @include nb-ltr(padding-right, 1.25rem);
+      @include nb-rtl(padding-left, 1.25rem);
+      @include nb-ltr(border-right, 1px solid nb-theme(divider-color));
+      @include nb-rtl(border-left, 1px solid nb-theme(divider-color));
       text-decoration: none;
-
-      i {
-        display: block;
+      color: nb-theme(text-hint-color);
+      nb-icon {
+        font-size: 2rem;
       }
-
     }
 
     .logo {
-      padding: 0 1.25rem /*nb-theme(padding)*/;
+      padding: 0 1.25rem;
       font-size: 1.75rem;
-      font-weight: nb-theme(text-heading-2-font-weight);
-      @include nb-ltr(border-left, 1px solid nb-theme(divider-color));
-      @include nb-rtl(border-right, 1px solid nb-theme(divider-color));
       white-space: nowrap;
-
-      span {
-        font-weight: nb-theme(text-subtitle-font-weight);
+      text-decoration: none;
+      img {
+        height: 4.75rem;
       }
-    }
-  }
-
-  @include media-breakpoint-down(xl) {
-    ngx-layout-direction-switcher {
-      display: none;
-    }
-  }
-
-  .toggle-layout ::ng-deep a {
-    display: block;
-    text-decoration: none;
-    line-height: 1;
-
-    i {
-      color: nb-theme(color-primary-default);
-      font-size: 2.25rem;
-      border-radius: 50%;
-      position: relative;
-      animation-name: pulse-light;
-
-      &::after {
-        content: ' ';
-        // hack to be able to set border-radius
-        background-image: url('data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7');
-        border-radius: 50%;
-        pointer-events: none;
-
-        position: absolute;
-        top: 52.3%;
-        left: 50%;
-        transform: translate(-50%, -50%);
-        width: 13%;
-        height: 13%;
-
-        animation: 3s linear infinite pulse;
-
-        @include nb-for-theme(default) {
-          animation-name: pulse-light;
-        }
-      }
-    }
-  }
-
-  @include keyframes(pulse) {
-    0% {
-      box-shadow: 0 0 1px 0 rgba(nb-theme(color-primary-default), 0);
-    }
-    20% {
-      box-shadow: 0 0 3px 10px rgba(nb-theme(color-primary-default), 0.4);
-    }
-    100% {
-      box-shadow: 0 0 5px 20px rgba(nb-theme(color-primary-default), 0);
-    }
-  }
-
-  @include keyframes(pulse-light) {
-    0% {
-      box-shadow: 0 0 1px 0 rgba(115, 255, 208, 0);
-    }
-    20% {
-      box-shadow: 0 0 3px 10px rgba(115, 255, 208, 0.4);
-    }
-    100% {
-      box-shadow: 0 0 5px 20px rgba(115, 255, 208, 0);
-    }
-  }
-
-  @include media-breakpoint-down(md) {
-
-    nb-action:not(.toggle-layout) {
-      border: none;
-    }
-
-    .control-item {
-      display: none;
-    }
-
-    .toggle-layout {
-      padding: 0;
     }
   }
 
   @include media-breakpoint-down(sm) {
-
     nb-user ::ng-deep .user-name {
       display: none;
     }
   }
 
   @include media-breakpoint-down(is) {
-
-    .header-container {
-      .logo {
-        font-size: 1.25rem;
-      }
-    }
-
-    .toggle-layout {
+    .control-item {
       display: none;
     }
-
-    nb-action:not(.toggle-layout) {
-      padding: 0;
+    .user-action {
+      border: none;
+    }
+    .logo > img {
+      height: 3.6rem !important;
     }
   }
 
   @include media-breakpoint-down(xs) {
-    .right ::ng-deep {
-      display: none;
+    .logo > img {
+      height: auto !important;
+      width: 100%;
     }
   }
-}
-
-.pointer:hover {
-    cursor: pointer;
 }
