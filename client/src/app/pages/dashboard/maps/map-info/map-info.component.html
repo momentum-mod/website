@@ -3,10 +3,13 @@
     <div class="row">
       <h2 class="col my-auto">{{map.name}}</h2>
       <div class="col-auto ml-auto">
-        <div class="d-flex" *ngIf="!previewMap">
+        <div class="d-flex align-items-center" *ngIf="!previewMap">
           <report-button *ngIf="!isSubmitter" [reportType]="ReportType.MAP_REPORT" [reportData]="map.id"></report-button>
           <div *ngIf="isSubmitter || isAdmin || isModerator">
-            <button class="btn btn-outline-info ml-2" type="button" (click)="onEditMap()">Edit Map</button>
+            <button class="btn btn-outline-info ml-2" type="button" (click)="onEditMap()">
+              <span class="d-none d-md-inline-block">Edit Map</span>
+              <nb-icon icon="edit-2-outline" class="d-inline-block d-md-none"></nb-icon>
+            </button>
           </div>
         </div>
       </div>
@@ -65,11 +68,11 @@
               </span>
             </div>
             <div class="btn-group text-center text-sm-right">
-              <button type="button" class="btn btn-outline-info anim-btn" (click)="onLibraryUpdate()">
+              <button type="button" class="btn btn-outline-info" (click)="onLibraryUpdate()">
                 <span [ngClass]="{'c-anim-btn': mapInLibrary}">{{mapInLibrary ? 'In Library' : 'Add Map to Library'}}</span>
                 <span *ngIf="mapInLibrary">Remove from Library</span>
               </button>
-              <button type="button" class="btn btn-outline-info anim-btn" (click)="onFavoriteUpdate()"
+              <button type="button" class="btn btn-outline-info" (click)="onFavoriteUpdate()"
                       nbPopover="{{mapInFavorites ? 'Remove from Favorites' : 'Add to Favorites'}}" [nbPopoverTrigger]="'hint'">
                 <span [ngClass]="mapInFavorites ? 'ion-android-star' : 'ion-android-star-outline'" class="icon"></span>
               </button>

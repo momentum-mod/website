@@ -1,5 +1,5 @@
 nb-stepper ::ng-deep .header {
-  overflow-y: auto;
+  overflow-x: auto;
   padding-bottom: 0.5rem;
 }
 
@@ -48,8 +48,8 @@ nb-select ::ng-deep .select-button {
     right: 0.4rem;
     top: 0.4rem;
     opacity: 0;
-    transition: opacity 0.15s ease;
-    padding: 1px 3px;
+    transition: opacity 0.15s ease-out;
+    padding: 2px 3px 1px;
   }
 
   &:hover .btn {
