@@ -1,17 +1,8 @@
-@import '../../../../@theme/styles/themes';
-
 .follow-status {
-  color: nb-theme(user-follow-fg);
-  opacity: 0.75;
-  font-style: italic;
-  padding-bottom: 1vh;
-  text-align: center;
+  margin-top: -2rem;
 }
 
-.btn span {
-  color: white;
-  text-decoration: none;
-  text-align: center;
+.btn-group {
   display: block;
 }
 
@@ -20,20 +11,18 @@
   font: normal normal 500 1em/3em Exo, sans-serif;
   overflow: hidden;
   padding-top: 0;
-}
 
-.btn-group {
-  display: block;
-}
+  span {
+    color: white;
+    display: block;
+  }
 
-.btn, .c-anim-btn {
-  transition: 0.3s;
-}
+  .c-anim-btn {
+    transition: 0.3s;
+    margin-top: 0;
+  }
 
-.c-anim-btn {
-  margin-top: 0;
-}
-
-.btn:hover .c-anim-btn {
-  margin-top: -3em;
+  &:hover .c-anim-btn {
+    margin-top: -3em;
+  }
 }

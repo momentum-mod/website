@@ -1,88 +1,85 @@
 <div class="row">
-  <nb-card class="col-md-12 col-lg-7" *ngIf="user">
-    <nb-card-header>
-      <div class="header">
-        <span *ngIf="user.country && user.country.length === 2"
-              class="flg flag-icon flag-icon-{{user.country.toLowerCase()}}"></span>
-        <div class="top-right-toolbar btn-toolbar">
-          <report-button *ngIf="!isLocal" [reportType]="ReportType.USER_PROFILE_REPORT" [reportData]="user.id" class="mr-1"></report-button>
+  <div class="col-12 col-xl-7">
+    <nb-card *ngIf="user">
+      <nb-card-header class="overflow-hidden">
+        <span *ngIf="user.country && user.country.length === 2" [title]="user.country"
+               class="rounded flg flag-icon flag-icon-{{user.country.toLowerCase()}}"></span>
+        <div class="d-flex align-items-center top-right-toolbar">
+          <report-button *ngIf="!isLocal" [reportType]="ReportType.USER_PROFILE_REPORT" [reportData]="user.id"></report-button>
           <div *ngIf="canEdit()">
-            <button class="btn btn-outline-info" type="button" (click)="onEditProfile()">
-              <span class="d-none d-lg-inline-block">Edit Profile</span>
-              <i class="fas fa-user-edit d-inline-block d-lg-none"></i>
+            <button class="btn btn-outline-info ml-2" type="button" (click)="onEditProfile()">
+              <span class="d-none d-md-inline-block">Edit Profile</span>
+              <i class="fas fa-user-edit d-inline-block d-md-none"></i>
             </button>
           </div>
         </div>
 
-        <div class="row no-gutters">
-          <div>
-            <div *ngIf="avatar_loaded" class="user-image col" [ngStyle]="{'background-image':'url(' + avatar_url + ')'}">
+        <div class="row mt-4">
+          <div class="col-auto mb-2">
+            <div *ngIf="avatar_loaded" class="ml-2 ml-md-4 user-image" [ngStyle]="{'background-image':'url(' + avatar_url + ')'}">
             </div>
           </div>
-          <div class="col-7 user-info">
-            <div class="user-name row no-gutters">
-              <div class="col">
-                <span class="text"><h1>{{user.alias}}</h1></span>
-                <img *ngIf="isVerified" class="verified" src="assets/images/badges/BadgeVerified.png"
-                     nbPopover="Verified" [nbPopoverTrigger]="'hint'" nbPopoverPlacement="bottom">
+          <div class="col mb-2">
+            <div class="d-flex flex-column justify-content-evenly h-100">
+              <div class="d-flex align-items-center">
+                <h1>{{user.alias}}</h1>
+                <img *ngIf="isVerified" class="ml-2 verified" src="assets/images/badges/BadgeVerified.png"
+                      nbPopover="Verified" [nbPopoverTrigger]="'hint'" nbPopoverPlacement="bottom">
               </div>
-            </div>
-            <div class="badges">
-              <div *ngIf="isMapper" class="badge">
-                <img src="assets/images/badges/BadgeMapper.png" nbPopover="Mapper" nbPopoverTrigger="hint" nbPopoverPlacement="bottom">
+              <div class="d-flex badges" *ngIf="isMapper || isMod || isAdmin">
+                <div *ngIf="isMapper" class="mx-1">
+                  <img src="assets/images/badges/BadgeMapper.png" nbPopover="Mapper" nbPopoverTrigger="hint" nbPopoverPlacement="bottom">
+                </div>
+                <div *ngIf="isMod" class="mx-1">
+                  <img src="assets/images/badges/BadgeMod.png" nbPopover="Moderator" nbPopoverTrigger="hint" nbPopoverPlacement="bottom">
+                </div>
+                <div *ngIf="isAdmin" class="mx-1">
+                  <img src="assets/images/badges/BadgeAdmin.png" nbPopover="Admin" nbPopoverTrigger="hint" nbPopoverPlacement="bottom">
+                </div>
               </div>
-              <div *ngIf="isMod" class="badge">
-                <img src="assets/images/badges/BadgeMod.png" nbPopover="Moderator" nbPopoverTrigger="hint" nbPopoverPlacement="bottom">
+              <div *ngIf="!hasRole(role.PLACEHOLDER)">
+                <h4 class="text">Level {{user.stats?.level}}</h4>
               </div>
-              <div *ngIf="isAdmin" class="badge">
-                <img src="assets/images/badges/BadgeAdmin.png" nbPopover="Admin" nbPopoverTrigger="hint" nbPopoverPlacement="bottom">
-              </div>
-            </div>
-            <div class="user-rank" *ngIf="!hasRole(role.PLACEHOLDER)">
-              <span class="text"><h5>Level {{user.stats?.level}}</h5></span>
             </div>
           </div>
         </div>
-        <div class="row">
+        <div class="row no-gutters align-items-center">
           <div class="col">
-            <div class="socials">
-              <a *ngIf="!hasRole(role.PLACEHOLDER)" href="https://steamcommunity.com/profiles/{{user.steamID}}" target="_blank" class="ion ion-steam"></a>
-              <a *ngIf="user.profile?.twitchAuth" href="https://twitch.tv/{{user.profile?.twitchAuth.displayName}}"
-                 target="_blank" class="ion ion-social-twitch"></a>
+            <div class="ml-0 ml-md-2 socials">
+              <a *ngIf="!hasRole(role.PLACEHOLDER)" href="https://steamcommunity.com/profiles/{{user.steamID}}"
+                 target="_blank" class="ion ion-steam"></a>
+              <a *ngIf="user.profile?.twitchAuth" href="https://twitch.tv/{{user.profile.twitchAuth.displayName}}"
+                 title="{{user.profile.twitchAuth.displayName}}" target="_blank" class="ion ion-social-twitch"></a>
               <a *ngIf="user.profile?.twitterAuth" href="https://twitter.com/{{user.profile.twitterAuth.displayName}}"
-                 target="_blank" class="ion ion-social-twitter"></a>
-              <a *ngIf="user.profile?.discordAuth"
-                 [href]="'https://discordapp.com/users/' + user.profile.discordAuth.discordID"
-                 title="{{user.profile?.discordAuth.displayName}}" target="_blank" class="fab fa-discord">
-              </a>
-              <a *ngIf="user.profile?.youtubeName" href="https://youtube.com/user/{{user.profile?.youtubeName}}"
-                 target="_blank" class="ion ion-social-youtube"></a>
+                 title="{{user.profile.twitterAuth.displayName}}" target="_blank" class="ion ion-social-twitter"></a>
+              <a *ngIf="user.profile?.discordAuth" href="https://discordapp.com/users/{{user.profile.discordAuth.discordID}}"
+                 title="{{user.profile.discordAuth.displayName}}" target="_blank" class="fab fa-discord"></a>
+              <a *ngIf="user.profile?.youtubeName" href="https://youtube.com/user/{{user.profile.youtubeName}}"
+                 title="{{user.profile.youtubeName}}" target="_blank" class="ion ion-social-youtube"></a>
             </div>
           </div>
-          <div class="col">
-            <profile-follow *ngIf="!isLocal" [userSubj]="userSubj$"></profile-follow>
+          <div class="col-auto" *ngIf="!isLocal">
+            <profile-follow [userSubj]="userSubj$"></profile-follow>
           </div>
         </div>
-      </div>
-    </nb-card-header>
-    <nb-card-body>
-      <nb-tabset [fullWidth]="true">
+      </nb-card-header>
+      <nb-tabset>
         <nb-tab [tabTitle]="'INFO'">
-          <span class="no-bio" *ngIf="!user.profile?.bio || user.profile?.bio?.length === 0"><h5><i>No bio found</i></h5></span>
+          <h5 class="m-0 text-center" *ngIf="!user.profile?.bio || user.profile?.bio?.length === 0"><i>No bio found</i></h5>
           <markdown *ngIf="user.profile?.bio?.length > 0" [data]="user?.profile?.bio" ngPreserveWhitespaces></markdown>
         </nb-tab>
-        <nb-tab [tabTitle]="'FOLLOWING (' + followingUsers.length + ')'" *ngIf="!hasRole(role.PLACEHOLDER)">
-          <h5 class="text-center" *ngIf="followingUsers.length === 0"><i>Not following anyone</i></h5>
+        <nb-tab [tabTitle]="'FOLLOWING&nbsp;(' + followingUsers.length + ')'" *ngIf="!hasRole(role.PLACEHOLDER)">
+          <h5 class="m-0 text-center" *ngIf="followingUsers.length === 0"><i>Not following anyone</i></h5>
           <nb-list>
             <nb-list-item *ngFor="let usr of followingUsers">
               <a [routerLink]="'/dashboard/profile/' + usr.followed?.id">
-                <nb-user [name]="usr.followed?.alias" [picture]="usr.followed?.avatarURL" (click)="clickUser(usr.followed)"></nb-user>
+                <nb-user [name]="usr.followed?.alias" [picture]="usr.followed?.avatarURL"></nb-user>
               </a>
             </nb-list-item>
           </nb-list>
         </nb-tab>
-        <nb-tab [tabTitle]="'FOLLOWERS (' + followedByUsers.length + ')'">
-          <h5 class="text-center" *ngIf="followedByUsers.length === 0"><i>No followers</i></h5>
+        <nb-tab [tabTitle]="'FOLLOWERS&nbsp;(' + followedByUsers.length + ')'">
+          <h5 class="m-0 text-center" *ngIf="followedByUsers.length === 0"><i>No followers</i></h5>
           <nb-list>
             <nb-list-item *ngFor="let usr of followedByUsers">
               <a [routerLink]="'/dashboard/profile/' + usr.followee?.id">
@@ -92,22 +89,24 @@
           </nb-list>
         </nb-tab>
         <nb-tab [tabTitle]="'STATS'" *ngIf="user.stats">
-          <div class="row">
-            <div class="spacing"><h5>Maps Completed</h5> <p>{{user.stats.mapsCompleted}}</p></div>
-            <div class="spacing"> <h5>Total Jumps</h5> <p>{{user.stats.totalJumps}}</p></div>
-            <div class="spacing"><h5>Total Strafes</h5> <p>{{user.stats.totalStrafes}}</p></div>
-            <div class="spacing"><h5>Runs Submitted</h5> <p>{{user.stats.runsSubmitted}}</p></div>
-            <div class="spacing"><h5>Cosmetic XP </h5> <p>{{user.stats.cosXP}}</p></div>
+          <div class="d-flex flex-wrap justify-content-around text-center">
+            <div class="base m-1"><h6>Maps Completed</h6><h2>{{user.stats.mapsCompleted}}</h2></div>
+            <div class="base m-1"><h6>Total Jumps</h6><h2>{{user.stats.totalJumps}}</h2></div>
+            <div class="base m-1"><h6>Total Strafes</h6><h2>{{user.stats.totalStrafes}}</h2></div>
+            <div class="base m-1"><h6>Runs Submitted</h6><h2>{{user.stats.runsSubmitted}}</h2></div>
+            <div class="base m-1"><h6>Cosmetic XP</h6><h2>{{user.stats.cosXP}}</h2></div>
           </div>
         </nb-tab>
-        <nb-tab tabTitle="RUNS" *ngIf="!hasRole(role.PLACEHOLDER)">
+        <nb-tab [tabTitle]="'RUNS'" *ngIf="!hasRole(role.PLACEHOLDER)">
           <profile-run-history [userSubj]="userSubj$"></profile-run-history>
         </nb-tab>
         <nb-tab tabTitle="CREDITS">
           <profile-credits [userSubj]="userSubj$"></profile-credits>
         </nb-tab>
       </nb-tabset>
-    </nb-card-body>
-  </nb-card>
-  <activity-card *ngIf="user" class="col-md-12 col-lg-5" [header]="'USER ACTIVITY'" [userSubj]="userSubj$"></activity-card>
+    </nb-card>
+  </div>
+  <div class="col-12 col-xl-5">
+    <activity-card *ngIf="user" [header]="'USER ACTIVITY'" [userSubj]="userSubj$"></activity-card>
+  </div>
 </div>

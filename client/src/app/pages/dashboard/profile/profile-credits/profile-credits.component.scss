@@ -1,6 +1,25 @@
-.map-image {
-  max-width: 15%;
+.type-col {
+  max-width: 20rem;
 }
-h5 {
-  color: lightgray;
+
+.text {
+  font-size: 1.25rem;
+
+  a {
+    font-size: 1.2rem;
+  }
+}
+
+.map-image {
+  height: 4rem;
+}
+
+@media (max-width: 575.98px) {
+  .text {
+    font-size: 1rem;
+  }
+
+  .map-image {
+    height: 3.5rem;
+  }
 }

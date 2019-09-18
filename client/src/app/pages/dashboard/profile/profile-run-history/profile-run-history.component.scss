@@ -1,26 +1,22 @@
 .icon {
   font-size: 2rem;
+  line-height: 2rem;
   color: silver;
-  margin-left: 1rem;
 }
+
 .text {
   color: white;
-  text-align: center;
-  font-family: 'Exo', serif;
+  font-family: 'Exo', sans-serif;
 }
 
 .filter-content {
   max-height: 0;
   overflow: hidden;
-  transition: max-height 0.2s ease-out;
+  transition: max-height 0.2s ease-out,
+              margin-bottom 0.2s ease-out 0.1s;
   background-color: #181818;
-  margin-bottom: 2%;
 
-  .filter-active {
-    background-color: #555;
+  &.filter-active {
+    margin-bottom: 1rem;
   }
-}
-
-.filter-controls {
-  padding: 3%;
 }
