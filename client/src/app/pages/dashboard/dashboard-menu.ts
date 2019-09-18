@@ -95,4 +95,9 @@ export const MENU_ITEMS: NbMenuItem[] = [
       },
     ],
   },
+  {
+    title: 'Documentation',
+    icon: 'file-text-outline',
+    url: 'https://docs.momentum-mod.org',
+  },
 ];
