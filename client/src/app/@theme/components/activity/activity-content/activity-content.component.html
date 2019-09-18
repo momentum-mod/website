@@ -1,18 +1,18 @@
-<div class="row no-gutters">
-  <div class="col-auto profile">
-    <a routerLink="/dashboard/profile/{{activity.user.id}}">
-      <nb-user [name]="activity.user.alias" [picture]="activity.user.avatarURL"></nb-user>
-    </a>
+<div class="d-flex flex-wrap align-items-center text" [ngClass]="dateNon ? 'cont' : ''">
+  <a routerLink="/dashboard/profile/{{activity.user.id}}" class="mr-1">
+    <nb-user [name]="activity.user.alias" [picture]="activity.user.avatarURL"></nb-user>
+  </a>
+  <div class="d-flex align-items-center">
+    <div class="mr-1">{{actionText}}</div>
+    <div [ngStyle]="{'cursor': eventLink ? 'pointer' : 'auto'}"
+         [routerLink]="eventLink ? eventLink : null" class="mr-2">
+      <b [ngStyle]="{'color': eventColor}">{{eventText}}</b>!
+    </div>
+    <div class="icon" [ngStyle]="{'color': eventColor}">
+      <i [class]="activityIcon"></i>
+    </div>
   </div>
-  <div class="col-auto text">
-    <span>{{actionText}} <span [ngStyle]="{'color': eventColor, 'cursor': eventLink ? 'pointer' : 'auto'}"
-                               [routerLink]="eventLink ? eventLink : null"><b>{{eventText}}</b></span>!
-    </span>
-  </div>
-  <div class="col-auto text icon" [ngStyle]="{'color': eventColor}">
-    <i [class]="activityIcon"></i>
-  </div>
-  <div class="col-auto text date" [ngClass]="dateAbs ? 'date-abs' : ''">
-    <span>{{activity.createdAt | timeAgo}}</span>
+  <div class="ml-auto" [ngClass]="dateNon ? 'd-none' : ''">
+    <div>{{activity.createdAt | timeAgo}}</div>
   </div>
 </div>

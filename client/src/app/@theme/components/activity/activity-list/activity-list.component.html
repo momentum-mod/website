@@ -1,7 +1,10 @@
-<h4 *ngIf="activities.length === 0 && hasRequested" class="no-activities">
-  <i>No activities found</i>
-</h4>
 <nb-list>
+  <nb-list-item *ngIf="activities.length === 0 && hasRequested">
+    <h4 class="m-0 text-center text"><i>No activities found</i></h4>
+  </nb-list-item>
+  <nb-list-item *ngIf="!hasRequested">
+    <h4 class="m-0 text-center text">Waiting for API response</h4>
+  </nb-list-item>
   <nb-list-item *ngFor="let act of activities">
     <activity-content [activity]="act"></activity-content>
   </nb-list-item>

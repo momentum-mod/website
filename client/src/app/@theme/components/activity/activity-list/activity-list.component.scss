@@ -1,4 +1,13 @@
-.no-activities {
-  text-align: center;
-  opacity: 0.5;
+nb-list-item {
+  &:first-child {
+    border-top: none;
+  }
+
+  &:last-child {
+    border-bottom: none;
+  }
+}
+
+.text {
+  color: gray;
 }
