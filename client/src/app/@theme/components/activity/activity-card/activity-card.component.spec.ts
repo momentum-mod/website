@@ -5,7 +5,7 @@ import {ActivityService} from '../../../../@core/data/activity.service';
 import {HttpClientTestingModule} from '@angular/common/http/testing';
 import {ActivityContentComponent} from '../..';
 import {TimeAgoPipe} from 'time-ago-pipe';
-import {NbCardModule, NbListModule, NbUserModule} from '@nebular/theme';
+import {NbCardModule, NbListModule, NbUserModule, NbSelectModule, NbThemeModule} from '@nebular/theme';
 import {RouterModule} from '@angular/router';
 import {ActivityListComponent} from '../activity-list/activity-list.component';
 
@@ -15,7 +15,8 @@ describe('ActivityCardComponent', () => {
 
   beforeEach(async(() => {
     TestBed.configureTestingModule({
-      imports: [NbCardModule, NbListModule, NbUserModule, HttpClientTestingModule, RouterModule ],
+      imports: [NbCardModule, NbListModule, NbUserModule, NbSelectModule,
+        HttpClientTestingModule, RouterModule, NbThemeModule.forRoot()],
       declarations: [ TimeAgoPipe, ActivityCardComponent, ActivityContentComponent, ActivityListComponent],
       providers: [ActivityService ],
     })
