@@ -1,3 +1,5 @@
+@import '../../../../../@theme/styles/themes';
+
 $image-height: 105px;
 
 img {
@@ -10,7 +12,7 @@ ul {
 }
 
 li {
-  font-family: 'Exo', sans-serif;
+  font-family: nb-theme(font-family-secondary);
   list-style: none;
   white-space: nowrap;
 

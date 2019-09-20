@@ -1,3 +1,5 @@
+@import '../../../../@theme/styles/themes';
+
 .follow-status {
   margin-top: -2rem;
 }
@@ -8,7 +10,7 @@
 
 .btn {
   height: 3em;
-  font: normal normal 500 1em/3em Exo, sans-serif;
+  font: normal normal 500 1em/3em nb-theme(font-family-secondary);
   overflow: hidden;
   padding-top: 0;
 

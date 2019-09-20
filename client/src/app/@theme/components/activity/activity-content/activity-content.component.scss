@@ -1,5 +1,7 @@
+@import '../../../../@theme/styles/themes';
+
 .text {
-  font-family: 'Exo', sans-serif;
+  font-family: nb-theme(font-family-secondary);
 }
 
 .icon {
