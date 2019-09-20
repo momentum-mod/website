@@ -1,3 +1,5 @@
+@import '../../../../@theme/styles/themes';
+
 .icon {
   font-size: 2rem;
   line-height: 2rem;
@@ -6,7 +8,7 @@
 
 .text {
   color: white;
-  font-family: 'Exo', sans-serif;
+  font-family: nb-theme(font-family-secondary);
 }
 
 .filter-content {
@@ -14,7 +16,7 @@
   overflow: hidden;
   transition: max-height 0.2s ease-out,
               margin-bottom 0.2s ease-out 0.1s;
-  background-color: #181818;
+  background-color: nb-theme(background-basic-color-4);
 
   &.filter-active {
     margin-bottom: 1rem;

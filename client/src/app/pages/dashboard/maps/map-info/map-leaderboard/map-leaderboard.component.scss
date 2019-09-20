@@ -1,3 +1,5 @@
+@import '../../../../../@theme/styles/themes';
+
 table {
   font-family: arial, sans-serif;
   border-collapse: collapse;
@@ -24,7 +26,7 @@ th {
   overflow: hidden;
   transition: max-height 0.2s ease-out,
               margin-bottom 0.2s ease-out 0.1s;
-  background-color: #181818;
+  background-color: nb-theme(background-basic-color-4);
 
   &.filter-active {
     margin-bottom: 1rem;

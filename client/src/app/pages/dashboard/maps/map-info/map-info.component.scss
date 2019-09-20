@@ -1,5 +1,7 @@
+@import '../../../../@theme/styles/themes';
+
 nb-tabset {
-  background-color: #181818;
+  background-color: nb-theme(background-basic-color-4);
   height: 380px;
 }
 
@@ -23,7 +25,7 @@ nb-tab {
 
   .btn {
     height: 3em;
-    font: normal normal 500 1em/2.85em Exo, sans-serif;
+    font: normal normal 500 1em/2.85em nb-theme(font-family-secondary);
     overflow: hidden;
     padding-top: 0;
 
