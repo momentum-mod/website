@@ -138,10 +138,16 @@ const validateRunFile = (resultObj) => {
 		const toCheckTR = mapMdl.getDefaultTickrateForMapType(resultObj.map.type);
 		const epsil = 0.000001;
 
+		const allowedGameModes = [
+			mapMdl.MAP_TYPE.SURF,
+			mapMdl.MAP_TYPE.BHOP,
+			mapMdl.MAP_TYPE.RJ
+		];
+
 		const checks = [
 			resultObj.bin.ok,
-			(replay.magic === magicLE),
-			(replay.header.steamID === resultObj.steamID),
+			replay.magic === magicLE,
+			replay.header.steamID === resultObj.steamID,
 			replay.header.mapHash === resultObj.map.hash,
 			replay.header.mapName === resultObj.map.name,
 			runTimeTick > 0,
@@ -151,7 +157,7 @@ const validateRunFile = (resultObj) => {
 			!Number.isNaN(Number(replay.header.runDate_s)),
 			Math.abs(replay.header.tickRate - toCheckTR) < epsil,
 			(runTime * 1000.0) <= sesDiff,
-			(resultObj.map.type === mapMdl.MAP_TYPE.BHOP) || (resultObj.map.type === mapMdl.MAP_TYPE.SURF), // TODO removeme when more game types added
+			allowedGameModes.includes(resultObj.map.type)
 		];
 
 		if (!checks.includes(false))
