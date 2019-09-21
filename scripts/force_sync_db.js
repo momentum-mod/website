@@ -14,6 +14,8 @@ forceSyncDB().then(() => {
     return xpSystems.initXPSystems(XPSystems);
 }).then(() => {
     console.log('Database tables successfully initialized!');
+    process.exit();
 }).catch(err => {
     console.error(err);
+    process.exit();
 });
