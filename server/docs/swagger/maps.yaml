@@ -587,6 +587,9 @@ definitions:
       description:
         type: string
         nullable: true
+      youtubeID:
+        type: string
+        nullable: true
       numTracks:
         type: integer
         format: int32

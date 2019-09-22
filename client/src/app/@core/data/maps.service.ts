@@ -4,6 +4,8 @@ import {HttpClient, HttpResponse} from '@angular/common/http';
 import {MomentumMaps} from '../models/momentum-maps.model';
 import {MomentumMap} from '../models/momentum-map.model';
 import {MapImage} from '../models/map-image.model';
+import {MomentumMapInfo} from '../models/map-info.model';
+import {MapCredit} from '../models/map-credit.model';
 
 @Injectable()
 export class MapsService {
@@ -35,6 +37,53 @@ export class MapsService {
   createMap(mapData: object): Observable<HttpResponse<MomentumMap>> {
     return this.http.post<MomentumMap>('/api/maps', mapData, {
       observe: 'response',
+    });
+  }
+
+  /**
+   * @param id
+   * @param mapInfo MomentumMapInfo with new values of properties
+   * @return response
+   */
+  updateMapInfo(id: number, mapInfo: MomentumMapInfo): Observable<any> {
+    return this.http.patch('/api/maps/' + id + '/info', mapInfo);
+  }
+
+  /**
+   * @param id
+   * @return credits list of the specific map
+   */
+  getMapCredits(id: number): Observable<any> {
+    return this.http.get<MapCredit>('/api/maps/' + id + '/credits');
+  }
+
+  /**
+   * @param id
+   * @param credit
+   * @return newly created MapCredit
+   */
+  createMapCredit(id: number, credit: MapCredit): Observable<any> {
+    return this.http.post<MapCredit>('/api/maps/' + id + '/credits', credit);
+  }
+
+  /**
+   * @param id
+   * @param creditID
+   * @param credit MapCredit with new values of properties
+   * @return response
+   */
+  updateMapCredit(id: number, creditID: number, credit: MapCredit): Observable<any> {
+    return this.http.patch('/api/maps/' + id + '/credits/' + creditID, credit);
+  }
+
+  /**
+   * @param id
+   * @param creditID
+   * @return response
+   */
+  deleteMapCredit(id: number, creditID: number): Observable<any> {
+    return this.http.delete('/api/maps/' + id + '/credits/' + creditID, {
+      responseType: 'text',
     });
   }
 

@@ -1,45 +1,85 @@
 <nb-card>
   <nb-card-header>
-    <div class="row">
-      <h2 class="col-6 title">EDIT MAP</h2>
-      <div class="col-6 text-right">
-        <a class="btn btn-outline-info" [routerLink]="'/dashboard/maps/' + map?.id">
+    <div class="row align-items-center">
+      <h2 class="col">EDIT MAP</h2>
+      <div class="col-auto ml-auto">
+        <button class="btn btn-outline-info" [routerLink]="'/dashboard/maps/' + map?.id">
           Return to Map
-        </a>
+        </button>
       </div>
     </div>
   </nb-card-header>
-  <nb-card-body>
-    <form (ngSubmit)="onSubmit()">
-      <nb-tabset>
-        <nb-tab tabTitle="INFO" [formGroup]="mapInfoEditFormGroup">
-          <div class="form-group" [ngClass]="{'has-error':!mapInfoEditFormGroup.controls['description'].valid}">
-            <label>Map Description:</label>
-            <textarea rows="6" class="form-control" formControlName="description" type="description"></textarea>
-            <div class="form-text">
-              <div class="row">
-                    <span class="col">
-                      <i><a href="https://help.github.com/articles/basic-writing-and-formatting-syntax/">Markdown</a> is supported</i>
-                    </span>
-                <span class="col text-right">{{1000 - description.value.length | ngxPlural:'character'}} remaining</span>
+  <nb-tabset class="overflow-hidden">
+    <nb-tab tabTitle="INFO">
+      <form (ngSubmit)="onInfoSubmit()" [formGroup]="infoForm">
+        <div class="form-group mt-2 mb-4">
+          <h5>YouTube URL / ID</h5>
+          <input class="form-control youtube-inp" formControlName="youtubeID" type="text"
+                 [ngClass]="{'form-control-danger':youtubeID.invalid}">
+        </div>
+        <div class="form-group">
+          <h5>Map Description</h5>
+          <textarea rows="6" class="form-control" formControlName="description" type="description"
+                    [ngClass]="{'form-control-danger':description.invalid}"></textarea>
+          <nb-alert class="mb-0 mt-2 py-2 px-3 text-danger" outline="danger" *ngIf="description.hasError('maxlength')">
+              Text cannot exceed 1000 characters.
+          </nb-alert>
+          <div class="form-text">
+            <div class="d-flex">
+              <span class="mr-auto">
+                <i><a href="https://help.github.com/articles/basic-writing-and-formatting-syntax/" target="_blank">Markdown</a> is supported</i>
+              </span>
+              <span class="ml-2 text-right">{{1000 - description.value.length | ngxPlural:'character'}} remaining</span>
+            </div>
+          </div>
+        </div>
+        <button class="btn btn-outline-info submit-btn" type="submit"
+                [disabled]="infoForm.invalid">Save info</button>
+      </form>
+    </nb-tab>
+    <nb-tab tabTitle="IMAGES">
+      <form (ngSubmit)="onImagesSubmit()">
+        <div class="text-center overflow-auto mt-2">
+          <div class="d-inline-block text-left mb-3">
+            <h5 class="font-weight-lighter mx-2">
+              <div class="d-inline-block font-weight-normal thumb-text">Thumbnail&nbsp;</div>
+              <div class="d-inline-block">Extra Images</div>
+            </h5>
+            <div class="d-inline-flex align-items-center" cdkDropList cdkDropListOrientation="horizontal" (cdkDropListDropped)="imageDrop($event)">
+              <div class="map-image-cont mx-2" *ngFor="let img of mapImages" cdkDrag>
+                <img class="map-image" [src]="img.small">
+                <button class="btn btn-outline-danger btn-xs" (click)="removeMapImage(img)">
+                  <i class="ion ion-close-round"></i>
+                </button>
+              </div>
+              <div class="mx-2 upload-box" *ngIf="mapImages.length < mapImagesLimit">
+                <file-upload [type]="'image'" [multiple]="true" (fileSelected)="onMapImageSelected($event)"></file-upload>
               </div>
             </div>
-            <p class="alert alert-danger" *ngIf="mapInfoEditFormGroup.controls['description'].hasError('maxlength')">
-              Text cannot exceed 1000 characters.
-            </p>
           </div>
-        </nb-tab>
-        <nb-tab tabTitle="IMAGES">
-
-        </nb-tab>
-        <nb-tab tabTitle="CREDITS">
-
-        </nb-tab>
-        <nb-tab *ngIf="(isAdmin || isModerator) && map" [formGroup]="adminEditFormGroup" tabTitle="ADMIN MAP SETTINGS">
+        </div>
+        <div class="d-inline-flex align-items-center submit-btn">
+          <button class="btn btn-outline-info mr-2" type="submit">Save images</button>
+          <nb-icon class="text-warning" icon="alert-triangle-outline" title="Under Construction"></nb-icon> <!-- TODO: Remove when images submitting is added -->
+        </div>
+      </form>
+    </nb-tab>
+    <nb-tab tabTitle="CREDITS">
+      <form [formGroup]="creditsForm">
+        <div class="mt-2">
+          <map-credits [creditArr]="mapCredits" [editable]="true" (creditChange)="onCreditChanged($event)"></map-credits>
+        </div>
+        <button class="btn btn-outline-info" type="submit" [disabled]="creditsForm.invalid"
+                (click)="onCreditsSubmit($event)">Save credits</button>
+      </form>
+    </nb-tab>
+    <nb-tab *ngIf="(isAdmin || isModerator) && map" tabTitle="ADMIN&nbsp;MAP&nbsp;SETTINGS">
+      <form [formGroup]="adminForm">
+        <div class="text-right">
           <button class="btn btn-outline-danger" (click)="showMapDeleteDialog()">Delete Map</button>
-        </nb-tab>
-      </nb-tabset>
-    </form>
-  </nb-card-body>
+        </div>
+      </form>
+    </nb-tab>
+  </nb-tabset>
 </nb-card>
 

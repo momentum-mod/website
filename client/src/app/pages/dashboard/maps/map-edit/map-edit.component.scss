@@ -1,0 +1,76 @@
+$timing-func: cubic-bezier(0, 0, 0.2, 1);
+$image-width: 200px;
+
+nb-icon {
+  font-size: 2rem;
+}
+
+.youtube-inp {
+  max-width: 400px;
+}
+
+.submit-btn {
+  margin-top: 1.25rem;
+}
+
+.thumb-text {
+  width: calc(#{$image-width} + 3rem);
+}
+
+.map-image {
+  width: $image-width;
+}
+
+.upload-box {
+  min-width: $image-width;
+}
+
+.map-image-cont {
+  position: relative;
+
+  &:first-child {
+    margin-right: 1rem !important;
+    padding-right: calc(1.5rem - 2px);
+    border-right: 2px dashed gray;
+
+    .btn {
+      display: none;
+    }
+  }
+
+  .btn {
+    position: absolute;
+    right: 0.4rem;
+    top: 0.4rem;
+    opacity: 0;
+    transition: opacity 0.15s ease-out;
+    padding: 2px 3px 1px;
+  }
+
+  &:hover .btn {
+    opacity: 1;
+  }
+}
+
+.cdk-drag {
+  cursor: move;
+  transition: box-shadow 0.2s $timing-func;
+}
+
+.cdk-drag-preview {
+  margin: 0 !important;
+  width: $image-width !important;
+  box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+}
+
+.cdk-drag-placeholder {
+  opacity: 0;
+}
+
+.cdk-drag-animating {
+  transition: transform 0.25s $timing-func;
+}
+
+.cdk-drop-list-dragging .cdk-drag:not(.cdk-drag-placeholder) {
+  transition: transform 0.25s $timing-func;
+}
