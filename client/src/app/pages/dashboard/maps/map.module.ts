@@ -13,7 +13,7 @@ import {UploadStatusComponent} from './upload-status/upload-status.component';
 import {MapInfoComponent} from './map-info/map-info.component';
 import {MarkdownModule} from 'ngx-markdown';
 import {MapLibraryComponent} from './map-library/map-library.component';
-import {NbDatepickerModule, NbListModule, NbSelectModule, NbStepperModule} from '@nebular/theme';
+import {NbDatepickerModule, NbListModule, NbSelectModule, NbStepperModule, NbAlertModule} from '@nebular/theme';
 import {MapCreditsComponent} from './map-credits/map-credits.component';
 import {UserModule} from '../user/user.module';
 import {MapCreditComponent} from './map-credits/map-credit/map-credit.component';
@@ -37,6 +37,7 @@ import {MapListComponent} from './map-list/map-list.component';
     NbListModule,
     NbSelectModule,
     NbStepperModule,
+    NbAlertModule,
     NgxPaginationModule,
     GalleryModule,
     LightboxModule.withConfig({
