@@ -1,6 +1,10 @@
 import { async, ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { MapEditComponent } from './map-edit.component';
+import {FileUploadComponent} from '../upload-form/file-upload/file-upload.component';
+import {MapCreditsComponent} from '../map-credits/map-credits.component';
+import {MapCreditComponent} from '../map-credits/map-credit/map-credit.component';
+import {UserSearchComponent} from '../../user/user-search/user-search.component';
 import {RouterTestingModule} from '@angular/router/testing';
 import {ThemeModule} from '../../../../@theme/theme.module';
 import {APP_BASE_HREF} from '@angular/common';
@@ -12,7 +16,7 @@ import {MapUploadStatus} from '../../../../@core/models/map-upload-status.model'
 import {AuthService} from '../../../../@core/data/auth.service';
 import {CookieService} from 'ngx-cookie-service';
 import {HttpClientModule} from '@angular/common/http';
-import {NbDialogService, NbToastrConfig, NbToastRef, NbToastrService} from '@nebular/theme';
+import {NbDialogService, NbToastrConfig, NbToastRef, NbToastrService, NbAlertModule} from '@nebular/theme';
 
 describe('MapEditComponent', () => {
 
@@ -60,8 +64,10 @@ describe('MapEditComponent', () => {
       },
     };
     TestBed.configureTestingModule({
-      imports: [RouterTestingModule, ThemeModule, HttpClientModule],
-      declarations: [MapEditComponent],
+      imports: [RouterTestingModule, ThemeModule, NbAlertModule, HttpClientModule],
+      declarations: [
+        MapEditComponent, FileUploadComponent, MapCreditsComponent, MapCreditComponent, UserSearchComponent,
+      ],
       providers: [
         AuthService,
         CookieService,
