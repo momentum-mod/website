@@ -86,6 +86,7 @@ export class MapEditComponent implements OnInit, OnDestroy {
           this.router.navigate(['/dashboard/maps/' + this.map.id]);
         this.infoForm.patchValue(map.info);
         this.mapImages = map.images;
+        this.mapCredits = [[], [], [], []];
         this.mapCreditsIDs = map.credits.map(val => +val.id);
         for (const credit of map.credits) {
           this.mapCredits[credit.type].push(credit.user);
@@ -136,7 +137,7 @@ export class MapEditComponent implements OnInit, OnDestroy {
           $event.target.disabled = false;
         });
       }),
-      ).subscribe(() => {
+    ).subscribe(() => {
       this.toasterService.success('Updated map credits!', 'Success');
     }, error => this.toasterService.danger(error.message, 'Failed to update credits!'));
   }
