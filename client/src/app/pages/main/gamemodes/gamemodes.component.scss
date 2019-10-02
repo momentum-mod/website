@@ -1,5 +1,3 @@
-@import '../main-page.component.scss';
-
 .gamemodes-section {
   padding: 5rem 0;
 }
@@ -8,13 +6,8 @@
   margin-bottom: 4rem;
 }
 
-.display-4, .display-5, .mode-header {
+.mode-header {
   font-family: Exo, sans-serif;
-}
-
-.display-5 {
-  font-size: 2.5rem;
-  line-height: 1.2;
 }
 
 .mode-header {
