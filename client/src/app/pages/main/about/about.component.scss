@@ -2,9 +2,50 @@
 
 .about-section {
   padding: 5rem 0;
-  background: #161616;
 }
 
-.about-section p {
-  margin-bottom: 5rem;
+.about-row {
+  margin-bottom: 6rem;
+
+  .about-text {
+    font-size: 1.1rem;
+  }
+}
+
+.display-4, .display-5 {
+  font-family: Exo, sans-serif;
+}
+
+.display-5 {
+  font-size: 2.5rem;
+  line-height: 1.2;
+}
+
+.features-list li {
+  font-family: Exo, sans-serif;
+  font-size: 1.25rem;
+  font-weight: 300;
+  line-height: 1.5;
+}
+
+@media (max-width: 767.98px) {
+  iframe {
+    width: 100%;
+    height: 287px;
+  }
+}
+
+@media (max-width: 575.98px) {
+  iframe {
+    height: 191px;
+  }
+
+  .features-list {
+    list-style: none;
+    padding-left: 0;
+
+    li {
+      font-size: 1rem;
+    }
+  }
 }
