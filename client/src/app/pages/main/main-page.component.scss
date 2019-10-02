@@ -1,69 +1,26 @@
-/*!
- * Start Bootstrap - Grayscale v5.0.2 (https://startbootstrap.com/template-overviews/grayscale)
- * Copyright 2013-2018 Start Bootstrap
- * Licensed under MIT (https://github.com/BlackrockDigital/startbootstrap-grayscale/blob/master/LICENSE)
- */
-
-.btn {
-  -webkit-box-shadow: 0 0.1875rem 0.1875rem 0 rgba(0, 0, 0, 0.1) !important;
-  box-shadow: 0 0.1875rem 0.1875rem 0 rgba(0, 0, 0, 0.1) !important;
-  padding: 1.25rem 2rem;
-  font-family: 'Varela Round';
-  font-size: 80%;
-  text-transform: uppercase;
-  letter-spacing: 0.15rem;
-  border: 0;
-}
-
-.btn-primary {
-  background-color: #64a19d;
+:host ::ng-deep a {
   color: #fff;
+
+    &:focus, &:hover {
+    text-decoration: none;
+    color: #2e66a5;
+  }
 }
 
-.btn-primary:hover {
-  background-color: #4f837f;
-}
-
-.btn-primary:focus {
-  background-color: #4f837f;
-  color: white;
-}
-
-.btn-primary:active {
-  background-color: #467370 !important;
-}
-
-
-.main {
-  font-family: 'Nunito', sans-serif;
-  letter-spacing: 0.0625em;
-}
-
-a {
-  color: #fff;
-}
-
-a:focus, a:hover {
-  text-decoration: none;
-  color: #2e66a5;
-}
-
-.bg-black {
+:host ::ng-deep .bg-black {
   background-color: #161616 !important;
 }
 
-.bg-primary {
-  background-color: #64a19d !important;
+:host ::ng-deep .display-4,
+:host ::ng-deep .display-5 {
+  font-family: Exo, sans-serif;
 }
 
-.text-primary {
-  color: #2e66a5 !important;
+:host ::ng-deep .display-5 {
+  font-size: 2.5rem;
+  line-height: 1.2;
 }
 
 nb-layout-column {
   padding: 0;
-}
-
-footer {
-  padding: 2rem 0;
 }
