@@ -8,6 +8,7 @@
   background-repeat: no-repeat;
   background-attachment: scroll;
   background-size: cover;
+  text-shadow: 0 0.25em 0.3em #161616;
 }
 
 .credits-row li {
@@ -18,12 +19,12 @@
 }
 
 .valve-mark {
-  height: 60px;
+  height: 55px;
 }
 
 .link {
   i {
-    font-size: 4rem;
+    font-size: 3.75rem;
     margin-bottom: 0.5rem;
   }
   div {
@@ -32,6 +33,10 @@
     font-weight: 200;
     line-height: 1.2;
   }
+}
+
+.justify-content-evenly {
+  justify-content: space-evenly;
 }
 
 footer {
@@ -48,7 +53,7 @@ footer {
       font-size: 3.25rem;
     }
     div {
-      font-size: 1.5rem;
+      font-size: 1.75rem;
     }
   }
 }
