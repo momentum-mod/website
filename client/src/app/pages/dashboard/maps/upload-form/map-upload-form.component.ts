@@ -172,7 +172,7 @@ export class MapUploadFormComponent implements OnInit, AfterViewInit {
               pointsHeight: triggerObj.pointsHeight,
             };
             if (triggerObj.zoneProps)
-              zoneMdlTrigger.zoneProps = {properties: triggerObj.zoneProps};
+              zoneMdlTrigger.zoneProps = {properties: triggerObj.zoneProps.properties};
             zoneMdl.triggers.push(zoneMdlTrigger);
           }
         }
