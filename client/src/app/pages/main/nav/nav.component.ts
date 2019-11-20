@@ -6,18 +6,17 @@ import {Component, ElementRef, HostListener, ViewChild} from '@angular/core';
   styleUrls: ['./nav.component.scss'],
 })
 export class NavComponent {
-
   @HostListener('window:scroll', [])
   onWindowScroll() {
-    if (window.pageYOffset > 200) {
-      this.mainNavClass = 'navbar-shrink';
-    } else {
-      this.mainNavClass = '';
-    }
+    window.pageYOffset > 200 ? this.mainNavClass = 'navbar-shrink' : this.mainNavClass = '';
   }
-  @ViewChild('mainNav', {static: false}) mainNav: ElementRef;
-  mainNavClass: string;
-  constructor() {
-    this.mainNavClass = '';
+
+  @ViewChild('mainNav', {static: false})
+  mainNav: ElementRef;
+  mainNavClass: string = '';
+
+  navbarOpen: boolean = false;
+  toggleNavbar() {
+    this.navbarOpen = !this.navbarOpen;
   }
 }

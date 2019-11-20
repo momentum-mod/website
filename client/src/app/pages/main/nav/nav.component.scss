@@ -1,5 +1,5 @@
 #mainNav {
-  min-height: 56px;
+  border-bottom: none;
   background-color: rgba(0, 0, 0, 0.5);
 }
 
@@ -31,49 +31,58 @@
   background-color: transparent;
 }
 
-@media (min-width: 400px) {
+#mainNav .navbar-brand {
+  padding: 0.5rem 0;
+  color: rgba(255, 255, 255, 0.5);
+}
+
+#mainNav .nav-link {
+  padding-top: 1rem;
+  -webkit-transition: none;
+  transition: none;
+  color: rgba(255, 255, 255, 0.5);
+}
+
+#mainNav .nav-link:hover {
+  color: rgba(255, 255, 255, 0.75);
+}
+
+#mainNav .nav-link:active {
+  color: white;
+}
+
+#mainNav.navbar-shrink {
+  background-color: rgba(0, 0, 0, 0.5);
+}
+
+#mainNav.navbar-shrink .navbar-brand {
+  color: white;
+}
+
+#mainNav.navbar-shrink .nav-link {
+  color: white;
+}
+
+#mainNav.navbar-shrink .nav-link:hover {
+  color: #2e66a5;
+}
+
+#mainNav.navbar-shrink .nav-link:active {
+  color: #2e66a5;
+}
+#mainNav.navbar-shrink .nav-link.active {
+  color: #2e66a5;
+  outline: none;
+  border-bottom: 0.25rem solid #2e66a5;
+}
+
+@media (min-width: 992px) {
   #mainNav {
-    padding-top: 0;
-    padding-bottom: 0;
-    border-bottom: none;
     background-color: transparent;
     -webkit-transition: background-color 0.3s ease-in-out;
     transition: background-color 0.3s ease-in-out;
   }
-  #mainNav .navbar-brand {
-    padding: 0.5rem 0;
-    color: rgba(255, 255, 255, 0.5);
-  }
   #mainNav .nav-link {
-    -webkit-transition: none;
-    transition: none;
-    padding: 2rem 1.5rem;
-    color: rgba(255, 255, 255, 0.5);
-  }
-  #mainNav .nav-link:hover {
-    color: rgba(255, 255, 255, 0.75);
-  }
-  #mainNav .nav-link:active {
-    color: white;
-  }
-  #mainNav.navbar-shrink {
-    background-color: rgba(0, 0, 0, 0.5);
-  }
-  #mainNav.navbar-shrink .navbar-brand {
-    color: white;
-  }
-  #mainNav.navbar-shrink .nav-link {
-    color: white;
-  }
-  #mainNav.navbar-shrink .nav-link:hover {
-    color: #2e66a5;
-  }
-  #mainNav.navbar-shrink .nav-link:active {
-    color: #2e66a5;
-  }
-  #mainNav.navbar-shrink .nav-link.active {
-    color: #2e66a5;
-    outline: none;
-    border-bottom: 0.25rem solid #2e66a5;
+    padding: 1.5rem;
   }
 }
