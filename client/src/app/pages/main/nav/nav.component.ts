@@ -11,13 +11,17 @@ export class NavComponent {
     this.mainNavClass = window.pageYOffset > 200 ? 'navbar-shrink' : '';
   }
 
-  @ViewChild('mainNav', {static: false}) mainNav: ElementRef;
+  @ViewChild('mainNav', {static: false})
+
+  mainNav: ElementRef;
   mainNavClass: string;
+  navbarOpen: boolean;
+
   constructor() {
     this.mainNavClass = '';
+    this.navbarOpen = false;
   }
 
-  navbarOpen: boolean = false;
   toggleNavbar() {
     this.navbarOpen = !this.navbarOpen;
   }
