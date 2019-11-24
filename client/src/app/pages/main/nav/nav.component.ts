@@ -8,12 +8,14 @@ import {Component, ElementRef, HostListener, ViewChild} from '@angular/core';
 export class NavComponent {
   @HostListener('window:scroll', [])
   onWindowScroll() {
-    window.pageYOffset > 200 ? this.mainNavClass = 'navbar-shrink' : this.mainNavClass = '';
+    this.mainNavClass = window.pageYOffset > 200 ? 'navbar-shrink' : '';
   }
 
-  @ViewChild('mainNav', {static: false})
-  mainNav: ElementRef;
-  mainNavClass: string = '';
+  @ViewChild('mainNav', {static: false}) mainNav: ElementRef;
+  mainNavClass: string;
+  constructor() {
+    this.mainNavClass = '';
+  }
 
   navbarOpen: boolean = false;
   toggleNavbar() {
