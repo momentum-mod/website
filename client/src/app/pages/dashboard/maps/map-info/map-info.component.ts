@@ -140,6 +140,12 @@ export class MapInfoComponent implements OnInit, OnDestroy {
         ),
       ).subscribe(map => {
         this.map = map;
+        this.locUserService.checkMapNotify(this.map.id).subscribe(resp => {
+          this.mapNotify = resp;
+          this.mapNotifications = true;
+        }, err => {
+          this.toastService.danger(err.message, 'Could not check if following');
+        });
         if (this.map.favorites && this.map.favorites.length)
           this.mapInFavorites = true;
         if (this.map.libraryEntries && this.map.libraryEntries.length)
@@ -196,8 +202,31 @@ export class MapInfoComponent implements OnInit, OnDestroy {
   editNotificationSettings() {
     this.dialogService.open(MapNotifyEditComponent, {
       context: {
-        flags: 0,
+        flags: (this.mapNotify ? this.mapNotify.notifyOn : 0),
       },
+    }).onClose.subscribe(resp => {
+      if (resp) {
+        if (resp.newFlags == 0) {
+          if (this.mapNotify != null) {
+            this.locUserService.disableMapNotify(this.map.id).subscribe(() => {
+              this.mapNotify.notifyOn = 0;
+              this.mapNotifications = false;
+            }, err => {
+              this.toastService.danger('Could not disable notifications', err.message);
+            });
+          }
+        } else {
+          this.locUserService.updateMapNotify(this.map.id, resp.newFlags).subscribe(res => {
+            this.mapNotifications = true;
+            if (this.mapNotify == null)
+              this.mapNotify = res;
+            else
+              this.mapNotify.notifyOn = resp.newFlags;
+          }, err => {
+            this.toastService.danger('Could not enable notificaions', err.message);
+          });
+        }
+      }
     });
   }
 
