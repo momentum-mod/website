@@ -10,7 +10,7 @@ import {GallerizeModule} from '@ngx-gallery/gallerize';
 import {ViewMapsComponent} from './view-maps/view-maps.component';
 import {MapUploadFormComponent} from './upload-form/map-upload-form.component';
 import {UploadStatusComponent} from './upload-status/upload-status.component';
-import {MapInfoComponent} from './map-info/map-info.component';
+import {MapInfoComponent, MapNotifyEditComponent} from './map-info/map-info.component';
 import {MarkdownModule} from 'ngx-markdown';
 import {MapLibraryComponent} from './map-library/map-library.component';
 import {NbDatepickerModule, NbListModule, NbSelectModule, NbStepperModule, NbAlertModule} from '@nebular/theme';
@@ -27,6 +27,7 @@ import {MapListItemComponent} from './map-list/map-list-item/map-list-item.compo
 import {MapEditComponent} from './map-edit/map-edit.component';
 import {MapFavoritesComponent} from './map-favorites/map-favorites.component';
 import {MapListComponent} from './map-list/map-list.component';
+import {NbDialogModule} from '@nebular/theme';
 
 @NgModule({
   imports: [
@@ -40,6 +41,7 @@ import {MapListComponent} from './map-list/map-list.component';
     NbAlertModule,
     NgxPaginationModule,
     GalleryModule,
+    NbDialogModule.forChild(),
     LightboxModule.withConfig({
       panelClass: 'fullscreen',
     }),
@@ -54,6 +56,7 @@ import {MapListComponent} from './map-list/map-list.component';
     MapUploadFormComponent,
     UploadStatusComponent,
     MapInfoComponent,
+    MapNotifyEditComponent,
     MapLibraryComponent,
     MapCreditsComponent,
     MapCreditComponent,
@@ -68,5 +71,8 @@ import {MapListComponent} from './map-list/map-list.component';
     MapListComponent,
   ],
   providers: [],
+  entryComponents: [
+    MapNotifyEditComponent,
+  ],
 })
 export class MapModule { }
