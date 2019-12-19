@@ -1,4 +1,4 @@
-export interface MapFollow {
+export interface MapNotify {
     id: number;
     followeeID: number;
     mapID: number;
@@ -6,4 +6,3 @@ export interface MapFollow {
     createdAt?: string;
     updatedAt?: string;
   }
-  
