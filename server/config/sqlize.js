@@ -12,6 +12,7 @@ const Sequelize = require('sequelize'),
 	ActivityModel = require('../src/models/db/activity'),
 	MapLibraryEntryModel = require('../src/models/db/map-library'),
 	MapFavoriteModel = require('../src/models/db/map-favorite'),
+	MapNotifyModel = require('../src/models/db/map-notify'),
 	UserFollowsModel = require('../src/models/db/user-follow'),
 	NotificationModel = require('../src/models/db/notification'),
 	BadgeModel = require('../src/models/db/badge'),
@@ -78,6 +79,7 @@ const MapCredit = MapCreditModel(sequelize, Sequelize);
 const Activity = ActivityModel(sequelize, Sequelize);
 const MapLibraryEntry = MapLibraryEntryModel(sequelize, Sequelize);
 const MapFavorite = MapFavoriteModel(sequelize, Sequelize);
+const MapNotify = MapNotifyModel(sequelize, Sequelize);
 const UserFollows = UserFollowsModel(sequelize, Sequelize);
 const Notification = NotificationModel(sequelize, Sequelize);
 const Badge = BadgeModel(sequelize, Sequelize);
@@ -186,6 +188,7 @@ module.exports = {
 	Activity,
 	MapLibraryEntry,
 	MapFavorite,
+	MapNotify,
 	UserFollows,
 	Notification,
 	Badge,
