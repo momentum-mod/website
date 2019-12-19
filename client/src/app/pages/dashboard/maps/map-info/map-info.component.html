@@ -11,6 +11,13 @@
               <nb-icon icon="edit-2-outline" class="d-inline-block d-md-none"></nb-icon>
             </button>
           </div>
+          <div>
+            <button class="btn btn-outline-info" type="button" (click)="editNotificationSettings()"
+              nbPopover="{{mapNotifications ? 'Disable Notifications' : 'Enable Notifications'}}"
+              [nbPopoverTrigger]="'hint'">
+              <nb-icon icon="{{mapNotifications ? 'bell' : 'bell-outline'}}"></nb-icon>
+            </button>
+          </div>
         </div>
       </div>
     </div>
