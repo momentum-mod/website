@@ -158,30 +158,6 @@ export class LocalUserService {
    * @return Update map notifications
    */
 
-  public updateMapNotify(mapID: number, notifyOn: number): Observable<any> {
-    return this.http.put('/api/user/maps/notifyMap/' + mapID, {
-      notifyOn: notifyOn,
-    });
-  }
-
- /**
-   * @param mapID The map to check if notifications are enabled
-   * @return A json object with the potential map and the activity type for notificaions
-   */
-  public checkMapNotify(mapID: number): Observable<MapNotify> {
-    return this.http.get<MapNotify>('/api/user/maps/notifyMap/' + mapID);
-  }
-
-  /**
-   * @param mapID The map to disable notificaions for
-   * @return Notifications disabled for map
-   */
-  public disableMapNotify(mapID: number): Observable<any> {
-    return this.http.delete('/api/user/maps/notifyMap/' + mapID, {
-      responseType: 'text',
-    });
-  }
-  
   /**
    * @param options An object of options
    * @return A list of credits featuring the local user
@@ -238,6 +214,30 @@ export class LocalUserService {
    */
   public unfollowUser(user: User): Observable<any> {
     return this.http.delete('/api/user/follow/' + user.id, {
+      responseType: 'text',
+    });
+  }
+
+   /**
+   * @param mapID The map to check if notifications are enabled
+   * @return A json object with the potential map and the activity type for notificaions
+   */
+  public checkMapNotify(mapID: number): Observable<MapNotify> {
+    return this.http.get<MapNotify>('/api/user/notifyMap/' + mapID);
+  }
+
+  public updateMapNotify(mapID: number, notifyOn: number): Observable<any> {
+    return this.http.put('/api/user/notifyMap/' + mapID, {
+      notifyOn: notifyOn,
+    });
+  }
+
+  /**
+   * @param mapID The map to disable notificaions for
+   * @return Notifications disabled for map
+   */
+  public disableMapNotify(mapID: number): Observable<any> {
+    return this.http.delete('/api/user/notifyMap/' + mapID, {
       responseType: 'text',
     });
   }
