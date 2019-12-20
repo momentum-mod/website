@@ -2,7 +2,7 @@
 
 > *Momentum Mod is a standalone game built on the Source Engine, aiming to centralize movement gametypes found in CS:S, CS:GO, and TF2.*
 
-The frontend of the site runs Angular 7 and utilizes the ngx-admin/nebular frameworks. It and its instructions can be found in the [client/](client/) folder.
+The frontend of the site runs Angular 8 and utilizes the ngx-admin/nebular frameworks. It and its instructions can be found in the [client/](client/) folder.
 
 The backend of the website runs NodeJS and Sequelize (MySQL). The backend, and instructions to run it can be found in the [server/](server/) folder.
 
