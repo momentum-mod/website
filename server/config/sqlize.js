@@ -139,6 +139,9 @@ UserFollows.belongsTo(User, { as: 'followed', foreignKey: 'followedID', onDelete
 Notification.belongsTo(User, { as: 'forUser', foreignKey: 'forUserID' });
 User.belongsToMany(User, { as: 'followers', foreignKey: 'followedID', otherKey: 'followeeID', through: UserFollows, onDelete: 'CASCADE' });
 User.belongsToMany(User, { as: 'following', foreignKey: 'followeeID', otherKey: 'followedID', through: UserFollows, onDelete: 'CASCADE' });
+MapNotify.belongsTo(User, { as: 'followee', foreignKey: 'followeeID', onDelete: 'CASCADE' });
+Map.hasMany(MapNotify, { as: 'notifies', foreignKey: 'mapID', onDelete: 'CASCADE' });
+MapNotify.belongsTo(Map, { as: 'map', foreignKey: 'mapID' });
 Activity.hasMany(Notification, { as: 'notifications', foreignKey: 'activityID', onDelete: 'CASCADE'});
 Notification.belongsTo(Activity, { as: 'activity', foreignKey: 'activityID'});
 UserBadge.belongsTo(Badge, { as: 'badge', foreignKey: 'badgeID'});

@@ -70,6 +70,12 @@ router.route('/follow/:userID')
 	.delete(userCtrl.unfollowUser)
 	.all(errorCtrl.send405);
 
+router.route('/notifyMap/:mapID')
+	.get(userCtrl.checkMapNotify)
+	.put(userCtrl.updateMapNotify)
+	.delete(userCtrl.disableMapNotify)
+	.all(errorCtrl.send405);
+
 router.route('/notifications')
 	.get(celebrate(userValidation.getNotifications), userCtrl.getNotifications)
 	.all(errorCtrl.send405);
