@@ -206,7 +206,7 @@ export class MapInfoComponent implements OnInit, OnDestroy {
       },
     }).onClose.subscribe(resp => {
       if (resp) {
-        if (resp.newFlags == 0) {
+        if (resp.newFlags === 0) {
           if (this.mapNotify != null) {
             this.locUserService.disableMapNotify(this.map.id).subscribe(() => {
               this.mapNotify.notifyOn = 0;
