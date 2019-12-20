@@ -1,11 +1,41 @@
 'use strict';
-const { sequelize, Op, User, Activity, Profile, Notification, UserFollows } = require('../../config/sqlize');
+const { sequelize, Op, User, Activity, Profile, Notification, UserFollows, MapNotify, Run } = require('../../config/sqlize');
 
 const genNotifications = (activityModel, transaction) => {
 	return UserFollows.findAll({
 		attributes: [['followeeID', 'forUserID']],
 		where: {
 			followedID: activityModel.userID,
+			[Op.and]: [
+				sequelize.literal('notifyOn & ' + (1 << activityModel.type) + ' != 0')
+			],
+		},
+		raw: true,
+		transaction: transaction,
+	}).then(usersToNotify => {
+		if (!usersToNotify.length)
+			return Promise.resolve();
+		const notifications = usersToNotify;
+		for (let i = 0; i < notifications.length; i++) {
+			notifications[i].activityID = activityModel.id;
+		}
+		return Notification.bulkCreate(notifications, {
+			transaction: transaction,
+		});
+	});
+};
+
+//if following user and map, this will create a dupilicate notification?
+const genMapNotifications = (activityModel, transaction) => { 
+	mapID = null;
+	Run.findByPk(activityModel.data).then(run => {
+		this.mapID = run.mapID;
+	});
+
+	return MapNotify.findAll({
+		attributes: [['followeeID', 'forUserID']],
+		where: {
+			mapID: this.mapID,
 			[Op.and]: [
 				sequelize.literal('notifyOn & ' + (1 << activityModel.type) + ' != 0')
 			],
@@ -64,6 +94,7 @@ module.exports = {
 
 	create: (activity, transaction) => {
 		return Activity.create(activity, {transaction: transaction}).then(act => {
+			genMapNotifications(act, transaction);
 			return genNotifications(act, transaction);
 		});
 	},
