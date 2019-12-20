@@ -4,14 +4,15 @@
       <h2 class="col my-auto">{{map.name}}</h2>
       <div class="col-auto ml-auto">
         <div class="d-flex align-items-center" *ngIf="!previewMap">
-          <report-button *ngIf="!isSubmitter" [reportType]="ReportType.MAP_REPORT" [reportData]="map.id"></report-button>
+          <report-button *ngIf="!isSubmitter" [reportType]="ReportType.MAP_REPORT" [reportData]="map.id">
+          </report-button>
           <div *ngIf="isSubmitter || isAdmin || isModerator">
             <button class="btn btn-outline-info ml-2" type="button" (click)="onEditMap()">
               <span class="d-none d-md-inline-block">Edit Map</span>
               <nb-icon icon="edit-2-outline" class="d-inline-block d-md-none"></nb-icon>
             </button>
           </div>
-          <div>
+          <div class="m-2">
             <button class="btn btn-outline-info" type="button" (click)="editNotificationSettings()"
               nbPopover="{{mapNotifications ? 'Disable Notifications' : 'Enable Notifications'}}"
               [nbPopoverTrigger]="'hint'">
@@ -45,8 +46,8 @@
             <h6>Original Release Date: {{map.info?.creationDate | date}}</h6>
             <h6>Submitted By:
               <a [routerLink]="'/dashboard/profile/' + map.submitter?.id">
-                <nb-user [name]="map.submitter?.alias"
-                         [picture]="map.submitter?.avatarURL" size="small" class="d-inline-block align-middle">
+                <nb-user [name]="map.submitter?.alias" [picture]="map.submitter?.avatarURL" size="small"
+                  class="d-inline-block align-middle">
                 </nb-user>
               </a>
             </h6>
@@ -54,33 +55,32 @@
           <div *ngIf="!previewMap" class="col-12 col-sm">
             <div class="d-flex flex-wrap justify-content-around justify-content-sm-end mt-1 mb-3">
               <span class="ion-folder stat"
-                    nbPopover="{{map.stats?.totalSubscriptions | ngxPlural:'Library':'Libraries'}}"
-                    [nbPopoverTrigger]="'hint'">
+                nbPopover="{{map.stats?.totalSubscriptions | ngxPlural:'Library':'Libraries'}}"
+                [nbPopoverTrigger]="'hint'">
                 {{map.stats?.totalSubscriptions | numberThousands:1}}
               </span>
-              <span class="ion-star ml-sm-4 stat"
-                    nbPopover="{{map.stats?.totalFavorites | ngxPlural:'Favorite'}}"
-                    [nbPopoverTrigger]="'hint'">
+              <span class="ion-star ml-sm-4 stat" nbPopover="{{map.stats?.totalFavorites | ngxPlural:'Favorite'}}"
+                [nbPopoverTrigger]="'hint'">
                 {{map.stats?.totalFavorites | numberThousands:1}}
               </span>
               <span class="ion-android-download ml-sm-4 stat"
-                    nbPopover="{{map.stats?.totalDownloads | ngxPlural:'Download'}}"
-                    [nbPopoverTrigger]="'hint'">
+                nbPopover="{{map.stats?.totalDownloads | ngxPlural:'Download'}}" [nbPopoverTrigger]="'hint'">
                 {{map.stats?.totalDownloads | numberThousands:1}}
               </span>
-              <span class="ion-play ml-sm-4 stat"
-                    nbPopover="{{map.stats?.totalPlays | ngxPlural:'Play'}}"
-                    [nbPopoverTrigger]="'hint'">
+              <span class="ion-play ml-sm-4 stat" nbPopover="{{map.stats?.totalPlays | ngxPlural:'Play'}}"
+                [nbPopoverTrigger]="'hint'">
                 {{map.stats?.totalPlays | numberThousands:1}}
               </span>
             </div>
             <div class="btn-group text-center text-sm-right">
               <button type="button" class="btn btn-outline-info" (click)="onLibraryUpdate()">
-                <span [ngClass]="{'c-anim-btn': mapInLibrary}">{{mapInLibrary ? 'In Library' : 'Add Map to Library'}}</span>
+                <span
+                  [ngClass]="{'c-anim-btn': mapInLibrary}">{{mapInLibrary ? 'In Library' : 'Add Map to Library'}}</span>
                 <span *ngIf="mapInLibrary">Remove from Library</span>
               </button>
               <button type="button" class="btn btn-outline-info" (click)="onFavoriteUpdate()"
-                      nbPopover="{{mapInFavorites ? 'Remove from Favorites' : 'Add to Favorites'}}" [nbPopoverTrigger]="'hint'">
+                nbPopover="{{mapInFavorites ? 'Remove from Favorites' : 'Add to Favorites'}}"
+                [nbPopoverTrigger]="'hint'">
                 <span [ngClass]="mapInFavorites ? 'ion-android-star' : 'ion-android-star-outline'" class="icon"></span>
               </button>
             </div>
