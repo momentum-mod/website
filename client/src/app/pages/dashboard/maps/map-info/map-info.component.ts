@@ -9,66 +9,10 @@ import {MapImage} from '../../../../@core/models/map-image.model';
 import {Role} from '../../../../@core/models/role.model';
 import {ReportType} from '../../../../@core/models/report-type.model';
 import {MomentumMapPreview} from '../../../../@core/models/momentum-map-preview.model';
-import {NbDialogRef, NbDialogService, NbToastrService} from '@nebular/theme';
+import {NbDialogService, NbToastrService} from '@nebular/theme';
 import {Subject} from 'rxjs';
-import {Activity_Type} from '../../../../@core/models/activity-type.model';
 import {MapNotify} from '../../../../@core/models/map-notify.model';
-
-@Component({
-  selector: 'map-notify-edit',
-  template: `
-    <nb-card>
-      <nb-card-header>
-        Edit Notification Settings
-      </nb-card-header>
-      <nb-card-body>
-        Notify me when
-        <nb-checkbox [(ngModel)]="checkboxFlags.PB.checked">
-          {{ActivityType[ActivityType.PB_ACHIEVED]}}
-        </nb-checkbox>
-        <nb-checkbox [(ngModel)]="checkboxFlags.WR.checked">
-          {{ActivityType[ActivityType.WR_ACHIEVED]}}
-        </nb-checkbox>
-      </nb-card-body>
-      <nb-card-footer>
-        <button class="btn btn-danger" (click)="close()">Close</button>
-        <button class="btn btn-primary" (click)="submit()">Submit</button>
-      </nb-card-footer>
-    </nb-card>
-  `,
-  styles: [`button { margin: 1rem; }`],
-})
-export class MapNotifyEditComponent implements OnInit {
-  @Input() flags: number;
-  ActivityType: typeof Activity_Type = Activity_Type;
-  checkboxFlags = {
-    PB: { checked: false, value: Activity_Type.PB_ACHIEVED },
-    WR: { checked: false, value: Activity_Type.WR_ACHIEVED },
-  };
-  constructor(protected dialogRef: NbDialogRef<MapNotifyEditComponent>) {
-  }
-
-  ngOnInit() {
-    for (const perm in this.checkboxFlags) {
-      if ((1 << this.checkboxFlags[perm].value) & this.flags) {
-        this.checkboxFlags[perm].checked = true;
-      }
-    }
-  }
-
-  close() {
-    this.dialogRef.close();
-  }
-  submit() {
-    for (const perm in this.checkboxFlags) {
-      if (this.checkboxFlags[perm].checked) {
-        this.flags |= (1 << this.checkboxFlags[perm].value);
-      } else
-        this.flags &= ~(1 << this.checkboxFlags[perm].value);
-    }
-    this.dialogRef.close({ newFlags: this.flags });
-  }
-}
+import {MapNotifyEditComponent} from './map-info-notify-edit/map-info-notify-edit.component';
 
 @Component({
   selector: 'map-info',
