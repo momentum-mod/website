@@ -83,7 +83,7 @@ export class MapInfoComponent implements OnInit, OnDestroy {
   ReportType: typeof ReportType;
   map: MomentumMap;
   mapNotify: MapNotify;
-  mapNotifications;
+  mapNotifications: boolean;
   mapInLibrary: boolean;
   mapInFavorites: boolean;
   isSubmitter: boolean;
@@ -142,7 +142,8 @@ export class MapInfoComponent implements OnInit, OnDestroy {
         this.map = map;
         this.locUserService.checkMapNotify(this.map.id).subscribe(resp => {
           this.mapNotify = resp;
-          this.mapNotifications = true;
+          if (resp)
+            this.mapNotifications = true;
         }, err => {
           this.toastService.danger(err.message, 'Could not check if following');
         });
