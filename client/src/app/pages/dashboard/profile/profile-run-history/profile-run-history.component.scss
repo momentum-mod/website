@@ -11,6 +11,10 @@
   font-family: nb-theme(font-family-secondary);
 }
 
+nb-list-item > * {
+  flex-basis: 100%;
+}
+
 .filter-content {
   max-height: 0;
   overflow: hidden;

@@ -23,3 +23,7 @@
     height: 3.5rem;
   }
 }
+
+nb-list-item > * {
+  flex-basis: 100%;
+}

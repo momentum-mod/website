@@ -9,3 +9,7 @@ nb-list-item {
     border: 2px dashed gray;
   }
 }
+
+nb-list-item > * {
+  flex-basis: 100%;
+}

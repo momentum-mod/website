@@ -8,6 +8,10 @@ nb-list-item {
   }
 }
 
+nb-list-item > * {
+  flex-basis: 100%;
+}
+
 .text {
   color: gray;
 }
