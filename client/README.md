@@ -1,11 +1,6 @@
 # Momentum Mod Frontend
-
-Running on Bootstrap 4 and Angular 7.
-
-Dashboard made using [ngx-admin](https://github.com/akveo/ngx-admin) and [Nebular](https://github.com/akveo/nebular/blob/master/DEV_DOCS.md).
-
-## Requirements
-* [NodeJS v10](https://nodejs.org/en/download/)
+## Dependencies
+* [NodeJS (stable/LTS)](https://nodejs.org/en/download/)
 * [Yarn](https://yarnpkg.com/en/)
 
 ## Building
