@@ -1,9 +1,9 @@
 # Momentum Mod Backend
 
 ## Dependencies
-* [NodeJS v10](https://nodejs.org/en/download/)
+* [NodeJS (stable/LTS)](https://nodejs.org/en/download/)
 * [Yarn](https://yarnpkg.com/en/)
-* [MySQL](https://dev.mysql.com/downloads/mysql/) (or [MariaDB](https://downloads.mariadb.org/))
+* [MySQL](https://dev.mysql.com/downloads/mysql/)
 
 ## Packages
 
