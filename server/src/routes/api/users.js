@@ -1,17 +1,17 @@
 'use strict';
 const express = require('express'),
 	router = express.Router(),
-	validate = require('express-validation'),
+	{ celebrate } = require('celebrate'),
 	usersValidation = require('../../validations/users'),
 	errorCtrl = require('../../controllers/error'),
 	usersCtrl = require('../../controllers/users');
 
 router.route('/')
-	.get(validate(usersValidation.getAll), usersCtrl.getAll)
+	.get(celebrate(usersValidation.getAll), usersCtrl.getAll)
 	.all(errorCtrl.send405);
 
 router.route('/:userID')
-	.get(validate(usersValidation.get), usersCtrl.get)
+	.get(celebrate(usersValidation.get), usersCtrl.get)
 	.all(errorCtrl.send405);
 
 router.route('/:userID/profile')
@@ -19,7 +19,7 @@ router.route('/:userID/profile')
 	.all(errorCtrl.send405);
 
 router.route('/:userID/activities')
-	.get(validate(usersValidation.getActivities), usersCtrl.getActivities)
+	.get(celebrate(usersValidation.getActivities), usersCtrl.getActivities)
 	.all(errorCtrl.send405);
 
 router.route('/:userID/followers')
@@ -31,13 +31,13 @@ router.route('/:userID/follows')
 	.all(errorCtrl.send405);
 
 router.route('/:userID/credits')
-	.get(validate(usersValidation.getCredits), usersCtrl.getCredits)
+	.get(celebrate(usersValidation.getCredits), usersCtrl.getCredits)
 	.all(errorCtrl.send405);
 
 router.route('/:userID/runs')
-	.get(validate(usersValidation.getRuns), usersCtrl.getRuns)
+	.get(celebrate(usersValidation.getRuns), usersCtrl.getRuns)
 	.all(errorCtrl.send405);
 
-router.param('userID', validate(usersValidation.urlParamID));
+router.param('userID', celebrate(usersValidation.urlParamID));
 
 module.exports = router;

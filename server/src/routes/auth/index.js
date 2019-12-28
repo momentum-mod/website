@@ -3,7 +3,7 @@ const express = require('express'),
 	router = express.Router(),
 	passport = require('passport'),
 	TwitterStrategy = require('passport-twitter').Strategy,
-	validate = require('express-validation'),
+	{ celebrate } = require('celebrate'),
 	authValidation = require('../../validations/auth'),
 	config = require('../../../config/config'),
 	errorCtrl = require('../../controllers/error'),
@@ -138,11 +138,11 @@ router.route('/twitch/return')
 	.all(errorCtrl.send405);
 
 router.route('/refresh')
-	.post(validate(authValidation.refreshToken), authCtrl.refreshToken)
+	.post(celebrate(authValidation.refreshToken), authCtrl.refreshToken)
 	.all(errorCtrl.send405);
 
 router.route('/revoke')
-	.post(validate(authValidation.revokeToken), authCtrl.revokeToken)
+	.post(celebrate(authValidation.revokeToken), authCtrl.revokeToken)
 	.all(errorCtrl.send405);
 
 module.exports = router;

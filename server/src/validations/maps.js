@@ -1,29 +1,21 @@
 'use strict';
-const Joi = require('joi'),
+const { Segments, Joi } = require('celebrate'),
 	validation = require('../models/validation');
 
 module.exports = {
 
-	urlParamID: {
-		params: Joi.object().keys({
+	mapsURLParamsValidation: {
+		[Segments.PARAMS]: Joi.object().keys({
 			mapID: validation.map.id,
-		}),
-	},
-
-	urlParamCredID: {
-		params: Joi.object().keys({
 			mapCredID: validation.mapCredit.id,
-		}),
-	},
-
-	urlParamImgID: {
-		params: Joi.object().keys({
 			imgID: validation.mapImage.id,
+			runID: validation.run.id,
+			sesID: Joi.number().integer().positive(),
 		}),
 	},
 
 	getAll: {
-		query: Joi.object().keys({
+		[Segments.QUERY]: Joi.object().keys({
 			limit: validation.queryParam.limit,
 			offset: validation.queryParam.offset,
 			search: validation.queryParam.search,
@@ -37,13 +29,13 @@ module.exports = {
 	},
 
 	get: {
-		query: Joi.object().keys({
+		[Segments.QUERY]: Joi.object().keys({
 			expand: validation.queryParam.expand,
 		}),
 	},
 
 	create: {
-		body: Joi.object().keys({
+		[Segments.BODY]: Joi.object().keys({
 			name: validation.map.name.required(),
 			type: validation.map.type.required(),
 			info: Joi.object().keys({
@@ -94,13 +86,13 @@ module.exports = {
 	},
 
 	update: {
-		body: Joi.object().keys({
+		[Segments.BODY]: Joi.object().keys({
 			statusFlag: validation.map.statusFlag,
 		}).unknown(false),
 	},
 
 	updateInfo: {
-		body: Joi.object().keys({
+		[Segments.BODY]: Joi.object().keys({
 			description: validation.mapInfo.description,
 			youtubeID: validation.mapInfo.youtubeID,
 			numTracks: validation.mapInfo.numTracks,
@@ -109,13 +101,13 @@ module.exports = {
 	},
 
 	getCredits: {
-		query: Joi.object().keys({
+		[Segments.QUERY]: Joi.object().keys({
 			expand: validation.queryParam.expand,
 		}),
 	},
 
 	createCredit: {
-		body: Joi.object().keys({
+		[Segments.BODY]: Joi.object().keys({
 			mapID: validation.map.id,
 			type: validation.mapCredit.type,
 			userID: validation.user.id,
@@ -123,13 +115,13 @@ module.exports = {
 	},
 
 	getCredit: {
-		query: Joi.object().keys({
+		[Segments.QUERY]: Joi.object().keys({
 			expand: validation.queryParam.expand,
 		}),
 	},
 
 	updateCredit: {
-		body: Joi.object().keys({
+		[Segments.BODY]: Joi.object().keys({
 			type: validation.mapCredit.type,
 			userID: validation.user.id,
 		}).unknown(false),

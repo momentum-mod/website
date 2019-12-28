@@ -1,11 +1,11 @@
 'use strict';
-const Joi = require('joi'),
+const { Segments, Joi } = require('celebrate'),
 	validation = require('../models/validation');
 
 module.exports = {
 
 	getAll: {
-		query: Joi.object().keys({
+		[Segments.QUERY]: Joi.object().keys({
 			limit: validation.queryParam.limit,
 			offset: validation.queryParam.offset,
 			userID: validation.user.id,

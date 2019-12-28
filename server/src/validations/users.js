@@ -1,23 +1,23 @@
 'use strict';
-const Joi = require('joi'),
+const { Segments, Joi } = require('celebrate'),
 	validation = require('../models/validation');
 
 module.exports = {
 
 	urlParamID: {
-		params: Joi.object().keys({
+		[Segments.PARAMS]: Joi.object().keys({
 			userID: validation.user.id,
 		}),
 	},
 
 	get: {
-		query: Joi.object().keys({
+		[Segments.QUERY]: Joi.object().keys({
 			expand: validation.queryParam.expand,
 		}),
 	},
 
 	getAll: {
-		query: Joi.object().keys({
+		[Segments.QUERY]: Joi.object().keys({
 			playerID: validation.user.steamID,
 			playerIDs: validation.queryParam.playerIDs,
 			limit: validation.queryParam.limit,
@@ -28,7 +28,7 @@ module.exports = {
 	},
 
 	getActivities: {
-		query: Joi.object().keys({
+		[Segments.QUERY]: Joi.object().keys({
 			limit: validation.queryParam.limit,
 			offset: validation.queryParam.offset,
 			userID: validation.user.id,
@@ -39,7 +39,7 @@ module.exports = {
 	},
 
 	getCredits: {
-		query: Joi.object().keys({
+		[Segments.QUERY]: Joi.object().keys({
 			limit: validation.queryParam.limit,
 			offset: validation.queryParam.offset,
 			map: validation.map.id,
@@ -48,7 +48,7 @@ module.exports = {
 	},
 
 	getRuns: {
-		query: Joi.object().keys({
+		[Segments.QUERY]: Joi.object().keys({
 			limit: validation.queryParam.limit,
 			offset: validation.queryParam.offset,
 			expand: validation.queryParam.expand,
