@@ -8,6 +8,10 @@ nb-list-item:first-child {
   border-top: none;
 }
 
+nb-list-item > * {
+  flex-basis: 100%;
+}
+
 .cdk-drag {
   cursor: move;
   transition: box-shadow 0.2s $timing-func;

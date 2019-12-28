@@ -35,7 +35,7 @@ export const MENU_ITEMS: NbMenuItem[] = [
         title: 'Map Uploads',
         icon: 'upload-outline',
         link: '/dashboard/maps/uploads',
-        pathMatch: 'partial',
+        pathMatch: 'prefix',
         data: {
           roles: [
             Role.MAPPER,
@@ -56,7 +56,7 @@ export const MENU_ITEMS: NbMenuItem[] = [
       {
         title: 'Browse Maps',
         icon: 'cloud-download-outline',
-        pathMatch: 'partial',
+        pathMatch: 'prefix',
         link: '/dashboard/maps',
       },
     ],
