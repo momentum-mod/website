@@ -30,7 +30,7 @@
   },
   "husky": {
     "hooks": {
-      "pre-commit": "npm run lint:ci"
+      "pre-push": "npm run lint:ci"
     }
   },
   "dependencies": {
