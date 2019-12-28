@@ -39,10 +39,6 @@ describe('auth', () => {
         });
 	});
 
-	after(() => {
-		return forceSyncDB();
-	});
-
 	describe('modules', () => {
 		it('should generate a valid access token', () => {
 			return auth.genAccessToken({
@@ -150,7 +146,7 @@ describe('auth', () => {
 		*/
 
 		describe('POST /auth/refresh', () => {
-            it('should respond with a 403 when a bad refresh token is provided', () => {
+            it('should respond with a 401 when a bad refresh token is provided', () => {
                 return chai.request(server)
                 .post('/auth/refresh')
                 .send({ refreshToken: 'xD.xD.xD' })

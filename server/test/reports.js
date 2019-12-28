@@ -89,11 +89,6 @@ describe('reports', () => {
         });
     });
 
-
-    after(() => {
-        return forceSyncDB();
-    });
-
     describe('modules', () => {
 
     });

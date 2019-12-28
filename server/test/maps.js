@@ -259,10 +259,6 @@ describe('maps', () => {
             });
 	});
 
-	after(() => {
-		return forceSyncDB();
-	});
-
 	describe('modules', () => {
 
 	});
