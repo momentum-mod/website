@@ -1,17 +1,17 @@
 'use strict';
-const Joi = require('joi'),
+const { Segments, Joi } = require('celebrate'),
 	validation = require('../models/validation');
 
 module.exports = {
 
 	get: {
-		query: Joi.object().keys({
+		[Segments.QUERY]: Joi.object().keys({
 			expand: validation.queryParam.expand,
 		}),
 	},
 
 	update: {
-		body: Joi.object().keys({
+		[Segments.BODY]: Joi.object().keys({
 			alias: validation.user.alias,
 			profile: Joi.object().keys({
 				bio: validation.profile.bio,
@@ -20,7 +20,7 @@ module.exports = {
 	},
 
 	getMapLibrary: {
-		query: Joi.object().keys({
+		[Segments.QUERY]: Joi.object().keys({
 			limit: Joi.number().integer().min(0).max(20), // TODO: change this back to validation.queryParam.limit (0.9.0)
 			offset: validation.queryParam.offset,
 			search: validation.queryParam.search,
@@ -29,7 +29,7 @@ module.exports = {
 	},
 
 	getUserFavorites: {
-		query: Joi.object().keys({
+		[Segments.QUERY]: Joi.object().keys({
 			limit: Joi.number().integer().min(0).max(20), // TODO: change this back to validation.queryParam.limit (0.9.0)
 			offset: validation.queryParam.offset,
 			search: validation.queryParam.search,
@@ -38,7 +38,7 @@ module.exports = {
 	},
 
 	getSubmittedMaps: {
-		query: Joi.object().keys({
+		[Segments.QUERY]: Joi.object().keys({
 			limit: validation.queryParam.limit,
 			offset: validation.queryParam.offset,
 			search: validation.queryParam.search,
@@ -47,7 +47,7 @@ module.exports = {
 	},
 
 	getActivities: {
-		query: Joi.object().keys({
+		[Segments.QUERY]: Joi.object().keys({
 			limit: validation.queryParam.limit,
 			offset: validation.queryParam.offset,
 			type: validation.activity.type,
@@ -57,7 +57,7 @@ module.exports = {
 	},
 
 	getFollowedActivities: {
-		query: Joi.object().keys({
+		[Segments.QUERY]: Joi.object().keys({
 			limit: validation.queryParam.limit,
 			offset: validation.queryParam.offset,
 			type: validation.activity.type,
@@ -66,38 +66,38 @@ module.exports = {
 	},
 
 	followUser: {
-		body: Joi.object().keys({
+		[Segments.BODY]: Joi.object().keys({
 			userID: validation.user.id,
 		}).unknown(false),
 	},
 
 	updateFollowStatus: {
-		body: Joi.object().keys({
+		[Segments.BODY]: Joi.object().keys({
 			notifyOn: validation.userFollow.notifyOn,
 		}).unknown(false),
 	},
 
 	notifID: {
-		params: {
+		[Segments.PARAMS]: {
 			notifID: validation.notification.id,
 		},
 	},
 
 	getNotifications: {
-		query: Joi.object().keys({
+		[Segments.QUERY]: Joi.object().keys({
 			limit: validation.queryParam.limit,
 			offset: validation.queryParam.offset,
 		}),
 	},
 
 	updateNotification: {
-		body: Joi.object().keys({
+		[Segments.BODY]: Joi.object().keys({
 			read: validation.notification.read,
 		}).unknown(false),
 	},
 
 	destroySocialLink: {
-		params: Joi.object().keys({
+		[Segments.PARAMS]: Joi.object().keys({
 			type: Joi.string().valid('twitter', 'twitch', 'discord').required(),
 		}),
 	},

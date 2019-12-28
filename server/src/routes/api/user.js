@@ -1,15 +1,15 @@
 'use strict';
 const express = require('express'),
 	router = express.Router(),
-	validate = require('express-validation'),
+	{ celebrate } = require('celebrate'),
 	userValidation = require('../../validations/user'),
 	mapsValidation = require('../../validations/maps'),
 	errorCtrl = require('../../controllers/error'),
 	userCtrl = require('../../controllers/user');
 
 router.route('/')
-	.get(validate(userValidation.get), userCtrl.get)
-	.patch(validate(userValidation.update), userCtrl.update)
+	.get(celebrate(userValidation.get), userCtrl.get)
+	.patch(celebrate(userValidation.update), userCtrl.update)
 	.all(errorCtrl.send405);
 
 router.route('/profile')
@@ -17,7 +17,7 @@ router.route('/profile')
 	.all(errorCtrl.send405);
 
 router.route('/profile/social/:type')
-	.delete(validate(userValidation.destroySocialLink), userCtrl.destroySocialLink)
+	.delete(celebrate(userValidation.destroySocialLink), userCtrl.destroySocialLink)
 	.all(errorCtrl.send405);
 
 router.route('/maps/credits')
@@ -25,7 +25,7 @@ router.route('/maps/credits')
 	.all(errorCtrl.send405);
 
 router.route('/maps/submitted')
-	.get(validate(userValidation.getSubmittedMaps), userCtrl.getSubmittedMaps)
+	.get(celebrate(userValidation.getSubmittedMaps), userCtrl.getSubmittedMaps)
 	.all(errorCtrl.send405);
 
 router.route('/maps/submitted/summary')
@@ -33,7 +33,7 @@ router.route('/maps/submitted/summary')
 	.all(errorCtrl.send405);
 
 router.route('/maps/library')
-	.get(validate(userValidation.getMapLibrary), userCtrl.getUserLibrary)
+	.get(celebrate(userValidation.getMapLibrary), userCtrl.getUserLibrary)
 	.all(errorCtrl.send405);
 
 router.route('/maps/library/:mapID')
@@ -43,7 +43,7 @@ router.route('/maps/library/:mapID')
 	.all(errorCtrl.send405);
 
 router.route('/maps/favorites')
-	.get(validate(userValidation.getUserFavorites), userCtrl.getUserFavorites)
+	.get(celebrate(userValidation.getUserFavorites), userCtrl.getUserFavorites)
 	.all(errorCtrl.send405);
 
 router.route('/maps/favorites/:mapID')
@@ -53,33 +53,33 @@ router.route('/maps/favorites/:mapID')
 	.all(errorCtrl.send405);
 
 router.route('/activities')
-	.get(validate(userValidation.getActivities), userCtrl.getActivities)
+	.get(celebrate(userValidation.getActivities), userCtrl.getActivities)
 	.all(errorCtrl.send405);
 
 router.route('/activities/followed')
-	.get(validate(userValidation.getFollowedActivities), userCtrl.getFollowedActivities)
+	.get(celebrate(userValidation.getFollowedActivities), userCtrl.getFollowedActivities)
 	.all(errorCtrl.send405);
 
 router.route('/follow')
-	.post(validate(userValidation.followUser), userCtrl.followUser)
+	.post(celebrate(userValidation.followUser), userCtrl.followUser)
 	.all(errorCtrl.send405);
 
 router.route('/follow/:userID')
 	.get(userCtrl.checkFollowStatus)
-	.patch(validate(userValidation.updateFollowStatus), userCtrl.updateFollowStatus)
+	.patch(celebrate(userValidation.updateFollowStatus), userCtrl.updateFollowStatus)
 	.delete(userCtrl.unfollowUser)
 	.all(errorCtrl.send405);
 
 router.route('/notifications')
-	.get(validate(userValidation.getNotifications), userCtrl.getNotifications)
+	.get(celebrate(userValidation.getNotifications), userCtrl.getNotifications)
 	.all(errorCtrl.send405);
 
 router.route('/notifications/:notifID')
-	.patch(validate(userValidation.updateNotification), userCtrl.updateNotification)
+	.patch(celebrate(userValidation.updateNotification), userCtrl.updateNotification)
 	.delete(userCtrl.deleteNotification)
 	.all(errorCtrl.send405);
 
-router.param('mapID', validate(mapsValidation.urlParamID));
-router.param('notifID', validate(userValidation.notifID));
+router.param('mapID', celebrate(mapsValidation.mapsURLParamsValidation));
+router.param('notifID', celebrate(userValidation.notifID));
 
 module.exports = router;

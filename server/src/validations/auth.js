@@ -1,19 +1,19 @@
 'use strict';
-const Joi = require('joi'),
+const { Segments, Joi } = require('celebrate'),
 	validation = require('../models/validation');
 
 module.exports = {
 
 	refreshToken: {
-		body: Joi.object().keys({
+		[Segments.BODY]: Joi.object().keys({
 			refreshToken: validation.auth.refreshToken,
 		}),
 	},
 
 	revokeToken: {
-		headers: Joi.object().keys({
+		[Segments.HEADERS]: Joi.object().keys({
 			authorization: validation.auth.accessTokenHeader.required(),
-		}),
+		}).unknown(),
 	},
 
 };

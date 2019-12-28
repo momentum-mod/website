@@ -16,7 +16,8 @@ const express = require('express'),
 	user = require('../src/models/user'),
 	xml2js = require('xml2js').parseString,
 	axios = require('axios'),
-	authMiddleware = require('../src/middlewares/auth');
+	authMiddleware = require('../src/middlewares/auth'),
+	{ errors, isCelebrate } = require('celebrate');
 
 const swaggerSpec = swaggerJSDoc({
 	swaggerDefinition: swaggerDefinition,
@@ -143,8 +144,8 @@ module.exports = (app, config) => {
 
 	if (app.get('env') === 'test') {
 		app.use((err, req, res, next) => {
-			const status = err.status || 500;
-			if (status === 500)
+			const status = err.status || (isCelebrate(err) ? 400 : 500);
+			if (status === 500 || isCelebrate(err))
 				console.error(err);
 			res.status(status).json({
 				error: {
@@ -154,6 +155,9 @@ module.exports = (app, config) => {
 				}
 			});
 		});
+	}
+	else {
+		app.use(errors());
 	}
 
 	app.use((err, req, res, next) => {

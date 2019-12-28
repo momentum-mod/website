@@ -1,17 +1,17 @@
 'use strict';
-const Joi = require('joi'),
+const { Segments, Joi } = require('celebrate'),
 	validation = require('../models/validation');
 
 module.exports = {
 
 	urlParamID: {
-		param: Joi.object().keys({
-			runID: validation.report.id,
+		[Segments.PARAMS]: Joi.object().keys({
+			reportID: validation.report.id,
 		}),
 	},
 
 	create: {
-		body: Joi.object().keys({
+		[Segments.BODY]: Joi.object().keys({
             data: validation.report.data.required(),
             type: validation.report.type.required(),
             category: validation.report.category.required(),
