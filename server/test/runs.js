@@ -102,10 +102,6 @@ describe('runs', () => {
 
 	});
 
-	after(() => {
-        return forceSyncDB();
-	});
-
 	describe('modules', () => {
 
 	});

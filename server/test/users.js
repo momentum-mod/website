@@ -111,10 +111,6 @@ describe('users', () => {
 
     });
 
-    after(() => {
-         return forceSyncDB();
-    });
-
     describe('modules', () => {
 
     });

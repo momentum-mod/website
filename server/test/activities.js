@@ -99,10 +99,6 @@ describe('activities', () => {
 			});
     });
 
-    after(() => {
-        return forceSyncDB();
-    });
-
     describe('modules', () => {
 
     });

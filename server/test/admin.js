@@ -312,11 +312,6 @@ describe('admin', () => {
 			});
 	});
 
-
-	after(() => {
-		return forceSyncDB();
-	});
-
 	describe('modules', () => {
 
 	});

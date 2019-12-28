@@ -267,10 +267,6 @@ describe('user', () => {
             });
     });
 
-    after(() => {
-        return forceSyncDB();
-    });
-
     describe('modules', () => {
 
     });
