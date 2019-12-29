@@ -31,7 +31,7 @@
     "passport-steam": "^1.0.10",
     "passport-twitch-helix": "^1.1.0",
     "passport-twitter": "^1.0.4",
-    "sequelize": "^5.7.0",
+    "sequelize": "^5.15.1",
     "sharp": "^0.21.1",
     "swagger-jsdoc": "^3.2.9",
     "swagger-ui-express": "^4.0.2",
