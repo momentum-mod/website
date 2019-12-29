@@ -7,7 +7,7 @@
     "test": "mocha --exit"
   },
   "dependencies": {
-    "axios": "^0.18.0",
+    "axios": "^0.18.1",
     "body-parser": "^1.18.3",
     "chai": "^4.2.0",
     "chai-http": "^4.2.1",
