@@ -18,6 +18,7 @@ module.exports = {
 	getByRank: (req, res, next) => {
 		if (req.params.rankNum === 'friends') {
 			user.getSteamFriendIDs(req.user.steamID).then(steamIDs => {
+				steamIDs.push(req.user.steamID);
 				req.query.playerIDs = steamIDs.join(',');
 				module.exports.getAll(req, res, next);
 			}).catch(next);
