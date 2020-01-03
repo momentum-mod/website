@@ -9,6 +9,7 @@ import {
   NbCheckboxModule,
   NbContextMenuModule,
   NbIconModule,
+  NbInputModule,
   NbLayoutModule,
   NbListModule,
   NbMenuModule,
@@ -65,6 +66,7 @@ const NB_MODULES = [
   NbProgressBarModule,
   NbButtonModule,
   NbSelectModule,
+  NbInputModule,
 ];
 
 const COMPONENTS = [
