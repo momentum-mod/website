@@ -1,7 +1,7 @@
 <div class="pt-2 px-2 text-center drop_zone" (drop)="dropHandler($event);" (dragover)="dragOverHandler($event);"
      (dragenter)="dragOver = dragOver + 1;" (dragleave)="dragOver = dragOver - 1;"
      [ngClass]="{'files-ready': dragOver}">
-  <input [hidden]="true" type="file" [accept]="acceptString" [multiple]="multiple" (change)="onFileSelected($event);" #fileUploadInput/>
+  <input nbInput [hidden]="true" type="file" [accept]="acceptString" [multiple]="multiple" (change)="onFileSelected($event);" #fileUploadInput/>
   <h4 *ngIf="showSelected && selectedFile">{{selectedFile.name}}</h4>
   <h4 *ngIf="invalidSize" class="text-danger">File too big!</h4>
   <h4 *ngIf="invalidType" class="text-danger">Wrong type of file!</h4>

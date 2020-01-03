@@ -14,12 +14,12 @@
       <form (ngSubmit)="onInfoSubmit()" [formGroup]="infoForm">
         <div class="form-group mt-2 mb-4">
           <h5>YouTube URL / ID</h5>
-          <input class="form-control youtube-inp" formControlName="youtubeID" type="text"
+          <input nbInput class="form-control youtube-inp" formControlName="youtubeID" type="text"
                  [ngClass]="{'form-control-danger':youtubeID.invalid}">
         </div>
         <div class="form-group">
           <h5>Map Description</h5>
-          <textarea rows="6" class="form-control" formControlName="description" type="description"
+          <textarea nbInput fullWidth rows="6" class="form-control" formControlName="description" type="description"
                     [ngClass]="{'form-control-danger':description.invalid}"></textarea>
           <nb-alert class="mb-0 mt-2 py-2 px-3 text-danger" outline="danger" *ngIf="description.hasError('maxlength')">
               Text cannot exceed 1000 characters.
