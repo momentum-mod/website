@@ -7,7 +7,7 @@
         <div class="d-flex align-items-center top-right-toolbar">
           <report-button *ngIf="!isLocal" [reportType]="ReportType.USER_PROFILE_REPORT" [reportData]="user.id"></report-button>
           <div *ngIf="canEdit()">
-            <button class="btn btn-outline-info ml-2" type="button" (click)="onEditProfile()">
+            <button nbButton outline status="info" class="ml-2" type="button" (click)="onEditProfile()">
               <span class="d-none d-md-inline-block">Edit Profile</span>
               <i class="fas fa-user-edit d-inline-block d-md-none"></i>
             </button>

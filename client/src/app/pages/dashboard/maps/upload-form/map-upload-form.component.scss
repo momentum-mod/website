@@ -43,7 +43,7 @@ nb-select ::ng-deep .select-button {
 .extra-image-cont {
   position: relative;
 
-  .btn {
+  button {
     position: absolute;
     right: 0.4rem;
     top: 0.4rem;
@@ -52,7 +52,7 @@ nb-select ::ng-deep .select-button {
     padding: 2px 3px 1px;
   }
 
-  &:hover .btn {
+  &:hover button {
     opacity: 1;
   }
 }

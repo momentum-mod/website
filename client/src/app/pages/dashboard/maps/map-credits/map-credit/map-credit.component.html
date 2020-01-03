@@ -4,7 +4,7 @@
     <div class="d-flex align-items-center">
       <nb-user [name]="user.alias" [picture]="user.avatarURL"></nb-user>
       <div class="ml-auto" *ngIf="editable">
-        <button class="btn btn-outline-danger btn-xs" (click)="removeUser(user)">
+        <button nbButton outline status="danger" size="tiny" (click)="removeUser(user)">
           <i class="ion ion-close-round"></i>
         </button>
       </div>
@@ -18,7 +18,7 @@
           (click)="removeUserSearch()">Cancel</button>
 </div>
 <div class="text-center" *ngIf="editable && !userSearch">
-  <button class="btn btn-outline-info" (click)="addUserSearch()">
+  <button nbButton outline status="info" (click)="addUserSearch()">
     <i class="ion ion-plus"></i>
   </button>
 </div>

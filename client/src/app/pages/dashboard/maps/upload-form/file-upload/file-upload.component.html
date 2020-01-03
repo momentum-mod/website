@@ -5,7 +5,7 @@
   <h4 *ngIf="showSelected && selectedFile">{{selectedFile.name}}</h4>
   <h4 *ngIf="invalidSize" class="text-danger">File too big!</h4>
   <h4 *ngIf="invalidType" class="text-danger">Wrong type of file!</h4>
-  <button class="fileUpload btn btn-outline-info mt-1 mb-2" type="button"
+  <button nbButton outline status="info" class="fileUpload mt-1 mb-2" type="button"
           (click)="fileUploadInput.click(); invalidType = false; invalidSize = false;">
     Choose {{type}} File{{multiple ? 's' : ''}}
   </button>

@@ -9,8 +9,8 @@
                       (click)="onClickNotif(notification)">
     </activity-content>
     <div class="text-center date">{{notification.activity.createdAt | timeAgo}}</div>
-    <button class="btn btn-outline-danger btn-xs" (click)="removeNotif(notification)">
       <i class="ion ion-close-round"></i>
+    <button nbButton outline status="danger" size="tiny" (click)="removeNotif(notification)">
     </button>
   </nb-list-item>
 </nb-list>

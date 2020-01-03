@@ -3,7 +3,7 @@
     <div class="row align-items-center">
       <h2 class="col">EDIT MAP</h2>
       <div class="col-auto ml-auto">
-        <button class="btn btn-outline-info" [routerLink]="'/dashboard/maps/' + map?.id">
+        <button nbButton outline status="info" [routerLink]="'/dashboard/maps/' + map?.id">
           Return to Map
         </button>
       </div>
@@ -33,7 +33,7 @@
             </div>
           </div>
         </div>
-        <button class="btn btn-outline-info submit-btn" type="submit"
+        <button nbButton outline status="info" class="submit-btn" type="submit"
                 [disabled]="infoForm.invalid">Save info</button>
       </form>
     </nb-tab>
@@ -48,7 +48,7 @@
             <div class="d-inline-flex align-items-center" cdkDropList cdkDropListOrientation="horizontal" (cdkDropListDropped)="imageDrop($event)">
               <div class="map-image-cont mx-2" *ngFor="let img of mapImages" cdkDrag>
                 <img class="map-image" [src]="img.small">
-                <button class="btn btn-outline-danger btn-xs" (click)="removeMapImage(img)">
+                <button nbButton outline status="danger" size="tiny" (click)="removeMapImage(img)">
                   <i class="ion ion-close-round"></i>
                 </button>
               </div>
@@ -59,7 +59,7 @@
           </div>
         </div>
         <div class="d-inline-flex align-items-center submit-btn">
-          <button class="btn btn-outline-info mr-2" type="submit">Save images</button>
+          <button nbButton outline status="info" class="mr-2" type="submit">Save images</button>
           <nb-icon class="text-warning" icon="alert-triangle-outline" title="Under Construction"></nb-icon> <!-- TODO: Remove when images submitting is added -->
         </div>
       </form>
@@ -69,14 +69,14 @@
         <div class="mt-2">
           <map-credits [creditArr]="mapCredits" [editable]="true" (creditChange)="onCreditChanged($event)"></map-credits>
         </div>
-        <button class="btn btn-outline-info" type="submit" [disabled]="creditsForm.invalid"
+        <button nbButton outline status="info" type="submit" [disabled]="creditsForm.invalid"
                 (click)="onCreditsSubmit($event)">Save credits</button>
       </form>
     </nb-tab>
     <nb-tab *ngIf="(isAdmin || isModerator) && map" tabTitle="ADMIN&nbsp;MAP&nbsp;SETTINGS">
       <form [formGroup]="adminForm">
         <div class="text-right">
-          <button class="btn btn-outline-danger" (click)="showMapDeleteDialog()">Delete Map</button>
+          <button nbButton outline status="danger" (click)="showMapDeleteDialog()">Delete Map</button>
         </div>
       </form>
     </nb-tab>

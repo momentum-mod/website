@@ -13,7 +13,7 @@
       <div class="col" *ngIf="personalBestRun && personalBestRun.id !== run.id">
         <div class="d-flex justify-content-end align-items-center">
           <h4 class="mr-3 text-right d-none d-sm-block notice">Note:&nbsp;Not&nbsp;viewing their&nbsp;personal&nbsp;best!</h4>
-          <button class="btn btn-outline-info" type="button" routerLink="/dashboard/runs/{{personalBestRun.id}}">Go&nbsp;to PB&nbsp;run</button>
+          <button nbButton outline status="info" type="button" routerLink="/dashboard/runs/{{personalBestRun.id}}">Go&nbsp;to PB&nbsp;run</button>
         </div>
       </div>
     </div>

@@ -4,11 +4,11 @@
   </span>
 </div>
 <div class="text-center" *ngIf="checked" [ngClass]="{'btn-group': localFollowStatus}">
-  <button class="btn btn-primary" (click)="followClick()">
+  <button nbButton status="primary" class="btn" (click)="followClick()">
     <span [ngClass]="{'c-anim-btn': localFollowStatus}">{{localFollowStatus ? 'Following' : 'Follow'}}</span>
     <span *ngIf="localFollowStatus">Unfollow</span>
   </button>
-  <button class="btn btn-primary" *ngIf="localFollowStatus" (click)="editNotificationSettings()">
+  <button nbButton status="primary" class="btn" *ngIf="localFollowStatus" (click)="editNotificationSettings()">
     <nb-icon [icon]="localFollowStatus?.notifyOn === 0 ? 'bell-outline' : 'bell'"></nb-icon>
   </button>
 </div>
