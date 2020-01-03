@@ -2,7 +2,14 @@ import {async, ComponentFixture, TestBed} from '@angular/core/testing';
 
 import {MapLeaderboardComponent} from './map-leaderboard.component';
 import {RouterTestingModule} from '@angular/router/testing';
-import {NbCardModule, NbToastrConfig, NbToastRef, NbToastrService, NbUserModule} from '@nebular/theme';
+import {
+  NbCardModule,
+  NbCheckboxModule,
+  NbToastrConfig,
+  NbToastRef,
+  NbToastrService,
+  NbUserModule,
+} from '@nebular/theme';
 import {TimingPipe} from '../../../../../@theme/pipes';
 import {TimeAgoPipe} from 'time-ago-pipe';
 import {HttpClientTestingModule} from '@angular/common/http/testing';
@@ -25,6 +32,7 @@ describe('MapLeaderboardComponent', () => {
       imports: [
         NbUserModule,
         NbCardModule,
+        NbCheckboxModule,
         RouterTestingModule.withRoutes([]),
         HttpClientTestingModule,
       ],
