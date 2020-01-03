@@ -6,25 +6,31 @@
 
 .btn-group {
   display: block;
-}
 
-.btn {
-  height: 3em;
-  font: normal normal 500 1em/3em nb-theme(font-family-secondary);
-  overflow: hidden;
-  padding-top: 0;
+  button {
+    &:first-of-type {
+      justify-content: flex-start;
+      flex-direction: column;
+      padding-top: 0;
+    }
 
-  span {
-    color: white;
-    display: block;
-  }
+    height: 3em;
+    font: normal normal 500 1em/3em nb-theme(font-family-secondary);
+    overflow: hidden;
+    padding: 0;
 
-  .c-anim-btn {
-    transition: 0.3s;
-    margin-top: 0;
-  }
+    span, nb-icon {
+      color: white;
+      display: block;
+    }
 
-  &:hover .c-anim-btn {
-    margin-top: -3em;
+    .c-anim-btn {
+      transition: 0.3s;
+      margin-top: 0;
+    }
+
+    &:hover .c-anim-btn {
+      margin-top: -3em;
+    }
   }
 }

@@ -53,7 +53,7 @@
                 <div class="d-flex flex-wrap justify-content-center">
                   <div class="extra-image-cont m-2" *ngFor="let img of extraImages">
                     <img class="extra-image" [src]="img.dataBlobURL">
-                    <button class="btn btn-outline-danger btn-xs" (click)="removeExtraImage(img)">
+                    <button nbButton outline status="danger" size="tiny" (click)="removeExtraImage(img)">
                       <i class="ion ion-close-round"></i>
                     </button>
                   </div>
@@ -148,17 +148,17 @@
         </nb-step>
       </nb-stepper>
       <div class="d-flex">
-        <button class="btn btn-outline-info previous-button" type="submit" *ngIf="stepper.selectedIndex !== 0"
+        <button nbButton outline status="info" class="previous-button" type="submit" *ngIf="stepper.selectedIndex !== 0"
                 (click)="touchForm(stepper.selectedIndex); stepper.previous()">
           <i class="ion ion-chevron-left"></i>
         </button>
-        <button class="btn btn-outline-info ml-auto" type="submit"
+        <button nbButton outline status="info" class="ml-auto" type="submit"
                 *ngIf="stepper.selectedIndex !== stepper.steps?.length - 1"
                 (click)="touchForm(stepper.selectedIndex); stepper.next()">
           <i class="ion ion-chevron-right"></i>
         </button>
-        <button *ngIf="stepper.selectedIndex === stepper.steps?.length - 1" class="btn btn-outline-info ml-auto"
-                type="button" (click)="onSubmit($event)">Submit Map</button>
+        <button *ngIf="stepper.selectedIndex === stepper.steps?.length - 1" nbButton outline status="info"
+                class="ml-auto" type="button" (click)="onSubmit($event)">Submit Map</button>
       </div>
     </div>
     <nb-progress-bar *ngIf="isUploadingMap" [value]="mapUploadPercentage" [size]="'giant'"

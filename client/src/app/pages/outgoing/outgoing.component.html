@@ -15,9 +15,13 @@
               <h2 class="text-white mx-auto mt-2 mb-4">You are being redirected to</h2>
               <h2 class="text-white mx-auto mt-2 mb-4"> <i>{{outgoingURL}}</i></h2>
               <h2 class="text-white mx-auto mt-2 mb-5">which is not part of the official Momentum Mod site.</h2>
-              <div>
-                <button class="btn btn-return" type="button" routerLink="/dashboard">Return to Dashboard</button>
-                <a [href]="outgoingURL" class="btn btn-primary allowed">Proceed to external site </a>
+              <div class="d-flex justify-content-around">
+                <button nbButton status="primary" class="btn-return" type="button" routerLink="/dashboard">Return to Dashboard</button>
+                <a [href]="outgoingURL" class="allowed">
+                  <button nbButton status="danger">
+                    Proceed to external site
+                  </button>
+                </a>
               </div>
               <p></p>
             </div>

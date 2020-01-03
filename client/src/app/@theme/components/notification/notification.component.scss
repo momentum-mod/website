@@ -28,7 +28,7 @@ nb-list-item {
     transition: transform 0.15s ease-out;
   }
 
-  .btn {
+  button {
     position: absolute;
     right: 0.4rem;
     top: 0.4rem;
@@ -42,7 +42,7 @@ nb-list-item {
       transform: translate(0, 0);
     }
 
-    .btn {
+    button {
       opacity: 1;
     }
   }

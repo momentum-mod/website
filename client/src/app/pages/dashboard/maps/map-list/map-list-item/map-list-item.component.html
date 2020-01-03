@@ -34,15 +34,15 @@
       </div>
       <div class="col-12 col-sm mb-2 mb-sm-0 text-center" *ngIf="showDownloadButton">
         <a #mapFileDownloadLink class="allowed"></a>
-        <button class="btn btn-outline-info">DOWNLOAD</button>
+        <button nbButton outline status="info">DOWNLOAD</button>
       </div>
       <div class="col-auto mx-auto mr-sm-2">
         <div class="d-flex flex-lg-column button-group">
-          <button type="button" class="btn btn-primary mr-2 mr-lg-0 mb-lg-2" nbButton (click)="toggleMapInFavorites()"
+          <button nbButton status="primary" type="button" class="mr-2 mr-lg-0 mb-lg-2" (click)="toggleMapInFavorites()"
                   [nbPopover]="mapInFavorites ? 'Remove map from favorites' : 'Add map to favorites'" [nbPopoverTrigger]="'hint'">
             <span [ngClass]="mapInFavorites ? 'ion-android-star' : 'ion-android-star-outline'" class="icon"></span>
           </button>
-          <button type="button" class="btn btn-dark" (click)="toggleMapInLibrary()"
+          <button nbButton type="button" class="btn btn-dark" (click)="toggleMapInLibrary()"
                   [nbPopover]="mapInLibrary ? 'Remove map from library' : 'Add map to library'" [nbPopoverTrigger]="'hint'">
             <span [ngClass]="mapInLibrary ? 'ion-ios-folder' : 'ion-ios-folder-outline'" class="icon"></span>
           </button>

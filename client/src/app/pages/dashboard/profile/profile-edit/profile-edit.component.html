@@ -3,7 +3,7 @@
     <div class="row align-items-center">
       <h2 class="col">EDIT PROFILE</h2>
       <div class="col-auto ml-auto">
-        <button class="btn btn-outline-info" (click)="returnToProfile()">
+        <button nbButton outline status="info" (click)="returnToProfile()">
           Return to Profile
         </button>
       </div>
@@ -19,7 +19,7 @@
               <div class="input-group">
                 <input nbInput class="form-control alias-inp" formControlName="alias" type="text">
                 <div class="input-group-append" *ngIf="user.aliasLocked">
-                  <button class="btn btn-outline-warning btn-sm" type="button" (click)="resetAlias()">Reset To Steam Alias</button>
+                  <button nbButton outline status="warning" size="small" type="button" (click)="resetAlias()">Reset To Steam Alias</button>
                 </div>
               </div>
               <nb-alert class="mb-0 mt-3 py-2 px-3 text-danger" outline="danger" *ngIf="alias.hasError('minlength')">
@@ -57,7 +57,7 @@
             <img *ngIf="!user.profile.twitterAuth" src="/assets/images/twitter_button.png" (click)="auth('twitter')">
             <div *ngIf="user.profile.twitterAuth">
               <h5 class="mb-3 text-success">Authorized as {{user.profile.twitterAuth.displayName}}</h5>
-              <button class="btn btn-outline-danger btn-sm" type="button" (click)="unAuth('twitter')">Unauthorize</button>
+              <button nbButton outline status="danger" size="small" type="button" (click)="unAuth('twitter')">Unauthorize</button>
             </div>
           </div>
           <div class="mx-1 mt-2 mb-3">
@@ -65,7 +65,7 @@
             <img *ngIf="!user.profile.discordAuth" src="/assets/images/discord_button.png" (click)="auth('discord')">
             <div *ngIf="user.profile.discordAuth">
               <h5 class="mb-3 text-success">Authorized as {{user.profile.discordAuth.displayName}}</h5>
-              <button class="btn btn-outline-danger btn-sm" type="button" (click)="unAuth('discord')">Unauthorize</button>
+              <button nbButton outline status="danger" size="small" type="button" (click)="unAuth('discord')">Unauthorize</button>
             </div>
           </div>
           <div class="mx-1 mt-2 mb-3">
@@ -73,7 +73,7 @@
             <img *ngIf="!user.profile.twitchAuth" src="/assets/images/twitch_button.png" (click)="auth('twitch')">
             <div *ngIf="user.profile.twitchAuth">
               <h5 class="mb-3 text-success">Authorized as {{user.profile.twitchAuth.displayName}}</h5>
-              <button class="btn btn-outline-danger btn-sm" type="button" (click)="unAuth('twitch')">Unauthorize</button>
+              <button nbButton outline status="danger" size="small" type="button" (click)="unAuth('twitch')">Unauthorize</button>
             </div>
           </div>
         </div>
@@ -122,7 +122,7 @@
         </div>
       </nb-tab>
     </nb-tabset>
-    <button class="btn btn-md btn-outline-info submit-btn" type="submit" *ngIf="!(socials && socials.active)"
+    <button nbButton outline status="info" size="medium" class="submit-btn" type="submit" *ngIf="!(socials && socials.active)"
             [disabled]="(profileEditFormGroup.touched && !profileEditFormGroup.valid)">
       Save changes
     </button>
