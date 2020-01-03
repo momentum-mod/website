@@ -74,7 +74,7 @@
               </button>
               <button nbButton outline status="info" type="button" class="btn" (click)="onFavoriteUpdate()"
                       nbPopover="{{mapInFavorites ? 'Remove from Favorites' : 'Add to Favorites'}}" [nbPopoverTrigger]="'hint'">
-                <span [ngClass]="mapInFavorites ? 'ion-android-star' : 'ion-android-star-outline'" class="icon"></span>
+                <nb-icon [icon]="mapInFavorites ? 'star' : 'star-outline'"></nb-icon>
               </button>
             </div>
           </div>

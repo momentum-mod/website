@@ -40,11 +40,11 @@
         <div class="d-flex flex-lg-column button-group">
           <button nbButton status="primary" type="button" class="mr-2 mr-lg-0 mb-lg-2" (click)="toggleMapInFavorites()"
                   [nbPopover]="mapInFavorites ? 'Remove map from favorites' : 'Add map to favorites'" [nbPopoverTrigger]="'hint'">
-            <span [ngClass]="mapInFavorites ? 'ion-android-star' : 'ion-android-star-outline'" class="icon"></span>
+            <nb-icon [icon]="mapInFavorites ? 'star' : 'star-outline'"></nb-icon>
           </button>
           <button nbButton type="button" class="btn btn-dark" (click)="toggleMapInLibrary()"
                   [nbPopover]="mapInLibrary ? 'Remove map from library' : 'Add map to library'" [nbPopoverTrigger]="'hint'">
-            <span [ngClass]="mapInLibrary ? 'ion-ios-folder' : 'ion-ios-folder-outline'" class="icon"></span>
+            <nb-icon [icon]="mapInLibrary ? 'folder' : 'folder-outline'"></nb-icon>
           </button>
         </div>
       </div>
