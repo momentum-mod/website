@@ -15,6 +15,13 @@
   height: auto;
   background: linear-gradient(to top, #cc382e, rgb(250, 99, 94));
   font-size: 3.5vw;
+  text-align: center;
+}
+
+nb-icon {
+  font-size: 1em;
+  margin: 0 0.5em;
+  vertical-align: middle;
 }
 
 img {
@@ -46,7 +53,7 @@ img {
 
 
 .masthead h1 {
-  font-family: 'Varela Round';
+  font-family: 'Varela Round', sans-serif;
   font-size: 2.5rem;
   line-height: 2.5rem;
   letter-spacing: 0.8rem;
