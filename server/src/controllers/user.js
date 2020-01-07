@@ -173,7 +173,7 @@ module.exports = {
 			if (result)
 				res.json(result);
 			else
-				res.sendStatus(204);
+				res.sendStatus(404);
 		}).catch(next);
 	},
 

@@ -226,6 +226,11 @@ export class LocalUserService {
     return this.http.get<MapNotify>('/api/user/notifyMap/' + mapID);
   }
 
+  /**
+   * @param mapID The map to create or update notifications for
+   * @param notifyOn The flags to notify the followee on
+   * @return update the map notification status on the user's profile
+   */
   public updateMapNotify(mapID: number, notifyOn: number): Observable<any> {
     return this.http.put('/api/user/notifyMap/' + mapID, {
       notifyOn: notifyOn,
