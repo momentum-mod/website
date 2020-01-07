@@ -341,6 +341,54 @@ paths:
       responses:
         200:
           description: OK
+  /user/notifyMap/{mapID}:
+    parameters:
+      - name: mapID
+        in: path
+        required: true
+        descripting: ID of the map in question
+        type: string
+    get:
+      summary: Checks if the user has notifications for the given map
+      tags:
+        - user
+      responses:
+        200:
+          descritpion: Object containing the map the user has notifications for and the notification type
+          schema:
+            type: object
+            properties:
+              notifyOn:
+                $ref: '#/definitions/UserFollow'
+        404:
+          description: The map was not found
+    put:
+      summary: Creates or updates the notification status
+      tags:
+        -user
+      parameters:
+        - in: body
+          required: true
+          description: What activities the player wants to be notified of from the given map
+          type: object
+          properties:
+            notifyOn:
+              type: integer
+      responses:
+        200:
+          description: OK
+          schema:
+            type: object
+            properties:
+              notifyOn:
+                $ref: '#/definitions/UserFollow'
+    delete:
+      summary: Disables notifications for the given map
+      tags:
+        - user
+      responses:
+        200:
+          description: OK
   /user/activities/followed:
      get:
        summary: Retrieves a list of activities from followed users
