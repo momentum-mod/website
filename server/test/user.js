@@ -556,6 +556,77 @@ describe('user', () => {
             });
         });
 
+        describe('PUT /api/user/notifyMap/{mapID}', () => {
+            it('should update map notification status or create new map notification status if no existing notifcations', () => {
+                return chai.request(server)
+                    .put('/api/user/notifyMap/' + testMap.id)
+                    .set('Authorization', 'Bearer ' + accessToken)
+                    .send({
+                        notifyOn: activity.ACTIVITY_TYPES.WR_ACHIEVED
+                    })
+                    .then(res => {
+                        expect(res).to.have.status(200);
+                        expect(res).to.be.json;
+                        expect(res.body).to.have.property('notifyOn');
+                    });
+            });
+            it('should respond with 401 when no access token is provided', () => {
+                return chai.request(server)
+                    .put('/api/user/notifyMap/' + testMap.id)
+                    .then(res => {
+                        expect(res).to.have.status(401);
+                        expect(res).to.be.json;
+                        expect(res.body).to.have.property('error');
+                        expect(res.body.error.code).equal(401);
+                        expect(res.body.error.message).to.be.a('string');
+                    });
+            });
+        });
+
+        describe('GET /api/user/notifyMap/{mapID}', () => {
+            it('should check the map notifcation status for a given user', () => {
+                return chai.request(server)
+                    .get('/api/user/notifyMap/' + testMap.id)
+                    .set('Authorization', 'Bearer ' + accessToken)
+                    .then(res => {
+                        expect(res).to.have.status(200);
+                        expect(res).to.be.json;
+                    });
+            });
+            it('should respond with 401 when no access token is provided', () => {
+                return chai.request(server)
+                    .get('/api/user/notifyMap/' + testMap.id)
+                    .then(res => {
+                        expect(res).to.have.status(401);
+                        expect(res).to.be.json;
+                        expect(res.body).to.have.property('error');
+                        expect(res.body.error.code).equal(401);
+                        expect(res.body.error.message).to.be.a('string');
+                    });
+            });
+        });
+
+        describe('DELETE /api/user/notifyMap/{mapID}', () => {
+            it('should remove the user from map notifcations list', () => {
+                return chai.request(server)
+                    .delete('/api/user/notifyMap/' + testMap.id)
+                    .set('Authorization', 'Bearer ' + accessToken)
+                    .then(res => {
+                        expect(res).to.have.status(200);
+                    });
+            });
+            it('should respond with 401 when no access token is provided', () => {
+                return chai.request(server)
+                    .delete('/api/user/notifyMap' + testMap.id)
+                    .then(res => {
+                        expect(res).to.have.status(401);
+                        expect(res).to.be.json;
+                        expect(res.body).to.have.property('error');
+                        expect(res.body.error.code).equal(401);
+                        expect(res.body.error.message).to.be.a('string');
+                    });
+            });
+        });
 
 // uncommented for the time being so I could test the activity generation tests at the bottom of the file
 // this test is still broken though
