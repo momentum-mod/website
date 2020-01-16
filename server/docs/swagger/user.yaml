@@ -356,10 +356,7 @@ paths:
         200:
           descritpion: Object containing the map the user has notifications for and the notification type
           schema:
-            type: object
-            properties:
-              notifyOn:
-                $ref: '#/definitions/UserFollow'
+            $ref: '#/definitions/MapNotifies'
         404:
           description: The map was not found
     put:
@@ -378,10 +375,7 @@ paths:
         200:
           description: OK
           schema:
-            type: object
-            properties:
-              notifyOn:
-                $ref: '#/definitions/UserFollow'
+            $ref: '#/definitions/MapNotifies'
     delete:
       summary: Disables notifications for the given map
       tags:
@@ -505,6 +499,28 @@ definitions:
         type: array
         items:
           $ref: '#/definitions/MapFavorite'
+  MapNotifies:
+    properties:
+      id:
+        type: integer
+        readOnly: true
+      notifyOn:
+        type: integer
+        readOnly: true
+      followeeID:
+        type: integer
+        readOnly: true
+      mapID:
+        type: integer
+        readOnly: true
+      createdAt:
+        type: string
+        format: date-time
+        readOnly: true
+      updatedAt:
+        type: string
+        format: date-time
+        readOnly: true
   Notification:
     properties:
       id:
