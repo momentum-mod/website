@@ -9,6 +9,7 @@ import {User} from '../models/user.model';
 
 import {UserFollowObject} from '../models/follow.model';
 import {FollowStatus} from '../models/follow-status.model';
+import {MapNotify} from '../models/map-notify.model';
 import {Router, RouterModule} from '@angular/router';
 import {ThemeModule} from '../../@theme/theme.module';
 import {MomentumMapType} from '../models/map-type.model';
@@ -23,6 +24,7 @@ let expectedMapLibrary: MapLibrary;
 let expectedFollow: UserFollowObject;
 let expectedFollow2: UserFollowObject;
 let expectedFollowStatus: FollowStatus;
+let expectedMapNotify: MapNotify;
 let localUserService: LocalUserService;
 
 
@@ -85,6 +87,12 @@ describe('LocalUserService', () => {
     expectedFollowStatus = {
       local: expectedFollow,
       target: expectedFollow2,
+    };
+    expectedMapNotify = {
+      id: 1,
+      followeeID: 1,
+      mapID: 9,
+      notifyOn: 2,
     };
 
     cookieServiceStub = {
@@ -213,5 +221,29 @@ describe('LocalUserService', () => {
       expect(httpClientSpy.delete.calls.count()).toBe(1, 'one call');
     });
 
+    it('#checkMapNotify() should check the map notifcation status for a given user', () => {
+      httpClientSpy.get.and.returnValue(of(expectedMapNotify));
+      localUserService.checkMapNotify(expectedMap.id).subscribe(value =>
+        expect(value).toEqual(expectedMapNotify, 'expected map notify'),
+        fail,
+      );
+      expect(httpClientSpy.get.calls.count()).toBe(1, 'one call');
+    });
+    it('#updateMapNotify() should update map notification status or create new if no existing notifcations', () => {
+      httpClientSpy.put.and.returnValue(of(expectedMapNotify));
+      localUserService.updateMapNotify(expectedMap.id, 1).subscribe(value =>
+        expect(value).toEqual(expectedMapNotify, 'expected map notify'),
+        fail,
+        );
+        expect(httpClientSpy.put.calls.count()).toBe(1, 'one call');
+    });
+    it('#disableMapNotify() should remove the user from map notifcations list', () => {
+      httpClientSpy.delete.and.returnValue(of(expectedMapNotify));
+      localUserService.disableMapNotify(expectedMap.id).subscribe(value =>
+        expect(value).toEqual(expectedMapNotify, 'expected map notify'),
+        fail,
+        );
+        expect(httpClientSpy.delete.calls.count()).toBe(1, 'one call');
+    });
   });
 });
