@@ -89,7 +89,8 @@ export class MapInfoComponent implements OnInit, OnDestroy {
           if (resp)
             this.mapNotifications = true;
         }, err => {
-          this.toastService.danger(err.message, 'Could not check if following');
+          if (err.status !== 404)
+            this.toastService.danger(err.message, 'Could not check if following');
         });
         if (this.map.favorites && this.map.favorites.length)
           this.mapInFavorites = true;
