@@ -139,9 +139,9 @@ module.exports = {
 	upload: (req, res, next) => {
 		if (req.files && req.files.mapFile) {
 			map.verifySubmitter(req.params.mapID, req.user.id).then(() => {
-				return map.upload(req.params.mapID, req.files.mapFile);
-			}).then(result => {
-				res.sendStatus(200);
+				map.upload(req.params.mapID, req.files.mapFile).then(() => {
+					res.sendStatus(200);
+				}).catch(next);
 			}).catch(next);
 		} else {
 			next(new ServerError(400, 'No map file provided'));
