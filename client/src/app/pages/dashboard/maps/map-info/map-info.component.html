@@ -13,10 +13,10 @@
             </button>
           </div>
           <div class="m-2">
-            <button class="btn btn-outline-info" type="button" (click)="editNotificationSettings()"
-              nbPopover="{{mapNotifications ? 'Disable Notifications' : 'Enable Notifications'}}"
-              [nbPopoverTrigger]="'hint'">
-              <nb-icon icon="{{mapNotifications ? 'bell' : 'bell-outline'}}"></nb-icon>
+            <button nbButton outline status="info" type="button"  (click)="editNotificationSettings()"
+		          nbPopover="{{mapNotifications ? 'Disable Notifications' : 'Enable Notifications'}}"
+		          [nbPopoverTrigger]="'hint'">
+		          <nb-icon [icon]="mapNotifications ? 'bell' : 'bell-outline'"></nb-icon>
             </button>
           </div>
         </div>
