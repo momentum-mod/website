@@ -124,8 +124,9 @@ const MAP_TYPE = Object.freeze({
 	BHOP: 2,
 	KZ: 3,
 	RJ: 4,
-	TRICKSURF: 5,
-	TRIKZ: 6,
+	SJ: 5,
+	TRICKSURF: 6,
+	TRIKZ: 7,
 });
 
 module.exports = {
