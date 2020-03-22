@@ -1,8 +1,61 @@
 <section id="gamemodes" class="gamemodes-section bg-black">
 <div class="container">
-      </div>
+  <div class="row justify-content-center mb-5 mb-lg-5">
+    <div class="col-sm-12 col-md-11 col-lg-10 mb-2 mb-lg-2">
+      <div class="display-4 font-weight-normal gamemodes-header text-center">Current Modes</div>
     </div>
+    <div class="col-sm-12 col-md-11 col-lg-10 mb-2 mb-lg-2">
+      <gallery 
+        id="current-gamemodes" 
+        [thumb]="false"
+        [loadingMode]="indeterminate"
+        [loadingStrategy]="preload"
+        [counter]="false"
+        [dots]="true"
+        [imageSize]="contain"
+        [autoPlay]="true"
+        [playerInterval]="20000"
+        [items]="currentGamemodesItems" 
+        [itemTemplate]="itemTemplate"
+        gallerize>
+      </gallery>
+    </div>
+    <a ng-if="this.currentGameMode" href="{{this.currentGameMode.url}}" class="col-10 col-lg-10 mb-2 mb-lg-2">
+      <div ng-if="this.currentGameMode" id="current-gamemode-name" class="display-5 text-center">
+        {{this.currentGameMode.modeTitle}}
       </div>
+    </a>
+    <div ng-if="this.currentGameMode" id="current-gamemode-description" class="col-10 col-lg-7 text-center text-white lead">
+      {{this.currentGameMode.modeDescription}}
+    </div>
+  </div>
+  <div class="row justify-content-center mb-5 mb-lg-5">
+    <div class="col-sm-12 col-md-11 col-lg-10 mb-2 mb-lg-2">
+      <div class="display-4 font-weight-normal gamemodes-header text-center">Future Modes</div>
+    </div>
+    <div class="col-sm-12 col-md-11 col-lg-10 mb-2 mb-lg-2">   
+      <gallery 
+        id="future-gamemodes"
+        [thumb]="false"
+        [loadingMode]="indeterminate"
+        [loadingStrategy]="preload"
+        [counter]="false"
+        [dots]="true"
+        [imageSize]="contain"
+        [autoPlay]="true"
+        [playerInterval]="20000"
+        [items]="futureGamemodesItems"
+        [itemTemplate]="itemTemplate"
+        gallerize>
+      </gallery>
+    </div>
+    <a ng-if="this.futureGameMode" href="{{this.futureGameMode.url}}" class="col-10 col-lg-10 mb-2 mb-lg-2">
+      <div ng-if="this.futureGameMode" class="display-5 text-center">
+        {{this.futureGameMode.modeTitle}}
+      </div>
+    </a>
+    <div ng-if="this.futureGameMode" class="col-10 col-lg-7 text-center text-white lead">
+      {{this.futureGameMode.modeDescription}}
     </div>
   </div>
 </div>
