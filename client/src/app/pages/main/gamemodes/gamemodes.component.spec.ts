@@ -9,6 +9,7 @@ describe('GamemodesComponent', () => {
   beforeEach(async(() => {
     TestBed.configureTestingModule({
       imports: [ GalleryModule ],
+      declarations: [ GamemodesComponent ],
     })
     .compileComponents();
   }));
