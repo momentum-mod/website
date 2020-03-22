@@ -6,4 +6,15 @@
     </div>
   </div>
 </div>
+
+<ng-template #itemTemplate
+             let-index="index"
+             let-type="type"
+             let-data="data"
+             let-currIndex="currIndex"> 
+  <a [href]="data.youtubeLink">
+    <img width="100%" height="100%" [src]="data.src" />
+  </a>
+</ng-template>
+
 </section>
