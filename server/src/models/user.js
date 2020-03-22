@@ -657,30 +657,24 @@ module.exports = {
 		return MapNotify.findOne({
 			where: { followeeID: followeeID, mapID: mapID },
 			raw: true
-		})
+		});
 	},
 
 	updateMapNotify: (followeeID, mapID, notify) => {
-		return MapNotify.findOne({
+		return MapNotify.findOrCreate({
 			where: {
 				followeeID: followeeID,
 				mapID: mapID
+			},
+			defaults: {
+				notifyOn: notify
+			},
+		}).spread((mapNotify, created) => {
+			if (!created) {
+				return mapNotify.update({ notifyOn: notify});
 			}
-		}).then(map => {
-			if (map) {
-				return MapNotify.update(
-					{ notifyOn: notify },
-					{ where: { followeeID: followeeID, mapID: mapID } }
-				)
-			} else {
-				return MapNotify.create({
-					notifyOn: notify,
-					mapID: mapID,
-					followeeID: followeeID
-				},
-				)
-			}
-		})
+			return Promise.resolve(mapNotify);
+		});
 	},
 
 	disableMapNotify: (followeeID, mapID) => {
