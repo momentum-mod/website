@@ -545,7 +545,7 @@ module.exports = {
 			mapModel = map;
 			return storeMapFile(mapFile, map);
 		}).then((results) => {
-			 return mapModel.update({
+			return mapModel.update({
 				statusFlag: STATUS.PENDING,
 				downloadURL: results.downloadURL,
 				hash: results.hash,

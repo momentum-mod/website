@@ -10,7 +10,7 @@ const { forceSyncDB, User, Profile, Map, MapInfo, Activity, MapCredit, MapStats,
 	user = require('../src/models/user'),
     map = require('../src/models/map'),
     activity = require('../src/models/activity'),
-    fs = require('fs');
+	fs = require('fs');
 
 chai.use(chaiHttp);
 
@@ -19,7 +19,7 @@ describe('user', () => {
     let accessToken = null;
     let accessToken2 = null;
     let adminAccessToken = null;
-    let adminGameAccessToken = null;
+	let adminGameAccessToken = null;
     const testUser = {
         id: 1,
         steamID: '76561198131664084',
@@ -73,13 +73,13 @@ describe('user', () => {
         }
     };
 
-    const testAdminGame = {
-        id: 5,
-        steamID: '5416876413213874',
-        roles: user.Role.ADMIN,
-        bans: 0,
-        country: 'US',
-    };
+	const testAdminGame = {
+		id: 5,
+		steamID: '5416876413213874',
+		roles: user.Role.ADMIN,
+		bans: 0,
+		country: 'US',
+	};
 
     const testMap = {
         name: 'test_map_one',
@@ -97,17 +97,17 @@ describe('user', () => {
             numZones: 1,
             isLinear: false,
             difficulty: 5,
-            zones: [
-                {
-                    zoneNum: 0,
-                    zoneType: 0,
-                },
-                {
-                    zoneNum: 1,
-                    zoneType: 1,
-                }
-            ]
-        }],
+			zones: [
+				{
+					zoneNum: 0,
+					zoneType: 0,
+				},
+				{
+					zoneNum: 1,
+					zoneType: 1,
+				}
+			]
+		}],
         credits: {
             id: 1,
             type: map.CreditType.AUTHOR,
@@ -225,13 +225,13 @@ describe('user', () => {
                     }]
                 })
             })
-            .then(() => {
-                testAdminGame.roles |= user.Role.ADMIN;
-                return auth.genAccessToken(testAdminGame, true);
-            }).then((token) => {
-                adminGameAccessToken = token;
-                return User.create(testAdminGame);
-            })
+			.then(() => {
+				testAdminGame.roles |= user.Role.ADMIN;
+				return auth.genAccessToken(testAdminGame, true);
+			}).then((token) => {
+				adminGameAccessToken = token;
+				return User.create(testAdminGame);
+			})
             .then(() => {
                 return auth.genAccessToken(testUser2);
             })
@@ -260,7 +260,7 @@ describe('user', () => {
                     include: [
                         {  model: MapInfo, as: 'info',},
                         {  model: MapCredit, as: 'credits'},
-                        {  model: MapTrack, as: 'tracks', include: [{model: MapZone, as: 'zones'}]},
+						{  model: MapTrack, as: 'tracks', include: [{ model: MapZone, as: 'zones' }] },
                     ]
                 })
             })
@@ -583,261 +583,255 @@ describe('user', () => {
             });
         });
 
-        describe('PUT /api/user/notifyMap/{mapID}', () => {
-            it('should update map notification status or create new map notification status if no existing notifcations', () => {
-                return chai.request(server)
-                    .put('/api/user/notifyMap/' + testMap.id)
-                    .set('Authorization', 'Bearer ' + accessToken)
-                    .send({
-                        notifyOn: activity.ACTIVITY_TYPES.WR_ACHIEVED
-                    })
-                    .then(res => {
-                        expect(res).to.have.status(200);
-                        expect(res).to.be.json;
-                        expect(res.body).to.have.property('notifyOn');
-                    });
-            });
-            it('should respond with 401 when no access token is provided', () => {
-                return chai.request(server)
-                    .put('/api/user/notifyMap/' + testMap.id)
-                    .then(res => {
-                        expect(res).to.have.status(401);
-                        expect(res).to.be.json;
-                        expect(res.body).to.have.property('error');
-                        expect(res.body.error.code).equal(401);
-                        expect(res.body.error.message).to.be.a('string');
-                    });
-            });
-        });
+		describe('PUT /api/user/notifyMap/{mapID}', () => {
+			it('should update map notification status or create new map notification status if no existing notifcations', () => {
+				return chai.request(server)
+					.put('/api/user/notifyMap/' + testMap.id)
+					.set('Authorization', 'Bearer ' + accessToken)
+					.send({
+						notifyOn: activity.ACTIVITY_TYPES.WR_ACHIEVED
+					})
+					.then(res => {
+						expect(res).to.have.status(200);
+						expect(res).to.be.json;
+						expect(res.body).to.have.property('notifyOn');
+					});
+			});
+			it('should respond with 401 when no access token is provided', () => {
+				return chai.request(server)
+					.put('/api/user/notifyMap/' + testMap.id)
+					.then(res => {
+						expect(res).to.have.status(401);
+						expect(res).to.be.json;
+						expect(res.body).to.have.property('error');
+						expect(res.body.error.code).equal(401);
+						expect(res.body.error.message).to.be.a('string');
+					});
+			});
+		});
 
-        describe('GET /api/user/notifyMap/{mapID}', () => {
-            it('should check the map notifcation status for a given user', () => {
-                return chai.request(server)
-                    .get('/api/user/notifyMap/' + testMap.id)
-                    .set('Authorization', 'Bearer ' + accessToken)
-                    .then(res => {
-                        expect(res).to.have.status(200);
-                        expect(res).to.be.json;
-                    });
-            });
-            it('should respond with 401 when no access token is provided', () => {
-                return chai.request(server)
-                    .get('/api/user/notifyMap/' + testMap.id)
-                    .then(res => {
-                        expect(res).to.have.status(401);
-                        expect(res).to.be.json;
-                        expect(res.body).to.have.property('error');
-                        expect(res.body.error.code).equal(401);
-                        expect(res.body.error.message).to.be.a('string');
-                    });
-            });
-        });
+		describe('GET /api/user/notifyMap/{mapID}', () => {
+			it('should check the map notifcation status for a given user', () => {
+				return chai.request(server)
+					.get('/api/user/notifyMap/' + testMap.id)
+					.set('Authorization', 'Bearer ' + accessToken)
+					.then(res => {
+						expect(res).to.have.status(200);
+						expect(res).to.be.json;
+					});
+			});
+			it('should respond with 401 when no access token is provided', () => {
+				return chai.request(server)
+					.get('/api/user/notifyMap/' + testMap.id)
+					.then(res => {
+						expect(res).to.have.status(401);
+						expect(res).to.be.json;
+						expect(res.body).to.have.property('error');
+						expect(res.body.error.code).equal(401);
+						expect(res.body.error.message).to.be.a('string');
+					});
+			});
+		});
 
-        describe('DELETE /api/user/notifyMap/{mapID}', () => {
-            it('should remove the user from map notifcations list', () => {
-                return chai.request(server)
-                    .delete('/api/user/notifyMap/' + testMap.id)
-                    .set('Authorization', 'Bearer ' + accessToken)
-                    .then(res => {
-                        expect(res).to.have.status(200);
-                    });
-            });
-            it('should respond with 401 when no access token is provided', () => {
-                return chai.request(server)
-                    .delete('/api/user/notifyMap' + testMap.id)
-                    .then(res => {
-                        expect(res).to.have.status(401);
-                        expect(res).to.be.json;
-                        expect(res.body).to.have.property('error');
-                        expect(res.body.error.code).equal(401);
-                        expect(res.body.error.message).to.be.a('string');
-                    });
-            });
-        });
+		describe('DELETE /api/user/notifyMap/{mapID}', () => {
+			it('should remove the user from map notifcations list', () => {
+				return chai.request(server)
+					.delete('/api/user/notifyMap/' + testMap.id)
+					.set('Authorization', 'Bearer ' + accessToken)
+					.then(res => {
+						expect(res).to.have.status(200);
+					});
+			});
+			it('should respond with 401 when no access token is provided', () => {
+				return chai.request(server)
+					.delete('/api/user/notifyMap' + testMap.id)
+					.then(res => {
+						expect(res).to.have.status(401);
+						expect(res).to.be.json;
+						expect(res.body).to.have.property('error');
+						expect(res.body.error.code).equal(401);
+						expect(res.body.error.message).to.be.a('string');
+					});
+			});
+		});
 
-        describe('GET /api/user/notifications', () => {
-            it('should respond with notification data', () => {
-                // testUser follows testUser2
-                return chai.request(server)
-                    .post('/api/user/follow')
-                    .set('Authorization', 'Bearer ' + accessToken)
-                    .send({
-                        userID: testUser2.id
-                    })
-                    .then(res1 => {
-                        // changes the follow relationship between testUser and testUser2 to notify when a map is approved
-                        return chai.request(server)
-                            .patch('/api/user/follow/' + testUser2.id)
-                            .set('Authorization', 'Bearer ' + accessToken)
-                            .send({
-                                notifyOn: 1 << activity.ACTIVITY_TYPES.MAP_APPROVED
-                            })
-                            .then(res2 => {
-                                // testUser2 creates a map
-                                return chai.request(server)
-                                    .post('/api/maps')
-                                    .set('Authorization', 'Bearer ' + accessToken2)
-                                    .send({
-                                        name: 'test_map_notif',
+		describe('GET /api/user/notifications', () => {
+			it('should respond with notification data', () => {
+				// testUser follows testUser2
+				return chai.request(server)
+					.post('/api/user/follow')
+					.set('Authorization', 'Bearer ' + accessToken)
+					.send({
+						userID: testUser2.id
+					})
+					.then(res1 => {
+						// changes the follow relationship between testUser and testUser2 to notify when a map is approved
+						return chai.request(server)
+							.patch('/api/user/follow/' + testUser2.id)
+							.set('Authorization', 'Bearer ' + accessToken)
+							.send({
+								notifyOn: 1 << activity.ACTIVITY_TYPES.MAP_APPROVED
+							})
+							.then(res2 => {
+								// testUser2 creates a map
+								return chai.request(server)
+									.post('/api/maps')
+									.set('Authorization', 'Bearer ' + accessToken2)
+									.send({
+										name: 'test_map_notif',
 										type: map.MAP_TYPE.SURF,
-                                        info: {
-                                            description: 'newmap_5',
-                                            numTracks: 1,
-                                            creationDate: new Date(),
-                                        },
-                                        tracks: [{
-                                            trackNum: 0,
-                                            numZones: 1,
-                                            isLinear: false,
-                                            difficulty: 5,
-                                        }],
-                                        credits: [{
-                                            userID: testUser2.id,
-                                            type: map.CreditType.AUTHOR,
-                                        }]
-                                    }).then(res3 => {
-                                        // upload the map 
-                                        return chai.request(server)
-                                            .post(res3.header.location)
-                                            .set('Authorization', 'Bearer ' + accessToken2)
-                                            .attach('mapFile', fs.readFileSync('test/testMap.bsp'), 'testMap.bsp')
-                                            .then(res4 => {
-                                                // testadmin approves the map
-                                                return chai.request(server)
-                                                    .patch('/api/admin/maps/' + res3.body.id)
-                                                    .set('Authorization', 'Bearer ' + adminAccessToken)
-                                                    .send({statusFlag: map.STATUS.APPROVED})
-                                                    .then(res5 => {
-                                                        // should get the notification that testUser2's map was approved
-                                                        return chai.request(server)
-                                                            .get('/api/user/notifications')
-                                                            .set('Authorization', 'Bearer ' + accessToken)
-                                                            .then(res6 => {
-                                                                expect(res1).to.have.status(200);
-                                                                expect(res2).to.have.status(204);
-                                                                expect(res3).to.have.status(200);
-                                                                expect(res4).to.have.status(200);
-                                                                expect(res5).to.have.status(204);
-                                                                expect(res6).to.have.status(200);
-                                                                expect(res6.body).to.have.property('notifications');
-                                                                expect(res6.body.notifications).to.be.an('array');
-                                                                expect(res6.body.notifications).to.have.length(1);
-                                                    });
-                                                    
-                                            });
-                                    });
-                            });
-                    });
-            }); 
-            });
-            // Commented out until the 0.10.0 replay refactor
-            it('should respond with notification data for map notifications'); /*, () => {
-                // enable map notifications for the given map
-                return chai.request(server)
-                    .put('/api/user/notifyMap/' + testMap.id)
-                    .set('Authorization', 'Bearer ' + accessToken)
-                    .send({
-                        notifyOn: activity.ACTIVITY_TYPES.WR_ACHIEVED
-                    })
-                    .then(res => {
-                        // upload a run session
-                        return chai.request(server)
-                            .post(`/api/maps/${testMap.id}/session`)
-                            .set('Authorization', 'Bearer ' + adminGameAccessToken)
-                            .send({
-                                trackNum: 0,
-                                zoneNum: 0,
-                            })
-                            .then(res2 => {
-                                // update the run session
-                                let sesID = res2.body.id;
-						        return chai.request(server)
-							        .post(`/api/maps/${testMap.id}/session/${sesID}`)
-							        .set('Authorization', 'Bearer ' + adminGameAccessToken)
-							        .send({
-								        zoneNum: 2,
-								        tick: 510,
-							        })
-							        .then(res3 => {
-                                        // end the run session
-                                        return chai.request(server)
-                                            .post(`/api/maps/${testMap.id}/session/1/end`)
-                                            .set('Authorization', 'Bearer ' + adminGameAccessToken)
-                                            .set('Content-Type', 'application/octet-stream')
-                                            .send(
-                                                fs.readFileSync('test/testRun.momrec')
-                                            )
-                                            .then(res4 => {
-                                                expect(res2).to.have.status(200);
-                                                expect(res2).to.be.json;
-                                                expect(res2.body).to.have.property('id');
-								                expect(res3).to.have.status(200);
-								                expect(res3).to.be.json;
-                                                expect(res3.body).to.have.property('id');
-                                                expect(res4).to.have.status(200);
-                                            })
-							    });
-                            });
-                    }); 
-            }); */
-            
-            it('should respond with filtered notification data using the limit parameter', () => {
-                return chai.request(server)
-                    .get('/api/user/notifications')
-                    .set('Authorization', 'Bearer ' + accessToken)
-                    .query({limit: 1})
-                    .then( res => {
-                        expect(res).to.have.status(200);
-                    })
+										info: {
+											description: 'newmap_5',
+											numTracks: 1,
+											creationDate: new Date(),
+										},
+										tracks: [{
+											trackNum: 0,
+											numZones: 1,
+											isLinear: false,
+											difficulty: 5,
+										}],
+										credits: [{
+											userID: testUser2.id,
+											type: map.CreditType.AUTHOR,
+										}]
+									}).then(res3 => {
+										// upload the map 
+										return chai.request(server)
+											.post(res3.header.location)
+											.set('Authorization', 'Bearer ' + accessToken2)
+											.attach('mapFile', fs.readFileSync('test/testMap.bsp'), 'testMap.bsp')
+											.then(res4 => {
+												// testadmin approves the map
+												return chai.request(server)
+													.patch('/api/admin/maps/' + res3.body.id)
+													.set('Authorization', 'Bearer ' + adminAccessToken)
+													.send({ statusFlag: map.STATUS.APPROVED })
+													.then(res5 => {
+														// should get the notification that testUser2's map was approved
+														return chai.request(server)
+															.get('/api/user/notifications')
+															.set('Authorization', 'Bearer ' + accessToken)
+															.then(res6 => {
+																expect(res1).to.have.status(200);
+																expect(res2).to.have.status(204);
+																expect(res3).to.have.status(200);
+																expect(res4).to.have.status(200);
+																expect(res5).to.have.status(204);
+																expect(res6).to.have.status(200);
+																expect(res6.body).to.have.property('notifications');
+																expect(res6.body.notifications).to.be.an('array');
+																expect(res6.body.notifications).to.have.length(1);
+															});
+													});
+											});
+									});
+							});
+					});
+			});
+		});
+		// Commented out until the 0.10.0 replay refactor
+		it('should respond with notification data for map notifications'); /*() => {
+			// enable map notifications for the given map
+			return chai.request(server)
+				.put('/api/user/notifyMap/' + testMap.id)
+				.set('Authorization', 'Bearer ' + accessToken)
+				.send({
+					notifyOn: activity.ACTIVITY_TYPES.WR_ACHIEVED
+				})
+				.then(res => {
+					// upload a run session
+					return chai.request(server)
+						.post(`/api/maps/${testMap.id}/session`)
+						.set('Authorization', 'Bearer ' + adminGameAccessToken)
+						.send({
+							trackNum: 0,
+							zoneNum: 0,
+						})
+						.then(res2 => {
+							// update the run session
+							let sesID = res2.body.id;
+							return chai.request(server)
+								.post(`/api/maps/${testMap.id}/session/${sesID}`)
+								.set('Authorization', 'Bearer ' + adminGameAccessToken)
+								.send({
+									zoneNum: 2,
+									tick: 510,
+								})
+								.then(res3 => {
+									// end the run session
+									return chai.request(server)
+										.post(`/api/maps/${testMap.id}/session/1/end`)
+										.set('Authorization', 'Bearer ' + adminGameAccessToken)
+										.set('Content-Type', 'application/octet-stream')
+										.send(
+											fs.readFileSync('test/testRun.momrec')
+										)
+										.then(res4 => {
+											expect(res2).to.have.status(200);
+											expect(res2).to.be.json;
+											expect(res2.body).to.have.property('id');
+											expect(res3).to.have.status(200);
+											expect(res3).to.be.json;
+											expect(res3.body).to.have.property('id');
+											expect(res4).to.have.status(200);
+										})
+								});
+							});
+					});
+		}); */
 
-            });
-            it('should respond with filtered notification data using the offset parameter', () => {
-                return chai.request(server)
-                    .get('/api/user/notifications')
-                    .set('Authorization', 'Bearer ' + accessToken)
-                    .query({offset: 0, limit: 1})
-                    .then( res => {
-                        expect(res).to.have.status(200);
-                    })
+		it('should respond with filtered notification data using the limit parameter', () => {
+			return chai.request(server)
+				.get('/api/user/notifications')
+				.set('Authorization', 'Bearer ' + accessToken)
+				.query({ limit: 1 })
+				.then(res => {
+					expect(res).to.have.status(200);
+				})
+		});
+		it('should respond with filtered notification data using the offset parameter', () => {
+			return chai.request(server)
+				.get('/api/user/notifications')
+				.set('Authorization', 'Bearer ' + accessToken)
+				.query({ offset: 0, limit: 1 })
+				.then(res => {
+					expect(res).to.have.status(200);
+				})
+		});
 
-            });
-        });
+		describe('PATCH /api/user/notifications/{notifID}', () => {
+			it('should update the notification', () => {
+				return chai.request(server)
+					.get('/api/user/notifications')
+					.set('Authorization', 'Bearer ' + accessToken)
+					.then(res => {
+						return chai.request(server)
+							.patch('/api/user/notifications/' + res.body.notifications[0].id)
+							.set('Authorization', 'Bearer ' + accessToken)
+							.send({ read: true })
+							.then(res2 => {
+								expect(res2).to.have.status(204);
+							});
+					});
+			});
+		});
 
-        describe('PATCH /api/user/notifications/{notifID}', () => {
-            it('should update the notification', () => {
-                return chai.request(server)
-                    .get('/api/user/notifications')
-                    .set('Authorization', 'Bearer ' + accessToken)
-                    .then(res => {
-                        return chai.request(server)
-                            .patch('/api/user/notifications/' + res.body.notifications[0].id)
-                            .set('Authorization', 'Bearer ' + accessToken)
-                            .send({read: true})
-                            .then(res2 => {
-                                expect(res2).to.have.status(204);
-                            });
-                    });
-                });
-        });
-
-        describe('DELETE /api/user/notifications/{notifID}', () => {
-            it('should delete the notification', () => {
-                return chai.request(server)
-                    .get('/api/user/notifications')
-                    .set('Authorization', 'Bearer ' + accessToken)
-                    .then(res => {
-                        return chai.request(server)
-                            .delete('/api/user/notifications/' + res.body.notifications[0].id)
-                            .set('Authorization', 'Bearer ' + accessToken)
-                            .then(res2 => {
-                                expect(res2).to.have.status(200);
-                            });
-                    });
-             });
-        });
-
-
-
+		describe('DELETE /api/user/notifications/{notifID}', () => {
+			it('should delete the notification', () => {
+				return chai.request(server)
+					.get('/api/user/notifications')
+					.set('Authorization', 'Bearer ' + accessToken)
+					.then(res => {
+						return chai.request(server)
+							.delete('/api/user/notifications/' + res.body.notifications[0].id)
+							.set('Authorization', 'Bearer ' + accessToken)
+							.then(res2 => {
+								expect(res2).to.have.status(200);
+							});
+					});
+			});
+		});
 
         describe('PUT /api/user/maps/library/{mapID}', () => {
             it('should add a new map to the local users library', () => {
@@ -1123,7 +1117,7 @@ describe('user', () => {
                     .then(res => {
                        expect(res).to.have.status(200);
                        expect(res.body.activities).to.be.an('array');
-                       expect(res.body.activities).to.have.length(4);
+						expect(res.body.activities).to.have.length(4);
                        expect(res.body.activities[0]).to.have.property('id');
                     });
             });
@@ -1148,7 +1142,7 @@ describe('user', () => {
                     .then(res => {
                         expect(res).to.have.status(200);
                         expect(res.body.activities).to.be.an('array');
-                        expect(res.body.activities).to.have.length(3);
+						expect(res.body.activities).to.have.length(3);
                         expect(res.body.activities[0]).to.have.property('id');
                     });
             });
@@ -1160,7 +1154,7 @@ describe('user', () => {
                     .then(res => {
                         expect(res).to.have.status(200);
                         expect(res.body.activities).to.be.an('array');
-                        expect(res.body.activities).to.have.length(2);
+						expect(res.body.activities).to.have.length(2);
                         expect(res.body.activities[0]).to.have.property('id');
                     });
             });
@@ -1184,7 +1178,7 @@ describe('user', () => {
                     .then(res => {
                         expect(res).to.have.status(200);
                         expect(res.body.activities).to.be.an('array');
-                        expect(res.body.activities).to.have.length(4);
+						expect(res.body.activities).to.have.length(4);
                         expect(res.body.activities[0]).to.have.property('id');
                         expect(res.body.activities[0].user).to.have.property('roles');
                     });
@@ -1222,7 +1216,7 @@ describe('user', () => {
                     .then(res => {
                         expect(res).to.have.status(200);
                         expect(res.body.activities).to.be.an('array');
-                        expect(res.body.activities).to.have.length(4);
+						expect(res.body.activities).to.have.length(4);
                         expect(res.body.activities[0]).to.have.property('id');
                     });
             });
@@ -1262,7 +1256,7 @@ describe('user', () => {
                     .then(res => {
                         expect(res).to.have.status(200);
                         expect(res.body.activities).to.be.an('array');
-                        expect(res.body.activities).to.have.length(2);
+						expect(res.body.activities).to.have.length(2);
                         expect(res.body.activities[0]).to.have.property('id');
                     });
             });

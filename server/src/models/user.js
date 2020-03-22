@@ -671,7 +671,7 @@ module.exports = {
 			},
 		}).spread((mapNotify, created) => {
 			if (!created) {
-				return mapNotify.update({ notifyOn: notify});
+				return mapNotify.update({ notifyOn: notify });
 			}
 			return Promise.resolve(mapNotify);
 		});
