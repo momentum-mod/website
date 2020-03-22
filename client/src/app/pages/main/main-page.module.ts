@@ -10,7 +10,6 @@ import {RouterModule} from '@angular/router';
 import {GalleryModule} from '@ngx-gallery/core';
 import {NbButtonModule, NbLayoutModule} from '@nebular/theme';
 import { GamemodesComponent } from './gamemodes/gamemodes.component';
-import { GamemodeComponent } from './gamemodes/gamemode/gamemode.component';
 
 @NgModule({
   imports: [CommonModule, RouterModule, NbLayoutModule, NbButtonModule, GalleryModule],
@@ -22,7 +21,6 @@ import { GamemodeComponent } from './gamemodes/gamemode/gamemode.component';
     FooterComponent,
     NavComponent,
     GamemodesComponent,
-    GamemodeComponent,
   ],
 })
 export class MainPageModule {

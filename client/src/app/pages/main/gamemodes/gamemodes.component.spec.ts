@@ -1,7 +1,6 @@
 import { async, ComponentFixture, TestBed } from '@angular/core/testing';
 import {GalleryModule} from '@ngx-gallery/core';
 import { GamemodesComponent } from './gamemodes.component';
-import {GamemodeComponent} from './gamemode/gamemode.component';
 
 describe('GamemodesComponent', () => {
   let component: GamemodesComponent;
@@ -9,7 +8,6 @@ describe('GamemodesComponent', () => {
 
   beforeEach(async(() => {
     TestBed.configureTestingModule({
-      declarations: [ GamemodesComponent, GamemodeComponent ],
       imports: [ GalleryModule ],
     })
     .compileComponents();
