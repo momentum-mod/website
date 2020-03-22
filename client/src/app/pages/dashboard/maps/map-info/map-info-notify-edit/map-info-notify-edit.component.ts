@@ -35,7 +35,7 @@ export class MapNotifyEditComponent implements OnInit {
       if (this.checkboxFlags[perm].checked) {
         this.flags |= (1 << this.checkboxFlags[perm].value);
       } else {
-      this.flags &= ~(1 << this.checkboxFlags[perm].value);
+        this.flags &= ~(1 << this.checkboxFlags[perm].value);
       }
     }
     this.dialogRef.close({ newFlags: this.flags });

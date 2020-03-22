@@ -234,16 +234,16 @@ describe('LocalUserService', () => {
       localUserService.updateMapNotify(expectedMap.id, 1).subscribe(value =>
         expect(value).toEqual(expectedMapNotify, 'expected map notify'),
         fail,
-        );
-        expect(httpClientSpy.put.calls.count()).toBe(1, 'one call');
+      );
+      expect(httpClientSpy.put.calls.count()).toBe(1, 'one call');
     });
     it('#disableMapNotify() should remove the user from map notifcations list', () => {
       httpClientSpy.delete.and.returnValue(of(expectedMapNotify));
       localUserService.disableMapNotify(expectedMap.id).subscribe(value =>
         expect(value).toEqual(expectedMapNotify, 'expected map notify'),
         fail,
-        );
-        expect(httpClientSpy.delete.calls.count()).toBe(1, 'one call');
+      );
+      expect(httpClientSpy.delete.calls.count()).toBe(1, 'one call');
     });
   });
 });

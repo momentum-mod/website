@@ -212,10 +212,10 @@ export class LocalUserService {
     });
   }
 
-   /**
-   * @param mapID The map to check if notifications are enabled
-   * @return A json object with the potential map and the activity type for notificaions
-   */
+  /**
+  * @param mapID The map to check if notifications are enabled
+  * @return A json object with the potential map and the activity type for notificaions
+  */
   public checkMapNotify(mapID: number): Observable<MapNotify> {
     return this.http.get<MapNotify>('/api/user/notifyMap/' + mapID);
   }
