@@ -168,7 +168,7 @@ export class MapInfoComponent implements OnInit, OnDestroy {
               this.mapNotify = res;
             else
               this.mapNotify.notifyOn = resp.newFlags;
-          }, err => {
+          }, (err) => {
             this.toastService.danger('Could not enable notificaions', err.message);
           });
         }

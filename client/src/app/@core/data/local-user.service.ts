@@ -152,12 +152,6 @@ export class LocalUserService {
     return this.http.delete('/api/user/maps/favorites/' + mapID);
   }
 
-    /**
-   * @param mapID Map to receive notifications for
-   * @param notifyOn The flags to notify the followee on
-   * @return Update map notifications
-   */
-
   /**
    * @param options An object of options
    * @return A list of credits featuring the local user

@@ -9,12 +9,10 @@ const { forceSyncDB, User, Profile, Map, MapInfo, Activity, MapCredit, MapStats,
     auth = require('../src/models/auth'),
 	user = require('../src/models/user'),
     map = require('../src/models/map'),
-    activity = require('../src/models/activity');
-
+    activity = require('../src/models/activity'),
+    fs = require('fs');
 
 chai.use(chaiHttp);
-
-let fs = require('fs');
 
 describe('user', () => {
 
@@ -76,11 +74,11 @@ describe('user', () => {
     };
 
     const testAdminGame = {
-    	id: 5,
+        id: 5,
         steamID: '5416876413213874',
         roles: user.Role.ADMIN,
         bans: 0,
-	    country: 'US',
+        country: 'US',
     };
 
     const testMap = {
@@ -100,15 +98,15 @@ describe('user', () => {
             isLinear: false,
             difficulty: 5,
             zones: [
-				{
-					zoneNum: 0,
-					zoneType: 0,
-				},
-				{
-					zoneNum: 1,
-					zoneType: 1,
-				}
-			]
+                {
+                    zoneNum: 0,
+                    zoneType: 0,
+                },
+                {
+                    zoneNum: 1,
+                    zoneType: 1,
+                }
+            ]
         }],
         credits: {
             id: 1,
