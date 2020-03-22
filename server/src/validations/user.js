@@ -6,6 +6,7 @@ module.exports = {
 
 	get: {
 		[Segments.QUERY]: Joi.object().keys({
+			mapRank: validation.map.id,
 			expand: validation.queryParam.expand,
 		}),
 	},
