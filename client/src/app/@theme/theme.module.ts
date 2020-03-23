@@ -35,13 +35,13 @@ import {
 import {CapitalizePipe, NumberThousandsPipe, NumberWithCommasPipe, PluralPipe, RoundPipe, TimingPipe} from './pipes';
 import {SampleLayoutComponent} from './layouts';
 import {NbSearchModule} from './components/search/search.module';
-import {TimeAgoPipe} from 'time-ago-pipe';
 import {RouterModule} from '@angular/router';
 import {ActivityListComponent} from './components/activity/activity-list/activity-list.component';
 import {ReportButtonComponent} from './components/report/report-button/report-button.component';
 import {CreateReportDialogComponent} from './components/report/create-report-dialog/create-report-dialog.component';
 import {ConfirmDialogComponent} from './components/confirm-dialog/confirm-dialog.component';
 import {NbEvaIconsModule} from '@nebular/eva-icons';
+import {TimeagoModule} from 'ngx-timeago';
 
 
 const BASE_MODULES = [CommonModule, FormsModule, ReactiveFormsModule, RouterModule];
@@ -89,7 +89,6 @@ const PIPES = [
   RoundPipe,
   TimingPipe,
   NumberWithCommasPipe,
-  TimeAgoPipe,
   NumberThousandsPipe,
 ];
 
@@ -105,8 +104,8 @@ const NB_THEME_PROVIDERS = [
 ];
 
 @NgModule({
-  imports: [...BASE_MODULES, ...NB_MODULES],
-  exports: [...BASE_MODULES, ...NB_MODULES, ...COMPONENTS, ...PIPES],
+  imports: [...BASE_MODULES, ...NB_MODULES, TimeagoModule],
+  exports: [...BASE_MODULES, ...NB_MODULES, ...COMPONENTS, ...PIPES, TimeagoModule],
   declarations: [...COMPONENTS, ...PIPES],
 })
 export class ThemeModule {

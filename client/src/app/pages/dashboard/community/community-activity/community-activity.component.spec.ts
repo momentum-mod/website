@@ -8,6 +8,7 @@ import {Activity} from '../../../../@core/models/activity.model';
 import {Activity_Type} from '../../../../@core/models/activity-type.model';
 import {RouterModule} from '@angular/router';
 import {APP_BASE_HREF} from '@angular/common';
+import {TimeagoClock, TimeagoDefaultClock, TimeagoDefaultFormatter, TimeagoFormatter} from 'ngx-timeago';
 
 describe('CommunityActivityComponent', () => {
   let component: CommunityActivityComponent;
@@ -50,6 +51,8 @@ describe('CommunityActivityComponent', () => {
       providers: [
         { provide: ActivityService, useValue: actServiceStub },
         { provide: APP_BASE_HREF, useValue: '/' },
+        { provide: TimeagoFormatter, useClass: TimeagoDefaultFormatter },
+        { provide: TimeagoClock, useClass: TimeagoDefaultClock },
       ],
     })
     .compileComponents();

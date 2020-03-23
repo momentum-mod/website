@@ -1,8 +1,3 @@
-/**
- * @license
- * Copyright Akveo. All Rights Reserved.
- * Licensed under the MIT License. See License.txt in the project root for license information.
- */
 import {APP_BASE_HREF} from '@angular/common';
 import {BrowserModule} from '@angular/platform-browser';
 import {BrowserAnimationsModule} from '@angular/platform-browser/animations';
@@ -21,6 +16,7 @@ import {MarkdownModule, MarkedOptions} from 'ngx-markdown';
 import {NbDatepickerModule, NbDialogModule, NbGlobalPhysicalPosition, NbToastrModule} from '@nebular/theme';
 import {RefreshTokenInterceptorService} from './@core/utils/refresh-token-interceptor.service';
 import {NbEvaIconsModule} from '@nebular/eva-icons';
+import {TimeagoModule} from 'ngx-timeago';
 
 export function tokenGetter() {
   return localStorage.getItem('accessToken');
@@ -76,6 +72,7 @@ export function tokenGetter() {
       autoFocus: true,
     }),
 
+    TimeagoModule.forRoot(),
     ThemeModule.forRoot(),
     CoreModule.forRoot(),
   ],
