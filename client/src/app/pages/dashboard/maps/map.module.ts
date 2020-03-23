@@ -72,8 +72,5 @@ import {NbDialogModule} from '@nebular/theme';
     MapListComponent,
   ],
   providers: [],
-  entryComponents: [
-    MapNotifyEditComponent,
-  ],
 })
 export class MapModule { }

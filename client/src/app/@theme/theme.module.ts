@@ -104,16 +104,10 @@ const NB_THEME_PROVIDERS = [
   ...NbMenuModule.forRoot().providers,
 ];
 
-const ENTRY_COMPONENTS = [
-  CreateReportDialogComponent,
-  ConfirmDialogComponent,
-];
-
 @NgModule({
   imports: [...BASE_MODULES, ...NB_MODULES],
   exports: [...BASE_MODULES, ...NB_MODULES, ...COMPONENTS, ...PIPES],
   declarations: [...COMPONENTS, ...PIPES],
-  entryComponents: [...ENTRY_COMPONENTS],
 })
 export class ThemeModule {
   static forRoot(): ModuleWithProviders {

@@ -33,6 +33,5 @@ import { XPSystemComponent } from './xp-system/xp-system.component';
     XPSystemComponent,
   ],
   providers: [],
-  entryComponents: [UpdateReportDialogComponent],
 })
 export class AdminModule { }
