@@ -9,4 +9,7 @@ export class FooterComponent {
 
   constructor() { }
 
+  getYear() {
+    return new Date().getFullYear();
+  }
 }
