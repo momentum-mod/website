@@ -40,8 +40,5 @@ import {ProfileNotifyEditComponent} from './profile-follow/profile-notify-edit/p
     ProfileNotifyEditComponent,
   ],
   providers: [],
-  entryComponents: [
-    ProfileNotifyEditComponent,
-  ],
 })
 export class ProfileModule {}

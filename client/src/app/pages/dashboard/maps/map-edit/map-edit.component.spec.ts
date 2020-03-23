@@ -16,7 +16,15 @@ import {MapUploadStatus} from '../../../../@core/models/map-upload-status.model'
 import {AuthService} from '../../../../@core/data/auth.service';
 import {CookieService} from 'ngx-cookie-service';
 import {HttpClientModule} from '@angular/common/http';
-import {NbDialogService, NbToastrConfig, NbToastRef, NbToastrService, NbAlertModule} from '@nebular/theme';
+import {
+  NbDialogService,
+  NbToastrConfig,
+  NbToastRef,
+  NbToastrService,
+  NbAlertModule,
+  NbFocusMonitor,
+} from '@nebular/theme';
+import {FocusMonitor} from '@angular/cdk/a11y';
 
 describe('MapEditComponent', () => {
 
@@ -75,6 +83,7 @@ describe('MapEditComponent', () => {
         { provide: MapsService, useValue: mapServiceStub },
         { provide: APP_BASE_HREF, useValue: '/' },
         { provide: NbToastrService, useValue: toastrStub },
+        { provide: NbFocusMonitor, useClass: FocusMonitor },
       ],
     })
     .compileComponents();

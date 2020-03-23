@@ -33,9 +33,6 @@ import {CommonModule} from '@angular/common';
   providers: [
     NbSearchService,
   ],
-  entryComponents: [
-    SearchFieldComponent,
-  ],
 })
 export class NbSearchModule {
 }
