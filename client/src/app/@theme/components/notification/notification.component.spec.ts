@@ -8,8 +8,14 @@ import {RouterModule} from '@angular/router';
 import {APP_BASE_HREF} from '@angular/common';
 import {HttpClientTestingModule} from '@angular/common/http/testing';
 import {Activity_Type} from '../../../@core/models/activity-type.model';
-import {TimeAgoPipe} from 'time-ago-pipe';
 import {NbEvaIconsModule} from '@nebular/eva-icons';
+import {
+  TimeagoClock,
+  TimeagoDefaultClock,
+  TimeagoDefaultFormatter,
+  TimeagoFormatter,
+  TimeagoModule,
+} from 'ngx-timeago';
 
 describe('NotificationComponent', () => {
   let component: NotificationComponent;
@@ -34,11 +40,14 @@ describe('NotificationComponent', () => {
         NbIconModule,
         RouterModule.forRoot([]),
         HttpClientTestingModule, CoreModule.forRoot(),
+        TimeagoModule.forRoot(),
       ],
-      declarations: [ TimeAgoPipe, NotificationComponent, ActivityContentComponent ],
+      declarations: [ NotificationComponent, ActivityContentComponent ],
       providers: [
         { provide: APP_BASE_HREF, useValue: '/' },
         { provide: NbToastrService, useValue: toastrStub },
+        { provide: TimeagoFormatter, useClass: TimeagoDefaultFormatter },
+        { provide: TimeagoClock, useClass: TimeagoDefaultClock },
       ],
     })
     .compileComponents();

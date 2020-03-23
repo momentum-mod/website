@@ -4,8 +4,8 @@ import {ActivityContentComponent} from './activity-content.component';
 import {NbUserModule} from '@nebular/theme';
 import {Activity_Type} from '../../../../@core/models/activity-type.model';
 import {RouterModule} from '@angular/router';
-import {TimeAgoPipe} from 'time-ago-pipe';
 import {APP_BASE_HREF} from '@angular/common';
+import {TimeagoModule} from 'ngx-timeago';
 
 describe('ActivityContentComponent', () => {
   let component: ActivityContentComponent;
@@ -13,8 +13,8 @@ describe('ActivityContentComponent', () => {
 
   beforeEach(async(() => {
     TestBed.configureTestingModule({
-      imports: [NbUserModule, RouterModule.forRoot([])],
-      declarations: [ TimeAgoPipe, ActivityContentComponent ],
+      imports: [NbUserModule, RouterModule.forRoot([]), TimeagoModule.forRoot()],
+      declarations: [ ActivityContentComponent ],
       providers: [
         { provide: APP_BASE_HREF, useValue: '/' },
       ],

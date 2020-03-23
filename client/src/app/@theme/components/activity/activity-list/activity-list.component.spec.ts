@@ -5,7 +5,7 @@ import {ActivityContentComponent} from '../..';
 import {NbListModule, NbUserModule} from '@nebular/theme';
 import {APP_BASE_HREF} from '@angular/common';
 import {RouterModule} from '@angular/router';
-import {TimeAgoPipe} from 'time-ago-pipe';
+import {TimeagoModule} from 'ngx-timeago';
 
 describe('ActivityListComponent', () => {
   let component: ActivityListComponent;
@@ -13,8 +13,8 @@ describe('ActivityListComponent', () => {
 
   beforeEach(async(() => {
     TestBed.configureTestingModule({
-      imports: [NbListModule, NbUserModule, RouterModule.forRoot([])],
-      declarations: [ ActivityListComponent, ActivityContentComponent, TimeAgoPipe ],
+      imports: [NbListModule, NbUserModule, RouterModule.forRoot([]), TimeagoModule.forRoot()],
+      declarations: [ ActivityListComponent, ActivityContentComponent ],
       providers: [
         { provide: APP_BASE_HREF, useValue: '/' },
       ],

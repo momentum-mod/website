@@ -6,6 +6,7 @@ import {RouterTestingModule} from '@angular/router/testing';
 import {HttpClientTestingModule} from '@angular/common/http/testing';
 import {Observable, of} from 'rxjs';
 import {RanksService} from '../../../../@core/data/ranks.service';
+import {TimeagoDefaultFormatter, TimeagoFormatter} from 'ngx-timeago';
 
 describe('RunInfoComponent', () => {
   let component: RunInfoComponent;
@@ -32,6 +33,7 @@ describe('RunInfoComponent', () => {
       declarations: [ RunInfoComponent ],
       providers: [
         { provide: RanksService, useValue: ranksServiceStub },
+        { provide: TimeagoFormatter, useClass: TimeagoDefaultFormatter },
       ],
     })
     .compileComponents();

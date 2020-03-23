@@ -11,8 +11,8 @@ import {
   NbUserModule,
 } from '@nebular/theme';
 import {TimingPipe} from '../../../../../@theme/pipes';
-import {TimeAgoPipe} from 'time-ago-pipe';
 import {HttpClientTestingModule} from '@angular/common/http/testing';
+import {TimeagoModule} from 'ngx-timeago';
 
 describe('MapLeaderboardComponent', () => {
   let component: MapLeaderboardComponent;
@@ -35,8 +35,9 @@ describe('MapLeaderboardComponent', () => {
         NbCheckboxModule,
         RouterTestingModule.withRoutes([]),
         HttpClientTestingModule,
+        TimeagoModule,
       ],
-      declarations: [ MapLeaderboardComponent, TimingPipe, TimeAgoPipe ],
+      declarations: [ MapLeaderboardComponent, TimingPipe ],
       providers: [
         { provide: NbToastrService, useValue: toastrStub },
       ],
