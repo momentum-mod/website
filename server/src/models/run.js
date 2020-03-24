@@ -369,19 +369,19 @@ const saveRun = (resultObj, transact) => {
 	}).then(() => { // Generate PB notifications
 		if (!resultObj.isPersonalBest || resultObj.isNewWorldRecord)
 			return Promise.resolve();
-		return activity.create({
+		return activity.createPBActivity({
 			type: activity.ACTIVITY_TYPES.PB_ACHIEVED,
 			userID: resultObj.userID,
 			data: runModel.id,
-		}, transact);
+		}, transact, resultObj.map.id);
 	}).then(() => { // Generate WR notifications if needed
 		if (!resultObj.isNewWorldRecord)
 			return Promise.resolve();
-		return activity.create({
+		return activity.createPBActivity({
 			type: activity.ACTIVITY_TYPES.WR_ACHIEVED,
 			userID: resultObj.userID,
 			data: runModel.id,
-		}, transact);
+		}, transact, resultObj.map.id);
 	}).then(() => {
 		return Promise.resolve(runModel);
 	});

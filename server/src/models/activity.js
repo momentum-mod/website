@@ -1,7 +1,40 @@
 'use strict';
 const { sequelize, Op, User, Activity, Profile, Notification, UserFollows, MapNotify, Run } = require('../../config/sqlize');
 
-const genNotifications = (activityModel, transaction) => {
+const combineUsersToNotify = (activityModel, transaction, mapID, usersToNotify) => {
+	return MapNotify.findAll({
+		attributes: [['followeeID', 'forUserID']],
+		where: {
+			mapID: mapID,
+			[Op.and]: [
+				sequelize.literal('notifyOn & ' + (1 << activityModel.type) + ' != 0')
+			],
+		},
+		raw: true,
+		transaction: transaction,
+	}).then(usersToMapNotify => {
+		if (!usersToNotify.length) { // If there were no other notifications we can just return the map notifications
+			usersToNotify = usersToMapNotify;
+			return Promise.resolve(usersToNotify);
+		}
+		else if (usersToMapNotify.length) { // Eliminates duplicate notifications
+			for (let i = 0; i < usersToMapNotify.length; i++) {
+				let found = false;
+				for (let j = 0; j < usersToNotify.length; j++) {
+					if (usersToMapNotify[i].forUserID === usersToNotify[j].forUserID) {
+						found = true;
+						break;
+					}
+				}
+				if (!found)
+					usersToNotify.push(usersToMapNotify[i]);
+			}
+			return Promise.resolve(usersToNotify);
+		}
+	});
+};
+
+const genNotifications = (activityModel, transaction, mapID) => {
 	return UserFollows.findAll({
 		attributes: [['followeeID', 'forUserID']],
 		where: {
@@ -13,41 +46,10 @@ const genNotifications = (activityModel, transaction) => {
 		raw: true,
 		transaction: transaction,
 	}).then(usersToNotify => {
-		if (activityModel.type !== ACTIVITY_TYPES.PB_ACHIEVED && activityModel.type !== ACTIVITY_TYPES.WR_ACHIEVED) { // If the activity was related to a WR or PB, we need to check for map notifications
-			return usersToNotify;
+		if (!mapID || (activityModel.type !== ACTIVITY_TYPES.PB_ACHIEVED && activityModel.type !== ACTIVITY_TYPES.WR_ACHIEVED)) {
+			return Promise.resolve(usersToNotify);
 		}
-		return Run.findByPk(activityModel.data).then(run => {
-			return MapNotify.findAll({
-				attributes: [['followeeID', 'forUserID']],
-				where: {
-					mapID: run.mapID,
-					[Op.and]: [
-						sequelize.literal('notifyOn & ' + (1 << activityModel.type) + ' != 0')
-					],
-				},
-				raw: true,
-				transaction: transaction,
-			}).then(usersToMapNotify => {
-				if (!usersToNotify.length) { // If there were no other notifications we can just return the map notifications
-					usersToNotify = usersToMapNotify;
-					return usersToNotify;
-				}
-				else if (usersToMapNotify.length) { // Eliminates duplicate notifications
-					for (let i = 0; i < usersToMapNotify.length; i++) {
-						var found = false;
-						for (let j = 0; j < usersToNotify.length; j++) {
-							if (usersToMapNotify[i].forUserID == usersToNotify[j].forUserID) {
-								found = true;
-								break;
-							}
-						}
-						if (!found)
-							usersToNotify.push(usersToMapNotify[i]);
-					}
-					return usersToNotify;
-				}
-			});
-		})
+		return combineUsersToNotify(activityModel, transaction, mapID, usersToNotify);
 	}).then(usersToNotify => {
 		if (!usersToNotify.length)
 			return Promise.resolve();
@@ -103,5 +105,11 @@ module.exports = {
 			return genNotifications(act, transaction);
 		});
 	},
+
+	createPBActivity: (activity, transaction, mapID) => {
+		return Activity.create(activity, { transaction: transaction }).then(act => {
+			return genNotifications(act, transaction, mapID);
+		});
+	}
 
 };
