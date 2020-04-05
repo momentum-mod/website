@@ -13,11 +13,12 @@ const combineUsersToNotify = (activityModel, transaction, mapID, usersToNotify) 
 		raw: true,
 		transaction: transaction,
 	}).then(usersToMapNotify => {
-		if (!usersToNotify.length) { // If there were no other notifications we can just return the map notifications
-			usersToNotify = usersToMapNotify;
-			return Promise.resolve(usersToNotify);
+		if (!usersToNotify || !usersToNotify.length) {
+			// If there were no other notifications we can just return the map notifications
+			return Promise.resolve(usersToMapNotify);
 		}
-		else if (usersToMapNotify.length) { // Eliminates duplicate notifications
+		else if (usersToMapNotify && usersToMapNotify.length) {
+			// Eliminate duplicate notifications
 			for (let i = 0; i < usersToMapNotify.length; i++) {
 				let found = false;
 				for (let j = 0; j < usersToNotify.length; j++) {
@@ -30,6 +31,9 @@ const combineUsersToNotify = (activityModel, transaction, mapID, usersToNotify) 
 					usersToNotify.push(usersToMapNotify[i]);
 			}
 			return Promise.resolve(usersToNotify);
+		}
+		else {
+			return Promise.resolve(null);
 		}
 	});
 };
@@ -51,7 +55,7 @@ const genNotifications = (activityModel, transaction, mapID) => {
 		}
 		return combineUsersToNotify(activityModel, transaction, mapID, usersToNotify);
 	}).then(usersToNotify => {
-		if (!usersToNotify.length)
+		if (!usersToNotify || !usersToNotify.length)
 			return Promise.resolve();
 		const notifications = usersToNotify;
 		for (let i = 0; i < notifications.length; i++) {
