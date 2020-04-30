@@ -19,13 +19,18 @@
             <input nbInput fullWidth type="text" class="form-control" placeholder="Name">
           </div>
           <div class="col-md">
-            <nb-checkbox class="mr-1">W-Only</nb-checkbox>
-            <nb-checkbox class="mr-1">Backwards</nb-checkbox>
+            <!-- <nb-checkbox class="mr-1">W-Only</nb-checkbox>
+            <nb-checkbox class="mr-1">Backwards</nb-checkbox> -->
+            <nb-radio-group [(value)]="filterOption">
+              <nb-radio [value]="1">Show top 10 times</nb-radio>
+              <nb-radio [value]="2">Show ranks around me</nb-radio>
+              <nb-radio [value]="3">Show friend's time</nb-radio>
+            </nb-radio-group>
           </div>
         </div>
         <div class="row no-gutters">
           <div class="col col-md-auto pr-2">
-            <button nbButton outline status="info" class="w-100">Update</button>
+            <button nbButton outline status="info" class="w-100" (click)="loadLeaderboardRuns(_mapID)">Update</button>
           </div>
           <div class="col col-md-auto pl-2">
             <button nbButton outline status="warning" class="w-100">Clear</button>
