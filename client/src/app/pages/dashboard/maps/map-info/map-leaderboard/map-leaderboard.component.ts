@@ -22,6 +22,7 @@ export class MapLeaderboardComponent implements OnInit {
   filterActive: boolean;
   leaderboardRanks: UserMapRank[];
   searchedRanks: boolean;
+  filterOption: number;
 
   constructor(private rankService: RanksService,
               private router: Router,
@@ -29,18 +30,40 @@ export class MapLeaderboardComponent implements OnInit {
     this.filterActive = false;
     this.searchedRanks = false;
     this.leaderboardRanks = [];
+    this.filterOption = 1;
   }
 
   ngOnInit() {
   }
 
+  filterLeaderboardRuns(mapID?: number) {
+    if (this.filterOption === 1) {
+        return this.rankService.getRanks(mapID || this.mapID, {
+          params: {
+            // TODO do further filtering here
+            limit: 10,
+            },
+        });
+    } else if (this.filterOption === 2) {
+        return this.rankService.getAroundRanks(mapID || this.mapID, {
+          params: {
+            // TODO do further filtering here
+            limit: 10,
+            },
+        });
+    } else if (this.filterOption === 3) {
+        return this.rankService.getFriendsRanks(mapID || this.mapID, {
+          params: {
+            // TODO do further filtering here
+            limit: 10,
+            },
+        });
+    }
+  }
+
   loadLeaderboardRuns(mapID?: number) {
-    this.rankService.getRanks(mapID || this.mapID, {
-      params: {
-        // TODO do further filtering here
-        limit: 10,
-      },
-    }).pipe(finalize(() => this.searchedRanks = true))
+    this.searchedRanks = false;
+    this.filterLeaderboardRuns(mapID).pipe(finalize(() => this.searchedRanks = true))
       .subscribe(res => {
         if (res.count)
           this.leaderboardRanks = res.ranks;
