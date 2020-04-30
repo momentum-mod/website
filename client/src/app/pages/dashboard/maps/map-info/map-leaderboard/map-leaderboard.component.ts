@@ -17,7 +17,7 @@ export class MapLeaderboardComponent implements OnInit {
   @Input('mapID')
   set mapID(value: number) {
     this._mapID = value;
-    this.loadLeaderboardRuns(this._mapID);
+    this.loadLeaderboardRuns();
   }
   filterActive: boolean;
   leaderboardRanks: UserMapRank[];
@@ -61,9 +61,9 @@ export class MapLeaderboardComponent implements OnInit {
     }
   }
 
-  loadLeaderboardRuns(mapID?: number) {
+  loadLeaderboardRuns() {
     this.searchedRanks = false;
-    this.filterLeaderboardRuns(mapID).pipe(finalize(() => this.searchedRanks = true))
+    this.filterLeaderboardRuns(this._mapID).pipe(finalize(() => this.searchedRanks = true))
       .subscribe(res => {
         if (res.count)
           this.leaderboardRanks = res.ranks;
