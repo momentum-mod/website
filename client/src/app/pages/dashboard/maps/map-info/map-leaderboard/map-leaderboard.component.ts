@@ -6,6 +6,12 @@ import {RanksService} from '../../../../../@core/data/ranks.service';
 import {UserMapRank} from '../../../../../@core/models/user-map-rank.model';
 import {NbToastrService} from '@nebular/theme';
 
+export enum LeaderboardType {
+  TOP10 = 1,
+  AROUND = 2,
+  FRIENDS = 3,
+}
+
 @Component({
   selector: 'map-leaderboard',
   templateUrl: './map-leaderboard.component.html',
@@ -22,7 +28,8 @@ export class MapLeaderboardComponent implements OnInit {
   filterActive: boolean;
   leaderboardRanks: UserMapRank[];
   searchedRanks: boolean;
-  filterOption: number;
+  LeaderboardTypeEnum: any;
+  filterLeaderboardType: LeaderboardType;
 
   constructor(private rankService: RanksService,
               private router: Router,
@@ -30,28 +37,29 @@ export class MapLeaderboardComponent implements OnInit {
     this.filterActive = false;
     this.searchedRanks = false;
     this.leaderboardRanks = [];
-    this.filterOption = 1;
+    this.LeaderboardTypeEnum = LeaderboardType;
+    this.filterLeaderboardType = LeaderboardType.TOP10;
   }
 
   ngOnInit() {
   }
 
   filterLeaderboardRuns(mapID?: number) {
-    if (this.filterOption === 1) {
+    if (this.filterLeaderboardType === this.LeaderboardTypeEnum.TOP10) {
         return this.rankService.getRanks(mapID || this.mapID, {
           params: {
             // TODO do further filtering here
             limit: 10,
             },
         });
-    } else if (this.filterOption === 2) {
+    } else if (this.filterLeaderboardType === this.LeaderboardTypeEnum.AROUND) {
         return this.rankService.getAroundRanks(mapID || this.mapID, {
           params: {
             // TODO do further filtering here
             limit: 10,
             },
         });
-    } else if (this.filterOption === 3) {
+    } else if (this.filterLeaderboardType === this.LeaderboardTypeEnum.FRIENDS) {
         return this.rankService.getFriendsRanks(mapID || this.mapID, {
           params: {
             // TODO do further filtering here
