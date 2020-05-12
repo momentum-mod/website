@@ -11,7 +11,7 @@ jobs:
     - name: Publish to Registry
       uses: elgohr/Publish-Docker-Github-Action@2.14
       with:
-        name: momentum-mod/website/mmod-website-production
+        name: momentum-mod/website/mmod-website
         username: ${{ github.actor }}
         password: ${{ secrets.GITHUB_TOKEN }}
         registry: docker.pkg.github.com
