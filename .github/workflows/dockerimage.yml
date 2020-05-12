@@ -7,9 +7,9 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@master
+    - uses: actions/checkout@v2
     - name: Publish to Registry
-      uses: momentum-mod/website@staging
+      uses: elgohr/Publish-Docker-Github-Action@2.14
       with:
         name: momentum-mod/website/mmod-website-production
         username: ${{ github.actor }}
