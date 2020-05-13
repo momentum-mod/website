@@ -1,5 +1,5 @@
 echo -e '-= Pulling MMOD Website Server Image from GitHub Packages =-\n'
-docker pull docker.pkg.github.com/momentum-mod/website/mmod-website:latest
+docker pull docker.pkg.github.com/momentum-mod/website/mmod-website:staging
 
 echo -e '-= Stopping MMoD Website Container =-\n'
 docker container stop mmod-website
