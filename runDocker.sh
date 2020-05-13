@@ -12,4 +12,4 @@ docker run -v $PWD/server/public/img/maps:/app/server/public/img/maps \
            --name "mmod-website" \
            --env-file env-vars.list \
            -d \
-           mmod-website
+           docker.pkg.github.com/momentum-mod/website/mmod-website:staging
