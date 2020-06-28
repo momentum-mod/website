@@ -305,7 +305,7 @@ const isNewPersonalBest = (resultObj, transact) => {
 		defaults: attrs,
 		include: [{model: Run, as: 'run'}],
 		transaction: transact,
-	}).spread((mapRank, created) => {
+	}).then(([mapRank, created]) => {
 		resultObj.mapRank = mapRank;
 		resultObj.createdMapRank = created;
 		if (created) {

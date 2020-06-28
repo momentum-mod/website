@@ -466,7 +466,7 @@ module.exports = {
 		return model.findOrCreate({
 			where: {profileID: profile.id},
 			defaults: authData,
-		}).spread((authMdl, created) => {
+		}).then(([authMdl, created]) => {
 			return Promise.resolve(authMdl);
 		});
 	},
@@ -669,7 +669,7 @@ module.exports = {
 			defaults: {
 				notifyOn: notify
 			},
-		}).spread((mapNotify, created) => {
+		}).then(([mapNotify, created]) => {
 			if (!created) {
 				return mapNotify.update({ notifyOn: notify });
 			}
