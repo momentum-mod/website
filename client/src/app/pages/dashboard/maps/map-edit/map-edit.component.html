@@ -49,7 +49,7 @@
               <div class="map-image-cont mx-2" *ngFor="let img of mapImages" cdkDrag>
                 <img class="map-image" [src]="img.small">
                 <button nbButton outline status="danger" size="tiny" (click)="removeMapImage(img)">
-                  <i class="ion ion-close-round"></i>
+                  <nb-icon icon="close-outline"></nb-icon>
                 </button>
               </div>
               <div class="mx-2 upload-box" *ngIf="mapImages.length < mapImagesLimit">

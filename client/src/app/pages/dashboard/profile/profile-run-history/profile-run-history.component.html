@@ -27,7 +27,7 @@
     }">
       <div class="row no-gutters align-items-center">
         <div class="col-2 col-sm-1 icon pl-0 pl-md-3">
-          <i *ngIf="run.rank" class="ion ion-trophy" nbPopover="Personal Best" nbPopoverTrigger="hint"></i>&zwnj;
+          <nb-icon *ngIf="run.rank" icon="award-outline" nbPopover="Personal Best" nbPopoverTrigger="hint"></nb-icon>&zwnj;
         </div>
         <div class="col">
           <a routerLink="/dashboard/runs/{{run.id}}">

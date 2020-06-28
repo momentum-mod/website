@@ -5,7 +5,7 @@
       <nb-user [name]="user.alias" [picture]="user.avatarURL"></nb-user>
       <div class="ml-auto" *ngIf="editable">
         <button nbButton outline status="danger" size="tiny" (click)="removeUser(user)">
-          <i class="ion ion-close-round"></i>
+          <nb-icon icon="close-outline"></nb-icon>
         </button>
       </div>
     </div>
@@ -13,12 +13,12 @@
 </nb-list>
 <div class="text-center" *ngIf="userSearch">
   <div class="mb-2 text-danger" *ngIf="userSearch.alreadySelected">User already selected!</div>
-  <user-search class="text-left" (selectedUserEmit)="addUser($event, userSearch)"></user-search>
+  <user-search class="text-left" (selectedUserEmit)="addUser($event)"></user-search>
   <button class="mt-3" nbButton outline status="danger" size="tiny"
           (click)="removeUserSearch()">Cancel</button>
 </div>
 <div class="text-center" *ngIf="editable && !userSearch">
   <button nbButton outline status="info" (click)="addUserSearch()">
-    <i class="ion ion-plus"></i>
+    <nb-icon icon="plus-outline"></nb-icon>
   </button>
 </div>

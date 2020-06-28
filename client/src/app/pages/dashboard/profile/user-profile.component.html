@@ -9,7 +9,7 @@
           <div *ngIf="canEdit()">
             <button nbButton outline status="info" class="ml-2" type="button" (click)="onEditProfile()">
               <span class="d-none d-md-inline-block">Edit Profile</span>
-              <i class="fas fa-user-edit d-inline-block d-md-none"></i>
+              <nb-icon class="d-inline-block d-md-none" icon="edit"></nb-icon>
             </button>
           </div>
         </div>
@@ -47,15 +47,15 @@
           <div class="col">
             <div class="ml-0 ml-md-2 socials">
               <a *ngIf="!hasRole(role.PLACEHOLDER)" href="https://steamcommunity.com/profiles/{{user.steamID}}"
-                 target="_blank" class="ion ion-steam"></a>
+                 target="_blank" class="fab fa-steam"></a>
               <a *ngIf="user.profile?.twitchAuth" href="https://twitch.tv/{{user.profile.twitchAuth.displayName}}"
-                 title="{{user.profile.twitchAuth.displayName}}" target="_blank" class="ion ion-social-twitch"></a>
+                 title="{{user.profile.twitchAuth.displayName}}" target="_blank" class="fab fa-twitch"></a>
               <a *ngIf="user.profile?.twitterAuth" href="https://twitter.com/{{user.profile.twitterAuth.displayName}}"
-                 title="{{user.profile.twitterAuth.displayName}}" target="_blank" class="ion ion-social-twitter"></a>
+                 title="{{user.profile.twitterAuth.displayName}}" target="_blank" class="fab fa-twitter"></a>
               <a *ngIf="user.profile?.discordAuth" href="https://discordapp.com/users/{{user.profile.discordAuth.discordID}}"
                  title="{{user.profile.discordAuth.displayName}}" target="_blank" class="fab fa-discord"></a>
               <a *ngIf="user.profile?.youtubeName" href="https://youtube.com/user/{{user.profile.youtubeName}}"
-                 title="{{user.profile.youtubeName}}" target="_blank" class="ion ion-social-youtube"></a>
+                 title="{{user.profile.youtubeName}}" target="_blank" class="fab fa-youtube"></a>
             </div>
           </div>
           <div class="col-auto" *ngIf="!isLocal">
