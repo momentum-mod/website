@@ -9,8 +9,7 @@ import {ThemeModule} from '../../@theme/theme.module';
 })
 export class OutgoingModule {
   static readonly whitelistedOutgoingDomains: string[] = [
-    process.env["BASE_URL"],
-    'localhost',
+    window.location.host,
     'twitter.com',
     'twitch.tv',
     'youtube.com',
