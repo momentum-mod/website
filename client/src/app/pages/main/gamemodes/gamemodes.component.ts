@@ -18,7 +18,7 @@ export class GamemodesComponent implements OnInit, OnDestroy {
 
   currentGameModes: GameModeDetails[] = [
     {
-      url: 'https://www.youtube.com/watch?v=Awld0PXTfs0',
+      url: 'https://www.youtube.com/watch?v=UxQ0x-AiJOY',
       modeTitle: 'Surf',
       modeDescription: 'Based off of the movement from Counter-Strike: Source, ' +
         'players \"surf\" by gliding along triangular prisms called ramps in order ' +
@@ -27,14 +27,14 @@ export class GamemodesComponent implements OnInit, OnDestroy {
     },
     {
       url: 'https://www.youtube.com/watch?v=8IvXWjjqHiA',
-      modeTitle: 'Bunnyhop',
+      modeTitle: 'Bunny Hop',
       modeDescription: 'Based off of the movement from Counter-Strike: Source, ' +
         'players repeatedly jump while strafing through the air to continuously ' +
         'gain speed to complete maps.',
       imageUrl: '/assets/images/gamemode_bhop.jpg',
     },
     {
-      url: 'https://www.youtube.com/watch?v=sMkT7GjCvQA',
+      url: 'https://www.youtube.com/watch?v=TCDV5aZNYEY',
       modeTitle: 'Rocket Jump',
       modeDescription: 'Based off of the Soldier class from Team Fortress 2, ' +
         'players shoot unidirectional, fixed-speed rockets and take advantage of the explosion ' +
@@ -42,7 +42,7 @@ export class GamemodesComponent implements OnInit, OnDestroy {
       imageUrl: '/assets/images/gamemode_rj.jpg',
     },
     {
-      url: 'https://youtu.be/sKHlRQJkviI',
+      url: 'https://www.youtube.com/watch?v=ubH5tw0ZLBc',
       modeTitle: 'Sticky Jump',
       modeDescription: 'Based off of the Demoman class from Team Fortress 2, ' +
         'players shoot explosives that stick to surfaces and have control over ' +
@@ -50,7 +50,7 @@ export class GamemodesComponent implements OnInit, OnDestroy {
       imageUrl: '/assets/images/gamemode_stickyjump.jpg',
     },
   ];
-  // Future Gamemodes Data
+
   futureGameModes: GameModeDetails[] = [
     {
       url: 'https://www.youtube.com/watch?v=8M_GbJSU1Rw',
@@ -62,16 +62,31 @@ export class GamemodesComponent implements OnInit, OnDestroy {
       imageUrl: '/assets/images/gamemode_ahop.jpg',
     },
     {
+      url: 'https://www.youtube.com/watch?v=k9jAlYmNK5A',
+      modeTitle: 'Parkour',
+      modeDescription: 'Based off of the movement from Titanfall 2, ' +
+        'Parkour sees players wall-running, slide hopping, and preserving momentum ' +
+        'throughout maps.',
+      imageUrl: '/assets/images/gamemode_pk.jpg',
+    },
+    {
+      url: 'https://www.youtube.com/watch?v=XYNRNrC5o5Q',
+      modeTitle: 'Conc',
+      modeDescription: 'A classic game mode from the classic Team Fortress, concussion grenade boosting involves ' +
+        'priming a concussion grenade to explode at just the right time to propel the player throughout the map.',
+      imageUrl: '/assets/images/gamemode_conc.jpg',
+    },
+    {
       url: 'https://www.youtube.com/watch?v=J6kYb_O-XFk',
-      modeTitle: 'KZ (Climb)',
-      modeDescription: 'Players ascend various maps in a parkour-like fashion, ' +
-        'climbing through environments to reach the end.',
+      modeTitle: 'Climb (KZ/XC)',
+      modeDescription: 'Players climb through various obstacles with well-timed jumps and strafes, ' +
+        'progressing through maps to reach the end.',
       imageUrl: '/assets/images/gamemode_kz.jpg',
     },
     {
       url: 'https://www.youtube.com/watch?v=Bcl27Y8pk4A',
       modeTitle: 'Tricksurf',
-      modeDescription: 'A spinoff mode formed from the Surf gamemode, ' +
+      modeDescription: 'A spinoff mode formed from the Surf game mode, ' +
       'players can create and complete sequences of locations to surf to, ' +
       'known as tricks, for points and bragging rights.',
       imageUrl: '/assets/images/gamemode_tricksurf.jpg',
