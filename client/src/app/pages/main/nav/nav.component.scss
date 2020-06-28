@@ -1,3 +1,5 @@
+@import '../../../@theme/styles/themes';
+
 #mainNav {
   border-bottom: none;
   background-color: rgba(0, 0, 0, 0.5);
@@ -21,7 +23,7 @@
 }
 
 #mainNav .navbar-nav .nav-item:hover {
-  color: fade(white, 80%);
+  color: fade(nb-theme(color-primary-500), 80%);
   outline: none;
   background-color: transparent;
 }
@@ -33,18 +35,18 @@
 
 #mainNav .navbar-brand {
   padding: 0.5rem 0;
-  color: rgba(255, 255, 255, 0.5);
+  color: rgba(255, 255, 255, 0.75);
 }
 
 #mainNav .nav-link {
   padding-top: 1rem;
   -webkit-transition: none;
   transition: none;
-  color: rgba(255, 255, 255, 0.5);
+  color: rgba(255, 255, 255, 0.75);
 }
 
 #mainNav .nav-link:hover {
-  color: rgba(255, 255, 255, 0.75);
+  color: nb-theme(color-primary-500);
 }
 
 #mainNav .nav-link:active {
