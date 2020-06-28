@@ -54,23 +54,30 @@
           </div>
           <div *ngIf="!previewMap" class="col-12 col-sm">
             <div class="d-flex flex-wrap justify-content-around justify-content-sm-end mt-1 mb-3">
-              <span class="ion-folder stat"
-                nbPopover="{{map.stats?.totalSubscriptions | ngxPlural:'Library':'Libraries'}}"
-                [nbPopoverTrigger]="'hint'">
+              <div class="stat"
+                   nbPopover="{{map.stats?.totalSubscriptions | ngxPlural:'Library':'Libraries'}}"
+                   [nbPopoverTrigger]="'hint'">
+                <nb-icon icon="folder"></nb-icon>
                 {{map.stats?.totalSubscriptions | numberThousands:1}}
-              </span>
-              <span class="ion-star ml-sm-4 stat" nbPopover="{{map.stats?.totalFavorites | ngxPlural:'Favorite'}}"
-                [nbPopoverTrigger]="'hint'">
+              </div>
+              <div class="ml-sm-4 stat"
+                   nbPopover="{{map.stats?.totalFavorites | ngxPlural:'Favorite'}}"
+                   [nbPopoverTrigger]="'hint'">
+                <nb-icon icon="star"></nb-icon>
                 {{map.stats?.totalFavorites | numberThousands:1}}
-              </span>
-              <span class="ion-android-download ml-sm-4 stat"
-                nbPopover="{{map.stats?.totalDownloads | ngxPlural:'Download'}}" [nbPopoverTrigger]="'hint'">
+              </div>
+              <div class="ml-sm-4 stat"
+                   nbPopover="{{map.stats?.totalDownloads | ngxPlural:'Download'}}"
+                   [nbPopoverTrigger]="'hint'">
+                <nb-icon icon="download"></nb-icon>
                 {{map.stats?.totalDownloads | numberThousands:1}}
-              </span>
-              <span class="ion-play ml-sm-4 stat" nbPopover="{{map.stats?.totalPlays | ngxPlural:'Play'}}"
-                [nbPopoverTrigger]="'hint'">
+              </div>
+              <div class="ml-sm-4 stat"
+                   nbPopover="{{map.stats?.totalPlays | ngxPlural:'Play'}}"
+                   [nbPopoverTrigger]="'hint'">
+                <nb-icon icon="play-circle-outline"></nb-icon>
                 {{map.stats?.totalPlays | numberThousands:1}}
-              </span>
+              </div>
             </div>
             <div class="btn-group text-center text-sm-right">
               <button nbButton outline status="info" type="button" class="btn" (click)="onLibraryUpdate()">

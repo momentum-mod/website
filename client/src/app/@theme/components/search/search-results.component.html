@@ -1,5 +1,6 @@
 <h3 class="text-left">
-  <i class="fa" [ngClass]="usersResults ? 'fa-users' : 'fa-map'" aria-hidden="true"></i> {{usersResults ? 'Users' : 'Maps'}}
+  <nb-icon [icon]="usersResults ? 'people' : 'map-outline'"></nb-icon>
+  {{usersResults ? 'Users' : 'Maps'}}
 </h3>
 <hr>
 <span *ngIf="shouldShowEmpty()">No {{usersResults ? 'users' : 'maps'}} found</span>
