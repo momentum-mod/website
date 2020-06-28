@@ -8,8 +8,6 @@
 
 $nb-themes: nb-register-theme((
 
-  font-family-primary: unquote('Roboto, sans-serif'),
-  font-family-secondary: unquote('Exo, sans-serif'),
 
   color-primary-100: #d5e0ed,
   color-primary-200: #abc2db,
@@ -31,6 +29,8 @@ $nb-themes: nb-register-theme((
   color-basic-800: #1c3d63,
   color-basic-900: #173353,
   color-basic-1000: #0e1f31,
+  font-family-primary: unquote('Noto Sans, sans-serif'),
+  font-family-secondary: unquote('Bebas Neue, sans-serif'),
   color-basic-1100: #050a10,
 
   background-basic-color-1:	#222,
@@ -163,8 +163,12 @@ $nb-themes: nb-register-theme((
   chart-panel-summary-border-color: #332e73,
   chart-panel-summary-border-width: 1px,
 
-
-
+  text-heading-1-font-weight: 400,
+  text-heading-2-font-weight: 400,
+  text-heading-3-font-weight: 400,
+  text-heading-4-font-weight: 400,
+  text-heading-5-font-weight: 400,
+  text-heading-6-font-weight: 400,
 
   // Custom definitions
   notif-unread-bg: rgba(0, 130, 350, 0.25),
