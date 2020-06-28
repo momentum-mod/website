@@ -1,3 +1,5 @@
+@import '../../@theme/styles/themes';
+
 :host ::ng-deep a {
   color: #fff;
 
@@ -13,7 +15,7 @@
 
 :host ::ng-deep .display-4,
 :host ::ng-deep .display-5 {
-  font-family: Exo, sans-serif;
+  font-family: nb-theme(font-family-secondary);
 }
 
 :host ::ng-deep .display-5 {
