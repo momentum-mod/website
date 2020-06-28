@@ -2,10 +2,8 @@
   <header class="masthead">
     <div class="container d-flex h-100 align-items-center">
       <div class="mx-auto text-center">
-        <img width="75%" src="assets/images/site.png">
-        <h2 class="text-white-50 mx-auto mt-2 mb-5">A free, standalone movement-based platformer built on the Source Engine.</h2>
-        <img *ngIf="!isLoggedIn" (click)="showPrivateAlphaWarning()" style="cursor: pointer;" src="assets/images/steam-login.png">
-        <button *ngIf="isLoggedIn" nbButton outline status="info" routerLink="/dashboard">Go to Dashboard</button>
+        <img class="mt-5" width="75%" src="assets/images/site.png">
+        <h2 class="text-white mx-auto mt-4 mb-5">A free, standalone movement-focused platformer built on the Source Engine.</h2>
       </div>
     </div>
   </header>
