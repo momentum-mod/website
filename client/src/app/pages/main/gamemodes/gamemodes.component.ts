@@ -16,7 +16,6 @@ export class GamemodesComponent implements OnInit, OnDestroy {
   currentGamemodesItems: GalleryItem[];
   futureGamemodesItems: GalleryItem[];
 
-  // Current Gamemodes Data
   currentGameModes: GameModeDetails[] = [
     {
       url: 'https://www.youtube.com/watch?v=Awld0PXTfs0',
@@ -25,7 +24,6 @@ export class GamemodesComponent implements OnInit, OnDestroy {
         'players \"surf\" by gliding along triangular prisms called ramps in order ' +
         'to complete maps.',
       imageUrl: '/assets/images/gamemode_surf.jpg',
-      imageThumbUrl: '/assets/images/gamemode_surf.jpg',
     },
     {
       url: 'https://www.youtube.com/watch?v=8IvXWjjqHiA',
@@ -34,7 +32,6 @@ export class GamemodesComponent implements OnInit, OnDestroy {
         'players repeatedly jump while strafing through the air to continuously ' +
         'gain speed to complete maps.',
       imageUrl: '/assets/images/gamemode_bhop.jpg',
-      imageThumbUrl: '/assets/images/gamemode_bhop.jpg',
     },
     {
       url: 'https://www.youtube.com/watch?v=sMkT7GjCvQA',
@@ -43,7 +40,6 @@ export class GamemodesComponent implements OnInit, OnDestroy {
         'players shoot unidirectional, fixed-speed rockets and take advantage of the explosion ' +
         'they create to propel themselves throughout maps.',
       imageUrl: '/assets/images/gamemode_rj.jpg',
-      imageThumbUrl: '/assets/images/gamemode_rj.jpg',
     },
     {
       url: 'https://youtu.be/sKHlRQJkviI',
@@ -52,7 +48,6 @@ export class GamemodesComponent implements OnInit, OnDestroy {
         'players shoot explosives that stick to surfaces and have control over ' +
         'their detonation which propels themselves throughout maps.',
       imageUrl: '/assets/images/gamemode_stickyjump.jpg',
-      imageThumbUrl: '/assets/images/gamemode_stickyjump.jpg',
     },
   ];
   // Future Gamemodes Data
@@ -65,7 +60,6 @@ export class GamemodesComponent implements OnInit, OnDestroy {
         'By either hopping completely backwards or holding/pressing the back movement key while hopping, ' +
         'players can gain extreme amounts of velocity.',
       imageUrl: '/assets/images/gamemode_ahop.jpg',
-      imageThumbUrl: '/assets/images/gamemode_ahop.jpg',
     },
     {
       url: 'https://www.youtube.com/watch?v=J6kYb_O-XFk',
@@ -73,7 +67,6 @@ export class GamemodesComponent implements OnInit, OnDestroy {
       modeDescription: 'Players ascend various maps in a parkour-like fashion, ' +
         'climbing through environments to reach the end.',
       imageUrl: '/assets/images/gamemode_kz.jpg',
-      imageThumbUrl: '/assets/images/gamemode_kz.jpg',
     },
     {
       url: 'https://www.youtube.com/watch?v=Bcl27Y8pk4A',
@@ -82,7 +75,6 @@ export class GamemodesComponent implements OnInit, OnDestroy {
       'players can create and complete sequences of locations to surf to, ' +
       'known as tricks, for points and bragging rights.',
       imageUrl: '/assets/images/gamemode_tricksurf.jpg',
-      imageThumbUrl: '/assets/images/gamemode_tricksurf.jpg',
     },
   ];
 
@@ -94,10 +86,10 @@ export class GamemodesComponent implements OnInit, OnDestroy {
   ngOnInit() {
     // Map images for gallery
     this.currentGamemodesItems = this.currentGameModes.map(
-        item => new CustomGalleryItem({ src: item.imageUrl, thumb: item.imageThumbUrl, youtubeLink: item.url }),
+        item => new CustomGalleryItem({ src: item.imageUrl, thumb: item.imageUrl, youtubeLink: item.url }),
       );
     this.futureGamemodesItems = this.futureGameModes.map(
-        item => new CustomGalleryItem({ src: item.imageUrl, thumb: item.imageThumbUrl, youtubeLink: item.url }),
+        item => new CustomGalleryItem({ src: item.imageUrl, thumb: item.imageUrl, youtubeLink: item.url }),
       );
 
     // Get gallery references
