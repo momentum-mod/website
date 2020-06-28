@@ -125,7 +125,7 @@ module.exports = {
 				},
 				raw: true,
 				transaction: t,
-			}).spread((mapFavorite, created) => {
+			}).then(([mapFavorite, created]) => {
 				mapFavModel = mapFavorite;
 				if (!created)
 					return Promise.resolve();

@@ -113,7 +113,7 @@ module.exports = {
 				},
 				raw: true,
 				transaction: t
-			}).spread((mapLibEntry, created) => {
+			}).then(([mapLibEntry, created]) => {
 				mapLibModel = mapLibEntry;
 				if (!created)
 					return Promise.resolve();
