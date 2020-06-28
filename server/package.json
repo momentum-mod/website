@@ -8,6 +8,7 @@
   },
   "dependencies": {
     "@hapi/joi": "17.1.1",
+    "@d-fischer/passport-twitch": "1.0.5",
     "axios": "0.19.2",
     "body-parser": "1.19.0",
     "celebrate": "12.0.1",
@@ -29,7 +30,6 @@
     "passport-discord": "0.1.3",
     "passport-jwt": "4.0.0",
     "passport-steam": "1.0.12",
-    "passport-twitch-helix": "1.1.0",
     "passport-twitter": "1.0.4",
     "sequelize": "5.21.5",
     "sharp": "0.25.2",

@@ -51,7 +51,7 @@ module.exports = {
 				if (profile) {
 					user.createSocialLink(profile, 'twitch', {
 						twitchID: req.account.id,
-						displayName: req.account.username,
+						displayName: req.account.display_name,
 						token: req.account.refresh,
 					})
 				}
