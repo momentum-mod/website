@@ -6,7 +6,7 @@ import {LayoutService} from '../../../@core/data/layout.service';
 import {User} from '../../../@core/models/user.model';
 import {NotificationsService} from '../../../@core/utils/notifications.service';
 import {SiteNotification} from '../../../@core/models/notification.model';
-import {takeUntil, map} from 'rxjs/operators';
+import {takeUntil} from 'rxjs/operators';
 import {Subject} from 'rxjs';
 
 @Component({

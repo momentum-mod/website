@@ -1,10 +1,13 @@
 import {
   AfterViewInit,
-  Component, ElementRef,
-  EventEmitter, HostBinding,
+  Component,
+  ElementRef,
+  EventEmitter,
+  HostBinding,
   Input,
   OnChanges,
-  Output, SimpleChanges,
+  Output,
+  SimpleChanges,
   ViewChild,
 } from '@angular/core';
 import {UsersService} from '../../../@core/data/users.service';

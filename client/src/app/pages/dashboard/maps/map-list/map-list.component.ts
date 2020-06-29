@@ -7,8 +7,7 @@ import {finalize, map} from 'rxjs/operators';
 import {ActivatedRoute, ParamMap, Router} from '@angular/router';
 import {LocalUserService} from '../../../../@core/data/local-user.service';
 import {Observable} from 'rxjs';
-import {NbToastrService} from '@nebular/theme';
-import {NbLayoutScrollService} from '@nebular/theme';
+import {NbLayoutScrollService, NbToastrService} from '@nebular/theme';
 
 export enum MapListType {
   TYPE_BROWSE = 'browse',
