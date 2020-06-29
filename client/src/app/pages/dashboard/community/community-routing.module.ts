@@ -1,5 +1,5 @@
-import { RouterModule, Routes } from '@angular/router';
-import { NgModule } from '@angular/core';
+import {RouterModule, Routes} from '@angular/router';
+import {NgModule} from '@angular/core';
 import {NotFoundDashboardComponent} from '../../not-found/dashboard/not-found-dashboard.component';
 import {CommunityComponent} from './community.component';
 import {CommunityNewsComponent} from './community-news/community-news.component';

@@ -1,6 +1,6 @@
-import { async, ComponentFixture, TestBed } from '@angular/core/testing';
+import {async, ComponentFixture, TestBed} from '@angular/core/testing';
 
-import { MapEditComponent } from './map-edit.component';
+import {MapEditComponent} from './map-edit.component';
 import {FileUploadComponent} from '../upload-form/file-upload/file-upload.component';
 import {MapCreditsComponent} from '../map-credits/map-credits.component';
 import {MapCreditComponent} from '../map-credits/map-credit/map-credit.component';
@@ -17,12 +17,12 @@ import {AuthService} from '../../../../@core/data/auth.service';
 import {CookieService} from 'ngx-cookie-service';
 import {HttpClientModule} from '@angular/common/http';
 import {
+  NbAlertModule,
   NbDialogService,
+  NbFocusMonitor,
   NbToastrConfig,
   NbToastRef,
   NbToastrService,
-  NbAlertModule,
-  NbFocusMonitor,
 } from '@nebular/theme';
 import {FocusMonitor} from '@angular/cdk/a11y';
 

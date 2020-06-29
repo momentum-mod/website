@@ -5,7 +5,7 @@ import {AuthService} from '../../../../@core/data/auth.service';
 import {ActivatedRoute, ParamMap, Router} from '@angular/router';
 import {UsersService} from '../../../../@core/data/users.service';
 import {switchMap, takeUntil} from 'rxjs/operators';
-import {Observable, of, Subject} from 'rxjs';
+import {of, Subject} from 'rxjs';
 import {Role} from '../../../../@core/models/role.model';
 import {Ban} from '../../../../@core/models/ban.model';
 import {User} from '../../../../@core/models/user.model';

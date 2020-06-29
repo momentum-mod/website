@@ -6,7 +6,7 @@ import {MapCredit} from '../../../../@core/models/map-credit.model';
 import {MapCreditType} from '../../../../@core/models/map-credit-type.model';
 import {CreditChangeEvent} from '../map-credits/map-credit/map-credit.component';
 import {MapsService} from '../../../../@core/data/maps.service';
-import {switchMap, takeUntil, finalize} from 'rxjs/operators';
+import {finalize, switchMap, takeUntil} from 'rxjs/operators';
 import {ActivatedRoute, ParamMap, Router} from '@angular/router';
 import {FormBuilder, FormGroup, Validators} from '@angular/forms';
 import {CdkDragDrop, moveItemInArray} from '@angular/cdk/drag-drop';
@@ -15,7 +15,7 @@ import {LocalUserService} from '../../../../@core/data/local-user.service';
 import {AdminService} from '../../../../@core/data/admin.service';
 import {NbDialogService, NbToastrService} from '@nebular/theme';
 import {ConfirmDialogComponent} from '../../../../@theme/components/confirm-dialog/confirm-dialog.component';
-import {Subject, forkJoin} from 'rxjs';
+import {forkJoin, Subject} from 'rxjs';
 
 const youtubeRegex = /[a-zA-Z0-9_-]{11}/;
 
