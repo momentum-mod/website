@@ -27,7 +27,6 @@ import {
 import {
   ActivityCardComponent,
   ActivityContentComponent,
-  FooterComponent,
   HeaderComponent,
   NotificationComponent,
   SearchInputComponent,
@@ -71,7 +70,6 @@ const NB_MODULES = [
 
 const COMPONENTS = [
   HeaderComponent,
-  FooterComponent,
   SearchInputComponent,
   SampleLayoutComponent,
   NotificationComponent,
