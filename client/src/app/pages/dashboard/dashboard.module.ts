@@ -1,6 +1,5 @@
 import {NgModule} from '@angular/core';
 import {FormsModule} from '@angular/forms';
-import {NgxEchartsModule} from 'ngx-echarts';
 
 import {ThemeModule} from '../../@theme/theme.module';
 import {DashboardComponent} from './dashboard.component';
@@ -15,12 +14,14 @@ import {HomeUserMapsComponent} from './home/home-user-maps/home-user-maps.compon
 import {HomeUserLibraryComponent} from './home/home-user-library/home-user-library.component';
 import {NgxPaginationModule} from 'ngx-pagination';
 import {RunInfoComponent} from './runs/run-info/run-info.component';
+import {NgxEchartsModule} from 'ngx-echarts';
+import * as echarts from 'echarts';
 
 @NgModule({
   imports: [
     ThemeModule,
     NbAccordionModule,
-    NgxEchartsModule,
+    NgxEchartsModule.forRoot({ echarts }),
     NbDialogModule.forChild(),
     MarkdownModule.forChild(),
     FormsModule,
