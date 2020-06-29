@@ -8,29 +8,29 @@
 
 $nb-themes: nb-register-theme((
 
-
-  color-primary-100: #d5e0ed,
-  color-primary-200: #abc2db,
-  color-primary-300: #82a3c9,
-  color-primary-400: #5885b7,
-  color-primary-500: #2e66a5,
-  color-primary-600: #255284,
-  color-primary-700: #1c3d63,
-  color-primary-800: #122942,
-  color-primary-900: #091421,
-
-  color-basic-100: #fff,
-  color-basic-200: #d5e0ed,
-  color-basic-300: #abc2db,
-  color-basic-400: #82a3c9,
-  color-basic-500: #5885b7,
-  color-basic-600: #2e66a5,
-  color-basic-700: #255284,
-  color-basic-800: #1c3d63,
-  color-basic-900: #173353,
-  color-basic-1000: #0e1f31,
   font-family-primary: unquote('Noto Sans, sans-serif'),
   font-family-secondary: unquote('Bebas Neue, sans-serif'),
+
+  color-primary-100: #e8f6fc,
+  color-primary-200: #bae3f7,
+  color-primary-300: #8dd1f2,
+  color-primary-400: #5fbeed,
+  color-primary-500: #1896d3,
+  color-primary-600: #1272a0,
+  color-primary-700: #0d5172,
+  color-primary-800: #083145,
+  color-primary-900: #031017,
+
+  color-basic-100:  #fff,
+  color-basic-200:  #e8f6fc,
+  color-basic-300:  #bae3f7,
+  color-basic-400:  #8dd1f2,
+  color-basic-500:  #5fbeed,
+  color-basic-600:  #1896d3,
+  color-basic-700:  #1272a0,
+  color-basic-800:  #0d5172,
+  color-basic-900:  #083145,
+  color-basic-1000: #031017,
   color-basic-1100: #050a10,
 
   background-basic-color-1:	#222,
@@ -78,22 +78,22 @@ $nb-themes: nb-register-theme((
 
   menu-text-font-size: 1.2rem,
   menu-text-line-height: 2rem,
-  menu-item-active-text-color: #2e66a5,
-  menu-item-icon-active-color: #2e66a5,
+  menu-item-active-text-color: color-primary-default,
+  menu-item-icon-active-color: color-primary-default,
   menu-item-icon-width: 2rem,
-  menu-item-hover-text-color: #2e66a5,
+  menu-item-hover-text-color: color-primary-default,
   menu-submenu-padding: 0,
   menu-submenu-item-padding: 0.75rem 2.25rem,
-  menu-submenu-item-active-border-color: #2e66a5,
+  menu-submenu-item-active-border-color: color-primary-default,
 
   popover-border-color: #2e66a5,
 
   shadow: 0 0.25rem 0.5rem 0 rgba(0, 0, 0, 0.5),
 
-  calendar-cell-hover-background-color: #2e66a5,
+  calendar-cell-hover-background-color: color-primary-default,
   calendar-cell-today-background-color: #061f3b,
-  calendar-cell-selected-background-color: #2e66a5,
-  calendar-cell-active-background-color: #2e66a5,
+  calendar-cell-selected-background-color: color-primary-default,
+  calendar-cell-active-background-color: color-primary-default,
 
   stepper-step-text-font-size: 1.25rem,
   stepper-step-index-width: 3rem,
@@ -103,15 +103,15 @@ $nb-themes: nb-register-theme((
   stepper-step-active-text-color: #fff,
   stepper-step-text-color: #fff,
 
-  datepicker-border-color: #2e66a5,
+  datepicker-border-color: color-primary-default,
   datepicker-text-color: #061f3b,
 
   progress-bar-default-background-color: linear-gradient(90deg, #00c7c7 0%, #00d977 100%),
 
-  button-filled-primary-background-color: #2e66a5,
-  button-filled-success-background-color: #2e66a5,
+  button-filled-primary-background-color: color-primary-default,
+  button-filled-success-background-color: color-primary-default,
 
-  checkbox-default-checked-border-color: #2e66a5,
+  checkbox-default-checked-border-color: color-primary-default,
 
   search-background-color: linear-gradient(to right, #061f3b, #4172aa),
 
@@ -133,17 +133,17 @@ $nb-themes: nb-register-theme((
   smart-table-bg-even: #525252,
   smart-table-bg-active: #3e3e3e,
   smart-table-header-bg: #3e3e3e,
-  scrollbar-fg: #2e66a5,
+  scrollbar-fg: color-primary-default,
   scrollbar-bg: #1b3d64,
   color-fg: #ffffff,
-  color-fg-highlight: #2e66a5,
+  color-fg-highlight: color-primary-default,
 
-  smart-table-paging-bg-active: #2e66a5,
-  smart-table-paging-border-color: #2e66a5,
+  smart-table-paging-bg-active: color-primary-default,
+  smart-table-paging-border-color: color-primary-default,
 
-  context-menu-border: #2e66a5,
+  context-menu-border: color-primary-default,
 
-  link-color: #2e66a5,
+  link-color: color-primary-default,
   link-color-hover: #1b3d64,
   link-text-decoration: none,
 
@@ -172,8 +172,8 @@ $nb-themes: nb-register-theme((
 
   // Custom definitions
   notif-unread-bg: rgba(0, 130, 350, 0.25),
-  user-follow-fg: #2e66a5,
+  user-follow-fg: color-primary-default,
   file-upload-border-color: #1b3d64,
-  file-upload-border-color-hover: #2e66a5,
+  file-upload-border-color-hover: color-primary-default,
 
 ), mom, dark);
