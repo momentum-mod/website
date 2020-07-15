@@ -115,14 +115,22 @@ export class MapUploadFormComponent implements OnInit, AfterViewInit {
       type = MomentumMapType.SURF;
     else if (nameVal.startsWith('bhop_'))
       type = MomentumMapType.BHOP;
-    else if (nameVal.startsWith('kz_'))
+    else if (nameVal.startsWith('climb_'))
       type = MomentumMapType.KZ;
-    else if (nameVal.startsWith('trikz_'))
-      type = MomentumMapType.TRIKZ;
     else if (nameVal.startsWith('rj_'))
       type = MomentumMapType.RJ;
     else if (nameVal.startsWith('sj_'))
       type = MomentumMapType.SJ;
+    else if (nameVal.startsWith('tricksurf_'))
+      type = MomentumMapType.TRICKSURF;
+    else if (nameVal.startsWith('ahop_'))
+      type = MomentumMapType.AHOP;
+    else if (nameVal.startsWith('pk_'))
+      type = MomentumMapType.PARKOUR;
+    else if (nameVal.startsWith('conc_'))
+      type = MomentumMapType.CONC;
+    else if (nameVal.startsWith('dfrag_'))
+      type = MomentumMapType.DEFRAG;
     this.type.patchValue(type);
     this.inferredMapType = type !== MomentumMapType.UNKNOWN;
   }
