@@ -142,7 +142,8 @@ const validateRunFile = (resultObj) => {
 			mapMdl.MAP_TYPE.SURF,
 			mapMdl.MAP_TYPE.BHOP,
 			mapMdl.MAP_TYPE.RJ,
-			mapMdl.MAP_TYPE.SJ
+			mapMdl.MAP_TYPE.SJ,
+			mapMdl.MAP_TYPE.AHOP,
 		];
 
 		const checks = [
