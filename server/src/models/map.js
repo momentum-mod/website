@@ -126,7 +126,10 @@ const MAP_TYPE = Object.freeze({
 	RJ: 4,
 	SJ: 5,
 	TRICKSURF: 6,
-	TRIKZ: 7,
+	AHOP: 7,
+	PARKOUR: 8,
+	CONC: 9,
+	DEFRAG: 10,
 });
 
 module.exports = {

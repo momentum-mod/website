@@ -6,5 +6,8 @@ export enum MomentumMapType {
   RJ,
   SJ,
   TRICKSURF,
-  TRIKZ,
+  AHOP,
+  PARKOUR,
+  CONC,
+  DEFRAG,
 }
