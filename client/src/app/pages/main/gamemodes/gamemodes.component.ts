@@ -49,9 +49,6 @@ export class GamemodesComponent implements OnInit, OnDestroy {
         'their detonation which propels themselves throughout maps.',
       imageUrl: '/assets/images/gamemode_stickyjump.jpg',
     },
-  ];
-
-  futureGameModes: GameModeDetails[] = [
     {
       url: 'https://www.youtube.com/watch?v=8M_GbJSU1Rw',
       modeTitle: 'Accelerated Hop',
@@ -61,6 +58,9 @@ export class GamemodesComponent implements OnInit, OnDestroy {
         'players can gain extreme amounts of velocity.',
       imageUrl: '/assets/images/gamemode_ahop.jpg',
     },
+  ];
+
+  futureGameModes: GameModeDetails[] = [
     {
       url: 'https://www.youtube.com/watch?v=k9jAlYmNK5A',
       modeTitle: 'Parkour',
