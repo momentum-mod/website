@@ -3,4 +3,6 @@ export interface GameModeDetails {
     modeTitle: string;
     modeDescription: string;
     imageUrl: string;
+    iconUrl: string;
+    isImplemented: boolean;
 }

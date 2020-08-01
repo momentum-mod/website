@@ -4,70 +4,25 @@
     <div class="col-sm-12 col-md-11 col-lg-10 mb-2 mb-lg-2">
       <div class="display-4 font-weight-normal gamemodes-header text-center">Supported Game Modes</div>
     </div>
-    <div class="col-sm-12 col-md-11 col-lg-10 mb-2 mb-lg-2">
-      <gallery
-        id="current-gamemodes"
-        [thumb]="false"
-        loadingMode="indeterminate"
-        loadingStrategy="preload"
-        [counter]="false"
-        dots="true"
-        imageSize="contain"
-        autoPlay="true"
-        playerInterval="20000"
-        [items]="currentGamemodesItems"
-        [itemTemplate]="itemTemplate"
-        gallerize>
-      </gallery>
-    </div>
-    <a href="{{this.currentGameMode.url}}" class="col-10 col-lg-10 mb-2 mb-lg-2">
-      <div class="display-5 text-center">
-        {{this.currentGameMode.modeTitle}}
-      </div>
-    </a>
-    <div class="col-10 col-lg-7 text-center text-white lead">
-      {{this.currentGameMode.modeDescription}}
+  </div>
+  <div class="row justify-content-center mb-5 mb-lg-5">
+    <div class="col-3 col-sm-3 col-md-2 col-lg-1" *ngFor="let gamemode of gameModes; index as i" (click)="setCurrentGamemode(i)">
+      <span *ngIf="!gamemode.isImplemented" class="gamemode-coming-soon">soon™</span>
+      <img width="100%" [ngClass]="(this.gameModeIndex == i) ? 'gamemode-icon-selected': 'gamemode-icon'" src="{{gamemode.iconUrl}}">
     </div>
   </div>
   <div class="row justify-content-center mb-5 mb-lg-5">
-    <div class="col-sm-12 col-md-11 col-lg-10 mb-2 mb-lg-2">
-      <div class="display-4 font-weight-normal gamemodes-header text-center">Future Game Modes</div>
+    <div class="display-4 font-weight-normal gamemodes-header text-center">
+      {{this.currentGameMode.modeTitle}}
     </div>
-    <div class="col-sm-12 col-md-11 col-lg-10 mb-2 mb-lg-2">
-      <gallery
-        id="future-gamemodes"
-        [thumb]="false"
-        loadingMode="indeterminate"
-        loadingStrategy="preload"
-        [counter]="false"
-        dots="true"
-        imageSize="contain"
-        autoPlay="true"
-        playerInterval="20000"
-        [items]="futureGamemodesItems"
-        [itemTemplate]="itemTemplate"
-        gallerize>
-      </gallery>
+  </div>
+  <div class="row justify-content-center mb-5 mb-lg-5">
+    <div class="col-sm-12 col-md-6 mb-3">
+      <video class="gamemode-video" src="{{this.currentGameMode.url}}" poster="{{this.currentGameMode.imageUrl}}" preload="metadata" loop autoplay></video>
     </div>
-    <a href="{{this.futureGameMode.url}}" class="col-10 col-lg-10 mb-2 mb-lg-2">
-      <div class="display-5 text-center">
-        {{this.futureGameMode.modeTitle}}
-      </div>
-    </a>
-    <div class="col-10 col-lg-7 text-center text-white lead">
-      {{this.futureGameMode.modeDescription}}
+    <div class="col-12 col-md-6 gamemode-description">
+      {{this.currentGameMode.modeDescription}}
     </div>
   </div>
 </div>
-
-<ng-template #itemTemplate
-             let-index="index"
-             let-type="type"
-             let-data="data"
-             let-currIndex="currIndex">
-  <a [href]="data.youtubeLink">
-    <img width="100%" height="100%" [src]="data.src" />
-  </a>
-</ng-template>
-
 </section>
