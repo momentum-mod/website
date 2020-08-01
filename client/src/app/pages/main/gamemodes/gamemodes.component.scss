@@ -1,7 +1,51 @@
+@import '../../../@theme/styles/themes';
+
 .gamemodes-section {
   padding: 5rem 0 0.5rem;
 }
 
 .lead {
   min-height: 5rem;
+}
+
+.gamemode-icon-selected {
+  border-style: solid;
+  border-radius: 5px;
+  border-color: nb-theme(color-primary-500);
+  transition: opacity 0.5s, border-color 0.5s;
+  width: 100%;
+}
+.gamemode-icon {
+  border-style: solid;
+  border-radius: 5px;
+  border-color: rgba(0, 0, 0, 0);
+  opacity: 40%;
+  transition: opacity 0.5s, border-color 0.5s;
+  width: 100%;
+}
+
+.gamemode-description {
+  margin: auto;
+  border-left: solid;
+  border-color: nb-theme(color-primary-100);
+  font-size: 2em;
+  line-height: 1.25em;
+}
+
+.gamemode-coming-soon {
+  background-color: nb-theme(color-primary-500);
+  font-size: 1em;
+  text-align: center;
+  border-radius: 2px;
+  z-index: 1000;
+  width: 55%;
+  position: absolute;
+  top: -5px;
+  right: -5px;
+  padding: 3px;
+  transform: rotate(30deg);
+}
+
+.gamemode-video {
+  width: 100%;
 }
