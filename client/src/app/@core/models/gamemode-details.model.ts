@@ -1,3 +1,5 @@
+import { SafeResourceUrl } from '@angular/platform-browser';
+
 export interface GameModeDetails {
     url: string;
     modeTitle: string;
@@ -5,4 +7,6 @@ export interface GameModeDetails {
     imageUrl: string;
     iconUrl: string;
     isImplemented: boolean;
+    useYoutubeEmbed: boolean;
+    safeYoutubeUrl: SafeResourceUrl;
 }

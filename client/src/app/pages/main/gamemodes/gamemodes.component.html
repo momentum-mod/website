@@ -18,7 +18,13 @@
   </div>
   <div class="row justify-content-center mb-5 mb-lg-5">
     <div class="col-sm-12 col-md-6 mb-3">
-      <video class="gamemode-video" src="{{this.currentGameMode.url}}" poster="{{this.currentGameMode.imageUrl}}" preload="metadata" loop autoplay></video>
+      <ng-container *ngIf="this.currentGameMode.useYoutubeEmbed; then youtubeTemplate; else webmTemplate"></ng-container>
+      <ng-template #webmTemplate>
+        <video class="gamemode-video" src="{{this.currentGameMode.url}}" poster="{{this.currentGameMode.imageUrl}}" preload="metadata" loop autoplay></video>
+      </ng-template>
+      <ng-template #youtubeTemplate>
+        <iframe width="100%" height="305" [src]='this.currentGameMode.safeYoutubeUrl' frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+      </ng-template>
     </div>
     <div class="col-12 col-md-6 gamemode-description">
       {{this.currentGameMode.modeDescription}}
