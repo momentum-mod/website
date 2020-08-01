@@ -1,5 +1,6 @@
 import { Component } from '@angular/core';
 import { GameModeDetails } from '../../../@core/models/gamemode-details.model';
+import { DomSanitizer, SafeUrl} from '@angular/platform-browser';
 
 @Component({
   selector: 'ngx-gamemodes',
@@ -18,6 +19,8 @@ export class GamemodesComponent {
       imageUrl: '/assets/images/gamemode_surf.jpg',
       iconUrl: '/assets/images/gamemode_icons/site_skillsurf.png',
       isImplemented: true,
+      useYoutubeEmbed: false,
+      safeYoutubeUrl: null,
     },
     {
       url: '/assets/images/bhop_loop.webm',
@@ -28,6 +31,8 @@ export class GamemodesComponent {
       imageUrl: '/assets/images/gamemode_bhop.jpg',
       iconUrl: '/assets/images/gamemode_icons/site_bhop.png',
       isImplemented: true,
+      useYoutubeEmbed: false,
+      safeYoutubeUrl: null,
     },
     {
       url: '',
@@ -38,6 +43,8 @@ export class GamemodesComponent {
       imageUrl: '/assets/images/gamemode_rj.jpg',
       iconUrl: '/assets/images/gamemode_icons/site_rocketjump.png',
       isImplemented: true,
+      useYoutubeEmbed: false,
+      safeYoutubeUrl: null,
     },
     {
       url: '',
@@ -48,6 +55,8 @@ export class GamemodesComponent {
       imageUrl: '/assets/images/gamemode_stickyjump.jpg',
       iconUrl: '/assets/images/gamemode_icons/site_stickyjump.png',
       isImplemented: true,
+      useYoutubeEmbed: false,
+      safeYoutubeUrl: null,
     },
     {
       url: '/assets/images/ahop_loop.webm',
@@ -59,6 +68,8 @@ export class GamemodesComponent {
       imageUrl: '/assets/images/gamemode_ahop.jpg',
       iconUrl: '/assets/images/gamemode_icons/site_ahop.png',
       isImplemented: true,
+      useYoutubeEmbed: false,
+      safeYoutubeUrl: null,
     },
     {
       url: '',
@@ -69,6 +80,8 @@ export class GamemodesComponent {
       imageUrl: '/assets/images/gamemode_pk.jpg',
       iconUrl: '/assets/images/gamemode_icons/site_parkour.png',
       isImplemented: false,
+      useYoutubeEmbed: true,
+      safeYoutubeUrl: this.sanitizer.bypassSecurityTrustResourceUrl('https://www.youtube.com/embed/k9jAlYmNK5A'),
     },
     {
       url: '',
@@ -78,6 +91,8 @@ export class GamemodesComponent {
       imageUrl: '/assets/images/gamemode_conc.jpg',
       iconUrl: '/assets/images/gamemode_icons/site_conc.png',
       isImplemented: false,
+      useYoutubeEmbed: true,
+      safeYoutubeUrl: this.sanitizer.bypassSecurityTrustResourceUrl('https://www.youtube.com/embed/XYNRNrC5o5Q'),
     },
     {
       url: '',
@@ -87,6 +102,8 @@ export class GamemodesComponent {
       imageUrl: '/assets/images/gamemode_kz.jpg',
       iconUrl: '/assets/images/gamemode_icons/site_climb.png',
       isImplemented: false,
+      useYoutubeEmbed: true,
+      safeYoutubeUrl: this.sanitizer.bypassSecurityTrustResourceUrl('https://www.youtube.com/embed/J6kYb_O-XFk'),
     },
     {
       url: '',
@@ -97,6 +114,8 @@ export class GamemodesComponent {
       imageUrl: '/assets/images/gamemode_tricksurf.jpg',
       iconUrl: '/assets/images/gamemode_icons/site_tricksurf.png',
       isImplemented: false,
+      useYoutubeEmbed: true,
+      safeYoutubeUrl: this.sanitizer.bypassSecurityTrustResourceUrl('https://www.youtube.com/embed/Bcl27Y8pk4A'),
     },
   ];
 
@@ -104,7 +123,7 @@ export class GamemodesComponent {
 
   gameModeIndex: number;
 
-  constructor() {
+  constructor(private sanitizer: DomSanitizer) {
     this.currentGameMode = this.gameModes[0];
     this.gameModeIndex = 0;
   }
