@@ -9,6 +9,9 @@ import { DomSanitizer } from '@angular/platform-browser';
 })
 export class GamemodesComponent {
 
+  timer: NodeJS.Timeout = setInterval(() => this.incrementGamemodeIndex(), 25000);
+  delay: NodeJS.Timeout;
+
   gameModes: GameModeDetails[] = [
     {
       url: '/assets/images/surf_loop.webm',
@@ -128,8 +131,22 @@ export class GamemodesComponent {
     this.gameModeIndex = 0;
   }
 
+  incrementGamemodeIndex() {
+    if (this.gameModeIndex < this.gameModes.length - 1) {
+      this.gameModeIndex++;
+    } else {
+      this.gameModeIndex = 0;
+    }
+    this.currentGameMode = this.gameModes[this.gameModeIndex];
+  }
+
   setCurrentGamemode(index: number) {
     if (index < this.gameModes.length && index >= 0) {
+      // reset gallery timeout for changing index
+      clearInterval(this.timer);
+      clearTimeout(this.delay);
+      this.delay = setTimeout(() => { this.timer = setInterval(() => this.incrementGamemodeIndex(), 25000); }, 60000);
+
       this.currentGameMode = this.gameModes[index];
       this.gameModeIndex = index;
     }
