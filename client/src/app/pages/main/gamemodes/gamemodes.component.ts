@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
 import { GameModeDetails } from '../../../@core/models/gamemode-details.model';
-import { DomSanitizer, SafeUrl} from '@angular/platform-browser';
+import { DomSanitizer } from '@angular/platform-browser';
 
 @Component({
   selector: 'ngx-gamemodes',
@@ -43,8 +43,8 @@ export class GamemodesComponent {
       imageUrl: '/assets/images/gamemode_rj.jpg',
       iconUrl: '/assets/images/gamemode_icons/site_rocketjump.png',
       isImplemented: true,
-      useYoutubeEmbed: false,
-      safeYoutubeUrl: null,
+      useYoutubeEmbed: true,
+      safeYoutubeUrl: this.sanitizer.bypassSecurityTrustResourceUrl('https://www.youtube.com/embed/TCDV5aZNYEY'),
     },
     {
       url: '',
@@ -55,8 +55,8 @@ export class GamemodesComponent {
       imageUrl: '/assets/images/gamemode_stickyjump.jpg',
       iconUrl: '/assets/images/gamemode_icons/site_stickyjump.png',
       isImplemented: true,
-      useYoutubeEmbed: false,
-      safeYoutubeUrl: null,
+      useYoutubeEmbed: true,
+      safeYoutubeUrl: this.sanitizer.bypassSecurityTrustResourceUrl('https://www.youtube.com/embed/ubH5tw0ZLBc'),
     },
     {
       url: '/assets/images/ahop_loop.webm',
