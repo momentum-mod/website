@@ -7,7 +7,10 @@ import { Component, OnInit } from '@angular/core';
 })
 export class AboutComponent implements OnInit {
 
-  constructor() { }
+  showAboutVideo: boolean;
+  constructor() {
+    this.showAboutVideo = false;
+  }
 
   ngOnInit() {
   }
