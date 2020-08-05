@@ -20,7 +20,7 @@
       {{this.currentGameMode.modeTitle}}
     </div>
   </div>
-  <div class="row justify-content-center mb-5 mb-lg-5">
+  <div class="row justify-content-center mb-5 mb-lg-5 gamemode-data-section">
     <div class="col-sm-12 col-md-6 mb-3">
       <ng-container *ngIf="this.currentGameMode.useYoutubeEmbed; then youtubeTemplate; else webmTemplate"></ng-container>
       <ng-template #webmTemplate>
