@@ -9,7 +9,7 @@ import { DomSanitizer } from '@angular/platform-browser';
 })
 export class GamemodesComponent {
 
-  timer: NodeJS.Timeout = setInterval(() => this.incrementGamemodeIndex(), 25000);
+  timer: NodeJS.Timeout;
   delay: NodeJS.Timeout;
 
   gameModes: GameModeDetails[] = [
@@ -125,10 +125,12 @@ export class GamemodesComponent {
   currentGameMode?: GameModeDetails;
 
   gameModeIndex: number;
+  gameModeSectionVisible: boolean;
 
   constructor(private sanitizer: DomSanitizer) {
     this.currentGameMode = this.gameModes[0];
     this.gameModeIndex = 0;
+    this.gameModeSectionVisible = false;
   }
 
   incrementGamemodeIndex() {
@@ -150,5 +152,10 @@ export class GamemodesComponent {
       this.currentGameMode = this.gameModes[index];
       this.gameModeIndex = index;
     }
+  }
+
+  onGameModeSectionVisible() {
+    this.gameModeSectionVisible = true;
+    this.timer = setInterval(() => this.incrementGamemodeIndex(), 25000);
   }
 }

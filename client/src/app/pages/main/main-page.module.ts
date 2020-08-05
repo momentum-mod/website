@@ -11,9 +11,18 @@ import {GalleryModule} from '@ngx-gallery/core';
 import {NbButtonModule, NbLayoutModule} from '@nebular/theme';
 import {GamemodesComponent} from './gamemodes/gamemodes.component';
 import {ThemeModule} from '../../@theme/theme.module';
+import {DeferLoadModule} from '@trademe/ng-defer-load';
 
 @NgModule({
-  imports: [CommonModule, RouterModule, NbLayoutModule, NbButtonModule, GalleryModule, ThemeModule],
+  imports: [
+    CommonModule,
+    RouterModule,
+    NbLayoutModule,
+    NbButtonModule,
+    GalleryModule,
+    ThemeModule,
+    DeferLoadModule,
+  ],
   declarations: [
     MainPageComponent,
     AboutComponent,
