@@ -8,21 +8,21 @@
   min-height: 5rem;
 }
 
-.gamemode-icon-selected {
-  border-style: solid;
-  border-radius: 5px;
-  border-color: nb-theme(color-primary-500);
-  transition: opacity 0.5s, border-color 0.5s;
-  width: 100%;
-  opacity: 100%;
+.gamemode {
+  min-width: 50px;
 }
+
 .gamemode-icon {
-  border-style: solid;
-  border-radius: 5px;
-  border-color: transparent;
-  opacity: 40%;
-  transition: opacity 0.5s, border-color 0.5s;
-  width: 100%;
+  opacity: 25%;
+  transition: opacity 0.5s;
+}
+
+.gamemode-icon:hover {
+  opacity: 80%;
+}
+
+.gamemode-icon.selected {
+  opacity: 100%;
 }
 
 .gamemode-description {
@@ -41,8 +41,8 @@
   z-index: 1000;
   width: 55%;
   position: absolute;
-  top: -5px;
-  right: -5px;
+  top: -8px;
+  right: -8px;
   padding: 3px;
   transform: rotate(30deg);
   user-select: none;
@@ -54,4 +54,37 @@
 
 .gamemode-video {
   width: 100%;
+}
+
+.base-timer {
+  position: absolute;
+  top: -14px;
+  left: 4px;
+  width: 90px;
+  height: 90px;
+}
+
+.base-timer__svg {
+  transform: scaleX(-1);
+}
+
+.base-timer__circle {
+  fill: none;
+  stroke: none;
+}
+
+.base-timer__path-elapsed {
+  stroke-width: 4px;
+  stroke: transparent;
+}
+
+.base-timer__path-remaining {
+  stroke-width: 4px;
+  stroke-linecap: round;
+  transform: rotate(90deg);
+  transform-origin: center;
+  transition: 1s linear all;
+  fill-rule: nonzero;
+  stroke: currentColor;
+  color: nb-theme(color-primary-500);
 }
