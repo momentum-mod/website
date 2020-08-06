@@ -1,6 +1,5 @@
 const express = require('express'),
 	path = require('path'),
-	logger = require('morgan'),
 	compress = require('compression'),
 	methodOverride = require('method-override'),
 	passport = require('passport'),
@@ -17,17 +16,63 @@ const express = require('express'),
 	xml2js = require('xml2js').parseString,
 	axios = require('axios'),
 	authMiddleware = require('../src/middlewares/auth'),
-	{ errors, isCelebrate } = require('celebrate');
+	{ errors, isCelebrate } = require('celebrate'),
+	bunyan = require('bunyan'),
+	seq = require('bunyan-seq'),
+	bunyanMiddleware = require('bunyan-middleware');
 
 const swaggerSpec = swaggerJSDoc({
 	swaggerDefinition: swaggerDefinition,
 	apis: ['./docs/**/*.yaml'],
 });
 
+function wrappedStdout() {
+	return {
+		write: (entry) => {
+			// Format console output to be human readable
+			const logObject = JSON.parse(entry);
+			const severity = bunyan.nameFromLevel[logObject.level].toUpperCase();
+			process.stdout.write(
+				`[${logObject.time} ${severity}] ${logObject.msg}\n`
+			);
+			if (logObject.hasOwnProperty("err")) {
+				process.stdout.write(`${JSON.stringify(logObject.err, null, 2)}\n`);
+			}
+		},
+	};
+}
+
 module.exports = (app, config) => {
+	// By default, always log to console
+	loggerStreams = [
+		{
+			stream: wrappedStdout(),
+			level: 'info',
+		}
+	];
+
+	// In production, log to Seq as well
+	if(app.get('env') === 'production')
+	{
+		loggerStreams.push(
+			seq.createStream({
+				serverUrl: process.env.SEQ_ADDRESS,
+				apiKey: process.env.SEQ_TOKEN,
+				level: 'info',
+			})
+		);
+	}
+
+	const logger = bunyan.createLogger({
+		Application: 'Website',
+		Environment: app.get('env'),
+		name: 'Website',
+		streams: loggerStreams
+	});
 
 	if (app.get('env') === 'development') {
-		app.use(logger('dev'));
+		// In development, log all requests
+		app.use(bunyanMiddleware({ logger: logger }));
 	}
 
 	app.use(express.json());
@@ -131,7 +176,6 @@ module.exports = (app, config) => {
 	if (app.get('env') === 'development') {
 		app.use((err, req, res, next) => {
 			const status = err.status || 500;
-			console.error(err);
 			res.status(status).json({
 				error: {
 					code: status,
@@ -161,6 +205,8 @@ module.exports = (app, config) => {
 	}
 
 	app.use((err, req, res, next) => {
+		logger.error(err);
+
 		const status = err.status || 500;
 		res.status(status).json({
 			error: {
