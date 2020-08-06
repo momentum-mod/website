@@ -1,6 +1,6 @@
-import { Component } from '@angular/core';
-import { GameModeDetails } from '../../../@core/models/gamemode-details.model';
-import { DomSanitizer } from '@angular/platform-browser';
+import {Component} from '@angular/core';
+import {GameModeDetails} from '../../../@core/models/gamemode-details.model';
+import {DomSanitizer} from '@angular/platform-browser';
 
 @Component({
   selector: 'ngx-gamemodes',
@@ -126,6 +126,8 @@ export class GamemodesComponent {
 
   gameModeIndex: number;
   gameModeSectionVisible: boolean;
+  static readonly GAMEMODE_CHANGE_TIME = 25;
+  static readonly GAMEMODE_CHANGE_TIME_MANUAL = 60;
 
   constructor(private sanitizer: DomSanitizer) {
     this.currentGameMode = this.gameModes[0];
@@ -140,6 +142,8 @@ export class GamemodesComponent {
       this.gameModeIndex = 0;
     }
     this.currentGameMode = this.gameModes[this.gameModeIndex];
+    this.onTimesUp();
+    this.startTimer(GamemodesComponent.GAMEMODE_CHANGE_TIME);
   }
 
   setCurrentGamemode(index: number) {
@@ -147,15 +151,68 @@ export class GamemodesComponent {
       // reset gallery timeout for changing index
       clearInterval(this.timer);
       clearTimeout(this.delay);
-      this.delay = setTimeout(() => { this.timer = setInterval(() => this.incrementGamemodeIndex(), 25000); }, 60000);
+      this.delay = setTimeout(() => {
+          this.incrementGamemodeIndex();
+          this.timer = this.getGameModeChangeInterval();
+        }, GamemodesComponent.GAMEMODE_CHANGE_TIME_MANUAL * 1000);
 
       this.currentGameMode = this.gameModes[index];
       this.gameModeIndex = index;
+      this.onTimesUp();
+      this.startTimer(GamemodesComponent.GAMEMODE_CHANGE_TIME_MANUAL);
     }
   }
 
   onGameModeSectionVisible() {
     this.gameModeSectionVisible = true;
-    this.timer = setInterval(() => this.incrementGamemodeIndex(), 25000);
+    this.startTimer(GamemodesComponent.GAMEMODE_CHANGE_TIME);
+    this.timer = this.getGameModeChangeInterval();
+  }
+
+  getGameModeChangeInterval(): NodeJS.Timeout {
+    return setInterval(() => {
+      this.incrementGamemodeIndex();
+    }, GamemodesComponent.GAMEMODE_CHANGE_TIME * 1000);
+  }
+
+  // Credit: Mateusz Rybczonec
+
+  // Length = 2πr = 2 * π * 45 = 282.6
+  readonly FULL_DASH_ARRAY = 283;
+
+  timePassed: number = 0;
+  timeLeft: number = GamemodesComponent.GAMEMODE_CHANGE_TIME;
+  circleTimerInterval: NodeJS.Timeout = null;
+
+  onTimesUp() {
+    clearInterval(this.circleTimerInterval);
+    this.timeLeft = 0;
+    this.timePassed = 0;
+  }
+
+  startTimer(timeLimit: number) {
+    this.timeLeft = timeLimit;
+    this.circleTimerInterval = setInterval(() => {
+      this.timePassed = this.timePassed += 1;
+      this.timeLeft = timeLimit - this.timePassed;
+      this.setCircleDasharray(timeLimit);
+
+      if (this.timeLeft === 0) {
+        this.onTimesUp();
+      }
+    }, 1000);
+  }
+
+  calculateTimeFraction(timeLimit: number) {
+    const rawTimeFraction = this.timeLeft / timeLimit;
+    return rawTimeFraction - (1 / timeLimit) * (1 - rawTimeFraction);
+  }
+
+  setCircleDasharray(timeLimit: number) {
+    const circleDasharray = `${(
+      this.calculateTimeFraction(timeLimit) * this.FULL_DASH_ARRAY
+    ).toFixed(0)} 283`;
+    document.getElementById('base-timer-path-remaining')
+      .setAttribute('stroke-dasharray', circleDasharray);
   }
 }

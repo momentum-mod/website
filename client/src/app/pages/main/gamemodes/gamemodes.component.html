@@ -8,15 +8,36 @@
     </div>
   </div>
   <div class="row justify-content-center mb-5 mb-lg-5">
-    <div class="col-3 col-sm-3 col-md-2 col-lg-1" *ngFor="let gamemode of gameModes; index as i" (click)="setCurrentGamemode(i)">
-      <span *ngIf="!gamemode.isImplemented" class="gamemode-coming-soon">soon™</span>
-      <img width="100%" [ngClass]="(this.gameModeIndex == i) ? 'gamemode-icon-selected' : 'gamemode-icon'"
+    <div class="col-3 col-sm-3 col-md-2 col-lg-1 gamemode"
+         *ngFor="let gamemode of gameModes; index as i"
+         (click)="setCurrentGamemode(i)">
+      <div class="base-timer" *ngIf="gameModeIndex == i">
+        <svg class="base-timer__svg" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+          <g class="base-timer__circle">
+            <circle class="base-timer__path-elapsed" cx="50" cy="50" r="45"></circle>
+            <path
+              id="base-timer-path-remaining"
+              stroke-dasharray="283"
+              class="base-timer__path-remaining"
+              d="
+                  M 50, 50
+                  m -45, 0
+                  a 45,45 0 1,0 90,0
+                  a 45,45 0 1,0 -90,0
+                "
+            ></path>
+          </g>
+        </svg>
+      </div>
+      <img width="100%" class="gamemode-icon" [ngClass]="{'selected': (this.gameModeIndex == i)}"
            [src]="gamemode.iconUrl"
+           [alt]="gamemode.modeTitle"
            *ngIf="gameModeSectionVisible">
+      <span *ngIf="!gamemode.isImplemented" class="gamemode-coming-soon">soon™</span>
     </div>
   </div>
   <div class="row justify-content-center mb-5 mb-lg-5">
-    <div class="display-4 font-weight-normal gamemodes-header text-center">
+    <div class="display-5 font-weight-normal gamemodes-header text-center">
       {{this.currentGameMode.modeTitle}}
     </div>
   </div>
