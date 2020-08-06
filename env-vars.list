@@ -30,3 +30,7 @@ TWITCH_CLIENT_SECRET=
 
 # A generated secret for express' sessions
 EXPRESS_SESSION_SECRET=
+
+# Seq server address + API token
+SEQ_ADDRESS=
+SEQ_TOKEN=
