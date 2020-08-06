@@ -16,10 +16,10 @@ export class GamemodesComponent {
     {
       url: '/assets/images/surf_loop.webm',
       modeTitle: 'Surf',
-      modeDescription: 'Based off of the movement from Counter-Strike: Source, ' +
+      modeDescription: 'Based on the movement from Counter-Strike: Source, ' +
         'players \"surf\" by gliding along triangular prisms called ramps in order ' +
         'to complete maps.',
-      imageUrl: '/assets/images/gamemode_surf.jpg',
+      imageUrl: '/assets/images/gamemode_surf.webp',
       iconUrl: '/assets/images/gamemode_icons/site_skillsurf.png',
       isImplemented: true,
       useYoutubeEmbed: false,
@@ -28,47 +28,47 @@ export class GamemodesComponent {
     {
       url: '/assets/images/bhop_loop.webm',
       modeTitle: 'Bunny Hop',
-      modeDescription: 'Based off of the movement from Counter-Strike: Source, ' +
+      modeDescription: 'Based on the movement from Counter-Strike: Source, ' +
         'players repeatedly jump while strafing through the air to continuously ' +
         'gain speed to complete maps.',
-      imageUrl: '/assets/images/gamemode_bhop.jpg',
+      imageUrl: '/assets/images/gamemode_bhop.webp',
       iconUrl: '/assets/images/gamemode_icons/site_bhop.png',
       isImplemented: true,
       useYoutubeEmbed: false,
       safeYoutubeUrl: null,
     },
     {
-      url: '',
+      url: '/assets/images/rj_loop.webm',
       modeTitle: 'Rocket Jump',
-      modeDescription: 'Based off of the Soldier class from Team Fortress 2, ' +
+      modeDescription: 'Based on the Soldier class from Team Fortress 2, ' +
         'players shoot unidirectional, fixed-speed rockets and take advantage of the explosion ' +
         'they create to propel themselves throughout maps.',
-      imageUrl: '/assets/images/gamemode_rj.jpg',
+      imageUrl: '/assets/images/gamemode_rj.webp',
       iconUrl: '/assets/images/gamemode_icons/site_rocketjump.png',
       isImplemented: true,
-      useYoutubeEmbed: true,
-      safeYoutubeUrl: this.sanitizer.bypassSecurityTrustResourceUrl('https://www.youtube.com/embed/TCDV5aZNYEY'),
+      useYoutubeEmbed: false,
+      safeYoutubeUrl: null,
     },
     {
-      url: '',
+      url: '/assets/images/sj_loop.webm',
       modeTitle: 'Sticky Jump',
-      modeDescription: 'Based off of the Demoman class from Team Fortress 2, ' +
+      modeDescription: 'Based on the Demoman class from Team Fortress 2, ' +
         'players shoot explosives that stick to surfaces and have control over ' +
         'their detonation which propels themselves throughout maps.',
-      imageUrl: '/assets/images/gamemode_stickyjump.jpg',
+      imageUrl: '/assets/images/gamemode_sj.webp',
       iconUrl: '/assets/images/gamemode_icons/site_stickyjump.png',
       isImplemented: true,
-      useYoutubeEmbed: true,
-      safeYoutubeUrl: this.sanitizer.bypassSecurityTrustResourceUrl('https://www.youtube.com/embed/ubH5tw0ZLBc'),
+      useYoutubeEmbed: false,
+      safeYoutubeUrl: null,
     },
     {
       url: '/assets/images/ahop_loop.webm',
       modeTitle: 'Accelerated Hop',
-      modeDescription: 'Based off of the movement found in Half-Life 2, ' +
+      modeDescription: 'Based on the movement found in Half-Life 2, ' +
         'Accelerated Hop comes from Valve\'s attempt to remove bunnyhopping in an older version of the game. ' +
         'By either hopping completely backwards or holding/pressing the back movement key while hopping, ' +
         'players can gain extreme amounts of velocity.',
-      imageUrl: '/assets/images/gamemode_ahop.jpg',
+      imageUrl: '/assets/images/gamemode_ahop.webp',
       iconUrl: '/assets/images/gamemode_icons/site_ahop.png',
       isImplemented: true,
       useYoutubeEmbed: false,
@@ -77,7 +77,7 @@ export class GamemodesComponent {
     {
       url: '',
       modeTitle: 'Parkour',
-      modeDescription: 'Based off of the movement from Titanfall 2, ' +
+      modeDescription: 'Based on the movement from Titanfall 2, ' +
         'Parkour sees players wall-running, slide hopping, and preserving momentum ' +
         'throughout maps.',
       imageUrl: '/assets/images/gamemode_pk.jpg',
@@ -92,7 +92,7 @@ export class GamemodesComponent {
       modeDescription: 'A classic game mode from the classic Team Fortress, concussion grenade boosting involves ' +
         'priming a concussion grenade to explode at just the right time to propel the player throughout the map.',
       imageUrl: '/assets/images/gamemode_conc.jpg',
-      iconUrl: '/assets/images/gamemode_icons/site_conc.png',
+      iconUrl: '/assets/images/gamemode_icons/site_conc.webp',
       isImplemented: false,
       useYoutubeEmbed: true,
       safeYoutubeUrl: this.sanitizer.bypassSecurityTrustResourceUrl('https://www.youtube.com/embed/XYNRNrC5o5Q'),
@@ -113,7 +113,7 @@ export class GamemodesComponent {
       modeTitle: 'Tricksurf',
       modeDescription: 'A spinoff mode formed from the Surf game mode, ' +
       'players can create and complete sequences of locations to surf to, ' +
-      'known as tricks, for points and bragging rights.',
+      'known as tricks, for XP and bragging rights.',
       imageUrl: '/assets/images/gamemode_tricksurf.jpg',
       iconUrl: '/assets/images/gamemode_icons/site_tricksurf.png',
       isImplemented: false,
