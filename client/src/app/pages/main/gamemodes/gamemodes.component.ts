@@ -1,4 +1,4 @@
-import {Component} from '@angular/core';
+import {Component, OnDestroy} from '@angular/core';
 import {GameModeDetails} from '../../../@core/models/gamemode-details.model';
 import {DomSanitizer} from '@angular/platform-browser';
 
@@ -7,7 +7,7 @@ import {DomSanitizer} from '@angular/platform-browser';
   templateUrl: './gamemodes.component.html',
   styleUrls: ['./gamemodes.component.scss'],
 })
-export class GamemodesComponent {
+export class GamemodesComponent implements OnDestroy {
 
   timer: NodeJS.Timeout;
   delay: NodeJS.Timeout;
@@ -133,6 +133,12 @@ export class GamemodesComponent {
     this.currentGameMode = this.gameModes[0];
     this.gameModeIndex = 0;
     this.gameModeSectionVisible = false;
+  }
+
+  ngOnDestroy() {
+    clearInterval(this.circleTimerInterval);
+    clearInterval(this.delay);
+    clearInterval(this.timer);
   }
 
   incrementGamemodeIndex() {
