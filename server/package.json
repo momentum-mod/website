@@ -7,10 +7,13 @@
     "test": "mocha --exit --timeout 45000"
   },
   "dependencies": {
-    "@hapi/joi": "17.1.1",
     "@d-fischer/passport-twitch": "1.0.5",
+    "@hapi/joi": "17.1.1",
     "axios": "0.19.2",
     "body-parser": "1.19.0",
+    "bunyan": "^1.8.14",
+    "bunyan-middleware": "^1.0.0",
+    "bunyan-seq": "^0.4.0",
     "celebrate": "12.1.1",
     "chai": "4.2.0",
     "chai-http": "4.3.0",
@@ -22,7 +25,6 @@
     "jsonwebtoken": "8.5.1",
     "method-override": "3.0.0",
     "mocha": "8.0.1",
-    "morgan": "1.10.0",
     "mysql2": "2.1.0",
     "nodemon": "2.0.4",
     "oauth": "0.9.15",
