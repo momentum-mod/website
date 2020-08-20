@@ -8,13 +8,13 @@
     <div class="collapse navbar-collapse mx-auto" [ngClass]="{'show': navbarOpen}">
       <ul class="navbar-nav ml-auto">
         <li class="nav-item">
-          <a class="nav-link" href="#about">About</a>
+          <a class="nav-link" href="#about" (click)="scrollTo('about')">About</a>
         </li>
         <li class="nav-item">
-          <a class="nav-link" href="#gamemodes">Game Modes</a>
+          <a class="nav-link" href="#gamemodes" (click)="scrollTo('gamemodes')">Game Modes</a>
         </li>
         <li class="nav-item">
-          <a class="nav-link" href="#footer">Links</a>
+          <a class="nav-link" href="#footer" (click)="scrollTo('footer')">Links</a>
         </li>
         <li class="nav-item">
           <img class="nav-link" *ngIf="!isLoggedIn" (click)="showPrivateAlphaWarning()" style="cursor: pointer; padding: 1em 0 0 0.5em" src="assets/images/steam-login.png">
