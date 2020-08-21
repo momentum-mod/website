@@ -56,16 +56,8 @@ export class NavComponent implements OnInit {
     });
   }
 
-  scrollTo(elementID:string): boolean {
-    switch(elementID){
-      case 'about':
-      case 'gamemodes':
-      case 'footer':
-        document.getElementById(`${elementID}`).scrollIntoView();
-        break;
-      default:
-        console.log("Unexpected Navigation Location");
-    }
+  scrollTo(elementID : string): boolean {
+    document.getElementById(`${elementID}`).scrollIntoView({ behavior: 'smooth' });
     return false;
   }
 }
