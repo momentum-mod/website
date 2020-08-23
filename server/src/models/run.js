@@ -221,8 +221,16 @@ const processRunFile = (resultObj) => {
 				}
 			}
 		}
-		if (!bReadStats)
-			reject(new ServerError(400, 'Bad request'));
+
+		const checks = [
+			bReadStats,
+			resultObj.replay.overallStats.jumps < resultObj.replay.header.ticks,
+			resultObj.replay.overallStats.strafes < resultObj.replay.header.ticks,
+		];
+
+		if (checks.includes(false)) {
+			reject(new ServerError(400, "Bad request, " + checks.join(" ")));
+		}
 
 		// Frames
 		const runFrames = readInt32(resultObj.bin, true);
