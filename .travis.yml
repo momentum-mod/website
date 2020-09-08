@@ -9,9 +9,6 @@ node_js:
 env:
   - NODE_ENV=test
 
-services:
-  - mysql
-
 branches:
   only:
   - master
@@ -40,11 +37,6 @@ jobs:
     before_install: cd ./client/
     install: npm install -g @angular/cli && yarn install
     script: npm run test
-  - name: "Server Tests"
-    before_install: cd ./server/
-    install: yarn install
-    before_script: bash ../scripts/setup-db-test.sh
-    script: npm test
   #- name: "Client Integration Tests"
     # TODO: Uncomment when we have client integration tests
     #- script: cd ./client/ && xvfb-run npm run e2e
