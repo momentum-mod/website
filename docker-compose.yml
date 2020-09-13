@@ -1,0 +1,18 @@
+version: '3.4'
+
+services:
+  clientservice:
+    image: ${DOCKER_REGISTRY-}clientservice
+    build:
+      context: .
+      dockerfile: src/ClientService/DockerfileDev
+    depends_on:
+      - authenticationservice
+    volumes:
+      - "./src/ClientService/ClientApp:/app/ClientApp"
+
+  authenticationservice:
+    image: ${DOCKER_REGISTRY-}authenticationservice
+    build:
+      context: .
+      dockerfile: src/AuthenticationService/Dockerfile
