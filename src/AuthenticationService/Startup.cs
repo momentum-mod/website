@@ -29,6 +29,11 @@ namespace AuthenticationService
         {
             services.AddControllers();
 
+            services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+                .AddSteam(options =>
+                {
+                    options.ApplicationKey = Configuration["STEAM_API_KEY"];
+                });
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
