@@ -9,5 +9,7 @@ namespace ClientService
 {
     internal static class WebHostEnvironmentExtensions
     {
+        internal static bool IsFrontendDevelopment(this IWebHostEnvironment env)
+            => env.IsEnvironment("FrontendDevelopment");
     }
 }
