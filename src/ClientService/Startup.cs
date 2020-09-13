@@ -1,10 +1,13 @@
 using System;
+using System.IO;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.HttpsPolicy;
 using Microsoft.AspNetCore.SpaServices.AngularCli;
+using Microsoft.AspNetCore.StaticFiles.Infrastructure;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.FileProviders;
 using Microsoft.Extensions.Hosting;
 
 namespace ClientService
@@ -38,15 +41,16 @@ namespace ClientService
             else
             {
                 // Unhandled exception
-
                 app.UseExceptionHandler("/Error");
+
                 // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
                 app.UseHsts();
             }
 
             app.UseHttpsRedirection();
-            app.UseStaticFiles();
-            if (!env.IsDevelopment())
+
+
+            if (!env.IsFrontendDevelopment())
             {
                 app.UseSpaStaticFiles();
             }
@@ -55,15 +59,11 @@ namespace ClientService
 
             app.UseSpa(spa =>
             {
-                // To learn more about options for serving an Angular SPA from ASP.NET Core,
-                // see https://go.microsoft.com/fwlink/?linkid=864501
-
                 spa.Options.SourcePath = "ClientApp";
 
-                if (env.IsDevelopment())
+                if (env.IsFrontendDevelopment() || env.IsDevelopment())
                 {
                     spa.UseAngularCliServer(npmScript: "start");
-                    spa.UseProxyToSpaDevelopmentServer(new Uri("https://localhost:3002"));
                 }
             });
         }
