@@ -1,0 +1,11 @@
+FROM node:12
+
+WORKDIR /app
+
+COPY src/ClientService/startDev.sh .
+
+EXPOSE 4200
+
+RUN chmod +x startDev.sh
+
+ENTRYPOINT ["bash" "startDev.sh"]
