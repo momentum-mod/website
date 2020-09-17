@@ -31,6 +31,4 @@ RUN apt-get update && \
 apt-get install -qy nodejs npm && \
 npm install npm@latest -g
 
-COPY src/ClientService/ClientApp/. ClientApp/
-
 ENTRYPOINT ["dotnet", "ClientService.dll"]
