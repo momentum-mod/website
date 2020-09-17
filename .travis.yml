@@ -20,7 +20,7 @@ git:
 cache:
   yarn: true
   directories:
-  - client/node_modules
+  - src/ClientService/ClientApp/node_modules
 
 addons:
   apt:
@@ -34,13 +34,13 @@ addons:
 jobs:
   include:
   - name: "Client Tests"
-    before_install: cd ./client/
+    before_install: cd ./src/ClientService/ClientApp/
     install: npm install -g @angular/cli && yarn install
     script: npm run test
   #- name: "Client Integration Tests"
     # TODO: Uncomment when we have client integration tests
     #- script: cd ./client/ && xvfb-run npm run e2e
   - name: "Production Build"
-    before_install: cd ./client/
+    before_install: cd ./src/ClientService/ClientApp/
     install: npm install -g @angular/cli && yarn install
     script: npm run build:prod
