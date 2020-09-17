@@ -8,8 +8,6 @@ services:
       dockerfile: src/ClientService/DockerfileDev
     depends_on:
       - authenticationservice
-    volumes:
-      - "./src/ClientService/ClientApp:/app/ClientApp"
 
   authenticationservice:
     image: ${DOCKER_REGISTRY-}authenticationservice
