@@ -63,7 +63,7 @@ namespace ClientService
 
                 if (env.IsFrontendDevelopment() || env.IsDevelopment())
                 {
-                    spa.UseAngularCliServer(npmScript: "start");
+                    spa.UseProxyToSpaDevelopmentServer("http://angularfrontend:4200");
                 }
             });
         }
