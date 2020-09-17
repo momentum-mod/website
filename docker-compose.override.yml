@@ -3,7 +3,7 @@ version: '3.4'
 services:
   clientservice:
     environment:
-      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_ENVIRONMENT=FrontendDevelopment
       - ASPNETCORE_URLS=http://+:80
     ports:
       - "80"
