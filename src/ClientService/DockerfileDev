@@ -1,11 +1,20 @@
-FROM node:12
-
+FROM mcr.microsoft.com/dotnet/core/aspnet:3.1-buster-slim AS base
 WORKDIR /app
+EXPOSE 80
+EXPOSE 443
 
-COPY src/ClientService/startDev.sh .
+FROM mcr.microsoft.com/dotnet/core/sdk:3.1-buster AS build
+WORKDIR /src
+COPY ["src/ClientService/ClientService.csproj", "src/ClientService/"]
+RUN dotnet restore "src/ClientService/ClientService.csproj"
+COPY . .
+WORKDIR "/src/src/ClientService"
+RUN dotnet build "ClientService.csproj" -c Release -o /app/build
 
-EXPOSE 4200
+FROM build AS publish
+RUN dotnet publish "ClientService.csproj" -c Release -o /app/publish
 
-RUN chmod +x startDev.sh
-
-ENTRYPOINT ["bash" "startDev.sh"]
+FROM base AS final
+WORKDIR /app
+COPY --from=publish /app/publish .
+ENTRYPOINT ["dotnet", "ClientService.dll"]
