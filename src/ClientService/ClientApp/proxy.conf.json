@@ -1,11 +1,11 @@
 {
   "/api/*": {
-    "target": "http://host.docker.internal:3002",
+    "target": "http://nginx",
     "secure": false,
     "logLevel": "debug"
   },
   "/auth/*": {
-    "target": "http://host.docker.internal:3002",
+    "target": "http://nginx",
     "secure": false,
     "logLevel": "debug"
   }
