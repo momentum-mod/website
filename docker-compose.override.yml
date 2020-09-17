@@ -10,6 +10,18 @@ services:
     volumes:
       - ${APPDATA}/Microsoft/UserSecrets:/root/.microsoft/usersecrets:ro
       - ${APPDATA}/ASP.NET/Https:/root/.aspnet/https:ro
+    depends_on:
+      - angularfrontend
+  angularfrontend:
+    image: ${DOCKER_REGISTRY-}angularfrontend
+    build:
+      context: .
+      dockerfile: src/ClientService/ClientApp/Dockerfile
+    container_name: AngularFrontend
+    ports:
+      - "4200:4200"
+    volumes:
+      - "./src/ClientService/ClientApp:/app"
   authenticationservice:
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
