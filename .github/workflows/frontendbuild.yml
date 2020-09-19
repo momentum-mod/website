@@ -17,8 +17,7 @@ jobs:
           node-version: ${{ matrix.node-version }}
       - name: npm install and npm run build
         run: |
+          cd ./src/ClientService/ClientApp
           npm install -g @angular/cli && yarn install
           npm run build:prod
-        with:
-          working-directory: ./src/ClientService/ClientApp
 
