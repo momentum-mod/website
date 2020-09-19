@@ -9,8 +9,8 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - uses: bahmutov/npm-install@v1
-      - name: Move to client dir
-        run: cd ./src/ClientService/ClientApp
+        with: 
+          working-directory: ./src/ClientService/ClientApp
       - name: Node ${{ matrix.node-version }}
         uses: actions/setup-node@v1
         with:
@@ -19,4 +19,6 @@ jobs:
         run: |
           npm install -g @angular/cli && yarn install
           npm run build:prod
+        with:
+          working-directory: ./src/ClientService/ClientApp
 
