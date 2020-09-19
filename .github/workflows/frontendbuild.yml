@@ -1,4 +1,4 @@
-name: build 
+name: AngularBuild 
 on: [push, pull_request]
 jobs: 
   build:
@@ -20,4 +20,8 @@ jobs:
           cd ./src/ClientService/ClientApp
           npm install -g @angular/cli && yarn install
           npm run build:prod
+      - uses: actions/upload-artifact@v2
+        with:
+          name: ClientBuild
+          path: ./src/ClientService/ClientApp/dist/
 
