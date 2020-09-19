@@ -48,7 +48,7 @@ jobs:
   #- name: "Client Integration Tests"
     # TODO: Uncomment when we have client integration tests
     #- script: cd ./client/ && xvfb-run npm run e2e
-  - name: "Production Build"
-    before_install: cd ./client/
-    install: npm install -g @angular/cli && yarn install
-    script: npm run build:prod
+  # - name: "Production Build"
+    # before_install: cd ./client/
+    # install: npm install -g @angular/cli && yarn install
+  #   script: npm run build:prod
