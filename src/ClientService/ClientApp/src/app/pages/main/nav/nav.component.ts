@@ -56,7 +56,7 @@ export class NavComponent implements OnInit {
     });
   }
 
-  scrollTo(elementID : string): boolean {
+  scrollTo(elementID: string): boolean {
     document.getElementById(`${elementID}`).scrollIntoView({ behavior: 'smooth' });
     return false;
   }

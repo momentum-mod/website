@@ -1,0 +1,27 @@
+name: AngularBuild 
+on: [push, pull_request]
+jobs: 
+  build:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node-version: [12.x]
+    steps:
+      - uses: actions/checkout@v2
+      - uses: bahmutov/npm-install@v1
+        with: 
+          working-directory: ./src/ClientService/ClientApp
+      - name: Node ${{ matrix.node-version }}
+        uses: actions/setup-node@v1
+        with:
+          node-version: ${{ matrix.node-version }}
+      - name: npm install and npm run build
+        run: |
+          cd ./src/ClientService/ClientApp
+          npm install -g @angular/cli && yarn install
+          npm run build:prod
+      - uses: actions/upload-artifact@v2
+        with:
+          name: ClientBuild
+          path: ./src/ClientService/ClientApp/dist/
+
