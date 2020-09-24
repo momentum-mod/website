@@ -50,10 +50,16 @@
         </video>
       </ng-template>
       <ng-template #youtubeTemplate>
-        <iframe width="100%" height="305" [src]='this.currentGameMode.safeYoutubeUrl' frameborder="0"
+        <div *ngIf="!this.currentGameMode.playingYoutubeEmbed && gameModeSectionVisible"
+             (click)="this.currentGameMode.playingYoutubeEmbed = true"
+             class="gamemode-youtube-play-container">
+          <img src="https://i.ytimg.com/vi/{{this.currentGameMode.youtubeVidID}}/sddefault.jpg">
+          <nb-icon icon="play-circle"></nb-icon>
+        </div>
+        <iframe width="100%" height="305" [src]='this.currentGameMode.youtubeVidURL' frameborder="0"
                 allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture"
                 allowfullscreen
-                *ngIf="gameModeSectionVisible">
+                *ngIf="gameModeSectionVisible && this.currentGameMode.playingYoutubeEmbed && this.currentGameMode.youtubeVidURL">
         </iframe>
       </ng-template>
     </div>
