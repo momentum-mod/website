@@ -119,6 +119,18 @@ export class GamemodesComponent implements OnDestroy {
       playingYoutubeEmbed: false,
       youtubeVidID: 'Bcl27Y8pk4A',
     },
+    {
+      url: '',
+      modeTitle: 'Defrag',
+      modeDescription: 'Based on the original mode from Quake, ' +
+        'players perform forward-focused hops and strafes, aided in part by some weapons, in order to complete maps.',
+      imageUrl: '/assets/images/gamemode_defrag.jpg',
+      iconUrl: '/assets/images/gamemode_icons/site_defrag.png',
+      isImplemented: false,
+      useYoutubeEmbed: true,
+      playingYoutubeEmbed: false,
+      youtubeVidID: 'GAq39tM09Yg',
+    },
   ];
 
   currentGameMode?: GameModeDetails;
