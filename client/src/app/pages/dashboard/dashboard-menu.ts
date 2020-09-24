@@ -100,9 +100,4 @@ export const MENU_ITEMS: NbMenuItem[] = [
     icon: 'file-text-outline',
     url: 'https://docs.momentum-mod.org',
   },
-  /*{
-    title: 'Steam Store Page',
-    icon: 'shopping-cart-outline',
-    url: 'https://store.steampowered.com/app/669270/Momentum_Mod/',
-  },*/
 ];
