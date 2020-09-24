@@ -1,6 +1,6 @@
 import {Component, OnDestroy} from '@angular/core';
 import {GameModeDetails} from '../../../@core/models/gamemode-details.model';
-import {DomSanitizer} from '@angular/platform-browser';
+import {DomSanitizer, SafeResourceUrl} from '@angular/platform-browser';
 
 @Component({
   selector: 'ngx-gamemodes',
@@ -23,7 +23,6 @@ export class GamemodesComponent implements OnDestroy {
       iconUrl: '/assets/images/gamemode_icons/site_skillsurf.png',
       isImplemented: true,
       useYoutubeEmbed: false,
-      safeYoutubeUrl: null,
     },
     {
       url: '/assets/images/bhop_loop.webm',
@@ -35,7 +34,6 @@ export class GamemodesComponent implements OnDestroy {
       iconUrl: '/assets/images/gamemode_icons/site_bhop.png',
       isImplemented: true,
       useYoutubeEmbed: false,
-      safeYoutubeUrl: null,
     },
     {
       url: '/assets/images/rj_loop.webm',
@@ -47,7 +45,6 @@ export class GamemodesComponent implements OnDestroy {
       iconUrl: '/assets/images/gamemode_icons/site_rocketjump.png',
       isImplemented: true,
       useYoutubeEmbed: false,
-      safeYoutubeUrl: null,
     },
     {
       url: '/assets/images/sj_loop.webm',
@@ -59,7 +56,6 @@ export class GamemodesComponent implements OnDestroy {
       iconUrl: '/assets/images/gamemode_icons/site_stickyjump.png',
       isImplemented: true,
       useYoutubeEmbed: false,
-      safeYoutubeUrl: null,
     },
     {
       url: '/assets/images/ahop_loop.webm',
@@ -72,7 +68,6 @@ export class GamemodesComponent implements OnDestroy {
       iconUrl: '/assets/images/gamemode_icons/site_ahop.png',
       isImplemented: true,
       useYoutubeEmbed: false,
-      safeYoutubeUrl: null,
     },
     {
       url: '',
@@ -84,7 +79,8 @@ export class GamemodesComponent implements OnDestroy {
       iconUrl: '/assets/images/gamemode_icons/site_parkour.png',
       isImplemented: false,
       useYoutubeEmbed: true,
-      safeYoutubeUrl: this.sanitizer.bypassSecurityTrustResourceUrl('https://www.youtube.com/embed/k9jAlYmNK5A'),
+      playingYoutubeEmbed: false,
+      youtubeVidID: 'k9jAlYmNK5A',
     },
     {
       url: '',
@@ -95,7 +91,8 @@ export class GamemodesComponent implements OnDestroy {
       iconUrl: '/assets/images/gamemode_icons/site_conc.webp',
       isImplemented: false,
       useYoutubeEmbed: true,
-      safeYoutubeUrl: this.sanitizer.bypassSecurityTrustResourceUrl('https://www.youtube.com/embed/XYNRNrC5o5Q'),
+      playingYoutubeEmbed: false,
+      youtubeVidID: 'XYNRNrC5o5Q',
     },
     {
       url: '',
@@ -106,7 +103,8 @@ export class GamemodesComponent implements OnDestroy {
       iconUrl: '/assets/images/gamemode_icons/site_climb.png',
       isImplemented: false,
       useYoutubeEmbed: true,
-      safeYoutubeUrl: this.sanitizer.bypassSecurityTrustResourceUrl('https://www.youtube.com/embed/J6kYb_O-XFk'),
+      playingYoutubeEmbed: false,
+      youtubeVidID: 'J6kYb_O-XFk',
     },
     {
       url: '',
@@ -118,7 +116,8 @@ export class GamemodesComponent implements OnDestroy {
       iconUrl: '/assets/images/gamemode_icons/site_tricksurf.png',
       isImplemented: false,
       useYoutubeEmbed: true,
-      safeYoutubeUrl: this.sanitizer.bypassSecurityTrustResourceUrl('https://www.youtube.com/embed/Bcl27Y8pk4A'),
+      playingYoutubeEmbed: false,
+      youtubeVidID: 'Bcl27Y8pk4A',
     },
   ];
 
@@ -147,7 +146,9 @@ export class GamemodesComponent implements OnDestroy {
     } else {
       this.gameModeIndex = 0;
     }
+    this.currentGameMode.playingYoutubeEmbed = false;
     this.currentGameMode = this.gameModes[this.gameModeIndex];
+    this.currentGameMode.youtubeVidURL = this.getGameModeYouTubeVideo();
     this.onTimesUp();
     this.startTimer(GamemodesComponent.GAMEMODE_CHANGE_TIME);
   }
@@ -162,7 +163,9 @@ export class GamemodesComponent implements OnDestroy {
           this.timer = this.getGameModeChangeInterval();
         }, GamemodesComponent.GAMEMODE_CHANGE_TIME_MANUAL * 1000);
 
+      this.currentGameMode.playingYoutubeEmbed = false;
       this.currentGameMode = this.gameModes[index];
+      this.currentGameMode.youtubeVidURL = this.getGameModeYouTubeVideo();
       this.gameModeIndex = index;
       this.onTimesUp();
       this.startTimer(GamemodesComponent.GAMEMODE_CHANGE_TIME_MANUAL);
@@ -179,6 +182,14 @@ export class GamemodesComponent implements OnDestroy {
     return setInterval(() => {
       this.incrementGamemodeIndex();
     }, GamemodesComponent.GAMEMODE_CHANGE_TIME * 1000);
+  }
+
+  getGameModeYouTubeVideo(): SafeResourceUrl {
+    return this.sanitizer.bypassSecurityTrustResourceUrl(`https://www.youtube.com/embed/${this.currentGameMode.youtubeVidID}?autoplay=1`);
+  }
+
+  getGameModeYouTubePoster(): string {
+    return `https://i.ytimg.com/vi/${this.currentGameMode.youtubeVidID}/sddefault.jpg`;
   }
 
   // Credit: Mateusz Rybczonec

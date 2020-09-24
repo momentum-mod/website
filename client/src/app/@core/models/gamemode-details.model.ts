@@ -8,5 +8,7 @@ export interface GameModeDetails {
     iconUrl: string;
     isImplemented: boolean;
     useYoutubeEmbed: boolean;
-    safeYoutubeUrl: SafeResourceUrl;
+    playingYoutubeEmbed?: boolean;
+    youtubeVidID?: string;
+    youtubeVidURL?: SafeResourceUrl;
 }
