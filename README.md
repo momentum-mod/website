@@ -1,6 +1,6 @@
 ![Momentum Mod Logo](client/src/assets/images/site.png)
 
-> *Momentum Mod is a standalone game built on the Source Engine, aiming to centralize movement gametypes found in CS:S, CS:GO, and TF2.*
+> *Momentum Mod is a standalone game built on the Source Engine, aiming to centralize movement game types to provide the best experience found in CS:S, CS:GO, and TF2.*
 
 This is the repository for the main Momentum Mod website, which acts as the central hub for and an extension to the [game client](https://github.com/momentum-mod/game). 
 
