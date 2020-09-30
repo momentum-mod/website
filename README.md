@@ -4,7 +4,7 @@
 
 This is the repository for the main Momentum Mod website, which acts as the central hub for and an extension to the [game client](https://github.com/momentum-mod/game). 
 
-The frontend of Momentum's main site acts as the extension to the game, allowing players to log in via Steam (via OpenID), where they can find a dashboard that shows statistics, maps, players, and runs. The frontend runs on [Angular](https://angular.io) and utilizes the [Nebular](https://github.com/akveo/nebular) framework. More info about it and instructions to run it can be found in the [client/](client/) folder.
+The frontend of Momentum's main site acts as the extension to the game, allowing players to log in via Steam (via OpenID).
 
 The backend of the website is the core of the interactive functionality of the game and handles things like map uploads/downloads, run submission/viewing, and stats congregation/filtering. The backend runs on [NodeJS](https://nodejs.org/) and utilizes the [Express](https://expressjs.com/) framework. More info about it and instructions to run it can be found in the [server/](server/) folder.
 
