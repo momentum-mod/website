@@ -16,6 +16,9 @@ MOM_DATABASE_HOST=
 # The base URL of your website
 BASE_URL=
 
+# Name of your website
+NAME=
+
 # The Twitter consumer Key and Secret for using their API
 TWITTER_CONSUMER_KEY=
 TWITTER_CONSUMER_SECRET=
