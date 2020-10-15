@@ -8,11 +8,11 @@ The frontend of Momentum's main site acts as the extension to the game, allowing
 
 The backend of the website is the core of the interactive functionality of the game and handles things like map uploads/downloads, run submission/viewing, and stats congregation/filtering. The backend runs on [NodeJS](https://nodejs.org/) and utilizes the [Express](https://expressjs.com/) framework. More info about it and instructions to run it can be found in the [server/](server/) folder.
 
-## *Something wrong with the site?*  
-[Submit an issue](https://github.com/momentum-mod/website/issues/new) with some pictures and/or web console error output!
+## *Something wrong with the website?*  
+[Submit an issue](https://github.com/momentum-mod/website/issues/new) with some pictures, details and/or web console error output!
 
-## *Want to help out?*
-[Join our Discord](https://discord.gg/wQWkRb6) and let us know! We also accept pull requests, *but make sure the issue/feature isn't already assigned to someone!*
+## *Still need our support?*
+[Join our Discord for additional support](https://discord.gg/wQWkRb6) and let us know! We also accept pull requests, *but make sure the issue/feature isn't already assigned to someone!*
 
 ## Looking for our documentation site?
 Our documentation site uses different technology and can be found on [our docs repository](https://github.com/momentum-mod/docs).
