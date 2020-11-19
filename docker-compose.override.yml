@@ -4,19 +4,23 @@ services:
   nginx:
     image: nginx
     volumes:
-      - ./nginx.conf:/etc/nginx/nginx.conf
+      - ./nginx.dev.conf:/etc/nginx/nginx.conf
+      - ${USERPROFILE}/.aspnet/https:/etc/ssl
     ports:
       - "80"
       - "443"
     depends_on:
       - clientservice
     container_name: NginxGateway
+  postgres:
+    image: postgres
+    env_file:
+      - env/PostgresDatabase.env
+    container_name: PostgresDatabase
   clientservice:
     environment:
-      - ASPNETCORE_ENVIRONMENT=FrontendDevelopment
+      - ASPNETCORE_ENVIRONMENT=Development
       - ASPNETCORE_URLS=http://+:80
-    ports:
-      - "80"
     volumes:
       - ${APPDATA}/Microsoft/UserSecrets:/root/.microsoft/usersecrets:ro
       - ${APPDATA}/ASP.NET/Https:/root/.aspnet/https:ro
@@ -28,8 +32,6 @@ services:
       context: .
       dockerfile: src/ClientService/ClientApp/Dockerfile
     container_name: AngularFrontend
-    ports:
-      - "4200:4200"
     volumes:
       - "./src/ClientService/ClientApp:/app"
   authenticationservice:
@@ -38,8 +40,6 @@ services:
       - ASPNETCORE_URLS=http://+:80
     env_file:
       - env/AuthenticationService.env
-    ports:
-      - "80"
     volumes:
       - ${APPDATA}/Microsoft/UserSecrets:/root/.microsoft/usersecrets:ro
       - ${APPDATA}/ASP.NET/Https:/root/.aspnet/https:ro

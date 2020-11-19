@@ -6,7 +6,7 @@
     <ProjectGuid>a3d23d41-a204-4f4a-b38c-378b50a7d978</ProjectGuid>
     <DockerLaunchAction>LaunchBrowser</DockerLaunchAction>
     <DockerServiceUrl>{Scheme}://localhost:{ServicePort}</DockerServiceUrl>
-    <DockerServiceName>clientservice</DockerServiceName>
+    <DockerServiceName>nginx</DockerServiceName>
     <DockerDevelopmentMode>Regular</DockerDevelopmentMode>
   </PropertyGroup>
   <ItemGroup>

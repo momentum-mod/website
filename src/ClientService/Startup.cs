@@ -2,6 +2,7 @@ using System;
 using System.IO;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.AspNetCore.HttpsPolicy;
 using Microsoft.AspNetCore.SpaServices.AngularCli;
 using Microsoft.AspNetCore.StaticFiles.Infrastructure;
@@ -34,6 +35,12 @@ namespace ClientService
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
+            app.Use((context, next) =>
+            {
+                context.Request.Scheme = "https";
+                return next();
+            });
+
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
@@ -47,10 +54,13 @@ namespace ClientService
                 app.UseHsts();
             }
 
-            app.UseHttpsRedirection();
+            app.UseForwardedHeaders(new ForwardedHeadersOptions
+            {
+                ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto
+            });
 
 
-            if (!env.IsFrontendDevelopment())
+            if (!env.IsDevelopment())
             {
                 app.UseSpaStaticFiles();
             }
@@ -61,7 +71,7 @@ namespace ClientService
             {
                 spa.Options.SourcePath = "ClientApp";
 
-                if (env.IsFrontendDevelopment() || env.IsDevelopment())
+                if ( env.IsDevelopment())
                 {
                     spa.UseProxyToSpaDevelopmentServer("http://angularfrontend:4200");
                 }

@@ -8,9 +8,10 @@ services:
       dockerfile: src/ClientService/DockerfileDev
     depends_on:
       - authenticationservice
-
+    container_name: ClientService
   authenticationservice:
     image: ${DOCKER_REGISTRY-}authenticationservice
     build:
       context: .
       dockerfile: src/AuthenticationService/Dockerfile
+    container_name: AuthenticationService

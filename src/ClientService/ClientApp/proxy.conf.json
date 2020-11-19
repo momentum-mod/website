@@ -1,12 +1,12 @@
 {
   "/api/*": {
-    "target": "http://nginx",
-    "secure": false,
+    "target": "https://nginx",
+    "secure": true,
     "logLevel": "debug"
   },
   "/auth/*": {
-    "target": "http://nginx",
-    "secure": false,
+    "target": "https://nginx",
+    "secure": true,
     "logLevel": "debug"
   }
 }
