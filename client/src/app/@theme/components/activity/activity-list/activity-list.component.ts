@@ -1,4 +1,4 @@
-import {Component, Input, OnInit} from '@angular/core';
+import {Component, Input, OnInit, Output, EventEmitter} from '@angular/core';
 import {Activity} from '../../../../@core/models/activity.model';
 
 @Component({
@@ -10,6 +10,8 @@ export class ActivityListComponent implements OnInit {
 
   @Input('activities') activities: Activity[];
   @Input('hasRequested') hasRequested: boolean;
+  @Output() showMore = new EventEmitter();
+
   constructor() {
     this.hasRequested = false;
     this.activities = [];
@@ -18,4 +20,7 @@ export class ActivityListComponent implements OnInit {
   ngOnInit() {
   }
 
+  loadMore(): void {
+    this.showMore.emit(null);
+  }
 }

@@ -15,5 +15,5 @@
       </div>
     </div>
   </nb-card-header>
-  <activity-list [activities]="actsFiltered" [hasRequested]="initialAct"></activity-list>
+  <activity-list [activities]="actsFiltered" [hasRequested]="initialAct" (showMore)="getMoreActivities()"></activity-list>
 </nb-card>
