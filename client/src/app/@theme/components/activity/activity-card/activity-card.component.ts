@@ -28,6 +28,8 @@ export class ActivityCardComponent implements OnInit {
   activities: Activity[];
   actsFiltered: Activity[];
   initialAct: boolean;
+  recentActPage = 1;
+  canLoadMore = true;
 
   ngOnInit(): void {
     if (!this.initialAct) {
@@ -41,6 +43,7 @@ export class ActivityCardComponent implements OnInit {
     else
       this.actsFiltered = acts.filter((value => value.type === this.filterValue));
   }
+
   getActivities(): void {
     const func = (resp) => {
       this.initialAct = true;
@@ -54,6 +57,21 @@ export class ActivityCardComponent implements OnInit {
         this.actService.getUserActivity(usr.id).subscribe(func);
       });
     else if (this.recent)
-      this.actService.getRecentActivity().subscribe(func);
+      this.actService.getRecentActivity(0).subscribe(func);
+  }
+
+  getMoreActivities(): void {
+    if (!this.canLoadMore || !this.recent)
+      return;
+
+    this.canLoadMore = false;
+    this.actService.getRecentActivity(10 * this.recentActPage++).subscribe((res) => {
+      // Don't call the API anymore if there are no more activities left
+      if (res.activities.length !== 0) {
+        this.canLoadMore = true;
+        this.activities.push(...res.activities);
+        this.filterActivites(this.activities);
+      }
+    });
   }
 }

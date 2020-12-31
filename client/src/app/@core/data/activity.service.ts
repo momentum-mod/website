@@ -1,5 +1,5 @@
 import {Injectable} from '@angular/core';
-import {HttpClient} from '@angular/common/http';
+import {HttpClient, HttpParams} from '@angular/common/http';
 import {Observable} from 'rxjs';
 import {Activities} from '../models/activities.model';
 
@@ -23,9 +23,11 @@ export class ActivityService {
   }
 
   /**
+   * @param offset number of activities offset from most recent activity
    * @return a list of the most recent activities
    */
-  getRecentActivity(): Observable<Activities> {
-    return this.http.get<Activities>('/api/activities');
+  getRecentActivity(offset: number): Observable<Activities> {
+    const params = new HttpParams().append('offset', offset.toString());
+    return this.http.get<Activities>('/api/activities', {params});
   }
 }
