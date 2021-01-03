@@ -2,7 +2,7 @@ import {async, ComponentFixture, TestBed} from '@angular/core/testing';
 
 import {ActivityListComponent} from './activity-list.component';
 import {ActivityContentComponent} from '../..';
-import {NbListModule, NbUserModule} from '@nebular/theme';
+import {NbListModule, NbUserModule, NbLayoutScrollService, NbLayoutRulerService} from '@nebular/theme';
 import {APP_BASE_HREF} from '@angular/common';
 import {RouterModule} from '@angular/router';
 import {TimeagoModule} from 'ngx-timeago';
@@ -17,6 +17,8 @@ describe('ActivityListComponent', () => {
       declarations: [ ActivityListComponent, ActivityContentComponent ],
       providers: [
         { provide: APP_BASE_HREF, useValue: '/' },
+        NbLayoutScrollService,
+        NbLayoutRulerService,
       ],
     })
     .compileComponents();

@@ -50,7 +50,7 @@ describe('ActivityService', () => {
     });
     it('#getRecentActivity() should return recent Activity', () => {
       httpClientSpy.get.and.returnValue(of(expectedActivities));
-      activityService.getRecentActivity().subscribe(value =>
+      activityService.getRecentActivity(0).subscribe(value =>
           expect(value).toEqual(expectedActivities, 'expected activity'),
         fail,
       );
