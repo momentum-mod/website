@@ -47,7 +47,9 @@ namespace Momentum.Auth.Api
                     options.CorrelationCookie.SecurePolicy = CookieSecurePolicy.Always;
                     options.CorrelationCookie.IsEssential = true;
                     options.CorrelationCookie.SameSite = SameSiteMode.None;
-                });
+                    options.SignInScheme = "Cookies";
+                })
+                .AddCookie("Cookies");
 
             services.AddMomentumAuthorization();
         }
