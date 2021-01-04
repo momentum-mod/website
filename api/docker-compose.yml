@@ -14,9 +14,6 @@ services:
     volumes:
       - ./config/appsettings.json:/app/appsettings.json
       - ./config/appsettings.${ENVIRONMENT}.json:/app/appsettings.${ENVIRONMENT}.json
-      - ./config/ocelot.json:/app/ocelot.json
-    depends_on:
-      - auth-api
   postgres:
     image: postgres
     container_name: MomentumPostgres${ENVIRONMENT}
@@ -27,17 +24,3 @@ services:
       - POSTGRES_DB=momentum_db
     volumes:
       - ./postgres:/var/lib/postgresql/data
-  auth-api:
-    build:
-      dockerfile: src/Modules/Auth/Momentum.Auth.Api/Dockerfile
-      context: .
-    image: auth-api
-    container_name: MomentumAuthApi${ENVIRONMENT}
-    restart: always
-    environment:
-      - ASPNETCORE_ENVIRONMENT=${ENVIRONMENT}
-    volumes:
-      - ./config/appsettings.json:/app/appsettings.json
-      - ./config/appsettings.${ENVIRONMENT}.json:/app/appsettings.${ENVIRONMENT}.json
-    depends_on:
-      - postgres

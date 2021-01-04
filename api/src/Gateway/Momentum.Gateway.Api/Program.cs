@@ -1,26 +1,22 @@
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
-using Momentum.Gateway.Api;
-using Serilog;
 
-CreateHostBuilder(args).Build().Run();
-
-static IHostBuilder CreateHostBuilder(string[] args) =>
-    Host.CreateDefaultBuilder(args)
-        .ConfigureLogging(logging =>
+namespace Momentum.Gateway.Api
+{
+    public static class Program
+    {
+        public static void Main(string[] args)
         {
-            var logger = new LoggerConfiguration()
-                .MinimumLevel.Debug()
-                .WriteTo.Console()
-                .CreateLogger();
+            CreateHostBuilder(args)
+                .Build()
+                .Run();
+        }
 
-            logging.ClearProviders();
-            logging.AddSerilog(logger);
-        })
-        .ConfigureAppConfiguration(configurationBuilder =>
-        {
-            configurationBuilder.AddJsonFile("ocelot.json");
-        })
-        .ConfigureWebHostDefaults(webBuilder => { webBuilder.UseStartup<Startup>(); });
+        private static IHostBuilder CreateHostBuilder(string[] args)
+            => Host.CreateDefaultBuilder(args)
+                .ConfigureWebHostDefaults(webBuilder =>
+                {
+                    webBuilder.UseStartup<Startup>();
+                });
+    }
+}

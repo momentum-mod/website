@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Runtime;
 
 namespace Momentum.Users.Core.Models
 {

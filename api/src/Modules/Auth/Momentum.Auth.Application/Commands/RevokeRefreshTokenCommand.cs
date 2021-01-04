@@ -2,7 +2,6 @@
 using System.Threading.Tasks;
 using MediatR;
 using Momentum.Auth.Core.Services;
-using Momentum.Framework.Core;
 using Momentum.Framework.Core.Services;
 
 namespace Momentum.Auth.Application.Commands
