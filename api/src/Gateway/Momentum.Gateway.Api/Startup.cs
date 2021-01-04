@@ -50,6 +50,7 @@ namespace Momentum.Gateway.Api
             }
             
             // Add global dependencies
+            services.AddHttpContextAccessor();
             services.AddScoped<ICurrentUserService, CurrentUserService>();
         }
 
