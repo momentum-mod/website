@@ -10,6 +10,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Momentum.Auth.Api.Services;
+using Momentum.Auth.Api.ViewModels;
 using Momentum.Auth.Application.Queries;
 using Momentum.Users.Application.Commands;
 
@@ -111,11 +112,7 @@ namespace Momentum.Auth.Api.Controllers
                     RefreshToken = refreshToken
                 });
                 
-                return Ok(new
-                {
-                    token = accessToken,
-                    length = accessToken.Length
-                });
+                return Ok(new GameAccessTokenViewModel(accessToken));
             }
 
             return Unauthorized();
