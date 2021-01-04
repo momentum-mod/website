@@ -1,4 +1,5 @@
-﻿using System.Text;
+﻿using System;
+using System.Text;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
@@ -27,12 +28,13 @@ namespace Momentum.Framework.Core.Helpers
                     };
                 });
         
-        public static IServiceCollection AddMomentumAuthorization(this IServiceCollection services) =>
+        public static IServiceCollection AddMomentumAuthorization(this IServiceCollection services, Action<AuthorizationOptions> additionOptions = null) =>
             services.AddAuthorization(options =>
             {
                 options.DefaultPolicy = new AuthorizationPolicyBuilder().RequireClaim("refreshToken", "false")
                     .Build();
                 options.AddPolicy("AllowRefreshToken", policy => policy.RequireClaim("refreshToken", "true"));
+                additionOptions?.Invoke(options);
             });
     }
 }

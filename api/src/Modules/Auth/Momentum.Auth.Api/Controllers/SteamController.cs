@@ -8,7 +8,7 @@ namespace Momentum.Auth.Api.Controllers
     [ApiController]
     public class SteamController : Controller
     {
-        [Authorize(AuthenticationSchemes = "Cookies")]
+        [Authorize(AuthenticationSchemes = "Cookies", Policy = "Steam")]
         [HttpGet]
         public IActionResult SignIn()
         {
@@ -20,7 +20,7 @@ namespace Momentum.Auth.Api.Controllers
             return Challenge("Steam");
         }
         
-        [Authorize(AuthenticationSchemes = "Cookies")]
+        [Authorize(AuthenticationSchemes = "Cookies", Policy = "Steam")]
         [HttpGet("return")]
         public IActionResult SignInReturn()
         {

@@ -51,7 +51,7 @@ namespace Momentum.Auth.Api
                 })
                 .AddCookie("Cookies");
 
-            services.AddMomentumAuthorization();
+            services.AddMomentumAuthorization(additionOptions => additionOptions.AddPolicy("Steam", policy => policy.Build()));
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
