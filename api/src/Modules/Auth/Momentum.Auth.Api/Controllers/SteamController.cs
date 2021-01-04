@@ -1,4 +1,5 @@
 ﻿using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Momentum.Auth.Api.Controllers
@@ -7,6 +8,7 @@ namespace Momentum.Auth.Api.Controllers
     [ApiController]
     public class SteamController : Controller
     {
+        [Authorize(AuthenticationSchemes = "Cookies")]
         [HttpGet]
         public IActionResult SignIn()
         {
@@ -18,12 +20,13 @@ namespace Momentum.Auth.Api.Controllers
             return Challenge("Steam");
         }
         
+        [Authorize(AuthenticationSchemes = "Cookies")]
         [HttpGet("return")]
         public IActionResult SignInReturn()
         {
             if (User.Identity != null && User.Identity.IsAuthenticated)
             {
-                return Ok("lol");
+                return Ok("test");
             }
 
             return Challenge("Steam");
