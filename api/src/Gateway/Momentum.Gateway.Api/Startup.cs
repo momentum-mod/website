@@ -9,10 +9,12 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.OpenApi.Models;
+using Momentum.Auth.Application.Commands;
 using Momentum.Auth.Core.Services;
 using Momentum.Framework.Core.DependencyInjection;
 using Momentum.Framework.Core.Services;
 using Momentum.Gateway.Api.Helpers;
+using Momentum.Users.Application.Commands;
 
 namespace Momentum.Gateway.Api
 {
@@ -59,7 +61,7 @@ namespace Momentum.Gateway.Api
             services.AddSingleton<HttpClient>();
             
             // Add MediatR and register the requests/handlers from all modules
-            services.AddMediatR(_modules.Select(x => x.GetType().Assembly).ToArray());
+            services.AddMediatR(typeof(RevokeRefreshTokenCommand).Assembly, typeof(GetOrCreateNewUserCommand).Assembly);
 
             services.AddMarten(options =>
             {
