@@ -71,9 +71,9 @@ namespace Momentum.Auth.Api.Services
 
             var isLimitedAccountNode = profile.SelectSingleNode("/profile/isLimitedAccount");
 
-            if (bool.TryParse(isLimitedAccountNode.Value, out var isLimitedAccount))
+            if (int.TryParse(isLimitedAccountNode.Value, out var isLimitedAccountInt))
             {
-                if (!isLimitedAccount)
+                if (isLimitedAccountInt == 0)
                 {
                     // Is a premium account
                     return;
@@ -83,7 +83,7 @@ namespace Momentum.Auth.Api.Services
                 throw new Exception("We do not authenticate limited Steam accounts. Buy something on Steam first!");
             }
 
-            throw new Exception("Error parsing " + nameof(isLimitedAccount));
+            throw new Exception("Error parsing isLimitedAccount");
         }
 
         public async Task EnsureAccountHasProfile()
