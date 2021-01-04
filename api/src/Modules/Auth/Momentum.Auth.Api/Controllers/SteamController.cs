@@ -40,10 +40,12 @@ namespace Momentum.Auth.Api.Controllers
                     SteamId = _steamService.GetSteamId(),
                     BuildUserDto = async () => await _steamService.BuildUserFromProfile()
                 });
+                
                 var refreshToken = await _mediator.Send(new GetOrCreateRefreshTokenQuery
                 {
                     UserId = user.Id
                 });
+                
                 var accessToken = await _mediator.Send(new RefreshAccessTokenQuery
                 {
                     RefreshToken = refreshToken
@@ -58,11 +60,11 @@ namespace Momentum.Auth.Api.Controllers
                 {
                     Request.Headers.Remove("Referer");
                     
-                    LocalRedirect(refererUrl.ToString());
+                    return LocalRedirect(refererUrl.ToString());
                 }
                 else
                 {
-                    LocalRedirect("/dashboard");
+                    return LocalRedirect("/dashboard");
                 }
             }
 
