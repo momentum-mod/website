@@ -3,6 +3,7 @@ using System.Reflection;
 using Microsoft.Extensions.DependencyInjection;
 using Momentum.Auth.Application.Commands;
 using Momentum.Auth.Application.Queries;
+using Momentum.Auth.Infrastructure;
 using Momentum.Framework.Core.DependencyInjection;
 using Momentum.Users.Application.Commands;
 
@@ -23,6 +24,13 @@ namespace Momentum.Gateway.Api.Helpers
                 typeof(RevokeRefreshTokenCommand).GetTypeInfo().Assembly,
                 // User
                 typeof(GetOrCreateNewUserCommand).GetTypeInfo().Assembly
+            };
+
+        public static IEnumerable<IMartenInitializer> GetMartenInitializers()
+            => new IMartenInitializer[]
+            {
+                // Auth
+                new MartenInitializer()
             };
         
         public static void AddModuleControllers(this IMvcBuilder mvcBuilder, IEnumerable<IModuleInitializer> modules)

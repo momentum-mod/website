@@ -75,6 +75,11 @@ namespace Momentum.Gateway.Api
 
                 // TODO: Make this more restrictive before production
                 options.AutoCreateSchemaObjects = AutoCreate.All;
+
+                foreach (var martenInitializer in ModulesUtility.GetMartenInitializers())
+                {
+                    martenInitializer.SetupDomainIdentities(options);
+                }
             });
         }
 
