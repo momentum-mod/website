@@ -1,4 +1,5 @@
 using System.Linq;
+using MediatR;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.HttpOverrides;
@@ -52,6 +53,9 @@ namespace Momentum.Gateway.Api
             // Add global dependencies
             services.AddHttpContextAccessor();
             services.AddScoped<ICurrentUserService, CurrentUserService>();
+            
+            // Add MediatR and register the requests/handlers from all modules
+            services.AddMediatR(_modules.Select(x => x.GetType().Assembly).ToArray());
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
