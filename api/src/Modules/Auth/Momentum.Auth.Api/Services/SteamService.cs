@@ -71,7 +71,7 @@ namespace Momentum.Auth.Api.Services
 
             var isLimitedAccountNode = profile.SelectSingleNode("/profile/isLimitedAccount");
 
-            if (int.TryParse(isLimitedAccountNode.Value, out var isLimitedAccountInt))
+            if (int.TryParse(isLimitedAccountNode.InnerText, out var isLimitedAccountInt))
             {
                 if (isLimitedAccountInt == 0)
                 {
