@@ -69,7 +69,7 @@ namespace Momentum.Auth.Api.Services
         {
             var profile = await GetProfileAsync();
 
-            var isLimitedAccountNode = profile.DocumentElement?.GetAttributeNode("isLimitedAccount") ?? throw new Exception("Error parsing Steam XML profile");
+            var isLimitedAccountNode = profile.SelectSingleNode("/profile/isLimitedAccount");
 
             if (bool.TryParse(isLimitedAccountNode.Value, out var isLimitedAccount))
             {
@@ -99,11 +99,11 @@ namespace Momentum.Auth.Api.Services
 
             return new UserDto
             {
-                Alias = profile.DocumentElement.GetAttributeNode("steamID").Value,
-                Avatar = profile.DocumentElement.GetAttributeNode("avatarFull").Value,
+                Alias = profile.SelectSingleNode("/profile/steamID").Value,
+                Avatar = profile.SelectSingleNode("/profile/avatarFull").Value,
                 Bans = BansDto.None,
                 Roles = RolesDto.None,
-                Country = profile.DocumentElement.GetAttributeNode("location").Value,
+                Country = profile.SelectSingleNode("/profile/location").Value,
                 AliasLocked = false,
                 SteamId = GetSteamId()
             };
