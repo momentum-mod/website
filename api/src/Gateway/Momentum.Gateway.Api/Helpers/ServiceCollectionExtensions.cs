@@ -37,7 +37,6 @@ namespace Momentum.Gateway.Api.Helpers
         private static AuthenticationBuilder AddMomentumSteamAuthentication(this AuthenticationBuilder authenticationBuilder, IConfiguration configuration)
             => authenticationBuilder.AddSteam(options =>
                 {
-                    options.ApplicationKey = configuration["STEAM_API_KEY"];
                     options.CallbackPath = "/auth/steam/return";
                     options.CorrelationCookie.SecurePolicy = CookieSecurePolicy.Always;
                     options.CorrelationCookie.IsEssential = true;
