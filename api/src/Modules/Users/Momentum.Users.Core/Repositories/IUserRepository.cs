@@ -11,5 +11,6 @@ namespace Momentum.Users.Core.Repositories
         Task Delete(User user);
         
         Task<User> GetById(Guid id);
+        Task<User> GetBySteamId(string steamId);
     }
 }

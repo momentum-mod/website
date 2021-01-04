@@ -48,5 +48,12 @@ namespace Momentum.Users.Infrastructure.Repositories
 
             return await session.Query<User>().SingleOrDefaultAsync(x => x.Id == id);
         }
+        
+        public async Task<User> GetBySteamId(string steamId)
+        {
+            using var session = _store.QuerySession();
+
+            return await session.Query<User>().SingleOrDefaultAsync(x => x.SteamId == steamId);
+        }
     }
 }

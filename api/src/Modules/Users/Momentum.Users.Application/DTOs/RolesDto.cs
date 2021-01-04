@@ -1,9 +1,9 @@
 ﻿using System;
 
-namespace Momentum.Users.Core.Models
+namespace Momentum.Users.Application.DTOs
 {
     [Flags]
-    public enum Roles
+    public enum RolesDto
     {
         None = 0,
         Verified = 1 << 0,

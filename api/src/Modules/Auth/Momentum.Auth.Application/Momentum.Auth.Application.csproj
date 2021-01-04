@@ -5,16 +5,16 @@
     </PropertyGroup>
 
     <ItemGroup>
-      <Folder Include="DTOs" />
-    </ItemGroup>
-
-    <ItemGroup>
       <PackageReference Include="MediatR" Version="9.0.0" />
     </ItemGroup>
 
     <ItemGroup>
       <ProjectReference Include="..\..\..\Framework\Momentum.Framework.Core\Momentum.Framework.Core.csproj" />
       <ProjectReference Include="..\Momentum.Auth.Core\Momentum.Auth.Core.csproj" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <Folder Include="DTOs" />
     </ItemGroup>
 
 </Project>

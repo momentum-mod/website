@@ -1,4 +1,7 @@
 ﻿using System;
+using System.IdentityModel.Tokens.Jwt;
+using System.Linq;
+using System.Security.Claims;
 using System.Threading;
 using System.Threading.Tasks;
 using MediatR;
@@ -8,11 +11,12 @@ using Momentum.Framework.Core.Services;
 
 namespace Momentum.Auth.Application.Queries
 {
-    public class RefreshAccessTokenQuery : IRequest<UserAccessToken>
+    public class RefreshAccessTokenQuery : IRequest<string>
     {
+        public string RefreshToken { get; set; } = null;
     }
 
-    public class RefreshAccessTokenQueryHandler : IRequestHandler<RefreshAccessTokenQuery, UserAccessToken>
+    public class RefreshAccessTokenQueryHandler : IRequestHandler<RefreshAccessTokenQuery, string>
     {
         private readonly ICurrentUserService _currentUserService;
         private readonly IJwtService _jwtService;
@@ -23,10 +27,24 @@ namespace Momentum.Auth.Application.Queries
             _currentUserService = currentUserService;
         }
 
-        public async Task<UserAccessToken> Handle(RefreshAccessTokenQuery request, CancellationToken cancellationToken)
+        public async Task<string> Handle(RefreshAccessTokenQuery request, CancellationToken cancellationToken)
         {
-            var user = await _currentUserService.GetUser();
-            var refreshToken = _currentUserService.GetBearerToken();
+            var refreshToken = request.RefreshToken;
+            var userId = Guid.Empty;
+
+            if (request.RefreshToken == null)
+            {
+                // No specified refresh token, get user + token from context
+                userId = _currentUserService.GetUserId();
+                refreshToken = _currentUserService.GetBearerToken();
+            }
+            else
+            {
+                // The refresh token was manually set - occurs when logging in through steam
+                userId = Guid.Parse(_jwtService.ExtractClaims(request.RefreshToken)
+                    .First(x => x.Type == JwtRegisteredClaimNames.Jti)
+                    .Value);
+            }
 
             if (string.IsNullOrEmpty(refreshToken))
             {
@@ -34,11 +52,13 @@ namespace Momentum.Auth.Application.Queries
                 throw new Exception("No refresh token");
             }
 
-            return await _jwtService.RefreshAccessTokenAsync(new UserRefreshToken
+            var userAccessToken = await _jwtService.RefreshAccessTokenAsync(new UserRefreshToken
             {
                 RefreshToken = refreshToken,
-                UserId = user.Id
+                UserId = userId
             });
+            
+            return userAccessToken.AccessToken;
         }
     }
 }

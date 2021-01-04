@@ -1,9 +1,9 @@
 ﻿using System;
 
-namespace Momentum.Users.Core.Models
+namespace Momentum.Users.Application.DTOs
 {
     [Flags]
-    public enum Bans
+    public enum BansDto
     {
         None = 0,
         BannedLeaderboards = 1 << 0,

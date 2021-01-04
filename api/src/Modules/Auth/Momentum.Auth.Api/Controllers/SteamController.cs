@@ -1,19 +1,31 @@
-﻿using System.Threading.Tasks;
+﻿using System.Text.Json;
+using System.Threading.Tasks;
+using AngleSharp.Io;
+using MediatR;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Components;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Momentum.Auth.Api.Services;
+using Momentum.Auth.Application.Queries;
+using Momentum.Users.Application.Commands;
+using Momentum.Users.Application.Requests;
 
 namespace Momentum.Auth.Api.Controllers
 {
-    [Route("auth/steam")]
+    [Microsoft.AspNetCore.Mvc.Route("auth/steam")]
     [ApiController]
     public class SteamController : Controller
     {
         private readonly SteamService _steamService;
+        private readonly IMediator _mediator;
+        private readonly NavigationManager _navigationManager;
 
-        public SteamController(SteamService steamService)
+        public SteamController(SteamService steamService, IMediator mediator, NavigationManager navigationManager)
         {
             _steamService = steamService;
+            _mediator = mediator;
+            _navigationManager = navigationManager;
         }
 
         [Authorize(AuthenticationSchemes = "Cookies", Policy = "Steam")]
@@ -24,7 +36,36 @@ namespace Momentum.Auth.Api.Controllers
             {
                 await _steamService.EnsurePremiumAccountWithProfile();
                 
-                // They are fine
+                // Manually pass values, since at this point the user is not JWT authenticated
+                var user = await _mediator.Send(new GetOrCreateNewUserCommand
+                {
+                    SteamId = _steamService.GetSteamId(),
+                    BuildUserDto = async () => await _steamService.BuildUserFromProfile()
+                });
+                var refreshToken = await _mediator.Send(new GetOrCreateRefreshTokenQuery
+                {
+                    UserId = user.Id
+                });
+                var accessToken = await _mediator.Send(new RefreshAccessTokenQuery
+                {
+                    RefreshToken = refreshToken
+                });
+
+                Response.Cookies.Append("accessToken", accessToken);
+                Response.Cookies.Append("refreshToken", refreshToken);
+                Response.Cookies.Append("user", JsonSerializer.Serialize(user));
+
+                var refererUrl = Request.GetTypedHeaders().Referer;
+                if (refererUrl != null)
+                {
+                    Request.Headers.Remove("Referer");
+                    
+                    _navigationManager.NavigateTo(refererUrl.ToString());
+                }
+                else
+                {
+                    _navigationManager.NavigateTo("/dashboard");
+                }
             }
 
             return Challenge("Steam");
