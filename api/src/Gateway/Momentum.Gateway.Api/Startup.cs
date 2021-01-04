@@ -7,6 +7,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.OpenApi.Models;
+using Momentum.Auth.Core.Services;
 using Momentum.Framework.Core.DependencyInjection;
 using Momentum.Framework.Core.Services;
 using Momentum.Gateway.Api.Helpers;
@@ -53,7 +54,7 @@ namespace Momentum.Gateway.Api
             // Add global dependencies
             services.AddHttpContextAccessor();
             services.AddScoped<ICurrentUserService, CurrentUserService>();
-            
+
             // Add MediatR and register the requests/handlers from all modules
             services.AddMediatR(_modules.Select(x => x.GetType().Assembly).ToArray());
         }
