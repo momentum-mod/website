@@ -82,10 +82,13 @@ namespace Momentum.Auth.Api.Controllers
                 ticketStringBuilder.AppendFormat("{0:x2}", ticketByte);
             }
 
+            var steamId = Request.Headers.First(x => string.Equals("id", x.Key, StringComparison.OrdinalIgnoreCase))
+                .Value.ToString();
+            
             var userTicketValid = await _mediator.Send(new SteamUserTicketValidQuery
             {
                 Ticket = ticketStringBuilder.ToString(),
-                UserId = Request.Headers.First(x => string.Equals("id", x.Key, StringComparison.OrdinalIgnoreCase)).Value.ToString()
+                UserId = steamId
             });
 
             if (userTicketValid)
@@ -93,7 +96,7 @@ namespace Momentum.Auth.Api.Controllers
                 // Manually pass values, since at this point the user is not JWT authenticated
                 var user = await _mediator.Send(new GetOrCreateNewUserCommand
                 {
-                    SteamId = _steamService.GetSteamId(),
+                    SteamId = steamId,
                     BuildUserDto = async () => await _steamService.BuildUserFromProfile(),
                     SteamUserPermittedToCreateProfile = async () => await _steamService.EnsurePremiumAccountWithProfile()
                 });
