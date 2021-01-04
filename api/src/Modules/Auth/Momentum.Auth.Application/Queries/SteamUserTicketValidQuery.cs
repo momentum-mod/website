@@ -34,7 +34,7 @@ namespace Momentum.Auth.Application.Queries
             
             // TODO: Submit a PR making this an object and not resorting to dynamic objects
             return (string)ticketValidResponse.Data.response.@params.result == "OK" && 
-                   request.UserId == ticketValidResponse.Data.response.@params.steamid;
+                   request.UserId == (string)ticketValidResponse.Data.response.@params.steamid;
         }
     }
 }
