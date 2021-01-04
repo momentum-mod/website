@@ -62,10 +62,8 @@ namespace Momentum.Auth.Api.Controllers
                     
                     return LocalRedirect(refererUrl.ToString());
                 }
-                else
-                {
-                    return LocalRedirect("/dashboard");
-                }
+
+                return LocalRedirect("/dashboard");
             }
 
             return Challenge("Steam");
