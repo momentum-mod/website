@@ -11,7 +11,7 @@ namespace Momentum.Auth.Api
     {
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddSingleton<SteamService>();
+            services.AddScoped<SteamService>();
             services.AddSingleton<IJwtService, JwtService>();
             services.AddSingleton<IJwtRepository, JwtRepository>();
         }
