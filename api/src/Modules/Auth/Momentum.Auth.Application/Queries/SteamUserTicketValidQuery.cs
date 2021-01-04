@@ -31,9 +31,9 @@ namespace Momentum.Auth.Application.Queries
         {
             var steamUserAuthInterface = _steamWebInterfaceFactory.CreateSteamWebInterface<SteamUserAuth>(_httpClient);
             var ticketValidResponse = await steamUserAuthInterface.AuthenticateUserTicket(Constants.MomentumModSteamId, request.Ticket);
-
+            
             // TODO: Submit a PR making this an object and not resorting to dynamic objects
-            return ticketValidResponse.Data.response.@params.results == "OK" && 
+            return (string)ticketValidResponse.Data.response.@params.result == "OK" && 
                    request.UserId == ticketValidResponse.Data.response.@params.steamid;
         }
     }
