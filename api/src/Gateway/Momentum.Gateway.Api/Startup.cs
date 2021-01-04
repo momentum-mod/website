@@ -24,7 +24,7 @@ namespace Momentum.Gateway.Api
     {
         private readonly IModuleInitializer[] _modules;
 
-        private Assembly[] _applicationLayerAssemblies = ModulesUtility.GetApplicationLayerAssemblies()
+        private readonly Assembly[] _applicationLayerAssemblies = ModulesUtility.GetApplicationLayerAssemblies()
             .ToArray();
         public Startup(IConfiguration configuration)
         {

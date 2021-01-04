@@ -19,9 +19,9 @@ namespace Momentum.Gateway.Api.Helpers
             => new[]
             {
                 // Auth
-                typeof(RevokeRefreshTokenCommand).Assembly,
+                typeof(RevokeRefreshTokenCommand).GetTypeInfo().Assembly,
                 // User
-                typeof(GetOrCreateRefreshTokenQuery).Assembly
+                typeof(GetOrCreateRefreshTokenQuery).GetTypeInfo().Assembly
             };
         
         public static void AddModuleControllers(this IMvcBuilder mvcBuilder, IEnumerable<IModuleInitializer> modules)
