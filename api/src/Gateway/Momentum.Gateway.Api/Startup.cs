@@ -7,6 +7,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.OpenApi.Models;
 using Momentum.Framework.Core.DependencyInjection;
+using Momentum.Framework.Core.Services;
 using Momentum.Gateway.Api.Helpers;
 
 namespace Momentum.Gateway.Api
@@ -47,6 +48,9 @@ namespace Momentum.Gateway.Api
             {
                 module.ConfigureServices(services);
             }
+            
+            // Add global dependencies
+            services.AddScoped<ICurrentUserService, CurrentUserService>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
