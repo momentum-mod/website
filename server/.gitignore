@@ -4,3 +4,5 @@ dist/
 npm-debug.log
 *.bsp
 public/
+config/swagger_output.json
+swagger_output.json

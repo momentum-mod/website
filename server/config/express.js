@@ -10,8 +10,7 @@ const express = require('express'),
 	ExtractJwt = require('passport-jwt').ExtractJwt,
 	fileUpload = require('express-fileupload'),
 	swaggerUI = require('swagger-ui-express'),
-	swaggerJSDoc = require('swagger-jsdoc'),
-	swaggerDefinition = require('../docs/swagger/definition'),
+	swaggerFile = require('./swagger_output.json'),
 	user = require('../src/models/user'),
 	xml2js = require('xml2js').parseString,
 	axios = require('axios'),
@@ -20,11 +19,6 @@ const express = require('express'),
 	bunyan = require('bunyan'),
 	seq = require('bunyan-seq'),
 	bunyanMiddleware = require('bunyan-middleware');
-
-const swaggerSpec = swaggerJSDoc({
-	swaggerDefinition: swaggerDefinition,
-	apis: ['./docs/**/*.yaml'],
-});
 
 function wrappedStdout() {
 	return {
@@ -163,7 +157,7 @@ module.exports = (app, config) => {
 	app.use(require('cookie-session')({ secret: config.session.secret }));
 	app.use('/api', [authMiddleware.requireLogin], require(config.root + '/src/routes/api'));
 	app.use('/auth', require(config.root + '/src/routes/auth'));
-	app.use('/api-docs', swaggerUI.serve, swaggerUI.setup(swaggerSpec));
+	app.use('/api-docs', swaggerUI.serve, swaggerUI.setup(swaggerFile));
 
 	app.use('*', (req, res, next) => {
 		try {
