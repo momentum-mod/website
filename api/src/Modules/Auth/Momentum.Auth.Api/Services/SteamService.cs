@@ -17,6 +17,10 @@ namespace Momentum.Auth.Api.Services
 
         private XmlDocument _profileXmlDocument;
 
+        private readonly string _steamIdXPath = "/profile/steamID";
+        private readonly string _avatarXPath = "/profile/avatarFull";
+        private readonly string _countryXPath = "/profile/location";
+        
         public SteamService(HttpClient httpClient, IHttpContextAccessor httpContextAccessor)
         {
             _httpClient = httpClient;
@@ -67,7 +71,7 @@ namespace Momentum.Auth.Api.Services
         {
             var profile = await GetProfileAsync();
 
-            var isLimitedAccountNode = profile.SelectSingleNode("/profile/isLimitedAccount");
+            var isLimitedAccountNode = profile.SelectSingleNode("/profile/isLimitedAccount") ?? throw new Exception("Error getting isLimitedAccount from profile");
 
             if (int.TryParse(isLimitedAccountNode.InnerText, out var isLimitedAccountInt))
             {
@@ -88,7 +92,17 @@ namespace Momentum.Auth.Api.Services
         {
             var profile = await GetProfileAsync();
 
-            throw new NotImplementedException();
+            if (profile.SelectSingleNode(_steamIdXPath) == null)
+            {
+                throw new Exception("You must have a username, please setup your steam profile");
+            }
+
+            if (profile.SelectSingleNode(_avatarXPath) == null)
+            {
+                throw new Exception("You must have an avatar, please setup your steam profile");
+            }
+            
+            // Could check for a country here, but null is fine
         }
 
         public async Task<UserDto> BuildUserFromProfile()
@@ -97,11 +111,11 @@ namespace Momentum.Auth.Api.Services
 
             return new UserDto
             {
-                Alias = profile.SelectSingleNode("/profile/steamID").Value,
-                Avatar = profile.SelectSingleNode("/profile/avatarFull").Value,
+                Alias = profile.SelectSingleNode(_steamIdXPath).Value,
+                Avatar = profile.SelectSingleNode(_avatarXPath).Value,
                 Bans = BansDto.None,
                 Roles = RolesDto.None,
-                Country = profile.SelectSingleNode("/profile/location").Value,
+                Country = profile.SelectSingleNode(_countryXPath)?.Value,
                 AliasLocked = false,
                 SteamId = GetSteamId()
             };
