@@ -1,4 +1,5 @@
 using System.Linq;
+using Marten;
 using MediatR;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -57,6 +58,14 @@ namespace Momentum.Gateway.Api
 
             // Add MediatR and register the requests/handlers from all modules
             services.AddMediatR(_modules.Select(x => x.GetType().Assembly).ToArray());
+
+            services.AddMarten(options =>
+            {
+                options.Connection(Configuration.GetConnectionString("Marten"));
+
+                // TODO: Make this more restrictive before production
+                options.AutoCreateSchemaObjects = AutoCreate.All;
+            });
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

@@ -1,6 +1,8 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using Momentum.Auth.Api.Services;
+using Momentum.Auth.Core.Repositories;
 using Momentum.Auth.Core.Services;
+using Momentum.Auth.Infrastructure.Repositories;
 using Momentum.Framework.Core.DependencyInjection;
 
 namespace Momentum.Auth.Api
@@ -11,6 +13,7 @@ namespace Momentum.Auth.Api
         {
             services.AddSingleton<SteamService>();
             services.AddSingleton<IJwtService, JwtService>();
+            services.AddSingleton<IJwtRepository, JwtRepository>();
         }
     }
 }

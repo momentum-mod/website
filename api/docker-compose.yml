@@ -11,6 +11,7 @@ services:
     restart: always
     environment:
       - ASPNETCORE_ENVIRONMENT=${ENVIRONMENT}
+      - ASPNETCORE_ConnectionStrings__Marten=User ID = momentum;Password=momentum123;Server=postgres;Port=5432;Database=momentum_db;Integrated Security=true;Pooling=true
     volumes:
       - ./config/appsettings.json:/app/appsettings.json
       - ./config/appsettings.${ENVIRONMENT}.json:/app/appsettings.${ENVIRONMENT}.json
