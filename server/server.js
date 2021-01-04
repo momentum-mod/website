@@ -4,6 +4,7 @@ const express = require('express'),
 	path = require('path'),
 	app = express();
 
+require('./config/swagger');
 require('./config/express')(app, config);
 
 const server = http.createServer(app);

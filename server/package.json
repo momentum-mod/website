@@ -3,7 +3,7 @@
   "version": "0.0.1",
   "private": true,
   "scripts": {
-    "start": "node config/swagger.js",
+    "start": "node server.js",
     "test": "mocha --exit --timeout 45000"
   },
   "dependencies": {

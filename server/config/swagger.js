@@ -17,6 +17,4 @@ const endpointsFiles = [
 	routesPath + "/auth/index.js"
 ];
 
-swaggerAutogen(outputFile, endpointsFiles).then(() => {
-	require('../server.js')
-});
+swaggerAutogen(outputFile, endpointsFiles);
