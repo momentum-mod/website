@@ -117,7 +117,7 @@ namespace Momentum.Auth.Api.Services
                 Roles = RolesDto.None,
                 Country = profile.SelectSingleNode(_countryXPath)?.Value,
                 AliasLocked = false,
-                SteamId = GetSteamId()
+                SteamId = steamId ?? GetSteamId()
             };
         }
     }
