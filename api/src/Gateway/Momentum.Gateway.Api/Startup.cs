@@ -1,4 +1,5 @@
 using System.Linq;
+using System.Net.Http;
 using Marten;
 using MediatR;
 using Microsoft.AspNetCore.Builder;
@@ -55,7 +56,8 @@ namespace Momentum.Gateway.Api
             // Add global dependencies
             services.AddHttpContextAccessor();
             services.AddScoped<ICurrentUserService, CurrentUserService>();
-
+            services.AddSingleton<HttpClient>();
+            
             // Add MediatR and register the requests/handlers from all modules
             services.AddMediatR(_modules.Select(x => x.GetType().Assembly).ToArray());
 
