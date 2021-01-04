@@ -56,7 +56,7 @@ namespace Momentum.Gateway.Api
             // Register each modules DI
             foreach (var module in _modules)
             {
-                module.ConfigureServices(services);
+                module.ConfigureServices(services, Configuration);
             }
             
             // Add global dependencies
