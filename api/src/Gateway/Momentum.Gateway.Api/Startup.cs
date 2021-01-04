@@ -22,14 +22,13 @@ namespace Momentum.Gateway.Api
 {
     public class Startup
     {
-        private readonly IModuleInitializer[] _modules;
+        private readonly IModuleInitializer[] _modules = ModulesUtility.GetModules().ToArray();
 
         private readonly Assembly[] _applicationLayerAssemblies = ModulesUtility.GetApplicationLayerAssemblies()
             .ToArray();
         public Startup(IConfiguration configuration)
         {
             Configuration = configuration;
-            _modules = ModulesUtility.GetModules().ToArray();
         }
 
         public IConfiguration Configuration { get; }

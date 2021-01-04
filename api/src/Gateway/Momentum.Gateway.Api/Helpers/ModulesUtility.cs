@@ -4,6 +4,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Momentum.Auth.Application.Commands;
 using Momentum.Auth.Application.Queries;
 using Momentum.Framework.Core.DependencyInjection;
+using Momentum.Users.Application.Commands;
 
 namespace Momentum.Gateway.Api.Helpers
 {
@@ -21,7 +22,7 @@ namespace Momentum.Gateway.Api.Helpers
                 // Auth
                 typeof(RevokeRefreshTokenCommand).GetTypeInfo().Assembly,
                 // User
-                typeof(GetOrCreateRefreshTokenQuery).GetTypeInfo().Assembly
+                typeof(GetOrCreateNewUserCommand).GetTypeInfo().Assembly
             };
         
         public static void AddModuleControllers(this IMvcBuilder mvcBuilder, IEnumerable<IModuleInitializer> modules)

@@ -59,8 +59,6 @@ namespace Momentum.Auth.Api.Services
 
         public async Task EnsurePremiumAccountWithProfile()
         {
-            var profile = await GetProfileAsync();
-            
             await EnsurePremiumAccount();
             await EnsureAccountHasProfile();
         }
