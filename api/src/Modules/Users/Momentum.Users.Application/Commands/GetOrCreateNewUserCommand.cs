@@ -39,6 +39,17 @@ namespace Momentum.Users.Application.Commands
                 user = _mapper.Map<User>(await request.BuildUserDto.Invoke());
                 await _userRepository.Add(user);
             }
+            else if (user != null)
+            {
+                // Map the new user properties onto the existing object
+                var updatedSteamUser = await request.BuildUserDto.Invoke();
+
+                user.Alias = updatedSteamUser.Alias;
+                user.Avatar = updatedSteamUser.Avatar;
+                user.Country = updatedSteamUser.Country;
+                
+                await _userRepository.Update(user);
+            }
 
             return _mapper.Map<UserDto>(user);
         }
