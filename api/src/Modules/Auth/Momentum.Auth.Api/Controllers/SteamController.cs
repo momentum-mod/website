@@ -1,5 +1,7 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Momentum.Auth.Api.Services;
 
 namespace Momentum.Auth.Api.Controllers
 {
@@ -7,25 +9,22 @@ namespace Momentum.Auth.Api.Controllers
     [ApiController]
     public class SteamController : Controller
     {
+        private readonly SteamService _steamService;
+
+        public SteamController(SteamService steamService)
+        {
+            _steamService = steamService;
+        }
+
         [Authorize(AuthenticationSchemes = "Cookies", Policy = "Steam")]
         [HttpGet]
-        public IActionResult SignIn()
+        public async Task<IActionResult> SignIn()
         {
             if (User.Identity != null && User.Identity.IsAuthenticated)
             {
-                return Ok("lol");
-            }
-
-            return Challenge("Steam");
-        }
-        
-        [Authorize(AuthenticationSchemes = "Cookies", Policy = "Steam")]
-        [HttpGet("return")]
-        public IActionResult SignInReturn()
-        {
-            if (User.Identity != null && User.Identity.IsAuthenticated)
-            {
-                return Ok("test");
+                await _steamService.EnsurePremiumAccountWithProfile();
+                
+                // They are fine
             }
 
             return Challenge("Steam");
