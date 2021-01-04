@@ -14,6 +14,9 @@ COPY ["src/Modules/Users/Momentum.Users.Application/Momentum.Users.Application.c
 COPY ["src/Modules/Users/Momentum.Users.Core/Momentum.Users.Core.csproj", "src/Modules/Users/Momentum.Users.Core/"]
 COPY ["src/Modules/Auth/Momentum.Auth.Api/Momentum.Auth.Api.csproj", "src/Modules/Auth/Momentum.Auth.Api/"]
 COPY ["src/Modules/Auth/Momentum.Auth.Application/Momentum.Auth.Application.csproj", "src/Modules/Auth/Momentum.Auth.Application/"]
+COPY ["src/Modules/Auth/Momentum.Auth.Infrastructure/Momentum.Auth.Infrastructure.csproj", "src/Modules/Auth/Momentum.Auth.Infrastructure/"]
+COPY ["src/Modules/Users/Momentum.Users.Api/Momentum.Users.Api.csproj", "src/Modules/Users/Momentum.Users.Api/"]
+COPY ["src/Modules/Users/Momentum.Users.Infrastructure/Momentum.Users.Infrastructure.csproj", "src/Modules/Users/Momentum.Users.Infrastructure/"]
 RUN dotnet restore "src/Gateway/Momentum.Gateway.Api/Momentum.Gateway.Api.csproj"
 COPY . .
 WORKDIR "/src/src/Gateway/Momentum.Gateway.Api"
