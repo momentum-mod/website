@@ -13,7 +13,7 @@ namespace Momentum.Auth.Application.Queries
 {
     public class RefreshAccessTokenQuery : IRequest<string>
     {
-        public string RefreshToken { get; set; } = null;
+        public string RefreshToken { get; set; }
     }
 
     public class RefreshAccessTokenQueryHandler : IRequestHandler<RefreshAccessTokenQuery, string>
@@ -45,6 +45,7 @@ namespace Momentum.Auth.Application.Queries
                     .First(x => x.Type == JwtRegisteredClaimNames.Jti)
                     .Value);
             }
+            
 
             if (string.IsNullOrEmpty(refreshToken))
             {

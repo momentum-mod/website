@@ -28,8 +28,14 @@ namespace Momentum.Auth.Api.Controllers
             _mediator = mediator;
         }
 
-        private async Task SetSignInResponseCookies()
+        [Authorize(AuthenticationSchemes = "Cookies", Policy = "Steam")]
+        [HttpGet]
+        public async Task<IActionResult> SignInAsync()
         {
+            if (User.Identity == null ||
+                !User.Identity.IsAuthenticated)
+                return Challenge("Steam");
+
             // Manually pass values, since at this point the user is not JWT authenticated
             var user = await _mediator.Send(new GetOrCreateNewUserCommand
             {
@@ -51,17 +57,6 @@ namespace Momentum.Auth.Api.Controllers
             Response.Cookies.Append("accessToken", accessToken);
             Response.Cookies.Append("refreshToken", refreshToken);
             Response.Cookies.Append("user", JsonSerializer.Serialize(user));
-        }
-
-        [Authorize(AuthenticationSchemes = "Cookies", Policy = "Steam")]
-        [HttpGet]
-        public async Task<IActionResult> SignInAsync()
-        {
-            if (User.Identity == null ||
-                !User.Identity.IsAuthenticated)
-                return Challenge("Steam");
-
-            await SetSignInResponseCookies();
 
             var refererUrl = Request.GetTypedHeaders().Referer;
             if (refererUrl != null)
@@ -95,8 +90,29 @@ namespace Momentum.Auth.Api.Controllers
 
             if (userTicketValid)
             {
-                await SetSignInResponseCookies();
-                return Ok();
+                // Manually pass values, since at this point the user is not JWT authenticated
+                var user = await _mediator.Send(new GetOrCreateNewUserCommand
+                {
+                    SteamId = _steamService.GetSteamId(),
+                    BuildUserDto = async () => await _steamService.BuildUserFromProfile(),
+                    SteamUserPermittedToCreateProfile = async () => await _steamService.EnsurePremiumAccountWithProfile()
+                });
+                
+                var refreshToken = await _mediator.Send(new GetOrCreateRefreshTokenQuery
+                {
+                    UserId = user.Id
+                });
+                
+                var accessToken = await _mediator.Send(new RefreshAccessTokenQuery
+                {
+                    RefreshToken = refreshToken
+                });
+                
+                return Ok(new
+                {
+                    token = accessToken,
+                    length = accessToken.Length
+                });
             }
 
             return Unauthorized();
