@@ -14,6 +14,7 @@ namespace Momentum.Users.Application.Commands
     {
         public string SteamId { get; set; }
         public Func<Task<UserDto>> BuildUserDto { get; set; }
+        public Func<Task> SteamUserPermittedToCreateProfile { get; set; }
     }
     
     public class GetOrCreateNewUserCommandHandler : IRequestHandler<GetOrCreateNewUserCommand, UserDto>
@@ -31,8 +32,10 @@ namespace Momentum.Users.Application.Commands
         {
             var user = await _userRepository.GetBySteamId(request.SteamId);
 
-            if (user == null)
+            // Only check if the user has a premium account/setup a profile, when creating the user
+            if (user == null && request.SteamUserPermittedToCreateProfile != null)
             {
+                await request.SteamUserPermittedToCreateProfile.Invoke();
                 user = _mapper.Map<User>(await request.BuildUserDto.Invoke());
                 await _userRepository.Add(user);
             }

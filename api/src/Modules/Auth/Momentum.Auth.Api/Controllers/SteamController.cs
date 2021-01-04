@@ -34,7 +34,8 @@ namespace Momentum.Auth.Api.Controllers
             var user = await _mediator.Send(new GetOrCreateNewUserCommand
             {
                 SteamId = _steamService.GetSteamId(),
-                BuildUserDto = async () => await _steamService.BuildUserFromProfile()
+                BuildUserDto = async () => await _steamService.BuildUserFromProfile(),
+                SteamUserPermittedToCreateProfile = async () => await _steamService.EnsurePremiumAccountWithProfile()
             });
                 
             var refreshToken = await _mediator.Send(new GetOrCreateRefreshTokenQuery
@@ -59,8 +60,6 @@ namespace Momentum.Auth.Api.Controllers
             if (User.Identity == null ||
                 !User.Identity.IsAuthenticated)
                 return Challenge("Steam");
-            
-            await _steamService.EnsurePremiumAccountWithProfile();
 
             await SetSignInResponseCookies();
 
@@ -97,6 +96,7 @@ namespace Momentum.Auth.Api.Controllers
             if (userTicketValid)
             {
                 await SetSignInResponseCookies();
+                return Ok();
             }
 
             return Unauthorized();
