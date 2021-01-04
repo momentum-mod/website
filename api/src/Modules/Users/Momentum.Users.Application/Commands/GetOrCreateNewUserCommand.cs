@@ -18,13 +18,11 @@ namespace Momentum.Users.Application.Commands
     
     public class GetOrCreateNewUserCommandHandler : IRequestHandler<GetOrCreateNewUserCommand, UserDto>
     {
-        private readonly IMediator _mediator;
         private readonly IMapper _mapper;
         private readonly IUserRepository _userRepository;
 
-        public GetOrCreateNewUserCommandHandler(IMediator mediator, IMapper mapper, IUserRepository userRepository)
+        public GetOrCreateNewUserCommandHandler(IMapper mapper, IUserRepository userRepository)
         {
-            _mediator = mediator;
             _mapper = mapper;
             _userRepository = userRepository;
         }
