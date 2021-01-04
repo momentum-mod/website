@@ -52,8 +52,7 @@ namespace Momentum.Gateway.Api.Helpers
                 options.DefaultPolicy = new AuthorizationPolicyBuilder().RequireClaim("refreshToken", "false")
                     .Build();
                 options.AddPolicy("AllowRefreshToken", policy => policy.RequireClaim("refreshToken", "true"));
-                options.AddPolicy("Steam", policy => policy.RequireAuthenticatedUser()
-                    .RequireClaim(ClaimTypes.NameIdentifier));
+                options.AddPolicy("Steam", policy => policy.RequireAssertion(_ => true));
             });
     }
 }
