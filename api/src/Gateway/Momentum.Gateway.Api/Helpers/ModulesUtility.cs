@@ -8,9 +8,10 @@ namespace Momentum.Gateway.Api.Helpers
     {
         public static IEnumerable<IModuleInitializer> GetModules()
         {
-            return new[]
+            return new IModuleInitializer[]
             {
-                new Auth.Api.Module()
+                new Auth.Api.Module(),
+                new Users.Api.Module()
             };
         }
         

@@ -20,6 +20,7 @@
     <ItemGroup>
       <ProjectReference Include="..\..\Framework\Momentum.Framework.Core\Momentum.Framework.Core.csproj" />
       <ProjectReference Include="..\..\Modules\Auth\Momentum.Auth.Api\Momentum.Auth.Api.csproj" />
+      <ProjectReference Include="..\..\Modules\Users\Momentum.Users.Api\Momentum.Users.Api.csproj" />
     </ItemGroup>
 
 </Project>
