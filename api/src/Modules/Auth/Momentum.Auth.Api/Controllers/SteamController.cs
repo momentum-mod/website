@@ -98,8 +98,8 @@ namespace Momentum.Auth.Api.Controllers
                 var user = await _mediator.Send(new GetOrCreateNewUserCommand
                 {
                     SteamId = steamId,
-                    BuildUserDto = async () => await _steamService.BuildUserFromProfile(),
-                    SteamUserPermittedToCreateProfile = async () => await _steamService.EnsurePremiumAccountWithProfile()
+                    BuildUserDto = async () => await _steamService.BuildUserFromProfile(steamId),
+                    SteamUserPermittedToCreateProfile = async () => await _steamService.EnsurePremiumAccountWithProfile(steamId)
                 });
                 
                 var refreshToken = await _mediator.Send(new GetOrCreateRefreshTokenQuery

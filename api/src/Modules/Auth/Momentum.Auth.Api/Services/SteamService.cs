@@ -43,14 +43,14 @@ namespace Momentum.Auth.Api.Services
             return _steamId;
         }
 
-        private async Task<XmlDocument> GetProfileAsync()
+        private async Task<XmlDocument> GetProfileAsync(string steamId = null)
         {
             if (_profileXmlDocument != null)
             {
                 return _profileXmlDocument;
             }
             
-            var steamId = GetSteamId();
+            steamId ??= GetSteamId();
             
             var profileXmlText = await _httpClient.GetStringAsync($"https://steamcommunity.com/profiles/{steamId}?xml=1");
             
@@ -61,15 +61,15 @@ namespace Momentum.Auth.Api.Services
             return _profileXmlDocument;
         }
 
-        public async Task EnsurePremiumAccountWithProfile()
+        public async Task EnsurePremiumAccountWithProfile(string steamId = null)
         {
-            await EnsurePremiumAccount();
-            await EnsureAccountHasProfile();
+            await EnsurePremiumAccount(steamId);
+            await EnsureAccountHasProfile(steamId);
         }
         
-        public async Task EnsurePremiumAccount()
+        public async Task EnsurePremiumAccount(string steamId = null)
         {
-            var profile = await GetProfileAsync();
+            var profile = await GetProfileAsync(steamId);
 
             var isLimitedAccountNode = profile.SelectSingleNode("/profile/isLimitedAccount") ?? throw new Exception("Error getting isLimitedAccount from profile");
 
@@ -88,9 +88,9 @@ namespace Momentum.Auth.Api.Services
             throw new Exception("Error parsing isLimitedAccount");
         }
 
-        public async Task EnsureAccountHasProfile()
+        public async Task EnsureAccountHasProfile(string steamId = null)
         {
-            var profile = await GetProfileAsync();
+            var profile = await GetProfileAsync(steamId);
 
             if (profile.SelectSingleNode(_steamIdXPath) == null)
             {
@@ -105,9 +105,9 @@ namespace Momentum.Auth.Api.Services
             // Could check for a country here, but null is fine
         }
 
-        public async Task<UserDto> BuildUserFromProfile()
+        public async Task<UserDto> BuildUserFromProfile(string steamId = null)
         {
-            var profile = await GetProfileAsync();
+            var profile = await GetProfileAsync(steamId);
 
             return new UserDto
             {
