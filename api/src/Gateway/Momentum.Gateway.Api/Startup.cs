@@ -1,5 +1,7 @@
 using System.Linq;
 using System.Net.Http;
+using System.Reflection;
+using AutoMapper;
 using Marten;
 using MediatR;
 using Microsoft.AspNetCore.Builder;
@@ -21,6 +23,9 @@ namespace Momentum.Gateway.Api
     public class Startup
     {
         private readonly IModuleInitializer[] _modules;
+
+        private Assembly[] _applicationLayerAssemblies = ModulesUtility.GetApplicationLayerAssemblies()
+            .ToArray();
         public Startup(IConfiguration configuration)
         {
             Configuration = configuration;
@@ -61,7 +66,9 @@ namespace Momentum.Gateway.Api
             services.AddSingleton<HttpClient>();
             
             // Add MediatR and register the requests/handlers from all modules
-            services.AddMediatR(typeof(RevokeRefreshTokenCommand).Assembly, typeof(GetOrCreateNewUserCommand).Assembly);
+            services.AddMediatR(_applicationLayerAssemblies);
+
+            services.AddAutoMapper(_applicationLayerAssemblies);
 
             services.AddMarten(options =>
             {

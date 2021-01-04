@@ -1,19 +1,28 @@
 ﻿using System.Collections.Generic;
+using System.Reflection;
 using Microsoft.Extensions.DependencyInjection;
+using Momentum.Auth.Application.Commands;
+using Momentum.Auth.Application.Queries;
 using Momentum.Framework.Core.DependencyInjection;
 
 namespace Momentum.Gateway.Api.Helpers
 {
     public static class ModulesUtility
     {
-        public static IEnumerable<IModuleInitializer> GetModules()
+        public static IEnumerable<IModuleInitializer> GetModules() => new IModuleInitializer[]
         {
-            return new IModuleInitializer[]
+            new Auth.Api.Module(),
+            new Users.Api.Module()
+        };
+
+        public static IEnumerable<Assembly> GetApplicationLayerAssemblies()
+            => new[]
             {
-                new Auth.Api.Module(),
-                new Users.Api.Module()
+                // Auth
+                typeof(RevokeRefreshTokenCommand).Assembly,
+                // User
+                typeof(GetOrCreateRefreshTokenQuery).Assembly
             };
-        }
         
         public static void AddModuleControllers(this IMvcBuilder mvcBuilder, IEnumerable<IModuleInitializer> modules)
         {
