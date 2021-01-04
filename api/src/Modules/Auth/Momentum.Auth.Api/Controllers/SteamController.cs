@@ -19,13 +19,11 @@ namespace Momentum.Auth.Api.Controllers
     {
         private readonly SteamService _steamService;
         private readonly IMediator _mediator;
-        private readonly NavigationManager _navigationManager;
 
-        public SteamController(SteamService steamService, IMediator mediator, NavigationManager navigationManager)
+        public SteamController(SteamService steamService, IMediator mediator)
         {
             _steamService = steamService;
             _mediator = mediator;
-            _navigationManager = navigationManager;
         }
 
         [Authorize(AuthenticationSchemes = "Cookies", Policy = "Steam")]
@@ -60,11 +58,11 @@ namespace Momentum.Auth.Api.Controllers
                 {
                     Request.Headers.Remove("Referer");
                     
-                    _navigationManager.NavigateTo(refererUrl.ToString());
+                    LocalRedirect(refererUrl.ToString());
                 }
                 else
                 {
-                    _navigationManager.NavigateTo("/dashboard");
+                    LocalRedirect("/dashboard");
                 }
             }
 
