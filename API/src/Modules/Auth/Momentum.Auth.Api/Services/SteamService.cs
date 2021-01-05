@@ -111,8 +111,8 @@ namespace Momentum.Auth.Api.Services
 
             return new UserDto
             {
-                Alias = profile.SelectSingleNode(_steamIdXPath).Value,
-                Avatar = profile.SelectSingleNode(_avatarXPath).Value,
+                Alias = profile.SelectSingleNode(_steamIdXPath).InnerText,
+                Avatar = profile.SelectSingleNode(_avatarXPath).InnerText,
                 Bans = BansDto.None,
                 Roles = RolesDto.None,
                 Country = profile.SelectSingleNode(_countryXPath)?.Value,
