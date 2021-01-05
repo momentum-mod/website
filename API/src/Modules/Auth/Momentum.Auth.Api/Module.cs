@@ -16,7 +16,7 @@ namespace Momentum.Auth.Api
             services.AddScoped<SteamService>();
             services.AddSingleton<IJwtService, JwtService>();
             services.AddSingleton<IJwtRepository, JwtRepository>();
-            services.AddSingleton(new SteamWebInterfaceFactory(configuration["STEAM_API_KEY"]));
+            services.AddSingleton(new SteamWebInterfaceFactory(configuration["SteamApiKey"]));
         }
     }
 }
