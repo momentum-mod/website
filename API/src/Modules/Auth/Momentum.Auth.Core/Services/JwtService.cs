@@ -77,7 +77,7 @@ namespace Momentum.Auth.Core.Services
             return userRefreshToken;
         }
 
-        public async Task<UserAccessToken> RefreshAccessTokenAsync(UserRefreshToken userRefreshToken)
+        public async Task<UserAccessToken> RefreshAccessTokenAsync(UserRefreshToken userRefreshToken, bool fromInGame)
         {
             var currentRefreshToken = await _jwtRepository.GetRefreshTokenByUserId(userRefreshToken.UserId);
 
@@ -88,7 +88,7 @@ namespace Momentum.Auth.Core.Services
 
             return new UserAccessToken
             {
-                AccessToken = await CreateAccessToken(userRefreshToken.UserId),
+                AccessToken = await CreateAccessToken(userRefreshToken.UserId, fromInGame),
                 UserId = userRefreshToken.UserId
             };
         }
@@ -156,7 +156,7 @@ namespace Momentum.Auth.Core.Services
             });
         }
 
-        private async Task<string> CreateAccessToken(Guid userId)
+        private async Task<string> CreateAccessToken(Guid userId, bool fromInGame)
         {
             var user = await _mediator.Send(new GetUserByIdQuery
             {
@@ -174,7 +174,7 @@ namespace Momentum.Auth.Core.Services
 
             var token = new JwtSecurityToken(_configuration["Jwt:Issuer"], claims: claims,
                 signingCredentials: credentials, audience: _configuration["Jwt:Issuer"],
-                expires: DateTime.Now.AddMinutes(int.Parse(_configuration["Jwt:ExpireTime"])));
+                expires: DateTime.Now.AddMinutes(int.Parse(fromInGame ? _configuration["Jwt:InGameExpireTime"] : _configuration["Jwt:ExpireTime"])));
 
             return new JwtSecurityTokenHandler().WriteToken(token);
         }

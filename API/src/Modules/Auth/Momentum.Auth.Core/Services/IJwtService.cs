@@ -10,7 +10,7 @@ namespace Momentum.Auth.Core.Services
     {
         Task<UserRefreshToken> GetOrUpdateRefreshTokenAsync(Guid userId);
         Task<UserRefreshToken> CreateOrUpdateRefreshTokenAsync(Guid userId);
-        Task<UserAccessToken> RefreshAccessTokenAsync(UserRefreshToken userRefreshToken);
+        Task<UserAccessToken> RefreshAccessTokenAsync(UserRefreshToken userRefreshToken, bool fromInGame);
         bool VerifyAccessToken(string accessToken);
         List<Claim> ExtractClaims(string accessToken);
         Task RevokeRefreshTokenAsync(Guid userId);
