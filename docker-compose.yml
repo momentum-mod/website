@@ -2,7 +2,7 @@ version: "3.8"
 services:
   api-gateway:
     build:
-      dockerfile: src/Gateway/Momentum.Gateway.Api/Dockerfile
+      dockerfile: api/src/Gateway/Momentum.Gateway.Api/Dockerfile
       context: .
     image: api-gateway
     container_name: MomentumApiGateway${ENVIRONMENT}
