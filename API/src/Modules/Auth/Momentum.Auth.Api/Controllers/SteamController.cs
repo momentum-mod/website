@@ -42,7 +42,7 @@ namespace Momentum.Auth.Api.Controllers
             {
                 SteamId = _steamService.GetSteamId(),
                 BuildUserDto = async () => await _steamService.BuildUserFromProfile(),
-                SteamUserPermittedToCreateProfile = async () => await _steamService.EnsurePremiumAccountWithProfile()
+                EnsureSteamUserPermittedToCreateProfile = async () => await _steamService.EnsurePremiumAccountWithProfile()
             });
                 
             var refreshToken = await _mediator.Send(new GetOrCreateRefreshTokenQuery
@@ -99,7 +99,7 @@ namespace Momentum.Auth.Api.Controllers
                 {
                     SteamId = steamId,
                     BuildUserDto = async () => await _steamService.BuildUserFromProfile(steamId),
-                    SteamUserPermittedToCreateProfile = async () => await _steamService.EnsurePremiumAccountWithProfile(steamId)
+                    EnsureSteamUserPermittedToCreateProfile = async () => await _steamService.EnsurePremiumAccountWithProfile(steamId)
                 });
                 
                 var refreshToken = await _mediator.Send(new GetOrCreateRefreshTokenQuery
@@ -109,7 +109,8 @@ namespace Momentum.Auth.Api.Controllers
                 
                 var accessToken = await _mediator.Send(new RefreshAccessTokenQuery
                 {
-                    RefreshToken = refreshToken
+                    RefreshToken = refreshToken,
+                    FromInGame = true
                 });
                 
                 return Ok(new GameAccessTokenViewModel(accessToken));

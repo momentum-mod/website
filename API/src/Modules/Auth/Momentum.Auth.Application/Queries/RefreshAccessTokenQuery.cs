@@ -14,6 +14,7 @@ namespace Momentum.Auth.Application.Queries
     public class RefreshAccessTokenQuery : IRequest<string>
     {
         public string RefreshToken { get; set; }
+        public bool FromInGame { get; set; }
     }
 
     public class RefreshAccessTokenQueryHandler : IRequestHandler<RefreshAccessTokenQuery, string>
@@ -57,7 +58,7 @@ namespace Momentum.Auth.Application.Queries
             {
                 RefreshToken = refreshToken,
                 UserId = userId
-            });
+            }, request.FromInGame);
             
             return userAccessToken.AccessToken;
         }
