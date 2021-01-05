@@ -1,3 +1,4 @@
 FROM node:12
 WORKDIR /app/src
+npm install -g @angular/cli
 RUN npm run start
