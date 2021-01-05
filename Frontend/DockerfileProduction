@@ -1,6 +1,6 @@
 FROM node:12 AS build
 WORKDIR /app/src
-COPY Frontend/package.json Frontend/package-lock.json ./
+COPY Frontend/package.json ./
 RUN yarn install
 COPY Frontend .
 RUN npm run build:prod
