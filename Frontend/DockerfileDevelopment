@@ -1,4 +1,7 @@
 FROM node:12
+WORKDIR /app
+
+RUN npm install -g @angular/cli
+
 WORKDIR /app/src
-npm install -g @angular/cli
-RUN npm run start
+ENTRYPOINT yarn install && ng serve --host 0.0.0.0 --port 80 --disableHostCheck
