@@ -2,7 +2,6 @@
 using System.Reflection;
 using Microsoft.Extensions.DependencyInjection;
 using Momentum.Auth.Application.Commands;
-using Momentum.Auth.Application.Queries;
 using Momentum.Auth.Infrastructure;
 using Momentum.Framework.Core.DependencyInjection;
 using Momentum.Users.Application.Commands;

@@ -1,10 +1,8 @@
-﻿using System.Data.Common;
-using System.Net.Http;
+﻿using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
 using MediatR;
 using Momentum.Framework.Core;
-using Newtonsoft.Json;
 using SteamWebAPI2.Interfaces;
 using SteamWebAPI2.Utilities;
 

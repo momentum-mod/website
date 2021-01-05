@@ -11,12 +11,9 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.OpenApi.Models;
-using Momentum.Auth.Application.Commands;
-using Momentum.Auth.Core.Services;
 using Momentum.Framework.Core.DependencyInjection;
 using Momentum.Framework.Core.Services;
 using Momentum.Gateway.Api.Helpers;
-using Momentum.Users.Application.Commands;
 
 namespace Momentum.Gateway.Api
 {

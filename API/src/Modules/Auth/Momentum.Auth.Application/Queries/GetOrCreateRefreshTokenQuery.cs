@@ -3,8 +3,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using AutoMapper;
 using MediatR;
-using Momentum.Auth.Core.Exceptions;
-using Momentum.Auth.Core.Models;
 using Momentum.Auth.Core.Services;
 using Momentum.Framework.Core.Services;
 

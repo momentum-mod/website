@@ -1,5 +1,4 @@
 ﻿using System;
-using Momentum.Users.Core.Models;
 
 namespace Momentum.Users.Application.DTOs
 {
@@ -10,7 +9,9 @@ namespace Momentum.Users.Application.DTOs
         public string Alias { get; set; }
         public bool AliasLocked { get; set; }
         public string Avatar { get; set; }
-        public string AvatarUrl { get; set; }
+        public string AvatarUrl => Bans.HasFlag(BansDto.BannedAvatar) 
+            ? "/assets/images/blank_avatar.jpg" 
+            : $"https://steamcdn-a.akamaihd.net/steamcommunity/public/images/avatars/{Avatar}";
         public RolesDto Roles { get; set; }
         public BansDto Bans { get; set; }
         public string Country { get; set; }

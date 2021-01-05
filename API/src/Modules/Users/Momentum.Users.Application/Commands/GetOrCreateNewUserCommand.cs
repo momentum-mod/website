@@ -4,7 +4,6 @@ using System.Threading.Tasks;
 using AutoMapper;
 using MediatR;
 using Momentum.Users.Application.DTOs;
-using Momentum.Users.Application.Requests;
 using Momentum.Users.Core.Models;
 using Momentum.Users.Core.Repositories;
 
@@ -31,8 +30,6 @@ namespace Momentum.Users.Application.Commands
         public async Task<UserDto> Handle(GetOrCreateNewUserCommand request, CancellationToken cancellationToken)
         {
             var user = await _userRepository.GetBySteamId(request.SteamId);
-
-
 
             // Only check if the user has a premium account/setup a profile, when creating the user
             if (user == null)

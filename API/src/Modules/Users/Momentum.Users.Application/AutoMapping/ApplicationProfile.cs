@@ -2,7 +2,7 @@
 using Momentum.Users.Application.DTOs;
 using Momentum.Users.Core.Models;
 
-namespace Momentum.Users.Application
+namespace Momentum.Users.Application.AutoMapping
 {
     public class ApplicationProfile : Profile
     {

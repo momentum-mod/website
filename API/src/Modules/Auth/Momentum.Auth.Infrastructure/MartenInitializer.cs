@@ -1,6 +1,4 @@
-﻿using System;
-using Microsoft.AspNetCore.Identity;
-using Momentum.Auth.Core.Models;
+﻿using Momentum.Auth.Core.Models;
 using Momentum.Framework.Core.DependencyInjection;
 using StoreOptions = Marten.StoreOptions;
 

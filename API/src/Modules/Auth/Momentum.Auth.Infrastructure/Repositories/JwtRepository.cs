@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Threading.Tasks;
 using Marten;
-using Marten.Linq;
 using Momentum.Auth.Core.Models;
 using Momentum.Auth.Core.Repositories;
 
