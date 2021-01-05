@@ -11,7 +11,7 @@ namespace Momentum.Users.Core.Models
         public string Avatar { get; set; }
         public string AvatarUrl
         {
-            get => Bans.HasFlag(Bans.BannedAvatar) ? "/assets/images/blank_avatar.jpg" : AvatarUrl;
+            get => Bans.HasFlag(Bans.BannedAvatar) ? "/assets/images/blank_avatar.jpg" : Avatar;
             set => Avatar = value;
         }
         public Roles Roles { get; set; }
