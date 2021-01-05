@@ -17,6 +17,9 @@ namespace Momentum.Users.Infrastructure.Repositories
 
         public async Task Add(User user)
         {
+            user.CreatedAt = DateTime.UtcNow;
+            user.UpdatedAt = null;
+            
             using var session = _store.LightweightSession();
             
             session.Insert(user);
@@ -26,6 +29,8 @@ namespace Momentum.Users.Infrastructure.Repositories
 
         public async Task Update(User user)
         {
+            user.UpdatedAt = DateTime.UtcNow;
+
             using var session = _store.LightweightSession();
             
             session.Update(user);

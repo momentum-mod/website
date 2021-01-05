@@ -19,19 +19,19 @@ namespace Momentum.Auth.Core.Services
  public class JwtService : IJwtService
     {
         private readonly IConfiguration _configuration;
-        private readonly IJwtRepository _jwtRepository;
+        private readonly IRefreshTokenRepository _refreshTokenRepository;
         private readonly IMediator _mediator;
         
-        public JwtService(IConfiguration configuration, IJwtRepository jwtRepository, IMediator mediator)
+        public JwtService(IConfiguration configuration, IRefreshTokenRepository refreshTokenRepository, IMediator mediator)
         {
             _configuration = configuration;
-            _jwtRepository = jwtRepository;
+            _refreshTokenRepository = refreshTokenRepository;
             _mediator = mediator;
         }
 
         public async Task<UserRefreshToken> GetOrUpdateRefreshTokenAsync(Guid userId)
         {
-            var existingRefreshToken = await _jwtRepository.GetRefreshTokenByUserId(userId);
+            var existingRefreshToken = await _refreshTokenRepository.GetByUserId(userId);
 
             if (existingRefreshToken != null &&
                 !string.IsNullOrEmpty(existingRefreshToken.RefreshToken) &&
@@ -63,15 +63,15 @@ namespace Momentum.Auth.Core.Services
                 RefreshToken = tokenString
             };
 
-            var existingToken = await _jwtRepository.GetRefreshTokenByUserId(userId);
+            var existingToken = await _refreshTokenRepository.GetByUserId(userId);
 
             if (existingToken == null)
             {
-                await _jwtRepository.AddRefreshToken(userRefreshToken);
+                await _refreshTokenRepository.Add(userRefreshToken);
             }
             else
             {
-                await _jwtRepository.UpdateRefreshToken(userRefreshToken);
+                await _refreshTokenRepository.Update(userRefreshToken);
             }
 
             return userRefreshToken;
@@ -79,7 +79,7 @@ namespace Momentum.Auth.Core.Services
 
         public async Task<UserAccessToken> RefreshAccessTokenAsync(UserRefreshToken userRefreshToken, bool fromInGame)
         {
-            var currentRefreshToken = await _jwtRepository.GetRefreshTokenByUserId(userRefreshToken.UserId);
+            var currentRefreshToken = await _refreshTokenRepository.GetByUserId(userRefreshToken.UserId);
 
             if (currentRefreshToken.RefreshToken != userRefreshToken.RefreshToken)
             {
@@ -142,14 +142,14 @@ namespace Momentum.Auth.Core.Services
 
         public async Task RevokeRefreshTokenAsync(Guid userId)
         {
-            var currentRefreshToken = await _jwtRepository.GetRefreshTokenByUserId(userId);
+            var currentRefreshToken = await _refreshTokenRepository.GetByUserId(userId);
 
             if (string.IsNullOrEmpty(currentRefreshToken.RefreshToken))
             {
                 return;
             }
 
-            await _jwtRepository.UpdateRefreshToken(new UserRefreshToken
+            await _refreshTokenRepository.Update(new UserRefreshToken
             {
                 UserId = userId,
                 RefreshToken = string.Empty

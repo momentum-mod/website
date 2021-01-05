@@ -5,6 +5,8 @@ namespace Momentum.Users.Application.DTOs
     public class UserDto
     {
         public Guid Id { get; set; }
+        public DateTime CreatedAt { get; set; }
+        public DateTime? UpdatedAt { get; set; }
         public string SteamId { get; set; }
         public string Alias { get; set; }
         public bool AliasLocked { get; set; }
