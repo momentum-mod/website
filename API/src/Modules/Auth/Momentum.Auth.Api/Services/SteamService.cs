@@ -17,10 +17,10 @@ namespace Momentum.Auth.Api.Services
 
         private XmlDocument _profileXmlDocument;
 
-        private readonly string _steamIdXPath = "/profile/steamID";
-        private readonly string _avatarXPath = "/profile/avatarFull";
-        private readonly string _countryXPath = "/profile/location";
-        
+        private const string SteamIdXPath = "/profile/steamID";
+        private const string AvatarXPath = "/profile/avatarFull";
+        private const string CountryXPath = "/profile/location";
+
         public SteamService(HttpClient httpClient, IHttpContextAccessor httpContextAccessor)
         {
             _httpClient = httpClient;
@@ -35,7 +35,7 @@ namespace Momentum.Auth.Api.Services
             }
             
             var steamProfileUrl = _httpContextAccessor.HttpContext?.User.Claims
-                .Single(x => x.Type == ClaimTypes.NameIdentifier).Value ?? throw new Exception("Expected a HttpContext while getting steam ID");;
+                .Single(x => x.Type == ClaimTypes.NameIdentifier).Value ?? throw new Exception("Expected a HttpContext while getting steam ID");
 
             _steamId = steamProfileUrl.Replace("https://", "")
                 .Replace("http://", "")
@@ -92,12 +92,12 @@ namespace Momentum.Auth.Api.Services
         {
             var profile = await GetProfileAsync(steamId);
 
-            if (profile.SelectSingleNode(_steamIdXPath) == null)
+            if (profile.SelectSingleNode(SteamIdXPath) == null)
             {
                 throw new Exception("You must have a username, please setup your steam profile");
             }
 
-            if (profile.SelectSingleNode(_avatarXPath) == null)
+            if (profile.SelectSingleNode(AvatarXPath) == null)
             {
                 throw new Exception("You must have an avatar, please setup your steam profile");
             }
@@ -111,11 +111,11 @@ namespace Momentum.Auth.Api.Services
 
             return new UserDto
             {
-                Alias = profile.SelectSingleNode(_steamIdXPath).InnerText,
-                Avatar = profile.SelectSingleNode(_avatarXPath).InnerText,
+                Alias = profile.SelectSingleNode(SteamIdXPath).InnerText,
+                Avatar = profile.SelectSingleNode(AvatarXPath).InnerText,
                 Bans = BansDto.None,
                 Roles = RolesDto.None,
-                Country = profile.SelectSingleNode(_countryXPath)?.Value,
+                Country = profile.SelectSingleNode(CountryXPath)?.Value,
                 AliasLocked = false,
                 SteamId = steamId ?? GetSteamId()
             };

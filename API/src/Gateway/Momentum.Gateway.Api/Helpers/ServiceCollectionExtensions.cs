@@ -1,5 +1,4 @@
-﻿using System;
-using System.Text;
+﻿using System.Text;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
@@ -14,7 +13,7 @@ namespace Momentum.Gateway.Api.Helpers
     {
         public static AuthenticationBuilder AddMomentumAuthentication(this IServiceCollection services, IConfiguration configuration)
             => services.AddMomentumJwtAuthentication(configuration)
-                .AddMomentumSteamAuthentication(configuration);
+                .AddMomentumSteamAuthentication();
 
         private static AuthenticationBuilder AddMomentumJwtAuthentication(this IServiceCollection services, IConfiguration configuration)
             => services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
@@ -33,7 +32,7 @@ namespace Momentum.Gateway.Api.Helpers
                     };
                 });
 
-        private static AuthenticationBuilder AddMomentumSteamAuthentication(this AuthenticationBuilder authenticationBuilder, IConfiguration configuration)
+        private static AuthenticationBuilder AddMomentumSteamAuthentication(this AuthenticationBuilder authenticationBuilder)
             => authenticationBuilder.AddSteam(options =>
                 {
                     options.CallbackPath = "/auth/steam/return";
@@ -43,7 +42,7 @@ namespace Momentum.Gateway.Api.Helpers
                     options.SignInScheme = "Cookies";
                 })
                 .AddCookie("Cookies");
-        public static IServiceCollection AddMomentumAuthorization(this IServiceCollection services, Action<AuthorizationOptions> additionOptions = null) =>
+        public static IServiceCollection AddMomentumAuthorization(this IServiceCollection services) =>
             services.AddAuthorization(options =>
             {
                 // Default policy requires access tokens
