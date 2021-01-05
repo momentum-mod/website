@@ -9,7 +9,7 @@
   "dependencies": {
     "@d-fischer/passport-twitch": "1.0.5",
     "@hapi/joi": "17.1.1",
-    "axios": "0.19.2",
+    "axios": "0.21.1",
     "body-parser": "1.19.0",
     "bunyan": "^1.8.14",
     "bunyan-middleware": "^1.0.0",
