@@ -15,8 +15,4 @@
       <ProjectReference Include="..\Momentum.Auth.Core\Momentum.Auth.Core.csproj" />
     </ItemGroup>
 
-    <ItemGroup>
-      <Folder Include="DTOs" />
-    </ItemGroup>
-
 </Project>
