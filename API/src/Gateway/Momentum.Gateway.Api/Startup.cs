@@ -10,10 +10,12 @@ using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
 using Microsoft.OpenApi.Models;
 using Momentum.Framework.Application.Services;
 using Momentum.Framework.Core.DependencyInjection;
 using Momentum.Gateway.Api.Helpers;
+using Serilog;
 
 namespace Momentum.Gateway.Api
 {
@@ -44,6 +46,18 @@ namespace Momentum.Gateway.Api
                     Title = "Momentum.Gateway.Api",
                     Version = "v1"
                 });
+            });
+            
+            services.AddLogging(loggingBuilder =>
+            {
+                loggingBuilder.ClearProviders();
+
+                var logger = new LoggerConfiguration()
+                    .MinimumLevel.Information()
+                    .WriteTo.Console()
+                    .CreateLogger();
+                
+                loggingBuilder.AddSerilog(logger);
             });
 
             // Add JWT and Steam
