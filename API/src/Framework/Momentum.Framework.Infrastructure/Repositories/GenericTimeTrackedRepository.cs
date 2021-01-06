@@ -1,4 +1,7 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Linq.Expressions;
 using System.Threading.Tasks;
 using Marten;
 using Momentum.Framework.Core.Models;
@@ -8,11 +11,11 @@ namespace Momentum.Framework.Infrastructure.Repositories
 {
     public abstract class GenericTimeTrackedRepository<T> : IGenericRepository<T> where T : TimeTrackedModel
     {
-        protected readonly IDocumentStore _store;
+        protected readonly IDocumentStore Store;
 
         protected GenericTimeTrackedRepository(IDocumentStore store)
         {
-            _store = store;
+            Store = store;
         }
         
         public async Task Add(T model)
@@ -20,7 +23,7 @@ namespace Momentum.Framework.Infrastructure.Repositories
             model.CreatedAt = DateTime.UtcNow;
             model.UpdatedAt = null;
 
-            using var session = _store.LightweightSession();
+            using var session = Store.LightweightSession();
             
             session.Insert(model);
 
@@ -31,7 +34,7 @@ namespace Momentum.Framework.Infrastructure.Repositories
         {
             model.UpdatedAt = DateTime.UtcNow;
 
-            using var session = _store.LightweightSession();
+            using var session = Store.LightweightSession();
             
             session.Update(model);
 
@@ -40,11 +43,28 @@ namespace Momentum.Framework.Infrastructure.Repositories
 
         public async Task Delete(T model)
         {
-            using var session = _store.LightweightSession();
+            using var session = Store.LightweightSession();
             
             session.Delete(model);
 
             await session.SaveChangesAsync();
+        }
+
+        protected async Task<T> GetSingleAsync(Expression<Func<T, bool>> singleMatchExpression)
+        {
+            using var session = Store.QuerySession();
+
+            return await session.Query<T>()
+                .SingleOrDefaultAsync(singleMatchExpression);
+        }
+
+        protected async Task<IReadOnlyList<T>> GetListAsync(Expression<Func<T, bool>> matchExpression)
+        {
+            using var session = Store.QuerySession();
+
+            return await session.Query<T>()
+                .Where(matchExpression)
+                .ToListAsync();
         }
     }
 }

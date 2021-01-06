@@ -11,18 +11,8 @@ namespace Momentum.Users.Infrastructure.Repositories
     {
         public UserRepository(IDocumentStore store) : base(store) { }
 
-        public async Task<User> GetById(Guid id)
-        {
-            using var session = _store.QuerySession();
+        public async Task<User> GetById(Guid id) => await GetSingleAsync(x => x.Id == id);
 
-            return await session.Query<User>().SingleOrDefaultAsync(x => x.Id == id);
-        }
-        
-        public async Task<User> GetBySteamId(string steamId)
-        {
-            using var session = _store.QuerySession();
-
-            return await session.Query<User>().SingleOrDefaultAsync(x => x.SteamId == steamId);
-        }
+        public async Task<User> GetBySteamId(string steamId) => await GetSingleAsync(x => x.SteamId == steamId);
     }
 }
