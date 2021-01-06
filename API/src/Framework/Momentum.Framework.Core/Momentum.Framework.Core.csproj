@@ -5,11 +5,6 @@
     </PropertyGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\..\Modules\Auth\Momentum.Auth.Core\Momentum.Auth.Core.csproj" />
-      <ProjectReference Include="..\..\Modules\Users\Momentum.Users.Core\Momentum.Users.Core.csproj" />
-    </ItemGroup>
-
-    <ItemGroup>
       <PackageReference Include="Marten" Version="3.13.3" />
       <PackageReference Include="MediatR" Version="9.0.0" />
       <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="5.0.1" />
@@ -17,9 +12,5 @@
       <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="5.0.0" />
       <PackageReference Include="Microsoft.Net.Http.Headers" Version="2.2.8" />
       <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="6.7.1" />
-    </ItemGroup>
-
-    <ItemGroup>
-      <Folder Include="Models" />
     </ItemGroup>
 </Project>

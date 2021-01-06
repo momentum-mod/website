@@ -1,14 +1,12 @@
 ﻿using System;
 using System.Threading.Tasks;
 using Momentum.Auth.Core.Models;
+using Momentum.Framework.Core.Repositories;
 
 namespace Momentum.Auth.Core.Repositories
 {
-    public interface IRefreshTokenRepository
+    public interface IRefreshTokenRepository : IGenericRepository<UserRefreshToken>
     {
         Task<UserRefreshToken> GetByUserId(Guid userId);
-        Task Add(UserRefreshToken userRefreshToken);
-        Task Update(UserRefreshToken userRefreshToken);
-        Task Delete(UserRefreshToken userRefreshToken);
     }
 }

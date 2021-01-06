@@ -1,12 +1,11 @@
 ﻿using System;
+using Momentum.Framework.Core.Models;
 
 namespace Momentum.Auth.Core.Models
 {
-    public class UserRefreshToken
+    public class UserRefreshToken : TimeTrackedModel
     {
         public Guid UserId { get; set; }
-        public DateTime CreatedAt { get; set; }
-        public DateTime? UpdatedAt { get; set; }
         public string RefreshToken { get; set; }
     }
 }

@@ -1,15 +1,12 @@
 ﻿using System;
 using System.Threading.Tasks;
+using Momentum.Framework.Core.Repositories;
 using Momentum.Users.Core.Models;
 
 namespace Momentum.Users.Core.Repositories
 {
-    public interface IUserRepository
+    public interface IUserRepository : IGenericRepository<User>
     {
-        Task Add(User user);
-        Task Update(User user);
-        Task Delete(User user);
-        
         Task<User> GetById(Guid id);
         Task<User> GetBySteamId(string steamId);
     }

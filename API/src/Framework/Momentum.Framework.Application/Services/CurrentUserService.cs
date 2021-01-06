@@ -10,9 +10,8 @@ using Microsoft.Net.Http.Headers;
 using Momentum.Auth.Core.Services;
 using Momentum.Users.Application.DTOs;
 using Momentum.Users.Application.Requests;
-using Momentum.Users.Core.Models;
 
-namespace Momentum.Framework.Core.Services
+namespace Momentum.Framework.Application.Services
 {
     /// <summary>
     ///     Scoped service for the current user
@@ -87,7 +86,7 @@ namespace Momentum.Framework.Core.Services
             return bearerToken;
         }
 
-        public Roles GetRolesFromToken()
+        public RolesDto GetRolesFromToken()
         {
             var claims = GetClaims();
 
@@ -98,7 +97,7 @@ namespace Momentum.Framework.Core.Services
                 throw new ArgumentNullException(nameof(rolesClaim), "Token has no roles claim");
             }
 
-            if (Enum.TryParse<Roles>(rolesClaim.Value, out var roles))
+            if (Enum.TryParse<RolesDto>(rolesClaim.Value, out var roles))
             {
                 return roles;
             }
@@ -106,7 +105,7 @@ namespace Momentum.Framework.Core.Services
             throw new Exception("Error parsing roles from token");
         }
 
-        public bool HasRole(Roles role)
+        public bool HasRole(RolesDto role)
         {
             var userRoles = GetRolesFromToken();
 

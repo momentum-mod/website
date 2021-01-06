@@ -10,6 +10,7 @@
     </ItemGroup>
 
     <ItemGroup>
+      <ProjectReference Include="..\..\..\Framework\Momentum.Framework.Application\Momentum.Framework.Application.csproj" />
       <ProjectReference Include="..\..\..\Framework\Momentum.Framework.Core\Momentum.Framework.Core.csproj" />
       <ProjectReference Include="..\Momentum.Auth.Core\Momentum.Auth.Core.csproj" />
     </ItemGroup>

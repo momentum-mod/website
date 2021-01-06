@@ -1,51 +1,15 @@
 ﻿using System;
 using System.Threading.Tasks;
 using Marten;
+using Momentum.Framework.Infrastructure.Repositories;
 using Momentum.Users.Core.Models;
 using Momentum.Users.Core.Repositories;
 
 namespace Momentum.Users.Infrastructure.Repositories
 {
-    public class UserRepository : IUserRepository
+    public class UserRepository : GenericTimeTrackedRepository<User>, IUserRepository
     {
-        private readonly IDocumentStore _store;
-
-        public UserRepository(IDocumentStore store)
-        {
-            _store = store;
-        }
-
-        public async Task Add(User user)
-        {
-            user.CreatedAt = DateTime.UtcNow;
-            user.UpdatedAt = null;
-            
-            using var session = _store.LightweightSession();
-            
-            session.Insert(user);
-
-            await session.SaveChangesAsync();
-        }
-
-        public async Task Update(User user)
-        {
-            user.UpdatedAt = DateTime.UtcNow;
-
-            using var session = _store.LightweightSession();
-            
-            session.Update(user);
-
-            await session.SaveChangesAsync();        
-        }
-
-        public async Task Delete(User user)
-        {
-            using var session = _store.LightweightSession();
-            
-            session.Delete(user);
-
-            await session.SaveChangesAsync();
-        }
+        public UserRepository(IDocumentStore store) : base(store) { }
 
         public async Task<User> GetById(Guid id)
         {

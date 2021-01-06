@@ -4,7 +4,7 @@ using System.Threading.Tasks;
 using AutoMapper;
 using MediatR;
 using Momentum.Auth.Core.Services;
-using Momentum.Framework.Core.Services;
+using Momentum.Framework.Application.Services;
 
 namespace Momentum.Auth.Application.Queries
 {

@@ -12,6 +12,7 @@
     </ItemGroup>
 
     <ItemGroup>
+      <ProjectReference Include="..\..\..\Framework\Momentum.Framework.Core\Momentum.Framework.Core.csproj" />
       <ProjectReference Include="..\..\Users\Momentum.Users.Application\Momentum.Users.Application.csproj" />
     </ItemGroup>
 

@@ -3,9 +3,8 @@ using System.Collections.Generic;
 using System.Security.Claims;
 using System.Threading.Tasks;
 using Momentum.Users.Application.DTOs;
-using Momentum.Users.Core.Models;
 
-namespace Momentum.Framework.Core.Services
+namespace Momentum.Framework.Application.Services
 {
     public interface ICurrentUserService
     {
@@ -13,7 +12,7 @@ namespace Momentum.Framework.Core.Services
         Task<UserDto> GetUser();
         List<Claim> GetClaims();
         string GetBearerToken();
-        Roles GetRolesFromToken();
-        bool HasRole(Roles role);
+        RolesDto GetRolesFromToken();
+        bool HasRole(RolesDto role);
     }
 }
