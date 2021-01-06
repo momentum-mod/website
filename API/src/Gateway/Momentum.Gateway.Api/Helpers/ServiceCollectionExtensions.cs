@@ -11,9 +11,12 @@ namespace Momentum.Gateway.Api.Helpers
 {
     public static class ServiceCollectionExtensions
     {
-        public static AuthenticationBuilder AddMomentumAuthentication(this IServiceCollection services, IConfiguration configuration)
+        public static void AddMomentumAuthentication(this IServiceCollection services, IConfiguration configuration) 
             => services.AddMomentumJwtAuthentication(configuration)
-                .AddMomentumSteamAuthentication();
+            .AddSteamAuthentication()
+            .AddDiscordAuthentication(configuration)
+            .AddTwitchAuthentication(configuration)
+            .AddTwitterAuthentication(configuration);
 
         private static AuthenticationBuilder AddMomentumJwtAuthentication(this IServiceCollection services, IConfiguration configuration)
             => services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
@@ -32,7 +35,7 @@ namespace Momentum.Gateway.Api.Helpers
                     };
                 });
 
-        private static AuthenticationBuilder AddMomentumSteamAuthentication(this AuthenticationBuilder authenticationBuilder)
+        private static AuthenticationBuilder AddSteamAuthentication(this AuthenticationBuilder authenticationBuilder)
             => authenticationBuilder.AddSteam(options =>
                 {
                     options.CallbackPath = "/auth/steam/return";
@@ -42,6 +45,42 @@ namespace Momentum.Gateway.Api.Helpers
                     options.SignInScheme = "Cookies";
                 })
                 .AddCookie("Cookies");
+
+        private static AuthenticationBuilder AddTwitterAuthentication(this AuthenticationBuilder authenticationBuilder, IConfiguration configuration) 
+            => authenticationBuilder.AddTwitter(options =>
+            {
+                options.ConsumerKey = configuration["Twitter:ApiKey"];
+                options.ConsumerSecret = configuration["Twitter:Secret"];
+                options.CallbackPath = "/auth/twitter/return";
+                options.CorrelationCookie.SecurePolicy = CookieSecurePolicy.Always;
+                options.CorrelationCookie.IsEssential = true;
+                options.CorrelationCookie.SameSite = SameSiteMode.None;
+                options.SignInScheme = "Cookies";
+            });
+
+        private static AuthenticationBuilder AddDiscordAuthentication(this AuthenticationBuilder authenticationBuilder, IConfiguration configuration) 
+            => authenticationBuilder.AddDiscord(options =>
+            {
+                options.ClientId = configuration["Discord:ClientId"];
+                options.ClientSecret = configuration["Discord:ClientSecret"];
+                options.CallbackPath = "/auth/discord/return";
+                options.CorrelationCookie.SecurePolicy = CookieSecurePolicy.Always;
+                options.CorrelationCookie.IsEssential = true;
+                options.CorrelationCookie.SameSite = SameSiteMode.None;
+                options.SignInScheme = "Cookies";
+            });
+        
+        private static AuthenticationBuilder AddTwitchAuthentication(this AuthenticationBuilder authenticationBuilder, IConfiguration configuration)
+            => authenticationBuilder.AddTwitch(options =>
+            {
+                options.ClientId = configuration["Twitch:ClientId"];
+                options.ClientSecret = configuration["Twitch:ClientSecret"];
+                options.CallbackPath = "/auth/twitch/return";
+                options.CorrelationCookie.SecurePolicy = CookieSecurePolicy.Always;
+                options.CorrelationCookie.IsEssential = true;
+                options.CorrelationCookie.SameSite = SameSiteMode.None;
+                options.SignInScheme = "Cookies";
+            })
         public static IServiceCollection AddMomentumAuthorization(this IServiceCollection services) =>
             services.AddAuthorization(options =>
             {
