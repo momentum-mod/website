@@ -69,7 +69,7 @@ namespace Momentum.Gateway.Api.Helpers
                 options.CorrelationCookie.SameSite = SameSiteMode.None;
                 options.SignInScheme = "Cookies";
             });
-        
+
         private static AuthenticationBuilder AddTwitchAuthentication(this AuthenticationBuilder authenticationBuilder, IConfiguration configuration)
             => authenticationBuilder.AddTwitch(options =>
             {
@@ -80,7 +80,8 @@ namespace Momentum.Gateway.Api.Helpers
                 options.CorrelationCookie.IsEssential = true;
                 options.CorrelationCookie.SameSite = SameSiteMode.None;
                 options.SignInScheme = "Cookies";
-            })
+            });
+        
         public static IServiceCollection AddMomentumAuthorization(this IServiceCollection services) =>
             services.AddAuthorization(options =>
             {
