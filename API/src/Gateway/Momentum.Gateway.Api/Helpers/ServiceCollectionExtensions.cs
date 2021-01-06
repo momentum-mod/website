@@ -42,8 +42,8 @@ namespace Momentum.Gateway.Api.Helpers
                     options.CorrelationCookie.SecurePolicy = CookieSecurePolicy.Always;
                     options.CorrelationCookie.IsEssential = true;
                     options.CorrelationCookie.SameSite = SameSiteMode.None;
-                    options.SignInScheme = "Steam";
-                });
+                    options.SignInScheme = "Cookies";
+                }).AddCookie("Cookies");
 
         private static AuthenticationBuilder AddTwitterAuthentication(this AuthenticationBuilder authenticationBuilder, IConfiguration configuration) 
             => authenticationBuilder.AddTwitter(options =>
@@ -54,7 +54,7 @@ namespace Momentum.Gateway.Api.Helpers
                 options.CorrelationCookie.SecurePolicy = CookieSecurePolicy.Always;
                 options.CorrelationCookie.IsEssential = true;
                 options.CorrelationCookie.SameSite = SameSiteMode.None;
-                options.SignInScheme = "Twitter";
+                options.SignInScheme = "Cookies";
                 options.SaveTokens = true;
             });
 
@@ -67,7 +67,7 @@ namespace Momentum.Gateway.Api.Helpers
                 options.CorrelationCookie.SecurePolicy = CookieSecurePolicy.Always;
                 options.CorrelationCookie.IsEssential = true;
                 options.CorrelationCookie.SameSite = SameSiteMode.None;
-                options.SignInScheme = "Discord";
+                options.SignInScheme = "Cookies";
             });
 
         private static AuthenticationBuilder AddTwitchAuthentication(this AuthenticationBuilder authenticationBuilder, IConfiguration configuration)
@@ -79,7 +79,7 @@ namespace Momentum.Gateway.Api.Helpers
                 options.CorrelationCookie.SecurePolicy = CookieSecurePolicy.Always;
                 options.CorrelationCookie.IsEssential = true;
                 options.CorrelationCookie.SameSite = SameSiteMode.None;
-                options.SignInScheme = "Twitch";
+                options.SignInScheme = "Cookies";
             });
         
         public static IServiceCollection AddMomentumAuthorization(this IServiceCollection services) =>
