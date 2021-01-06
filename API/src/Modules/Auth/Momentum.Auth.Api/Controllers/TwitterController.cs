@@ -28,7 +28,7 @@ namespace Momentum.Auth.Api.Controllers
             _mediator = mediator;
         }
 
-        [Authorize(AuthenticationSchemes = "Cookies", Policy = "Twitter")]
+        [Authorize(AuthenticationSchemes = "Twitter", Policy = "RequireNothing")]
         [HttpGet]
         public async Task<IActionResult> SignInAsync()
         {

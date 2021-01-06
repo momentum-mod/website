@@ -42,9 +42,9 @@ namespace Momentum.Gateway.Api.Helpers
                     options.CorrelationCookie.SecurePolicy = CookieSecurePolicy.Always;
                     options.CorrelationCookie.IsEssential = true;
                     options.CorrelationCookie.SameSite = SameSiteMode.None;
-                    options.SignInScheme = "Cookies";
+                    options.SignInScheme = "Steam";
                 })
-                .AddCookie("Cookies");
+                .AddCookie("Steam");
 
         private static AuthenticationBuilder AddTwitterAuthentication(this AuthenticationBuilder authenticationBuilder, IConfiguration configuration) 
             => authenticationBuilder.AddTwitter(options =>
@@ -55,8 +55,9 @@ namespace Momentum.Gateway.Api.Helpers
                 options.CorrelationCookie.SecurePolicy = CookieSecurePolicy.Always;
                 options.CorrelationCookie.IsEssential = true;
                 options.CorrelationCookie.SameSite = SameSiteMode.None;
-                options.SignInScheme = "Cookies";
-            });
+                options.SignInScheme = "Twitter";
+                options.SaveTokens = true;
+            }).AddCookie("Twitter");
 
         private static AuthenticationBuilder AddDiscordAuthentication(this AuthenticationBuilder authenticationBuilder, IConfiguration configuration) 
             => authenticationBuilder.AddDiscord(options =>
@@ -67,8 +68,8 @@ namespace Momentum.Gateway.Api.Helpers
                 options.CorrelationCookie.SecurePolicy = CookieSecurePolicy.Always;
                 options.CorrelationCookie.IsEssential = true;
                 options.CorrelationCookie.SameSite = SameSiteMode.None;
-                options.SignInScheme = "Cookies";
-            });
+                options.SignInScheme = "Discord";
+            }).AddCookie("Discord");
 
         private static AuthenticationBuilder AddTwitchAuthentication(this AuthenticationBuilder authenticationBuilder, IConfiguration configuration)
             => authenticationBuilder.AddTwitch(options =>
@@ -79,8 +80,8 @@ namespace Momentum.Gateway.Api.Helpers
                 options.CorrelationCookie.SecurePolicy = CookieSecurePolicy.Always;
                 options.CorrelationCookie.IsEssential = true;
                 options.CorrelationCookie.SameSite = SameSiteMode.None;
-                options.SignInScheme = "Cookies";
-            });
+                options.SignInScheme = "Twitch";
+            }).AddCookie("Twitch");
         
         public static IServiceCollection AddMomentumAuthorization(this IServiceCollection services) =>
             services.AddAuthorization(options =>
@@ -89,7 +90,7 @@ namespace Momentum.Gateway.Api.Helpers
                 options.DefaultPolicy = new AuthorizationPolicyBuilder().RequireClaim("refreshToken", "false")
                     .Build();
                 options.AddPolicy("AllowRefreshToken", policy => policy.RequireClaim("refreshToken", "true"));
-                options.AddPolicy("Steam", policy => policy.RequireAssertion(_ => true));
+                options.AddPolicy("RequireNothing", policy => policy.RequireAssertion(_ => true));
             });
     }
 }

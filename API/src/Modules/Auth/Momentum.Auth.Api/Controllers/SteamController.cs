@@ -28,7 +28,7 @@ namespace Momentum.Auth.Api.Controllers
             _mediator = mediator;
         }
 
-        [Authorize(AuthenticationSchemes = "Cookies", Policy = "Steam")]
+        [Authorize(AuthenticationSchemes = "Steam", Policy = "RequireNothing")]
         [HttpGet]
         public async Task<IActionResult> SignInAsync()
         {
