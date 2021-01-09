@@ -697,7 +697,9 @@ module.exports = {
 	getAll: (queryParams) => {
 		const queryOptions = {
 			distinct: true,
-			where: { flags: 0 },
+			where: { 
+				flags: 0,
+			},
 			limit: 10,
 			include: [
 				{
@@ -708,9 +710,9 @@ module.exports = {
 					as: 'rank',
 					attributes: ['rank'],
 					required: false,
-				}
+				},
 			],
-			order: [['ticks', 'ASC']],
+			order: [['ticks', 'ASC']], // Should the order default to date instead of ticks?
 		};
 		if (queryParams.limit)
 			queryOptions.limit = queryParams.limit;
@@ -727,6 +729,18 @@ module.exports = {
 		if (queryParams.order) {
 			if (queryParams.order === 'date')
 				queryOptions.order = [['createdAt', 'DESC']];
+			if (queryParams.order === 'time')
+				queryOptions.order = [[sequelize.literal('ticks * tickRate'), 'ASC']];
+		}
+		if (queryParams.mapName) {
+			queryOptions.include.push({
+				model: Map,
+				as: 'map',
+				where: { name: {[Op.startsWith]: queryParams.mapName} }
+			});
+		}
+		if (queryParams.isPB) {
+			queryOptions.include[1].required = queryParams.isPB; // Works, but feels wrong to assume the array index directly like this
 		}
 		queryHelper.addExpansions(queryOptions, queryParams.expand, ['map', 'mapWithInfo']);
 		return Run.findAndCountAll(queryOptions);
