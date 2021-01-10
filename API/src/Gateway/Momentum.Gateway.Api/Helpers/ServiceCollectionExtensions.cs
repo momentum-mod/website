@@ -1,4 +1,5 @@
-﻿using System.Text;
+﻿using System.Net.Http;
+using System.Text;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
@@ -11,12 +12,12 @@ namespace Momentum.Gateway.Api.Helpers
 {
     public static class ServiceCollectionExtensions
     {
-        public static void AddMomentumAuthentication(this IServiceCollection services, IConfiguration configuration) 
+        public static void AddMomentumAuthentication(this IServiceCollection services, IConfiguration configuration, HttpClient backchannel = null)
             => services.AddMomentumJwtAuthentication(configuration)
-            .AddSteamAuthentication()
-            .AddDiscordAuthentication(configuration)
-            .AddTwitchAuthentication(configuration)
-            .AddTwitterAuthentication(configuration);
+            .AddSteamAuthentication(backchannel)
+            .AddDiscordAuthentication(configuration, backchannel)
+            .AddTwitchAuthentication(configuration, backchannel)
+            .AddTwitterAuthentication(configuration, backchannel);
 
         private static AuthenticationBuilder AddMomentumJwtAuthentication(this IServiceCollection services, IConfiguration configuration)
             => services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
@@ -35,7 +36,7 @@ namespace Momentum.Gateway.Api.Helpers
                     };
                 });
 
-        private static AuthenticationBuilder AddSteamAuthentication(this AuthenticationBuilder authenticationBuilder)
+        private static AuthenticationBuilder AddSteamAuthentication(this AuthenticationBuilder authenticationBuilder, HttpClient backchannel = null)
             => authenticationBuilder.AddSteam(options =>
                 {
                     options.CallbackPath = "/auth/steam/return";
@@ -43,9 +44,14 @@ namespace Momentum.Gateway.Api.Helpers
                     options.CorrelationCookie.IsEssential = true;
                     options.CorrelationCookie.SameSite = SameSiteMode.None;
                     options.SignInScheme = "Cookies";
+
+                    if (backchannel != null)
+                    {
+                        options.Backchannel = backchannel;
+                    }
                 }).AddCookie("Cookies");
 
-        private static AuthenticationBuilder AddTwitterAuthentication(this AuthenticationBuilder authenticationBuilder, IConfiguration configuration) 
+        private static AuthenticationBuilder AddTwitterAuthentication(this AuthenticationBuilder authenticationBuilder, IConfiguration configuration, HttpClient backchannel = null)
             => authenticationBuilder.AddTwitter(options =>
             {
                 options.ConsumerKey = configuration["Twitter:ApiKey"];
@@ -56,9 +62,14 @@ namespace Momentum.Gateway.Api.Helpers
                 options.CorrelationCookie.SameSite = SameSiteMode.None;
                 options.SignInScheme = "Cookies";
                 options.SaveTokens = true;
+
+                if (backchannel != null)
+                {
+                    options.Backchannel = backchannel;
+                }
             });
 
-        private static AuthenticationBuilder AddDiscordAuthentication(this AuthenticationBuilder authenticationBuilder, IConfiguration configuration) 
+        private static AuthenticationBuilder AddDiscordAuthentication(this AuthenticationBuilder authenticationBuilder, IConfiguration configuration, HttpClient backchannel = null)
             => authenticationBuilder.AddDiscord(options =>
             {
                 options.ClientId = configuration["Discord:ClientId"];
@@ -68,9 +79,14 @@ namespace Momentum.Gateway.Api.Helpers
                 options.CorrelationCookie.IsEssential = true;
                 options.CorrelationCookie.SameSite = SameSiteMode.None;
                 options.SignInScheme = "Cookies";
+
+                if (backchannel != null)
+                {
+                    options.Backchannel = backchannel;
+                }
             });
 
-        private static AuthenticationBuilder AddTwitchAuthentication(this AuthenticationBuilder authenticationBuilder, IConfiguration configuration)
+        private static AuthenticationBuilder AddTwitchAuthentication(this AuthenticationBuilder authenticationBuilder, IConfiguration configuration, HttpClient backchannel = null)
             => authenticationBuilder.AddTwitch(options =>
             {
                 options.ClientId = configuration["Twitch:ClientId"];
@@ -80,8 +96,13 @@ namespace Momentum.Gateway.Api.Helpers
                 options.CorrelationCookie.IsEssential = true;
                 options.CorrelationCookie.SameSite = SameSiteMode.None;
                 options.SignInScheme = "Cookies";
+
+                if (backchannel != null)
+                {
+                    options.Backchannel = backchannel;
+                }
             });
-        
+
         public static IServiceCollection AddMomentumAuthorization(this IServiceCollection services) =>
             services.AddAuthorization(options =>
             {

@@ -63,8 +63,14 @@ namespace Momentum.Gateway.Api
                 loggingBuilder.AddSerilog(logger);
             });
 
+
+            var httpClient = _webHostEnvironment.IsDevelopment()
+                ? new HttpClient(new HttpLoggingHandler(new HttpClientHandler(), logger))
+                : new HttpClient();
+            services.AddSingleton(httpClient);
+
             // Add JWT and Steam
-            services.AddMomentumAuthentication(Configuration);
+            services.AddMomentumAuthentication(Configuration, httpClient);
             services.AddMomentumAuthorization();
 
             // Register each modules DI
@@ -76,16 +82,6 @@ namespace Momentum.Gateway.Api
             // Add global dependencies
             services.AddHttpContextAccessor();
             services.AddScoped<ICurrentUserService, CurrentUserService>();
-
-            if (_webHostEnvironment.IsDevelopment())
-            {
-                // Get the raw requests/responses in dev
-                services.AddSingleton(new HttpClient(new HttpLoggingHandler(new HttpClientHandler(), logger)));
-            }
-            else
-            {
-                services.AddSingleton<HttpClient>();
-            }
 
             // Add MediatR and register the requests/handlers from all modules
             services.AddMediatR(_applicationLayerAssemblies);
