@@ -105,6 +105,14 @@ namespace Momentum.Gateway.Api
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
+            // Safe to assume HTTPs as the proxy on the host will require it
+            app.Use((context, next) =>
+            {
+                context.Request.Scheme = "https";
+
+                return next();
+            });
+
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
@@ -112,7 +120,7 @@ namespace Momentum.Gateway.Api
 
             app.UseForwardedHeaders(new ForwardedHeadersOptions
             {
-                ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto
+                ForwardedHeaders = ForwardedHeaders.XForwardedFor
             });
 
             app.UseSwagger();
