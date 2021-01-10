@@ -30,7 +30,7 @@ namespace Momentum.Auth.Application.Queries
         public async Task<string> Handle(RefreshAccessTokenQuery request, CancellationToken cancellationToken)
         {
             var refreshToken = request.RefreshToken;
-            var userId = Guid.Empty;
+            Guid userId;
 
             if (request.RefreshToken == null)
             {
