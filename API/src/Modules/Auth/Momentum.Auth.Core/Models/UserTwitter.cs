@@ -7,7 +7,5 @@ namespace Momentum.Auth.Core.Models
     {
         public Guid UserId { get; set; }
         public string DisplayName { get; set; }
-        public string OAuthKey { get; set; }
-        public string OAuthSecret { get; set; }
     }
 }

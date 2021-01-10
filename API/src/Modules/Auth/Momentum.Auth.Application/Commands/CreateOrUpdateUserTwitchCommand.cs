@@ -12,9 +12,8 @@ namespace Momentum.Auth.Application.Commands
     {
         public int TwitchId { get; set; }
         public string DisplayName { get; set; }
-        public string Token { get; set; }
     }
-    
+
     public class CreateOrUpdateUserTwitchCommandHandler : IRequestHandler<CreateOrUpdateUserTwitchCommand>
     {
         private readonly IMapper _mapper;
@@ -33,7 +32,7 @@ namespace Momentum.Auth.Application.Commands
             var userId = _currentUserService.GetUserId();
 
             var existingItem = await _userTwitchRepository.GetByUserId(userId);
-            
+
             var userTwitch = _mapper.Map(request, existingItem);
             userTwitch.UserId = userId;
 
@@ -45,7 +44,7 @@ namespace Momentum.Auth.Application.Commands
             {
                 await _userTwitchRepository.Update(userTwitch);
             }
-            
+
             return Unit.Value;
         }
     }

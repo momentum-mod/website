@@ -9,7 +9,5 @@ namespace Momentum.Auth.Application.DTOs
         public DateTime? UpdatedAt { get; set; }
         public ulong DiscordId { get; set; }
         public string DisplayName { get; set; }
-        public string AccessToken { get; set; }
-        public string RefreshToken { get; set; }
     }
 }

@@ -8,7 +8,5 @@ namespace Momentum.Auth.Application.DTOs
         public DateTime CreatedAt { get; set; }
         public DateTime? UpdatedAt { get; set; }
         public string DisplayName { get; set; }
-        public string OAuthKey { get; set; }
-        public string OAuthSecret { get; set; }
     }
 }

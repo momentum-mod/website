@@ -8,6 +8,5 @@ namespace Momentum.Auth.Core.Models
         public Guid UserId { get; set; }
         public int TwitchId { get; set; }
         public string DisplayName { get; set; }
-        public string Token { get; set; }
     }
 }
