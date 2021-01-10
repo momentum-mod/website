@@ -14,20 +14,24 @@ using Microsoft.Extensions.Logging;
 using Microsoft.OpenApi.Models;
 using Momentum.Framework.Application.Services;
 using Momentum.Framework.Core.DependencyInjection;
+using Momentum.Framework.Core.Models;
 using Momentum.Gateway.Api.Helpers;
 using Serilog;
+using IHostingEnvironment = Microsoft.AspNetCore.Hosting.IHostingEnvironment;
 
 namespace Momentum.Gateway.Api
 {
     public class Startup
     {
+        private readonly IWebHostEnvironment _webHostEnvironment;
         private readonly IModuleInitializer[] _modules = ModulesUtility.GetModules().ToArray();
 
         private readonly Assembly[] _applicationLayerAssemblies = ModulesUtility.GetApplicationLayerAssemblies()
             .ToArray();
-        public Startup(IConfiguration configuration)
+        public Startup(IConfiguration configuration, IWebHostEnvironment webHostEnvironment)
         {
             Configuration = configuration;
+            _webHostEnvironment = webHostEnvironment;
         }
 
         public IConfiguration Configuration { get; }
@@ -38,7 +42,7 @@ namespace Momentum.Gateway.Api
             // Add controllers from this assembly + the modules
             services.AddControllers()
                 .AddModuleControllers(_modules);
-            
+
             services.AddSwaggerGen(c =>
             {
                 c.SwaggerDoc("v1", new OpenApiInfo
@@ -47,34 +51,42 @@ namespace Momentum.Gateway.Api
                     Version = "v1"
                 });
             });
-            
+
+            var logger = new LoggerConfiguration()
+                .MinimumLevel.Information()
+                .WriteTo.Console()
+                .CreateLogger();
+
             services.AddLogging(loggingBuilder =>
             {
                 loggingBuilder.ClearProviders();
-
-                var logger = new LoggerConfiguration()
-                    .MinimumLevel.Information()
-                    .WriteTo.Console()
-                    .CreateLogger();
-                
                 loggingBuilder.AddSerilog(logger);
             });
 
             // Add JWT and Steam
             services.AddMomentumAuthentication(Configuration);
             services.AddMomentumAuthorization();
-            
+
             // Register each modules DI
             foreach (var module in _modules)
             {
                 module.ConfigureServices(services, Configuration);
             }
-            
+
             // Add global dependencies
             services.AddHttpContextAccessor();
             services.AddScoped<ICurrentUserService, CurrentUserService>();
-            services.AddSingleton<HttpClient>();
-            
+
+            if (_webHostEnvironment.IsDevelopment())
+            {
+                // Get the raw requests/responses in dev
+                services.AddSingleton(new HttpClient(new HttpLoggingHandler(new HttpClientHandler(), logger)));
+            }
+            else
+            {
+                services.AddSingleton<HttpClient>();
+            }
+
             // Add MediatR and register the requests/handlers from all modules
             services.AddMediatR(_applicationLayerAssemblies);
 
@@ -106,7 +118,7 @@ namespace Momentum.Gateway.Api
             {
                 ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto
             });
-            
+
             app.UseSwagger();
             app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "Momentum.Gateway.Api v1"));
 
