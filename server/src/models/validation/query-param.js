@@ -9,5 +9,5 @@ module.exports = {
 	priority: Joi.boolean(),
 	status: Joi.string().regex(/[0-9,]*/), // should probably be moved out to somewhere else? change to statusIn?
 	playerIDs: Joi.string().regex(/[0-9,]*/),
-	order: Joi.string().valid("date", "time").required(), // Should this be moved somewhere else? Should it accept more than just date and time?
+	order: Joi.string().valid('date', 'time').required(), // Should this be moved somewhere else? Should it accept more than just date and time?
 };
