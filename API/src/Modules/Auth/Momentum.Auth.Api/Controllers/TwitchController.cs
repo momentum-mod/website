@@ -3,19 +3,19 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace Momentum.Auth.Api.Controllers
 {
-    [Route("auth/twitter")]
+    [Route("auth/twitch")]
     [ApiController]
-    public class TwitterController : Controller
+    public class TwitchController : Controller
     {
-        [Authorize(AuthenticationSchemes = "Twitter", Policy = "RequireNothing")]
+        [Authorize(AuthenticationSchemes = "Twitch", Policy = "RequireNothing")]
         [HttpGet]
         public IActionResult SignIn()
         {
             if (User.Identity == null ||
                 !User.Identity.IsAuthenticated)
-                return Challenge("Twitter");
+                return Challenge("Twitch");
 
-            // Twitter auth is opened in a new window,
+            // Twitch auth is opened in a new window,
             // and the client waits till the window is closed before continuing
             return Ok("<script>window.close();</script>");
         }
