@@ -734,7 +734,7 @@ module.exports = {
 			queryOptions.include.push({
 				model: Map,
 				as: 'map',
-				where: { name: {[Op.startsWith]: queryParams.mapName} }
+				where: { name: {[Op.like]: '%' + queryParams.mapName + '%'} }
 			});
 		}
 		queryHelper.addExpansions(queryOptions, queryParams.expand, ['map', 'mapWithInfo']);
