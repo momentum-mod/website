@@ -61,9 +61,9 @@ export class ProfileRunHistoryComponent implements OnInit {
     this.usersService.getRunHistory(this.user.id, {
       params: {
         expand: 'map',
-        mapName: this.filterFG.value.map,
-        isPB: this.filterFG.value.isPersonalBest,
-        order: this.filterFG.value.order,
+        mapName: this.currentFilter.map,
+        isPB: this.currentFilter.isPersonalBest,
+        order: this.currentFilter.order,
         limit: this.pageLimit,
         offset: (this.currentPage - 1) * this.pageLimit,
       },
@@ -83,8 +83,8 @@ export class ProfileRunHistoryComponent implements OnInit {
     // Some destructuring to shorten the upcoming if statement
     const { isPersonalBest, map, order } = this.filterFG.value;
     if ( // Don't do anything if the filters didn't change
-      this.currentFilter.isPersonalBest === isPersonalBest ||
-      this.currentFilter.map === map ||
+      this.currentFilter.isPersonalBest === isPersonalBest &&
+      this.currentFilter.map === map &&
       this.currentFilter.order === order
     )
       return;
