@@ -8,6 +8,7 @@ ProjectSection(SolutionItems) = preProject
 	docker-compose.yml = docker-compose.yml
 	LICENSE.md = LICENSE.md
 	README.md = README.md
+	nginx.conf = nginx.conf
 EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "API", "API", "{23923546-58C5-4AAD-8A23-DBE771989B72}"
