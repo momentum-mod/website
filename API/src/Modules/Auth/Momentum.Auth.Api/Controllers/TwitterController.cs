@@ -30,7 +30,7 @@ namespace Momentum.Auth.Api.Controllers
 
         [Authorize(AuthenticationSchemes = "Twitter", Policy = "RequireNothing")]
         [HttpGet]
-        public async Task<IActionResult> SignInAsync()
+        public IActionResult SignIn()
         {
             if (User.Identity == null ||
                 !User.Identity.IsAuthenticated)
