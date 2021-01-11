@@ -10,8 +10,6 @@ namespace Momentum.Auth.Application.Commands
     public class CreateOrUpdateUserTwitterCommand : IRequest
     {
         public string DisplayName { get; set; }
-        public string OAuthKey { get; set; }
-        public string OAuthSecret { get; set; }
     }
 
     public class CreateOrUpdateUserTwitterCommandHandler : IRequestHandler<CreateOrUpdateUserTwitterCommand>
@@ -44,7 +42,7 @@ namespace Momentum.Auth.Application.Commands
             {
                 await _userTwitterRepository.Update(userTwitter);
             }
-            
+
             return Unit.Value;
         }
     }

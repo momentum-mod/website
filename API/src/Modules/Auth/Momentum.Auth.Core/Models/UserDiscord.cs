@@ -8,7 +8,5 @@ namespace Momentum.Auth.Core.Models
         public Guid UserId { get; set; }
         public ulong DiscordId { get; set; }
         public string DisplayName { get; set; }
-        public string AccessToken { get; set; }
-        public string RefreshToken { get; set; }
     }
 }

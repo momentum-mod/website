@@ -13,10 +13,8 @@ namespace Momentum.Auth.Application.Commands
     {
         public ulong DiscordId { get; set; }
         public string DisplayName { get; set; }
-        public string AccessToken { get; set; }
-        public string RefreshToken { get; set; }
     }
-    
+
     public class CreateOrUpdateUserDiscordCommandHandler : IRequestHandler<CreateOrUpdateUserDiscordCommand>
     {
         private readonly IMapper _mapper;
@@ -35,7 +33,7 @@ namespace Momentum.Auth.Application.Commands
             var userId = _currentUserService.GetUserId();
 
             var existingItem = await _userDiscordRepository.GetByUserId(userId);
-            
+
             var userDiscord = _mapper.Map(request, existingItem);
             userDiscord.UserId = userId;
 
@@ -47,7 +45,7 @@ namespace Momentum.Auth.Application.Commands
             {
                 await _userDiscordRepository.Update(userDiscord);
             }
-            
+
             return Unit.Value;
         }
     }
