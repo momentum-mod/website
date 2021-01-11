@@ -90,7 +90,15 @@ namespace Momentum.Framework.Application.Services
             var authorizationHeader = _httpContext.Request.Headers[HeaderNames.Authorization]
                 .ToString();
             var bearerToken = authorizationHeader.Replace("Bearer ", "");
-            return bearerToken;
+
+            if (!string.IsNullOrWhiteSpace(bearerToken)) return bearerToken;
+            
+            // No authorization header, check if it is in a query parameter '?jwt=...'
+            var jwtQuery = _httpContext.Request.Query.SingleOrDefault(x => x.Key == "jwt");
+            
+            // No null value for KVP<,>, check against `default`
+            return jwtQuery.Equals(default) ? null : jwtQuery.Value.ToString();
+
         }
 
         public RolesDto GetRolesFromToken()
