@@ -116,18 +116,6 @@ namespace Momentum.Gateway.Api
 
             if (env.IsDevelopment())
             {
-                // In dev, log user's claims
-                app.Use((context, next) =>
-                {
-                    var loggerFactory = app.ApplicationServices.GetRequiredService<ILoggerFactory>();
-                    var logger = loggerFactory.CreateLogger("Debug Middleware");
-                    
-                    logger.LogDebug("User Identity: " + JsonSerializer.Serialize(context.User.Identity));
-                    logger.LogDebug("User Claims: " + JsonSerializer.Serialize(context.User.Claims));
-
-                    return next();
-                });
-                
                 app.UseDeveloperExceptionPage();
             }
 
@@ -142,6 +130,22 @@ namespace Momentum.Gateway.Api
             app.UseRouting();
 
             app.UseAuthentication();
+
+            if (env.IsDevelopment())
+            {
+                // In dev, log user's claims
+                app.Use((context, next) =>
+                {
+                    var loggerFactory = app.ApplicationServices.GetRequiredService<ILoggerFactory>();
+                    var logger = loggerFactory.CreateLogger("Debug Middleware");
+
+                    logger.LogDebug("User Identity: " + JsonSerializer.Serialize(context.User.Identity));
+                    logger.LogDebug("User Claims: " + JsonSerializer.Serialize(context.User.Claims));
+
+                    return next();
+                });
+            }
+
             app.UseAuthorization();
 
             app.UseEndpoints(endpoints =>
