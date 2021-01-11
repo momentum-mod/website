@@ -130,7 +130,8 @@ namespace Momentum.Gateway.Api
             app.UseRouting();
 
             app.UseAuthentication();
-
+            app.UseAuthorization();
+            
             if (env.IsDevelopment())
             {
                 // In dev, log user's claims
@@ -145,8 +146,6 @@ namespace Momentum.Gateway.Api
                     return next();
                 });
             }
-
-            app.UseAuthorization();
 
             app.UseEndpoints(endpoints =>
             {
