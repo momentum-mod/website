@@ -16,6 +16,9 @@ namespace Momentum.Users.Application.AutoMapping
             
             CreateMap<Bans, BansDto>();
             CreateMap<BansDto, Bans>();
+
+            CreateMap<UserProfile, UserProfileDto>();
+            CreateMap<UserProfileDto, UserProfile>();
         }
     }
 }

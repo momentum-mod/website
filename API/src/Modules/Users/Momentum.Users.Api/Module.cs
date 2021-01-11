@@ -11,6 +11,7 @@ namespace Momentum.Users.Api
         public void ConfigureServices(IServiceCollection services, IConfiguration configuration)
         {
             services.AddSingleton<IUserRepository, UserRepository>();
+            services.AddSingleton<IUserProfileRepository, UserProfileRepository>();
         }
     }
 }

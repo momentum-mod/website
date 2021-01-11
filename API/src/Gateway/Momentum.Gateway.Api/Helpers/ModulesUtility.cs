@@ -1,5 +1,7 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using System.Reflection;
+using Baseline;
 using Microsoft.Extensions.DependencyInjection;
 using Momentum.Auth.Application.Commands;
 using Momentum.Auth.Infrastructure;
@@ -24,6 +26,9 @@ namespace Momentum.Gateway.Api.Helpers
                 // User
                 typeof(GetOrCreateNewUserCommand).GetTypeInfo().Assembly
             };
+
+        public static IEnumerable<Assembly> GetApiLayerAssemblies()
+            => GetModules().Select(module => module.GetType().Assembly);
 
         public static IEnumerable<IMartenInitializer> GetMartenInitializers()
             => new IMartenInitializer[]

@@ -3,6 +3,7 @@ using System.Linq;
 using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
+using AutoMapper;
 using Baseline;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
@@ -12,6 +13,7 @@ using Momentum.Auth.Api.Services;
 using Momentum.Auth.Api.ViewModels;
 using Momentum.Auth.Application.Queries;
 using Momentum.Users.Application.Commands;
+using Momentum.Users.Application.Queries;
 
 namespace Momentum.Auth.Api.Controllers
 {
@@ -21,11 +23,13 @@ namespace Momentum.Auth.Api.Controllers
     {
         private readonly SteamService _steamService;
         private readonly IMediator _mediator;
+        private readonly IMapper _mapper;
 
-        public SteamController(SteamService steamService, IMediator mediator)
+        public SteamController(SteamService steamService, IMediator mediator, IMapper mapper)
         {
             _steamService = steamService;
             _mediator = mediator;
+            _mapper = mapper;
         }
 
         [Authorize(AuthenticationSchemes = "Steam", Policy = "RequireNothing")]
@@ -43,7 +47,17 @@ namespace Momentum.Auth.Api.Controllers
                 BuildUserDto = async () => await _steamService.BuildUserFromProfile(),
                 EnsureSteamUserPermittedToCreateProfile = async () => await _steamService.EnsurePremiumAccountWithProfile()
             });
-                
+
+            var userProfile = await _mediator.Send(new GetUserProfileQuery
+            {
+                UserId = user.Id
+            });
+
+            var userSocials = await _mediator.Send(new GetUserSocialsQuery
+            {
+                UserId = user.Id
+            });
+
             var refreshToken = await _mediator.Send(new GetOrCreateRefreshTokenQuery
             {
                 UserId = user.Id
@@ -54,9 +68,15 @@ namespace Momentum.Auth.Api.Controllers
                 RefreshToken = refreshToken
             });
 
+            var userViewModel = _mapper.Map<UserViewModel>(user);
+            _mapper.Map(userProfile, userViewModel.Profile);
+            _mapper.Map(userSocials.UserDiscord, userViewModel.Profile.DiscordAuth);
+            _mapper.Map(userSocials.UserTwitch, userViewModel.Profile.TwitchAuth);
+            _mapper.Map(userSocials.UserTwitter, userViewModel.Profile.TwitterAuth);
+
             Response.Cookies.Append("accessToken", accessToken);
             Response.Cookies.Append("refreshToken", refreshToken);
-            Response.Cookies.Append("user", JsonSerializer.Serialize(user));
+            Response.Cookies.Append("user", JsonSerializer.Serialize(userViewModel));
 
             var refererUrl = Request.GetTypedHeaders().Referer;
             if (refererUrl != null)

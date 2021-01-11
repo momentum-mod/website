@@ -3,6 +3,7 @@ using System.Net.Http;
 using System.Reflection;
 using System.Text.Json;
 using AutoMapper;
+using Baseline;
 using Marten;
 using MediatR;
 using Microsoft.AspNetCore.Builder;
@@ -86,7 +87,7 @@ namespace Momentum.Gateway.Api
             // Add MediatR and register the requests/handlers from all modules
             services.AddMediatR(_applicationLayerAssemblies);
 
-            services.AddAutoMapper(_applicationLayerAssemblies);
+            services.AddAutoMapper(_applicationLayerAssemblies.AddRange(ModulesUtility.GetApiLayerAssemblies()));
 
             services.AddMarten(options =>
             {
