@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
 using System.Reflection;
@@ -87,7 +88,10 @@ namespace Momentum.Gateway.Api
             // Add MediatR and register the requests/handlers from all modules
             services.AddMediatR(_applicationLayerAssemblies);
 
-            services.AddAutoMapper(_applicationLayerAssemblies.AddRange(ModulesUtility.GetApiLayerAssemblies()));
+            var autoMapperAssemblies = new List<Assembly>();
+            autoMapperAssemblies.AddRange(_applicationLayerAssemblies);
+            autoMapperAssemblies.AddRange(ModulesUtility.GetApiLayerAssemblies());
+            services.AddAutoMapper(autoMapperAssemblies);
 
             services.AddMarten(options =>
             {
