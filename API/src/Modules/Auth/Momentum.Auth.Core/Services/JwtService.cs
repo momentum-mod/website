@@ -12,7 +12,7 @@ using Momentum.Auth.Core.Exceptions;
 using Momentum.Auth.Core.Models;
 using Momentum.Auth.Core.Repositories;
 using Momentum.Users.Application.DTOs;
-using Momentum.Users.Application.Requests;
+using Momentum.Users.Application.Queries;
 
 namespace Momentum.Auth.Core.Services
 {

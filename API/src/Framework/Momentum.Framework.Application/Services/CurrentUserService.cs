@@ -9,7 +9,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.Net.Http.Headers;
 using Momentum.Auth.Core.Services;
 using Momentum.Users.Application.DTOs;
-using Momentum.Users.Application.Requests;
+using Momentum.Users.Application.Queries;
 
 namespace Momentum.Framework.Application.Services
 {

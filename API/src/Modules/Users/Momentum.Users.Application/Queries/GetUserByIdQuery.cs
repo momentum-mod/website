@@ -6,7 +6,7 @@ using MediatR;
 using Momentum.Users.Application.DTOs;
 using Momentum.Users.Core.Repositories;
 
-namespace Momentum.Users.Application.Requests
+namespace Momentum.Users.Application.Queries
 {
     public class GetUserByIdQuery : IRequest<UserDto>
     {
