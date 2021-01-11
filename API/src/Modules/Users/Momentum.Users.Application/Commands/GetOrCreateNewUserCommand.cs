@@ -20,11 +20,13 @@ namespace Momentum.Users.Application.Commands
     {
         private readonly IMapper _mapper;
         private readonly IUserRepository _userRepository;
+        private readonly IUserProfileRepository _userProfileRepository;
 
-        public GetOrCreateNewUserCommandHandler(IMapper mapper, IUserRepository userRepository)
+        public GetOrCreateNewUserCommandHandler(IMapper mapper, IUserRepository userRepository, IUserProfileRepository userProfileRepository)
         {
             _mapper = mapper;
             _userRepository = userRepository;
+            _userProfileRepository = userProfileRepository;
         }
 
         public async Task<UserDto> Handle(GetOrCreateNewUserCommand request, CancellationToken cancellationToken)
@@ -43,6 +45,12 @@ namespace Momentum.Users.Application.Commands
                 
                 user = _mapper.Map<User>(await request.BuildUserDto.Invoke());
                 await _userRepository.Add(user);
+                
+                // Now setup additional documents related to a user
+                await _userProfileRepository.Add(new UserProfile
+                {
+                    UserId = user.Id
+                });
             }
             else
             {
