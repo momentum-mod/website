@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Text.Json.Serialization;
 
-namespace Momentum.Auth.Api.ViewModels
+namespace Momentum.Users.Api.ViewModels
 {
     public class UserProfileViewModel
     {

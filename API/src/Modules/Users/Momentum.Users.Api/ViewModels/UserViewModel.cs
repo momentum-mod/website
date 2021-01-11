@@ -1,10 +1,8 @@
 ﻿using System;
 using System.Text.Json.Serialization;
-using AutoMapper;
-using Momentum.Auth.Application.DTOs;
 using Momentum.Users.Application.DTOs;
 
-namespace Momentum.Auth.Api.ViewModels
+namespace Momentum.Users.Api.ViewModels
 {
     public class UserViewModel
     {

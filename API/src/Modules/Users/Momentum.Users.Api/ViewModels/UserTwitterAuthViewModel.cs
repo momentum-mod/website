@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Text.Json.Serialization;
 
-namespace Momentum.Auth.Api.ViewModels
+namespace Momentum.Users.Api.ViewModels
 {
-    public class UserDiscordAuthViewModel
+    public class UserTwitterAuthViewModel
     {
         [JsonPropertyName("createdAt")]
         public DateTime CreatedAt { get; set; }
@@ -13,8 +13,6 @@ namespace Momentum.Auth.Api.ViewModels
         [JsonPropertyName("id")]
         public Guid UserId { get; set; }
         
-        [JsonPropertyName("discordID")]
-        public ulong DiscordId { get; set; }
         [JsonPropertyName("displayName")]
         public string DisplayName { get; set; }
     }
