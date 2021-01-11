@@ -10,6 +10,6 @@ namespace Momentum.Auth.Infrastructure.Repositories
     public class RefreshTokenRepository : GenericTimeTrackedRepository<UserRefreshToken>, IRefreshTokenRepository
     {
         public RefreshTokenRepository(IDocumentStore store) : base(store) { }
-        public async Task<UserRefreshToken> GetByUserId(Guid userId) => await GetSingleAsync(x => x.UserId == userId);
+        public async Task<UserRefreshToken> GetByUserId(Guid userId) => await GetSingleOrDefaultAsync(x => x.UserId == userId);
     }
 }

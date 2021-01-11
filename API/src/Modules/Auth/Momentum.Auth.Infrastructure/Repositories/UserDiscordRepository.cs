@@ -12,6 +12,6 @@ namespace Momentum.Auth.Infrastructure.Repositories
     {
         public UserDiscordRepository(IDocumentStore store) : base(store) { }
 
-        public async Task<UserDiscord> GetByUserId(Guid userId) => await GetSingleAsync(x => x.UserId == userId);
+        public async Task<UserDiscord> GetByUserId(Guid userId) => await GetSingleOrDefaultAsync(x => x.UserId == userId);
     }
 }

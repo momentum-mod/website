@@ -11,6 +11,6 @@ namespace Momentum.Auth.Infrastructure.Repositories
     {
         public UserTwitterRepository(IDocumentStore store) : base(store) { }
 
-        public async Task<UserTwitter> GetByUserId(Guid userId) => await GetSingleAsync(x => x.UserId == userId);
+        public async Task<UserTwitter> GetByUserId(Guid userId) => await GetSingleOrDefaultAsync(x => x.UserId == userId);
     }
 }

@@ -50,7 +50,7 @@ namespace Momentum.Framework.Infrastructure.Repositories
             await session.SaveChangesAsync();
         }
 
-        protected async Task<T> GetSingleAsync(Expression<Func<T, bool>> singleMatchExpression)
+        protected async Task<T> GetSingleOrDefaultAsync(Expression<Func<T, bool>> singleMatchExpression)
         {
             using var session = Store.QuerySession();
 
