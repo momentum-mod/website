@@ -78,6 +78,13 @@ namespace Momentum.Framework.Application.Services
             return claims;
         }
 
+        public Claim GetClaim(string claimType)
+        {
+            var claims = GetClaims();
+
+            return claims.FirstOrDefault(x => x.Type == claimType);
+        }
+
         public string GetBearerToken()
         {
             var authorizationHeader = _httpContext.Request.Headers[HeaderNames.Authorization]

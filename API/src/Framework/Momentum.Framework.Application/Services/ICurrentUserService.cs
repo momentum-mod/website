@@ -11,6 +11,7 @@ namespace Momentum.Framework.Application.Services
         Guid GetUserId();
         Task<UserDto> GetUser();
         List<Claim> GetClaims();
+        Claim GetClaim(string claimType);
         string GetBearerToken();
         RolesDto GetRolesFromToken();
         bool HasRole(RolesDto role);
