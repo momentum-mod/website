@@ -712,7 +712,7 @@ module.exports = {
 					required: queryParams.isPB || false,
 				},
 			],
-			order: [['createdAt', 'DESC']],
+			order: [[sequelize.literal('ticks * tickRate'), 'ASC']],
 		};
 		if (queryParams.limit)
 			queryOptions.limit = queryParams.limit;
@@ -727,8 +727,8 @@ module.exports = {
 		if (queryParams.flags)
 			queryOptions.where.flags = parseInt(queryParams.flags) || 0;
 		if (queryParams.order) {
-			if (queryParams.order === 'time')
-				queryOptions.order = [[sequelize.literal('ticks * tickRate'), 'ASC']];
+			if (queryParams.order === 'date')
+				queryOptions.order =  [['createdAt', 'DESC']];
 		}
 		if (queryParams.mapName) {
 			queryOptions.include.push({
