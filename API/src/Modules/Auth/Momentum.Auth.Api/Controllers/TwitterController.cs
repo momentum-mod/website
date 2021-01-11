@@ -1,4 +1,5 @@
-﻿using System.Security.Claims;
+﻿using System.Linq;
+using System.Security.Claims;
 using System.Threading.Tasks;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
@@ -30,7 +31,7 @@ namespace Momentum.Auth.Api.Controllers
 
             await _mediator.Send(new CreateOrUpdateUserTwitterCommand
             {
-                DisplayName = _currentUserService.GetClaim(ClaimTypes.Name).Value
+                DisplayName = User.Claims.First(x => x.Type == ClaimTypes.Name).Value
             });
 
             // Twitter auth is opened in a new window,

@@ -119,7 +119,8 @@ namespace Momentum.Gateway.Api
                 // In dev, log user's claims
                 app.Use((context, next) =>
                 {
-                    var logger = app.ApplicationServices.GetRequiredService<Microsoft.Extensions.Logging.ILogger>();
+                    var loggerFactory = app.ApplicationServices.GetRequiredService<ILoggerFactory>();
+                    var logger = loggerFactory.CreateLogger("Debug Middleware");
                     
                     logger.LogDebug("User Identity: " + JsonSerializer.Serialize(context.User.Identity));
                     logger.LogDebug("User Claims: " + JsonSerializer.Serialize(context.User.Claims));
