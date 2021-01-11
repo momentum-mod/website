@@ -69,21 +69,21 @@ namespace Momentum.Auth.Api.Controllers
             });
 
             var userViewModel = _mapper.Map<UserViewModel>(user);
-            _mapper.Map(userProfile, userViewModel.Profile);
+            userViewModel.Profile = _mapper.Map<UserProfileViewModel>(userProfile);
             
             if (userSocials.UserDiscord != null)
             {
-                _mapper.Map(userSocials.UserDiscord, userViewModel.Profile.DiscordAuth);
+                userViewModel.Profile.DiscordAuth = _mapper.Map<UserDiscordAuthViewModel>(userSocials.UserDiscord);
             }
 
             if (userSocials.UserTwitch != null)
             {
-                _mapper.Map(userSocials.UserTwitch, userViewModel.Profile.TwitchAuth);
+                userViewModel.Profile.TwitchAuth = _mapper.Map<UserTwitchAuthViewModel>(userSocials.UserTwitch);
             }
 
             if (userSocials.UserTwitter != null)
             {
-                _mapper.Map(userSocials.UserTwitter, userViewModel.Profile.TwitterAuth);
+                userViewModel.Profile.TwitterAuth = _mapper.Map<UserTwitterAuthViewModel>(userSocials.UserTwitter);
             }
 
             Response.Cookies.Append("accessToken", accessToken);
