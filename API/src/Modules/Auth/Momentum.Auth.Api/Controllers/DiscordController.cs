@@ -37,7 +37,7 @@ namespace Momentum.Auth.Api.Controllers
 
             // Discord auth is opened in a new window,
             // and the client waits till the window is closed before continuing
-            return Ok("<script>window.close();</script>");
+            return Content("<script language='javascript' type='text/javascript'>window.close();</script>");
         }
     }
 }
