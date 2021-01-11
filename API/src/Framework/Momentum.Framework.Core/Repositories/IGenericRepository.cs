@@ -2,10 +2,10 @@
 
 namespace Momentum.Framework.Core.Repositories
 {
-    public interface IGenericRepository<in T> where T : class
+    public interface IGenericRepository<T> where T : class
     {
-        public Task Add(T model);
-        public Task Update(T model);
+        public Task<T> Add(T model);
+        public Task<T> Update(T model);
         public Task Delete(T model);
     }
 }

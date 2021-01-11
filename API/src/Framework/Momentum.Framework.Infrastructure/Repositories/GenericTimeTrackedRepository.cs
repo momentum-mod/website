@@ -18,7 +18,7 @@ namespace Momentum.Framework.Infrastructure.Repositories
             Store = store;
         }
         
-        public async Task Add(T model)
+        public async Task<T> Add(T model)
         {
             model.CreatedAt = DateTime.UtcNow;
             model.UpdatedAt = null;
@@ -28,9 +28,11 @@ namespace Momentum.Framework.Infrastructure.Repositories
             session.Insert(model);
 
             await session.SaveChangesAsync();
+
+            return model;
         }
 
-        public async Task Update(T model)
+        public async Task<T> Update(T model)
         {
             model.UpdatedAt = DateTime.UtcNow;
 
@@ -39,6 +41,8 @@ namespace Momentum.Framework.Infrastructure.Repositories
             session.Update(model);
 
             await session.SaveChangesAsync();
+
+            return model;
         }
 
         public async Task Delete(T model)

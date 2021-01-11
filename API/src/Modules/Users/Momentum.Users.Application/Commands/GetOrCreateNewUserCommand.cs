@@ -44,7 +44,7 @@ namespace Momentum.Users.Application.Commands
                 await request.EnsureSteamUserPermittedToCreateProfile.Invoke();
                 
                 user = _mapper.Map<User>(await request.BuildUserDto.Invoke());
-                await _userRepository.Add(user);
+                user = await _userRepository.Add(user);
                 
                 // Now setup additional documents related to a user
                 await _userProfileRepository.Add(new UserProfile
@@ -61,7 +61,7 @@ namespace Momentum.Users.Application.Commands
                 user.Avatar = updatedSteamUser.Avatar;
                 user.Country = updatedSteamUser.Country;
                 
-                await _userRepository.Update(user);
+                user = await _userRepository.Update(user);
             }
 
             return _mapper.Map<UserDto>(user);
