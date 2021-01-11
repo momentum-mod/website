@@ -12,6 +12,7 @@ using Microsoft.AspNetCore.Mvc;
 using Momentum.Auth.Api.Services;
 using Momentum.Auth.Api.ViewModels;
 using Momentum.Auth.Application.Queries;
+using Momentum.Users.Api.ViewModels;
 using Momentum.Users.Application.Commands;
 using Momentum.Users.Application.Queries;
 
