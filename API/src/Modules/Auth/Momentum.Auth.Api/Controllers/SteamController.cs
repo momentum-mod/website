@@ -70,9 +70,21 @@ namespace Momentum.Auth.Api.Controllers
 
             var userViewModel = _mapper.Map<UserViewModel>(user);
             _mapper.Map(userProfile, userViewModel.Profile);
-            _mapper.Map(userSocials.UserDiscord, userViewModel.Profile.DiscordAuth);
-            _mapper.Map(userSocials.UserTwitch, userViewModel.Profile.TwitchAuth);
-            _mapper.Map(userSocials.UserTwitter, userViewModel.Profile.TwitterAuth);
+
+            if (userSocials.UserDiscord != null)
+            {
+                _mapper.Map(userSocials.UserDiscord, userViewModel.Profile.DiscordAuth);
+            }
+
+            if (userSocials.UserTwitch != null)
+            {
+                _mapper.Map(userSocials.UserTwitch, userViewModel.Profile.TwitchAuth);
+            }
+
+            if (userSocials.UserTwitter != null)
+            {
+                _mapper.Map(userSocials.UserTwitter, userViewModel.Profile.TwitterAuth);
+            }
 
             Response.Cookies.Append("accessToken", accessToken);
             Response.Cookies.Append("refreshToken", refreshToken);
