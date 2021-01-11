@@ -18,7 +18,6 @@ using Momentum.Framework.Core.DependencyInjection;
 using Momentum.Framework.Core.Models;
 using Momentum.Gateway.Api.Helpers;
 using Serilog;
-using IHostingEnvironment = Microsoft.AspNetCore.Hosting.IHostingEnvironment;
 
 namespace Momentum.Gateway.Api
 {
@@ -141,7 +140,7 @@ namespace Momentum.Gateway.Api
                     var logger = loggerFactory.CreateLogger("Debug Middleware");
 
                     logger.LogDebug("User Identity: " + JsonSerializer.Serialize(context.User.Identity));
-                    logger.LogDebug("User Claims: " + JsonSerializer.Serialize(context.User.Claims));
+                    logger.LogDebug("User Claims: " + JsonSerializer.Serialize(context.User.Claims.Select(x => $"Type: {x.Type}, Value: {x.Value}")));
 
                     return next();
                 });

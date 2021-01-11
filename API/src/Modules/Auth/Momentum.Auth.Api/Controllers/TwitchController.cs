@@ -1,6 +1,7 @@
 ﻿using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
+using AspNet.Security.OAuth.Twitch;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -31,7 +32,7 @@ namespace Momentum.Auth.Api.Controllers
 
             await _mediator.Send(new CreateOrUpdateUserTwitchCommand
             {
-                DisplayName = User.Identity.Name,
+                DisplayName = User.Claims.First(x => x.Type == TwitchAuthenticationConstants.Claims.DisplayName).Value,
                 TwitchId = int.Parse(User.Claims.First(x => x.Type == ClaimTypes.NameIdentifier).Value)
             });
 
