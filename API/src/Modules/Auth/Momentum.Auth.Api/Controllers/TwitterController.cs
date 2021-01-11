@@ -30,7 +30,7 @@ namespace Momentum.Auth.Api.Controllers
 
             await _mediator.Send(new CreateOrUpdateUserTwitterCommand
             {
-                DisplayName = _currentUserService.GetClaim(ClaimTypes.NameIdentifier).Value
+                DisplayName = _currentUserService.GetClaim(ClaimTypes.Name).Value
             });
 
             // Twitter auth is opened in a new window,

@@ -1,9 +1,12 @@
 ﻿using System.Linq;
+using System.Security.Claims;
 using System.Threading.Tasks;
+using AspNet.Security.OAuth.Discord;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Momentum.Auth.Application.Commands;
+using Momentum.Auth.Core.Models;
 
 namespace Momentum.Auth.Api.Controllers
 {
@@ -25,11 +28,11 @@ namespace Momentum.Auth.Api.Controllers
             if (User.Identity == null ||
                 !User.Identity.IsAuthenticated)
                 return Challenge("Discord");
-
+            
             await _mediator.Send(new CreateOrUpdateUserDiscordCommand
             {
                 DisplayName = User.Identity.Name,
-                DiscordId = User.Claims.First(x => x.Type == DiscordAuthenticationConstants)
+                DiscordId = ulong.Parse(User.Claims.First(x => x.Type == ClaimTypes.NameIdentifier).Value)
             });
 
             // Discord auth is opened in a new window,
