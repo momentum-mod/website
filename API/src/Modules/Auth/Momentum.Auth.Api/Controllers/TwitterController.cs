@@ -1,5 +1,6 @@
 ﻿using System.Linq;
 using System.Security.Claims;
+using System.Text;
 using System.Threading.Tasks;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
@@ -36,7 +37,7 @@ namespace Momentum.Auth.Api.Controllers
 
             // Twitter auth is opened in a new window,
             // and the client waits till the window is closed before continuing
-            return Content("<script language='javascript' type='text/javascript'>window.close();</script>");
+            return Content("<script>window.close();</script>", "text/html");
         }
     }
 }
