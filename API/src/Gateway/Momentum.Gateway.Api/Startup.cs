@@ -1,6 +1,7 @@
 using System.Linq;
 using System.Net.Http;
 using System.Reflection;
+using System.Text.Json;
 using AutoMapper;
 using Marten;
 using MediatR;
@@ -115,6 +116,17 @@ namespace Momentum.Gateway.Api
 
             if (env.IsDevelopment())
             {
+                // In dev, log user's claims
+                app.Use((context, next) =>
+                {
+                    var logger = app.ApplicationServices.GetRequiredService<Microsoft.Extensions.Logging.ILogger>();
+                    
+                    logger.LogDebug("User Identity: " + JsonSerializer.Serialize(context.User.Identity));
+                    logger.LogDebug("User Claims: " + JsonSerializer.Serialize(context.User.Claims));
+
+                    return next();
+                });
+                
                 app.UseDeveloperExceptionPage();
             }
 
