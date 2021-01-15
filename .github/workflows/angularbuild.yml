@@ -1,0 +1,34 @@
+name: AngularBuild 
+on:
+  # Trigger the workflow on push or pull request,
+  # but only for the staging branch
+  push:
+    branches:
+      - staging
+  pull_request:
+    branches:
+      - staging
+jobs: 
+  build:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node-version: [12.x]
+    steps:
+      - uses: actions/checkout@v2
+      - uses: bahmutov/npm-install@v1
+        with: 
+          working-directory: ./client
+      - name: Node ${{ matrix.node-version }}
+        uses: actions/setup-node@v1
+        with:
+          node-version: ${{ matrix.node-version }}
+      - name: npm install and npm run build
+        run: |
+          cd ./client
+          npm install -g @angular/cli && yarn install
+          npm run build:prod
+      - uses: actions/upload-artifact@v2
+        with:
+          name: ClientBuild
+          path: ./client/dist/
