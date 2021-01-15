@@ -29,7 +29,7 @@
           </g>
         </svg>
       </div>
-      <img width="100%" class="gamemode-icon" [ngClass]="{'selected': (this.gameModeIndex == i)}"
+      <img class="gamemode-icon" [ngClass]="{'selected': (this.gameModeIndex == i)}"
            [src]="gamemode.iconUrl"
            [alt]="gamemode.modeTitle"
            *ngIf="gameModeSectionVisible">
