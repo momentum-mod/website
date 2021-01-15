@@ -100,19 +100,8 @@
   transform: scaleX(-1);
   position: absolute;
   fill: none;
-  stroke: none;
 	top: 0;
 	left: 0;
-}
-
-.base-timer__circle {
-  fill: none;
-  stroke: none;
-}
-
-.base-timer__path-elapsed {
-  stroke-width: 4px;
-  stroke: transparent;
 }
 
 .base-timer__path-remaining {
