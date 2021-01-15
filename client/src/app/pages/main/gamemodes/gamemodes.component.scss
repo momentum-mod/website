@@ -10,9 +10,15 @@
 
 .gamemode {
   min-width: 50px;
+  padding-top: 15px;
+  padding-bottom: 15px;
 }
 
 .gamemode-icon {
+  width: 100%;
+  margin-left: auto;
+  margin-right: auto;
+  display: block;
   opacity: 0.25;
   transition: opacity 0.5s;
 }
@@ -41,7 +47,7 @@
   z-index: 1000;
   width: 55%;
   position: absolute;
-  top: -8px;
+  top: 5px;
   right: -8px;
   padding: 3px;
   transform: rotate(30deg);
@@ -84,24 +90,18 @@
 
 .base-timer {
   position: absolute;
-  top: -14px;
-  left: 4px;
-  width: 90px;
-  height: 90px;
+  width: 100%;
+  height: 100%;
+  margin-top: -15px;
+  margin-left: -15px;
 }
 
 .base-timer__svg {
   transform: scaleX(-1);
-}
-
-.base-timer__circle {
+  position: absolute;
   fill: none;
-  stroke: none;
-}
-
-.base-timer__path-elapsed {
-  stroke-width: 4px;
-  stroke: transparent;
+	top: 0;
+	left: 0;
 }
 
 .base-timer__path-remaining {
