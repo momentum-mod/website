@@ -72,7 +72,9 @@ module.exports = {
 
 	getRuns: (req, res, next) => {
 		req.query.playerID = req.params.userID;
-		req.query.order = 'date';
+		if (!req.query.order) {
+			req.query.order = 'date';
+		}
 		runMdl.getAll(req.query).then(result => {
 			res.json({
 				count: result.count,

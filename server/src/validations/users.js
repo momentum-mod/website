@@ -52,6 +52,9 @@ module.exports = {
 			limit: validation.queryParam.limit,
 			offset: validation.queryParam.offset,
 			expand: validation.queryParam.expand,
+			mapName: validation.queryParam.search,
+			isPB: validation.queryParam.priority,
+			order: validation.queryParam.order,
 		}),
 	},
 

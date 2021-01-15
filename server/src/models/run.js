@@ -697,7 +697,9 @@ module.exports = {
 	getAll: (queryParams) => {
 		const queryOptions = {
 			distinct: true,
-			where: { flags: 0 },
+			where: { 
+				flags: 0,
+			},
 			limit: 10,
 			include: [
 				{
@@ -707,10 +709,10 @@ module.exports = {
 					model: UserMapRank,
 					as: 'rank',
 					attributes: ['rank'],
-					required: false,
-				}
+					required: queryParams.isPB || false,
+				},
 			],
-			order: [['ticks', 'ASC']],
+			order: [[sequelize.literal('ticks * tickRate'), 'ASC']],
 		};
 		if (queryParams.limit)
 			queryOptions.limit = queryParams.limit;
@@ -726,7 +728,14 @@ module.exports = {
 			queryOptions.where.flags = parseInt(queryParams.flags) || 0;
 		if (queryParams.order) {
 			if (queryParams.order === 'date')
-				queryOptions.order = [['createdAt', 'DESC']];
+				queryOptions.order =  [['createdAt', 'DESC']];
+		}
+		if (queryParams.mapName) {
+			queryOptions.include.push({
+				model: Map,
+				as: 'map',
+				where: { name: {[Op.like]: '%' + queryParams.mapName + '%'} }
+			});
 		}
 		queryHelper.addExpansions(queryOptions, queryParams.expand, ['map', 'mapWithInfo']);
 		return Run.findAndCountAll(queryOptions);

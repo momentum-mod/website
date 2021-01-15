@@ -22,6 +22,11 @@ export class ProfileRunHistoryComponent implements OnInit {
   currentPage: number;
   runCount: number;
   showFilters: boolean;
+  currentFilter: {
+    isPersonalBest: boolean,
+    map: string,
+    order: string,
+  };
 
   filterFG: FormGroup = this.fb.group({
     'isPersonalBest': [false],
@@ -38,6 +43,11 @@ export class ProfileRunHistoryComponent implements OnInit {
     this.runCount = 0;
     this.showFilters = false;
     this.runHistory = [];
+    this.currentFilter = {
+      isPersonalBest: this.filterFG.value.isPersonalBest,
+      map: this.filterFG.value.map,
+      order: this.filterFG.value.order,
+    };
   }
 
   ngOnInit() {
@@ -46,10 +56,14 @@ export class ProfileRunHistoryComponent implements OnInit {
       this.loadRunHistory();
     });
   }
+
   loadRunHistory() {
     this.usersService.getRunHistory(this.user.id, {
       params: {
         expand: 'map',
+        mapName: this.currentFilter.map,
+        isPB: this.currentFilter.isPersonalBest,
+        order: this.currentFilter.order,
         limit: this.pageLimit,
         offset: (this.currentPage - 1) * this.pageLimit,
       },
@@ -62,6 +76,20 @@ export class ProfileRunHistoryComponent implements OnInit {
 
   onPageChange(pageNum: number) {
     this.currentPage = pageNum;
+    this.loadRunHistory();
+  }
+
+  onFilterApply() {
+    // Some destructuring to shorten the upcoming if statement
+    const { isPersonalBest, map, order } = this.filterFG.value;
+    if ( // Don't do anything if the filters didn't change
+      this.currentFilter.isPersonalBest === isPersonalBest &&
+      this.currentFilter.map === map &&
+      this.currentFilter.order === order
+    )
+      return;
+    this.currentFilter = { isPersonalBest, map, order };
+    this.currentPage = 1; // Reset page back to 1 so you don't potentially pull a page past the last filtered page
     this.loadRunHistory();
   }
 }
