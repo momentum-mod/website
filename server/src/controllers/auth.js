@@ -88,12 +88,11 @@ module.exports = {
 					ticket: userTicket
 				}
 			}).then((sres) => {
-				const params = sres.data.response.params;
-				if (!params)
-					res.sendStatus(400); // Bad request, it'll have an error object instead
+				if (sres.data.response.error)
+					res.sendStatus(400).json(sres.data.response.error); // Bad request, and pass the error object as reason
 
-				if (params.result === 'OK') {
-					if (idToVerify === params.steamid) {
+				if (sres.data.response.params.result === 'OK') {
+					if (idToVerify === sres.data.response.params.steamid) {
 						user.findOrCreateFromGame(idToVerify).then((usr) => {
 							auth.genAccessToken(usr, true).then(token => {
 								res.json({
