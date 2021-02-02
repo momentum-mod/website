@@ -1,4 +1,4 @@
-import {Component, Input, OnInit} from '@angular/core';
+import {Component, Input, OnInit, ɵAPP_ID_RANDOM_PROVIDER} from '@angular/core';
 import {MomentumMap} from '../../../../@core/models/momentum-map.model';
 import {FormBuilder, FormGroup} from '@angular/forms';
 import {MapsService} from '../../../../@core/data/maps.service';
@@ -8,6 +8,8 @@ import {ActivatedRoute, ParamMap, Router} from '@angular/router';
 import {LocalUserService} from '../../../../@core/data/local-user.service';
 import {Observable} from 'rxjs';
 import {NbLayoutScrollService, NbToastrService} from '@nebular/theme';
+import {MapUploadStatus} from '../../../../@core/models/map-upload-status.model';
+
 
 export enum MapListType {
   TYPE_BROWSE = 'browse',
@@ -25,7 +27,8 @@ export class MapListComponent implements OnInit {
 
   @Input('type') type: MapListType;
   mapListType = MapListType;
-
+  statusEnum = MapUploadStatus;
+  statusEnumValues = [];
   requestSent: boolean;
   mapCount: number;
   maps: MomentumMap[];
@@ -48,6 +51,11 @@ export class MapListComponent implements OnInit {
     this.requestSent = false;
     this.maps = [];
     this.mapCount = 0;
+
+    // Get enum int values and throw them into an array for iterating with ngFor
+    // Could do this with a pipe; maybe refactor if this sort of logic is needed elsewhere?
+    let values = Object.values(this.statusEnum);
+    this.statusEnumValues = values.slice(values.length / 2);
   }
 
   ngOnInit() {
@@ -135,5 +143,28 @@ export class MapListComponent implements OnInit {
       return true;
     else
       return m.favorites && m.favorites.length > 0;
+  }
+
+  formatStatusEnum(key: number) {
+    switch (key) {
+      case MapUploadStatus.APPROVED:
+        return 'Approved';
+      case MapUploadStatus.PENDING:
+        return 'Pending';
+      case MapUploadStatus.NEEDS_REVISION:
+        return 'Needs Revision';
+      case MapUploadStatus.PRIVATE_TESTING:
+        return 'Private Testing';
+      case MapUploadStatus.PUBLIC_TESTING:
+        return 'Public Testing';
+      case MapUploadStatus.READY_FOR_RELEASE:
+        return 'Ready for Release';
+      case MapUploadStatus.REJECTED:
+        return 'Rejected';
+      case MapUploadStatus.REMOVED:
+        return 'Removed';
+      default:
+        return this.statusEnum[key];
+    }
   }
 }

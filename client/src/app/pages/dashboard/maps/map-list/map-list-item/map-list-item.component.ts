@@ -21,6 +21,7 @@ export class MapListItemComponent implements OnInit {
   @Output() onFavoriteUpdate = new EventEmitter();
   mapInFavorites: boolean;
   mapInLibrary: boolean;
+  status: String;
 
   constructor(private localUserService: LocalUserService,
               private toastService: NbToastrService) {
@@ -28,11 +29,40 @@ export class MapListItemComponent implements OnInit {
     this.inFavorites = false;
     this.isUpload = false;
     this.map = null;
+    this.status = '';
   }
 
   ngOnInit() {
     this.mapInFavorites = this.inFavorites;
     this.mapInLibrary = this.inLibrary;
+    switch (this.map.statusFlag) {
+      case MapUploadStatus.APPROVED:
+        this.status = 'Approved';
+        break;
+      case MapUploadStatus.PENDING:
+        this.status = 'Pending';
+        break;
+      case MapUploadStatus.NEEDS_REVISION:
+        this.status = 'Needs Revision';
+        break;
+      case MapUploadStatus.PRIVATE_TESTING:
+        this.status = 'Private Testing';
+        break;
+      case MapUploadStatus.PUBLIC_TESTING:
+        this.status = 'Public Testing';
+        break;
+      case MapUploadStatus.READY_FOR_RELEASE:
+        this.status = 'Ready for Release';
+        break;
+      case MapUploadStatus.REJECTED:
+        this.status = 'Rejected';
+        break;
+      case MapUploadStatus.REMOVED:
+        this.status = 'Removed';
+        break;
+      default:
+        this.status = this.statusEnum[this.map.statusFlag];
+    }
   }
 
   toggleMapInFavorites() {
@@ -74,5 +104,4 @@ export class MapListItemComponent implements OnInit {
       });
     }
   }
-
 }

@@ -1,12 +1,26 @@
-<form class="mb-3" [formGroup]="searchOptions" (ngSubmit)="onPageChange(1)">
-  <!--TODO full filtering based on type of list-->
+<!-- <form class="mb-3" [formGroup]="searchOptions" (ngSubmit)="onPageChange(1)" *ngIf="type !== mapListType.TYPE_UPLOADS">
   <div class="input-group">
     <input nbInput type="text" class="form-control" placeholder="Search Maps..." formControlName="search">
     <button class="btn-dark" type="submit">
       <nb-icon icon="search"></nb-icon>
     </button>
   </div>
-</form>
+</form> -->
+<div class="container-fluid mb-3">
+  <div class="row align-items-center" [formGroup]="filterFG">
+    <div class="col-12 col-md col-lg-4">
+      <input nbInput fullWidth class="form-control" type="text" placeholder="Name" formControlName="name">
+    </div>
+    <div class="col-12 col-sm-auto mt-3 mt-md-0" *ngIf="type === mapListType.TYPE_UPLOADS">
+      <nb-select placeholder="Status" formControlName="status">
+        <nb-option *ngFor="let enum of statusEnumValues" [value]="enum">{{formatStatusEnum(enum)}}</nb-option>
+      </nb-select>
+    </div>
+    <div class="col mt-3 mt-md-0">
+      <button nbButton outline status="info" (click)="onFilterApply()">Search</button>
+    </div>
+  </div>
+</div>
 <div *ngIf="maps.length && requestSent">
   <nb-list class="overflow-hidden">
     <nb-list-item *ngFor="let map of maps | paginate: {

@@ -30,7 +30,7 @@
   <div class="col-12 col-lg-6">
     <div class="row no-gutters align-items-sm-center">
       <div class="col-12 col-sm mb-3 mb-sm-0 text-center" *ngIf="isUpload">
-        <span class="mapStatus">{{statusEnum[map.statusFlag]}}</span>
+        <span class="mapStatus">{{status}}</span>
       </div>
       <div class="col-12 col-sm mb-2 mb-sm-0 text-center" *ngIf="showDownloadButton">
         <a #mapFileDownloadLink class="allowed"></a>
