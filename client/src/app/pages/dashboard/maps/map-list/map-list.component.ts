@@ -94,7 +94,9 @@ export class MapListComponent implements OnInit {
 
   ngOnInit() {
     this.route.queryParamMap.subscribe((paramMap: ParamMap) => {
-      
+      // this.searchOptions.setValue({
+      //   search: paramMap.get('search') || '',
+      // });
       this.currentPage = +paramMap.get('page') || 1;
       const count = this.pageLimit * this.currentPage;
       if (count > this.mapCount)
