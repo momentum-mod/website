@@ -7,19 +7,34 @@
   </div>
 </form> -->
 <div class="container-fluid mb-3">
-  <div class="row align-items-center" [formGroup]="filterFG">
-    <div class="col-12 col-md col-lg-4">
-      <input nbInput fullWidth class="form-control" type="text" placeholder="Name" formControlName="name">
+  <div class="row align-items-start" [formGroup]="searchOptions">
+    <div class="col-12 col-sm-9 col-md-10">
+      <div class="row align-items-center">
+        <div class="col-12 col-sm-10 col-md-6 col-lg-4 col-xl-3">
+          <input nbInput fullWidth class="form-control" type="text" placeholder="Map Name" formControlName="name">
+        </div>
+        <div class="col-12 col-sm-10 col-md-6 col-lg-4 col-xl-3 mt-3 mt-md-0">
+          <input nbInput fullWidth class="form-control" type="text" placeholder="Author" formControlName="author">
+        </div>
+        <div class="col-12 col-md-6 col-lg-auto mt-3 mt-lg-0" *ngIf="type === mapListType.TYPE_UPLOADS">
+          <nb-select placeholder="Status" formControlName="status">
+            <nb-option *ngFor="let enum of statusEnums" [value]="enum.value">{{enum.text}}</nb-option>
+          </nb-select>
+        </div>
+        <div class="col-12 col-md-6 col-lg-auto mt-3 mt-xl-0">
+          <nb-select placeholder="Game Mode" formControlName="gamemode">
+            <nb-option *ngFor="let enum of typeEnums" [value]="enum.value">{{enum.text}}</nb-option>
+          </nb-select>
+        </div>
+      </div>
     </div>
-    <div class="col-12 col-sm-auto mt-3 mt-md-0" *ngIf="type === mapListType.TYPE_UPLOADS">
-      <nb-select placeholder="Status" formControlName="status">
-        <nb-option *ngFor="let enum of statusEnumValues" [value]="enum">{{formatStatusEnum(enum)}}</nb-option>
-      </nb-select>
-    </div>
-    <div class="col mt-3 mt-md-0">
-      <button nbButton outline status="info" (click)="onFilterApply()">Search</button>
+    <div class="col-12 col-sm-3 col-md-2 align-self-start">
+      <div class="row justify-content-start justify-content-sm-end mr-0 mr-sm-1 ml-1 ml-sm-0 mt-3 mt-sm-0">
+        <button nbButton outline status="info" (click)="onFilterApply()">Search</button>
+      </div>
     </div>
   </div>
+  
 </div>
 <div *ngIf="maps.length && requestSent">
   <nb-list class="overflow-hidden">

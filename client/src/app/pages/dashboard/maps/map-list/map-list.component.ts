@@ -9,6 +9,7 @@ import {LocalUserService} from '../../../../@core/data/local-user.service';
 import {Observable} from 'rxjs';
 import {NbLayoutScrollService, NbToastrService} from '@nebular/theme';
 import {MapUploadStatus} from '../../../../@core/models/map-upload-status.model';
+import {MomentumMapType} from '../../../../@core/models/map-type.model';
 
 
 export enum MapListType {
@@ -27,8 +28,8 @@ export class MapListComponent implements OnInit {
 
   @Input('type') type: MapListType;
   mapListType = MapListType;
-  statusEnum = MapUploadStatus;
-  statusEnumValues = [];
+  statusEnums = [];
+  typeEnums = [];
   requestSent: boolean;
   mapCount: number;
   maps: MomentumMap[];
@@ -52,10 +53,40 @@ export class MapListComponent implements OnInit {
     this.maps = [];
     this.mapCount = 0;
 
-    // Get enum int values and throw them into an array for iterating with ngFor
-    // Could do this with a pipe; maybe refactor if this sort of logic is needed elsewhere?
-    let values = Object.values(this.statusEnum);
-    this.statusEnumValues = values.slice(values.length / 2);
+    // Set statusEnums to be an array of objects that hold the enum values and the strings we want to display in the dropdown menu
+    let arr = Object.values(MapUploadStatus);
+    // Enums are objects with keys/values mapped both ways in JS, so we discard half the results to keep only the keys
+    arr = arr.slice(arr.length / 2);
+    for (let i of arr) {
+      this.statusEnums.push({
+        value: Number(i),
+        text: this.formatStatusEnum(Number(i))
+      });
+    }
+    // Sort items alphabetically
+    this.statusEnums.sort((a, b) => (a.value > b.value ? 1 : -1));
+    this.statusEnums.unshift({
+      value: -1,
+      text: 'All'
+    });
+
+    // Do the same for typeEnums
+    // 'UNKNOWN' is thrown out in this case should users be able to search it as 'Other'?
+    let arr2 = Object.values(MomentumMapType);
+    arr2 = arr2.slice(arr2.length / 2);
+    for (let i of arr2) {
+      if (i !== MomentumMapType.UNKNOWN) {
+        this.typeEnums.push({
+          value: Number(i),
+          text: this.formatTypeEnum(Number(i))
+        });
+      }
+    }
+    this.typeEnums.sort((a, b) => (a.value > b.value ? 1 : -1));
+    this.typeEnums.unshift({
+      value: -1,
+      text: 'All'
+    });
   }
 
   ngOnInit() {
@@ -164,7 +195,36 @@ export class MapListComponent implements OnInit {
       case MapUploadStatus.REMOVED:
         return 'Removed';
       default:
-        return this.statusEnum[key];
+        return MapUploadStatus[key];
     }
   }
+
+  formatTypeEnum(key: number) {
+    switch(key) {
+      case MomentumMapType.SURF:
+        return 'Surf';
+      case MomentumMapType.BHOP:
+        return 'Bunny Hop';
+      case MomentumMapType.KZ:
+        return 'Climb (KZ/XC)';
+      case MomentumMapType.RJ:
+        return 'Rocket Jump';
+      case MomentumMapType.SJ:
+        return 'Sticky Jump';
+      case MomentumMapType.TRICKSURF:
+        // Is it Tricksurf, TrickSurf, or Trick Surf?
+        return 'Tricksurf';
+      case MomentumMapType.AHOP:
+        return 'Accelerated Hop';
+      case MomentumMapType.PARKOUR:
+        return 'Parkour';
+      case MomentumMapType.CONC:
+        return 'Conc';
+      case MomentumMapType.DEFRAG:
+        return 'Defrag';
+      default:
+        return MomentumMapType[key];
+    }
+  }
+
 }
