@@ -95,9 +95,6 @@ export class MapListComponent implements OnInit {
 
   ngOnInit() {
     this.route.queryParamMap.subscribe((paramMap: ParamMap) => {
-      // this.searchOptions.setValue({
-      //   search: paramMap.get('search') || '',
-      // });
       this.currentPage = +paramMap.get('page') || 1;
       const count = this.pageLimit * this.currentPage;
       if (count > this.mapCount)
@@ -229,6 +226,11 @@ export class MapListComponent implements OnInit {
       default:
         return MomentumMapType[key];
     }
+  }
+
+  searchFiltered(): boolean {
+    const {search, status, type} = this.searchOptions.value;
+    return search || (status && status >= 0) || (type && type >= 0);
   }
 
 }
