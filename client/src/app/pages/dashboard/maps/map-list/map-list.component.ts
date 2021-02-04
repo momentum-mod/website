@@ -1,10 +1,10 @@
-import {Component, Input, OnInit, ɵAPP_ID_RANDOM_PROVIDER} from '@angular/core';
+import {Component, Input, OnInit} from '@angular/core';
 import {MomentumMap} from '../../../../@core/models/momentum-map.model';
 import {FormBuilder, FormGroup} from '@angular/forms';
 import {MapsService} from '../../../../@core/data/maps.service';
 import {MapAPIQueryParams} from '../../../../@core/models/map-api-query-params.model';
 import {finalize, map} from 'rxjs/operators';
-import {ActivatedRoute, ParamMap, Router} from '@angular/router';
+import {ActivatedRoute, ParamMap} from '@angular/router';
 import {LocalUserService} from '../../../../@core/data/local-user.service';
 import {Observable} from 'rxjs';
 import {NbLayoutScrollService, NbToastrService} from '@nebular/theme';
@@ -44,7 +44,6 @@ export class MapListComponent implements OnInit {
   });
 
   constructor(private route: ActivatedRoute,
-              private router: Router,
               private mapService: MapsService,
               private toasterService: NbToastrService,
               private scrollService: NbLayoutScrollService,
