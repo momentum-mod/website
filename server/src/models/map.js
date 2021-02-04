@@ -151,7 +151,6 @@ module.exports = {
 	},
 
 	getAll: (userID, queryParams) => {
-		console.log(queryParams);
 		const allowedExpansions = ['credits', 'thumbnail'];
 		const queryOptions = {
 			distinct: true,

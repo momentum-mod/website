@@ -17,7 +17,6 @@ module.exports = {
 	},
 
 	getUserFavorites: (userID, queryParams) => {
-		console.log(queryParams);
 		const queryOptions = {
 			distinct: true,
 			where: { userID: userID },
@@ -94,7 +93,6 @@ module.exports = {
 				});
 			}
 		}
-		console.log(queryOptions);
 		return MapFavorite.findAndCountAll(queryOptions);
 	},
 
