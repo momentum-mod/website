@@ -22,19 +22,21 @@ module.exports = {
 
 	getMapLibrary: {
 		[Segments.QUERY]: Joi.object().keys({
-			limit: Joi.number().integer().min(0).max(20), // TODO: change this back to validation.queryParam.limit (0.9.0)
+			limit: validation.queryParam.limit,
 			offset: validation.queryParam.offset,
 			search: validation.queryParam.search,
 			expand: validation.queryParam.expand,
+			type: validation.map.type,
 		}),
 	},
 
 	getUserFavorites: {
 		[Segments.QUERY]: Joi.object().keys({
-			limit: Joi.number().integer().min(0).max(20), // TODO: change this back to validation.queryParam.limit (0.9.0)
+			limit: validation.queryParam.limit,
 			offset: validation.queryParam.offset,
 			search: validation.queryParam.search,
 			expand: validation.queryParam.expand,
+			type: validation.map.type,
 		}),
 	},
 
@@ -44,6 +46,8 @@ module.exports = {
 			offset: validation.queryParam.offset,
 			search: validation.queryParam.search,
 			expand: validation.queryParam.expand,
+			status: validation.queryParam.status,
+			type: validation.map.type,
 		}),
 	},
 

@@ -17,6 +17,7 @@ module.exports = {
 	},
 
 	getUserFavorites: (userID, queryParams) => {
+		console.log(queryParams);
 		const queryOptions = {
 			distinct: true,
 			where: { userID: userID },
@@ -41,6 +42,8 @@ module.exports = {
 			queryOptions.offset = queryParams.offset;
 		if (queryParams.search)
 			queryOptions.include[0].where.name = {[Op.like]: '%' + queryParams.search + '%'};
+		if (queryParams.type)
+			queryOptions.include[0].where.type = queryParams.type;
 		if (queryParams.expand) {
 			const expansionNames = queryParams.expand.split(',');
 			if (expansionNames.includes('info')) {
@@ -91,6 +94,7 @@ module.exports = {
 				});
 			}
 		}
+		console.log(queryOptions);
 		return MapFavorite.findAndCountAll(queryOptions);
 	},
 

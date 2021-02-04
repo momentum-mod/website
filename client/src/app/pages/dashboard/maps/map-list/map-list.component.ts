@@ -37,9 +37,10 @@ export class MapListComponent implements OnInit {
   currentPage: number;
   searchOptions: FormGroup = this.fb.group({
     'search': [''],
-    'author': [''],
-    'status': [-1],
-    'gamemode': [-1],
+    //TODO: Enable when map credits get reworked (#415)
+    //'author': [''],
+    'status': [],
+    'type': [],
   });
 
   constructor(private route: ActivatedRoute,
@@ -74,7 +75,7 @@ export class MapListComponent implements OnInit {
     });
 
     // Do the same for typeEnums
-    // 'UNKNOWN' is thrown out in this case should users be able to search it as 'Other'?
+    // 'UNKNOWN' is thrown out in this case; should users be able to search for it as 'Other'?
     let arr2 = Object.values(MomentumMapType);
     arr2 = arr2.slice(arr2.length / 2);
     for (let i of arr2) {
@@ -114,12 +115,18 @@ export class MapListComponent implements OnInit {
     };
     if (searchOptions.search)
       queryParams.search = searchOptions.search;
+    // TODO: Enable when map credits get reworked (#415)
+    // if (searchOptions.author)
+    //   queryParams.author = searchOptions.author;
+    if (searchOptions.status !== null && searchOptions.status >= 0)
+      queryParams.status = searchOptions.status;
+    if (searchOptions.type !== null && searchOptions.type >= 0)
+      queryParams.type = searchOptions.type;
     return queryParams;
   }
 
   loadMaps() {
     const options = {params: this.genQueryParams()};
-
     let observer: Observable<any>;
     if (this.type === MapListType.TYPE_LIBRARY) {
       observer = this.locUsrService.getMapLibrary(options)
@@ -143,18 +150,10 @@ export class MapListComponent implements OnInit {
       });
   }
 
-  onPageChange(pageNum) {
+  onPageChange(pageNum: number) {
     this.scrollService.scrollTo(0, 0);
-    this.router.navigate(
-      [],
-      {
-        relativeTo: this.route,
-        queryParams: {
-          search: this.searchOptions.value.search || undefined,
-          page: pageNum === 1 ? undefined : pageNum,
-        },
-        queryParamsHandling: 'merge',
-      });
+    this.currentPage = pageNum;
+    this.loadMaps();
   }
 
   isMapInLibrary(m: MomentumMap): boolean {

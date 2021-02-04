@@ -13,16 +13,17 @@
         <div class="form-col col-12 col-sm-10 col-md-6 col-lg-4 col-xl-3">
           <input nbInput fullWidth class="form-control" type="text" placeholder="Map Name" formControlName="search">
         </div>
-        <div class="form-col col-12 col-sm-10 col-md-6 col-lg-4 col-xl-3 mt-3 mt-md-0">
+        <!-- TODO: Enable when map credits get reworked (#415) -->
+        <!-- <div class="form-col col-12 col-sm-10 col-md-6 col-lg-4 col-xl-3 mt-3 mt-md-0">
           <input nbInput fullWidth class="form-control" type="text" placeholder="Author" formControlName="author">
-        </div>
+        </div> -->
         <div class="form-col col-12 col-md-6 col-lg-auto mt-3 mt-lg-0" *ngIf="type === mapListType.TYPE_UPLOADS">
           <nb-select placeholder="Status" formControlName="status">
             <nb-option *ngFor="let enum of statusEnums" [value]="enum.value">{{enum.text}}</nb-option>
           </nb-select>
         </div>
         <div class="form-col col-12 col-md-6 col-lg-auto mt-3 mt-xl-0 mr-lg-n5">
-          <nb-select placeholder="Game Mode" formControlName="gamemode">
+          <nb-select placeholder="Game Mode" formControlName="type">
             <nb-option *ngFor="let enum of typeEnums" [value]="enum.value">{{enum.text}}</nb-option>
           </nb-select>
         </div>
