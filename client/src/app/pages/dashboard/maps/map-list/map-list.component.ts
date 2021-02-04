@@ -37,8 +37,8 @@ export class MapListComponent implements OnInit {
   currentPage: number;
   searchOptions: FormGroup = this.fb.group({
     'search': [''],
-    //TODO: Enable when map credits get reworked (#415)
-    //'author': [''],
+    // TODO: Enable when map credits get reworked (#415)
+    // 'author': [''],
     'status': [],
     'type': [],
   });
@@ -57,39 +57,43 @@ export class MapListComponent implements OnInit {
     this.maps = [];
     this.mapCount = 0;
 
-    // Set statusEnums to be an array of objects that hold the enum values and the strings we want to display in the dropdown menu
+    /*
+     * Set statusEnums to be an array of objects that hold the enum values
+     * and the strings we want to display in the dropdown menu
+     * That way we can sort the items alphabetically without losing their values
+     */
     let arr = Object.values(MapUploadStatus);
     // Enums are objects with keys/values mapped both ways in JS, so we discard half the results to keep only the keys
     arr = arr.slice(arr.length / 2);
-    for (let i of arr) {
+    for (const i of arr) {
       this.statusEnums.push({
         value: Number(i),
-        text: this.formatStatusEnum(Number(i))
+        text: this.formatStatusEnum(Number(i)),
       });
     }
     // Sort items alphabetically
     this.statusEnums.sort((a, b) => (a.value > b.value ? 1 : -1));
     this.statusEnums.unshift({
       value: -1,
-      text: 'All'
+      text: 'All',
     });
 
     // Do the same for typeEnums
     // 'UNKNOWN' is thrown out in this case; should users be able to search for it as 'Other'?
     let arr2 = Object.values(MomentumMapType);
     arr2 = arr2.slice(arr2.length / 2);
-    for (let i of arr2) {
+    for (const i of arr2) {
       if (i !== MomentumMapType.UNKNOWN) {
         this.typeEnums.push({
           value: Number(i),
-          text: this.formatTypeEnum(Number(i))
+          text: this.formatTypeEnum(Number(i)),
         });
       }
     }
     this.typeEnums.sort((a, b) => (a.value > b.value ? 1 : -1));
     this.typeEnums.unshift({
       value: -1,
-      text: 'All'
+      text: 'All',
     });
   }
 
@@ -201,7 +205,7 @@ export class MapListComponent implements OnInit {
   }
 
   formatTypeEnum(key: number) {
-    switch(key) {
+    switch (key) {
       case MomentumMapType.SURF:
         return 'Surf';
       case MomentumMapType.BHOP:
