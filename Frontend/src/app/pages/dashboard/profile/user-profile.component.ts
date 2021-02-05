@@ -54,15 +54,15 @@ export class UserProfileComponent implements OnInit, OnDestroy {
     this.route.paramMap.pipe(
       switchMap((params: ParamMap) => {
         if (params.has('id')) {
-          const idNum: number = Number(params.get('id'));
+          const id: string = params.get('id');
           this.userService.getLocal().pipe(
             takeUntil(this.ngUnsub),
           ).subscribe(usr => {
-            this.isLocal = idNum === usr.id;
+            this.isLocal = id === usr.id;
           }, error => {
             this.toastService.danger(error.message, 'Cannot get user profile');
           });
-          return this.usersService.getUser(idNum, {
+          return this.usersService.getUser(id, {
             params: { expand: 'profile,stats' },
           });
         } else {

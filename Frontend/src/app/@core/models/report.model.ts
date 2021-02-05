@@ -10,8 +10,8 @@ export interface Report {
   message: string;
   resolved: boolean;
   resolutionMessage: string;
-  submitterID?: number;
-  resolverID?: number;
+  submitterID?: string;
+  resolverID?: string;
   createdAt?: string;
   updatedAt?: string;
   submitter?: User;

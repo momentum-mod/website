@@ -17,7 +17,7 @@ describe('UsersService', () => {
     httpClientSpy = jasmine.createSpyObj('HttpClient', ['get', 'patch']);
     usersService = new UsersService(<any> httpClientSpy);
     expectedUser = {
-      id: 1,
+      id: 'c64397a6-20b6-4c3a-a02e-2a6fecad6b8e',
       steamID: '1',
       alias: 'test1',
       aliasLocked: false,
@@ -35,7 +35,7 @@ describe('UsersService', () => {
       users: [
         expectedUser,
         {
-          id: 2,
+          id: '42ef3820-e95d-4cdb-ba6b-28452713b63f',
           steamID: '2',
           alias: 'test2',
           aliasLocked: false,
@@ -53,16 +53,16 @@ describe('UsersService', () => {
     expectedFollowed = {
       count: 1,
       followed: [{
-        followeeID: '82582825252',
-        followedID: '82582852353',
+        followeeID: 'c64397a6-20b6-4c3a-a02e-2a6fecad6b8e',
+        followedID: '42ef3820-e95d-4cdb-ba6b-28452713b63f',
         notifyOn: 1,
       }],
     };
     expectedFollowers = {
       count: 1,
       followers: [{
-        followeeID: '82582825252',
-        followedID: '82582852353',
+        followeeID: 'c64397a6-20b6-4c3a-a02e-2a6fecad6b8e',
+        followedID: '42ef3820-e95d-4cdb-ba6b-28452713b63f',
         notifyOn: 1,
       }],
     };

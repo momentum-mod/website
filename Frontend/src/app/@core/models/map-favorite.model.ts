@@ -2,7 +2,7 @@ import {MomentumMap} from './momentum-map.model';
 
 export interface MapFavorite {
   id: number;
-  userID: number;
+  userID: string;
   mapID: number;
   createdAt?: string;
   updatedAt?: string;

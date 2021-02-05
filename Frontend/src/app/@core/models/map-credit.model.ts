@@ -7,7 +7,7 @@ export interface MapCredit {
   mapID?: number;
   map?: MomentumMap;
   type: MapCreditType;
-  userID?: number;
+  userID?: string;
   user?: User;
   createdAt?: number;
   updatedAt?: number;

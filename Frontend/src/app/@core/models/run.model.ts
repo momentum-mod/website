@@ -14,7 +14,7 @@ export interface Run {
   flags: number;
   file: string;
   mapID: number;
-  playerID: number;
+  playerID: string;
   createdAt: string; // aka dateAchieved
   updatedAt?: string;
   user?: User;

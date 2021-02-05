@@ -2,7 +2,7 @@ import {UserProfile} from './profile.model';
 import {UserStats} from './user-stats.model';
 
 export interface User {
-  id: number;
+  id: string;
   steamID: string;
   roles: number;
   bans: number;
