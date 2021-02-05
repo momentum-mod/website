@@ -17,7 +17,7 @@ describe('ProfileCreditsComponent', () => {
   beforeEach(async(() => {
 
     usersServiceStub = {
-      getMapCredits(userID: number, options?: object): Observable<any> {
+      getMapCredits(userID: string, options?: object): Observable<any> {
         return of({
           count: 1,
           credits: [
@@ -57,7 +57,7 @@ describe('ProfileCreditsComponent', () => {
     fixture = TestBed.createComponent(ProfileCreditsComponent);
     component = fixture.componentInstance;
     component.userSubj$ = of({
-      id: 1,
+      id: 'c64397a6-20b6-4c3a-a02e-2a6fecad6b8e',
       steamID: '2',
       alias: 'IAmWhoIAmWhoAmI',
       aliasLocked: false,

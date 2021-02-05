@@ -28,7 +28,7 @@ describe('ActivityContentComponent', () => {
     component.activity = {
       id: 1,
       user: {
-        id: 1,
+        id: 'c64397a6-20b6-4c3a-a02e-2a6fecad6b8e',
         steamID: '1',
         alias: 'Ninja',
         aliasLocked: false,

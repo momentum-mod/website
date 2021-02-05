@@ -79,7 +79,7 @@ describe('UsersService', () => {
     });
     it('#getUser() should return expected user ID', () => {
       httpClientSpy.get.and.returnValue(of(expectedUser));
-      usersService.getUser(1).subscribe(value =>
+      usersService.getUser('c64397a6-20b6-4c3a-a02e-2a6fecad6b8e').subscribe(value =>
           expect(value).toEqual(expectedUser, 'expected user'),
         fail,
       );

@@ -42,7 +42,7 @@ describe('ActivityService', () => {
   });
     it('#getUserActivity() should return user Activity', () => {
       httpClientSpy.get.and.returnValue(of(expectedActivities));
-      activityService.getUserActivity(1).subscribe(value =>
+      activityService.getUserActivity('c64397a6-20b6-4c3a-a02e-2a6fecad6b8e').subscribe(value =>
           expect(value).toEqual(expectedActivities, 'expected activity'),
         fail,
       );
