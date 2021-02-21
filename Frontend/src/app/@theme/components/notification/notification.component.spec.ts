@@ -60,7 +60,7 @@ describe('NotificationComponent', () => {
       {
         id: 1,
         forUser: {
-          id: 1,
+          id: 'c64397a6-20b6-4c3a-a02e-2a6fecad6b8e',
           steamID: '1',
           alias: 'Ninjaz',
           aliasLocked: false,
@@ -72,7 +72,7 @@ describe('NotificationComponent', () => {
         activity: {
           id: 1,
           user: {
-            id: 1,
+            id: 'c64397a6-20b6-4c3a-a02e-2a6fecad6b8e',
             steamID: '1',
             alias: 'Ninja',
             aliasLocked: false,
@@ -95,7 +95,7 @@ describe('NotificationComponent', () => {
       {
         id: 1,
         forUser: {
-          id: 1,
+          id: 'c64397a6-20b6-4c3a-a02e-2a6fecad6b8e',
           steamID: '1',
           alias: 'Ninjazzz',
           aliasLocked: false,
@@ -107,7 +107,7 @@ describe('NotificationComponent', () => {
         activity: {
           id: 1,
           user: {
-            id: 1,
+            id: 'c64397a6-20b6-4c3a-a02e-2a6fecad6b8e',
             steamID: '1',
             alias: 'TESSSSSSSSSSSSSSSSSSST',
             aliasLocked: false,

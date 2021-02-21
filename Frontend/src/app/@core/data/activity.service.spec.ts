@@ -15,9 +15,9 @@ describe('ActivityService', () => {
       activities: [{
         id: 1,
         type: Activity_Type.MAP_UPLOADED,
-        userID: 1,
+        userID: 'c64397a6-20b6-4c3a-a02e-2a6fecad6b8e',
         user: {
-          id: 1,
+          id: 'c64397a6-20b6-4c3a-a02e-2a6fecad6b8e',
           steamID: '828288828528',
           alias: 'Spooderman',
           aliasLocked: false,
@@ -42,7 +42,7 @@ describe('ActivityService', () => {
   });
     it('#getUserActivity() should return user Activity', () => {
       httpClientSpy.get.and.returnValue(of(expectedActivities));
-      activityService.getUserActivity(1).subscribe(value =>
+      activityService.getUserActivity('c64397a6-20b6-4c3a-a02e-2a6fecad6b8e').subscribe(value =>
           expect(value).toEqual(expectedActivities, 'expected activity'),
         fail,
       );

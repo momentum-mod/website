@@ -4,7 +4,7 @@ import {User} from './user.model';
 export interface Activity {
   id: number;
   type: Activity_Type;
-  userID?: number;
+  userID?: string;
   user: User;
   data: string;
   createdAt?: string; // Date

@@ -23,11 +23,11 @@ describe('RunsService', () => {
       trackNum: 0,
       file: '',
       mapID: 1,
-      playerID: 825825825828,
+      playerID: '76b877dc-b345-4c41-9259-9c8a3c921e63',
       rank: {
         id: 1,
         mapID: 0,
-        userID: 825825825828,
+        userID: '76b877dc-b345-4c41-9259-9c8a3c921e63',
         runID: '1',
         rank: 0,
         rankXP: 0,

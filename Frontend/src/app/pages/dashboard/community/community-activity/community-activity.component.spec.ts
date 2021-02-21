@@ -21,7 +21,7 @@ describe('CommunityActivityComponent', () => {
         id: 3,
         type: Activity_Type.MAP_APPROVED,
         user: {
-          id: 2,
+          id: '88d21e02-60da-40c2-b168-39994236d36f',
           steamID: '2',
           alias: 'dude',
           aliasLocked: false,

@@ -39,7 +39,7 @@ describe('MapEditComponent', () => {
     hash: '',
     statusFlag: MapUploadStatus.APPROVED,
     submitter: {
-      id: 2,
+      id: '88d21e02-60da-40c2-b168-39994236d36f',
       steamID: '2',
       alias: 'dude',
       aliasLocked: false,

@@ -18,7 +18,7 @@ export class ActivityService {
    * @param userID ID of user we are retieving
    * @return a list of specific users's activity
    */
-  getUserActivity(userID: number): Observable<Activities> {
+  getUserActivity(userID: string): Observable<Activities> {
     return this.http.get<Activities>('/api/users/' + userID + '/activities');
   }
 
