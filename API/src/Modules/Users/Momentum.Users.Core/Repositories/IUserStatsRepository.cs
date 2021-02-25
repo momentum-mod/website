@@ -5,8 +5,8 @@ using Momentum.Users.Core.Models;
 
 namespace Momentum.Users.Core.Repositories
 {
-    public interface IUserProfileRepository : IGenericRepository<Profile>
+    public interface IUserStatsRepository : IGenericRepository<Stats>
     {
-        Task<Profile> GetByUserId(Guid id);
+        public Task<Stats> GetByUserId(Guid userId);
     }
 }

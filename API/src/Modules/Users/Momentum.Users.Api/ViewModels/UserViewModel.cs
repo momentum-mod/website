@@ -31,5 +31,8 @@ namespace Momentum.Users.Api.ViewModels
 
         [JsonPropertyName("profile")]
         public UserProfileViewModel Profile { get; set; }
+        
+        [JsonPropertyName("stats")] 
+        public UserStatsViewModel Stats { get; set; }
     }
 }

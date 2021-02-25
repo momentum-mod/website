@@ -6,6 +6,7 @@ using MediatR;
 using Momentum.Users.Application.DTOs;
 using Momentum.Users.Core.Models;
 using Momentum.Users.Core.Repositories;
+using Profile = Momentum.Users.Core.Models.Profile;
 
 namespace Momentum.Users.Application.Commands
 {
@@ -47,7 +48,7 @@ namespace Momentum.Users.Application.Commands
                 user = await _userRepository.Add(user);
                 
                 // Now setup additional documents related to a user
-                await _userProfileRepository.Add(new UserProfile
+                await _userProfileRepository.Add(new Profile
                 {
                     UserId = user.Id
                 });

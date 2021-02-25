@@ -2,7 +2,7 @@
 
 namespace Momentum.Users.Application.DTOs
 {
-    public class UserProfileDto
+    public class ProfileDto
     {
         public DateTime CreatedAt { get; set; }
         public DateTime? UpdatedAt { get; set; }

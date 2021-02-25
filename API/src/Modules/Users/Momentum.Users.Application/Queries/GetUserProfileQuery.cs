@@ -8,12 +8,12 @@ using Momentum.Users.Core.Repositories;
 
 namespace Momentum.Users.Application.Queries
 {
-    public class GetUserProfileQuery : IRequest<UserProfileDto>
+    public class GetUserProfileQuery : IRequest<ProfileDto>
     {
         public Guid UserId { get; set; }
     }
     
-    public class GetUserProfileQueryHandler : IRequestHandler<GetUserProfileQuery, UserProfileDto>
+    public class GetUserProfileQueryHandler : IRequestHandler<GetUserProfileQuery, ProfileDto>
     {
         private readonly IUserProfileRepository _userProfileRepository;
         private readonly IMapper _mapper;
@@ -24,11 +24,11 @@ namespace Momentum.Users.Application.Queries
             _mapper = mapper;
         }
 
-        public async Task<UserProfileDto> Handle(GetUserProfileQuery request, CancellationToken cancellationToken)
+        public async Task<ProfileDto> Handle(GetUserProfileQuery request, CancellationToken cancellationToken)
         {
             var userProfile = await _userProfileRepository.GetByUserId(request.UserId);
 
-            return _mapper.Map<UserProfileDto>(userProfile);
+            return _mapper.Map<ProfileDto>(userProfile);
         }
     }
 }

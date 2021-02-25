@@ -9,7 +9,8 @@ namespace Momentum.Users.Api.AutoMapping
         public ApiProfile()
         {
             CreateMap<UserDto, UserViewModel>();
-            CreateMap<UserProfileDto, UserProfileViewModel>();
+            CreateMap<ProfileDto, UserProfileViewModel>();
+            CreateMap<StatsDto, UserStatsViewModel>();
         }
     }
 }

@@ -1,10 +1,11 @@
 ﻿using AutoMapper;
 using Momentum.Users.Application.DTOs;
 using Momentum.Users.Core.Models;
+using Profile = Momentum.Users.Core.Models.Profile;
 
 namespace Momentum.Users.Application.AutoMapping
 {
-    public class ApplicationProfile : Profile
+    public class ApplicationProfile : AutoMapper.Profile
     {
         public ApplicationProfile()
         {
@@ -17,8 +18,11 @@ namespace Momentum.Users.Application.AutoMapping
             CreateMap<Bans, BansDto>();
             CreateMap<BansDto, Bans>();
 
-            CreateMap<UserProfile, UserProfileDto>();
-            CreateMap<UserProfileDto, UserProfile>();
+            CreateMap<Profile, ProfileDto>();
+            CreateMap<ProfileDto, Profile>();
+            
+            CreateMap<Stats, StatsDto>();
+            CreateMap<StatsDto, Stats>();
         }
     }
 }

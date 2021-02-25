@@ -1,8 +1,9 @@
-﻿using System.Text.Json;
+﻿using System;
 using System.Threading.Tasks;
 using AutoMapper;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
+using Momentum.Auth.Application.Queries;
 using Momentum.Framework.Application.Services;
 using Momentum.Users.Api.ViewModels;
 using Momentum.Users.Application.Queries;
@@ -16,7 +17,7 @@ namespace Momentum.Users.Api.Controllers
         private readonly IMediator _mediator;
         private readonly ICurrentUserService _currentUserService;
         private readonly IMapper _mapper;
-
+        
         public UserController(IMediator mediator, ICurrentUserService currentUserService, IMapper mapper)
         {
             _mediator = mediator;
@@ -27,6 +28,8 @@ namespace Momentum.Users.Api.Controllers
         [HttpGet]
         public async Task<IActionResult> GetUserAsync([FromQuery] string expand)
         {
+            expand = expand.Replace("stats", "userStats", StringComparison.Ordinal);
+
             var userId = _currentUserService.GetUserId();
             var user = await _mediator.Send(new GetUserByIdQuery
             {
@@ -44,6 +47,35 @@ namespace Momentum.Users.Api.Controllers
                     });
 
                     userViewModel.Profile = _mapper.Map<UserProfileViewModel>(userProfile);
+                    
+                    var userSocials = await _mediator.Send(new GetUserSocialsQuery
+                    {
+                        UserId = userId
+                    });
+                    
+                    // Add social auths to profile
+                    if (userSocials.UserDiscord != null)
+                    {
+                        userViewModel.Profile.DiscordAuth = _mapper.Map<UserDiscordAuthViewModel>(userSocials.UserDiscord);
+                    }
+
+                    if (userSocials.UserTwitch != null)
+                    {
+                        userViewModel.Profile.TwitchAuth = _mapper.Map<UserTwitchAuthViewModel>(userSocials.UserTwitch);
+                    }
+
+                    if (userSocials.UserTwitter != null)
+                    {
+                        userViewModel.Profile.TwitterAuth = _mapper.Map<UserTwitterAuthViewModel>(userSocials.UserTwitter);
+                    }
+                    break;
+                case "userStats":
+                    var userStats = await _mediator.Send(new GetUserStatsQuery
+                    {
+                        UserId = userId
+                    });
+
+                    userViewModel.Stats = _mapper.Map<UserStatsViewModel>(userStats);
                     break;
             }
 
