@@ -5,6 +5,9 @@ using Momentum.Auth.Core.Repositories;
 using Momentum.Auth.Core.Services;
 using Momentum.Auth.Infrastructure.Repositories;
 using Momentum.Framework.Core.DependencyInjection;
+using Momentum.Users.Api.ViewModels;
+using Momentum.Users.Core.Repositories;
+using Momentum.Users.Infrastructure.Repositories;
 using SteamWebAPI2.Utilities;
 
 namespace Momentum.Auth.Api
@@ -19,6 +22,7 @@ namespace Momentum.Auth.Api
             services.AddSingleton<IUserDiscordRepository, UserDiscordRepository>();
             services.AddSingleton<IUserTwitterRepository, UserTwitterRepository>();
             services.AddSingleton<IUserTwitchRepository, UserTwitchRepository>();
+            services.AddSingleton<IUserStatsRepository, UserStatsRepository>();
             services.AddSingleton(new SteamWebInterfaceFactory(configuration["SteamApiKey"]));
         }
     }
