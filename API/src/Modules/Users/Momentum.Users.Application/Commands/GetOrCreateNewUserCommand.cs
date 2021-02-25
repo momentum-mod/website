@@ -22,12 +22,14 @@ namespace Momentum.Users.Application.Commands
         private readonly IMapper _mapper;
         private readonly IUserRepository _userRepository;
         private readonly IUserProfileRepository _userProfileRepository;
+        private readonly IUserStatsRepository _userStatsRepository;
 
-        public GetOrCreateNewUserCommandHandler(IMapper mapper, IUserRepository userRepository, IUserProfileRepository userProfileRepository)
+        public GetOrCreateNewUserCommandHandler(IMapper mapper, IUserRepository userRepository, IUserProfileRepository userProfileRepository, IUserStatsRepository userStatsRepository)
         {
             _mapper = mapper;
             _userRepository = userRepository;
             _userProfileRepository = userProfileRepository;
+            _userStatsRepository = userStatsRepository;
         }
 
         public async Task<UserDto> Handle(GetOrCreateNewUserCommand request, CancellationToken cancellationToken)
@@ -45,10 +47,17 @@ namespace Momentum.Users.Application.Commands
                 await request.EnsureSteamUserPermittedToCreateProfile.Invoke();
                 
                 user = _mapper.Map<User>(await request.BuildUserDto.Invoke());
-                user = await _userRepository.Add(user);
+                user.Id = new Guid();
+                
+                await _userRepository.Add(user);
                 
                 // Now setup additional documents related to a user
                 await _userProfileRepository.Add(new Profile
+                {
+                    UserId = user.Id
+                });
+
+                await _userStatsRepository.Add(new Stats
                 {
                     UserId = user.Id
                 });
