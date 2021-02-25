@@ -38,7 +38,7 @@ namespace Momentum.Users.Api.Controllers
 
             var userViewModel = _mapper.Map<UserViewModel>(user);
 
-            switch (expand.ToLower())
+            switch (expand)
             {
                 case "profile":
                     var userProfile = await _mediator.Send(new GetUserProfileQuery
