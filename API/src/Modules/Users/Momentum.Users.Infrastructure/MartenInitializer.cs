@@ -9,6 +9,7 @@ namespace Momentum.Users.Infrastructure
         public void SetupDomainIdentities(StoreOptions options)
         {
             options.Schema.For<Profile>().Identity(x => x.UserId);
+            options.Schema.For<Stats>().Identity(x => x.UserId);
         }
     }
 }
