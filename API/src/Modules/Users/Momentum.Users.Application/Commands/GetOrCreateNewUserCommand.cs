@@ -53,10 +53,6 @@ namespace Momentum.Users.Application.Commands
                 user = _mapper.Map<User>(await request.BuildUserDto.Invoke());
                 user.Id = new Guid();
 
-                var steamUserInterface = _steamWebInterfaceFactory.CreateSteamWebInterface<SteamUser>();
-                var userSummary = await steamUserInterface.GetPlayerSummaryAsync(ulong.Parse(user.SteamId));
-                user.Country = userSummary.Data.CountryCode;
-
                 await _userRepository.Add(user);
                 
                 // Now setup additional documents related to a user

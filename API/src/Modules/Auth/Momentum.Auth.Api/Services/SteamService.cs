@@ -6,6 +6,8 @@ using System.Threading.Tasks;
 using System.Xml;
 using Microsoft.AspNetCore.Http;
 using Momentum.Users.Application.DTOs;
+using SteamWebAPI2.Interfaces;
+using SteamWebAPI2.Utilities;
 
 namespace Momentum.Auth.Api.Services
 {
@@ -13,6 +15,7 @@ namespace Momentum.Auth.Api.Services
     {
         private readonly HttpClient _httpClient;
         private readonly IHttpContextAccessor _httpContextAccessor;
+        private readonly ISteamWebInterfaceFactory _steamWebInterfaceFactory;
         private string _steamId;
 
         private XmlDocument _profileXmlDocument;
@@ -21,10 +24,11 @@ namespace Momentum.Auth.Api.Services
         private const string AvatarXPath = "/profile/avatarFull";
         private const string CountryXPath = "/profile/location";
 
-        public SteamService(HttpClient httpClient, IHttpContextAccessor httpContextAccessor)
+        public SteamService(HttpClient httpClient, IHttpContextAccessor httpContextAccessor, ISteamWebInterfaceFactory steamWebInterfaceFactory)
         {
             _httpClient = httpClient;
             _httpContextAccessor = httpContextAccessor;
+            _steamWebInterfaceFactory = steamWebInterfaceFactory;
         }
 
         public string GetSteamId()
@@ -109,7 +113,7 @@ namespace Momentum.Auth.Api.Services
         {
             var profile = await GetProfileAsync(steamId);
 
-            return new UserDto
+            var user = new UserDto
             {
                 Alias = profile.SelectSingleNode(SteamIdXPath).InnerText,
                 Avatar = profile.SelectSingleNode(AvatarXPath).InnerText,
@@ -119,6 +123,12 @@ namespace Momentum.Auth.Api.Services
                 AliasLocked = false,
                 SteamId = steamId ?? GetSteamId()
             };
+
+            var steamUserInterface = _steamWebInterfaceFactory.CreateSteamWebInterface<SteamUser>();
+            var userSummary = await steamUserInterface.GetPlayerSummaryAsync(ulong.Parse(user.SteamId));
+            user.Country = userSummary.Data.CountryCode;
+
+            return user;
         }
     }
 }
