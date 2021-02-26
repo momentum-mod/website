@@ -6,6 +6,8 @@ using MediatR;
 using Momentum.Users.Application.DTOs;
 using Momentum.Users.Core.Models;
 using Momentum.Users.Core.Repositories;
+using SteamWebAPI2.Interfaces;
+using SteamWebAPI2.Utilities;
 using Profile = Momentum.Users.Core.Models.Profile;
 
 namespace Momentum.Users.Application.Commands
@@ -23,13 +25,15 @@ namespace Momentum.Users.Application.Commands
         private readonly IUserRepository _userRepository;
         private readonly IUserProfileRepository _userProfileRepository;
         private readonly IUserStatsRepository _userStatsRepository;
+        private readonly SteamWebInterfaceFactory _steamWebInterfaceFactory;
 
-        public GetOrCreateNewUserCommandHandler(IMapper mapper, IUserRepository userRepository, IUserProfileRepository userProfileRepository, IUserStatsRepository userStatsRepository)
+        public GetOrCreateNewUserCommandHandler(IMapper mapper, IUserRepository userRepository, IUserProfileRepository userProfileRepository, IUserStatsRepository userStatsRepository, SteamWebInterfaceFactory steamWebInterfaceFactory)
         {
             _mapper = mapper;
             _userRepository = userRepository;
             _userProfileRepository = userProfileRepository;
             _userStatsRepository = userStatsRepository;
+            _steamWebInterfaceFactory = steamWebInterfaceFactory;
         }
 
         public async Task<UserDto> Handle(GetOrCreateNewUserCommand request, CancellationToken cancellationToken)
@@ -48,7 +52,11 @@ namespace Momentum.Users.Application.Commands
                 
                 user = _mapper.Map<User>(await request.BuildUserDto.Invoke());
                 user.Id = new Guid();
-                
+
+                var steamUserInterface = _steamWebInterfaceFactory.CreateSteamWebInterface<SteamUser>();
+                var userSummary = await steamUserInterface.GetPlayerSummaryAsync(ulong.Parse(user.SteamId));
+                user.Country = userSummary.Data.CountryCode;
+
                 await _userRepository.Add(user);
                 
                 // Now setup additional documents related to a user
