@@ -25,15 +25,13 @@ namespace Momentum.Users.Application.Commands
         private readonly IUserRepository _userRepository;
         private readonly IUserProfileRepository _userProfileRepository;
         private readonly IUserStatsRepository _userStatsRepository;
-        private readonly SteamWebInterfaceFactory _steamWebInterfaceFactory;
 
-        public GetOrCreateNewUserCommandHandler(IMapper mapper, IUserRepository userRepository, IUserProfileRepository userProfileRepository, IUserStatsRepository userStatsRepository, SteamWebInterfaceFactory steamWebInterfaceFactory)
+        public GetOrCreateNewUserCommandHandler(IMapper mapper, IUserRepository userRepository, IUserProfileRepository userProfileRepository, IUserStatsRepository userStatsRepository)
         {
             _mapper = mapper;
             _userRepository = userRepository;
             _userProfileRepository = userProfileRepository;
             _userStatsRepository = userStatsRepository;
-            _steamWebInterfaceFactory = steamWebInterfaceFactory;
         }
 
         public async Task<UserDto> Handle(GetOrCreateNewUserCommand request, CancellationToken cancellationToken)

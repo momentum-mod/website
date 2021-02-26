@@ -19,10 +19,10 @@ namespace Momentum.Auth.Application.Queries
     
     public class SteamUserTicketValidQueryHandler : IRequestHandler<SteamUserTicketValidQuery, bool>
     {
-        private readonly SteamWebInterfaceFactory _steamWebInterfaceFactory;
+        private readonly ISteamWebInterfaceFactory _steamWebInterfaceFactory;
         private readonly HttpClient _httpClient;
 
-        public SteamUserTicketValidQueryHandler(SteamWebInterfaceFactory steamWebInterfaceFactory, HttpClient httpClient)
+        public SteamUserTicketValidQueryHandler(ISteamWebInterfaceFactory steamWebInterfaceFactory, HttpClient httpClient)
         {
             _steamWebInterfaceFactory = steamWebInterfaceFactory;
             _httpClient = httpClient;
