@@ -7,11 +7,11 @@
     <ItemGroup>
       <PackageReference Include="Marten" Version="3.13.3" />
       <PackageReference Include="MediatR" Version="9.0.0" />
-      <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="5.0.1" />
+      <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="5.0.3" />
       <PackageReference Include="Microsoft.AspNetCore.Http.Abstractions" Version="2.2.0" />
       <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="5.0.0" />
       <PackageReference Include="Microsoft.Net.Http.Headers" Version="2.2.8" />
       <PackageReference Include="Serilog" Version="2.10.0" />
-      <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="6.7.1" />
+      <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="6.8.0" />
     </ItemGroup>
 </Project>
