@@ -63,7 +63,7 @@ namespace Momentum.Auth.Api.Controllers
             {
                 UserId = user.Id
             });
-                
+
             var accessToken = await _mediator.Send(new RefreshAccessTokenQuery
             {
                 RefreshToken = refreshToken
@@ -71,7 +71,7 @@ namespace Momentum.Auth.Api.Controllers
 
             var userViewModel = _mapper.Map<UserViewModel>(user);
             userViewModel.Profile = _mapper.Map<UserProfileViewModel>(userProfile);
-            
+
             if (userSocials.UserDiscord != null)
             {
                 userViewModel.Profile.DiscordAuth = _mapper.Map<UserDiscordAuthViewModel>(userSocials.UserDiscord);
@@ -91,14 +91,6 @@ namespace Momentum.Auth.Api.Controllers
             Response.Cookies.Append("refreshToken", refreshToken);
             Response.Cookies.Append("user", JsonSerializer.Serialize(userViewModel));
 
-            var refererUrl = Request.GetTypedHeaders().Referer;
-            if (refererUrl != null)
-            {
-                Request.Headers.Remove("Referer");
-                    
-                return LocalRedirect(refererUrl.ToString());
-            }
-
             return LocalRedirect("/dashboard");
 
         }
@@ -117,7 +109,7 @@ namespace Momentum.Auth.Api.Controllers
 
             var steamId = Request.Headers.First(x => string.Equals("id", x.Key, StringComparison.OrdinalIgnoreCase))
                 .Value.ToString();
-            
+
             var userTicketValid = await _mediator.Send(new SteamUserTicketValidQuery
             {
                 Ticket = ticketStringBuilder.ToString(),
@@ -133,18 +125,18 @@ namespace Momentum.Auth.Api.Controllers
                     BuildUserDto = async () => await _steamService.BuildUserFromProfile(steamId),
                     EnsureSteamUserPermittedToCreateProfile = async () => await _steamService.EnsurePremiumAccountWithProfile(steamId)
                 });
-                
+
                 var refreshToken = await _mediator.Send(new GetOrCreateRefreshTokenQuery
                 {
                     UserId = user.Id
                 });
-                
+
                 var accessToken = await _mediator.Send(new RefreshAccessTokenQuery
                 {
                     RefreshToken = refreshToken,
                     FromInGame = true
                 });
-                
+
                 return Ok(new GameAccessTokenViewModel(accessToken));
             }
 
