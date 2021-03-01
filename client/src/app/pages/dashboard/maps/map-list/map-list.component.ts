@@ -121,13 +121,19 @@ export class MapListComponent implements OnInit {
   }
 
   libraryUpdate(): void {
-    if (this.type === MapListType.TYPE_LIBRARY)
+    if (this.type === MapListType.TYPE_LIBRARY) {
+      if (this.maps.length === 1 && this.currentPage * this.pageLimit >= this.mapCount && this.currentPage > 1)
+        this.currentPage -= 1;
       this.loadMaps();
+    }
   }
 
   favoriteUpdate() {
-    if (this.type === MapListType.TYPE_FAVORITES)
+    if (this.type === MapListType.TYPE_FAVORITES) {
+      if (this.maps.length === 1 && this.currentPage * this.pageLimit >= this.mapCount && this.currentPage > 1)
+        this.currentPage -= 1;
       this.loadMaps();
+    }
   }
 
   isMapInFavorites(m: MomentumMap) {
