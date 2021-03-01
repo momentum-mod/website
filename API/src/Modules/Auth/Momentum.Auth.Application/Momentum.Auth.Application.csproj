@@ -6,7 +6,7 @@
 
     <ItemGroup>
       <PackageReference Include="MediatR" Version="9.0.0" />
-      <PackageReference Include="SteamWebAPI2" Version="4.2.7" />
+      <PackageReference Include="Hona.SteamWebAPI2" Version="4.2.7" />
     </ItemGroup>
 
     <ItemGroup>
