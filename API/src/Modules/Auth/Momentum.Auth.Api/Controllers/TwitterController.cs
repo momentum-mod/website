@@ -39,5 +39,13 @@ namespace Momentum.Auth.Api.Controllers
             // and the client waits till the window is closed before continuing
             return Content("<script>window.close();</script>", "text/html");
         }
+
+        [HttpDelete("/api/user/profile/social/twitter")]
+        public async Task<IActionResult> UnlinkAsync()
+        {
+            await _mediator.Send(new UnlinkUserTwitterCommand());
+
+            return Ok();
+        }
     }
 }

@@ -28,7 +28,7 @@ namespace Momentum.Auth.Api.Controllers
             if (User.Identity == null ||
                 !User.Identity.IsAuthenticated)
                 return Challenge("Discord");
-            
+
             await _mediator.Send(new CreateOrUpdateUserDiscordCommand
             {
                 DisplayName = User.Identity.Name,
@@ -37,7 +37,16 @@ namespace Momentum.Auth.Api.Controllers
 
             // Discord auth is opened in a new window,
             // and the client waits till the window is closed before continuing
+            // TODO: Refactor frontend
             return Content("<script>window.close();</script>", "text/html");
+        }
+
+        [HttpDelete("/api/user/profile/social/discord")]
+        public async Task<IActionResult> UnlinkAsync()
+        {
+            await _mediator.Send(new UnlinkUserDiscordCommand());
+
+            return Ok();
         }
     }
 }
