@@ -8,8 +8,8 @@ import {ActivatedRoute, ParamMap} from '@angular/router';
 import {LocalUserService} from '../../../../@core/data/local-user.service';
 import {Observable} from 'rxjs';
 import {NbLayoutScrollService, NbToastrService} from '@nebular/theme';
-import {MapUploadStatus} from '../../../../@core/models/map-upload-status.model';
-import {MomentumMapType} from '../../../../@core/models/map-type.model';
+import {MapUploadStatus, getStatusFromEnum} from '../../../../@core/models/map-upload-status.model';
+import {MomentumMapType, getTypeFromEnum} from '../../../../@core/models/map-type.model';
 
 
 export enum MapListType {
@@ -67,7 +67,7 @@ export class MapListComponent implements OnInit {
     for (const i of arr) {
       this.statusEnums.push({
         value: Number(i),
-        text: this.formatStatusEnum(Number(i)),
+        text: getStatusFromEnum(Number(i)),
       });
     }
     // Sort items alphabetically
@@ -85,7 +85,7 @@ export class MapListComponent implements OnInit {
       if (i !== MomentumMapType.UNKNOWN) {
         this.typeEnums.push({
           value: Number(i),
-          text: this.formatTypeEnum(Number(i)),
+          text: getTypeFromEnum(Number(i)),
         });
       }
     }
@@ -178,57 +178,6 @@ export class MapListComponent implements OnInit {
       return true;
     else
       return m.favorites && m.favorites.length > 0;
-  }
-
-  formatStatusEnum(key: number) {
-    switch (key) {
-      case MapUploadStatus.APPROVED:
-        return 'Approved';
-      case MapUploadStatus.PENDING:
-        return 'Pending';
-      case MapUploadStatus.NEEDS_REVISION:
-        return 'Needs Revision';
-      case MapUploadStatus.PRIVATE_TESTING:
-        return 'Private Testing';
-      case MapUploadStatus.PUBLIC_TESTING:
-        return 'Public Testing';
-      case MapUploadStatus.READY_FOR_RELEASE:
-        return 'Ready for Release';
-      case MapUploadStatus.REJECTED:
-        return 'Rejected';
-      case MapUploadStatus.REMOVED:
-        return 'Removed';
-      default:
-        return MapUploadStatus[key];
-    }
-  }
-
-  formatTypeEnum(key: number) {
-    switch (key) {
-      case MomentumMapType.SURF:
-        return 'Surf';
-      case MomentumMapType.BHOP:
-        return 'Bunny Hop';
-      case MomentumMapType.KZ:
-        return 'Climb (KZ/XC)';
-      case MomentumMapType.RJ:
-        return 'Rocket Jump';
-      case MomentumMapType.SJ:
-        return 'Sticky Jump';
-      case MomentumMapType.TRICKSURF:
-        // Is it Tricksurf, TrickSurf, or Trick Surf?
-        return 'Tricksurf';
-      case MomentumMapType.AHOP:
-        return 'Accelerated Hop';
-      case MomentumMapType.PARKOUR:
-        return 'Parkour';
-      case MomentumMapType.CONC:
-        return 'Conc';
-      case MomentumMapType.DEFRAG:
-        return 'Defrag';
-      default:
-        return MomentumMapType[key];
-    }
   }
 
   searchFiltered(): boolean {

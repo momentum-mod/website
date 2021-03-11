@@ -1,7 +1,7 @@
 import {Component, EventEmitter, Input, OnInit, Output} from '@angular/core';
 import {MomentumMap} from '../../../../../@core/models/momentum-map.model';
 import {LocalUserService} from '../../../../../@core/data/local-user.service';
-import {MapUploadStatus} from '../../../../../@core/models/map-upload-status.model';
+import {MapUploadStatus, getStatusFromEnum} from '../../../../../@core/models/map-upload-status.model';
 import {NbToastrService} from '@nebular/theme';
 
 @Component({
@@ -35,34 +35,7 @@ export class MapListItemComponent implements OnInit {
   ngOnInit() {
     this.mapInFavorites = this.inFavorites;
     this.mapInLibrary = this.inLibrary;
-    switch (this.map.statusFlag) {
-      case MapUploadStatus.APPROVED:
-        this.status = 'Approved';
-        break;
-      case MapUploadStatus.PENDING:
-        this.status = 'Pending';
-        break;
-      case MapUploadStatus.NEEDS_REVISION:
-        this.status = 'Needs Revision';
-        break;
-      case MapUploadStatus.PRIVATE_TESTING:
-        this.status = 'Private Testing';
-        break;
-      case MapUploadStatus.PUBLIC_TESTING:
-        this.status = 'Public Testing';
-        break;
-      case MapUploadStatus.READY_FOR_RELEASE:
-        this.status = 'Ready for Release';
-        break;
-      case MapUploadStatus.REJECTED:
-        this.status = 'Rejected';
-        break;
-      case MapUploadStatus.REMOVED:
-        this.status = 'Removed';
-        break;
-      default:
-        this.status = this.statusEnum[this.map.statusFlag];
-    }
+    this.status = getStatusFromEnum(this.map.statusFlag);
   }
 
   toggleMapInFavorites() {
