@@ -42,6 +42,13 @@ export class MapListComponent implements OnInit {
     'status': [],
     'type': [],
   });
+  lastSearch : {
+    search: string,
+    // TODO: Enable when map credits get reworked (#415)
+    // author: string,
+    status: number,
+    type: number
+  }
 
   constructor(private route: ActivatedRoute,
               private mapService: MapsService,
@@ -107,21 +114,21 @@ export class MapListComponent implements OnInit {
   }
 
   genQueryParams(): MapAPIQueryParams {
-    const searchOptions = this.searchOptions.value;
+    this.lastSearch = this.searchOptions.value;
     const queryParams: MapAPIQueryParams = {
       expand: 'info,submitter,thumbnail,inFavorites,inLibrary',
       limit: this.pageLimit,
       offset: (this.currentPage - 1) * this.pageLimit,
     };
-    if (searchOptions.search)
-      queryParams.search = searchOptions.search;
+    if (this.lastSearch.search)
+      queryParams.search = this.lastSearch.search;
     // TODO: Enable when map credits get reworked (#415)
     // if (searchOptions.author)
-    //   queryParams.author = searchOptions.author;
-    if (searchOptions.status !== null && searchOptions.status >= 0)
-      queryParams.status = searchOptions.status;
-    if (searchOptions.type !== null && searchOptions.type >= 0)
-      queryParams.type = searchOptions.type;
+    //   queryParams.author = this.lastSearch.author;
+    if (this.lastSearch.status !== null && this.lastSearch.status >= 0)
+      queryParams.status = this.lastSearch.status;
+    if (this.lastSearch.type !== null && this.lastSearch.type >= 0)
+      queryParams.type = this.lastSearch.type;
     return queryParams;
   }
 
@@ -180,9 +187,9 @@ export class MapListComponent implements OnInit {
       return m.favorites && m.favorites.length > 0;
   }
 
-  searchFiltered(): boolean {
-    const {search, status, type} = this.searchOptions.value;
-    return search || (status && status >= 0) || (type && type >= 0);
+  isSearchFiltered(): boolean {
+    const {search, status, type} = this.lastSearch;
+    return search !== null || (status !== null && status >= 0) || (type !== null && type >= 0);
   }
 
 }

@@ -56,7 +56,7 @@
       <i>You have not uploaded any maps. Try <a routerLink="/dashboard/maps/uploads/new">uploading a new one!</a></i></h3>
   </div>
 </div>
-<div class="text-center" *ngIf="maps.length === 0 && requestSent && searchFiltered()">
+<div class="text-center" *ngIf="maps.length === 0 && requestSent && isSearchFiltered()">
   <div [ngSwitch]="type">
     <h3 class="m-0" *ngSwitchDefault>No maps with those search parameters found.</h3>
     <h3 class="m-0" *ngSwitchCase="mapListType.TYPE_LIBRARY">No maps with those search parameters found in your library.</h3>
