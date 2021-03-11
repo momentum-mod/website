@@ -42,13 +42,13 @@ export class MapListComponent implements OnInit {
     'status': [],
     'type': [],
   });
-  lastSearch : {
+  lastSearch: {
     search: string,
     // TODO: Enable when map credits get reworked (#415)
     // author: string,
     status: number,
-    type: number
-  }
+    type: number,
+  };
 
   constructor(private route: ActivatedRoute,
               private mapService: MapsService,
