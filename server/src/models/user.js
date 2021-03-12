@@ -772,9 +772,28 @@ module.exports = {
 				steamids: steamIDs.join(','),
 			}
 		}).then(res => {
-			if (res.data && res.data.response && res.data.response.players)
-                return Promise.resolve(res.data.response.players);
+			if (res.data && res.data.response) {
+				const players = res.data.response.players;
+
+				if (players.length === 0) {
+					return Promise.reject(new ServerError(404, 'No players found'));
+				}
+
+				return Promise.resolve(players);
+			}
 			return Promise.reject(new ServerError(500, 'Failed to get user(s) from Steam'));
+		}).catch(error => {
+			if (error.response) {
+				// The request was made and the server responded with a status code
+				// that falls out of the range of 2xx
+				return Promise.reject(new ServerError(400, 'Bad request'));
+			} else if (error.request) {
+				// The request was made but no response was received
+				return Promise.reject(new ServerError(404, 'Steam servers did not give a response :('));
+			} else {
+				// Something happened in setting up the request that triggered an Error
+				return Promise.reject(error);
+			}
 		});
 	},
 

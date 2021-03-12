@@ -88,6 +88,9 @@ module.exports = {
 					ticket: userTicket
 				}
 			}).then((sres) => {
+				if (sres.data.response.error)
+					res.sendStatus(400); // Bad request, and not sending the error object just in case of hidden bans
+
 				if (sres.data.response.params.result === 'OK') {
 					if (idToVerify === sres.data.response.params.steamid) {
 						user.findOrCreateFromGame(idToVerify).then((usr) => {

@@ -171,13 +171,19 @@ export class MapListComponent implements OnInit {
   }
 
   libraryUpdate(): void {
-    if (this.type === MapListType.TYPE_LIBRARY)
+    if (this.type === MapListType.TYPE_LIBRARY) {
+      if (this.isLastItemInLastPage())
+        this.currentPage--;
       this.loadMaps();
+    }
   }
 
   favoriteUpdate() {
-    if (this.type === MapListType.TYPE_FAVORITES)
+    if (this.type === MapListType.TYPE_FAVORITES) {
+      if (this.isLastItemInLastPage())
+        this.currentPage--;
       this.loadMaps();
+    }
   }
 
   isMapInFavorites(m: MomentumMap) {
@@ -192,4 +198,7 @@ export class MapListComponent implements OnInit {
     return search !== null || (status !== null && status >= 0) || (type !== null && type >= 0);
   }
 
+  isLastItemInLastPage(): boolean {
+    return this.maps.length === 1 && this.currentPage * this.pageLimit >= this.mapCount && this.currentPage > 1;
+  }
 }
