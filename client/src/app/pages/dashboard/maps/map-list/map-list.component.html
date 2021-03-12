@@ -47,7 +47,7 @@
     <pagination-controls (pageChange)="onPageChange($event)" [autoHide]="true" [responsive]="true"></pagination-controls>
   </div>
 </div>
-<div class="text-center" *ngIf="maps.length === 0 && requestSent && !searchFiltered()">
+<div class="text-center" *ngIf="maps.length === 0 && requestSent && !isSearchFiltered()">
   <div [ngSwitch]="type">
     <h3 class="m-0" *ngSwitchDefault>No maps found!</h3>
     <h3 class="m-0" *ngSwitchCase="mapListType.TYPE_LIBRARY">No maps in your library. Try <a routerLink="/dashboard/maps">adding some</a>!</h3>
