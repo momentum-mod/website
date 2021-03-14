@@ -201,4 +201,17 @@ export class MapListComponent implements OnInit {
   isLastItemInLastPage(): boolean {
     return this.maps.length === 1 && this.currentPage * this.pageLimit >= this.mapCount && this.currentPage > 1;
   }
+
+  getNoMapsFoundText(): string {
+    switch (this.type) {
+      case MapListType.TYPE_LIBRARY:
+        return 'No maps with those search parameters found in your library.';
+      case MapListType.TYPE_FAVORITES:
+        return 'No favorite maps with those search parameters found.';
+      case MapListType.TYPE_UPLOADS:
+        return 'You have not uploaded any maps with those search parameters.';
+      default:
+        return 'No maps with those search parameters found.';
+    }
+  }
 }

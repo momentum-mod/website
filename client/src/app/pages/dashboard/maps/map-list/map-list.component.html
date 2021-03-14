@@ -57,12 +57,7 @@
   </div>
 </div>
 <div class="text-center" *ngIf="maps.length === 0 && requestSent && isSearchFiltered()">
-  <div [ngSwitch]="type">
-    <h3 class="m-0" *ngSwitchDefault>No maps with those search parameters found.</h3>
-    <h3 class="m-0" *ngSwitchCase="mapListType.TYPE_LIBRARY">No maps with those search parameters found in your library.</h3>
-    <h3 class="m-0" *ngSwitchCase="mapListType.TYPE_FAVORITES">No favorite maps with those search parameters found.</h3>
-    <h3 class="m-0" *ngSwitchCase="mapListType.TYPE_UPLOADS">You have not uploaded any maps with those search parameters.</h3>
-  </div>
+  <h3 class="m-0">{{getNoMapsFoundText()}}</h3>
 </div>
 <div class="text-center" *ngIf="!requestSent">
   <h3 class="m-0">Waiting for API response</h3>
