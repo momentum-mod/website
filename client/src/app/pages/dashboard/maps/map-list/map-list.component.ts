@@ -195,7 +195,7 @@ export class MapListComponent implements OnInit {
 
   isSearchFiltered(): boolean {
     const {search, status, type} = this.lastSearch;
-    return search !== null || (status !== null && status >= 0) || (type !== null && type >= 0);
+    return (search && search.length > 0) || (status !== null && status >= 0) || (type !== null && type >= 0);
   }
 
   isLastItemInLastPage(): boolean {
