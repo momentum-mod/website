@@ -47,14 +47,14 @@ li {
   }
 }
 
-.PENDING {
+.Pending {
   @include map-status-col(orange);
 }
 
-.APPROVED {
+.Approved {
   @include map-status-col(green);
 }
 
-.REJECTED {
+.Rejected {
   @include map-status-col(red);
 }

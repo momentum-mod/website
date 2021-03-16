@@ -1,7 +1,7 @@
 import {Component, EventEmitter, Input, OnInit, Output} from '@angular/core';
 import {MomentumMap} from '../../../../../@core/models/momentum-map.model';
 import {LocalUserService} from '../../../../../@core/data/local-user.service';
-import {MapUploadStatus, getStatusFromEnum} from '../../../../../@core/models/map-upload-status.model';
+import {getStatusFromEnum} from '../../../../../@core/models/map-upload-status.model';
 import {NbToastrService} from '@nebular/theme';
 
 @Component({
@@ -11,7 +11,6 @@ import {NbToastrService} from '@nebular/theme';
 })
 export class MapListItemComponent implements OnInit {
 
-  statusEnum = MapUploadStatus;
   @Input('map') map: MomentumMap;
   @Input('isUpload') isUpload: boolean;
   @Input('inLibrary') inLibrary: boolean;
