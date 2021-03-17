@@ -35,6 +35,7 @@ export class MapListComponent implements OnInit {
   maps: MomentumMap[];
   pageLimit: number;
   currentPage: number;
+  noMapsText: string;
   searchOptions: FormGroup = this.fb.group({
     'search': [''],
     // TODO: Enable when map credits get reworked (#415)
@@ -104,6 +105,20 @@ export class MapListComponent implements OnInit {
   }
 
   ngOnInit() {
+    switch (this.type) {
+      case MapListType.TYPE_LIBRARY:
+        this.noMapsText = 'No maps with those search parameters found in your library.';
+        break;
+      case MapListType.TYPE_FAVORITES:
+        this.noMapsText = 'No favorite maps with those search parameters found.';
+        break;
+      case MapListType.TYPE_UPLOADS:
+        this.noMapsText = 'You have not uploaded any maps with those search parameters.';
+        break;
+      default:
+        this.noMapsText = 'No maps with those search parameters found.';
+        break;
+    }
     this.route.queryParamMap.subscribe((paramMap: ParamMap) => {
       this.currentPage = +paramMap.get('page') || 1;
       const count = this.pageLimit * this.currentPage;
@@ -200,18 +215,5 @@ export class MapListComponent implements OnInit {
 
   isLastItemInLastPage(): boolean {
     return this.maps.length === 1 && this.currentPage * this.pageLimit >= this.mapCount && this.currentPage > 1;
-  }
-
-  getNoMapsFoundText(): string {
-    switch (this.type) {
-      case MapListType.TYPE_LIBRARY:
-        return 'No maps with those search parameters found in your library.';
-      case MapListType.TYPE_FAVORITES:
-        return 'No favorite maps with those search parameters found.';
-      case MapListType.TYPE_UPLOADS:
-        return 'You have not uploaded any maps with those search parameters.';
-      default:
-        return 'No maps with those search parameters found.';
-    }
   }
 }
