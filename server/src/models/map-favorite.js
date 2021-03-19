@@ -41,6 +41,8 @@ module.exports = {
 			queryOptions.offset = queryParams.offset;
 		if (queryParams.search)
 			queryOptions.include[0].where.name = {[Op.like]: '%' + queryParams.search + '%'};
+		if (queryParams.type)
+			queryOptions.include[0].where.type = queryParams.type;
 		if (queryParams.expand) {
 			const expansionNames = queryParams.expand.split(',');
 			if (expansionNames.includes('info')) {

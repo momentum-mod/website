@@ -26,6 +26,7 @@ module.exports = {
 			offset: validation.queryParam.offset,
 			search: validation.queryParam.search,
 			expand: validation.queryParam.expand,
+			type: validation.map.type,
 		}),
 	},
 
@@ -35,6 +36,7 @@ module.exports = {
 			offset: validation.queryParam.offset,
 			search: validation.queryParam.search,
 			expand: validation.queryParam.expand,
+			type: validation.map.type,
 		}),
 	},
 
@@ -44,6 +46,8 @@ module.exports = {
 			offset: validation.queryParam.offset,
 			search: validation.queryParam.search,
 			expand: validation.queryParam.expand,
+			status: validation.queryParam.status,
+			type: validation.map.type,
 		}),
 	},
 

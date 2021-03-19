@@ -4,6 +4,7 @@ export interface MapAPIQueryParams {
   search?: string;
   submitterID?: string;
   expand?: string;
-  status?: string;
+  status?: number;
+  type?: number;
   priority?: boolean;
 }

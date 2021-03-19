@@ -1,7 +1,7 @@
 import {Component, EventEmitter, Input, OnInit, Output} from '@angular/core';
 import {MomentumMap} from '../../../../../@core/models/momentum-map.model';
 import {LocalUserService} from '../../../../../@core/data/local-user.service';
-import {MapUploadStatus} from '../../../../../@core/models/map-upload-status.model';
+import {getStatusFromEnum} from '../../../../../@core/models/map-upload-status.model';
 import {NbToastrService} from '@nebular/theme';
 
 @Component({
@@ -11,7 +11,6 @@ import {NbToastrService} from '@nebular/theme';
 })
 export class MapListItemComponent implements OnInit {
 
-  statusEnum = MapUploadStatus;
   @Input('map') map: MomentumMap;
   @Input('isUpload') isUpload: boolean;
   @Input('inLibrary') inLibrary: boolean;
@@ -21,6 +20,7 @@ export class MapListItemComponent implements OnInit {
   @Output() onFavoriteUpdate = new EventEmitter();
   mapInFavorites: boolean;
   mapInLibrary: boolean;
+  status: String;
 
   constructor(private localUserService: LocalUserService,
               private toastService: NbToastrService) {
@@ -28,11 +28,13 @@ export class MapListItemComponent implements OnInit {
     this.inFavorites = false;
     this.isUpload = false;
     this.map = null;
+    this.status = '';
   }
 
   ngOnInit() {
     this.mapInFavorites = this.inFavorites;
     this.mapInLibrary = this.inLibrary;
+    this.status = getStatusFromEnum(this.map.statusFlag);
   }
 
   toggleMapInFavorites() {
@@ -74,5 +76,4 @@ export class MapListItemComponent implements OnInit {
       });
     }
   }
-
 }

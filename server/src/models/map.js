@@ -156,7 +156,7 @@ module.exports = {
 			distinct: true,
 			include: [
 				{model: MapTrack, as: 'mainTrack', where: {trackNum: 0}, required: false},
-				{model: MapInfo, as: 'info', where: {}}
+				{model: MapInfo, as: 'info', where: {}},
 			],
 			where: {},
 			limit: 20,
