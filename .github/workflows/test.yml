@@ -1,0 +1,60 @@
+name: Tests
+
+on:
+  push:
+    branches:
+      - staging
+  pull_request:
+    branches:
+      - staging
+
+jobs:
+  client-tests:
+    name: Client Tests
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node-version: [12.x]
+
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v2
+
+    - name: Setup Node ${{ matrix.node-version }}
+      uses: actions/setup-node@v1
+      with:
+        node-version: ${{ matrix.node-version }}
+
+    - name: Run Tests
+      run: |
+        cd ./client/
+        npm install -g @angular/cli && yarn install
+        npm run test
+
+  server-tests:
+    name: Server Tests
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node-version: [12.x]
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Setup Node ${{ matrix.node-version }}
+        uses: actions/setup-node@v1
+        with:
+          node-version: ${{ matrix.node-version }}
+
+      - name: Start MySQL Service
+        run: sudo systemctl start mysql.service
+
+      - name: Setup Database
+        run: bash ./scripts/setup-db-test.sh
+
+      - name: Run Tests
+        run: |
+          cd ./server/
+          yarn install
+          npm test
