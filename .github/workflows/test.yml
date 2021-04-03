@@ -8,6 +8,9 @@ on:
     branches:
       - staging
 
+env:
+  NODE_ENV: test
+
 jobs:
   client-tests:
     name: Client Tests
