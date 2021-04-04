@@ -11,7 +11,6 @@ COPY ["API/src/Gateway/Momentum.Gateway.Api/Momentum.Gateway.Api.csproj", "API/s
 COPY ["API/src/Framework/Momentum.Framework.Core/Momentum.Framework.Core.csproj", "API/src/Framework/Momentum.Framework.Core/"]
 COPY ["API/src/Modules/Auth/Momentum.Auth.Api/Momentum.Auth.Api.csproj", "API/src/Modules/Auth/Momentum.Auth.Api/"]
 COPY ["API/src/Modules/Auth/Momentum.Auth.Application/Momentum.Auth.Application.csproj", "API/src/Modules/Auth/Momentum.Auth.Application/"]
-COPY ["API/src/Framework/Momentum.Framework.Application/Momentum.Framework.Application.csproj", "API/src/Framework/Momentum.Framework.Application/"]
 COPY ["API/src/Modules/Auth/Momentum.Auth.Core/Momentum.Auth.Core.csproj", "API/src/Modules/Auth/Momentum.Auth.Core/"]
 COPY ["API/src/Modules/Users/Momentum.Users.Application/Momentum.Users.Application.csproj", "API/src/Modules/Users/Momentum.Users.Application/"]
 COPY ["API/src/Modules/Users/Momentum.Users.Core/Momentum.Users.Core.csproj", "API/src/Modules/Users/Momentum.Users.Core/"]
