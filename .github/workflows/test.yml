@@ -25,10 +25,21 @@ jobs:
       with:
         node-version: '12.x'
 
+    - name: Resolve Yarn Cache Directory
+      id: yarn-cache-dir-path
+      run: echo "::set-output name=dir::$(yarn cache dir)"
+
+    - name: Cache Yarn Cache Directory
+      uses: actions/cache@v2
+      with:
+        path: ${{ steps.yarn-cache-dir-path.outputs.dir }}
+        key: ${{ runner.os }}-${{ env.NODE_VERSION }}-${{ hashFiles('./client/yarn.lock') }}
+        restore-keys: ${{ runner.os }}-${{ env.NODE_VERSION }}-
+
     - name: Run Tests
       run: |
         cd ./client/
-        npm install -g @angular/cli && yarn install
+        npm install -g @angular/cli && yarn install --prefer-offline
         npm run test
 
   server-tests:
@@ -47,6 +58,17 @@ jobs:
         with:
           node-version: '12.x'
 
+      - name: Resolve Yarn Cache Directory
+        id: yarn-cache-dir-path
+        run: echo "::set-output name=dir::$(yarn cache dir)"
+
+      - name: Cache Yarn Cache Directory
+        uses: actions/cache@v2
+        with:
+          path: ${{ steps.yarn-cache-dir-path.outputs.dir }}
+          key: ${{ runner.os }}-${{ env.NODE_VERSION }}-${{ hashFiles('./server/yarn.lock') }}
+          restore-keys: ${{ runner.os }}-${{ env.NODE_VERSION }}-
+
       - name: Start MySQL Service
         run: sudo systemctl start mysql.service
 
@@ -56,5 +78,5 @@ jobs:
       - name: Run Tests
         run: |
           cd ./server/
-          yarn install
+          yarn install --prefer-offline
           npm test
