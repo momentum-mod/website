@@ -5,15 +5,16 @@ on:
   push:
     branches:
       - staging
+    paths-ignore:
+      - '**.md'
   pull_request:
     branches:
       - staging
+    paths-ignore:
+      - '**.md'
 jobs: 
   build:
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        node-version: [12.x]
     steps:
       - uses: actions/checkout@v2
       - uses: bahmutov/npm-install@v1
@@ -22,11 +23,20 @@ jobs:
       - name: Node ${{ matrix.node-version }}
         uses: actions/setup-node@v1
         with:
-          node-version: ${{ matrix.node-version }}
+          node-version: '12.x'
+      - name: Resolve Yarn Cache Directory
+        id: yarn-cache-dir-path
+        run: echo "::set-output name=dir::$(yarn cache dir)"
+      - name: Cache Yarn Cache Directory
+        uses: actions/cache@v2
+        with:
+          path: ${{ steps.yarn-cache-dir-path.outputs.dir }}
+          key: ${{ runner.os }}-${{ env.NODE_VERSION }}-${{ hashFiles('./client/yarn.lock') }}
+          restore-keys: ${{ runner.os }}-${{ env.NODE_VERSION }}-
       - name: npm install and npm run build
         run: |
           cd ./client
-          npm install -g @angular/cli && yarn install
+          npm install -g @angular/cli && yarn install --prefer-offline
           npm run build:prod
       - uses: actions/upload-artifact@v2
         with:
