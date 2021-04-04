@@ -4,9 +4,13 @@ on:
   push:
     branches:
       - staging
+    paths-ignore:
+      - '**.md'
   pull_request:
     branches:
       - staging
+    paths-ignore:
+      - '**.md'
 
 env:
   NODE_ENV: test
