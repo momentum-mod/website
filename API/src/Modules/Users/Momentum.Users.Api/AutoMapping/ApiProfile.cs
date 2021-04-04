@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using Momentum.Users.Api.ViewModels;
+using Momentum.Users.Application.Commands;
 using Momentum.Users.Application.DTOs;
 using Momentum.Users.Application.DTOs.Auth;
 
@@ -16,6 +17,8 @@ namespace Momentum.Users.Api.AutoMapping
             CreateMap<UserTwitterDto, UserTwitterAuthViewModel>();
             CreateMap<UserTwitchDto, UserTwitchAuthViewModel>();
             CreateMap<UserDiscordDto, UserDiscordAuthViewModel>();
+
+            CreateMap<UpdateUserViewModel, UpdateUserCommand>().ForMember(x => x.Bio, x=>x.MapFrom(x => x.Profile.Bio));
         }
     }
 }

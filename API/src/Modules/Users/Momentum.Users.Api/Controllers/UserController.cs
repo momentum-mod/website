@@ -5,6 +5,7 @@ using AutoMapper;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using Momentum.Users.Api.ViewModels;
+using Momentum.Users.Application.Commands;
 using Momentum.Users.Application.Queries;
 using Momentum.Users.Application.Queries.Auth;
 using Momentum.Users.Core.Services;
@@ -83,6 +84,16 @@ namespace Momentum.Users.Api.Controllers
             }
 
             return Ok(userViewModel);
+        }
+
+        [HttpPatch]
+        public async Task<IActionResult> UpdateUserAsync([FromBody] UpdateUserViewModel model)
+        {
+            var request = _mapper.Map<UpdateUserCommand>(model);
+
+            await _mediator.Send(request);
+
+            return NoContent();
         }
     }
 }

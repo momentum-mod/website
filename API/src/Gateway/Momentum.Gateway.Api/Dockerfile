@@ -9,15 +9,11 @@ FROM mcr.microsoft.com/dotnet/sdk:5.0-buster-slim AS build
 WORKDIR /src
 COPY ["API/src/Gateway/Momentum.Gateway.Api/Momentum.Gateway.Api.csproj", "API/src/Gateway/Momentum.Gateway.Api/"]
 COPY ["API/src/Framework/Momentum.Framework.Core/Momentum.Framework.Core.csproj", "API/src/Framework/Momentum.Framework.Core/"]
-COPY ["API/src/Modules/Auth/Momentum.Auth.Api/Momentum.Auth.Api.csproj", "API/src/Modules/Auth/Momentum.Auth.Api/"]
-COPY ["API/src/Modules/Auth/Momentum.Auth.Application/Momentum.Auth.Application.csproj", "API/src/Modules/Auth/Momentum.Auth.Application/"]
-COPY ["API/src/Modules/Auth/Momentum.Auth.Core/Momentum.Auth.Core.csproj", "API/src/Modules/Auth/Momentum.Auth.Core/"]
-COPY ["API/src/Modules/Users/Momentum.Users.Application/Momentum.Users.Application.csproj", "API/src/Modules/Users/Momentum.Users.Application/"]
-COPY ["API/src/Modules/Users/Momentum.Users.Core/Momentum.Users.Core.csproj", "API/src/Modules/Users/Momentum.Users.Core/"]
-COPY ["API/src/Modules/Auth/Momentum.Auth.Infrastructure/Momentum.Auth.Infrastructure.csproj", "API/src/Modules/Auth/Momentum.Auth.Infrastructure/"]
-COPY ["API/src/Framework/Momentum.Framework.Infrastructure/Momentum.Framework.Infrastructure.csproj", "API/src/Framework/Momentum.Framework.Infrastructure/"]
 COPY ["API/src/Modules/Users/Momentum.Users.Api/Momentum.Users.Api.csproj", "API/src/Modules/Users/Momentum.Users.Api/"]
 COPY ["API/src/Modules/Users/Momentum.Users.Infrastructure/Momentum.Users.Infrastructure.csproj", "API/src/Modules/Users/Momentum.Users.Infrastructure/"]
+COPY ["API/src/Modules/Users/Momentum.Users.Core/Momentum.Users.Core.csproj", "API/src/Modules/Users/Momentum.Users.Core/"]
+COPY ["API/src/Framework/Momentum.Framework.Infrastructure/Momentum.Framework.Infrastructure.csproj", "API/src/Framework/Momentum.Framework.Infrastructure/"]
+COPY ["API/src/Modules/Users/Momentum.Users.Application/Momentum.Users.Application.csproj", "API/src/Modules/Users/Momentum.Users.Application/"]
 RUN dotnet restore "API/src/Gateway/Momentum.Gateway.Api/Momentum.Gateway.Api.csproj"
 COPY . .
 WORKDIR "/src/API/src/Gateway/Momentum.Gateway.Api"

@@ -5,9 +5,7 @@
     </PropertyGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\..\..\Framework\Momentum.Framework.Application\Momentum.Framework.Application.csproj" />
       <ProjectReference Include="..\..\..\Framework\Momentum.Framework.Core\Momentum.Framework.Core.csproj" />
-      <ProjectReference Include="..\..\Auth\Momentum.Auth.Application\Momentum.Auth.Application.csproj" />
       <ProjectReference Include="..\Momentum.Users.Application\Momentum.Users.Application.csproj" />
       <ProjectReference Include="..\Momentum.Users.Infrastructure\Momentum.Users.Infrastructure.csproj" />
     </ItemGroup>

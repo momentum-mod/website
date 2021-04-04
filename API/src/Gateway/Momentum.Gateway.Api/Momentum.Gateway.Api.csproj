@@ -10,6 +10,7 @@
     <ItemGroup>
         <PackageReference Include="AspNet.Security.OAuth.Discord" Version="5.0.3" />
         <PackageReference Include="AspNet.Security.OAuth.Twitch" Version="5.0.3" />
+        <PackageReference Include="AspNet.Security.OpenId.Steam" Version="5.0.0" />
         <PackageReference Include="AutoMapper" Version="10.1.1" />
         <PackageReference Include="AutoMapper.Extensions.Microsoft.DependencyInjection" Version="8.1.1" />
         <PackageReference Include="Marten" Version="3.13.4" />
@@ -26,9 +27,7 @@
     </ItemGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\..\Framework\Momentum.Framework.Application\Momentum.Framework.Application.csproj" />
       <ProjectReference Include="..\..\Framework\Momentum.Framework.Core\Momentum.Framework.Core.csproj" />
-      <ProjectReference Include="..\..\Modules\Auth\Momentum.Auth.Api\Momentum.Auth.Api.csproj" />
       <ProjectReference Include="..\..\Modules\Users\Momentum.Users.Api\Momentum.Users.Api.csproj" />
     </ItemGroup>
 
