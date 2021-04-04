@@ -6,8 +6,6 @@ using MediatR;
 using Momentum.Users.Application.DTOs;
 using Momentum.Users.Core.Models;
 using Momentum.Users.Core.Repositories;
-using SteamWebAPI2.Interfaces;
-using SteamWebAPI2.Utilities;
 using Profile = Momentum.Users.Core.Models.Profile;
 
 namespace Momentum.Users.Application.Commands

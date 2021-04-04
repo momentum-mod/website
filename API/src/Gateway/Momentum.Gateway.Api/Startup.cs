@@ -3,8 +3,6 @@ using System.Linq;
 using System.Net.Http;
 using System.Reflection;
 using System.Text.Json;
-using AutoMapper;
-using Baseline;
 using Marten;
 using MediatR;
 using Microsoft.AspNetCore.Builder;
@@ -15,10 +13,10 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.OpenApi.Models;
-using Momentum.Auth.Core.Services;
 using Momentum.Framework.Core.DependencyInjection;
 using Momentum.Framework.Core.Models;
 using Momentum.Gateway.Api.Helpers;
+using Momentum.Users.Core.Services;
 using Serilog;
 
 namespace Momentum.Gateway.Api

@@ -4,10 +4,10 @@ using System.Threading.Tasks;
 using AutoMapper;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
-using Momentum.Auth.Application.Queries;
-using Momentum.Auth.Core.Services;
 using Momentum.Users.Api.ViewModels;
 using Momentum.Users.Application.Queries;
+using Momentum.Users.Application.Queries.Auth;
+using Momentum.Users.Core.Services;
 
 namespace Momentum.Users.Api.Controllers
 {

@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections;
 using System.Threading.Tasks;
 using Marten;
 using Momentum.Framework.Infrastructure.Repositories;
