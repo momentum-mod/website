@@ -4,14 +4,12 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
-using MediatR;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Net.Http.Headers;
-using Momentum.Auth.Core.Services;
-using Momentum.Users.Application.DTOs;
-using Momentum.Users.Application.Queries;
+using Momentum.Users.Core.Models;
+using Momentum.Users.Core.Repositories;
 
-namespace Momentum.Framework.Application.Services
+namespace Momentum.Auth.Core.Services
 {
     /// <summary>
     ///     Scoped service for the current user
@@ -19,14 +17,14 @@ namespace Momentum.Framework.Application.Services
     public class CurrentUserService : ICurrentUserService
     {
         private readonly HttpContext _httpContext;
-        private readonly IMediator _mediator;
         private readonly IJwtService _jwtService;
+        private readonly IUserRepository _userRepository;
 
-        public CurrentUserService(IHttpContextAccessor httpContextAccessor, IMediator mediator, IJwtService jwtService)
+        public CurrentUserService(IHttpContextAccessor httpContextAccessor, IJwtService jwtService, IUserRepository userRepository)
         {
             _httpContext = httpContextAccessor.HttpContext;
-            _mediator = mediator;
             _jwtService = jwtService;
+            _userRepository = userRepository;
         }
 
         public Guid GetUserId()
@@ -43,7 +41,7 @@ namespace Momentum.Framework.Application.Services
             return userId;
         }
 
-        public async Task<UserDto> GetUser()
+        public async Task<User> GetUser()
         {
             var userId = GetUserId();
 
@@ -52,11 +50,7 @@ namespace Momentum.Framework.Application.Services
                 throw new Exception("No current user");
             }
 
-            // Skips MediatR as Core cannot reference Application (circular dependency)
-            return await _mediator.Send(new GetUserByIdQuery
-            {
-                Id = userId
-            });
+            return await _userRepository.GetById(userId);
         }
 
         public List<Claim> GetClaims()
@@ -101,7 +95,7 @@ namespace Momentum.Framework.Application.Services
 
         }
 
-        public RolesDto GetRolesFromToken()
+        public Roles GetRolesFromToken()
         {
             var claims = GetClaims();
 
@@ -112,7 +106,7 @@ namespace Momentum.Framework.Application.Services
                 throw new ArgumentNullException(nameof(rolesClaim), "Token has no roles claim");
             }
 
-            if (Enum.TryParse<RolesDto>(rolesClaim.Value, out var roles))
+            if (Enum.TryParse<Roles>(rolesClaim.Value, out var roles))
             {
                 return roles;
             }
@@ -120,7 +114,7 @@ namespace Momentum.Framework.Application.Services
             throw new Exception("Error parsing roles from token");
         }
 
-        public bool HasRole(RolesDto role)
+        public bool HasRole(Roles role)
         {
             var userRoles = GetRolesFromToken();
 

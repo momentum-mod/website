@@ -2,18 +2,18 @@
 using System.Collections.Generic;
 using System.Security.Claims;
 using System.Threading.Tasks;
-using Momentum.Users.Application.DTOs;
+using Momentum.Users.Core.Models;
 
-namespace Momentum.Framework.Application.Services
+namespace Momentum.Auth.Core.Services
 {
     public interface ICurrentUserService
     {
         Guid GetUserId();
-        Task<UserDto> GetUser();
+        Task<User> GetUser();
         List<Claim> GetClaims();
         Claim GetClaim(string claimType);
         string GetBearerToken();
-        RolesDto GetRolesFromToken();
-        bool HasRole(RolesDto role);
+        Roles GetRolesFromToken();
+        bool HasRole(Roles role);
     }
 }

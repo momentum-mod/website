@@ -6,7 +6,7 @@ using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Momentum.Auth.Application.Commands;
-using Momentum.Framework.Application.Services;
+using Momentum.Auth.Core.Services;
 
 namespace Momentum.Auth.Api.Controllers
 {

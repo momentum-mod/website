@@ -6,7 +6,6 @@ using System.Threading.Tasks;
 using MediatR;
 using Momentum.Auth.Core.Models;
 using Momentum.Auth.Core.Services;
-using Momentum.Framework.Application.Services;
 
 namespace Momentum.Auth.Application.Queries
 {

@@ -5,7 +5,7 @@ using MediatR;
 using Momentum.Auth.Application.DTOs;
 using Momentum.Auth.Core.Models;
 using Momentum.Auth.Core.Repositories;
-using Momentum.Framework.Application.Services;
+using Momentum.Auth.Core.Services;
 
 namespace Momentum.Auth.Application.Commands
 {

@@ -3,7 +3,7 @@ using System.Threading.Tasks;
 using AutoMapper;
 using MediatR;
 using Momentum.Auth.Core.Repositories;
-using Momentum.Framework.Application.Services;
+using Momentum.Auth.Core.Services;
 
 namespace Momentum.Auth.Application.Commands
 {

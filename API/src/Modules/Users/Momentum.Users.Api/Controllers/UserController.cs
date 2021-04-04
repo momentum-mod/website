@@ -5,7 +5,7 @@ using AutoMapper;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using Momentum.Auth.Application.Queries;
-using Momentum.Framework.Application.Services;
+using Momentum.Auth.Core.Services;
 using Momentum.Users.Api.ViewModels;
 using Momentum.Users.Application.Queries;
 

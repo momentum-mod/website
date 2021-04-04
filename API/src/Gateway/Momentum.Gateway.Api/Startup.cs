@@ -15,7 +15,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.OpenApi.Models;
-using Momentum.Framework.Application.Services;
+using Momentum.Auth.Core.Services;
 using Momentum.Framework.Core.DependencyInjection;
 using Momentum.Framework.Core.Models;
 using Momentum.Gateway.Api.Helpers;
