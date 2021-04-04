@@ -15,9 +15,6 @@ jobs:
   client-tests:
     name: Client Tests
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        node-version: [12.x]
 
     steps:
     - name: Checkout
@@ -26,7 +23,7 @@ jobs:
     - name: Setup Node ${{ matrix.node-version }}
       uses: actions/setup-node@v1
       with:
-        node-version: ${{ matrix.node-version }}
+        node-version: '12.x'
 
     - name: Run Tests
       run: |
@@ -48,7 +45,7 @@ jobs:
       - name: Setup Node ${{ matrix.node-version }}
         uses: actions/setup-node@v1
         with:
-          node-version: ${{ matrix.node-version }}
+          node-version: '12.x'
 
       - name: Start MySQL Service
         run: sudo systemctl start mysql.service
