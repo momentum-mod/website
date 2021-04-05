@@ -18,46 +18,7 @@
 <body>
   <ngx-app></ngx-app>
 
-  <style>
-    @keyframes breathe {
-      0% {
-        -webkit-transform: scale(1);
-        transform: scale(1);
-        opacity: 0.5;
-      }
-  
-      50% {
-        -webkit-transform: scale(1.2);
-        transform: scale(1.2);
-        opacity: 1;
-      }
-  
-      100% {
-        opacity: 0.5;
-      }
-    }
-    .spinner-bg {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      z-index: 1000;
-      background: #080808;
-      overflow: hidden;
-    }
-    .spinner {
-      position: fixed;
-      left: 0;
-      right: 0;
-      top: 0;
-      bottom: 0;
-      width: 220px;
-      height: 220px;
-      margin: auto;
-      animation: breathe 2s ease-in-out infinite;
-    }
-  </style>
+  <style>@-webkit-keyframes breathe{0%{-webkit-transform:scale(1);transform:scale(1);opacity:.5}50%{-webkit-transform:scale(1.2);transform:scale(1.2);opacity:1}100%{opacity:.5}}@keyframes breathe{0%{-webkit-transform:scale(1);transform:scale(1);opacity:.5}50%{-webkit-transform:scale(1.2);transform:scale(1.2);opacity:1}100%{opacity:.5}}.spinner-bg{position:fixed;top:0;left:0;width:100%;height:100%;z-index:1000;background:#080808;overflow:hidden}.spinner{position:fixed;left:0;right:0;top:0;bottom:0;width:220px;height:220px;margin:auto;-webkit-animation:breathe 2s ease-in-out infinite;animation:breathe 2s ease-in-out infinite}</style>
   <div id="nb-global-spinner" class="spinner-bg">
     <div class="spinner">
       <svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"
