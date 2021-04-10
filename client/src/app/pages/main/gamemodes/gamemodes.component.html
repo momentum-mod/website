@@ -38,8 +38,8 @@
       {{this.currentGameMode.modeTitle}}
     </div>
   </div>
-  <div class="row justify-content-center mb-5 mb-lg-5 gamemode-data-section">
-    <div class="col-sm-12 col-md-6 mb-3">
+  <div class="row align-items-center justify-content-center mb-5 mb-lg-5">
+    <div class="row align-items-center col-sm-12 col-md-6 mb-3 mb-md-0">
       <ng-container *ngIf="this.currentGameMode.useYoutubeEmbed; then youtubeTemplate; else webmTemplate"></ng-container>
       <ng-template #webmTemplate>
         <video class="gamemode-video" [src]="this.currentGameMode.url" [poster]="this.currentGameMode.imageUrl" preload="metadata" loop autoplay
