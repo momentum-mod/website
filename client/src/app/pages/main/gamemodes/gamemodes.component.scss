@@ -32,6 +32,9 @@
 }
 
 .gamemode-description {
+  display:flex;
+  justify-content:center;
+  align-items:center;
   margin: auto;
   border-left: solid;
   border-color: nb-theme(color-primary-100);
