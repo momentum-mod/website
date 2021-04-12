@@ -1,15 +1,18 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.31019.35
+MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{1BD2DB3A-624F-4618-852A-CB32062D3627}"
-ProjectSection(SolutionItems) = preProject
-	.dockerignore = .dockerignore
-	.env = .env
-	.gitignore = .gitignore
-	docker-compose.yml = docker-compose.yml
-	LICENSE.md = LICENSE.md
-	README.md = README.md
-	nginx.conf = nginx.conf
-EndProjectSection
+	ProjectSection(SolutionItems) = preProject
+		.dockerignore = .dockerignore
+		.env = .env
+		.gitignore = .gitignore
+		docker-compose.yml = docker-compose.yml
+		LICENSE.md = LICENSE.md
+		nginx.conf = nginx.conf
+		README.md = README.md
+	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "API", "API", "{23923546-58C5-4AAD-8A23-DBE771989B72}"
 EndProject
@@ -17,44 +20,40 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{6F94D98C-EE9
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Framework", "Framework", "{334EC7AE-30D6-4512-8132-A3BF0F5FA561}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Momentum.Framework.Core", "API\src\Framework\Momentum.Framework.Core\Momentum.Framework.Core.csproj", "{AD082361-0E73-479B-8066-4A71F822C2F9}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Momentum.Framework.Core", "API\src\Framework\Momentum.Framework.Core\Momentum.Framework.Core.csproj", "{AD082361-0E73-479B-8066-4A71F822C2F9}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Gateway", "Gateway", "{418BD40B-D459-4FE9-B11A-24A8AE500B4D}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Momentum.Gateway.Api", "API\src\Gateway\Momentum.Gateway.Api\Momentum.Gateway.Api.csproj", "{97FF2E36-8A26-48E0-B4BB-20B010235FD3}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Momentum.Gateway.Api", "API\src\Gateway\Momentum.Gateway.Api\Momentum.Gateway.Api.csproj", "{97FF2E36-8A26-48E0-B4BB-20B010235FD3}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Modules", "Modules", "{81CBEE5D-EF47-4FC0-81D7-5418A0714651}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Users", "Users", "{E55773AB-4EA0-4F1E-A692-E193B9C09228}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Momentum.Users.Api", "API\src\Modules\Users\Momentum.Users.Api\Momentum.Users.Api.csproj", "{4B288D6F-7D6A-426C-8776-0B6A606E2ABD}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Momentum.Users.Api", "API\src\Modules\Users\Momentum.Users.Api\Momentum.Users.Api.csproj", "{4B288D6F-7D6A-426C-8776-0B6A606E2ABD}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Momentum.Users.Application", "API\src\Modules\Users\Momentum.Users.Application\Momentum.Users.Application.csproj", "{2A95A6F3-A900-4CB1-B750-348E2772E6ED}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Momentum.Users.Application", "API\src\Modules\Users\Momentum.Users.Application\Momentum.Users.Application.csproj", "{2A95A6F3-A900-4CB1-B750-348E2772E6ED}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Momentum.Users.Core", "API\src\Modules\Users\Momentum.Users.Core\Momentum.Users.Core.csproj", "{C4DE5471-D529-4AA9-A655-88E771C7F23C}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Momentum.Users.Core", "API\src\Modules\Users\Momentum.Users.Core\Momentum.Users.Core.csproj", "{C4DE5471-D529-4AA9-A655-88E771C7F23C}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Momentum.Users.Infrastructure", "API\src\Modules\Users\Momentum.Users.Infrastructure\Momentum.Users.Infrastructure.csproj", "{04B4624C-83DC-4B0E-80F4-54E828C4AB13}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Momentum.Users.Infrastructure", "API\src\Modules\Users\Momentum.Users.Infrastructure\Momentum.Users.Infrastructure.csproj", "{04B4624C-83DC-4B0E-80F4-54E828C4AB13}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Momentum.Framework.Infrastructure", "API\src\Framework\Momentum.Framework.Infrastructure\Momentum.Framework.Infrastructure.csproj", "{973FCB73-2FE5-4883-B265-3D79F7A0FD3D}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Momentum.Framework.Infrastructure", "API\src\Framework\Momentum.Framework.Infrastructure\Momentum.Framework.Infrastructure.csproj", "{973FCB73-2FE5-4883-B265-3D79F7A0FD3D}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "XpSystems", "XpSystems", "{80AB6D14-5CA5-4ABF-AA24-23B0EA6E267D}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Momentum.XpSystems.Api", "API\src\Modules\XpSystems\Momentum.XpSystems.Api\Momentum.XpSystems.Api.csproj", "{51E2F572-1B8D-4D88-8528-CD1F1608985C}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Momentum.XpSystems.Application", "API\src\Modules\XpSystems\Momentum.XpSystems.Application\Momentum.XpSystems.Application.csproj", "{2C9117F5-A441-46F3-B44E-1D2F508B577A}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Momentum.XpSystems.Core", "API\src\Modules\XpSystems\Momentum.XpSystems.Core\Momentum.XpSystems.Core.csproj", "{DDBA8125-1507-4311-AA81-760F49C05705}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Momentum.XpSystems.Infrastructure", "API\src\Modules\XpSystems\Momentum.XpSystems.Infrastructure\Momentum.XpSystems.Infrastructure.csproj", "{CCE89386-B1AD-48F5-A73C-22AFBDDE127B}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
 		Release|Any CPU = Release|Any CPU
-	EndGlobalSection
-	GlobalSection(NestedProjects) = preSolution
-		{6F94D98C-EE99-436C-B877-5215897B9220} = {23923546-58C5-4AAD-8A23-DBE771989B72}
-		{334EC7AE-30D6-4512-8132-A3BF0F5FA561} = {6F94D98C-EE99-436C-B877-5215897B9220}
-		{AD082361-0E73-479B-8066-4A71F822C2F9} = {334EC7AE-30D6-4512-8132-A3BF0F5FA561}
-		{418BD40B-D459-4FE9-B11A-24A8AE500B4D} = {6F94D98C-EE99-436C-B877-5215897B9220}
-		{97FF2E36-8A26-48E0-B4BB-20B010235FD3} = {418BD40B-D459-4FE9-B11A-24A8AE500B4D}
-		{81CBEE5D-EF47-4FC0-81D7-5418A0714651} = {6F94D98C-EE99-436C-B877-5215897B9220}
-		{E55773AB-4EA0-4F1E-A692-E193B9C09228} = {81CBEE5D-EF47-4FC0-81D7-5418A0714651}
-		{4B288D6F-7D6A-426C-8776-0B6A606E2ABD} = {E55773AB-4EA0-4F1E-A692-E193B9C09228}
-		{2A95A6F3-A900-4CB1-B750-348E2772E6ED} = {E55773AB-4EA0-4F1E-A692-E193B9C09228}
-		{C4DE5471-D529-4AA9-A655-88E771C7F23C} = {E55773AB-4EA0-4F1E-A692-E193B9C09228}
-		{04B4624C-83DC-4B0E-80F4-54E828C4AB13} = {E55773AB-4EA0-4F1E-A692-E193B9C09228}
-		{973FCB73-2FE5-4883-B265-3D79F7A0FD3D} = {334EC7AE-30D6-4512-8132-A3BF0F5FA561}
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
 		{AD082361-0E73-479B-8066-4A71F822C2F9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
@@ -85,5 +84,46 @@ Global
 		{973FCB73-2FE5-4883-B265-3D79F7A0FD3D}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{973FCB73-2FE5-4883-B265-3D79F7A0FD3D}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{973FCB73-2FE5-4883-B265-3D79F7A0FD3D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{51E2F572-1B8D-4D88-8528-CD1F1608985C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{51E2F572-1B8D-4D88-8528-CD1F1608985C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{51E2F572-1B8D-4D88-8528-CD1F1608985C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{51E2F572-1B8D-4D88-8528-CD1F1608985C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2C9117F5-A441-46F3-B44E-1D2F508B577A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2C9117F5-A441-46F3-B44E-1D2F508B577A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2C9117F5-A441-46F3-B44E-1D2F508B577A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2C9117F5-A441-46F3-B44E-1D2F508B577A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{DDBA8125-1507-4311-AA81-760F49C05705}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DDBA8125-1507-4311-AA81-760F49C05705}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{DDBA8125-1507-4311-AA81-760F49C05705}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DDBA8125-1507-4311-AA81-760F49C05705}.Release|Any CPU.Build.0 = Release|Any CPU
+		{CCE89386-B1AD-48F5-A73C-22AFBDDE127B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CCE89386-B1AD-48F5-A73C-22AFBDDE127B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{CCE89386-B1AD-48F5-A73C-22AFBDDE127B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{CCE89386-B1AD-48F5-A73C-22AFBDDE127B}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{6F94D98C-EE99-436C-B877-5215897B9220} = {23923546-58C5-4AAD-8A23-DBE771989B72}
+		{334EC7AE-30D6-4512-8132-A3BF0F5FA561} = {6F94D98C-EE99-436C-B877-5215897B9220}
+		{AD082361-0E73-479B-8066-4A71F822C2F9} = {334EC7AE-30D6-4512-8132-A3BF0F5FA561}
+		{418BD40B-D459-4FE9-B11A-24A8AE500B4D} = {6F94D98C-EE99-436C-B877-5215897B9220}
+		{97FF2E36-8A26-48E0-B4BB-20B010235FD3} = {418BD40B-D459-4FE9-B11A-24A8AE500B4D}
+		{81CBEE5D-EF47-4FC0-81D7-5418A0714651} = {6F94D98C-EE99-436C-B877-5215897B9220}
+		{E55773AB-4EA0-4F1E-A692-E193B9C09228} = {81CBEE5D-EF47-4FC0-81D7-5418A0714651}
+		{4B288D6F-7D6A-426C-8776-0B6A606E2ABD} = {E55773AB-4EA0-4F1E-A692-E193B9C09228}
+		{2A95A6F3-A900-4CB1-B750-348E2772E6ED} = {E55773AB-4EA0-4F1E-A692-E193B9C09228}
+		{C4DE5471-D529-4AA9-A655-88E771C7F23C} = {E55773AB-4EA0-4F1E-A692-E193B9C09228}
+		{04B4624C-83DC-4B0E-80F4-54E828C4AB13} = {E55773AB-4EA0-4F1E-A692-E193B9C09228}
+		{973FCB73-2FE5-4883-B265-3D79F7A0FD3D} = {334EC7AE-30D6-4512-8132-A3BF0F5FA561}
+		{80AB6D14-5CA5-4ABF-AA24-23B0EA6E267D} = {81CBEE5D-EF47-4FC0-81D7-5418A0714651}
+		{51E2F572-1B8D-4D88-8528-CD1F1608985C} = {80AB6D14-5CA5-4ABF-AA24-23B0EA6E267D}
+		{2C9117F5-A441-46F3-B44E-1D2F508B577A} = {80AB6D14-5CA5-4ABF-AA24-23B0EA6E267D}
+		{DDBA8125-1507-4311-AA81-760F49C05705} = {80AB6D14-5CA5-4ABF-AA24-23B0EA6E267D}
+		{CCE89386-B1AD-48F5-A73C-22AFBDDE127B} = {80AB6D14-5CA5-4ABF-AA24-23B0EA6E267D}
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {8C242527-BD78-4BBF-9F99-A4972999C0B2}
 	EndGlobalSection
 EndGlobal
