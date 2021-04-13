@@ -1,45 +1,35 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using Marten;
+﻿using Marten;
 using System.Threading.Tasks;
 using Momentum.XpSystems.Core.Models;
 using Momentum.XpSystems.Core.Repositories;
 
 namespace Momentum.XpSystems.Infrastructure.Repositories
 {
-    public class XpSystemRepository : IXpSystemRepository
+    public class XpSystemRepository : IXpSystemRepository<XpSystem>
     {
-        // public XpSystemRepository(IDocumentStore store) : base(store) { }
+        protected readonly IDocumentStore Store;
 
-        public Task<XpSystem> GetOrCreate()
+        public XpSystemRepository(IDocumentStore store)
         {
-            throw new NotImplementedException();
+            Store = store;
         }
-
-        public async Task<XpSystem> Add(XpSystem model)
+       
+        public async Task<XpSystem> AddOrUpdate(XpSystem model)
         {
-
             using var session = Store.LightweightSession();
 
-            session.Insert(model);
+            session.Store(model);
 
             await session.SaveChangesAsync();
 
             return model;
         }
 
-        public async Task<XpSystem> Update(XpSystem model)
+        public async Task<XpSystem> Get()
         {
-
             using var session = Store.LightweightSession();
 
-            session.Update(model);
-
-            await session.SaveChangesAsync();
-
-            return model;
+            return await session.Query<XpSystem>().FirstAsync();
         }
     }
 }

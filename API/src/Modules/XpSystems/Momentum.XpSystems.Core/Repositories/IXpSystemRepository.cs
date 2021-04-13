@@ -1,16 +1,11 @@
-﻿using System;
-using System.Threading.Tasks;
-using Momentum.Framework.Core.Repositories;
+﻿using System.Threading.Tasks;
 using Momentum.XpSystems.Core.Models;
 
 namespace Momentum.XpSystems.Core.Repositories
 {
-    public interface IXpSystemRepository : IGenericRepository<XpSystem>
+    public interface IXpSystemRepository<T> where T : XpSystem
     {
-
-
-        Task<XpSystem> GetOrCreate();
-        // Task<XpSystem> Update(); defined in generic interface
-
+        Task<T> AddOrUpdate(T model);
+        Task<T> Get();
     }
 }
