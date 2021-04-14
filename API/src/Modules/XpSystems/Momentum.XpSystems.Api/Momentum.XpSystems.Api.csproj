@@ -6,6 +6,8 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\..\Framework\Momentum.Framework.Core\Momentum.Framework.Core.csproj" />
+    <ProjectReference Include="..\Momentum.XpSystems.Application\Momentum.XpSystems.Application.csproj" />
+    <ProjectReference Include="..\Momentum.XpSystems.Infrastructure\Momentum.XpSystems.Infrastructure.csproj" />
   </ItemGroup>
 
 </Project>
