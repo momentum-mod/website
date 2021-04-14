@@ -25,7 +25,7 @@ namespace Momentum.XpSystems.Api.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> GetXpSystems()
+        public async Task<IActionResult> GetXpSystemAsync()
         {
             var xpSystem = await _mediator.Send(new GetXpSystemQuery { });
 
