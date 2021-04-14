@@ -7,7 +7,7 @@ using System.Text.Json.Serialization;
 
 namespace Momentum.XpSystems.Api.ViewModels
 {
-    class XpSystemViewModel
+    public class XpSystemViewModel
     {
         [JsonPropertyName("rankXP")]
         public dynamic RankXp { get; set; }

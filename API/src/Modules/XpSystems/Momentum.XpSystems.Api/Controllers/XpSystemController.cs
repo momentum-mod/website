@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Momentum.XpSystems.Api.ViewModels;
 using Momentum.XpSystems.Application.Queries;
+using Momentum.XpSystems.Application.Commands;
 
 namespace Momentum.XpSystems.Api.Controllers
 {
@@ -33,7 +34,16 @@ namespace Momentum.XpSystems.Api.Controllers
             return Ok(xpSystemViewModel);
         }
 
+        [HttpPut]
+        public async Task<IActionResult> AddOrUpdateXpSystemAsync([FromBody] XpSystemViewModel model)
+        {
+            // var request = _mapper.Map<AddOrUpdateXpSystemCommand>(model);
+            var request = await _mediator.Send(new AddOrUpdateXpSystemCommand { });
 
+            await _mediator.Send(request);
+
+            return NoContent();
+        }
 
     }
 }
