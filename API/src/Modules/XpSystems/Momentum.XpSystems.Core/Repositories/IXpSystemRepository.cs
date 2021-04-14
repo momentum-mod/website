@@ -3,9 +3,9 @@ using Momentum.XpSystems.Core.Models;
 
 namespace Momentum.XpSystems.Core.Repositories
 {
-    public interface IXpSystemRepository<T> where T : XpSystem
+    public interface IXpSystemRepository
     {
-        Task<T> AddOrUpdate(T model);
-        Task<T> Get();
+        Task<XpSystem> AddOrUpdate(XpSystem model);
+        Task<XpSystem> Get();
     }
 }

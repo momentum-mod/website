@@ -5,7 +5,7 @@ using Momentum.XpSystems.Core.Repositories;
 
 namespace Momentum.XpSystems.Infrastructure.Repositories
 {
-    public class XpSystemRepository : IXpSystemRepository<XpSystem>
+    public class XpSystemRepository : IXpSystemRepository
     {
         protected readonly IDocumentStore Store;
 
