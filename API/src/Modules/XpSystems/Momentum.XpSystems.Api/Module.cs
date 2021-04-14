@@ -1,6 +1,8 @@
 ﻿using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Momentum.Framework.Core.DependencyInjection;
+using Momentum.XpSystems.Core.Repositories;
+using Momentum.XpSystems.Infrastructure.Repositories;
 
 namespace Momentum.XpSystems.Api
 {
@@ -8,7 +10,7 @@ namespace Momentum.XpSystems.Api
     {
         public void ConfigureServices(IServiceCollection services, IConfiguration configuration)
         {
-            throw new System.NotImplementedException();
+            services.AddSingleton<IXpSystemRepository, XpSystemRepository>();
         }
     }
 }
