@@ -13,7 +13,7 @@ namespace Momentum.XpSystems.Application.Queries
 {
     public class GetXpSystemQuery : IRequest<XpSystemDto> { }
     
-    public class GetXpSystemHandlerHandler : IRequestHandler<GetXpSystemQuery, XpSystemDto>
+    public class GetXpSystemQueryHandlerHandler : IRequestHandler<GetXpSystemQuery, XpSystemDto>
     {
         private readonly IMapper _mapper;
         private readonly IXpSystemRepository _xpSystemRepository;
