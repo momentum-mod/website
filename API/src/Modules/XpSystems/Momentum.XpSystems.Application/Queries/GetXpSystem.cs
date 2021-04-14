@@ -11,18 +11,18 @@ using Momentum.XpSystems.Core.Repositories;
 
 namespace Momentum.XpSystems.Application.Queries
 {
-    public class GetXpSystemQuery : IRequest<XpSystemDTO> { }
+    public class GetXpSystemQuery : IRequest<XpSystemDto> { }
     
-    public class GetXpSystemHandlerHandler : IRequestHandler<GetXpSystemQuery, XpSystemDTO>
+    public class GetXpSystemHandlerHandler : IRequestHandler<GetXpSystemQuery, XpSystemDto>
     {
         private readonly IMapper _mapper;
         private readonly IXpSystemRepository _xpSystemRepository;
 
-        public async Task<XpSystemDTO> Handle(GetXpSystemQuery request, CancellationToken cancellationToken)
+        public async Task<XpSystemDto> Handle(GetXpSystemQuery request, CancellationToken cancellationToken)
         {
             var xpSystem = await _xpSystemRepository.Get();
 
-            return _mapper.Map<XpSystemDTO>(xpSystem);
+            return _mapper.Map<XpSystemDto>(xpSystem);
         }
     }
 }

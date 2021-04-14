@@ -2,7 +2,7 @@
 
 namespace Momentum.XpSystems.Application.DTOs
 {
-    public class XpSystemDTO
+    public class XpSystemDto
     {
         public Guid Id { get; set; }
         public DateTime CreatedAt { get; set; }
