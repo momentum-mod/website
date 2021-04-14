@@ -12,27 +12,27 @@ using Momentum.XpSystems.Core.Repositories;
 
 namespace Momentum.XpSystems.Application.Commands
 {
-    public class AddOrUpdateXpSystemCommand : IRequest
+    public class CreateOrUpdateXpSystemCommand : IRequest
     {
         public Func<Task<XpSystemDto>> BuildXpSystemDto { get; set; }
     }
 
-    public class AddOrUpdateXpSystemCommandHandler : IRequestHandler<AddOrUpdateXpSystemCommand>
+    public class CreateOrUpdateXpSystemCommandHandler : IRequestHandler<CreateOrUpdateXpSystemCommand>
     {
         private readonly IMapper _mapper;
         private readonly IXpSystemRepository _xpSystemRepository;
 
-        public AddOrUpdateXpSystemCommandHandler(IMapper mapper, IXpSystemRepository xpSystemRepository)
+        public CreateOrUpdateXpSystemCommandHandler(IMapper mapper, IXpSystemRepository xpSystemRepository)
         {
             _mapper = mapper;
             _xpSystemRepository = xpSystemRepository;
         }
 
-        public async Task<Unit> Handle(AddOrUpdateXpSystemCommand request, CancellationToken cancellationToken)
+        public async Task<Unit> Handle(CreateOrUpdateXpSystemCommand request, CancellationToken cancellationToken)
         {
             var xpSystem = _mapper.Map<XpSystem>(await request.BuildXpSystemDto.Invoke());
 
-            await _xpSystemRepository.AddOrUpdate(xpSystem);
+            await _xpSystemRepository.CreateOrUpdate(xpSystem);
 
             return Unit.Value;
         }

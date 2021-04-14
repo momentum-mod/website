@@ -14,7 +14,7 @@ namespace Momentum.XpSystems.Infrastructure.Repositories
             Store = store;
         }
        
-        public async Task<XpSystem> AddOrUpdate(XpSystem model)
+        public async Task<XpSystem> CreateOrUpdate(XpSystem model)
         {
             using var session = Store.LightweightSession();
 
