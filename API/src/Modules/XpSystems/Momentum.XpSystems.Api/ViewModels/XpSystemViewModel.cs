@@ -14,6 +14,5 @@ namespace Momentum.XpSystems.Api.ViewModels
 
         [JsonPropertyName("cosXp")]
         public dynamic CosmeticXp { get; set; }
-
     }
 }
