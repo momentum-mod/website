@@ -31,23 +31,12 @@ namespace Momentum.XpSystems.Api.Controllers
 
             var xpSystemViewModel = _mapper.Map<XpSystemViewModel>(xpSystem);
 
-            // add a null check?
             return Ok(xpSystemViewModel);
         }
 
         [HttpPut]
         public async Task<IActionResult> CreateOrUpdateXpSystemAsync([FromBody] XpSystemViewModel model)
         {
-
-            // We have a viewmodel coming in, want to convert to core model
-
-            // ViewModel needs represent all the json fields for validation
-            // Query and Command level call the repo to get a core model, then map it to a DTO and return
-            // Then we need to cnvert it to a 
-
-            // We have a ViewModel with 2 dynamic properties, rankXP and cosXP
-            // 
-
             await _mediator.Send(new CreateOrUpdateXpSystemCommand
             {
                 RankXp = model.RankXp,

@@ -14,7 +14,6 @@ namespace Momentum.XpSystems.Application.Commands
 {
     public class CreateOrUpdateXpSystemCommand : IRequest
     {
-
         public dynamic RankXp { get; set; }
         public dynamic CosmeticXp { get; set; }
     }
@@ -32,13 +31,10 @@ namespace Momentum.XpSystems.Application.Commands
 
         public async Task<Unit> Handle(CreateOrUpdateXpSystemCommand request, CancellationToken cancellationToken)
         {
-            //var xpSystem = await _xpSystemRepository.Get();
-            var xpSystem = new XpSystem
-            {
-                RankXP = request.RankXp,
-                CosmeticXP = request.CosmeticXp
-            };
+            var xpSystem = await _xpSystemRepository.Get();
 
+            xpSystem.RankXP = request.RankXp;
+            xpSystem.CosmeticXP = request.CosmeticXp;
 
             await _xpSystemRepository.CreateOrUpdate(xpSystem);
 
