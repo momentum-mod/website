@@ -34,7 +34,7 @@ namespace Momentum.Gateway.Api.Helpers
                 // User
                 new Users.Infrastructure.MartenInitializer(),
                 // XpSystem
-                //new XpSystems.Infrastructure.MartenInitializer()
+                new XpSystems.Infrastructure.MartenInitializer()
             };
         
         public static void AddModuleControllers(this IMvcBuilder mvcBuilder, IEnumerable<IModuleInitializer> modules)
