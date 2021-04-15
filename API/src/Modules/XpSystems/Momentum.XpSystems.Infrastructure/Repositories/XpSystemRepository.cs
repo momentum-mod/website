@@ -27,7 +27,7 @@ namespace Momentum.XpSystems.Infrastructure.Repositories
 
         public async Task<XpSystem> Get()
         {
-            using var session = Store.LightweightSession();
+            using var session = Store.QuerySession();
 
             return await session.Query<XpSystem>().FirstOrDefaultAsync();
         }
