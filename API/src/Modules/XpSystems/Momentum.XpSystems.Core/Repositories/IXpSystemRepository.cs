@@ -5,7 +5,7 @@ namespace Momentum.XpSystems.Core.Repositories
 {
     public interface IXpSystemRepository
     {
-        Task<XpSystem> CreateOrUpdate(XpSystem model);
+        Task<XpSystem> Update(XpSystem model);
         Task<XpSystem> Get();
     }
 }

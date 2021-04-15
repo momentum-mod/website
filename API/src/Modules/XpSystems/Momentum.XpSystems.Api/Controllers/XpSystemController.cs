@@ -35,9 +35,9 @@ namespace Momentum.XpSystems.Api.Controllers
         }
 
         [HttpPut]
-        public async Task<IActionResult> CreateOrUpdateXpSystemAsync([FromBody] XpSystemViewModel model)
+        public async Task<IActionResult> UpdateXpSystemAsync([FromBody] XpSystemViewModel model)
         {
-            await _mediator.Send(new CreateOrUpdateXpSystemCommand
+            await _mediator.Send(new UpdateXpSystemCommand
             {
                 RankXp = model.RankXp,
                 CosmeticXp = model.CosmeticXp

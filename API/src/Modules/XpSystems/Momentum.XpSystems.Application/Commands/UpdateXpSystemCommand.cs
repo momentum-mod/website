@@ -12,31 +12,29 @@ using Momentum.XpSystems.Core.Repositories;
 
 namespace Momentum.XpSystems.Application.Commands
 {
-    public class CreateOrUpdateXpSystemCommand : IRequest
+    public class UpdateXpSystemCommand : IRequest
     {
         public dynamic RankXp { get; set; }
         public dynamic CosmeticXp { get; set; }
     }
 
-    public class CreateOrUpdateXpSystemCommandHandler : IRequestHandler<CreateOrUpdateXpSystemCommand>
+    public class UpdateXpSystemCommandHandler : IRequestHandler<UpdateXpSystemCommand>
     {
-        private readonly IMapper _mapper;
         private readonly IXpSystemRepository _xpSystemRepository;
 
-        public CreateOrUpdateXpSystemCommandHandler(IMapper mapper, IXpSystemRepository xpSystemRepository)
+        public UpdateXpSystemCommandHandler(IXpSystemRepository xpSystemRepository)
         {
-            _mapper = mapper;
             _xpSystemRepository = xpSystemRepository;
         }
 
-        public async Task<Unit> Handle(CreateOrUpdateXpSystemCommand request, CancellationToken cancellationToken)
+        public async Task<Unit> Handle(UpdateXpSystemCommand request, CancellationToken cancellationToken)
         {
             var xpSystem = await _xpSystemRepository.Get();
 
             xpSystem.RankXP = request.RankXp;
             xpSystem.CosmeticXP = request.CosmeticXp;
 
-            await _xpSystemRepository.CreateOrUpdate(xpSystem);
+            await _xpSystemRepository.Update(xpSystem);
 
             return Unit.Value;
         }

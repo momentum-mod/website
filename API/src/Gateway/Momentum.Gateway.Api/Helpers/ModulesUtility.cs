@@ -22,7 +22,7 @@ namespace Momentum.Gateway.Api.Helpers
                 // User
                 typeof(GetOrCreateNewUserCommand).GetTypeInfo().Assembly,
                 // XpSystem
-                typeof(CreateOrUpdateXpSystemCommand).GetTypeInfo().Assembly
+                typeof(UpdateXpSystemCommand).GetTypeInfo().Assembly
             };
 
         public static IEnumerable<Assembly> GetApiLayerAssemblies()
