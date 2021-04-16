@@ -1,13 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading;
+﻿using System.Threading;
 using System.Threading.Tasks;
-using AutoMapper;
 using MediatR;
-using Momentum.XpSystems.Application.DTOs;
-using Momentum.XpSystems.Core.Models;
 using Momentum.XpSystems.Core.Repositories;
 using Newtonsoft.Json.Linq;
 

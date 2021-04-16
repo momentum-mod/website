@@ -1,12 +1,6 @@
 ﻿using AutoMapper;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Momentum.XpSystems.Api.ViewModels;
 using Momentum.XpSystems.Application.DTOs;
-using Newtonsoft.Json.Linq;
 
 namespace Momentum.XpSystems.Api.AutoMapping
 {
