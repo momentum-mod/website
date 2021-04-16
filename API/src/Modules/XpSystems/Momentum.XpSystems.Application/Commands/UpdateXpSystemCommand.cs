@@ -15,7 +15,7 @@ namespace Momentum.XpSystems.Application.Commands
 {
     public class UpdateXpSystemCommand : IRequest
     {
-        public JObject RankXp { get; set; }
+        public JObject RankXP { get; set; }
         public JObject CosmeticXp { get; set; }
     }
 
@@ -35,7 +35,7 @@ namespace Momentum.XpSystems.Application.Commands
             /*xpSystem.RankXP = JObject.Parse(request.RankXp);
             xpSystem.CosmeticXP = JObject.Parse(request.CosmeticXp);*/
 
-            xpSystem.RankXP = request.RankXp;
+            xpSystem.RankXP = request.RankXP;
             xpSystem.CosmeticXP = request.CosmeticXp;
 
             await _xpSystemRepository.Update(xpSystem);
