@@ -13,8 +13,12 @@ namespace Momentum.XpSystems.Api.AutoMapping
     {
         public ApiProfile()
         {
+            // AutoMapper automatically applies .toString() if result is string
             CreateMap<XpSystemDto, XpSystemViewModel>();
-            CreateMap<XpSystemViewModel, XpSystemDto>();
+
+            // AutoMapper checks type result at runtime
+            // This will break because cannot implicitly convert from string to JObject
+            //CreateMap<XpSystemViewModel, XpSystemDto>();
         }
     }
 }
