@@ -8,6 +8,8 @@ using Microsoft.AspNetCore.Mvc;
 using Momentum.XpSystems.Api.ViewModels;
 using Momentum.XpSystems.Application.Queries;
 using Momentum.XpSystems.Application.Commands;
+using Newtonsoft.Json.Linq;
+using Newtonsoft.Json;
 
 namespace Momentum.XpSystems.Api.Controllers
 {
@@ -29,7 +31,14 @@ namespace Momentum.XpSystems.Api.Controllers
         {
             var xpSystem = await _mediator.Send(new GetXpSystemQuery { });
 
-            var xpSystemViewModel = _mapper.Map<XpSystemViewModel>(xpSystem);
+            // This should be done in automapper
+            XpSystemViewModel xpSystemViewModel = new XpSystemViewModel
+            {
+                CosXP = xpSystem.CosmeticXP.ToObject<CosXP>(),
+                RankXP = xpSystem.RankXP.ToObject<RankXP>()
+            };
+
+            //var xpSystemViewModel = _mapper.Map<XpSystemViewModel>(xpSystem);
 
             return Ok(xpSystemViewModel);
         }
@@ -39,9 +48,9 @@ namespace Momentum.XpSystems.Api.Controllers
         {
             await _mediator.Send(new UpdateXpSystemCommand
             {
-                RankXp = model.RankXp,
-                CosmeticXp = model.CosmeticXp
-            });
+                RankXP = JObject.FromObject(model.RankXP),
+                CosmeticXp =JObject.FromObject(model.CosXP)
+            }) ;
 
             return NoContent();
         }
