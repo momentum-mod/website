@@ -1,6 +1,7 @@
 ﻿using Marten;
 using Marten.Schema;
 using Momentum.XpSystems.Core.Models;
+using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -29,8 +30,7 @@ namespace Momentum.XpSystems.Infrastructure
     {
         public static readonly XpSystem XpSystem = new XpSystem
         {
-            RankXP = @"[
-			{
+            RankXP = JObject.Parse(@"{
 			'rankXP': {
 				'top10': {
 					'WRPoints': 3000,
@@ -78,10 +78,8 @@ namespace Momentum.XpSystems.Infrastructure
 						0.03
 					]}
 				},
-			}
-			]",
-			CosmeticXP = @"[
-			{
+			}"),
+			CosmeticXP = JObject.Parse(@"{
 			'cosXP': {
 				'levels': {
 					'maxLevels': 500,
@@ -111,8 +109,7 @@ namespace Momentum.XpSystems.Infrastructure
 						}
 					}
 				}
-			}
-			]"
+			}")
 		};
     }        
 }

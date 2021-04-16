@@ -9,13 +9,14 @@ using MediatR;
 using Momentum.XpSystems.Application.DTOs;
 using Momentum.XpSystems.Core.Models;
 using Momentum.XpSystems.Core.Repositories;
+using Newtonsoft.Json.Linq;
 
 namespace Momentum.XpSystems.Application.Commands
 {
     public class UpdateXpSystemCommand : IRequest
     {
-        public dynamic RankXp { get; set; }
-        public dynamic CosmeticXp { get; set; }
+        public JObject RankXp { get; set; }
+        public JObject CosmeticXp { get; set; }
     }
 
     public class UpdateXpSystemCommandHandler : IRequestHandler<UpdateXpSystemCommand>
@@ -30,6 +31,9 @@ namespace Momentum.XpSystems.Application.Commands
         public async Task<Unit> Handle(UpdateXpSystemCommand request, CancellationToken cancellationToken)
         {
             var xpSystem = await _xpSystemRepository.Get();
+
+            /*xpSystem.RankXP = JObject.Parse(request.RankXp);
+            xpSystem.CosmeticXP = JObject.Parse(request.CosmeticXp);*/
 
             xpSystem.RankXP = request.RankXp;
             xpSystem.CosmeticXP = request.CosmeticXp;
