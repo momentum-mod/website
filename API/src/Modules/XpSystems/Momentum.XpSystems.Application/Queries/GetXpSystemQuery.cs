@@ -31,7 +31,7 @@ namespace Momentum.XpSystems.Application.Queries
             }
             catch (Exception e)
             {
-                Console.WriteLine(e.Message);
+                Console.WriteLine("XpSystem not initialized: " + e.Message);
                 throw;
             }
 
