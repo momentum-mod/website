@@ -6,6 +6,8 @@ using Momentum.XpSystems.Api.ViewModels;
 using Momentum.XpSystems.Application.Queries;
 using Momentum.XpSystems.Application.Commands;
 using Newtonsoft.Json.Linq;
+using Microsoft.AspNetCore.Authorization;
+using Momentum.Users.Core.Models;
 
 namespace Momentum.XpSystems.Api.Controllers
 {
@@ -39,9 +41,12 @@ namespace Momentum.XpSystems.Api.Controllers
             return Ok(xpSystemViewModel);
         }
 
+        //[Authorize(Roles = "Admin")]
         [HttpPut]
         public async Task<IActionResult> UpdateXpSystemAsync([FromBody] XpSystemViewModel model)
         {
+            //User.IsInRole(Roles.Admin.ToString())
+
             await _mediator.Send(new UpdateXpSystemCommand
             {
                 RankXP = JObject.FromObject(model.RankXP),
