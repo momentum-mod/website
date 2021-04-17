@@ -2,6 +2,7 @@
 using System.Threading.Tasks;
 using Momentum.XpSystems.Core.Models;
 using Momentum.XpSystems.Core.Repositories;
+using System;
 
 namespace Momentum.XpSystems.Infrastructure.Repositories
 {
@@ -13,7 +14,7 @@ namespace Momentum.XpSystems.Infrastructure.Repositories
         {
             Store = store;
         }
-       
+
         public async Task<XpSystem> Update(XpSystem model)
         {
             using var session = Store.LightweightSession();
@@ -29,7 +30,9 @@ namespace Momentum.XpSystems.Infrastructure.Repositories
         {
             using var session = Store.QuerySession();
 
-            return await session.Query<XpSystem>().FirstOrDefaultAsync();
+            var xpSystem = await session.Query<XpSystem>().SingleAsync();
+
+            return xpSystem;
         }
     }
 }

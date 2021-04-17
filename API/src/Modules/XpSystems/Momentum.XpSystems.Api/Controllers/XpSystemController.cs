@@ -8,6 +8,8 @@ using Momentum.XpSystems.Application.Commands;
 using Newtonsoft.Json.Linq;
 using Microsoft.AspNetCore.Authorization;
 using Momentum.Users.Core.Models;
+using Momentum.XpSystems.Core.Models;
+using Momentum.XpSystems.Application.DTOs;
 
 namespace Momentum.XpSystems.Api.Controllers
 {
@@ -27,13 +29,22 @@ namespace Momentum.XpSystems.Api.Controllers
         [HttpGet]
         public async Task<IActionResult> GetXpSystemAsync()
         {
-            var xpSystem = await _mediator.Send(new GetXpSystemQuery { });
+            var xpSystemDto = new XpSystemDto();
+
+            try
+            {
+                xpSystemDto = await _mediator.Send(new GetXpSystemQuery { });
+            }
+            catch
+            {
+                return NotFound("XpSystem not initialized");
+            }
 
             // This should be done in automapper
             XpSystemViewModel xpSystemViewModel = new XpSystemViewModel
             {
-                CosXP = xpSystem.CosmeticXP.ToObject<CosXP>(),
-                RankXP = xpSystem.RankXP.ToObject<RankXP>()
+                CosXP = xpSystemDto.CosmeticXP.ToObject<CosXP>(),
+                RankXP = xpSystemDto.RankXP.ToObject<RankXP>()
             };
 
             //var xpSystemViewModel = _mapper.Map<XpSystemViewModel>(xpSystem);

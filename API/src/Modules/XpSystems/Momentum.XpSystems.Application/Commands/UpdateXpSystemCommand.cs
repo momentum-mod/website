@@ -1,6 +1,8 @@
-﻿using System.Threading;
+﻿using System;
+using System.Threading;
 using System.Threading.Tasks;
 using MediatR;
+using Momentum.XpSystems.Core.Models;
 using Momentum.XpSystems.Core.Repositories;
 using Newtonsoft.Json.Linq;
 
@@ -23,10 +25,16 @@ namespace Momentum.XpSystems.Application.Commands
 
         public async Task<Unit> Handle(UpdateXpSystemCommand request, CancellationToken cancellationToken)
         {
-            var xpSystem = await _xpSystemRepository.Get();
+            var xpSystem = new XpSystem();
 
-            /*xpSystem.RankXP = JObject.Parse(request.RankXp);
-            xpSystem.CosmeticXP = JObject.Parse(request.CosmeticXp);*/
+            try
+            {
+                xpSystem = await _xpSystemRepository.Get();
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine("XpSystem not initialized: " + e.Message);
+            }
 
             xpSystem.RankXP = request.RankXP;
             xpSystem.CosmeticXP = request.CosmeticXp;

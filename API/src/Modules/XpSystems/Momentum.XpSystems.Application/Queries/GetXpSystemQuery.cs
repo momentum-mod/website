@@ -1,8 +1,10 @@
-﻿using System.Threading;
+﻿using System;
+using System.Threading;
 using System.Threading.Tasks;
 using AutoMapper;
 using MediatR;
 using Momentum.XpSystems.Application.DTOs;
+using Momentum.XpSystems.Core.Models;
 using Momentum.XpSystems.Core.Repositories;
 
 namespace Momentum.XpSystems.Application.Queries
@@ -21,7 +23,17 @@ namespace Momentum.XpSystems.Application.Queries
         }
         public async Task<XpSystemDto> Handle(GetXpSystemQuery request, CancellationToken cancellationToken)
         {
-            var xpSystem = await _xpSystemRepository.Get();
+            var xpSystem = new XpSystem();
+
+            try
+            {
+                xpSystem = await _xpSystemRepository.Get();
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.Message);
+                throw;
+            }
 
             return _mapper.Map<XpSystemDto>(xpSystem);
         }
