@@ -36,6 +36,7 @@ namespace Momentum.XpSystems.Application.Commands
             }
 
             xpSystem.RankXP = request.RankXP;
+
             xpSystem.CosmeticXP = request.CosmeticXp;
 
             await _xpSystemRepository.CreateOrUpdate(xpSystem);

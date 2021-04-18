@@ -21,6 +21,7 @@ namespace Momentum.XpSystems.Application.Queries
             _mapper = mapper;
             _xpSystemRepository = xpSystemRepository;
         }
+
         public async Task<XpSystemDto> Handle(GetXpSystemQuery request, CancellationToken cancellationToken)
         {
             var xpSystem = new XpSystem();
@@ -32,6 +33,7 @@ namespace Momentum.XpSystems.Application.Queries
             catch (Exception e)
             {
                 Console.WriteLine("XpSystem not initialized: " + e.Message);
+
                 throw;
             }
 

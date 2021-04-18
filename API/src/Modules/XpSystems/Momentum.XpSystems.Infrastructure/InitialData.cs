@@ -15,7 +15,9 @@ namespace Momentum.XpSystems.Infrastructure
         public void Populate(IDocumentStore store)
         {
             using var session = store.LightweightSession();
+
             session.Store(_initialData);
+
             session.SaveChanges();
         }
     }
