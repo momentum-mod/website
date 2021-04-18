@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using Momentum.Framework.Core.Models;
 
 namespace Momentum.XpSystems.Core.Models

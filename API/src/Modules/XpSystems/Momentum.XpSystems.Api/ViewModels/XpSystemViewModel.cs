@@ -1,5 +1,4 @@
 ﻿using Momentum.XpSystems.Core.Models;
-using System.Collections.Generic;
 using System.Text.Json.Serialization;
 
 namespace Momentum.XpSystems.Api.ViewModels

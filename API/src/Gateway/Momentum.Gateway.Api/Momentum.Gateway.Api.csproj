@@ -19,7 +19,6 @@
         <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="5.0.4" NoWarn="NU1605" />
         <PackageReference Include="Microsoft.AspNetCore.Authentication.OpenIdConnect" Version="5.0.4" NoWarn="NU1605" />
         <PackageReference Include="Microsoft.AspNetCore.Authentication.Twitter" Version="5.0.4" />
-        <PackageReference Include="Microsoft.AspNetCore.Mvc.NewtonsoftJson" Version="5.0.5" />
         <PackageReference Include="Microsoft.VisualStudio.Azure.Containers.Tools.Targets" Version="1.10.9" />
         <PackageReference Include="Serilog" Version="2.10.0" />
         <PackageReference Include="Serilog.Extensions.Logging" Version="3.0.1" />
