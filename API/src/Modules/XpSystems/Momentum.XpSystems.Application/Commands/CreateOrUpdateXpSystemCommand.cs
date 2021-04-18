@@ -8,22 +8,22 @@ using Newtonsoft.Json.Linq;
 
 namespace Momentum.XpSystems.Application.Commands
 {
-    public class UpdateXpSystemCommand : IRequest
+    public class CreateOrUpdateXpSystemCommand : IRequest
     {
         public JObject RankXP { get; set; }
         public JObject CosmeticXp { get; set; }
     }
 
-    public class UpdateXpSystemCommandHandler : IRequestHandler<UpdateXpSystemCommand>
+    public class CreateOrUpdateXpSystemCommandHandler : IRequestHandler<CreateOrUpdateXpSystemCommand>
     {
         private readonly IXpSystemRepository _xpSystemRepository;
 
-        public UpdateXpSystemCommandHandler(IXpSystemRepository xpSystemRepository)
+        public CreateOrUpdateXpSystemCommandHandler(IXpSystemRepository xpSystemRepository)
         {
             _xpSystemRepository = xpSystemRepository;
         }
 
-        public async Task<Unit> Handle(UpdateXpSystemCommand request, CancellationToken cancellationToken)
+        public async Task<Unit> Handle(CreateOrUpdateXpSystemCommand request, CancellationToken cancellationToken)
         {
             var xpSystem = new XpSystem();
 
@@ -39,7 +39,7 @@ namespace Momentum.XpSystems.Application.Commands
             xpSystem.RankXP = request.RankXP;
             xpSystem.CosmeticXP = request.CosmeticXp;
 
-            await _xpSystemRepository.Update(xpSystem);
+            await _xpSystemRepository.CreateOrUpdate(xpSystem);
 
             return Unit.Value;
         }

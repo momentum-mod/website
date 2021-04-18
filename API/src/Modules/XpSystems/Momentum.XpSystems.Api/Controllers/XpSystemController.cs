@@ -6,9 +6,6 @@ using Momentum.XpSystems.Api.ViewModels;
 using Momentum.XpSystems.Application.Queries;
 using Momentum.XpSystems.Application.Commands;
 using Newtonsoft.Json.Linq;
-using Microsoft.AspNetCore.Authorization;
-using Momentum.Users.Core.Models;
-using Momentum.XpSystems.Core.Models;
 using Momentum.XpSystems.Application.DTOs;
 
 namespace Momentum.XpSystems.Api.Controllers
@@ -58,7 +55,7 @@ namespace Momentum.XpSystems.Api.Controllers
         {
             //User.IsInRole(Roles.Admin.ToString())
 
-            await _mediator.Send(new UpdateXpSystemCommand
+            await _mediator.Send(new CreateOrUpdateXpSystemCommand
             {
                 RankXP = JObject.FromObject(model.RankXP),
                 CosmeticXp =JObject.FromObject(model.CosXP)
