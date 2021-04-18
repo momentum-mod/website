@@ -2,7 +2,6 @@
 using System.Threading.Tasks;
 using Momentum.XpSystems.Core.Models;
 using Momentum.XpSystems.Core.Repositories;
-using System;
 
 namespace Momentum.XpSystems.Infrastructure.Repositories
 {
