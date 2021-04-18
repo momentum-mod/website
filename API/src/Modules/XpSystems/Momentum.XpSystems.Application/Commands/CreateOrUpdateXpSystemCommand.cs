@@ -10,7 +10,7 @@ namespace Momentum.XpSystems.Application.Commands
     public class CreateOrUpdateXpSystemCommand : IRequest
     {
         public RankXP RankXP { get; set; }
-        public CosXP CosmeticXp { get; set; }
+        public CosmeticXP CosmeticXp { get; set; }
     }
 
     public class CreateOrUpdateXpSystemCommandHandler : IRequestHandler<CreateOrUpdateXpSystemCommand>

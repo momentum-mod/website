@@ -9,6 +9,6 @@ namespace Momentum.XpSystems.Api.ViewModels
         public RankXP RankXP { get; set; }
 
         [JsonPropertyName("cosXP")]
-        public CosXP CosXP { get; set; }
+        public CosmeticXP CosXP { get; set; }
     }
 }

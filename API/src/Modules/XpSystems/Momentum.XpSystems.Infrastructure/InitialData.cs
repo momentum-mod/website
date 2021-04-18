@@ -47,7 +47,7 @@ namespace Momentum.XpSystems.Infrastructure
                     GroupPointPcts = new float[] { 0.2f, 0.13f, 0.07f, 0.03f }
                 },
             },
-            CosmeticXP = new CosXP
+            CosmeticXP = new CosmeticXP
             {
                 Levels = new Levels
                 {

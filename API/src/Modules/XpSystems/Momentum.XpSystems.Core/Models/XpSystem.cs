@@ -7,7 +7,7 @@ namespace Momentum.XpSystems.Core.Models
     {
         public Guid Id { get; set; }
 		public RankXP RankXP { get; set; }
-		public CosXP CosmeticXP { get; set; }
+		public CosmeticXP CosmeticXP { get; set; }
 	}
 
     public class RankXP
@@ -80,7 +80,7 @@ namespace Momentum.XpSystems.Core.Models
         public int Bonus { get; set; }
     }
 
-    public class CosXP
+    public class CosmeticXP
     {
         public Levels Levels { get; set; }
         public Completions Completions { get; set; }

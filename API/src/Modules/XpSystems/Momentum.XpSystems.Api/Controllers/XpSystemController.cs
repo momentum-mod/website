@@ -29,20 +29,14 @@ namespace Momentum.XpSystems.Api.Controllers
 
             try
             {
-                xpSystemDto = await _mediator.Send(new GetXpSystemQuery { });
+                xpSystemDto = await _mediator.Send(new GetXpSystemQuery());
             }
             catch
             {
                 return NotFound("XpSystem not initialized");
             }
 
-            XpSystemViewModel xpSystemViewModel = new XpSystemViewModel
-            {
-                CosXP = xpSystemDto.CosmeticXP,
-                RankXP = xpSystemDto.RankXP
-            };
-
-            //var xpSystemViewModel = _mapper.Map<XpSystemViewModel>(xpSystem);
+            var xpSystemViewModel = _mapper.Map<XpSystemViewModel>(xpSystemDto);
 
             return Ok(xpSystemViewModel);
         }
