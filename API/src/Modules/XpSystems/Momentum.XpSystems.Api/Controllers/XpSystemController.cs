@@ -5,7 +5,6 @@ using Microsoft.AspNetCore.Mvc;
 using Momentum.XpSystems.Api.ViewModels;
 using Momentum.XpSystems.Application.Queries;
 using Momentum.XpSystems.Application.Commands;
-using Newtonsoft.Json.Linq;
 using Momentum.XpSystems.Application.DTOs;
 
 namespace Momentum.XpSystems.Api.Controllers
@@ -37,11 +36,10 @@ namespace Momentum.XpSystems.Api.Controllers
                 return NotFound("XpSystem not initialized");
             }
 
-            // This should be done in automapper
             XpSystemViewModel xpSystemViewModel = new XpSystemViewModel
             {
-                CosXP = xpSystemDto.CosmeticXP.ToObject<CosXP>(),
-                RankXP = xpSystemDto.RankXP.ToObject<RankXP>()
+                CosXP = xpSystemDto.CosmeticXP,
+                RankXP = xpSystemDto.RankXP
             };
 
             //var xpSystemViewModel = _mapper.Map<XpSystemViewModel>(xpSystem);
@@ -57,8 +55,8 @@ namespace Momentum.XpSystems.Api.Controllers
 
             await _mediator.Send(new CreateOrUpdateXpSystemCommand
             {
-                RankXP = JObject.FromObject(model.RankXP),
-                CosmeticXp =JObject.FromObject(model.CosXP)
+                RankXP = model.RankXP,
+                CosmeticXp = model.CosXP
             }) ;
 
             return NoContent();

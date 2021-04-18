@@ -1,4 +1,4 @@
-﻿using Newtonsoft.Json.Linq;
+﻿using Momentum.XpSystems.Core.Models;
 using System;
 
 namespace Momentum.XpSystems.Application.DTOs
@@ -8,7 +8,7 @@ namespace Momentum.XpSystems.Application.DTOs
         public Guid Id { get; set; }
         public DateTime CreatedAt { get; set; }
         public DateTime? UpdatedAt { get; set; }
-        public JObject RankXP { get; set; }
-        public JObject CosmeticXP { get; set; }
+        public RankXP RankXP { get; set; }
+        public CosXP CosmeticXP { get; set; }
     }
 }

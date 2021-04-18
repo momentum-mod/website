@@ -4,14 +4,13 @@ using System.Threading.Tasks;
 using MediatR;
 using Momentum.XpSystems.Core.Models;
 using Momentum.XpSystems.Core.Repositories;
-using Newtonsoft.Json.Linq;
 
 namespace Momentum.XpSystems.Application.Commands
 {
     public class CreateOrUpdateXpSystemCommand : IRequest
     {
-        public JObject RankXP { get; set; }
-        public JObject CosmeticXp { get; set; }
+        public RankXP RankXP { get; set; }
+        public CosXP CosmeticXp { get; set; }
     }
 
     public class CreateOrUpdateXpSystemCommandHandler : IRequestHandler<CreateOrUpdateXpSystemCommand>

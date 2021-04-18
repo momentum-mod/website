@@ -7,7 +7,7 @@ namespace Momentum.XpSystems.Infrastructure
     {
         public void SetupDomainIdentities(StoreOptions options)
         {
-            options.InitialData.Add(new InitialData(InitialDataSets.XpSystem));
+            options.InitialData.Add(new InitialData(new InitialDataSets().XpSystem));
         }
     }
 }
