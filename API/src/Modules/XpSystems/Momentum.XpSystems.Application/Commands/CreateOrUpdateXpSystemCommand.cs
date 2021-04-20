@@ -30,7 +30,7 @@ namespace Momentum.XpSystems.Application.Commands
 
         public async Task<Unit> Handle(CreateOrUpdateXpSystemCommand request, CancellationToken cancellationToken)
         {
-            var xpSystem = await _xpSystemRepository.Get();
+            var xpSystem = await _xpSystemRepository.SingleOrDefault();
 
             xpSystem ??= new XpSystem();
 

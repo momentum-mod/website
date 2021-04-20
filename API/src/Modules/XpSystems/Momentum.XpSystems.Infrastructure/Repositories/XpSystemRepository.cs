@@ -25,7 +25,7 @@ namespace Momentum.XpSystems.Infrastructure.Repositories
             return model;
         }
 
-        public async Task<XpSystem> Get()
+        public async Task<XpSystem> SingleOrDefault()
         {
             using var session = _store.QuerySession();
 

@@ -22,7 +22,7 @@ namespace Momentum.XpSystems.Application.Queries
 
         public async Task<XpSystemDto> Handle(GetXpSystemQuery request, CancellationToken cancellationToken)
         {
-            var xpSystem = await _xpSystemRepository.Get();
+            var xpSystem = await _xpSystemRepository.SingleOrDefault();
 
             return xpSystem == null
                 ? null
