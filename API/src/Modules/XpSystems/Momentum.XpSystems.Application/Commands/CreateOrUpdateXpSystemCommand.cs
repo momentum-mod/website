@@ -20,12 +20,10 @@ namespace Momentum.XpSystems.Application.Commands
     public class CreateOrUpdateXpSystemCommandHandler : IRequestHandler<CreateOrUpdateXpSystemCommand>
     {
         private readonly IXpSystemRepository _xpSystemRepository;
-        private readonly ILogger _logger;
 
-        public CreateOrUpdateXpSystemCommandHandler(IXpSystemRepository xpSystemRepository, ILogger logger)
+        public CreateOrUpdateXpSystemCommandHandler(IXpSystemRepository xpSystemRepository)
         {
             _xpSystemRepository = xpSystemRepository;
-            _logger = logger;
         }
 
         public async Task<Unit> Handle(CreateOrUpdateXpSystemCommand request, CancellationToken cancellationToken)

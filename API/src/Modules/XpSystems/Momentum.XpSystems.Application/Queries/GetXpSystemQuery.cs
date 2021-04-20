@@ -16,13 +16,11 @@ namespace Momentum.XpSystems.Application.Queries
     {
         private readonly IMapper _mapper;
         private readonly IXpSystemRepository _xpSystemRepository;
-        private readonly ILogger _logger;
 
-        public GetXpSystemQueryHandlerHandler(IMapper mapper, IXpSystemRepository xpSystemRepository, ILogger logger)
+        public GetXpSystemQueryHandlerHandler(IMapper mapper, IXpSystemRepository xpSystemRepository)
         {
             _mapper = mapper;
             _xpSystemRepository = xpSystemRepository;
-            _logger = logger;
         }
 
         public async Task<XpSystemDto> Handle(GetXpSystemQuery request, CancellationToken cancellationToken)
