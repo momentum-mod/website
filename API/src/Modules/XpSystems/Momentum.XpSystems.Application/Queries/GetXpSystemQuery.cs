@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using AutoMapper;
 using MediatR;
 using Momentum.XpSystems.Application.DTOs;
+using Momentum.XpSystems.Core.Exceptions;
 using Momentum.XpSystems.Core.Repositories;
 using Serilog;
 
@@ -26,17 +27,7 @@ namespace Momentum.XpSystems.Application.Queries
 
         public async Task<XpSystemDto> Handle(GetXpSystemQuery request, CancellationToken cancellationToken)
         {
-            var xpSystem = new XpSystemDto();
-
-            try
-            {
-                xpSystem = await _xpSystemRepository.Get();
-            }
-            catch (Exception e)
-            {
-                _logger.Error(e, "XpSystem not initialized");
-                throw;
-            }
+            var xpSystem = await _xpSystemRepository.Get() ?? throw new XpSystemsNotInitializedException();
 
             return _mapper.Map<XpSystemDto>(xpSystem);
         }

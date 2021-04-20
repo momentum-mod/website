@@ -5,6 +5,7 @@ using MediatR;
 using Momentum.XpSystems.Application.DTOs;
 using Momentum.XpSystems.Application.DTOs.Cosmetic;
 using Momentum.XpSystems.Application.DTOs.Rank;
+using Momentum.XpSystems.Core.Models;
 using Momentum.XpSystems.Core.Repositories;
 using Serilog;
 
@@ -29,16 +30,10 @@ namespace Momentum.XpSystems.Application.Commands
 
         public async Task<Unit> Handle(CreateOrUpdateXpSystemCommand request, CancellationToken cancellationToken)
         {
-            var xpSystem = new XpSystemDto();
+            var xpSystem = await _xpSystemRepository.Get();
 
-            try
-            {
-                xpSystem = await _xpSystemRepository.Get();
-            }
-            catch (Exception e)
-            {
-                _logger.Error(e, "XpSystem not initialized");
-            }
+            // Create a new instance if the XP system is not yet created
+            xpSystem ??= new XpSystem();
 
             xpSystem.RankXp = request.RankXpDto;
 

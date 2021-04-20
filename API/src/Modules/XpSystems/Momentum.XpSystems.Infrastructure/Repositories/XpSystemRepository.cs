@@ -29,7 +29,7 @@ namespace Momentum.XpSystems.Infrastructure.Repositories
         {
             using var session = Store.QuerySession();
 
-            var xpSystem = await session.Query<XpSystem>().SingleAsync();
+            var xpSystem = await session.Query<XpSystem>().SingleOrDefaultAsync();
 
             return xpSystem;
         }
