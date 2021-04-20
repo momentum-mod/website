@@ -5,6 +5,8 @@ using MediatR;
 using Momentum.XpSystems.Application.DTOs.Cosmetic;
 using Momentum.XpSystems.Application.DTOs.Rank;
 using Momentum.XpSystems.Core.Models;
+using Momentum.XpSystems.Core.Models.Cosmetic;
+using Momentum.XpSystems.Core.Models.Rank;
 using Momentum.XpSystems.Core.Repositories;
 
 namespace Momentum.XpSystems.Application.Commands
@@ -30,11 +32,10 @@ namespace Momentum.XpSystems.Application.Commands
         {
             var xpSystem = await _xpSystemRepository.Get();
 
-            // Create a new instance if the XP system is not yet created
             xpSystem ??= new XpSystem();
 
-            _mapper.Map(request.RankXp, xpSystem.RankXp);
-            _mapper.Map(request.CosmeticXp, xpSystem.CosmeticXp);
+            xpSystem.CosmeticXp = _mapper.Map<CosmeticXp>(request.CosmeticXp);
+            xpSystem.RankXp = _mapper.Map<RankXp>(request.RankXp);
 
             await _xpSystemRepository.CreateOrUpdate(xpSystem);
 
