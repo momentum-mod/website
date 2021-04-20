@@ -26,14 +26,14 @@ namespace Momentum.XpSystems.Infrastructure
 
     public class InitialDataSets
     {
-        public readonly XpSystem XpSystem = new XpSystem
+        public readonly XpSystem XpSystem = new()
         {
             RankXp = new RankXp
             {
                 Top10 = new Top10
                 {
                     WorldRecordPoints = 3000,
-                    RankPercentages = new float[] { 1.0f, 0.75f, 0.68f, 0.61f, 0.57f, 0.53f, 0.505f, 0.48f, 0.455f, 0.43f }
+                    RankPercentages = new[] { 1.0f, 0.75f, 0.68f, 0.61f, 0.57f, 0.53f, 0.505f, 0.48f, 0.455f, 0.43f }
                 },
                 Formula = new Formula
                 {
@@ -43,10 +43,10 @@ namespace Momentum.XpSystems.Infrastructure
                 Groups = new Groups
                 {
                     MaxGroups = 4,
-                    GroupScaleFactors = new float[] { 1.0f, 1.5f, 2f, 2.5f },
-                    GroupExponents = new float[] { 0.5f, 0.56f, 0.62f, 0.68f },
-                    GroupMinimumSizes = new int[] { 10, 45, 125, 250 },
-                    GroupPointPcts = new float[] { 0.2f, 0.13f, 0.07f, 0.03f }
+                    GroupScaleFactors = new[] { 1.0f, 1.5f, 2f, 2.5f },
+                    GroupExponents = new[] { 0.5f, 0.56f, 0.62f, 0.68f },
+                    GroupMinimumSizes = new[] { 10, 45, 125, 250 },
+                    GroupPointPercentages = new[] { 0.2f, 0.13f, 0.07f, 0.03f }
                 },
             },
             CosmeticXp = new CosmeticXp
