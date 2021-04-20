@@ -49,7 +49,7 @@ namespace Momentum.XpSystems.Api.Controllers
 
             await _mediator.Send(new CreateOrUpdateXpSystemCommand
             {
-                RankXpDto = model.RankXP,
+                RankXp = model.RankXP,
                 CosmeticXp = model.CosXP
             }) ;
 
