@@ -1,6 +1,6 @@
 ﻿using System.Text.Json.Serialization;
 
-namespace Momentum.XpSystems.Api.ViewModels
+namespace Momentum.XpSystems.Api.ViewModels.Cosmetic
 {
     /// <summary>
     /// Tier scale for repeat completions

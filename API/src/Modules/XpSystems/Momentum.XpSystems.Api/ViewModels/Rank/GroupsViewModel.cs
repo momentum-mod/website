@@ -1,8 +1,8 @@
 ﻿using System.Text.Json.Serialization;
 
-namespace Momentum.XpSystems.Api.ViewModels
+namespace Momentum.XpSystems.Api.ViewModels.Rank
 {
-    public class Groups
+    public class GroupsViewModel
     {
         [JsonPropertyName("maxGroups")]
         public int MaxGroups { get; set; }

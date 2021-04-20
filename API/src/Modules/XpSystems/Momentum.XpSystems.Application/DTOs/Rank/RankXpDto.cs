@@ -2,7 +2,7 @@
 {
     public class RankXpDto
     {
-        public Top10Dto Top10Dto { get; set; }
+        public Top10Dto Top10 { get; set; }
         public FormulaDto Formula { get; set; }
         public GroupsDto Groups { get; set; }
     }

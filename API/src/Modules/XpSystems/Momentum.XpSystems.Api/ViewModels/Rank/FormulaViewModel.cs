@@ -1,11 +1,11 @@
 ﻿using System.Text.Json.Serialization;
 
-namespace Momentum.XpSystems.Api.ViewModels
+namespace Momentum.XpSystems.Api.ViewModels.Rank
 {
     /// <summary>
     /// Variables used in the rank point formula, as defined here: https://docs.google.com/document/d/1Zj8FKrfAMqYSnAHjySJqoqq0vmAEWxYXVcYLi3_u7NA/edit
     /// </summary>
-    public class Formula
+    public class FormulaViewModel
     {
         /// <summary>
         /// `A` is the scaling constant in the equation [ A / (rank + B) ]

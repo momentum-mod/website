@@ -1,8 +1,8 @@
 ﻿using System.Text.Json.Serialization;
 
-namespace Momentum.XpSystems.Api.ViewModels
+namespace Momentum.XpSystems.Api.ViewModels.Cosmetic
 {
-    public class RepeateViewModel
+    public class RepeatViewModel
     {
         [JsonPropertyName("tierScale")]
         public RepeatTierScaleViewModel TierScale { get; set; }
