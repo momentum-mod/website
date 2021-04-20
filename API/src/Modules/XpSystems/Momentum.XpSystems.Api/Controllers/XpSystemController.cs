@@ -25,18 +25,14 @@ namespace Momentum.XpSystems.Api.Controllers
         [HttpGet]
         public async Task<IActionResult> GetXpSystemAsync()
         {
-            var xpSystemDto = new XpSystemDto();
+            var xpSystems = await _mediator.Send(new GetXpSystemQuery());
 
-            try
+            if (xpSystems == null)
             {
-                xpSystemDto = await _mediator.Send(new GetXpSystemQuery());
-            }
-            catch
-            {
-                return NotFound("XpSystem not initialized");
+                return NotFound();
             }
 
-            var xpSystemViewModel = _mapper.Map<XpSystemViewModel>(xpSystemDto);
+            var xpSystemViewModel = _mapper.Map<XpSystemViewModel>(xpSystems);
 
             return Ok(xpSystemViewModel);
         }
