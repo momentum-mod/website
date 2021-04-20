@@ -7,6 +7,8 @@ using Momentum.XpSystems.Application.Queries;
 using Momentum.XpSystems.Application.Commands;
 using Momentum.XpSystems.Application.DTOs.Rank;
 using Momentum.XpSystems.Application.DTOs.Cosmetic;
+using Momentum.Users.Core.Services;
+using Momentum.Users.Core.Models;
 
 namespace Momentum.XpSystems.Api.Controllers
 {
@@ -16,11 +18,13 @@ namespace Momentum.XpSystems.Api.Controllers
     {
         private readonly IMediator _mediator;
         private readonly IMapper _mapper;
+        private readonly ICurrentUserService _currentUserService;
 
-        public XpSystemController(IMediator mediator, IMapper mapper)
+        public XpSystemController(IMediator mediator, IMapper mapper, ICurrentUserService currentUserService)
         {
             _mediator = mediator;
             _mapper = mapper;
+            _currentUserService = currentUserService;
         }
 
         [HttpGet]
@@ -38,11 +42,13 @@ namespace Momentum.XpSystems.Api.Controllers
             return Ok(xpSystemViewModel);
         }
 
-        //[Authorize(Roles = "Admin")]
         [HttpPut]
         public async Task<IActionResult> UpdateXpSystemAsync([FromBody] XpSystemViewModel model)
         {
-            //User.IsInRole(Roles.Admin.ToString())
+            if (!_currentUserService.HasRole(Roles.Admin))
+            {
+                return Unauthorized();
+            }
 
             await _mediator.Send(new CreateOrUpdateXpSystemCommand
             {
@@ -52,6 +58,5 @@ namespace Momentum.XpSystems.Api.Controllers
 
             return NoContent();
         }
-
     }
 }
