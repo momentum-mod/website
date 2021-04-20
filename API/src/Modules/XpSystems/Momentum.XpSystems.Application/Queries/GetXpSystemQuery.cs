@@ -3,7 +3,6 @@ using System.Threading.Tasks;
 using AutoMapper;
 using MediatR;
 using Momentum.XpSystems.Application.DTOs;
-using Momentum.XpSystems.Core.Exceptions;
 using Momentum.XpSystems.Core.Repositories;
 
 namespace Momentum.XpSystems.Application.Queries

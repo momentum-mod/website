@@ -6,6 +6,8 @@ using Momentum.XpSystems.Api.ViewModels;
 using Momentum.XpSystems.Application.Queries;
 using Momentum.XpSystems.Application.Commands;
 using Momentum.XpSystems.Application.DTOs;
+using Momentum.XpSystems.Application.DTOs.Rank;
+using Momentum.XpSystems.Application.DTOs.Cosmetic;
 
 namespace Momentum.XpSystems.Api.Controllers
 {
@@ -45,9 +47,9 @@ namespace Momentum.XpSystems.Api.Controllers
 
             await _mediator.Send(new CreateOrUpdateXpSystemCommand
             {
-                RankXp = model.RankXP,
-                CosmeticXp = model.CosXP
-            }) ;
+                RankXp = _mapper.Map<RankXpDto>(model.RankXp),
+                CosmeticXp = _mapper.Map<CosmeticXpDto>(model.CosXp)
+            });
 
             return NoContent();
         }

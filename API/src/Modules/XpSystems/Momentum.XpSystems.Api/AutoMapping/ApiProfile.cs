@@ -9,7 +9,7 @@ namespace Momentum.XpSystems.Api.AutoMapping
         public ApiProfile()
         {
             CreateMap<XpSystemDto, XpSystemViewModel>().ForMember(
-                x => x.CosXP, x => x.MapFrom(x => x.CosmeticXP)
+                x => x.CosXp, x => x.MapFrom(x => x.CosmeticXp)
             );
         }
     }
