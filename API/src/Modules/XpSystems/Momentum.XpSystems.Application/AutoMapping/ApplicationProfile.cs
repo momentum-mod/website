@@ -1,5 +1,4 @@
 ﻿using Momentum.XpSystems.Application.DTOs;
-using Momentum.XpSystems.Core.Models;
 
 namespace Momentum.XpSystems.Application.AutoMapping
 {
@@ -7,8 +6,8 @@ namespace Momentum.XpSystems.Application.AutoMapping
     {
         public ApplicationProfile()
         {
-            CreateMap<XpSystem, XpSystemDto>();
-            CreateMap<XpSystemDto, XpSystem>();
+            CreateMap<XpSystemDto, XpSystemDto>();
+            CreateMap<XpSystemDto, XpSystemDto>();
         }
     }
 }

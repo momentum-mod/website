@@ -4,7 +4,6 @@ using System.Threading.Tasks;
 using AutoMapper;
 using MediatR;
 using Momentum.XpSystems.Application.DTOs;
-using Momentum.XpSystems.Core.Models;
 using Momentum.XpSystems.Core.Repositories;
 
 namespace Momentum.XpSystems.Application.Queries
@@ -24,7 +23,7 @@ namespace Momentum.XpSystems.Application.Queries
 
         public async Task<XpSystemDto> Handle(GetXpSystemQuery request, CancellationToken cancellationToken)
         {
-            var xpSystem = new XpSystem();
+            var xpSystem = new XpSystemDto();
 
             try
             {

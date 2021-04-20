@@ -2,17 +2,17 @@
 using System.Threading;
 using System.Threading.Tasks;
 using MediatR;
-using Momentum.XpSystems.Core.Models;
-using Momentum.XpSystems.Core.Models.Cosmetic;
-using Momentum.XpSystems.Core.Models.Rank;
+using Momentum.XpSystems.Application.DTOs;
+using Momentum.XpSystems.Application.DTOs.Cosmetic;
+using Momentum.XpSystems.Application.DTOs.Rank;
 using Momentum.XpSystems.Core.Repositories;
 
 namespace Momentum.XpSystems.Application.Commands
 {
     public class CreateOrUpdateXpSystemCommand : IRequest
     {
-        public RankXp RankXP { get; set; }
-        public CosmeticXp CosmeticXp { get; set; }
+        public RankXpDto RankXpDto { get; set; }
+        public CosmeticXpDto CosmeticXp { get; set; }
     }
 
     public class CreateOrUpdateXpSystemCommandHandler : IRequestHandler<CreateOrUpdateXpSystemCommand>
@@ -26,7 +26,7 @@ namespace Momentum.XpSystems.Application.Commands
 
         public async Task<Unit> Handle(CreateOrUpdateXpSystemCommand request, CancellationToken cancellationToken)
         {
-            var xpSystem = new XpSystem();
+            var xpSystem = new XpSystemDto();
 
             try
             {
@@ -37,7 +37,7 @@ namespace Momentum.XpSystems.Application.Commands
                 Console.WriteLine("XpSystem not initialized: " + e.Message);
             }
 
-            xpSystem.RankXp = request.RankXP;
+            xpSystem.RankXp = request.RankXpDto;
 
             xpSystem.CosmeticXp = request.CosmeticXp;
 

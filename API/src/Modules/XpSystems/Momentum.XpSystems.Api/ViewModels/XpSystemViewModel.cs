@@ -1,5 +1,4 @@
-﻿using Momentum.XpSystems.Core.Models;
-using System.Text.Json.Serialization;
+﻿using System.Text.Json.Serialization;
 using Momentum.XpSystems.Core.Models.Cosmetic;
 using Momentum.XpSystems.Core.Models.Rank;
 
