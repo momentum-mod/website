@@ -1,5 +1,7 @@
 ﻿using Momentum.XpSystems.Core.Models;
 using System;
+using Momentum.XpSystems.Core.Models.Cosmetic;
+using Momentum.XpSystems.Core.Models.Rank;
 
 namespace Momentum.XpSystems.Application.DTOs
 {
@@ -8,7 +10,7 @@ namespace Momentum.XpSystems.Application.DTOs
         public Guid Id { get; set; }
         public DateTime CreatedAt { get; set; }
         public DateTime? UpdatedAt { get; set; }
-        public RankXP RankXP { get; set; }
-        public CosmeticXP CosmeticXP { get; set; }
+        public RankXp RankXP { get; set; }
+        public CosmeticXp CosmeticXP { get; set; }
     }
 }

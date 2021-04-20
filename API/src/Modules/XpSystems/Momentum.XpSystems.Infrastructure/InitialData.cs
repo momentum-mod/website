@@ -1,6 +1,8 @@
 ﻿using Marten;
 using Marten.Schema;
 using Momentum.XpSystems.Core.Models;
+using Momentum.XpSystems.Core.Models.Cosmetic;
+using Momentum.XpSystems.Core.Models.Rank;
 
 namespace Momentum.XpSystems.Infrastructure
 {
@@ -26,11 +28,11 @@ namespace Momentum.XpSystems.Infrastructure
     {
         public readonly XpSystem XpSystem = new XpSystem
         {
-            RankXP = new RankXP
+            RankXp = new RankXp
             {
                 Top10 = new Top10
                 {
-                    WRPoints = 3000,
+                    WorldRecordPoints = 3000,
                     RankPercentages = new float[] { 1.0f, 0.75f, 0.68f, 0.61f, 0.57f, 0.53f, 0.505f, 0.48f, 0.455f, 0.43f }
                 },
                 Formula = new Formula
@@ -43,11 +45,11 @@ namespace Momentum.XpSystems.Infrastructure
                     MaxGroups = 4,
                     GroupScaleFactors = new float[] { 1.0f, 1.5f, 2f, 2.5f },
                     GroupExponents = new float[] { 0.5f, 0.56f, 0.62f, 0.68f },
-                    GroupMinSizes = new int[] { 10, 45, 125, 250 },
+                    GroupMinimumSizes = new int[] { 10, 45, 125, 250 },
                     GroupPointPcts = new float[] { 0.2f, 0.13f, 0.07f, 0.03f }
                 },
             },
-            CosmeticXP = new CosmeticXP
+            CosmeticXp = new CosmeticXp
             {
                 Levels = new Levels
                 {
@@ -65,7 +67,7 @@ namespace Momentum.XpSystems.Infrastructure
                 {
                     Unique = new Unique
                     {
-                        TierScale = new Tierscale
+                        TierScale = new UniqueTierScale
                         {
                             Linear = 2500,
                             Staged = 2500
@@ -73,7 +75,7 @@ namespace Momentum.XpSystems.Infrastructure
                     },
                     Repeat = new Repeat
                     {
-                        TierScale = new Tierscale1
+                        TierScale = new RepeatTierScale
                         {
                             Linear = 20,
                             Staged = 40,

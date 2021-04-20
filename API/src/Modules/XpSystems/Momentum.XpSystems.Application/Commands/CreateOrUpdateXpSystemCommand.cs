@@ -3,14 +3,16 @@ using System.Threading;
 using System.Threading.Tasks;
 using MediatR;
 using Momentum.XpSystems.Core.Models;
+using Momentum.XpSystems.Core.Models.Cosmetic;
+using Momentum.XpSystems.Core.Models.Rank;
 using Momentum.XpSystems.Core.Repositories;
 
 namespace Momentum.XpSystems.Application.Commands
 {
     public class CreateOrUpdateXpSystemCommand : IRequest
     {
-        public RankXP RankXP { get; set; }
-        public CosmeticXP CosmeticXp { get; set; }
+        public RankXp RankXP { get; set; }
+        public CosmeticXp CosmeticXp { get; set; }
     }
 
     public class CreateOrUpdateXpSystemCommandHandler : IRequestHandler<CreateOrUpdateXpSystemCommand>
@@ -35,9 +37,9 @@ namespace Momentum.XpSystems.Application.Commands
                 Console.WriteLine("XpSystem not initialized: " + e.Message);
             }
 
-            xpSystem.RankXP = request.RankXP;
+            xpSystem.RankXp = request.RankXP;
 
-            xpSystem.CosmeticXP = request.CosmeticXp;
+            xpSystem.CosmeticXp = request.CosmeticXp;
 
             await _xpSystemRepository.CreateOrUpdate(xpSystem);
 
