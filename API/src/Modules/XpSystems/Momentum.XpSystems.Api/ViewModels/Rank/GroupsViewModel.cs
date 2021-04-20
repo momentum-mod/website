@@ -12,7 +12,7 @@ namespace Momentum.XpSystems.Api.ViewModels.Rank
         public float[] GroupExponents { get; set; }
         [JsonPropertyName("groupMinimumSizes")]
         public int[] GroupMinimumSizes { get; set; }
-        [JsonPropertyName("groupPointPercentages")]
+        [JsonPropertyName("groupPointPcts")]
         public float[] GroupPointPercentages { get; set; }
     }
 }
