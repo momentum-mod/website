@@ -41,7 +41,7 @@ namespace Momentum.Gateway.Api
         {
             // Add controllers from this assembly + the modules
             services.AddControllers()
-                    .AddModuleControllers(_modules);
+                .AddModuleControllers(_modules);
 
             services.AddSwaggerGen(c =>
             {
