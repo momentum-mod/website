@@ -7,16 +7,16 @@ namespace Momentum.XpSystems.Infrastructure.Repositories
 {
     public class XpSystemRepository : IXpSystemRepository
     {
-        protected readonly IDocumentStore Store;
+        private readonly IDocumentStore _store;
 
         public XpSystemRepository(IDocumentStore store)
         {
-            Store = store;
+            _store = store;
         }
 
         public async Task<XpSystem> CreateOrUpdate(XpSystem model)
         {
-            using var session = Store.LightweightSession();
+            using var session = _store.LightweightSession();
 
             session.Store(model);
 
@@ -27,7 +27,7 @@ namespace Momentum.XpSystems.Infrastructure.Repositories
 
         public async Task<XpSystem> Get()
         {
-            using var session = Store.QuerySession();
+            using var session = _store.QuerySession();
 
             var xpSystem = await session.Query<XpSystem>().SingleOrDefaultAsync();
 
