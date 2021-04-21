@@ -14,13 +14,25 @@ namespace Momentum.XpSystems.Infrastructure
         {
             _initialData = initialData;
         }
-        public void Populate(IDocumentStore store)
+
+        public async void Populate(IDocumentStore store)
         {
-            using var session = store.LightweightSession();
+            using var session = store.QuerySession();
 
-            session.Store(_initialData);
+            var xpSystem = await session.Query<XpSystem>().SingleOrDefaultAsync();
 
-            session.SaveChanges();
+            if (xpSystem != null)
+            {
+                return;
+            }
+            else
+            {
+                using var session2 = store.LightweightSession();
+
+                session2.Store(_initialData);
+
+                session2.SaveChanges();
+            }
         }
     }
 
