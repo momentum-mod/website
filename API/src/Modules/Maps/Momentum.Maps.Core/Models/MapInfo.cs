@@ -3,9 +3,8 @@ using Momentum.Framework.Core.Models;
 
 namespace Momentum.Maps.Core.Models
 {
-    public class MapInfo : TimeTrackedModel
+    public class MapInfo
     {
-        public Guid MapId { get; set; }
         public string Description { get; set; }
         public string YoutubeId { get; set; }
         public DateTime CreationDate { get; set; }

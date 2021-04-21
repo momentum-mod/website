@@ -9,7 +9,7 @@ namespace Momentum.Maps.Core.Models
         public Guid Id { get; set; }
         public Guid MapId { get; set; }
         public Guid UserId { get; set; }
-        public MapType GameMode { get; set; }
+        public GameMode GameMode { get; set; }
         public RunFlags RunFlags { get; set; }
         public byte TrackNumber { get; set; }
         public byte ZoneNumber { get; set; }

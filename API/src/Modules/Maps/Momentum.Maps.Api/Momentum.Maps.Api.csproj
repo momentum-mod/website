@@ -4,4 +4,9 @@
         <TargetFramework>net5.0</TargetFramework>
     </PropertyGroup>
 
+    <ItemGroup>
+      <ProjectReference Include="..\..\..\Framework\Momentum.Framework.Core\Momentum.Framework.Core.csproj" />
+      <ProjectReference Include="..\Momentum.Maps.Application\Momentum.Maps.Application.csproj" />
+    </ItemGroup>
+
 </Project>

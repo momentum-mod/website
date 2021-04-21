@@ -4,4 +4,14 @@
         <TargetFramework>net5.0</TargetFramework>
     </PropertyGroup>
 
+    <ItemGroup>
+      <ProjectReference Include="..\..\..\Framework\Momentum.Framework.Core\Momentum.Framework.Core.csproj" />
+      <ProjectReference Include="..\..\..\Framework\Momentum.Framework.Infrastructure\Momentum.Framework.Infrastructure.csproj" />
+      <ProjectReference Include="..\Momentum.Maps.Core\Momentum.Maps.Core.csproj" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <PackageReference Include="Marten" Version="3.13.4" />
+    </ItemGroup>
+
 </Project>

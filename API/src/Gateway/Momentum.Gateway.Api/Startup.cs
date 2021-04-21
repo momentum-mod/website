@@ -24,7 +24,7 @@ namespace Momentum.Gateway.Api
     public class Startup
     {
         private readonly IWebHostEnvironment _webHostEnvironment;
-        private readonly IModuleInitializer[] _modules = ModulesUtility.GetModules().ToArray();
+        private readonly IModuleInitializer[] _modules = ModulesUtility.GetApiModules().ToArray();
 
         private readonly Assembly[] _applicationLayerAssemblies = ModulesUtility.GetApplicationLayerAssemblies()
             .ToArray();

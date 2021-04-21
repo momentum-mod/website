@@ -1,6 +1,6 @@
 ﻿namespace Momentum.Maps.Core.Models
 {
-    public enum MapType
+    public enum GameMode
     {
         Unknown = 0,
         Surf = 1,

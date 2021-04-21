@@ -17,14 +17,14 @@ namespace Momentum.Framework.Infrastructure.Repositories
         {
             Store = store;
         }
-        
+
         public async Task<T> Add(T model)
         {
             model.CreatedAt = DateTime.UtcNow;
             model.UpdatedAt = null;
 
             using var session = Store.LightweightSession();
-            
+
             session.Insert(model);
 
             await session.SaveChangesAsync();
@@ -37,18 +37,17 @@ namespace Momentum.Framework.Infrastructure.Repositories
             model.UpdatedAt = DateTime.UtcNow;
 
             using var session = Store.LightweightSession();
-            
+
             session.Update(model);
 
             await session.SaveChangesAsync();
 
             return model;
         }
-
         public async Task Delete(T model)
         {
             using var session = Store.LightweightSession();
-            
+
             session.Delete(model);
 
             await session.SaveChangesAsync();

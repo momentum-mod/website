@@ -6,7 +6,7 @@
         Pending = 1,
         NeedsRevision = 2,
         PrivateTesting = 3,
-        PublicTesting  = 4,
+        PublicTesting = 4,
         ReadyForRelease = 5,
         Rejected = 6,
         Removed = 7

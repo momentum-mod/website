@@ -15,11 +15,9 @@ namespace Momentum.Users.Api.Controllers.Auth
     public class TwitchController : Controller
     {
         private readonly IMediator _mediator;
-        private readonly ICurrentUserService _currentUserService;
-        public TwitchController(IMediator mediator, ICurrentUserService currentUserService)
+        public TwitchController(IMediator mediator)
         {
             _mediator = mediator;
-            _currentUserService = currentUserService;
         }
 
         [Authorize(AuthenticationSchemes = "Twitch", Policy = "RequireNothing")]

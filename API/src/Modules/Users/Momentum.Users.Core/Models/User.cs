@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using Momentum.Framework.Core.Models;
 
 namespace Momentum.Users.Core.Models
@@ -14,6 +15,8 @@ namespace Momentum.Users.Core.Models
         public Roles Roles { get; set; }
         public Bans Bans { get; set; }
         public string Country { get; set; }
-
+        public List<Guid> FavoriteMapIds { get; set; }
+        public List<Guid> LibraryMapIds { get; set; }
+        public List<Guid> FollowedMapIds { get; set; }
     }
 }
