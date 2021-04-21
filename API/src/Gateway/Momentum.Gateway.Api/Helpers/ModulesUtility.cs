@@ -4,6 +4,7 @@ using System.Reflection;
 using Microsoft.Extensions.DependencyInjection;
 using Momentum.Framework.Core.DependencyInjection;
 using Momentum.Users.Application.Commands;
+using Momentum.XpSystems.Application.Commands;
 
 namespace Momentum.Gateway.Api.Helpers
 {
@@ -11,14 +12,17 @@ namespace Momentum.Gateway.Api.Helpers
     {
         public static IEnumerable<IModuleInitializer> GetModules() => new IModuleInitializer[]
         {
-            new Users.Api.Module()
+            new Users.Api.Module(),
+            new XpSystems.Api.Module()
         };
 
         public static IEnumerable<Assembly> GetApplicationLayerAssemblies()
             => new[]
             {
                 // User
-                typeof(GetOrCreateNewUserCommand).GetTypeInfo().Assembly
+                typeof(GetOrCreateNewUserCommand).GetTypeInfo().Assembly,
+                // XpSystem
+                typeof(CreateOrUpdateXpSystemCommand).GetTypeInfo().Assembly
             };
 
         public static IEnumerable<Assembly> GetApiLayerAssemblies()
@@ -28,7 +32,9 @@ namespace Momentum.Gateway.Api.Helpers
             => new IMartenInitializer[]
             {
                 // User
-                new Users.Infrastructure.MartenInitializer()
+                new Users.Infrastructure.MartenInitializer(),
+                // XpSystem
+                new XpSystems.Infrastructure.MartenInitializer()
             };
         
         public static void AddModuleControllers(this IMvcBuilder mvcBuilder, IEnumerable<IModuleInitializer> modules)

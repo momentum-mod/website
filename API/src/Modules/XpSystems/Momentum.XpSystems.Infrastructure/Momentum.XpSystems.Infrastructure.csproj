@@ -1,0 +1,16 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net5.0</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\Framework\Momentum.Framework.Infrastructure\Momentum.Framework.Infrastructure.csproj" />
+    <ProjectReference Include="..\Momentum.XpSystems.Core\Momentum.XpSystems.Core.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Marten" Version="3.13.4" />
+  </ItemGroup>
+
+</Project>

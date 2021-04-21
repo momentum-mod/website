@@ -29,6 +29,7 @@
     <ItemGroup>
       <ProjectReference Include="..\..\Framework\Momentum.Framework.Core\Momentum.Framework.Core.csproj" />
       <ProjectReference Include="..\..\Modules\Users\Momentum.Users.Api\Momentum.Users.Api.csproj" />
+      <ProjectReference Include="..\..\Modules\XpSystems\Momentum.XpSystems.Api\Momentum.XpSystems.Api.csproj" />
     </ItemGroup>
 
 </Project>
