@@ -38,7 +38,7 @@ namespace Momentum.XpSystems.Infrastructure
                 Top10 = new Top10
                 {
                     WorldRecordPoints = 3000,
-                    RankPercentages = new[] { 1.0, 0.75, 0.68, 0.61, 0.57, 0.53, 0.505, 0.48, 0.455, 0.43 }
+                    RankPercentages = new[] { 1.0M, 0.75M, 0.68M, 0.61M, 0.57M, 0.53M, 0.505M, 0.48M, 0.455M, 0.43M }
                 },
                 Formula = new Formula
                 {
@@ -48,10 +48,10 @@ namespace Momentum.XpSystems.Infrastructure
                 Groups = new Groups
                 {
                     MaxGroups = 4,
-                    GroupScaleFactors = new[] { 1.0, 1.5, 2, 2.5 },
-                    GroupExponents = new[] { 0.5, 0.56, 0.62, 0.68 },
+                    GroupScaleFactors = new[] { 1.0M, 1.5M, 2M, 2.5M },
+                    GroupExponents = new[] { 0.5M, 0.56M, 0.62M, 0.68M },
                     GroupMinimumSizes = new[] { 10, 45, 125, 250 },
-                    GroupPointPercentages = new[] { 0.2, 0.13, 0.07, 0.03 }
+                    GroupPointPercentages = new[] { 0.2M, 0.13M, 0.07M, 0.03M }
                 },
             },
             CosmeticXp = new CosmeticXp
@@ -62,11 +62,11 @@ namespace Momentum.XpSystems.Infrastructure
                     StartingValue = 20000,
                     LinearScaleBaseIncrease = 1000,
                     LinearScaleInterval = 10,
-                    LinearScaleIntervalMultiplier = 1.0,
+                    LinearScaleIntervalMultiplier = 1.0M,
                     StaticScaleStart = 101,
-                    StaticScaleBaseMultiplier = 1.5,
+                    StaticScaleBaseMultiplier = 1.5M,
                     StaticScaleInterval = 25,
-                    StaticScaleIntervalMultiplier = 0.5
+                    StaticScaleIntervalMultiplier = 0.5M
                 },
                 Completions = new Completions
                 {

@@ -7,12 +7,12 @@ namespace Momentum.XpSystems.Api.ViewModels.Rank
         [JsonPropertyName("maxGroups")]
         public int MaxGroups { get; set; }
         [JsonPropertyName("groupScaleFactors")]
-        public double[] GroupScaleFactors { get; set; }
+        public decimal[] GroupScaleFactors { get; set; }
         [JsonPropertyName("groupExponents")]
-        public double[] GroupExponents { get; set; }
+        public decimal[] GroupExponents { get; set; }
         [JsonPropertyName("groupMinimumSizes")]
         public int[] GroupMinimumSizes { get; set; }
         [JsonPropertyName("groupPointPcts")]
-        public double[] GroupPointPercentages { get; set; }
+        public decimal[] GroupPointPercentages { get; set; }
     }
 }

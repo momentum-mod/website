@@ -13,14 +13,14 @@ namespace Momentum.XpSystems.Api.ViewModels.Cosmetic
         [JsonPropertyName("linearScaleInterval")]
         public int LinearScaleInterval { get; set; }
         [JsonPropertyName("linearScaleIntervalMultiplier")]
-        public double LinearScaleIntervalMultiplier { get; set; }
+        public decimal LinearScaleIntervalMultiplier { get; set; }
         [JsonPropertyName("staticScaleStart")]
         public int StaticScaleStart { get; set; }
         [JsonPropertyName("staticScaleBaseMultiplier")]
-        public double StaticScaleBaseMultiplier { get; set; }
+        public decimal StaticScaleBaseMultiplier { get; set; }
         [JsonPropertyName("staticScaleInterval")]
         public int StaticScaleInterval { get; set; }
         [JsonPropertyName("staticScaleIntervalMultiplier")]
-        public double StaticScaleIntervalMultiplier { get; set; }
+        public decimal StaticScaleIntervalMultiplier { get; set; }
     }
 }

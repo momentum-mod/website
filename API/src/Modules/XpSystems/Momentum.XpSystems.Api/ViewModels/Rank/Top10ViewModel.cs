@@ -7,6 +7,6 @@ namespace Momentum.XpSystems.Api.ViewModels.Rank
         [JsonPropertyName("WRPoints")]
         public int WorldRecordPoints { get; set; }
         [JsonPropertyName("rankPercentages")]
-        public double[] RankPercentages { get; set; }
+        public decimal[] RankPercentages { get; set; }
     }
 }
