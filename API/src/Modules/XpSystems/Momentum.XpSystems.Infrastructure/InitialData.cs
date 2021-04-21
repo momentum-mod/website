@@ -21,18 +21,13 @@ namespace Momentum.XpSystems.Infrastructure
 
             var xpSystem = await session.Query<XpSystem>().SingleOrDefaultAsync();
 
-            if (xpSystem != null)
-            {
-                return;
-            }
-            else
-            {
-                using var session2 = store.LightweightSession();
+            if (xpSystem != null) return;
 
-                session2.Store(_initialData);
+            using var session2 = store.LightweightSession();
 
-                session2.SaveChanges();
-            }
+            session2.Store(_initialData);
+
+            session2.SaveChanges();
         }
     }
 
