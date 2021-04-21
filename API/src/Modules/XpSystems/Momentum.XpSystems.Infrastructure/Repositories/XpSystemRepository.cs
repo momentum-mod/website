@@ -2,6 +2,7 @@
 using System.Threading.Tasks;
 using Momentum.XpSystems.Core.Models;
 using Momentum.XpSystems.Core.Repositories;
+using System;
 
 namespace Momentum.XpSystems.Infrastructure.Repositories
 {
@@ -16,6 +17,15 @@ namespace Momentum.XpSystems.Infrastructure.Repositories
 
         public async Task<XpSystem> CreateOrUpdate(XpSystem model)
         {
+            if (model.CreatedAt == default)
+            {
+                model.CreatedAt = DateTime.UtcNow;
+            }
+            else
+            {
+                model.UpdatedAt = DateTime.UtcNow;
+            }
+
             using var session = _store.LightweightSession();
 
             session.Store(model);
