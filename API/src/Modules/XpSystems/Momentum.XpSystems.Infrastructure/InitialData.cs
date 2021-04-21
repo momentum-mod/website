@@ -17,17 +17,15 @@ namespace Momentum.XpSystems.Infrastructure
 
         public async void Populate(IDocumentStore store)
         {
-            using var session = store.QuerySession();
+            using var session = store.LightweightSession();
 
             var xpSystem = await session.Query<XpSystem>().SingleOrDefaultAsync();
 
             if (xpSystem != null) return;
 
-            using var session2 = store.LightweightSession();
+            session.Store(_initialData);
 
-            session2.Store(_initialData);
-
-            session2.SaveChanges();
+            session.SaveChanges();
         }
     }
 
