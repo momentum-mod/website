@@ -3,6 +3,6 @@
     public class Top10
     {
         public int WorldRecordPoints { get; set; }
-        public float[] RankPercentages { get; set; }
+        public double[] RankPercentages { get; set; }
     }
 }

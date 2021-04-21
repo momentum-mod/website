@@ -3,9 +3,9 @@
     public class Groups
     {
         public int MaxGroups { get; set; }
-        public float[] GroupScaleFactors { get; set; }
-        public float[] GroupExponents { get; set; }
+        public double[] GroupScaleFactors { get; set; }
+        public double[] GroupExponents { get; set; }
         public int[] GroupMinimumSizes { get; set; }
-        public float[] GroupPointPercentages { get; set; }
+        public double[] GroupPointPercentages { get; set; }
     }
 }
