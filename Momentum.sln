@@ -60,6 +60,16 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Momentum.Maps.Core", "API\s
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Momentum.Maps.Infrastructure", "API\src\Modules\Maps\Momentum.Maps.Infrastructure\Momentum.Maps.Infrastructure.csproj", "{23D4CF11-BAEE-4FDE-8A71-86CAEE1FB2B9}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Reports", "Reports", "{A212D9E8-95AB-462E-AD15-AD2F531ABF0C}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Momentum.Reports.Api", "API\src\Modules\Reports\Momentum.Reports.Api\Momentum.Reports.Api.csproj", "{22552BE0-32F8-4E25-A12D-F3323F8F977D}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Momentum.Reports.Application", "API\src\Modules\Reports\Momentum.Reports.Application\Momentum.Reports.Application.csproj", "{0FE95B4F-6908-41DE-AE9F-75FE416E1CDF}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Momentum.Reports.Core", "API\src\Modules\Reports\Momentum.Reports.Core\Momentum.Reports.Core.csproj", "{24DC7661-9387-4E0A-ABCD-1820129740B6}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Momentum.Reports.Infrastructure", "API\src\Modules\Reports\Momentum.Reports.Infrastructure\Momentum.Reports.Infrastructure.csproj", "{922A8B27-644E-4086-8182-14EB05470CF9}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -126,6 +136,22 @@ Global
 		{23D4CF11-BAEE-4FDE-8A71-86CAEE1FB2B9}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{23D4CF11-BAEE-4FDE-8A71-86CAEE1FB2B9}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{23D4CF11-BAEE-4FDE-8A71-86CAEE1FB2B9}.Release|Any CPU.Build.0 = Release|Any CPU
+		{22552BE0-32F8-4E25-A12D-F3323F8F977D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{22552BE0-32F8-4E25-A12D-F3323F8F977D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{22552BE0-32F8-4E25-A12D-F3323F8F977D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{22552BE0-32F8-4E25-A12D-F3323F8F977D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0FE95B4F-6908-41DE-AE9F-75FE416E1CDF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0FE95B4F-6908-41DE-AE9F-75FE416E1CDF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0FE95B4F-6908-41DE-AE9F-75FE416E1CDF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0FE95B4F-6908-41DE-AE9F-75FE416E1CDF}.Release|Any CPU.Build.0 = Release|Any CPU
+		{24DC7661-9387-4E0A-ABCD-1820129740B6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{24DC7661-9387-4E0A-ABCD-1820129740B6}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{24DC7661-9387-4E0A-ABCD-1820129740B6}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{24DC7661-9387-4E0A-ABCD-1820129740B6}.Release|Any CPU.Build.0 = Release|Any CPU
+		{922A8B27-644E-4086-8182-14EB05470CF9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{922A8B27-644E-4086-8182-14EB05470CF9}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{922A8B27-644E-4086-8182-14EB05470CF9}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{922A8B27-644E-4086-8182-14EB05470CF9}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -153,6 +179,11 @@ Global
 		{B37D955F-E27A-442B-9C79-F9D6BF15B90C} = {261AC97D-CD26-40EB-AAFE-EC4A32219002}
 		{3B0E5E0E-7B6A-428F-9490-04863FB34470} = {261AC97D-CD26-40EB-AAFE-EC4A32219002}
 		{23D4CF11-BAEE-4FDE-8A71-86CAEE1FB2B9} = {261AC97D-CD26-40EB-AAFE-EC4A32219002}
+		{A212D9E8-95AB-462E-AD15-AD2F531ABF0C} = {81CBEE5D-EF47-4FC0-81D7-5418A0714651}
+		{22552BE0-32F8-4E25-A12D-F3323F8F977D} = {A212D9E8-95AB-462E-AD15-AD2F531ABF0C}
+		{0FE95B4F-6908-41DE-AE9F-75FE416E1CDF} = {A212D9E8-95AB-462E-AD15-AD2F531ABF0C}
+		{24DC7661-9387-4E0A-ABCD-1820129740B6} = {A212D9E8-95AB-462E-AD15-AD2F531ABF0C}
+		{922A8B27-644E-4086-8182-14EB05470CF9} = {A212D9E8-95AB-462E-AD15-AD2F531ABF0C}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {8C242527-BD78-4BBF-9F99-A4972999C0B2}

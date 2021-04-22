@@ -1,0 +1,16 @@
+﻿using Momentum.Framework.Core.Models;
+using System;
+
+namespace Momentum.Reports.Core.Models
+{
+    public class Report : TimeTrackedModel
+    {
+        public Guid Id { get; set; }
+        public string Data { get; set; }
+        public ushort Type { get; set; }
+        public uint Category { get; set; }
+        public string Messgae { get; set; }
+        public bool Resolved { get; set; } = false;
+        public string ResolutionMessage { get; set; }
+    }
+}
