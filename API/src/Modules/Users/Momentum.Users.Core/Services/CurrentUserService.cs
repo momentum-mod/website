@@ -86,10 +86,10 @@ namespace Momentum.Users.Core.Services
             var bearerToken = authorizationHeader.Replace("Bearer ", "");
 
             if (!string.IsNullOrWhiteSpace(bearerToken)) return bearerToken;
-            
+
             // No authorization header, check if it is in a query parameter '?jwt=...'
             var jwtQuery = _httpContext.Request.Query.SingleOrDefault(x => x.Key == "jwt");
-            
+
             // No null value for KVP<,>, check against `default`
             return jwtQuery.Equals(default) ? null : jwtQuery.Value.ToString();
 

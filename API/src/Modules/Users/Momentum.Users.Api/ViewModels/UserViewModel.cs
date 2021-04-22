@@ -10,7 +10,7 @@ namespace Momentum.Users.Api.ViewModels
         public DateTime CreatedAt { get; set; }
         [JsonPropertyName("updatedAt")]
         public DateTime? UpdatedAt { get; set; }
-        
+
         [JsonPropertyName("id")]
         public Guid Id { get; set; }
 
@@ -31,8 +31,8 @@ namespace Momentum.Users.Api.ViewModels
 
         [JsonPropertyName("profile")]
         public UserProfileViewModel Profile { get; set; }
-        
-        [JsonPropertyName("stats")] 
+
+        [JsonPropertyName("stats")]
         public UserStatsViewModel Stats { get; set; }
     }
 }

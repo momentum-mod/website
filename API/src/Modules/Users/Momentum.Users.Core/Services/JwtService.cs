@@ -15,12 +15,12 @@ using Momentum.Users.Core.Repositories.Auth;
 
 namespace Momentum.Users.Core.Services
 {
- public class JwtService : IJwtService
+    public class JwtService : IJwtService
     {
         private readonly IConfiguration _configuration;
         private readonly IRefreshTokenRepository _refreshTokenRepository;
         private readonly IUserRepository _userRepository;
-        
+
         public JwtService(IConfiguration configuration, IRefreshTokenRepository refreshTokenRepository, IUserRepository userRepository)
         {
             _configuration = configuration;

@@ -16,7 +16,7 @@ namespace Momentum.Users.Application.Queries.Auth
         public string Ticket { get; set; }
         public string UserId { get; set; }
     }
-    
+
     public class SteamUserTicketValidQueryHandler : IRequestHandler<SteamUserTicketValidQuery, bool>
     {
         private readonly ISteamWebInterfaceFactory _steamWebInterfaceFactory;
@@ -32,7 +32,7 @@ namespace Momentum.Users.Application.Queries.Auth
         {
             var steamUserAuthInterface = _steamWebInterfaceFactory.CreateSteamWebInterface<SteamUserAuth>(_httpClient);
             var ticketValidResponse = await steamUserAuthInterface.AuthenticateUserTicket(Constants.MomentumModSteamId, request.Ticket);
-            
+
             return ticketValidResponse.Data.Response.Success &&
                    ticketValidResponse.Data.Response.Params.Result == "OK" &&
                    request.UserId == ticketValidResponse.Data.Response.Params.SteamId;

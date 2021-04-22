@@ -19,7 +19,7 @@ namespace Momentum.Users.Api.Controllers
         private readonly IMediator _mediator;
         private readonly ICurrentUserService _currentUserService;
         private readonly IMapper _mapper;
-        
+
         public UserController(IMediator mediator, ICurrentUserService currentUserService, IMapper mapper)
         {
             _mediator = mediator;
@@ -33,7 +33,7 @@ namespace Momentum.Users.Api.Controllers
             expand = expand.Replace("stats", "userStats", StringComparison.Ordinal);
 
             var expandList = expand.Split(",");
-            
+
             var userId = _currentUserService.GetUserId();
             var user = await _mediator.Send(new GetUserByIdQuery
             {
@@ -72,7 +72,7 @@ namespace Momentum.Users.Api.Controllers
                     userViewModel.Profile.TwitterAuth = _mapper.Map<UserTwitterAuthViewModel>(userSocials.UserTwitter);
                 }
             }
-            
+
             if (expandList.Contains("userStats"))
             {
                 var userStats = await _mediator.Send(new GetUserStatsQuery

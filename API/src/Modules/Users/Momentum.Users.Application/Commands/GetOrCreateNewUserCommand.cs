@@ -16,7 +16,7 @@ namespace Momentum.Users.Application.Commands
         public Func<Task<UserDto>> BuildUserDto { get; set; }
         public Func<Task> EnsureSteamUserPermittedToCreateProfile { get; set; }
     }
-    
+
     public class GetOrCreateNewUserCommandHandler : IRequestHandler<GetOrCreateNewUserCommand, UserDto>
     {
         private readonly IMapper _mapper;
@@ -43,14 +43,14 @@ namespace Momentum.Users.Application.Commands
                 {
                     throw new Exception("Need a function to check if the steam user is allowed to create a momentum profile");
                 }
-                
+
                 await request.EnsureSteamUserPermittedToCreateProfile.Invoke();
-                
+
                 user = _mapper.Map<User>(await request.BuildUserDto.Invoke());
                 user.Id = new Guid();
 
                 await _userRepository.Add(user);
-                
+
                 // Now setup additional documents related to a user
                 await _userProfileRepository.Add(new Profile
                 {
@@ -70,7 +70,7 @@ namespace Momentum.Users.Application.Commands
                 user.Alias = updatedSteamUser.Alias;
                 user.Avatar = updatedSteamUser.Avatar;
                 user.Country = updatedSteamUser.Country;
-                
+
                 user = await _userRepository.Update(user);
             }
 

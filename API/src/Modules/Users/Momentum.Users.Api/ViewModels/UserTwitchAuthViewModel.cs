@@ -12,7 +12,7 @@ namespace Momentum.Users.Api.ViewModels
 
         [JsonPropertyName("id")]
         public Guid UserId { get; set; }
-        
+
         [JsonPropertyName("twitchID")]
         public int TwitchId { get; set; }
         [JsonPropertyName("displayName")]

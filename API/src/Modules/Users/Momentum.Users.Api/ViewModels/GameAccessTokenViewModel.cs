@@ -9,10 +9,10 @@ namespace Momentum.Users.Api.ViewModels
             AccessToken = accessToken;
             Length = AccessToken.Length;
         }
-        
+
         [JsonPropertyName("token")]
-        public string AccessToken { get;  }
+        public string AccessToken { get; }
         [JsonPropertyName("length")]
-        public int Length { get;  }
+        public int Length { get; }
     }
 }

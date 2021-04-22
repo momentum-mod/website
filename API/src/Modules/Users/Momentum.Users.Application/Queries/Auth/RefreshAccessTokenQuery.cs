@@ -44,7 +44,7 @@ namespace Momentum.Users.Application.Queries.Auth
                     .First(x => x.Type == JwtRegisteredClaimNames.Jti)
                     .Value);
             }
-            
+
 
             if (string.IsNullOrEmpty(refreshToken))
             {
@@ -57,7 +57,7 @@ namespace Momentum.Users.Application.Queries.Auth
                 RefreshToken = refreshToken,
                 UserId = userId
             }, request.FromInGame);
-            
+
             return userAccessToken.AccessToken;
         }
     }

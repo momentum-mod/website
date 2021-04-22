@@ -11,7 +11,7 @@ namespace Momentum.Users.Application.Queries.Auth
     {
         public Guid UserId { get; set; } = Guid.Empty;
     }
-    
+
     public class GetOrCreateRefreshTokenQueryHandler : IRequestHandler<GetOrCreateRefreshTokenQuery, string>
     {
         private readonly IJwtService _jwtService;

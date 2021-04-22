@@ -12,7 +12,7 @@ namespace Momentum.Users.Application.Queries
     {
         public Guid UserId { get; set; }
     }
-    
+
     public class GetUserProfileQueryHandler : IRequestHandler<GetUserProfileQuery, ProfileDto>
     {
         private readonly IUserProfileRepository _userProfileRepository;

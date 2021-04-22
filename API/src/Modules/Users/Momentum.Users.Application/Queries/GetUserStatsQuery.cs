@@ -12,7 +12,7 @@ namespace Momentum.Users.Application.Queries
     {
         public Guid UserId { get; set; }
     }
-    
+
     public class GetUserStatsQueryHandler : IRequestHandler<GetUserStatsQuery, StatsDto>
     {
         private readonly IUserStatsRepository _userStatsRepository;
@@ -27,7 +27,7 @@ namespace Momentum.Users.Application.Queries
         public async Task<StatsDto> Handle(GetUserStatsQuery request, CancellationToken cancellationToken)
         {
             var stats = await _userStatsRepository.GetByUserId(request.UserId);
-            
+
             return _mapper.Map<StatsDto>(stats);
         }
     }
