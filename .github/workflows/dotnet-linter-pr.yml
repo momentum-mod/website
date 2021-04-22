@@ -7,26 +7,34 @@ jobs:
       - name: Checkout repo
         uses: actions/checkout@v2
         with:
-          fetch-depth: 0
           ref: ${{ github.head_ref }}
 
-      - name: Install dotnet-format
-        run: dotnet tool install -g dotnet-format --version 4.0.130203
+      - name: Add dotnet-format problem matcher
+        uses: xt0rted/dotnet-format-problem-matcher@v1
+
+      - name: Restore dotnet tools
+        uses: xt0rted/dotnet-tool-restore@v1
 
       - name: Run dotnet format
         id: format
-        uses: xt0rted/dotnet-format@v1
+        uses: jfversluis/dotnet-format@v1.0.4
         with:
           repo-token: ${{ secrets.GITHUB_TOKEN }}
           action: "fix"
-          only-changed-files: false
-      
+          only-changed-files: true
+
       - name: Commit files
         if: steps.format.outputs.has-changes == 'true'
-        uses: EndBug/add-and-commit@v7
+        run: |
+          git config --local user.name "github-actions[bot]"
+          git config --local user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git commit -a -m 'Automated dotnet-format update
+
+          Co-authored-by: ${{ github.event.pull_request.user.login }} <${{ github.event.pull_request.user.id }}+${{ github.event.pull_request.user.login }}@users.noreply.github.com>'
+
+      - name: Push changes
+        if: steps.format.outputs.has-changes == 'true'
+        uses: ad-m/github-push-action@v0.5.0
         with:
-          author_name: github-actions
-          author_email: 41898282+github-actions[bot]@users.noreply.github.com
-          message: 'Automated dotnet-format update'
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          branch: ${{ github.head_ref }}
