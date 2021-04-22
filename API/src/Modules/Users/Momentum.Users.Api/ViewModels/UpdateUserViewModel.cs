@@ -9,7 +9,7 @@ namespace Momentum.Users.Api.ViewModels
 
         [JsonPropertyName("profile")]
         public UpdateUserProfileViewModel Profile { get; set; }
-        
+
         public class UpdateUserProfileViewModel
         {
             [JsonPropertyName("bio")]

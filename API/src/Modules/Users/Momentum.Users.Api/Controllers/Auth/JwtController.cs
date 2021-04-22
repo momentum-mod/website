@@ -12,7 +12,7 @@ namespace Momentum.Users.Api.Controllers.Auth
     public class JwtController : Controller
     {
         private readonly IMediator _mediator;
-        
+
         public JwtController(IMediator mediator)
         {
             _mediator = mediator;
@@ -26,7 +26,7 @@ namespace Momentum.Users.Api.Controllers.Auth
 
             return NoContent();
         }
-        
+
         [Authorize("AllowRefreshToken")]
         [HttpPost("refresh")]
         public async Task<IActionResult> RefreshAccessTokenAsync()

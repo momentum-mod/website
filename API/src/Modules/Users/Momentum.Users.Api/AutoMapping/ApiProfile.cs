@@ -13,12 +13,12 @@ namespace Momentum.Users.Api.AutoMapping
             CreateMap<UserDto, UserViewModel>();
             CreateMap<ProfileDto, UserProfileViewModel>();
             CreateMap<StatsDto, UserStatsViewModel>();
-            
+
             CreateMap<UserTwitterDto, UserTwitterAuthViewModel>();
             CreateMap<UserTwitchDto, UserTwitchAuthViewModel>();
             CreateMap<UserDiscordDto, UserDiscordAuthViewModel>();
 
-            CreateMap<UpdateUserViewModel, UpdateUserCommand>().ForMember(x => x.Bio, x=>x.MapFrom(x => x.Profile.Bio));
+            CreateMap<UpdateUserViewModel, UpdateUserCommand>().ForMember(x => x.Bio, x => x.MapFrom(x => x.Profile.Bio));
         }
     }
 }

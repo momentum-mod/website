@@ -37,7 +37,7 @@ namespace Momentum.Users.Api.Services
             {
                 return _steamId;
             }
-            
+
             var steamProfileUrl = _httpContextAccessor.HttpContext?.User.Claims
                 .Single(x => x.Type == ClaimTypes.NameIdentifier).Value ?? throw new Exception("Expected a HttpContext while getting steam ID");
 
@@ -53,11 +53,11 @@ namespace Momentum.Users.Api.Services
             {
                 return _profileXmlDocument;
             }
-            
+
             steamId ??= GetSteamId();
-            
+
             var profileXmlText = await _httpClient.GetStringAsync($"https://steamcommunity.com/profiles/{steamId}?xml=1");
-            
+
             var profileXmlDoc = new XmlDocument();
             profileXmlDoc.LoadXml(profileXmlText);
 
@@ -70,7 +70,7 @@ namespace Momentum.Users.Api.Services
             await EnsurePremiumAccount(steamId);
             await EnsureAccountHasProfile(steamId);
         }
-        
+
         public async Task EnsurePremiumAccount(string steamId = null)
         {
             var profile = await GetProfileAsync(steamId);
@@ -84,7 +84,7 @@ namespace Momentum.Users.Api.Services
                     // Is a premium account
                     return;
                 }
-                
+
                 // Limited account
                 throw new Exception("We do not authenticate limited Steam accounts. Buy something on Steam first!");
             }
@@ -105,7 +105,7 @@ namespace Momentum.Users.Api.Services
             {
                 throw new Exception("You must have an avatar, please setup your steam profile");
             }
-            
+
             // Could check for a country here, but null is fine
         }
 

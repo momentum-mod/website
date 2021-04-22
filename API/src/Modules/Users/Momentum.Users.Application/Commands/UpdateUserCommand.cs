@@ -51,10 +51,10 @@ namespace Momentum.Users.Application.Commands
                     {
                         currentUser.AliasLocked = currentUser.Alias != request.Alias;
                     }
-                    
+
                     currentUser.Alias = request.Alias;
                 }
-                
+
                 await _userRepository.Update(currentUser);
             }
 

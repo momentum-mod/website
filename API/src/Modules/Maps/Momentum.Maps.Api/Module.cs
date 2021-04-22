@@ -8,7 +8,7 @@ namespace Momentum.Maps.Api
     {
         public void ConfigureServices(IServiceCollection services, IConfiguration configuration)
         {
-            
+
         }
     }
 }

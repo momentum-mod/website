@@ -10,6 +10,6 @@ namespace Momentum.XpSystems.Application.DTOs
         public DateTime CreatedAt { get; set; }
         public DateTime? UpdatedAt { get; set; }
         public RankXpDto RankXp { get; set; }
-		public CosmeticXpDto CosmeticXp { get; set; }
-	}
+        public CosmeticXpDto CosmeticXp { get; set; }
+    }
 }
