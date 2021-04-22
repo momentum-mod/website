@@ -1,0 +1,14 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net5.0</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\Framework\Momentum.Framework.Core\Momentum.Framework.Core.csproj" />
+    <ProjectReference Include="..\Momentum.Reports.Application\Momentum.Reports.Application.csproj" />
+    <ProjectReference Include="..\Momentum.Reports.Core\Momentum.Reports.Core.csproj" />
+    <ProjectReference Include="..\Momentum.Reports.Infrastructure\Momentum.Reports.Infrastructure.csproj" />
+  </ItemGroup>
+
+</Project>
