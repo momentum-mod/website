@@ -15,7 +15,7 @@ jobs:
 
       - name: Run dotnet format
         id: format
-        uses: xt0rted/dotnet-format@v1.0.2
+        uses: xt0rted/dotnet-format@v1
         with:
           repo-token: ${{ secrets.GITHUB_TOKEN }}
           action: "fix"
@@ -24,7 +24,7 @@ jobs:
       
       - name: Commit files
         if: steps.format.outputs.has-changes == 'true'
-        uses: EndBug/add-and-commit@v4.1.0
+        uses: EndBug/add-and-commit@v4
         with:
           author_name: Github Actions
           author_email: actions@github.com
