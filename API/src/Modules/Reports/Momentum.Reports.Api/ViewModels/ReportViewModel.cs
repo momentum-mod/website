@@ -16,7 +16,7 @@ namespace Momentum.Reports.Api.ViewModels
         public ushort Type { get; set; }
         public uint Category { get; set; }
         [StringLength(1000)]
-        public string Messgae { get; set; }
+        public string Message { get; set; }
         public bool Resolved { get; set; }
         [StringLength(1000)]
         public string ResolutionMessage { get; set; }

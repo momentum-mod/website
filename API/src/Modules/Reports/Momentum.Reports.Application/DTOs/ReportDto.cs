@@ -10,7 +10,7 @@ namespace Momentum.Reports.Application.DTOs
         public string Data { get; set; }
         public ushort Type { get; set; }
         public uint Category { get; set; }
-        public string Messgae { get; set; }
+        public string Message { get; set; }
         public bool Resolved { get; set; }
         public string ResolutionMessage { get; set; }
     }
