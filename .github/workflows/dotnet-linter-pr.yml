@@ -6,15 +6,29 @@ jobs:
     steps:
       - name: Checkout repo
         uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+          ref: ${{ github.head_ref }}
 
-      - name: Add dotnet-format problem matcher
-        uses: xt0rted/dotnet-format-problem-matcher@v1
-
-      - name: Restore dotnet tools
-        uses: xt0rted/dotnet-tool-restore@v1
+      - name: Install dotnet-format
+        run: dotnet tool install -g dotnet-format
 
       - name: Run dotnet format
-        uses: xt0rted/dotnet-format@v1
+        id: format
+        uses: xt0rted/dotnet-format@v1.0.2
         with:
           repo-token: ${{ secrets.GITHUB_TOKEN }}
-          only-changed-files: "true"
+          action: "fix"
+          only-changed-files: true
+          folder: "."
+      
+      - name: Commit files
+        if: steps.format.outputs.has-changes == 'true'
+        uses: EndBug/add-and-commit@v4.1.0
+        with:
+          author_name: Github Actions
+          author_email: actions@github.com
+          message: Automated dotnet-format update
+          ref: ${{ github.head_ref }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
