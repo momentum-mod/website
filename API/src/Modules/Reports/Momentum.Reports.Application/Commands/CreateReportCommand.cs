@@ -3,10 +3,6 @@ using MediatR;
 using Momentum.Reports.Application.DTOs;
 using Momentum.Reports.Core.Models;
 using Momentum.Reports.Core.Repositories;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
