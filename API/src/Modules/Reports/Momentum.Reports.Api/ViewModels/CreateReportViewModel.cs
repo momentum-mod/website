@@ -9,6 +9,7 @@ namespace Momentum.Reports.Api.ViewModels
 {
     public class CreateReportViewModel
     {
+        public Guid SubmitterId { get; set; }
         public string Data { get; set; }
         public ushort Type { get; set; }
         public uint Category { get; set; }

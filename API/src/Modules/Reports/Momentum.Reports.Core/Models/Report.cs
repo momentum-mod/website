@@ -6,6 +6,8 @@ namespace Momentum.Reports.Core.Models
     public class Report : TimeTrackedModel
     {
         public Guid Id { get; set; }
+        public Guid SubmitterId { get; set; }
+        public Guid ResolverId { get; set; }
         public string Data { get; set; }
         public ushort Type { get; set; }
         public uint Category { get; set; }
