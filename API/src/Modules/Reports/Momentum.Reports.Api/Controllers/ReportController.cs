@@ -47,13 +47,55 @@ namespace Momentum.Reports.Api.Controllers
                 return Conflict("Daily report limit reached");
             }
 
-            return Ok(report);
+            return Ok(_mapper.Map<CreateReportViewModel>(report));
         }
 
-/*        [Route("api/admin/reports")]
+        [Route("api/admin/reports")]
         [HttpGet]
+        public async Task<IActionResult> GetAllReportAsync([FromQuery] string query) // use a viewmodel here like MapsController
+        {
+            // TODO copy auth check here
+
+            var queryParams = query.Split(",");
+
+            if (queryParams.Contains("limit"))
+            {
+
+            }
+            if (queryParams.Contains("offset"))
+            {
+
+            }
+            if (queryParams.Contains("resolved"))
+            {
+
+            }
+
+
+            if (queryParams.Contains("expand"))
+            {
+                // expand is a property with a list possibly containing submitter/resolver
+                if (queryParams.Contains("submitter"))
+                {
+
+                }
+                if (queryParams.Contains("resolver"))
+                {
+
+                }
+            }
+
+            return Ok();
+        }
 
         [Route("api/admin/reports/{id}")]
-        [HttpPatch]*/
+        [HttpPatch]
+        public async Task<IActionResult> UpdateReportAsync([From)
+        {
+            // TODO copy auth check here
+
+
+
+        }
     }
 }
