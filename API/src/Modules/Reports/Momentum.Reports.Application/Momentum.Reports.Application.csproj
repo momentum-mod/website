@@ -14,4 +14,8 @@
     <ProjectReference Include="..\Momentum.Reports.Infrastructure\Momentum.Reports.Infrastructure.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Queries\" />
+  </ItemGroup>
+
 </Project>
