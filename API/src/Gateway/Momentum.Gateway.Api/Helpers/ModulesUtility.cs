@@ -4,6 +4,7 @@ using System.Reflection;
 using AutoMapper.QueryableExtensions;
 using Microsoft.Extensions.DependencyInjection;
 using Momentum.Framework.Core.DependencyInjection;
+using Momentum.Reports.Application.Commands;
 using Momentum.Users.Application.Commands;
 using Momentum.XpSystems.Application.Commands;
 
@@ -24,7 +25,9 @@ namespace Momentum.Gateway.Api.Helpers
                 // User
                 typeof(GetOrCreateNewUserCommand).GetTypeInfo().Assembly,
                 // XpSystem
-                typeof(CreateOrUpdateXpSystemCommand).GetTypeInfo().Assembly
+                typeof(CreateOrUpdateXpSystemCommand).GetTypeInfo().Assembly,
+                // Report
+                typeof(CreateReportCommand).GetTypeInfo().Assembly
             };
 
         public static IEnumerable<Assembly> GetApiLayerAssemblies()
@@ -39,6 +42,8 @@ namespace Momentum.Gateway.Api.Helpers
                 new XpSystems.Infrastructure.MartenInitializer(),
                 // Maps
                 new Maps.Infrastructure.MartenInitializer(),
+                // Report
+                new Reports.Infrastructure.MartenInitializer()
             };
 
         public static void AddModuleControllers(this IMvcBuilder mvcBuilder, IEnumerable<IModuleInitializer> modules)
