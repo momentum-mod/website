@@ -27,7 +27,7 @@ namespace Momentum.Reports.Infrastructure.Repositories
             return numOfReportsSubmittedToday;
         }
 
-        public async Task<IReadOnlyList<Report>> GetAllReport() // When you pass the queryParams here, provide some defaults
+        public async Task<IReadOnlyList<Report>> GetAllReports() // When you pass the queryParams here, provide some defaults
         {
             using var session = _store.QuerySession();
 
@@ -38,5 +38,7 @@ namespace Momentum.Reports.Infrastructure.Repositories
 
             return reports;
         }
+
+        public async Task<Report> GetById(Guid id) => await GetSingleOrDefaultAsync(x => x.Id == id);
     }
 }
