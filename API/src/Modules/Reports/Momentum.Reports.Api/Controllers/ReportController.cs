@@ -2,9 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using AutoMapper;
 using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using Momentum.Reports.Api.ViewModels;
 using Momentum.Users.Core.Services;
@@ -26,7 +24,7 @@ namespace Momentum.Reports.Api.Controllers
             _currentUserService = currentUserService;
             _mapper = mapper;
         }
-        
+
         [Route("api/reports")]
         [HttpPost]
         public async Task<IActionResult> CreateReportAsync([FromBody] CreateReportViewModel model)
@@ -39,6 +37,7 @@ namespace Momentum.Reports.Api.Controllers
 
             var report = await _mediator.Send(new CreateReportCommand
             {
+                // Pass the properties into the command instead of creating a DTO and passing the DTO?
                 ReportDto = reportDto
             });
 
@@ -52,9 +51,12 @@ namespace Momentum.Reports.Api.Controllers
 
         [Route("api/admin/reports")]
         [HttpGet]
-        public async Task<IActionResult> GetAllReportAsync([FromQuery] string query) // use a viewmodel here like MapsController
+        public async Task<IActionResult> GetAllReportsAsync([FromQuery] string query) // use a viewmodel here like MapsController
         {
-            // TODO copy auth check here
+            /*            if (!_currentUserService.HasRole(Roles.Admin))
+                        {
+                            return Unauthorized();
+                        }*/
 
             var queryParams = query.Split(",");
 
@@ -88,14 +90,23 @@ namespace Momentum.Reports.Api.Controllers
             return Ok();
         }
 
-        [Route("api/admin/reports/{id}")]
+        [Route("api/admin/reports/{reportId}")]
         [HttpPatch]
-        public async Task<IActionResult> UpdateReportAsync([From)
+        public async Task<IActionResult> UpdateReportAsync(Guid reportId, [FromBody] UpdateReportViewModel model)
         {
-            // TODO copy auth check here
+            /*            if (!_currentUserService.HasRole(Roles.Admin))
+                        {
+                            return Unauthorized();
+                        }*/
 
+            await _mediator.Send(new UpdateReportCommand
+            {
+                ReportId = reportId,
+                Resolved = model.Resolved,
+                ResolutionMessage = model.ResolutionMessage
+            });
 
-
+            return NoContent();
         }
     }
 }
