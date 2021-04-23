@@ -3,33 +3,30 @@ using MediatR;
 using Momentum.Reports.Application.DTOs;
 using Momentum.Reports.Core.Repositories;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
 namespace Momentum.Reports.Application.Queries
 {
-    public class GetAllReportQuery : IRequest<ReportDto>
+    public class GetAllReportsQuery : IRequest<ReportDto>
     {
 
     }
 
-    public class GetAllReportQueryHandler : IRequestHandler<GetAllReportQuery, ReportDto>
+    public class GetAllReportsQueryHandler : IRequestHandler<GetAllReportsQuery, ReportDto>
     {
         private readonly IReportRepository _reportRepository;
         private readonly IMapper _mapper;
 
-        public GetAllReportQueryHandler(IReportRepository reportRepository, IMapper mapper)
+        public GetAllReportsQueryHandler(IReportRepository reportRepository, IMapper mapper)
         {
             _reportRepository = reportRepository;
             _mapper = mapper;
         }
 
-        public async Task<ReportDto> Handle(GetAllReportQuery request, CancellationToken cancellationToken)
+        public async Task<ReportDto> Handle(GetAllReportsQuery request, CancellationToken cancellationToken)
         {
-            var reports = await _reportRepository.GetAllReport();
+            var reports = await _reportRepository.GetAllReports();
 
             foreach (var report in reports)
             {
