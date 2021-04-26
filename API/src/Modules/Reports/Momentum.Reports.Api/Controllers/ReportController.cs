@@ -78,7 +78,7 @@ namespace Momentum.Reports.Api.Controllers
 
             var getAllReportsViewModel = new GetAllReportsViewModel
             {
-                Number = reportsViewModel.Count(),
+                Number = reportsViewModel.Count,
                 Reports = reportsViewModel
             };
 
