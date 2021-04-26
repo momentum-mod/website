@@ -58,8 +58,6 @@ namespace Momentum.Reports.Api.Controllers
                             return Unauthorized();
                         }*/
 
-            //var queryParams = query.Expand.Split(",");
-
             var reports = await _mediator.Send(new GetAllReportsQuery
             {
                 Expand = query.Expand,
@@ -92,12 +90,14 @@ namespace Momentum.Reports.Api.Controllers
                         {
                             return Unauthorized();
                         }*/
+            var userId = _currentUserService.GetUserId();
 
             await _mediator.Send(new UpdateReportCommand
             {
                 ReportId = reportId,
                 Resolved = model.Resolved,
-                ResolutionMessage = model.ResolutionMessage
+                ResolutionMessage = model.ResolutionMessage,
+                ResolverId = userId
             });
 
             return NoContent();

@@ -12,6 +12,7 @@ namespace Momentum.Reports.Application.Commands
         public Guid ReportId { get; set; }
         public bool Resolved { get; set; }
         public string ResolutionMessage { get; set; }
+        public Guid ResolverId { get; set; }
     }
 
     public class HandleUpdateReportCommand : IRequestHandler<UpdateReportCommand>
@@ -31,6 +32,7 @@ namespace Momentum.Reports.Application.Commands
 
             report.Resolved = request.Resolved;
             report.ResolutionMessage = request.ResolutionMessage;
+            report.ResolverId = request.ResolverId;
 
             await _reportRepository.Update(report);
 

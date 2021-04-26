@@ -17,8 +17,8 @@ namespace Momentum.Reports.Api.ViewModels
         /// </summary>
         [JsonPropertyName("category")]
         public uint Category { get; set; }
-        [StringLength(1000)]
         [JsonPropertyName("message")]
+        [StringLength(1000)]
         public string Message { get; set; }
     }
 }
