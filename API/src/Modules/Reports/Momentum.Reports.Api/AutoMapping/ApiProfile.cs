@@ -10,6 +10,8 @@ namespace Momentum.Reports.Api.AutoMapping
         {
             CreateMap<ReportDto, ReportViewModel>();
             CreateMap<ReportViewModel, ReportDto>();
+
+            CreateMap<CreateReportViewModel, ReportDto>();
         }
     }
 }

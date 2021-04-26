@@ -37,7 +37,6 @@ namespace Momentum.Reports.Api.Controllers
 
             var report = await _mediator.Send(new CreateReportCommand
             {
-                // Pass the properties into the command instead of creating a DTO and passing the DTO?
                 ReportDto = reportDto
             });
 
@@ -46,7 +45,7 @@ namespace Momentum.Reports.Api.Controllers
                 return Conflict("Daily report limit reached");
             }
 
-            return Ok(_mapper.Map<CreateReportViewModel>(report));
+            return Ok(_mapper.Map<ReportViewModel>(report));
         }
 
         [Route("api/admin/reports")]
