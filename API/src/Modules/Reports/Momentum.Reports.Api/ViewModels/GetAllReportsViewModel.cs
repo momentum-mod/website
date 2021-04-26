@@ -5,8 +5,8 @@ namespace Momentum.Reports.Api.ViewModels
 {
     public class GetAllReportsViewModel
     {
-        [JsonPropertyName("number")]
-        public int? Number { get; set; }
+        [JsonPropertyName("count")]
+        public int? Count { get; set; }
         [JsonPropertyName("reports")]
         public List<ReportViewModel> Reports { get; set; }
     }

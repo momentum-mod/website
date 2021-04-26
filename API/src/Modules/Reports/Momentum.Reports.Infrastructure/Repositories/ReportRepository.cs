@@ -18,13 +18,22 @@ namespace Momentum.Reports.Infrastructure.Repositories
             _store = store;
         }
 
-        public async Task<int> GetTodayReportCount (Guid submitterId)
+        public async Task<int> GetTodayReportCount(Guid submitterId)
         {
             using var session = _store.QuerySession();
 
             var numOfReportsSubmittedToday = await session.Query<Report>().CountAsync(x => x.SubmitterId == submitterId && x.CreatedAt > DateTime.Today);
 
             return numOfReportsSubmittedToday;
+        }
+
+        public async Task<int> CountAllReports()
+        {
+            using var session = _store.QuerySession();
+
+            var numberOfReports = await session.Query<Report>().CountAsync();
+
+            return numberOfReports;
         }
 
         public async Task<IReadOnlyList<Report>> GetAllReports(int? limit, uint offset, bool resolved)
@@ -34,7 +43,7 @@ namespace Momentum.Reports.Infrastructure.Repositories
             var reports = await session.Query<Report>()
                 .Where(x => x.Resolved == resolved)
                 .Skip((int)offset)
-                .Take(limit ?? 20)
+                .Take(limit ?? 5)
                 .ToListAsync();
 
             return reports;

@@ -11,7 +11,7 @@ using System.Threading.Tasks;
 
 namespace Momentum.Reports.Application.Queries
 {
-    public class GetAllReportsQuery : IRequest<List<ReportDto>>
+    public class GetAllReportsQuery : IRequest<(List<ReportDto> reports, int reportCount)>
     {
         public string Expand { get; set; }
         public int? Limit { get; set; }
@@ -19,7 +19,7 @@ namespace Momentum.Reports.Application.Queries
         public bool Resolved { get; set; }
     }
 
-    public class GetAllReportsQueryHandler : IRequestHandler<GetAllReportsQuery, List<ReportDto>>
+    public class GetAllReportsQueryHandler : IRequestHandler<GetAllReportsQuery, (List<ReportDto> reports, int reportCount)>
     {
         private readonly IReportRepository _reportRepository;
         private readonly IUserRepository _userRepository;
@@ -32,9 +32,11 @@ namespace Momentum.Reports.Application.Queries
             _mapper = mapper;
         }
 
-        public async Task<List<ReportDto>> Handle(GetAllReportsQuery request, CancellationToken cancellationToken)
+        public async Task<(List<ReportDto> reports, int reportCount)> Handle(GetAllReportsQuery request, CancellationToken cancellationToken)
         {
             var reports = await _reportRepository.GetAllReports(request.Limit, request.Offset, request.Resolved);
+
+            var reportCount = await _reportRepository.CountAllReports();
 
             var reportDtos = new List<ReportDto>();
 
@@ -61,7 +63,7 @@ namespace Momentum.Reports.Application.Queries
                 }
             }
 
-            return reportDtos;
+            return (reportDtos, reportCount);
         }
     }
 }

@@ -58,7 +58,7 @@ namespace Momentum.Reports.Api.Controllers
                             return Unauthorized();
                         }*/
 
-            var reports = await _mediator.Send(new GetAllReportsQuery
+            var (reports, reportCount) = await _mediator.Send(new GetAllReportsQuery
             {
                 Expand = query.Expand,
                 Limit = query.Limit,
@@ -75,7 +75,7 @@ namespace Momentum.Reports.Api.Controllers
 
             var getAllReportsViewModel = new GetAllReportsViewModel
             {
-                Number = reportsViewModel.Count,
+                Count = reportCount,
                 Reports = reportsViewModel
             };
 
