@@ -43,17 +43,21 @@ namespace Momentum.Reports.Application.Queries
                 reportDtos.Add(_mapper.Map<ReportDto>(report));
             }
 
-            var expandList = request.Expand.Split(",");
 
-            foreach (var report in reportDtos)
+            if (request.Expand != null)
             {
-                if (expandList.Contains("submitter"))
+                var expandList = request.Expand.Split(",");
+
+                foreach (var report in reportDtos)
                 {
-                    report.Submitter = _mapper.Map<UserDto>(await _userRepository.GetById(report.SubmitterId));
-                }
-                if (expandList.Contains("resolver"))
-                {
-                    report.Resolver = _mapper.Map<UserDto>(await _userRepository.GetById(report.ResolverId));
+                    if (expandList.Contains("submitter"))
+                    {
+                        report.Submitter = _mapper.Map<UserDto>(await _userRepository.GetById(report.SubmitterId));
+                    }
+                    if (expandList.Contains("resolver"))
+                    {
+                        report.Resolver = _mapper.Map<UserDto>(await _userRepository.GetById(report.ResolverId));
+                    }
                 }
             }
 
