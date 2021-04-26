@@ -16,7 +16,8 @@ namespace Momentum.Gateway.Api.Helpers
         {
             new Users.Api.Module(),
             new XpSystems.Api.Module(),
-            new Maps.Api.Module()
+            new Maps.Api.Module(),
+            new Reports.Api.Module()
         };
 
         public static IEnumerable<Assembly> GetApplicationLayerAssemblies()
