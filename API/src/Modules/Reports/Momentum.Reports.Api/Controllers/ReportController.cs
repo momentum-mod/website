@@ -8,6 +8,8 @@ using Momentum.Reports.Api.ViewModels;
 using Momentum.Users.Core.Services;
 using Momentum.Reports.Application.DTOs;
 using Momentum.Reports.Application.Commands;
+using Momentum.Reports.Application.Queries;
+using System.Collections.Generic;
 
 namespace Momentum.Reports.Api.Controllers
 {
@@ -50,43 +52,37 @@ namespace Momentum.Reports.Api.Controllers
 
         [Route("api/admin/reports")]
         [HttpGet]
-        public async Task<IActionResult> GetAllReportsAsync([FromQuery] string query) // use a viewmodel here like MapsController
+        public async Task<IActionResult> GetAllReportsAsync([FromQuery] GetAllReportsParameters query)
         {
             /*            if (!_currentUserService.HasRole(Roles.Admin))
                         {
                             return Unauthorized();
                         }*/
 
-            var queryParams = query.Split(",");
+            //var queryParams = query.Expand.Split(",");
 
-            if (queryParams.Contains("limit"))
+            var reports = await _mediator.Send(new GetAllReportsQuery
             {
+                Expand = query.Expand,
+                Limit = query.Limit,
+                Offset = query.Offset,
+                Resolved = query.Resolved
+            });
 
-            }
-            if (queryParams.Contains("offset"))
+            var reportsViewModel = new List<ReportViewModel>();
+
+            foreach (var report in reports)
             {
-
-            }
-            if (queryParams.Contains("resolved"))
-            {
-
-            }
-
-
-            if (queryParams.Contains("expand"))
-            {
-                // expand is a property with a list possibly containing submitter/resolver
-                if (queryParams.Contains("submitter"))
-                {
-
-                }
-                if (queryParams.Contains("resolver"))
-                {
-
-                }
+                reportsViewModel.Add(_mapper.Map<ReportViewModel>(report));
             }
 
-            return Ok();
+            var getAllReportsViewModel = new GetAllReportsViewModel
+            {
+                Number = reportsViewModel.Count(),
+                Reports = reportsViewModel
+            };
+
+            return Ok(getAllReportsViewModel);
         }
 
         [Route("api/admin/reports/{reportId}")]

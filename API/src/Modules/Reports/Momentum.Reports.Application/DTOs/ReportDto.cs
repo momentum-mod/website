@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Momentum.Users.Application.DTOs;
+using System;
 
 namespace Momentum.Reports.Application.DTOs
 {
@@ -7,6 +8,8 @@ namespace Momentum.Reports.Application.DTOs
         public Guid Id { get; set; }
         public Guid SubmitterId { get; set; }
         public Guid ResolverId { get; set; }
+        public UserDto? Submitter { get; set; }
+        public UserDto? Resolver { get; set; }
         public DateTime CreatedAt { get; set; }
         public DateTime? UpdatedAt { get; set; }
         public string Data { get; set; }

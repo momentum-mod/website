@@ -27,13 +27,15 @@ namespace Momentum.Reports.Infrastructure.Repositories
             return numOfReportsSubmittedToday;
         }
 
-        public async Task<IReadOnlyList<Report>> GetAllReports() // When you pass the queryParams here, provide some defaults
+        public async Task<IReadOnlyList<Report>> GetAllReports(string expand, int? limit, uint offset, bool resolved)
         {
             using var session = _store.QuerySession();
 
+
             var reports = await session.Query<Report>()
-                .Skip(10) // Offset
-                .Take(20) // Limit
+                .Where(x => x.Resolved == resolved)
+                .Skip((int)offset)
+                .Take(limit ?? 20)
                 .ToListAsync();
 
             return reports;

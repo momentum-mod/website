@@ -10,6 +10,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\..\Users\Momentum.Users.Application\Momentum.Users.Application.csproj" />
     <ProjectReference Include="..\Momentum.Reports.Core\Momentum.Reports.Core.csproj" />
     <ProjectReference Include="..\Momentum.Reports.Infrastructure\Momentum.Reports.Infrastructure.csproj" />
   </ItemGroup>
