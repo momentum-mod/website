@@ -36,7 +36,7 @@ namespace Momentum.Reports.Application.Queries
         {
             var reports = await _reportRepository.GetAllReports(request.Limit, request.Offset, request.Resolved);
 
-            var reportCount = await _reportRepository.CountAllReports();
+            var reportCount = await _reportRepository.CountAllReports(request.Resolved);
 
             var reportDtos = new List<ReportDto>();
 

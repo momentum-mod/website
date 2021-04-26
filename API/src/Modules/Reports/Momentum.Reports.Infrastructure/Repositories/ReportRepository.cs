@@ -27,11 +27,11 @@ namespace Momentum.Reports.Infrastructure.Repositories
             return numOfReportsSubmittedToday;
         }
 
-        public async Task<int> CountAllReports()
+        public async Task<int> CountAllReports(bool resolved)
         {
             using var session = _store.QuerySession();
 
-            var numberOfReports = await session.Query<Report>().CountAsync();
+            var numberOfReports = await session.Query<Report>().CountAsync(x => x.Resolved == resolved);
 
             return numberOfReports;
         }
