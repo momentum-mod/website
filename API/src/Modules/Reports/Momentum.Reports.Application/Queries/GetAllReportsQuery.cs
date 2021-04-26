@@ -5,6 +5,7 @@ using Momentum.Reports.Core.Repositories;
 using Momentum.Users.Application.DTOs;
 using Momentum.Users.Core.Repositories;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -33,7 +34,7 @@ namespace Momentum.Reports.Application.Queries
 
         public async Task<List<ReportDto>> Handle(GetAllReportsQuery request, CancellationToken cancellationToken)
         {
-            var reports = await _reportRepository.GetAllReports(request.Expand, request.Limit, request.Offset, request.Resolved);
+            var reports = await _reportRepository.GetAllReports(request.Limit, request.Offset, request.Resolved);
 
             var reportDtos = new List<ReportDto>();
 
@@ -42,10 +43,18 @@ namespace Momentum.Reports.Application.Queries
                 reportDtos.Add(_mapper.Map<ReportDto>(report));
             }
 
+            var expandList = request.Expand.Split(",");
+
             foreach (var report in reportDtos)
             {
-                report.Submitter = _mapper.Map<UserDto>(await _userRepository.GetById(report.SubmitterId));
-                report.Resolver = _mapper.Map<UserDto>(await _userRepository.GetById(report.ResolverId));
+                if (expandList.Contains("submitter"))
+                {
+                    report.Submitter = _mapper.Map<UserDto>(await _userRepository.GetById(report.SubmitterId));
+                }
+                if (expandList.Contains("resolver"))
+                {
+                    report.Resolver = _mapper.Map<UserDto>(await _userRepository.GetById(report.ResolverId));
+                }
             }
 
             return reportDtos;

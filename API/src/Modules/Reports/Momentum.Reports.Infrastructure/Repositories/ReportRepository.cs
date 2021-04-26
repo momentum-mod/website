@@ -27,10 +27,9 @@ namespace Momentum.Reports.Infrastructure.Repositories
             return numOfReportsSubmittedToday;
         }
 
-        public async Task<IReadOnlyList<Report>> GetAllReports(string expand, int? limit, uint offset, bool resolved)
+        public async Task<IReadOnlyList<Report>> GetAllReports(int? limit, uint offset, bool resolved)
         {
             using var session = _store.QuerySession();
-
 
             var reports = await session.Query<Report>()
                 .Where(x => x.Resolved == resolved)

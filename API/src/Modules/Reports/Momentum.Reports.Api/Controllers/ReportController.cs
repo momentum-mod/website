@@ -2,7 +2,6 @@
 using Microsoft.AspNetCore.Mvc;
 using AutoMapper;
 using System;
-using System.Linq;
 using System.Threading.Tasks;
 using Momentum.Reports.Api.ViewModels;
 using Momentum.Users.Core.Services;

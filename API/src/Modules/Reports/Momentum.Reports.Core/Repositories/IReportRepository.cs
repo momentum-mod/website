@@ -9,7 +9,7 @@ namespace Momentum.Reports.Core.Repositories
     public interface IReportRepository : IGenericRepository<Report>
     {
         Task<int> GetTodayReportCount(Guid submitterId);
-        Task<IReadOnlyList<Report>> GetAllReports(string expand, int? limit, uint offset, bool resolved);
+        Task<IReadOnlyList<Report>> GetAllReports(int? limit, uint offset, bool resolved);
         Task<Report> GetById(Guid id);
     }
 }
