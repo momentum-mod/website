@@ -48,15 +48,9 @@ namespace Momentum.Reports.Application.Queries
 
             var reportCount = await _reportRepository.CountAllReports(request.Resolved);
 
-            var reportDtos = new List<ReportDto>();
+            var reportDtos = reports.Select(x => _mapper.Map<ReportDto>(x)).ToList();
 
-            foreach (var report in reports)
-            {
-                reportDtos.Add(_mapper.Map<ReportDto>(report));
-            }
-
-
-            if (request.Expand != null)
+            if (!string.IsNullOrWhiteSpace(request.Expand))
             {
                 var expandList = request.Expand.Split(",");
 
@@ -66,6 +60,7 @@ namespace Momentum.Reports.Application.Queries
                     {
                         report.Submitter = _mapper.Map<UserDto>(await _userRepository.GetById(report.SubmitterId));
                     }
+
                     if (expandList.Contains("resolver"))
                     {
                         report.Resolver = _mapper.Map<UserDto>(await _userRepository.GetById(report.ResolverId));
