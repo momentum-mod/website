@@ -3,7 +3,10 @@ using MediatR;
 using Momentum.Reports.Application.DTOs;
 using Momentum.Reports.Core.Repositories;
 using Momentum.Users.Application.DTOs;
+using Momentum.Users.Core.Models;
 using Momentum.Users.Core.Repositories;
+using Momentum.Users.Core.Services;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
@@ -24,16 +27,23 @@ namespace Momentum.Reports.Application.Queries
         private readonly IReportRepository _reportRepository;
         private readonly IUserRepository _userRepository;
         private readonly IMapper _mapper;
+        private readonly ICurrentUserService _currentUserService;
 
-        public GetAllReportsQueryHandler(IReportRepository reportRepository, IUserRepository userRepository, IMapper mapper)
+        public GetAllReportsQueryHandler(IReportRepository reportRepository, IUserRepository userRepository, IMapper mapper, ICurrentUserService currentUserService)
         {
             _reportRepository = reportRepository;
             _userRepository = userRepository;
             _mapper = mapper;
+            _currentUserService = currentUserService;
         }
 
         public async Task<(List<ReportDto> reports, int reportCount)> Handle(GetAllReportsQuery request, CancellationToken cancellationToken)
         {
+            if (!_currentUserService.HasRole(Roles.Admin))
+            {
+                throw new Exception("Unauthorized");
+            }
+
             var reports = await _reportRepository.GetAllReports(request.Limit, request.Offset, request.Resolved);
 
             var reportCount = await _reportRepository.CountAllReports(request.Resolved);
