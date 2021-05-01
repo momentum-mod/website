@@ -31,12 +31,16 @@ namespace Momentum.Reports.Application.Commands
         {
             request.ReportDto.SubmitterId = _currentUserService.GetUserId();
 
-            if (await _reportRepository.GetTodayReportCount(request.ReportDto.SubmitterId) >= 5)
+            var todayReportCount = await _reportRepository.GetTodayReportCount(request.ReportDto.SubmitterId);
+
+            if (todayReportCount >= 5)
             {
-                return default;
+                return null;
             }
 
-            var report = await _reportRepository.Add(_mapper.Map<Report>(request.ReportDto));
+            var report = _mapper.Map<Report>(request.ReportDto);
+
+            report = await _reportRepository.Add(report);
 
             return _mapper.Map<ReportDto>(report);
         }
