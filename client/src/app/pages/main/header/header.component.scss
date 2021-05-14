@@ -53,3 +53,39 @@
     font-size: 1.25rem;
   }
 }
+
+.donate {
+  margin: 1em auto 0;
+  display: block;
+  width: 300px;
+}
+
+.donate:visited .donateBody {
+  color: white;
+}
+
+.donate:hover .donateBody {
+  background-color: #2daee5;
+  color: white;
+}
+
+.donate:active .donateBody {
+  background-color: #0080b7;
+  color: white;
+}
+
+.donateBody {
+  height: 50px;
+  border-radius: 50px;
+  background-color: #1396d2;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 3px 0 20px;
+}
+
+.donateText {
+  font-family: Montserrat-Regular, Montserrat, Arial;
+  font-size: 12px;
+  letter-spacing: 2px;
+}
