@@ -57,7 +57,7 @@
 .donate {
   margin: 1em auto 0;
   display: block;
-  width: 300px;
+  width: 340px;
 }
 
 .donate:visited .donateBody {
@@ -88,4 +88,13 @@
   font-family: Montserrat-Regular, Montserrat, Arial;
   font-size: 12px;
   letter-spacing: 2px;
+}
+
+@media (max-width: 380px) {
+  .donate {
+    width: 220px;
+  }
+  .donateText {
+    width: 150px;
+  }
 }
