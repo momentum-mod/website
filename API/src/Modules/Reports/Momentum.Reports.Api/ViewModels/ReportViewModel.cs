@@ -1,4 +1,5 @@
-﻿using Momentum.Users.Api.ViewModels;
+﻿using Momentum.Reports.Application.DTOs;
+using Momentum.Users.Api.ViewModels;
 using System;
 using System.ComponentModel.DataAnnotations;
 using System.Text.Json.Serialization;
@@ -24,9 +25,9 @@ namespace Momentum.Reports.Api.ViewModels
         [JsonPropertyName("data")]
         public string Data { get; set; }
         [JsonPropertyName("type")]
-        public ushort Type { get; set; }
+        public ReportTypeDto Type { get; set; }
         [JsonPropertyName("category")]
-        public uint Category { get; set; }
+        public ReportCategoryDto Category { get; set; }
         [StringLength(1000)]
         [JsonPropertyName("message")]
         public string Message { get; set; }
