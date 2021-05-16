@@ -17,7 +17,7 @@ namespace Momentum.Reports.Application.Queries
     public class GetAllReportsQuery : IRequest<(List<ReportDto> reports, int reportCount)>
     {
         public string Expand { get; set; }
-        public int Limit { get; set; }
+        public int? Limit { get; set; }
         public uint Offset { get; set; }
         public bool Resolved { get; set; }
     }
@@ -44,7 +44,7 @@ namespace Momentum.Reports.Application.Queries
                 throw new Exception("Unauthorized");
             }
 
-            var reports = await _reportRepository.GetAllReports(request.Offset, request.Resolved, request.Limit);
+            var reports = await _reportRepository.GetAllReports(request.Resolved, request.Offset, request.Limit);
 
             var reportCount = await _reportRepository.CountAllReports(request.Resolved);
 

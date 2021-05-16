@@ -31,14 +31,14 @@ namespace Momentum.Reports.Infrastructure.Repositories
             return numberOfReports;
         }
 
-        public async Task<IReadOnlyList<Report>> GetAllReports(uint offset, bool resolved, int limit = 5)
+        public async Task<IReadOnlyList<Report>> GetAllReports(bool resolved, uint offset, int? limit)
         {
             using var session = Store.QuerySession();
 
             var reports = await session.Query<Report>()
                 .Where(x => x.Resolved == resolved)
                 .Skip((int)offset)
-                .Take(limit)
+                .Take(limit ?? 5)
                 .ToListAsync();
 
             return reports;

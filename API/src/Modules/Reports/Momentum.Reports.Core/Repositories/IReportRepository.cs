@@ -10,7 +10,7 @@ namespace Momentum.Reports.Core.Repositories
     {
         Task<int> GetTodayReportCount(Guid submitterId);
         Task<int> CountAllReports(bool resolved);
-        Task<IReadOnlyList<Report>> GetAllReports(uint offset, bool resolved, int limit = 5);
+        Task<IReadOnlyList<Report>> GetAllReports(bool resolved, uint offset, int? limit);
         Task<Report> GetById(Guid id);
     }
 }
