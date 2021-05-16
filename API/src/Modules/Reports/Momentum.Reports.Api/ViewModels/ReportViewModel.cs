@@ -11,7 +11,7 @@ namespace Momentum.Reports.Api.ViewModels
         [JsonPropertyName("id")]
         public Guid Id { get; set; }
         [JsonPropertyName("submitterId")]
-        public Guid? SubmitterId { get; set; }
+        public Guid SubmitterId { get; set; }
         [JsonPropertyName("resolverId")]
         public Guid? ResolverId { get; set; }
         [JsonPropertyName("submitter")]
