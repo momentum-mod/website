@@ -7,7 +7,7 @@ namespace Momentum.Reports.Application.DTOs
     {
         public Guid Id { get; set; }
         public Guid SubmitterId { get; set; }
-        public Guid? ResolverId { get; set; }
+        public Guid ResolverId { get; set; }
         public UserDto? Submitter { get; set; }
         public UserDto? Resolver { get; set; }
         public DateTime CreatedAt { get; set; }
