@@ -7,7 +7,7 @@ namespace Momentum.Reports.Api.ViewModels
         [JsonPropertyName("expand")]
         public string Expand { get; set; }
         [JsonPropertyName("limit")]
-        public int? Limit { get; set; }
+        public int Limit { get; set; }
         [JsonPropertyName("offset")]
         public uint Offset { get; set; }
         [JsonPropertyName("resolved")]

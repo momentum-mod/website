@@ -11,16 +11,11 @@ namespace Momentum.Reports.Infrastructure.Repositories
 {
     public class ReportRepository : GenericTimeTrackedRepository<Report>, IReportRepository
     {
-        private readonly IDocumentStore _store;
-
-        public ReportRepository(IDocumentStore store) : base(store)
-        {
-            _store = store;
-        }
+        public ReportRepository(IDocumentStore store) : base(store) { }
 
         public async Task<int> GetTodayReportCount(Guid submitterId)
         {
-            using var session = _store.QuerySession();
+            using var session = Store.QuerySession();
 
             var numOfReportsSubmittedToday = await session.Query<Report>().CountAsync(x => x.SubmitterId == submitterId && x.CreatedAt > DateTime.Today);
 
@@ -29,21 +24,21 @@ namespace Momentum.Reports.Infrastructure.Repositories
 
         public async Task<int> CountAllReports(bool resolved)
         {
-            using var session = _store.QuerySession();
+            using var session = Store.QuerySession();
 
             var numberOfReports = await session.Query<Report>().CountAsync(x => x.Resolved == resolved);
 
             return numberOfReports;
         }
 
-        public async Task<IReadOnlyList<Report>> GetAllReports(int? limit, uint offset, bool resolved)
+        public async Task<IReadOnlyList<Report>> GetAllReports(uint offset, bool resolved, int limit = 5)
         {
-            using var session = _store.QuerySession();
+            using var session = Store.QuerySession();
 
             var reports = await session.Query<Report>()
                 .Where(x => x.Resolved == resolved)
                 .Skip((int)offset)
-                .Take(limit ?? 5)
+                .Take(limit)
                 .ToListAsync();
 
             return reports;
