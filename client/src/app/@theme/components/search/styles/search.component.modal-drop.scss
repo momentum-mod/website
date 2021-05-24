@@ -22,7 +22,7 @@
 :host.modal-drop {
 
   .search-input {
-    margin-top: 10%;
+    margin-top: 10vh;
   }
 
   .search {
@@ -70,7 +70,7 @@
     }
 
     input {
-      font-size: 6vw;
+      font-size: 10vh;
       width: 60%;
       padding: 0.25rem;
       text-align: left;
@@ -171,10 +171,6 @@
   }
 
   @media screen and (max-width: 40rem) {
-    form {
-      margin: 2rem 0;
-    }
-
     input {
       width: 100%;
       left: 0;
