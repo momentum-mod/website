@@ -59,7 +59,7 @@ const verifyMapNameNotTaken = (mapName) => {
 };
 
 const verifyMapUploadLimitNotReached = (submitterID) => {
-	const mapUploadLimit = 1;
+	const mapUploadLimit = 5;
 	return Map.count({
 		where: {
 			submitterID: submitterID,
