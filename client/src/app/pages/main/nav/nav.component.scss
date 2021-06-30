@@ -6,6 +6,8 @@
 }
 
 #mainNav .navbar-toggler {
+  display: flex;
+  align-items: center;
   font-size: 80%;
   padding: 0.75rem;
   color: #2e66a5;
@@ -86,5 +88,8 @@
   }
   #mainNav .nav-link {
     padding: 1.5rem;
+  }
+  #mainNav .navbar-toggler {
+    display: none;
   }
 }
