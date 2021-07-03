@@ -49,3 +49,7 @@ body {
   margin-left: 0 !important;
   margin-right: 0 !important;
 }
+
+nb-sidebar:not(.expanded) .menu-icon {
+  margin: 0 !important;
+}
