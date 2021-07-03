@@ -55,7 +55,7 @@
     }
   }
 
-  @include media-breakpoint-down(is) {
+  @media (max-width: 667px) {
     .control-item {
       display: none;
     }
