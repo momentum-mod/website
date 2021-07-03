@@ -1,7 +1,7 @@
 .masthead {
   position: relative;
   width: 100%;
-  height: auto;
+  height: 100vh;
   min-height: 35rem;
   padding: 15rem 0;
   background-color: rgb(26, 26, 26);
@@ -74,10 +74,6 @@ img {
 }
 
 @media (min-width: 992px) {
-  .masthead {
-    height: 100vh;
-    padding: 0;
-  }
   .masthead h1 {
     font-size: 6.5rem;
     line-height: 6.5rem;
