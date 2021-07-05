@@ -17,7 +17,7 @@
       "dom"
     ],
     "plugins": [
-      { "name": "typescript-tslint-plugin"}
+      { "name": "@typescript-eslint/eslint-plugin"}
     ]
   }
 }
