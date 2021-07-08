@@ -1756,10 +1756,10 @@
   resolved "https://registry.yarnpkg.com/@types/json5/-/json5-0.0.29.tgz#ee28707ae94e11d2b827bcbe5270bcea7f3e71ee"
   integrity sha1-7ihweulOEdK4J7y+UnC86n8+ce4=
 
-"@types/marked@^0.7.4":
-  version "0.7.4"
-  resolved "https://registry.yarnpkg.com/@types/marked/-/marked-0.7.4.tgz#607685669bb1bbde2300bc58ba43486cbbee1f0a"
-  integrity sha512-fdg0NO4qpuHWtZk6dASgsrBggY+8N4dWthl1bAQG9ceKUNKFjqpHaDKCAhRUI6y8vavG7hLSJ4YBwJtZyZEXqw==
+"@types/marked@^1.1.0":
+  version "1.2.2"
+  resolved "https://registry.yarnpkg.com/@types/marked/-/marked-1.2.2.tgz#1f858a0e690247ecf3b2eef576f98f86e8d960d4"
+  integrity sha512-wLfw1hnuuDYrFz97IzJja0pdVsC0oedtS4QsKH1/inyW9qkLQbXgMUqEQT0MVtUBx3twjWeInUfjQbhBVLECXw==
 
 "@types/minimatch@*":
   version "3.0.3"
@@ -4400,10 +4400,10 @@ emoji-regex@^8.0.0:
   resolved "https://registry.yarnpkg.com/emoji-regex/-/emoji-regex-8.0.0.tgz#e818fd69ce5ccfcb404594f842963bf53164cc37"
   integrity sha512-MSjYzcWNOA0ewAHpz0MxpYFvwg6yjy1NG3xteoqz644VCo/RPgnr1/GGt+ic3iJTzQ8Eu3TdM14SawnVUmGE6A==
 
-emoji-toolkit@^5.5.0:
-  version "5.5.1"
-  resolved "https://registry.yarnpkg.com/emoji-toolkit/-/emoji-toolkit-5.5.1.tgz#3a2a3edf976c39cd93c5c59e40988e0670e1aad2"
-  integrity sha512-H8E6DNTsRLgy1FVWAiyuW4nqHka0rvUkXhmJPzL28gXo4pLKvuoEi6VhodJ1RfIZOZZ7Zmxo1sENYinyytl/ww==
+emoji-toolkit@^6.0.1:
+  version "6.5.1"
+  resolved "https://registry.yarnpkg.com/emoji-toolkit/-/emoji-toolkit-6.5.1.tgz#6fbb0877a92db509b7bf3e3c681e15a264bfd03a"
+  integrity sha512-oY5E81cXvRUxXkbVgOI8NxYHKF5FeWfJhFCIYUKhbVfSmdCH8+bmJzgDdhufExa7t1+WEzpUFdHwYxJTXS90vQ==
 
 emojis-list@^2.0.0:
   version "2.1.0"
@@ -6878,10 +6878,10 @@ karma@~5.0.0:
     ua-parser-js "0.7.21"
     yargs "^15.3.1"
 
-katex@^0.11.0:
-  version "0.11.1"
-  resolved "https://registry.yarnpkg.com/katex/-/katex-0.11.1.tgz#df30ca40c565c9df01a466a00d53e079e84ffaa2"
-  integrity sha512-5oANDICCTX0NqYIyAiFCCwjQ7ERu3DQG2JFHLbYOf+fXaMoH8eg/zOq5WSYJsKMi/QebW+Eh3gSM+oss1H/bww==
+katex@^0.12.0:
+  version "0.12.0"
+  resolved "https://registry.yarnpkg.com/katex/-/katex-0.12.0.tgz#2fb1c665dbd2b043edcf8a1f5c555f46beaa0cb9"
+  integrity sha512-y+8btoc/CK70XqcHqjxiGWBOeIL8upbS0peTPXTvgrh21n1RiWWcIpSWM+4uXq+IAgNh9YYQWdc7LVDPDAEEAg==
   dependencies:
     commander "^2.19.0"
 
@@ -7738,26 +7738,29 @@ ng2-completer@3.0.3:
   resolved "https://registry.yarnpkg.com/ng2-completer/-/ng2-completer-3.0.3.tgz#430b28ed066e0644f603921143a53f057cc24366"
   integrity sha512-ULt30zJhzX4jqZr2sT9KOCqYuqo5Qw7dR656Q9xdzQZhTQnRYXfDSc8bWMhXnItFFZvBNxEb6sFvZO+Bt0j3Kg==
 
-ngx-cookie-service@3.0.4:
-  version "3.0.4"
-  resolved "https://registry.yarnpkg.com/ngx-cookie-service/-/ngx-cookie-service-3.0.4.tgz#603600bf575322aa0bd3f83cab42494e9aebb00a"
-  integrity sha512-g4KHpCWL2EtKatWqn8lz/DdyMQO8sDS7BNwCSvxF1ETTW5DPJnbdEwCjSdm84MmfqBh6JdgvoQd//rOxH5EbgQ==
+ngx-cookie-service@10.1.1:
+  version "10.1.1"
+  resolved "https://registry.yarnpkg.com/ngx-cookie-service/-/ngx-cookie-service-10.1.1.tgz#4d7f41ba7d788896c59cb68283df3ae9d8ffcd37"
+  integrity sha512-HvBrYHdxMN1NvFJGEIF/8EuAg2fjxj8QwqTv9h6qZGqNLU+lUba8Pb2zRPw1YA+gqKkJawOy5dYNeH0kyPyipw==
+  dependencies:
+    tslib "^2.0.0"
 
 ngx-echarts@5.0.0:
   version "5.0.0"
   resolved "https://registry.yarnpkg.com/ngx-echarts/-/ngx-echarts-5.0.0.tgz#eefb1c914e43ece0d02d5b9f6439ecd117127c28"
   integrity sha512-Ln+ex5PJJt+yztQIybTM2vf5JPHe36IrhdCNZL/FCYbIzHjnjXeK1ImCwh7GfpmlaT62B/3ZASBwouhsPOplRQ==
 
-ngx-markdown@9.1.1:
-  version "9.1.1"
-  resolved "https://registry.yarnpkg.com/ngx-markdown/-/ngx-markdown-9.1.1.tgz#d55c9a95ca02b1b9fbd4c3b71129ff976a2d2d5b"
-  integrity sha512-dEuR1KBa/Ivb1HT+DvSW1p6wLSx79EZz8/WpgDxiEZfL1PADTQUziNLgmtwAEgBTDjsXFhZ/Af7Zq5J9dQf6KQ==
+ngx-markdown@10.1.1:
+  version "10.1.1"
+  resolved "https://registry.yarnpkg.com/ngx-markdown/-/ngx-markdown-10.1.1.tgz#17840c773db7ced4b18ccbf2e8cb06182e422de3"
+  integrity sha512-bUVgN6asb35d5U4xM5CNfo7pSpuwqJSdTgK0PhNZzLiaiyPIK2owtLF6sWGhxTThJu+LngJPjj4MQ+AFe/s8XQ==
   dependencies:
-    "@types/marked" "^0.7.4"
-    emoji-toolkit "^5.5.0"
-    katex "^0.11.0"
+    "@types/marked" "^1.1.0"
+    emoji-toolkit "^6.0.1"
+    katex "^0.12.0"
     marked "^1.1.0"
     prismjs "^1.20.0"
+    tslib "^2.0.0"
 
 ngx-pagination@5.0.0:
   version "5.0.0"
