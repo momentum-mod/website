@@ -166,10 +166,12 @@
   dependencies:
     tslib "^2.0.0"
 
-"@angular/cdk@9.2.4":
-  version "9.2.4"
-  resolved "https://registry.yarnpkg.com/@angular/cdk/-/cdk-9.2.4.tgz#8413958bd275e4c34be3b96f56444671dd30ba93"
-  integrity sha512-iw2+qHMXHYVC6K/fttHeNHIieSKiTEodVutZoOEcBu9rmRTGbLB26V/CRsfIRmA1RBk+uFYWc6UQZnMC3RdnJQ==
+"@angular/cdk@10.2.7":
+  version "10.2.7"
+  resolved "https://registry.yarnpkg.com/@angular/cdk/-/cdk-10.2.7.tgz#0ff82eb91b2653ea26909c57a460d4593b44f186"
+  integrity sha512-ZQjDfTRTn7JuAKsf3jiIdU2XBaxxGBi/ZWYv5Pb3HCl6B4PISsIE5VWRhkoUogoAB0MiFHpjnWeIqknJEm11YQ==
+  dependencies:
+    tslib "^2.0.0"
   optionalDependencies:
     parse5 "^5.0.0"
 
@@ -1583,15 +1585,15 @@
     merge-source-map "^1.1.0"
     schema-utils "^2.7.0"
 
-"@nebular/eva-icons@5.1.0":
-  version "5.1.0"
-  resolved "https://registry.yarnpkg.com/@nebular/eva-icons/-/eva-icons-5.1.0.tgz#dae7dfe961d81f8247882a11e064747c44ffa262"
-  integrity sha512-vyX39xTLpckw44m6vQvdrP0Fz2h2y9PSMTEJj+QXfnaiFrpkaOdyKdzXWmmX4uZugC1qJmuGLQjk5KckQW9UBQ==
+"@nebular/eva-icons@6.2.2":
+  version "6.2.2"
+  resolved "https://registry.yarnpkg.com/@nebular/eva-icons/-/eva-icons-6.2.2.tgz#0d771afad4fd6f4a14d276b07deed70b11a296b4"
+  integrity sha512-7gjlzZQuUotEb+Q41wseHfF6SGQQltF7YQP/wdW+QtYQ1YicySjR0fzcCGLjSR0f9y+XUpvCQ/l5GlxIAZZGqg==
 
-"@nebular/theme@5.1.0":
-  version "5.1.0"
-  resolved "https://registry.yarnpkg.com/@nebular/theme/-/theme-5.1.0.tgz#b7a02c80fe21985e1fe9c759ed914ffe4cccd2cf"
-  integrity sha512-tKhXeEv6d8HUdA0GrXNQxaHNme8KtassYSfH5NIpGHBRNt95t03S3YeQnz/YK5RPfipm+hxYh24PkbdEkOe4hA==
+"@nebular/theme@6.2.2":
+  version "6.2.2"
+  resolved "https://registry.yarnpkg.com/@nebular/theme/-/theme-6.2.2.tgz#edc369a8103161349c263761c7030399a11a6c1b"
+  integrity sha512-AyjczvkI6wlsMD2keCViM7Ho8ZFtdDpmtQqo7GhF+lk+dZ/TQ2gF/PbVEBX+oxX6kqv93Dn8HuyQVH04t5VwIA==
   dependencies:
     intersection-observer "0.7.0"
 
