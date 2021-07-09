@@ -1,4 +1,4 @@
-import {async, ComponentFixture, TestBed} from '@angular/core/testing';
+import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 
 import {MapLeaderboardComponent} from './map-leaderboard.component';
 import {RouterTestingModule} from '@angular/router/testing';
@@ -19,7 +19,7 @@ describe('MapLeaderboardComponent', () => {
   let fixture: ComponentFixture<MapLeaderboardComponent>;
 
   let toastrStub: Partial<NbToastrService>;
-  beforeEach(async(() => {
+  beforeEach(waitForAsync(() => {
     toastrStub = {
       danger(message: any, title?: any, config?: Partial<NbToastrConfig>): NbToastRef {
         return null;

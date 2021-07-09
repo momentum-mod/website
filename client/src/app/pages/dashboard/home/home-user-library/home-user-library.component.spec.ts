@@ -1,4 +1,4 @@
-import {async, ComponentFixture, TestBed} from '@angular/core/testing';
+import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 
 import {HomeUserLibraryComponent} from './home-user-library.component';
 import {APP_BASE_HREF} from '@angular/common';
@@ -12,7 +12,7 @@ describe('HomeUserLibraryComponent', () => {
   let component: HomeUserLibraryComponent;
   let fixture: ComponentFixture<HomeUserLibraryComponent>;
 
-  beforeEach(async(() => {
+  beforeEach(waitForAsync(() => {
     const authService: Partial<AuthService> = {
     };
     const cookServ: Partial<CookieService> = {

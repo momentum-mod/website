@@ -1,4 +1,4 @@
-import {async, ComponentFixture, TestBed} from '@angular/core/testing';
+import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 
 import {NotificationComponent} from './notification.component';
 import {NbIconModule, NbListModule, NbToastrConfig, NbToastRef, NbToastrService, NbUserModule} from '@nebular/theme';
@@ -22,7 +22,7 @@ describe('NotificationComponent', () => {
   let fixture: ComponentFixture<NotificationComponent>;
 
   let toastrStub: Partial<NbToastrService>;
-  beforeEach(async(() => {
+  beforeEach(waitForAsync(() => {
     toastrStub = {
       danger(message: any, title?: any, config?: Partial<NbToastrConfig>): NbToastRef {
         return null;
@@ -38,7 +38,7 @@ describe('NotificationComponent', () => {
         NbUserModule,
         NbEvaIconsModule,
         NbIconModule,
-        RouterModule.forRoot([]),
+        RouterModule.forRoot([], { relativeLinkResolution: 'legacy' }),
         HttpClientTestingModule, CoreModule.forRoot(),
         TimeagoModule.forRoot(),
       ],

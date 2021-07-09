@@ -1,4 +1,4 @@
-import {async, ComponentFixture, TestBed} from '@angular/core/testing';
+import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 
 import {CommunityTwitchStreamComponent} from './community-twitch-stream.component';
 import {NbCardModule} from '@nebular/theme';
@@ -20,7 +20,7 @@ describe('CommunityTwitchStreamComponent', () => {
     thumbnail_url: '',
   };
 
-  beforeEach(async(() => {
+  beforeEach(waitForAsync(() => {
     twitchAPIStub = {
       getGameStreams: () => {
         return of({

@@ -1,4 +1,4 @@
-import {async, ComponentFixture, TestBed} from '@angular/core/testing';
+import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 
 import {MapCreditsComponent} from './map-credits.component';
 import {MapCreditComponent} from './map-credit/map-credit.component';
@@ -9,7 +9,7 @@ import {HttpClientTestingModule} from '@angular/common/http/testing';
 describe('MapCreditsComponent', () => {
   let component: MapCreditsComponent;
   let fixture: ComponentFixture<MapCreditsComponent>;
-  beforeEach(async(() => {
+  beforeEach(waitForAsync(() => {
     TestBed.configureTestingModule({
       imports: [
         NbThemeModule.forRoot(),

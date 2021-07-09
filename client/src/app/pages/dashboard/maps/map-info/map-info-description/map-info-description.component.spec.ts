@@ -1,4 +1,4 @@
-import {async, ComponentFixture, TestBed} from '@angular/core/testing';
+import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 
 import {MapInfoDescriptionComponent} from './map-info-description.component';
 import {MarkdownModule} from 'ngx-markdown';
@@ -9,7 +9,7 @@ describe('MapInfoDescriptionComponent', () => {
   let component: MapInfoDescriptionComponent;
   let fixture: ComponentFixture<MapInfoDescriptionComponent>;
 
-  beforeEach(async(() => {
+  beforeEach(waitForAsync(() => {
     TestBed.configureTestingModule({
       imports: [MarkdownModule.forRoot(), NbUserModule],
       declarations: [ MapInfoDescriptionComponent ],

@@ -1,4 +1,4 @@
-import {async, ComponentFixture, TestBed} from '@angular/core/testing';
+import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 
 import {CommunityActivityComponent} from './community-activity.component';
 import {ThemeModule} from '../../../../@theme/theme.module';
@@ -15,7 +15,7 @@ describe('CommunityActivityComponent', () => {
   let fixture: ComponentFixture<CommunityActivityComponent>;
 
   let actServiceStub: Partial<ActivityService>;
-  beforeEach(async(() => {
+  beforeEach(waitForAsync(() => {
     const testActivities: Activity[] = [
       {
         id: 3,
@@ -46,7 +46,7 @@ describe('CommunityActivityComponent', () => {
       },
     };
     TestBed.configureTestingModule({
-      imports: [ThemeModule.forRoot(), RouterModule.forRoot([])],
+      imports: [ThemeModule.forRoot(), RouterModule.forRoot([], { relativeLinkResolution: 'legacy' })],
       declarations: [ CommunityActivityComponent ],
       providers: [
         { provide: ActivityService, useValue: actServiceStub },

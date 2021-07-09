@@ -1,4 +1,4 @@
-import {async, ComponentFixture, TestBed} from '@angular/core/testing';
+import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 
 import {ProfileCreditsComponent} from './profile-credits.component';
 import {NgxPaginationModule} from 'ngx-pagination';
@@ -14,7 +14,7 @@ describe('ProfileCreditsComponent', () => {
 
   let usersServiceStub: Partial<UsersService>;
   let toastrStub: Partial<NbToastrService>;
-  beforeEach(async(() => {
+  beforeEach(waitForAsync(() => {
 
     usersServiceStub = {
       getMapCredits(userID: number, options?: object): Observable<any> {

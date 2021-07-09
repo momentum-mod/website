@@ -1,4 +1,4 @@
-import {async, ComponentFixture, TestBed} from '@angular/core/testing';
+import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 
 import {GlobalStatsMapsComponent} from './global-stats-maps.component';
 import {NgxEchartsModule} from 'ngx-echarts';
@@ -9,7 +9,7 @@ describe('GlobalStatsMapsComponent', () => {
   let component: GlobalStatsMapsComponent;
   let fixture: ComponentFixture<GlobalStatsMapsComponent>;
 
-  beforeEach(async(() => {
+  beforeEach(waitForAsync(() => {
     TestBed.configureTestingModule({
       imports: [NbCardModule, NgxEchartsModule.forRoot({ echarts })],
       declarations: [ GlobalStatsMapsComponent ],
