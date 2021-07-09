@@ -120,6 +120,17 @@
     rxjs "6.6.3"
     source-map "0.7.3"
 
+"@angular-devkit/core@^10.2.3":
+  version "10.2.3"
+  resolved "https://registry.yarnpkg.com/@angular-devkit/core/-/core-10.2.3.tgz#499978929e58532f6f0caab8bd860c882d926eea"
+  integrity sha512-pMM1v9Xjqx6YLOQxQYs0D+03H6XPDZLS8cyEtoQX2iYdh8qlKHZVbJa2WsfzwMoIPtgcXfQAXn113VEgrQPLFA==
+  dependencies:
+    ajv "6.12.4"
+    fast-json-stable-stringify "2.1.0"
+    magic-string "0.25.7"
+    rxjs "6.6.2"
+    source-map "0.7.3"
+
 "@angular-devkit/schematics@11.2.14":
   version "11.2.14"
   resolved "https://registry.yarnpkg.com/@angular-devkit/schematics/-/schematics-11.2.14.tgz#bb0dbfe35a4a7af7880e776f86015105b58d933d"
@@ -174,10 +185,10 @@
   dependencies:
     tslib "^2.0.0"
 
-"@angular/cdk@10.2.7":
-  version "10.2.7"
-  resolved "https://registry.yarnpkg.com/@angular/cdk/-/cdk-10.2.7.tgz#0ff82eb91b2653ea26909c57a460d4593b44f186"
-  integrity sha512-ZQjDfTRTn7JuAKsf3jiIdU2XBaxxGBi/ZWYv5Pb3HCl6B4PISsIE5VWRhkoUogoAB0MiFHpjnWeIqknJEm11YQ==
+"@angular/cdk@11.2.13":
+  version "11.2.13"
+  resolved "https://registry.yarnpkg.com/@angular/cdk/-/cdk-11.2.13.tgz#d54c9187e3b8cf3f8ba190b1edddc08ed2b740de"
+  integrity sha512-FkE4iCwoLbQxLDUOjV1I7M/6hmpyb7erAjEdWgch7nGRNxF1hqX5Bqf1lvLFKPNCbx5NRI5K7YVAdIUQUR8vug==
   dependencies:
     tslib "^2.0.0"
   optionalDependencies:
@@ -1638,15 +1649,15 @@
     merge-source-map "^1.1.0"
     schema-utils "^2.7.0"
 
-"@nebular/eva-icons@6.2.2":
-  version "6.2.2"
-  resolved "https://registry.yarnpkg.com/@nebular/eva-icons/-/eva-icons-6.2.2.tgz#0d771afad4fd6f4a14d276b07deed70b11a296b4"
-  integrity sha512-7gjlzZQuUotEb+Q41wseHfF6SGQQltF7YQP/wdW+QtYQ1YicySjR0fzcCGLjSR0f9y+XUpvCQ/l5GlxIAZZGqg==
+"@nebular/eva-icons@7.0.0":
+  version "7.0.0"
+  resolved "https://registry.yarnpkg.com/@nebular/eva-icons/-/eva-icons-7.0.0.tgz#08034bfb8a2c0778ca4a52517e5e56896f2c51ab"
+  integrity sha512-u3dJgIF97lufaRod4bf/OZcTG3Arne+/M9z+WDI8bU/3sVtlYVyPDE4508tkBjFp2P1XUDSXZnK5NLJ9a/+5tA==
 
-"@nebular/theme@6.2.2":
-  version "6.2.2"
-  resolved "https://registry.yarnpkg.com/@nebular/theme/-/theme-6.2.2.tgz#edc369a8103161349c263761c7030399a11a6c1b"
-  integrity sha512-AyjczvkI6wlsMD2keCViM7Ho8ZFtdDpmtQqo7GhF+lk+dZ/TQ2gF/PbVEBX+oxX6kqv93Dn8HuyQVH04t5VwIA==
+"@nebular/theme@7.0.0":
+  version "7.0.0"
+  resolved "https://registry.yarnpkg.com/@nebular/theme/-/theme-7.0.0.tgz#e239e19f12159205ffe247bdb03a282b5b721888"
+  integrity sha512-0S9Pans6eevkSgg8aoNG7dypkLeOUsTRLMoBsp7LjjuBIDLGJr9/zf9d8sPZ8uaJvPG1AIOtw89KGwNnhatIGA==
   dependencies:
     intersection-observer "0.7.0"
 
@@ -2292,6 +2303,16 @@ ajv-keywords@^3.5.2:
   version "3.5.2"
   resolved "https://registry.yarnpkg.com/ajv-keywords/-/ajv-keywords-3.5.2.tgz#31f29da5ab6e00d1c2d329acf7b5929614d5014d"
   integrity sha512-5p6WTN0DdTGVQk6VjcEju19IgaHudalcfabD7yhDGeA6bcQnmL+CpveLJq/3hvfwd1aof6L386Ougkx6RfyMIQ==
+
+ajv@6.12.4:
+  version "6.12.4"
+  resolved "https://registry.yarnpkg.com/ajv/-/ajv-6.12.4.tgz#0614facc4522127fa713445c6bfd3ebd376e2234"
+  integrity sha512-eienB2c9qVQs2KWexhkrdMLVDoIQCz5KSeLxwg9Lzk4DOfBtIK9PQwwufcsn1jjGuf9WZmqPMbGxOzfcuphJCQ==
+  dependencies:
+    fast-deep-equal "^3.1.1"
+    fast-json-stable-stringify "^2.0.0"
+    json-schema-traverse "^0.4.1"
+    uri-js "^4.2.2"
 
 ajv@6.12.6, ajv@^6.10.0, ajv@^6.12.3, ajv@^6.12.5:
   version "6.12.6"
@@ -9856,6 +9877,13 @@ rxjs@6.5.5:
   version "6.5.5"
   resolved "https://registry.yarnpkg.com/rxjs/-/rxjs-6.5.5.tgz#c5c884e3094c8cfee31bf27eb87e54ccfc87f9ec"
   integrity sha512-WfQI+1gohdf0Dai/Bbmk5L5ItH5tYqm3ki2c5GdWhKjalzjg93N3avFjVStyZZz+A2Em+ZxKH5bNghw9UeylGQ==
+  dependencies:
+    tslib "^1.9.0"
+
+rxjs@6.6.2:
+  version "6.6.2"
+  resolved "https://registry.yarnpkg.com/rxjs/-/rxjs-6.6.2.tgz#8096a7ac03f2cc4fe5860ef6e572810d9e01c0d2"
+  integrity sha512-BHdBMVoWC2sL26w//BCu3YzKT4s2jip/WhwsGEDmeKYBhKDZeYezVUnHatYB7L85v5xs0BAQmg6BEYJEKxBabg==
   dependencies:
     tslib "^1.9.0"
 
