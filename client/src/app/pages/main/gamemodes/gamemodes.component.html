@@ -11,7 +11,7 @@
     <div class="col-3 col-sm-3 col-md-2 col-lg-1 gamemode"
          *ngFor="let gamemode of gameModes; index as i"
          (click)="setCurrentGamemode(i)">
-      <div class="base-timer" *ngIf="gameModeIndex == i">
+      <div class="base-timer" *ngIf="gameModeIndex === i">
         <svg class="base-timer__svg" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
           <path
             id="base-timer-path-remaining"
@@ -26,7 +26,7 @@
           ></path>
         </svg>
       </div>
-      <img class="gamemode-icon" [ngClass]="{'selected': (this.gameModeIndex == i)}"
+      <img class="gamemode-icon" [ngClass]="{'selected': (this.gameModeIndex === i)}"
            [src]="gamemode.iconUrl"
            [alt]="gamemode.modeTitle"
            *ngIf="gameModeSectionVisible">
