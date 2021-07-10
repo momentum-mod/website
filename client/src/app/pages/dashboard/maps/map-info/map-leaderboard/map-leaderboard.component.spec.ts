@@ -5,6 +5,7 @@ import {RouterTestingModule} from '@angular/router/testing';
 import {
   NbCardModule,
   NbCheckboxModule,
+  NbStatusService,
   NbToastrConfig,
   NbToastRef,
   NbToastrService,
@@ -39,6 +40,7 @@ describe('MapLeaderboardComponent', () => {
       ],
       declarations: [ MapLeaderboardComponent, TimingPipe ],
       providers: [
+        NbStatusService,
         { provide: NbToastrService, useValue: toastrStub },
       ],
     })

@@ -2,7 +2,7 @@ import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 
 import {HomeUserLibraryComponent} from './home-user-library.component';
 import {APP_BASE_HREF} from '@angular/common';
-import {NbAccordionModule} from '@nebular/theme';
+import {NbAccordionModule, NbStatusService} from '@nebular/theme';
 import {BrowserAnimationsModule} from '@angular/platform-browser/animations';
 import {AuthService} from '../../../../@core/data/auth.service';
 import {CookieService} from 'ngx-cookie-service';
@@ -29,6 +29,7 @@ describe('HomeUserLibraryComponent', () => {
       imports: [ NbAccordionModule, BrowserAnimationsModule, HttpClientTestingModule ],
       declarations: [ HomeUserLibraryComponent],
       providers: [
+        NbStatusService,
         { provide: APP_BASE_HREF, useValue: '/' },
         { provide: AuthService, useValue: authService },
         { provide: CookieService, useValue: cookServ},

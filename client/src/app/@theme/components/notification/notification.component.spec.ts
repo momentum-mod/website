@@ -1,7 +1,7 @@
 import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 
 import {NotificationComponent} from './notification.component';
-import {NbIconModule, NbListModule, NbToastrConfig, NbToastRef, NbToastrService, NbUserModule} from '@nebular/theme';
+import {NbIconModule, NbListModule, NbStatusService, NbToastrConfig, NbToastRef, NbToastrService, NbUserModule} from '@nebular/theme';
 import {ActivityContentComponent} from '..';
 import {CoreModule} from '../../../@core/core.module';
 import {RouterModule} from '@angular/router';
@@ -44,6 +44,7 @@ describe('NotificationComponent', () => {
       ],
       declarations: [ NotificationComponent, ActivityContentComponent ],
       providers: [
+        NbStatusService,
         { provide: APP_BASE_HREF, useValue: '/' },
         { provide: NbToastrService, useValue: toastrStub },
         { provide: TimeagoFormatter, useClass: TimeagoDefaultFormatter },

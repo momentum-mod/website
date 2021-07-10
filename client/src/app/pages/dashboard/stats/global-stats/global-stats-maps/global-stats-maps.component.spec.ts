@@ -2,7 +2,7 @@ import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 
 import {GlobalStatsMapsComponent} from './global-stats-maps.component';
 import {NgxEchartsModule} from 'ngx-echarts';
-import {NbCardModule} from '@nebular/theme';
+import {NbCardModule, NbStatusService} from '@nebular/theme';
 import * as echarts from 'echarts';
 
 describe('GlobalStatsMapsComponent', () => {
@@ -12,6 +12,7 @@ describe('GlobalStatsMapsComponent', () => {
   beforeEach(waitForAsync(() => {
     TestBed.configureTestingModule({
       imports: [NbCardModule, NgxEchartsModule.forRoot({ echarts })],
+      providers: [ NbStatusService ],
       declarations: [ GlobalStatsMapsComponent ],
     })
     .compileComponents();

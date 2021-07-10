@@ -2,6 +2,7 @@ import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 
 import { GlobalStatsBaseComponent } from './global-stats-base.component';
 import {ThemeModule} from '../../../../../@theme/theme.module';
+import { NbStatusService } from '@nebular/theme';
 
 describe('GlobalStatsBaseComponent', () => {
   let component: GlobalStatsBaseComponent;
@@ -10,6 +11,7 @@ describe('GlobalStatsBaseComponent', () => {
   beforeEach(waitForAsync(() => {
     TestBed.configureTestingModule({
       imports: [ThemeModule],
+      providers: [ NbStatusService ],
       declarations: [ GlobalStatsBaseComponent ],
     })
     .compileComponents();

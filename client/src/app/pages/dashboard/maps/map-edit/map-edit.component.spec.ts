@@ -20,6 +20,7 @@ import {
   NbAlertModule,
   NbDialogService,
   NbFocusMonitor,
+  NbStatusService,
   NbToastrConfig,
   NbToastRef,
   NbToastrService,
@@ -77,6 +78,7 @@ describe('MapEditComponent', () => {
         MapEditComponent, FileUploadComponent, MapCreditsComponent, MapCreditComponent, UserSearchComponent,
       ],
       providers: [
+        NbStatusService,
         AuthService,
         CookieService,
         { provide: NbDialogService, useValue: {}},

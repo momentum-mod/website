@@ -1,7 +1,7 @@
 import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 
 import {CommunityNewsComponent} from './community-news.component';
-import {NbCardModule} from '@nebular/theme';
+import {NbCardModule, NbStatusService} from '@nebular/theme';
 import {TumblrAPIService} from '../../../../@core/data/tumblr-api.service';
 import {of} from 'rxjs';
 import {BlogPost} from '../../../../@core/models/blog-post.model';
@@ -33,6 +33,7 @@ describe('CommunityNewsComponent', () => {
       imports: [NbCardModule],
       declarations: [ CommunityNewsComponent ],
       providers: [
+        NbStatusService,
         { provide: TumblrAPIService, useValue: tumblrAPIStub },
       ],
     })
