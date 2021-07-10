@@ -1,5 +1,5 @@
 import {Component, Input, OnChanges, OnInit, SimpleChanges} from '@angular/core';
-import {EChartOption} from 'echarts';
+import {EChartsOption} from 'echarts';
 import {GlobalMapStats} from '../../../../../@core/models/global-map-stats.model';
 
 @Component({
@@ -12,7 +12,7 @@ export class GlobalStatsMapsComponent implements OnInit, OnChanges {
   @Input('globalMapStats') globalMapStats: GlobalMapStats;
 
   mapCompletionPieChart;
-  mapCompletionPieChartOptions: EChartOption;
+  mapCompletionPieChartOptions: EChartsOption;
 
   constructor() { }
 
