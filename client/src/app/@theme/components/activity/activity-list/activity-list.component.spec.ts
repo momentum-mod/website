@@ -1,4 +1,4 @@
-import {async, ComponentFixture, TestBed} from '@angular/core/testing';
+import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 
 import {ActivityListComponent} from './activity-list.component';
 import {ActivityContentComponent} from '../..';
@@ -11,9 +11,9 @@ describe('ActivityListComponent', () => {
   let component: ActivityListComponent;
   let fixture: ComponentFixture<ActivityListComponent>;
 
-  beforeEach(async(() => {
+  beforeEach(waitForAsync(() => {
     TestBed.configureTestingModule({
-      imports: [NbListModule, NbUserModule, RouterModule.forRoot([]), TimeagoModule.forRoot()],
+      imports: [NbListModule, NbUserModule, RouterModule.forRoot([], { relativeLinkResolution: 'legacy' }), TimeagoModule.forRoot()],
       declarations: [ ActivityListComponent, ActivityContentComponent ],
       providers: [
         { provide: APP_BASE_HREF, useValue: '/' },

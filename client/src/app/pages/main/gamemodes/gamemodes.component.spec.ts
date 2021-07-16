@@ -1,4 +1,4 @@
-import { async, ComponentFixture, TestBed } from '@angular/core/testing';
+import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 import {GalleryModule} from '@ngx-gallery/core';
 import { GamemodesComponent } from './gamemodes.component';
 
@@ -6,7 +6,7 @@ describe('GamemodesComponent', () => {
   let component: GamemodesComponent;
   let fixture: ComponentFixture<GamemodesComponent>;
 
-  beforeEach(async(() => {
+  beforeEach(waitForAsync(() => {
     TestBed.configureTestingModule({
       imports: [ GalleryModule ],
       declarations: [ GamemodesComponent ],

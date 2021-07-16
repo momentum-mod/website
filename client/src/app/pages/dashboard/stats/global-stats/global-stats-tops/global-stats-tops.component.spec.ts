@@ -1,15 +1,17 @@
-import { async, ComponentFixture, TestBed } from '@angular/core/testing';
+import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 
 import { GlobalStatsTopsComponent } from './global-stats-tops.component';
 import {ThemeModule} from '../../../../../@theme/theme.module';
+import { NbStatusService } from '@nebular/theme';
 
 describe('GlobalStatsTopsComponent', () => {
   let component: GlobalStatsTopsComponent;
   let fixture: ComponentFixture<GlobalStatsTopsComponent>;
 
-  beforeEach(async(() => {
+  beforeEach(waitForAsync(() => {
     TestBed.configureTestingModule({
       declarations: [ GlobalStatsTopsComponent ],
+      providers: [ NbStatusService ],
       imports: [ThemeModule],
     })
     .compileComponents();

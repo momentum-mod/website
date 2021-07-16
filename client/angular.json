@@ -8,7 +8,7 @@
   },
   "schematics": {
     "@schematics/angular:component": {
-      "styleext": "scss"
+      "style": "scss"
     }
   },
   "projects": {
@@ -45,14 +45,20 @@
               "node_modules/echarts/dist/echarts.min.js",
               "node_modules/echarts/dist/extension/bmap.min.js",
               "node_modules/marked/lib/marked.js"
-            ]
+            ],
+            "aot": false,
+            "vendorChunk": true,
+            "extractLicenses": false,
+            "buildOptimizer": false,
+            "sourceMap": true,
+            "optimization": false,
+            "namedChunks": true
           },
           "configurations": {
             "production": {
               "optimization": true,
               "outputHashing": "all",
               "sourceMap": false,
-              "extractCss": true,
               "namedChunks": false,
               "aot": true,
               "extractLicenses": true,
