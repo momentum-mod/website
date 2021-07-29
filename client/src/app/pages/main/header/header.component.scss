@@ -8,6 +8,7 @@
   min-height: 35rem;
   padding: 15rem 0;
   z-index: 0;
+  overflow: hidden;
 }
 
 .masthead h1 {
@@ -98,13 +99,29 @@
 .banner-video {
   object-fit: cover;
   //any higher causes scrollbars
-  //width: ;
+  //width: 99.1vw;
+  //vw must be used to prevent scss video issues with scaling
   left: 50%;
   min-height: 100%;
-  min-width: 100%;
+  //scaling + cropped window still poses issues, improbable situation + potentially unlikely
+  //to find solution
+  min-width: 99.1vw;
   overflow: hidden;
   top: 50%;
   z-index: -2;
+  background: url ('../../../../assets/images/bg-main.webp') no-repeat;
+  background-size: cover;
+}
+
+//mobile users probably dont want a 4mb load
+@media only screen and (max-width: 768px) {
+  video .banner-video {
+    display: none;
+  }
+  body {
+    background: url ('../../../../assets/images/bg-main.webp') no-repeat;
+    background-size: cover;
+  }
 }
 
 .gradient {
