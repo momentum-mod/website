@@ -2,18 +2,13 @@
 
 .masthead {
   position: relative;
+  display: flex;
   width: 100%;
   height: 100vh;
   min-height: 35rem;
   padding: 15rem 0;
-  background: -webkit-gradient(linear, left top, left bottom, from(rgba(22, 22, 22, 0.1)), color-stop(75%,
-    rgba(22, 22, 22, 0.5)), to(#161616)), url('../../../../assets/images/bg-main.jpg');
-  background: linear-gradient(to bottom, rgba(22, 22, 22, 0.1) 0%, rgba(22, 22, 22, 0.5) 75%, #161616 100%),
-  url('../../../../assets/images/bg-main.jpg');
-  background-position: center;
-  background-repeat: no-repeat;
-  background-attachment: scroll;
-  background-size: cover;
+  z-index: 0;
+  overflow: hidden;
 }
 
 .masthead h1 {
@@ -99,4 +94,34 @@
   iframe {
     width: 100%;
   }
+}
+
+.banner-video {
+  object-fit: cover;
+  left: 50%;
+  min-height: 100%;
+  min-width: 99.1vw;
+  overflow: hidden;
+  top: 50%;
+  z-index: -2;
+  background: url ('../../../../assets/images/bg-main.webp') no-repeat;
+  background-size: cover;
+}
+
+@media only screen and (max-width: 768px) {
+  video .banner-video {
+    display: none;
+  }
+  body {
+    background: url ('../../../../assets/images/bg-main.webp') no-repeat;
+    background-size: cover;
+  }
+}
+
+.gradient {
+  mask-image: linear-gradient(to bottom, rgba(22, 22, 22), transparent 92%);
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: -1;
 }
