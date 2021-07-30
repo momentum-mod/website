@@ -98,13 +98,8 @@
 
 .banner-video {
   object-fit: cover;
-  //any higher causes scrollbars
-  //width: 99.1vw;
-  //vw must be used to prevent scss video issues with scaling
   left: 50%;
   min-height: 100%;
-  //scaling + cropped window still poses issues, improbable situation + potentially unlikely
-  //to find solution
   min-width: 99.1vw;
   overflow: hidden;
   top: 50%;
@@ -113,7 +108,6 @@
   background-size: cover;
 }
 
-//mobile users probably dont want a 4mb load
 @media only screen and (max-width: 768px) {
   video .banner-video {
     display: none;
@@ -125,23 +119,9 @@
 }
 
 .gradient {
-  //-webkit-mask-image: linear-gradient(to bottom, black 0%, transparent 100%);
   mask-image: linear-gradient(to bottom, rgba(22, 22, 22), transparent 92%);
-  //mask-image: linear-gradient(to bottom, black 50%, transparent 100%);
   position: absolute;
   top: 0;
   left: 0;
   z-index: -1;
 }
-
-/**
-background: -webkit-gradient(
-    linear,
-    left top,
-    left bottom,
-    from(rgba(22, 22, 22, 0.1)),
-    color-stop(75%, rgba(22, 22, 22, 0.5)),
-    to(#161616)
-  );
-  background: linear-gradient(to bottom, rgba(22, 22, 22, 0.1) 0%, rgba(22, 22, 22, 0.5) 75%, #161616 100%);
-  **/
