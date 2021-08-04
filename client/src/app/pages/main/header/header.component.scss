@@ -8,7 +8,7 @@
   min-height: 55rem;
   z-index: 0;
   overflow: hidden;
-  background: rgba(22, 22, 22);
+  background: #161616;
 }
 
 .masthead h1 {
@@ -119,7 +119,7 @@
 }
 
 .gradient {
-  background: linear-gradient(to bottom, transparent, rgba(22, 22, 22) 100%);
+  background: linear-gradient(to bottom, transparent, #161616);
   position: absolute;
   width: 100vw;
   height: 100vh;
