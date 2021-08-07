@@ -13,7 +13,7 @@
         <!-- TODO: When the author field is added change mt-md-0 to mt-lg-0 -->
         <div class="form-col col-12 col-md-6 col-lg-auto mt-3 mt-md-0">
           <nb-select placeholder="Game Mode" formControlName="type">
-            <nb-option *ngFor="let enum of typeEnums" [value]="enum.value">{{enum.text}}</nb-option>
+            <nb-option *ngFor="let enum of typeEnums" [value]="enum.value" (click)="onPageChange(1)">{{enum.text}}</nb-option>
           </nb-select>
         </div>
         <!-- TODO: When the author field is added change mt-lg-0 to mt-xl-0 -->
