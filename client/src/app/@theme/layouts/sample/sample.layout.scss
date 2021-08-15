@@ -43,7 +43,10 @@
     height: 100vh;
     z-index: -1;
     will-change: transform;
-    background-size: auto 100%;
+    min-height: 100vh;
+    min-width: 100vw;
+    background: url('/assets/images/splash.webp');
+    background-size: cover;
   }
 
   .layout {
