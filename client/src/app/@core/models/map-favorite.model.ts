@@ -1,3 +1,4 @@
+
 import {MomentumMap} from './momentum-map.model';
 
 export interface MapFavorite {

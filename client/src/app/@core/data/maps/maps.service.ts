@@ -1,11 +1,11 @@
 import {Injectable} from '@angular/core';
 import {Observable} from 'rxjs';
 import {HttpClient, HttpResponse} from '@angular/common/http';
-import {MomentumMaps} from '../models/momentum-maps.model';
-import {MomentumMap} from '../models/momentum-map.model';
-import {MapImage} from '../models/map-image.model';
-import {MomentumMapInfo} from '../models/map-info.model';
-import {MapCredit} from '../models/map-credit.model';
+import {MomentumMaps} from '../../models/momentum-maps.model';
+import {MomentumMap} from '../../models/momentum-map.model';
+import {MapImage} from '../../models/map-image.model';
+import {MomentumMapInfo} from '../../models/map-info.model';
+import {MapCredit} from '../../models/map-credit.model';
 
 @Injectable()
 export class MapsService {
