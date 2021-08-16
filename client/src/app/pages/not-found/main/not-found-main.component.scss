@@ -1,13 +1,13 @@
 .masthead {
   position: relative;
   width: 100%;
-  height: auto;
+  height: 100vh;
   min-height: 35rem;
   padding: 15rem 0;
   background: -webkit-gradient(linear, left top, left bottom, from(rgba(22, 22, 22, 0.1)), color-stop(75%,
-    rgba(22, 22, 22, 0.5)), to(#161616)), url('../../../../assets/images/bg-main.jpg');
+    rgba(22, 22, 22, 0.5)), to(#161616)), url('../../../../assets/images/bg-main.webp');
   background: linear-gradient(to bottom, rgba(22, 22, 22, 0.1) 0%, rgba(22, 22, 22, 0.5) 75%, #161616 100%),
-  url('../../../../assets/images/bg-main.jpg');
+  url('../../../../assets/images/bg-main.webp');
   background-position: center;
   background-repeat: no-repeat;
   background-attachment: scroll;
@@ -28,6 +28,10 @@
   font-size: 1rem;
 }
 
+.btn {
+  color: #fff;
+}
+
 @media (min-width: 768px) {
   .masthead h1 {
     font-size: 4rem;
@@ -36,10 +40,6 @@
 }
 
 @media (min-width: 992px) {
-  .masthead {
-    height: 100vh;
-    padding: 0;
-  }
   .masthead h1 {
     font-size: 6.5rem;
     line-height: 6.5rem;

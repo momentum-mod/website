@@ -1,7 +1,7 @@
-import {async, ComponentFixture, TestBed} from '@angular/core/testing';
+import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 
 import {MapFavoritesComponent} from './map-favorites.component';
-import {NbCardModule} from '@nebular/theme';
+import {NbCardModule, NbStatusService} from '@nebular/theme';
 import {BrowserModule} from '@angular/platform-browser';
 import {FormsModule, ReactiveFormsModule} from '@angular/forms';
 import {NgxPaginationModule} from 'ngx-pagination';
@@ -11,9 +11,10 @@ describe('MapFavoritesComponent', () => {
   let component: MapFavoritesComponent;
   let fixture: ComponentFixture<MapFavoritesComponent>;
 
-  beforeEach(async(() => {
+  beforeEach(waitForAsync(() => {
     TestBed.configureTestingModule({
       declarations: [ MapFavoritesComponent],
+      providers: [ NbStatusService ],
       imports: [NbCardModule, BrowserModule, FormsModule, ReactiveFormsModule, NgxPaginationModule],
       schemas: [NO_ERRORS_SCHEMA],
     })

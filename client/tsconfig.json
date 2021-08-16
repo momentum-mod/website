@@ -4,11 +4,11 @@
     "outDir": "./dist/out-tsc",
     "sourceMap": true,
     "declaration": false,
-    "module": "esnext",
+    "module": "es2020",
     "moduleResolution": "node",
     "emitDecoratorMetadata": true,
     "experimentalDecorators": true,
-    "target": "es5",
+    "target": "es2018",
     "typeRoots": [
       "node_modules/@types"
     ],
@@ -17,7 +17,7 @@
       "dom"
     ],
     "plugins": [
-      { "name": "typescript-tslint-plugin"}
+      { "name": "@typescript-eslint/eslint-plugin"}
     ]
   }
 }

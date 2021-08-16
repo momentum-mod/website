@@ -4,6 +4,10 @@
   padding: 5rem 0 0.5rem;
 }
 
+.gamemodes-section .container {
+  width: 90%;
+}
+
 .lead {
   min-height: 5rem;
 }
@@ -45,7 +49,7 @@
   text-align: center;
   border-radius: 2px;
   z-index: 1000;
-  width: 55%;
+  width: 55px;
   position: absolute;
   top: 5px;
   right: -8px;
@@ -78,10 +82,6 @@
     margin-left: -34px;
     margin-top: -24px;
   }
-}
-
-.gamemode-data-section {
-  min-height: 320px;
 }
 
 .gamemode-video {

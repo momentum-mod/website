@@ -11,7 +11,7 @@
     <div class="col-3 col-sm-3 col-md-2 col-lg-1 gamemode"
          *ngFor="let gamemode of gameModes; index as i"
          (click)="setCurrentGamemode(i)">
-      <div class="base-timer" *ngIf="gameModeIndex == i">
+      <div class="base-timer" *ngIf="gameModeIndex === i">
         <svg class="base-timer__svg" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
           <path
             id="base-timer-path-remaining"
@@ -26,7 +26,7 @@
           ></path>
         </svg>
       </div>
-      <img class="gamemode-icon" [ngClass]="{'selected': (this.gameModeIndex == i)}"
+      <img class="gamemode-icon" [ngClass]="{'selected': (this.gameModeIndex === i)}"
            [src]="gamemode.iconUrl"
            [alt]="gamemode.modeTitle"
            *ngIf="gameModeSectionVisible">
@@ -38,8 +38,8 @@
       {{this.currentGameMode.modeTitle}}
     </div>
   </div>
-  <div class="row justify-content-center mb-5 mb-lg-5 gamemode-data-section">
-    <div class="col-sm-12 col-md-6 mb-3">
+  <div class="row align-items-center justify-content-center mb-5 mb-lg-5">
+    <div class="row align-items-center col-sm-12 col-md-6 mb-3 mb-md-0">
       <ng-container *ngIf="this.currentGameMode.useYoutubeEmbed; then youtubeTemplate; else webmTemplate"></ng-container>
       <ng-template #webmTemplate>
         <video class="gamemode-video" [src]="this.currentGameMode.url" [poster]="this.currentGameMode.imageUrl" preload="metadata" loop autoplay

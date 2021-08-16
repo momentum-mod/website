@@ -1,4 +1,4 @@
-import {async, ComponentFixture, TestBed} from '@angular/core/testing';
+import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 
 import {MapEditComponent} from './map-edit.component';
 import {FileUploadComponent} from '../upload-form/file-upload/file-upload.component';
@@ -20,6 +20,7 @@ import {
   NbAlertModule,
   NbDialogService,
   NbFocusMonitor,
+  NbStatusService,
   NbToastrConfig,
   NbToastRef,
   NbToastrService,
@@ -62,7 +63,7 @@ describe('MapEditComponent', () => {
   };
 
   let toastrStub: Partial<NbToastrService>;
-  beforeEach(async(() => {
+  beforeEach(waitForAsync(() => {
     toastrStub = {
       danger(message: any, title?: any, config?: Partial<NbToastrConfig>): NbToastRef {
         return null;
@@ -77,6 +78,7 @@ describe('MapEditComponent', () => {
         MapEditComponent, FileUploadComponent, MapCreditsComponent, MapCreditComponent, UserSearchComponent,
       ],
       providers: [
+        NbStatusService,
         AuthService,
         CookieService,
         { provide: NbDialogService, useValue: {}},

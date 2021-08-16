@@ -2,18 +2,13 @@
 
 .masthead {
   position: relative;
+  display: flex;
   width: 100%;
-  height: auto;
-  min-height: 35rem;
-  padding: 15rem 0;
-  background: -webkit-gradient(linear, left top, left bottom, from(rgba(22, 22, 22, 0.1)), color-stop(75%,
-    rgba(22, 22, 22, 0.5)), to(#161616)), url('../../../../assets/images/bg-main.jpg');
-  background: linear-gradient(to bottom, rgba(22, 22, 22, 0.1) 0%, rgba(22, 22, 22, 0.5) 75%, #161616 100%),
-  url('../../../../assets/images/bg-main.jpg');
-  background-position: center;
-  background-repeat: no-repeat;
-  background-attachment: scroll;
-  background-size: cover;
+  height: 100vh;
+  min-height: 55rem;
+  z-index: 0;
+  overflow: hidden;
+  background: #161616;
 }
 
 .masthead h1 {
@@ -39,10 +34,6 @@
 }
 
 @media (min-width: 992px) {
-  .masthead {
-    height: 100vh;
-    padding: 0;
-  }
   .masthead h1 {
     font-size: 6.5rem;
     line-height: 6.5rem;
@@ -52,4 +43,88 @@
     max-width: 30rem;
     font-size: 1.25rem;
   }
+}
+
+.donate {
+  margin: 1em auto 0;
+  display: block;
+  width: 340px;
+}
+
+.donate:visited .donateBody {
+  color: white;
+}
+
+.donate:hover .donateBody {
+  background-color: #2daee5;
+  color: white;
+}
+
+.donate:active .donateBody {
+  background-color: #0080b7;
+  color: white;
+}
+
+.donateBody {
+  height: 50px;
+  border-radius: 50px;
+  background-color: #1396d2;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 3px 0 20px;
+}
+
+.donateText {
+  font-family: Montserrat-Regular, Montserrat, Arial;
+  font-size: 12px;
+  letter-spacing: 2px;
+}
+
+@media (max-width: 380px) {
+  .donate {
+    width: 220px;
+  }
+  .donateText {
+    width: 150px;
+  }
+}
+
+@media (max-width: 767.98px) {
+  iframe {
+    width: 100%;
+  }
+}
+
+.banner-video {
+  object-fit: cover;
+  position: absolute;
+  left: 0;
+  min-height: 100vh;
+  min-width: 100vw;
+  top: 0;
+  z-index: -2;
+  background: url ('../../../../assets/images/bg-main.webp') no-repeat;
+  background-size: cover;
+}
+
+@media only screen and (max-width: 768px) {
+  video .banner-video {
+    display: none;
+  }
+  body {
+    background: url ('../../../../assets/images/bg-main.webp') no-repeat;
+    background-size: cover;
+  }
+}
+
+.gradient {
+  background: linear-gradient(to bottom, transparent, #161616);
+  position: absolute;
+  width: 100vw;
+  height: 100vh;
+  top: 0;
+  left: 0;
+  z-index: -1;
+  min-height: 100%;
 }

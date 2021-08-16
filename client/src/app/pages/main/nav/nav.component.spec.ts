@@ -1,4 +1,4 @@
-import { async, ComponentFixture, TestBed } from '@angular/core/testing';
+import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 
 import { NavComponent } from './nav.component';
 import {TemplateRef, Type} from '@angular/core';
@@ -10,7 +10,7 @@ describe('NavComponent', () => {
   let fixture: ComponentFixture<NavComponent>;
 
   let dialogDummy: Partial<NbDialogService>;
-  beforeEach(async(() => {
+  beforeEach(waitForAsync(() => {
     dialogDummy = {
       open<T>(content: Type<T> | TemplateRef<T>, userConfig?: Partial<NbDialogConfig<Partial<T> | string>>):
         NbDialogRef<T> {

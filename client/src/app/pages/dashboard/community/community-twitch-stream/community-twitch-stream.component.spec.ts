@@ -1,7 +1,7 @@
-import {async, ComponentFixture, TestBed} from '@angular/core/testing';
+import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 
 import {CommunityTwitchStreamComponent} from './community-twitch-stream.component';
-import {NbCardModule} from '@nebular/theme';
+import {NbCardModule, NbStatusService} from '@nebular/theme';
 import {TwitchAPIService} from '../../../../@core/data/twitch-api.service';
 import {of} from 'rxjs';
 import {TwitchStream} from '../../../../@core/models/twitch-stream.model';
@@ -20,7 +20,7 @@ describe('CommunityTwitchStreamComponent', () => {
     thumbnail_url: '',
   };
 
-  beforeEach(async(() => {
+  beforeEach(waitForAsync(() => {
     twitchAPIStub = {
       getGameStreams: () => {
         return of({
@@ -34,6 +34,7 @@ describe('CommunityTwitchStreamComponent', () => {
       imports: [NbCardModule],
       declarations: [ CommunityTwitchStreamComponent ],
       providers: [
+        NbStatusService,
         { provide: TwitchAPIService, useValue: twitchAPIStub },
       ],
       schemas: [ NO_ERRORS_SCHEMA ],

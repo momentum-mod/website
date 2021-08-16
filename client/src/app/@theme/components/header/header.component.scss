@@ -44,7 +44,7 @@
       white-space: nowrap;
       text-decoration: none;
       img {
-        height: 3.75rem;
+        height: 3.6rem;
       }
     }
   }
@@ -55,15 +55,12 @@
     }
   }
 
-  @include media-breakpoint-down(is) {
+  @media (max-width: 667px) {
     .control-item {
       display: none;
     }
     .user-action {
       border: none;
-    }
-    .logo > img {
-      height: 3.6rem !important;
     }
   }
 

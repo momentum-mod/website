@@ -1,4 +1,4 @@
-import {async, ComponentFixture, TestBed} from '@angular/core/testing';
+import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 
 import {UserSearchComponent} from './user-search.component';
 import {NbListModule, NbThemeModule, NbUserModule} from '@nebular/theme';
@@ -11,7 +11,7 @@ describe('UserSearchComponent', () => {
   let fixture: ComponentFixture<UserSearchComponent>;
   // let httpMock: HttpTestingController;
 
-  beforeEach(async(() => {
+  beforeEach(waitForAsync(() => {
     TestBed.configureTestingModule({
       imports: [NbThemeModule, FormsModule, ReactiveFormsModule, NbUserModule, NbListModule, DataModule.forRoot(),
         HttpClientTestingModule],

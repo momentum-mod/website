@@ -59,7 +59,7 @@ const verifyMapNameNotTaken = (mapName) => {
 };
 
 const verifyMapUploadLimitNotReached = (submitterID) => {
-	const mapUploadLimit = 1;
+	const mapUploadLimit = 5;
 	return Map.count({
 		where: {
 			submitterID: submitterID,
@@ -146,6 +146,7 @@ module.exports = {
 				return 0.015;
 			case MAP_TYPE.BHOP:
 			case MAP_TYPE.TRICKSURF:
+			case MAP_TYPE.CONC:
 				return 0.01;
 		}
 	},

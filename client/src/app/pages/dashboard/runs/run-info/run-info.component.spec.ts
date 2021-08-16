@@ -1,4 +1,4 @@
-import {async, ComponentFixture, TestBed} from '@angular/core/testing';
+import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 
 import {RunInfoComponent} from './run-info.component';
 import {ThemeModule} from '../../../../@theme/theme.module';
@@ -13,7 +13,7 @@ describe('RunInfoComponent', () => {
   let fixture: ComponentFixture<RunInfoComponent>;
 
   let ranksServiceStub: Partial<RanksService>;
-  beforeEach(async(() => {
+  beforeEach(waitForAsync(() => {
     ranksServiceStub = {
       getRanks(mapID: number, options?: object): Observable<any> {
         return of({

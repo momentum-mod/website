@@ -1,4 +1,4 @@
-import {async, ComponentFixture, TestBed} from '@angular/core/testing';
+import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 
 import {ActivityContentComponent} from './activity-content.component';
 import {NbUserModule} from '@nebular/theme';
@@ -11,9 +11,9 @@ describe('ActivityContentComponent', () => {
   let component: ActivityContentComponent;
   let fixture: ComponentFixture<ActivityContentComponent>;
 
-  beforeEach(async(() => {
+  beforeEach(waitForAsync(() => {
     TestBed.configureTestingModule({
-      imports: [NbUserModule, RouterModule.forRoot([]), TimeagoModule.forRoot()],
+      imports: [NbUserModule, RouterModule.forRoot([], { relativeLinkResolution: 'legacy' }), TimeagoModule.forRoot()],
       declarations: [ ActivityContentComponent ],
       providers: [
         { provide: APP_BASE_HREF, useValue: '/' },

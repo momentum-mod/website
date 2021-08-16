@@ -1,3 +1,14 @@
+.results {
+  overflow-y: auto;
+  height: calc(90vh - 8vw - 4.6rem - 4px);
+  padding-bottom: 0.4rem;
+  scrollbar-width: none;
+}
+
+.results::-webkit-scrollbar {
+  width: 0;
+}
+
 .content {
   max-width: 1000px;
 }

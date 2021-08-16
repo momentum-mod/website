@@ -1,4 +1,4 @@
-import {async, TestBed} from '@angular/core/testing';
+import { TestBed, waitForAsync } from '@angular/core/testing';
 
 import {LocalUserService} from './local-user.service';
 import {AuthService} from './auth.service';
@@ -32,7 +32,7 @@ describe('LocalUserService', () => {
 
   let cookieServiceStub: Partial<CookieService>;
 
-  beforeEach(async(() => {
+  beforeEach(waitForAsync(() => {
     expectedUser = {
       id: 1,
       steamID: '76561198131664084',
@@ -105,7 +105,7 @@ describe('LocalUserService', () => {
     };
 
     TestBed.configureTestingModule({
-      imports: [ThemeModule, RouterModule.forRoot([])],
+      imports: [ThemeModule, RouterModule.forRoot([], { relativeLinkResolution: 'legacy' })],
       providers: [
         LocalUserService,
         { provide: CookieService, useValue: cookieServiceStub },

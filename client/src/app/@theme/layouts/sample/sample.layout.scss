@@ -21,6 +21,7 @@
 
     font-size: 2rem;
     a {
+      margin-top: 10px;
       padding: 0.4rem;
       color: nb-theme(text-control-color);
       transition: color ease-out 0.1s;
@@ -42,8 +43,10 @@
     height: 100vh;
     z-index: -1;
     will-change: transform;
-    background: url('/assets/images/logoBG.png') no-repeat center;
-    background-size: auto 100%;
+    min-height: 100vh;
+    min-width: 100vw;
+    background: url('/assets/images/splash.webp');
+    background-size: cover;
   }
 
   .layout {
