@@ -1,16 +1,12 @@
 .masthead {
-  position: relative;
+  background:  url('../../../../assets/images/bg-main.webp');
+  position: absolute;
+  display: flex;
   width: 100%;
   height: 100vh;
-  min-height: 35rem;
-  padding: 15rem 0;
-  background: -webkit-gradient(linear, left top, left bottom, from(rgba(22, 22, 22, 0.1)), color-stop(75%,
-    rgba(22, 22, 22, 0.5)), to(#161616)), url('../../../../assets/images/bg-main.webp');
-  background: linear-gradient(to bottom, rgba(22, 22, 22, 0.1) 0%, rgba(22, 22, 22, 0.5) 75%, #161616 100%),
-  url('../../../../assets/images/bg-main.webp');
-  background-position: center;
-  background-repeat: no-repeat;
-  background-attachment: scroll;
+  min-height: 55rem;
+  z-index: -1;
+  overflow: hidden;
   background-size: cover;
 }
 
@@ -49,4 +45,27 @@
     max-width: 30rem;
     font-size: 1.25rem;
   }
+}
+
+.darkbackground {
+  padding: 11rem 0 9rem;
+  background-position: center;
+  z-index: 1;
+  left: 0;
+  top: 22vh;
+  background: #161616;
+  position: absolute;
+  width: 100vw;
+  height: 55vh;
+}
+
+.grad2 {
+  background: linear-gradient(to bottom, transparent, #161616);
+  position: absolute;
+  width: 100vw;
+  height: 100vh;
+  top: 0;
+  left: 0;
+  z-index: 0;
+  min-height: 100%;
 }
