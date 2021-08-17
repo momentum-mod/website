@@ -56,7 +56,8 @@
   background: #161616;
   position: absolute;
   width: 100vw;
-  height: 55vh;
+  max-height: 55vh;
+  min-height: 55%;
 }
 
 .grad2 {
