@@ -61,9 +61,6 @@ export class MapStoreService {
         this.map = c;
       }),
     );
-
-    // TODO: Implement
-    throw new Error('NotImplemented');
   }
 
   /**
