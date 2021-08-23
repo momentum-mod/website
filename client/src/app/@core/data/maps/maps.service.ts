@@ -34,9 +34,9 @@ export class MapsService {
    * @param mapData
    * @return Create a map
    */
-  createMap(mapData: object): Observable<HttpResponse<MomentumMap>> {
+  createMap(mapData: object): Observable<MomentumMap> {
     return this.http.post<MomentumMap>('/api/maps', mapData, {
-      observe: 'response',
+      observe: 'body',
     });
   }
 

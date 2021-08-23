@@ -9,10 +9,8 @@ import { MapsService } from './maps.service';
 // Models
 import { MomentumMaps } from '../../models/momentum-maps.model';
 import { MomentumMap } from '../../models/momentum-map.model';
-import {MapImage} from '../../models/map-image.model';
-import {MomentumMapInfo} from '../../models/map-info.model';
-import {MapCredit} from '../../models/map-credit.model';
-import { MomentumMapType } from '../../models/map-type.model';
+import { MomentumMapInfo } from '../../models/map-info.model';
+import { MapCredit } from '../../models/map-credit.model';
 
 
 @Injectable()
@@ -80,18 +78,14 @@ export class MapStoreService {
         this.maps = c;
       }),
     );
-
-    // TODO: Implement
-    throw new Error('NotImplemented');
   }
 
   /**
    * @param mapData
    * @return Create a map
    */
-  createMap(mapData: object): void {
-    // TODO: Implement
-    throw new Error('NotImplemented');
+  createMap(mapData: object): Observable<MomentumMap> {
+    return this.mapsService.createMap(mapData);
   }
 
   /**
@@ -99,18 +93,20 @@ export class MapStoreService {
    * @param mapInfo MomentumMapInfo with new values of properties
    * @return response
    */
-  updateMapInfo(id: number, mapInfo: MomentumMapInfo): void {
-    // TODO: Implement
-    throw new Error('NotImplemented');
+  updateMapInfo(id: number, mapInfo: MomentumMapInfo): Observable<any> {
+    // TODO: Type up this response
+    return this.mapsService.updateMapInfo(id, mapInfo);
   }
 
   /**
    * @param id
    * @return credits list of the specific map
    */
-  getMapCredits(id: number): void {
-    // TODO: Implement
-    throw new Error('NotImplemented');
+  getMapCredits(id: number): Observable<any> {
+    // TODO: Type up this response
+    // TODO: this should prbably be updated to get the credits of the
+    // map in map$ but that might be wrong. Talk to Gocnak/Hona
+    return this.mapsService.getMapCredits(id);
   }
 
   /**
@@ -118,9 +114,11 @@ export class MapStoreService {
    * @param credit
    * @return newly created MapCredit
    */
-  createMapCredit(id: number, credit: MapCredit): void {
-    // TODO: Implement
-    throw new Error('NotImplemented');
+  createMapCredit(id: number, credit: MapCredit): Observable<any> {
+    // TODO: Type up this response
+    // TODO: this should prbably be updated to get the credits of the
+    // map in map$ but that might be wrong. Talk to Gocnak/Hona
+    return this.mapsService.createMapCredit(id, credit);
   }
 
   /**
@@ -129,9 +127,11 @@ export class MapStoreService {
    * @param credit MapCredit with new values of properties
    * @return response
    */
-  updateMapCredit(id: number, creditID: number, credit: MapCredit): void {
-    // TODO: Implement
-    throw new Error('NotImplemented');
+  updateMapCredit(id: number, creditID: number, credit: MapCredit): Observable<any> {
+    // TODO: Type up this response
+    // TODO: this should prbably be updated to get the credits of the
+    // map in map$ but that might be wrong. Talk to Gocnak/Hona
+    return this.mapsService.updateMapCredit(id, creditID, credit);
   }
 
   /**
@@ -139,18 +139,20 @@ export class MapStoreService {
    * @param creditID
    * @return response
    */
-  deleteMapCredit(id: number, creditID: number): void {
-    // TODO: Implement
-    throw new Error('NotImplemented');
+  deleteMapCredit(id: number, creditID: number): Observable<any> {
+    // TODO: Type up this response
+    // TODO: this should prbably be updated to get the credits of the
+    // map in map$ but that might be wrong. Talk to Gocnak/Hona
+    return this.mapsService.deleteMapCredit(id, creditID);
   }
 
   /**
    * @param id
    * @return map file upload location
    */
-  getMapFileUploadLocation(id: number): void {
-    // TODO: Implement
-    throw new Error('NotImplemented');
+  getMapFileUploadLocation(id: number): Observable<any> {
+    // TODO: Type up this response
+    return this.mapsService.getMapFileUploadLocation(id);
   }
 
   /**
@@ -158,18 +160,18 @@ export class MapStoreService {
    * @param mapFile the map file to upload
    * @return uploads a map file of a map
    */
-  uploadMapFile(uploadLocation: string, mapFile: File): void {
-    // TODO: Implement
-    throw new Error('NotImplemented');
+  uploadMapFile(uploadLocation: string, mapFile: File): Observable<any> {
+    // TODO: Type up this response
+    return this.mapsService.uploadMapFile(uploadLocation, mapFile);
   }
 
   /**
    * @param id
    * @return downloads a map file of a map
    */
-  downloadMapFile(id: number): void {
-    // TODO: Implement
-    throw new Error('NotImplemented');
+  downloadMapFile(id: number): Observable<any> {
+    // TODO: Type up this response
+    return this.mapsService.downloadMapFile(id);
   }
 
   /**
@@ -177,18 +179,20 @@ export class MapStoreService {
    * @param thumbnailFile file of a map avatar
    * @return updated map avatar
    */
-  updateMapAvatar(id: number, thumbnailFile: File): void {
-    // TODO: Implement
-    throw new Error('NotImplemented');
+  updateMapAvatar(id: number, thumbnailFile: File): Observable<any> {
+    // TODO: Type up this response
+    // TODO: Update the map$ so all components have fresh data
+    return this.mapsService.updateMapAvatar(id, thumbnailFile);
   }
 
   /**
    * @param id
    * @param mapImageFile
    */
-  createMapImage(id: number, mapImageFile: File): void {
-    // TODO: Implement
-    throw new Error('NotImplemented');
+  createMapImage(id: number, mapImageFile: File): Observable<any> {
+    // TODO: Type up this response
+    // TODO: Update the map$ so all components have fresh data
+    return this.mapsService.createMapImage(id, mapImageFile);
   }
 
   /**
@@ -196,17 +200,19 @@ export class MapStoreService {
    * @param mapImageID
    * @param mapImageFile
    */
-  updateMapImage(id: number, mapImageID: number, mapImageFile: File): void {
-    // TODO: Implement
-    throw new Error('NotImplemented');
+  updateMapImage(id: number, mapImageID: number, mapImageFile: File): Observable<any> {
+    // TODO: Type up this response
+    // TODO: Update the map$ so all components have fresh data
+    return this.mapsService.updateMapImage(id, mapImageID, mapImageFile);
   }
 
   /**
    * @param id
    * @param mapImageID
    */
-  deleteMapImage(id: number, mapImageID: number): void {
-    // TODO: Implement
-    throw new Error('NotImplemented');
+  deleteMapImage(id: number, mapImageID: number): Observable<any> {
+    // TODO: Type up this response
+    // TODO: Update the map$ so all components have fresh data
+    return this.mapsService.deleteMapCredit(id, mapImageID);
   }
 }
