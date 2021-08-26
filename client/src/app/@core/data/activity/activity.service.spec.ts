@@ -1,7 +1,7 @@
 import {of} from 'rxjs';
 import {ActivityService} from './activity.service';
-import {Activities} from '../models/activities.model';
-import {Activity_Type} from '../models/activity-type.model';
+import {Activities} from '../../models/activities.model';
+import {Activity_Type} from '../../models/activity-type.model';
 
 let httpClientSpy: { get: jasmine.Spy };
 let activityService: ActivityService;

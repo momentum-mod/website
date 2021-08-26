@@ -1,8 +1,8 @@
 import {MapsService} from './maps.service';
 import {of} from 'rxjs';
-import {MomentumMap} from '../models/momentum-map.model';
-import {MomentumMapType} from '../models/map-type.model';
-import {MomentumMaps} from '../models/momentum-maps.model';
+import {MomentumMap} from '../../models/momentum-map.model';
+import {MomentumMapType} from '../../models/map-type.model';
+import {MomentumMaps} from '../../models/momentum-maps.model';
 import {HttpResponse} from '@angular/common/http';
 
 let httpClientSpy: { get: jasmine.Spy, post: jasmine.Spy  };

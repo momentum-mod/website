@@ -114,7 +114,8 @@ export class MapStoreService {
   createMapCredit(id: number, credit: MapCredit): Observable<any> {
     // TODO: Type up this response
     // TODO: this should prbably be updated to get the credits of the
-    // map in map$ but that might be wrong. Talk to Gocnak/Hona
+    // map in map$ but that might be wrong.
+    // Depends on API Repsonce. Talk to Gocnak/Hona.
     return this.mapsService.createMapCredit(id, credit);
   }
 
@@ -139,7 +140,8 @@ export class MapStoreService {
   deleteMapCredit(id: number, creditID: number): Observable<any> {
     // TODO: Type up this response
     // TODO: this should prbably be updated to get the credits of the
-    // map in map$ but that might be wrong. Talk to Gocnak/Hona
+    // map in map$ but that might be wrong.
+    // Depends on API Repsonce. Talk to Gocnak/Hona.
     return this.mapsService.deleteMapCredit(id, creditID);
   }
 

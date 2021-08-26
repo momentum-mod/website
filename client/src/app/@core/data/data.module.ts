@@ -9,16 +9,16 @@ import { AuthService } from './auth.service';
 import { StateService } from './state.service';
 import { SmartTableService } from './smart-table.service';
 import { LayoutService } from './layout.service';
-import {ActivityService} from './activity.service';
-import {MapsService} from './maps.service';
+import { ActivityStoreService } from './activity/activity-store.service';
+import { MapStoreService } from './maps/map-store.service';
 import {TwitchAPIService} from './twitch-api.service';
 import {TumblrAPIService} from './tumblr-api.service';
 
 const SERVICES = [
-  ActivityService,
+  ActivityStoreService,
   LocalUserService,
   UsersService,
-  MapsService,
+  MapStoreService,
   AuthService,
   CookieService,
   StateService,
