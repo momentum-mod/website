@@ -1,20 +1,20 @@
 import { TestBed, waitForAsync } from '@angular/core/testing';
 
 import {LocalUserService} from './local-user.service';
-import {AuthService} from './auth.service';
+import {AuthService} from '../auth.service';
 import {CookieService} from 'ngx-cookie-service';
 import {of} from 'rxjs';
-import {MomentumMap} from '../models/momentum-map.model';
-import {User} from '../models/user.model';
+import {MomentumMap} from '../../models/momentum-map.model';
+import {User} from '../../models/user.model';
 
-import {UserFollowObject} from '../models/follow.model';
-import {FollowStatus} from '../models/follow-status.model';
-import {MapNotify} from '../models/map-notify.model';
+import {UserFollowObject} from '../../models/follow.model';
+import {FollowStatus} from '../../models/follow-status.model';
+import {MapNotify} from '../../models/map-notify.model';
 import {Router, RouterModule} from '@angular/router';
-import {ThemeModule} from '../../@theme/theme.module';
-import {MomentumMapType} from '../models/map-type.model';
-import {MapLibrary} from '../models/map-library.model';
-import {MomentumMaps} from '../models/momentum-maps.model';
+import {ThemeModule} from '../../../@theme/theme.module';
+import {MomentumMapType} from '../../models/map-type.model';
+import {MapLibrary} from '../../models/map-library.model';
+import {MomentumMaps} from '../../models/momentum-maps.model';
 
 let httpClientSpy: { get: jasmine.Spy, patch: jasmine.Spy, post: jasmine.Spy, put: jasmine.Spy, delete: jasmine.Spy  };
 let expectedUser: User;

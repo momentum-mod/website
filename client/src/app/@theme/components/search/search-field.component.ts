@@ -11,10 +11,13 @@ import {
   ViewChild,
 } from '@angular/core';
 import {UsersService} from '../../../@core/data/users.service';
-import {MapsService} from '../../../@core/data/maps.service';
+import {MapStoreService} from '../../../@core/data/maps/map-store.service';
 import {User} from '../../../@core/models/user.model';
 import {MomentumMap} from '../../../@core/models/momentum-map.model';
 import {Router} from '@angular/router';
+import { OnInit, OnDestroy } from '@angular/core';
+import { map, takeUntil } from 'rxjs/operators';
+import { Subject } from 'rxjs';
 
 /**
  * search-field-component is used under the hood by nb-search component
@@ -34,7 +37,7 @@ import {Router} from '@angular/router';
   ],
   templateUrl: './search-field.component.html',
 })
-export class SearchFieldComponent implements OnChanges, AfterViewInit {
+export class SearchFieldComponent implements OnInit, OnChanges, AfterViewInit, OnDestroy {
 
   static readonly TYPE_MODAL_ZOOMIN = 'modal-zoomin';
   static readonly TYPE_ROTATE_LAYOUT = 'rotate-layout';
@@ -43,6 +46,8 @@ export class SearchFieldComponent implements OnChanges, AfterViewInit {
   static readonly TYPE_COLUMN_CURTAIN = 'column-curtain';
   static readonly TYPE_MODAL_DROP = 'modal-drop';
   static readonly TYPE_MODAL_HALF = 'modal-half';
+
+  private destroy$ = new Subject();
 
   users: User[] = null;
   maps: MomentumMap[] = null;
@@ -99,8 +104,18 @@ export class SearchFieldComponent implements OnChanges, AfterViewInit {
     return this.type === SearchFieldComponent.TYPE_MODAL_HALF;
   }
   constructor(private usersService: UsersService,
-              private mapsService: MapsService,
+              private mapsService: MapStoreService,
               private router: Router) {
+  }
+
+  ngOnInit(): void {
+    this.mapsService.maps$.pipe(
+      takeUntil(this.destroy$),
+      map((resp) => {
+        this.maps = resp.maps;
+      }),
+    )
+    .subscribe();
   }
 
   ngOnChanges({ show }: SimpleChanges) {
@@ -138,13 +153,11 @@ export class SearchFieldComponent implements OnChanges, AfterViewInit {
         });
       }
       if (!this.onlyUsers) {
-        this.mapsService.getMaps({
+        this.mapsService.searchMaps({
           params: {
             expand: 'thumbnail',
             search: term.substring(this.onlyMaps ? 4 : 0).trim(),
           },
-        }).subscribe(resp => {
-          this.maps = resp.maps;
         });
       }
     }
@@ -168,5 +181,10 @@ export class SearchFieldComponent implements OnChanges, AfterViewInit {
 
   retFalse() {
     return false;
+  }
+
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 }

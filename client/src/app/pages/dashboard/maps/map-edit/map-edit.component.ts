@@ -5,13 +5,13 @@ import {User} from '../../../../@core/models/user.model';
 import {MapCredit} from '../../../../@core/models/map-credit.model';
 import {MapCreditType} from '../../../../@core/models/map-credit-type.model';
 import {CreditChangeEvent} from '../map-credits/map-credit/map-credit.component';
-import {MapsService} from '../../../../@core/data/maps.service';
-import {finalize, switchMap, takeUntil} from 'rxjs/operators';
+import {MapStoreService} from '../../../../@core/data/maps/map-store.service';
+import { finalize, map, takeUntil } from 'rxjs/operators';
 import {ActivatedRoute, ParamMap, Router} from '@angular/router';
 import {FormBuilder, FormGroup, Validators} from '@angular/forms';
 import {CdkDragDrop, moveItemInArray} from '@angular/cdk/drag-drop';
 import {Role} from '../../../../@core/models/role.model';
-import {LocalUserService} from '../../../../@core/data/local-user.service';
+import {LocalUserStoreService} from '../../../../@core/data/local-user/local-user-store.service';
 import {AdminService} from '../../../../@core/data/admin.service';
 import {NbDialogService, NbToastrService} from '@nebular/theme';
 import {ConfirmDialogComponent} from '../../../../@theme/components/confirm-dialog/confirm-dialog.component';
@@ -26,7 +26,7 @@ const youtubeRegex = /[a-zA-Z0-9_-]{11}/;
 })
 export class MapEditComponent implements OnInit, OnDestroy {
 
-  private ngUnsub = new Subject();
+  private destroy$ = new Subject();
   map: MomentumMap;
   mapImages: MapImage[];
   mapImagesLimit: number;
@@ -54,8 +54,8 @@ export class MapEditComponent implements OnInit, OnDestroy {
 
   constructor(private route: ActivatedRoute,
               private router: Router,
-              private mapService: MapsService,
-              private localUserService: LocalUserService,
+              private mapService: MapStoreService,
+              private localUserService: LocalUserStoreService,
               private adminService: AdminService,
               private dialogService: NbDialogService,
               private toasterService: NbToastrService,
@@ -67,33 +67,45 @@ export class MapEditComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit() {
-    this.route.paramMap.pipe(
-      switchMap((params: ParamMap) =>
-        this.mapService.getMap(Number(params.get('id')), {
-          params: { expand: 'info,credits,images' },
-        }),
-      ),
-    ).subscribe(map => {
-      this.map = map;
-      this.localUserService.getLocal().pipe(
-        takeUntil(this.ngUnsub),
-      ).subscribe(locUser => {
-        this.isAdmin = this.localUserService.hasRole(Role.ADMIN, locUser);
-        this.isModerator = this.localUserService.hasRole(Role.MODERATOR, locUser);
-        if (this.map.submitterID === locUser.id)
-          this.isSubmitter = true;
-        if (!(this.isSubmitter || this.isAdmin || this.isModerator))
-          this.router.navigate(['/dashboard/maps/' + this.map.id]);
-        this.infoForm.patchValue(map.info);
-        this.mapImages = map.images;
-        this.mapCredits = [[], [], [], []];
-        this.mapCreditsIDs = map.credits.map(val => +val.id);
-        for (const credit of map.credits) {
-          this.mapCredits[credit.type].push(credit.user);
+    this.mapService.map$.pipe(
+      takeUntil(this.destroy$),
+      map((c) => {
+        if(c) {
+          // set the map
+          this.map = c;
+
+          // get the local user if we don't already have one
+          if(!this.localUserService.localUser) {
+            this.localUserService.getLocalUser();
+          }
+
+          // map logic
+          this.isAdmin = this.localUserService.hasRole(Role.ADMIN, this.localUserService.localUser);
+          this.isModerator = this.localUserService.hasRole(Role.MODERATOR, this.localUserService.localUser);
+          if (this.map.submitterID === this.localUserService.localUser.id)
+            this.isSubmitter = true;
+          if (!(this.isSubmitter || this.isAdmin || this.isModerator))
+            this.router.navigate(['/dashboard/maps/' + this.map.id]);
+          this.infoForm.patchValue(this.map.info);
+          this.mapImages = this.map.images;
+          this.mapCredits = [[], [], [], []];
+          this.mapCreditsIDs = this.map.credits.map(val => +val.id);
+          for (const credit of this.map.credits) {
+            this.mapCredits[credit.type].push(credit.user);
+          }
+          this.creditsForm.get('authors').patchValue(this.mapCredits[MapCreditType.AUTHOR]);
         }
-        this.creditsForm.get('authors').patchValue(this.mapCredits[MapCreditType.AUTHOR]);
-      });
-    });
+      }),
+    ).subscribe();
+
+    this.route.paramMap.pipe(
+      map((params: ParamMap) => {
+          this.mapService.getMap(Number(params.get('id')), {
+            params: { expand: 'info,credits,images' },
+          });
+        },
+      ),
+    ).subscribe();
   }
 
   onInfoSubmit() {
@@ -213,8 +225,8 @@ export class MapEditComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy(): void {
-    this.ngUnsub.next();
-    this.ngUnsub.complete();
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 
 }

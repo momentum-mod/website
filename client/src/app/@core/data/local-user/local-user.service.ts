@@ -1,20 +1,16 @@
 import {Injectable} from '@angular/core';
-import {AuthService} from './auth.service';
-import {Observable, ReplaySubject, Subject} from 'rxjs';
+import {Observable} from 'rxjs';
 import {HttpClient} from '@angular/common/http';
-import {User} from '../models/user.model';
-import {Role} from '../models/role.model';
-import {Ban} from '../models/ban.model';
-import {UserFollowObject} from '../models/follow.model';
-import {FollowStatus} from '../models/follow-status.model';
-import {CookieService} from 'ngx-cookie-service';
-import {MapFavorites} from '../models/map-favorites.model';
-import {MapLibrary} from '../models/map-library.model';
-import {MapFavorite} from '../models/map-favorite.model';
-import {MomentumMaps} from '../models/momentum-maps.model';
-import {MapSubmissionSummaryElement} from '../models/map-submission-summary-element.model';
-import {UserCredits} from '../models/user-credits.model';
-import {MapNotify} from '../models/map-notify.model';
+import {User} from '../../models/user.model';
+import {UserFollowObject} from '../../models/follow.model';
+import {FollowStatus} from '../../models/follow-status.model';
+import {MapFavorites} from '../../models/map-favorites.model';
+import {MapLibrary} from '../../models/map-library.model';
+import {MapFavorite} from '../../models/map-favorite.model';
+import {MomentumMaps} from '../../models/momentum-maps.model';
+import {MapSubmissionSummaryElement} from '../../models/map-submission-summary-element.model';
+import {UserCredits} from '../../models/user-credits.model';
+import {MapNotify} from '../../models/map-notify.model';
 
 
 @Injectable({
@@ -22,55 +18,7 @@ import {MapNotify} from '../models/map-notify.model';
 })
 export class LocalUserService {
 
-  public localUser: User;
-  private locUserObtEmit: Subject<User>;
-
-  constructor(private authService: AuthService,
-              private cookieService: CookieService,
-              private http: HttpClient) {
-    this.locUserObtEmit = new ReplaySubject<User>(1);
-    const userCookieExists = this.cookieService.check('user');
-    if (userCookieExists) {
-      const userCookie = decodeURIComponent(this.cookieService.get('user'));
-      localStorage.setItem('user', userCookie);
-      this.cookieService.delete('user', '/');
-    }
-    const user = localStorage.getItem('user');
-    if (user) {
-      this.localUser = JSON.parse(user);
-      this.locUserObtEmit.next(this.localUser);
-      this.refreshLocal();
-    }
-  }
-
-  public refreshLocal(): void {
-    this.getLocalUser({
-      params: { expand: 'profile' },
-    }).subscribe(usr => {
-      this.locUserObtEmit.next(usr);
-      this.localUser = usr;
-      localStorage.setItem('user', JSON.stringify(usr));
-    });
-  }
-
-  public getLocal(): Observable<User> {
-    return this.locUserObtEmit.asObservable();
-  }
-
-  public isLoggedIn(): boolean {
-    return this.authService.isAuthenticated();
-  }
-
-  public logout() {
-    this.authService.logout();
-  }
-
-  public hasRole(role: number|Role, user: User = this.localUser): boolean {
-    return user ? (role & user.roles) !== 0 : false;
-  }
-
-  public hasBan(ban: number|Ban, user: User = this.localUser): boolean {
-    return user ? (ban & user.bans) !== 0 : false;
+  constructor(private http: HttpClient) {
   }
 
   /**

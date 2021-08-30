@@ -35,6 +35,18 @@ export class MapStoreService {
     return this._maps.value;
   }
 
+  // map Serach list
+  private _mapsSerach: BehaviorSubject<MomentumMaps> = new BehaviorSubject({ number: 0, maps: [] });
+  public readonly mapsSerach$: Observable<MomentumMaps> = this._mapsSerach.asObservable();
+
+  set mapsSerach(newMaps: MomentumMaps) {
+    this._mapsSerach.next(newMaps);
+  }
+
+  get mapsSerach() {
+    return this._mapsSerach.value;
+  }
+
   // current map
   private _map: BehaviorSubject<MomentumMap> = new BehaviorSubject(null);
   public readonly map$: Observable<MomentumMap> = this._map.asObservable();
@@ -51,7 +63,7 @@ export class MapStoreService {
   /**
    * @param id The ID of the map
    * @param options The options for the request
-   * @return Retrieves a specific map
+   * @return Retrieves a specific map, and sets it in map$
    */
    getMap(id: number, options?: object): void {
     this.mapsService.getMap(id, options).pipe(
@@ -73,6 +85,20 @@ export class MapStoreService {
       map((c: MomentumMaps) => {
         console.log(`MapStoreService: Received ${c.count} maps`);
         this.maps = c;
+      }),
+    );
+  }
+
+  /**
+   * @param options
+   * @return a list of maps
+   */
+   searchMaps(options?: object): void {
+    this.mapsService.getMaps(options).pipe(
+      take(1),
+      map((c: MomentumMaps) => {
+        console.log(`MapStoreService: Received ${c.count} maps`);
+        this.mapsSerach = c;
       }),
     );
   }

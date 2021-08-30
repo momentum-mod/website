@@ -2,7 +2,7 @@ import {Component, Input, Output, OnInit, EventEmitter, ViewChild, ElementRef} f
 import { MomentumMap } from '../../../../../@core/models/momentum-map.model';
 import { MapUploadStatus } from '../../../../../@core/models/map-upload-status.model';
 import { AdminService } from '../../../../../@core/data/admin.service';
-import { MapsService } from '../../../../../@core/data/maps.service';
+import { MapStoreService } from '../../../../../@core/data/maps/map-store.service';
 import {NbToastrService} from '@nebular/theme';
 
 @Component({
@@ -18,7 +18,7 @@ export class QueuedMapComponent implements OnInit {
   @ViewChild('mapFileDownloadLink', {static: false}) private mapFileDownloadLink: ElementRef;
 
   constructor(private adminService: AdminService,
-    private mapService: MapsService,
+    private mapStoreService: MapStoreService,
     private toasterService: NbToastrService) { }
 
   ngOnInit() {
@@ -35,14 +35,23 @@ export class QueuedMapComponent implements OnInit {
   }
 
   onMapFileDownload(mapID: number) {
-    this.mapService.downloadMapFile(mapID).subscribe(data => {
-      const url = window.URL.createObjectURL(data);
-      const link = this.mapFileDownloadLink.nativeElement;
-      link.href = url;
-      link.download = this.map.name + '.bsp';
-      link.click();
-      window.URL.revokeObjectURL(url);
-    }, err => {
+    // Convert Observable to promise
+    // as this is shouldn't effect the state
+    this.mapStoreService.downloadMapFile(mapID).toPromise()
+    .then((c) => {
+      if(c) {
+        const url = window.URL.createObjectURL(c);
+        const link = this.mapFileDownloadLink.nativeElement;
+        link.href = url;
+        link.download = this.map.name + '.bsp';
+        link.click();
+        window.URL.revokeObjectURL(url);
+      } else {
+        console.error('Undefined Download URL');
+        this.toasterService.danger('Undefined Download URL', 'Failed to start map file download');
+      }
+    })
+    .catch((err) => {
       console.error(err);
       this.toasterService.danger(err.message, 'Failed to start map file download');
     });
