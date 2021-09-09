@@ -65,42 +65,45 @@ export class MapStoreService {
    * @param options The options for the request
    * @return Retrieves a specific map, and sets it in map$
    */
-   getMap(id: number, options?: object): void {
+   getMap(id: number, options?: object): MomentumMap {
     this.mapsService.getMap(id, options).pipe(
       take(1),
       map((c: MomentumMap) => {
         console.log(`MapStoreService: Received ${c.name}`);
         this.map = c;
       }),
-    );
+    ).subscribe();
+    return this.map;
   }
 
   /**
    * @param options
    * @return a list of maps
    */
-  getMaps(options?: object): void {
+  getMaps(options?: object): MomentumMaps {
     this.mapsService.getMaps(options).pipe(
       take(1),
       map((c: MomentumMaps) => {
         console.log(`MapStoreService: Received ${c.count} maps`);
         this.maps = c;
       }),
-    );
+    ).subscribe();
+    return this.maps;
   }
 
   /**
    * @param options
    * @return a list of maps
    */
-   searchMaps(options?: object): void {
+   searchMaps(options?: object): MomentumMaps {
     this.mapsService.getMaps(options).pipe(
       take(1),
       map((c: MomentumMaps) => {
         console.log(`MapStoreService: Received ${c.count} maps`);
         this.mapsSerach = c;
       }),
-    );
+    ).subscribe();
+    return this.maps;
   }
 
   /**

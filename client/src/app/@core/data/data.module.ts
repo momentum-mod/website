@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 
 import { CookieService } from 'ngx-cookie-service';
 
-import { LocalUserService } from './local-user.service';
+import { LocalUserStoreService } from './local-user/local-user-store.service';
 import { UsersService } from './users.service';
 import { AuthService } from './auth.service';
 import { StateService } from './state.service';
@@ -16,7 +16,7 @@ import {TumblrAPIService} from './tumblr-api.service';
 
 const SERVICES = [
   ActivityStoreService,
-  LocalUserService,
+  LocalUserStoreService,
   UsersService,
   MapStoreService,
   AuthService,
