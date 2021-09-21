@@ -1,13 +1,13 @@
 import {Injectable} from '@angular/core';
 import {ActivatedRouteSnapshot, CanActivate} from '@angular/router';
-import {LocalUserService} from '../data/local-user.service';
+import {LocalUserStoreService} from '../data/local-user/local-user-store.service';
 import {NbToastrService} from '@nebular/theme';
 
 @Injectable({
   providedIn: 'root',
 })
 export class RoleGuard implements CanActivate {
-  constructor(private userService: LocalUserService,
+  constructor(private userService: LocalUserStoreService,
               private toastService: NbToastrService) {
   }
 

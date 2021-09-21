@@ -1,6 +1,6 @@
 import {Component, OnDestroy, OnInit} from '@angular/core';
-import {LocalUserService} from '../../../@core/data/local-user.service';
-import {switchMap, takeUntil} from 'rxjs/operators';
+import {LocalUserStoreService} from '../../../@core/data/local-user/local-user-store.service';
+import { switchMap, takeUntil, map } from 'rxjs/operators';
 import {ActivatedRoute, ParamMap, Router} from '@angular/router';
 import {UsersService} from '../../../@core/data/users.service';
 import {User} from '../../../@core/models/user.model';
@@ -34,7 +34,7 @@ export class UserProfileComponent implements OnInit, OnDestroy {
 
   constructor(private route: ActivatedRoute,
               private router: Router,
-              public userService: LocalUserService,
+              public userService: LocalUserStoreService,
               private usersService: UsersService,
               private toastService: NbToastrService) {
     this.ReportType = ReportType;
@@ -52,14 +52,36 @@ export class UserProfileComponent implements OnInit, OnDestroy {
 
   ngOnInit() {
     this.route.paramMap.pipe(
-      switchMap((params: ParamMap) => {
+      map((params: ParamMap) => {
         if (params.has('id')) {
           const idNum: number = Number(params.get('id'));
-          this.userService.getLocal().pipe(
+          this.userService.localUser$.pipe(
             takeUntil(this.ngUnsub),
-          ).subscribe(usr => {
-            this.isLocal = idNum === usr.id;
-          }, error => {
+            map(c => {
+              if(!c){
+                this.userService.getLocalUser();
+              } else {
+                this.isLocal = idNum === c.id;
+                this.user = c;
+              this.isMapper = this.hasRole(Role.MAPPER);
+              this.isMod = this.hasRole(Role.MODERATOR);
+              this.isAdmin = this.hasRole(Role.ADMIN);
+              this.isVerified = this.hasRole(Role.VERIFIED);
+              this.userSubj$.next(c);
+              if (!this.hasBan(Ban.BANNED_AVATAR) && this.user.avatarURL) {
+                this.avatar_url = this.user.avatarURL;
+              }
+              this.avatar_loaded = true;
+              this.usersService.getUserFollows(this.user).subscribe(resp => {
+                this.followingUsers = resp.followed;
+              }, err => this.toastService.danger(err.message, 'Could not retrieve user follows'));
+              this.usersService.getFollowersOfUser(this.user).subscribe(resp => {
+                this.followedByUsers = resp.followers;
+              }, err => this.toastService.danger(err.message, 'Could not retrieve user following'));
+              }
+            }),
+          ).subscribe(() => {},
+          error => {
             this.toastService.danger(error.message, 'Cannot get user profile');
           });
           return this.usersService.getUser(idNum, {
@@ -73,24 +95,7 @@ export class UserProfileComponent implements OnInit, OnDestroy {
         }
       },
       ),
-    ).subscribe(usr => {
-      this.user = usr;
-      this.isMapper = this.hasRole(Role.MAPPER);
-      this.isMod = this.hasRole(Role.MODERATOR);
-      this.isAdmin = this.hasRole(Role.ADMIN);
-      this.isVerified = this.hasRole(Role.VERIFIED);
-      this.userSubj$.next(usr);
-      if (!this.hasBan(Ban.BANNED_AVATAR) && this.user.avatarURL) {
-        this.avatar_url = this.user.avatarURL;
-      }
-      this.avatar_loaded = true;
-      this.usersService.getUserFollows(this.user).subscribe(resp => {
-        this.followingUsers = resp.followed;
-      }, err => this.toastService.danger(err.message, 'Could not retrieve user follows'));
-      this.usersService.getFollowersOfUser(this.user).subscribe(resp => {
-        this.followedByUsers = resp.followers;
-      }, err => this.toastService.danger(err.message, 'Could not retrieve user following'));
-    }, error => {
+    ).subscribe(() => {}, error => {
       this.toastService.danger(error.message, 'Cannot get user details');
     });
   }

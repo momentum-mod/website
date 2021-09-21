@@ -1,5 +1,6 @@
 import {Component} from '@angular/core';
-import {LocalUserService} from '../../../@core/data/local-user.service';
+import { map } from 'rxjs/operators';
+import {LocalUserStoreService} from '../../../@core/data/local-user/local-user-store.service';
 import {User} from '../../../@core/models/user.model';
 
 @Component({
@@ -11,12 +12,18 @@ export class DashboardHomeComponent {
 
   user: User;
 
-  constructor(public locUsrService: LocalUserService) {
+  constructor(public locUsrService: LocalUserStoreService) {
     this.locUsrService.getLocalUser({
       params: { expand: 'stats' },
-    }).subscribe(res => {
-      this.user = res;
-    }, err => {
+    });
+    this.locUsrService.localUser$.pipe(
+      map(c => {
+        if(c) {
+          this.user = c;
+        }
+      }),
+    ).subscribe(() => {},
+    err => {
       console.error(err);
     });
   }

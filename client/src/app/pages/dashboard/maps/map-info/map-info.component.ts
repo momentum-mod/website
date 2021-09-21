@@ -1,9 +1,9 @@
 import {Component, Input, OnDestroy, OnInit} from '@angular/core';
 import {ActivatedRoute, ParamMap, Router} from '@angular/router';
-import {switchMap, takeUntil} from 'rxjs/operators';
-import {MapsService} from '../../../../@core/data/maps.service';
+import {map, switchMap, takeUntil} from 'rxjs/operators';
+import {MapStoreService} from '../../../../@core/data/maps/map-store.service';
 import {MomentumMap} from '../../../../@core/models/momentum-map.model';
-import {LocalUserService} from '../../../../@core/data/local-user.service';
+import {LocalUserStoreService} from '../../../../@core/data/local-user/local-user-store.service';
 import {Gallery, GalleryRef, GalleryConfig, ImageItem, YoutubeItem} from '@ngx-gallery/core';
 import {MapImage} from '../../../../@core/models/map-image.model';
 import {Role} from '../../../../@core/models/role.model';
@@ -51,8 +51,8 @@ export class MapInfoComponent implements OnInit, OnDestroy {
 
   constructor(private route: ActivatedRoute,
               private router: Router,
-              private mapService: MapsService,
-              private locUserService: LocalUserService,
+              private mapService: MapStoreService,
+              private locUserService: LocalUserStoreService,
               private toastService: NbToastrService,
               private dialogService: NbDialogService,
               private gallery: Gallery) {
@@ -77,34 +77,41 @@ export class MapInfoComponent implements OnInit, OnDestroy {
       this.updateGallery(galleryRef, this.previewMap.images, this.previewMap.map.info.youtubeID);
     } else {
       this.route.paramMap.pipe(
-        switchMap((params: ParamMap) =>
-          this.mapService.getMap(Number(params.get('id')), {
-            params: {expand: 'info,credits,submitter,stats,images,inFavorites,inLibrary,tracks'},
-          }),
+        takeUntil(this.ngUnsub),
+        map((params: ParamMap) => {
+            this.mapService.getMap(Number(params.get('id')), {
+              params: {expand: 'info,credits,submitter,stats,images,inFavorites,inLibrary,tracks'},
+            });
+          },
         ),
-      ).subscribe(map => {
-        this.map = map;
-        this.locUserService.checkMapNotify(this.map.id).subscribe(resp => {
-          this.mapNotify = resp;
-          if (resp)
-            this.mapNotifications = true;
-        }, err => {
-          if (err.status !== 404)
-            this.toastService.danger(err.message, 'Could not check if following');
-        });
-        if (this.map.favorites && this.map.favorites.length)
-          this.mapInFavorites = true;
-        if (this.map.libraryEntries && this.map.libraryEntries.length)
-          this.mapInLibrary = true;
-        this.updateGallery(galleryRef, map.images, map.info.youtubeID);
-        this.locUserService.getLocal().pipe(
-          takeUntil(this.ngUnsub),
-        ).subscribe(locUser => {
-          this.isAdmin = this.locUserService.hasRole(Role.ADMIN, locUser);
-          this.isModerator = this.locUserService.hasRole(Role.MODERATOR, locUser);
-          this.isSubmitter = this.map.submitterID === locUser.id;
-        });
-      });
+      ).subscribe();
+
+      this.mapService.map$.pipe(
+        takeUntil(this.ngUnsub),
+        map(c => {
+          this.map = c;
+          this.locUserService.checkMapNotify(this.map.id).subscribe(resp => {
+            this.mapNotify = resp;
+            if (resp)
+              this.mapNotifications = true;
+          }, err => {
+            if (err.status !== 404)
+              this.toastService.danger(err.message, 'Could not check if following');
+          });
+          if (this.map.favorites && this.map.favorites.length)
+            this.mapInFavorites = true;
+          if (this.map.libraryEntries && this.map.libraryEntries.length)
+            this.mapInLibrary = true;
+          this.updateGallery(galleryRef, c.images, c.info.youtubeID);
+          this.locUserService.localUser$.pipe(
+            takeUntil(this.ngUnsub),
+          ).subscribe(locUser => {
+            this.isAdmin = this.locUserService.hasRole(Role.ADMIN, locUser);
+            this.isModerator = this.locUserService.hasRole(Role.MODERATOR, locUser);
+            this.isSubmitter = this.map.submitterID === locUser.id;
+          });
+        }),
+      ).subscribe();
     }
   }
 

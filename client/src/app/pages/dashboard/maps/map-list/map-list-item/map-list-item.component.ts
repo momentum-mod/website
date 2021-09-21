@@ -1,6 +1,6 @@
 import {Component, EventEmitter, Input, OnInit, Output} from '@angular/core';
 import {MomentumMap} from '../../../../../@core/models/momentum-map.model';
-import {LocalUserService} from '../../../../../@core/data/local-user.service';
+import {LocalUserStoreService} from '../../../../../@core/data/local-user/local-user-store.service';
 import {getStatusFromEnum} from '../../../../../@core/models/map-upload-status.model';
 import {NbToastrService} from '@nebular/theme';
 
@@ -22,7 +22,7 @@ export class MapListItemComponent implements OnInit {
   mapInLibrary: boolean;
   status: String;
 
-  constructor(private localUserService: LocalUserService,
+  constructor(private localUserService: LocalUserStoreService,
               private toastService: NbToastrService) {
     this.inLibrary = false;
     this.inFavorites = false;

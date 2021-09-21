@@ -67,6 +67,30 @@ export class LocalUserStoreService {
     return this._mapFavorites.value;
   }
 
+  // user submitted maps
+  private _submittedMaps: BehaviorSubject<MomentumMaps> = new BehaviorSubject(null);
+  public readonly submittedMaps$: Observable<MomentumMaps> = this._submittedMaps.asObservable();
+
+  set submittedMaps(newSubmitedMaps: MomentumMaps) {
+    this._submittedMaps.next(newSubmitedMaps);
+  }
+
+  get submittedMaps() {
+    return this._submittedMaps.value;
+  }
+
+  private _submittedMapsSummary: BehaviorSubject<MapSubmissionSummaryElement[]> =
+    new BehaviorSubject(null);
+  public readonly submittedMapsSummary$: Observable<MapSubmissionSummaryElement[]> =
+    this._submittedMapsSummary.asObservable();
+
+  set submittedMapsSummary(newSummary: MapSubmissionSummaryElement[]) {
+    this._submittedMapsSummary.next(newSummary);
+  }
+
+  get submittedMapsSummary() {
+    return this._submittedMapsSummary.value;
+  }
 
   public async refreshLocal(): Promise<void> {
     this.localUser = await this.localUserService.getLocalUser({
@@ -162,7 +186,7 @@ export class LocalUserStoreService {
       }),
     ).subscribe();
 
-    return this.mapFavorites;
+    return this.mapFavorites; // This will always return null/last value due to timing dummy
   }
 
   /**
@@ -199,15 +223,22 @@ export class LocalUserStoreService {
    * @param options
    * @return retrieve all submitted maps
    */
-  public getSubmittedMaps(options?: object): Observable<MomentumMaps> {
-    throw new Error('NOT IMPLMENTED');
+  public getSubmittedMaps(options?: object): MomentumMaps {
+    this.localUserService.getSubmittedMaps(options).pipe(
+      take(1),
+      map(c => {
+        this.submittedMaps = c;
+      }),
+    ).subscribe();
+
+    return this.submittedMaps; // This will always return null/last value due to timing dummy
   }
 
   /**
    * @return retrieve summary of the user's submitted maps
    */
   public getSubmittedMapSummary(): Observable<MapSubmissionSummaryElement[]> {
-    throw new Error('NOT IMPLMENTED');
+    return this.localUserService.getSubmittedMapSummary();
   }
 
   /**

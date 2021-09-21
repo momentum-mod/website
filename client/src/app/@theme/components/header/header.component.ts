@@ -1,12 +1,12 @@
 import {Component, OnDestroy, OnInit} from '@angular/core';
 import {NbMenuItem, NbMenuService, NbSidebarService} from '@nebular/theme';
-import {LocalUserService} from '../../../@core/data/local-user.service';
+import {LocalUserStoreService} from '../../../@core/data/local-user/local-user-store.service';
 import {AnalyticsService} from '../../../@core/utils/analytics.service';
 import {LayoutService} from '../../../@core/data/layout.service';
 import {User} from '../../../@core/models/user.model';
 import {NotificationsService} from '../../../@core/utils/notifications.service';
 import {SiteNotification} from '../../../@core/models/notification.model';
-import {takeUntil} from 'rxjs/operators';
+import { takeUntil, map } from 'rxjs/operators';
 import {Subject} from 'rxjs';
 
 @Component({
@@ -38,7 +38,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
 
   constructor(private sidebarService: NbSidebarService,
               private menuService: NbMenuService,
-              private userService: LocalUserService,
+              private userService: LocalUserStoreService,
               private analyticsService: AnalyticsService,
               private layoutService: LayoutService,
               private notificationService: NotificationsService) {
@@ -50,11 +50,15 @@ export class HeaderComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit() {
-    this.userService.getLocal().pipe(
+    this.userService.localUser$.pipe(
       takeUntil(this.ngUnsub),
-    ).subscribe(usr => {
-      this.user = usr;
-    });
+      map(c => {
+        if(c)
+        {
+          this.user = c;
+        }
+      }),
+    ).subscribe();
     this.notificationService.notifications.subscribe(notifs => {
       this.notifications = notifs;
       this.numUnreadNotifs = this.notifications.filter(notif => notif.read === false).length;

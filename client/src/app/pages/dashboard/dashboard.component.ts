@@ -1,7 +1,7 @@
 import {Component, OnInit} from '@angular/core';
 import {NbMenuItem} from '@nebular/theme';
 import {MENU_ITEMS} from './dashboard-menu';
-import {LocalUserService} from '../../@core/data/local-user.service';
+import {LocalUserStoreService} from '../../@core/data/local-user/local-user-store.service';
 import {NotificationsService} from '../../@core/utils/notifications.service';
 
 @Component({
@@ -16,7 +16,7 @@ import {NotificationsService} from '../../@core/utils/notifications.service';
 export class DashboardComponent implements OnInit {
   menu = MENU_ITEMS;
 
-  constructor(private userService: LocalUserService,
+  constructor(private userService: LocalUserStoreService,
               private notificationService: NotificationsService) {
     this.notificationService.inject();
   }

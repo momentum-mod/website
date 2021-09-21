@@ -1,10 +1,10 @@
 import {Component, OnDestroy, OnInit, ViewChild} from '@angular/core';
-import {LocalUserService} from '../../../../@core/data/local-user.service';
+import {LocalUserStoreService} from '../../../../@core/data/local-user/local-user-store.service';
 import {FormBuilder, FormGroup, Validators} from '@angular/forms';
 import {AuthService} from '../../../../@core/data/auth.service';
 import {ActivatedRoute, ParamMap, Router} from '@angular/router';
 import {UsersService} from '../../../../@core/data/users.service';
-import {switchMap, takeUntil} from 'rxjs/operators';
+import {map, switchMap, takeUntil} from 'rxjs/operators';
 import {of, Subject} from 'rxjs';
 import {Role} from '../../../../@core/models/role.model';
 import {Ban} from '../../../../@core/models/ban.model';
@@ -58,7 +58,7 @@ export class ProfileEditComponent implements OnInit, OnDestroy {
 
   constructor(private route: ActivatedRoute,
               private router: Router,
-              private localUserService: LocalUserService,
+              private localUserService: LocalUserStoreService,
               private usersService: UsersService,
               private adminService: AdminService,
               private authService: AuthService,
@@ -86,14 +86,19 @@ export class ProfileEditComponent implements OnInit, OnDestroy {
           }).subscribe(usr => this.setUser(usr));
         }
       }
-      this.localUserService.getLocal().pipe(
+      this.localUserService.localUser$.pipe(
         takeUntil(this.ngUnSub),
-      ).subscribe(usr => {
-        this.isAdmin = this.localUserService.hasRole(Role.ADMIN, usr);
-        this.isModerator = this.localUserService.hasRole(Role.MODERATOR, usr);
-        if (this.isLocal)
-          this.setUser(usr);
-      });
+        map(c => {
+          if(!c){
+            this.localUserService.getLocalUser();
+          } else {
+            this.isAdmin = this.localUserService.hasRole(Role.ADMIN, c);
+            this.isModerator = this.localUserService.hasRole(Role.MODERATOR, c);
+            if (this.isLocal)
+              this.setUser(c);
+          }
+        }),
+      ).subscribe();
     });
   }
 

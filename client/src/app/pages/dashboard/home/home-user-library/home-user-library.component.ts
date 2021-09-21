@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import {MomentumMap} from '../../../../@core/models/momentum-map.model';
-import {LocalUserService} from '../../../../@core/data/local-user.service';
+import {LocalUserStoreService} from '../../../../@core/data/local-user/local-user-store.service';
 
 @Component({
   selector: 'home-user-library',
@@ -12,7 +12,7 @@ export class HomeUserLibraryComponent implements OnInit {
   mapLibraryCount: number;
   mostRecentlyAddedMap: MomentumMap;
 
-  constructor(private userService: LocalUserService) {
+  constructor(private userService: LocalUserStoreService) {
   }
 
   ngOnInit() {

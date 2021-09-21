@@ -38,5 +38,8 @@
     "swagger-jsdoc": "4.0.0",
     "swagger-ui-express": "4.1.4",
     "xml2js": "0.4.23"
+  },
+  "devDependencies": {
+    "faker": "^5.5.3"
   }
 }

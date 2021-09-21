@@ -1,7 +1,7 @@
 import {Component, Input, OnInit} from '@angular/core';
 import {ReplaySubject} from 'rxjs';
 import {User} from '../../../../@core/models/user.model';
-import {LocalUserService} from '../../../../@core/data/local-user.service';
+import {LocalUserStoreService} from '../../../../@core/data/local-user/local-user-store.service';
 import {NbDialogService, NbToastrService} from '@nebular/theme';
 import {finalize} from 'rxjs/operators';
 import {UserFollowObject} from '../../../../@core/models/follow.model';
@@ -19,7 +19,7 @@ export class ProfileFollowComponent implements OnInit {
   localFollowStatus: UserFollowObject; // The follow object of the local user following target user
   targetFollowStatus: UserFollowObject; // The follow object of the target user following local user
   checked: boolean;
-  constructor(private localUserService: LocalUserService,
+  constructor(private localUserService: LocalUserStoreService,
               private toastService: NbToastrService,
               private dialogService: NbDialogService) {
     this.user = null;

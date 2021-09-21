@@ -26,7 +26,7 @@ const config = {
 			consumerSecret: '*lemme tell ya somethin youd like to hear*',
 		},
 		steam: {
-			webAPIKey: process.env.STEAM_WEB_API_KEY,
+			webAPIKey: "",
 			preventLimited: true,
 		},
 		db: {
@@ -57,19 +57,19 @@ const config = {
 			gameExpTime: '24h'
 		},
 		discord: {
-			clientID: process.env.DISCORD_CLIENT_ID,
-			clientSecret: process.env.DISCORD_CLIENT_SECRET,
+			clientID: 'discord1234',
+			clientSecret: 'shhhhh!',
 		},
 		twitch: {
-			clientID: process.env.TWITCH_CLIENT_ID,
-			clientSecret: process.env.TWITCH_CLIENT_SECRET,
+			clientID: 'twitch1234',
+			clientSecret: '*hey lil mama lemme whisper in your ear*',
 		},
 		twitter: {
-			consumerKey: process.env.TWITTER_CONSUMER_KEY,
-			consumerSecret: process.env.TWITTER_CONSUMER_SECRET,
+			consumerKey: 'twitter12354',
+			consumerSecret: '*lemme tell ya somethin youd like to hear*',
 		},
 		steam: {
-			webAPIKey: process.env.STEAM_WEB_API_KEY,
+			webAPIKey: "53CFFA7DF2E482BE3D0DEE461366868D",
 			preventLimited: true,
 		},
 		db: {

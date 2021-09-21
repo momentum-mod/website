@@ -1,12 +1,12 @@
 import {AfterViewInit, Component, OnInit, ViewChild} from '@angular/core';
 import {HttpEvent, HttpEventType} from '@angular/common/http';
 import {Router} from '@angular/router';
-import {MapsService} from '../../../../@core/data/maps.service';
+import {MapStoreService} from '../../../../@core/data/maps/map-store.service';
 import {FormBuilder, FormGroup, Validators} from '@angular/forms';
 import {User} from '../../../../@core/models/user.model';
 import {MapCreditType} from '../../../../@core/models/map-credit-type.model';
 import {MomentumMapType} from '../../../../@core/models/map-type.model';
-import {LocalUserService} from '../../../../@core/data/local-user.service';
+import {LocalUserStoreService} from '../../../../@core/data/local-user/local-user-store.service';
 import {MapTrack} from '../../../../@core/models/map-track.model';
 import * as VDF from '@node-steam/vdf';
 import {MapZone} from '../../../../@core/models/map-zone.model';
@@ -77,9 +77,9 @@ export class MapUploadFormComponent implements OnInit, AfterViewInit {
   get description() { return this.infoForm.get('description'); }
   get creationDate() { return this.infoForm.get('creationDate'); }
 
-  constructor(private mapsService: MapsService,
+  constructor(private mapsService: MapStoreService,
               private router: Router,
-              private localUsrService: LocalUserService,
+              private localUsrService: LocalUserStoreService,
               private toasterService: NbToastrService,
               private fb: FormBuilder) {
     this.stepper = null;
@@ -236,8 +236,8 @@ export class MapUploadFormComponent implements OnInit, AfterViewInit {
     this.mapsService.createMap(mapObject)
       .pipe(
         mergeMap(res => {
-          mapID = res.body.id;
-          uploadLocation = res.headers.get('Location');
+          mapID = res.id;
+          // uploadLocation = res.headers.get('Location'); // Bro what?! Headers holding data really?!
           mapCreated = true;
           this.toasterService.success('Please wait for the map file to upload', 'Map successfully created');
           return this.mapsService.updateMapAvatar(mapID, this.avatarFile);

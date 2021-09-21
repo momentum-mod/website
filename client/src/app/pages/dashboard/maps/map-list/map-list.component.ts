@@ -2,12 +2,12 @@
 import {Component, Input, OnInit} from '@angular/core';
 import {MomentumMap} from '../../../../@core/models/momentum-map.model';
 import {FormBuilder, FormGroup} from '@angular/forms';
-import {MapsService} from '../../../../@core/data/maps.service';
+import {MapStoreService} from '../../../../@core/data/maps/map-store.service';
 import {MapAPIQueryParams} from '../../../../@core/models/map-api-query-params.model';
 import {finalize, map} from 'rxjs/operators';
 import {ActivatedRoute, ParamMap} from '@angular/router';
-import {LocalUserService} from '../../../../@core/data/local-user.service';
-import {Observable} from 'rxjs';
+import {LocalUserStoreService} from '../../../../@core/data/local-user/local-user-store.service';
+import { Observable, of as observableOf } from 'rxjs';
 import {NbLayoutScrollService, NbToastrService} from '@nebular/theme';
 import {MapUploadStatus, getStatusFromEnum} from '../../../../@core/models/map-upload-status.model';
 import {MomentumMapType, getTypeFromEnum} from '../../../../@core/models/map-type.model';
@@ -53,10 +53,10 @@ export class MapListComponent implements OnInit {
   };
 
   constructor(private route: ActivatedRoute,
-              private mapService: MapsService,
+              private mapService: MapStoreService,
               private toasterService: NbToastrService,
               private scrollService: NbLayoutScrollService,
-              private locUsrService: LocalUserService,
+              private locUsrService: LocalUserStoreService,
               private fb: FormBuilder) {
     this.pageLimit = 10;
     this.currentPage = 1;
@@ -155,12 +155,16 @@ export class MapListComponent implements OnInit {
       observer = this.locUsrService.getMapLibrary(options)
         .pipe(map(res => ({count: res.count, maps: res.entries.map(val => val.map)})));
     } else if (this.type === MapListType.TYPE_FAVORITES) {
-      observer = this.locUsrService.getMapFavorites(options)
-        .pipe(map(res => ({count: res.count, maps: res.favorites.map(val => val.map)})));
+      this.locUsrService.getMapFavorites(options);
+      observer = this.locUsrService.mapFavorites$
+      .pipe(map(res => ({count: res.count, maps: res.favorites.map(val => val.map)})));
     } else if (this.type === MapListType.TYPE_UPLOADS) {
-      observer = this.locUsrService.getSubmittedMaps(options);
+      this.locUsrService.getSubmittedMaps(options);
+      observer = this.locUsrService.submittedMaps$
+      .pipe(map(res => ({count: res.count, maps: res.maps})));
     } else {
-      observer = this.mapService.getMaps(options);
+      this.mapService.getMaps(options);
+      observer = this.mapService.maps$;
     }
 
     observer.pipe(finalize(() => this.requestSent = true))

@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import {LocalUserService} from '../../../../@core/data/local-user.service';
+import {LocalUserStoreService} from '../../../../@core/data/local-user/local-user-store.service';
 import {MapUploadStatus} from '../../../../@core/models/map-upload-status.model';
 
 @Component({
@@ -12,7 +12,7 @@ export class HomeUserMapsComponent implements OnInit {
   MapUploadStatus: typeof MapUploadStatus = MapUploadStatus;
   submittedMapStatusSummary;
 
-  constructor(private userService: LocalUserService) {
+  constructor(private userService: LocalUserStoreService) {
     this.submittedMapStatusSummary = {};
   }
 
