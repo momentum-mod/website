@@ -37,12 +37,11 @@ module.exports = {
 				},
 			]
 		};
-		if (queryParams.limit) {
-			if (queryParams.limit === 0) {
-				delete queryOptions.limit;
-			} else {
-				queryOptions.limit = queryParams.limit;
-			}
+		if ( queryParams.limit === 0 ) {
+			delete queryOptions.limit;
+		}
+		else if (queryParams.limit) {
+			queryOptions.limit = queryParams.limit;
 		}
 		if (queryParams.offset)
 			queryOptions.offset = queryParams.offset;
