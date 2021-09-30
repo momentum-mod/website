@@ -1,10 +1,10 @@
 import { TestBed } from '@angular/core/testing';
 import { StatsService } from './stats.service';
-import { GlobalBaseStats } from '../models/global-base-stats.model';
-import { GlobalMapStats } from '../models/global-map-stats.model';
+import { GlobalBaseStats } from '../../models/global-base-stats.model';
+import { GlobalMapStats } from '../../models/global-map-stats.model';
 import {of} from 'rxjs';
 import {HttpClientModule} from '@angular/common/http';
-import {MomentumMapType} from '../models/map-type.model';
+import {MomentumMapType} from '../../models/map-type.model';
 
 let httpClientSpy: { get: jasmine.Spy  };
 let statsService: StatsService;
