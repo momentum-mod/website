@@ -156,7 +156,7 @@ export class MapListComponent implements OnInit {
         .pipe(map(res => ({count: res.count, maps: res.entries.map(val => val.map)})));
     } else if (this.type === MapListType.TYPE_FAVORITES) {
       this.locUsrService.getMapFavorites(options);
-      observer = this.locUsrService.mapFavorites$
+      observer = this.locUsrService.favoriteMaps$
       .pipe(map(res => ({count: res.count, maps: res.favorites.map(val => val.map)})));
     } else if (this.type === MapListType.TYPE_UPLOADS) {
       this.locUsrService.getSubmittedMaps(options);

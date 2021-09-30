@@ -1,6 +1,8 @@
 // Operators/Node Modules
 import { Injectable } from '@angular/core';
 import {CookieService} from 'ngx-cookie-service';
+import { BehaviorSubject, Observable, of } from 'rxjs';
+import { map, take } from 'rxjs/operators';
 
 // Services
 import { LocalUserService } from './local-user.service';
@@ -19,8 +21,6 @@ import {MomentumMaps} from '../../models/momentum-maps.model';
 import {MapSubmissionSummaryElement} from '../../models/map-submission-summary-element.model';
 import {UserCredits} from '../../models/user-credits.model';
 import {MapNotify} from '../../models/map-notify.model';
-import { BehaviorSubject, Observable } from 'rxjs';
-import { map, take } from 'rxjs/operators';
 
 @Injectable()
 export class LocalUserStoreService {
@@ -55,16 +55,16 @@ export class LocalUserStoreService {
     return this._localUser.value;
   }
 
-  // user map favorites
-  private _mapFavorites: BehaviorSubject<MapFavorites> = new BehaviorSubject(null);
-  public readonly mapFavorites$: Observable<MapFavorites> = this._mapFavorites.asObservable();
+  // user favorite maps
+  private _favoriteMaps: BehaviorSubject<MapFavorites> = new BehaviorSubject(null);
+  public readonly favoriteMaps$: Observable<MapFavorites> = this._favoriteMaps.asObservable();
 
-  set mapFavorites(newMaps: MapFavorites) {
-    this._mapFavorites.next(newMaps);
+  set favoriteMaps(newMaps: MapFavorites) {
+    this._favoriteMaps.next(newMaps);
   }
 
-  get mapFavorites() {
-    return this._mapFavorites.value;
+  get favoriteMaps() {
+    return this._favoriteMaps.value;
   }
 
   // user submitted maps
@@ -151,7 +151,7 @@ export class LocalUserStoreService {
    * @param mapID ID of a specific map
    * @return adds map to user library
    */
-  public addMapToLibrary(mapID: number) {
+  public addMapToLibrary(mapID: number): Observable<any> {
     // TODO: Type responce
     return this.localUserService.addMapToLibrary(mapID);
   }
@@ -160,7 +160,7 @@ export class LocalUserStoreService {
    * @param mapID ID of a specific map
    * @return remove map from user library
    */
-  public removeMapFromLibrary(mapID: number) {
+  public removeMapFromLibrary(mapID: number): Observable<any> {
     // TODO: Type responce
     return this.localUserService.removeMapFromLibrary(mapID);
   }
@@ -169,7 +169,7 @@ export class LocalUserStoreService {
    * @param mapID ID of a specific map
    * @return the added map in library
    */
-  public isMapInLibrary(mapID: number) {
+  public isMapInLibrary(mapID: number): Observable<any> {
     // TODO: Type responce
     return this.localUserService.isMapInLibrary(mapID);
   }
@@ -182,33 +182,60 @@ export class LocalUserStoreService {
     this.localUserService.getMapFavorites(options).pipe(
       take(1),
       map(c => {
-        this.mapFavorites = c;
+        this.favoriteMaps = c;
       }),
     ).subscribe();
 
-    return this.mapFavorites; // This will always return null/last value due to timing dummy
+    return this.favoriteMaps; // This will always return null/last value due to timing dummy
   }
 
   /**
+   * @description Tries to get a map favorite from the store, if it
+   * is not in there, then queries the API for it and adds it to the store.
    * @param mapID ID of a specific map
    * @return a map favorite
    */
   public getMapFavorite(mapID: number): Observable<MapFavorite> {
-    return this.localUserService.getMapFavorite(mapID);
+    if(this.favoriteMaps.favorites.filter(c => c.id === mapID).length > 0){
+      return of(this.favoriteMaps.favorites.filter(c => c.id === mapID)[0]);
+    }
+
+    let result: MapFavorite;
+    this.localUserService.getMapFavorite(mapID).pipe(
+      take(1),
+      map(c => {
+        // Doing this will polute the store
+        this.favoriteMaps.count++;
+        this.favoriteMaps.favorites.push(c);
+        result = c;
+      }),
+    ).subscribe();
+    return of(result);
   }
 
   /**
    * @param mapID
    */
   public addMapToFavorites(mapID: number): Observable<any> {
-    throw new Error('NOT IMPLMENTED');
+    const result = this.localUserService.addMapToFavorites(mapID);
+    this.getMapFavorite(mapID);
+    return result;
   }
 
   /**
    * @param mapID
    */
   public removeMapFromFavorites(mapID: number): Observable<any> {
-    throw new Error('NOT IMPLMENTED');
+    const result = this.localUserService.removeMapFromFavorites(mapID);
+    const favIndex = this.favoriteMaps.favorites.findIndex((c => c.mapID === mapID));
+    if (favIndex > -1) {
+      this.favoriteMaps.favorites.splice(favIndex, 1);
+      this.favoriteMaps.count--;
+    } else {
+      console.warn('Could not find map favorite in store.');
+    }
+
+    return result;
   }
 
   /**
@@ -216,7 +243,7 @@ export class LocalUserStoreService {
    * @return A list of credits featuring the local user
    */
   public getMapCredits(options?: object): Observable<UserCredits> {
-    throw new Error('NOT IMPLMENTED');
+    return this.localUserService.getMapCredits(options);
   }
 
   /**
@@ -246,7 +273,7 @@ export class LocalUserStoreService {
    * @return A json object with two booleans determining follow relationship
    */
   public checkFollowStatus(user: User): Observable<FollowStatus> {
-    throw new Error('NOT IMPLMENTED');
+    return this.localUserService.checkFollowStatus(user);
   }
 
   /**
@@ -254,7 +281,7 @@ export class LocalUserStoreService {
    * @return update user following
    */
   public followUser(user: User): Observable<UserFollowObject> {
-    throw new Error('NOT IMPLMENTED');
+    return this.localUserService.followUser(user);
   }
 
   /**
@@ -263,7 +290,7 @@ export class LocalUserStoreService {
    * @return update the following status on the user's profile
    */
   public updateFollowStatus(user: User, notifyOn: number): Observable<any> {
-    throw new Error('NOT IMPLMENTED');
+    return this.localUserService.updateFollowStatus(user, notifyOn);
   }
 
   /**
@@ -271,7 +298,7 @@ export class LocalUserStoreService {
    * @return user us unfollowed
    */
   public unfollowUser(user: User): Observable<any> {
-    throw new Error('NOT IMPLMENTED');
+    return this.localUserService.unfollowUser(user);
   }
 
   /**
@@ -279,7 +306,7 @@ export class LocalUserStoreService {
   * @return A json object with the potential map and the activity type for notificaions
   */
   public checkMapNotify(mapID: number): Observable<MapNotify> {
-    throw new Error('NOT IMPLMENTED');
+    return this.localUserService.checkMapNotify(mapID);
   }
 
   /**
@@ -288,7 +315,7 @@ export class LocalUserStoreService {
    * @return update the map notification status on the user's profile
    */
   public updateMapNotify(mapID: number, notifyOn: number): Observable<any> {
-    throw new Error('NOT IMPLMENTED');
+    return this.localUserService.updateMapNotify(mapID, notifyOn);
   }
 
   /**
@@ -296,10 +323,10 @@ export class LocalUserStoreService {
    * @return Notifications disabled for map
    */
   public disableMapNotify(mapID: number): Observable<any> {
-    throw new Error('NOT IMPLMENTED');
+    return this.localUserService.disableMapNotify(mapID);
   }
 
   public resetAliasToSteamAlias(): Observable<any> {
-    throw new Error('NOT IMPLMENTED');
+    return this.localUserService.resetAliasToSteamAlias();
   }
 }
