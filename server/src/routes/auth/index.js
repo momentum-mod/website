@@ -25,7 +25,7 @@ router.route('/steam/return')
 				next(err);
 			else if (!user) {
 				if (msg && msg.message)
-					res.cookie('errMsg', msg.message);
+					res.cookie('errMsg', msg.message, { domain: config.domain });
 				res.redirect('/');
 			}
 			else {
