@@ -19,7 +19,8 @@ const express = require('express'),
 	{ errors, isCelebrate } = require('celebrate'),
 	bunyan = require('bunyan'),
 	seq = require('bunyan-seq'),
-	bunyanMiddleware = require('bunyan-middleware');
+	bunyanMiddleware = require('bunyan-middleware'),
+	cors = require('cors');
 
 const swaggerSpec = swaggerJSDoc({
 	swaggerDefinition: swaggerDefinition,
@@ -75,6 +76,7 @@ module.exports = (app, config) => {
 		app.use(bunyanMiddleware({ logger: logger }));
 	}
 
+	app.use(cors({ origin: config.domain }));
 	app.use(express.json());
 	app.use(compress());
 	app.use(express.static(config.root + '/public'));
