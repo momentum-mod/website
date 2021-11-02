@@ -13,8 +13,16 @@ export STEAM_WEB_API_KEY=
 export MOM_DATABASE_USER=
 export MOM_DATABASE_PW=
 export MOM_DATABASE_HOST=
+
 # The base URL of your website
 export BASE_URL=
+# The API URL of your website, can be the same as BASE_URL
+export API_URL=
+# The Auth URL of your website, can be the same as BASE_URL
+export AUTH_URL=
+# The CDN URL of your website, can be the same as BASE_URL
+export CDN_URL=
+
 # The Twitter consumer Key and Secret for using their API
 export TWITTER_CONSUMER_KEY=
 export TWITTER_CONSUMER_SECRET=

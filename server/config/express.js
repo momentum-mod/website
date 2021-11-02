@@ -87,8 +87,8 @@ module.exports = (app, config) => {
 	}));
 
 	passport.use(new SteamStrategy({
-		returnURL: config.baseUrl + '/auth/steam/return',
-		realm: config.baseUrl,
+		returnURL: config.baseURL_Auth + '/auth/steam/return',
+		realm: config.baseURL,
 		apiKey: config.steam.webAPIKey
 	}, (openID, profile, done) => {
 		const identifierRegex = /^https?:\/\/steamcommunity\.com\/openid\/id\/(\d+)$/;
@@ -141,7 +141,7 @@ module.exports = (app, config) => {
 	passport.use(new DiscordStrategy({
 		clientID: config.discord.clientID,
 		clientSecret: config.discord.clientSecret,
-		callbackURL: config.baseUrl + '/auth/discord/return',
+		callbackURL: config.baseURL_Auth + '/auth/discord/return',
 		scope: ['identify'],
 	}, (token, refresh, profile, cb) => {
 		profile.token = token;
@@ -152,7 +152,7 @@ module.exports = (app, config) => {
 	passport.use(new TwitchStrategy({
 		clientID: config.twitch.clientID,
 		clientSecret: config.twitch.clientSecret,
-		callbackURL: config.baseUrl + '/auth/twitch/return',
+		callbackURL: config.baseURL_Auth + '/auth/twitch/return',
 		scope: 'user_read',
 	}, (token, refresh, profile, cb) => {
 		profile.token = token;
