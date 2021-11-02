@@ -24,7 +24,7 @@ module.exports = {
 				delete req.session.referrer;
 				res.redirect(referrer);
 			} else {
-				res.redirect('/dashboard');
+				res.redirect(config.baseURL + '/dashboard');
 			}
 		}).catch(next);
 	},

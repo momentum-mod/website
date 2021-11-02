@@ -5,7 +5,10 @@ const path = require('path'),
 const config = {
 	test: {
 		root: rootPath,
-		baseUrl: 'http://localhost:3002',
+		baseURL: 'http://localhost:3002',
+		baseURL_API: 'http://localhost:3002',
+		baseURL_Auth: 'http://localhost:3002',
+		baseURL_CDN: 'http://localhost:3002',
 		domain: 'localhost',
 		port: 3002,
 		accessToken: {
@@ -48,7 +51,10 @@ const config = {
 	},
 	development: {
 		root: rootPath,
-		baseUrl: 'http://localhost:3002',
+		baseURL: 'http://localhost:3002',
+		baseURL_API: 'http://localhost:3002',
+		baseURL_Auth: 'http://localhost:3002',
+		baseURL_CDN: 'http://localhost:3002',
 		domain: 'localhost',
 		port: 3002,
 		accessToken: {
@@ -91,7 +97,10 @@ const config = {
 	},
 	production: {
 		root: rootPath,
-		baseUrl: process.env.BASE_URL,
+		baseURL: process.env.BASE_URL,
+		baseURL_API: process.env.API_URL,
+		baseURL_Auth: process.env.AUTH_URL,
+		baseURL_CDN: process.env.CDN_URL,
 		domain: 'momentum-mod.org',
 		port: process.env.NODE_PORT,
 		accessToken: {
