@@ -1,6 +1,7 @@
 import {Injectable} from '@angular/core';
 import {ActivatedRouteSnapshot, CanActivate} from '@angular/router';
 import {LocalUserService} from '../data/local-user.service';
+import {environment} from '../../../environments/environment';
 
 @Injectable({
   providedIn: 'root',
@@ -20,9 +21,9 @@ export class AuthGuard implements CanActivate {
     }
     const referrer = window.location.pathname;
     if (referrer !== '/')
-      window.location.href = '/auth/steam?r=' + referrer;
+      window.location.href = environment.auth + '/auth/steam?r=' + referrer;
     else
-      window.location.href = '/auth/steam';
+      window.location.href = environment.auth + '/auth/steam';
   }
 
   checkPermissions(roles): boolean {

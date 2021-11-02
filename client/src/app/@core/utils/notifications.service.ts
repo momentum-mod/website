@@ -6,6 +6,7 @@ import {Observable, ReplaySubject} from 'rxjs';
 import {SiteNotification} from '../models/notification.model';
 import {AuthService} from '../data/auth.service';
 import {NbToastrService} from '@nebular/theme';
+import {environment} from '../../../environments/environment';
 
 
 @Injectable()
@@ -32,12 +33,12 @@ export class NotificationsService {
   }
   checkNotifications() {
     if (this.authService.isAuthenticated())
-      this.http.get<any>('/api/user/notifications').subscribe(resp => this.notifications$.next(resp.notifications));
+      this.http.get<any>(environment.api + '/api/user/notifications').subscribe(resp => this.notifications$.next(resp.notifications));
   }
   get notifications(): Observable<SiteNotification[]> { return this.notifications$.asObservable(); }
 
   markNotificationAsRead(notification: SiteNotification) {
-    this.http.patch('/api/user/notifications/' + notification.id, {read: true})
+    this.http.patch(environment.api + '/api/user/notifications/' + notification.id, {read: true})
       .pipe(finalize(() => this.checkNotifications()))
       .subscribe(resp => {
     }, err => {
@@ -45,7 +46,7 @@ export class NotificationsService {
     });
   }
   dismissNotification(notif: SiteNotification) {
-    this.http.delete('/api/user/notifications/' + notif.id, { responseType: 'text'})
+    this.http.delete(environment.api + '/api/user/notifications/' + notif.id, { responseType: 'text'})
       .pipe(finalize(() => this.checkNotifications()))
       .subscribe(resp => {
     }, err => {
