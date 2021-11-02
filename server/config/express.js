@@ -88,7 +88,7 @@ module.exports = (app, config) => {
 
 	passport.use(new SteamStrategy({
 		returnURL: config.baseURL_Auth + '/auth/steam/return',
-		realm: config.baseURL,
+		realm: config.baseURL_Auth,
 		apiKey: config.steam.webAPIKey
 	}, (openID, profile, done) => {
 		const identifierRegex = /^https?:\/\/steamcommunity\.com\/openid\/id\/(\d+)$/;
