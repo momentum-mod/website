@@ -12,6 +12,7 @@ import {User} from '../../../../@core/models/user.model';
 import {AdminService} from '../../../../@core/data/admin.service';
 import {ConfirmDialogComponent} from '../../../../@theme/components/confirm-dialog/confirm-dialog.component';
 import {NbDialogService, NbTabComponent, NbToastrService} from '@nebular/theme';
+import {environment} from '../../../../../environments/environment';
 
 @Component({
   selector: 'profile-edit',
@@ -132,7 +133,7 @@ export class ProfileEditComponent implements OnInit, OnDestroy {
   }
 
   auth(platform: string) {
-    const childWnd = window.open(`/auth/${platform}?jwt=` + localStorage.getItem('accessToken'), 'myWindow',
+    const childWnd = window.open(environment.auth + `/auth/${platform}?jwt=` + localStorage.getItem('accessToken'), 'myWindow',
       'width=500,height=500');
     const timer = setInterval(() => {
       if (childWnd.closed) {
