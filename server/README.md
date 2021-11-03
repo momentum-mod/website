@@ -5,6 +5,19 @@
 * [Yarn](https://yarnpkg.com/en/)
 * [MySQL](https://dev.mysql.com/downloads/mysql/)
 
+## Docker Setup
+From the website directory, run:
+```
+docker compose up -d
+```
+On first run, setup the database:
+```
+docker exec website_api_1 node ../scripts/force_sync_db.js
+```
+Restart the api and you are good to go:
+```
+docker restart website_api_1
+```
 ## Packages
 
 In the command line, navigate to this directory and run
