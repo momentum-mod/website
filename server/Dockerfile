@@ -2,6 +2,8 @@ FROM node:12 as server
 
 EXPOSE $NODE_PORT
 
+RUN npm install -g nodemon --unsafe-perm
+
 WORKDIR /app/server
 
 COPY ./yarn.lock ./
@@ -10,4 +12,4 @@ RUN yarn install
 
 COPY . .
 
-ENTRYPOINT ["node", "server.js"]
+ENTRYPOINT ["nodemon", "server.js"]
