@@ -1,5 +1,5 @@
 echo -e '-= Building MMoD Website Server Docker Image from Dockerfile =-\n'
-docker build -t mmod-website-server -f ./Dockerfile .
+docker build -t mmod-website-server -f /server/Dockerfile .
 
 echo -e '-= Stopping MMoD Website Server Container =-\n'
 docker container stop mmod-website-server

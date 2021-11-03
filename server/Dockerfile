@@ -4,10 +4,10 @@ EXPOSE $NODE_PORT
 
 WORKDIR /app/server
 
-COPY /server/yarn.lock ./
-COPY /server/package*.json ./
+COPY ./yarn.lock ./
+COPY ./package*.json ./
 RUN yarn install
 
-COPY server/. .
+COPY . .
 
 ENTRYPOINT ["node", "server.js"]
