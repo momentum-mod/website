@@ -81,8 +81,8 @@ const config = {
 		db: {
 			name: 'momentum',
 			userName: 'mom',
-			password: '',
-			host: 'localhost',
+			password: 'password',
+			host: 'db',
 			logging: console.log,
 			pool: {
 				max: 10,
