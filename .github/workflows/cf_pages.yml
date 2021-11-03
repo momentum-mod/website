@@ -1,0 +1,17 @@
+name: Publish Frontend
+
+on:
+  workflow_dispatch
+
+jobs:
+  publish:
+    name: Publish to Cloudflare Pages
+    runs-on: ubuntu-latest
+    steps:
+      - name: Deploy page
+        uses: SeokminHong/pages-action@v0.4.1
+        with:
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          projectName: website
+          email: ${{ secrets.CLOUDFLARE_EMAIL }}
+          authKey: ${{ secrets.CLOUDFLARE_AUTH_KEY }}

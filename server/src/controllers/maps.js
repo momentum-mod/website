@@ -1,5 +1,6 @@
 'use strict';
 const map = require('../models/map'),
+	config = require('../../config/config'),
 	mapCredit = require('../models/map-credit'),
 	mapImage = require('../models/map-image'),
 	ServerError = require('../helpers/server-error');
@@ -41,7 +42,7 @@ module.exports = {
 	create: (req, res, next) => {
 		req.body.submitterID = req.user.id;
 		map.create(req.body).then(map => {
-			res.set('Location', '/api/maps/' + map.id + '/upload');
+			res.set('Location', `${config.baseURL_API}/api/maps/${map.id}/upload`);
 			res.json(map);
 		}).catch(next);
 	},
@@ -131,7 +132,7 @@ module.exports = {
 
 	getUploadLocation: (req, res, next) => {
 		map.verifySubmitter(req.params.mapID, req.user.id).then(() => {
-			res.set('Location', '/api/maps/' + req.params.mapID + '/upload');
+			res.set('Location', `${config.baseURL_API}/api/maps/${map.id}/upload`);
 			res.sendStatus(204);
 		}).catch(next);
 	},
