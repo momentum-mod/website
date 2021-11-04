@@ -656,78 +656,72 @@ describe('user', () => {
 		});
 
 		describe('GET /api/user/notifications', () => {
-			it('should respond with notification data', () => {
-				// testUser follows testUser2
-				return chai.request(server)
-					.post('/api/user/follow')
-					.set('Authorization', 'Bearer ' + accessToken)
-					.send({
-						userID: testUser2.id
-					})
-					.then(res1 => {
-						// changes the follow relationship between testUser and testUser2 to notify when a map is approved
-						return chai.request(server)
-							.patch('/api/user/follow/' + testUser2.id)
-							.set('Authorization', 'Bearer ' + accessToken)
-							.send({
-								notifyOn: 1 << activity.ACTIVITY_TYPES.MAP_APPROVED
-							})
-							.then(res2 => {
-								// testUser2 creates a map
-								return chai.request(server)
-									.post('/api/maps')
-									.set('Authorization', 'Bearer ' + accessToken2)
-									.send({
-										name: 'test_map_notif',
-										type: map.MAP_TYPE.SURF,
-										info: {
-											description: 'newmap_5',
-											numTracks: 1,
-											creationDate: new Date(),
-										},
-										tracks: [{
-											trackNum: 0,
-											numZones: 1,
-											isLinear: false,
-											difficulty: 5,
-										}],
-										credits: [{
-											userID: testUser2.id,
-											type: map.CreditType.AUTHOR,
-										}]
-									}).then(res3 => {
-										// upload the map 
-										return chai.request(server)
-											.post(res3.header.location)
-											.set('Authorization', 'Bearer ' + accessToken2)
-											.attach('mapFile', fs.readFileSync('test/testMap.bsp'), 'testMap.bsp')
-											.then(res4 => {
-												// testadmin approves the map
-												return chai.request(server)
-													.patch('/api/admin/maps/' + res3.body.id)
-													.set('Authorization', 'Bearer ' + adminAccessToken)
-													.send({ statusFlag: map.STATUS.APPROVED })
-													.then(res5 => {
-														// should get the notification that testUser2's map was approved
-														return chai.request(server)
-															.get('/api/user/notifications')
-															.set('Authorization', 'Bearer ' + accessToken)
-															.then(res6 => {
-																expect(res1).to.have.status(200);
-																expect(res2).to.have.status(204);
-																expect(res3).to.have.status(200);
-																expect(res4).to.have.status(200);
-																expect(res5).to.have.status(204);
-																expect(res6).to.have.status(200);
-																expect(res6.body).to.have.property('notifications');
-																expect(res6.body.notifications).to.be.an('array');
-																expect(res6.body.notifications).to.have.length(1);
-															});
-													});
-											});
-									});
-							});
-					});
+			it('should respond with notification data', async function() {
+                const serv = chai.request(server).keepOpen();
+
+                // testUser follows testUser2
+                const res1 = await serv.post('/api/user/follow')
+                    .set('Authorization', 'Bearer ' + accessToken)
+                    .send({
+                        userID: testUser2.id
+                    });
+
+                // changes the follow relationship between testUser and testUser2 to notify when a map is approved
+                const res2 = await serv.patch('/api/user/follow/' + testUser2.id)
+                    .set('Authorization', 'Bearer ' + accessToken)
+                    .send({
+                        notifyOn: 1 << activity.ACTIVITY_TYPES.MAP_APPROVED
+                    });
+
+                // testUser2 creates a map
+                const res3 = await serv.post('/api/maps')
+                    .set('Authorization', 'Bearer ' + accessToken2)
+                    .send({
+                        name: 'test_map_notif',
+                        type: map.MAP_TYPE.SURF,
+                        info: {
+                            description: 'newmap_5',
+                            numTracks: 1,
+                            creationDate: new Date(),
+                        },
+                        tracks: [{
+                            trackNum: 0,
+                            numZones: 1,
+                            isLinear: false,
+                            difficulty: 5,
+                        }],
+                        credits: [{
+                            userID: testUser2.id,
+                            type: map.CreditType.AUTHOR,
+                        }]
+                    });
+
+                // upload the map
+                const res4 = await serv.post(new URL( res3.header.location ).pathname)
+                    .set('Authorization', 'Bearer ' + accessToken2)
+                    .attach('mapFile', fs.readFileSync('test/testMap.bsp'), 'testMap.bsp');
+
+                // testadmin approves the map
+                const res5 = await serv.patch('/api/admin/maps/' + res3.body.id)
+                    .set('Authorization', 'Bearer ' + adminAccessToken)
+                    .send({ statusFlag: map.STATUS.APPROVED });
+
+                // should get the notification that testUser2's map was approved
+                const res6 = await serv.get('/api/user/notifications')
+                    .set('Authorization', 'Bearer ' + accessToken)
+                    .then(res6 => {
+                        expect(res1).to.have.status(200);
+                        expect(res2).to.have.status(204);
+                        expect(res3).to.have.status(200);
+                        expect(res4).to.have.status(200);
+                        expect(res5).to.have.status(204);
+                        expect(res6).to.have.status(200);
+                        expect(res6.body).to.have.property('notifications');
+                        expect(res6.body.notifications).to.be.an('array');
+                        expect(res6.body.notifications).to.have.length(1);
+                    }).finally(() => {});
+
+                serv.close();
 			});
 		});
 		// Commented out until the 0.10.0 replay refactor
