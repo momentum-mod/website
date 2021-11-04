@@ -36,7 +36,7 @@ const config = {
 			name: 'momentum_test',
 			userName: 'mom_test',
 			password: '',
-			host: 'localhost',
+			host: 'db',
 			logging: false,
 			pool: {
 				max: 15,
@@ -128,7 +128,7 @@ const config = {
 			name: 'momentum',
 			userName: process.env.MOM_DATABASE_USER,
 			password: process.env.MOM_DATABASE_PW,
-			host: process.env.MOM_DATABASE_HOST,
+			host: 'db',
 			logging: false,
 			pool: {
 				max: 10,
