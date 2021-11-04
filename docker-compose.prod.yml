@@ -1,0 +1,8 @@
+version: '3.8'
+
+services:
+  db:
+    restart: always
+
+  api:
+    image: docker.pkg.github.com/momentum-mod/website/mmod-website:staging

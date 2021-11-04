@@ -1,0 +1,27 @@
+version: '3.8'
+
+services:
+  db:
+    platform: linux/x86_64
+    volumes:
+    - ./mysql:/var/lib/mysql
+
+  api:
+    platform: linux/x86_64
+    depends_on:
+      - db
+    restart: always
+    volumes:
+      - ./scripts:/app/scripts
+      - ./server/config:/app/server/config
+      - ./server/docs:/app/server/docs
+      - ./server/public:/app/server/public
+      - ./server/src:/app/server/src
+      - ./server/test:/app/server/test
+    ports:
+      - "3002:3002"
+    env_file:
+      - env-vars.list
+    build:
+      context: ./server
+      dockerfile: Dockerfile
