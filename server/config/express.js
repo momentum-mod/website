@@ -75,8 +75,9 @@ module.exports = (app, config) => {
 		// In development, log all requests
 		app.use(bunyanMiddleware({ logger: logger }));
 	}
-
-	app.use(cors({ origin: config.baseURL, exposedHeaders: [ 'Location' ] }));
+	if (app.get('env') === 'production') {
+		app.use(cors({ origin: config.baseURL, exposedHeaders: [ 'Location' ] }));
+	}
 	app.use(express.json());
 	app.use(compress());
 	app.use(express.static(config.root + '/public'));
