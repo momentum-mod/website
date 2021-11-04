@@ -2,7 +2,7 @@
 *   This script is used to clear and recreate the database tables. Use the following command
 *   to run this script:
 *
-*   node <path-to-file>/force_sync_db.js
+*   docker exec website_api_1 node ../scripts/force_sync_db.js
 */
 
 'use strict';
