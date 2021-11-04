@@ -20,7 +20,8 @@ const express = require('express'),
 	bunyan = require('bunyan'),
 	seq = require('bunyan-seq'),
 	bunyanMiddleware = require('bunyan-middleware'),
-	cors = require('cors');
+	cors = require('cors'),
+	helmet = require('helmet');
 
 const swaggerSpec = swaggerJSDoc({
 	swaggerDefinition: swaggerDefinition,
@@ -79,6 +80,7 @@ module.exports = (app, config) => {
 	}
 
 	app.use(express.json());
+	app.use(helmet());
 	app.use(compress());
 	app.use(express.static(config.root + '/public'));
 	app.use(methodOverride());
