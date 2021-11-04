@@ -3,6 +3,8 @@ version: '3.8'
 services:
   db:
     image: mysql:8
+    volumes:
+    - ./mysql:/var/lib/mysql
     environment:
       MYSQL_DATABASE: 'momentum'
       MYSQL_USER: 'mom'
