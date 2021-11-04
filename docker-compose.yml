@@ -4,16 +4,13 @@ services:
   db:
     image: mysql:8
     volumes:
-    - ./mysql:/var/lib/mysql
-    environment:
-      MYSQL_DATABASE: 'momentum'
-      MYSQL_USER: 'mom'
-      MYSQL_PASSWORD: 'password'
-      MYSQL_ROOT_PASSWORD: 'root'
+      - ./mysqlxd:/var/lib/mysql
 
   api:
     depends_on:
       - db
     restart: always
     env_file:
-      - env-vars.list
+      - .env
+    ports:
+      - ${NODE_PORT}:${NODE_PORT}

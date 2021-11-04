@@ -3,6 +3,13 @@ version: '3.8'
 services:
   db:
     platform: linux/x86_64
+    volumes:
+      - ./scripts/init-db:/docker-entrypoint-initdb.d
+    environment:
+      MYSQL_DATABASE: 'momentum'
+      MYSQL_USER: 'mom'
+      MYSQL_PASSWORD: 'password'
+      MYSQL_ROOT_PASSWORD: 'root'
 
   api:
     platform: linux/x86_64
@@ -13,8 +20,6 @@ services:
       - ./server/public:/app/server/public
       - ./server/src:/app/server/src
       - ./server/test:/app/server/test
-    ports:
-      - "3002:3002"
     build:
       context: ./server
       dockerfile: Dockerfile

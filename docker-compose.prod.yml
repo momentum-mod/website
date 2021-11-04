@@ -3,6 +3,15 @@ version: '3.8'
 services:
   db:
     restart: always
+    environment:
+      MYSQL_DATABASE: 'momentum'
+      MYSQL_USER: ${MOM_DATABASE_USER}
+      MYSQL_PASSWORD: ${MOM_DATABASE_PW}
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PW}
 
   api:
     image: docker.pkg.github.com/momentum-mod/website/mmod-website:staging
+    volumes:
+      - ./server/public/img/maps:/app/server/public/img/maps
+      - ./server/public/maps:/app/server/public/maps
+      - ./server/public/runs:/app/server/public/runs
