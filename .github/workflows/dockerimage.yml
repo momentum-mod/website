@@ -1,4 +1,4 @@
-name: Publish Docker
+name: Publish Backend Docker
 on:
   workflow_dispatch
 jobs:
@@ -6,6 +6,15 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v2
+    - name: Resolve Yarn Cache Directory
+        id: yarn-cache-dir-path
+        run: echo "::set-output name=dir::$(yarn cache dir)"
+    - name: Cache Yarn Cache Directory
+      uses: actions/cache@v2
+      with:
+        path: ${{ steps.yarn-cache-dir-path.outputs.dir }}
+        key: ${{ runner.os }}-${{ env.NODE_VERSION }}-${{ hashFiles('./server/yarn.lock') }}
+        restore-keys: ${{ runner.os }}-${{ env.NODE_VERSION }}-
     - name: Publish to Registry
       uses: elgohr/Publish-Docker-Github-Action@3.04
       with:
