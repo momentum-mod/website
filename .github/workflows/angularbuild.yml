@@ -1,12 +1,7 @@
 name: AngularBuild 
 on:
-  # Trigger the workflow on push or pull request,
+  # Trigger the workflow on pull request,
   # but only for the staging branch
-  push:
-    branches:
-      - staging
-    paths-ignore:
-      - '**.md'
   pull_request:
     branches:
       - staging

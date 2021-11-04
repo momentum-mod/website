@@ -6,6 +6,7 @@ import {HttpClient} from '@angular/common/http';
 import {Observable, of} from 'rxjs';
 import {Router} from '@angular/router';
 import {map, share} from 'rxjs/operators';
+import {environment} from '../../../environments/environment';
 
 export interface TokenRefreshResponse {
   accessToken: string;
@@ -21,7 +22,7 @@ export class AuthService {
   }
 
   public logout(): void {
-    this.http.post('/auth/revoke', {}).subscribe();
+    this.http.post(environment.auth + '/auth/revoke', {}).subscribe();
     localStorage.removeItem('accessToken');
     localStorage.removeItem('refreshToken');
     localStorage.removeItem('user');
@@ -40,7 +41,7 @@ export class AuthService {
   }
 
   public removeSocialAuth(authType: string): Observable<any> {
-    return this.http.delete('/api/user/profile/social/' + authType, {
+    return this.http.delete(environment.api + '/api/user/profile/social/' + authType, {
       responseType: 'text',
     });
   }
@@ -59,7 +60,7 @@ export class AuthService {
     if (!refreshToken) {
       return of(null);
     }
-    return this.http.post('/auth/refresh', { refreshToken: refreshToken }).pipe(
+    return this.http.post(environment.auth + '/auth/refresh', { refreshToken: refreshToken }).pipe(
       share(),
       map((res: TokenRefreshResponse) => {
         const newAccessToken = res.accessToken;

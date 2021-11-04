@@ -25,7 +25,7 @@ router.route('/steam/return')
 				next(err);
 			else if (!user) {
 				if (msg && msg.message)
-					res.cookie('errMsg', msg.message);
+					res.cookie('errMsg', msg.message, { domain: config.domain });
 				res.redirect('/');
 			}
 			else {
@@ -56,7 +56,7 @@ router.route('/twitter')
 				// ... Except for right here. We need to still verify which user this callback is going to be for,
 				// so we're passing in the user's ID as a query parameter, in order to verify the requesting user, but
 				// still meeting the correct callback URL as defined on the Twitter website. Smooth, right?
-				callbackURL: config.baseUrl + '/auth/twitter/return?id=' + req.user.id,
+				callbackURL: config.baseURL_Auth + '/auth/twitter/return?id=' + req.user.id,
 			}, (token, tokenSecret, profile, cb) => {
 				// We're still going to pack the user with the user object, to verify in the return callback that we're
 				// actually authorizing who we say we are.

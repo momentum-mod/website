@@ -17,6 +17,7 @@ import {NbDatepickerModule, NbDialogModule, NbGlobalPhysicalPosition, NbToastrMo
 import {RefreshTokenInterceptorService} from './@core/utils/refresh-token-interceptor.service';
 import {NbEvaIconsModule} from '@nebular/eva-icons';
 import {TimeagoModule} from 'ngx-timeago';
+import { environment } from '../environments/environment';
 
 export function tokenGetter() {
   return localStorage.getItem('accessToken');
@@ -39,7 +40,9 @@ export function tokenGetter() {
         allowedDomains: [
           'localhost:3002',
           'localhost:4200',
-          '141.210.25.113',
+          'momentum-mod.org',
+          (new URL( environment.api )).host,
+          (new URL( environment.auth )).host,
         ],
         throwNoTokenError: false,
       },

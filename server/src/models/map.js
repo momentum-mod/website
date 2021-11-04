@@ -31,7 +31,7 @@ const storeMapFile = (mapFile, mapModel) => {
 	const fileName = mapModel.name + '.bsp';
 	const basePath = __dirname + '/../../public/maps';
 	const fullPath = basePath + '/' + fileName;
-	const downloadURL = config.baseUrl + '/api/maps/' + mapModel.id + '/download';
+	const downloadURL = config.baseURL_API + '/api/maps/' + mapModel.id + '/download';
 	return moveMapTo(fullPath).then(() => {
 		return genFileHash(fullPath).then(hash => {
 			return Promise.resolve({

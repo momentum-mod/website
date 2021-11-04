@@ -16,15 +16,15 @@ module.exports = {
 			accessToken = token;
 			return auth.createRefreshToken(req.user, false);
 		}).then(refreshToken => {
-			res.cookie('accessToken', accessToken);
-			res.cookie('refreshToken', refreshToken);
-			res.cookie('user', JSON.stringify(req.user));
+			res.cookie('accessToken', accessToken, { domain: config.domain });
+			res.cookie('refreshToken', refreshToken, { domain: config.domain });
+			res.cookie('user', JSON.stringify(req.user), { domain: config.domain });
 			const referrer = req.session.referrer;
 			if (referrer) {
 				delete req.session.referrer;
 				res.redirect(referrer);
 			} else {
-				res.redirect('/dashboard');
+				res.redirect(config.baseURL + '/dashboard');
 			}
 		}).catch(next);
 	},

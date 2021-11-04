@@ -286,7 +286,7 @@ const storeRunFile = (resultObj, runID) => {
 		const fileName = runID;
 		const basePath = __dirname + '/../../public/runs';
 		const fullPath = basePath + '/' + fileName;
-		const downloadURL = config.baseUrl + `/api/maps/${resultObj.map.id}/runs/${runID}/download`;
+		const downloadURL = config.baseURL_API + `/api/maps/${resultObj.map.id}/runs/${runID}/download`;
 
 		fs.writeFile(fullPath, resultObj.bin.buf, (err) => {
 			if (err)

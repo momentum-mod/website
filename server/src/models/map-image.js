@@ -8,7 +8,7 @@ const imageEditor = require('sharp'),
 const editAndSaveMapImageFile = (imageFileBuffer, fileName, width, height) => {
 	const basePath = __dirname + '/../../public/img/maps/';
 	const fullPath = basePath + fileName;
-	const downloadURL = config.baseUrl + '/img/maps/' + fileName;
+	const downloadURL = config.baseURL_CDN + '/img/maps/' + fileName;
 	return imageEditor(imageFileBuffer).resize(width, height, {
 		fit: 'inside',
 	}).toFile(fullPath).then(() => {

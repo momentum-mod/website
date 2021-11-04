@@ -19,7 +19,8 @@ const express = require('express'),
 	{ errors, isCelebrate } = require('celebrate'),
 	bunyan = require('bunyan'),
 	seq = require('bunyan-seq'),
-	bunyanMiddleware = require('bunyan-middleware');
+	bunyanMiddleware = require('bunyan-middleware'),
+	cors = require('cors');
 
 const swaggerSpec = swaggerJSDoc({
 	swaggerDefinition: swaggerDefinition,
@@ -75,6 +76,7 @@ module.exports = (app, config) => {
 		app.use(bunyanMiddleware({ logger: logger }));
 	}
 
+	app.use(cors({ origin: config.baseURL, exposedHeaders: [ 'Location' ] }));
 	app.use(express.json());
 	app.use(compress());
 	app.use(express.static(config.root + '/public'));
@@ -87,8 +89,8 @@ module.exports = (app, config) => {
 	}));
 
 	passport.use(new SteamStrategy({
-		returnURL: config.baseUrl + '/auth/steam/return',
-		realm: config.baseUrl,
+		returnURL: config.baseURL_Auth + '/auth/steam/return',
+		realm: config.baseURL_Auth,
 		apiKey: config.steam.webAPIKey
 	}, (openID, profile, done) => {
 		const identifierRegex = /^https?:\/\/steamcommunity\.com\/openid\/id\/(\d+)$/;
@@ -141,7 +143,7 @@ module.exports = (app, config) => {
 	passport.use(new DiscordStrategy({
 		clientID: config.discord.clientID,
 		clientSecret: config.discord.clientSecret,
-		callbackURL: config.baseUrl + '/auth/discord/return',
+		callbackURL: config.baseURL_Auth + '/auth/discord/return',
 		scope: ['identify'],
 	}, (token, refresh, profile, cb) => {
 		profile.token = token;
@@ -152,7 +154,7 @@ module.exports = (app, config) => {
 	passport.use(new TwitchStrategy({
 		clientID: config.twitch.clientID,
 		clientSecret: config.twitch.clientSecret,
-		callbackURL: config.baseUrl + '/auth/twitch/return',
+		callbackURL: config.baseURL_Auth + '/auth/twitch/return',
 		scope: 'user_read',
 	}, (token, refresh, profile, cb) => {
 		profile.token = token;
