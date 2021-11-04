@@ -2,10 +2,59 @@
 const auth = require('../models/auth'),
 	axios = require('axios'),
 	config = require('../../config/config'),
-	user = require('../models/user');
+	user = require('../models/user'),
+	AppTicket = require('steam-appticket');
 
 const postAuthData = (res) => {
 	res.send('<script>window.close();</script>');
+};
+
+const verifyUserTicketOnlineAPI = (userTicket, idToVerify, res, next) => {
+	axios.get('https://api.steampowered.com/ISteamUserAuth/AuthenticateUserTicket/v1/', {
+		params: {
+			key: config.steam.webAPIKey,
+			appid: 669270,
+			ticket: userTicket
+		}
+	}).then((sres) => {
+		if (sres.data.response.error)
+			return res.sendStatus(400); // Bad request, and not sending the error object just in case of hidden bans
+
+		if (sres.data.response.params.result === 'OK') {
+			if (idToVerify === sres.data.response.params.steamid) {
+				user.findOrCreateFromGame(idToVerify).then((usr) => {
+					auth.genAccessToken(usr, true).then(token => {
+						res.json({
+							token: token,
+							length: token.length,
+						});
+					}).catch(next);
+				}).catch(next);
+			} else
+				res.sendStatus(401); // Generate an error here
+		} else
+			res.send(sres.data); // TODO parse the error?
+	}).catch(next);
+}
+
+const verifyUserTicketLocalLibrary = (userTicketRaw, idToVerify, res, next) => {
+	const decrypted = AppTicket.parseEncryptedAppTicket(Buffer.from(userTicketRaw, 'hex'), config.steam.ticketsSecretKey);
+	if ( !decrypted ) {
+		return res.sendStatus(400);
+	}
+	else {
+		if ( decrypted.appID !== 669270 && decrypted.appID !== 1802710 && decrypted.steamID.getSteamID64() !== idToVerify )
+			return res.sendStatus(401);
+
+		user.findOrCreateFromGame(idToVerify).then((usr) => {
+			auth.genAccessToken(usr, true).then(token => {
+				res.json({
+					token: token,
+					length: token.length,
+				});
+			}).catch(next);
+		}).catch(next);
+	}
 };
 
 module.exports = {
@@ -81,33 +130,13 @@ module.exports = {
 		const idToVerify = req.get('id');
 
 		if (userTicket && idToVerify) {
-			axios.get(`https://api.steampowered.com/ISteamUserAuth/AuthenticateUserTicket/v1/`, {
-				params: {
-					key: config.steam.webAPIKey,
-					appid: 669270,
-					ticket: userTicket
-				}
-			}).then((sres) => {
-				if (sres.data.response.error)
-					res.sendStatus(400); // Bad request, and not sending the error object just in case of hidden bans
-
-				if (sres.data.response.params.result === 'OK') {
-					if (idToVerify === sres.data.response.params.steamid) {
-						user.findOrCreateFromGame(idToVerify).then((usr) => {
-							auth.genAccessToken(usr, true).then(token => {
-								res.json({
-									token: token,
-									length: token.length,
-								});
-							}).catch(next);
-						}).catch(next);
-					}
-					else
-						res.sendStatus(401); // Generate an error here
-				}
-				else
-					res.send(sres.data); // TODO parse the error?
-			}).catch(next);
+			if (config.steam.useSteamTicketLibrary === 'true') {
+				// We pass the raw body here so it can create the buffer it needs
+				verifyUserTicketLocalLibrary( req.body, idToVerify, res, next );
+			}
+			else {
+				verifyUserTicketOnlineAPI( userTicket, idToVerify, res, next );
+			}
 		}
 		else
 			res.sendStatus(400); // Bad request
