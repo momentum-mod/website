@@ -13,10 +13,9 @@ EXPOSE $NODE_PORT
 
 WORKDIR /app/server
 
+COPY --from=server_build /temp/server/node_modules node_modules
 COPY --from=server_build /temp/server/dist/out-tsc/ .
 
 COPY server/public/. .
-
-RUN rm -rf /temp/.
 
 ENTRYPOINT ["node", "server.js"]
