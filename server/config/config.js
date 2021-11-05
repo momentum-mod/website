@@ -29,7 +29,7 @@ const config = {
 			consumerSecret: '*lemme tell ya somethin youd like to hear*',
 		},
 		steam: {
-			webAPIKey: process.env.STEAM_WEB_API_KEY,
+			webAPIKey: 'webAPIKey12345',
 			preventLimited: true,
 			useSteamTicketLibrary: process.env.STEAM_USE_ENCRYPTED_TICKETS,
 			ticketsSecretKey: process.env.STEAM_TICKETS_SECRET,
