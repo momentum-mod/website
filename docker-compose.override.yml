@@ -24,3 +24,9 @@ services:
       context: ./server
       dockerfile: Dockerfile
     entrypoint: sh -c "npm install -g nodemon --unsafe-perm && nodemon server.js"
+
+  integration-tests:
+    extends: api
+    entrypoint: sh -c "npm test"
+    environment:
+      NODE_ENV: 'test'
