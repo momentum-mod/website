@@ -7,8 +7,8 @@ jobs:
     steps:
     - uses: actions/checkout@v2
     - name: Resolve Yarn Cache Directory
-        id: yarn-cache-dir-path
-        run: echo "::set-output name=dir::$(yarn cache dir)"
+      id: yarn-cache-dir-path
+      run: echo "::set-output name=dir::$(yarn cache dir)"
     - name: Cache Yarn Cache Directory
       uses: actions/cache@v2
       with:
