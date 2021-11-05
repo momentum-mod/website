@@ -37,7 +37,6 @@ You will need to set the following variable in the .env file:
 NODE_ENV=test
 ```
 
-### Run the Tests
 To run the tests:
 ```
 docker exec website_api_1 npm test
