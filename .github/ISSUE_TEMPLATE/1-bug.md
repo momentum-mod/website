@@ -34,9 +34,8 @@ If applicable, add screenshots to help explain your problem.
  - Browser [e.g. stock browser, safari]
  - Version [e.g. 22]
 
-**Sprout Information**
+**Website Information**
  - Version/Git Commit: [eg 0.1.0 / feature/something-new]
- - .NET Version: [eg .NET 6 RC1]
 
 **Additional context**
 Add any other context about the problem here.
