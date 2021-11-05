@@ -15,11 +15,11 @@ docker compose up -d
 ```
 The initial database content will need to be created (tables, constraints, etc.). Run the force sync DB script to do so once the database container is initialized:
 ```
-docker exec website_api_1 node ../scripts/force_sync_db.js
+docker exec website-api-1 node ../scripts/force_sync_db.js
 ```
 Restart the api and you are good to go:
 ```
-docker restart website_api_1
+docker restart website-api-1
 ```
 Navigate to `http://localhost:3002/`. The app will automatically reload if you change any of the source files.
 
@@ -39,7 +39,7 @@ NODE_ENV=test
 
 To run the tests:
 ```
-docker exec website_api_1 npm test
+docker exec website-api-1 npm test
 ```
 
 ## Prod Setup
