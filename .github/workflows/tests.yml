@@ -1,0 +1,17 @@
+name: Tests
+
+on:
+  pull_request:
+    branches:
+      - staging
+    paths-ignore:
+      - '**.md'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v2
+    - name: Execute tests
+      run: docker-compose up integration-tests --exit-code-from integration-tests
