@@ -66,6 +66,9 @@ module.exports = (app, config) => {
 
 		app.use(cors({ origin: config.baseURL, exposedHeaders: [ 'Location' ] }));
 	}
+	else {
+        app.use(cors({ exposedHeaders: [ 'Location' ] }));
+    }
 
 	const logger = bunyan.createLogger({
 		Application: 'Website',
