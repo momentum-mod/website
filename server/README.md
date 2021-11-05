@@ -6,7 +6,7 @@
 * [MySQL](https://dev.mysql.com/downloads/mysql/)
 * [Docker Compose](https://docs.docker.com/compose/install/)
 
-## Setup
+## Dev Setup
 In the website directory copy the .env.txt to the same directory, rename it .env, and then add your configuration. Only STEAM_WEB_API_KEY needs to be updated for development. Open config.js in ./server/config to view default values for each environment.
 
 From the website directory, run:
@@ -40,4 +40,14 @@ NODE_ENV=test
 To run the tests:
 ```
 docker exec website_api_1 npm test
+```
+
+## Prod Setup
+Update the .env file and set this variable:
+```
+NODE_ENV=production
+```
+From the website directory, run:
+```
+docker-compose -f docker-compose.yml -f docker-compose.prod.yml up -d
 ```
