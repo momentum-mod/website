@@ -78,6 +78,9 @@ module.exports = (app, config) => {
 	if (app.get('env') === 'production') {
 		app.use(cors({ origin: config.baseURL, exposedHeaders: [ 'Location' ] }));
 	}
+	else {
+		app.use(cors({ exposedHeaders: [ 'Location' ] }));
+	}
 	app.use(express.json());
 	app.use(compress());
 	app.use(express.static(config.root + '/public'));
