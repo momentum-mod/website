@@ -32,14 +32,9 @@ Navigate to `http://localhost:3002/api-docs` to view the Swagger server API refe
 ## Testing
 The project utilizes [Mocha](https://mochajs.org/) and [Chai](https://www.chaijs.com/) to run backend integration tests.
 
-You will need to set the following variable in the .env file:
+Tests will start automatically when you run docker compose up -d from above. To re-run the tests, restart the testing container:
 ```
-NODE_ENV=test
-```
-
-To run the tests:
-```
-docker exec website-api-1 npm test
+docker restart website-integration-tests-1
 ```
 
 ## Prod Setup
