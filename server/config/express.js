@@ -20,7 +20,8 @@ const express = require('express'),
 	bunyan = require('bunyan'),
 	seq = require('bunyan-seq'),
 	bunyanMiddleware = require('bunyan-middleware'),
-	cors = require('cors');
+	cors = require('cors'),
+	helmet = require('helmet');
 
 const swaggerSpec = swaggerJSDoc({
 	swaggerDefinition: swaggerDefinition,
@@ -62,6 +63,8 @@ module.exports = (app, config) => {
 				level: 'info',
 			})
 		);
+
+		app.use(cors({ origin: config.baseURL, exposedHeaders: [ 'Location' ] }));
 	}
 
 	const logger = bunyan.createLogger({
@@ -75,13 +78,9 @@ module.exports = (app, config) => {
 		// In development, log all requests
 		app.use(bunyanMiddleware({ logger: logger }));
 	}
-	if (app.get('env') === 'production') {
-		app.use(cors({ origin: config.baseURL, exposedHeaders: [ 'Location' ] }));
-	}
-	else {
-		app.use(cors({ exposedHeaders: [ 'Location' ] }));
-	}
+
 	app.use(express.json());
+	app.use(helmet());
 	app.use(compress());
 	app.use(express.static(config.root + '/public'));
 	app.use(methodOverride());

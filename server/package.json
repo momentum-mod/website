@@ -23,6 +23,7 @@
     "cors": "^2.8.5",
     "express": "4.17.1",
     "express-fileupload": "1.1.9",
+    "helmet": "^4.6.0",
     "jsonwebtoken": "8.5.1",
     "method-override": "3.0.0",
     "mocha": "8.0.1",
@@ -36,6 +37,7 @@
     "passport-twitter": "1.0.4",
     "sequelize": "6.2.2",
     "sharp": "0.25.4",
+    "steam-appticket": "^1.0.1",
     "swagger-jsdoc": "4.0.0",
     "swagger-ui-express": "4.1.4",
     "xml2js": "0.4.23"

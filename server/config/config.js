@@ -31,6 +31,8 @@ const config = {
 		steam: {
 			webAPIKey: process.env.STEAM_WEB_API_KEY,
 			preventLimited: true,
+			useSteamTicketLibrary: process.env.STEAM_USE_ENCRYPTED_TICKETS,
+			ticketsSecretKey: process.env.STEAM_TICKETS_SECRET,
 		},
 		db: {
 			name: 'momentum_test',
@@ -77,6 +79,8 @@ const config = {
 		steam: {
 			webAPIKey: process.env.STEAM_WEB_API_KEY,
 			preventLimited: true,
+			useSteamTicketLibrary: process.env.STEAM_USE_ENCRYPTED_TICKETS,
+			ticketsSecretKey: process.env.STEAM_TICKETS_SECRET,
 		},
 		db: {
 			name: 'momentum',
@@ -123,6 +127,8 @@ const config = {
 		steam: {
 			webAPIKey: process.env.STEAM_WEB_API_KEY,
 			preventLimited: true,
+			useSteamTicketLibrary: process.env.STEAM_USE_ENCRYPTED_TICKETS,
+			ticketsSecretKey: process.env.STEAM_TICKETS_SECRET,
 		},
 		db: {
 			name: 'momentum',
