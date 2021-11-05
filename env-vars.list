@@ -7,6 +7,10 @@ JWT_SECRET=
 
 # The Steam API web key (you can get it from https://steamcommunity.com/dev/apikey)
 STEAM_WEB_API_KEY=
+# Whether to use the authenticated tickets library, "true" enables it
+STEAM_USE_ENCRYPTED_TICKETS=
+# If the above is true, this value is the secret key to use for decrypting the ticket
+STEAM_TICKETS_SECRET=
 
 # The database user, password, and host
 MOM_DATABASE_USER=
