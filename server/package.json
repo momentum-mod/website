@@ -4,12 +4,14 @@
   "private": true,
   "scripts": {
     "start": "node app.js",
+    "ts-build": "tsc",
     "test": "mocha --exit --timeout 45000"
   },
   "dependencies": {
     "@d-fischer/passport-twitch": "1.0.5",
     "@hapi/joi": "17.1.1",
-    "axios": "0.21.2",
+    "@types/node": "^16.11.6",
+    "axios": "^0.21.2",
     "body-parser": "1.19.0",
     "bunyan": "^1.8.14",
     "bunyan-middleware": "^1.0.0",
@@ -40,6 +42,11 @@
     "steam-appticket": "^1.0.1",
     "swagger-jsdoc": "4.0.0",
     "swagger-ui-express": "4.1.4",
+    "typescript": "^4.4.4",
     "xml2js": "0.4.23"
+  },
+  "devDependencies": {
+    "faker": "^5.5.3",
+    "ts-node": "^10.4.0"
   }
 }
