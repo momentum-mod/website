@@ -2,7 +2,7 @@ FROM node:12 as server_build
 
 WORKDIR /temp/server
 
-COPY server/. .
+COPY . .
 
 RUN yarn install 
 RUN npm run ts-build
