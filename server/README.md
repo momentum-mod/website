@@ -15,11 +15,11 @@ docker compose up -d
 ```
 The initial database content will need to be created (tables, constraints, etc.). Run the force sync DB script to do so once the database container is initialized:
 ```
-docker exec website-api-1 node ../scripts/force_sync_db.js
+docker-compose exec api node ../scripts/force_sync_db.js
 ```
 Restart the api and you are good to go:
 ```
-docker restart website-api-1
+docker-compose restart api
 ```
 Navigate to `http://localhost:3002/`. The app will automatically reload if you change any of the source files.
 
