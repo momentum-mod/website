@@ -7,7 +7,7 @@
 * [Docker Compose](https://docs.docker.com/compose/install/)
 
 ## Dev Setup
-In the website directory copy the .env.txt to the same directory, rename it .env, and then add your configuration. Only STEAM_WEB_API_KEY needs to be updated for development. Open config.js in ./server/config to view default values for each environment.
+In the website directory copy the env.TEMPLATE to the same directory, rename it .env, and then add your configuration. Only STEAM_WEB_API_KEY needs to be updated for development. Open config.js in ./server/config to view default values for each environment.
 
 From the website directory, run:
 ```
