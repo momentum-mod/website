@@ -19,7 +19,7 @@ docker-compose exec api node ../scripts/force_sync_db.js
 ```
 Restart the api and you are good to go:
 ```
-docker-compose restart api
+docker-compose up -d --force-recreate api
 ```
 Navigate to `http://localhost:3002/`. The app will automatically reload if you change any of the source files.
 
@@ -38,7 +38,7 @@ docker restart website-integration-tests-1
 ```
 
 ## Prod Setup
-Update the .env file and set this variable:
+Copy the env.TEMPLATE file to .env and set this variable:
 ```
 NODE_ENV=production
 ```
