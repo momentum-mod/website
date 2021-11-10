@@ -24,7 +24,7 @@ docker-compose up -d --force-recreate api
 Navigate to `http://localhost:3002/`. The app will automatically reload if you change any of the source files.
 
 ### Applying Database Updates
-If updates or additions are made to the database design after you create the database tables for the first time, you will most likely have to apply these updates to your local databases. To do this, simply run the force_sync_db.js script again to clear and recreate the initial database content.
+If updates or additions are made to the database design after you create the database tables for the first time, you will most likely have to apply these updates to your local databases. To do this, simply run docker-compose exec api node ../scripts/force_sync_db.js again to clear and recreate the initial database content.
 ## Swagger API Reference
 
 Navigate to `http://localhost:3002/api-docs` to view the Swagger server API reference.
