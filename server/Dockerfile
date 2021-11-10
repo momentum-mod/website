@@ -9,7 +9,7 @@ RUN npm run ts-build
 
 FROM node:12 as server
 
-EXPOSE $NODE_PORT
+EXPOSE 3002
 
 WORKDIR /app/server
 

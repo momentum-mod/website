@@ -13,4 +13,4 @@ services:
     env_file:
       - .env
     ports:
-      - ${NODE_PORT}:${NODE_PORT}
+      - ${NODE_PORT}:3002
