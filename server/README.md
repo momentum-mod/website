@@ -4,7 +4,7 @@
 * [NodeJS (stable/LTS)](https://nodejs.org/en/download/)
 * [Yarn](https://yarnpkg.com/en/)
 * [MySQL](https://dev.mysql.com/downloads/mysql/)
-* [Docker Compose](https://docs.docker.com/compose/install/)
+* [Docker Compose V2+](https://docs.docker.com/compose/install/)
 
 ## Dev Setup
 In the website directory copy the env.TEMPLATE to the same directory, rename it .env, and then add your configuration. Only STEAM_WEB_API_KEY needs to be updated for development. Open config.js in ./server/config to view default values for each environment.
