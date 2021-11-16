@@ -12,14 +12,14 @@ services:
       MYSQL_ROOT_PASSWORD: 'root'
 
   api:
-    image: node:12
     platform: linux/x86_64
     volumes:
       - ./scripts:/app/scripts
       - ./server:/app/server
       - /app/server/node_modules/
-    working_dir: /app/server
-    entrypoint: sh -c "yarn install --frozen-lockfile && yarn global add nodemon ts-node && nodemon server.ts --ext "ts,json,js""
+    build:
+      context: ./server
+      dockerfile: dev.Dockerfile
 
   integration-tests:
     extends: api
