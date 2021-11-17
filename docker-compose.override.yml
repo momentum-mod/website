@@ -4,7 +4,7 @@ services:
   db:
     platform: linux/x86_64
     volumes:
-      - ./scripts/init-db:/docker-entrypoint-initdb.d
+      - ./mysql:/var/lib/mysql
     environment:
       MYSQL_DATABASE: 'momentum'
       MYSQL_USER: 'mom'
@@ -20,9 +20,3 @@ services:
     build:
       context: ./server
       dockerfile: dev.Dockerfile
-
-  integration-tests:
-    extends: api
-    entrypoint: sh -c "npm test"
-    environment:
-      NODE_ENV: 'test'
