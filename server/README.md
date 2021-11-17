@@ -15,11 +15,7 @@ docker compose up -d
 ```
 The initial database content will need to be created (tables, constraints, etc.). Run the force sync DB script to do so once the database container is initialized:
 ```
-docker-compose exec api node ../scripts/force_sync_db.js
-```
-Restart the api and you are good to go:
-```
-docker-compose up -d --force-recreate api
+docker compose exec api node ../scripts/force_sync_db.js
 ```
 Navigate to `http://localhost:3002/`. The app will automatically reload if you change any of the source files.
 
@@ -32,9 +28,18 @@ Navigate to `http://localhost:3002/api-docs` to view the Swagger server API refe
 ## Testing
 The project utilizes [Mocha](https://mochajs.org/) and [Chai](https://www.chaijs.com/) to run backend integration tests.
 
-Tests will start automatically when you run docker compose up -d from above. To re-run the tests, restart the testing container:
+Copy the env.TEMPLATE file to .env and set this variable:
 ```
-docker restart website-integration-tests-1
+NODE_ENV=test
+```
+
+From the website directory, run:
+```
+docker compose -f docker-compose.yml -f docker-compose.test.yml up -d
+``` 
+To re-run the tests, restart the testing container:
+```
+docker compose up -d --force-recreate api
 ```
 
 ## Prod Setup
@@ -44,5 +49,5 @@ NODE_ENV=production
 ```
 From the website directory, run:
 ```
-docker-compose -f docker-compose.yml -f docker-compose.prod.yml up -d
+docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d
 ```
