@@ -2,6 +2,8 @@ node_modules/
 dist/
 *.iml
 npm-debug.log
+mysql/
+.env
 
 
 # See http://help.github.com/ignore-files/ for more about ignoring files.

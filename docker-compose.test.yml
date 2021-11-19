@@ -1,0 +1,22 @@
+version: '3.8'
+
+services:
+  db:
+    platform: linux/x86_64
+    environment:
+      MYSQL_DATABASE: 'momentum_test'
+      MYSQL_USER: 'mom_test'
+      MYSQL_PASSWORD: 'password'
+      MYSQL_ROOT_PASSWORD: 'root'
+
+  api:
+    platform: linux/x86_64
+    restart: "no"
+    volumes:
+      - ./scripts:/app/scripts
+      - ./server:/app/server
+      - /app/server/node_modules/
+    build:
+      context: ./server
+      dockerfile: dev.Dockerfile
+    entrypoint: sh -c "chmod +x ../scripts/wait-for-it.sh && ../scripts/wait-for-it.sh db:3306 --timeout=60 -- npm test"

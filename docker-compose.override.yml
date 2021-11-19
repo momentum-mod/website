@@ -1,0 +1,22 @@
+version: '3.8'
+
+services:
+  db:
+    platform: linux/x86_64
+    volumes:
+      - ./mysql:/var/lib/mysql
+    environment:
+      MYSQL_DATABASE: 'momentum'
+      MYSQL_USER: 'mom'
+      MYSQL_PASSWORD: 'password'
+      MYSQL_ROOT_PASSWORD: 'root'
+
+  api:
+    platform: linux/x86_64
+    volumes:
+      - ./scripts:/app/scripts
+      - ./server:/app/server
+      - /app/server/node_modules/
+    build:
+      context: ./server
+      dockerfile: dev.Dockerfile
