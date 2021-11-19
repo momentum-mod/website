@@ -6,7 +6,5 @@ services:
 
   api:
     restart: always
-    env_file:
-      - .env
     ports:
       - ${NODE_PORT}:3002
