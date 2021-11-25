@@ -2,6 +2,7 @@ import {Component, EventEmitter, Input, Output} from '@angular/core';
 import {User} from '../../../../../@core/models/user.model';
 import {MapCreditType} from '../../../../../@core/models/map-credit-type.model';
 import {CdkDragDrop, moveItemInArray} from '@angular/cdk/drag-drop';
+import { MapUploadStatus } from '../../../../../@core/models/map-upload-status.model';
 
 export interface UserSearch {
   alreadySelected: boolean;
@@ -24,11 +25,18 @@ export class MapCreditComponent {
   @Input('credType') credType: MapCreditType;
   @Input('creditArr') creditArr: User[][];
   @Input('editable') editable: boolean;
+  @Input('statusFlag') statusFlag: number|MapUploadStatus;
+  @Input('isAdmin') isAdmin: boolean;
   @Output() creditChange: EventEmitter<CreditChangeEvent>;
   userSearch: UserSearch;
+  disableDeleteCredit: boolean;
 
   constructor() {
     this.creditChange = new EventEmitter<CreditChangeEvent>();
+  }
+
+  ngOnInit() {
+    this.disableDeleteCredit = !this.isAdmin && (this.statusFlag===MapUploadStatus.APPROVED);
   }
 
   addUser(user: User) {

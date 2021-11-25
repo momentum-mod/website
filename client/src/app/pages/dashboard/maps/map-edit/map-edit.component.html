@@ -67,7 +67,7 @@
     <nb-tab tabTitle="CREDITS">
       <form [formGroup]="creditsForm">
         <div class="mt-2">
-          <map-credits [creditArr]="mapCredits" [editable]="true" (creditChange)="onCreditChanged($event)"></map-credits>
+          <map-credits [creditArr]="mapCredits" [editable]="true" (creditChange)="onCreditChanged($event)" [statusFlag]="map.statusFlag" [isAdmin]="isAdmin"></map-credits>
         </div>
         <button nbButton outline status="info" type="submit" [disabled]="creditsForm.invalid"
                 (click)="onCreditsSubmit($event)">Save credits</button>

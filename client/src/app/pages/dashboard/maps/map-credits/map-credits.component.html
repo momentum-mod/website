@@ -3,6 +3,8 @@
     <map-credit [editable]="editable" category="Authors"
                 [credType]="creditType.AUTHOR"
                 [creditArr]="creditArr"
+                [statusFlag]="statusFlag"
+                [isAdmin]="isAdmin"
                 (creditChange)="creditChange.emit($event)">
     </map-credit>
   </div>
@@ -10,6 +12,8 @@
     <map-credit [editable]="editable" category="Co-Authors"
                 [credType]="creditType.COAUTHOR"
                 [creditArr]="creditArr"
+                [statusFlag]="statusFlag"
+                [isAdmin]="isAdmin"
                 (creditChange)="creditChange.emit($event)">
     </map-credit>
   </div>
@@ -17,6 +21,8 @@
     <map-credit [editable]="editable" category="Testers"
                 [credType]="creditType.TESTER"
                 [creditArr]="creditArr"
+                [statusFlag]="statusFlag"
+                [isAdmin]="isAdmin"
                 (creditChange)="creditChange.emit($event)">
     </map-credit>
   </div>
@@ -24,6 +30,8 @@
     <map-credit [editable]="editable" category="Special Thanks"
                 [credType]="creditType.SPECIAL_THANKS"
                 [creditArr]="creditArr"
+                [statusFlag]="statusFlag"
+                [isAdmin]="isAdmin"
                 (creditChange)="creditChange.emit($event)">
     </map-credit>
   </div>

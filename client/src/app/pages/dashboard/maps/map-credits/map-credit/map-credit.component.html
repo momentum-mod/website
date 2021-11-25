@@ -4,7 +4,7 @@
     <div class="d-flex align-items-center">
       <nb-user [name]="user.alias" [picture]="user.avatarURL"></nb-user>
       <div class="ml-auto" *ngIf="editable">
-        <button nbButton outline status="danger" size="tiny" (click)="removeUser(user)">
+        <button nbButton outline status="danger" size="tiny" [disabled]="disableDeleteCredit" (click)="removeUser(user)">
           <nb-icon icon="close-outline"></nb-icon>
         </button>
       </div>

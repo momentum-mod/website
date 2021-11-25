@@ -1,5 +1,6 @@
 'use strict';
 const map = require('../models/map'),
+    user = require('../models/user'),
 	config = require('../../config/config'),
 	mapCredit = require('../models/map-credit'),
 	mapImage = require('../models/map-image'),
@@ -95,6 +96,11 @@ module.exports = {
 	},
 
 	createCredit: (req, res, next) => {
+		if (req.user.roles == user.Role.ADMIN || req.user.roles == user.Role.Moderator) {
+			return mapCredit.createCredit(req.params.mapID, req.body).then(mapCredit => {
+				res.json(mapCredit);
+			}).catch(next);
+		}
 		map.verifySubmitter(req.params.mapID, req.user.id).then(() => {
 			return mapCredit.createCredit(req.params.mapID, req.body);
 		}).then(mapCredit => {
@@ -103,6 +109,11 @@ module.exports = {
 	},
 
 	updateCredit: (req, res, next) => {
+		if (req.user.roles == user.Role.ADMIN || req.user.roles == user.Role.Moderator) {
+			return mapCredit.updateCredit(req.params.mapID, req.params.mapCredID, req.body).then(() => {
+				res.sendStatus(204);
+			}).catch(next);
+	    }
 		map.verifySubmitter(req.params.mapID, req.user.id).then(() => {
 			return mapCredit.updateCredit(req.params.mapID, req.params.mapCredID, req.body);
 		}).then(() => {
@@ -111,10 +122,31 @@ module.exports = {
 	},
 
 	deleteCredit: (req, res, next) => {
-		map.verifySubmitter(req.params.mapID, req.user.id).then(() => {
-			return mapCredit.deleteCredit(req.params.mapID, req.params.mapCredID);
-		}).then(() => {
-			res.sendStatus(200);
+        map.get(req.params.mapID, req.user.id, req.query).then(mapObj => {
+			if (mapObj) {
+				var isApproved = mapObj.statusFlag === map.STATUS.APPROVED;
+                if (!isApproved) {
+                    if (req.user.roles == user.Role.ADMIN || req.user.roles == user.Role.Moderator) {
+                        return mapCredit.deleteCredit(req.params.mapID, req.params.mapCredID).then(() => {
+                            res.sendStatus(200);
+                        }).catch(next);
+                    }
+                    map.verifySubmitter(req.params.mapID, req.user.id).then(() => {
+                        return mapCredit.deleteCredit(req.params.mapID, req.params.mapCredID);
+                    }).then(() => {
+                        res.sendStatus(200);
+                    }).catch(next);
+                } else {
+                    if (req.user.roles == user.Role.ADMIN) {
+                        return mapCredit.deleteCredit(req.params.mapID, req.params.mapCredID).then(() => {
+                            res.sendStatus(200);
+                        }).catch(next);
+                    } else {
+                        next(new ServerError(403, 'Forbidden'));
+                    }
+                }
+			}
+			next(new ServerError(404, 'Map not found'));
 		}).catch(next);
 	},
 
