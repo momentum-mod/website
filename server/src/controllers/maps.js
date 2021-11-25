@@ -96,7 +96,7 @@ module.exports = {
 	},
 
 	createCredit: (req, res, next) => {
-		if (req.user.roles == user.Role.ADMIN || req.user.roles == user.Role.Moderator) {
+		if (req.user.roles == user.Role.ADMIN || req.user.roles == user.Role.MODERATOR) {
 			return mapCredit.createCredit(req.params.mapID, req.body).then(mapCredit => {
 				res.json(mapCredit);
 			}).catch(next);
@@ -109,7 +109,7 @@ module.exports = {
 	},
 
 	updateCredit: (req, res, next) => {
-		if (req.user.roles == user.Role.ADMIN || req.user.roles == user.Role.Moderator) {
+		if (req.user.roles == user.Role.ADMIN || req.user.roles == user.Role.MODERATOR) {
 			return mapCredit.updateCredit(req.params.mapID, req.params.mapCredID, req.body).then(() => {
 				res.sendStatus(204);
 			}).catch(next);
@@ -126,7 +126,7 @@ module.exports = {
 			if (mapObj) {
 				var isApproved = mapObj.statusFlag === map.STATUS.APPROVED;
                 if (!isApproved) {
-                    if (req.user.roles == user.Role.ADMIN || req.user.roles == user.Role.Moderator) {
+                    if (req.user.roles == user.Role.ADMIN || req.user.roles == user.Role.MODERATOR) {
                         return mapCredit.deleteCredit(req.params.mapID, req.params.mapCredID).then(() => {
                             res.sendStatus(200);
                         }).catch(next);
