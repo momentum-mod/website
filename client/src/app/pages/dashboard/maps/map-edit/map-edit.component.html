@@ -73,7 +73,7 @@
                 (click)="onCreditsSubmit($event)">Save credits</button>
       </form>
     </nb-tab>
-    <nb-tab *ngIf="(isAdmin || isModerator) && map" tabTitle="ADMIN&nbsp;MAP&nbsp;SETTINGS">
+    <nb-tab *ngIf="isAdmin && map" tabTitle="ADMIN&nbsp;MAP&nbsp;SETTINGS">
       <form [formGroup]="adminForm">
         <div class="text-right">
           <button nbButton outline status="danger" (click)="showMapDeleteDialog()">Delete Map</button>
