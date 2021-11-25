@@ -72,10 +72,34 @@ module.exports = {
 	},
 
 	updateInfo: (req, res, next) => {
-		map.verifySubmitter(req.params.mapID, req.user.id).then(() => {
-			return map.updateInfo(req.params.mapID, req.body);
-		}).then(() => {
-			res.sendStatus(204);
+		map.get(req.params.mapID, req.user.id, req.query).then(mapObj => {
+			if (mapObj) {
+                if (mapObj.statusFlag === map.STATUS.APPROVED) {
+					if (req.user.roles === user.Role.ADMIN) {
+						return map.updateInfo(req.params.mapID, req.body).then(() => {
+							res.sendStatus(204);
+						}).catch(next);
+					}
+					map.verifySubmitter(req.params.mapID, req.user.id).then(() => {
+						return map.updateInfo(req.params.mapID, req.body);
+					}).then(() => {
+						res.sendStatus(204);
+					}).catch(next);
+				} else {
+					if (req.user.roles === user.Role.ADMIN || req.user.roles === user.Role.MODERATOR) {
+						return map.updateInfo(req.params.mapID, req.body).then(() => {
+							res.sendStatus(204);
+						}).catch(next);
+					}
+					map.verifySubmitter(req.params.mapID, req.user.id).then(() => {
+						return map.updateInfo(req.params.mapID, req.body);
+					}).then(() => {
+						res.sendStatus(204);
+					}).catch(next);
+				}
+			} else {
+				next(new ServerError(404, 'Map not found'));
+			}
 		}).catch(next);
 	},
 
