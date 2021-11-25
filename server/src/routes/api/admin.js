@@ -33,7 +33,7 @@ router.route('/maps')
 
 router.route('/maps/:mapID')
 	.patch(celebrate(adminValidation.updateMap), adminCtrl.updateMap)
-	.delete(adminCtrl.deleteMap)
+	.delete(authMiddleware.requireAdmin, adminCtrl.deleteMap)
 	.all(errorCtrl.send405);
 
 router.route('/reports')
