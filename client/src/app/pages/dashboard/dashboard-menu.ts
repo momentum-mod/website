@@ -40,6 +40,7 @@ export const MENU_ITEMS: NbMenuItem[] = [
           roles: [
             Role.MAPPER,
             Role.ADMIN,
+            Role.MODERATOR,
           ],
         },
       },

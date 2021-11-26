@@ -37,6 +37,7 @@ const routes: Routes = [
           onlyAllow: [
             Role.MAPPER,
             Role.ADMIN,
+            Role.MODERATOR,
           ],
         },
         children: [
