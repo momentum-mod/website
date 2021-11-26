@@ -453,8 +453,15 @@ module.exports = {
 	},
 
 	updateInfo: (mapID, mapInfo) => {
-		return MapInfo.update(mapInfo, {
-			where: {mapID: mapID}
+		return MapInfo.update(
+			{
+				youtubeID: mapInfo.youtubeID ?? null,
+				description: mapInfo.description
+			},
+			{
+			where: {
+				mapID: mapID,
+			}
 		});
 	},
 
