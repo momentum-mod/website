@@ -80,11 +80,26 @@ module.exports = {
 							res.sendStatus(204);
 						}).catch(next);
 					}
-					map.verifySubmitter(req.params.mapID, req.user.id).then(() => {
-						return map.updateInfo(req.params.mapID, req.body);
-					}).then(() => {
-						res.sendStatus(204);
-					}).catch(next);
+					if (req.body.youtubeID == null) {
+						map.getInfo(req.params.mapID).then(mapInfo => {
+							if (mapInfo.youtubeID) {
+								next(new ServerError(403, 'Forbidden'));
+							}
+							else {
+								map.verifySubmitter(req.params.mapID, req.user.id).then(() => {
+									return map.updateInfo(req.params.mapID, req.body);
+								}).then(() => {
+									res.sendStatus(204);
+								}).catch(next);
+							}
+						}).catch(next);
+					} else {
+						map.verifySubmitter(req.params.mapID, req.user.id).then(() => {
+							return map.updateInfo(req.params.mapID, req.body);
+						}).then(() => {
+							res.sendStatus(204);
+						}).catch(next);
+					}
 				} else {
 					if (req.user.roles === user.Role.ADMIN || req.user.roles === user.Role.MODERATOR) {
 						return map.updateInfo(req.params.mapID, req.body).then(() => {

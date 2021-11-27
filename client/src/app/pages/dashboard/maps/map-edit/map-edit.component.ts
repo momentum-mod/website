@@ -16,6 +16,7 @@ import {AdminService} from '../../../../@core/data/admin.service';
 import {NbDialogService, NbToastrService} from '@nebular/theme';
 import {ConfirmDialogComponent} from '../../../../@theme/components/confirm-dialog/confirm-dialog.component';
 import {forkJoin, Subject} from 'rxjs';
+import { MapUploadStatus } from '../../../../@core/models/map-upload-status.model';
 
 const youtubeRegex = /[a-zA-Z0-9_-]{11}/;
 
@@ -85,6 +86,8 @@ export class MapEditComponent implements OnInit, OnDestroy {
         if (!(this.isSubmitter || this.isAdmin || this.isModerator))
           this.router.navigate(['/dashboard/maps/' + this.map.id]);
         this.infoForm.patchValue(map.info);
+        if (!this.isAdmin && this.map.statusFlag === MapUploadStatus.APPROVED)
+          this.infoForm.get('youtubeID').setValidators([Validators.required, this.infoForm.get('youtubeID').validator]);
         this.mapImages = map.images;
         this.mapCredits = [[], [], [], []];
         this.mapCreditsIDs = map.credits.map(val => +val.id);
