@@ -88,6 +88,7 @@ module.exports = {
 	update: {
 		[Segments.BODY]: Joi.object().keys({
 			statusFlag: validation.map.statusFlag,
+			name: validation.map.name,
 		}).unknown(false),
 	},
 

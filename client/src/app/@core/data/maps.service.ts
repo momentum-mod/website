@@ -42,6 +42,14 @@ export class MapsService {
   }
 
   /**
+   * @param mapName
+   * @return Rename a map
+   */
+   updateMapName(id: number, mapName: object): Observable<any> {
+    return this.http.patch(environment.api + '/api/maps/' + id, mapName);
+  }
+
+  /**
    * @param id
    * @param mapInfo MomentumMapInfo with new values of properties
    * @return response

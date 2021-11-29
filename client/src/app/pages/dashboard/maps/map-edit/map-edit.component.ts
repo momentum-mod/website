@@ -37,6 +37,10 @@ export class MapEditComponent implements OnInit, OnDestroy {
   isAdmin: boolean;
   isModerator: boolean;
 
+  mapForm: FormGroup = this.fb.group({
+    'mapName': ['', [Validators.required, Validators.maxLength(32)]],
+  });
+
   infoForm: FormGroup = this.fb.group({
     'youtubeID': ['', [Validators.pattern(youtubeRegex)]],
     'description': ['', [Validators.maxLength(1000)]],
@@ -50,6 +54,7 @@ export class MapEditComponent implements OnInit, OnDestroy {
 
   });
 
+  get mapName() { return this.mapForm.get('mapName'); }
   get youtubeID() { return this.infoForm.get('youtubeID'); }
   get description() { return this.infoForm.get('description'); }
 
@@ -86,6 +91,7 @@ export class MapEditComponent implements OnInit, OnDestroy {
         if (!(this.isSubmitter || this.isAdmin || this.isModerator))
           this.router.navigate(['/dashboard/maps/' + this.map.id]);
         this.infoForm.patchValue(map.info);
+        this.mapForm.patchValue({mapName: map.name});
         if (!this.isAdmin && this.map.statusFlag === MapUploadStatus.APPROVED)
           this.infoForm.get('youtubeID').setValidators([Validators.required, this.infoForm.get('youtubeID').validator]);
         this.mapImages = map.images;
@@ -97,6 +103,14 @@ export class MapEditComponent implements OnInit, OnDestroy {
         this.creditsForm.get('authors').patchValue(this.mapCredits[MapCreditType.AUTHOR]);
       });
     });
+  }
+
+  onMapSubmit() {
+    if (this.mapForm.invalid)
+      return;
+    this.mapService.updateMapName(this.map.id, {name: this.mapName.value,}).subscribe(() => {
+      this.toasterService.success('Updated the map!', 'Success');
+    }, error => this.toasterService.danger(error.message, 'Failed to update the map!'));
   }
 
   onInfoSubmit() {

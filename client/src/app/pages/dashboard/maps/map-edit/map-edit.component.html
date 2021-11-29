@@ -10,6 +10,20 @@
     </div>
   </nb-card-header>
   <nb-tabset class="overflow-hidden">
+    <nb-tab tabTitle="FILE">
+
+    </nb-tab>
+    <nb-tab tabTitle="NAME">
+      <form (ngSubmit)="onMapSubmit()" [formGroup]="mapForm">
+        <div class="form-group">
+          <h5>Map Name</h5>
+          <input nbInput class="form-control" formControlName="mapName" type="text"
+                  [ngClass]="{'form-control-danger':mapName.invalid}"/>
+        </div>
+        <button nbButton outline status="info" class="submit-btn" type="submit"
+        [disabled]="mapForm.invalid">Save info</button>
+      </form>
+    </nb-tab>
     <nb-tab tabTitle="INFO">
       <form (ngSubmit)="onInfoSubmit()" [formGroup]="infoForm">
         <div class="form-group mt-2 mb-4">
