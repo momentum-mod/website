@@ -323,7 +323,7 @@ describe('maps', () => {
                         expect(res).to.be.json;
                         expect(res.body).to.have.property('maps');
                         expect(res.body.maps).to.be.an('array');
-                        expect(res.body.maps).to.have.length(2);
+                        expect(res.body.maps).to.have.length(3);
                         expect(res.body.count).to.equal(2);
                         expect(res.body.maps[0]).to.have.property('name');
 
