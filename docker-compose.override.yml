@@ -12,6 +12,8 @@ services:
       MYSQL_ROOT_PASSWORD: 'root'
 
   api:
+    env_file:
+      - .env
     platform: linux/x86_64
     volumes:
       - ./scripts:/app/scripts
