@@ -54,4 +54,4 @@ jobs:
     - name: Checkout
       uses: actions/checkout@v2
     - name: Execute tests
-      run: docker compose -f docker-compose.yml -f docker-compose.test.yml up -d
+      run: docker compose -f docker-compose.yml -f docker-compose.test.yml up --exit-code-from api
