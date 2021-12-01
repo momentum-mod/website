@@ -6,9 +6,15 @@ on:
       - staging
     paths-ignore:
       - '**.md'
+  push:
+    branches:
+      - staging
+    paths-ignore:
+      - '**.md'
 
 env:
   NODE_ENV: test
+  NODE_PORT: 3002
 
 jobs:
   client-tests:
@@ -44,35 +50,8 @@ jobs:
   server-tests:
     name: Server Tests
     runs-on: ubuntu-latest
-
     steps:
-      - name: Checkout
-        uses: actions/checkout@v2
-
-      - name: Setup Node
-        uses: actions/setup-node@v1
-        with:
-          node-version: '12.x'
-
-      - name: Resolve Yarn Cache Directory
-        id: yarn-cache-dir-path
-        run: echo "::set-output name=dir::$(yarn cache dir)"
-
-      - name: Cache Yarn Cache Directory
-        uses: actions/cache@v2
-        with:
-          path: ${{ steps.yarn-cache-dir-path.outputs.dir }}
-          key: ${{ runner.os }}-${{ env.NODE_VERSION }}-${{ hashFiles('./server/yarn.lock') }}
-          restore-keys: ${{ runner.os }}-${{ env.NODE_VERSION }}-
-
-      - name: Start MySQL Service
-        run: sudo systemctl start mysql.service
-
-      - name: Setup Database
-        run: bash ./scripts/setup-db-test.sh
-
-      - name: Run Tests
-        run: |
-          cd ./server/
-          yarn install --prefer-offline
-          npm test
+    - name: Checkout
+      uses: actions/checkout@v2
+    - name: Execute tests
+      run: docker compose -f docker-compose.yml -f docker-compose.test.yml up --exit-code-from api

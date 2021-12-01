@@ -19,4 +19,4 @@ services:
     build:
       context: ./server
       dockerfile: dev.Dockerfile
-    entrypoint: sh -c "chmod +x ../scripts/wait-for-it.sh && ../scripts/wait-for-it.sh db:3306 --timeout=60 -- npm test"
+    entrypoint: "npm run test-docker"

@@ -4,8 +4,10 @@
   "private": true,
   "scripts": {
     "start": "node app.js",
+    "dev": "nodemon server.ts -L --ext ts,json,js",
     "ts-build": "tsc",
-    "test": "mocha --exit --timeout 45000"
+    "test": "mocha --exit --timeout 45000",
+    "test-docker": "chmod +x ../scripts/wait-for-it.sh && ../scripts/wait-for-it.sh db:3306 --timeout=60 -- npm run test"
   },
   "dependencies": {
     "@d-fischer/passport-twitch": "1.0.5",
