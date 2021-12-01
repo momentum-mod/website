@@ -19,4 +19,4 @@ services:
     build:
       context: ./server
       dockerfile: dev.Dockerfile
-    entrypoint: "npm run test"
+    entrypoint: "npm run test-docker"
