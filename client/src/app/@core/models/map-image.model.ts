@@ -6,4 +6,5 @@ export interface MapImage {
   large: string;
   createdAt?: string;
   updatedAt?: string;
+  file?: File;
 }
