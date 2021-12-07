@@ -29,8 +29,12 @@ export class MapEditComponent implements OnInit, OnDestroy {
 
   private ngUnsub = new Subject();
   map: MomentumMap;
+  thumbnail: MapImage;
+  thumbnailUpdated: boolean;
+  originalMapImages: MapImage[];
   mapImages: MapImage[];
   mapImagesLimit: number;
+  imagesUpdated: boolean;
   mapCredits: User[][];
   mapCreditsIDs: number[];
   isSubmitter: boolean;
@@ -66,8 +70,12 @@ export class MapEditComponent implements OnInit, OnDestroy {
               private dialogService: NbDialogService,
               private toasterService: NbToastrService,
               private fb: FormBuilder) {
-    this.mapImagesLimit = 6;
+    this.thumbnail = null;
+    this.thumbnailUpdated = false;
+    this.originalMapImages = [];
     this.mapImages = [];
+    this.mapImagesLimit = 5;
+    this.imagesUpdated = false;
     this.mapCredits = [[], [], [], []];
     this.mapCreditsIDs = [];
   }
@@ -76,7 +84,7 @@ export class MapEditComponent implements OnInit, OnDestroy {
     this.route.paramMap.pipe(
       switchMap((params: ParamMap) =>
         this.mapService.getMap(Number(params.get('id')), {
-          params: { expand: 'info,credits,images' },
+          params: { expand: 'info,credits,images,thumbnail' },
         }),
       ),
     ).subscribe(map => {
@@ -94,7 +102,9 @@ export class MapEditComponent implements OnInit, OnDestroy {
         this.mapForm.patchValue({mapName: map.name});
         if (!this.isAdmin && this.map.statusFlag === MapUploadStatus.APPROVED)
           this.infoForm.get('youtubeID').setValidators([Validators.required, this.infoForm.get('youtubeID').validator]);
-        this.mapImages = map.images;
+        this.thumbnail = map.thumbnail;
+        this.originalMapImages = map.images.filter(img => img.id !== map.thumbnailID);
+        this.mapImages = this.originalMapImages.map(img => ({...img}));
         this.mapCredits = [[], [], [], []];
         this.mapCreditsIDs = map.credits.map(val => +val.id);
         for (const credit of map.credits) {
@@ -126,7 +136,59 @@ export class MapEditComponent implements OnInit, OnDestroy {
   }
 
   onImagesSubmit() {
-    // TODO: Submit changed images
+    if (this.thumbnailUpdated) {
+      this.mapService.updateMapAvatar(this.map.id, this.thumbnail.file).subscribe(() => {
+        this.toasterService.success('Updated thumbnail!', 'Success');
+      }, error => this.toasterService.danger(error.message, 'Failed to update thumbnail!'));
+    }
+
+    let deletes = [];
+    let creates = [];
+
+    if (!this.imagesUpdated) {
+      return;
+    } else if (this.mapImages.length === 0) {
+      for (let img of this.originalMapImages) {
+        this.mapService.deleteMapImage(this.map.id, img.id).subscribe(() => {
+          this.toasterService.success('Deleted the image!', 'Success');
+        }, error => this.toasterService.danger(error.message, 'Failed to delete the image!'));
+      }
+    } else {
+      creates = this.mapImages.filter(img => img.id === -1);
+      deletes = this.originalMapImages.filter(ogImg => !this.mapImages.some(img => ogImg.id === img.id));
+
+      let maxLength = (creates.length > deletes.length) ? creates.length : deletes.length;
+      // TODO get the images in order
+      for (let i = 0; i < maxLength; i++) {
+        if (deletes.length > 0 && creates.length > 0) {
+          this.mapService.updateMapImage(this.map.id, deletes[deletes.length - 1].id, creates[creates.length - 1].file).subscribe(() => {
+            this.toasterService.success('Updated the image!', 'Success');
+          }, error => this.toasterService.danger(error.message, 'Failed to update the image!'));
+          deletes.pop();
+          creates.pop();
+        } else if (deletes.length > 0) {
+          this.mapService.deleteMapImage(this.map.id, deletes[deletes.length - 1].id).subscribe(() => {
+            this.toasterService.success('Deleted the image!', 'Success');
+          }, error => this.toasterService.danger(error.message, 'Failed to delete the image!'));
+          deletes.pop();
+        } 
+        else if (creates.length > 0) {
+          this.mapService.createMapImage(this.map.id, creates[creates.length - 1].file).subscribe(() => {
+            this.toasterService.success('Created the image!', 'Success');
+          }, error => this.toasterService.danger(error.message, 'Failed to delete the image!'));
+          creates.pop();
+        }
+      }
+    }
+
+    // TODO force the map images to update as well AFTER the images update
+    this.mapService.getMapImages(this.map.id).subscribe(imgs => {
+      if (imgs.length) {
+        this.map.images = imgs.filter(img => img.id !== this.map.thumbnailID);
+      }
+    });
+    this.thumbnailUpdated = false;
+    this.imagesUpdated = false;
   }
 
   onCreditsSubmit($event) {
@@ -171,21 +233,37 @@ export class MapEditComponent implements OnInit, OnDestroy {
   }
 
   onMapImageSelected(file: File) {
+    this.imagesUpdated = true;
     this.getImageSource(file, (blobURL, img) => {
       if (this.mapImages.length >= this.mapImagesLimit)
         return;
       this.mapImages.push({
         id: -1,
-        mapID: -1,
+        mapID: this.map.id,
         small: blobURL,
-        medium: '',
-        large: '',
-        // file: img,
+        medium: blobURL,
+        large: blobURL,
+        file: file,
       });
     });
   }
 
+  onAvatarFileSelected(file: File) {
+    this.thumbnailUpdated = true;
+    this.getImageSource(file, ((blobURL, img) => {
+      this.thumbnail = {
+        id: this.thumbnail.id,
+        mapID: this.map.id,
+        small: blobURL,
+        medium: blobURL,
+        large: blobURL,
+        file: file,
+      };
+    }));
+  }
+
   removeMapImage(img: MapImage) {
+    this.imagesUpdated = true;
     this.mapImages.splice(this.mapImages.findIndex(i => i === img), 1);
   }
 
