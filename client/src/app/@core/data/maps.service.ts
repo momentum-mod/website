@@ -148,6 +148,14 @@ export class MapsService {
    * @param id
    * @param mapImageFile
    */
+  getMapImages(id: number): Observable<MapImage[]> {
+    return this.http.get<MapImage[]>(environment.api + '/api/maps/' + id + '/images');
+  }
+
+  /**
+   * @param id
+   * @param mapImageFile
+   */
   createMapImage(id: number, mapImageFile: File): Observable<MapImage> {
     const formData = new FormData();
     formData.append('mapImageFile', mapImageFile, mapImageFile.name);
