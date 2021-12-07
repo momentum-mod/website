@@ -29,6 +29,8 @@ export class MapEditComponent implements OnInit, OnDestroy {
 
   private ngUnsub = new Subject();
   map: MomentumMap;
+  mapFile: File;
+  fileUpdated: boolean;
   thumbnail: MapImage;
   thumbnailUpdated: boolean;
   originalMapImages: MapImage[];
@@ -70,6 +72,8 @@ export class MapEditComponent implements OnInit, OnDestroy {
               private dialogService: NbDialogService,
               private toasterService: NbToastrService,
               private fb: FormBuilder) {
+    this.mapFile = null;
+    this.fileUpdated = false;
     this.thumbnail = null;
     this.thumbnailUpdated = false;
     this.originalMapImages = [];
@@ -115,10 +119,21 @@ export class MapEditComponent implements OnInit, OnDestroy {
     });
   }
 
-  onMapSubmit() {
+  onFileSubmit() {
+    this.mapService.getMapFileUploadLocation(this.map.id).subscribe(res => {
+      if (res) {
+        this.mapService.uploadMapFile(res.url, this.mapFile).subscribe(() => {
+          this.toasterService.success('Updated the map!', 'Success');
+        }, error => this.toasterService.danger(error.message, 'Failed to update the map!'));
+      }
+    }, error => this.toasterService.danger(error.message, 'Failed to find map!'));
+    this.fileUpdated = false;
+  }
+
+  onNameSubmit() {
     if (this.mapForm.invalid)
       return;
-    this.mapService.updateMapName(this.map.id, {name: this.mapName.value,}).subscribe(() => {
+    this.mapService.updateMapName(this.map.id, {name: this.mapName.value}).subscribe(() => {
       this.toasterService.success('Updated the map!', 'Success');
     }, error => this.toasterService.danger(error.message, 'Failed to update the map!'));
   }
@@ -219,6 +234,11 @@ export class MapEditComponent implements OnInit, OnDestroy {
     ).subscribe(() => {
       this.toasterService.success('Updated map credits!', 'Success');
     }, error => this.toasterService.danger(error.message, 'Failed to update credits!'));
+  }
+
+  onMapFileSelected(file: File) {
+    this.mapFile = file;
+    this.fileUpdated = true;
   }
 
   getImageSource(img: File, callback: (result: any, originalFile: File) => void) {
