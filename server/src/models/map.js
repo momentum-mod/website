@@ -539,8 +539,6 @@ module.exports = {
 		return Map.findByPk(mapID).then(map => {
 			if (!map)
 				return Promise.reject(new ServerError(404, 'Map not found'));
-			else if (map.statusFlag !== STATUS.NEEDS_REVISION)
-				return Promise.reject(new ServerError(409, 'Map file cannot be uploaded given the map state'));
 			mapModel = map;
 			return storeMapFile(mapFileBuffer, map);
 		}).then((results) => {
