@@ -11,17 +11,21 @@
   </nb-card-header>
   <nb-tabset class="overflow-hidden">
     <nb-tab tabTitle="FILE">
-
+      <h5 class="mb-1 font-weight-normal">Map File</h5>
+      <file-upload [type]="'map'" [limit-size]="300"
+                   (fileSelected)="onMapFileSelected($event)"></file-upload>
+      <button nbButton outline status="info" class="submit-btn" type="submit"
+              [disabled]="!fileUpdated" (click)="onFileSubmit()">Save file</button>
     </nb-tab>
     <nb-tab tabTitle="NAME">
-      <form (ngSubmit)="onMapSubmit()" [formGroup]="mapForm">
+      <form (ngSubmit)="onNameSubmit()" [formGroup]="mapForm">
         <div class="form-group">
           <h5>Map Name</h5>
           <input nbInput class="form-control" formControlName="mapName" type="text"
                   [ngClass]="{'form-control-danger':mapName.invalid}"/>
         </div>
         <button nbButton outline status="info" class="submit-btn" type="submit"
-        [disabled]="mapForm.invalid">Save info</button>
+                [disabled]="mapForm.invalid">Save name</button>
       </form>
     </nb-tab>
     <nb-tab tabTitle="INFO">
