@@ -54,27 +54,30 @@
     <nb-tab tabTitle="IMAGES">
       <form (ngSubmit)="onImagesSubmit()">
         <div class="text-center overflow-auto mt-2">
-          <div class="d-inline-block text-left mb-3">
-            <h5 class="font-weight-lighter mx-2">
-              <div class="d-inline-block font-weight-normal thumb-text">Thumbnail&nbsp;</div>
-              <div class="d-inline-block">Extra Images</div>
-            </h5>
-            <div class="d-inline-flex align-items-center" cdkDropList cdkDropListOrientation="horizontal" (cdkDropListDropped)="imageDrop($event)">
-              <div class="map-image-cont mx-2" *ngFor="let img of mapImages" cdkDrag>
-                <img class="map-image" [src]="img.small">
-                <button nbButton outline status="danger" size="tiny" (click)="removeMapImage(img)">
-                  <nb-icon icon="close-outline"></nb-icon>
-                </button>
-              </div>
-              <div class="mx-2 upload-box" *ngIf="mapImages.length < mapImagesLimit">
-                <file-upload [type]="'image'" [multiple]="true" (fileSelected)="onMapImageSelected($event)"></file-upload>
+          <div class="d-flex flex-wrap justify-content-around">
+            <div class="flex-grow-1 mx-3 mb-3 input-col">
+              <h5 class="mb-1 font-weight-normal">Map Thumbnail</h5>
+              <img class="map-image" [src]="thumbnail.small">
+              <file-upload [type]="'image'" (fileSelected)="onAvatarFileSelected($event)"></file-upload>
+            </div>
+            <div class="flex-grow-1 mx-3 mb-3 input-col">
+              <h5 class="mb-1 font-weight-normal">Extra Images</h5>
+              <div class="d-inline-flex align-items-center" cdkDropList cdkDropListOrientation="horizontal" (cdkDropListDropped)="imageDrop($event)">
+                <div class="mx-2" *ngFor="let img of mapImages" cdkDrag>
+                  <img class="map-image" [src]="img.small">
+                  <button nbButton outline status="danger" size="tiny" (click)="removeMapImage(img)">
+                    <nb-icon icon="close-outline"></nb-icon>
+                  </button>
+                </div>
+                <div class="mx-2 upload-box" *ngIf="mapImages.length < mapImagesLimit">
+                  <file-upload [type]="'image'" [multiple]="true" (fileSelected)="onMapImageSelected($event)"></file-upload>
+                </div>
               </div>
             </div>
           </div>
         </div>
         <div class="d-inline-flex align-items-center submit-btn">
           <button nbButton outline status="info" class="mr-2" type="submit">Save images</button>
-          <nb-icon class="text-warning" icon="alert-triangle-outline" title="Under Construction"></nb-icon> <!-- TODO: Remove when images submitting is added -->
         </div>
       </form>
     </nb-tab>
