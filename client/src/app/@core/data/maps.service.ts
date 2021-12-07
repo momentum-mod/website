@@ -45,7 +45,7 @@ export class MapsService {
    * @param mapName
    * @return Rename a map
    */
-   updateMapName(id: number, mapName: object): Observable<any> {
+  updateMapName(id: number, mapName: object): Observable<any> {
     return this.http.patch(environment.api + '/api/maps/' + id, mapName);
   }
 
@@ -114,7 +114,7 @@ export class MapsService {
   uploadMapFile(uploadLocation: string, mapFile: File): Observable<any> {
     const formData = new FormData();
     formData.append('mapFile', mapFile, mapFile.name);
-    return this.http.post(uploadLocation, formData, {
+    return this.http.put(uploadLocation, formData, {
       reportProgress: true,
       observe: 'events',
       responseType: 'text',

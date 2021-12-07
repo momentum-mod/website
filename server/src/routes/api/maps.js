@@ -53,7 +53,7 @@ router.route('/:mapID/download')
 
 router.route('/:mapID/upload')
 	.get(mapCtrl.getUploadLocation)
-	.post(authMiddleware.requireMapper, mapCtrl.upload)
+	.put(authMiddleware.requireMapper, mapCtrl.upload)
 	.all(errorCtrl.send405);
 
 router.route('/:mapID/images')
