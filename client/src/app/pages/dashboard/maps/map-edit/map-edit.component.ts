@@ -17,6 +17,7 @@ import {NbDialogService, NbToastrService} from '@nebular/theme';
 import {ConfirmDialogComponent} from '../../../../@theme/components/confirm-dialog/confirm-dialog.component';
 import {forkJoin, Subject} from 'rxjs';
 import { MapUploadStatus } from '../../../../@core/models/map-upload-status.model';
+import { HttpEvent, HttpEventType } from '@angular/common/http';
 
 const youtubeRegex = /[a-zA-Z0-9_-]{11}/;
 
@@ -42,6 +43,8 @@ export class MapEditComponent implements OnInit, OnDestroy {
   isSubmitter: boolean;
   isAdmin: boolean;
   isModerator: boolean;
+  isUploadingMap: boolean;
+  mapUploadPercentage: number;
 
   mapForm: FormGroup = this.fb.group({
     'mapName': ['', [Validators.required, Validators.maxLength(32)]],
@@ -82,6 +85,8 @@ export class MapEditComponent implements OnInit, OnDestroy {
     this.imagesUpdated = false;
     this.mapCredits = [[], [], [], []];
     this.mapCreditsIDs = [];
+    this.isUploadingMap = false;
+    this.mapUploadPercentage = 0;
   }
 
   ngOnInit() {
@@ -122,11 +127,33 @@ export class MapEditComponent implements OnInit, OnDestroy {
   onFileSubmit() {
     this.mapService.getMapFileUploadLocation(this.map.id).subscribe(res => {
       if (res) {
-        this.mapService.uploadMapFile(res.url, this.mapFile).subscribe(() => {
-          this.toasterService.success('Updated the map!', 'Success');
-        }, error => this.toasterService.danger(error.message, 'Failed to update the map!'));
+        console.log("res 1", res);
+        this.mapService.uploadMapFile(res.headers.get('Location'), this.mapFile).subscribe((event: HttpEvent<any>) => {
+          switch (event.type) {
+            case HttpEventType.Sent:
+              this.isUploadingMap = true;
+              break;
+            case HttpEventType.Response:
+              this.toasterService.success('Updated the map!', 'Success');
+              this.isUploadingMap = false;
+              break;
+            case HttpEventType.UploadProgress: {
+              const calc: number = Math.round(event['loaded'] / event['total'] * 100);
+              if (this.mapUploadPercentage !== calc) {
+                this.mapUploadPercentage = calc;
+              }
+              break;
+            }
+          }
+        }, (error: Error) => {
+          this.toasterService.danger(error.message, 'Failed to update the map!');
+          this.isUploadingMap = false;
+        });
       }
-    }, error => this.toasterService.danger(error.message, 'Failed to find map!'));
+    }, error => {
+      this.toasterService.danger(error.message, 'Failed to get upload location!');
+      this.isUploadingMap = false;
+    });
     this.fileUpdated = false;
   }
 
