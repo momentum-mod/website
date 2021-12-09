@@ -944,10 +944,10 @@ describe('maps', () => {
             });
 		});
 
-		describe('POST /maps/{mapID}/upload', () => {
+		describe('PUT /maps/{mapID}/upload', () => {
 			it('should respond with a 400 when no map file is provided', () => {
 				return chai.request(server)
-					.post('/api/maps/' + testMap3.id + '/upload')
+					.put('/api/maps/' + testMap3.id + '/upload')
 					.type('form')
 					.set('Authorization', 'Bearer ' + accessToken)
 					.send(null)
@@ -962,7 +962,7 @@ describe('maps', () => {
 
 		    it('should respond with a 403 when the submitterID does not match the userID', () => {
 				return chai.request(server)
-					.post('/api/maps/12133122/upload')
+					.put('/api/maps/12133122/upload')
                     .set('Authorization', 'Bearer ' + accessToken)
                     .attach('mapFile', fs.readFileSync('test/testMap.bsp'), 'testMap.bsp')
                     .then(res => {
@@ -978,7 +978,7 @@ describe('maps', () => {
 
 			it('should respond with a 409 when the map is not accepting uploads', () => {
                 return chai.request(server)
-                    .post('/api/maps/' + testMap.id + '/upload')
+                    .put('/api/maps/' + testMap.id + '/upload')
                     .set('Authorization', 'Bearer ' + accessToken)
                     .attach('mapFile', fs.readFileSync('test/testMap.bsp'), 'testMap.bsp')
                     .then(res => {
@@ -993,7 +993,7 @@ describe('maps', () => {
 
 			it('should upload the map file', () => {
                 return chai.request(server)
-                    .post('/api/maps/' + testMap3.id + '/upload')
+                    .put('/api/maps/' + testMap3.id + '/upload')
                     .set('Authorization', 'Bearer ' + accessToken)
                     .attach('mapFile', fs.readFileSync('test/testMap.bsp'), 'testMap.bsp')
                     .then(res => {
@@ -1003,7 +1003,7 @@ describe('maps', () => {
             });
             it('should respond with 401 when no access token is provided', () => {
                 return chai.request(server)
-                    .post('/api/maps/' + testMap3.id + '/upload')
+                    .put('/api/maps/' + testMap3.id + '/upload')
                     .then(res => {
                         expect(res).to.have.status(401);
                         expect(res).to.be.json;
