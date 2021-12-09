@@ -48,32 +48,17 @@ module.exports = {
 		}).catch(next);
 	},
 
-	update: (req, res, next) => {
-		map.get(req.params.mapID, req.user.id, req.query).then(mapObj => {
-			if (mapObj) {
-                if (mapObj.statusFlag === map.STATUS.APPROVED) {
-					if (req.user.roles === user.Role.ADMIN) {
-						return map.update(req.params.mapID, req.body).then(() => {
-							res.sendStatus(204);
-						}).catch(next);
-					} else {
-						next(new ServerError(403, 'Forbidden'));
-					}
-				} else {
-					if (req.user.roles === user.Role.ADMIN || req.user.roles === user.Role.MODERATOR) {
-						return map.update(req.params.mapID, req.body).then(() => {
-							res.sendStatus(204);
-						}).catch(next);
-					}
-					map.verifySubmitter(req.params.mapID, req.user.id).then(() => {
-						return map.update(req.params.mapID, req.body);
-					}).then(() => {
-						res.sendStatus(204);
-					}).catch(next);
-				}
+	update: (req, res, next) => { // TODO what else calls this method...
+		map.checkPermissions(req.params.mapID, req.user).then(verify => {
+			if (verify) {
+				return map.verifySubmitter(req.params.mapID, req.user.id);
 			} else {
-				next(new ServerError(404, 'Map not found'));
+				return;
 			}
+		}).then(() => {
+			return map.update(req.params.mapID, req.body).then(() => {
+				res.sendStatus(204);
+			}).catch(next);
 		}).catch(next);
 	},
 
@@ -93,50 +78,62 @@ module.exports = {
 	},
 
 	updateInfo: (req, res, next) => {
-		map.get(req.params.mapID, req.user.id, req.query).then(mapObj => {
-			if (mapObj) {
-                if (mapObj.statusFlag === map.STATUS.APPROVED) {
-					if (req.user.roles === user.Role.ADMIN) {
-						return map.updateInfo(req.params.mapID, req.body).then(() => {
-							res.sendStatus(204);
-						}).catch(next);
-					}
-					if (req.body.youtubeID == null) {
-						map.getInfo(req.params.mapID).then(mapInfo => {
-							if (mapInfo.youtubeID) {
-								next(new ServerError(403, 'Forbidden'));
-							}
-							else {
-								map.verifySubmitter(req.params.mapID, req.user.id).then(() => {
-									return map.updateInfo(req.params.mapID, req.body);
-								}).then(() => {
-									res.sendStatus(204);
-								}).catch(next);
-							}
-						}).catch(next);
-					} else {
-						map.verifySubmitter(req.params.mapID, req.user.id).then(() => {
-							return map.updateInfo(req.params.mapID, req.body);
-						}).then(() => {
-							res.sendStatus(204);
-						}).catch(next);
-					}
-				} else {
-					if (req.user.roles === user.Role.ADMIN || req.user.roles === user.Role.MODERATOR) {
-						return map.updateInfo(req.params.mapID, req.body).then(() => {
-							res.sendStatus(204);
-						}).catch(next);
-					}
-					map.verifySubmitter(req.params.mapID, req.user.id).then(() => {
-						return map.updateInfo(req.params.mapID, req.body);
-					}).then(() => {
-						res.sendStatus(204);
-					}).catch(next);
-				}
+		map.checkPermissions(req.params.mapID, req.user).then(verify => {
+			if (verify) {
+				return map.verifySubmitter(req.params.mapID, req.user.id);
 			} else {
-				next(new ServerError(404, 'Map not found'));
+				return;
 			}
+		}).then(() => {
+			return map.updateInfo(req.params.mapID, req.body).then(() => {
+				res.sendStatus(204);
+			}).catch(next);
 		}).catch(next);
+
+		// map.get(req.params.mapID, req.user.id, req.query).then(mapObj => {
+		// 	if (mapObj) {
+        //         if (mapObj.statusFlag === map.STATUS.APPROVED) {
+		// 			if (req.user.roles === user.Role.ADMIN) {
+		// 				return map.updateInfo(req.params.mapID, req.body).then(() => {
+		// 					res.sendStatus(204);
+		// 				}).catch(next);
+		// 			}
+		// 			if (req.body.youtubeID == null) {
+		// 				map.getInfo(req.params.mapID).then(mapInfo => {
+		// 					if (mapInfo.youtubeID) {
+		// 						next(new ServerError(403, 'Forbidden'));
+		// 					}
+		// 					else {
+		// 						map.verifySubmitter(req.params.mapID, req.user.id).then(() => {
+		// 							return map.updateInfo(req.params.mapID, req.body);
+		// 						}).then(() => {
+		// 							res.sendStatus(204);
+		// 						}).catch(next);
+		// 					}
+		// 				}).catch(next);
+		// 			} else {
+		// 				map.verifySubmitter(req.params.mapID, req.user.id).then(() => {
+		// 					return map.updateInfo(req.params.mapID, req.body);
+		// 				}).then(() => {
+		// 					res.sendStatus(204);
+		// 				}).catch(next);
+		// 			}
+		// 		} else {
+		// 			if (req.user.roles === user.Role.ADMIN || req.user.roles === user.Role.MODERATOR) {
+		// 				return map.updateInfo(req.params.mapID, req.body).then(() => {
+		// 					res.sendStatus(204);
+		// 				}).catch(next);
+		// 			}
+		// 			map.verifySubmitter(req.params.mapID, req.user.id).then(() => {
+		// 				return map.updateInfo(req.params.mapID, req.body);
+		// 			}).then(() => {
+		// 				res.sendStatus(204);
+		// 			}).catch(next);
+		// 		}
+		// 	} else {
+		// 		next(new ServerError(404, 'Map not found'));
+		// 	}
+		// }).catch(next);
 	},
 
 	getCredits: (req, res, next) => {
@@ -156,104 +153,59 @@ module.exports = {
 	},
 
 	createCredit: (req, res, next) => {
-		map.get(req.params.mapID, req.user.id, req.query).then(mapObj => {
-			if (mapObj) {
-                if (mapObj.statusFlag === map.STATUS.APPROVED) {
-					if (req.user.roles === user.Role.ADMIN) {
-						return mapCredit.createCredit(req.params.mapID, req.body).then(mapCredit => {
-							res.json(mapCredit);
-						}).catch(next);
-					}
-					map.verifySubmitter(req.params.mapID, req.user.id).then(() => {
-						return mapCredit.createCredit(req.params.mapID, req.body);
-					}).then(mapCredit => {
-						res.json(mapCredit);
-					}).catch(next);
-				} else {
-					if (req.user.roles === user.Role.ADMIN || req.user.roles === user.Role.MODERATOR) {
-						return mapCredit.createCredit(req.params.mapID, req.body).then(mapCredit => {
-							res.json(mapCredit);
-						}).catch(next);
-					}
-					map.verifySubmitter(req.params.mapID, req.user.id).then(() => {
-						return mapCredit.createCredit(req.params.mapID, req.body);
-					}).then(mapCredit => {
-						res.json(mapCredit);
-					}).catch(next);
-				}
+		map.checkPermissions(req.params.mapID, req.user).then(verify => {
+			if (verify) {
+				return map.verifySubmitter(req.params.mapID, req.user.id);
 			} else {
-				next(new ServerError(404, 'Map not found'));
+				return;
 			}
+		}).then(() => {
+			return mapCredit.createCredit(req.params.mapID, req.body).then(mapCredit => {
+				res.json(mapCredit);
+			}).catch(next);
 		}).catch(next);
 	},
 
 	updateCredit: (req, res, next) => {
-		map.get(req.params.mapID, req.user.id, req.query).then(mapObj => {
-			if (mapObj) {
-                if (mapObj.statusFlag === map.STATUS.APPROVED) {
-					if (req.user.roles === user.Role.ADMIN) {
-						return mapCredit.updateCredit(req.params.mapID, req.params.mapCredID, req.body).then(() => {
-							res.sendStatus(204);
-						}).catch(next);
-					}
-					map.verifySubmitter(req.params.mapID, req.user.id).then(() => {
-						return mapCredit.updateCredit(req.params.mapID, req.params.mapCredID, req.body);
-					}).then(() => {
-						res.sendStatus(204);
-					}).catch(next);
-				} else {
-					if (req.user.roles === user.Role.ADMIN || req.user.roles === user.Role.MODERATOR) {
-						return mapCredit.updateCredit(req.params.mapID, req.params.mapCredID, req.body).then(() => {
-							res.sendStatus(204);
-						}).catch(next);
-					}
-					map.verifySubmitter(req.params.mapID, req.user.id).then(() => {
-						return mapCredit.updateCredit(req.params.mapID, req.params.mapCredID, req.body);
-					}).then(() => {
-						res.sendStatus(204);
-					}).catch(next);
-				}
+		map.checkPermissions(req.params.mapID, req.user).then(verify => {
+			if (verify) {
+				return map.verifySubmitter(req.params.mapID, req.user.id);
 			} else {
-				next(new ServerError(404, 'Map not found'));
+				return;
 			}
+		}).then(() => {
+			return mapCredit.updateCredit(req.params.mapID, req.params.mapCredID, req.body).then(() => {
+				res.sendStatus(204);
+			}).catch(next);
 		}).catch(next);
 	},
 
 	deleteCredit: (req, res, next) => {
-        map.get(req.params.mapID, req.user.id, req.query).then(mapObj => {
-			if (mapObj) {
-                if (mapObj.statusFlag === map.STATUS.APPROVED) {
-					if (req.user.roles === user.Role.ADMIN) {
-                        return mapCredit.deleteCredit(req.params.mapID, req.params.mapCredID).then(() => {
-                            res.sendStatus(200);
-                        }).catch(next);
-                    } else {
-                        next(new ServerError(403, 'Forbidden'));
-                    }
-                } else {
-                    if (req.user.roles === user.Role.ADMIN || req.user.roles === user.Role.MODERATOR) {
-                        return mapCredit.deleteCredit(req.params.mapID, req.params.mapCredID).then(() => {
-                            res.sendStatus(200);
-                        }).catch(next);
-                    }
-                    map.verifySubmitter(req.params.mapID, req.user.id).then(() => {
-                        return mapCredit.deleteCredit(req.params.mapID, req.params.mapCredID);
-                    }).then(() => {
-                        res.sendStatus(200);
-                    }).catch(next);
-                }
+		map.checkPermissions(req.params.mapID, req.user).then(verify => {
+			if (verify) {
+				return map.verifySubmitter(req.params.mapID, req.user.id);
 			} else {
-				next(new ServerError(404, 'Map not found'));
+				return;
 			}
+		}).then(() => {
+			return mapCredit.deleteCredit(req.params.mapID, req.params.mapCredID).then(() => {
+				res.sendStatus(200);
+			}).catch(next);
 		}).catch(next);
 	},
 
 	updateThumbnail: (req, res, next) => {
 		if (req.files && req.files.thumbnailFile) {
-			map.verifySubmitter(req.params.mapID, req.user.id).then(() => {
-				return mapImage.updateThumbnail(req.params.mapID, req.files.thumbnailFile.data);
+			map.checkPermissions(req.params.mapID, req.user).then(verify => {
+				if (verify) {
+					return map.verifySubmitter(req.params.mapID, req.user.id);
+				} else {
+					return;
+				}
 			}).then(() => {
-				res.sendStatus(204);
+				return mapImage.updateThumbnail(req.params.mapID, req.files.thumbnailFile.data).then(() => {
+					res.sendStatus(204);
+				}).catch(next);
 			}).catch(next);
 		} else {
 			next(new ServerError(400, 'No image file provided'));
@@ -262,15 +214,18 @@ module.exports = {
 
 	getUploadLocation: (req, res, next) => {
 		map.verifySubmitter(req.params.mapID, req.user.id).then(() => {
-			res.set('Location', `${config.baseURL_API}/api/maps/${map.id}/upload`);
+			res.set('Location', `${config.baseURL_API}/api/maps/${req.params.mapID}/upload`);
 			res.sendStatus(204);
 		}).catch(next);
 	},
 
 	upload: (req, res, next) => {
 		if (req.files && req.files.mapFile) {
-			map.verifySubmitter(req.params.mapID, req.user.id).then(() => {
-				map.upload(req.params.mapID, req.files.mapFile.data).then(() => {
+			map.checkPermissions(req.params.mapID, req.user).then(verify => {
+				if (!verify) return;
+				return map.verifySubmitter(req.params.mapID, req.user.id);
+			}).then(() => {
+				return map.upload(req.params.mapID, req.files.mapFile.data).then(() => {
 					res.sendStatus(200);
 				}).catch(next);
 			}).catch(next);
@@ -296,10 +251,16 @@ module.exports = {
 
 	createImage: (req, res, next) => {
 		if (req.files && req.files.mapImageFile) {
-			map.verifySubmitter(req.params.mapID, req.user.id).then(() => {
-				return mapImage.create(req.params.mapID, req.files.mapImageFile.data);
-			}).then(image => {
-				res.json(image);
+			map.checkPermissions(req.params.mapID, req.user).then(verify => {
+				if (verify) {
+					return map.verifySubmitter(req.params.mapID, req.user.id);
+				} else {
+					return;
+				}
+			}).then(() => {
+				return mapImage.create(req.params.mapID, req.files.mapImageFile.data).then(image => {
+					res.json(image);
+				}).catch(next);
 			}).catch(next);
 		} else {
 			next(new ServerError(400, 'No map image file provided'));
@@ -316,10 +277,16 @@ module.exports = {
 
 	updateImage: (req, res, next) => {
 		if (req.files && req.files.mapImageFile) {
-			map.verifySubmitter(req.params.mapID, req.user.id).then(() => {
-				return mapImage.update(req.params.imgID, req.files.mapImageFile.data);
+			map.checkPermissions(req.params.mapID, req.user).then(verify => {
+				if (verify) {
+					return map.verifySubmitter(req.params.mapID, req.user.id);
+				} else {
+					return;
+				}
 			}).then(() => {
-				res.sendStatus(204);
+				return mapImage.update(req.params.imgID, req.files.mapImageFile.data).then(() => {
+					res.sendStatus(204);
+				}).catch(next);
 			}).catch(next);
 		} else {
 			next(new ServerError(400, 'No map image file provided'));
@@ -327,10 +294,16 @@ module.exports = {
 	},
 
 	deleteImage: (req, res, next) => {
-		map.verifySubmitter(req.params.mapID, req.user.id).then(() => {
-			return mapImage.delete(req.params.imgID);
+		map.checkPermissions(req.params.mapID, req.user).then(verify => {
+			if (verify) {
+				return map.verifySubmitter(req.params.mapID, req.user.id);
+			} else {
+				return;
+			}
 		}).then(() => {
-			res.sendStatus(204);
+			return mapImage.delete(req.params.imgID).then(() => {
+				res.sendStatus(204);
+			}).catch(next);
 		}).catch(next);
 	}
 
