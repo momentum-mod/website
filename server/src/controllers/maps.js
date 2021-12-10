@@ -131,7 +131,7 @@ module.exports = {
 	},
 
 	updateCredit: (req, res, next) => {
-		map.checkPermissions(req.params.mapID, req.user).then(verify => {
+		map.checkPermissions(req.params.mapID, req.user, true).then(verify => {
 			if (verify) {
 				return map.verifySubmitter(req.params.mapID, req.user.id);
 			} else {
