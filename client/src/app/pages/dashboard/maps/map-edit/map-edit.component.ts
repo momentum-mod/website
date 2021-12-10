@@ -16,8 +16,8 @@ import {AdminService} from '../../../../@core/data/admin.service';
 import {NbDialogService, NbToastrService} from '@nebular/theme';
 import {ConfirmDialogComponent} from '../../../../@theme/components/confirm-dialog/confirm-dialog.component';
 import {forkJoin, Subject} from 'rxjs';
-import { MapUploadStatus } from '../../../../@core/models/map-upload-status.model';
-import { HttpEvent, HttpEventType } from '@angular/common/http';
+import {MapUploadStatus} from '../../../../@core/models/map-upload-status.model';
+import {HttpEvent, HttpEventType} from '@angular/common/http';
 
 const youtubeRegex = /[a-zA-Z0-9_-]{11}/;
 
@@ -30,6 +30,7 @@ export class MapEditComponent implements OnInit, OnDestroy {
 
   private ngUnsub = new Subject();
   map: MomentumMap;
+  mapStatuses: Object;
   mapFile: File;
   fileUpdated: boolean;
   thumbnail: MapImage;
@@ -76,6 +77,7 @@ export class MapEditComponent implements OnInit, OnDestroy {
               private toasterService: NbToastrService,
               private fb: FormBuilder) {
     this.mapFile = null;
+    this.mapStatuses = MapUploadStatus;
     this.fileUpdated = false;
     this.thumbnail = null;
     this.thumbnailUpdated = false;

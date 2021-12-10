@@ -10,14 +10,14 @@
     </div>
   </nb-card-header>
   <nb-tabset class="overflow-hidden">
-    <nb-tab tabTitle="FILE">
+    <nb-tab *ngIf="(isSubmitter && (map.statusFlag !== mapStatuses.APPROVED)) && map" tabTitle="FILE">
       <h5 class="mb-1 font-weight-normal">Map File</h5>
       <file-upload [type]="'map'" [limit-size]="300"
                    (fileSelected)="onMapFileSelected($event)"></file-upload>
       <button nbButton outline status="info" class="submit-btn" type="submit"
               [disabled]="!fileUpdated" (click)="onFileSubmit()">Save file</button>
     </nb-tab>
-    <nb-tab tabTitle="NAME">
+    <nb-tab *ngIf="(isSubmitter && (map.statusFlag !== mapStatuses.APPROVED)) && map" tabTitle="NAME">
       <form (ngSubmit)="onNameSubmit()" [formGroup]="mapForm">
         <div class="form-group">
           <h5>Map Name</h5>
@@ -55,7 +55,7 @@
                 [disabled]="infoForm.invalid">Save info</button>
       </form>
     </nb-tab>
-    <nb-tab tabTitle="IMAGES">
+    <nb-tab *ngIf="(isSubmitter && (map.statusFlag !== mapStatuses.APPROVED)) && map" tabTitle="IMAGES">
       <form (ngSubmit)="onImagesSubmit()">
         <div class="text-center overflow-auto mt-2">
           <div class="d-flex flex-wrap justify-content-around">
