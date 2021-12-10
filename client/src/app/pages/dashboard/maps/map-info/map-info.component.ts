@@ -13,6 +13,7 @@ import {NbDialogService, NbToastrService} from '@nebular/theme';
 import {Subject} from 'rxjs';
 import {MapNotify} from '../../../../@core/models/map-notify.model';
 import {MapNotifyEditComponent} from './map-info-notify-edit/map-info-notify-edit.component';
+import {MapUploadStatus} from '../../../../@core/models/map-upload-status.model';
 
 @Component({
   selector: 'map-info',
@@ -26,6 +27,7 @@ export class MapInfoComponent implements OnInit, OnDestroy {
   @Input('previewMap') previewMap: MomentumMapPreview;
   ReportType: typeof ReportType;
   map: MomentumMap;
+  mapStatuses: Object;
   mapNotify: MapNotify;
   mapNotifications: boolean;
   mapInLibrary: boolean;
@@ -59,6 +61,7 @@ export class MapInfoComponent implements OnInit, OnDestroy {
     this.ReportType = ReportType;
     this.mapInLibrary = false;
     this.map = null;
+    this.mapStatuses = MapUploadStatus;
     this.previewMap = null;
     this.mapInFavorites = false;
     this.mapNotify = null;
