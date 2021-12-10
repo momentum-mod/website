@@ -52,7 +52,7 @@ export class MapEditComponent implements OnInit, OnDestroy {
 
   infoForm: FormGroup = this.fb.group({
     'youtubeID': ['', [Validators.pattern(youtubeRegex)]],
-    'description': ['', [Validators.maxLength(1000)]],
+    'description': ['', [Validators.required, Validators.maxLength(1000)]],
   });
 
   creditsForm: FormGroup = this.fb.group({
@@ -127,7 +127,6 @@ export class MapEditComponent implements OnInit, OnDestroy {
   onFileSubmit() {
     this.mapService.getMapFileUploadLocation(this.map.id).subscribe(res => {
       if (res) {
-        console.log("res 1", res);
         this.mapService.uploadMapFile(res.headers.get('Location'), this.mapFile).subscribe((event: HttpEvent<any>) => {
           switch (event.type) {
             case HttpEventType.Sent:
