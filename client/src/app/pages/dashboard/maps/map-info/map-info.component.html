@@ -6,7 +6,7 @@
         <div class="d-flex align-items-center" *ngIf="!previewMap">
           <report-button *ngIf="!isSubmitter" [reportType]="ReportType.MAP_REPORT" [reportData]="map.id">
           </report-button>
-          <div *ngIf="isSubmitter || isAdmin || (isModerator && (map.statusFlag !== mapStatuses.APPROVED))">
+          <div *ngIf="isSubmitter || isAdmin || (isModerator && !isApproved)">
             <button nbButton outline status="info" class="ml-2" type="button" (click)="onEditMap()">
               <span class="d-none d-md-inline-block">Edit Map</span>
               <nb-icon icon="edit-2-outline" class="d-inline-block d-md-none"></nb-icon>

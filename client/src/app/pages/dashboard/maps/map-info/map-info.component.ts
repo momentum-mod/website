@@ -27,7 +27,7 @@ export class MapInfoComponent implements OnInit, OnDestroy {
   @Input('previewMap') previewMap: MomentumMapPreview;
   ReportType: typeof ReportType;
   map: MomentumMap;
-  mapStatuses: Object;
+  isApproved: boolean;
   mapNotify: MapNotify;
   mapNotifications: boolean;
   mapInLibrary: boolean;
@@ -61,7 +61,7 @@ export class MapInfoComponent implements OnInit, OnDestroy {
     this.ReportType = ReportType;
     this.mapInLibrary = false;
     this.map = null;
-    this.mapStatuses = MapUploadStatus;
+    this.isApproved = false;
     this.previewMap = null;
     this.mapInFavorites = false;
     this.mapNotify = null;
@@ -87,6 +87,7 @@ export class MapInfoComponent implements OnInit, OnDestroy {
         ),
       ).subscribe(map => {
         this.map = map;
+        this.isApproved = map.statusFlag === MapUploadStatus.APPROVED;
         this.locUserService.checkMapNotify(this.map.id).subscribe(resp => {
           this.mapNotify = resp;
           if (resp)

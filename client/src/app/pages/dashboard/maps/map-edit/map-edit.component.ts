@@ -30,7 +30,7 @@ export class MapEditComponent implements OnInit, OnDestroy {
 
   private ngUnsub = new Subject();
   map: MomentumMap;
-  mapStatuses: Object;
+  isApproved: boolean;
   mapFile: File;
   fileUpdated: boolean;
   thumbnail: MapImage;
@@ -77,7 +77,7 @@ export class MapEditComponent implements OnInit, OnDestroy {
               private toasterService: NbToastrService,
               private fb: FormBuilder) {
     this.mapFile = null;
-    this.mapStatuses = MapUploadStatus;
+    this.isApproved = false;
     this.fileUpdated = false;
     this.thumbnail = null;
     this.thumbnailUpdated = false;
@@ -100,6 +100,7 @@ export class MapEditComponent implements OnInit, OnDestroy {
       ),
     ).subscribe(map => {
       this.map = map;
+      this.isApproved = map.statusFlag === MapUploadStatus.APPROVED;
       this.localUserService.getLocal().pipe(
         takeUntil(this.ngUnsub),
       ).subscribe(locUser => {
