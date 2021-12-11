@@ -38,9 +38,7 @@ export class GlobalStatsMapsComponent implements OnInit, OnChanges {
                 },
               },
               {
-                value:
-                  this.globalMapStats.totalMaps -
-                  this.globalMapStats.totalCompletedMaps,
+                value: this.globalMapStats.totalMaps - this.globalMapStats.totalCompletedMaps,
                 name: "Not Completed",
                 label: {
                   color: '#fff',
