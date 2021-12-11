@@ -4,10 +4,7 @@
   height: 100vh;
   min-height: 35rem;
   padding: 15rem 0;
-  background: -webkit-gradient(linear, left top, left bottom, from(rgba(22, 22, 22, 0.1)), color-stop(75%,
-    rgba(22, 22, 22, 0.5)), to(#161616)), url('../../../../assets/images/bg-main.webp');
-  background: linear-gradient(to bottom, rgba(22, 22, 22, 0.1) 0%, rgba(22, 22, 22, 0.5) 75%, #161616 100%),
-  url('../../../../assets/images/bg-main.webp');
+  background: url('../../../../assets/images/splash.webp');
   background-position: center;
   background-repeat: no-repeat;
   background-attachment: scroll;
@@ -28,6 +25,17 @@
   font-size: 1rem;
 }
 
+.masthead > div {
+  min-width: 100%;
+  padding: 0;
+}
+
+.masthead > div > div {
+  background: #161616;
+  padding-block: 80px;
+  width: 100%;
+}
+
 .btn {
   color: #fff;
 }
@@ -36,6 +44,9 @@
   .masthead h1 {
     font-size: 4rem;
     line-height: 4rem;
+  }
+  .masthead > div > div {
+    padding-block: 100px;
   }
 }
 
@@ -48,5 +59,8 @@
   .masthead h2 {
     max-width: 30rem;
     font-size: 1.25rem;
+  }
+  .masthead > div > div {
+    padding-block: 150px;
   }
 }

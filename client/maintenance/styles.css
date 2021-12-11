@@ -1,0 +1,114 @@
+.masthead {
+    background: url('../src/assets/images/splash.webp');
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    min-height: 55rem;
+    z-index: -1;
+    overflow: hidden;
+    background-size: cover;
+}
+
+.masthead h1 {
+    font-size: 2.5rem;
+    line-height: 2.5rem;
+    letter-spacing: 0.8rem;
+    background: -webkit-linear-gradient(rgba(255, 255, 255, 0.9), rgba(255, 255, 255, 0));
+    -webkit-text-fill-color: transparent;
+    -webkit-background-clip: text;
+}
+
+.masthead h2 {
+    max-width: 20rem;
+    font-size: 1rem;
+}
+.masthead > div {
+    min-width: 100%;
+    padding: 0;
+  }
+  
+  .masthead > div > div {
+    background: #161616;
+    padding-block: 80px;
+    width: 100%;
+  }
+@media (min-width: 768px) {
+    .masthead h1 {
+        font-size: 4rem;
+        line-height: 4rem;
+    }
+    .masthead > div > div {
+        padding-block: 100px;
+      }
+}
+
+@media (min-width: 992px) {
+    .masthead h1 {
+        font-size: 6.5rem;
+        line-height: 6.5rem;
+        letter-spacing: 0.8rem;
+    }
+    .masthead h2 {
+        max-width: 30rem;
+        font-size: 1.25rem;
+    }
+    .masthead > div > div {
+        padding-block: 150px;
+      }
+}
+
+#darkbanner {
+    padding: 11rem 0 9rem;
+    background-size: cover;
+    z-index: 0;
+    left: 0;
+    top: 25vh;
+    background: #161616;
+    position: absolute;
+    width: 100vw;
+    height: 15vh;
+    min-height: 15%;
+    color: rgb(33, 37, 41);
+    text-align: center !important;
+    box-sizing: inherit;
+
+}
+
+.title {
+    text-align: center;
+    position: relative;
+    padding: 2vh;
+    bottom: 5vh;
+    font-family: "Bebas Neue", sans-serif;
+    font-weight: 400;
+    text-transform: uppercase !important;
+    color: rgb(255, 255, 255);
+    margin-left: auto !important;
+    margin-right: auto !important;
+    margin-bottom: 0px !important;
+    margin-top: 0px !important;
+    box-sizing: inherit;
+    background: -webkit-linear-gradient(rgba(255, 255, 255, 0.9), rgba(255, 255, 255, 0));
+    -webkit-text-fill-color: transparent;
+    -webkit-background-clip: text;
+}
+
+@font-face {
+    font-family: Bebas Neue;
+    src: url(bebas-neue-latin-400.woff);
+}
+
+.tinytext {
+    position: relative;
+    bottom: 5vh;
+    margin-top: 0.5rem !important;
+    margin-bottom: 3rem !important;
+    margin-right: auto !important;
+    margin-left: auto !important;
+    text-transform: uppercase !important;
+    color: rgba(255, 255, 255, 0.5) !important;
+    font-family: "Bebas Neue", sans-serif;
+    font-weight: 400;
+}
