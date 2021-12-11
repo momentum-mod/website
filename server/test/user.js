@@ -697,7 +697,7 @@ describe('user', () => {
 					});
 
 				// upload the map
-				const res4 = await serv.post(new URL( res3.header.location ).pathname)
+				const res4 = await serv.put(new URL( res3.header.location ).pathname)
 					.set('Authorization', 'Bearer ' + accessToken2)
 					.attach('mapFile', fs.readFileSync('test/testMap.bsp'), 'testMap.bsp');
 
