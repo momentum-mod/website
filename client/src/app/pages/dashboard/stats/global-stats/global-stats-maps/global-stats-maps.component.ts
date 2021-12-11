@@ -20,17 +20,35 @@ export class GlobalStatsMapsComponent implements OnInit, OnChanges {
     if (changes.globalMapStats.currentValue) {
       this.mapCompletionPieChartOptions = {
         legend: {
-          orient: 'vertical',
-          left: 'left',
-          data: ['Completed', 'Not Completed'],
+          orient: "vertical",
+          left: "left",
+          data: ["Completed", "Not Completed"],
+          textStyle: {
+            color: "#fff",
+          },
         },
-        series: [{
-          data: [
-            { value: this.globalMapStats.totalCompletedMaps, name: 'Completed' },
-            { value: this.globalMapStats.totalMaps - this.globalMapStats.totalCompletedMaps, name: 'Not Completed' },
-          ],
-          type: 'pie',
-        }],
+        series: [
+          {
+            data: [
+              {
+                value: this.globalMapStats.totalCompletedMaps,
+                name: "Completed",
+                label: {
+                  color: '#fff',
+                },
+              },
+              {
+                value: this.globalMapStats.totalMaps - this.globalMapStats.totalCompletedMaps,
+                name: "Not Completed",
+                label: {
+                  color: '#fff',
+                },
+              },
+              
+            ],
+            type: "pie",
+          },
+        ],
       };
     }
   }
