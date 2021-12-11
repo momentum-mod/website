@@ -1,5 +1,5 @@
 .masthead {
-    background: url('bg-main.webp');
+    background: url('../src/assets/images/splash.webp');
     position: absolute;
     top: 0;
     left: 0;
@@ -24,12 +24,24 @@
     max-width: 20rem;
     font-size: 1rem;
 }
-
+.masthead > div {
+    min-width: 100%;
+    padding: 0;
+  }
+  
+  .masthead > div > div {
+    background: #161616;
+    padding-block: 80px;
+    width: 100%;
+  }
 @media (min-width: 768px) {
     .masthead h1 {
         font-size: 4rem;
         line-height: 4rem;
     }
+    .masthead > div > div {
+        padding-block: 100px;
+      }
 }
 
 @media (min-width: 992px) {
@@ -42,6 +54,9 @@
         max-width: 30rem;
         font-size: 1.25rem;
     }
+    .masthead > div > div {
+        padding-block: 150px;
+      }
 }
 
 #darkbanner {
@@ -58,11 +73,7 @@
     color: rgb(33, 37, 41);
     text-align: center !important;
     box-sizing: inherit;
-    --breakpoint-xs: 0;
-    --breakpoint-sm: 576px;
-    --breakpoint-md: 768px;
-    --breakpoint-lg: 992px;
-    --breakpoint-xl: 1200px;
+
 }
 
 .title {
@@ -100,16 +111,4 @@
     color: rgba(255, 255, 255, 0.5) !important;
     font-family: "Bebas Neue", sans-serif;
     font-weight: 400;
-}
-
-.grad2 {
-    background: linear-gradient(to bottom, transparent, #161616);
-    position: absolute;
-    width: 100vw;
-    height: 100vh;
-    top: 0;
-    left: 0;
-    z-index: 0;
-    min-height: 100%;
-    overflow: hidden;
 }
