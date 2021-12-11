@@ -134,7 +134,7 @@ const config = {
 			name: 'momentum',
 			userName: process.env.MOM_DATABASE_USER,
 			password: process.env.MOM_DATABASE_PW,
-			host: 'db',
+			host: process.env.MOM_DATABASE_HOST,
 			logging: false,
 			pool: {
 				max: 10,
