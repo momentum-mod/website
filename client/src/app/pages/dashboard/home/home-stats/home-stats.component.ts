@@ -9,10 +9,19 @@ import {UserStats} from '../../../../@core/models/user-stats.model';
 export class HomeStatsComponent implements OnInit {
 
   @Input('userStats') userStats: UserStats;
-
-  constructor() {}
+  loading: boolean;
+  
+  constructor() {
+    this.loading = true;
+  }
 
   ngOnInit() {
+  }
+
+  ngOnChanges() {
+    if (this.userStats) {
+      this.loading = false;
+    }
   }
 
 }

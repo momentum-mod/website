@@ -10,9 +10,19 @@ export class GlobalStatsTopsComponent implements OnInit {
 
   @Input('globalMapStats') globalMapStats: GlobalMapStats;
 
-  constructor() { }
+  loading: boolean;
+
+  constructor() {
+    this.loading = true;
+  }
 
   ngOnInit() {
+  }
+
+  ngOnChanges() {
+    if (this.globalMapStats) {
+      this.loading = false;
+    }
   }
 
 }

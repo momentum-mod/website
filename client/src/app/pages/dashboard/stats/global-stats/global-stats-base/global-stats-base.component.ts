@@ -12,9 +12,19 @@ export class GlobalStatsBaseComponent implements OnInit {
   @Input('globalBaseStats') globalBaseStats: GlobalBaseStats;
   @Input('globalMapStats') globalMapStats: GlobalMapStats;
 
-  constructor() { }
+  loading: boolean;
+
+  constructor() {
+    this.loading = true;
+  }
 
   ngOnInit() {
+  }
+
+  ngOnChanges() {
+    if (this.globalBaseStats && this.globalMapStats) {
+      this.loading = false;
+    }
   }
 
 }
