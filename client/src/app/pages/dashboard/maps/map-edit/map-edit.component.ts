@@ -186,9 +186,6 @@ export class MapEditComponent implements OnInit, OnDestroy {
       }, error => this.toasterService.danger(error.message, 'Failed to update thumbnail!'));
     }
 
-    let deletes = [];
-    let creates = [];
-
     if (!this.imagesUpdated) {
       return;
     } else if (this.mapImages.length === 0) {
@@ -198,11 +195,13 @@ export class MapEditComponent implements OnInit, OnDestroy {
         }, error => this.toasterService.danger(error.message, 'Failed to delete the image!'));
       }
     } else {
+      let deletes = [];
+      let creates = [];
+
       creates = this.mapImages.filter(img => img.id === -1);
       deletes = this.originalMapImages.filter(ogImg => !this.mapImages.some(img => ogImg.id === img.id));
 
       let maxLength = (creates.length > deletes.length) ? creates.length : deletes.length;
-      // TODO get the images in order
       for (let i = 0; i < maxLength; i++) {
         if (deletes.length > 0 && creates.length > 0) {
           this.mapService.updateMapImage(this.map.id, deletes[deletes.length - 1].id, creates[creates.length - 1].file).subscribe(() => {
@@ -225,14 +224,9 @@ export class MapEditComponent implements OnInit, OnDestroy {
       }
     }
 
-    // TODO force the map images to update as well AFTER the images update
-    this.mapService.getMapImages(this.map.id).subscribe(imgs => {
-      if (imgs.length) {
-        this.map.images = imgs.filter(img => img.id !== this.map.thumbnailID);
-      }
-    });
     this.thumbnailUpdated = false;
     this.imagesUpdated = false;
+    location.reload();
   }
 
   onCreditsSubmit($event) {
