@@ -3,6 +3,7 @@ import { AdminService } from '../../../../@core/data/admin.service';
 import { MomentumMap } from '../../../../@core/models/momentum-map.model';
 import { MapUploadStatus } from '../../../../@core/models/map-upload-status.model';
 import {NbToastrService} from '@nebular/theme';
+import { finalize } from 'rxjs/operators';
 
 @Component({
   selector: 'app-map-queue',
@@ -11,6 +12,7 @@ import {NbToastrService} from '@nebular/theme';
 })
 export class MapQueueComponent implements OnInit {
 
+  loading: boolean;
   priorityQueue: MomentumMap[];
   nonPriorityQueue: MomentumMap[];
   priorityQueueCount: number;
@@ -34,6 +36,7 @@ export class MapQueueComponent implements OnInit {
   }
 
   loadMapQueue(priority: boolean) {
+    this.loading = true;
     this.adminService.getMaps({
       params: {
         expand: 'info,submitter,thumbnail',
@@ -42,7 +45,7 @@ export class MapQueueComponent implements OnInit {
         priority: priority,
         status: MapUploadStatus.PENDING,
       },
-    }).subscribe(res => {
+    }).pipe(finalize(() => this.loading = false)).subscribe(res => {
       if (priority) {
         this.priorityQueueCount = res.count;
         this.priorityQueue = res.maps;

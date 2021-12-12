@@ -4,7 +4,8 @@ import {Activity_Type} from '../../../../@core/models/activity-type.model';
 import {Activity} from '../../../../@core/models/activity.model';
 import {ReplaySubject} from 'rxjs';
 import {User} from '../../../../@core/models/user.model';
-import { NbToastrService } from '@nebular/theme';
+import {NbToastrService} from '@nebular/theme';
+import {finalize} from 'rxjs/operators';
 
 @Component({
   selector: 'activity-card',
@@ -52,20 +53,25 @@ export class ActivityCardComponent implements OnInit {
       this.initialAct = true;
       this.activities = resp.activities;
       this.filterActivites(this.activities);
-      this.loading = false;
     }
     const errorHandler = (err: { message: any; }) => {
       this.toasterService.danger(err.message);
       console.error(err);
     }
     if (this.follow)
-      this.actService.getFollowedActivity().subscribe(requestHandler, errorHandler);
+      this.actService.getFollowedActivity()
+      .pipe(finalize(() => this.loading = false))
+      .subscribe(requestHandler, errorHandler);
     else if (this.userSubj$)
       this.userSubj$.subscribe(usr => {
-        this.actService.getUserActivity(usr.id).subscribe(requestHandler, errorHandler);
+        this.actService.getUserActivity(usr.id)
+        .pipe(finalize(() => this.loading = false))
+        .subscribe(requestHandler, errorHandler);
       });
     else if (this.recent)
-      this.actService.getRecentActivity(0).subscribe(requestHandler, errorHandler);
+      this.actService.getRecentActivity(0)
+      .pipe(finalize(() => this.loading = false))
+      .subscribe(requestHandler, errorHandler);
   }
 
   getMoreActivities(): void {

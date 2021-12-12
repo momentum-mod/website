@@ -2,6 +2,7 @@ import {Component, OnInit} from '@angular/core';
 import {LocalUserService} from '../../../../@core/data/local-user.service';
 import {MapUploadStatus} from '../../../../@core/models/map-upload-status.model';
 import {NbToastrService} from '@nebular/theme';
+import { finalize } from 'rxjs/operators';
 
 @Component({
   selector: 'home-user-maps',
@@ -20,11 +21,10 @@ export class HomeUserMapsComponent implements OnInit {
 
   ngOnInit() {
     this.loading = true;
-    this.userService.getSubmittedMapSummary().subscribe(res => {
+    this.userService.getSubmittedMapSummary().pipe(finalize(() => this.loading = false)).subscribe(res => {
       this.submittedMapStatusSummary = {};
       for (const sum of res)
         this.submittedMapStatusSummary[sum.statusFlag] = sum.statusCount;
-        this.loading = false;
     }, err => {
       this.toasterService.danger(err.message, 'Could not get submitted maps');
       console.error(err);
