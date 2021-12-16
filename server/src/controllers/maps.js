@@ -240,21 +240,17 @@ module.exports = {
 	},
 
 	updateImage: (req, res, next) => {
-		if (req.files && req.files.mapImageFile) {
-			map.checkPermissions(req.params.mapID, req.user).then(verify => {
-				if (verify) {
-					return map.verifySubmitter(req.params.mapID, req.user.id);
-				} else {
-					return;
-				}
-			}).then(() => {
-				return mapImage.update(req.params.imgID, req.files.mapImageFile.data).then(() => {
-					res.sendStatus(204);
-				}).catch(next);
+		map.checkPermissions(req.params.mapID, req.user).then(verify => {
+			if (verify) {
+				return map.verifySubmitter(req.params.mapID, req.user.id);
+			} else {
+				return;
+			}
+		}).then(() => {
+			return mapImage.update(req.params.imgID).then(() => {
+				res.sendStatus(204);
 			}).catch(next);
-		} else {
-			next(new ServerError(400, 'No map image file provided'));
-		}
+		}).catch(next);
 	},
 
 	deleteImage: (req, res, next) => {

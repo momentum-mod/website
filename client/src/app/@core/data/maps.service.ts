@@ -148,8 +148,8 @@ export class MapsService {
    * @param id
    * @param mapImageFile
    */
-  getMapImages(id: number): Observable<MapImage[]> {
-    return this.http.get<MapImage[]>(environment.api + '/api/maps/' + id + '/images');
+  getMapImages(id: number): Observable<any> {
+    return this.http.get<MapImage>(environment.api + '/api/maps/' + id + '/images');
   }
 
   /**
@@ -165,12 +165,9 @@ export class MapsService {
   /**
    * @param id
    * @param mapImageID
-   * @param mapImageFile
    */
-  updateMapImage(id: number, mapImageID: number, mapImageFile: File): Observable<any> {
-    const formData = new FormData();
-    formData.append('mapImageFile', mapImageFile, mapImageFile.name);
-    return this.http.put(environment.api + '/api/maps/' + id + '/images/' + mapImageID, formData);
+  updateMapImage(id: number, mapImageID: number): Observable<any> {
+    return this.http.put(environment.api + '/api/maps/' + id + '/images/' + mapImageID, {});
   }
 
   /**

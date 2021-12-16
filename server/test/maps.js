@@ -1147,8 +1147,40 @@ describe('maps', () => {
 		});
 		*/
 
+        describe('POST /api/maps/{mapID}/images', () => {
+            it('should respond with 200 when the image is created', () => {
+                return chai.request(server)
+                    .post('/api/maps/' + testMap3.id + '/images')
+                    .set('Authorization', 'Bearer ' + adminAccessToken)
+                    .attach('mapImageFile', fs.readFileSync('test/testImage2.jpg'), 'testImage2.jpg')
+                    .then(res => {
+                        expect(res).to.have.status(200);
+                    });
+            });
 
+        });
 
+        describe('DELETE /api/maps/{mapID}/images/{imgID}', () => {
+			it('should delete the map image', () => {
+				return chai.request(server)
+				.delete('/api/maps/' + testMap2.id + '/images/' + testMap2.images[0].id)
+                    .set('Authorization', 'Bearer ' + adminAccessToken)
+                    .then(res => {
+                        expect(res).to.have.status(204);
+                    });
+			});
+            it('should respond with 401 when no access token is provided', () => {
+                return chai.request(server)
+                    .delete('/api/maps/' + testMap2.id + '/images/' + testMap2.images.id)
+                    .then(res => {
+                        expect(res).to.have.status(401);
+                        expect(res).to.be.json;
+                        expect(res.body).to.have.property('error');
+                        expect(res.body.error.code).equal(401);
+                        expect(res.body.error.message).to.be.a('string');
+                    });
+            });
+		});
 
         describe('PUT /api/maps/{mapID}/images/{imgID}', () => {
 
@@ -1167,25 +1199,10 @@ describe('maps', () => {
                     });
             });
 
-            it('should respond with 400 when no map image is provided', () => {
-                return chai.request(server)
-                    .put('/api/maps/' + testMap.id + '/images/' + testMap.images[0].id)
-                    .type('form')
-                    .set('Authorization', 'Bearer ' + accessToken)
-                    .then(res => {
-                        expect(res).to.have.status(400);
-                        expect(res).to.be.json;
-                        expect(res.body).to.have.property('error');
-                        expect(res.body.error.code).equal(400);
-                        expect(res.body.error.message).to.be.a('string');
-                    });
-            });
-
             it('should update the map image', () => {
                 return chai.request(server)
                     .put('/api/maps/' + testMap.id + '/images/' + testMap.images[0].id)
                     .set('Authorization', 'Bearer ' + adminAccessToken)
-                    .attach('mapImageFile', fs.readFileSync('test/testImage2.jpg'), 'testImage2.jpg')
                     .then(res => {
                         expect(res).to.have.status(204);
                     });
@@ -1204,27 +1221,6 @@ describe('maps', () => {
             });
         });
 
-        describe('DELETE /api/maps/{mapID}/images/{imgID}', () => {
-			it('should delete the map image', () => {
-				return chai.request(server)
-				.delete('/api/maps/' + testMap.id + '/images/' + testMap.images[0].id)
-                    .set('Authorization', 'Bearer ' + adminAccessToken)
-                    .then(res => {
-                        expect(res).to.have.status(204);
-                    });
-			});
-            it('should respond with 401 when no access token is provided', () => {
-                return chai.request(server)
-                    .delete('/api/maps/' + testMap.id + '/images/' + testMap.images.id)
-                    .then(res => {
-                        expect(res).to.have.status(401);
-                        expect(res).to.be.json;
-                        expect(res.body).to.have.property('error');
-                        expect(res.body.error.code).equal(401);
-                        expect(res.body.error.message).to.be.a('string');
-                    });
-            });
-		});
 
         // Was working, but something probably changed last commit
 

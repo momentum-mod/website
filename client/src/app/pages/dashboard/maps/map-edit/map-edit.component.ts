@@ -6,7 +6,7 @@ import {MapCredit} from '../../../../@core/models/map-credit.model';
 import {MapCreditType} from '../../../../@core/models/map-credit-type.model';
 import {CreditChangeEvent} from '../map-credits/map-credit/map-credit.component';
 import {MapsService} from '../../../../@core/data/maps.service';
-import {finalize, switchMap, takeUntil} from 'rxjs/operators';
+import {concatMap, finalize, switchMap, takeUntil} from 'rxjs/operators';
 import {ActivatedRoute, ParamMap, Router} from '@angular/router';
 import {FormBuilder, FormGroup, Validators} from '@angular/forms';
 import {CdkDragDrop, moveItemInArray} from '@angular/cdk/drag-drop';
@@ -15,7 +15,7 @@ import {LocalUserService} from '../../../../@core/data/local-user.service';
 import {AdminService} from '../../../../@core/data/admin.service';
 import {NbDialogService, NbToastrService} from '@nebular/theme';
 import {ConfirmDialogComponent} from '../../../../@theme/components/confirm-dialog/confirm-dialog.component';
-import {forkJoin, Subject} from 'rxjs';
+import {forkJoin, from, Subject} from 'rxjs';
 import {MapUploadStatus} from '../../../../@core/models/map-upload-status.model';
 import {HttpEvent, HttpEventType} from '@angular/common/http';
 
@@ -186,47 +186,46 @@ export class MapEditComponent implements OnInit, OnDestroy {
       }, error => this.toasterService.danger(error.message, 'Failed to update thumbnail!'));
     }
 
+    let imageUpdates = [];
+
     if (!this.imagesUpdated) {
       return;
     } else if (this.mapImages.length === 0) {
       for (let img of this.originalMapImages) {
-        this.mapService.deleteMapImage(this.map.id, img.id).subscribe(() => {
-          this.toasterService.success('Deleted the image!', 'Success');
-        }, error => this.toasterService.danger(error.message, 'Failed to delete the image!'));
+        imageUpdates.push(this.mapService.deleteMapImage(this.map.id, img.id));
       }
     } else {
       let deletes = [];
-      let creates = [];
-
-      creates = this.mapImages.filter(img => img.id === -1);
       deletes = this.originalMapImages.filter(ogImg => !this.mapImages.some(img => ogImg.id === img.id));
+      if (deletes.length) {
+        deletes.forEach(img => {
+          imageUpdates.push(this.mapService.deleteMapImage(this.map.id, img.id));
+        });
+      }
 
-      let maxLength = (creates.length > deletes.length) ? creates.length : deletes.length;
-      for (let i = 0; i < maxLength; i++) {
-        if (deletes.length > 0 && creates.length > 0) {
-          this.mapService.updateMapImage(this.map.id, deletes[deletes.length - 1].id, creates[creates.length - 1].file).subscribe(() => {
-            this.toasterService.success('Updated the image!', 'Success');
-          }, error => this.toasterService.danger(error.message, 'Failed to update the image!'));
-          deletes.pop();
-          creates.pop();
-        } else if (deletes.length > 0) {
-          this.mapService.deleteMapImage(this.map.id, deletes[deletes.length - 1].id).subscribe(() => {
-            this.toasterService.success('Deleted the image!', 'Success');
-          }, error => this.toasterService.danger(error.message, 'Failed to delete the image!'));
-          deletes.pop();
-        } 
-        else if (creates.length > 0) {
-          this.mapService.createMapImage(this.map.id, creates[creates.length - 1].file).subscribe(() => {
-            this.toasterService.success('Created the image!', 'Success');
-          }, error => this.toasterService.danger(error.message, 'Failed to delete the image!'));
-          creates.pop();
+      for (let img of this.mapImages) {
+        if (img.id == -1) {
+          imageUpdates.push(this.mapService.createMapImage(this.map.id, img.file));
+        } else {
+          imageUpdates.push(this.mapService.updateMapImage(this.map.id, img.id));
         }
       }
     }
 
+    from(imageUpdates).pipe(
+      concatMap(req => req),
+      finalize(() => {
+        this.mapService.getMapImages(this.map.id).subscribe((res) => {
+          this.originalMapImages = res.images.filter(img => img.id !== this.map.thumbnailID);
+          this.mapImages = this.originalMapImages.map(img => ({...img}));
+        });
+      })
+    ).subscribe(() => {
+      this.toasterService.success('Updated map image!', 'Success');
+    }, error => this.toasterService.danger(error.message, 'Failed to update image!'));
+
     this.thumbnailUpdated = false;
     this.imagesUpdated = false;
-    location.reload();
   }
 
   onCreditsSubmit($event) {
@@ -311,6 +310,7 @@ export class MapEditComponent implements OnInit, OnDestroy {
   }
 
   imageDrop(event: CdkDragDrop<MapImage[]>) {
+    this.imagesUpdated = true;
     moveItemInArray(this.mapImages, event.previousIndex, event.currentIndex);
   }
 
