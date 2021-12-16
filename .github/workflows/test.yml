@@ -7,10 +7,6 @@ on:
     paths-ignore:
       - '**.md'
 
-env:
-  NODE_ENV: test
-  NODE_PORT: 3002
-
 jobs:
   client-lint:
     name: Client Lint

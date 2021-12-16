@@ -2,9 +2,13 @@ version: '3.8'
 
 services:
   db:
+    platform: linux/x86_64
     image: mysql:8
 
   api:
+    platform: linux/x86_64
     restart: always
-    ports:
-      - ${NODE_PORT}:3002
+    volumes:
+      - ./scripts:/app/scripts
+      - ./server:/app/server
+      - /app/server/node_modules/

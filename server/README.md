@@ -28,26 +28,13 @@ Navigate to `http://localhost:3002/api-docs` to view the Swagger server API refe
 ## Testing
 The project utilizes [Mocha](https://mochajs.org/) and [Chai](https://www.chaijs.com/) to run backend integration tests.
 
-Copy the env.TEMPLATE file to .env and set this variable:
-```
-NODE_ENV=test
-```
-
 From the website directory, run:
 ```
-docker compose -f docker-compose.yml -f docker-compose.test.yml up -d
+docker compose -f docker-compose.yml -f docker-compose.test.yml -p test up -d
 ``` 
-To re-run the tests, restart the testing container:
-```
-docker compose up -d --force-recreate api
-```
 
 ## Prod Setup
-Copy the env.TEMPLATE file to .env and set this variable:
+Copy the env.TEMPLATE file to .env, add your configuration, and set this variable:
 ```
 NODE_ENV=production
-```
-From the website directory, run:
-```
-docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d
 ```

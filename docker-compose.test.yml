@@ -2,7 +2,6 @@ version: '3.8'
 
 services:
   db:
-    platform: linux/x86_64
     environment:
       MYSQL_DATABASE: 'momentum_test'
       MYSQL_USER: 'mom_test'
@@ -10,10 +9,10 @@ services:
       MYSQL_ROOT_PASSWORD: 'root'
 
   api:
-    platform: linux/x86_64
     restart: "no"
     environment:
       MOM_STORAGE_USE_LOCAL: "true"
+      NODE_ENV: 'test'
     volumes:
       - ./scripts:/app/scripts
       - ./server:/app/server
@@ -22,3 +21,5 @@ services:
       context: ./server
       dockerfile: dev.Dockerfile
     entrypoint: "npm run test-docker"
+    ports:
+      - 3003:3002

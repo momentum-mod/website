@@ -30,7 +30,6 @@ services:
       "
 
   db:
-    platform: linux/x86_64
     volumes:
       - ./mysql:/var/lib/mysql
     environment:
@@ -56,11 +55,8 @@ services:
       - createbuckets
     env_file:
       - .env
-    platform: linux/x86_64
-    volumes:
-      - ./scripts:/app/scripts
-      - ./server:/app/server
-      - /app/server/node_modules/
     build:
       context: ./server
       dockerfile: dev.Dockerfile
+    ports:
+      - ${NODE_PORT}:3002
