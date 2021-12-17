@@ -30,6 +30,7 @@ services:
       "
 
   db:
+    platform: linux/x86_64
     volumes:
       - ./mysql:/var/lib/mysql
     environment:
@@ -53,6 +54,7 @@ services:
     depends_on:
       - db
       - createbuckets
+    platform: linux/x86_64
     env_file:
       - .env
     build:

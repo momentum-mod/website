@@ -38,3 +38,7 @@ Copy the env.TEMPLATE file to .env, add your configuration, and set this variabl
 ```
 NODE_ENV=production
 ```
+From the website directory, run:
+```
+docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d
+```

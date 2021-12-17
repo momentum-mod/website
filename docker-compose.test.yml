@@ -2,6 +2,7 @@ version: '3.8'
 
 services:
   db:
+    platform: linux/x86_64
     environment:
       MYSQL_DATABASE: 'momentum_test'
       MYSQL_USER: 'mom_test'
@@ -9,6 +10,7 @@ services:
       MYSQL_ROOT_PASSWORD: 'root'
 
   api:
+    platform: linux/x86_64
     restart: "no"
     environment:
       MOM_STORAGE_USE_LOCAL: "true"
