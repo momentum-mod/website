@@ -20,11 +20,11 @@ export class GlobalStatsMapsComponent implements OnInit, OnChanges {
     if (changes.globalMapStats.currentValue) {
       this.mapCompletionPieChartOptions = {
         legend: {
-          orient: "vertical",
-          left: "left",
-          data: ["Completed", "Not Completed"],
+          orient: 'vertical',
+          left: 'left',
+          data: ['Completed', 'Not Completed'],
           textStyle: {
-            color: "#fff",
+            color: '#fff',
           },
         },
         series: [
@@ -32,21 +32,20 @@ export class GlobalStatsMapsComponent implements OnInit, OnChanges {
             data: [
               {
                 value: this.globalMapStats.totalCompletedMaps,
-                name: "Completed",
+                name: 'Completed',
                 label: {
                   color: '#fff',
                 },
               },
               {
                 value: this.globalMapStats.totalMaps - this.globalMapStats.totalCompletedMaps,
-                name: "Not Completed",
+                name: 'Not Completed',
                 label: {
                   color: '#fff',
                 },
               },
-              
             ],
-            type: "pie",
+            type: 'pie',
           },
         ],
       };
