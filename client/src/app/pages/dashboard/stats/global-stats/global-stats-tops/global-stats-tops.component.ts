@@ -1,4 +1,4 @@
-import {Component, Input, OnInit} from '@angular/core';
+import {Component, Input, OnInit, OnChanges} from '@angular/core';
 import {GlobalMapStats} from '../../../../../@core/models/global-map-stats.model';
 
 @Component({
@@ -6,7 +6,7 @@ import {GlobalMapStats} from '../../../../../@core/models/global-map-stats.model
   templateUrl: './global-stats-tops.component.html',
   styleUrls: ['./global-stats-tops.component.scss'],
 })
-export class GlobalStatsTopsComponent implements OnInit {
+export class GlobalStatsTopsComponent implements OnInit, OnChanges {
 
   @Input('globalMapStats') globalMapStats: GlobalMapStats;
 

@@ -12,9 +12,9 @@ import {ReportType} from '../../../@core/models/report-type.model';
 import {NbToastrService} from '@nebular/theme';
 
 @Component({
-  selector: "user-profile",
-  templateUrl: "./user-profile.component.html",
-  styleUrls: ["./user-profile.component.scss"],
+  selector: 'user-profile',
+  templateUrl: './user-profile.component.html',
+  styleUrls: ['./user-profile.component.scss'],
 })
 export class UserProfileComponent implements OnInit, OnDestroy {
   private ngUnsub = new Subject();
@@ -37,7 +37,7 @@ export class UserProfileComponent implements OnInit, OnDestroy {
     private router: Router,
     public userService: LocalUserService,
     private usersService: UsersService,
-    private toastService: NbToastrService
+    private toastService: NbToastrService,
   ) {
     this.ReportType = ReportType;
     this.role = Role;
@@ -49,7 +49,7 @@ export class UserProfileComponent implements OnInit, OnDestroy {
     this.isVerified = false;
     this.followingUsers = [];
     this.followedByUsers = [];
-    this.avatar_url = "/assets/images/blank_avatar.jpg";
+    this.avatar_url = '/assets/images/blank_avatar.jpg';
   }
 
   ngOnInit() {
@@ -57,8 +57,8 @@ export class UserProfileComponent implements OnInit, OnDestroy {
     this.route.paramMap
       .pipe(
         switchMap((params: ParamMap) => {
-          if (params.has("id")) {
-            const idNum: number = Number(params.get("id"));
+          if (params.has('id')) {
+            const idNum: number = Number(params.get('id'));
             this.userService
               .getLocal()
               .pipe(takeUntil(this.ngUnsub))
@@ -69,20 +69,20 @@ export class UserProfileComponent implements OnInit, OnDestroy {
                 (error) => {
                   this.toastService.danger(
                     error.message,
-                    "Cannot get user profile"
+                    'Cannot get user profile',
                   );
-                }
+                },
               );
             return this.usersService.getUser(idNum, {
-              params: { expand: "profile,stats" },
+              params: { expand: 'profile,stats' },
             }).pipe(finalize(() => this.loading = false));
           } else {
             this.isLocal = true;
             return this.userService.getLocalUser({
-              params: { expand: "profile,stats" },
+              params: { expand: 'profile,stats' },
             }).pipe(finalize(() => this.loading = false));
           }
-        })
+        }),
       )
       .subscribe(
         (usr) => {
@@ -103,8 +103,8 @@ export class UserProfileComponent implements OnInit, OnDestroy {
             (err) =>
               this.toastService.danger(
                 err.message,
-                "Could not retrieve user follows"
-              )
+                'Could not retrieve user follows',
+              ),
           );
           this.usersService.getFollowersOfUser(this.user).subscribe(
             (resp) => {
@@ -113,13 +113,13 @@ export class UserProfileComponent implements OnInit, OnDestroy {
             (err) =>
               this.toastService.danger(
                 err.message,
-                "Could not retrieve user following"
-              )
+                'Could not retrieve user following',
+              ),
           );
         },
         (error) => {
-          this.toastService.danger(error.message, "Cannot get user details");
-        }
+          this.toastService.danger(error.message, 'Cannot get user details');
+        },
       );
   }
 
@@ -140,7 +140,7 @@ export class UserProfileComponent implements OnInit, OnDestroy {
 
   onEditProfile() {
     this.router.navigate([
-      `/dashboard/profile/${this.isLocal ? "" : this.user.id + "/"}edit`,
+      `/dashboard/profile/${this.isLocal ? '' : this.user.id + '/'}edit`,
     ]);
   }
 

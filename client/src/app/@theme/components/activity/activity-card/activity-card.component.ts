@@ -53,11 +53,11 @@ export class ActivityCardComponent implements OnInit {
       this.initialAct = true;
       this.activities = resp.activities;
       this.filterActivites(this.activities);
-    }
+    };
     const errorHandler = (err: { message: any; }) => {
       this.toasterService.danger(err.message);
       console.error(err);
-    }
+    };
     if (this.follow)
       this.actService.getFollowedActivity()
       .pipe(finalize(() => this.loading = false))

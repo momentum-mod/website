@@ -18,7 +18,7 @@ describe('ActivityCardComponent', () => {
         HttpClientTestingModule, RouterModule, NbThemeModule.forRoot()],
       declarations: [ ActivityCardComponent, ActivityContentComponent, ActivityListComponent],
       providers: [ActivityService, { provide: NbToastrService, useValue: toastrStub }],
-      
+
     })
     .compileComponents();
   }));
