@@ -1,12 +1,7 @@
-name: Tests
+name: Tests + Lint
 
 on:
   pull_request:
-    branches:
-      - staging
-    paths-ignore:
-      - '**.md'
-  push:
     branches:
       - staging
     paths-ignore:
@@ -17,6 +12,46 @@ env:
   NODE_PORT: 3002
 
 jobs:
+  client-lint:
+    name: Client Lint
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v2
+
+    - name: Get specific changed files
+      id: changed-files-specific
+      uses: tj-actions/changed-files@v12
+      with:
+        files: client\/.*\.(js|ts|scss|html)$
+
+    - name: Setup Node
+      if: steps.changed-files-specific.outputs.any_changed == 'true'
+      uses: actions/setup-node@v1
+      with:
+        node-version: '12.x'
+
+    - name: Resolve Yarn Cache Directory
+      if: steps.changed-files-specific.outputs.any_changed == 'true'
+      id: yarn-cache-dir-path
+      run: echo "::set-output name=dir::$(yarn cache dir)"
+
+    - name: Cache Yarn Cache Directory
+      if: steps.changed-files-specific.outputs.any_changed == 'true'
+      uses: actions/cache@v2
+      with:
+        path: ${{ steps.yarn-cache-dir-path.outputs.dir }}
+        key: ${{ runner.os }}-${{ env.NODE_VERSION }}-${{ hashFiles('./client/yarn.lock') }}
+        restore-keys: ${{ runner.os }}-${{ env.NODE_VERSION }}-
+
+    - name: Run Lint
+      if: steps.changed-files-specific.outputs.any_changed == 'true'
+      run: |
+        cd ./client/
+        npm install -g @angular/cli && yarn install --prefer-offline
+        npm run lint:ci
+
   client-tests:
     name: Client Tests
     runs-on: ubuntu-latest
@@ -25,16 +60,25 @@ jobs:
     - name: Checkout
       uses: actions/checkout@v2
 
+    - name: Get specific changed files
+      id: changed-files-specific
+      uses: tj-actions/changed-files@v12
+      with:
+        files: .(ts)$
+
     - name: Setup Node
+      if: steps.changed-files-specific.outputs.any_changed == 'true'
       uses: actions/setup-node@v1
       with:
         node-version: '12.x'
 
     - name: Resolve Yarn Cache Directory
+      if: steps.changed-files-specific.outputs.any_changed == 'true'
       id: yarn-cache-dir-path
       run: echo "::set-output name=dir::$(yarn cache dir)"
 
     - name: Cache Yarn Cache Directory
+      if: steps.changed-files-specific.outputs.any_changed == 'true'
       uses: actions/cache@v2
       with:
         path: ${{ steps.yarn-cache-dir-path.outputs.dir }}
@@ -42,6 +86,7 @@ jobs:
         restore-keys: ${{ runner.os }}-${{ env.NODE_VERSION }}-
 
     - name: Run Tests
+      if: steps.changed-files-specific.outputs.any_changed == 'true'
       run: |
         cd ./client/
         npm install -g @angular/cli && yarn install --prefer-offline
@@ -53,5 +98,13 @@ jobs:
     steps:
     - name: Checkout
       uses: actions/checkout@v2
+
+    - name: Get specific changed files
+      id: changed-files-specific
+      uses: tj-actions/changed-files@v12
+      with:
+        files: server\/.*\.(ts|js)$
+
     - name: Execute tests
+      if: steps.changed-files-specific.outputs.any_changed == 'true'
       run: docker compose -f docker-compose.yml -f docker-compose.test.yml up --exit-code-from api
