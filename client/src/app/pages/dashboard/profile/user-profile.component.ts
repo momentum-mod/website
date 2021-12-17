@@ -1,15 +1,15 @@
-import { Component, OnDestroy, OnInit } from "@angular/core";
-import { LocalUserService } from "../../../@core/data/local-user.service";
-import { switchMap, takeUntil, finalize } from "rxjs/operators";
-import { ActivatedRoute, ParamMap, Router } from "@angular/router";
-import { UsersService } from "../../../@core/data/users.service";
-import { User } from "../../../@core/models/user.model";
-import { ReplaySubject, Subject } from "rxjs";
-import { Role } from "../../../@core/models/role.model";
-import { Ban } from "../../../@core/models/ban.model";
-import { UserFollowObject } from "../../../@core/models/follow.model";
-import { ReportType } from "../../../@core/models/report-type.model";
-import { NbToastrService } from "@nebular/theme";
+import {Component, OnDestroy, OnInit} from '@angular/core';
+import {LocalUserService} from '../../../@core/data/local-user.service';
+import {switchMap, takeUntil, finalize} from 'rxjs/operators';
+import {ActivatedRoute, ParamMap, Router} from '@angular/router';
+import {UsersService} from '../../../@core/data/users.service';
+import {User} from '../../../@core/models/user.model';
+import {ReplaySubject, Subject} from 'rxjs';
+import {Role} from '../../../@core/models/role.model';
+import {Ban} from '../../../@core/models/ban.model';
+import {UserFollowObject} from '../../../@core/models/follow.model';
+import {ReportType} from '../../../@core/models/report-type.model';
+import {NbToastrService} from '@nebular/theme';
 
 @Component({
   selector: "user-profile",
