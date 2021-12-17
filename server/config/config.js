@@ -30,7 +30,7 @@ const config = {
 		},
 		steam: {
 			webAPIKey: 'webAPIKey12345',
-			preventLimited: true,
+			preventLimited: process.env.STEAM_PREVENT_LIMITED === 'true',
 			useSteamTicketLibrary: process.env.STEAM_USE_ENCRYPTED_TICKETS === 'true',
 			ticketsSecretKey: process.env.STEAM_TICKETS_SECRET,
 		},
@@ -78,7 +78,7 @@ const config = {
 		},
 		steam: {
 			webAPIKey: process.env.STEAM_WEB_API_KEY,
-			preventLimited: true,
+			preventLimited: process.env.STEAM_PREVENT_LIMITED === 'true',
 			useSteamTicketLibrary: process.env.STEAM_USE_ENCRYPTED_TICKETS === 'true',
 			ticketsSecretKey: process.env.STEAM_TICKETS_SECRET,
 		},
@@ -126,7 +126,7 @@ const config = {
 		},
 		steam: {
 			webAPIKey: process.env.STEAM_WEB_API_KEY,
-			preventLimited: true,
+			preventLimited: process.env.STEAM_PREVENT_LIMITED === 'true',
 			useSteamTicketLibrary: process.env.STEAM_USE_ENCRYPTED_TICKETS === 'true',
 			ticketsSecretKey: process.env.STEAM_TICKETS_SECRET,
 		},
