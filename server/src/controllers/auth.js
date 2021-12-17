@@ -130,7 +130,7 @@ module.exports = {
 		const idToVerify = req.get('id');
 
 		if (userTicket && idToVerify) {
-			if (config.steam.useSteamTicketLibrary === 'true') {
+			if (config.steam.useSteamTicketLibrary) {
 				// We pass the raw body here so it can create the buffer it needs
 				verifyUserTicketLocalLibrary( req.body, idToVerify, res, next );
 			}

@@ -1,7 +1,5 @@
 name: AngularBuild 
 on:
-  # Trigger the workflow on pull request,
-  # but only for the staging branch
   pull_request:
     branches:
       - staging
@@ -9,28 +7,39 @@ on:
       - '**.md'
 jobs: 
   build:
+    name: Production Frontend Build
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
-      - name: Node ${{ matrix.node-version }}
+
+      - name: Get specific changed files
+        id: changed-files-specific
+        uses: tj-actions/changed-files@v12
+        with:
+          files: client\/.*\.(js|ts|scss|html)$
+
+      - name: Setup Node
+        if: steps.changed-files-specific.outputs.any_changed == 'true'
         uses: actions/setup-node@v1
         with:
           node-version: '12.x'
+
       - name: Resolve Yarn Cache Directory
+        if: steps.changed-files-specific.outputs.any_changed == 'true'
         id: yarn-cache-dir-path
         run: echo "::set-output name=dir::$(yarn cache dir)"
+
       - name: Cache Yarn Cache Directory
+        if: steps.changed-files-specific.outputs.any_changed == 'true'
         uses: actions/cache@v2
         with:
           path: ${{ steps.yarn-cache-dir-path.outputs.dir }}
           key: ${{ runner.os }}-${{ env.NODE_VERSION }}-${{ hashFiles('./client/yarn.lock') }}
           restore-keys: ${{ runner.os }}-${{ env.NODE_VERSION }}-
-      - name: npm install and npm run build
+
+      - name: Build Prod
+        if: steps.changed-files-specific.outputs.any_changed == 'true'
         run: |
           cd ./client
           npm install -g @angular/cli && yarn install --prefer-offline
           npm run build:prod
-      - uses: actions/upload-artifact@v2
-        with:
-          name: ClientBuild
-          path: ./client/dist/

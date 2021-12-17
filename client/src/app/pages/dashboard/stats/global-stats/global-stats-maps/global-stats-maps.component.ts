@@ -50,7 +50,6 @@ export class GlobalStatsMapsComponent implements OnInit, OnChanges {
                   color: '#fff',
                 },
               },
-
             ],
             type: 'pie',
           },
