@@ -1,22 +1,17 @@
 {
-    "compileOnSave": false,
-    "compilerOptions": {
-      "outDir": "./dist/out-tsc",
-      "sourceMap": true,
-      "declaration": false,
-      "module": "es2020",
-      "allowJs": true, // Temporary for the TS port
-      "moduleResolution": "node",
-      "emitDecoratorMetadata": true,
-      "experimentalDecorators": true,
-      "target": "es2018",
-      "typeRoots": [
-        "node_modules/@types"
-      ],
-      "skipLibCheck": true, 
-      "lib": [
-        "es2017",
-        "dom"
-      ]
-    }
+  "compilerOptions": {
+    "module": "commonjs",
+    "declaration": true,
+    "removeComments": true,
+    "emitDecoratorMetadata": true,
+    "resolveJsonModule": true,                        /* Enable importing .json files */    
+    "experimentalDecorators": true,
+    "allowSyntheticDefaultImports": true,
+    "target": "es2017",
+    "sourceMap": true,
+    "outDir": "./dist",
+    "baseUrl": "./",
+    "incremental": true,
+    "skipLibCheck": true
   }
+}

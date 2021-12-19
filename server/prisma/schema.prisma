@@ -1,0 +1,565 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model Activity {
+  id            Int             @id @default(autoincrement())
+  type          Int?            @db.TinyInt
+  data          BigInt?
+  createdAt     DateTime        @db.DateTime(0)
+  updatedAt     DateTime        @db.DateTime(0)
+  userID        Int?            @db.UnsignedInt
+  users         User?          @relation(fields: [userID], references: [id], onDelete: Cascade, map: "activities_ibfk_1")
+  notifications Notification[]
+  @@index([userID], map: "userID")
+	@@map("activities")
+}
+
+model Badge {
+  id          Int          @id @default(autoincrement())
+  name        String?      @db.VarChar(255)
+  description String?      @db.VarChar(255)
+  image       String?      @db.VarChar(255)
+  createdAt   DateTime     @db.DateTime(0)
+  updatedAt   DateTime     @db.DateTime(0)
+  userbadges  UserBadge[]
+	@@map("badges")
+}
+
+model BaseStat {
+  id             BigInt          @id @default(autoincrement()) @db.UnsignedBigInt
+  jumps          Int?            @default(0) @db.UnsignedInt
+  strafes        Int?            @default(0) @db.UnsignedInt
+  avgStrafeSync  Float?          @default(0) @db.Float
+  avgStrafeSync2 Float?          @default(0) @db.Float
+  enterTime      Float?          @default(0) @db.Float
+  totalTime      Float?          @default(0) @db.Float
+  velAvg3D       Float?          @default(0) @db.Float
+  velAvg2D       Float?          @default(0) @db.Float
+  velMax3D       Float?          @default(0) @db.Float
+  velMax2D       Float?          @default(0) @db.Float
+  velEnter3D     Float?          @default(0) @db.Float
+  velEnter2D     Float?          @default(0) @db.Float
+  velExit3D      Float?          @default(0) @db.Float
+  velExit2D      Float?          @default(0) @db.Float
+  createdAt      DateTime        @db.DateTime(0)
+  updatedAt      DateTime        @db.DateTime(0)
+  mapstats       MapStats[]
+  maptrackstats  MapTrackStat[]
+  mapzonestats   MapZoneStat[]
+  runs           Run[]
+  runzonestats   RunZoneStat[]
+	@@map("basestats")
+}
+
+model DiscordAuth {
+  id           Int       @id @default(autoincrement())
+  discordID    String?   @db.VarChar(255)
+  displayName  String?   @db.VarChar(255)
+  accessToken  String?   @db.VarChar(255)
+  refreshToken String?   @db.VarChar(255)
+  createdAt    DateTime  @db.DateTime(0)
+  updatedAt    DateTime  @db.DateTime(0)
+  profileID    Int?
+  profiles     Profile? @relation(fields: [profileID], references: [id], onDelete: Cascade, map: "discordauths_ibfk_1")
+  @@index([profileID], map: "profileID")
+	@@map("discordauths")
+}
+
+model Follow {
+  notifyOn                        Int?     @default(0) @db.UnsignedTinyInt
+  createdAt                       DateTime @db.DateTime(0)
+  updatedAt                       DateTime @db.DateTime(0)
+  followeeID                      Int      @db.UnsignedInt
+  followedID                      Int      @db.UnsignedInt
+  users_follows_followedIDTousers User    @relation("follows_followedIDTousers", fields: [followedID], references: [id], onDelete: Cascade, map: "follows_ibfk_2")
+  users_follows_followeeIDTousers User    @relation("follows_followeeIDTousers", fields: [followeeID], references: [id], onDelete: Cascade, map: "follows_ibfk_1")
+  @@id([followeeID, followedID])
+  @@unique([followeeID, followedID], map: "follows_followeeID_followedID_unique")
+  @@index([followedID], map: "followedID")
+	@@map("follows")
+}
+
+model MapCredit {
+  id        BigInt   @id @default(autoincrement())
+  type      Int?     @db.TinyInt
+  createdAt DateTime @db.DateTime(0)
+  updatedAt DateTime @db.DateTime(0)
+  mapID     Int?     @db.UnsignedInt
+  userID    Int?     @db.UnsignedInt
+  maps      Map?    @relation(fields: [mapID], references: [id], onDelete: Cascade, map: "mapcredits_ibfk_1")
+  users     User?   @relation(fields: [userID], references: [id], map: "mapcredits_ibfk_2")
+  @@index([mapID], map: "mapID")
+  @@index([userID], map: "userID")
+	@@map("mapcredits")
+}
+
+model MapFavorite {
+  id        Int      @id @default(autoincrement())
+  createdAt DateTime @db.DateTime(0)
+  updatedAt DateTime @db.DateTime(0)
+  userID    Int?     @db.UnsignedInt
+  mapID     Int?     @db.UnsignedInt
+  maps      Map?    @relation(fields: [mapID], references: [id], onDelete: Cascade, map: "mapfavorites_ibfk_2")
+  users     User?   @relation(fields: [userID], references: [id], map: "mapfavorites_ibfk_1")
+  @@index([mapID], map: "mapID")
+  @@index([userID], map: "userID")
+	@@map("mapfavorites")
+}
+
+model MapImage {
+  id        Int      @id @default(autoincrement())
+  small     String?  @db.VarChar(255)
+  medium    String?  @db.VarChar(255)
+  large     String?  @db.VarChar(255)
+  createdAt DateTime @db.DateTime(0)
+  updatedAt DateTime @db.DateTime(0)
+  mapID     Int?     @db.UnsignedInt
+  maps      Map?    @relation(fields: [mapID], references: [id], onDelete: Cascade, map: "mapimages_ibfk_1")
+  @@index([mapID], map: "mapID")
+	@@map("mapimages")
+}
+
+model MapInfo {
+  id           Int       @id @default(autoincrement())
+  description  String?   @db.VarChar(1000)
+  youtubeID    String?   @db.VarChar(11)
+  numTracks    Int?      @db.UnsignedTinyInt
+  creationDate DateTime? @db.DateTime(0)
+  createdAt    DateTime  @db.DateTime(0)
+  updatedAt    DateTime  @db.DateTime(0)
+  mapID        Int?      @db.UnsignedInt
+  maps         Map?     @relation(fields: [mapID], references: [id], onDelete: Cascade, map: "mapinfos_ibfk_1")
+  @@index([mapID], map: "mapID")
+	@@map("mapinfos")
+}
+
+model MapLibraryEntries {
+  id        Int      @id @default(autoincrement())
+  createdAt DateTime @db.DateTime(0)
+  updatedAt DateTime @db.DateTime(0)
+  userID    Int?     @db.UnsignedInt
+  mapID     Int?     @db.UnsignedInt
+  maps      Map?    @relation(fields: [mapID], references: [id], map: "maplibraryentries_ibfk_2")
+  users     User?   @relation(fields: [userID], references: [id], map: "maplibraryentries_ibfk_1")
+  @@index([mapID], map: "mapID")
+  @@index([userID], map: "userID")
+	@@map("maplibraryentries")
+}
+
+model MapNotify {
+  id         Int      @id @default(autoincrement())
+  notifyOn   Int?     @db.UnsignedTinyInt
+  createdAt  DateTime @db.DateTime(0)
+  updatedAt  DateTime @db.DateTime(0)
+  followeeID Int?     @db.UnsignedInt
+  mapID      Int?     @db.UnsignedInt
+  users      User?   @relation(fields: [followeeID], references: [id], onDelete: Cascade, map: "mapnotifies_ibfk_1")
+  maps       Map?    @relation(fields: [mapID], references: [id], onDelete: Cascade, map: "mapnotifies_ibfk_2")
+  @@index([followeeID], map: "followeeID")
+  @@index([mapID], map: "mapID")
+	@@map("mapnotifies")
+}
+
+model MapRank {
+  mapID     Int      @db.UnsignedInt
+  userID    Int      @db.UnsignedInt
+  gameType  Int      @db.UnsignedTinyInt
+  flags     Int      @default(0) @db.UnsignedInt
+  trackNum  Int      @default(0) @db.UnsignedTinyInt
+  zoneNum   Int      @default(0) @db.UnsignedTinyInt
+  runID     BigInt?  @db.UnsignedBigInt
+  rank      Int?     @db.UnsignedInt
+  rankXP    Int?     @default(0) @db.UnsignedInt
+  createdAt DateTime @db.DateTime(0)
+  updatedAt DateTime @db.DateTime(0)
+  maps      Map     @relation(fields: [mapID], references: [id], onDelete: Cascade, map: "mapranks_ibfk_1")
+  runs      Run?    @relation(fields: [runID], references: [id], onDelete: Cascade, map: "mapranks_ibfk_3")
+  users     User    @relation(fields: [userID], references: [id], onDelete: Cascade, map: "mapranks_ibfk_2")
+  @@id([mapID, userID, gameType, flags, trackNum, zoneNum])
+  @@index([runID], map: "runID")
+  @@index([userID], map: "userID")
+	@@map("mapranks")
+}
+
+model MapReview {
+  id         Int      @id @default(autoincrement())
+  text       String?  @db.VarChar(1000)
+  createdAt  DateTime @db.DateTime(0)
+  updatedAt  DateTime @db.DateTime(0)
+  reviewerID Int?     @db.UnsignedInt
+  mapID      Int?     @db.UnsignedInt
+  maps       Map?    @relation(fields: [mapID], references: [id], map: "mapreviews_ibfk_2")
+  users      User?   @relation(fields: [reviewerID], references: [id], map: "mapreviews_ibfk_1")
+  @@index([mapID], map: "mapID")
+  @@index([reviewerID], map: "reviewerID")
+	@@map("mapreviews")
+}
+
+model Map {
+  id                Int                 @id @default(autoincrement()) @db.UnsignedInt
+  name              String?             @db.VarChar(32)
+  type              Int?                @default(0) @db.UnsignedTinyInt
+  statusFlag        Int?                @default(2) @db.TinyInt
+  downloadURL       String?             @db.VarChar(255)
+  hash              String?             @db.Char(40)
+  createdAt         DateTime            @db.DateTime(0)
+  updatedAt         DateTime            @db.DateTime(0)
+  submitterID       Int?                @db.UnsignedInt
+  thumbnailID       Int?
+  users             User?              @relation(fields: [submitterID], references: [id], map: "maps_ibfk_1")
+  mapcredits        MapCredit[]
+  mapfavorites      MapFavorite[]
+  mapimages         MapImage[]
+  mapinfos          MapInfo[]
+  maplibraryentries MapLibraryEntries[]
+  mapnotifies       MapNotify[]
+  mapranks          MapRank[]
+  mapreviews        MapReview[]
+  mapstats          MapStats[]
+  maptracks         MapTrack[]
+  runs              Run[]
+  @@index([submitterID], map: "submitterID")
+	@@map("maps")
+}
+
+model MapStats {
+  id                     Int        @id @default(autoincrement())
+  totalReviews           Int?       @default(0) @db.UnsignedInt
+  totalDownloads         Int?       @default(0) @db.UnsignedInt
+  totalSubscriptions     Int?       @default(0) @db.UnsignedInt
+  totalPlays             Int?       @default(0) @db.UnsignedInt
+  totalFavorites         Int?       @default(0) @db.UnsignedInt
+  totalCompletions       Int?       @default(0) @db.UnsignedInt
+  totalUniqueCompletions Int?       @default(0) @db.UnsignedInt
+  totalTimePlayed        BigInt?    @default(0) @db.UnsignedBigInt
+  createdAt              DateTime   @db.DateTime(0)
+  updatedAt              DateTime   @db.DateTime(0)
+  mapID                  Int?       @db.UnsignedInt
+  baseStatsID            BigInt?    @db.UnsignedBigInt
+  basestats              BaseStat? @relation(fields: [baseStatsID], references: [id], onDelete: Cascade, map: "mapstats_ibfk_2")
+  maps                   Map?      @relation(fields: [mapID], references: [id], onDelete: Cascade, map: "mapstats_ibfk_1")
+  @@index([baseStatsID], map: "baseStatsID")
+  @@index([mapID], map: "mapID")
+	@@map("mapstats")
+}
+
+model MapTrack {
+  id            Int             @id @default(autoincrement())
+  trackNum      Int?            @db.UnsignedTinyInt
+  numZones      Int?            @db.UnsignedTinyInt
+  isLinear      Boolean?
+  difficulty    Int?            @db.UnsignedTinyInt
+  createdAt     DateTime        @db.DateTime(0)
+  updatedAt     DateTime        @db.DateTime(0)
+  mapID         Int?            @db.UnsignedInt
+  maps          Map?           @relation(fields: [mapID], references: [id], onDelete: Cascade, map: "maptracks_ibfk_1")
+  maptrackstats MapTrackStat[]
+  mapzones      MapZone[]
+  runsessions   RunSession[]
+  @@index([mapID], map: "mapID")
+	@@map("maptracks")
+}
+
+model MapTrackStat {
+  id                Int        @id @default(autoincrement())
+  completions       Int?       @default(0) @db.UnsignedInt
+  uniqueCompletions Int?       @default(0) @db.UnsignedInt
+  createdAt         DateTime   @db.DateTime(0)
+  updatedAt         DateTime   @db.DateTime(0)
+  mapTrackID        Int?
+  baseStatsID       BigInt?    @db.UnsignedBigInt
+  basestats         BaseStat? @relation(fields: [baseStatsID], references: [id], onDelete: Cascade, map: "maptrackstats_ibfk_2")
+  maptracks         MapTrack? @relation(fields: [mapTrackID], references: [id], onDelete: Cascade, map: "maptrackstats_ibfk_1")
+  @@index([baseStatsID], map: "baseStatsID")
+  @@index([mapTrackID], map: "mapTrackID")
+	@@map("maptrackstats")
+}
+
+model MapZoneProp {
+  id              Int              @id @default(autoincrement())
+  properties      Json?
+  createdAt       DateTime         @db.DateTime(0)
+  updatedAt       DateTime         @db.DateTime(0)
+  triggerID       Int?
+  mapzonetriggers MapZoneTrigger? @relation(fields: [triggerID], references: [id], onDelete: Cascade, map: "mapzoneprops_ibfk_1")
+  @@index([triggerID], map: "triggerID")
+	@@map("mapzoneprops")
+}
+
+model MapZone {
+  id              Int               @id @default(autoincrement())
+  zoneNum         Int?              @db.UnsignedTinyInt
+  createdAt       DateTime          @db.DateTime(0)
+  updatedAt       DateTime          @db.DateTime(0)
+  mapTrackID      Int?
+  maptracks       MapTrack?        @relation(fields: [mapTrackID], references: [id], onDelete: Cascade, map: "mapzones_ibfk_1")
+  mapzonestats    MapZoneStat[]
+  mapzonetriggers MapZoneTrigger[]
+  @@index([mapTrackID], map: "mapTrackID")
+  @@index([zoneNum], map: "map_zones_zone_num")
+	@@map("mapzones")
+}
+
+model MapZoneStat {
+  id                Int        @id @default(autoincrement())
+  completions       Int?       @default(0) @db.UnsignedInt
+  uniqueCompletions Int?       @default(0) @db.UnsignedInt
+  createdAt         DateTime   @db.DateTime(0)
+  updatedAt         DateTime   @db.DateTime(0)
+  mapZoneID         Int?
+  baseStatsID       BigInt?    @db.UnsignedBigInt
+  basestats         BaseStat? @relation(fields: [baseStatsID], references: [id], onDelete: Cascade, map: "mapzonestats_ibfk_2")
+  mapzones          MapZone?  @relation(fields: [mapZoneID], references: [id], onDelete: Cascade, map: "mapzonestats_ibfk_1")
+  @@index([baseStatsID], map: "baseStatsID")
+  @@index([mapZoneID], map: "mapZoneID")
+	@@map("mapzonestats")
+}
+
+model MapZoneTrigger {
+  id           Int            @id @default(autoincrement())
+  type         Int?           @db.UnsignedTinyInt
+  pointsHeight Float?         @db.Float
+  pointsZPos   Float?         @db.Float
+  points       Json?
+  createdAt    DateTime       @db.DateTime(0)
+  updatedAt    DateTime       @db.DateTime(0)
+  mapZoneID    Int?
+  mapzones     MapZone?      @relation(fields: [mapZoneID], references: [id], onDelete: Cascade, map: "mapzonetriggers_ibfk_1")
+  mapzoneprops MapZoneProp[]
+  @@index([mapZoneID], map: "mapZoneID")
+	@@map("mapzonetriggers")
+}
+
+model Notification {
+  id         Int         @id @default(autoincrement())
+  read       Boolean?    @default(false)
+  createdAt  DateTime    @db.DateTime(0)
+  updatedAt  DateTime    @db.DateTime(0)
+  forUserID  Int?        @db.UnsignedInt
+  activityID Int?
+  activities Activity? @relation(fields: [activityID], references: [id], onDelete: Cascade, map: "notifications_ibfk_2")
+  users      User?      @relation(fields: [forUserID], references: [id], map: "notifications_ibfk_1")
+  @@index([activityID], map: "activityID")
+  @@index([forUserID], map: "forUserID")
+	@@map("notifications")
+}
+
+model Profile {
+  id              Int            @id @default(autoincrement())
+  bio             String?        @default("") @db.VarChar(1000)
+  createdAt       DateTime       @db.DateTime(0)
+  updatedAt       DateTime       @db.DateTime(0)
+  userID          Int?           @db.UnsignedInt
+  featuredBadgeID Int?
+  userbadges      UserBadge?    @relation(fields: [featuredBadgeID], references: [id], map: "profiles_ibfk_2")
+  users           User?         @relation(fields: [userID], references: [id], onDelete: Cascade, map: "profiles_ibfk_1")
+  discordauths    DiscordAuth[]
+  twitchauths     TwitchAuth[]
+  twitterauths    TwitterAuth[]
+  @@index([featuredBadgeID], map: "featuredBadgeID")
+  @@index([userID], map: "userID")
+	@@map("profiles")
+}
+
+model Report {
+  id                               Int      @id @default(autoincrement())
+  data                             String?  @db.VarChar(255)
+  type                             Int?     @db.UnsignedTinyInt
+  category                         Int?     @db.UnsignedSmallInt
+  message                          String?  @db.VarChar(1000)
+  resolved                         Boolean? @default(false)
+  resolutionMessage                String?  @db.VarChar(1000)
+  createdAt                        DateTime @db.DateTime(0)
+  updatedAt                        DateTime @db.DateTime(0)
+  submitterID                      Int?     @db.UnsignedInt
+  resolverID                       Int?     @db.UnsignedInt
+  users_reports_resolverIDTousers  User?   @relation("reports_resolverIDTousers", fields: [resolverID], references: [id], map: "reports_ibfk_2")
+  users_reports_submitterIDTousers User?   @relation("reports_submitterIDTousers", fields: [submitterID], references: [id], map: "reports_ibfk_1")
+  @@index([resolverID], map: "resolverID")
+  @@index([submitterID], map: "submitterID")
+	@@map("reports")
+}
+
+model Run {
+  id           BigInt         @id @default(autoincrement()) @db.UnsignedBigInt
+  trackNum     Int?           @db.UnsignedTinyInt
+  zoneNum      Int?           @db.UnsignedTinyInt
+  ticks        Int?           @db.UnsignedInt
+  tickRate     Float?         @db.Float
+  flags        Int?           @db.UnsignedInt
+  file         String?        @db.VarChar(255)
+  hash         String?        @db.VarChar(40)
+  createdAt    DateTime       @db.DateTime(0)
+  updatedAt    DateTime       @db.DateTime(0)
+  mapID        Int?           @db.UnsignedInt
+  playerID     Int?           @db.UnsignedInt
+  baseStatsID  BigInt?        @db.UnsignedBigInt
+  basestats    BaseStat?     @relation(fields: [baseStatsID], references: [id], onDelete: Cascade, map: "runs_ibfk_3")
+  maps         Map?          @relation(fields: [mapID], references: [id], onDelete: Cascade, map: "runs_ibfk_1")
+  users        User?         @relation(fields: [playerID], references: [id], map: "runs_ibfk_2")
+  mapranks     MapRank[]
+  runzonestats RunZoneStat[]
+  @@index([baseStatsID], map: "baseStatsID")
+  @@index([mapID], map: "mapID")
+  @@index([playerID], map: "playerID")
+  @@index([flags], map: "runs_flags")
+	@@map("runs")
+}
+
+model RunSession {
+  id                   BigInt                 @id @default(autoincrement()) @db.UnsignedBigInt
+  trackNum             Int?                   @db.UnsignedTinyInt
+  zoneNum              Int?                   @db.UnsignedTinyInt
+  createdAt            DateTime               @db.DateTime(0)
+  updatedAt            DateTime               @db.DateTime(0)
+  userID               Int?                   @db.UnsignedInt
+  mapTrackID           Int?
+  maptracks            MapTrack?             @relation(fields: [mapTrackID], references: [id], map: "runsessions_ibfk_2")
+  users                User?                 @relation(fields: [userID], references: [id], onDelete: Cascade, map: "runsessions_ibfk_1")
+  runsessiontimestamps RunSessionTimestamp[]
+  @@index([mapTrackID], map: "mapTrackID")
+  @@index([userID], map: "userID")
+	@@map("runsessions")
+}
+
+model RunSessionTimestamp {
+  id          BigInt       @id @default(autoincrement()) @db.UnsignedBigInt
+  zone        Int?         @db.UnsignedTinyInt
+  tick        Int?         @db.UnsignedInt
+  createdAt   DateTime     @db.DateTime(0)
+  updatedAt   DateTime     @db.DateTime(0)
+  sessionID   BigInt?      @db.UnsignedBigInt
+  runsessions RunSession? @relation(fields: [sessionID], references: [id], onDelete: Cascade, map: "runsessiontimestamps_ibfk_1")
+  @@index([sessionID], map: "sessionID")
+	@@map("runsessiontimestamps")
+}
+
+model RunZoneStat {
+  id          Int        @id @default(autoincrement())
+  zoneNum     Int?       @default(0) @db.UnsignedTinyInt
+  createdAt   DateTime   @db.DateTime(0)
+  updatedAt   DateTime   @db.DateTime(0)
+  runID       BigInt?    @db.UnsignedBigInt
+  baseStatsID BigInt?    @db.UnsignedBigInt
+  basestats   BaseStat? @relation(fields: [baseStatsID], references: [id], onDelete: Cascade, map: "runzonestats_ibfk_2")
+  runs        Run?      @relation(fields: [runID], references: [id], onDelete: Cascade, map: "runzonestats_ibfk_1")
+  @@index([baseStatsID], map: "baseStatsID")
+  @@index([runID], map: "runID")
+	@@map("runzonestats")
+}
+
+model TwitchAuth {
+  id          Int       @id @default(autoincrement())
+  twitchID    Int?
+  displayName String?   @db.VarChar(255)
+  token       String?   @db.VarChar(255)
+  createdAt   DateTime  @db.DateTime(0)
+  updatedAt   DateTime  @db.DateTime(0)
+  profileID   Int?
+  profiles    Profile? @relation(fields: [profileID], references: [id], onDelete: Cascade, map: "twitchauths_ibfk_1")
+  @@index([profileID], map: "profileID")
+	@@map("twitchauths")
+}
+
+model TwitterAuth {
+  id          Int       @id @default(autoincrement())
+  twitterID   String?   @db.VarChar(255)
+  displayName String?   @db.VarChar(255)
+  oauthKey    String?   @db.VarChar(255)
+  oauthSecret String?   @db.VarChar(255)
+  createdAt   DateTime  @db.DateTime(0)
+  updatedAt   DateTime  @db.DateTime(0)
+  profileID   Int?
+  profiles    Profile? @relation(fields: [profileID], references: [id], onDelete: Cascade, map: "twitterauths_ibfk_1")
+  @@index([profileID], map: "profileID")
+	@@map("twitterauths")
+}
+
+model UserAuth {
+  id           Int      @id @default(autoincrement())
+  refreshToken String?  @db.VarChar(255)
+  createdAt    DateTime @db.DateTime(0)
+  updatedAt    DateTime @db.DateTime(0)
+  userID       Int?     @db.UnsignedInt
+  users        User?   @relation(fields: [userID], references: [id], onDelete: Cascade, map: "userauths_ibfk_1")
+  @@index([userID], map: "userID")
+	@@map("userauths")
+}
+
+model UserBadge {
+  id        Int        @id @default(autoincrement())
+  createdAt DateTime   @db.DateTime(0)
+  updatedAt DateTime   @db.DateTime(0)
+  badgeID   Int?
+  userID    Int?       @db.UnsignedInt
+  badges    Badge?    @relation(fields: [badgeID], references: [id], map: "userbadges_ibfk_1")
+  users     User?     @relation(fields: [userID], references: [id], map: "userbadges_ibfk_2")
+  profiles  Profile[]
+  @@index([badgeID], map: "badgeID")
+  @@index([userID], map: "userID")
+	@@map("userbadges")
+}
+
+model User {
+  id                                 Int                 @id @default(autoincrement()) @db.UnsignedInt
+  steamID                            String?             @unique(map: "users_steam_i_d") @db.VarChar(20)
+  alias                              String?             @db.VarChar(64)
+  aliasLocked                        Boolean?            @default(false)
+  avatar                             String?             @db.VarChar(255)
+  roles                              Int?                @default(0) @db.UnsignedInt
+  bans                               Int?                @default(0) @db.UnsignedInt
+  country                            String?             @db.VarChar(2)
+  createdAt                          DateTime            @db.DateTime(0)
+  updatedAt                          DateTime            @db.DateTime(0)
+  activities                         Activity[]
+  follows_follows_followedIDTousers  Follow[]           @relation("follows_followedIDTousers")
+  follows_follows_followeeIDTousers  Follow[]           @relation("follows_followeeIDTousers")
+  mapcredits                         MapCredit[]
+  mapfavorites                       MapFavorite[]
+  maplibraryentries                  MapLibraryEntries[]
+  mapnotifies                        MapNotify[]
+  mapranks                           MapRank[]
+  mapreviews                         MapReview[]
+  maps                               Map[]
+  notifications                      Notification[]
+  profiles                           Profile[]
+  reports_reports_resolverIDTousers  Report[]           @relation("reports_resolverIDTousers")
+  reports_reports_submitterIDTousers Report[]           @relation("reports_submitterIDTousers")
+  runs                               Run[]
+  runsessions                        RunSession[]
+  userauths                          UserAuth[]
+  userbadges                         UserBadge[]
+  userstats                          UserStat[]
+	@@map("users")
+}
+
+model UserStat {
+  id            Int      @id @default(autoincrement())
+  totalJumps    BigInt?  @default(0) @db.UnsignedBigInt
+  totalStrafes  BigInt?  @default(0) @db.UnsignedBigInt
+  level         Int?     @default(1) @db.UnsignedSmallInt
+  cosXP         BigInt?  @default(0) @db.UnsignedBigInt
+  mapsCompleted Int?     @default(0) @db.UnsignedInt
+  runsSubmitted Int?     @default(0) @db.UnsignedInt
+  createdAt     DateTime @db.DateTime(0)
+  updatedAt     DateTime @db.DateTime(0)
+  userID        Int?     @db.UnsignedInt
+  users         User?   @relation(fields: [userID], references: [id], onDelete: Cascade, map: "userstats_ibfk_1")
+  @@index([userID], map: "userID")
+	@@map("userstats")
+}
+
+model XpSystem {
+  id        Int      @id @default(autoincrement())
+  rankXP    Json?
+  cosXP     Json?
+  createdAt DateTime @db.DateTime(0)
+  updatedAt DateTime @db.DateTime(0)
+	@@map("xpsystems")
+}
