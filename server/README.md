@@ -1,5 +1,8 @@
 # Momentum Mod Backend
 
+# NOTE THIS IS A WORK IN PROGRESS BRANCH AND THE CURRENT READ ME MAY BE OUT OF DATE.
+
+
 ## Dependencies
 * [NodeJS (stable/LTS)](https://nodejs.org/en/download/)
 * [Yarn](https://yarnpkg.com/en/)
