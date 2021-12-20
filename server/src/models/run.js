@@ -372,7 +372,9 @@ const saveRun = (resultObj, transact) => {
 			return Promise.resolve();
 
 		return resultObj.mapRank.update({runID: run.id}, {transaction: transact});
-	}).then(() => { // Store the run file
+	}).then(() => { // Store the run file only if it's a PB
+		if (!resultObj.isPersonalBest)
+			return Promise.resolve({downloadURL: ''});
 		return storeRunFile(resultObj, runModel.id);
 	}).then(results => { // Update the download URL for the run
 		return runModel.update({ file: results.downloadURL }, {transaction: transact});
