@@ -6,6 +6,7 @@ export interface GameModeDetails {
     modeDescription: string;
     imageUrl: string;
     iconUrl: string;
+    guideUrl: string;
     isImplemented: boolean;
     useYoutubeEmbed: boolean;
     playingYoutubeEmbed?: boolean;

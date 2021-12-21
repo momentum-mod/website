@@ -61,7 +61,12 @@
       </ng-template>
     </div>
     <div class="col-12 col-md-6 gamemode-description">
-      {{this.currentGameMode.modeDescription}}
+      <div>
+        <span class="gamemode-description__text">{{this.currentGameMode.modeDescription}}</span>
+      </div>
+      <div class="gamemode-description__guide-url">
+        <a [href]="'https://docs.momentum-mod.org' + this.currentGameMode.guideUrl" >Learn more about {{this.currentGameMode.modeTitle}}</a>
+      </div>
     </div>
   </div>
 </div>
