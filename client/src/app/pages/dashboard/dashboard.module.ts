@@ -8,7 +8,7 @@ import {DashboardRoutingModule} from './dashboard-routing.module';
 import {DashboardHomeComponent} from './home/dashboard-home.component';
 import {NotFoundModule} from '../not-found/not-found.module';
 import {MarkdownModule} from 'ngx-markdown';
-import {NbAccordionModule, NbDialogModule} from '@nebular/theme';
+import {NbAccordionModule, NbDialogModule, NbSpinnerModule} from '@nebular/theme';
 import {HomeStatsComponent} from './home/home-stats/home-stats.component';
 import {HomeUserMapsComponent} from './home/home-user-maps/home-user-maps.component';
 import {HomeUserLibraryComponent} from './home/home-user-library/home-user-library.component';
@@ -27,6 +27,7 @@ import * as echarts from 'echarts';
     FormsModule,
     NotFoundModule,
     NgxPaginationModule,
+    NbSpinnerModule,
     DashboardRoutingModule,
   ],
   declarations: [

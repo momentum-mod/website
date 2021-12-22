@@ -2,7 +2,7 @@ import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 
 import {HomeUserLibraryComponent} from './home-user-library.component';
 import {APP_BASE_HREF} from '@angular/common';
-import {NbAccordionModule, NbStatusService} from '@nebular/theme';
+import {NbAccordionModule, NbStatusService, NbToastrService} from '@nebular/theme';
 import {BrowserAnimationsModule} from '@angular/platform-browser/animations';
 import {AuthService} from '../../../../@core/data/auth.service';
 import {CookieService} from 'ngx-cookie-service';
@@ -11,7 +11,7 @@ import {HttpClientTestingModule} from '@angular/common/http/testing';
 describe('HomeUserLibraryComponent', () => {
   let component: HomeUserLibraryComponent;
   let fixture: ComponentFixture<HomeUserLibraryComponent>;
-
+  let toastrStub: Partial<NbToastrService>;
   beforeEach(waitForAsync(() => {
     const authService: Partial<AuthService> = {
     };
@@ -30,6 +30,7 @@ describe('HomeUserLibraryComponent', () => {
       declarations: [ HomeUserLibraryComponent],
       providers: [
         NbStatusService,
+        { provide: NbToastrService, useValue: toastrStub },
         { provide: APP_BASE_HREF, useValue: '/' },
         { provide: AuthService, useValue: authService },
         { provide: CookieService, useValue: cookServ},

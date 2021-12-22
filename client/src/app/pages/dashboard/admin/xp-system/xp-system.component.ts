@@ -3,6 +3,7 @@ import {XPSystems} from '../../../../@core/models/xp-systems.model';
 import {FormArray, FormBuilder, FormGroup, Validators} from '@angular/forms';
 import {AdminService} from '../../../../@core/data/admin.service';
 import {NbToastrService} from '@nebular/theme';
+import {finalize} from 'rxjs/operators';
 
 @Component({
   selector: 'xp-system',
@@ -10,7 +11,7 @@ import {NbToastrService} from '@nebular/theme';
   styleUrls: ['./xp-system.component.scss'],
 })
 export class XPSystemComponent implements OnInit {
-
+  loading: boolean;
   xpSystems: XPSystems;
 
   xpSystemsFormGroup: FormGroup = this.fb.group({
@@ -121,7 +122,10 @@ export class XPSystemComponent implements OnInit {
   }
 
   ngOnInit() {
-    this.adminService.getXPSystems().subscribe(res => {
+    this.loading = true;
+    this.adminService.getXPSystems().pipe(
+      finalize(() => this.loading = false),
+    ).subscribe(res => {
       this.xpSystems = res;
       this.xpSystemsFormGroup.patchValue(this.xpSystems);
     }, err => {

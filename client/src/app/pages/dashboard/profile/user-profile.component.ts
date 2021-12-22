@@ -1,6 +1,6 @@
 import {Component, OnDestroy, OnInit} from '@angular/core';
 import {LocalUserService} from '../../../@core/data/local-user.service';
-import {switchMap, takeUntil} from 'rxjs/operators';
+import {switchMap, takeUntil, finalize} from 'rxjs/operators';
 import {ActivatedRoute, ParamMap, Router} from '@angular/router';
 import {UsersService} from '../../../@core/data/users.service';
 import {User} from '../../../@core/models/user.model';
@@ -31,12 +31,14 @@ export class UserProfileComponent implements OnInit, OnDestroy {
   avatar_loaded: boolean;
   followingUsers: UserFollowObject[];
   followedByUsers: UserFollowObject[];
-
-  constructor(private route: ActivatedRoute,
-              private router: Router,
-              public userService: LocalUserService,
-              private usersService: UsersService,
-              private toastService: NbToastrService) {
+  loading: boolean;
+  constructor(
+    private route: ActivatedRoute,
+    private router: Router,
+    public userService: LocalUserService,
+    private usersService: UsersService,
+    private toastService: NbToastrService,
+  ) {
     this.ReportType = ReportType;
     this.role = Role;
     this.isLocal = true;
@@ -51,48 +53,74 @@ export class UserProfileComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit() {
-    this.route.paramMap.pipe(
-      switchMap((params: ParamMap) => {
-        if (params.has('id')) {
-          const idNum: number = Number(params.get('id'));
-          this.userService.getLocal().pipe(
-            takeUntil(this.ngUnsub),
-          ).subscribe(usr => {
-            this.isLocal = idNum === usr.id;
-          }, error => {
-            this.toastService.danger(error.message, 'Cannot get user profile');
-          });
-          return this.usersService.getUser(idNum, {
-            params: { expand: 'profile,stats' },
-          });
-        } else {
-          this.isLocal = true;
-          return this.userService.getLocalUser({
-            params: { expand: 'profile,stats' },
-          });
-        }
-      },
-      ),
-    ).subscribe(usr => {
-      this.user = usr;
-      this.isMapper = this.hasRole(Role.MAPPER);
-      this.isMod = this.hasRole(Role.MODERATOR);
-      this.isAdmin = this.hasRole(Role.ADMIN);
-      this.isVerified = this.hasRole(Role.VERIFIED);
-      this.userSubj$.next(usr);
-      if (!this.hasBan(Ban.BANNED_AVATAR) && this.user.avatarURL) {
-        this.avatar_url = this.user.avatarURL;
-      }
-      this.avatar_loaded = true;
-      this.usersService.getUserFollows(this.user).subscribe(resp => {
-        this.followingUsers = resp.followed;
-      }, err => this.toastService.danger(err.message, 'Could not retrieve user follows'));
-      this.usersService.getFollowersOfUser(this.user).subscribe(resp => {
-        this.followedByUsers = resp.followers;
-      }, err => this.toastService.danger(err.message, 'Could not retrieve user following'));
-    }, error => {
-      this.toastService.danger(error.message, 'Cannot get user details');
-    });
+    this.loading = true;
+    this.route.paramMap
+      .pipe(
+        switchMap((params: ParamMap) => {
+          if (params.has('id')) {
+            const idNum: number = Number(params.get('id'));
+            this.userService
+              .getLocal()
+              .pipe(takeUntil(this.ngUnsub))
+              .subscribe(
+                (usr) => {
+                  this.isLocal = idNum === usr.id;
+                },
+                (error) => {
+                  this.toastService.danger(
+                    error.message,
+                    'Cannot get user profile',
+                  );
+                },
+              );
+            return this.usersService.getUser(idNum, {
+              params: { expand: 'profile,stats' },
+            }).pipe(finalize(() => this.loading = false));
+          } else {
+            this.isLocal = true;
+            return this.userService.getLocalUser({
+              params: { expand: 'profile,stats' },
+            }).pipe(finalize(() => this.loading = false));
+          }
+        }),
+      )
+      .subscribe(
+        (usr) => {
+          this.user = usr;
+          this.isMapper = this.hasRole(Role.MAPPER);
+          this.isMod = this.hasRole(Role.MODERATOR);
+          this.isAdmin = this.hasRole(Role.ADMIN);
+          this.isVerified = this.hasRole(Role.VERIFIED);
+          this.userSubj$.next(usr);
+          if (!this.hasBan(Ban.BANNED_AVATAR) && this.user.avatarURL) {
+            this.avatar_url = this.user.avatarURL;
+          }
+          this.avatar_loaded = true;
+          this.usersService.getUserFollows(this.user).subscribe(
+            (resp) => {
+              this.followingUsers = resp.followed;
+            },
+            (err) =>
+              this.toastService.danger(
+                err.message,
+                'Could not retrieve user follows',
+              ),
+          );
+          this.usersService.getFollowersOfUser(this.user).subscribe(
+            (resp) => {
+              this.followedByUsers = resp.followers;
+            },
+            (err) =>
+              this.toastService.danger(
+                err.message,
+                'Could not retrieve user following',
+              ),
+          );
+        },
+        (error) => {
+          this.toastService.danger(error.message, 'Cannot get user details');
+        },
+      );
   }
 
   ngOnDestroy(): void {
@@ -101,24 +129,24 @@ export class UserProfileComponent implements OnInit, OnDestroy {
   }
 
   hasRole(role: Role) {
-    if (!this.user)
-      return false;
+    if (!this.user) return false;
     return this.userService.hasRole(role, this.user);
   }
 
   hasBan(ban: Ban) {
-    if (!this.user)
-      return false;
+    if (!this.user) return false;
     return this.userService.hasBan(ban, this.user);
   }
 
   onEditProfile() {
-    this.router.navigate([`/dashboard/profile/${this.isLocal ? '' : this.user.id + '/'}edit`]);
+    this.router.navigate([
+      `/dashboard/profile/${this.isLocal ? '' : this.user.id + '/'}edit`,
+    ]);
   }
 
   canEdit(): boolean {
-    return this.isLocal ||
-      this.userService.hasRole(Role.MODERATOR | Role.ADMIN);
+    return (
+      this.isLocal || this.userService.hasRole(Role.MODERATOR | Role.ADMIN)
+    );
   }
-
 }

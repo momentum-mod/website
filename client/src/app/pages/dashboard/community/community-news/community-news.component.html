@@ -1,6 +1,6 @@
 <div class="row">
   <div class="col-12 col-lg">
-    <nb-card>
+    <nb-card [nbSpinner]="!loadedPosts" nbSpinnerSize="giant" nbSpinnerStatus="primary">
       <nb-card-header>
         <h2>BLOG POSTS</h2>
       </nb-card-header>
@@ -21,7 +21,6 @@
           Read more official posts
           <a href="https://blog.momentum-mod.org" target="_blank">here</a>!
         </h3>
-        <h3 class="m-0 text-center" *ngIf="!loadedPosts">Waiting for API response</h3>
       </nb-card-body>
     </nb-card>
   </div>

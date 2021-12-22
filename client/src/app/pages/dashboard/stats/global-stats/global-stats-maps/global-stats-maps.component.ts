@@ -11,12 +11,18 @@ export class GlobalStatsMapsComponent implements OnInit, OnChanges {
 
   @Input('globalMapStats') globalMapStats: GlobalMapStats;
 
+  loading: boolean;
   mapCompletionPieChart;
   mapCompletionPieChartOptions: EChartsOption;
 
-  constructor() { }
+  constructor() {
+    this.loading = true;
+  }
 
   ngOnChanges(changes: SimpleChanges) {
+    if (this.globalMapStats) {
+      this.loading = false;
+    }
     if (changes.globalMapStats.currentValue) {
       this.mapCompletionPieChartOptions = {
         legend: {

@@ -31,7 +31,7 @@
     </div>
   </div>
 </div>
-<div *ngIf="maps.length && requestSent">
+<div [nbSpinner]="!requestSent" nbSpinnerSize="giant" nbSpinnerStatus="primary">
   <nb-list class="overflow-hidden">
     <nb-list-item *ngFor="let map of maps | paginate: {
         itemsPerPage: pageLimit,
@@ -58,7 +58,4 @@
 </div>
 <div class="text-center" *ngIf="maps.length === 0 && requestSent && isSearchFiltered()">
   <h3 class="m-0">{{noMapsText}}</h3>
-</div>
-<div class="text-center" *ngIf="!requestSent">
-  <h3 class="m-0">Waiting for API response</h3>
 </div>

@@ -9,11 +9,12 @@ import {Activity_Type} from '../../../../@core/models/activity-type.model';
 import {RouterModule} from '@angular/router';
 import {APP_BASE_HREF} from '@angular/common';
 import {TimeagoClock, TimeagoDefaultClock, TimeagoDefaultFormatter, TimeagoFormatter} from 'ngx-timeago';
+import { NbToastrService } from '@nebular/theme';
 
 describe('CommunityActivityComponent', () => {
   let component: CommunityActivityComponent;
   let fixture: ComponentFixture<CommunityActivityComponent>;
-
+  let toastrStub: Partial<NbToastrService>;
   let actServiceStub: Partial<ActivityService>;
   beforeEach(waitForAsync(() => {
     const testActivities: Activity[] = [
@@ -49,6 +50,7 @@ describe('CommunityActivityComponent', () => {
       imports: [ThemeModule.forRoot(), RouterModule.forRoot([], { relativeLinkResolution: 'legacy' })],
       declarations: [ CommunityActivityComponent ],
       providers: [
+        { provide: NbToastrService, useValue: toastrStub },
         { provide: ActivityService, useValue: actServiceStub },
         { provide: APP_BASE_HREF, useValue: '/' },
         { provide: TimeagoFormatter, useClass: TimeagoDefaultFormatter },

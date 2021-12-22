@@ -1,4 +1,4 @@
-import {Component, Input, OnInit} from '@angular/core';
+import {Component, Input, OnInit, OnChanges} from '@angular/core';
 import {UserStats} from '../../../../@core/models/user-stats.model';
 
 @Component({
@@ -6,13 +6,22 @@ import {UserStats} from '../../../../@core/models/user-stats.model';
   templateUrl: './home-stats.component.html',
   styleUrls: ['./home-stats.component.scss'],
 })
-export class HomeStatsComponent implements OnInit {
+export class HomeStatsComponent implements OnInit, OnChanges {
 
   @Input('userStats') userStats: UserStats;
+  loading: boolean;
 
-  constructor() {}
+  constructor() {
+    this.loading = true;
+  }
 
   ngOnInit() {
+  }
+
+  ngOnChanges() {
+    if (this.userStats) {
+      this.loading = false;
+    }
   }
 
 }

@@ -4,6 +4,8 @@ import {Activity_Type} from '../../../../@core/models/activity-type.model';
 import {Activity} from '../../../../@core/models/activity.model';
 import {ReplaySubject} from 'rxjs';
 import {User} from '../../../../@core/models/user.model';
+import {NbToastrService} from '@nebular/theme';
+import {finalize} from 'rxjs/operators';
 
 @Component({
   selector: 'activity-card',
@@ -16,13 +18,14 @@ export class ActivityCardComponent implements OnInit {
   @Input('recent') recent: boolean;
   @Input('userSubj') userSubj$: ReplaySubject<User>;
 
-  constructor(private actService: ActivityService) {
+  constructor(private actService: ActivityService, private toasterService: NbToastrService) {
     this.headerTitle = 'Activity';
     this.filterValue = Activity_Type.ALL;
     this.initialAct = false;
     this.activities = [];
     this.actsFiltered = [];
   }
+  loading: boolean;
   activityType = Activity_Type;
   filterValue: Activity_Type;
   activities: Activity[];
@@ -45,19 +48,30 @@ export class ActivityCardComponent implements OnInit {
   }
 
   getActivities(): void {
-    const func = (resp) => {
+    this.loading = true;
+    const requestHandler = (resp) => {
       this.initialAct = true;
       this.activities = resp.activities;
       this.filterActivites(this.activities);
     };
+    const errorHandler = (err: { message: any; }) => {
+      this.toasterService.danger(err.message);
+      console.error(err);
+    };
     if (this.follow)
-      this.actService.getFollowedActivity().subscribe(func);
+      this.actService.getFollowedActivity()
+      .pipe(finalize(() => this.loading = false))
+      .subscribe(requestHandler, errorHandler);
     else if (this.userSubj$)
       this.userSubj$.subscribe(usr => {
-        this.actService.getUserActivity(usr.id).subscribe(func);
+        this.actService.getUserActivity(usr.id)
+        .pipe(finalize(() => this.loading = false))
+        .subscribe(requestHandler, errorHandler);
       });
     else if (this.recent)
-      this.actService.getRecentActivity(0).subscribe(func);
+      this.actService.getRecentActivity(0)
+      .pipe(finalize(() => this.loading = false))
+      .subscribe(requestHandler, errorHandler);
   }
 
   getMoreActivities(): void {
