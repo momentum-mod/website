@@ -50,6 +50,12 @@ const config = {
 		session: {
 			secret: 'keyboard cat',
 		},
+		storage: {
+			useLocal: process.env.MOM_STORAGE_USE_LOCAL === 'true',
+			region: process.env.MOM_STORAGE_REGION,
+			endpointURL: process.env.MOM_STORAGE_ENDPOINT_URL,
+			bucketName: process.env.MOM_STORAGE_BUCKET_NAME,
+		}
 	},
 	development: {
 		root: rootPath,
@@ -98,6 +104,12 @@ const config = {
 		session: {
 			secret: 'keyboard cat',
 		},
+		storage: {
+			useLocal: process.env.MOM_STORAGE_USE_LOCAL === 'true',
+			region: process.env.MOM_STORAGE_REGION,
+			endpointURL: process.env.MOM_STORAGE_ENDPOINT_URL,
+			bucketName: process.env.MOM_STORAGE_BUCKET_NAME,
+		}
 	},
 	production: {
 		root: rootPath,
@@ -146,6 +158,12 @@ const config = {
 		session: {
 			secret: process.env.EXPRESS_SESSION_SECRET,
 		},
+		storage: {
+			useLocal: process.env.MOM_STORAGE_USE_LOCAL === 'true',
+			region: process.env.MOM_STORAGE_REGION,
+			endpointURL: process.env.MOM_STORAGE_ENDPOINT_URL,
+			bucketName: process.env.MOM_STORAGE_BUCKET_NAME,
+		}
 	}
 };
 
