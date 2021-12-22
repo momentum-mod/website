@@ -140,7 +140,7 @@ module.exports = {
 	upload: (req, res, next) => {
 		if (req.files && req.files.mapFile) {
 			map.verifySubmitter(req.params.mapID, req.user.id).then(() => {
-				map.upload(req.params.mapID, req.files.mapFile).then(() => {
+				map.upload(req.params.mapID, req.files.mapFile.data).then(() => {
 					res.sendStatus(200);
 				}).catch(next);
 			}).catch(next);
