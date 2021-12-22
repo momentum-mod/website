@@ -53,10 +53,10 @@ const config = {
 	},
 	development: {
 		root: rootPath,
-		baseURL: 'http://localhost:3002',
-		baseURL_API: 'http://localhost:3002',
-		baseURL_Auth: 'http://localhost:3002',
-		baseURL_CDN: 'http://localhost:3002',
+		baseURL: process.env.BASE_URL,
+		baseURL_API: process.env.API_URL,
+		baseURL_Auth: process.env.AUTH_URL,
+		baseURL_CDN: process.env.CDN_URL,
 		domain: 'localhost',
 		port: 3002,
 		accessToken: {
