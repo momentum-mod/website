@@ -41,6 +41,12 @@
   border-color: nb-theme(color-primary-100);
   font-size: 2em;
   line-height: 1.25em;
+
+  &__guide-url {
+    margin-top: 1em;
+    color: nb-theme(color-info-500);
+    text-decoration: underline;
+  }
 }
 
 .gamemode-coming-soon {
