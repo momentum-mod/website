@@ -2,6 +2,7 @@
 const user = require('../models/user'),
 	userStats = require('../models/user-stats'),
 	map = require('../models/map'),
+	run = require('../models/run'),
 	report = require('../models/report'),
 	xpSystems = require('../models/xp-systems');
 
@@ -55,6 +56,12 @@ module.exports = {
 				count: results.count,
 				maps: results.rows,
 			});
+		}).catch(next);
+	},
+
+	deleteRun: (req, res, next) => {
+		run.delete(req.params.runID).then(() => {
+			res.sendStatus(200);
 		}).catch(next);
 	},
 

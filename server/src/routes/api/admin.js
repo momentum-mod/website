@@ -36,6 +36,10 @@ router.route('/maps/:mapID')
 	.delete(adminCtrl.deleteMap)
 	.all(errorCtrl.send405);
 
+router.route('/runs/:runID')
+	.delete(adminCtrl.deleteRun)
+	.all(errorCtrl.send405);
+
 router.route('/reports')
 	.get(celebrate(adminValidation.getReports), adminCtrl.getReports)
 	.all(errorCtrl.send405);
