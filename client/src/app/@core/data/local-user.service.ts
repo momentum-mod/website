@@ -215,7 +215,7 @@ export class LocalUserService {
 
   /**
   * @param mapID The map to check if notifications are enabled
-  * @return A json object with the potential map and the activity type for notificaions
+  * @return A json object with the potential map and the activity type for notifications
   */
   public checkMapNotify(mapID: number): Observable<MapNotify> {
     return this.http.get<MapNotify>(environment.api + '/api/user/notifyMap/' + mapID);
@@ -233,7 +233,7 @@ export class LocalUserService {
   }
 
   /**
-   * @param mapID The map to disable notificaions for
+   * @param mapID The map to disable notifications for
    * @return Notifications disabled for map
    */
   public disableMapNotify(mapID: number): Observable<any> {
