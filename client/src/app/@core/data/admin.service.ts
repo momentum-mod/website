@@ -36,6 +36,12 @@ export class AdminService {
     });
   }
 
+  deleteRun(runID: number): Observable<any> {
+    return this.http.delete(environment.api + '/api/admin/runs/' + runID, {
+      responseType: 'text',
+    });
+  }
+
   /**
    * @param userID ID of the user to update
    * @param user specific user's profile

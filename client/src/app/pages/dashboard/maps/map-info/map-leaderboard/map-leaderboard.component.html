@@ -47,6 +47,7 @@
           <th>FLAGS</th>
           <th>ACHIEVED</th>
           <th>VIEW</th>
+          <th *ngIf="isAdmin">ADMIN</th>
         </tr>
         <tr *ngFor="let rank of leaderboardRanks">
           <td>{{rank.rank}}</td>
@@ -61,6 +62,11 @@
           <td>
             <button nbButton outline status="info" shape="round" type="button" (click)="viewRun(rank.run)">
               <nb-icon icon="arrow-right-outline"></nb-icon>
+            </button>
+          </td>
+          <td *ngIf="isAdmin">
+            <button nbButton outline status="danger" size="tiny" (click)="deleteRun(rank.run)">
+              <nb-icon icon="close-outline"></nb-icon>
             </button>
           </td>
         </tr>

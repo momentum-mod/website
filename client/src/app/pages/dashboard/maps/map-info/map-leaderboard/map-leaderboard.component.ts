@@ -5,6 +5,7 @@ import {finalize} from 'rxjs/operators';
 import {RanksService} from '../../../../../@core/data/ranks.service';
 import {UserMapRank} from '../../../../../@core/models/user-map-rank.model';
 import {NbToastrService} from '@nebular/theme';
+import {AdminService} from '../../../../../@core/data/admin.service';
 
 export enum LeaderboardType {
   TOP10 = 1,
@@ -25,6 +26,7 @@ export class MapLeaderboardComponent implements OnInit {
     this._mapID = value;
     this.loadLeaderboardRuns();
   }
+  @Input('isAdmin') isAdmin: boolean;
   filterActive: boolean;
   leaderboardRanks: UserMapRank[];
   searchedRanks: boolean;
@@ -32,6 +34,7 @@ export class MapLeaderboardComponent implements OnInit {
   filterLeaderboardType: LeaderboardType;
 
   constructor(private rankService: RanksService,
+              private adminService: AdminService,
               private router: Router,
               private toasterService: NbToastrService) {
     this.filterActive = false;
@@ -82,5 +85,14 @@ export class MapLeaderboardComponent implements OnInit {
 
   viewRun(run: Run) {
     this.router.navigate(['/dashboard/runs/' + run.id]);
+  }
+
+  deleteRun(run: Run) {
+    this.adminService.deleteRun(run.id).subscribe(res => {
+      this.loadLeaderboardRuns();
+      this.toasterService.success('Successfully deleted the run', 'Success');
+    }, err => {
+      this.toasterService.danger('Failed to delete the run', 'Failed');
+    });
   }
 }
