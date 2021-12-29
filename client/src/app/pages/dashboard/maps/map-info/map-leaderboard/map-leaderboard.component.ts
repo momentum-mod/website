@@ -4,8 +4,9 @@ import {Router} from '@angular/router';
 import {finalize} from 'rxjs/operators';
 import {RanksService} from '../../../../../@core/data/ranks.service';
 import {UserMapRank} from '../../../../../@core/models/user-map-rank.model';
-import {NbToastrService} from '@nebular/theme';
+import {NbDialogService, NbToastrService} from '@nebular/theme';
 import {AdminService} from '../../../../../@core/data/admin.service';
+import { ConfirmDialogComponent } from '../../../../../@theme/components/confirm-dialog/confirm-dialog.component';
 
 export enum LeaderboardType {
   TOP10 = 1,
@@ -36,6 +37,7 @@ export class MapLeaderboardComponent implements OnInit {
   constructor(private rankService: RanksService,
               private adminService: AdminService,
               private router: Router,
+              private dialogService: NbDialogService,
               private toasterService: NbToastrService) {
     this.filterActive = false;
     this.searchedRanks = false;
@@ -88,11 +90,20 @@ export class MapLeaderboardComponent implements OnInit {
   }
 
   deleteRun(run: Run) {
-    this.adminService.deleteRun(run.id).subscribe(res => {
-      this.loadLeaderboardRuns();
-      this.toasterService.success('Successfully deleted the run', 'Success');
-    }, err => {
-      this.toasterService.danger('Failed to delete the run', 'Failed');
+    this.dialogService.open(ConfirmDialogComponent, {
+      context: {
+        title: 'Are you sure?',
+        message: 'You are about to permanently delete this run. Are you sure you want to proceed?',
+      },
+    }).onClose.subscribe(response => {
+      if (response) {
+        this.adminService.deleteRun(run.id).subscribe(res => {
+          this.loadLeaderboardRuns();
+          this.toasterService.success('Successfully deleted the run', 'Success');
+        }, err => {
+          this.toasterService.danger('Failed to delete the run', 'Failed');
+        });
+      }
     });
   }
 }
