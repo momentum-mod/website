@@ -37,7 +37,7 @@ router.route('/maps/:mapID')
 	.all(errorCtrl.send405);
 
 router.route('/runs/:runID')
-	.delete(adminCtrl.deleteRun)
+	.delete(authMiddleware.requireAdmin, adminCtrl.deleteRun)
 	.all(errorCtrl.send405);
 
 router.route('/reports')
