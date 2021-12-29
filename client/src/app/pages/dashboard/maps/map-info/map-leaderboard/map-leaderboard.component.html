@@ -65,7 +65,8 @@
             </button>
           </td>
           <td *ngIf="isAdmin">
-            <button nbButton outline status="danger" size="tiny" (click)="deleteRun(rank.run)">
+            <button nbButton outline status="danger" size="tiny" (click)="deleteRun(rank.run)" nbPopover="Delete Run"
+              [nbPopoverTrigger]="'hint'">
               <nb-icon icon="close-outline"></nb-icon>
             </button>
           </td>
