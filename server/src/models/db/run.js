@@ -10,7 +10,7 @@ module.exports = (sequelize, type) => {
 		trackNum: type.TINYINT.UNSIGNED,
 		zoneNum: type.TINYINT.UNSIGNED,
 		ticks: type.INTEGER.UNSIGNED,
-		tickRate: type.FLOAT,
+		tickRate: type.DECIMAL(5, 5),
 		time: {
 			type: type.VIRTUAL,
 			get() {
