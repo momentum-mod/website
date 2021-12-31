@@ -642,6 +642,65 @@ const updateStats = (resultObj, transaction) => {
 	});
 };
 
+const updateRanksAfterDelete = (oldRank, nextBestRun) => {
+
+	const deletedRank = oldRank.rank;
+
+	let rankSearch = {[Op.gte]: deletedRank};
+
+	return sequelize.transaction(transact => {
+		return UserMapRank.findAll({
+			where: {
+				mapID: oldRank.mapID,
+				gameType: oldRank.gameType,
+				flags: oldRank.flags,
+				trackNum: oldRank.trackNum,
+				zoneNum: oldRank.zoneNum,
+				rank: rankSearch,
+			},
+			transaction: transact,
+		}).then(results => {
+			for (const result of results) {
+				result.rank -= 1;
+				updates.push(result.save({transaction: transact}));
+			}
+		}).then(() => {
+			if (nextBestRun) {
+
+				// TODO get the rank that our nextBestRun would be
+
+				let rankSearch = {[Op.gte]: rank};
+
+				return UserMapRank.findAll({
+					where: {
+						mapID: oldRank.mapID,
+						gameType: oldRank.gameType,
+						flags: oldRank.flags,
+						trackNum: oldRank.trackNum,
+						zoneNum: oldRank.zoneNum,
+						userID: {
+							// Because we go below (and including) our new rank, we gotta
+							// filter out ourselves.
+							[Op.ne]: oldRank.userID,
+						},
+						rank: rankSearch,
+					},
+					transaction: transaction,
+				}).then(results => {
+					const updates = [];
+					for (const result of results) {
+						result.rank += 1;
+						updates.push(result.save({transaction: transaction}));
+					}
+					return Promise.all(updates);
+				})
+			} else {
+				Promise.resolve();
+			}
+		});
+	});
+}
+
 const Flag = Object.freeze({
 	BACKWARDS: 1 << 0,
 	LOW_GRAVITY: 1 << 1,
@@ -780,9 +839,51 @@ module.exports = {
 		});
 	},
 
-	delete: (runID) => {
+	delete: async (runID) => {
+
+		const oldRun = await Run.findOne({
+			where: {id: runID},
+			raw: true,
+		});
+
+		const oldRank = await UserMapRank.findOne({
+			where: {runID: runID},
+			raw: true,
+		});
+
 		return module.exports.deleteRunFile(runID).then(() => {
-			return Run.destroy({ where: { id: runID }});
+			return Run.destroy({ where: { id: runID }}).then(() => {
+				return Run.findOne({
+					where: {
+						trackNum: oldRun.trackNum,
+						zoneNum: oldRun.zoneNum,
+						tickRate: oldRun.tickRate,
+						flags: oldRun.flags,
+						mapID: oldRun.mapID,
+						playerID: oldRun.playerID,
+					},
+					attributes: [
+						[sequelize.fn('MIN', sequelize.col('ticks')), 'ticks'],
+					],
+					raw: true,
+				}).then(ticksOfNextBestRun => {
+					if (ticksOfNextBestRun) {
+						return Run.findOne({
+							where: {
+								trackNum: oldRun.trackNum,
+								zoneNum: oldRun.zoneNum,
+								ticks: ticksOfNextBestRun.ticks,
+								tickRate: oldRun.tickRate,
+								flags: oldRun.flags,
+								mapID: oldRun.mapID,
+								playerID: oldRun.playerID,
+							},
+						});
+					}
+				}).then(nextBestRun => {
+					return updateRanksAfterDelete(oldRank, nextBestRun);
+				});
+			});
 		});
 	},
 
