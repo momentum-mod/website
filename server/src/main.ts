@@ -3,9 +3,14 @@ import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 import { PrismaRepo } from './repositories/prisma.repo';
 import { AppModule } from './app.module';
 import { appConfig } from '../config/config';
+import { NestApplicationOptions } from '@nestjs/common';
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule);
+  const options: NestApplicationOptions = {
+    bodyParser: false,        
+  }
+
+  const app = await NestFactory.create(AppModule, options);
 
   const config = new DocumentBuilder()
     .setTitle('Momentum Mod API')

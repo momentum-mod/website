@@ -1,5 +1,5 @@
 import { Req, Res, Controller, Get, Post, HttpException, UseGuards } from '@nestjs/common';
-import { Request, Response } from 'express';
+import { Request } from 'express';
 import { ApiOperation, ApiTags } from '@nestjs/swagger';
 import * as passport from 'passport';
 import { Public } from './public.decorator';
@@ -36,14 +36,11 @@ export class AuthController {
     @Post("steam/user") 
     @Public()
     public async GetUserFromSteam(@Req() req: Request): Promise<JWTResponseDto> {
-        console.log("hit GetUserFromSteam");
 
-        const userID = req.headers["id"][0];
-        const userTicketRaw = req.headers["ticket"][0];
-        
-        if(!userTicketRaw) { throw new HttpException('Missing userTicketRaw', 400) }
+        const userID = req.headers["id"] as string;
+        if(!req.body) { throw new HttpException('Missing userTicket', 400) }
 
-        const user = await this.steamAuthService.ValidateFromInGame(userTicketRaw, userID);
+        const user = await this.steamAuthService.ValidateFromInGame(req.body, userID);
         return await this.authService.login(user as User, true);
     }
 }

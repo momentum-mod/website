@@ -14,8 +14,8 @@ export class SteamAuthService {
     ){}
 
     
-    async ValidateFromInGame(userTicketRaw: string, steamIDToVerify: string): Promise<User> {
-		const userTicket = Buffer.from(userTicketRaw, 'utf8').toString('hex');
+    async ValidateFromInGame(requestBody: any, steamIDToVerify: string): Promise<User> {
+		const userTicket = Buffer.from(requestBody, 'utf8').toString('hex');
 
         const requestConfig = {
             params: {
@@ -25,6 +25,8 @@ export class SteamAuthService {
             }
         }
 
+        console.log(requestConfig);
+
         const sres = await lastValueFrom(
             this.http.get<any>('https://api.steampowered.com/ISteamUserAuth/AuthenticateUserTicket/v1/',
             requestConfig).pipe(
@@ -32,18 +34,20 @@ export class SteamAuthService {
                 return res.data;
               }),
             ),
-          );
+        );
         
         if(!sres) { throw new HttpException('Bad Request', 400); }
 
-        if (sres.data.response.error) {
+        console.log(sres);
+
+        if (sres.response.error) {
             throw new HttpException('Bad Request', 400);
             // Bad request, and not sending the error object just in case of hidden bans
         }
 
-        if (sres.data.response.params.result !== 'OK') { throw new HttpException(JSON.stringify(sres.data), 500) } // TODO parse the error? 
+        if (sres.response.params.result !== 'OK') { throw new HttpException(JSON.stringify(sres), 500) } // TODO parse the error? 
 
-        if (steamIDToVerify !== sres.data.response.params.steamid) { throw new UnauthorizedException(); }// Generate an error here
+        if (steamIDToVerify !== sres.response.params.steamid) { throw new UnauthorizedException(); }// Generate an error here
         
         const user = await this.userService.FindOrCreateFromGame(steamIDToVerify);
 
