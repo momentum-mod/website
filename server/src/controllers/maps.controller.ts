@@ -1,11 +1,13 @@
-import { Controller, Get, Param, Query } from '@nestjs/common';
+import { Controller, Get, Param, Query, UseGuards } from '@nestjs/common';
 import { ApiOperation, ApiQuery, ApiTags } from '@nestjs/swagger';
 import { Map } from '@prisma/client';
 import { PagedResponseDto } from "../dto/api-response.dto";
 import { MapsService } from "../services/maps.service";
+import { JwtAuthGuard } from '../auth/jwt/jwt-auth.guard';
 
 @Controller("api/v1/maps")
 @ApiTags("Maps")
+@UseGuards(JwtAuthGuard)
 export class MapsController {
 
 	constructor(private readonly mapsService: MapsService) {}

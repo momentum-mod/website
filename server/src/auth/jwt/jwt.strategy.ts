@@ -1,13 +1,14 @@
 import { ExtractJwt, Strategy } from 'passport-jwt';
 import { PassportStrategy } from '@nestjs/passport';
 import { Injectable } from '@nestjs/common';
-import { AuthService } from './auth.service';
-import { appConfig } from '../../config/config';
+import { JWTPayload } from '../auth.service';
+import { appConfig } from '../../../config/config';
+import { UsersService } from 'src/services/users.service';
 
 @Injectable()
 export class JwtStrategy extends PassportStrategy(Strategy) {
     constructor(
-        private authService: AuthService,
+        private readonly usersService: UsersService,
     ) {
         super({
             jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
@@ -19,9 +20,8 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
     /*
     * @summary Is this a valid JWT?
     */
-    async validate(token: string) {
+    async validate(validationPayload: JWTPayload) {
         // if its valid then this will hit
-
-        return true;
+        return this.usersService.Get(validationPayload.id);
     }
 }

@@ -1,14 +1,13 @@
 import {
     ExecutionContext,
-    Injectable,
-    UnauthorizedException,
+    Injectable
 } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 import { AuthGuard } from '@nestjs/passport';
-import { IS_PUBLIC_KEY } from './public.decorator';
+import { IS_PUBLIC_KEY } from '../public.decorator';
 
 @Injectable()
-export class JwtAuthGuard extends AuthGuard('jwt') {
+export class SteamWebAuthGuard extends AuthGuard('steam') {
     constructor(private reflector: Reflector) {
         super();
     }
@@ -22,13 +21,5 @@ export class JwtAuthGuard extends AuthGuard('jwt') {
             return true;
         }
         return super.canActivate(context);
-    }
-
-    handleRequest(err, user, info) {
-        // You can throw an exception based on either "info" or "err" arguments
-        if (err || !user) {
-            throw err || new UnauthorizedException();
-        }
-        return user;
     }
 }

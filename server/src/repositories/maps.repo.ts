@@ -15,7 +15,7 @@ export class MapsRepo {
      * @returns New db record ID
     */ 
     
-    async insert(newMap: Prisma.MapCreateInput): Promise<number> {
+    async Insert(newMap: Prisma.MapCreateInput): Promise<number> {
         const result = await this.prisma.map.create({
             data: newMap
         });

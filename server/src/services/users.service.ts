@@ -3,10 +3,10 @@ import {
 	Activity as ActivityDB, 
 	Follow as FollowDB, 
 	MapCredit as MapCreditDB, 
-	Prisma, 
 	Run as RunDB,
 	User,
 	UserAuth,
+	Prisma
 } from '@prisma/client';
 import { UserDto, UserProfileDto } from "../dto/user.dto"
 import { PagedResponseDto } from "../dto/api-response.dto";
@@ -15,7 +15,6 @@ import { appConfig } from 'config/config';
 import { lastValueFrom, map } from 'rxjs';
 import * as xml2js from 'xml2js';
 import { HttpService } from '@nestjs/axios';
-import { OpenIDDto } from '../dto/open-ID.dto';
 
 @Injectable()
 export class UsersService {
@@ -25,77 +24,50 @@ export class UsersService {
 	){}
 
 	//#region GETs
-  	public GetAll(skip?: number, take?: number): PagedResponseDto<UserDto[]> {
-		  
-		const response: UserDto[] = [
-			{
-				id: 1,
-				steamID: "steam:123",
-				alias: "jane",
-				aliasLocked: true,
-				avatar: "jane.jpg",
-				avatarURL: "jane.jpg",
-				bans: 0,
-				roles: 1,
-				country: "UK",
-				createdAt: new Date,
-				updatedAt: new Date
-			},
-			{
-				id: 2,
-				steamID: "steam:1234",
-				alias: "john",
-				aliasLocked: true,
-				avatar: "john.jpg",
-				avatarURL: "john.jpg",
-				bans: 1,
-				roles: 0,
-				country: "US",
-				createdAt: new Date,
-				updatedAt: new Date
-			}
-		]
+  	public async GetAll(skip?: number, take?: number): Promise<PagedResponseDto<UserDto[]>> {
+		const dbResponse = await this.userRepo.GetAll(null, skip, take);
+
+		const totalCount = dbResponse[1];
+		const users = dbResponse[0];
+
+		const userDtos = users.map((user: User) => {
+			let userDto: UserDto;
+			userDto.convertUserToUserDto(user);
+			return userDto;
+		});
 
 		return { 
-			totalCount: 100,
-			returnCount: response.length,
-			response: response
+			totalCount: totalCount,
+			returnCount: userDtos.length,
+			response: userDtos
 		}
 	}
 
-	public Get(id: number): UserDto {
-		return {
-			id: 1,
-			steamID: "steam:123",
-			alias: "jane",
-			aliasLocked: true,
-			avatar: "jane.jpg",
-			avatarURL: "jane.jpg",
-			bans: 0,
-			roles: 1,
-			country: "UK",			
-			createdAt: new Date,
-			updatedAt: new Date
-		};
+	public async Get(id: number): Promise<UserDto> {
+		const whereInput: Prisma.UserWhereUniqueInput = {};
+		whereInput.id = id;
+
+		const dbResponse = await this.userRepo.Get(whereInput);
+		let userDto: UserDto;
+		userDto.convertUserToUserDto(dbResponse);
+
+		return userDto;
 	}
 
-	public GetBySteamID(id: string): UserDto {
-		return {
-			id: 1,
-			steamID: "steam:123",
-			alias: "jane",
-			aliasLocked: true,
-			avatar: "jane.jpg",
-			avatarURL: "jane.jpg",
-			bans: 0,
-			roles: 1,
-			country: "UK",			
-			createdAt: new Date,
-			updatedAt: new Date
-		};
+	public async GetBySteamID(id: string): Promise<UserDto> {
+		const whereInput: Prisma.UserWhereUniqueInput = {};
+		whereInput.steamID = id;
+
+		const dbResponse = await this.userRepo.Get(whereInput);
+		let userDto: UserDto;
+		userDto.convertUserToUserDto(dbResponse);
+		
+		return userDto;
 	}
 
 	public GetProfile(id: number): UserProfileDto {
+		throw new Error('Not Implemented');
+		/*
 		return {
 			id: 1,
 			userID: 1,
@@ -111,7 +83,7 @@ export class UsersService {
 			featuredBadgeID: 1,
 			createdAt: new Date,
 			updatedAt: new Date
-		};
+		};*/
 	}
 
 	public GetActivities(id: number, skip?: number, take?: number): PagedResponseDto<ActivityDB[]> {
@@ -200,12 +172,12 @@ export class UsersService {
 	}
 
 	// TODO: openIDProfile Type
-	async FindOrCreateFromWeb(openID: OpenIDDto): Promise<User> {
+	async FindOrCreateFromWeb(openID: any): Promise<User> {
 		// Grab Steam ID from community url		
 		const identifierRegex = /^https?:\/\/steamcommunity\.com\/openid\/id\/(\d+)$/;
-		const steamID = identifierRegex.exec(openID.claimed_id)[1];
+		const steamID = identifierRegex.exec(openID)[1];
 
-		const profile = await this.ExtractUserProfileFromSteamID(steamID);
+		const profile = await this.ExtractPartialUserProfileFromSteamID(steamID);
 
 		return this.FindOrCreateUserFromProfile(profile);
 	}
@@ -230,7 +202,7 @@ export class UsersService {
 
 	//#region Private
 	private async ExtractUserProfileFromSteamID(steamID: string): Promise<UserDto> {
-		const data = {
+		const data: SteamUserData = {
 			summaries: {
 				profilestate: {},
 				steamid: '',
@@ -240,9 +212,9 @@ export class UsersService {
 			},
 			xmlData: {
 				profile: {
-					isLimitedAccount:[]
+					isLimitedAccount: []
 				}
-			},
+			}
 		};
 
 		const getPlayerResponse = await lastValueFrom(
@@ -267,6 +239,48 @@ export class UsersService {
 
 		data.summaries = getPlayerResponse.response.players[0];
 		
+        data.xmlData = await this.GetSteamProfileFromSteamID(steamID);
+
+		if (steamID !== data.summaries.steamid)
+			return Promise.reject(new HttpException('User fetched is not the authenticated user!', 400));
+
+		const profile = new UserDto(
+			0,
+			steamID,
+			data.summaries.personaname,
+			false,
+			data.summaries.avatarfull,
+			0,
+			data.summaries.locccountrycode,
+			null,
+			null
+		);
+		return profile;		
+	}
+
+	private async ExtractPartialUserProfileFromSteamID(steamID: string): Promise<UserDto> {
+		const partialProfile = await this.GetSteamProfileFromSteamID(steamID);
+
+		const profile = new UserDto(
+			0,
+			steamID,
+			null,
+			false,
+			null,
+			null,
+			null,
+			null,
+			null
+		);
+		return profile;	
+	}
+
+	private async GetSteamProfileFromSteamID(steamID: string): Promise<SteamUserData["xmlData"]>{
+		let result: SteamUserData["xmlData"] = {
+			profile: {
+				isLimitedAccount:[]
+			}
+		}
 		const getSteamProfileResponse = await lastValueFrom(
 			this.http.get(`https://steamcommunity.com/profiles/${steamID}?xml=1`).pipe(
 				map(async (res) => {
@@ -274,30 +288,12 @@ export class UsersService {
 				})
 			)
 		)
+		result = getSteamProfileResponse
 
-        data.xmlData = getSteamProfileResponse;
-
-		if (data.summaries.profilestate !== 1)
-			return Promise.reject(new HttpException('We do not authenticate Steam accounts without a profile. Set up your community profile on Steam!', 403));
-		if (appConfig.steam.preventLimited && data.xmlData.profile.isLimitedAccount[0] === '1')
+		if (appConfig.steam.preventLimited && result.profile.isLimitedAccount[0] === '1')
 			return Promise.reject(new HttpException('We do not authenticate limited Steam accounts. Buy something on Steam first!', 403));
-		if (steamID !== data.summaries.steamid)
-			return Promise.reject(new HttpException('User fetched is not the authenticated user!', 400));
 
-		const profile: UserDto = {
-			alias:  data.summaries.personaname,
-			avatarURL: data.summaries.avatarfull,
-			country: data.summaries.locccountrycode,
-			id: 0,
-			steamID: steamID,
-			aliasLocked: false,
-			avatar: '',
-			roles: 0,
-			bans: 0,
-			createdAt: undefined,
-			updatedAt: undefined,
-		};
-		return profile;		
+		return result;
 	}
 
 
@@ -333,4 +329,21 @@ export class UsersService {
 	}
 
 	//#endregion
+}
+
+
+// Private Classes
+class SteamUserData {
+	summaries: {
+		profilestate: any,
+		steamid: string,
+		personaname: string,
+		avatarfull: string,
+		locccountrycode: string
+	};
+	xmlData: {
+		profile: {
+			isLimitedAccount: string[]
+		}
+	}
 }

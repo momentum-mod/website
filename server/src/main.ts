@@ -3,8 +3,6 @@ import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 import { PrismaRepo } from './repositories/prisma.repo';
 import { AppModule } from './app.module';
 import { appConfig } from '../config/config';
-import * as passport from 'passport';
-import * as steam from 'passport-steam';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -19,18 +17,6 @@ async function bootstrap() {
 
   const prismaDalc: PrismaRepo = app.get(PrismaRepo);
   prismaDalc.enableShutdownHooks(app)
-
-  passport.use(new steam.Strategy({
-    returnURL: appConfig.baseURL_Auth + '/api/v1/auth/steam/return',
-    realm: appConfig.baseURL_Auth,
-    apiKey: appConfig.steam.webAPIKey
-  }, (openID, profile, done) => {
-    console.log(openID);
-    console.log(profile);
-    console.log(done);
-  }));
-
-  app.use(passport.initialize());
 
   await app.listen(appConfig.port);
 } 

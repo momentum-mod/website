@@ -1,4 +1,4 @@
-import { Controller, Get, Param, Query } from '@nestjs/common';
+import { Controller, Get, Param, Query, UseGuards } from '@nestjs/common';
 import { ApiOperation, ApiQuery, ApiTags } from '@nestjs/swagger';
 import {
 	Activity, 
@@ -9,9 +9,11 @@ import {
 import { UserDto, UserProfileDto } from "../dto/user.dto"
 import { PagedResponseDto } from "../dto/api-response.dto";
 import { UsersService } from "../services/users.service";
+import { JwtAuthGuard } from 'src/auth/jwt/jwt-auth.guard';
 
 @Controller("api/v1/users")
 @ApiTags("Users")
+@UseGuards(JwtAuthGuard)
 export class UsersController {
 
 	constructor(private readonly usersService: UsersService) {}

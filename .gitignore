@@ -39,6 +39,7 @@ mysql/
 /coverage
 /libpeerconnection.log
 npm-debug.log
+*/pnpm-lock.yaml
 yarn-error.log
 testem.log
 /typings
