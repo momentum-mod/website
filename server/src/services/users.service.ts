@@ -25,13 +25,13 @@ export class UsersService {
 
 	//#region GETs
   	public async GetAll(skip?: number, take?: number): Promise<PagedResponseDto<UserDto[]>> {
-		const dbResponse = await this.userRepo.GetAll(null, skip, take);
+		const dbResponse = await this.userRepo.GetAll(undefined, skip, take);
 
 		const totalCount = dbResponse[1];
 		const users = dbResponse[0];
 
 		const userDtos = users.map((user: User) => {
-			let userDto: UserDto;
+			const userDto = new UserDto();
 			userDto.convertUserToUserDto(user);
 			return userDto;
 		});
@@ -48,7 +48,7 @@ export class UsersService {
 		whereInput.id = id;
 
 		const dbResponse = await this.userRepo.Get(whereInput);
-		let userDto: UserDto;
+		const userDto = new UserDto();
 		userDto.convertUserToUserDto(dbResponse);
 
 		return userDto;
@@ -59,7 +59,7 @@ export class UsersService {
 		whereInput.steamID = id;
 
 		const dbResponse = await this.userRepo.Get(whereInput);
-		let userDto: UserDto;
+		const userDto = new UserDto();
 		userDto.convertUserToUserDto(dbResponse);
 		
 		return userDto;

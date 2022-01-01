@@ -1,10 +1,11 @@
 import { Controller, Get, Param, Query, UseGuards } from '@nestjs/common';
-import { ApiOperation, ApiQuery, ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiOperation, ApiQuery, ApiTags } from '@nestjs/swagger';
 import { Map } from '@prisma/client';
 import { PagedResponseDto } from "../dto/api-response.dto";
 import { MapsService } from "../services/maps.service";
 import { JwtAuthGuard } from '../auth/jwt/jwt-auth.guard';
 
+@ApiBearerAuth()
 @Controller("api/v1/maps")
 @ApiTags("Maps")
 @UseGuards(JwtAuthGuard)

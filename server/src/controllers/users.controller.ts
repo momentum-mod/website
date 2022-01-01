@@ -1,5 +1,5 @@
 import { Controller, Get, Param, Query, UseGuards } from '@nestjs/common';
-import { ApiOperation, ApiQuery, ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiOperation, ApiQuery, ApiTags } from '@nestjs/swagger';
 import {
 	Activity, 
 	Follow, 
@@ -11,6 +11,7 @@ import { PagedResponseDto } from "../dto/api-response.dto";
 import { UsersService } from "../services/users.service";
 import { JwtAuthGuard } from 'src/auth/jwt/jwt-auth.guard';
 
+@ApiBearerAuth()
 @Controller("api/v1/users")
 @ApiTags("Users")
 @UseGuards(JwtAuthGuard)

@@ -31,15 +31,15 @@ export class UserDto implements User {
     }
 
 	constructor(
-		_id: number,
-		_steamID: string,
-		_alias: string,
-		_aliasLocked: boolean,
-		_avatar: string,
-		_roles: number,
-		_country: string,
-		_createdAt: Date,
-		_updatedAt: Date
+		_id?: number,
+		_steamID?: string,
+		_alias?: string,
+		_aliasLocked?: boolean,
+		_avatar?: string,
+		_roles?: number,
+		_country?: string,
+		_createdAt?: Date,
+		_updatedAt?: Date
 	) {
 		this.id = _id;
 		this.steamID = _steamID;
