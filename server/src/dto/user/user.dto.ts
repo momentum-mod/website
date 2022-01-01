@@ -1,16 +1,15 @@
-import { 
-	User,
-	Profile
-} from '@prisma/client';
+import { User} from '@prisma/client';
 import { appConfig } from 'config/config';
+import { ERole, EBan } from '../../enums/user.enum';
+
 export class UserDto implements User {
 	id: number;
 	steamID: string;
 	alias: string;
 	aliasLocked: boolean;
 	avatar: string;
-	roles: number;
-	bans: number;
+	roles: ERole;
+	bans: EBan;
 	country: string;
 	createdAt: Date;
 	updatedAt: Date;	
@@ -37,6 +36,7 @@ export class UserDto implements User {
 		_aliasLocked?: boolean,
 		_avatar?: string,
 		_roles?: number,
+		_bans?: number,
 		_country?: string,
 		_createdAt?: Date,
 		_updatedAt?: Date
@@ -47,6 +47,7 @@ export class UserDto implements User {
 		this.aliasLocked = _aliasLocked
 		this.avatarURL = _avatar;
 		this.roles = _roles;
+		this.bans = _bans;
 		this.country = _country;
 		this.createdAt = _createdAt;
 		this.updatedAt = _updatedAt;
@@ -67,4 +68,3 @@ export class UserDto implements User {
 	}
 }
 
-export interface UserProfileDto extends UserDto, Profile { }

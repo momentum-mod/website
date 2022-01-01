@@ -3,7 +3,8 @@ import { PrismaRepo } from './prisma.repo';
 import {
     User,
     Prisma,
-    UserAuth
+    UserAuth,
+    Profile
 } from '@prisma/client';
 
 
@@ -18,12 +19,9 @@ export class UserRepo {
     async Insert(
         newUser: Prisma.UserCreateInput
     ): Promise<User> {
-
-        const result = await this.prisma.user.create({
+        return await this.prisma.user.create({
             data: newUser
         });
-
-        return result;
     }
 
     /**
@@ -53,16 +51,24 @@ export class UserRepo {
      * @returns Target user or null 
     */       
     async Get(where: Prisma.UserWhereUniqueInput): Promise<User> {
-        const user = await this.prisma.user.findFirst({                    
+        return await this.prisma.user.findFirst({                    
             where: where
-        })
-        return user;            
+        })   
     }
 
+    
+    /**
+     * @summary Gets single users profile from database
+     * @returns Target user or null 
+    */       
+	async GetProfile(where: Prisma.ProfileWhereUniqueInput): Promise<Profile> {
+		return await this.prisma.profile.findFirst({
+            where: where
+        })
+	}
 
 	async GetAuth(whereInput: Prisma.UserAuthWhereUniqueInput): Promise<UserAuth> {
-		const userAuth = await this.prisma.userAuth.findFirst({ where: whereInput });
-        return userAuth;
+		return await this.prisma.userAuth.findFirst({ where: whereInput });
 	}
 
 	async Update(user: Prisma.UserAuthWhereUniqueInput, update: Prisma.UserUpdateInput): Promise<User> {

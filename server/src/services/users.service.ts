@@ -8,8 +8,9 @@ import {
 	UserAuth,
 	Prisma
 } from '@prisma/client';
-import { UserDto, UserProfileDto } from "../dto/user.dto"
-import { PagedResponseDto } from "../dto/api-response.dto";
+import { UserDto } from "../dto/user/user.dto"
+import { UserProfileDto } from "../dto/user/profile.dto"
+import { PagedResponseDto } from "../dto/common/api-response.dto";
 import { UserRepo as UserRepo } from "../repositories/users.repo";
 import { appConfig } from 'config/config';
 import { lastValueFrom, map } from 'rxjs';
@@ -65,25 +66,28 @@ export class UsersService {
 		return userDto;
 	}
 
-	public GetProfile(id: number): UserProfileDto {
-		throw new Error('Not Implemented');
-		/*
-		return {
-			id: 1,
-			userID: 1,
-			steamID: "steam:123",
-			bio: "combat surf best fight me",
-			alias: "jane",
-			aliasLocked: true,
-			avatar: "jane.jpg",
-			avatarURL: "jane.jpg",
-			bans: 0,
-			roles: 1,
-			country: "UK",	
-			featuredBadgeID: 1,
-			createdAt: new Date,
-			updatedAt: new Date
-		};*/
+	public async GetProfile(id: number): Promise<UserProfileDto> {
+		
+		// create where object
+		const profileWhere: Prisma.ProfileWhereUniqueInput = {};
+		profileWhere.id = id;
+
+		// await all calls
+		// 2 db calls, could be one to increase performace
+		const [
+			user, 
+			profile
+		] = await Promise.all([
+			this.Get(id), 
+			this.userRepo.GetProfile(profileWhere)
+		]);
+
+		// Create DTO from db objects
+		const userProfileDto = new UserProfileDto();
+		userProfileDto.convertUserToUserDto(user);
+		userProfileDto.convertProfileToUserProfileDto(profile);
+
+		return userProfileDto;
 	}
 
 	public GetActivities(id: number, skip?: number, take?: number): PagedResponseDto<ActivityDB[]> {
@@ -250,6 +254,7 @@ export class UsersService {
 			data.summaries.personaname,
 			false,
 			data.summaries.avatarfull,
+			0,
 			0,
 			data.summaries.locccountrycode,
 			null,

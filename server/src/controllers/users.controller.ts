@@ -6,8 +6,9 @@ import {
 	MapCredit, 
 	Run
 } from '@prisma/client';
-import { UserDto, UserProfileDto } from "../dto/user.dto"
-import { PagedResponseDto } from "../dto/api-response.dto";
+import { UserDto } from "../dto/user/user.dto"
+import { UserProfileDto } from "../dto/user/profile.dto"
+import { PagedResponseDto } from "../dto/common/api-response.dto";
 import { UsersService } from "../services/users.service";
 import { JwtAuthGuard } from 'src/auth/jwt/jwt-auth.guard';
 
