@@ -36,7 +36,6 @@ const configs: IAllConfigs = {
 			webAPIKey: process.env.STEAM_WEB_API_KEY ?? "undefined",
 			preventLimited: true,
 			useSteamTicketLibrary: true,
-			useEncryptedTickets: true,
 			ticketsSecretKey: process.env.STEAM_TICKETS_SECRET,
 		},
 		db: {
@@ -88,7 +87,6 @@ const configs: IAllConfigs = {
 			webAPIKey: process.env.STEAM_WEB_API_KEY ?? "undefined",
 			preventLimited: true,
 			useSteamTicketLibrary: true,
-			useEncryptedTickets: true,
 			ticketsSecretKey: process.env.STEAM_TICKETS_SECRET ?? "undefined",
 		},
 		db: {
@@ -139,7 +137,6 @@ const configs: IAllConfigs = {
 		steam: {
 			webAPIKey: process.env.STEAM_WEB_API_KEY ?? "undefined",
 			preventLimited: process.env.STEAM_PREVENT_LIMITED === 'true',
-			useEncryptedTickets: process.env.STEAM_USE_ENCRYPTED_TICKETS === 'true',
 			useSteamTicketLibrary: process.env.STEAM_USE_ENCRYPTED_TICKETS === 'true',
 			ticketsSecretKey: process.env.STEAM_TICKETS_SECRET,
 		},
@@ -200,7 +197,6 @@ export interface IConfig {
 			webAPIKey: string;
 			preventLimited: boolean;
 			useSteamTicketLibrary: boolean;
-			useEncryptedTickets: boolean;
 			ticketsSecretKey: string;
 		};
 		db: {
