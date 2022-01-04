@@ -645,57 +645,90 @@ const updateStats = (resultObj, transaction) => {
 const updateRanksAfterDelete = (oldRank, nextBestRun) => {
 
 	const deletedRank = oldRank.rank;
-
 	let rankSearch = {[Op.gte]: deletedRank};
+	let completions = 0;
 
 	return sequelize.transaction(transact => {
-		return UserMapRank.findAll({
+		// get total completions
+		return UserMapRank.count({
 			where: {
 				mapID: oldRank.mapID,
 				gameType: oldRank.gameType,
 				flags: oldRank.flags,
 				trackNum: oldRank.trackNum,
 				zoneNum: oldRank.zoneNum,
-				rank: rankSearch,
 			},
 			transaction: transact,
-		}).then(results => {
-			for (const result of results) {
-				result.rank -= 1;
-				updates.push(result.save({transaction: transact}));
-			}
+		}).then(count => {
+			completions = count;
+			// get completions that are slower than deleted rank and decrement
+			return UserMapRank.findAll({
+				where: {
+					mapID: oldRank.mapID,
+					gameType: oldRank.gameType,
+					flags: oldRank.flags,
+					trackNum: oldRank.trackNum,
+					zoneNum: oldRank.zoneNum,
+					rank: rankSearch,
+				},
+				transaction: transact,
+			}).then(results => {
+				const updates = [];
+				for (const result of results) {
+					result.rank -= 1;
+					result.rankXP = xpSystems.getRankXPForRank(result.rank, completions).rankXP;
+					updates.push(result.save({transaction: transact}));
+				}
+				return Promise.all(updates);
+			});
 		}).then(() => {
+			// if we have a nextBestRun, we need to update oldRank
 			if (nextBestRun) {
-
-				// TODO get the rank that our nextBestRun would be
-
-				let rankSearch = {[Op.gte]: rank};
-
-				return UserMapRank.findAll({
+				return UserMapRank.count({
 					where: {
 						mapID: oldRank.mapID,
 						gameType: oldRank.gameType,
 						flags: oldRank.flags,
 						trackNum: oldRank.trackNum,
 						zoneNum: oldRank.zoneNum,
-						userID: {
-							// Because we go below (and including) our new rank, we gotta
-							// filter out ourselves.
-							[Op.ne]: oldRank.userID,
-						},
-						rank: rankSearch,
 					},
-					transaction: transaction,
-				}).then(results => {
-					const updates = [];
-					for (const result of results) {
-						result.rank += 1;
-						updates.push(result.save({transaction: transaction}));
-					}
-					return Promise.all(updates);
-				})
+					include: [{
+						model: Run,
+						where: {ticks: {[Op.lte]: nextBestRun.ticks}}
+					}],
+					transaction: transact,
+				}).then(count => {
+					oldRank.rankXP = xpSystems.getRankXPForRank(count + 1, completions).rankXP;
+					oldRank.runID = nextBestRun.id;
+					oldRank.rank = count + 1;
+					return UserMapRank.create(oldRank, {transaction: transact});
+				}).then(() => {
+					let rankSearch = {[Op.gte]: oldRank.rank};
+					return UserMapRank.findAll({
+						where: {
+							mapID: oldRank.mapID,
+							gameType: oldRank.gameType,
+							flags: oldRank.flags,
+							trackNum: oldRank.trackNum,
+							zoneNum: oldRank.zoneNum,
+							userID: {
+								[Op.ne]: oldRank.userID,
+							},
+							rank: rankSearch,
+						},
+						transaction: transact,
+					}).then(results => {
+						const updates = [];
+						for (const result of results) {
+							result.rank += 1;
+							result.rankXP = xpSystems.getRankXPForRank(result.rank, completions).rankXP;
+							updates.push(result.save({transaction: transact}));
+						}
+						return Promise.all(updates);
+					});
+				});
 			} else {
-				Promise.resolve();
+				return Promise.resolve();
 			}
 		});
 	});
@@ -867,7 +900,7 @@ module.exports = {
 					],
 					raw: true,
 				}).then(ticksOfNextBestRun => {
-					if (ticksOfNextBestRun) {
+					if (ticksOfNextBestRun.ticks) {
 						return Run.findOne({
 							where: {
 								trackNum: oldRun.trackNum,
@@ -878,6 +911,7 @@ module.exports = {
 								mapID: oldRun.mapID,
 								playerID: oldRun.playerID,
 							},
+							raw: true,
 						});
 					}
 				}).then(nextBestRun => {
