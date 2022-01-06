@@ -78,7 +78,7 @@ export class MapLeaderboardComponent implements OnInit {
     this.searchedRanks = false;
     this.filterLeaderboardRuns(this._mapID).pipe(finalize(() => this.searchedRanks = true))
       .subscribe(res => {
-        if (res.count)
+        if (res.count >= 0)
           this.leaderboardRanks = res.ranks;
     }, err => {
       this.toasterService.danger(err.message, 'Could not find runs');
