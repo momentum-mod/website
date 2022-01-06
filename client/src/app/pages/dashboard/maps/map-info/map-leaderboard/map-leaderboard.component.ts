@@ -6,7 +6,7 @@ import {RanksService} from '../../../../../@core/data/ranks.service';
 import {UserMapRank} from '../../../../../@core/models/user-map-rank.model';
 import {NbDialogService, NbToastrService} from '@nebular/theme';
 import {AdminService} from '../../../../../@core/data/admin.service';
-import { ConfirmDialogComponent } from '../../../../../@theme/components/confirm-dialog/confirm-dialog.component';
+import {ConfirmDialogComponent} from '../../../../../@theme/components/confirm-dialog/confirm-dialog.component';
 
 export enum LeaderboardType {
   TOP10 = 1,
