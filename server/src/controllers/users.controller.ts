@@ -6,11 +6,12 @@ import {
 	MapCredit, 
 	Run
 } from '@prisma/client';
-import { UserDto } from "../dto/user/user.dto"
-import { UserProfileDto } from "../dto/user/profile.dto"
+import { UserDto, UserProfileDto } from "../dto/user/user.dto"
+import { ProfileDto } from "../dto/user/profile.dto"
 import { PagedResponseDto } from "../dto/common/api-response.dto";
 import { UsersService } from "../services/users.service";
 import { JwtAuthGuard } from 'src/auth/jwt/jwt-auth.guard';
+import { ActivityDto } from 'src/dto/user/activity.dto';
 
 @ApiBearerAuth()
 @Controller("api/v1/users")
@@ -82,7 +83,7 @@ export class UsersController {
 		description: "Take this many records",
 		required: false
 	})
-	public async GetActivities(@Param('userID') userID: number, @Query('skip') skip?: number, @Query('take') take?: number): Promise<PagedResponseDto<Activity[]>> {
+	public async GetActivities(@Param('userID') userID: number, @Query('skip') skip?: number, @Query('take') take?: number): Promise<PagedResponseDto<ActivityDto[]>> {
 		return this.usersService.GetActivities(userID, skip, take);
 	}
 

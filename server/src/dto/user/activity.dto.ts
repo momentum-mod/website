@@ -1,17 +1,26 @@
-import { Activity } from "@prisma/client";
+import { 
+    Activity
+} from "@prisma/client";
 import { EActivityTypes } from "../../enums/activity.enum";
-import { UserDto } from "./user.dto";
+import { UserProfileDto } from "./user.dto";
 
-export class UserActivityDto extends UserDto implements Activity {
+export class ActivityDto {
+    id: number
     type: EActivityTypes;
     data: bigint;
-    userID: number;
+    createdAt: Date;
+    updatedAt: Date;
+    user: UserProfileDto;
 	
-	convertActivityToUserActivityDto(
-		_activity: Activity
+	constructor(
+		_activity: Activity,
+        _userProfile: UserProfileDto
 	) {
+        this.id = _activity.id;
         this.type = _activity.type;
+        this.createdAt = _activity.createdAt;
+        this.updatedAt = _activity.updatedAt;
         this.data = _activity.data;
-        this.userID = _activity.userID;
+        this.user = _userProfile;
 	}
 }

@@ -1,6 +1,5 @@
 import { HttpException, Injectable } from '@nestjs/common';  
 import {
-	Activity as ActivityDB, 
 	Follow as FollowDB, 
 	MapCredit as MapCreditDB, 
 	Run as RunDB,
@@ -8,14 +7,15 @@ import {
 	UserAuth,
 	Prisma
 } from '@prisma/client';
-import { UserDto } from "../dto/user/user.dto"
-import { UserProfileDto } from "../dto/user/profile.dto"
+import { UserDto, UserProfileDto } from "../dto/user/user.dto"
+import { ProfileDto } from "../dto/user/profile.dto"
 import { PagedResponseDto } from "../dto/common/api-response.dto";
 import { UserRepo as UserRepo } from "../repositories/users.repo";
 import { appConfig } from 'config/config';
 import { lastValueFrom, map } from 'rxjs';
 import * as xml2js from 'xml2js';
 import { HttpService } from '@nestjs/axios';
+import { ActivityDto } from 'src/dto/user/activity.dto';
 
 @Injectable()
 export class UsersService {
@@ -68,68 +68,63 @@ export class UsersService {
 
 	public async GetProfile(id: number): Promise<UserProfileDto> {
 		
-		// create where object
-		const profileWhere: Prisma.ProfileWhereUniqueInput = {};
-		profileWhere.id = id;
-
 		// await all calls
 		// 2 db calls, could be one to increase performace
 		const [
-			user, 
-			profile
+			userDto, 
+			profileDb
 		] = await Promise.all([
 			this.Get(id), 
-			this.userRepo.GetProfile(profileWhere)
+			this.userRepo.GetProfile(id)
 		]);
 
+		const profileDto = new ProfileDto(profileDb);
+
 		// Create DTO from db objects
-		const userProfileDto = new UserProfileDto();
-		userProfileDto.convertUserToUserDto(user);
-		userProfileDto.convertProfileToUserProfileDto(profile);
+		const userProfileDto = new UserProfileDto(userDto, profileDto);
 
 		return userProfileDto;
 	}
 
-	public GetActivities(id: number, skip?: number, take?: number): PagedResponseDto<ActivityDB[]> {
-		const response: ActivityDB[] = [];
-		let totalCount = 0;
+	public async GetActivities(id: number, skip?: number, take?: number): Promise<PagedResponseDto<ActivityDto[]>> {
+		const activitesAndCount = await this.userRepo.GetActivities(id, skip, take);
+		const profile = await this.GetProfile(id);
 
-		// temp
-		totalCount = 100;
+		const activitesDto = []
 
-		return { 
-			totalCount: totalCount,
-			returnCount: response.length,
-			response: response
-		}
+		activitesAndCount[0].forEach((c) => {
+			activitesDto.push(new ActivityDto(c, profile));
+		})
+
+		const response: PagedResponseDto<ActivityDto[]> = {
+			response: activitesDto,
+			returnCount: activitesDto.length,
+			totalCount: activitesAndCount[1]
+		};
+
+		return response;
 	}
 
-	public GetFollowers(id: number, skip?: number, take?: number): PagedResponseDto<FollowDB[]> {
-		const response: FollowDB[] = [];
-		let totalCount = 0;
+	public async GetFollowers(id: number, skip?: number, take?: number): Promise<PagedResponseDto<FollowDB[]>> {
+		const followers = await this.userRepo.GetFollowers(id, skip, take);
+		const response: PagedResponseDto<FollowDB[]> = {
+			response: followers[0],
+			returnCount: followers[0].length,
+			totalCount: followers[1]
+		};
 
-		// temp
-		totalCount = 100;
-
-		return { 
-			totalCount: totalCount,
-			returnCount: response.length,
-			response: response
-		}
+		return response;
 	}
 
-	public GetFollowed(id: number, skip?: number, take?: number): PagedResponseDto<FollowDB[]> {
-		const response: FollowDB[] = [];
-		let totalCount = 0;
+	public async GetFollowed(id: number, skip?: number, take?: number): Promise<PagedResponseDto<FollowDB[]>> {
+		const followers = await this.userRepo.GetFollowed(id, skip, take);
+		const response: PagedResponseDto<FollowDB[]> = {
+			response: followers[0],
+			returnCount: followers[0].length,
+			totalCount: followers[1]
+		};
 
-		// temp
-		totalCount = 100;
-
-		return { 
-			totalCount: totalCount,
-			returnCount: response.length,
-			response: response
-		}
+		return response;
 	}
 
 	public GetCredits(id: number, skip?: number, take?: number): PagedResponseDto<MapCreditDB[]> {

@@ -1,12 +1,14 @@
 import { Profile } from "@prisma/client";
-import { UserDto } from "./user.dto";
 
-export class UserProfileDto extends UserDto implements Profile {
-	bio: string;
+export class ProfileDto {
+	id: number;
+	bio: string;	
+    createdAt: Date;
+    updatedAt: Date;
 	userID: number;
 	featuredBadgeID: number;
 	
-	convertProfileToUserProfileDto(
+	constructor(
 		_profile: Profile
 	) {
 		this.bio = _profile.bio;
@@ -14,3 +16,4 @@ export class UserProfileDto extends UserDto implements Profile {
 		this.featuredBadgeID = _profile.featuredBadgeID;
 	}
 }
+
