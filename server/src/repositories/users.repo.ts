@@ -53,7 +53,23 @@ export class UserRepo {
      * @summary Gets single user from database
      * @returns Target user or null 
     */       
-    async Get(where: Prisma.UserWhereUniqueInput): Promise<User> {
+    async Get(id: number): Promise<User> {
+		const where: Prisma.UserWhereUniqueInput = {};
+		where.id = +id;
+
+        return await this.prisma.user.findFirst({                    
+            where: where
+        })   
+    }
+
+    /**
+     * @summary Gets single user from database
+     * @returns Target user or null 
+    */       
+    async GetBySteamID(steamID: string): Promise<User> {
+        const where: Prisma.UserWhereUniqueInput = {};
+        where.steamID = steamID;
+
         return await this.prisma.user.findFirst({                    
             where: where
         })   
@@ -80,14 +96,34 @@ export class UserRepo {
     }
     //#endregion
 
+    
     //#region Profile
     /**
-     * @summary Gets single users profile from database
+         * @summary Gets single users profile from database
+         * @returns Target user or null 
+        */       
+    async GetUserProfile(userID: number): Promise<[User, Profile]> {
+        const where: Prisma.UserWhereUniqueInput = {};
+        where.id = +userID;
+
+        const userProfile = await this.prisma.user.findFirst({
+            where: where,
+            include: {
+                profiles: true
+            }
+        });
+
+        return [userProfile, (userProfile as any).profiles];
+    }
+
+
+    /**
+     * @summary Gets only single users profile from database
      * @returns Target user or null 
     */       
-	async GetProfile(userID: number): Promise<Profile> {
+	async GetProfileOnly(userID: number): Promise<Profile> {
         const where: Prisma.ProfileWhereInput = {};
-        where.userID = userID;
+        where.userID = +userID;
 
 		return await this.prisma.profile.findFirst({
             where: where
@@ -105,7 +141,7 @@ export class UserRepo {
         ): Promise<[Activity[], number]> {
             
         const where: Prisma.ActivityWhereInput = {};
-        where.userID = userID;
+        where.userID = +userID;
 
         const count = await this.prisma.activity.count({            
             where: where
@@ -115,7 +151,11 @@ export class UserRepo {
             skip: skip,
             take: take,
             include: {
-                users: true                             
+                users: {
+                    include: {
+                        profiles: true
+                    }
+                }                             
             }
         });
 
@@ -132,31 +172,7 @@ export class UserRepo {
     ): Promise<[Follow[], number]> {
         const where: Prisma.FollowWhereInput = {};
         const userWhere: Prisma.UserWhereInput = {
-            id: userID
-        };        
-
-        where.users_follows_followeeIDTousers = userWhere;
-
-        const count = await this.prisma.follow.count({            
-            where: where
-        })
-        const followers = await this.prisma.follow.findMany({ 
-            where: where,            
-            skip: skip,
-            take: take
-        });
-
-        return [followers, count];
-    }
-
-    async GetFollowed(
-        userID: number,
-        skip?: number,
-        take?: number
-    ): Promise<[Follow[], number]> {
-        const where: Prisma.FollowWhereInput = {};
-        const userWhere: Prisma.UserWhereInput = {
-            id: userID
+            id: +userID
         };        
 
         where.users_follows_followedIDTousers = userWhere;
@@ -164,10 +180,58 @@ export class UserRepo {
         const count = await this.prisma.follow.count({            
             where: where
         })
+        const followers = await this.prisma.follow.findMany({ 
+            where: where,            
+            skip: skip,
+            take: take,
+            include: {
+                users_follows_followeeIDTousers: {
+                    include: {
+                        profiles: true
+                    }
+                },
+                users_follows_followedIDTousers : {
+                    include: {
+                        profiles: true
+                    }
+                }
+            }
+        });
+
+        return [followers, count];
+    }
+
+    async GetFollowing(
+        userID: number,
+        skip?: number,
+        take?: number
+    ): Promise<[Follow[], number]> {
+        const where: Prisma.FollowWhereInput = {};
+        const userWhere: Prisma.UserWhereInput = {
+            id: +userID
+        };        
+
+        where.users_follows_followeeIDTousers = userWhere;
+
+        const count = await this.prisma.follow.count({            
+            where: where
+        })
         const followees = await this.prisma.follow.findMany({ 
             where: where,            
             skip: skip,
-            take: take
+            take: take,
+            include: {
+                users_follows_followeeIDTousers: {
+                    include: {
+                        profiles: true
+                    }
+                },
+                users_follows_followedIDTousers : {
+                    include: {
+                        profiles: true
+                    }
+                }
+            }
         });
 
         return [followees, count];

@@ -12,6 +12,7 @@ import { PagedResponseDto } from "../dto/common/api-response.dto";
 import { UsersService } from "../services/users.service";
 import { JwtAuthGuard } from 'src/auth/jwt/jwt-auth.guard';
 import { ActivityDto } from 'src/dto/user/activity.dto';
+import { Public } from 'src/auth/public.decorator';
 
 @ApiBearerAuth()
 @Controller("api/v1/users")
@@ -21,6 +22,7 @@ export class UsersController {
 
 	constructor(private readonly usersService: UsersService) {}
 
+	@Public()
 	@Get()
 	@ApiOperation({ summary: "Returns all users" })	
 	@ApiQuery({
@@ -39,6 +41,7 @@ export class UsersController {
 		return this.usersService.GetAll(skip, take);
 	}
 
+	@Public()
 	@Get(":userID")	
 	@ApiOperation({ summary: "Returns single user" })
 	@ApiQuery({
@@ -51,6 +54,7 @@ export class UsersController {
 		return this.usersService.Get(userID);
 	}
 
+	@Public()
 	@Get(":userID/profile")
 	@ApiOperation({ summary: "Returns single user's profile" })
 	@ApiQuery({
@@ -63,6 +67,7 @@ export class UsersController {
 		return this.usersService.GetProfile(userID);
 	}
 
+	@Public()
 	@Get(":userID/activities")	
 	@ApiOperation({ summary: "Returns all of a single user's activities" })
 	@ApiQuery({
@@ -87,6 +92,7 @@ export class UsersController {
 		return this.usersService.GetActivities(userID, skip, take);
 	}
 
+	@Public()
 	@Get(":userID/followers")
 	@ApiOperation({ summary: "Returns all of a single user's followers" })
 	@ApiQuery({
@@ -111,6 +117,7 @@ export class UsersController {
 		return this.usersService.GetFollowers(userID, skip, take);
 	}
 
+	@Public()
 	@Get(":userID/follows")
 	@ApiOperation({ summary: "Returns all of a single user's followed objects" })
 	@ApiQuery({
@@ -132,7 +139,7 @@ export class UsersController {
 		required: false
 	})
 	public async GetFollowed(@Param('userID') userID: number, @Query('skip') skip?: number, @Query('take') take?: number): Promise<PagedResponseDto<Follow[]>> {
-		return this.usersService.GetFollowed(userID, skip, take);
+		return this.usersService.GetFollowing(userID, skip, take);
 	}
 
 	@Get(":userID/credits")

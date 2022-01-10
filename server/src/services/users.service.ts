@@ -5,7 +5,8 @@ import {
 	Run as RunDB,
 	User,
 	UserAuth,
-	Prisma
+	Prisma,
+	Profile
 } from '@prisma/client';
 import { UserDto, UserProfileDto } from "../dto/user/user.dto"
 import { ProfileDto } from "../dto/user/profile.dto"
@@ -16,6 +17,7 @@ import { lastValueFrom, map } from 'rxjs';
 import * as xml2js from 'xml2js';
 import { HttpService } from '@nestjs/axios';
 import { ActivityDto } from 'src/dto/user/activity.dto';
+import { FollowerDto } from 'src/dto/user/followers.dto';
 
 @Injectable()
 export class UsersService {
@@ -45,10 +47,7 @@ export class UsersService {
 	}
 
 	public async Get(id: number): Promise<UserDto> {
-		const whereInput: Prisma.UserWhereUniqueInput = {};
-		whereInput.id = id;
-
-		const dbResponse = await this.userRepo.Get(whereInput);
+		const dbResponse = await this.userRepo.Get(id);
 		const userDto = new UserDto();
 		userDto.convertUserToUserDto(dbResponse);
 
@@ -56,10 +55,7 @@ export class UsersService {
 	}
 
 	public async GetBySteamID(id: string): Promise<UserDto> {
-		const whereInput: Prisma.UserWhereUniqueInput = {};
-		whereInput.steamID = id;
-
-		const dbResponse = await this.userRepo.Get(whereInput);
+		const dbResponse = await this.userRepo.GetBySteamID(id);
 		const userDto = new UserDto();
 		userDto.convertUserToUserDto(dbResponse);
 		
@@ -68,32 +64,38 @@ export class UsersService {
 
 	public async GetProfile(id: number): Promise<UserProfileDto> {
 		
-		// await all calls
-		// 2 db calls, could be one to increase performace
-		const [
-			userDto, 
-			profileDb
-		] = await Promise.all([
-			this.Get(id), 
-			this.userRepo.GetProfile(id)
-		]);
-
-		const profileDto = new ProfileDto(profileDb);
+		const userProfileDb = await this.userRepo.GetUserProfile(id);
+		const userDto = new UserDto();
+		userDto.convertUserToUserDto(userProfileDb[0]);
 
 		// Create DTO from db objects
-		const userProfileDto = new UserProfileDto(userDto, profileDto);
+		const userProfileDto = new UserProfileDto(
+			userDto, 
+			userProfileDb[1]
+		);
 
 		return userProfileDto;
 	}
 
 	public async GetActivities(id: number, skip?: number, take?: number): Promise<PagedResponseDto<ActivityDto[]>> {
 		const activitesAndCount = await this.userRepo.GetActivities(id, skip, take);
-		const profile = await this.GetProfile(id);
-
+	
 		const activitesDto = []
 
 		activitesAndCount[0].forEach((c) => {
-			activitesDto.push(new ActivityDto(c, profile));
+			const user: User = (c as any).users;
+			const profile: Profile = (c as any).users.profiles
+
+			const userDto = new UserDto();
+			userDto.convertUserToUserDto(user);
+	
+			// Create DTO from db objects
+			const userProfileDto = new UserProfileDto(
+				userDto, 
+				profile
+			);
+
+			activitesDto.push(new ActivityDto(c, userProfileDto));
 		})
 
 		const response: PagedResponseDto<ActivityDto[]> = {
@@ -105,23 +107,87 @@ export class UsersService {
 		return response;
 	}
 
-	public async GetFollowers(id: number, skip?: number, take?: number): Promise<PagedResponseDto<FollowDB[]>> {
-		const followers = await this.userRepo.GetFollowers(id, skip, take);
-		const response: PagedResponseDto<FollowDB[]> = {
-			response: followers[0],
-			returnCount: followers[0].length,
-			totalCount: followers[1]
+	public async GetFollowers(id: number, skip?: number, take?: number): Promise<PagedResponseDto<FollowerDto[]>> {
+		const followersAndCount = await this.userRepo.GetFollowers(id, skip, take);
+
+		const followersDto = []
+
+		followersAndCount[0].forEach((c) => {
+			const followeeUser: User = (c as any).users_follows_followeeIDTousers;
+			const followeeProfile: Profile = (c as any).users_follows_followeeIDTousers.profiles
+
+			const followeeUserDto = new UserDto();
+			followeeUserDto.convertUserToUserDto(followeeUser);
+	
+			// Create DTO from db objects
+			const followee = new UserProfileDto(
+				followeeUserDto, 
+				followeeProfile
+			);
+
+			const followedUser: User = (c as any).users_follows_followedIDTousers;
+			const followedProfile: Profile = (c as any).users_follows_followedIDTousers.profiles
+
+			const followedUserDto = new UserDto();
+			followedUserDto.convertUserToUserDto(followedUser);
+	
+			// Create DTO from db objects
+			const followed = new UserProfileDto(
+				followedUserDto, 
+				followedProfile
+			);
+
+
+			followersDto.push(new FollowerDto(c, followed, followee));
+		})
+
+		const response: PagedResponseDto<FollowerDto[]> = {
+			response: followersDto,
+			returnCount: followersDto.length,
+			totalCount: followersAndCount[1]
 		};
 
 		return response;
 	}
 
-	public async GetFollowed(id: number, skip?: number, take?: number): Promise<PagedResponseDto<FollowDB[]>> {
-		const followers = await this.userRepo.GetFollowed(id, skip, take);
-		const response: PagedResponseDto<FollowDB[]> = {
-			response: followers[0],
-			returnCount: followers[0].length,
-			totalCount: followers[1]
+	public async GetFollowing(id: number, skip?: number, take?: number): Promise<PagedResponseDto<FollowDB[]>> {
+		const followersAndCount = await this.userRepo.GetFollowing(id, skip, take);
+
+		const followersDto = []
+
+		followersAndCount[0].forEach((c) => {
+			const followeeUser: User = (c as any).users_follows_followeeIDTousers;
+			const followeeProfile: Profile = (c as any).users_follows_followeeIDTousers.profiles
+
+			const followeeUserDto = new UserDto();
+			followeeUserDto.convertUserToUserDto(followeeUser);
+	
+			// Create DTO from db objects
+			const followee = new UserProfileDto(
+				followeeUserDto, 
+				followeeProfile
+			);
+
+			const followedUser: User = (c as any).users_follows_followedIDTousers;
+			const followedProfile: Profile = (c as any).users_follows_followedIDTousers.profiles
+
+			const followedUserDto = new UserDto();
+			followedUserDto.convertUserToUserDto(followedUser);
+	
+			// Create DTO from db objects
+			const followed = new UserProfileDto(
+				followedUserDto, 
+				followedProfile
+			);
+
+
+			followersDto.push(new FollowerDto(c, followed, followee));
+		})
+
+		const response: PagedResponseDto<FollowerDto[]> = {
+			response: followersDto,
+			returnCount: followersDto.length,
+			totalCount: followersAndCount[1]
 		};
 
 		return response;
@@ -298,10 +364,7 @@ export class UsersService {
 
 
 	private async FindOrCreateUserFromProfile(profile: UserDto): Promise<User> {
-		const whereInput: Prisma.UserWhereUniqueInput = {};
-		whereInput.steamID = profile.steamID;
-
-		const user = await this.userRepo.Get(whereInput)
+		const user = await this.userRepo.GetBySteamID(profile.steamID)
 
 		if(user){
 			const updateInput: Prisma.UserUpdateInput = {};
