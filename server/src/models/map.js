@@ -1,8 +1,5 @@
 'use strict';
-const util = require('util'),
-	fs = require('fs'),
-	crypto = require('crypto'),
-	{
+const {
 		sequelize, Op, Map, MapInfo, MapCredit, User, MapReview, MapImage,
 		MapStats, MapZoneStats, MapTrack, MapTrackStats, MapZone, MapZoneTrigger,
 		BaseStats, MapFavorite, MapZoneProperties,
@@ -12,37 +9,19 @@ const util = require('util'),
 	activity = require('./activity'),
 	queryHelper = require('../helpers/query'),
 	mapImage = require('./map-image'),
+	run = require('./run'),
 	ServerError = require('../helpers/server-error'),
-	config = require('../../config/config');
+	config = require('../../config/config'),
+	store_local = require('../helpers/filestore-local'),
+	store_cloud = require('../helpers/filestore-cloud');
 
-const genFileHash = (mapPath) => {
-	return new Promise((resolve, reject) => {
-		const hash = crypto.createHash('sha1').setEncoding('hex');
-		fs.createReadStream(mapPath).pipe(hash)
-			.on('error', err => reject(err))
-			.on('finish', () => {
-				resolve(hash.read())
-			});
-	});
-};
+const storeMapFile = (mapFileBuffer, mapModel) => {
+	const fileName = `maps/${mapModel.name}.bsp`;
+	if (config.storage.useLocal) {
+		return store_local.storeMapFileLocal(mapFileBuffer, fileName);
+	}
 
-const storeMapFile = (mapFile, mapModel) => {
-	const moveMapTo = util.promisify(mapFile.mv);
-	const fileName = mapModel.name + '.bsp';
-	const basePath = __dirname + '/../../public/maps';
-	const fullPath = basePath + '/' + fileName;
-	const downloadURL = config.baseURL_API + '/api/maps/' + mapModel.id + '/download';
-	return moveMapTo(fullPath).then(() => {
-		return genFileHash(fullPath).then(hash => {
-			return Promise.resolve({
-				fileName: fileName,
-				basePath: basePath,
-				fullPath: fullPath,
-				downloadURL: downloadURL,
-				hash: hash
-			})
-		});
-	});
+	return store_cloud.storeFileCloud(mapFileBuffer, fileName);
 };
 
 const verifyMapNameNotTaken = (mapName) => {
@@ -536,11 +515,11 @@ module.exports = {
 					resolve();
 				else
 					reject(new ServerError(403, 'Forbidden'));
-			});
+			}).catch(reject);
 		});
 	},
 
-	upload: (mapID, mapFile) => {
+	upload: (mapID, mapFileBuffer) => {
 		let mapModel = null;
 		return Map.findByPk(mapID).then(map => {
 			if (!map)
@@ -548,7 +527,7 @@ module.exports = {
 			else if (map.statusFlag !== STATUS.NEEDS_REVISION)
 				return Promise.reject(new ServerError(409, 'Map file cannot be uploaded given the map state'));
 			mapModel = map;
-			return storeMapFile(mapFile, map);
+			return storeMapFile(mapFileBuffer, map);
 		}).then((results) => {
 			return mapModel.update({
 				statusFlag: STATUS.PENDING,
@@ -564,8 +543,7 @@ module.exports = {
 		}).then(map => {
 			if (!map)
 				return Promise.reject(new ServerError(404, 'Map not found'));
-			const mapFileName = map.name + '.bsp';
-			const filePath = __dirname + '/../../public/maps/' + mapFileName;
+			const filePath = `${__dirname}/../../public/maps/${map.name}.bsp`;
 			return Promise.resolve(filePath);
 		});
 	},

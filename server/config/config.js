@@ -50,13 +50,19 @@ const config = {
 		session: {
 			secret: 'keyboard cat',
 		},
+		storage: {
+			useLocal: process.env.MOM_STORAGE_USE_LOCAL === 'true',
+			region: process.env.MOM_STORAGE_REGION,
+			endpointURL: process.env.MOM_STORAGE_ENDPOINT_URL,
+			bucketName: process.env.MOM_STORAGE_BUCKET_NAME,
+		}
 	},
 	development: {
 		root: rootPath,
-		baseURL: 'http://localhost:3002',
-		baseURL_API: 'http://localhost:3002',
-		baseURL_Auth: 'http://localhost:3002',
-		baseURL_CDN: 'http://localhost:3002',
+		baseURL: process.env.BASE_URL,
+		baseURL_API: process.env.API_URL,
+		baseURL_Auth: process.env.AUTH_URL,
+		baseURL_CDN: process.env.CDN_URL,
 		domain: 'localhost',
 		port: 3002,
 		accessToken: {
@@ -98,6 +104,12 @@ const config = {
 		session: {
 			secret: 'keyboard cat',
 		},
+		storage: {
+			useLocal: process.env.MOM_STORAGE_USE_LOCAL === 'true',
+			region: process.env.MOM_STORAGE_REGION,
+			endpointURL: process.env.MOM_STORAGE_ENDPOINT_URL,
+			bucketName: process.env.MOM_STORAGE_BUCKET_NAME,
+		}
 	},
 	production: {
 		root: rootPath,
@@ -146,6 +158,12 @@ const config = {
 		session: {
 			secret: process.env.EXPRESS_SESSION_SECRET,
 		},
+		storage: {
+			useLocal: process.env.MOM_STORAGE_USE_LOCAL === 'true',
+			region: process.env.MOM_STORAGE_REGION,
+			endpointURL: process.env.MOM_STORAGE_ENDPOINT_URL,
+			bucketName: process.env.MOM_STORAGE_BUCKET_NAME,
+		}
 	}
 };
 

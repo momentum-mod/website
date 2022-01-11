@@ -1,21 +1,23 @@
 'use strict';
 const imageEditor = require('sharp'),
-	fs = require('fs'),
 	config = require('../../config/config'),
 	ServerError = require('../helpers/server-error'),
-	{ sequelize, Map, MapImage } = require('../../config/sqlize');
+	{ sequelize, Map, MapImage } = require('../../config/sqlize'),
+	store_local = require('../helpers/filestore-local'),
+	store_cloud = require('../helpers/filestore-cloud');
 
 const editAndSaveMapImageFile = (imageFileBuffer, fileName, width, height) => {
-	const basePath = __dirname + '/../../public/img/maps/';
-	const fullPath = basePath + fileName;
-	const downloadURL = config.baseURL_CDN + '/img/maps/' + fileName;
-	return imageEditor(imageFileBuffer).resize(width, height, {
-		fit: 'inside',
-	}).toFile(fullPath).then(() => {
-		return Promise.resolve({
-			fullPath: fullPath,
-			downloadURL: downloadURL,
-		});
+	return imageEditor(imageFileBuffer)
+	.resize(width, height, { fit: 'inside' })
+	.jpeg({ mozjpeg: true })
+	.toBuffer()
+	.then((data) => {
+		if ( config.storage.useLocal )
+		{
+			return store_local.storeImageFileLocal(data, fileName);
+		}
+
+		return store_cloud.storeFileCloud(data, fileName);
 	}).catch(err => {
 		err.status = 400;
 		return Promise.reject(err);
@@ -24,28 +26,21 @@ const editAndSaveMapImageFile = (imageFileBuffer, fileName, width, height) => {
 
 const storeMapImage = (imageFileBuffer, imgID) => {
 	return Promise.all([
-		editAndSaveMapImageFile(imageFileBuffer, imgID + '-small.jpg', 480, 360),
-		editAndSaveMapImageFile(imageFileBuffer, imgID + '-medium.jpg', 1280, 720),
-		editAndSaveMapImageFile(imageFileBuffer, imgID + '-large.jpg', 1920, 1080)
+		editAndSaveMapImageFile(imageFileBuffer, `img/${imgID}-small.jpg`, 480, 360),
+		editAndSaveMapImageFile(imageFileBuffer, `img/${imgID}-medium.jpg`, 1280, 720),
+		editAndSaveMapImageFile(imageFileBuffer, `img/${imgID}-large.jpg`, 1920, 1080)
 	]);
 };
 
-const deleteMapImageFile = (imgFileLocation) => {
-	return new Promise((resolve, reject) => {
-		fs.stat(imgFileLocation, err => {
-			if (err) {
-				if (err.code === 'ENOENT')
-					return resolve();
-				else
-					return reject(err);
-			}
-			fs.unlink(imgFileLocation, err => {
-				if (err)
-					return reject(err);
-				resolve();
-			});  
-		});
-	});
+const deleteMapImageFile = (imgFileName) => {
+
+	if ( config.storage.useLocal )
+	{
+		const imgFileLocation = __dirname + '/../../public/' + imgFileName;
+		return store_local.deleteLocalFile(imgFileLocation);
+	}
+
+	return store_cloud.deleteFileCloud(imgFileName);
 };
 
 const MAP_IMAGE_UPLOAD_LIMIT = 5;
@@ -116,9 +111,9 @@ module.exports = {
 
 	deleteMapImageFiles: (imgID) => {
 		return Promise.all([
-			deleteMapImageFile(__dirname + '/../../public/img/maps/' + imgID + '-small.jpg'),
-			deleteMapImageFile(__dirname + '/../../public/img/maps/' + imgID + '-medium.jpg'),
-			deleteMapImageFile(__dirname + '/../../public/img/maps/' + imgID + '-large.jpg')
+			deleteMapImageFile(`img/${imgID}-small.jpg`),
+			deleteMapImageFile(`img/${imgID}-medium.jpg`),
+			deleteMapImageFile(`img/${imgID}-large.jpg`)
 		]);
 	},
 

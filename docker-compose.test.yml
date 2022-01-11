@@ -12,6 +12,8 @@ services:
   api:
     platform: linux/x86_64
     restart: "no"
+    environment:
+      MOM_STORAGE_USE_LOCAL: "true"
     volumes:
       - ./scripts:/app/scripts
       - ./server:/app/server

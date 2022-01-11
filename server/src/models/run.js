@@ -10,7 +10,8 @@ const crypto = require('crypto'),
 	config = require('../../config/config'),
 	queryHelper = require('../helpers/query'),
 	ServerError = require('../helpers/server-error'),
-	fs = require('fs');
+	filestoreLocal = require('../helpers/filestore-local'),
+	filestoreCloud = require('../helpers/filestore-cloud');
 
 const checkBuf = (o) => {
 	let inRange = o.offset < o.buf.length;
@@ -282,23 +283,13 @@ const processRunFile = (resultObj) => {
 };
 
 const storeRunFile = (resultObj, runID) => {
-	return new Promise((res, rej) => {
-		const fileName = runID;
-		const basePath = __dirname + '/../../public/runs';
-		const fullPath = basePath + '/' + fileName;
-		const downloadURL = config.baseURL_API + `/api/maps/${resultObj.map.id}/runs/${runID}/download`;
+	const fileName = 'runs/' + runID;
+	if ( config.storage.useLocal )
+	{
+		return filestoreLocal.storeRunFileLocal( resultObj, fileName );
+	}
 
-		fs.writeFile(fullPath, resultObj.bin.buf, (err) => {
-			if (err)
-				rej(err);
-			res({
-				fileName: fileName,
-				basePath: basePath,
-				fullPath: fullPath,
-				downloadURL: downloadURL,
-			})
-		});
-	});
+	return filestoreCloud.storeFileCloud( resultObj.bin.buf, fileName );
 };
 
 const isNewPersonalBest = (resultObj, transact) => {
@@ -762,22 +753,14 @@ module.exports = {
 	},
 
 	deleteRunFile: (runID) => {
-		const runFilePath = __dirname + '/../../public/runs/' + runID;
-		return new Promise((resolve, reject) => {
-			fs.stat(runFilePath, err => {
-				if (err) {
-					if (err.code === 'ENOENT')
-						return resolve();
-					else
-						return reject(err);
-				}
-				fs.unlink(runFilePath, err => {
-					if (err)
-						return reject(err);
-					resolve();
-				});  
-			});
-		});
+		const fileName = 'runs/' + runID;
+		if ( config.storage.useLocal )
+		{
+			const runFilePath = __dirname + '/../../public/' + fileName;
+			return filestoreLocal.deleteLocalFile(runFilePath);
+		}
+
+		return filestoreCloud.deleteFileCloud( fileName );
 	},
 
 	delete: (runID) => {
