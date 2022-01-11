@@ -9,7 +9,6 @@ const {
 	activity = require('./activity'),
 	queryHelper = require('../helpers/query'),
 	mapImage = require('./map-image'),
-	run = require('./run'),
 	ServerError = require('../helpers/server-error'),
 	config = require('../../config/config'),
 	store_local = require('../helpers/filestore-local'),
@@ -435,7 +434,7 @@ module.exports = {
 			}).then(runs => {
 				const runFileDeletes = [];
 				for (const r of runs)
-					runFileDeletes.push(run.deleteRunFile(r.id));
+					runFileDeletes.push(run.deleteRunFile(r.id)); // TODO: FIX THIS FUCKING CIRCULAR DEPENDENCY!!!
 				return Promise.all(runFileDeletes);
 			}).then(() => {
 				return Map.destroy({
