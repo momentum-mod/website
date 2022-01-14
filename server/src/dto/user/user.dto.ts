@@ -1,10 +1,9 @@
 import { User } from '@prisma/client';
 import { appConfig } from 'config/config';
 import { ERole, EBan } from '../../enums/user.enum';
-import { ActivityDto } from './activity.dto';
 import { ProfileDto } from './profile.dto';
 
-export class UserDto {
+export class UserDto implements User{
 	id: number;
 	steamID: string;
 	alias: string;
@@ -35,39 +34,16 @@ export class UserDto {
 		return this._avatar;
 	}
 
-	constructor(
-		_id?: number,
-		_steamID?: string,
-		_alias?: string,
-		_aliasLocked?: boolean,
-		_avatar?: string,
-		_roles?: number,
-		_bans?: number,
-		_country?: string,
-		_createdAt?: Date,
-		_updatedAt?: Date
-	) {
-		this.id = _id;
-		this.steamID = _steamID;
-		this.alias = _alias;
-		this.aliasLocked = _aliasLocked
-		this.avatarURL = _avatar;
-		this.roles = _roles;
-		this.bans = _bans;
-		this.country = _country;
-		this.createdAt = _createdAt;
-		this.updatedAt = _updatedAt;
-	}
+	constructor(_user: User) {
+		if(_user == null) { return; }
 
-	convertUserToUserDto(
-		_user: User
-	) {
 		this.id = _user.id;
 		this.steamID = _user.steamID;
 		this.alias = _user.alias;
 		this.aliasLocked = _user.aliasLocked
 		this.avatarURL = _user.avatar;
 		this.roles = _user.roles;
+		this.bans = _user.bans;
 		this.country = _user.country;
 		this.createdAt = _user.createdAt;
 		this.updatedAt = _user.updatedAt;
@@ -78,18 +54,8 @@ export class UserProfileDto extends UserDto {
 
 	profile: ProfileDto;
 
-	constructor(_userDto: UserDto, _profile: ProfileDto) {
-		super();
-		this.id = _userDto.id;
-		this.steamID = _userDto.steamID;
-		this.alias = _userDto.alias;
-		this.aliasLocked = _userDto.aliasLocked
-		this.avatarURL = _userDto.avatarURL;
-		this.roles = _userDto.roles;
-		this.country = _userDto.country;
-		this.createdAt = _userDto.createdAt;
-		this.updatedAt = _userDto.updatedAt;
-
+	constructor(_user: User, _profile: ProfileDto) {
+		super(_user);
 		this.profile = _profile;
 	}
 }

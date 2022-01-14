@@ -1,18 +1,16 @@
 import { Controller, Get, Param, Query, UseGuards } from '@nestjs/common';
 import { ApiBearerAuth, ApiOperation, ApiQuery, ApiTags } from '@nestjs/swagger';
+import { Public } from '../auth/public.decorator';
+import { JwtAuthGuard } from '../auth/jwt/jwt-auth.guard';
+import { UsersService } from "../services/users.service";
 import {
-	Activity, 
 	Follow, 
-	MapCredit, 
-	Run
+	MapCredit
 } from '@prisma/client';
 import { UserDto, UserProfileDto } from "../dto/user/user.dto"
-import { ProfileDto } from "../dto/user/profile.dto"
 import { PagedResponseDto } from "../dto/common/api-response.dto";
-import { UsersService } from "../services/users.service";
-import { JwtAuthGuard } from 'src/auth/jwt/jwt-auth.guard';
-import { ActivityDto } from 'src/dto/user/activity.dto';
-import { Public } from 'src/auth/public.decorator';
+import { ActivityDto } from '../dto/user/activity.dto';
+import { UserRunDto } from '../dto/run/runs.dto';
 
 @ApiBearerAuth()
 @Controller("api/v1/users")
@@ -186,7 +184,7 @@ export class UsersController {
 		description: "Take this many records",
 		required: false
 	})
-	public async GetRuns(@Param('userID') userID: number, @Query('skip') skip?: number, @Query('take') take?: number): Promise<PagedResponseDto<Run[]>> {
+	public async GetRuns(@Param('userID') userID: number, @Query('skip') skip?: number, @Query('take') take?: number): Promise<PagedResponseDto<UserRunDto[]>> {
 		return this.usersService.GetRuns(userID, skip, take);
 	}
 }

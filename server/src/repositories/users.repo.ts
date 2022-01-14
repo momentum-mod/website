@@ -6,7 +6,8 @@ import {
     UserAuth,
     Activity,
     Profile,
-    Follow
+    Follow,
+    Run
 } from '@prisma/client';
 
 
@@ -236,5 +237,31 @@ export class UserRepo {
 
         return [followees, count];
     }
+    //#endregion
+
+    //#region Get Runs    
+	async GetRuns(
+        userID: number,
+        skip?: number,
+        take?: number
+    ): Promise<[Run[], number]> {
+        const where: Prisma.RunWhereInput = {};
+        where.playerID = +userID;
+
+        const count = await this.prisma.run.count({            
+            where: where
+        })
+        const runs = await this.prisma.run.findMany({ 
+            where: where,            
+            skip: skip,
+            take: take,
+            include: {
+                users: true,
+                mapranks: true
+            }
+        });
+
+        return [runs, count];
+	}
     //#endregion
 }

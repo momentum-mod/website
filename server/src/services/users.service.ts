@@ -2,11 +2,11 @@ import { HttpException, Injectable } from '@nestjs/common';
 import {
 	Follow as FollowDB, 
 	MapCredit as MapCreditDB, 
-	Run as RunDB,
 	User,
 	UserAuth,
 	Prisma,
-	Profile
+	Profile,
+	MapRank
 } from '@prisma/client';
 import { UserDto, UserProfileDto } from "../dto/user/user.dto"
 import { ProfileDto } from "../dto/user/profile.dto"
@@ -16,8 +16,10 @@ import { appConfig } from 'config/config';
 import { lastValueFrom, map } from 'rxjs';
 import * as xml2js from 'xml2js';
 import { HttpService } from '@nestjs/axios';
-import { ActivityDto } from 'src/dto/user/activity.dto';
-import { FollowerDto } from 'src/dto/user/followers.dto';
+import { ActivityDto } from '../dto/user/activity.dto';
+import { FollowerDto } from '../dto/user/followers.dto';
+import { MapRankDto } from '../dto/map/mapRank.dto';
+import { UserRunDto } from '../dto/run/runs.dto';
 
 @Injectable()
 export class UsersService {
@@ -34,8 +36,8 @@ export class UsersService {
 		const users = dbResponse[0];
 
 		const userDtos = users.map((user: User) => {
-			const userDto = new UserDto();
-			userDto.convertUserToUserDto(user);
+			const userDto = new UserDto(user);
+
 			return userDto;
 		});
 
@@ -48,16 +50,14 @@ export class UsersService {
 
 	public async Get(id: number): Promise<UserDto> {
 		const dbResponse = await this.userRepo.Get(id);
-		const userDto = new UserDto();
-		userDto.convertUserToUserDto(dbResponse);
+		const userDto = new UserDto(dbResponse);
 
 		return userDto;
 	}
 
 	public async GetBySteamID(id: string): Promise<UserDto> {
 		const dbResponse = await this.userRepo.GetBySteamID(id);
-		const userDto = new UserDto();
-		userDto.convertUserToUserDto(dbResponse);
+		const userDto = new UserDto(dbResponse);
 		
 		return userDto;
 	}
@@ -65,8 +65,7 @@ export class UsersService {
 	public async GetProfile(id: number): Promise<UserProfileDto> {
 		
 		const userProfileDb = await this.userRepo.GetUserProfile(id);
-		const userDto = new UserDto();
-		userDto.convertUserToUserDto(userProfileDb[0]);
+		const userDto = new UserDto(userProfileDb[0]);
 
 		// Create DTO from db objects
 		const userProfileDto = new UserProfileDto(
@@ -85,14 +84,11 @@ export class UsersService {
 		activitesAndCount[0].forEach((c) => {
 			const user: User = (c as any).users;
 			const profile: Profile = (c as any).users.profiles
-
-			const userDto = new UserDto();
-			userDto.convertUserToUserDto(user);
 	
 			// Create DTO from db objects
 			const userProfileDto = new UserProfileDto(
-				userDto, 
-				profile
+				user, 
+				new ProfileDto(profile)
 			);
 
 			activitesDto.push(new ActivityDto(c, userProfileDto));
@@ -116,25 +112,19 @@ export class UsersService {
 			const followeeUser: User = (c as any).users_follows_followeeIDTousers;
 			const followeeProfile: Profile = (c as any).users_follows_followeeIDTousers.profiles
 
-			const followeeUserDto = new UserDto();
-			followeeUserDto.convertUserToUserDto(followeeUser);
-	
 			// Create DTO from db objects
 			const followee = new UserProfileDto(
-				followeeUserDto, 
-				followeeProfile
+				followeeUser,
+				new ProfileDto(followeeProfile)
 			);
 
 			const followedUser: User = (c as any).users_follows_followedIDTousers;
 			const followedProfile: Profile = (c as any).users_follows_followedIDTousers.profiles
 
-			const followedUserDto = new UserDto();
-			followedUserDto.convertUserToUserDto(followedUser);
-	
 			// Create DTO from db objects
 			const followed = new UserProfileDto(
-				followedUserDto, 
-				followedProfile
+				followedUser,
+				new ProfileDto(followedProfile)
 			);
 
 
@@ -159,25 +149,19 @@ export class UsersService {
 			const followeeUser: User = (c as any).users_follows_followeeIDTousers;
 			const followeeProfile: Profile = (c as any).users_follows_followeeIDTousers.profiles
 
-			const followeeUserDto = new UserDto();
-			followeeUserDto.convertUserToUserDto(followeeUser);
-	
 			// Create DTO from db objects
 			const followee = new UserProfileDto(
-				followeeUserDto, 
-				followeeProfile
+				followeeUser,
+				new ProfileDto(followeeProfile)
 			);
 
 			const followedUser: User = (c as any).users_follows_followedIDTousers;
 			const followedProfile: Profile = (c as any).users_follows_followedIDTousers.profiles
 
-			const followedUserDto = new UserDto();
-			followedUserDto.convertUserToUserDto(followedUser);
-	
 			// Create DTO from db objects
 			const followed = new UserProfileDto(
-				followedUserDto, 
-				followedProfile
+				followedUser,
+				new ProfileDto(followedProfile)
 			);
 
 
@@ -207,18 +191,31 @@ export class UsersService {
 		}
 	}
 
-	public GetRuns(id: number, skip?: number, take?: number): PagedResponseDto<RunDB[]> {
-		const response: RunDB[] = [];
-		let totalCount = 0;
+	public async GetRuns(id: number, skip?: number, take?: number): Promise<PagedResponseDto<UserRunDto[]>> {
+		const runsAndCount = await this.userRepo.GetRuns(id, skip, take);
+		const runsDto: UserRunDto[] = [];
 
-		// temp
-		totalCount = 100;
+		runsAndCount[0].forEach((c) => {
+			const runUser: User = (c as any).users;
+			const runMapRank: MapRank = (c as any).mapRank;
 
-		return { 
-			totalCount: totalCount,
-			returnCount: response.length,
-			response: response
-		}
+			// Create DTO from db objects
+			const runUserDto = new UserDto(runUser);	
+			const runMapRankDto = new MapRankDto(runMapRank);			
+
+			const runDto = new UserRunDto(c, runUserDto, runMapRankDto)
+
+			runsDto.push(runDto);
+		})
+
+		
+		const response: PagedResponseDto<UserRunDto[]> = {
+			response: runsDto,
+			returnCount: runsDto.length,
+			totalCount: runsAndCount[1]
+		};
+
+		return response;
 	}
 
     async GetAuth(userID: number): Promise<UserAuth> {
@@ -309,35 +306,27 @@ export class UsersService {
 		if (steamID !== data.summaries.steamid)
 			return Promise.reject(new HttpException('User fetched is not the authenticated user!', 400));
 
-		const profile = new UserDto(
-			0,
-			steamID,
-			data.summaries.personaname,
-			false,
-			data.summaries.avatarfull,
-			0,
-			0,
-			data.summaries.locccountrycode,
-			null,
-			null
-		);
+		const profile = new UserDto(null);
+		profile.id = 0;
+		profile.steamID = steamID;
+		profile.alias = data.summaries.personaname;
+		profile.aliasLocked = false;
+		profile.avatarURL = data.summaries.avatarfull;
+		profile.roles = 0;
+		profile.bans = 0;
+		profile.country = data.summaries.locccountrycode;
+		profile.createdAt = null;
+		profile.updatedAt = null;
+
 		return profile;		
 	}
 
 	private async ExtractPartialUserProfileFromSteamID(steamID: string): Promise<UserDto> {
 		const partialProfile = await this.GetSteamProfileFromSteamID(steamID);
 
-		const profile = new UserDto(
-			0,
-			steamID,
-			null,
-			false,
-			null,
-			null,
-			null,
-			null,
-			null
-		);
+		const profile = new UserDto(null);
+		profile.steamID = steamID;
+		
 		return profile;	
 	}
 
