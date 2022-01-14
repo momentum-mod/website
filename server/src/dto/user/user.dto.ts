@@ -1,4 +1,4 @@
-import { User} from '@prisma/client';
+import { User } from '@prisma/client';
 import { appConfig } from 'config/config';
 import { ERole, EBan } from '../../enums/user.enum';
 import { ActivityDto } from './activity.dto';
