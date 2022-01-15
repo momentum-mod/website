@@ -1,7 +1,6 @@
 import { User } from '@prisma/client';
 import { appConfig } from 'config/config';
 import { ERole, EBan } from '../../enums/user.enum';
-import { ProfileDto } from './profile.dto';
 
 export class UserDto implements User{
 	id: number;
@@ -50,12 +49,3 @@ export class UserDto implements User{
 	}
 }
 
-export class UserProfileDto extends UserDto {
-
-	profile: ProfileDto;
-
-	constructor(_user: User, _profile: ProfileDto) {
-		super(_user);
-		this.profile = _profile;
-	}
-}

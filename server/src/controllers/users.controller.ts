@@ -4,13 +4,14 @@ import { Public } from '../auth/public.decorator';
 import { JwtAuthGuard } from '../auth/jwt/jwt-auth.guard';
 import { UsersService } from "../services/users.service";
 import {
-	Follow, 
-	MapCredit
+	Follow
 } from '@prisma/client';
-import { UserDto, UserProfileDto } from "../dto/user/user.dto"
+import { UserDto } from "../dto/user/user.dto";
+import { UserProfileDto } from "../dto/user/profile.dto";
 import { PagedResponseDto } from "../dto/common/api-response.dto";
 import { ActivityDto } from '../dto/user/activity.dto';
 import { UserRunDto } from '../dto/run/runs.dto';
+import { UserMapCreditDto } from 'src/dto/map/mapCredit.dto';
 
 @ApiBearerAuth()
 @Controller("api/v1/users")
@@ -39,7 +40,6 @@ export class UsersController {
 		return this.usersService.GetAll(skip, take);
 	}
 
-	@Public()
 	@Get(":userID")	
 	@ApiOperation({ summary: "Returns single user" })
 	@ApiQuery({
@@ -52,7 +52,6 @@ export class UsersController {
 		return this.usersService.Get(userID);
 	}
 
-	@Public()
 	@Get(":userID/profile")
 	@ApiOperation({ summary: "Returns single user's profile" })
 	@ApiQuery({
@@ -65,7 +64,6 @@ export class UsersController {
 		return this.usersService.GetProfile(userID);
 	}
 
-	@Public()
 	@Get(":userID/activities")	
 	@ApiOperation({ summary: "Returns all of a single user's activities" })
 	@ApiQuery({
@@ -90,7 +88,6 @@ export class UsersController {
 		return this.usersService.GetActivities(userID, skip, take);
 	}
 
-	@Public()
 	@Get(":userID/followers")
 	@ApiOperation({ summary: "Returns all of a single user's followers" })
 	@ApiQuery({
@@ -115,7 +112,6 @@ export class UsersController {
 		return this.usersService.GetFollowers(userID, skip, take);
 	}
 
-	@Public()
 	@Get(":userID/follows")
 	@ApiOperation({ summary: "Returns all of a single user's followed objects" })
 	@ApiQuery({
@@ -160,8 +156,8 @@ export class UsersController {
 		description: "Take this many records",
 		required: false
 	})
-	public async GetCredits(@Param('userID') userID: number, @Query('skip') skip?: number, @Query('take') take?: number): Promise<PagedResponseDto<MapCredit[]>> {
-		return this.usersService.GetCredits(userID, skip, take);
+	public async GetMapCredits(@Param('userID') userID: number, @Query('skip') skip?: number, @Query('take') take?: number): Promise<PagedResponseDto<UserMapCreditDto[]>> {
+		return this.usersService.GetMapCredits(userID, skip, take);
 	}
 
 	@Get(":userID/runs")

@@ -7,6 +7,7 @@ import {
     Activity,
     Profile,
     Follow,
+    MapCredit,
     Run
 } from '@prisma/client';
 
@@ -97,7 +98,6 @@ export class UserRepo {
     }
     //#endregion
 
-    
     //#region Profile
     /**
          * @summary Gets single users profile from database
@@ -164,7 +164,6 @@ export class UserRepo {
     }
     //#endregion
 
-    
     //#region Followers
     async GetFollowers(
         userID: number,
@@ -239,7 +238,42 @@ export class UserRepo {
     }
     //#endregion
 
-    //#region Get Runs    
+    //#region Credits
+    async GetMapCredits(
+        userID: number,
+        skip?: number,
+        take?: number        
+    ): Promise<[MapCredit[], number]> {
+        const where: Prisma.MapCreditWhereInput = {};
+        where.userID = +userID;
+
+        const count = await this.prisma.mapCredit.count({            
+            where: where
+        })
+        const mapCredit = await this.prisma.mapCredit.findMany({ 
+            where: where,            
+            skip: skip,
+            take: take,
+            include: {
+                users: {
+                    include: {
+                        profiles: true
+                    }
+                },
+                maps: {
+                    include: {
+                        users: true,
+                        mapimages: true
+                    }
+                }
+            }
+        });
+
+        return [mapCredit, count];
+    }
+    //#endregion
+
+    //#region Runs    
 	async GetRuns(
         userID: number,
         skip?: number,

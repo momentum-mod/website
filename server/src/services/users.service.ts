@@ -1,15 +1,15 @@
 import { HttpException, Injectable } from '@nestjs/common';  
 import {
 	Follow as FollowDB, 
-	MapCredit as MapCreditDB, 
 	User,
 	UserAuth,
 	Prisma,
 	Profile,
-	MapRank
+	MapRank,
+	Map as MapDB
 } from '@prisma/client';
-import { UserDto, UserProfileDto } from "../dto/user/user.dto"
-import { ProfileDto } from "../dto/user/profile.dto"
+import { UserDto } from "../dto/user/user.dto"
+import { ProfileDto, UserProfileDto } from "../dto/user/profile.dto"
 import { PagedResponseDto } from "../dto/common/api-response.dto";
 import { UserRepo as UserRepo } from "../repositories/users.repo";
 import { appConfig } from 'config/config';
@@ -20,6 +20,7 @@ import { ActivityDto } from '../dto/user/activity.dto';
 import { FollowerDto } from '../dto/user/followers.dto';
 import { MapRankDto } from '../dto/map/mapRank.dto';
 import { UserRunDto } from '../dto/run/runs.dto';
+import { UserMapCreditDto } from '../dto/map/mapCredit.dto';
 
 @Injectable()
 export class UsersService {
@@ -177,18 +178,28 @@ export class UsersService {
 		return response;
 	}
 
-	public GetCredits(id: number, skip?: number, take?: number): PagedResponseDto<MapCreditDB[]> {
-		const response: MapCreditDB[] = [];
-		let totalCount = 0;
+	public async GetMapCredits(id: number, skip?: number, take?: number): Promise<PagedResponseDto<UserMapCreditDto[]>> {
 
-		// temp
-		totalCount = 100;
+		const mapCreditsAndCount = await this.userRepo.GetMapCredits(id, skip, take);
+		const mapCreditsDto: UserMapCreditDto[] = [];
 
-		return { 
-			totalCount: totalCount,
-			returnCount: response.length,
-			response: response
-		}
+		mapCreditsAndCount[0].forEach((c) => {
+			const user: User = (c as any).users;
+			const map: MapDB = (c as any).maps;
+			
+			const mapCreditDto = new UserMapCreditDto(c, user, map)
+
+			mapCreditsDto.push(mapCreditDto);
+		})
+
+		
+		const response: PagedResponseDto<UserMapCreditDto[]> = {
+			response: mapCreditsDto,
+			returnCount: mapCreditsDto.length,
+			totalCount: mapCreditsAndCount[1]
+		};
+
+		return response;
 	}
 
 	public async GetRuns(id: number, skip?: number, take?: number): Promise<PagedResponseDto<UserRunDto[]>> {

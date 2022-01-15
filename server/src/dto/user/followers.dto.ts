@@ -1,5 +1,5 @@
 import { Follow } from "@prisma/client";
-import { UserProfileDto } from "./user.dto";
+import { UserProfileDto } from "./profile.dto";
 
 export class FollowerDto {
     notifyOn: number;

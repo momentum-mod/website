@@ -1,6 +1,6 @@
 import { UserDto } from '../user/user.dto';
 import { MapRankDto } from '../map/mapRank.dto';
-import { Run } from '@prisma/client';
+import { MapRank, Run, User } from '@prisma/client';
 
 export class RunDto {
     id: number;
@@ -42,9 +42,9 @@ export class UserRunDto extends RunDto {
     user: UserDto;     
     rank: MapRankDto;
 
-	constructor(_run: Run, _userDto: UserDto, _rank: MapRankDto) {
+	constructor(_run: Run, _user: User, _rank: MapRank) {
 		super(_run);
-		this.user = _userDto;
-		this.rank = _rank;
+		this.user = new UserDto(_user);
+		this.rank = new MapRankDto(_rank);
 	}
 }
