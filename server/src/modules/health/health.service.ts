@@ -8,7 +8,8 @@ import {
 } from '@nestjs/terminus';
 import { PrometheusService } from '../prometheus/prometheus.service';
 import { HealthIndicator } from '../../@common/health/interface/health-indicator.interface';
-import { NestjsHealthIndicator } from '../../@common/health/indicators/nestjs-health.indicator';
+import { ApiHealthIndicator } from '../../@common/health/indicators/api-health.indicator';
+import { appConfig } from 'config/config';
 
 @Injectable()
 export class HealthService {
@@ -16,13 +17,20 @@ export class HealthService {
 
   constructor(
     private health: HealthCheckService,
-    private http: HttpHealthIndicator,
+    private httpIndicator: HttpHealthIndicator,
     private promClientService: PrometheusService
   ) {
     this.listOfThingsToMonitor = [
-      new NestjsHealthIndicator(
-        this.http,
-        'https://docs.nestjs.com',
+      new ApiHealthIndicator(
+        "Api",
+        this.httpIndicator,
+        appConfig.baseURL_API + "/api/v1/users", // needs to be a endpoint that is always avaliable and public
+        this.promClientService
+      ),
+      new ApiHealthIndicator(
+        "Auth",
+        this.httpIndicator,
+        appConfig.baseURL_API + "/auth", // needs to be a endpoint that is always avaliable and public
         this.promClientService
       ),
     ];

@@ -4,17 +4,25 @@ import { PrometheusService } from '../../../modules/prometheus/prometheus.servic
 import { HealthIndicator } from '../interface/health-indicator.interface';
 import { BaseHealthIndicator } from './base-health.indicator';
 
-export class NestjsHealthIndicator
+export class ApiHealthIndicator
   extends BaseHealthIndicator
   implements HealthIndicator {
-  public readonly name = 'NestJS';
+  public readonly name;
   protected readonly help = 'Status of ' + this.name;
   protected readonly promClientService: PrometheusService | undefined;
 
   private readonly url: string;
   private readonly httpHealthIndicator: HttpHealthIndicator;
 
+  
+  /**
+  * @param name Name of indicator, cannot include whitespace
+  * @param httpHealthIndicator 
+  * @param url Url of api you're checking health of
+  * @param promClientService 
+  */
   constructor(
+    name: string,
     httpHealthIndicator: HttpHealthIndicator,
     url: string | undefined,
     promClientService?: PrometheusService
@@ -22,8 +30,9 @@ export class NestjsHealthIndicator
     super();
     this.httpHealthIndicator = httpHealthIndicator;
     this.promClientService = promClientService;
+    this.name = name || 'Api';
     this.url = url || '';
-    // this.registerMetrics();
+    this.registerMetrics();
     this.registerGauges();
   }
 
