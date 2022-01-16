@@ -2,16 +2,14 @@ import { Controller, Get, Param, Query, UseGuards } from '@nestjs/common';
 import { ApiBearerAuth, ApiOperation, ApiQuery, ApiTags } from '@nestjs/swagger';
 import { Public } from '../auth/public.decorator';
 import { JwtAuthGuard } from '../auth/jwt/jwt-auth.guard';
-import { UsersService } from "../services/users.service";
-import {
-	Follow
-} from '@prisma/client';
-import { UserDto } from "../dto/user/user.dto";
-import { UserProfileDto } from "../dto/user/profile.dto";
-import { PagedResponseDto } from "../dto/common/api-response.dto";
-import { ActivityDto } from '../dto/user/activity.dto';
-import { UserRunDto } from '../dto/run/runs.dto';
-import { UserMapCreditDto } from 'src/dto/map/mapCredit.dto';
+import { UsersService } from "./users.service";
+import { UserDto } from "../../@common/dto/user/user.dto";
+import { UserProfileDto } from "../../@common/dto/user/profile.dto";
+import { PagedResponseDto } from "../../@common/dto/common/api-response.dto";
+import { ActivityDto } from '../../@common/dto/user/activity.dto';
+import { UserRunDto } from '../../@common/dto/run/runs.dto';
+import { UserMapCreditDto } from '../../@common/dto/map/mapCredit.dto';
+import { FollowerDto } from '../../@common/dto/user/followers.dto';
 
 @ApiBearerAuth()
 @Controller("api/v1/users")
@@ -108,7 +106,7 @@ export class UsersController {
 		description: "Take this many records",
 		required: false
 	})
-	public async GetFollowers(@Param('userID') userID: number, @Query('skip') skip?: number, @Query('take') take?: number): Promise<PagedResponseDto<Follow[]>> {
+	public async GetFollowers(@Param('userID') userID: number, @Query('skip') skip?: number, @Query('take') take?: number): Promise<PagedResponseDto<FollowerDto[]>> {
 		return this.usersService.GetFollowers(userID, skip, take);
 	}
 
@@ -132,7 +130,7 @@ export class UsersController {
 		description: "Take this many records",
 		required: false
 	})
-	public async GetFollowed(@Param('userID') userID: number, @Query('skip') skip?: number, @Query('take') take?: number): Promise<PagedResponseDto<Follow[]>> {
+	public async GetFollowed(@Param('userID') userID: number, @Query('skip') skip?: number, @Query('take') take?: number): Promise<PagedResponseDto<FollowerDto[]>> {
 		return this.usersService.GetFollowing(userID, skip, take);
 	}
 

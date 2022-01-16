@@ -4,7 +4,7 @@ import { User } from "@prisma/client";
 import { appConfig } from "config/config";
 import { lastValueFrom, map } from "rxjs";
 import * as AppTicket from "steam-appticket";
-import { UsersService } from "src/services/users.service";
+import { UsersService } from "src/modules/users/users.service";
 
 @Injectable()
 export class SteamAuthService {

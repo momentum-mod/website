@@ -1,10 +1,9 @@
 import { Injectable, UnauthorizedException } from '@nestjs/common';
-import { HttpService } from '@nestjs/axios';
 import { JwtService } from '@nestjs/jwt';
 import { User } from '@prisma/client';
-import { UsersService } from '../services/users.service';
-import { appConfig } from '../../config/config';
-import { JWTResponseDto } from '../dto/common/api-response.dto';
+import { UsersService } from '../users/users.service';
+import { appConfig } from '../../../config/config';
+import { JWTResponseDto } from '../../@common/dto/common/api-response.dto';
 
 @Injectable()
 export class AuthService {

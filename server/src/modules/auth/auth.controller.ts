@@ -4,7 +4,7 @@ import { ApiOperation, ApiTags } from '@nestjs/swagger';
 import * as passport from 'passport';
 import { Public } from './public.decorator';
 import { AuthService } from './auth.service';
-import { JWTResponseDto } from '../dto/common/api-response.dto';
+import { JWTResponseDto } from '../../@common/dto/common/api-response.dto';
 import { SteamWebAuthGuard } from './steam/steam-web-auth.guard';
 import { User } from '@prisma/client';
 import { SteamAuthService } from './steam/steam-auth.service';

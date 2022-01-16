@@ -1,8 +1,8 @@
 import { Controller, Get, Param, Query, UseGuards } from '@nestjs/common';
 import { ApiBearerAuth, ApiOperation, ApiQuery, ApiTags } from '@nestjs/swagger';
 import { Map } from '@prisma/client';
-import { PagedResponseDto } from "../dto/common/api-response.dto";
-import { MapsService } from "../services/maps.service";
+import { PagedResponseDto } from "../../@common/dto/common/api-response.dto";
+import { MapsService } from "./maps.service";
 import { JwtAuthGuard } from '../auth/jwt/jwt-auth.guard';
 
 @ApiBearerAuth()

@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { PrismaRepo } from './prisma.repo';
+import { PrismaRepo } from '../prisma/prisma.repo';
 import {
     Map,
     Prisma

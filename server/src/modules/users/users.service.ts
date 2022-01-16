@@ -1,6 +1,5 @@
 import { HttpException, Injectable } from '@nestjs/common';  
 import {
-	Follow as FollowDB, 
 	User,
 	UserAuth,
 	Prisma,
@@ -8,24 +7,24 @@ import {
 	MapRank,
 	Map as MapDB
 } from '@prisma/client';
-import { UserDto } from "../dto/user/user.dto"
-import { ProfileDto, UserProfileDto } from "../dto/user/profile.dto"
-import { PagedResponseDto } from "../dto/common/api-response.dto";
-import { UserRepo as UserRepo } from "../repositories/users.repo";
+import { UserDto } from "../../@common/dto/user/user.dto"
+import { ProfileDto, UserProfileDto } from "../../@common/dto/user/profile.dto"
+import { PagedResponseDto } from "../../@common/dto/common/api-response.dto";
+import { UsersRepo } from "./users.repo";
 import { appConfig } from 'config/config';
 import { lastValueFrom, map } from 'rxjs';
 import * as xml2js from 'xml2js';
 import { HttpService } from '@nestjs/axios';
-import { ActivityDto } from '../dto/user/activity.dto';
-import { FollowerDto } from '../dto/user/followers.dto';
-import { MapRankDto } from '../dto/map/mapRank.dto';
-import { UserRunDto } from '../dto/run/runs.dto';
-import { UserMapCreditDto } from '../dto/map/mapCredit.dto';
+import { ActivityDto } from '../../@common/dto/user/activity.dto';
+import { FollowerDto } from '../../@common/dto/user/followers.dto';
+import { MapRankDto } from '../../@common/dto/map/mapRank.dto';
+import { UserRunDto } from '../../@common/dto/run/runs.dto';
+import { UserMapCreditDto } from '../../@common/dto/map/mapCredit.dto';
 
 @Injectable()
 export class UsersService {
 	constructor(
-		private readonly userRepo: UserRepo,
+		private readonly userRepo: UsersRepo,
 		private readonly http: HttpService,
 	){}
 
@@ -141,7 +140,7 @@ export class UsersService {
 		return response;
 	}
 
-	public async GetFollowing(id: number, skip?: number, take?: number): Promise<PagedResponseDto<FollowDB[]>> {
+	public async GetFollowing(id: number, skip?: number, take?: number): Promise<PagedResponseDto<FollowerDto[]>> {
 		const followersAndCount = await this.userRepo.GetFollowing(id, skip, take);
 
 		const followersDto = []
@@ -333,7 +332,7 @@ export class UsersService {
 	}
 
 	private async ExtractPartialUserProfileFromSteamID(steamID: string): Promise<UserDto> {
-		const partialProfile = await this.GetSteamProfileFromSteamID(steamID);
+		await this.GetSteamProfileFromSteamID(steamID);
 
 		const profile = new UserDto(null);
 		profile.steamID = steamID;

@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { PrismaRepo } from './prisma.repo';
+import { PrismaRepo } from '../prisma/prisma.repo';
 import {
     User,
     Prisma,
@@ -13,7 +13,7 @@ import {
 
 
 @Injectable()
-export class UserRepo {
+export class UsersRepo {
     constructor(private prisma: PrismaRepo) {}
 
     //#region Main User functions
@@ -39,14 +39,12 @@ export class UserRepo {
         take?: number
     ): Promise<[User[], number]> {
         const count = await this.prisma.user.count({
-            where: where,
-            skip: skip,
-            take: take
+            where: where
         })
         const users = await this.prisma.user.findMany({                    
             where: where,
-            skip: skip,
-            take: take
+            skip: skip != null ? +skip : undefined,
+            take: take != null ? +take : undefined
         })
         return [users, count]            
     }
@@ -149,8 +147,8 @@ export class UserRepo {
         })
         const activities = await this.prisma.activity.findMany({ 
             where: where,            
-            skip: skip,
-            take: take,
+            skip: skip != null ? +skip : undefined,
+            take: take != null ? +take: undefined,
             include: {
                 users: {
                     include: {
@@ -182,8 +180,8 @@ export class UserRepo {
         })
         const followers = await this.prisma.follow.findMany({ 
             where: where,            
-            skip: skip,
-            take: take,
+            skip: skip != null ? +skip : undefined,
+            take: take != null ? +take: undefined,
             include: {
                 users_follows_followeeIDTousers: {
                     include: {
@@ -218,8 +216,8 @@ export class UserRepo {
         })
         const followees = await this.prisma.follow.findMany({ 
             where: where,            
-            skip: skip,
-            take: take,
+            skip: skip != null ? +skip : undefined,
+            take: take != null ? +take: undefined,
             include: {
                 users_follows_followeeIDTousers: {
                     include: {
@@ -252,8 +250,8 @@ export class UserRepo {
         })
         const mapCredit = await this.prisma.mapCredit.findMany({ 
             where: where,            
-            skip: skip,
-            take: take,
+            skip: skip ?? +skip,
+            take: take ?? +take,
             include: {
                 users: {
                     include: {
@@ -287,8 +285,8 @@ export class UserRepo {
         })
         const runs = await this.prisma.run.findMany({ 
             where: where,            
-            skip: skip,
-            take: take,
+            skip: skip != null ? +skip : undefined,
+            take: take != null ? +take: undefined,
             include: {
                 users: true,
                 mapranks: true

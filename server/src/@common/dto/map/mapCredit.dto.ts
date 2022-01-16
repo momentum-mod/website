@@ -1,6 +1,6 @@
 import { MapCredit, User, Map } from "@prisma/client";
 import { UserDto } from "../user/user.dto";
-import { MapDto } from "../map/map.dto";
+import { MapDto } from "./map.dto";
 
 export class MapCreditDto implements MapCredit {
     id: bigint;

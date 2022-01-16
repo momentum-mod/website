@@ -7,10 +7,11 @@ import { PassportModule } from '@nestjs/passport';
 import { JwtStrategy } from './jwt/jwt.strategy';
 import { appConfig } from 'config/config';
 import { JwtModule } from '@nestjs/jwt';
-import { ServiceModule } from '../services/sevices.module';
 import { HttpModule } from '@nestjs/axios';
 import { SteamWebStrategy } from './steam/steam-web.strategy';
 import { SteamAuthService } from './steam/steam-auth.service';
+import { AuthController } from './auth.controller';
+import { UsersModule } from '../users/users.module';
 
 @Module({
   imports: [
@@ -23,8 +24,11 @@ import { SteamAuthService } from './steam/steam-auth.service';
           expiresIn: appConfig.accessToken.expTime,
         },
     }),
-    ServiceModule,
+    UsersModule,
     HttpModule
+  ],
+  controllers: [
+    AuthController
   ],
   providers: [    
     AuthService,
