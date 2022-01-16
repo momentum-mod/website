@@ -5,12 +5,16 @@ import { JsonBodyMiddleware } from './middlewares/json-body.middleware';
 import { RawBodyMiddleware } from './middlewares/raw-body.middleware';
 import { MapsModule } from './modules/maps/maps.module';
 import { UsersModule } from './modules/users/users.module';
+import { HealthModule } from './modules/health/health.module'
+import { MetricsModule } from './modules/metrics/metrics.module';
 
 @Module({
   imports: [ 
     UsersModule,
     MapsModule,
-    AuthModule
+    AuthModule,
+    HealthModule,
+    MetricsModule
   ],
 })
 
