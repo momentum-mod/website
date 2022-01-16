@@ -83,11 +83,11 @@ export class SteamAuthService {
     async verifyUserTicketLocalLibrary(userTicketRaw: any, steamIDToVerify: string) {
         let decrypted;
         if(appConfig.steam.useEncryptedTickets){         
-            console.log('Using non encrypted tickets');
-            decrypted = AppTicket.parseAppTicket(userTicketRaw);
-        } else {
             console.log('Using encrypted tickets');
             decrypted = AppTicket.parseEncryptedAppTicket(userTicketRaw, appConfig.steam.ticketsSecretKey);
+        } else {
+            console.log('Using non encrypted tickets');
+            decrypted = AppTicket.parseAppTicket(userTicketRaw);
         }
 
         if ( !decrypted ) { 
