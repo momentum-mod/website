@@ -2,9 +2,40 @@ version: '3.8'
 
 services:
   db:
+    container_name: MySQLInstance
     image: mysql:8
+    restart: unless-stopped
+    ports:
+      - ${MYSQL_PORT}:3306
+    expose:
+      - ${MYSQL_PORT}
 
   api:
-    restart: always
+    container_name: MMod_Api
+    restart: unless-stopped
     ports:
       - ${NODE_PORT}:3002
+
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: Prometheus_Api
+    restart: unless-stopped
+    volumes:
+      - ./prometheus.yml:/etc/prometheus/prometheus.yml
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+    ports:
+      - '9090:9090'
+
+  grafana:
+    image: grafana/grafana:latest
+    container_name: Monitoring_Grafana
+    restart: unless-stopped
+    links:
+      - prometheus:prometheus
+    volumes:
+      - ./data/grafana:/var/lib/grafana
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=${GRAFANA_ADMIN_PASSWORD}
+    ports:
+      - '${GRAFANA_PORT}:3000'
