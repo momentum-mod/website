@@ -4,7 +4,7 @@ services:
   db:
     platform: linux/x86_64
     volumes:
-      - ./mysql:/var/lib/mysql
+      - /var/lib/mysql
     environment:
       MYSQL_DATABASE: 'momentum'
       MYSQL_USER: 'mom'
@@ -19,6 +19,15 @@ services:
       - ./scripts:/app/scripts
       - ./server:/app/server
       - /app/server/node_modules/
+    ports:
+      - ${NODE_PORT}:${NODE_PORT}
+      - 9229:9229
     build:
       context: ./server
       dockerfile: dev.Dockerfile
+    entrypoint: sh -c "/wait && npm run start:migrate:debug"
+    environment:
+      - WAIT_HOSTS=MySQLInstance:3306
+      - WAIT_HOSTS_TIMEOUT=300
+      - WAIT_SLEEP_INTERVAL=30
+      - WAIT_HOST_CONNECT_TIMEOUT=30

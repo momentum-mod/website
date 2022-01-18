@@ -17,7 +17,8 @@
     "test:cov": "jest --coverage",
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
     "test:e2e": "jest --config ./test/jest-e2e.json",
-    "start:docker": "nest start --path /src/main.js"
+    "start:migrate:debug": "prisma migrate dev --name init && npm run start:debug",
+    "start:migrate:prod": "prisma migrate dev --name init && npm run start:prod"
   },
   "dependencies": {
     "@nestjs/axios": "0.0.3",

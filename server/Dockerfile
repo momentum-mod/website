@@ -20,6 +20,12 @@ FROM node:14
 COPY --from=builder /app/node_modules ./node_modules
 COPY --from=builder /app/package*.json ./
 COPY --from=builder /app/dist ./dist
+COPY --from=builder /app/prisma ./prisma
+
+# Add docker-compose-wait tool -------------------
+ENV WAIT_VERSION 2.7.2
+ADD https://github.com/ufoscout/docker-compose-wait/releases/download/$WAIT_VERSION/wait /wait
+RUN chmod +x /wait
 
 EXPOSE 3000
-CMD [ "npm", "run", "start:prod" ]
+CMD [ "npm", "run", "start:migrate:prod" ]
