@@ -17,8 +17,8 @@
     "test:cov": "jest --coverage",
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
     "test:e2e": "jest --config ./test/jest-e2e.json",
-    "start:migrate:debug": "prisma migrate dev --name init && npm run start:debug",
-    "start:migrate:prod": "prisma migrate dev --name init && npm run start:prod"
+    "start:migrate:debug": "prisma migrate dev --name init && prisma db seed && npm run start:debug",
+    "start:migrate:prod": "prisma migrate dev --name production_deploy && npm run start:prod"
   },
   "prisma": {
     "seed": "ts-node prisma/seed.ts"

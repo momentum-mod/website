@@ -1,5 +1,5 @@
 import { PrismaClient } from "@prisma/client";
-import faker from "faker";
+import * as faker from "faker";
 import { EReportCategory, EReportType } from '../src/@common/enums/report.enum';
 import { EMapStatus, EMapType, EMapCreditType } from '../src/@common/enums/map.enum';
 import { ERole } from "../src/@common/enums/user.enum";
@@ -25,18 +25,31 @@ const existingUserIDs = [],
 existingMapIDs = [];
 
 async function main() {
+    console.log("Clearing tables");
     await ClearTables();    
 
+    console.log("manyUsersJoin");
     await manyUsersJoin();
+    console.log("updateExistingUserIDsArray");
     await updateExistingUserIDsArray();
+    console.log("makeRandomUsersAMapper");
     await makeRandomUsersAMapper();
+    console.log("mappersUploadMaps");
     await mappersUploadMaps(); // TODO: Replace with actual map data and files?
+    console.log("updateExistingMapIDsArray");
     await updateExistingMapIDsArray();
+    console.log("usersFollowOtherUsers");
     await usersFollowOtherUsers();
+    console.log("usersPlayMaps");
     await usersPlayMaps();
+    console.log("usersFavoriteMaps");
     await usersFavoriteMaps();
+    console.log("usersReviewMaps");
     await usersReviewMaps();
+    console.log("reportsAreMade");
     await reportsAreMade();
+
+    console.log("done!");
 }
 
 async function ClearTables() {
@@ -87,15 +100,32 @@ function randomFloatFromInterval(min: number, max: number, decimalPlaces: number
 }
 
 function randomCreatedUpdatedDate(startDate?: Date) {  
-    if(!startDate) { startDate = new Date() }
-    
-    const createdAtDate = faker.date.past(startDate);
-    const updatedAtDate = faker.date.future(createdAtDate);
+    const createdAtDate = faker.date.past(startDate ?? null);
+    const updatedAtDate = faker.date.between(createdAtDate, new Date());
+
     return {
         createdAtDate: createdAtDate,
         updatedAtDate: updatedAtDate
     }
+}
+function randomEnumIntValue(enumeration, retryCatch?: number): number{
+    if(retryCatch === null) { retryCatch = 0 }
+    if(retryCatch >= 10) {throw new Error("Stack Overflow Save: Are you sure this Enum has number values?")}
+    const values = Object.keys(enumeration);
+    const enumKey = values[Math.floor(Math.random() * values.length)];
+    const result = enumeration[enumKey];
+    if(typeof(result) != "number") { return randomEnumIntValue(enumeration, retryCatch++); }
+    return result;
+}
 
+function randomEnumStringValue(enumeration, retryCatch?: number): string{
+    if(retryCatch === null) { retryCatch = 0 }
+    if(retryCatch >= 10) {throw new Error("Stack Overflow Save: Are you sure this Enum has string values?")}
+    const values = Object.keys(enumeration);
+    const enumKey = values[Math.floor(Math.random() * values.length)];
+    const result = enumeration[enumKey];
+    if(typeof(result) != "number") { return randomEnumStringValue(enumeration, retryCatch++); }
+    return result.toString();
 }
 
 async function createRandomUser() {
@@ -105,7 +135,7 @@ async function createRandomUser() {
         data: {
             steamID: randomIntFromInterval(10000000000000000, 99999999999999999).toString(),
             alias: faker.name.findName(),
-            aliasLocked: faker.random.boolean(),
+            aliasLocked: faker.datatype.boolean(),
             avatar: '0d/0d0f330f84ceea21f04c65bd4c1efbff6172c519_full.jpg', // Currently can't use random user image from faker.js
             roles: randomIntFromInterval(0, 64),
             bans: randomIntFromInterval(0, 64),
@@ -135,12 +165,12 @@ async function createRandomUserStats(userID) {
     return await prisma.userStat.create({
         data: {
             userID: userID,
-            totalJumps: faker.random.number(),
-            totalStrafes: faker.random.number(),
+            totalJumps: faker.datatype.number(),
+            totalStrafes: faker.datatype.number(),
             level: randomIntFromInterval(0, 1000),
-            cosXP: faker.random.number(),
-            mapsCompleted: faker.random.number(),
-            runsSubmitted: faker.random.number(),
+            cosXP: faker.datatype.number(),
+            mapsCompleted: faker.datatype.number(),
+            runsSubmitted: faker.datatype.number(),
             createdAt: dates.createdAtDate,
             updatedAt: dates.updatedAtDate,
         }
@@ -153,8 +183,8 @@ async function createRandomMap(submitterID) {
     return await prisma.map.create({
         data: {
             name: faker.lorem.word(),
-            type: faker.random.arrayElement(Object.values(EMapType)),
-            statusFlag: faker.random.arrayElement(Object.values(EMapStatus)),
+            type: randomEnumIntValue(EMapType),
+            statusFlag: randomEnumIntValue(EMapStatus),
             downloadURL: faker.image.cats(),
             hash: faker.random.alphaNumeric(),
             submitterID: submitterID,
@@ -199,7 +229,7 @@ async function createRandomMapCredit(mapID, userID) {
 
     return await prisma.mapCredit.create({
         data: {
-            type: faker.random.arrayElement(Object.values(EMapCreditType)),
+            type: randomEnumIntValue(EMapCreditType),
             mapID: mapID,
             userID: userID,
             createdAt: dates.createdAtDate,
@@ -213,8 +243,8 @@ async function createRandomBaseStats() {
 
     return await prisma.baseStat.create({
         data:{
-            jumps: faker.random.number(),
-            strafes: faker.random.number(),
+            jumps: faker.datatype.number(),
+            strafes: faker.datatype.number(),
             avgStrafeSync: randomFloatFromInterval(1, 120, 4),
             avgStrafeSync2: randomFloatFromInterval(1, 120, 4),
             enterTime: randomFloatFromInterval(1, 5, 4),
@@ -240,14 +270,14 @@ async function createRandomMapStats(mapID, baseStatsID) {
         data: {
             mapID: mapID,
             baseStatsID: baseStatsID,
-            totalReviews: faker.random.number(),
-            totalDownloads: faker.random.number(),
-            totalSubscriptions: faker.random.number(),
-            totalPlays: faker.random.number(),
-            totalFavorites: faker.random.number(),
-            totalCompletions: faker.random.number(),
-            totalUniqueCompletions: faker.random.number(),
-            totalTimePlayed: faker.random.number(),
+            totalReviews: faker.datatype.number(),
+            totalDownloads: faker.datatype.number(),
+            totalSubscriptions: faker.datatype.number(),
+            totalPlays: faker.datatype.number(),
+            totalFavorites: faker.datatype.number(),
+            totalCompletions: faker.datatype.number(),
+            totalUniqueCompletions: faker.datatype.number(),
+            totalTimePlayed: faker.datatype.number(),
             createdAt: dates.createdAtDate,
             updatedAt: dates.updatedAtDate,
         }
@@ -262,7 +292,7 @@ async function createRandomMapTrack(mapID) {
             mapID: mapID,
             trackNum: randomIntFromInterval(0, 127),
             numZones: randomIntFromInterval(5, 127),
-            isLinear: faker.random.boolean(),
+            isLinear: faker.datatype.boolean(),
             difficulty: randomIntFromInterval(1, 8),            
             createdAt: dates.createdAtDate,
             updatedAt: dates.updatedAtDate,
@@ -277,13 +307,13 @@ async function createRandomMapTrackStats(mapTrackID, baseStatsID) {
         data: {
             mapTrackID: mapTrackID,
             baseStatsID: baseStatsID,
-            completions: faker.random.number(),
-            uniqueCompletions: faker.random.number(),
+            completions: faker.datatype.number(),
+            uniqueCompletions: faker.datatype.number(),
             createdAt: dates.createdAtDate,
             updatedAt: dates.updatedAtDate,
         }
     });
-};
+}
 
 async function createRandomMapZone(mapTrackID) {
     const dates = randomCreatedUpdatedDate();
@@ -296,7 +326,7 @@ async function createRandomMapZone(mapTrackID) {
             updatedAt: dates.updatedAtDate,
         }
     });
-};
+}
 
 async function createRandomMapZoneStats(mapZoneID, baseStatsID) {
     const dates = randomCreatedUpdatedDate();
@@ -305,13 +335,13 @@ async function createRandomMapZoneStats(mapZoneID, baseStatsID) {
         data: {
             mapZoneID: mapZoneID,
             baseStatsID: baseStatsID,
-            completions: faker.random.number(),
-            uniqueCompletions: faker.random.number(),
+            completions: faker.datatype.number(),
+            uniqueCompletions: faker.datatype.number(),
             createdAt: dates.createdAtDate,
             updatedAt: dates.updatedAtDate,
         }
     });
-};
+}
 
 async function createRandomRun(mapID, playerID, baseStatsID) {
     const dates = randomCreatedUpdatedDate();
@@ -323,7 +353,7 @@ async function createRandomRun(mapID, playerID, baseStatsID) {
             baseStatsID: baseStatsID,
             trackNum: randomIntFromInterval(0, 127),
             zoneNum: randomIntFromInterval(0, 127),
-            ticks: faker.random.number(),
+            ticks: faker.datatype.number(),
             tickRate: randomIntFromInterval(24, 1000),
             flags: 0,
             file: faker.image.cats(),
@@ -332,7 +362,7 @@ async function createRandomRun(mapID, playerID, baseStatsID) {
             updatedAt: dates.updatedAtDate,
         }
     });
-};
+}
 
 async function createRandomRunZoneStats(runID, baseStatsID) {
     const dates = randomCreatedUpdatedDate();
@@ -346,7 +376,7 @@ async function createRandomRunZoneStats(runID, baseStatsID) {
             updatedAt: dates.updatedAtDate,
         }
     });
-};
+}
 
 async function createRandomMapRank (mapID, userID, runID) {
     const dates = randomCreatedUpdatedDate();
@@ -360,13 +390,13 @@ async function createRandomMapRank (mapID, userID, runID) {
             flags: 0,
             trackNum: randomIntFromInterval(0, 127),
             zoneNum: randomIntFromInterval(0, 127),
-            rank: faker.random.number(),        
-            rankXP: faker.random.number(),
+            rank: faker.datatype.number(),        
+            rankXP: faker.datatype.number(),
             createdAt: dates.createdAtDate,
             updatedAt: dates.updatedAtDate,
         }
     });
-};
+}
 
 async function createRandomUserFollow(followeeID, followedID) {
     const dates = randomCreatedUpdatedDate();
@@ -380,7 +410,7 @@ async function createRandomUserFollow(followeeID, followedID) {
             updatedAt: dates.updatedAtDate,
         }
     });
-};
+}
 
 async function createRandomMapReview(userID, mapID) {
     const dates = randomCreatedUpdatedDate();
@@ -394,7 +424,7 @@ async function createRandomMapReview(userID, mapID) {
             updatedAt: dates.updatedAtDate,
         }
     })
-};
+}
 
 async function createRandomActivity(userID, type, data) {
     const dates = randomCreatedUpdatedDate();
@@ -408,7 +438,7 @@ async function createRandomActivity(userID, type, data) {
             updatedAt: dates.updatedAtDate,
         }
     });
-};
+}
 
 async function createRandomReport(reportType, data, submitterID, resolverID) {
     const dates = randomCreatedUpdatedDate();
@@ -416,10 +446,10 @@ async function createRandomReport(reportType, data, submitterID, resolverID) {
     return await prisma.report.create({
         data: {
             type: reportType,
-            data: data,
-            category: faker.random.arrayElement(Object.values(EReportCategory)),
+            data: data.toString(),
+            category: randomEnumIntValue(EReportCategory),
             message: faker.lorem.paragraph(),
-            resolved: faker.random.boolean(),
+            resolved: faker.datatype.boolean(),
             resolutionMessage: faker.lorem.sentence(),
             submitterID: submitterID,
             resolverID: resolverID,
@@ -427,7 +457,7 @@ async function createRandomReport(reportType, data, submitterID, resolverID) {
             updatedAt: dates.updatedAtDate,
         }
     });
-};
+}
 
 async function manyUsersJoin() {
     const userJoins = [];
@@ -441,7 +471,7 @@ async function manyUsersJoin() {
         );
     }
     return Promise.all(userJoins);
-};
+}
 
 async function makeRandomUsersAMapper() {
     return await prisma.user.findMany({
@@ -465,7 +495,7 @@ async function makeRandomUsersAMapper() {
             );
         return Promise.all(userUpdates);
     });
-};
+}
 
 async function mappersUploadMaps() {
     return await prisma.user.findMany({
@@ -538,7 +568,7 @@ async function mappersUploadMaps() {
         }
         return Promise.all(mapperMapUploads);
     });
-};
+}
 
 const usersFollowOtherUsers = () => {
     const userFollowCreations = [];
@@ -654,7 +684,7 @@ async function updateExistingUserIDsArray() {
         for (const u of allUsers)
             existingUserIDs.push(u.id);
     });
-};
+}
 
 async function updateExistingMapIDsArray() {
     return await prisma.map.findMany({
@@ -665,7 +695,7 @@ async function updateExistingMapIDsArray() {
         for (const m of allMaps)
             existingMapIDs.push(m.id);
     });
-};
+}
 
 
 
