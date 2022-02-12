@@ -1,9 +1,10 @@
-import { Controller, Get, Param, Query, UseGuards } from '@nestjs/common';
-import { ApiBearerAuth, ApiOperation, ApiQuery, ApiTags } from '@nestjs/swagger';
-import { Map } from '@prisma/client';
+import { Body, Controller, Get, Param, Post, Query, UseGuards } from '@nestjs/common';
+import { ApiBearerAuth, ApiBody, ApiOperation, ApiQuery, ApiTags } from '@nestjs/swagger';
 import { PagedResponseDto } from "../../@common/dto/common/api-response.dto";
 import { MapsService } from "./maps.service";
 import { JwtAuthGuard } from '../auth/jwt/jwt-auth.guard';
+import { MapDto } from '../../@common/dto/map/map.dto';
+import { CreateMapDto } from '../../@common/dto/map/createMap.dto';
 
 @ApiBearerAuth()
 @Controller("api/v1/maps")
@@ -27,8 +28,8 @@ export class MapsController {
 		description: "Take this many records",
 		required: false
 	})
-	public async GetAllMaps(@Query('skip') skip?: number, @Query('take') take?: number): Promise<PagedResponseDto<Map[]>> {
-		return this.mapsService.getAll(skip, take);
+	public async GetAllMaps(@Query('skip') skip?: number, @Query('take') take?: number): Promise<PagedResponseDto<MapDto[]>> {
+		return this.mapsService.GetAll(skip, take);
 	}
 
 	@Get(":mapID")	
@@ -39,7 +40,18 @@ export class MapsController {
 		description: "Target Map ID",
 		required: true
 	})
-	public async GetMap(@Param('mapID') mapID: number): Promise<Map> {
-		return this.mapsService.get(mapID);
+	public async GetMap(@Param('mapID') mapID: number): Promise<MapDto> {
+		return this.mapsService.Get(mapID);
+	}
+
+	@Post()	
+	@ApiOperation({ summary: "Creates a single map" })
+	@ApiBody({
+		type: CreateMapDto,
+		description: "User ID that creates the map",
+		required: true
+	})
+	public async CreateMap(@Body() mapCreateObj: CreateMapDto): Promise<MapDto> {
+		return this.mapsService.Insert(mapCreateObj);
 	}
 }

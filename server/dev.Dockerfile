@@ -1,4 +1,4 @@
-FROM node:14 as Builder
+FROM node:14-alpine as Builder
 
 # Create app directory
 WORKDIR /app
@@ -8,13 +8,15 @@ COPY package*.json ./
 COPY prisma ./prisma/
 
 # Install app dependencies
-RUN npm install
+# Should be faster than install 
+# https://docs.npmjs.com/cli/v8/commands/npm-ci
+RUN npm i
 
 COPY . ./
 
 RUN npx prisma generate
 
-FROM node:14
+FROM node:14-alpine
 
 COPY --from=builder /app/. ./
 

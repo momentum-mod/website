@@ -1,4 +1,4 @@
-FROM node:14 AS builder
+FROM node:14-alpine AS builder
 
 # Create app directory
 WORKDIR /app
@@ -8,14 +8,14 @@ COPY package*.json ./
 COPY prisma ./prisma/
 
 # Install app dependencies
-RUN npm install
+RUN npm i
 
 COPY . ./
 
 RUN npx prisma generate
 RUN npm run build
 
-FROM node:14
+FROM node:14-alpine
 
 COPY --from=builder /app/node_modules ./node_modules
 COPY --from=builder /app/package*.json ./

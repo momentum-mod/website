@@ -29,3 +29,7 @@ export enum EMapCreditType {
 	TESTER = 2,
 	SPECIAL_THANKS = 3,
 }
+
+export enum EMapTriggerType {
+	UNKNOWN = 0
+}
