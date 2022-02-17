@@ -62,6 +62,7 @@ module.exports = {
 		}
 		const options = {
 			issuer: config.domain,
+			expiresIn: config.refreshToken.expTime,
 		}
 		return createJWT(payload, config.accessToken.secret, options);
 	},
