@@ -16,6 +16,9 @@ const config = {
 			expTime: '15m',
 			gameExpTime: '24h'
 		},
+		refreshToken: {
+			expTime: '7d',
+		},
 		discord: {
 			clientID: 'discord1234',
 			clientSecret: 'shhhhh!',
@@ -70,6 +73,9 @@ const config = {
 			expTime: '15m',
 			gameExpTime: '24h'
 		},
+		refreshToken: {
+			expTime: '7d',
+		},
 		discord: {
 			clientID: process.env.DISCORD_CLIENT_ID,
 			clientSecret: process.env.DISCORD_CLIENT_SECRET,
@@ -123,6 +129,9 @@ const config = {
 			secret: process.env.JWT_SECRET,
 			expTime: '15m',
 			gameExpTime: '24h'
+		},
+		refreshToken: {
+			expTime: '7d',
 		},
 		discord: {
 			clientID: process.env.DISCORD_CLIENT_ID,

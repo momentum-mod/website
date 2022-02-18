@@ -52,6 +52,25 @@ describe('auth', () => {
 				expect(decodedToken).to.have.property('roles');
 			});
 		});
+
+		it('should generate a refresh token that expires in a week', () => {
+			return auth.createRefreshToken({
+				id: testUser.id,
+				roles: testUser.roles,
+				bans: testUser.bans,
+			}, false).then(refreshToken => {
+				return verifyJWT(refreshToken, config.accessToken.secret);
+			}).then(decodedRefreshToken => {
+				expect(decodedRefreshToken).to.have.property('iat');
+				expect(decodedRefreshToken).to.have.property('exp');
+
+				// week (7d) in vercel/ms -> 6.048e+8 / 1000
+				const ms = 604800;
+
+				// iat+ms should equal exp
+				expect(decodedRefreshToken.iat+ms).to.equal(decodedRefreshToken.exp);
+			});
+		})
 	});
 
 	describe('endpoints', () => {
