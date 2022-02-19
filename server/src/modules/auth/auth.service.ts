@@ -8,6 +8,8 @@ import { JWTResponseDto } from '../../@common/dto/common/api-response.dto';
 @Injectable()
 export class AuthService {
 
+	loggedInUser: User;
+
     constructor(
         private readonly userService: UsersService,
         private readonly jwtService: JwtService) {
@@ -25,10 +27,13 @@ export class AuthService {
             token_type: 'JWT',
         }
 
+		this.loggedInUser = user;
+
         return response;
     }
 
-	async RevokeToken(userID: number): Promise<void> {
+	async RevokeToken(userID: number): Promise<void> {		
+		this.loggedInUser = null;
 		await this.userService.UpdateRefreshToken(userID,'');
 	}
 

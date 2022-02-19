@@ -30,6 +30,7 @@ export enum EMapCreditType {
 	SPECIAL_THANKS = 3,
 }
 
+// TODO: Finish enum
 export enum EMapTriggerType {
 	UNKNOWN = 0
 }

@@ -5,11 +5,9 @@ import {
 } from "../../enums/map.enum"
 import { MapCreditDto } from "./mapCredit.dto";
 
-
-
 class mapTriggers {
     @ApiProperty()            
-    type: EMapTriggerType; // TODO: create Enum                
+    type: EMapTriggerType;                
     @ApiProperty()                
     pointsHeight: number;                
     @ApiProperty()
@@ -50,7 +48,7 @@ class mapTracks {
     @ApiProperty()
     numZones: number;        
     @ApiProperty()
-    difficulty: string;     
+    difficulty: number;     
     @ApiProperty()
     zones: mapZone[];
     @ApiProperty()

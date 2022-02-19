@@ -48,7 +48,7 @@ export class MapsController {
 	@ApiOperation({ summary: "Creates a single map" })
 	@ApiBody({
 		type: CreateMapDto,
-		description: "User ID that creates the map",
+		description: "Create map data transfer object",
 		required: true
 	})
 	public async CreateMap(@Body() mapCreateObj: CreateMapDto): Promise<MapDto> {
