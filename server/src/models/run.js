@@ -683,53 +683,50 @@ const updateRanksAfterDelete = (oldRank, nextBestRun) => {
 			});
 		}).then(() => {
 			// if we have a nextBestRun, we need to update oldRank
-			if (nextBestRun) {
-				return UserMapRank.count({
+			if (!nextBestRun) return Promise.resolve();
+			return UserMapRank.count({
+				where: {
+					mapID: oldRank.mapID,
+					gameType: oldRank.gameType,
+					flags: oldRank.flags,
+					trackNum: oldRank.trackNum,
+					zoneNum: oldRank.zoneNum,
+				},
+				include: [{
+					model: Run,
+					where: {ticks: {[Op.lte]: nextBestRun.ticks}}
+				}],
+				transaction: transact,
+			}).then(count => {
+				oldRank.rankXP = xpSystems.getRankXPForRank(count + 1, completions).rankXP;
+				oldRank.runID = nextBestRun.id;
+				oldRank.rank = count + 1;
+				return UserMapRank.create(oldRank, {transaction: transact});
+			}).then(() => {
+				let rankSearch = {[Op.gte]: oldRank.rank};
+				return UserMapRank.findAll({
 					where: {
 						mapID: oldRank.mapID,
 						gameType: oldRank.gameType,
 						flags: oldRank.flags,
 						trackNum: oldRank.trackNum,
 						zoneNum: oldRank.zoneNum,
-					},
-					include: [{
-						model: Run,
-						where: {ticks: {[Op.lte]: nextBestRun.ticks}}
-					}],
-					transaction: transact,
-				}).then(count => {
-					oldRank.rankXP = xpSystems.getRankXPForRank(count + 1, completions).rankXP;
-					oldRank.runID = nextBestRun.id;
-					oldRank.rank = count + 1;
-					return UserMapRank.create(oldRank, {transaction: transact});
-				}).then(() => {
-					let rankSearch = {[Op.gte]: oldRank.rank};
-					return UserMapRank.findAll({
-						where: {
-							mapID: oldRank.mapID,
-							gameType: oldRank.gameType,
-							flags: oldRank.flags,
-							trackNum: oldRank.trackNum,
-							zoneNum: oldRank.zoneNum,
-							userID: {
-								[Op.ne]: oldRank.userID,
-							},
-							rank: rankSearch,
+						userID: {
+							[Op.ne]: oldRank.userID,
 						},
-						transaction: transact,
-					}).then(results => {
-						const updates = [];
-						for (const result of results) {
-							result.rank += 1;
-							result.rankXP = xpSystems.getRankXPForRank(result.rank, completions).rankXP;
-							updates.push(result.save({transaction: transact}));
-						}
-						return Promise.all(updates);
-					});
+						rank: rankSearch,
+					},
+					transaction: transact,
+				}).then(results => {
+					const updates = [];
+					for (const result of results) {
+						result.rank += 1;
+						result.rankXP = xpSystems.getRankXPForRank(result.rank, completions).rankXP;
+						updates.push(result.save({transaction: transact}));
+					}
+					return Promise.all(updates);
 				});
-			} else {
-				return Promise.resolve();
-			}
+			});
 		});
 	});
 }
