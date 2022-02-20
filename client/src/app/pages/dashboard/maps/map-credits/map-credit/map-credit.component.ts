@@ -35,7 +35,7 @@ export class MapCreditComponent {
     this.creditChange = new EventEmitter<CreditChangeEvent>();
   }
 
-  ngOnInit() {
+  OnInit() {
     this.disableDeleteCredit = !this.isAdmin && (this.statusFlag===MapUploadStatus.APPROVED);
   }
 

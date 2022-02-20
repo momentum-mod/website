@@ -204,7 +204,7 @@ export class MapEditComponent implements OnInit, OnDestroy {
       }
 
       for (let img of this.mapImages) {
-        if (img.id == -1) {
+        if (img.id === -1) {
           imageUpdates.push(this.mapService.createMapImage(this.map.id, img.file));
         } else {
           imageUpdates.push(this.mapService.updateMapImage(this.map.id, img.id));
@@ -219,7 +219,7 @@ export class MapEditComponent implements OnInit, OnDestroy {
           this.originalMapImages = res.images.filter(img => img.id !== this.map.thumbnailID);
           this.mapImages = this.originalMapImages.map(img => ({...img}));
         });
-      })
+      }),
     ).subscribe(() => {
       this.toasterService.success('Updated map image!', 'Success');
     }, error => this.toasterService.danger(error.message, 'Failed to update image!'));
