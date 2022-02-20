@@ -96,16 +96,13 @@ module.exports = {
 		return MapImage.findByPk(imgID, {
 			raw: true
 		}).then(mapImage => {
-			if (mapImage) {
-				delete mapImage.id;
-				return MapImage.destroy({
-					where: { id: imgID },
-				}).then(() => {
-					return MapImage.create(mapImage);
-				});
-			} else {
-				return Promise.reject(new ServerError(404, 'Map image not found'));
-			}
+			if (!mapImage) return Promise.reject(new ServerError(404, 'Map image not found'));
+			delete mapImage.id;
+			return MapImage.destroy({
+				where: { id: imgID },
+			}).then(() => {
+				return MapImage.create(mapImage);
+			});
 		});
 	},
 
@@ -119,18 +116,15 @@ module.exports = {
 
 	delete: (imgID) => {
 		return MapImage.findByPk(imgID).then(mapImage => {
-			if (mapImage) {
-				let tempList = mapImage.small.split("/");
-				let lastElement = tempList[tempList.length -1];
-				let imgFileId = lastElement.replace(/\D/g, "");
-				return module.exports.deleteMapImageFiles(imgFileId).then(() => {
-					return MapImage.destroy({
-						where: { id: imgID },
-					});
+			if (!mapImage) return Promise.reject(new ServerError(404, 'Map image not found'));
+			let tempList = mapImage.small.split("/");
+			let lastElement = tempList[tempList.length -1];
+			let imgFileId = lastElement.replace(/\D/g, "");
+			return module.exports.deleteMapImageFiles(imgFileId).then(() => {
+				return MapImage.destroy({
+					where: { id: imgID },
 				});
-			} else {
-				return Promise.reject(new ServerError(404, 'Map image not found'));
-			}
+			});
 		});
 	},
 

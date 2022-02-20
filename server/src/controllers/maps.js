@@ -50,11 +50,8 @@ module.exports = {
 
 	update: (req, res, next) => {
 		map.checkPermissions(req.params.mapID, req.user).then(verify => {
-			if (verify) {
-				return map.verifySubmitter(req.params.mapID, req.user.id);
-			} else {
-				return;
-			}
+			if (!verify) return;
+			return map.verifySubmitter(req.params.mapID, req.user.id);
 		}).then(() => {
 			return map.update(req.params.mapID, req.body).then(() => {
 				res.sendStatus(204);
@@ -79,20 +76,17 @@ module.exports = {
 
 	updateInfo: (req, res, next) => {
 		map.checkPermissions(req.params.mapID, req.user, true).then(verify => {
-			if (verify) {
-				if (verify === "No delete" && req.body.youtubeID == null) {
-					return map.getInfo(req.params.mapID).then(mapInfo => {
-						if (mapInfo.youtubeID) {
-							next(new ServerError(403, 'Forbidden'));
-						} else {
-							return map.verifySubmitter(req.params.mapID, req.user.id);
-						}
-					}).catch(next);
-				}
-				return map.verifySubmitter(req.params.mapID, req.user.id);
-			} else {
-				return;
+			if (!verify) return;
+			if (verify === "No delete" && req.body.youtubeID == null) {
+				return map.getInfo(req.params.mapID).then(mapInfo => {
+					if (mapInfo.youtubeID) {
+						next(new ServerError(403, 'Forbidden'));
+					} else {
+						return map.verifySubmitter(req.params.mapID, req.user.id);
+					}
+				}).catch(next);
 			}
+			return map.verifySubmitter(req.params.mapID, req.user.id);
 		}).then(() => {
 			return map.updateInfo(req.params.mapID, req.body).then(() => {
 				res.sendStatus(204);
@@ -118,11 +112,8 @@ module.exports = {
 
 	createCredit: (req, res, next) => {
 		map.checkPermissions(req.params.mapID, req.user, true).then(verify => {
-			if (verify) {
-				return map.verifySubmitter(req.params.mapID, req.user.id);
-			} else {
-				return;
-			}
+			if (!verify) return;
+			return map.verifySubmitter(req.params.mapID, req.user.id);
 		}).then(() => {
 			return mapCredit.createCredit(req.params.mapID, req.body).then(mapCredit => {
 				res.json(mapCredit);
@@ -132,11 +123,8 @@ module.exports = {
 
 	updateCredit: (req, res, next) => {
 		map.checkPermissions(req.params.mapID, req.user, true).then(verify => {
-			if (verify) {
-				return map.verifySubmitter(req.params.mapID, req.user.id);
-			} else {
-				return;
-			}
+			if (!verify) return;
+			return map.verifySubmitter(req.params.mapID, req.user.id);
 		}).then(() => {
 			return mapCredit.updateCredit(req.params.mapID, req.params.mapCredID, req.body).then(() => {
 				res.sendStatus(204);
@@ -146,11 +134,8 @@ module.exports = {
 
 	deleteCredit: (req, res, next) => {
 		map.checkPermissions(req.params.mapID, req.user).then(verify => {
-			if (verify) {
-				return map.verifySubmitter(req.params.mapID, req.user.id);
-			} else {
-				return;
-			}
+			if (!verify) return;
+			return map.verifySubmitter(req.params.mapID, req.user.id);
 		}).then(() => {
 			return mapCredit.deleteCredit(req.params.mapID, req.params.mapCredID).then(() => {
 				res.sendStatus(200);
@@ -161,11 +146,8 @@ module.exports = {
 	updateThumbnail: (req, res, next) => {
 		if (req.files && req.files.thumbnailFile) {
 			map.checkPermissions(req.params.mapID, req.user).then(verify => {
-				if (verify) {
-					return map.verifySubmitter(req.params.mapID, req.user.id);
-				} else {
-					return;
-				}
+				if (!verify) return;
+				return map.verifySubmitter(req.params.mapID, req.user.id);
 			}).then(() => {
 				return mapImage.updateThumbnail(req.params.mapID, req.files.thumbnailFile.data).then(() => {
 					res.sendStatus(204);
@@ -216,11 +198,8 @@ module.exports = {
 	createImage: (req, res, next) => {
 		if (req.files && req.files.mapImageFile) {
 			map.checkPermissions(req.params.mapID, req.user).then(verify => {
-				if (verify) {
-					return map.verifySubmitter(req.params.mapID, req.user.id);
-				} else {
-					return;
-				}
+				if (!verify) return;
+				return map.verifySubmitter(req.params.mapID, req.user.id);
 			}).then(() => {
 				return mapImage.create(req.params.mapID, req.files.mapImageFile.data).then(image => {
 					res.json(image);
@@ -241,11 +220,8 @@ module.exports = {
 
 	updateImage: (req, res, next) => {
 		map.checkPermissions(req.params.mapID, req.user).then(verify => {
-			if (verify) {
-				return map.verifySubmitter(req.params.mapID, req.user.id);
-			} else {
-				return;
-			}
+			if (!verify) return;
+			return map.verifySubmitter(req.params.mapID, req.user.id);
 		}).then(() => {
 			return mapImage.update(req.params.imgID).then(() => {
 				res.sendStatus(204);
@@ -255,11 +231,8 @@ module.exports = {
 
 	deleteImage: (req, res, next) => {
 		map.checkPermissions(req.params.mapID, req.user).then(verify => {
-			if (verify) {
-				return map.verifySubmitter(req.params.mapID, req.user.id);
-			} else {
-				return;
-			}
+			if (!verify) return;
+			return map.verifySubmitter(req.params.mapID, req.user.id);
 		}).then(() => {
 			return mapImage.delete(req.params.imgID).then(() => {
 				res.sendStatus(204);
