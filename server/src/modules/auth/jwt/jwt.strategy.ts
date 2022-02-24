@@ -7,9 +7,7 @@ import { UsersService } from 'src/modules/users/users.service';
 
 @Injectable()
 export class JwtStrategy extends PassportStrategy(Strategy) {
-    constructor(
-        private readonly usersService: UsersService,
-    ) {
+    constructor(private readonly usersService: UsersService) {
         super({
             jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
             ignoreExpiration: false,
@@ -18,8 +16,8 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
     }
 
     /*
-    * @summary Is this a valid JWT?
-    */
+     * @summary Is this a valid JWT?
+     */
     async validate(validationPayload: JWTPayload) {
         // if its valid then this will hit
         return this.usersService.Get(validationPayload.id);

@@ -1,6 +1,6 @@
-import { MapRank } from "@prisma/client";
+import { MapRank } from '@prisma/client';
 
-export class MapRankDto implements MapRank{
+export class MapRankDto implements MapRank {
     mapID: number;
     userID: number;
     gameType: number;
@@ -14,8 +14,10 @@ export class MapRankDto implements MapRank{
     updatedAt: Date;
 
     constructor(_rank: MapRank) {
-        if(_rank == null) { return; }
-        
+        if (_rank == null) {
+            return;
+        }
+
         this.mapID = _rank.mapID;
         this.userID = _rank.userID;
         this.gameType = _rank.gameType;

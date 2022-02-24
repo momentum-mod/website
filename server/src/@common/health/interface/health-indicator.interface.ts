@@ -1,4 +1,4 @@
-import { HealthIndicatorResult } from "@nestjs/terminus";
+import { HealthIndicatorResult } from '@nestjs/terminus';
 
 export interface HealthIndicator {
     /**
@@ -11,4 +11,4 @@ export interface HealthIndicator {
     updatePrometheusData(isConnected: boolean): void;
     isHealthy(): Promise<HealthIndicatorResult>;
     reportUnhealthy(): HealthIndicatorResult;
-  }
+}

@@ -1,6 +1,6 @@
-import { MapCredit, User, Map } from "@prisma/client";
-import { UserDto } from "../user/user.dto";
-import { MapDto } from "./map.dto";
+import { MapCredit, User, Map } from '@prisma/client';
+import { UserDto } from '../user/user.dto';
+import { MapDto } from './map.dto';
 
 export class MapCreditDto implements MapCredit {
     id: bigint;
@@ -11,7 +11,9 @@ export class MapCreditDto implements MapCredit {
     userID: number;
 
     constructor(_mapCredit: MapCredit) {
-        if (_mapCredit == null) { return; }
+        if (_mapCredit == null) {
+            return;
+        }
 
         this.id = _mapCredit.id;
         this.type = _mapCredit.type;
@@ -20,7 +22,6 @@ export class MapCreditDto implements MapCredit {
         this.mapID = _mapCredit.mapID;
         this.userID = _mapCredit.userID;
     }
-
 }
 
 export class UserMapCreditDto extends MapCreditDto {
@@ -28,7 +29,9 @@ export class UserMapCreditDto extends MapCreditDto {
     map: MapDto;
 
     constructor(_mapCredit: MapCredit, _user: User, _map: Map) {
-        if(_mapCredit == null) { return; }
+        if (_mapCredit == null) {
+            return;
+        }
 
         super(_mapCredit);
 

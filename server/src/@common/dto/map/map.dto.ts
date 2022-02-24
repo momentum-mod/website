@@ -11,30 +11,32 @@ export class MapDto implements MapDB {
     hash: string;
     createdAt: Date;
     updatedAt: Date;
-    submitterID: number;    
+    submitterID: number;
     thumbnailID: number;
-    
+
     submitter: UserDto;
     images: MapImageDto[] = [];
     thumbnail: MapImageDto;
 
     constructor(_map: MapDB, _submitter?: User, _images?: MapImage[]) {
-        if(_map == null) { return; }
+        if (_map == null) {
+            return;
+        }
 
         console.log('MapDto');
         console.log(_map);
-        
+
         let submitter = _submitter;
-        if(submitter == null) { 
-            // if null then try get it from map object            
-			submitter = (_map as any).users;
+        if (submitter == null) {
+            // if null then try get it from map object
+            submitter = (_map as any).users;
         }
         console.log(submitter);
 
         let images = _images;
-        if(images == null || images.length == 0) { 
-            // if null then try get it from map object            
-			images = (_map as any).mapimages;
+        if (images == null || images.length == 0) {
+            // if null then try get it from map object
+            images = (_map as any).mapimages;
         }
         console.log(images);
 
@@ -49,18 +51,17 @@ export class MapDto implements MapDB {
         this.submitterID = _map.submitterID;
         this.thumbnailID = _map.thumbnailID;
 
-        this.submitter = new UserDto(submitter);            
-        
-        if(images != null && images.length > 0) {
-            images.forEach(image => {
+        this.submitter = new UserDto(submitter);
+
+        if (images != null && images.length > 0) {
+            images.forEach((image) => {
                 const dto = new MapImageDto(image);
                 this.images.push(dto);
 
-                if(dto.id === this.thumbnailID) {
+                if (dto.id === this.thumbnailID) {
                     this.thumbnail = dto;
                 }
             });
         }
     }
-
 }

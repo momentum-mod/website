@@ -14,35 +14,21 @@ import { AuthController } from './auth.controller';
 import { UsersModule } from '../users/users.module';
 
 @Module({
-  imports: [
-    PassportModule.register({
-      defaultStrategy: 'jwt'
-    }),  
-    JwtModule.register({
-        secret: appConfig.accessToken.secret, 
-        signOptions: {
-          expiresIn: appConfig.accessToken.expTime,
-        },
-    }),
-    UsersModule,
-    HttpModule
-  ],
-  controllers: [
-    AuthController
-  ],
-  providers: [    
-    AuthService,
-    SteamAuthService,
-    JwtAuthGuard,
-    JwtStrategy,    
-    SteamWebStrategy,
-  ],
-  exports: [       
-    AuthService,
-    SteamAuthService,
-    JwtAuthGuard,
-    JwtStrategy,
-    SteamWebStrategy,
-  ]
+    imports: [
+        PassportModule.register({
+            defaultStrategy: 'jwt',
+        }),
+        JwtModule.register({
+            secret: appConfig.accessToken.secret,
+            signOptions: {
+                expiresIn: appConfig.accessToken.expTime,
+            },
+        }),
+        UsersModule,
+        HttpModule,
+    ],
+    controllers: [AuthController],
+    providers: [AuthService, SteamAuthService, JwtAuthGuard, JwtStrategy, SteamWebStrategy],
+    exports: [AuthService, SteamAuthService, JwtAuthGuard, JwtStrategy, SteamWebStrategy],
 })
 export class AuthModule {}

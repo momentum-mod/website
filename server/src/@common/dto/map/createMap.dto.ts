@@ -1,64 +1,60 @@
-import { ApiProperty } from "@nestjs/swagger";
-import { 
-    EMapTriggerType,
-    EMapType
-} from "../../enums/map.enum"
-import { MapCreditDto } from "./mapCredit.dto";
+import { ApiProperty } from '@nestjs/swagger';
+import { EMapTriggerType, EMapType } from '../../enums/map.enum';
+import { MapCreditDto } from './mapCredit.dto';
 
 class mapTriggers {
-    @ApiProperty()            
-    type: EMapTriggerType;                
-    @ApiProperty()                
-    pointsHeight: number;                
     @ApiProperty()
-    pointsZPos: number;                
+    type: EMapTriggerType;
     @ApiProperty()
-    points: number;                
+    pointsHeight: number;
+    @ApiProperty()
+    pointsZPos: number;
+    @ApiProperty()
+    points: number;
     @ApiProperty()
     zoneProps: number;
 }
-
 
 class mapZone {
     @ApiProperty()
     zoneNum: number;
     @ApiProperty()
-    triggers: mapTriggers[];     
+    triggers: mapTriggers[];
     @ApiProperty()
-    stats: {                        
+    stats: {
         baseStats: any; // TODO: create Type
     };
 }
-class mapInfo {    
+class mapInfo {
     @ApiProperty()
-    description: string;        
+    description: string;
     @ApiProperty()
-    youtubeID: string;        
+    youtubeID: string;
     @ApiProperty()
-    numTracks: number;        
+    numTracks: number;
     @ApiProperty()
     creationDate: Date;
 }
 
-class mapTracks {      
+class mapTracks {
     @ApiProperty()
-    trackNum: number;        
+    trackNum: number;
     @ApiProperty()
-    isLinear: boolean;        
+    isLinear: boolean;
     @ApiProperty()
-    numZones: number;        
+    numZones: number;
     @ApiProperty()
-    difficulty: number;     
+    difficulty: number;
     @ApiProperty()
     zones: mapZone[];
     @ApiProperty()
     stats: {
         baseStats: any;
-    }
+    };
 }
 
 export class CreateMapDto {
-    @ApiProperty() 
+    @ApiProperty()
     name: string;
     @ApiProperty()
     type: EMapType;
@@ -66,8 +62,8 @@ export class CreateMapDto {
     info: mapInfo;
     @ApiProperty()
     tracks: mapTracks[];
-    @ApiProperty()  
-    stats: {        
+    @ApiProperty()
+    stats: {
         baseStats: any; // TODO: create Type
     };
     @ApiProperty()

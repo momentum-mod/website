@@ -5,8 +5,8 @@ import { PrometheusModule } from '../prometheus/prometheus.module';
 import { HealthModule } from '../health/health.module';
 
 @Module({
-  imports: [PrometheusModule, HealthModule],
-  providers: [MetricsService],
-  controllers: [MetricsController]
+    imports: [PrometheusModule, HealthModule],
+    providers: [MetricsService],
+    controllers: [MetricsController],
 })
 export class MetricsModule {}

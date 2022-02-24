@@ -9,36 +9,33 @@ import { SteamWebAuthGuard } from './steam/steam-web-auth.guard';
 import { User } from '@prisma/client';
 import { SteamAuthService } from './steam/steam-auth.service';
 
-@Controller("/auth")
-@ApiTags("Auth")
+@Controller('/auth')
+@ApiTags('Auth')
 export class AuthController {
+    constructor(private readonly authService: AuthService, private readonly steamAuthService: SteamAuthService) {}
 
-    constructor(
-        private readonly authService: AuthService,
-        private readonly steamAuthService: SteamAuthService,
-    ) {}
-
-    @ApiOperation({summary: "Authenticates using steam"}) 
-    @Get("steam") 
+    @ApiOperation({ summary: 'Authenticates using steam' })
+    @Get('steam')
     @Public()
-    public AuthSteam(@Req() req, @Res() res): void {  
-		passport.authenticate('steam', { session: false })(req, res);
+    public AuthSteam(@Req() req, @Res() res): void {
+        passport.authenticate('steam', { session: false })(req, res);
     }
 
-    @ApiOperation({summary: "Return url from steam, validate and return valid JWT"}) 
-    @Get("steam/return") 
+    @ApiOperation({ summary: 'Return url from steam, validate and return valid JWT' })
+    @Get('steam/return')
     @UseGuards(SteamWebAuthGuard)
     public async ReturnFromSteam(@Req() req: Request): Promise<JWTResponseDto> {
-        return this.authService.login(req.user as User, false)
+        return this.authService.login(req.user as User, false);
     }
 
-    @ApiOperation({summary: "Gets the JWT using a steam user ticket"}) 
-    @Post("steam/user") 
+    @ApiOperation({ summary: 'Gets the JWT using a steam user ticket' })
+    @Post('steam/user')
     @Public()
     public async GetUserFromSteam(@Req() req: Request): Promise<JWTResponseDto> {
-
-        const userID = req.headers["id"] as string;
-        if(!req.body) { throw new HttpException('Missing userTicket', 400) }
+        const userID = req.headers['id'] as string;
+        if (!req.body) {
+            throw new HttpException('Missing userTicket', 400);
+        }
 
         const user = await this.steamAuthService.ValidateFromInGame(req.body, userID);
         return await this.authService.login(user as User, true);

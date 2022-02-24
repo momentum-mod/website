@@ -1,4 +1,4 @@
-import { MapImage } from "@prisma/client";
+import { MapImage } from '@prisma/client';
 
 export class MapImageDto implements MapImage {
     id: number;
@@ -10,7 +10,9 @@ export class MapImageDto implements MapImage {
     mapID: number;
 
     constructor(_mapImage: MapImage) {
-        if (_mapImage === null) { return; }
+        if (_mapImage === null) {
+            return;
+        }
 
         this.id = _mapImage.id;
         this.small = _mapImage.small;
@@ -18,6 +20,6 @@ export class MapImageDto implements MapImage {
         this.large = _mapImage.large;
         this.createdAt = _mapImage.createdAt;
         this.updatedAt = _mapImage.updatedAt;
-        this.mapID = _mapImage.mapID;        
+        this.mapID = _mapImage.mapID;
     }
 }
