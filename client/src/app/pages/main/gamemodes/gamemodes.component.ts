@@ -75,7 +75,7 @@ export class GamemodesComponent implements OnDestroy {
       useYoutubeEmbed: false,
     },
     {
-      url: '',
+      url: '/assets/images/conc_loop.webm',
       modeTitle: 'Conc',
       modeDescription: 'A classic game mode from the classic Team Fortress, concussion grenade boosting involves ' +
         'priming a concussion grenade to explode at just the right time to propel the player throughout the map.',
@@ -83,9 +83,7 @@ export class GamemodesComponent implements OnDestroy {
       iconUrl: '/assets/images/gamemode_icons/site_conc.webp',
       guideUrl: '/guide/gamemode-conc',
       isImplemented: true,
-      useYoutubeEmbed: true,
-      playingYoutubeEmbed: false,
-      youtubeVidID: '137xZpOCZ10',
+      useYoutubeEmbed: false,
     },
     {
       url: '',
