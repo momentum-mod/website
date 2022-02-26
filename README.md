@@ -14,5 +14,5 @@ The backend of the website is the core of the interactive functionality of the g
 ## *Want to help out?*
 [Join our Discord](https://discord.gg/momentummod) and let us know! We also accept pull requests, *but make sure the issue/feature isn't already assigned to someone!*
 
-## Looking for our documentation site?
+## *Looking for our documentation site?*
 Our documentation site uses different technology and can be found on [our docs repository](https://github.com/momentum-mod/docs).
