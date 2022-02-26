@@ -79,7 +79,7 @@ export class GamemodesComponent implements OnDestroy {
       modeTitle: 'Conc',
       modeDescription: 'A classic game mode from the classic Team Fortress, concussion grenade boosting involves ' +
         'priming a concussion grenade to explode at just the right time to propel the player throughout the map.',
-      imageUrl: '/assets/images/gamemode_conc.jpg',
+      imageUrl: '/assets/images/gamemode_conc.webp',
       iconUrl: '/assets/images/gamemode_icons/site_conc.webp',
       guideUrl: '/guide/gamemode-conc',
       isImplemented: true,
