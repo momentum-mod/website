@@ -7,9 +7,10 @@ import { MapsModule } from './modules/maps/maps.module';
 import { UsersModule } from './modules/users/users.module';
 import { HealthModule } from './modules/health/health.module';
 import { MetricsModule } from './modules/metrics/metrics.module';
+import { UserModule } from './modules/user/user.module';
 
 @Module({
-    imports: [UsersModule, MapsModule, AuthModule, HealthModule, MetricsModule],
+    imports: [UsersModule, MapsModule, UserModule, AuthModule, HealthModule, MetricsModule],
 })
 export class AppModule implements NestModule {
     public configure(consumer: MiddlewareConsumer): void {

@@ -52,3 +52,4 @@ testem.log
 .DS_Store
 Thumbs.db
 data/*
+data/grafana/grafana.db
