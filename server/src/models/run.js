@@ -146,6 +146,7 @@ const validateRunFile = (resultObj) => {
 			mapMdl.MAP_TYPE.SJ,
 			mapMdl.MAP_TYPE.AHOP,
 			mapMdl.MAP_TYPE.CONC,
+			mapMdl.MAP_TYPE.DEFRAG,
 		];
 
 		const checks = [
