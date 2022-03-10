@@ -118,14 +118,22 @@ module.exports = {
 
 	getDefaultTickrateForMapType: (type) => {
 		switch (type) {
+			default:
 			case MAP_TYPE.UNKNOWN:
 			case MAP_TYPE.SURF:
-			default:
+			case MAP_TYPE.RJ:
+			case MAP_TYPE.SJ:
+			case MAP_TYPE.AHOP:
+			case MAP_TYPE.PARKOUR:
 				return 0.015;
 			case MAP_TYPE.BHOP:
 			case MAP_TYPE.TRICKSURF:
 			case MAP_TYPE.CONC:
 				return 0.01;
+			case MAP_TYPE.DEFRAG:
+				return 0.008;
+			case MAP_TYPE.KZ:
+				return 0.0078125;
 		}
 	},
 
