@@ -1,5 +1,5 @@
 import { Body, Controller, Get, Param, Post, Query, UseGuards } from '@nestjs/common';
-import { ApiBearerAuth, ApiBody, ApiOperation, ApiQuery, ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiBody, ApiOperation, ApiQuery, ApiTags, ApiParam } from '@nestjs/swagger';
 import { PagedResponseDto } from '../../@common/dto/common/api-response.dto';
 import { MapsService } from './maps.service';
 import { JwtAuthGuard } from '../auth/jwt/jwt-auth.guard';
@@ -36,7 +36,7 @@ export class MapsController {
 
     @Get(':mapID')
     @ApiOperation({ summary: 'Returns a single map' })
-    @ApiQuery({
+    @ApiParam({
         name: 'mapID',
         type: Number,
         description: 'Target Map ID',

@@ -1,3 +1,4 @@
+import { Logger } from '@nestjs/common';
 import { Map as MapDB, MapImage, User } from '@prisma/client';
 import { UserDto } from '../user/user.dto';
 import { MapImageDto } from './mapImage.dto';
@@ -23,22 +24,22 @@ export class MapDto implements MapDB {
             return;
         }
 
-        console.log('MapDto');
-        console.log(_map);
+        Logger.log('MapDto');
+        Logger.log(_map);
 
         let submitter = _submitter;
         if (submitter == null) {
             // if null then try get it from map object
             submitter = (_map as any).users;
         }
-        console.log(submitter);
+        Logger.log(submitter);
 
         let images = _images;
         if (images == null || images.length == 0) {
             // if null then try get it from map object
             images = (_map as any).mapimages;
         }
-        console.log(images);
+        Logger.log(images);
 
         this.id = _map.id;
         this.name = _map.name;

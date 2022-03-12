@@ -23,7 +23,6 @@ export abstract class BaseHealthIndicator extends HealthIndicator {
 
     protected registerMetrics(): void {
         if (this.promClientService) {
-            console.log(`registerMetrics ${this.name}`);
             Logger.log('Register metrics histogram for: ' + this.name, TAG, true);
             this.metricsRegistered = true;
             const histogram: PrometheusHistogram = this.promClientService.registerMetrics(

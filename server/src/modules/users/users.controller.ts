@@ -1,5 +1,5 @@
 import { Controller, Get, Param, Query, UseGuards } from '@nestjs/common';
-import { ApiBearerAuth, ApiOperation, ApiQuery, ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiOperation, ApiQuery, ApiTags, ApiParam } from '@nestjs/swagger';
 import { Public } from '../auth/public.decorator';
 import { JwtAuthGuard } from '../auth/jwt/jwt-auth.guard';
 import { UsersService } from './users.service';
@@ -42,7 +42,7 @@ export class UsersController {
 
     @Get(':userID')
     @ApiOperation({ summary: 'Returns single user' })
-    @ApiQuery({
+    @ApiParam({
         name: 'userID',
         type: Number,
         description: 'Target User ID',
@@ -54,7 +54,7 @@ export class UsersController {
 
     @Get(':userID/profile')
     @ApiOperation({ summary: "Returns single user's profile" })
-    @ApiQuery({
+    @ApiParam({
         name: 'userID',
         type: Number,
         description: 'Target User ID',
@@ -66,7 +66,7 @@ export class UsersController {
 
     @Get(':userID/activities')
     @ApiOperation({ summary: "Returns all of a single user's activities" })
-    @ApiQuery({
+    @ApiParam({
         name: 'userID',
         type: Number,
         description: 'Target User ID',
@@ -94,7 +94,7 @@ export class UsersController {
 
     @Get(':userID/followers')
     @ApiOperation({ summary: "Returns all of a single user's followers" })
-    @ApiQuery({
+    @ApiParam({
         name: 'userID',
         type: Number,
         description: 'Target User ID',
@@ -122,7 +122,7 @@ export class UsersController {
 
     @Get(':userID/follows')
     @ApiOperation({ summary: "Returns all of a single user's followed objects" })
-    @ApiQuery({
+    @ApiParam({
         name: 'userID',
         type: Number,
         description: 'Target User ID',
@@ -150,7 +150,7 @@ export class UsersController {
 
     @Get(':userID/credits')
     @ApiOperation({ summary: "Returns all of a single user's credits" })
-    @ApiQuery({
+    @ApiParam({
         name: 'userID',
         type: Number,
         description: 'Target User ID',
@@ -178,7 +178,7 @@ export class UsersController {
 
     @Get(':userID/runs')
     @ApiOperation({ summary: "Returns all of a single user's runs" })
-    @ApiQuery({
+    @ApiParam({
         name: 'userID',
         type: Number,
         description: 'Target User ID',
