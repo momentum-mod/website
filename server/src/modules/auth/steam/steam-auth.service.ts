@@ -1,5 +1,5 @@
 import { HttpService } from '@nestjs/axios';
-import { HttpException, Injectable, UnauthorizedException } from '@nestjs/common';
+import { HttpException, Injectable, Logger, UnauthorizedException } from '@nestjs/common';
 import { User } from '@prisma/client';
 import { appConfig } from 'config/config';
 import { lastValueFrom, map } from 'rxjs';
@@ -19,7 +19,7 @@ export class SteamAuthService {
         }
 
         if (appConfig.steam.useSteamTicketLibrary) {
-            console.log('local libary');
+            Logger.log('local libary');
             return await this.verifyUserTicketLocalLibrary(userTicketRaw, steamIDToVerify);
         } else {
             return await this.verifyUserTicketOnlineAPI(userTicket, steamIDToVerify);
@@ -93,15 +93,15 @@ export class SteamAuthService {
     async verifyUserTicketLocalLibrary(userTicketRaw: any, steamIDToVerify: string) {
         let decrypted;
         if (appConfig.steam.useEncryptedTickets) {
-            console.log('Using encrypted tickets');
+            Logger.log('Using encrypted tickets');
             decrypted = AppTicket.parseEncryptedAppTicket(userTicketRaw, appConfig.steam.ticketsSecretKey);
         } else {
-            console.log('Using non encrypted tickets');
+            Logger.log('Using non encrypted tickets');
             decrypted = AppTicket.parseAppTicket(userTicketRaw);
         }
 
         if (!decrypted) {
-            console.log("Couldn't decrypt");
+            Logger.log("Couldn't decrypt");
             throw new HttpException('Bad Request', 400);
         }
 
