@@ -50,8 +50,8 @@ export class SteamAuthService {
             params: {
                 key: appConfig.steam.webAPIKey,
                 appid: appConfig.appID,
-                ticket: userTicket,
-            },
+                ticket: userTicket
+            }
         };
 
         const sres = await lastValueFrom(

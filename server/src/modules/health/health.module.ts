@@ -8,6 +8,6 @@ import { PrometheusModule } from '../prometheus/prometheus.module';
     imports: [TerminusModule, PrometheusModule],
     controllers: [HealthController],
     providers: [HealthService],
-    exports: [HealthService],
+    exports: [HealthService]
 })
 export class HealthModule {}

@@ -3,6 +3,6 @@ import { PrometheusService } from './prometheus.service';
 
 @Module({
     providers: [PrometheusService],
-    exports: [PrometheusService],
+    exports: [PrometheusService]
 })
 export class PrometheusModule {}

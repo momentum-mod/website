@@ -10,7 +10,7 @@ export class SteamWebStrategy extends PassportStrategy(Strategy, 'steam') {
         super({
             returnURL: appConfig.baseURL_Auth + '/auth/steam/return',
             realm: appConfig.baseURL_Auth,
-            apiKey: appConfig.steam.webAPIKey,
+            apiKey: appConfig.steam.webAPIKey
         });
     }
 

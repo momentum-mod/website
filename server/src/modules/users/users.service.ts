@@ -34,7 +34,7 @@ export class UsersService {
         return {
             totalCount: totalCount,
             returnCount: userDtos.length,
-            response: userDtos,
+            response: userDtos
         };
     }
 
@@ -80,7 +80,7 @@ export class UsersService {
         const response: PagedResponseDto<ActivityDto[]> = {
             response: activitesDto,
             returnCount: activitesDto.length,
-            totalCount: activitesAndCount[1],
+            totalCount: activitesAndCount[1]
         };
 
         return response;
@@ -110,7 +110,7 @@ export class UsersService {
         const response: PagedResponseDto<FollowerDto[]> = {
             response: followersDto,
             returnCount: followersDto.length,
-            totalCount: followersAndCount[1],
+            totalCount: followersAndCount[1]
         };
 
         return response;
@@ -140,7 +140,7 @@ export class UsersService {
         const response: PagedResponseDto<FollowerDto[]> = {
             response: followersDto,
             returnCount: followersDto.length,
-            totalCount: followersAndCount[1],
+            totalCount: followersAndCount[1]
         };
 
         return response;
@@ -166,7 +166,7 @@ export class UsersService {
         const response: PagedResponseDto<UserMapCreditDto[]> = {
             response: mapCreditsDto,
             returnCount: mapCreditsDto.length,
-            totalCount: mapCreditsAndCount[1],
+            totalCount: mapCreditsAndCount[1]
         };
 
         return response;
@@ -192,7 +192,7 @@ export class UsersService {
         const response: PagedResponseDto<UserRunDto[]> = {
             response: runsDto,
             returnCount: runsDto.length,
-            totalCount: runsAndCount[1],
+            totalCount: runsAndCount[1]
         };
 
         return response;
@@ -250,13 +250,13 @@ export class UsersService {
                 steamid: '',
                 personaname: '',
                 avatarfull: '',
-                locccountrycode: '',
+                locccountrycode: ''
             },
             xmlData: {
                 profile: {
-                    isLimitedAccount: [],
-                },
-            },
+                    isLimitedAccount: []
+                }
+            }
         };
 
         const getPlayerResponse = await lastValueFrom(
@@ -264,8 +264,8 @@ export class UsersService {
                 .get(`https://api.steampowered.com/ISteamUser/GetPlayerSummaries/v2/`, {
                     params: {
                         key: appConfig.steam.webAPIKey,
-                        steamids: steamID,
-                    },
+                        steamids: steamID
+                    }
                 })
                 .pipe(
                     map((res) => {
@@ -315,8 +315,8 @@ export class UsersService {
     private async GetSteamProfileFromSteamID(steamID: string): Promise<SteamUserData['xmlData']> {
         let result: SteamUserData['xmlData'] = {
             profile: {
-                isLimitedAccount: [],
-            },
+                isLimitedAccount: []
+            }
         };
         const getSteamProfileResponse = await lastValueFrom(
             this.http.get(`https://steamcommunity.com/profiles/${steamID}?xml=1`).pipe(
@@ -352,7 +352,7 @@ export class UsersService {
         } else {
             const createInput: Prisma.UserCreateInput = {
                 createdAt: new Date(),
-                updatedAt: new Date(),
+                updatedAt: new Date()
             };
             createInput.steamID = profile.steamID;
             createInput.alias = profile.alias;

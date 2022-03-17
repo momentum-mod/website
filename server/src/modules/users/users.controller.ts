@@ -25,13 +25,13 @@ export class UsersController {
         name: 'skip',
         type: Number,
         description: 'Offset this many records',
-        required: false,
+        required: false
     })
     @ApiQuery({
         name: 'take',
         type: Number,
         description: 'Take this many records',
-        required: false,
+        required: false
     })
     public async GetAllUsers(
         @Query('skip') skip?: number,
@@ -46,7 +46,7 @@ export class UsersController {
         name: 'userID',
         type: Number,
         description: 'Target User ID',
-        required: true,
+        required: true
     })
     public async GetUser(@Param('userID') userID: number): Promise<UserDto> {
         return this.usersService.Get(userID);
@@ -58,7 +58,7 @@ export class UsersController {
         name: 'userID',
         type: Number,
         description: 'Target User ID',
-        required: true,
+        required: true
     })
     public async GetUserProfile(@Param('userID') userID: number): Promise<UserProfileDto> {
         return this.usersService.GetProfile(userID);
@@ -70,19 +70,19 @@ export class UsersController {
         name: 'userID',
         type: Number,
         description: 'Target User ID',
-        required: true,
+        required: true
     })
     @ApiQuery({
         name: 'skip',
         type: Number,
         description: 'Offset this many records',
-        required: false,
+        required: false
     })
     @ApiQuery({
         name: 'take',
         type: Number,
         description: 'Take this many records',
-        required: false,
+        required: false
     })
     public async GetActivities(
         @Param('userID') userID: number,
@@ -98,19 +98,19 @@ export class UsersController {
         name: 'userID',
         type: Number,
         description: 'Target User ID',
-        required: true,
+        required: true
     })
     @ApiQuery({
         name: 'skip',
         type: Number,
         description: 'Offset this many records',
-        required: false,
+        required: false
     })
     @ApiQuery({
         name: 'take',
         type: Number,
         description: 'Take this many records',
-        required: false,
+        required: false
     })
     public async GetFollowers(
         @Param('userID') userID: number,
@@ -126,19 +126,19 @@ export class UsersController {
         name: 'userID',
         type: Number,
         description: 'Target User ID',
-        required: true,
+        required: true
     })
     @ApiQuery({
         name: 'skip',
         type: Number,
         description: 'Offset this many records',
-        required: false,
+        required: false
     })
     @ApiQuery({
         name: 'take',
         type: Number,
         description: 'Take this many records',
-        required: false,
+        required: false
     })
     public async GetFollowed(
         @Param('userID') userID: number,
@@ -154,19 +154,19 @@ export class UsersController {
         name: 'userID',
         type: Number,
         description: 'Target User ID',
-        required: true,
+        required: true
     })
     @ApiQuery({
         name: 'skip',
         type: Number,
         description: 'Offset this many records',
-        required: false,
+        required: false
     })
     @ApiQuery({
         name: 'take',
         type: Number,
         description: 'Take this many records',
-        required: false,
+        required: false
     })
     public async GetMapCredits(
         @Param('userID') userID: number,
@@ -182,19 +182,19 @@ export class UsersController {
         name: 'userID',
         type: Number,
         description: 'Target User ID',
-        required: true,
+        required: true
     })
     @ApiQuery({
         name: 'skip',
         type: Number,
         description: 'Offset this many records',
-        required: false,
+        required: false
     })
     @ApiQuery({
         name: 'take',
         type: Number,
         description: 'Take this many records',
-        required: false,
+        required: false
     })
     public async GetRuns(
         @Param('userID') userID: number,

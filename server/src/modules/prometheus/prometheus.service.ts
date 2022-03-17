@@ -26,7 +26,7 @@ export class PrometheusService {
     constructor() {
         this.registry = new Registry();
         this.registry.setDefaultLabels({
-            app: this.serviceTitle,
+            app: this.serviceTitle
         });
         collectDefaultMetrics({ register: this.registry, prefix: this.servicePrefix });
     }
@@ -44,7 +44,7 @@ export class PrometheusService {
         if (this.registeredGauges[name] === undefined) {
             const gauge = (this.registeredGauges[name] = new Gauge({
                 name: this.servicePrefix + name,
-                help,
+                help
             }));
             this.registry.registerMetric(gauge);
             this.registeredGauges[name] = gauge;

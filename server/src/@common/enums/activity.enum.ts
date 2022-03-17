@@ -6,5 +6,5 @@ export enum EActivityTypes {
     PB_ACHIEVED,
     WR_ACHIEVED,
     REPORT_FILED,
-    USER_JOINED,
+    USER_JOINED
 }

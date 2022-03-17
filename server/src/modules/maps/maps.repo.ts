@@ -12,7 +12,7 @@ export class MapsRepo {
      */
     async Insert(newMap: Prisma.MapCreateInput): Promise<number> {
         const result = await this.prisma.map.create({
-            data: newMap,
+            data: newMap
         });
 
         return result.id;
@@ -24,7 +24,7 @@ export class MapsRepo {
      */
     async GetAll(where?: Prisma.MapWhereInput, skip?: number, take?: number): Promise<[Map[], number]> {
         const count = await this.prisma.map.count({
-            where: where,
+            where: where
         });
         const maps = await this.prisma.map.findMany({
             where: where,
@@ -32,8 +32,8 @@ export class MapsRepo {
             take: take != null ? +take : undefined,
             include: {
                 users: true,
-                mapimages: true,
-            },
+                mapimages: true
+            }
         });
         return [maps, count];
     }
@@ -50,8 +50,8 @@ export class MapsRepo {
             where: where,
             include: {
                 users: true,
-                mapimages: true,
-            },
+                mapimages: true
+            }
         });
     }
 }

@@ -10,7 +10,7 @@ import { MetricsModule } from './modules/metrics/metrics.module';
 import { UserModule } from './modules/user/user.module';
 
 @Module({
-    imports: [UsersModule, MapsModule, UserModule, AuthModule, HealthModule, MetricsModule],
+    imports: [UsersModule, MapsModule, UserModule, AuthModule, HealthModule, MetricsModule]
 })
 export class AppModule implements NestModule {
     public configure(consumer: MiddlewareConsumer): void {
@@ -18,7 +18,7 @@ export class AppModule implements NestModule {
             .apply(RawBodyMiddleware)
             .forRoutes({
                 path: '/auth/steam/user',
-                method: RequestMethod.POST,
+                method: RequestMethod.POST
             })
             .apply(JsonBodyMiddleware)
             .forRoutes('*');

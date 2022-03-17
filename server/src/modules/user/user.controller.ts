@@ -9,7 +9,6 @@ import { UserDto } from '../../@common/dto/user/user.dto';
 @ApiTags('User')
 @UseGuards(JwtAuthGuard)
 export class UserController {
-
     constructor(private readonly userService: UserService) {}
 
     @Get()
@@ -18,4 +17,3 @@ export class UserController {
         return this.userService.Get();
     }
 }
-

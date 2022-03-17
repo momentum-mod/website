@@ -10,7 +10,6 @@ import { AuthModule } from '../auth/auth.module';
     imports: [PrismaModule, UsersModule, AuthModule],
     controllers: [UserController],
     providers: [UserService, UserRepo],
-    exports: [UserService, UserRepo],
+    exports: [UserService, UserRepo]
 })
 export class UserModule {}
-

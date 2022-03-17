@@ -22,7 +22,7 @@ export class AuthService {
             access_token: token,
             expires_in: appConfig.accessToken.expTime,
             refresh_token: refreshToken,
-            token_type: 'JWT',
+            token_type: 'JWT'
         };
 
         this.loggedInUser = user;
@@ -41,22 +41,22 @@ export class AuthService {
             steamID: usr.steamID,
             roles: usr.roles,
             bans: usr.bans,
-            gameAuth: !!gameAuth,
+            gameAuth: !!gameAuth
         };
         const options = {
             issuer: appConfig.domain,
-            expiresIn: gameAuth ? appConfig.accessToken.gameExpTime : appConfig.accessToken.expTime,
+            expiresIn: gameAuth ? appConfig.accessToken.gameExpTime : appConfig.accessToken.expTime
         };
         return await this.jwtService.sign(payload, options);
     }
 
     private async GenRefreshToken(userID: number, gameAuth?: boolean): Promise<string> {
         const payload = {
-            id: userID,
+            id: userID
         };
         const options = {
             issuer: appConfig.domain,
-            expiresIn: gameAuth ? appConfig.accessToken.gameRefreshExpTime : appConfig.accessToken.refreshExpTime,
+            expiresIn: gameAuth ? appConfig.accessToken.gameRefreshExpTime : appConfig.accessToken.refreshExpTime
         };
         return await this.jwtService.sign(payload, options);
     }

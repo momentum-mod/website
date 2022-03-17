@@ -5,7 +5,7 @@ import { AuthService } from '../auth/auth.service';
 
 @Injectable()
 export class UserService {
-    constructor(private readonly usersService: UsersService, private readonly authService: AuthService) { };
+    constructor(private readonly usersService: UsersService, private readonly authService: AuthService) {}
 
     async Get(): Promise<UserDto> {
         return this.usersService.Get(this.authService.loggedInUser.id);

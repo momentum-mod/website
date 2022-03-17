@@ -26,7 +26,7 @@ export class HealthService {
                 this.httpIndicator,
                 appConfig.baseURL_API + '/auth', // needs to be a endpoint that is always avaliable and public
                 this.promClientService
-            ),
+            )
         ];
     }
 
