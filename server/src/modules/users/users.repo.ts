@@ -13,7 +13,7 @@ export class UsersRepo {
      */
     async Insert(newUser: Prisma.UserCreateInput): Promise<User> {
         return await this.prisma.user.create({
-            data: newUser,
+            data: newUser
         });
     }
 
@@ -23,12 +23,12 @@ export class UsersRepo {
      */
     async GetAll(where?: Prisma.UserWhereInput, skip?: number, take?: number): Promise<[User[], number]> {
         const count = await this.prisma.user.count({
-            where: where,
+            where: where
         });
         const users = await this.prisma.user.findMany({
             where: where,
             skip: skip != null ? +skip : undefined,
-            take: take != null ? +take : undefined,
+            take: take != null ? +take : undefined
         });
         return [users, count];
     }
@@ -42,7 +42,7 @@ export class UsersRepo {
         where.id = +id;
 
         return await this.prisma.user.findFirst({
-            where: where,
+            where: where
         });
     }
 
@@ -55,14 +55,14 @@ export class UsersRepo {
         where.steamID = steamID;
 
         return await this.prisma.user.findFirst({
-            where: where,
+            where: where
         });
     }
 
     async Update(user: Prisma.UserAuthWhereUniqueInput, update: Prisma.UserUpdateInput): Promise<User> {
         return await this.prisma.user.update({
             where: user,
-            data: update,
+            data: update
         });
     }
     //#endregion
@@ -75,7 +75,7 @@ export class UsersRepo {
     async UpdateAuth(user: Prisma.UserAuthWhereUniqueInput, update: Prisma.UserAuthUpdateInput): Promise<UserAuth> {
         return await this.prisma.userAuth.update({
             where: user,
-            data: update,
+            data: update
         });
     }
     //#endregion
@@ -92,8 +92,8 @@ export class UsersRepo {
         const userProfile = await this.prisma.user.findFirst({
             where: where,
             include: {
-                profiles: true,
-            },
+                profiles: true
+            }
         });
 
         return [userProfile, (userProfile as any).profiles];
@@ -108,7 +108,7 @@ export class UsersRepo {
         where.userID = +userID;
 
         return await this.prisma.profile.findFirst({
-            where: where,
+            where: where
         });
     }
 
@@ -120,7 +120,7 @@ export class UsersRepo {
         where.userID = +userID;
 
         const count = await this.prisma.activity.count({
-            where: where,
+            where: where
         });
         const activities = await this.prisma.activity.findMany({
             where: where,
@@ -129,10 +129,10 @@ export class UsersRepo {
             include: {
                 users: {
                     include: {
-                        profiles: true,
-                    },
-                },
-            },
+                        profiles: true
+                    }
+                }
+            }
         });
 
         return [activities, count];
@@ -143,13 +143,13 @@ export class UsersRepo {
     async GetFollowers(userID: number, skip?: number, take?: number): Promise<[Follow[], number]> {
         const where: Prisma.FollowWhereInput = {};
         const userWhere: Prisma.UserWhereInput = {
-            id: +userID,
+            id: +userID
         };
 
         where.users_follows_followedIDTousers = userWhere;
 
         const count = await this.prisma.follow.count({
-            where: where,
+            where: where
         });
         const followers = await this.prisma.follow.findMany({
             where: where,
@@ -158,15 +158,15 @@ export class UsersRepo {
             include: {
                 users_follows_followeeIDTousers: {
                     include: {
-                        profiles: true,
-                    },
+                        profiles: true
+                    }
                 },
                 users_follows_followedIDTousers: {
                     include: {
-                        profiles: true,
-                    },
-                },
-            },
+                        profiles: true
+                    }
+                }
+            }
         });
 
         return [followers, count];
@@ -175,13 +175,13 @@ export class UsersRepo {
     async GetFollowing(userID: number, skip?: number, take?: number): Promise<[Follow[], number]> {
         const where: Prisma.FollowWhereInput = {};
         const userWhere: Prisma.UserWhereInput = {
-            id: +userID,
+            id: +userID
         };
 
         where.users_follows_followeeIDTousers = userWhere;
 
         const count = await this.prisma.follow.count({
-            where: where,
+            where: where
         });
         const followees = await this.prisma.follow.findMany({
             where: where,
@@ -190,15 +190,15 @@ export class UsersRepo {
             include: {
                 users_follows_followeeIDTousers: {
                     include: {
-                        profiles: true,
-                    },
+                        profiles: true
+                    }
                 },
                 users_follows_followedIDTousers: {
                     include: {
-                        profiles: true,
-                    },
-                },
-            },
+                        profiles: true
+                    }
+                }
+            }
         });
 
         return [followees, count];
@@ -211,7 +211,7 @@ export class UsersRepo {
         where.userID = +userID;
 
         const count = await this.prisma.mapCredit.count({
-            where: where,
+            where: where
         });
         const mapCredit = await this.prisma.mapCredit.findMany({
             where: where,
@@ -220,16 +220,16 @@ export class UsersRepo {
             include: {
                 users: {
                     include: {
-                        profiles: true,
-                    },
+                        profiles: true
+                    }
                 },
                 maps: {
                     include: {
                         users: true,
-                        mapimages: true,
-                    },
-                },
-            },
+                        mapimages: true
+                    }
+                }
+            }
         });
 
         return [mapCredit, count];
@@ -242,7 +242,7 @@ export class UsersRepo {
         where.playerID = +userID;
 
         const count = await this.prisma.run.count({
-            where: where,
+            where: where
         });
         const runs = await this.prisma.run.findMany({
             where: where,
@@ -250,8 +250,8 @@ export class UsersRepo {
             take: take != null ? +take : undefined,
             include: {
                 users: true,
-                mapranks: true,
-            },
+                mapranks: true
+            }
         });
 
         return [runs, count];

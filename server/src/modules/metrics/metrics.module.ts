@@ -7,6 +7,6 @@ import { HealthModule } from '../health/health.module';
 @Module({
     imports: [PrometheusModule, HealthModule],
     providers: [MetricsService],
-    controllers: [MetricsController],
+    controllers: [MetricsController]
 })
 export class MetricsModule {}

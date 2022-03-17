@@ -14,7 +14,7 @@ async function bootstrap() {
     };
 
     const options: NestApplicationOptions = {
-        bodyParser: false,
+        bodyParser: false
     };
 
     const app = await NestFactory.create(AppModule, options);

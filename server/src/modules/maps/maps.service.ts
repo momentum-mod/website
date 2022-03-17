@@ -35,7 +35,7 @@ export class MapsService {
         return {
             totalCount: totalCount,
             returnCount: mapsDtos.length,
-            response: mapsDtos,
+            response: mapsDtos
         };
     }
 
@@ -65,8 +65,8 @@ export class MapsService {
         const createPrisma: Prisma.MapCreateInput = {
             users: {
                 connect: {
-                    id: this.authService.loggedInUser.id,
-                },
+                    id: this.authService.loggedInUser.id
+                }
             },
             name: mapCreateObj.name,
             type: mapCreateObj.type,
@@ -77,8 +77,8 @@ export class MapsService {
                     creationDate: mapCreateObj.info.creationDate,
                     youtubeID: mapCreateObj.info.youtubeID,
                     createdAt: new Date(),
-                    updatedAt: new Date(),
-                },
+                    updatedAt: new Date()
+                }
             },
             maptracks: {
                 createMany: {
@@ -89,10 +89,10 @@ export class MapsService {
                             trackNum: track.trackNum,
                             difficulty: track.difficulty,
                             createdAt: new Date(),
-                            updatedAt: new Date(),
+                            updatedAt: new Date()
                         };
-                    }),
-                },
+                    })
+                }
             },
             mapcredits: {
                 createMany: {
@@ -101,13 +101,13 @@ export class MapsService {
                             type: credit.type,
                             userID: credit.userID,
                             createdAt: new Date(),
-                            updatedAt: new Date(),
+                            updatedAt: new Date()
                         };
-                    }),
-                },
+                    })
+                }
             },
             createdAt: new Date(),
-            updatedAt: new Date(),
+            updatedAt: new Date()
         };
         const dbResponse = await this.mapRepo.Insert(createPrisma);
 
@@ -142,9 +142,9 @@ export class MapsService {
             NOT: {
                 statusFlag: EMapStatus.REJECTED,
                 OR: {
-                    statusFlag: EMapStatus.REMOVED,
-                },
-            },
+                    statusFlag: EMapStatus.REMOVED
+                }
+            }
         };
 
         const whereResult = await this.mapRepo.GetAll(where);
@@ -161,7 +161,7 @@ export class MapsService {
 
         const where: Prisma.MapWhereInput = {
             submitterID: submitterID,
-            statusFlag: EMapStatus.PENDING,
+            statusFlag: EMapStatus.PENDING
         };
 
         const whereResult = await this.mapRepo.GetAll(where);

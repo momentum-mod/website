@@ -9,7 +9,7 @@ export enum EMapType {
     AHOP = 7,
     PARKOUR = 8,
     CONC = 9,
-    DEFRAG = 10,
+    DEFRAG = 10
 }
 
 export enum EMapStatus {
@@ -20,17 +20,17 @@ export enum EMapStatus {
     PUBLIC_TESTING = 4,
     READY_FOR_RELEASE = 5,
     REJECTED = 6,
-    REMOVED = 7,
+    REMOVED = 7
 }
 
 export enum EMapCreditType {
     AUTHOR = 0,
     COAUTHOR = 1,
     TESTER = 2,
-    SPECIAL_THANKS = 3,
+    SPECIAL_THANKS = 3
 }
 
 // TODO: Finish enum
 export enum EMapTriggerType {
-    UNKNOWN = 0,
+    UNKNOWN = 0
 }

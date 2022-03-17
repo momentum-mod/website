@@ -19,13 +19,13 @@ export class MapsController {
         name: 'skip',
         type: Number,
         description: 'Offset this many records',
-        required: false,
+        required: false
     })
     @ApiQuery({
         name: 'take',
         type: Number,
         description: 'Take this many records',
-        required: false,
+        required: false
     })
     public async GetAllMaps(
         @Query('skip') skip?: number,
@@ -40,7 +40,7 @@ export class MapsController {
         name: 'mapID',
         type: Number,
         description: 'Target Map ID',
-        required: true,
+        required: true
     })
     public async GetMap(@Param('mapID') mapID: number): Promise<MapDto> {
         return this.mapsService.Get(mapID);
@@ -51,7 +51,7 @@ export class MapsController {
     @ApiBody({
         type: CreateMapDto,
         description: 'Create map data transfer object',
-        required: true,
+        required: true
     })
     public async CreateMap(@Body() mapCreateObj: CreateMapDto): Promise<MapDto> {
         return this.mapsService.Insert(mapCreateObj);
