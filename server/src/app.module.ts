@@ -3,6 +3,7 @@ import { MiddlewareConsumer, Module, NestModule, RequestMethod } from '@nestjs/c
 import { AuthModule } from './modules/auth/auth.module';
 import { JsonBodyMiddleware } from './middlewares/json-body.middleware';
 import { RawBodyMiddleware } from './middlewares/raw-body.middleware';
+import { HTTPLoggerMiddleware } from './middlewares/http-logger.middleware';
 import { MapsModule } from './modules/maps/maps.module';
 import { UsersModule } from './modules/users/users.module';
 import { HealthModule } from './modules/health/health.module';
@@ -21,6 +22,8 @@ export class AppModule implements NestModule {
                 method: RequestMethod.POST
             })
             .apply(JsonBodyMiddleware)
-            .forRoutes('*');
+            .forRoutes('*')
+            .apply(HTTPLoggerMiddleware)
+            .forRoutes('/api/*');
     }
 }

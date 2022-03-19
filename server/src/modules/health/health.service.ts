@@ -8,12 +8,15 @@ import { appConfig } from 'config/config';
 @Injectable()
 export class HealthService {
     private readonly listOfThingsToMonitor: HealthIndicator[];
+    private readonly logger: Logger;
 
     constructor(
         private health: HealthCheckService,
         private httpIndicator: HttpHealthIndicator,
         private promClientService: PrometheusService
     ) {
+        this.logger = new Logger('HealthService');
+
         this.listOfThingsToMonitor = [
             new ApiHealthIndicator(
                 'Api',
@@ -37,7 +40,7 @@ export class HealthService {
                 try {
                     return await apiIndicator.isHealthy();
                 } catch (e) {
-                    Logger.warn(e);
+                    this.logger.warn(JSON.stringify(e));
                     return apiIndicator.reportUnhealthy();
                 }
             })
