@@ -37,7 +37,7 @@ export class HealthService {
                 try {
                     return await apiIndicator.isHealthy();
                 } catch (e) {
-                    Logger.warn(e);
+                    Logger.warn(JSON.stringify(e));
                     return apiIndicator.reportUnhealthy();
                 }
             })

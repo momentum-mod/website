@@ -25,21 +25,21 @@ export class MapDto implements MapDB {
         }
 
         Logger.log('MapDto');
-        Logger.log(_map);
+        Logger.log(JSON.stringify(_map));
 
         let submitter = _submitter;
         if (submitter == null) {
             // if null then try get it from map object
             submitter = (_map as any).users;
         }
-        Logger.log(submitter);
+        Logger.log(JSON.stringify(submitter));
 
         let images = _images;
         if (images == null || images.length == 0) {
             // if null then try get it from map object
             images = (_map as any).mapimages;
         }
-        Logger.log(images);
+        Logger.log(JSON.stringify(images));
 
         this.id = _map.id;
         this.name = _map.name;
