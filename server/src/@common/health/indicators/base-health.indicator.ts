@@ -8,6 +8,7 @@ import { Gauge } from 'prom-client';
 const TAG = 'HealthCheck';
 
 export abstract class BaseHealthIndicator extends HealthIndicator {
+    private readonly logger: Logger;
     public abstract name: string;
     public callMetrics: any;
 
@@ -21,9 +22,14 @@ export abstract class BaseHealthIndicator extends HealthIndicator {
     private gaugesRegistered = false;
     private gauge: Gauge<string> | undefined;
 
+    constructor() {
+        super();
+        this.logger = new Logger('BaseHealthIndicator');
+    }
+
     protected registerMetrics(): void {
         if (this.promClientService) {
-            Logger.log('Register metrics histogram for: ' + this.name, TAG, true);
+            this.logger.log(`Register metrics histogram for: ${this.name} ${TAG}`);
             this.metricsRegistered = true;
             const histogram: PrometheusHistogram = this.promClientService.registerMetrics(
                 this.name,
@@ -37,7 +43,7 @@ export abstract class BaseHealthIndicator extends HealthIndicator {
 
     protected registerGauges(): void {
         if (this.promClientService) {
-            Logger.log('Register metrics gauge for: ' + this.name, TAG, true);
+            this.logger.log(`Register metrics gauge for: ${this.name} ${TAG}`);
             this.gaugesRegistered = true;
             this.gauge = this.promClientService.registerGauge(this.name, this.help);
         }
@@ -50,7 +56,7 @@ export abstract class BaseHealthIndicator extends HealthIndicator {
     public updatePrometheusData(isConnected: boolean): void {
         if (this.stateIsConnected !== isConnected) {
             if (isConnected) {
-                Logger.log(this.name + ' is available', TAG, true);
+                this.logger.log(`${this.name} is available ${TAG}`);
             }
 
             this.stateIsConnected = isConnected;

@@ -24,6 +24,6 @@ export class AppModule implements NestModule {
             .apply(JsonBodyMiddleware)
             .forRoutes('*')
             .apply(HTTPLoggerMiddleware)
-            .forRoutes('*');
+            .forRoutes('/api/*');
     }
 }
