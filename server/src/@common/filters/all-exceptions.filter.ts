@@ -3,19 +3,19 @@ import { HttpAdapterHost } from '@nestjs/core';
 import { PrismaClientKnownRequestError } from '@prisma/client/runtime';
 
 @Catch()
-export class PrismaClientExceptionFilter implements ExceptionFilter {
+export class AllExceptionsFilter implements ExceptionFilter {
     constructor(private readonly httpAdapterHost: HttpAdapterHost) {}
 
     catch(e: any, host: ArgumentsHost): void {
         const { httpAdapter } = this.httpAdapterHost;
         const ctx = host.switchToHttp();
 
-        const errorCode = PrismaClientExceptionFilter.GenerateErrorCode();
+        const errorCode = AllExceptionsFilter.GenerateErrorCode();
 
         const responseBody = {
             statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
             // Don't send database-related errors
-            message: e instanceof PrismaClientKnownRequestError ? e.message : 'Database Error',
+            message: e instanceof PrismaClientKnownRequestError ? 'Database Error' : e.message,
             errorCode: errorCode
         };
 
