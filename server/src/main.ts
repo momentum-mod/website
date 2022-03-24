@@ -4,7 +4,7 @@ import { PrismaRepo } from './modules/prisma/prisma.repo';
 import { AppModule } from './app.module';
 import { appConfig } from '../config/config';
 import { NestApplicationOptions } from '@nestjs/common';
-import { PrismaClientExceptionFilter } from './@common/filters/prisma-client-exception.filter';
+import { AllExceptionsFilter } from './@common/filters/all-exceptions.filter';
 
 async function bootstrap() {
     // MDN recommended hack override for BigInt
@@ -32,7 +32,7 @@ async function bootstrap() {
     const prismaDalc: PrismaRepo = app.get(PrismaRepo);
     prismaDalc.enableShutdownHooks(app);
     const httpAdapterHost = app.get(HttpAdapterHost);
-    app.useGlobalFilters(new PrismaClientExceptionFilter(httpAdapterHost));
+    app.useGlobalFilters(new AllExceptionsFilter(httpAdapterHost));
 
     await app.listen(appConfig.port);
 }
