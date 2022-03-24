@@ -108,9 +108,6 @@
                             [ngClass]="{'form-control-danger': description.invalid && (description.dirty || description.touched)}"></textarea>
                   <div class="form-text">
                     <div class="d-flex">
-                      <span class="mr-auto">
-                        <i><a href="https://help.github.com/articles/basic-writing-and-formatting-syntax/" target="_blank">Markdown</a> is supported</i>
-                      </span>
                       <span class="ml-2 text-right">{{1000 - description.value.length | ngxPlural:'character'}} remaining</span>
                     </div>
                   </div>
