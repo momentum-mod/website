@@ -31,15 +31,6 @@
               <div class="col-12 col-md-6 pt-5 pt-md-0 optional-col">
                 <h3 class="mb-3 col-title">Optional</h3>
                 <div class="d-flex flex-wrap justify-content-around">
-                  <div class="flex-grow-1 mx-3 mb-5 input-col">
-                    <h5 class="mb-1 font-weight-normal">YouTube URL
-                      <nb-icon icon="question-mark-circle-outline"
-                               [nbPopover]="'Any link with YouTube video ID or video ID itself will work'"
-                               [nbPopoverTrigger]="'hint'"></nb-icon>
-                    </h5>
-                    <input nbInput type="text" class="form-control" formControlName="youtubeURL"
-                           [ngClass]="{'form-control-danger': youtubeURL.invalid}"/>
-                  </div>
                   <div class="flex-grow-1 mx-3 mb-4 input-col">
                     <h5 class="mb-1 font-weight-normal">Additional Map Photos
                       <nb-icon icon="question-mark-circle-outline"
@@ -101,6 +92,15 @@
                            [ngClass]="{'form-control-danger': creationDate.invalid && (creationDate.dirty || creationDate.touched)}"/>
                     <nb-datepicker #datepicker [boundingMonth]="false"></nb-datepicker>
                   </div>
+                </div>
+                <div class="form-group">
+                  <label>YouTube URL (Optional)
+                    <nb-icon icon="question-mark-circle-outline"
+                             [nbPopover]="'Any link with YouTube video ID or video ID itself will work'"
+                             [nbPopoverTrigger]="'hint'"></nb-icon>
+                  </label>
+                  <input nbInput type="text" class="form-control" formControlName="youtubeURL"
+                         [ngClass]="{'form-control-danger': youtubeURL.invalid}"/>
                 </div>
                 <div class="form-group">
                   <label>Map Description</label>
