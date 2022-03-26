@@ -10,24 +10,31 @@
                 <h3 class="mb-3 col-title">Required</h3>
                 <div class="d-flex flex-wrap justify-content-around">
                   <div class="flex-grow-1 col-md-6 mx-3 mb-3 input-col">
-                    <div *nfIf="!mapFile">
-                      <p>test</p>
-                    </div>
                     <h5 class="mb-1 font-weight-normal">Map File</h5>
-                    <input nbInput [readonly]="true" class="mb-1 form-control" formControlName="map"
-                           [ngClass]="{'form-control-danger': map.invalid && (map.dirty || map.touched)}"/>
-                    <file-upload [type]="'map'" [limit-size]="300"
-                                 (fileSelected)="onMapFileSelected($event)"></file-upload>
+                    <div *ngIf="!mapFile">
+                      <file-upload [type]="'map'" [limit-size]="300"
+                                  (fileSelected)="onMapFileSelected($event)"></file-upload>
+                    </div>
+                    <div *ngIf="mapFile">
+                      <input nbInput [readonly]="true" class="mb-1 form-control" formControlName="map"
+                            [ngClass]="{'form-control-danger': map.invalid && (map.dirty || map.touched)}"/>
+                      <button class="mt-3" nbButton outline fullWidth [status]="'danger'" (click)="onRemoveMap()">Remove Map</button>
+                    </div>
                   </div>
                   <div class="flex-grow-1 col-md-6 mx-3 mb-3 input-col">
                     <h5 class="mb-1 font-weight-normal">Map Thumbnail
                       <nb-icon icon="question-mark-circle-outline"
-                               [nbPopover]="'Make sure to choose the image that represents your map the best! This will be the main image that shows up in the map selector for your map!'"
-                               [nbPopoverTrigger]="'hint'"></nb-icon>
+                              [nbPopover]="'Make sure to choose the image that represents your map the best! This will be the main image that shows up in the map selector for your map!'"
+                              [nbPopoverTrigger]="'hint'"></nb-icon>
                     </h5>
-                    <input nbInput [readonly]="true" class="mb-1 form-control" formControlName="avatar"
-                           [ngClass]="{'form-control-danger': avatar.invalid && (avatar.dirty || avatar.touched)}"/>
-                    <file-upload [type]="'image'" (fileSelected)="onAvatarFileSelected($event)"></file-upload>
+                    <div *ngIf="!avatarFile">
+                      <file-upload [type]="'image'" (fileSelected)="onAvatarFileSelected($event)"></file-upload>
+                    </div>
+                    <div *ngIf="avatarFile">
+                      <input nbInput [readonly]="true" class="mb-1 form-control" formControlName="avatar"
+                             [ngClass]="{'form-control-danger': avatar.invalid && (avatar.dirty || avatar.touched)}"/>
+                      <button class="mt-3" nbButton outline fullWidth [status]="'danger'" (click)="onRemoveAvatar()">Remove Thumbnail</button>
+                    </div>
                   </div>
                   <div class="col-md-10 flex-grow-1 mx-3 mb-4 mt-2">
                     <div *ngIf="!zoneFile">

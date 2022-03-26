@@ -400,4 +400,19 @@ export class MapUploadFormComponent implements OnInit, AfterViewInit {
     this.zoneFile = null;
     this.infoForm.patchValue({zones: ''});
   }
+
+  onRemoveMap() {
+    this.mapFile = null;
+    this.map.patchValue('');
+    this.name.patchValue('');
+    this.type.patchValue('');
+
+    this.filesForm.patchValue({map: ''});
+  }
+
+  onRemoveAvatar() {
+    this.avatarFile = null;
+    this.avatar.patchValue('');
+    this.filesForm.patchValue({avatar: ''});
+  }
 }
