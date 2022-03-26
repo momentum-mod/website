@@ -52,14 +52,14 @@ export class MapUploadFormComponent implements OnInit, AfterViewInit {
   filesForm: FormGroup = this.fb.group({
     'map': ['', [Validators.required, Validators.pattern(/.+(\.bsp)/)]],
     'avatar': ['', [Validators.required, Validators.pattern(/.+(\.(pn|jpe?)g)/i)]],
-    'youtubeURL': ['', [Validators.pattern(youtubeRegex)]],
+    'zones': ['', [Validators.required, Validators.pattern(/.+(\.zon)/)]],
   });
   infoForm: FormGroup = this.fb.group( {
     'name': ['', [Validators.required, Validators.maxLength(32)]],
     'type': [ MomentumMapType.UNKNOWN, Validators.required],
     'description': ['', [Validators.required, Validators.maxLength(1000)]],
     'creationDate': [new Date(), [Validators.required, Validators.max(Date.now())]],
-    'zones': ['', [Validators.required, Validators.pattern(/.+(\.zon)/)]],
+    'youtubeURL': ['', [Validators.pattern(youtubeRegex)]],
   });
   creditsForm: FormGroup = this.fb.group({
     'authors': [[], Validators.required],
@@ -71,7 +71,7 @@ export class MapUploadFormComponent implements OnInit, AfterViewInit {
 
   get map() { return this.filesForm.get('map'); }
   get avatar() { return this.filesForm.get('avatar'); }
-  get youtubeURL() { return this.filesForm.get('youtubeURL'); }
+  get youtubeURL() { return this.infoForm.get('youtubeURL'); }
   get name() { return this.infoForm.get('name'); }
   get type() { return this.infoForm.get('type'); }
   get description() { return this.infoForm.get('description'); }
@@ -207,7 +207,7 @@ export class MapUploadFormComponent implements OnInit, AfterViewInit {
       }
       this.generatePreviewMap();
     });
-    this.infoForm.patchValue({zones: this.zoneFile.name});
+    this.filesForm.patchValue({zones: this.zoneFile.name});
   }
 
   onSubmit($event) {
@@ -398,7 +398,7 @@ export class MapUploadFormComponent implements OnInit, AfterViewInit {
   onRemoveZones() {
     this.tracks = [];
     this.zoneFile = null;
-    this.infoForm.patchValue({zones: ''});
+    this.filesForm.patchValue({zones: ''});
   }
 
   onRemoveMap() {
