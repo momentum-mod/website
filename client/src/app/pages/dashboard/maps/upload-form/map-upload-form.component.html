@@ -146,29 +146,6 @@
                   </div>
                 </div>
               </div>
-              <div class="col-12 col-md-6 mb-4">
-                <div *ngIf="!zoneFile">
-                  <file-upload [type]="'zones'" (fileSelected)="onZoneFileSelected($event)"></file-upload>
-                </div>
-                <div *ngIf="zoneFile">
-                  <nb-list class="mb-2">
-                    <nb-list-item *ngFor="let track of tracks">
-                      <div class="row no-gutters align-items-center">
-                        <div class="col mr-1">
-                          {{track.trackNum ? 'Bonus Track ' + track.trackNum : 'Main Track'}} with
-                          {{track.numZones | ngxPlural:(track.isLinear ? 'checkpoint' : 'stage')}}.
-                        </div>
-                        <div class="col-auto">
-                          <label class="mr-1 mb-0" [for]="'trackDiff' + track.trackNum">Difficulty:</label>
-                          <input nbInput [id]="'trackDiff' + track.trackNum" [type]="'number'" min="1" max="12"
-                                 [(ngModel)]="track.difficulty" [ngModelOptions]="{standalone: true}">
-                        </div>
-                      </div>
-                    </nb-list-item>
-                  </nb-list>
-                  <button nbButton outline fullWidth [status]="'danger'" (click)="onRemoveZones()">Remove Zones</button>
-                </div>
-              </div>
             </div>
           </form>
         </nb-step>
