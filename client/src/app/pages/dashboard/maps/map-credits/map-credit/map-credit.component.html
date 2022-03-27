@@ -13,7 +13,7 @@
 </nb-list>
 <div class="text-center" *ngIf="userSearch">
   <div class="mb-2 text-danger" *ngIf="userSearch.alreadySelected">User already selected!</div>
-  <user-search class="text-left" (selectedUserEmit)="addUser($event)"></user-search>
+  <user-search class="text-left" (selectedUserEmit)="addUser($event)" limit="20"></user-search>
   <button class="mt-3" nbButton outline status="danger" size="tiny"
           (click)="removeUserSearch()">Cancel</button>
 </div>

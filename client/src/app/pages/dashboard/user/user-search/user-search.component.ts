@@ -1,4 +1,4 @@
-import {Component, ElementRef, EventEmitter, OnInit, Output, ViewChild} from '@angular/core';
+import {Component, ElementRef, EventEmitter, Input, OnInit, Output, ViewChild} from '@angular/core';
 import {UsersService} from '../../../../@core/data/users.service';
 import {User} from '../../../../@core/models/user.model';
 import {FormBuilder, FormGroup} from '@angular/forms';
@@ -18,12 +18,14 @@ export class UserSearchComponent implements OnInit {
 
   foundUsers: User[];
 
+  @Input() limit: Number;
   @Output() selectedUserEmit: EventEmitter<User>;
   @ViewChild('searchInput', {static: true}) searchInput: ElementRef;
   constructor(private fb: FormBuilder,
               private usersService: UsersService) {
     this.selectedUserEmit = new EventEmitter<User>();
     this.foundUsers = [];
+    this.limit = 5;
   }
 
   ngOnInit() {
@@ -37,7 +39,7 @@ export class UserSearchComponent implements OnInit {
           this.usersService.getUsers({
             params: {
               search: val,
-              limit: 5,
+              limit: this.limit,
             },
           }).subscribe(resp => {
             this.foundUsers = resp.users;
