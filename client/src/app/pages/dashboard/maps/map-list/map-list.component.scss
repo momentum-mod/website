@@ -2,7 +2,18 @@ nb-list-item > * {
   flex-basis: 100%;
 }
 
-.form-col {
-  padding-left: 10px;
-  padding-right: 10px;
+.search {
+  gap: 1em;
+  .search-controls {
+    gap: 1em 2em;
+
+    input {
+      width: 275px;
+    }
+
+    .search-toggles {
+      gap: 1em;
+      margin-bottom: -0.5rem;
+    }
+  }
 }

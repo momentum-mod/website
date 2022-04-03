@@ -42,6 +42,8 @@ export class MapListComponent implements OnInit {
     // 'author': [''],
     'status': [],
     'type': [],
+    'inLibrary': [false],
+    'inFavorites': [false],
   });
   lastSearch: {
     search: string,
