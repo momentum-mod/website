@@ -43,16 +43,16 @@ export const MENU_ITEMS: NbMenuItem[] = [
           ],
         },
       },
-      {
-        title: 'My Library',
-        icon: 'hard-drive-outline',
-        link: '/dashboard/maps/library',
-      },
-      {
-        title: 'Favorite Maps',
-        icon: 'star-outline',
-        link: '/dashboard/maps/favorites',
-      },
+      // {
+      //   title: 'My Library',
+      //   icon: 'hard-drive-outline',
+      //   link: '/dashboard/maps/library',
+      // },
+      // {
+      //   title: 'Favorite Maps',
+      //   icon: 'star-outline',
+      //   link: '/dashboard/maps/favorites',
+      // },
       {
         title: 'Browse Maps',
         icon: 'cloud-download-outline',
