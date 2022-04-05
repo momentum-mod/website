@@ -3,16 +3,16 @@ nb-list-item > * {
 }
 
 .search {
-  gap: 1em;
+  gap: 1rem;
   .search-controls {
-    gap: 1em 2em;
+    gap: 1rem 2rem;
 
     input {
       width: 275px;
     }
 
     .search-toggles {
-      gap: 1em;
+      gap: 2rem;
       margin-bottom: -0.5rem;
     }
   }

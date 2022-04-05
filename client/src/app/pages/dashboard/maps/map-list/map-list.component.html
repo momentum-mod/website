@@ -1,5 +1,6 @@
 <div class="container-fluid mb-3">
-  <form class="d-flex flex-wrap align-items-center justify-content-between search" [formGroup]="searchOptions" (ngSubmit)="onPageChange(1)" (change)="onPageChange(1)">
+  <form class="d-flex flex-wrap align-items-center justify-content-between search" [formGroup]="searchOptions"
+    (ngSubmit)="onPageChange(1)" (change)="onPageChange(1)">
     <div class="d-flex flex-wrap align-items-center search-controls">
       <input nbInput fullWidth class="form-control" type="text" placeholder="Map Name" formControlName="search">
       <!-- TODO: Enable when map credits get reworked (#415) -->
@@ -16,9 +17,9 @@
       </nb-select>
       <div class="d-flex search-toggles">
         <nb-toggle class="test" formControlName="inLibrary" labelPosition="left" *ngIf="!isUpload">Library</nb-toggle>
-        <nb-toggle class="test" formControlName="inFavorites" labelPosition="left" *ngIf="!isUpload">Favorites</nb-toggle>
+        <nb-toggle class="test" formControlName="inFavorites" labelPosition="left" *ngIf="!isUpload">Favorites
+        </nb-toggle>
       </div>
-      
     </div>
     <button nbButton outline status="info" type="submit">Search</button>
   </form>
@@ -31,12 +32,13 @@
         totalItems: mapCount
       }">
       <map-list-item [map]="map" [inLibrary]="isMapInLibrary(map)" (onLibraryUpdate)="libraryUpdate()"
-                     [isUpload]="isUpload"
-                     [inFavorites]="isMapInFavorites(map)" (onFavoriteUpdate)="favoriteUpdate()"></map-list-item>
+        [isUpload]="isUpload" [inFavorites]="isMapInFavorites(map)" (onFavoriteUpdate)="favoriteUpdate()">
+      </map-list-item>
     </nb-list-item>
   </nb-list>
   <div class="text-center">
-    <pagination-controls (pageChange)="onPageChange($event)" [autoHide]="true" [responsive]="true"></pagination-controls>
+    <pagination-controls (pageChange)="onPageChange($event)" [autoHide]="true" [responsive]="true">
+    </pagination-controls>
   </div>
 </div>
 <div class="text-center" *ngIf="maps.length === 0 && requestSent && !isSearchFiltered()">
@@ -45,7 +47,7 @@
       <i>You have not uploaded any maps. Try <a routerLink="/dashboard/maps/uploads/new">uploading a new one!</a></i>
     </ng-template>
     <ng-template #elseBlock>
-      <h3 >No maps found!</h3>
+      <h3>No maps found!</h3>
     </ng-template>
   </h3>
 </div>

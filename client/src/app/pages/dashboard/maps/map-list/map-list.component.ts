@@ -140,8 +140,8 @@ export class MapListComponent implements OnInit {
       observer = this.locUsrService.getSubmittedMaps(options);
     } else if (this.searchOptions.value.inLibrary && this.searchOptions.value.inFavorites) {
       observer = this.locUsrService.getMapLibrary(options)
-        .pipe(map(res => ({count: res.count, maps: res.entries.reduce((acc, {map}) => {
-          map.favorites.length > 0 && acc.push(map);
+        .pipe(map(res => ({count: res.count, maps: res.entries.reduce((acc, curr) => {
+          curr.map.favorites.length > 0 && acc.push(curr.map);
           return acc;
         }, [])})));
     } else if (this.searchOptions.value.inLibrary) {
