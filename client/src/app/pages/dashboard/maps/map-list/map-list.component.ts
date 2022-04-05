@@ -11,14 +11,6 @@ import {NbLayoutScrollService, NbToastrService} from '@nebular/theme';
 import {MapUploadStatus, getStatusFromEnum} from '../../../../@core/models/map-upload-status.model';
 import {MomentumMapType, getTypeFromEnum} from '../../../../@core/models/map-type.model';
 
-
-export enum MapListType {
-  TYPE_BROWSE = 'browse',
-  TYPE_LIBRARY = 'library',
-  TYPE_FAVORITES = 'favorites',
-  TYPE_UPLOADS = 'uploads',
-}
-
 @Component({
   selector: 'map-list',
   templateUrl: './map-list.component.html',
@@ -26,8 +18,7 @@ export enum MapListType {
 })
 export class MapListComponent implements OnInit {
 
-  @Input('type') type: MapListType;
-  mapListType = MapListType;
+  @Input('isUpload') isUpload: boolean;
   statusEnums = [];
   typeEnums = [];
   requestSent: boolean;
@@ -51,6 +42,8 @@ export class MapListComponent implements OnInit {
     // author: string,
     status: number,
     type: number,
+    inLibrary: boolean,
+    inFavorites: boolean,
   };
 
   constructor(private route: ActivatedRoute,
@@ -61,7 +54,7 @@ export class MapListComponent implements OnInit {
               private fb: FormBuilder) {
     this.pageLimit = 10;
     this.currentPage = 1;
-    this.type = MapListType.TYPE_BROWSE;
+    this.isUpload = false;
     this.requestSent = false;
     this.maps = [];
     this.mapCount = 0;
@@ -107,19 +100,10 @@ export class MapListComponent implements OnInit {
   }
 
   ngOnInit() {
-    switch (this.type) {
-      case MapListType.TYPE_LIBRARY:
-        this.noMapsText = 'No maps with those search parameters found in your library.';
-        break;
-      case MapListType.TYPE_FAVORITES:
-        this.noMapsText = 'No favorite maps with those search parameters found.';
-        break;
-      case MapListType.TYPE_UPLOADS:
-        this.noMapsText = 'You have not uploaded any maps with those search parameters.';
-        break;
-      default:
-        this.noMapsText = 'No maps with those search parameters found.';
-        break;
+    if (this.isUpload) {
+      this.noMapsText = 'You have not uploaded any maps with those search parameters.';
+    } else {
+      this.noMapsText = 'No maps with those search parameters found.';
     }
     this.route.queryParamMap.subscribe((paramMap: ParamMap) => {
       this.currentPage = +paramMap.get('page') || 1;
@@ -152,14 +136,20 @@ export class MapListComponent implements OnInit {
   loadMaps() {
     const options = {params: this.genQueryParams()};
     let observer: Observable<any>;
-    if (this.type === MapListType.TYPE_LIBRARY) {
+    if (this.isUpload) {
+      observer = this.locUsrService.getSubmittedMaps(options);
+    } else if (this.searchOptions.value.inLibrary && this.searchOptions.value.inFavorites) {
       observer = this.locUsrService.getMapLibrary(options)
-        .pipe(map(res => ({count: res.count, maps: res.entries.map(val => val.map)})));
-    } else if (this.type === MapListType.TYPE_FAVORITES) {
+        .pipe(map(res => ({count: res.count, maps: res.entries.reduce((acc, {map}) => {
+          map.favorites.length > 0 && acc.push(map);
+          return acc;
+        }, [])})));
+    } else if (this.searchOptions.value.inLibrary) {
+      observer = this.locUsrService.getMapLibrary(options)
+      .pipe(map(res => ({count: res.count, maps: res.entries.map(val => val.map)})));
+    } else if (this.searchOptions.value.inFavorites) {
       observer = this.locUsrService.getMapFavorites(options)
         .pipe(map(res => ({count: res.count, maps: res.favorites.map(val => val.map)})));
-    } else if (this.type === MapListType.TYPE_UPLOADS) {
-      observer = this.locUsrService.getSubmittedMaps(options);
     } else {
       observer = this.mapService.getMaps(options);
     }
@@ -169,8 +159,7 @@ export class MapListComponent implements OnInit {
         this.mapCount = res.count;
         this.maps = res.maps;
       }, err => {
-        this.toasterService.danger(err.message,
-          `Failed to get ${this.type === MapListType.TYPE_LIBRARY ? 'map library' : 'maps'}`);
+        this.toasterService.danger(err.message, 'Failed to get maps');
       });
   }
 
@@ -181,14 +170,14 @@ export class MapListComponent implements OnInit {
   }
 
   isMapInLibrary(m: MomentumMap): boolean {
-    if (this.type === MapListType.TYPE_LIBRARY)
+    if (this.searchOptions.value.inLibrary)
       return true;
     else
       return m.libraryEntries && m.libraryEntries.length > 0;
   }
 
   libraryUpdate(): void {
-    if (this.type === MapListType.TYPE_LIBRARY) {
+    if (this.searchOptions.value.inLibrary) {
       if (this.isLastItemInLastPage())
         this.currentPage--;
       this.loadMaps();
@@ -196,7 +185,7 @@ export class MapListComponent implements OnInit {
   }
 
   favoriteUpdate() {
-    if (this.type === MapListType.TYPE_FAVORITES) {
+    if (this.searchOptions.value.inFavorites) {
       if (this.isLastItemInLastPage())
         this.currentPage--;
       this.loadMaps();
@@ -204,15 +193,15 @@ export class MapListComponent implements OnInit {
   }
 
   isMapInFavorites(m: MomentumMap) {
-    if (this.type === MapListType.TYPE_FAVORITES)
+    if (this.searchOptions.value.inFavorites)
       return true;
     else
       return m.favorites && m.favorites.length > 0;
   }
 
   isSearchFiltered(): boolean {
-    const {search, status, type} = this.lastSearch;
-    return (search && search.length > 0) || (status !== null && status >= 0) || (type !== null && type >= 0);
+    const {search, status, type, inLibrary, inFavorites} = this.lastSearch;
+    return (search && search.length > 0) || (status !== null && status >= 0) || (type !== null && type >= 0) || inLibrary || inFavorites;
   }
 
   isLastItemInLastPage(): boolean {

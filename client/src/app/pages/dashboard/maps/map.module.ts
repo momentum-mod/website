@@ -21,6 +21,7 @@ import {
   NbListModule,
   NbSelectModule,
   NbStepperModule,
+  NbToggleModule,
 } from '@nebular/theme';
 import {MapCreditsComponent} from './map-credits/map-credits.component';
 import {UserModule} from '../user/user.module';
@@ -56,6 +57,7 @@ import {MapListComponent} from './map-list/map-list.component';
     UserModule,
     MarkdownModule.forChild(),
     MapRoutingModule,
+    NbToggleModule,
   ],
   declarations: [
     MapComponent,

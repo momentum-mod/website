@@ -1,5 +1,5 @@
 <div class="container-fluid mb-3">
-  <form class="d-flex flex-wrap align-items-center justify-content-between search" [formGroup]="searchOptions" (ngSubmit)="onPageChange(1)" (change)="onSearchChange()">
+  <form class="d-flex flex-wrap align-items-center justify-content-between search" [formGroup]="searchOptions" (ngSubmit)="onPageChange(1)" (change)="onPageChange(1)">
     <div class="d-flex flex-wrap align-items-center search-controls">
       <input nbInput fullWidth class="form-control" type="text" placeholder="Map Name" formControlName="search">
       <!-- TODO: Enable when map credits get reworked (#415) -->
@@ -7,16 +7,16 @@
         <input nbInput fullWidth class="form-control" type="text" placeholder="Author" formControlName="author">
       </div> -->
       <!-- TODO: When the author field is added change mt-md-0 to mt-lg-0 -->
-      <nb-select placeholder="Game Mode" formControlName="type" (selectedChange)="onSearchChange()">
+      <nb-select placeholder="Game Mode" formControlName="type" (selectedChange)="onPageChange(1)">
         <nb-option *ngFor="let enum of typeEnums" [value]="enum.value">{{enum.text}}</nb-option>
       </nb-select>
       <!-- TODO: When the author field is added change mt-lg-0 to mt-xl-0 -->
-      <nb-select placeholder="Status" formControlName="status" *ngIf="type === mapListType.TYPE_UPLOADS">
+      <nb-select placeholder="Status" formControlName="status" (selectedChange)="onPageChange(1)" *ngIf="isUpload">
         <nb-option *ngFor="let enum of statusEnums" [value]="enum.value">{{enum.text}}</nb-option>
       </nb-select>
       <div class="d-flex search-toggles">
-        <nb-toggle class="test" formControlName="inLibrary" labelPosition="left">Library</nb-toggle>
-        <nb-toggle class="test" formControlName="inFavorites" labelPosition="left">Favorites</nb-toggle>
+        <nb-toggle class="test" formControlName="inLibrary" labelPosition="left" *ngIf="!isUpload">Library</nb-toggle>
+        <nb-toggle class="test" formControlName="inFavorites" labelPosition="left" *ngIf="!isUpload">Favorites</nb-toggle>
       </div>
       
     </div>
@@ -31,7 +31,7 @@
         totalItems: mapCount
       }">
       <map-list-item [map]="map" [inLibrary]="isMapInLibrary(map)" (onLibraryUpdate)="libraryUpdate()"
-                     [isUpload]="type === mapListType.TYPE_UPLOADS"
+                     [isUpload]="isUpload"
                      [inFavorites]="isMapInFavorites(map)" (onFavoriteUpdate)="favoriteUpdate()"></map-list-item>
     </nb-list-item>
   </nb-list>
@@ -40,13 +40,14 @@
   </div>
 </div>
 <div class="text-center" *ngIf="maps.length === 0 && requestSent && !isSearchFiltered()">
-  <div [ngSwitch]="type">
-    <h3 class="m-0" *ngSwitchDefault>No maps found!</h3>
-    <h3 class="m-0" *ngSwitchCase="mapListType.TYPE_LIBRARY">No maps in your library. Try <a routerLink="/dashboard/maps">adding some</a>!</h3>
-    <h3 class="m-0" *ngSwitchCase="mapListType.TYPE_FAVORITES">No favorite maps found. Try <a routerLink="/dashboard/maps">adding some</a>!</h3>
-    <h3 class="m-0" *ngSwitchCase="mapListType.TYPE_UPLOADS">
-      <i>You have not uploaded any maps. Try <a routerLink="/dashboard/maps/uploads/new">uploading a new one!</a></i></h3>
-  </div>
+  <h3 class="m-0">
+    <ng-template *ngIf="isUpload; else elseBlock">
+      <i>You have not uploaded any maps. Try <a routerLink="/dashboard/maps/uploads/new">uploading a new one!</a></i>
+    </ng-template>
+    <ng-template #elseBlock>
+      <h3 >No maps found!</h3>
+    </ng-template>
+  </h3>
 </div>
 <div class="text-center" *ngIf="maps.length === 0 && requestSent && isSearchFiltered()">
   <h3 class="m-0">{{noMapsText}}</h3>
