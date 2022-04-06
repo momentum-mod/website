@@ -2,7 +2,7 @@
   <form class="d-flex flex-wrap align-items-center justify-content-between search" [formGroup]="searchOptions"
     (ngSubmit)="onPageChange(1)" (change)="onPageChange(1)">
     <div class="d-flex flex-wrap align-items-center search-controls">
-      <input nbInput fullWidth class="form-control" type="text" placeholder="Map Name" formControlName="search">
+      <input nbInput class="form-control" type="text" placeholder="Map Name" formControlName="search">
       <!-- TODO: Enable when map credits get reworked (#415) -->
       <!-- <div class="form-col col-12 col-sm-10 col-md-6 col-lg-4 col-xl-3 mt-3 mt-md-0">
         <input nbInput fullWidth class="form-control" type="text" placeholder="Author" formControlName="author">
