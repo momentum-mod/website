@@ -16,7 +16,7 @@
         <nb-option *ngFor="let enum of statusEnums" [value]="enum.value">{{enum.text}}</nb-option>
       </nb-select>
       <div class="d-flex search-toggles">
-        <nb-toggle class="test" formControlName="inLibrary" labelPosition="left" *ngIf="!isUpload">Library</nb-toggle>
+        <nb-toggle class="test" formControlName="inLibrary" labelPosition="left" *ngIf="!isUpload">In Library</nb-toggle>
         <nb-toggle class="test" formControlName="inFavorites" labelPosition="left" *ngIf="!isUpload">Favorites
         </nb-toggle>
       </div>
