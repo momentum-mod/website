@@ -13,7 +13,6 @@ import {UploadStatusComponent} from './upload-status/upload-status.component';
 import {MapInfoComponent} from './map-info/map-info.component';
 import {MapNotifyEditComponent} from './map-info/map-info-notify-edit/map-info-notify-edit.component';
 import {MarkdownModule} from 'ngx-markdown';
-import {MapLibraryComponent} from './map-library/map-library.component';
 import {
   NbAlertModule,
   NbDatepickerModule,
@@ -21,6 +20,7 @@ import {
   NbListModule,
   NbSelectModule,
   NbStepperModule,
+  NbToggleModule,
 } from '@nebular/theme';
 import {MapCreditsComponent} from './map-credits/map-credits.component';
 import {UserModule} from '../user/user.module';
@@ -33,7 +33,6 @@ import {MapInfoCreditsComponent} from './map-info/map-info-credits/map-info-cred
 import {MapInfoStatsComponent} from './map-info/map-info-stats/map-info-stats.component';
 import {MapListItemComponent} from './map-list/map-list-item/map-list-item.component';
 import {MapEditComponent} from './map-edit/map-edit.component';
-import {MapFavoritesComponent} from './map-favorites/map-favorites.component';
 import {MapListComponent} from './map-list/map-list.component';
 
 @NgModule({
@@ -56,6 +55,7 @@ import {MapListComponent} from './map-list/map-list.component';
     UserModule,
     MarkdownModule.forChild(),
     MapRoutingModule,
+    NbToggleModule,
   ],
   declarations: [
     MapComponent,
@@ -64,7 +64,6 @@ import {MapListComponent} from './map-list/map-list.component';
     UploadStatusComponent,
     MapInfoComponent,
     MapNotifyEditComponent,
-    MapLibraryComponent,
     MapCreditsComponent,
     MapCreditComponent,
     FileUploadComponent,
@@ -74,7 +73,6 @@ import {MapListComponent} from './map-list/map-list.component';
     MapInfoStatsComponent,
     MapListItemComponent,
     MapEditComponent,
-    MapFavoritesComponent,
     MapListComponent,
   ],
   providers: [],

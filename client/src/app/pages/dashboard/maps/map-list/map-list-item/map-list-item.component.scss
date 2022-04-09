@@ -25,6 +25,14 @@ li {
   border-radius: 8px !important;
 }
 
+.library-popover {
+  width: 200px;
+
+  nb-card-header, nb-card-body {
+    padding: 0.5rem 1rem;
+  }
+}
+
 .map-image-container {
   overflow: hidden;
   height: $image-height;
