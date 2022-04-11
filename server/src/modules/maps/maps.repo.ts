@@ -10,12 +10,23 @@ export class MapsRepo {
      * @summary Inserts to database
      * @returns New db record ID
      */
-    async Insert(newMap: Prisma.MapCreateInput): Promise<number> {
+    async Insert(newMap: Prisma.MapCreateInput): Promise<Map> {
         const result = await this.prisma.map.create({
             data: newMap
         });
 
-        return result.id;
+        return result;
+    }
+
+    async Update(mapId: number, updateArgs: Partial<Map>): Promise<Map> {
+        const result = await this.prisma.map.update({
+            where: {
+                id: mapId
+            },
+            data: updateArgs
+        });
+
+        return result;
     }
 
     /**

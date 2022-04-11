@@ -7,12 +7,19 @@ import { CreateMapDto } from '../../@common/dto/map/createMap.dto';
 import { AuthService } from '../auth/auth.service';
 import { appConfig } from 'config/config';
 import { EMapStatus } from '../../@common/enums/map.enum';
+import { FileStoreCloudService } from '../../@common/filestore/cloud.service';
+import { FileStoreLocalService } from '../../@common/filestore/local.service';
 import * as fs from 'fs';
 import * as crypto from 'crypto';
 
 @Injectable()
 export class MapsService {
-    constructor(private readonly authService: AuthService, private readonly mapRepo: MapsRepo) {}
+    constructor(
+        private readonly authService: AuthService,
+        private readonly mapRepo: MapsRepo,
+        private readonly fileLocalService: FileStoreLocalService,
+        private readonly fileCloudService: FileStoreCloudService
+    ) {}
 
     //#region Public
 
@@ -120,22 +127,33 @@ export class MapsService {
         return mapDto;
     }
 
+    public async Upload(mapID, mapFileBuffer): Promise<MapDto> {
+        let mapDto: MapDto = new MapDto(await this.mapRepo.Get(mapID));
+
+        if (!mapDto) {
+            return Promise.reject(new HttpException('Map not found', 404));
+        }
+
+        if (mapDto.statusFlag !== EMapStatus.NEEDS_REVISION) {
+            return Promise.reject(new HttpException('Map file cannot be uploaded given the map state', 409));
+        }
+
+        const result = await this.storeMapFile(mapFileBuffer, mapDto);
+
+        mapDto = new MapDto(
+            await this.mapRepo.Update(mapDto.id, {
+                statusFlag: EMapStatus.PENDING,
+                downloadURL: result.downloadURL,
+                hash: result.hash
+            })
+        );
+
+        return mapDto;
+    }
+
     //#endregion
 
     //#region Private
-
-    private genFileHash(mapPath) {
-        return new Promise((resolve, reject) => {
-            const hash = crypto.createHash('sha1').setEncoding('hex');
-            fs.createReadStream(mapPath)
-                .pipe(hash)
-                .on('error', (err) => reject(err))
-                .on('finish', () => {
-                    resolve(hash.read());
-                });
-        });
-    }
-
     private async verifyMapNameNotTaken(mapName) {
         const where: Prisma.MapWhereInput = {
             name: mapName,
@@ -171,6 +189,15 @@ export class MapsService {
         }
 
         Promise.resolve();
+    }
+
+    private storeMapFile(mapFileBuffer, mapModel) {
+        const fileName = `maps/${mapModel.name}.bsp`;
+        if (appConfig.storage.useLocal) {
+            return this.fileLocalService.storeMapFileLocal(mapFileBuffer, fileName);
+        }
+
+        return this.fileCloudService.storeFileCloud(mapFileBuffer, fileName);
     }
 
     //#endregion
