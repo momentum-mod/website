@@ -1,13 +1,14 @@
 import { Logger } from '@nestjs/common';
 import { Map as MapDB, MapImage, User } from '@prisma/client';
+import { EMapStatus, EMapType } from '../../../@common/enums/map.enum';
 import { UserDto } from '../user/user.dto';
 import { MapImageDto } from './mapImage.dto';
 
 export class MapDto implements MapDB {
     id: number;
     name: string;
-    type: number;
-    statusFlag: number;
+    type: EMapType;
+    statusFlag: EMapStatus;
     downloadURL: string;
     hash: string;
     createdAt: Date;
@@ -16,7 +17,7 @@ export class MapDto implements MapDB {
     thumbnailID: number;
 
     submitter: UserDto;
-    images: MapImageDto[] = [];
+    images: MapImageDto[];
     thumbnail: MapImageDto;
 
     constructor(_map: MapDB, _submitter?: User, _images?: MapImage[]) {
@@ -37,7 +38,9 @@ export class MapDto implements MapDB {
         let images = _images;
         if (images == null || images.length == 0) {
             // if null then try get it from map object
-            images = (_map as any).mapimages;
+            console.log((_map as any).mapimages);
+
+            images = (_map as any).mapimages?.length == 0 ? null : (_map as any).mapimages;
         }
         Logger.log(JSON.stringify(images));
 
@@ -55,6 +58,8 @@ export class MapDto implements MapDB {
         this.submitter = new UserDto(submitter);
 
         if (images != null && images.length > 0) {
+            this.images = [];
+
             images.forEach((image) => {
                 const dto = new MapImageDto(image);
                 this.images.push(dto);

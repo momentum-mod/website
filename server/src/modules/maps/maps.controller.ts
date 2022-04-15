@@ -79,9 +79,12 @@ export class MapsController {
         }
     })
     @UseInterceptors(FileInterceptor('file'))
-    public async UploadMap(@Param() mapID: number, @UploadedFile() mapFile: Express.Multer.File): Promise<MapDto> {
+    public async UploadMap(
+        @Param('mapID') mapID: number,
+        @UploadedFile() mapFile: Express.Multer.File
+    ): Promise<MapDto> {
         // see https://stackoverflow.com/questions/66605192/file-uploading-along-with-other-data-in-swagger-nestjs
         // for swagger shit
-        return this.mapsService.Upload(mapID, mapFile.buffer);
+        return this.mapsService.Upload(+mapID, mapFile.buffer);
     }
 }

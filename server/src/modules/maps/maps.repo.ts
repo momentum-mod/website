@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { PrismaRepo } from '../prisma/prisma.repo';
 import { Map, Prisma } from '@prisma/client';
 
@@ -21,7 +21,7 @@ export class MapsRepo {
     async Update(mapId: number, updateArgs: Partial<Map>): Promise<Map> {
         const result = await this.prisma.map.update({
             where: {
-                id: mapId
+                id: mapId != null ? +mapId : undefined
             },
             data: updateArgs
         });
@@ -55,7 +55,7 @@ export class MapsRepo {
      */
     async Get(id: number): Promise<Map> {
         const where: Prisma.MapWhereUniqueInput = {};
-        where.id = +id;
+        where.id = id != null ? +id : undefined;
 
         return await this.prisma.map.findFirst({
             where: where,

@@ -1,4 +1,4 @@
-import { HttpException, Injectable } from '@nestjs/common';
+import { HttpException, Injectable, Logger } from '@nestjs/common';
 import { Map, User, MapImage, Prisma } from '@prisma/client';
 import { MapDto } from '../../@common/dto/map/map.dto';
 import { PagedResponseDto } from '../../@common/dto/common/api-response.dto';
@@ -127,10 +127,10 @@ export class MapsService {
         return mapDto;
     }
 
-    public async Upload(mapID, mapFileBuffer): Promise<MapDto> {
+    public async Upload(mapID: number, mapFileBuffer: Buffer): Promise<MapDto> {
         let mapDto: MapDto = new MapDto(await this.mapRepo.Get(mapID));
 
-        if (!mapDto) {
+        if (!mapDto.id) {
             return Promise.reject(new HttpException('Map not found', 404));
         }
 
