@@ -56,9 +56,11 @@ const configs: IAllConfigs = {
         },
         storage: {
             useLocal: process.env.MOM_STORAGE_USE_LOCAL === 'true',
-            region: process.env.MOM_STORAGE_REGION,
-            endpointURL: process.env.MOM_STORAGE_ENDPOINT_URL,
-            bucketName: process.env.MOM_STORAGE_BUCKET_NAME
+            region: process.env.MOM_STORAGE_REGION ?? 'undefined',
+            endpointURL: process.env.MOM_STORAGE_ENDPOINT_URL ?? 'undefined',
+            bucketName: process.env.MOM_STORAGE_BUCKET_NAME ?? 'undefined',
+            accessKeyID: process.env.MOM_STORAGE_ACCESS_KEY_ID ?? 'undefined',
+            secretAccessKey: process.env.MOM_STORAGE_SECRET_ACCESS_KEY ?? 'undefined'
         }
     },
     development: {
@@ -113,9 +115,11 @@ const configs: IAllConfigs = {
         },
         storage: {
             useLocal: process.env.MOM_STORAGE_USE_LOCAL === 'true',
-            region: process.env.MOM_STORAGE_REGION,
-            endpointURL: process.env.MOM_STORAGE_ENDPOINT_URL,
-            bucketName: process.env.MOM_STORAGE_BUCKET_NAME
+            region: process.env.MOM_STORAGE_REGION ?? 'undefined',
+            endpointURL: process.env.MOM_STORAGE_ENDPOINT_URL ?? 'undefined',
+            bucketName: process.env.MOM_STORAGE_BUCKET_NAME ?? 'undefined',
+            accessKeyID: process.env.MOM_STORAGE_ACCESS_KEY_ID ?? 'undefined',
+            secretAccessKey: process.env.MOM_STORAGE_SECRET_ACCESS_KEY ?? 'undefined'
         }
     },
     production: {
@@ -170,9 +174,11 @@ const configs: IAllConfigs = {
         },
         storage: {
             useLocal: process.env.MOM_STORAGE_USE_LOCAL === 'true',
-            region: process.env.MOM_STORAGE_REGION,
-            endpointURL: process.env.MOM_STORAGE_ENDPOINT_URL,
-            bucketName: process.env.MOM_STORAGE_BUCKET_NAME
+            region: process.env.MOM_STORAGE_REGION ?? 'undefined',
+            endpointURL: process.env.MOM_STORAGE_ENDPOINT_URL ?? 'undefined',
+            bucketName: process.env.MOM_STORAGE_BUCKET_NAME ?? 'undefined',
+            accessKeyID: process.env.MOM_STORAGE_ACCESS_KEY_ID ?? 'undefined',
+            secretAccessKey: process.env.MOM_STORAGE_SECRET_ACCESS_KEY ?? 'undefined'
         }
     }
 };
@@ -238,6 +244,8 @@ export interface IConfig {
         region: string;
         endpointURL: string;
         bucketName: string;
+        accessKeyID: string;
+        secretAccessKey: string;
     };
 }
 
