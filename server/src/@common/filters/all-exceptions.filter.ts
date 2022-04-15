@@ -18,24 +18,24 @@ export class AllExceptionsFilter implements ExceptionFilter {
         const { httpAdapter } = this.httpAdapterHost;
         const ctx = host.switchToHttp();
 
-        const responseBody = new CustomHTTPError(
+        const httpError = new CustomHTTPError(
             e instanceof HttpException ? (e as HttpException).getStatus() : HttpStatus.INTERNAL_SERVER_ERROR,
             // Don't send database-releted errors
             e instanceof PrismaClientKnownRequestError ? 'Database Error' : e.message
         );
 
         if (!(e instanceof UnauthorizedException)) {
-            responseBody.GenerateErrorCode();
+            httpError.GenerateErrorCode();
 
             Logger.error(
-                `Error - Code [${responseBody.errorCode}]\n` +
+                `Error - Code [${httpError.errorCode}]\n` +
                     `Exception Code: ${e.code}\n` +
                     `Message: ${e.message}\n` +
                     `Stack: ${e.stack}`
             );
         }
 
-        httpAdapter.reply(ctx.getResponse(), responseBody, responseBody.statusCode);
+        httpAdapter.reply(ctx.getResponse(), httpError, httpError.statusCode);
     }
 }
 
