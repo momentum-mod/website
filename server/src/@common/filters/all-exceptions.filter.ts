@@ -1,4 +1,12 @@
-import { ExceptionFilter, Catch, ArgumentsHost, HttpStatus, Logger } from '@nestjs/common';
+import {
+    ExceptionFilter,
+    Catch,
+    ArgumentsHost,
+    HttpStatus,
+    Logger,
+    UnauthorizedException,
+    HttpException
+} from '@nestjs/common';
 import { HttpAdapterHost } from '@nestjs/core';
 import { PrismaClientKnownRequestError } from '@prisma/client/runtime';
 
@@ -10,26 +18,38 @@ export class AllExceptionsFilter implements ExceptionFilter {
         const { httpAdapter } = this.httpAdapterHost;
         const ctx = host.switchToHttp();
 
-        const errorCode = AllExceptionsFilter.GenerateErrorCode();
-
-        const responseBody = {
-            statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
-            // Don't send database-related errors
-            message: e instanceof PrismaClientKnownRequestError ? 'Database Error' : e.message,
-            errorCode: errorCode
-        };
-
-        Logger.error(
-            `Error - Code [${errorCode}]\n` +
-                `Exception Code: ${e.code}\n` +
-                `Message: ${e.message}\n` +
-                `Stack: ${e.stack}`
+        const httpError = new CustomHTTPError(
+            e instanceof HttpException ? (e as HttpException).getStatus() : HttpStatus.INTERNAL_SERVER_ERROR,
+            // Don't send database-releted errors
+            e instanceof PrismaClientKnownRequestError ? 'Database Error' : e.message
         );
 
-        httpAdapter.reply(ctx.getResponse(), responseBody, HttpStatus.INTERNAL_SERVER_ERROR);
+        if (!(e instanceof UnauthorizedException)) {
+            httpError.GenerateErrorCode();
+
+            Logger.error(
+                `Error - Code [${httpError.errorCode}]\n` +
+                    `Exception Code: ${e.code}\n` +
+                    `Message: ${e.message}\n` +
+                    `Stack: ${e.stack}`
+            );
+        }
+
+        httpAdapter.reply(ctx.getResponse(), httpError, httpError.statusCode);
+    }
+}
+
+class CustomHTTPError {
+    statusCode: number;
+    message: string;
+    errorCode: string;
+
+    constructor(_statusCode: number, _message: string) {
+        this.statusCode = _statusCode;
+        this.message = _message;
     }
 
-    private static GenerateErrorCode(): string {
-        return Math.random().toString(36).toString().slice(2).toUpperCase();
+    GenerateErrorCode() {
+        this.errorCode = Math.random().toString(36).toString().slice(2).toUpperCase();
     }
 }
