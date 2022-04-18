@@ -5,19 +5,14 @@ import { PagedResponseDto } from '../../@common/dto/common/api-response.dto';
 import { MapsRepo } from './maps.repo';
 import { CreateMapDto } from '../../@common/dto/map/createMap.dto';
 import { AuthService } from '../auth/auth.service';
-import { appConfig } from 'config/config';
 import { EMapStatus } from '../../@common/enums/map.enum';
 import { FileStoreCloudService } from '../../@common/filestore/cloud.service';
-import { FileStoreLocalService } from '../../@common/filestore/local.service';
-import * as fs from 'fs';
-import * as crypto from 'crypto';
 
 @Injectable()
 export class MapsService {
     constructor(
         private readonly authService: AuthService,
         private readonly mapRepo: MapsRepo,
-        private readonly fileLocalService: FileStoreLocalService,
         private readonly fileCloudService: FileStoreCloudService
     ) {}
 
@@ -193,10 +188,6 @@ export class MapsService {
 
     private storeMapFile(mapFileBuffer, mapModel) {
         const fileName = `maps/${mapModel.name}.bsp`;
-        if (appConfig.storage.useLocal) {
-            return this.fileLocalService.storeMapFileLocal(mapFileBuffer, fileName);
-        }
-
         return this.fileCloudService.storeFileCloud(mapFileBuffer, fileName);
     }
 
