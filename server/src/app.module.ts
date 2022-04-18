@@ -42,7 +42,7 @@ export class AppModule implements NestModule {
                 path: '/auth/steam/user',
                 method: RequestMethod.POST
             })
-            // Accept JOSN from these paths
+            // Accept JSON from these paths
             .apply(JsonBodyMiddleware)
             .forRoutes('*')
             // Add the http logger to these paths
