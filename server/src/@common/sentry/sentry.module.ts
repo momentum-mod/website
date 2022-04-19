@@ -12,8 +12,13 @@ export const SENTRY_OPTIONS = 'SENTRY_OPTIONS';
 })
 export class SentryModule {
     static forRoot(options: Sentry.NodeOptions) {
+        if (options.dsn === 'undefined') {
+            Logger.warn(`Sentry DSN not set`, 'SentryModule');
+            options.dsn = null;
+        }
+
         // initialization of Sentry, this is where Sentry will create a Hub
-        Logger.log(`'Init sentry with these options: [${JSON.stringify(options)}]`);
+        Logger.log(`Init sentry with these options: [${JSON.stringify(options)}]`, 'SentryModule');
 
         Sentry.init(options);
 

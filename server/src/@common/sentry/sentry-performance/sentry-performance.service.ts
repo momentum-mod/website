@@ -5,7 +5,6 @@ import { REQUEST } from '@nestjs/core';
 import * as Sentry from '@sentry/node';
 import '@sentry/tracing'; // https://github.com/getsentry/sentry-javascript/issues/4731#issuecomment-1075410543
 import { Span, SpanContext } from '@sentry/types';
-
 /**
  * Because we inject REQUEST we need to set the service as request scoped
  */
