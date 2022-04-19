@@ -35,7 +35,7 @@ export class AllExceptionsFilter implements ExceptionFilter {
             Logger.error(httpError.toString());
         }
 
-        httpAdapter.reply(ctx.getResponse(), httpError, httpError.statusCode);
+        httpAdapter.reply(ctx.getResponse(), httpError.reply(), httpError.statusCode);
     }
 }
 
@@ -49,6 +49,16 @@ class CustomHTTPError {
         this.statusCode = _statusCode;
         this.message = _message;
         this._error = _error;
+    }
+
+    public reply() {
+        // This method stops the httpAdapter returning the
+        // private error property
+        return {
+            statusCode: this.statusCode,
+            message: this.message,
+            errorCode: this.errorCode
+        };
     }
 
     public toString = (): string => {
