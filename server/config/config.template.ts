@@ -55,7 +55,6 @@ const configs: IAllConfigs = {
             secret: 'keyboard cat'
         },
         storage: {
-            useLocal: process.env.MOM_STORAGE_USE_LOCAL === 'true',
             region: process.env.MOM_STORAGE_REGION ?? 'undefined',
             endpointURL: process.env.MOM_STORAGE_ENDPOINT_URL ?? 'undefined',
             bucketName: process.env.MOM_STORAGE_BUCKET_NAME ?? 'undefined',
@@ -114,7 +113,6 @@ const configs: IAllConfigs = {
             secret: 'keyboard cat'
         },
         storage: {
-            useLocal: process.env.MOM_STORAGE_USE_LOCAL === 'true',
             region: process.env.MOM_STORAGE_REGION ?? 'undefined',
             endpointURL: process.env.MOM_STORAGE_ENDPOINT_URL ?? 'undefined',
             bucketName: process.env.MOM_STORAGE_BUCKET_NAME ?? 'undefined',
@@ -173,7 +171,6 @@ const configs: IAllConfigs = {
             secret: process.env.EXPRESS_SESSION_SECRET ?? 'undefined'
         },
         storage: {
-            useLocal: process.env.MOM_STORAGE_USE_LOCAL === 'true',
             region: process.env.MOM_STORAGE_REGION ?? 'undefined',
             endpointURL: process.env.MOM_STORAGE_ENDPOINT_URL ?? 'undefined',
             bucketName: process.env.MOM_STORAGE_BUCKET_NAME ?? 'undefined',
@@ -240,7 +237,6 @@ export interface IConfig {
         secret: string;
     };
     storage: {
-        useLocal: boolean;
         region: string;
         endpointURL: string;
         bucketName: string;
