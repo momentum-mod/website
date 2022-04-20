@@ -3,13 +3,12 @@ import { appConfig } from 'config/config';
 import { FileStoreUtilsService } from './utils.service';
 import { IFileStoreCloudFile } from './fileStore.interface';
 import { S3Client, PutObjectCommand, DeleteObjectCommand } from '@aws-sdk/client-s3';
-
-let s3Client: S3Client;
-
 @Injectable()
 export class FileStoreCloudService {
+    s3Client: S3Client;
+
     constructor(private fsUtil: FileStoreUtilsService) {
-        s3Client = new S3Client({
+        this.s3Client = new S3Client({
             region: appConfig.storage.region,
             endpoint: appConfig.storage.endpointURL,
             credentials: {
@@ -20,7 +19,7 @@ export class FileStoreCloudService {
     }
 
     public async storeFileCloud(fileBuffer: Buffer, fileKey: string): Promise<IFileStoreCloudFile> {
-        const results = await s3Client.send(
+        const results = await this.s3Client.send(
             new PutObjectCommand({
                 Bucket: appConfig.storage.bucketName,
                 Key: fileKey,
@@ -42,7 +41,7 @@ export class FileStoreCloudService {
     }
 
     public async deleteFileCloud(fileKey: string): Promise<void> {
-        const results = await s3Client.send(
+        const results = await this.s3Client.send(
             new DeleteObjectCommand({
                 Bucket: appConfig.storage.bucketName,
                 Key: fileKey

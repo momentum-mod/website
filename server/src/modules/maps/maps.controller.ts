@@ -47,7 +47,7 @@ export class MapsController {
         return this.mapsService.Get(mapID);
     }
 
-    @Post('')
+    @Post()
     @ApiOperation({ summary: 'Creates a single map' })
     @ApiBody({
         type: CreateMapDto,
