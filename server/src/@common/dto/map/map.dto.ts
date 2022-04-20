@@ -38,8 +38,6 @@ export class MapDto implements MapDB {
         let images = _images;
         if (images == null || images.length == 0) {
             // if null then try get it from map object
-            console.log((_map as any).mapimages);
-
             images = (_map as any).mapimages?.length == 0 ? null : (_map as any).mapimages;
         }
         Logger.log(JSON.stringify(images));
