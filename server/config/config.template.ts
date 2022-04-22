@@ -60,6 +60,10 @@ const configs: IAllConfigs = {
             bucketName: process.env.MOM_STORAGE_BUCKET_NAME ?? 'undefined',
             accessKeyID: process.env.MOM_STORAGE_ACCESS_KEY_ID ?? 'undefined',
             secretAccessKey: process.env.MOM_STORAGE_SECRET_ACCESS_KEY ?? 'undefined'
+        },
+        sentry: {
+            dsn: process.env.SENTRY_DSN ?? 'undefined',
+            debug: process.env.SENTRY_DEBUG === 'true'
         }
     },
     development: {
@@ -118,6 +122,10 @@ const configs: IAllConfigs = {
             bucketName: process.env.MOM_STORAGE_BUCKET_NAME ?? 'undefined',
             accessKeyID: process.env.MOM_STORAGE_ACCESS_KEY_ID ?? 'undefined',
             secretAccessKey: process.env.MOM_STORAGE_SECRET_ACCESS_KEY ?? 'undefined'
+        },
+        sentry: {
+            dsn: process.env.SENTRY_DSN ?? 'undefined',
+            debug: process.env.SENTRY_DEBUG === 'true'
         }
     },
     production: {
@@ -176,6 +184,10 @@ const configs: IAllConfigs = {
             bucketName: process.env.MOM_STORAGE_BUCKET_NAME ?? 'undefined',
             accessKeyID: process.env.MOM_STORAGE_ACCESS_KEY_ID ?? 'undefined',
             secretAccessKey: process.env.MOM_STORAGE_SECRET_ACCESS_KEY ?? 'undefined'
+        },
+        sentry: {
+            dsn: process.env.SENTRY_DSN ?? 'undefined',
+            debug: process.env.SENTRY_DEBUG === 'true'
         }
     }
 };
@@ -242,6 +254,10 @@ export interface IConfig {
         bucketName: string;
         accessKeyID: string;
         secretAccessKey: string;
+    };
+    sentry: {
+        dsn: string;
+        debug: boolean;
     };
 }
 

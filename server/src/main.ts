@@ -1,11 +1,9 @@
-import { HttpAdapterHost, NestFactory } from '@nestjs/core';
+import { NestFactory } from '@nestjs/core';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 import { PrismaRepo } from './modules/prisma/prisma.repo';
 import { AppModule } from './app.module';
 import { appConfig } from '../config/config';
 import { NestApplicationOptions } from '@nestjs/common';
-import { AllExceptionsFilter } from './@common/filters/all-exceptions.filter';
-import { NestExpressApplication } from '@nestjs/platform-express';
 import { join } from 'path';
 
 async function bootstrap() {
@@ -38,8 +36,6 @@ async function bootstrap() {
 
     const prismaDalc: PrismaRepo = app.get(PrismaRepo);
     prismaDalc.enableShutdownHooks(app);
-    const httpAdapterHost = app.get(HttpAdapterHost);
-    app.useGlobalFilters(new AllExceptionsFilter(httpAdapterHost));
 
     await app.listen(appConfig.port);
 }
