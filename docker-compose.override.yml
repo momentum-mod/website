@@ -1,6 +1,34 @@
 version: '3.8'
 
 services:
+  minio:
+  image: quay.io/minio/minio:RELEASE.2021-12-20T22-07-16Z
+  command: server /data --console-address ":9001"
+  ports:
+    - "9000:9000"
+    - "9001:9001"
+  volumes:
+    - ./data:/data
+  environment:
+    MINIO_ROOT_USER: minio
+    MINIO_ROOT_PASSWORD: minio123
+    MINIO_SITE_REGION: us-east-1
+
+createbuckets:
+  image: minio/mc
+  depends_on:
+    - minio
+  
+  # If you want to clear the bucket, add the following line before the "mb myminio/momentum" command:
+  # /usr/bin/mc rm -r --force myminio/momentum;
+  entrypoint: >
+    /bin/sh -c "
+    /usr/bin/mc config host add myminio http://minio:9000 minio minio123;
+    /usr/bin/mc mb myminio/momentum;
+    /usr/bin/mc policy set public myminio/momentum;
+    exit 0;
+    "
+
   db:
     platform: linux/x86_64
     volumes:

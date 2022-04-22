@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { PrismaRepo } from '../prisma/prisma.repo';
 import { Map, Prisma } from '@prisma/client';
 
@@ -10,12 +10,23 @@ export class MapsRepo {
      * @summary Inserts to database
      * @returns New db record ID
      */
-    async Insert(newMap: Prisma.MapCreateInput): Promise<number> {
+    async Insert(newMap: Prisma.MapCreateInput): Promise<Map> {
         const result = await this.prisma.map.create({
             data: newMap
         });
 
-        return result.id;
+        return result;
+    }
+
+    async Update(mapId: number, updateArgs: Partial<Map>): Promise<Map> {
+        const result = await this.prisma.map.update({
+            where: {
+                id: mapId != null ? +mapId : undefined
+            },
+            data: updateArgs
+        });
+
+        return result;
     }
 
     /**
@@ -44,7 +55,7 @@ export class MapsRepo {
      */
     async Get(id: number): Promise<Map> {
         const where: Prisma.MapWhereUniqueInput = {};
-        where.id = +id;
+        where.id = id != null ? +id : undefined;
 
         return await this.prisma.map.findFirst({
             where: where,

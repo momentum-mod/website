@@ -1,10 +1,11 @@
-import { Body, Controller, Get, Param, Post, Query, UseGuards } from '@nestjs/common';
-import { ApiBearerAuth, ApiBody, ApiOperation, ApiQuery, ApiTags, ApiParam } from '@nestjs/swagger';
+import { Body, Controller, Get, Param, Post, Query, UploadedFile, UseGuards, UseInterceptors } from '@nestjs/common';
+import { ApiBearerAuth, ApiBody, ApiOperation, ApiQuery, ApiTags, ApiParam, ApiConsumes } from '@nestjs/swagger';
 import { PagedResponseDto } from '../../@common/dto/common/api-response.dto';
 import { MapsService } from './maps.service';
 import { JwtAuthGuard } from '../auth/jwt/jwt-auth.guard';
 import { MapDto } from '../../@common/dto/map/map.dto';
 import { CreateMapDto } from '../../@common/dto/map/createMap.dto';
+import { FileInterceptor } from '@nestjs/platform-express';
 
 @ApiBearerAuth()
 @Controller('api/v1/maps')
@@ -55,5 +56,35 @@ export class MapsController {
     })
     public async CreateMap(@Body() mapCreateObj: CreateMapDto): Promise<MapDto> {
         return this.mapsService.Insert(mapCreateObj);
+    }
+
+    @Post(':mapID/upload')
+    @ApiOperation({ summary: 'Uploads a single map' })
+    @ApiParam({
+        name: 'mapID',
+        type: Number,
+        description: 'Target Map ID',
+        required: true
+    })
+    @ApiConsumes('multipart/form-data')
+    @ApiBody({
+        schema: {
+            type: 'object',
+            properties: {
+                file: {
+                    type: 'string',
+                    format: 'binary'
+                }
+            }
+        }
+    })
+    @UseInterceptors(FileInterceptor('file'))
+    public async UploadMap(
+        @Param('mapID') mapID: number,
+        @UploadedFile() mapFile: Express.Multer.File
+    ): Promise<MapDto> {
+        // see https://stackoverflow.com/questions/66605192/file-uploading-along-with-other-data-in-swagger-nestjs
+        // for swagger shit
+        return this.mapsService.Upload(+mapID, mapFile.buffer);
     }
 }

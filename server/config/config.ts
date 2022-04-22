@@ -55,6 +55,13 @@ const configs: IAllConfigs = {
         session: {
             secret: 'keyboard cat'
         },
+        storage: {
+            region: process.env.MOM_STORAGE_REGION ?? 'undefined',
+            endpointURL: process.env.MOM_STORAGE_ENDPOINT_URL ?? 'undefined',
+            bucketName: process.env.MOM_STORAGE_BUCKET_NAME ?? 'undefined',
+            accessKeyID: process.env.MOM_STORAGE_ACCESS_KEY_ID ?? 'undefined',
+            secretAccessKey: process.env.MOM_STORAGE_SECRET_ACCESS_KEY ?? 'undefined'
+        },
         sentry: {
             dsn: process.env.SENTRY_DSN ?? 'undefined',
             debug: process.env.SENTRY_DEBUG === 'true'
@@ -111,6 +118,13 @@ const configs: IAllConfigs = {
         session: {
             secret: 'keyboard cat'
         },
+        storage: {
+            region: process.env.MOM_STORAGE_REGION ?? 'undefined',
+            endpointURL: process.env.MOM_STORAGE_ENDPOINT_URL ?? 'undefined',
+            bucketName: process.env.MOM_STORAGE_BUCKET_NAME ?? 'undefined',
+            accessKeyID: process.env.MOM_STORAGE_ACCESS_KEY_ID ?? 'undefined',
+            secretAccessKey: process.env.MOM_STORAGE_SECRET_ACCESS_KEY ?? 'undefined'          
+        },
         sentry: {
             dsn: process.env.SENTRY_DSN ?? 'undefined',
             debug: process.env.SENTRY_DEBUG === 'true'
@@ -166,6 +180,13 @@ const configs: IAllConfigs = {
         },
         session: {
             secret: process.env.EXPRESS_SESSION_SECRET ?? 'undefined'
+        },
+        storage: {
+            region: process.env.MOM_STORAGE_REGION ?? 'undefined',
+            endpointURL: process.env.MOM_STORAGE_ENDPOINT_URL ?? 'undefined',
+            bucketName: process.env.MOM_STORAGE_BUCKET_NAME ?? 'undefined',
+            accessKeyID: process.env.MOM_STORAGE_ACCESS_KEY_ID ?? 'undefined',
+            secretAccessKey: process.env.MOM_STORAGE_SECRET_ACCESS_KEY ?? 'undefined'
         },
         sentry: {
             dsn: process.env.SENTRY_DSN ?? 'undefined',
@@ -230,6 +251,13 @@ export interface IConfig {
     };
     session: {
         secret: string;
+    };
+    storage: {
+        region: string;
+        endpointURL: string;
+        bucketName: string;
+        accessKeyID: string;
+        secretAccessKey: string;
     };
     sentry: {
         dsn: string;

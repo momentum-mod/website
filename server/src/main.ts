@@ -4,6 +4,7 @@ import { PrismaRepo } from './modules/prisma/prisma.repo';
 import { AppModule } from './app.module';
 import { appConfig } from '../config/config';
 import { NestApplicationOptions } from '@nestjs/common';
+import { join } from 'path';
 
 async function bootstrap() {
     // MDN recommended hack override for BigInt
@@ -17,7 +18,9 @@ async function bootstrap() {
         bodyParser: false
     };
 
-    const app = await NestFactory.create(AppModule, options);
+    const app: NestExpressApplication = await NestFactory.create(AppModule, options);
+
+    app.useStaticAssets(join(__dirname, '..', 'public/assets'));
 
     const config = new DocumentBuilder()
         .setTitle('Momentum Mod API')
@@ -26,7 +29,10 @@ async function bootstrap() {
         .setVersion('1.0')
         .build();
     const document = SwaggerModule.createDocument(app, config);
-    SwaggerModule.setup('api-docs', app, document);
+    SwaggerModule.setup('api-docs', app, document, {
+        customSiteTitle: 'Momentum Mod API Docs',
+        customfavIcon: '../favicon.ico'
+    });
 
     const prismaDalc: PrismaRepo = app.get(PrismaRepo);
     prismaDalc.enableShutdownHooks(app);
