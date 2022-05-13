@@ -1,0 +1,17 @@
+name: 📝Documentation
+description: Updating documentation (e.g. README, Wiki, Guides etc.)
+labels: ["For: Documentation"]
+body:
+- type: textarea
+  attributes:
+    label: Describe what needs documented
+    description: A clear and concise description of what needs documenting
+    placeholder: X has confusing/no documentation...
+  validations:
+    required: true
+- type: textarea
+  attributes:
+    label: Additional context
+    description: Add any other context about what needs documented here.
+  validations:
+    required: false
