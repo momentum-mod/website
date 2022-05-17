@@ -262,3 +262,4 @@ export interface IConfig {
 }
 
 export const appConfig: IConfig = configs[env];
+export const environment: string = env;

@@ -1,6 +1,7 @@
 import { Injectable, Scope } from '@nestjs/common';
 import '@sentry/tracing'; // https://github.com/getsentry/sentry-javascript/issues/4731#issuecomment-1075410543
 import * as Sentry from '@sentry/node';
+import { environment } from '../../../../config/config';
 
 @Injectable({ scope: Scope.TRANSIENT })
 export class SentryExceptionService {
@@ -11,6 +12,11 @@ export class SentryExceptionService {
      * @returns Sentry Event ID for easy searching
      */
     sendError(error: any): string {
+
+        if (environment !== 'production') {
+            return 'DEV-ERROR';
+        }
+
         const transaction = Sentry.startTransaction({
             op: 'API Error',
             name: error
@@ -24,7 +30,7 @@ export class SentryExceptionService {
             scope.setContext(`API Error`, null);
         });
 
-        const result = Sentry.captureException(error);
+        const result: string = Sentry.captureException(error);
         transaction.finish();
         return result;
     }
