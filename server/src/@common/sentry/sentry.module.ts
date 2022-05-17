@@ -4,6 +4,7 @@ import { APP_INTERCEPTOR } from '@nestjs/core';
 import { SentryPerformanceService } from './sentry-performance/sentry-performance.service';
 import { SentryInterceptor } from './sentry.interceptor';
 import { SentryExceptionService } from './sentry-exception/sentry-exception.service';
+import { environment } from '../../../config/config';
 
 export const SENTRY_OPTIONS = 'SENTRY_OPTIONS';
 
@@ -12,6 +13,11 @@ export const SENTRY_OPTIONS = 'SENTRY_OPTIONS';
 })
 export class SentryModule {
     static forRoot(options: Sentry.NodeOptions) {
+        if (environment !== 'production') {
+            Logger.log(`Environment not production, no sentry please`, 'SentryModule');
+            options.dsn = null;
+        }
+
         if (options.dsn === 'undefined') {
             Logger.warn(`Sentry DSN not set`, 'SentryModule');
             options.dsn = null;
