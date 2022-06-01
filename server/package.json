@@ -41,7 +41,7 @@
     "passport-steam": "1.0.14",
     "passport-twitter": "1.0.4",
     "sequelize": "6.2.2",
-    "sharp": "0.25.4",
+    "sharp": "0.30.5",
     "steam-appticket": "^1.0.1",
     "swagger-jsdoc": "4.0.0",
     "swagger-ui-express": "4.1.4",
