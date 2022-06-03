@@ -25,7 +25,7 @@ async function bootstrap() {
 
     const config = new DocumentBuilder()
         .setTitle('Momentum Mod API')
-        .setDescription('The Momentum Mod API')
+        .setDescription('The Momentum Mod API - https://github.com/momentum-mod/website')
         .addBearerAuth()
         .setVersion('1.0')
         .build();
