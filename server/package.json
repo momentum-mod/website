@@ -18,7 +18,8 @@
         "test:watch": "jest --watch",
         "test:cov": "jest --coverage",
         "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
-        "test:e2e": "jest --config ./test/jest-e2e.json"
+        "test:e2e": "npm run reset && jest --config ./tests/jest-e2e.json",
+        "test:e2e:watch": "npm run reset && jest --config ./tests/jest-e2e.json --watch"
     },
     "prisma": {
         "seed": "ts-node prisma/seed.ts"
@@ -70,33 +71,17 @@
         "eslint-config-prettier": "^8.4.0",
         "eslint-plugin-prettier": "^4.0.0",
         "faker": "5.5.3",
-        "jest": "^27.3.0",
+        "jest": "^28.1.0",
+        "jest-environment-node": "^28.1.0",
         "prettier-eslint": "^13.0.0",
         "prisma": "^3.8.1",
         "prisma-erd-generator": "^0.11.4",
         "source-map-support": "^0.5.20",
         "supertest": "^6.1.6",
-        "ts-jest": "^27.0.7",
+        "ts-jest": "^28.0.3",
         "ts-loader": "^9.2.6",
         "ts-node": "^10.3.0",
         "tsconfig-paths": "^3.11.0",
         "typescript": "^4.4.4"
-    },
-    "jest": {
-        "moduleFileExtensions": [
-            "js",
-            "json",
-            "ts"
-        ],
-        "rootDir": "src",
-        "testRegex": ".*\\.spec\\.ts$",
-        "transform": {
-            "^.+\\.(t|j)s$": "ts-jest"
-        },
-        "collectCoverageFrom": [
-            "**/*.(t|j)s"
-        ],
-        "coverageDirectory": "../coverage",
-        "testEnvironment": "node"
     }
 }
