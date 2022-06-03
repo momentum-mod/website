@@ -1,5 +1,5 @@
 import { Injectable, Logger } from '@nestjs/common';
-import { appConfig } from 'config/config';
+import { appConfig } from '../../../config/config';
 import { FileStoreUtilsService } from './utils.service';
 import { IFileStoreCloudFile } from './fileStore.interface';
 import { S3Client, PutObjectCommand, DeleteObjectCommand } from '@aws-sdk/client-s3';

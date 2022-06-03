@@ -1,6 +1,6 @@
 import { HttpException, Injectable } from '@nestjs/common';
 import { PassportStrategy } from '@nestjs/passport';
-import { appConfig } from 'config/config';
+import { appConfig } from '../../../../config/config';
 import { Strategy } from 'passport-steam';
 import { SteamAuthService } from './steam-auth.service';
 

@@ -1,10 +1,10 @@
 import { HttpService } from '@nestjs/axios';
 import { HttpException, Injectable, Logger, UnauthorizedException } from '@nestjs/common';
 import { User } from '@prisma/client';
-import { appConfig } from 'config/config';
+import { appConfig } from '../../../../config/config';
 import { lastValueFrom, map } from 'rxjs';
 import * as AppTicket from 'steam-appticket';
-import { UsersService } from 'src/modules/users/users.service';
+import { UsersService } from '../../users/users.service';
 
 @Injectable()
 export class SteamAuthService {
