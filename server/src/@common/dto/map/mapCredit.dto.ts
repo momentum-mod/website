@@ -2,8 +2,10 @@ import { MapCredit, User, Map } from '@prisma/client';
 import { UserDto } from '../user/user.dto';
 import { MapDto } from './map.dto';
 import { ApiProperty } from '@nestjs/swagger';
-import { IsDate, IsEnum, IsInt, IsOptional } from 'class-validator';
+import { IsDate, IsEnum, IsInt } from 'class-validator';
 import { EMapCreditType } from '../../enums/map.enum';
+import { DtoUtils } from '../../utils/dto-utils';
+import { Transform } from 'class-transformer';
 
 export class MapCreditDto implements MapCredit {
     @ApiProperty()
@@ -23,6 +25,14 @@ export class MapCreditDto implements MapCredit {
     mapID: number;
 
     @ApiProperty()
+    @Transform(({ value }) => new UserDto(value))
+    user: UserDto;
+
+    @ApiProperty()
+    @Transform(({ value }) => new MapDto(value))
+    map: MapDto;
+
+    @ApiProperty()
     @IsDate()
     createdAt: Date;
 
@@ -30,22 +40,7 @@ export class MapCreditDto implements MapCredit {
     @IsDate()
     updatedAt: Date;
 
-    @ApiProperty()
-    @IsOptional()
-    user: UserDto;
-
-    @ApiProperty()
-    @IsOptional()
-    map: MapDto;
-
-    constructor(_mapCredit: MapCredit, _user?: UserDto, _map?: MapDto) {
-        this.id = _mapCredit.id;
-        this.type = _mapCredit.type;
-        this.createdAt = _mapCredit.createdAt;
-        this.updatedAt = _mapCredit.updatedAt;
-        this.mapID = _mapCredit.mapID;
-        this.userID = _mapCredit.userID;
-        if (_user) this.user = _user;
-        if (_map) this.map = _map;
+    constructor(_mapCredit: Partial<MapCredit>) {
+        DtoUtils.ShapeSafeObjectAssign(this, _mapCredit);
     }
 }

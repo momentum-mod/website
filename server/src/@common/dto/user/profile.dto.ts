@@ -1,8 +1,9 @@
 import { Profile } from '@prisma/client';
 import { ApiProperty, PartialType } from '@nestjs/swagger';
 import { IsDate, IsInt, IsString } from 'class-validator';
+import { DtoUtils } from '../../utils/dto-utils';
 
-export class ProfileDto implements Profile {
+export class ProfileDto {
     @ApiProperty()
     @IsInt()
     id: number;
@@ -27,13 +28,8 @@ export class ProfileDto implements Profile {
     @IsDate()
     updatedAt: Date;
 
-    constructor(_profile: Profile) {
-        this.id = _profile.id;
-        this.bio = _profile.bio;
-        this.createdAt = _profile.createdAt;
-        this.updatedAt = _profile.updatedAt;
-        this.userID = _profile.userID;
-        this.featuredBadgeID = _profile.featuredBadgeID;
+    constructor(_profile: Partial<Profile>) {
+        DtoUtils.ShapeSafeObjectAssign(this, _profile);
     }
 }
 

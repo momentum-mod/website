@@ -3,10 +3,12 @@ import { appConfig } from '../../../../config/config';
 import { ERole, EBan } from '../../enums/user.enum';
 import { ApiProperty, PartialType } from '@nestjs/swagger';
 import { IsDate, IsEnum, IsInt, IsISO31661Alpha2, IsOptional, IsString } from 'class-validator';
-import { Exclude } from 'class-transformer';
+import { Exclude, Expose, Transform } from 'class-transformer';
 import { IsSteamCommunityID } from '../../validators/is-steam-id.validator';
 import { ProfileDto } from './profile.dto';
+import { DtoUtils } from '../../utils/dto-utils';
 
+// TODO: UserStats in here in future as well
 export class UserDto implements User {
     @ApiProperty()
     @IsInt()
@@ -33,11 +35,8 @@ export class UserDto implements User {
     country: string;
 
     @ApiProperty()
-    @IsString()
-    avatarURL: string;
-
-    @ApiProperty()
     @IsOptional()
+    @Transform(({ value }) => new ProfileDto(value))
     profile: ProfileDto;
 
     @Exclude()
@@ -51,28 +50,21 @@ export class UserDto implements User {
     @IsDate()
     updatedAt: Date;
 
-    // TODO: UserStats in here in future as well
-    constructor(_user: User, _profile?: ProfileDto) {
-        this.id = _user.id;
-        this.steamID = _user.steamID;
-        this.alias = _user.alias;
-        this.roles = _user.roles;
-        this.bans = _user.bans;
-        this.country = _user.country;
-        this.createdAt = _user.createdAt;
-        this.updatedAt = _user.updatedAt;
+    @Exclude()
+    avatar: string;
 
+    @ApiProperty()
+    @Expose()
+    get avatarURL(): string {
         if (this.bans & EBan.BANNED_AVATAR) {
-            this.avatarURL = appConfig.baseURL + '/assets/images/blank_avatar.jpg';
+            return appConfig.baseURL + '/assets/images/blank_avatar.jpg';
         } else {
-            this.avatarURL = _user.avatar ? 'https://avatars.cloudflare.steamstatic.com/' + _user.avatar : null;
+            return this.avatar ? 'https://avatars.cloudflare.steamstatic.com/' + this.avatar : null;
         }
-
-        if (_profile) this.profile = _profile;
     }
 
-    get avatar(): string {
-        return this.avatarURL.replace('https://avatars.cloudflare.steamstatic.com/', '');
+    constructor(_user: Partial<User>) {
+        DtoUtils.ShapeSafeObjectAssign(this, _user);
     }
 }
 

@@ -1,4 +1,4 @@
-import { HttpException, Injectable, NotFoundException } from '@nestjs/common';
+import { BadRequestException, HttpException, Injectable, NotFoundException } from '@nestjs/common';
 import { Follow, Map as MapDB, MapRank, Prisma, User, UserAuth } from '@prisma/client';
 import { UpdateUserDto, UserDto } from '../../@common/dto/user/user.dto';
 import { ProfileDto, ProfileUpdateDto } from '../../@common/dto/user/profile.dto';
@@ -11,7 +11,7 @@ import { HttpService } from '@nestjs/axios';
 import { ActivityDto } from '../../@common/dto/user/activity.dto';
 import { FollowerDto } from '../../@common/dto/user/followers.dto';
 import { MapRankDto } from '../../@common/dto/map/mapRank.dto';
-import { UserMapCreditDto } from '../../@common/dto/map/mapCredit.dto';
+import { MapCreditDto } from '../../@common/dto/map/mapCredit.dto';
 import { EBan } from '../../@common/enums/user.enum';
 import { EActivityTypes } from '../../@common/enums/activity.enum';
 import { RunDto } from '../../@common/dto/run/runs.dto';
@@ -49,7 +49,7 @@ export class UsersService {
 
         const dbResponse = await this.userRepo.GetAll(where, include, skip, take);
 
-        const userDtos = dbResponse[0].map((user) => new UserDto(user, (user as any).profile));
+        const userDtos = dbResponse[0].map((user) => new UserDto(user));
 
         return {
             totalCount: dbResponse[1],
@@ -64,21 +64,19 @@ export class UsersService {
             userStats: expand?.includes('userStats')
         };
 
-        const dbResponse = await this.userRepo.Get(id, include);
+        const dbResponse: any = await this.userRepo.Get(id, include);
 
         if (!dbResponse) throw new NotFoundException();
 
-        return new UserDto(dbResponse, (dbResponse as any).profile);
+        return new UserDto(dbResponse);
     }
 
-    public async GetProfile(id: number): Promise<UserProfileDto> {
-        const userProfileDb = await this.userRepo.GetUserProfile(id);
-        const userDto = new UserDto(userProfileDb[0]);
+    public async GetProfile(userID: number): Promise<ProfileDto> {
+        const dbResponse = await this.userRepo.GetProfile(userID);
 
-        // Create DTO from db objects
-        const userProfileDto = new UserProfileDto(userDto, userProfileDb[1]);
+        if (!dbResponse) throw new NotFoundException();
 
-        return userProfileDto;
+        return new ProfileDto(dbResponse);
     }
 
     public async GetActivities(
@@ -98,9 +96,7 @@ export class UsersService {
 
         // Do we want to be so open here? Shouldn't report activity be hidden?
 
-        const activitesDto = dbResponse[0].map(
-            (activity: any) => new ActivityDto(activity, new UserDto(activity.user))
-        );
+        const activitesDto = dbResponse[0].map((activity: any) => new ActivityDto(activity));
 
         return {
             response: activitesDto,
@@ -112,49 +108,31 @@ export class UsersService {
     public async GetFollowers(id: number, skip?: number, take?: number): Promise<PagedResponseDto<FollowerDto[]>> {
         const dbResponse = await this.userRepo.GetFollowers(id, skip, take);
 
-        return this.MakeFollowersDto(dbResponse);
+        const followersDto = dbResponse[0].map((follow) => new FollowerDto(follow));
+
+        return {
+            response: followersDto,
+            returnCount: followersDto.length,
+            totalCount: dbResponse[1]
+        };
     }
 
     public async GetFollowing(id: number, skip?: number, take?: number): Promise<PagedResponseDto<FollowerDto[]>> {
         const dbResponse = await this.userRepo.GetFollowing(id, skip, take);
 
-        return this.MakeFollowersDto(dbResponse);
-    }
-
-    private MakeFollowersDto(followersAndCount: [Follow[], number]): PagedResponseDto<FollowerDto[]> {
-        const followersDto = followersAndCount[0].map((follow) => {
-            const followeeUser: any = (follow as any).followeeUser;
-            const followee = new UserDto(followeeUser, new ProfileDto(followeeUser.profile));
-
-            const followedUser: any = (follow as any).followedUser;
-            const followed = new UserDto(followedUser, new ProfileDto(followedUser.profile));
-
-            return new FollowerDto(follow, followee, followed);
-        });
+        const followersDto = dbResponse[0].map((follow) => new FollowerDto(follow));
 
         return {
             response: followersDto,
             returnCount: followersDto.length,
-            totalCount: followersAndCount[1]
+            totalCount: dbResponse[1]
         };
     }
 
-    public async GetMapCredits(
-        id: number,
-        skip?: number,
-        take?: number
-    ): Promise<PagedResponseDto<UserMapCreditDto[]>> {
+    public async GetMapCredits(id: number, skip?: number, take?: number): Promise<PagedResponseDto<MapCreditDto[]>> {
         const mapCreditsAndCount = await this.userRepo.GetMapCredits(id, skip, take);
-        const mapCreditsDto: UserMapCreditDto[] = [];
 
-        mapCreditsAndCount[0].forEach((c) => {
-            const user: User = (c as any).users;
-            const map: MapDB = (c as any).maps;
-
-            const mapCreditDto = new UserMapCreditDto(c, user, map);
-
-            mapCreditsDto.push(mapCreditDto);
-        });
+        const mapCreditsDto = mapCreditsAndCount[0].map((mapCredit) => new MapCreditDto(mapCredit));
 
         return {
             response: mapCreditsDto,
@@ -175,18 +153,16 @@ export class UsersService {
             const runUserDto = new UserDto(runUser);
             const runMapRankDto = new MapRankDto(runMapRank);
 
-            const runDto = new UserRunDto(c, runUserDto, runMapRankDto);
+            const runDto = new RunDto(c, runUserDto, runMapRankDto);
 
             runsDto.push(runDto);
         });
 
-        const response: PagedResponseDto<UserRunDto[]> = {
+        return {
             response: runsDto,
             returnCount: runsDto.length,
             totalCount: runsAndCount[1]
         };
-
-        return response;
     }
 
     async GetAuth(userID: number): Promise<UserAuth> {
