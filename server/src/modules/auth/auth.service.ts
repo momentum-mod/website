@@ -47,7 +47,7 @@ export class AuthService {
             issuer: appConfig.domain,
             expiresIn: gameAuth ? appConfig.accessToken.gameExpTime : appConfig.accessToken.expTime
         };
-        return await this.jwtService.sign(payload, options);
+        return this.jwtService.sign(payload, options);
     }
 
     private async GenRefreshToken(userID: number, gameAuth?: boolean): Promise<string> {
@@ -58,7 +58,7 @@ export class AuthService {
             issuer: appConfig.domain,
             expiresIn: gameAuth ? appConfig.accessToken.gameRefreshExpTime : appConfig.accessToken.refreshExpTime
         };
-        return await this.jwtService.sign(payload, options);
+        return this.jwtService.sign(payload, options);
     }
 }
 
