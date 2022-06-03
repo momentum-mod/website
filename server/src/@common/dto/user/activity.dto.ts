@@ -3,6 +3,8 @@ import { EActivityTypes } from '../../enums/activity.enum';
 import { ApiProperty } from '@nestjs/swagger';
 import { IsDate, IsEnum, IsInt, IsOptional } from 'class-validator';
 import { UserDto } from './user.dto';
+import { DtoUtils } from '../../utils/dto-utils';
+import { Transform } from 'class-transformer';
 
 export class ActivityDto implements Activity {
     @ApiProperty()
@@ -15,6 +17,7 @@ export class ActivityDto implements Activity {
 
     @ApiProperty()
     @IsOptional()
+    @Transform(({ value }) => new UserDto(value))
     user: UserDto;
 
     @ApiProperty()
@@ -32,13 +35,7 @@ export class ActivityDto implements Activity {
     @IsDate()
     updatedAt: Date;
 
-    constructor(_activity: Activity, _user?: UserDto) {
-        this.id = _activity.id;
-        this.userID = _activity.userID;
-        this.type = _activity.type;
-        this.data = _activity.data;
-        this.createdAt = _activity.createdAt;
-        this.updatedAt = _activity.updatedAt;
-        if (_user) this.user = _user;
+    constructor(_activity: Partial<Activity>) {
+        DtoUtils.ShapeSafeObjectAssign(this, _activity);
     }
 }

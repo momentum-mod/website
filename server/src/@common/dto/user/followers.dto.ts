@@ -1,8 +1,10 @@
-import { Follow, User } from '@prisma/client';
+import { Follow } from '@prisma/client';
 import { UserDto } from './user.dto';
 import { ApiProperty } from '@nestjs/swagger';
 import { EActivityTypes } from '../../enums/activity.enum';
-import { IsDate, IsEnum } from 'class-validator';
+import { IsDate, IsEnum, IsInt } from 'class-validator';
+import { DtoUtils } from '../../utils/dto-utils';
+import { Transform } from 'class-transformer';
 
 export class FollowerDto implements Partial<Follow> {
     @ApiProperty()
@@ -10,9 +12,19 @@ export class FollowerDto implements Partial<Follow> {
     notifyOn: EActivityTypes;
 
     @ApiProperty()
+    @IsInt()
+    followedID: number;
+
+    @ApiProperty()
+    @IsInt()
+    followeeID: number;
+
+    @ApiProperty()
+    @Transform(({ value }) => new UserDto(value))
     followed: UserDto;
 
     @ApiProperty()
+    @Transform(({ value }) => new UserDto(value))
     followee: UserDto;
 
     @ApiProperty()
@@ -23,10 +35,7 @@ export class FollowerDto implements Partial<Follow> {
     @IsDate()
     updatedAt: Date;
 
-    constructor(_follow: Follow, _followee: UserDto, _followed: UserDto) {
-        this.notifyOn = _follow.notifyOn;
-
-        this.followed = _followed;
-        this.followee = _followee;
+    constructor(_follow: Partial<Follow>) {
+        DtoUtils.ShapeSafeObjectAssign(this, _follow);
     }
 }

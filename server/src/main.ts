@@ -1,9 +1,9 @@
-import { NestFactory } from '@nestjs/core';
+import { NestFactory, Reflector } from '@nestjs/core';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 import { PrismaRepo } from './modules/prisma/prisma.repo';
 import { AppModule } from './app.module';
 import { appConfig } from '../config/config';
-import { NestApplicationOptions, ValidationPipe } from '@nestjs/common';
+import { ClassSerializerInterceptor, NestApplicationOptions, ValidationPipe } from '@nestjs/common';
 import { join } from 'path';
 import { NestExpressApplication } from '@nestjs/platform-express';
 
@@ -40,6 +40,7 @@ async function bootstrap() {
     await prismaDalc.enableShutdownHooks(app);
 
     app.useGlobalPipes(new ValidationPipe());
+    app.useGlobalInterceptors(new ClassSerializerInterceptor(app.get(Reflector)));
 
     await app.listen(appConfig.port);
 }

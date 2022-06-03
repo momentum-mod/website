@@ -3,11 +3,16 @@ import { Test } from '@nestjs/testing';
 import { AppModule } from '../src/app.module';
 import { ClassSerializerInterceptor, ValidationPipe } from '@nestjs/common';
 import { PrismaRepo } from '../src/modules/prisma/prisma.repo';
-import { User } from '@prisma/client';
+import { PrismaPromise, User } from '@prisma/client';
 import { AuthService } from '../src/modules/auth/auth.service';
 import { ERole } from '../src/@common/enums/user.enum';
 import { Reflector } from '@nestjs/core';
+
+const prismaBinary = './node_modules/.bin/prisma2';
+
 export default class E2ETestEnvironment extends NodeEnvironment {
+    private schema: string;
+
     constructor(config, context) {
         super(config, context);
     }
