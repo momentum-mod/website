@@ -42,8 +42,7 @@ export class MapsRepo {
             skip: skip != null ? +skip : undefined,
             take: take != null ? +take : undefined,
             include: {
-                users: true,
-                mapimages: true
+                images: true
             }
         });
         return [maps, count];
@@ -60,8 +59,7 @@ export class MapsRepo {
         return await this.prisma.map.findFirst({
             where: where,
             include: {
-                users: true,
-                mapimages: true
+                images: true
             }
         });
     }

@@ -65,38 +65,34 @@ export class MapsService {
 
         // create
         const createPrisma: Prisma.MapCreateInput = {
-            users: {
+            submitter: {
                 connect: {
                     id: this.authService.loggedInUser.id
                 }
             },
             name: mapCreateObj.name,
             type: mapCreateObj.type,
-            mapinfos: {
+            info: {
                 create: {
                     numTracks: mapCreateObj.info.numTracks,
                     description: mapCreateObj.info.description,
                     creationDate: mapCreateObj.info.creationDate,
-                    youtubeID: mapCreateObj.info.youtubeID,
-                    createdAt: new Date(),
-                    updatedAt: new Date()
+                    youtubeID: mapCreateObj.info.youtubeID
                 }
             },
-            maptracks: {
+            tracks: {
                 createMany: {
                     data: mapCreateObj.tracks.map((track) => {
                         return {
                             isLinear: track.isLinear,
                             numZones: track.numZones,
                             trackNum: track.trackNum,
-                            difficulty: track.difficulty,
-                            createdAt: new Date(),
-                            updatedAt: new Date()
+                            difficulty: track.difficulty
                         };
                     })
                 }
             },
-            mapcredits: {
+            credits: {
                 createMany: {
                     data: mapCreateObj.credits.map((credit) => {
                         return {
@@ -107,9 +103,7 @@ export class MapsService {
                         };
                     })
                 }
-            },
-            createdAt: new Date(),
-            updatedAt: new Date()
+            }
         };
         const dbResponse = await this.mapRepo.Insert(createPrisma);
 

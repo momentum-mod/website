@@ -3,7 +3,7 @@ import { UserDto } from '../user/user.dto';
 import { MapDto } from './map.dto';
 
 export class MapCreditDto implements MapCredit {
-    id: bigint;
+    id: number;
     type: number;
     createdAt: Date;
     updatedAt: Date;
