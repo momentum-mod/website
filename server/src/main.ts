@@ -37,7 +37,7 @@ async function bootstrap() {
     });
 
     const prismaDalc: PrismaRepo = app.get(PrismaRepo);
-    prismaDalc.enableShutdownHooks(app);
+    await prismaDalc.enableShutdownHooks(app);
 
     app.useGlobalPipes(new ValidationPipe());
 
