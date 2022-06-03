@@ -1,43 +1,37 @@
-import { Controller, Get, Param, Query, UseGuards } from '@nestjs/common';
-import { ApiBearerAuth, ApiOperation, ApiQuery, ApiTags, ApiParam } from '@nestjs/swagger';
-import { Public } from '../auth/public.decorator';
+import { Controller, Get, Param, ParseIntPipe, Query, UseGuards } from '@nestjs/common';
+import { ApiBearerAuth, ApiOperation, ApiTags, ApiParam } from '@nestjs/swagger';
 import { JwtAuthGuard } from '../auth/jwt/jwt-auth.guard';
 import { UsersService } from './users.service';
 import { UserDto } from '../../@common/dto/user/user.dto';
-import { UserProfileDto } from '../../@common/dto/user/profile.dto';
 import { PagedResponseDto } from '../../@common/dto/common/api-response.dto';
 import { ActivityDto } from '../../@common/dto/user/activity.dto';
-import { UserRunDto } from '../../@common/dto/run/runs.dto';
+import { ProfileDto } from '../../@common/dto/user/profile.dto';
+import { UsersGetAllQuery } from './queries/get-all.query.dto';
+import { UsersGetQuery } from './queries/get.query.dto';
+import { UsersGetActivitiesQuery } from './queries/get-activities.query.dto';
 import { UserMapCreditDto } from '../../@common/dto/map/mapCredit.dto';
 import { FollowerDto } from '../../@common/dto/user/followers.dto';
+import { PaginationQueryDto } from '../../@common/dto/common/pagination.dto';
+import { RunDto } from '../../@common/dto/run/runs.dto';
 
 @ApiBearerAuth()
-@Controller('api/v1/users')
+@Controller('/api/v1/users')
 @ApiTags('Users')
 @UseGuards(JwtAuthGuard)
 export class UsersController {
     constructor(private readonly usersService: UsersService) {}
 
-    @Public()
     @Get()
     @ApiOperation({ summary: 'Returns all users' })
-    @ApiQuery({
-        name: 'skip',
-        type: Number,
-        description: 'Offset this many records',
-        required: false
-    })
-    @ApiQuery({
-        name: 'take',
-        type: Number,
-        description: 'Take this many records',
-        required: false
-    })
-    public async GetAllUsers(
-        @Query('skip') skip?: number,
-        @Query('take') take?: number
-    ): Promise<PagedResponseDto<UserDto[]>> {
-        return this.usersService.GetAll(skip, take);
+    public async GetAll(@Query() query?: UsersGetAllQuery): Promise<PagedResponseDto<UserDto[]>> {
+        return this.usersService.GetAll(
+            query.skip,
+            query.take,
+            query.expand,
+            query.search,
+            query.playerID,
+            query.playerIDs
+        );
     }
 
     @Get(':userID')
@@ -48,8 +42,11 @@ export class UsersController {
         description: 'Target User ID',
         required: true
     })
-    public async GetUser(@Param('userID') userID: number): Promise<UserDto> {
-        return this.usersService.Get(userID);
+    public async GetUser(
+        @Param('userID', ParseIntPipe) userID: number,
+        @Query() query?: UsersGetQuery
+    ): Promise<UserDto> {
+        return this.usersService.Get(userID, query.expand);
     }
 
     @Get(':userID/profile')
@@ -60,7 +57,7 @@ export class UsersController {
         description: 'Target User ID',
         required: true
     })
-    public async GetUserProfile(@Param('userID') userID: number): Promise<UserProfileDto> {
+    public async GetProfile(@Param('userID', ParseIntPipe) userID: number): Promise<ProfileDto> {
         return this.usersService.GetProfile(userID);
     }
 
@@ -72,24 +69,11 @@ export class UsersController {
         description: 'Target User ID',
         required: true
     })
-    @ApiQuery({
-        name: 'skip',
-        type: Number,
-        description: 'Offset this many records',
-        required: false
-    })
-    @ApiQuery({
-        name: 'take',
-        type: Number,
-        description: 'Take this many records',
-        required: false
-    })
     public async GetActivities(
-        @Param('userID') userID: number,
-        @Query('skip') skip?: number,
-        @Query('take') take?: number
+        @Param('userID', ParseIntPipe) userID: number,
+        @Query() query?: UsersGetActivitiesQuery
     ): Promise<PagedResponseDto<ActivityDto[]>> {
-        return this.usersService.GetActivities(userID, skip, take);
+        return this.usersService.GetActivities(userID, query.skip, query.take, query.type, query.data);
     }
 
     @Get(':userID/followers')
@@ -100,24 +84,11 @@ export class UsersController {
         description: 'Target User ID',
         required: true
     })
-    @ApiQuery({
-        name: 'skip',
-        type: Number,
-        description: 'Offset this many records',
-        required: false
-    })
-    @ApiQuery({
-        name: 'take',
-        type: Number,
-        description: 'Take this many records',
-        required: false
-    })
     public async GetFollowers(
-        @Param('userID') userID: number,
-        @Query('skip') skip?: number,
-        @Query('take') take?: number
+        @Param('userID', ParseIntPipe) userID: number,
+        @Query() query?: PaginationQueryDto
     ): Promise<PagedResponseDto<FollowerDto[]>> {
-        return this.usersService.GetFollowers(userID, skip, take);
+        return this.usersService.GetFollowers(userID, query.skip, query.take);
     }
 
     @Get(':userID/follows')
@@ -128,24 +99,11 @@ export class UsersController {
         description: 'Target User ID',
         required: true
     })
-    @ApiQuery({
-        name: 'skip',
-        type: Number,
-        description: 'Offset this many records',
-        required: false
-    })
-    @ApiQuery({
-        name: 'take',
-        type: Number,
-        description: 'Take this many records',
-        required: false
-    })
     public async GetFollowed(
         @Param('userID') userID: number,
-        @Query('skip') skip?: number,
-        @Query('take') take?: number
+        @Query() query: PaginationQueryDto
     ): Promise<PagedResponseDto<FollowerDto[]>> {
-        return this.usersService.GetFollowing(userID, skip, take);
+        return this.usersService.GetFollowing(userID, query.skip, query.take);
     }
 
     @Get(':userID/credits')
@@ -156,24 +114,11 @@ export class UsersController {
         description: 'Target User ID',
         required: true
     })
-    @ApiQuery({
-        name: 'skip',
-        type: Number,
-        description: 'Offset this many records',
-        required: false
-    })
-    @ApiQuery({
-        name: 'take',
-        type: Number,
-        description: 'Take this many records',
-        required: false
-    })
     public async GetMapCredits(
         @Param('userID') userID: number,
-        @Query('skip') skip?: number,
-        @Query('take') take?: number
+        @Query() query: PaginationQueryDto
     ): Promise<PagedResponseDto<UserMapCreditDto[]>> {
-        return this.usersService.GetMapCredits(userID, skip, take);
+        return this.usersService.GetMapCredits(userID, query.skip, query.take);
     }
 
     @Get(':userID/runs')
@@ -184,23 +129,10 @@ export class UsersController {
         description: 'Target User ID',
         required: true
     })
-    @ApiQuery({
-        name: 'skip',
-        type: Number,
-        description: 'Offset this many records',
-        required: false
-    })
-    @ApiQuery({
-        name: 'take',
-        type: Number,
-        description: 'Take this many records',
-        required: false
-    })
     public async GetRuns(
         @Param('userID') userID: number,
-        @Query('skip') skip?: number,
-        @Query('take') take?: number
-    ): Promise<PagedResponseDto<UserRunDto[]>> {
-        return this.usersService.GetRuns(userID, skip, take);
+        @Query() query: PaginationQueryDto
+    ): Promise<PagedResponseDto<RunDto[]>> {
+        return this.usersService.GetRuns(userID, query.skip, query.take);
     }
 }
