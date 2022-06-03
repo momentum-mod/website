@@ -1,22 +1,24 @@
-import { Follow } from '@prisma/client';
-import { UserProfileDto } from './profile.dto';
+import { Follow, User } from '@prisma/client';
+import { UserDto } from './user.dto';
+import { ApiProperty } from '@nestjs/swagger';
+import { EActivityTypes } from '../../enums/activity.enum';
+import { IsEnum } from 'class-validator';
 
 export class FollowerDto {
-    notifyOn: number;
-    createdAt: Date;
-    updatedAt: Date;
-    followeeID: number;
-    followedID: number;
-    followed: UserProfileDto;
-    followee: UserProfileDto;
+    @ApiProperty()
+    @IsEnum(EActivityTypes)
+    notifyOn: EActivityTypes;
 
-    constructor(_follow: Follow, _followed: UserProfileDto, _followee: UserProfileDto) {
+    @ApiProperty()
+    followed: UserDto;
+
+    @ApiProperty()
+    followee: UserDto;
+
+    constructor(_follow: Follow, _followee: User, _followed: User) {
         this.notifyOn = _follow.notifyOn;
-        this.createdAt = _follow.createdAt;
-        this.updatedAt = _follow.updatedAt;
-        this.followedID = _follow.followedID;
-        this.followeeID = _follow.followeeID;
-        this.followed = _followed;
-        this.followee = _followee;
+
+        this.followed = new UserDto(_followed);
+        this.followee = new UserDto(_followee);
     }
 }
