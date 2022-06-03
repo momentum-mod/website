@@ -7,7 +7,7 @@
     "resolveJsonModule": true,                        /* Enable importing .json files */    
     "experimentalDecorators": true,
     "allowSyntheticDefaultImports": true,
-    "target": "ES2021",
+    "target": "ES2022",
     "sourceMap": true,
     "outDir": "./dist",
     "baseUrl": "./",
