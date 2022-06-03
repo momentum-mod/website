@@ -18,10 +18,11 @@ export class RunDto {
     playerID: number;
     baseStatsID: number;
 
-    constructor(_run: Run) {
-        if (_run == null) {
-            return;
-        }
+    user: UserDto;
+    rank: MapRankDto;
+
+    constructor(_run: Run, _user?: User, _rank?: MapRank) {
+        if (_run == null) return;
 
         this.id = +_run.id.toString();
         // this.time = +(_run.time.toString());
@@ -37,16 +38,13 @@ export class RunDto {
         this.mapID = _run.mapID;
         this.playerID = _run.playerID;
         this.baseStatsID = +_run.baseStatsID.toString();
-    }
-}
 
-export class UserRunDto extends RunDto {
-    user: UserDto;
-    rank: MapRankDto;
+        if (_user) {
+            this.user = new UserDto(_user);
+        }
 
-    constructor(_run: Run, _user: User, _rank: MapRank) {
-        super(_run);
-        this.user = new UserDto(_user);
-        this.rank = new MapRankDto(_rank);
+        if (_rank) {
+            this.rank = new MapRankDto(_rank);
+        }
     }
 }

@@ -9,7 +9,7 @@ import { ProfileDto } from '../../@common/dto/user/profile.dto';
 import { UsersGetAllQuery } from './queries/get-all.query.dto';
 import { UsersGetQuery } from './queries/get.query.dto';
 import { UsersGetActivitiesQuery } from './queries/get-activities.query.dto';
-import { UserMapCreditDto } from '../../@common/dto/map/mapCredit.dto';
+import { MapCreditDto } from '../../@common/dto/map/mapCredit.dto';
 import { FollowerDto } from '../../@common/dto/user/followers.dto';
 import { PaginationQueryDto } from '../../@common/dto/common/pagination.dto';
 import { RunDto } from '../../@common/dto/run/runs.dto';
@@ -117,7 +117,7 @@ export class UsersController {
     public async GetMapCredits(
         @Param('userID') userID: number,
         @Query() query: PaginationQueryDto
-    ): Promise<PagedResponseDto<UserMapCreditDto[]>> {
+    ): Promise<PagedResponseDto<MapCreditDto[]>> {
         return this.usersService.GetMapCredits(userID, query.skip, query.take);
     }
 
