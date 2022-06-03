@@ -53,3 +53,6 @@ testem.log
 Thumbs.db
 data/*
 data/grafana/grafana.db
+
+# Prisma
+ERD.svg
