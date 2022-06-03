@@ -50,6 +50,7 @@
         "xml2js": "^0.4.23"
     },
     "devDependencies": {
+        "@mermaid-js/mermaid-cli": "^9.1.2",
         "@nestjs/cli": "^8.1.3",
         "@nestjs/schematics": "^8.0.4",
         "@nestjs/testing": "^8.1.1",
@@ -70,6 +71,7 @@
         "jest": "^27.3.0",
         "prettier-eslint": "^13.0.0",
         "prisma": "^3.8.1",
+        "prisma-erd-generator": "^0.11.4",
         "source-map-support": "^0.5.20",
         "supertest": "^6.1.6",
         "ts-jest": "^27.0.7",
