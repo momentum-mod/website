@@ -20,6 +20,7 @@ export class MapRankDto implements MapRank {
 
         this.mapID = _rank.mapID;
         this.userID = _rank.userID;
+        this.runID = _rank.runID;
         this.gameType = _rank.gameType;
         this.flags = _rank.flags;
         this.trackNum = _rank.trackNum;

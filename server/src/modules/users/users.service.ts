@@ -1,55 +1,74 @@
-import { HttpException, Injectable } from '@nestjs/common';
-import { User, UserAuth, Prisma, Profile, MapRank, Map as MapDB } from '@prisma/client';
-import { UserDto } from '../../@common/dto/user/user.dto';
-import { ProfileDto, UserProfileDto } from '../../@common/dto/user/profile.dto';
+import { HttpException, Injectable, NotFoundException } from '@nestjs/common';
+import { Follow, Map as MapDB, MapRank, Prisma, User, UserAuth } from '@prisma/client';
+import { UpdateUserDto, UserDto } from '../../@common/dto/user/user.dto';
+import { ProfileDto, ProfileUpdateDto } from '../../@common/dto/user/profile.dto';
 import { PagedResponseDto } from '../../@common/dto/common/api-response.dto';
 import { UsersRepo } from './users.repo';
-import { appConfig } from 'config/config';
+import { appConfig } from '../../../config/config';
 import { lastValueFrom, map } from 'rxjs';
 import * as xml2js from 'xml2js';
 import { HttpService } from '@nestjs/axios';
 import { ActivityDto } from '../../@common/dto/user/activity.dto';
 import { FollowerDto } from '../../@common/dto/user/followers.dto';
 import { MapRankDto } from '../../@common/dto/map/mapRank.dto';
-import { UserRunDto } from '../../@common/dto/run/runs.dto';
 import { UserMapCreditDto } from '../../@common/dto/map/mapCredit.dto';
+import { EBan } from '../../@common/enums/user.enum';
+import { EActivityTypes } from '../../@common/enums/activity.enum';
+import { RunDto } from '../../@common/dto/run/runs.dto';
 
 @Injectable()
 export class UsersService {
     constructor(private readonly userRepo: UsersRepo, private readonly http: HttpService) {}
 
     //#region GETs
-    public async GetAll(skip?: number, take?: number): Promise<PagedResponseDto<UserDto[]>> {
-        const dbResponse = await this.userRepo.GetAll(undefined, skip, take);
 
-        const totalCount = dbResponse[1];
-        const users = dbResponse[0];
+    // TODO: mapRank
+    public async GetAll(
+        skip?: number,
+        take?: number,
+        expand?: string[],
+        search?: string,
+        playerID?: string,
+        playerIDs?: string[]
+    ): Promise<PagedResponseDto<UserDto[]>> {
+        const where: Prisma.UserWhereInput = {};
 
-        const userDtos = users.map((user: User) => {
-            const userDto = new UserDto(user);
+        if (playerID) {
+            take = 1;
+            where.steamID = playerID;
+        } else if (playerIDs) {
+            where.steamID = { in: playerIDs };
+        }
 
-            return userDto;
-        });
+        if (search) where.alias = { startsWith: search };
+
+        const include: Prisma.UserInclude = {
+            profile: expand?.includes('profile'),
+            userStats: expand?.includes('userStats')
+        };
+
+        const dbResponse = await this.userRepo.GetAll(where, include, skip, take);
+
+        const userDtos = dbResponse[0].map((user) => new UserDto(user, (user as any).profile));
 
         return {
-            totalCount: totalCount,
+            totalCount: dbResponse[1],
             returnCount: userDtos.length,
             response: userDtos
         };
     }
 
-    public async Get(id: number): Promise<UserDto> {
-        const dbResponse = await this.userRepo.Get(id);
-        const userDto = new UserDto(dbResponse);
+    public async Get(id: number, expand?: string[]): Promise<UserDto> {
+        const include: Prisma.UserInclude = {
+            profile: expand?.includes('profile'),
+            userStats: expand?.includes('userStats')
+        };
 
-        return userDto;
-    }
+        const dbResponse = await this.userRepo.Get(id, include);
 
-    public async GetBySteamID(id: string): Promise<UserDto> {
-        const dbResponse = await this.userRepo.GetBySteamID(id);
-        const userDto = new UserDto(dbResponse);
+        if (!dbResponse) throw new NotFoundException();
 
-        return userDto;
+        return new UserDto(dbResponse, (dbResponse as any).profile);
     }
 
     public async GetProfile(id: number): Promise<UserProfileDto> {
@@ -62,88 +81,62 @@ export class UsersService {
         return userProfileDto;
     }
 
-    public async GetActivities(id: number, skip?: number, take?: number): Promise<PagedResponseDto<ActivityDto[]>> {
-        const activitesAndCount = await this.userRepo.GetActivities(id, skip, take);
-
-        const activitesDto = [];
-
-        activitesAndCount[0].forEach((c) => {
-            const user: User = (c as any).users;
-            const profile: Profile = (c as any).users.profiles;
-
-            // Create DTO from db objects
-            const userProfileDto = new UserProfileDto(user, new ProfileDto(profile));
-
-            activitesDto.push(new ActivityDto(c, userProfileDto));
-        });
-
-        const response: PagedResponseDto<ActivityDto[]> = {
-            response: activitesDto,
-            returnCount: activitesDto.length,
-            totalCount: activitesAndCount[1]
+    public async GetActivities(
+        userID: number,
+        skip?: number,
+        take?: number,
+        type?: EActivityTypes,
+        data?: bigint
+    ): Promise<PagedResponseDto<ActivityDto[]>> {
+        const where: Prisma.ActivityWhereInput = {
+            userID: userID,
+            type: type,
+            data: data
         };
 
-        return response;
+        const dbResponse = await this.userRepo.GetActivities(where, skip, take);
+
+        // Do we want to be so open here? Shouldn't report activity be hidden?
+
+        const activitesDto = dbResponse[0].map(
+            (activity: any) => new ActivityDto(activity, new UserDto(activity.user))
+        );
+
+        return {
+            response: activitesDto,
+            returnCount: activitesDto.length,
+            totalCount: dbResponse[1]
+        };
     }
 
     public async GetFollowers(id: number, skip?: number, take?: number): Promise<PagedResponseDto<FollowerDto[]>> {
-        const followersAndCount = await this.userRepo.GetFollowers(id, skip, take);
+        const dbResponse = await this.userRepo.GetFollowers(id, skip, take);
 
-        const followersDto = [];
-
-        followersAndCount[0].forEach((c) => {
-            const followeeUser: User = (c as any).users_follows_followeeIDTousers;
-            const followeeProfile: Profile = (c as any).users_follows_followeeIDTousers.profiles;
-
-            // Create DTO from db objects
-            const followee = new UserProfileDto(followeeUser, new ProfileDto(followeeProfile));
-
-            const followedUser: User = (c as any).users_follows_followedIDTousers;
-            const followedProfile: Profile = (c as any).users_follows_followedIDTousers.profiles;
-
-            // Create DTO from db objects
-            const followed = new UserProfileDto(followedUser, new ProfileDto(followedProfile));
-
-            followersDto.push(new FollowerDto(c, followed, followee));
-        });
-
-        const response: PagedResponseDto<FollowerDto[]> = {
-            response: followersDto,
-            returnCount: followersDto.length,
-            totalCount: followersAndCount[1]
-        };
-
-        return response;
+        return this.MakeFollowersDto(dbResponse);
     }
 
     public async GetFollowing(id: number, skip?: number, take?: number): Promise<PagedResponseDto<FollowerDto[]>> {
-        const followersAndCount = await this.userRepo.GetFollowing(id, skip, take);
+        const dbResponse = await this.userRepo.GetFollowing(id, skip, take);
 
-        const followersDto = [];
+        return this.MakeFollowersDto(dbResponse);
+    }
 
-        followersAndCount[0].forEach((c) => {
-            const followeeUser: User = (c as any).users_follows_followeeIDTousers;
-            const followeeProfile: Profile = (c as any).users_follows_followeeIDTousers.profiles;
+    private MakeFollowersDto(followersAndCount: [Follow[], number]): PagedResponseDto<FollowerDto[]> {
+        const followersDto = followersAndCount[0].map((follow) => {
+            const followeeUser: any = (follow as any).followeeUser;
+            const followee = new UserDto(followeeUser, new ProfileDto(followeeUser.profile));
 
-            // Create DTO from db objects
-            const followee = new UserProfileDto(followeeUser, new ProfileDto(followeeProfile));
+            const followedUser: any = (follow as any).followedUser;
+            const followed = new UserDto(followedUser, new ProfileDto(followedUser.profile));
 
-            const followedUser: User = (c as any).users_follows_followedIDTousers;
-            const followedProfile: Profile = (c as any).users_follows_followedIDTousers.profiles;
-
-            // Create DTO from db objects
-            const followed = new UserProfileDto(followedUser, new ProfileDto(followedProfile));
-
-            followersDto.push(new FollowerDto(c, followed, followee));
+            return new FollowerDto(follow, followee, followed);
         });
 
-        const response: PagedResponseDto<FollowerDto[]> = {
+        return {
             response: followersDto,
             returnCount: followersDto.length,
             totalCount: followersAndCount[1]
         };
-
-        return response;
     }
 
     public async GetMapCredits(
@@ -163,18 +156,16 @@ export class UsersService {
             mapCreditsDto.push(mapCreditDto);
         });
 
-        const response: PagedResponseDto<UserMapCreditDto[]> = {
+        return {
             response: mapCreditsDto,
             returnCount: mapCreditsDto.length,
             totalCount: mapCreditsAndCount[1]
         };
-
-        return response;
     }
 
-    public async GetRuns(id: number, skip?: number, take?: number): Promise<PagedResponseDto<UserRunDto[]>> {
+    public async GetRuns(id: number, skip?: number, take?: number): Promise<PagedResponseDto<RunDto[]>> {
         const runsAndCount = await this.userRepo.GetRuns(id, skip, take);
-        const runsDto: UserRunDto[] = [];
+        const runsDto: RunDto[] = [];
 
         runsAndCount[0].forEach((c) => {
             const runUser: User = (c as any).users;

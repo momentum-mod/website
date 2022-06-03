@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaRepo } from '../prisma/prisma.repo';
-import { User, Prisma, UserAuth, Activity, Profile, Follow, MapCredit, Run } from '@prisma/client';
+import { Activity, Follow, MapCredit, Prisma, Profile, Run, User, UserAuth } from '@prisma/client';
 
 @Injectable()
 export class UsersRepo {
@@ -21,15 +21,23 @@ export class UsersRepo {
      * @summary Gets all from database
      * @returns All users
      */
-    async GetAll(where?: Prisma.UserWhereInput, skip?: number, take?: number): Promise<[User[], number]> {
+    async GetAll(
+        where: Prisma.UserWhereInput,
+        include: Prisma.UserInclude,
+        skip?: number,
+        take?: number
+    ): Promise<[User[], number]> {
         const count = await this.prisma.user.count({
             where: where
         });
+
         const users = await this.prisma.user.findMany({
             where: where,
-            skip: skip != null ? +skip : undefined,
-            take: take != null ? +take : undefined
+            include: include,
+            skip: skip,
+            take: take
         });
+
         return [users, count];
     }
 
@@ -37,12 +45,13 @@ export class UsersRepo {
      * @summary Gets single user from database
      * @returns Target user or null
      */
-    async Get(id: number): Promise<User> {
+    async Get(userID: number, include: Prisma.UserInclude): Promise<User> {
         const where: Prisma.UserWhereUniqueInput = {};
-        where.id = +id;
+        where.id = +userID;
 
         return await this.prisma.user.findFirst({
-            where: where
+            where: where,
+            include: include
         });
     }
 
@@ -59,12 +68,34 @@ export class UsersRepo {
         });
     }
 
-    async Update(user: Prisma.UserAuthWhereUniqueInput, update: Prisma.UserUpdateInput): Promise<User> {
+    /**
+     * @summary Update a single user in database
+     * @returns Target user or null
+     */
+    async Update(userID: number, update: Prisma.UserUpdateInput): Promise<User> {
+        const where: Prisma.UserWhereUniqueInput = {};
+        where.id = +userID;
+
         return await this.prisma.user.update({
-            where: user,
+            where: where,
             data: update
         });
     }
+
+    /**
+     * @summary Deletes single user from database
+     * @returns Target user or null
+     * // TODO: does it?? what happens to entry after deletion?
+     */
+    async Delete(userID: number): Promise<User> {
+        const where: Prisma.UserWhereUniqueInput = {};
+        where.id = +userID;
+
+        return await this.prisma.user.delete({
+            where: where
+        });
+    }
+
     //#endregion
 
     //#region User Auth funcitons
@@ -78,58 +109,48 @@ export class UsersRepo {
             data: update
         });
     }
+
     //#endregion
 
     //#region Profile
-    /**
-     * @summary Gets single users profile from database
-     * @returns Target user or null
-     */
-    async GetUserProfile(userID: number): Promise<[User, Profile]> {
-        const where: Prisma.UserWhereUniqueInput = {};
-        where.id = +userID;
 
-        const userProfile = await this.prisma.user.findFirst({
-            where: where,
-            include: {
-                profiles: true
-            }
-        });
-
-        return [userProfile, (userProfile as any).profiles];
-    }
-
-    /**
-     * @summary Gets only single users profile from database
-     * @returns Target user or null
-     */
-    async GetProfileOnly(userID: number): Promise<Profile> {
-        const where: Prisma.ProfileWhereInput = {};
-        where.userID = +userID;
+    async GetProfile(userID: number): Promise<Profile> {
+        const where: Prisma.ProfileWhereInput = { userID: userID };
 
         return await this.prisma.profile.findFirst({
             where: where
         });
     }
 
+    async UpdateProfile(profileID: number, update: Prisma.ProfileUpdateInput): Promise<Profile> {
+        const where: Prisma.ProfileWhereUniqueInput = {};
+        where.id = +profileID;
+
+        const ret = await this.prisma.profile.update({
+            where: where,
+            data: update
+        });
+
+        return ret;
+    }
+
     //#endregion
 
     //#region Activites
-    async GetActivities(userID: number, skip?: number, take?: number): Promise<[Activity[], number]> {
-        const where: Prisma.ActivityWhereInput = {};
-        where.userID = +userID;
 
+    async GetActivities(where: Prisma.ActivityWhereInput, skip?: number, take?: number): Promise<[Activity[], number]> {
         const count = await this.prisma.activity.count({
             where: where
         });
+
         const activities = await this.prisma.activity.findMany({
             where: where,
-            skip: skip != null ? +skip : undefined,
-            take: take != null ? +take : undefined,
+            skip: skip,
+            take: take,
             include: {
-                users: {
+                user: {
                     include: {
-                        profiles: true
+                        profile: true
                     }
                 }
             }
@@ -137,96 +158,100 @@ export class UsersRepo {
 
         return [activities, count];
     }
+
     //#endregion
 
     //#region Followers
-    async GetFollowers(userID: number, skip?: number, take?: number): Promise<[Follow[], number]> {
-        const where: Prisma.FollowWhereInput = {};
-        const userWhere: Prisma.UserWhereInput = {
-            id: +userID
-        };
 
-        where.users_follows_followedIDTousers = userWhere;
+    async GetFollowers(userID: number, skip?: number, take?: number): Promise<[Follow[], number]> {
+        const where: Prisma.FollowWhereInput = {
+            followed: {
+                id: userID
+            }
+        };
 
         const count = await this.prisma.follow.count({
             where: where
         });
-        const followers = await this.prisma.follow.findMany({
+
+        const follows = await this.prisma.follow.findMany({
             where: where,
-            skip: skip != null ? +skip : undefined,
-            take: take != null ? +take : undefined,
+            skip: skip,
+            take: take,
             include: {
-                users_follows_followeeIDTousers: {
+                followee: {
                     include: {
-                        profiles: true
+                        profile: true
                     }
                 },
-                users_follows_followedIDTousers: {
+                followed: {
                     include: {
-                        profiles: true
+                        profile: true
                     }
                 }
             }
         });
 
-        return [followers, count];
+        return [follows, count];
     }
 
     async GetFollowing(userID: number, skip?: number, take?: number): Promise<[Follow[], number]> {
-        const where: Prisma.FollowWhereInput = {};
-        const userWhere: Prisma.UserWhereInput = {
-            id: +userID
+        const where: Prisma.FollowWhereInput = {
+            followee: {
+                id: userID
+            }
         };
-
-        where.users_follows_followeeIDTousers = userWhere;
 
         const count = await this.prisma.follow.count({
             where: where
         });
-        const followees = await this.prisma.follow.findMany({
+
+        const follows = await this.prisma.follow.findMany({
             where: where,
-            skip: skip != null ? +skip : undefined,
-            take: take != null ? +take : undefined,
+            skip: skip,
+            take: take,
             include: {
-                users_follows_followeeIDTousers: {
+                followee: {
                     include: {
-                        profiles: true
+                        profile: true
                     }
                 },
-                users_follows_followedIDTousers: {
+                followed: {
                     include: {
-                        profiles: true
+                        profile: true
                     }
                 }
             }
         });
 
-        return [followees, count];
+        return [follows, count];
     }
+
     //#endregion
 
     //#region Credits
+
     async GetMapCredits(userID: number, skip?: number, take?: number): Promise<[MapCredit[], number]> {
-        const where: Prisma.MapCreditWhereInput = {};
-        where.userID = +userID;
+        const where: Prisma.MapCreditWhereInput = { userID: userID };
 
         const count = await this.prisma.mapCredit.count({
             where: where
         });
+
         const mapCredit = await this.prisma.mapCredit.findMany({
             where: where,
-            skip: skip ?? +skip,
-            take: take ?? +take,
+            skip: skip,
+            take: take,
             include: {
-                users: {
+                user: {
                     include: {
-                        profiles: true
+                        profile: true
                     }
                 },
-                maps: {
+                map: {
                     include: {
-                        users: true,
-                        mapimages: true
+                        submitter: true,
+                        images: true
                     }
                 }
             }
@@ -234,27 +259,31 @@ export class UsersRepo {
 
         return [mapCredit, count];
     }
+
     //#endregion
 
     //#region Runs
     async GetRuns(userID: number, skip?: number, take?: number): Promise<[Run[], number]> {
-        const where: Prisma.RunWhereInput = {};
-        where.playerID = +userID;
+        const where: Prisma.RunWhereInput = {
+            playerID: userID
+        };
 
         const count = await this.prisma.run.count({
             where: where
         });
+
         const runs = await this.prisma.run.findMany({
             where: where,
-            skip: skip != null ? +skip : undefined,
-            take: take != null ? +take : undefined,
+            skip: skip,
+            take: take,
             include: {
-                users: true,
-                mapranks: true
+                player: true,
+                rank: true
             }
         });
 
         return [runs, count];
     }
+
     //#endregion
 }
