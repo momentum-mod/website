@@ -2,7 +2,7 @@ import { Profile } from '@prisma/client';
 import { ApiProperty, PartialType } from '@nestjs/swagger';
 import { IsDate, IsInt, IsString } from 'class-validator';
 
-export class ProfileDto {
+export class ProfileDto implements Profile {
     @ApiProperty()
     @IsInt()
     id: number;
@@ -12,20 +12,20 @@ export class ProfileDto {
     bio: string;
 
     @ApiProperty()
-    @IsDate()
-    createdAt: Date;
-
-    @ApiProperty()
-    @IsDate()
-    updatedAt: Date;
-
-    @ApiProperty()
     @IsInt()
     userID: number;
 
     @ApiProperty()
     @IsInt()
     featuredBadgeID: number;
+
+    @ApiProperty()
+    @IsDate()
+    createdAt: Date;
+
+    @ApiProperty()
+    @IsDate()
+    updatedAt: Date;
 
     constructor(_profile: Profile) {
         this.id = _profile.id;

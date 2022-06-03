@@ -2,9 +2,9 @@ import { Follow, User } from '@prisma/client';
 import { UserDto } from './user.dto';
 import { ApiProperty } from '@nestjs/swagger';
 import { EActivityTypes } from '../../enums/activity.enum';
-import { IsEnum } from 'class-validator';
+import { IsDate, IsEnum } from 'class-validator';
 
-export class FollowerDto {
+export class FollowerDto implements Partial<Follow> {
     @ApiProperty()
     @IsEnum(EActivityTypes)
     notifyOn: EActivityTypes;
@@ -15,10 +15,18 @@ export class FollowerDto {
     @ApiProperty()
     followee: UserDto;
 
-    constructor(_follow: Follow, _followee: User, _followed: User) {
+    @ApiProperty()
+    @IsDate()
+    createdAt: Date;
+
+    @ApiProperty()
+    @IsDate()
+    updatedAt: Date;
+
+    constructor(_follow: Follow, _followee: UserDto, _followed: UserDto) {
         this.notifyOn = _follow.notifyOn;
 
-        this.followed = new UserDto(_followed);
-        this.followee = new UserDto(_followee);
+        this.followed = _followed;
+        this.followee = _followee;
     }
 }

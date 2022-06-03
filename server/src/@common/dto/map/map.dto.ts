@@ -1,46 +1,72 @@
 import { Logger } from '@nestjs/common';
 import { Map as MapDB, MapImage, User } from '@prisma/client';
-import { EMapStatus, EMapType } from '../../../@common/enums/map.enum';
+import { EMapStatus, EMapType } from '../../enums/map.enum';
 import { UserDto } from '../user/user.dto';
 import { MapImageDto } from './mapImage.dto';
+import { ApiProperty } from '@nestjs/swagger';
+import { IsDate, IsEnum, IsInt, IsString } from 'class-validator';
 
 export class MapDto implements MapDB {
+    @ApiProperty()
+    @IsInt()
     id: number;
+
+    @ApiProperty()
+    @IsString()
     name: string;
+
+    @ApiProperty()
+    @IsEnum(EMapType)
     type: EMapType;
+
+    @ApiProperty()
+    @IsEnum(EMapStatus)
     statusFlag: EMapStatus;
+
+    @ApiProperty()
+    @IsString()
     downloadURL: string;
+
+    @ApiProperty()
+    @IsString() // Could use IsHash?
     hash: string;
-    createdAt: Date;
-    updatedAt: Date;
+
+    @ApiProperty()
+    @IsInt()
     submitterID: number;
+
+    @ApiProperty()
+    @IsInt()
     thumbnailID: number;
 
     submitter: UserDto;
     images: MapImageDto[];
     thumbnail: MapImageDto;
 
-    constructor(_map: MapDB, _submitter?: User, _images?: MapImage[]) {
-        if (_map == null) {
-            return;
-        }
+    @ApiProperty()
+    @IsDate()
+    createdAt: Date;
 
-        Logger.log('MapDto');
-        Logger.log(JSON.stringify(_map));
+    @ApiProperty()
+    @IsDate()
+    updatedAt: Date;
+
+    constructor(_map: MapDB, _submitter?: User, _images?: MapImage[]) {
+        console.log(JSON.stringify(_map));
 
         let submitter = _submitter;
         if (submitter == null) {
             // if null then try get it from map object
-            submitter = (_map as any).users;
+            submitter = (_map as any).user;
         }
-        Logger.log(JSON.stringify(submitter));
+        console.log(JSON.stringify(submitter));
 
         let images = _images;
         if (images == null || images.length == 0) {
             // if null then try get it from map object
-            images = (_map as any).mapimages?.length == 0 ? null : (_map as any).mapimages;
+            images = (_map as any).images?.length == 0 ? null : (_map as any).images;
         }
-        Logger.log(JSON.stringify(images));
+        console.log(JSON.stringify(images));
 
         this.id = _map.id;
         this.name = _map.name;
