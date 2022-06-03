@@ -5,7 +5,7 @@ import { AuthService } from './auth.service';
 
 import { PassportModule } from '@nestjs/passport';
 import { JwtStrategy } from './jwt/jwt.strategy';
-import { appConfig } from 'config/config';
+import { appConfig } from '../../../config/config';
 import { JwtModule } from '@nestjs/jwt';
 import { HttpModule } from '@nestjs/axios';
 import { SteamWebStrategy } from './steam/steam-web.strategy';

@@ -1,7 +1,7 @@
 import { MiddlewareConsumer, Module, NestModule, RequestMethod } from '@nestjs/common';
 import { APP_FILTER } from '@nestjs/core';
 import { AllExceptionsFilter } from './@common/filters/all-exceptions.filter';
-import { appConfig } from 'config/config';
+import { appConfig } from '../config/config';
 import { AuthModule } from './modules/auth/auth.module';
 import { JsonBodyMiddleware } from './middlewares/json-body.middleware';
 import { RawBodyMiddleware } from './middlewares/raw-body.middleware';
