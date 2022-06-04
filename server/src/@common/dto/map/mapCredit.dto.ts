@@ -1,4 +1,4 @@
-import { MapCredit, User, Map } from '@prisma/client';
+import { MapCredit } from '@prisma/client';
 import { UserDto } from '../user/user.dto';
 import { MapDto } from './map.dto';
 import { ApiProperty } from '@nestjs/swagger';
@@ -25,11 +25,11 @@ export class MapCreditDto implements MapCredit {
     mapID: number;
 
     @ApiProperty()
-    @Transform(({ value }) => new UserDto(value))
+    @Transform(({ value }) => DtoUtils.Factory(UserDto, value))
     user: UserDto;
 
     @ApiProperty()
-    @Transform(({ value }) => new MapDto(value))
+    @Transform(({ value }) => DtoUtils.Factory(MapDto, value))
     map: MapDto;
 
     @ApiProperty()
@@ -39,8 +39,4 @@ export class MapCreditDto implements MapCredit {
     @ApiProperty()
     @IsDate()
     updatedAt: Date;
-
-    constructor(_mapCredit: Partial<MapCredit>) {
-        DtoUtils.ShapeSafeObjectAssign(this, _mapCredit);
-    }
 }

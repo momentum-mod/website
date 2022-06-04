@@ -20,11 +20,11 @@ export class FollowerDto implements Partial<Follow> {
     followeeID: number;
 
     @ApiProperty()
-    @Transform(({ value }) => new UserDto(value))
+    @Transform(({ value }) => DtoUtils.Factory(UserDto, value))
     followed: UserDto;
 
     @ApiProperty()
-    @Transform(({ value }) => new UserDto(value))
+    @Transform(({ value }) => DtoUtils.Factory(UserDto, value))
     followee: UserDto;
 
     @ApiProperty()
@@ -34,8 +34,4 @@ export class FollowerDto implements Partial<Follow> {
     @ApiProperty()
     @IsDate()
     updatedAt: Date;
-
-    constructor(_follow: Partial<Follow>) {
-        DtoUtils.ShapeSafeObjectAssign(this, _follow);
-    }
 }

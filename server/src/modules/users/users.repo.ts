@@ -46,8 +46,7 @@ export class UsersRepo {
      * @returns Target user or null
      */
     async Get(userID: number, include: Prisma.UserInclude): Promise<User> {
-        const where: Prisma.UserWhereUniqueInput = {};
-        where.id = +userID;
+        const where: Prisma.UserWhereUniqueInput = { id: userID };
 
         return await this.prisma.user.findFirst({
             where: where,

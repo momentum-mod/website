@@ -27,10 +27,6 @@ export class ProfileDto {
     @ApiProperty()
     @IsDate()
     updatedAt: Date;
-
-    constructor(_profile: Partial<Profile>) {
-        DtoUtils.ShapeSafeObjectAssign(this, _profile);
-    }
 }
 
 export class ProfileUpdateDto extends PartialType(ProfileDto) {}
