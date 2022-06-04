@@ -21,8 +21,8 @@ export class UsersGetAllQuery extends PaginationQueryDto {
         description: 'User alias to search for',
         example: 'Ron Weasley'
     })
-    @IsString()
     @IsOptional()
+    @IsString()
     search: string;
 
     @ApiPropertyOptional({
@@ -31,8 +31,8 @@ export class UsersGetAllQuery extends PaginationQueryDto {
         description: 'Include only this user (Steam Community ID)',
         example: '123135674'
     })
-    @IsSteamCommunityID()
     @IsOptional()
+    @IsSteamCommunityID()
     playerID: string;
 
     @ApiPropertyOptional({
@@ -41,8 +41,8 @@ export class UsersGetAllQuery extends PaginationQueryDto {
         description: 'Include only these users (Steam Community IDs, comma-separated)',
         example: '123135674,7987347263,98312287631'
     })
-    @IsSteamCommunityID({ each: true })
     @IsOptional()
+    @IsSteamCommunityID({ each: true })
     @Transform(({ value }) => value.split(','))
     playerIDs: string[];
 
@@ -52,8 +52,8 @@ export class UsersGetAllQuery extends PaginationQueryDto {
         description: "TODO: I don't know what the fuck this is.",
         example: '???????'
     })
+    @IsOptional()
     @Type(() => Number)
     @IsInt()
-    @IsOptional()
     mapRank: number;
 }

@@ -1,5 +1,5 @@
 ﻿import { ApiPropertyOptional } from '@nestjs/swagger';
-import { IsOptional } from 'class-validator';
+import { IsInt, IsOptional } from 'class-validator';
 import { Transform } from 'class-transformer';
 
 export class UsersGetQuery {
@@ -12,4 +12,14 @@ export class UsersGetQuery {
     @IsOptional()
     @Transform(({ value }) => value.split(','))
     expand: string[];
+
+    @ApiPropertyOptional({
+        name: 'mapRank',
+        type: String,
+        description: "Include the user's rank and run for a map with mapID mapRank"
+    })
+    @IsOptional()
+    @Transform(() => Number)
+    @IsInt()
+    mapRank: number;
 }
