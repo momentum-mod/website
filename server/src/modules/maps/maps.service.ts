@@ -1,5 +1,5 @@
-import { HttpException, Injectable, Logger } from '@nestjs/common';
-import { Map, User, MapImage, Prisma } from '@prisma/client';
+import { HttpException, Injectable } from '@nestjs/common';
+import { Map, MapImage, Prisma, User } from '@prisma/client';
 import { MapDto } from '../../@common/dto/map/map.dto';
 import { PagedResponseDto } from '../../@common/dto/common/api-response.dto';
 import { MapsRepo } from './maps.repo';
@@ -7,6 +7,7 @@ import { CreateMapDto } from '../../@common/dto/map/createMap.dto';
 import { AuthService } from '../auth/auth.service';
 import { EMapStatus } from '../../@common/enums/map.enum';
 import { FileStoreCloudService } from '../../@common/filestore/cloud.service';
+import { DtoUtils } from '../../@common/utils/dto-utils';
 
 @Injectable()
 export class MapsService {
@@ -21,36 +22,13 @@ export class MapsService {
     public async GetAll(skip?: number, take?: number): Promise<PagedResponseDto<MapDto[]>> {
         const dbResponse = await this.mapRepo.GetAll(undefined, skip, take);
 
-        const totalCount = dbResponse[1];
-        const maps = dbResponse[0];
-
-        const mapsDtos = maps.map((ctx) => {
-            const map: Map = (ctx as any).map;
-            const user: User = (ctx as any).user;
-            const mapImages: MapImage[] = (ctx as any).images;
-
-            const mapDto = new MapDto(map, user, mapImages);
-
-            return mapDto;
-        });
-
-        return {
-            totalCount: totalCount,
-            returnCount: mapsDtos.length,
-            response: mapsDtos
-        };
+        return DtoUtils.MapPaginatedResponse(MapDto, dbResponse);
     }
 
     public async Get(id: number): Promise<MapDto> {
         const dbResponse = await this.mapRepo.Get(id);
 
-        const map: Map = (dbResponse as any).map;
-        const user: User = (dbResponse as any).user;
-        const mapImages: MapImage[] = (dbResponse as any).images;
-
-        const mapDto = new MapDto(map, user, mapImages);
-
-        return mapDto;
+        return DtoUtils.Factory(MapDto, dbResponse);
     }
 
     public async Insert(mapCreateObj: CreateMapDto): Promise<MapDto> {
@@ -105,19 +83,14 @@ export class MapsService {
                 }
             }
         };
+
         const dbResponse = await this.mapRepo.Insert(createPrisma);
 
-        const map: Map = (dbResponse as any).map;
-        const user: User = (dbResponse as any).user;
-        const mapImages: MapImage[] = (dbResponse as any).images;
-
-        const mapDto = new MapDto(map, user, mapImages);
-
-        return mapDto;
+        return DtoUtils.Factory(MapDto, dbResponse);
     }
 
     public async Upload(mapID: number, mapFileBuffer: Buffer): Promise<MapDto> {
-        let mapDto: MapDto = new MapDto(await this.mapRepo.Get(mapID));
+        let mapDto: MapDto = DtoUtils.Factory(MapDto, await this.mapRepo.Get(mapID));
 
         if (!mapDto.id) {
             return Promise.reject(new HttpException('Map not found', 404));
@@ -129,7 +102,8 @@ export class MapsService {
 
         const result = await this.storeMapFile(mapFileBuffer, mapDto);
 
-        mapDto = new MapDto(
+        mapDto = DtoUtils.Factory(
+            MapDto,
             await this.mapRepo.Update(mapDto.id, {
                 statusFlag: EMapStatus.PENDING,
                 downloadURL: result.downloadURL,

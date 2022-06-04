@@ -34,13 +34,21 @@ export class UserDto implements User {
     @IsISO31661Alpha2()
     country: string;
 
-    @ApiProperty()
-    @IsOptional()
-    @Transform(({ value }) => new ProfileDto(value))
-    profile: ProfileDto;
-
     @Exclude()
     aliasLocked: boolean;
+
+    @Exclude()
+    avatar: string;
+
+    @ApiProperty()
+    @IsOptional()
+    @Transform(({ value }) => DtoUtils.Factory(ProfileDto, value))
+    profile: ProfileDto;
+
+    // @ApiProperty()
+    // @IsOptional()
+    // @Transform(({ value }) => new MapRankDto(value))
+    // mapRank: MapRankDto;
 
     @ApiProperty()
     @IsDate()
@@ -50,9 +58,6 @@ export class UserDto implements User {
     @IsDate()
     updatedAt: Date;
 
-    @Exclude()
-    avatar: string;
-
     @ApiProperty()
     @Expose()
     get avatarURL(): string {
@@ -61,10 +66,6 @@ export class UserDto implements User {
         } else {
             return this.avatar ? 'https://avatars.cloudflare.steamstatic.com/' + this.avatar : null;
         }
-    }
-
-    constructor(_user: Partial<User>) {
-        DtoUtils.ShapeSafeObjectAssign(this, _user);
     }
 }
 

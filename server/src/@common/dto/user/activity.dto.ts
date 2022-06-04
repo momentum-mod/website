@@ -17,7 +17,7 @@ export class ActivityDto implements Activity {
 
     @ApiProperty()
     @IsOptional()
-    @Transform(({ value }) => new UserDto(value))
+    @Transform(({ value }) => DtoUtils.Factory(UserDto, value))
     user: UserDto;
 
     @ApiProperty()
@@ -34,8 +34,4 @@ export class ActivityDto implements Activity {
     @ApiProperty()
     @IsDate()
     updatedAt: Date;
-
-    constructor(_activity: Partial<Activity>) {
-        DtoUtils.ShapeSafeObjectAssign(this, _activity);
-    }
 }
