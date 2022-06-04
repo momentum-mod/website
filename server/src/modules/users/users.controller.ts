@@ -46,7 +46,7 @@ export class UsersController {
         @Param('userID', ParseIntPipe) userID: number,
         @Query() query?: UsersGetQuery
     ): Promise<UserDto> {
-        return this.usersService.Get(userID, query.expand);
+        return this.usersService.Get(userID, query.expand, query.mapRank);
     }
 
     @Get(':userID/profile')
