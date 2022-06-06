@@ -1,5 +1,5 @@
 import { PrismaClient } from '@prisma/client';
-import * as faker from 'faker';
+import { faker } from '@faker-js/faker';
 import { EReportCategory, EReportType } from '../src/@common/enums/report.enum';
 import { EMapStatus, EMapType, EMapCreditType } from '../src/@common/enums/map.enum';
 import { ERole } from '../src/@common/enums/user.enum';
@@ -100,7 +100,7 @@ function randomFloatFromInterval(min: number, max: number, decimalPlaces: number
 }
 
 function randomCreatedUpdatedDate(startDate?: Date) {
-    const createdAtDate = faker.date.past(startDate ?? null);
+    const createdAtDate = faker.date.past(1, startDate ?? null);
     const updatedAtDate = faker.date.between(createdAtDate, new Date());
 
     return {
@@ -146,7 +146,7 @@ async function createRandomUser() {
 
     return await prisma.user.create({
         data: {
-            steamID: randomIntFromInterval(10000000000000000, 9999999999999999).toString(),
+            steamID: randomIntFromInterval(1000000000, 99999999999).toString(),
             alias: faker.name.findName(),
             aliasLocked: faker.datatype.boolean(),
             avatar: '0d/0d0f330f84ceea21f04c65bd4c1efbff6172c519_full.jpg', // Currently can't use random user image from faker.js
@@ -562,7 +562,7 @@ async function mappersUploadMaps() {
                                         mapCreditCreations.push(
                                             createRandomMapCredit(
                                                 createdMap.id,
-                                                faker.random.arrayElement(existingUserIDs)
+                                                faker.helpers.arrayElement(existingUserIDs)
                                             )
                                         );
                                     return Promise.all(mapCreditCreations);
@@ -688,7 +688,7 @@ const reportsAreMade = () => {
                         EReportType.MAP_REPORT,
                         existingMapIDs[j],
                         existingUserIDs[i],
-                        faker.random.arrayElement(existingUserIDs)
+                        faker.helpers.arrayElement(existingUserIDs)
                     )
                 );
             }
@@ -702,7 +702,7 @@ const reportsAreMade = () => {
                         EReportType.USER_PROFILE_REPORT,
                         existingUserIDs[j],
                         existingUserIDs[i],
-                        faker.random.arrayElement(existingUserIDs)
+                        faker.helpers.arrayElement(existingUserIDs)
                     )
                 );
             }
