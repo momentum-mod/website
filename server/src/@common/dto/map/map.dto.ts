@@ -45,7 +45,7 @@ export class MapDto implements MapDB {
     @IsInt()
     submitterID: number;
 
-    @ApiProperty()
+    @ApiProperty({ type: () => UserDto })
     @Transform(({ value }) => DtoUtils.Factory(UserDto, value))
     submitter: UserDto;
 

@@ -57,12 +57,12 @@ export class RunDto implements Run {
     @IsInt()
     playerID: number;
 
-    @ApiProperty()
+    @ApiProperty({ type: () => UserDto })
     @IsOptional()
     @Transform(({ value }) => DtoUtils.Factory(UserDto, value))
     player: UserDto;
 
-    @ApiProperty()
+    @ApiProperty({ type: () => MapRankDto })
     @IsOptional()
     @Transform(({ value }) => DtoUtils.Factory(MapRankDto, value))
     rank: MapRankDto;
@@ -71,7 +71,7 @@ export class RunDto implements Run {
     @IsInt()
     mapID: number;
 
-    @ApiProperty()
+    @ApiProperty({ type: () => MapDto })
     @IsOptional()
     @Transform(({ value }) => DtoUtils.Factory(MapDto, value))
     map: MapDto;
