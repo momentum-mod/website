@@ -49,8 +49,8 @@ export class UsersGetAllQuery extends PaginationQueryDto {
     @ApiPropertyOptional({
         name: 'mapRank',
         type: String,
-        description: "TODO: I don't know what the fuck this is.",
-        example: '???????'
+        description: 'Include the rank and run for a map with mapID mapRank for all users',
+        example: '4'
     })
     @IsOptional()
     @Type(() => Number)

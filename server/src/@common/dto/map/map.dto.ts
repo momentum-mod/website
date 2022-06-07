@@ -50,8 +50,7 @@ export class MapDto implements MapDB {
     submitter: UserDto;
 
     @ApiProperty()
-    // I haven't tested this, quite likely doesn't work.
-    @Transform(({ value }) => value.map((image) => DtoUtils.Factory(MapImageDto, image)))
+    @Transform(({ value }) => value?.map((image) => DtoUtils.Factory(MapImageDto, image)))
     images: MapImageDto[];
 
     @ApiProperty()

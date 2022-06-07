@@ -7,6 +7,7 @@ import { Exclude, Expose, Transform } from 'class-transformer';
 import { IsSteamCommunityID } from '../../validators/is-steam-id.validator';
 import { ProfileDto } from './profile.dto';
 import { DtoUtils } from '../../utils/dto-utils';
+import { MapRankDto } from '../map/mapRank.dto';
 
 // TODO: UserStats in here in future as well
 export class UserDto implements User {
@@ -44,6 +45,11 @@ export class UserDto implements User {
     @IsOptional()
     @Transform(({ value }) => DtoUtils.Factory(ProfileDto, value))
     profile: ProfileDto;
+
+    @ApiProperty()
+    @IsOptional()
+    @Transform(({ value }) => DtoUtils.Factory(MapRankDto, value))
+    mapRank: MapRankDto;
 
     // @ApiProperty()
     // @IsOptional()

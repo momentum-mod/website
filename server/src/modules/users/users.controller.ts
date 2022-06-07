@@ -30,7 +30,8 @@ export class UsersController {
             query.expand,
             query.search,
             query.playerID,
-            query.playerIDs
+            query.playerIDs,
+            query.mapRank
         );
     }
 
@@ -133,6 +134,8 @@ export class UsersController {
         @Param('userID') userID: number,
         @Query() query: PaginationQueryDto
     ): Promise<PagedResponseDto<RunDto[]>> {
+        // TODO: The old API calls the runs model here. We should do the same, this functionality
+        // doesn't need to exist in the users service.
         return this.usersService.GetRuns(userID, query.skip, query.take);
     }
 }
