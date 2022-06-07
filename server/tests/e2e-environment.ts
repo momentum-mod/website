@@ -1,13 +1,18 @@
 ﻿import NodeEnvironment from 'jest-environment-node';
 import { Test } from '@nestjs/testing';
 import { AppModule } from '../src/app.module';
+import { ClassSerializerInterceptor, ValidationPipe } from '@nestjs/common';
 import { PrismaRepo } from '../src/modules/prisma/prisma.repo';
-import {  User } from '@prisma/client';
+import { PrismaPromise, User } from '@prisma/client';
 import { AuthService } from '../src/modules/auth/auth.service';
 import { ERole } from '../src/@common/enums/user.enum';
-import { bigIntFix, enableGlobalNestElements, setPrismaSettings } from '../src/main';
+import { Reflector } from '@nestjs/core';
+
+const prismaBinary = './node_modules/.bin/prisma2';
 
 export default class E2ETestEnvironment extends NodeEnvironment {
+    private schema: string;
+
     constructor(config, context) {
         super(config, context);
     }
@@ -19,11 +24,14 @@ export default class E2ETestEnvironment extends NodeEnvironment {
             imports: [AppModule]
         }).compile();
 
+        BigInt.prototype['toJSON'] = function () {
+            return this.toString();
+        };
+
         const app = moduleRef.createNestApplication();
 
-        bigIntFix();
-        await setPrismaSettings(app);
-        enableGlobalNestElements(app);
+        app.useGlobalPipes(new ValidationPipe({ transform: true }));
+        app.useGlobalInterceptors(new ClassSerializerInterceptor(app.get(Reflector)));
 
         await app.init();
 
