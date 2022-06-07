@@ -3,16 +3,12 @@ import { Test } from '@nestjs/testing';
 import { AppModule } from '../src/app.module';
 import { ClassSerializerInterceptor, ValidationPipe } from '@nestjs/common';
 import { PrismaRepo } from '../src/modules/prisma/prisma.repo';
-import { PrismaPromise, User } from '@prisma/client';
+import { User } from '@prisma/client';
 import { AuthService } from '../src/modules/auth/auth.service';
 import { ERole } from '../src/@common/enums/user.enum';
 import { Reflector } from '@nestjs/core';
 
-const prismaBinary = './node_modules/.bin/prisma2';
-
 export default class E2ETestEnvironment extends NodeEnvironment {
-    private schema: string;
-
     constructor(config, context) {
         super(config, context);
     }
@@ -41,10 +37,9 @@ export default class E2ETestEnvironment extends NodeEnvironment {
 
         this.global.testUser = (await prisma.user.create({
             data: {
-                aliasLocked: false,
-                country: '',
                 // Ron's gonna be in each test so SteamIDs need to be unique
                 steamID: Math.random().toPrecision(16).slice(2),
+                country: 'GB',
                 alias: 'Ron Weasley',
                 avatar: '',
                 roles: ERole.ADMIN,

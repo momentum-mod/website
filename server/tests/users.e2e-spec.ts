@@ -8,7 +8,7 @@ import { User } from '@prisma/client';
 import { EMapCreditType, EMapStatus, EMapType } from '../src/@common/enums/map.enum';
 
 describe('Users', () => {
-    let user1, user2, map1, map2, run1, run2;
+    let user1, user2, user3, map1, map2, run1;
 
     beforeAll(async () => {
         const prisma: PrismaRepo = global.prisma;
@@ -17,16 +17,31 @@ describe('Users', () => {
 
         user2 = await prisma.user.create({
             data: {
-                aliasLocked: false,
-                country: '',
-                steamID: '123456',
-                alias: 'Ginny Weasley',
-                avatar: '9y7ashdf87yas98d7ftby',
+                steamID: '123456789',
+                alias: 'Fred Weasley',
+                country: 'GB',
+                avatar: 'ashoinudfgtbasidf87asdf',
                 roles: 0,
                 bans: 0,
                 profile: {
                     create: {
-                        bio: 'Ginevra Molly "Ginny" Potter (née Weasley) (b. 11 August, 1981), occasionally known as Gin by Harry Potter, was an English pure-blood witch, the youngest daughter of Arthur and Molly Weasley (née Prewett), and the youngest sister of Bill, Charlie, Percy, the late Fred, George and Ron. She was the first female to be born into the Weasley line for several generations. She and her older brothers grew up in The Burrow on the outskirts of Ottery St Catchpole in Devon.'
+                        bio: "Fred Weasley I (1 April, 1978 – 2 May, 1998) was an English pure-blood wizard, was the fourth son and the middle child, the most daring and dominant among the twins of Arthur Weasley and Molly Weasley (née Prewett), younger brother to Bill, Charlie and Percy, older twin brother and best friend to George Weasley, and older brother of Ron and Ginny Potter (née Weasley). Fred's first few years were marked by the height of the First Wizarding War and when Lord Voldemort fell for the first time."
+                    }
+                }
+            }
+        });
+
+        user3 = await prisma.user.create({
+            data: {
+                steamID: '4234256789',
+                alias: 'George Weasley',
+                country: 'GB',
+                avatar: '123z4li12t34z1234',
+                roles: 0,
+                bans: 0,
+                profile: {
+                    create: {
+                        bio: "George Weasley (b. 1 April, 1978) was an English pure-blood wizard, the fifth son and the less dominant among the twins of Arthur Weasley and Molly Weasley (née Prewett), younger brother of Bill, Charlie and Percy, younger twin brother and best friend of the late Fred Weasley, and older brother to Ron and Ginny. George's first few years were marked by the height of the First Wizarding War and Lord Voldemort's first fall."
                     }
                 }
             }
@@ -52,11 +67,21 @@ describe('Users', () => {
             ]
         });
 
-        await prisma.follow.create({
-            data: {
-                followeeID: user1.id,
-                followedID: user2.id
-            }
+        await prisma.follow.createMany({
+            data: [
+                {
+                    followeeID: user1.id,
+                    followedID: user2.id
+                },
+                {
+                    followeeID: user1.id,
+                    followedID: user3.id
+                },
+                {
+                    followeeID: user3.id,
+                    followedID: user2.id
+                }
+            ]
         });
 
         map1 = await prisma.map.create({
@@ -103,7 +128,21 @@ describe('Users', () => {
             }
         });
 
-        run2 = await prisma.run.create({
+        await prisma.userMapRank.create({
+            data: {
+                user: { connect: { id: user1.id } },
+                map: { connect: { id: map1.id } },
+                rank: 1,
+                gameType: EMapType.SURF,
+                run: {
+                    connect: {
+                        id: run1.id
+                    }
+                }
+            }
+        });
+
+        await prisma.run.create({
             data: {
                 map: { connect: { id: map2.id } },
                 player: { connect: { id: user1.id } },
@@ -121,11 +160,7 @@ describe('Users', () => {
     afterAll(async () => {
         const prisma: PrismaRepo = global.prisma;
 
-        await prisma.user.delete({
-            where: {
-                id: user2.id
-            }
-        });
+        await prisma.user.deleteMany({ where: { id: { in: [user2.id, user3.id] } } });
 
         await prisma.map.deleteMany({ where: { id: { in: [map1.id, map2.id] } } });
     });
@@ -134,8 +169,14 @@ describe('Users', () => {
         const expects = (res: request.Response) => {
             expect(res.body.response).toBeInstanceOf(Array);
             res.body.response.forEach((user) => {
+                expect(user).toHaveProperty('id');
                 expect(user).toHaveProperty('alias');
+                expect(user).toHaveProperty('steamID');
+                expect(user).toHaveProperty('roles');
+                expect(user).toHaveProperty('bans');
+                expect(user).toHaveProperty('avatarURL');
                 expect(user).toHaveProperty('createdAt');
+                expect(user).toHaveProperty('updatedAt');
             });
         };
 
@@ -146,6 +187,7 @@ describe('Users', () => {
             expect(res.body.totalCount).toBeGreaterThanOrEqual(2);
             expect(res.body.returnCount).toBeGreaterThanOrEqual(2);
             expect(res.body.response[0].alias).toBe(user1.alias);
+            expect(res.body.response[0]).not.toHaveProperty('profile');
         });
 
         it('should respond with array of users with take parameter', async () => {
@@ -180,7 +222,7 @@ describe('Users', () => {
             expect(res.body.response[0].profile).toHaveProperty('bio');
         });
 
-        it('should respond with should respond with an array of one user for a matching SteamID parameter', async () => {
+        it('should respond with an array of one user for a matching SteamID parameter', async () => {
             const res = await TestUtil.req('users', 200, { playerID: user1.steamID });
 
             expects(res);
@@ -188,7 +230,7 @@ describe('Users', () => {
             expect(res.body.returnCount).toBe(1);
         });
 
-        it('should respond with should respond with an empty array for a nonexistent SteamID parameter', async () => {
+        it('should respond with an empty array for a nonexistent SteamID parameter', async () => {
             const res = await TestUtil.req('users', 200, { playerID: 3141592612921 });
 
             expect(res.body.totalCount).toBe(0);
@@ -196,7 +238,7 @@ describe('Users', () => {
             expect(res.body.response).toBeInstanceOf(Array);
         });
 
-        it('should respond with should respond with an array of multiple users for multiple matching SteamID parameters', async () => {
+        it('should respond with an array of multiple users for multiple matching SteamID parameters', async () => {
             const res = await TestUtil.req('users', 200, { playerIDs: [user1.steamID + ',' + user2.steamID] });
 
             expects(res);
@@ -231,8 +273,14 @@ describe('Users', () => {
 
     describe('GET /api/v1/users/{userID}', () => {
         const expects = (res) => {
+            expect(res.body).toHaveProperty('id');
             expect(res.body).toHaveProperty('alias');
+            expect(res.body).toHaveProperty('steamID');
+            expect(res.body).toHaveProperty('roles');
+            expect(res.body).toHaveProperty('bans');
+            expect(res.body).toHaveProperty('avatarURL');
             expect(res.body).toHaveProperty('createdAt');
+            expect(res.body).toHaveProperty('updatedAt');
         };
 
         it('should respond with the specified user', async () => {
@@ -240,6 +288,7 @@ describe('Users', () => {
 
             expects(res);
             expect(res.body.alias).toBe(user1.alias);
+            expect(res.body).not.toHaveProperty('profile');
         });
 
         it('should respond with the specified user with a valid avatarURL', async () => {
@@ -247,15 +296,26 @@ describe('Users', () => {
 
             expects(res);
             expect(res.body).toHaveProperty('avatarURL');
-            expect(res.body.avatarURL.includes('https://avatars.cloudflare.steamstatic.com/')).toBe(true);
+            expect(res.body.avatarURL).toEqual(expect.stringContaining('https://avatars.cloudflare.steamstatic.com/'));
         });
 
-        it('should respond with the specified user with the expand parameter', async () => {
+        it('should respond with the specified user with expanded profile when using an expand parameter', async () => {
             const res = await TestUtil.req(`users/${user1.id}`, 200, { expand: 'profile' });
 
             expects(res);
             expect(res.body.profile).toHaveProperty('bio');
             expect(res.body.profile.bio).toBe(user1.profile.bio);
+        });
+
+        it('should respond with the specified user with with a corresponding map rank and run when given a mapRank mapid', async () => {
+            const res = await TestUtil.req(`users/${user1.id}`, 200, { mapRank: map1.id });
+
+            expects(res);
+            expect(res.body).toHaveProperty('mapRank');
+            expect(res.body.mapRank.mapID).toBe(map1.id);
+            expect(res.body.mapRank.userID).toBe(user1.id);
+            expect(res.body.mapRank.runID).toBe(run1.id.toString());
+            expect(res.body.mapRank.rank).toBe(1);
         });
 
         it('should respond with 401 when no access token is provided', async () => {
@@ -269,8 +329,11 @@ describe('Users', () => {
 
     describe('GET /api/v1/users/{userID}/profile', () => {
         const expects = (res) => {
+            expect(res.body).toHaveProperty('id');
             expect(res.body).toHaveProperty('bio');
+            expect(res.body).toHaveProperty('featuredBadgeID');
             expect(res.body).toHaveProperty('createdAt');
+            expect(res.body).toHaveProperty('updatedAt');
         };
 
         it('should respond with the specified users profile info', async () => {
@@ -292,6 +355,9 @@ describe('Users', () => {
             expect(res.body.response).toBeInstanceOf(Array);
             res.body.response.forEach((r) => {
                 expect(r).toHaveProperty('data');
+                expect(r).toHaveProperty('type');
+                expect(r).toHaveProperty('createdAt');
+                expect(r).toHaveProperty('updatedAt');
                 expect(r.user).toHaveProperty('alias');
             });
         };
@@ -348,17 +414,37 @@ describe('Users', () => {
     });
 
     describe('GET /api/v1/users/{userID}/follows', () => {
+        const expects = (res) => {
+            expect(res.body.response).toBeInstanceOf(Array);
+            res.body.response.forEach((c) => expect(c).toHaveProperty('notifyOn'));
+        };
+
         it('should respond with a list of users the specified user follows', async () => {
             const res = await TestUtil.req(`users/${user1.id}/follows`, 200);
 
-            expect(res.body.totalCount).toBe(1);
-            expect(res.body.returnCount).toBe(1);
-            expect(res.body.response).toBeInstanceOf(Array);
-            expect(res.body.response[0]).toHaveProperty('notifyOn');
+            expects(res);
+            expect(res.body.totalCount).toBe(2);
+            expect(res.body.returnCount).toBe(2);
             expect(res.body.response[0].followee.alias).toBe(user1.alias);
             expect(res.body.response[0].followee.profile).toHaveProperty('bio');
             expect(res.body.response[0].followed.alias).toBe(user2.alias);
             expect(res.body.response[0].followed.profile).toHaveProperty('bio');
+        });
+
+        it('should respond with a limited list of follows for the user when using the take query param', async () => {
+            await TestUtil.takeTest(`users/${user1.id}/follows`, expects);
+        });
+
+        it('should respond with a different list of follows for the user when using the skip query param', async () => {
+            await TestUtil.skipTest(`users/${user1.id}/follows`, expects);
+        });
+
+        it('should return an empty list for a user who isnt following anyone', async () => {
+            const res = await TestUtil.req(`users/${user2.id}/follows`, 200);
+
+            expects(res);
+            expect(res.body.totalCount).toBe(0);
+            expect(res.body.returnCount).toBe(0);
         });
 
         it('should respond with 401 when no access token is provided', async () => {
@@ -367,17 +453,37 @@ describe('Users', () => {
     });
 
     describe('GET /api/v1/users/{userID}/followers', () => {
+        const expects = (res) => {
+            expect(res.body.response).toBeInstanceOf(Array);
+            res.body.response.forEach((c) => expect(c).toHaveProperty('notifyOn'));
+        };
+
         it('should respond with a list of users that follow the specified user', async () => {
             const res = await TestUtil.req(`users/${user2.id}/followers`, 200);
 
-            expect(res.body.totalCount).toBe(1);
-            expect(res.body.returnCount).toBe(1);
-            expect(res.body.response).toBeInstanceOf(Array);
-            expect(res.body.response[0]).toHaveProperty('notifyOn');
+            expect(res);
+            expect(res.body.totalCount).toBe(2);
+            expect(res.body.returnCount).toBe(2);
             expect(res.body.response[0].followee.alias).toBe(user1.alias);
             expect(res.body.response[0].followee.profile).toHaveProperty('bio');
             expect(res.body.response[0].followed.alias).toBe(user2.alias);
             expect(res.body.response[0].followed.profile).toHaveProperty('bio');
+        });
+
+        it('should respond with a limited list of followers for the user when using the take query param', async () => {
+            await TestUtil.takeTest(`users/${user2.id}/followers`, expects);
+        });
+
+        it('should respond with a different list of followers for the user when using the skip query param', async () => {
+            await TestUtil.skipTest(`users/${user2.id}/followers`, expects);
+        });
+
+        it('should return an empty list for a user who isnt followed by anyone', async () => {
+            const res = await TestUtil.req(`users/${user1.id}/followers`, 200);
+
+            expects(res);
+            expect(res.body.totalCount).toBe(0);
+            expect(res.body.returnCount).toBe(0);
         });
 
         it('should respond with 401 when no access token is provided', async () => {
@@ -395,6 +501,7 @@ describe('Users', () => {
                 expect(c.user.profile).toHaveProperty('bio');
             });
         };
+
         it('should respond with a list of map credits for a specific user', async () => {
             const res = await TestUtil.req(`users/${user1.id}/credits`, 200);
 
@@ -403,19 +510,50 @@ describe('Users', () => {
             expects(res);
         });
 
+        it('should respond with limited list of credits with take parameter', async () => {
+            await TestUtil.takeTest(`users/${user1.id}/credits`, expects);
+        });
+
+        it('should respond with different list of credits with skip parameter', async () => {
+            await TestUtil.skipTest(`users/${user1.id}/credits`, expects);
+        });
+
         it('should respond with 401 when no access token is provided', async () => {
             await TestUtil.req(`users/${user1.id}/followers`, 401, {}, null);
         });
     });
 
     describe('GET /api/v1/users/{userID}/runs', () => {
+        const expects = (res) => {
+            res.body.response.forEach((r) => {
+                expect(r).toHaveProperty('time');
+                expect(r).toHaveProperty('trackNum');
+                expect(r).toHaveProperty('zoneNum');
+                expect(r).toHaveProperty('ticks');
+                expect(r).toHaveProperty('tickRate');
+                expect(r).toHaveProperty('flags');
+                expect(r).toHaveProperty('file');
+                expect(r).toHaveProperty('hash');
+                expect(r.time).toBe(r.ticks * r.tickRate);
+            });
+        };
+
         it('should respond with a list of runs for a specific user', async () => {
             const res = await TestUtil.req(`users/${user1.id}/runs`, 200);
 
+            expects(res);
             expect(res.body.totalCount).toBe(2);
             expect(res.body.returnCount).toBe(2);
+            expect(res.body.response[0].player.id).toEqual(user1.id);
+            expect(res.body.response[0].map.id).toEqual(map1.id);
+        });
 
-            // TODO: more. more!!
+        it('should respond with limited list of runs with take parameter', async () => {
+            await TestUtil.takeTest(`users/${user1.id}/runs`, expects);
+        });
+
+        it('should respond with different list of runs with skip parameter', async () => {
+            await TestUtil.skipTest(`users/${user1.id}/runs`, expects);
         });
 
         it('should respond with 401 when no access token is provided', async () => {
