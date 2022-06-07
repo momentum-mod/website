@@ -30,7 +30,8 @@ export class UsersService {
         expand?: string[],
         search?: string,
         playerID?: string,
-        playerIDs?: string[]
+        playerIDs?: string[],
+        mapRank?: number
     ): Promise<PagedResponseDto<UserDto[]>> {
         const where: Prisma.UserWhereInput = {};
 
@@ -46,19 +47,37 @@ export class UsersService {
         if (search) where.alias = { startsWith: search };
 
         const include: Prisma.UserInclude = {
-            profile: expand?.includes('profile'),
-            userStats: expand?.includes('userStats')
+            profile: !!expand?.includes('profile'),
+            userStats: !!expand?.includes('userStats')
         };
 
+        if (mapRank) {
+            include.mapRanks = {
+                where: {
+                    mapID: mapRank
+                },
+                include: {
+                    run: true
+                }
+            };
+        }
+
         const dbResponse = await this.userRepo.GetAll(where, include, skip, take);
+
+        dbResponse[0].forEach((user: any) => {
+            if (user.mapRanks) {
+                user.mapRank = user.mapRanks[0];
+                delete user.mapRanks;
+            }
+        });
 
         return DtoUtils.MapPaginatedResponse(UserDto, dbResponse);
     }
 
     public async Get(id: number, expand?: string[], mapRank?: number): Promise<UserDto> {
         const include: Prisma.UserInclude = {
-            profile: expand?.includes('profile'),
-            userStats: expand?.includes('userStats')
+            profile: !!expand?.includes('profile'),
+            userStats: !!expand?.includes('userStats')
         };
 
         if (mapRank) {
@@ -75,6 +94,11 @@ export class UsersService {
         const dbResponse: any = await this.userRepo.Get(id, include);
 
         if (!dbResponse) throw new NotFoundException();
+
+        if (dbResponse.mapRanks) {
+            dbResponse.mapRank = dbResponse.mapRanks[0];
+            delete dbResponse.mapRanks;
+        }
 
         return DtoUtils.Factory(UserDto, dbResponse);
     }
@@ -125,6 +149,7 @@ export class UsersService {
         return DtoUtils.MapPaginatedResponse(MapCreditDto, dbResponse);
     }
 
+    // TODO: Move to Runs module!!
     public async GetRuns(id: number, skip?: number, take?: number): Promise<PagedResponseDto<RunDto[]>> {
         const dbResponse = await this.userRepo.GetRuns(id, skip, take);
 

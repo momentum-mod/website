@@ -262,6 +262,8 @@ export class UsersRepo {
     //#endregion
 
     //#region Runs
+
+    // TODO: Move to Runs module!!
     async GetRuns(userID: number, skip?: number, take?: number): Promise<[Run[], number]> {
         const where: Prisma.RunWhereInput = {
             playerID: userID
@@ -277,7 +279,8 @@ export class UsersRepo {
             take: take,
             include: {
                 player: true,
-                rank: true
+                rank: true,
+                map: true
             }
         });
 

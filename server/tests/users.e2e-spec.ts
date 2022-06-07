@@ -213,6 +213,17 @@ describe('Users', () => {
             expect(res.body.response).toBeInstanceOf(Array);
         });
 
+        it('should respond with the specified user with with a corresponding map rank and run when given a mapRank mapid', async () => {
+            const res = await TestUtil.req(`users`, 200, { mapRank: map1.id });
+
+            expects(res);
+            expect(res.body.response[0]).toHaveProperty('mapRank');
+            expect(res.body.response[0].mapRank.mapID).toBe(map1.id);
+            expect(res.body.response[0].mapRank.userID).toBe(user1.id);
+            expect(res.body.response[0].mapRank.runID).toBe(run1.id.toString());
+            expect(res.body.response[0].mapRank.rank).toBe(1);
+        });
+
         it('should respond with 401 when no access token is provided', () => {
             TestUtil.req('users', 401, {}, null);
         });
