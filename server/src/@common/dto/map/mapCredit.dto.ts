@@ -24,7 +24,7 @@ export class MapCreditDto implements MapCredit {
     @IsInt()
     mapID: number;
 
-    @ApiProperty()
+    @ApiProperty({ type: () => UserDto })
     @Transform(({ value }) => DtoUtils.Factory(UserDto, value))
     user: UserDto;
 

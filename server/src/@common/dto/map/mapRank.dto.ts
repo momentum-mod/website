@@ -23,7 +23,7 @@ export class MapRankDto implements UserMapRank {
     @IsInt()
     userID: number;
 
-    @ApiProperty()
+    @ApiProperty({ type: () => UserDto })
     @IsOptional()
     @Transform(({ value }) => DtoUtils.Factory(UserDto, value))
     user: UserDto;
