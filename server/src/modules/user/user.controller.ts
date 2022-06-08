@@ -17,6 +17,7 @@ import { UpdateUserDto, UserDto } from '../../@common/dto/user/user.dto';
 import { UsersService } from '../users/users.service';
 import { LoggedInUser } from '../../@common/decorators/logged-in-user.decorator';
 import { UserGetQuery } from './queries/get.query.dto';
+import { FollowStatusDto } from '../../@common/dto/user/followers.dto';
 import { ProfileDto } from '../../@common/dto/user/profile.dto';
 
 @ApiBearerAuth()
@@ -55,5 +56,20 @@ export class UserController {
     @ApiOperation({ summary: 'Get local user, based on JWT' })
     public async GetProfile(@LoggedInUser('id') userID: number): Promise<ProfileDto> {
         return this.usersService.GetProfile(userID);
+    }
+
+    @Get('/follow/:targetUserID')
+    @ApiOperation({ summary: 'Returns the follow relationship between the local user and a target user' })
+    @ApiParam({
+        name: 'targetUserID',
+        type: Number,
+        description: 'Target User ID',
+        required: true
+    })
+    public GetFollowStatus(
+        @LoggedInUser('id') localUserID: number,
+        @Param('targetUserID', ParseIntPipe) targetUserID: number
+    ): Promise<FollowStatusDto> {
+        return this.usersService.GetFollowStatus(localUserID, targetUserID);
     }
 }
