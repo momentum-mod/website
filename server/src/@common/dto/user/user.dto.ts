@@ -75,4 +75,13 @@ export class UserDto implements User {
     }
 }
 
-export class UpdateUserDto extends PartialType(UserDto) {}
+export class UpdateUserDto {
+    @ApiProperty()
+    // TODO: Idk what the fuck is going on here. Apparently the incoming data aren't strings??
+    // @IsString()
+    alias: string;
+
+    @ApiProperty()
+    // @IsString()
+    bio: string;
+}

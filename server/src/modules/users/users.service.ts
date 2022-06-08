@@ -1,7 +1,15 @@
-import { BadRequestException, HttpException, Injectable, NotFoundException } from '@nestjs/common';
+import {
+    BadRequestException,
+    ConflictException,
+    ForbiddenException,
+    HttpException,
+    HttpStatus,
+    Injectable,
+    NotFoundException
+} from '@nestjs/common';
 import { UserMapRank, Prisma, User, UserAuth } from '@prisma/client';
 import { UpdateUserDto, UserDto } from '../../@common/dto/user/user.dto';
-import { ProfileDto, ProfileUpdateDto } from '../../@common/dto/user/profile.dto';
+import { ProfileDto } from '../../@common/dto/user/profile.dto';
 import { PagedResponseDto } from '../../@common/dto/common/api-response.dto';
 import { UsersRepo } from './users.repo';
 import { appConfig } from '../../../config/config';
@@ -206,42 +214,44 @@ export class UsersService {
     //#endregion
 
     //#region Update
-    async Update(userID: number, userUpdate: UpdateUserDto) {
-        const userWithProfile = await this.userRepo.Get(userID, { profile: true });
 
-        // Strict check - we want to handle if alias is empty string
-        if (typeof userUpdate.alias !== 'undefined') {
-            //await this.UpdateUserAlias(new UserDto(userProfile), userUpdate.alias);
-        }
+    async Update(userID: number, update: UpdateUserDto) {
+        const user: any = await this.userRepo.Get(userID, { profile: true });
 
-        if (userUpdate.profile) {
-            //await this.UpdateProfile(userProfile, userUpdate.profile);
-        }
-    }
-
-    async UpdateUserAlias(user: User, alias: string): Promise<User> {
         const updateInput: Prisma.UserUpdateInput = {};
 
-        if (user.bans & EBan.BANNED_ALIAS) {
-            const steamUserData = await this.GetSteamUserSummaryData(user.steamID);
+        if (!update.alias && !update.bio) return;
 
-            if (steamUserData) {
-                updateInput.alias = steamUserData.personaname;
+        // Strict check - we want to handle if alias is empty string
+        if (typeof update.alias !== 'undefined') {
+            if (user.bans & EBan.BANNED_ALIAS) {
+                throw new ForbiddenException('User is banned from updating their alias.');
+            } else {
+                updateInput.alias = update.alias;
             }
-        } else {
-            updateInput.alias = alias;
+
+            // TODO: Do corresponding logic in the admin service to check if a user's alias is in use by another verified user when verifying them.
+            if (user.roles & ERole.VERIFIED) {
+                const verifiedMatches = await this.userRepo.Count({
+                    alias: update.alias,
+                    roles: ERole.VERIFIED
+                });
+
+                if (verifiedMatches > 0) throw new ConflictException('Alias is in use by another verified user.');
+            }
         }
 
-        return await this.userRepo.Update(user.id, updateInput);
-    }
+        if (update.bio) {
+            if (user.bans & EBan.BANNED_BIO) {
+                throw new ForbiddenException('User is banned from updating their bio.');
+            } else {
+                updateInput.profile = {
+                    update: { bio: update.bio }
+                };
+            }
+        }
 
-    async UpdateProfile(userProfile: UserDto, profileUpdate: ProfileUpdateDto): Promise<ProfileDto> {
-        if (!profileUpdate.bio || userProfile.bans & EBan.BANNED_BIO) return;
-
-        const updateInput: Prisma.ProfileUpdateInput = {};
-
-        updateInput.bio = profileUpdate.bio;
-        return await this.userRepo.UpdateProfile(userProfile.profile.id, updateInput);
+        await this.userRepo.Update(userID, updateInput);
     }
 
     async UpdateRefreshToken(userID: number, refreshToken: string): Promise<UserAuth> {

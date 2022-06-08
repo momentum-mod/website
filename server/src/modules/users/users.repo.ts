@@ -18,6 +18,16 @@ export class UsersRepo {
     }
 
     /**
+     * @summary Count the number of users in the database
+     * @returns Number of matches
+     */
+    async Count(where: Prisma.UserWhereInput): Promise<number> {
+        return await this.prisma.user.count({
+            where: where
+        });
+    }
+
+    /**
      * @summary Gets all from database
      * @returns All users
      */
@@ -72,8 +82,7 @@ export class UsersRepo {
      * @returns Target user or null
      */
     async Update(userID: number, update: Prisma.UserUpdateInput): Promise<User> {
-        const where: Prisma.UserWhereUniqueInput = {};
-        where.id = +userID;
+        const where: Prisma.UserWhereUniqueInput = { id: userID };
 
         return await this.prisma.user.update({
             where: where,

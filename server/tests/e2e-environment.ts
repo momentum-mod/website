@@ -56,6 +56,7 @@ export default class E2ETestEnvironment extends NodeEnvironment {
         })) as User;
 
         const auth = app.get<AuthService>(AuthService);
+        this.global.authService = auth;
         const jwt = await auth.login(this.global.testUser as User);
         this.global.accessToken = jwt.access_token;
     }
