@@ -17,6 +17,7 @@ import { UpdateUserDto, UserDto } from '../../@common/dto/user/user.dto';
 import { UsersService } from '../users/users.service';
 import { LoggedInUser } from '../../@common/decorators/logged-in-user.decorator';
 import { UserGetQuery } from './queries/get.query.dto';
+import { ProfileDto } from '../../@common/dto/user/profile.dto';
 
 @ApiBearerAuth()
 @Controller('api/v1/user')
@@ -48,5 +49,11 @@ export class UserController {
     @ApiOperation({ summary: 'Delete the local user and log out' })
     public async Delete(@LoggedInUser('id') userID: number) {
         await this.usersService.Delete(userID);
+    }
+
+    @Get('/profile')
+    @ApiOperation({ summary: 'Get local user, based on JWT' })
+    public async GetProfile(@LoggedInUser('id') userID: number): Promise<ProfileDto> {
+        return this.usersService.GetProfile(userID);
     }
 }
