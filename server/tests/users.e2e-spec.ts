@@ -258,7 +258,7 @@ describe('Users', () => {
         });
 
         it('should respond with the specified user with with a corresponding map rank and run when given a mapRank mapid', async () => {
-            const res = await TestUtil.get(`users`, 200, { mapRank: map1.id });
+            const res = await TestUtil.get(`users`, 200, { mapRank: map1.id, playerID: user1.steamID });
 
             expects(res);
             expect(res.body.response[0]).toHaveProperty('mapRank');
@@ -268,8 +268,8 @@ describe('Users', () => {
             expect(res.body.response[0].mapRank.rank).toBe(1);
         });
 
-        it('should respond with 401 when no access token is provided', () => {
-            TestUtil.get('users', 401, {}, null);
+        it('should respond with 401 when no access token is provided', async () => {
+            await TestUtil.get('users', 401, {}, null);
         });
     });
 
