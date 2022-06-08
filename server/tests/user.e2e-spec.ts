@@ -243,7 +243,7 @@ describe('user', () => {
         it('should respond with authenticated users profile info', async () => {
             const res = await TestUtil.get('user/profile', 200);
 
-            expect(res.body.bio).toBe(user1.bio);
+            expect(res.body.bio).toBe(user1.profile.bio);
         });
 
         it('should respond with 401 when no access token is provided', () => {
