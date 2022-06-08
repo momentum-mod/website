@@ -68,59 +68,59 @@ describe('user', () => {
             }
         });
 
-        // map = await prisma.map.create({
-        //     data: {
-        //         name: 'user_test_map',
-        //         type: EMapType.UNKNOWN,
-        //         statusFlag: EMapStatus.APPROVED,
-        //         submitter: { connect: { id: user1.id } },
-        //         info: {
-        //             create: {
-        //                 description: 'My first map!!!!',
-        //                 numTracks: 1,
-        //                 creationDate: new Date()
-        //             }
-        //         },
-        //         tracks: {
-        //             create: [
-        //                 {
-        //                     trackNum: 0,
-        //                     numZones: 1,
-        //                     isLinear: false,
-        //                     difficulty: 5,
-        //                     zones: {
-        //                         create: [
-        //                             {
-        //                                 zoneNum: 0
-        //                             },
-        //                             {
-        //                                 zoneNum: 1
-        //                             }
-        //                         ]
-        //                     }
-        //                 }
-        //             ]
-        //         },
-        //         credits: {
-        //             create: [
-        //                 {
-        //                     type: EMapCreditType.AUTHOR,
-        //                     user: { connect: { id: user1.id } }
-        //                 }
-        //             ]
-        //         },
-        //         images: {
-        //             create: {
-        //                 small: 'https://media.moddb.com/cache/images/mods/1/29/28895/thumb_620x2000/Wallpaper.jpg'
-        //             }
-        //         },
-        //         stats: {
-        //             create: {
-        //                 reviews: 1
-        //             }
-        //         }
-        //     }
-        // });
+        map = await prisma.map.create({
+            data: {
+                name: 'user_test_map',
+                type: EMapType.UNKNOWN,
+                statusFlag: EMapStatus.APPROVED,
+                submitter: { connect: { id: user1.id } },
+                info: {
+                    create: {
+                        description: 'My first map!!!!',
+                        numTracks: 1,
+                        creationDate: new Date()
+                    }
+                },
+                tracks: {
+                    create: [
+                        {
+                            trackNum: 0,
+                            numZones: 1,
+                            isLinear: false,
+                            difficulty: 5,
+                            zones: {
+                                create: [
+                                    {
+                                        zoneNum: 0
+                                    },
+                                    {
+                                        zoneNum: 1
+                                    }
+                                ]
+                            }
+                        }
+                    ]
+                },
+                credits: {
+                    create: [
+                        {
+                            type: EMapCreditType.AUTHOR,
+                            user: { connect: { id: user1.id } }
+                        }
+                    ]
+                },
+                images: {
+                    create: {
+                        small: 'https://media.moddb.com/cache/images/mods/1/29/28895/thumb_620x2000/Wallpaper.jpg'
+                    }
+                },
+                stats: {
+                    create: {
+                        reviews: 1
+                    }
+                }
+            }
+        });
 
         adminGame = await prisma.user.create({
             data: {
@@ -133,9 +133,14 @@ describe('user', () => {
 
         await prisma.follow.createMany({
             data: [
+                // 1 and 2 follow each other, 1 follows 3 but 3 doesn't follow 1 back
                 {
                     followeeID: user1.id,
                     followedID: user2.id
+                },
+                {
+                    followeeID: user2.id,
+                    followedID: user1.id
                 },
                 {
                     followeeID: user1.id,
@@ -154,7 +159,7 @@ describe('user', () => {
 
         await prisma.user.deleteMany({ where: { id: { in: [user2.id, user3.id, admin.id, adminGame.id] } } });
 
-        // await prisma.map.delete({ where: { id: map.id } });
+        await prisma.map.delete({ where: { id: map.id } });
     });
 
     describe('GET /api/v1/user', () => {
@@ -193,8 +198,8 @@ describe('user', () => {
         //     expect(res.body.stats).toHaveProperty('id');
         // });
 
-        it('should respond with 401 when no access token is provided', () => {
-            TestUtil.get('user', 401, {}, null);
+        it('should respond with 401 when no access token is provided', async () => {
+            await TestUtil.get('user', 401, {}, null);
         });
     });
 
@@ -246,8 +251,8 @@ describe('user', () => {
             expect(res.body.bio).toBe(user1.profile.bio);
         });
 
-        it('should respond with 401 when no access token is provided', () => {
-            TestUtil.get('user/profile', 401, {}, null);
+        it('should respond with 401 when no access token is provided', async () => {
+            await TestUtil.get('user/profile', 401, {}, null);
         });
     });
 
@@ -286,43 +291,41 @@ describe('user', () => {
     */
 
     describe('GET /api/v1/user/follow/{userID}', () => {
-        it('should return the relationship of the given and local user who follow each other', async () => {
+        it('should return relationships of the given and local user who follow each other', async () => {
             const res = await TestUtil.get(`user/follow/${user2.id}`, 200);
 
-            console.log(res);
+            expect(res.body.local.followedID).toBe(user2.id);
+            expect(res.body.local.followeeID).toBe(user1.id);
+            expect(res.body.target.followedID).toBe(user1.id);
+            expect(res.body.target.followeeID).toBe(user2.id);
         });
 
-        // it('should check the relationship of the given and local user', async () => {
-        //     const res = await request(global.server)
-        //         .post('/api/v1/user/follow')
-        //         .set('Authorization', 'Bearer ' + global.accessToken)
-        //         .send({
-        //             userID: user2.id
-        //         })
-        //         .expect(200)
-        //         .expect('Content-Type', /json/);
-        //     const res2 = await request(global.server)
-        //         .get('/api/v1/user/follow/' + user2.id)
-        //         .set('Authorization', 'Bearer ' + global.accessToken)
-        //         .expect(200)
-        //         .expect('Content-Type', /json/);
-        //     expect(res2.body).toHaveProperty('local');
-        //     expect(res2.body.local).toHaveProperty('followeeID');
-        // });
+        it('should return a relationship of the local user who follows the target, but not the opposite', async () => {
+            const res = await TestUtil.get(`user/follow/${user3.id}`, 200);
+            console.log(res.body);
 
-        // it('should only respond with the 200 code since the followed relationship does not exist', async () => {
-        //     const res = await request(global.server)
-        //         .get('/api/v1/user/follow/12345')
-        //         .set('Authorization', 'Bearer ' + global.accessToken)
-        //         .expect(200);
-        //     expect(res).not.toHaveProperty('local');
-        // });
-        //
-        // it('should respond with 401 when no access token is provided', () =>
-        //     request(global.server)
-        //         .get('/api/v1/user/follow/' + user2.id)
-        //         .expect(401)
-        //         .expect('Content-Type', /json/));
+            expect(res.body.local.followedID).toBe(user3.id);
+            expect(res.body.local.followeeID).toBe(user1.id);
+            expect(res.body).not.toHaveProperty('target');
+        });
+
+        it('should return a relationship of the target user who follows the local user, but not the opposite', async () => {
+            const res = await TestUtil.get(`user/follow/${user1.id}`, 200, {}, user3Token);
+
+            console.log(res.body);
+            expect(res.body.target.followedID).toBe(user3.id);
+            expect(res.body.target.followeeID).toBe(user1.id);
+            expect(res.body).not.toHaveProperty('local');
+        });
+
+        it('should only respond with the 200 code since the followed relationship does not exist', async () => {
+            const res = await TestUtil.get(`user/follow/${user2.id}`, 200, {}, user3Token);
+            expect(res.body).toEqual({});
+        });
+
+        it('should respond with 401 when no access token is provided', async () => {
+            await TestUtil.get('user/profile', 401, {}, null);
+        });
     });
     //
     // describe('POST /api/v1/user/follow', () => {

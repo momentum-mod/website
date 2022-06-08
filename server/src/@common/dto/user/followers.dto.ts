@@ -35,3 +35,13 @@ export class FollowerDto implements Partial<Follow> {
     @IsDate()
     updatedAt: Date;
 }
+
+export class FollowStatusDto {
+    @ApiProperty()
+    @Transform(({ value }) => DtoUtils.Factory(FollowerDto, value))
+    local?: FollowerDto;
+
+    @ApiProperty()
+    @Transform(({ value }) => DtoUtils.Factory(FollowerDto, value))
+    target?: FollowerDto;
+}

@@ -235,6 +235,17 @@ export class UsersRepo {
         return [follows, count];
     }
 
+    async GetFollower(followeeID: number, followedID: number): Promise<Follow> {
+        const where: Prisma.FollowWhereInput = {
+            followeeID: followeeID,
+            followedID: followedID
+        };
+
+        return await this.prisma.follow.findFirst({
+            where: where
+        });
+    }
+
     //#endregion
 
     //#region Credits

@@ -3,11 +3,10 @@ import {
     ConflictException,
     ForbiddenException,
     HttpException,
-    HttpStatus,
     Injectable,
     NotFoundException
 } from '@nestjs/common';
-import { UserMapRank, Prisma, User, UserAuth } from '@prisma/client';
+import { Prisma, User, UserAuth } from '@prisma/client';
 import { UpdateUserDto, UserDto } from '../../@common/dto/user/user.dto';
 import { ProfileDto } from '../../@common/dto/user/profile.dto';
 import { PagedResponseDto } from '../../@common/dto/common/api-response.dto';
@@ -17,10 +16,9 @@ import { lastValueFrom, map } from 'rxjs';
 import * as xml2js from 'xml2js';
 import { HttpService } from '@nestjs/axios';
 import { ActivityDto } from '../../@common/dto/user/activity.dto';
-import { FollowerDto } from '../../@common/dto/user/followers.dto';
-import { MapRankDto } from '../../@common/dto/map/mapRank.dto';
+import { FollowerDto, FollowStatusDto } from '../../@common/dto/user/followers.dto';
 import { MapCreditDto } from '../../@common/dto/map/mapCredit.dto';
-import { EBan } from '../../@common/enums/user.enum';
+import { EBan, ERole } from '../../@common/enums/user.enum';
 import { EActivityTypes } from '../../@common/enums/activity.enum';
 import { RunDto } from '../../@common/dto/run/runs.dto';
 import { DtoUtils } from '../../@common/utils/dto-utils';
@@ -149,6 +147,17 @@ export class UsersService {
         const dbResponse = await this.userRepo.GetFollowing(id, skip, take);
 
         return DtoUtils.MapPaginatedResponse(FollowerDto, dbResponse);
+    }
+
+    public async GetFollowStatus(localUserID: number, targetUserID: number): Promise<FollowStatusDto> {
+        const localToTarget = await this.userRepo.GetFollower(localUserID, targetUserID);
+
+        const targetToLocal = await this.userRepo.GetFollower(targetUserID, localUserID);
+
+        return DtoUtils.Factory(FollowStatusDto, {
+            local: localToTarget,
+            target: targetToLocal
+        });
     }
 
     public async GetMapCredits(id: number, skip?: number, take?: number): Promise<PagedResponseDto<MapCreditDto[]>> {
