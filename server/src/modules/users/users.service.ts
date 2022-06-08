@@ -27,9 +27,8 @@ import { DtoUtils } from '../../@common/utils/dto-utils';
 export class UsersService {
     constructor(private readonly userRepo: UsersRepo, private readonly http: HttpService) {}
 
-    //#region GETs
+    //#region Main User Functions
 
-    // TODO: mapRank
     public async GetAll(
         skip?: number,
         take?: number,
@@ -109,80 +108,6 @@ export class UsersService {
         return DtoUtils.Factory(UserDto, dbResponse);
     }
 
-    public async GetProfile(userID: number): Promise<ProfileDto> {
-        const dbResponse = await this.userRepo.GetProfile(userID);
-
-        if (!dbResponse) throw new NotFoundException();
-
-        return DtoUtils.Factory(ProfileDto, dbResponse);
-    }
-
-    public async GetActivities(
-        userID: number,
-        skip?: number,
-        take?: number,
-        type?: EActivityTypes,
-        data?: bigint
-    ): Promise<PagedResponseDto<ActivityDto[]>> {
-        const where: Prisma.ActivityWhereInput = {
-            userID: userID,
-            type: type,
-            data: data
-        };
-
-        const dbResponse = await this.userRepo.GetActivities(where, skip, take);
-
-        // Do we want to be so open here? Shouldn't report activity be hidden?
-
-        return DtoUtils.MapPaginatedResponse(ActivityDto, dbResponse);
-    }
-
-    public async GetFollowers(id: number, skip?: number, take?: number): Promise<PagedResponseDto<FollowerDto[]>> {
-        const dbResponse = await this.userRepo.GetFollowers(id, skip, take);
-
-        return DtoUtils.MapPaginatedResponse(FollowerDto, dbResponse);
-    }
-
-    public async GetFollowing(id: number, skip?: number, take?: number): Promise<PagedResponseDto<FollowerDto[]>> {
-        const dbResponse = await this.userRepo.GetFollowing(id, skip, take);
-
-        return DtoUtils.MapPaginatedResponse(FollowerDto, dbResponse);
-    }
-
-    public async GetFollowStatus(localUserID: number, targetUserID: number): Promise<FollowStatusDto> {
-        const localToTarget = await this.userRepo.GetFollower(localUserID, targetUserID);
-
-        const targetToLocal = await this.userRepo.GetFollower(targetUserID, localUserID);
-
-        return DtoUtils.Factory(FollowStatusDto, {
-            local: localToTarget,
-            target: targetToLocal
-        });
-    }
-
-    public async GetMapCredits(id: number, skip?: number, take?: number): Promise<PagedResponseDto<MapCreditDto[]>> {
-        const dbResponse = await this.userRepo.GetMapCredits(id, skip, take);
-
-        return DtoUtils.MapPaginatedResponse(MapCreditDto, dbResponse);
-    }
-
-    // TODO: Move to Runs module!!
-    public async GetRuns(id: number, skip?: number, take?: number): Promise<PagedResponseDto<RunDto[]>> {
-        const dbResponse = await this.userRepo.GetRuns(id, skip, take);
-
-        return DtoUtils.MapPaginatedResponse(RunDto, dbResponse);
-    }
-
-    async GetAuth(userID: number): Promise<UserAuth> {
-        const whereInput: Prisma.UserAuthWhereUniqueInput = {};
-        whereInput.id = userID;
-        return await this.userRepo.GetAuth(whereInput);
-    }
-
-    //#endregion
-
-    //#region Find or create
-
     async FindOrCreateFromGame(steamID: string): Promise<User> {
         const profile = await this.ExtractUserProfileFromSteamID(steamID);
         return this.FindOrCreateUserFromProfile(profile);
@@ -219,10 +144,6 @@ export class UsersService {
             return this.userRepo.Insert(createInput);
         }
     }
-
-    //#endregion
-
-    //#region Update
 
     async Update(userID: number, update: UpdateUserDto) {
         const user: any = await this.userRepo.Get(userID, { profile: true });
@@ -263,6 +184,22 @@ export class UsersService {
         await this.userRepo.Update(userID, updateInput);
     }
 
+    async Delete(userID: number) {
+        await this.userRepo.Delete(userID);
+        return;
+        // TODO: Logout. best to do without including auth service, so we need a logout POST I guess?
+    }
+
+    //#endregion
+
+    //#region Auth
+
+    async GetAuth(userID: number): Promise<UserAuth> {
+        const whereInput: Prisma.UserAuthWhereUniqueInput = {};
+        whereInput.id = userID;
+        return await this.userRepo.GetAuth(whereInput);
+    }
+
     async UpdateRefreshToken(userID: number, refreshToken: string): Promise<UserAuth> {
         const updateInput: Prisma.UserAuthUpdateInput = {};
         updateInput.refreshToken = refreshToken;
@@ -273,16 +210,91 @@ export class UsersService {
 
     //#endregion
 
-    //#region Delete
-    async Delete(userID: number) {
-        await this.userRepo.Delete(userID);
-        return;
-        // TODO: Logout. best to do without including auth service, so we need a logout POST I guess?
+    //#region Profile
+
+    public async GetProfile(userID: number): Promise<ProfileDto> {
+        const dbResponse = await this.userRepo.GetProfile(userID);
+
+        if (!dbResponse) throw new NotFoundException();
+
+        return DtoUtils.Factory(ProfileDto, dbResponse);
+    }
+
+    //#endregion
+
+    //#region Activities
+
+    public async GetActivities(
+        userID: number,
+        skip?: number,
+        take?: number,
+        type?: EActivityTypes,
+        data?: bigint
+    ): Promise<PagedResponseDto<ActivityDto[]>> {
+        const where: Prisma.ActivityWhereInput = {
+            userID: userID,
+            type: type,
+            data: data
+        };
+
+        const dbResponse = await this.userRepo.GetActivities(where, skip, take);
+
+        // Do we want to be so open here? Shouldn't report activity be hidden?
+
+        return DtoUtils.MapPaginatedResponse(ActivityDto, dbResponse);
+    }
+
+    //#endregion
+
+    //#region Follows
+
+    public async GetFollowers(id: number, skip?: number, take?: number): Promise<PagedResponseDto<FollowerDto[]>> {
+        const dbResponse = await this.userRepo.GetFollowers(id, skip, take);
+
+        return DtoUtils.MapPaginatedResponse(FollowerDto, dbResponse);
+    }
+
+    public async GetFollowing(id: number, skip?: number, take?: number): Promise<PagedResponseDto<FollowerDto[]>> {
+        const dbResponse = await this.userRepo.GetFollowing(id, skip, take);
+
+        return DtoUtils.MapPaginatedResponse(FollowerDto, dbResponse);
+    }
+
+    public async GetFollowStatus(localUserID: number, targetUserID: number): Promise<FollowStatusDto> {
+        const localToTarget = await this.userRepo.GetFollower(localUserID, targetUserID);
+
+        const targetToLocal = await this.userRepo.GetFollower(targetUserID, localUserID);
+
+        return DtoUtils.Factory(FollowStatusDto, {
+            local: localToTarget,
+            target: targetToLocal
+        });
+    }
+
+    //#endregion
+
+    //#region Credits
+
+    public async GetMapCredits(id: number, skip?: number, take?: number): Promise<PagedResponseDto<MapCreditDto[]>> {
+        const dbResponse = await this.userRepo.GetMapCredits(id, skip, take);
+
+        return DtoUtils.MapPaginatedResponse(MapCreditDto, dbResponse);
+    }
+
+    //#endregion
+
+    //#region Runs
+
+    public async GetRuns(id: number, skip?: number, take?: number): Promise<PagedResponseDto<RunDto[]>> {
+        const dbResponse = await this.userRepo.GetRuns(id, skip, take);
+
+        return DtoUtils.MapPaginatedResponse(RunDto, dbResponse);
     }
 
     //#endregion
 
     //#region Private
+
     private async ExtractUserProfileFromSteamID(steamID: string): Promise<UserDto> {
         const summaryData = await this.GetSteamUserSummaryData(steamID);
 
@@ -366,7 +378,8 @@ export class UsersService {
     //#endregion
 }
 
-// Private Classes
+//#region Private Classes
+
 class SteamUserSummaryData {
     profilestate: any;
     steamid: string;
@@ -380,3 +393,5 @@ class SteamUserProfileData {
         isLimitedAccount: string[];
     };
 }
+
+//#endregion
