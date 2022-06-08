@@ -6,7 +6,8 @@ import {
     Logger,
     UnauthorizedException,
     HttpException,
-    NotFoundException
+    NotFoundException,
+    InternalServerErrorException
 } from '@nestjs/common';
 import { HttpAdapterHost } from '@nestjs/core';
 import { PrismaClientKnownRequestError } from '@prisma/client/runtime';
@@ -30,7 +31,7 @@ export class AllExceptionsFilter implements ExceptionFilter {
             e
         );
 
-        if (!(e instanceof UnauthorizedException) && !(e instanceof NotFoundException)) {
+        if (e instanceof InternalServerErrorException) {
             httpError.errorCode = this.sentryService.sendError(e);
 
             Logger.error(httpError.toString());
