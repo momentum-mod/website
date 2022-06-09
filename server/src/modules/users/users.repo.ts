@@ -90,20 +90,6 @@ export class UsersRepo {
         });
     }
 
-    /**
-     * @summary Deletes single user from database
-     * @returns Target user or null
-     * // TODO: does it?? what happens to entry after deletion?
-     */
-    async Delete(userID: number): Promise<User> {
-        const where: Prisma.UserWhereUniqueInput = {};
-        where.id = +userID;
-
-        return await this.prisma.user.delete({
-            where: where
-        });
-    }
-
     //#endregion
 
     //#region User Auth funcitons
