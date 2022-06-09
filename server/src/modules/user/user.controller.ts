@@ -18,7 +18,7 @@ import { UpdateUserDto, UserDto } from '../../@common/dto/user/user.dto';
 import { UsersService } from '../users/users.service';
 import { LoggedInUser } from '../../@common/decorators/logged-in-user.decorator';
 import { UserGetQuery } from './queries/get.query.dto';
-import { FollowStatusDto } from '../../@common/dto/user/followers.dto';
+import { FollowStatusDto, UpdateFollowStatusDto } from '../../@common/dto/user/followers.dto';
 import { ProfileDto } from '../../@common/dto/user/profile.dto';
 
 @ApiBearerAuth()
@@ -83,10 +83,47 @@ export class UserController {
         description: 'User ID of the user to follow',
         required: true
     })
-    public FollowUser(
-        @LoggedInUser('id') localUserID: number,
-        @Param('targetUserID', ParseIntPipe) targetUserID: number
-    ) {
+    public FollowUser(@LoggedInUser('id') localUserID: number, @Param('userID', ParseIntPipe) targetUserID: number) {
         return this.usersService.FollowUser(localUserID, targetUserID);
+    }
+
+    @Patch('/follow/:userID')
+    @HttpCode(HttpStatus.NO_CONTENT)
+    @ApiOperation({ summary: 'Follows the target user' })
+    @ApiParam({
+        name: 'userID',
+        type: Number,
+        description: 'User ID of user to modify the follow for',
+        required: true
+    })
+    @ApiBody({
+        type: UpdateFollowStatusDto,
+        description: 'Updates what activities the player wants to be notified of from the given user',
+        required: true
+    })
+    public UpdateFollow(
+        @LoggedInUser('id') localUserID: number,
+        @Param('userID', ParseIntPipe) targetUserID: number,
+        @Body() updateDto: UpdateFollowStatusDto
+    ) {
+        return this.usersService.UpdateFollow(localUserID, targetUserID, updateDto);
+    }
+
+    @Delete('/follow/:userID')
+    @HttpCode(HttpStatus.NO_CONTENT)
+    @ApiOperation({ summary: 'Unfollows the target user' })
+    @ApiParam({
+        name: 'userID',
+        type: Number,
+        description: 'User ID of the user to unfollow',
+        required: true
+    })
+    @ApiBody({
+        type: UpdateFollowStatusDto,
+        description: 'Updates what activities the player wants to be notified of from the given user',
+        required: true
+    })
+    public UnfollowUser(@LoggedInUser('id') localUserID: number, @Param('userID', ParseIntPipe) targetUserID: number) {
+        return this.usersService.UnfollowUser(localUserID, targetUserID);
     }
 }

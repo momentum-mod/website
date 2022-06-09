@@ -131,15 +131,12 @@ export class UsersRepo {
     }
 
     async UpdateProfile(profileID: number, update: Prisma.ProfileUpdateInput): Promise<Profile> {
-        const where: Prisma.ProfileWhereUniqueInput = {};
-        where.id = +profileID;
+        const where: Prisma.ProfileWhereUniqueInput = { id: profileID };
 
-        const ret = await this.prisma.profile.update({
-            where: where,
+        return await this.prisma.profile.update({
+            where: { id: profileID },
             data: update
         });
-
-        return ret;
     }
 
     //#endregion
@@ -173,9 +170,7 @@ export class UsersRepo {
 
     async GetFollowers(userID: number, skip?: number, take?: number): Promise<[Follow[], number]> {
         const where: Prisma.FollowWhereInput = {
-            followed: {
-                id: userID
-            }
+            followedID: userID
         };
 
         const count = await this.prisma.follow.count({
@@ -236,24 +231,47 @@ export class UsersRepo {
     }
 
     async GetFollower(followeeID: number, followedID: number): Promise<Follow> {
-        const where: Prisma.FollowWhereInput = {
-            followeeID: followeeID,
-            followedID: followedID
-        };
-
-        return await this.prisma.follow.findFirst({
-            where: where
+        return await this.prisma.follow.findUnique({
+            where: {
+                followeeID_followedID: {
+                    followedID: followedID,
+                    followeeID: followeeID
+                }
+            }
         });
     }
 
     async CreateFollow(followeeID: number, followedID: number) {
-        const input: Prisma.FollowCreateInput = {
-            followed: { connect: { id: followedID } },
-            followee: { connect: { id: followeeID } }
-        };
-
         await this.prisma.follow.create({
-            data: input
+            data: {
+                followed: { connect: { id: followedID } },
+                followee: { connect: { id: followeeID } }
+            }
+        });
+    }
+
+    async UpdateFollow(followeeID: number, followedID: number, notifyOn: number) {
+        await this.prisma.follow.update({
+            where: {
+                followeeID_followedID: {
+                    followedID: followedID,
+                    followeeID: followeeID
+                }
+            },
+            data: {
+                notifyOn: notifyOn
+            }
+        });
+    }
+
+    async DeleteFollow(followeeID: number, followedID: number) {
+        await this.prisma.follow.delete({
+            where: {
+                followeeID_followedID: {
+                    followedID: followedID,
+                    followeeID: followeeID
+                }
+            }
         });
     }
 
