@@ -28,6 +28,8 @@ import { ProfileDto } from '../../@common/dto/user/profile.dto';
 export class UserController {
     constructor(private readonly usersService: UsersService) {}
 
+    //#region Main User Endpoints
+
     @Get()
     @ApiOperation({ summary: 'Get local user, based on JWT' })
     public async GetUser(@LoggedInUser('id') userID: number, @Query() query?: UserGetQuery): Promise<UserDto> {
@@ -42,16 +44,20 @@ export class UserController {
         description: 'Update user data transfer object',
         required: true
     })
-    public async Update(@LoggedInUser('id') userID: number, @Body() userUpdateDto: UpdateUserDto) {
-        await this.usersService.Update(userID, userUpdateDto);
+    public async UpdateUser(@LoggedInUser('id') userID: number, @Body() updateDto: UpdateUserDto) {
+        await this.usersService.Update(userID, updateDto);
     }
 
     // TODO: idk whats going on here but needs work
     @Delete()
     @ApiOperation({ summary: 'Delete the local user and log out' })
-    public async Delete(@LoggedInUser('id') userID: number) {
+    public async DeleteUser(@LoggedInUser('id') userID: number) {
         await this.usersService.Delete(userID);
     }
+
+    //#endregion
+
+    //#region Profile
 
     @Get('/profile')
     @ApiOperation({ summary: 'Get local user, based on JWT' })
@@ -59,17 +65,21 @@ export class UserController {
         return this.usersService.GetProfile(userID);
     }
 
-    @Get('/follow/:targetUserID')
+    //#endregion
+
+    //#region Follows
+
+    @Get('/follow/:userID')
     @ApiOperation({ summary: 'Returns the follow relationship between the local user and a target user' })
     @ApiParam({
-        name: 'targetUserID',
+        name: 'userID',
         type: Number,
-        description: 'Target User ID',
+        description: 'User ID of the user to check the follow status for',
         required: true
     })
     public GetFollowStatus(
         @LoggedInUser('id') localUserID: number,
-        @Param('targetUserID', ParseIntPipe) targetUserID: number
+        @Param('userID', ParseIntPipe) targetUserID: number
     ): Promise<FollowStatusDto> {
         return this.usersService.GetFollowStatus(localUserID, targetUserID);
     }
@@ -126,4 +136,6 @@ export class UserController {
     public UnfollowUser(@LoggedInUser('id') localUserID: number, @Param('userID', ParseIntPipe) targetUserID: number) {
         return this.usersService.UnfollowUser(localUserID, targetUserID);
     }
+
+    //#endregion
 }
