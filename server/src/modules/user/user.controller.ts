@@ -8,6 +8,7 @@ import {
     Param,
     ParseIntPipe,
     Patch,
+    Post,
     Query,
     UseGuards
 } from '@nestjs/common';
@@ -71,5 +72,21 @@ export class UserController {
         @Param('targetUserID', ParseIntPipe) targetUserID: number
     ): Promise<FollowStatusDto> {
         return this.usersService.GetFollowStatus(localUserID, targetUserID);
+    }
+
+    @Post('/follow/:userID')
+    @HttpCode(HttpStatus.NO_CONTENT)
+    @ApiOperation({ summary: 'Follows the target user' })
+    @ApiParam({
+        name: 'userID',
+        type: Number,
+        description: 'User ID of the user to follow',
+        required: true
+    })
+    public FollowUser(
+        @LoggedInUser('id') localUserID: number,
+        @Param('targetUserID', ParseIntPipe) targetUserID: number
+    ) {
+        return this.usersService.FollowUser(localUserID, targetUserID);
     }
 }
