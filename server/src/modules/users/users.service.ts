@@ -16,7 +16,7 @@ import { lastValueFrom, map } from 'rxjs';
 import * as xml2js from 'xml2js';
 import { HttpService } from '@nestjs/axios';
 import { ActivityDto } from '../../@common/dto/user/activity.dto';
-import { FollowerDto, FollowStatusDto } from '../../@common/dto/user/followers.dto';
+import { FollowerDto, FollowStatusDto, UpdateFollowStatusDto } from '../../@common/dto/user/followers.dto';
 import { MapCreditDto } from '../../@common/dto/map/mapCredit.dto';
 import { EBan, ERole } from '../../@common/enums/user.enum';
 import { EActivityTypes } from '../../@common/enums/activity.enum';
@@ -261,8 +261,11 @@ export class UsersService {
     }
 
     public async GetFollowStatus(localUserID: number, targetUserID: number): Promise<FollowStatusDto> {
-        const localToTarget = await this.userRepo.GetFollower(localUserID, targetUserID);
+        const targetUser = await this.userRepo.Get(targetUserID);
 
+        if (!targetUser) throw new NotFoundException('Target user not found.');
+
+        const localToTarget = await this.userRepo.GetFollower(localUserID, targetUserID);
         const targetToLocal = await this.userRepo.GetFollower(targetUserID, localUserID);
 
         return DtoUtils.Factory(FollowStatusDto, {
@@ -277,6 +280,22 @@ export class UsersService {
         if (!targetUser) throw new NotFoundException('Target user not found.');
 
         await this.userRepo.CreateFollow(localUserID, targetUserID);
+    }
+
+    public async UpdateFollow(localUserID: number, targetUserID: number, updateDto: UpdateFollowStatusDto) {
+        const targetUser = await this.userRepo.Get(targetUserID);
+
+        if (!targetUser) throw new NotFoundException('Target user not found.');
+
+        await this.userRepo.UpdateFollow(localUserID, targetUserID, updateDto.notifyOn);
+    }
+
+    public async UnfollowUser(localUserID: number, targetUserID: number) {
+        const targetUser = await this.userRepo.Get(targetUserID);
+
+        if (!targetUser) throw new NotFoundException('Target user not found.');
+
+        await this.userRepo.DeleteFollow(localUserID, targetUserID);
     }
 
     //#endregion

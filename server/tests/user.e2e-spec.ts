@@ -6,6 +6,7 @@ import { User } from '@prisma/client';
 import { EBan, ERole } from '../src/@common/enums/user.enum';
 import { TestUtil } from './util';
 import { AuthService } from '../src/modules/auth/auth.service';
+import { EActivityTypes } from '../src/@common/enums/activity.enum';
 
 describe('user', () => {
     let user1, user2, user2Token, user3, user3Token, admin, adminGame, adminAccessToken, map;
@@ -220,6 +221,8 @@ describe('user', () => {
             expect(res.body.profile.bio).toBe('I love Donkey Kong');
         });
 
+        // TODO: class-validator isnt working properly, see user.dto.ts. afterwards check it 400s
+
         it('should respond with 403 when trying to update bio when bio banned', async () => {
             await TestUtil.patch('user', 403, { bio: 'Gamer Words' }, user2Token);
         });
@@ -302,7 +305,6 @@ describe('user', () => {
 
         it('should return a relationship of the local user who follows the target, but not the opposite', async () => {
             const res = await TestUtil.get(`user/follow/${user3.id}`, 200);
-            console.log(res.body);
 
             expect(res.body.local.followedID).toBe(user3.id);
             expect(res.body.local.followeeID).toBe(user1.id);
@@ -312,23 +314,26 @@ describe('user', () => {
         it('should return a relationship of the target user who follows the local user, but not the opposite', async () => {
             const res = await TestUtil.get(`user/follow/${user1.id}`, 200, {}, user3Token);
 
-            console.log(res.body);
             expect(res.body.target.followedID).toBe(user3.id);
             expect(res.body.target.followeeID).toBe(user1.id);
             expect(res.body).not.toHaveProperty('local');
         });
 
-        it('should only respond with the 200 code since the followed relationship does not exist', async () => {
+        it('should respond with the 200 code if the followed relationship does not exist', async () => {
             const res = await TestUtil.get(`user/follow/${user2.id}`, 200, {}, user3Token);
             expect(res.body).toEqual({});
         });
 
+        it('should respond with 404 if the target user does not exist', async () => {
+            await TestUtil.get(`user/follow/283745692345`, 404);
+        });
+
         it('should respond with 401 when no access token is provided', async () => {
-            await TestUtil.get('user/profile', 401, {}, null);
+            await TestUtil.get(`user/follow/${user2.id}`, 401, {}, null);
         });
     });
 
-    describe('POST /api/v1/user/follow', () => {
+    describe('POST /api/v1/user/follow/{userID}', () => {
         it('should respond with 204 and add user to authenticated users follow list', async () => {
             const res = await TestUtil.get(`user/follow/${user3.id}`, 200, {}, user2Token);
 
@@ -351,55 +356,51 @@ describe('user', () => {
         });
     });
 
-    // describe('PATCH /api/v1/user/follow/{userID}', () => {
-    //     it('should update the following status of the local user and the followed user', () =>
-    //         request(global.server)
-    //             .patch('/api/v1/user/follow/' + user2.id)
-    //             .set('Authorization', 'Bearer ' + global.accessToken)
-    //             .send({
-    //                 notifyOn: EActivityTypes.ALL
-    //             })
-    //             .expect(204));
-    //
-    //     it('should respond with 401 when no access token is provided', () => {
-    //         request(global.server)
-    //             .get('/api/v1/user/follow/' + user2.id)
-    //             .expect(401)
-    //             .expect('Content-Type', /json/);
-    //     });
-    // });
-    //
-    // describe('DELETE /api/v1/user/follow/{userID}', () => {
-    //     it('should remove the user from the local users follow list', async () => {
-    //         const res = await request(global.server)
-    //             .post('/api/v1/user/follow')
-    //             .set('Authorization', 'Bearer ' + global.accessToken)
-    //             .send({
-    //                 userID: user3.id
-    //             })
-    //             .expect(200)
-    //             .expect('Content-Type', /json/);
-    //         const res2 = await request(global.server)
-    //             .get('/api/v1/user/follow/' + user3.id)
-    //             .set('Authorization', 'Bearer ' + global.accessToken)
-    //             .expect(200)
-    //             .expect('Content-Type', /json/);
-    //         const res3 = await request(global.server)
-    //             .delete('/api/v1/user/follow/' + user3.id)
-    //             .set('Authorization', 'Bearer ' + global.accessToken)
-    //             .expect(200)
-    //             .expect('Content-Type', /json/);
-    //         // TODO: i am very confused by this test!! shouldn't we check you unfollowed afterwards with another get??
-    //         expect(res2.body).toHaveProperty('local');
-    //         expect(res2.body.local).toHaveProperty('followeeID');
-    //     });
-    //
-    //     it('should respond with 401 when no access token is provided', () =>
-    //         request(global.server)
-    //             .get('/api/v1/user/follow/' + user3.id)
-    //             .expect(401)
-    //             .expect('Content-Type', /json/));
-    // });
+    describe('PATCH /api/v1/user/follow/{userID}', () => {
+        it('should update the following status of the local user and the followed user', async () => {
+            const res = await TestUtil.get(`user/follow/${user2.id}`, 200, {});
+
+            expect(res.body.local.notifyOn).toBe(0);
+
+            await TestUtil.patch(`user/follow/${user2.id}`, 204, { notifyOn: EActivityTypes.REVIEW_MADE });
+
+            const res2 = await TestUtil.get(`user/follow/${user2.id}`, 200, {});
+
+            expect(res2.body.local.notifyOn).toBe(EActivityTypes.REVIEW_MADE);
+        });
+
+        it('should respond with 404 if the target user does not exist', async () => {
+            await TestUtil.patch('user/follow/178124314563', 404, { notifyOn: EActivityTypes.REVIEW_MADE });
+        });
+
+        it('should respond with 401 when no access token is provided', async () => {
+            await TestUtil.patch(`user/follow/${user3.id}`, 401, { notifyOn: EActivityTypes.REVIEW_MADE }, null);
+        });
+    });
+
+    describe('DELETE /api/v1/user/follow/{userID}', () => {
+        it('should remove the user from the local users follow list', async () => {
+            const res = await TestUtil.get(`user/follow/${user3.id}`, 200, {}, user2Token);
+
+            expect(res.body).toHaveProperty('local');
+            expect(res.body.local.followedID).toBe(user3.id);
+            expect(res.body.local.followeeID).toBe(user2.id);
+
+            await TestUtil.delete(`user/follow/${user3.id}`, 204, user2Token);
+
+            const res2 = await TestUtil.get(`user/follow/${user3.id}`, 200, {}, user2Token);
+
+            expect(res2.body).not.toHaveProperty('local');
+        });
+
+        it('should respond with 404 if the target user does not exist', async () => {
+            await TestUtil.delete('user/follow/178124314563', 404);
+        });
+
+        it('should respond with 401 when no access token is provided', async () => {
+            await TestUtil.delete(`user/follow/${user3.id}`, 401, null);
+        });
+    });
     //
     // describe('PUT /api/v1/user/notifyMap/{mapID}', () => {
     //     it('should update map notification status or create new map notification status if no existing notifcations', async () => {

@@ -45,3 +45,9 @@ export class FollowStatusDto {
     @Transform(({ value }) => DtoUtils.Factory(FollowerDto, value))
     target?: FollowerDto;
 }
+
+export class UpdateFollowStatusDto {
+    @ApiProperty()
+    @IsEnum(EActivityTypes)
+    notifyOn: EActivityTypes;
+}

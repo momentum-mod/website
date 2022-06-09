@@ -44,6 +44,14 @@ export const TestUtil = {
             .expect(status);
     },
 
+    async delete(url: string, status: number, accessToken: string = global.accessToken): Promise<request.Test> {
+        return request(global.server)
+            .delete('/api/v1/' + url)
+            .set('Accept', 'application/json')
+            .set('Authorization', 'Bearer ' + accessToken)
+            .expect(status);
+    },
+
     async takeTest(url: string, testFunc: (res: request.Response) => void): Promise<void> {
         const res = await this.get(url, 200, { take: 1 });
 
