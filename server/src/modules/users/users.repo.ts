@@ -55,7 +55,7 @@ export class UsersRepo {
      * @summary Gets single user from database
      * @returns Target user or null
      */
-    async Get(userID: number, include: Prisma.UserInclude): Promise<User> {
+    async Get(userID: number, include?: Prisma.UserInclude): Promise<User> {
         const where: Prisma.UserWhereUniqueInput = { id: userID };
 
         return await this.prisma.user.findFirst({
@@ -243,6 +243,17 @@ export class UsersRepo {
 
         return await this.prisma.follow.findFirst({
             where: where
+        });
+    }
+
+    async CreateFollow(followeeID: number, followedID: number) {
+        const input: Prisma.FollowCreateInput = {
+            followed: { connect: { id: followedID } },
+            followee: { connect: { id: followeeID } }
+        };
+
+        await this.prisma.follow.create({
+            data: input
         });
     }
 

@@ -271,6 +271,14 @@ export class UsersService {
         });
     }
 
+    public async FollowUser(localUserID: number, targetUserID: number) {
+        const targetUser = await this.userRepo.Get(targetUserID);
+
+        if (!targetUser) throw new NotFoundException('Target user not found.');
+
+        await this.userRepo.CreateFollow(localUserID, targetUserID);
+    }
+
     //#endregion
 
     //#region Credits

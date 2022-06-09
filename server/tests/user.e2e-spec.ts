@@ -327,22 +327,30 @@ describe('user', () => {
             await TestUtil.get('user/profile', 401, {}, null);
         });
     });
-    //
-    // describe('POST /api/v1/user/follow', () => {
-    //     it('should add user to authenticated users follow list', () =>
-    //         request(global.server)
-    //             .post('/api/v1/user/follow')
-    //             .set('Authorization', 'Bearer ' + global.accessToken)
-    //             .send({
-    //                 userID: user3.id
-    //             })
-    //             .expect(200)
-    //             .expect('Content-Type', /json/));
-    //
-    //     it('should respond with 401 when no access token is provided', () =>
-    //         request(global.server).get('/api/v1/user/maps/follow').expect(401).expect('Content-Type', /json/));
-    // });
-    //
+
+    describe('POST /api/v1/user/follow', () => {
+        it('should respond with 204 and add user to authenticated users follow list', async () => {
+            const res = await TestUtil.get(`user/follow/${user3.id}`, 200, {}, user2Token);
+
+            expect(res.body).not.toHaveProperty('local');
+
+            await TestUtil.post(`user/follow/${user3.id}`, 204, {}, user2Token);
+
+            const res2 = await TestUtil.get(`user/follow/${user3.id}`, 200, {}, user2Token);
+
+            expect(res2.body.local.followedID).toBe(user3.id);
+            expect(res2.body.local.followeeID).toBe(user2.id);
+        });
+
+        it('should respond with 404 if the target user does not exist', async () => {
+            await TestUtil.post('user/follow/178124314563', 404);
+        });
+
+        it('should respond with 401 when no access token is provided', async () => {
+            await TestUtil.post(`user/follow/${user3.id}`, 401, {}, null);
+        });
+    });
+
     // describe('PATCH /api/v1/user/follow/{userID}', () => {
     //     it('should update the following status of the local user and the followed user', () =>
     //         request(global.server)
