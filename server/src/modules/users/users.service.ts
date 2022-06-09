@@ -184,12 +184,6 @@ export class UsersService {
         await this.userRepo.Update(userID, updateInput);
     }
 
-    async Delete(userID: number) {
-        await this.userRepo.Delete(userID);
-        return;
-        // TODO: Logout. best to do without including auth service, so we need a logout POST I guess?
-    }
-
     //#endregion
 
     //#region Auth

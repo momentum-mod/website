@@ -48,13 +48,6 @@ export class UserController {
         await this.usersService.Update(userID, updateDto);
     }
 
-    // TODO: idk whats going on here but needs work
-    @Delete()
-    @ApiOperation({ summary: 'Delete the local user and log out' })
-    public async DeleteUser(@LoggedInUser('id') userID: number) {
-        await this.usersService.Delete(userID);
-    }
-
     //#endregion
 
     //#region Profile
