@@ -51,7 +51,7 @@ model Profile {
 
     bio String? @default("") @db.VarChar(1000)
 
-    featuredBadge   UserBadge? @relation(fields: [featuredBadgeID], references: [id])
+    featuredBadge   UserBadge? @relation(fields: [featuredBadgeID], references: [id], onDelete: SetNull)
     featuredBadgeID Int?       @unique
 
     user   User @relation(fields: [userID], references: [id], onDelete: Cascade)
@@ -154,7 +154,7 @@ model UserBadge {
 
     profile Profile?
 
-    badge   Badge @relation(fields: [badgeID], references: [id])
+    badge   Badge @relation(fields: [badgeID], references: [id], onDelete: Cascade)
     badgeID Int
 
     user   User @relation(fields: [userID], references: [id], onDelete: Cascade)
@@ -170,7 +170,7 @@ model UserBadge {
 model Activity {
     id Int @id @default(autoincrement())
 
-    type Int    @db.TinyInt
+    type Int    @default(0) @db.TinyInt
     data BigInt @db.BigInt
 
     notifications Notification[]
@@ -198,7 +198,7 @@ model Follow {
 
     @@id([followeeID, followedID])
     @@unique([followeeID, followedID], map: "follow_unique")
-    @@index([followedID])
+    @@index([followeeID, followedID])
 }
 
 model Notification {
@@ -206,7 +206,7 @@ model Notification {
 
     read Boolean @default(false)
 
-    user   User @relation(fields: [userID], references: [id])
+    user   User @relation(fields: [userID], references: [id], onDelete: Cascade)
     userID Int
 
     activities Activity @relation(fields: [activityID], references: [id], onDelete: Cascade)
@@ -228,10 +228,10 @@ model Report {
     resolved          Boolean? @default(false)
     resolutionMessage String?  @db.VarChar(1000)
 
-    submitter   User @relation("report_submitter", fields: [submitterID], references: [id])
-    submitterID Int
+    submitter   User? @relation("report_submitter", fields: [submitterID], references: [id], onDelete: SetNull)
+    submitterID Int?
 
-    resolver   User? @relation("report_resolver", fields: [resolverID], references: [id])
+    resolver   User? @relation("report_resolver", fields: [resolverID], references: [id], onDelete: SetNull)
     resolverID Int?
 
     createdAt DateTime @default(now())
@@ -263,11 +263,11 @@ model Map {
     downloadURL String? @db.VarChar(255)
     hash        String? @db.Char(40)
 
-    thumbnail   MapImage? @relation("mapimage_thumbnail", fields: [thumbnailID], references: [id])
+    thumbnail   MapImage? @relation("mapimage_thumbnail", fields: [thumbnailID], references: [id], onDelete: SetNull)
     thumbnailID Int?      @unique
 
-    submitter   User @relation(fields: [submitterID], references: [id])
-    submitterID Int
+    submitter   User? @relation(fields: [submitterID], references: [id], onDelete: SetNull)
+    submitterID Int?
 
     credits        MapCredit[]
     favorites      MapFavorite[]
@@ -295,7 +295,7 @@ model MapCredit {
     map   Map @relation(fields: [mapID], references: [id], onDelete: Cascade)
     mapID Int
 
-    user   User @relation(fields: [userID], references: [id])
+    user   User @relation(fields: [userID], references: [id], onDelete: Cascade)
     userID Int
 
     createdAt DateTime @default(now())
@@ -506,7 +506,7 @@ model MapZoneTriggerProperties {
 
     properties Json?
 
-    mapZoneTrigger MapZoneTrigger @relation(fields: [triggerID], references: [id])
+    mapZoneTrigger MapZoneTrigger @relation(fields: [triggerID], references: [id], onDelete: Cascade)
     triggerID      Int            @unique
 
     createdAt DateTime @default(now())
@@ -603,8 +603,8 @@ model Run {
     map   Map @relation(fields: [mapID], references: [id], onDelete: Cascade)
     mapID Int
 
-    player   User @relation(fields: [playerID], references: [id], map: "run_user_fk")
-    playerID Int
+    player   User? @relation(fields: [playerID], references: [id], map: "run_user_fk", onDelete: SetNull)
+    playerID Int?
 
     baseStats   BaseStats? @relation(fields: [baseStatsID], references: [id], onDelete: Cascade)
     baseStatsID BigInt?    @unique
@@ -642,7 +642,7 @@ model RunSession {
     user   User @relation(fields: [userID], references: [id], onDelete: Cascade)
     userID Int
 
-    track   MapTrack @relation(fields: [trackID], references: [id])
+    track   MapTrack @relation(fields: [trackID], references: [id], onDelete: Cascade)
     trackID Int
 
     createdAt DateTime @default(now())
