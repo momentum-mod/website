@@ -4,16 +4,34 @@ import * as request from 'supertest';
 import { TestUtil } from './util';
 import { EActivityTypes } from '../src/@common/enums/activity.enum';
 import { PrismaRepo } from '../src/modules/prisma/prisma.repo';
-import { User } from '@prisma/client';
 import { EMapCreditType, EMapStatus, EMapType } from '../src/@common/enums/map.enum';
+import { ERole } from '../src/@common/enums/user.enum';
+import { AuthService } from '../src/modules/auth/auth.service';
 
 describe('Users', () => {
     let user1, user2, user3, map1, map2, run1;
 
-    beforeAll(async () => {
+    beforeEach(async () => {
         const prisma: PrismaRepo = global.prisma;
 
-        user1 = global.testUser as User;
+        user1 = await prisma.user.create({
+            data: {
+                steamID: '532521245234',
+                country: 'GB',
+                alias: 'Ron Weasley',
+                avatar: '',
+                roles: ERole.ADMIN,
+                bans: 0,
+                profile: {
+                    create: {
+                        bio: 'Ronald Bilius "Ron" Weasley (b. 1 March, 1980) was an English pure-blood wizard, the sixth and youngest son of Arthur and Molly Weasley (née Prewett). He was also the younger brother of Bill, Charlie, Percy, Fred, George, and the elder brother of Ginny. Ron and his siblings lived at the The Burrow, on the outskirts of Ottery St Catchpole, Devon.\''
+                    }
+                }
+            },
+            include: {
+                profile: true
+            }
+        });
 
         user2 = await prisma.user.create({
             data: {
@@ -155,16 +173,17 @@ describe('Users', () => {
                 hash: ''
             }
         });
+
+        const authService: AuthService = global.auth as AuthService;
+        global.accessToken = (await authService.login(user1)).access_token;
     });
 
-    afterAll(async () => {
+    afterEach(async () => {
         const prisma: PrismaRepo = global.prisma;
 
-        await prisma.user.deleteMany({ where: { id: { in: [user2.id, user3.id] } } });
+        await prisma.user.deleteMany({ where: { id: { in: [user1.id, user2.id, user3.id] } } });
 
         await prisma.map.deleteMany({ where: { id: { in: [map1.id, map2.id] } } });
-
-        await prisma.activity.deleteMany({ where: { user: user1.id } });
     });
 
     describe(`GET /api/v1/users`, () => {

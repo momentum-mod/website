@@ -2,40 +2,40 @@
 
 import { EMapCreditType, EMapStatus, EMapType } from '../src/@common/enums/map.enum';
 import { PrismaRepo } from '../src/modules/prisma/prisma.repo';
-import { User } from '@prisma/client';
 import { EBan, ERole } from '../src/@common/enums/user.enum';
 import { TestUtil } from './util';
 import { AuthService } from '../src/modules/auth/auth.service';
 import { EActivityTypes } from '../src/@common/enums/activity.enum';
+import { User } from '@prisma/client';
 
 describe('user', () => {
     let user1, user2, user2Token, user3, user3Token, admin, adminGame, adminAccessToken, map;
 
-    beforeAll(async () => {
+    beforeEach(async () => {
         const prisma: PrismaRepo = global.prisma;
 
-        user1 = global.testUser as User;
-
-        admin = await prisma.user.create({
+        user1 = await prisma.user.create({
             data: {
-                aliasLocked: false,
-                steamID: '0909',
-                alias: 'Arthur Weasley',
+                steamID: Math.random().toPrecision(16).slice(2),
+                country: 'GB',
+                alias: 'Ron Weasley',
                 avatar: '',
                 roles: ERole.ADMIN,
                 bans: 0,
-                country: 'UK',
                 profile: {
                     create: {
-                        bio: 'Arthur Weasley (b. 6 February, 1950) was an English pure-blood wizard in the employ of the Ministry of Magic, as well as a member of the second Order of the Phoenix. He was a staunch believer in the equality of all magical and Muggle folk and was the head of the Weasley family.'
+                        bio: 'Ronald Bilius "Ron" Weasley (b. 1 March, 1980) was an English pure-blood wizard, the sixth and youngest son of Arthur and Molly Weasley (née Prewett). He was also the younger brother of Bill, Charlie, Percy, Fred, George, and the elder brother of Ginny. Ron and his siblings lived at the The Burrow, on the outskirts of Ottery St Catchpole, Devon.\''
                     }
                 }
+            },
+            include: {
+                profile: true
             }
         });
 
         user2 = await prisma.user.create({
             data: {
-                steamID: '76561198131664084',
+                steamID: Math.random().toPrecision(16).slice(2),
                 alias: 'Bill Weasley',
                 roles: ERole.VERIFIED,
                 bans: EBan.BANNED_BIO | EBan.BANNED_ALIAS,
@@ -55,7 +55,7 @@ describe('user', () => {
 
         user3 = await prisma.user.create({
             data: {
-                steamID: '00000000000000002',
+                steamID: Math.random().toPrecision(16).slice(2),
                 alias: 'Percy Weasley',
                 avatar: 'e4db45e6d6472d9e61b131a04ad2f18a299daafc_full.jpg',
                 roles: ERole.MAPPER | ERole.VERIFIED,
@@ -66,6 +66,32 @@ describe('user', () => {
                         bio: 'Percy Ignatius "Perce" Weasley (b. 22 August, 1976) was an English pure-blood wizard, the third child of Arthur and Molly Weasley (née Prewett). He was the younger brother of Bill and Charlie, the older brother of the late Fred Weasley, George, Ron and Ginny. He attended Hogwarts School of Witchcraft and Wizardry from 1987-1994, and was both a prefect and Head Boy.'
                     }
                 }
+            }
+        });
+
+        admin = await prisma.user.create({
+            data: {
+                aliasLocked: false,
+                steamID: Math.random().toPrecision(16).slice(2),
+                alias: 'Arthur Weasley',
+                avatar: '',
+                roles: ERole.ADMIN,
+                bans: 0,
+                country: 'UK',
+                profile: {
+                    create: {
+                        bio: 'Arthur Weasley (b. 6 February, 1950) was an English pure-blood wizard in the employ of the Ministry of Magic, as well as a member of the second Order of the Phoenix. He was a staunch believer in the equality of all magical and Muggle folk and was the head of the Weasley family.'
+                    }
+                }
+            }
+        });
+
+        adminGame = await prisma.user.create({
+            data: {
+                steamID: Math.random().toPrecision(16).slice(2),
+                roles: ERole.ADMIN,
+                bans: 0,
+                country: 'US'
             }
         });
 
@@ -123,15 +149,6 @@ describe('user', () => {
             }
         });
 
-        adminGame = await prisma.user.create({
-            data: {
-                steamID: '5416876413213874',
-                roles: ERole.ADMIN,
-                bans: 0,
-                country: 'US'
-            }
-        });
-
         await prisma.follow.createMany({
             data: [
                 // 1 and 2 follow each other, 1 follows 3 but 3 doesn't follow 1 back
@@ -150,15 +167,16 @@ describe('user', () => {
             ]
         });
 
-        const authService: AuthService = global.authService as AuthService;
+        const authService = global.auth as AuthService;
+        global.accessToken = (await authService.login(user1)).access_token;
         user2Token = (await authService.login(user2)).access_token;
         user3Token = (await authService.login(user3)).access_token;
     });
 
-    afterAll(async () => {
+    afterEach(async () => {
         const prisma: PrismaRepo = global.prisma;
 
-        await prisma.user.deleteMany({ where: { id: { in: [user2.id, user3.id, admin.id, adminGame.id] } } });
+        await prisma.user.deleteMany({ where: { id: { in: [user1.id, user2.id, user3.id, admin.id, adminGame.id] } } });
 
         await prisma.map.delete({ where: { id: map.id } });
     });
@@ -319,7 +337,7 @@ describe('user', () => {
             expect(res.body).not.toHaveProperty('local');
         });
 
-        it('should respond with the 200 code if the followed relationship does not exist', async () => {
+        it('should respond with empty object if the followed relationship does not exist', async () => {
             const res = await TestUtil.get(`user/follow/${user2.id}`, 200, {}, user3Token);
             expect(res.body).toEqual({});
         });
@@ -380,21 +398,21 @@ describe('user', () => {
 
     describe('DELETE /api/v1/user/follow/{userID}', () => {
         it('should remove the user from the local users follow list', async () => {
-            const res = await TestUtil.get(`user/follow/${user3.id}`, 200, {}, user2Token);
+            const res = await TestUtil.get(`user/follow/${user2.id}`, 200, {});
 
             expect(res.body).toHaveProperty('local');
             expect(res.body.local.followedID).toBe(user3.id);
             expect(res.body.local.followeeID).toBe(user2.id);
 
-            await TestUtil.delete(`user/follow/${user3.id}`, 204, user2Token);
+            await TestUtil.delete(`user/follow/${user2.id}`, 204);
 
-            const res2 = await TestUtil.get(`user/follow/${user3.id}`, 200, {}, user2Token);
+            const res2 = await TestUtil.get(`user/follow/${user2.id}`, 200, {});
 
             expect(res2.body).not.toHaveProperty('local');
         });
 
         it('should respond with 404 if the target user does not exist', async () => {
-            await TestUtil.delete('user/follow/178124314563', 404);
+            await TestUtil.delete(`user/follow/178124314563`, 404);
         });
 
         it('should respond with 401 when no access token is provided', async () => {
