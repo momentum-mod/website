@@ -116,15 +116,6 @@ export class UsersRepo {
         });
     }
 
-    async UpdateProfile(profileID: number, update: Prisma.ProfileUpdateInput): Promise<Profile> {
-        const where: Prisma.ProfileWhereUniqueInput = { id: profileID };
-
-        return await this.prisma.profile.update({
-            where: { id: profileID },
-            data: update
-        });
-    }
-
     //#endregion
 
     //#region Activites
