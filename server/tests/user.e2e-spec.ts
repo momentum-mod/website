@@ -167,6 +167,14 @@ describe('user', () => {
             ]
         });
 
+        await prisma.mapNotify.create({
+            data: {
+                notifyOn: EActivityTypes.WR_ACHIEVED,
+                user: { connect: { id: user1.id } },
+                map: { connect: { id: map.id } }
+            }
+        });
+
         const authService = global.auth as AuthService;
         global.accessToken = (await authService.login(user1)).access_token;
         user2Token = (await authService.login(user2)).access_token;
@@ -419,55 +427,80 @@ describe('user', () => {
             await TestUtil.delete(`user/follow/${user3.id}`, 401, null);
         });
     });
-    //
-    // describe('PUT /api/v1/user/notifyMap/{mapID}', () => {
-    //     it('should update map notification status or create new map notification status if no existing notifcations', async () => {
-    //         const res = await request(global.server)
-    //             .put('/api/v1/user/notifyMap/' + testMap.id)
-    //             .set('Authorization', 'Bearer ' + global.accessToken)
-    //             .send({
-    //                 notifyOn: EActivityTypes.WR_ACHIEVED
-    //             })
-    //             .expect(200)
-    //             .expect('Content-Type', /json/);
-    //         expect(res.body).toHaveProperty('notifyOn');
-    //     });
-    //
-    //     it('should respond with 401 when no access token is provided', () =>
-    //         request(global.server)
-    //             .put('/api/v1/user/notifyMap/' + testMap.id)
-    //             .expect(401)
-    //             .expect('Content-Type', /json/));
-    // });
-    //
-    // describe('GET /api/v1/user/notifyMap/{mapID}', () => {
-    //     it('should check the map notifcation status for a given user', () =>
-    //         request(global.server)
-    //             .get('/api/v1/user/notifyMap/' + testMap.id)
-    //             .set('Authorization', 'Bearer ' + global.accessToken)
-    //             .expect(200)
-    //             .expect('Content-Type', /json/));
-    //
-    //     it('should respond with 401 when no access token is provided', () =>
-    //         request(global.server)
-    //             .get('/api/v1/user/notifyMap/' + testMap.id)
-    //             .expect(401)
-    //             .expect('Content-Type', /json/));
-    // });
-    //
-    // describe('DELETE /api/v1/user/notifyMap/{mapID}', () => {
-    //     it('should remove the user from map notifcations list', () =>
-    //         request(global.server)
-    //             .delete('/api/v1/user/notifyMap/' + testMap.id)
-    //             .set('Authorization', 'Bearer ' + global.accessToken)
-    //             .expect(200));
-    //
-    //     it('should respond with 401 when no access token is provided', () =>
-    //         request(global.server)
-    //             .delete('/api/v1/user/notifyMap' + testMap.id)
-    //             .expect(401)
-    //             .expect('Content-Type', /json/));
-    // });
+
+    describe('GET /api/v1/user/notifyMap/{mapID}', () => {
+        it('should return a mapnotify dto for a given user and map', async () => {
+            const res = await TestUtil.get(`user/notifyMap/${map.id}`, 200);
+
+            expect(res.body.notifyOn).toBe(EActivityTypes.WR_ACHIEVED);
+        });
+
+        it('should respond with an empty object if the user does not have mapnotify for given map', async () => {
+            const res = await TestUtil.get(`user/notifyMap/${map.id}`, 200, {}, user2Token);
+
+            expect(res.body).toEqual({});
+        });
+
+        it('should respond with 404 if the target map does not exist', async () => {
+            await TestUtil.get(`user/notifyMap/8732165478321`, 404);
+        });
+
+        it('should respond with 401 when no access token is provided', async () => {
+            await TestUtil.get(`user/notifyMap/${map.id}`, 401, {}, null);
+        });
+    });
+
+    describe('PUT /api/v1/user/notifyMap/{mapID}', () => {
+        it('should update map notification status for with existing notifications', async () => {
+            await TestUtil.put(`user/notifyMap/${map.id}`, 204, { notifyOn: EActivityTypes.PB_ACHIEVED });
+
+            const res = await TestUtil.get(`user/notifyMap/${map.id}`, 200);
+
+            expect(res.body.notifyOn).toBe(EActivityTypes.PB_ACHIEVED);
+        });
+
+        it('should create new map notification status if no existing notifcations', async () => {
+            await TestUtil.put(`user/notifyMap/${map.id}`, 204, { notifyOn: EActivityTypes.PB_ACHIEVED });
+
+            const res = await TestUtil.get(`user/notifyMap/${map.id}`, 200);
+
+            expect(res.body.notifyOn).toBe(EActivityTypes.PB_ACHIEVED);
+        });
+
+        it('should respond with 400 is the body is invalid', async () => {
+            await TestUtil.put(`user/notifyMap/8231734`, 404, { notifyOn: 'this is a sausage' });
+        });
+
+        it('should respond with 404 if the target map does not exist', async () => {
+            await TestUtil.put(`user/notifyMap/8231734`, 404, { notifyOn: EActivityTypes.PB_ACHIEVED });
+        });
+
+        it('should respond with 401 when no access token is provided', async () => {
+            await TestUtil.put(`user/notifyMap/${map.id}`, 401, {}, null);
+        });
+    });
+
+    describe('DELETE /api/v1/user/notifyMap/{mapID}', () => {
+        it('should remove the user from map notifcations list', async () => {
+            await TestUtil.delete(`user/notifyMap/${map.id}`, 204);
+
+            const res = await TestUtil.get(`user/notifyMap/${map.id}`, 200, {});
+
+            expect(res.body).toEqual({});
+        });
+
+        it('should respond with 404 if the user is not following the map', async () => {
+            await TestUtil.delete(`user/notifyMap/${map.id}`, 404, user2Token);
+        });
+
+        it('should respond with 404 if the target map does not exist', async () => {
+            await TestUtil.delete(`user/notifyMap/324512341243`, 404);
+        });
+
+        it('should respond with 401 when no access token is provided', async () => {
+            await TestUtil.delete(`user/notifyMap/${map.id}`, 401, null);
+        });
+    });
     //
     // describe('GET /api/v1/user/notifications', () => {
     //     it('should respond with notification data', async () => {

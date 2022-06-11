@@ -30,6 +30,20 @@ export const TestUtil = {
             .expect(status);
     },
 
+    async put(
+        url: string,
+        status: number,
+        send?: Record<string, unknown>,
+        accessToken: string = global.accessToken
+    ): Promise<request.Test> {
+        return request(global.server)
+            .put('/api/v1/' + url)
+            .set('Accept', 'application/json')
+            .set('Authorization', 'Bearer ' + accessToken)
+            .send(send ? send : {})
+            .expect(status);
+    },
+
     async patch(
         url: string,
         status: number,
