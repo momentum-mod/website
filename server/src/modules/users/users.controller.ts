@@ -3,7 +3,7 @@ import { ApiBearerAuth, ApiOperation, ApiTags, ApiParam } from '@nestjs/swagger'
 import { JwtAuthGuard } from '../auth/jwt/jwt-auth.guard';
 import { UsersService } from './users.service';
 import { UserDto } from '../../@common/dto/user/user.dto';
-import { PagedResponseDto } from '../../@common/dto/common/api-response.dto';
+import { ApiOkPaginatedResponse, PagedResponseDto } from '../../@common/dto/common/api-response.dto';
 import { ActivityDto } from '../../@common/dto/user/activity.dto';
 import { ProfileDto } from '../../@common/dto/user/profile.dto';
 import { UsersGetAllQuery } from './queries/get-all.query.dto';
@@ -23,7 +23,7 @@ export class UsersController {
 
     @Get()
     @ApiOperation({ summary: 'Returns all users' })
-    public async GetAll(@Query() query?: UsersGetAllQuery): Promise<PagedResponseDto<UserDto[]>> {
+    public async GetAll(@Query() query?: UsersGetAllQuery): Promise<PagedResponseDto<UserDto>> {
         return this.usersService.GetAll(
             query.skip,
             query.take,
@@ -73,7 +73,7 @@ export class UsersController {
     public async GetActivities(
         @Param('userID', ParseIntPipe) userID: number,
         @Query() query?: UsersGetActivitiesQuery
-    ): Promise<PagedResponseDto<ActivityDto[]>> {
+    ): Promise<PagedResponseDto<ActivityDto>> {
         return this.usersService.GetActivities(userID, query.skip, query.take, query.type, query.data);
     }
 
@@ -88,7 +88,7 @@ export class UsersController {
     public async GetFollowers(
         @Param('userID', ParseIntPipe) userID: number,
         @Query() query?: PaginationQueryDto
-    ): Promise<PagedResponseDto<FollowerDto[]>> {
+    ): Promise<PagedResponseDto<FollowerDto>> {
         return this.usersService.GetFollowers(userID, query.skip, query.take);
     }
 
@@ -103,7 +103,7 @@ export class UsersController {
     public async GetFollowed(
         @Param('userID') userID: number,
         @Query() query: PaginationQueryDto
-    ): Promise<PagedResponseDto<FollowerDto[]>> {
+    ): Promise<PagedResponseDto<FollowerDto>> {
         return this.usersService.GetFollowing(userID, query.skip, query.take);
     }
 
@@ -118,7 +118,7 @@ export class UsersController {
     public async GetMapCredits(
         @Param('userID') userID: number,
         @Query() query: PaginationQueryDto
-    ): Promise<PagedResponseDto<MapCreditDto[]>> {
+    ): Promise<PagedResponseDto<MapCreditDto>> {
         return this.usersService.GetMapCredits(userID, query.skip, query.take);
     }
 
@@ -133,7 +133,7 @@ export class UsersController {
     public async GetRuns(
         @Param('userID') userID: number,
         @Query() query: PaginationQueryDto
-    ): Promise<PagedResponseDto<RunDto[]>> {
+    ): Promise<PagedResponseDto<RunDto>> {
         // TODO: The old API calls the runs model here. We should do the same, this functionality
         // doesn't need to exist in the users service.
         return this.usersService.GetRuns(userID, query.skip, query.take);
