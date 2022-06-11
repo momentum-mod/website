@@ -52,8 +52,8 @@ export class UsersService {
         if (search) where.alias = { startsWith: search };
 
         const include: Prisma.UserInclude = {
-            profile: !!expand?.includes('profile'),
-            userStats: !!expand?.includes('userStats')
+            profile: Boolean(expand?.includes('profile')),
+            userStats: Boolean(expand?.includes('userStats'))
         };
 
         if (mapRank) {
@@ -81,8 +81,8 @@ export class UsersService {
 
     public async Get(id: number, expand?: string[], mapRank?: number): Promise<UserDto> {
         const include: Prisma.UserInclude = {
-            profile: !!expand?.includes('profile'),
-            userStats: !!expand?.includes('userStats')
+            profile: Boolean(expand?.includes('profile')),
+            userStats: Boolean(expand?.includes('userStats'))
         };
 
         if (mapRank) {
