@@ -370,20 +370,20 @@ model MapLibraryEntry {
 }
 
 model MapNotify {
-    id Int @id @default(autoincrement())
-
     notifyOn Int @db.UnsignedTinyInt
 
     map   Map @relation(fields: [mapID], references: [id], onDelete: Cascade)
     mapID Int
 
-    user       User @relation(fields: [followeeID], references: [id], onDelete: Cascade)
-    followeeID Int
+    user   User @relation(fields: [userID], references: [id], onDelete: Cascade)
+    userID Int
 
     createdAt DateTime @default(now())
     updatedAt DateTime @updatedAt
 
-    @@index([followeeID, mapID])
+    @@id([userID, mapID])
+    @@unique([userID, mapID], map: "mapnotify_unique")
+    @@index([userID, mapID])
 }
 
 model UserMapRank {

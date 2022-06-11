@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaRepo } from '../prisma/prisma.repo';
-import { Activity, Follow, MapCredit, Prisma, Profile, Run, User, UserAuth } from '@prisma/client';
+import { Activity, Follow, MapCredit, MapNotify, Prisma, Profile, Run, User, UserAuth } from '@prisma/client';
 
 @Injectable()
 export class UsersRepo {
@@ -262,6 +262,51 @@ export class UsersRepo {
     }
 
     //#endregion
+
+    //#region Map Notify
+
+    async GetMapNotify(userID: number, mapID: number): Promise<MapNotify> {
+        return await this.prisma.mapNotify.findUnique({
+            where: {
+                userID_mapID: {
+                    userID: userID,
+                    mapID: mapID
+                }
+            }
+        });
+    }
+
+    async UpsertMapNotify(userID: number, mapID: number, notifyOn: number) {
+        await this.prisma.mapNotify.upsert({
+            where: {
+                userID_mapID: {
+                    userID: userID,
+                    mapID: mapID
+                }
+            },
+            update: {
+                notifyOn: notifyOn
+            },
+            create: {
+                notifyOn: notifyOn,
+                mapID: mapID,
+                userID: userID
+            }
+        });
+    }
+
+    async DeleteMapNotify(userID: number, mapID: number) {
+        await this.prisma.mapNotify.delete({
+            where: {
+                userID_mapID: {
+                    userID: userID,
+                    mapID: mapID
+                }
+            }
+        });
+    }
+
+    //#endregion Map Notify
 
     //#region Credits
 

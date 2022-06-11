@@ -22,10 +22,17 @@ import { EBan, ERole } from '../../@common/enums/user.enum';
 import { EActivityTypes } from '../../@common/enums/activity.enum';
 import { RunDto } from '../../@common/dto/run/runs.dto';
 import { DtoUtils } from '../../@common/utils/dto-utils';
+import { MapNotifyDto, UpdateMapNotifyDto } from '../../@common/dto/map/mapNotify.dto';
+import { MapsRepo } from '../maps/maps.repo';
 
 @Injectable()
 export class UsersService {
-    constructor(private readonly userRepo: UsersRepo, private readonly http: HttpService) {}
+    constructor(
+        private readonly userRepo: UsersRepo,
+        // TODO: Delete once Alex figures out DI circ stuff
+        private readonly mapRepo: MapsRepo,
+        private readonly http: HttpService
+    ) {}
 
     //#region Main User Functions
 
@@ -209,6 +216,8 @@ export class UsersService {
     public async GetProfile(userID: number): Promise<ProfileDto> {
         const dbResponse = await this.userRepo.GetProfile(userID);
 
+        if (!dbResponse) throw new NotFoundException();
+
         return DtoUtils.Factory(ProfileDto, dbResponse);
     }
 
@@ -255,7 +264,7 @@ export class UsersService {
     public async GetFollowStatus(localUserID: number, targetUserID: number): Promise<FollowStatusDto> {
         const targetUser = await this.userRepo.Get(targetUserID);
 
-        if (!targetUser) throw new NotFoundException('Target user not found.');
+        if (!targetUser) throw new NotFoundException('Target user not found');
 
         const localToTarget = await this.userRepo.GetFollower(localUserID, targetUserID);
         const targetToLocal = await this.userRepo.GetFollower(targetUserID, localUserID);
@@ -269,15 +278,17 @@ export class UsersService {
     public async FollowUser(localUserID: number, targetUserID: number) {
         const targetUser = await this.userRepo.Get(targetUserID);
 
-        if (!targetUser) throw new NotFoundException('Target user not found.');
+        if (!targetUser) throw new NotFoundException('Target user not found');
 
         await this.userRepo.CreateFollow(localUserID, targetUserID);
     }
 
     public async UpdateFollow(localUserID: number, targetUserID: number, updateDto: UpdateFollowStatusDto) {
+        if (!updateDto) return;
+
         const targetUser = await this.userRepo.Get(targetUserID);
 
-        if (!targetUser) throw new NotFoundException('Target user not found.');
+        if (!targetUser) throw new NotFoundException('Target user not found');
 
         await this.userRepo.UpdateFollow(localUserID, targetUserID, updateDto.notifyOn);
     }
@@ -285,9 +296,48 @@ export class UsersService {
     public async UnfollowUser(localUserID: number, targetUserID: number) {
         const targetUser = await this.userRepo.Get(targetUserID);
 
-        if (!targetUser) throw new NotFoundException('Target user not found.');
+        if (!targetUser) throw new NotFoundException('Target user not found');
 
-        await this.userRepo.DeleteFollow(localUserID, targetUserID);
+        // Prisma errors on trying to delete an entry that does not exist
+        // (https://github.com/prisma/prisma/issues/4072), where we want to just 404.
+        await this.userRepo.DeleteFollow(localUserID, targetUserID).catch(() => {
+            throw new NotFoundException('Target follow does not exist');
+        });
+    }
+
+    //#endregion
+
+    //#region Map Notify
+
+    public async GetMapNotifyStatus(userID: number, mapID: number): Promise<MapNotifyDto> {
+        const targetMap = await this.mapRepo.Get(mapID);
+
+        if (!targetMap) throw new NotFoundException('Target map not found');
+
+        const dbResponse = await this.userRepo.GetMapNotify(userID, mapID);
+
+        return DtoUtils.Factory(MapNotifyDto, dbResponse, true);
+    }
+
+    public async UpdateMapNotify(userID: number, mapID: number, updateDto: UpdateMapNotifyDto) {
+        if (!updateDto || !updateDto.notifyOn)
+            throw new BadRequestException('Request does not contain valid notification type data');
+
+        const targetMap = await this.mapRepo.Get(mapID);
+
+        if (!targetMap) throw new NotFoundException('Target map not found');
+
+        await this.userRepo.UpsertMapNotify(userID, mapID, updateDto.notifyOn);
+    }
+
+    public async RemoveMapNotify(userID: number, mapID: number) {
+        const targetMap = await this.mapRepo.Get(mapID);
+
+        if (!targetMap) throw new NotFoundException('Target map not found');
+
+        await this.userRepo.DeleteMapNotify(userID, mapID).catch(() => {
+            throw new NotFoundException('Target map notification does not exist');
+        });
     }
 
     //#endregion

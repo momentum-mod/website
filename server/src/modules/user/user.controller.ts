@@ -9,6 +9,7 @@ import {
     ParseIntPipe,
     Patch,
     Post,
+    Put,
     Query,
     UseGuards
 } from '@nestjs/common';
@@ -30,6 +31,7 @@ import { LoggedInUser } from '../../@common/decorators/logged-in-user.decorator'
 import { UserGetQuery } from './queries/get.query.dto';
 import { FollowStatusDto, UpdateFollowStatusDto } from '../../@common/dto/user/followers.dto';
 import { ProfileDto } from '../../@common/dto/user/profile.dto';
+import { MapNotifyDto, UpdateMapNotifyDto } from '../../@common/dto/map/mapNotify.dto';
 
 @ApiBearerAuth()
 @Controller('api/v1/user')
@@ -144,15 +146,62 @@ export class UserController {
     }
 
     //#endregion
+
+    //#region Map Notify
+
+    @Get('/notifyMap/:mapID')
+    @ApiOperation({ summary: 'Returns if the user has notifications for the given map' })
+    @ApiParam({
+        name: 'mapID',
+        type: Number,
+        description: 'ID of the map to check the notification for',
+        required: true
+    })
+    @ApiOkResponse({ type: MapNotifyDto, description: 'MapNotifyDTO if map notify was found, empty if not' })
+    @ApiNotFoundResponse({ description: 'The map does not exist' })
+    public GetMapNotifyStatus(
+        @LoggedInUser('id') userID: number,
+        @Param('mapID', ParseIntPipe) mapID: number
+    ): Promise<MapNotifyDto> {
+        return this.usersService.GetMapNotifyStatus(userID, mapID);
+    }
+
+    @Put('/notifyMap/:mapID')
+    @HttpCode(HttpStatus.NO_CONTENT)
+    @ApiOperation({ summary: 'Creates or updates the notification status for the given map' })
+    @ApiParam({
+        name: 'mapID',
+        type: Number,
+        description: 'ID of the map to create/update the notification for',
         required: true
     })
     @ApiBody({
-        type: UpdateFollowStatusDto,
-        description: 'Updates what activities the player wants to be notified of from the given user',
+        type: UpdateMapNotifyDto,
+        description: 'Flags expressing what activities the player wants to be notified of from the given map',
         required: true
     })
-    public UnfollowUser(@LoggedInUser('id') localUserID: number, @Param('userID', ParseIntPipe) targetUserID: number) {
-        return this.usersService.UnfollowUser(localUserID, targetUserID);
+    @ApiBadRequestResponse({ description: 'Invalid notifyOn data' })
+    @ApiNotFoundResponse({ description: 'The map does not exist' })
+    public UpdateMapNotify(
+        @LoggedInUser('id') userID: number,
+        @Param('mapID', ParseIntPipe) mapID: number,
+        @Body() updateDto: UpdateMapNotifyDto
+    ) {
+        return this.usersService.UpdateMapNotify(userID, mapID, updateDto);
+    }
+
+    @Delete('/notifyMap/:mapID')
+    @HttpCode(HttpStatus.NO_CONTENT)
+    @ApiOperation({ summary: 'Disables notifications for the given map' })
+    @ApiParam({
+        name: 'mapID',
+        type: Number,
+        description: 'ID of the map to delete the notification for',
+        required: true
+    })
+    @ApiNotFoundResponse({ description: 'The map does not exist' })
+    public RemoveMapNotify(@LoggedInUser('id') userID: number, @Param('mapID', ParseIntPipe) mapID: number) {
+        return this.usersService.RemoveMapNotify(userID, mapID);
     }
 
     //#endregion
