@@ -323,25 +323,26 @@ describe('user', () => {
         it('should return relationships of the given and local user who follow each other', async () => {
             const res = await TestUtil.get(`user/follow/${user2.id}`, 200);
 
-            expect(res.body.local.followedID).toBe(user2.id);
-            expect(res.body.local.followeeID).toBe(user1.id);
-            expect(res.body.target.followedID).toBe(user1.id);
-            expect(res.body.target.followeeID).toBe(user2.id);
+            console.log(res.body);
+            expect(res.body.local.followed.id).toBe(user2.id);
+            expect(res.body.local.followee.id).toBe(user1.id);
+            expect(res.body.target.followed.id).toBe(user1.id);
+            expect(res.body.target.followee.id).toBe(user2.id);
         });
 
         it('should return a relationship of the local user who follows the target, but not the opposite', async () => {
             const res = await TestUtil.get(`user/follow/${user3.id}`, 200);
 
-            expect(res.body.local.followedID).toBe(user3.id);
-            expect(res.body.local.followeeID).toBe(user1.id);
+            expect(res.body.local.followed.id).toBe(user3.id);
+            expect(res.body.local.followee.id).toBe(user1.id);
             expect(res.body).not.toHaveProperty('target');
         });
 
         it('should return a relationship of the target user who follows the local user, but not the opposite', async () => {
             const res = await TestUtil.get(`user/follow/${user1.id}`, 200, {}, user3Token);
 
-            expect(res.body.target.followedID).toBe(user3.id);
-            expect(res.body.target.followeeID).toBe(user1.id);
+            expect(res.body.target.followed.id).toBe(user3.id);
+            expect(res.body.target.followee.id).toBe(user1.id);
             expect(res.body).not.toHaveProperty('local');
         });
 
@@ -369,8 +370,8 @@ describe('user', () => {
 
             const res2 = await TestUtil.get(`user/follow/${user3.id}`, 200, {}, user2Token);
 
-            expect(res2.body.local.followedID).toBe(user3.id);
-            expect(res2.body.local.followeeID).toBe(user2.id);
+            expect(res2.body.local.followed.id).toBe(user3.id);
+            expect(res2.body.local.followee.id).toBe(user2.id);
         });
 
         it('should respond with 404 if the target user does not exist', async () => {
@@ -406,17 +407,15 @@ describe('user', () => {
 
     describe('DELETE /api/v1/user/follow/{userID}', () => {
         it('should remove the user from the local users follow list', async () => {
-            const res = await TestUtil.get(`user/follow/${user2.id}`, 200, {});
-
-            expect(res.body).toHaveProperty('local');
-            expect(res.body.local.followedID).toBe(user3.id);
-            expect(res.body.local.followeeID).toBe(user2.id);
-
             await TestUtil.delete(`user/follow/${user2.id}`, 204);
 
-            const res2 = await TestUtil.get(`user/follow/${user2.id}`, 200, {});
+            const res = await TestUtil.get(`user/follow/${user2.id}`, 200, {});
 
-            expect(res2.body).not.toHaveProperty('local');
+            expect(res.body).not.toHaveProperty('local');
+        });
+
+        it('should respond with 404 if the user is not followed by the local user ', async () => {
+            await TestUtil.delete(`user/follow/${user1.id}`, 404, user3Token);
         });
 
         it('should respond with 404 if the target user does not exist', async () => {

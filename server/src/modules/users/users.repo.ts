@@ -223,6 +223,10 @@ export class UsersRepo {
                     followedID: followedID,
                     followeeID: followeeID
                 }
+            },
+            include: {
+                followed: true,
+                followee: true
             }
         });
     }
@@ -230,8 +234,8 @@ export class UsersRepo {
     async CreateFollow(followeeID: number, followedID: number) {
         await this.prisma.follow.create({
             data: {
-                followed: { connect: { id: followedID } },
-                followee: { connect: { id: followeeID } }
+                followedID: followedID,
+                followeeID: followeeID
             }
         });
     }
