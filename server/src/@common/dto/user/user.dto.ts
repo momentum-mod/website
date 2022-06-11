@@ -1,7 +1,7 @@
 import { User } from '@prisma/client';
 import { appConfig } from '../../../../config/config';
 import { ERole, EBan } from '../../enums/user.enum';
-import { ApiProperty, PartialType } from '@nestjs/swagger';
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { IsDate, IsEnum, IsInt, IsISO31661Alpha2, IsOptional, IsString } from 'class-validator';
 import { Exclude, Expose, Transform } from 'class-transformer';
 import { IsSteamCommunityID } from '../../validators/is-steam-id.validator';
@@ -11,27 +11,44 @@ import { MapRankDto } from '../map/mapRank.dto';
 
 // TODO: UserStats in here in future as well
 export class UserDto implements User {
-    @ApiProperty()
+    @ApiProperty({
+        type: Number,
+        description: 'The unique numeric ID of the user'
+    })
     @IsInt()
     id: number;
 
-    @ApiProperty()
+    @ApiProperty({
+        type: String,
+        description: 'The Steam community ID (i.e. the uint64 format, not STEAM:...) of the user'
+    })
     @IsSteamCommunityID()
     steamID: string;
 
-    @ApiProperty()
+    @ApiPropertyOptional({
+        type: String,
+        description:
+            "The user's alias, which is either a current or previous Steam name, or something they set themselves"
+    })
     @IsString()
     alias: string;
 
-    @ApiProperty()
+    @ApiPropertyOptional({
+        enum: ERole
+    })
     @IsEnum(ERole)
     roles: ERole;
 
-    @ApiProperty()
+    @ApiPropertyOptional({
+        enum: EBan
+    })
     @IsEnum(EBan)
     bans: EBan;
 
-    @ApiProperty()
+    @ApiPropertyOptional({
+        type: String,
+        description: 'Two-letter (ISO 3166-1 Alpha-2) country code for the user'
+    })
     @IsISO31661Alpha2()
     country: string;
 
@@ -41,20 +58,21 @@ export class UserDto implements User {
     @Exclude()
     avatar: string;
 
-    @ApiProperty()
+    @ApiPropertyOptional({
+        type: ProfileDto,
+        description: "The user's profile."
+    })
     @IsOptional()
     @Transform(({ value }) => DtoUtils.Factory(ProfileDto, value))
     profile: ProfileDto;
 
-    @ApiProperty()
+    @ApiPropertyOptional({
+        type: MapRankDto,
+        description: 'The map rank data for the user on a specific map'
+    })
     @IsOptional()
     @Transform(({ value }) => DtoUtils.Factory(MapRankDto, value))
     mapRank: MapRankDto;
-
-    // @ApiProperty()
-    // @IsOptional()
-    // @Transform(({ value }) => new MapRankDto(value))
-    // mapRank: MapRankDto;
 
     @ApiProperty()
     @IsDate()
@@ -76,12 +94,20 @@ export class UserDto implements User {
 }
 
 export class UpdateUserDto {
-    @ApiProperty()
+    @ApiProperty({
+        required: false,
+        type: String,
+        description: 'The new alias to set'
+    })
     // TODO: Idk what the fuck is going on here. Apparently the incoming data aren't strings??
     // @IsString()
     alias: string;
 
-    @ApiProperty()
+    @ApiProperty({
+        required: false,
+        type: String,
+        description: 'The new bio to set'
+    })
     // @IsString()
     bio: string;
 }

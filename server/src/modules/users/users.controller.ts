@@ -1,5 +1,14 @@
 import { Controller, Get, Param, ParseIntPipe, Query, UseGuards } from '@nestjs/common';
-import { ApiBearerAuth, ApiOperation, ApiTags, ApiParam } from '@nestjs/swagger';
+import {
+    ApiBearerAuth,
+    ApiOperation,
+    ApiTags,
+    ApiParam,
+    ApiExtraModels,
+    ApiBadRequestResponse,
+    ApiOkResponse,
+    ApiNotFoundResponse
+} from '@nestjs/swagger';
 import { JwtAuthGuard } from '../auth/jwt/jwt-auth.guard';
 import { UsersService } from './users.service';
 import { UserDto } from '../../@common/dto/user/user.dto';
@@ -17,12 +26,15 @@ import { RunDto } from '../../@common/dto/run/runs.dto';
 @ApiBearerAuth()
 @Controller('/api/v1/users')
 @ApiTags('Users')
+@ApiExtraModels(PagedResponseDto)
 @UseGuards(JwtAuthGuard)
 export class UsersController {
     constructor(private readonly usersService: UsersService) {}
 
     @Get()
     @ApiOperation({ summary: 'Returns all users' })
+    @ApiOkPaginatedResponse(UserDto, { description: 'Paginated list of users' })
+    @ApiBadRequestResponse({ description: 'The query contained conflicting parameters' })
     public async GetAll(@Query() query?: UsersGetAllQuery): Promise<PagedResponseDto<UserDto>> {
         return this.usersService.GetAll(
             query.skip,
@@ -43,6 +55,8 @@ export class UsersController {
         description: 'Target User ID',
         required: true
     })
+    @ApiOkResponse({ type: UserDto, description: 'The found user' })
+    @ApiNotFoundResponse({ description: 'User was not found' })
     public async GetUser(
         @Param('userID', ParseIntPipe) userID: number,
         @Query() query?: UsersGetQuery
@@ -52,6 +66,8 @@ export class UsersController {
 
     @Get(':userID/profile')
     @ApiOperation({ summary: "Returns single user's profile" })
+    @ApiOkResponse({ type: ProfileDto, description: "The found user's profile" })
+    @ApiNotFoundResponse({ description: 'Profile was not found' })
     @ApiParam({
         name: 'userID',
         type: Number,
@@ -70,6 +86,7 @@ export class UsersController {
         description: 'Target User ID',
         required: true
     })
+    @ApiOkPaginatedResponse(UserDto, { description: "Paginated list of the user's activites" })
     public async GetActivities(
         @Param('userID', ParseIntPipe) userID: number,
         @Query() query?: UsersGetActivitiesQuery
@@ -78,13 +95,14 @@ export class UsersController {
     }
 
     @Get(':userID/followers')
-    @ApiOperation({ summary: "Returns all of a single user's followers" })
+    @ApiOperation({ summary: 'Returns all follows targeting the user' })
     @ApiParam({
         name: 'userID',
         type: Number,
         description: 'Target User ID',
         required: true
     })
+    @ApiOkPaginatedResponse(UserDto, { description: 'Paginated list of the follows targeting the user' })
     public async GetFollowers(
         @Param('userID', ParseIntPipe) userID: number,
         @Query() query?: PaginationQueryDto
@@ -93,13 +111,14 @@ export class UsersController {
     }
 
     @Get(':userID/follows')
-    @ApiOperation({ summary: "Returns all of a single user's followed objects" })
+    @ApiOperation({ summary: 'Returns all the follows for the user' })
     @ApiParam({
         name: 'userID',
         type: Number,
         description: 'Target User ID',
         required: true
     })
+    @ApiOkPaginatedResponse(UserDto, { description: 'Paginated list of the follows for the user' })
     public async GetFollowed(
         @Param('userID') userID: number,
         @Query() query: PaginationQueryDto
@@ -115,6 +134,7 @@ export class UsersController {
         description: 'Target User ID',
         required: true
     })
+    @ApiOkPaginatedResponse(UserDto, { description: 'Paginated list of map credits attributed to the user' })
     public async GetMapCredits(
         @Param('userID') userID: number,
         @Query() query: PaginationQueryDto
@@ -130,6 +150,7 @@ export class UsersController {
         description: 'Target User ID',
         required: true
     })
+    @ApiOkPaginatedResponse(UserDto, { description: "Paginated list of the user's runs" })
     public async GetRuns(
         @Param('userID') userID: number,
         @Query() query: PaginationQueryDto

@@ -7,25 +7,42 @@ import { Expose, Transform } from 'class-transformer';
 import { MapDto } from '../map/map.dto';
 import { DtoUtils } from '../../utils/dto-utils';
 
+// TODO: BaseStatsDTO, various other nested DTOs
+
 export class RunDto implements Run {
-    @ApiProperty()
+    @ApiProperty({
+        type: Number,
+        description: 'The ID of the run'
+    })
     id: bigint;
 
-    @ApiProperty()
+    @ApiProperty({
+        type: Number,
+        description: 'The overall time of the run (ticks * tickRate)'
+    })
     @Expose()
     get time(): number {
         return this.ticks * this.tickRate;
     }
 
-    @ApiProperty()
+    @ApiProperty({
+        type: Number,
+        description: 'The track the run took place on'
+    })
     @IsInt()
     trackNum: number;
 
-    @ApiProperty()
+    @ApiProperty({
+        type: Number,
+        description: 'The number of zones in the run'
+    })
     @IsInt()
     zoneNum: number;
 
-    @ApiProperty()
+    @ApiProperty({
+        type: Number,
+        description: 'The total ticks'
+    })
     @IsInt()
     ticks: number;
 
