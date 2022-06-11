@@ -350,7 +350,6 @@ describe('Users', () => {
 
     describe('GET /api/v1/users/{userID}/profile', () => {
         const expects = (res) => {
-            expect(res.body).toHaveProperty('id');
             expect(res.body).toHaveProperty('bio');
             expect(res.body).toHaveProperty('featuredBadgeID');
             expect(res.body).toHaveProperty('createdAt');
