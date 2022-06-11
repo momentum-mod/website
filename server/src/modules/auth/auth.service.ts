@@ -41,7 +41,7 @@ export class AuthService {
             steamID: usr.steamID,
             roles: usr.roles,
             bans: usr.bans,
-            gameAuth: !!gameAuth
+            gameAuth: Boolean(gameAuth)
         };
         const options = {
             issuer: appConfig.domain,
