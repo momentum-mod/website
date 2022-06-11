@@ -150,12 +150,12 @@ export class UsersService {
 
         const updateInput: Prisma.UserUpdateInput = {};
 
-        if (!update.alias && !update.bio) return;
+        if (!update.alias && !update.bio) throw new BadRequestException('Request contains no valid update data');
 
         // Strict check - we want to handle if alias is empty string
         if (typeof update.alias !== 'undefined') {
             if (user.bans & EBan.BANNED_ALIAS) {
-                throw new ForbiddenException('User is banned from updating their alias.');
+                throw new ForbiddenException('User is banned from updating their alias');
             } else {
                 updateInput.alias = update.alias;
             }
@@ -167,13 +167,13 @@ export class UsersService {
                     roles: ERole.VERIFIED
                 });
 
-                if (verifiedMatches > 0) throw new ConflictException('Alias is in use by another verified user.');
+                if (verifiedMatches > 0) throw new ConflictException('Alias is in use by another verified user');
             }
         }
 
         if (update.bio) {
             if (user.bans & EBan.BANNED_BIO) {
-                throw new ForbiddenException('User is banned from updating their bio.');
+                throw new ForbiddenException('User is banned from updating their bio');
             } else {
                 updateInput.profile = {
                     update: { bio: update.bio }
@@ -208,8 +208,6 @@ export class UsersService {
 
     public async GetProfile(userID: number): Promise<ProfileDto> {
         const dbResponse = await this.userRepo.GetProfile(userID);
-
-        if (!dbResponse) throw new NotFoundException();
 
         return DtoUtils.Factory(ProfileDto, dbResponse);
     }
@@ -376,11 +374,11 @@ export class UsersService {
         );
 
         if (getPlayerResponse.response.error) {
-            return Promise.reject(new HttpException('Failed to get any player summaries.', 500));
+            return Promise.reject(new HttpException('Failed to get any player summaries', 500));
         }
 
         if (!getPlayerResponse.response.players[0]) {
-            return Promise.reject(new HttpException('Failed to get player summary.', 500));
+            return Promise.reject(new HttpException('Failed to get player summary', 500));
         }
 
         return getPlayerResponse.response.players[0];

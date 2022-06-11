@@ -1,29 +1,37 @@
 import { Follow } from '@prisma/client';
 import { UserDto } from './user.dto';
-import { ApiProperty } from '@nestjs/swagger';
+import { ApiProperty, ApiPropertyOptional, PickType } from '@nestjs/swagger';
 import { EActivityTypes } from '../../enums/activity.enum';
-import { IsDate, IsEnum, IsInt } from 'class-validator';
+import { IsDate, IsEnum } from 'class-validator';
 import { DtoUtils } from '../../utils/dto-utils';
-import { Transform } from 'class-transformer';
+import { Exclude, Transform } from 'class-transformer';
 
 export class FollowerDto implements Partial<Follow> {
-    @ApiProperty()
+    @ApiPropertyOptional({
+        enum: EActivityTypes,
+        description:
+            'The bitwise flags for the activities that the followee will be notified of when they are performed by the user they follow'
+    })
     @IsEnum(EActivityTypes)
     notifyOn: EActivityTypes;
 
-    @ApiProperty()
-    @IsInt()
+    @Exclude()
     followedID: number;
 
-    @ApiProperty()
-    @IsInt()
+    @Exclude()
     followeeID: number;
 
-    @ApiProperty()
+    @ApiPropertyOptional({
+        type: Number,
+        description: 'The user that is being followed'
+    })
     @Transform(({ value }) => DtoUtils.Factory(UserDto, value))
     followed: UserDto;
 
-    @ApiProperty()
+    @ApiProperty({
+        type: Number,
+        description: 'The user that is doing the following'
+    })
     @Transform(({ value }) => DtoUtils.Factory(UserDto, value))
     followee: UserDto;
 
@@ -37,17 +45,21 @@ export class FollowerDto implements Partial<Follow> {
 }
 
 export class FollowStatusDto {
-    @ApiProperty()
+    @ApiPropertyOptional({
+        type: FollowerDto,
+        description:
+            'FollowerDto expressing the relationship between the LOCAL user and the target user, if the local user follows the target user'
+    })
     @Transform(({ value }) => DtoUtils.Factory(FollowerDto, value))
     local?: FollowerDto;
 
-    @ApiProperty()
+    @ApiPropertyOptional({
+        type: FollowerDto,
+        description:
+            'FollowerDto expressing the relationship between the LOCAL user and the TARGET user, if the target user follows the local user'
+    })
     @Transform(({ value }) => DtoUtils.Factory(FollowerDto, value))
     target?: FollowerDto;
 }
 
-export class UpdateFollowStatusDto {
-    @ApiProperty()
-    @IsEnum(EActivityTypes)
-    notifyOn: EActivityTypes;
-}
+export class UpdateFollowStatusDto extends PickType(FollowerDto, ['notifyOn'] as const) {}

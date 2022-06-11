@@ -1,22 +1,28 @@
-import { Profile } from '@prisma/client';
 import { ApiProperty, PartialType } from '@nestjs/swagger';
 import { IsDate, IsInt, IsString } from 'class-validator';
-import { DtoUtils } from '../../utils/dto-utils';
+import { Exclude } from 'class-transformer';
 
 export class ProfileDto {
-    @ApiProperty()
-    @IsInt()
+    @Exclude()
     id: number;
 
-    @ApiProperty()
+    @ApiProperty({
+        type: Number,
+        description: 'The ID of the user'
+    })
+    userID: number;
+
+    @ApiProperty({
+        type: String,
+        description: 'The text-based bio of the user'
+    })
     @IsString()
     bio: string;
 
-    @ApiProperty()
-    @IsInt()
-    userID: number;
-
-    @ApiProperty()
+    @ApiProperty({
+        type: Number,
+        description: 'The ID of the badge of the user'
+    })
     @IsInt()
     featuredBadgeID: number;
 
@@ -28,5 +34,3 @@ export class ProfileDto {
     @IsDate()
     updatedAt: Date;
 }
-
-export class ProfileUpdateDto extends PartialType(ProfileDto) {}
