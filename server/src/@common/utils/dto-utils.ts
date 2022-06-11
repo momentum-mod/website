@@ -1,8 +1,9 @@
-﻿import { PagedResponseDto } from '../dto/common/api-response.dto';
-
-export const DtoUtils = {
-    Factory<Type>(t: { new (): Type }, input: Record<string, unknown>): Type {
-        if (!input) return;
+﻿export const DtoUtils = {
+    Factory<Type>(t: { new (): Type }, input: Record<string, unknown>, nullReturnsEmptyObject = false): Type {
+        if (!input) {
+            if (nullReturnsEmptyObject) return {} as Type;
+            return;
+        }
 
         const dto: Type = new t();
 
@@ -13,15 +14,5 @@ export const DtoUtils = {
         }
 
         return dto;
-    },
-
-    MapPaginatedResponse<Type>(c: { new (): Type }, [data, count]): PagedResponseDto<Type[]> {
-        const dtos = data.map((x) => this.Factory(c, x));
-
-        return {
-            totalCount: count,
-            returnCount: dtos.length,
-            response: dtos
-        };
     }
 };

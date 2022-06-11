@@ -31,7 +31,7 @@ export class MapsController {
     public async GetAllMaps(
         @Query('skip') skip?: number,
         @Query('take') take?: number
-    ): Promise<PagedResponseDto<MapDto[]>> {
+    ): Promise<PagedResponseDto<MapDto>> {
         return this.mapsService.GetAll(skip, take);
     }
 

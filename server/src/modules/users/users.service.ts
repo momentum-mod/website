@@ -37,7 +37,7 @@ export class UsersService {
         playerID?: string,
         playerIDs?: string[],
         mapRank?: number
-    ): Promise<PagedResponseDto<UserDto[]>> {
+    ): Promise<PagedResponseDto<UserDto>> {
         const where: Prisma.UserWhereInput = {};
 
         if (playerID && playerIDs) throw new BadRequestException();
@@ -76,7 +76,7 @@ export class UsersService {
             }
         });
 
-        return DtoUtils.MapPaginatedResponse(UserDto, dbResponse);
+        return new PagedResponseDto<UserDto>(UserDto, dbResponse);
     }
 
     public async Get(id: number, expand?: string[], mapRank?: number): Promise<UserDto> {
@@ -224,7 +224,7 @@ export class UsersService {
         take?: number,
         type?: EActivityTypes,
         data?: bigint
-    ): Promise<PagedResponseDto<ActivityDto[]>> {
+    ): Promise<PagedResponseDto<ActivityDto>> {
         const where: Prisma.ActivityWhereInput = {
             userID: userID,
             type: type,
@@ -235,23 +235,23 @@ export class UsersService {
 
         // Do we want to be so open here? Shouldn't report activity be hidden?
 
-        return DtoUtils.MapPaginatedResponse(ActivityDto, dbResponse);
+        return new PagedResponseDto<ActivityDto>(ActivityDto, dbResponse);
     }
 
     //#endregion
 
     //#region Follows
 
-    public async GetFollowers(id: number, skip?: number, take?: number): Promise<PagedResponseDto<FollowerDto[]>> {
+    public async GetFollowers(id: number, skip?: number, take?: number): Promise<PagedResponseDto<FollowerDto>> {
         const dbResponse = await this.userRepo.GetFollowers(id, skip, take);
 
-        return DtoUtils.MapPaginatedResponse(FollowerDto, dbResponse);
+        return new PagedResponseDto<FollowerDto>(FollowerDto, dbResponse);
     }
 
-    public async GetFollowing(id: number, skip?: number, take?: number): Promise<PagedResponseDto<FollowerDto[]>> {
+    public async GetFollowing(id: number, skip?: number, take?: number): Promise<PagedResponseDto<FollowerDto>> {
         const dbResponse = await this.userRepo.GetFollowing(id, skip, take);
 
-        return DtoUtils.MapPaginatedResponse(FollowerDto, dbResponse);
+        return new PagedResponseDto<FollowerDto>(FollowerDto, dbResponse);
     }
 
     public async GetFollowStatus(localUserID: number, targetUserID: number): Promise<FollowStatusDto> {
@@ -296,20 +296,20 @@ export class UsersService {
 
     //#region Credits
 
-    public async GetMapCredits(id: number, skip?: number, take?: number): Promise<PagedResponseDto<MapCreditDto[]>> {
+    public async GetMapCredits(id: number, skip?: number, take?: number): Promise<PagedResponseDto<MapCreditDto>> {
         const dbResponse = await this.userRepo.GetMapCredits(id, skip, take);
 
-        return DtoUtils.MapPaginatedResponse(MapCreditDto, dbResponse);
+        return new PagedResponseDto<MapCreditDto>(MapCreditDto, dbResponse);
     }
 
     //#endregion
 
     //#region Runs
 
-    public async GetRuns(id: number, skip?: number, take?: number): Promise<PagedResponseDto<RunDto[]>> {
+    public async GetRuns(id: number, skip?: number, take?: number): Promise<PagedResponseDto<RunDto>> {
         const dbResponse = await this.userRepo.GetRuns(id, skip, take);
 
-        return DtoUtils.MapPaginatedResponse(RunDto, dbResponse);
+        return new PagedResponseDto<RunDto>(RunDto, dbResponse);
     }
 
     //#endregion

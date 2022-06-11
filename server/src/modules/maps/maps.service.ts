@@ -19,10 +19,10 @@ export class MapsService {
 
     //#region Public
 
-    public async GetAll(skip?: number, take?: number): Promise<PagedResponseDto<MapDto[]>> {
+    public async GetAll(skip?: number, take?: number): Promise<PagedResponseDto<MapDto>> {
         const dbResponse = await this.mapRepo.GetAll(undefined, skip, take);
 
-        return DtoUtils.MapPaginatedResponse(MapDto, dbResponse);
+        return new PagedResponseDto<MapDto>(MapDto, dbResponse);
     }
 
     public async Get(id: number): Promise<MapDto> {
