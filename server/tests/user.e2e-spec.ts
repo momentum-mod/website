@@ -183,6 +183,21 @@ describe('user', () => {
                     data: 101n,
                     type: EActivityTypes.MAP_UPLOADED,
                     userID: user1.id
+                },
+                {
+                    data: 4n,
+                    type: EActivityTypes.WR_ACHIEVED,
+                    userID: user2.id
+                },
+                {
+                    data: 4n,
+                    type: EActivityTypes.REVIEW_MADE,
+                    userID: user2.id
+                },
+                {
+                    data: 5n,
+                    type: EActivityTypes.PB_ACHIEVED,
+                    userID: user3.id
                 }
             ]
         });
@@ -581,6 +596,77 @@ describe('user', () => {
             await TestUtil.get(`user/activities`, 401, {}, null);
         });
     });
+
+    describe('GET /api/v1/user/activities/followed', () => {
+        const expects = (res) => {
+            expect(res.body.response).toBeInstanceOf(Array);
+            res.body.response.forEach((r, index) => {
+                ['data', 'type', 'createdAt', 'updatedAt'].forEach((p) => expect(r).toHaveProperty(p));
+                expect(r.user).toHaveProperty('alias');
+            });
+        };
+
+        it('should retrieve a list of activities from the local users followed users', async () => {
+            const res = await TestUtil.get('user/activities/followed', 200);
+
+            expect(res.body.totalCount).toBe(2);
+            expect(res.body.returnCount).toBe(2);
+
+            expect(res.body.response[0].user.alias).toBe(user2.alias);
+            expect(res.body.response[1].user.alias).toBe(user2.alias);
+        });
+
+        it('should respond with a limited list of activities for the user when using the take query param', async () => {
+            await TestUtil.takeTest(`user/activities/followed`, expects);
+        });
+
+        it('should respond with a different list of activities for the user when using the skip query param', async () => {
+            await TestUtil.skipTest(`user/activities/followed`, expects);
+        });
+
+        it('should respond with a filtered list of activities for the user when using the type query param', async () => {
+            const res = await TestUtil.get(`user/activities/followed`, 200, {
+                type: EActivityTypes.WR_ACHIEVED
+            });
+
+            expects(res);
+            expect(res.body.totalCount).toBe(1);
+            expect(res.body.returnCount).toBe(1);
+            expect(res.body.response[0].type).toBe(EActivityTypes.WR_ACHIEVED);
+        });
+
+        it('should respond with a filtered list of activities for the user when using the data query param', async () => {
+            const res = await TestUtil.get(`user/activities/followed`, 200, {
+                data: 4n
+            });
+
+            expects(res);
+            expect(res.body.totalCount).toBe(2);
+            expect(res.body.returnCount).toBe(2);
+        });
+
+        it('should respond with an empty list of activities for the user when using the data query param with nonexistent data', async () => {
+            const res = await TestUtil.get(`user/activities/followed`, 200, {
+                data: 1123412341n
+            });
+            expect(res.body.totalCount).toBe(0);
+            expect(res.body.returnCount).toBe(0);
+            expect(res.body.response).toBeInstanceOf(Array);
+        });
+
+        it('should respond with an empty list of activities for a user that is not following anyone', async () => {
+            const res = await TestUtil.get(`user/activities/followed`, 200, {}, user3Token);
+
+            expect(res.body.totalCount).toBe(0);
+            expect(res.body.returnCount).toBe(0);
+            expect(res.body.response).toBeInstanceOf(Array);
+        });
+
+        it('should respond with 401 when no access token is provided', async () => {
+            await TestUtil.get(`user/activities/followed`, 401, {}, null);
+        });
+    });
+
     //
     // describe('GET /api/v1/user/notifications', () => {
     //     it('should respond with notification data', async () => {
@@ -966,80 +1052,4 @@ describe('user', () => {
     //                 .expect('Content-Type', /json/));
     //     });
     //
-    //
-    //     describe('GET /api/v1/user/activities/followed', () => {
-    //         it('should add user to authenticated users follow list', () =>
-    //             request(global.server)
-    //                 .post('/api/v1/user/follow')
-    //                 .set('Authorization', 'Bearer ' + global.accessToken)
-    //                 .send({
-    //                     userID: user2.id
-    //                 })
-    //                 .expect(200)
-    //                 .expect('Content-Type', /json/));
-    //
-    //         it('should retrieve a list of activities from the local users followed users', async () => {
-    //             const res = await request(global.server)
-    //                 .get('/api/v1/user/activities/followed')
-    //                 .set('Authorization', 'Bearer ' + global.accessToken)
-    //                 .expect(200);
-    //             expect(Array.isArray(res.body.activities)).toBe(true);
-    //             expect(res.body.activities).toHaveLength(4);
-    //             expect(res.body.activities[0]).toHaveProperty('id');
-    //         });
-    //
-    //         it('should retrieve a filtered list of activities from the local users followed users using the limit parameter', async () => {
-    //             const res = await request(global.server)
-    //                 // limit... is the limit I set -1. limit three returns 2 and limit two returns 1
-    //                 .get('/api/v1/user/activities/followed')
-    //                 .set('Authorization', 'Bearer ' + global.accessToken)
-    //                 .query({ limit: 2 })
-    //                 .expect(200);
-    //             expect(Array.isArray(res.body.activities)).toBe(true);
-    //             //     expect(res.body.activities).to.have.length(1);
-    //             expect(res.body.activities[0]).toHaveProperty('id');
-    //         });
-    //
-    //         it('should retrieve a filtered list of activities from the local users followed users using the offset parameter', async () => {
-    //             const res = await request(global.server)
-    //                 // same problem as offset i think
-    //                 // length issue
-    //                 .get('/api/v1/user/activities/followed')
-    //                 .set('Authorization', 'Bearer ' + global.accessToken)
-    //                 .query({ offset: 1 })
-    //                 .expect(200);
-    //             expect(Array.isArray(res.body.activities)).toBe(true);
-    //             //     expect(res.body.activities).to.have.length(1);
-    //             expect(res.body.activities[0]).toHaveProperty('id');
-    //         });
-    //
-    //         it('should retrieve a filtered list of activities from the local users followed users using the type parameter', async () => {
-    //             const res = await request(global.server)
-    //                 .get('/api/v1/user/activities/followed')
-    //                 .set('Authorization', 'Bearer ' + global.accessToken)
-    //                 .query({ type: EActivityTypes.MAP_APPROVED })
-    //                 .expect(200);
-    //             expect(Array.isArray(res.body.activities)).toBe(true);
-    //             expect(res.body.activities).toHaveLength(2);
-    //             expect(res.body.activities[0]).toHaveProperty('id');
-    //         });
-    //
-    //         it('should retrieve a filtered list of activities from the local users followed users using the data parameter', async () => {
-    //             const res = await request(global.server)
-    //                 .get('/api/v1/user/activities/followed')
-    //                 .set('Authorization', 'Bearer ' + global.accessToken)
-    //                 .query({ data: 1337 })
-    //                 .expect(200);
-    //             expect(Array.isArray(res.body.activities)).toBe(true);
-    //             expect(res.body.activities).toHaveLength(2);
-    //             expect(res.body.activities[0]).toHaveProperty('id');
-    //         });
-    //
-    //         it('should respond with 401 when no access token is provided', () =>
-    //             request(global.server)
-    //                 .get('/api/v1/user/activities/followed')
-    //                 .expect(401)
-    //                 .expect('Content-Type', /json/));
-    //     });
-    // });
 });
