@@ -244,6 +244,29 @@ export class UsersService {
 
         return new PagedResponseDto<ActivityDto>(ActivityDto, dbResponse);
     }
+    public async GetFollowedActivities(
+        userID: number,
+        skip?: number,
+        take?: number,
+        type?: EActivityTypes,
+        data?: bigint
+    ): Promise<PagedResponseDto<ActivityDto>> {
+        const follows = await this.userRepo.GetFollowing(userID);
+
+        const following = follows[0].map((follow) => follow.followedID);
+
+        const where: Prisma.ActivityWhereInput = {
+            userID: {
+                in: following
+            },
+            type: type,
+            data: data
+        };
+
+        const dbResponse = await this.userRepo.GetActivities(where, skip, take);
+
+        return new PagedResponseDto<ActivityDto>(ActivityDto, dbResponse);
+    }
 
     //#endregion
 

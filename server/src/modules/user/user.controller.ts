@@ -207,20 +207,34 @@ export class UserController {
         return this.usersService.RemoveMapNotify(userID, mapID);
     }
 
+    //#endregion
+
+    //#region Activities
+
     @Get('/activities')
     @ApiOperation({ summary: "Returns all of the local user's activities" })
-    @ApiParam({
-        name: 'userID',
-        type: Number,
-        description: 'Target User ID',
-        required: true
-    })
     @ApiOkPaginatedResponse(UserDto, { description: "Paginated list of the local user's activites" })
     public async GetActivities(
         @LoggedInUser('id') userID: number,
         @Query() query?: UsersGetActivitiesQuery
     ): Promise<PagedResponseDto<ActivityDto>> {
         return this.usersService.GetActivities(userID, query.skip, query.take, query.type, query.data);
+    }
+
+    @Get('/activities/followed')
+    @ApiOperation({ summary: "Returns activities of the user's followers" })
+    @ApiParam({
+        name: 'userID',
+        type: Number,
+        description: 'Target User ID',
+        required: true
+    })
+    @ApiOkPaginatedResponse(UserDto, { description: "Paginated list of the activities of the user's followers" })
+    public async GetFollowedActivities(
+        @LoggedInUser('id') userID: number,
+        @Query() query?: UsersGetActivitiesQuery
+    ): Promise<PagedResponseDto<ActivityDto>> {
+        return this.usersService.GetFollowedActivities(userID, query.skip, query.take, query.type, query.data);
     }
 
     //#endregion
