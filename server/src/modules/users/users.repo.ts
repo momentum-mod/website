@@ -69,7 +69,7 @@ export class UsersRepo {
     async Get(userID: number, include?: Prisma.UserInclude): Promise<User> {
         const where: Prisma.UserWhereUniqueInput = { id: userID };
 
-        return await this.prisma.user.findFirst({
+        return await this.prisma.user.findUnique({
             where: where,
             include: include
         });
@@ -83,7 +83,7 @@ export class UsersRepo {
         const where: Prisma.UserWhereUniqueInput = {};
         where.steamID = steamID;
 
-        return await this.prisma.user.findFirst({
+        return await this.prisma.user.findUnique({
             where: where
         });
     }
