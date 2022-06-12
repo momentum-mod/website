@@ -6,9 +6,8 @@ import { EBan, ERole } from '../src/@common/enums/user.enum';
 import { TestUtil } from './util';
 import { AuthService } from '../src/modules/auth/auth.service';
 import { EActivityTypes } from '../src/@common/enums/activity.enum';
-import { User } from '@prisma/client';
 
-describe('user', () => {
+describe('User', () => {
     let user1, user2, user2Token, user3, user3Token, admin, adminGame, adminAccessToken, map;
 
     beforeEach(async () => {
@@ -320,7 +319,8 @@ describe('user', () => {
         });
     });
 
-    // Come back to this test when the functionality is done
+    // Come back to this after doing the Auth stuff for it, no point yet.
+    // Note that I don't think this functionality was every written on the old API.
 
     /*
     describe('DELETE /api/v1/user/profile/social/{type}', () => {
@@ -358,7 +358,6 @@ describe('user', () => {
         it('should return relationships of the given and local user who follow each other', async () => {
             const res = await TestUtil.get(`user/follow/${user2.id}`, 200);
 
-            console.log(res.body);
             expect(res.body.local.followed.id).toBe(user2.id);
             expect(res.body.local.followee.id).toBe(user1.id);
             expect(res.body.target.followed.id).toBe(user1.id);
@@ -429,6 +428,10 @@ describe('user', () => {
             const res2 = await TestUtil.get(`user/follow/${user2.id}`, 200, {});
 
             expect(res2.body.local.notifyOn).toBe(EActivityTypes.REVIEW_MADE);
+        });
+
+        it('should respond with 400 if the body is invalid', async () => {
+            const res = await TestUtil.get(`user/follow/${user2.id}`, 200, { notifyOn: 'burger' });
         });
 
         it('should respond with 404 if the target user does not exist', async () => {
