@@ -209,7 +209,7 @@ model Notification {
     user   User @relation(fields: [userID], references: [id], onDelete: Cascade)
     userID Int
 
-    activities Activity @relation(fields: [activityID], references: [id], onDelete: Cascade)
+    activity   Activity @relation(fields: [activityID], references: [id], onDelete: Cascade)
     activityID Int
 
     createdAt DateTime @default(now())

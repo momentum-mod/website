@@ -1,6 +1,17 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaRepo } from '../prisma/prisma.repo';
-import { Activity, Follow, MapCredit, MapNotify, Prisma, Profile, Run, User, UserAuth } from '@prisma/client';
+import {
+    Activity,
+    Follow,
+    MapCredit,
+    MapNotify,
+    Prisma,
+    Profile,
+    Run,
+    User,
+    UserAuth,
+    Notification
+} from '@prisma/client';
 
 @Injectable()
 export class UsersRepo {
@@ -252,6 +263,63 @@ export class UsersRepo {
                     followedID: followedID,
                     followeeID: followeeID
                 }
+            }
+        });
+    }
+
+    //#endregion
+
+    //#region Notications
+
+    async GetNotification(notificationID: number): Promise<Notification> {
+        return await this.prisma.notification.findUnique({
+            where: {
+                id: notificationID
+            }
+        });
+    }
+
+    async GetNotifications(userID: number, skip?: number, take?: number): Promise<[Notification[], number]> {
+        const count = await this.prisma.notification.count({
+            where: {
+                userID: userID
+            }
+        });
+
+        const notifications = await this.prisma.notification.findMany({
+            where: {
+                userID: userID
+            },
+            skip: skip,
+            take: take,
+            include: {
+                user: {
+                    include: {
+                        profile: true
+                    }
+                },
+                activity: true
+            }
+        });
+
+        return [notifications, count];
+    }
+
+    async UpdateNotification(notificationID: number, read: boolean) {
+        await this.prisma.notification.update({
+            where: {
+                id: notificationID
+            },
+            data: {
+                read: read
+            }
+        });
+    }
+
+    async DeleteNotification(notificationID: number) {
+        await this.prisma.notification.delete({
+            where: {
+                id: notificationID
             }
         });
     }
