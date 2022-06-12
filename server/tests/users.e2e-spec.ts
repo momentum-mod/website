@@ -189,16 +189,11 @@ describe('Users', () => {
     describe(`GET /api/v1/users`, () => {
         const expects = (res: request.Response) => {
             expect(res.body.response).toBeInstanceOf(Array);
-            res.body.response.forEach((user) => {
-                expect(user).toHaveProperty('id');
-                expect(user).toHaveProperty('alias');
-                expect(user).toHaveProperty('steamID');
-                expect(user).toHaveProperty('roles');
-                expect(user).toHaveProperty('bans');
-                expect(user).toHaveProperty('avatarURL');
-                expect(user).toHaveProperty('createdAt');
-                expect(user).toHaveProperty('updatedAt');
-            });
+            res.body.response.forEach((user) =>
+                ['id', 'alias', 'steamID', 'roles', 'bans', 'avatarURL', 'createdAt', 'updatedAt'].forEach((p) =>
+                    expect(user).toHaveProperty(p)
+                )
+            );
         };
 
         it('should respond with array of users', async () => {
@@ -207,7 +202,6 @@ describe('Users', () => {
             expects(res);
             expect(res.body.totalCount).toBeGreaterThanOrEqual(2);
             expect(res.body.returnCount).toBeGreaterThanOrEqual(2);
-            expect(res.body.response[0].alias).toBe(user1.alias);
             expect(res.body.response[0]).not.toHaveProperty('profile');
         });
 
@@ -294,14 +288,9 @@ describe('Users', () => {
 
     describe('GET /api/v1/users/{userID}', () => {
         const expects = (res) => {
-            expect(res.body).toHaveProperty('id');
-            expect(res.body).toHaveProperty('alias');
-            expect(res.body).toHaveProperty('steamID');
-            expect(res.body).toHaveProperty('roles');
-            expect(res.body).toHaveProperty('bans');
-            expect(res.body).toHaveProperty('avatarURL');
-            expect(res.body).toHaveProperty('createdAt');
-            expect(res.body).toHaveProperty('updatedAt');
+            ['id', 'alias', 'steamID', 'roles', 'bans', 'avatarURL', 'createdAt', 'updatedAt'].forEach((p) =>
+                expect(res.body).toHaveProperty(p)
+            );
         };
 
         it('should respond with the specified user', async () => {
@@ -350,10 +339,7 @@ describe('Users', () => {
 
     describe('GET /api/v1/users/{userID}/profile', () => {
         const expects = (res) => {
-            expect(res.body).toHaveProperty('bio');
-            expect(res.body).toHaveProperty('featuredBadgeID');
-            expect(res.body).toHaveProperty('createdAt');
-            expect(res.body).toHaveProperty('updatedAt');
+            ['bio', 'featuredBadgeID', 'createdAt', 'updatedAt'].forEach((p) => expect(res.body).toHaveProperty(p));
         };
 
         it('should respond with the specified users profile info', async () => {
@@ -374,11 +360,9 @@ describe('Users', () => {
         const expects = (res) => {
             expect(res.body.response).toBeInstanceOf(Array);
             res.body.response.forEach((r) => {
-                expect(r).toHaveProperty('data');
-                expect(r).toHaveProperty('type');
-                expect(r).toHaveProperty('createdAt');
-                expect(r).toHaveProperty('updatedAt');
+                ['data', 'type', 'createdAt', 'updatedAt'].forEach((p) => expect(r).toHaveProperty(p));
                 expect(r.user).toHaveProperty('alias');
+                expect(r.user.alias).toBe(user1.alias);
             });
         };
 
@@ -546,14 +530,9 @@ describe('Users', () => {
     describe('GET /api/v1/users/{userID}/runs', () => {
         const expects = (res) => {
             res.body.response.forEach((r) => {
-                expect(r).toHaveProperty('time');
-                expect(r).toHaveProperty('trackNum');
-                expect(r).toHaveProperty('zoneNum');
-                expect(r).toHaveProperty('ticks');
-                expect(r).toHaveProperty('tickRate');
-                expect(r).toHaveProperty('flags');
-                expect(r).toHaveProperty('file');
-                expect(r).toHaveProperty('hash');
+                ['time', 'trackNum', 'zoneNum', 'ticks', 'tickRate', 'flags', 'file', 'hash'].forEach((p) =>
+                    expect(r).toHaveProperty(p)
+                );
                 expect(r.time).toBe(r.ticks * r.tickRate);
             });
         };
