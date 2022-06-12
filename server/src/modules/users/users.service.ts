@@ -24,6 +24,7 @@ import { RunDto } from '../../@common/dto/run/runs.dto';
 import { DtoUtils } from '../../@common/utils/dto-utils';
 import { MapNotifyDto, UpdateMapNotifyDto } from '../../@common/dto/map/mapNotify.dto';
 import { MapsRepo } from '../maps/maps.repo';
+import { NotificationDto, UpdateNotificationDto } from '../../@common/dto/user/notification.dto';
 
 @Injectable()
 export class UsersService {
@@ -244,6 +245,7 @@ export class UsersService {
 
         return new PagedResponseDto<ActivityDto>(ActivityDto, dbResponse);
     }
+
     public async GetFollowedActivities(
         userID: number,
         skip?: number,
@@ -326,6 +328,40 @@ export class UsersService {
         await this.userRepo.DeleteFollow(localUserID, targetUserID).catch(() => {
             throw new NotFoundException('Target follow does not exist');
         });
+    }
+
+    //#endregion
+
+    //#region Notifications
+
+    public async GetNotifications(
+        userID: number,
+        skip?: number,
+        take?: number
+    ): Promise<PagedResponseDto<NotificationDto>> {
+        const dbResponse = await this.userRepo.GetNotifications(userID, skip, take);
+
+        return new PagedResponseDto<NotificationDto>(NotificationDto, dbResponse);
+    }
+
+    public async UpdateNotification(userID: number, notificationID: number, updateDto: UpdateNotificationDto) {
+        const notification = await this.userRepo.GetNotification(notificationID);
+
+        if (!notification) throw new NotFoundException('Notification does not exist');
+
+        if (notification.userID !== userID) throw new ForbiddenException('Notification does not belong to user');
+
+        await this.userRepo.UpdateNotification(notificationID, updateDto.read);
+    }
+
+    public async DeleteNotification(userID: number, notificationID: number) {
+        const notification = await this.userRepo.GetNotification(notificationID);
+
+        if (!notification) throw new NotFoundException('Notification does not exist');
+
+        if (notification.userID !== userID) throw new ForbiddenException('Notification does not belong to user');
+
+        await this.userRepo.DeleteNotification(notificationID);
     }
 
     //#endregion

@@ -8,7 +8,7 @@ import { AuthService } from '../src/modules/auth/auth.service';
 import { EActivityTypes } from '../src/@common/enums/activity.enum';
 
 describe('User', () => {
-    let user1, user2, user2Token, user3, user3Token, admin, adminGame, adminAccessToken, map;
+    let user1, user2, user2Token, user3, user3Token, admin, adminGame, adminAccessToken, map, activities;
 
     beforeEach(async () => {
         const prisma: PrismaRepo = global.prisma;
@@ -166,8 +166,8 @@ describe('User', () => {
             ]
         });
 
-        await prisma.activity.createMany({
-            data: [
+        activities = await Promise.all(
+            [
                 {
                     data: 100n,
                     type: EActivityTypes.ALL,
@@ -192,12 +192,19 @@ describe('User', () => {
                     data: 4n,
                     type: EActivityTypes.REVIEW_MADE,
                     userID: user2.id
-                },
-                {
-                    data: 5n,
-                    type: EActivityTypes.PB_ACHIEVED,
-                    userID: user3.id
                 }
+            ].map(
+                async (activity) =>
+                    await prisma.activity.create({
+                        data: activity
+                    })
+            )
+        );
+
+        await prisma.notification.createMany({
+            data: [
+                { userID: user1.id, activityID: activities[0].id, read: false },
+                { userID: user1.id, activityID: activities[1].id, read: true }
             ]
         });
 
@@ -671,182 +678,6 @@ describe('User', () => {
     });
 
     //
-    // describe('GET /api/v1/user/notifications', () => {
-    //     it('should respond with notification data', async () => {
-    //         // ?????
-    //         // const serv = chai.keepOpen();
-    //
-    //         // testUser follows testUser2
-    //         const res1 = await serv
-    //             .post('/api/v1/user/follow')
-    //             .set('Authorization', 'Bearer ' + global.accessToken)
-    //             .send({
-    //                 userID: user2.id
-    //             })
-    //             .expect(200);
-    //
-    //         // changes the follow relationship between testUser and testUser2 to notify when a map is approved
-    //         const res2 = await serv
-    //             .patch('/api/v1/user/follow/' + user2.id)
-    //             .set('Authorization', 'Bearer ' + global.accessToken)
-    //             .send({
-    //                 notifyOn: 1 << activity.ACTIVITY_TYPES.MAP_APPROVED
-    //             })
-    //             .expect(204);
-    //
-    //         // testUser2 creates a map
-    //         const res3 = await serv
-    //             .post('/api/maps')
-    //             .set('Authorization', 'Bearer ' + global.accessToken2)
-    //             .send({
-    //                 name: 'test_map_notif',
-    //                 type: EMapType.SURF,
-    //                 info: {
-    //                     description: 'newmap_5',
-    //                     numTracks: 1,
-    //                     creationDate: new Date()
-    //                 },
-    //                 tracks: [
-    //                     {
-    //                         trackNum: 0,
-    //                         numZones: 1,
-    //                         isLinear: false,
-    //                         difficulty: 5
-    //                     }
-    //                 ],
-    //                 credits: [
-    //                     {
-    //                         userID: user2.id,
-    //                         type: EMapCreditType.AUTHOR
-    //                     }
-    //                 ]
-    //             })
-    //             .expect(200);
-    //
-    //         // upload the map
-    //         const res4 = await serv
-    //             .post(new URL(res3.header.location).pathname)
-    //             .set('Authorization', 'Bearer ' + global.accessToken2)
-    //             .attach('mapFile', fs.readFileSync('test/testMap.bsp'), 'testMap.bsp')
-    //             .status(200);
-    //
-    //         // testadmin approves the map
-    //         const res5 = await serv
-    //             .patch('/api/admin/maps/' + res3.body.id)
-    //             .set('Authorization', 'Bearer ' + adminAccessToken)
-    //             .send({ statusFlag: EMapStatus.APPROVED })
-    //             .status(204);
-    //
-    //         // should get the notification that testUser2's map was approved
-    //         const res6 = await serv
-    //             .get('/api/v1/user/notifications')
-    //             .set('Authorization', 'Bearer ' + global.accessToken)
-    //             .expect(200);
-    //
-    //         expect(res6.body).toHaveProperty('notifications');
-    //         expect(Array.isArray(res6.body.notifications)).toBe(true);
-    //         expect(res6.body.notifications).toHaveLength(1);
-    //
-    //         serv.close();
-    //     });
-    //
-    //     */
-    //     // Commented out until the 0.10.0 replay refactor
-    //     it.skip('should respond with notification data for map notifications', () => {}); /*() => {
-    // 	// enable map notifications for the given map
-    // 	 const res = await request(global.server)
-    // 		.put('/api/v1/user/notifyMap/' + testMap.id)
-    // 		.set('Authorization', 'Bearer ' + global.accessToken)
-    // 		.send({
-    // 			notifyOn: activity.ACTIVITY_TYPES.WR_ACHIEVED
-    // 		})
-    // 		.then(res => {
-    // 			// upload a run session
-    // 			 const res = await request(global.server)
-    // 				.post(`/api/maps/${testMap.id}/session`)
-    // 				.set('Authorization', 'Bearer ' + adminGameAccessToken)
-    // 				.send({
-    // 					trackNum: 0,
-    // 					zoneNum: 0,
-    // 				})
-    // 				.then(res2 => {
-    // 					// update the run session
-    // 					let sesID = res2.body.id;
-    // 					 const res = await request(global.server)
-    // 						.post(`/api/maps/${testMap.id}/session/${sesID}`)
-    // 						.set('Authorization', 'Bearer ' + adminGameAccessToken)
-    // 						.send({
-    // 							zoneNum: 2,
-    // 							tick: 510,
-    // 						})
-    // 						.then(res3 => {
-    // 							// end the run session
-    // 							 const res = await request(global.server)
-    // 								.post(`/api/maps/${testMap.id}/session/1/end`)
-    // 								.set('Authorization', 'Bearer ' + adminGameAccessToken)
-    // 								.set('Content-Type', 'application/octet-stream')
-    // 								.send(
-    // 									fs.readFileSync('test/testRun.momrec')
-    // 								)
-    // 								.then(res4 => {
-    // 									expect(res2).to.have.status(200);
-    // 									expect(res2).to.be.json;
-    // 									expect(res2.body).to.have.property('id');
-    // 									expect(res3).to.have.status(200);
-    // 									expect(res3).to.be.json;
-    // 									expect(res3.body).to.have.property('id');
-    // 									expect(res4).to.have.status(200);
-    // 								})
-    // 						});
-    // 					});
-    // 			});
-    // }); */
-    //
-    //     it('should respond with filtered notification data using the limit parameter', async () => {
-    //         const res = await request(global.server)
-    //             .get('/api/v1/user/notifications')
-    //             .set('Authorization', 'Bearer ' + global.accessToken)
-    //             .query({ limit: 1 })
-    //             .expect(200);
-    //         // TODO: looks like there's stuff missing here.
-    //     });
-    //
-    //     it('should respond with filtered notification data using the offset parameter', async () => {
-    //         const res = await request(global.server)
-    //             .get('/api/v1/user/notifications')
-    //             .set('Authorization', 'Bearer ' + global.accessToken)
-    //             .query({ offset: 0, limit: 1 })
-    //             .expect(200);
-    //         // TODO: as agove
-    //     });
-    //
-    //     describe('PATCH /api/v1/user/notifications/{notifID}', () => {
-    //         it('should update the notification', async () => {
-    //             const res = await request(global.server)
-    //                 .get('/api/v1/user/notifications')
-    //                 .set('Authorization', 'Bearer ' + global.accessToken);
-    //
-    //             const res2 = await request(global.server)
-    //                 .patch('/api/v1/user/notifications/' + res.body.notifications[0].id)
-    //                 .set('Authorization', 'Bearer ' + global.accessToken)
-    //                 .send({ read: true })
-    //                 .expect(204);
-    //             // expect(res2).to.have.status(204);
-    //         });
-    //     });
-    //
-    //     describe('DELETE /api/v1/user/notifications/{notifID}', () => {
-    //         it('should delete the notification', async () => {
-    //             const res = await request(global.server)
-    //                 .get('/api/v1/user/notifications')
-    //                 .set('Authorization', 'Bearer ' + global.accessToken);
-    //             await request(global.server)
-    //                 .delete('/api/v1/user/notifications/' + res.body.notifications[0].id)
-    //                 .set('Authorization', 'Bearer ' + global.accessToken)
-    //                 .expect(200);
-    //         });
-    //     });
-    //
     //     describe('PUT /api/v1/user/maps/library/{mapID}', () => {
     //         it('should add a new map to the local users library', async () => {
     //             const res = await request(global.server)
@@ -1055,4 +886,220 @@ describe('User', () => {
     //                 .expect('Content-Type', /json/));
     //     });
     //
+    describe('GET /api/v1/user/notifications', () => {
+        const expects = (res) => {
+            expect(res.body.response).toBeInstanceOf(Array);
+            res.body.response.forEach((r) => {
+                expect(r).toHaveProperty('read');
+                expect(r.user).toHaveProperty('profile');
+                expect(r.user.profile.bio).toBe(user1.profile.bio);
+            });
+            // TODO: stuff, idk what the dto looks like yet!
+        };
+
+        it('should respond with a list of notifications for the local user', async () => {
+            const res = await TestUtil.get('user/notifications', 200);
+
+            expects(res);
+
+            expect(res.body.totalCount).toBe(2);
+            expect(res.body.returnCount).toBe(2);
+
+            expect(res.body.response[0].read).toBe(false);
+            expect(res.body.response[1].read).toBe(true);
+        });
+
+        it('should respond with a limited list of notifications for the user when using the take query param', async () => {
+            await TestUtil.takeTest(`user/notifications`, expects);
+        });
+
+        it('should respond with a different list of notifications for the user when using the skip query param', async () => {
+            await TestUtil.skipTest(`user/notifications`, expects);
+        });
+
+        it('should respond with 401 when no access token is provided', async () => {
+            await TestUtil.get(`user/notifications`, 401, {}, null);
+        });
+    });
+
+    describe('PATCH /api/v1/user/notifications/{notifID}', () => {
+        it('should update the notification', async () => {
+            const res = await TestUtil.get('user/notifications', 200);
+
+            expect(res.body.response[0].read).toBe(false);
+
+            await TestUtil.patch(`user/notifications/${res.body.response[0].id}`, 204, { read: true });
+
+            const res2 = await TestUtil.get('user/notifications', 200);
+
+            expect(res2.body.response[0].read).toBe(true);
+        });
+
+        it('should respond with 400 if the body is invalid', async () => {
+            await TestUtil.patch(`user/notifications/32476671243`, 400, { read: 'horse' });
+        });
+
+        it('should respond with 404 if the notification does not exist', async () => {
+            await TestUtil.patch(`user/notifications/32476671243`, 404, { read: true });
+        });
+
+        it('should respond with 401 when no access token is provided', async () => {
+            await TestUtil.patch(`user/notifications/1`, 401, {}, null);
+        });
+    });
+
+    describe('DELETE /api/v1/user/notifications/{notifID}', () => {
+        it('should delete the notification', async () => {
+            const res = await TestUtil.get('user/notifications', 200);
+
+            expect(res.body.response[0].read).toBe(false);
+
+            await TestUtil.delete(`user/notifications/${res.body.response[0].id}`, 204);
+
+            const res2 = await TestUtil.get('user/notifications', 200);
+
+            expect(res2.body.response[0].id).not.toBe(res.body.response[0].id);
+        });
+
+        it('should respond with 404 if the notification does not exist', async () => {
+            await TestUtil.delete(`user/notifications/324512341243`, 404);
+        });
+
+        it('should respond with 401 when no access token is provided', async () => {
+            await TestUtil.delete(`user/notifications/1`, 401, null);
+        });
+    });
+
+    /*
+        Some lengthy tests we could port later, probably near the end of porting, once the activities/notifications system is implemented.
+        it('should respond with notification data', async () => {
+        
+            // testUser follows testUser2
+            const res1 = await serv
+                .post('/api/v1/user/follow')
+                .set('Authorization', 'Bearer ' + global.accessToken)
+                .send({
+                    userID: user2.id
+                })
+                .expect(200);
+        
+            // changes the follow relationship between testUser and testUser2 to notify when a map is approved
+            const res2 = await serv
+                .patch('/api/v1/user/follow/' + user2.id)
+                .set('Authorization', 'Bearer ' + global.accessToken)
+                .send({
+                    notifyOn: 1 << activity.ACTIVITY_TYPES.MAP_APPROVED
+                })
+                .expect(204);
+        
+            // testUser2 creates a map
+            const res3 = await serv
+                .post('/api/maps')
+                .set('Authorization', 'Bearer ' + global.accessToken2)
+                .send({
+                    name: 'test_map_notif',
+                    type: EMapType.SURF,
+                    info: {
+                        description: 'newmap_5',
+                        numTracks: 1,
+                        creationDate: new Date()
+                    },
+                    tracks: [
+                        {
+                            trackNum: 0,
+                            numZones: 1,
+                            isLinear: false,
+                            difficulty: 5
+                        }
+                    ],
+                    credits: [
+                        {
+                            userID: user2.id,
+                            type: EMapCreditType.AUTHOR
+                        }
+                    ]
+                })
+                .expect(200);
+        
+            // upload the map
+            const res4 = await serv
+                .post(new URL(res3.header.location).pathname)
+                .set('Authorization', 'Bearer ' + global.accessToken2)
+                .attach('mapFile', fs.readFileSync('test/testMap.bsp'), 'testMap.bsp')
+                .status(200);
+        
+            // testadmin approves the map
+            const res5 = await serv
+                .patch('/api/admin/maps/' + res3.body.id)
+                .set('Authorization', 'Bearer ' + adminAccessToken)
+                .send({ statusFlag: EMapStatus.APPROVED })
+                .status(204);
+        
+            // should get the notification that testUser2's map was approved
+            const res6 = await serv
+                .get('/api/v1/user/notifications')
+                .set('Authorization', 'Bearer ' + global.accessToken)
+                .expect(200);
+        
+            expect(res6.body).toHaveProperty('notifications');
+            expect(Array.isArray(res6.body.notifications)).toBe(true);
+            expect(res6.body.notifications).toHaveLength(1);
+        
+            serv.close();
+        });
+        */
+
+    // Commented out until the 0.10.0 replay refactor
+    /*it.skip('should respond with notification data for map notifications', () => {});
+        () => {
+        // enable map notifications for the given map
+         const res = await request(global.server)
+            .put('/api/v1/user/notifyMap/' + testMap.id)
+            .set('Authorization', 'Bearer ' + global.accessToken)
+            .send({
+                notifyOn: activity.ACTIVITY_TYPES.WR_ACHIEVED
+            })
+            .then(res => {
+                // upload a run session
+                 const res = await request(global.server)
+                    .post(`/api/maps/${testMap.id}/session`)
+                    .set('Authorization', 'Bearer ' + adminGameAccessToken)
+                    .send({
+                        trackNum: 0,
+                        zoneNum: 0,
+                    })
+                    .then(res2 => {
+                        // update the run session
+                        let sesID = res2.body.id;
+                         const res = await request(global.server)
+                            .post(`/api/maps/${testMap.id}/session/${sesID}`)
+                            .set('Authorization', 'Bearer ' + adminGameAccessToken)
+                            .send({
+                                zoneNum: 2,
+                                tick: 510,
+                            })
+                            .then(res3 => {
+                                // end the run session
+                                 const res = await request(global.server)
+                                    .post(`/api/maps/${testMap.id}/session/1/end`)
+                                    .set('Authorization', 'Bearer ' + adminGameAccessToken)
+                                    .set('Content-Type', 'application/octet-stream')
+                                    .send(
+                                        fs.readFileSync('test/testRun.momrec')
+                                    )
+                                    .then(res4 => {
+                                        expect(res2).to.have.status(200);
+                                        expect(res2).to.be.json;
+                                        expect(res2.body).to.have.property('id');
+                                        expect(res3).to.have.status(200);
+                                        expect(res3).to.be.json;
+                                        expect(res3.body).to.have.property('id');
+                                        expect(res4).to.have.status(200);
+                                    })
+                            });
+                        });
+                });
+        });
+        
+        */
 });

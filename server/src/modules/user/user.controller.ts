@@ -35,6 +35,8 @@ import { MapNotifyDto, UpdateMapNotifyDto } from '../../@common/dto/map/mapNotif
 import { ApiOkPaginatedResponse, PagedResponseDto } from '../../@common/dto/common/api-response.dto';
 import { UsersGetActivitiesQuery } from '../users/queries/get-activities.query.dto';
 import { ActivityDto } from '../../@common/dto/user/activity.dto';
+import { PaginationQueryDto } from '../../@common/dto/common/pagination.dto';
+import { NotificationDto, UpdateNotificationDto } from '../../@common/dto/user/notification.dto';
 
 @ApiBearerAuth()
 @Controller('api/v1/user')
@@ -235,6 +237,49 @@ export class UserController {
         @Query() query?: UsersGetActivitiesQuery
     ): Promise<PagedResponseDto<ActivityDto>> {
         return this.usersService.GetFollowedActivities(userID, query.skip, query.take, query.type, query.data);
+    }
+
+    //#endregion
+
+    //#region Notifications
+
+    @Get('/notifications')
+    @ApiOperation({ summary: "Returns all of the local user's notifications" })
+    @ApiOkPaginatedResponse(NotificationDto, { description: "Paginated list of the local user's notifications" })
+    public async GetNotifications(
+        @LoggedInUser('id') userID: number,
+        @Query() query?: PaginationQueryDto
+    ): Promise<PagedResponseDto<NotificationDto>> {
+        return this.usersService.GetNotifications(userID, query.skip, query.take);
+    }
+
+    @Patch('/notifications/:notificationID')
+    @HttpCode(HttpStatus.NO_CONTENT)
+    @ApiOperation({ summary: 'Marks the given notification as read or unread' })
+    @ApiBody({
+        type: UpdateNotificationDto,
+        description: 'Bool expressing whether the notification has been read or not',
+        required: true
+    })
+    @ApiBadRequestResponse({ description: 'Invalid read data' })
+    @ApiNotFoundResponse({ description: 'The notification does not exist' })
+    public async UpdateNotification(
+        @LoggedInUser('id') userID: number,
+        @Param('notificationID', ParseIntPipe) notificationID: number,
+        @Body() updateDto: UpdateNotificationDto
+    ) {
+        return this.usersService.UpdateNotification(userID, notificationID, updateDto);
+    }
+
+    @Delete('/notifications/:notificationID')
+    @HttpCode(HttpStatus.NO_CONTENT)
+    @ApiOperation({ summary: 'Deletes the given notification' })
+    @ApiNotFoundResponse({ description: 'The notification does not exist' })
+    public async DeleteNotification(
+        @LoggedInUser('id') userID: number,
+        @Param('notificationID', ParseIntPipe) notificationID: number
+    ) {
+        return this.usersService.DeleteNotification(userID, notificationID);
     }
 
     //#endregion
