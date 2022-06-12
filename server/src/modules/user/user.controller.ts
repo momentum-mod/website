@@ -32,6 +32,9 @@ import { UserGetQuery } from './queries/get.query.dto';
 import { FollowStatusDto, UpdateFollowStatusDto } from '../../@common/dto/user/followers.dto';
 import { ProfileDto } from '../../@common/dto/user/profile.dto';
 import { MapNotifyDto, UpdateMapNotifyDto } from '../../@common/dto/map/mapNotify.dto';
+import { ApiOkPaginatedResponse, PagedResponseDto } from '../../@common/dto/common/api-response.dto';
+import { UsersGetActivitiesQuery } from '../users/queries/get-activities.query.dto';
+import { ActivityDto } from '../../@common/dto/user/activity.dto';
 
 @ApiBearerAuth()
 @Controller('api/v1/user')
@@ -202,6 +205,22 @@ export class UserController {
     @ApiNotFoundResponse({ description: 'The map does not exist' })
     public RemoveMapNotify(@LoggedInUser('id') userID: number, @Param('mapID', ParseIntPipe) mapID: number) {
         return this.usersService.RemoveMapNotify(userID, mapID);
+    }
+
+    @Get('/activities')
+    @ApiOperation({ summary: "Returns all of the local user's activities" })
+    @ApiParam({
+        name: 'userID',
+        type: Number,
+        description: 'Target User ID',
+        required: true
+    })
+    @ApiOkPaginatedResponse(UserDto, { description: "Paginated list of the local user's activites" })
+    public async GetActivities(
+        @LoggedInUser('id') userID: number,
+        @Query() query?: UsersGetActivitiesQuery
+    ): Promise<PagedResponseDto<ActivityDto>> {
+        return this.usersService.GetActivities(userID, query.skip, query.take, query.type, query.data);
     }
 
     //#endregion

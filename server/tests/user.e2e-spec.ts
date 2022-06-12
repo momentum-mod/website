@@ -167,6 +167,26 @@ describe('user', () => {
             ]
         });
 
+        await prisma.activity.createMany({
+            data: [
+                {
+                    data: 100n,
+                    type: EActivityTypes.ALL,
+                    userID: user1.id
+                },
+                {
+                    data: 101n,
+                    type: EActivityTypes.ALL,
+                    userID: user1.id
+                },
+                {
+                    data: 101n,
+                    type: EActivityTypes.MAP_UPLOADED,
+                    userID: user1.id
+                }
+            ]
+        });
+
         await prisma.mapNotify.create({
             data: {
                 notifyOn: EActivityTypes.WR_ACHIEVED,
@@ -498,6 +518,67 @@ describe('user', () => {
 
         it('should respond with 401 when no access token is provided', async () => {
             await TestUtil.delete(`user/notifyMap/${map.id}`, 401, null);
+        });
+    });
+
+    describe('GET /api/v1/user/activities', () => {
+        const expects = (res) => {
+            expect(res.body.response).toBeInstanceOf(Array);
+            res.body.response.forEach((r) => {
+                ['data', 'type', 'createdAt', 'updatedAt'].forEach((p) => expect(r).toHaveProperty(p));
+                expect(r.user).toHaveProperty('alias');
+                expect(r.user.alias).toBe(user1.alias);
+            });
+        };
+
+        it('should retrieve the local users activities', async () => {
+            const res = await TestUtil.get('user/activities', 200);
+
+            expects(res);
+            expect(res.body.totalCount).toBe(3);
+            expect(res.body.returnCount).toBe(3);
+        });
+
+        it('should respond with a limited list of activities for the local user when using the take query param', async () => {
+            await TestUtil.takeTest(`user/activities`, expects);
+        });
+
+        it('should respond with a different list of activities for the local user when using the skip query param', async () => {
+            await TestUtil.skipTest(`user/activities`, expects);
+        });
+
+        it('should respond with a filtered list of activities for the local user when using the type query param', async () => {
+            const res = await TestUtil.get(`user/activities`, 200, {
+                type: EActivityTypes.MAP_UPLOADED
+            });
+
+            expects(res);
+            expect(res.body.totalCount).toBe(1);
+            expect(res.body.returnCount).toBe(1);
+            expect(res.body.response[0].type).toBe(EActivityTypes.MAP_UPLOADED);
+        });
+
+        it('should respond with a filtered list of activities for the local user when using the data query param', async () => {
+            const res = await TestUtil.get(`user/activities`, 200, {
+                data: 101n
+            });
+
+            expects(res);
+            expect(res.body.totalCount).toBe(2);
+            expect(res.body.returnCount).toBe(2);
+        });
+
+        it('should respond with an empty list of activities for the local user when using the data query param with nonexistent data', async () => {
+            const res = await TestUtil.get(`user/activities`, 200, {
+                data: 1123412341n
+            });
+            expect(res.body.totalCount).toBe(0);
+            expect(res.body.returnCount).toBe(0);
+            expect(res.body.response).toBeInstanceOf(Array);
+        });
+
+        it('should respond with 401 when no access token is provided', async () => {
+            await TestUtil.get(`user/activities`, 401, {}, null);
         });
     });
     //
@@ -885,76 +966,6 @@ describe('user', () => {
     //                 .expect('Content-Type', /json/));
     //     });
     //
-    //     describe('GET /api/v1/user/activities', () => {
-    //         it('should retrieve the local users activities', async () => {
-    //             const res = await request(global.server)
-    //                 .get('/api/v1/user/activities')
-    //                 .set('Authorization', 'Bearer ' + global.accessToken2)
-    //                 .expect(200);
-    //             expect(Array.isArray(res.body.activities)).toBe(true);
-    //             expect(res.body.activities).toHaveLength(4);
-    //             expect(res.body.activities[0]).toHaveProperty('id');
-    //         });
-    //
-    //         it('should retrieve the filtered local users activities using the limit parameter', async () => {
-    //             const res = await request(global.server)
-    //                 .get('/api/v1/user/activities')
-    //                 .set('Authorization', 'Bearer ' + global.accessToken2)
-    //                 .query({ limit: 1 })
-    //                 .expect(200);
-    //             expect(Array.isArray(res.body.activities)).toBe(true);
-    //             expect(res.body.activities).toHaveLength(1);
-    //             expect(res.body.activities[0]).toHaveProperty('id');
-    //         });
-    //
-    //         it('should retrieve the filtered local users activities using the offset parameter', async () => {
-    //             const res = await request(global.server)
-    //                 .get('/api/v1/user/activities')
-    //                 .set('Authorization', 'Bearer ' + global.accessToken2)
-    //                 .query({ offset: 1 })
-    //                 .expect(200);
-    //             expect(Array.isArray(res.body.activities)).toBe(true);
-    //             expect(res.body.activities).toHaveLength(3);
-    //             expect(res.body.activities[0]).toHaveProperty('id');
-    //         });
-    //
-    //         it('should retrieve the filtered local users activities using the type parameter', async () => {
-    //             const res = await request(global.server)
-    //                 .get('/api/v1/user/activities')
-    //                 .set('Authorization', 'Bearer ' + global.accessToken2)
-    //                 .query({ type: EActivityTypes.MAP_APPROVED })
-    //                 .expect(200);
-    //             expect(Array.isArray(res.body.activities)).toBe(true);
-    //             expect(res.body.activities).toHaveLength(2);
-    //             expect(res.body.activities[0]).toHaveProperty('id');
-    //         });
-    //
-    //         it('should retrieve the filtered local users activities using the data parameter', async () => {
-    //             const res = await request(global.server)
-    //                 .get('/api/v1/user/activities')
-    //                 .set('Authorization', 'Bearer ' + global.accessToken2)
-    //                 .query({ data: 1337 })
-    //                 .expect(200);
-    //             expect(Array.isArray(res.body.activities)).toBe(true);
-    //             expect(res.body.activities).toHaveLength(2);
-    //             expect(res.body.activities[0]).toHaveProperty('id');
-    //         });
-    //
-    //         it('should retrieve the local users activities along with an expand (user) parameter', async () => {
-    //             const res = await request(global.server)
-    //                 .get('/api/v1/user/activities')
-    //                 .set('Authorization', 'Bearer ' + global.accessToken2)
-    //                 .query({ expand: 'user' })
-    //                 .expect(200);
-    //             expect(Array.isArray(res.body.activities)).toBe(true);
-    //             expect(res.body.activities).toHaveLength(4);
-    //             expect(res.body.activities[0]).toHaveProperty('id');
-    //             expect(res.body.activities[0].user).toHaveProperty('roles');
-    //         });
-    //
-    //         it('should respond with 401 when no access token is provided', async () =>
-    //             request(global.server).get('/api/v1/user/activities').expect(401).expect('Content-Type', /json/));
-    //     });
     //
     //     describe('GET /api/v1/user/activities/followed', () => {
     //         it('should add user to authenticated users follow list', () =>
