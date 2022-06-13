@@ -25,6 +25,7 @@ import { DtoUtils } from '../../@common/utils/dto-utils';
 import { MapNotifyDto, UpdateMapNotifyDto } from '../../@common/dto/map/mapNotify.dto';
 import { MapsRepo } from '../maps/maps.repo';
 import { NotificationDto, UpdateNotificationDto } from '../../@common/dto/user/notification.dto';
+import { MapLibraryEntryDto } from '../../@common/dto/map/libraryEntry.dto';
 
 @Injectable()
 export class UsersService {
@@ -362,6 +363,16 @@ export class UsersService {
         if (notification.userID !== userID) throw new ForbiddenException('Notification does not belong to user');
 
         await this.userRepo.DeleteNotification(notificationID);
+    }
+
+    //#endregion
+
+    //#region Map Library
+
+    public async GetMapLibraryEntry(userID: number, skip: number, take: number) {
+        const dbResponse = await this.userRepo.GetMapLibraryEntry(userID, skip, take);
+
+        return new PagedResponseDto<MapLibraryEntryDto>(MapLibraryEntryDto, dbResponse);
     }
 
     //#endregion

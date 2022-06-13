@@ -8,7 +8,7 @@ import { AuthService } from '../src/modules/auth/auth.service';
 import { EActivityTypes } from '../src/@common/enums/activity.enum';
 
 describe('User', () => {
-    let user1, user2, user2Token, user3, user3Token, admin, adminGame, adminAccessToken, map, activities;
+    let user1, user2, user2Token, user3, user3Token, admin, adminGame, adminAccessToken, map1, map2, map3, activities;
 
     beforeEach(async () => {
         const prisma: PrismaRepo = global.prisma;
@@ -94,7 +94,7 @@ describe('User', () => {
             }
         });
 
-        map = await prisma.map.create({
+        map1 = await prisma.map.create({
             data: {
                 name: 'user_test_map',
                 type: EMapType.UNKNOWN,
@@ -146,6 +146,33 @@ describe('User', () => {
                     }
                 }
             }
+        });
+
+        map2 = await prisma.map.create({
+            data: {
+                name: 'surf_whatisapromise',
+                type: EMapType.SURF
+            }
+        });
+
+        map3 = await prisma.map.create({
+            data: {
+                name: 'surf_tendies',
+                type: EMapType.SURF
+            }
+        });
+
+        await prisma.mapLibraryEntry.createMany({
+            data: [
+                {
+                    userID: user1.id,
+                    mapID: map1.id
+                },
+                {
+                    userID: user1.id,
+                    mapID: map2.id
+                }
+            ]
         });
 
         await prisma.follow.createMany({
@@ -212,7 +239,7 @@ describe('User', () => {
             data: {
                 notifyOn: EActivityTypes.WR_ACHIEVED,
                 user: { connect: { id: user1.id } },
-                map: { connect: { id: map.id } }
+                map: { connect: { id: map1.id } }
             }
         });
 
@@ -227,7 +254,7 @@ describe('User', () => {
 
         await prisma.user.deleteMany({ where: { id: { in: [user1.id, user2.id, user3.id, admin.id, adminGame.id] } } });
 
-        await prisma.map.delete({ where: { id: map.id } });
+        await prisma.map.delete({ where: { id: map1.id } });
     });
 
     describe('GET /api/v1/user', () => {
@@ -474,13 +501,13 @@ describe('User', () => {
 
     describe('GET /api/v1/user/notifyMap/{mapID}', () => {
         it('should return a mapnotify dto for a given user and map', async () => {
-            const res = await TestUtil.get(`user/notifyMap/${map.id}`, 200);
+            const res = await TestUtil.get(`user/notifyMap/${map1.id}`, 200);
 
             expect(res.body.notifyOn).toBe(EActivityTypes.WR_ACHIEVED);
         });
 
         it('should respond with an empty object if the user does not have mapnotify for given map', async () => {
-            const res = await TestUtil.get(`user/notifyMap/${map.id}`, 200, {}, user2Token);
+            const res = await TestUtil.get(`user/notifyMap/${map1.id}`, 200, {}, user2Token);
 
             expect(res.body).toEqual({});
         });
@@ -490,23 +517,23 @@ describe('User', () => {
         });
 
         it('should respond with 401 when no access token is provided', async () => {
-            await TestUtil.get(`user/notifyMap/${map.id}`, 401, {}, null);
+            await TestUtil.get(`user/notifyMap/${map1.id}`, 401, {}, null);
         });
     });
 
     describe('PUT /api/v1/user/notifyMap/{mapID}', () => {
         it('should update map notification status for with existing notifications', async () => {
-            await TestUtil.put(`user/notifyMap/${map.id}`, 204, { notifyOn: EActivityTypes.PB_ACHIEVED });
+            await TestUtil.put(`user/notifyMap/${map1.id}`, 204, { notifyOn: EActivityTypes.PB_ACHIEVED });
 
-            const res = await TestUtil.get(`user/notifyMap/${map.id}`, 200);
+            const res = await TestUtil.get(`user/notifyMap/${map1.id}`, 200);
 
             expect(res.body.notifyOn).toBe(EActivityTypes.PB_ACHIEVED);
         });
 
         it('should create new map notification status if no existing notifcations', async () => {
-            await TestUtil.put(`user/notifyMap/${map.id}`, 204, { notifyOn: EActivityTypes.PB_ACHIEVED });
+            await TestUtil.put(`user/notifyMap/${map1.id}`, 204, { notifyOn: EActivityTypes.PB_ACHIEVED });
 
-            const res = await TestUtil.get(`user/notifyMap/${map.id}`, 200);
+            const res = await TestUtil.get(`user/notifyMap/${map1.id}`, 200);
 
             expect(res.body.notifyOn).toBe(EActivityTypes.PB_ACHIEVED);
         });
@@ -520,21 +547,21 @@ describe('User', () => {
         });
 
         it('should respond with 401 when no access token is provided', async () => {
-            await TestUtil.put(`user/notifyMap/${map.id}`, 401, {}, null);
+            await TestUtil.put(`user/notifyMap/${map1.id}`, 401, {}, null);
         });
     });
 
     describe('DELETE /api/v1/user/notifyMap/{mapID}', () => {
         it('should remove the user from map notifcations list', async () => {
-            await TestUtil.delete(`user/notifyMap/${map.id}`, 204);
+            await TestUtil.delete(`user/notifyMap/${map1.id}`, 204);
 
-            const res = await TestUtil.get(`user/notifyMap/${map.id}`, 200, {});
+            const res = await TestUtil.get(`user/notifyMap/${map1.id}`, 200, {});
 
             expect(res.body).toEqual({});
         });
 
         it('should respond with 404 if the user is not following the map', async () => {
-            await TestUtil.delete(`user/notifyMap/${map.id}`, 404, user2Token);
+            await TestUtil.delete(`user/notifyMap/${map1.id}`, 404, user2Token);
         });
 
         it('should respond with 404 if the target map does not exist', async () => {
@@ -542,7 +569,7 @@ describe('User', () => {
         });
 
         it('should respond with 401 when no access token is provided', async () => {
-            await TestUtil.delete(`user/notifyMap/${map.id}`, 401, null);
+            await TestUtil.delete(`user/notifyMap/${map1.id}`, 401, null);
         });
     });
 
@@ -610,7 +637,7 @@ describe('User', () => {
     describe('GET /api/v1/user/activities/followed', () => {
         const expects = (res) => {
             expect(res.body.response).toBeInstanceOf(Array);
-            res.body.response.forEach((r, index) => {
+            res.body.response.forEach((r) => {
                 ['data', 'type', 'createdAt', 'updatedAt'].forEach((p) => expect(r).toHaveProperty(p));
                 expect(r.user).toHaveProperty('alias');
             });
@@ -677,7 +704,6 @@ describe('User', () => {
         });
     });
 
-    //
     //     describe('PUT /api/v1/user/maps/library/{mapID}', () => {
     //         it('should add a new map to the local users library', async () => {
     //             const res = await request(global.server)
@@ -691,62 +717,40 @@ describe('User', () => {
     //         it('should respond with 401 when no access token is provided', () =>
     //             request(global.server).post('/api/v1/user/maps/library').expect(401).expect('Content-Type', /json/));
     //     });
-    //
-    //     describe('GET /api/v1/user/maps/library', () => {
-    //         it('should retrieve the list of maps in the local users library', async () => {
-    //             const res = await request(global.server)
-    //                 .put('/api/v1/user/maps/library/' + testMap.id)
-    //                 .set('Authorization', 'Bearer ' + global.accessToken)
-    //                 .expect(200)
-    //                 .expect('Content-Type', /json/);
-    //
-    //             const res2 = await request(global.server)
-    //                 .get('/api/v1/user/maps/library')
-    //                 .set('Authorization', 'Bearer ' + global.accessToken)
-    //                 .expect(200)
-    //                 .expect('Content-Type', /json/);
-    //
-    //             expect(Array.isArray(res2.body.entries)).toBe(true);
-    //             expect(res2.body.entries).toHaveLength(2);
-    //             expect(res2.body.entries[0]).toHaveProperty('userID');
-    //             expect(res2.body.entries[0]).toHaveProperty('map');
-    //         });
-    //
-    //         it('should retrieve a filtered list of maps in the local users library using the limit query', async () => {
-    //             const res = await request(global.server)
-    //                 .get('/api/v1/user/maps/library')
-    //                 .set('Authorization', 'Bearer ' + global.accessToken)
-    //                 .query({ limit: 1 })
-    //                 .expect(200)
-    //                 .expect('Content-Type', /json/);
-    //
-    //             expect(Array.isArray(res.body.entries)).toBe(true);
-    //             expect(res.body.entries).toHaveLength(1);
-    //             expect(res.body.entries[0]).toHaveProperty('userID');
-    //             expect(res.body.entries[0]).toHaveProperty('map');
-    //         });
-    //
-    //         it('should retrieve a filtered list of maps in the local users library using the offset query', async () => {
-    //             const res = await request(global.server)
-    //                 .get('/api/v1/user/maps/library')
-    //                 .set('Authorization', 'Bearer ' + global.accessToken)
-    //                 .query({ offset: 1 })
-    //                 .expect(200)
-    //                 .expect('Content-Type', /json/);
-    //
-    //             expect(Array.isArray(res.body.entries)).toBe(true);
-    //             expect(res.body.entries).toHaveLength(1);
-    //             expect(res.body.entries[0]).toHaveProperty('userID');
-    //             expect(res.body.entries[0]).toHaveProperty('map');
-    //         });
-    //
-    //         it('should respond with 401 when no access token is provided', () => {
-    //             const res = await request(global.server)
-    //                 .get('/api/v1/user/maps/library/')
-    //                 .expect(401)
-    //                 .expect('Content-Type', /json/);
-    //         });
-    //     });
+
+    describe('GET /api/v1/user/maps/library', () => {
+        const expects = (res) => {
+            expect(res.body.response).toBeInstanceOf(Array);
+            res.body.response.forEach((r) => {
+                ['id', 'alias', 'steamID', 'roles', 'bans', 'avatarURL', 'createdAt', 'updatedAt'].forEach((p) =>
+                    expect(r.user).toHaveProperty(p)
+                );
+                expect(r).toHaveProperty('map');
+            });
+        };
+
+        it('should retrieve the list of maps in the local users library', async () => {
+            const res = await TestUtil.get('user/maps/library', 200);
+
+            expects(res);
+            expect(res.body.totalCount).toBe(2);
+            expect(res.body.returnCount).toBe(2);
+            expect(res.body.response[0].user.id).toBe(user1.id);
+            expect(res.body.response[0].map.id).toBe(map1.id);
+        });
+
+        it('should retrieve a filtered list of maps in the local users library using the take query', async () => {
+            await TestUtil.takeTest(`user/maps/library`, expects);
+        });
+
+        it('should retrieve a filtered list of maps in the local users library using the skip query', async () => {
+            await TestUtil.skipTest(`user/maps/library`, expects);
+        });
+
+        it('should respond with 401 when no access token is provided', async () => {
+            await TestUtil.get(`user/maps/library`, 401, {}, null);
+        });
+    });
     //
     //     describe('GET /api/v1/user/maps/library/{mapID}', () => {
     //         it('should check if a map exists in the local users library', async () => {
