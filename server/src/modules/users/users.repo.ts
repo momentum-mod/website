@@ -10,7 +10,8 @@ import {
     Run,
     User,
     UserAuth,
-    Notification
+    Notification,
+    MapLibraryEntry
 } from '@prisma/client';
 
 @Injectable()
@@ -265,6 +266,32 @@ export class UsersRepo {
                 }
             }
         });
+    }
+
+    //#endregion
+
+    //#region Map Library
+
+    async GetMapLibraryEntry(userID: number, skip: number, take: number): Promise<[MapLibraryEntry[], number]> {
+        const where: Prisma.MapLibraryEntryWhereInput = {
+            userID: userID
+        };
+
+        const count = await this.prisma.mapLibraryEntry.count({
+            where: where
+        });
+
+        const mapLibraryEntries = await this.prisma.mapLibraryEntry.findMany({
+            where: where,
+            skip: skip,
+            take: take,
+            include: {
+                map: true,
+                user: true
+            }
+        });
+
+        return [mapLibraryEntries, count];
     }
 
     //#endregion

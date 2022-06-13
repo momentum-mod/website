@@ -37,6 +37,7 @@ import { UsersGetActivitiesQuery } from '../users/queries/get-activities.query.d
 import { ActivityDto } from '../../@common/dto/user/activity.dto';
 import { PaginationQueryDto } from '../../@common/dto/common/pagination.dto';
 import { NotificationDto, UpdateNotificationDto } from '../../@common/dto/user/notification.dto';
+import { MapLibraryEntryDto } from '../../@common/dto/map/libraryEntry.dto';
 
 @ApiBearerAuth()
 @Controller('api/v1/user')
@@ -289,6 +290,20 @@ export class UserController {
         @Param('notificationID', ParseIntPipe) notificationID: number
     ) {
         return this.usersService.DeleteNotification(userID, notificationID);
+    }
+
+    //#endregion
+
+    //#region Map Library
+
+    @Get('/maps/library')
+    @ApiOperation({ summary: "Returns the maps in the local user's library" })
+    @ApiOkPaginatedResponse(MapLibraryEntryDto, { description: 'Paginated list of the library entries' })
+    public async GetMapLibraryEntry(
+        @LoggedInUser('id') userID: number,
+        @Query() query?: PaginationQueryDto
+    ): Promise<PagedResponseDto<MapLibraryEntryDto>> {
+        return this.usersService.GetMapLibraryEntry(userID, query.skip, query.take);
     }
 
     //#endregion
