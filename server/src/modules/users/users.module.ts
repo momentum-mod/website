@@ -11,6 +11,7 @@ import { MapsRepo } from '../maps/maps.repo';
     controllers: [UsersController],
     // TODO: Remove mapsrepo import once alex sorts stuff!!!
     providers: [UsersService, UsersRepo, MapsRepo],
+    // TODO: As per our architectural structure, repos shouldn't be available to other modules. Remove once Alex resolves circs.
     exports: [UsersService, UsersRepo]
 })
 export class UsersModule {}
