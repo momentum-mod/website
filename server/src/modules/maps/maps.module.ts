@@ -10,6 +10,7 @@ import { FileStoreModule } from '../../@common/filestore/fileStore.module';
     imports: [PrismaModule, AuthModule, FileStoreModule],
     controllers: [MapsController],
     providers: [MapsService, MapsRepo],
+    // TODO: As per our architectural structure, repos shouldn't be available to other modules. Remove once Alex resolves circs.
     exports: [MapsService, MapsRepo]
 })
 export class MapsModule {}

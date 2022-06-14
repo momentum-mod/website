@@ -1,4 +1,5 @@
 import { MiddlewareConsumer, Module, NestModule, RequestMethod } from '@nestjs/common';
+import * as Sentry from '@sentry/node';
 import { APP_FILTER } from '@nestjs/core';
 import { AllExceptionsFilter } from './@common/filters/all-exceptions.filter';
 import { appConfig } from '../config/config';
@@ -10,21 +11,29 @@ import { MapsModule } from './modules/maps/maps.module';
 import { UsersModule } from './modules/users/users.module';
 import { UserModule } from './modules/user/user.module';
 import { SentryModule } from './@common/sentry/sentry.module';
-
-import * as Sentry from '@sentry/node';
+import { ActivitiesModule } from './modules/activities/activities.module';
+import { AdminModule } from './modules/admin/admin.module';
+import { ReportsModule } from './modules/reports/reports.module';
+import { RunsModule } from './modules/runs/runs.module';
+import { StatsModule } from './modules/stats/stats.module';
 
 @Module({
     imports: [
-        UsersModule,
-        MapsModule,
-        UserModule,
-        AuthModule,
         SentryModule.forRoot({
             dsn: appConfig.sentry.dsn,
             tracesSampleRate: 1.0,
             debug: appConfig.sentry.debug,
             environment: process.env.NODE_ENV || 'development'
-        })
+        }),
+        AuthModule,
+        ActivitiesModule,
+        AdminModule,
+        MapsModule,
+        ReportsModule,
+        RunsModule,
+        StatsModule,
+        UserModule,
+        UsersModule
     ],
     providers: [
         {
