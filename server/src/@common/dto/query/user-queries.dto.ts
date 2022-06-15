@@ -9,7 +9,8 @@ export class UsersGetQuery {
     @ApiPropertyOptional({
         name: 'expand',
         type: String,
-        description: 'Expand by profile or userStats (comma-separated)',
+        enum: ['profile', 'userStats'],
+        description: 'Expand by profile and/or userStats (comma-separated)',
         example: 'profile,userStats'
     })
     @IsOptional()
@@ -31,7 +32,8 @@ export class UsersGetAllQuery extends PaginationQuery {
     @ApiPropertyOptional({
         name: 'expand',
         type: String,
-        description: 'Expand by profile or userStats (comma-separated)',
+        enum: ['profile', 'userStats'],
+        description: 'Expand by profile and/or userStats (comma-separated)',
         example: 'profile,userStats'
     })
     @IsOptional()
@@ -41,7 +43,7 @@ export class UsersGetAllQuery extends PaginationQuery {
     @ApiPropertyOptional({
         name: 'search',
         type: String,
-        description: 'User alias to search for',
+        description: 'Filter by partial user alias match',
         example: 'Ron Weasley'
     })
     @IsOptional()
@@ -51,7 +53,7 @@ export class UsersGetAllQuery extends PaginationQuery {
     @ApiPropertyOptional({
         name: 'playerID',
         type: String,
-        description: 'Include only this user (Steam Community ID)',
+        description: 'Filter by Steam Community ID',
         example: '123135674'
     })
     @IsOptional()
@@ -61,7 +63,7 @@ export class UsersGetAllQuery extends PaginationQuery {
     @ApiPropertyOptional({
         name: 'playerIDs',
         type: String,
-        description: 'Include only these users (Steam Community IDs, comma-separated)',
+        description: 'Filter by CSV list of Steam Community IDs',
         example: '123135674,7987347263,98312287631'
     })
     @IsOptional()
