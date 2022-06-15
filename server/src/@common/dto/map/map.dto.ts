@@ -2,7 +2,7 @@ import { Map as MapDB } from '@prisma/client';
 import { EMapStatus, EMapType } from '../../enums/map.enum';
 import { UserDto } from '../user/user.dto';
 import { MapImageDto } from './map-image.dto';
-import { ApiProperty } from '@nestjs/swagger';
+import { ApiProperty, PickType } from '@nestjs/swagger';
 import { IsDate, IsEnum, IsInt, IsOptional, IsString } from 'class-validator';
 import { Transform } from 'class-transformer';
 import { DtoUtils } from '../../utils/dto-utils';
@@ -96,3 +96,5 @@ export class MapDto implements MapDB {
     // }
     //}
 }
+
+export class MapUpdateDto extends PickType(MapDto, ['statusFlag'] as const) {}

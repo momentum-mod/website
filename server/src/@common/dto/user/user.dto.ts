@@ -1,7 +1,7 @@
 import { User } from '@prisma/client';
 import { appConfig } from '../../../../config/config';
 import { ERole, EBan } from '../../enums/user.enum';
-import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
+import { ApiProperty, ApiPropertyOptional, PickType } from '@nestjs/swagger';
 import { IsDate, IsEnum, IsInt, IsISO31661Alpha2, IsOptional, IsString } from 'class-validator';
 import { Exclude, Expose, Transform } from 'class-transformer';
 import { IsSteamCommunityID } from '../../validators/is-steam-id.validator';
@@ -93,21 +93,54 @@ export class UserDto implements User {
     }
 }
 
+export class CreateUserDto extends PickType(UserDto, ['alias'] as const) {}
+
 export class UpdateUserDto {
-    @ApiProperty({
-        required: false,
+    @ApiPropertyOptional({
         type: String,
         description: 'The new alias to set'
     })
+    @IsOptional()
     // TODO: Idk what the fuck is going on here. Apparently the incoming data aren't strings??
     // @IsString()
     alias: string;
 
-    @ApiProperty({
-        required: false,
+    @ApiPropertyOptional({
         type: String,
         description: 'The new bio to set'
     })
+    @IsOptional()
     // @IsString()
     bio: string;
+}
+
+export class AdminUpdateUserDto extends UpdateUserDto {
+    @ApiPropertyOptional({
+        enum: ERole,
+        description: 'The new roles to set'
+    })
+    @IsOptional()
+    role: ERole;
+
+    @ApiPropertyOptional({
+        enum: EBan,
+        description: 'The new bans to set'
+    })
+    @IsOptional()
+    bans: ERole;
+}
+
+export class MergeUserDto {
+    @ApiProperty({
+        description: 'The ID of the placeholder user to merge into the actual user',
+        type: Number
+    })
+    @IsInt()
+    placeholderID: number;
+
+    @ApiProperty({
+        description: 'The ID of the actual user to merge the placeholder into',
+        type: Number
+    })
+    userID: number;
 }
