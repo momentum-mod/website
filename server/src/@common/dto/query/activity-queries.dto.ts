@@ -1,13 +1,13 @@
 ﻿import { ApiPropertyOptional } from '@nestjs/swagger';
 import { IsEnum, IsInt, IsOptional } from 'class-validator';
 import { Transform, Type } from 'class-transformer';
-import { PaginationQueryDto } from './pagination.dto';
+import { PaginationQuery } from './pagination.dto';
 import { EActivityTypes } from '../../enums/activity.enum';
 
-export class ActivitiesGetQuery extends PaginationQueryDto {
+export class ActivitiesGetQuery extends PaginationQuery {
     @ApiPropertyOptional({
         name: 'userID',
-        type: String,
+        type: Number,
         description: 'Filter by user ID'
     })
     @IsOptional()
@@ -18,7 +18,7 @@ export class ActivitiesGetQuery extends PaginationQueryDto {
     @ApiPropertyOptional({
         name: 'type',
         enum: EActivityTypes,
-        type: String,
+        type: Number,
         description: 'Types of activities to include'
     })
     @IsOptional()

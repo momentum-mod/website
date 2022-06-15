@@ -2,7 +2,7 @@
 import { IsOptional } from 'class-validator';
 import { Transform } from 'class-transformer';
 
-export class ExpandQueryDto {
+export class ExpandQuery {
     @ApiPropertyOptional({
         name: 'expand',
         type: String

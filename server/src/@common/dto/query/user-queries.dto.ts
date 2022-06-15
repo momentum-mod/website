@@ -1,7 +1,7 @@
 ﻿import { ApiPropertyOptional, OmitType } from '@nestjs/swagger';
 import { IsInt, IsOptional, IsString } from 'class-validator';
 import { Transform, Type } from 'class-transformer';
-import { PaginationQueryDto } from './pagination.dto';
+import { PaginationQuery } from './pagination.dto';
 import { IsSteamCommunityID } from '../../validators/is-steam-id.validator';
 import { ActivitiesGetQuery } from './activity-queries.dto';
 
@@ -18,7 +18,7 @@ export class UsersGetQuery {
 
     @ApiPropertyOptional({
         name: 'mapRank',
-        type: String,
+        type: Number,
         description: "Include the user's rank and run for a map with mapID mapRank"
     })
     @IsOptional()
@@ -27,7 +27,7 @@ export class UsersGetQuery {
     mapRank: number;
 }
 
-export class UsersGetAllQuery extends PaginationQueryDto {
+export class UsersGetAllQuery extends PaginationQuery {
     @ApiPropertyOptional({
         name: 'expand',
         type: String,
@@ -71,7 +71,7 @@ export class UsersGetAllQuery extends PaginationQueryDto {
 
     @ApiPropertyOptional({
         name: 'mapRank',
-        type: String,
+        type: Number,
         description: 'Include the rank and run for a map with mapID mapRank for all users',
         example: '4'
     })

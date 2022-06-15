@@ -1,11 +1,11 @@
-﻿import { PaginationQueryDto } from './pagination.dto';
+﻿import { PaginationQuery } from './pagination.dto';
 import { ApiPropertyOptional } from '@nestjs/swagger';
 import { IsEnum, IsInt, IsOptional, IsString } from 'class-validator';
 import { Transform, Type } from 'class-transformer';
 import { EMapStatus } from '../../enums/map.enum';
 
 // Alex: This query is used by admin endpoint, might be a bit different for you -Tom
-export class MapsGetAllQueryDto extends PaginationQueryDto {
+export class MapsGetAllQuery extends PaginationQuery {
     @ApiPropertyOptional({
         name: 'search',
         type: String,
@@ -18,7 +18,7 @@ export class MapsGetAllQueryDto extends PaginationQueryDto {
 
     @ApiPropertyOptional({
         name: 'submitterID',
-        type: String,
+        type: Number,
         description: 'Filter by submitter ID'
     })
     @Type(() => Number)
@@ -40,7 +40,7 @@ export class MapsGetAllQueryDto extends PaginationQueryDto {
     @ApiPropertyOptional({
         name: 'status',
         enum: EMapStatus,
-        type: String,
+        type: Number,
         description: 'Filter by map status flags'
     })
     @IsOptional()
@@ -50,7 +50,7 @@ export class MapsGetAllQueryDto extends PaginationQueryDto {
 
     @ApiPropertyOptional({
         name: 'priority',
-        type: String,
+        type: Boolean,
         description: 'Filter by priority or non-priority'
     })
     @IsOptional()
