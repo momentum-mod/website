@@ -1,13 +1,13 @@
-﻿import { PaginationQueryDto } from './pagination.dto';
+﻿import { PaginationQuery } from './pagination.dto';
 import { Transform, Type } from 'class-transformer';
 import { IsOptional } from 'class-validator';
 import { ApiPropertyOptional } from '@nestjs/swagger';
 
-export class ReportGetQuery extends PaginationQueryDto {
+export class ReportGetQuery extends PaginationQuery {
     @ApiPropertyOptional({
         name: 'resolved',
         description: 'Filter by resolved',
-        type: String
+        type: Boolean
     })
     @IsOptional()
     @Type(() => Boolean)

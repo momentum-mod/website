@@ -27,7 +27,7 @@ import { JwtAuthGuard } from '../auth/jwt/jwt-auth.guard';
 import { AdminUpdateUserDto, CreateUserDto, MergeUserDto, UserDto } from '../../@common/dto/user/user.dto';
 import { ApiOkPaginatedResponse, PaginatedResponseDto } from '../../@common/dto/paginated-response.dto';
 import { MapDto, MapUpdateDto } from '../../@common/dto/map/map.dto';
-import { MapsGetAllQueryDto } from '../../@common/dto/query/map-queries.dto';
+import { MapsGetAllQuery } from '../../@common/dto/query/map-queries.dto';
 import { ReportDto, UpdateReportDto } from '../../@common/dto/report/report.dto';
 
 @ApiBearerAuth()
@@ -104,7 +104,7 @@ export class AdminController {
     @ApiOperation({ description: 'Retrieve a list of maps' })
     @ApiOkPaginatedResponse(MapDto, { description: 'Paginated list of maps' })
     @ApiBadRequestResponse({ description: 'Invalid query data' })
-    public async GetMaps(@Query() query: MapsGetAllQueryDto): Promise<PaginatedResponseDto<MapDto>> {
+    public async GetMaps(@Query() query: MapsGetAllQuery): Promise<PaginatedResponseDto<MapDto>> {
         return void 0;
     }
 
@@ -146,7 +146,7 @@ export class AdminController {
     @ApiOperation({ description: 'Retrieve a list of reports' })
     @ApiOkPaginatedResponse(ReportDto, { description: 'Paginated list of reports' })
     @ApiBadRequestResponse({ description: 'Invalid query data' })
-    public async GetReports(@Query() query: MapsGetAllQueryDto): Promise<PaginatedResponseDto<ReportDto>> {
+    public async GetReports(@Query() query: MapsGetAllQuery): Promise<PaginatedResponseDto<ReportDto>> {
         return void 0;
     }
 

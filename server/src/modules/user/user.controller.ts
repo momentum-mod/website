@@ -33,7 +33,7 @@ import { ProfileDto } from '../../@common/dto/user/profile.dto';
 import { MapNotifyDto, UpdateMapNotifyDto } from '../../@common/dto/map/map-notify.dto';
 import { ApiOkPaginatedResponse, PaginatedResponseDto } from '../../@common/dto/paginated-response.dto';
 import { ActivityDto } from '../../@common/dto/user/activity.dto';
-import { PaginationQueryDto } from '../../@common/dto/query/pagination.dto';
+import { PaginationQuery } from '../../@common/dto/query/pagination.dto';
 import { NotificationDto, UpdateNotificationDto } from '../../@common/dto/user/notification.dto';
 import { MapLibraryEntryDto } from '../../@common/dto/map/library-entry';
 import { UsersGetActivitiesQuery, UsersGetQuery } from '../../@common/dto/query/user-queries.dto';
@@ -255,7 +255,7 @@ export class UserController {
     @ApiOkPaginatedResponse(NotificationDto, { description: "Paginated list of the local user's notifications" })
     public async GetNotifications(
         @LoggedInUser('id') userID: number,
-        @Query() query?: PaginationQueryDto
+        @Query() query?: PaginationQuery
     ): Promise<PaginatedResponseDto<NotificationDto>> {
         return this.usersService.GetNotifications(userID, query.skip, query.take);
     }
@@ -300,7 +300,7 @@ export class UserController {
     @ApiOkPaginatedResponse(MapLibraryEntryDto, { description: 'Paginated list of the library entries' })
     public async GetMapLibraryEntry(
         @LoggedInUser('id') userID: number,
-        @Query() query?: PaginationQueryDto
+        @Query() query?: PaginationQuery
     ): Promise<PaginatedResponseDto<MapLibraryEntryDto>> {
         return this.usersService.GetMapLibraryEntry(userID, query.skip, query.take);
     }
