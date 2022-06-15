@@ -223,6 +223,12 @@ export class UsersService {
         return DtoUtils.Factory(ProfileDto, dbResponse);
     }
 
+    public async UnlinkSocial(userID: number, type: string) {
+        if (!['steam', 'discord', 'twitch'].includes(type)) throw new BadRequestException('Invalid social type');
+
+        // TODO: Implement me!
+    }
+
     //#endregion
 
     //#region Activities
@@ -369,8 +375,15 @@ export class UsersService {
 
     //#region Map Library
 
-    public async GetMapLibraryEntry(userID: number, skip: number, take: number) {
+    public async GetMapLibraryEntry(
+        userID: number,
+        skip: number,
+        take: number,
+        search: string,
+        expand: string[]
+    ): Promise<PaginatedResponseDto<MapLibraryEntryDto>> {
         const dbResponse = await this.userRepo.GetMapLibraryEntry(userID, skip, take);
+        // TODO: Search and expansions
 
         return new PaginatedResponseDto<MapLibraryEntryDto>(MapLibraryEntryDto, dbResponse);
     }

@@ -84,3 +84,43 @@ export class UsersGetAllQuery extends PaginationQuery {
 }
 
 export class UsersGetActivitiesQuery extends OmitType(ActivitiesGetQuery, ['userID' as const]) {}
+
+class UserMapsBaseGetQuery extends PaginationQuery {
+    @ApiPropertyOptional({
+        name: 'search',
+        type: String,
+        description: 'Filter by partial map name match',
+        example: 'surf_ronweasley2'
+    })
+    @IsOptional()
+    @IsString()
+    search: string;
+}
+
+export class UserMapLibraryGetQuery extends UserMapsBaseGetQuery {
+    @ApiPropertyOptional({
+        name: 'expand',
+        type: String,
+        enum: ['submitter', 'thumbnail', 'inFavorites'],
+        description: 'Expand by submitter, thumbnail and/or inFavorites (comma-separated)',
+        example: 'submitter,inFavorites'
+    })
+    @IsOptional()
+    @Transform(({ value }) => value.split(','))
+    expand: string[];
+}
+
+export class UserMapFavoritesGetQuery extends UserMapsBaseGetQuery {}
+
+export class UserMapSubmittedGetQuery extends UserMapsBaseGetQuery {
+    @ApiPropertyOptional({
+        name: 'expand',
+        type: String,
+        enum: ['info', 'submitter', 'credits'],
+        description: 'Expand by info, submitter and/or credits (comma-separated)',
+        example: 'submitter,inFavorites'
+    })
+    @IsOptional()
+    @Transform(({ value }) => value.split(','))
+    expand: string[];
+}
