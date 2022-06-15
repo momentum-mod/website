@@ -37,7 +37,13 @@ import { ActivityDto } from '../../@common/dto/user/activity.dto';
 import { PaginationQuery } from '../../@common/dto/query/pagination.dto';
 import { NotificationDto, UpdateNotificationDto } from '../../@common/dto/user/notification.dto';
 import { MapLibraryEntryDto } from '../../@common/dto/map/library-entry';
-import { UsersGetActivitiesQuery, UsersGetQuery } from '../../@common/dto/query/user-queries.dto';
+import {
+    UserMapLibraryGetQuery,
+    UserMapSubmittedGetQuery,
+    UsersGetActivitiesQuery,
+    UsersGetQuery
+} from '../../@common/dto/query/user-queries.dto';
+import { MapDto } from '../../@common/dto/map/map.dto';
 
 @ApiBearerAuth()
 @Controller('api/v1/user')
@@ -79,6 +85,21 @@ export class UserController {
     @ApiNotFoundResponse({ description: 'Profile does not exist' })
     public async GetProfile(@LoggedInUser('id') userID: number): Promise<ProfileDto> {
         return this.usersService.GetProfile(userID);
+    }
+
+    @Delete('/profile/:type')
+    @ApiOperation({ summary: 'Unlink the passed social account type' })
+    @ApiParam({
+        name: 'type',
+        description: 'The type of social to enum',
+        enum: ['twitter', 'discord', 'twitch'],
+        type: String,
+        required: true
+    })
+    @ApiResponse({ status: HttpStatus.NO_CONTENT, description: 'The account was successfully unlinked' })
+    @ApiBadRequestResponse({ description: 'Invalid social account' })
+    public async UnlinkSocial(@LoggedInUser('id') userID: number, @Param('type') type: string) {
+        return this.usersService.UnlinkSocial(userID, type);
     }
 
     //#endregion
@@ -301,9 +322,140 @@ export class UserController {
     @ApiOkPaginatedResponse(MapLibraryEntryDto, { description: 'Paginated list of the library entries' })
     public async GetMapLibraryEntry(
         @LoggedInUser('id') userID: number,
-        @Query() query?: PaginationQuery
+        @Query() query?: UserMapLibraryGetQuery
     ): Promise<PaginatedResponseDto<MapLibraryEntryDto>> {
-        return this.usersService.GetMapLibraryEntry(userID, query.skip, query.take);
+        return this.usersService.GetMapLibraryEntry(userID, query.skip, query.take, query.search, query.expand);
+    }
+
+    @Get('/maps/library/:mapID')
+    @ApiOperation({ summary: "Return 204 if the map is in the user's library, 404 otherwise" })
+    @ApiParam({
+        name: 'mapID',
+        type: Number,
+        description: 'ID of the map to check',
+        required: true
+    })
+    @ApiNoContentResponse({ description: 'Map is in the library' })
+    @ApiNotFoundResponse({ description: 'Map is not in the library' })
+    public async CheckMapLibraryEntry(@LoggedInUser('id') userID: number, @Param('mapID', ParseIntPipe) mapID: number) {
+        return void 0;
+        //return this.usersService.CheckMapLibraryEntry(userID, mapID);
+    }
+
+    @Put('/maps/library/:mapID')
+    @ApiOperation({ summary: "Adds the given map to the local user's library" })
+    @ApiParam({
+        name: 'mapID',
+        type: Number,
+        description: 'ID of the map to add to the library',
+        required: true
+    })
+    @ApiNoContentResponse({ description: 'Map was added to the library' })
+    @ApiNotFoundResponse({ description: 'The map does not exist' })
+    public async AddMapLibraryEntry(@LoggedInUser('id') userID: number, @Param('mapID', ParseIntPipe) mapID: number) {
+        return void 0;
+        //return this.usersService.AddMapLibraryEntry(userID, mapID);
+    }
+
+    @Delete('/maps/library/:mapID')
+    @ApiOperation({ summary: "Removes the given map from the local user's library" })
+    @ApiParam({
+        name: 'mapID',
+        type: Number,
+        description: 'ID of the map to remove from the library',
+        required: true
+    })
+    @ApiNoContentResponse({ description: 'Map was removed from the library' })
+    @ApiNotFoundResponse({ description: 'The map does not exist' })
+    public async RemoveMapLibraryEntry(
+        @LoggedInUser('id') userID: number,
+        @Param('mapID', ParseIntPipe) mapID: number
+    ) {
+        return void 0;
+        //return this.usersService.RemoveMapLibraryEntry(userID, mapID);
+    }
+
+    //#endregion
+
+    //#region Map Favorites
+
+    @Get('/maps/favorites')
+    @ApiOperation({ summary: "Returns the maps in the local user's favorites" })
+    @ApiOkPaginatedResponse(MapLibraryEntryDto, { description: 'Paginated list of favorited maps' })
+    public async GetFavoritedMaps(
+        @LoggedInUser('id') userID: number,
+        @Query() query?: UserMapLibraryGetQuery
+    ): Promise<PaginatedResponseDto<MapLibraryEntryDto>> {
+        return void 0;
+        //return this.usersService.GetFavoritedMaps(userID, query.skip, query.take, query.search);
+    }
+
+    @Get('/maps/favorites/:mapID')
+    @ApiOperation({ summary: "Return 204 if the map is in the user's favorites, 404 otherwise" })
+    @ApiParam({
+        name: 'mapID',
+        type: Number,
+        description: 'ID of the map to check',
+        required: true
+    })
+    @ApiNoContentResponse({ description: 'Map is in the favorites' })
+    @ApiNotFoundResponse({ description: 'Map is not in the favorites' })
+    public async CheckFavoritedMap(@LoggedInUser('id') userID: number, @Param('mapID', ParseIntPipe) mapID: number) {
+        return void 0;
+        //return this.usersService.CheckFavoritedMap(userID, mapID);
+    }
+
+    @Put('/maps/favorites/:mapID')
+    @ApiOperation({ summary: "Adds the given map to the local user's favorites" })
+    @ApiParam({
+        name: 'mapID',
+        type: Number,
+        description: 'ID of the map to add to the favorites',
+        required: true
+    })
+    @ApiNoContentResponse({ description: 'Map was added to the favorites' })
+    @ApiNotFoundResponse({ description: 'The map does not exist' })
+    public async AddFavoritedMap(@LoggedInUser('id') userID: number, @Param('mapID', ParseIntPipe) mapID: number) {
+        return void 0;
+        //return this.usersService.AddFavoritedMap(userID, mapID);
+    }
+
+    @Delete('/maps/favorites/:mapID')
+    @ApiOperation({ summary: "Removes the given map from the local user's favorites" })
+    @ApiParam({
+        name: 'mapID',
+        type: Number,
+        description: 'ID of the map to remove from the favorites',
+        required: true
+    })
+    @ApiNoContentResponse({ description: 'Map was removed from the favorites' })
+    @ApiNotFoundResponse({ description: 'The map does not exist' })
+    public async RemoveFavoritedMap(@LoggedInUser('id') userID: number, @Param('mapID', ParseIntPipe) mapID: number) {
+        return void 0;
+        //return this.usersService.RemoveFavoritedMap(userID, mapID);
+    }
+
+    //#endregion
+
+    //#region Map Submissions
+
+    @Get('/maps/submitted')
+    @ApiOperation({ summary: 'Returns the maps submitted by the local user' })
+    @ApiOkPaginatedResponse(MapDto, { description: 'Paginated list of submitted maps' })
+    public async GetSubmittedMaps(
+        @LoggedInUser('id') userID: number,
+        @Query() query?: UserMapSubmittedGetQuery
+    ): Promise<PaginatedResponseDto<MapDto>> {
+        return void 0;
+        //return this.usersService.GetSubmittedMaps(userID, query.skip, query.take, query.search, query.expand);
+    }
+
+    // I dunno what this last one is, check old API!
+    @Get('/maps/submitted/summary')
+    @ApiOperation({ summary: 'Returns the summary of maps submitted by the local user' })
+    @ApiOkResponse({ description: 'Summary of maps submitted by the local user' })
+    public async GetSubmittedMapsSummary(@LoggedInUser('id') userID: number) /*: Promise<who knows???> */ {
+        return void 0;
     }
 
     //#endregion
