@@ -17,6 +17,7 @@ import {
     ApiBadRequestResponse,
     ApiBearerAuth,
     ApiBody,
+    ApiNoContentResponse,
     ApiNotFoundResponse,
     ApiOkResponse,
     ApiOperation,
@@ -62,7 +63,7 @@ export class UserController {
         description: 'Update user data transfer object',
         required: true
     })
-    @ApiOkResponse({ description: 'The user was successfully updated' })
+    @ApiNoContentResponse({ description: 'The user was successfully updated' })
     @ApiBadRequestResponse({ description: 'Invalid update data' })
     public async UpdateUser(@LoggedInUser('id') userID: number, @Body() updateDto: UpdateUserDto) {
         await this.usersService.Update(userID, updateDto);
@@ -110,7 +111,7 @@ export class UserController {
         description: 'ID of the user to follow',
         required: true
     })
-    @ApiOkResponse({ description: 'The user was successfully followed' })
+    @ApiNoContentResponse({ description: 'The user was successfully followed' })
     @ApiNotFoundResponse({ description: 'Target user does not exist' })
     public FollowUser(@LoggedInUser('id') localUserID: number, @Param('userID', ParseIntPipe) targetUserID: number) {
         return this.usersService.FollowUser(localUserID, targetUserID);
@@ -130,7 +131,7 @@ export class UserController {
         description: 'Flags expressing what activities the player wants to be notified of from the given user',
         required: true
     })
-    @ApiOkResponse({ description: 'The follow activity flags were successfully updated' })
+    @ApiNoContentResponse({ description: 'The follow activity flags were successfully updated' })
     @ApiNotFoundResponse({ description: 'Target user does not exist' })
     public UpdateFollow(
         @LoggedInUser('id') localUserID: number,
@@ -149,7 +150,7 @@ export class UserController {
         description: 'ID of the user to unfollow',
         required: true
     })
-    @ApiOkResponse({ description: 'The user was successfully unfollowed' })
+    @ApiNoContentResponse({ description: 'The user was successfully unfollowed' })
     @ApiNotFoundResponse({ description: 'Target user or follow does not exist' })
     public UnfollowUser(@LoggedInUser('id') localUserID: number, @Param('userID', ParseIntPipe) targetUserID: number) {
         return this.usersService.UnfollowUser(localUserID, targetUserID);
@@ -190,7 +191,7 @@ export class UserController {
         description: 'Flags expressing what activities the player wants to be notified of from the given map',
         required: true
     })
-    @ApiOkResponse({ description: 'The map notify flags were successfully updated' })
+    @ApiNoContentResponse({ description: 'The map notify flags were successfully updated' })
     @ApiBadRequestResponse({ description: 'Invalid notifyOn data' })
     @ApiNotFoundResponse({ description: 'The map does not exist' })
     public UpdateMapNotify(
@@ -210,7 +211,7 @@ export class UserController {
         description: 'ID of the map to delete the notification for',
         required: true
     })
-    @ApiOkResponse({ description: 'Map notification was deleted successfully' })
+    @ApiNoContentResponse({ description: 'Map notification was deleted successfully' })
     @ApiNotFoundResponse({ description: 'The map does not exist' })
     public RemoveMapNotify(@LoggedInUser('id') userID: number, @Param('mapID', ParseIntPipe) mapID: number) {
         return this.usersService.RemoveMapNotify(userID, mapID);
@@ -268,7 +269,7 @@ export class UserController {
         description: 'Bool expressing whether the notification has been read or not',
         required: true
     })
-    @ApiOkResponse({ description: 'Notification was updated successfully' })
+    @ApiNoContentResponse({ description: 'Notification was updated successfully' })
     @ApiBadRequestResponse({ description: 'Invalid read data' })
     @ApiNotFoundResponse({ description: 'The notification does not exist' })
     public async UpdateNotification(
@@ -281,7 +282,7 @@ export class UserController {
 
     @Delete('/notifications/:notificationID')
     @HttpCode(HttpStatus.NO_CONTENT)
-    @ApiResponse({ description: 'Notification was deleted successfully' })
+    @ApiNoContentResponse({ description: 'Notification was deleted successfully' })
     @ApiOperation({ summary: 'Deletes the given notification' })
     @ApiNotFoundResponse({ description: 'The notification does not exist' })
     public async DeleteNotification(
