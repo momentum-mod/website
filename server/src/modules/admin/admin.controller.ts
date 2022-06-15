@@ -17,6 +17,7 @@ import {
     ApiBadRequestResponse,
     ApiBearerAuth,
     ApiBody,
+    ApiNoContentResponse,
     ApiNotFoundResponse,
     ApiOkResponse,
     ApiOperation,
@@ -71,7 +72,7 @@ export class AdminController {
         description: 'The data to update on the user',
         required: true
     })
-    @ApiOkResponse({ description: 'The user was updated successfully' })
+    @ApiNoContentResponse({ description: 'The user was updated successfully' })
     @ApiBadRequestResponse({ description: 'Invalid user update data' })
     public async UpdateUser(@Param('userID', ParseIntPipe) userID: number, @Body() body: AdminUpdateUserDto) {
         return void 0;
@@ -86,7 +87,7 @@ export class AdminController {
         description: 'ID of the user to delete',
         required: true
     })
-    @ApiOkResponse({ description: 'The user was deleted successfully' })
+    @ApiNoContentResponse({ description: 'The user was deleted successfully' })
     public async DeleteUser(@Param('userID', ParseIntPipe) userID: number) {
         return void 0;
     }
@@ -94,7 +95,6 @@ export class AdminController {
     // This seems to only be used to reset all cosmetic or ranked XP.
     // Such a thing terrifies me, so lets leave it for now.
     @Patch('/user-stats')
-    @HttpCode(HttpStatus.NO_CONTENT)
     @ApiOperation({ summary: "Update every user's stats" })
     public async UpdateUserStats() {
         return void 0;
@@ -122,7 +122,7 @@ export class AdminController {
         description: 'The new status flags to update on the map',
         required: true
     })
-    @ApiOkResponse({ description: 'The map was updated successfully' })
+    @ApiNoContentResponse({ description: 'The map was updated successfully' })
     @ApiBadRequestResponse({ description: 'Invalid map update data' })
     public async UpdateMap(@Param('mapID', ParseIntPipe) mapID: number, @Body() body: MapUpdateDto) {
         return void 0;
@@ -137,7 +137,7 @@ export class AdminController {
         description: 'ID of the map to delete',
         required: true
     })
-    @ApiOkResponse({ description: 'The map was deleted successfully' })
+    @ApiNoContentResponse({ description: 'The map was deleted successfully' })
     public async DeleteMap(@Param('mapID', ParseIntPipe) mapID: number) {
         return void 0;
     }
@@ -164,7 +164,7 @@ export class AdminController {
         description: 'The updated resolution message and status',
         required: true
     })
-    @ApiOkResponse({ description: 'The report was updated successfully' })
+    @ApiNoContentResponse({ description: 'The report was updated successfully' })
     public UpdateReport(@Param('reportID', ParseIntPipe) reportID: number, @Body() body: ReportDto) {
         return void 0;
     }
