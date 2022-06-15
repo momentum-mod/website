@@ -15,8 +15,9 @@ export class ReportGetQuery extends PaginationQuery {
 
     @ApiPropertyOptional({
         name: 'expand',
-        description: 'Expand by submitter or resolver',
         type: String,
+        description: 'Expand by submitter and/or resolver',
+        enum: ['submitter', 'resolver'],
         example: 'submitter,resolver'
     })
     @IsOptional()

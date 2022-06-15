@@ -29,6 +29,7 @@ export class MapsGetAllQuery extends PaginationQuery {
     @ApiPropertyOptional({
         name: 'expand',
         type: String,
+        enum: ['info', 'submitter', 'credits'],
         description: 'Expand by info, submitter, and/or credits (comma-separated)',
         example: 'info,submitter,credits'
     })
