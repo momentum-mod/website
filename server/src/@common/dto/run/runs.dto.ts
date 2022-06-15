@@ -1,5 +1,5 @@
 import { UserDto } from '../user/user.dto';
-import { MapRankDto } from '../map/mapRank.dto';
+import { MapRankDto } from '../map/map-rank.dto';
 import { Run } from '@prisma/client';
 import { ApiProperty } from '@nestjs/swagger';
 import { IsDate, IsInt, IsOptional } from 'class-validator';

@@ -1,6 +1,6 @@
 import { Body, Controller, Get, Param, Post, Query, UploadedFile, UseGuards, UseInterceptors } from '@nestjs/common';
 import { ApiBearerAuth, ApiBody, ApiOperation, ApiQuery, ApiTags, ApiParam, ApiConsumes } from '@nestjs/swagger';
-import { PagedResponseDto } from '../../@common/dto/common/api-response.dto';
+import { PaginatedResponseDto } from '../../@common/dto/paginated-response.dto';
 import { MapsService } from './maps.service';
 import { JwtAuthGuard } from '../auth/jwt/jwt-auth.guard';
 import { MapDto } from '../../@common/dto/map/map.dto';
@@ -31,7 +31,7 @@ export class MapsController {
     public async GetAllMaps(
         @Query('skip') skip?: number,
         @Query('take') take?: number
-    ): Promise<PagedResponseDto<MapDto>> {
+    ): Promise<PaginatedResponseDto<MapDto>> {
         return this.mapsService.GetAll(skip, take);
     }
 

@@ -3,7 +3,7 @@ import { JwtService } from '@nestjs/jwt';
 import { User } from '@prisma/client';
 import { UsersService } from '../users/users.service';
 import { appConfig } from '../../../config/config';
-import { JWTResponseDto } from '../../@common/dto/common/api-response.dto';
+import { JWTResponseDto } from '../../@common/dto/jwt-response.dto';
 
 @Injectable()
 export class AuthService {

@@ -1,6 +1,6 @@
 import { applyDecorators, Type } from '@nestjs/common';
 import { ApiOkResponse, ApiProperty, getSchemaPath } from '@nestjs/swagger';
-import { DtoUtils } from '../../utils/dto-utils';
+import { DtoUtils } from '../utils/dto-utils';
 import { SchemaObject } from '@nestjs/swagger/dist/interfaces/open-api-spec.interface';
 
 export const ApiOkPaginatedResponse = <TModel extends Type>(model: TModel, schema?: SchemaObject) => {
@@ -10,7 +10,7 @@ export const ApiOkPaginatedResponse = <TModel extends Type>(model: TModel, schem
                 ...schema,
                 title: `PaginatedResponseOf${model.name}`,
                 allOf: [
-                    { $ref: getSchemaPath(PagedResponseDto) },
+                    { $ref: getSchemaPath(PaginatedResponseDto) },
                     {
                         properties: {
                             response: {
@@ -25,7 +25,7 @@ export const ApiOkPaginatedResponse = <TModel extends Type>(model: TModel, schem
     );
 };
 
-export class PagedResponseDto<T> {
+export class PaginatedResponseDto<T> {
     @ApiProperty({
         type: Number,
         description: 'The total number of results found'
@@ -47,11 +47,4 @@ export class PagedResponseDto<T> {
         this.returnCount = dtos.length;
         this.response = dtos;
     }
-}
-
-export interface JWTResponseDto {
-    access_token: string;
-    token_type: 'JWT';
-    expires_in: string;
-    refresh_token: string;
 }

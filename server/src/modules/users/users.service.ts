@@ -9,7 +9,7 @@ import {
 import { Prisma, User, UserAuth } from '@prisma/client';
 import { UpdateUserDto, UserDto } from '../../@common/dto/user/user.dto';
 import { ProfileDto } from '../../@common/dto/user/profile.dto';
-import { PagedResponseDto } from '../../@common/dto/common/api-response.dto';
+import { PaginatedResponseDto } from '../../@common/dto/paginated-response.dto';
 import { UsersRepo } from './users.repo';
 import { appConfig } from '../../../config/config';
 import { lastValueFrom, map } from 'rxjs';
@@ -17,15 +17,15 @@ import * as xml2js from 'xml2js';
 import { HttpService } from '@nestjs/axios';
 import { ActivityDto } from '../../@common/dto/user/activity.dto';
 import { FollowerDto, FollowStatusDto, UpdateFollowStatusDto } from '../../@common/dto/user/followers.dto';
-import { MapCreditDto } from '../../@common/dto/map/mapCredit.dto';
+import { MapCreditDto } from '../../@common/dto/map/map-credit.dto';
 import { EBan, ERole } from '../../@common/enums/user.enum';
 import { EActivityTypes } from '../../@common/enums/activity.enum';
 import { RunDto } from '../../@common/dto/run/runs.dto';
 import { DtoUtils } from '../../@common/utils/dto-utils';
-import { MapNotifyDto, UpdateMapNotifyDto } from '../../@common/dto/map/mapNotify.dto';
+import { MapNotifyDto, UpdateMapNotifyDto } from '../../@common/dto/map/map-notify.dto';
 import { MapsRepo } from '../maps/maps.repo';
 import { NotificationDto, UpdateNotificationDto } from '../../@common/dto/user/notification.dto';
-import { MapLibraryEntryDto } from '../../@common/dto/map/libraryEntry.dto';
+import { MapLibraryEntryDto } from '../../@common/dto/map/library-entry';
 
 @Injectable()
 export class UsersService {
@@ -46,7 +46,7 @@ export class UsersService {
         playerID?: string,
         playerIDs?: string[],
         mapRank?: number
-    ): Promise<PagedResponseDto<UserDto>> {
+    ): Promise<PaginatedResponseDto<UserDto>> {
         const where: Prisma.UserWhereInput = {};
 
         if (playerID && playerIDs) throw new BadRequestException();
@@ -85,7 +85,7 @@ export class UsersService {
             }
         });
 
-        return new PagedResponseDto<UserDto>(UserDto, dbResponse);
+        return new PaginatedResponseDto<UserDto>(UserDto, dbResponse);
     }
 
     public async Get(id: number, expand?: string[], mapRank?: number): Promise<UserDto> {
@@ -233,7 +233,7 @@ export class UsersService {
         take?: number,
         type?: EActivityTypes,
         data?: bigint
-    ): Promise<PagedResponseDto<ActivityDto>> {
+    ): Promise<PaginatedResponseDto<ActivityDto>> {
         const where: Prisma.ActivityWhereInput = {
             userID: userID,
             type: type,
@@ -244,7 +244,7 @@ export class UsersService {
 
         // Do we want to be so open here? Shouldn't report activity be hidden?
 
-        return new PagedResponseDto<ActivityDto>(ActivityDto, dbResponse);
+        return new PaginatedResponseDto<ActivityDto>(ActivityDto, dbResponse);
     }
 
     public async GetFollowedActivities(
@@ -253,7 +253,7 @@ export class UsersService {
         take?: number,
         type?: EActivityTypes,
         data?: bigint
-    ): Promise<PagedResponseDto<ActivityDto>> {
+    ): Promise<PaginatedResponseDto<ActivityDto>> {
         const follows = await this.userRepo.GetFollowing(userID);
 
         const following = follows[0].map((follow) => follow.followedID);
@@ -268,23 +268,23 @@ export class UsersService {
 
         const dbResponse = await this.userRepo.GetActivities(where, skip, take);
 
-        return new PagedResponseDto<ActivityDto>(ActivityDto, dbResponse);
+        return new PaginatedResponseDto<ActivityDto>(ActivityDto, dbResponse);
     }
 
     //#endregion
 
     //#region Follows
 
-    public async GetFollowers(id: number, skip?: number, take?: number): Promise<PagedResponseDto<FollowerDto>> {
+    public async GetFollowers(id: number, skip?: number, take?: number): Promise<PaginatedResponseDto<FollowerDto>> {
         const dbResponse = await this.userRepo.GetFollowers(id, skip, take);
 
-        return new PagedResponseDto<FollowerDto>(FollowerDto, dbResponse);
+        return new PaginatedResponseDto<FollowerDto>(FollowerDto, dbResponse);
     }
 
-    public async GetFollowing(id: number, skip?: number, take?: number): Promise<PagedResponseDto<FollowerDto>> {
+    public async GetFollowing(id: number, skip?: number, take?: number): Promise<PaginatedResponseDto<FollowerDto>> {
         const dbResponse = await this.userRepo.GetFollowing(id, skip, take);
 
-        return new PagedResponseDto<FollowerDto>(FollowerDto, dbResponse);
+        return new PaginatedResponseDto<FollowerDto>(FollowerDto, dbResponse);
     }
 
     public async GetFollowStatus(localUserID: number, targetUserID: number): Promise<FollowStatusDto> {
@@ -339,10 +339,10 @@ export class UsersService {
         userID: number,
         skip?: number,
         take?: number
-    ): Promise<PagedResponseDto<NotificationDto>> {
+    ): Promise<PaginatedResponseDto<NotificationDto>> {
         const dbResponse = await this.userRepo.GetNotifications(userID, skip, take);
 
-        return new PagedResponseDto<NotificationDto>(NotificationDto, dbResponse);
+        return new PaginatedResponseDto<NotificationDto>(NotificationDto, dbResponse);
     }
 
     public async UpdateNotification(userID: number, notificationID: number, updateDto: UpdateNotificationDto) {
@@ -372,7 +372,7 @@ export class UsersService {
     public async GetMapLibraryEntry(userID: number, skip: number, take: number) {
         const dbResponse = await this.userRepo.GetMapLibraryEntry(userID, skip, take);
 
-        return new PagedResponseDto<MapLibraryEntryDto>(MapLibraryEntryDto, dbResponse);
+        return new PaginatedResponseDto<MapLibraryEntryDto>(MapLibraryEntryDto, dbResponse);
     }
 
     //#endregion
@@ -414,20 +414,20 @@ export class UsersService {
 
     //#region Credits
 
-    public async GetMapCredits(id: number, skip?: number, take?: number): Promise<PagedResponseDto<MapCreditDto>> {
+    public async GetMapCredits(id: number, skip?: number, take?: number): Promise<PaginatedResponseDto<MapCreditDto>> {
         const dbResponse = await this.userRepo.GetMapCredits(id, skip, take);
 
-        return new PagedResponseDto<MapCreditDto>(MapCreditDto, dbResponse);
+        return new PaginatedResponseDto<MapCreditDto>(MapCreditDto, dbResponse);
     }
 
     //#endregion
 
     //#region Runs
 
-    public async GetRuns(id: number, skip?: number, take?: number): Promise<PagedResponseDto<RunDto>> {
+    public async GetRuns(id: number, skip?: number, take?: number): Promise<PaginatedResponseDto<RunDto>> {
         const dbResponse = await this.userRepo.GetRuns(id, skip, take);
 
-        return new PagedResponseDto<RunDto>(RunDto, dbResponse);
+        return new PaginatedResponseDto<RunDto>(RunDto, dbResponse);
     }
 
     //#endregion

@@ -1,8 +1,31 @@
-﻿import { ApiPropertyOptional } from '@nestjs/swagger';
-import { IsInt, IsString, IsOptional } from 'class-validator';
-import { Type, Transform } from 'class-transformer';
-import { IsSteamCommunityID } from '../../../@common/validators/is-steam-id.validator';
-import { PaginationQueryDto } from '../../../@common/dto/common/pagination.dto';
+﻿import { ApiPropertyOptional, OmitType } from '@nestjs/swagger';
+import { IsEnum, IsInt, IsOptional, IsString } from 'class-validator';
+import { Transform, Type } from 'class-transformer';
+import { PaginationQueryDto } from './pagination.dto';
+import { IsSteamCommunityID } from '../../validators/is-steam-id.validator';
+import { ActivitiesGetQuery } from './activity-queries.dto';
+
+export class UsersGetQuery {
+    @ApiPropertyOptional({
+        name: 'expand',
+        type: String,
+        description: 'Expand by profile or userStats (comma-separated)',
+        example: 'profile,userStats'
+    })
+    @IsOptional()
+    @Transform(({ value }) => value.split(','))
+    expand: string[];
+
+    @ApiPropertyOptional({
+        name: 'mapRank',
+        type: String,
+        description: "Include the user's rank and run for a map with mapID mapRank"
+    })
+    @IsOptional()
+    @Type(() => Number)
+    @IsInt()
+    mapRank: number;
+}
 
 export class UsersGetAllQuery extends PaginationQueryDto {
     @ApiPropertyOptional({
@@ -57,3 +80,5 @@ export class UsersGetAllQuery extends PaginationQueryDto {
     @IsInt()
     mapRank: number;
 }
+
+export class UsersGetActivitiesQuery extends OmitType(ActivitiesGetQuery, ['userID' as const]) {}

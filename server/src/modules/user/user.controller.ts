@@ -28,16 +28,15 @@ import { JwtAuthGuard } from '../auth/jwt/jwt-auth.guard';
 import { UpdateUserDto, UserDto } from '../../@common/dto/user/user.dto';
 import { UsersService } from '../users/users.service';
 import { LoggedInUser } from '../../@common/decorators/logged-in-user.decorator';
-import { UserGetQuery } from './queries/get.query.dto';
 import { FollowStatusDto, UpdateFollowStatusDto } from '../../@common/dto/user/followers.dto';
 import { ProfileDto } from '../../@common/dto/user/profile.dto';
-import { MapNotifyDto, UpdateMapNotifyDto } from '../../@common/dto/map/mapNotify.dto';
-import { ApiOkPaginatedResponse, PagedResponseDto } from '../../@common/dto/common/api-response.dto';
-import { UsersGetActivitiesQuery } from '../users/queries/get-activities.query.dto';
+import { MapNotifyDto, UpdateMapNotifyDto } from '../../@common/dto/map/map-notify.dto';
+import { ApiOkPaginatedResponse, PaginatedResponseDto } from '../../@common/dto/paginated-response.dto';
 import { ActivityDto } from '../../@common/dto/user/activity.dto';
-import { PaginationQueryDto } from '../../@common/dto/common/pagination.dto';
+import { PaginationQueryDto } from '../../@common/dto/query/pagination.dto';
 import { NotificationDto, UpdateNotificationDto } from '../../@common/dto/user/notification.dto';
-import { MapLibraryEntryDto } from '../../@common/dto/map/libraryEntry.dto';
+import { MapLibraryEntryDto } from '../../@common/dto/map/library-entry';
+import { UsersGetActivitiesQuery, UsersGetQuery } from '../../@common/dto/query/user-queries.dto';
 
 @ApiBearerAuth()
 @Controller('api/v1/user')
@@ -51,7 +50,7 @@ export class UserController {
     @Get()
     @ApiOperation({ summary: 'Get local user, based on JWT' })
     @ApiOkResponse({ type: UserDto, description: 'The logged in user data' })
-    public async GetUser(@LoggedInUser('id') userID: number, @Query() query?: UserGetQuery): Promise<UserDto> {
+    public async GetUser(@LoggedInUser('id') userID: number, @Query() query?: UsersGetQuery): Promise<UserDto> {
         return this.usersService.Get(userID, query.expand);
     }
 
@@ -227,7 +226,7 @@ export class UserController {
     public async GetActivities(
         @LoggedInUser('id') userID: number,
         @Query() query?: UsersGetActivitiesQuery
-    ): Promise<PagedResponseDto<ActivityDto>> {
+    ): Promise<PaginatedResponseDto<ActivityDto>> {
         return this.usersService.GetActivities(userID, query.skip, query.take, query.type, query.data);
     }
 
@@ -243,7 +242,7 @@ export class UserController {
     public async GetFollowedActivities(
         @LoggedInUser('id') userID: number,
         @Query() query?: UsersGetActivitiesQuery
-    ): Promise<PagedResponseDto<ActivityDto>> {
+    ): Promise<PaginatedResponseDto<ActivityDto>> {
         return this.usersService.GetFollowedActivities(userID, query.skip, query.take, query.type, query.data);
     }
 
@@ -257,7 +256,7 @@ export class UserController {
     public async GetNotifications(
         @LoggedInUser('id') userID: number,
         @Query() query?: PaginationQueryDto
-    ): Promise<PagedResponseDto<NotificationDto>> {
+    ): Promise<PaginatedResponseDto<NotificationDto>> {
         return this.usersService.GetNotifications(userID, query.skip, query.take);
     }
 
@@ -302,7 +301,7 @@ export class UserController {
     public async GetMapLibraryEntry(
         @LoggedInUser('id') userID: number,
         @Query() query?: PaginationQueryDto
-    ): Promise<PagedResponseDto<MapLibraryEntryDto>> {
+    ): Promise<PaginatedResponseDto<MapLibraryEntryDto>> {
         return this.usersService.GetMapLibraryEntry(userID, query.skip, query.take);
     }
 

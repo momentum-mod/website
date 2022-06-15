@@ -7,7 +7,7 @@ import { Exclude, Expose, Transform } from 'class-transformer';
 import { IsSteamCommunityID } from '../../validators/is-steam-id.validator';
 import { ProfileDto } from './profile.dto';
 import { DtoUtils } from '../../utils/dto-utils';
-import { MapRankDto } from '../map/mapRank.dto';
+import { MapRankDto } from '../map/map-rank.dto';
 
 // TODO: UserStats in here in future as well
 export class UserDto implements User {

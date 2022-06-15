@@ -1,7 +1,8 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { EMapTriggerType, EMapType } from '../../enums/map.enum';
-import { MapCreditDto } from './mapCredit.dto';
+import { MapCreditDto } from './map-credit.dto';
 
+// TODO: Alex, these are really messy, can they be moved to their respective DTO files?
 class mapTriggers {
     @ApiProperty()
     type: EMapTriggerType;
