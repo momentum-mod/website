@@ -1,5 +1,5 @@
 ﻿import { ApiPropertyOptional, OmitType } from '@nestjs/swagger';
-import { IsEnum, IsInt, IsOptional, IsString } from 'class-validator';
+import { IsInt, IsOptional, IsString } from 'class-validator';
 import { Transform, Type } from 'class-transformer';
 import { PaginationQueryDto } from './pagination.dto';
 import { IsSteamCommunityID } from '../../validators/is-steam-id.validator';
@@ -56,7 +56,7 @@ export class UsersGetAllQuery extends PaginationQueryDto {
     })
     @IsOptional()
     @IsSteamCommunityID()
-    playerID: string;
+    steamID: string;
 
     @ApiPropertyOptional({
         name: 'playerIDs',
@@ -67,7 +67,7 @@ export class UsersGetAllQuery extends PaginationQueryDto {
     @IsOptional()
     @IsSteamCommunityID({ each: true })
     @Transform(({ value }) => value.split(','))
-    playerIDs: string[];
+    steamIDs: string[];
 
     @ApiPropertyOptional({
         name: 'mapRank',

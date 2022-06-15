@@ -238,7 +238,7 @@ describe('Users', () => {
         });
 
         it('should respond with an array of one user for a matching SteamID parameter', async () => {
-            const res = await TestUtil.get('users', 200, { playerID: user1.steamID });
+            const res = await TestUtil.get('users', 200, { steamID: user1.steamID });
 
             expects(res);
             expect(res.body.totalCount).toBe(1);
@@ -246,7 +246,7 @@ describe('Users', () => {
         });
 
         it('should respond with an empty array for a nonexistent SteamID parameter', async () => {
-            const res = await TestUtil.get('users', 200, { playerID: 3141592612921 });
+            const res = await TestUtil.get('users', 200, { steamID: 3141592612921 });
 
             expect(res.body.totalCount).toBe(0);
             expect(res.body.returnCount).toBe(0);
@@ -254,7 +254,7 @@ describe('Users', () => {
         });
 
         it('should respond with an array of multiple users for multiple matching SteamID parameters', async () => {
-            const res = await TestUtil.get('users', 200, { playerIDs: [user1.steamID + ',' + user2.steamID] });
+            const res = await TestUtil.get('users', 200, { steamIDs: [user1.steamID + ',' + user2.steamID] });
 
             expects(res);
             expect(res.body.totalCount).toBe(2);
@@ -263,7 +263,7 @@ describe('Users', () => {
         });
 
         it('should respond with should respond with an empty array for multiple nonexistent SteamID parameters', async () => {
-            const res = await TestUtil.get('users', 200, { playerIDs: [21412341234 + ',' + 765474124] });
+            const res = await TestUtil.get('users', 200, { steamIDs: [21412341234 + ',' + 765474124] });
 
             expect(res.body.totalCount).toBe(0);
             expect(res.body.returnCount).toBe(0);
@@ -271,7 +271,7 @@ describe('Users', () => {
         });
 
         it('should respond with the specified user with with a corresponding map rank and run when given a mapRank mapid', async () => {
-            const res = await TestUtil.get(`users`, 200, { mapRank: map1.id, playerID: user1.steamID });
+            const res = await TestUtil.get(`users`, 200, { mapRank: map1.id, steamID: user1.steamID });
 
             expects(res);
             expect(res.body.response[0]).toHaveProperty('mapRank');

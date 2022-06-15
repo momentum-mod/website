@@ -43,19 +43,19 @@ export class UsersService {
         take?: number,
         expand?: string[],
         search?: string,
-        playerID?: string,
-        playerIDs?: string[],
+        steamID?: string,
+        steamIDs?: string[],
         mapRank?: number
     ): Promise<PaginatedResponseDto<UserDto>> {
         const where: Prisma.UserWhereInput = {};
 
-        if (playerID && playerIDs) throw new BadRequestException();
+        if (steamID && steamIDs) throw new BadRequestException();
 
-        if (playerID) {
+        if (steamID) {
             take = 1;
-            where.steamID = playerID;
-        } else if (playerIDs) {
-            where.steamID = { in: playerIDs };
+            where.steamID = steamID;
+        } else if (steamIDs) {
+            where.steamID = { in: steamIDs };
         }
 
         if (search) where.alias = { startsWith: search };

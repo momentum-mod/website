@@ -39,8 +39,8 @@ export class UsersController {
             query.take,
             query.expand,
             query.search,
-            query.playerID,
-            query.playerIDs,
+            query.steamID,
+            query.steamIDs,
             query.mapRank
         );
     }
@@ -118,7 +118,7 @@ export class UsersController {
     })
     @ApiOkPaginatedResponse(UserDto, { description: 'Paginated list of the follows for the user' })
     public async GetFollowed(
-        @Param('userID') userID: number,
+        @Param('userID', ParseIntPipe) userID: number,
         @Query() query: PaginationQueryDto
     ): Promise<PaginatedResponseDto<FollowerDto>> {
         return this.usersService.GetFollowing(userID, query.skip, query.take);
@@ -134,7 +134,7 @@ export class UsersController {
     })
     @ApiOkPaginatedResponse(UserDto, { description: 'Paginated list of map credits attributed to the user' })
     public async GetMapCredits(
-        @Param('userID') userID: number,
+        @Param('userID', ParseIntPipe) userID: number,
         @Query() query: PaginationQueryDto
     ): Promise<PaginatedResponseDto<MapCreditDto>> {
         return this.usersService.GetMapCredits(userID, query.skip, query.take);
@@ -150,7 +150,7 @@ export class UsersController {
     })
     @ApiOkPaginatedResponse(UserDto, { description: "Paginated list of the user's runs" })
     public async GetRuns(
-        @Param('userID') userID: number,
+        @Param('userID', ParseIntPipe) userID: number,
         @Query() query: PaginationQueryDto
     ): Promise<PaginatedResponseDto<RunDto>> {
         // TODO: The old API calls the runs model here. We should do the same, this functionality
