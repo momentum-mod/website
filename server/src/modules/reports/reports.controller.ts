@@ -1,7 +1,9 @@
-import { Controller, UseGuards } from '@nestjs/common';
+import { Controller, Post, Query, UseGuards } from '@nestjs/common';
 import { ReportsService } from './reports.service';
-import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiOkResponse, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { JwtAuthGuard } from '../auth/jwt/jwt-auth.guard';
+import { CreateReportDto, ReportDto } from '../../@common/dto/report/report.dto';
+import { LoggedInUser } from '../../@common/decorators/logged-in-user.decorator';
 
 @ApiBearerAuth()
 @Controller('api/v1/reports')
@@ -9,4 +11,11 @@ import { JwtAuthGuard } from '../auth/jwt/jwt-auth.guard';
 @UseGuards(JwtAuthGuard)
 export class ReportsController {
     constructor(private readonly reportsService: ReportsService) {}
+
+    @Post()
+    @ApiOperation({ summary: 'Create a report' })
+    @ApiOkResponse({ type: ReportDto, description: 'The newly created report' })
+    public CreateReport(@LoggedInUser('id') submitter: number, @Query() query: CreateReportDto): Promise<ReportDto> {
+        return void 0;
+    }
 }
