@@ -8,7 +8,7 @@ export class UsersGetActivitiesQuery extends PaginationQueryDto {
     @ApiPropertyOptional({
         name: 'type',
         enum: EActivityTypes,
-        description: 'Type of activity'
+        description: 'Type of activity to include'
     })
     @IsOptional()
     @Type(() => Number)
@@ -17,8 +17,8 @@ export class UsersGetActivitiesQuery extends PaginationQueryDto {
 
     @ApiPropertyOptional({
         name: 'data',
-        type: 'BigInt',
-        description: 'todo (i dont know what this is used for)'
+        type: BigInt,
+        description: 'The ID into the table of the corresponding activity'
     })
     @IsOptional()
     @Transform(({ value }) => BigInt(value))
