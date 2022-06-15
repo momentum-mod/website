@@ -7,7 +7,7 @@ import { Transform } from 'class-transformer';
 import { MapDto } from './map.dto';
 import { UserDto } from '../user/user.dto';
 import { RunDto } from '../run/runs.dto';
-import { MapImageDto } from './mapImage.dto';
+import { MapImageDto } from './map-image.dto';
 
 export class MapRankDto implements UserMapRank {
     @ApiProperty()

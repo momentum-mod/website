@@ -12,21 +12,19 @@ import {
 import { JwtAuthGuard } from '../auth/jwt/jwt-auth.guard';
 import { UsersService } from './users.service';
 import { UserDto } from '../../@common/dto/user/user.dto';
-import { ApiOkPaginatedResponse, PagedResponseDto } from '../../@common/dto/common/api-response.dto';
+import { ApiOkPaginatedResponse, PaginatedResponseDto } from '../../@common/dto/paginated-response.dto';
 import { ActivityDto } from '../../@common/dto/user/activity.dto';
 import { ProfileDto } from '../../@common/dto/user/profile.dto';
-import { UsersGetAllQuery } from './queries/get-all.query.dto';
-import { UsersGetQuery } from './queries/get.query.dto';
-import { UsersGetActivitiesQuery } from './queries/get-activities.query.dto';
-import { MapCreditDto } from '../../@common/dto/map/mapCredit.dto';
+import { MapCreditDto } from '../../@common/dto/map/map-credit.dto';
 import { FollowerDto } from '../../@common/dto/user/followers.dto';
-import { PaginationQueryDto } from '../../@common/dto/common/pagination.dto';
+import { PaginationQueryDto } from '../../@common/dto/query/pagination.dto';
 import { RunDto } from '../../@common/dto/run/runs.dto';
+import { UsersGetActivitiesQuery, UsersGetAllQuery, UsersGetQuery } from '../../@common/dto/query/user-queries.dto';
 
 @ApiBearerAuth()
 @Controller('/api/v1/users')
 @ApiTags('Users')
-@ApiExtraModels(PagedResponseDto)
+@ApiExtraModels(PaginatedResponseDto)
 @UseGuards(JwtAuthGuard)
 export class UsersController {
     constructor(private readonly usersService: UsersService) {}
@@ -35,7 +33,7 @@ export class UsersController {
     @ApiOperation({ summary: 'Returns all users' })
     @ApiOkPaginatedResponse(UserDto, { description: 'Paginated list of users' })
     @ApiBadRequestResponse({ description: 'The query contained conflicting parameters' })
-    public async GetAll(@Query() query?: UsersGetAllQuery): Promise<PagedResponseDto<UserDto>> {
+    public async GetAll(@Query() query?: UsersGetAllQuery): Promise<PaginatedResponseDto<UserDto>> {
         return this.usersService.GetAll(
             query.skip,
             query.take,
@@ -90,7 +88,7 @@ export class UsersController {
     public async GetActivities(
         @Param('userID', ParseIntPipe) userID: number,
         @Query() query?: UsersGetActivitiesQuery
-    ): Promise<PagedResponseDto<ActivityDto>> {
+    ): Promise<PaginatedResponseDto<ActivityDto>> {
         return this.usersService.GetActivities(userID, query.skip, query.take, query.type, query.data);
     }
 
@@ -106,7 +104,7 @@ export class UsersController {
     public async GetFollowers(
         @Param('userID', ParseIntPipe) userID: number,
         @Query() query?: PaginationQueryDto
-    ): Promise<PagedResponseDto<FollowerDto>> {
+    ): Promise<PaginatedResponseDto<FollowerDto>> {
         return this.usersService.GetFollowers(userID, query.skip, query.take);
     }
 
@@ -122,7 +120,7 @@ export class UsersController {
     public async GetFollowed(
         @Param('userID') userID: number,
         @Query() query: PaginationQueryDto
-    ): Promise<PagedResponseDto<FollowerDto>> {
+    ): Promise<PaginatedResponseDto<FollowerDto>> {
         return this.usersService.GetFollowing(userID, query.skip, query.take);
     }
 
@@ -138,7 +136,7 @@ export class UsersController {
     public async GetMapCredits(
         @Param('userID') userID: number,
         @Query() query: PaginationQueryDto
-    ): Promise<PagedResponseDto<MapCreditDto>> {
+    ): Promise<PaginatedResponseDto<MapCreditDto>> {
         return this.usersService.GetMapCredits(userID, query.skip, query.take);
     }
 
@@ -154,7 +152,7 @@ export class UsersController {
     public async GetRuns(
         @Param('userID') userID: number,
         @Query() query: PaginationQueryDto
-    ): Promise<PagedResponseDto<RunDto>> {
+    ): Promise<PaginatedResponseDto<RunDto>> {
         // TODO: The old API calls the runs model here. We should do the same, this functionality
         // doesn't need to exist in the users service.
         return this.usersService.GetRuns(userID, query.skip, query.take);

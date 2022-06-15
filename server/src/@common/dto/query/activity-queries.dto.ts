@@ -1,8 +1,8 @@
-﻿import { PaginationQueryDto } from '../../../@common/dto/common/pagination.dto';
-import { ApiPropertyOptional } from '@nestjs/swagger';
+﻿import { ApiPropertyOptional } from '@nestjs/swagger';
 import { IsEnum, IsInt, IsOptional } from 'class-validator';
-import { EActivityTypes } from '../../../@common/enums/activity.enum';
 import { Transform, Type } from 'class-transformer';
+import { PaginationQueryDto } from './pagination.dto';
+import { EActivityTypes } from '../../enums/activity.enum';
 
 export class ActivitiesGetQuery extends PaginationQueryDto {
     @ApiPropertyOptional({
@@ -25,7 +25,7 @@ export class ActivitiesGetQuery extends PaginationQueryDto {
     @Type(() => Number)
     // TODO: are these flags?
     @IsEnum(EActivityTypes)
-    activityType: EActivityTypes;
+    type: EActivityTypes;
 
     @ApiPropertyOptional({
         name: 'data',

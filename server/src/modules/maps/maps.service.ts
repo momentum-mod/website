@@ -1,7 +1,7 @@
 import { HttpException, Injectable } from '@nestjs/common';
 import { Map, MapImage, Prisma, User } from '@prisma/client';
 import { MapDto } from '../../@common/dto/map/map.dto';
-import { PagedResponseDto } from '../../@common/dto/common/api-response.dto';
+import { PaginatedResponseDto } from '../../@common/dto/paginated-response.dto';
 import { MapsRepo } from './maps.repo';
 import { CreateMapDto } from '../../@common/dto/map/createMap.dto';
 import { AuthService } from '../auth/auth.service';
@@ -19,10 +19,10 @@ export class MapsService {
 
     //#region Public
 
-    public async GetAll(skip?: number, take?: number): Promise<PagedResponseDto<MapDto>> {
+    public async GetAll(skip?: number, take?: number): Promise<PaginatedResponseDto<MapDto>> {
         const dbResponse = await this.mapRepo.GetAll(undefined, skip, take);
 
-        return new PagedResponseDto<MapDto>(MapDto, dbResponse);
+        return new PaginatedResponseDto<MapDto>(MapDto, dbResponse);
     }
 
     public async Get(id: number): Promise<MapDto> {
