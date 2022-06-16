@@ -15,21 +15,21 @@ export class AuthController {
     constructor(private readonly authService: AuthService, private readonly steamAuthService: SteamAuthService) {}
 
     @ApiOperation({ summary: 'Authenticates using steam' })
-    @Get('steam')
+    @Get('/steam')
     @Public()
     public AuthSteam(@Req() req, @Res() res): void {
         passport.authenticate('steam', { session: false })(req, res);
     }
 
     @ApiOperation({ summary: 'Return url from steam, validate and return valid JWT' })
-    @Get('steam/return')
+    @Get('/steam/return')
     @UseGuards(SteamWebAuthGuard)
     public async ReturnFromSteam(@Req() req: Request): Promise<JWTResponseDto> {
         return this.authService.login(req.user as User, false);
     }
 
     @ApiOperation({ summary: 'Gets the JWT using a steam user ticket' })
-    @Post('steam/user')
+    @Post('/steam/user')
     @Public()
     public async GetUserFromSteam(@Req() req: Request): Promise<JWTResponseDto> {
         const userID = req.headers['id'] as string;

@@ -20,7 +20,7 @@ export class RunsController {
         return void 0;
     }
 
-    @Get(':runID')
+    @Get('/:runID')
     @ApiOperation({ summary: 'Returns a single run' })
     @ApiParam({
         name: 'runID',
@@ -34,7 +34,7 @@ export class RunsController {
         return void 0;
     }
 
-    @Get(':runID/download')
+    @Get('/:runID/download')
     @ApiOperation({ summary: 'Downloads the replay file for a run' })
     @ApiParam({
         name: 'runID',

@@ -35,7 +35,7 @@ export class MapsController {
         return this.mapsService.GetAll(skip, take);
     }
 
-    @Get(':mapID')
+    @Get('/:mapID')
     @ApiOperation({ summary: 'Returns a single map' })
     @ApiParam({
         name: 'mapID',
@@ -58,7 +58,7 @@ export class MapsController {
         return this.mapsService.Insert(mapCreateObj);
     }
 
-    @Post(':mapID/upload')
+    @Post('/:mapID/upload')
     @ApiOperation({ summary: 'Uploads a single map' })
     @ApiParam({
         name: 'mapID',
