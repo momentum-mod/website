@@ -45,7 +45,7 @@ export class UsersController {
         );
     }
 
-    @Get(':userID')
+    @Get('/:userID')
     @ApiOperation({ summary: 'Returns single user' })
     @ApiParam({
         name: 'userID',
@@ -62,7 +62,7 @@ export class UsersController {
         return this.usersService.Get(userID, query.expand, query.mapRank);
     }
 
-    @Get(':userID/profile')
+    @Get('/:userID/profile')
     @ApiOperation({ summary: "Returns single user's profile" })
     @ApiOkResponse({ type: ProfileDto, description: "The found user's profile" })
     @ApiNotFoundResponse({ description: 'Profile was not found' })
@@ -76,7 +76,7 @@ export class UsersController {
         return this.usersService.GetProfile(userID);
     }
 
-    @Get(':userID/activities')
+    @Get('/:userID/activities')
     @ApiOperation({ summary: "Returns all of a single user's activities" })
     @ApiParam({
         name: 'userID',
@@ -92,7 +92,7 @@ export class UsersController {
         return this.usersService.GetActivities(userID, query.skip, query.take, query.type, query.data);
     }
 
-    @Get(':userID/followers')
+    @Get('/:userID/followers')
     @ApiOperation({ summary: 'Returns all follows targeting the user' })
     @ApiParam({
         name: 'userID',
@@ -108,7 +108,7 @@ export class UsersController {
         return this.usersService.GetFollowers(userID, query.skip, query.take);
     }
 
-    @Get(':userID/follows')
+    @Get('/:userID/follows')
     @ApiOperation({ summary: 'Returns all the follows for the user' })
     @ApiParam({
         name: 'userID',
@@ -124,7 +124,7 @@ export class UsersController {
         return this.usersService.GetFollowing(userID, query.skip, query.take);
     }
 
-    @Get(':userID/credits')
+    @Get('/:userID/credits')
     @ApiOperation({ summary: "Returns all of a single user's credits" })
     @ApiParam({
         name: 'userID',
@@ -140,7 +140,7 @@ export class UsersController {
         return this.usersService.GetMapCredits(userID, query.skip, query.take);
     }
 
-    @Get(':userID/runs')
+    @Get('/:userID/runs')
     @ApiOperation({ summary: "Returns all of a single user's runs" })
     @ApiParam({
         name: 'userID',
