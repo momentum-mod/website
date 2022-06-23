@@ -6,7 +6,7 @@ import { MapsRepo } from './maps.repo';
 import { CreateMapDto } from '../../@common/dto/map/createMap.dto';
 import { AuthService } from '../auth/auth.service';
 import { EMapStatus } from '../../@common/enums/map.enum';
-import { FileStoreCloudService } from '../../@common/filestore/cloud.service';
+import { FileStoreCloudService } from '../filestore/file-store-cloud.service';
 import { DtoUtils } from '../../@common/utils/dto-utils';
 
 @Injectable()
