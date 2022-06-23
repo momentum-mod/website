@@ -2,7 +2,7 @@
 import { Test } from '@nestjs/testing';
 import { AppModule } from '../src/app.module';
 import { ClassSerializerInterceptor, ValidationPipe } from '@nestjs/common';
-import { PrismaRepo } from '../src/modules/prisma/prisma.repo';
+import { PrismaService } from '../src/modules/repo/prisma.service';
 import { User } from '@prisma/client';
 import { AuthService } from '../src/modules/auth/auth.service';
 import { ERole } from '../src/@common/enums/user.enum';
@@ -32,7 +32,7 @@ export default class E2ETestEnvironment extends NodeEnvironment {
         await app.init();
 
         this.global.server = app.getHttpServer();
-        this.global.prisma = app.get<PrismaRepo>(PrismaRepo);
+        this.global.prisma = app.get<PrismaService>(PrismaService);
         this.global.auth = app.get<AuthService>(AuthService);
     }
 

@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
-import { RunsRepo } from './runs.repo';
+import { RunsRepoService } from '../repo/runs-repo.service';
 
 @Injectable()
 export class RunsService {
-    constructor(private readonly runRepo: RunsRepo) {}
+    constructor(private readonly runRepo: RunsRepoService) {}
 }

@@ -1,13 +1,12 @@
 import { Module } from '@nestjs/common';
 import { ActivitiesController } from './activities.controller';
 import { ActivitiesService } from './activities.service';
-import { PrismaModule } from '../prisma/prisma.module';
-import { ActivitiesRepo } from './activities.repo';
+import { RepoModule } from '../repo/repo.module';
 
 @Module({
-    imports: [PrismaModule],
+    imports: [RepoModule],
     controllers: [ActivitiesController],
-    providers: [ActivitiesService, ActivitiesRepo],
+    providers: [ActivitiesService],
     exports: [ActivitiesService]
 })
 export class ActivitiesModule {}

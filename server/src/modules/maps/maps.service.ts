@@ -2,7 +2,7 @@ import { HttpException, Injectable } from '@nestjs/common';
 import { Map, MapImage, Prisma, User } from '@prisma/client';
 import { MapDto } from '../../@common/dto/map/map.dto';
 import { PaginatedResponseDto } from '../../@common/dto/paginated-response.dto';
-import { MapsRepo } from './maps.repo';
+import { MapsRepoService } from '../repo/maps-repo.service';
 import { CreateMapDto } from '../../@common/dto/map/createMap.dto';
 import { AuthService } from '../auth/auth.service';
 import { EMapStatus } from '../../@common/enums/map.enum';
@@ -13,7 +13,7 @@ import { DtoUtils } from '../../@common/utils/dto-utils';
 export class MapsService {
     constructor(
         private readonly authService: AuthService,
-        private readonly mapRepo: MapsRepo,
+        private readonly mapRepo: MapsRepoService,
         private readonly fileCloudService: FileStoreCloudService
     ) {}
 

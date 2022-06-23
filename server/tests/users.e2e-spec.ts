@@ -3,7 +3,7 @@
 import * as request from 'supertest';
 import { TestUtil } from './util';
 import { EActivityTypes } from '../src/@common/enums/activity.enum';
-import { PrismaRepo } from '../src/modules/prisma/prisma.repo';
+import { PrismaService } from '../src/modules/repo/prisma.service';
 import { EMapCreditType, EMapStatus, EMapType } from '../src/@common/enums/map.enum';
 import { ERole } from '../src/@common/enums/user.enum';
 import { AuthService } from '../src/modules/auth/auth.service';
@@ -12,7 +12,7 @@ describe('Users', () => {
     let user1, user2, user3, map1, map2, run1;
 
     beforeEach(async () => {
-        const prisma: PrismaRepo = global.prisma;
+        const prisma: PrismaService = global.prisma;
 
         user1 = await prisma.user.create({
             data: {
@@ -179,7 +179,7 @@ describe('Users', () => {
     });
 
     afterEach(async () => {
-        const prisma: PrismaRepo = global.prisma;
+        const prisma: PrismaService = global.prisma;
 
         await prisma.user.deleteMany({ where: { id: { in: [user1.id, user2.id, user3.id] } } });
 

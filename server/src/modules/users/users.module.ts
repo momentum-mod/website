@@ -1,17 +1,15 @@
-import { HttpModule } from '@nestjs/axios';
 import { Module } from '@nestjs/common';
 import { UsersService } from './users.service';
-import { UsersRepo } from './users.repo';
+import { UsersRepoService } from '../repo/users-repo.service';
 import { UsersController } from './users.controller';
-import { PrismaModule } from '../prisma/prisma.module';
-import { MapsRepo } from '../maps/maps.repo';
+import { RepoModule } from '../repo/repo.module';
+import { MapsRepoService } from '../repo/maps-repo.service';
+import { HttpModule, HttpService } from '@nestjs/axios';
 
 @Module({
-    imports: [HttpModule, PrismaModule],
+    imports: [RepoModule, HttpModule],
     controllers: [UsersController],
-    // TODO: Remove mapsrepo import once alex sorts stuff!!!
-    providers: [UsersService, UsersRepo, MapsRepo],
-    // TODO: As per our architectural structure, repos shouldn't be available to other modules. Remove once Alex resolves circs.
-    exports: [UsersService, UsersRepo]
+    providers: [UsersService, UsersRepoService, MapsRepoService],
+    exports: [UsersService]
 })
 export class UsersModule {}

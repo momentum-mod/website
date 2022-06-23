@@ -1,13 +1,13 @@
 import { Module } from '@nestjs/common';
 import { RunsController } from './runs.controller';
 import { RunsService } from './runs.service';
-import { PrismaModule } from '../prisma/prisma.module';
-import { RunsRepo } from './runs.repo';
+import { RepoModule } from '../repo/repo.module';
+import { RunsRepoService } from '../repo/runs-repo.service';
 
 @Module({
-    imports: [PrismaModule],
+    imports: [RepoModule],
     controllers: [RunsController],
-    providers: [RunsService, RunsRepo],
+    providers: [RunsService, RunsRepoService],
     exports: [RunsService]
 })
 export class RunsModule {}

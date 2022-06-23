@@ -1,7 +1,7 @@
 ﻿// noinspection DuplicatedCode
 
 import { EMapCreditType, EMapStatus, EMapType } from '../src/@common/enums/map.enum';
-import { PrismaRepo } from '../src/modules/prisma/prisma.repo';
+import { PrismaService } from '../src/modules/repo/prisma.service';
 import { EBan, ERole } from '../src/@common/enums/user.enum';
 import { TestUtil } from './util';
 import { AuthService } from '../src/modules/auth/auth.service';
@@ -11,7 +11,7 @@ describe('User', () => {
     let user1, user2, user2Token, user3, user3Token, admin, adminGame, adminAccessToken, map1, map2, map3, activities;
 
     beforeEach(async () => {
-        const prisma: PrismaRepo = global.prisma;
+        const prisma: PrismaService = global.prisma;
 
         user1 = await prisma.user.create({
             data: {
@@ -250,7 +250,7 @@ describe('User', () => {
     });
 
     afterEach(async () => {
-        const prisma: PrismaRepo = global.prisma;
+        const prisma: PrismaService = global.prisma;
 
         await prisma.user.deleteMany({ where: { id: { in: [user1.id, user2.id, user3.id, admin.id, adminGame.id] } } });
 
