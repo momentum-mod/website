@@ -234,7 +234,8 @@ describe('Users', () => {
             const res = await TestUtil.get('users', 200, { expand: 'profile' });
 
             expects(res);
-            expect(res.body.response[0].profile).toHaveProperty('bio');
+            console.log(res.body.response.find((u) => u.steamID === user1.steamID));
+            expect(res.body.response.find((u) => u.steamID === user1.steamID).profile).toHaveProperty('bio');
         });
 
         it('should respond with an array of one user for a matching SteamID parameter', async () => {
