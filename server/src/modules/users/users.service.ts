@@ -10,7 +10,7 @@ import { Prisma, User, UserAuth } from '@prisma/client';
 import { UpdateUserDto, UserDto } from '../../@common/dto/user/user.dto';
 import { ProfileDto } from '../../@common/dto/user/profile.dto';
 import { PaginatedResponseDto } from '../../@common/dto/paginated-response.dto';
-import { UsersRepo } from './users.repo';
+import { UsersRepoService } from '../repo/users-repo.service';
 import { appConfig } from '../../../config/config';
 import { lastValueFrom, map } from 'rxjs';
 import * as xml2js from 'xml2js';
@@ -23,16 +23,15 @@ import { EActivityTypes } from '../../@common/enums/activity.enum';
 import { RunDto } from '../../@common/dto/run/runs.dto';
 import { DtoUtils } from '../../@common/utils/dto-utils';
 import { MapNotifyDto, UpdateMapNotifyDto } from '../../@common/dto/map/map-notify.dto';
-import { MapsRepo } from '../maps/maps.repo';
+import { MapsRepoService } from '../repo/maps-repo.service';
 import { NotificationDto, UpdateNotificationDto } from '../../@common/dto/user/notification.dto';
 import { MapLibraryEntryDto } from '../../@common/dto/map/library-entry';
 
 @Injectable()
 export class UsersService {
     constructor(
-        private readonly userRepo: UsersRepo,
-        // TODO: Delete once Alex figures out DI circ stuff
-        private readonly mapRepo: MapsRepo,
+        private readonly userRepo: UsersRepoService,
+        private readonly mapRepo: MapsRepoService,
         private readonly http: HttpService
     ) {}
 

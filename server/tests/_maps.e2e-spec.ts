@@ -4,7 +4,7 @@ import { INestApplication, ValidationPipe } from '@nestjs/common';
 import { Test } from '@nestjs/testing';
 import { AuthService } from '../src/modules/auth/auth.service';
 import { AppModule } from '../src/app.module';
-import { PrismaRepo } from '../src/modules/prisma/prisma.repo';
+import { PrismaService } from '../src/modules/repo/prisma.service';
 import { EMapStatus, EMapCreditType, EMapType } from '../src/@common/enums/map.enum';
 import { ERole } from '../src/@common/enums/user.enum';
 import { Prisma } from '@prisma/client';
@@ -201,7 +201,7 @@ describe('Maps', () => {
         server = app.getHttpServer();
 
         const authService = app.get<AuthService>(AuthService);
-        const repo = app.get<PrismaRepo>(PrismaRepo);
+        const repo = app.get<PrismaService>(PrismaService);
 
         // Create Users
         testUser = await repo.user.create({

@@ -3,13 +3,13 @@ import { JwtService } from '@nestjs/jwt';
 import { Prisma, User, UserAuth } from '@prisma/client';
 import { appConfig } from '../../../config/config';
 import { JWTResponseDto } from '../../@common/dto/jwt-response.dto';
-import { UsersRepo } from '../users/users.repo';
+import { UsersRepoService } from '../repo/users-repo.service';
 
 @Injectable()
 export class AuthService {
     loggedInUser: User;
 
-    constructor(private readonly userRepo: UsersRepo, private readonly jwtService: JwtService) {}
+    constructor(private readonly userRepo: UsersRepoService, private readonly jwtService: JwtService) {}
 
     async login(user: User, gameAuth = false): Promise<JWTResponseDto> {
         if (!user) {

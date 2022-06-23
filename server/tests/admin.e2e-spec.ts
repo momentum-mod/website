@@ -3,7 +3,7 @@
 import { ERole } from '../src/@common/enums/user.enum';
 import { EReportCategory, EReportType } from '../src/@common/enums/report.enum';
 import { EMapCreditType, EMapStatus, EMapType } from '../src/@common/enums/map.enum';
-import { PrismaRepo } from '../src/modules/prisma/prisma.repo';
+import { PrismaService } from '../src/modules/repo/prisma.service';
 import { TestUtil } from './util';
 import { AuthService } from '../src/modules/auth/auth.service';
 import { EActivityTypes } from '../src/@common/enums/activity.enum';
@@ -225,7 +225,7 @@ describe('admin', () => {
     };
 
     beforeEach(async () => {
-        const prisma: PrismaRepo = global.prisma;
+        const prisma: PrismaService = global.prisma;
 
         adminUser = await prisma.user.create({
             data: {
@@ -416,7 +416,7 @@ describe('admin', () => {
     });
 
     afterEach(async () => {
-        const prisma: PrismaRepo = global.prisma;
+        const prisma: PrismaService = global.prisma;
 
         await prisma.user.deleteMany({
             where: { id: { in: [adminUser.id, nonAdminUser.id, mergeUser1.id, mergeUser2.id, user1.id, user2.id] } }

@@ -1,10 +1,10 @@
 import { Injectable, Logger } from '@nestjs/common';
-import { PrismaRepo } from '../prisma/prisma.repo';
+import { PrismaService } from './prisma.service';
 import { Map, Prisma } from '@prisma/client';
 
 @Injectable()
-export class MapsRepo {
-    constructor(private prisma: PrismaRepo) {}
+export class MapsRepoService {
+    constructor(private prisma: PrismaService) {}
 
     /**
      * @summary Inserts to database

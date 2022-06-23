@@ -1,16 +1,16 @@
 import { Module } from '@nestjs/common';
 import { AdminController } from './admin.controller';
 import { AdminService } from './admin.service';
-import { PrismaModule } from '../prisma/prisma.module';
-import { UsersRepo } from '../users/users.repo';
-import { MapsRepo } from '../maps/maps.repo';
+import { RepoModule } from '../repo/repo.module';
+import { UsersRepoService } from '../repo/users-repo.service';
+import { MapsRepoService } from '../repo/maps-repo.service';
 import { APP_GUARD } from '@nestjs/core';
 import { RolesGuard } from '../auth/guard/roles.guard';
 
 @Module({
-    imports: [PrismaModule],
+    imports: [RepoModule],
     controllers: [AdminController],
-    providers: [AdminService, UsersRepo, MapsRepo, { provide: APP_GUARD, useClass: RolesGuard }],
+    providers: [{ provide: APP_GUARD, useClass: RolesGuard }, AdminService, UsersRepoService, MapsRepoService],
     exports: [AdminService]
 })
 export class AdminModule {}

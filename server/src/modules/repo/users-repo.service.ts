@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { PrismaRepo } from '../prisma/prisma.repo';
+import { PrismaService } from './prisma.service';
 import {
     Activity,
     Follow,
@@ -15,8 +15,8 @@ import {
 } from '@prisma/client';
 
 @Injectable()
-export class UsersRepo {
-    constructor(private prisma: PrismaRepo) {}
+export class UsersRepoService {
+    constructor(private prisma: PrismaService) {}
 
     //#region Main User functions
     /**

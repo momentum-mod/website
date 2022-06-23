@@ -10,6 +10,8 @@ import { SteamWebStrategy } from './strategy/steam-web.strategy';
 import { SteamAuthService } from './steam-auth.service';
 import { AuthController } from './auth.controller';
 import { UsersModule } from '../users/users.module';
+import { UsersRepoService } from '../repo/users-repo.service';
+import { RepoModule } from '../repo/repo.module';
 
 @Module({
     imports: [
@@ -22,11 +24,13 @@ import { UsersModule } from '../users/users.module';
                 expiresIn: appConfig.accessToken.expTime
             }
         }),
+        // TODO: Straight after repo refactor, untangle auth for user completely.
         UsersModule,
-        HttpModule
+        HttpModule,
+        RepoModule
     ],
     controllers: [AuthController],
-    providers: [AuthService, SteamAuthService, JwtAuthGuard, JwtStrategy, SteamWebStrategy],
+    providers: [AuthService, SteamAuthService, JwtAuthGuard, JwtStrategy, SteamWebStrategy, UsersRepoService],
     exports: [AuthService, SteamAuthService, JwtAuthGuard, JwtStrategy, SteamWebStrategy]
 })
 export class AuthModule {}

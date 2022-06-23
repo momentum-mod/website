@@ -1,14 +1,14 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
-import { UsersRepo } from '../users/users.repo';
+import { UsersRepoService } from '../repo/users-repo.service';
 import { Follow, Prisma } from '@prisma/client';
 import { ERole } from '../../@common/enums/user.enum';
 import { UserDto } from '../../@common/dto/user/user.dto';
 import { DtoUtils } from '../../@common/utils/dto-utils';
-import { MapsRepo } from '../maps/maps.repo';
+import { MapsRepoService } from '../repo/maps-repo.service';
 
 @Injectable()
 export class AdminService {
-    constructor(private readonly userRepo: UsersRepo, private readonly mapRepo: MapsRepo) {}
+    constructor(private readonly userRepo: UsersRepoService, private readonly mapRepo: MapsRepoService) {}
 
     async CreatePlaceholderUser(alias: string): Promise<UserDto> {
         const input: Prisma.UserCreateInput = {

@@ -1,6 +1,6 @@
 import { NestFactory, Reflector } from '@nestjs/core';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
-import { PrismaRepo } from './modules/prisma/prisma.repo';
+import { PrismaService } from './modules/repo/prisma.service';
 import { AppModule } from './app.module';
 import { appConfig } from '../config/config';
 import { ClassSerializerInterceptor, NestApplicationOptions, ValidationPipe } from '@nestjs/common';
@@ -36,7 +36,7 @@ async function bootstrap() {
         customfavIcon: '../favicon.ico'
     });
 
-    const prismaDalc: PrismaRepo = app.get(PrismaRepo);
+    const prismaDalc: PrismaService = app.get(PrismaService);
     await prismaDalc.enableShutdownHooks(app);
 
     app.useGlobalPipes(new ValidationPipe({ transform: true }));
