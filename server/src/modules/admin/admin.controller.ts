@@ -30,12 +30,14 @@ import { ApiOkPaginatedResponse, PaginatedResponseDto } from '../../@common/dto/
 import { MapDto, MapUpdateDto } from '../../@common/dto/map/map.dto';
 import { MapsGetAllQuery } from '../../@common/dto/query/map-queries.dto';
 import { ReportDto, UpdateReportDto } from '../../@common/dto/report/report.dto';
+import { Roles } from '../../@common/decorators/roles.decorator';
+import { ERole } from '../../@common/enums/user.enum';
 
 @ApiBearerAuth()
 @Controller('api/v1/admin')
 @ApiTags('Admin')
 @UseGuards(JwtAuthGuard)
-// TODO: Admin auth guard
+@Roles(ERole.ADMIN)
 export class AdminController {
     constructor(private readonly adminService: AdminService) {}
 
