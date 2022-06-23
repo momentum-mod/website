@@ -2,7 +2,7 @@ import { HttpException, Injectable } from '@nestjs/common';
 import { PassportStrategy } from '@nestjs/passport';
 import { appConfig } from '../../../../config/config';
 import { Strategy } from 'passport-steam';
-import { SteamAuthService } from './steam-auth.service';
+import { SteamAuthService } from '../steam-auth.service';
 
 @Injectable()
 export class SteamWebStrategy extends PassportStrategy(Strategy, 'steam') {
@@ -16,9 +16,8 @@ export class SteamWebStrategy extends PassportStrategy(Strategy, 'steam') {
 
     async validate(openID, profile) {
         const jwtToken = await this.steamAuthService.ValidateFromSteamWeb(openID, profile);
-        if (!jwtToken) {
-            throw new HttpException('Could not find or create user profile', 500);
-        }
+
+        if (!jwtToken) throw new HttpException('Could not find or create user profile', 500);
 
         return jwtToken;
     }

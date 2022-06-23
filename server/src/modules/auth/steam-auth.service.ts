@@ -1,21 +1,32 @@
 import { HttpService } from '@nestjs/axios';
-import { HttpException, Injectable, Logger, UnauthorizedException } from '@nestjs/common';
+import {
+    BadRequestException,
+    forwardRef,
+    HttpException,
+    Inject,
+    Injectable,
+    Logger,
+    UnauthorizedException
+} from '@nestjs/common';
 import { User } from '@prisma/client';
-import { appConfig } from '../../../../config/config';
+import { appConfig } from '../../../config/config';
 import { lastValueFrom, map } from 'rxjs';
 import * as AppTicket from 'steam-appticket';
-import { UsersService } from '../../users/users.service';
+import { UsersService } from '../users/users.service';
 
 @Injectable()
 export class SteamAuthService {
-    constructor(private readonly userService: UsersService, private readonly http: HttpService) {}
+    constructor(
+        @Inject(forwardRef(() => UsersService)) private readonly userService: UsersService,
+        private readonly http: HttpService
+    ) {}
 
     //#region Public
     async ValidateFromInGame(userTicketRaw: any, steamIDToVerify: string): Promise<User> {
         const userTicket = Buffer.from(userTicketRaw, 'utf8').toString('hex');
 
         if (!userTicket && !steamIDToVerify) {
-            throw new HttpException('Bad Request', 400);
+            throw new BadRequestException();
         }
 
         if (appConfig.steam.useSteamTicketLibrary) {
@@ -42,6 +53,7 @@ export class SteamAuthService {
 
         return user;
     }
+
     //#endregion
 
     //#region Private
@@ -121,5 +133,6 @@ export class SteamAuthService {
 
         return user;
     }
+
     //#endregion
 }
