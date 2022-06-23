@@ -1,7 +1,7 @@
 import { ExecutionContext, Injectable } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 import { AuthGuard } from '@nestjs/passport';
-import { IS_PUBLIC_KEY } from '../public.decorator';
+import { IS_PUBLIC_KEY } from '../../../@common/decorators/public.decorator';
 
 @Injectable()
 export class SteamWebAuthGuard extends AuthGuard('steam') {
@@ -14,9 +14,9 @@ export class SteamWebAuthGuard extends AuthGuard('steam') {
             context.getHandler(),
             context.getClass()
         ]);
-        if (isPublic) {
-            return true;
-        }
+
+        if (isPublic) return true;
+
         return super.canActivate(context);
     }
 }

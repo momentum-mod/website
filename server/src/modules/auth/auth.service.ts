@@ -1,15 +1,15 @@
 import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
-import { User } from '@prisma/client';
-import { UsersService } from '../users/users.service';
+import { Prisma, User, UserAuth } from '@prisma/client';
 import { appConfig } from '../../../config/config';
 import { JWTResponseDto } from '../../@common/dto/jwt-response.dto';
+import { UsersRepo } from '../users/users.repo';
 
 @Injectable()
 export class AuthService {
     loggedInUser: User;
 
-    constructor(private readonly userService: UsersService, private readonly jwtService: JwtService) {}
+    constructor(private readonly userRepo: UsersRepo, private readonly jwtService: JwtService) {}
 
     async login(user: User, gameAuth = false): Promise<JWTResponseDto> {
         if (!user) {
@@ -32,7 +32,15 @@ export class AuthService {
 
     async RevokeToken(userID: number): Promise<void> {
         this.loggedInUser = null;
-        await this.userService.UpdateRefreshToken(userID, '');
+        await this.UpdateRefreshToken(userID, '');
+    }
+
+    async UpdateRefreshToken(userID: number, refreshToken: string): Promise<UserAuth> {
+        const updateInput: Prisma.UserAuthUpdateInput = {};
+        updateInput.refreshToken = refreshToken;
+        const whereInput: Prisma.UserAuthWhereUniqueInput = {};
+        whereInput.id = userID;
+        return await this.userRepo.UpdateAuth(whereInput, updateInput);
     }
 
     private async GenAccessToken(usr: User, gameAuth?: boolean): Promise<string> {

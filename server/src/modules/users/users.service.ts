@@ -203,14 +203,6 @@ export class UsersService {
         return await this.userRepo.GetAuth(whereInput);
     }
 
-    async UpdateRefreshToken(userID: number, refreshToken: string): Promise<UserAuth> {
-        const updateInput: Prisma.UserAuthUpdateInput = {};
-        updateInput.refreshToken = refreshToken;
-        const whereInput: Prisma.UserAuthWhereUniqueInput = {};
-        whereInput.id = userID;
-        return await this.userRepo.UpdateAuth(whereInput, updateInput);
-    }
-
     //#endregion
 
     //#region Profile
@@ -322,7 +314,7 @@ export class UsersService {
 
         if (!targetUser) throw new NotFoundException('Target user not found');
 
-        await this.userRepo.UpdateFollow(localUserID, targetUserID, updateDto.notifyOn);
+        await this.userRepo.UpdateFollow(localUserID, targetUserID, { notifyOn: updateDto.notifyOn });
     }
 
     public async UnfollowUser(localUserID: number, targetUserID: number) {

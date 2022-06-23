@@ -1,15 +1,13 @@
 import { Module } from '@nestjs/common';
-
-import { JwtAuthGuard } from './jwt/jwt-auth.guard';
+import { JwtAuthGuard } from './guard/jwt-auth.guard';
 import { AuthService } from './auth.service';
-
 import { PassportModule } from '@nestjs/passport';
-import { JwtStrategy } from './jwt/jwt.strategy';
+import { JwtStrategy } from './strategy/jwt.strategy';
 import { appConfig } from '../../../config/config';
 import { JwtModule } from '@nestjs/jwt';
 import { HttpModule } from '@nestjs/axios';
-import { SteamWebStrategy } from './steam/steam-web.strategy';
-import { SteamAuthService } from './steam/steam-auth.service';
+import { SteamWebStrategy } from './strategy/steam-web.strategy';
+import { SteamAuthService } from './steam-auth.service';
 import { AuthController } from './auth.controller';
 import { UsersModule } from '../users/users.module';
 
