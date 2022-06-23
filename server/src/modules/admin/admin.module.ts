@@ -2,7 +2,8 @@ import { Module } from '@nestjs/common';
 import { AdminController } from './admin.controller';
 import { AdminService } from './admin.service';
 import { PrismaModule } from '../prisma/prisma.module';
-import { AdminRepo } from './admin.repo';
+import { UsersRepo } from '../users/users.repo';
+import { MapsRepo } from '../maps/maps.repo';
 import { APP_GUARD } from '@nestjs/core';
 import { RolesGuard } from '../auth/guard/roles.guard';
 

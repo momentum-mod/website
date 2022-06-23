@@ -32,20 +32,25 @@ import { Roles } from '../../@common/decorators/roles.decorator';
 import { ERole } from '../../@common/enums/user.enum';
 
 @ApiBearerAuth()
-@Controller('api/v1/admin')
+@Controller('/api/v1/admin')
 @ApiTags('Admin')
 @Roles(ERole.ADMIN)
 export class AdminController {
     constructor(private readonly adminService: AdminService) {}
 
     @Post('/users')
+    @ApiBody({
+        type: CreateUserDto,
+        description: 'The alias of the placeholder user'
+    })
     @ApiOperation({ summary: 'Create a placeholder user' })
     @ApiOkResponse({ type: UserDto, description: 'The newly created user' })
-    public CreatePlaceholderUser(@Query() query: CreateUserDto): Promise<UserDto> {
-        return void 0;
+    public async CreatePlaceholderUser(@Body() body: CreateUserDto): Promise<UserDto> {
+        return this.adminService.CreatePlaceholderUser(body.alias);
     }
 
     @Post('/users/merge')
+    @HttpCode(HttpStatus.OK)
     @ApiOperation({
         summary:
             'Create a placeholder user, used when a placeholder should be merged with a real user, generally mappers.'
@@ -53,8 +58,8 @@ export class AdminController {
     @ApiOkResponse({ type: UserDto, description: 'The merged user' })
     @ApiNotFoundResponse({ description: 'If either ID does not correspond to a user' })
     @ApiBadRequestResponse({ description: 'If the placeholder ID is not a placeholder' })
-    public MergeUsers(@Query() query: MergeUserDto): Promise<UserDto> {
-        return void 0;
+    public MergeUsers(@Body() body: MergeUserDto): Promise<UserDto> {
+        return this.adminService.MergeUsers(body.placeholderID, body.userID);
     }
 
     @Patch('/users/:userID')
