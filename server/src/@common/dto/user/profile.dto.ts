@@ -1,4 +1,4 @@
-import { ApiProperty, PartialType } from '@nestjs/swagger';
+import { ApiProperty } from '@nestjs/swagger';
 import { IsDate, IsInt, IsString } from 'class-validator';
 import { Exclude } from 'class-transformer';
 
