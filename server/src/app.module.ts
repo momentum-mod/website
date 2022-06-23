@@ -1,8 +1,7 @@
 import { MiddlewareConsumer, Module, NestModule, RequestMethod } from '@nestjs/common';
 import * as Sentry from '@sentry/node';
-import { APP_FILTER } from '@nestjs/core';
-import { AllExceptionsFilter } from './@common/filters/all-exceptions.filter';
 import { APP_FILTER, APP_GUARD } from '@nestjs/core';
+import { ExceptionHandlerFilter } from './@common/filters/exception-handler.filter';
 import { appConfig } from '../config/config';
 import { AuthModule } from './modules/auth/auth.module';
 import { JsonBodyMiddleware } from './middlewares/json-body.middleware';
@@ -40,7 +39,8 @@ import { JwtAuthGuard } from './modules/auth/guard/jwt-auth.guard';
     providers: [
         {
             provide: APP_FILTER,
-            useClass: AllExceptionsFilter
+            useClass: ExceptionHandlerFilter
+        },
         {
             provide: APP_GUARD,
             useClass: JwtAuthGuard
