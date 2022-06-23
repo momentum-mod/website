@@ -1,8 +1,7 @@
-import { Body, Controller, Get, Param, Post, Query, UploadedFile, UseGuards, UseInterceptors } from '@nestjs/common';
+import { Body, Controller, Get, Param, Post, Query, UploadedFile, UseInterceptors } from '@nestjs/common';
 import { ApiBearerAuth, ApiBody, ApiOperation, ApiQuery, ApiTags, ApiParam, ApiConsumes } from '@nestjs/swagger';
 import { PaginatedResponseDto } from '../../@common/dto/paginated-response.dto';
 import { MapsService } from './maps.service';
-import { JwtAuthGuard } from '../auth/jwt/jwt-auth.guard';
 import { MapDto } from '../../@common/dto/map/map.dto';
 import { CreateMapDto } from '../../@common/dto/map/createMap.dto';
 import { FileInterceptor } from '@nestjs/platform-express';
@@ -10,7 +9,6 @@ import { FileInterceptor } from '@nestjs/platform-express';
 @ApiBearerAuth()
 @Controller('api/v1/maps')
 @ApiTags('Maps')
-@UseGuards(JwtAuthGuard)
 export class MapsController {
     constructor(private readonly mapsService: MapsService) {}
 

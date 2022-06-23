@@ -1,4 +1,4 @@
-import { Controller, Get, Param, ParseIntPipe, Query, UseGuards } from '@nestjs/common';
+import { Controller, Get, Param, ParseIntPipe, Query } from '@nestjs/common';
 import {
     ApiBearerAuth,
     ApiOperation,
@@ -9,7 +9,6 @@ import {
     ApiOkResponse,
     ApiNotFoundResponse
 } from '@nestjs/swagger';
-import { JwtAuthGuard } from '../auth/jwt/jwt-auth.guard';
 import { UsersService } from './users.service';
 import { UserDto } from '../../@common/dto/user/user.dto';
 import { ApiOkPaginatedResponse, PaginatedResponseDto } from '../../@common/dto/paginated-response.dto';
@@ -25,7 +24,6 @@ import { UsersGetActivitiesQuery, UsersGetAllQuery, UsersGetQuery } from '../../
 @Controller('/api/v1/users')
 @ApiTags('Users')
 @ApiExtraModels(PaginatedResponseDto)
-@UseGuards(JwtAuthGuard)
 export class UsersController {
     constructor(private readonly usersService: UsersService) {}
 

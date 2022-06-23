@@ -2,6 +2,7 @@ import { MiddlewareConsumer, Module, NestModule, RequestMethod } from '@nestjs/c
 import * as Sentry from '@sentry/node';
 import { APP_FILTER } from '@nestjs/core';
 import { AllExceptionsFilter } from './@common/filters/all-exceptions.filter';
+import { APP_FILTER, APP_GUARD } from '@nestjs/core';
 import { appConfig } from '../config/config';
 import { AuthModule } from './modules/auth/auth.module';
 import { JsonBodyMiddleware } from './middlewares/json-body.middleware';
@@ -16,6 +17,7 @@ import { AdminModule } from './modules/admin/admin.module';
 import { ReportsModule } from './modules/reports/reports.module';
 import { RunsModule } from './modules/runs/runs.module';
 import { StatsModule } from './modules/stats/stats.module';
+import { JwtAuthGuard } from './modules/auth/guard/jwt-auth.guard';
 
 @Module({
     imports: [
@@ -39,6 +41,9 @@ import { StatsModule } from './modules/stats/stats.module';
         {
             provide: APP_FILTER,
             useClass: AllExceptionsFilter
+        {
+            provide: APP_GUARD,
+            useClass: JwtAuthGuard
         }
     ]
 })
