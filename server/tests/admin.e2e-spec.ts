@@ -1,25 +1,33 @@
 // noinspection DuplicatedCode
 
+import { ERole } from '../src/@common/enums/user.enum';
+import { EReportCategory, EReportType } from '../src/@common/enums/report.enum';
+import { EMapCreditType, EMapStatus, EMapType } from '../src/@common/enums/map.enum';
+import { PrismaRepo } from '../src/modules/prisma/prisma.repo';
+import { TestUtil } from './util';
+import { AuthService } from '../src/modules/auth/auth.service';
+import { EActivityTypes } from '../src/@common/enums/activity.enum';
+
 describe('admin', () => {
-    let adminAccessToken, adminGameAccessToken;
+    let adminUser, nonAdminUser, nonAdminAccessToken, user1, user2, mergeUser1, mergeUser2, map1, map2, map3;
     const testUser = {
         id: 1,
         steamID: '1254652365',
-        roles: user.Role.VERIFIED,
+        roles: ERole.VERIFIED,
         bans: 0
     };
 
     const testAdmin = {
         id: 2,
         steamID: '9856321549856',
-        roles: user.Role.ADMIN,
+        roles: ERole.ADMIN,
         bans: 0
     };
 
     const testAdminGame = {
         id: 3,
         steamID: '5698752164498',
-        roles: user.Role.ADMIN,
+        roles: ERole.ADMIN,
         bans: 0
     };
     const testDeleteUser = {
@@ -33,9 +41,9 @@ describe('admin', () => {
 
     const testMap = {
         name: 'test_map',
-        type: map.MAP_TYPE.UNKNOWN,
+        type: EMapType.UNKNOWN,
         id: 1,
-        statusFlag: map.STATUS.APPROVED,
+        statusFlag: EMapStatus.APPROVED,
         submitterID: testUser.id,
         info: {
             description: 'newmap_5',
@@ -52,7 +60,7 @@ describe('admin', () => {
         ],
         credits: {
             id: 1,
-            type: map.CreditType.AUTHOR,
+            type: EMapCreditType.AUTHOR,
             userID: testUser.id
         }
     };
@@ -76,7 +84,7 @@ describe('admin', () => {
         ],
         credits: {
             id: 2,
-            type: map.CreditType.AUTHOR,
+            type: EMapCreditType.AUTHOR,
             userID: testUser.id
         }
     };
@@ -99,7 +107,7 @@ describe('admin', () => {
         ],
         credits: {
             id: 3,
-            type: map.CreditType.AUTHOR,
+            type: EMapCreditType.AUTHOR,
             userID: testUser.id
         }
     };
@@ -122,7 +130,7 @@ describe('admin', () => {
         ],
         credits: {
             id: 4,
-            type: map.CreditType.AUTHOR,
+            type: EMapCreditType.AUTHOR,
             userID: testUser.id
         }
     };
@@ -145,7 +153,7 @@ describe('admin', () => {
         ],
         credits: {
             id: 5,
-            type: map.CreditType.AUTHOR,
+            type: EMapCreditType.AUTHOR,
             userID: testAdmin.id
         }
     };
@@ -168,7 +176,7 @@ describe('admin', () => {
         ],
         credits: {
             id: 6,
-            type: map.CreditType.AUTHOR,
+            type: EMapCreditType.AUTHOR,
             userID: testAdmin.id
         }
     };
@@ -191,15 +199,15 @@ describe('admin', () => {
         ],
         credits: {
             id: 7,
-            type: map.CreditType.AUTHOR,
+            type: EMapCreditType.AUTHOR,
             userID: testAdmin.id
         }
     };
     const testReport = {
         id: 1,
         data: 1,
-        type: report.ReportType.USER_PROFILE_REPORT,
-        category: report.ReportCategory.OTHER,
+        type: EReportType.USER_PROFILE_REPORT,
+        category: EReportCategory.OTHER,
         submitterID: testUser.id,
         message: 'I am who I am who am I?',
         resolved: false,
@@ -208,15 +216,113 @@ describe('admin', () => {
     const testReport2 = {
         id: 2,
         data: 1,
-        tpe: report.ReportType.MAP_REPORT,
-        category: report.ReportCategory.OTHER,
+        tpe: EReportType.MAP_REPORT,
+        category: EReportCategory.OTHER,
         submitterID: testUser.id,
         message: 'What are you doing',
         resolved: true,
         resolutionMessage: 'idk what im doing'
     };
 
-    beforeAll(() => {
+    beforeEach(async () => {
+        const prisma: PrismaRepo = global.prisma;
+
+        adminUser = await prisma.user.create({
+            data: {
+                steamID: '234523452345',
+                alias: 'Admin User',
+                avatar: '',
+                roles: ERole.ADMIN,
+                bans: 0,
+                country: 'UK',
+                profile: {
+                    create: {
+                        bio: 'Arthur Weasley (b. 6 February, 1950) was an English pure-blood wizard in the employ of the Ministry of Magic, as well as a member of the second Order of the Phoenix. He was a staunch believer in the equality of all magical and Muggle folk and was the head of the Weasley family.'
+                    }
+                }
+            }
+        });
+
+        nonAdminUser = await prisma.user.create({
+            data: {
+                steamID: '7863245554',
+                alias: 'Non Admin User',
+                roles: 0,
+                profile: {
+                    create: {
+                        bio: 'Charles "Charlie" Weasley (b. 12 December, 1972) was an English pure-blood wizard, the second eldest son of Arthur and Molly Weasley (née Prewett), younger brother of Bill Weasley and the elder brother of Percy, the late Fred, George, Ron, and Ginny.'
+                    }
+                }
+            }
+        });
+
+        user1 = await prisma.user.create({
+            data: {
+                steamID: '41234523452345',
+                alias: 'U1'
+            }
+        });
+
+        user2 = await prisma.user.create({
+            data: {
+                steamID: '12341234214521`',
+                alias: 'U2'
+            }
+        });
+
+        mergeUser1 = await prisma.user.create({
+            data: {
+                steamID: '612374578254',
+                alias: 'MU1',
+                roles: ERole.PLACEHOLDER
+            }
+        });
+
+        mergeUser2 = await prisma.user.create({
+            data: {
+                steamID: '5234523451',
+                alias: 'MU2'
+            }
+        });
+
+        await prisma.follow.createMany({
+            data: [
+                {
+                    followeeID: user1.id,
+                    followedID: mergeUser1.id
+                },
+                {
+                    followeeID: user2.id,
+                    followedID: mergeUser1.id,
+                    notifyOn: EActivityTypes.MAP_APPROVED,
+                    createdAt: new Date('12/24/2021')
+                },
+                {
+                    followeeID: user2.id,
+                    followedID: mergeUser2.id,
+                    notifyOn: EActivityTypes.MAP_UPLOADED,
+                    createdAt: new Date('12/25/2021')
+                },
+                {
+                    followeeID: mergeUser2.id,
+                    followedID: mergeUser1.id
+                }
+            ]
+        });
+
+        await prisma.activity.createMany({
+            data: [
+                {
+                    type: EActivityTypes.REPORT_FILED,
+                    userID: mergeUser1.id,
+                    data: 123456n
+                }
+            ]
+        });
+
+        const authService = global.auth as AuthService;
+        global.accessToken = (await authService.login(adminUser)).access_token;
+        nonAdminAccessToken = (await authService.login(nonAdminUser)).access_token;
         // return forceSyncDB()
         // 	.then(() => {
         // 		return auth.genAccessToken(testUser);
@@ -224,7 +330,7 @@ describe('admin', () => {
         // 		accessToken = token;
         // 		return User.create(testUser);
         // 	}).then(() => {
-        // 		testAdmin.roles |= user.Role.ADMIN;
+        // 		testAdmin.roles |= ERole.ADMIN;
         // 		return auth.genAccessToken(testAdmin);
         // 	}).then((token) => {
         // 		adminAccessToken = token;
@@ -233,7 +339,7 @@ describe('admin', () => {
         // 		testMap5.submitterID = testAd.id;
         // 		testMap6.submitterID = testAd.id;
         // 		uniqueMap.submitterID = testAd.id;
-        // 		testAdminGame.roles = user.Role.ADMIN;
+        // 		testAdminGame.roles = ERole.ADMIN;
         // 		return auth.genAccessToken(testAdminGame, true);
         // 	}).then((token) => {
         // 		adminGameAccessToken = token;
@@ -309,43 +415,115 @@ describe('admin', () => {
         // 	});
     });
 
+    afterEach(async () => {
+        const prisma: PrismaRepo = global.prisma;
+
+        await prisma.user.deleteMany({
+            where: { id: { in: [adminUser.id, nonAdminUser.id, mergeUser1.id, mergeUser2.id, user1.id, user2.id] } }
+        });
+    });
+
     describe('endpoints', () => {
-        // describe('POST /api/admin/users', () => {
-        // 	it('should create a placeholder user', () => {
-        // 		return chai.request(server)
-        // 			.post('/api/admin/users')
-        // 			.set('Authorization', 'Bearer ' + adminAccessToken)
-        // 			.send({
-        // 				alias: 'Placeholder3'
-        // 			})
-        // 			.then(res => {
-        // 				expect(res).to.have.status(200);
-        // 				expect(res).to.be.json;
-        // 				expect(res.body).toHaveProperty('alias');
-        // 				expect(res.body.alias).toEqual('Placeholder3');
-        // 			});
-        // 	});
-        // });
-        //
-        // describe('POST /api/admin/users/merge', () => {
-        // 	it('should merge two accounts together', () => {
-        // 		return chai.request(server)
-        // 			.post('/api/admin/users/merge')
-        // 			.set('Authorization', 'Bearer ' + adminAccessToken)
-        // 			.send({
-        // 				placeholderID: testMergeUser1.id,
-        // 				realID: testUser.id,
-        // 			})
-        // 			.then(res => {
-        // 				expect(res).to.have.status(200);
-        // 			});
-        // 	})
-        // });
-        //
-        // describe('DELETE /api/admin/users/{userID}', () => {
+        describe('POST /api/v1/admin/users', () => {
+            it('should successfully create a placeholder user', async () => {
+                const res = await TestUtil.post('admin/users/', 201, { alias: 'Burger' });
+                // TODO: improve after i improve tests
+
+                expect(res.body.alias).toBe('Burger');
+            });
+
+            it('should respond with 403 when the user requesting is not an admin', async () => {
+                await TestUtil.post('admin/users/', 403, { alias: 'Barry 2' }, nonAdminAccessToken);
+            });
+
+            it('should respond with 401 when no access token is provided', async () => {
+                await TestUtil.post('admin/users/', 401, {}, null);
+            });
+        });
+
+        describe('POST /api/v1/admin/users/merge', () => {
+            it('should merge two accounts together', async () => {
+                const res = await TestUtil.post('admin/users/merge', 200, {
+                    placeholderID: mergeUser1.id,
+                    userID: mergeUser2.id
+                });
+
+                // TODO have all user props yaddayadda update this once improved --- figure that out!!
+                expect(res.body.id).toBe(mergeUser2.id);
+                expect(res.body.alias).toBe(mergeUser2.alias);
+
+                // U1 was following MU1, that should be transferred to MU2.
+                const u1Follows = await TestUtil.get(`users/${user1.id}/follows`, 200);
+
+                expect(u1Follows.body.response.some((f) => f.followed.id === mergeUser2.id)).toBe(true);
+
+                // U2 was following MU1 and MU2, the creation data should be earliest of the two and the \notifyOn flags combined.
+                const u2Follows = await TestUtil.get(`users/${user2.id}/follows`, 200);
+                const follow = u2Follows.body.response.find((f) => f.followed.id === mergeUser2.id);
+                expect(new Date(follow.createdAt)).toEqual(new Date('12/24/2021'));
+                expect(follow.notifyOn).toBe(EActivityTypes.MAP_APPROVED | EActivityTypes.MAP_UPLOADED);
+
+                // MU2 was following MU1, that should be deleted
+                const mu2follows = await TestUtil.get(`users/${mergeUser2.id}/follows`, 200);
+                expect(mu2follows.body.response.some((f) => f.followed.id === mergeUser1.id)).toBe(false);
+
+                // MU1's activities should have been transferred to MU2
+                const mu2Activities = await TestUtil.get(`users/${mergeUser2.id}/activities`, 200);
+                expect(mu2Activities.body.response[0].data).toBe('123456');
+
+                // Placeholder should have been deleted
+                await TestUtil.get(`users/${mergeUser1.id}`, 404);
+            });
+
+            it('should respond with 400 if the user to merge from is not a placeholder', async () => {
+                await TestUtil.post('admin/users/merge', 400, {
+                    placeholderID: user1.id,
+                    userID: mergeUser2.id
+                });
+            });
+
+            it('should respond with 400 if the user to merge from does not exist', async () => {
+                await TestUtil.post('admin/users/merge', 400, {
+                    placeholderID: 9812364981265872,
+                    userID: mergeUser2.id
+                });
+            });
+
+            it('should respond with 400 if the user to merge to does not exist', async () => {
+                await TestUtil.post('admin/users/merge', 400, {
+                    placeholderID: mergeUser1.id,
+                    userID: 2368745234521
+                });
+            });
+
+            it('should respond with 400 if the user to merge are the same user', async () => {
+                await TestUtil.post('admin/users/merge', 400, {
+                    placeholderID: mergeUser1.id,
+                    userID: mergeUser1.id
+                });
+            });
+
+            it('should respond with 403 when the user requesting is not an admin', async () => {
+                const res = await TestUtil.post(
+                    'admin/users/merge',
+                    403,
+                    {
+                        placeholderID: mergeUser1.id,
+                        userID: mergeUser2.id
+                    },
+                    nonAdminAccessToken
+                );
+            });
+
+            it('should respond with 401 when no access token is provided', async () => {
+                const res = await TestUtil.post('admin/users/', 401, {}, null);
+            });
+        });
+
+        // describe('DELETE /api/v1/admin/users/{userID}', () => {
         // 	it('should delete a user', () => {
         // 		return chai.request(server)
-        // 			.delete('/api/admin/users/' + testDeleteUser.id)
+        // 			.delete('/api/v1/admin/users/' + testDeleteUser.id)
         // 			.set('Authorization', 'Bearer ' + adminAccessToken)
         // 			.then(res => {
         // 				expect(res).to.have.status(200);
@@ -353,10 +531,10 @@ describe('admin', () => {
         // 	})
         // });
         //
-        // describe('PATCH /api/admin/users/{userID}', () => {
+        // describe('PATCH /api/v1/admin/users/{userID}', () => {
         // 	it('should respond with 403 when not an admin', () => {
         // 		return chai.request(server)
-        // 			.patch('/api/admin/users/' + testUser.id)
+        // 			.patch('/api/v1/admin/users/' + testUser.id)
         // 			.set('Authorization', 'Bearer ' + accessToken)
         // 			.send({
         // 				bans: user.Ban.BANNED_BIO
@@ -371,7 +549,7 @@ describe('admin', () => {
         // 	});
         // 	it('should respond with 403 when authenticated from game', () => {
         // 		return chai.request(server)
-        // 			.patch('/api/admin/users/' + testUser.id)
+        // 			.patch('/api/v1/admin/users/' + testUser.id)
         // 			.set('Authorization', 'Bearer ' + adminGameAccessToken)
         // 			.send({
         // 				bans: user.Ban.BANNED_BIO
@@ -387,7 +565,7 @@ describe('admin', () => {
         //
         // 	it('should update a specific user', () => {
         // 		return chai.request(server)
-        // 			.patch('/api/admin/users/' + testUser.id)
+        // 			.patch('/api/v1/admin/users/' + testUser.id)
         // 			.set('Authorization', 'Bearer ' + adminAccessToken)
         // 			.send({
         // 				bans: user.Ban.BANNED_BIO
@@ -398,7 +576,7 @@ describe('admin', () => {
         // 	});
         // 	it('should respond with 401 when no access token is provided', () => {
         // 		return chai.request(server)
-        // 			.patch('/api/admin/users/' + testUser.id)
+        // 			.patch('/api/v1/admin/users/' + testUser.id)
         // 			.then(res => {
         // 				expect(res).to.have.status(401);
         // 				expect(res).to.be.json;
@@ -409,10 +587,10 @@ describe('admin', () => {
         // 	});
         // });
         //
-        // describe('GET /api/admin/maps', () => {
+        // describe('GET /api/v1/admin/maps', () => {
         // 	it('should respond with 403 when not an admin', () => {
         // 		return chai.request(server)
-        // 			.get('/api/admin/maps/')
+        // 			.get('/api/v1/admin/maps/')
         // 			.set('Authorization', 'Bearer ' + accessToken)
         // 			.then(res => {
         // 				expect(res).to.have.status(403);
@@ -424,7 +602,7 @@ describe('admin', () => {
         // 	});
         // 	it('should respond with 403 when authenticated from game', () => {
         // 		return chai.request(server)
-        // 			.get('/api/admin/maps/')
+        // 			.get('/api/v1/admin/maps/')
         // 			.set('Authorization', 'Bearer ' + adminGameAccessToken)
         // 			.then(res => {
         // 				expect(res).to.have.status(403);
@@ -436,7 +614,7 @@ describe('admin', () => {
         // 	});
         // 	it('should respond with 401 when no access token is provided', () => {
         // 		return chai.request(server)
-        // 			.get('/api/admin/maps/')
+        // 			.get('/api/v1/admin/maps/')
         // 			.then(res => {
         // 				expect(res).to.have.status(401);
         // 				expect(res).to.be.json;
@@ -447,7 +625,7 @@ describe('admin', () => {
         // 	});
         // 	it('should respond with a list of maps', () => {
         // 		return chai.request(server)
-        // 			.get('/api/admin/maps/')
+        // 			.get('/api/v1/admin/maps/')
         // 			.set('Authorization', 'Bearer ' + adminAccessToken)
         // 			.then(res => {
         // 				expect(res).to.have.status(200);
@@ -462,7 +640,7 @@ describe('admin', () => {
         //         'should respond with a limited list of maps when using the limit query param',
         //         () => {
         //             return chai.request(server)
-        //                 .get('/api/admin/maps/')
+        //                 .get('/api/v1/admin/maps/')
         //                 .set('Authorization', 'Bearer ' + adminAccessToken)
         //                 .query({limit: 2})
         //                 .then(res => {
@@ -480,7 +658,7 @@ describe('admin', () => {
         //         'should respond with a different list of maps when using the offset query param',
         //         () => {
         //             return chai.request(server)
-        //                 .get('/api/admin/maps/')
+        //                 .get('/api/v1/admin/maps/')
         //                 .set('Authorization', 'Bearer ' + adminAccessToken)
         //                 .query({offset: 2})
         //                 .then(res => {
@@ -497,7 +675,7 @@ describe('admin', () => {
         //         'should respond with a filtered list of maps when using the search query param',
         //         () => {
         //             return chai.request(server)
-        //                 .get('/api/admin/maps/')
+        //                 .get('/api/v1/admin/maps/')
         //                 .set('Authorization', 'Bearer ' + adminAccessToken)
         //                 .query({search: 'uni'})
         //                 .then(res => {
@@ -514,7 +692,7 @@ describe('admin', () => {
         //         'should respond with a filtered list of maps when using the submitterID query param',
         //         () => {
         //             return chai.request(server)
-        //                 .get('/api/admin/maps/')
+        //                 .get('/api/v1/admin/maps/')
         //                 .set('Authorization', 'Bearer ' + adminAccessToken)
         //                 .query({submitterID: testUser.id})
         //                 .then(res => {
@@ -533,7 +711,7 @@ describe('admin', () => {
         //         'should respond with a list of maps when using the expand info query param',
         //         () => {
         //             return chai.request(server)
-        //                 .get('/api/admin/maps/')
+        //                 .get('/api/v1/admin/maps/')
         //                 .set('Authorization', 'Bearer ' + adminAccessToken)
         //                 .query({expand: 'info'})
         //                 .then(res => {
@@ -553,7 +731,7 @@ describe('admin', () => {
         //         'should respond with a list of maps when using the expand submitter query param',
         //         () => {
         //             return chai.request(server)
-        //                 .get('/api/admin/maps/')
+        //                 .get('/api/v1/admin/maps/')
         //                 .set('Authorization', 'Bearer ' + adminAccessToken)
         //                 .query({expand: 'submitter'})
         //                 .then(res => {
@@ -572,7 +750,7 @@ describe('admin', () => {
         //         'should respond with a list of maps when using the expand credits query param',
         //         () => {
         //             return chai.request(server)
-        //                 .get('/api/admin/maps/')
+        //                 .get('/api/v1/admin/maps/')
         //                 .set('Authorization', 'Bearer ' + adminAccessToken)
         //                 .query({expand: 'credits'})
         //                 .then(res => {
@@ -593,7 +771,7 @@ describe('admin', () => {
         //         'should respond with a filtered list of maps when using the status query param',
         //         () => {
         //             return chai.request(server)
-        //                 .get('/api/admin/maps/')
+        //                 .get('/api/v1/admin/maps/')
         //                 .set('Authorization', 'Bearer ' + adminAccessToken)
         //                 .query({
         //                     status: map.STATUS.APPROVED
@@ -614,7 +792,7 @@ describe('admin', () => {
         //         'should respond with a filtered list of maps when using the priority query param',
         //         () => {
         //             return chai.request(server)
-        //                 .get('/api/admin/maps/')
+        //                 .get('/api/v1/admin/maps/')
         //                 .set('Authorization', 'Bearer ' + adminAccessToken)
         //                 .query({
         //                     priority: true
@@ -632,10 +810,10 @@ describe('admin', () => {
         //
         // });
         //
-        // describe('PATCH /api/admin/maps/{mapID}', () => {
+        // describe('PATCH /api/v1/admin/maps/{mapID}', () => {
         // 	it('should respond with 403 when not an admin', () => {
         // 		return chai.request(server)
-        // 			.patch('/api/admin/maps/' + testMap.id)
+        // 			.patch('/api/v1/admin/maps/' + testMap.id)
         // 			.set('Authorization', 'Bearer ' + accessToken)
         // 			.send({
         // 				statusFlag: 1,
@@ -650,7 +828,7 @@ describe('admin', () => {
         // 	});
         // 	it('should respond with 403 when authenticated from game', () => {
         // 		return chai.request(server)
-        // 			.patch('/api/admin/maps/' + testMap.id)
+        // 			.patch('/api/v1/admin/maps/' + testMap.id)
         // 			.set('Authorization', 'Bearer ' + adminGameAccessToken)
         // 			.send({
         // 				statusFlag: 1,
@@ -665,7 +843,7 @@ describe('admin', () => {
         // 	});
         // 	it('should update a specific map', () => {
         // 		return chai.request(server)
-        // 			.patch('/api/admin/maps/' + testMap.id)
+        // 			.patch('/api/v1/admin/maps/' + testMap.id)
         // 			.set('Authorization', 'Bearer ' + adminAccessToken)
         // 			.send({
         // 				statusFlag: 1,
@@ -676,7 +854,7 @@ describe('admin', () => {
         // 	});
         // 	it('should respond with 401 when no access token is provided', () => {
         // 		return chai.request(server)
-        // 			.patch('/api/admin/maps/' + testMap.id)
+        // 			.patch('/api/v1/admin/maps/' + testMap.id)
         // 			.then(res => {
         // 				expect(res).to.have.status(401);
         // 				expect(res).to.be.json;
@@ -687,10 +865,10 @@ describe('admin', () => {
         // 	});
         // });
         //
-        // describe('GET /api/admin/reports', () => {
+        // describe('GET /api/v1/admin/reports', () => {
         // 	it('should respond with a list of reports', () => {
         // 		return chai.request(server)
-        // 			.get('/api/admin/reports')
+        // 			.get('/api/v1/admin/reports')
         // 			.set('Authorization', 'Bearer ' + adminAccessToken)
         // 			.then(res => {
         // 				expect(res).to.have.status(200);
@@ -703,7 +881,7 @@ describe('admin', () => {
         // 	});
         // 	it('should limit the result set when using the limit query param', () => {
         // 		return chai.request(server)
-        // 			.get('/api/admin/reports')
+        // 			.get('/api/v1/admin/reports')
         // 			.set('Authorization', 'Bearer ' + adminAccessToken)
         // 			.query({limit: 1})
         // 			.then(res => {
@@ -714,10 +892,10 @@ describe('admin', () => {
         // 	it.skip('should filter with the resolved query param', () => {});
         // });
         //
-        // describe('PATCH /api/admin/reports/{reportID}', () => {
+        // describe('PATCH /api/v1/admin/reports/{reportID}', () => {
         // 	it('should update a report', () => {
         // 		return chai.request(server)
-        // 			.patch('/api/admin/reports/' + testReport.id)
+        // 			.patch('/api/v1/admin/reports/' + testReport.id)
         // 			.set('Authorization', 'Bearer ' + adminAccessToken)
         // 			.send({
         // 				resolved: true,
@@ -729,10 +907,10 @@ describe('admin', () => {
         // 	});
         // });
         //
-        // describe('DELETE /api/admin/maps/{mapID}', () => {
+        // describe('DELETE /api/v1/admin/maps/{mapID}', () => {
         // 	it('should delete a map', () => {
         // 		return chai.request(server)
-        // 			.delete('/api/admin/maps/' + testMap.id)
+        // 			.delete('/api/v1/admin/maps/' + testMap.id)
         // 			.set('Authorization', 'Bearer ' + adminAccessToken)
         // 			.then(res => {
         // 				expect(res).to.have.status(200);
@@ -740,10 +918,10 @@ describe('admin', () => {
         // 	});
         // });
         //
-        // describe('PATCH /api/admin/user-stats', () => {
+        // describe('PATCH /api/v1/admin/user-stats', () => {
         // 	it('should update all user stats', () => {
         // 		return chai.request(server)
-        // 			.patch('/api/admin/user-stats')
+        // 			.patch('/api/v1/admin/user-stats')
         // 			.set('Authorization', 'Bearer ' + adminAccessToken)
         // 			.send({
         // 				cosXP: 1337,
@@ -754,10 +932,10 @@ describe('admin', () => {
         // 	});
         // });
         //
-        // describe('GET /api/admin/xpsys', () => {
+        // describe('GET /api/v1/admin/xpsys', () => {
         // 	it('should return the XP system variables', () => {
         // 		return chai.request(server)
-        // 			.get('/api/admin/xpsys')
+        // 			.get('/api/v1/admin/xpsys')
         // 			.set('Authorization', 'Bearer ' + adminAccessToken)
         // 			.then(res => {
         // 				expect(res).to.have.status(200);
@@ -765,10 +943,10 @@ describe('admin', () => {
         // 	});
         // });
         //
-        // describe('PUT /api/admin/xpsys', () => {
+        // describe('PUT /api/v1/admin/xpsys', () => {
         // 	it('should update the XP system variables', () => {
         // 		return chai.request(server)
-        // 			.put('/api/admin/xpsys')
+        // 			.put('/api/v1/admin/xpsys')
         // 			.set('Authorization', 'Bearer ' + adminAccessToken)
         // 			.send({
         // 				rankXP: {

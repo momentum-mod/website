@@ -102,9 +102,21 @@ export class UsersRepo {
         });
     }
 
+    async Create(input: Prisma.UserCreateInput): Promise<User> {
+        return await this.prisma.user.create({ data: input });
+    }
+
+    async Delete(userID: number): Promise<User> {
+        return await this.prisma.user.delete({
+            where: {
+                id: userID
+            }
+        });
+    }
+
     //#endregion
 
-    //#region User Auth funcitons
+    //#region User Auth functions
     async GetAuth(whereInput: Prisma.UserAuthWhereUniqueInput): Promise<UserAuth> {
         return await this.prisma.userAuth.findFirst({ where: whereInput });
     }
@@ -151,6 +163,13 @@ export class UsersRepo {
         });
 
         return [activities, count];
+    }
+
+    async UpdateActivities(where: Prisma.ActivityWhereInput, update: Prisma.ActivityUncheckedUpdateManyInput) {
+        await this.prisma.activity.updateMany({
+            where: where,
+            data: update
+        });
     }
 
     //#endregion
@@ -243,7 +262,7 @@ export class UsersRepo {
         });
     }
 
-    async UpdateFollow(followeeID: number, followedID: number, notifyOn: number) {
+    async UpdateFollow(followeeID: number, followedID: number, input: Prisma.FollowUpdateInput) {
         await this.prisma.follow.update({
             where: {
                 followeeID_followedID: {
@@ -251,9 +270,7 @@ export class UsersRepo {
                     followeeID: followeeID
                 }
             },
-            data: {
-                notifyOn: notifyOn
-            }
+            data: input
         });
     }
 

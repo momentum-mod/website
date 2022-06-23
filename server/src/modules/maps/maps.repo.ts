@@ -63,4 +63,8 @@ export class MapsRepo {
             }
         });
     }
+
+    async UpdateCredit(where: Prisma.MapCreditWhereInput, input: Prisma.MapCreditUpdateInput) {
+        this.prisma.mapCredit.updateMany({ where: where, data: input });
+    }
 }
