@@ -9,8 +9,7 @@ import {
     ParseIntPipe,
     Patch,
     Post,
-    Query,
-    UseGuards
+    Query
 } from '@nestjs/common';
 import { AdminService } from './admin.service';
 import {
@@ -24,7 +23,6 @@ import {
     ApiParam,
     ApiTags
 } from '@nestjs/swagger';
-import { JwtAuthGuard } from '../auth/jwt/jwt-auth.guard';
 import { AdminUpdateUserDto, CreateUserDto, MergeUserDto, UserDto } from '../../@common/dto/user/user.dto';
 import { ApiOkPaginatedResponse, PaginatedResponseDto } from '../../@common/dto/paginated-response.dto';
 import { MapDto, MapUpdateDto } from '../../@common/dto/map/map.dto';
@@ -36,7 +34,6 @@ import { ERole } from '../../@common/enums/user.enum';
 @ApiBearerAuth()
 @Controller('api/v1/admin')
 @ApiTags('Admin')
-@UseGuards(JwtAuthGuard)
 @Roles(ERole.ADMIN)
 export class AdminController {
     constructor(private readonly adminService: AdminService) {}

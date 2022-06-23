@@ -1,7 +1,6 @@
-import { Controller, Get, Param, ParseIntPipe, Query, UseGuards } from '@nestjs/common';
+import { Controller, Get, Param, ParseIntPipe, Query } from '@nestjs/common';
 import { RunsService } from './runs.service';
 import { ApiBearerAuth, ApiNotFoundResponse, ApiOkResponse, ApiOperation, ApiParam, ApiTags } from '@nestjs/swagger';
-import { JwtAuthGuard } from '../auth/jwt/jwt-auth.guard';
 import { ApiOkPaginatedResponse, PaginatedResponseDto } from '../../@common/dto/paginated-response.dto';
 import { RunDto } from '../../@common/dto/run/runs.dto';
 import { RunsGetAllQuery } from '../../@common/dto/query/run-queries.dto';
@@ -9,7 +8,6 @@ import { RunsGetAllQuery } from '../../@common/dto/query/run-queries.dto';
 @ApiBearerAuth()
 @Controller('api/v1/runs')
 @ApiTags('Runs')
-@UseGuards(JwtAuthGuard)
 export class RunsController {
     constructor(private readonly runsService: RunsService) {}
 

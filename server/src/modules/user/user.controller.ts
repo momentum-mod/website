@@ -10,8 +10,7 @@ import {
     Patch,
     Post,
     Put,
-    Query,
-    UseGuards
+    Query
 } from '@nestjs/common';
 import {
     ApiBadRequestResponse,
@@ -25,7 +24,6 @@ import {
     ApiResponse,
     ApiTags
 } from '@nestjs/swagger';
-import { JwtAuthGuard } from '../auth/jwt/jwt-auth.guard';
 import { UpdateUserDto, UserDto } from '../../@common/dto/user/user.dto';
 import { UsersService } from '../users/users.service';
 import { LoggedInUser } from '../../@common/decorators/logged-in-user.decorator';
@@ -48,7 +46,6 @@ import { MapDto } from '../../@common/dto/map/map.dto';
 @ApiBearerAuth()
 @Controller('api/v1/user')
 @ApiTags('User')
-@UseGuards(JwtAuthGuard)
 export class UserController {
     constructor(private readonly usersService: UsersService) {}
 
