@@ -10,7 +10,7 @@ import { HTTPLoggerMiddleware } from './middlewares/http-logger.middleware';
 import { MapsModule } from './modules/maps/maps.module';
 import { UsersModule } from './modules/users/users.module';
 import { UserModule } from './modules/user/user.module';
-import { SentryModule } from './@common/sentry/sentry.module';
+import { SentryModule } from './modules/sentry/sentry.module';
 import { ActivitiesModule } from './modules/activities/activities.module';
 import { AdminModule } from './modules/admin/admin.module';
 import { ReportsModule } from './modules/reports/reports.module';

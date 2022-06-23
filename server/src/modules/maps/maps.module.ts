@@ -4,7 +4,7 @@ import { MapsController } from './maps.controller';
 import { MapsService } from './maps.service';
 import { PrismaModule } from '../prisma/prisma.module';
 import { AuthModule } from '../auth/auth.module';
-import { FileStoreModule } from '../../@common/filestore/fileStore.module';
+import { FileStoreModule } from '../filestore/file-store.module';
 
 @Module({
     imports: [PrismaModule, AuthModule, FileStoreModule],

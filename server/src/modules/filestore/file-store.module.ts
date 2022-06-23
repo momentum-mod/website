@@ -1,6 +1,6 @@
 import { Module } from '@nestjs/common';
-import { FileStoreCloudService } from './cloud.service';
-import { FileStoreUtilsService } from './utils.service';
+import { FileStoreCloudService } from './file-store-cloud.service';
+import { FileStoreUtilsService } from './file-store-utils.service';
 
 @Module({
     providers: [FileStoreCloudService, FileStoreUtilsService],
