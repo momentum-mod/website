@@ -15,7 +15,7 @@
         "start:migrate:prod": "prisma migrate dev --name production_deploy && npm run start:prod",
         "migrate": "prisma migrate dev --name init",
         "seed": "npm run migrate && prisma db seed",
-        "reset": "prisma migrate reset --force --skip-seed",
+        "reset": "prisma migrate reset --force --skip-generate --skip-seed",
         "lint": "eslint \"{src,apps,libs,test}/**/*.ts\" --fix",
         "test": "jest",
         "test:watch": "jest --watch",
