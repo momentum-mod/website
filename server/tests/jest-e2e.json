@@ -8,5 +8,6 @@
     "transform": {
         "^.+\\.(t|j)s$": "ts-jest"
     },
+    "setupFilesAfterEnv": ["./tests/matchers.ts"],
     "testEnvironment": "./tests/e2e-environment.ts"
 }
