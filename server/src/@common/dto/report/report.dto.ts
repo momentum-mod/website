@@ -1,13 +1,15 @@
 ﻿import { Report } from '@prisma/client';
 import { ApiProperty, ApiPropertyOptional, PickType } from '@nestjs/swagger';
 import { EReportCategory, EReportType } from '../../enums/report.enum';
-import { IsBoolean, IsDate, IsEnum, IsOptional } from 'class-validator';
+import { IsBoolean, IsDate, IsDateString, IsDefined, IsEnum, IsInt, IsOptional, IsString } from 'class-validator';
 
 export class ReportDto implements Report {
     @ApiProperty({
         description: 'The ID of the report',
         type: Number
     })
+    @IsDefined()
+    @IsInt()
     id: number;
 
     @ApiProperty({
@@ -16,6 +18,8 @@ export class ReportDto implements Report {
     })
     // Using a string here is a bit gross, there's a comment about it in the db/report.js in old api.
     // Might be able to switch to int, look into this.
+    @IsDefined()
+    @IsString()
     data: string;
 
     @ApiProperty({
@@ -42,6 +46,7 @@ export class ReportDto implements Report {
         description: 'Whether the report has been resolved or not',
         type: Boolean
     })
+    @IsDefined()
     @IsBoolean()
     resolved: boolean;
 
@@ -56,6 +61,8 @@ export class ReportDto implements Report {
         description: 'The user ID of the submitter',
         type: Number
     })
+    @IsDefined()
+    @IsInt()
     submitterID: number;
 
     @ApiPropertyOptional({
@@ -66,11 +73,11 @@ export class ReportDto implements Report {
     resolverID: number;
 
     @ApiProperty()
-    @IsDate()
+    @IsDateString()
     createdAt: Date;
 
     @ApiProperty()
-    @IsDate()
+    @IsDateString()
     updatedAt: Date;
 }
 

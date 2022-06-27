@@ -1,6 +1,6 @@
 import { UserMapRank } from '@prisma/client';
 import { ApiProperty } from '@nestjs/swagger';
-import { IsDate, IsEnum, IsInt, IsOptional } from 'class-validator';
+import { IsDate, IsDateString, IsEnum, IsInt, IsOptional, ValidateNested } from 'class-validator';
 import { EMapType } from '../../enums/map.enum';
 import { DtoUtils } from '../../utils/dto-utils';
 import { Transform } from 'class-transformer';
@@ -16,6 +16,7 @@ export class MapRankDto implements UserMapRank {
     @ApiProperty()
     @IsOptional()
     @Transform(({ value }) => DtoUtils.Factory(MapDto, value))
+    @ValidateNested()
     map: MapDto;
 
     @ApiProperty()
@@ -25,15 +26,17 @@ export class MapRankDto implements UserMapRank {
     @ApiProperty({ type: () => UserDto })
     @IsOptional()
     @Transform(({ value }) => DtoUtils.Factory(UserDto, value))
+    @ValidateNested()
     user: UserDto;
 
     @ApiProperty()
-    @IsInt()
     runID: bigint;
 
     @ApiProperty()
     @IsOptional()
     @Transform(({ value }) => DtoUtils.Factory(RunDto, value))
+    // TODO: Add back once this is worked on
+    // @ValidateNested()
     run: RunDto;
 
     @ApiProperty()
@@ -61,10 +64,10 @@ export class MapRankDto implements UserMapRank {
     rankXP: number;
 
     @ApiProperty()
-    @IsDate()
+    @IsDateString()
     createdAt: Date;
 
     @ApiProperty()
-    @IsDate()
+    @IsDateString()
     updatedAt: Date;
 }

@@ -1,17 +1,18 @@
 import { Activity } from '@prisma/client';
 import { EActivityTypes } from '../../enums/activity.enum';
 import { ApiProperty } from '@nestjs/swagger';
-import { IsDate, IsEnum, IsInt, IsOptional } from 'class-validator';
+import { IsDateString, IsDefined, IsInt, IsOptional } from 'class-validator';
 import { UserDto } from './user.dto';
 import { DtoUtils } from '../../utils/dto-utils';
 import { Transform } from 'class-transformer';
+import { IsEnumFlag } from '../../validators/is-enum-flag';
 
 export class ActivityDto implements Activity {
-    // TODO: Do we need to send this?
     @ApiProperty({
         type: Number,
         description: 'The ID of the activity'
     })
+    @IsDefined()
     @IsInt()
     id: number;
 
@@ -19,6 +20,7 @@ export class ActivityDto implements Activity {
         type: Number,
         description: 'The ID of the user the activity is associated with'
     })
+    @IsDefined()
     @IsInt()
     userID: number;
 
@@ -34,7 +36,8 @@ export class ActivityDto implements Activity {
         enum: EActivityTypes,
         description: 'The bitwise flags for the activities'
     })
-    @IsEnum(EActivityTypes)
+    @IsDefined()
+    @IsEnumFlag(EActivityTypes)
     type: EActivityTypes;
 
     @ApiProperty({
@@ -42,13 +45,14 @@ export class ActivityDto implements Activity {
         // TODO: I kind of hate this approach, could we do individual DTOs for each using generics?
         description: 'ID of into the table of the relevant activity type e.g. Map, Run, User'
     })
+    @IsDefined()
     data: bigint;
 
     @ApiProperty()
-    @IsDate()
+    @IsDateString()
     createdAt: Date;
 
     @ApiProperty()
-    @IsDate()
+    @IsDateString()
     updatedAt: Date;
 }
