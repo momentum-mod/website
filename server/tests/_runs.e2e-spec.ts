@@ -2,26 +2,26 @@
 
 // let fs = require('fs');
 
-import { ERole } from '../src/@common/enums/user.enum';
+import { Roles } from '../src/@common/enums/user.enum';
 
 describe('runs', () => {
     let adminAccessToken, adminGameAccessToken;
     const testUser = {
         id: 1,
         steamID: '00000000000000001',
-        roles: ERole.VERIFIED,
+        roles: Roles.VERIFIED,
         bans: 0
     };
     const testAdmin = {
         id: 2,
         steamID: '00000000000000002',
-        roles: ERole.ADMIN,
+        roles: Roles.ADMIN,
         bans: 0
     };
     const testAdminGame = {
         id: 3,
         steamID: '00000000000000003',
-        roles: ERole.ADMIN,
+        roles: Roles.ADMIN,
         bans: 0
     };
 

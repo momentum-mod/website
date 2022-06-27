@@ -1,7 +1,7 @@
 import { UserMapRank } from '@prisma/client';
 import { ApiProperty } from '@nestjs/swagger';
 import { IsDate, IsDateString, IsEnum, IsInt, IsOptional, ValidateNested } from 'class-validator';
-import { EMapType } from '../../enums/map.enum';
+import { MapType } from '../../enums/map.enum';
 import { DtoUtils } from '../../utils/dto-utils';
 import { Transform } from 'class-transformer';
 import { MapDto } from './map.dto';
@@ -40,8 +40,8 @@ export class MapRankDto implements UserMapRank {
     run: RunDto;
 
     @ApiProperty()
-    @IsEnum(EMapType)
-    gameType: EMapType;
+    @IsEnum(MapType)
+    gameType: MapType;
 
     @ApiProperty()
     // Not sure what is this, maybe a 0.10.0 thing?

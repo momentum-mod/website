@@ -1,6 +1,6 @@
 ﻿import { Report } from '@prisma/client';
 import { ApiProperty, ApiPropertyOptional, PickType } from '@nestjs/swagger';
-import { EReportCategory, EReportType } from '../../enums/report.enum';
+import { ReportCategory, ReportType } from '../../enums/report.enum';
 import { IsBoolean, IsDate, IsDateString, IsDefined, IsEnum, IsInt, IsOptional, IsString } from 'class-validator';
 
 export class ReportDto implements Report {
@@ -24,17 +24,17 @@ export class ReportDto implements Report {
 
     @ApiProperty({
         description: 'The type of the report',
-        enum: EReportType
+        enum: ReportType
     })
-    @IsEnum(EReportType)
-    type: EReportType;
+    @IsEnum(ReportType)
+    type: ReportType;
 
     @ApiProperty({
         description: 'The category of the report',
-        enum: EReportCategory
+        enum: ReportCategory
     })
-    @IsEnum(EReportCategory)
-    category: EReportCategory;
+    @IsEnum(ReportCategory)
+    category: ReportCategory;
 
     @ApiProperty({
         description: 'The main text of the report',

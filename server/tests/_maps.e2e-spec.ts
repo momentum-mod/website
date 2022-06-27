@@ -5,8 +5,8 @@ import { Test } from '@nestjs/testing';
 import { AuthService } from '../src/modules/auth/auth.service';
 import { AppModule } from '../src/app.module';
 import { PrismaService } from '../src/modules/repo/prisma.service';
-import { EMapStatus, EMapCreditType, EMapType } from '../src/@common/enums/map.enum';
-import { ERole } from '../src/@common/enums/user.enum';
+import { MapStatus, MapCreditType, MapType } from '../src/@common/enums/map.enum';
+import { Roles } from '../src/@common/enums/user.enum';
 import { Prisma } from '@prisma/client';
 
 describe('Maps', () => {
@@ -18,7 +18,7 @@ describe('Maps', () => {
         steamID: '65465432154',
         alias: 'Ron Weasley',
         avatar: '',
-        roles: ERole.VERIFIED | ERole.MAPPER,
+        roles: Roles.VERIFIED | Roles.MAPPER,
         bans: 0,
         profiles: {
             create: [
@@ -34,7 +34,7 @@ describe('Maps', () => {
         steamID: '54132121685476543',
         alias: 'Fred Weasley',
         avatar: '',
-        roles: ERole.ADMIN,
+        roles: Roles.ADMIN,
         bans: 0,
         profiles: {
             create: [
@@ -50,7 +50,7 @@ describe('Maps', () => {
         steamID: '5416876413213874',
         alias: 'George Weasley',
         avatar: '',
-        roles: ERole.ADMIN,
+        roles: Roles.ADMIN,
         bans: 0,
         profiles: {
             create: [
@@ -64,8 +64,8 @@ describe('Maps', () => {
     const testMapData: Prisma.MapCreateArgs = {
         data: {
             name: 'test_map_one',
-            type: EMapType.TRICKSURF,
-            statusFlag: EMapStatus.APPROVED,
+            type: MapType.TRICKSURF,
+            statusFlag: MapStatus.APPROVED,
             submitterID: testUser?.id,
             info: {
                 create: {
@@ -96,7 +96,7 @@ describe('Maps', () => {
             },
             credits: {
                 create: {
-                    type: +EMapCreditType.AUTHOR,
+                    type: +MapCreditType.AUTHOR,
                     userID: testUser?.id
                 }
             },
@@ -129,8 +129,8 @@ describe('Maps', () => {
     const testMap2Data: Prisma.MapCreateArgs = {
         data: {
             name: 'test_map_two',
-            type: EMapType.BHOP,
-            statusFlag: EMapStatus.APPROVED,
+            type: MapType.BHOP,
+            statusFlag: MapStatus.APPROVED,
             submitterID: testUser?.id,
             info: {
                 create: {
@@ -163,7 +163,7 @@ describe('Maps', () => {
             },
             credits: {
                 create: {
-                    type: EMapCreditType.AUTHOR,
+                    type: MapCreditType.AUTHOR,
                     userID: testUser?.id
                 }
             },
@@ -250,7 +250,7 @@ describe('Maps', () => {
                 .set('Authorization', 'Bearer ' + testUser.accessToken)
                 .send({
                     name: 'test_map_5',
-                    type: EMapType.SURF,
+                    type: MapType.SURF,
                     info: {
                         description: 'newmap_5',
                         numTracks: 1,
@@ -267,7 +267,7 @@ describe('Maps', () => {
                     credits: [
                         {
                             userID: testUser.id,
-                            type: EMapCreditType.AUTHOR
+                            type: MapCreditType.AUTHOR
                         }
                     ]
                 })
@@ -649,7 +649,7 @@ describe('Maps', () => {
                 .post('/api/v1/maps/' + testMap.id + '/credits')
                 .set('Authorization', 'Bearer ' + testUser.accessToken)
                 .send({
-                    type: EMapCreditType.SPECIAL_THANKS,
+                    type: MapCreditType.SPECIAL_THANKS,
                     userID: testAdmin.id
                 })
                 .expect('Content-Type', /json/)
@@ -726,7 +726,7 @@ describe('Maps', () => {
                 .patch('/api/v1/maps/' + testMap.id + '/credits/' + testMap.credits.id)
                 .set('Authorization', 'Bearer ' + testUser.accessToken)
                 .send({
-                    type: EMapCreditType.TESTER,
+                    type: MapCreditType.TESTER,
                     userID: testAdmin.id
                 })
                 .expect(204);
@@ -737,7 +737,7 @@ describe('Maps', () => {
                 .patch('/api/v1/maps/3938282929/credits/234532')
                 .set('Authorization', 'Bearer ' + testUser.accessToken)
                 .send({
-                    type: EMapCreditType.AUTHOR,
+                    type: MapCreditType.AUTHOR,
                     userID: testAdmin.id
                 })
                 .expect('Content-Type', /json/)

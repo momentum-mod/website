@@ -1,7 +1,7 @@
 import { Follow } from '@prisma/client';
 import { UserDto } from './user.dto';
 import { ApiProperty, ApiPropertyOptional, PickType } from '@nestjs/swagger';
-import { EActivityTypes } from '../../enums/activity.enum';
+import { ActivityTypes } from '../../enums/activity.enum';
 import { IsDateString, IsDefined, ValidateNested } from 'class-validator';
 import { DtoUtils } from '../../utils/dto-utils';
 import { Exclude, Transform } from 'class-transformer';
@@ -9,13 +9,13 @@ import { IsEnumFlag } from '../../validators/is-enum-flag';
 
 export class FollowerDto implements Follow {
     @ApiPropertyOptional({
-        enum: EActivityTypes,
+        enum: ActivityTypes,
         description:
             'The bitwise flags for the activities that the followee will be notified of when they are performed by the user they follow'
     })
     @IsDefined()
-    @IsEnumFlag(EActivityTypes)
-    notifyOn: EActivityTypes;
+    @IsEnumFlag(ActivityTypes)
+    notifyOn: ActivityTypes;
 
     @Exclude()
     followedID: number;

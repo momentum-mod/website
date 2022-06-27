@@ -5,7 +5,7 @@ import { ClassSerializerInterceptor, ValidationPipe } from '@nestjs/common';
 import { PrismaService } from '../src/modules/repo/prisma.service';
 import { User } from '@prisma/client';
 import { AuthService } from '../src/modules/auth/auth.service';
-import { ERole } from '../src/@common/enums/user.enum';
+import { Roles } from '../src/@common/enums/user.enum';
 import { Reflector } from '@nestjs/core';
 
 export default class E2ETestEnvironment extends NodeEnvironment {

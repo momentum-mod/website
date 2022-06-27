@@ -1,6 +1,6 @@
 import { User } from '@prisma/client';
 import { appConfig } from '../../../../config/config';
-import { ERole, EBan } from '../../enums/user.enum';
+import { Roles, Bans } from '../../enums/user.enum';
 import { ApiProperty, ApiPropertyOptional, PickType } from '@nestjs/swagger';
 import {
     IsDateString,
@@ -45,18 +45,18 @@ export class UserDto implements User {
     alias: string;
 
     @ApiPropertyOptional({
-        enum: ERole,
+        enum: Roles,
         description: "Flags representing the user's combined roles"
     })
-    @IsEnumFlag(ERole)
-    roles: ERole;
+    @IsEnumFlag(Roles)
+    roles: Roles;
 
     @ApiPropertyOptional({
-        enum: EBan,
+        enum: Bans,
         description: "Flags representing the user's combined bans"
     })
-    @IsEnumFlag(EBan)
-    bans: EBan;
+    @IsEnumFlag(Bans)
+    bans: Bans;
 
     @ApiPropertyOptional({
         type: String,
@@ -102,7 +102,7 @@ export class UserDto implements User {
     @ApiProperty()
     @Expose()
     get avatarURL(): string {
-        if (this.bans & EBan.BANNED_AVATAR) {
+        if (this.bans & Bans.BANNED_AVATAR) {
             return appConfig.baseURL + '/assets/images/blank_avatar.jpg';
         } else {
             return this.avatar ? 'https://avatars.cloudflare.steamstatic.com/' + this.avatar : null;
@@ -132,20 +132,20 @@ export class UpdateUserDto {
 
 export class AdminUpdateUserDto extends UpdateUserDto {
     @ApiPropertyOptional({
-        enum: ERole,
+        enum: Roles,
         description: 'The new roles to set'
     })
     @IsOptional()
-    @IsEnumFlag(ERole)
-    role?: ERole;
+    @IsEnumFlag(Roles)
+    role?: Roles;
 
     @ApiPropertyOptional({
-        enum: EBan,
+        enum: Bans,
         description: 'The new bans to set'
     })
     @IsOptional()
-    @IsEnumFlag(ERole)
-    bans?: ERole;
+    @IsEnumFlag(Roles)
+    bans?: Roles;
 }
 
 export class MergeUserDto {

@@ -1,4 +1,4 @@
-export enum EActivityTypes {
+export enum ActivityTypes {
     ALL = 1 << 0,
     MAP_UPLOADED = 1 << 1,
     MAP_APPROVED = 1 << 2,

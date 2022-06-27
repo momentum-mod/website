@@ -1,5 +1,5 @@
 import { Map as MapDB } from '@prisma/client';
-import { EMapStatus, EMapType } from '../../enums/map.enum';
+import { MapStatus, MapType } from '../../enums/map.enum';
 import { UserDto } from '../user/user.dto';
 import { MapImageDto } from './map-image.dto';
 import { ApiProperty, PickType } from '@nestjs/swagger';
@@ -18,12 +18,12 @@ export class MapDto implements MapDB {
     name: string;
 
     @ApiProperty()
-    @IsEnum(EMapType)
-    type: EMapType;
+    @IsEnum(MapType)
+    type: MapType;
 
     @ApiProperty()
-    @IsEnum(EMapStatus)
-    statusFlag: EMapStatus;
+    @IsEnum(MapStatus)
+    statusFlag: MapStatus;
 
     @ApiProperty()
     @IsString()

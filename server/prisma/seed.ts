@@ -1,9 +1,9 @@
 import { PrismaClient } from '@prisma/client';
 import { faker } from '@faker-js/faker';
-import { EReportCategory, EReportType } from '../src/@common/enums/report.enum';
-import { EMapStatus, EMapType, EMapCreditType } from '../src/@common/enums/map.enum';
-import { ERole } from '../src/@common/enums/user.enum';
-import { EActivityTypes } from '../src/@common/enums/activity.enum';
+import { ReportCategory, ReportType } from '../src/@common/enums/report.enum';
+import { MapStatus, MapType, MapCreditType } from '../src/@common/enums/map.enum';
+import { Roles } from '../src/@common/enums/user.enum';
+import { ActivityTypes } from '../src/@common/enums/activity.enum';
 
 const prisma = new PrismaClient();
 
@@ -190,8 +190,8 @@ async function createRandomMap(submitterID) {
     return await prisma.map.create({
         data: {
             name: faker.lorem.word(),
-            type: randomEnumIntValue(EMapType),
-            statusFlag: randomEnumIntValue(EMapStatus),
+            type: randomEnumIntValue(MapType),
+            statusFlag: randomEnumIntValue(MapStatus),
             downloadURL: faker.image.cats(),
             hash: faker.random.alphaNumeric(),
             submitterID: submitterID
@@ -231,7 +231,7 @@ async function createRandomMapCredit(mapID, userID) {
 
     return await prisma.mapCredit.create({
         data: {
-            type: randomEnumIntValue(EMapCreditType),
+            type: randomEnumIntValue(MapCreditType),
             mapID: mapID,
             userID: userID
         }
@@ -423,7 +423,7 @@ async function createRandomReport(reportType, data, submitterID, resolverID) {
         data: {
             type: reportType,
             data: data.toString(),
-            category: randomEnumIntValue(EReportCategory),
+            category: randomEnumIntValue(ReportCategory),
             message: faker.lorem.paragraph(),
             resolved: faker.datatype.boolean(),
             resolutionMessage: faker.lorem.sentence(),
@@ -465,7 +465,7 @@ async function makeRandomUsersAMapper() {
                             id: usr.id
                         },
                         data: {
-                            roles: usr.roles | ERole.MAPPER
+                            roles: usr.roles | Roles.MAPPER
                         }
                     })
                 );
@@ -480,7 +480,7 @@ async function mappersUploadMaps() {
                 id: true
             },
             where: {
-                roles: ERole.MAPPER
+                roles: Roles.MAPPER
             },
             take: NUM_OF_MAPPERS_TO_UPLOAD_MAPS
         })
@@ -576,14 +576,14 @@ async function mappersUploadMaps() {
                                 .then(() => {
                                     return createRandomActivity(
                                         createdMap.submitterID,
-                                        EActivityTypes.MAP_UPLOADED,
+                                        ActivityTypes.MAP_UPLOADED,
                                         createdMap.id
                                     );
                                 })
                                 .then(() => {
                                     return createRandomActivity(
                                         createdMap.submitterID,
-                                        EActivityTypes.MAP_APPROVED,
+                                        ActivityTypes.MAP_APPROVED,
                                         createdMap.id
                                     );
                                 })
@@ -685,7 +685,7 @@ const reportsAreMade = () => {
             if (randomIntFromInterval(1, 100) <= 5) {
                 reportCreations.push(
                     createRandomReport(
-                        EReportType.MAP_REPORT,
+                        ReportType.MAP_REPORT,
                         existingMapIDs[j],
                         existingUserIDs[i],
                         faker.helpers.arrayElement(existingUserIDs)
@@ -699,7 +699,7 @@ const reportsAreMade = () => {
             if (existingUserIDs[i] !== existingUserIDs[j] && randomIntFromInterval(1, 100) <= 5) {
                 reportCreations.push(
                     createRandomReport(
-                        EReportType.USER_PROFILE_REPORT,
+                        ReportType.USER_PROFILE_REPORT,
                         existingUserIDs[j],
                         existingUserIDs[i],
                         faker.helpers.arrayElement(existingUserIDs)

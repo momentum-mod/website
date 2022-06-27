@@ -1,7 +1,7 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { UsersRepoService } from '../repo/users-repo.service';
 import { Follow, Prisma } from '@prisma/client';
-import { ERole } from '../../@common/enums/user.enum';
+import { Roles } from '../../@common/enums/user.enum';
 import { UserDto } from '../../@common/dto/user/user.dto';
 import { DtoUtils } from '../../@common/utils/dto-utils';
 import { MapsRepoService } from '../repo/maps-repo.service';
@@ -13,7 +13,7 @@ export class AdminService {
     async CreatePlaceholderUser(alias: string): Promise<UserDto> {
         const input: Prisma.UserCreateInput = {
             alias: alias,
-            roles: ERole.PLACEHOLDER
+            roles: Roles.PLACEHOLDER
         };
 
         const dbResponse = await this.userRepo.Create(input);
@@ -33,7 +33,7 @@ export class AdminService {
             throw new BadRequestException('Will not merge the same account');
         } else if (!placeholder) {
             throw new BadRequestException('Placeholder user not found');
-        } else if ((placeholder.roles & ERole.PLACEHOLDER) == 0) {
+        } else if ((placeholder.roles & Roles.PLACEHOLDER) == 0) {
             throw new BadRequestException('Placeholder input is not a placeholder user');
         }
 

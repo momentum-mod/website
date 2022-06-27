@@ -2,7 +2,7 @@
 import { ApiPropertyOptional } from '@nestjs/swagger';
 import { Transform, Type } from 'class-transformer';
 import { IsInt, IsOptional } from 'class-validator';
-import { EMapStatus } from '../../enums/map.enum';
+import { MapStatus } from '../../enums/map.enum';
 
 export class RunsGetAllQuery extends PaginationQuery {
     @ApiPropertyOptional({
@@ -39,7 +39,7 @@ export class RunsGetAllQuery extends PaginationQuery {
     // I'm not completely sure this is right, enum handling might not be valid - Tom
     @ApiPropertyOptional({
         name: 'flags',
-        enum: EMapStatus,
+        enum: MapStatus,
         type: Number,
         description: 'Filter by run flags (I dont really know what this is, I think a 0.10/0.11 thing -Tom)'
     })

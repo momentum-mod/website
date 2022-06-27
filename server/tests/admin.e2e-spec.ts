@@ -1,12 +1,12 @@
 // noinspection DuplicatedCode
 
-import { ERole } from '../src/@common/enums/user.enum';
-import { EReportCategory, EReportType } from '../src/@common/enums/report.enum';
-import { EMapCreditType, EMapStatus, EMapType } from '../src/@common/enums/map.enum';
+import { Roles } from '../src/@common/enums/user.enum';
+import { ReportCategory, ReportType } from '../src/@common/enums/report.enum';
+import { MapCreditType, MapStatus, MapType } from '../src/@common/enums/map.enum';
 import { PrismaService } from '../src/modules/repo/prisma.service';
 import { TestUtil } from './util';
 import { AuthService } from '../src/modules/auth/auth.service';
-import { EActivityTypes } from '../src/@common/enums/activity.enum';
+import { ActivityTypes } from '../src/@common/enums/activity.enum';
 import { UserDto } from '../src/@common/dto/user/user.dto';
 
 describe('admin', () => {
@@ -14,21 +14,21 @@ describe('admin', () => {
     const testUser = {
         id: 1,
         steamID: '1254652365',
-        roles: ERole.VERIFIED,
+        roles: Roles.VERIFIED,
         bans: 0
     };
 
     const testAdmin = {
         id: 2,
         steamID: '9856321549856',
-        roles: ERole.ADMIN,
+        roles: Roles.ADMIN,
         bans: 0
     };
 
     const testAdminGame = {
         id: 3,
         steamID: '5698752164498',
-        roles: ERole.ADMIN,
+        roles: Roles.ADMIN,
         bans: 0
     };
     const testDeleteUser = {
@@ -42,9 +42,9 @@ describe('admin', () => {
 
     const testMap = {
         name: 'test_map',
-        type: EMapType.UNKNOWN,
+        type: MapType.UNKNOWN,
         id: 1,
-        statusFlag: EMapStatus.APPROVED,
+        statusFlag: MapStatus.APPROVED,
         submitterID: testUser.id,
         info: {
             description: 'newmap_5',
@@ -61,7 +61,7 @@ describe('admin', () => {
         ],
         credits: {
             id: 1,
-            type: EMapCreditType.AUTHOR,
+            type: MapCreditType.AUTHOR,
             userID: testUser.id
         }
     };
@@ -85,7 +85,7 @@ describe('admin', () => {
         ],
         credits: {
             id: 2,
-            type: EMapCreditType.AUTHOR,
+            type: MapCreditType.AUTHOR,
             userID: testUser.id
         }
     };
@@ -108,7 +108,7 @@ describe('admin', () => {
         ],
         credits: {
             id: 3,
-            type: EMapCreditType.AUTHOR,
+            type: MapCreditType.AUTHOR,
             userID: testUser.id
         }
     };
@@ -131,7 +131,7 @@ describe('admin', () => {
         ],
         credits: {
             id: 4,
-            type: EMapCreditType.AUTHOR,
+            type: MapCreditType.AUTHOR,
             userID: testUser.id
         }
     };
@@ -154,7 +154,7 @@ describe('admin', () => {
         ],
         credits: {
             id: 5,
-            type: EMapCreditType.AUTHOR,
+            type: MapCreditType.AUTHOR,
             userID: testAdmin.id
         }
     };
@@ -177,7 +177,7 @@ describe('admin', () => {
         ],
         credits: {
             id: 6,
-            type: EMapCreditType.AUTHOR,
+            type: MapCreditType.AUTHOR,
             userID: testAdmin.id
         }
     };
@@ -200,15 +200,15 @@ describe('admin', () => {
         ],
         credits: {
             id: 7,
-            type: EMapCreditType.AUTHOR,
+            type: MapCreditType.AUTHOR,
             userID: testAdmin.id
         }
     };
     const testReport = {
         id: 1,
         data: 1,
-        type: EReportType.USER_PROFILE_REPORT,
-        category: EReportCategory.OTHER,
+        type: ReportType.USER_PROFILE_REPORT,
+        category: ReportCategory.OTHER,
         submitterID: testUser.id,
         message: 'I am who I am who am I?',
         resolved: false,
@@ -217,8 +217,8 @@ describe('admin', () => {
     const testReport2 = {
         id: 2,
         data: 1,
-        tpe: EReportType.MAP_REPORT,
-        category: EReportCategory.OTHER,
+        tpe: ReportType.MAP_REPORT,
+        category: ReportCategory.OTHER,
         submitterID: testUser.id,
         message: 'What are you doing',
         resolved: true,
@@ -233,7 +233,7 @@ describe('admin', () => {
                 steamID: '234523452345',
                 alias: 'Admin User',
                 avatar: '',
-                roles: ERole.ADMIN,
+                roles: Roles.ADMIN,
                 bans: 0,
                 country: 'GB',
                 profile: {
@@ -266,7 +266,7 @@ describe('admin', () => {
 
         user2 = await prisma.user.create({
             data: {
-                steamID: '12341234214521`',
+                steamID: '12341234214521',
                 alias: 'U2'
             }
         });
@@ -275,7 +275,7 @@ describe('admin', () => {
             data: {
                 steamID: '612374578254',
                 alias: 'MU1',
-                roles: ERole.PLACEHOLDER
+                roles: Roles.PLACEHOLDER
             }
         });
 
@@ -295,13 +295,13 @@ describe('admin', () => {
                 {
                     followeeID: user2.id,
                     followedID: mergeUser1.id,
-                    notifyOn: EActivityTypes.MAP_APPROVED,
+                    notifyOn: ActivityTypes.MAP_APPROVED,
                     createdAt: new Date('12/24/2021')
                 },
                 {
                     followeeID: user2.id,
                     followedID: mergeUser2.id,
-                    notifyOn: EActivityTypes.MAP_UPLOADED,
+                    notifyOn: ActivityTypes.MAP_UPLOADED,
                     createdAt: new Date('12/25/2021')
                 },
                 {
@@ -314,7 +314,7 @@ describe('admin', () => {
         await prisma.activity.createMany({
             data: [
                 {
-                    type: EActivityTypes.REPORT_FILED,
+                    type: ActivityTypes.REPORT_FILED,
                     userID: mergeUser1.id,
                     data: 123456n
                 }
@@ -462,7 +462,7 @@ describe('admin', () => {
                 const u2Follows = await TestUtil.get(`users/${user2.id}/follows`, 200);
                 const follow = u2Follows.body.response.find((f) => f.followed.id === mergeUser2.id);
                 expect(new Date(follow.createdAt)).toEqual(new Date('12/24/2021'));
-                expect(follow.notifyOn).toBe(EActivityTypes.MAP_APPROVED | EActivityTypes.MAP_UPLOADED);
+                expect(follow.notifyOn).toBe(ActivityTypes.MAP_APPROVED | ActivityTypes.MAP_UPLOADED);
 
                 // MU2 was following MU1, that should be deleted
                 const mu2follows = await TestUtil.get(`users/${mergeUser2.id}/follows`, 200);
@@ -505,7 +505,7 @@ describe('admin', () => {
             });
 
             it('should respond with 403 when the user requesting is not an admin', async () => {
-                const res = await TestUtil.post(
+                await TestUtil.post(
                     'admin/users/merge',
                     403,
                     {
@@ -517,7 +517,7 @@ describe('admin', () => {
             });
 
             it('should respond with 401 when no access token is provided', async () => {
-                const res = await TestUtil.post('admin/users/', 401, {}, null);
+                await TestUtil.post('admin/users/', 401, {}, null);
             });
         });
 
