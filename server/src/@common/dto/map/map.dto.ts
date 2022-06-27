@@ -3,12 +3,13 @@ import { EMapStatus, EMapType } from '../../enums/map.enum';
 import { UserDto } from '../user/user.dto';
 import { MapImageDto } from './map-image.dto';
 import { ApiProperty, PickType } from '@nestjs/swagger';
-import { IsDate, IsEnum, IsInt, IsOptional, IsString } from 'class-validator';
+import { IsDate, IsDateString, IsDefined, IsEnum, IsInt, IsOptional, IsString } from 'class-validator';
 import { Transform } from 'class-transformer';
 import { DtoUtils } from '../../utils/dto-utils';
 
 export class MapDto implements MapDB {
     @ApiProperty()
+    @IsDefined()
     @IsInt()
     id: number;
 
@@ -54,11 +55,11 @@ export class MapDto implements MapDB {
     images: MapImageDto[];
 
     @ApiProperty()
-    @IsDate()
+    @IsDateString()
     createdAt: Date;
 
     @ApiProperty()
-    @IsDate()
+    @IsDateString()
     updatedAt: Date;
 
     //constructor(_map: Partial<MapDB>) {

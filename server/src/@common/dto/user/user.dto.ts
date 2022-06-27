@@ -2,9 +2,18 @@ import { User } from '@prisma/client';
 import { appConfig } from '../../../../config/config';
 import { ERole, EBan } from '../../enums/user.enum';
 import { ApiProperty, ApiPropertyOptional, PickType } from '@nestjs/swagger';
-import { IsDate, IsEnum, IsInt, IsISO31661Alpha2, IsOptional, IsString } from 'class-validator';
-import { Exclude, Expose, Transform } from 'class-transformer';
+import {
+    IsDateString,
+    IsDefined,
+    IsInt,
+    IsISO31661Alpha2,
+    IsOptional,
+    IsString,
+    ValidateNested
+} from 'class-validator';
+import { Exclude, Expose, Transform, Type } from 'class-transformer';
 import { IsSteamCommunityID } from '../../validators/is-steam-id.validator';
+import { IsEnumFlag } from '../../validators/is-enum-flag';
 import { ProfileDto } from './profile.dto';
 import { DtoUtils } from '../../utils/dto-utils';
 import { MapRankDto } from '../map/map-rank.dto';
@@ -15,6 +24,7 @@ export class UserDto implements User {
         type: Number,
         description: 'The unique numeric ID of the user'
     })
+    @IsDefined()
     @IsInt()
     id: number;
 
@@ -22,10 +32,11 @@ export class UserDto implements User {
         type: String,
         description: 'The Steam community ID (i.e. the uint64 format, not STEAM:...) of the user'
     })
+    @IsOptional() // Placeholder don't have SteamIDs
     @IsSteamCommunityID()
     steamID: string;
 
-    @ApiPropertyOptional({
+    @ApiProperty({
         type: String,
         description:
             "The user's alias, which is either a current or previous Steam name, or something they set themselves"
@@ -34,21 +45,24 @@ export class UserDto implements User {
     alias: string;
 
     @ApiPropertyOptional({
-        enum: ERole
+        enum: ERole,
+        description: "Flags representing the user's combined roles"
     })
-    @IsEnum(ERole)
+    @IsEnumFlag(ERole)
     roles: ERole;
 
     @ApiPropertyOptional({
-        enum: EBan
+        enum: EBan,
+        description: "Flags representing the user's combined bans"
     })
-    @IsEnum(EBan)
+    @IsEnumFlag(EBan)
     bans: EBan;
 
     @ApiPropertyOptional({
         type: String,
         description: 'Two-letter (ISO 3166-1 Alpha-2) country code for the user'
     })
+    @IsOptional()
     @IsISO31661Alpha2()
     country: string;
 
@@ -62,9 +76,9 @@ export class UserDto implements User {
         type: ProfileDto,
         description: "The user's profile."
     })
-    @IsOptional()
     @Transform(({ value }) => DtoUtils.Factory(ProfileDto, value))
-    profile: ProfileDto;
+    @ValidateNested()
+    profile?: ProfileDto;
 
     @ApiPropertyOptional({
         type: MapRankDto,
@@ -72,14 +86,17 @@ export class UserDto implements User {
     })
     @IsOptional()
     @Transform(({ value }) => DtoUtils.Factory(MapRankDto, value))
-    mapRank: MapRankDto;
+    @ValidateNested()
+    mapRank?: MapRankDto;
 
     @ApiProperty()
-    @IsDate()
+    @IsDefined()
+    @IsDateString()
     createdAt: Date;
 
     @ApiProperty()
-    @IsDate()
+    @IsDefined()
+    @IsDateString()
     updatedAt: Date;
 
     @ApiProperty()
@@ -101,17 +118,16 @@ export class UpdateUserDto {
         description: 'The new alias to set'
     })
     @IsOptional()
-    // TODO: Idk what the fuck is going on here. Apparently the incoming data aren't strings??
-    // @IsString()
-    alias: string;
+    @IsString()
+    alias?: string;
 
     @ApiPropertyOptional({
         type: String,
         description: 'The new bio to set'
     })
     @IsOptional()
-    // @IsString()
-    bio: string;
+    @IsString()
+    bio?: string;
 }
 
 export class AdminUpdateUserDto extends UpdateUserDto {
@@ -120,14 +136,16 @@ export class AdminUpdateUserDto extends UpdateUserDto {
         description: 'The new roles to set'
     })
     @IsOptional()
-    role: ERole;
+    @IsEnumFlag(ERole)
+    role?: ERole;
 
     @ApiPropertyOptional({
         enum: EBan,
         description: 'The new bans to set'
     })
     @IsOptional()
-    bans: ERole;
+    @IsEnumFlag(ERole)
+    bans?: ERole;
 }
 
 export class MergeUserDto {
@@ -135,12 +153,16 @@ export class MergeUserDto {
         description: 'The ID of the placeholder user to merge into the actual user',
         type: Number
     })
+    @IsDefined()
     @IsInt()
+    @Type(() => Number)
     placeholderID: number;
 
     @ApiProperty({
         description: 'The ID of the actual user to merge the placeholder into',
         type: Number
     })
+    @IsDefined()
+    @Type(() => Number)
     userID: number;
 }
