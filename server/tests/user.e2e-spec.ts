@@ -6,6 +6,14 @@ import { EBan, ERole } from '../src/@common/enums/user.enum';
 import { TestUtil } from './util';
 import { AuthService } from '../src/modules/auth/auth.service';
 import { EActivityTypes } from '../src/@common/enums/activity.enum';
+import { UserDto } from '../src/@common/dto/user/user.dto';
+import { plainToInstance } from 'class-transformer';
+import { validate } from 'class-validator';
+import { ProfileDto } from '../src/@common/dto/user/profile.dto';
+import { FollowerDto, FollowStatusDto } from '../src/@common/dto/user/followers.dto';
+import { ActivityDto } from '../src/@common/dto/user/activity.dto';
+import { MapLibraryEntryDto } from '../src/@common/dto/map/library-entry';
+import { NotificationDto } from '../src/@common/dto/user/notification.dto';
 
 describe('User', () => {
     let user1, user2, user2Token, user3, user3Token, admin, adminGame, adminAccessToken, map1, map2, map3, activities;
@@ -15,7 +23,7 @@ describe('User', () => {
 
         user1 = await prisma.user.create({
             data: {
-                steamID: Math.random().toPrecision(16).slice(2),
+                steamID: '7836468',
                 country: 'GB',
                 alias: 'Ron Weasley',
                 avatar: '',
@@ -34,7 +42,7 @@ describe('User', () => {
 
         user2 = await prisma.user.create({
             data: {
-                steamID: Math.random().toPrecision(16).slice(2),
+                steamID: '96433563',
                 alias: 'Bill Weasley',
                 roles: ERole.VERIFIED,
                 bans: EBan.BANNED_BIO | EBan.BANNED_ALIAS,
@@ -54,7 +62,7 @@ describe('User', () => {
 
         user3 = await prisma.user.create({
             data: {
-                steamID: Math.random().toPrecision(16).slice(2),
+                steamID: '86546575',
                 alias: 'Percy Weasley',
                 avatar: 'e4db45e6d6472d9e61b131a04ad2f18a299daafc_full.jpg',
                 roles: ERole.MAPPER | ERole.VERIFIED,
@@ -71,12 +79,11 @@ describe('User', () => {
         admin = await prisma.user.create({
             data: {
                 aliasLocked: false,
-                steamID: Math.random().toPrecision(16).slice(2),
+                steamID: '733345322',
                 alias: 'Arthur Weasley',
                 avatar: '',
                 roles: ERole.ADMIN,
                 bans: 0,
-                country: 'UK',
                 profile: {
                     create: {
                         bio: 'Arthur Weasley (b. 6 February, 1950) was an English pure-blood wizard in the employ of the Ministry of Magic, as well as a member of the second Order of the Phoenix. He was a staunch believer in the equality of all magical and Muggle folk and was the head of the Weasley family.'
@@ -87,7 +94,8 @@ describe('User', () => {
 
         adminGame = await prisma.user.create({
             data: {
-                steamID: Math.random().toPrecision(16).slice(2),
+                steamID: '444444444444444',
+                alias: 'Ginny Weasley',
                 roles: ERole.ADMIN,
                 bans: 0,
                 country: 'US'
@@ -258,11 +266,7 @@ describe('User', () => {
     });
 
     describe('GET /api/v1/user', () => {
-        const expects = (res) => {
-            ['id', 'alias', 'steamID', 'roles', 'bans', 'avatarURL', 'createdAt', 'updatedAt'].forEach((p) =>
-                expect(res.body).toHaveProperty(p)
-            );
-        };
+        const expects = (res) => expect(res.body).toBeValidDto(UserDto);
 
         it('should respond with user data', async () => {
             const res = await TestUtil.get('user', 200);
@@ -276,8 +280,7 @@ describe('User', () => {
             const res = await TestUtil.get('user', 200, { expand: 'profile' });
 
             expects(res);
-            expect(res.body).toHaveProperty('id');
-            expect(res.body.profile).toHaveProperty('bio');
+            expect(res.body.profile).toBeValidDto(ProfileDto);
             expect(res.body.profile.bio).toBe(user1.profile.bio);
         });
 
@@ -315,8 +318,6 @@ describe('User', () => {
             expect(res.body.profile.bio).toBe('I love Donkey Kong');
         });
 
-        // TODO: class-validator isnt working properly, see user.dto.ts. afterwards check it 400s
-
         it('should respond with 403 when trying to update bio when bio banned', async () => {
             await TestUtil.patch('user', 403, { bio: 'Gamer Words' }, user2Token);
         });
@@ -345,6 +346,7 @@ describe('User', () => {
         it('should respond with authenticated users profile info', async () => {
             const res = await TestUtil.get('user/profile', 200);
 
+            expect(res.body).toBeValidDto(ProfileDto);
             expect(res.body.bio).toBe(user1.profile.bio);
         });
 
@@ -392,6 +394,7 @@ describe('User', () => {
         it('should return relationships of the given and local user who follow each other', async () => {
             const res = await TestUtil.get(`user/follow/${user2.id}`, 200);
 
+            expect(res.body).toBeValidDto(FollowStatusDto);
             expect(res.body.local.followed.id).toBe(user2.id);
             expect(res.body.local.followee.id).toBe(user1.id);
             expect(res.body.target.followed.id).toBe(user1.id);
@@ -401,6 +404,7 @@ describe('User', () => {
         it('should return a relationship of the local user who follows the target, but not the opposite', async () => {
             const res = await TestUtil.get(`user/follow/${user3.id}`, 200);
 
+            expect(res.body).toBeValidDto(FollowStatusDto);
             expect(res.body.local.followed.id).toBe(user3.id);
             expect(res.body.local.followee.id).toBe(user1.id);
             expect(res.body).not.toHaveProperty('target');
@@ -409,6 +413,7 @@ describe('User', () => {
         it('should return a relationship of the target user who follows the local user, but not the opposite', async () => {
             const res = await TestUtil.get(`user/follow/${user1.id}`, 200, {}, user3Token);
 
+            expect(res.body).toBeValidDto(FollowStatusDto);
             expect(res.body.target.followed.id).toBe(user3.id);
             expect(res.body.target.followee.id).toBe(user1.id);
             expect(res.body).not.toHaveProperty('local');
@@ -522,7 +527,7 @@ describe('User', () => {
     });
 
     describe('PUT /api/v1/user/notifyMap/{mapID}', () => {
-        it('should update map notification status for with existing notifications', async () => {
+        it('should update map notification status with existing notifications', async () => {
             await TestUtil.put(`user/notifyMap/${map1.id}`, 204, { notifyOn: EActivityTypes.PB_ACHIEVED });
 
             const res = await TestUtil.get(`user/notifyMap/${map1.id}`, 200);
@@ -530,7 +535,7 @@ describe('User', () => {
             expect(res.body.notifyOn).toBe(EActivityTypes.PB_ACHIEVED);
         });
 
-        it('should create new map notification status if no existing notifcations', async () => {
+        it('should create new map notification status if no existing notifications', async () => {
             await TestUtil.put(`user/notifyMap/${map1.id}`, 204, { notifyOn: EActivityTypes.PB_ACHIEVED });
 
             const res = await TestUtil.get(`user/notifyMap/${map1.id}`, 200);
@@ -575,12 +580,8 @@ describe('User', () => {
 
     describe('GET /api/v1/user/activities', () => {
         const expects = (res) => {
-            expect(res.body.response).toBeInstanceOf(Array);
-            res.body.response.forEach((r) => {
-                ['data', 'type', 'createdAt', 'updatedAt'].forEach((p) => expect(r).toHaveProperty(p));
-                expect(r.user).toHaveProperty('alias');
-                expect(r.user.alias).toBe(user1.alias);
-            });
+            expect(res.body).toBeValidPagedDto(ActivityDto);
+            res.body.response.forEach((r) => expect(r.user.alias).toBe(user1.alias));
         };
 
         it('should retrieve the local users activities', async () => {
@@ -635,13 +636,7 @@ describe('User', () => {
     });
 
     describe('GET /api/v1/user/activities/followed', () => {
-        const expects = (res) => {
-            expect(res.body.response).toBeInstanceOf(Array);
-            res.body.response.forEach((r) => {
-                ['data', 'type', 'createdAt', 'updatedAt'].forEach((p) => expect(r).toHaveProperty(p));
-                expect(r.user).toHaveProperty('alias');
-            });
-        };
+        const expects = (res) => expect(res.body).toBeValidPagedDto(ActivityDto);
 
         it('should retrieve a list of activities from the local users followed users', async () => {
             const res = await TestUtil.get('user/activities/followed', 200);
@@ -719,16 +714,7 @@ describe('User', () => {
     //     });
 
     describe('GET /api/v1/user/maps/library', () => {
-        const expects = (res) => {
-            expect(res.body.response).toBeInstanceOf(Array);
-            res.body.response.forEach((r) => {
-                ['id', 'alias', 'steamID', 'roles', 'bans', 'avatarURL', 'createdAt', 'updatedAt'].forEach((p) =>
-                    expect(r.user).toHaveProperty(p)
-                );
-                expect(r).toHaveProperty('map');
-            });
-        };
-
+        const expects = (res) => expect(res.body).toBeValidPagedDto(MapLibraryEntryDto);
         it('should retrieve the list of maps in the local users library', async () => {
             const res = await TestUtil.get('user/maps/library', 200);
 
@@ -891,15 +877,7 @@ describe('User', () => {
     //     });
     //
     describe('GET /api/v1/user/notifications', () => {
-        const expects = (res) => {
-            expect(res.body.response).toBeInstanceOf(Array);
-            res.body.response.forEach((r) => {
-                expect(r).toHaveProperty('read');
-                expect(r.user).toHaveProperty('profile');
-                expect(r.user.profile.bio).toBe(user1.profile.bio);
-            });
-            // TODO: stuff, idk what the dto looks like yet!
-        };
+        const expects = (res) => expect(res.body).toBeValidPagedDto(NotificationDto);
 
         it('should respond with a list of notifications for the local user', async () => {
             const res = await TestUtil.get('user/notifications', 200);

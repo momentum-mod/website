@@ -26,7 +26,7 @@ export default class E2ETestEnvironment extends NodeEnvironment {
 
         const app = moduleRef.createNestApplication();
 
-        app.useGlobalPipes(new ValidationPipe({ transform: true }));
+        app.useGlobalPipes(new ValidationPipe({ transform: true, enableDebugMessages: true }));
         app.useGlobalInterceptors(new ClassSerializerInterceptor(app.get(Reflector)));
 
         await app.init();

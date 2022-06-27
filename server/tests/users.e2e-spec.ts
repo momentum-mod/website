@@ -7,6 +7,12 @@ import { PrismaService } from '../src/modules/repo/prisma.service';
 import { EMapCreditType, EMapStatus, EMapType } from '../src/@common/enums/map.enum';
 import { ERole } from '../src/@common/enums/user.enum';
 import { AuthService } from '../src/modules/auth/auth.service';
+import { UserDto } from '../src/@common/dto/user/user.dto';
+import { ActivityDto } from '../src/@common/dto/user/activity.dto';
+import { ProfileDto } from '../src/@common/dto/user/profile.dto';
+import { FollowerDto } from '../src/@common/dto/user/followers.dto';
+import { MapCreditDto } from '../src/@common/dto/map/map-credit.dto';
+import { RunDto } from '../src/@common/dto/run/runs.dto';
 
 describe('Users', () => {
     let user1, user2, user3, map1, map2, run1;
@@ -19,9 +25,9 @@ describe('Users', () => {
                 steamID: '532521245234',
                 country: 'GB',
                 alias: 'Ron Weasley',
-                avatar: '',
                 roles: ERole.ADMIN,
                 bans: 0,
+                avatar: 'aaaaaa.jpg',
                 profile: {
                     create: {
                         bio: 'Ronald Bilius "Ron" Weasley (b. 1 March, 1980) was an English pure-blood wizard, the sixth and youngest son of Arthur and Molly Weasley (née Prewett). He was also the younger brother of Bill, Charlie, Percy, Fred, George, and the elder brother of Ginny. Ron and his siblings lived at the The Burrow, on the outskirts of Ottery St Catchpole, Devon.\''
@@ -187,14 +193,7 @@ describe('Users', () => {
     });
 
     describe(`GET /api/v1/users`, () => {
-        const expects = (res: request.Response) => {
-            expect(res.body.response).toBeInstanceOf(Array);
-            res.body.response.forEach((user) =>
-                ['id', 'alias', 'steamID', 'roles', 'bans', 'avatarURL', 'createdAt', 'updatedAt'].forEach((p) =>
-                    expect(user).toHaveProperty(p)
-                )
-            );
-        };
+        const expects = (res: request.Response) => expect(res.body).toBeValidPagedDto(UserDto);
 
         it('should respond with array of users', async () => {
             const res = await TestUtil.get('users', 200);
@@ -234,7 +233,6 @@ describe('Users', () => {
             const res = await TestUtil.get('users', 200, { expand: 'profile' });
 
             expects(res);
-            console.log(res.body.response.find((u) => u.steamID === user1.steamID));
             expect(res.body.response.find((u) => u.steamID === user1.steamID).profile).toHaveProperty('bio');
         });
 
@@ -288,11 +286,7 @@ describe('Users', () => {
     });
 
     describe('GET /api/v1/users/{userID}', () => {
-        const expects = (res) => {
-            ['id', 'alias', 'steamID', 'roles', 'bans', 'avatarURL', 'createdAt', 'updatedAt'].forEach((p) =>
-                expect(res.body).toHaveProperty(p)
-            );
-        };
+        const expects = (res) => expect(res.body).toBeValidDto(UserDto);
 
         it('should respond with the specified user', async () => {
             const res = await TestUtil.get(`users/${user1.id}`, 200);
@@ -339,9 +333,7 @@ describe('Users', () => {
     });
 
     describe('GET /api/v1/users/{userID}/profile', () => {
-        const expects = (res) => {
-            ['bio', 'featuredBadgeID', 'createdAt', 'updatedAt'].forEach((p) => expect(res.body).toHaveProperty(p));
-        };
+        const expects = (res) => expect(res.body).toBeValidDto(ProfileDto);
 
         it('should respond with the specified users profile info', async () => {
             const res = await TestUtil.get(`users/${user1.id}/profile`, 200);
@@ -359,12 +351,8 @@ describe('Users', () => {
 
     describe('GET /api/v1/users/{userID}/activities', () => {
         const expects = (res) => {
-            expect(res.body.response).toBeInstanceOf(Array);
-            res.body.response.forEach((r) => {
-                ['data', 'type', 'createdAt', 'updatedAt'].forEach((p) => expect(r).toHaveProperty(p));
-                expect(r.user).toHaveProperty('alias');
-                expect(r.user.alias).toBe(user1.alias);
-            });
+            expect(res.body).toBeValidPagedDto(ActivityDto);
+            res.body.response.forEach((r) => expect(r.user.alias).toBe(user1.alias));
         };
 
         it('should respond with a list of activities related to the specified user', async () => {
@@ -419,10 +407,7 @@ describe('Users', () => {
     });
 
     describe('GET /api/v1/users/{userID}/follows', () => {
-        const expects = (res) => {
-            expect(res.body.response).toBeInstanceOf(Array);
-            res.body.response.forEach((c) => expect(c).toHaveProperty('notifyOn'));
-        };
+        const expects = (res) => expect(res.body).toBeValidPagedDto(FollowerDto);
 
         it('should respond with a list of users the specified user follows', async () => {
             const res = await TestUtil.get(`users/${user1.id}/follows`, 200);
@@ -447,7 +432,6 @@ describe('Users', () => {
         it('should return an empty list for a user who isnt following anyone', async () => {
             const res = await TestUtil.get(`users/${user2.id}/follows`, 200);
 
-            expects(res);
             expect(res.body.totalCount).toBe(0);
             expect(res.body.returnCount).toBe(0);
         });
@@ -458,10 +442,7 @@ describe('Users', () => {
     });
 
     describe('GET /api/v1/users/{userID}/followers', () => {
-        const expects = (res) => {
-            expect(res.body.response).toBeInstanceOf(Array);
-            res.body.response.forEach((c) => expect(c).toHaveProperty('notifyOn'));
-        };
+        const expects = (res) => expect(res.body).toBeValidPagedDto(FollowerDto);
 
         it('should respond with a list of users that follow the specified user', async () => {
             const res = await TestUtil.get(`users/${user2.id}/followers`, 200);
@@ -486,7 +467,6 @@ describe('Users', () => {
         it('should return an empty list for a user who isnt followed by anyone', async () => {
             const res = await TestUtil.get(`users/${user1.id}/followers`, 200);
 
-            expects(res);
             expect(res.body.totalCount).toBe(0);
             expect(res.body.returnCount).toBe(0);
         });
@@ -497,16 +477,7 @@ describe('Users', () => {
     });
 
     describe('GET /api/v1/users/{userID}/credits', () => {
-        const expects = (res) => {
-            expect(res.body.response).toBeInstanceOf(Array);
-            res.body.response.forEach((c) => {
-                expect(c).toHaveProperty('type');
-                expect(c).toHaveProperty('createdAt');
-                expect(c.user).toHaveProperty('alias');
-                expect(c.user.profile).toHaveProperty('bio');
-            });
-        };
-
+        const expects = (res) => expect(res.body).toBeValidPagedDto(MapCreditDto);
         it('should respond with a list of map credits for a specific user', async () => {
             const res = await TestUtil.get(`users/${user1.id}/credits`, 200);
 
@@ -530,12 +501,8 @@ describe('Users', () => {
 
     describe('GET /api/v1/users/{userID}/runs', () => {
         const expects = (res) => {
-            res.body.response.forEach((r) => {
-                ['time', 'trackNum', 'zoneNum', 'ticks', 'tickRate', 'flags', 'file', 'hash'].forEach((p) =>
-                    expect(r).toHaveProperty(p)
-                );
-                expect(r.time).toBe(r.ticks * r.tickRate);
-            });
+            expect(res.body).toBeValidPagedDto(RunDto);
+            res.body.response.forEach((r) => expect(r.time).toBe(r.ticks * r.tickRate));
         };
 
         it('should respond with a list of runs for a specific user', async () => {

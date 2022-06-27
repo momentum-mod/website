@@ -8,7 +8,7 @@
         const dto: Type = new t();
 
         for (const key in input) {
-            if (key && key in dto) {
+            if (key && key in dto && dto[key] === undefined) {
                 dto[key] = input[key];
             }
         }
