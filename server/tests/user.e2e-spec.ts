@@ -10,7 +10,7 @@ import { UserDto } from '../src/@common/dto/user/user.dto';
 import { plainToInstance } from 'class-transformer';
 import { validate } from 'class-validator';
 import { ProfileDto } from '../src/@common/dto/user/profile.dto';
-import { FollowerDto, FollowStatusDto } from '../src/@common/dto/user/followers.dto';
+import { FollowDto, FollowStatusDto } from '../src/@common/dto/user/followers.dto';
 import { ActivityDto } from '../src/@common/dto/user/activity.dto';
 import { MapLibraryEntryDto } from '../src/@common/dto/map/library-entry';
 import { NotificationDto } from '../src/@common/dto/user/notification.dto';

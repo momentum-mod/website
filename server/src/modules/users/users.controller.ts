@@ -15,7 +15,7 @@ import { ApiOkPaginatedResponse, PaginatedResponseDto } from '../../@common/dto/
 import { ActivityDto } from '../../@common/dto/user/activity.dto';
 import { ProfileDto } from '../../@common/dto/user/profile.dto';
 import { MapCreditDto } from '../../@common/dto/map/map-credit.dto';
-import { FollowerDto } from '../../@common/dto/user/followers.dto';
+import { FollowDto } from '../../@common/dto/user/followers.dto';
 import { PaginationQuery } from '../../@common/dto/query/pagination.dto';
 import { RunDto } from '../../@common/dto/run/runs.dto';
 import { UsersGetActivitiesQuery, UsersGetAllQuery, UsersGetQuery } from '../../@common/dto/query/user-queries.dto';
@@ -102,7 +102,7 @@ export class UsersController {
     public async GetFollowers(
         @Param('userID', ParseIntPipe) userID: number,
         @Query() query?: PaginationQuery
-    ): Promise<PaginatedResponseDto<FollowerDto>> {
+    ): Promise<PaginatedResponseDto<FollowDto>> {
         return this.usersService.GetFollowers(userID, query.skip, query.take);
     }
 
@@ -118,7 +118,7 @@ export class UsersController {
     public async GetFollowed(
         @Param('userID', ParseIntPipe) userID: number,
         @Query() query: PaginationQuery
-    ): Promise<PaginatedResponseDto<FollowerDto>> {
+    ): Promise<PaginatedResponseDto<FollowDto>> {
         return this.usersService.GetFollowing(userID, query.skip, query.take);
     }
 
