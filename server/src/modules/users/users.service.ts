@@ -16,7 +16,7 @@ import { lastValueFrom, map } from 'rxjs';
 import * as xml2js from 'xml2js';
 import { HttpService } from '@nestjs/axios';
 import { ActivityDto } from '../../@common/dto/user/activity.dto';
-import { FollowerDto, FollowStatusDto, UpdateFollowStatusDto } from '../../@common/dto/user/followers.dto';
+import { FollowDto, FollowStatusDto, UpdateFollowStatusDto } from '../../@common/dto/user/followers.dto';
 import { MapCreditDto } from '../../@common/dto/map/map-credit.dto';
 import { Bans, Roles } from '../../@common/enums/user.enum';
 import { ActivityTypes } from '../../@common/enums/activity.enum';
@@ -272,16 +272,16 @@ export class UsersService {
 
     //#region Follows
 
-    public async GetFollowers(id: number, skip?: number, take?: number): Promise<PaginatedResponseDto<FollowerDto>> {
+    public async GetFollowers(id: number, skip?: number, take?: number): Promise<PaginatedResponseDto<FollowDto>> {
         const dbResponse = await this.userRepo.GetFollowers(id, skip, take);
 
-        return new PaginatedResponseDto<FollowerDto>(FollowerDto, dbResponse);
+        return new PaginatedResponseDto<FollowDto>(FollowDto, dbResponse);
     }
 
-    public async GetFollowing(id: number, skip?: number, take?: number): Promise<PaginatedResponseDto<FollowerDto>> {
+    public async GetFollowing(id: number, skip?: number, take?: number): Promise<PaginatedResponseDto<FollowDto>> {
         const dbResponse = await this.userRepo.GetFollowing(id, skip, take);
 
-        return new PaginatedResponseDto<FollowerDto>(FollowerDto, dbResponse);
+        return new PaginatedResponseDto<FollowDto>(FollowDto, dbResponse);
     }
 
     public async GetFollowStatus(localUserID: number, targetUserID: number): Promise<FollowStatusDto> {

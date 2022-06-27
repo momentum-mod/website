@@ -10,7 +10,7 @@ import { AuthService } from '../src/modules/auth/auth.service';
 import { UserDto } from '../src/@common/dto/user/user.dto';
 import { ActivityDto } from '../src/@common/dto/user/activity.dto';
 import { ProfileDto } from '../src/@common/dto/user/profile.dto';
-import { FollowerDto } from '../src/@common/dto/user/followers.dto';
+import { FollowDto } from '../src/@common/dto/user/followers.dto';
 import { MapCreditDto } from '../src/@common/dto/map/map-credit.dto';
 import { RunDto } from '../src/@common/dto/run/runs.dto';
 
@@ -407,7 +407,7 @@ describe('Users', () => {
     });
 
     describe('GET /api/v1/users/{userID}/follows', () => {
-        const expects = (res) => expect(res.body).toBeValidPagedDto(FollowerDto);
+        const expects = (res) => expect(res.body).toBeValidPagedDto(FollowDto);
 
         it('should respond with a list of users the specified user follows', async () => {
             const res = await TestUtil.get(`users/${user1.id}/follows`, 200);
@@ -442,7 +442,7 @@ describe('Users', () => {
     });
 
     describe('GET /api/v1/users/{userID}/followers', () => {
-        const expects = (res) => expect(res.body).toBeValidPagedDto(FollowerDto);
+        const expects = (res) => expect(res.body).toBeValidPagedDto(FollowDto);
 
         it('should respond with a list of users that follow the specified user', async () => {
             const res = await TestUtil.get(`users/${user2.id}/followers`, 200);

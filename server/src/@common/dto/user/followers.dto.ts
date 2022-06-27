@@ -7,7 +7,7 @@ import { DtoUtils } from '../../utils/dto-utils';
 import { Exclude, Transform } from 'class-transformer';
 import { IsEnumFlag } from '../../validators/is-enum-flag';
 
-export class FollowerDto implements Follow {
+export class FollowDto implements Follow {
     @ApiPropertyOptional({
         enum: ActivityTypes,
         description:
@@ -52,22 +52,22 @@ export class FollowerDto implements Follow {
 
 export class FollowStatusDto {
     @ApiPropertyOptional({
-        type: FollowerDto,
+        type: FollowDto,
         description:
             'FollowerDto expressing the relationship between the LOCAL user and the target user, if the local user follows the target user'
     })
-    @Transform(({ value }) => DtoUtils.Factory(FollowerDto, value))
+    @Transform(({ value }) => DtoUtils.Factory(FollowDto, value))
     @ValidateNested()
-    local?: FollowerDto;
+    local?: FollowDto;
 
     @ApiPropertyOptional({
-        type: FollowerDto,
+        type: FollowDto,
         description:
             'FollowerDto expressing the relationship between the LOCAL user and the TARGET user, if the target user follows the local user'
     })
-    @Transform(({ value }) => DtoUtils.Factory(FollowerDto, value))
+    @Transform(({ value }) => DtoUtils.Factory(FollowDto, value))
     @ValidateNested()
-    target?: FollowerDto;
+    target?: FollowDto;
 }
 
-export class UpdateFollowStatusDto extends PickType(FollowerDto, ['notifyOn'] as const) {}
+export class UpdateFollowStatusDto extends PickType(FollowDto, ['notifyOn'] as const) {}
