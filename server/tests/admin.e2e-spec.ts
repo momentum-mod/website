@@ -7,6 +7,7 @@ import { PrismaService } from '../src/modules/repo/prisma.service';
 import { TestUtil } from './util';
 import { AuthService } from '../src/modules/auth/auth.service';
 import { EActivityTypes } from '../src/@common/enums/activity.enum';
+import { UserDto } from '../src/@common/dto/user/user.dto';
 
 describe('admin', () => {
     let adminUser, nonAdminUser, nonAdminAccessToken, user1, user2, mergeUser1, mergeUser2, map1, map2, map3;
@@ -234,7 +235,7 @@ describe('admin', () => {
                 avatar: '',
                 roles: ERole.ADMIN,
                 bans: 0,
-                country: 'UK',
+                country: 'GB',
                 profile: {
                     create: {
                         bio: 'Arthur Weasley (b. 6 February, 1950) was an English pure-blood wizard in the employ of the Ministry of Magic, as well as a member of the second Order of the Phoenix. He was a staunch believer in the equality of all magical and Muggle folk and was the head of the Weasley family.'
@@ -427,8 +428,8 @@ describe('admin', () => {
         describe('POST /api/v1/admin/users', () => {
             it('should successfully create a placeholder user', async () => {
                 const res = await TestUtil.post('admin/users/', 201, { alias: 'Burger' });
-                // TODO: improve after i improve tests
 
+                expect(res.body).toBeValidDto(UserDto);
                 expect(res.body.alias).toBe('Burger');
             });
 
@@ -448,7 +449,7 @@ describe('admin', () => {
                     userID: mergeUser2.id
                 });
 
-                // TODO have all user props yaddayadda update this once improved --- figure that out!!
+                expect(res.body).toBeValidDto(UserDto);
                 expect(res.body.id).toBe(mergeUser2.id);
                 expect(res.body.alias).toBe(mergeUser2.alias);
 
