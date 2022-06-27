@@ -2,7 +2,7 @@
 import { ApiPropertyOptional } from '@nestjs/swagger';
 import { IsEnum, IsInt, IsOptional, IsString } from 'class-validator';
 import { Transform, Type } from 'class-transformer';
-import { EMapStatus } from '../../enums/map.enum';
+import { MapStatus } from '../../enums/map.enum';
 
 // Alex: This query is used by admin endpoint, might be a bit different for you -Tom
 export class MapsGetAllQuery extends PaginationQuery {
@@ -40,14 +40,14 @@ export class MapsGetAllQuery extends PaginationQuery {
     // I'm not completely sure this is right, enum handling might not be valid - Tom
     @ApiPropertyOptional({
         name: 'status',
-        enum: EMapStatus,
+        enum: MapStatus,
         type: Number,
         description: 'Filter by map status flags'
     })
     @IsOptional()
     @Type(() => Number)
-    @IsEnum(EMapStatus)
-    status: EMapStatus;
+    @IsEnum(MapStatus)
+    status: MapStatus;
 
     @ApiPropertyOptional({
         name: 'priority',

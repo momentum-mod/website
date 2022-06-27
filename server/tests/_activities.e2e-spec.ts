@@ -1,6 +1,6 @@
 // noinspection DuplicatedCode
 
-import { EActivityTypes } from '../src/@common/enums/activity.enum';
+import { ActivityTypes } from '../src/@common/enums/activity.enum';
 
 describe('activities', () => {
     let adminAccessToken;
@@ -50,17 +50,17 @@ describe('activities', () => {
         {
             userID: testUser.id,
             data: 122,
-            type: EActivityTypes.MAP_APPROVED
+            type: ActivityTypes.MAP_APPROVED
         },
         {
             userID: testUser2.id,
             data: 223,
-            type: EActivityTypes.MAP_UPLOADED
+            type: ActivityTypes.MAP_UPLOADED
         },
         {
             userID: testUser2.id,
             data: 125,
-            type: EActivityTypes.WR_ACHIEVED
+            type: ActivityTypes.WR_ACHIEVED
         }
     ];
 

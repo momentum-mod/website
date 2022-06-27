@@ -2,10 +2,10 @@
 
 import * as request from 'supertest';
 import { TestUtil } from './util';
-import { EActivityTypes } from '../src/@common/enums/activity.enum';
+import { ActivityTypes } from '../src/@common/enums/activity.enum';
 import { PrismaService } from '../src/modules/repo/prisma.service';
-import { EMapCreditType, EMapStatus, EMapType } from '../src/@common/enums/map.enum';
-import { ERole } from '../src/@common/enums/user.enum';
+import { MapCreditType, MapStatus, MapType } from '../src/@common/enums/map.enum';
+import { Roles } from '../src/@common/enums/user.enum';
 import { AuthService } from '../src/modules/auth/auth.service';
 import { UserDto } from '../src/@common/dto/user/user.dto';
 import { ActivityDto } from '../src/@common/dto/user/activity.dto';
@@ -25,7 +25,7 @@ describe('Users', () => {
                 steamID: '532521245234',
                 country: 'GB',
                 alias: 'Ron Weasley',
-                roles: ERole.ADMIN,
+                roles: Roles.ADMIN,
                 bans: 0,
                 avatar: 'aaaaaa.jpg',
                 profile: {
@@ -75,17 +75,17 @@ describe('Users', () => {
             data: [
                 {
                     data: 100n,
-                    type: EActivityTypes.ALL,
+                    type: ActivityTypes.ALL,
                     userID: user1.id
                 },
                 {
                     data: 101n,
-                    type: EActivityTypes.ALL,
+                    type: ActivityTypes.ALL,
                     userID: user1.id
                 },
                 {
                     data: 101n,
-                    type: EActivityTypes.MAP_UPLOADED,
+                    type: ActivityTypes.MAP_UPLOADED,
                     userID: user1.id
                 }
             ]
@@ -111,12 +111,12 @@ describe('Users', () => {
         map1 = await prisma.map.create({
             data: {
                 name: 'test_map_one',
-                type: EMapType.SURF,
-                statusFlag: EMapStatus.APPROVED,
+                type: MapType.SURF,
+                statusFlag: MapStatus.APPROVED,
                 submitter: { connect: { id: user1.id } },
                 credits: {
                     create: {
-                        type: EMapCreditType.AUTHOR,
+                        type: MapCreditType.AUTHOR,
                         user: { connect: { id: user1.id } }
                     }
                 }
@@ -126,12 +126,12 @@ describe('Users', () => {
         map2 = await prisma.map.create({
             data: {
                 name: 'test_map_two',
-                type: EMapType.SURF,
-                statusFlag: EMapStatus.NEEDS_REVISION,
+                type: MapType.SURF,
+                statusFlag: MapStatus.NEEDS_REVISION,
                 submitter: { connect: { id: user1.id } },
                 credits: {
                     create: {
-                        type: EMapCreditType.AUTHOR,
+                        type: MapCreditType.AUTHOR,
                         user: { connect: { id: user1.id } }
                     }
                 }
@@ -157,7 +157,7 @@ describe('Users', () => {
                 user: { connect: { id: user1.id } },
                 map: { connect: { id: map1.id } },
                 rank: 1,
-                gameType: EMapType.SURF,
+                gameType: MapType.SURF,
                 run: {
                     connect: {
                         id: run1.id
@@ -373,13 +373,13 @@ describe('Users', () => {
 
         it('should respond with a filtered list of activities for the user when using the type query param', async () => {
             const res = await TestUtil.get(`users/${user1.id}/activities`, 200, {
-                type: EActivityTypes.MAP_UPLOADED
+                type: ActivityTypes.MAP_UPLOADED
             });
 
             expects(res);
             expect(res.body.totalCount).toBe(1);
             expect(res.body.returnCount).toBe(1);
-            expect(res.body.response[0].type).toBe(EActivityTypes.MAP_UPLOADED);
+            expect(res.body.response[0].type).toBe(ActivityTypes.MAP_UPLOADED);
         });
 
         it('should respond with a filtered list of activities for the user when using the data query param', async () => {

@@ -5,7 +5,7 @@ import { PaginatedResponseDto } from '../../@common/dto/paginated-response.dto';
 import { MapsRepoService } from '../repo/maps-repo.service';
 import { CreateMapDto } from '../../@common/dto/map/createMap.dto';
 import { AuthService } from '../auth/auth.service';
-import { EMapStatus } from '../../@common/enums/map.enum';
+import { MapStatus } from '../../@common/enums/map.enum';
 import { FileStoreCloudService } from '../filestore/file-store-cloud.service';
 import { DtoUtils } from '../../@common/utils/dto-utils';
 
@@ -96,7 +96,7 @@ export class MapsService {
             return Promise.reject(new HttpException('Map not found', 404));
         }
 
-        if (mapDto.statusFlag !== EMapStatus.NEEDS_REVISION) {
+        if (mapDto.statusFlag !== MapStatus.NEEDS_REVISION) {
             return Promise.reject(new HttpException('Map file cannot be uploaded given the map state', 409));
         }
 
@@ -105,7 +105,7 @@ export class MapsService {
         mapDto = DtoUtils.Factory(
             MapDto,
             await this.mapRepo.Update(mapDto.id, {
-                statusFlag: EMapStatus.PENDING,
+                statusFlag: MapStatus.PENDING,
                 downloadURL: result.downloadURL,
                 hash: result.hash
             })
@@ -121,9 +121,9 @@ export class MapsService {
         const where: Prisma.MapWhereInput = {
             name: mapName,
             NOT: {
-                statusFlag: EMapStatus.REJECTED,
+                statusFlag: MapStatus.REJECTED,
                 OR: {
-                    statusFlag: EMapStatus.REMOVED
+                    statusFlag: MapStatus.REMOVED
                 }
             }
         };
@@ -142,7 +142,7 @@ export class MapsService {
 
         const where: Prisma.MapWhereInput = {
             submitterID: submitterID,
-            statusFlag: EMapStatus.PENDING
+            statusFlag: MapStatus.PENDING
         };
 
         const whereResult = await this.mapRepo.GetAll(where);

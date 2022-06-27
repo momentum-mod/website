@@ -1,4 +1,4 @@
-export enum EMapType {
+export enum MapType {
     UNKNOWN = 0,
     SURF = 1,
     BHOP = 2,
@@ -12,7 +12,7 @@ export enum EMapType {
     DEFRAG = 10
 }
 
-export enum EMapStatus {
+export enum MapStatus {
     APPROVED = 0,
     PENDING = 1,
     NEEDS_REVISION = 2,
@@ -23,7 +23,7 @@ export enum EMapStatus {
     REMOVED = 7
 }
 
-export enum EMapCreditType {
+export enum MapCreditType {
     AUTHOR = 0,
     COAUTHOR = 1,
     TESTER = 2,
@@ -31,6 +31,6 @@ export enum EMapCreditType {
 }
 
 // TODO: Finish enum
-export enum EMapTriggerType {
+export enum MapTriggerType {
     UNKNOWN = 0
 }

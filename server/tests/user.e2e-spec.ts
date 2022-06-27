@@ -1,11 +1,11 @@
 ﻿// noinspection DuplicatedCode
 
-import { EMapCreditType, EMapStatus, EMapType } from '../src/@common/enums/map.enum';
+import { MapCreditType, MapStatus, MapType } from '../src/@common/enums/map.enum';
 import { PrismaService } from '../src/modules/repo/prisma.service';
-import { EBan, ERole } from '../src/@common/enums/user.enum';
+import { Bans, Roles } from '../src/@common/enums/user.enum';
 import { TestUtil } from './util';
 import { AuthService } from '../src/modules/auth/auth.service';
-import { EActivityTypes } from '../src/@common/enums/activity.enum';
+import { ActivityTypes } from '../src/@common/enums/activity.enum';
 import { UserDto } from '../src/@common/dto/user/user.dto';
 import { plainToInstance } from 'class-transformer';
 import { validate } from 'class-validator';
@@ -27,7 +27,7 @@ describe('User', () => {
                 country: 'GB',
                 alias: 'Ron Weasley',
                 avatar: '',
-                roles: ERole.ADMIN,
+                roles: Roles.ADMIN,
                 bans: 0,
                 profile: {
                     create: {
@@ -44,8 +44,8 @@ describe('User', () => {
             data: {
                 steamID: '96433563',
                 alias: 'Bill Weasley',
-                roles: ERole.VERIFIED,
-                bans: EBan.BANNED_BIO | EBan.BANNED_ALIAS,
+                roles: Roles.VERIFIED,
+                bans: Bans.BANNED_BIO | Bans.BANNED_ALIAS,
                 country: 'US',
                 profile: {
                     create: {
@@ -65,7 +65,7 @@ describe('User', () => {
                 steamID: '86546575',
                 alias: 'Percy Weasley',
                 avatar: 'e4db45e6d6472d9e61b131a04ad2f18a299daafc_full.jpg',
-                roles: ERole.MAPPER | ERole.VERIFIED,
+                roles: Roles.MAPPER | Roles.VERIFIED,
                 bans: 0,
                 country: 'US',
                 profile: {
@@ -82,7 +82,7 @@ describe('User', () => {
                 steamID: '733345322',
                 alias: 'Arthur Weasley',
                 avatar: '',
-                roles: ERole.ADMIN,
+                roles: Roles.ADMIN,
                 bans: 0,
                 profile: {
                     create: {
@@ -96,7 +96,7 @@ describe('User', () => {
             data: {
                 steamID: '444444444444444',
                 alias: 'Ginny Weasley',
-                roles: ERole.ADMIN,
+                roles: Roles.ADMIN,
                 bans: 0,
                 country: 'US'
             }
@@ -105,8 +105,8 @@ describe('User', () => {
         map1 = await prisma.map.create({
             data: {
                 name: 'user_test_map',
-                type: EMapType.UNKNOWN,
-                statusFlag: EMapStatus.APPROVED,
+                type: MapType.UNKNOWN,
+                statusFlag: MapStatus.APPROVED,
                 submitter: { connect: { id: user1.id } },
                 info: {
                     create: {
@@ -138,7 +138,7 @@ describe('User', () => {
                 credits: {
                     create: [
                         {
-                            type: EMapCreditType.AUTHOR,
+                            type: MapCreditType.AUTHOR,
                             user: { connect: { id: user1.id } }
                         }
                     ]
@@ -159,14 +159,14 @@ describe('User', () => {
         map2 = await prisma.map.create({
             data: {
                 name: 'surf_whatisapromise',
-                type: EMapType.SURF
+                type: MapType.SURF
             }
         });
 
         map3 = await prisma.map.create({
             data: {
                 name: 'surf_tendies',
-                type: EMapType.SURF
+                type: MapType.SURF
             }
         });
 
@@ -205,27 +205,27 @@ describe('User', () => {
             [
                 {
                     data: 100n,
-                    type: EActivityTypes.ALL,
+                    type: ActivityTypes.ALL,
                     userID: user1.id
                 },
                 {
                     data: 101n,
-                    type: EActivityTypes.ALL,
+                    type: ActivityTypes.ALL,
                     userID: user1.id
                 },
                 {
                     data: 101n,
-                    type: EActivityTypes.MAP_UPLOADED,
+                    type: ActivityTypes.MAP_UPLOADED,
                     userID: user1.id
                 },
                 {
                     data: 4n,
-                    type: EActivityTypes.WR_ACHIEVED,
+                    type: ActivityTypes.WR_ACHIEVED,
                     userID: user2.id
                 },
                 {
                     data: 4n,
-                    type: EActivityTypes.REVIEW_MADE,
+                    type: ActivityTypes.REVIEW_MADE,
                     userID: user2.id
                 }
             ].map(
@@ -245,7 +245,7 @@ describe('User', () => {
 
         await prisma.mapNotify.create({
             data: {
-                notifyOn: EActivityTypes.WR_ACHIEVED,
+                notifyOn: ActivityTypes.WR_ACHIEVED,
                 user: { connect: { id: user1.id } },
                 map: { connect: { id: map1.id } }
             }
@@ -462,11 +462,11 @@ describe('User', () => {
 
             expect(res.body.local.notifyOn).toBe(0);
 
-            await TestUtil.patch(`user/follow/${user2.id}`, 204, { notifyOn: EActivityTypes.REVIEW_MADE });
+            await TestUtil.patch(`user/follow/${user2.id}`, 204, { notifyOn: ActivityTypes.REVIEW_MADE });
 
             const res2 = await TestUtil.get(`user/follow/${user2.id}`, 200, {});
 
-            expect(res2.body.local.notifyOn).toBe(EActivityTypes.REVIEW_MADE);
+            expect(res2.body.local.notifyOn).toBe(ActivityTypes.REVIEW_MADE);
         });
 
         it('should respond with 400 if the body is invalid', async () => {
@@ -474,11 +474,11 @@ describe('User', () => {
         });
 
         it('should respond with 404 if the target user does not exist', async () => {
-            await TestUtil.patch('user/follow/178124314563', 404, { notifyOn: EActivityTypes.REVIEW_MADE });
+            await TestUtil.patch('user/follow/178124314563', 404, { notifyOn: ActivityTypes.REVIEW_MADE });
         });
 
         it('should respond with 401 when no access token is provided', async () => {
-            await TestUtil.patch(`user/follow/${user3.id}`, 401, { notifyOn: EActivityTypes.REVIEW_MADE }, null);
+            await TestUtil.patch(`user/follow/${user3.id}`, 401, { notifyOn: ActivityTypes.REVIEW_MADE }, null);
         });
     });
 
@@ -508,7 +508,7 @@ describe('User', () => {
         it('should return a mapnotify dto for a given user and map', async () => {
             const res = await TestUtil.get(`user/notifyMap/${map1.id}`, 200);
 
-            expect(res.body.notifyOn).toBe(EActivityTypes.WR_ACHIEVED);
+            expect(res.body.notifyOn).toBe(ActivityTypes.WR_ACHIEVED);
         });
 
         it('should respond with an empty object if the user does not have mapnotify for given map', async () => {
@@ -528,19 +528,19 @@ describe('User', () => {
 
     describe('PUT /api/v1/user/notifyMap/{mapID}', () => {
         it('should update map notification status with existing notifications', async () => {
-            await TestUtil.put(`user/notifyMap/${map1.id}`, 204, { notifyOn: EActivityTypes.PB_ACHIEVED });
+            await TestUtil.put(`user/notifyMap/${map1.id}`, 204, { notifyOn: ActivityTypes.PB_ACHIEVED });
 
             const res = await TestUtil.get(`user/notifyMap/${map1.id}`, 200);
 
-            expect(res.body.notifyOn).toBe(EActivityTypes.PB_ACHIEVED);
+            expect(res.body.notifyOn).toBe(ActivityTypes.PB_ACHIEVED);
         });
 
         it('should create new map notification status if no existing notifications', async () => {
-            await TestUtil.put(`user/notifyMap/${map1.id}`, 204, { notifyOn: EActivityTypes.PB_ACHIEVED });
+            await TestUtil.put(`user/notifyMap/${map1.id}`, 204, { notifyOn: ActivityTypes.PB_ACHIEVED });
 
             const res = await TestUtil.get(`user/notifyMap/${map1.id}`, 200);
 
-            expect(res.body.notifyOn).toBe(EActivityTypes.PB_ACHIEVED);
+            expect(res.body.notifyOn).toBe(ActivityTypes.PB_ACHIEVED);
         });
 
         it('should respond with 400 is the body is invalid', async () => {
@@ -548,7 +548,7 @@ describe('User', () => {
         });
 
         it('should respond with 404 if the target map does not exist', async () => {
-            await TestUtil.put(`user/notifyMap/8231734`, 404, { notifyOn: EActivityTypes.PB_ACHIEVED });
+            await TestUtil.put(`user/notifyMap/8231734`, 404, { notifyOn: ActivityTypes.PB_ACHIEVED });
         });
 
         it('should respond with 401 when no access token is provided', async () => {
@@ -602,13 +602,13 @@ describe('User', () => {
 
         it('should respond with a filtered list of activities for the local user when using the type query param', async () => {
             const res = await TestUtil.get(`user/activities`, 200, {
-                type: EActivityTypes.MAP_UPLOADED
+                type: ActivityTypes.MAP_UPLOADED
             });
 
             expects(res);
             expect(res.body.totalCount).toBe(1);
             expect(res.body.returnCount).toBe(1);
-            expect(res.body.response[0].type).toBe(EActivityTypes.MAP_UPLOADED);
+            expect(res.body.response[0].type).toBe(ActivityTypes.MAP_UPLOADED);
         });
 
         it('should respond with a filtered list of activities for the local user when using the data query param', async () => {
@@ -658,13 +658,13 @@ describe('User', () => {
 
         it('should respond with a filtered list of activities for the user when using the type query param', async () => {
             const res = await TestUtil.get(`user/activities/followed`, 200, {
-                type: EActivityTypes.WR_ACHIEVED
+                type: ActivityTypes.WR_ACHIEVED
             });
 
             expects(res);
             expect(res.body.totalCount).toBe(1);
             expect(res.body.returnCount).toBe(1);
-            expect(res.body.response[0].type).toBe(EActivityTypes.WR_ACHIEVED);
+            expect(res.body.response[0].type).toBe(ActivityTypes.WR_ACHIEVED);
         });
 
         it('should respond with a filtered list of activities for the user when using the data query param', async () => {

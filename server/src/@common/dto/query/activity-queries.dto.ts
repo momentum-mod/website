@@ -2,7 +2,7 @@
 import { IsEnum, IsInt, IsOptional } from 'class-validator';
 import { Transform, Type } from 'class-transformer';
 import { PaginationQuery } from './pagination.dto';
-import { EActivityTypes } from '../../enums/activity.enum';
+import { ActivityTypes } from '../../enums/activity.enum';
 
 export class ActivitiesGetQuery extends PaginationQuery {
     @ApiPropertyOptional({
@@ -17,15 +17,15 @@ export class ActivitiesGetQuery extends PaginationQuery {
 
     @ApiPropertyOptional({
         name: 'type',
-        enum: EActivityTypes,
+        enum: ActivityTypes,
         type: Number,
         description: 'Types of activities to include'
     })
     @IsOptional()
     @Type(() => Number)
     // TODO: are these flags?
-    @IsEnum(EActivityTypes)
-    type: EActivityTypes;
+    @IsEnum(ActivityTypes)
+    type: ActivityTypes;
 
     @ApiPropertyOptional({
         name: 'data',

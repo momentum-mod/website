@@ -18,8 +18,8 @@ import { HttpService } from '@nestjs/axios';
 import { ActivityDto } from '../../@common/dto/user/activity.dto';
 import { FollowerDto, FollowStatusDto, UpdateFollowStatusDto } from '../../@common/dto/user/followers.dto';
 import { MapCreditDto } from '../../@common/dto/map/map-credit.dto';
-import { EBan, ERole } from '../../@common/enums/user.enum';
-import { EActivityTypes } from '../../@common/enums/activity.enum';
+import { Bans, Roles } from '../../@common/enums/user.enum';
+import { ActivityTypes } from '../../@common/enums/activity.enum';
 import { RunDto } from '../../@common/dto/run/runs.dto';
 import { DtoUtils } from '../../@common/utils/dto-utils';
 import { MapNotifyDto, UpdateMapNotifyDto } from '../../@common/dto/map/map-notify.dto';
@@ -162,17 +162,17 @@ export class UsersService {
 
         // Strict check - we want to handle if alias is empty string
         if (typeof update.alias !== 'undefined') {
-            if (user.bans & EBan.BANNED_ALIAS) {
+            if (user.bans & Bans.BANNED_ALIAS) {
                 throw new ForbiddenException('User is banned from updating their alias');
             } else {
                 updateInput.alias = update.alias;
             }
 
             // TODO: Do corresponding logic in the admin service to check if a user's alias is in use by another verified user when verifying them.
-            if (user.roles & ERole.VERIFIED) {
+            if (user.roles & Roles.VERIFIED) {
                 const verifiedMatches = await this.userRepo.Count({
                     alias: update.alias,
-                    roles: ERole.VERIFIED
+                    roles: Roles.VERIFIED
                 });
 
                 if (verifiedMatches > 0) throw new ConflictException('Alias is in use by another verified user');
@@ -180,7 +180,7 @@ export class UsersService {
         }
 
         if (update.bio) {
-            if (user.bans & EBan.BANNED_BIO) {
+            if (user.bans & Bans.BANNED_BIO) {
                 throw new ForbiddenException('User is banned from updating their bio');
             } else {
                 updateInput.profile = {
@@ -228,7 +228,7 @@ export class UsersService {
         userID: number,
         skip?: number,
         take?: number,
-        type?: EActivityTypes,
+        type?: ActivityTypes,
         data?: bigint
     ): Promise<PaginatedResponseDto<ActivityDto>> {
         const where: Prisma.ActivityWhereInput = {
@@ -248,7 +248,7 @@ export class UsersService {
         userID: number,
         skip?: number,
         take?: number,
-        type?: EActivityTypes,
+        type?: ActivityTypes,
         data?: bigint
     ): Promise<PaginatedResponseDto<ActivityDto>> {
         const follows = await this.userRepo.GetFollowing(userID);

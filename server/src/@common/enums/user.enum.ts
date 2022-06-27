@@ -1,4 +1,4 @@
-export enum ERole {
+export enum Roles {
     VERIFIED = 1 << 0,
     MAPPER = 1 << 1,
     MODERATOR = 1 << 2,
@@ -6,7 +6,7 @@ export enum ERole {
     PLACEHOLDER = 1 << 4
 }
 
-export enum EBan {
+export enum Bans {
     BANNED_LEADERBOARDS = 1 << 0,
     BANNED_ALIAS = 1 << 1,
     BANNED_AVATAR = 1 << 2,
