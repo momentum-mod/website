@@ -1,10 +1,17 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
+import {
+    BadRequestException,
+    ConflictException,
+    ForbiddenException,
+    Injectable,
+    NotFoundException
+} from '@nestjs/common';
 import { UsersRepoService } from '../repo/users-repo.service';
 import { Follow, Prisma } from '@prisma/client';
 import { Roles } from '../../@common/enums/user.enum';
-import { UserDto } from '../../@common/dto/user/user.dto';
+import { AdminUpdateUserDto, UserDto } from '../../@common/dto/user/user.dto';
 import { DtoUtils } from '../../@common/utils/dto-utils';
 import { MapsRepoService } from '../repo/maps-repo.service';
+import { Bitflags } from '../../@common/utils/bitflag-utils';
 
 @Injectable()
 export class AdminService {
@@ -65,7 +72,7 @@ export class AdminService {
             // Second edge case: user(s) is (are) following both placeholder and real user
             const overlappingFollow = await this.userRepo.GetFollower(follow.followeeID, userID);
             if (overlappingFollow) {
-                const mergedNotifies = overlappingFollow.notifyOn | follow.notifyOn;
+                const mergedNotifies = Bitflags.add(overlappingFollow.notifyOn, follow.notifyOn);
 
                 const earliestCreationDate = new Date(
                     Math.min(overlappingFollow.createdAt.getTime(), follow.createdAt.getTime())
@@ -96,5 +103,72 @@ export class AdminService {
         const mergedUserDbResponse = await this.userRepo.Get(userID);
 
         return DtoUtils.Factory(UserDto, mergedUserDbResponse);
+    }
+
+    async UpdateUser(adminID: number, userID: number, update: AdminUpdateUserDto) {
+        const user = await this.userRepo.Get(userID, { profile: true });
+
+        if (!user) throw new NotFoundException('User not found');
+
+        // TODO: Can we validate that update/create DTOs are not empty/undefined on all properties??
+        if (Object.values(update).every((v) => v === undefined))
+            throw new BadRequestException('Request contains no update data');
+
+        const updateInput: Prisma.UserUpdateInput = {};
+
+        if (update.bans) updateInput.bans = update.bans;
+
+        let newRoles: Roles;
+
+        if (update.roles) {
+            const admin = await this.userRepo.Get(adminID);
+
+            const targetIsMod: boolean = Bitflags.has(user.roles, Roles.MODERATOR);
+            const targetIsAdmin: boolean = Bitflags.has(user.roles, Roles.ADMIN);
+
+            if (Bitflags.has(admin.roles, Roles.MODERATOR)) {
+                if (targetIsMod || targetIsAdmin) {
+                    if (adminID !== userID) {
+                        throw new ForbiddenException('Cannot update user with >= power to you');
+                    } else {
+                        if (Bitflags.has(update.roles, Roles.ADMIN))
+                            throw new ForbiddenException('Cannot add yourself as admin');
+                        if (!Bitflags.has(update.roles, Roles.MODERATOR))
+                            throw new ForbiddenException('Cannot remove yourself as moderator');
+                    }
+                }
+                if (Bitflags.has(update.roles, Roles.ADMIN))
+                    throw new ForbiddenException('Moderators may not add other users as admin');
+                if (Bitflags.has(update.roles, Roles.MODERATOR) && adminID !== userID)
+                    throw new ForbiddenException('Moderators may not add other users as moderators');
+            } else if (targetIsAdmin && adminID !== userID) {
+                throw new ForbiddenException('Cannot update other admins');
+            }
+
+            // If all we make it through all these checks, finally we can update the flags
+            updateInput.roles = update.roles;
+            newRoles = update.roles;
+        } else {
+            newRoles = user.roles;
+        }
+
+        if (update.alias && update.alias !== user.alias) {
+            if (Bitflags.has(newRoles, Roles.VERIFIED)) {
+                const verifiedMatches = await this.userRepo.Count({
+                    alias: update.alias,
+                    roles: Roles.VERIFIED
+                });
+
+                if (verifiedMatches > 0) throw new ConflictException('Alias is in use by another verified user');
+            }
+
+            updateInput.alias = update.alias;
+        }
+
+        if (update.bio) {
+            updateInput.profile = { update: { bio: update.bio } };
+        }
+
+        await this.userRepo.Update(userID, updateInput);
     }
 }

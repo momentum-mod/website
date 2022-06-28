@@ -1,6 +1,6 @@
 // noinspection DuplicatedCode
 
-import { Roles } from '../src/@common/enums/user.enum';
+import { Bans, Roles } from '../src/@common/enums/user.enum';
 import { ReportCategory, ReportType } from '../src/@common/enums/report.enum';
 import { MapCreditType, MapStatus, MapType } from '../src/@common/enums/map.enum';
 import { PrismaService } from '../src/modules/repo/prisma.service';
@@ -10,7 +10,20 @@ import { ActivityTypes } from '../src/@common/enums/activity.enum';
 import { UserDto } from '../src/@common/dto/user/user.dto';
 
 describe('admin', () => {
-    let adminUser, nonAdminUser, nonAdminAccessToken, user1, user2, mergeUser1, mergeUser2, map1, map2, map3;
+    let adminUser,
+        adminUser2,
+        modUser,
+        modUser2,
+        nonAdminUser,
+        nonAdminAccessToken,
+        modUserToken,
+        user1,
+        user2,
+        mergeUser1,
+        mergeUser2,
+        map1,
+        map2,
+        map3;
     const testUser = {
         id: 1,
         steamID: '1254652365',
@@ -244,6 +257,39 @@ describe('admin', () => {
             }
         });
 
+        adminUser2 = await prisma.user.create({
+            data: {
+                steamID: '2385764545',
+                alias: 'Admin User 2',
+                avatar: '',
+                roles: Roles.ADMIN,
+                bans: 0,
+                country: 'GB'
+            }
+        });
+
+        modUser = await prisma.user.create({
+            data: {
+                steamID: '657856782',
+                alias: 'Mod User',
+                avatar: '',
+                roles: Roles.MODERATOR,
+                bans: 0,
+                country: 'GB'
+            }
+        });
+
+        modUser2 = await prisma.user.create({
+            data: {
+                steamID: '142341234',
+                alias: 'Mod User 2',
+                avatar: '',
+                roles: Roles.MODERATOR,
+                bans: 0,
+                country: 'GB'
+            }
+        });
+
         nonAdminUser = await prisma.user.create({
             data: {
                 steamID: '7863245554',
@@ -260,14 +306,22 @@ describe('admin', () => {
         user1 = await prisma.user.create({
             data: {
                 steamID: '41234523452345',
-                alias: 'U1'
+                alias: 'U1',
+                roles: Roles.VERIFIED,
+                bans: Bans.BANNED_BIO,
+                profile: {
+                    create: {
+                        bio: 'Feed me'
+                    }
+                }
             }
         });
 
         user2 = await prisma.user.create({
             data: {
                 steamID: '12341234214521',
-                alias: 'U2'
+                alias: 'U2',
+                roles: Roles.VERIFIED
             }
         });
 
@@ -324,6 +378,7 @@ describe('admin', () => {
         const authService = global.auth as AuthService;
         global.accessToken = (await authService.login(adminUser)).access_token;
         nonAdminAccessToken = (await authService.login(nonAdminUser)).access_token;
+        modUserToken = (await authService.login(modUser)).access_token;
         // return forceSyncDB()
         // 	.then(() => {
         // 		return auth.genAccessToken(testUser);
@@ -420,7 +475,21 @@ describe('admin', () => {
         const prisma: PrismaService = global.prisma;
 
         await prisma.user.deleteMany({
-            where: { id: { in: [adminUser.id, nonAdminUser.id, mergeUser1.id, mergeUser2.id, user1.id, user2.id] } }
+            where: {
+                id: {
+                    in: [
+                        adminUser.id,
+                        adminUser2.id,
+                        modUser.id,
+                        modUser2.id,
+                        nonAdminUser.id,
+                        mergeUser1.id,
+                        mergeUser2.id,
+                        user1.id,
+                        user2.id
+                    ]
+                }
+            }
         });
     });
 
@@ -532,62 +601,132 @@ describe('admin', () => {
         // 	})
         // });
         //
-        // describe('PATCH /api/v1/admin/users/{userID}', () => {
-        // 	it('should respond with 403 when not an admin', () => {
-        // 		return chai.request(server)
-        // 			.patch('/api/v1/admin/users/' + testUser.id)
-        // 			.set('Authorization', 'Bearer ' + accessToken)
-        // 			.send({
-        // 				bans: user.Ban.BANNED_BIO
-        // 			})
-        // 			.then(res => {
-        // 				expect(res).to.have.status(403);
-        // 				expect(res).to.be.json;
-        // 				expect(res.body).toHaveProperty('error');
-        // 				expect(res.body.error.code).toEqual(403);
-        // 				expect(typeof res.body.error.message).toBe('string');
-        // 			});
-        // 	});
-        // 	it('should respond with 403 when authenticated from game', () => {
-        // 		return chai.request(server)
-        // 			.patch('/api/v1/admin/users/' + testUser.id)
-        // 			.set('Authorization', 'Bearer ' + adminGameAccessToken)
-        // 			.send({
-        // 				bans: user.Ban.BANNED_BIO
-        // 			})
-        // 			.then(res => {
-        // 				expect(res).to.have.status(403);
-        // 				expect(res).to.be.json;
-        // 				expect(res.body).toHaveProperty('error');
-        // 				expect(res.body.error.code).toEqual(403);
-        // 				expect(typeof res.body.error.message).toBe('string');
-        // 			});
-        // 	});
-        //
-        // 	it('should update a specific user', () => {
-        // 		return chai.request(server)
-        // 			.patch('/api/v1/admin/users/' + testUser.id)
-        // 			.set('Authorization', 'Bearer ' + adminAccessToken)
-        // 			.send({
-        // 				bans: user.Ban.BANNED_BIO
-        // 			})
-        // 			.then(res => {
-        // 				expect(res).to.have.status(204);
-        // 			});
-        // 	});
-        // 	it('should respond with 401 when no access token is provided', () => {
-        // 		return chai.request(server)
-        // 			.patch('/api/v1/admin/users/' + testUser.id)
-        // 			.then(res => {
-        // 				expect(res).to.have.status(401);
-        // 				expect(res).to.be.json;
-        // 				expect(res.body).toHaveProperty('error');
-        // 				expect(res.body.error.code).toEqual(401);
-        // 				expect(typeof res.body.error.message).toBe('string');
-        // 			});
-        // 	});
-        // });
-        //
+        describe('PATCH /api/v1/admin/users/{userID}', () => {
+            it("should successfully update a specific user's alias", async () => {
+                await TestUtil.patch(`admin/users/${user1.id}`, 204, { alias: 'Barry 2' });
+
+                const res = await TestUtil.get(`users/${user1.id}`, 200);
+
+                expect(res.body.alias).toBe('Barry 2');
+            });
+
+            it("should respond with 409 when an admin tries to set a verified user's alias to something used by another verified user", async () => {
+                await TestUtil.patch(`admin/users/${user1.id}`, 409, { alias: user2.alias });
+            });
+
+            it("should allow an admin to set a verified user's alias to something used by another unverified user", async () => {
+                await TestUtil.patch(`admin/users/${user1.id}`, 204, { alias: modUser.alias });
+            });
+
+            it("should allow an admin to set a unverified user's alias to something used by another verified user", async () => {
+                await TestUtil.patch(`admin/users/${modUser.id}`, 204, { alias: user2.alias });
+            });
+
+            it("should successfully update a specific user's bio", async () => {
+                const bio = 'Im hungry';
+                await TestUtil.patch(`admin/users/${user1.id}`, 204, { bio: bio });
+
+                const res = await TestUtil.get(`users/${user1.id}/profile`, 200);
+
+                expect(res.body.bio).toBe(bio);
+            });
+
+            it("should successfully update a specific user's bans", async () => {
+                const bans = Bans.BANNED_AVATAR | Bans.BANNED_LEADERBOARDS;
+                await TestUtil.patch(`admin/users/${user1.id}`, 204, { bans: bans });
+
+                const res = await TestUtil.get(`users/${user1.id}`, 200);
+
+                expect(res.body.bans).toBe(bans);
+            });
+
+            it("should successfully update a specific user's roles", async () => {
+                await TestUtil.patch(`admin/users/${user1.id}`, 204, { roles: Roles.MAPPER });
+
+                const res = await TestUtil.get(`users/${user1.id}`, 200);
+
+                expect(res.body.roles).toBe(Roles.MAPPER);
+            });
+
+            it('should allow an admin to make a regular user a moderator', async () => {
+                await TestUtil.patch(`admin/users/${user1.id}`, 204, { roles: Roles.MODERATOR });
+            });
+
+            it("should allow an admin to update a moderator's roles", async () => {
+                await TestUtil.patch(`admin/users/${modUser.id}`, 204, { roles: Roles.MAPPER });
+            });
+
+            it("should not allow an admin to update another admin's roles", async () => {
+                await TestUtil.patch(`admin/users/${adminUser2.id}`, 403, { roles: Roles.MAPPER });
+            });
+
+            it('should allow an admin to update their own non-admin roles', async () => {
+                await TestUtil.patch(`admin/users/${adminUser.id}`, 204, { roles: Roles.MAPPER | Roles.ADMIN });
+            });
+
+            it('should allow an admin to update their own moderator role', async () => {
+                await TestUtil.patch(`admin/users/${adminUser.id}`, 204, { roles: Roles.MAPPER | Roles.MODERATOR });
+            });
+
+            it('should allow an admin to update their own admin role', async () => {
+                await TestUtil.patch(`admin/users/${adminUser.id}`, 204, { roles: Roles.MAPPER });
+            });
+
+            it("should successfully allow a moderator to update a specific user's roles", async () => {
+                await TestUtil.patch(`admin/users/${user1.id}`, 204, { roles: Roles.MAPPER }, modUserToken);
+            });
+
+            it('should not allow a moderator to make another user a moderator', async () => {
+                await TestUtil.patch(`admin/users/${user1.id}`, 403, { roles: Roles.MODERATOR }, modUserToken);
+            });
+
+            it("should not allow a moderator to update another moderator's roles", async () => {
+                await TestUtil.patch(`admin/users/${modUser2.id}`, 403, { roles: Roles.MAPPER }, modUserToken);
+            });
+
+            it("should not allow a moderator to update an admin's roles", async () => {
+                await TestUtil.patch(`admin/users/${adminUser2.id}`, 403, { roles: Roles.MAPPER }, modUserToken);
+            });
+
+            it('should allow a moderator to update their own non-mod roles', async () => {
+                await TestUtil.patch(
+                    `admin/users/${modUser.id}`,
+                    204,
+                    { roles: Roles.MAPPER | Roles.MODERATOR },
+                    modUserToken
+                );
+            });
+
+            it('should not allow a moderator to update their own mod role', async () => {
+                await TestUtil.patch(`admin/users/${modUser.id}`, 403, { roles: Roles.MAPPER }, modUserToken);
+            });
+
+            it('should respond with 403 when the user requesting is not an admin', async () => {
+                await TestUtil.patch(`admin/users/${user1.id}`, 403, { alias: 'Barry 2' }, nonAdminAccessToken);
+            });
+
+            it('should respond with 401 when no access token is provided', async () => {
+                await TestUtil.patch(`admin/users/${user1.id}`, 401, {}, null);
+            });
+
+            // it('should respond with 403 when authenticated from game', () => {
+            //     return chai
+            //         .request(server)
+            //         .patch('/api/v1/admin/users/' + testUser.id)
+            //         .set('Authorization', 'Bearer ' + adminGameAccessToken)
+            //         .send({
+            //             bans: user.Ban.BANNED_BIO
+            //         })
+            //         .then((res) => {
+            //             expect(res).to.have.status(403);
+            //             expect(res).to.be.json;
+            //             expect(res.body).toHaveProperty('error');
+            //             expect(res.body.error.code).toEqual(403);
+            //             expect(typeof res.body.error.message).toBe('string');
+            //         });
+            // });
+        });
+
         // describe('GET /api/v1/admin/maps', () => {
         // 	it('should respond with 403 when not an admin', () => {
         // 		return chai.request(server)

@@ -30,11 +30,12 @@ import { MapsGetAllQuery } from '../../@common/dto/query/map-queries.dto';
 import { ReportDto, UpdateReportDto } from '../../@common/dto/report/report.dto';
 import { Roles } from '../../@common/decorators/roles.decorator';
 import { Roles as RolesEnum } from '../../@common/enums/user.enum';
+import { LoggedInUser } from '../../@common/decorators/logged-in-user.decorator';
 
 @ApiBearerAuth()
 @Controller('/api/v1/admin')
 @ApiTags('Admin')
-@Roles(RolesEnum.ADMIN)
+@Roles(RolesEnum.ADMIN | RolesEnum.MODERATOR)
 export class AdminController {
     constructor(private readonly adminService: AdminService) {}
 
@@ -78,8 +79,12 @@ export class AdminController {
     })
     @ApiNoContentResponse({ description: 'The user was updated successfully' })
     @ApiBadRequestResponse({ description: 'Invalid user update data' })
-    public async UpdateUser(@Param('userID', ParseIntPipe) userID: number, @Body() body: AdminUpdateUserDto) {
-        return void 0;
+    public async UpdateUser(
+        @LoggedInUser('id') adminID: number,
+        @Param('userID', ParseIntPipe) userID: number,
+        @Body() body: AdminUpdateUserDto
+    ) {
+        return this.adminService.UpdateUser(adminID, userID, body);
     }
 
     @Delete('/users/:userID')

@@ -168,7 +168,6 @@ export class UsersService {
                 updateInput.alias = update.alias;
             }
 
-            // TODO: Do corresponding logic in the admin service to check if a user's alias is in use by another verified user when verifying them.
             if (user.roles & Roles.VERIFIED) {
                 const verifiedMatches = await this.userRepo.Count({
                     alias: update.alias,
@@ -183,9 +182,7 @@ export class UsersService {
             if (user.bans & Bans.BANNED_BIO) {
                 throw new ForbiddenException('User is banned from updating their bio');
             } else {
-                updateInput.profile = {
-                    update: { bio: update.bio }
-                };
+                updateInput.profile = { update: { bio: update.bio } };
             }
         }
 

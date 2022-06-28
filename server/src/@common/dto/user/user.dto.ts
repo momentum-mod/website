@@ -137,7 +137,7 @@ export class AdminUpdateUserDto extends UpdateUserDto {
     })
     @IsOptional()
     @IsEnumFlag(Roles)
-    role?: Roles;
+    roles?: Roles;
 
     @ApiPropertyOptional({
         enum: Bans,
