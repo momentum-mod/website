@@ -99,7 +99,7 @@ export class AdminController {
     })
     @ApiNoContentResponse({ description: 'The user was deleted successfully' })
     public DeleteUser(@Param('userID', ParseIntPipe) userID: number) {
-        return;
+        return this.adminService.DeleteUser(userID);
     }
 
     // This seems to only be used to reset all cosmetic or ranked XP.

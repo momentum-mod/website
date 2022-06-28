@@ -379,96 +379,6 @@ describe('admin', () => {
         global.accessToken = (await authService.login(adminUser)).access_token;
         nonAdminAccessToken = (await authService.login(nonAdminUser)).access_token;
         modUserToken = (await authService.login(modUser)).access_token;
-        // return forceSyncDB()
-        // 	.then(() => {
-        // 		return auth.genAccessToken(testUser);
-        // 	}).then((token) => {
-        // 		accessToken = token;
-        // 		return User.create(testUser);
-        // 	}).then(() => {
-        // 		testAdmin.roles |= ERole.ADMIN;
-        // 		return auth.genAccessToken(testAdmin);
-        // 	}).then((token) => {
-        // 		adminAccessToken = token;
-        // 		return User.create(testAdmin);
-        // 	}).then((testAd) => {
-        // 		testMap5.submitterID = testAd.id;
-        // 		testMap6.submitterID = testAd.id;
-        // 		uniqueMap.submitterID = testAd.id;
-        // 		testAdminGame.roles = ERole.ADMIN;
-        // 		return auth.genAccessToken(testAdminGame, true);
-        // 	}).then((token) => {
-        // 		adminGameAccessToken = token;
-        // 		return User.create(testAdminGame);
-        // 	}).then(() => {
-        // 		return User.create(testDeleteUser);
-        // 	}).then(() => {
-        // 		return Map.create(testMap, {
-        // 			include: [
-        // 				{model: MapInfo, as: 'info',},
-        // 				{model: MapCredit, as: 'credits'}
-        // 			],
-        // 		});
-        // 	}).then(() => {
-        // 		return Map.create(testMap2, {
-        // 			include: [
-        // 				{model: MapInfo, as: 'info',},
-        // 				{model: MapCredit, as: 'credits'}
-        // 			],
-        // 		});
-        // 	}).then(() => {
-        // 		return Map.create(testMap3, {
-        // 			include: [
-        // 				{model: MapInfo, as: 'info',},
-        // 				{model: MapCredit, as: 'credits'}
-        // 			],
-        // 		});
-        // 	}).then(() => {
-        // 		return Map.create(testMap4, {
-        // 			include: [
-        // 				{model: MapInfo, as: 'info',},
-        // 				{model: MapCredit, as: 'credits'}
-        // 			],
-        // 		});
-        // 	}).then(() => {
-        // 		return Map.create(testMap5, {
-        // 			include: [
-        // 				{model: MapInfo, as: 'info',},
-        // 				{model: MapCredit, as: 'credits'}
-        // 			],
-        // 		});
-        // 	}).then(() => {
-        // 		return Map.create(testMap6, {
-        // 			include: [
-        // 				{model: MapInfo, as: 'info',},
-        // 				{model: MapCredit, as: 'credits'}
-        // 			],
-        // 		});
-        // 	}).then(() => {
-        // 		return Map.create(uniqueMap, {
-        // 			include: [
-        // 				{model: MapInfo, as: 'info'},
-        // 				{model: MapCredit, as: 'credits'}
-        // 			],
-        // 		});
-        // 	}).then(() => {
-        // 		uniqueMap.id = map.id;
-        // 		return Report.bulkCreate([
-        // 			testReport,
-        // 			testReport2,
-        // 		]);
-        // 	}).then(() => {
-        // 		// Create our default XP systems table if we don't already have it
-        // 		return xpSystems.initXPSystems(XPSystems);
-        // 	}).then(() => {
-        // 		return user.createPlaceholder('Placeholder1');
-        // 	}).then((usr) => {
-        // 		testMergeUser1 = usr;
-        // 		return user.createPlaceholder('Placeholder2');
-        // 	}).then((usr2) => {
-        // 		testMergeUser2 = usr2;
-        // 		return Promise.resolve();
-        // 	});
     });
 
     afterEach(async () => {
@@ -606,17 +516,6 @@ describe('admin', () => {
             });
         });
 
-        // describe('DELETE /api/v1/admin/users/{userID}', () => {
-        // 	it('should delete a user', () => {
-        // 		return chai.request(server)
-        // 			.delete('/api/v1/admin/users/' + testDeleteUser.id)
-        // 			.set('Authorization', 'Bearer ' + adminAccessToken)
-        // 			.then(res => {
-        // 				expect(res).to.have.status(200);
-        // 			});
-        // 	})
-        // });
-        //
         describe('PATCH /api/v1/admin/users/{userID}', () => {
             it("should successfully update a specific user's alias", async () => {
                 await TestUtil.patch(`admin/users/${user1.id}`, 204, { alias: 'Barry 2' });
@@ -741,6 +640,26 @@ describe('admin', () => {
             //             expect(typeof res.body.error.message).toBe('string');
             //         });
             // });
+        });
+
+        describe('DELETE /api/v1/admin/users/{userID}', () => {
+            it('should delete a user', async () => {
+                await TestUtil.delete(`admin/users/${user1.id}`, 204);
+
+                await TestUtil.get(`users/${user1.id}`, 404);
+            });
+
+            it('should respond with 403 when the user requesting only is a moderator', async () => {
+                await TestUtil.delete(`admin/users/${user1.id}`, 403, modUserToken);
+            });
+
+            it('should respond with 403 when the user requesting is not an admin', async () => {
+                await TestUtil.delete(`admin/users/${user1.id}`, 403, nonAdminAccessToken);
+            });
+
+            it('should respond with 401 when no access token is provided', async () => {
+                await TestUtil.delete(`admin/users/${user1.id}`, 401, null);
+            });
         });
 
         // describe('GET /api/v1/admin/maps', () => {

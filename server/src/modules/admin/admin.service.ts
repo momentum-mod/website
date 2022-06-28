@@ -171,4 +171,15 @@ export class AdminService {
 
         await this.userRepo.Update(userID, updateInput);
     }
+
+    async DeleteUser(userID: number) {
+        const user = await this.userRepo.Get(userID);
+
+        if (!user) throw new NotFoundException('User not found');
+
+        if (Bitflags.has(user.roles, Roles.ADMIN | Roles.MODERATOR))
+            throw new ForbiddenException('Will delete admins or moderators, remove their roles first');
+
+        await this.userRepo.Delete(userID);
+    }
 }
