@@ -35,7 +35,7 @@ import { LoggedInUser } from '../../@common/decorators/logged-in-user.decorator'
 @ApiBearerAuth()
 @Controller('/api/v1/admin')
 @ApiTags('Admin')
-@Roles(RolesEnum.ADMIN | RolesEnum.MODERATOR)
+@Roles(RolesEnum.ADMIN)
 export class AdminController {
     constructor(private readonly adminService: AdminService) {}
 
@@ -64,6 +64,7 @@ export class AdminController {
     }
 
     @Patch('/users/:userID')
+    @Roles(RolesEnum.ADMIN | RolesEnum.MODERATOR)
     @HttpCode(HttpStatus.NO_CONTENT)
     @ApiOperation({ summary: "Update the target user's data" })
     @ApiParam({
@@ -138,6 +139,7 @@ export class AdminController {
     }
 
     @Delete('/maps/:mapID')
+    @Roles(RolesEnum.ADMIN | RolesEnum.MODERATOR)
     @HttpCode(HttpStatus.NO_CONTENT)
     @ApiOperation({ summary: 'Delete the target map' })
     @ApiParam({
@@ -152,6 +154,7 @@ export class AdminController {
     }
 
     @Get('/reports')
+    @Roles(RolesEnum.ADMIN | RolesEnum.MODERATOR)
     @ApiOperation({ description: 'Retrieve a list of reports' })
     @ApiOkPaginatedResponse(ReportDto, { description: 'Paginated list of reports' })
     @ApiBadRequestResponse({ description: 'Invalid query data' })
@@ -160,6 +163,7 @@ export class AdminController {
     }
 
     @Patch('/reports/:reportID')
+    @Roles(RolesEnum.ADMIN | RolesEnum.MODERATOR)
     @HttpCode(HttpStatus.NO_CONTENT)
     @ApiOperation({ summary: 'Update the target report' })
     @ApiParam({

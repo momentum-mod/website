@@ -502,6 +502,10 @@ describe('admin', () => {
                 expect(res.body.alias).toBe('Burger');
             });
 
+            it('should respond with 403 when the user requesting only is a moderator', async () => {
+                await TestUtil.post('admin/users/', 403, { alias: 'Barry 2' }, modUserToken);
+            });
+
             it('should respond with 403 when the user requesting is not an admin', async () => {
                 await TestUtil.post('admin/users/', 403, { alias: 'Barry 2' }, nonAdminAccessToken);
             });
@@ -571,6 +575,18 @@ describe('admin', () => {
                     placeholderID: mergeUser1.id,
                     userID: mergeUser1.id
                 });
+            });
+
+            it('should respond with 403 when the user requesting is only a moderator', async () => {
+                await TestUtil.post(
+                    'admin/users/merge',
+                    403,
+                    {
+                        placeholderID: mergeUser1.id,
+                        userID: mergeUser2.id
+                    },
+                    modUserToken
+                );
             });
 
             it('should respond with 403 when the user requesting is not an admin', async () => {
