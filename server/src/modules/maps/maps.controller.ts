@@ -26,7 +26,7 @@ export class MapsController {
         description: 'Take this many records',
         required: false
     })
-    public async GetAllMaps(
+    public GetAllMaps(
         @Query('skip') skip?: number,
         @Query('take') take?: number
     ): Promise<PaginatedResponseDto<MapDto>> {
@@ -41,7 +41,7 @@ export class MapsController {
         description: 'Target Map ID',
         required: true
     })
-    public async GetMap(@Param('mapID') mapID: number): Promise<MapDto> {
+    public GetMap(@Param('mapID') mapID: number): Promise<MapDto> {
         return this.mapsService.Get(mapID);
     }
 
@@ -52,7 +52,7 @@ export class MapsController {
         description: 'Create map data transfer object',
         required: true
     })
-    public async CreateMap(@Body() mapCreateObj: CreateMapDto): Promise<MapDto> {
+    public CreateMap(@Body() mapCreateObj: CreateMapDto): Promise<MapDto> {
         return this.mapsService.Insert(mapCreateObj);
     }
 
@@ -77,10 +77,7 @@ export class MapsController {
         }
     })
     @UseInterceptors(FileInterceptor('file'))
-    public async UploadMap(
-        @Param('mapID') mapID: number,
-        @UploadedFile() mapFile: Express.Multer.File
-    ): Promise<MapDto> {
+    public UploadMap(@Param('mapID') mapID: number, @UploadedFile() mapFile: Express.Multer.File): Promise<MapDto> {
         // see https://stackoverflow.com/questions/66605192/file-uploading-along-with-other-data-in-swagger-nestjs
         // for swagger shit
         return this.mapsService.Upload(+mapID, mapFile.buffer);

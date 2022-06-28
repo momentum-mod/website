@@ -54,7 +54,7 @@ export class UserController {
     @Get()
     @ApiOperation({ summary: 'Get local user, based on JWT' })
     @ApiOkResponse({ type: UserDto, description: 'The logged in user data' })
-    public async GetUser(@LoggedInUser('id') userID: number, @Query() query?: UsersGetQuery): Promise<UserDto> {
+    public GetUser(@LoggedInUser('id') userID: number, @Query() query?: UsersGetQuery): Promise<UserDto> {
         return this.usersService.Get(userID, query.expand);
     }
 
@@ -68,8 +68,8 @@ export class UserController {
     })
     @ApiNoContentResponse({ description: 'The user was successfully updated' })
     @ApiBadRequestResponse({ description: 'Invalid update data' })
-    public async UpdateUser(@LoggedInUser('id') userID: number, @Body() updateDto: UpdateUserDto) {
-        await this.usersService.Update(userID, updateDto);
+    public UpdateUser(@LoggedInUser('id') userID: number, @Body() updateDto: UpdateUserDto) {
+        return this.usersService.Update(userID, updateDto);
     }
 
     //#endregion
@@ -80,7 +80,7 @@ export class UserController {
     @ApiOperation({ summary: 'Get local user, based on JWT' })
     @ApiOkResponse({ type: ProfileDto, description: "The logged in user's profile data" })
     @ApiNotFoundResponse({ description: 'Profile does not exist' })
-    public async GetProfile(@LoggedInUser('id') userID: number): Promise<ProfileDto> {
+    public GetProfile(@LoggedInUser('id') userID: number): Promise<ProfileDto> {
         return this.usersService.GetProfile(userID);
     }
 
@@ -95,7 +95,7 @@ export class UserController {
     })
     @ApiResponse({ status: HttpStatus.NO_CONTENT, description: 'The account was successfully unlinked' })
     @ApiBadRequestResponse({ description: 'Invalid social account' })
-    public async UnlinkSocial(@LoggedInUser('id') userID: number, @Param('type') type: string) {
+    public UnlinkSocial(@LoggedInUser('id') userID: number, @Param('type') type: string) {
         return this.usersService.UnlinkSocial(userID, type);
     }
 
@@ -242,7 +242,7 @@ export class UserController {
     @Get('/activities')
     @ApiOperation({ summary: "Returns all of the local user's activities" })
     @ApiOkPaginatedResponse(UserDto, { description: "Paginated list of the local user's activites" })
-    public async GetActivities(
+    public GetActivities(
         @LoggedInUser('id') userID: number,
         @Query() query?: UsersGetActivitiesQuery
     ): Promise<PaginatedResponseDto<ActivityDto>> {
@@ -258,7 +258,7 @@ export class UserController {
         required: true
     })
     @ApiOkPaginatedResponse(UserDto, { description: "Paginated list of the activities of the user's followers" })
-    public async GetFollowedActivities(
+    public GetFollowedActivities(
         @LoggedInUser('id') userID: number,
         @Query() query?: UsersGetActivitiesQuery
     ): Promise<PaginatedResponseDto<ActivityDto>> {
@@ -272,7 +272,7 @@ export class UserController {
     @Get('/notifications')
     @ApiOperation({ summary: "Returns all of the local user's notifications" })
     @ApiOkPaginatedResponse(NotificationDto, { description: "Paginated list of the local user's notifications" })
-    public async GetNotifications(
+    public GetNotifications(
         @LoggedInUser('id') userID: number,
         @Query() query?: PaginationQuery
     ): Promise<PaginatedResponseDto<NotificationDto>> {
@@ -290,7 +290,7 @@ export class UserController {
     @ApiNoContentResponse({ description: 'Notification was updated successfully' })
     @ApiBadRequestResponse({ description: 'Invalid read data' })
     @ApiNotFoundResponse({ description: 'The notification does not exist' })
-    public async UpdateNotification(
+    public UpdateNotification(
         @LoggedInUser('id') userID: number,
         @Param('notificationID', ParseIntPipe) notificationID: number,
         @Body() updateDto: UpdateNotificationDto
@@ -303,7 +303,7 @@ export class UserController {
     @ApiNoContentResponse({ description: 'Notification was deleted successfully' })
     @ApiOperation({ summary: 'Deletes the given notification' })
     @ApiNotFoundResponse({ description: 'The notification does not exist' })
-    public async DeleteNotification(
+    public DeleteNotification(
         @LoggedInUser('id') userID: number,
         @Param('notificationID', ParseIntPipe) notificationID: number
     ) {
@@ -317,7 +317,7 @@ export class UserController {
     @Get('/maps/library')
     @ApiOperation({ summary: "Returns the maps in the local user's library" })
     @ApiOkPaginatedResponse(MapLibraryEntryDto, { description: 'Paginated list of the library entries' })
-    public async GetMapLibraryEntry(
+    public GetMapLibraryEntry(
         @LoggedInUser('id') userID: number,
         @Query() query?: UserMapLibraryGetQuery
     ): Promise<PaginatedResponseDto<MapLibraryEntryDto>> {
@@ -334,7 +334,7 @@ export class UserController {
     })
     @ApiNoContentResponse({ description: 'Map is in the library' })
     @ApiNotFoundResponse({ description: 'Map is not in the library' })
-    public async CheckMapLibraryEntry(@LoggedInUser('id') userID: number, @Param('mapID', ParseIntPipe) mapID: number) {
+    public CheckMapLibraryEntry(@LoggedInUser('id') userID: number, @Param('mapID', ParseIntPipe) mapID: number) {
         return void 0;
         //return this.usersService.CheckMapLibraryEntry(userID, mapID);
     }
@@ -349,7 +349,7 @@ export class UserController {
     })
     @ApiNoContentResponse({ description: 'Map was added to the library' })
     @ApiNotFoundResponse({ description: 'The map does not exist' })
-    public async AddMapLibraryEntry(@LoggedInUser('id') userID: number, @Param('mapID', ParseIntPipe) mapID: number) {
+    public AddMapLibraryEntry(@LoggedInUser('id') userID: number, @Param('mapID', ParseIntPipe) mapID: number) {
         return void 0;
         //return this.usersService.AddMapLibraryEntry(userID, mapID);
     }
@@ -364,10 +364,7 @@ export class UserController {
     })
     @ApiNoContentResponse({ description: 'Map was removed from the library' })
     @ApiNotFoundResponse({ description: 'The map does not exist' })
-    public async RemoveMapLibraryEntry(
-        @LoggedInUser('id') userID: number,
-        @Param('mapID', ParseIntPipe) mapID: number
-    ) {
+    public RemoveMapLibraryEntry(@LoggedInUser('id') userID: number, @Param('mapID', ParseIntPipe) mapID: number) {
         return void 0;
         //return this.usersService.RemoveMapLibraryEntry(userID, mapID);
     }
@@ -379,7 +376,7 @@ export class UserController {
     @Get('/maps/favorites')
     @ApiOperation({ summary: "Returns the maps in the local user's favorites" })
     @ApiOkPaginatedResponse(MapLibraryEntryDto, { description: 'Paginated list of favorited maps' })
-    public async GetFavoritedMaps(
+    public GetFavoritedMaps(
         @LoggedInUser('id') userID: number,
         @Query() query?: UserMapLibraryGetQuery
     ): Promise<PaginatedResponseDto<MapLibraryEntryDto>> {
@@ -397,7 +394,7 @@ export class UserController {
     })
     @ApiNoContentResponse({ description: 'Map is in the favorites' })
     @ApiNotFoundResponse({ description: 'Map is not in the favorites' })
-    public async CheckFavoritedMap(@LoggedInUser('id') userID: number, @Param('mapID', ParseIntPipe) mapID: number) {
+    public CheckFavoritedMap(@LoggedInUser('id') userID: number, @Param('mapID', ParseIntPipe) mapID: number) {
         return void 0;
         //return this.usersService.CheckFavoritedMap(userID, mapID);
     }
@@ -412,7 +409,7 @@ export class UserController {
     })
     @ApiNoContentResponse({ description: 'Map was added to the favorites' })
     @ApiNotFoundResponse({ description: 'The map does not exist' })
-    public async AddFavoritedMap(@LoggedInUser('id') userID: number, @Param('mapID', ParseIntPipe) mapID: number) {
+    public AddFavoritedMap(@LoggedInUser('id') userID: number, @Param('mapID', ParseIntPipe) mapID: number) {
         return void 0;
         //return this.usersService.AddFavoritedMap(userID, mapID);
     }
@@ -427,7 +424,7 @@ export class UserController {
     })
     @ApiNoContentResponse({ description: 'Map was removed from the favorites' })
     @ApiNotFoundResponse({ description: 'The map does not exist' })
-    public async RemoveFavoritedMap(@LoggedInUser('id') userID: number, @Param('mapID', ParseIntPipe) mapID: number) {
+    public RemoveFavoritedMap(@LoggedInUser('id') userID: number, @Param('mapID', ParseIntPipe) mapID: number) {
         return void 0;
         //return this.usersService.RemoveFavoritedMap(userID, mapID);
     }
@@ -439,7 +436,7 @@ export class UserController {
     @Get('/maps/submitted')
     @ApiOperation({ summary: 'Returns the maps submitted by the local user' })
     @ApiOkPaginatedResponse(MapDto, { description: 'Paginated list of submitted maps' })
-    public async GetSubmittedMaps(
+    public GetSubmittedMaps(
         @LoggedInUser('id') userID: number,
         @Query() query?: UserMapSubmittedGetQuery
     ): Promise<PaginatedResponseDto<MapDto>> {
@@ -451,7 +448,7 @@ export class UserController {
     @Get('/maps/submitted/summary')
     @ApiOperation({ summary: 'Returns the summary of maps submitted by the local user' })
     @ApiOkResponse({ description: 'Summary of maps submitted by the local user' })
-    public async GetSubmittedMapsSummary(@LoggedInUser('id') userID: number) /*: Promise<who knows???> */ {
+    public GetSubmittedMapsSummary(@LoggedInUser('id') userID: number) /*: Promise<who knows???> */ {
         return void 0;
     }
 

@@ -46,7 +46,7 @@ export class AdminController {
     })
     @ApiOperation({ summary: 'Create a placeholder user' })
     @ApiOkResponse({ type: UserDto, description: 'The newly created user' })
-    public async CreatePlaceholderUser(@Body() body: CreateUserDto): Promise<UserDto> {
+    public CreatePlaceholderUser(@Body() body: CreateUserDto): Promise<UserDto> {
         return this.adminService.CreatePlaceholderUser(body.alias);
     }
 
@@ -80,7 +80,7 @@ export class AdminController {
     })
     @ApiNoContentResponse({ description: 'The user was updated successfully' })
     @ApiBadRequestResponse({ description: 'Invalid user update data' })
-    public async UpdateUser(
+    public UpdateUser(
         @LoggedInUser('id') adminID: number,
         @Param('userID', ParseIntPipe) userID: number,
         @Body() body: AdminUpdateUserDto
@@ -98,15 +98,15 @@ export class AdminController {
         required: true
     })
     @ApiNoContentResponse({ description: 'The user was deleted successfully' })
-    public async DeleteUser(@Param('userID', ParseIntPipe) userID: number) {
-        return void 0;
+    public DeleteUser(@Param('userID', ParseIntPipe) userID: number) {
+        return;
     }
 
     // This seems to only be used to reset all cosmetic or ranked XP.
     // Such a thing terrifies me, so lets leave it for now.
     @Patch('/user-stats')
     @ApiOperation({ summary: "Update every user's stats" })
-    public async UpdateUserStats() {
+    public UpdateUserStats() {
         return void 0;
     }
 
@@ -114,7 +114,7 @@ export class AdminController {
     @ApiOperation({ description: 'Retrieve a list of maps' })
     @ApiOkPaginatedResponse(MapDto, { description: 'Paginated list of maps' })
     @ApiBadRequestResponse({ description: 'Invalid query data' })
-    public async GetMaps(@Query() query: MapsGetAllQuery): Promise<PaginatedResponseDto<MapDto>> {
+    public GetMaps(@Query() query: MapsGetAllQuery): Promise<PaginatedResponseDto<MapDto>> {
         return void 0;
     }
 
@@ -134,7 +134,7 @@ export class AdminController {
     })
     @ApiNoContentResponse({ description: 'The map was updated successfully' })
     @ApiBadRequestResponse({ description: 'Invalid map update data' })
-    public async UpdateMap(@Param('mapID', ParseIntPipe) mapID: number, @Body() body: MapUpdateDto) {
+    public UpdateMap(@Param('mapID', ParseIntPipe) mapID: number, @Body() body: MapUpdateDto) {
         return void 0;
     }
 
@@ -149,7 +149,7 @@ export class AdminController {
         required: true
     })
     @ApiNoContentResponse({ description: 'The map was deleted successfully' })
-    public async DeleteMap(@Param('mapID', ParseIntPipe) mapID: number) {
+    public DeleteMap(@Param('mapID', ParseIntPipe) mapID: number) {
         return void 0;
     }
 
@@ -158,7 +158,7 @@ export class AdminController {
     @ApiOperation({ description: 'Retrieve a list of reports' })
     @ApiOkPaginatedResponse(ReportDto, { description: 'Paginated list of reports' })
     @ApiBadRequestResponse({ description: 'Invalid query data' })
-    public async GetReports(@Query() query: MapsGetAllQuery): Promise<PaginatedResponseDto<ReportDto>> {
+    public GetReports(@Query() query: MapsGetAllQuery): Promise<PaginatedResponseDto<ReportDto>> {
         return void 0;
     }
 

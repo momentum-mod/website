@@ -14,7 +14,7 @@ export class RunsController {
     @Get()
     @ApiOperation({ summary: 'Returns a list of runs' })
     @ApiOkPaginatedResponse(RunDto, { description: 'Paginated list of runs' })
-    public async GetRuns(@Query() query?: RunsGetAllQuery): Promise<PaginatedResponseDto<RunDto>> {
+    public GetRuns(@Query() query?: RunsGetAllQuery): Promise<PaginatedResponseDto<RunDto>> {
         return void 0;
     }
 
@@ -28,7 +28,7 @@ export class RunsController {
     })
     @ApiOkResponse({ type: RunDto, description: 'The found run' })
     @ApiNotFoundResponse({ description: 'Run was not found' })
-    public async GetRun(@Param('runID', ParseIntPipe) runID: number): Promise<RunDto> {
+    public GetRun(@Param('runID', ParseIntPipe) runID: number): Promise<RunDto> {
         return void 0;
     }
 
@@ -42,7 +42,7 @@ export class RunsController {
     })
     @ApiOkResponse({ description: 'A run replay file in binary format' })
     @ApiNotFoundResponse({ description: 'Run replay was not found' })
-    public async DownloadRun(@Param('runID', ParseIntPipe) runID: number): Promise<any> {
+    public DownloadRun(@Param('runID', ParseIntPipe) runID: number): Promise<any> {
         return void 0;
     }
 }
