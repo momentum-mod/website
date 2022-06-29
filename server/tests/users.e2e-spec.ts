@@ -204,13 +204,9 @@ describe('Users', () => {
             expect(res.body.response[0]).not.toHaveProperty('profile');
         });
 
-        it('should respond with array of users with take parameter', async () => {
-            await takeTest('users', expects);
-        });
+        it('should respond with array of users with take parameter', () => takeTest('users', expects));
 
-        it('should respond with array of users with skip parameter', async () => {
-            await skipTest('users', expects);
-        });
+        it('should respond with array of users with skip parameter', async () => skipTest('users', expects));
 
         it('should respond with array of users with search by alias parameter', async () => {
             const res = await get('users', 200, { search: user2.alias });
@@ -280,9 +276,7 @@ describe('Users', () => {
             expect(res.body.response[0].mapRank.rank).toBe(1);
         });
 
-        it('should respond with 401 when no access token is provided', async () => {
-            await get('users', 401, {}, null);
-        });
+        it('should respond with 401 when no access token is provided', () => get('users', 401, {}, null));
     });
 
     describe('GET /api/v1/users/{userID}', () => {
@@ -323,13 +317,9 @@ describe('Users', () => {
             expect(res.body.mapRank.rank).toBe(1);
         });
 
-        it('should respond with 401 when no access token is provided', async () => {
-            await get(`users/${user1.id}`, 401, {}, null);
-        });
+        it('should respond with 401 when no access token is provided', () => get(`users/${user1.id}`, 401, {}, null));
 
-        it('should respond with 404 if the user is not found', async () => {
-            await get('users/213445312', 404);
-        });
+        it('should respond with 404 if the user is not found', () => get('users/213445312', 404));
     });
 
     describe('GET /api/v1/users/{userID}/profile', () => {
@@ -363,13 +353,11 @@ describe('Users', () => {
             expect(res.body.returnCount).toBe(3);
         });
 
-        it('should respond with a limited list of activities for the user when using the take query param', async () => {
-            await takeTest(`users/${user1.id}/activities`, expects);
-        });
+        it('should respond with a limited list of activities for the user when using the take query param', () =>
+            takeTest(`users/${user1.id}/activities`, expects));
 
-        it('should respond with a different list of activities for the user when using the skip query param', async () => {
-            await skipTest(`users/${user1.id}/activities`, expects);
-        });
+        it('should respond with a different list of activities for the user when using the skip query param', () =>
+            skipTest(`users/${user1.id}/activities`, expects));
 
         it('should respond with a filtered list of activities for the user when using the type query param', async () => {
             const res = await get(`users/${user1.id}/activities`, 200, {
@@ -401,9 +389,8 @@ describe('Users', () => {
             expect(res.body.response).toBeInstanceOf(Array);
         });
 
-        it('should respond with 401 when no access token is provided', async () => {
-            await get(`users/${user1.id}/activities`, 401, {}, null);
-        });
+        it('should respond with 401 when no access token is provided', async () =>
+            get(`users/${user1.id}/activities`, 401, {}, null));
     });
 
     describe('GET /api/v1/users/{userID}/follows', () => {
@@ -421,13 +408,11 @@ describe('Users', () => {
             expect(res.body.response[0].followed.profile).toHaveProperty('bio');
         });
 
-        it('should respond with a limited list of follows for the user when using the take query param', async () => {
-            await takeTest(`users/${user1.id}/follows`, expects);
-        });
+        it('should respond with a limited list of follows for the user when using the take query param', () =>
+            takeTest(`users/${user1.id}/follows`, expects));
 
-        it('should respond with a different list of follows for the user when using the skip query param', async () => {
-            await skipTest(`users/${user1.id}/follows`, expects);
-        });
+        it('should respond with a different list of follows for the user when using the skip query param', () =>
+            skipTest(`users/${user1.id}/follows`, expects));
 
         it('should return an empty list for a user who isnt following anyone', async () => {
             const res = await get(`users/${user2.id}/follows`, 200);
@@ -436,9 +421,8 @@ describe('Users', () => {
             expect(res.body.returnCount).toBe(0);
         });
 
-        it('should respond with 401 when no access token is provided', async () => {
-            await get(`users/${user1.id}/follows`, 401, {}, null);
-        });
+        it('should respond with 401 when no access token is provided', () =>
+            get(`users/${user1.id}/follows`, 401, {}, null));
     });
 
     describe('GET /api/v1/users/{userID}/followers', () => {
@@ -456,13 +440,11 @@ describe('Users', () => {
             expect(res.body.response[0].followed.profile).toHaveProperty('bio');
         });
 
-        it('should respond with a limited list of followers for the user when using the take query param', async () => {
-            await takeTest(`users/${user2.id}/followers`, expects);
-        });
+        it('should respond with a limited list of followers for the user when using the take query param', () =>
+            takeTest(`users/${user2.id}/followers`, expects));
 
-        it('should respond with a different list of followers for the user when using the skip query param', async () => {
-            await skipTest(`users/${user2.id}/followers`, expects);
-        });
+        it('should respond with a different list of followers for the user when using the skip query param', () =>
+            skipTest(`users/${user2.id}/followers`, expects));
 
         it('should return an empty list for a user who isnt followed by anyone', async () => {
             const res = await get(`users/${user1.id}/followers`, 200);
@@ -471,9 +453,8 @@ describe('Users', () => {
             expect(res.body.returnCount).toBe(0);
         });
 
-        it('should respond with 401 when no access token is provided', async () => {
-            await get(`users/${user1.id}/followers`, 401, {}, null);
-        });
+        it('should respond with 401 when no access token is provided', () =>
+            get(`users/${user1.id}/followers`, 401, {}, null));
     });
 
     describe('GET /api/v1/users/{userID}/credits', () => {
@@ -486,17 +467,14 @@ describe('Users', () => {
             expects(res);
         });
 
-        it('should respond with limited list of credits with take parameter', async () => {
-            await takeTest(`users/${user1.id}/credits`, expects);
-        });
+        it('should respond with limited list of credits with take parameter', () =>
+            takeTest(`users/${user1.id}/credits`, expects));
 
-        it('should respond with different list of credits with skip parameter', async () => {
-            await skipTest(`users/${user1.id}/credits`, expects);
-        });
+        it('should respond with different list of credits with skip parameter', () =>
+            skipTest(`users/${user1.id}/credits`, expects));
 
-        it('should respond with 401 when no access token is provided', async () => {
-            await get(`users/${user1.id}/followers`, 401, {}, null);
-        });
+        it('should respond with 401 when no access token is provided', () =>
+            get(`users/${user1.id}/followers`, 401, {}, null));
     });
 
     describe('GET /api/v1/users/{userID}/runs', () => {
@@ -515,16 +493,13 @@ describe('Users', () => {
             expect(res.body.response[0].map.id).toEqual(map1.id);
         });
 
-        it('should respond with limited list of runs with take parameter', async () => {
-            await takeTest(`users/${user1.id}/runs`, expects);
-        });
+        it('should respond with limited list of runs with take parameter', () =>
+            takeTest(`users/${user1.id}/runs`, expects));
 
-        it('should respond with different list of runs with skip parameter', async () => {
-            await skipTest(`users/${user1.id}/runs`, expects);
-        });
+        it('should respond with different list of runs with skip parameter', () =>
+            skipTest(`users/${user1.id}/runs`, expects));
 
-        it('should respond with 401 when no access token is provided', async () => {
-            await get(`users/${user1.id}/runs`, 401, {}, null);
-        });
+        it('should respond with 401 when no access token is provided', () =>
+            get(`users/${user1.id}/runs`, 401, {}, null));
     });
 });
