@@ -4,7 +4,7 @@ import { ApiProperty } from '@nestjs/swagger';
 import { IsDateString, IsDefined, IsInt, IsOptional } from 'class-validator';
 import { UserDto } from './user.dto';
 import { DtoTransform } from '../../utils/dto-utils';
-import { IsEnumFlag } from '../../validators/is-enum-flag';
+import { IsEnumFlag } from '../../validators/is-enum-flag.validator';
 
 export class ActivityDto implements Activity {
     @ApiProperty({

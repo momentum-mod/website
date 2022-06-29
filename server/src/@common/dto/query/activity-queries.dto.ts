@@ -3,7 +3,7 @@ import { IsEnum, IsInt, IsOptional } from 'class-validator';
 import { Transform, Type } from 'class-transformer';
 import { PaginationQuery } from './pagination.dto';
 import { ActivityTypes } from '../../enums/activity.enum';
-import { IsEnumFlag } from '../../validators/is-enum-flag';
+import { IsEnumFlag } from '../../validators/is-enum-flag.validator';
 
 export class ActivitiesGetQuery extends PaginationQuery {
     @ApiPropertyOptional({
