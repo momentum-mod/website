@@ -111,3 +111,13 @@ export async function expandTest(
 
     paged ? res.body.response.every((x) => t(x)) : t(res.body);
 }
+
+export async function makeExpandTests(
+    url: string,
+    testFn: (res: request.Response) => void,
+    expansions: string[],
+    name: string,
+    paged = false
+) {
+    expansions.forEach((expand) => it(name.replace('@', expand), () => expandTest(url, testFn, expand, paged)));
+}
