@@ -1,7 +1,7 @@
 ﻿// noinspection DuplicatedCode
 
 import * as request from 'supertest';
-import { TestUtil } from './util';
+import { get, skipTest, takeTest } from './testutil';
 import { ActivityTypes } from '../src/@common/enums/activity.enum';
 import { PrismaService } from '../src/modules/repo/prisma.service';
 import { MapCreditType, MapStatus, MapType } from '../src/@common/enums/map.enum';
@@ -196,7 +196,7 @@ describe('Users', () => {
         const expects = (res: request.Response) => expect(res.body).toBeValidPagedDto(UserDto);
 
         it('should respond with array of users', async () => {
-            const res = await TestUtil.get('users', 200);
+            const res = await get('users', 200);
 
             expects(res);
             expect(res.body.totalCount).toBeGreaterThanOrEqual(2);
@@ -205,15 +205,15 @@ describe('Users', () => {
         });
 
         it('should respond with array of users with take parameter', async () => {
-            await TestUtil.takeTest('users', expects);
+            await takeTest('users', expects);
         });
 
         it('should respond with array of users with skip parameter', async () => {
-            await TestUtil.skipTest('users', expects);
+            await skipTest('users', expects);
         });
 
         it('should respond with array of users with search by alias parameter', async () => {
-            const res = await TestUtil.get('users', 200, { search: user2.alias });
+            const res = await get('users', 200, { search: user2.alias });
 
             expects(res);
             expect(res.body.totalCount).toBe(1);
@@ -222,7 +222,7 @@ describe('Users', () => {
         });
 
         it('should respond with an empty array of users using a search by parameter containing a nonexistent alias', async () => {
-            const res = await TestUtil.get('users', 200, { search: 'Abstract Barry' });
+            const res = await get('users', 200, { search: 'Abstract Barry' });
 
             expect(res.body.totalCount).toBe(0);
             expect(res.body.returnCount).toBe(0);
@@ -230,14 +230,14 @@ describe('Users', () => {
         });
 
         it('should respond with array of users with expanded profiles when using an expand parameter', async () => {
-            const res = await TestUtil.get('users', 200, { expand: 'profile' });
+            const res = await get('users', 200, { expand: 'profile' });
 
             expects(res);
             expect(res.body.response.find((u) => u.steamID === user1.steamID).profile).toHaveProperty('bio');
         });
 
         it('should respond with an array of one user for a matching SteamID parameter', async () => {
-            const res = await TestUtil.get('users', 200, { steamID: user1.steamID });
+            const res = await get('users', 200, { steamID: user1.steamID });
 
             expects(res);
             expect(res.body.totalCount).toBe(1);
@@ -245,7 +245,7 @@ describe('Users', () => {
         });
 
         it('should respond with an empty array for a nonexistent SteamID parameter', async () => {
-            const res = await TestUtil.get('users', 200, { steamID: 3141592612921 });
+            const res = await get('users', 200, { steamID: 3141592612921 });
 
             expect(res.body.totalCount).toBe(0);
             expect(res.body.returnCount).toBe(0);
@@ -253,7 +253,7 @@ describe('Users', () => {
         });
 
         it('should respond with an array of multiple users for multiple matching SteamID parameters', async () => {
-            const res = await TestUtil.get('users', 200, { steamIDs: [user1.steamID + ',' + user2.steamID] });
+            const res = await get('users', 200, { steamIDs: [user1.steamID + ',' + user2.steamID] });
 
             expects(res);
             expect(res.body.totalCount).toBe(2);
@@ -262,7 +262,7 @@ describe('Users', () => {
         });
 
         it('should respond with should respond with an empty array for multiple nonexistent SteamID parameters', async () => {
-            const res = await TestUtil.get('users', 200, { steamIDs: [21412341234 + ',' + 765474124] });
+            const res = await get('users', 200, { steamIDs: [21412341234 + ',' + 765474124] });
 
             expect(res.body.totalCount).toBe(0);
             expect(res.body.returnCount).toBe(0);
@@ -270,7 +270,7 @@ describe('Users', () => {
         });
 
         it('should respond with the specified user with with a corresponding map rank and run when given a mapRank mapid', async () => {
-            const res = await TestUtil.get(`users`, 200, { mapRank: map1.id, steamID: user1.steamID });
+            const res = await get(`users`, 200, { mapRank: map1.id, steamID: user1.steamID });
 
             expects(res);
             expect(res.body.response[0]).toHaveProperty('mapRank');
@@ -281,7 +281,7 @@ describe('Users', () => {
         });
 
         it('should respond with 401 when no access token is provided', async () => {
-            await TestUtil.get('users', 401, {}, null);
+            await get('users', 401, {}, null);
         });
     });
 
@@ -289,7 +289,7 @@ describe('Users', () => {
         const expects = (res) => expect(res.body).toBeValidDto(UserDto);
 
         it('should respond with the specified user', async () => {
-            const res = await TestUtil.get(`users/${user1.id}`, 200);
+            const res = await get(`users/${user1.id}`, 200);
 
             expects(res);
             expect(res.body.alias).toBe(user1.alias);
@@ -297,7 +297,7 @@ describe('Users', () => {
         });
 
         it('should respond with the specified user with a valid avatarURL', async () => {
-            const res = await TestUtil.get(`users/${user2.id}`, 200);
+            const res = await get(`users/${user2.id}`, 200);
 
             expects(res);
             expect(res.body).toHaveProperty('avatarURL');
@@ -305,7 +305,7 @@ describe('Users', () => {
         });
 
         it('should respond with the specified user with expanded profile when using an expand parameter', async () => {
-            const res = await TestUtil.get(`users/${user1.id}`, 200, { expand: 'profile' });
+            const res = await get(`users/${user1.id}`, 200, { expand: 'profile' });
 
             expects(res);
             expect(res.body.profile).toHaveProperty('bio');
@@ -313,7 +313,7 @@ describe('Users', () => {
         });
 
         it('should respond with the specified user with with a corresponding map rank and run when given a mapRank mapid', async () => {
-            const res = await TestUtil.get(`users/${user1.id}`, 200, { mapRank: map1.id });
+            const res = await get(`users/${user1.id}`, 200, { mapRank: map1.id });
 
             expects(res);
             expect(res.body).toHaveProperty('mapRank');
@@ -324,11 +324,11 @@ describe('Users', () => {
         });
 
         it('should respond with 401 when no access token is provided', async () => {
-            await TestUtil.get(`users/${user1.id}`, 401, {}, null);
+            await get(`users/${user1.id}`, 401, {}, null);
         });
 
         it('should respond with 404 if the user is not found', async () => {
-            await TestUtil.get('users/213445312', 404);
+            await get('users/213445312', 404);
         });
     });
 
@@ -336,16 +336,16 @@ describe('Users', () => {
         const expects = (res) => expect(res.body).toBeValidDto(ProfileDto);
 
         it('should respond with the specified users profile info', async () => {
-            const res = await TestUtil.get(`users/${user1.id}/profile`, 200);
+            const res = await get(`users/${user1.id}/profile`, 200);
             expects(res);
         });
 
         it('should respond with 401 when no access token is provided', async () => {
-            await TestUtil.get(`users/${user1.id}/profile`, 401, {}, null);
+            await get(`users/${user1.id}/profile`, 401, {}, null);
         });
 
         it('should respond with 404 if the profile is not found', async () => {
-            await TestUtil.get(`users/9000000000009/profile`, 404);
+            await get(`users/9000000000009/profile`, 404);
         });
     });
 
@@ -356,7 +356,7 @@ describe('Users', () => {
         };
 
         it('should respond with a list of activities related to the specified user', async () => {
-            const res = await TestUtil.get(`users/${user1.id}/activities`, 200);
+            const res = await get(`users/${user1.id}/activities`, 200);
 
             expects(res);
             expect(res.body.totalCount).toBe(3);
@@ -364,15 +364,15 @@ describe('Users', () => {
         });
 
         it('should respond with a limited list of activities for the user when using the take query param', async () => {
-            await TestUtil.takeTest(`users/${user1.id}/activities`, expects);
+            await takeTest(`users/${user1.id}/activities`, expects);
         });
 
         it('should respond with a different list of activities for the user when using the skip query param', async () => {
-            await TestUtil.skipTest(`users/${user1.id}/activities`, expects);
+            await skipTest(`users/${user1.id}/activities`, expects);
         });
 
         it('should respond with a filtered list of activities for the user when using the type query param', async () => {
-            const res = await TestUtil.get(`users/${user1.id}/activities`, 200, {
+            const res = await get(`users/${user1.id}/activities`, 200, {
                 type: ActivityTypes.MAP_UPLOADED
             });
 
@@ -383,7 +383,7 @@ describe('Users', () => {
         });
 
         it('should respond with a filtered list of activities for the user when using the data query param', async () => {
-            const res = await TestUtil.get(`users/${user1.id}/activities`, 200, {
+            const res = await get(`users/${user1.id}/activities`, 200, {
                 data: 101n
             });
 
@@ -393,7 +393,7 @@ describe('Users', () => {
         });
 
         it('should respond with an empty list of activities for the user when using the data query param with nonexistent data', async () => {
-            const res = await TestUtil.get(`users/${user1.id}/activities`, 200, {
+            const res = await get(`users/${user1.id}/activities`, 200, {
                 data: 1123412341n
             });
             expect(res.body.totalCount).toBe(0);
@@ -402,7 +402,7 @@ describe('Users', () => {
         });
 
         it('should respond with 401 when no access token is provided', async () => {
-            await TestUtil.get(`users/${user1.id}/activities`, 401, {}, null);
+            await get(`users/${user1.id}/activities`, 401, {}, null);
         });
     });
 
@@ -410,7 +410,7 @@ describe('Users', () => {
         const expects = (res) => expect(res.body).toBeValidPagedDto(FollowDto);
 
         it('should respond with a list of users the specified user follows', async () => {
-            const res = await TestUtil.get(`users/${user1.id}/follows`, 200);
+            const res = await get(`users/${user1.id}/follows`, 200);
 
             expects(res);
             expect(res.body.totalCount).toBe(2);
@@ -422,22 +422,22 @@ describe('Users', () => {
         });
 
         it('should respond with a limited list of follows for the user when using the take query param', async () => {
-            await TestUtil.takeTest(`users/${user1.id}/follows`, expects);
+            await takeTest(`users/${user1.id}/follows`, expects);
         });
 
         it('should respond with a different list of follows for the user when using the skip query param', async () => {
-            await TestUtil.skipTest(`users/${user1.id}/follows`, expects);
+            await skipTest(`users/${user1.id}/follows`, expects);
         });
 
         it('should return an empty list for a user who isnt following anyone', async () => {
-            const res = await TestUtil.get(`users/${user2.id}/follows`, 200);
+            const res = await get(`users/${user2.id}/follows`, 200);
 
             expect(res.body.totalCount).toBe(0);
             expect(res.body.returnCount).toBe(0);
         });
 
         it('should respond with 401 when no access token is provided', async () => {
-            await TestUtil.get(`users/${user1.id}/follows`, 401, {}, null);
+            await get(`users/${user1.id}/follows`, 401, {}, null);
         });
     });
 
@@ -445,7 +445,7 @@ describe('Users', () => {
         const expects = (res) => expect(res.body).toBeValidPagedDto(FollowDto);
 
         it('should respond with a list of users that follow the specified user', async () => {
-            const res = await TestUtil.get(`users/${user2.id}/followers`, 200);
+            const res = await get(`users/${user2.id}/followers`, 200);
 
             expect(res);
             expect(res.body.totalCount).toBe(2);
@@ -457,29 +457,29 @@ describe('Users', () => {
         });
 
         it('should respond with a limited list of followers for the user when using the take query param', async () => {
-            await TestUtil.takeTest(`users/${user2.id}/followers`, expects);
+            await takeTest(`users/${user2.id}/followers`, expects);
         });
 
         it('should respond with a different list of followers for the user when using the skip query param', async () => {
-            await TestUtil.skipTest(`users/${user2.id}/followers`, expects);
+            await skipTest(`users/${user2.id}/followers`, expects);
         });
 
         it('should return an empty list for a user who isnt followed by anyone', async () => {
-            const res = await TestUtil.get(`users/${user1.id}/followers`, 200);
+            const res = await get(`users/${user1.id}/followers`, 200);
 
             expect(res.body.totalCount).toBe(0);
             expect(res.body.returnCount).toBe(0);
         });
 
         it('should respond with 401 when no access token is provided', async () => {
-            await TestUtil.get(`users/${user1.id}/followers`, 401, {}, null);
+            await get(`users/${user1.id}/followers`, 401, {}, null);
         });
     });
 
     describe('GET /api/v1/users/{userID}/credits', () => {
         const expects = (res) => expect(res.body).toBeValidPagedDto(MapCreditDto);
         it('should respond with a list of map credits for a specific user', async () => {
-            const res = await TestUtil.get(`users/${user1.id}/credits`, 200);
+            const res = await get(`users/${user1.id}/credits`, 200);
 
             expect(res.body.totalCount).toBe(2);
             expect(res.body.returnCount).toBe(2);
@@ -487,15 +487,15 @@ describe('Users', () => {
         });
 
         it('should respond with limited list of credits with take parameter', async () => {
-            await TestUtil.takeTest(`users/${user1.id}/credits`, expects);
+            await takeTest(`users/${user1.id}/credits`, expects);
         });
 
         it('should respond with different list of credits with skip parameter', async () => {
-            await TestUtil.skipTest(`users/${user1.id}/credits`, expects);
+            await skipTest(`users/${user1.id}/credits`, expects);
         });
 
         it('should respond with 401 when no access token is provided', async () => {
-            await TestUtil.get(`users/${user1.id}/followers`, 401, {}, null);
+            await get(`users/${user1.id}/followers`, 401, {}, null);
         });
     });
 
@@ -506,7 +506,7 @@ describe('Users', () => {
         };
 
         it('should respond with a list of runs for a specific user', async () => {
-            const res = await TestUtil.get(`users/${user1.id}/runs`, 200);
+            const res = await get(`users/${user1.id}/runs`, 200);
 
             expects(res);
             expect(res.body.totalCount).toBe(2);
@@ -516,15 +516,15 @@ describe('Users', () => {
         });
 
         it('should respond with limited list of runs with take parameter', async () => {
-            await TestUtil.takeTest(`users/${user1.id}/runs`, expects);
+            await takeTest(`users/${user1.id}/runs`, expects);
         });
 
         it('should respond with different list of runs with skip parameter', async () => {
-            await TestUtil.skipTest(`users/${user1.id}/runs`, expects);
+            await skipTest(`users/${user1.id}/runs`, expects);
         });
 
         it('should respond with 401 when no access token is provided', async () => {
-            await TestUtil.get(`users/${user1.id}/runs`, 401, {}, null);
+            await get(`users/${user1.id}/runs`, 401, {}, null);
         });
     });
 });

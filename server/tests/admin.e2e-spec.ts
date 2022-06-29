@@ -4,7 +4,7 @@ import { Bans, Roles } from '../src/@common/enums/user.enum';
 import { ReportCategory, ReportType } from '../src/@common/enums/report.enum';
 import { MapCreditType, MapStatus, MapType } from '../src/@common/enums/map.enum';
 import { PrismaService } from '../src/modules/repo/prisma.service';
-import { TestUtil } from './util';
+import { del, get, patch, post } from './testutil';
 import { AuthService } from '../src/modules/auth/auth.service';
 import { ActivityTypes } from '../src/@common/enums/activity.enum';
 import { UserDto } from '../src/@common/dto/user/user.dto';
@@ -406,28 +406,28 @@ describe('admin', () => {
     describe('endpoints', () => {
         describe('POST /api/v1/admin/users', () => {
             it('should successfully create a placeholder user', async () => {
-                const res = await TestUtil.post('admin/users/', 201, { alias: 'Burger' });
+                const res = await post('admin/users/', 201, { alias: 'Burger' });
 
                 expect(res.body).toBeValidDto(UserDto);
                 expect(res.body.alias).toBe('Burger');
             });
 
             it('should respond with 403 when the user requesting only is a moderator', async () => {
-                await TestUtil.post('admin/users/', 403, { alias: 'Barry 2' }, modUserToken);
+                await post('admin/users/', 403, { alias: 'Barry 2' }, modUserToken);
             });
 
             it('should respond with 403 when the user requesting is not an admin', async () => {
-                await TestUtil.post('admin/users/', 403, { alias: 'Barry 2' }, nonAdminAccessToken);
+                await post('admin/users/', 403, { alias: 'Barry 2' }, nonAdminAccessToken);
             });
 
             it('should respond with 401 when no access token is provided', async () => {
-                await TestUtil.post('admin/users/', 401, {}, null);
+                await post('admin/users/', 401, {}, null);
             });
         });
 
         describe('POST /api/v1/admin/users/merge', () => {
             it('should merge two accounts together', async () => {
-                const res = await TestUtil.post('admin/users/merge', 200, {
+                const res = await post('admin/users/merge', 200, {
                     placeholderID: mergeUser1.id,
                     userID: mergeUser2.id
                 });
@@ -437,58 +437,58 @@ describe('admin', () => {
                 expect(res.body.alias).toBe(mergeUser2.alias);
 
                 // U1 was following MU1, that should be transferred to MU2.
-                const u1Follows = await TestUtil.get(`users/${user1.id}/follows`, 200);
+                const u1Follows = await get(`users/${user1.id}/follows`, 200);
 
                 expect(u1Follows.body.response.some((f) => f.followed.id === mergeUser2.id)).toBe(true);
 
                 // U2 was following MU1 and MU2, the creation data should be earliest of the two and the \notifyOn flags combined.
-                const u2Follows = await TestUtil.get(`users/${user2.id}/follows`, 200);
+                const u2Follows = await get(`users/${user2.id}/follows`, 200);
                 const follow = u2Follows.body.response.find((f) => f.followed.id === mergeUser2.id);
                 expect(new Date(follow.createdAt)).toEqual(new Date('12/24/2021'));
                 expect(follow.notifyOn).toBe(ActivityTypes.MAP_APPROVED | ActivityTypes.MAP_UPLOADED);
 
                 // MU2 was following MU1, that should be deleted
-                const mu2follows = await TestUtil.get(`users/${mergeUser2.id}/follows`, 200);
+                const mu2follows = await get(`users/${mergeUser2.id}/follows`, 200);
                 expect(mu2follows.body.response.some((f) => f.followed.id === mergeUser1.id)).toBe(false);
 
                 // MU1's activities should have been transferred to MU2
-                const mu2Activities = await TestUtil.get(`users/${mergeUser2.id}/activities`, 200);
+                const mu2Activities = await get(`users/${mergeUser2.id}/activities`, 200);
                 expect(mu2Activities.body.response[0].data).toBe('123456');
 
                 // Placeholder should have been deleted
-                await TestUtil.get(`users/${mergeUser1.id}`, 404);
+                await get(`users/${mergeUser1.id}`, 404);
             });
 
             it('should respond with 400 if the user to merge from is not a placeholder', async () => {
-                await TestUtil.post('admin/users/merge', 400, {
+                await post('admin/users/merge', 400, {
                     placeholderID: user1.id,
                     userID: mergeUser2.id
                 });
             });
 
             it('should respond with 400 if the user to merge from does not exist', async () => {
-                await TestUtil.post('admin/users/merge', 400, {
+                await post('admin/users/merge', 400, {
                     placeholderID: 9812364981265872,
                     userID: mergeUser2.id
                 });
             });
 
             it('should respond with 400 if the user to merge to does not exist', async () => {
-                await TestUtil.post('admin/users/merge', 400, {
+                await post('admin/users/merge', 400, {
                     placeholderID: mergeUser1.id,
                     userID: 2368745234521
                 });
             });
 
             it('should respond with 400 if the user to merge are the same user', async () => {
-                await TestUtil.post('admin/users/merge', 400, {
+                await post('admin/users/merge', 400, {
                     placeholderID: mergeUser1.id,
                     userID: mergeUser1.id
                 });
             });
 
             it('should respond with 403 when the user requesting is only a moderator', async () => {
-                await TestUtil.post(
+                await post(
                     'admin/users/merge',
                     403,
                     {
@@ -500,7 +500,7 @@ describe('admin', () => {
             });
 
             it('should respond with 403 when the user requesting is not an admin', async () => {
-                await TestUtil.post(
+                await post(
                     'admin/users/merge',
                     403,
                     {
@@ -512,116 +512,111 @@ describe('admin', () => {
             });
 
             it('should respond with 401 when no access token is provided', async () => {
-                await TestUtil.post('admin/users/', 401, {}, null);
+                await post('admin/users/', 401, {}, null);
             });
         });
 
         describe('PATCH /api/v1/admin/users/{userID}', () => {
             it("should successfully update a specific user's alias", async () => {
-                await TestUtil.patch(`admin/users/${user1.id}`, 204, { alias: 'Barry 2' });
+                await patch(`admin/users/${user1.id}`, 204, { alias: 'Barry 2' });
 
-                const res = await TestUtil.get(`users/${user1.id}`, 200);
+                const res = await get(`users/${user1.id}`, 200);
 
                 expect(res.body.alias).toBe('Barry 2');
             });
 
             it("should respond with 409 when an admin tries to set a verified user's alias to something used by another verified user", async () => {
-                await TestUtil.patch(`admin/users/${user1.id}`, 409, { alias: user2.alias });
+                await patch(`admin/users/${user1.id}`, 409, { alias: user2.alias });
             });
 
             it("should allow an admin to set a verified user's alias to something used by another unverified user", async () => {
-                await TestUtil.patch(`admin/users/${user1.id}`, 204, { alias: modUser.alias });
+                await patch(`admin/users/${user1.id}`, 204, { alias: modUser.alias });
             });
 
             it("should allow an admin to set a unverified user's alias to something used by another verified user", async () => {
-                await TestUtil.patch(`admin/users/${modUser.id}`, 204, { alias: user2.alias });
+                await patch(`admin/users/${modUser.id}`, 204, { alias: user2.alias });
             });
 
             it("should successfully update a specific user's bio", async () => {
                 const bio = 'Im hungry';
-                await TestUtil.patch(`admin/users/${user1.id}`, 204, { bio: bio });
+                await patch(`admin/users/${user1.id}`, 204, { bio: bio });
 
-                const res = await TestUtil.get(`users/${user1.id}/profile`, 200);
+                const res = await get(`users/${user1.id}/profile`, 200);
 
                 expect(res.body.bio).toBe(bio);
             });
 
             it("should successfully update a specific user's bans", async () => {
                 const bans = Bans.BANNED_AVATAR | Bans.BANNED_LEADERBOARDS;
-                await TestUtil.patch(`admin/users/${user1.id}`, 204, { bans: bans });
+                await patch(`admin/users/${user1.id}`, 204, { bans: bans });
 
-                const res = await TestUtil.get(`users/${user1.id}`, 200);
+                const res = await get(`users/${user1.id}`, 200);
 
                 expect(res.body.bans).toBe(bans);
             });
 
             it("should successfully update a specific user's roles", async () => {
-                await TestUtil.patch(`admin/users/${user1.id}`, 204, { roles: Roles.MAPPER });
+                await patch(`admin/users/${user1.id}`, 204, { roles: Roles.MAPPER });
 
-                const res = await TestUtil.get(`users/${user1.id}`, 200);
+                const res = await get(`users/${user1.id}`, 200);
 
                 expect(res.body.roles).toBe(Roles.MAPPER);
             });
 
             it('should allow an admin to make a regular user a moderator', async () => {
-                await TestUtil.patch(`admin/users/${user1.id}`, 204, { roles: Roles.MODERATOR });
+                await patch(`admin/users/${user1.id}`, 204, { roles: Roles.MODERATOR });
             });
 
             it("should allow an admin to update a moderator's roles", async () => {
-                await TestUtil.patch(`admin/users/${modUser.id}`, 204, { roles: Roles.MAPPER });
+                await patch(`admin/users/${modUser.id}`, 204, { roles: Roles.MAPPER });
             });
 
             it("should not allow an admin to update another admin's roles", async () => {
-                await TestUtil.patch(`admin/users/${adminUser2.id}`, 403, { roles: Roles.MAPPER });
+                await patch(`admin/users/${adminUser2.id}`, 403, { roles: Roles.MAPPER });
             });
 
             it('should allow an admin to update their own non-admin roles', async () => {
-                await TestUtil.patch(`admin/users/${adminUser.id}`, 204, { roles: Roles.MAPPER | Roles.ADMIN });
+                await patch(`admin/users/${adminUser.id}`, 204, { roles: Roles.MAPPER | Roles.ADMIN });
             });
 
             it('should allow an admin to update their own moderator role', async () => {
-                await TestUtil.patch(`admin/users/${adminUser.id}`, 204, { roles: Roles.MAPPER | Roles.MODERATOR });
+                await patch(`admin/users/${adminUser.id}`, 204, { roles: Roles.MAPPER | Roles.MODERATOR });
             });
 
             it('should allow an admin to update their own admin role', async () => {
-                await TestUtil.patch(`admin/users/${adminUser.id}`, 204, { roles: Roles.MAPPER });
+                await patch(`admin/users/${adminUser.id}`, 204, { roles: Roles.MAPPER });
             });
 
             it("should successfully allow a moderator to update a specific user's roles", async () => {
-                await TestUtil.patch(`admin/users/${user1.id}`, 204, { roles: Roles.MAPPER }, modUserToken);
+                await patch(`admin/users/${user1.id}`, 204, { roles: Roles.MAPPER }, modUserToken);
             });
 
             it('should not allow a moderator to make another user a moderator', async () => {
-                await TestUtil.patch(`admin/users/${user1.id}`, 403, { roles: Roles.MODERATOR }, modUserToken);
+                await patch(`admin/users/${user1.id}`, 403, { roles: Roles.MODERATOR }, modUserToken);
             });
 
             it("should not allow a moderator to update another moderator's roles", async () => {
-                await TestUtil.patch(`admin/users/${modUser2.id}`, 403, { roles: Roles.MAPPER }, modUserToken);
+                await patch(`admin/users/${modUser2.id}`, 403, { roles: Roles.MAPPER }, modUserToken);
             });
 
             it("should not allow a moderator to update an admin's roles", async () => {
-                await TestUtil.patch(`admin/users/${adminUser2.id}`, 403, { roles: Roles.MAPPER }, modUserToken);
+                await patch(`admin/users/${adminUser2.id}`, 403, { roles: Roles.MAPPER }, modUserToken);
             });
 
             it('should allow a moderator to update their own non-mod roles', async () => {
-                await TestUtil.patch(
-                    `admin/users/${modUser.id}`,
-                    204,
-                    { roles: Roles.MAPPER | Roles.MODERATOR },
-                    modUserToken
-                );
+                await patch(`admin/users/${modUser.id}`, 204, { roles: Roles.MAPPER | Roles.MODERATOR }, modUserToken);
             });
 
             it('should not allow a moderator to update their own mod role', async () => {
-                await TestUtil.patch(`admin/users/${modUser.id}`, 403, { roles: Roles.MAPPER }, modUserToken);
+                await patch(`admin/users/${modUser.id}`, 403, { roles: Roles.MAPPER }, modUserToken);
             });
 
             it('should respond with 403 when the user requesting is not an admin', async () => {
-                await TestUtil.patch(`admin/users/${user1.id}`, 403, { alias: 'Barry 2' }, nonAdminAccessToken);
+                await patch(`admin/users/${user1.id}`, 403, { alias: 'Barry 2' }, nonAdminAccessToken);
             });
 
             it('should respond with 401 when no access token is provided', async () => {
-                await TestUtil.patch(`admin/users/${user1.id}`, 401, {}, null);
+                await patch(`admin/users/${user1.id}`, 401, {}, null);
             });
 
             // it('should respond with 403 when authenticated from game', () => {
@@ -644,21 +639,21 @@ describe('admin', () => {
 
         describe('DELETE /api/v1/admin/users/{userID}', () => {
             it('should delete a user', async () => {
-                await TestUtil.delete(`admin/users/${user1.id}`, 204);
+                await del(`admin/users/${user1.id}`, 204);
 
-                await TestUtil.get(`users/${user1.id}`, 404);
+                await get(`users/${user1.id}`, 404);
             });
 
             it('should respond with 403 when the user requesting only is a moderator', async () => {
-                await TestUtil.delete(`admin/users/${user1.id}`, 403, modUserToken);
+                await del(`admin/users/${user1.id}`, 403, modUserToken);
             });
 
             it('should respond with 403 when the user requesting is not an admin', async () => {
-                await TestUtil.delete(`admin/users/${user1.id}`, 403, nonAdminAccessToken);
+                await del(`admin/users/${user1.id}`, 403, nonAdminAccessToken);
             });
 
             it('should respond with 401 when no access token is provided', async () => {
-                await TestUtil.delete(`admin/users/${user1.id}`, 401, null);
+                await del(`admin/users/${user1.id}`, 401, null);
             });
         });
 
