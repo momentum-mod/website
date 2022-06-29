@@ -3,6 +3,7 @@ import { ApiPropertyOptional } from '@nestjs/swagger';
 import { IsEnum, IsInt, IsOptional, IsString } from 'class-validator';
 import { Transform, Type } from 'class-transformer';
 import { MapStatus } from '../../enums/map.enum';
+import { TransformExpansion } from '../../utils/dto-utils';
 
 // Alex: This query is used by admin endpoint, might be a bit different for you -Tom
 export class MapsGetAllQuery extends PaginationQuery {
@@ -34,7 +35,7 @@ export class MapsGetAllQuery extends PaginationQuery {
         example: 'info,submitter,credits'
     })
     @IsOptional()
-    @Transform(({ value }) => value.split(','))
+    @TransformExpansion()
     expand: string[];
 
     // I'm not completely sure this is right, enum handling might not be valid - Tom

@@ -2,6 +2,7 @@
 import { Transform, Type } from 'class-transformer';
 import { IsOptional } from 'class-validator';
 import { ApiPropertyOptional } from '@nestjs/swagger';
+import { TransformExpansion } from '../../utils/dto-utils';
 
 export class ReportGetQuery extends PaginationQuery {
     @ApiPropertyOptional({
@@ -21,6 +22,6 @@ export class ReportGetQuery extends PaginationQuery {
         example: 'submitter,resolver'
     })
     @IsOptional()
-    @Transform(({ value }) => value.split(','))
+    @TransformExpansion()
     expand: string[];
 }
