@@ -2,10 +2,10 @@ import { UserDto } from '../user/user.dto';
 import { MapRankDto } from '../map/map-rank.dto';
 import { Run } from '@prisma/client';
 import { ApiProperty } from '@nestjs/swagger';
-import { IsDate, IsDateString, IsDefined, IsInt, IsOptional, ValidateNested } from 'class-validator';
-import { Expose, Transform } from 'class-transformer';
+import { IsDateString, IsDefined, IsInt, IsOptional, ValidateNested } from 'class-validator';
+import { Expose } from 'class-transformer';
 import { MapDto } from '../map/map.dto';
-import { DtoUtils } from '../../utils/dto-utils';
+import { DtoTransform } from '../../utils/dto-utils';
 
 // TODO: BaseStatsDTO, various other nested DTOs
 
@@ -81,13 +81,13 @@ export class RunDto implements Run {
 
     @ApiProperty({ type: () => UserDto })
     @IsOptional()
-    @Transform(({ value }) => DtoUtils.Factory(UserDto, value))
+    @DtoTransform(UserDto)
     @ValidateNested()
     player: UserDto;
 
     @ApiProperty({ type: () => MapRankDto })
     @IsOptional()
-    @Transform(({ value }) => DtoUtils.Factory(MapRankDto, value))
+    @DtoTransform(MapRankDto)
     @ValidateNested()
     rank: MapRankDto;
 
@@ -98,7 +98,6 @@ export class RunDto implements Run {
 
     @ApiProperty({ type: () => MapDto })
     @IsOptional()
-    @Transform(({ value }) => DtoUtils.Factory(MapDto, value))
     // TODO: Add back once this is worked on
     // @ValidateNested()
     map: MapDto;

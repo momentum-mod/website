@@ -1,10 +1,10 @@
 ﻿import { Notification } from '@prisma/client';
 import { ApiProperty, PickType } from '@nestjs/swagger';
 import { IsBoolean, IsDateString, IsDefined, IsInt, ValidateNested } from 'class-validator';
-import { Exclude, Transform } from 'class-transformer';
+import { Exclude } from 'class-transformer';
 import { ActivityDto } from './activity.dto';
-import { DtoUtils } from '../../utils/dto-utils';
 import { UserDto } from './user.dto';
+import { DtoTransform } from '../../utils/dto-utils';
 
 export class NotificationDto implements Notification {
     @ApiProperty({
@@ -30,7 +30,7 @@ export class NotificationDto implements Notification {
         type: UserDto,
         description: 'The user that the notification is for'
     })
-    @Transform(({ value }) => DtoUtils.Factory(UserDto, value))
+    @DtoTransform(UserDto)
     @ValidateNested()
     user: UserDto;
 
@@ -41,7 +41,7 @@ export class NotificationDto implements Notification {
         type: ActivityDto,
         description: 'The activity that the notification is about'
     })
-    @Transform(({ value }) => DtoUtils.Factory(ActivityDto, value))
+    @DtoTransform(ActivityDto)
     @ValidateNested()
     activity: ActivityDto;
 

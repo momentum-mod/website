@@ -15,8 +15,8 @@ import { Exclude, Expose, Transform, Type } from 'class-transformer';
 import { IsSteamCommunityID } from '../../validators/is-steam-id.validator';
 import { IsEnumFlag } from '../../validators/is-enum-flag';
 import { ProfileDto } from './profile.dto';
-import { DtoUtils } from '../../utils/dto-utils';
 import { MapRankDto } from '../map/map-rank.dto';
+import { DtoTransform } from '../../utils/dto-utils';
 
 // TODO: UserStats in here in future as well
 export class UserDto implements User {
@@ -76,7 +76,7 @@ export class UserDto implements User {
         type: ProfileDto,
         description: "The user's profile."
     })
-    @Transform(({ value }) => DtoUtils.Factory(ProfileDto, value))
+    @DtoTransform(ProfileDto)
     @ValidateNested()
     profile?: ProfileDto;
 
@@ -85,7 +85,7 @@ export class UserDto implements User {
         description: 'The map rank data for the user on a specific map'
     })
     @IsOptional()
-    @Transform(({ value }) => DtoUtils.Factory(MapRankDto, value))
+    @DtoTransform(MapRankDto)
     @ValidateNested()
     mapRank?: MapRankDto;
 
