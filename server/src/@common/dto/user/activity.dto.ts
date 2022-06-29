@@ -3,8 +3,7 @@ import { ActivityTypes } from '../../enums/activity.enum';
 import { ApiProperty } from '@nestjs/swagger';
 import { IsDateString, IsDefined, IsInt, IsOptional } from 'class-validator';
 import { UserDto } from './user.dto';
-import { DtoUtils } from '../../utils/dto-utils';
-import { Transform } from 'class-transformer';
+import { DtoTransform } from '../../utils/dto-utils';
 import { IsEnumFlag } from '../../validators/is-enum-flag';
 
 export class ActivityDto implements Activity {
@@ -29,7 +28,7 @@ export class ActivityDto implements Activity {
         description: 'The user the activity is associated with'
     })
     @IsOptional()
-    @Transform(({ value }) => DtoUtils.Factory(UserDto, value))
+    @DtoTransform(UserDto)
     user: UserDto;
 
     @ApiProperty({

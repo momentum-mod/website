@@ -3,9 +3,9 @@ import { UserDto } from './user.dto';
 import { ApiProperty, ApiPropertyOptional, PickType } from '@nestjs/swagger';
 import { ActivityTypes } from '../../enums/activity.enum';
 import { IsDateString, IsDefined, ValidateNested } from 'class-validator';
-import { DtoUtils } from '../../utils/dto-utils';
-import { Exclude, Transform } from 'class-transformer';
+import { Exclude } from 'class-transformer';
 import { IsEnumFlag } from '../../validators/is-enum-flag';
+import { DtoTransform } from '../../utils/dto-utils';
 
 export class FollowDto implements Follow {
     @ApiPropertyOptional({
@@ -28,7 +28,7 @@ export class FollowDto implements Follow {
         description: 'The user that is being followed'
     })
     @IsDefined()
-    @Transform(({ value }) => DtoUtils.Factory(UserDto, value))
+    @DtoTransform(UserDto)
     @ValidateNested()
     followed: UserDto;
 
@@ -37,7 +37,7 @@ export class FollowDto implements Follow {
         description: 'The user that is doing the following'
     })
     @IsDefined()
-    @Transform(({ value }) => DtoUtils.Factory(UserDto, value))
+    @DtoTransform(UserDto)
     @ValidateNested()
     followee: UserDto;
 
@@ -56,7 +56,7 @@ export class FollowStatusDto {
         description:
             'FollowerDto expressing the relationship between the LOCAL user and the target user, if the local user follows the target user'
     })
-    @Transform(({ value }) => DtoUtils.Factory(FollowDto, value))
+    @DtoTransform(FollowDto)
     @ValidateNested()
     local?: FollowDto;
 
@@ -65,7 +65,7 @@ export class FollowStatusDto {
         description:
             'FollowerDto expressing the relationship between the LOCAL user and the TARGET user, if the target user follows the local user'
     })
-    @Transform(({ value }) => DtoUtils.Factory(FollowDto, value))
+    @DtoTransform(FollowDto)
     @ValidateNested()
     target?: FollowDto;
 }

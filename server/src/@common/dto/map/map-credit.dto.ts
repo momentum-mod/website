@@ -2,10 +2,9 @@ import { MapCredit } from '@prisma/client';
 import { UserDto } from '../user/user.dto';
 import { MapDto } from './map.dto';
 import { ApiProperty } from '@nestjs/swagger';
-import { IsDate, IsDateString, IsEnum, IsInt, ValidateNested } from 'class-validator';
+import { IsDateString, IsEnum, IsInt, ValidateNested } from 'class-validator';
 import { MapCreditType } from '../../enums/map.enum';
-import { DtoUtils } from '../../utils/dto-utils';
-import { Transform } from 'class-transformer';
+import { DtoTransform } from '../../utils/dto-utils';
 
 export class MapCreditDto implements MapCredit {
     @ApiProperty()
@@ -25,12 +24,12 @@ export class MapCreditDto implements MapCredit {
     mapID: number;
 
     @ApiProperty({ type: () => UserDto })
-    @Transform(({ value }) => DtoUtils.Factory(UserDto, value))
+    @DtoTransform(UserDto)
     @ValidateNested()
     user: UserDto;
 
     @ApiProperty()
-    @Transform(({ value }) => DtoUtils.Factory(MapDto, value))
+    @DtoTransform(MapDto)
     // TODO: Add back once this is worked on
     // @ValidateNested()
     map: MapDto;

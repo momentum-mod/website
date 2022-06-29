@@ -1,9 +1,9 @@
 ﻿import { MapLibraryEntry } from '@prisma/client';
 import { ApiProperty } from '@nestjs/swagger';
-import { IsDate, IsDateString, IsInt, ValidateNested } from 'class-validator';
-import { Exclude, Transform } from 'class-transformer';
+import { IsDateString, IsInt, ValidateNested } from 'class-validator';
+import { Exclude } from 'class-transformer';
 import { UserDto } from '../user/user.dto';
-import { DtoUtils } from '../../utils/dto-utils';
+import { DtoTransform } from '../../utils/dto-utils';
 import { MapDto } from './map.dto';
 
 export class MapLibraryEntryDto implements MapLibraryEntry {
@@ -21,7 +21,7 @@ export class MapLibraryEntryDto implements MapLibraryEntry {
         type: UserDto,
         description: 'The user that owns the library entry'
     })
-    @Transform(({ value }) => DtoUtils.Factory(UserDto, value))
+    @DtoTransform(UserDto)
     @ValidateNested()
     user: UserDto;
 
@@ -32,7 +32,7 @@ export class MapLibraryEntryDto implements MapLibraryEntry {
         type: MapDto,
         description: 'The map that is being stored in the library'
     })
-    @Transform(({ value }) => DtoUtils.Factory(MapDto, value))
+    @DtoTransform(MapDto)
     // TODO: Add back
     //  @ValidateNested()
     map: MapDto;

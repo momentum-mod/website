@@ -4,8 +4,7 @@ import { UserDto } from '../user/user.dto';
 import { MapImageDto } from './map-image.dto';
 import { ApiProperty, PickType } from '@nestjs/swagger';
 import { IsDate, IsDateString, IsDefined, IsEnum, IsInt, IsOptional, IsString } from 'class-validator';
-import { Transform } from 'class-transformer';
-import { DtoUtils } from '../../utils/dto-utils';
+import { DtoArrayTransform, DtoTransform } from '../../utils/dto-utils';
 
 export class MapDto implements MapDB {
     @ApiProperty()
@@ -39,7 +38,7 @@ export class MapDto implements MapDB {
     thumbnailID: number;
 
     @ApiProperty()
-    @Transform(({ value }) => DtoUtils.Factory(MapImageDto, value))
+    @DtoTransform(MapImageDto)
     thumbnail: MapImageDto;
 
     @ApiProperty()
@@ -47,12 +46,12 @@ export class MapDto implements MapDB {
     submitterID: number;
 
     @ApiProperty({ type: () => UserDto })
-    @Transform(({ value }) => DtoUtils.Factory(UserDto, value))
     submitter: UserDto;
+    @DtoTransform(UserDto)
 
     @ApiProperty()
-    @Transform(({ value }) => value?.map((image) => DtoUtils.Factory(MapImageDto, image)))
     images: MapImageDto[];
+    @DtoArrayTransform(MapImageDto)
 
     @ApiProperty()
     @IsDateString()
