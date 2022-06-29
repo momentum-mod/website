@@ -3,17 +3,15 @@
 import { MapCreditType, MapStatus, MapType } from '../src/@common/enums/map.enum';
 import { PrismaService } from '../src/modules/repo/prisma.service';
 import { Bans, Roles } from '../src/@common/enums/user.enum';
-import { TestUtil } from './util';
 import { AuthService } from '../src/modules/auth/auth.service';
 import { ActivityTypes } from '../src/@common/enums/activity.enum';
 import { UserDto } from '../src/@common/dto/user/user.dto';
-import { plainToInstance } from 'class-transformer';
-import { validate } from 'class-validator';
 import { ProfileDto } from '../src/@common/dto/user/profile.dto';
-import { FollowDto, FollowStatusDto } from '../src/@common/dto/user/followers.dto';
+import { FollowStatusDto } from '../src/@common/dto/user/followers.dto';
 import { ActivityDto } from '../src/@common/dto/user/activity.dto';
 import { MapLibraryEntryDto } from '../src/@common/dto/map/library-entry';
 import { NotificationDto } from '../src/@common/dto/user/notification.dto';
+import { del, get, patch, post, put, skipTest, takeTest } from './testutil';
 
 describe('User', () => {
     let user1, user2, user2Token, user3, user3Token, admin, adminGame, adminAccessToken, map1, map2, map3, activities;
@@ -269,7 +267,7 @@ describe('User', () => {
         const expects = (res) => expect(res.body).toBeValidDto(UserDto);
 
         it('should respond with user data', async () => {
-            const res = await TestUtil.get('user', 200);
+            const res = await get('user', 200);
 
             expects(res);
             expect(res.body.alias).toBe(user1.alias);
@@ -277,7 +275,7 @@ describe('User', () => {
         });
 
         it('should respond with user data and expand profile data', async () => {
-            const res = await TestUtil.get('user', 200, { expand: 'profile' });
+            const res = await get('user', 200, { expand: 'profile' });
 
             expects(res);
             expect(res.body.profile).toBeValidDto(ProfileDto);
@@ -297,13 +295,13 @@ describe('User', () => {
         // });
 
         it('should respond with 401 when no access token is provided', async () => {
-            await TestUtil.get('user', 401, {}, null);
+            await get('user', 401, {}, null);
         });
     });
 
     describe('PATCH /api/v1/user', () => {
         it('should update the authenticated users profile', async () => {
-            await TestUtil.patch(
+            await patch(
                 'user',
                 204,
                 {
@@ -313,45 +311,45 @@ describe('User', () => {
                 user3Token
             );
 
-            const res = await TestUtil.get('user', 200, { expand: 'profile' }, user3Token);
+            const res = await get('user', 200, { expand: 'profile' }, user3Token);
             expect(res.body.alias).toBe('Donkey Kong');
             expect(res.body.profile.bio).toBe('I love Donkey Kong');
         });
 
         it('should respond with 403 when trying to update bio when bio banned', async () => {
-            await TestUtil.patch('user', 403, { bio: 'Gamer Words' }, user2Token);
+            await patch('user', 403, { bio: 'Gamer Words' }, user2Token);
         });
 
         it('should respond with 403 when trying to update alias when alias banned', async () => {
-            await TestUtil.patch('user', 403, { alias: 'Gamer Words' }, user2Token);
+            await patch('user', 403, { alias: 'Gamer Words' }, user2Token);
         });
 
         it('should respond with 409 when a verified user tries to set their alias to something used by another verified user', async () => {
-            await TestUtil.patch('user', 409, { alias: user2.alias }, user3Token);
+            await patch('user', 409, { alias: user2.alias }, user3Token);
         });
 
         it('should allow a verified user to set their alias to something used by an unverified user', async () => {
-            await TestUtil.patch('user', 204, { alias: user1.alias }, user3Token);
+            await patch('user', 204, { alias: user1.alias }, user3Token);
         });
         it('should allow an unverified user to set their alias to something used by a verified user', async () => {
-            await TestUtil.patch('user', 204, { alias: user2.alias });
+            await patch('user', 204, { alias: user2.alias });
         });
 
         it('should respond with 401 when no access token is provided', async () => {
-            await TestUtil.patch('user', 401, {}, null);
+            await patch('user', 401, {}, null);
         });
     });
 
     describe('GET /api/v1/user/profile', () => {
         it('should respond with authenticated users profile info', async () => {
-            const res = await TestUtil.get('user/profile', 200);
+            const res = await get('user/profile', 200);
 
             expect(res.body).toBeValidDto(ProfileDto);
             expect(res.body.bio).toBe(user1.profile.bio);
         });
 
         it('should respond with 401 when no access token is provided', async () => {
-            await TestUtil.get('user/profile', 401, {}, null);
+            await get('user/profile', 401, {}, null);
         });
     });
 
@@ -392,7 +390,7 @@ describe('User', () => {
 
     describe('GET /api/v1/user/follow/{userID}', () => {
         it('should return relationships of the given and local user who follow each other', async () => {
-            const res = await TestUtil.get(`user/follow/${user2.id}`, 200);
+            const res = await get(`user/follow/${user2.id}`, 200);
 
             expect(res.body).toBeValidDto(FollowStatusDto);
             expect(res.body.local.followed.id).toBe(user2.id);
@@ -402,7 +400,7 @@ describe('User', () => {
         });
 
         it('should return a relationship of the local user who follows the target, but not the opposite', async () => {
-            const res = await TestUtil.get(`user/follow/${user3.id}`, 200);
+            const res = await get(`user/follow/${user3.id}`, 200);
 
             expect(res.body).toBeValidDto(FollowStatusDto);
             expect(res.body.local.followed.id).toBe(user3.id);
@@ -411,7 +409,7 @@ describe('User', () => {
         });
 
         it('should return a relationship of the target user who follows the local user, but not the opposite', async () => {
-            const res = await TestUtil.get(`user/follow/${user1.id}`, 200, {}, user3Token);
+            const res = await get(`user/follow/${user1.id}`, 200, {}, user3Token);
 
             expect(res.body).toBeValidDto(FollowStatusDto);
             expect(res.body.target.followed.id).toBe(user3.id);
@@ -420,161 +418,161 @@ describe('User', () => {
         });
 
         it('should respond with empty object if the followed relationship does not exist', async () => {
-            const res = await TestUtil.get(`user/follow/${user2.id}`, 200, {}, user3Token);
+            const res = await get(`user/follow/${user2.id}`, 200, {}, user3Token);
             expect(res.body).toEqual({});
         });
 
         it('should respond with 404 if the target user does not exist', async () => {
-            await TestUtil.get(`user/follow/283745692345`, 404);
+            await get(`user/follow/283745692345`, 404);
         });
 
         it('should respond with 401 when no access token is provided', async () => {
-            await TestUtil.get(`user/follow/${user2.id}`, 401, {}, null);
+            await get(`user/follow/${user2.id}`, 401, {}, null);
         });
     });
 
     describe('POST /api/v1/user/follow/{userID}', () => {
         it('should respond with 204 and add user to authenticated users follow list', async () => {
-            const res = await TestUtil.get(`user/follow/${user3.id}`, 200, {}, user2Token);
+            const res = await get(`user/follow/${user3.id}`, 200, {}, user2Token);
 
             expect(res.body).not.toHaveProperty('local');
 
-            await TestUtil.post(`user/follow/${user3.id}`, 204, {}, user2Token);
+            await post(`user/follow/${user3.id}`, 204, {}, user2Token);
 
-            const res2 = await TestUtil.get(`user/follow/${user3.id}`, 200, {}, user2Token);
+            const res2 = await get(`user/follow/${user3.id}`, 200, {}, user2Token);
 
             expect(res2.body.local.followed.id).toBe(user3.id);
             expect(res2.body.local.followee.id).toBe(user2.id);
         });
 
         it('should respond with 404 if the target user does not exist', async () => {
-            await TestUtil.post('user/follow/178124314563', 404);
+            await post('user/follow/178124314563', 404);
         });
 
         it('should respond with 401 when no access token is provided', async () => {
-            await TestUtil.post(`user/follow/${user3.id}`, 401, {}, null);
+            await post(`user/follow/${user3.id}`, 401, {}, null);
         });
     });
 
     describe('PATCH /api/v1/user/follow/{userID}', () => {
         it('should update the following status of the local user and the followed user', async () => {
-            const res = await TestUtil.get(`user/follow/${user2.id}`, 200, {});
+            const res = await get(`user/follow/${user2.id}`, 200, {});
 
             expect(res.body.local.notifyOn).toBe(0);
 
-            await TestUtil.patch(`user/follow/${user2.id}`, 204, { notifyOn: ActivityTypes.REVIEW_MADE });
+            await patch(`user/follow/${user2.id}`, 204, { notifyOn: ActivityTypes.REVIEW_MADE });
 
-            const res2 = await TestUtil.get(`user/follow/${user2.id}`, 200, {});
+            const res2 = await get(`user/follow/${user2.id}`, 200, {});
 
             expect(res2.body.local.notifyOn).toBe(ActivityTypes.REVIEW_MADE);
         });
 
         it('should respond with 400 if the body is invalid', async () => {
-            const res = await TestUtil.get(`user/follow/${user2.id}`, 200, { notifyOn: 'burger' });
+            const res = await get(`user/follow/${user2.id}`, 200, { notifyOn: 'burger' });
         });
 
         it('should respond with 404 if the target user does not exist', async () => {
-            await TestUtil.patch('user/follow/178124314563', 404, { notifyOn: ActivityTypes.REVIEW_MADE });
+            await patch('user/follow/178124314563', 404, { notifyOn: ActivityTypes.REVIEW_MADE });
         });
 
         it('should respond with 401 when no access token is provided', async () => {
-            await TestUtil.patch(`user/follow/${user3.id}`, 401, { notifyOn: ActivityTypes.REVIEW_MADE }, null);
+            await patch(`user/follow/${user3.id}`, 401, { notifyOn: ActivityTypes.REVIEW_MADE }, null);
         });
     });
 
     describe('DELETE /api/v1/user/follow/{userID}', () => {
         it('should remove the user from the local users follow list', async () => {
-            await TestUtil.delete(`user/follow/${user2.id}`, 204);
+            await del(`user/follow/${user2.id}`, 204);
 
-            const res = await TestUtil.get(`user/follow/${user2.id}`, 200, {});
+            const res = await get(`user/follow/${user2.id}`, 200, {});
 
             expect(res.body).not.toHaveProperty('local');
         });
 
         it('should respond with 404 if the user is not followed by the local user ', async () => {
-            await TestUtil.delete(`user/follow/${user1.id}`, 404, user3Token);
+            await del(`user/follow/${user1.id}`, 404, user3Token);
         });
 
         it('should respond with 404 if the target user does not exist', async () => {
-            await TestUtil.delete(`user/follow/178124314563`, 404);
+            await del(`user/follow/178124314563`, 404);
         });
 
         it('should respond with 401 when no access token is provided', async () => {
-            await TestUtil.delete(`user/follow/${user3.id}`, 401, null);
+            await del(`user/follow/${user3.id}`, 401, null);
         });
     });
 
     describe('GET /api/v1/user/notifyMap/{mapID}', () => {
         it('should return a mapnotify dto for a given user and map', async () => {
-            const res = await TestUtil.get(`user/notifyMap/${map1.id}`, 200);
+            const res = await get(`user/notifyMap/${map1.id}`, 200);
 
             expect(res.body.notifyOn).toBe(ActivityTypes.WR_ACHIEVED);
         });
 
         it('should respond with an empty object if the user does not have mapnotify for given map', async () => {
-            const res = await TestUtil.get(`user/notifyMap/${map1.id}`, 200, {}, user2Token);
+            const res = await get(`user/notifyMap/${map1.id}`, 200, {}, user2Token);
 
             expect(res.body).toEqual({});
         });
 
         it('should respond with 404 if the target map does not exist', async () => {
-            await TestUtil.get(`user/notifyMap/8732165478321`, 404);
+            await get(`user/notifyMap/8732165478321`, 404);
         });
 
         it('should respond with 401 when no access token is provided', async () => {
-            await TestUtil.get(`user/notifyMap/${map1.id}`, 401, {}, null);
+            await get(`user/notifyMap/${map1.id}`, 401, {}, null);
         });
     });
 
     describe('PUT /api/v1/user/notifyMap/{mapID}', () => {
         it('should update map notification status with existing notifications', async () => {
-            await TestUtil.put(`user/notifyMap/${map1.id}`, 204, { notifyOn: ActivityTypes.PB_ACHIEVED });
+            await put(`user/notifyMap/${map1.id}`, 204, { notifyOn: ActivityTypes.PB_ACHIEVED });
 
-            const res = await TestUtil.get(`user/notifyMap/${map1.id}`, 200);
+            const res = await get(`user/notifyMap/${map1.id}`, 200);
 
             expect(res.body.notifyOn).toBe(ActivityTypes.PB_ACHIEVED);
         });
 
         it('should create new map notification status if no existing notifications', async () => {
-            await TestUtil.put(`user/notifyMap/${map1.id}`, 204, { notifyOn: ActivityTypes.PB_ACHIEVED });
+            await put(`user/notifyMap/${map1.id}`, 204, { notifyOn: ActivityTypes.PB_ACHIEVED });
 
-            const res = await TestUtil.get(`user/notifyMap/${map1.id}`, 200);
+            const res = await get(`user/notifyMap/${map1.id}`, 200);
 
             expect(res.body.notifyOn).toBe(ActivityTypes.PB_ACHIEVED);
         });
 
         it('should respond with 400 is the body is invalid', async () => {
-            await TestUtil.put(`user/notifyMap/8231734`, 404, { notifyOn: 'this is a sausage' });
+            await put(`user/notifyMap/8231734`, 404, { notifyOn: 'this is a sausage' });
         });
 
         it('should respond with 404 if the target map does not exist', async () => {
-            await TestUtil.put(`user/notifyMap/8231734`, 404, { notifyOn: ActivityTypes.PB_ACHIEVED });
+            await put(`user/notifyMap/8231734`, 404, { notifyOn: ActivityTypes.PB_ACHIEVED });
         });
 
         it('should respond with 401 when no access token is provided', async () => {
-            await TestUtil.put(`user/notifyMap/${map1.id}`, 401, {}, null);
+            await put(`user/notifyMap/${map1.id}`, 401, {}, null);
         });
     });
 
     describe('DELETE /api/v1/user/notifyMap/{mapID}', () => {
         it('should remove the user from map notifcations list', async () => {
-            await TestUtil.delete(`user/notifyMap/${map1.id}`, 204);
+            await del(`user/notifyMap/${map1.id}`, 204);
 
-            const res = await TestUtil.get(`user/notifyMap/${map1.id}`, 200, {});
+            const res = await get(`user/notifyMap/${map1.id}`, 200, {});
 
             expect(res.body).toEqual({});
         });
 
         it('should respond with 404 if the user is not following the map', async () => {
-            await TestUtil.delete(`user/notifyMap/${map1.id}`, 404, user2Token);
+            await del(`user/notifyMap/${map1.id}`, 404, user2Token);
         });
 
         it('should respond with 404 if the target map does not exist', async () => {
-            await TestUtil.delete(`user/notifyMap/324512341243`, 404);
+            await del(`user/notifyMap/324512341243`, 404);
         });
 
         it('should respond with 401 when no access token is provided', async () => {
-            await TestUtil.delete(`user/notifyMap/${map1.id}`, 401, null);
+            await del(`user/notifyMap/${map1.id}`, 401, null);
         });
     });
 
@@ -585,7 +583,7 @@ describe('User', () => {
         };
 
         it('should retrieve the local users activities', async () => {
-            const res = await TestUtil.get('user/activities', 200);
+            const res = await get('user/activities', 200);
 
             expects(res);
             expect(res.body.totalCount).toBe(3);
@@ -593,15 +591,15 @@ describe('User', () => {
         });
 
         it('should respond with a limited list of activities for the local user when using the take query param', async () => {
-            await TestUtil.takeTest(`user/activities`, expects);
+            await takeTest(`user/activities`, expects);
         });
 
         it('should respond with a different list of activities for the local user when using the skip query param', async () => {
-            await TestUtil.skipTest(`user/activities`, expects);
+            await skipTest(`user/activities`, expects);
         });
 
         it('should respond with a filtered list of activities for the local user when using the type query param', async () => {
-            const res = await TestUtil.get(`user/activities`, 200, {
+            const res = await get(`user/activities`, 200, {
                 type: ActivityTypes.MAP_UPLOADED
             });
 
@@ -612,7 +610,7 @@ describe('User', () => {
         });
 
         it('should respond with a filtered list of activities for the local user when using the data query param', async () => {
-            const res = await TestUtil.get(`user/activities`, 200, {
+            const res = await get(`user/activities`, 200, {
                 data: 101n
             });
 
@@ -622,7 +620,7 @@ describe('User', () => {
         });
 
         it('should respond with an empty list of activities for the local user when using the data query param with nonexistent data', async () => {
-            const res = await TestUtil.get(`user/activities`, 200, {
+            const res = await get(`user/activities`, 200, {
                 data: 1123412341n
             });
             expect(res.body.totalCount).toBe(0);
@@ -631,7 +629,7 @@ describe('User', () => {
         });
 
         it('should respond with 401 when no access token is provided', async () => {
-            await TestUtil.get(`user/activities`, 401, {}, null);
+            await get(`user/activities`, 401, {}, null);
         });
     });
 
@@ -639,7 +637,7 @@ describe('User', () => {
         const expects = (res) => expect(res.body).toBeValidPagedDto(ActivityDto);
 
         it('should retrieve a list of activities from the local users followed users', async () => {
-            const res = await TestUtil.get('user/activities/followed', 200);
+            const res = await get('user/activities/followed', 200);
 
             expect(res.body.totalCount).toBe(2);
             expect(res.body.returnCount).toBe(2);
@@ -649,15 +647,15 @@ describe('User', () => {
         });
 
         it('should respond with a limited list of activities for the user when using the take query param', async () => {
-            await TestUtil.takeTest(`user/activities/followed`, expects);
+            await takeTest(`user/activities/followed`, expects);
         });
 
         it('should respond with a different list of activities for the user when using the skip query param', async () => {
-            await TestUtil.skipTest(`user/activities/followed`, expects);
+            await skipTest(`user/activities/followed`, expects);
         });
 
         it('should respond with a filtered list of activities for the user when using the type query param', async () => {
-            const res = await TestUtil.get(`user/activities/followed`, 200, {
+            const res = await get(`user/activities/followed`, 200, {
                 type: ActivityTypes.WR_ACHIEVED
             });
 
@@ -668,7 +666,7 @@ describe('User', () => {
         });
 
         it('should respond with a filtered list of activities for the user when using the data query param', async () => {
-            const res = await TestUtil.get(`user/activities/followed`, 200, {
+            const res = await get(`user/activities/followed`, 200, {
                 data: 4n
             });
 
@@ -678,7 +676,7 @@ describe('User', () => {
         });
 
         it('should respond with an empty list of activities for the user when using the data query param with nonexistent data', async () => {
-            const res = await TestUtil.get(`user/activities/followed`, 200, {
+            const res = await get(`user/activities/followed`, 200, {
                 data: 1123412341n
             });
             expect(res.body.totalCount).toBe(0);
@@ -687,7 +685,7 @@ describe('User', () => {
         });
 
         it('should respond with an empty list of activities for a user that is not following anyone', async () => {
-            const res = await TestUtil.get(`user/activities/followed`, 200, {}, user3Token);
+            const res = await get(`user/activities/followed`, 200, {}, user3Token);
 
             expect(res.body.totalCount).toBe(0);
             expect(res.body.returnCount).toBe(0);
@@ -695,7 +693,7 @@ describe('User', () => {
         });
 
         it('should respond with 401 when no access token is provided', async () => {
-            await TestUtil.get(`user/activities/followed`, 401, {}, null);
+            await get(`user/activities/followed`, 401, {}, null);
         });
     });
 
@@ -716,7 +714,7 @@ describe('User', () => {
     describe('GET /api/v1/user/maps/library', () => {
         const expects = (res) => expect(res.body).toBeValidPagedDto(MapLibraryEntryDto);
         it('should retrieve the list of maps in the local users library', async () => {
-            const res = await TestUtil.get('user/maps/library', 200);
+            const res = await get('user/maps/library', 200);
 
             expects(res);
             expect(res.body.totalCount).toBe(2);
@@ -726,15 +724,15 @@ describe('User', () => {
         });
 
         it('should retrieve a filtered list of maps in the local users library using the take query', async () => {
-            await TestUtil.takeTest(`user/maps/library`, expects);
+            await takeTest(`user/maps/library`, expects);
         });
 
         it('should retrieve a filtered list of maps in the local users library using the skip query', async () => {
-            await TestUtil.skipTest(`user/maps/library`, expects);
+            await skipTest(`user/maps/library`, expects);
         });
 
         it('should respond with 401 when no access token is provided', async () => {
-            await TestUtil.get(`user/maps/library`, 401, {}, null);
+            await get(`user/maps/library`, 401, {}, null);
         });
     });
     //
@@ -880,7 +878,7 @@ describe('User', () => {
         const expects = (res) => expect(res.body).toBeValidPagedDto(NotificationDto);
 
         it('should respond with a list of notifications for the local user', async () => {
-            const res = await TestUtil.get('user/notifications', 200);
+            const res = await get('user/notifications', 200);
 
             expects(res);
 
@@ -892,63 +890,63 @@ describe('User', () => {
         });
 
         it('should respond with a limited list of notifications for the user when using the take query param', async () => {
-            await TestUtil.takeTest(`user/notifications`, expects);
+            await takeTest(`user/notifications`, expects);
         });
 
         it('should respond with a different list of notifications for the user when using the skip query param', async () => {
-            await TestUtil.skipTest(`user/notifications`, expects);
+            await skipTest(`user/notifications`, expects);
         });
 
         it('should respond with 401 when no access token is provided', async () => {
-            await TestUtil.get(`user/notifications`, 401, {}, null);
+            await get(`user/notifications`, 401, {}, null);
         });
     });
 
     describe('PATCH /api/v1/user/notifications/{notifID}', () => {
         it('should update the notification', async () => {
-            const res = await TestUtil.get('user/notifications', 200);
+            const res = await get('user/notifications', 200);
 
             expect(res.body.response[0].read).toBe(false);
 
-            await TestUtil.patch(`user/notifications/${res.body.response[0].id}`, 204, { read: true });
+            await patch(`user/notifications/${res.body.response[0].id}`, 204, { read: true });
 
-            const res2 = await TestUtil.get('user/notifications', 200);
+            const res2 = await get('user/notifications', 200);
 
             expect(res2.body.response[0].read).toBe(true);
         });
 
         it('should respond with 400 if the body is invalid', async () => {
-            await TestUtil.patch(`user/notifications/32476671243`, 400, { read: 'horse' });
+            await patch(`user/notifications/32476671243`, 400, { read: 'horse' });
         });
 
         it('should respond with 404 if the notification does not exist', async () => {
-            await TestUtil.patch(`user/notifications/32476671243`, 404, { read: true });
+            await patch(`user/notifications/32476671243`, 404, { read: true });
         });
 
         it('should respond with 401 when no access token is provided', async () => {
-            await TestUtil.patch(`user/notifications/1`, 401, {}, null);
+            await patch(`user/notifications/1`, 401, {}, null);
         });
     });
 
     describe('DELETE /api/v1/user/notifications/{notifID}', () => {
         it('should delete the notification', async () => {
-            const res = await TestUtil.get('user/notifications', 200);
+            const res = await get('user/notifications', 200);
 
             expect(res.body.response[0].read).toBe(false);
 
-            await TestUtil.delete(`user/notifications/${res.body.response[0].id}`, 204);
+            await del(`user/notifications/${res.body.response[0].id}`, 204);
 
-            const res2 = await TestUtil.get('user/notifications', 200);
+            const res2 = await get('user/notifications', 200);
 
             expect(res2.body.response[0].id).not.toBe(res.body.response[0].id);
         });
 
         it('should respond with 404 if the notification does not exist', async () => {
-            await TestUtil.delete(`user/notifications/324512341243`, 404);
+            await del(`user/notifications/324512341243`, 404);
         });
 
         it('should respond with 401 when no access token is provided', async () => {
-            await TestUtil.delete(`user/notifications/1`, 401, null);
+            await del(`user/notifications/1`, 401, null);
         });
     });
 
