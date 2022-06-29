@@ -21,7 +21,7 @@ import { MapCreditDto } from '../../@common/dto/map/map-credit.dto';
 import { Bans, Roles } from '../../@common/enums/user.enum';
 import { ActivityTypes } from '../../@common/enums/activity.enum';
 import { RunDto } from '../../@common/dto/run/runs.dto';
-import { DtoUtils } from '../../@common/utils/dto-utils';
+import { DtoFactory } from '../../@common/utils/dto-utils';
 import { MapNotifyDto, UpdateMapNotifyDto } from '../../@common/dto/map/map-notify.dto';
 import { MapsRepoService } from '../repo/maps-repo.service';
 import { NotificationDto, UpdateNotificationDto } from '../../@common/dto/user/notification.dto';
@@ -113,7 +113,7 @@ export class UsersService {
             delete dbResponse.mapRanks;
         }
 
-        return DtoUtils.Factory(UserDto, dbResponse);
+        return DtoFactory(UserDto, dbResponse);
     }
 
     async FindOrCreateFromGame(steamID: string): Promise<User> {
@@ -208,7 +208,7 @@ export class UsersService {
 
         if (!dbResponse) throw new NotFoundException();
 
-        return DtoUtils.Factory(ProfileDto, dbResponse);
+        return DtoFactory(ProfileDto, dbResponse);
     }
 
     public async UnlinkSocial(userID: number, type: string) {
@@ -289,7 +289,7 @@ export class UsersService {
         const localToTarget = await this.userRepo.GetFollower(localUserID, targetUserID);
         const targetToLocal = await this.userRepo.GetFollower(targetUserID, localUserID);
 
-        return DtoUtils.Factory(FollowStatusDto, {
+        return DtoFactory(FollowStatusDto, {
             local: localToTarget,
             target: targetToLocal
         });
@@ -387,7 +387,7 @@ export class UsersService {
 
         const dbResponse = await this.userRepo.GetMapNotify(userID, mapID);
 
-        return DtoUtils.Factory(MapNotifyDto, dbResponse, true);
+        return DtoFactory(MapNotifyDto, dbResponse, true);
     }
 
     public async UpdateMapNotify(userID: number, mapID: number, updateDto: UpdateMapNotifyDto) {

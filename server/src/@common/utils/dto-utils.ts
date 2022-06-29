@@ -1,19 +1,24 @@
-﻿export const DtoUtils = {
-    Factory<Type>(t: { new (): Type }, input: Record<string, unknown>, nullReturnsEmptyObject = false): Type {
-        if (!input) {
-            if (nullReturnsEmptyObject) return {} as Type;
-            return;
-        }
-
-        const dto: Type = new t();
 ﻿import { Transform } from 'class-transformer';
 
+/**
+ * Factory method for constructing DTOs from Prisma objects easily
+ * @param type - The DTO type to transform into
+ * @param input - The input data
+ * @param nullReturnsEmptyObject - Don't attempt construction if input is empty. Used by some DTOs where we want to return an empty object rather than 404
+ */
+export const DtoFactory = <T>(
+    type: { new (): T },
+    input: Record<string, unknown>,
+    nullReturnsEmptyObject = false
+): T => {
+    if (!input) return nullReturnsEmptyObject ? ({} as T) : undefined;
+    else {
+        const dto = new type();
         for (const key in input) {
             if (key && key in dto && dto[key] === undefined) {
                 dto[key] = input[key];
             }
         }
-
         return dto;
     }
 };
