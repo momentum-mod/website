@@ -88,3 +88,26 @@ export async function skipTest(url: string, testFn: (res: request.Response) => v
     expect(res2.body.returnCount).toBe(1);
     expect(res.body.response[0]).not.toBe(res2.body.response[0]);
 }
+
+export async function expandTest(
+    url: string,
+    testFn: (res: request.Response) => void,
+    expand: string,
+    paged = false,
+    expectedPropName?: string,
+    expectedPropValue?: any
+): Promise<void> {
+    expectedPropName ??= expand;
+
+    const res = await get(url, 200, { expand: expand });
+
+    testFn(res);
+
+    const t = (data) => {
+        expect(data).toHaveProperty(expectedPropName);
+        expect(data[expectedPropName]).not.toBeNull();
+        if (expectedPropValue) expect(data[expectedPropValue]).toBe(expectedPropValue);
+    };
+
+    paged ? res.body.response.every((x) => t(x)) : t(res.body);
+}
