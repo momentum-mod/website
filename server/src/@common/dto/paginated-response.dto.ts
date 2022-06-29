@@ -1,7 +1,7 @@
 import { applyDecorators, Type } from '@nestjs/common';
 import { ApiOkResponse, ApiProperty, getSchemaPath } from '@nestjs/swagger';
-import { DtoUtils } from '../utils/dto-utils';
 import { SchemaObject } from '@nestjs/swagger/dist/interfaces/open-api-spec.interface';
+import { DtoFactory } from '../utils/dto-utils';
 
 export const ApiOkPaginatedResponse = <TModel extends Type>(model: TModel, schema?: SchemaObject) => {
     return applyDecorators(
@@ -41,7 +41,7 @@ export class PaginatedResponseDto<T> {
     response: T[];
 
     constructor(c: { new (): T }, [data, count]) {
-        const dtos = data.map((x) => DtoUtils.Factory(c, x));
+        const dtos = data.map((x) => DtoFactory(c, x));
 
         this.totalCount = count;
         this.returnCount = dtos.length;

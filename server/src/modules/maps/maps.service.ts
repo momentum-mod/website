@@ -7,7 +7,7 @@ import { CreateMapDto } from '../../@common/dto/map/createMap.dto';
 import { AuthService } from '../auth/auth.service';
 import { MapStatus } from '../../@common/enums/map.enum';
 import { FileStoreCloudService } from '../filestore/file-store-cloud.service';
-import { DtoUtils } from '../../@common/utils/dto-utils';
+import { DtoFactory } from '../../@common/utils/dto-utils';
 
 @Injectable()
 export class MapsService {
@@ -28,7 +28,7 @@ export class MapsService {
     public async Get(id: number): Promise<MapDto> {
         const dbResponse = await this.mapRepo.Get(id);
 
-        return DtoUtils.Factory(MapDto, dbResponse);
+        return DtoFactory(MapDto, dbResponse);
     }
 
     public async Insert(mapCreateObj: CreateMapDto): Promise<MapDto> {
@@ -86,11 +86,11 @@ export class MapsService {
 
         const dbResponse = await this.mapRepo.Insert(createPrisma);
 
-        return DtoUtils.Factory(MapDto, dbResponse);
+        return DtoFactory(MapDto, dbResponse);
     }
 
     public async Upload(mapID: number, mapFileBuffer: Buffer): Promise<MapDto> {
-        let mapDto: MapDto = DtoUtils.Factory(MapDto, await this.mapRepo.Get(mapID));
+        let mapDto: MapDto = DtoFactory(MapDto, await this.mapRepo.Get(mapID));
 
         if (!mapDto.id) {
             return Promise.reject(new HttpException('Map not found', 404));
@@ -102,7 +102,7 @@ export class MapsService {
 
         const result = await this.storeMapFile(mapFileBuffer, mapDto);
 
-        mapDto = DtoUtils.Factory(
+        mapDto = DtoFactory(
             MapDto,
             await this.mapRepo.Update(mapDto.id, {
                 statusFlag: MapStatus.PENDING,

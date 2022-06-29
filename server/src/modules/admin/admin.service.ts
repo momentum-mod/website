@@ -9,7 +9,7 @@ import { UsersRepoService } from '../repo/users-repo.service';
 import { Follow, Prisma } from '@prisma/client';
 import { Roles } from '../../@common/enums/user.enum';
 import { AdminUpdateUserDto, UserDto } from '../../@common/dto/user/user.dto';
-import { DtoUtils } from '../../@common/utils/dto-utils';
+import { DtoFactory } from '../../@common/utils/dto-utils';
 import { MapsRepoService } from '../repo/maps-repo.service';
 import { Bitflags } from '../../@common/utils/bitflag-utils';
 
@@ -25,7 +25,7 @@ export class AdminService {
 
         const dbResponse = await this.userRepo.Create(input);
 
-        return DtoUtils.Factory(UserDto, dbResponse);
+        return DtoFactory(UserDto, dbResponse);
     }
 
     async MergeUsers(placeholderID: number, userID: number): Promise<UserDto> {
@@ -102,7 +102,7 @@ export class AdminService {
         // Fetch the merged user now everything's done
         const mergedUserDbResponse = await this.userRepo.Get(userID);
 
-        return DtoUtils.Factory(UserDto, mergedUserDbResponse);
+        return DtoFactory(UserDto, mergedUserDbResponse);
     }
 
     async UpdateUser(adminID: number, userID: number, update: AdminUpdateUserDto) {
