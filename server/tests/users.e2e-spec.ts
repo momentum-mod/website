@@ -1,7 +1,7 @@
 ﻿// noinspection DuplicatedCode
 
 import * as request from 'supertest';
-import { get, skipTest, takeTest } from './testutil';
+import { expandTest, get, skipTest, takeTest } from './testutil';
 import { ActivityTypes } from '../src/@common/enums/activity.enum';
 import { PrismaService } from '../src/modules/repo/prisma.service';
 import { MapCreditType, MapStatus, MapType } from '../src/@common/enums/map.enum';
@@ -298,13 +298,8 @@ describe('Users', () => {
             expect(res.body.avatarURL).toEqual(expect.stringContaining('https://avatars.cloudflare.steamstatic.com/'));
         });
 
-        it('should respond with the specified user with expanded profile when using an expand parameter', async () => {
-            const res = await get(`users/${user1.id}`, 200, { expand: 'profile' });
-
-            expects(res);
-            expect(res.body.profile).toHaveProperty('bio');
-            expect(res.body.profile.bio).toBe(user1.profile.bio);
-        });
+        it('should respond with the specified user with expanded profile when using an expand parameter', () =>
+            expandTest(`users/${user1.id}`, expects, 'profile'));
 
         it('should respond with the specified user with with a corresponding map rank and run when given a mapRank mapid', async () => {
             const res = await get(`users/${user1.id}`, 200, { mapRank: map1.id });

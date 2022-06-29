@@ -11,7 +11,7 @@ import { FollowStatusDto } from '../src/@common/dto/user/followers.dto';
 import { ActivityDto } from '../src/@common/dto/user/activity.dto';
 import { MapLibraryEntryDto } from '../src/@common/dto/map/library-entry';
 import { NotificationDto } from '../src/@common/dto/user/notification.dto';
-import { del, get, patch, post, put, skipTest, takeTest } from './testutil';
+import { del, expandTest, get, patch, post, put, skipTest, takeTest } from './testutil';
 
 describe('User', () => {
     let user1, user2, user2Token, user3, user3Token, admin, adminGame, adminAccessToken, map1, map2, map3, activities;
@@ -274,13 +274,7 @@ describe('User', () => {
             expect(res.body).not.toHaveProperty('profile');
         });
 
-        it('should respond with user data and expand profile data', async () => {
-            const res = await get('user', 200, { expand: 'profile' });
-
-            expects(res);
-            expect(res.body.profile).toBeValidDto(ProfileDto);
-            expect(res.body.profile.bio).toBe(user1.profile.bio);
-        });
+        it('should respond with user data and expand profile data', () => expandTest('user', expects, 'profile'));
 
         // it('should respond with user data and expand user stats', async () => {
         //     const res = await request(global.server)
