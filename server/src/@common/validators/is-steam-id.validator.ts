@@ -13,7 +13,7 @@ export function IsSteamCommunityID(validationOptions?: ValidationOptions) {
                 },
 
                 defaultMessage() {
-                    return 'SteamID must be a string representing a uint64';
+                    return `${propertyName} must be a string representing a uint64`;
                 }
             }
         });
