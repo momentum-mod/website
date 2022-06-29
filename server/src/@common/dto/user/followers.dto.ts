@@ -4,7 +4,7 @@ import { ApiProperty, ApiPropertyOptional, PickType } from '@nestjs/swagger';
 import { ActivityTypes } from '../../enums/activity.enum';
 import { IsDateString, IsDefined, ValidateNested } from 'class-validator';
 import { Exclude } from 'class-transformer';
-import { IsEnumFlag } from '../../validators/is-enum-flag';
+import { IsEnumFlag } from '../../validators/is-enum-flag.validator';
 import { DtoTransform } from '../../utils/dto-utils';
 
 export class FollowDto implements Follow {
