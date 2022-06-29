@@ -4,6 +4,7 @@ import { Transform, Type } from 'class-transformer';
 import { PaginationQuery } from './pagination.dto';
 import { IsSteamCommunityID } from '../../validators/is-steam-id.validator';
 import { ActivitiesGetQuery } from './activity-queries.dto';
+import { TransformExpansion } from '../../utils/dto-utils';
 
 export class UsersGetQuery {
     @ApiPropertyOptional({
@@ -14,7 +15,7 @@ export class UsersGetQuery {
         example: 'profile,userStats'
     })
     @IsOptional()
-    @Transform(({ value }) => value.split(','))
+    @TransformExpansion()
     expand: string[];
 
     @ApiPropertyOptional({
@@ -37,7 +38,7 @@ export class UsersGetAllQuery extends PaginationQuery {
         example: 'profile,userStats'
     })
     @IsOptional()
-    @Transform(({ value }) => value.split(','))
+    @TransformExpansion()
     expand: string[];
 
     @ApiPropertyOptional({
@@ -68,7 +69,7 @@ export class UsersGetAllQuery extends PaginationQuery {
     })
     @IsOptional()
     @IsSteamCommunityID({ each: true })
-    @Transform(({ value }) => value.split(','))
+    @TransformExpansion()
     steamIDs: string[];
 
     @ApiPropertyOptional({
@@ -106,7 +107,7 @@ export class UserMapLibraryGetQuery extends UserMapsBaseGetQuery {
         example: 'submitter,inFavorites'
     })
     @IsOptional()
-    @Transform(({ value }) => value.split(','))
+    @TransformExpansion()
     expand: string[];
 }
 
@@ -121,6 +122,6 @@ export class UserMapSubmittedGetQuery extends UserMapsBaseGetQuery {
         example: 'submitter,inFavorites'
     })
     @IsOptional()
-    @Transform(({ value }) => value.split(','))
+    @TransformExpansion()
     expand: string[];
 }

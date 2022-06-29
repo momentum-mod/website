@@ -31,3 +31,8 @@ export const DtoTransform = <T>(type: new () => T): PropertyDecorator =>
  */
 export const DtoArrayTransform = <T>(type: new () => T): PropertyDecorator =>
     Transform(({ value }) => value?.map((x) => x && DtoFactory(type, x)));
+
+/**
+ * Transform comma-separared DB expansion strings
+ */
+export const TransformExpansion = (): PropertyDecorator => Transform(({ value }) => value.split(','));
