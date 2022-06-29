@@ -1,7 +1,7 @@
 ﻿import { Report } from '@prisma/client';
 import { ApiProperty, ApiPropertyOptional, PickType } from '@nestjs/swagger';
 import { ReportCategory, ReportType } from '../../enums/report.enum';
-import { IsBoolean, IsDate, IsDateString, IsDefined, IsEnum, IsInt, IsOptional, IsString } from 'class-validator';
+import { IsBoolean, IsDateString, IsDefined, IsEnum, IsInt, IsOptional, IsString } from 'class-validator';
 
 export class ReportDto implements Report {
     @ApiProperty({
