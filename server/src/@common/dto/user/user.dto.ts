@@ -16,7 +16,7 @@ import { IsSteamCommunityID } from '../../validators/is-steam-id.validator';
 import { IsEnumFlag } from '../../validators/is-enum-flag.validator';
 import { ProfileDto } from './profile.dto';
 import { MapRankDto } from '../map/map-rank.dto';
-import { DtoTransform } from '../../utils/dto-utils';
+import { DtoTransform } from '../../utils/dto.utility';
 
 // TODO: UserStats in here in future as well
 export class UserDto implements User {

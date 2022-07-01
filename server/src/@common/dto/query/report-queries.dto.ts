@@ -2,7 +2,7 @@
 import { Transform, Type } from 'class-transformer';
 import { IsOptional } from 'class-validator';
 import { ApiPropertyOptional } from '@nestjs/swagger';
-import { QueryExpansion, QueryExpansionHandler } from '../../utils/dto-utils';
+import { QueryExpansion, QueryExpansionHandler } from '../../utils/dto.utility';
 
 export class ReportGetQuery extends PaginationQuery {
     @ApiPropertyOptional({
