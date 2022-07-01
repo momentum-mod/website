@@ -4,7 +4,7 @@ import { IsBoolean, IsDateString, IsDefined, IsInt, ValidateNested } from 'class
 import { Exclude } from 'class-transformer';
 import { ActivityDto } from './activity.dto';
 import { UserDto } from './user.dto';
-import { DtoTransform } from '../../utils/dto-utils';
+import { DtoTransform } from '../../utils/dto.utility';
 
 export class NotificationDto implements Notification {
     @ApiProperty({

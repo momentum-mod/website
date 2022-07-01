@@ -4,7 +4,7 @@ import { Transform, Type } from 'class-transformer';
 import { PaginationQuery } from './pagination.dto';
 import { IsSteamCommunityID } from '../../validators/is-steam-id.validator';
 import { ActivitiesGetQuery } from './activity-queries.dto';
-import { QueryExpansion, QueryExpansionHandler } from '../../utils/dto-utils';
+import { QueryExpansion, QueryExpansionHandler } from '../../utils/dto.utility';
 
 export class UsersGetQuery {
     @QueryExpansionHandler(['profile', 'userStats'])

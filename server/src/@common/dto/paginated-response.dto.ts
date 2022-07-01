@@ -1,7 +1,7 @@
 import { applyDecorators, Type } from '@nestjs/common';
 import { ApiOkResponse, ApiProperty, getSchemaPath } from '@nestjs/swagger';
 import { SchemaObject } from '@nestjs/swagger/dist/interfaces/open-api-spec.interface';
-import { DtoFactory } from '../utils/dto-utils';
+import { DtoFactory } from '../utils/dto.utility';
 
 export const ApiOkPaginatedResponse = <TModel extends Type>(model: TModel, schema?: SchemaObject) => {
     return applyDecorators(

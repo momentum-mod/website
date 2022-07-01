@@ -9,9 +9,9 @@ import { UsersRepoService } from '../repo/users-repo.service';
 import { Follow, Prisma } from '@prisma/client';
 import { Roles } from '../../@common/enums/user.enum';
 import { AdminUpdateUserDto, UserDto } from '../../@common/dto/user/user.dto';
-import { DtoFactory } from '../../@common/utils/dto-utils';
+import { DtoFactory } from '../../@common/utils/dto.utility';
 import { MapsRepoService } from '../repo/maps-repo.service';
-import { Bitflags } from '../../@common/utils/bitflag-utils';
+import { Bitflags } from '../../@common/utils/bitflag.utility';
 
 @Injectable()
 export class AdminService {

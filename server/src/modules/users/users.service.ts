@@ -21,7 +21,7 @@ import { MapCreditDto } from '../../@common/dto/map/map-credit.dto';
 import { Bans, Roles } from '../../@common/enums/user.enum';
 import { ActivityTypes } from '../../@common/enums/activity.enum';
 import { RunDto } from '../../@common/dto/run/runs.dto';
-import { DtoFactory, QueryExpansion } from '../../@common/utils/dto-utils';
+import { DtoFactory, QueryExpansion } from '../../@common/utils/dto.utility';
 import { MapNotifyDto, UpdateMapNotifyDto } from '../../@common/dto/map/map-notify.dto';
 import { MapsRepoService } from '../repo/maps-repo.service';
 import { NotificationDto, UpdateNotificationDto } from '../../@common/dto/user/notification.dto';
