@@ -1,7 +1,7 @@
-﻿import { Transform } from 'class-transformer';
+﻿import { Transform, Type } from 'class-transformer';
 import { applyDecorators } from '@nestjs/common';
 import { ApiPropertyOptional } from '@nestjs/swagger';
-import { IsOptional } from 'class-validator';
+import { IsInt, IsOptional } from 'class-validator';
 
 /**
  * Factory method for constructing DTOs from Prisma objects easily
@@ -40,6 +40,39 @@ export const DtoTransform = <T>(type: new () => T): PropertyDecorator =>
 export const DtoArrayTransform = <T>(type: new () => T): PropertyDecorator =>
     Transform(({ value }) => value?.map((x) => x && DtoFactory(type, x)));
 
+/**
+ * Decorator collection for skip queries
+ * @param def - The default skip value
+ */
+export const SkipQueryDecorators = (def: number): PropertyDecorator =>
+    applyDecorators(
+        ApiPropertyOptional({
+            name: 'skip',
+            type: Number,
+            default: def,
+            description: 'Skip this many records'
+        }),
+        IsOptional(),
+        Type(() => Number),
+        IsInt()
+    );
+
+/**
+ * Decorator collection for take queries
+ * @param def - The default skip value
+ */
+export const TakeQueryDecorators = (def: number): PropertyDecorator =>
+    applyDecorators(
+        ApiPropertyOptional({
+            name: 'take',
+            type: Number,
+            default: def,
+            description: 'Take this many records'
+        }),
+        IsOptional(),
+        Type(() => Number),
+        IsInt()
+    );
 
 /**
  * Transform comma-separared DB expansion strings into <string, bool> record for Prisma, and set Swagger properties

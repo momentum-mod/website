@@ -1,27 +1,9 @@
-﻿import { ApiPropertyOptional } from '@nestjs/swagger';
-import { IsInt, IsOptional } from 'class-validator';
-import { Type } from 'class-transformer';
+﻿import { SkipQueryDecorators, TakeQueryDecorators } from '../../utils/dto.utility';
 
 export class PaginationQuery {
-    @ApiPropertyOptional({
-        name: 'skip',
-        type: Number,
-        default: 0,
-        description: 'Skip this many records'
-    })
-    @IsOptional()
-    @Type(() => Number)
-    @IsInt()
+    @SkipQueryDecorators(0)
     skip = 0;
 
-    @ApiPropertyOptional({
-        name: 'take',
-        type: Number,
-        default: 20,
-        description: 'Take this many records'
-    })
-    @IsOptional()
-    @Type(() => Number)
-    @IsInt()
+    @TakeQueryDecorators(20)
     take = 20;
 }
