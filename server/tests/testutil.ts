@@ -86,7 +86,7 @@ export async function skipTest(url: string, testFn: (res: request.Response) => v
 
     expect(res.body.returnCount).toBe(1);
     expect(res2.body.returnCount).toBe(1);
-    expect(res.body.response[0]).not.toBe(res2.body.response[0]);
+    expect(res.body.response[0]).not.toEqual(res2.body.response[0]);
 }
 
 export async function expandTest(
