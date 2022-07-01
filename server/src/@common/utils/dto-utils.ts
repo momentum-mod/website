@@ -1,4 +1,7 @@
 ﻿import { Transform } from 'class-transformer';
+import { applyDecorators } from '@nestjs/common';
+import { ApiPropertyOptional } from '@nestjs/swagger';
+import { IsOptional } from 'class-validator';
 
 /**
  * Factory method for constructing DTOs from Prisma objects easily
@@ -37,7 +40,25 @@ export const DtoTransform = <T>(type: new () => T): PropertyDecorator =>
 export const DtoArrayTransform = <T>(type: new () => T): PropertyDecorator =>
     Transform(({ value }) => value?.map((x) => x && DtoFactory(type, x)));
 
+export type QueryExpansion = Record<string, boolean>;
+
 /**
- * Transform comma-separared DB expansion strings
+ * Transform comma-separared DB expansion strings into <string, bool> record for Prisma, and set Swagger properties
+ * @param expansions - String array of all the allowed expansions
  */
-export const TransformExpansion = (): PropertyDecorator => Transform(({ value }) => value.split(','));
+export const QueryExpansionHandler = (expansions: string[]): PropertyDecorator =>
+    applyDecorators(
+        ApiPropertyOptional({
+            name: 'expand',
+            type: String,
+            enum: expansions,
+            description: `Expands, comma-separated (${expansions.join(', ')}))`
+        }),
+        IsOptional,
+        Transform(({ value }) => {
+            const vals = value.split(',');
+            return expansions.reduce((expansion, item) => {
+                return { ...expansion, [item]: vals.includes(item) };
+            }, {}) as QueryExpansion;
+        })
+    );
