@@ -4,19 +4,11 @@ import { Transform, Type } from 'class-transformer';
 import { PaginationQuery } from './pagination.dto';
 import { IsSteamCommunityID } from '../../validators/is-steam-id.validator';
 import { ActivitiesGetQuery } from './activity-queries.dto';
-import { TransformExpansion } from '../../utils/dto-utils';
+import { QueryExpansion, QueryExpansionHandler } from '../../utils/dto-utils';
 
 export class UsersGetQuery {
-    @ApiPropertyOptional({
-        name: 'expand',
-        type: String,
-        enum: ['profile', 'userStats'],
-        description: 'Expand by profile and/or userStats (comma-separated)',
-        example: 'profile,userStats'
-    })
-    @IsOptional()
-    @TransformExpansion()
-    expand: string[];
+    @QueryExpansionHandler(['profile', 'userStats'])
+    expand: QueryExpansion;
 
     @ApiPropertyOptional({
         name: 'mapRank',
@@ -30,16 +22,8 @@ export class UsersGetQuery {
 }
 
 export class UsersGetAllQuery extends PaginationQuery {
-    @ApiPropertyOptional({
-        name: 'expand',
-        type: String,
-        enum: ['profile', 'userStats'],
-        description: 'Expand by profile and/or userStats (comma-separated)',
-        example: 'profile,userStats'
-    })
-    @IsOptional()
-    @TransformExpansion()
-    expand: string[];
+    @QueryExpansionHandler(['profile', 'userStats'])
+    expand: QueryExpansion;
 
     @ApiPropertyOptional({
         name: 'search',
@@ -69,7 +53,7 @@ export class UsersGetAllQuery extends PaginationQuery {
     })
     @IsOptional()
     @IsSteamCommunityID({ each: true })
-    @TransformExpansion()
+    @Transform(({ value }) => value.split(','))
     steamIDs: string[];
 
     @ApiPropertyOptional({
@@ -99,29 +83,13 @@ class UserMapsBaseGetQuery extends PaginationQuery {
 }
 
 export class UserMapLibraryGetQuery extends UserMapsBaseGetQuery {
-    @ApiPropertyOptional({
-        name: 'expand',
-        type: String,
-        enum: ['submitter', 'thumbnail', 'inFavorites'],
-        description: 'Expand by submitter, thumbnail and/or inFavorites (comma-separated)',
-        example: 'submitter,inFavorites'
-    })
-    @IsOptional()
-    @TransformExpansion()
-    expand: string[];
+    @QueryExpansionHandler(['submitter', 'thumbnail', 'inFavorites'])
+    expand: QueryExpansion;
 }
 
 export class UserMapFavoritesGetQuery extends UserMapsBaseGetQuery {}
 
 export class UserMapSubmittedGetQuery extends UserMapsBaseGetQuery {
-    @ApiPropertyOptional({
-        name: 'expand',
-        type: String,
-        enum: ['info', 'submitter', 'credits'],
-        description: 'Expand by info, submitter and/or credits (comma-separated)',
-        example: 'submitter,inFavorites'
-    })
-    @IsOptional()
-    @TransformExpansion()
-    expand: string[];
+    @QueryExpansionHandler(['info', 'submitter', 'credits'])
+    expand: QueryExpansion;
 }

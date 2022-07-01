@@ -21,7 +21,7 @@ import { MapCreditDto } from '../../@common/dto/map/map-credit.dto';
 import { Bans, Roles } from '../../@common/enums/user.enum';
 import { ActivityTypes } from '../../@common/enums/activity.enum';
 import { RunDto } from '../../@common/dto/run/runs.dto';
-import { DtoFactory } from '../../@common/utils/dto-utils';
+import { DtoFactory, QueryExpansion } from '../../@common/utils/dto-utils';
 import { MapNotifyDto, UpdateMapNotifyDto } from '../../@common/dto/map/map-notify.dto';
 import { MapsRepoService } from '../repo/maps-repo.service';
 import { NotificationDto, UpdateNotificationDto } from '../../@common/dto/user/notification.dto';
@@ -40,7 +40,7 @@ export class UsersService {
     public async GetAll(
         skip?: number,
         take?: number,
-        expand?: string[],
+        expand?: QueryExpansion,
         search?: string,
         steamID?: string,
         steamIDs?: string[],
@@ -59,12 +59,11 @@ export class UsersService {
 
         if (search) where.alias = { startsWith: search };
 
-        const include: Prisma.UserInclude = {
-            profile: Boolean(expand?.includes('profile')),
-            userStats: Boolean(expand?.includes('userStats'))
-        };
+        let include: Prisma.UserInclude = expand;
 
         if (mapRank) {
+            include ??= {};
+
             include.mapRanks = {
                 where: {
                     mapID: mapRank
@@ -84,16 +83,16 @@ export class UsersService {
             }
         });
 
-        return new PaginatedResponseDto<UserDto>(UserDto, dbResponse);
+        // return new PaginatedResponseDto<UserDto>(UserDto, dbResponse);
+        // TODO: I don't think we need to specify type here like above, check this works then remove everywhere.
+        return new PaginatedResponseDto(UserDto, dbResponse);
     }
 
-    public async Get(id: number, expand?: string[], mapRank?: number): Promise<UserDto> {
-        const include: Prisma.UserInclude = {
-            profile: Boolean(expand?.includes('profile')),
-            userStats: Boolean(expand?.includes('userStats'))
-        };
+    public async Get(id: number, expand?: QueryExpansion, mapRank?: number): Promise<UserDto> {
+        let include: Prisma.UserInclude = expand;
 
         if (mapRank) {
+            include ??= {};
             include.mapRanks = {
                 where: {
                     mapID: mapRank
@@ -368,7 +367,7 @@ export class UsersService {
         skip: number,
         take: number,
         search: string,
-        expand: string[]
+        expand: QueryExpansion
     ): Promise<PaginatedResponseDto<MapLibraryEntryDto>> {
         const dbResponse = await this.userRepo.GetMapLibraryEntry(userID, skip, take);
         // TODO: Search and expansions
