@@ -42,14 +42,14 @@ describe('Users', () => {
         user2 = await prisma.user.create({
             data: {
                 steamID: '123456789',
-                alias: 'Fred Weasley',
+                alias: 'Greg Rice',
                 country: 'GB',
                 avatar: 'ashoinudfgtbasidf87asdf',
                 roles: 0,
                 bans: 0,
                 profile: {
                     create: {
-                        bio: "Fred Weasley I (1 April, 1978 – 2 May, 1998) was an English pure-blood wizard, was the fourth son and the middle child, the most daring and dominant among the twins of Arthur Weasley and Molly Weasley (née Prewett), younger brother to Bill, Charlie and Percy, older twin brother and best friend to George Weasley, and older brother of Ron and Ginny Potter (née Weasley). Fred's first few years were marked by the height of the First Wizarding War and when Lord Voldemort fell for the first time."
+                        bio: "Holy shit, it's Greg Rice!"
                     }
                 }
             }
