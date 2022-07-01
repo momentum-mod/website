@@ -21,7 +21,7 @@ import { MapCreditDto } from '../../@common/dto/map/map-credit.dto';
 import { Bans, Roles } from '../../@common/enums/user.enum';
 import { ActivityTypes } from '../../@common/enums/activity.enum';
 import { RunDto } from '../../@common/dto/run/runs.dto';
-import { DtoFactory, QueryExpansion } from '../../@common/utils/dto.utility';
+import { DtoFactory, ExpandToPrismaIncludes } from '../../@common/utils/dto.utility';
 import { MapNotifyDto, UpdateMapNotifyDto } from '../../@common/dto/map/map-notify.dto';
 import { MapsRepoService } from '../repo/maps-repo.service';
 import { NotificationDto, UpdateNotificationDto } from '../../@common/dto/user/notification.dto';
@@ -40,7 +40,7 @@ export class UsersService {
     public async GetAll(
         skip?: number,
         take?: number,
-        expand?: QueryExpansion,
+        expand?: string[],
         search?: string,
         steamID?: string,
         steamIDs?: string[],
@@ -59,7 +59,7 @@ export class UsersService {
 
         if (search) where.alias = { startsWith: search };
 
-        let include: Prisma.UserInclude = expand;
+        let include: Prisma.UserInclude = ExpandToPrismaIncludes(expand);
 
         if (mapRank) {
             include ??= {};
@@ -88,8 +88,8 @@ export class UsersService {
         return new PaginatedResponseDto(UserDto, dbResponse);
     }
 
-    public async Get(id: number, expand?: QueryExpansion, mapRank?: number): Promise<UserDto> {
-        let include: Prisma.UserInclude = expand;
+    public async Get(id: number, expand?: string[], mapRank?: number): Promise<UserDto> {
+        let include: Prisma.UserInclude = ExpandToPrismaIncludes(expand);
 
         if (mapRank) {
             include ??= {};
@@ -367,7 +367,7 @@ export class UsersService {
         skip: number,
         take: number,
         search: string,
-        expand: QueryExpansion
+        expand: string[]
     ): Promise<PaginatedResponseDto<MapLibraryEntryDto>> {
         const dbResponse = await this.userRepo.GetMapLibraryEntry(userID, skip, take);
         // TODO: Search and expansions

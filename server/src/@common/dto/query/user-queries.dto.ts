@@ -4,11 +4,11 @@ import { Transform, Type } from 'class-transformer';
 import { PaginationQuery } from './pagination.dto';
 import { IsSteamCommunityID } from '../../validators/is-steam-id.validator';
 import { ActivitiesGetQuery } from './activity-queries.dto';
-import { QueryExpansion, QueryExpansionHandler } from '../../utils/dto.utility';
+import { ExpandQueryDecorators } from '../../utils/dto.utility';
 
 export class UsersGetQuery {
-    @QueryExpansionHandler(['profile', 'userStats'])
-    expand: QueryExpansion;
+    @ExpandQueryDecorators(['profile', 'userStats'])
+    expand: string[];
 
     @ApiPropertyOptional({
         name: 'mapRank',
@@ -22,8 +22,8 @@ export class UsersGetQuery {
 }
 
 export class UsersGetAllQuery extends PaginationQuery {
-    @QueryExpansionHandler(['profile', 'userStats'])
-    expand: QueryExpansion;
+    @ExpandQueryDecorators(['profile', 'userStats'])
+    expand: string[];
 
     @ApiPropertyOptional({
         name: 'search',
@@ -83,13 +83,13 @@ class UserMapsBaseGetQuery extends PaginationQuery {
 }
 
 export class UserMapLibraryGetQuery extends UserMapsBaseGetQuery {
-    @QueryExpansionHandler(['submitter', 'thumbnail', 'inFavorites'])
-    expand: QueryExpansion;
+    @ExpandQueryDecorators(['submitter', 'thumbnail', 'inFavorites'])
+    expand: string[];
 }
 
 export class UserMapFavoritesGetQuery extends UserMapsBaseGetQuery {}
 
 export class UserMapSubmittedGetQuery extends UserMapsBaseGetQuery {
-    @QueryExpansionHandler(['info', 'submitter', 'credits'])
-    expand: QueryExpansion;
+    @ExpandQueryDecorators(['info', 'submitter', 'credits'])
+    expand: string[];
 }

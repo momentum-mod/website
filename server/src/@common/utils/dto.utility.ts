@@ -40,13 +40,12 @@ export const DtoTransform = <T>(type: new () => T): PropertyDecorator =>
 export const DtoArrayTransform = <T>(type: new () => T): PropertyDecorator =>
     Transform(({ value }) => value?.map((x) => x && DtoFactory(type, x)));
 
-export type QueryExpansion = Record<string, boolean>;
 
 /**
  * Transform comma-separared DB expansion strings into <string, bool> record for Prisma, and set Swagger properties
  * @param expansions - String array of all the allowed expansions
  */
-export const QueryExpansionHandler = (expansions: string[]): PropertyDecorator =>
+export const ExpandQueryDecorators = (expansions: string[]): PropertyDecorator =>
     applyDecorators(
         ApiPropertyOptional({
             name: 'expand',
@@ -55,10 +54,10 @@ export const QueryExpansionHandler = (expansions: string[]): PropertyDecorator =
             description: `Expands, comma-separated (${expansions.join(', ')}))`
         }),
         IsOptional,
-        Transform(({ value }) => {
-            const vals = value.split(',');
-            return expansions.reduce((expansion, item) => {
-                return { ...expansion, [item]: vals.includes(item) };
-            }, {}) as QueryExpansion;
-        })
+        Transform(({ value }) => value.split(','))
     );
+
+export const ExpandToPrismaIncludes = (expansions: string[]): Record<string, boolean> | undefined =>
+    expansions?.reduce((expansion, item) => {
+        return { ...expansion, [item]: true };
+    }, {}) as Record<string, boolean>;
