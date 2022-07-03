@@ -34,7 +34,7 @@ import { ApiOkPaginatedResponse, PaginatedResponseDto } from '../../@common/dto/
 import { ActivityDto } from '../../@common/dto/user/activity.dto';
 import { PaginationQuery } from '../../@common/dto/query/pagination.dto';
 import { NotificationDto, UpdateNotificationDto } from '../../@common/dto/user/notification.dto';
-import { MapLibraryEntryDto } from '../../@common/dto/map/library-entry';
+import { MapLibraryEntryDto } from '../../@common/dto/map/map-library-entry';
 import {
     UserMapLibraryGetQuery,
     UserMapSubmittedGetQuery,

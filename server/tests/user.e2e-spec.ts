@@ -9,7 +9,7 @@ import { UserDto } from '../src/@common/dto/user/user.dto';
 import { ProfileDto } from '../src/@common/dto/user/profile.dto';
 import { FollowStatusDto } from '../src/@common/dto/user/followers.dto';
 import { ActivityDto } from '../src/@common/dto/user/activity.dto';
-import { MapLibraryEntryDto } from '../src/@common/dto/map/library-entry';
+import { MapLibraryEntryDto } from '../src/@common/dto/map/map-library-entry';
 import { NotificationDto } from '../src/@common/dto/user/notification.dto';
 import { del, expandTest, get, patch, post, put, skipTest, takeTest } from './testutil';
 import { MapFavoriteDto } from '../src/@common/dto/map/map-favorite.dto';

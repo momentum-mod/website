@@ -11,7 +11,7 @@ import { IsMapName } from '../../validators/is-map-name.validator';
 import { BaseStatsDto } from '../stats/base-stats.dto';
 import { CreateMapCreditDto, MapCreditDto } from './map-credit.dto';
 import { MapFavoriteDto } from './map-favorite.dto';
-import { MapLibraryEntryDto } from './library-entry';
+import { MapLibraryEntryDto } from './map-library-entry';
 import { MapRankDto } from './map-rank.dto';
 import { Transform } from 'class-transformer';
 

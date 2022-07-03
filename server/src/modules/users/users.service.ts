@@ -25,7 +25,7 @@ import { DtoFactory, ExpandToPrismaIncludes } from '../../@common/utils/dto.util
 import { MapNotifyDto, UpdateMapNotifyDto } from '../../@common/dto/map/map-notify.dto';
 import { MapsRepoService } from '../repo/maps-repo.service';
 import { NotificationDto, UpdateNotificationDto } from '../../@common/dto/user/notification.dto';
-import { MapLibraryEntryDto } from '../../@common/dto/map/library-entry';
+import { MapLibraryEntryDto } from '../../@common/dto/map/map-library-entry';
 import { MapFavoriteDto } from '../../@common/dto/map/map-favorite.dto';
 
 @Injectable()
