@@ -16,7 +16,7 @@ import { IsSteamCommunityID } from '../../validators/is-steam-id.validator';
 import { IsEnumFlag } from '../../validators/is-enum-flag.validator';
 import { ProfileDto } from './profile.dto';
 import { MapRankDto } from '../map/map-rank.dto';
-import { DtoTransform } from '../../utils/dto.utility';
+import { DtoFactory } from '../../utils/dto.utility';
 
 // TODO: UserStats in here in future as well
 export class UserDto implements User {
@@ -72,22 +72,15 @@ export class UserDto implements User {
     @Exclude()
     avatar: string;
 
-    @ApiPropertyOptional({
-        type: ProfileDto,
-        description: "The user's profile."
-    })
-    @DtoTransform(ProfileDto)
+    @ApiProperty({ description: "The user's profile" })
+    @Transform(({ value }) => DtoFactory(ProfileDto, value))
     @ValidateNested()
-    profile?: ProfileDto;
+    profile: ProfileDto;
 
-    @ApiPropertyOptional({
-        type: MapRankDto,
-        description: 'The map rank data for the user on a specific map'
-    })
-    @IsOptional()
-    @DtoTransform(MapRankDto)
+    @ApiProperty({ description: 'The map rank data for the user on a specific map' })
+    @Transform(({ value }) => DtoFactory(MapRankDto, value))
     @ValidateNested()
-    mapRank?: MapRankDto;
+    mapRank: MapRankDto;
 
     @ApiProperty()
     @IsDefined()

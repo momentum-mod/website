@@ -87,7 +87,10 @@ export class UserMapLibraryGetQuery extends UserMapsBaseGetQuery {
     expand: string[];
 }
 
-export class UserMapFavoritesGetQuery extends UserMapsBaseGetQuery {}
+export class UserMapFavoritesGetQuery extends UserMapsBaseGetQuery {
+    @ExpandQueryDecorators(['submitter', 'thumbnail', 'inFavorites'])
+    expand: string[];
+}
 
 export class UserMapSubmittedGetQuery extends UserMapsBaseGetQuery {
     @ExpandQueryDecorators(['info', 'submitter', 'credits'])

@@ -1,10 +1,11 @@
 import { Activity } from '@prisma/client';
 import { ActivityTypes } from '../../enums/activity.enum';
 import { ApiProperty } from '@nestjs/swagger';
-import { IsDateString, IsDefined, IsInt, IsOptional } from 'class-validator';
+import { IsDateString, IsDefined, IsInt, ValidateNested } from 'class-validator';
 import { UserDto } from './user.dto';
-import { DtoTransform } from '../../utils/dto.utility';
+import { DtoFactory } from '../../utils/dto.utility';
 import { IsEnumFlag } from '../../validators/is-enum-flag.validator';
+import { Transform } from 'class-transformer';
 
 export class ActivityDto implements Activity {
     @ApiProperty({
@@ -23,12 +24,9 @@ export class ActivityDto implements Activity {
     @IsInt()
     userID: number;
 
-    @ApiProperty({
-        type: UserDto,
-        description: 'The user the activity is associated with'
-    })
-    @IsOptional()
-    @DtoTransform(UserDto)
+    @ApiProperty()
+    @Transform(({ value }) => DtoFactory(UserDto, value))
+    @ValidateNested()
     user: UserDto;
 
     @ApiProperty({
