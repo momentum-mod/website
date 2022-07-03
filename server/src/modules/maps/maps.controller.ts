@@ -1,10 +1,13 @@
-import { Body, Controller, Get, Param, Post, Query, UploadedFile, UseInterceptors } from '@nestjs/common';
-import { ApiBearerAuth, ApiBody, ApiOperation, ApiQuery, ApiTags, ApiParam, ApiConsumes } from '@nestjs/swagger';
-import { PaginatedResponseDto } from '../../@common/dto/paginated-response.dto';
+import { Body, Controller, Get, Param, ParseIntPipe, Post, Query, UploadedFile, UseInterceptors } from '@nestjs/common';
+import { ApiBearerAuth, ApiBody, ApiOperation, ApiTags, ApiParam, ApiConsumes } from '@nestjs/swagger';
+import { ApiOkPaginatedResponse, PaginatedResponseDto } from '../../@common/dto/paginated-response.dto';
 import { MapsService } from './maps.service';
-import { MapDto } from '../../@common/dto/map/map.dto';
-import { CreateMapDto } from '../../@common/dto/map/createMap.dto';
+import { CreateMapDto, MapDto } from '../../@common/dto/map/map.dto';
 import { FileInterceptor } from '@nestjs/platform-express';
+import { MapsGetAllQuery } from '../../@common/dto/query/map-queries.dto';
+import { Roles } from '../../@common/decorators/roles.decorator';
+import { Roles as RolesEnum } from '../../@common/enums/user.enum';
+import { LoggedInUser } from '../../@common/decorators/logged-in-user.decorator';
 
 @ApiBearerAuth()
 @Controller('api/v1/maps')
@@ -14,23 +17,35 @@ export class MapsController {
 
     @Get()
     @ApiOperation({ summary: 'Returns all maps' })
-    @ApiQuery({
-        name: 'skip',
-        type: Number,
-        description: 'Offset this many records',
-        required: false
-    })
-    @ApiQuery({
-        name: 'take',
-        type: Number,
-        description: 'Take this many records',
-        required: false
-    })
+    @ApiOkPaginatedResponse(MapDto, { description: 'Paginated list of maps' })
     public GetAllMaps(
-        @Query('skip') skip?: number,
-        @Query('take') take?: number
+        @LoggedInUser('id') userID: number,
+        @Query() query?: MapsGetAllQuery
     ): Promise<PaginatedResponseDto<MapDto>> {
-        return this.mapsService.GetAll(skip, take);
+        return this.mapsService.GetAll(
+            userID,
+            query.skip,
+            query.take,
+            query.expand,
+            query.search,
+            query.submitterID,
+            query.type,
+            query.difficultyLow,
+            query.difficultyHigh,
+            query.isLinear
+        );
+    }
+
+    @Post()
+    @Roles(RolesEnum.MAPPER)
+    @ApiOperation({ summary: 'Creates a single map' })
+    @ApiBody({
+        type: CreateMapDto,
+        description: 'Create map data transfer object',
+        required: true
+    })
+    public CreateMap(@Body() body: CreateMapDto): Promise<MapDto> {
+        return this.mapsService.Insert(body);
     }
 
     @Get('/:mapID')
@@ -41,19 +56,8 @@ export class MapsController {
         description: 'Target Map ID',
         required: true
     })
-    public GetMap(@Param('mapID') mapID: number): Promise<MapDto> {
+    public GetMap(@Param('mapID', ParseIntPipe) mapID: number): Promise<MapDto> {
         return this.mapsService.Get(mapID);
-    }
-
-    @Post()
-    @ApiOperation({ summary: 'Creates a single map' })
-    @ApiBody({
-        type: CreateMapDto,
-        description: 'Create map data transfer object',
-        required: true
-    })
-    public CreateMap(@Body() mapCreateObj: CreateMapDto): Promise<MapDto> {
-        return this.mapsService.Insert(mapCreateObj);
     }
 
     @Post('/:mapID/upload')

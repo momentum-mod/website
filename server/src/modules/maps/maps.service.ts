@@ -1,13 +1,12 @@
 import { HttpException, Injectable } from '@nestjs/common';
-import { Map, MapImage, Prisma, User } from '@prisma/client';
-import { MapDto } from '../../@common/dto/map/map.dto';
+import { Prisma } from '@prisma/client';
+import { CreateMapDto, MapDto } from '../../@common/dto/map/map.dto';
 import { PaginatedResponseDto } from '../../@common/dto/paginated-response.dto';
 import { MapsRepoService } from '../repo/maps-repo.service';
-import { CreateMapDto } from '../../@common/dto/map/createMap.dto';
 import { AuthService } from '../auth/auth.service';
-import { MapStatus } from '../../@common/enums/map.enum';
+import { MapStatus, MapType } from '../../@common/enums/map.enum';
 import { FileStoreCloudService } from '../filestore/file-store-cloud.service';
-import { DtoFactory } from '../../@common/utils/dto-utils';
+import { DtoFactory, ExpandToPrismaIncludes } from '../../@common/utils/dto.utility';
 
 @Injectable()
 export class MapsService {
@@ -19,10 +18,73 @@ export class MapsService {
 
     //#region Public
 
-    public async GetAll(skip?: number, take?: number): Promise<PaginatedResponseDto<MapDto>> {
-        const dbResponse = await this.mapRepo.GetAll(undefined, skip, take);
+    public async GetAll(
+        userID: number,
+        skip: number,
+        take: number,
+        expand?: string[],
+        search?: string,
+        submitterID?: number,
+        type?: MapType,
+        difficultyLow?: number,
+        difficultyHigh?: number,
+        isLinear?: boolean
+    ): Promise<PaginatedResponseDto<MapDto>> {
+        // Old API has some stuff for "status" and "statusNot" and "priority" but isn't in docs or validations or
+        // used anywhere in client/game, leaving for now.
 
-        return new PaginatedResponseDto<MapDto>(MapDto, dbResponse);
+        // Where
+        const where: Prisma.MapWhereInput = {};
+
+        if (search) where.name = { startsWith: search };
+        if (submitterID) where.submitterID = submitterID;
+        if (type) where.type = type;
+
+        // Include
+        const include: Prisma.MapInclude = {
+            // TODO: old api does `as: "mainTrack"`??
+            tracks: { where: { trackNum: 0 } },
+            info: true,
+            ...ExpandToPrismaIncludes(expand?.filter((x) => ['credits', 'thumbnail'].includes(x)))
+        };
+
+        if (expand?.includes('inFavorites')) include.favorites = { where: { userID: userID } };
+        if (expand?.includes('inLibrary')) include.libraryEntries = { where: { userID: userID } };
+
+        const incPB = expand?.includes('personalBest');
+        const incWR = expand?.includes('worldRecord');
+        if (incPB || incWR) {
+            include.ranks = { include: { run: true, user: true } };
+            if (incPB && incWR) {
+                include.ranks.where = { OR: [{ userID: userID }, { rank: 1 }] };
+            } else if (incPB) {
+                include.ranks.where = { userID: userID };
+            } else {
+                include.ranks.where = { rank: 1 };
+            }
+        }
+
+        // Order
+        const order: Prisma.MapOrderByWithRelationInput = { createdAt: 'desc' };
+
+        const dbResponse = await this.mapRepo.GetAll(where, include, order, skip, take);
+
+        if (incPB || incWR) {
+            dbResponse[0].forEach((mapObj: any) => {
+                if (incPB && incWR) {
+                    mapObj.worldRecord = mapObj.ranks.find((r) => r.rank === 1);
+                    mapObj.personalBest = mapObj.ranks.find((r) => r.userID === userID);
+                } else if (incPB) {
+                    mapObj.personalBest = mapObj.ranks[0];
+                } else {
+                    mapObj.worldRecord = mapObj.ranks[0];
+                }
+                delete mapObj.ranks;
+            });
+        }
+
+        console.log('dbreponse', JSON.stringify(dbResponse));
+        return new PaginatedResponseDto(MapDto, dbResponse);
     }
 
     public async Get(id: number): Promise<MapDto> {
@@ -42,51 +104,51 @@ export class MapsService {
         }
 
         // create
-        const createPrisma: Prisma.MapCreateInput = {
-            submitter: {
-                connect: {
-                    id: this.authService.loggedInUser.id
-                }
-            },
-            name: mapCreateObj.name,
-            type: mapCreateObj.type,
-            info: {
-                create: {
-                    numTracks: mapCreateObj.info.numTracks,
-                    description: mapCreateObj.info.description,
-                    creationDate: mapCreateObj.info.creationDate,
-                    youtubeID: mapCreateObj.info.youtubeID
-                }
-            },
-            tracks: {
-                createMany: {
-                    data: mapCreateObj.tracks.map((track) => {
-                        return {
-                            isLinear: track.isLinear,
-                            numZones: track.numZones,
-                            trackNum: track.trackNum,
-                            difficulty: track.difficulty
-                        };
-                    })
-                }
-            },
-            credits: {
-                createMany: {
-                    data: mapCreateObj.credits.map((credit) => {
-                        return {
-                            type: credit.type,
-                            userID: credit.userID,
-                            createdAt: new Date(),
-                            updatedAt: new Date()
-                        };
-                    })
-                }
-            }
-        };
+        // const createPrisma: Prisma.MapCreateInput = {
+        //     submitter: {
+        //         connect: {
+        //             id: this.authService.loggedInUser.id
+        //         }
+        //     },
+        //     name: mapCreateObj.name,
+        //     type: mapCreateObj.type,
+        //     info: {
+        //         create: {
+        //             numTracks: mapCreateObj.info.numTracks,
+        //             description: mapCreateObj.info.description,
+        //             creationDate: mapCreateObj.info.creationDate,
+        //             youtubeID: mapCreateObj.info.youtubeID
+        //         }
+        //     },
+        //     tracks: {
+        //         createMany: {
+        //             data: mapCreateObj.tracks.map((track) => {
+        //                 return {
+        //                     isLinear: track.isLinear,
+        //                     numZones: track.numZones,
+        //                     trackNum: track.trackNum,
+        //                     difficulty: track.difficulty
+        //                 };
+        //             })
+        //         }
+        //     },
+        //     credits: {
+        //         createMany: {
+        //             data: mapCreateObj.credits.map((credit) => {
+        //                 return {
+        //                     type: credit.type,
+        //                     userID: credit.userID,
+        //                     createdAt: new Date(),
+        //                     updatedAt: new Date()
+        //                 };
+        //             })
+        //         }
+        //     }
+        // };
 
-        const dbResponse = await this.mapRepo.Insert(createPrisma);
+        // const dbResponse = await this.mapRepo.Insert(createPrisma);
 
-        return DtoFactory(MapDto, dbResponse);
+        // return DtoFactory(MapDto, dbResponse);
     }
 
     public async Upload(mapID: number, mapFileBuffer: Buffer): Promise<MapDto> {

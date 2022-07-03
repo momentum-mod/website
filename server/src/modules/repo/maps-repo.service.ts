@@ -1,4 +1,4 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { PrismaService } from './prisma.service';
 import { Map, Prisma } from '@prisma/client';
 
@@ -7,60 +7,55 @@ export class MapsRepoService {
     constructor(private prisma: PrismaService) {}
 
     /**
-     * @summary Inserts to database
-     * @returns New db record ID
+     * @summary Insert map into database
+     * @returns New DB record ID
      */
-    async Insert(newMap: Prisma.MapCreateInput): Promise<Map> {
-        const result = await this.prisma.map.create({
-            data: newMap
+    async Insert(input: Prisma.MapCreateInput): Promise<Map> {
+        return await this.prisma.map.create({
+            data: input
         });
-
-        return result;
     }
 
-    async Update(mapId: number, updateArgs: Partial<Map>): Promise<Map> {
-        const result = await this.prisma.map.update({
-            where: {
-                id: mapId != null ? +mapId : undefined
-            },
-            data: updateArgs
+    async Update(mapId: number, data: Prisma.MapUpdateInput): Promise<Map> {
+        return await this.prisma.map.update({
+            where: { id: mapId },
+            data: data
         });
-
-        return result;
     }
 
     /**
      * @summary Gets all from database
      * @returns All maps
      */
-    async GetAll(where?: Prisma.MapWhereInput, skip?: number, take?: number): Promise<[Map[], number]> {
+    async GetAll(
+        where: Prisma.MapWhereInput,
+        include?: Prisma.MapInclude,
+        order?: Prisma.MapOrderByWithRelationInput,
+        skip?: number,
+        take?: number
+    ): Promise<[Map[], number]> {
         const count = await this.prisma.map.count({
             where: where
         });
+
         const maps = await this.prisma.map.findMany({
             where: where,
-            skip: skip != null ? +skip : undefined,
-            take: take != null ? +take : undefined,
-            include: {
-                images: true
-            }
+            skip: skip,
+            take: take,
+            include: include
         });
+
         return [maps, count];
     }
 
     /**
-     * @summary Gets single from database
-     * @returns Single maps
+     * @summary Gets single map from database
+     * @returns A map
      */
-    async Get(id: number): Promise<Map> {
-        const where: Prisma.MapWhereUniqueInput = {};
-        where.id = id != null ? +id : undefined;
-
+    async Get(id: number, include?: Prisma.MapInclude): Promise<Map> {
         return await this.prisma.map.findFirst({
-            where: where,
-            include: {
-                images: true
-            }
+            where: { id: id },
+            include: include
         });
     }
 
