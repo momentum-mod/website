@@ -83,7 +83,6 @@ export class MapsService {
             });
         }
 
-        console.log('dbreponse', JSON.stringify(dbResponse));
         return new PaginatedResponseDto(MapDto, dbResponse);
     }
 
