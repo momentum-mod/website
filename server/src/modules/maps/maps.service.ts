@@ -1,5 +1,5 @@
-import { HttpException, Injectable } from '@nestjs/common';
-import { Prisma } from '@prisma/client';
+import { HttpException, Injectable, NotFoundException } from '@nestjs/common';
+import { Prisma, Map as MapDB } from '@prisma/client';
 import { CreateMapDto, MapDto } from '../../@common/dto/map/map.dto';
 import { PaginatedResponseDto } from '../../@common/dto/paginated-response.dto';
 import { MapsRepoService } from '../repo/maps-repo.service';
@@ -42,27 +42,22 @@ export class MapsService {
 
         // Include
         const include: Prisma.MapInclude = {
-            // TODO: old api does `as: "mainTrack"`??
-            tracks: { where: { trackNum: 0 } },
+            tracks: { where: { trackNum: 0 } }, // TODO: old api does `as: "mainTrack"`??
             info: true,
             ...ExpandToPrismaIncludes(expand?.filter((x) => ['credits', 'thumbnail'].includes(x)))
         };
 
-        if (expand?.includes('inFavorites')) include.favorites = { where: { userID: userID } };
-        if (expand?.includes('inLibrary')) include.libraryEntries = { where: { userID: userID } };
-
         const incPB = expand?.includes('personalBest');
         const incWR = expand?.includes('worldRecord');
-        if (incPB || incWR) {
-            include.ranks = { include: { run: true, user: true } };
-            if (incPB && incWR) {
-                include.ranks.where = { OR: [{ userID: userID }, { rank: 1 }] };
-            } else if (incPB) {
-                include.ranks.where = { userID: userID };
-            } else {
-                include.ranks.where = { rank: 1 };
-            }
-        }
+
+        MapsService.HandleMapGetIncludes(
+            include,
+            userID,
+            expand?.includes('inFavorites'),
+            expand?.includes('inLibrary'),
+            incPB,
+            incWR
+        );
 
         // Order
         const order: Prisma.MapOrderByWithRelationInput = { createdAt: 'desc' };
@@ -70,26 +65,75 @@ export class MapsService {
         const dbResponse = await this.mapRepo.GetAll(where, include, order, skip, take);
 
         if (incPB || incWR) {
-            dbResponse[0].forEach((mapObj: any) => {
-                if (incPB && incWR) {
-                    mapObj.worldRecord = mapObj.ranks.find((r) => r.rank === 1);
-                    mapObj.personalBest = mapObj.ranks.find((r) => r.userID === userID);
-                } else if (incPB) {
-                    mapObj.personalBest = mapObj.ranks[0];
-                } else {
-                    mapObj.worldRecord = mapObj.ranks[0];
-                }
-                delete mapObj.ranks;
-            });
+            dbResponse[0].forEach((map) => MapsService.HandleMapGetPrismaResponse(map, userID, incPB, incWR));
         }
 
         return new PaginatedResponseDto(MapDto, dbResponse);
     }
 
-    public async Get(id: number): Promise<MapDto> {
-        const dbResponse = await this.mapRepo.Get(id);
+    public async Get(mapID: number, userID: number, expand: string[]): Promise<MapDto> {
+        const include: Prisma.MapInclude = ExpandToPrismaIncludes(
+            expand?.filter((x) =>
+                ['info', 'credits', 'submitter', 'images', 'thumbnail', 'stats', 'tracks'].includes(x)
+            )
+        );
+
+        const incPB = expand?.includes('personalBest');
+        const incWR = expand?.includes('worldRecord');
+
+        MapsService.HandleMapGetIncludes(
+            include,
+            userID,
+            expand?.includes('inFavorites'),
+            expand?.includes('inLibrary'),
+            incPB,
+            incWR
+        );
+
+        const dbResponse = await this.mapRepo.Get(mapID, include);
+
+        if (!dbResponse) throw new NotFoundException('Map not found');
+
+        if (incPB || incWR) {
+            MapsService.HandleMapGetPrismaResponse(dbResponse, userID, incPB, incWR);
+        }
 
         return DtoFactory(MapDto, dbResponse);
+    }
+
+    private static HandleMapGetIncludes(
+        include: Prisma.MapInclude,
+        userID: number,
+        fav: boolean,
+        lib: boolean,
+        PB: boolean,
+        WR: boolean
+    ): void {
+        if (fav) include.favorites = { where: { userID: userID } };
+        if (lib) include.libraryEntries = { where: { userID: userID } };
+
+        if (PB || WR) {
+            include.ranks = { include: { run: true, user: true } };
+            if (PB && WR) {
+                include.ranks.where = { OR: [{ userID: userID }, { rank: 1 }] };
+            } else if (PB) {
+                include.ranks.where = { userID: userID };
+            } else {
+                include.ranks.where = { rank: 1 };
+            }
+        }
+    }
+
+    private static HandleMapGetPrismaResponse(mapObj: any, userID: number, PB: boolean, WR: boolean): void {
+        if (PB && WR) {
+            mapObj.worldRecord = mapObj.ranks.find((r) => r.rank === 1);
+            mapObj.personalBest = mapObj.ranks.find((r) => r.userID === userID);
+        } else if (PB) {
+            mapObj.personalBest = mapObj.ranks[0];
+        } else {
+            mapObj.worldRecord = mapObj.ranks[0];
+        }
+        delete mapObj.ranks;
     }
 
     public async Insert(mapCreateObj: CreateMapDto): Promise<MapDto> {

@@ -271,6 +271,7 @@ describe('Maps', () => {
             res.body.response.forEach((x) => expect(x).toHaveProperty('tracks'));
             res.body.response.forEach((x) => expect(x).toHaveProperty('info'));
         };
+        const filter = (x) => x.id === map.id;
 
         it('should respond with map data', async () => {
             const res = await get('maps', 200);
@@ -311,17 +312,17 @@ describe('Maps', () => {
             expect(res.body.response[0].type).toBe(map.type);
         });
 
-        it('should respond with filtered map data using the credits expand info parameter', () =>
-            expandTest('maps', expects, 'credits', true));
+        it('should respond with expanded map data using the credits expand parameter', () =>
+            expandTest('maps', expects, 'credits', true, filter));
 
-        it('should respond with filtered map data using the thumbnail expand info parameter', () =>
-            expandTest('maps', expects, 'thumbnail', true, (x) => x.id === map.id));
+        it('should respond with expanded map data using the thumbnail expand parameter', () =>
+            expandTest('maps', expects, 'thumbnail', true, filter));
 
-        it("should respond with whether the map is in the logged in user's library when using the inLibrary expansion", () =>
-            expandTest('maps', expects, 'inLibrary', true, (x) => x.id === map.id, 'libraryEntries'));
+        it("should respond with expanded map data if the map is in the logged in user's library when using the inLibrary expansion", () =>
+            expandTest('maps', expects, 'inLibrary', true, filter, 'libraryEntries'));
 
-        it("should respond with whether the map is in the logged in user's library when using the inFavorites expansion", () =>
-            expandTest('maps', expects, 'inFavorites', true, (x) => x.id === map.id, 'favorites'));
+        it("should respond with expanded map data if the map is in the logged in user's library when using the inFavorites expansion", () =>
+            expandTest('maps', expects, 'inFavorites', true, filter, 'favorites'));
 
         it("should respond with the map's WR when using the worldRecord expansion", async () => {
             const res = await get('maps', 200, { expand: 'worldRecord' });
@@ -409,10 +410,7 @@ describe('Maps', () => {
 
     describe('GET maps/{mapID}', () => {
         const expects = (res) => expect(res.body).toBeValidDto(MapDto);
-
-        it('should respond with 404 when the map is not found', () => get('maps/jump_beef_2', 404));
-
-        it('should respond with 401 when no access token is provided', () => get('maps/' + map.id, 401));
+        const filter = (x) => x.id === map.id;
 
         it('should respond with map data', async () => {
             const res = await get(`maps/${map.id}`, 200);
@@ -420,24 +418,69 @@ describe('Maps', () => {
             expects(res);
         });
 
-        makeExpandTests(
-            // `maps/${map.id}`, // aaaaaaaaargh idk how to do this
-            `maps/1`,
-            expects,
-            [
-                'info',
-                'credits',
-                'submitter',
-                'images',
-                'thumbnail',
-                'stats',
-                'tracks',
-                'inLibrary',
-                'personalBest',
-                'worldRecord'
-            ],
-            'should respond with filtered map data using the @ expand info parameter'
-        );
+        it('should respond with expanded map data using the credits expand parameter', () =>
+            expandTest(`maps/${map.id}`, expects, 'credits', false, filter));
+
+        it('should respond with expanded map data using the info expand parameter', () =>
+            expandTest(`maps/${map.id}`, expects, 'info', false, filter));
+
+        it('should respond with expanded map data using the submitter expand parameter', () =>
+            expandTest(`maps/${map.id}`, expects, 'submitter', false, filter));
+
+        it('should respond with expanded map data using the images expand  parameter', () =>
+            expandTest(`maps/${map.id}`, expects, 'images', false, filter));
+
+        it('should respond with expanded map data using the thumbnail expand  parameter', () =>
+            expandTest(`maps/${map.id}`, expects, 'thumbnail', false, filter));
+
+        it('should respond with expanded map data using the stats expand info parameter', () =>
+            expandTest(`maps/${map.id}`, expects, 'stats', false, filter));
+
+        it('should respond with expanded map data using the tracks expand info parameter', () =>
+            expandTest(`maps/${map.id}`, expects, 'tracks', false, filter));
+
+        it("should respond with expanded map data if the map is in the logged in user's library when using the inLibrary expansion", () =>
+            expandTest(`maps/${map.id}`, expects, 'inLibrary', false, filter, 'libraryEntries'));
+
+        it("should respond with expanded map data if the map is in the logged in user's library when using the inFavorites expansion", () =>
+            expandTest(`maps/${map.id}`, expects, 'inFavorites', false, filter, 'favorites'));
+
+        it("should respond with the map's WR when using the worldRecord expansion", async () => {
+            const res = await get(`maps/${map.id}`, 200, { expand: 'worldRecord' });
+
+            expects(res);
+
+            expect(res.body.worldRecord).toBeValidDto(MapRankDto);
+            expect(res.body.worldRecord.rank).toBe(1);
+            expect(res.body.worldRecord.user.id).toBe(admin.id);
+        });
+
+        it("should respond with the logged in user's PB when using the personalBest expansion", async () => {
+            const res = await get(`maps/${map.id}`, 200, { expand: 'personalBest' });
+
+            expects(res);
+
+            expect(res.body.personalBest).toBeValidDto(MapRankDto);
+            expect(res.body.personalBest.rank).toBe(2);
+            expect(res.body.personalBest.user.id).toBe(user.id);
+        });
+
+        it('should respond properly with both personalBest and worldRecord expansions', async () => {
+            const res = await get(`maps/${map.id}`, 200, { expand: 'worldRecord,personalBest' });
+
+            expects(res);
+
+            expect(res.body.worldRecord).toBeValidDto(MapRankDto);
+            expect(res.body.worldRecord.rank).toBe(1);
+            expect(res.body.worldRecord.user.id).toBe(admin.id);
+            expect(res.body.personalBest).toBeValidDto(MapRankDto);
+            expect(res.body.personalBest.rank).toBe(2);
+            expect(res.body.personalBest.user.id).toBe(user.id);
+        });
+
+        it('should respond with 404 when the map is not found', () => get('maps/6000000000', 404));
+
+        it('should respond with 401 when no access token is provided', () => get('maps/' + map.id, 401, {}, null));
     });
 
     describe('GET maps/{mapID}/info', () => {

@@ -113,11 +113,12 @@ export class MapsGetAllQuery extends MapsGetAllBaseQuery {
 
 export class MapsGetQuery {
     @ExpandQueryDecorators([
+        'info',
         'credits',
         'submitter',
         'images',
         'thumbnail',
-        'mapStats',
+        'stats',
         'inFavorites',
         'inLibrary',
         'personalBest',

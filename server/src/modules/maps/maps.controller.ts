@@ -1,10 +1,19 @@
 import { Body, Controller, Get, Param, ParseIntPipe, Post, Query, UploadedFile, UseInterceptors } from '@nestjs/common';
-import { ApiBearerAuth, ApiBody, ApiOperation, ApiTags, ApiParam, ApiConsumes } from '@nestjs/swagger';
+import {
+    ApiBearerAuth,
+    ApiBody,
+    ApiOperation,
+    ApiTags,
+    ApiParam,
+    ApiConsumes,
+    ApiNotFoundResponse,
+    ApiOkResponse
+} from '@nestjs/swagger';
 import { ApiOkPaginatedResponse, PaginatedResponseDto } from '../../@common/dto/paginated-response.dto';
 import { MapsService } from './maps.service';
 import { CreateMapDto, MapDto } from '../../@common/dto/map/map.dto';
 import { FileInterceptor } from '@nestjs/platform-express';
-import { MapsGetAllQuery } from '../../@common/dto/query/map-queries.dto';
+import { MapsGetAllQuery, MapsGetQuery } from '../../@common/dto/query/map-queries.dto';
 import { Roles } from '../../@common/decorators/roles.decorator';
 import { Roles as RolesEnum } from '../../@common/enums/user.enum';
 import { LoggedInUser } from '../../@common/decorators/logged-in-user.decorator';
@@ -56,8 +65,14 @@ export class MapsController {
         description: 'Target Map ID',
         required: true
     })
-    public GetMap(@Param('mapID', ParseIntPipe) mapID: number): Promise<MapDto> {
-        return this.mapsService.Get(mapID);
+    @ApiOkResponse({ description: 'The found map' })
+    @ApiNotFoundResponse({ description: 'Map was not found' })
+    public GetMap(
+        @LoggedInUser('id') userID: number,
+        @Param('mapID', ParseIntPipe) mapID: number,
+        @Query() query?: MapsGetQuery
+    ): Promise<MapDto> {
+        return this.mapsService.Get(mapID, userID, query.expand);
     }
 
     @Post('/:mapID/upload')

@@ -55,6 +55,7 @@ export class MapDto implements MapDB {
 
     // maybe we'll wanna exclude this, guessing its probs useful tho
     @ApiProperty()
+    @IsOptional()
     @IsInt()
     submitterID: number;
 
@@ -89,14 +90,14 @@ export class MapDto implements MapDB {
     credits: MapCreditDto[];
 
     @ApiProperty()
-    @Transform(({ value }) => DtoFactory(MapFavoriteDto, value))
+    @Transform(({ value }) => value?.map((x) => DtoFactory(MapFavoriteDto, x)))
     @ValidateNested()
-    favorites: MapFavoriteDto;
+    favorites: MapFavoriteDto[];
 
     @ApiProperty()
-    @Transform(({ value }) => DtoFactory(MapLibraryEntryDto, value))
+    @Transform(({ value }) => value?.map((x) => DtoFactory(MapLibraryEntryDto, x)))
     @ValidateNested()
-    libraryEntries?: MapLibraryEntryDto;
+    libraryEntries?: MapLibraryEntryDto[];
 
     @ApiProperty({ type: () => MapRankDto })
     @Transform(({ value }) => DtoFactory(MapRankDto, value))
