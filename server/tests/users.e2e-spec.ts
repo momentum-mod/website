@@ -225,12 +225,8 @@ describe('Users', () => {
             expect(res.body.response).toBeInstanceOf(Array);
         });
 
-        it('should respond with array of users with expanded profiles when using an expand parameter', async () => {
-            const res = await get('users', 200, { expand: 'profile' });
-
-            expects(res);
-            expect(res.body.response.find((u) => u.steamID === user1.steamID).profile).toHaveProperty('bio');
-        });
+        it('should respond with array of users with expanded profiles when using an expand parameter', () =>
+            expandTest('users', expects, 'profile', true, (u) => u.steamID === user1.steamID));
 
         it('should respond with an array of one user for a matching SteamID parameter', async () => {
             const res = await get('users', 200, { steamID: user1.steamID });
