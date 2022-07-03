@@ -87,9 +87,13 @@ export const ExpandQueryDecorators = (expansions: string[]): PropertyDecorator =
             description: `Expands, comma-separated (${expansions.join(', ')}))`
         }),
         IsOptional,
-        Transform(({ value }) => value.split(','))
+        Transform(({ value }) => value.split(',').filter((exp) => expansions.includes(exp)))
     );
 
+/**
+ * Transform an array of expansion strings into Prisma includes e.g. { foo: true, bar: true, ... }
+ * @param expansions - String array of all the allowed expansions
+ * */
 export const ExpandToPrismaIncludes = (expansions: string[]): Record<string, boolean> | undefined =>
     expansions?.reduce((expansion, item) => {
         return { ...expansion, [item]: true };
