@@ -11,7 +11,8 @@ import {
     User,
     UserAuth,
     Notification,
-    MapLibraryEntry
+    MapLibraryEntry,
+    MapFavorite
 } from '@prisma/client';
 
 @Injectable()
@@ -302,6 +303,7 @@ export class UsersRepoService {
             where: where,
             skip: skip,
             take: take,
+            // TODO: move to service logic, same strat as below
             include: {
                 map: true,
                 user: true
@@ -309,6 +311,30 @@ export class UsersRepoService {
         });
 
         return [mapLibraryEntries, count];
+    }
+
+    //#endregion
+
+    //#region Map Favorites
+
+    async GetFavoritedMaps(
+        where: Prisma.MapFavoriteWhereInput,
+        include?: Prisma.MapFavoriteInclude,
+        skip?: number,
+        take?: number
+    ): Promise<[MapFavorite[], number]> {
+        const count = await this.prisma.mapFavorite.count({
+            where: where
+        });
+
+        const mapFavorites = await this.prisma.mapFavorite.findMany({
+            where: where,
+            include: include,
+            skip: skip,
+            take: take
+        });
+
+        return [mapFavorites, count];
     }
 
     //#endregion

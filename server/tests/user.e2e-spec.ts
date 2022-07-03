@@ -12,6 +12,7 @@ import { ActivityDto } from '../src/@common/dto/user/activity.dto';
 import { MapLibraryEntryDto } from '../src/@common/dto/map/library-entry';
 import { NotificationDto } from '../src/@common/dto/user/notification.dto';
 import { del, expandTest, get, patch, post, put, skipTest, takeTest } from './testutil';
+import { MapFavoriteDto } from '../src/@common/dto/map/map-favorite.dto';
 
 describe('User', () => {
     let user1, user2, user2Token, user3, user3Token, admin, adminGame, adminAccessToken, map1, map2, map3, activities;
@@ -105,7 +106,7 @@ describe('User', () => {
                 name: 'user_test_map',
                 type: MapType.UNKNOWN,
                 statusFlag: MapStatus.APPROVED,
-                submitter: { connect: { id: user1.id } },
+                submitterID: user1.id,
                 info: {
                     create: {
                         description: 'My first map!!!!',
@@ -164,11 +165,25 @@ describe('User', () => {
         map3 = await prisma.map.create({
             data: {
                 name: 'surf_tendies',
-                type: MapType.SURF
+                type: MapType.SURF,
+                submitterID: user1.id
             }
         });
 
         await prisma.mapLibraryEntry.createMany({
+            data: [
+                {
+                    userID: user1.id,
+                    mapID: map1.id
+                },
+                {
+                    userID: user1.id,
+                    mapID: map2.id
+                }
+            ]
+        });
+
+        await prisma.mapFavorite.createMany({
             data: [
                 {
                     userID: user1.id,
@@ -260,7 +275,7 @@ describe('User', () => {
 
         await prisma.user.deleteMany({ where: { id: { in: [user1.id, user2.id, user3.id, admin.id, adminGame.id] } } });
 
-        await prisma.map.delete({ where: { id: map1.id } });
+        await prisma.map.deleteMany({ where: { id: { in: [map1.id, map2.id, map3.id] } } });
     });
 
     describe('GET /api/v1/user', () => {
@@ -372,6 +387,7 @@ describe('User', () => {
     });
     */
 
+    //TODO: YHER ARE BACKTICK STRINGS EVEREYWHERE WIOTHOUT THINGY VALUES, FIX
     describe('GET /api/v1/user/follow/{userID}', () => {
         it('should return relationships of the given and local user who follow each other', async () => {
             const res = await get(`user/follow/${user2.id}`, 200);
@@ -670,10 +686,11 @@ describe('User', () => {
 
     describe('GET /api/v1/user/maps/library', () => {
         const expects = (res) => expect(res.body).toBeValidPagedDto(MapLibraryEntryDto);
+
         it('should retrieve the list of maps in the local users library', async () => {
             const res = await get('user/maps/library', 200);
 
-            expects(res);
+            expect(res.body).toBeValidPagedDto(MapLibraryEntryDto);
             expect(res.body.totalCount).toBe(2);
             expect(res.body.returnCount).toBe(2);
             expect(res.body.response[0].user.id).toBe(user1.id);
@@ -687,6 +704,57 @@ describe('User', () => {
             skipTest(`user/maps/library`, expects));
 
         it('should respond with 401 when no access token is provided', () => get(`user/maps/library`, 401, {}, null));
+    });
+
+    describe('GET /api/v1/user/maps/favorites', () => {
+        const expects = (res) => expect(res.body).toBeValidPagedDto(MapFavoriteDto);
+
+        it('should retrieve the list of maps in the local users favorites', async () => {
+            const res = await get('user/maps/favorites', 200);
+
+            expects(res);
+            expect(res.body.totalCount).toBe(2);
+            expect(res.body.returnCount).toBe(2);
+            expect(res.body.response[0].user.id).toBe(user1.id);
+            expect(res.body.response[0].map.id).toBe(map1.id);
+        });
+
+        it('should retrieve a filtered list of maps in the local users favorites using the take query', () =>
+            takeTest(`user/maps/favorites`, expects));
+
+        it('should retrieve a filtered list of maps in the local users favorites using the skip query', () =>
+            skipTest(`user/maps/favorites`, expects));
+
+        it('should retrieve a list of maps in the local users favorites filtered using a search string', async () => {
+            const res = await get('user/maps/favorites', 200, { search: map2.name.slice(0, 8) });
+
+            expects(res);
+            expect(res.body.returnCount).toBe(1);
+            expect(res.body.totalCount).toBe(1);
+            expect(res.body.response[0].map.id).toBe(map2.id);
+        });
+
+        it('should retrieve a list of maps in the local users favorites with expanded submitter', async () => {
+            const res = await get('user/maps/favorites', 200, { expand: 'submitter' });
+
+            expects(res);
+            res.body.response.forEach((x) => expect(x.map).toHaveProperty('submitter'));
+        });
+
+        it('should retrieve a list of maps in the local users favorites with expanded thumbnail', async () => {
+            const res = await get('user/maps/favorites', 200, { expand: 'thumbnail' });
+
+            expects(res);
+            res.body.response.forEach((x) => expect(x.map).toHaveProperty('thumbnail'));
+        });
+
+        // TODO ??? this is silly.
+        // come back to this once the stuff on maps/ is done
+        // it('should retrieve a list of maps in the local users favorites ', async () => {
+        //     const res = await get('user/maps/favorites', 200, { expand: 'inFavorites' });
+        // });
+
+        it('should respond with 401 when no access token is provided', () => get(`user/maps/favorites`, 401, {}, null));
     });
     //
     //     describe('GET /api/v1/user/maps/library/{mapID}', () => {

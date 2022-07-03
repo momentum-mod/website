@@ -26,6 +26,7 @@ import { MapNotifyDto, UpdateMapNotifyDto } from '../../@common/dto/map/map-noti
 import { MapsRepoService } from '../repo/maps-repo.service';
 import { NotificationDto, UpdateNotificationDto } from '../../@common/dto/user/notification.dto';
 import { MapLibraryEntryDto } from '../../@common/dto/map/library-entry';
+import { MapFavoriteDto } from '../../@common/dto/map/map-favorite.dto';
 
 @Injectable()
 export class UsersService {
@@ -373,6 +374,25 @@ export class UsersService {
         // TODO: Search and expansions
 
         return new PaginatedResponseDto<MapLibraryEntryDto>(MapLibraryEntryDto, dbResponse);
+    }
+
+    //#endregion
+
+    //#region Map Favorites
+
+    public async GetFavoritedMaps(userID: number, skip: number, take: number, search: string, expand: string[]) {
+        const where: Prisma.MapFavoriteWhereInput = { userID: userID };
+
+        if (search) where.map = { name: { startsWith: search } };
+
+        const include: Prisma.MapFavoriteInclude = {
+            map: { include: ExpandToPrismaIncludes(expand) },
+            user: true
+        };
+
+        const dbResponse = await this.userRepo.GetFavoritedMaps(where, include, skip, take);
+
+        return new PaginatedResponseDto(MapFavoriteDto, dbResponse);
     }
 
     //#endregion
