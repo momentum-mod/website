@@ -25,7 +25,7 @@ import {
 } from '@nestjs/swagger';
 import { AdminUpdateUserDto, CreateUserDto, MergeUserDto, UserDto } from '../../@common/dto/user/user.dto';
 import { ApiOkPaginatedResponse, PaginatedResponseDto } from '../../@common/dto/paginated-response.dto';
-import { MapDto, MapUpdateDto } from '../../@common/dto/map/map.dto';
+import { MapDto, UpdateMapDto } from '../../@common/dto/map/map.dto';
 import { MapsGetAllQuery } from '../../@common/dto/query/map-queries.dto';
 import { ReportDto, UpdateReportDto } from '../../@common/dto/report/report.dto';
 import { Roles } from '../../@common/decorators/roles.decorator';
@@ -134,7 +134,7 @@ export class AdminController {
     })
     @ApiNoContentResponse({ description: 'The map was updated successfully' })
     @ApiBadRequestResponse({ description: 'Invalid map update data' })
-    public UpdateMap(@Param('mapID', ParseIntPipe) mapID: number, @Body() body: MapUpdateDto) {
+    public UpdateMap(@Param('mapID', ParseIntPipe) mapID: number, @Body() body: UpdateMapDto) {
         return void 0;
     }
 
@@ -158,7 +158,7 @@ export class AdminController {
     @ApiOperation({ description: 'Retrieve a list of reports' })
     @ApiOkPaginatedResponse(ReportDto, { description: 'Paginated list of reports' })
     @ApiBadRequestResponse({ description: 'Invalid query data' })
-    public GetReports(@Query() query: MapsGetAllQuery): Promise<PaginatedResponseDto<ReportDto>> {
+    public GetReports(/* @Query() query: some query, check old API */): Promise<PaginatedResponseDto<ReportDto>> {
         return void 0;
     }
 

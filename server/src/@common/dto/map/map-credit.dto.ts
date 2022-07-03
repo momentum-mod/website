@@ -1,10 +1,11 @@
 import { MapCredit } from '@prisma/client';
 import { UserDto } from '../user/user.dto';
 import { MapDto } from './map.dto';
-import { ApiProperty } from '@nestjs/swagger';
-import { IsDateString, IsEnum, IsInt, ValidateNested } from 'class-validator';
+import { ApiProperty, PickType } from '@nestjs/swagger';
+import { IsEnum, IsInt, ValidateNested } from 'class-validator';
 import { MapCreditType } from '../../enums/map.enum';
-import { DtoTransform } from '../../utils/dto-utils';
+import { DtoFactory } from '../../utils/dto.utility';
+import { Exclude, Transform } from 'class-transformer';
 
 export class MapCreditDto implements MapCredit {
     @ApiProperty()
@@ -24,21 +25,20 @@ export class MapCreditDto implements MapCredit {
     mapID: number;
 
     @ApiProperty({ type: () => UserDto })
-    @DtoTransform(UserDto)
+    @Transform(({ value }) => DtoFactory(UserDto, value))
     @ValidateNested()
     user: UserDto;
 
-    @ApiProperty()
-    @DtoTransform(MapDto)
-    // TODO: Add back once this is worked on
-    // @ValidateNested()
+    @ApiProperty({ type: () => MapDto })
+    @Transform(({ value }) => DtoFactory(MapDto, value))
+    @ValidateNested()
     map: MapDto;
 
-    @ApiProperty()
-    @IsDateString()
+    @Exclude()
     createdAt: Date;
 
-    @ApiProperty()
-    @IsDateString()
+    @Exclude()
     updatedAt: Date;
 }
+
+export class CreateMapCreditDto extends PickType(MapCreditDto, ['userID', 'type'] as const) {}

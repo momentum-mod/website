@@ -1,12 +1,16 @@
-﻿import { PaginationQuery } from './pagination.dto';
-import { ApiPropertyOptional } from '@nestjs/swagger';
+﻿import { ApiPropertyOptional } from '@nestjs/swagger';
 import { IsEnum, IsInt, IsOptional, IsString } from 'class-validator';
-import { Transform, Type } from 'class-transformer';
-import { MapStatus } from '../../enums/map.enum';
-import { TransformExpansion } from '../../utils/dto-utils';
+import { Type } from 'class-transformer';
+import { MapStatus, MapType } from '../../enums/map.enum';
+import { ExpandQueryDecorators, SkipQueryDecorators, TakeQueryDecorators } from '../../utils/dto.utility';
 
-// Alex: This query is used by admin endpoint, might be a bit different for you -Tom
-export class MapsGetAllQuery extends PaginationQuery {
+class MapsGetAllBaseQuery {
+    @SkipQueryDecorators(0)
+    skip = 0;
+
+    @TakeQueryDecorators(100)
+    take = 100;
+
     @ApiPropertyOptional({
         name: 'search',
         type: String,
@@ -26,19 +30,12 @@ export class MapsGetAllQuery extends PaginationQuery {
     @IsInt()
     @IsOptional()
     submitterID: number;
+}
 
-    @ApiPropertyOptional({
-        name: 'expand',
-        type: String,
-        enum: ['info', 'submitter', 'credits'],
-        description: 'Expand by info, submitter, and/or credits (comma-separated)',
-        example: 'info,submitter,credits'
-    })
-    @IsOptional()
-    @TransformExpansion()
+export class AdminMapsGetAllQuery extends MapsGetAllBaseQuery {
+    @ExpandQueryDecorators(['info', 'submitter', 'credits'])
     expand: string[];
 
-    // I'm not completely sure this is right, enum handling might not be valid - Tom
     @ApiPropertyOptional({
         name: 'status',
         enum: MapStatus,
@@ -58,4 +55,74 @@ export class MapsGetAllQuery extends PaginationQuery {
     @IsOptional()
     @Type(() => Boolean) // TODO: Check this actually works!! Might run into some JS weirdness - Tom
     priority: boolean;
+}
+
+export class MapsGetAllQuery extends MapsGetAllBaseQuery {
+    @ExpandQueryDecorators([
+        'info',
+        'submitter',
+        'credits',
+        'thumbnail',
+        'inFavorites',
+        'inLibrary',
+        'personalBest',
+        'worldRecord'
+    ])
+    expand: string[];
+
+    @ApiPropertyOptional({
+        name: 'type',
+        enum: MapType,
+        type: Number,
+        description: 'Filter by map type (gamemode)'
+    })
+    @IsOptional()
+    @Type(() => Number)
+    @IsEnum(MapType)
+    type: MapType;
+
+    @ApiPropertyOptional({
+        name: 'difficultyLow',
+        type: Number,
+        description: 'Filter by tier (lower bound)'
+    })
+    @IsOptional()
+    @Type(() => Number)
+    @IsInt()
+    difficultyLow: number;
+
+    @ApiPropertyOptional({
+        name: 'difficultyHigh',
+        type: Number,
+        description: 'Filter by tier (upper bound)'
+    })
+    @IsOptional()
+    @Type(() => Number)
+    @IsInt()
+    difficultyHigh: number;
+
+    @ApiPropertyOptional({
+        name: 'isLinear',
+        type: Boolean,
+        description: 'Filter by linear or staged'
+    })
+    @IsOptional()
+    @Type(() => Boolean)
+    isLinear: boolean;
+}
+
+export class MapsGetQuery {
+    @ExpandQueryDecorators([
+        'credits',
+        'submitter',
+        'images',
+        'thumbnail',
+        'mapStats',
+        'inFavorites',
+        'inLibrary',
+        'personalBest',
+        'worldRecord',
+        'tracks'
+    ])
+    expand: string[];
 }

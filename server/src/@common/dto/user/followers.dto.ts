@@ -3,9 +3,9 @@ import { UserDto } from './user.dto';
 import { ApiProperty, ApiPropertyOptional, PickType } from '@nestjs/swagger';
 import { ActivityTypes } from '../../enums/activity.enum';
 import { IsDateString, IsDefined, ValidateNested } from 'class-validator';
-import { Exclude } from 'class-transformer';
+import { Exclude, Transform } from 'class-transformer';
 import { IsEnumFlag } from '../../validators/is-enum-flag.validator';
-import { DtoTransform } from '../../utils/dto.utility';
+import { DtoFactory } from '../../utils/dto.utility';
 
 export class FollowDto implements Follow {
     @ApiPropertyOptional({
@@ -23,21 +23,13 @@ export class FollowDto implements Follow {
     @Exclude()
     followeeID: number;
 
-    @ApiPropertyOptional({
-        type: Number,
-        description: 'The user that is being followed'
-    })
-    @IsDefined()
-    @DtoTransform(UserDto)
+    @ApiProperty({ description: 'The user that is being followed' })
+    @Transform(({ value }) => DtoFactory(UserDto, value))
     @ValidateNested()
     followed: UserDto;
 
-    @ApiProperty({
-        type: Number,
-        description: 'The user that is doing the following'
-    })
-    @IsDefined()
-    @DtoTransform(UserDto)
+    @ApiProperty({ description: 'The user that is doing the following' })
+    @Transform(({ value }) => DtoFactory(UserDto, value))
     @ValidateNested()
     followee: UserDto;
 
@@ -51,21 +43,19 @@ export class FollowDto implements Follow {
 }
 
 export class FollowStatusDto {
-    @ApiPropertyOptional({
-        type: FollowDto,
+    @ApiProperty({
         description:
             'FollowerDto expressing the relationship between the LOCAL user and the target user, if the local user follows the target user'
     })
-    @DtoTransform(FollowDto)
+    @Transform(({ value }) => DtoFactory(FollowDto, value))
     @ValidateNested()
     local?: FollowDto;
 
-    @ApiPropertyOptional({
-        type: FollowDto,
+    @ApiProperty({
         description:
             'FollowerDto expressing the relationship between the LOCAL user and the TARGET user, if the target user follows the local user'
     })
-    @DtoTransform(FollowDto)
+    @Transform(({ value }) => DtoFactory(FollowDto, value))
     @ValidateNested()
     target?: FollowDto;
 }

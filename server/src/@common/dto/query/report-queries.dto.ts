@@ -1,8 +1,8 @@
 ﻿import { PaginationQuery } from './pagination.dto';
-import { Transform, Type } from 'class-transformer';
+import { Type } from 'class-transformer';
 import { IsOptional } from 'class-validator';
 import { ApiPropertyOptional } from '@nestjs/swagger';
-import { QueryExpansion, QueryExpansionHandler } from '../../utils/dto.utility';
+import { ExpandQueryDecorators } from '../../utils/dto.utility';
 
 export class ReportGetQuery extends PaginationQuery {
     @ApiPropertyOptional({
@@ -14,6 +14,6 @@ export class ReportGetQuery extends PaginationQuery {
     @Type(() => Boolean)
     resolved: boolean; // Note: this was a string on old API.
 
-    @QueryExpansionHandler(['submitter', 'resolver'])
-    expand: QueryExpansion;
+    @ExpandQueryDecorators(['submitter', 'resolver'])
+    expand: string[];
 }

@@ -2,9 +2,18 @@ import { Map as MapDB } from '@prisma/client';
 import { MapStatus, MapType } from '../../enums/map.enum';
 import { UserDto } from '../user/user.dto';
 import { MapImageDto } from './map-image.dto';
-import { ApiProperty, PickType } from '@nestjs/swagger';
-import { IsDate, IsDateString, IsDefined, IsEnum, IsInt, IsOptional, IsString } from 'class-validator';
-import { DtoArrayTransform, DtoTransform } from '../../utils/dto-utils';
+import { ApiProperty, IntersectionType, PickType } from '@nestjs/swagger';
+import { IsDateString, IsDefined, IsEnum, IsInt, IsOptional, IsString, IsUrl, ValidateNested } from 'class-validator';
+import { DtoFactory } from '../../utils/dto.utility';
+import { MapInfoDto } from './map-info.dto';
+import { CreateMapTrackDto, MapTrackDto } from './map-track.dto';
+import { IsMapName } from '../../validators/is-map-name.validator';
+import { BaseStatsDto } from '../stats/base-stats.dto';
+import { CreateMapCreditDto, MapCreditDto } from './map-credit.dto';
+import { MapFavoriteDto } from './map-favorite.dto';
+import { MapLibraryEntryDto } from './library-entry';
+import { MapRankDto } from './map-rank.dto';
+import { Transform } from 'class-transformer';
 
 export class MapDto implements MapDB {
     @ApiProperty()
@@ -13,7 +22,7 @@ export class MapDto implements MapDB {
     id: number;
 
     @ApiProperty()
-    @IsString()
+    @IsMapName()
     name: string;
 
     @ApiProperty()
@@ -24,34 +33,80 @@ export class MapDto implements MapDB {
     @IsEnum(MapStatus)
     statusFlag: MapStatus;
 
+    // TODO: Im not sure what should be optional in these next couple props
     @ApiProperty()
+    @IsOptional()
     @IsString()
+    @IsUrl()
     downloadURL: string;
 
     @ApiProperty()
-    @IsString() // Could use IsHash?
+    @IsOptional()
+    @IsString() // TODO: Could use IsHash?
     hash: string;
 
     @ApiProperty()
-    @IsInt()
-    @IsOptional()
     thumbnailID: number;
 
     @ApiProperty()
-    @DtoTransform(MapImageDto)
+    @Transform(({ value }) => DtoFactory(MapImageDto, value))
+    @ValidateNested()
     thumbnail: MapImageDto;
 
+    // maybe we'll wanna exclude this, guessing its probs useful tho
     @ApiProperty()
     @IsInt()
     submitterID: number;
 
+    @ApiProperty()
+    @Transform(({ value }) => DtoFactory(MapInfoDto, value))
+    @ValidateNested()
+    info?: MapInfoDto;
+
     @ApiProperty({ type: () => UserDto })
-    submitter: UserDto;
-    @DtoTransform(UserDto)
+    @Transform(({ value }) => DtoFactory(UserDto, value))
+    @ValidateNested()
+    submitter?: UserDto;
 
     @ApiProperty()
-    images: MapImageDto[];
-    @DtoArrayTransform(MapImageDto)
+    @Transform(({ value }) => value?.map((x) => DtoFactory(MapImageDto, x)))
+    @ValidateNested()
+    images?: MapImageDto[];
+
+    @ApiProperty()
+    @Transform(({ value }) => value?.map((x) => DtoFactory(MapTrackDto, x)))
+    @ValidateNested()
+    tracks: MapTrackDto[];
+
+    @ApiProperty()
+    @Transform(({ value }) => DtoFactory(BaseStatsDto, value))
+    @ValidateNested()
+    stats: BaseStatsDto;
+
+    @ApiProperty()
+    @Transform(({ value }) => value?.map((x) => DtoFactory(MapCreditDto, x)))
+    @ValidateNested()
+    credits: MapCreditDto[];
+
+    @ApiProperty()
+    @Transform(({ value }) => DtoFactory(MapFavoriteDto, value))
+    @ValidateNested()
+    favorites: MapFavoriteDto;
+
+    @ApiProperty()
+    @Transform(({ value }) => DtoFactory(MapLibraryEntryDto, value))
+    @ValidateNested()
+    libraryEntries?: MapLibraryEntryDto;
+
+    @ApiProperty({ type: () => MapRankDto })
+    @Transform(({ value }) => DtoFactory(MapRankDto, value))
+    @ValidateNested()
+    worldRecord?: MapRankDto;
+
+    @ApiProperty({ type: () => MapRankDto })
+    @Transform(({ value }) => DtoFactory(MapRankDto, value))
+    @ValidateNested()
+    personalBest?: MapRankDto;
 
     @ApiProperty()
     @IsDateString()
@@ -60,41 +115,23 @@ export class MapDto implements MapDB {
     @ApiProperty()
     @IsDateString()
     updatedAt: Date;
-
-    //constructor(_map: Partial<MapDB>) {
-    // let images = _images;
-    // if (images == null || images.length == 0) {
-    //     // if null then try get it from map object
-    //     images = (_map as any).images?.length == 0 ? null : (_map as any).images;
-    // }
-    // console.log(JSON.stringify(images));
-    //
-    // this.id = _map.id;
-    // this.name = _map.name;
-    // this.type = _map.type;
-    // this.statusFlag = _map.statusFlag;
-    // this.downloadURL = _map.downloadURL;
-    // this.hash = _map.hash;
-    // this.createdAt = _map.createdAt;
-    // this.updatedAt = _map.updatedAt;
-    // this.submitterID = _map.submitterID;
-    // this.thumbnailID = _map.thumbnailID;
-    //
-    // this.submitter = new UserDto(submitter);
-    //
-    // if (images != null && images.length > 0) {
-    //     this.images = [];
-    //
-    //     images.forEach((image) => {
-    //         const dto = new MapImageDto(image);
-    //         this.images.push(dto);
-    //
-    //         if (dto.id === this.thumbnailID) {
-    //             this.thumbnail = dto;
-    //         }
-    //     });
-    // }
-    //}
 }
 
-export class MapUpdateDto extends PickType(MapDto, ['statusFlag'] as const) {}
+export class UpdateMapDto extends PickType(MapDto, ['statusFlag'] as const) {}
+
+export class CreateMapDto extends IntersectionType(
+    PickType(MapDto, ['name', 'type'] as const),
+    PickType(MapInfoDto, ['description', 'youtubeID', 'numTracks', 'creationDate'] as const)
+) {
+    @ApiProperty()
+    @Transform(({ value }) => value?.map((x) => DtoFactory(CreateMapTrackDto, x)))
+    @ValidateNested()
+    tracks: CreateMapTrackDto[];
+
+    @ApiProperty()
+    @Transform(({ value }) => value?.map((x) => DtoFactory(CreateMapCreditDto, x)))
+    @ValidateNested()
+    credits: CreateMapCreditDto[];
+
+    // Old api has basestats here as well but idk why
+}

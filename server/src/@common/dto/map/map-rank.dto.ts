@@ -1,20 +1,21 @@
 import { UserMapRank } from '@prisma/client';
 import { ApiProperty } from '@nestjs/swagger';
-import { IsDateString, IsEnum, IsInt, IsOptional, ValidateNested } from 'class-validator';
+import { IsDateString, IsEnum, IsInt, ValidateNested } from 'class-validator';
 import { MapType } from '../../enums/map.enum';
-import { DtoTransform } from '../../utils/dto-utils';
+import { DtoFactory } from '../../utils/dto.utility';
 import { MapDto } from './map.dto';
 import { UserDto } from '../user/user.dto';
 import { RunDto } from '../run/runs.dto';
+import { Transform } from 'class-transformer';
 
+// TODO: naming is weird here
 export class MapRankDto implements UserMapRank {
     @ApiProperty()
     @IsInt()
     mapID: number;
 
-    @ApiProperty()
-    @IsOptional()
-    @DtoTransform(MapDto)
+    @ApiProperty({ type: () => MapDto })
+    @Transform(({ value }) => DtoFactory(MapDto, value))
     @ValidateNested()
     map: MapDto;
 
@@ -23,8 +24,7 @@ export class MapRankDto implements UserMapRank {
     userID: number;
 
     @ApiProperty({ type: () => UserDto })
-    @IsOptional()
-    @DtoTransform(UserDto)
+    @Transform(({ value }) => DtoFactory(UserDto, value))
     @ValidateNested()
     user: UserDto;
 
@@ -32,10 +32,8 @@ export class MapRankDto implements UserMapRank {
     runID: bigint;
 
     @ApiProperty()
-    @IsOptional()
-    @DtoTransform(RunDto)
-    // TODO: Add back once this is worked on
-    // @ValidateNested()
+    @Transform(({ value }) => DtoFactory(RunDto, value))
+    @ValidateNested()
     run: RunDto;
 
     @ApiProperty()

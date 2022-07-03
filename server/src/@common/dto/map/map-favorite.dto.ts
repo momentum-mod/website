@@ -1,34 +1,33 @@
-﻿import { MapLibraryEntry } from '@prisma/client';
+﻿import { MapFavorite } from '@prisma/client';
 import { ApiProperty } from '@nestjs/swagger';
 import { IsDateString, IsInt, ValidateNested } from 'class-validator';
-import { Exclude, Transform } from 'class-transformer';
-import { UserDto } from '../user/user.dto';
 import { DtoFactory } from '../../utils/dto.utility';
+import { UserDto } from '../user/user.dto';
 import { MapDto } from './map.dto';
+import { Transform } from 'class-transformer';
 
-export class MapLibraryEntryDto implements MapLibraryEntry {
-    @ApiProperty({
-        type: Number,
-        description: 'The ID of the library entry'
-    })
+export class MapFavoriteDto implements MapFavorite {
+    @ApiProperty()
     @IsInt()
     id: number;
 
-    @Exclude()
-    userID: number;
-
-    @ApiProperty({ type: () => UserDto })
-    @Transform(({ value }) => DtoFactory(UserDto, value))
-    @ValidateNested()
-    user: UserDto;
-
-    @Exclude()
+    @ApiProperty()
+    @IsInt()
     mapID: number;
 
     @ApiProperty({ type: () => MapDto })
     @Transform(({ value }) => DtoFactory(MapDto, value))
     @ValidateNested()
     map: MapDto;
+
+    @ApiProperty()
+    @IsInt()
+    userID: number;
+
+    @ApiProperty({ type: () => UserDto })
+    @Transform(({ value }) => DtoFactory(UserDto, value))
+    @ValidateNested()
+    user: UserDto;
 
     @ApiProperty()
     @IsDateString()

@@ -1,7 +1,19 @@
 ﻿import { Report } from '@prisma/client';
 import { ApiProperty, ApiPropertyOptional, PickType } from '@nestjs/swagger';
 import { ReportCategory, ReportType } from '../../enums/report.enum';
-import { IsBoolean, IsDateString, IsDefined, IsEnum, IsInt, IsOptional, IsString } from 'class-validator';
+import {
+    IsBoolean,
+    IsDateString,
+    IsDefined,
+    IsEnum,
+    IsInt,
+    IsOptional,
+    IsString,
+    ValidateNested
+} from 'class-validator';
+import { DtoFactory } from '../../utils/dto.utility';
+import { UserDto } from '../user/user.dto';
+import { Transform } from 'class-transformer';
 
 export class ReportDto implements Report {
     @ApiProperty({
@@ -64,6 +76,11 @@ export class ReportDto implements Report {
     @IsDefined()
     @IsInt()
     submitterID: number;
+
+    @ApiProperty()
+    @Transform(({ value }) => DtoFactory(UserDto, value))
+    @ValidateNested()
+    submitter: UserDto;
 
     @ApiPropertyOptional({
         description: 'The user ID of the resolver, if its been resolved',
