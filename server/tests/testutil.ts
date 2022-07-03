@@ -91,9 +91,10 @@ export async function skipTest(url: string, testFn: (res: request.Response) => v
 
 export async function expandTest(
     url: string,
-    testFn: (res: request.Response) => void,
+    testFn: (res: request.Response | any) => void,
     expand: string,
     paged = false,
+    filterFn?: (item: Record<string, unknown>) => boolean,
     expectedPropName?: string,
     expectedPropValue?: any
 ): Promise<void> {
@@ -103,13 +104,18 @@ export async function expandTest(
 
     testFn(res);
 
-    const t = (data) => {
+    const expects = (data) => {
         expect(data).toHaveProperty(expectedPropName);
         expect(data[expectedPropName]).not.toBeNull();
         if (expectedPropValue) expect(data[expectedPropValue]).toBe(expectedPropValue);
     };
 
-    paged ? res.body.response.every((x) => t(x)) : t(res.body);
+    if (paged) {
+        filterFn ??= () => true;
+        const toTest = res.body.response.filter((x) => filterFn(x));
+        if (toTest.length === 0) throw 'nothing passed to expandTest passes filter';
+        toTest.forEach((x) => expects(x));
+    } else expects(res.body);
 }
 
 export async function makeExpandTests(
