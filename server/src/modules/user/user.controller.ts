@@ -42,6 +42,7 @@ import {
     UsersGetQuery
 } from '../../@common/dto/query/user-queries.dto';
 import { MapDto } from '../../@common/dto/map/map.dto';
+import { MapFavoriteDto } from '../../@common/dto/map/map-favorite.dto';
 
 @ApiBearerAuth()
 @Controller('api/v1/user')
@@ -375,13 +376,12 @@ export class UserController {
 
     @Get('/maps/favorites')
     @ApiOperation({ summary: "Returns the maps in the local user's favorites" })
-    @ApiOkPaginatedResponse(MapLibraryEntryDto, { description: 'Paginated list of favorited maps' })
+    @ApiOkPaginatedResponse(MapFavoriteDto, { description: 'Paginated list of favorited maps' })
     public GetFavoritedMaps(
         @LoggedInUser('id') userID: number,
         @Query() query?: UserMapLibraryGetQuery
-    ): Promise<PaginatedResponseDto<MapLibraryEntryDto>> {
-        return void 0;
-        //return this.usersService.GetFavoritedMaps(userID, query.skip, query.take, query.search);
+    ): Promise<PaginatedResponseDto<MapFavoriteDto>> {
+        return this.usersService.GetFavoritedMaps(userID, query.skip, query.take, query.search, query.expand);
     }
 
     @Get('/maps/favorites/:mapID')
