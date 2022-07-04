@@ -38,7 +38,7 @@ export class UsersService {
 
     //#region Main User Functions
 
-    public async GetAll(
+    async getAll(
         skip?: number,
         take?: number,
         expand?: string[],
@@ -75,7 +75,7 @@ export class UsersService {
             };
         }
 
-        const dbResponse = await this.userRepo.GetAll(where, include, skip, take);
+        const dbResponse = await this.userRepo.getAll(where, include, skip, take);
 
         dbResponse[0].forEach((user: any) => {
             if (user.mapRanks) {
@@ -89,7 +89,7 @@ export class UsersService {
         return new PaginatedResponseDto(UserDto, dbResponse);
     }
 
-    public async Get(id: number, expand?: string[], mapRank?: number): Promise<UserDto> {
+    async get(id: number, expand?: string[], mapRank?: number): Promise<UserDto> {
         let include: Prisma.UserInclude = ExpandToPrismaIncludes(expand);
 
         if (mapRank) {
@@ -104,7 +104,7 @@ export class UsersService {
             };
         }
 
-        const dbResponse: any = await this.userRepo.Get(id, include);
+        const dbResponse: any = await this.userRepo.get(id, include);
 
         if (!dbResponse) throw new NotFoundException();
 
@@ -116,24 +116,24 @@ export class UsersService {
         return DtoFactory(UserDto, dbResponse);
     }
 
-    async FindOrCreateFromGame(steamID: string): Promise<User> {
-        const profile = await this.ExtractUserProfileFromSteamID(steamID);
-        return this.FindOrCreateUserFromProfile(profile);
+    async findOrCreateFromGame(steamID: string): Promise<User> {
+        const profile = await this.extractUserProfileFromSteamID(steamID);
+        return this.findOrCreateUserFromProfile(profile);
     }
 
     // TODO: openIDProfile Type
-    async FindOrCreateFromWeb(openID: any): Promise<User> {
+    async findOrCreateFromWeb(openID: any): Promise<User> {
         // Grab Steam ID from community url
         const identifierRegex = /^https?:\/\/steamcommunity\.com\/openid\/id\/(\d+)$/;
         const steamID = identifierRegex.exec(openID)[1];
 
-        const profile = await this.ExtractPartialUserProfileFromSteamID(steamID);
+        const profile = await this.extractPartialUserProfileFromSteamID(steamID);
 
-        return this.FindOrCreateUserFromProfile(profile);
+        return this.findOrCreateUserFromProfile(profile);
     }
 
-    public async FindOrCreateUserFromProfile(profile: UserDto): Promise<User> {
-        const user = await this.userRepo.GetBySteamID(profile.steamID);
+    async findOrCreateUserFromProfile(profile: UserDto): Promise<User> {
+        const user = await this.userRepo.getBySteamID(profile.steamID);
 
         if (user) {
             const updateInput: Prisma.UserUpdateInput = {};
@@ -141,7 +141,7 @@ export class UsersService {
             updateInput.avatar = profile.avatar;
             updateInput.country = profile.country;
 
-            return this.userRepo.Update(user.id, updateInput);
+            return this.userRepo.update(user.id, updateInput);
         } else {
             const createInput: Prisma.UserCreateInput = {};
             createInput.steamID = profile.steamID;
@@ -149,12 +149,12 @@ export class UsersService {
             createInput.avatar = profile.avatarURL;
             createInput.country = profile.country;
 
-            return this.userRepo.Insert(createInput);
+            return this.userRepo.insert(createInput);
         }
     }
 
-    async Update(userID: number, update: UpdateUserDto) {
-        const user: any = await this.userRepo.Get(userID, { profile: true });
+    async update(userID: number, update: UpdateUserDto) {
+        const user: any = await this.userRepo.get(userID, { profile: true });
 
         const updateInput: Prisma.UserUpdateInput = {};
 
@@ -169,7 +169,7 @@ export class UsersService {
             }
 
             if (user.roles & Roles.VERIFIED) {
-                const verifiedMatches = await this.userRepo.Count({
+                const verifiedMatches = await this.userRepo.count({
                     alias: update.alias,
                     roles: Roles.VERIFIED
                 });
@@ -186,32 +186,32 @@ export class UsersService {
             }
         }
 
-        await this.userRepo.Update(userID, updateInput);
+        await this.userRepo.update(userID, updateInput);
     }
 
     //#endregion
 
     //#region Auth
 
-    async GetAuth(userID: number): Promise<UserAuth> {
+    async getAuth(userID: number): Promise<UserAuth> {
         const whereInput: Prisma.UserAuthWhereUniqueInput = {};
         whereInput.id = userID;
-        return await this.userRepo.GetAuth(whereInput);
+        return await this.userRepo.getAuth(whereInput);
     }
 
     //#endregion
 
     //#region Profile
 
-    public async GetProfile(userID: number): Promise<ProfileDto> {
-        const dbResponse = await this.userRepo.GetProfile(userID);
+    async getProfile(userID: number): Promise<ProfileDto> {
+        const dbResponse = await this.userRepo.getProfile(userID);
 
         if (!dbResponse) throw new NotFoundException();
 
         return DtoFactory(ProfileDto, dbResponse);
     }
 
-    public async UnlinkSocial(userID: number, type: string) {
+    async unlinkSocial(userID: number, type: string) {
         if (!['steam', 'discord', 'twitch'].includes(type)) throw new BadRequestException('Invalid social type');
 
         // TODO: Implement me!
@@ -221,7 +221,7 @@ export class UsersService {
 
     //#region Activities
 
-    public async GetActivities(
+    async getActivities(
         userID: number,
         skip?: number,
         take?: number,
@@ -234,21 +234,21 @@ export class UsersService {
             data: data
         };
 
-        const dbResponse = await this.userRepo.GetActivities(where, skip, take);
+        const dbResponse = await this.userRepo.getActivities(where, skip, take);
 
         // Do we want to be so open here? Shouldn't report activity be hidden?
 
         return new PaginatedResponseDto<ActivityDto>(ActivityDto, dbResponse);
     }
 
-    public async GetFollowedActivities(
+    async getFollowedActivities(
         userID: number,
         skip?: number,
         take?: number,
         type?: ActivityTypes,
         data?: bigint
     ): Promise<PaginatedResponseDto<ActivityDto>> {
-        const follows = await this.userRepo.GetFollowing(userID);
+        const follows = await this.userRepo.getFollowing(userID);
 
         const following = follows[0].map((follow) => follow.followedID);
 
@@ -260,7 +260,7 @@ export class UsersService {
             data: data
         };
 
-        const dbResponse = await this.userRepo.GetActivities(where, skip, take);
+        const dbResponse = await this.userRepo.getActivities(where, skip, take);
 
         return new PaginatedResponseDto<ActivityDto>(ActivityDto, dbResponse);
     }
@@ -269,25 +269,25 @@ export class UsersService {
 
     //#region Follows
 
-    public async GetFollowers(id: number, skip?: number, take?: number): Promise<PaginatedResponseDto<FollowDto>> {
-        const dbResponse = await this.userRepo.GetFollowers(id, skip, take);
+    async getFollowers(id: number, skip?: number, take?: number): Promise<PaginatedResponseDto<FollowDto>> {
+        const dbResponse = await this.userRepo.getFollowers(id, skip, take);
 
         return new PaginatedResponseDto<FollowDto>(FollowDto, dbResponse);
     }
 
-    public async GetFollowing(id: number, skip?: number, take?: number): Promise<PaginatedResponseDto<FollowDto>> {
-        const dbResponse = await this.userRepo.GetFollowing(id, skip, take);
+    async getFollowing(id: number, skip?: number, take?: number): Promise<PaginatedResponseDto<FollowDto>> {
+        const dbResponse = await this.userRepo.getFollowing(id, skip, take);
 
         return new PaginatedResponseDto<FollowDto>(FollowDto, dbResponse);
     }
 
-    public async GetFollowStatus(localUserID: number, targetUserID: number): Promise<FollowStatusDto> {
-        const targetUser = await this.userRepo.Get(targetUserID);
+    async getFollowStatus(localUserID: number, targetUserID: number): Promise<FollowStatusDto> {
+        const targetUser = await this.userRepo.get(targetUserID);
 
         if (!targetUser) throw new NotFoundException('Target user not found');
 
-        const localToTarget = await this.userRepo.GetFollower(localUserID, targetUserID);
-        const targetToLocal = await this.userRepo.GetFollower(targetUserID, localUserID);
+        const localToTarget = await this.userRepo.getFollower(localUserID, targetUserID);
+        const targetToLocal = await this.userRepo.getFollower(targetUserID, localUserID);
 
         return DtoFactory(FollowStatusDto, {
             local: localToTarget,
@@ -295,32 +295,32 @@ export class UsersService {
         });
     }
 
-    public async FollowUser(localUserID: number, targetUserID: number) {
-        const targetUser = await this.userRepo.Get(targetUserID);
+    async followUser(localUserID: number, targetUserID: number) {
+        const targetUser = await this.userRepo.get(targetUserID);
 
         if (!targetUser) throw new NotFoundException('Target user not found');
 
-        await this.userRepo.CreateFollow(localUserID, targetUserID);
+        await this.userRepo.createFollow(localUserID, targetUserID);
     }
 
-    public async UpdateFollow(localUserID: number, targetUserID: number, updateDto: UpdateFollowStatusDto) {
+    async updateFollow(localUserID: number, targetUserID: number, updateDto: UpdateFollowStatusDto) {
         if (!updateDto) return;
 
-        const targetUser = await this.userRepo.Get(targetUserID);
+        const targetUser = await this.userRepo.get(targetUserID);
 
         if (!targetUser) throw new NotFoundException('Target user not found');
 
-        await this.userRepo.UpdateFollow(localUserID, targetUserID, { notifyOn: updateDto.notifyOn });
+        await this.userRepo.updateFollow(localUserID, targetUserID, { notifyOn: updateDto.notifyOn });
     }
 
-    public async UnfollowUser(localUserID: number, targetUserID: number) {
-        const targetUser = await this.userRepo.Get(targetUserID);
+    async unfollowUser(localUserID: number, targetUserID: number) {
+        const targetUser = await this.userRepo.get(targetUserID);
 
         if (!targetUser) throw new NotFoundException('Target user not found');
 
         // Prisma errors on trying to delete an entry that does not exist
         // (https://github.com/prisma/prisma/issues/4072), where we want to just 404.
-        await this.userRepo.DeleteFollow(localUserID, targetUserID).catch(() => {
+        await this.userRepo.deleteFollow(localUserID, targetUserID).catch(() => {
             throw new NotFoundException('Target follow does not exist');
         });
     }
@@ -329,48 +329,48 @@ export class UsersService {
 
     //#region Notifications
 
-    public async GetNotifications(
+    async getNotifications(
         userID: number,
         skip?: number,
         take?: number
     ): Promise<PaginatedResponseDto<NotificationDto>> {
-        const dbResponse = await this.userRepo.GetNotifications(userID, skip, take);
+        const dbResponse = await this.userRepo.getNotifications(userID, skip, take);
 
         return new PaginatedResponseDto<NotificationDto>(NotificationDto, dbResponse);
     }
 
-    public async UpdateNotification(userID: number, notificationID: number, updateDto: UpdateNotificationDto) {
-        const notification = await this.userRepo.GetNotification(notificationID);
+    async updateNotification(userID: number, notificationID: number, updateDto: UpdateNotificationDto) {
+        const notification = await this.userRepo.getNotification(notificationID);
 
         if (!notification) throw new NotFoundException('Notification does not exist');
 
         if (notification.userID !== userID) throw new ForbiddenException('Notification does not belong to user');
 
-        await this.userRepo.UpdateNotification(notificationID, updateDto.read);
+        await this.userRepo.updateNotification(notificationID, updateDto.read);
     }
 
-    public async DeleteNotification(userID: number, notificationID: number) {
-        const notification = await this.userRepo.GetNotification(notificationID);
+    async deleteNotification(userID: number, notificationID: number) {
+        const notification = await this.userRepo.getNotification(notificationID);
 
         if (!notification) throw new NotFoundException('Notification does not exist');
 
         if (notification.userID !== userID) throw new ForbiddenException('Notification does not belong to user');
 
-        await this.userRepo.DeleteNotification(notificationID);
+        await this.userRepo.deleteNotification(notificationID);
     }
 
     //#endregion
 
     //#region Map Library
 
-    public async GetMapLibraryEntry(
+    async getMapLibraryEntry(
         userID: number,
         skip: number,
         take: number,
         search: string,
         expand: string[]
     ): Promise<PaginatedResponseDto<MapLibraryEntryDto>> {
-        const dbResponse = await this.userRepo.GetMapLibraryEntry(userID, skip, take);
+        const dbResponse = await this.userRepo.getMapLibraryEntry(userID, skip, take);
         // TODO: Search and expansions
 
         return new PaginatedResponseDto<MapLibraryEntryDto>(MapLibraryEntryDto, dbResponse);
@@ -380,7 +380,7 @@ export class UsersService {
 
     //#region Map Favorites
 
-    public async GetFavoritedMaps(userID: number, skip: number, take: number, search: string, expand: string[]) {
+    async getFavoritedMaps(userID: number, skip: number, take: number, search: string, expand: string[]) {
         const where: Prisma.MapFavoriteWhereInput = { userID: userID };
 
         if (search) where.map = { name: { startsWith: search } };
@@ -390,7 +390,7 @@ export class UsersService {
             user: true
         };
 
-        const dbResponse = await this.userRepo.GetFavoritedMaps(where, include, skip, take);
+        const dbResponse = await this.userRepo.getFavoritedMaps(where, include, skip, take);
 
         return new PaginatedResponseDto(MapFavoriteDto, dbResponse);
     }
@@ -399,33 +399,33 @@ export class UsersService {
 
     //#region Map Notify
 
-    public async GetMapNotifyStatus(userID: number, mapID: number): Promise<MapNotifyDto> {
-        const targetMap = await this.mapRepo.Get(mapID);
+    async getMapNotifyStatus(userID: number, mapID: number): Promise<MapNotifyDto> {
+        const targetMap = await this.mapRepo.get(mapID);
 
         if (!targetMap) throw new NotFoundException('Target map not found');
 
-        const dbResponse = await this.userRepo.GetMapNotify(userID, mapID);
+        const dbResponse = await this.userRepo.getMapNotify(userID, mapID);
 
         return DtoFactory(MapNotifyDto, dbResponse, true);
     }
 
-    public async UpdateMapNotify(userID: number, mapID: number, updateDto: UpdateMapNotifyDto) {
+    async updateMapNotify(userID: number, mapID: number, updateDto: UpdateMapNotifyDto) {
         if (!updateDto || !updateDto.notifyOn)
             throw new BadRequestException('Request does not contain valid notification type data');
 
-        const targetMap = await this.mapRepo.Get(mapID);
+        const targetMap = await this.mapRepo.get(mapID);
 
         if (!targetMap) throw new NotFoundException('Target map not found');
 
-        await this.userRepo.UpsertMapNotify(userID, mapID, updateDto.notifyOn);
+        await this.userRepo.upsertMapNotify(userID, mapID, updateDto.notifyOn);
     }
 
-    public async RemoveMapNotify(userID: number, mapID: number) {
-        const targetMap = await this.mapRepo.Get(mapID);
+    async removeMapNotify(userID: number, mapID: number) {
+        const targetMap = await this.mapRepo.get(mapID);
 
         if (!targetMap) throw new NotFoundException('Target map not found');
 
-        await this.userRepo.DeleteMapNotify(userID, mapID).catch(() => {
+        await this.userRepo.deleteMapNotify(userID, mapID).catch(() => {
             throw new NotFoundException('Target map notification does not exist');
         });
     }
@@ -434,8 +434,8 @@ export class UsersService {
 
     //#region Credits
 
-    public async GetMapCredits(id: number, skip?: number, take?: number): Promise<PaginatedResponseDto<MapCreditDto>> {
-        const dbResponse = await this.userRepo.GetMapCredits(id, skip, take);
+    async getMapCredits(id: number, skip?: number, take?: number): Promise<PaginatedResponseDto<MapCreditDto>> {
+        const dbResponse = await this.userRepo.getMapCredits(id, skip, take);
 
         return new PaginatedResponseDto<MapCreditDto>(MapCreditDto, dbResponse);
     }
@@ -444,8 +444,8 @@ export class UsersService {
 
     //#region Runs
 
-    public async GetRuns(id: number, skip?: number, take?: number): Promise<PaginatedResponseDto<RunDto>> {
-        const dbResponse = await this.userRepo.GetRuns(id, skip, take);
+    async getRuns(id: number, skip?: number, take?: number): Promise<PaginatedResponseDto<RunDto>> {
+        const dbResponse = await this.userRepo.getRuns(id, skip, take);
 
         return new PaginatedResponseDto<RunDto>(RunDto, dbResponse);
     }
@@ -454,13 +454,13 @@ export class UsersService {
 
     //#region Private
 
-    private async ExtractUserProfileFromSteamID(steamID: string): Promise<UserDto> {
-        const summaryData = await this.GetSteamUserSummaryData(steamID);
+    private async extractUserProfileFromSteamID(steamID: string): Promise<UserDto> {
+        const summaryData = await this.getSteamUserSummaryData(steamID);
 
         if (steamID !== summaryData.steamid)
             return Promise.reject(new HttpException('User fetched is not the authenticated user!', 400));
 
-        const profileData = await this.GetSteamUserProfileData(steamID);
+        const profileData = await this.getSteamUserProfileData(steamID);
 
         if (appConfig.steam.preventLimited && profileData.profile.isLimitedAccount[0] === '1') {
             return Promise.reject(
@@ -487,7 +487,7 @@ export class UsersService {
         return profile;
     }
 
-    private async ExtractPartialUserProfileFromSteamID(steamID: string): Promise<UserDto> {
+    private async extractPartialUserProfileFromSteamID(steamID: string): Promise<UserDto> {
         // TODO: ?????? what is this. why
         // await this.GetSteamProfileFromSteamID(steamID);
 
@@ -497,7 +497,7 @@ export class UsersService {
         return profile;
     }
 
-    private async GetSteamUserSummaryData(steamID: string): Promise<SteamUserSummaryData> {
+    private async getSteamUserSummaryData(steamID: string): Promise<SteamUserSummaryData> {
         const getPlayerResponse = await lastValueFrom(
             this.http
                 .get(`https://api.steampowered.com/ISteamUser/GetPlayerSummaries/v2/`, {
@@ -524,7 +524,7 @@ export class UsersService {
         return getPlayerResponse.response.players[0];
     }
 
-    private async GetSteamUserProfileData(steamID: string): Promise<SteamUserProfileData> {
+    private async getSteamUserProfileData(steamID: string): Promise<SteamUserProfileData> {
         return await lastValueFrom(
             this.http.get(`https://steamcommunity.com/profiles/${steamID}?xml=1`).pipe(
                 map(async (res) => {

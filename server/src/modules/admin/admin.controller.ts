@@ -46,8 +46,8 @@ export class AdminController {
     })
     @ApiOperation({ summary: 'Create a placeholder user' })
     @ApiOkResponse({ type: UserDto, description: 'The newly created user' })
-    public CreatePlaceholderUser(@Body() body: CreateUserDto): Promise<UserDto> {
-        return this.adminService.CreatePlaceholderUser(body.alias);
+    createPlaceholderUser(@Body() body: CreateUserDto): Promise<UserDto> {
+        return this.adminService.createPlaceholderUser(body.alias);
     }
 
     @Post('/users/merge')
@@ -59,8 +59,8 @@ export class AdminController {
     @ApiOkResponse({ type: UserDto, description: 'The merged user' })
     @ApiNotFoundResponse({ description: 'If either ID does not correspond to a user' })
     @ApiBadRequestResponse({ description: 'If the placeholder ID is not a placeholder' })
-    public MergeUsers(@Body() body: MergeUserDto): Promise<UserDto> {
-        return this.adminService.MergeUsers(body.placeholderID, body.userID);
+    mergeUsers(@Body() body: MergeUserDto): Promise<UserDto> {
+        return this.adminService.mergeUsers(body.placeholderID, body.userID);
     }
 
     @Patch('/users/:userID')
@@ -80,12 +80,12 @@ export class AdminController {
     })
     @ApiNoContentResponse({ description: 'The user was updated successfully' })
     @ApiBadRequestResponse({ description: 'Invalid user update data' })
-    public UpdateUser(
+    updateUser(
         @LoggedInUser('id') adminID: number,
         @Param('userID', ParseIntPipe) userID: number,
         @Body() body: AdminUpdateUserDto
     ) {
-        return this.adminService.UpdateUser(adminID, userID, body);
+        return this.adminService.updateUser(adminID, userID, body);
     }
 
     @Delete('/users/:userID')
@@ -98,15 +98,15 @@ export class AdminController {
         required: true
     })
     @ApiNoContentResponse({ description: 'The user was deleted successfully' })
-    public DeleteUser(@Param('userID', ParseIntPipe) userID: number) {
-        return this.adminService.DeleteUser(userID);
+    deleteUser(@Param('userID', ParseIntPipe) userID: number) {
+        return this.adminService.deleteUser(userID);
     }
 
     // This seems to only be used to reset all cosmetic or ranked XP.
     // Such a thing terrifies me, so lets leave it for now.
     @Patch('/user-stats')
     @ApiOperation({ summary: "Update every user's stats" })
-    public UpdateUserStats() {
+    updateUserStats() {
         return void 0;
     }
 
@@ -114,7 +114,7 @@ export class AdminController {
     @ApiOperation({ description: 'Retrieve a list of maps' })
     @ApiOkPaginatedResponse(MapDto, { description: 'Paginated list of maps' })
     @ApiBadRequestResponse({ description: 'Invalid query data' })
-    public GetMaps(@Query() query: MapsGetAllQuery): Promise<PaginatedResponseDto<MapDto>> {
+    getMaps(@Query() query: MapsGetAllQuery): Promise<PaginatedResponseDto<MapDto>> {
         return void 0;
     }
 
@@ -134,7 +134,7 @@ export class AdminController {
     })
     @ApiNoContentResponse({ description: 'The map was updated successfully' })
     @ApiBadRequestResponse({ description: 'Invalid map update data' })
-    public UpdateMap(@Param('mapID', ParseIntPipe) mapID: number, @Body() body: UpdateMapDto) {
+    updateMap(@Param('mapID', ParseIntPipe) mapID: number, @Body() body: UpdateMapDto) {
         return void 0;
     }
 
@@ -149,7 +149,7 @@ export class AdminController {
         required: true
     })
     @ApiNoContentResponse({ description: 'The map was deleted successfully' })
-    public DeleteMap(@Param('mapID', ParseIntPipe) mapID: number) {
+    deleteMap(@Param('mapID', ParseIntPipe) mapID: number) {
         return void 0;
     }
 
@@ -158,7 +158,7 @@ export class AdminController {
     @ApiOperation({ description: 'Retrieve a list of reports' })
     @ApiOkPaginatedResponse(ReportDto, { description: 'Paginated list of reports' })
     @ApiBadRequestResponse({ description: 'Invalid query data' })
-    public GetReports(/* @Query() query: some query, check old API */): Promise<PaginatedResponseDto<ReportDto>> {
+    getReports(/* @Query() query: some query, check old API */): Promise<PaginatedResponseDto<ReportDto>> {
         return void 0;
     }
 
@@ -178,7 +178,7 @@ export class AdminController {
         required: true
     })
     @ApiNoContentResponse({ description: 'The report was updated successfully' })
-    public UpdateReport(@Param('reportID', ParseIntPipe) reportID: number, @Body() body: ReportDto) {
+    updateReport(@Param('reportID', ParseIntPipe) reportID: number, @Body() body: ReportDto) {
         return void 0;
     }
 

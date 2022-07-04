@@ -18,7 +18,7 @@ export class FileStoreCloudService {
         });
     }
 
-    public async storeFileCloud(fileBuffer: Buffer, fileKey: string): Promise<IFileStoreCloudFile> {
+    async storeFileCloud(fileBuffer: Buffer, fileKey: string): Promise<IFileStoreCloudFile> {
         const results = await this.s3Client.send(
             new PutObjectCommand({
                 Bucket: appConfig.storage.bucketName,
@@ -40,7 +40,7 @@ export class FileStoreCloudService {
         };
     }
 
-    public async deleteFileCloud(fileKey: string): Promise<void> {
+    async deleteFileCloud(fileKey: string): Promise<void> {
         const results = await this.s3Client.send(
             new DeleteObjectCommand({
                 Bucket: appConfig.storage.bucketName,

@@ -15,7 +15,7 @@ export class SteamWebStrategy extends PassportStrategy(Strategy, 'steam') {
     }
 
     async validate(openID, profile) {
-        const jwtToken = await this.steamAuthService.ValidateFromSteamWeb(openID, profile);
+        const jwtToken = await this.steamAuthService.validateFromSteamWeb(openID, profile);
 
         if (!jwtToken) throw new HttpException('Could not find or create user profile', 500);
 

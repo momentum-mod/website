@@ -22,7 +22,8 @@ export class SteamAuthService {
     ) {}
 
     //#region Public
-    async ValidateFromInGame(userTicketRaw: any, steamIDToVerify: string): Promise<User> {
+
+    async validateFromInGame(userTicketRaw: any, steamIDToVerify: string): Promise<User> {
         const userTicket = Buffer.from(userTicketRaw, 'utf8').toString('hex');
 
         if (!userTicket && !steamIDToVerify) {
@@ -37,7 +38,7 @@ export class SteamAuthService {
         }
     }
 
-    async ValidateFromSteamWeb(openID: any, profile: any): Promise<User> {
+    async validateFromSteamWeb(openID: any, profile: any): Promise<User> {
         if (profile._json.profilestate !== 1) {
             throw new HttpException(
                 'We do not authenticate Steam accounts without a profile. Set up your community profile on Steam!',
@@ -45,7 +46,7 @@ export class SteamAuthService {
             );
         }
 
-        const user = await this.userService.FindOrCreateFromWeb(openID);
+        const user = await this.userService.findOrCreateFromWeb(openID);
 
         if (!user) {
             throw new HttpException('Could not get or create user', 500);
@@ -57,7 +58,8 @@ export class SteamAuthService {
     //#endregion
 
     //#region Private
-    async verifyUserTicketOnlineAPI(userTicket: string, steamIDToVerify: string) {
+
+    private async verifyUserTicketOnlineAPI(userTicket: string, steamIDToVerify: string) {
         const requestConfig = {
             params: {
                 key: appConfig.steam.webAPIKey,
@@ -93,7 +95,7 @@ export class SteamAuthService {
             throw new UnauthorizedException();
         } // Generate an error here
 
-        const user = await this.userService.FindOrCreateFromGame(steamIDToVerify);
+        const user = await this.userService.findOrCreateFromGame(steamIDToVerify);
 
         if (!user) {
             throw new HttpException('Could not get or create user', 500);
@@ -102,7 +104,7 @@ export class SteamAuthService {
         return user;
     }
 
-    async verifyUserTicketLocalLibrary(userTicketRaw: any, steamIDToVerify: string) {
+    private async verifyUserTicketLocalLibrary(userTicketRaw: any, steamIDToVerify: string) {
         let decrypted;
         if (appConfig.steam.useEncryptedTickets) {
             Logger.log('Using encrypted tickets');
@@ -125,7 +127,7 @@ export class SteamAuthService {
             throw new UnauthorizedException();
         }
 
-        const user = await this.userService.FindOrCreateFromGame(steamIDToVerify);
+        const user = await this.userService.findOrCreateFromGame(steamIDToVerify);
 
         if (!user) {
             throw new HttpException('Could not get or create user', 500);

@@ -4,7 +4,7 @@ import { createReadStream } from 'fs';
 
 @Injectable()
 export class FileStoreUtilsService {
-    public getFileHash(filePath): Promise<string> {
+    getFileHash(filePath): Promise<string> {
         return new Promise((resolve, reject) => {
             const hash = createHash('sha1').setEncoding('hex');
             createReadStream(filePath)
@@ -16,7 +16,7 @@ export class FileStoreUtilsService {
         });
     }
 
-    public getBufferHash(buf): string {
+    getBufferHash(buf): string {
         const hash = createHash('sha1');
         hash.update(buf);
         return hash.digest('hex');
