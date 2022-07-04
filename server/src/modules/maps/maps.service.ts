@@ -18,7 +18,7 @@ export class MapsService {
 
     //#region Public
 
-    public async GetAll(
+    async getAll(
         userID: number,
         skip: number,
         take: number,
@@ -50,7 +50,7 @@ export class MapsService {
         const incPB = expand?.includes('personalBest');
         const incWR = expand?.includes('worldRecord');
 
-        MapsService.HandleMapGetIncludes(
+        MapsService.handleMapGetIncludes(
             include,
             userID,
             expand?.includes('inFavorites'),
@@ -62,16 +62,16 @@ export class MapsService {
         // Order
         const order: Prisma.MapOrderByWithRelationInput = { createdAt: 'desc' };
 
-        const dbResponse = await this.mapRepo.GetAll(where, include, order, skip, take);
+        const dbResponse = await this.mapRepo.getAll(where, include, order, skip, take);
 
         if (incPB || incWR) {
-            dbResponse[0].forEach((map) => MapsService.HandleMapGetPrismaResponse(map, userID, incPB, incWR));
+            dbResponse[0].forEach((map) => MapsService.handleMapGetPrismaResponse(map, userID, incPB, incWR));
         }
 
         return new PaginatedResponseDto(MapDto, dbResponse);
     }
 
-    public async Get(mapID: number, userID: number, expand: string[]): Promise<MapDto> {
+    async get(mapID: number, userID: number, expand: string[]): Promise<MapDto> {
         const include: Prisma.MapInclude = ExpandToPrismaIncludes(
             expand?.filter((x) =>
                 ['info', 'credits', 'submitter', 'images', 'thumbnail', 'stats', 'tracks'].includes(x)
@@ -81,7 +81,7 @@ export class MapsService {
         const incPB = expand?.includes('personalBest');
         const incWR = expand?.includes('worldRecord');
 
-        MapsService.HandleMapGetIncludes(
+        MapsService.handleMapGetIncludes(
             include,
             userID,
             expand?.includes('inFavorites'),
@@ -90,18 +90,18 @@ export class MapsService {
             incWR
         );
 
-        const dbResponse = await this.mapRepo.Get(mapID, include);
+        const dbResponse = await this.mapRepo.get(mapID, include);
 
         if (!dbResponse) throw new NotFoundException('Map not found');
 
         if (incPB || incWR) {
-            MapsService.HandleMapGetPrismaResponse(dbResponse, userID, incPB, incWR);
+            MapsService.handleMapGetPrismaResponse(dbResponse, userID, incPB, incWR);
         }
 
         return DtoFactory(MapDto, dbResponse);
     }
 
-    private static HandleMapGetIncludes(
+    private static handleMapGetIncludes(
         include: Prisma.MapInclude,
         userID: number,
         fav: boolean,
@@ -124,7 +124,7 @@ export class MapsService {
         }
     }
 
-    private static HandleMapGetPrismaResponse(mapObj: any, userID: number, PB: boolean, WR: boolean): void {
+    private static handleMapGetPrismaResponse(mapObj: any, userID: number, PB: boolean, WR: boolean): void {
         if (PB && WR) {
             mapObj.worldRecord = mapObj.ranks.find((r) => r.rank === 1);
             mapObj.personalBest = mapObj.ranks.find((r) => r.userID === userID);
@@ -136,7 +136,7 @@ export class MapsService {
         delete mapObj.ranks;
     }
 
-    public async Insert(mapCreateObj: CreateMapDto): Promise<MapDto> {
+    async insert(mapCreateObj: CreateMapDto): Promise<MapDto> {
         try {
             // validate map name
             await this.verifyMapNameNotTaken(mapCreateObj.name);
@@ -194,8 +194,8 @@ export class MapsService {
         // return DtoFactory(MapDto, dbResponse);
     }
 
-    public async Upload(mapID: number, mapFileBuffer: Buffer): Promise<MapDto> {
-        let mapDto: MapDto = DtoFactory(MapDto, await this.mapRepo.Get(mapID));
+    async upload(mapID: number, mapFileBuffer: Buffer): Promise<MapDto> {
+        let mapDto: MapDto = DtoFactory(MapDto, await this.mapRepo.get(mapID));
 
         if (!mapDto.id) {
             return Promise.reject(new HttpException('Map not found', 404));
@@ -209,7 +209,7 @@ export class MapsService {
 
         mapDto = DtoFactory(
             MapDto,
-            await this.mapRepo.Update(mapDto.id, {
+            await this.mapRepo.update(mapDto.id, {
                 statusFlag: MapStatus.PENDING,
                 downloadURL: result.downloadURL,
                 hash: result.hash
@@ -233,7 +233,7 @@ export class MapsService {
             }
         };
 
-        const whereResult = await this.mapRepo.GetAll(where);
+        const whereResult = await this.mapRepo.getAll(where);
 
         if (whereResult[1] > 0) {
             return Promise.reject(new HttpException('Map name already used', 409));
@@ -250,7 +250,7 @@ export class MapsService {
             statusFlag: MapStatus.PENDING
         };
 
-        const whereResult = await this.mapRepo.GetAll(where);
+        const whereResult = await this.mapRepo.getAll(where);
 
         if (whereResult[1] >= mapUploadLimit) {
             return Promise.reject(new HttpException('Map creation limit reached', 409));

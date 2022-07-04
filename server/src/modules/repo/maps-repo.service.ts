@@ -10,13 +10,13 @@ export class MapsRepoService {
      * @summary Insert map into database
      * @returns New DB record ID
      */
-    async Insert(input: Prisma.MapCreateInput): Promise<Map> {
+    async insert(input: Prisma.MapCreateInput): Promise<Map> {
         return await this.prisma.map.create({
             data: input
         });
     }
 
-    async Update(mapId: number, data: Prisma.MapUpdateInput): Promise<Map> {
+    async update(mapId: number, data: Prisma.MapUpdateInput): Promise<Map> {
         return await this.prisma.map.update({
             where: { id: mapId },
             data: data
@@ -27,7 +27,7 @@ export class MapsRepoService {
      * @summary Gets all from database
      * @returns All maps
      */
-    async GetAll(
+    async getAll(
         where: Prisma.MapWhereInput,
         include?: Prisma.MapInclude,
         order?: Prisma.MapOrderByWithRelationInput,
@@ -52,14 +52,14 @@ export class MapsRepoService {
      * @summary Gets single map from database
      * @returns A map
      */
-    async Get(id: number, include?: Prisma.MapInclude): Promise<Map> {
+    async get(id: number, include?: Prisma.MapInclude): Promise<Map> {
         return await this.prisma.map.findFirst({
             where: { id: id },
             include: include
         });
     }
 
-    async UpdateCredit(where: Prisma.MapCreditWhereInput, input: Prisma.MapCreditUpdateInput) {
+    async updateCredit(where: Prisma.MapCreditWhereInput, input: Prisma.MapCreditUpdateInput) {
         this.prisma.mapCredit.updateMany({ where: where, data: input });
     }
 }

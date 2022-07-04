@@ -17,24 +17,24 @@ import { Bitflags } from '../../@common/utils/bitflag.utility';
 export class AdminService {
     constructor(private readonly userRepo: UsersRepoService, private readonly mapRepo: MapsRepoService) {}
 
-    async CreatePlaceholderUser(alias: string): Promise<UserDto> {
+    async createPlaceholderUser(alias: string): Promise<UserDto> {
         const input: Prisma.UserCreateInput = {
             alias: alias,
             roles: Roles.PLACEHOLDER
         };
 
-        const dbResponse = await this.userRepo.Create(input);
+        const dbResponse = await this.userRepo.create(input);
 
         return DtoFactory(UserDto, dbResponse);
     }
 
-    async MergeUsers(placeholderID: number, userID: number): Promise<UserDto> {
+    async mergeUsers(placeholderID: number, userID: number): Promise<UserDto> {
         const includeFollows: Prisma.UserInclude = {
             follows: true,
             followers: true
         };
 
-        const placeholder = (await this.userRepo.Get(placeholderID, includeFollows)) as any;
+        const placeholder = (await this.userRepo.get(placeholderID, includeFollows)) as any;
 
         if (placeholderID == userID) {
             throw new BadRequestException('Will not merge the same account');
@@ -44,12 +44,12 @@ export class AdminService {
             throw new BadRequestException('Placeholder input is not a placeholder user');
         }
 
-        const user = (await this.userRepo.Get(userID, includeFollows)) as any;
+        const user = (await this.userRepo.get(userID, includeFollows)) as any;
 
         if (!user) throw new BadRequestException('Merging user not found');
 
         // Update credits to point to new ID
-        await this.mapRepo.UpdateCredit(
+        await this.mapRepo.updateCredit(
             {
                 userID: placeholderID
             },
@@ -60,7 +60,7 @@ export class AdminService {
 
         // Now follows, hardest part.
         // First edge case: delete the follow entry if the realUser is following the placeholder (can't follow yourself)
-        await this.userRepo.DeleteFollow(userID, placeholderID).catch(() => void 0);
+        await this.userRepo.deleteFollow(userID, placeholderID).catch(() => void 0);
 
         const placeHolderFollowers = placeholder.followers as Follow[];
 
@@ -70,7 +70,7 @@ export class AdminService {
             if (follow.followeeID === userID) continue;
 
             // Second edge case: user(s) is (are) following both placeholder and real user
-            const overlappingFollow = await this.userRepo.GetFollower(follow.followeeID, userID);
+            const overlappingFollow = await this.userRepo.getFollower(follow.followeeID, userID);
             if (overlappingFollow) {
                 const mergedNotifies = Bitflags.add(overlappingFollow.notifyOn, follow.notifyOn);
 
@@ -78,35 +78,35 @@ export class AdminService {
                     Math.min(overlappingFollow.createdAt.getTime(), follow.createdAt.getTime())
                 );
 
-                await this.userRepo.UpdateFollow(follow.followeeID, userID, {
+                await this.userRepo.updateFollow(follow.followeeID, userID, {
                     notifyOn: mergedNotifies,
                     createdAt: earliestCreationDate
                 });
 
-                await this.userRepo.DeleteFollow(follow.followeeID, placeholderID);
+                await this.userRepo.deleteFollow(follow.followeeID, placeholderID);
             }
             // If they don't overlap, just move the followedID
             else {
-                await this.userRepo.UpdateFollow(follow.followeeID, placeholderID, {
+                await this.userRepo.updateFollow(follow.followeeID, placeholderID, {
                     followed: { connect: { id: userID } }
                 });
             }
         }
 
         // Finally, activities.
-        await this.userRepo.UpdateActivities({ userID: placeholderID }, { userID: userID });
+        await this.userRepo.updateActivities({ userID: placeholderID }, { userID: userID });
 
         // Delete the placeholder
-        await this.userRepo.Delete(placeholderID);
+        await this.userRepo.delete(placeholderID);
 
         // Fetch the merged user now everything's done
-        const mergedUserDbResponse = await this.userRepo.Get(userID);
+        const mergedUserDbResponse = await this.userRepo.get(userID);
 
         return DtoFactory(UserDto, mergedUserDbResponse);
     }
 
-    async UpdateUser(adminID: number, userID: number, update: AdminUpdateUserDto) {
-        const user = await this.userRepo.Get(userID, { profile: true });
+    async updateUser(adminID: number, userID: number, update: AdminUpdateUserDto) {
+        const user = await this.userRepo.get(userID, { profile: true });
 
         if (!user) throw new NotFoundException('User not found');
 
@@ -121,7 +121,7 @@ export class AdminService {
         let newRoles: Roles;
 
         if (update.roles) {
-            const admin = await this.userRepo.Get(adminID);
+            const admin = await this.userRepo.get(adminID);
 
             const targetIsMod: boolean = Bitflags.has(user.roles, Roles.MODERATOR);
             const targetIsAdmin: boolean = Bitflags.has(user.roles, Roles.ADMIN);
@@ -154,7 +154,7 @@ export class AdminService {
 
         if (update.alias && update.alias !== user.alias) {
             if (Bitflags.has(newRoles, Roles.VERIFIED)) {
-                const verifiedMatches = await this.userRepo.Count({
+                const verifiedMatches = await this.userRepo.count({
                     alias: update.alias,
                     roles: Roles.VERIFIED
                 });
@@ -169,17 +169,17 @@ export class AdminService {
             updateInput.profile = { update: { bio: update.bio } };
         }
 
-        await this.userRepo.Update(userID, updateInput);
+        await this.userRepo.update(userID, updateInput);
     }
 
-    async DeleteUser(userID: number) {
-        const user = await this.userRepo.Get(userID);
+    async deleteUser(userID: number) {
+        const user = await this.userRepo.get(userID);
 
         if (!user) throw new NotFoundException('User not found');
 
         if (Bitflags.has(user.roles, Roles.ADMIN | Roles.MODERATOR))
             throw new ForbiddenException('Will delete admins or moderators, remove their roles first');
 
-        await this.userRepo.Delete(userID);
+        await this.userRepo.delete(userID);
     }
 }

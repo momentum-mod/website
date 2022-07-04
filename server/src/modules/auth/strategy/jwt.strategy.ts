@@ -20,6 +20,6 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
      */
     async validate(validationPayload: JWTPayload) {
         // TODO: move after repo refactor
-        return this.userRepo.Get(validationPayload.id);
+        return this.userRepo.get(validationPayload.id);
     }
 }

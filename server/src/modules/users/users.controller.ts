@@ -31,8 +31,8 @@ export class UsersController {
     @ApiOperation({ summary: 'Returns all users' })
     @ApiOkPaginatedResponse(UserDto, { description: 'Paginated list of users' })
     @ApiBadRequestResponse({ description: 'The query contained conflicting parameters' })
-    public GetAll(@Query() query?: UsersGetAllQuery): Promise<PaginatedResponseDto<UserDto>> {
-        return this.usersService.GetAll(
+    getAll(@Query() query?: UsersGetAllQuery): Promise<PaginatedResponseDto<UserDto>> {
+        return this.usersService.getAll(
             query.skip,
             query.take,
             query.expand,
@@ -53,8 +53,8 @@ export class UsersController {
     })
     @ApiOkResponse({ type: UserDto, description: 'The found user' })
     @ApiNotFoundResponse({ description: 'User was not found' })
-    public GetUser(@Param('userID', ParseIntPipe) userID: number, @Query() query?: UsersGetQuery): Promise<UserDto> {
-        return this.usersService.Get(userID, query.expand, query.mapRank);
+    getUser(@Param('userID', ParseIntPipe) userID: number, @Query() query?: UsersGetQuery): Promise<UserDto> {
+        return this.usersService.get(userID, query.expand, query.mapRank);
     }
 
     @Get('/:userID/profile')
@@ -67,8 +67,8 @@ export class UsersController {
         description: 'Target User ID',
         required: true
     })
-    public GetProfile(@Param('userID', ParseIntPipe) userID: number): Promise<ProfileDto> {
-        return this.usersService.GetProfile(userID);
+    getProfile(@Param('userID', ParseIntPipe) userID: number): Promise<ProfileDto> {
+        return this.usersService.getProfile(userID);
     }
 
     @Get('/:userID/activities')
@@ -80,11 +80,11 @@ export class UsersController {
         required: true
     })
     @ApiOkPaginatedResponse(UserDto, { description: "Paginated list of the user's activites" })
-    public GetActivities(
+    getActivities(
         @Param('userID', ParseIntPipe) userID: number,
         @Query() query?: UsersGetActivitiesQuery
     ): Promise<PaginatedResponseDto<ActivityDto>> {
-        return this.usersService.GetActivities(userID, query.skip, query.take, query.type, query.data);
+        return this.usersService.getActivities(userID, query.skip, query.take, query.type, query.data);
     }
 
     @Get('/:userID/followers')
@@ -96,11 +96,11 @@ export class UsersController {
         required: true
     })
     @ApiOkPaginatedResponse(UserDto, { description: 'Paginated list of the follows targeting the user' })
-    public GetFollowers(
+    getFollowers(
         @Param('userID', ParseIntPipe) userID: number,
         @Query() query?: PaginationQuery
     ): Promise<PaginatedResponseDto<FollowDto>> {
-        return this.usersService.GetFollowers(userID, query.skip, query.take);
+        return this.usersService.getFollowers(userID, query.skip, query.take);
     }
 
     @Get('/:userID/follows')
@@ -112,11 +112,11 @@ export class UsersController {
         required: true
     })
     @ApiOkPaginatedResponse(UserDto, { description: 'Paginated list of the follows for the user' })
-    public GetFollowed(
+    getFollowed(
         @Param('userID', ParseIntPipe) userID: number,
         @Query() query: PaginationQuery
     ): Promise<PaginatedResponseDto<FollowDto>> {
-        return this.usersService.GetFollowing(userID, query.skip, query.take);
+        return this.usersService.getFollowing(userID, query.skip, query.take);
     }
 
     @Get('/:userID/credits')
@@ -128,11 +128,11 @@ export class UsersController {
         required: true
     })
     @ApiOkPaginatedResponse(UserDto, { description: 'Paginated list of map credits attributed to the user' })
-    public GetMapCredits(
+    getMapCredits(
         @Param('userID', ParseIntPipe) userID: number,
         @Query() query: PaginationQuery
     ): Promise<PaginatedResponseDto<MapCreditDto>> {
-        return this.usersService.GetMapCredits(userID, query.skip, query.take);
+        return this.usersService.getMapCredits(userID, query.skip, query.take);
     }
 
     @Get('/:userID/runs')
@@ -144,12 +144,12 @@ export class UsersController {
         required: true
     })
     @ApiOkPaginatedResponse(UserDto, { description: "Paginated list of the user's runs" })
-    public GetRuns(
+    getRuns(
         @Param('userID', ParseIntPipe) userID: number,
         @Query() query: PaginationQuery
     ): Promise<PaginatedResponseDto<RunDto>> {
         // TODO: The old API calls the runs model here. We should do the same, this functionality
         // doesn't need to exist in the users service.
-        return this.usersService.GetRuns(userID, query.skip, query.take);
+        return this.usersService.getRuns(userID, query.skip, query.take);
     }
 }

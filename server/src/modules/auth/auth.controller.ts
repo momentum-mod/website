@@ -17,27 +17,27 @@ export class AuthController {
     @ApiOperation({ summary: 'Authenticates using steam' })
     @Get('/steam')
     @Public()
-    public AuthSteam(@Req() req, @Res() res): void {
+    authSteam(@Req() req, @Res() res): void {
         passport.authenticate('steam', { session: false })(req, res);
     }
 
     @ApiOperation({ summary: 'Return url from steam, validate and return valid JWT' })
     @Get('/steam/return')
     @UseGuards(SteamWebAuthGuard)
-    public async ReturnFromSteam(@Req() req: Request): Promise<JWTResponseDto> {
+    async returnFromSteam(@Req() req: Request): Promise<JWTResponseDto> {
         return this.authService.login(req.user as User, false);
     }
 
     @ApiOperation({ summary: 'Gets the JWT using a steam user ticket' })
     @Post('/steam/user')
     @Public()
-    public async GetUserFromSteam(@Req() req: Request): Promise<JWTResponseDto> {
+    async getUserFromSteam(@Req() req: Request): Promise<JWTResponseDto> {
         const userID = req.headers['id'] as string;
         if (!req.body) {
             throw new HttpException('Missing userTicket', 400);
         }
 
-        const user = await this.steamAuthService.ValidateFromInGame(req.body, userID);
+        const user = await this.steamAuthService.validateFromInGame(req.body, userID);
         return await this.authService.login(user as User, true);
     }
 }

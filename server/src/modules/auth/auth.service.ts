@@ -16,8 +16,8 @@ export class AuthService {
             throw new UnauthorizedException();
         }
 
-        const token = await this.GenAccessToken(user, gameAuth);
-        const refreshToken = await this.GenRefreshToken(user.id, gameAuth);
+        const token = await this.genAccessToken(user, gameAuth);
+        const refreshToken = await this.genRefreshToken(user.id, gameAuth);
         const response: JWTResponseDto = {
             access_token: token,
             expires_in: appConfig.accessToken.expTime,
@@ -30,20 +30,20 @@ export class AuthService {
         return response;
     }
 
-    async RevokeToken(userID: number): Promise<void> {
+    async revokeToken(userID: number): Promise<void> {
         this.loggedInUser = null;
-        await this.UpdateRefreshToken(userID, '');
+        await this.updateRefreshToken(userID, '');
     }
 
-    async UpdateRefreshToken(userID: number, refreshToken: string): Promise<UserAuth> {
+    async updateRefreshToken(userID: number, refreshToken: string): Promise<UserAuth> {
         const updateInput: Prisma.UserAuthUpdateInput = {};
         updateInput.refreshToken = refreshToken;
         const whereInput: Prisma.UserAuthWhereUniqueInput = {};
         whereInput.id = userID;
-        return await this.userRepo.UpdateAuth(whereInput, updateInput);
+        return await this.userRepo.updateAuth(whereInput, updateInput);
     }
 
-    private async GenAccessToken(usr: User, gameAuth?: boolean): Promise<string> {
+    private async genAccessToken(usr: User, gameAuth?: boolean): Promise<string> {
         const payload: JWTPayload = {
             id: usr.id,
             steamID: usr.steamID,
@@ -58,7 +58,7 @@ export class AuthService {
         return this.jwtService.sign(payload, options);
     }
 
-    private async GenRefreshToken(userID: number, gameAuth?: boolean): Promise<string> {
+    private async genRefreshToken(userID: number, gameAuth?: boolean): Promise<string> {
         const payload = {
             id: userID
         };

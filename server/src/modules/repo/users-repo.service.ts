@@ -24,7 +24,7 @@ export class UsersRepoService {
      * @summary Inserts to database
      * @returns New db record ID
      */
-    async Insert(newUser: Prisma.UserCreateInput): Promise<User> {
+    async insert(newUser: Prisma.UserCreateInput): Promise<User> {
         return await this.prisma.user.create({
             data: newUser
         });
@@ -34,7 +34,7 @@ export class UsersRepoService {
      * @summary Count the number of users in the database
      * @returns Number of matches
      */
-    async Count(where: Prisma.UserWhereInput): Promise<number> {
+    async count(where: Prisma.UserWhereInput): Promise<number> {
         return await this.prisma.user.count({
             where: where
         });
@@ -44,7 +44,7 @@ export class UsersRepoService {
      * @summary Gets all from database
      * @returns All users
      */
-    async GetAll(
+    async getAll(
         where: Prisma.UserWhereInput,
         include: Prisma.UserInclude,
         skip?: number,
@@ -68,7 +68,7 @@ export class UsersRepoService {
      * @summary Gets single user from database
      * @returns Target user or null
      */
-    async Get(userID: number, include?: Prisma.UserInclude): Promise<User> {
+    async get(userID: number, include?: Prisma.UserInclude): Promise<User> {
         const where: Prisma.UserWhereUniqueInput = { id: userID };
 
         return await this.prisma.user.findUnique({
@@ -81,7 +81,7 @@ export class UsersRepoService {
      * @summary Gets single user from database
      * @returns Target user or null
      */
-    async GetBySteamID(steamID: string): Promise<User> {
+    async getBySteamID(steamID: string): Promise<User> {
         const where: Prisma.UserWhereUniqueInput = {};
         where.steamID = steamID;
 
@@ -94,7 +94,7 @@ export class UsersRepoService {
      * @summary Update a single user in database
      * @returns Target user or null
      */
-    async Update(userID: number, update: Prisma.UserUpdateInput): Promise<User> {
+    async update(userID: number, update: Prisma.UserUpdateInput): Promise<User> {
         const where: Prisma.UserWhereUniqueInput = { id: userID };
 
         return await this.prisma.user.update({
@@ -103,11 +103,11 @@ export class UsersRepoService {
         });
     }
 
-    async Create(input: Prisma.UserCreateInput): Promise<User> {
+    async create(input: Prisma.UserCreateInput): Promise<User> {
         return await this.prisma.user.create({ data: input });
     }
 
-    async Delete(userID: number): Promise<User> {
+    async delete(userID: number): Promise<User> {
         return await this.prisma.user.delete({
             where: {
                 id: userID
@@ -118,11 +118,11 @@ export class UsersRepoService {
     //#endregion
 
     //#region User Auth functions
-    async GetAuth(whereInput: Prisma.UserAuthWhereUniqueInput): Promise<UserAuth> {
+    async getAuth(whereInput: Prisma.UserAuthWhereUniqueInput): Promise<UserAuth> {
         return await this.prisma.userAuth.findFirst({ where: whereInput });
     }
 
-    async UpdateAuth(user: Prisma.UserAuthWhereUniqueInput, update: Prisma.UserAuthUpdateInput): Promise<UserAuth> {
+    async updateAuth(user: Prisma.UserAuthWhereUniqueInput, update: Prisma.UserAuthUpdateInput): Promise<UserAuth> {
         return await this.prisma.userAuth.update({
             where: user,
             data: update
@@ -133,7 +133,7 @@ export class UsersRepoService {
 
     //#region Profile
 
-    async GetProfile(userID: number): Promise<Profile> {
+    async getProfile(userID: number): Promise<Profile> {
         const where: Prisma.ProfileWhereInput = { userID: userID };
 
         return await this.prisma.profile.findFirst({
@@ -145,7 +145,7 @@ export class UsersRepoService {
 
     //#region Activites
 
-    async GetActivities(where: Prisma.ActivityWhereInput, skip?: number, take?: number): Promise<[Activity[], number]> {
+    async getActivities(where: Prisma.ActivityWhereInput, skip?: number, take?: number): Promise<[Activity[], number]> {
         const count = await this.prisma.activity.count({
             where: where
         });
@@ -166,7 +166,7 @@ export class UsersRepoService {
         return [activities, count];
     }
 
-    async UpdateActivities(where: Prisma.ActivityWhereInput, update: Prisma.ActivityUncheckedUpdateManyInput) {
+    async updateActivities(where: Prisma.ActivityWhereInput, update: Prisma.ActivityUncheckedUpdateManyInput) {
         await this.prisma.activity.updateMany({
             where: where,
             data: update
@@ -177,7 +177,7 @@ export class UsersRepoService {
 
     //#region Followers
 
-    async GetFollowers(userID: number, skip?: number, take?: number): Promise<[Follow[], number]> {
+    async getFollowers(userID: number, skip?: number, take?: number): Promise<[Follow[], number]> {
         const where: Prisma.FollowWhereInput = {
             followedID: userID
         };
@@ -207,7 +207,7 @@ export class UsersRepoService {
         return [follows, count];
     }
 
-    async GetFollowing(userID: number, skip?: number, take?: number): Promise<[Follow[], number]> {
+    async getFollowing(userID: number, skip?: number, take?: number): Promise<[Follow[], number]> {
         const where: Prisma.FollowWhereInput = {
             followee: {
                 id: userID
@@ -239,7 +239,7 @@ export class UsersRepoService {
         return [follows, count];
     }
 
-    async GetFollower(followeeID: number, followedID: number): Promise<Follow> {
+    async getFollower(followeeID: number, followedID: number): Promise<Follow> {
         return await this.prisma.follow.findUnique({
             where: {
                 followeeID_followedID: {
@@ -254,7 +254,7 @@ export class UsersRepoService {
         });
     }
 
-    async CreateFollow(followeeID: number, followedID: number) {
+    async createFollow(followeeID: number, followedID: number) {
         await this.prisma.follow.create({
             data: {
                 followedID: followedID,
@@ -263,7 +263,7 @@ export class UsersRepoService {
         });
     }
 
-    async UpdateFollow(followeeID: number, followedID: number, input: Prisma.FollowUpdateInput) {
+    async updateFollow(followeeID: number, followedID: number, input: Prisma.FollowUpdateInput) {
         await this.prisma.follow.update({
             where: {
                 followeeID_followedID: {
@@ -275,7 +275,7 @@ export class UsersRepoService {
         });
     }
 
-    async DeleteFollow(followeeID: number, followedID: number) {
+    async deleteFollow(followeeID: number, followedID: number) {
         await this.prisma.follow.delete({
             where: {
                 followeeID_followedID: {
@@ -290,7 +290,7 @@ export class UsersRepoService {
 
     //#region Map Library
 
-    async GetMapLibraryEntry(userID: number, skip: number, take: number): Promise<[MapLibraryEntry[], number]> {
+    async getMapLibraryEntry(userID: number, skip: number, take: number): Promise<[MapLibraryEntry[], number]> {
         const where: Prisma.MapLibraryEntryWhereInput = {
             userID: userID
         };
@@ -317,7 +317,7 @@ export class UsersRepoService {
 
     //#region Map Favorites
 
-    async GetFavoritedMaps(
+    async getFavoritedMaps(
         where: Prisma.MapFavoriteWhereInput,
         include?: Prisma.MapFavoriteInclude,
         skip?: number,
@@ -341,7 +341,7 @@ export class UsersRepoService {
 
     //#region Notications
 
-    async GetNotification(notificationID: number): Promise<Notification> {
+    async getNotification(notificationID: number): Promise<Notification> {
         return await this.prisma.notification.findUnique({
             where: {
                 id: notificationID
@@ -349,7 +349,7 @@ export class UsersRepoService {
         });
     }
 
-    async GetNotifications(userID: number, skip?: number, take?: number): Promise<[Notification[], number]> {
+    async getNotifications(userID: number, skip?: number, take?: number): Promise<[Notification[], number]> {
         const count = await this.prisma.notification.count({
             where: {
                 userID: userID
@@ -375,7 +375,7 @@ export class UsersRepoService {
         return [notifications, count];
     }
 
-    async UpdateNotification(notificationID: number, read: boolean) {
+    async updateNotification(notificationID: number, read: boolean) {
         await this.prisma.notification.update({
             where: {
                 id: notificationID
@@ -386,7 +386,7 @@ export class UsersRepoService {
         });
     }
 
-    async DeleteNotification(notificationID: number) {
+    async deleteNotification(notificationID: number) {
         await this.prisma.notification.delete({
             where: {
                 id: notificationID
@@ -398,7 +398,7 @@ export class UsersRepoService {
 
     //#region Map Notify
 
-    async GetMapNotify(userID: number, mapID: number): Promise<MapNotify> {
+    async getMapNotify(userID: number, mapID: number): Promise<MapNotify> {
         return await this.prisma.mapNotify.findUnique({
             where: {
                 userID_mapID: {
@@ -409,7 +409,7 @@ export class UsersRepoService {
         });
     }
 
-    async UpsertMapNotify(userID: number, mapID: number, notifyOn: number) {
+    async upsertMapNotify(userID: number, mapID: number, notifyOn: number) {
         await this.prisma.mapNotify.upsert({
             where: {
                 userID_mapID: {
@@ -428,7 +428,7 @@ export class UsersRepoService {
         });
     }
 
-    async DeleteMapNotify(userID: number, mapID: number) {
+    async deleteMapNotify(userID: number, mapID: number) {
         await this.prisma.mapNotify.delete({
             where: {
                 userID_mapID: {
@@ -443,7 +443,7 @@ export class UsersRepoService {
 
     //#region Credits
 
-    async GetMapCredits(userID: number, skip?: number, take?: number): Promise<[MapCredit[], number]> {
+    async getMapCredits(userID: number, skip?: number, take?: number): Promise<[MapCredit[], number]> {
         const where: Prisma.MapCreditWhereInput = { userID: userID };
 
         const count = await this.prisma.mapCredit.count({
@@ -477,7 +477,7 @@ export class UsersRepoService {
     //#region Runs
 
     // TODO: Move to Runs module!!
-    async GetRuns(userID: number, skip?: number, take?: number): Promise<[Run[], number]> {
+    async getRuns(userID: number, skip?: number, take?: number): Promise<[Run[], number]> {
         const where: Prisma.RunWhereInput = {
             playerID: userID
         };

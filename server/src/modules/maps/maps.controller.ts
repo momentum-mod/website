@@ -27,11 +27,11 @@ export class MapsController {
     @Get()
     @ApiOperation({ summary: 'Returns all maps' })
     @ApiOkPaginatedResponse(MapDto, { description: 'Paginated list of maps' })
-    public GetAllMaps(
+    getAllMaps(
         @LoggedInUser('id') userID: number,
         @Query() query?: MapsGetAllQuery
     ): Promise<PaginatedResponseDto<MapDto>> {
-        return this.mapsService.GetAll(
+        return this.mapsService.getAll(
             userID,
             query.skip,
             query.take,
@@ -53,8 +53,8 @@ export class MapsController {
         description: 'Create map data transfer object',
         required: true
     })
-    public CreateMap(@Body() body: CreateMapDto): Promise<MapDto> {
-        return this.mapsService.Insert(body);
+    createMap(@Body() body: CreateMapDto): Promise<MapDto> {
+        return this.mapsService.insert(body);
     }
 
     @Get('/:mapID')
@@ -67,12 +67,12 @@ export class MapsController {
     })
     @ApiOkResponse({ description: 'The found map' })
     @ApiNotFoundResponse({ description: 'Map was not found' })
-    public GetMap(
+    getMap(
         @LoggedInUser('id') userID: number,
         @Param('mapID', ParseIntPipe) mapID: number,
         @Query() query?: MapsGetQuery
     ): Promise<MapDto> {
-        return this.mapsService.Get(mapID, userID, query.expand);
+        return this.mapsService.get(mapID, userID, query.expand);
     }
 
     @Post('/:mapID/upload')
@@ -96,9 +96,9 @@ export class MapsController {
         }
     })
     @UseInterceptors(FileInterceptor('file'))
-    public UploadMap(@Param('mapID') mapID: number, @UploadedFile() mapFile: Express.Multer.File): Promise<MapDto> {
+    uploadMap(@Param('mapID') mapID: number, @UploadedFile() mapFile: Express.Multer.File): Promise<MapDto> {
         // see https://stackoverflow.com/questions/66605192/file-uploading-along-with-other-data-in-swagger-nestjs
         // for swagger shit
-        return this.mapsService.Upload(+mapID, mapFile.buffer);
+        return this.mapsService.upload(+mapID, mapFile.buffer);
     }
 }

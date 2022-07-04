@@ -13,7 +13,7 @@ export class ReportsController {
     @Post()
     @ApiOperation({ summary: 'Create a report' })
     @ApiOkResponse({ type: ReportDto, description: 'The newly created report' })
-    public CreateReport(@LoggedInUser('id') submitter: number, @Query() query: CreateReportDto): Promise<ReportDto> {
+    createReport(@LoggedInUser('id') submitter: number, @Query() query: CreateReportDto): Promise<ReportDto> {
         return void 0;
     }
 }

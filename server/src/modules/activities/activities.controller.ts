@@ -14,7 +14,7 @@ export class ActivitiesController {
     @Get()
     @ApiOperation({ summary: 'Returns a list of activities' })
     @ApiOkPaginatedResponse(ActivityDto, { description: 'Paginated list of activities' })
-    public async GetActivities(@Query() query?: ActivitiesGetQuery): Promise<PaginatedResponseDto<ActivityDto>> {
+    async getActivities(@Query() query?: ActivitiesGetQuery): Promise<PaginatedResponseDto<ActivityDto>> {
         return void 0;
     }
 }
