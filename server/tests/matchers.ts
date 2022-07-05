@@ -12,17 +12,22 @@ declare global {
     }
 }
 
-const formatValidationErrors = (errors: ValidationError[]): string =>
+const formatValidationErrors = (errors: ValidationError[], depth = 1): string =>
     errors
-        .map(
-            (err) =>
-                `\n\tProperty:      ${err.property}` +
-                `\n\tValue:         ${JSON.stringify(err.value)}` +
-                `\n\tConstaints:    ` +
-                Object.entries(err.constraints ?? {})
-                    .map(([conName, conMessage]) => `${conName}: ${conMessage}`)
-                    .join('\n                   ')
-        )
+        .map((err) => {
+            const newLine = '\n' + '\t'.repeat(depth);
+            let str = newLine + 'Property: ' + err.property + newLine + 'Value: ' + JSON.stringify(err.value);
+            if (err.constraints)
+                str +=
+                    newLine +
+                    'Constraints: ' +
+                    Object.entries(err.constraints ?? {})
+                        .map(([conName, conMessage]) => `${conName}: ${conMessage}`)
+                        .join(newLine + '  ');
+            if (err.children.length > 0) str += newLine + 'Children:' + formatValidationErrors(err.children, depth + 1);
+
+            return str;
+        })
         .join('\n');
 
 expect.extend({
@@ -94,9 +99,9 @@ expect.extend({
                 message: () =>
                     `expected paged DTO to contain valid DTOs of type ${type.name}. Th${plural ? 'ese' : 'is'} item${
                         plural ? 's' : ''
-                    } errored:\n` +
+                    } errored:\n\t` +
                     totalErrors
-                        .map((err) => `${JSON.stringify(err[0])} errored with: ${formatValidationErrors(err[1])}`)
+                        .map((err) => `${JSON.stringify(err[0])}\nerrored with: ${formatValidationErrors(err[1])}`)
                         .join('\n\n'),
                 pass: false
             };
