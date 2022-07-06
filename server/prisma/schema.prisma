@@ -187,11 +187,11 @@ model Activity {
 model Follow {
     notifyOn Int @default(0) @db.UnsignedTinyInt
 
-    followed     User @relation("follow_follower", fields: [followedID], references: [id], onDelete: Cascade)
-    followedID   Int
+    followed   User @relation("follow_follower", fields: [followedID], references: [id], onDelete: Cascade)
+    followedID Int
 
-    followee     User @relation("follow_follow", fields: [followeeID], references: [id], onDelete: Cascade)
-    followeeID   Int
+    followee   User @relation("follow_follow", fields: [followeeID], references: [id], onDelete: Cascade)
+    followeeID Int
 
     createdAt DateTime @default(now())
     updatedAt DateTime @updatedAt
