@@ -32,7 +32,7 @@ export class MapZoneTriggerDto implements MapZoneTrigger {
     properties: MapZoneTriggerPropertiesDto;
 
     @Exclude()
-    mapZoneID: number;
+    zoneID: number;
 
     @Exclude()
     createdAt: Date;

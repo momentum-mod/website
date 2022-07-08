@@ -454,8 +454,8 @@ model MapTrackStats {
     completions       Int @default(0) @db.UnsignedInt
     uniqueCompletions Int @default(0) @db.UnsignedInt
 
-    mapTrack   MapTrack @relation(fields: [mapTrackID], references: [id], onDelete: Cascade)
-    mapTrackID Int
+    track   MapTrack @relation(fields: [trackID], references: [id], onDelete: Cascade)
+    trackID Int
 
     baseStats   BaseStats? @relation(fields: [baseStatsID], references: [id], onDelete: Cascade)
     baseStatsID BigInt?    @unique
@@ -463,7 +463,7 @@ model MapTrackStats {
     createdAt DateTime @default(now())
     updatedAt DateTime @updatedAt
 
-    @@index([baseStatsID, mapTrackID])
+    @@index([baseStatsID, trackID])
 }
 
 model MapZone {
@@ -492,13 +492,13 @@ model MapZoneTrigger {
     points       Json?
     properties   MapZoneTriggerProperties?
 
-    mapZone   MapZone @relation(fields: [mapZoneID], references: [id], onDelete: Cascade)
-    mapZoneID Int
+    zone   MapZone @relation(fields: [zoneID], references: [id], onDelete: Cascade)
+    zoneID Int
 
     createdAt DateTime @default(now())
     updatedAt DateTime @updatedAt
 
-    @@index([mapZoneID], map: "mapZoneID")
+    @@index([zoneID])
 }
 
 model MapZoneTriggerProperties {
@@ -506,13 +506,13 @@ model MapZoneTriggerProperties {
 
     properties Json?
 
-    mapZoneTrigger MapZoneTrigger @relation(fields: [triggerID], references: [id], onDelete: Cascade)
-    triggerID      Int            @unique
+    trigger   MapZoneTrigger @relation(fields: [triggerID], references: [id], onDelete: Cascade)
+    triggerID Int            @unique
 
     createdAt DateTime @default(now())
     updatedAt DateTime @updatedAt
 
-    @@index([triggerID], map: "triggerID")
+    @@index([triggerID])
 }
 
 model MapZoneStats {
