@@ -81,3 +81,8 @@ export class RunsGetAllQuery {
     @IsOptional()
     order: string;
 }
+
+export class RunsGetQuery {
+    @ExpandQueryDecorators(['baseStats', 'map', 'mapWithInfo', 'rank', 'zoneStats'])
+    expand: string[];
+}

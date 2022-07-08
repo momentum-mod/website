@@ -29,4 +29,13 @@ export class RunsRepoService {
 
         return [runs, count];
     }
+
+    async get(where: Prisma.RunWhereUniqueInput, include: Prisma.RunInclude): Promise<Run> {
+        const run = await this.prisma.run.findUnique({
+            where: where,
+            include: include
+        });
+
+        return run;
+    }
 }
