@@ -35,10 +35,18 @@ export class MapsService {
 
         // Where
         const where: Prisma.MapWhereInput = {};
-
         if (search) where.name = { startsWith: search };
         if (submitterID) where.submitterID = submitterID;
         if (type) where.type = type;
+
+        if (difficultyHigh && difficultyLow)
+            where.mainTrack = { is: { difficulty: { lt: difficultyHigh, gt: difficultyLow } } };
+        else if (difficultyLow) where.mainTrack = { is: { difficulty: { gt: difficultyLow } } };
+        else if (difficultyHigh) where.mainTrack = { is: { difficulty: { lt: difficultyHigh } } };
+
+        // If we have difficulty filters we have to construct quite a complicated filter...
+        if (isLinear)
+            where.mainTrack = where.mainTrack ? { is: { ...where.mainTrack.is, isLinear: true } } : { isLinear: true };
 
         // Include
         const include: Prisma.MapInclude = {
