@@ -19,7 +19,7 @@ export class MapsService {
         private readonly fileCloudService: FileStoreCloudService
     ) {}
 
-    //#region Public
+    //#region Maps
 
     async getAll(
         userID: number,
@@ -112,52 +112,14 @@ export class MapsService {
         return DtoFactory(MapDto, dbResponse);
     }
 
-    private static handleMapGetIncludes(
-        include: Prisma.MapInclude,
-        userID: number,
-        fav: boolean,
-        lib: boolean,
-        PB: boolean,
-        WR: boolean
-    ): void {
-        if (fav) include.favorites = { where: { userID: userID } };
-        if (lib) include.libraryEntries = { where: { userID: userID } };
-
-        if (PB || WR) {
-            include.ranks = { include: { run: true, user: true } };
-            if (PB && WR) {
-                include.ranks.where = { OR: [{ userID: userID }, { rank: 1 }] };
-            } else if (PB) {
-                include.ranks.where = { userID: userID };
-            } else {
-                include.ranks.where = { rank: 1 };
-            }
-        }
-    }
-
-    private static handleMapGetPrismaResponse(mapObj: any, userID: number, PB: boolean, WR: boolean): void {
-        if (PB && WR) {
-            mapObj.worldRecord = mapObj.ranks.find((r) => r.rank === 1);
-            mapObj.personalBest = mapObj.ranks.find((r) => r.userID === userID);
-        } else if (PB) {
-            mapObj.personalBest = mapObj.ranks[0];
-        } else {
-            mapObj.worldRecord = mapObj.ranks[0];
-        }
-        delete mapObj.ranks;
-    }
-
     async create(mapCreateDto: CreateMapDto, submitterID: number): Promise<MapDto> {
         // Check there's no map with same name
         const existingMaps: number = await this.mapRepo.count({
             name: mapCreateDto.name,
             NOT: {
-                OR: [
-                    { statusFlag: MapStatus.REJECTED },
-                    {
-                        statusFlag: MapStatus.REMOVED
-                    }
-                ]
+                statusFlag: {
+                    in: [MapStatus.REJECTED, MapStatus.REMOVED]
+                }
             }
         });
 
@@ -168,7 +130,9 @@ export class MapsService {
         const mapUploadLimit = 5;
         const submittedMaps: number = await this.mapRepo.count({
             submitterID: submitterID,
-            statusFlag: MapStatus.PENDING
+            statusFlag: {
+                in: [MapStatus.PENDING, MapStatus.NEEDS_REVISION]
+            }
         });
 
         if (submittedMaps >= mapUploadLimit)
@@ -323,6 +287,42 @@ export class MapsService {
 
     //#endregion
 
+    //#region Private
+
+    private static handleMapGetIncludes(
+        include: Prisma.MapInclude,
+        userID: number,
+        fav: boolean,
+        lib: boolean,
+        PB: boolean,
+        WR: boolean
+    ): void {
+        if (fav) include.favorites = { where: { userID: userID } };
+        if (lib) include.libraryEntries = { where: { userID: userID } };
+
+        if (PB || WR) {
+            include.ranks = { include: { run: true, user: true } };
+            if (PB && WR) {
+                include.ranks.where = { OR: [{ userID: userID }, { rank: 1 }] };
+            } else if (PB) {
+                include.ranks.where = { userID: userID };
+            } else {
+                include.ranks.where = { rank: 1 };
+            }
+        }
+    }
+
+    private static handleMapGetPrismaResponse(mapObj: any, userID: number, PB: boolean, WR: boolean): void {
+        if (PB && WR) {
+            mapObj.worldRecord = mapObj.ranks.find((r) => r.rank === 1);
+            mapObj.personalBest = mapObj.ranks.find((r) => r.userID === userID);
+        } else if (PB) {
+            mapObj.personalBest = mapObj.ranks[0];
+        } else {
+            mapObj.worldRecord = mapObj.ranks[0];
+        }
+        delete mapObj.ranks;
+    }
 
     private storeMapFile(mapFileBuffer, mapModel) {
         const fileName = `maps/${mapModel.name}.bsp`;
