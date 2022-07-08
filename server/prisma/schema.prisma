@@ -269,6 +269,8 @@ model Map {
     submitter   User? @relation(fields: [submitterID], references: [id], onDelete: SetNull)
     submitterID Int?
 
+    stats MapStats?
+    info  MapInfo?
     credits        MapCredit[]
     favorites      MapFavorite[]
     images         MapImage[]
@@ -276,10 +278,8 @@ model Map {
     notifies       MapNotify[]
     ranks          UserMapRank[]
     reviews        MapReview[]
-    stats          MapStats[]
     tracks         MapTrack[]
     runs           Run[]
-    info           MapInfo?
 
     createdAt DateTime @default(now())
     updatedAt DateTime @updatedAt
@@ -546,7 +546,7 @@ model MapStats {
     timePlayed        BigInt @default(0) @db.UnsignedBigInt
 
     map   Map @relation(fields: [mapID], references: [id], onDelete: Cascade)
-    mapID Int
+    mapID Int @unique
 
     baseStats   BaseStats? @relation(fields: [baseStatsID], references: [id], onDelete: Cascade)
     baseStatsID BigInt?    @unique
