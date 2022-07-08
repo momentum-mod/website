@@ -259,7 +259,7 @@ model Map {
 
     name        String  @db.VarChar(32)
     type        Int     @default(0) @db.UnsignedTinyInt
-    statusFlag  Int     @default(2) @db.TinyInt // Default to 1 (NEEDS_REVISION), updates to PENDING once uploaded
+    statusFlag  Int     @db.TinyInt
     downloadURL String? @db.VarChar(255)
     hash        String? @db.Char(40)
 

@@ -188,6 +188,7 @@ export class MapsService {
             name: mapCreateDto.name,
             type: mapCreateDto.type,
             stats: { create: {} }, // Just init empty entry
+            statusFlag: MapStatus.NEEDS_REVISION,
             info: {
                 create: {
                     numTracks: mapCreateDto.info.numTracks,
