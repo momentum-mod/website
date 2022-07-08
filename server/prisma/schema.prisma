@@ -271,6 +271,10 @@ model Map {
 
     stats MapStats?
     info  MapInfo?
+
+    mainTrack   MapTrack? @relation("map_maintrack", fields: [mainTrackID], references: [id], onDelete: SetNull)
+    mainTrackID Int?      @unique
+
     credits        MapCredit[]
     favorites      MapFavorite[]
     images         MapImage[]
@@ -435,6 +439,8 @@ model MapTrack {
     isLinear   Boolean
     difficulty Int     @db.UnsignedTinyInt
 
+    mainTrack Map? @relation("map_maintrack")
+	
     map   Map @relation(fields: [mapID], references: [id], onDelete: Cascade)
     mapID Int
 
