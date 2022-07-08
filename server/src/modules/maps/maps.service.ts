@@ -1,18 +1,21 @@
-import { HttpException, Injectable, NotFoundException } from '@nestjs/common';
-import { Prisma, Map as MapDB } from '@prisma/client';
+import { BadRequestException, ConflictException, HttpException, Injectable, NotFoundException } from '@nestjs/common';
+import { Prisma, Map as MapDB, MapTrack } from '@prisma/client';
 import { CreateMapDto, MapDto } from '../../@common/dto/map/map.dto';
 import { PaginatedResponseDto } from '../../@common/dto/paginated-response.dto';
-import { MapsRepoService } from '../repo/maps-repo.service';
+import { MapCreateRequireInfoAndTracks, MapsRepoService } from '../repo/maps-repo.service';
 import { AuthService } from '../auth/auth.service';
-import { MapStatus, MapType } from '../../@common/enums/map.enum';
+import { MapCreditType, MapStatus, MapType } from '../../@common/enums/map.enum';
 import { FileStoreCloudService } from '../filestore/file-store-cloud.service';
 import { DtoFactory, ExpandToPrismaIncludes } from '../../@common/utils/dto.utility';
+import { UsersRepoService } from '../repo/users-repo.service';
+import { ActivityTypes } from '../../@common/enums/activity.enum';
 
 @Injectable()
 export class MapsService {
     constructor(
         private readonly authService: AuthService,
         private readonly mapRepo: MapsRepoService,
+        private readonly userRepo: UsersRepoService,
         private readonly fileCloudService: FileStoreCloudService
     ) {}
 
@@ -144,62 +147,152 @@ export class MapsService {
         delete mapObj.ranks;
     }
 
-    async insert(mapCreateObj: CreateMapDto): Promise<MapDto> {
-        try {
-            // validate map name
-            await this.verifyMapNameNotTaken(mapCreateObj.name);
-            // Validate map upload limit
-            await this.verifyMapUploadLimitNotReached(this.authService.loggedInUser.id);
-        } catch {
-            return;
-        }
+    async create(mapCreateDto: CreateMapDto, submitterID: number): Promise<MapDto> {
+        // Check there's no map with same name
+        const existingMaps: number = await this.mapRepo.count({
+            name: mapCreateDto.name,
+            NOT: {
+                OR: [
+                    { statusFlag: MapStatus.REJECTED },
+                    {
+                        statusFlag: MapStatus.REMOVED
+                    }
+                ]
+            }
+        });
 
-        // create
-        // const createPrisma: Prisma.MapCreateInput = {
-        //     submitter: {
-        //         connect: {
-        //             id: this.authService.loggedInUser.id
-        //         }
-        //     },
-        //     name: mapCreateObj.name,
-        //     type: mapCreateObj.type,
-        //     info: {
-        //         create: {
-        //             numTracks: mapCreateObj.info.numTracks,
-        //             description: mapCreateObj.info.description,
-        //             creationDate: mapCreateObj.info.creationDate,
-        //             youtubeID: mapCreateObj.info.youtubeID
-        //         }
-        //     },
-        //     tracks: {
-        //         createMany: {
-        //             data: mapCreateObj.tracks.map((track) => {
-        //                 return {
-        //                     isLinear: track.isLinear,
-        //                     numZones: track.numZones,
-        //                     trackNum: track.trackNum,
-        //                     difficulty: track.difficulty
-        //                 };
-        //             })
-        //         }
-        //     },
-        //     credits: {
-        //         createMany: {
-        //             data: mapCreateObj.credits.map((credit) => {
-        //                 return {
-        //                     type: credit.type,
-        //                     userID: credit.userID,
-        //                     createdAt: new Date(),
-        //                     updatedAt: new Date()
-        //                 };
-        //             })
-        //         }
-        //     }
-        // };
+        if (existingMaps > 0) throw new ConflictException('Map with this name already exists');
 
-        // const dbResponse = await this.mapRepo.Insert(createPrisma);
+        // Limit the number of pending maps a user can have at any one time
+        // TODO: Move this out to a config file
+        const mapUploadLimit = 5;
+        const submittedMaps: number = await this.mapRepo.count({
+            submitterID: submitterID,
+            statusFlag: MapStatus.PENDING
+        });
 
-        // return DtoFactory(MapDto, dbResponse);
+        if (submittedMaps >= mapUploadLimit)
+            throw new ConflictException(`You can't have more than ${mapUploadLimit} maps pending at once`);
+
+        // Extra checks...
+        // TODO: There's probs loads of these we could do, and with map submission incoming that's desirable, could be a good task for a new dev.
+        const trackNums = mapCreateDto.tracks.map((track) => track.trackNum);
+        // Set construction ensures uniqueness, so just compare the lengths
+        if (trackNums.length !== new Set(trackNums).size)
+            throw new BadRequestException('All map tracks must have unique track numbers');
+
+        // Actually build our input. Prisma doesn't let you do nested createMany (https://github.com/prisma/prisma/issues/5455)
+        // so we have to do it in parts... Fortunately this doesnt't run often.
+        const createInput: MapCreateRequireInfoAndTracks = {
+            submitter: { connect: { id: submitterID } },
+            name: mapCreateDto.name,
+            type: mapCreateDto.type,
+            stats: { create: {} }, // Just init empty entry
+            info: {
+                create: {
+                    numTracks: mapCreateDto.info.numTracks,
+                    description: mapCreateDto.info.description,
+                    creationDate: mapCreateDto.info.creationDate,
+                    youtubeID: mapCreateDto.info.youtubeID
+                }
+            },
+            credits: {
+                createMany: {
+                    data: mapCreateDto.credits.map((credit) => {
+                        return {
+                            type: credit.type,
+                            userID: credit.userID
+                        };
+                    })
+                }
+            },
+            tracks: {
+                createMany: {
+                    data: mapCreateDto.tracks.map((track): Prisma.MapTrackCreateManyMapInput => {
+                        return {
+                            isLinear: track.isLinear,
+                            numZones: track.numZones,
+                            trackNum: track.trackNum,
+                            difficulty: track.difficulty
+                        };
+                    })
+                }
+            }
+        };
+
+        const mapDB: any = await this.mapRepo.create(createInput);
+
+        await Promise.all(
+            mapDB.tracks.map(async (track: MapTrack) => {
+                const dtoTrack = mapCreateDto.tracks.find((dtoTrack) => dtoTrack.trackNum === track.trackNum);
+
+                await this.mapRepo.updateMapTrack({ id: track.id }, { stats: { create: {} } }); // Init empty MapTrackStats entry
+
+                await Promise.all(
+                    dtoTrack.zones.map(async (zone) => {
+                        const zoneDB: any = await this.mapRepo.createMapZone({
+                            track: { connect: { id: track.id } },
+                            zoneNum: zone.zoneNum,
+                            stats: {
+                                create: {}
+                            }
+                        });
+
+                        // We could do a `createMany` for the triggers in the above input but we then need to attach a
+                        // `MapZoneTriggerProperties` to each using the DTO properties, and I'm not certain the data we
+                        // get back from the `createMany` is in the order we inserted. For tracks we use the find w/
+                        // `trackNum` above, but `MapZoneTriggerProperties` don't have any distinguishing features like that.
+                        // So I'm doing the triggers with looped `create`s so I can include the `MapZoneTriggerProperties`.
+                        // Hopefully `MapZoneTriggerProperties` will be removed in 0.10.0 anyway (they're stupid) in which
+                        // case we should be able to use a `createMany` for the triggers.
+                        await Promise.all(
+                            zone.triggers.map(async (trigger) => {
+                                await this.mapRepo.createMapZoneTrigger({
+                                    zone: {
+                                        connect: {
+                                            id: zoneDB.id
+                                        }
+                                    },
+                                    type: trigger.type,
+                                    pointsHeight: trigger.pointsHeight,
+                                    pointsZPos: trigger.pointsZPos,
+                                    points: trigger.points,
+                                    properties: {
+                                        create: {
+                                            properties: trigger.properties.properties
+                                        }
+                                    }
+                                });
+                            })
+                        );
+                    })
+                );
+            })
+        );
+
+        // Create MAP_UPLOADED activities for each author
+        await this.userRepo.createActivities(
+            mapDB.credits
+                .filter((credit) => credit.type === MapCreditType.AUTHOR)
+                .map((credit): Prisma.ActivityCreateManyInput => {
+                    return {
+                        type: ActivityTypes.MAP_UPLOADED,
+                        userID: credit.userID,
+                        data: mapDB.id
+                    };
+                })
+        );
+
+        // Everything is finally inserted, now get it all back
+        const createdMap = await this.mapRepo.get(mapDB.id, {
+            info: true,
+            stats: true,
+            credits: true,
+            mainTrack: true,
+            tracks: { include: { zones: { include: { triggers: { include: { properties: true } } } } } }
+        });
+
+        return DtoFactory(MapDto, createdMap);
     }
 
     async upload(mapID: number, mapFileBuffer: Buffer): Promise<MapDto> {
@@ -229,43 +322,6 @@ export class MapsService {
 
     //#endregion
 
-    //#region Private
-    private async verifyMapNameNotTaken(mapName) {
-        const where: Prisma.MapWhereInput = {
-            name: mapName,
-            NOT: {
-                statusFlag: MapStatus.REJECTED,
-                OR: {
-                    statusFlag: MapStatus.REMOVED
-                }
-            }
-        };
-
-        const whereResult = await this.mapRepo.getAll(where);
-
-        if (whereResult[1] > 0) {
-            return Promise.reject(new HttpException('Map name already used', 409));
-        }
-
-        Promise.resolve();
-    }
-
-    private async verifyMapUploadLimitNotReached(submitterID) {
-        const mapUploadLimit = 5;
-
-        const where: Prisma.MapWhereInput = {
-            submitterID: submitterID,
-            statusFlag: MapStatus.PENDING
-        };
-
-        const whereResult = await this.mapRepo.getAll(where);
-
-        if (whereResult[1] >= mapUploadLimit) {
-            return Promise.reject(new HttpException('Map creation limit reached', 409));
-        }
-
-        Promise.resolve();
-    }
 
     private storeMapFile(mapFileBuffer, mapModel) {
         const fileName = `maps/${mapModel.name}.bsp`;
