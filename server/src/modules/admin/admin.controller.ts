@@ -42,7 +42,8 @@ export class AdminController {
     @Post('/users')
     @ApiBody({
         type: CreateUserDto,
-        description: 'The alias of the placeholder user'
+        description: 'The alias of the placeholder user',
+        required: true
     })
     @ApiOperation({ summary: 'Create a placeholder user' })
     @ApiOkResponse({ type: UserDto, description: 'The newly created user' })
@@ -51,7 +52,11 @@ export class AdminController {
     }
 
     @Post('/users/merge')
-    @HttpCode(HttpStatus.OK)
+    @ApiBody({
+        type: MergeUserDto,
+        description: 'DTO of IDs of the placeholder user and the actual user',
+        required: true
+    })
     @ApiOperation({
         summary:
             'Create a placeholder user, used when a placeholder should be merged with a real user, generally mappers.'

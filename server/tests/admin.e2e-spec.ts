@@ -422,7 +422,7 @@ describe('Admin', () => {
 
     describe('POST /api/v1/admin/users/merge', () => {
         it('should merge two accounts together', async () => {
-            const res = await post('admin/users/merge', 200, {
+            const res = await post('admin/users/merge', 201, {
                 placeholderID: mergeUser1.id,
                 userID: mergeUser2.id
             });
