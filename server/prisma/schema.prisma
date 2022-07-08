@@ -49,7 +49,7 @@ model User {
 model Profile {
     id Int @id @default(autoincrement())
 
-    bio String? @default("") @db.VarChar(1000)
+    bio String @default("") @db.VarChar(1000)
 
     featuredBadge   UserBadge? @relation(fields: [featuredBadgeID], references: [id], onDelete: SetNull)
     featuredBadgeID Int?       @unique
@@ -259,7 +259,7 @@ model Map {
 
     name        String  @db.VarChar(32)
     type        Int     @default(0) @db.UnsignedTinyInt
-    statusFlag  Int     @default(2) @db.TinyInt
+    statusFlag  Int     @default(2) @db.TinyInt // Default to 1 (NEEDS_REVISION), updates to PENDING once uploaded
     downloadURL String? @db.VarChar(255)
     hash        String? @db.Char(40)
 
@@ -340,9 +340,9 @@ model MapImage {
 model MapInfo {
     id Int @id @default(autoincrement())
 
-    description  String?  @db.VarChar(1000)
+    description  String   @default("") @db.VarChar(1000)
     youtubeID    String?  @db.VarChar(11)
-    numTracks    Int?     @db.UnsignedTinyInt
+    numTracks    Int      @db.UnsignedTinyInt
     creationDate DateTime @db.DateTime
 
     map   Map @relation(fields: [mapID], references: [id], onDelete: Cascade)
@@ -536,14 +536,14 @@ model MapZoneStats {
 model MapStats {
     id Int @id @default(autoincrement())
 
-    reviews           Int?    @default(0) @db.UnsignedInt
-    downloads         Int?    @default(0) @db.UnsignedInt
-    subscriptions     Int?    @default(0) @db.UnsignedInt
-    plays             Int?    @default(0) @db.UnsignedInt
-    favorites         Int?    @default(0) @db.UnsignedInt
-    completions       Int?    @default(0) @db.UnsignedInt
-    uniqueCompletions Int?    @default(0) @db.UnsignedInt
-    timePlayed        BigInt? @default(0) @db.UnsignedBigInt
+    reviews           Int    @default(0) @db.UnsignedInt
+    downloads         Int    @default(0) @db.UnsignedInt
+    subscriptions     Int    @default(0) @db.UnsignedInt
+    plays             Int    @default(0) @db.UnsignedInt
+    favorites         Int    @default(0) @db.UnsignedInt
+    completions       Int    @default(0) @db.UnsignedInt
+    uniqueCompletions Int    @default(0) @db.UnsignedInt
+    timePlayed        BigInt @default(0) @db.UnsignedBigInt
 
     map   Map @relation(fields: [mapID], references: [id], onDelete: Cascade)
     mapID Int
