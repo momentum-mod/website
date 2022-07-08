@@ -1,5 +1,5 @@
 ﻿import { MapZoneTrigger, MapZoneTriggerProperties, Prisma } from '@prisma/client';
-import { Exclude, Transform } from 'class-transformer';
+import { Exclude, Transform, Type } from 'class-transformer';
 import { IsInt, IsJSON, Max, ValidateNested } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 import { MapZoneTriggerPropertiesDto } from './map-zone-trigger-properties.dto';
@@ -27,7 +27,7 @@ export class MapZoneTriggerDto implements MapZoneTrigger {
     points: Prisma.JsonValue;
 
     @ApiProperty()
-    @Transform(({ value }) => DtoFactory(MapZoneTriggerPropertiesDto, value))
+    @Type()
     @ValidateNested()
     properties: MapZoneTriggerPropertiesDto;
 

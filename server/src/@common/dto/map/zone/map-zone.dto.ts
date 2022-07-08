@@ -1,5 +1,5 @@
 ﻿import { MapZone } from '@prisma/client';
-import { Exclude, Transform } from 'class-transformer';
+import { Exclude, Transform, Type } from 'class-transformer';
 import { ApiProperty, PickType } from '@nestjs/swagger';
 import { ArrayMinSize, IsInt, Max, ValidateNested } from 'class-validator';
 import { MapZoneTriggerDto } from './map-zone-trigger.dto';
@@ -38,7 +38,7 @@ export class MapZoneDto implements MapZone {
 
 export class CreateMapZoneDto extends PickType(MapZoneDto, ['zoneNum'] as const) {
     @ApiProperty()
-    @Transform(({ value }) => value?.map((x) => DtoFactory(MapZoneTriggerDto, x)))
+    @Type(() => MapZoneTriggerDto)
     @ValidateNested()
     @ArrayMinSize(1)
     triggers: MapZoneTriggerDto[];

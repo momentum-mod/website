@@ -1,5 +1,5 @@
 ﻿import { MapTrack } from '@prisma/client';
-import { Exclude, Transform } from 'class-transformer';
+import { Exclude, Transform, Type } from 'class-transformer';
 import { ApiProperty, PickType } from '@nestjs/swagger';
 import { ArrayMinSize, IsArray, IsBoolean, IsDateString, IsInt, Max, ValidateNested } from 'class-validator';
 import { CreateMapZoneDto, MapZoneDto } from './zone/map-zone.dto';
@@ -52,7 +52,7 @@ export class CreateMapTrackDto extends PickType(MapTrackDto, [
     'difficulty'
 ] as const) {
     @ApiProperty()
-    @Transform(({ value }) => value?.map((x) => DtoFactory(CreateMapZoneDto, x)))
+    @Type(() => CreateMapZoneDto)
     @ValidateNested()
     @IsArray()
     @ArrayMinSize(2)

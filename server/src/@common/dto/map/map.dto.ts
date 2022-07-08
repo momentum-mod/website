@@ -1,11 +1,22 @@
-import { Map as MapDB } from '@prisma/client';
+import { Map as MapDB, MapInfo } from '@prisma/client';
 import { MapStatus, MapType } from '../../enums/map.enum';
 import { UserDto } from '../user/user.dto';
 import { MapImageDto } from './map-image.dto';
 import { ApiProperty, IntersectionType, PickType } from '@nestjs/swagger';
-import { IsDateString, IsDefined, IsEnum, IsInt, IsOptional, IsString, IsUrl, ValidateNested } from 'class-validator';
+import {
+    ArrayMinSize,
+    IsArray,
+    IsDateString,
+    IsDefined,
+    IsEnum,
+    IsInt,
+    IsOptional,
+    IsString,
+    IsUrl,
+    ValidateNested
+} from 'class-validator';
 import { DtoFactory } from '../../utils/dto.utility';
-import { MapInfoDto } from './map-info.dto';
+import { CreateMapInfoDto, MapInfoDto } from './map-info.dto';
 import { CreateMapTrackDto, MapTrackDto } from './map-track.dto';
 import { IsMapName } from '../../validators/is-map-name.validator';
 import { BaseStatsDto } from '../stats/base-stats.dto';
@@ -13,7 +24,7 @@ import { CreateMapCreditDto, MapCreditDto } from './map-credit.dto';
 import { MapFavoriteDto } from './map-favorite.dto';
 import { MapLibraryEntryDto } from './map-library-entry';
 import { MapRankDto } from './map-rank.dto';
-import { Transform } from 'class-transformer';
+import { Exclude, Transform, Type } from 'class-transformer';
 
 export class MapDto implements MapDB {
     @ApiProperty()
@@ -59,8 +70,16 @@ export class MapDto implements MapDB {
     @IsInt()
     submitterID: number;
 
+    @Exclude()
+    mainTrackID: number;
+
     @ApiProperty()
-    @Transform(({ value }) => DtoFactory(MapInfoDto, value))
+    @Transform(({ value }) => DtoFactory(MapTrackDto, value))
+    @ValidateNested()
+    mainTrack: MapTrackDto;
+
+    @ApiProperty()
+    // @Transform(({ value }) => DtoFactory(MapInfoDto, value))
     @ValidateNested()
     info?: MapInfoDto;
 
@@ -120,19 +139,21 @@ export class MapDto implements MapDB {
 
 export class UpdateMapDto extends PickType(MapDto, ['statusFlag'] as const) {}
 
-export class CreateMapDto extends IntersectionType(
-    PickType(MapDto, ['name', 'type'] as const),
-    PickType(MapInfoDto, ['description', 'youtubeID', 'numTracks', 'creationDate'] as const)
-) {
+export class CreateMapDto extends PickType(MapDto, ['name', 'type'] as const) {
     @ApiProperty()
-    @Transform(({ value }) => value?.map((x) => DtoFactory(CreateMapTrackDto, x)))
+    @Type()
     @ValidateNested()
+    info: CreateMapInfoDto;
+
+    @ApiProperty()
+    @Type(() => CreateMapTrackDto)
+    @ValidateNested()
+    @IsArray()
+    @ArrayMinSize(1)
     tracks: CreateMapTrackDto[];
 
     @ApiProperty()
-    @Transform(({ value }) => value?.map((x) => DtoFactory(CreateMapCreditDto, x)))
+    @Type(() => CreateMapCreditDto)
     @ValidateNested()
     credits: CreateMapCreditDto[];
-
-    // Old api has basestats here as well but idk why
 }
