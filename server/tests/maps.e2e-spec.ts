@@ -6,15 +6,34 @@ import { PrismaService } from '../src/modules/repo/prisma.service';
 import { MapStatus, MapCreditType, MapType } from '../src/@common/enums/map.enum';
 import { Roles } from '../src/@common/enums/user.enum';
 import { MapDto } from '../src/@common/dto/map/map.dto';
-import { del, expandTest, get, makeExpandTests, patch, post, put, skipTest, takeTest } from './testutil';
+import { del, expandTest, get, patch, post, put, skipTest, takeTest } from './testutil';
 import { MapInfoDto } from '../src/@common/dto/map/map-info.dto';
 import { MapCreditDto } from '../src/@common/dto/map/map-credit.dto';
 import { MapImageDto } from '../src/@common/dto/map/map-image.dto';
 import { RunDto } from '../src/@common/dto/run/runs.dto';
 import { MapRankDto } from '../src/@common/dto/map/map-rank.dto';
+import { MapTrackDto } from '../src/@common/dto/map/map-track.dto';
+import { MapZoneDto } from '../src/@common/dto/map/zone/map-zone.dto';
+import { MapZoneTriggerDto } from '../src/@common/dto/map/zone/map-zone-trigger.dto';
+import { ActivityTypes } from '../src/@common/enums/activity.enum';
 
 describe('Maps', () => {
-    let user, admin, run1, run2, map, map2, gameAdmin, gameAdminAccessToken;
+    let user,
+        admin,
+        user2,
+        user3,
+        run1,
+        run2,
+        map,
+        map2,
+        map3,
+        map4,
+        mapObj,
+        gameAdmin,
+        gameAdminAccessToken,
+        adminAccessToken,
+        user2AccessToken,
+        user3AccessToken;
 
     beforeEach(async () => {
         const prisma: PrismaService = global.prisma;
@@ -23,8 +42,25 @@ describe('Maps', () => {
         user = await prisma.user.create({
             data: {
                 steamID: '65465432154',
-                alias: 'Ron Weasley',
-                roles: Roles.VERIFIED | Roles.MAPPER
+                alias: 'User 1',
+                roles: Roles.VERIFIED | Roles.MAPPER,
+                profile: { create: {} }
+            }
+        });
+
+        // Doesn't have mapper role, should fail
+        user2 = await prisma.user.create({
+            data: {
+                steamID: '645363245235',
+                alias: 'User 2'
+            }
+        });
+
+        user3 = await prisma.user.create({
+            data: {
+                steamID: '754673452345',
+                alias: 'User 3',
+                roles: Roles.MAPPER
             }
         });
 
@@ -32,13 +68,14 @@ describe('Maps', () => {
             data: {
                 steamID: '54132121685476543',
                 alias: 'Fred Weasley',
-                roles: Roles.ADMIN
+                roles: Roles.ADMIN,
+                profile: { create: {} }
             }
         });
 
         map = await prisma.map.create({
             data: {
-                name: 'surf_map',
+                name: 'maps_test1',
                 type: MapType.SURF,
                 statusFlag: MapStatus.APPROVED,
                 submitterID: user.id,
@@ -55,7 +92,7 @@ describe('Maps', () => {
                         trackNum: 0,
                         numZones: 1,
                         isLinear: false,
-                        difficulty: 5,
+                        difficulty: 2,
                         zones: {
                             createMany: {
                                 data: [
@@ -111,9 +148,14 @@ describe('Maps', () => {
             }
         });
 
+        map = await prisma.map.update({
+            where: { id: map.id },
+            data: { mainTrack: { connect: { id: map.tracks[0].id } } }
+        });
+
         const img = await prisma.mapImage.findFirst({ where: { mapID: map.id } });
 
-        await prisma.map.update({
+        map = await prisma.map.update({
             where: { id: map.id },
             data: {
                 thumbnail: {
@@ -126,7 +168,119 @@ describe('Maps', () => {
 
         map2 = await prisma.map.create({
             data: {
-                name: 'conc_map',
+                name: 'maps_test2',
+                type: MapType.CONC,
+                statusFlag: MapStatus.APPROVED,
+                submitterID: admin.id,
+                info: {
+                    create: {
+                        description: 'My test map!!!!',
+                        numTracks: 1,
+                        creationDate: new Date(),
+                        createdAt: new Date(),
+                        updatedAt: new Date()
+                    }
+                },
+                tracks: {
+                    create: {
+                        trackNum: 0,
+                        numZones: 1,
+                        isLinear: true,
+                        difficulty: 8,
+                        zones: {
+                            createMany: {
+                                data: [
+                                    {
+                                        zoneNum: 0
+                                    },
+                                    {
+                                        zoneNum: 1
+                                    }
+                                ]
+                            }
+                        }
+                    }
+                },
+                credits: {
+                    create: {
+                        type: MapCreditType.AUTHOR,
+                        userID: user?.id
+                    }
+                }
+            },
+            include: {
+                info: true,
+                credits: true,
+                images: true,
+                tracks: {
+                    include: {
+                        zones: true
+                    }
+                }
+            }
+        });
+
+        map2 = await prisma.map.update({
+            where: { id: map2.id },
+            data: { mainTrack: { connect: { id: map2.tracks[0].id } } }
+        });
+
+        map3 = await prisma.map.create({
+            data: {
+                name: 'maps_test3',
+                type: MapType.CONC,
+                statusFlag: MapStatus.APPROVED,
+                submitterID: admin.id,
+                info: {
+                    create: {
+                        description: 'My test map!!!!',
+                        numTracks: 1,
+                        creationDate: new Date(),
+                        createdAt: new Date(),
+                        updatedAt: new Date()
+                    }
+                },
+                tracks: {
+                    create: {
+                        trackNum: 0,
+                        numZones: 1,
+                        isLinear: true,
+                        difficulty: 5,
+                        zones: {
+                            createMany: {
+                                data: [
+                                    {
+                                        zoneNum: 0
+                                    },
+                                    {
+                                        zoneNum: 1
+                                    }
+                                ]
+                            }
+                        }
+                    }
+                }
+            },
+            include: {
+                info: true,
+                credits: true,
+                images: true,
+                tracks: {
+                    include: {
+                        zones: true
+                    }
+                }
+            }
+        });
+
+        map3 = await prisma.map.update({
+            where: { id: map3.id },
+            data: { mainTrack: { connect: { id: map3.tracks[0].id } } }
+        });
+
+        map4 = await prisma.map.create({
+            data: {
+                name: 'maps_test4',
                 type: MapType.CONC,
                 statusFlag: MapStatus.APPROVED,
                 submitterID: admin.id,
@@ -158,19 +312,6 @@ describe('Maps', () => {
                             }
                         }
                     }
-                },
-                credits: {
-                    create: {
-                        type: MapCreditType.AUTHOR,
-                        userID: user?.id
-                    }
-                },
-                images: {
-                    create: {
-                        small: '',
-                        medium: '',
-                        large: ''
-                    }
                 }
             },
             include: {
@@ -184,6 +325,68 @@ describe('Maps', () => {
                 }
             }
         });
+
+        map4 = await prisma.map.update({
+            where: { id: map4.id },
+            data: { mainTrack: { connect: { id: map4.tracks[0].id } } }
+        });
+
+        await prisma.map.createMany({
+            data: Array(5)
+                .fill(0)
+                .map((_, i) => {
+                    return {
+                        name: `pending_test${i}`,
+                        type: MapType.BHOP,
+                        statusFlag: MapStatus.PENDING,
+                        submitterID: user3.id
+                    };
+                })
+        });
+
+        mapObj = {
+            name: 'test_map',
+            type: MapType.SURF,
+            info: {
+                description: 'mamp',
+                numTracks: 1,
+                creationDate: '2022-07-07T18:33:33.000Z'
+            },
+            credits: [
+                {
+                    userID: user.id,
+                    type: MapCreditType.AUTHOR
+                }
+            ],
+            tracks: Array(2)
+                .fill(0)
+                .map((_, i) => {
+                    return {
+                        trackNum: i,
+                        numZones: 1,
+                        isLinear: false,
+                        difficulty: 5,
+                        zones: Array(10)
+                            .fill(0)
+                            .map((_, j) => {
+                                return {
+                                    zoneNum: j,
+                                    triggers: [
+                                        {
+                                            type: j == 0 ? 1 : j == 1 ? 0 : 2,
+                                            pointsHeight: 512,
+                                            pointsZPos: 0,
+                                            points: `{"p1": "0", "p2": "0"}`,
+                                            properties: {
+                                                properties: '{}'
+                                            }
+                                        }
+                                    ]
+                                };
+                            })
+                    };
+                })
+        };
 
         // admin has WR, user should have a rank 2 PB
         run1 = await prisma.run.create({
@@ -246,29 +449,39 @@ describe('Maps', () => {
 
         const authService = global.auth as AuthService;
         global.accessToken = (await authService.login(user)).access_token;
+        adminAccessToken = (await authService.login(admin)).access_token;
+        user2AccessToken = (await authService.login(user2)).access_token;
+        user3AccessToken = (await authService.login(user3)).access_token;
     });
 
     afterEach(async () => {
         const prisma: PrismaService = global.prisma;
 
         await prisma.user.deleteMany({
-            where: { id: { in: [user.id, admin.id] } }
+            where: { id: { in: [user.id, admin.id, user2.id, user3.id] } }
         });
 
         await prisma.map.deleteMany({
-            where: { id: { in: [map.id, map2.id] } }
+            where: {
+                OR: [
+                    { id: { in: [map.id, map2.id, map3.id, map4.id] } },
+                    { name: { startsWith: 'test_map' } },
+                    { name: { startsWith: 'pending_test' } }
+                ]
+            }
         });
 
         await prisma.run.deleteMany({
-            where: { id: { in: [run1.id] } } //run2.id] } }
+            where: { id: { in: [run1.id, run2.id] } }
         });
     });
 
     describe('GET maps', () => {
         const expects = (res) => {
+            res.body.response = res.body.response.filter((x) => x.name.startsWith('maps_test'));
             expect(res.body).toBeValidPagedDto(MapDto);
             // We always include these
-            res.body.response.forEach((x) => expect(x).toHaveProperty('tracks'));
+            res.body.response.forEach((x) => expect(x).toHaveProperty('mainTrack'));
             res.body.response.forEach((x) => expect(x).toHaveProperty('info'));
         };
         const filter = (x) => x.id === map.id;
@@ -277,8 +490,8 @@ describe('Maps', () => {
             const res = await get('maps', 200);
 
             expects(res);
-            expect(res.body.totalCount).toBeGreaterThanOrEqual(2);
-            expect(res.body.returnCount).toBeGreaterThanOrEqual(2);
+            expect(res.body.totalCount).toBeGreaterThanOrEqual(4);
+            expect(res.body.returnCount).toBeGreaterThanOrEqual(4);
         });
 
         it('should respond with filtered map data using the take parameter', () => takeTest('maps', expects));
@@ -412,43 +625,57 @@ describe('Maps', () => {
     });
 
     describe('POST maps', () => {
-        // it('should create a new map', async () => {
-        //     const res = await TestUtil
-        //         .post('maps')
-        //
-        //         .send({
-        //             name: 'test_map_5',
-        //             type: MapType.SURF,
-        //             info: {
-        //                 description: 'newmap_5',
-        //                 numTracks: 1,
-        //                 creationDate: new Date()
-        //             },
-        //             tracks: [
-        //                 {
-        //                     trackNum: 0,
-        //                     numZones: 1,
-        //                     isLinear: false,
-        //                     difficulty: 5
-        //                 }
-        //             ],
-        //             credits: [
-        //                 {
-        //                     userID: user.id,
-        //                     type: MapCreditType.AUTHOR
-        //                 }
-        //             ]
-        //         })
-        //
-        //         .expect(200);
-        //
-        //     expect(res.body).toHaveProperty('id');
-        //     expect(res.body).toHaveProperty('name');
-        //     expect(res.body.info).toHaveProperty('description');
-        // });
-        it('should respond with 401 when no access token is provided', async () => {
-            await get('maps', 401);
+        it('should create a new map', async () => {
+            const res = await post('maps', 201, mapObj);
+
+            expect(res.body).toBeValidDto(MapDto);
+            expect(res.body.name).toBe(mapObj.name);
+            expect(res.body).toHaveProperty('info');
+            expect(res.body.info.description).toBe(mapObj.info.description);
+            expect(res.body.info.numTracks).toBe(mapObj.info.numTracks);
+            expect(res.body.info.creationDate).toBe(mapObj.info.creationDate);
+            expect(res.body.submitterID).toBe(user.id);
+            expect(res.body.credits[0].userID).toBe(user.id);
+            expect(res.body.credits[0].type).toBe(MapCreditType.AUTHOR);
+            expect(res.body).toHaveProperty('tracks');
+            expect(res.body.tracks).toHaveLength(2);
+            expect(res.body.mainTrack.id).toBe(mapObj.tracks.find((track) => track.trackNum === 0).id);
+            res.body.tracks.forEach((track) => {
+                expect(track).toBeValidDto(MapTrackDto);
+                track.zones.forEach((zone) => {
+                    expect(zone).toBeValidDto(MapZoneDto);
+                    zone.triggers.forEach((trigger) => expect(trigger).toBeValidDto(MapZoneTriggerDto));
+                });
+            });
         });
+
+        it('should create map upload activities for the map authors', async () => {
+            const mapDB = (await post('maps', 201, mapObj)).body;
+
+            const prisma: PrismaService = global.prisma;
+
+            const activity = await prisma.activity.findFirst({ where: { userID: user.id } });
+
+            expect(activity.type).toBe(ActivityTypes.MAP_UPLOADED);
+            expect(activity.data).toBe(BigInt(mapDB.id));
+        });
+
+        it('should respond with 400 if the map does not have any tracks', () =>
+            post('maps', 400, { ...mapObj, tracks: [] }));
+
+        it('should respond with 400 if a map track have less than 2 zones', () =>
+            post('maps', 400, { ...mapObj, tracks: [{ ...mapObj.tracks[0], zones: mapObj.tracks[0].zones[0] }] }));
+
+        it('should respond with 409 if a map with the same name exists', () =>
+            post('maps', 409, { ...mapObj, name: map.name }, user3AccessToken));
+
+        it('should respond with 409 if the submitter already have 5 or more pending maps', () =>
+            post('maps', 409, { ...mapObj }, user3AccessToken));
+
+        it('should respond with 403 when the user does not have the mapper role', () =>
+            post('maps', 403, mapObj, user2AccessToken));
+
+        it('should respond with 401 when no access token is provided', () => post('maps', 401, mapObj, null));
     });
 
     describe('GET maps/{mapID}', () => {

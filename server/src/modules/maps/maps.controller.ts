@@ -7,7 +7,8 @@ import {
     ApiParam,
     ApiConsumes,
     ApiNotFoundResponse,
-    ApiOkResponse
+    ApiOkResponse,
+    ApiConflictResponse
 } from '@nestjs/swagger';
 import { ApiOkPaginatedResponse, PaginatedResponseDto } from '../../@common/dto/paginated-response.dto';
 import { MapsService } from './maps.service';
@@ -48,13 +49,16 @@ export class MapsController {
     @Post()
     @Roles(RolesEnum.MAPPER)
     @ApiOperation({ summary: 'Creates a single map' })
+    @ApiOkResponse({ type: MapDto, description: 'The newly created map' })
+    @ApiConflictResponse({ description: 'Map already exists' })
+    @ApiConflictResponse({ description: 'Submitter' })
     @ApiBody({
         type: CreateMapDto,
-        description: 'Create map data transfer object',
+        description: 'The create map data transfer object',
         required: true
     })
-    createMap(@Body() body: CreateMapDto): Promise<MapDto> {
-        return this.mapsService.insert(body);
+    createMap(@Body() body: CreateMapDto, @LoggedInUser('id') userID: number): Promise<MapDto> {
+        return this.mapsService.create(body, userID);
     }
 
     @Get('/:mapID')
