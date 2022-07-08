@@ -118,6 +118,10 @@ export class UsersRepoService {
 
     //#region Activites
 
+    async createActivities(input: Prisma.ActivityCreateManyInput[]): Promise<void> {
+        await this.prisma.activity.createMany({ data: input });
+    }
+
     async getActivities(where: Prisma.ActivityWhereInput, skip?: number, take?: number): Promise<[Activity[], number]> {
         const count = await this.prisma.activity.count({
             where: where
