@@ -42,7 +42,7 @@ export class MapsService {
 
         // Include
         const include: Prisma.MapInclude = {
-            tracks: { where: { trackNum: 0 } }, // TODO: old api does `as: "mainTrack"`??
+            mainTrack: true,
             info: true,
             ...ExpandToPrismaIncludes(expand?.filter((x) => ['credits', 'thumbnail'].includes(x)))
         };
