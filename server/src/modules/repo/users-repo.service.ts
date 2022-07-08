@@ -24,10 +24,10 @@ export class UsersRepoService {
      * @summary Inserts to database
      * @returns New db record ID
      */
-    async insert(newUser: Prisma.UserCreateInput): Promise<User> {
-        return await this.prisma.user.create({
-            data: newUser
-        });
+
+    async create(input: Prisma.UserCreateInput): Promise<User> {
+
+        return await this.prisma.user.create({ data: input });
     }
 
     /**
@@ -103,15 +103,9 @@ export class UsersRepoService {
         });
     }
 
-    async create(input: Prisma.UserCreateInput): Promise<User> {
-        return await this.prisma.user.create({ data: input });
-    }
-
     async delete(userID: number): Promise<User> {
         return await this.prisma.user.delete({
-            where: {
-                id: userID
-            }
+            where: { id: userID }
         });
     }
 

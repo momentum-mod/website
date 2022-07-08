@@ -149,7 +149,7 @@ export class UsersService {
             createInput.avatar = profile.avatarURL;
             createInput.country = profile.country;
 
-            return this.userRepo.insert(createInput);
+            return this.userRepo.create(createInput);
         }
     }
 
