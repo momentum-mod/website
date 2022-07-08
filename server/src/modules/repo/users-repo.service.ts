@@ -22,6 +22,9 @@ export class UsersRepoService {
     //#region Main User functions
 
     async create(input: Prisma.UserCreateInput): Promise<User> {
+        // Profile has to be optional on User due to Prisma constraints (https://github.com/prisma/prisma/discussions/12866)
+        // and that we want to use onDelete, so just ensure we always create a profile here
+        input.profile ??= { create: {} };
 
         return await this.prisma.user.create({ data: input });
     }
