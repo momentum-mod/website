@@ -365,6 +365,49 @@ describe('Maps', () => {
             expect(found.personalBest.user.id).toBe(user.id);
         });
 
+        it('should respond with filtered maps when using the difficultyLow filter', async () => {
+            const res = await get('maps', 200, { difficultyLow: 3, search: 'maps_test' });
+
+            expect(res.body.totalCount).toBe(3);
+            expect(res.body.returnCount).toBe(3);
+        });
+
+        it('should respond with filtered maps when using the difficultyHigh filter', async () => {
+            const res = await get('maps', 200, { difficultyHigh: 6, search: 'maps_test' });
+
+            expect(res.body.totalCount).toBe(3);
+            expect(res.body.returnCount).toBe(3);
+        });
+
+        it('should respond with filtered maps when using both the difficultyLow and difficultyHigh filter', async () => {
+            const res = await get('maps', 200, { difficultyLow: 3, difficultyHigh: 6, search: 'maps_test' });
+
+            expect(res.body.totalCount).toBe(2);
+            expect(res.body.returnCount).toBe(2);
+        });
+
+        it('should respond with filtered maps when the isLinear filter', async () => {
+            const res = await get('maps', 200, {
+                isLinear: true,
+                search: 'maps_test'
+            });
+
+            expect(res.body.totalCount).toBe(2);
+            expect(res.body.returnCount).toBe(2);
+        });
+
+        it('should respond with filtered maps when using both the difficultyLow, difficultyHigh and isLinear filters', async () => {
+            const res = await get('maps', 200, {
+                difficultyLow: 3,
+                difficultyHigh: 6,
+                isLinear: true,
+                search: 'maps_test'
+            });
+
+            expect(res.body.totalCount).toBe(1);
+            expect(res.body.returnCount).toBe(1);
+        });
+
         it('should respond with 401 when no access token is provided', () => get('maps', 401, {}, null));
     });
 
