@@ -5,7 +5,9 @@ import { ApiProperty } from '@nestjs/swagger';
 import { IsDateString, IsDefined, IsInt, ValidateNested } from 'class-validator';
 import { Expose, Transform } from 'class-transformer';
 import { MapDto } from '../map/map.dto';
-import { DtoFactory, DtoTransform } from '../../utils/dto.utility';
+import { DtoFactory } from '../../utils/dto.utility';
+import { BaseStatsDto } from '../stats/base-stats.dto';
+import { RunZoneStatsDto } from './run-zone-stats.dto';
 
 // TODO: BaseStatsDTO, various other nested DTOs
 
@@ -62,6 +64,16 @@ export class RunDto implements Run {
 
     @ApiProperty()
     hash: string;
+
+    @ApiProperty()
+    @Transform(({ value }) => DtoFactory(BaseStatsDto, value))
+    @ValidateNested()
+    baseStats: BaseStatsDto;
+
+    @ApiProperty({ type: () => RunZoneStatsDto })
+    @Transform(({ value }) => value?.map((x) => DtoFactory(RunZoneStatsDto, x)))
+    @ValidateNested()
+    zoneStats: RunZoneStatsDto[];
 
     @ApiProperty()
     baseStatsID: bigint;
