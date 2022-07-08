@@ -6,13 +6,6 @@ import { Map, Prisma } from '@prisma/client';
 export class MapsRepoService {
     constructor(private prisma: PrismaService) {}
 
-    /**
-     * @summary Insert map into database
-     * @returns New DB record ID
-     */
-    async insert(input: Prisma.MapCreateInput): Promise<Map> {
-        return await this.prisma.map.create({
-            data: input
         });
     }
 
@@ -23,10 +16,6 @@ export class MapsRepoService {
         });
     }
 
-    /**
-     * @summary Gets all from database
-     * @returns All maps
-     */
     async getAll(
         where: Prisma.MapWhereInput,
         include?: Prisma.MapInclude,
@@ -48,13 +37,11 @@ export class MapsRepoService {
         return [maps, count];
     }
 
-    /**
-     * @summary Gets single map from database
-     * @returns A map
-     */
     async get(id: number, include?: Prisma.MapInclude): Promise<Map> {
         return await this.prisma.map.findFirst({
-            where: { id: id },
+            where: {
+                id: id
+            },
             include: include
         });
     }

@@ -20,30 +20,18 @@ export class UsersRepoService {
     constructor(private prisma: PrismaService) {}
 
     //#region Main User functions
-    /**
-     * @summary Inserts to database
-     * @returns New db record ID
-     */
 
     async create(input: Prisma.UserCreateInput): Promise<User> {
 
         return await this.prisma.user.create({ data: input });
     }
 
-    /**
-     * @summary Count the number of users in the database
-     * @returns Number of matches
-     */
     async count(where: Prisma.UserWhereInput): Promise<number> {
         return await this.prisma.user.count({
             where: where
         });
     }
 
-    /**
-     * @summary Gets all from database
-     * @returns All users
-     */
     async getAll(
         where: Prisma.UserWhereInput,
         include: Prisma.UserInclude,
@@ -64,10 +52,6 @@ export class UsersRepoService {
         return [users, count];
     }
 
-    /**
-     * @summary Gets single user from database
-     * @returns Target user or null
-     */
     async get(userID: number, include?: Prisma.UserInclude): Promise<User> {
         const where: Prisma.UserWhereUniqueInput = { id: userID };
 
@@ -77,10 +61,6 @@ export class UsersRepoService {
         });
     }
 
-    /**
-     * @summary Gets single user from database
-     * @returns Target user or null
-     */
     async getBySteamID(steamID: string): Promise<User> {
         const where: Prisma.UserWhereUniqueInput = {};
         where.steamID = steamID;
@@ -90,10 +70,6 @@ export class UsersRepoService {
         });
     }
 
-    /**
-     * @summary Update a single user in database
-     * @returns Target user or null
-     */
     async update(userID: number, update: Prisma.UserUpdateInput): Promise<User> {
         const where: Prisma.UserWhereUniqueInput = { id: userID };
 
