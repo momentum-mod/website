@@ -1,10 +1,19 @@
-﻿import { PaginationQuery } from './pagination.dto';
-import { ApiPropertyOptional } from '@nestjs/swagger';
+﻿import { ApiPropertyOptional } from '@nestjs/swagger';
 import { Transform, Type } from 'class-transformer';
 import { IsInt, IsOptional } from 'class-validator';
 import { MapStatus } from '../../enums/map.enum';
+import { ExpandQueryDecorators, SkipQueryDecorators, TakeQueryDecorators } from '../../utils/dto.utility';
 
-export class RunsGetAllQuery extends PaginationQuery {
+export class RunsGetAllQuery {
+    @SkipQueryDecorators(0)
+    skip = 0;
+
+    @TakeQueryDecorators(10)
+    take = 10;
+
+    @ExpandQueryDecorators(['baseStats', 'map', 'mapWithInfo', 'rank', 'zoneStats'])
+    expand: string[];
+
     @ApiPropertyOptional({
         name: 'mapID',
         type: Number,
@@ -14,6 +23,14 @@ export class RunsGetAllQuery extends PaginationQuery {
     @IsInt()
     @IsOptional()
     mapID: number;
+
+    @ApiPropertyOptional({
+        name: 'mapName',
+        type: String,
+        description: 'Filter by map name'
+    })
+    @IsOptional()
+    mapName: string;
 
     // Not sure if these two are supposed to be user IDs or steam IDs. Going to assume userid for now,
     // if I'm wrong do steam ID handling like users/getall does.
@@ -28,7 +45,7 @@ export class RunsGetAllQuery extends PaginationQuery {
     userID: number;
 
     @ApiPropertyOptional({
-        name: 'userID',
+        name: 'userIDs',
         type: Number,
         description: 'Filter by CSV list of user IDs'
     })
@@ -46,4 +63,21 @@ export class RunsGetAllQuery extends PaginationQuery {
     @IsOptional()
     @Type(() => Number)
     flags: number;
+
+    @ApiPropertyOptional({
+        name: 'isPB',
+        type: Boolean,
+        description: 'Whether or not to filter by only personal best runs.'
+    })
+    @IsOptional()
+    isPB: boolean;
+
+    @ApiPropertyOptional({
+        name: 'order',
+        enum: ['date', 'time'],
+        type: String,
+        description: 'Order by date or time'
+    })
+    @IsOptional()
+    order: string;
 }
