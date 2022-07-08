@@ -1,13 +1,29 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { Prisma } from '@prisma/client';
 import { PaginatedResponseDto } from '../../@common/dto/paginated-response.dto';
 import { RunDto } from '../../@common/dto/run/runs.dto';
-import { ExpandToPrismaIncludes } from '../../@common/utils/dto.utility';
+import { DtoFactory, ExpandToPrismaIncludes } from '../../@common/utils/dto.utility';
 import { RunsRepoService } from '../repo/runs-repo.service';
 
 @Injectable()
 export class RunsService {
     constructor(private readonly runRepo: RunsRepoService) {}
+
+    async get(runID: number, expand: string[]): Promise<RunDto> {
+        const where: Prisma.RunWhereUniqueInput = { id: runID };
+        const include: Prisma.RunInclude = {
+            player: true,
+            ...ExpandToPrismaIncludes(expand?.filter((x) => ['baseStats', 'map', 'rank', 'zoneStats'].includes(x)))
+        };
+
+        if (expand?.includes('mapWithInfo')) include.map = { include: { info: true } };
+
+        const dbResponse = await this.runRepo.get(where, include);
+
+        if (!dbResponse) throw new NotFoundException('Run not found');
+
+        return DtoFactory(RunDto, dbResponse);
+    }
 
     async getAll(
         skip?: number,

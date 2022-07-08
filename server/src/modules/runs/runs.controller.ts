@@ -3,7 +3,7 @@ import { RunsService } from './runs.service';
 import { ApiBearerAuth, ApiNotFoundResponse, ApiOkResponse, ApiOperation, ApiParam, ApiTags } from '@nestjs/swagger';
 import { ApiOkPaginatedResponse, PaginatedResponseDto } from '../../@common/dto/paginated-response.dto';
 import { RunDto } from '../../@common/dto/run/runs.dto';
-import { RunsGetAllQuery } from '../../@common/dto/query/run-queries.dto';
+import { RunsGetAllQuery, RunsGetQuery } from '../../@common/dto/query/run-queries.dto';
 
 @ApiBearerAuth()
 @Controller('api/v1/runs')
@@ -39,8 +39,8 @@ export class RunsController {
     })
     @ApiOkResponse({ type: RunDto, description: 'The found run' })
     @ApiNotFoundResponse({ description: 'Run was not found' })
-    getRun(@Param('runID', ParseIntPipe) runID: number): Promise<RunDto> {
-        return void 0;
+    getRun(@Param('runID', ParseIntPipe) runID: number, @Query() query?: RunsGetQuery): Promise<RunDto> {
+        return this.runsService.get(runID, query.expand);
     }
 
     @Get('/:runID/download')

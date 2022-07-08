@@ -341,4 +341,36 @@ describe('runs', () => {
 
         it('should respond with 401 if no access token is provided', () => get('runs', 401, {}, null));
     });
+
+    describe('GET /api/v1/runs/{runID}', () => {
+        const expects = (res: request.Response) => expect(res.body).toBeValidDto(RunDto);
+        it('should return a valid run', async () => {
+            const res = await get('runs/' + run1.id, 200);
+            expects(res);
+            expect(res.body.id).toBe(run1.id.toString());
+            expect(res.body.mapID).toBe(run1.mapID);
+        });
+
+        it('should respond with a run using the baseStats include', () =>
+            expandTest('runs/' + run1.id, expects, 'baseStats', false));
+
+        it('should respond with a run using the map include', () =>
+            expandTest('runs/' + run1.id, expects, 'map', false));
+
+        it('should respond with a run using the rank include', () =>
+            expandTest('runs/' + run1.id, expects, 'rank', false));
+
+        it('should respond with a run using the zoneStats include', () =>
+            expandTest('runs/' + run1.id, expects, 'zoneStats', false));
+
+        it('should respond with a run using the mapWithInfo include', async () => {
+            const res = await get('runs/' + run1.id, 200, { expand: 'mapWithInfo' });
+            expects(res);
+            expect(res.body.map).toHaveProperty('info');
+        });
+
+        it('should respond with 404 when no run is found', () => get('runs/123456789', 404));
+
+        it('should respond with 401 when no access token is provided', () => get('runs/1', 401, {}, null));
+    });
 });
