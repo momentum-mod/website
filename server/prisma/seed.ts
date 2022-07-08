@@ -299,7 +299,7 @@ async function createRandomMapTrackStats(mapTrackID, baseStatsID) {
 
     return await prisma.mapTrackStats.create({
         data: {
-            mapTrackID: mapTrackID,
+            trackID: mapTrackID,
             baseStatsID: baseStatsID,
             completions: faker.datatype.number(),
             uniqueCompletions: faker.datatype.number()
