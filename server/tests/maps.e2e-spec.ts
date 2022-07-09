@@ -12,9 +12,6 @@ import { MapCreditDto } from '../src/@common/dto/map/map-credit.dto';
 import { MapImageDto } from '../src/@common/dto/map/map-image.dto';
 import { RunDto } from '../src/@common/dto/run/runs.dto';
 import { MapRankDto } from '../src/@common/dto/map/map-rank.dto';
-import { MapTrackDto } from '../src/@common/dto/map/map-track.dto';
-import { MapZoneDto } from '../src/@common/dto/map/zone/map-zone.dto';
-import { MapZoneTriggerDto } from '../src/@common/dto/map/zone/map-zone-trigger.dto';
 import { ActivityTypes } from '../src/@common/enums/activity.enum';
 
 describe('Maps', () => {
@@ -28,7 +25,7 @@ describe('Maps', () => {
         map2,
         map3,
         map4,
-        mapObj,
+        createMapObj: () => any,
         gameAdmin,
         gameAdminAccessToken,
         adminAccessToken,
@@ -344,48 +341,50 @@ describe('Maps', () => {
                 })
         });
 
-        mapObj = {
-            name: 'test_map',
-            type: MapType.SURF,
-            info: {
-                description: 'mamp',
-                numTracks: 1,
-                creationDate: '2022-07-07T18:33:33.000Z'
-            },
-            credits: [
-                {
-                    userID: user.id,
-                    type: MapCreditType.AUTHOR
-                }
-            ],
-            tracks: Array(2)
-                .fill(0)
-                .map((_, i) => {
-                    return {
-                        trackNum: i,
-                        numZones: 1,
-                        isLinear: false,
-                        difficulty: 5,
-                        zones: Array(10)
-                            .fill(0)
-                            .map((_, j) => {
-                                return {
-                                    zoneNum: j,
-                                    triggers: [
-                                        {
-                                            type: j == 0 ? 1 : j == 1 ? 0 : 2,
-                                            pointsHeight: 512,
-                                            pointsZPos: 0,
-                                            points: `{"p1": "0", "p2": "0"}`,
-                                            properties: {
-                                                properties: '{}'
+        createMapObj = () => {
+            return {
+                name: 'test_map' + Math.floor(Math.random() * 10000000),
+                type: MapType.SURF,
+                info: {
+                    description: 'mamp',
+                    numTracks: 1,
+                    creationDate: '2022-07-07T18:33:33.000Z'
+                },
+                credits: [
+                    {
+                        userID: user.id,
+                        type: MapCreditType.AUTHOR
+                    }
+                ],
+                tracks: Array(2)
+                    .fill(0)
+                    .map((_, i) => {
+                        return {
+                            trackNum: i,
+                            numZones: 1,
+                            isLinear: false,
+                            difficulty: 5,
+                            zones: Array(10)
+                                .fill(0)
+                                .map((_, j) => {
+                                    return {
+                                        zoneNum: j,
+                                        triggers: [
+                                            {
+                                                type: j == 0 ? 1 : j == 1 ? 0 : 2,
+                                                pointsHeight: 512,
+                                                pointsZPos: 0,
+                                                points: '{"p1": "0", "p2": "0"}',
+                                                properties: {
+                                                    properties: '{}'
+                                                }
                                             }
-                                        }
-                                    ]
-                                };
-                            })
-                    };
-                })
+                                        ]
+                                    };
+                                })
+                        };
+                    })
+            };
         };
 
         // admin has WR, user should have a rank 2 PB
@@ -478,11 +477,14 @@ describe('Maps', () => {
 
     describe('GET maps', () => {
         const expects = (res) => {
-            res.body.response = res.body.response.filter((x) => x.name.startsWith('maps_test'));
             expect(res.body).toBeValidPagedDto(MapDto);
-            // We always include these
-            res.body.response.forEach((x) => expect(x).toHaveProperty('mainTrack'));
-            res.body.response.forEach((x) => expect(x).toHaveProperty('info'));
+            // Some tests don't set mainTrack & info, test just ones in this test
+            res.body.response
+                .filter((x) => x.name.startsWith('maps_test'))
+                .forEach((x) => {
+                    expect(x).toHaveProperty('mainTrack');
+                    expect(x).toHaveProperty('info');
+                });
         };
         const filter = (x) => x.id === map.id;
 
@@ -626,51 +628,83 @@ describe('Maps', () => {
 
     describe('POST maps', () => {
         it('should create a new map', async () => {
-            const res = await post('maps', 201, mapObj);
+            const mapObj = createMapObj();
 
-            expect(res.body).toBeValidDto(MapDto);
-            expect(res.body.name).toBe(mapObj.name);
-            expect(res.body).toHaveProperty('info');
-            expect(res.body.info.description).toBe(mapObj.info.description);
-            expect(res.body.info.numTracks).toBe(mapObj.info.numTracks);
-            expect(res.body.info.creationDate).toBe(mapObj.info.creationDate);
-            expect(res.body.submitterID).toBe(user.id);
-            expect(res.body.credits[0].userID).toBe(user.id);
-            expect(res.body.credits[0].type).toBe(MapCreditType.AUTHOR);
-            expect(res.body).toHaveProperty('tracks');
-            expect(res.body.tracks).toHaveLength(2);
-            expect(res.body.mainTrack.id).toBe(mapObj.tracks.find((track) => track.trackNum === 0).id);
-            res.body.tracks.forEach((track) => {
-                expect(track).toBeValidDto(MapTrackDto);
+            await post('maps', 204, mapObj);
+
+            const map = await (global.prisma as PrismaService).map.findFirst({
+                where: { name: mapObj.name },
+                include: {
+                    info: true,
+                    stats: true,
+                    credits: true,
+                    mainTrack: true,
+                    tracks: { include: { zones: { include: { triggers: { include: { properties: true } } } } } }
+                }
+            });
+
+            expect(map.name).toBe(mapObj.name);
+            expect(map).toHaveProperty('info');
+            expect(map.info.description).toBe(mapObj.info.description);
+            expect(map.info.numTracks).toBe(mapObj.info.numTracks);
+            expect(map.info.creationDate.toJSON()).toBe(mapObj.info.creationDate);
+            expect(map.submitterID).toBe(user.id);
+            expect(map.credits[0].userID).toBe(user.id);
+            expect(map.credits[0].type).toBe(MapCreditType.AUTHOR);
+            expect(map).toHaveProperty('tracks');
+            expect(map.tracks).toHaveLength(2);
+            expect(map.mainTrack.id).toBe(map.tracks.find((track) => track.trackNum === 0).id);
+            map.tracks.forEach((track) => {
+                expect(track.trackNum).toBeLessThanOrEqual(1);
                 track.zones.forEach((zone) => {
-                    expect(zone).toBeValidDto(MapZoneDto);
-                    zone.triggers.forEach((trigger) => expect(trigger).toBeValidDto(MapZoneTriggerDto));
+                    expect(zone.zoneNum).toBeLessThanOrEqual(10);
+                    zone.triggers.forEach((trigger) => {
+                        expect(trigger.points).toBe('{"p1": "0", "p2": "0"}');
+                        expect(trigger.properties.properties).toBe('{}');
+                    });
                 });
             });
         });
 
         it('should create map upload activities for the map authors', async () => {
-            const mapDB = (await post('maps', 201, mapObj)).body;
+            const mapObj = createMapObj();
 
-            const prisma: PrismaService = global.prisma;
+            await post('maps', 204, mapObj);
 
-            const activity = await prisma.activity.findFirst({ where: { userID: user.id } });
+            const map = await (global.prisma as PrismaService).map.findFirst({ where: { name: mapObj.name } });
+
+            const activity = await (global.prisma as PrismaService).activity.findFirst({ where: { userID: user.id } });
 
             expect(activity.type).toBe(ActivityTypes.MAP_UPLOADED);
-            expect(activity.data).toBe(BigInt(mapDB.id));
+            expect(activity.data).toBe(BigInt(map.id));
+        });
+
+        it('set the Location property in the response header on creation', async () => {
+            const mapObj = createMapObj();
+
+            const res = await post('maps', 204, mapObj);
+
+            const map = await (global.prisma as PrismaService).map.findFirst({ where: { name: mapObj.name } });
+
+            expect(res.get('Location')).toBe(`api/v1/maps/${map.id}/upload`);
         });
 
         it('should respond with 400 if the map does not have any tracks', () =>
-            post('maps', 400, { ...mapObj, tracks: [] }));
+            post('maps', 400, { ...createMapObj, tracks: [] }));
 
-        it('should respond with 400 if a map track have less than 2 zones', () =>
-            post('maps', 400, { ...mapObj, tracks: [{ ...mapObj.tracks[0], zones: mapObj.tracks[0].zones[0] }] }));
+        it('should respond with 400 if a map track have less than 2 zones', async () => {
+            const mapObj = createMapObj();
+            await post('maps', 400, {
+                ...createMapObj,
+                tracks: [{ ...mapObj.tracks[0], zones: mapObj.tracks[0].zones[0] }]
+            });
+        });
 
         it('should respond with 409 if a map with the same name exists', () =>
-            post('maps', 409, { ...mapObj, name: map.name }, user3AccessToken));
+            post('maps', 409, { ...createMapObj(), name: map.name }, user3AccessToken));
 
         it('should respond with 409 if the submitter already have 5 or more pending maps', () =>
-            post('maps', 409, { ...mapObj }, user3AccessToken));
+            post('maps', 409, createMapObj(), user3AccessToken));
 
         it('should respond with 403 when the user does not have the mapper role', () =>
             post('maps', 403, mapObj, user2AccessToken));
