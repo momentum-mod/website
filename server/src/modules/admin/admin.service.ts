@@ -54,7 +54,7 @@ export class AdminService {
                 userID: placeholderID
             },
             {
-                user: { connect: { id: userID } }
+                userID: userID
             }
         );
 
