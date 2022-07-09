@@ -86,7 +86,10 @@ export class MapsRepoService {
 
     //#region MapCredit
 
-    async updateCredit(where: Prisma.MapCreditWhereInput, input: Prisma.MapCreditUpdateInput): Promise<void> {
+    async updateCredit(
+        where: Prisma.MapCreditWhereInput,
+        input: Prisma.MapCreditUncheckedUpdateManyInput
+    ): Promise<void> {
         await this.prisma.mapCredit.updateMany({
             where: where,
             data: input
