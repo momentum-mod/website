@@ -63,7 +63,10 @@ export class MapsRepoService {
             where: where,
             skip: skip,
             take: take,
-            include: include
+            include: include,
+            orderBy: {
+                createdAt: 'desc'
+            }
         });
 
         return [maps, count];
