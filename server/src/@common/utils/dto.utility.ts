@@ -95,6 +95,9 @@ export const ExpandQueryDecorators = (expansions: string[]): PropertyDecorator =
  * @param expansions - String array of all the allowed expansions
  * */
 export const ExpandToPrismaIncludes = (expansions: string[]): Record<string, boolean> | undefined =>
-    expansions?.reduce((expansion, item) => {
-        return { ...expansion, [item]: true };
-    }, {}) as Record<string, boolean>;
+    expansions
+        ? (expansions.reduce((expansion, item) => {
+              expansion[item] = true;
+              return expansion;
+          }, {}) as Record<string, boolean>)
+        : undefined;
