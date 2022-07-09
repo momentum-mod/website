@@ -24,7 +24,8 @@ const formatValidationErrors = (errors: ValidationError[], depth = 1): string =>
                     Object.entries(err.constraints ?? {})
                         .map(([conName, conMessage]) => `${conName}: ${conMessage}`)
                         .join(newLine + '  ');
-            if (err.children.length > 0) str += newLine + 'Children:' + formatValidationErrors(err.children, depth + 1);
+            if (err.children?.length > 0)
+                str += newLine + 'Children:' + formatValidationErrors(err.children, depth + 1);
 
             return str;
         })
