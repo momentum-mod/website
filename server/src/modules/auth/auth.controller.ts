@@ -11,12 +11,12 @@ import { JWTResponseDto } from '../../@common/dto/jwt-response.dto';
 
 @Controller('/auth')
 @ApiTags('Auth')
+@Public()
 export class AuthController {
     constructor(private readonly authService: AuthService, private readonly steamAuthService: SteamAuthService) {}
 
     @ApiOperation({ summary: 'Authenticates using steam' })
     @Get('/steam')
-    @Public()
     authSteam(@Req() req, @Res() res): void {
         passport.authenticate('steam', { session: false })(req, res);
     }
@@ -30,7 +30,6 @@ export class AuthController {
 
     @ApiOperation({ summary: 'Gets the JWT using a steam user ticket' })
     @Post('/steam/user')
-    @Public()
     async getUserFromSteam(@Req() req: Request): Promise<JWTResponseDto> {
         const userID = req.headers['id'] as string;
         if (!req.body) {
