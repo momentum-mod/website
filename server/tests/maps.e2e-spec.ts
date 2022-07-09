@@ -496,6 +496,21 @@ describe('Maps', () => {
             expect(res.body.returnCount).toBeGreaterThanOrEqual(4);
         });
 
+        it('should be ordered by date', async () => {
+            const res = await get('maps', 200);
+
+            expects(res);
+
+            expect(
+                res.body.response
+                    .slice(1)
+                    .every(
+                        (item, i) =>
+                            new Date(item.createdAt).getTime() <= new Date(res.body.response[i].createdAt).getTime()
+                    )
+            ).toBe(true);
+        });
+
         it('should respond with filtered map data using the take parameter', () => takeTest('maps', expects));
 
         it('should respond with filtered map data using the skip parameter', () => skipTest('maps', expects));
