@@ -49,7 +49,7 @@ export class UsersService {
     ): Promise<PaginatedResponseDto<UserDto>> {
         const where: Prisma.UserWhereInput = {};
 
-        if (steamID && steamIDs) throw new BadRequestException();
+        if (steamID && steamIDs) throw new BadRequestException('Only one of steamID and steamIDs may be used at the same time');
 
         if (steamID) {
             take = 1;
@@ -106,7 +106,7 @@ export class UsersService {
 
         const dbResponse: any = await this.userRepo.get(id, include);
 
-        if (!dbResponse) throw new NotFoundException();
+        if (!dbResponse) throw new NotFoundException('User not found');
 
         if (dbResponse.mapRanks) {
             dbResponse.mapRank = dbResponse.mapRanks[0];
