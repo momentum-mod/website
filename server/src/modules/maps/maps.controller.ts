@@ -1,4 +1,19 @@
-import { Body, Controller, Get, Param, ParseIntPipe, Post, Query, UploadedFile, UseInterceptors } from '@nestjs/common';
+import {
+    Body,
+    Controller,
+    Get,
+    Param,
+    ParseIntPipe,
+    Post,
+    Query,
+    Res,
+    UploadedFile,
+    UseInterceptors,
+    HttpCode,
+    HttpStatus,
+    BadRequestException,
+    StreamableFile
+} from '@nestjs/common';
 import {
     ApiBearerAuth,
     ApiBody,
@@ -8,7 +23,10 @@ import {
     ApiConsumes,
     ApiNotFoundResponse,
     ApiOkResponse,
-    ApiConflictResponse
+    ApiConflictResponse,
+    ApiBadRequestResponse,
+    ApiForbiddenResponse,
+    ApiNoContentResponse
 } from '@nestjs/swagger';
 import { ApiOkPaginatedResponse, PaginatedResponseDto } from '../../@common/dto/paginated-response.dto';
 import { MapsService } from './maps.service';
@@ -24,6 +42,8 @@ import { LoggedInUser } from '../../@common/decorators/logged-in-user.decorator'
 @ApiTags('Maps')
 export class MapsController {
     constructor(private readonly mapsService: MapsService) {}
+
+    //#region Map
 
     @Get()
     @ApiOperation({ summary: 'Returns all maps' })
@@ -47,18 +67,27 @@ export class MapsController {
     }
 
     @Post()
+    @HttpCode(HttpStatus.NO_CONTENT)
     @Roles(RolesEnum.MAPPER)
     @ApiOperation({ summary: 'Creates a single map' })
     @ApiOkResponse({ type: MapDto, description: 'The newly created map' })
+    @ApiForbiddenResponse({ description: 'User does not have the Mapper role' })
+    @ApiBadRequestResponse({ description: 'Map object is invalid' })
     @ApiConflictResponse({ description: 'Map already exists' })
-    @ApiConflictResponse({ description: 'Submitter' })
+    @ApiConflictResponse({ description: 'Submitter has reached pending map limit' })
     @ApiBody({
         type: CreateMapDto,
         description: 'The create map data transfer object',
         required: true
     })
-    createMap(@Body() body: CreateMapDto, @LoggedInUser('id') userID: number): Promise<MapDto> {
-        return this.mapsService.create(body, userID);
+    async createMap(
+        @Res({ passthrough: true }) res,
+        @Body() body: CreateMapDto,
+        @LoggedInUser('id') userID: number
+    ): Promise<void> {
+        const id = await this.mapsService.create(body, userID);
+
+        MapsController.setMapUploadLocationHeader(res, id);
     }
 
     @Get('/:mapID')
@@ -105,4 +134,14 @@ export class MapsController {
         // for swagger shit
         return this.mapsService.upload(+mapID, mapFile.buffer);
     }
+    //#endregion
+
+    //#region Private
+
+    // Frontend reads this header property and sends upload POST to that endpoint
+    private static setMapUploadLocationHeader(res, mapID): void {
+        res.set('Location', `api/v1/maps/${mapID}/upload`);
+    }
+
+    //#endregion
 }
