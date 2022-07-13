@@ -89,6 +89,10 @@ async function ClearTables() {
     await prisma.xpSystems.deleteMany();
 }
 
+function randomBool(): boolean {
+    return Math.random() > 0.5;
+}
+
 function randomIntFromInterval(min: number, max: number): number {
     return Math.floor(Math.random() * (max - min + 1) + min);
 }
@@ -150,8 +154,23 @@ async function createRandomUser() {
             alias: faker.name.findName(),
             aliasLocked: faker.datatype.boolean(),
             avatar: '0d/0d0f330f84ceea21f04c65bd4c1efbff6172c519_full.jpg', // Currently can't use random user image from faker.js
-            roles: randomIntFromInterval(0, 64),
-            bans: randomIntFromInterval(0, 64),
+            roles: {
+                create: {
+                    mapper: randomBool(),
+                    verified: randomBool(),
+                    placeholder: randomBool(),
+                    admin: randomBool(),
+                    moderator: randomBool()
+                }
+            },
+            bans: {
+                create: {
+                    leaderboards: randomBool(),
+                    avatar: randomBool(),
+                    alias: randomBool(),
+                    bio: randomBool()
+                }
+            },
             country: faker.address.countryCode()
         }
     });
@@ -465,7 +484,11 @@ async function makeRandomUsersAMapper() {
                             id: usr.id
                         },
                         data: {
-                            roles: usr.roles | Roles.MAPPER
+                            roles: {
+                                update: {
+                                    mapper: true
+                                }
+                            }
                         }
                     })
                 );
@@ -480,7 +503,7 @@ async function mappersUploadMaps() {
                 id: true
             },
             where: {
-                roles: Roles.MAPPER
+                roles: { mapper: true }
             },
             take: NUM_OF_MAPPERS_TO_UPLOAD_MAPS
         })
