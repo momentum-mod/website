@@ -1,6 +1,6 @@
 import { User } from '@prisma/client';
 import { appConfig } from '../../../../config/config';
-import { Roles, Bans } from '../../enums/user.enum';
+import { Roles } from '../../enums/user.enum';
 import { ApiProperty, ApiPropertyOptional, PickType } from '@nestjs/swagger';
 import {
     IsDateString,
@@ -17,6 +17,8 @@ import { IsEnumFlag } from '../../validators/is-enum-flag.validator';
 import { ProfileDto } from './profile.dto';
 import { MapRankDto } from '../map/map-rank.dto';
 import { DtoFactory } from '../../utils/dto.utility';
+import { BansDto, UpdateBansDto } from './bans.dto';
+import { RolesDto, UpdateRolesDto } from './roles.dto';
 
 // TODO: UserStats in here in future as well
 export class UserDto implements User {
@@ -45,20 +47,6 @@ export class UserDto implements User {
     alias: string;
 
     @ApiPropertyOptional({
-        enum: Roles,
-        description: "Flags representing the user's combined roles"
-    })
-    @IsEnumFlag(Roles)
-    roles: Roles;
-
-    @ApiPropertyOptional({
-        enum: Bans,
-        description: "Flags representing the user's combined bans"
-    })
-    @IsEnumFlag(Bans)
-    bans: Bans;
-
-    @ApiPropertyOptional({
         type: String,
         description: 'Two-letter (ISO 3166-1 Alpha-2) country code for the user'
     })
@@ -76,6 +64,16 @@ export class UserDto implements User {
     @Transform(({ value }) => DtoFactory(ProfileDto, value))
     @ValidateNested()
     profile: ProfileDto;
+
+    @ApiPropertyOptional({ description: "The user's roles" })
+    @Transform(({ value }) => DtoFactory(RolesDto, value))
+    @ValidateNested()
+    roles: RolesDto;
+
+    @ApiPropertyOptional({ description: "The user's bans" })
+    @Transform(({ value }) => DtoFactory(BansDto, value))
+    @ValidateNested()
+    bans: BansDto;
 
     @ApiProperty({ description: 'The map rank data for the user on a specific map' })
     @Transform(({ value }) => DtoFactory(MapRankDto, value))
@@ -95,7 +93,7 @@ export class UserDto implements User {
     @ApiProperty()
     @Expose()
     get avatarURL(): string {
-        if (this.bans & Bans.BANNED_AVATAR) {
+        if (this.bans?.avatar) {
             return appConfig.baseURL + '/assets/images/blank_avatar.jpg';
         } else {
             return this.avatar ? 'https://avatars.cloudflare.steamstatic.com/' + this.avatar : null;
@@ -124,21 +122,15 @@ export class UpdateUserDto {
 }
 
 export class AdminUpdateUserDto extends UpdateUserDto {
-    @ApiPropertyOptional({
-        enum: Roles,
-        description: 'The new roles to set'
-    })
-    @IsOptional()
-    @IsEnumFlag(Roles)
-    roles?: Roles;
+    @ApiPropertyOptional({ description: 'The new roles to set' })
+    @Transform(({ value }) => DtoFactory(UpdateRolesDto, value))
+    @ValidateNested()
+    roles?: UpdateRolesDto;
 
-    @ApiPropertyOptional({
-        enum: Bans,
-        description: 'The new bans to set'
-    })
-    @IsOptional()
-    @IsEnumFlag(Roles)
-    bans?: Roles;
+    @ApiPropertyOptional({ description: 'The new bans to set' })
+    @Transform(({ value }) => DtoFactory(UpdateBansDto, value))
+    @ValidateNested()
+    bans?: UpdateBansDto;
 }
 
 export class MergeUserDto {
