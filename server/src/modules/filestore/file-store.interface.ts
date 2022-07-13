@@ -1,5 +1,5 @@
 export interface IFileStoreFile {
-    fileName: string;
+    fileKey: string;
     basePath: string;
     fullPath: string;
     downloadURL: string;
@@ -7,7 +7,6 @@ export interface IFileStoreFile {
 }
 
 export interface IFileStoreCloudFile {
-    fileName: string;
-    downloadURL: string;
+    fileKey: string;
     hash: string;
 }
