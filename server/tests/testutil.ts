@@ -1,4 +1,5 @@
 ﻿import * as request from 'supertest';
+import fs from 'fs';
 
 export async function get(
     url: string,
@@ -12,6 +13,20 @@ export async function get(
         .set('Authorization', 'Bearer ' + accessToken)
         .query(query ? query : {})
         .expect('Content-Type', /json/)
+        .expect(status);
+}
+
+export async function getNoContent(
+    url: string,
+    status: number,
+    query?: Record<string, unknown>,
+    accessToken: string = global.accessToken
+): Promise<request.Test> {
+    return request(global.server)
+        .get('/api/v1/' + url)
+        .set('Accept', 'application/json')
+        .set('Authorization', 'Bearer ' + accessToken)
+        .query(query ? query : {})
         .expect(status);
 }
 
@@ -29,6 +44,20 @@ export async function post(
         .expect(status);
 }
 
+export async function postAttach(
+    url: string,
+    status: number,
+    file: Blob | Buffer | fs.ReadStream | string | boolean | number,
+    field = 'file',
+    accessToken: string = global.accessToken
+): Promise<request.Test> {
+    return request(global.server)
+        .post('/api/v1/' + url)
+        .set('Content-Type', 'multipart/form-data')
+        .set('Authorization', 'Bearer ' + accessToken)
+        .attach(field, './tests/files/' + file)
+        .expect(status);
+}
 export async function put(
     url: string,
     status: number,

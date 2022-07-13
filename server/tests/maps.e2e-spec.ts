@@ -4,15 +4,29 @@ import { readFileSync } from 'fs';
 import { AuthService } from '../src/modules/auth/auth.service';
 import { PrismaService } from '../src/modules/repo/prisma.service';
 import { MapStatus, MapCreditType, MapType } from '../src/@common/enums/map.enum';
-import { Roles } from '../src/@common/enums/user.enum';
 import { MapDto } from '../src/@common/dto/map/map.dto';
-import { del, expandTest, get, patch, post, put, skipTest, takeTest } from './testutil';
+import { del, expandTest, get, getNoContent, patch, post, postAttach, put, skipTest, takeTest } from './testutil';
 import { MapInfoDto } from '../src/@common/dto/map/map-info.dto';
 import { MapCreditDto } from '../src/@common/dto/map/map-credit.dto';
 import { MapImageDto } from '../src/@common/dto/map/map-image.dto';
 import { RunDto } from '../src/@common/dto/run/runs.dto';
 import { MapRankDto } from '../src/@common/dto/map/map-rank.dto';
 import { ActivityTypes } from '../src/@common/enums/activity.enum';
+import axios from 'axios';
+import { createHash } from 'crypto';
+import { DeleteObjectCommand, HeadObjectCommand, PutObjectCommand, S3Client } from '@aws-sdk/client-s3';
+import { appConfig } from '../config/config';
+
+const hash = (buffer: Buffer) => createHash('sha1').update(buffer).digest('hex');
+
+const s3Client = new S3Client({
+    region: appConfig.storage.region,
+    endpoint: appConfig.storage.endpointURL,
+    credentials: {
+        accessKeyId: appConfig.storage.accessKeyID,
+        secretAccessKey: appConfig.storage.secretAccessKey
+    }
+});
 
 describe('Maps', () => {
     let user,
@@ -72,9 +86,10 @@ describe('Maps', () => {
 
         map = await prisma.map.create({
             data: {
-                name: 'maps_test1',
+                // Random name, ensures the BSP actually does get uploaded
+                name: 'maps_test' + Math.floor(Math.random() * 100000000),
                 type: MapType.SURF,
-                statusFlag: MapStatus.APPROVED,
+                statusFlag: MapStatus.NEEDS_REVISION,
                 submitterID: user.id,
                 info: {
                     create: {
@@ -722,10 +737,93 @@ describe('Maps', () => {
             post('maps', 409, createMapObj(), user3AccessToken));
 
         it('should respond with 403 when the user does not have the mapper role', () =>
-            post('maps', 403, mapObj, user2AccessToken));
+            post('maps', 403, createMapObj(), user2AccessToken));
 
-        it('should respond with 401 when no access token is provided', () => post('maps', 401, mapObj, null));
+        it('should respond with 401 when no access token is provided', () => post('maps', 401, createMapObj(), null));
     });
+
+    describe('GET maps/{mapID}/upload', () => {
+        it('should set the response header location to the map upload endpoint', async () => {
+            const res = await getNoContent(`maps/${map1.id}/upload`, 204);
+
+            expect(res.get('Location')).toBe(`api/v1/maps/${map1.id}/upload`);
+        });
+
+        it('should respond with a 403 when the submitterID does not match the userID', () =>
+            getNoContent(`maps/${map1.id}/upload`, 403, {}, user2AccessToken));
+
+        it('should respond with a 403 when the map is not accepting uploads', () =>
+            getNoContent(`maps/${map1.id}/upload`, 403, {}, user2AccessToken));
+
+        it('should respond with 401 when no access token is provided', () =>
+            getNoContent(`maps/${map1.id}/upload`, 401, {}, null));
+    });
+
+    describe('POST /maps/{mapID}/upload', () => {
+        it('should upload the map file', async () => {
+            const inBuffer = readFileSync('./tests/files/map.bsp');
+            const inHash = hash(inBuffer);
+
+            const res = await postAttach(`maps/${map1.id}/upload`, 201, 'map.bsp');
+
+            const url: string = res.body.downloadURL;
+            expect(url.split('/').at(-1)).toBe(res.body.name + '.bsp');
+
+            // This is failing sometimes, giving Backblaze a little time to process our file
+            await new Promise((resolve) => setTimeout(resolve, 1000));
+
+            const outBuffer = await axios
+                .get(url, { responseType: 'arraybuffer' })
+                .then((res) => Buffer.from(res.data, 'binary'));
+            const outHash = hash(outBuffer);
+
+            expect(inHash).toBe(res.body.hash);
+            expect(outHash).toBe(res.body.hash);
+
+            try {
+                await s3Client.send(
+                    new DeleteObjectCommand({
+                        Bucket: appConfig.storage.bucketName,
+                        Key: `maps/${map1.name}.bsp`
+                    })
+                );
+            } catch (err) {
+                console.log('WARNING: Failed to delete test map! Bucket likely now contains a junk map.');
+            }
+        });
+
+        it('should respond with a 400 when no map file is provided', () => post(`maps/${map1.id}/upload`, 400, {}));
+
+        it('should respond with a 403 when the submitterID does not match the userID', () =>
+            postAttach(`maps/${map1.id}/upload`, 403, 'map.bsp', 'file', user2AccessToken));
+
+        it('should respond with a 403 when the map is not accepting uploads', () =>
+            postAttach(`maps/${map2.id}/upload`, 403, 'map.bsp', 'file', user2AccessToken));
+
+        it('should respond with 401 when no access token is provided', () =>
+            post(`maps/${map1.id}/upload`, 401, {}, null));
+    });
+
+    describe('The Big Chungie Create, Upload then Download Test', () =>
+        it('should successfully create a map, upload it to the returned location, then download it', async () => {
+            const res = await post('maps', 204, createMapObj());
+
+            const inBuffer = readFileSync('./tests/files/map.bsp');
+            const inHash = hash(inBuffer);
+
+            const uploadURL = res.get('Location').replace('api/v1/', '');
+
+            const res2 = await postAttach(uploadURL, 201, 'map.bsp');
+
+            await new Promise((resolve) => setTimeout(resolve, 1000));
+
+            const outBuffer = await axios
+                .get(res2.body.downloadURL, { responseType: 'arraybuffer' })
+                .then((res) => Buffer.from(res.data, 'binary'));
+            const outHash = hash(outBuffer);
+
+            expect(inHash).toBe(outHash);
+        }));
 
     describe('GET maps/{mapID}', () => {
         const expects = (res) => expect(res.body).toBeValidDto(MapDto);
@@ -965,47 +1063,6 @@ describe('Maps', () => {
 
         it('should respond with 401 when no access token is provided', () => post(`maps /${map.id}/images`, 401));
     });
-
-    describe('GET maps/{mapID}/upload', () => {
-        it('should respond with the location for where to upload the map file', () =>
-            get(`maps/${map.id}/upload`, 204));
-
-        it('should respond with 401 when no access token is provided', () => get(`maps/${map.id}/upload`, 401));
-    });
-
-    describe('POST /maps/{mapID}/upload', () => {
-        it('should respond with a 400 when no map file is provided', () =>
-            request(global.server).post(`maps/${map.id}/upload`).type('form').send(null).expect(404));
-
-        it('should respond with a 403 when the submitterID does not match the userID', () =>
-            request(global.server)
-                .post(`maps/12133122/upload`)
-                .attach('mapFile', readFileSync('test/map1.bsp'), 'map1.bsp')
-                .expect(403));
-
-        // ??? isnt this the same as below?
-        it('should respond with a 409 when the map is not accepting uploads', () =>
-            request(global.server)
-                .post(`maps/${map.id}/upload`)
-                .attach('mapFile', readFileSync('test/map1.bsp'), 'map1.bsp')
-                .expect(409));
-
-        it('should upload the map file', () =>
-            request(global.server)
-                .post(`maps/${map.id}/upload`)
-                .attach('mapFile', readFileSync('test/map1.bsp'), 'map1.bsp')
-                .expect(200));
-
-        it('should respond with 401 when no access token is provided', () => post(`maps/${map.id}/upload`, 401, null));
-    });
-
-    describe('GET maps/{mapID}/download', () => {
-        it('should respond with a 404 when the map is not found', () => get('maps/12345/download', 404));
-
-        // ???? this is all???
-        it('should download the map file', async () => {
-            const res = await get(`maps/${map.id}/download`, 200);
-        });
 
         it('should respond with 401 when no access token is provided', () => get(`maps/${map.id}/download`, 401));
     });
