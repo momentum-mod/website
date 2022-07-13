@@ -2,7 +2,7 @@
 
 import { MapCreditType, MapStatus, MapType } from '../src/@common/enums/map.enum';
 import { PrismaService } from '../src/modules/repo/prisma.service';
-import { Bans, Roles } from '../src/@common/enums/user.enum';
+import { Roles } from '../src/@common/enums/user.enum';
 import { AuthService } from '../src/modules/auth/auth.service';
 import { ActivityTypes } from '../src/@common/enums/activity.enum';
 import { UserDto } from '../src/@common/dto/user/user.dto';
@@ -26,8 +26,7 @@ describe('User', () => {
                 country: 'GB',
                 alias: 'Ron Weasley',
                 avatar: '',
-                roles: Roles.ADMIN,
-                bans: 0,
+                roles: { create: { admin: true } },
                 profile: {
                     create: {
                         bio: 'Ronald Bilius "Ron" Weasley (b. 1 March, 1980) was an English pure-blood wizard, the sixth and youngest son of Arthur and Molly Weasley (née Prewett). He was also the younger brother of Bill, Charlie, Percy, Fred, George, and the elder brother of Ginny. Ron and his siblings lived at the The Burrow, on the outskirts of Ottery St Catchpole, Devon.\''
@@ -43,8 +42,8 @@ describe('User', () => {
             data: {
                 steamID: '96433563',
                 alias: 'Bill Weasley',
-                roles: Roles.VERIFIED,
-                bans: Bans.BANNED_BIO | Bans.BANNED_ALIAS,
+                roles: { create: { verified: true } },
+                bans: { create: { bio: true, alias: true } },
                 country: 'US',
                 profile: {
                     create: {
@@ -64,8 +63,7 @@ describe('User', () => {
                 steamID: '86546575',
                 alias: 'Percy Weasley',
                 avatar: 'e4db45e6d6472d9e61b131a04ad2f18a299daafc_full.jpg',
-                roles: Roles.MAPPER | Roles.VERIFIED,
-                bans: 0,
+                roles: { create: { mapper: true, verified: true } },
                 country: 'US',
                 profile: {
                     create: {
@@ -81,8 +79,7 @@ describe('User', () => {
                 steamID: '733345322',
                 alias: 'Arthur Weasley',
                 avatar: '',
-                roles: Roles.ADMIN,
-                bans: 0,
+                roles: { create: { admin: true } },
                 profile: {
                     create: {
                         bio: 'Arthur Weasley (b. 6 February, 1950) was an English pure-blood wizard in the employ of the Ministry of Magic, as well as a member of the second Order of the Phoenix. He was a staunch believer in the equality of all magical and Muggle folk and was the head of the Weasley family.'
@@ -95,8 +92,7 @@ describe('User', () => {
             data: {
                 steamID: '444444444444444',
                 alias: 'Ginny Weasley',
-                roles: Roles.ADMIN,
-                bans: 0,
+                roles: { create: { admin: true } },
                 country: 'US'
             }
         });

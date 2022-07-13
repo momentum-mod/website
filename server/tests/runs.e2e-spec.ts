@@ -21,8 +21,7 @@ describe('runs', () => {
                 steamID: '113706901137',
                 country: 'CA',
                 alias: 'Jean Chretien',
-                roles: Roles.ADMIN,
-                bans: 0,
+                roles: { create: { admin: true } },
                 avatar: 'chretien_selfie.png',
                 profile: {
                     create: {
@@ -40,8 +39,7 @@ describe('runs', () => {
                 steamID: '123654789',
                 country: 'CA',
                 alias: 'John Laurie',
-                roles: Roles.MAPPER,
-                bans: 0,
+                roles: { create: { mapper: true } },
                 avatar: 'jlau.png',
                 profile: {
                     create: {

@@ -1,6 +1,6 @@
 // noinspection DuplicatedCode
 
-import { Bans, Roles } from '../src/@common/enums/user.enum';
+import { Roles } from '../src/@common/enums/user.enum';
 import { ReportCategory, ReportType } from '../src/@common/enums/report.enum';
 import { MapCreditType, MapStatus, MapType } from '../src/@common/enums/map.enum';
 import { PrismaService } from '../src/modules/repo/prisma.service';
@@ -246,8 +246,7 @@ describe('Admin', () => {
                 steamID: '234523452345',
                 alias: 'Admin User',
                 avatar: '',
-                roles: Roles.ADMIN,
-                bans: 0,
+                roles: { create: { admin: true } },
                 country: 'GB',
                 profile: {
                     create: {
@@ -262,8 +261,7 @@ describe('Admin', () => {
                 steamID: '2385764545',
                 alias: 'Admin User 2',
                 avatar: '',
-                roles: Roles.ADMIN,
-                bans: 0,
+                roles: { create: { admin: true } },
                 country: 'GB'
             }
         });
@@ -273,8 +271,7 @@ describe('Admin', () => {
                 steamID: '657856782',
                 alias: 'Mod User',
                 avatar: '',
-                roles: Roles.MODERATOR,
-                bans: 0,
+                roles: { create: { moderator: true } },
                 country: 'GB'
             }
         });
@@ -284,8 +281,7 @@ describe('Admin', () => {
                 steamID: '142341234',
                 alias: 'Mod User 2',
                 avatar: '',
-                roles: Roles.MODERATOR,
-                bans: 0,
+                roles: { create: { moderator: true } },
                 country: 'GB'
             }
         });
@@ -294,7 +290,6 @@ describe('Admin', () => {
             data: {
                 steamID: '7863245554',
                 alias: 'Non Admin User',
-                roles: 0,
                 profile: {
                     create: {
                         bio: 'Charles "Charlie" Weasley (b. 12 December, 1972) was an English pure-blood wizard, the second eldest son of Arthur and Molly Weasley (née Prewett), younger brother of Bill Weasley and the elder brother of Percy, the late Fred, George, Ron, and Ginny.'
@@ -307,8 +302,8 @@ describe('Admin', () => {
             data: {
                 steamID: '41234523452345',
                 alias: 'U1',
-                roles: Roles.VERIFIED,
-                bans: Bans.BANNED_BIO,
+                roles: { create: { verified: true } },
+                bans: { create: { bio: true } },
                 profile: {
                     create: {
                         bio: 'Feed me'
@@ -321,7 +316,7 @@ describe('Admin', () => {
             data: {
                 steamID: '12341234214521',
                 alias: 'U2',
-                roles: Roles.VERIFIED
+                roles: { create: { verified: true } }
             }
         });
 
@@ -329,7 +324,7 @@ describe('Admin', () => {
             data: {
                 steamID: '612374578254',
                 alias: 'MU1',
-                roles: Roles.PLACEHOLDER
+                roles: { create: { placeholder: true } }
             }
         });
 
@@ -531,7 +526,11 @@ describe('Admin', () => {
         });
 
         it("should successfully update a specific user's bans", async () => {
-            const bans = Bans.BANNED_AVATAR | Bans.BANNED_LEADERBOARDS;
+            const bans = {
+                avatar: true,
+                leaderboards: true
+            };
+
             await patch(`admin/users/${user1.id}`, 204, { bans: bans });
 
             const res = await get(`users/${user1.id}`, 200);
@@ -540,48 +539,51 @@ describe('Admin', () => {
         });
 
         it("should successfully update a specific user's roles", async () => {
-            await patch(`admin/users/${user1.id}`, 204, { roles: Roles.MAPPER });
+            await patch(`admin/users/${user1.id}`, 204, { roles: { mapper: true } });
 
             const res = await get(`users/${user1.id}`, 200);
 
-            expect(res.body.roles).toBe(Roles.MAPPER);
+            expect(res.body.roles.mapper).toBe(true);
         });
 
         it('should allow an admin to make a regular user a moderator', () =>
-            patch(`admin/users/${user1.id}`, 204, { roles: Roles.MODERATOR }));
+            patch(`admin/users/${user1.id}`, 204, { roles: { moderator: true } }));
 
         it("should allow an admin to update a moderator's roles", () =>
-            patch(`admin/users/${modUser.id}`, 204, { roles: Roles.MAPPER }));
+            patch(`admin/users/${modUser.id}`, 204, { roles: { mapper: true } }));
+
+        it('should allow an admin to remove a user as moderator', () =>
+            patch(`admin/users/${modUser.id}`, 204, { roles: { moderator: false } }));
 
         it("should not allow an admin to update another admin's roles", () =>
-            patch(`admin/users/${adminUser2.id}`, 403, { roles: Roles.MAPPER }));
+            patch(`admin/users/${adminUser2.id}`, 403, { roles: { mapper: true } }));
 
         it('should allow an admin to update their own non-admin roles', () =>
-            patch(`admin/users/${adminUser.id}`, 204, { roles: Roles.MAPPER | Roles.ADMIN }));
+            patch(`admin/users/${adminUser.id}`, 204, { roles: { mapper: true } }));
 
         it('should allow an admin to update their own moderator role', () =>
-            patch(`admin/users/${adminUser.id}`, 204, { roles: Roles.MAPPER | Roles.MODERATOR }));
+            patch(`admin/users/${adminUser.id}`, 204, { roles: { moderator: true } }));
 
         it('should allow an admin to update their own admin role', () =>
-            patch(`admin/users/${adminUser.id}`, 204, { roles: Roles.MAPPER }));
+            patch(`admin/users/${adminUser.id}`, 204, { roles: { admin: false } }));
 
         it("should successfully allow a moderator to update a specific user's roles", () =>
-            patch(`admin/users/${user1.id}`, 204, { roles: Roles.MAPPER }, modUserToken));
+            patch(`admin/users/${user1.id}`, 204, { roles: { mapper: true } }, modUserToken));
 
         it('should not allow a moderator to make another user a moderator', () =>
-            patch(`admin/users/${user1.id}`, 403, { roles: Roles.MODERATOR }, modUserToken));
+            patch(`admin/users/${user1.id}`, 403, { roles: { moderator: true } }, modUserToken));
 
         it("should not allow a moderator to update another moderator's roles", () =>
-            patch(`admin/users/${modUser2.id}`, 403, { roles: Roles.MAPPER }, modUserToken));
+            patch(`admin/users/${modUser2.id}`, 403, { roles: { moderator: false } }, modUserToken));
 
         it("should not allow a moderator to update an admin's roles", () =>
-            patch(`admin/users/${adminUser2.id}`, 403, { roles: Roles.MAPPER }, modUserToken));
+            patch(`admin/users/${adminUser2.id}`, 403, { roles: { mapper: true } }, modUserToken));
 
         it('should allow a moderator to update their own non-mod roles', () =>
-            patch(`admin/users/${modUser.id}`, 204, { roles: Roles.MAPPER | Roles.MODERATOR }, modUserToken));
+            patch(`admin/users/${modUser.id}`, 204, { roles: { mapper: true } }, modUserToken));
 
         it('should not allow a moderator to update their own mod role', () =>
-            patch(`admin/users/${modUser.id}`, 403, { roles: Roles.MAPPER }, modUserToken));
+            patch(`admin/users/${modUser.id}`, 403, { roles: { moderator: false } }, modUserToken));
 
         it('should respond with 403 when the user requesting is not an admin', () =>
             patch(`admin/users/${user1.id}`, 403, { alias: 'Barry 2' }, nonAdminAccessToken));
