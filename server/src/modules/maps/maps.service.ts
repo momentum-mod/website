@@ -1,5 +1,11 @@
-import { BadRequestException, ConflictException, HttpException, Injectable, NotFoundException } from '@nestjs/common';
-import { Prisma, Map as MapDB, MapTrack } from '@prisma/client';
+import {
+    BadRequestException,
+    ConflictException,
+    ForbiddenException,
+    Injectable,
+    NotFoundException
+} from '@nestjs/common';
+import { Map as MapDB, MapTrack, Prisma } from '@prisma/client';
 import { CreateMapDto, MapDto } from '../../@common/dto/map/map.dto';
 import { PaginatedResponseDto } from '../../@common/dto/paginated-response.dto';
 import { MapCreateRequireInfoAndTracks, MapsRepoService } from '../repo/maps-repo.service';
@@ -63,11 +69,11 @@ export class MapsService {
 
         MapsService.handleMapGetIncludes(
             include,
-            userID,
             expand?.includes('inFavorites'),
             expand?.includes('inLibrary'),
             incPB,
-            incWR
+            incWR,
+            userID
         );
 
         // Order
@@ -82,7 +88,7 @@ export class MapsService {
         return new PaginatedResponseDto(MapDto, dbResponse);
     }
 
-    async get(mapID: number, userID: number, expand: string[]): Promise<MapDto> {
+    async get(mapID: number, userID?: number, expand?: string[]): Promise<MapDto> {
         const include: Prisma.MapInclude = ExpandToPrismaIncludes(
             expand?.filter((x) =>
                 ['info', 'credits', 'submitter', 'images', 'thumbnail', 'stats', 'tracks'].includes(x)
@@ -94,11 +100,11 @@ export class MapsService {
 
         MapsService.handleMapGetIncludes(
             include,
-            userID,
             expand?.includes('inFavorites'),
             expand?.includes('inLibrary'),
             incPB,
-            incWR
+            incWR,
+            userID
         );
 
         const dbResponse = await this.mapRepo.get(mapID, include);
@@ -284,14 +290,14 @@ export class MapsService {
 
     private static handleMapGetIncludes(
         include: Prisma.MapInclude,
-        userID: number,
         fav: boolean,
         lib: boolean,
         PB: boolean,
-        WR: boolean
+        WR: boolean,
+        userID?: number
     ): void {
-        if (fav) include.favorites = { where: { userID: userID } };
-        if (lib) include.libraryEntries = { where: { userID: userID } };
+        if (fav && userID) include.favorites = { where: { userID: userID } };
+        if (lib && userID) include.libraryEntries = { where: { userID: userID } };
 
         if (PB || WR) {
             include.ranks = { include: { run: true, user: true } };
@@ -307,6 +313,7 @@ export class MapsService {
 
     private static handleMapGetPrismaResponse(mapObj: any, userID: number, PB: boolean, WR: boolean): void {
         if (PB && WR) {
+            // Annoying to have to do this but we don't know what's what
             mapObj.worldRecord = mapObj.ranks.find((r) => r.rank === 1);
             mapObj.personalBest = mapObj.ranks.find((r) => r.userID === userID);
         } else if (PB) {
