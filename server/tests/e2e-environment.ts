@@ -30,8 +30,8 @@ export default class E2ETestEnvironment extends NodeEnvironment {
         await app.init();
 
         this.global.server = app.getHttpServer();
-        this.global.prisma = app.get<PrismaService>(PrismaService);
-        this.global.auth = app.get<AuthService>(AuthService);
+        this.global.prisma = app.get(PrismaService);
+        this.global.auth = app.get(AuthService);
     }
 
     async teardown() {
