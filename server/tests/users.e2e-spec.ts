@@ -25,8 +25,7 @@ describe('Users', () => {
                 steamID: '532521245234',
                 country: 'GB',
                 alias: 'Ron Weasley',
-                roles: Roles.ADMIN,
-                bans: 0,
+                roles: { create: { admin: true } },
                 avatar: 'aaaaaa.jpg',
                 profile: {
                     create: {
@@ -45,8 +44,6 @@ describe('Users', () => {
                 alias: 'Greg Rice',
                 country: 'GB',
                 avatar: 'ashoinudfgtbasidf87asdf',
-                roles: 0,
-                bans: 0,
                 profile: {
                     create: {
                         bio: "Holy shit, it's Greg Rice!"
@@ -61,8 +58,6 @@ describe('Users', () => {
                 alias: 'George Weasley',
                 country: 'GB',
                 avatar: '123z4li12t34z1234',
-                roles: 0,
-                bans: 0,
                 profile: {
                     create: {
                         bio: "George Weasley (b. 1 April, 1978) was an English pure-blood wizard, the fifth son and the less dominant among the twins of Arthur Weasley and Molly Weasley (née Prewett), younger brother of Bill, Charlie and Percy, younger twin brother and best friend of the late Fred Weasley, and older brother to Ron and Ginny. George's first few years were marked by the height of the First Wizarding War and Lord Voldemort's first fall."

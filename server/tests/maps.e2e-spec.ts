@@ -54,8 +54,7 @@ describe('Maps', () => {
             data: {
                 steamID: '65465432154',
                 alias: 'User 1',
-                roles: Roles.VERIFIED | Roles.MAPPER,
-                profile: { create: {} }
+                roles: { create: { verified: true, mapper: true } }
             }
         });
 
@@ -71,7 +70,7 @@ describe('Maps', () => {
             data: {
                 steamID: '754673452345',
                 alias: 'User 3',
-                roles: Roles.MAPPER
+                roles: { create: { mapper: true } }
             }
         });
 
@@ -79,12 +78,11 @@ describe('Maps', () => {
             data: {
                 steamID: '54132121685476543',
                 alias: 'Fred Weasley',
-                roles: Roles.ADMIN,
-                profile: { create: {} }
+                roles: { create: { admin: true } }
             }
         });
 
-        map = await prisma.map.create({
+        map1 = await prisma.map.create({
             data: {
                 // Random name, ensures the BSP actually does get uploaded
                 name: 'maps_test' + Math.floor(Math.random() * 100000000),

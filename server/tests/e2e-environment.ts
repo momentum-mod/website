@@ -3,9 +3,7 @@ import { Test } from '@nestjs/testing';
 import { AppModule } from '../src/app.module';
 import { ClassSerializerInterceptor, ValidationPipe } from '@nestjs/common';
 import { PrismaService } from '../src/modules/repo/prisma.service';
-import { User } from '@prisma/client';
 import { AuthService } from '../src/modules/auth/auth.service';
-import { Roles } from '../src/@common/enums/user.enum';
 import { Reflector } from '@nestjs/core';
 
 export default class E2ETestEnvironment extends NodeEnvironment {
