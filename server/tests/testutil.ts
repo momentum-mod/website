@@ -58,6 +58,7 @@ export async function postAttach(
         .attach(field, './tests/files/' + file)
         .expect(status);
 }
+
 export async function put(
     url: string,
     status: number,
@@ -145,14 +146,4 @@ export async function expandTest(
         if (toTest.length === 0) throw 'nothing passed to expandTest passes filter';
         toTest.forEach((x) => expects(x));
     } else expects(res.body);
-}
-
-export async function makeExpandTests(
-    url: string,
-    testFn: (res: request.Response) => void,
-    expansions: string[],
-    name: string,
-    paged = false
-) {
-    expansions.forEach((expand) => it(name.replace('@', expand), () => expandTest(url, testFn, expand, paged)));
 }
