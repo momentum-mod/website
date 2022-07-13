@@ -2,7 +2,7 @@ import { Map as MapDB, MapInfo } from '@prisma/client';
 import { MapStatus, MapType } from '../../enums/map.enum';
 import { UserDto } from '../user/user.dto';
 import { MapImageDto } from './map-image.dto';
-import { ApiProperty, IntersectionType, PickType } from '@nestjs/swagger';
+import { ApiProperty, PickType } from '@nestjs/swagger';
 import {
     ArrayMinSize,
     IsArray,
@@ -24,7 +24,8 @@ import { CreateMapCreditDto, MapCreditDto } from './map-credit.dto';
 import { MapFavoriteDto } from './map-favorite.dto';
 import { MapLibraryEntryDto } from './map-library-entry';
 import { MapRankDto } from './map-rank.dto';
-import { Exclude, Transform, Type } from 'class-transformer';
+import { Exclude, Expose, Transform, Type } from 'class-transformer';
+import { appConfig } from '../../../../config/config';
 
 export class MapDto implements MapDB {
     @ApiProperty()
@@ -44,12 +45,16 @@ export class MapDto implements MapDB {
     @IsEnum(MapStatus)
     statusFlag: MapStatus;
 
-    // TODO: Im not sure what should be optional in these next couple props
-    @ApiProperty()
+    @Exclude()
+    fileKey: string;
+
+    @Expose()
     @IsOptional()
     @IsString()
     @IsUrl()
-    downloadURL: string;
+    get downloadURL() {
+        return `${appConfig.baseURL_CDN}/${appConfig.storage.bucketName}/${this.fileKey}`;
+    }
 
     @ApiProperty()
     @IsOptional()
@@ -64,7 +69,6 @@ export class MapDto implements MapDB {
     @ValidateNested()
     thumbnail: MapImageDto;
 
-    // maybe we'll wanna exclude this, guessing its probs useful tho
     @ApiProperty()
     @IsOptional()
     @IsInt()

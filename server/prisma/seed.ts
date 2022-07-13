@@ -211,7 +211,7 @@ async function createRandomMap(submitterID) {
             name: faker.lorem.word(),
             type: randomEnumIntValue(MapType),
             statusFlag: randomEnumIntValue(MapStatus),
-            downloadURL: faker.image.cats(),
+            fileKey: faker.animal.cat(),
             hash: faker.random.alphaNumeric(),
             submitterID: submitterID
         }
