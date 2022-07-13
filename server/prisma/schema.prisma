@@ -462,7 +462,7 @@ model MapTrack {
     difficulty Int     @db.UnsignedTinyInt
 
     mainTrack Map? @relation("map_maintrack")
-	
+
     map   Map @relation(fields: [mapID], references: [id], onDelete: Cascade)
     mapID Int
 
@@ -620,6 +620,7 @@ model Run {
     zoneNum  Int    @db.UnsignedTinyInt
     ticks    Int    @db.UnsignedInt
     tickRate Float  @db.Float
+    time     Float  @db.Float
     flags    Int    @db.UnsignedInt
     file     String @db.VarChar(255)
     hash     String @db.VarChar(40)

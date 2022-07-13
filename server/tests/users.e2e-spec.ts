@@ -141,6 +141,7 @@ describe('Users', () => {
                 zoneNum: 1,
                 ticks: 10000,
                 tickRate: 100,
+                time: 1000000,
                 flags: 0,
                 file: '',
                 hash: ''
@@ -169,6 +170,7 @@ describe('Users', () => {
                 zoneNum: 1,
                 ticks: 10000,
                 tickRate: 100,
+                time: 1000000,
                 flags: 0,
                 file: '',
                 hash: ''
