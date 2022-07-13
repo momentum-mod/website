@@ -18,9 +18,10 @@ model User {
     alias       String?  @db.VarChar(64)
     aliasLocked Boolean? @default(false)
     avatar      String?  @db.VarChar(255)
-    roles       Int?     @default(0) @db.UnsignedInt
-    bans        Int?     @default(0) @db.UnsignedInt
     country     String?  @db.VarChar(2)
+
+    bans  Bans?
+    roles Roles?
 
     userAuth          UserAuth?
     profile           Profile?
@@ -44,6 +45,27 @@ model User {
 
     createdAt DateTime @default(now())
     updatedAt DateTime @updatedAt
+}
+
+model Bans {
+    leaderboards Boolean @default(false)
+    alias        Boolean @default(false)
+    avatar       Boolean @default(false)
+    bio          Boolean @default(false)
+
+    user   User @relation(fields: [userID], references: [id], onDelete: Cascade)
+    userID Int  @unique
+}
+
+model Roles {
+    verified    Boolean @default(false)
+    mapper      Boolean @default(false)
+    moderator   Boolean @default(false)
+    admin       Boolean @default(false)
+    placeholder Boolean @default(false)
+
+    user   User @relation(fields: [userID], references: [id], onDelete: Cascade)
+    userID Int  @unique
 }
 
 model Profile {
