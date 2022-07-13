@@ -18,7 +18,6 @@ import { HttpService } from '@nestjs/axios';
 import { ActivityDto } from '../../@common/dto/user/activity.dto';
 import { FollowDto, FollowStatusDto, UpdateFollowStatusDto } from '../../@common/dto/user/followers.dto';
 import { MapCreditDto } from '../../@common/dto/map/map-credit.dto';
-import { Bans, Roles } from '../../@common/enums/user.enum';
 import { ActivityTypes } from '../../@common/enums/activity.enum';
 import { RunDto } from '../../@common/dto/run/runs.dto';
 import { DtoFactory, ExpandToPrismaIncludes } from '../../@common/utils/dto.utility';
@@ -154,7 +153,7 @@ export class UsersService {
     }
 
     async update(userID: number, update: UpdateUserDto) {
-        const user: any = await this.userRepo.get(userID, { profile: true });
+        const user: any = await this.userRepo.get(userID, { profile: true, bans: true, roles: true });
 
         const updateInput: Prisma.UserUpdateInput = {};
 
@@ -162,16 +161,16 @@ export class UsersService {
 
         // Strict check - we want to handle if alias is empty string
         if (typeof update.alias !== 'undefined') {
-            if (user.bans & Bans.BANNED_ALIAS) {
+            if (user.bans?.alias === true) {
                 throw new ForbiddenException('User is banned from updating their alias');
             } else {
                 updateInput.alias = update.alias;
             }
 
-            if (user.roles & Roles.VERIFIED) {
+            if (user.roles?.verified === true) {
                 const verifiedMatches = await this.userRepo.count({
                     alias: update.alias,
-                    roles: Roles.VERIFIED
+                    roles: { is: { verified: true } }
                 });
 
                 if (verifiedMatches > 0) throw new ConflictException('Alias is in use by another verified user');
@@ -179,7 +178,7 @@ export class UsersService {
         }
 
         if (update.bio) {
-            if (user.bans & Bans.BANNED_BIO) {
+            if (user.bans?.bio === true) {
                 throw new ForbiddenException('User is banned from updating their bio');
             } else {
                 updateInput.profile = { update: { bio: update.bio } };
@@ -476,8 +475,6 @@ export class UsersService {
         profile.alias = summaryData.personaname;
         profile.aliasLocked = false;
         profile.avatar = summaryData.avatarfull;
-        profile.roles = 0;
-        profile.bans = 0;
         profile.country = summaryData.locccountrycode;
         profile.createdAt = null;
         profile.updatedAt = null;
