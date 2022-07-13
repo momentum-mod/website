@@ -112,7 +112,7 @@ export class MapsService {
         return DtoFactory(MapDto, dbResponse);
     }
 
-    async create(mapCreateDto: CreateMapDto, submitterID: number): Promise<MapDto> {
+    async create(mapCreateDto: CreateMapDto, submitterID: number): Promise<number> {
         // Check there's no map with same name
         const existingMaps: number = await this.mapRepo.count({
             name: mapCreateDto.name,
@@ -248,16 +248,8 @@ export class MapsService {
                 })
         );
 
-        // Everything is finally inserted, now get it all back
-        const createdMap = await this.mapRepo.get(mapDB.id, {
-            info: true,
-            stats: true,
-            credits: true,
-            mainTrack: true,
-            tracks: { include: { zones: { include: { triggers: { include: { properties: true } } } } } }
-        });
-
-        return DtoFactory(MapDto, createdMap);
+        // Return the map ID to the controller so it can set it in the response header
+        return mapDB.id;
     }
 
     async upload(mapID: number, mapFileBuffer: Buffer): Promise<MapDto> {
