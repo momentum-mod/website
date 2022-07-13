@@ -252,29 +252,30 @@ export class MapsService {
         return mapDB.id;
     }
 
-    async upload(mapID: number, mapFileBuffer: Buffer): Promise<MapDto> {
-        let mapDto: MapDto = DtoFactory(MapDto, await this.mapRepo.get(mapID));
+    //#endregion
 
-        if (!mapDto.id) {
-            return Promise.reject(new HttpException('Map not found', 404));
-        }
+    //#region Upload/Download
 
-        if (mapDto.statusFlag !== MapStatus.NEEDS_REVISION) {
-            return Promise.reject(new HttpException('Map file cannot be uploaded given the map state', 409));
-        }
+    async canUploadMap(mapID: number, userID: number): Promise<void> {
+        const mapDB = await this.mapRepo.get(mapID);
 
-        const result = await this.storeMapFile(mapFileBuffer, mapDto);
+        MapsService.uploadMapChecks(mapDB, userID);
+    }
 
-        mapDto = DtoFactory(
-            MapDto,
-            await this.mapRepo.update(mapDto.id, {
-                statusFlag: MapStatus.PENDING,
-                downloadURL: result.downloadURL,
-                hash: result.hash
-            })
-        );
+    async upload(mapID: number, userID: number, mapFileBuffer: Buffer): Promise<MapDto> {
+        const mapDB = await this.mapRepo.get(mapID);
 
-        return mapDto;
+        MapsService.uploadMapChecks(mapDB, userID);
+
+        const result = await this.storeMapFile(mapFileBuffer, mapDB);
+
+        const dbResponse = await this.mapRepo.update(mapDB.id, {
+            statusFlag: MapStatus.PENDING,
+            fileKey: result[0],
+            hash: result[1]
+        });
+
+        return DtoFactory(MapDto, dbResponse);
     }
 
     //#endregion
@@ -316,9 +317,21 @@ export class MapsService {
         delete mapObj.ranks;
     }
 
-    private storeMapFile(mapFileBuffer, mapModel) {
-        const fileName = `maps/${mapModel.name}.bsp`;
-        return this.fileCloudService.storeFileCloud(mapFileBuffer, fileName);
+    private async storeMapFile(mapFileBuffer, mapModel): Promise<[url: string, hash: string]> {
+        const fileKey = `maps/${mapModel.name}.bsp`;
+
+        const result = await this.fileCloudService.storeFileCloud(mapFileBuffer, fileKey);
+
+        return [result.fileKey, result.hash];
+    }
+
+    private static uploadMapChecks(map: MapDB, userID: number): void {
+        if (!map) throw new NotFoundException('Map not found');
+
+        if (userID !== map.submitterID) throw new ForbiddenException('You are not the submitter of this map');
+
+        if (map.statusFlag !== MapStatus.NEEDS_REVISION)
+            throw new ForbiddenException('Map file cannot be uploaded, the map is not accepting revisions');
     }
 
     //#endregion

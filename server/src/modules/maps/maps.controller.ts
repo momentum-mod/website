@@ -108,8 +108,34 @@ export class MapsController {
         return this.mapsService.get(mapID, userID, query.expand);
     }
 
+    @Get('/:mapID/upload')
+    @Roles(RolesEnum.MAPPER)
+    @HttpCode(HttpStatus.NO_CONTENT)
+    @ApiOperation({ summary: 'Get the map upload endpoint in response header' })
+    @ApiNoContentResponse({ description: 'The Location in header was set to the upload endpoint' })
+    @ApiNotFoundResponse({ description: 'Map was not found' })
+    @ApiForbiddenResponse({ description: 'User does not have the Mapper role' })
+    @ApiForbiddenResponse({ description: 'User is not the submitter of the map' })
+    @ApiForbiddenResponse({ description: 'Map is not in ACCEPTS_REVISION state' })
+    @ApiParam({
+        name: 'mapID',
+        type: Number,
+        description: 'Target Map ID',
+        required: true
+    })
+    async getUploadLocation(
+        @Res({ passthrough: true }) res,
+        @LoggedInUser('id') userID: number,
+        @Param('mapID', ParseIntPipe) mapID: number
+    ): Promise<void> {
+        await this.mapsService.canUploadMap(mapID, userID);
+
+        MapsController.setMapUploadLocationHeader(res, mapID);
+    }
+
     @Post('/:mapID/upload')
-    @ApiOperation({ summary: 'Uploads a single map' })
+    @UseInterceptors(FileInterceptor('file'))
+    @ApiOperation({ summary: 'Uploads a map' })
     @ApiParam({
         name: 'mapID',
         type: Number,
@@ -128,11 +154,21 @@ export class MapsController {
             }
         }
     })
-    @UseInterceptors(FileInterceptor('file'))
-    uploadMap(@Param('mapID') mapID: number, @UploadedFile() mapFile: Express.Multer.File): Promise<MapDto> {
-        // see https://stackoverflow.com/questions/66605192/file-uploading-along-with-other-data-in-swagger-nestjs
-        // for swagger shit
-        return this.mapsService.upload(+mapID, mapFile.buffer);
+    @ApiOkResponse({ description: 'The map object with updated downloadURL' })
+    @ApiNotFoundResponse({ description: 'Map was not found' })
+    @ApiForbiddenResponse({ description: 'User does not have the Mapper role' })
+    @ApiForbiddenResponse({ description: 'User is not the submitter of the map' })
+    @ApiForbiddenResponse({ description: 'Map is not in ACCEPTS_REVISION state' })
+    uploadMap(
+        @LoggedInUser('id') userID: number,
+        @Param('mapID', ParseIntPipe) mapID: number,
+        @UploadedFile() file: Express.Multer.File
+    ): Promise<MapDto> {
+        // We could do a great more validation here in the future using a custom pipe, probably when
+        // we work on map submission. Anyone fancy writing a BSP parser in JS?
+        if (!file || !file.buffer || !Buffer.isBuffer(file.buffer)) throw new BadRequestException('Map is not valid');
+
+        return this.mapsService.upload(mapID, userID, file.buffer);
     }
     //#endregion
 
