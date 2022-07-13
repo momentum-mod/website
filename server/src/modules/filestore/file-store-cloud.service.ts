@@ -1,13 +1,13 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { appConfig } from '../../../config/config';
-import { FileStoreUtilsService } from './file-store-utils.service';
 import { IFileStoreCloudFile } from './file-store.interface';
 import { S3Client, PutObjectCommand, DeleteObjectCommand } from '@aws-sdk/client-s3';
+import { FileStoreUtils } from './file-store.utility';
 @Injectable()
 export class FileStoreCloudService {
     s3Client: S3Client;
 
-    constructor(private fsUtil: FileStoreUtilsService) {
+    constructor() {
         this.s3Client = new S3Client({
             region: appConfig.storage.region,
             endpoint: appConfig.storage.endpointURL,

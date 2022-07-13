@@ -1,9 +1,8 @@
 import { Module } from '@nestjs/common';
 import { FileStoreCloudService } from './file-store-cloud.service';
-import { FileStoreUtilsService } from './file-store-utils.service';
 
 @Module({
-    providers: [FileStoreCloudService, FileStoreUtilsService],
+    providers: [FileStoreCloudService],
     exports: [FileStoreCloudService]
 })
 export class FileStoreModule {}
