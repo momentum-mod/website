@@ -47,8 +47,6 @@ export class AuthService {
         const payload: JWTPayload = {
             id: usr.id,
             steamID: usr.steamID,
-            roles: usr.roles,
-            bans: usr.bans,
             gameAuth: Boolean(gameAuth)
         };
         const options = {
@@ -73,7 +71,5 @@ export class AuthService {
 export type JWTPayload = {
     id: number;
     steamID: string;
-    roles: number;
-    bans: number;
     gameAuth: boolean;
 };
