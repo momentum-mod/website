@@ -23,10 +23,8 @@ export class RunDto implements Run {
         type: Number,
         description: 'The overall time of the run (ticks * tickRate)'
     })
-    @Expose()
-    get time(): number {
-        return this.ticks * this.tickRate;
-    }
+    @IsDefined()
+    time: number;
 
     @ApiProperty({
         type: Number,

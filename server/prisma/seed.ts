@@ -352,6 +352,8 @@ async function createRandomMapZoneStats(mapZoneID, baseStatsID) {
 
 async function createRandomRun(mapID, playerID, baseStatsID) {
     const dates = randomCreatedUpdatedDate();
+    const ticks = faker.datatype.number();
+    const tickRate = randomIntFromInterval(24, 1000);
 
     return await prisma.run.create({
         data: {
@@ -360,11 +362,12 @@ async function createRandomRun(mapID, playerID, baseStatsID) {
             baseStatsID: baseStatsID,
             trackNum: randomIntFromInterval(0, 127),
             zoneNum: randomIntFromInterval(0, 127),
-            ticks: faker.datatype.number(),
-            tickRate: randomIntFromInterval(24, 1000),
+            ticks: ticks,
+            tickRate: tickRate,
             flags: 0,
             file: faker.image.cats(),
-            hash: faker.random.alphaNumeric()
+            hash: faker.random.alphaNumeric(),
+            time: ticks * tickRate
         }
     });
 }

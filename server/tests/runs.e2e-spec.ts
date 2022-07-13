@@ -98,14 +98,17 @@ describe('runs', () => {
             }
         });
 
+        const r1ticks = 113700;
+        const r1tickrate = 66.6;
         run1 = await prisma.run.create({
             data: {
                 map: { connect: { id: map1.id } },
                 player: { connect: { id: user1.id } },
                 trackNum: 1,
                 zoneNum: 1,
-                ticks: 113700,
-                tickRate: 66.6,
+                ticks: r1ticks,
+                tickRate: r1tickrate,
+                time: r1ticks * r1tickrate,
                 flags: 1 << 0,
                 file: 'world_record.run',
                 hash: '0xdeadbeef',
@@ -134,6 +137,8 @@ describe('runs', () => {
             }
         });
 
+        const r2ticks = 692001;
+        const r2tickrate = 66.6;
         run2 = await prisma.run.create({
             data: {
                 map: { connect: { id: map1.id } },
@@ -142,6 +147,7 @@ describe('runs', () => {
                 zoneNum: 1,
                 ticks: 692001,
                 tickRate: 66.6,
+                time: r2ticks * r2tickrate,
                 flags: 1 << 1,
                 file: 'jumping.run',
                 hash: '0xfacade',
@@ -159,6 +165,8 @@ describe('runs', () => {
             }
         });
 
+        const r3ticks = 123456;
+        const r3tickrate = 66.6;
         run3 = await prisma.run.create({
             data: {
                 map: { connect: { id: map2.id } },
@@ -167,6 +175,8 @@ describe('runs', () => {
                 zoneNum: 1,
                 ticks: 123456,
                 tickRate: 66.6,
+                time: r3ticks * r3tickrate,
+
                 flags: 1 << 4,
                 file: 'surfing_fast.run',
                 hash: '0x1137',
@@ -183,6 +193,8 @@ describe('runs', () => {
             }
         });
 
+        const r4ticks = 123456;
+        const r4tickrate = 66.6;
         run4 = await prisma.run.create({
             data: {
                 map: { connect: { id: map2.id } },
@@ -191,6 +203,7 @@ describe('runs', () => {
                 zoneNum: 1,
                 ticks: 99999,
                 tickRate: 66.6,
+                time: r4ticks * r4tickrate,
                 flags: 1 << 5,
                 file: 'surfing_faster.run',
                 hash: '0xh4sh',
