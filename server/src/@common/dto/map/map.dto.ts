@@ -1,4 +1,4 @@
-import { Map as MapDB, MapInfo } from '@prisma/client';
+import { Map as MapDB } from '@prisma/client';
 import { MapStatus, MapType } from '../../enums/map.enum';
 import { UserDto } from '../user/user.dto';
 import { MapImageDto } from './map-image.dto';
@@ -83,7 +83,7 @@ export class MapDto implements MapDB {
     mainTrack: MapTrackDto;
 
     @ApiProperty()
-    // @Transform(({ value }) => DtoFactory(MapInfoDto, value))
+    @Transform(({ value }) => DtoFactory(MapInfoDto, value))
     @ValidateNested()
     info?: MapInfoDto;
 
