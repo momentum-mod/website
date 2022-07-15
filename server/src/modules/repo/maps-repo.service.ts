@@ -92,7 +92,7 @@ export class MapsRepoService {
         return this.prisma.mapCredit.findFirst({ where: where });
     }
 
-    async updateCredit(
+    async updateCredits(
         where: Prisma.MapCreditWhereInput,
         input: Prisma.MapCreditUncheckedUpdateManyInput
     ): Promise<void> {
