@@ -36,7 +36,7 @@ export class UsersGetAllQuery extends PaginationQuery {
     search: string;
 
     @ApiPropertyOptional({
-        name: 'playerID',
+        name: 'userID',
         type: String,
         description: 'Filter by Steam Community ID',
         example: '123135674'
@@ -46,7 +46,7 @@ export class UsersGetAllQuery extends PaginationQuery {
     steamID: string;
 
     @ApiPropertyOptional({
-        name: 'playerIDs',
+        name: 'userIDs',
         type: String,
         description: 'Filter by CSV list of Steam Community IDs',
         example: '123135674,7987347263,98312287631'

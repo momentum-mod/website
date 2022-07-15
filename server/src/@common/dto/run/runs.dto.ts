@@ -87,12 +87,12 @@ export class RunDto implements Run {
     @ApiProperty()
     @IsDefined()
     @IsInt()
-    playerID: number;
+    userID: number;
 
     @ApiProperty({ type: () => UserDto })
     @Transform(({ value }) => DtoFactory(UserDto, value))
     @ValidateNested()
-    player: UserDto;
+    user: UserDto;
 
     @ApiProperty({ type: () => MapRankDto })
     @Transform(({ value }) => DtoFactory(MapRankDto, value))
