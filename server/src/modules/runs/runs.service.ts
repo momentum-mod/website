@@ -39,7 +39,7 @@ export class RunsService {
     ): Promise<PaginatedResponseDto<RunDto>> {
         const where: Prisma.RunWhereInput = {};
         const include: Prisma.RunInclude = {
-            player: true,
+            user: true,
             ...ExpandToPrismaIncludes(expand?.filter((x) => ['baseStats', 'zoneStats', 'rank', 'map'].includes(x)))
         };
 
@@ -56,8 +56,8 @@ export class RunsService {
         if (mapID) where.mapID = mapID;
         else if (mapName) where.map = { name: { contains: mapName } };
 
-        if (userID) where.playerID = userID;
-        else if (userIDs) where.playerID = { in: userIDs };
+        if (userID) where.userID = userID;
+        else if (userIDs) where.userID = { in: userIDs };
 
         if (isPB) where.rank = { isNot: null };
 
