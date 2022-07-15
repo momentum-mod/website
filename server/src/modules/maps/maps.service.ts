@@ -5,7 +5,7 @@ import {
     Injectable,
     NotFoundException
 } from '@nestjs/common';
-import { Map as MapDB, MapTrack, Prisma } from '@prisma/client';
+import { Map as MapDB, MapCredit, MapTrack, Prisma } from '@prisma/client';
 import { CreateMapDto, MapDto } from '../../@common/dto/map/map.dto';
 import { PaginatedResponseDto } from '../../@common/dto/paginated-response.dto';
 import { MapCreateRequireInfoAndTracks, MapsRepoService } from '../repo/maps-repo.service';
@@ -15,6 +15,7 @@ import { FileStoreCloudService } from '../filestore/file-store-cloud.service';
 import { DtoFactory, ExpandToPrismaIncludes } from '../../@common/utils/dto.utility';
 import { UsersRepoService } from '../repo/users-repo.service';
 import { ActivityTypes } from '../../@common/enums/activity.enum';
+import { CreateMapCreditDto, MapCreditDto } from '../../@common/dto/map/map-credit.dto';
 
 @Injectable()
 export class MapsService {
@@ -286,6 +287,54 @@ export class MapsService {
 
     //#endregion
 
+    //#region Map Credits
+    async getCredits(mapID: number, expand: string[]): Promise<MapCreditDto[]> {
+        const foundMap = await this.mapRepo.get(mapID);
+        if (!foundMap) throw new NotFoundException('Map not found');
+
+        const include: Prisma.MapCreditInclude = ExpandToPrismaIncludes(expand?.filter((x) => ['user'].includes(x)));
+        const where: Prisma.MapCreditWhereInput = { mapID: mapID };
+
+        const dbResponse = await this.mapRepo.getCredits(where, include);
+
+        if (dbResponse.length === 0) throw new NotFoundException('No map credits found');
+
+        return dbResponse.map((x) => DtoFactory(MapCreditDto, x));
+    }
+
+    async createCredit(mapID: number, createMapCredit: CreateMapCreditDto, userID: number): Promise<MapCreditDto> {
+        const map = await this.mapRepo.get(mapID, { credits: true });
+        if (!map) throw new NotFoundException('Map not found');
+
+        if (map.submitterID !== userID) throw new ForbiddenException('User is not the submitter of the map');
+
+        if (map.statusFlag !== MapStatus.NEEDS_REVISION)
+            throw new ForbiddenException('Map is not in NEEDS_REVISION state');
+
+        const dupeCredit = await this.mapRepo.findCredit({
+            mapID: mapID,
+            userID: createMapCredit.userID,
+            type: createMapCredit.type
+        });
+        if (dupeCredit) throw new ConflictException('Map credit already exists');
+
+        const existingUser = await this.userRepo.get(createMapCredit.userID);
+        if (!existingUser) throw new BadRequestException('Credited user does not exist');
+
+        const newCredit: Prisma.MapCreditCreateInput = {
+            type: createMapCredit.type,
+            map: { connect: { id: mapID } },
+            user: { connect: { id: createMapCredit.userID } }
+        };
+
+        const dbResponse = await this.mapRepo.createCredit(newCredit);
+
+        await this.updateActivities(dbResponse);
+
+        return DtoFactory(MapCreditDto, dbResponse);
+    }
+    //#endregion
+
     //#region Private
 
     private static handleMapGetIncludes(
@@ -339,6 +388,58 @@ export class MapsService {
 
         if (map.statusFlag !== MapStatus.NEEDS_REVISION)
             throw new ForbiddenException('Map file cannot be uploaded, the map is not accepting revisions');
+    }
+
+    private async updateActivities(newCredit?: MapCredit, oldCredit?: MapCredit): Promise<void> {
+        const deleteOldActivity = () =>
+            this.userRepo.deleteActivities({
+                type: ActivityTypes.MAP_UPLOADED,
+                data: oldCredit.mapID,
+                userID: oldCredit.userID
+            });
+
+        const createNewActivity = () =>
+            this.userRepo.createActivities([
+                {
+                    type: ActivityTypes.MAP_UPLOADED,
+                    data: newCredit.mapID,
+                    userID: newCredit.userID
+                }
+            ]);
+
+        // If oldCredit is null, a credit was created
+        if (!oldCredit) {
+            if (newCredit?.type === MapCreditType.AUTHOR) await createNewActivity();
+            return;
+        }
+
+        // If newCredit is null, a credit was deleted
+        if (!newCredit) {
+            if (oldCredit?.type === MapCreditType.AUTHOR) await deleteOldActivity();
+            return;
+        }
+
+        const oldCreditIsAuthor = oldCredit.type === MapCreditType.AUTHOR;
+        const newCreditIsAuthor = newCredit.type === MapCreditType.AUTHOR;
+        const userChanged = oldCredit.userID !== newCredit.userID;
+
+        // If the new credit type was changed to author
+        if (!oldCreditIsAuthor && newCreditIsAuthor) {
+            // Create activity for newCredit.userID
+            await createNewActivity();
+            return;
+        } else if (oldCreditIsAuthor && !newCreditIsAuthor) {
+            // If the new credit type was changed from author to something else
+            // Delete activity for oldCredit.userID
+            await deleteOldActivity();
+            return;
+        } else if (oldCreditIsAuthor && newCreditIsAuthor && userChanged) {
+            // If the credit is still an author but the user changed
+            // Delete activity for oldCredit.userID and create activity for newCredit.userID
+            await deleteOldActivity();
+            await createNewActivity();
+            return;
+        } else return; // All other cases result in no change in authors
     }
 
     //#endregion
