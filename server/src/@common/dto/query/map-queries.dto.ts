@@ -127,3 +127,8 @@ export class MapsGetQuery {
     ])
     expand: string[];
 }
+
+export class MapCreditsGetQuery {
+    @ExpandQueryDecorators(['user'])
+    expand: string[];
+}
