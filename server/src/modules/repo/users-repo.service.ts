@@ -456,7 +456,7 @@ export class UsersRepoService {
     // TODO: Move to Runs module!!
     async getRuns(userID: number, skip?: number, take?: number): Promise<[Run[], number]> {
         const where: Prisma.RunWhereInput = {
-            playerID: userID
+            userID: userID
         };
 
         const count = await this.prisma.run.count({
@@ -468,7 +468,7 @@ export class UsersRepoService {
             skip: skip,
             take: take,
             include: {
-                player: true,
+                user: true,
                 rank: true,
                 map: true
             }

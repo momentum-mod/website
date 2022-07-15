@@ -12,7 +12,7 @@ export class RunsService {
     async get(runID: number, expand: string[]): Promise<RunDto> {
         const where: Prisma.RunWhereUniqueInput = { id: runID };
         const include: Prisma.RunInclude = {
-            player: true,
+            user: true,
             ...ExpandToPrismaIncludes(expand?.filter((x) => ['baseStats', 'map', 'rank', 'zoneStats'].includes(x)))
         };
 

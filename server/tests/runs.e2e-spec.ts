@@ -103,7 +103,7 @@ describe('runs', () => {
         run1 = await prisma.run.create({
             data: {
                 map: { connect: { id: map1.id } },
-                player: { connect: { id: user1.id } },
+                user: { connect: { id: user1.id } },
                 trackNum: 1,
                 zoneNum: 1,
                 ticks: r1ticks,
@@ -142,7 +142,7 @@ describe('runs', () => {
         run2 = await prisma.run.create({
             data: {
                 map: { connect: { id: map1.id } },
-                player: { connect: { id: user2.id } },
+                user: { connect: { id: user2.id } },
                 trackNum: 1,
                 zoneNum: 1,
                 ticks: 692001,
@@ -170,7 +170,7 @@ describe('runs', () => {
         run3 = await prisma.run.create({
             data: {
                 map: { connect: { id: map2.id } },
-                player: { connect: { id: user1.id } },
+                user: { connect: { id: user1.id } },
                 trackNum: 1,
                 zoneNum: 1,
                 ticks: 123456,
@@ -198,7 +198,7 @@ describe('runs', () => {
         run4 = await prisma.run.create({
             data: {
                 map: { connect: { id: map2.id } },
-                player: { connect: { id: user2.id } },
+                user: { connect: { id: user2.id } },
                 trackNum: 1,
                 zoneNum: 1,
                 ticks: 99999,
@@ -273,7 +273,7 @@ describe('runs', () => {
             expects(res);
             expect(res.body.totalCount).toBe(2);
             expect(res.body.returnCount).toBe(2);
-            expect(res.body.response[0].playerID).toBe(user1.id);
+            expect(res.body.response[0].userID).toBe(user1.id);
         });
 
         it('should respond with a list of runs filtered by a list of run ids', async () => {
@@ -282,7 +282,7 @@ describe('runs', () => {
             expects(res);
             expect(res.body.totalCount).toBe(4);
             expect(res.body.returnCount).toBe(4);
-            expect(ids).toContain(res.body.response[0].playerID.toString());
+            expect(ids).toContain(res.body.response[0].userID.toString());
         });
 
         it('should respond with a list of runs filtered by flags', async () => {

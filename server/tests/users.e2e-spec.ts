@@ -136,7 +136,7 @@ describe('Users', () => {
         run1 = await prisma.run.create({
             data: {
                 map: { connect: { id: map1.id } },
-                player: { connect: { id: user1.id } },
+                user: { connect: { id: user1.id } },
                 trackNum: 1,
                 zoneNum: 1,
                 ticks: 10000,
@@ -165,7 +165,7 @@ describe('Users', () => {
         await prisma.run.create({
             data: {
                 map: { connect: { id: map2.id } },
-                player: { connect: { id: user1.id } },
+                user: { connect: { id: user1.id } },
                 trackNum: 1,
                 zoneNum: 1,
                 ticks: 10000,
@@ -477,7 +477,7 @@ describe('Users', () => {
             expects(res);
             expect(res.body.totalCount).toBe(2);
             expect(res.body.returnCount).toBe(2);
-            expect(res.body.response[0].player.id).toEqual(user1.id);
+            expect(res.body.response[0].user.id).toEqual(user1.id);
             expect(res.body.response[0].map.id).toEqual(map1.id);
         });
 

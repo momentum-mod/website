@@ -404,7 +404,7 @@ describe('Maps', () => {
         run1 = await prisma.run.create({
             data: {
                 map: { connect: { id: map1.id } },
-                player: { connect: { id: admin.id } },
+                user: { connect: { id: admin.id } },
                 trackNum: 1,
                 zoneNum: 1,
                 ticks: 10000,
@@ -427,7 +427,7 @@ describe('Maps', () => {
         run2 = await prisma.run.create({
             data: {
                 map: { connect: { id: map1.id } },
-                player: { connect: { id: user.id } },
+                user: { connect: { id: user.id } },
                 trackNum: 1,
                 zoneNum: 1,
                 ticks: 20000,
