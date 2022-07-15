@@ -16,6 +16,7 @@ import axios from 'axios';
 import { createHash } from 'crypto';
 import { DeleteObjectCommand, HeadObjectCommand, PutObjectCommand, S3Client } from '@aws-sdk/client-s3';
 import { appConfig } from '../config/config';
+import { UserDto } from '../src/@common/dto/user/user.dto';
 
 const hash = (buffer: Buffer) => createHash('sha1').update(buffer).digest('hex');
 
@@ -173,6 +174,17 @@ describe('Maps', () => {
                         id: img.id
                     }
                 }
+            },
+            include: {
+                info: true,
+                credits: true,
+                images: true,
+                stats: true,
+                tracks: {
+                    include: {
+                        zones: true
+                    }
+                }
             }
         });
 
@@ -240,7 +252,7 @@ describe('Maps', () => {
                 name: 'maps_test3',
                 type: MapType.CONC,
                 statusFlag: MapStatus.APPROVED,
-                submitterID: admin.id,
+                submitterID: user3.id,
                 info: {
                     create: {
                         description: 'My test map!!!!',
@@ -269,6 +281,12 @@ describe('Maps', () => {
                             }
                         }
                     }
+                },
+                credits: {
+                    create: {
+                        type: MapCreditType.AUTHOR,
+                        userID: user3.id
+                    }
                 }
             },
             include: {
@@ -285,15 +303,25 @@ describe('Maps', () => {
 
         map3 = await prisma.map.update({
             where: { id: map3.id },
-            data: { mainTrack: { connect: { id: map3.tracks[0].id } } }
+            data: { mainTrack: { connect: { id: map3.tracks[0].id } } },
+            include: {
+                info: true,
+                credits: true,
+                images: true,
+                tracks: {
+                    include: {
+                        zones: true
+                    }
+                }
+            }
         });
 
         map4 = await prisma.map.create({
             data: {
                 name: 'maps_test4',
                 type: MapType.CONC,
-                statusFlag: MapStatus.APPROVED,
-                submitterID: admin.id,
+                statusFlag: MapStatus.NEEDS_REVISION,
+                submitterID: user2.id,
                 info: {
                     create: {
                         description: 'My test map!!!!',
@@ -322,6 +350,12 @@ describe('Maps', () => {
                             }
                         }
                     }
+                },
+                credits: {
+                    create: {
+                        type: MapCreditType.AUTHOR,
+                        userID: user2.id
+                    }
                 }
             },
             include: {
@@ -338,7 +372,17 @@ describe('Maps', () => {
 
         map4 = await prisma.map.update({
             where: { id: map4.id },
-            data: { mainTrack: { connect: { id: map4.tracks[0].id } } }
+            data: { mainTrack: { connect: { id: map4.tracks[0].id } } },
+            include: {
+                info: true,
+                credits: true,
+                images: true,
+                tracks: {
+                    include: {
+                        zones: true
+                    }
+                }
+            }
         });
 
         await prisma.map.createMany({
@@ -929,41 +973,103 @@ describe('Maps', () => {
     });
 
     describe('GET maps/{mapID}/credits', () => {
-        const expects = (res) => expect(res.body).toBeValidDto(MapCreditDto);
+        const expects = (res) => res.body.forEach((x) => expect(x).toBeValidDto(MapCreditDto));
 
         it('should respond with the specified maps credits', async () => {
             const res = await get(`maps/${map1.id}/credits`, 200);
-
             expects(res);
+            expect(res.body).toHaveLength(1);
         });
 
-        it('should respond with the specified maps credits with the user expand parameter', () =>
-            expandTest(`maps/${map1.id}/credits`, expects, 'user'));
-
-        // should this return a 404 instead of a 200?
-        // i agree with the ancient comment - tom
-        it('should return 200 with an empty array', async () => {
-            const res = await get('maps/999999999999999/credits', 200);
-
-            expect(res.body.mapCredits).toHaveLength(0);
+        it('should respond with the specified maps credits with the user expand parameter', async () => {
+            const res = await get(`maps/${map1.id}/credits`, 200, { expand: 'user' });
+            expects(res);
+            res.body.forEach((x) => {
+                expect(x.user).toBeValidDto(UserDto);
+            });
         });
 
-        it('should respond with 401 when no access token is provided', () => get(`maps/${map1.id}/credits`, 401));
+        it('should return 404 when no map credits found', () => get('maps/999999999999999/credits', 404));
+
+        it('should respond with 401 when no access token is provided', () =>
+            get(`maps/${map1.id}/credits`, 401, {}, null));
     });
 
-    // Note: will only create one credit. if a map has an existing credit than it wont make another
-    // ^ WHY????????
     describe('POST maps/{mapID}/credits', () => {
-        it('should create a map credit for the specified map', async () => {
-            const res = await post(`maps/${map1.id}/credits`, 200, {
+        const newMapCredit = () => {
+            return {
                 type: MapCreditType.SPECIAL_THANKS,
                 userID: admin.id
-            });
+            };
+        };
 
+        const invalidMapCredit = {
+            type: MapCreditType.COAUTHOR
+        };
+
+        const existingMapCredit = () => {
+            return {
+                type: map1.credits[0].type,
+                userID: map1.credits[0].userID
+            };
+        };
+
+        const noExistingUserMapCredit = {
+            type: MapCreditType.SPECIAL_THANKS,
+            userID: 11379991137
+        };
+
+        it('should create a map credit for the specified map', async () => {
+            const res = await post(`maps/${map1.id}/credits`, 201, newMapCredit());
             expect(res.body).toBeValidDto(MapCreditDto);
+
+            const changedMap = await (global.prisma as PrismaService).map.findUnique({
+                where: {
+                    id: map1.id
+                },
+                include: {
+                    credits: true
+                }
+            });
+            expect(changedMap.credits).toHaveLength(2);
+            expect(changedMap.credits[1].userID).toBe(newMapCredit().userID);
+            expect(changedMap.credits[1].type).toBe(newMapCredit().type);
         });
 
-        it('should respond with 401 when no access token is provided', () => post(`maps/${map1.id}/credits`, 401));
+        it('should create an activity if a new author is added', async () => {
+            await post(`maps/${map1.id}/credits`, 201, { type: MapCreditType.AUTHOR, userID: user3.id });
+            const newActivity = await (global.prisma as PrismaService).activity.findFirst({
+                where: {
+                    userID: user3.id,
+                    type: ActivityTypes.MAP_UPLOADED,
+                    data: map1.id
+                }
+            });
+            expect(newActivity);
+        });
+
+        it('should respond with 404 if the map is not found', () => post('maps/9999999/credits', 404, newMapCredit()));
+
+        it('should respond with 403 if the user is not the map submitter', () =>
+            post(`maps/${map1.id}/credits`, 403, newMapCredit(), user3AccessToken));
+
+        it("should respond with 403 if the user doesn't have the mapper role", () =>
+            post(`maps/${map4.id}/credits`, 403, newMapCredit(), user2AccessToken));
+
+        it('should respond with 403 if the map is not in NEEDS_REVISION state', () =>
+            post(`maps/${map3.id}/credits`, 403, newMapCredit(), user3AccessToken));
+
+        it('should respond with 400 if the map credit object is invalid', () =>
+            post(`maps/${map1.id}/credits`, 400, invalidMapCredit));
+
+        it('should respond with 409 if the map credit already exists', () =>
+            post(`maps/${map1.id}/credits`, 409, existingMapCredit()));
+
+        it('should respond with 400 if the credited user does not exist', () =>
+            post(`maps/${map1.id}/credits`, 400, noExistingUserMapCredit));
+
+        it('should respond with 401 when no access token is provided', () =>
+            post(`maps/${map1.id}/credits`, 401, newMapCredit(), null));
     });
 
     describe('GET maps/{mapID}/credits/{mapCreditID}', () => {

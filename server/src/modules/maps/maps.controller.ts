@@ -11,9 +11,7 @@ import {
     UseInterceptors,
     HttpCode,
     HttpStatus,
-    BadRequestException,
-    StreamableFile
-} from '@nestjs/common';
+    BadRequestException} from '@nestjs/common';
 import {
     ApiBearerAuth,
     ApiBody,
@@ -26,16 +24,18 @@ import {
     ApiConflictResponse,
     ApiBadRequestResponse,
     ApiForbiddenResponse,
-    ApiNoContentResponse
+    ApiNoContentResponse,
+    ApiCreatedResponse
 } from '@nestjs/swagger';
 import { ApiOkPaginatedResponse, PaginatedResponseDto } from '../../@common/dto/paginated-response.dto';
 import { MapsService } from './maps.service';
 import { CreateMapDto, MapDto } from '../../@common/dto/map/map.dto';
 import { FileInterceptor } from '@nestjs/platform-express';
-import { MapsGetAllQuery, MapsGetQuery } from '../../@common/dto/query/map-queries.dto';
+import { MapCreditsGetQuery, MapsGetAllQuery, MapsGetQuery } from '../../@common/dto/query/map-queries.dto';
 import { Roles } from '../../@common/decorators/roles.decorator';
 import { Roles as RolesEnum } from '../../@common/enums/user.enum';
 import { LoggedInUser } from '../../@common/decorators/logged-in-user.decorator';
+import { CreateMapCreditDto, MapCreditDto } from '../../@common/dto/map/map-credit.dto';
 
 @ApiBearerAuth()
 @Controller('api/v1/maps')
@@ -170,6 +170,55 @@ export class MapsController {
 
         return this.mapsService.upload(mapID, userID, file.buffer);
     }
+
+    @Get('/:mapID/credits')
+    @ApiOperation({ summary: "Gets a single map's credits" })
+    @ApiParam({
+        name: 'mapID',
+        type: Number,
+        description: 'Target Map ID',
+        required: true
+    })
+    @ApiOkPaginatedResponse(MapCreditDto, { description: "The found map's credits" })
+    @ApiNotFoundResponse({ description: 'No map credits found' })
+    @ApiNotFoundResponse({ description: 'Map not found' })
+    getCredits(
+        @Param('mapID', ParseIntPipe) mapID: number,
+        @Query() query?: MapCreditsGetQuery
+    ): Promise<MapCreditDto[]> {
+        return this.mapsService.getCredits(mapID, query.expand);
+    }
+
+    @Post('/:mapID/credits')
+    @Roles(RolesEnum.MAPPER)
+    @ApiOperation({ summary: 'Adds a map credit to the map' })
+    @ApiParam({
+        name: 'mapID',
+        type: Number,
+        description: 'Target Map ID',
+        required: true
+    })
+    @ApiCreatedResponse({ description: 'The newly added credit' })
+    @ApiNotFoundResponse({ description: 'Map was not found' })
+    @ApiForbiddenResponse({ description: 'User does not have the Mapper role' })
+    @ApiForbiddenResponse({ description: 'User is not the submitter of the map' })
+    @ApiForbiddenResponse({ description: 'Map is not in NEEDS_REVISION state' })
+    @ApiBadRequestResponse({ description: 'Map credit object is invalid' })
+    @ApiBadRequestResponse({ description: 'Credited user does not exist' })
+    @ApiConflictResponse({ description: 'Map credit already exists' })
+    @ApiBody({
+        type: CreateMapCreditDto,
+        description: 'The create map credit data transfer object',
+        required: true
+    })
+    createCredit(
+        @Param('mapID', ParseIntPipe) mapID: number,
+        @Body() body: CreateMapCreditDto,
+        @LoggedInUser('id') userID: number
+    ): Promise<MapCreditDto> {
+        return this.mapsService.createCredit(mapID, body, userID);
+    }
+
     //#endregion
 
     //#region Private

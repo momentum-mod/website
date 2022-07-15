@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from './prisma.service';
-import { Map, MapZone, MapZoneTrigger, Prisma } from '@prisma/client';
+import { Map, MapCredit, MapZone, MapZoneTrigger, Prisma } from '@prisma/client';
 
 @Injectable()
 export class MapsRepoService {
@@ -88,6 +88,9 @@ export class MapsRepoService {
     }
 
     //#region MapCredit
+    async findCredit(where: Prisma.MapCreditWhereInput): Promise<MapCredit> {
+        return this.prisma.mapCredit.findFirst({ where: where });
+    }
 
     async updateCredit(
         where: Prisma.MapCreditWhereInput,
@@ -96,6 +99,22 @@ export class MapsRepoService {
         await this.prisma.mapCredit.updateMany({
             where: where,
             data: input
+        });
+    }
+
+    async getCredits(
+        where: Prisma.MapCreditWhereInput,
+        include?: Prisma.MapCreditInclude
+    ): Promise<MapCredit[]> {
+        return this.prisma.mapCredit.findMany({ where: where, include: include });
+    }
+
+    async createCredit(input: Prisma.MapCreditCreateInput): Promise<MapCredit> {
+        return this.prisma.mapCredit.create({
+            data: input,
+            include: {
+                map: true
+            }
         });
     }
 

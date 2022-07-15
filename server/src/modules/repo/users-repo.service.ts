@@ -143,6 +143,10 @@ export class UsersRepoService {
         return [activities, count];
     }
 
+    async deleteActivities(where: Prisma.ActivityWhereInput): Promise<void> {
+        await this.prisma.activity.deleteMany({ where: where });
+    }
+
     async updateActivities(where: Prisma.ActivityWhereInput, update: Prisma.ActivityUncheckedUpdateManyInput) {
         await this.prisma.activity.updateMany({
             where: where,
