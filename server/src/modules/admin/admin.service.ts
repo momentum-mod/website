@@ -50,7 +50,7 @@ export class AdminService {
         if (!user) throw new BadRequestException('Merging user not found');
 
         // Update credits to point to new ID
-        await this.mapRepo.updateCredit(
+        await this.mapRepo.updateCredits(
             {
                 userID: placeholderID
             },
