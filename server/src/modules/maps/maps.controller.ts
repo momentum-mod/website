@@ -11,7 +11,10 @@ import {
     UseInterceptors,
     HttpCode,
     HttpStatus,
-    BadRequestException} from '@nestjs/common';
+    BadRequestException,
+    Patch,
+    Delete
+} from '@nestjs/common';
 import {
     ApiBearerAuth,
     ApiBody,
@@ -35,7 +38,7 @@ import { MapCreditsGetQuery, MapsGetAllQuery, MapsGetQuery } from '../../@common
 import { Roles } from '../../@common/decorators/roles.decorator';
 import { Roles as RolesEnum } from '../../@common/enums/user.enum';
 import { LoggedInUser } from '../../@common/decorators/logged-in-user.decorator';
-import { CreateMapCreditDto, MapCreditDto } from '../../@common/dto/map/map-credit.dto';
+import { CreateMapCreditDto, MapCreditDto, UpdateMapCreditDto } from '../../@common/dto/map/map-credit.dto';
 
 @ApiBearerAuth()
 @Controller('api/v1/maps')
@@ -217,6 +220,76 @@ export class MapsController {
         @LoggedInUser('id') userID: number
     ): Promise<MapCreditDto> {
         return this.mapsService.createCredit(mapID, body, userID);
+    }
+
+    @Get('/credits/:mapCredID')
+    @ApiOperation({ summary: 'Gets a single map credit' })
+    @ApiParam({
+        name: 'mapCredID',
+        type: Number,
+        description: 'Target credit ID',
+        required: true
+    })
+    @ApiOkResponse({ description: 'The found map credit', type: MapCreditDto })
+    @ApiNotFoundResponse({ description: 'Map credit not found' })
+    getCredit(
+        @Param('mapCredID', ParseIntPipe) mapCredID: number,
+        @Query() query?: MapCreditsGetQuery
+    ): Promise<MapCreditDto> {
+        return this.mapsService.getCredit(mapCredID, query.expand);
+    }
+
+    @Patch('/credits/:mapCredID')
+    @Roles(RolesEnum.MAPPER)
+    @HttpCode(HttpStatus.NO_CONTENT)
+    @ApiOperation({ summary: 'Updates the specified map credit' })
+    @ApiParam({
+        name: 'mapCredID',
+        type: Number,
+        description: 'Target credit ID',
+        required: true
+    })
+    @ApiBody({
+        type: UpdateMapCreditDto,
+        description: 'The create map credit data transfer object',
+        required: true
+    })
+    @ApiNoContentResponse({ description: 'Map credit updated successfully' })
+    @ApiBadRequestResponse({ description: 'Map credit object is invalid' })
+    @ApiBadRequestResponse({ description: 'Credited user does not exist' })
+    @ApiBadRequestResponse({ description: 'No update data provided' })
+    @ApiForbiddenResponse({ description: 'Map is not in NEEDS_REVISION state' })
+    @ApiForbiddenResponse({ description: 'User does not have the mapper role' })
+    @ApiForbiddenResponse({ description: 'User is not the submitter of this map' })
+    @ApiConflictResponse({ description: 'Cannot have duplicate map credits' })
+    @ApiNotFoundResponse({ description: 'Map credit not found' })
+    updateCredit(
+        @Param('mapCredID', ParseIntPipe) mapCredID: number,
+        @Body() body: UpdateMapCreditDto,
+        @LoggedInUser('id') userID: number
+    ): Promise<void> {
+        return this.mapsService.updateCredit(mapCredID, body, userID);
+    }
+
+    @Delete('/credits/:mapCredID')
+    @Roles(RolesEnum.MAPPER)
+    @ApiOperation({ summary: 'Deletes the specified map credit' })
+    @ApiParam({
+        name: 'mapCredID',
+        type: Number,
+        description: 'Target credit ID',
+        required: true
+    })
+    @ApiOkResponse({ description: 'Map credit deleted successfully' })
+    @ApiForbiddenResponse({ description: 'Map is not in NEEDS_REVISION state' })
+    @ApiForbiddenResponse({ description: 'User does not have the mapper role' })
+    @ApiForbiddenResponse({ description: 'User is not the submitter of this map' })
+    @ApiNotFoundResponse({ description: 'Map credit not found' })
+    deleteCredit(
+        @Param('mapCredID', ParseIntPipe) mapCredID: number,
+        @LoggedInUser('id') userID: number
+    ): Promise<void> {
+        return this.mapsService.deleteCredit(mapCredID, userID);
     }
 
     //#endregion

@@ -15,7 +15,7 @@ import { FileStoreCloudService } from '../filestore/file-store-cloud.service';
 import { DtoFactory, ExpandToPrismaIncludes } from '../../@common/utils/dto.utility';
 import { UsersRepoService } from '../repo/users-repo.service';
 import { ActivityTypes } from '../../@common/enums/activity.enum';
-import { CreateMapCreditDto, MapCreditDto } from '../../@common/dto/map/map-credit.dto';
+import { CreateMapCreditDto, MapCreditDto, UpdateMapCreditDto } from '../../@common/dto/map/map-credit.dto';
 
 @Injectable()
 export class MapsService {
@@ -333,6 +333,49 @@ export class MapsService {
 
         return DtoFactory(MapCreditDto, dbResponse);
     }
+
+    async getCredit(mapCredID: number, expand: string[]): Promise<MapCreditDto> {
+        const include: Prisma.MapCreditInclude = ExpandToPrismaIncludes(expand?.filter((x) => ['user'].includes(x)));
+
+        const dbResponse = await this.mapRepo.getCredit(mapCredID, include);
+        if (!dbResponse) throw new NotFoundException('Map credit not found');
+
+        return DtoFactory(MapCreditDto, dbResponse);
+    }
+
+    async updateCredit(mapCredID: number, creditUpdate: UpdateMapCreditDto, userID: number): Promise<void> {
+        if (!creditUpdate.userID && !creditUpdate.type) throw new BadRequestException('No update data provided');
+
+        const mapCred = await this.mapRepo.getCredit(mapCredID, { user: true });
+        if (!mapCred) throw new NotFoundException('Map credit not found');
+
+        await this.updateCreditChecks(mapCred, creditUpdate, userID);
+
+        const data: Prisma.MapCreditUpdateInput = {};
+
+        if (creditUpdate.userID) data.user = { connect: { id: creditUpdate.userID } };
+
+        if (creditUpdate.type) data.type = creditUpdate.type;
+
+        const newCredit = await this.mapRepo.updateCredit(mapCredID, data);
+
+        await this.updateActivities(newCredit, mapCred);
+    }
+
+    async deleteCredit(mapCredID: number, userID: number): Promise<void> {
+        const mapCred = await this.mapRepo.getCredit(mapCredID, { user: true });
+        if (!mapCred) throw new NotFoundException('Map credit not found');
+
+        const mapOfCredit = await this.mapRepo.get(mapCred.mapID);
+        if (mapOfCredit.submitterID !== userID) throw new ForbiddenException('User is not the submitter of this map');
+
+        if (mapOfCredit.statusFlag !== MapStatus.NEEDS_REVISION)
+            throw new ForbiddenException('Map is not in NEEDS_REVISION state');
+
+        await this.mapRepo.deleteCredit({ id: mapCredID });
+
+        await this.updateActivities(null, mapCred);
+    }
     //#endregion
 
     //#region Private
@@ -388,6 +431,31 @@ export class MapsService {
 
         if (map.statusFlag !== MapStatus.NEEDS_REVISION)
             throw new ForbiddenException('Map file cannot be uploaded, the map is not accepting revisions');
+    }
+
+    private async updateCreditChecks(mapCred: MapCredit, creditUpdate: UpdateMapCreditDto, userID: number) {
+        if (creditUpdate.userID) {
+            const userExists = await this.userRepo.get(creditUpdate.userID);
+            if (!userExists) throw new BadRequestException('Credited user does not exist');
+        }
+
+        const mapOfCredit = await this.mapRepo.get(mapCred.mapID);
+        if (mapOfCredit.submitterID !== userID) throw new ForbiddenException('User is not the submitter of this map');
+
+        if (mapOfCredit.statusFlag !== MapStatus.NEEDS_REVISION)
+            throw new ForbiddenException('Map is not in NEEDS_REVISION state');
+
+        const checkDupe: Prisma.MapCreditWhereInput = {
+            NOT: {
+                id: mapCred.id
+            },
+            userID: creditUpdate.userID ?? mapCred.userID,
+            type: creditUpdate.type ?? mapCred.type,
+            mapID: mapCred.mapID
+        };
+
+        const foundDupe = await this.mapRepo.findCredit(checkDupe);
+        if (foundDupe) throw new ConflictException('Cannot have duplicate map credits');
     }
 
     private async updateActivities(newCredit?: MapCredit, oldCredit?: MapCredit): Promise<void> {
