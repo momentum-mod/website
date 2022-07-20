@@ -39,6 +39,7 @@ import { Roles } from '../../@common/decorators/roles.decorator';
 import { Roles as RolesEnum } from '../../@common/enums/user.enum';
 import { LoggedInUser } from '../../@common/decorators/logged-in-user.decorator';
 import { CreateMapCreditDto, MapCreditDto, UpdateMapCreditDto } from '../../@common/dto/map/map-credit.dto';
+import { MapInfoDto, UpdateMapInfoDto } from '../../@common/dto/map/map-info.dto';
 
 @ApiBearerAuth()
 @Controller('api/v1/maps')
@@ -290,6 +291,43 @@ export class MapsController {
         @LoggedInUser('id') userID: number
     ): Promise<void> {
         return this.mapsService.deleteCredit(mapCredID, userID);
+    }
+
+    @Get('/:mapID/info')
+    @ApiOperation({ summary: "Gets a single map's info" })
+    @ApiParam({
+        name: 'mapID',
+        type: Number,
+        description: 'Target Map ID',
+        required: true
+    })
+    @ApiOkResponse({ description: "The found map's info" })
+    @ApiNotFoundResponse({ description: 'Map not found' })
+    getInfo(@Param('mapID', ParseIntPipe) mapID: number): Promise<MapInfoDto> {
+        return this.mapsService.getInfo(mapID);
+    }
+
+    @Patch('/:mapID/info')
+    @Roles(RolesEnum.MAPPER)
+    @HttpCode(HttpStatus.NO_CONTENT)
+    @ApiOperation({ summary: 'Update the map info' })
+    @ApiBody({
+        type: UpdateMapInfoDto,
+        description: 'Update map info data transfer object',
+        required: true
+    })
+    @ApiNoContentResponse({ description: 'The map info was successfully updated' })
+    @ApiBadRequestResponse({ description: 'Invalid update data' })
+    @ApiForbiddenResponse({ description: 'Map is not in NEEDS_REVISION state' })
+    @ApiForbiddenResponse({ description: 'User does not have the mapper role' })
+    @ApiForbiddenResponse({ description: 'User is not the submitter of this map' })
+    @ApiNotFoundResponse({ description: 'Map not found' })
+    updateUser(
+        @LoggedInUser('id') userID: number,
+        @Body() updateDto: UpdateMapInfoDto,
+        @Param('mapID', ParseIntPipe) mapID: number
+    ): Promise<void> {
+        return this.mapsService.updateInfo(mapID, updateDto, userID);
     }
 
     //#endregion

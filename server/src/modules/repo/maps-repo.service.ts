@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from './prisma.service';
-import { Map, MapCredit, MapZone, MapZoneTrigger, Prisma } from '@prisma/client';
+import { Map, MapCredit, MapInfo, MapZone, MapZoneTrigger, Prisma } from '@prisma/client';
 
 @Injectable()
 export class MapsRepoService {
@@ -138,6 +138,23 @@ export class MapsRepoService {
         await this.prisma.mapCredit.delete({ where: where });
     }
 
+    //#endregion
+
+    //#region MapInfo
+    async getInfo(mapId: number): Promise<MapInfo> {
+        const mapInfo = await this.prisma.mapInfo.findUnique({ where: { mapID: mapId } });
+
+        return mapInfo;
+    }
+
+    async updateInfo(mapID: number, data: Prisma.MapInfoUpdateInput): Promise<MapInfo> {
+        return this.prisma.mapInfo.update({
+            where: {
+                mapID: mapID
+            },
+            data: data
+        });
+    }
     //#endregion
 
     //#region MapTrack

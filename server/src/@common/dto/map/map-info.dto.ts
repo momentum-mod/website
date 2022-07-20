@@ -1,6 +1,6 @@
 ﻿import { MapInfo } from '@prisma/client';
 import { Exclude, Transform, Type } from 'class-transformer';
-import { ApiProperty, PickType } from '@nestjs/swagger';
+import { ApiProperty, PartialType, PickType } from '@nestjs/swagger';
 import { IsDate, IsDateString, IsDefined, IsInt, IsOptional, IsString, Matches } from 'class-validator';
 
 export class MapInfoDto implements MapInfo {
@@ -45,3 +45,5 @@ export class CreateMapInfoDto extends PickType(MapInfoDto, [
     'numTracks',
     'creationDate'
 ] as const) {}
+
+export class UpdateMapInfoDto extends PartialType(PickType(MapInfoDto, ['description', 'youtubeID', 'creationDate'] as const)) {}

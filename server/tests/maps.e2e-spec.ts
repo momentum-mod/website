@@ -952,24 +952,47 @@ describe('Maps', () => {
 
         it('should return 404 if the map is not found', () => get('maps/00091919/info', 404));
 
-        it('should respond with 401 when no access token is provided', () => get(`maps/${map1.id}/info`, 401));
+        it('should respond with 401 when no access token is provided', () =>
+            get(`maps/${map1.id}/info`, 401, {}, null));
     });
 
     describe('PATCH maps/{mapID}/info', () => {
-        // TODO: bad name
-        it('should respond with map info', async () => {
-            const res = await patch(`maps/${map1.id}/info`, 204, {
-                description: 'testnewdesc'
-            });
+        const infoUpdate = {
+            description: 'This map is EXTREME',
+            youtubeID: '70vwJy1dQ0c',
+            creationDate: '1999-02-06'
+        };
+
+        it('should update the map info', async () => {
+            await patch(`maps/${map1.id}/info`, 204, infoUpdate);
+            const newInfo = await (global.prisma as PrismaService).mapInfo.findUnique({ where: { mapID: map1.id } });
+
+            expect(newInfo.creationDate).toEqual(new Date(infoUpdate.creationDate));
+            expect(newInfo.description).toBe(infoUpdate.description);
+            expect(newInfo.youtubeID).toBe(infoUpdate.youtubeID);
         });
 
-        // old comments below. wtf is going on here
-        // swagger says this should return 404 if the map is not found,
-        // but it won't get past the check for if the map was submitted
-        // by that user or not
-        it('should return 403 if the map was not submitted by that user', () => patch('maps/00091919/info', 403));
+        it('should return 400 if the date is invalid', () =>
+            patch(`maps/${map1.id}/info`, 400, { creationDate: 'the other day' }));
 
-        it('should respond with 401 when no access token is provided', () => patch(`maps/${map1.id}/info`, 401));
+        it('should return 400 if the youtube ID is invalid', () =>
+            patch(`maps/${map1.id}/info`, 400, { youtubeID: 'https://www.youtube.com/watch?v=70vwJy1dQ0c' }));
+
+        it('should return 400 if no update data is provided', () => patch(`maps/${map1.id}/info`, 400, {}));
+
+        it('should return 404 if the map does not exist', () => patch('maps/1191137119/info', 404, infoUpdate));
+
+        it('should return 403 if the map was not submitted by that user', () =>
+            patch(`maps/${map1.id}/info`, 403, infoUpdate, user3AccessToken));
+
+        it('should return 403 if the map is not in NEEDS_REVISION state', () =>
+            patch(`maps/${map3.id}/info`, 403, infoUpdate, user3AccessToken));
+
+        it('should return 403 if the user does not have the mapper role', () =>
+            patch(`maps/${map4.id}/info`, 403, infoUpdate, user2AccessToken));
+
+        it('should respond with 401 when no access token is provided', () =>
+            patch(`maps/${map1.id}/info`, 401, infoUpdate, null));
     });
 
     describe('GET maps/{mapID}/credits', () => {
