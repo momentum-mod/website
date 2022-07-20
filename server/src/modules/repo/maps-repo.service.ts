@@ -102,6 +102,18 @@ export class MapsRepoService {
         });
     }
 
+    async updateCredit(
+        credID: number,
+        input: Prisma.MapCreditUpdateInput
+    ): Promise<MapCredit> {
+        return this.prisma.mapCredit.update({
+            where: {
+                id: credID
+            },
+            data: input
+        });
+    }
+
     async getCredits(
         where: Prisma.MapCreditWhereInput,
         include?: Prisma.MapCreditInclude
@@ -116,6 +128,14 @@ export class MapsRepoService {
                 map: true
             }
         });
+    }
+
+    async getCredit(id: number, include?: Prisma.MapCreditInclude): Promise<MapCredit> {
+        return this.prisma.mapCredit.findUnique({ where: { id: id }, include: include });
+    }
+
+    async deleteCredit(where: Prisma.MapCreditWhereUniqueInput): Promise<void> {
+        await this.prisma.mapCredit.delete({ where: where });
     }
 
     //#endregion
