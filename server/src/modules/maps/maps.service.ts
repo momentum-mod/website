@@ -16,6 +16,7 @@ import { DtoFactory, ExpandToPrismaIncludes } from '../../@common/utils/dto.util
 import { UsersRepoService } from '../repo/users-repo.service';
 import { ActivityTypes } from '../../@common/enums/activity.enum';
 import { CreateMapCreditDto, MapCreditDto, UpdateMapCreditDto } from '../../@common/dto/map/map-credit.dto';
+import { MapInfoDto, UpdateMapInfoDto } from '../../@common/dto/map/map-info.dto';
 
 @Injectable()
 export class MapsService {
@@ -375,6 +376,36 @@ export class MapsService {
         await this.mapRepo.deleteCredit({ id: mapCredID });
 
         await this.updateActivities(null, mapCred);
+    }
+    //#endregion
+
+    //#region Map Info
+    async getInfo(mapID: number): Promise<MapInfoDto> {
+        const mapInfo = await this.mapRepo.getInfo(mapID);
+
+        if (!mapInfo) throw new NotFoundException('Map not found');
+
+        return DtoFactory(MapInfoDto, mapInfo);
+    }
+
+    async updateInfo(mapID: number, mapInfo: UpdateMapInfoDto, userID: number): Promise<void> {
+        if (!mapInfo.description && !mapInfo.youtubeID && !mapInfo.creationDate)
+            throw new BadRequestException('Request contains no valid update data');
+        const map = await this.mapRepo.get(mapID);
+        if (!map) throw new NotFoundException('Map not found');
+
+        if (map.submitterID !== userID) throw new ForbiddenException('User is not the submitter of the map');
+
+        if (map.statusFlag !== MapStatus.NEEDS_REVISION)
+            throw new ForbiddenException('Map is not in NEEDS_REVISION state');
+
+        const data: Prisma.MapInfoUpdateInput = {};
+
+        if (mapInfo.description) data.description = mapInfo.description;
+        if (mapInfo.youtubeID) data.youtubeID = mapInfo.youtubeID;
+        if (mapInfo.creationDate) data.creationDate = new Date(mapInfo.creationDate);
+
+        await this.mapRepo.updateInfo(mapID, data);
     }
     //#endregion
 
