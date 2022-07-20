@@ -1072,50 +1072,178 @@ describe('Maps', () => {
             post(`maps/${map1.id}/credits`, 401, newMapCredit(), null));
     });
 
-    describe('GET maps/{mapID}/credits/{mapCreditID}', () => {
+    describe('GET maps/credits/{mapCreditID}', () => {
         const expects = (res) => expect(res.body).toBeValidDto(MapCreditDto);
 
-        it('should return the map credit of the specified map', async () => {
-            // ????????? whjat is this url??????
-            const res = await get(`maps/${map1.id}/credits/${map1.credits.id}`, 200);
-
+        it('should return the specified map credit', async () => {
+            const res = await get(`maps/credits/${map1.credits[0].id}`, 200);
             expects(res);
         });
 
-        it('should return the map credit of the specified map with the user expand parameter', () =>
-            expandTest(`maps/${map1.id}/credits/${map1.credits.id}`, expects, 'user'));
+        it('should return the specified map credit with the user expand parameter', () =>
+            expandTest(`maps/credits/${map1.credits[0].id}`, expects, 'user'));
 
-        it('should return a 404 if the map is not found', () => get('maps/20090909/credits/222', 404));
+        it('should return a 404 if the map credit is not found', () => get('maps/credits/222', 404));
 
         it('should respond with 401 when no access token is provided', () =>
-            get(`maps/${map1.id}/credits/${map1.credits.id}`, 401));
+            get(`maps/credits/${map1.credits[0].id}`, 401, {}, null));
     });
 
     describe('PATCH maps/{mapID}/credits/{mapCreditID}', () => {
-        it('should update the specified map credit', async () => {
-            const res = await patch(` maps /${map1.id}/credits/${map1.credits.id}`, 204, {
-                type: MapCreditType.TESTER,
-                userID: admin.id
+        const updatedMapCredit = () => {
+            return {
+                userID: user2.id,
+                type: MapCreditType.TESTER
+            };
+        };
+        it("should update the specified map credit's user and type", async () => {
+            await patch(`maps/credits/${map1.credits[0].id}`, 204, updatedMapCredit());
+            const updatedMap = await (global.prisma as PrismaService).map.findUnique({
+                where: { id: map1.id },
+                include: { credits: true }
             });
+            expect(updatedMap.credits).toHaveLength(1);
+            expect(updatedMap.credits[0].userID).toBe(user2.id);
+            expect(updatedMap.credits[0].type).toBe(MapCreditType.TESTER);
+        });
+
+        it("should just update the specified map credit's type", () =>
+            patch(`maps/credits/${map1.credits[0].id}`, 204, { type: MapCreditType.TESTER }));
+
+        it("should just update the specified map credit's user", () =>
+            patch(`maps/credits/${map1.credits[0].id}`, 204, { userID: user2.id }));
+
+        it('should return 403 if the map was not submitted by that user', () =>
+            patch(`maps/credits/${map1.credits[0].id}`, 403, updatedMapCredit(), user3AccessToken));
+
+        it('should return 404 if the map credit was not found', () =>
+            patch(`maps/credits/1024768`, 404, updatedMapCredit()));
+
+        it('should respond with 400 when the map credit type is invalid', () =>
+            patch(`maps/credits/${map1.credits[0].id}`, 400, { type: 'Author' }));
+
+        it('should respond with 400 when the map credit user is invalid', () =>
+            patch(`maps/credits/${map1.credits[0].id}`, 400, { userID: 'Momentum Man' }));
+
+        it('should respond with 400 when no update data is provided', () =>
+            patch(`maps/credits/${map1.credits[0].id}`, 400, {}));
+
+        it('should respond with 403 if the map is not in NEEDS_REVISION state', () =>
+            patch(`maps/credits/${map3.credits[0].id}`, 403, updatedMapCredit(), user3AccessToken));
+
+        it('should respond with 403 if the user does not have the mapper role', () =>
+            patch(`maps/credits/${map4.credits[0].id}`, 403, updatedMapCredit(), user2AccessToken));
+
+        it('should respond with 400 if the credited user does not exist', () =>
+            patch(`maps/credits/${map1.credits[0].id}`, 400, { userID: 123456789 }));
+
+        it("should update the activities when an author credit's user is changed", async () => {
+            await (global.prisma as PrismaService).activity.create({
+                data: {
+                    type: ActivityTypes.MAP_UPLOADED,
+                    userID: map1.credits[0].userID,
+                    data: map1.id
+                }
+            });
+
+            await patch(`maps/credits/${map1.credits[0].id}`, 204, { userID: user2.id });
+
+            const originalActivity = await (global.prisma as PrismaService).activity.findFirst({
+                where: {
+                    userID: user.id,
+                    type: ActivityTypes.MAP_UPLOADED,
+                    data: map1.id
+                }
+            });
+            const newActivity = await (global.prisma as PrismaService).activity.findFirst({
+                where: {
+                    userID: user2.id,
+                    type: ActivityTypes.MAP_UPLOADED,
+                    data: map1.id
+                }
+            });
+            expect(originalActivity).toBeNull();
+            expect(newActivity);
+        });
+
+        it("should update the activities when an author credit's type is changed", async () => {
+            await (global.prisma as PrismaService).activity.create({
+                data: {
+                    type: ActivityTypes.MAP_UPLOADED,
+                    userID: map1.credits[0].userID,
+                    data: map1.id
+                }
+            });
+
+            await patch(`maps/credits/${map1.credits[0].id}`, 204, { type: MapCreditType.COAUTHOR });
+
+            const originalActivity = await (global.prisma as PrismaService).activity.findFirst({
+                where: {
+                    userID: user.id,
+                    type: ActivityTypes.MAP_UPLOADED,
+                    data: map1.id
+                }
+            });
+            expect(originalActivity).toBeNull();
+        });
+
+        it('should respond with 409 if the user tries to update a credit to be identical to another credit', async () => {
+            const newCredit = await (global.prisma as PrismaService).mapCredit.create({
+                data: {
+                    user: { connect: { id: user3.id } },
+                    map: { connect: { id: map1.id } },
+                    type: MapCreditType.COAUTHOR
+                }
+            });
+            await patch(`maps/credits/${newCredit.id}`, 409, { userID: user.id, type: MapCreditType.AUTHOR });
+        });
+
+        it('should respond with 401 when no access token is provided', () =>
+            patch(`maps/credits/${map1.credits[0].id}`, 401, updatedMapCredit(), null));
+    });
+
+    describe('DELETE maps/credits/{mapCreditID}', () => {
+        it('should delete the specified map credit', async () => {
+            await del(`maps/credits/${map1.credits[0].id}`, 200);
+            const updatedMap = await (global.prisma as PrismaService).map.findUnique({
+                where: { id: map1.id },
+                include: { credits: true }
+            });
+            expect(updatedMap.credits).toHaveLength(0);
+        });
+
+        it('should remove the activity when an author credit is deleted', async () => {
+            await (global.prisma as PrismaService).activity.create({
+                data: {
+                    type: ActivityTypes.MAP_UPLOADED,
+                    userID: map1.credits[0].userID,
+                    data: map1.id
+                }
+            });
+            await del(`maps/credits/${map1.credits[0].id}`, 200);
+            const activity = await (global.prisma as PrismaService).activity.findFirst({
+                where: {
+                    userID: user.id,
+                    type: ActivityTypes.MAP_UPLOADED,
+                    data: map1.id
+                }
+            });
+            expect(activity).toBeNull();
         });
 
         it('should return 403 if the map was not submitted by that user', () =>
-            patch('maps/3938282929/credits/234532', 403, {
-                type: MapCreditType.AUTHOR,
-                userID: admin.id
-            }));
+            del(`maps/credits/${map1.credits[0].id}`, 403, user3AccessToken));
+
+        it('should return 403 if the map is not in NEEDS_REVISION state', () =>
+            del(`maps/credits/${map3.credits[0].id}`, 403, user3AccessToken));
+
+        it('should return 403 if the user does not have the mapper role', () =>
+            del(`maps/credits/${map4.credits[0].id}`, 403, user2AccessToken));
+
+        it('should return 404 if the map credit was not found', () => del('maps/credits/1024768', 404));
 
         it('should respond with 401 when no access token is provided', () =>
-            patch(`maps/${map1.id}/credits/${map1.credits.id}`, 401));
-    });
-
-    describe('DELETE maps/{mapID}/credits/{mapCreditID}', () => {
-        it('should delete the specified map credit', async () => {
-            await del(`maps /${map1.id}/credits/${map1.credits.id}`, 200);
-        });
-
-        it('should respond with 401 when no access token is provided', () =>
-            del(`maps/${map1.id}/credits/${map1.credits.id}`, 401));
+            del(`maps/credits/${map1.credits.id}`, 401, null));
     });
 
     describe('PUT /maps/{mapID}/thumbnail', () => {
