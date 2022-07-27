@@ -40,6 +40,7 @@ import { Roles as RolesEnum } from '../../@common/enums/user.enum';
 import { LoggedInUser } from '../../@common/decorators/logged-in-user.decorator';
 import { CreateMapCreditDto, MapCreditDto, UpdateMapCreditDto } from '../../@common/dto/map/map-credit.dto';
 import { MapInfoDto, UpdateMapInfoDto } from '../../@common/dto/map/map-info.dto';
+import { MapTrackDto } from '../../@common/dto/map/map-track.dto';
 
 @ApiBearerAuth()
 @Controller('api/v1/maps')
@@ -330,6 +331,22 @@ export class MapsController {
         return this.mapsService.updateInfo(mapID, updateDto, userID);
     }
 
+    //#endregion
+
+    //#Zones
+    @Get('/:mapID/zones')
+    @ApiOperation({ summary: "Gets a single map's zones" })
+    @ApiParam({
+        name: 'mapID',
+        type: Number,
+        description: 'Target Map ID',
+        required: true
+    })
+    @ApiOkResponse({ description: "The found map's zones" })
+    @ApiNotFoundResponse({ description: 'Map not found' })
+    getZones(@Param('mapID', ParseIntPipe) mapID: number): Promise<MapTrackDto[]> {
+        return this.mapsService.getZones(mapID);
+    }
     //#endregion
 
     //#region Private
