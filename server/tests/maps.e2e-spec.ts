@@ -17,6 +17,7 @@ import { createHash } from 'crypto';
 import { DeleteObjectCommand, HeadObjectCommand, PutObjectCommand, S3Client } from '@aws-sdk/client-s3';
 import { appConfig } from '../config/config';
 import { UserDto } from '../src/@common/dto/user/user.dto';
+import { MapTrackDto } from '../src/@common/dto/map/map-track.dto';
 
 const hash = (buffer: Buffer) => createHash('sha1').update(buffer).digest('hex');
 
@@ -1267,6 +1268,38 @@ describe('Maps', () => {
 
         it('should respond with 401 when no access token is provided', () =>
             del(`maps/credits/${map1.credits.id}`, 401, null));
+    });
+
+    describe('GET /maps/{mapID}/zones', () => {
+        const expects = (res) => res.body.forEach((x) => expect(x).toBeValidDto(MapTrackDto));
+        it('should respond with the map zones', async () => {
+            const res = await get(`maps/${map1.id}/zones`, 200);
+            expects(res);
+            expect(res.body).toHaveLength(1);
+            expect(res.body[0]).toHaveProperty('zones');
+        });
+
+        it('should increase the maps plays by 1 (??)', async () => {
+            const mapstats = await (global.prisma as PrismaService).mapStats.findFirst({
+                where: {
+                    mapID: map1.id
+                }
+            });
+            expect(mapstats.plays).toBe(0);
+
+            await get(`maps/${map1.id}/zones`, 200);
+            const newstats = await (global.prisma as PrismaService).mapStats.findFirst({
+                where: {
+                    mapID: map1.id
+                }
+            });
+            expect(newstats.plays).toBe(1);
+        });
+
+        it('should respond with 404 if the map does not exist', () => get('maps/987654321/zones', 404));
+
+        it('should respond with 401 when no access token is provided', () =>
+            get(`maps/${map1.id}/zones`, 401, {}, null));
     });
 
     describe('PUT /maps/{mapID}/thumbnail', () => {

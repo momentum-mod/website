@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from './prisma.service';
-import { Map, MapCredit, MapInfo, MapZone, MapZoneTrigger, Prisma } from '@prisma/client';
+import { Map, MapCredit, MapInfo, MapStats, MapTrack, MapZone, MapZoneTrigger, Prisma } from '@prisma/client';
 
 @Injectable()
 export class MapsRepoService {
@@ -157,7 +157,26 @@ export class MapsRepoService {
     }
     //#endregion
 
+    //#region Map Stats
+    async updateMapStats(mapID: number, data: Prisma.MapStatsUpdateInput): Promise<MapStats> {
+        return this.prisma.mapStats.update({
+            where: {
+                mapID: mapID
+            },
+            data: data
+        });
+    }
+    //#endregion
+
     //#region MapTrack
+    async getMapTracks(mapID: number, include: Prisma.MapTrackInclude): Promise<MapTrack[]> {
+        return this.prisma.mapTrack.findMany({
+            where: {
+                mapID: mapID
+            },
+            include: include
+        });
+    }
     // TODO: I assume we'll do more here in the future, I just need this rn
 
     async updateMapTrack(where: Prisma.MapTrackWhereUniqueInput, input: Prisma.MapTrackUpdateInput): Promise<void> {

@@ -5,7 +5,7 @@ import {
     Injectable,
     NotFoundException
 } from '@nestjs/common';
-import { Map as MapDB, MapCredit, MapTrack, Prisma } from '@prisma/client';
+import { Map as MapDB, MapCredit, MapStats, MapTrack, Prisma } from '@prisma/client';
 import { CreateMapDto, MapDto } from '../../@common/dto/map/map.dto';
 import { PaginatedResponseDto } from '../../@common/dto/paginated-response.dto';
 import { MapCreateRequireInfoAndTracks, MapsRepoService } from '../repo/maps-repo.service';
@@ -17,6 +17,7 @@ import { UsersRepoService } from '../repo/users-repo.service';
 import { ActivityTypes } from '../../@common/enums/activity.enum';
 import { CreateMapCreditDto, MapCreditDto, UpdateMapCreditDto } from '../../@common/dto/map/map-credit.dto';
 import { MapInfoDto, UpdateMapInfoDto } from '../../@common/dto/map/map-info.dto';
+import { MapTrackDto } from '../../@common/dto/map/map-track.dto';
 
 @Injectable()
 export class MapsService {
@@ -408,6 +409,36 @@ export class MapsService {
         await this.mapRepo.updateInfo(mapID, data);
     }
     //#endregion
+
+    async getZones(mapID: number): Promise<MapTrackDto[]> {
+        const map = await this.mapRepo.get(mapID, { stats: true });
+
+        if (!map) throw new NotFoundException('Map not found');
+
+        const include: Prisma.MapTrackInclude = {
+            zones: {
+                include: {
+                    triggers: {
+                        include: {
+                            properties: true
+                        }
+                    }
+                }
+            }
+        };
+
+        const tracks = await this.mapRepo.getMapTracks(mapID, include);
+
+        // This is dumb but it's what the old api does
+        // \server\src\models\map.js Line 499
+        // TODO_POST_REWRITE: When map sessions are done this should be removed
+
+        await this.mapRepo.updateMapStats(mapID, {
+            plays: { increment: 1 }
+        });
+
+        return tracks.map((x) => DtoFactory(MapTrackDto, x));
+    }
 
     //#region Private
 
