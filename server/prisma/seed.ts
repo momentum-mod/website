@@ -329,6 +329,10 @@ async function createRandomMapTrackStats(mapTrackID, baseStatsID) {
 async function createRandomMapZone(mapTrackID) {
     const dates = randomCreatedUpdatedDate();
 
+    // TODO: mapTrackID seems to often be undefined here, clearly the seed script is going wrong somewhere.
+    // come back to this when rewrite is basically finished
+    if (!mapTrackID) return;
+
     return await prisma.mapZone.create({
         data: {
             trackID: mapTrackID,
@@ -359,7 +363,7 @@ async function createRandomRun(mapID, userID, baseStatsID) {
         data: {
             mapID: mapID,
             userID: userID,
-            baseStatsID: baseStatsID,
+            overallStatsID: baseStatsID,
             trackNum: randomIntFromInterval(0, 127),
             zoneNum: randomIntFromInterval(0, 127),
             ticks: ticks,

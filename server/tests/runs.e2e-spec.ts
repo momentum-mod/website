@@ -119,7 +119,7 @@ describe('runs', () => {
                         user: { connect: { id: user1.id } }
                     }
                 },
-                baseStats: {
+                overallStats: {
                     create: {
                         jumps: 1
                     }
@@ -147,7 +147,7 @@ describe('runs', () => {
                 flags: 1 << 1,
                 file: 'jumping.run',
                 hash: '0xfacade',
-                baseStats: {
+                overallStats: {
                     create: {
                         jumps: 1
                     }
@@ -176,7 +176,7 @@ describe('runs', () => {
                 flags: 1 << 4,
                 file: 'surfing_fast.run',
                 hash: '0x1137',
-                baseStats: {
+                overallStats: {
                     create: {
                         jumps: 1
                     }
@@ -214,7 +214,7 @@ describe('runs', () => {
                         user: { connect: { id: user2.id } }
                     }
                 },
-                baseStats: {
+                overallStats: {
                     create: {
                         jumps: 1
                     }
@@ -226,7 +226,7 @@ describe('runs', () => {
                 }
             },
             include: {
-                baseStats: true,
+                overallStats: true,
                 zoneStats: true
             }
         });
