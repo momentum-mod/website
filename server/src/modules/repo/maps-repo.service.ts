@@ -8,7 +8,12 @@ export class MapsRepoService {
 
     //#region Map
 
-    async create(input: MapCreateRequireInfoAndTracks): Promise<Map> {
+    async create(
+        input: Prisma.MapCreateInput & {
+            info: NonNullable<Prisma.MapCreateInput['info']>;
+            tracks: NonNullable<Prisma.MapCreateInput['tracks']>;
+        }
+    ): Promise<Map> {
         const map = await this.prisma.map.create({
             data: input,
             include: {
@@ -34,7 +39,7 @@ export class MapsRepoService {
             include: {
                 info: true,
                 credits: true,
-                tracks: true
+                tracks: true,
             }
         });
     }
@@ -87,9 +92,19 @@ export class MapsRepoService {
         });
     }
 
+    //#endregion
+
     //#region MapCredit
+
     async findCredit(where: Prisma.MapCreditWhereInput): Promise<MapCredit> {
         return this.prisma.mapCredit.findFirst({ where: where });
+    }
+
+    async updateCredit(mapID: number, input: Prisma.MapCreditUncheckedUpdateManyInput): Promise<MapCredit> {
+        return this.prisma.mapCredit.update({
+            where: { id: mapID },
+            data: input
+        });
     }
 
     async updateCredits(
@@ -102,22 +117,7 @@ export class MapsRepoService {
         });
     }
 
-    async updateCredit(
-        credID: number,
-        input: Prisma.MapCreditUpdateInput
-    ): Promise<MapCredit> {
-        return this.prisma.mapCredit.update({
-            where: {
-                id: credID
-            },
-            data: input
-        });
-    }
-
-    async getCredits(
-        where: Prisma.MapCreditWhereInput,
-        include?: Prisma.MapCreditInclude
-    ): Promise<MapCredit[]> {
+    async getCredits(where: Prisma.MapCreditWhereInput, include?: Prisma.MapCreditInclude): Promise<MapCredit[]> {
         return this.prisma.mapCredit.findMany({ where: where, include: include });
     }
 
@@ -158,6 +158,7 @@ export class MapsRepoService {
     //#endregion
 
     //#region Map Stats
+
     async updateMapStats(mapID: number, data: Prisma.MapStatsUpdateInput): Promise<MapStats> {
         return this.prisma.mapStats.update({
             where: {
@@ -166,21 +167,34 @@ export class MapsRepoService {
             data: data
         });
     }
+
     //#endregion
 
     //#region MapTrack
-    async getMapTracks(mapID: number, include: Prisma.MapTrackInclude): Promise<MapTrack[]> {
+
+    async getMapTrack(where: Prisma.MapTrackWhereInput, include?: Prisma.MapTrackInclude): Promise<MapTrack> {
+        return await this.prisma.mapTrack.findFirst({ where: where, include: include });
+    }
+
+    async getMapTracks(where: Prisma.MapTrackWhereInput, include: Prisma.MapTrackInclude): Promise<MapTrack[]> {
         return this.prisma.mapTrack.findMany({
-            where: {
-                mapID: mapID
-            },
+            where: where,
             include: include
         });
     }
-    // TODO: I assume we'll do more here in the future, I just need this rn
 
     async updateMapTrack(where: Prisma.MapTrackWhereUniqueInput, input: Prisma.MapTrackUpdateInput): Promise<void> {
         await this.prisma.mapTrack.update({
+            where: where,
+            data: input
+        });
+    }
+
+    async updateMapTrackStats(
+        where: Prisma.MapTrackStatsWhereUniqueInput,
+        input: Prisma.MapTrackStatsUpdateInput
+    ): Promise<void> {
+        await this.prisma.mapTrackStats.update({
             where: where,
             data: input
         });
@@ -192,6 +206,16 @@ export class MapsRepoService {
 
     async createMapZone(input: Prisma.MapZoneCreateInput): Promise<MapZone> {
         return await this.prisma.mapZone.create({
+            data: input
+        });
+    }
+
+    async updateMapZoneStats(
+        where: Prisma.MapZoneStatsWhereUniqueInput,
+        input: Prisma.MapZoneStatsUpdateInput
+    ): Promise<void> {
+        await this.prisma.mapZoneStats.update({
+            where: where,
             data: input
         });
     }
@@ -208,10 +232,3 @@ export class MapsRepoService {
 
     //#region
 }
-
-// We can't enforce this at a Prisma level (https://github.com/prisma/prisma/discussions/12866)
-// but maps should always have MapInfo data.
-export type MapCreateRequireInfoAndTracks = Prisma.MapCreateInput & {
-    info: NonNullable<Prisma.MapCreateInput['info']>;
-    tracks: NonNullable<Prisma.MapCreateInput['tracks']>;
-};
