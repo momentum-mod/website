@@ -1,14 +1,10 @@
 // noinspection DuplicatedCode
-
-// let fs = require('fs');
-
 import * as request from 'supertest';
 import { RunDto } from '../src/@common/dto/run/runs.dto';
 import { MapType, MapStatus, MapCreditType } from '../src/@common/enums/map.enum';
-import { Roles } from '../src/@common/enums/user.enum';
 import { AuthService } from '../src/modules/auth/auth.service';
 import { PrismaService } from '../src/modules/repo/prisma.service';
-import { get, takeTest, skipTest, expandTest } from './testutil';
+import { get, takeTest, skipTest, expandTest } from './util/test-util';
 
 describe('runs', () => {
     let user1, map1, run1, run2, run3, run4, user2, map2;

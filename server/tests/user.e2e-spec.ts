@@ -11,7 +11,7 @@ import { FollowStatusDto } from '../src/@common/dto/user/followers.dto';
 import { ActivityDto } from '../src/@common/dto/user/activity.dto';
 import { MapLibraryEntryDto } from '../src/@common/dto/map/map-library-entry';
 import { NotificationDto } from '../src/@common/dto/user/notification.dto';
-import { del, expandTest, get, patch, post, put, skipTest, takeTest } from './testutil';
+import { del, expandTest, get, patch, post, put, skipTest, takeTest } from './util/test-util';
 import { MapFavoriteDto } from '../src/@common/dto/map/map-favorite.dto';
 
 describe('User', () => {
