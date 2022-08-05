@@ -66,7 +66,7 @@ export class RunDto implements Run {
     @ApiProperty()
     @Transform(({ value }) => DtoFactory(BaseStatsDto, value))
     @ValidateNested()
-    baseStats: BaseStatsDto;
+    overallStats: BaseStatsDto;
 
     @ApiProperty({ type: () => RunZoneStatsDto })
     @Transform(({ value }) => value?.map((x) => DtoFactory(RunZoneStatsDto, x)))
@@ -74,7 +74,7 @@ export class RunDto implements Run {
     zoneStats: RunZoneStatsDto[];
 
     @ApiProperty()
-    baseStatsID: bigint;
+    overallStatsID: bigint;
 
     @ApiProperty()
     @IsDateString()

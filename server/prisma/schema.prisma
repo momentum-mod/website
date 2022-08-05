@@ -627,6 +627,9 @@ model Run {
 
     rank UserMapRank?
 
+    overallStats   BaseStats? @relation(fields: [overallStatsID], references: [id], onDelete: Cascade)
+    overallStatsID BigInt?    @unique
+
     zoneStats RunZoneStats[]
 
     map   Map @relation(fields: [mapID], references: [id], onDelete: Cascade)
@@ -635,13 +638,10 @@ model Run {
     user   User? @relation(fields: [userID], references: [id], map: "run_user_fk", onDelete: SetNull)
     userID Int?
 
-    baseStats   BaseStats? @relation(fields: [baseStatsID], references: [id], onDelete: Cascade)
-    baseStatsID BigInt?    @unique
-
     createdAt DateTime @default(now())
     updatedAt DateTime @updatedAt
 
-    @@index([baseStatsID, mapID, userID, flags])
+    @@index([overallStatsID, mapID, userID, flags])
 }
 
 model RunZoneStats {
