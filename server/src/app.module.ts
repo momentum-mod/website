@@ -4,8 +4,6 @@ import { APP_FILTER, APP_GUARD } from '@nestjs/core';
 import { ExceptionHandlerFilter } from './@common/filters/exception-handler.filter';
 import { appConfig } from '../config/config';
 import { AuthModule } from './modules/auth/auth.module';
-import { JsonBodyMiddleware } from './middlewares/json-body.middleware';
-import { RawBodyMiddleware } from './middlewares/raw-body.middleware';
 import { HTTPLoggerMiddleware } from './middlewares/http-logger.middleware';
 import { MapsModule } from './modules/maps/maps.module';
 import { UsersModule } from './modules/users/users.module';
@@ -50,15 +48,6 @@ import { JwtAuthGuard } from './modules/auth/guard/jwt-auth.guard';
 export class AppModule implements NestModule {
     public configure(consumer: MiddlewareConsumer): void {
         consumer
-            // Accept raw posts from these paths
-            .apply(RawBodyMiddleware)
-            .forRoutes({
-                path: '/auth/steam/user',
-                method: RequestMethod.POST
-            })
-            // Accept JSON from these paths
-            .apply(JsonBodyMiddleware)
-            .forRoutes('*')
             // Add the http logger to these paths
             .apply(HTTPLoggerMiddleware)
             .forRoutes('/api/*')

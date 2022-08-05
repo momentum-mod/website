@@ -30,11 +30,11 @@ export class AuthController {
 
     @ApiOperation({ summary: 'Gets the JWT using a steam user ticket' })
     @Post('/steam/user')
-    async getUserFromSteam(@Req() req: Request): Promise<JWTResponseDto> {
         const userID = req.headers['id'] as string;
         if (!req.body) {
             throw new HttpException('Missing userTicket', 400);
         }
+    async getUserFromSteam(@Req() req: RawBodyRequest<Request>): Promise<JWTResponseDto> {
 
         const user = await this.steamAuthService.validateFromInGame(req.body, userID);
         return await this.authService.login(user as User, true);
