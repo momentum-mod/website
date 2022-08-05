@@ -25,6 +25,13 @@ export class SteamAuthService {
 
     //#region Public
 
+    async skipValidation(steamID: string) {
+        const response = await this.userService.getBySteamID(steamID);
+
+        if (!response) throw new UnauthorizedException('User not found for Steam login');
+
+        return response;
+    }
 
     async validateFromInGame(steamID: string, userTicketRaw: Buffer): Promise<User> {
         if (!userTicketRaw) throw new BadRequestException('Missing userTicket');

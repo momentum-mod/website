@@ -33,8 +33,13 @@ export class AuthController {
     @ApiOperation({ summary: 'Gets the JWT using a Steam user ticket' })
     @Post('/steam/user')
     async getUserFromSteam(@Req() req: RawBodyRequest<Request>): Promise<JWTResponseDto> {
+        // TODO: Been having a nightmare getting this to work, Steam's AuthenticateUserTicket endpoint refuses our
+        // query constantly, see https://discord.com/channels/235111289435717633/487354170546978816/999881959792705547
+        // const user = await this.steamAuthService.validateFromInGame(req.headers.id as string, req.rawBody);
 
-        const user = await this.steamAuthService.validateFromInGame(req.body, userID);
+        // Temporary system for bypassing auth setup until we fix above
+        const user = await this.steamAuthService.skipValidation(req.headers.id as string);
+
         return await this.authService.login(user as User, true);
     }
 }
