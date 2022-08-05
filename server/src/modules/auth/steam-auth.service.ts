@@ -5,7 +5,9 @@ import {
     HttpException,
     Inject,
     Injectable,
+    InternalServerErrorException,
     Logger,
+    NotFoundException,
     UnauthorizedException
 } from '@nestjs/common';
 import { User } from '@prisma/client';
@@ -23,18 +25,19 @@ export class SteamAuthService {
 
     //#region Public
 
-    async validateFromInGame(userTicketRaw: any, steamIDToVerify: string): Promise<User> {
-        const userTicket = Buffer.from(userTicketRaw, 'utf8').toString('hex');
 
-        if (!userTicket && !steamIDToVerify) {
-            throw new BadRequestException();
-        }
+    async validateFromInGame(steamID: string, userTicketRaw: Buffer): Promise<User> {
+        if (!userTicketRaw) throw new BadRequestException('Missing userTicket');
 
-        if (appConfig.steam.useSteamTicketLibrary) {
+        if (!Buffer.isBuffer(userTicketRaw)) throw new BadRequestException('Invalid userTicket');
+
+        const userTicket: string = userTicketRaw.toString('hex');
+
+        if (appConfig.steam.useSteamTicketLibrary && false) {
             Logger.log('local libary');
-            return await this.verifyUserTicketLocalLibrary(userTicketRaw, steamIDToVerify);
+            return await this.verifyUserTicketLocalLibrary(userTicketRaw, steamID);
         } else {
-            return await this.verifyUserTicketOnlineAPI(userTicket, steamIDToVerify);
+            return await this.verifyUserTicketOnlineAPI(userTicket, steamID);
         }
     }
 
@@ -68,38 +71,26 @@ export class SteamAuthService {
             }
         };
 
-        const sres = await lastValueFrom(
+        const steamResponse = await lastValueFrom(
             this.http
                 .get<any>('https://api.steampowered.com/ISteamUserAuth/AuthenticateUserTicket/v1/', requestConfig)
-                .pipe(
-                    map((res) => {
-                        return res.data;
-                    })
-                )
+                .pipe(map((res) => res.data))
         );
 
-        if (!sres) {
-            throw new HttpException('Bad Request', 400);
-        }
+        // Bad request, and not sending the error object just in case of hidden bans
+        if (!steamResponse || steamResponse.response.error)
+            throw new BadRequestException(JSON.stringify(steamResponse));
 
-        if (sres.response.error) {
-            throw new HttpException('Bad Request', 400);
-            // Bad request, and not sending the error object just in case of hidden bans
-        }
+        // TODO parse the error?
+        if (steamResponse.response.params.result !== 'OK')
+            throw new InternalServerErrorException(JSON.stringify(steamResponse));
 
-        if (sres.response.params.result !== 'OK') {
-            throw new HttpException(JSON.stringify(sres), 500);
-        } // TODO parse the error?
-
-        if (steamIDToVerify !== sres.response.params.steamid) {
-            throw new UnauthorizedException();
-        } // Generate an error here
+        if (steamIDToVerify !== steamResponse.response.params.steamid)
+            throw new UnauthorizedException('Invalid SteamID');
 
         const user = await this.userService.findOrCreateFromGame(steamIDToVerify);
 
-        if (!user) {
-            throw new HttpException('Could not get or create user', 500);
-        }
+        if (!user) throw new InternalServerErrorException('Could not get or create user');
 
         return user;
     }
