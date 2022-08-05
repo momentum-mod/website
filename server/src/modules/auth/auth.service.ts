@@ -1,20 +1,19 @@
 import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
-import { Prisma, User, UserAuth } from '@prisma/client';
+import { User, UserAuth } from '@prisma/client';
 import { appConfig } from '../../../config/config';
 import { JWTResponseDto } from '../../@common/dto/jwt-response.dto';
 import { UsersRepoService } from '../repo/users-repo.service';
 
 @Injectable()
 export class AuthService {
+    // TODO: remove
     loggedInUser: User;
 
     constructor(private readonly userRepo: UsersRepoService, private readonly jwtService: JwtService) {}
 
     async login(user: User, gameAuth = false): Promise<JWTResponseDto> {
-        if (!user) {
-            throw new UnauthorizedException();
-        }
+        if (!user) throw new UnauthorizedException();
 
         const token = await this.genAccessToken(user, gameAuth);
         const refreshToken = await this.genRefreshToken(user.id, gameAuth);
@@ -35,12 +34,8 @@ export class AuthService {
         await this.updateRefreshToken(userID, '');
     }
 
-    async updateRefreshToken(userID: number, refreshToken: string): Promise<UserAuth> {
-        const updateInput: Prisma.UserAuthUpdateInput = {};
-        updateInput.refreshToken = refreshToken;
-        const whereInput: Prisma.UserAuthWhereUniqueInput = {};
-        whereInput.id = userID;
-        return await this.userRepo.updateAuth(whereInput, updateInput);
+    updateRefreshToken(userID: number, refreshToken: string): Promise<UserAuth> {
+        return this.userRepo.updateAuth({ userID: userID }, { refreshToken: refreshToken });
     }
 
     private async genAccessToken(usr: User, gameAuth?: boolean): Promise<string> {
@@ -57,9 +52,7 @@ export class AuthService {
     }
 
     private async genRefreshToken(userID: number, gameAuth?: boolean): Promise<string> {
-        const payload = {
-            id: userID
-        };
+        const payload = { id: userID };
         const options = {
             issuer: appConfig.domain,
             expiresIn: gameAuth ? appConfig.accessToken.gameRefreshExpTime : appConfig.accessToken.refreshExpTime

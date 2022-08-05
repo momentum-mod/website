@@ -4,6 +4,7 @@ import { Injectable } from '@nestjs/common';
 import { JWTPayload } from '../auth.service';
 import { appConfig } from '../../../../config/config';
 import { UsersRepoService } from '../../repo/users-repo.service';
+import { User } from '@prisma/client';
 
 @Injectable()
 export class JwtStrategy extends PassportStrategy(Strategy) {
@@ -18,8 +19,7 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
     /*
      * @summary Is this a valid JWT?
      */
-    async validate(validationPayload: JWTPayload) {
-        // TODO: move after repo refactor
+    validate(validationPayload: JWTPayload): Promise<User> {
         return this.userRepo.get(validationPayload.id);
     }
 }
