@@ -12,6 +12,37 @@ export enum MapType {
     DEFRAG = 10
 }
 
+export const AllowedGameModes: MapType[] = [
+    MapType.SURF,
+    MapType.BHOP,
+    MapType.RJ,
+    MapType.SJ,
+    MapType.AHOP,
+    MapType.CONC,
+    MapType.DEFRAG
+];
+
+export const getDefaultTickRateForMapType = (type: MapType): number => {
+    switch (type) {
+        case MapType.BHOP:
+        case MapType.TRICKSURF:
+        case MapType.CONC:
+            return 0.01;
+        case MapType.DEFRAG:
+            return 0.008;
+        case MapType.KZ:
+            return 0.0078125;
+        case MapType.UNKNOWN:
+        case MapType.SURF:
+        case MapType.RJ:
+        case MapType.SJ:
+        case MapType.AHOP:
+        case MapType.PARKOUR:
+        default:
+            return 0.015;
+    }
+};
+
 export enum MapStatus {
     APPROVED = 0,
     PENDING = 1,
@@ -30,7 +61,9 @@ export enum MapCreditType {
     SPECIAL_THANKS = 3
 }
 
-// TODO: Finish enum
-export enum MapTriggerType {
-    UNKNOWN = 0
+export enum MapZoneType {
+    ZONE_END = 0,
+    ZONE_START = 1,
+    ZONE_STAGE = 2,
+    ZONE_CHECKPOINT = 3
 }
