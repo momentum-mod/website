@@ -417,7 +417,7 @@ model UserMapRank {
     flags    Int  @default(0) @db.UnsignedInt
     trackNum Int  @default(0) @db.UnsignedTinyInt
     zoneNum  Int  @default(0) @db.UnsignedTinyInt
-    rank     Int? @db.UnsignedInt
+    rank     Int? @db.UnsignedInt // Making this @unique would be quite nice but it'd probably shit itself when doing batch rank +1 increases
     rankXP   Int? @default(0) @db.UnsignedInt
 
     map   Map @relation(fields: [mapID], references: [id], onDelete: Cascade)
@@ -433,6 +433,7 @@ model UserMapRank {
     updatedAt DateTime @updatedAt
 
     @@id([mapID, userID, gameType, flags, trackNum, zoneNum])
+    @@unique([mapID, userID, gameType, flags, trackNum, zoneNum])
     @@index([runID, userID])
 }
 
@@ -483,7 +484,7 @@ model MapTrackStats {
     uniqueCompletions Int @default(0) @db.UnsignedInt
 
     track   MapTrack @relation(fields: [trackID], references: [id], onDelete: Cascade)
-    trackID Int
+    trackID Int      @unique
 
     baseStats   BaseStats? @relation(fields: [baseStatsID], references: [id], onDelete: Cascade)
     baseStatsID BigInt?    @unique
@@ -521,7 +522,7 @@ model MapZoneTrigger {
     properties   MapZoneTriggerProperties?
 
     zone   MapZone @relation(fields: [zoneID], references: [id], onDelete: Cascade)
-    zoneID Int
+    zoneID Int     @unique
 
     createdAt DateTime @default(now())
     updatedAt DateTime @updatedAt
@@ -550,7 +551,7 @@ model MapZoneStats {
     uniqueCompletions Int @default(0) @db.UnsignedInt
 
     zone   MapZone @relation(fields: [zoneID], references: [id], onDelete: Cascade)
-    zoneID Int
+    zoneID Int     @unique
 
     baseStats   BaseStats? @relation(fields: [baseStatsID], references: [id], onDelete: Cascade)
     baseStatsID BigInt?    @unique
@@ -669,13 +670,14 @@ model RunSession {
     timestamps RunSessionTimestamp[]
 
     user   User @relation(fields: [userID], references: [id], onDelete: Cascade)
-    userID Int
+    userID Int  @unique
 
     track   MapTrack @relation(fields: [trackID], references: [id], onDelete: Cascade)
     trackID Int
 
     createdAt DateTime @default(now())
     updatedAt DateTime @updatedAt
+
     @@index([trackID, userID])
 }
 
