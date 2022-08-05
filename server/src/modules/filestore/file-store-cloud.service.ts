@@ -1,6 +1,6 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { appConfig } from '../../../config/config';
-import { IFileStoreCloudFile } from './file-store.interface';
+import { FileStoreCloudFile } from './file-store.interface';
 import { S3Client, PutObjectCommand, DeleteObjectCommand, GetObjectCommand } from '@aws-sdk/client-s3';
 import { FileStoreUtils } from './file-store.utility';
 @Injectable()
@@ -18,7 +18,7 @@ export class FileStoreCloudService {
         });
     }
 
-    async storeFileCloud(fileBuffer: Buffer, fileKey: string): Promise<IFileStoreCloudFile> {
+    async storeFileCloud(fileBuffer: Buffer, fileKey: string): Promise<FileStoreCloudFile> {
         await this.s3Client.send(
             new PutObjectCommand({
                 Bucket: appConfig.storage.bucketName,
