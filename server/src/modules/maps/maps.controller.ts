@@ -159,7 +159,7 @@ export class MapsController {
             }
         }
     })
-    @ApiOkResponse({ description: 'The map object with updated downloadURL' })
+    @ApiOkResponse({ type: MapDto, description: 'The map object with updated downloadURL' })
     @ApiNotFoundResponse({ description: 'Map was not found' })
     @ApiForbiddenResponse({ description: 'User does not have the Mapper role' })
     @ApiForbiddenResponse({ description: 'User is not the submitter of the map' })
