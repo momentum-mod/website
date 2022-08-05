@@ -1,4 +1,4 @@
-export interface IFileStoreFile {
+export interface FileStoreFile {
     fileKey: string;
     basePath: string;
     fullPath: string;
@@ -6,7 +6,7 @@ export interface IFileStoreFile {
     hash?: string;
 }
 
-export interface IFileStoreCloudFile {
+export interface FileStoreCloudFile {
     fileKey: string;
     hash: string;
 }
