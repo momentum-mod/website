@@ -92,12 +92,12 @@ model Profile {
 model UserStats {
     id Int @id @default(autoincrement())
 
-    totalJumps    BigInt? @default(0) @db.UnsignedBigInt
-    totalStrafes  BigInt? @default(0) @db.UnsignedBigInt
-    level         Int?    @default(1) @db.UnsignedSmallInt
-    cosXP         BigInt? @default(0) @db.UnsignedBigInt
-    mapsCompleted Int?    @default(0) @db.UnsignedInt
-    runsSubmitted Int?    @default(0) @db.UnsignedInt
+    totalJumps    BigInt @default(0) @db.UnsignedBigInt
+    totalStrafes  BigInt @default(0) @db.UnsignedBigInt
+    level         Int    @default(1) @db.UnsignedSmallInt
+    cosXP         BigInt @default(0) @db.UnsignedBigInt
+    mapsCompleted Int    @default(0) @db.UnsignedInt
+    runsSubmitted Int    @default(0) @db.UnsignedInt
 
     user   User @relation(fields: [userID], references: [id], onDelete: Cascade)
     userID Int  @unique
@@ -588,20 +588,20 @@ model MapStats {
 model BaseStats {
     id BigInt @id @default(autoincrement())
 
-    jumps          Int?   @default(0) @db.UnsignedInt
-    strafes        Int?   @default(0) @db.UnsignedInt
-    avgStrafeSync  Float? @default(0) @db.Float
-    avgStrafeSync2 Float? @default(0) @db.Float
-    enterTime      Float? @default(0) @db.Float
-    totalTime      Float? @default(0) @db.Float
-    velAvg3D       Float? @default(0) @db.Float
-    velAvg2D       Float? @default(0) @db.Float
-    velMax3D       Float? @default(0) @db.Float
-    velMax2D       Float? @default(0) @db.Float
-    velEnter3D     Float? @default(0) @db.Float
-    velEnter2D     Float? @default(0) @db.Float
-    velExit3D      Float? @default(0) @db.Float
-    velExit2D      Float? @default(0) @db.Float
+    jumps          Int   @default(0) @db.UnsignedInt
+    strafes        Int   @default(0) @db.UnsignedInt
+    avgStrafeSync  Float @default(0) @db.Float
+    avgStrafeSync2 Float @default(0) @db.Float
+    enterTime      Float @default(0) @db.Float
+    totalTime      Float @default(0) @db.Float
+    velAvg3D       Float @default(0) @db.Float
+    velAvg2D       Float @default(0) @db.Float
+    velMax3D       Float @default(0) @db.Float
+    velMax2D       Float @default(0) @db.Float
+    velEnter3D     Float @default(0) @db.Float
+    velEnter2D     Float @default(0) @db.Float
+    velExit3D      Float @default(0) @db.Float
+    velExit2D      Float @default(0) @db.Float
 
     mapTrackStats MapTrackStats?
     mapStats      MapStats?
