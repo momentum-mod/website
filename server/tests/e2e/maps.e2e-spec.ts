@@ -1,23 +1,34 @@
 // noinspection DuplicatedCode
 import * as request from 'supertest';
 import { readFileSync } from 'fs';
-import { AuthService } from '../src/modules/auth/auth.service';
-import { PrismaService } from '../src/modules/repo/prisma.service';
-import { MapStatus, MapCreditType, MapType } from '../src/@common/enums/map.enum';
-import { MapDto } from '../src/@common/dto/map/map.dto';
-import { del, expandTest, get, getNoContent, patch, post, postAttach, put, skipTest, takeTest } from './util/test-util';
-import { MapInfoDto } from '../src/@common/dto/map/map-info.dto';
-import { MapCreditDto } from '../src/@common/dto/map/map-credit.dto';
-import { MapImageDto } from '../src/@common/dto/map/map-image.dto';
-import { RunDto } from '../src/@common/dto/run/runs.dto';
-import { MapRankDto } from '../src/@common/dto/map/map-rank.dto';
-import { ActivityTypes } from '../src/@common/enums/activity.enum';
+import { AuthService } from '../../src/modules/auth/auth.service';
+import { PrismaService } from '../../src/modules/repo/prisma.service';
+import { MapStatus, MapCreditType, MapType } from '../../src/@common/enums/map.enum';
+import { MapDto } from '../../src/@common/dto/map/map.dto';
+import {
+    del,
+    expandTest,
+    get,
+    getNoContent,
+    patch,
+    post,
+    postAttach,
+    put,
+    skipTest,
+    takeTest
+} from '../util/test-util';
+import { MapInfoDto } from '../../src/@common/dto/map/map-info.dto';
+import { MapCreditDto } from '../../src/@common/dto/map/map-credit.dto';
+import { MapImageDto } from '../../src/@common/dto/map/map-image.dto';
+import { RunDto } from '../../src/@common/dto/run/runs.dto';
+import { MapRankDto } from '../../src/@common/dto/map/map-rank.dto';
+import { ActivityTypes } from '../../src/@common/enums/activity.enum';
 import axios from 'axios';
 import { createHash } from 'crypto';
 import { DeleteObjectCommand, S3Client } from '@aws-sdk/client-s3';
-import { appConfig } from '../config/config';
-import { UserDto } from '../src/@common/dto/user/user.dto';
-import { MapTrackDto } from '../src/@common/dto/map/map-track.dto';
+import { appConfig } from '../../config/config';
+import { UserDto } from '../../src/@common/dto/user/user.dto';
+import { MapTrackDto } from '../../src/@common/dto/map/map-track.dto';
 
 const hash = (buffer: Buffer) => createHash('sha1').update(buffer).digest('hex');
 

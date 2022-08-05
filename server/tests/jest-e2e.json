@@ -4,10 +4,10 @@
     "roots": ["<rootDir>/src", "<rootDir>/tests"],
     "collectCoverageFrom": ["**/*.(t|j)s"],
     "moduleDirectories": ["src", "node_modules"],
-    "testRegex": "tests/[^_].+e2e-spec.ts$",
+    "testRegex": "tests/e2e/[^_].+e2e-spec.ts$",
     "transform": {
         "^.+\\.(t|j)s$": "ts-jest"
     },
     "setupFilesAfterEnv": ["./tests/matchers.ts"],
-    "testEnvironment": "./tests/e2e-environment.ts"
+    "testEnvironment": "./tests/e2e/environment.ts"
 }
