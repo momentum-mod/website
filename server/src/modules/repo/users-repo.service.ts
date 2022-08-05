@@ -12,7 +12,8 @@ import {
     UserAuth,
     Notification,
     MapLibraryEntry,
-    MapFavorite
+    MapFavorite,
+    UserStats
 } from '@prisma/client';
 
 @Injectable()
@@ -22,9 +23,9 @@ export class UsersRepoService {
     //#region Main User functions
 
     async create(input: Prisma.UserCreateInput): Promise<User> {
-        // Profile has to be optional on User due to Prisma constraints (https://github.com/prisma/prisma/discussions/12866)
-        // and that we want to use onDelete, so just ensure we always create a profile here
+        // Always create corresponding profile and userStats entries
         input.profile ??= { create: {} };
+        input.userStats ??= { create: {} };
 
         return await this.prisma.user.create({ data: input });
     }

@@ -4,7 +4,7 @@ import { UsersRepoService } from '../repo/users-repo.service';
 import { UsersController } from './users.controller';
 import { RepoModule } from '../repo/repo.module';
 import { MapsRepoService } from '../repo/maps-repo.service';
-import { HttpModule, HttpService } from '@nestjs/axios';
+import { HttpModule } from '@nestjs/axios';
 
 @Module({
     imports: [RepoModule, HttpModule],
