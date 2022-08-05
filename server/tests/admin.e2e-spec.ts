@@ -4,7 +4,7 @@ import { Roles } from '../src/@common/enums/user.enum';
 import { ReportCategory, ReportType } from '../src/@common/enums/report.enum';
 import { MapCreditType, MapStatus, MapType } from '../src/@common/enums/map.enum';
 import { PrismaService } from '../src/modules/repo/prisma.service';
-import { del, get, patch, post } from './testutil';
+import { del, get, patch, post } from './util/test-util';
 import { AuthService } from '../src/modules/auth/auth.service';
 import { ActivityTypes } from '../src/@common/enums/activity.enum';
 import { UserDto } from '../src/@common/dto/user/user.dto';

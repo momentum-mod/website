@@ -1,11 +1,10 @@
 ﻿// noinspection DuplicatedCode
 
 import * as request from 'supertest';
-import { expandTest, get, skipTest, takeTest } from './testutil';
+import { expandTest, get, skipTest, takeTest } from './util/test-util';
 import { ActivityTypes } from '../src/@common/enums/activity.enum';
 import { PrismaService } from '../src/modules/repo/prisma.service';
 import { MapCreditType, MapStatus, MapType } from '../src/@common/enums/map.enum';
-import { Roles } from '../src/@common/enums/user.enum';
 import { AuthService } from '../src/modules/auth/auth.service';
 import { UserDto } from '../src/@common/dto/user/user.dto';
 import { ActivityDto } from '../src/@common/dto/user/activity.dto';
