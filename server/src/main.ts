@@ -39,8 +39,8 @@ async function bootstrap() {
     const prismaDalc: PrismaService = app.get(PrismaService);
     await prismaDalc.enableShutdownHooks(app);
 
-    app.useGlobalPipes(new ValidationPipe({ transform: true }));
     // TODO: run through this again, forgetting what I'm using it for
+    app.useGlobalPipes(new ValidationPipe({ transform: true, whitelist: true }));
     app.useGlobalInterceptors(new ClassSerializerInterceptor(app.get(Reflector)));
 
     await app.listen(appConfig.port);
