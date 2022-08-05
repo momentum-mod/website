@@ -486,8 +486,8 @@ model MapTrackStats {
     track   MapTrack @relation(fields: [trackID], references: [id], onDelete: Cascade)
     trackID Int      @unique
 
-    baseStats   BaseStats? @relation(fields: [baseStatsID], references: [id], onDelete: Cascade)
-    baseStatsID BigInt?    @unique
+    baseStats   BaseStats @relation(fields: [baseStatsID], references: [id], onDelete: Cascade)
+    baseStatsID BigInt    @unique
 
     createdAt DateTime @default(now())
     updatedAt DateTime @updatedAt
