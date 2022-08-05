@@ -483,4 +483,22 @@ export class UsersRepoService {
     }
 
     //#endregion
+
+    //#region Stats
+
+    getUserStatsUnique(where: Prisma.UserStatsWhereUniqueInput, include?: Prisma.UserStatsInclude): Promise<UserStats> {
+        return this.prisma.userStats.findUnique({
+            where: where,
+            include: include
+        });
+    }
+
+    updateUserStats(where: Prisma.UserStatsWhereUniqueInput, data: Prisma.UserStatsUpdateInput): Promise<UserStats> {
+        return this.prisma.userStats.update({
+            where: where,
+            data: data
+        });
+    }
+
+    //#endregion
 }
