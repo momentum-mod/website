@@ -697,7 +697,7 @@ model RunSessionTimestamp {
 }
 
 model XpSystems {
-    id     Int   @id @default(autoincrement())
+    id     Int   @id
     rankXP Json?
     cosXP  Json?
 
