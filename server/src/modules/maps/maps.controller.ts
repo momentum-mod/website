@@ -73,7 +73,7 @@ export class MapsController {
 
     @Post()
     @HttpCode(HttpStatus.NO_CONTENT)
-    @Roles(RolesEnum.MAPPER)
+    @Roles(RolesEnum.MAPPER, RolesEnum.MODERATOR, RolesEnum.ADMIN)
     @ApiOperation({ summary: 'Creates a single map' })
     @ApiOkResponse({ type: MapDto, description: 'The newly created map' })
     @ApiForbiddenResponse({ description: 'User does not have the Mapper role' })
