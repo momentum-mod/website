@@ -1,10 +1,11 @@
 ﻿import NodeEnvironment from 'jest-environment-node';
 import { Test } from '@nestjs/testing';
-import { AppModule } from '../src/app.module';
-import { ClassSerializerInterceptor, ValidationPipe } from '@nestjs/common';
-import { PrismaService } from '../src/modules/repo/prisma.service';
-import { AuthService } from '../src/modules/auth/auth.service';
 import { Reflector } from '@nestjs/core';
+import { AppModule } from '../../src/app.module';
+import { ClassSerializerInterceptor, ValidationPipe } from '@nestjs/common';
+import { PrismaService } from '../../src/modules/repo/prisma.service';
+import { AuthService } from '../../src/modules/auth/auth.service';
+import { XpSystemsService } from '../../src/modules/xp-systems/xp-systems.service';
 
 export default class E2ETestEnvironment extends NodeEnvironment {
     constructor(config, context) {
@@ -29,9 +30,11 @@ export default class E2ETestEnvironment extends NodeEnvironment {
 
         await app.init();
 
+        this.global.app = app;
         this.global.server = app.getHttpServer();
         this.global.prisma = app.get(PrismaService);
         this.global.auth = app.get(AuthService);
+        this.global.xpSystems = app.get(XpSystemsService);
     }
 
     async teardown() {
