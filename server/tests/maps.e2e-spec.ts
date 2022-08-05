@@ -5,7 +5,7 @@ import { AuthService } from '../src/modules/auth/auth.service';
 import { PrismaService } from '../src/modules/repo/prisma.service';
 import { MapStatus, MapCreditType, MapType } from '../src/@common/enums/map.enum';
 import { MapDto } from '../src/@common/dto/map/map.dto';
-import { del, expandTest, get, getNoContent, patch, post, postAttach, put, skipTest, takeTest } from './testutil';
+import { del, expandTest, get, getNoContent, patch, post, postAttach, put, skipTest, takeTest } from './util/test-util';
 import { MapInfoDto } from '../src/@common/dto/map/map-info.dto';
 import { MapCreditDto } from '../src/@common/dto/map/map-credit.dto';
 import { MapImageDto } from '../src/@common/dto/map/map-image.dto';
@@ -14,7 +14,7 @@ import { MapRankDto } from '../src/@common/dto/map/map-rank.dto';
 import { ActivityTypes } from '../src/@common/enums/activity.enum';
 import axios from 'axios';
 import { createHash } from 'crypto';
-import { DeleteObjectCommand, HeadObjectCommand, PutObjectCommand, S3Client } from '@aws-sdk/client-s3';
+import { DeleteObjectCommand, S3Client } from '@aws-sdk/client-s3';
 import { appConfig } from '../config/config';
 import { UserDto } from '../src/@common/dto/user/user.dto';
 import { MapTrackDto } from '../src/@common/dto/map/map-track.dto';
@@ -702,6 +702,7 @@ describe('Maps', () => {
         it('should create a new map', async () => {
             const mapObj = createMapObj();
 
+            // TODO: not sure it's handling properties right, do a more complex mapobj!
             await post('maps', 204, mapObj);
 
             const mapDB = await (global.prisma as PrismaService).map.findFirst({
@@ -830,7 +831,7 @@ describe('Maps', () => {
                     })
                 );
             } catch (err) {
-                console.log('WARNING: Failed to delete test map! Bucket likely now contains a junk map.');
+                console.warn('WARNING: Failed to delete test map! Bucket likely now contains a junk map.');
             }
         });
 
@@ -850,7 +851,7 @@ describe('Maps', () => {
         it('should successfully create a map, upload it to the returned location, then download it', async () => {
             const res = await post('maps', 204, createMapObj());
 
-            const inBuffer = readFileSync('./tests/files/map.bsp');
+            const inBuffer = readFileSync(__dirname + '/files/map.bsp');
             const inHash = hash(inBuffer);
 
             const uploadURL = res.get('Location').replace('api/v1/', '');
@@ -1476,142 +1477,5 @@ describe('Maps', () => {
 
         it('should respond with 401 when no access token is provided', () =>
             get(`maps/${map1.id}/runs/1/download`, 401));
-    });
-
-    describe('POST maps/:mapID/session', () => {
-        it('should return 403 if not using a game API key', async () => post(`maps /${map1.id}/session`, 403));
-
-        // bunch of tests were using "testAdminGame.accessToken", no idea why it has to be an admin
-        it('should should not create a run session if not given a proper body', () =>
-            post(`maps/${map1.id}/session`, 400, null, gameAdminAccessToken));
-
-        it('should return a valid run session object', async () => {
-            const res = await post(
-                `maps/${map1.id}/session`,
-                200,
-                {
-                    trackNum: 0,
-                    zoneNum: 0
-                },
-                gameAdminAccessToken
-            );
-
-            // TODO: dto for this
-            expect(res.body).toHaveProperty('id');
-        });
-
-        it('should not create a valid run session if the map does not have the trackNum', () =>
-            post(
-                `maps/${map1.id}/session`,
-                400,
-                {
-                    trackNum: 2,
-                    zoneNum: 0
-                },
-                gameAdminAccessToken
-            ));
-    });
-
-    describe('DELETE maps/:mapID/session', () => {
-        // ?????????????????????
-        // NICE JOB EVERYONE GREAT TESTS (╬▔皿▔)╯
-        it('should return 403 if not using a game API key', () => del(`maps/${map1.id}/session`, 403));
-    });
-
-    describe('POST maps/:mapID/session/:sesID', () => {
-        it('should return 403 if not using a game API key', () => post(`maps/${map1.id}/session/1`, 403));
-
-        it('should update an existing run session with the zone and tick', async () => {
-            const res = await post(
-                `maps/${map1.id}/session`,
-                200,
-                {
-                    trackNum: 0,
-                    zoneNum: 0
-                },
-                gameAdminAccessToken
-            );
-
-            expect(res.body).toHaveProperty('id');
-
-            const sesID = res.body.id;
-            const res2 = await post(
-                `maps/${map1.id}/session/${sesID}`,
-                200,
-                {
-                    zoneNum: 2,
-                    tick: 510
-                },
-                gameAdminAccessToken
-            );
-
-            expect(res2.body).toHaveProperty('id');
-        });
-    });
-
-    describe('POST maps/:mapID/session/:sesID/end', () => {
-        it('should return 403 if not using a game API key', () => post(`maps/${map1.id}/session/1/end`, 403));
-
-        it.skip('should successfully submit a valid run to the leaderboards', () => {
-            return;
-        });
-        it.skip('should reject if there is no body', () => {
-            return;
-        });
-        it.skip('should reject the run if the track', () => {
-            return;
-        });
-        it.skip('should reject the run if there are timestamps for an IL run', () => {
-            return;
-        });
-        it.skip('should reject the run if the run does not have the proper number of timestamps', () => {
-            return;
-        });
-        it.skip('should reject the run if the run was done out of order', () => {
-            return;
-        });
-        it.skip('should reject the run if there was no timestamps for a track with >1 zones', () => {
-            return;
-        });
-        it.skip('should reject the run if the magic of the replay does not match', () => {
-            return;
-        });
-        it.skip('should reject the run if the SteamID in the replay does not match the submitter', () => {
-            return;
-        });
-        it.skip('should reject the run if the hash of the map stored in the replay does not match the stored hash of the DB map', () => {
-            return;
-        });
-        it.skip('should reject the run if the name of the map does not match the name of the map in the DB', () => {
-            return;
-        });
-        it.skip('should reject the run if the run time in ticks is 0 or negative', () => {
-            return;
-        });
-        it.skip('should reject the run if the replays track number is invalid for the map', () => {
-            return;
-        });
-        it.skip('should reject the run if the replays zone number is invalid for the map', () => {
-            return;
-        });
-        it.skip('should reject the run if the run date is too old (5+ seconds old)', () => {
-            return;
-        });
-        it.skip('should reject the run if the run date is in the future', () => {
-            return;
-        });
-        it.skip('should reject the run if the tickrate is not acceptable', () => {
-            return;
-        });
-        it.skip('should reject the run if the run does not fall within the run session timestamps', () => {
-            return;
-        });
-        it.skip('should reject the run if the run does not have stats', () => {
-            return;
-        });
-        it.skip('should reject the run if the run has no run frames', () => {
-            return;
-        });
-        // TODO make sure all cases are covered
     });
 });
