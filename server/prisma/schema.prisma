@@ -467,7 +467,7 @@ model MapTrack {
     map   Map @relation(fields: [mapID], references: [id], onDelete: Cascade)
     mapID Int
 
-    stats       MapTrackStats[]
+    stats       MapTrackStats?
     zones       MapZone[]
     runSessions RunSession[]
 
