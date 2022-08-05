@@ -650,7 +650,7 @@ model RunZoneStats {
 
     zoneNum Int @default(0) @db.UnsignedTinyInt
 
-    runs  Run    @relation(fields: [runID], references: [id], onDelete: Cascade)
+    run   Run    @relation(fields: [runID], references: [id], onDelete: Cascade)
     runID BigInt
 
     baseStats   BaseStats? @relation(fields: [baseStatsID], references: [id], onDelete: Cascade)
