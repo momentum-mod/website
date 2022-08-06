@@ -99,7 +99,7 @@ describe('Maps', () => {
             data: {
                 // Random name, ensures the BSP actually does get uploaded
                 name: 'maps_test' + Math.floor(Math.random() * 100000000),
-                type: MapType.SURF,
+                gameType: MapType.SURF,
                 statusFlag: MapStatus.NEEDS_REVISION,
                 submitterID: user.id,
                 info: {
@@ -203,7 +203,7 @@ describe('Maps', () => {
         map2 = await prisma.map.create({
             data: {
                 name: 'maps_test2',
-                type: MapType.CONC,
+                gameType: MapType.CONC,
                 statusFlag: MapStatus.APPROVED,
                 submitterID: admin.id,
                 info: {
@@ -262,7 +262,7 @@ describe('Maps', () => {
         map3 = await prisma.map.create({
             data: {
                 name: 'maps_test3',
-                type: MapType.CONC,
+                gameType: MapType.CONC,
                 statusFlag: MapStatus.APPROVED,
                 submitterID: user3.id,
                 info: {
@@ -331,7 +331,7 @@ describe('Maps', () => {
         map4 = await prisma.map.create({
             data: {
                 name: 'maps_test4',
-                type: MapType.CONC,
+                gameType: MapType.CONC,
                 statusFlag: MapStatus.NEEDS_REVISION,
                 submitterID: user2.id,
                 info: {

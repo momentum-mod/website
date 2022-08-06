@@ -281,7 +281,7 @@ model Map {
 
     name       String  @db.VarChar(32)
     fileKey    String? @db.VarChar(255)
-    type       Int     @default(0) @db.UnsignedTinyInt
+    gameType   Int     @default(0) @db.UnsignedTinyInt
     statusFlag Int     @db.TinyInt
     hash       String? @db.Char(40)
 

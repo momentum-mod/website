@@ -105,7 +105,7 @@ describe('Users', () => {
         map1 = await prisma.map.create({
             data: {
                 name: 'test_map_one',
-                type: MapType.SURF,
+                gameType: MapType.SURF,
                 statusFlag: MapStatus.APPROVED,
                 submitter: { connect: { id: user1.id } },
                 credits: {
@@ -120,7 +120,7 @@ describe('Users', () => {
         map2 = await prisma.map.create({
             data: {
                 name: 'test_map_two',
-                type: MapType.SURF,
+                gameType: MapType.SURF,
                 statusFlag: MapStatus.NEEDS_REVISION,
                 submitter: { connect: { id: user1.id } },
                 credits: {
