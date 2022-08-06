@@ -17,6 +17,7 @@ import { StatsModule } from './modules/stats/stats.module';
 import { JwtAuthGuard } from './modules/auth/guard/jwt-auth.guard';
 import { SessionModule } from './modules/session/session.module';
 import { XpSystemsModule } from './modules/xp-systems/xp-systems.module';
+import { SessionController } from './modules/session/session.controller';
 
 @Module({
     imports: [
@@ -47,7 +48,8 @@ import { XpSystemsModule } from './modules/xp-systems/xp-systems.module';
             provide: APP_GUARD,
             useClass: JwtAuthGuard
         }
-    ]
+    ],
+    controllers: [SessionController]
 })
 export class AppModule implements NestModule {
     public configure(consumer: MiddlewareConsumer): void {
