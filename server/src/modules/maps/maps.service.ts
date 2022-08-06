@@ -196,20 +196,22 @@ export class MapsService {
 
         const mapDB: any = await this.mapRepo.create(createInput);
 
+
         await Promise.all(
             mapDB.tracks.map(async (track: MapTrack) => {
                 const dtoTrack = mapCreateDto.tracks.find((dtoTrack) => dtoTrack.trackNum === track.trackNum);
 
-                await this.mapRepo.updateMapTrack({ id: track.id }, { stats: { create: {} } }); // Init empty MapTrackStats entry
+                await this.mapRepo.updateMapTrack(
+                    { id: track.id },
+                    { stats: { create: { baseStats: { create: {} } } } }
+                ); // Init empty MapTrackStats entry
 
                 await Promise.all(
                     dtoTrack.zones.map(async (zone) => {
                         const zoneDB: any = await this.mapRepo.createMapZone({
                             track: { connect: { id: track.id } },
                             zoneNum: zone.zoneNum,
-                            stats: {
-                                create: {}
-                            }
+                            stats: { create: { baseStats: { create: {} } } }
                         });
 
                         // We could do a `createMany` for the triggers in the above input but we then need to attach a
@@ -222,11 +224,7 @@ export class MapsService {
                         await Promise.all(
                             zone.triggers.map(async (trigger) => {
                                 await this.mapRepo.createMapZoneTrigger({
-                                    zone: {
-                                        connect: {
-                                            id: zoneDB.id
-                                        }
-                                    },
+                                    zone: { connect: { id: zoneDB.id } },
                                     type: trigger.type,
                                     pointsHeight: trigger.pointsHeight,
                                     pointsZPos: trigger.pointsZPos,
