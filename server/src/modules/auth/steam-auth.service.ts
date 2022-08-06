@@ -1,13 +1,10 @@
 import { HttpService } from '@nestjs/axios';
 import {
     BadRequestException,
-    forwardRef,
-    HttpException,
-    Inject,
+    ForbiddenException,
     Injectable,
     InternalServerErrorException,
     Logger,
-    NotFoundException,
     UnauthorizedException
 } from '@nestjs/common';
 import { User } from '@prisma/client';
@@ -15,18 +12,20 @@ import { appConfig } from '../../../config/config';
 import { lastValueFrom, map } from 'rxjs';
 import * as AppTicket from 'steam-appticket';
 import { UsersService } from '../users/users.service';
+import { UsersRepoService } from '../repo/users-repo.service';
 
 @Injectable()
 export class SteamAuthService {
     constructor(
-        @Inject(forwardRef(() => UsersService)) private readonly userService: UsersService,
+        private readonly userService: UsersService,
+        private readonly userRepo: UsersRepoService,
         private readonly http: HttpService
     ) {}
 
     //#region Public
 
     async skipValidation(steamID: string) {
-        const response = await this.userService.getBySteamID(steamID);
+        const response = await this.userRepo.getBySteamID(steamID);
 
         if (!response) throw new UnauthorizedException('User not found for Steam login');
 
@@ -40,8 +39,7 @@ export class SteamAuthService {
 
         const userTicket: string = userTicketRaw.toString('hex');
 
-        if (appConfig.steam.useSteamTicketLibrary && false) {
-            Logger.log('local libary');
+        if (appConfig.steam.useSteamTicketLibrary) {
             return await this.verifyUserTicketLocalLibrary(userTicketRaw, steamID);
         } else {
             return await this.verifyUserTicketOnlineAPI(userTicket, steamID);
@@ -49,18 +47,14 @@ export class SteamAuthService {
     }
 
     async validateFromSteamWeb(openID: any, profile: any): Promise<User> {
-        if (profile._json.profilestate !== 1) {
-            throw new HttpException(
-                'We do not authenticate Steam accounts without a profile. Set up your community profile on Steam!',
-                400
+        if (profile._json.profilestate !== 1)
+            throw new ForbiddenException(
+                'We do not authenticate Steam accounts without a profile. Set up your community profile on Steam!'
             );
-        }
 
         const user = await this.userService.findOrCreateFromWeb(openID);
 
-        if (!user) {
-            throw new HttpException('Could not get or create user', 500);
-        }
+        if (!user) throw new InternalServerErrorException('Could not get or create user');
 
         return user;
     }
@@ -114,7 +108,7 @@ export class SteamAuthService {
 
         if (!decrypted) {
             Logger.log("Couldn't decrypt");
-            throw new HttpException('Bad Request', 400);
+            throw new BadRequestException();
         }
 
         if (
@@ -127,9 +121,7 @@ export class SteamAuthService {
 
         const user = await this.userService.findOrCreateFromGame(steamIDToVerify);
 
-        if (!user) {
-            throw new HttpException('Could not get or create user', 500);
-        }
+        if (!user) throw new InternalServerErrorException('Could not get or create user');
 
         return user;
     }
