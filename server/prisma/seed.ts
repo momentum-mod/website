@@ -209,7 +209,7 @@ async function createRandomMap(submitterID) {
     return await prisma.map.create({
         data: {
             name: faker.lorem.word(),
-            type: randomEnumIntValue(MapType),
+            gameType: randomEnumIntValue(MapType),
             statusFlag: randomEnumIntValue(MapStatus),
             fileKey: faker.animal.cat(),
             hash: faker.random.alphaNumeric(),

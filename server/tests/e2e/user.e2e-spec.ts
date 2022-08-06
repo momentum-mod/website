@@ -100,7 +100,7 @@ describe('User', () => {
         map1 = await prisma.map.create({
             data: {
                 name: 'user_test_map',
-                type: MapType.UNKNOWN,
+                gameType: MapType.UNKNOWN,
                 statusFlag: MapStatus.APPROVED,
                 submitterID: user1.id,
                 info: {
@@ -154,7 +154,7 @@ describe('User', () => {
         map2 = await prisma.map.create({
             data: {
                 name: 'surf_whatisapromise',
-                type: MapType.SURF,
+                gameType: MapType.SURF,
                 statusFlag: MapStatus.APPROVED
             }
         });
@@ -162,7 +162,7 @@ describe('User', () => {
         map3 = await prisma.map.create({
             data: {
                 name: 'surf_tendies',
-                type: MapType.SURF,
+                gameType: MapType.SURF,
                 submitterID: user1.id,
                 statusFlag: MapStatus.APPROVED
             }
