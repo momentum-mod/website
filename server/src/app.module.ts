@@ -15,6 +15,7 @@ import { ReportsModule } from './modules/reports/reports.module';
 import { RunsModule } from './modules/runs/runs.module';
 import { StatsModule } from './modules/stats/stats.module';
 import { JwtAuthGuard } from './modules/auth/guard/jwt-auth.guard';
+import { SessionModule } from './modules/session/session.module';
 
 @Module({
     imports: [
@@ -32,7 +33,8 @@ import { JwtAuthGuard } from './modules/auth/guard/jwt-auth.guard';
         RunsModule,
         StatsModule,
         UserModule,
-        UsersModule
+        UsersModule,
+        SessionModule,
     ],
     providers: [
         {
