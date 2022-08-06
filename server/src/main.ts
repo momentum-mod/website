@@ -22,7 +22,7 @@ async function bootstrap() {
 
     const app: NestExpressApplication = await NestFactory.create(AppModule, options);
 
-    app.useStaticAssets(join(__dirname, '..', 'public/assets'));
+    app.useStaticAssets(join(__dirname, 'assets/'));
 
     const config = new DocumentBuilder()
         .setTitle('Momentum Mod API')
