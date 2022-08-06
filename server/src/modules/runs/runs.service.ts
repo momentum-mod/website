@@ -18,7 +18,7 @@ export class RunsService {
 
         if (expand?.includes('mapWithInfo')) include.map = { include: { info: true } };
 
-        const dbResponse = await this.runRepo.get(where, include);
+        const dbResponse = await this.runRepo.getRunUnique(where, include);
 
         if (!dbResponse) throw new NotFoundException('Run not found');
 
@@ -66,7 +66,7 @@ export class RunsService {
         if (order === 'date') orderBy.createdAt = 'desc';
         else orderBy.ticks = 'asc';
 
-        const dbResponse = await this.runRepo.getAll(where, skip, take, include, orderBy);
+        const dbResponse = await this.runRepo.getAllRuns(where, skip, take, include, orderBy);
         return new PaginatedResponseDto(RunDto, dbResponse);
     }
 }
