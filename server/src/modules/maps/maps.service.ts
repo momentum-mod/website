@@ -483,7 +483,7 @@ export class MapsService {
         delete mapObj.ranks;
     }
 
-    private async storeMapFile(mapFileBuffer, mapModel): Promise<[url: string, hash: string]> {
+    private async storeMapFile(mapFileBuffer: Buffer, mapModel: MapDB): Promise<[fileKey: string, hash: string]> {
         const fileKey = `maps/${mapModel.name}.bsp`;
 
         const result = await this.fileCloudService.storeFileCloud(mapFileBuffer, fileKey);
