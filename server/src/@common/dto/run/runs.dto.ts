@@ -13,9 +13,10 @@ import { RunZoneStatsDto } from './run-zone-stats.dto';
 
 export class RunDto implements Run {
     @ApiProperty({
-        type: Number,
+        type: String,
         description: 'The ID of the run'
     })
+    @Transform(({ value }) => BigInt(value))
     @IsDefined()
     id: bigint;
 
