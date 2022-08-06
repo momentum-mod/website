@@ -10,7 +10,6 @@ import { SteamWebStrategy } from './strategy/steam-web.strategy';
 import { SteamAuthService } from './steam-auth.service';
 import { AuthController } from './auth.controller';
 import { UsersModule } from '../users/users.module';
-import { UsersRepoService } from '../repo/users-repo.service';
 import { RepoModule } from '../repo/repo.module';
 
 @Module({
@@ -30,7 +29,7 @@ import { RepoModule } from '../repo/repo.module';
         RepoModule
     ],
     controllers: [AuthController],
-    providers: [AuthService, SteamAuthService, JwtAuthGuard, JwtStrategy, SteamWebStrategy, UsersRepoService],
+    providers: [AuthService, SteamAuthService, JwtAuthGuard, JwtStrategy, SteamWebStrategy],
     exports: [AuthService, SteamAuthService, JwtAuthGuard, JwtStrategy, SteamWebStrategy]
 })
 export class AuthModule {}
