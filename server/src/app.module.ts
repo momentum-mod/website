@@ -16,6 +16,7 @@ import { RunsModule } from './modules/runs/runs.module';
 import { StatsModule } from './modules/stats/stats.module';
 import { JwtAuthGuard } from './modules/auth/guard/jwt-auth.guard';
 import { SessionModule } from './modules/session/session.module';
+import { XpSystemsModule } from './modules/xp-systems/xp-systems.module';
 
 @Module({
     imports: [
@@ -35,6 +36,7 @@ import { SessionModule } from './modules/session/session.module';
         UserModule,
         UsersModule,
         SessionModule,
+        XpSystemsModule
     ],
     providers: [
         {
