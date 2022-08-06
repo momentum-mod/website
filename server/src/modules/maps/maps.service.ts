@@ -8,7 +8,7 @@ import {
 import { Map as MapDB, MapCredit, MapStats, MapTrack, Prisma } from '@prisma/client';
 import { CreateMapDto, MapDto } from '../../@common/dto/map/map.dto';
 import { PaginatedResponseDto } from '../../@common/dto/paginated-response.dto';
-import { MapCreateRequireInfoAndTracks, MapsRepoService } from '../repo/maps-repo.service';
+import { MapsRepoService } from '../repo/maps-repo.service';
 import { AuthService } from '../auth/auth.service';
 import { MapCreditType, MapStatus, MapType } from '../../@common/enums/map.enum';
 import { FileStoreCloudService } from '../filestore/file-store-cloud.service';
@@ -155,8 +155,8 @@ export class MapsService {
             throw new BadRequestException('All map tracks must have unique track numbers');
 
         // Actually build our input. Prisma doesn't let you do nested createMany (https://github.com/prisma/prisma/issues/5455)
-        // so we have to do it in parts... Fortunately this doesnt't run often.
-        const createInput: MapCreateRequireInfoAndTracks = {
+        // so we have to do it in parts... Fortunately this doesn't run often.
+        const createInput = {
             submitter: { connect: { id: submitterID } },
             name: mapCreateDto.name,
             gameType: mapCreateDto.gameType,
@@ -306,6 +306,7 @@ export class MapsService {
 
     async createCredit(mapID: number, createMapCredit: CreateMapCreditDto, userID: number): Promise<MapCreditDto> {
         const map = await this.mapRepo.get(mapID, { credits: true });
+
         if (!map) throw new NotFoundException('Map not found');
 
         if (map.submitterID !== userID) throw new ForbiddenException('User is not the submitter of the map');
@@ -318,9 +319,11 @@ export class MapsService {
             userID: createMapCredit.userID,
             type: createMapCredit.type
         });
+
         if (dupeCredit) throw new ConflictException('Map credit already exists');
 
         const existingUser = await this.userRepo.get(createMapCredit.userID);
+
         if (!existingUser) throw new BadRequestException('Credited user does not exist');
 
         const newCredit: Prisma.MapCreditCreateInput = {
@@ -336,22 +339,24 @@ export class MapsService {
         return DtoFactory(MapCreditDto, dbResponse);
     }
 
-    async getCredit(mapCredID: number, expand: string[]): Promise<MapCreditDto> {
+    async getCredit(mapCreditID: number, expand: string[]): Promise<MapCreditDto> {
         const include: Prisma.MapCreditInclude = ExpandToPrismaIncludes(expand?.filter((x) => ['user'].includes(x)));
 
-        const dbResponse = await this.mapRepo.getCredit(mapCredID, include);
+        const dbResponse = await this.mapRepo.getCredit(mapCreditID, include);
+
         if (!dbResponse) throw new NotFoundException('Map credit not found');
 
         return DtoFactory(MapCreditDto, dbResponse);
     }
 
-    async updateCredit(mapCredID: number, creditUpdate: UpdateMapCreditDto, userID: number): Promise<void> {
+    async updateCredit(mapCreditID: number, creditUpdate: UpdateMapCreditDto, userID: number): Promise<void> {
         if (!creditUpdate.userID && !creditUpdate.type) throw new BadRequestException('No update data provided');
 
-        const mapCred = await this.mapRepo.getCredit(mapCredID, { user: true });
-        if (!mapCred) throw new NotFoundException('Map credit not found');
+        const mapCredit = await this.mapRepo.getCredit(mapCreditID, { user: true });
 
-        await this.updateCreditChecks(mapCred, creditUpdate, userID);
+        if (!mapCredit) throw new NotFoundException('Map credit not found');
+
+        await this.updateCreditChecks(mapCredit, creditUpdate, userID);
 
         const data: Prisma.MapCreditUpdateInput = {};
 
@@ -359,13 +364,13 @@ export class MapsService {
 
         if (creditUpdate.type) data.type = creditUpdate.type;
 
-        const newCredit = await this.mapRepo.updateCredit(mapCredID, data);
+        const newCredit = await this.mapRepo.updateCredit(mapCreditID, data);
 
-        await this.updateActivities(newCredit, mapCred);
+        await this.updateActivities(newCredit, mapCredit);
     }
 
-    async deleteCredit(mapCredID: number, userID: number): Promise<void> {
-        const mapCred = await this.mapRepo.getCredit(mapCredID, { user: true });
+    async deleteCredit(mapCreditID: number, userID: number): Promise<void> {
+        const mapCred = await this.mapRepo.getCredit(mapCreditID, { user: true });
         if (!mapCred) throw new NotFoundException('Map credit not found');
 
         const mapOfCredit = await this.mapRepo.get(mapCred.mapID);
@@ -374,13 +379,14 @@ export class MapsService {
         if (mapOfCredit.statusFlag !== MapStatus.NEEDS_REVISION)
             throw new ForbiddenException('Map is not in NEEDS_REVISION state');
 
-        await this.mapRepo.deleteCredit({ id: mapCredID });
+        await this.mapRepo.deleteCredit({ id: mapCreditID });
 
         await this.updateActivities(null, mapCred);
     }
     //#endregion
 
     //#region Map Info
+
     async getInfo(mapID: number): Promise<MapInfoDto> {
         const mapInfo = await this.mapRepo.getInfo(mapID);
 
@@ -408,6 +414,7 @@ export class MapsService {
 
         await this.mapRepo.updateInfo(mapID, data);
     }
+
     //#endregion
 
     async getZones(mapID: number): Promise<MapTrackDto[]> {
@@ -427,7 +434,7 @@ export class MapsService {
             }
         };
 
-        const tracks = await this.mapRepo.getMapTracks(mapID, include);
+        const tracks = await this.mapRepo.getMapTracks({ mapID: mapID }, include);
 
         // This is dumb but it's what the old api does
         // \server\src\models\map.js Line 499
