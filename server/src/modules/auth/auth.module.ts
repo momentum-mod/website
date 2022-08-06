@@ -23,7 +23,6 @@ import { RepoModule } from '../repo/repo.module';
                 expiresIn: appConfig.accessToken.expTime
             }
         }),
-        // TODO: Straight after repo refactor, untangle auth for user completely.
         UsersModule,
         HttpModule,
         RepoModule
