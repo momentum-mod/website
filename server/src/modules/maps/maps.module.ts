@@ -1,5 +1,4 @@
 import { Module } from '@nestjs/common';
-import { MapsRepoService } from '../repo/maps-repo.service';
 import { MapsController } from './maps.controller';
 import { MapsService } from './maps.service';
 import { RepoModule } from '../repo/repo.module';
@@ -7,12 +6,13 @@ import { AuthModule } from '../auth/auth.module';
 import { FileStoreModule } from '../filestore/file-store.module';
 import { APP_GUARD } from '@nestjs/core';
 import { RolesGuard } from '../auth/guard/roles.guard';
-import { UsersRepoService } from '../repo/users-repo.service';
+import { SessionModule } from '../session/session.module';
+import { XpSystemsModule } from '../xp-systems/xp-systems.module';
 
 @Module({
-    imports: [RepoModule, AuthModule, FileStoreModule], // TODO: why is auth needed?
+    imports: [RepoModule, AuthModule, FileStoreModule, SessionModule, XpSystemsModule], // TODO: why is auth needed?
     controllers: [MapsController],
-    providers: [{ provide: APP_GUARD, useClass: RolesGuard }, MapsService, MapsRepoService, UsersRepoService],
+    providers: [{ provide: APP_GUARD, useClass: RolesGuard }, MapsService],
     exports: [MapsService]
 })
 export class MapsModule {}
