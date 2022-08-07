@@ -1,7 +1,7 @@
 import { ExceptionFilter, Catch, ArgumentsHost, HttpStatus, Logger, HttpException } from '@nestjs/common';
 import { HttpAdapterHost } from '@nestjs/core';
 import { PrismaClientKnownRequestError } from '@prisma/client/runtime';
-import { SentryExceptionService } from '../../modules/sentry/sentry-exception/sentry-exception.service';
+import { SentryExceptionService } from '../modules/sentry/sentry-exception/sentry-exception.service';
 
 @Catch()
 export class ExceptionHandlerFilter implements ExceptionFilter {

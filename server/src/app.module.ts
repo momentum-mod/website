@@ -1,7 +1,7 @@
 import { MiddlewareConsumer, Module, NestModule, RequestMethod } from '@nestjs/common';
 import * as Sentry from '@sentry/node';
 import { APP_FILTER, APP_GUARD } from '@nestjs/core';
-import { ExceptionHandlerFilter } from './common/filters/exception-handler.filter';
+import { ExceptionHandlerFilter } from './filters/exception-handler.filter';
 import { appConfig } from '../config/config';
 import { AuthModule } from './modules/auth/auth.module';
 import { HTTPLoggerMiddleware } from './middlewares/http-logger.middleware';
