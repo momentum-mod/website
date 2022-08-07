@@ -14,7 +14,7 @@ import { AdminModule } from './modules/admin/admin.module';
 import { ReportsModule } from './modules/reports/reports.module';
 import { RunsModule } from './modules/runs/runs.module';
 import { StatsModule } from './modules/stats/stats.module';
-import { JwtAuthGuard } from './modules/auth/guard/jwt-auth.guard';
+import { JwtAuthGuard } from './common/guards/jwt-auth.guard';
 import { SessionModule } from './modules/session/session.module';
 import { XpSystemsModule } from './modules/xp-systems/xp-systems.module';
 import { SessionController } from './modules/session/session.controller';
