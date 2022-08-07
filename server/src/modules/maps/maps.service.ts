@@ -6,18 +6,18 @@ import {
     NotFoundException
 } from '@nestjs/common';
 import { Map as MapDB, MapCredit, MapStats, MapTrack, Prisma } from '@prisma/client';
-import { CreateMapDto, MapDto } from '../../@common/dto/map/map.dto';
-import { PaginatedResponseDto } from '../../@common/dto/paginated-response.dto';
+import { CreateMapDto, MapDto } from '../../common/dto/map/map.dto';
+import { PaginatedResponseDto } from '../../common/dto/paginated-response.dto';
 import { MapsRepoService } from '../repo/maps-repo.service';
 import { AuthService } from '../auth/auth.service';
-import { MapCreditType, MapStatus, MapType } from '../../@common/enums/map.enum';
+import { MapCreditType, MapStatus, MapType } from '../../common/enums/map.enum';
 import { FileStoreCloudService } from '../filestore/file-store-cloud.service';
-import { DtoFactory, ExpandToPrismaIncludes } from '../../@common/utils/dto.utility';
+import { DtoFactory, ExpandToPrismaIncludes } from '../../common/utils/dto.utility';
 import { UsersRepoService } from '../repo/users-repo.service';
-import { ActivityTypes } from '../../@common/enums/activity.enum';
-import { CreateMapCreditDto, MapCreditDto, UpdateMapCreditDto } from '../../@common/dto/map/map-credit.dto';
-import { MapInfoDto, UpdateMapInfoDto } from '../../@common/dto/map/map-info.dto';
-import { MapTrackDto } from '../../@common/dto/map/map-track.dto';
+import { ActivityTypes } from '../../common/enums/activity.enum';
+import { CreateMapCreditDto, MapCreditDto, UpdateMapCreditDto } from '../../common/dto/map/map-credit.dto';
+import { MapInfoDto, UpdateMapInfoDto } from '../../common/dto/map/map-info.dto';
+import { MapTrackDto } from '../../common/dto/map/map-track.dto';
 
 @Injectable()
 export class MapsService {
@@ -195,7 +195,6 @@ export class MapsService {
         };
 
         const mapDB: any = await this.mapRepo.create(createInput);
-
 
         await Promise.all(
             mapDB.tracks.map(async (track: MapTrack) => {

@@ -7,11 +7,11 @@ import {
 } from '@nestjs/common';
 import { UsersRepoService } from '../repo/users-repo.service';
 import { Follow, Prisma } from '@prisma/client';
-import { AdminUpdateUserDto, UserDto } from '../../@common/dto/user/user.dto';
-import { DtoFactory } from '../../@common/utils/dto.utility';
+import { AdminUpdateUserDto, UserDto } from '../../common/dto/user/user.dto';
+import { DtoFactory } from '../../common/utils/dto.utility';
 import { MapsRepoService } from '../repo/maps-repo.service';
-import { Bitflags } from '../../@common/utils/bitflag.utility';
-import { UpdateRolesDto } from '../../@common/dto/user/roles.dto';
+import { Bitflags } from '../../common/utils/bitflag.utility';
+import { UpdateRolesDto } from '../../common/dto/user/roles.dto';
 
 @Injectable()
 export class AdminService {

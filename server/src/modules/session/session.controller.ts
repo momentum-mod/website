@@ -24,11 +24,11 @@ import {
     ApiParam,
     ApiTags
 } from '@nestjs/swagger';
-import { CreateRunSessionDto, RunSessionDto, UpdateRunSessionDto } from '../../@common/dto/run/run-session.dto';
-import { LoggedInUser } from '../../@common/decorators/logged-in-user.decorator';
-import { RunSessionTimestampDto } from '../../@common/dto/run/run-session-timestamp.dto';
+import { CreateRunSessionDto, RunSessionDto, UpdateRunSessionDto } from '../../common/dto/run/run-session.dto';
+import { LoggedInUser } from '../../common/decorators/logged-in-user.decorator';
+import { RunSessionTimestampDto } from '../../common/dto/run/run-session-timestamp.dto';
 import { FileInterceptor } from '@nestjs/platform-express';
-import { CompletedRunDto } from '../../@common/dto/run/completed-run.dto';
+import { CompletedRunDto } from '../../common/dto/run/completed-run.dto';
 import { RunSessionService } from './run/run-session.service';
 
 @ApiBearerAuth()

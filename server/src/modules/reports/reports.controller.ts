@@ -1,8 +1,8 @@
 import { Controller, Post, Query } from '@nestjs/common';
 import { ReportsService } from './reports.service';
 import { ApiBearerAuth, ApiOkResponse, ApiOperation, ApiTags } from '@nestjs/swagger';
-import { CreateReportDto, ReportDto } from '../../@common/dto/report/report.dto';
-import { LoggedInUser } from '../../@common/decorators/logged-in-user.decorator';
+import { CreateReportDto, ReportDto } from '../../common/dto/report/report.dto';
+import { LoggedInUser } from '../../common/decorators/logged-in-user.decorator';
 
 @ApiBearerAuth()
 @Controller('api/v1/reports')

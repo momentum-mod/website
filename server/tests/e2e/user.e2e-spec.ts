@@ -1,18 +1,18 @@
 ﻿// noinspection DuplicatedCode
 
-import { MapCreditType, MapStatus, MapType } from '../../src/@common/enums/map.enum';
+import { MapCreditType, MapStatus, MapType } from '../../src/common/enums/map.enum';
 import { PrismaService } from '../../src/modules/repo/prisma.service';
-import { Roles } from '../../src/@common/enums/user.enum';
+import { Roles } from '../../src/common/enums/user.enum';
 import { AuthService } from '../../src/modules/auth/auth.service';
-import { ActivityTypes } from '../../src/@common/enums/activity.enum';
-import { UserDto } from '../../src/@common/dto/user/user.dto';
-import { ProfileDto } from '../../src/@common/dto/user/profile.dto';
-import { FollowStatusDto } from '../../src/@common/dto/user/followers.dto';
-import { ActivityDto } from '../../src/@common/dto/user/activity.dto';
-import { MapLibraryEntryDto } from '../../src/@common/dto/map/map-library-entry';
-import { NotificationDto } from '../../src/@common/dto/user/notification.dto';
+import { ActivityTypes } from '../../src/common/enums/activity.enum';
+import { UserDto } from '../../src/common/dto/user/user.dto';
+import { ProfileDto } from '../../src/common/dto/user/profile.dto';
+import { FollowStatusDto } from '../../src/common/dto/user/followers.dto';
+import { ActivityDto } from '../../src/common/dto/user/activity.dto';
+import { MapLibraryEntryDto } from '../../src/common/dto/map/map-library-entry';
+import { NotificationDto } from '../../src/common/dto/user/notification.dto';
 import { del, expandTest, get, patch, post, put, skipTest, takeTest } from '../util/test-util';
-import { MapFavoriteDto } from '../../src/@common/dto/map/map-favorite.dto';
+import { MapFavoriteDto } from '../../src/common/dto/map/map-favorite.dto';
 
 describe('User', () => {
     let user1, user2, user2Token, user3, user3Token, admin, adminGame, adminAccessToken, map1, map2, map3, activities;

@@ -1,9 +1,9 @@
 import { Controller, Get, Param, ParseIntPipe, Query } from '@nestjs/common';
 import { RunsService } from './runs.service';
 import { ApiBearerAuth, ApiNotFoundResponse, ApiOkResponse, ApiOperation, ApiParam, ApiTags } from '@nestjs/swagger';
-import { ApiOkPaginatedResponse, PaginatedResponseDto } from '../../@common/dto/paginated-response.dto';
-import { RunDto } from '../../@common/dto/run/runs.dto';
-import { RunsGetAllQuery, RunsGetQuery } from '../../@common/dto/query/run-queries.dto';
+import { ApiOkPaginatedResponse, PaginatedResponseDto } from '../../common/dto/paginated-response.dto';
+import { RunDto } from '../../common/dto/run/runs.dto';
+import { RunsGetAllQuery, RunsGetQuery } from '../../common/dto/query/run-queries.dto';
 
 @ApiBearerAuth()
 @Controller('api/v1/runs')
