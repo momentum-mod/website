@@ -1,6 +1,6 @@
 // noinspection DuplicatedCode
 
-import { ActivityTypes } from '../../src/@common/enums/activity.enum';
+import { ActivityTypes } from '../../src/common/enums/activity.enum';
 
 describe('activities', () => {
     let adminAccessToken;

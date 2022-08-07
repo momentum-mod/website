@@ -1,5 +1,5 @@
 ﻿import { BaseStats as BaseStatsDB, Prisma, Run as RunDB, UserMapRank } from '@prisma/client';
-import { XpGain } from '../../../@common/dto/run/completed-run.dto';
+import { XpGain } from '../../../common/dto/run/completed-run.dto';
 
 export type ProcessedRun = Omit<RunDB, 'id' | 'createdAt' | 'updatedAt' | 'overallStatsID' | 'file' | 'hash'> & {
     overallStats: BaseStatsFromGame;

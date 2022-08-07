@@ -1,5 +1,5 @@
 ﻿import * as request from 'supertest';
-import { ReplayFileWriter } from '../../src/@common/lib/replay-file-writer';
+import { ReplayFileWriter } from '../../src/common/lib/replay-file-writer';
 import {
     BaseStatsFromGame,
     Replay,

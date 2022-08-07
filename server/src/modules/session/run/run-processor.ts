@@ -1,12 +1,12 @@
 ﻿import { Map as MapDB, MapTrack, RunSessionTimestamp, User, UserMapRank } from '@prisma/client';
 import { RunSessionCompleted } from '../../repo/runs-repo.service';
-import { AllowedGameModes, getDefaultTickRateForMapType } from '../../../@common/enums/map.enum';
-import { ReplayFileReader } from '../../../@common/lib/replay-file-reader';
+import { AllowedGameModes, getDefaultTickRateForMapType } from '../../../common/enums/map.enum';
+import { ReplayFileReader } from '../../../common/lib/replay-file-reader';
 import {
     RunValidationError,
     RunValidationErrorTypes,
     RunValidationErrorTypes as ErrType
-} from '../../../@common/enums/run.enum';
+} from '../../../common/enums/run.enum';
 import { ProcessedRun, Replay } from './run-session.interface';
 
 /**
