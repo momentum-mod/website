@@ -76,7 +76,6 @@ export class XpSystemsService implements OnModuleInit {
         return this._cosXpParams;
     }
 
-    // TODO: why is this getting called twice?????????
     async onModuleInit() {
         const params = await this.xpRepo.getXpParams();
 
