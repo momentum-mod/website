@@ -2,7 +2,7 @@ import { MiddlewareConsumer, Module, NestModule, RequestMethod } from '@nestjs/c
 import * as Sentry from '@sentry/node';
 import { APP_FILTER, APP_GUARD } from '@nestjs/core';
 import { ExceptionHandlerFilter } from './filters/exception-handler.filter';
-import { appConfig } from '../config/config';
+import { appConfig } from '../config/config_old';
 import { AuthModule } from './modules/auth/auth.module';
 import { HTTPLoggerMiddleware } from './middlewares/http-logger.middleware';
 import { MapsModule } from './modules/maps/maps.module';
@@ -18,9 +18,18 @@ import { JwtAuthGuard } from './common/guards/jwt-auth.guard';
 import { SessionModule } from './modules/session/session.module';
 import { XpSystemsModule } from './modules/xp-systems/xp-systems.module';
 import { SessionController } from './modules/session/session.controller';
+import { ConfigModule } from '@nestjs/config';
+import { validate } from '../config/config.validation';
+import config from '../config/config';
 
 @Module({
     imports: [
+        ConfigModule.forRoot({
+            envFilePath: '../.env',
+            load: [config],
+            cache: true,
+            validate
+        }),
         SentryModule.forRoot({
             dsn: appConfig.sentry.dsn,
             tracesSampleRate: 1.0,

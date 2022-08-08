@@ -1,7 +1,7 @@
 import { Injectable, Scope } from '@nestjs/common';
 import '@sentry/tracing'; // https://github.com/getsentry/sentry-javascript/issues/4731#issuecomment-1075410543
 import * as Sentry from '@sentry/node';
-import { environment } from '../../../../config/config';
+import { environment } from '../../../../config/config_old';
 
 @Injectable({ scope: Scope.TRANSIENT })
 export class SentryExceptionService {
@@ -12,7 +12,6 @@ export class SentryExceptionService {
      * @returns Sentry Event ID for easy searching
      */
     sendError(error: any): string {
-
         if (environment !== 'production') {
             return 'DEV-ERROR';
         }

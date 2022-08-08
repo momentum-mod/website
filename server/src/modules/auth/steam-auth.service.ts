@@ -8,18 +8,19 @@ import {
     UnauthorizedException
 } from '@nestjs/common';
 import { User } from '@prisma/client';
-import { appConfig } from '../../../config/config';
 import { lastValueFrom, map } from 'rxjs';
 import * as AppTicket from 'steam-appticket';
 import { UsersService } from '../users/users.service';
 import { UsersRepoService } from '../repo/users-repo.service';
+import { ConfigService } from '@nestjs/config';
 
 @Injectable()
 export class SteamAuthService {
     constructor(
         private readonly userService: UsersService,
         private readonly userRepo: UsersRepoService,
-        private readonly http: HttpService
+        private readonly http: HttpService,
+        private readonly config: ConfigService
     ) {}
 
     //#region Public
@@ -39,7 +40,7 @@ export class SteamAuthService {
 
         const userTicket: string = userTicketRaw.toString('hex');
 
-        if (appConfig.steam.useSteamTicketLibrary) {
+        if (this.config.get('steam.useSteamTicketLibrary')) {
             return await this.verifyUserTicketLocalLibrary(userTicketRaw, steamID);
         } else {
             return await this.verifyUserTicketOnlineAPI(userTicket, steamID);
@@ -66,8 +67,8 @@ export class SteamAuthService {
     private async verifyUserTicketOnlineAPI(userTicket: string, steamIDToVerify: string) {
         const requestConfig = {
             params: {
-                key: appConfig.steam.webAPIKey,
-                appid: appConfig.appID,
+                key: this.config.get('steam.webAPIKey'),
+                appid: this.config.get('appIDs')[0],
                 ticket: userTicket
             }
         };
@@ -98,9 +99,9 @@ export class SteamAuthService {
 
     private async verifyUserTicketLocalLibrary(userTicketRaw: any, steamIDToVerify: string) {
         let decrypted;
-        if (appConfig.steam.useEncryptedTickets) {
+        if (this.config.get('steam.useEncryptedTickets')) {
             Logger.log('Using encrypted tickets');
-            decrypted = AppTicket.parseEncryptedAppTicket(userTicketRaw, appConfig.steam.ticketsSecretKey);
+            decrypted = AppTicket.parseEncryptedAppTicket(userTicketRaw, this.config.get('steam.ticketsSecretKey'));
         } else {
             Logger.log('Using non encrypted tickets');
             decrypted = AppTicket.parseAppTicket(userTicketRaw);
@@ -112,6 +113,7 @@ export class SteamAuthService {
         }
 
         if (
+            // TODO: use config
             decrypted.appID !== 669270 &&
             decrypted.appID !== 1802710 &&
             decrypted.steamID.getSteamID64() !== steamIDToVerify

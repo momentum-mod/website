@@ -1,16 +1,16 @@
 import { HttpException, Injectable } from '@nestjs/common';
 import { PassportStrategy } from '@nestjs/passport';
-import { appConfig } from '../../../../config/config';
 import { Strategy } from 'passport-steam';
 import { SteamAuthService } from '../steam-auth.service';
+import { ConfigService } from '@nestjs/config';
 
 @Injectable()
 export class SteamWebStrategy extends PassportStrategy(Strategy, 'steam') {
-    constructor(private readonly steamAuthService: SteamAuthService) {
+    constructor(private readonly steamAuthService: SteamAuthService, private readonly config: ConfigService) {
         super({
-            returnURL: appConfig.baseURL_Auth + '/auth/steam/return',
-            realm: appConfig.baseURL_Auth,
-            apiKey: appConfig.steam.webAPIKey
+            returnURL: config.get('url.auth') + '/auth/steam/return',
+            realm: config.get('url.auth'),
+            apiKey: config.get('steam.webAPIKey')
         });
     }
 

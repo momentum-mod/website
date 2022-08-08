@@ -4,7 +4,7 @@ import { APP_INTERCEPTOR } from '@nestjs/core';
 import { SentryPerformanceService } from './sentry-performance/sentry-performance.service';
 import { SentryInterceptor } from './sentry.interceptor';
 import { SentryExceptionService } from './sentry-exception/sentry-exception.service';
-import { environment } from '../../../config/config';
+import { environment } from '../../../config/config_old';
 
 export const SENTRY_OPTIONS = 'SENTRY_OPTIONS';
 

@@ -1,19 +1,20 @@
 import { Injectable, Logger } from '@nestjs/common';
-import { appConfig } from '../../../config/config';
 import { FileStoreCloudFile } from './file-store.interface';
 import { S3Client, PutObjectCommand, DeleteObjectCommand, GetObjectCommand } from '@aws-sdk/client-s3';
 import { FileStoreUtils } from './file-store.utility';
+import { ConfigService } from '@nestjs/config';
+
 @Injectable()
 export class FileStoreCloudService {
     s3Client: S3Client;
 
-    constructor() {
+    constructor(private readonly config: ConfigService) {
         this.s3Client = new S3Client({
-            region: appConfig.storage.region,
-            endpoint: appConfig.storage.endpointURL,
+            region: this.config.get('storage.region'),
+            endpoint: this.config.get('storage.endpointURL'),
             credentials: {
-                accessKeyId: appConfig.storage.accessKeyID,
-                secretAccessKey: appConfig.storage.secretAccessKey
+                accessKeyId: this.config.get('storage.accessKeyID'),
+                secretAccessKey: this.config.get('storage.secretAccessKey')
             }
         });
     }
@@ -21,13 +22,13 @@ export class FileStoreCloudService {
     async storeFileCloud(fileBuffer: Buffer, fileKey: string): Promise<FileStoreCloudFile> {
         await this.s3Client.send(
             new PutObjectCommand({
-                Bucket: appConfig.storage.bucketName,
+                Bucket: this.config.get('storage.bucketName'),
                 Key: fileKey,
                 Body: fileBuffer
             })
         );
 
-        Logger.log(`UPLOAD SUCCESS! Uploaded file ${fileKey} to bucket ${appConfig.storage.bucketName}`);
+        Logger.log(`UPLOAD SUCCESS! Uploaded file ${fileKey} to bucket ${this.config.get('storage.bucketName')}`);
 
         return {
             fileKey: fileKey,
@@ -38,11 +39,11 @@ export class FileStoreCloudService {
     async deleteFileCloud(fileKey: string): Promise<void> {
         await this.s3Client.send(
             new DeleteObjectCommand({
-                Bucket: appConfig.storage.bucketName,
+                Bucket: this.config.get('storage.bucketName'),
                 Key: fileKey
             })
         );
 
-        Logger.log(`DELETE SUCCESS! Deleted file ${fileKey} from bucket ${appConfig.storage.bucketName}`);
+        Logger.log(`DELETE SUCCESS! Deleted file ${fileKey} from bucket ${this.config.get('storage.bucketName')}`);
     }
 }

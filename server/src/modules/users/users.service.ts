@@ -11,7 +11,6 @@ import { UpdateUserDto, UserDto } from '../../common/dto/user/user.dto';
 import { ProfileDto } from '../../common/dto/user/profile.dto';
 import { PaginatedResponseDto } from '../../common/dto/paginated-response.dto';
 import { UsersRepoService } from '../repo/users-repo.service';
-import { appConfig } from '../../../config/config';
 import { lastValueFrom, map } from 'rxjs';
 import * as xml2js from 'xml2js';
 import { HttpService } from '@nestjs/axios';
@@ -26,13 +25,15 @@ import { MapsRepoService } from '../repo/maps-repo.service';
 import { NotificationDto, UpdateNotificationDto } from '../../common/dto/user/notification.dto';
 import { MapLibraryEntryDto } from '../../common/dto/map/map-library-entry';
 import { MapFavoriteDto } from '../../common/dto/map/map-favorite.dto';
+import { ConfigService } from '@nestjs/config';
 
 @Injectable()
 export class UsersService {
     constructor(
         private readonly userRepo: UsersRepoService,
         private readonly mapRepo: MapsRepoService,
-        private readonly http: HttpService
+        private readonly http: HttpService,
+        private readonly config: ConfigService
     ) {}
 
     //#region Main User Functions
@@ -462,7 +463,7 @@ export class UsersService {
 
         const profileData = await this.getSteamUserProfileData(steamID);
 
-        if (appConfig.steam.preventLimited && profileData.profile.isLimitedAccount[0] === '1') {
+        if (this.config.get('steam.preventLimited') && profileData.profile.isLimitedAccount[0] === '1') {
             return Promise.reject(
                 new HttpException('We do not authenticate limited Steam accounts. Buy something on Steam first!', 403)
             );
@@ -500,7 +501,7 @@ export class UsersService {
             this.http
                 .get(`https://api.steampowered.com/ISteamUser/GetPlayerSummaries/v2/`, {
                     params: {
-                        key: appConfig.steam.webAPIKey,
+                        key: this.config.get('steam.webAPIKey'),
                         steamids: steamID
                     }
                 })
