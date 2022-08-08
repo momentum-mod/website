@@ -2,10 +2,10 @@ import { NestFactory, Reflector } from '@nestjs/core';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 import { PrismaService } from './modules/repo/prisma.service';
 import { AppModule } from './app.module';
-import { appConfig } from '../config/config';
 import { ClassSerializerInterceptor, NestApplicationOptions, ValidationPipe } from '@nestjs/common';
 import { join } from 'path';
 import { NestExpressApplication } from '@nestjs/platform-express';
+import { ConfigService } from '@nestjs/config';
 
 async function bootstrap() {
     // MDN recommended hack override for BigInt
@@ -43,7 +43,10 @@ async function bootstrap() {
     app.useGlobalPipes(new ValidationPipe({ transform: true, whitelist: true }));
     app.useGlobalInterceptors(new ClassSerializerInterceptor(app.get(Reflector)));
 
-    await app.listen(appConfig.port);
+    const configService = app.get(ConfigService);
+    const port = configService.get('port');
+
+    await app.listen(port);
 }
 
 // noinspection JSIgnoredPromiseFromCall

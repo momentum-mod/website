@@ -1,16 +1,20 @@
 import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { User, UserAuth } from '@prisma/client';
-import { appConfig } from '../../../config/config';
 import { JWTResponseDto } from '../../common/dto/jwt-response.dto';
 import { UsersRepoService } from '../repo/users-repo.service';
+import { ConfigService } from '@nestjs/config';
 
 @Injectable()
 export class AuthService {
     // TODO: remove
     loggedInUser: User;
 
-    constructor(private readonly userRepo: UsersRepoService, private readonly jwtService: JwtService) {}
+    constructor(
+        private readonly userRepo: UsersRepoService,
+        private readonly jwtService: JwtService,
+        private readonly config: ConfigService
+    ) {}
 
     async login(user: User, gameAuth = false): Promise<JWTResponseDto> {
         if (!user) throw new UnauthorizedException();
@@ -19,7 +23,7 @@ export class AuthService {
         const refreshToken = await this.genRefreshToken(user.id, gameAuth);
         const response: JWTResponseDto = {
             access_token: token,
-            expires_in: appConfig.accessToken.expTime,
+            expires_in: this.config.get('accessToken.expTime'),
             refresh_token: refreshToken,
             token_type: 'JWT'
         };
@@ -45,8 +49,8 @@ export class AuthService {
             gameAuth: Boolean(gameAuth)
         };
         const options = {
-            issuer: appConfig.domain,
-            expiresIn: gameAuth ? appConfig.accessToken.gameExpTime : appConfig.accessToken.expTime
+            issuer: this.config.get('domain'),
+            expiresIn: gameAuth ? this.config.get('accessToken.gameExpTime') : this.config.get('accessToken.expTime')
         };
         return this.jwtService.sign(payload, options);
     }
@@ -54,8 +58,10 @@ export class AuthService {
     private async genRefreshToken(userID: number, gameAuth?: boolean): Promise<string> {
         const payload = { id: userID };
         const options = {
-            issuer: appConfig.domain,
-            expiresIn: gameAuth ? appConfig.accessToken.gameRefreshExpTime : appConfig.accessToken.refreshExpTime
+            issuer: this.config.get('domain'),
+            expiresIn: gameAuth
+                ? this.config.get('accessToken.gameRefreshExpTime')
+                : this.config.get('accessToken.refreshExpTime')
         };
         return this.jwtService.sign(payload, options);
     }
