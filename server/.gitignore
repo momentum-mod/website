@@ -396,4 +396,3 @@ Temporary Items
 # Local
 .env
 dist
-config/config.ts
