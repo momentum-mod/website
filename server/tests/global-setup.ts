@@ -1,6 +1,11 @@
 ﻿import { PrismaClient, PrismaPromise } from '@prisma/client';
+import { config } from 'dotenv';
 
 export default async () => {
+    // Load in environment variables
+    config({ path: '../.env' });
+
+    // Nuke the current DB (Bye)
     const prisma = new PrismaClient();
 
     // TODO: This is MySQL-specifc, change when porting to Postgres
