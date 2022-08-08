@@ -7,10 +7,9 @@ import { FileStoreModule } from '../filestore/file-store.module';
 import { APP_GUARD } from '@nestjs/core';
 import { RolesGuard } from '../../common/guards/roles.guard';
 import { SessionModule } from '../session/session.module';
-import { XpSystemsModule } from '../xp-systems/xp-systems.module';
 
 @Module({
-    imports: [RepoModule, AuthModule, FileStoreModule, SessionModule, XpSystemsModule], // TODO: why is auth needed?
+    imports: [RepoModule, AuthModule, FileStoreModule, SessionModule], // TODO: why is auth needed?
     controllers: [MapsController],
     providers: [{ provide: APP_GUARD, useClass: RolesGuard }, MapsService],
     exports: [MapsService]
