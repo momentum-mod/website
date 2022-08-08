@@ -26,18 +26,17 @@ import { ActivityTypes } from '../../src/common/enums/activity.enum';
 import axios from 'axios';
 import { createHash } from 'crypto';
 import { DeleteObjectCommand, S3Client } from '@aws-sdk/client-s3';
-import { appConfig } from '../../config/config';
 import { UserDto } from '../../src/common/dto/user/user.dto';
 import { MapTrackDto } from '../../src/common/dto/map/map-track.dto';
 
 const hash = (buffer: Buffer) => createHash('sha1').update(buffer).digest('hex');
 
 const s3Client = new S3Client({
-    region: appConfig.storage.region,
-    endpoint: appConfig.storage.endpointURL,
+    region: process.env.region,
+    endpoint: process.env.endpointURL,
     credentials: {
-        accessKeyId: appConfig.storage.accessKeyID,
-        secretAccessKey: appConfig.storage.secretAccessKey
+        accessKeyId: process.env.accessKeyID,
+        secretAccessKey: process.env.secretAccessKey
     }
 });
 
@@ -837,7 +836,7 @@ describe('Maps', () => {
             try {
                 await s3Client.send(
                     new DeleteObjectCommand({
-                        Bucket: appConfig.storage.bucketName,
+                        Bucket: process.env.STORAGE_BUCKET_NAME,
                         Key: `maps/${map1.name}.bsp`
                     })
                 );
