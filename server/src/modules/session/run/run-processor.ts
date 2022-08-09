@@ -114,10 +114,10 @@ export class RunProcessor {
             [!Number.isNaN(Number(this.replay.header.runDate)),     ErrType.BAD_REPLAY_FILE],
             [Number(this.replay.header.runDate) <= nowDate,         ErrType.OUT_OF_SYNC],
             [Math.abs(this.replay.header.tickRate 
-                - getDefaultTickRateForMapType(this.map.gameType)) 
+                - getDefaultTickRateForMapType(this.map.type)) 
                 < epsilon,                                          ErrType.OUT_OF_SYNC],
             [runTime * 1000 <= sessionDiff,                         ErrType.OUT_OF_SYNC],
-            [AllowedGameModes.includes(this.map.gameType),          ErrType.UNSUPPORTED_MODE]
+            [AllowedGameModes.includes(this.map.type),          ErrType.UNSUPPORTED_MODE]
         ]);
     }
 

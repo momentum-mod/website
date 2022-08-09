@@ -2,7 +2,6 @@ import { PrismaClient } from '@prisma/client';
 import { faker } from '@faker-js/faker';
 import { ReportCategory, ReportType } from '../src/common/enums/report.enum';
 import { MapStatus, MapType, MapCreditType } from '../src/common/enums/map.enum';
-import { Roles } from '../src/common/enums/user.enum';
 import { ActivityTypes } from '../src/common/enums/activity.enum';
 
 const prisma = new PrismaClient();
@@ -209,7 +208,7 @@ async function createRandomMap(submitterID) {
     return await prisma.map.create({
         data: {
             name: faker.lorem.word(),
-            gameType: randomEnumIntValue(MapType),
+            type: randomEnumIntValue(MapType),
             statusFlag: randomEnumIntValue(MapStatus),
             fileKey: faker.animal.cat(),
             hash: faker.random.alphaNumeric(),

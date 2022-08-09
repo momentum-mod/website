@@ -39,7 +39,7 @@ export class MapDto implements MapDB {
 
     @ApiProperty()
     @IsEnum(MapType)
-    gameType: MapType;
+    type: MapType;
 
     @ApiProperty()
     @IsEnum(MapStatus)
@@ -143,7 +143,7 @@ export class MapDto implements MapDB {
 
 export class UpdateMapDto extends PickType(MapDto, ['statusFlag'] as const) {}
 
-export class CreateMapDto extends PickType(MapDto, ['name', 'gameType'] as const) {
+export class CreateMapDto extends PickType(MapDto, ['name', 'type'] as const) {
     @ApiProperty()
     @Type()
     @ValidateNested()

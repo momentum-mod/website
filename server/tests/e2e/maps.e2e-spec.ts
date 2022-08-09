@@ -98,7 +98,7 @@ describe('Maps', () => {
             data: {
                 // Random name, ensures the BSP actually does get uploaded
                 name: 'maps_test' + Math.floor(Math.random() * 100000000),
-                gameType: MapType.SURF,
+                type: MapType.SURF,
                 statusFlag: MapStatus.NEEDS_REVISION,
                 submitterID: user.id,
                 info: {
@@ -202,7 +202,7 @@ describe('Maps', () => {
         map2 = await prisma.map.create({
             data: {
                 name: 'maps_test2',
-                gameType: MapType.CONC,
+                type: MapType.CONC,
                 statusFlag: MapStatus.APPROVED,
                 submitterID: admin.id,
                 info: {
@@ -261,7 +261,7 @@ describe('Maps', () => {
         map3 = await prisma.map.create({
             data: {
                 name: 'maps_test3',
-                gameType: MapType.CONC,
+                type: MapType.CONC,
                 statusFlag: MapStatus.APPROVED,
                 submitterID: user3.id,
                 info: {
@@ -330,7 +330,7 @@ describe('Maps', () => {
         map4 = await prisma.map.create({
             data: {
                 name: 'maps_test4',
-                gameType: MapType.CONC,
+                type: MapType.CONC,
                 statusFlag: MapStatus.NEEDS_REVISION,
                 submitterID: user2.id,
                 info: {
@@ -602,10 +602,12 @@ describe('Maps', () => {
 
         it('should respond with filtered map data based on the map type', async () => {
             const res = await get('maps', 200, { type: map1.type });
+            const res2 = await get('maps', 200);
 
             expects(res);
-            expect(res.body.totalCount).toEqual(1);
-            expect(res.body.returnCount).toEqual(1);
+            expect(res.body.totalCount).toBeLessThan(res2.body.totalCount);
+            expect(res.body.returnCount).toBeLessThan(res2.body.returnCount);
+            expect(res.body.response.filter((map) => map.name === map1.name).length).toBe(1);
             expect(res.body.response[0].type).toBe(map1.type);
         });
 

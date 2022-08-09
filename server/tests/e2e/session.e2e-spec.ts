@@ -45,7 +45,7 @@ describe('Session', () => {
                 name: 'bhop_eazy' + Math.random().toString(36).slice(2),
                 statusFlag: MapStatus.APPROVED,
                 submitter: { connect: { id: user1.id } },
-                gameType: MapType.BHOP,
+                type: MapType.BHOP,
                 stats: { create: { baseStats: { create: {} } } },
                 hash: '07320480e9245c2363d806bc4d1661f8034709b5',
                 info: {

@@ -107,7 +107,7 @@ export class RunSessionService {
 
         const processedRun = RunSessionService.processSubmittedRun(replay, session, user);
 
-        return await this.saveSubmittedRun(processedRun, session.track, session.track.map.gameType, replay);
+        return await this.saveSubmittedRun(processedRun, session.track, session.track.map.type, replay);
     }
 
     private static processSubmittedRun(replay: Buffer, session: RunSessionCompleted, user: User): ProcessedRun {
