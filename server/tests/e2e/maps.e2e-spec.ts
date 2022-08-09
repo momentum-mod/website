@@ -404,7 +404,9 @@ describe('Maps', () => {
                         name: `pending_test${i}`,
                         type: MapType.BHOP,
                         statusFlag: MapStatus.PENDING,
-                        submitterID: user3.id
+                        submitterID: user3.id,
+                        // Creating these at the exact same time can break a skipTest
+                        createdAt: new Date(Date.now() - i * 100)
                     };
                 })
         });
