@@ -1,4 +1,4 @@
-﻿import { BaseStatsFromGame, Replay, RunFrame } from '../../modules/session/run/run-session.interface';
+﻿import { BaseStatsFromGame, Replay, RunFrame } from '../../modules/session/run/run-session.interfaces';
 
 /**
  * Utility class for writing Momentum Replay Files (.mrf)

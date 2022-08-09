@@ -5,7 +5,7 @@ import {
     Replay,
     RunFrame,
     ZoneStatsFromGame
-} from '../../src/modules/session/run/run-session.interface';
+} from '../../src/modules/session/run/run-session.interfaces';
 
 const DEFAULT_DELAY_MS = 50; // TODO: Can probably go lower
 
