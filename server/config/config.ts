@@ -2,7 +2,7 @@
 import * as path from 'path';
 
 export default (): Config => {
-    const env: Environment = Environment[process.env.NODE_ENV];
+    const env: Environment = process.env.NODE_ENV as Environment;
     const port: number = +process.env.NODE_PORT;
 
     const isProd = env === Environment.Production;
