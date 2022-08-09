@@ -12,7 +12,7 @@ import { DtoFactory } from '../../../common/utils/dto.utility';
 import { RunDto } from '../../../common/dto/run/runs.dto';
 import { UserMapRankDto } from '../../../common/dto/run/user-map-rank.dto';
 import { RunValidationError } from '../../../common/enums/run.enum';
-import { BaseStatsFromGame, ProcessedRun, StatsUpdateReturn } from './run-session.interface';
+import { BaseStatsFromGame, ProcessedRun, StatsUpdateReturn } from './run-session.interfaces';
 import { XpSystemsService } from '../../xp-systems/xp-systems.service';
 
 @Injectable()

@@ -7,7 +7,7 @@ import {
     RunValidationErrorTypes,
     RunValidationErrorTypes as ErrType
 } from '../../../common/enums/run.enum';
-import { ProcessedRun, Replay } from './run-session.interface';
+import { ProcessedRun, Replay } from './run-session.interfaces';
 
 /**
  * Class for managing the parsing of a replay file and validating it against run data
