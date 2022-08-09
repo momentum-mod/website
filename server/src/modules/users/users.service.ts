@@ -85,8 +85,6 @@ export class UsersService {
             }
         });
 
-        // return new PaginatedResponseDto<UserDto>(UserDto, dbResponse);
-        // TODO: I don't think we need to specify type here like above, check this works then remove everywhere.
         return new PaginatedResponseDto(UserDto, dbResponse);
     }
 
@@ -239,7 +237,7 @@ export class UsersService {
 
         // Do we want to be so open here? Shouldn't report activity be hidden?
 
-        return new PaginatedResponseDto<ActivityDto>(ActivityDto, dbResponse);
+        return new PaginatedResponseDto(ActivityDto, dbResponse);
     }
 
     async getFollowedActivities(
@@ -263,7 +261,7 @@ export class UsersService {
 
         const dbResponse = await this.userRepo.getActivities(where, skip, take);
 
-        return new PaginatedResponseDto<ActivityDto>(ActivityDto, dbResponse);
+        return new PaginatedResponseDto(ActivityDto, dbResponse);
     }
 
     //#endregion
@@ -273,13 +271,13 @@ export class UsersService {
     async getFollowers(id: number, skip?: number, take?: number): Promise<PaginatedResponseDto<FollowDto>> {
         const dbResponse = await this.userRepo.getFollowers(id, skip, take);
 
-        return new PaginatedResponseDto<FollowDto>(FollowDto, dbResponse);
+        return new PaginatedResponseDto(FollowDto, dbResponse);
     }
 
     async getFollowing(id: number, skip?: number, take?: number): Promise<PaginatedResponseDto<FollowDto>> {
         const dbResponse = await this.userRepo.getFollowing(id, skip, take);
 
-        return new PaginatedResponseDto<FollowDto>(FollowDto, dbResponse);
+        return new PaginatedResponseDto(FollowDto, dbResponse);
     }
 
     async getFollowStatus(localUserID: number, targetUserID: number): Promise<FollowStatusDto> {
@@ -337,7 +335,7 @@ export class UsersService {
     ): Promise<PaginatedResponseDto<NotificationDto>> {
         const dbResponse = await this.userRepo.getNotifications(userID, skip, take);
 
-        return new PaginatedResponseDto<NotificationDto>(NotificationDto, dbResponse);
+        return new PaginatedResponseDto(NotificationDto, dbResponse);
     }
 
     async updateNotification(userID: number, notificationID: number, updateDto: UpdateNotificationDto) {
@@ -374,7 +372,7 @@ export class UsersService {
         const dbResponse = await this.userRepo.getMapLibraryEntry(userID, skip, take);
         // TODO: Search and expansions
 
-        return new PaginatedResponseDto<MapLibraryEntryDto>(MapLibraryEntryDto, dbResponse);
+        return new PaginatedResponseDto(MapLibraryEntryDto, dbResponse);
     }
 
     //#endregion
@@ -438,7 +436,7 @@ export class UsersService {
     async getMapCredits(id: number, skip?: number, take?: number): Promise<PaginatedResponseDto<MapCreditDto>> {
         const dbResponse = await this.userRepo.getMapCredits(id, skip, take);
 
-        return new PaginatedResponseDto<MapCreditDto>(MapCreditDto, dbResponse);
+        return new PaginatedResponseDto(MapCreditDto, dbResponse);
     }
 
     //#endregion
@@ -448,7 +446,7 @@ export class UsersService {
     async getRuns(id: number, skip?: number, take?: number): Promise<PaginatedResponseDto<RunDto>> {
         const dbResponse = await this.userRepo.getRuns(id, skip, take);
 
-        return new PaginatedResponseDto<RunDto>(RunDto, dbResponse);
+        return new PaginatedResponseDto(RunDto, dbResponse);
     }
 
     //#endregion
