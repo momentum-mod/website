@@ -31,9 +31,9 @@ import config from '../config/config';
             validate
         }),
         SentryModule.forRoot({
-            dsn: appConfig.sentry.dsn,
+            dsn: process.env.SENTRY_DSN,
             tracesSampleRate: 1.0,
-            debug: appConfig.sentry.debug,
+            debug: false,
             environment: process.env.NODE_ENV || 'development'
         }),
         AuthModule,
