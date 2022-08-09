@@ -224,10 +224,10 @@ export class MapsController {
         return this.mapsService.createCredit(mapID, body, userID);
     }
 
-    @Get('/credits/:mapCredID')
+    @Get('/credits/:mapCreditID')
     @ApiOperation({ summary: 'Gets a single map credit' })
     @ApiParam({
-        name: 'mapCredID',
+        name: 'mapCreditID',
         type: Number,
         description: 'Target credit ID',
         required: true
@@ -235,18 +235,18 @@ export class MapsController {
     @ApiOkResponse({ description: 'The found map credit', type: MapCreditDto })
     @ApiNotFoundResponse({ description: 'Map credit not found' })
     getCredit(
-        @Param('mapCredID', ParseIntPipe) mapCredID: number,
+        @Param('mapCreditID', ParseIntPipe) mapCreditID: number,
         @Query() query?: MapCreditsGetQuery
     ): Promise<MapCreditDto> {
-        return this.mapsService.getCredit(mapCredID, query.expand);
+        return this.mapsService.getCredit(mapCreditID, query.expand);
     }
 
-    @Patch('/credits/:mapCredID')
+    @Patch('/credits/:mapCreditID')
     @Roles(RolesEnum.MAPPER)
     @HttpCode(HttpStatus.NO_CONTENT)
     @ApiOperation({ summary: 'Updates the specified map credit' })
     @ApiParam({
-        name: 'mapCredID',
+        name: 'mapCreditID',
         type: Number,
         description: 'Target credit ID',
         required: true
@@ -266,18 +266,18 @@ export class MapsController {
     @ApiConflictResponse({ description: 'Cannot have duplicate map credits' })
     @ApiNotFoundResponse({ description: 'Map credit not found' })
     updateCredit(
-        @Param('mapCredID', ParseIntPipe) mapCredID: number,
+        @Param('mapCreditID', ParseIntPipe) mapCreditID: number,
         @Body() body: UpdateMapCreditDto,
         @LoggedInUser('id') userID: number
     ): Promise<void> {
-        return this.mapsService.updateCredit(mapCredID, body, userID);
+        return this.mapsService.updateCredit(mapCreditID, body, userID);
     }
 
-    @Delete('/credits/:mapCredID')
+    @Delete('/credits/:mapCreditID')
     @Roles(RolesEnum.MAPPER)
     @ApiOperation({ summary: 'Deletes the specified map credit' })
     @ApiParam({
-        name: 'mapCredID',
+        name: 'mapCreditID',
         type: Number,
         description: 'Target credit ID',
         required: true
@@ -288,10 +288,10 @@ export class MapsController {
     @ApiForbiddenResponse({ description: 'User is not the submitter of this map' })
     @ApiNotFoundResponse({ description: 'Map credit not found' })
     deleteCredit(
-        @Param('mapCredID', ParseIntPipe) mapCredID: number,
+        @Param('mapCreditID', ParseIntPipe) mapCreditID: number,
         @LoggedInUser('id') userID: number
     ): Promise<void> {
-        return this.mapsService.deleteCredit(mapCredID, userID);
+        return this.mapsService.deleteCredit(mapCreditID, userID);
     }
 
     @Get('/:mapID/info')
