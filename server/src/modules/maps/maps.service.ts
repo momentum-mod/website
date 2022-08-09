@@ -49,7 +49,7 @@ export class MapsService {
         const where: Prisma.MapWhereInput = {};
         if (search) where.name = { startsWith: search };
         if (submitterID) where.submitterID = submitterID;
-        if (type) where.gameType = type;
+        if (type) where.type = type;
 
         if (difficultyHigh && difficultyLow)
             where.mainTrack = { is: { difficulty: { lt: difficultyHigh, gt: difficultyLow } } };
@@ -159,7 +159,7 @@ export class MapsService {
         const createInput = {
             submitter: { connect: { id: submitterID } },
             name: mapCreateDto.name,
-            gameType: mapCreateDto.gameType,
+            type: mapCreateDto.type,
             stats: { create: {} }, // Just init empty entry
             statusFlag: MapStatus.NEEDS_REVISION,
             info: {
