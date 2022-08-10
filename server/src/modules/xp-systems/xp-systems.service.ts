@@ -85,7 +85,12 @@ export class XpSystemsService implements OnModuleInit {
         } else {
             this.logger.log('Initialising empty XP parameters with defaults');
 
-            await this.xpRepo.initXpParams(DEFAULT_RANK_XP, DEFAULT_COS_XP);
+            try {
+                await this.xpRepo.initXpParams(DEFAULT_RANK_XP, DEFAULT_COS_XP);
+            } catch (e) {
+                // The only time this can ever really happen is during tests, that's no big deal, just warn
+                this.logger.warn(e.message);
+            }
 
             this._rankXpParams = DEFAULT_RANK_XP;
             this._cosXpParams = DEFAULT_COS_XP;
