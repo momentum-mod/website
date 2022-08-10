@@ -59,7 +59,7 @@ export class MapDto implements MapDB {
 
     @ApiProperty()
     @IsOptional()
-    @IsString() // TODO: Could use IsHash?
+    @IsHash('sha1')
     hash: string;
 
     @ApiProperty()
