@@ -1,19 +1,18 @@
-import { Injectable, Scope } from '@nestjs/common';
+import { Injectable, Logger, Scope } from '@nestjs/common';
 import '@sentry/tracing'; // https://github.com/getsentry/sentry-javascript/issues/4731#issuecomment-1075410543
 import * as Sentry from '@sentry/node';
-import { environment } from '../../../../config/config_old';
+import { ConfigService } from '@nestjs/config';
 
-@Injectable({ scope: Scope.TRANSIENT })
+@Injectable()
 export class SentryExceptionService {
-    /**
-     * Takes our error and logs it in sentry
-     *
-     * @param error
-     * @returns Sentry Event ID for easy searching
-     */
+    constructor(private readonly config: ConfigService) {
+        console.log('wowzers');
+    }
+
     sendError(error: any): string {
-        if (environment !== 'production') {
-            return 'DEV-ERROR';
+        if (!this.config.get('sentry.dsn')) {
+            Logger.warn("Want to report an error to Sentry but our DSN isn't set!", 'Sentry');
+            return;
         }
 
         const transaction = Sentry.startTransaction({
@@ -21,16 +20,16 @@ export class SentryExceptionService {
             name: error
         });
 
-        // setup context of newly created transaction
         Sentry.getCurrentHub().configureScope((scope) => {
             scope.setSpan(transaction);
 
-            // customize your context here
             scope.setContext(`API Error`, null);
         });
 
         const result: string = Sentry.captureException(error);
+
         transaction.finish();
+
         return result;
     }
 }

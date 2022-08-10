@@ -1,7 +1,7 @@
-﻿import { ConfigInterface, Environment } from './config.interface';
+﻿import { Config, Environment } from './config.interface';
 import * as path from 'path';
 
-export const ConfigFactory = (): ConfigInterface => {
+export default (): Config => {
     const env: Environment = process.env.NODE_ENV as Environment;
     const port: number = +process.env.NODE_PORT;
 
@@ -41,7 +41,7 @@ export const ConfigFactory = (): ConfigInterface => {
     };
 
     return {
-        env: env,
+        env: Environment.Production,
         root: path.normalize(__dirname + '/..'), // TODO: Might not be needed,
         port: port,
         url: {
@@ -72,8 +72,8 @@ export const ConfigFactory = (): ConfigInterface => {
         },
         domain: isProd ? 'momentum-mod.org' : 'localhost',
         sentry: {
-            dsn: process.env.SENTRY_DSN || '',
-            perfTracking: process.env.SENTRY_PERF_TRACKING === 'true' || false
+            dsn: process.env.SENTRY_DSN ?? '',
+            performanceTracking: process.env.SENTRY_PERF_TRACKING === 'true' ?? false
         },
         sessionSecret: isProd ? process.env.EXPRESS_SESSION_SECRET : 'keyboard cat',
         steam: {
@@ -93,5 +93,3 @@ export const ConfigFactory = (): ConfigInterface => {
         }
     };
 };
-
-export const Config: ConfigInterface = ConfigFactory();

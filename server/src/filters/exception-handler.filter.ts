@@ -1,12 +1,15 @@
 import { ExceptionFilter, Catch, ArgumentsHost, HttpStatus, Logger, HttpException } from '@nestjs/common';
 import { HttpAdapterHost } from '@nestjs/core';
 import { PrismaClientKnownRequestError } from '@prisma/client/runtime';
+import { ConfigService } from '@nestjs/config';
+import { Environment } from '../../config/config.interface';
 import { SentryExceptionService } from '../modules/sentry/sentry-exception/sentry-exception.service';
 
 @Catch()
 export class ExceptionHandlerFilter implements ExceptionFilter {
     constructor(
         private readonly httpAdapterHost: HttpAdapterHost,
+        private readonly configService: ConfigService,
         private readonly sentryService: SentryExceptionService
     ) {}
 
@@ -16,7 +19,7 @@ export class ExceptionHandlerFilter implements ExceptionFilter {
         const { httpAdapter } = this.httpAdapterHost;
         const context = host.switchToHttp();
 
-        let sentryErrorCode, status, responseBody;
+        let status, responseBody;
 
         if (exception instanceof HttpException) {
             status = exception.getStatus();
@@ -31,19 +34,35 @@ export class ExceptionHandlerFilter implements ExceptionFilter {
             };
         }
 
-        // We don't care about logging 400s
-        if (!status || status < 400 || status >= 500) {
-            sentryErrorCode = this.sentryService.sendError(exception);
+        const eventID: number | null = exception.sentryEventID;
+        const env = this.configService.get('env');
+
+        // If Sentry is in performance tracking mode, SentryInterceptor will already have intercepted the request,
+        // sent the error to Sentry, and appended an event ID to the error, we just need to log it locally and
+        // return to the client.
+        if (eventID) {
             this.logger.error(
-                `${exception.name ?? 'Error'}\n` +
-                    `Sentry Code: ${sentryErrorCode}\n` + // TODO: These seem to all just be DEV-ERROR, can we get the Sentry service to give us something unique?
-                    `Stack: ${exception.stack}`
+                `${exception.name ?? 'Error'}\n` + `Sentry Event ID: ${eventID}\n` + `Stack: ${exception.stack}`
             );
+        }
+        // If interceptor mode is off but we're in production, we call the Sentry exception service from here.
+        else if (env === Environment.Production) {
+            const newEventID = this.sentryService.sendError(exception);
+
+            this.logger.error(
+                `${exception.name ?? 'Error'}\n` + `Sentry Event ID: ${newEventID}\n` + `Stack: ${exception.stack}`
+            );
+        }
+        // If we're in development, just print as debug, this is often very useful when writing tests
+        // Tests ran through CI shouldn't log <500s though
+        else if (env === Environment.Development || (env === Environment.Test && status && status >= 500)) {
+            this.logger.debug(`${exception.name ?? 'Error'}\n` + `Stack: ${exception.stack}`);
         }
 
         responseBody.timestamp = new Date().toISOString();
         responseBody.path = httpAdapter.getRequestUrl(context.getRequest());
-        if (sentryErrorCode) responseBody.errorCode = sentryErrorCode;
+
+        if (eventID) responseBody.errorCode = eventID;
 
         httpAdapter.reply(context.getResponse(), responseBody, status);
     }

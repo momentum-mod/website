@@ -17,7 +17,6 @@ export class SentryInterceptor implements NestInterceptor {
     intercept(context: ExecutionContext, next: CallHandler): Observable<any> {
         // Start a child span for performance tracing
         const span = this.sentryService.startChild({ op: `route handler` });
-        console.log('intercepted a request!!!');
 
         return next.handle().pipe(
             catchError((error) => {

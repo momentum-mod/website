@@ -4,7 +4,7 @@
     Test = 'test'
 }
 
-export interface ConfigInterface {
+export interface Config {
     env: Environment;
     root: string;
     url: {
@@ -53,6 +53,6 @@ export interface ConfigInterface {
     };
     sentry: {
         dsn: string;
-        perfTracking: boolean;
+        performanceTracking: boolean;
     };
 }
