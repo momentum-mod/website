@@ -61,7 +61,7 @@ export class UserMapRankDto implements UserMapRank {
     run: RunDto;
 
     @ApiProperty()
-    @IsInt()
+    @Transform(({ value }) => BigInt(value))
     runID: bigint;
 
     @ApiProperty()
