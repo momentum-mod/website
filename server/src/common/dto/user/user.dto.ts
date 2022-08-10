@@ -1,6 +1,4 @@
 import { User } from '@prisma/client';
-import { appConfig } from '../../../../config/config';
-import { Roles } from '../../enums/user.enum';
 import { ApiProperty, ApiPropertyOptional, PickType } from '@nestjs/swagger';
 import {
     IsDateString,
@@ -13,12 +11,12 @@ import {
 } from 'class-validator';
 import { Exclude, Expose, Transform, Type } from 'class-transformer';
 import { IsSteamCommunityID } from '../../validators/is-steam-id.validator';
-import { IsEnumFlag } from '../../validators/is-enum-flag.validator';
 import { ProfileDto } from './profile.dto';
 import { MapRankDto } from '../map/map-rank.dto';
 import { DtoFactory } from '../../utils/dto.utility';
 import { BansDto, UpdateBansDto } from './bans.dto';
 import { RolesDto, UpdateRolesDto } from './roles.dto';
+import { Config } from '../../../../config/config';
 
 // TODO: UserStats in here in future as well
 export class UserDto implements User {
@@ -94,7 +92,7 @@ export class UserDto implements User {
     @Expose()
     get avatarURL(): string {
         if (this.bans?.avatar) {
-            return appConfig.baseURL + '/assets/images/blank_avatar.jpg';
+            return Config.url.base + '/assets/images/blank_avatar.jpg';
         } else {
             return this.avatar ? 'https://avatars.cloudflare.steamstatic.com/' + this.avatar : null;
         }
