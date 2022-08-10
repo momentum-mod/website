@@ -71,7 +71,10 @@ export const ConfigFactory = (): ConfigInterface => {
             clientSecret: process.env.TWITCH_CLIENT_SECRET ?? defaults.social.secret
         },
         domain: isProd ? 'momentum-mod.org' : 'localhost',
-        sentry: { dsn: process.env.SENTRY_DSN || '' },
+        sentry: {
+            dsn: process.env.SENTRY_DSN || '',
+            perfTracking: process.env.SENTRY_PERF_TRACKING === 'true' || false
+        },
         sessionSecret: isProd ? process.env.EXPRESS_SESSION_SECRET : 'keyboard cat',
         steam: {
             webAPIKey: process.env.STEAM_WEB_API_KEY,

@@ -2,7 +2,6 @@ import { MiddlewareConsumer, Module, NestModule, RequestMethod } from '@nestjs/c
 import * as Sentry from '@sentry/node';
 import { APP_FILTER, APP_GUARD } from '@nestjs/core';
 import { ExceptionHandlerFilter } from './filters/exception-handler.filter';
-import { appConfig } from '../config/config_old';
 import { AuthModule } from './modules/auth/auth.module';
 import { HTTPLoggerMiddleware } from './middlewares/http-logger.middleware';
 import { MapsModule } from './modules/maps/maps.module';
@@ -20,21 +19,25 @@ import { XpSystemsModule } from './modules/xp-systems/xp-systems.module';
 import { SessionController } from './modules/session/session.controller';
 import { ConfigModule } from '@nestjs/config';
 import { validate } from '../config/config.validation';
-import config from '../config/config';
+import { Config, ConfigFactory } from '../config/config';
 
 @Module({
     imports: [
         ConfigModule.forRoot({
             envFilePath: '../.env',
-            load: [config],
+            load: [ConfigFactory],
             cache: true,
             validate
         }),
+        // Using Config directly here rather than from the ConfigService is messy but I don't want to upgrade this module to use
+        // useFactory yet, mainly because I don't know if we're going with the performance service yet, and dynamically
+        // loading the performance service and interceptor based on config vars is a nightmare. I have two stashes
+        // attempting it in different ways I may come back to in the future - Tom
         SentryModule.forRoot({
-            dsn: process.env.SENTRY_DSN,
+            dsn: Config.sentry.dsn,
             tracesSampleRate: 1.0,
             debug: false,
-            environment: process.env.NODE_ENV || 'development'
+            environment: Config.env
         }),
         AuthModule,
         ActivitiesModule,

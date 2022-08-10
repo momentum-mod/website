@@ -53,5 +53,6 @@ export interface ConfigInterface {
     };
     sentry: {
         dsn: string;
+        perfTracking: boolean;
     };
 }

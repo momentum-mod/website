@@ -1,47 +1,36 @@
-import { Logger, Module } from '@nestjs/common';
-import * as Sentry from '@sentry/node';
-import { APP_INTERCEPTOR } from '@nestjs/core';
+import { DynamicModule, Logger, Module } from '@nestjs/common';
 import { SentryPerformanceService } from './sentry-performance/sentry-performance.service';
-import { SentryInterceptor } from './sentry.interceptor';
+import { SentryInterceptor } from './sentry-performance/sentry.interceptor';
 import { SentryExceptionService } from './sentry-exception/sentry-exception.service';
-import { environment } from '../../../config/config_old';
-
-export const SENTRY_OPTIONS = 'SENTRY_OPTIONS';
+import { SentryModuleOptions } from './sentry.interface';
+import { Environment } from '../../../config/config.interface';
+import * as Sentry from '@sentry/node';
+import { ConfigModule } from '@nestjs/config';
 
 @Module({
     providers: [SentryPerformanceService, SentryExceptionService]
 })
 export class SentryModule {
-    static forRoot(options: Sentry.NodeOptions) {
-        if (environment !== 'production') {
-            options.dsn = null;
-        } else {
-            if (options.dsn === 'undefined') {
-                Logger.warn(`Sentry DSN not set`, 'SentryModule');
-                options.dsn = null;
+    static forRoot(options: SentryModuleOptions): DynamicModule {
+        const logger = new Logger('Sentry');
+
+        const enablePerfTracking = options.perfTracking;
+
+        if (options.environment === Environment.Production) {
+            if (!options.sentryOpts.dsn) {
+                logger.error('Sentry DSN not set');
+                return;
+            } else {
+                Sentry.init(options.sentryOpts);
+                logger.log(`Initialised Sentry with ${JSON.stringify(options.sentryOpts)}`);
             }
-
-            // initialization of Sentry, this is where Sentry will create a Hub
-            Logger.log(`Init sentry with these options: [${JSON.stringify(options)}]`, 'SentryModule');
         }
-
-        Sentry.init(options);
 
         return {
             module: SentryModule,
-            providers: [
-                {
-                    provide: SENTRY_OPTIONS,
-                    useValue: options
-                },
-                SentryPerformanceService,
-                SentryExceptionService,
-                {
-                    provide: APP_INTERCEPTOR,
-                    useClass: SentryInterceptor
-                }
-            ],
-            exports: [SentryPerformanceService, SentryExceptionService]
+            imports: [ConfigModule],
+            providers: enablePerfTracking ? [SentryPerformanceService, SentryInterceptor] : [SentryExceptionService],
+            exports: enablePerfTracking ? [SentryPerformanceService, SentryExceptionService] : [SentryExceptionService]
         };
     }
 }

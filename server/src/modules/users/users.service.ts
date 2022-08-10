@@ -4,6 +4,7 @@ import {
     ForbiddenException,
     HttpException,
     Injectable,
+    InternalServerErrorException,
     NotFoundException
 } from '@nestjs/common';
 import { Prisma, User, UserAuth } from '@prisma/client';
@@ -47,6 +48,7 @@ export class UsersService {
         steamIDs?: string[],
         mapRank?: number
     ): Promise<PaginatedResponseDto<UserDto>> {
+        throw new InternalServerErrorException('hello');
         const where: Prisma.UserWhereInput = {};
 
         if (steamID && steamIDs)
