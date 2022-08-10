@@ -2,7 +2,7 @@
 import { Test } from '@nestjs/testing';
 import { Reflector } from '@nestjs/core';
 import { AppModule } from '../../src/app.module';
-import { ClassSerializerInterceptor, ValidationPipe } from '@nestjs/common';
+import { ClassSerializerInterceptor, Logger, LogLevel, ValidationPipe } from '@nestjs/common';
 import { PrismaService } from '../../src/modules/repo/prisma.service';
 import { AuthService } from '../../src/modules/auth/auth.service';
 import { XpSystemsService } from '../../src/modules/xp-systems/xp-systems.service';
@@ -15,9 +15,17 @@ export default class E2ETestEnvironment extends NodeEnvironment {
     async setup() {
         await super.setup();
 
-        const moduleRef = await Test.createTestingModule({
-            imports: [AppModule]
-        }).compile();
+        const logger = new Logger().localInstance;
+        const logLevel: LogLevel[] = ['error'];
+        // Env var for heavier debugging. In WebStorm it's useful to have this in the env var settings for your
+        // default configuration but *not* your main test configuration so it doesn't spam when running everything,
+        // but is enabled for when you run specific tests
+        if (process.env.TEST_LOG_DEBUG === 'true') logLevel.push('debug', 'warn');
+        logger.setLogLevels(logLevel);
+
+        const moduleRef = await Test.createTestingModule({ imports: [AppModule] })
+            .setLogger(logger)
+            .compile();
 
         BigInt.prototype['toJSON'] = function () {
             return this.toString();
