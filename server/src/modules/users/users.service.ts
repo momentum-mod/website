@@ -142,11 +142,12 @@ export class UsersService {
 
             return this.userRepo.update(user.id, updateInput);
         } else {
-            const createInput: Prisma.UserCreateInput = {};
-            createInput.steamID = profile.steamID;
-            createInput.alias = profile.alias;
-            createInput.avatar = profile.avatarURL;
-            createInput.country = profile.country;
+            const createInput: Prisma.UserCreateInput = {
+                steamID: profile.steamID,
+                alias: profile.alias,
+                avatar: profile.avatarURL, // ???
+                country: profile.country
+            };
 
             return this.userRepo.create(createInput);
         }

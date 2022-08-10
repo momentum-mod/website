@@ -14,8 +14,8 @@ datasource db {
 model User {
     id Int @id @default(autoincrement())
 
-    steamID     String?  @unique(map: "user_steamID") @db.VarChar(20)
-    alias       String?  @db.VarChar(64)
+    steamID     String?  @unique(map: "user_steamID") @db.VarChar(20) // Optional because placeholders don't have SteamIDs
+    alias       String   @db.VarChar(64)
     aliasLocked Boolean? @default(false)
     avatar      String?  @db.VarChar(255)
     country     String?  @db.VarChar(2)

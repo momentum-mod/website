@@ -29,15 +29,15 @@ describe('Session', () => {
         xpSystems = global.xpSystems;
 
         user1 = await prisma.user.create({
-            data: { steamID: '643563456', userStats: { create: {} } }
+            data: { alias: 'Hilary Putnam', steamID: '643563456', userStats: { create: {} } }
         });
 
         user2 = await prisma.user.create({
-            data: { steamID: '976893546', userStats: { create: {} } }
+            data: { alias: 'Michael Dummett', steamID: '976893546', userStats: { create: {} } }
         });
 
         nonGameAuthUser = await prisma.user.create({
-            data: { steamID: '5asdf1234124', userStats: { create: {} } }
+            data: { alias: 'Robert Brandom', steamID: '5asdf1234124', userStats: { create: {} } }
         });
 
         map = await prisma.map.create({
@@ -307,7 +307,12 @@ describe('Session', () => {
                                     }
                                 },
                                 gameType: MapType.BHOP,
-                                user: { create: { steamID: Math.random().toString().slice(2, 16) } },
+                                user: {
+                                    create: {
+                                        alias: 'St. Thomas Hairdryer IV',
+                                        steamID: Math.random().toString().slice(2, 16)
+                                    }
+                                },
                                 map: { connect: { id: map.id } },
                                 zoneNum: 0,
                                 trackNum: 0,
