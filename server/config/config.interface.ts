@@ -53,6 +53,5 @@ export interface Config {
     };
     sentry: {
         dsn: string;
-        debug: boolean;
     };
 }

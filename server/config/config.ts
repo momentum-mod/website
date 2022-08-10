@@ -1,7 +1,7 @@
-﻿import { Config, Environment } from './config.interface';
+﻿import { Config as ConfigInterface, Environment } from './config.interface';
 import * as path from 'path';
 
-export default (): Config => {
+export const ConfigFactory = (): ConfigInterface => {
     const env: Environment = process.env.NODE_ENV as Environment;
     const port: number = +process.env.NODE_PORT;
 
@@ -71,7 +71,7 @@ export default (): Config => {
             clientSecret: process.env.TWITCH_CLIENT_SECRET ?? defaults.social.secret
         },
         domain: isProd ? 'momentum-mod.org' : 'localhost',
-        sentry: { debug: false, dsn: '' },
+        sentry: { dsn: process.env.SENTRY_DSN || '' },
         sessionSecret: isProd ? process.env.EXPRESS_SESSION_SECRET : 'keyboard cat',
         steam: {
             webAPIKey: process.env.STEAM_WEB_API_KEY,
@@ -90,3 +90,5 @@ export default (): Config => {
         }
     };
 };
+
+export const Config: ConfigInterface = ConfigFactory();
