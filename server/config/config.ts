@@ -86,7 +86,7 @@ export const ConfigFactory = (): ConfigInterface => {
             region: process.env.STORAGE_REGION ?? defaults.storage.region,
             bucketName: process.env.STORAGE_BUCKET_NAME ?? defaults.storage.bucketName,
             accessKeyID: process.env.STORAGE_ACCESS_KEY_ID ?? defaults.storage.accessKeyID,
-            secretAccessKey: process.env.STORAGE_ACCESS_KEY_ID ?? defaults.storage.secretAccessKey
+            secretAccessKey: process.env.STORAGE_SECRET_ACCESS_KEY ?? defaults.storage.secretAccessKey
         }
     };
 };
