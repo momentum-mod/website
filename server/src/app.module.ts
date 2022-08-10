@@ -2,7 +2,6 @@ import { MiddlewareConsumer, Module, NestModule, RequestMethod } from '@nestjs/c
 import * as Sentry from '@sentry/node';
 import { APP_FILTER, APP_GUARD } from '@nestjs/core';
 import { ExceptionHandlerFilter } from './filters/exception-handler.filter';
-import { appConfig } from '../config/config_old';
 import { AuthModule } from './modules/auth/auth.module';
 import { HTTPLoggerMiddleware } from './middlewares/http-logger.middleware';
 import { MapsModule } from './modules/maps/maps.module';
@@ -18,23 +17,29 @@ import { JwtAuthGuard } from './common/guards/jwt-auth.guard';
 import { SessionModule } from './modules/session/session.module';
 import { XpSystemsModule } from './modules/xp-systems/xp-systems.module';
 import { SessionController } from './modules/session/session.controller';
-import { ConfigModule } from '@nestjs/config';
+import { ConfigModule, ConfigService } from '@nestjs/config';
 import { validate } from '../config/config.validation';
-import config from '../config/config';
+import { ConfigFactory } from '../config/config';
 
 @Module({
     imports: [
         ConfigModule.forRoot({
             envFilePath: '../.env',
-            load: [config],
+            load: [ConfigFactory],
             cache: true,
             validate
         }),
-        SentryModule.forRoot({
-            dsn: process.env.SENTRY_DSN,
-            tracesSampleRate: 1.0,
-            debug: false,
-            environment: process.env.NODE_ENV || 'development'
+        SentryModule.forRootAsync({
+            imports: [ConfigModule],
+            useFactory: async (config: ConfigService) => ({
+                environment: config.get('env'),
+                sentryOpts: {
+                    dsn: config.get('sentry.dsn'),
+                    debug: false,
+                    tracesSampleRate: 1.0
+                }
+            }),
+            inject: [ConfigService]
         }),
         AuthModule,
         ActivitiesModule,
