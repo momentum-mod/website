@@ -5,7 +5,7 @@ import {
     Injectable,
     NotFoundException
 } from '@nestjs/common';
-import { Map as MapDB, MapCredit, MapStats, MapTrack, Prisma } from '@prisma/client';
+import { Map as MapDB, MapCredit, MapTrack, Prisma } from '@prisma/client';
 import { CreateMapDto, MapDto } from '../../common/dto/map/map.dto';
 import { PaginatedResponseDto } from '../../common/dto/paginated-response.dto';
 import { MapsRepoService } from '../repo/maps-repo.service';
@@ -414,6 +414,8 @@ export class MapsService {
 
     //#endregion
 
+    //#region Map Zones
+
     async getZones(mapID: number): Promise<MapTrackDto[]> {
         const map = await this.mapRepo.get(mapID, { stats: true });
 
@@ -443,6 +445,8 @@ export class MapsService {
 
         return tracks.map((x) => DtoFactory(MapTrackDto, x));
     }
+
+    //#endregion
 
     //#region Private
 
