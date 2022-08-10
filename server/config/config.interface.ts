@@ -4,7 +4,7 @@
     Test = 'test'
 }
 
-export interface Config {
+export interface ConfigInterface {
     env: Environment;
     root: string;
     url: {
@@ -53,6 +53,5 @@ export interface Config {
     };
     sentry: {
         dsn: string;
-        debug: boolean;
     };
 }
