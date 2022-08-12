@@ -54,7 +54,7 @@ export class MapDto implements MapDB {
     @IsString()
     @IsUrl({ require_tld: false })
     get downloadURL() {
-        return `${Config.url.base}/${Config.storage.bucketName}/${this.fileKey}`;
+        return `${Config.url.cdn}/${Config.storage.bucketName}/${this.fileKey}`;
     }
 
     @ApiProperty()
