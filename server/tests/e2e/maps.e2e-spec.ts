@@ -865,7 +865,7 @@ describe('Maps', () => {
         it('should successfully create a map, upload it to the returned location, then download it', async () => {
             const res = await post('maps', 204, createMapObj());
 
-            const inBuffer = readFileSync(__dirname + '/files/map.bsp');
+            const inBuffer = readFileSync(__dirname + '/../files/map.bsp');
             const inHash = hash(inBuffer);
 
             const uploadURL = res.get('Location').replace('api/v1/', '');
