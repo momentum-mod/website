@@ -12,4 +12,5 @@ export const environment = {
   production: false,
   api: 'http://localhost:3002',
   auth: 'http://localhost:3002',
+  sentry: { dsn: '', env: 'client-development' },
 };

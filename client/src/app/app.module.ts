@@ -1,23 +1,25 @@
-import {APP_BASE_HREF} from '@angular/common';
-import {BrowserModule} from '@angular/platform-browser';
-import {BrowserAnimationsModule} from '@angular/platform-browser/animations';
-import {NgModule} from '@angular/core';
-import {HTTP_INTERCEPTORS, HttpClientModule} from '@angular/common/http';
-import {CoreModule} from './@core/core.module';
+import { APP_BASE_HREF } from '@angular/common';
+import { BrowserModule } from '@angular/platform-browser';
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+import { APP_INITIALIZER, ErrorHandler, NgModule } from '@angular/core';
+import { HTTP_INTERCEPTORS, HttpClientModule } from '@angular/common/http';
+import { CoreModule } from './@core/core.module';
 
-import {AppComponent} from './app.component';
-import {AppRoutingModule} from './app-routing.module';
-import {ThemeModule} from './@theme/theme.module';
-import {MainPageModule} from './pages/main/main-page.module';
-import {NotFoundModule} from './pages/not-found/not-found.module';
-import {JwtModule} from '@auth0/angular-jwt';
-import {OutgoingModule} from './pages/outgoing/outgoing.module';
-import {MarkdownModule, MarkedOptions} from 'ngx-markdown';
-import {NbDatepickerModule, NbDialogModule, NbGlobalPhysicalPosition, NbToastrModule} from '@nebular/theme';
-import {RefreshTokenInterceptorService} from './@core/utils/refresh-token-interceptor.service';
-import {NbEvaIconsModule} from '@nebular/eva-icons';
-import {TimeagoModule} from 'ngx-timeago';
+import { AppComponent } from './app.component';
+import { AppRoutingModule } from './app-routing.module';
+import { ThemeModule } from './@theme/theme.module';
+import { MainPageModule } from './pages/main/main-page.module';
+import { NotFoundModule } from './pages/not-found/not-found.module';
+import { JwtModule } from '@auth0/angular-jwt';
+import { OutgoingModule } from './pages/outgoing/outgoing.module';
+import { MarkdownModule, MarkedOptions } from 'ngx-markdown';
+import { NbDatepickerModule, NbDialogModule, NbGlobalPhysicalPosition, NbToastrModule } from '@nebular/theme';
+import { RefreshTokenInterceptorService } from './@core/utils/refresh-token-interceptor.service';
+import { NbEvaIconsModule } from '@nebular/eva-icons';
+import { TimeagoModule } from 'ngx-timeago';
 import { environment } from '../environments/environment';
+import { Router } from '@angular/router';
+import * as Sentry from '@sentry/angular';
 
 export function tokenGetter() {
   return localStorage.getItem('accessToken');
@@ -41,8 +43,8 @@ export function tokenGetter() {
           'localhost:3002',
           'localhost:4200',
           'momentum-mod.org',
-          (new URL( environment.api )).host,
-          (new URL( environment.auth )).host,
+          (new URL(environment.api)).host,
+          (new URL(environment.auth)).host,
         ],
         throwNoTokenError: false,
       },
@@ -81,6 +83,22 @@ export function tokenGetter() {
   ],
   bootstrap: [AppComponent],
   providers: [
+    {
+      provide: ErrorHandler,
+      useValue: Sentry.createErrorHandler({
+        showDialog: false,
+      }),
+    },
+    {
+      provide: Sentry.TraceService,
+      deps: [Router],
+    },
+    {
+      provide: APP_INITIALIZER,
+      useFactory: () => () => {},
+      deps: [Sentry.TraceService],
+      multi: true,
+    },
     { provide: APP_BASE_HREF, useValue: '/' },
     { provide: HTTP_INTERCEPTORS, useClass: RefreshTokenInterceptorService, multi: true },
   ],

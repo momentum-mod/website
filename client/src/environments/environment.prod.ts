@@ -7,4 +7,5 @@ export const environment = {
   production: true,
   api: 'https://api.momentum-mod.org',
   auth: 'https://auth.momentum-mod.org',
+  sentry: { dsn: '', env: 'client-production' },
 };
