@@ -1436,23 +1436,6 @@ describe('Maps', () => {
             del(`maps /${map1.id}/images/${map1.images.id}`, 401));
     });
 
-    describe('POST maps/{mapID}/runs', () => {
-        it('should upload a run file', async () => {
-            await request(global.server)
-                .post(`maps/${map1.id}/runs`)
-                .set('Content-Type', 'application/octet-stream')
-                .send(readFileSync('test/testRun.momrec'))
-                .expect(200);
-        });
-
-        it('should respond with 401 when no access token is provided', () =>
-            request(global.server)
-                .post(`maps /${map1.id}/runs`)
-                .set('Content-Type', 'application/octet-stream')
-                .send(readFileSync('test/testRun.momrec'))
-                .expect(401));
-    });
-
     describe('GET maps/{mapID}/runs', () => {
         it('should return run files for the specified map', async () => {
             // why do this???
