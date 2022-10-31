@@ -286,7 +286,8 @@ export class MapsService {
 
     //#endregion
 
-    //#region Map Credits
+    //#region Credits
+
     async getCredits(mapID: number, expand: string[]): Promise<MapCreditDto[]> {
         const foundMap = await this.mapRepo.get(mapID);
         if (!foundMap) throw new NotFoundException('Map not found');
@@ -380,9 +381,10 @@ export class MapsService {
 
         await this.updateActivities(null, mapCred);
     }
+
     //#endregion
 
-    //#region Map Info
+    //#region Info
 
     async getInfo(mapID: number): Promise<MapInfoDto> {
         const mapInfo = await this.mapRepo.getInfo(mapID);
@@ -414,7 +416,7 @@ export class MapsService {
 
     //#endregion
 
-    //#region Map Zones
+    //#region Zones
 
     async getZones(mapID: number): Promise<MapTrackDto[]> {
         const map = await this.mapRepo.get(mapID, { stats: true });

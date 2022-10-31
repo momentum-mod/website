@@ -48,7 +48,7 @@ import { MapTrackDto } from '../../common/dto/map/map-track.dto';
 export class MapsController {
     constructor(private readonly mapsService: MapsService) {}
 
-    //#region Map
+    //#region Main Map Endpoints
 
     @Get()
     @ApiOperation({ summary: 'Returns all maps' })
@@ -113,6 +113,10 @@ export class MapsController {
         return this.mapsService.get(mapID, userID, query.expand);
     }
 
+    //#endregion
+
+    //#region Upload/Download
+
     @Get('/:mapID/upload')
     @Roles(RolesEnum.MAPPER)
     @HttpCode(HttpStatus.NO_CONTENT)
@@ -175,6 +179,10 @@ export class MapsController {
 
         return this.mapsService.upload(mapID, userID, file.buffer);
     }
+
+    //#endregion
+
+    //#region Credits
 
     @Get('/:mapID/credits')
     @ApiOperation({ summary: "Gets a single map's credits" })
@@ -294,6 +302,10 @@ export class MapsController {
         return this.mapsService.deleteCredit(mapCreditID, userID);
     }
 
+    //#endregion
+
+    //#region Info
+
     @Get('/:mapID/info')
     @ApiOperation({ summary: "Gets a single map's info" })
     @ApiParam({
@@ -323,7 +335,7 @@ export class MapsController {
     @ApiForbiddenResponse({ description: 'User does not have the mapper role' })
     @ApiForbiddenResponse({ description: 'User is not the submitter of this map' })
     @ApiNotFoundResponse({ description: 'Map not found' })
-    updateUser(
+    updateInfo(
         @LoggedInUser('id') userID: number,
         @Body() updateDto: UpdateMapInfoDto,
         @Param('mapID', ParseIntPipe) mapID: number
@@ -333,7 +345,8 @@ export class MapsController {
 
     //#endregion
 
-    //#Zones
+    //#region Zones
+
     @Get('/:mapID/zones')
     @ApiOperation({ summary: "Gets a single map's zones" })
     @ApiParam({

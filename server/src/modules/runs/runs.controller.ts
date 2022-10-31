@@ -12,7 +12,7 @@ export class RunsController {
     constructor(private readonly runsService: RunsService) {}
 
     @Get()
-    @ApiOperation({ summary: 'Returns a list of runs' })
+    @ApiOperation({ summary: 'Returns a paginated list of runs' })
     @ApiOkPaginatedResponse(RunDto, { description: 'Paginated list of runs' })
     getRuns(@Query() query?: RunsGetAllQuery): Promise<PaginatedResponseDto<RunDto>> {
         return this.runsService.getAll(
