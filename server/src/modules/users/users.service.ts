@@ -491,6 +491,8 @@ export class UsersService {
 
         const profile = new UserDto();
         profile.steamID = steamID;
+        // TODO: Remove when reworking this method!
+        profile.alias ??= 'temp';
 
         return profile;
     }
