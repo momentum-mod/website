@@ -18,6 +18,7 @@ import { ActivityTypes } from '../../common/enums/activity.enum';
 import { CreateMapCreditDto, MapCreditDto, UpdateMapCreditDto } from '../../common/dto/map/map-credit.dto';
 import { MapInfoDto, UpdateMapInfoDto } from '../../common/dto/map/map-info.dto';
 import { MapTrackDto } from '../../common/dto/map/map-track.dto';
+import { MapsCtlGetAllQuery } from '../../common/dto/query/map-queries.dto';
 
 @Injectable()
 export class MapsService {
