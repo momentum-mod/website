@@ -1,11 +1,9 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import '@sentry/tracing'; // https://github.com/getsentry/sentry-javascript/issues/4731#issuecomment-1075410543
 import * as Sentry from '@sentry/node';
 
 @Injectable()
 export class SentryService {
-    constructor() {}
-
     sendError(exception: any): string {
         const transaction = Sentry.startTransaction({
             op: 'API Error',
