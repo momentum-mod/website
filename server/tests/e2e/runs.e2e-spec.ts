@@ -245,9 +245,12 @@ describe('runs', () => {
 
     describe('GET /api/v1/runs', () => {
         const expects = (res) => expect(res.body).toBeValidPagedDto(RunDto);
+
         it('should respond with a list of runs', async () => {
             const res = await get('runs', 200);
+
             expects(res);
+
             expect(res.body.totalCount).toBeGreaterThanOrEqual(4);
             expect(res.body.returnCount).toBeGreaterThanOrEqual(4);
         });
@@ -258,7 +261,9 @@ describe('runs', () => {
 
         it('should respond with list of runs filtered by mapID parameter', async () => {
             const res = await get('runs', 200, { mapID: map1.id });
+
             expects(res);
+
             expect(res.body.totalCount).toBe(2);
             expect(res.body.returnCount).toBe(2);
             expect(res.body.response[0].mapID).toBe(map1.id);
@@ -266,7 +271,9 @@ describe('runs', () => {
 
         it('should respond with a list of runs filtered by userID parameter', async () => {
             const res = await get('runs', 200, { userID: user1.id });
+
             expects(res);
+
             expect(res.body.totalCount).toBe(2);
             expect(res.body.returnCount).toBe(2);
             expect(res.body.response[0].userID).toBe(user1.id);
@@ -275,7 +282,9 @@ describe('runs', () => {
         it('should respond with a list of runs filtered by a list of run ids', async () => {
             const ids = user1.id + ',' + user2.id;
             const res = await get('runs', 200, { userIDs: ids });
+
             expects(res);
+
             expect(res.body.totalCount).toBe(4);
             expect(res.body.returnCount).toBe(4);
             expect(ids).toContain(res.body.response[0].userID.toString());
@@ -283,7 +292,9 @@ describe('runs', () => {
 
         it('should respond with a list of runs filtered by flags', async () => {
             const res = await get('runs', 200, { flags: 1 << 5 });
+
             expects(res);
+
             expect(res.body.totalCount).toBe(1);
             expect(res.body.response[0].flags).toBe(run4.flags); // This uses strict equality for now, but will change in 0.10.0
         });
@@ -292,7 +303,9 @@ describe('runs', () => {
 
         it('should respond with a list of runs with the rank include', async () => {
             const res = await get('runs', 200, { expand: 'rank' });
+
             expects(res);
+
             expect(res.body.totalCount).toBeGreaterThanOrEqual(4);
             expect(res.body.returnCount).toBeGreaterThanOrEqual(4);
             expect(res.body.response.filter((x) => x.hasOwnProperty('rank')).length).toBe(2); // 2 test runs have a rank, so we should see 2 in the response
@@ -306,20 +319,26 @@ describe('runs', () => {
 
         it('should respond with a list of runs with the mapWithInfo include', async () => {
             const res = await get('runs', 200, { expand: 'mapWithInfo' });
+
             expects(res);
+
             res.body.response.forEach((x) => expect(x.map).toHaveProperty('info'));
         });
 
         it('should respond with a list of runs filtered by partial mapName match', async () => {
             const res = await get('runs', 200, { mapName: 'epicf', expand: 'map' });
+
             expects(res);
+
             expect(res.body.totalCount).toBe(2);
             expect(res.body.response[0].map.name).toBe(map2.name);
         });
 
         it('should respond with a list of runs that are personal bests', async () => {
             const res = await get('runs', 200, { isPB: true, expand: 'rank' });
+
             expects(res);
+
             expect(res.body.totalCount).toBeGreaterThanOrEqual(2);
             expect(res.body.returnCount).toBeGreaterThanOrEqual(2);
             res.body.response.forEach((x) => {
@@ -330,7 +349,9 @@ describe('runs', () => {
 
         it('should respond with a list of runs sorted by date', async () => {
             const res = await get('runs', 200, { order: 'date' });
+
             expects(res);
+
             const sortedRes = [...res.body.response];
             sortedRes.sort((n1, n2) => new Date(n2.createdAt).getTime() - new Date(n1.createdAt).getTime());
 
@@ -339,7 +360,9 @@ describe('runs', () => {
 
         it('should respond with a list of runs sorted by time', async () => {
             const res = await get('runs', 200, { order: 'time' });
+
             expects(res);
+
             const sortedRes = [...res.body.response];
             sortedRes.sort((n1, n2) => n1.ticks - n2.ticks);
 
@@ -353,7 +376,9 @@ describe('runs', () => {
         const expects = (res: request.Response) => expect(res.body).toBeValidDto(RunDto);
         it('should return a valid run', async () => {
             const res = await get('runs/' + run1.id, 200);
+
             expects(res);
+
             expect(res.body.id).toBe(run1.id.toString());
             expect(res.body.mapID).toBe(run1.mapID);
         });
@@ -372,7 +397,9 @@ describe('runs', () => {
 
         it('should respond with a run using the mapWithInfo include', async () => {
             const res = await get('runs/' + run1.id, 200, { expand: 'mapWithInfo' });
+
             expects(res);
+
             expect(res.body.map).toHaveProperty('info');
         });
 
