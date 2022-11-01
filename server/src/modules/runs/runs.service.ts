@@ -4,6 +4,7 @@ import { PaginatedResponseDto } from '../../common/dto/paginated-response.dto';
 import { RunDto } from '../../common/dto/run/runs.dto';
 import { DtoFactory, ExpandToPrismaIncludes } from '../../common/utils/dto.utility';
 import { RunsRepoService } from '../repo/runs-repo.service';
+import { MapsCtlRunsGetAllQuery, RunsGetAllQuery } from '../../common/dto/query/run-queries.dto';
 
 @Injectable()
 export class RunsService {
@@ -25,48 +26,41 @@ export class RunsService {
         return DtoFactory(RunDto, dbResponse);
     }
 
-    async getAll(
-        skip?: number,
-        take?: number,
-        mapID?: number,
-        mapName?: string,
-        userID?: number,
-        userIDs?: number[],
-        flags?: number,
-        isPB?: boolean,
-        order?: string,
-        expand?: string[]
-    ): Promise<PaginatedResponseDto<RunDto>> {
+    async getAll(query: RunsGetAllQuery | MapsCtlRunsGetAllQuery): Promise<PaginatedResponseDto<RunDto>> {
         const where: Prisma.RunWhereInput = {};
         const include: Prisma.RunInclude = {
             user: true,
-            ...ExpandToPrismaIncludes(expand?.filter((x) => ['baseStats', 'zoneStats', 'rank', 'map'].includes(x)))
+            ...ExpandToPrismaIncludes(
+                query.expand?.filter((x) => ['baseStats', 'zoneStats', 'rank', 'map'].includes(x))
+            )
         };
 
         const orderBy: Prisma.RunOrderByWithRelationInput = {};
 
-        if (expand?.includes('mapWithInfo')) include.map = { include: { info: true } };
+        if (query.expand?.includes('mapWithInfo')) include.map = { include: { info: true } };
 
-        if (userID && userIDs)
+        if (query.userID && query.userIDs)
             throw new BadRequestException('Only one of userID and userIDs may be used at the same time');
 
-        if (mapID && mapName)
-            throw new BadRequestException('Only one of mapID and mapName may be used at the same time');
+        if (!(query instanceof MapsCtlRunsGetAllQuery)) {
+            if (query.mapID && query.mapName)
+                throw new BadRequestException('Only one of mapID and mapName may be used at the same time');
 
-        if (mapID) where.mapID = mapID;
-        else if (mapName) where.map = { name: { contains: mapName } };
+            if (query.mapID) where.mapID = query.mapID;
+            else if (query.mapName) where.map = { name: { contains: query.mapName } };
+        }
 
-        if (userID) where.userID = userID;
-        else if (userIDs) where.userID = { in: userIDs };
+        if (query.userID) where.userID = query.userID;
+        else if (query.userIDs) where.userID = { in: query.userIDs };
 
-        if (isPB) where.rank = { isNot: null };
+        if (query.isPB) where.rank = { isNot: null };
 
-        if (flags) where.flags = flags; // Currently checks for exact equality, will change in 0.10.0
+        if (query.flags) where.flags = query.flags; // Currently checks for exact equality, will change in 0.10.0
 
-        if (order === 'date') orderBy.createdAt = 'desc';
+        if (query.order === 'date') orderBy.createdAt = 'desc';
         else orderBy.ticks = 'asc';
 
-        const dbResponse = await this.runRepo.getAllRuns(where, skip, take, include, orderBy);
+        const dbResponse = await this.runRepo.getAllRuns(where, query.skip, query.take, include, orderBy);
         return new PaginatedResponseDto(RunDto, dbResponse);
     }
 }

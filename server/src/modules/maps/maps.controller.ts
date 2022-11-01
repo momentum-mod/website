@@ -58,18 +58,7 @@ export class MapsController {
         @LoggedInUser('id') userID: number,
         @Query() query?: MapsCtlGetAllQuery
     ): Promise<PaginatedResponseDto<MapDto>> {
-        return this.mapsService.getAll(
-            userID,
-            query.skip,
-            query.take,
-            query.expand,
-            query.search,
-            query.submitterID,
-            query.type,
-            query.difficultyLow,
-            query.difficultyHigh,
-            query.isLinear
-        );
+        return this.mapsService.getAll(userID, query);
     }
 
     @Post()
