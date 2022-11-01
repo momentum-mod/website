@@ -26,6 +26,7 @@ import { NotificationDto, UpdateNotificationDto } from '../../common/dto/user/no
 import { MapLibraryEntryDto } from '../../common/dto/map/map-library-entry';
 import { MapFavoriteDto } from '../../common/dto/map/map-favorite.dto';
 import { ConfigService } from '@nestjs/config';
+import { UsersGetAllQuery, UsersGetQuery } from '../../common/dto/query/user-queries.dto';
 
 @Injectable()
 export class UsersService {
@@ -38,37 +39,29 @@ export class UsersService {
 
     //#region Main User Functions
 
-    async getAll(
-        skip?: number,
-        take?: number,
-        expand?: string[],
-        search?: string,
-        steamID?: string,
-        steamIDs?: string[],
-        mapRank?: number
-    ): Promise<PaginatedResponseDto<UserDto>> {
+    async getAll(query: UsersGetAllQuery): Promise<PaginatedResponseDto<UserDto>> {
         const where: Prisma.UserWhereInput = {};
 
-        if (steamID && steamIDs)
+        if (query.steamID && query.steamIDs)
             throw new BadRequestException('Only one of steamID and steamIDs may be used at the same time');
 
-        if (steamID) {
-            take = 1;
-            where.steamID = steamID;
-        } else if (steamIDs) {
-            where.steamID = { in: steamIDs };
+        if (query.steamID) {
+            query.take = 1;
+            where.steamID = query.steamID;
+        } else if (query.steamIDs) {
+            where.steamID = { in: query.steamIDs };
         }
 
-        if (search) where.alias = { startsWith: search };
+        if (query.search) where.alias = { startsWith: query.search };
 
-        let include: Prisma.UserInclude = ExpandToPrismaIncludes(expand);
+        let include: Prisma.UserInclude = ExpandToPrismaIncludes(query.expand);
 
-        if (mapRank) {
+        if (query.mapRank) {
             include ??= {};
 
             include.mapRanks = {
                 where: {
-                    mapID: mapRank
+                    mapID: query.mapRank
                 },
                 include: {
                     run: true
@@ -76,7 +69,7 @@ export class UsersService {
             };
         }
 
-        const dbResponse = await this.userRepo.getAll(where, include, skip, take);
+        const dbResponse = await this.userRepo.getAll(where, include, query.skip, query.take);
 
         dbResponse[0].forEach((user: any) => {
             if (user.mapRanks) {

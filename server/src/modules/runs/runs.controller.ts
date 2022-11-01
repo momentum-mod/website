@@ -15,18 +15,7 @@ export class RunsController {
     @ApiOperation({ summary: 'Returns a paginated list of runs' })
     @ApiOkPaginatedResponse(RunDto, { description: 'Paginated list of runs' })
     getRuns(@Query() query?: RunsGetAllQuery): Promise<PaginatedResponseDto<RunDto>> {
-        return this.runsService.getAll(
-            query.skip,
-            query.take,
-            query.mapID,
-            query.mapName,
-            query.userID,
-            query.userIDs,
-            query.flags,
-            query.isPB,
-            query.order,
-            query.expand
-        );
+        return this.runsService.getAll(query);
     }
 
     @Get('/:runID')

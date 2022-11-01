@@ -31,50 +31,39 @@ export class MapsService {
 
     //#region Maps
 
-    async getAll(
-        userID: number,
-        skip: number,
-        take: number,
-        expand?: string[],
-        search?: string,
-        submitterID?: number,
-        type?: MapType,
-        difficultyLow?: number,
-        difficultyHigh?: number,
-        isLinear?: boolean
-    ): Promise<PaginatedResponseDto<MapDto>> {
+    async getAll(userID: number, query: MapsCtlGetAllQuery): Promise<PaginatedResponseDto<MapDto>> {
         // Old API has some stuff for "status" and "statusNot" and "priority" but isn't in docs or validations or
         // used anywhere in client/game, leaving for now.
 
         // Where
         const where: Prisma.MapWhereInput = {};
-        if (search) where.name = { startsWith: search };
-        if (submitterID) where.submitterID = submitterID;
-        if (type) where.type = type;
+        if (query.search) where.name = { startsWith: query.search };
+        if (query.submitterID) where.submitterID = query.submitterID;
+        if (query.type) where.type = query.type;
 
-        if (difficultyHigh && difficultyLow)
-            where.mainTrack = { is: { difficulty: { lt: difficultyHigh, gt: difficultyLow } } };
-        else if (difficultyLow) where.mainTrack = { is: { difficulty: { gt: difficultyLow } } };
-        else if (difficultyHigh) where.mainTrack = { is: { difficulty: { lt: difficultyHigh } } };
+        if (query.difficultyHigh && query.difficultyLow)
+            where.mainTrack = { is: { difficulty: { lt: query.difficultyHigh, gt: query.difficultyLow } } };
+        else if (query.difficultyLow) where.mainTrack = { is: { difficulty: { gt: query.difficultyLow } } };
+        else if (query.difficultyHigh) where.mainTrack = { is: { difficulty: { lt: query.difficultyHigh } } };
 
         // If we have difficulty filters we have to construct quite a complicated filter...
-        if (isLinear)
+        if (query.isLinear)
             where.mainTrack = where.mainTrack ? { is: { ...where.mainTrack.is, isLinear: true } } : { isLinear: true };
 
         // Include
         const include: Prisma.MapInclude = {
             mainTrack: true,
             info: true,
-            ...ExpandToPrismaIncludes(expand?.filter((x) => ['credits', 'thumbnail'].includes(x)))
+            ...ExpandToPrismaIncludes(query.expand?.filter((x) => ['credits', 'thumbnail'].includes(x)))
         };
 
-        const incPB = expand?.includes('personalBest');
-        const incWR = expand?.includes('worldRecord');
+        const incPB = query.expand?.includes('personalBest');
+        const incWR = query.expand?.includes('worldRecord');
 
         MapsService.handleMapGetIncludes(
             include,
-            expand?.includes('inFavorites'),
-            expand?.includes('inLibrary'),
+            query.expand?.includes('inFavorites'),
+            query.expand?.includes('inLibrary'),
             incPB,
             incWR,
             userID
@@ -83,7 +72,7 @@ export class MapsService {
         // Order
         const order: Prisma.MapOrderByWithRelationInput = { createdAt: 'desc' };
 
-        const dbResponse = await this.mapRepo.getAll(where, include, order, skip, take);
+        const dbResponse = await this.mapRepo.getAll(where, include, order, query.skip, query.take);
 
         if (incPB || incWR) {
             dbResponse[0].forEach((map) => MapsService.handleMapGetPrismaResponse(map, userID, incPB, incWR));
