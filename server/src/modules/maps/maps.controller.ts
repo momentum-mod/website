@@ -34,13 +34,14 @@ import { ApiOkPaginatedResponse, PaginatedResponseDto } from '../../common/dto/p
 import { MapsService } from './maps.service';
 import { CreateMapDto, MapDto } from '../../common/dto/map/map.dto';
 import { FileInterceptor } from '@nestjs/platform-express';
-import { MapCreditsGetQuery, MapsGetAllQuery, MapsGetQuery } from '../../common/dto/query/map-queries.dto';
+import { MapCreditsGetQuery, MapsCtlGetAllQuery, MapsGetQuery } from '../../common/dto/query/map-queries.dto';
 import { Roles } from '../../common/decorators/roles.decorator';
 import { Roles as RolesEnum } from '../../common/enums/user.enum';
 import { LoggedInUser } from '../../common/decorators/logged-in-user.decorator';
 import { CreateMapCreditDto, MapCreditDto, UpdateMapCreditDto } from '../../common/dto/map/map-credit.dto';
 import { MapInfoDto, UpdateMapInfoDto } from '../../common/dto/map/map-info.dto';
 import { MapTrackDto } from '../../common/dto/map/map-track.dto';
+import { MapsCtlRunsGetAllQuery } from '../../common/dto/query/run-queries.dto';
 
 @ApiBearerAuth()
 @Controller('api/v1/maps')
@@ -55,7 +56,7 @@ export class MapsController {
     @ApiOkPaginatedResponse(MapDto, { description: 'Paginated list of maps' })
     getAllMaps(
         @LoggedInUser('id') userID: number,
-        @Query() query?: MapsGetAllQuery
+        @Query() query?: MapsCtlGetAllQuery
     ): Promise<PaginatedResponseDto<MapDto>> {
         return this.mapsService.getAll(
             userID,

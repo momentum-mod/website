@@ -32,7 +32,7 @@ class MapsGetAllBaseQuery {
     submitterID: number;
 }
 
-export class AdminMapsGetAllQuery extends MapsGetAllBaseQuery {
+export class AdminCtlMapsGetAllQuery extends MapsGetAllBaseQuery {
     @ExpandQueryDecorators(['info', 'submitter', 'credits'])
     expand: string[];
 
@@ -57,7 +57,7 @@ export class AdminMapsGetAllQuery extends MapsGetAllBaseQuery {
     priority: boolean;
 }
 
-export class MapsGetAllQuery extends MapsGetAllBaseQuery {
+export class MapsCtlGetAllQuery extends MapsGetAllBaseQuery {
     @ExpandQueryDecorators([
         'info',
         'submitter',
