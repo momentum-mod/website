@@ -47,6 +47,7 @@ describe('Maps', () => {
         user3,
         run1,
         run2,
+        run3,
         map1,
         map2,
         map3,
@@ -477,6 +478,11 @@ describe('Maps', () => {
                         rank: 1,
                         gameType: MapType.SURF
                     }
+                },
+                overallStats: {
+                    create: {
+                        jumps: 1
+                    }
                 }
             }
         });
@@ -489,7 +495,7 @@ describe('Maps', () => {
                 zoneNum: 1,
                 ticks: 20000,
                 tickRate: 100,
-                flags: 0,
+                flags: 123,
                 file: '',
                 hash: '',
                 time: 20000000,
@@ -499,6 +505,32 @@ describe('Maps', () => {
                         user: { connect: { id: user.id } },
                         rank: 2,
                         gameType: MapType.SURF
+                    }
+                },
+                overallStats: {
+                    create: {
+                        jumps: 1
+                    }
+                }
+            }
+        });
+
+        // Second run on map1 for user with no UMR so should not be included when filtering by isPB
+        run3 = await prisma.run.create({
+            data: {
+                map: { connect: { id: map1.id } },
+                user: { connect: { id: user.id } },
+                trackNum: 1,
+                zoneNum: 1,
+                ticks: 20001,
+                tickRate: 100,
+                flags: 0,
+                file: '',
+                hash: '',
+                time: 20000100,
+                overallStats: {
+                    create: {
+                        jumps: 1
                     }
                 }
             }
@@ -1437,24 +1469,116 @@ describe('Maps', () => {
     });
 
     describe('GET maps/{mapID}/runs', () => {
+        const expects = (res) => expect(res.body).toBeValidPagedDto(RunDto);
+
         it('should return run files for the specified map', async () => {
-            // why do this???
-            await request(global.server)
-                .post(`maps /${map1.id}/runs`)
-                .set('Content-Type', 'application/octet-stream')
-                .send(readFileSync('test/testRun.momrec'))
-                .expect(401);
+            const res = await get(`maps/${map1.id}/runs`, 200);
 
-            const res = await get(` maps/${map1.id}/runs`, 200);
+            expects(res);
 
-            expect(res.body).toBeValidPagedDto(RunDto);
-            expect(res.body.totalCount).toBe(2);
-            expect(res.body.returnCount).toBe(2);
+            expect(res.body.totalCount).toBeGreaterThanOrEqual(2);
+            expect(res.body.returnCount).toBeGreaterThanOrEqual(2);
         });
 
-        // TODO: skip/take tests i guess
+        it('should respond with filtered map data using the take parameter', () =>
+            takeTest(`maps/${map1.id}/runs`, expects));
 
-        it('should respond with 401 when no access token is provided', () => get(`maps/${map1.id}/runs`, 401));
+        it('should respond with filtered map data using the skip parameter', () =>
+            skipTest(`maps/${map1.id}/runs`, expects));
+
+        it('should respond with a list of runs filtered by userID parameter', async () => {
+            const res = await get(`maps/${map1.id}/runs`, 200, { userID: user.id });
+
+            expects(res);
+
+            expect(res.body.totalCount).toBe(2);
+            expect(res.body.returnCount).toBe(2);
+            expect(res.body.response[0].userID).toBe(user.id);
+        });
+
+        it('should respond with a list of runs filtered by a list of user ids', async () => {
+            const ids = user.id + ',' + admin.id;
+            const res = await get(`maps/${map1.id}/runs`, 200, { userIDs: ids });
+
+            expects(res);
+
+            expect(res.body.totalCount).toBe(3);
+            expect(res.body.returnCount).toBe(3);
+            expect(ids).toContain(res.body.response[0].userID.toString());
+        });
+
+        it('should respond with a list of runs filtered by flags', async () => {
+            const res = await get(`maps/${map1.id}/runs`, 200, { flags: 123 });
+
+            expects(res);
+
+            expect(res.body.totalCount).toBe(1);
+            expect(res.body.response[0].flags).toBe(run2.flags); // This uses strict equality for now, but will change in 0.10.0
+        });
+
+        it('should respond with a list of runs with the map include', () => expandTest('runs', expects, 'map', true));
+
+        it('should respond with a list of runs with the rank include', async () => {
+            const res = await get(`maps/${map1.id}/runs`, 200, { expand: 'rank' });
+
+            expects(res);
+
+            expect(res.body.totalCount).toBeGreaterThanOrEqual(3);
+            expect(res.body.returnCount).toBeGreaterThanOrEqual(3);
+            expect(res.body.response.filter((x) => x.hasOwnProperty('rank')).length).toBe(2); // 2 test runs have a rank, so we should see 2 in the response
+        });
+
+        it('should respond with a list of runs with the zoneStats include', () =>
+            expandTest(`maps/${map1.id}/runs`, expects, 'zoneStats', true));
+
+        it('should respond with a list of runs with the overallStats include', () =>
+            expandTest(`maps/${map1.id}/runs`, expects, 'overallStats', true));
+
+        it('should respond with a list of runs with the mapWithInfo include', async () => {
+            const res = await get(`maps/${map1.id}/runs`, 200, { expand: 'mapWithInfo' });
+
+            expects(res);
+
+            res.body.response.forEach((x) => expect(x.map).toHaveProperty('info'));
+        });
+
+        it('should respond with a list of runs that are personal bests', async () => {
+            const res = await get(`maps/${map1.id}/runs`, 200, { isPB: true, expand: 'rank' });
+
+            expects(res);
+
+            expect(res.body.totalCount).toBeGreaterThanOrEqual(2);
+            expect(res.body.returnCount).toBeGreaterThanOrEqual(2);
+            res.body.response.forEach((x) => {
+                expect(x).toHaveProperty('rank');
+                expect(x.id).not.toBe(run3.id);
+            });
+        });
+
+        it('should respond with a list of runs sorted by date', async () => {
+            const res = await get(`maps/${map1.id}/runs`, 200, { order: 'date' });
+
+            expects(res);
+
+            const sortedRes = [...res.body.response];
+            sortedRes.sort((n1, n2) => new Date(n2.createdAt).getTime() - new Date(n1.createdAt).getTime());
+
+            expect(res.body.response).toEqual(sortedRes);
+        });
+
+        it('should respond with a list of runs sorted by time', async () => {
+            const res = await get(`maps/${map1.id}/runs`, 200, { order: 'time' });
+
+            expects(res);
+
+            const sortedRes = [...res.body.response];
+            sortedRes.sort((n1, n2) => n1.ticks - n2.ticks);
+
+            expect(res.body.response).toEqual(sortedRes);
+        });
+
+        it('should respond with 401 when no access token is provided', () =>
+            get(`maps/${map1.id}/runs`, 401, {}, null));
     });
 
     describe('GET maps/{mapID}/runs/{runID}', () => {

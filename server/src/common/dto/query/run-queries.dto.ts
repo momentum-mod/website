@@ -82,6 +82,8 @@ export class RunsGetAllQuery {
     order: string;
 }
 
+export class MapsCtlRunsGetAllQuery extends OmitType(RunsGetAllQuery, ['mapID', 'mapName'] as const) {}
+
 export class RunsGetQuery {
     @ExpandQueryDecorators(['overallStats', 'map', 'mapWithInfo', 'rank', 'zoneStats'])
     expand: string[];

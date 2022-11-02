@@ -42,12 +42,14 @@ import { CreateMapCreditDto, MapCreditDto, UpdateMapCreditDto } from '../../comm
 import { MapInfoDto, UpdateMapInfoDto } from '../../common/dto/map/map-info.dto';
 import { MapTrackDto } from '../../common/dto/map/map-track.dto';
 import { MapsCtlRunsGetAllQuery } from '../../common/dto/query/run-queries.dto';
+import { RunDto } from '../../common/dto/run/runs.dto';
+import { RunsService } from '../runs/runs.service';
 
 @ApiBearerAuth()
 @Controller('api/v1/maps')
 @ApiTags('Maps')
 export class MapsController {
-    constructor(private readonly mapsService: MapsService) {}
+    constructor(private readonly mapsService: MapsService, private readonly runsService: RunsService) {}
 
     //#region Main Map Endpoints
 
@@ -350,6 +352,27 @@ export class MapsController {
     getZones(@Param('mapID', ParseIntPipe) mapID: number): Promise<MapTrackDto[]> {
         return this.mapsService.getZones(mapID);
     }
+    //#endregion
+
+    //#region Runs
+
+    @Get('/:mapID/runs')
+    @ApiOperation({ summary: 'Returns a paginated list of runs for a specific map' })
+    @ApiParam({
+        name: 'mapID',
+        type: Number,
+        description: 'Target Map ID',
+        required: true
+    })
+    @ApiOkResponse({ description: "The found map's zones" })
+    @ApiNotFoundResponse({ description: 'Map not found' })
+    getRuns(
+        @Param('mapID', ParseIntPipe) mapID: number,
+        @Query() query?: MapsCtlRunsGetAllQuery
+    ): Promise<PaginatedResponseDto<RunDto>> {
+        return this.runsService.getAll(query);
+    }
+
     //#endregion
 
     //#region Private
