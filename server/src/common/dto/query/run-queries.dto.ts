@@ -1,4 +1,4 @@
-﻿import { ApiPropertyOptional } from '@nestjs/swagger';
+﻿import { ApiPropertyOptional, OmitType } from '@nestjs/swagger';
 import { Transform, Type } from 'class-transformer';
 import { IsInt, IsOptional } from 'class-validator';
 import { MapStatus } from '../../enums/map.enum';
@@ -11,7 +11,7 @@ export class RunsGetAllQuery {
     @TakeQueryDecorators(10)
     take = 10;
 
-    @ExpandQueryDecorators(['baseStats', 'map', 'mapWithInfo', 'rank', 'zoneStats'])
+    @ExpandQueryDecorators(['overallStats', 'map', 'mapWithInfo', 'rank', 'zoneStats'])
     expand: string[];
 
     @ApiPropertyOptional({
@@ -83,6 +83,6 @@ export class RunsGetAllQuery {
 }
 
 export class RunsGetQuery {
-    @ExpandQueryDecorators(['baseStats', 'map', 'mapWithInfo', 'rank', 'zoneStats'])
+    @ExpandQueryDecorators(['overallStats', 'map', 'mapWithInfo', 'rank', 'zoneStats'])
     expand: string[];
 }

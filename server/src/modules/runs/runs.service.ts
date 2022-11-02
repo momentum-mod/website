@@ -14,7 +14,7 @@ export class RunsService {
         const where: Prisma.RunWhereUniqueInput = { id: runID };
         const include: Prisma.RunInclude = {
             user: true,
-            ...ExpandToPrismaIncludes(expand?.filter((x) => ['baseStats', 'map', 'rank', 'zoneStats'].includes(x)))
+            ...ExpandToPrismaIncludes(expand?.filter((x) => ['overallStats', 'map', 'rank', 'zoneStats'].includes(x)))
         };
 
         if (expand?.includes('mapWithInfo')) include.map = { include: { info: true } };
@@ -31,7 +31,7 @@ export class RunsService {
         const include: Prisma.RunInclude = {
             user: true,
             ...ExpandToPrismaIncludes(
-                query.expand?.filter((x) => ['baseStats', 'zoneStats', 'rank', 'map'].includes(x))
+                query.expand?.filter((x) => ['overallStats', 'zoneStats', 'rank', 'map'].includes(x))
             )
         };
 
@@ -61,6 +61,7 @@ export class RunsService {
         else orderBy.ticks = 'asc';
 
         const dbResponse = await this.runRepo.getAllRuns(where, query.skip, query.take, include, orderBy);
+
         return new PaginatedResponseDto(RunDto, dbResponse);
     }
 }
