@@ -279,7 +279,7 @@ describe('runs', () => {
             expect(res.body.response[0].userID).toBe(user1.id);
         });
 
-        it('should respond with a list of runs filtered by a list of run ids', async () => {
+        it('should respond with a list of runs filtered by a list of user ids', async () => {
             const ids = user1.id + ',' + user2.id;
             const res = await get('runs', 200, { userIDs: ids });
 
@@ -314,8 +314,8 @@ describe('runs', () => {
         it('should respond with a list of runs with the zoneStats include', () =>
             expandTest('runs', expects, 'zoneStats', true));
 
-        it('should respond with a list of runs with the baseStats include', () =>
-            expandTest('runs', expects, 'baseStats', true));
+        it('should respond with a list of runs with the overallStats include', () =>
+            expandTest('runs', expects, 'overallStats', true));
 
         it('should respond with a list of runs with the mapWithInfo include', async () => {
             const res = await get('runs', 200, { expand: 'mapWithInfo' });
@@ -383,8 +383,8 @@ describe('runs', () => {
             expect(res.body.mapID).toBe(run1.mapID);
         });
 
-        it('should respond with a run using the baseStats include', () =>
-            expandTest('runs/' + run1.id, expects, 'baseStats', false));
+        it('should respond with a run using the overallStats include', () =>
+            expandTest('runs/' + run1.id, expects, 'overallStats', false));
 
         it('should respond with a run using the map include', () =>
             expandTest('runs/' + run1.id, expects, 'map', false));
