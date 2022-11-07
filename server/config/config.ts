@@ -6,12 +6,12 @@ export const ConfigFactory = (): ConfigInterface => {
     const port: number = +process.env.NODE_PORT;
 
     const isProd = env === Environment.Production;
-    const useRemoteStorage = process.env.USE_LOCAL_STORAGE === 'true' ?? true;
 
-    // If we're not in production some stuff being missing in fine, can we just use sensible defaults.
+    // If we're not in production some stuff being missing in fine, we can just use sensible defaults.
     // In production we want to require them be defined, so they'll fail validation immediately if not.
     const defaults = {
         url: !isProd ? `http://localhost:${port}` : undefined,
+        cdnUrl: !isProd ? 'http://localhost:9000' : undefined,
         secret: !isProd ? 'dev' : undefined,
         social: !isProd
             ? {
@@ -21,22 +21,6 @@ export const ConfigFactory = (): ConfigInterface => {
             : {
                   id: undefined,
                   secret: undefined
-              },
-        // If we're using remote storage, require these be defined - undefined will fail validation.
-        storage: useRemoteStorage
-            ? {
-                  region: '',
-                  endpointURL: '',
-                  bucketName: '',
-                  accessKeyID: '',
-                  secretAccessKey: ''
-              }
-            : {
-                  region: undefined,
-                  endpointURL: undefined,
-                  bucketName: undefined,
-                  accessKeyID: undefined,
-                  secretAccessKey: undefined
               }
     };
 
@@ -48,7 +32,7 @@ export const ConfigFactory = (): ConfigInterface => {
             base: process.env.BASE_URL ?? defaults.url,
             api: process.env.API_URL ?? defaults.url,
             auth: process.env.AUTH_URL ?? defaults.url,
-            cdn: process.env.CDN_URL ?? defaults.url
+            cdn: process.env.CDN_URL ?? defaults.cdnUrl
         },
         appIDs: [669270, 1802710],
         accessToken: {
@@ -71,7 +55,9 @@ export const ConfigFactory = (): ConfigInterface => {
             clientSecret: process.env.TWITCH_CLIENT_SECRET ?? defaults.social.secret
         },
         domain: isProd ? 'momentum-mod.org' : 'localhost',
-        sentry: { dsn: process.env.SENTRY_DSN || '' },
+        sentry: {
+            dsn: process.env.SENTRY_DSN
+        },
         sessionSecret: isProd ? process.env.EXPRESS_SESSION_SECRET : 'keyboard cat',
         steam: {
             webAPIKey: process.env.STEAM_WEB_API_KEY,
@@ -81,12 +67,14 @@ export const ConfigFactory = (): ConfigInterface => {
             ticketsSecretKey: ''
         },
         storage: {
-            useLocal: useRemoteStorage,
-            endpointURL: process.env.STORAGE_ENDPOINT_URL ?? defaults.storage.endpointURL,
-            region: process.env.STORAGE_REGION ?? defaults.storage.region,
-            bucketName: process.env.STORAGE_BUCKET_NAME ?? defaults.storage.bucketName,
-            accessKeyID: process.env.STORAGE_ACCESS_KEY_ID ?? defaults.storage.accessKeyID,
-            secretAccessKey: process.env.STORAGE_SECRET_ACCESS_KEY ?? defaults.storage.secretAccessKey
+            endpointUrl:
+                process.env.IS_DOCKERIZED_API === 'true'
+                    ? process.env.STORAGE_ENDPOINT_URL
+                    : process.env.STORAGE_ENDPOINT_URL_DOCKERIZED,
+            region: process.env.STORAGE_REGION,
+            bucketName: process.env.STORAGE_BUCKET_NAME,
+            accessKeyID: process.env.STORAGE_ACCESS_KEY_ID,
+            secretAccessKey: process.env.STORAGE_SECRET_ACCESS_KEY
         }
     };
 };

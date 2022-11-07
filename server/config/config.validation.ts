@@ -1,6 +1,7 @@
 ﻿import { Environment } from './config.interface';
 import { IsDefined, IsEnum, IsInt, IsOptional, IsPort, IsString, IsUrl, validateSync } from 'class-validator';
 import { plainToInstance } from 'class-transformer';
+import { IsOptionalWithEmptyString } from '../src/common/validators/is-optional-with-empty-string.validator';
 
 export function validate(config: Record<string, unknown>) {
     const validatedConfig = plainToInstance(ConfigValidation, config, { enableImplicitConversion: true });
@@ -45,7 +46,31 @@ export class ConfigValidation {
     @IsUrl({ require_tld: false })
     CDN_URL: string;
 
-    @IsOptional()
     @IsUrl()
+    @IsOptionalWithEmptyString()
     SENTRY_DSN: string;
+
+    @IsString()
+    MYSQL_ROOT_PASSWORD: string;
+
+    @IsString()
+    MYSQL_DATABASE: string;
+
+    @IsPort()
+    MYSQL_PORT = 3307;
+
+    @IsString()
+    STORAGE_REGION: string;
+
+    @IsUrl({ require_tld: false })
+    STORAGE_ENDPOINT_URL: string;
+
+    @IsString()
+    STORAGE_BUCKET_NAME: string;
+
+    @IsString()
+    STORAGE_ACCESS_KEY_ID: string;
+
+    @IsString()
+    STORAGE_SECRET_ACCESS_KEY: string;
 }
