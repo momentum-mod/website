@@ -44,9 +44,8 @@ export interface Config {
     };
     sessionSecret: string;
     storage: {
-        useLocal: boolean;
         region: string;
-        endpointURL: string;
+        endpointUrl: string;
         bucketName: string;
         accessKeyID: string;
         secretAccessKey: string;
