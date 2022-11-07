@@ -2,9 +2,10 @@ generator client {
     provider = "prisma-client-js"
 }
 
-generator erd {
-    provider = "prisma-erd-generator"
-}
+// Uncomment to generate an ERD. Doesn't work inside of Docker for some reason.
+//generator erd {
+//    provider = "prisma-erd-generator"
+//}
 
 datasource db {
     provider = "mysql"
