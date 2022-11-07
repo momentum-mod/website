@@ -5,25 +5,30 @@
     "description": "Momentum Mod API",
     "license": "MIT",
     "scripts": {
+        "env": "dotenv -e ../.env",
         "prebuild": "rimraf dist",
         "build": "nest build",
         "start": "nest start",
         "start:dev": "nest start --watch",
         "start:debug": "nest start --debug --watch",
         "start:prod": "node dist/main",
-        "start:migrate:debug": "npm run seed && npm run start:debug",
+        "start:migrate:debug": "npm run migrate && npm run start:debug",
+        "start:push:debug": "npm run push && npm run start:debug",
         "start:migrate:prod": "dotenv -e ../.env -- prisma migrate dev --name production_deploy && npm run start:prod",
+        "push": "dotenv -e ../.env -- prisma db push --accept-data-loss",
         "migrate": "dotenv -e ../.env -- prisma migrate dev --name init --skip-seed",
         "reset": "dotenv -e ../.env -- prisma migrate reset --force --skip-generate --skip-seed",
         "seed": "npm run migrate && prisma db seed",
         "lint": "eslint \"{src,apps,libs,test}/**/*.ts\" --fix",
-        "test": "jest",
-        "test:watch": "jest --watch",
+        "test": "jest --config ./tests/jest-e2e.json",
+        "test:push": "npm run push && jest --config ./tests/jest-e2e.json",
+        "test:reset": "npm run reset && jest --config ./tests/jest-e2e.json",
+        "test:watch": "jest --config ./tests/jest-e2e.json --watch",
         "test:cov": "jest --coverage",
-        "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
-        "test:e2e": "jest --config ./tests/jest-e2e.json",
-        "test:e2e:migrate": "npm run reset && jest --config ./tests/jest-e2e.json",
-        "test:e2e:watch": "npm run reset && jest --config ./tests/jest-e2e.json --watch"
+        "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand"
+    },
+    "jest": {
+        "testTimeout": 15000
     },
     "prisma": {
         "seed": "ts-node prisma/seed.ts"
