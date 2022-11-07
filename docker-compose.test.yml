@@ -8,7 +8,6 @@ services:
       MYSQL_USER: 'mom_test'
       MYSQL_PASSWORD: 'password'
       MYSQL_ROOT_PASSWORD: 'root'
-
   api:
     platform: linux/x86_64
     restart: "no"

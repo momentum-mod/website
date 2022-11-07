@@ -1,61 +1,66 @@
-version: '3.8'
+version: "3.8"
 
 services:
   minio:
-    image: quay.io/minio/minio:RELEASE.2021-12-20T22-07-16Z
+    image: minio/minio
+    container_name: MinIO
     command: server /data --console-address ":9001"
     ports:
       - "9000:9000"
       - "9001:9001"
+    expose:
+      - 9000
     volumes:
-      - ./data:/data
+      - ./data/minio:/data
     environment:
-      MINIO_ROOT_USER: minio
-      MINIO_ROOT_PASSWORD: minio123
-      MINIO_SITE_REGION: us-east-1
-
+      MINIO_ROOT_USER: ${MINIO_ROOT_USER}
+      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD}
+      MINIO_SITE_REGION: ${STORAGE_REGION}
+    env_file:
+      - .env
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
+      interval: 5s
+      timeout: 20s
+      retries: 3
   createbuckets:
     image: minio/mc
+    container_name: MinIO_CreateBuckets
     depends_on:
       - minio
-    
     # If you want to clear the bucket, add the following line before the "mb myminio/momentum" command:
     # /usr/bin/mc rm -r --force myminio/momentum;
     entrypoint: >
       /bin/sh -c "
-      /usr/bin/mc config host add myminio http://minio:9000 minio minio123;
-      /usr/bin/mc mb myminio/momentum;
-      /usr/bin/mc policy set public myminio/momentum;
+      /usr/bin/mc alias set momentum_minio http://minio:9000 ${MINIO_ROOT_USER} minio123;
+      /usr/bin/mc admin user add momentum_minio ${STORAGE_ACCESS_KEY_ID} ${STORAGE_SECRET_ACCESS_KEY};
+      /usr/bin/mc mb --ignore-existing momentum_minio/${STORAGE_BUCKET_NAME} --region ${STORAGE_REGION};
+      /usr/bin/mc anonymous set download momentum_minio/${STORAGE_BUCKET_NAME};
+      /usr/bin/mc admin policy set momentum_minio readwrite user=${STORAGE_ACCESS_KEY_ID};
       exit 0;
       "
-  
   db:
     platform: linux/x86_64
     volumes:
       - /var/lib/mysql
-    environment:
-      MYSQL_DATABASE: 'momentum'
-      MYSQL_USER: 'mom'
-      MYSQL_PASSWORD: 'password'
-      MYSQL_ROOT_PASSWORD: 'root'
-
-  api:
     env_file:
       - .env
+  api:
+    depends_on:
+      - minio
+    profiles:
+      - full
+    environment:
+      IS_DOCKERIZED_API: "true"
+      DATABASE_URL: "mysql://root:${MYSQL_ROOT_PASSWORD}@db:${MYSQL_PORT}/${MYSQL_DATABASE}?schema=public"
     platform: linux/x86_64
     volumes:
       - ./scripts:/app/scripts
       - ./server:/app/server
       - /app/server/node_modules/
     ports:
-      - ${NODE_PORT}:${NODE_PORT}
-      - 9229:9229
+      - "9229:9229" # Expose for NodeJS debugging
     build:
       context: ./server
       dockerfile: dev.Dockerfile
-    entrypoint: sh -c "/wait && npm run start:migrate:debug"
-    environment:
-      - WAIT_HOSTS=MySQLInstance:3306
-      - WAIT_HOSTS_TIMEOUT=300
-      - WAIT_SLEEP_INTERVAL=5
-      - WAIT_HOST_CONNECT_TIMEOUT=5
+    command: npm run ${CMD:-start:push:debug}

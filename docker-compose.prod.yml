@@ -11,7 +11,11 @@ services:
 
   api:
     image: docker.pkg.github.com/momentum-mod/website/mmod-website:staging
+    restart: unless-stopped
+    # TODO: This looks like old API pre-S3 shit. Probably remove when setting up prod properly.
     volumes:
       - ./server/public/img/maps:/app/server/public/img/maps
       - ./server/public/maps:/app/server/public/maps
       - ./server/public/runs:/app/server/public/runs
+    command: sh -c "npm", "run", "start:migrate:prod"
+
