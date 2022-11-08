@@ -69,8 +69,8 @@ export const ConfigFactory = (): ConfigInterface => {
         storage: {
             endpointUrl:
                 process.env.IS_DOCKERIZED_API === 'true'
-                    ? process.env.STORAGE_ENDPOINT_URL
-                    : process.env.STORAGE_ENDPOINT_URL_DOCKERIZED,
+                    ? process.env.STORAGE_ENDPOINT_URL_DOCKERIZED
+                    : process.env.STORAGE_ENDPOINT_URL,
             region: process.env.STORAGE_REGION,
             bucketName: process.env.STORAGE_BUCKET_NAME,
             accessKeyID: process.env.STORAGE_ACCESS_KEY_ID,
