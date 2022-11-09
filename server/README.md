@@ -1,84 +1,73 @@
 # Momentum Mod Backend
 
-# NOTE THIS IS A WORK IN PROGRESS BRANCH AND THE CURRENT READ ME MAY BE OUT OF DATE.
+_**Note: The NestJS rewrite is currently in development, and major parts are likely to change regularly.
+Potential contributors should contact us in the #website change on our [Discord server](discord.gg/momentummod).**_
 
+_**It is not recommended that you start work on this branch without first discussing with other contibutors in Discord.**_
+
+**TODO: General intro to backend architecture.**
 
 ## Dependencies
-* [NodeJS (stable/LTS)](https://nodejs.org/en/download/)
-* [Yarn](https://yarnpkg.com/en/)
-* [MySQL](https://dev.mysql.com/downloads/mysql/)
-* [Docker Compose V2+](https://docs.docker.com/compose/install/)
+* [Docker Compose V3.8+](https://docs.docker.com/compose/install/)
+* [NodeJS (stable/LTS)](https://nodejs.org/en/download/) (Optional, only for native Node mode)
 
-## Dev Setup
-In the website directory copy the env.TEMPLATE to the same directory, rename it .env, and then add your configuration. Only STEAM_WEB_API_KEY needs to be updated for development. Open config.js in ./server/config to view default values for each environment.
+## Developer Setup
+### Environment Variables
+In the website directory copy the env.TEMPLATE to the same directory, rename it .env, and then add your configuration.
 
-From the website directory, run:
+Only STEAM_WEB_API_KEY needs to be updated for basic development.
+
+Docker will expose the ports of several containers, if using the default passwords in the env.TEMPLATE file, be careful
+of any open ports.
+
+### Running the API
+
+We provide two ways to get the API up and running.
+1) Entirely Dockerized, the fastest way to get up and running, and best for frontend developers.
+2) Running Node natively. This is easier to interact with and debug, recommended for backend developers.
+
+In both cases, we use Docker to create [MySQL](https://www.mysql.com/) and [MinIO](https://min.io/) containers. You *can*
+set up native MySQL and MinIO instances if you want, but Docker makes things considerably easier.
+
+#### Dockerized
+From the `website` directory, run:
+```
+docker compose --profile full up -d
+```
+This will build and start the MySQL, MinIO and main API containers.
+
+To override the NPM script we run to start up the API, set the CMD variable, e.g. to first seed the DB with mock data:
+```
+CMD=start:seed docker compose --profile full up -d
+```
+
+#### Local Node
+From the `website` directory, run:
 ```
 docker compose up -d
 ```
-The initial database content will need to be created (tables, constraints, etc.). Run the force sync DB script to do so once the database container is initialized:
-```
-docker compose exec api node ../scripts/force_sync_db.js
-```
-Navigate to `http://localhost:3002/`. The app will automatically reload if you change any of the source files.
+This will build and start only the MySQL, MinIO containers.
 
-### Applying Database Updates
-If updates or additions are made to the database design after you create the database tables for the first time, you will most likely have to apply these updates to your local databases. To do this, simply run docker-compose exec api node ../scripts/force_sync_db.js again to clear and recreate the initial database content.
-## Swagger API Reference
+Then, `cd` into the `website/server` directory, and run the NPM scripts you want,
+for example to have Prisma initialise the DB and the start the Node app, use
+```
+npm run start:push
+```
 
-Navigate to `http://localhost:3002/api-docs` to view the Swagger server API reference.
+### Interacting with the API
+Once you have everything running (by either method), the Swagger docs will be available at `http://localhost:3000/api-docs`.
+
+The majority of the API is locked behind auth, so to query endpoints through Swagger (or cURL, Hoppscotch, Postman etc.)
+you'll need a Steam auth token. Go to http://localhost:3000/auth/steam/, login through Steam, then grab `access_token` value.
+Then use in the "Authorize" dialogue, or as the bearer token in cURL, Hoppscotch etc.
 
 ## Testing
-The project utilizes [Mocha](https://mochajs.org/) and [Chai](https://www.chaijs.com/) to run backend integration tests.
 
-Copy the env.TEMPLATE file to .env and set this variable:
-```
-NODE_ENV=test
-```
+The `test` scripts and its variations will run our end-to-end tests, and can be used to query the API much more
+conveniently during development, as Jest can be used to create users internally and set an access token without using
+Steam. You can then run individual tests using `-t`, or ideally, use a plugin for your text editor/IDE to manage tests,
+so you can query the endpoints you're currently working on in isolation.
 
-From the website directory, run:
-```
-docker compose -f docker-compose.yml -f docker-compose.test.yml up -d
-``` 
-To re-run the tests, restart the testing container:
-```
-docker compose up -d --force-recreate api
-```
+In the future we'll provide a more robust testing setup using the docker-compose.test.yml file, probably when we implement
+CI. Until then, the most practical way of running tests is to use the Local Node approach and run through npm scripts or an IDE.
 
-## Prod Setup
-Copy the env.TEMPLATE file to .env and set this variable:
-```
-NODE_ENV=production
-```
-From the website directory, run:
-```
-docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d
-```
-
-
-## NEW STUFF NEEDS LOOKING AT
-# mmod-api
-
-# Prerequisites
-I don't fully remember right now, I'm tried lmao
-
-# Developing
-1. Run 
-`npm i`
-
-3. Copy .envTEMPLATE to .env
-
-4. Change db string to be valid connection string [See here for examples](https://www.prisma.io/docs/reference/database-reference/connection-urls#examples)
-
-5. Run
-`npx prisma generate`
-
-6. Run
-`npm run start:dev`
-
-7. Go to URL
-`http://localhost:3000/api`
-
-8. ?????
-
-9. Profit??
