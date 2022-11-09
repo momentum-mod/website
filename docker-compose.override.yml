@@ -50,17 +50,19 @@ services:
       - minio
     profiles:
       - full
+    env_file:
+      - .env
     environment:
       IS_DOCKERIZED_API: "true"
       DATABASE_URL: "mysql://root:${MYSQL_ROOT_PASSWORD}@db:${MYSQL_PORT}/${MYSQL_DATABASE}?schema=public"
     platform: linux/x86_64
+    working_dir: /app/server
     volumes:
-      - ./scripts:/app/scripts
       - ./server:/app/server
       - /app/server/node_modules/
     ports:
       - "9229:9229" # Expose for NodeJS debugging
     build:
-      context: ./server
+      context: ./
       dockerfile: dev.Dockerfile
     command: npm run ${CMD:-start:push:debug}
