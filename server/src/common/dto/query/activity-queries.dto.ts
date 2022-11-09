@@ -18,10 +18,13 @@ export class ActivitiesGetQuery extends PaginationQuery {
     @ApiPropertyOptional({
         name: 'type',
         enum: ActivityTypes,
+        type: Number,
         description: 'Types of activities to include'
     })
     @IsOptional()
     @IsEnum(ActivityTypes)
+    @Type(() => Number)
+    @IsInt()
     type: ActivityTypes;
 
     @ApiPropertyOptional({
