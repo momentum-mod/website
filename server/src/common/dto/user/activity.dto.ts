@@ -1,10 +1,9 @@
 import { Activity } from '@prisma/client';
 import { ActivityTypes } from '../../enums/activity.enum';
 import { ApiProperty } from '@nestjs/swagger';
-import { IsDateString, IsDefined, IsInt, ValidateNested } from 'class-validator';
+import { IsDateString, IsDefined, IsInt, ValidateNested, IsEnum } from 'class-validator';
 import { UserDto } from './user.dto';
 import { DtoFactory } from '../../utils/dto.utility';
-import { IsEnumFlag } from '../../validators/is-enum-flag.validator';
 import { Transform } from 'class-transformer';
 
 export class ActivityDto implements Activity {
@@ -34,7 +33,7 @@ export class ActivityDto implements Activity {
         description: 'The bitwise flags for the activities'
     })
     @IsDefined()
-    @IsEnumFlag(ActivityTypes)
+    @IsEnum(ActivityTypes)
     type: ActivityTypes;
 
     @ApiProperty({
