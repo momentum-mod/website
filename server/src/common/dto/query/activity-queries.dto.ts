@@ -1,9 +1,8 @@
 ﻿import { ApiPropertyOptional } from '@nestjs/swagger';
-import { IsInt, IsOptional } from 'class-validator';
+import { IsInt, IsOptional, IsEnum, IsString } from 'class-validator';
 import { Transform, Type } from 'class-transformer';
 import { PaginationQuery } from './pagination.dto';
 import { ActivityTypes } from '../../enums/activity.enum';
-import { IsEnumFlag } from '../../validators/is-enum-flag.validator';
 
 export class ActivitiesGetQuery extends PaginationQuery {
     @ApiPropertyOptional({
@@ -19,12 +18,10 @@ export class ActivitiesGetQuery extends PaginationQuery {
     @ApiPropertyOptional({
         name: 'type',
         enum: ActivityTypes,
-        type: Number,
         description: 'Types of activities to include'
     })
     @IsOptional()
-    @Type(() => Number)
-    @IsEnumFlag(ActivityTypes)
+    @IsEnum(ActivityTypes)
     type: ActivityTypes;
 
     @ApiPropertyOptional({
