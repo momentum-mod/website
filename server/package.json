@@ -28,7 +28,9 @@
         "test:reset": "npm run reset && jest --config ./tests/jest-e2e.json",
         "test:watch": "jest --config ./tests/jest-e2e.json --watch",
         "test:cov": "jest --coverage",
-        "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand"
+        "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
+        "prettier:fix": "prettier --write \"{src,test,config}/**/*.ts\"",
+        "prettier:check": "prettier --check \"{src,test,config}/**/*.ts\""
     },
     "jest": {
         "testTimeout": 15000
