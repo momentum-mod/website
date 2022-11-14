@@ -1,0 +1,6 @@
+﻿dist
+node_modules
+tests/files
+prisma/*.svg
+.gitignore
+.prettierignore

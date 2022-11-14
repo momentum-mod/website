@@ -5,4 +5,14 @@ module.exports = {
     semi: true,
     singleQuote: true,
     arrowParens: 'always',
+    endOfLine: 'lf',
+    bracketSpacing: true,
+    overrides: [
+        {
+            files: '*.json',
+            options: {
+                singleQuote: false
+            }
+        }
+    ]
 };
