@@ -1,4 +1,4 @@
-﻿import { BaseStats } from "@prisma/client";
+﻿import { BaseStats } from '@prisma/client';
 
 export class BaseStatsDto implements BaseStats {
     id: bigint;
