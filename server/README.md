@@ -71,3 +71,5 @@ so you can query the endpoints you're currently working on in isolation.
 In the future we'll provide a more robust testing setup using the docker-compose.test.yml file, probably when we implement
 CI. Until then, the most practical way of running tests is to use the Local Node approach and run through npm scripts or an IDE.
 
+## Contribution Guidelines
+
