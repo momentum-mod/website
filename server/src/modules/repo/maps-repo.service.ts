@@ -39,7 +39,7 @@ export class MapsRepoService {
             include: {
                 info: true,
                 credits: true,
-                tracks: true,
+                tracks: true
             }
         });
     }
