@@ -1,11 +1,6 @@
 ﻿import * as request from 'supertest';
-import { ReplayFileWriter } from '../../src/common/lib/replay-file-writer';
-import {
-    BaseStatsFromGame,
-    Replay,
-    RunFrame,
-    ZoneStatsFromGame
-} from '../../src/modules/session/run/run-session.interfaces';
+import { ReplayFileWriter } from '@common/lib/replay-file-writer';
+import { BaseStatsFromGame, Replay, RunFrame, ZoneStatsFromGame } from '@modules/session/run/run-session.interfaces';
 
 const DEFAULT_DELAY_MS = 50; // TODO: Can probably go lower
 

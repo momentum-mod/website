@@ -1,7 +1,7 @@
 ﻿import { Environment } from './config.interface';
 import { IsDefined, IsEnum, IsInt, IsOptional, IsPort, IsString, IsUrl, validateSync } from 'class-validator';
 import { plainToInstance } from 'class-transformer';
-import { IsOptionalWithEmptyString } from '../src/common/validators/is-optional-with-empty-string.validator';
+import { IsOptionalWithEmptyString } from '@common/validators/is-optional-with-empty-string.validator';
 
 export function validate(config: Record<string, unknown>) {
     const validatedConfig = plainToInstance(ConfigValidation, config, { enableImplicitConversion: true });

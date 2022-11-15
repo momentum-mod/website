@@ -24,18 +24,17 @@ import {
     ApiResponse,
     ApiTags
 } from '@nestjs/swagger';
-import { UpdateUserDto, UserDto } from '../../common/dto/user/user.dto';
+import { UpdateUserDto, UserDto } from '@common/dto/user/user.dto';
 import { UsersService } from '../users/users.service';
-import { MapLibraryService } from '../maps/map-library.service';
-import { LoggedInUser } from '../../common/decorators/logged-in-user.decorator';
-import { FollowStatusDto, UpdateFollowStatusDto } from '../../common/dto/user/followers.dto';
-import { ProfileDto } from '../../common/dto/user/profile.dto';
-import { MapNotifyDto, UpdateMapNotifyDto } from '../../common/dto/map/map-notify.dto';
-import { ApiOkPaginatedResponse, PaginatedResponseDto } from '../../common/dto/paginated-response.dto';
-import { ActivityDto } from '../../common/dto/user/activity.dto';
-import { PaginationQuery } from '../../common/dto/query/pagination.dto';
-import { NotificationDto, UpdateNotificationDto } from '../../common/dto/user/notification.dto';
-import { MapLibraryEntryDto } from '../../common/dto/map/map-library-entry';
+import { LoggedInUser } from '@common/decorators/logged-in-user.decorator';
+import { FollowStatusDto, UpdateFollowStatusDto } from '@common/dto/user/followers.dto';
+import { ProfileDto } from '@common/dto/user/profile.dto';
+import { MapNotifyDto, UpdateMapNotifyDto } from '@common/dto/map/map-notify.dto';
+import { ApiOkPaginatedResponse, PaginatedResponseDto } from '@common/dto/paginated-response.dto';
+import { ActivityDto } from '@common/dto/user/activity.dto';
+import { PaginationQuery } from '@common/dto/query/pagination.dto';
+import { NotificationDto, UpdateNotificationDto } from '@common/dto/user/notification.dto';
+import { MapLibraryEntryDto } from '@common/dto/map/map-library-entry';
 import {
     UserMapLibraryGetQuery,
     UserMapSubmittedGetQuery,

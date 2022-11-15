@@ -1,10 +1,12 @@
 {
     "compilerOptions": {
+        // Staying on CJS for now
         "module": "commonjs",
         "declaration": true,
         "removeComments": true,
         "emitDecoratorMetadata": true,
-        "resolveJsonModule": true /* Enable importing .json files */,
+        // Enable importing .json files
+        "resolveJsonModule": true,
         "experimentalDecorators": true,
         "allowSyntheticDefaultImports": true,
         "target": "ES2022",
@@ -12,6 +14,14 @@
         "outDir": "./dist",
         "baseUrl": "./",
         "incremental": true,
-        "skipLibCheck": true
+        "skipLibCheck": true,
+        "paths": {
+            "@/*": ["src/*"],
+            "@common/*": ["src/common/*"],
+            "@modules/*": ["src/modules/*"],
+            "@config/*": ["config/*"],
+            "@tests/*": ["tests/*"],
+            "@prisma/*": ["prisma/*"]
+        }
     }
 }

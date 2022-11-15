@@ -1,9 +1,9 @@
 import { NestFactory, Reflector } from '@nestjs/core';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
-import { PrismaService } from './modules/repo/prisma.service';
+import { PrismaService } from '@modules/repo/prisma.service';
 import { AppModule } from './app.module';
 import { ClassSerializerInterceptor, NestApplicationOptions, ValidationPipe } from '@nestjs/common';
-import { join } from 'path';
+import { join } from 'node:path';
 import { NestExpressApplication } from '@nestjs/platform-express';
 import { ConfigService } from '@nestjs/config';
 

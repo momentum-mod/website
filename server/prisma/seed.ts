@@ -1,8 +1,8 @@
 import { PrismaClient } from '@prisma/client';
 import { faker } from '@faker-js/faker';
-import { ReportCategory, ReportType } from '../src/common/enums/report.enum';
-import { MapStatus, MapType, MapCreditType } from '../src/common/enums/map.enum';
-import { ActivityTypes } from '../src/common/enums/activity.enum';
+import { ReportCategory, ReportType } from '@common/enums/report.enum';
+import { MapStatus, MapType, MapCreditType } from '@common/enums/map.enum';
+import { ActivityTypes } from '@common/enums/activity.enum';
 
 const prisma = new PrismaClient();
 

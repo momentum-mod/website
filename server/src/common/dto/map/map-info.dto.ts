@@ -1,7 +1,7 @@
 ﻿import { MapInfo } from '@prisma/client';
-import { Exclude, Transform, Type } from 'class-transformer';
+import { Exclude } from 'class-transformer';
 import { ApiProperty, PartialType, PickType } from '@nestjs/swagger';
-import { IsDate, IsDateString, IsDefined, IsInt, IsOptional, IsString, Matches } from 'class-validator';
+import { IsDateString, IsDefined, IsInt, IsOptional, IsString, Matches } from 'class-validator';
 
 export class MapInfoDto implements MapInfo {
     @Exclude()

@@ -1,14 +1,14 @@
-import { Req, Res, Controller, Get, Post, UseGuards, Body, Headers, RawBodyRequest } from '@nestjs/common';
+import { Req, Res, Controller, Get, Post, UseGuards, RawBodyRequest } from '@nestjs/common';
 import { Request } from 'express';
 import { ApiOperation, ApiTags } from '@nestjs/swagger';
 import * as passport from 'passport';
-import { Public } from '../../common/decorators/public.decorator';
+import { Public } from '@common/decorators/public.decorator';
 import { AuthService } from './auth.service';
-import { SteamWebAuthGuard } from '../../common/guards/steam-web-auth.guard';
+import { SteamWebAuthGuard } from '@common/guards/steam-web-auth.guard';
 import { User } from '@prisma/client';
 import { SteamAuthService } from './steam-auth.service';
-import { JWTResponseDto } from '../../common/dto/jwt-response.dto';
-import { LoggedInUser } from '../../common/decorators/logged-in-user.decorator';
+import { JWTResponseDto } from '@common/dto/jwt-response.dto';
+import { LoggedInUser } from '@common/decorators/logged-in-user.decorator';
 
 @Controller('/auth')
 @ApiTags('Auth')

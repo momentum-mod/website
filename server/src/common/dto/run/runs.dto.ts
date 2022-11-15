@@ -3,7 +3,7 @@ import { MapRankDto } from '../map/map-rank.dto';
 import { Run } from '@prisma/client';
 import { ApiProperty } from '@nestjs/swagger';
 import { IsDateString, IsDefined, IsInt, ValidateNested } from 'class-validator';
-import { Expose, Transform } from 'class-transformer';
+import { Transform } from 'class-transformer';
 import { MapDto } from '../map/map.dto';
 import { DtoFactory } from '../../utils/dto.utility';
 import { BaseStatsDto } from '../stats/base-stats.dto';

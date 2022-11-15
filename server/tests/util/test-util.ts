@@ -1,5 +1,5 @@
 ﻿import * as request from 'supertest';
-import fs from 'fs';
+import fs from 'node:fs';
 
 export async function get(
     url: string,

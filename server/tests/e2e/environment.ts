@@ -1,11 +1,11 @@
 ﻿import NodeEnvironment from 'jest-environment-node';
 import { Test } from '@nestjs/testing';
 import { Reflector } from '@nestjs/core';
-import { AppModule } from '../../src/app.module';
+import { AppModule } from '@/app.module';
 import { ClassSerializerInterceptor, Logger, LogLevel, ValidationPipe } from '@nestjs/common';
-import { PrismaService } from '../../src/modules/repo/prisma.service';
-import { AuthService } from '../../src/modules/auth/auth.service';
-import { XpSystemsService } from '../../src/modules/xp-systems/xp-systems.service';
+import { PrismaService } from '@modules/repo/prisma.service';
+import { AuthService } from '@modules/auth/auth.service';
+import { XpSystemsService } from '@modules/xp-systems/xp-systems.service';
 
 export default class E2ETestEnvironment extends NodeEnvironment {
     constructor(config, context) {

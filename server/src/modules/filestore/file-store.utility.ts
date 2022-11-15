@@ -1,5 +1,5 @@
-import { createHash } from 'crypto';
-import { createReadStream } from 'fs';
+import { createHash } from 'node:crypto';
+import { createReadStream } from 'node:fs';
 
 export const FileStoreUtils = {
     getFileHash: (filePath): Promise<string> =>

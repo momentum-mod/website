@@ -1,7 +1,7 @@
-import { DynamicModule, Logger, Module, Provider, Scope } from '@nestjs/common';
+import { DynamicModule, Logger, Module, Provider } from '@nestjs/common';
 import { SentryService } from './sentry.service';
 import { SentryInitState, SentryModuleAsyncOptions, SentryModuleOptions } from './sentry.interface';
-import { Environment } from '../../../config/config.interface';
+import { Environment } from '@config/config.interface';
 import * as Sentry from '@sentry/node';
 import { SENTRY_INIT_STATE, SENTRY_MODULE_OPTIONS } from './sentry.constants';
 

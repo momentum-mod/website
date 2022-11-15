@@ -26,7 +26,7 @@ import { MapFavoriteDto } from './map-favorite.dto';
 import { MapLibraryEntryDto } from './map-library-entry';
 import { MapRankDto } from './map-rank.dto';
 import { Exclude, Expose, Transform, Type } from 'class-transformer';
-import { Config } from '../../../../config/config';
+import { Config } from '@config/config';
 
 export class MapDto implements MapDB {
     @ApiProperty()
