@@ -4,7 +4,7 @@ module.exports = {
         project: 'tsconfig.json',
         sourceType: 'module'
     },
-    plugins: ['@typescript-eslint/eslint-plugin', 'unicorn', 'prettier'],
+    plugins: ['@typescript-eslint/eslint-plugin', 'unicorn', 'unused-imports', 'prettier'],
     extends: ['plugin:@typescript-eslint/recommended', 'plugin:unicorn/recommended', 'prettier'],
     root: true,
     env: {
@@ -19,21 +19,14 @@ module.exports = {
         '@typescript-eslint/explicit-module-boundary-types': 'off',
         '@typescript-eslint/no-explicit-any': 'off',
         '@typescript-eslint/no-unused-vars': 'off',
-        // Unicorn handles this better
-        'no-nested-ternary': 'off',
         'unused-imports/no-unused-imports': 'error',
         'unused-imports/no-unused-vars': [
             'warn',
             {
-                argsIgnorePattern: '^_',
+                vars: 'all',
+                args: 'after-used',
                 varsIgnorePattern: '^_',
-                caughtErrorsIgnorePattern: '^_'
-            }
-        ],
-        '@typescript-eslint/no-inferrable-types': [
-            'warn',
-            {
-                ignoreParameters: true
+                argsIgnorePattern: '^_'
             }
         ],
         '@typescript-eslint/no-inferrable-types': ['warn', { ignoreParameters: true }],
