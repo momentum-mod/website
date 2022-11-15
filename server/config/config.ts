@@ -1,5 +1,5 @@
 ﻿import { Config as ConfigInterface, Environment } from './config.interface';
-import * as path from 'path';
+import * as path from 'node:path';
 
 export const ConfigFactory = (): ConfigInterface => {
     const env: Environment = process.env.NODE_ENV as Environment;

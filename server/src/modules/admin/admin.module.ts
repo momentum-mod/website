@@ -3,7 +3,7 @@ import { AdminController } from './admin.controller';
 import { AdminService } from './admin.service';
 import { RepoModule } from '../repo/repo.module';
 import { APP_GUARD } from '@nestjs/core';
-import { RolesGuard } from '../../common/guards/roles.guard';
+import { RolesGuard } from '@common/guards/roles.guard';
 
 @Module({
     imports: [RepoModule],

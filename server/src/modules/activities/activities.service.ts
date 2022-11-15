@@ -1,10 +1,10 @@
 import { Injectable } from '@nestjs/common';
 import { UsersRepoService } from '../repo/users-repo.service';
-import { PaginatedResponseDto } from '../../common/dto/paginated-response.dto';
-import { ActivitiesGetQuery } from '../../common/dto/query/activity-queries.dto';
-import { ActivityDto } from '../../common/dto/user/activity.dto';
+import { PaginatedResponseDto } from '@common/dto/paginated-response.dto';
+import { ActivitiesGetQuery } from '@common/dto/query/activity-queries.dto';
+import { ActivityDto } from '@common/dto/user/activity.dto';
 import { Prisma } from '@prisma/client';
-import { ActivityTypes } from '../../common/enums/activity.enum';
+import { ActivityTypes } from '@common/enums/activity.enum';
 
 @Injectable()
 export class ActivitiesService {

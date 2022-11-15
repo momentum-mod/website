@@ -3,7 +3,7 @@
     ReplayHeader,
     RunFrame,
     ZoneStatsFromGame
-} from '../../modules/session/run/run-session.interfaces';
+} from '@modules/session/run/run-session.interfaces';
 
 /**
  * Utility class for reading Momentum Replay Files (.mrf)

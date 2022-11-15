@@ -1,9 +1,8 @@
-﻿import { MapZoneTrigger, MapZoneTriggerProperties, Prisma } from '@prisma/client';
-import { Exclude, Transform, Type } from 'class-transformer';
+﻿import { MapZoneTrigger, Prisma } from '@prisma/client';
+import { Exclude, Type } from 'class-transformer';
 import { IsInt, IsJSON, Max, ValidateNested } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 import { MapZoneTriggerPropertiesDto } from './map-zone-trigger-properties.dto';
-import { DtoFactory } from '../../../utils/dto.utility';
 
 export class MapZoneTriggerDto implements MapZoneTrigger {
     @Exclude()

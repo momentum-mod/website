@@ -4,7 +4,7 @@ import { validateSync, ValidationError } from 'class-validator';
 declare global {
     // eslint-disable-next-line @typescript-eslint/no-namespace
     namespace jest {
-        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+        // eslint-disable-next-line unused-imports/no-unused-vars
         interface Matchers<R> {
             toBeValidDto: (type: any) => CustomMatcherResult;
             toBeValidPagedDto: (type: any) => CustomMatcherResult;

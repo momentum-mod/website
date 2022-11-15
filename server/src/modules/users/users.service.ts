@@ -7,26 +7,26 @@ import {
     NotFoundException
 } from '@nestjs/common';
 import { Prisma, User, UserAuth } from '@prisma/client';
-import { UpdateUserDto, UserDto } from '../../common/dto/user/user.dto';
-import { ProfileDto } from '../../common/dto/user/profile.dto';
-import { PaginatedResponseDto } from '../../common/dto/paginated-response.dto';
+import { UpdateUserDto, UserDto } from '@common/dto/user/user.dto';
+import { ProfileDto } from '@common/dto/user/profile.dto';
+import { PaginatedResponseDto } from '@common/dto/paginated-response.dto';
 import { UsersRepoService } from '../repo/users-repo.service';
 import { lastValueFrom, map } from 'rxjs';
 import * as xml2js from 'xml2js';
 import { HttpService } from '@nestjs/axios';
-import { ActivityDto } from '../../common/dto/user/activity.dto';
-import { FollowDto, FollowStatusDto, UpdateFollowStatusDto } from '../../common/dto/user/followers.dto';
-import { MapCreditDto } from '../../common/dto/map/map-credit.dto';
-import { ActivityTypes } from '../../common/enums/activity.enum';
-import { RunDto } from '../../common/dto/run/runs.dto';
-import { DtoFactory, ExpandToPrismaIncludes } from '../../common/utils/dto.utility';
-import { MapNotifyDto, UpdateMapNotifyDto } from '../../common/dto/map/map-notify.dto';
+import { ActivityDto } from '@common/dto/user/activity.dto';
+import { FollowDto, FollowStatusDto, UpdateFollowStatusDto } from '@common/dto/user/followers.dto';
+import { MapCreditDto } from '@common/dto/map/map-credit.dto';
+import { ActivityTypes } from '@common/enums/activity.enum';
+import { RunDto } from '@common/dto/run/runs.dto';
+import { DtoFactory, ExpandToPrismaIncludes } from '@common/utils/dto.utility';
+import { MapNotifyDto, UpdateMapNotifyDto } from '@common/dto/map/map-notify.dto';
 import { MapsRepoService } from '../repo/maps-repo.service';
-import { NotificationDto, UpdateNotificationDto } from '../../common/dto/user/notification.dto';
-import { MapLibraryEntryDto } from '../../common/dto/map/map-library-entry';
-import { MapFavoriteDto } from '../../common/dto/map/map-favorite.dto';
+import { NotificationDto, UpdateNotificationDto } from '@common/dto/user/notification.dto';
+import { MapLibraryEntryDto } from '@common/dto/map/map-library-entry';
+import { MapFavoriteDto } from '@common/dto/map/map-favorite.dto';
 import { ConfigService } from '@nestjs/config';
-import { UsersGetAllQuery, UsersGetQuery } from '../../common/dto/query/user-queries.dto';
+import { UsersGetAllQuery } from '@common/dto/query/user-queries.dto';
 
 @Injectable()
 export class UsersService {

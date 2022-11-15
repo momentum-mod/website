@@ -1,5 +1,5 @@
 ﻿import { ModuleMetadata } from '@nestjs/common';
-import { Environment } from '../../../config/config.interface';
+import { Environment } from '@config/config.interface';
 import { NodeOptions } from '@sentry/node';
 
 export interface SentryModuleOptions {
