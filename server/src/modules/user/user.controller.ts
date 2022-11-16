@@ -26,6 +26,7 @@ import {
 } from '@nestjs/swagger';
 import { UpdateUserDto, UserDto } from '../../common/dto/user/user.dto';
 import { UsersService } from '../users/users.service';
+import { MapLibraryService } from '../maps/map-library.service';
 import { LoggedInUser } from '../../common/decorators/logged-in-user.decorator';
 import { FollowStatusDto, UpdateFollowStatusDto } from '../../common/dto/user/followers.dto';
 import { ProfileDto } from '../../common/dto/user/profile.dto';
@@ -48,7 +49,7 @@ import { MapFavoriteDto } from '../../common/dto/map/map-favorite.dto';
 @Controller('api/v1/user')
 @ApiTags('User')
 export class UserController {
-    constructor(private readonly usersService: UsersService) {}
+    constructor(private readonly usersService: UsersService, private readonly mapLibraryService: MapLibraryService) {}
 
     //#region Main User Endpoints
 
@@ -326,6 +327,7 @@ export class UserController {
     }
 
     @Get('/maps/library/:mapID')
+    @HttpCode(HttpStatus.NO_CONTENT)
     @ApiOperation({ summary: "Return 204 if the map is in the user's library, 404 otherwise" })
     @ApiParam({
         name: 'mapID',
@@ -335,9 +337,11 @@ export class UserController {
     })
     @ApiNoContentResponse({ description: 'Map is in the library' })
     @ApiNotFoundResponse({ description: 'Map is not in the library' })
-    checkMapLibraryEntry(@LoggedInUser('id') userID: number, @Param('mapID', ParseIntPipe) mapID: number) {
-        return void 0;
-        //return this.usersService.CheckMapLibraryEntry(userID, mapID);
+    checkMapLibraryEntry(
+        @LoggedInUser('id') userID: number,
+        @Param('mapID', ParseIntPipe) mapID: number
+    ): Promise<void> {
+        return this.mapLibraryService.isMapInLibrary(userID, mapID);
     }
 
     @Put('/maps/library/:mapID')

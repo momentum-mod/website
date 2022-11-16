@@ -11,7 +11,7 @@ import { FollowStatusDto } from '../../src/common/dto/user/followers.dto';
 import { ActivityDto } from '../../src/common/dto/user/activity.dto';
 import { MapLibraryEntryDto } from '../../src/common/dto/map/map-library-entry';
 import { NotificationDto } from '../../src/common/dto/user/notification.dto';
-import { del, expandTest, get, patch, post, put, skipTest, takeTest } from '../util/test-util';
+import { del, expandTest, get, getNoContent, patch, post, put, skipTest, takeTest } from '../util/test-util';
 import { MapFavoriteDto } from '../../src/common/dto/map/map-favorite.dto';
 
 describe('User', () => {
@@ -754,34 +754,21 @@ describe('User', () => {
 
         it('should respond with 401 when no access token is provided', () => get(`user/maps/favorites`, 401, {}, null));
     });
-    //
-    //     describe('GET /api/v1/user/maps/library/{mapID}', () => {
-    //         it('should check if a map exists in the local users library', async () => {
-    //             const res = await request(global.server)
-    //                 .put('/api/v1/user/maps/library/' + testMap3.id)
-    //                 .set('Authorization', 'Bearer ' + global.accessToken)
-    //                 .expect(200)
-    //                 .expect('Content-Type', /json/);
-    //             const res2 = await request(global.server)
-    //                 .get('/api/v1/user/maps/library/' + testMap3.id)
-    //                 .set('Authorization', 'Bearer ' + global.accessToken)
-    //                 .expect(200)
-    //                 .expect('Content-Type', /json/);
-    //         });
-    //
-    //         it('should return 404 since the map is not in the local users library', () =>
-    //             request(global.server)
-    //                 .get('/api/v1/user/maps/library/89898')
-    //                 .set('Authorization', 'Bearer ' + global.accessToken)
-    //                 .expect(404)
-    //                 .expect('Content-Type', /json/));
-    //
-    //         it('should respond with 401 when no access token is provided', () =>
-    //             request(global.server)
-    //                 .get('/api/v1/user/maps/library/' + testMap3.id)
-    //                 .expect(401)
-    //                 .expect('Content-Type', /json/));
-    //     });
+
+    describe('GET /api/v1/user/maps/library/{mapID}', () => {
+        it('should check if a map exists in the local users library', () => {
+            getNoContent(`user/maps/library/${map1.id}`, 204);
+        });
+
+        it('should return 404 since the map is not in the local users library', () => {
+            getNoContent(`user/maps/library/${map3.id}`, 404);
+        });
+
+        it('should return 400 if the map is not in the database', () => {
+            getNoContent(`user/maps/library/999999999`, 400);
+        });
+    });
+
     //
     //     describe('DELETE /api/v1/user/maps/library/{mapID}', () => {
     //         it('should delete a library entry from the local users library', async () => {
