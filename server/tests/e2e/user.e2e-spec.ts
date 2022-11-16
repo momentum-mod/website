@@ -754,7 +754,7 @@ describe('User', () => {
 
         it('should respond with 401 when no access token is provided', () => get(`user/maps/favorites`, 401, {}, null));
     });
-    
+
     describe('GET /api/v1/user/maps/library/{mapID}', () => {
         it('should check if a map exists in the local users library', () => {
             getNoContent(`user/maps/library/${map1.id}`, 204);
@@ -763,8 +763,8 @@ describe('User', () => {
         it('should return 404 since the map is not in the local users library', () => {
             getNoContent(`user/maps/library/${map3.id}`, 404);
         });
-        
-        it('should return 400 since the map is not in the database', () => {
+
+        it('should return 400 if the map is not in the database', () => {
             getNoContent(`user/maps/library/999999999`, 400);
         });
     });

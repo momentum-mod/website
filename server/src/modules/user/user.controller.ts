@@ -49,7 +49,7 @@ import { MapFavoriteDto } from '../../common/dto/map/map-favorite.dto';
 @Controller('api/v1/user')
 @ApiTags('User')
 export class UserController {
-    constructor(private readonly usersService: UsersService, private readonly MapLibraryService: MapLibraryService) {}
+    constructor(private readonly usersService: UsersService, private readonly mapLibraryService: MapLibraryService) {}
 
     //#region Main User Endpoints
 
@@ -337,8 +337,11 @@ export class UserController {
     })
     @ApiNoContentResponse({ description: 'Map is in the library' })
     @ApiNotFoundResponse({ description: 'Map is not in the library' })
-    checkMapLibraryEntry(@LoggedInUser('id') userID: number, @Param('mapID', ParseIntPipe) mapID: number): Promise<void> {
-        return this.MapLibraryService.isMapInLibrary(userID, mapID);
+    checkMapLibraryEntry(
+        @LoggedInUser('id') userID: number,
+        @Param('mapID', ParseIntPipe) mapID: number
+    ): Promise<void> {
+        return this.mapLibraryService.isMapInLibrary(userID, mapID);
     }
 
     @Put('/maps/library/:mapID')
