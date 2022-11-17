@@ -3,7 +3,7 @@ import { ApiProperty } from '@nestjs/swagger';
 import { IsDateString, IsInt, ValidateNested } from 'class-validator';
 import { Transform } from 'class-transformer';
 import { UserDto } from '../user/user.dto';
-import { DtoFactory } from '../../utils/dto.utility';
+import { DtoFactory } from '@lib/dto.lib';
 import { MapDto } from './map.dto';
 
 export class MapLibraryEntryDto implements MapLibraryEntry {

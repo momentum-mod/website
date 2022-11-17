@@ -1,4 +1,4 @@
-﻿import { SkipQueryDecorators, TakeQueryDecorators } from '../../utils/dto.utility';
+﻿import { SkipQueryDecorators, TakeQueryDecorators } from '@lib/dto.lib';
 
 export class PaginationQuery {
     @SkipQueryDecorators(0)

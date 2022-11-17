@@ -3,7 +3,7 @@ import { Exclude, Transform, Type } from 'class-transformer';
 import { ApiProperty, PickType } from '@nestjs/swagger';
 import { ArrayMinSize, IsInt, Max, ValidateNested } from 'class-validator';
 import { MapZoneTriggerDto } from './map-zone-trigger.dto';
-import { DtoFactory } from '@common/utils/dto.utility';
+import { DtoFactory } from '@lib/dto.lib';
 import { MapZoneStatsDto } from './map-zone-stats.dto';
 
 export class MapZoneDto implements MapZone {

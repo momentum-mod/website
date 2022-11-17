@@ -2,7 +2,7 @@
 import { IsEnum, IsInt, IsOptional, IsString } from 'class-validator';
 import { Type } from 'class-transformer';
 import { MapStatus, MapType } from '../../enums/map.enum';
-import { ExpandQueryDecorators, SkipQueryDecorators, TakeQueryDecorators } from '../../utils/dto.utility';
+import { ExpandQueryDecorators, SkipQueryDecorators, TakeQueryDecorators } from '@lib/dto.lib';
 
 class MapsGetAllBaseQuery {
     @SkipQueryDecorators(0)

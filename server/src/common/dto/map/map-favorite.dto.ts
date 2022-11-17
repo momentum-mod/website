@@ -1,7 +1,7 @@
 ﻿import { MapFavorite } from '@prisma/client';
 import { ApiProperty } from '@nestjs/swagger';
 import { IsDateString, IsInt, ValidateNested } from 'class-validator';
-import { DtoFactory } from '../../utils/dto.utility';
+import { DtoFactory } from '@lib/dto.lib';
 import { UserDto } from '../user/user.dto';
 import { MapDto } from './map.dto';
 import { Transform } from 'class-transformer';

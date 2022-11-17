@@ -2,7 +2,7 @@
 import { Transform, Type } from 'class-transformer';
 import { IsInt, IsOptional } from 'class-validator';
 import { MapStatus } from '../../enums/map.enum';
-import { ExpandQueryDecorators, SkipQueryDecorators, TakeQueryDecorators } from '../../utils/dto.utility';
+import { ExpandQueryDecorators, SkipQueryDecorators, TakeQueryDecorators } from '@lib/dto.lib';
 
 export class RunsGetAllQuery {
     @SkipQueryDecorators(0)

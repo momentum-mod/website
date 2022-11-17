@@ -11,7 +11,7 @@ import {
     IsString,
     ValidateNested
 } from 'class-validator';
-import { DtoFactory } from '../../utils/dto.utility';
+import { DtoFactory } from '@lib/dto.lib';
 import { UserDto } from '../user/user.dto';
 import { Transform } from 'class-transformer';
 

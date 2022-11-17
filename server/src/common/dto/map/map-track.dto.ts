@@ -3,7 +3,7 @@ import { Exclude, Transform, Type } from 'class-transformer';
 import { ApiProperty, PickType } from '@nestjs/swagger';
 import { ArrayMinSize, IsArray, IsBoolean, IsDateString, IsInt, Max, ValidateNested } from 'class-validator';
 import { CreateMapZoneDto, MapZoneDto } from './zone/map-zone.dto';
-import { DtoFactory } from '../../utils/dto.utility';
+import { DtoFactory } from '@lib/dto.lib';
 
 export class MapTrackDto implements MapTrack {
     @Exclude()

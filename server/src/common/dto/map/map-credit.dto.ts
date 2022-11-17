@@ -4,7 +4,7 @@ import { MapDto } from './map.dto';
 import { ApiProperty, PickType } from '@nestjs/swagger';
 import { IsEnum, IsInt, IsOptional, ValidateNested } from 'class-validator';
 import { MapCreditType } from '../../enums/map.enum';
-import { DtoFactory } from '../../utils/dto.utility';
+import { DtoFactory } from '@lib/dto.lib';
 import { Exclude, Transform } from 'class-transformer';
 
 export class MapCreditDto implements MapCredit {

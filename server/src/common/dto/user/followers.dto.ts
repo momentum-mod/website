@@ -5,7 +5,7 @@ import { ActivityTypes } from '../../enums/activity.enum';
 import { IsDateString, IsDefined, ValidateNested } from 'class-validator';
 import { Exclude, Transform } from 'class-transformer';
 import { IsEnumFlag } from '../../validators/is-enum-flag.validator';
-import { DtoFactory } from '../../utils/dto.utility';
+import { DtoFactory } from '@lib/dto.lib';
 
 export class FollowDto implements Follow {
     @ApiPropertyOptional({

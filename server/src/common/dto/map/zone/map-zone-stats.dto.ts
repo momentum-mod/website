@@ -3,7 +3,7 @@ import { Exclude, Transform } from 'class-transformer';
 import { ApiProperty } from '@nestjs/swagger';
 import { IsInt, ValidateNested } from 'class-validator';
 import { BaseStatsDto } from '../../stats/base-stats.dto';
-import { DtoFactory } from '@common/utils/dto.utility';
+import { DtoFactory } from '@lib/dto.lib';
 
 export class MapZoneStatsDto implements MapZoneStats {
     @Exclude()

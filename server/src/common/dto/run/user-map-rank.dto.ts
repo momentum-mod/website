@@ -2,7 +2,7 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { IsDateString, IsDefined, IsInt, ValidateNested } from 'class-validator';
 import { Transform } from 'class-transformer';
-import { DtoFactory } from '../../utils/dto.utility';
+import { DtoFactory } from '@lib/dto.lib';
 import { RunDto } from './runs.dto';
 import { UserDto } from '../user/user.dto';
 import { MapDto } from '../map/map.dto';

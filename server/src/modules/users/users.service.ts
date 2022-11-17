@@ -19,7 +19,7 @@ import { FollowDto, FollowStatusDto, UpdateFollowStatusDto } from '@common/dto/u
 import { MapCreditDto } from '@common/dto/map/map-credit.dto';
 import { ActivityTypes } from '@common/enums/activity.enum';
 import { RunDto } from '@common/dto/run/runs.dto';
-import { DtoFactory, ExpandToPrismaIncludes } from '@common/utils/dto.utility';
+import { DtoFactory, ExpandToPrismaIncludes } from '@lib/dto.lib';
 import { MapNotifyDto, UpdateMapNotifyDto } from '@common/dto/map/map-notify.dto';
 import { MapsRepoService } from '../repo/maps-repo.service';
 import { NotificationDto, UpdateNotificationDto } from '@common/dto/user/notification.dto';
