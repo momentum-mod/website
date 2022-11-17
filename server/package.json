@@ -28,9 +28,9 @@
         "test:watch": "jest --config ./tests/jest-e2e.json --watch",
         "test:cov": "jest --coverage",
         "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
-        "lint": "eslint \"{src,test,config}/**/*.ts\" --fix",
-        "prettier:fix": "prettier --write \"{src,test,config}/**/*.ts\"",
-        "prettier:check": "prettier --check \"{src,test,config}/**/*.ts\""
+        "lint": "eslint \"{src,tests,lib,config}/**/*.ts\" --fix",
+        "prettier:fix": "prettier --write \"{src,lib,tests,config}/**/*.ts\"",
+        "prettier:check": "prettier --check \"{src,lib,tests,config}/**/*.ts\""
     },
     "jest": {
         "testTimeout": 15000
