@@ -18,9 +18,9 @@ describe('Admin', () => {
         user2,
         mergeUser1,
         mergeUser2;
-        // map1,
-        // map2,
-        // map3;
+    // map1,
+    // map2,
+    // map3;
     /*const testUser = {
         id: 1,
         steamID: '1254652365',
