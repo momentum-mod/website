@@ -49,7 +49,7 @@ export class RunsGetAllQuery {
         type: Number,
         description: 'Filter by CSV list of user IDs'
     })
-    @Transform(({ value }) => value.split(',').map((v) => parseInt(v)))
+    @Transform(({ value }) => value.split(',').map((v) => Number.parseInt(v)))
     @IsOptional()
     userIDs: number[];
 

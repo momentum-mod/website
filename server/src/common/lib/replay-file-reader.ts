@@ -123,8 +123,8 @@ export class ReplayFileReader {
         return inRange;
     }
 
-    private readString(): string | null {
-        if (!this.checkBuffer()) return null;
+    private readString(): string | undefined {
+        if (!this.checkBuffer()) return undefined;
 
         const endOfStr = this.buffer.indexOf('\0', this.offset, 'ascii');
 
@@ -134,12 +134,12 @@ export class ReplayFileReader {
             return str;
         } else {
             this.isOK = false;
-            return null;
+            return undefined;
         }
     }
 
-    private readFloat(): number | null {
-        if (!this.checkBuffer()) return null;
+    private readFloat(): number | undefined {
+        if (!this.checkBuffer()) return undefined;
 
         const val = this.buffer.readFloatLE(this.offset);
 
@@ -148,8 +148,8 @@ export class ReplayFileReader {
         return val;
     }
 
-    private readInt32(unsigned = true) {
-        if (!this.checkBuffer()) return null;
+    private readInt32(unsigned = true): number | undefined {
+        if (!this.checkBuffer()) return undefined;
 
         const val = unsigned ? this.buffer.readUInt32LE(this.offset) : this.buffer.readInt32LE(this.offset);
 
@@ -158,8 +158,8 @@ export class ReplayFileReader {
         return val;
     }
 
-    private readInt8(unsigned = true) {
-        if (!this.checkBuffer()) return null;
+    private readInt8(unsigned = true): number | undefined {
+        if (!this.checkBuffer()) return undefined;
 
         const val = unsigned ? this.buffer.readUInt8(this.offset) : this.buffer.readInt8(this.offset);
 

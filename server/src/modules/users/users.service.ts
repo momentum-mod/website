@@ -71,12 +71,12 @@ export class UsersService {
 
         const dbResponse = await this.userRepo.getAll(where, include, query.skip, query.take);
 
-        dbResponse[0].forEach((user: any) => {
+        for (const user of dbResponse[0] as any[]) {
             if (user.mapRanks) {
                 user.mapRank = user.mapRanks[0];
                 delete user.mapRanks;
             }
-        });
+        }
 
         return new PaginatedResponseDto(UserDto, dbResponse);
     }
@@ -360,8 +360,8 @@ export class UsersService {
         userID: number,
         skip: number,
         take: number,
-        search: string,
-        expand: string[]
+        _search: string,
+        _expand: string[]
     ): Promise<PaginatedResponseDto<MapLibraryEntryDto>> {
         const dbResponse = await this.userRepo.getMapLibraryEntry(userID, skip, take);
         // TODO: Search and expansions
@@ -451,13 +451,14 @@ export class UsersService {
         const summaryData = await this.getSteamUserSummaryData(steamID);
 
         if (steamID !== summaryData.steamid)
-            return Promise.reject(new HttpException('User fetched is not the authenticated user!', 400));
+            throw new HttpException('User fetched is not the authenticated user!', 400);
 
         const profileData = await this.getSteamUserProfileData(steamID);
 
         if (this.config.get('steam.preventLimited') && profileData.profile.isLimitedAccount[0] === '1') {
-            return Promise.reject(
-                new HttpException('We do not authenticate limited Steam accounts. Buy something on Steam first!', 403)
+            throw new HttpException(
+                'We do not authenticate limited Steam accounts. Buy something on Steam first!',
+                403
             );
         }
         const profile = new UserDto();
@@ -507,11 +508,11 @@ export class UsersService {
         );
 
         if (getPlayerResponse.response.error) {
-            return Promise.reject(new HttpException('Failed to get any player summaries', 500));
+            throw new HttpException('Failed to get any player summaries', 500);
         }
 
         if (!getPlayerResponse.response.players[0]) {
-            return Promise.reject(new HttpException('Failed to get player summary', 500));
+            throw new HttpException('Failed to get player summary', 500);
         }
 
         return getPlayerResponse.response.players[0];

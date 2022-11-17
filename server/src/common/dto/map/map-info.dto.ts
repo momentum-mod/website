@@ -14,7 +14,7 @@ export class MapInfoDto implements MapInfo {
 
     @ApiProperty()
     @IsOptional()
-    @Matches(/^[\w_-]{11}$/)
+    @Matches(/^[\w-]{11}$/)
     youtubeID: string;
 
     @ApiProperty()

@@ -2,14 +2,13 @@
 
 import * as request from 'supertest';
 import { get, skipTest, takeTest } from '../util/test-util';
-import { MapStatus, MapCreditType, MapType } from '../../src/common/enums/map.enum';
-import { ActivityTypes } from '../../src/common/enums/activity.enum';
-import { PrismaService } from '../../src/modules/repo/prisma.service';
-import { AuthService } from '../../src/modules/auth/auth.service';
-import { ActivityDto } from '../../src/common/dto/user/activity.dto';
+import { ActivityTypes } from '@common/enums/activity.enum';
+import { PrismaService } from '@modules/repo/prisma.service';
+import { AuthService } from '@modules/auth/auth.service';
+import { ActivityDto } from '@common/dto/user/activity.dto';
 
 describe('activities', () => {
-    let user1, user2, map1, activity1, activity2, activity3;
+    let user1, user2, activity3;
 
     beforeAll(async () => {
         const prisma: PrismaService = global.prisma;
@@ -30,7 +29,7 @@ describe('activities', () => {
             }
         });
 
-        activity1 = await prisma.activity.create({
+        await prisma.activity.create({
             data: {
                 userID: user1.id,
                 data: 122,
@@ -38,7 +37,7 @@ describe('activities', () => {
             }
         });
 
-        activity2 = await prisma.activity.create({
+        await prisma.activity.create({
             data: {
                 userID: user1.id,
                 data: 123,
@@ -122,9 +121,7 @@ describe('activities', () => {
             expect(res.body.response).toBeInstanceOf(Array);
         });
 
-        it('should respond with 400 when a bad type is passed', async () => {
-            const res = await get('activities', 400, { type: 'POTATO' });
-        });
+        it('should respond with 400 when a bad type is passed', () => get('activities', 400, { type: 'POTATO' }));
 
         it('should respond with 401 when no access token is provided', () => get('activities', 401, {}, null));
     });

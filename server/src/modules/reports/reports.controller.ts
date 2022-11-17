@@ -8,12 +8,12 @@ import { LoggedInUser } from '@common/decorators/logged-in-user.decorator';
 @Controller('api/v1/reports')
 @ApiTags('Reports')
 export class ReportsController {
-    constructor(private readonly reportsService: ReportsService) {}
+    constructor(private readonly _reportsService: ReportsService) {}
 
     @Post()
     @ApiOperation({ summary: 'Create a report' })
     @ApiOkResponse({ type: ReportDto, description: 'The newly created report' })
-    createReport(@LoggedInUser('id') submitter: number, @Query() query: CreateReportDto): Promise<ReportDto> {
+    createReport(@LoggedInUser('id') _submitter: number, @Query() _query: CreateReportDto): Promise<ReportDto> {
         return void 0;
     }
 }

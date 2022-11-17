@@ -32,12 +32,6 @@ export const getDefaultTickRateForMapType = (type: MapType): number => {
             return 0.008;
         case MapType.KZ:
             return 0.0078125;
-        case MapType.UNKNOWN:
-        case MapType.SURF:
-        case MapType.RJ:
-        case MapType.SJ:
-        case MapType.AHOP:
-        case MapType.PARKOUR:
         default:
             return 0.015;
     }

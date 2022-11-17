@@ -26,7 +26,7 @@ const DEFAULT_COS_XP: CosXpParams = {
         startingValue: 20000,
         linearScaleBaseIncrease: 1000,
         linearScaleInterval: 10,
-        linearScaleIntervalMultiplier: 1.0,
+        linearScaleIntervalMultiplier: 1,
         staticScaleStart: 101,
         staticScaleBaseMultiplier: 1.5,
         staticScaleInterval: 25,
@@ -87,9 +87,9 @@ export class XpSystemsService implements OnModuleInit {
 
             try {
                 await this.xpRepo.initXpParams(DEFAULT_RANK_XP, DEFAULT_COS_XP);
-            } catch (e) {
+            } catch (error) {
                 // The only time this can ever really happen is during tests, that's no big deal, just warn
-                this.logger.warn(e.message);
+                this.logger.warn(error.message);
             }
 
             this._rankXpParams = DEFAULT_RANK_XP;

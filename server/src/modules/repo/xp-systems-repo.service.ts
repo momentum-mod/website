@@ -1,16 +1,16 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from './prisma.service';
 import { CosXpParams, RankXpParams, XpParams } from '../xp-systems/xp-systems.interface';
-import { DbError } from './repo.error';
+import { DatabaseError } from './repo.error';
 
 @Injectable()
 export class XpSystemsRepoService {
     constructor(private prisma: PrismaService) {}
 
-    async getXpParams(): Promise<XpParams | null> {
+    async getXpParams(): Promise<XpParams | undefined> {
         const dbResponse = await this.prisma.xpSystems.findUnique({ where: { id: 1 } });
 
-        if (!dbResponse) return null;
+        if (!dbResponse) return undefined;
 
         return {
             rankXP: dbResponse.rankXP as RankXpParams,
@@ -24,7 +24,7 @@ export class XpSystemsRepoService {
 
     async initXpParams(rankParams: RankXpParams, cosParams: CosXpParams): Promise<void> {
         if ((await this.prisma.xpSystems.count()) > 0)
-            throw new DbError("Tried to init XP systems, but the table wasn't empty!");
+            throw new DatabaseError("Tried to init XP systems, but the table wasn't empty!");
 
         await this.prisma.xpSystems.create({ data: { id: 1, rankXP: rankParams, cosXP: cosParams } });
     }

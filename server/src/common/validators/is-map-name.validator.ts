@@ -9,7 +9,7 @@ export function IsMapName(validationOptions?: ValidationOptions) {
             options: validationOptions,
             validator: {
                 validate(value: any) {
-                    return typeof value === 'string' && /^[\w_-]+$/.test(value);
+                    return typeof value === 'string' && /^[\w-]+$/.test(value);
                 },
 
                 defaultMessage() {

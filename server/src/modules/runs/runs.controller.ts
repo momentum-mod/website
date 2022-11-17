@@ -42,7 +42,7 @@ export class RunsController {
     })
     @ApiOkResponse({ description: 'A run replay file in binary format' })
     @ApiNotFoundResponse({ description: 'Run replay was not found' })
-    downloadRun(@Param('runID', ParseIntPipe) runID: number): Promise<any> {
+    downloadRun(@Param('runID', ParseIntPipe) _runID: number): Promise<any> {
         return void 0;
     }
 }

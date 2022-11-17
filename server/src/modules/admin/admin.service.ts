@@ -8,9 +8,9 @@ import {
 import { UsersRepoService } from '../repo/users-repo.service';
 import { Follow, Prisma } from '@prisma/client';
 import { AdminUpdateUserDto, UserDto } from '@common/dto/user/user.dto';
-import { DtoFactory } from '@common/utils/dto.utility';
+import { DtoFactory } from '@lib/dto.lib';
 import { MapsRepoService } from '../repo/maps-repo.service';
-import { Bitflags } from '@common/utils/bitflag.utility';
+import { Bitflags } from '@lib/bitflag.lib';
 import { UpdateRolesDto } from '@common/dto/user/roles.dto';
 
 @Injectable()

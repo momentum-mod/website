@@ -49,5 +49,6 @@ async function bootstrap() {
     await app.listen(port);
 }
 
-// noinspection JSIgnoredPromiseFromCall
+// TODO: Decide if we should move to ES modules and if so can use top level await here.
+// eslint-disable-next-line unicorn/prefer-top-level-await
 bootstrap();

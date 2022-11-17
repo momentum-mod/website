@@ -40,11 +40,9 @@ export class SteamAuthService {
 
         const userTicket: string = userTicketRaw.toString('hex');
 
-        if (this.config.get('steam.useSteamTicketLibrary')) {
-            return await this.verifyUserTicketLocalLibrary(userTicketRaw, steamID);
-        } else {
-            return await this.verifyUserTicketOnlineAPI(userTicket, steamID);
-        }
+        return this.config.get('steam.useSteamTicketLibrary')
+            ? await this.verifyUserTicketLocalLibrary(userTicketRaw, steamID)
+            : await this.verifyUserTicketOnlineAPI(userTicket, steamID);
     }
 
     async validateFromSteamWeb(openID: any, profile: any): Promise<User> {

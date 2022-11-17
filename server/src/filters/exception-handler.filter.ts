@@ -60,14 +60,14 @@ export class ExceptionHandlerFilter implements ExceptionFilter {
             if (eventID) responseBody.errorCode = eventID;
 
             httpAdapter.reply(context.getResponse(), responseBody, status);
-        } catch (e) {
-            console.error('Exception filter errored, not throwing to avoid infinite loop!\n', e);
+        } catch (error) {
+            console.error('Exception filter errored, not throwing to avoid infinite loop!\n', error);
         }
     }
 
     private log(exception: any, path: string, debug?: boolean, eventID?: string) {
         // Look, I like pretty formatting, ok??
-        const indent = Math.max(...[eventID ? 8 : 0, exception.stack ? 5 : 0, 4]) + 2;
+        const indent = Math.max(eventID ? 8 : 0, exception.stack ? 5 : 0, 4) + 2;
         let str = `\n  ${exception.name ?? 'Error'}\n  Path:${' '.repeat(indent - 4)}${path}\n`;
         if (eventID) str += `  Event ID:${' '.repeat(indent - 8)}${eventID}\n`;
         if (exception.stack) str += `  Stack:${' '.repeat(indent - 5)}${exception.stack}\n`;

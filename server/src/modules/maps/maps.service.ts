@@ -75,7 +75,7 @@ export class MapsService {
         const dbResponse = await this.mapRepo.getAll(where, include, order, query.skip, query.take);
 
         if (incPB || incWR) {
-            dbResponse[0].forEach((map) => MapsService.handleMapGetPrismaResponse(map, userID, incPB, incWR));
+            for (const map of dbResponse[0]) MapsService.handleMapGetPrismaResponse(map, userID, incPB, incWR);
         }
 
         return new PaginatedResponseDto(MapDto, dbResponse);

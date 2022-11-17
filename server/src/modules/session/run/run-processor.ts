@@ -5,7 +5,7 @@ import { ReplayFileReader } from '@common/lib/replay-file-reader';
 import {
     RunValidationError,
     RunValidationErrorTypes,
-    RunValidationErrorTypes as ErrType
+    RunValidationErrorTypes as ErrorType
 } from '../../../common/enums/run.enum';
 import { ProcessedRun, Replay } from './run-session.interfaces';
 
@@ -39,29 +39,27 @@ export class RunProcessor {
 
     validateRunSession() {
         // If zoneNum is 0 it's an IL, so we shouldn't have any timestamps
-        if (this.zoneNum > 0 && this.timestamps.length !== 0) throw new RunValidationError(ErrType.BAD_TIMESTAMPS);
+        if (this.zoneNum > 0 && this.timestamps.length > 0) throw new RunValidationError(ErrorType.BAD_TIMESTAMPS);
 
         if (this.timestamps.length > 0) {
             // - 1 because the start trigger doesn't have a timestamp generated for it
             if (this.timestamps.length !== this.track.numZones - 1)
-                throw new RunValidationError(ErrType.BAD_TIMESTAMPS);
+                throw new RunValidationError(ErrorType.BAD_TIMESTAMPS);
 
-            let prevTick = 0;
+            let previousTick = 0;
 
-            [...this.timestamps]
-                .sort((left, right) => {
-                    if (left.zone < right.zone) return -1;
-                    else if (left.zone > right.zone) return 1;
-                    else return 0;
-                })
-                .forEach((timestamp) => {
-                    if (timestamp.tick <= prevTick) throw new RunValidationError(ErrType.BAD_TIMESTAMPS);
-                    prevTick = timestamp.tick;
-                });
+            for (const timestamp of [...this.timestamps].sort((left, right) => {
+                if (left.zone < right.zone) return -1;
+                else if (left.zone > right.zone) return 1;
+                else return 0;
+            })) {
+                if (timestamp.tick <= previousTick) throw new RunValidationError(ErrorType.BAD_TIMESTAMPS);
+                previousTick = timestamp.tick;
+            }
         } else {
             // timestamps length == 0
             if (this.track.numZones !== 1) {
-                throw new RunValidationError(ErrType.BAD_TIMESTAMPS);
+                throw new RunValidationError(ErrorType.BAD_TIMESTAMPS);
             }
         }
     }
@@ -75,7 +73,7 @@ export class RunProcessor {
                 frames: []
             };
         } catch {
-            throw new RunValidationError(ErrType.BAD_REPLAY_FILE);
+            throw new RunValidationError(ErrorType.BAD_REPLAY_FILE);
         }
         this.validateReplayHeader();
     }
@@ -101,23 +99,23 @@ export class RunProcessor {
 
         // prettier-ignore
         RunProcessor.validate([
-            [this.replayFile.isOK,                                  ErrType.BAD_REPLAY_FILE],
-            [this.trackNum === this.replay.header.trackNum,         ErrType.BAD_META],
-            [this.replay.magic === 0x524d4f4d,                      ErrType.BAD_META],
-            [this.replay.header.steamID === this.steamID,           ErrType.BAD_META],
-            [this.replay.header.mapHash === this.map.hash,          ErrType.BAD_META],
-            [this.replay.header.mapName === this.map.name,          ErrType.BAD_META],
-            [ticks > 0,                                             ErrType.BAD_TIMESTAMPS],
-            [this.replay.header.trackNum === this.trackNum,         ErrType.BAD_META],
-            [this.replay.header.runFlags === 0,                     ErrType.BAD_META], // Remove after runFlags are added
-            [this.replay.header.zoneNum === this.zoneNum,           ErrType.BAD_META],
-            [!Number.isNaN(Number(this.replay.header.runDate)),     ErrType.BAD_REPLAY_FILE],
-            [Number(this.replay.header.runDate) <= nowDate,         ErrType.OUT_OF_SYNC],
+            [this.replayFile.isOK,                                  ErrorType.BAD_REPLAY_FILE],
+            [this.trackNum === this.replay.header.trackNum,         ErrorType.BAD_META],
+            [this.replay.magic === 0x524d4f4d,                      ErrorType.BAD_META],
+            [this.replay.header.steamID === this.steamID,           ErrorType.BAD_META],
+            [this.replay.header.mapHash === this.map.hash,          ErrorType.BAD_META],
+            [this.replay.header.mapName === this.map.name,          ErrorType.BAD_META],
+            [ticks > 0,                                             ErrorType.BAD_TIMESTAMPS],
+            [this.replay.header.trackNum === this.trackNum,         ErrorType.BAD_META],
+            [this.replay.header.runFlags === 0,                     ErrorType.BAD_META], // Remove after runFlags are added
+            [this.replay.header.zoneNum === this.zoneNum,           ErrorType.BAD_META],
+            [!Number.isNaN(Number(this.replay.header.runDate)),     ErrorType.BAD_REPLAY_FILE],
+            [Number(this.replay.header.runDate) <= nowDate,         ErrorType.OUT_OF_SYNC],
             [Math.abs(this.replay.header.tickRate 
                 - getDefaultTickRateForMapType(this.map.type)) 
-                < epsilon,                                          ErrType.OUT_OF_SYNC],
-            [runTime * 1000 <= sessionDiff,                         ErrType.OUT_OF_SYNC],
-            [AllowedGameModes.includes(this.map.type),          ErrType.UNSUPPORTED_MODE]
+                < epsilon,                                          ErrorType.OUT_OF_SYNC],
+            [runTime * 1000 <= sessionDiff,                         ErrorType.OUT_OF_SYNC],
+            [AllowedGameModes.includes(this.map.type),          ErrorType.UNSUPPORTED_MODE]
         ]);
     }
 
@@ -136,8 +134,8 @@ export class RunProcessor {
 
         // prettier-ignore
         RunProcessor.validate([
-            [overallStats?.jumps < ticks,     ErrType.FUCKY_BEHAVIOUR],
-            [overallStats?.strafes < ticks,   ErrType.FUCKY_BEHAVIOUR]
+            [overallStats?.jumps < ticks,     ErrorType.FUCKY_BEHAVIOUR],
+            [overallStats?.strafes < ticks,   ErrorType.FUCKY_BEHAVIOUR]
         ]);
 
         this.replay.overallStats = overallStats;
@@ -146,7 +144,7 @@ export class RunProcessor {
         try {
             this.replayFile.readFrames(this.replay.header.stopTick);
         } catch {
-            throw new RunValidationError(ErrType.BAD_REPLAY_FILE);
+            throw new RunValidationError(ErrorType.BAD_REPLAY_FILE);
         }
 
         const time = ticks * this.replay.header.tickRate;
@@ -165,9 +163,9 @@ export class RunProcessor {
         };
     }
 
-    private static validate(validations: [boolean, ErrType][]): void {
-        validations.forEach(([passed, errType]) => {
-            if (!passed) throw new RunValidationError(errType);
-        });
+    private static validate(validations: [boolean, ErrorType][]): void {
+        for (const [passed, errorType] of validations) {
+            if (!passed) throw new RunValidationError(errorType);
+        }
     }
 }
