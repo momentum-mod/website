@@ -21,7 +21,7 @@
             "@modules/*": ["src/modules/*"],
             "@config/*": ["config/*"],
             "@tests/*": ["tests/*"],
-            "@prisma/*": ["prisma/*"],
+            "@db/*": ["prisma/*"],
             "@lib/*": ["lib/*"]
         }
     }

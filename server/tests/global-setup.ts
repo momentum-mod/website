@@ -1,6 +1,6 @@
 ﻿import { PrismaClient } from '@prisma/client';
 import { config } from 'dotenv';
-import { nuke } from '@prisma/nuke';
+import { nuke } from '@db/nuke';
 
 export default async () => {
     // Load in environment variables

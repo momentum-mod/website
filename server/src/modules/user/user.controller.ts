@@ -43,6 +43,7 @@ import {
 } from '@common/dto/query/user-queries.dto';
 import { MapDto } from '@common/dto/map/map.dto';
 import { MapFavoriteDto } from '@common/dto/map/map-favorite.dto';
+import { MapLibraryService } from '@modules/maps/map-library.service';
 
 @ApiBearerAuth()
 @Controller('api/v1/user')
