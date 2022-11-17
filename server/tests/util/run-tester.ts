@@ -7,9 +7,6 @@ const DEFAULT_DELAY_MS = 50; // TODO: Can probably go lower
 const MAGIC = 0x524d4f4d;
 
 const wait = (time) => new Promise((resolve) => setTimeout(resolve, time));
-const randomRange = (min, max) => Math.random() * (max - min) + min;
-const randomInt = (min, max) => Math.floor(Math.random() * (max - min)) + min;
-const randomPrecision = (min, max, precision) => +parseFloat(Math.random() * (max - min) + min).toPrecision(precision);
 
 export interface RunTesterProps {
     accessToken?: string;
@@ -231,20 +228,20 @@ export class RunTester {
         const sqrt2 = Math.sqrt(2);
         const sqrt3 = Math.sqrt(3);
         return {
-            jumps: randomInt(0, 5),
-            strafes: randomInt(0, 5),
-            avgStrafeSync: randomRange(70, 90),
-            avgStrafeSync2: randomRange(70, 90),
+            jumps: Random.int(0, 5),
+            strafes: Random.int(0, 5),
+            avgStrafeSync: Random.float(70, 90),
+            avgStrafeSync2: Random.float(70, 90),
             enterTime: previousTime,
             totalTime: (new Date().getTime() - startDate.getTime()) / 1000,
-            velMax3D: randomRange(0, sqrt3 * 3500),
-            velMax2D: randomRange(0, sqrt2 * 3500),
-            velAvg3D: randomRange(0, sqrt3 * 3500),
-            velAvg2D: randomRange(0, sqrt2 * 3500),
-            velEnter3D: randomRange(0, sqrt3 * 3500),
-            velEnter2D: randomRange(0, sqrt2 * 3500),
-            velExit3D: randomRange(0, sqrt3 * 3500),
-            velExit2D: randomRange(0, sqrt2 * 3500)
+            velMax3D: Random.float(0, sqrt3 * 3500),
+            velMax2D: Random.float(0, sqrt2 * 3500),
+            velAvg3D: Random.float(0, sqrt3 * 3500),
+            velAvg2D: Random.float(0, sqrt2 * 3500),
+            velEnter3D: Random.float(0, sqrt3 * 3500),
+            velEnter2D: Random.float(0, sqrt2 * 3500),
+            velExit3D: Random.float(0, sqrt3 * 3500),
+            velExit2D: Random.float(0, sqrt2 * 3500)
         };
     }
 
