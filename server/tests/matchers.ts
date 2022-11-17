@@ -16,7 +16,8 @@ const formatValidationErrors = (errors: ValidationError[], depth = 1): string =>
     errors
         .map((error) => {
             const newLine = '\n' + '\t'.repeat(depth);
-            let errorString = newLine + 'Property: ' + error.property + newLine + 'Value: ' + JSON.stringify(error.value);
+            let errorString =
+                newLine + 'Property: ' + error.property + newLine + 'Value: ' + JSON.stringify(error.value);
             if (error.constraints)
                 errorString +=
                     newLine +
@@ -102,7 +103,9 @@ expect.extend({
                         plural ? 's' : ''
                     } errored:\n\t` +
                     totalErrors
-                        .map((error) => `${JSON.stringify(error[0])}\nerrored with: ${formatValidationErrors(error[1])}`)
+                        .map(
+                            (error) => `${JSON.stringify(error[0])}\nerrored with: ${formatValidationErrors(error[1])}`
+                        )
                         .join('\n\n'),
                 pass: false
             };

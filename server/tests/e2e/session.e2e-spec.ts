@@ -471,7 +471,7 @@ describe('Session', () => {
                     where: { zone: { track: { mapID: map.id } } },
                     include: { zone: true }
                 });
-                
+
                 for (const zone of zoneStats.filter((zs) => zs.zone.zoneNum !== 0)) {
                     expect(zone.completions).toBe(2);
                     expect(zone.uniqueCompletions).toBe(1);
