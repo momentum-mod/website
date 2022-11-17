@@ -1,4 +1,5 @@
-﻿import NodeEnvironment from 'jest-environment-node';
+﻿import 'tsconfig-paths/register'; // This MUST be imported for absolute modules to be recognised!
+import NodeEnvironment from 'jest-environment-node';
 import { Test } from '@nestjs/testing';
 import { Reflector } from '@nestjs/core';
 import { AppModule } from '@/app.module';
