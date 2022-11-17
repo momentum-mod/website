@@ -4,107 +4,128 @@ on:
   pull_request:
     branches:
       - staging
+      - nestJS # TODO: Remove when done
     paths-ignore:
-      - '**.md'
+      - "**.md"
 
 env:
   NODE_ENV: test
   NODE_PORT: 3002
 
+# TODO: Client stuff will need upgrading when NestJS rewrite is completed.
 jobs:
   client-lint:
     name: Client Lint
     runs-on: ubuntu-latest
 
     steps:
-    - name: Checkout
-      uses: actions/checkout@v2
+      - name: Checkout
+        uses: actions/checkout@v2
 
-    - name: Get specific changed files
-      id: changed-files-specific
-      uses: tj-actions/changed-files@v12
-      with:
-        files: client\/.*\.(js|ts|scss|html)$
+      - name: Get specific changed files
+        id: changed-files-specific
+        uses: tj-actions/changed-files@v12
+        with:
+          files: client\/.*\.(js|ts|scss|html)$
 
-    - name: Setup Node
-      if: steps.changed-files-specific.outputs.any_changed == 'true'
-      uses: actions/setup-node@v1
-      with:
-        node-version: '12.x'
+      - name: Setup Node
+        if: steps.changed-files-specific.outputs.any_changed == 'true'
+        uses: actions/setup-node@v1
+        with:
+          node-version: "12.x"
 
-    - name: Resolve Yarn Cache Directory
-      if: steps.changed-files-specific.outputs.any_changed == 'true'
-      id: yarn-cache-dir-path
-      run: echo "::set-output name=dir::$(yarn cache dir)"
+      - name: Resolve Yarn Cache Directory
+        if: steps.changed-files-specific.outputs.any_changed == 'true'
+        id: yarn-cache-dir-path
+        run: echo "::set-output name=dir::$(yarn cache dir)"
 
-    - name: Cache Yarn Cache Directory
-      if: steps.changed-files-specific.outputs.any_changed == 'true'
-      uses: actions/cache@v2
-      with:
-        path: ${{ steps.yarn-cache-dir-path.outputs.dir }}
-        key: ${{ runner.os }}-${{ env.NODE_VERSION }}-${{ hashFiles('./client/yarn.lock') }}
-        restore-keys: ${{ runner.os }}-${{ env.NODE_VERSION }}-
+      - name: Cache Yarn Cache Directory
+        if: steps.changed-files-specific.outputs.any_changed == 'true'
+        uses: actions/cache@v2
+        with:
+          path: ${{ steps.yarn-cache-dir-path.outputs.dir }}
+          key: ${{ runner.os }}-${{ env.NODE_VERSION }}-${{ hashFiles('./client/yarn.lock') }}
+          restore-keys: ${{ runner.os }}-${{ env.NODE_VERSION }}-
 
-    - name: Run Lint
-      if: steps.changed-files-specific.outputs.any_changed == 'true'
-      run: |
-        cd ./client/
-        npm install -g @angular/cli && yarn install --prefer-offline
-        npm run lint:ci
+      - name: Run Lint
+        if: steps.changed-files-specific.outputs.any_changed == 'true'
+        run: |
+          cd ./client/
+          npm install -g @angular/cli && yarn install --prefer-offline
+          npm run lint:ci
 
   client-tests:
     name: Client Tests
     runs-on: ubuntu-latest
 
     steps:
-    - name: Checkout
-      uses: actions/checkout@v2
+      - name: Checkout
+        uses: actions/checkout@v2
 
-    - name: Get specific changed files
-      id: changed-files-specific
-      uses: tj-actions/changed-files@v12
-      with:
-        files: .(ts)$
+      - name: Get specific changed files
+        id: changed-files-specific
+        uses: tj-actions/changed-files@v12
+        with:
+          files: .(ts)$
 
-    - name: Setup Node
-      if: steps.changed-files-specific.outputs.any_changed == 'true'
-      uses: actions/setup-node@v1
-      with:
-        node-version: '12.x'
+      - name: Setup Node
+        if: steps.changed-files-specific.outputs.any_changed == 'true'
+        uses: actions/setup-node@v1
+        with:
+          node-version: "12.x"
 
-    - name: Resolve Yarn Cache Directory
-      if: steps.changed-files-specific.outputs.any_changed == 'true'
-      id: yarn-cache-dir-path
-      run: echo "::set-output name=dir::$(yarn cache dir)"
+      - name: Resolve Yarn Cache Directory
+        if: steps.changed-files-specific.outputs.any_changed == 'true'
+        id: yarn-cache-dir-path
+        run: echo "::set-output name=dir::$(yarn cache dir)"
 
-    - name: Cache Yarn Cache Directory
-      if: steps.changed-files-specific.outputs.any_changed == 'true'
-      uses: actions/cache@v2
-      with:
-        path: ${{ steps.yarn-cache-dir-path.outputs.dir }}
-        key: ${{ runner.os }}-${{ env.NODE_VERSION }}-${{ hashFiles('./client/yarn.lock') }}
-        restore-keys: ${{ runner.os }}-${{ env.NODE_VERSION }}-
+      - name: Cache Yarn Cache Directory
+        if: steps.changed-files-specific.outputs.any_changed == 'true'
+        uses: actions/cache@v2
+        with:
+          path: ${{ steps.yarn-cache-dir-path.outputs.dir }}
+          key: ${{ runner.os }}-${{ env.NODE_VERSION }}-${{ hashFiles('./client/yarn.lock') }}
+          restore-keys: ${{ runner.os }}-${{ env.NODE_VERSION }}-
 
-    - name: Run Tests
-      if: steps.changed-files-specific.outputs.any_changed == 'true'
-      run: |
-        cd ./client/
-        npm install -g @angular/cli && yarn install --prefer-offline
-        npm run test
+      - name: Run Tests
+        if: steps.changed-files-specific.outputs.any_changed == 'true'
+        run: |
+          cd ./client/
+          npm install -g @angular/cli && yarn install --prefer-offline
+          npm run test
 
-  server-tests:
-    name: Server Tests
-    runs-on: ubuntu-latest
-    steps:
-    - name: Checkout
-      uses: actions/checkout@v2
+    server-lint:
+      name: Server linting and formatting
+      runs-on: ubuntu-latest
+      steps:
+        - uses: actions/checkout@v3
 
-    - name: Get specific changed files
-      id: changed-files-specific
-      uses: tj-actions/changed-files@v12
-      with:
-        files: server\/.*\.(ts|js)$
+        - uses: actions/cache@v2
+          with:
+            path: 'server/node_modules'
+            key: ${{ runner.os }}-modules-${{ hashFiles('**/package-lock.json') }}
 
-    - name: Execute tests
-      if: steps.changed-files-specific.outputs.any_changed == 'true'
-      run: docker compose -f docker-compose.yml -f docker-compose.test.yml up --exit-code-from api
+        - name: Install packages
+          run: npm install
+
+        - name: Formatting Checks
+          run: npm run format:check
+
+        - name: ESLint Checks
+          run: npm run lint:check
+#  server-tests:
+#    name: Server Tests
+#    runs-on: ubuntu-latest
+#    steps:
+#    - name: Checkout
+#      uses: actions/checkout@v2
+#
+#    - name: Get specific changed files
+#      id: changed-files-specific
+#      uses: tj-actions/changed-files@v12
+#      with:
+#        files: server\/.*\.(ts|js)$
+#
+#    - name: Execute tests
+#      if: steps.changed-files-specific.outputs.any_changed == 'true'
+#      run: docker compose -f docker-compose.yml -f docker-compose.test.yml up --exit-code-from api
