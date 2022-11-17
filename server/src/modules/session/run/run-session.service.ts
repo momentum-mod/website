@@ -8,7 +8,7 @@ import { CompletedRunDto, XpGain } from '@common/dto/run/completed-run.dto';
 import { UsersRepoService } from '../../repo/users-repo.service';
 import { RunProcessor } from './run-processor';
 import { FileStoreCloudService } from '../../filestore/file-store-cloud.service';
-import { DtoFactory } from '@/../../../../lib/dto.lib';
+import { DtoFactory } from '@lib/dto.lib';
 import { RunDto } from '@common/dto/run/runs.dto';
 import { UserMapRankDto } from '@common/dto/run/user-map-rank.dto';
 import { RunValidationError } from '@common/enums/run.enum';
