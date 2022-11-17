@@ -93,26 +93,29 @@ jobs:
           cd ./client/
           npm install -g @angular/cli && yarn install --prefer-offline
           npm run test
+          
+  server-lint:
+    name: Server linting and formatting
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
 
-    server-lint:
-      name: Server linting and formatting
-      runs-on: ubuntu-latest
-      steps:
-        - uses: actions/checkout@v3
+      - uses: actions/cache@v2
+        with:
+          path: 'server/node_modules'
+          key: ${{ runner.os }}-modules-${{ hashFiles('**/package-lock.json') }}
 
-        - uses: actions/cache@v2
-          with:
-            path: 'server/node_modules'
-            key: ${{ runner.os }}-modules-${{ hashFiles('**/package-lock.json') }}
+      - name: Install packages
+        working-directory: server
+        run: npm install
 
-        - name: Install packages
-          run: npm install
+      - name: Formatting Checks
+        working-directory: server
+        run: npm run format:check
 
-        - name: Formatting Checks
-          run: npm run format:check
-
-        - name: ESLint Checks
-          run: npm run lint:check
+      - name: ESLint Checks
+        working-directory: server
+        run: npm run lint:check
 #  server-tests:
 #    name: Server Tests
 #    runs-on: ubuntu-latest
