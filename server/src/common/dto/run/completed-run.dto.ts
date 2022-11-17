@@ -1,7 +1,7 @@
 ﻿import { ApiProperty } from '@nestjs/swagger';
 import { IsBoolean, ValidateNested } from 'class-validator';
 import { Transform } from 'class-transformer';
-import { DtoFactory } from '../../utils/dto.utility';
+import { DtoFactory } from '@lib/dto.lib';
 import { UserMapRankDto } from './user-map-rank.dto';
 import { RunDto } from './runs.dto';
 

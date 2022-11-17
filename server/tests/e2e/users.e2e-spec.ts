@@ -2,16 +2,16 @@
 
 import * as request from 'supertest';
 import { expandTest, get, skipTest, takeTest } from '../util/test-util';
-import { ActivityTypes } from '../../src/common/enums/activity.enum';
-import { PrismaService } from '../../src/modules/repo/prisma.service';
-import { MapCreditType, MapStatus, MapType } from '../../src/common/enums/map.enum';
-import { AuthService } from '../../src/modules/auth/auth.service';
-import { UserDto } from '../../src/common/dto/user/user.dto';
-import { ActivityDto } from '../../src/common/dto/user/activity.dto';
-import { ProfileDto } from '../../src/common/dto/user/profile.dto';
-import { FollowDto } from '../../src/common/dto/user/followers.dto';
-import { MapCreditDto } from '../../src/common/dto/map/map-credit.dto';
-import { RunDto } from '../../src/common/dto/run/runs.dto';
+import { ActivityTypes } from '@common/enums/activity.enum';
+import { PrismaService } from '@modules/repo/prisma.service';
+import { MapCreditType, MapStatus, MapType } from '@common/enums/map.enum';
+import { AuthService } from '@modules/auth/auth.service';
+import { UserDto } from '@common/dto/user/user.dto';
+import { ActivityDto } from '@common/dto/user/activity.dto';
+import { ProfileDto } from '@common/dto/user/profile.dto';
+import { FollowDto } from '@common/dto/user/followers.dto';
+import { MapCreditDto } from '@common/dto/map/map-credit.dto';
+import { RunDto } from '@common/dto/run/runs.dto';
 
 describe('Users', () => {
     let user1, user2, user3, map1, map2, run1;

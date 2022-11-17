@@ -1,17 +1,17 @@
 // noinspection DuplicatedCode
 
-import { MapType, MapStatus, getDefaultTickRateForMapType } from '../../src/common/enums/map.enum';
-import { AuthService } from '../../src/modules/auth/auth.service';
-import { PrismaService } from '../../src/modules/repo/prisma.service';
+import { MapType, MapStatus, getDefaultTickRateForMapType } from '@common/enums/map.enum';
+import { AuthService } from '@modules/auth/auth.service';
+import { PrismaService } from '@modules/repo/prisma.service';
 import { RunTester, RunTesterProps } from '../util/run-tester';
-import { CompletedRunDto } from '../../src/common/dto/run/completed-run.dto';
+import { CompletedRunDto } from '@common/dto/run/completed-run.dto';
 import { del, post } from '../util/test-util';
-import { RunSessionDto } from '../../src/common/dto/run/run-session.dto';
-import { RunSessionTimestampDto } from '../../src/common/dto/run/run-session-timestamp.dto';
-import { UserMapRankDto } from '../../src/common/dto/run/user-map-rank.dto';
-import { RunDto } from '../../src/common/dto/run/runs.dto';
-import { XpSystemsService } from '../../src/modules/xp-systems/xp-systems.service';
-import { RunValidationErrorTypes } from '../../src/common/enums/run.enum';
+import { RunSessionDto } from '@common/dto/run/run-session.dto';
+import { RunSessionTimestampDto } from '@common/dto/run/run-session-timestamp.dto';
+import { UserMapRankDto } from '@common/dto/run/user-map-rank.dto';
+import { RunDto } from '@common/dto/run/runs.dto';
+import { XpSystemsService } from '@modules/xp-systems/xp-systems.service';
+import { RunValidationErrorTypes } from '@common/enums/run.enum';
 
 describe('Session', () => {
     let user1,

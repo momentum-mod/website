@@ -40,9 +40,9 @@ import {
     UserMapSubmittedGetQuery,
     UsersGetActivitiesQuery,
     UsersGetQuery
-} from '../../common/dto/query/user-queries.dto';
-import { MapDto } from '../../common/dto/map/map.dto';
-import { MapFavoriteDto } from '../../common/dto/map/map-favorite.dto';
+} from '@common/dto/query/user-queries.dto';
+import { MapDto } from '@common/dto/map/map.dto';
+import { MapFavoriteDto } from '@common/dto/map/map-favorite.dto';
 
 @ApiBearerAuth()
 @Controller('api/v1/user')

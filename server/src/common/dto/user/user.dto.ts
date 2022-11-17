@@ -13,7 +13,7 @@ import { Exclude, Expose, Transform, Type } from 'class-transformer';
 import { IsSteamCommunityID } from '../../validators/is-steam-id.validator';
 import { ProfileDto } from './profile.dto';
 import { MapRankDto } from '../map/map-rank.dto';
-import { DtoFactory } from '../../utils/dto.utility';
+import { DtoFactory } from '@lib/dto.lib';
 import { BansDto, UpdateBansDto } from './bans.dto';
 import { RolesDto, UpdateRolesDto } from './roles.dto';
 import { Config } from '@config/config';

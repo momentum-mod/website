@@ -12,7 +12,7 @@ import { MapsRepoService } from '../repo/maps-repo.service';
 import { AuthService } from '../auth/auth.service';
 import { MapCreditType, MapStatus } from '@common/enums/map.enum';
 import { FileStoreCloudService } from '../filestore/file-store-cloud.service';
-import { DtoFactory, ExpandToPrismaIncludes } from '@common/utils/dto.utility';
+import { DtoFactory, ExpandToPrismaIncludes } from '@lib/dto.lib';
 import { UsersRepoService } from '../repo/users-repo.service';
 import { ActivityTypes } from '@common/enums/activity.enum';
 import { CreateMapCreditDto, MapCreditDto, UpdateMapCreditDto } from '@common/dto/map/map-credit.dto';

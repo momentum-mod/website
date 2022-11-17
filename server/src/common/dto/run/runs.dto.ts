@@ -5,7 +5,7 @@ import { ApiProperty } from '@nestjs/swagger';
 import { IsDateString, IsDefined, IsInt, ValidateNested } from 'class-validator';
 import { Transform } from 'class-transformer';
 import { MapDto } from '../map/map.dto';
-import { DtoFactory } from '../../utils/dto.utility';
+import { DtoFactory } from '@lib/dto.lib';
 import { BaseStatsDto } from '../stats/base-stats.dto';
 import { RunZoneStatsDto } from './run-zone-stats.dto';
 

@@ -3,7 +3,7 @@ import { ActivityTypes } from '../../enums/activity.enum';
 import { ApiProperty } from '@nestjs/swagger';
 import { IsDateString, IsDefined, IsInt, ValidateNested, IsEnum } from 'class-validator';
 import { UserDto } from './user.dto';
-import { DtoFactory } from '../../utils/dto.utility';
+import { DtoFactory } from '@lib/dto.lib';
 import { Transform } from 'class-transformer';
 
 export class ActivityDto implements Activity {

@@ -94,10 +94,9 @@ export const ExpandQueryDecorators = (expansions: string[]): PropertyDecorator =
  * Transform an array of expansion strings into Prisma includes e.g. { foo: true, bar: true, ... }
  * @param expansions - String array of all the allowed expansions
  * */
-export const ExpandToPrismaIncludes = (expansions: string[]): Record<string, boolean> | undefined =>
-    expansions
-        ? (expansions.reduce((expansion, item) => {
-              expansion[item] = true;
-              return expansion;
-          }, {}) as Record<string, boolean>)
-        : undefined;
+export const ExpandToPrismaIncludes = (expansions: string[]): Record<string, boolean> | undefined => {
+    if (!expansions) return undefined;
+    const includes: Record<string, boolean> = {};
+    for (const expansionString of expansions) includes[expansionString] = true;
+    return includes;
+};
