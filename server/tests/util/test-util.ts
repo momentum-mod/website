@@ -1,5 +1,9 @@
-﻿import * as request from 'supertest';
+﻿import request from 'supertest';
 import fs from 'node:fs';
+
+// TODO: These functions are a bit shit. We should really be passing in options objects to them, not doing
+// a million arguments. I started refactoring on refactor/test-util but it's gonna be tedious updating everything,
+// leaving it for now.
 
 export async function get(
     url: string,
@@ -11,7 +15,7 @@ export async function get(
         .get('/api/v1/' + url)
         .set('Accept', 'application/json')
         .set('Authorization', 'Bearer ' + accessToken)
-        .query(query ? query : {})
+        .query(query ?? {})
         .expect('Content-Type', /json/)
         .expect(status);
 }
@@ -26,7 +30,7 @@ export async function getNoContent(
         .get('/api/v1/' + url)
         .set('Accept', 'application/json')
         .set('Authorization', 'Bearer ' + accessToken)
-        .query(query ? query : {})
+        .query(query ?? {})
         .expect(status);
 }
 
@@ -40,7 +44,7 @@ export async function post(
         .post('/api/v1/' + url)
         .set('Accept', 'application/json')
         .set('Authorization', 'Bearer ' + accessToken)
-        .send(send ? send : {})
+        .send(send ?? {})
         .expect(status);
 }
 
@@ -69,7 +73,7 @@ export async function put(
         .put('/api/v1/' + url)
         .set('Accept', 'application/json')
         .set('Authorization', 'Bearer ' + accessToken)
-        .send(send ? send : {})
+        .send(send ?? {})
         .expect(status);
 }
 
@@ -83,7 +87,7 @@ export async function patch(
         .patch('/api/v1/' + url)
         .set('Accept', 'application/json')
         .set('Authorization', 'Bearer ' + accessToken)
-        .send(send ? send : {})
+        .send(send ?? {})
         .expect(status);
 }
 
@@ -144,6 +148,6 @@ export async function expandTest(
         filterFn ??= () => true;
         const toTest = res.body.response.filter((x) => filterFn(x));
         if (toTest.length === 0) throw 'nothing passed to expandTest passes filter';
-        toTest.forEach((x) => expects(x));
+        for (const x of toTest) expects(x);
     } else expects(res.body);
 }

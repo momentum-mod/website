@@ -354,7 +354,7 @@ export class UserController {
     })
     @ApiNoContentResponse({ description: 'Map was added to the library' })
     @ApiNotFoundResponse({ description: 'The map does not exist' })
-    addMapLibraryEntry(@LoggedInUser('id') userID: number, @Param('mapID', ParseIntPipe) mapID: number) {
+    addMapLibraryEntry(@LoggedInUser('id') _userID: number, @Param('mapID', ParseIntPipe) _mapID: number) {
         return void 0;
         //return this.usersService.AddMapLibraryEntry(userID, mapID);
     }
@@ -369,7 +369,7 @@ export class UserController {
     })
     @ApiNoContentResponse({ description: 'Map was removed from the library' })
     @ApiNotFoundResponse({ description: 'The map does not exist' })
-    removeMapLibraryEntry(@LoggedInUser('id') userID: number, @Param('mapID', ParseIntPipe) mapID: number) {
+    removeMapLibraryEntry(@LoggedInUser('id') _userID: number, @Param('mapID', ParseIntPipe) _mapID: number) {
         return void 0;
         //return this.usersService.RemoveMapLibraryEntry(userID, mapID);
     }
@@ -398,7 +398,7 @@ export class UserController {
     })
     @ApiNoContentResponse({ description: 'Map is in the favorites' })
     @ApiNotFoundResponse({ description: 'Map is not in the favorites' })
-    checkFavoritedMap(@LoggedInUser('id') userID: number, @Param('mapID', ParseIntPipe) mapID: number) {
+    checkFavoritedMap(@LoggedInUser('id') _userID: number, @Param('mapID', ParseIntPipe) _mapID: number) {
         return void 0;
         //return this.usersService.CheckFavoritedMap(userID, mapID);
     }
@@ -413,7 +413,7 @@ export class UserController {
     })
     @ApiNoContentResponse({ description: 'Map was added to the favorites' })
     @ApiNotFoundResponse({ description: 'The map does not exist' })
-    addFavoritedMap(@LoggedInUser('id') userID: number, @Param('mapID', ParseIntPipe) mapID: number) {
+    addFavoritedMap(@LoggedInUser('id') _userID: number, @Param('mapID', ParseIntPipe) _mapID: number) {
         return void 0;
         //return this.usersService.AddFavoritedMap(userID, mapID);
     }
@@ -428,7 +428,7 @@ export class UserController {
     })
     @ApiNoContentResponse({ description: 'Map was removed from the favorites' })
     @ApiNotFoundResponse({ description: 'The map does not exist' })
-    removeFavoritedMap(@LoggedInUser('id') userID: number, @Param('mapID', ParseIntPipe) mapID: number) {
+    removeFavoritedMap(@LoggedInUser('id') _userID: number, @Param('mapID', ParseIntPipe) _mapID: number) {
         return void 0;
         //return this.usersService.RemoveFavoritedMap(userID, mapID);
     }
@@ -441,8 +441,8 @@ export class UserController {
     @ApiOperation({ summary: 'Returns the maps submitted by the local user' })
     @ApiOkPaginatedResponse(MapDto, { description: 'Paginated list of submitted maps' })
     getSubmittedMaps(
-        @LoggedInUser('id') userID: number,
-        @Query() query?: UserMapSubmittedGetQuery
+        @LoggedInUser('id') _userID: number,
+        @Query() _query?: UserMapSubmittedGetQuery
     ): Promise<PaginatedResponseDto<MapDto>> {
         return void 0;
         //return this.usersService.GetSubmittedMaps(userID, query.skip, query.take, query.search, query.expand);
@@ -452,7 +452,7 @@ export class UserController {
     @Get('/maps/submitted/summary')
     @ApiOperation({ summary: 'Returns the summary of maps submitted by the local user' })
     @ApiOkResponse({ description: 'Summary of maps submitted by the local user' })
-    getSubmittedMapsSummary(@LoggedInUser('id') userID: number) /*: Promise<who knows???> */ {
+    getSubmittedMapsSummary(@LoggedInUser('id') _userID: number) /*: Promise<who knows???> */ {
         return void 0;
     }
 

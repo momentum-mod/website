@@ -280,8 +280,7 @@ describe('Session', () => {
             await tester.startRun();
             await tester.doZones(3, overrides.delay);
 
-            // eslint-disable-next-line @typescript-eslint/no-unused-vars
-            const { props, ...endRunProps } = overrides;
+            const { props: _, ...endRunProps } = overrides;
             return tester.endRun(endRunProps);
         };
 
@@ -350,12 +349,9 @@ describe('Session', () => {
                 expect(umrsAfter.length).toBe(11);
                 expect(umrsAfter.find((umr) => umr.userID === user1.id).rank).toBe(2);
 
-                umrsBefore
-                    .filter((umr) => umr.rank > 1)
-                    .forEach((umrBefore) =>
-                        expect(umrsAfter.find((umrAfter) => umrAfter.userID === umrBefore.userID).rank).toBe(
-                            umrBefore.rank + 1
-                        )
+                for (const umrBefore of umrsBefore.filter((umr) => umr.rank > 1))
+                    expect(umrsAfter.find((umrAfter) => umrAfter.userID === umrBefore.userID).rank).toBe(
+                        umrBefore.rank + 1
                     );
             });
 
@@ -475,12 +471,11 @@ describe('Session', () => {
                     where: { zone: { track: { mapID: map.id } } },
                     include: { zone: true }
                 });
-                zoneStats
-                    .filter((zs) => zs.zone.zoneNum !== 0)
-                    .forEach((zone) => {
-                        expect(zone.completions).toBe(2);
-                        expect(zone.uniqueCompletions).toBe(1);
-                    });
+                
+                for (const zone of zoneStats.filter((zs) => zs.zone.zoneNum !== 0)) {
+                    expect(zone.completions).toBe(2);
+                    expect(zone.uniqueCompletions).toBe(1);
+                }
             });
 
             // TODO: Test activity creation once that's done!

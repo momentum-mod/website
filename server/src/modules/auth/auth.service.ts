@@ -34,7 +34,7 @@ export class AuthService {
     }
 
     async revokeToken(userID: number): Promise<void> {
-        this.loggedInUser = null;
+        this.loggedInUser = undefined;
         await this.updateRefreshToken(userID, '');
     }
 

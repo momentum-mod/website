@@ -14,20 +14,20 @@ declare global {
 
 const formatValidationErrors = (errors: ValidationError[], depth = 1): string =>
     errors
-        .map((err) => {
+        .map((error) => {
             const newLine = '\n' + '\t'.repeat(depth);
-            let str = newLine + 'Property: ' + err.property + newLine + 'Value: ' + JSON.stringify(err.value);
-            if (err.constraints)
-                str +=
+            let errorString = newLine + 'Property: ' + error.property + newLine + 'Value: ' + JSON.stringify(error.value);
+            if (error.constraints)
+                errorString +=
                     newLine +
                     'Constraints: ' +
-                    Object.entries(err.constraints ?? {})
+                    Object.entries(error.constraints ?? {})
                         .map(([conName, conMessage]) => `${conName}: ${conMessage}`)
                         .join(newLine + '  ');
-            if (err.children?.length > 0)
-                str += newLine + 'Children:' + formatValidationErrors(err.children, depth + 1);
+            if (error.children?.length > 0)
+                errorString += newLine + 'Children:' + formatValidationErrors(error.children, depth + 1);
 
-            return str;
+            return errorString;
         })
         .join('\n');
 
@@ -102,7 +102,7 @@ expect.extend({
                         plural ? 's' : ''
                     } errored:\n\t` +
                     totalErrors
-                        .map((err) => `${JSON.stringify(err[0])}\nerrored with: ${formatValidationErrors(err[1])}`)
+                        .map((error) => `${JSON.stringify(error[0])}\nerrored with: ${formatValidationErrors(error[1])}`)
                         .join('\n\n'),
                 pass: false
             };

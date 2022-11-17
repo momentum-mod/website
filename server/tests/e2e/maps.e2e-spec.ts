@@ -1,5 +1,5 @@
 // noinspection DuplicatedCode
-import * as request from 'supertest';
+import request from 'supertest';
 import { readFileSync } from 'node:fs';
 import { AuthService } from '@modules/auth/auth.service';
 import { PrismaService } from '@modules/repo/prisma.service';
@@ -53,9 +53,9 @@ describe('Maps', () => {
         map3,
         map4,
         createMapObj: () => any,
-        gameAdmin,
-        gameAdminAccessToken,
-        adminAccessToken,
+        // gameAdmin,
+        // gameAdminAccessToken,
+        // adminAccessToken,
         user2AccessToken,
         user3AccessToken;
 
@@ -398,18 +398,16 @@ describe('Maps', () => {
         });
 
         await prisma.map.createMany({
-            data: Array(5)
-                .fill(0)
-                .map((_, i) => {
-                    return {
-                        name: `pending_test${i}`,
-                        type: MapType.BHOP,
-                        statusFlag: MapStatus.PENDING,
-                        submitterID: user3.id,
-                        // Creating these at the exact same time can break a skipTest
-                        createdAt: new Date(Date.now() - i * 100)
-                    };
-                })
+            data: Array.from({ length: 5 }, (_, i) => {
+                return {
+                    name: `pending_test${i}`,
+                    type: MapType.BHOP,
+                    statusFlag: MapStatus.PENDING,
+                    submitterID: user3.id,
+                    // Creating these at the exact same time can break a skipTest
+                    createdAt: new Date(Date.now() - i * 100)
+                };
+            })
         });
 
         createMapObj = () => {
@@ -427,34 +425,26 @@ describe('Maps', () => {
                         type: MapCreditType.AUTHOR
                     }
                 ],
-                tracks: Array(2)
-                    .fill(0)
-                    .map((_, i) => {
-                        return {
-                            trackNum: i,
-                            numZones: 1,
-                            isLinear: false,
-                            difficulty: 5,
-                            zones: Array(10)
-                                .fill(0)
-                                .map((_, j) => {
-                                    return {
-                                        zoneNum: j,
-                                        triggers: [
-                                            {
-                                                type: j == 0 ? 1 : j == 1 ? 0 : 2,
-                                                pointsHeight: 512,
-                                                pointsZPos: 0,
-                                                points: '{"p1": "0", "p2": "0"}',
-                                                properties: {
-                                                    properties: '{}'
-                                                }
-                                            }
-                                        ]
-                                    };
-                                })
-                        };
-                    })
+                tracks: Array.from({ length: 2 }, (_, i) => ({
+                    trackNum: i,
+                    numZones: 1,
+                    isLinear: false,
+                    difficulty: 5,
+                    zones: Array.from({ length: 10 }, (_, j) => ({
+                        zoneNum: j,
+                        triggers: [
+                            {
+                                type: j == 0 ? 1 : j == 1 ? 0 : 2,
+                                pointsHeight: 512,
+                                pointsZPos: 0,
+                                points: '{"p1": "0", "p2": "0"}',
+                                properties: {
+                                    properties: '{}'
+                                }
+                            }
+                        ]
+                    }))
+                }))
             };
         };
 
@@ -552,7 +542,7 @@ describe('Maps', () => {
 
         const authService = global.auth as AuthService;
         global.accessToken = (await authService.login(user)).access_token;
-        adminAccessToken = (await authService.login(admin)).access_token;
+        // adminAccessToken = (await authService.login(admin)).access_token;
         user2AccessToken = (await authService.login(user2)).access_token;
         user3AccessToken = (await authService.login(user3)).access_token;
     });
@@ -583,12 +573,10 @@ describe('Maps', () => {
         const expects = (res) => {
             expect(res.body).toBeValidPagedDto(MapDto);
             // Some tests don't set mainTrack & info, test just ones in this test
-            res.body.response
-                .filter((x) => x.name.startsWith('maps_test'))
-                .forEach((x) => {
-                    expect(x).toHaveProperty('mainTrack');
-                    expect(x).toHaveProperty('info');
-                });
+            for (const x of res.body.response.filter((x) => x.name.startsWith('maps_test'))) {
+                expect(x).toHaveProperty('mainTrack');
+                expect(x).toHaveProperty('info');
+            }
         };
         const filter = (x) => x.id === map1.id;
 
@@ -773,16 +761,16 @@ describe('Maps', () => {
             expect(mapDB).toHaveProperty('tracks');
             expect(mapDB.tracks).toHaveLength(2);
             expect(mapDB.mainTrack.id).toBe(mapDB.tracks.find((track) => track.trackNum === 0).id);
-            mapDB.tracks.forEach((track) => {
+            for (const track of mapDB.tracks) {
                 expect(track.trackNum).toBeLessThanOrEqual(1);
-                track.zones.forEach((zone) => {
+                for (const zone of track.zones) {
                     expect(zone.zoneNum).toBeLessThanOrEqual(10);
-                    zone.triggers.forEach((trigger) => {
+                    for (const trigger of zone.triggers) {
                         expect(trigger.points).toBe('{"p1": "0", "p2": "0"}');
                         expect(trigger.properties.properties).toBe('{}');
-                    });
-                });
-            });
+                    }
+                }
+            }
         });
 
         it('should create map uploaded activities for the map authors', async () => {
@@ -876,7 +864,7 @@ describe('Maps', () => {
                         Key: `maps/${map1.name}.bsp`
                     })
                 );
-            } catch (err) {
+            } catch {
                 console.warn('WARNING: Failed to delete test map! Bucket likely now contains a junk map.');
             }
         });
@@ -1044,7 +1032,9 @@ describe('Maps', () => {
     });
 
     describe('GET maps/{mapID}/credits', () => {
-        const expects = (res) => res.body.forEach((x) => expect(x).toBeValidDto(MapCreditDto));
+        const expects = (res) => {
+            for (const x of res.body) expect(x).toBeValidDto(MapCreditDto);
+        };
 
         it('should respond with the specified maps credits', async () => {
             const res = await get(`maps/${map1.id}/credits`, 200);
@@ -1055,9 +1045,9 @@ describe('Maps', () => {
         it('should respond with the specified maps credits with the user expand parameter', async () => {
             const res = await get(`maps/${map1.id}/credits`, 200, { expand: 'user' });
             expects(res);
-            res.body.forEach((x) => {
+            for (const x of res.body) {
                 expect(x.user).toBeValidDto(UserDto);
-            });
+            }
         });
 
         it('should return 404 when no map credits found', () => get('maps/999999999999999/credits', 404));
@@ -1318,7 +1308,9 @@ describe('Maps', () => {
     });
 
     describe('GET /maps/{mapID}/zones', () => {
-        const expects = (res) => res.body.forEach((x) => expect(x).toBeValidDto(MapTrackDto));
+        const expects = (res) => {
+            for (const x of res.body) expect(x).toBeValidDto(MapTrackDto);
+        };
         it('should respond with the map zones', async () => {
             const res = await get(`maps/${map1.id}/zones`, 200);
             expects(res);
@@ -1539,7 +1531,7 @@ describe('Maps', () => {
 
             expects(res);
 
-            res.body.response.forEach((x) => expect(x.map).toHaveProperty('info'));
+            for (const x of res.body.response) expect(x.map).toHaveProperty('info');
         });
 
         it('should respond with a list of runs that are personal bests', async () => {
@@ -1549,10 +1541,10 @@ describe('Maps', () => {
 
             expect(res.body.totalCount).toBeGreaterThanOrEqual(2);
             expect(res.body.returnCount).toBeGreaterThanOrEqual(2);
-            res.body.response.forEach((x) => {
+            for (const x of res.body.response) {
                 expect(x).toHaveProperty('rank');
                 expect(x.id).not.toBe(run3.id);
-            });
+            }
         });
 
         it('should respond with a list of runs sorted by date', async () => {

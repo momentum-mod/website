@@ -119,7 +119,7 @@ export class AdminController {
     @ApiOperation({ description: 'Retrieve a list of maps' })
     @ApiOkPaginatedResponse(MapDto, { description: 'Paginated list of maps' })
     @ApiBadRequestResponse({ description: 'Invalid query data' })
-    getMaps(@Query() query: MapsCtlGetAllQuery): Promise<PaginatedResponseDto<MapDto>> {
+    getMaps(@Query() _query: MapsCtlGetAllQuery): Promise<PaginatedResponseDto<MapDto>> {
         return void 0;
     }
 
@@ -139,7 +139,7 @@ export class AdminController {
     })
     @ApiNoContentResponse({ description: 'The map was updated successfully' })
     @ApiBadRequestResponse({ description: 'Invalid map update data' })
-    updateMap(@Param('mapID', ParseIntPipe) mapID: number, @Body() body: UpdateMapDto) {
+    updateMap(@Param('mapID', ParseIntPipe) _mapID: number, @Body() _body: UpdateMapDto) {
         return void 0;
     }
 
@@ -154,7 +154,7 @@ export class AdminController {
         required: true
     })
     @ApiNoContentResponse({ description: 'The map was deleted successfully' })
-    deleteMap(@Param('mapID', ParseIntPipe) mapID: number) {
+    deleteMap(@Param('mapID', ParseIntPipe) _mapID: number) {
         return void 0;
     }
 
@@ -183,7 +183,7 @@ export class AdminController {
         required: true
     })
     @ApiNoContentResponse({ description: 'The report was updated successfully' })
-    updateReport(@Param('reportID', ParseIntPipe) reportID: number, @Body() body: ReportDto) {
+    updateReport(@Param('reportID', ParseIntPipe) _reportID: number, @Body() _body: ReportDto) {
         return void 0;
     }
 

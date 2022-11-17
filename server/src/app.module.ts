@@ -36,7 +36,7 @@ import { ConfigFactory } from '@config/config';
                 sentryOpts: {
                     dsn: config.get('sentry.dsn'),
                     debug: false,
-                    tracesSampleRate: 1.0
+                    tracesSampleRate: 1
                 }
             }),
             inject: [ConfigService]

@@ -329,7 +329,7 @@ describe('Users', () => {
     describe('GET /api/v1/users/{userID}/activities', () => {
         const expects = (res) => {
             expect(res.body).toBeValidPagedDto(ActivityDto);
-            res.body.response.forEach((r) => expect(r.user.alias).toBe(user1.alias));
+            for (const r of res.body.response) expect(r.user.alias).toBe(user1.alias);
         };
 
         it('should respond with a list of activities related to the specified user', async () => {
@@ -467,7 +467,7 @@ describe('Users', () => {
     describe('GET /api/v1/users/{userID}/runs', () => {
         const expects = (res) => {
             expect(res.body).toBeValidPagedDto(RunDto);
-            res.body.response.forEach((r) => expect(r.time).toBe(r.ticks * r.tickRate));
+            for (const r of res.body.response) expect(r.time).toBe(r.ticks * r.tickRate);
         };
 
         it('should respond with a list of runs for a specific user', async () => {

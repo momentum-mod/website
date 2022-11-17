@@ -125,14 +125,14 @@ export class RunSessionService {
 
             // Parse the bulk of the replay, further validations and extracting stats
             processedRun = processor.processReplayFileContents();
-        } catch (e) {
-            if (e instanceof RunValidationError) {
+        } catch (error) {
+            if (error instanceof RunValidationError) {
                 // If we hit any errors during validation we combine into bitflags to send back to client
                 throw new BadRequestException({
-                    message: `Run validation failed: ${e.message}`,
-                    code: e.code
+                    message: `Run validation failed: ${error.message}`,
+                    code: error.code
                 });
-            } else throw e;
+            } else throw error;
         }
 
         return processedRun;
@@ -157,20 +157,19 @@ export class RunSessionService {
         // if the existing rank exists or not.
         let mapRank;
         if (statsUpdate.isPersonalBest)
-            if (statsUpdate.existingRank)
-                mapRank = await this.runRepo.updateUserMapRank(
-                    { runID: statsUpdate.existingRank.runID },
-                    {
-                        run: { connect: { id: savedRun.id } },
-                        rank: statsUpdate.umrCreate.rank,
-                        rankXP: statsUpdate.umrCreate.rankXP
-                    }
-                );
-            else
-                mapRank = await this.runRepo.createUserMapRank({
-                    ...statsUpdate.umrCreate,
-                    run: { connect: { id: savedRun.id } }
-                });
+            mapRank = await (statsUpdate.existingRank
+                ? this.runRepo.updateUserMapRank(
+                      { runID: statsUpdate.existingRank.runID },
+                      {
+                          run: { connect: { id: savedRun.id } },
+                          rank: statsUpdate.umrCreate.rank,
+                          rankXP: statsUpdate.umrCreate.rankXP
+                      }
+                  )
+                : this.runRepo.createUserMapRank({
+                      ...statsUpdate.umrCreate,
+                      run: { connect: { id: savedRun.id } }
+                  }));
         // If it's not a PB then existingRank exists
         else mapRank = statsUpdate.existingRank;
 

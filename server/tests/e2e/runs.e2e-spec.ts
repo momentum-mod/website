@@ -322,7 +322,7 @@ describe('runs', () => {
 
             expects(res);
 
-            res.body.response.forEach((x) => expect(x.map).toHaveProperty('info'));
+            for (const x of res.body.response) expect(x.map).toHaveProperty('info');
         });
 
         it('should respond with a list of runs filtered by partial mapName match', async () => {
@@ -341,10 +341,10 @@ describe('runs', () => {
 
             expect(res.body.totalCount).toBeGreaterThanOrEqual(2);
             expect(res.body.returnCount).toBeGreaterThanOrEqual(2);
-            res.body.response.forEach((x) => {
+            for (const x of res.body.response) {
                 expect(x).toHaveProperty('rank');
                 expect([run2.id, run3.id]).not.toContain(BigInt(x.id));
-            });
+            }
         });
 
         it('should respond with a list of runs sorted by date', async () => {

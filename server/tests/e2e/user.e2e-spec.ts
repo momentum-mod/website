@@ -10,11 +10,21 @@ import { FollowStatusDto } from '@common/dto/user/followers.dto';
 import { ActivityDto } from '@common/dto/user/activity.dto';
 import { MapLibraryEntryDto } from '@common/dto/map/map-library-entry';
 import { NotificationDto } from '@common/dto/user/notification.dto';
-import { del, expandTest, get, patch, post, put, skipTest, takeTest } from '../util/test-util';
+import { del, expandTest, get, getNoContent, patch, post, put, skipTest, takeTest } from '../util/test-util';
 import { MapFavoriteDto } from '@common/dto/map/map-favorite.dto';
 
 describe('User', () => {
-    let user1, user2, user2Token, user3, user3Token, admin, adminGame, adminAccessToken, map1, map2, map3, activities;
+    let user1,
+        user2,
+        user2Token,
+        user3,
+        user3Token,
+        admin,
+        adminGame,
+        /* adminAccessToken */ map1,
+        map2,
+        map3,
+        activities;
 
     beforeEach(async () => {
         const prisma: PrismaService = global.prisma;
@@ -459,9 +469,8 @@ describe('User', () => {
         });
 
         // TODO: what?
-        it('should respond with 400 if the body is invalid', async () => {
-            const res = await get(`user/follow/${user2.id}`, 200, { notifyOn: 'burger' });
-        });
+        it('should respond with 400 if the body is invalid', () =>
+            get(`user/follow/${user2.id}`, 200, { notifyOn: 'burger' }));
 
         it('should respond with 404 if the target user does not exist', () =>
             patch('user/follow/178124314563', 404, { notifyOn: ActivityTypes.REVIEW_MADE }));
@@ -556,7 +565,7 @@ describe('User', () => {
     describe('GET /api/v1/user/activities', () => {
         const expects = (res) => {
             expect(res.body).toBeValidPagedDto(ActivityDto);
-            res.body.response.forEach((r) => expect(r.user.alias).toBe(user1.alias));
+            for (const r of res.body.response) expect(r.user.alias).toBe(user1.alias);
         };
 
         it('should retrieve the local users activities', async () => {
@@ -735,14 +744,14 @@ describe('User', () => {
             const res = await get('user/maps/favorites', 200, { expand: 'submitter' });
 
             expects(res);
-            res.body.response.forEach((x) => expect(x.map).toHaveProperty('submitter'));
+            for (const x of res.body.response) expect(x.map).toHaveProperty('submitter');
         });
 
         it('should retrieve a list of maps in the local users favorites with expanded thumbnail', async () => {
             const res = await get('user/maps/favorites', 200, { expand: 'thumbnail' });
 
             expects(res);
-            res.body.response.forEach((x) => expect(x.map).toHaveProperty('thumbnail'));
+            for (const x of res.body.response) expect(x.map).toHaveProperty('thumbnail');
         });
 
         // TODO ??? this is silly.

@@ -1,6 +1,7 @@
-﻿import * as request from 'supertest';
+﻿import request from 'supertest';
 import { ReplayFileWriter } from '@common/lib/replay-file-writer';
 import { BaseStatsFromGame, Replay, RunFrame, ZoneStatsFromGame } from '@modules/session/run/run-session.interfaces';
+import { Random } from '@lib/random.lib';
 
 const DEFAULT_DELAY_MS = 50; // TODO: Can probably go lower
 
@@ -154,9 +155,6 @@ export class RunTester {
             zoneNum: this.props.zoneNum
         };
 
-        const sumField = (fieldName: string): number =>
-            this.replay.zoneStats.reduce((r, zs: ZoneStatsFromGame) => r + zs.baseStats[fieldName], 0);
-
         if (this.replay.zoneStats.length > 0) {
             this.replay.zoneStats.push({
                 zoneNum: this.currZone,
@@ -164,20 +162,20 @@ export class RunTester {
             });
 
             this.replay.overallStats = {
-                jumps: sumField('jumps'),
-                strafes: sumField('strafes'),
-                avgStrafeSync: sumField('avgStrafeSync'),
-                avgStrafeSync2: sumField('avgStrafeSync2'),
+                jumps: this.sumField('jumps'),
+                strafes: this.sumField('strafes'),
+                avgStrafeSync: this.sumField('avgStrafeSync'),
+                avgStrafeSync2: this.sumField('avgStrafeSync2'),
                 enterTime: 0,
                 totalTime: this.replay.zoneStats.at(-1).baseStats.totalTime,
-                velMax3D: sumField('velMax3D'),
-                velMax2D: sumField('velMax2D'),
-                velAvg3D: sumField('velAvg3D'),
-                velAvg2D: sumField('velAvg2D'),
-                velEnter3D: sumField('velEnter3D'),
-                velEnter2D: sumField('velEnter2D'),
-                velExit3D: sumField('velExit3D'),
-                velExit2D: sumField('velExit2D')
+                velMax3D: this.sumField('velMax3D'),
+                velMax2D: this.sumField('velMax2D'),
+                velAvg3D: this.sumField('velAvg3D'),
+                velAvg2D: this.sumField('velAvg2D'),
+                velEnter3D: this.sumField('velEnter3D'),
+                velEnter2D: this.sumField('velEnter2D'),
+                velExit3D: this.sumField('velExit3D'),
+                velExit2D: this.sumField('velExit2D')
             };
         } else {
             this.replay.overallStats = RunTester.createStats(new Date(), 0);
@@ -201,6 +199,10 @@ export class RunTester {
             .attach('file', this.replayFile.buffer, 'file');
     }
 
+    private sumField(fieldName: string): number {
+        return this.replay.zoneStats.reduce((r, zs: ZoneStatsFromGame) => r + zs.baseStats[fieldName], 0);
+    }
+
     private writeReplayFile(writeStats = true, writeFrames = true) {
         // Header
         this.replayFile.writeHeader(this.replay);
@@ -212,15 +214,14 @@ export class RunTester {
 
             // Only testing non-IL for now
             this.replayFile.writeBaseStats(this.replay.overallStats, this.replay.header.tickRate);
-            this.replay.zoneStats.forEach((zone) =>
-                this.replayFile.writeBaseStats(zone.baseStats, this.replay.header.tickRate)
-            );
+            for (const zone of this.replay.zoneStats)
+                this.replayFile.writeBaseStats(zone.baseStats, this.replay.header.tickRate);
         }
 
         if (writeFrames) {
             this.replayFile.writeInt32(this.replay.frames.length);
             // Frames
-            this.replay.frames.forEach((frame) => this.replayFile.writeRunFrame(frame));
+            for (const frame of this.replay.frames) this.replayFile.writeRunFrame(frame);
         }
     }
 
@@ -233,7 +234,7 @@ export class RunTester {
             avgStrafeSync: Random.float(70, 90),
             avgStrafeSync2: Random.float(70, 90),
             enterTime: previousTime,
-            totalTime: (new Date().getTime() - startDate.getTime()) / 1000,
+            totalTime: (Date.now() - startDate.getTime()) / 1000,
             velMax3D: Random.float(0, sqrt3 * 3500),
             velMax2D: Random.float(0, sqrt2 * 3500),
             velAvg3D: Random.float(0, sqrt3 * 3500),

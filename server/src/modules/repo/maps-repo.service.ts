@@ -142,9 +142,7 @@ export class MapsRepoService {
 
     //#region MapInfo
     async getInfo(mapId: number): Promise<MapInfo> {
-        const mapInfo = await this.prisma.mapInfo.findUnique({ where: { mapID: mapId } });
-
-        return mapInfo;
+        return await this.prisma.mapInfo.findUnique({ where: { mapID: mapId } });
     }
 
     async updateInfo(mapID: number, data: Prisma.MapInfoUpdateInput): Promise<MapInfo> {

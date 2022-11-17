@@ -8,12 +8,12 @@
     FUCKY_BEHAVIOUR
 }
 
-interface ErrData {
+interface ErrorData {
     code: number;
     message: string;
 }
 
-export const RunValidationErrors: Record<RunValidationErrorTypes, ErrData> = {
+export const RunValidationErrors: Record<RunValidationErrorTypes, ErrorData> = {
     [RunValidationErrorTypes.BAD_TIMESTAMPS]: { code: 0, message: 'run timestamps were misordered' },
     [RunValidationErrorTypes.BAD_REPLAY_FILE]: { code: 1, message: 'invalid replay file' },
     [RunValidationErrorTypes.BAD_META]: { code: 2, message: 'invalid metadata' },
