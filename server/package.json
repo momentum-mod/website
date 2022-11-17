@@ -29,6 +29,7 @@
         "test:cov": "jest --coverage",
         "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
         "lint": "eslint \"{src,tests,lib,config}/**/*.ts\" --fix",
+        "lint:check": "eslint \"{src,tests,lib,config}/**/*.ts\"",
         "format": "prettier --write \"{src,lib,tests,config}/**/*.ts\"",
         "format:check": "prettier --check \"{src,lib,tests,config}/**/*.ts\"",
         "prepare": "cd .. && husky install server/.husky",
