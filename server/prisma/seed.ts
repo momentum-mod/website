@@ -55,7 +55,7 @@ async function createRandomUser() {
     return await prisma.user.create({
         data: {
             steamID: Random.int(1000000000, 99999999999).toString(),
-            alias: faker.name.findName(),
+            alias: faker.name.fullName(),
             aliasLocked: faker.datatype.boolean(),
             avatar: 'ac7305567f93a4c9eec4d857df993191c61fb240_full.jpg',
             country: faker.address.countryCode(),
