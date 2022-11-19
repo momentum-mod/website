@@ -16,13 +16,13 @@ export const DtoFactory = <T>(
 ): T => {
     if (!input) return nullReturnsEmptyObject ? ({} as T) : undefined;
     else {
-        const dto = new type();
+        const dto = new type() as Record<string, unknown>;
         for (const key in input) {
             if (key && key in dto && dto[key] === undefined) {
                 dto[key] = input[key];
             }
         }
-        return dto;
+        return dto as T;
     }
 };
 
