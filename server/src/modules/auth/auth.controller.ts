@@ -1,7 +1,7 @@
 import { Req, Res, Controller, Get, Post, UseGuards, RawBodyRequest } from '@nestjs/common';
 import { Request } from 'express';
 import { ApiOperation, ApiTags } from '@nestjs/swagger';
-import * as passport from 'passport';
+import passport from 'passport';
 import { Public } from '@common/decorators/public.decorator';
 import { AuthService } from './auth.service';
 import { SteamWebAuthGuard } from '@common/guards/steam-web-auth.guard';
