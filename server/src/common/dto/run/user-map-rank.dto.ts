@@ -1,8 +1,8 @@
 ﻿import { User, UserMapRank, Map as MapDB } from '@prisma/client';
 import { ApiProperty } from '@nestjs/swagger';
-import { IsDateString, IsDefined, IsInt, ValidateNested } from 'class-validator';
+import { IsDateString, IsDefined, IsInt } from 'class-validator';
 import { Transform } from 'class-transformer';
-import { DtoFactory } from '@lib/dto.lib';
+import { NestedDto } from '@lib/dto.lib';
 import { RunDto } from './runs.dto';
 import { UserDto } from '../user/user.dto';
 import { MapDto } from '../map/map.dto';
@@ -37,27 +37,21 @@ export class UserMapRankDto implements UserMapRank {
     @IsInt()
     rankXP: number;
 
-    @ApiProperty()
-    @ValidateNested()
-    @Transform(({ value }) => DtoFactory(MapDto, value))
+    @NestedDto(MapDto)
     map: MapDB;
 
     @ApiProperty()
     @IsInt()
     mapID: number;
 
-    @ApiProperty()
-    @ValidateNested()
-    @Transform(({ value }) => DtoFactory(UserDto, value))
+    @NestedDto(UserDto)
     user: User;
 
     @ApiProperty()
     @IsInt()
     userID: number;
 
-    @ApiProperty()
-    @ValidateNested()
-    @Transform(({ value }) => DtoFactory(RunDto, value))
+    @NestedDto(RunDto)
     run: RunDto;
 
     @ApiProperty()

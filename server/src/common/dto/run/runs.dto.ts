@@ -2,10 +2,10 @@ import { UserDto } from '../user/user.dto';
 import { MapRankDto } from '../map/map-rank.dto';
 import { Run } from '@prisma/client';
 import { ApiProperty } from '@nestjs/swagger';
-import { IsDateString, IsDefined, IsInt, ValidateNested } from 'class-validator';
+import { IsDateString, IsDefined, IsInt } from 'class-validator';
 import { Transform } from 'class-transformer';
 import { MapDto } from '../map/map.dto';
-import { DtoFactory } from '@lib/dto.lib';
+import { NestedDto } from '@lib/dto.lib';
 import { BaseStatsDto } from '../stats/base-stats.dto';
 import { RunZoneStatsDto } from './run-zone-stats.dto';
 
@@ -64,14 +64,10 @@ export class RunDto implements Run {
     @ApiProperty()
     hash: string;
 
-    @ApiProperty()
-    @Transform(({ value }) => DtoFactory(BaseStatsDto, value))
-    @ValidateNested()
+    @NestedDto(BaseStatsDto)
     overallStats: BaseStatsDto;
 
-    @ApiProperty({ type: () => RunZoneStatsDto })
-    @Transform(({ value }) => value?.map((x) => DtoFactory(RunZoneStatsDto, x)))
-    @ValidateNested()
+    @NestedDto(RunZoneStatsDto, { type: () => RunZoneStatsDto, isArray: true })
     zoneStats: RunZoneStatsDto[];
 
     @ApiProperty()
@@ -90,14 +86,10 @@ export class RunDto implements Run {
     @IsInt()
     userID: number;
 
-    @ApiProperty({ type: () => UserDto })
-    @Transform(({ value }) => DtoFactory(UserDto, value))
-    @ValidateNested()
+    @NestedDto(UserDto, { type: () => UserDto })
     user: UserDto;
 
-    @ApiProperty({ type: () => MapRankDto })
-    @Transform(({ value }) => DtoFactory(MapRankDto, value))
-    @ValidateNested()
+    @NestedDto(MapRankDto, { type: () => MapRankDto })
     rank: MapRankDto;
 
     @ApiProperty()
@@ -105,8 +97,6 @@ export class RunDto implements Run {
     @IsInt()
     mapID: number;
 
-    @ApiProperty({ type: () => MapDto })
-    @Transform(({ value }) => DtoFactory(MapDto, value))
-    @ValidateNested()
+    @NestedDto(MapDto)
     map: MapDto;
 }

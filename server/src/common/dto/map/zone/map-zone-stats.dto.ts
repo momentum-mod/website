@@ -1,9 +1,9 @@
 ﻿import { MapZoneStats } from '@prisma/client';
-import { Exclude, Transform } from 'class-transformer';
+import { Exclude } from 'class-transformer';
 import { ApiProperty } from '@nestjs/swagger';
-import { IsInt, ValidateNested } from 'class-validator';
+import { IsInt } from 'class-validator';
 import { BaseStatsDto } from '../../stats/base-stats.dto';
-import { DtoFactory } from '@lib/dto.lib';
+import { NestedDto } from '@lib/dto.lib';
 
 export class MapZoneStatsDto implements MapZoneStats {
     @Exclude()
@@ -23,10 +23,8 @@ export class MapZoneStatsDto implements MapZoneStats {
     @Exclude()
     baseStatsID: bigint;
 
-    @ApiProperty()
-    @Transform(({ value }) => value?.map((x) => DtoFactory(BaseStatsDto, x)))
-    @ValidateNested()
-    baseStats: BaseStatsDto;
+    @NestedDto(BaseStatsDto, { required: false })
+    baseStats?: BaseStatsDto;
 
     @Exclude()
     createdAt: Date;

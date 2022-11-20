@@ -1,9 +1,8 @@
 ﻿import { MapLibraryEntry } from '@prisma/client';
 import { ApiProperty } from '@nestjs/swagger';
-import { IsDateString, IsInt, ValidateNested } from 'class-validator';
-import { Transform } from 'class-transformer';
+import { IsDateString, IsInt } from 'class-validator';
 import { UserDto } from '../user/user.dto';
-import { DtoFactory } from '@lib/dto.lib';
+import { NestedDto } from '@lib/dto.lib';
 import { MapDto } from './map.dto';
 
 export class MapLibraryEntryDto implements MapLibraryEntry {
@@ -18,18 +17,14 @@ export class MapLibraryEntryDto implements MapLibraryEntry {
     @IsInt()
     userID: number;
 
-    @ApiProperty({ type: () => UserDto })
-    @Transform(({ value }) => DtoFactory(UserDto, value))
-    @ValidateNested()
+    @NestedDto(UserDto, { type: () => UserDto })
     user: UserDto;
 
     @ApiProperty()
     @IsInt()
     mapID: number;
 
-    @ApiProperty({ type: () => MapDto })
-    @Transform(({ value }) => DtoFactory(MapDto, value))
-    @ValidateNested()
+    @NestedDto(MapDto, { type: () => MapDto })
     map: MapDto;
 
     @ApiProperty()

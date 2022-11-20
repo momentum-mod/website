@@ -1,19 +1,11 @@
 import { User } from '@prisma/client';
 import { ApiProperty, ApiPropertyOptional, PickType } from '@nestjs/swagger';
-import {
-    IsDateString,
-    IsDefined,
-    IsInt,
-    IsISO31661Alpha2,
-    IsOptional,
-    IsString,
-    ValidateNested
-} from 'class-validator';
-import { Exclude, Expose, Transform, Type } from 'class-transformer';
+import { IsDateString, IsDefined, IsInt, IsISO31661Alpha2, IsOptional, IsString } from 'class-validator';
+import { Exclude, Expose, Type } from 'class-transformer';
 import { IsSteamCommunityID } from '../../validators/is-steam-id.validator';
 import { ProfileDto } from './profile.dto';
 import { MapRankDto } from '../map/map-rank.dto';
-import { DtoFactory } from '@lib/dto.lib';
+import { NestedDto } from '@lib/dto.lib';
 import { BansDto, UpdateBansDto } from './bans.dto';
 import { RolesDto, UpdateRolesDto } from './roles.dto';
 import { Config } from '@config/config';
@@ -58,33 +50,23 @@ export class UserDto implements User {
     @Exclude()
     avatar: string;
 
-    @ApiProperty({ description: "The user's profile" })
-    @Transform(({ value }) => DtoFactory(ProfileDto, value))
-    @ValidateNested()
+    @NestedDto(ProfileDto, { description: "The users's bio, containing information like bio and badges" })
     profile: ProfileDto;
 
-    @ApiPropertyOptional({ description: "The user's roles" })
-    @Transform(({ value }) => DtoFactory(RolesDto, value))
-    @ValidateNested()
+    @NestedDto(RolesDto, { description: "The user's roles" })
     roles: RolesDto;
 
-    @ApiPropertyOptional({ description: "The user's bans" })
-    @Transform(({ value }) => DtoFactory(BansDto, value))
-    @ValidateNested()
+    @NestedDto(BansDto, { description: "The user's bans" })
     bans: BansDto;
 
-    @ApiProperty({ description: 'The map rank data for the user on a specific map' })
-    @Transform(({ value }) => DtoFactory(MapRankDto, value))
-    @ValidateNested()
+    @NestedDto(MapRankDto, { description: 'The map rank data for the user on a specific map' })
     mapRank: MapRankDto;
 
     @ApiProperty()
-    @IsDefined()
     @IsDateString()
     createdAt: Date;
 
     @ApiProperty()
-    @IsDefined()
     @IsDateString()
     updatedAt: Date;
 
@@ -120,14 +102,10 @@ export class UpdateUserDto {
 }
 
 export class AdminUpdateUserDto extends UpdateUserDto {
-    @ApiPropertyOptional({ description: 'The new roles to set' })
-    @Transform(({ value }) => DtoFactory(UpdateRolesDto, value))
-    @ValidateNested()
+    @NestedDto(UpdateRolesDto, { description: 'The new roles to set', required: false })
     roles?: UpdateRolesDto;
 
-    @ApiPropertyOptional({ description: 'The new bans to set' })
-    @Transform(({ value }) => DtoFactory(UpdateBansDto, value))
-    @ValidateNested()
+    @NestedDto(UpdateRolesDto, { description: 'The new bans to set', required: false })
     bans?: UpdateBansDto;
 }
 

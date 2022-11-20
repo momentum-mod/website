@@ -13,10 +13,9 @@ import {
     IsInt,
     IsOptional,
     IsString,
-    IsUrl,
-    ValidateNested
+    IsUrl
 } from 'class-validator';
-import { DtoFactory } from '@lib/dto.lib';
+import { NestedDto } from '@lib/dto.lib';
 import { CreateMapInfoDto, MapInfoDto } from './map-info.dto';
 import { CreateMapTrackDto, MapTrackDto } from './map-track.dto';
 import { IsMapName } from '../../validators/is-map-name.validator';
@@ -25,7 +24,7 @@ import { CreateMapCreditDto, MapCreditDto } from './map-credit.dto';
 import { MapFavoriteDto } from './map-favorite.dto';
 import { MapLibraryEntryDto } from './map-library-entry';
 import { MapRankDto } from './map-rank.dto';
-import { Exclude, Expose, Transform, Type } from 'class-transformer';
+import { Exclude, Expose } from 'class-transformer';
 import { Config } from '@config/config';
 
 export class MapDto implements MapDB {
@@ -65,9 +64,7 @@ export class MapDto implements MapDB {
     @ApiProperty()
     thumbnailID: number;
 
-    @ApiProperty()
-    @Transform(({ value }) => DtoFactory(MapImageDto, value))
-    @ValidateNested()
+    @NestedDto(MapImageDto)
     thumbnail: MapImageDto;
 
     @ApiProperty()
@@ -78,59 +75,40 @@ export class MapDto implements MapDB {
     @Exclude()
     mainTrackID: number;
 
-    @ApiProperty()
-    @Transform(({ value }) => DtoFactory(MapTrackDto, value))
-    @ValidateNested()
-    mainTrack: MapTrackDto;
+    @NestedDto(MapTrackDto, { required: false })
+    mainTrack?: MapTrackDto;
 
-    @ApiProperty()
-    @Transform(({ value }) => DtoFactory(MapInfoDto, value))
-    @ValidateNested()
+    @NestedDto(MapInfoDto, { required: false })
     info?: MapInfoDto;
 
-    @ApiProperty({ type: () => UserDto })
-    @Transform(({ value }) => DtoFactory(UserDto, value))
-    @ValidateNested()
-    submitter?: UserDto;
+    @NestedDto(UserDto, {
+        type: () => UserDto,
+        description: 'The user the submitted the map'
+    })
+    submitter: UserDto;
 
-    @ApiProperty()
-    @Transform(({ value }) => value?.map((x) => DtoFactory(MapImageDto, x)))
-    @ValidateNested()
+    @NestedDto(MapImageDto, { required: false, isArray: true })
     images?: MapImageDto[];
 
-    @ApiProperty()
-    @Transform(({ value }) => value?.map((x) => DtoFactory(MapTrackDto, x)))
-    @ValidateNested()
-    tracks: MapTrackDto[];
+    @NestedDto(MapTrackDto, { required: false, isArray: true })
+    tracks?: MapTrackDto[];
 
-    @ApiProperty()
-    @Transform(({ value }) => DtoFactory(BaseStatsDto, value))
-    @ValidateNested()
+    @NestedDto(BaseStatsDto)
     stats: BaseStatsDto;
 
-    @ApiProperty()
-    @Transform(({ value }) => value?.map((x) => DtoFactory(MapCreditDto, x)))
-    @ValidateNested()
+    @NestedDto(MapCreditDto)
     credits: MapCreditDto[];
 
-    @ApiProperty()
-    @Transform(({ value }) => value?.map((x) => DtoFactory(MapFavoriteDto, x)))
-    @ValidateNested()
+    @NestedDto(MapFavoriteDto)
     favorites: MapFavoriteDto[];
 
-    @ApiProperty()
-    @Transform(({ value }) => value?.map((x) => DtoFactory(MapLibraryEntryDto, x)))
-    @ValidateNested()
+    @NestedDto(MapLibraryEntryDto, { required: false, isArray: true })
     libraryEntries?: MapLibraryEntryDto[];
 
-    @ApiProperty({ type: () => MapRankDto })
-    @Transform(({ value }) => DtoFactory(MapRankDto, value))
-    @ValidateNested()
+    @NestedDto(MapRankDto, { type: () => MapRankDto, required: false })
     worldRecord?: MapRankDto;
 
-    @ApiProperty({ type: () => MapRankDto })
-    @Transform(({ value }) => DtoFactory(MapRankDto, value))
-    @ValidateNested()
+    @NestedDto(MapRankDto, { type: () => MapRankDto, required: false })
     personalBest?: MapRankDto;
 
     @ApiProperty()
@@ -145,20 +123,16 @@ export class MapDto implements MapDB {
 export class UpdateMapDto extends PickType(MapDto, ['statusFlag'] as const) {}
 
 export class CreateMapDto extends PickType(MapDto, ['name', 'type'] as const) {
-    @ApiProperty()
-    @Type()
-    @ValidateNested()
+    @NestedDto(CreateMapInfoDto)
     info: CreateMapInfoDto;
 
-    @ApiProperty()
-    @Type(() => CreateMapTrackDto)
-    @ValidateNested()
+    @NestedDto(CreateMapTrackDto, { isArray: true })
     @IsArray()
     @ArrayMinSize(1)
     tracks: CreateMapTrackDto[];
 
-    @ApiProperty()
-    @Type(() => CreateMapCreditDto)
-    @ValidateNested()
+    @NestedDto(CreateMapCreditDto, { isArray: true })
+    @IsArray()
+    @ArrayMinSize(1)
     credits: CreateMapCreditDto[];
 }

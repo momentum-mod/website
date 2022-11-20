@@ -1,7 +1,6 @@
 ﻿import { ApiProperty } from '@nestjs/swagger';
-import { IsBoolean, ValidateNested } from 'class-validator';
-import { Transform } from 'class-transformer';
-import { DtoFactory } from '@lib/dto.lib';
+import { IsBoolean } from 'class-validator';
+import { NestedDto } from '@lib/dto.lib';
 import { UserMapRankDto } from './user-map-rank.dto';
 import { RunDto } from './runs.dto';
 
@@ -29,14 +28,10 @@ export class CompletedRunDto {
     @IsBoolean()
     isNewPersonalBest: boolean;
 
-    @ApiProperty()
-    @ValidateNested()
-    @Transform(({ value }) => DtoFactory(UserMapRankDto, value))
+    @NestedDto(UserMapRankDto)
     rank: UserMapRankDto;
 
-    @ApiProperty()
-    @ValidateNested()
-    @Transform(({ value }) => DtoFactory(RunDto, value))
+    @NestedDto(UserMapRankDto)
     run: RunDto;
 
     @ApiProperty()

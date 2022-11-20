@@ -1,11 +1,11 @@
 import { MapCredit } from '@prisma/client';
 import { UserDto } from '../user/user.dto';
 import { MapDto } from './map.dto';
-import { ApiProperty, PickType } from '@nestjs/swagger';
-import { IsEnum, IsInt, IsOptional, ValidateNested } from 'class-validator';
+import { ApiProperty, ApiPropertyOptional, PickType } from '@nestjs/swagger';
+import { IsEnum, IsInt, IsOptional } from 'class-validator';
 import { MapCreditType } from '../../enums/map.enum';
-import { DtoFactory } from '@lib/dto.lib';
-import { Exclude, Transform } from 'class-transformer';
+import { NestedDto } from '@lib/dto.lib';
+import { Exclude } from 'class-transformer';
 
 export class MapCreditDto implements MapCredit {
     @ApiProperty()
@@ -24,14 +24,10 @@ export class MapCreditDto implements MapCredit {
     @IsInt()
     mapID: number;
 
-    @ApiProperty({ type: () => UserDto })
-    @Transform(({ value }) => DtoFactory(UserDto, value))
-    @ValidateNested()
+    @NestedDto(UserDto, { type: () => UserDto })
     user: UserDto;
 
-    @ApiProperty({ type: () => MapDto })
-    @Transform(({ value }) => DtoFactory(MapDto, value))
-    @ValidateNested()
+    @NestedDto(MapDto, { type: () => MapDto })
     map: MapDto;
 
     @Exclude()
@@ -44,12 +40,12 @@ export class MapCreditDto implements MapCredit {
 export class CreateMapCreditDto extends PickType(MapCreditDto, ['userID', 'type'] as const) {}
 
 export class UpdateMapCreditDto {
-    @ApiProperty({ description: 'The new user ID to set', type: Number })
+    @ApiPropertyOptional({ description: 'The new user ID to set', type: Number })
     @IsInt()
     @IsOptional()
     userID?: number;
 
-    @ApiProperty({ description: 'The new map credit type to set', enum: MapCreditType })
+    @ApiPropertyOptional({ description: 'The new map credit type to set', enum: MapCreditType })
     @IsEnum(MapCreditType)
     @IsOptional()
     type?: number;
