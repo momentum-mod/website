@@ -1,8 +1,7 @@
-import { pathsToModuleNameMapper } from 'ts-jest';
+import { JestConfigWithTsJest, pathsToModuleNameMapper } from 'ts-jest';
 import { compilerOptions } from '../../tsconfig.json';
-import { InitialOptionsTsJest } from 'ts-jest';
 
-const jestConfig: InitialOptionsTsJest = {
+const jestConfig: JestConfigWithTsJest = {
     preset: 'ts-jest',
     rootDir: '../../',
     roots: ['<rootDir>'],
