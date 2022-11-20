@@ -2,13 +2,13 @@
 import { Transform, Type } from 'class-transformer';
 import { IsInt, IsOptional } from 'class-validator';
 import { MapStatus } from '../../enums/map.enum';
-import { ExpandQueryDecorators, SkipQueryDecorators, TakeQueryDecorators } from '@lib/dto.lib';
+import { ExpandQueryDecorators, SkipQuery, TakeQuery } from '@lib/dto.lib';
 
 export class RunsGetAllQuery {
-    @SkipQueryDecorators(0)
+    @SkipQuery(0)
     skip = 0;
 
-    @TakeQueryDecorators(10)
+    @TakeQuery(10)
     take = 10;
 
     @ExpandQueryDecorators(['overallStats', 'map', 'mapWithInfo', 'rank', 'zoneStats'])

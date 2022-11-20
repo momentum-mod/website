@@ -5,7 +5,7 @@ import { ActivityTypes } from '../../enums/activity.enum';
 import { IsDateString, IsDefined, ValidateNested } from 'class-validator';
 import { Exclude, Transform } from 'class-transformer';
 import { IsEnumFlag } from '../../validators/is-enum-flag.validator';
-import { DtoFactory } from '@lib/dto.lib';
+import { DtoFactory, NestedDto } from '@lib/dto.lib';
 
 export class FollowDto implements Follow {
     @ApiPropertyOptional({
@@ -23,14 +23,10 @@ export class FollowDto implements Follow {
     @Exclude()
     followeeID: number;
 
-    @ApiProperty({ description: 'The user that is being followed' })
-    @Transform(({ value }) => DtoFactory(UserDto, value))
-    @ValidateNested()
+    @NestedDto(UserDto, { description: 'The user that is being followed' })
     followed: UserDto;
 
-    @ApiProperty({ description: 'The user that is doing the following' })
-    @Transform(({ value }) => DtoFactory(UserDto, value))
-    @ValidateNested()
+    @NestedDto(UserDto, { description: 'The user that is doing the following' })
     followee: UserDto;
 
     @ApiProperty()

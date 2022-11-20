@@ -38,6 +38,10 @@ export class PaginatedResponseDto<T> {
     })
     returnCount: number;
 
+    @ApiProperty({
+        isArray: true,
+        description: 'Array of the response type found'
+    })
     response: T[];
 
     constructor(c: { new (): T }, [data, count]) {

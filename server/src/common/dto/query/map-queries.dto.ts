@@ -2,13 +2,13 @@
 import { IsEnum, IsInt, IsOptional, IsString } from 'class-validator';
 import { Type } from 'class-transformer';
 import { MapStatus, MapType } from '../../enums/map.enum';
-import { ExpandQueryDecorators, SkipQueryDecorators, TakeQueryDecorators } from '@lib/dto.lib';
+import { ExpandQueryDecorators, SkipQuery, TakeQuery } from '@lib/dto.lib';
 
 class MapsGetAllBaseQuery {
-    @SkipQueryDecorators(0)
+    @SkipQuery(0)
     skip = 0;
 
-    @TakeQueryDecorators(100)
+    @TakeQuery(100)
     take = 100;
 
     @ApiPropertyOptional({

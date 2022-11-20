@@ -1,8 +1,9 @@
 ﻿import { MapZoneTrigger, Prisma } from '@prisma/client';
-import { Exclude, Type } from 'class-transformer';
-import { IsInt, IsJSON, Max, ValidateNested } from 'class-validator';
+import { Exclude } from 'class-transformer';
+import { IsInt, IsJSON, Max } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 import { MapZoneTriggerPropertiesDto } from './map-zone-trigger-properties.dto';
+import { NestedDto } from '@lib/dto.lib';
 
 export class MapZoneTriggerDto implements MapZoneTrigger {
     @Exclude()
@@ -25,10 +26,8 @@ export class MapZoneTriggerDto implements MapZoneTrigger {
     // TODO: Should have max 32 values and match /p\d+/
     points: Prisma.JsonValue;
 
-    @ApiProperty()
-    @Type()
-    @ValidateNested()
-    properties: MapZoneTriggerPropertiesDto;
+    @NestedDto(MapZoneTriggerPropertiesDto, { required: false })
+    properties?: MapZoneTriggerPropertiesDto;
 
     @Exclude()
     zoneID: number;

@@ -1,9 +1,9 @@
 ﻿import { MapTrack } from '@prisma/client';
-import { Exclude, Transform, Type } from 'class-transformer';
+import { Exclude } from 'class-transformer';
 import { ApiProperty, PickType } from '@nestjs/swagger';
-import { ArrayMinSize, IsArray, IsBoolean, IsDateString, IsInt, Max, ValidateNested } from 'class-validator';
+import { ArrayMinSize, IsArray, IsBoolean, IsDateString, IsInt, Max } from 'class-validator';
 import { CreateMapZoneDto, MapZoneDto } from './zone/map-zone.dto';
-import { DtoFactory } from '@lib/dto.lib';
+import { NestedDto } from '@lib/dto.lib';
 
 export class MapTrackDto implements MapTrack {
     @Exclude()
@@ -28,9 +28,7 @@ export class MapTrackDto implements MapTrack {
     @Max(10)
     difficulty: number;
 
-    @ApiProperty()
-    @Transform(({ value }) => value?.map((x) => DtoFactory(MapZoneDto, x)))
-    @ValidateNested()
+    @NestedDto(MapZoneDto, { isArray: true })
     zones: MapZoneDto[];
 
     @Exclude()
@@ -51,9 +49,7 @@ export class CreateMapTrackDto extends PickType(MapTrackDto, [
     'numZones',
     'difficulty'
 ] as const) {
-    @ApiProperty()
-    @Type(() => CreateMapZoneDto)
-    @ValidateNested()
+    @NestedDto(CreateMapZoneDto, { isArray: true })
     @IsArray()
     @ArrayMinSize(2)
     zones: CreateMapZoneDto[];
