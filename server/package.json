@@ -42,10 +42,8 @@
         "seed": "ts-node -r tsconfig-paths/register prisma/seed.ts"
     },
     "lint-staged": {
-        "*.{js,ts}": [
-            "eslint --quiet --fix"
-        ],
-        "*.{json,md,html,js,ts}": [
+        "{src,lib,tests,config}/**/*.ts": [
+            "eslint --quiet --fix",
             "prettier --write"
         ]
     },
