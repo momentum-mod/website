@@ -34,13 +34,13 @@ export const ConfigFactory = (): ConfigInterface => {
             auth: process.env.AUTH_URL ?? defaults.url,
             cdn: process.env.CDN_URL ?? defaults.cdnUrl
         },
+        domain: isProd ? 'momentum-mod.org' : 'localhost',
         appIDs: [669270, 1802710],
         accessToken: {
             secret: process.env.JWT_SECRET ?? defaults.secret,
             expTime: '15m',
             gameExpTime: '24h',
-            refreshExpTime: '5d',
-            gameRefreshExpTime: '5d'
+            refreshExpTime: '5d'
         },
         discord: {
             clientID: process.env.DISCORD_CLIENT_ID ?? defaults.social.id,
@@ -54,7 +54,6 @@ export const ConfigFactory = (): ConfigInterface => {
             clientID: process.env.TWITCH_CLIENT_ID ?? defaults.social.id,
             clientSecret: process.env.TWITCH_CLIENT_SECRET ?? defaults.social.secret
         },
-        domain: isProd ? 'momentum-mod.org' : 'localhost',
         sentry: {
             dsn: process.env.SENTRY_DSN
         },

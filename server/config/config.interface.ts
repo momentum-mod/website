@@ -21,7 +21,6 @@ export interface Config {
         expTime: string;
         gameExpTime: string;
         refreshExpTime: string;
-        gameRefreshExpTime: string;
     };
     discord: {
         clientID: string;
