@@ -11,6 +11,7 @@ import {
     ParseIntPipe,
     Post,
     UploadedFile,
+    UseGuards,
     UseInterceptors
 } from '@nestjs/common';
 import {
@@ -30,6 +31,7 @@ import { RunSessionTimestampDto } from '@common/dto/run/run-session-timestamp.dt
 import { FileInterceptor } from '@nestjs/platform-express';
 import { CompletedRunDto } from '@common/dto/run/completed-run.dto';
 import { RunSessionService } from './run/run-session.service';
+import { GameAuthGuard } from '@modules/auth/guards/game-auth.guard';
 
 @Controller('session')
 @UseGuards(GameAuthGuard)
@@ -38,7 +40,6 @@ import { RunSessionService } from './run/run-session.service';
 export class SessionController {
     constructor(private readonly runSessionService: RunSessionService) {}
 
-    // TODO: require game auth decorator
     @Post('/run')
     @HttpCode(HttpStatus.OK)
     @ApiOperation({ summary: 'Starts a run' })
