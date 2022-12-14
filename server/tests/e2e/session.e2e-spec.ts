@@ -143,7 +143,7 @@ describe('Session', () => {
         const authService: AuthService = global.auth as AuthService;
         global.accessToken = (await authService.login(user1)).access_token;
         user2Token = (await authService.login(user2)).access_token;
-        // TODO: nongameauthtoken
+        nonGameAuthToken = (await authService.loginWeb(user2)).accessToken;
     });
 
     afterEach(async () => {
@@ -176,9 +176,13 @@ describe('Session', () => {
         it('should respond with 401 when no access token is provided', () =>
             post(`session/run`, 401, { mapID: map.id, trackNum: 0, zoneNum: 0 }, null));
 
-        // TODO once game auth done
-        it('should return 403 if not using a game API key', async () =>
-            post(`session/run`, 403, { mapID: map.id, trackNum: 0, zoneNum: 0 }, nonGameAuthToken));
+        it('should return 403 if not using a game API key', () =>
+            post({
+                url: `session/run`,
+                status: 403,
+                body: { mapID: map.id, trackNum: 0, zoneNum: 0 },
+                token: nonGameAuthToken
+            }));
     });
 
     describe('DELETE session/run', () => {
@@ -194,8 +198,12 @@ describe('Session', () => {
 
         it('should respond with 401 when no access token is provided', () => del(`session/run`, 401, null));
 
-        // TODO once game auth done
-        it('should return 403 if not using a game API key', () => del(`session/run`, nonGameAuthToken));
+        it('should return 403 if not using a game API key', () =>
+            del({
+                url: `session/run`,
+                status: 403,
+                token: nonGameAuthToken
+            }));
     });
 
     describe('POST session/run/:sessionID', () => {
