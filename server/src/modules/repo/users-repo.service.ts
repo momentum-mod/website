@@ -92,14 +92,16 @@ export class UsersRepoService {
     //#endregion
 
     //#region User Auth functions
-    async getAuth(whereInput: Prisma.UserAuthWhereUniqueInput): Promise<UserAuth> {
-        return await this.prisma.userAuth.findFirst({ where: whereInput });
+
+    async getAuth(userID: number): Promise<UserAuth> {
+        return await this.prisma.userAuth.findFirst({ where: { userID: userID } });
     }
 
-    async updateAuth(user: Prisma.UserAuthWhereUniqueInput, update: Prisma.UserAuthUpdateInput): Promise<UserAuth> {
-        return await this.prisma.userAuth.update({
-            where: user,
-            data: update
+    async upsertAuth(userID: number, refreshToken: string): Promise<UserAuth> {
+        return await this.prisma.userAuth.upsert({
+            where: { userID: userID },
+            update: { refreshToken: refreshToken },
+            create: { userID: userID, refreshToken: refreshToken }
         });
     }
 

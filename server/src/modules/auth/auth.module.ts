@@ -1,16 +1,16 @@
 import { Module } from '@nestjs/common';
-import { JwtAuthGuard } from '@common/guards/jwt-auth.guard';
 import { AuthService } from './auth.service';
 import { PassportModule } from '@nestjs/passport';
 import { JwtStrategy } from './strategy/jwt.strategy';
 import { JwtModule } from '@nestjs/jwt';
 import { HttpModule } from '@nestjs/axios';
-import { SteamWebStrategy } from './strategy/steam-web.strategy';
-import { SteamAuthService } from './steam-auth.service';
-import { AuthController } from './auth.controller';
-import { UsersModule } from '../users/users.module';
-import { RepoModule } from '../repo/repo.module';
+import { SteamWebStrategy } from '@modules/auth/strategy/steam-web.strategy';
+import { SteamAuthService } from '@modules/auth/steam-auth.service';
+import { AuthController } from '@modules/auth/auth.controller';
+import { UsersModule } from '@modules/users/users.module';
+import { RepoModule } from '@modules/repo/repo.module';
 import { ConfigModule, ConfigService } from '@nestjs/config';
+import { JwtAuthGuard } from '@modules/auth/guards/jwt-auth.guard';
 
 @Module({
     imports: [
@@ -21,9 +21,7 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
             imports: [ConfigModule],
             useFactory: async (config: ConfigService) => ({
                 secret: config.get('accessToken.secret'),
-                signOptions: {
-                    expiresIn: config.get('accessToken.expTime')
-                }
+                signOptions: { issuer: config.get('domain') }
             }),
             inject: [ConfigService]
         }),

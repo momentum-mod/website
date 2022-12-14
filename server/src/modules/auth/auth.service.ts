@@ -1,74 +1,121 @@
-import { Injectable, UnauthorizedException } from '@nestjs/common';
+import { Injectable, InternalServerErrorException, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
-import { User, UserAuth } from '@prisma/client';
-import { JWTResponseDto } from '@common/dto/jwt-response.dto';
+import { User } from '@prisma/client';
+import { JWTResponseGameDto, JWTResponseWebDto } from '@common/dto/auth/jwt-response.dto';
 import { UsersRepoService } from '../repo/users-repo.service';
 import { ConfigService } from '@nestjs/config';
+import { UserJwtAccessPayload, UserJwtPayload, UserJwtPayloadVerified } from '@modules/auth/auth.interfaces';
+import { DtoFactory } from '@lib/dto.lib';
 
 @Injectable()
 export class AuthService {
-    // TODO: remove
-    loggedInUser: User;
-
     constructor(
         private readonly userRepo: UsersRepoService,
         private readonly jwtService: JwtService,
         private readonly config: ConfigService
     ) {}
 
-    async login(user: User, gameAuth = false): Promise<JWTResponseDto> {
-        if (!user) throw new UnauthorizedException();
+    async validateUser(userID: number): Promise<User> {
+        const user = this.userRepo.get(userID);
 
-        const token = await this.genAccessToken(user, gameAuth);
-        const refreshToken = await this.genRefreshToken(user.id, gameAuth);
-        const response: JWTResponseDto = {
-            access_token: token,
-            expires_in: this.config.get('accessToken.expTime'),
-            refresh_token: refreshToken,
-            token_type: 'JWT'
-        };
+        if (!user) throw new UnauthorizedException('User not found');
 
-        this.loggedInUser = user;
-
-        return response;
+        return user;
     }
 
-    async revokeToken(userID: number): Promise<void> {
-        this.loggedInUser = undefined;
-        await this.updateRefreshToken(userID, '');
+    //#region Login
+
+    async loginWeb(user: User): Promise<JWTResponseWebDto> {
+        await this.validateUser(user.id);
+
+        return this.generateWebTokenPair(user.id, user.steamID);
     }
 
-    updateRefreshToken(userID: number, refreshToken: string): Promise<UserAuth> {
-        return this.userRepo.updateAuth({ userID: userID }, { refreshToken: refreshToken });
+    async loginGame(user: User): Promise<JWTResponseGameDto> {
+        await this.validateUser(user.id);
+
+        // Game doesn't get a refresh token, just a longer lasting access token.
+        const token = await this.generateAccessToken({
+            id: user.id,
+            steamID: user.steamID,
+            gameAuth: true
+        });
+
+        return DtoFactory(JWTResponseGameDto, {
+            token: token,
+            length: token.length
+        });
     }
 
-    private async genAccessToken(usr: User, gameAuth?: boolean): Promise<string> {
-        const payload: JWTPayload = {
-            id: usr.id,
-            steamID: usr.steamID,
-            gameAuth: Boolean(gameAuth)
-        };
+    //#endregion
+
+    //#region Tokens
+
+    private async generateWebTokenPair(id: number, steamID: string): Promise<JWTResponseWebDto> {
+        const [accessToken, refreshToken] = await Promise.all([
+            this.generateAccessToken({
+                id: id,
+                steamID: steamID,
+                gameAuth: false
+            }),
+            this.generateRefreshToken({ id: id })
+        ]);
+
+        return DtoFactory(JWTResponseWebDto, {
+            accessToken: accessToken,
+            refreshToken: refreshToken,
+            expiresIn: this.config.get('accessToken.expTime')
+        });
+    }
+
+    private async generateAccessToken(payload: UserJwtAccessPayload): Promise<string> {
         const options = {
-            issuer: this.config.get('domain'),
-            expiresIn: gameAuth ? this.config.get('accessToken.gameExpTime') : this.config.get('accessToken.expTime')
+            expiresIn: payload.gameAuth
+                ? this.config.get('accessToken.gameExpTime')
+                : this.config.get('accessToken.expTime')
         };
-        return this.jwtService.sign(payload, options);
+
+        return await this.jwtService.signAsync(payload, options);
     }
 
-    private async genRefreshToken(userID: number, gameAuth?: boolean): Promise<string> {
-        const payload = { id: userID };
-        const options = {
-            issuer: this.config.get('domain'),
-            expiresIn: gameAuth
-                ? this.config.get('accessToken.gameRefreshExpTime')
-                : this.config.get('accessToken.refreshExpTime')
-        };
-        return this.jwtService.sign(payload, options);
+    private async generateRefreshToken(payload: UserJwtPayload): Promise<string> {
+        const options = { expiresIn: this.config.get('accessToken.refreshExpTime') };
+        const token = await this.jwtService.signAsync(payload, options);
+
+        await this.userRepo.upsertAuth(payload.id, token);
+
+        return token;
     }
+
+    async revokeRefreshToken(refreshToken: string): Promise<void> {
+        const { id } = this.verifyRefreshToken(refreshToken);
+
+        await this.validateUser(id);
+
+        await this.userRepo.upsertAuth(id, '');
+    }
+
+    async refreshRefreshToken(refreshToken: string): Promise<JWTResponseWebDto> {
+        const { id } = this.verifyRefreshToken(refreshToken);
+
+        const user = await this.userRepo.get(id);
+
+        const tokenDto = await this.generateWebTokenPair(id, user.steamID);
+
+        await this.userRepo.upsertAuth(id, tokenDto.refreshToken);
+
+        return tokenDto;
+    }
+
+    private verifyRefreshToken(token: string): UserJwtPayloadVerified {
+        try {
+            return this.jwtService.verify(token);
+        } catch (error) {
+            throw ['TokenExpiredError', 'JsonWebTokenError', 'NotBeforeError'].includes(error.name)
+                ? new UnauthorizedException('Invalid token')
+                : new InternalServerErrorException();
+        }
+    }
+
+    //#endregion
 }
-
-export type JWTPayload = {
-    id: number;
-    steamID: string;
-    gameAuth: boolean;
-};

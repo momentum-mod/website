@@ -2,9 +2,10 @@ import {
     BadRequestException,
     ConflictException,
     ForbiddenException,
-    HttpException,
     Injectable,
-    NotFoundException
+    InternalServerErrorException,
+    NotFoundException,
+    UnauthorizedException
 } from '@nestjs/common';
 import { Prisma, User, UserAuth } from '@prisma/client';
 import { UpdateUserDto, UserDto } from '@common/dto/user/user.dto';
@@ -12,7 +13,6 @@ import { ProfileDto } from '@common/dto/user/profile.dto';
 import { PaginatedResponseDto } from '@common/dto/paginated-response.dto';
 import { UsersRepoService } from '../repo/users-repo.service';
 import { lastValueFrom, map } from 'rxjs';
-import * as xml2js from 'xml2js';
 import { HttpService } from '@nestjs/axios';
 import { ActivityDto } from '@common/dto/user/activity.dto';
 import { FollowDto, FollowStatusDto, UpdateFollowStatusDto } from '@common/dto/user/followers.dto';
@@ -27,6 +27,7 @@ import { MapLibraryEntryDto } from '@common/dto/map/map-library-entry';
 import { MapFavoriteDto } from '@common/dto/map/map-favorite.dto';
 import { ConfigService } from '@nestjs/config';
 import { UsersGetAllQuery } from '@common/dto/query/user-queries.dto';
+import { SteamUserSummaryData } from '@modules/auth/auth.interfaces';
 
 @Injectable()
 export class UsersService {
@@ -110,39 +111,39 @@ export class UsersService {
 
     async findOrCreateFromGame(steamID: string): Promise<User> {
         const profile = await this.extractUserProfileFromSteamID(steamID);
-        return this.findOrCreateUserFromProfile(profile);
+
+        return this.findOrCreateUser(profile);
     }
 
-    // TODO: openIDProfile Type
-    async findOrCreateFromWeb(openID: any): Promise<User> {
-        // Grab Steam ID from community url
-        const identifierRegex = /^https?:\/\/steamcommunity\.com\/openid\/id\/(\d+)$/;
-        const steamID = identifierRegex.exec(openID)[1];
-
-        const profile = await this.extractPartialUserProfileFromSteamID(steamID);
-
-        return this.findOrCreateUserFromProfile(profile);
+    async findOrCreateFromWeb(profile: SteamUserSummaryData): Promise<User> {
+        return this.findOrCreateUser({
+            steamID: profile.steamid,
+            alias: profile.personaname,
+            avatar: profile.avatarhash,
+            country: profile.loccountrycode
+        });
     }
 
-    async findOrCreateUserFromProfile(profile: UserDto): Promise<User> {
-        const user = await this.userRepo.getBySteamID(profile.steamID);
+    async findOrCreateUser(userData: UserCreateData): Promise<User> {
+        const user = await this.userRepo.getBySteamID(userData.steamID);
+
+        const input: Prisma.UserUpdateInput | Prisma.UserCreateInput = {
+            alias: userData.alias,
+            avatar: userData.avatar,
+            country: userData.country
+        };
 
         if (user) {
-            const updateInput: Prisma.UserUpdateInput = {};
-            updateInput.alias = profile.alias;
-            updateInput.avatar = profile.avatar;
-            updateInput.country = profile.country;
-
-            return this.userRepo.update(user.id, updateInput);
+            return this.userRepo.update(user.id, input as Prisma.UserUpdateInput);
         } else {
-            const createInput: Prisma.UserCreateInput = {
-                steamID: profile.steamID,
-                alias: profile.alias,
-                avatar: profile.avatarURL, // ???
-                country: profile.country
-            };
+            if (this.config.get('steam.preventLimited') && (await this.isAccountLimited(userData.steamID)))
+                throw new UnauthorizedException(
+                    'We do not authenticate limited Steam accounts. Buy something on Steam first!'
+                );
 
-            return this.userRepo.create(createInput);
+            input.steamID = userData.steamID;
+
+            return this.userRepo.create(input as Prisma.UserCreateInput);
         }
     }
 
@@ -187,9 +188,7 @@ export class UsersService {
     //#region Auth
 
     async getAuth(userID: number): Promise<UserAuth> {
-        const whereInput: Prisma.UserAuthWhereUniqueInput = {};
-        whereInput.id = userID;
-        return await this.userRepo.getAuth(whereInput);
+        return await this.userRepo.getAuth(userID);
     }
 
     //#endregion
@@ -447,48 +446,18 @@ export class UsersService {
 
     //#region Private
 
-    private async extractUserProfileFromSteamID(steamID: string): Promise<UserDto> {
+    private async extractUserProfileFromSteamID(steamID: string): Promise<UserCreateData> {
         const summaryData = await this.getSteamUserSummaryData(steamID);
 
         if (steamID !== summaryData.steamid)
-            throw new HttpException('User fetched is not the authenticated user!', 400);
+            throw new BadRequestException('User fetched is not the authenticated user!');
 
-        const profileData = await this.getSteamUserProfileData(steamID);
-
-        if (this.config.get('steam.preventLimited') && profileData.profile.isLimitedAccount[0] === '1') {
-            throw new HttpException(
-                'We do not authenticate limited Steam accounts. Buy something on Steam first!',
-                403
-            );
-        }
-        const profile = new UserDto();
-
-        console.log('creating new user', summaryData);
-
-        profile.id = 0;
-        profile.steamID = steamID;
-        profile.alias = summaryData.personaname;
-        profile.aliasLocked = false;
-        profile.avatar = summaryData.avatarfull;
-        profile.country = summaryData.locccountrycode;
-        profile.createdAt = null;
-        profile.updatedAt = null;
-        console.log('wowee!!');
-        console.log(profile);
-
-        return profile;
-    }
-
-    private async extractPartialUserProfileFromSteamID(steamID: string): Promise<UserDto> {
-        // TODO: ?????? what is this. why
-        // await this.GetSteamProfileFromSteamID(steamID);
-
-        const profile = new UserDto();
-        profile.steamID = steamID;
-        // TODO: Remove when reworking this method!
-        profile.alias ??= 'temp';
-
-        return profile;
+        return {
+            steamID: steamID,
+            alias: summaryData.personaname,
+            avatar: summaryData.avatarhash,
+            country: summaryData.loccountrycode
+        };
     }
 
     private async getSteamUserSummaryData(steamID: string): Promise<SteamUserSummaryData> {
@@ -500,51 +469,35 @@ export class UsersService {
                         steamids: steamID
                     }
                 })
-                .pipe(
-                    map((res) => {
-                        return res.data;
-                    })
-                )
+                .pipe(map((res) => res.data))
         );
 
-        if (getPlayerResponse.response.error) {
-            throw new HttpException('Failed to get any player summaries', 500);
-        }
+        const userSummary = getPlayerResponse.response?.players?.[0];
 
-        if (!getPlayerResponse.response.players[0]) {
-            throw new HttpException('Failed to get player summary', 500);
-        }
+        if (getPlayerResponse.response.error || !userSummary)
+            throw new InternalServerErrorException('Failed to get player summary');
 
-        return getPlayerResponse.response.players[0];
+        return userSummary;
     }
 
-    private async getSteamUserProfileData(steamID: string): Promise<SteamUserProfileData> {
+    /**
+     * Checks whether a Steam account is in "limited" mode i.e. hasn't spent $5 or more on Steam. Unfortunately Steam
+     * Web API doesn't return this, so we have to use this messier method of parsing the profile page as XML.
+     * @private
+     */
+    private async isAccountLimited(steamID: string): Promise<boolean> {
         return await lastValueFrom(
-            this.http.get(`https://steamcommunity.com/profiles/${steamID}?xml=1`).pipe(
-                map(async (res) => {
-                    return await xml2js.parseStringPromise(res.data);
-                })
-            )
+            this.http
+                .get(`https://steamcommunity.com/profiles/${steamID}?xml=1`)
+                .pipe(map((res) => /(?<=<isLimitedAccount>)\d(?=<\/isLimitedAccount>)/.exec(res.data)[0] === '1'))
         );
     }
 
     //#endregion
 }
 
-//#region Private Classes
+//#region Private Types
 
-class SteamUserSummaryData {
-    profilestate: any;
-    steamid: string;
-    personaname: string;
-    avatarfull: string;
-    locccountrycode: string;
-}
-
-class SteamUserProfileData {
-    profile: {
-        isLimitedAccount: string[];
-    };
-}
+type UserCreateData = Pick<User, 'steamID' | 'alias' | 'avatar' | 'country'>;
 
 //#endregion
