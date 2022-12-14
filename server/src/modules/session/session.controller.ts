@@ -31,9 +31,10 @@ import { FileInterceptor } from '@nestjs/platform-express';
 import { CompletedRunDto } from '@common/dto/run/completed-run.dto';
 import { RunSessionService } from './run/run-session.service';
 
-@ApiBearerAuth()
-@Controller('api/v1/session')
+@Controller('session')
+@UseGuards(GameAuthGuard)
 @ApiTags('Session')
+@ApiBearerAuth()
 export class SessionController {
     constructor(private readonly runSessionService: RunSessionService) {}
 

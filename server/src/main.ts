@@ -1,11 +1,29 @@
 import { NestFactory, Reflector } from '@nestjs/core';
-import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
+import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { PrismaService } from '@modules/repo/prisma.service';
 import { AppModule } from './app.module';
-import { ClassSerializerInterceptor, NestApplicationOptions, ValidationPipe } from '@nestjs/common';
-import { join } from 'node:path';
+import {
+    ClassSerializerInterceptor,
+    INestApplication,
+    NestApplicationOptions,
+    ValidationPipe,
+} from '@nestjs/common';
 import { NestExpressApplication } from '@nestjs/platform-express';
 import { ConfigService } from '@nestjs/config';
+import {join} from "node:path";
+
+export const appOptions: NestApplicationOptions = {
+    // Disable bodyParser - we handle body parsing middlewares explicitly.
+    bodyParser: false
+};
+
+export async function setupNestApp(app: INestApplication) {
+    app.useGlobalPipes(new ValidationPipe({ transform: true, whitelist: true }));
+    app.useGlobalInterceptors(new ClassSerializerInterceptor(app.get(Reflector)));
+    app.setGlobalPrefix('api', { exclude: ['auth'] });
+    const prismaDalc: PrismaService = app.get(PrismaService);
+    await prismaDalc.enableShutdownHooks(app);
+}
 
 async function bootstrap() {
     // MDN recommended hack override for BigInt
@@ -14,15 +32,10 @@ async function bootstrap() {
     BigInt.prototype['toJSON'] = function () {
         return this.toString();
     };
-
-    const options: NestApplicationOptions = {
-        // Disable bodyParser - we handle body parsing middlewares explicitly.
-        bodyParser: false
-    };
-
-    const app: NestExpressApplication = await NestFactory.create(AppModule, options);
-
+    
+    const app: NestExpressApplication = await NestFactory.create(AppModule, appOptions);
     app.useStaticAssets(join(__dirname, 'assets/'));
+    await setupNestApp(app);
 
     const swaggerConfig = new DocumentBuilder()
         .setTitle('Momentum Mod API')
@@ -36,15 +49,9 @@ async function bootstrap() {
         customSiteTitle: 'Momentum Mod API Docs',
         customfavIcon: '../favicon.ico',
         swaggerOptions: {
-            persistAuthorization: true,
-        },
+            persistAuthorization: true
+        }
     });
-
-    const prismaDalc: PrismaService = app.get(PrismaService);
-    await prismaDalc.enableShutdownHooks(app);
-
-    app.useGlobalPipes(new ValidationPipe({ transform: true, whitelist: true }));
-    app.useGlobalInterceptors(new ClassSerializerInterceptor(app.get(Reflector)));
 
     const configService = app.get(ConfigService);
     const port = configService.get('port');

@@ -4,9 +4,9 @@ import { ApiBearerAuth, ApiOkResponse, ApiOperation, ApiTags } from '@nestjs/swa
 import { CreateReportDto, ReportDto } from '@common/dto/report/report.dto';
 import { LoggedInUser } from '@common/decorators/logged-in-user.decorator';
 
-@ApiBearerAuth()
-@Controller('api/v1/reports')
+@Controller('reports')
 @ApiTags('Reports')
+@ApiBearerAuth()
 export class ReportsController {
     constructor(private readonly _reportsService: ReportsService) {}
 

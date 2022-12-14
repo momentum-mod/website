@@ -1,4 +1,4 @@
-import { Req, Res, Controller, Get, Post, UseGuards, Redirect, Body, HttpStatus, HttpCode } from '@nestjs/common';
+import { Body, Controller, Get, HttpCode, HttpStatus, Post, Redirect, Req, Res, UseGuards } from '@nestjs/common';
 import {
     ApiBearerAuth,
     ApiBody,
@@ -16,11 +16,10 @@ import { LoggedInUser } from '@common/decorators/logged-in-user.decorator';
 import { ConfigService } from '@nestjs/config';
 import { RefreshTokenDto } from '@common/dto/auth/refresh-token.dto';
 import { SteamWebAuthGuard } from '@modules/auth/guards/steam-web-auth.guard';
-import { UserJwtPayload } from '@modules/auth/auth.interfaces';
 
-@ApiBearerAuth()
-@Controller('/auth')
+@Controller('auth')
 @ApiTags('Auth')
+@ApiBearerAuth()
 export class AuthController {
     constructor(
         private readonly authService: AuthService,
@@ -54,8 +53,7 @@ export class AuthController {
         // `validate` function has set the `user` property on the request: hence we can use @LoggedInUser to grab it.
         // Then we just need to generate our access and refresh tokens, and set them and the User data as cookies on
         // the client. The frontend handles taking the accessToken cookie and setting it as the bearer token on requests.
-        const payload: UserJwtPayload = { id: user.id, steamID: user.steamID };
-        const jwt = await this.authService.loginWeb(payload);
+        const jwt = await this.authService.loginWeb(user);
 
         const domain = this.configService.get('domain');
         res.cookie('accessToken', jwt.accessToken, { domain: domain });
@@ -89,7 +87,7 @@ export class AuthController {
         // The game includes this in user-agent (e.g. `Valve/Steam HTTP Client 1.0 (<appID>)`), dig it out with a regex.
         const appID = Number.parseInt(/(?!=\()\d+(?=\))/.exec(req.headers['user-agent'])?.[0]);
 
-        const user = (await this.steamAuthService.validateFromInGame(id, rawBody, appID)) as UserJwtPayload;
+        const user = await this.steamAuthService.validateFromInGame(id, rawBody, appID);
 
         return await this.authService.loginGame(user);
     }

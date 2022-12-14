@@ -32,10 +32,10 @@ import { Roles } from '@common/decorators/roles.decorator';
 import { Roles as RolesEnum } from '../../common/enums/user.enum';
 import { LoggedInUser } from '@common/decorators/logged-in-user.decorator';
 
-@ApiBearerAuth()
-@Controller('/api/v1/admin')
-@ApiTags('Admin')
+@Controller('admin')
 @Roles(RolesEnum.ADMIN)
+@ApiTags('Admin')
+@ApiBearerAuth()
 export class AdminController {
     constructor(private readonly adminService: AdminService) {}
 
