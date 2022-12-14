@@ -76,7 +76,7 @@ export class UserDto implements User {
         if (this.bans?.avatar) {
             return Config.url.base + '/assets/images/blank_avatar.jpg';
         } else {
-            return this.avatar ? 'https://avatars.cloudflare.steamstatic.com/' + this.avatar : null;
+            return this.avatar ? `https://avatars.cloudflare.steamstatic.com/${this.avatar}_full.jpg` : null;
         }
     }
 }
