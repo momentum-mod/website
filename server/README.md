@@ -59,9 +59,13 @@ docker compose up -d
 
 This will build and start only the MySQL, MinIO containers.
 
-Then, `cd` into the `website/server` directory, and run the NPM scripts you want,
-for example to have Prisma initialise the DB and the start the Node app, use
+Then, `cd` into the `website/server` directory, and install the Node dependencies with
+```
+npm install
+```
 
+this will be several hundred MB, thanks Node! Finally, you're ready to start the full API, and can run the NPM scripts
+you want (see package.json), for example to have Prisma initialise the DB and the start the Node app, use
 ```
 npm run start:push
 ```
@@ -72,8 +76,9 @@ Once you have everything running (by either method), the Swagger docs will be av
 `http://localhost:3000/api-docs`.
 
 The majority of the API is locked behind auth, so to query endpoints through Swagger (or cURL, Hoppscotch, Postman etc.)
-you'll need a Steam auth token. Go to http://localhost:3000/auth/steam/, login through Steam, then grab `access_token`
-value. Then use in the "Authorize" dialogue, or as the bearer token in cURL, Hoppscotch etc.
+you'll need a Steam auth token. Go to http://localhost:3000/auth/steam/, and login through Steam. This will set an
+`accessToken` cookie in your browser (in Chrome dev tools, you find this in Application > Storage > Cookies). Copy
+that value and insert in the "Authorize" dialogue in Swagger, or as the bearer token in cURL, Hoppscotch etc.
 
 ## Testing
 
