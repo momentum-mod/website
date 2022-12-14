@@ -74,8 +74,7 @@
         "rimraf": "^3.0.2",
         "rxjs": "^7.5.7",
         "steam-appticket": "^1.0.1",
-        "swagger-ui-express": "^4.6.0",
-        "xml2js": "^0.4.23"
+        "swagger-ui-express": "^4.6.0"
     },
     "devDependencies": {
         "@faker-js/faker": "^7.6.0",
