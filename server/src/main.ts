@@ -24,15 +24,15 @@ async function bootstrap() {
 
     app.useStaticAssets(join(__dirname, 'assets/'));
 
-    const config = new DocumentBuilder()
+    const swaggerConfig = new DocumentBuilder()
         .setTitle('Momentum Mod API')
         .setDescription('The Momentum Mod API - https://github.com/momentum-mod/website')
         .addBearerAuth()
         .setVersion('1.0')
         .build();
 
-    const document = SwaggerModule.createDocument(app, config);
-    SwaggerModule.setup('api-docs', app, document, {
+    const swaggerDocument = SwaggerModule.createDocument(app, swaggerConfig);
+    SwaggerModule.setup('api-docs', app, swaggerDocument, {
         customSiteTitle: 'Momentum Mod API Docs',
         customfavIcon: '../favicon.ico'
     });
