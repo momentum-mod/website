@@ -38,7 +38,6 @@ export interface Config {
         webAPIKey: string;
         preventLimited: boolean;
         useSteamTicketLibrary: boolean;
-        useEncryptedTickets: boolean;
         ticketsSecretKey: string;
     };
     sessionSecret: string;

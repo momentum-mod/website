@@ -61,8 +61,7 @@ export const ConfigFactory = (): ConfigInterface => {
         steam: {
             webAPIKey: process.env.STEAM_WEB_API_KEY,
             preventLimited: process.env.STEAM_PREVENT_LIMITED === 'true' ?? true,
-            useEncryptedTickets: process.env.STEAM_USE_ENCRYPTED_TICKETS === 'true' ?? false,
-            useSteamTicketLibrary: process.env.STEAM_USE_ENCRYPTED_TICKETS === 'true' ?? true,
+            useSteamTicketLibrary: process.env.STEAM_USE_ENCRYPTED_TICKETS === 'true' ?? false,
             ticketsSecretKey: ''
         },
         storage: {
