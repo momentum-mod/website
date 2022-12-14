@@ -34,7 +34,10 @@ async function bootstrap() {
     const swaggerDocument = SwaggerModule.createDocument(app, swaggerConfig);
     SwaggerModule.setup('api-docs', app, swaggerDocument, {
         customSiteTitle: 'Momentum Mod API Docs',
-        customfavIcon: '../favicon.ico'
+        customfavIcon: '../favicon.ico',
+        swaggerOptions: {
+            persistAuthorization: true,
+        },
     });
 
     const prismaDalc: PrismaService = app.get(PrismaService);
