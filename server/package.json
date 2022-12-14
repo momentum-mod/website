@@ -30,8 +30,8 @@
         "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
         "lint": "eslint \"{src,tests,lib,config}/**/*.ts\" --fix",
         "lint:check": "eslint \"{src,tests,lib,config}/**/*.ts\"",
-        "format": "prettier --write \"{src,lib,tests,config}/**/*.ts\"",
-        "format:check": "prettier --check \"{src,lib,tests,config}/**/*.ts\"",
+        "format": "prettier --write \"{src,lib,tests,config,prisma}/**/*.{ts,js,md,prisma}\"",
+        "format:check": "prettier --check \"{src,lib,tests,config,prisma}/**/*.{ts,js,md,prisma}\"",
         "prepare": "cd .. && husky install server/.husky",
         "pre-commit": "lint-staged"
     },
@@ -103,6 +103,7 @@
         "jest-environment-node": "^29.3.1",
         "lint-staged": "^13.0.3",
         "prettier-eslint": "^15.0.1",
+        "prettier-plugin-prisma": "^4.4.0",
         "prisma": "^4.6.1",
         "prisma-erd-generator": "^1.2.4",
         "source-map-support": "^0.5.21",
