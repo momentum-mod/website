@@ -20,9 +20,9 @@ import { PaginationQuery } from '@common/dto/query/pagination.dto';
 import { RunDto } from '@common/dto/run/runs.dto';
 import { UsersGetActivitiesQuery, UsersGetAllQuery, UsersGetQuery } from '@common/dto/query/user-queries.dto';
 
-@ApiBearerAuth()
-@Controller('/api/v1/users')
+@Controller('users')
 @ApiTags('Users')
+@ApiBearerAuth()
 @ApiExtraModels(PaginatedResponseDto)
 export class UsersController {
     constructor(private readonly usersService: UsersService) {}
