@@ -16,8 +16,8 @@ async function bootstrap() {
     };
 
     const options: NestApplicationOptions = {
-        bodyParser: false,
-        rawBody: true // Used to access raw body from Steam ingame auth
+        // Disable bodyParser - we handle body parsing middlewares explicitly.
+        bodyParser: false
     };
 
     const app: NestExpressApplication = await NestFactory.create(AppModule, options);
