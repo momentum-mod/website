@@ -54,6 +54,10 @@ async function bootstrap() {
     const port = configService.get('port');
 
     await app.listen(port);
+    // TODO: For some insane fucking reason, this file needs to call app.init() instead of listen() for TESTS to
+    // terminate properly. Why is test initialisation affected by this file, when they're initialised from environment.ts?
+    // I have no fucking idea!! Leaving for now, Fastify may change stuff idk.
+    // await app.init();
 }
 
 // TODO: Decide if we should move to ES modules and if so can use top level await here.
