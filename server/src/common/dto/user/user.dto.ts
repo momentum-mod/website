@@ -88,16 +88,16 @@ export class UpdateUserDto {
         type: String,
         description: 'The new alias to set'
     })
-    @IsOptional()
     @IsString()
+    @IsOptional()
     alias?: string;
 
     @ApiPropertyOptional({
         type: String,
         description: 'The new bio to set'
     })
-    @IsOptional()
     @IsString()
+    @IsOptional()
     bio?: string;
 }
 
