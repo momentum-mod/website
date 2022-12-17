@@ -1,13 +1,15 @@
 // noinspection DuplicatedCode
 
 import { PrismaService } from '@modules/repo/prisma.service';
-import { del, get, patch, post } from '../util/test-util';
+import { del, get, patch, post } from '../util/request-handlers.util';
 import { AuthService } from '@modules/auth/auth.service';
 import { ActivityTypes } from '@common/enums/activity.enum';
 import { UserDto } from '@common/dto/user/user.dto';
 
 describe('Admin', () => {
     let adminUser,
+        adminUserToken,
+        adminGameUserToken,
         adminUser2,
         modUser,
         modUser2,
@@ -368,9 +370,10 @@ describe('Admin', () => {
         });
 
         const authService = global.auth as AuthService;
-        global.accessToken = (await authService.login(adminUser)).access_token;
-        nonAdminAccessToken = (await authService.login(nonAdminUser)).access_token;
-        modUserToken = (await authService.login(modUser)).access_token;
+        adminUserToken = (await authService.loginWeb(adminUser)).accessToken;
+        nonAdminAccessToken = (await authService.loginWeb(nonAdminUser)).accessToken;
+        modUserToken = (await authService.loginWeb(modUser)).accessToken;
+        adminGameUserToken = (await authService.loginGame(modUser)).token;
     });
 
     afterEach(async () => {
@@ -395,28 +398,52 @@ describe('Admin', () => {
         });
     });
 
-    describe('POST /api/v1/admin/users', () => {
+    describe('POST /api/admin/users', () => {
         it('should successfully create a placeholder user', async () => {
-            const res = await post('admin/users/', 201, { alias: 'Burger' });
+            const res = await post({
+                url: 'admin/users/',
+                status: 201,
+                body: { alias: 'Burger' },
+                token: adminUserToken
+            });
 
             expect(res.body).toBeValidDto(UserDto);
             expect(res.body.alias).toBe('Burger');
         });
 
         it('should respond with 403 when the user requesting only is a moderator', () =>
-            post('admin/users/', 403, { alias: 'Barry 2' }, modUserToken));
+            post({
+                url: 'admin/users/',
+                status: 403,
+                body: { alias: 'Barry 2' },
+                token: modUserToken
+            }));
 
         it('should respond with 403 when the user requesting is not an admin', () =>
-            post('admin/users/', 403, { alias: 'Barry 2' }, nonAdminAccessToken));
+            post({
+                url: 'admin/users/',
+                status: 403,
+                body: { alias: 'Barry 2' },
+                token: nonAdminAccessToken
+            }));
 
-        it('should respond with 401 when no access token is provided', () => post('admin/users/', 401, {}, null));
+        it('should respond with 401 when no access token is provided', () =>
+            post({
+                url: 'admin/users/',
+                status: 401
+            }));
     });
 
-    describe('POST /api/v1/admin/users/merge', () => {
+    describe('POST /api/admin/users/merge', () => {
         it('should merge two accounts together', async () => {
-            const res = await post('admin/users/merge', 201, {
-                placeholderID: mergeUser1.id,
-                userID: mergeUser2.id
+            const res = await post({
+                url: 'admin/users/merge',
+                status: 201,
+                body: {
+                    placeholderID: mergeUser1.id,
+                    userID: mergeUser2.id
+                },
+                token: adminUserToken
             });
 
             expect(res.body).toBeValidDto(UserDto);
@@ -424,100 +451,177 @@ describe('Admin', () => {
             expect(res.body.alias).toBe(mergeUser2.alias);
 
             // U1 was following MU1, that should be transferred to MU2.
-            const u1Follows = await get(`users/${user1.id}/follows`, 200);
+            const u1Follows = await get({
+                url: `users/${user1.id}/follows`,
+                status: 200,
+                token: adminUserToken
+            });
 
             expect(u1Follows.body.response.some((f) => f.followed.id === mergeUser2.id)).toBe(true);
 
             // U2 was following MU1 and MU2, the creation data should be earliest of the two and the \notifyOn flags combined.
-            const u2Follows = await get(`users/${user2.id}/follows`, 200);
+            const u2Follows = await get({
+                url: `users/${user2.id}/follows`,
+                status: 200,
+                token: adminUserToken
+            });
             const follow = u2Follows.body.response.find((f) => f.followed.id === mergeUser2.id);
             expect(new Date(follow.createdAt)).toEqual(new Date('12/24/2021'));
             expect(follow.notifyOn).toBe(ActivityTypes.MAP_APPROVED | ActivityTypes.MAP_UPLOADED);
 
             // MU2 was following MU1, that should be deleted
-            const mu2follows = await get(`users/${mergeUser2.id}/follows`, 200);
+            const mu2follows = await get({
+                url: `users/${mergeUser2.id}/follows`,
+                status: 200,
+                token: adminUserToken
+            });
             expect(mu2follows.body.response.some((f) => f.followed.id === mergeUser1.id)).toBe(false);
 
             // MU1's activities should have been transferred to MU2
-            const mu2Activities = await get(`users/${mergeUser2.id}/activities`, 200);
+            const mu2Activities = await get({
+                url: `users/${mergeUser2.id}/activities`,
+                status: 200,
+                token: adminUserToken
+            });
             expect(mu2Activities.body.response[0].data).toBe('123456');
 
             // Placeholder should have been deleted
-            await get(`users/${mergeUser1.id}`, 404);
+            await get({
+                url: `users/${mergeUser1.id}`,
+                status: 404,
+                token: adminUserToken
+            });
         });
 
         it('should respond with 400 if the user to merge from is not a placeholder', () =>
-            post('admin/users/merge', 400, {
-                placeholderID: user1.id,
-                userID: mergeUser2.id
+            post({
+                url: 'admin/users/merge',
+                status: 400,
+                body: {
+                    placeholderID: user1.id,
+                    userID: mergeUser2.id
+                },
+                token: adminUserToken
             }));
 
         it('should respond with 400 if the user to merge from does not exist', () =>
-            post('admin/users/merge', 400, {
-                placeholderID: 9812364981265872,
-                userID: mergeUser2.id
+            post({
+                url: 'admin/users/merge',
+                status: 400,
+                body: {
+                    placeholderID: 9812364981265872,
+                    userID: mergeUser2.id
+                },
+                token: adminUserToken
             }));
 
         it('should respond with 400 if the user to merge to does not exist', () =>
-            post('admin/users/merge', 400, {
-                placeholderID: mergeUser1.id,
-                userID: 2368745234521
+            post({
+                url: 'admin/users/merge',
+                status: 400,
+                body: {
+                    placeholderID: mergeUser1.id,
+                    userID: 2368745234521
+                },
+                token: adminUserToken
             }));
 
         it('should respond with 400 if the user to merge are the same user', () =>
-            post('admin/users/merge', 400, {
-                placeholderID: mergeUser1.id,
-                userID: mergeUser1.id
+            post({
+                url: 'admin/users/merge',
+                status: 400,
+                body: {
+                    placeholderID: mergeUser1.id,
+                    userID: mergeUser1.id
+                },
+                token: adminUserToken
             }));
 
         it('should respond with 403 when the user requesting is only a moderator', () =>
-            post(
-                'admin/users/merge',
-                403,
-                {
+            post({
+                url: 'admin/users/merge',
+                status: 403,
+                body: {
                     placeholderID: mergeUser1.id,
                     userID: mergeUser2.id
                 },
-                modUserToken
-            ));
+                token: modUserToken
+            }));
 
         it('should respond with 403 when the user requesting is not an admin', () =>
-            post(
-                'admin/users/merge',
-                403,
-                {
+            post({
+                url: 'admin/users/merge',
+                status: 403,
+                body: {
                     placeholderID: mergeUser1.id,
                     userID: mergeUser2.id
                 },
-                nonAdminAccessToken
-            ));
+                token: nonAdminAccessToken
+            }));
 
-        it('should respond with 401 when no access token is provided', () => post('admin/users/', 401, {}, null));
+        it('should respond with 401 when no access token is provided', () =>
+            post({
+                url: 'admin/users/',
+                status: 401
+            }));
     });
 
-    describe('PATCH /api/v1/admin/users/{userID}', () => {
+    describe('PATCH /api/admin/users/{userID}', () => {
         it("should successfully update a specific user's alias", async () => {
-            await patch(`admin/users/${user1.id}`, 204, { alias: 'Barry 2' });
+            await patch({
+                url: `admin/users/${user1.id}`,
+                status: 204,
+                body: { alias: 'Barry 2' },
+                token: adminUserToken
+            });
 
-            const res = await get(`users/${user1.id}`, 200);
+            const res = await get({
+                url: `users/${user1.id}`,
+                status: 200,
+                token: adminUserToken
+            });
 
             expect(res.body.alias).toBe('Barry 2');
         });
 
         it("should respond with 409 when an admin tries to set a verified user's alias to something used by another verified user", () =>
-            patch(`admin/users/${user1.id}`, 409, { alias: user2.alias }));
+            patch({
+                url: `admin/users/${user1.id}`,
+                status: 409,
+                body: { alias: user2.alias },
+                token: adminUserToken
+            }));
 
         it("should allow an admin to set a verified user's alias to something used by another unverified user", () =>
-            patch(`admin/users/${user1.id}`, 204, { alias: modUser.alias }));
+            patch({
+                url: `admin/users/${user1.id}`,
+                status: 204,
+                body: { alias: modUser.alias },
+                token: adminUserToken
+            }));
 
         it("should allow an admin to set a unverified user's alias to something used by another verified user", () =>
-            patch(`admin/users/${modUser.id}`, 204, { alias: user2.alias }));
+            patch({
+                url: `admin/users/${modUser.id}`,
+                status: 204,
+                body: { alias: user2.alias },
+                token: adminUserToken
+            }));
 
         it("should successfully update a specific user's bio", async () => {
             const bio = 'Im hungry';
-            await patch(`admin/users/${user1.id}`, 204, { bio: bio });
+            await patch({
+                url: `admin/users/${user1.id}`,
+                status: 204,
+                body: { bio: bio },
+                token: adminUserToken
+            });
 
-            const res = await get(`users/${user1.id}/profile`, 200);
+            const res = await get({
+                url: `users/${user1.id}/profile`,
+                status: 200,
+                token: adminUserToken
+            });
 
             expect(res.body.bio).toBe(bio);
         });
@@ -528,104 +632,204 @@ describe('Admin', () => {
                 leaderboards: true
             };
 
-            await patch(`admin/users/${user1.id}`, 204, { bans: bans });
+            await patch({
+                url: `admin/users/${user1.id}`,
+                status: 204,
+                body: { bans: bans },
+                token: adminUserToken
+            });
 
-            const res = await get(`users/${user1.id}`, 200);
+            const userDB = await (global.prisma as PrismaService).user.findFirst({
+                where: { id: user1.id },
+                include: { bans: true }
+            });
 
-            expect(res.body.bans).toBe(bans);
+            expect(userDB.bans).toBe(bans);
         });
 
         it("should successfully update a specific user's roles", async () => {
-            await patch(`admin/users/${user1.id}`, 204, { roles: { mapper: true } });
+            await patch({
+                url: `admin/users/${user1.id}`,
+                status: 204,
+                body: { roles: { mapper: true } },
+                token: adminUserToken
+            });
 
-            const res = await get(`users/${user1.id}`, 200);
+            const userDB = await (global.prisma as PrismaService).user.findFirst({
+                where: { id: user1.id },
+                include: { roles: true }
+            });
 
-            expect(res.body.roles.mapper).toBe(true);
+            expect(userDB.roles.mapper).toBe(true);
         });
 
         it('should allow an admin to make a regular user a moderator', () =>
-            patch(`admin/users/${user1.id}`, 204, { roles: { moderator: true } }));
+            patch({
+                url: `admin/users/${user1.id}`,
+                status: 204,
+                body: { roles: { moderator: true } },
+                token: adminUserToken
+            }));
 
         it("should allow an admin to update a moderator's roles", () =>
-            patch(`admin/users/${modUser.id}`, 204, { roles: { mapper: true } }));
+            patch({
+                url: `admin/users/${modUser.id}`,
+                status: 204,
+                body: { roles: { mapper: true } },
+                token: adminUserToken
+            }));
 
         it('should allow an admin to remove a user as moderator', () =>
-            patch(`admin/users/${modUser.id}`, 204, { roles: { moderator: false } }));
+            patch({
+                url: `admin/users/${modUser.id}`,
+                status: 204,
+                body: { roles: { moderator: false } },
+                token: adminUserToken
+            }));
 
         it("should not allow an admin to update another admin's roles", () =>
-            patch(`admin/users/${adminUser2.id}`, 403, { roles: { mapper: true } }));
+            patch({
+                url: `admin/users/${adminUser2.id}`,
+                status: 403,
+                body: { roles: { mapper: true } },
+                token: adminUserToken
+            }));
 
         it('should allow an admin to update their own non-admin roles', () =>
-            patch(`admin/users/${adminUser.id}`, 204, { roles: { mapper: true } }));
+            patch({
+                url: `admin/users/${adminUser.id}`,
+                status: 204,
+                body: { roles: { mapper: true } },
+                token: adminUserToken
+            }));
 
         it('should allow an admin to update their own moderator role', () =>
-            patch(`admin/users/${adminUser.id}`, 204, { roles: { moderator: true } }));
+            patch({
+                url: `admin/users/${adminUser.id}`,
+                status: 204,
+                body: { roles: { moderator: true } },
+                token: adminUserToken
+            }));
 
         it('should allow an admin to update their own admin role', () =>
-            patch(`admin/users/${adminUser.id}`, 204, { roles: { admin: false } }));
+            patch({
+                url: `admin/users/${adminUser.id}`,
+                status: 204,
+                body: { roles: { admin: false } },
+                token: adminUserToken
+            }));
 
         it("should successfully allow a moderator to update a specific user's roles", () =>
-            patch(`admin/users/${user1.id}`, 204, { roles: { mapper: true } }, modUserToken));
+            patch({
+                url: `admin/users/${user1.id}`,
+                status: 204,
+                body: { roles: { mapper: true } },
+                token: modUserToken
+            }));
 
         it('should not allow a moderator to make another user a moderator', () =>
-            patch(`admin/users/${user1.id}`, 403, { roles: { moderator: true } }, modUserToken));
+            patch({
+                url: `admin/users/${user1.id}`,
+                status: 403,
+                body: { roles: { moderator: true } },
+                token: modUserToken
+            }));
 
         it("should not allow a moderator to update another moderator's roles", () =>
-            patch(`admin/users/${modUser2.id}`, 403, { roles: { moderator: false } }, modUserToken));
+            patch({
+                url: `admin/users/${modUser2.id}`,
+                status: 403,
+                body: { roles: { moderator: false } },
+                token: modUserToken
+            }));
 
         it("should not allow a moderator to update an admin's roles", () =>
-            patch(`admin/users/${adminUser2.id}`, 403, { roles: { mapper: true } }, modUserToken));
+            patch({
+                url: `admin/users/${adminUser2.id}`,
+                status: 403,
+                body: { roles: { mapper: true } },
+                token: modUserToken
+            }));
 
         it('should allow a moderator to update their own non-mod roles', () =>
-            patch(`admin/users/${modUser.id}`, 204, { roles: { mapper: true } }, modUserToken));
+            patch({
+                url: `admin/users/${modUser.id}`,
+                status: 204,
+                body: { roles: { mapper: true } },
+                token: modUserToken
+            }));
 
         it('should not allow a moderator to update their own mod role', () =>
-            patch(`admin/users/${modUser.id}`, 403, { roles: { moderator: false } }, modUserToken));
+            patch({
+                url: `admin/users/${modUser.id}`,
+                status: 403,
+                body: { roles: { moderator: false } },
+                token: modUserToken
+            }));
 
         it('should respond with 403 when the user requesting is not an admin', () =>
-            patch(`admin/users/${user1.id}`, 403, { alias: 'Barry 2' }, nonAdminAccessToken));
+            patch({
+                url: `admin/users/${user1.id}`,
+                status: 403,
+                body: { alias: 'Barry 2' },
+                token: nonAdminAccessToken
+            }));
 
         it('should respond with 401 when no access token is provided', () =>
-            patch(`admin/users/${user1.id}`, 401, {}, null));
+            patch({
+                url: `admin/users/${user1.id}`,
+                status: 401
+            }));
 
-        // it('should respond with 403 when authenticated from game', () => {
-        //     return chai
-        //         .request(server)
-        //         .patch('/api/v1/admin/users/' + testUser.id)
-        //         .set('Authorization', 'Bearer ' + adminGameAccessToken)
-        //         .send({
-        //             bans: user.Ban.BANNED_BIO
-        //         })
-        //         .then((res) => {
-        //             expect(res).to.have.status(403);
-        //             expect(res).to.be.json;
-        //             expect(res.body).toHaveProperty('error');
-        //             expect(res.body.error.code).toEqual(403);
-        //             expect(typeof res.body.error.message).toBe('string');
-        //         });
-        // });
+        it('should respond with 403 when authenticated from game', () =>
+            patch({
+                url: `admin/users/${user1.id}`,
+                status: 403,
+                body: { roles: { mapper: true } },
+                token: adminGameUserToken
+            }));
     });
 
-    describe('DELETE /api/v1/admin/users/{userID}', () => {
+    describe('DELETE /api/admin/users/{userID}', () => {
         it('should delete a user', async () => {
-            await del(`admin/users/${user1.id}`, 204);
+            await del({
+                url: `admin/users/${user1.id}`,
+                status: 204,
+                token: adminUserToken
+            });
 
-            await get(`users/${user1.id}`, 404);
+            await get({
+                url: `users/${user1.id}`,
+                status: 404,
+                token: adminUserToken
+            });
         });
 
         it('should respond with 403 when the user requesting only is a moderator', () =>
-            del(`admin/users/${user1.id}`, 403, modUserToken));
+            del({
+                url: `admin/users/${user1.id}`,
+                status: 403,
+                token: modUserToken
+            }));
 
         it('should respond with 403 when the user requesting is not an admin', () =>
-            del(`admin/users/${user1.id}`, 403, nonAdminAccessToken));
+            del({
+                url: `admin/users/${user1.id}`,
+                status: 403,
+                token: nonAdminAccessToken
+            }));
 
-        it('should respond with 401 when no access token is provided', () => del(`admin/users/${user1.id}`, 401, null));
+        it('should respond with 401 when no access token is provided', () =>
+            del({
+                url: `admin/users/${user1.id}`,
+                status: 401
+            }));
     });
 
-    // describe('GET /api/v1/admin/maps', () => {
+    // describe('GET /api/admin/maps', () => {
     // 	it('should respond with 403 when not an admin', () => {
     // 		return chai.request(server)
-    // 			.get('/api/v1/admin/maps/')
+    // 			.get('/api/admin/maps/')
     // 			.set('Authorization', 'Bearer ' + accessToken)
     // 			.then(res => {
     // 				expect(res).to.have.status(403);
@@ -637,7 +841,7 @@ describe('Admin', () => {
     // 	});
     // 	it('should respond with 403 when authenticated from game', () => {
     // 		return chai.request(server)
-    // 			.get('/api/v1/admin/maps/')
+    // 			.get('/api/admin/maps/')
     // 			.set('Authorization', 'Bearer ' + adminGameAccessToken)
     // 			.then(res => {
     // 				expect(res).to.have.status(403);
@@ -649,7 +853,7 @@ describe('Admin', () => {
     // 	});
     // 	it('should respond with 401 when no access token is provided', () => {
     // 		return chai.request(server)
-    // 			.get('/api/v1/admin/maps/')
+    // 			.get('/api/admin/maps/')
     // 			.then(res => {
     // 				expect(res).to.have.status(401);
     // 				expect(res).to.be.json;
@@ -660,7 +864,7 @@ describe('Admin', () => {
     // 	});
     // 	it('should respond with a list of maps', () => {
     // 		return chai.request(server)
-    // 			.get('/api/v1/admin/maps/')
+    // 			.get('/api/admin/maps/')
     // 			.set('Authorization', 'Bearer ' + adminAccessToken)
     // 			.then(res => {
     // 				expect(res).to.have.status(200);
@@ -675,7 +879,7 @@ describe('Admin', () => {
     //         'should respond with a limited list of maps when using the limit query param',
     //         () => {
     //             return chai.request(server)
-    //                 .get('/api/v1/admin/maps/')
+    //                 .get('/api/admin/maps/')
     //                 .set('Authorization', 'Bearer ' + adminAccessToken)
     //                 .query({limit: 2})
     //                 .then(res => {
@@ -693,7 +897,7 @@ describe('Admin', () => {
     //         'should respond with a different list of maps when using the offset query param',
     //         () => {
     //             return chai.request(server)
-    //                 .get('/api/v1/admin/maps/')
+    //                 .get('/api/admin/maps/')
     //                 .set('Authorization', 'Bearer ' + adminAccessToken)
     //                 .query({offset: 2})
     //                 .then(res => {
@@ -710,7 +914,7 @@ describe('Admin', () => {
     //         'should respond with a filtered list of maps when using the search query param',
     //         () => {
     //             return chai.request(server)
-    //                 .get('/api/v1/admin/maps/')
+    //                 .get('/api/admin/maps/')
     //                 .set('Authorization', 'Bearer ' + adminAccessToken)
     //                 .query({search: 'uni'})
     //                 .then(res => {
@@ -727,7 +931,7 @@ describe('Admin', () => {
     //         'should respond with a filtered list of maps when using the submitterID query param',
     //         () => {
     //             return chai.request(server)
-    //                 .get('/api/v1/admin/maps/')
+    //                 .get('/api/admin/maps/')
     //                 .set('Authorization', 'Bearer ' + adminAccessToken)
     //                 .query({submitterID: testUser.id})
     //                 .then(res => {
@@ -746,7 +950,7 @@ describe('Admin', () => {
     //         'should respond with a list of maps when using the expand info query param',
     //         () => {
     //             return chai.request(server)
-    //                 .get('/api/v1/admin/maps/')
+    //                 .get('/api/admin/maps/')
     //                 .set('Authorization', 'Bearer ' + adminAccessToken)
     //                 .query({expand: 'info'})
     //                 .then(res => {
@@ -766,7 +970,7 @@ describe('Admin', () => {
     //         'should respond with a list of maps when using the expand submitter query param',
     //         () => {
     //             return chai.request(server)
-    //                 .get('/api/v1/admin/maps/')
+    //                 .get('/api/admin/maps/')
     //                 .set('Authorization', 'Bearer ' + adminAccessToken)
     //                 .query({expand: 'submitter'})
     //                 .then(res => {
@@ -785,7 +989,7 @@ describe('Admin', () => {
     //         'should respond with a list of maps when using the expand credits query param',
     //         () => {
     //             return chai.request(server)
-    //                 .get('/api/v1/admin/maps/')
+    //                 .get('/api/admin/maps/')
     //                 .set('Authorization', 'Bearer ' + adminAccessToken)
     //                 .query({expand: 'credits'})
     //                 .then(res => {
@@ -806,7 +1010,7 @@ describe('Admin', () => {
     //         'should respond with a filtered list of maps when using the status query param',
     //         () => {
     //             return chai.request(server)
-    //                 .get('/api/v1/admin/maps/')
+    //                 .get('/api/admin/maps/')
     //                 .set('Authorization', 'Bearer ' + adminAccessToken)
     //                 .query({
     //                     status: map.STATUS.APPROVED
@@ -827,7 +1031,7 @@ describe('Admin', () => {
     //         'should respond with a filtered list of maps when using the priority query param',
     //         () => {
     //             return chai.request(server)
-    //                 .get('/api/v1/admin/maps/')
+    //                 .get('/api/admin/maps/')
     //                 .set('Authorization', 'Bearer ' + adminAccessToken)
     //                 .query({
     //                     priority: true
@@ -845,10 +1049,10 @@ describe('Admin', () => {
     //
     // });
     //
-    // describe('PATCH /api/v1/admin/maps/{mapID}', () => {
+    // describe('PATCH /api/admin/maps/{mapID}', () => {
     // 	it('should respond with 403 when not an admin', () => {
     // 		return chai.request(server)
-    // 			.patch('/api/v1/admin/maps/' + testMap.id)
+    // 			.patch('/api/admin/maps/' + testMap.id)
     // 			.set('Authorization', 'Bearer ' + accessToken)
     // 			.send({
     // 				statusFlag: 1,
@@ -863,7 +1067,7 @@ describe('Admin', () => {
     // 	});
     // 	it('should respond with 403 when authenticated from game', () => {
     // 		return chai.request(server)
-    // 			.patch('/api/v1/admin/maps/' + testMap.id)
+    // 			.patch('/api/admin/maps/' + testMap.id)
     // 			.set('Authorization', 'Bearer ' + adminGameAccessToken)
     // 			.send({
     // 				statusFlag: 1,
@@ -878,7 +1082,7 @@ describe('Admin', () => {
     // 	});
     // 	it('should update a specific map', () => {
     // 		return chai.request(server)
-    // 			.patch('/api/v1/admin/maps/' + testMap.id)
+    // 			.patch('/api/admin/maps/' + testMap.id)
     // 			.set('Authorization', 'Bearer ' + adminAccessToken)
     // 			.send({
     // 				statusFlag: 1,
@@ -889,7 +1093,7 @@ describe('Admin', () => {
     // 	});
     // 	it('should respond with 401 when no access token is provided', () => {
     // 		return chai.request(server)
-    // 			.patch('/api/v1/admin/maps/' + testMap.id)
+    // 			.patch('/api/admin/maps/' + testMap.id)
     // 			.then(res => {
     // 				expect(res).to.have.status(401);
     // 				expect(res).to.be.json;
@@ -900,10 +1104,10 @@ describe('Admin', () => {
     // 	});
     // });
     //
-    // describe('GET /api/v1/admin/reports', () => {
+    // describe('GET /api/admin/reports', () => {
     // 	it('should respond with a list of reports', () => {
     // 		return chai.request(server)
-    // 			.get('/api/v1/admin/reports')
+    // 			.get('/api/admin/reports')
     // 			.set('Authorization', 'Bearer ' + adminAccessToken)
     // 			.then(res => {
     // 				expect(res).to.have.status(200);
@@ -916,7 +1120,7 @@ describe('Admin', () => {
     // 	});
     // 	it('should limit the result set when using the limit query param', () => {
     // 		return chai.request(server)
-    // 			.get('/api/v1/admin/reports')
+    // 			.get('/api/admin/reports')
     // 			.set('Authorization', 'Bearer ' + adminAccessToken)
     // 			.query({limit: 1})
     // 			.then(res => {
@@ -927,10 +1131,10 @@ describe('Admin', () => {
     // 	it.skip('should filter with the resolved query param', () => {});
     // });
     //
-    // describe('PATCH /api/v1/admin/reports/{reportID}', () => {
+    // describe('PATCH /api/admin/reports/{reportID}', () => {
     // 	it('should update a report', () => {
     // 		return chai.request(server)
-    // 			.patch('/api/v1/admin/reports/' + testReport.id)
+    // 			.patch('/api/admin/reports/' + testReport.id)
     // 			.set('Authorization', 'Bearer ' + adminAccessToken)
     // 			.send({
     // 				resolved: true,
@@ -942,10 +1146,10 @@ describe('Admin', () => {
     // 	});
     // });
     //
-    // describe('DELETE /api/v1/admin/maps/{mapID}', () => {
+    // describe('DELETE /api/admin/maps/{mapID}', () => {
     // 	it('should delete a map', () => {
     // 		return chai.request(server)
-    // 			.delete('/api/v1/admin/maps/' + testMap.id)
+    // 			.delete('/api/admin/maps/' + testMap.id)
     // 			.set('Authorization', 'Bearer ' + adminAccessToken)
     // 			.then(res => {
     // 				expect(res).to.have.status(200);
@@ -953,10 +1157,10 @@ describe('Admin', () => {
     // 	});
     // });
     //
-    // describe('PATCH /api/v1/admin/user-stats', () => {
+    // describe('PATCH /api/admin/user-stats', () => {
     // 	it('should update all user stats', () => {
     // 		return chai.request(server)
-    // 			.patch('/api/v1/admin/user-stats')
+    // 			.patch('/api/admin/user-stats')
     // 			.set('Authorization', 'Bearer ' + adminAccessToken)
     // 			.send({
     // 				cosXP: 1337,
@@ -967,10 +1171,10 @@ describe('Admin', () => {
     // 	});
     // });
     //
-    // describe('GET /api/v1/admin/xpsys', () => {
+    // describe('GET /api/admin/xpsys', () => {
     // 	it('should return the XP system variables', () => {
     // 		return chai.request(server)
-    // 			.get('/api/v1/admin/xpsys')
+    // 			.get('/api/admin/xpsys')
     // 			.set('Authorization', 'Bearer ' + adminAccessToken)
     // 			.then(res => {
     // 				expect(res).to.have.status(200);
@@ -978,10 +1182,10 @@ describe('Admin', () => {
     // 	});
     // });
     //
-    // describe('PUT /api/v1/admin/xpsys', () => {
+    // describe('PUT /api/admin/xpsys', () => {
     // 	it('should update the XP system variables', () => {
     // 		return chai.request(server)
-    // 			.put('/api/v1/admin/xpsys')
+    // 			.put('/api/admin/xpsys')
     // 			.set('Authorization', 'Bearer ' + adminAccessToken)
     // 			.send({
     // 				rankXP: {

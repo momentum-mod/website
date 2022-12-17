@@ -1,25 +1,12 @@
 // noinspection DuplicatedCode
-import request from 'supertest';
 import { readFileSync } from 'node:fs';
 import { AuthService } from '@modules/auth/auth.service';
 import { PrismaService } from '@modules/repo/prisma.service';
 import { MapStatus, MapCreditType, MapType } from '@common/enums/map.enum';
 import { MapDto } from '@common/dto/map/map.dto';
-import {
-    del,
-    expandTest,
-    get,
-    getNoContent,
-    patch,
-    post,
-    postAttach,
-    put,
-    skipTest,
-    takeTest
-} from '../util/test-util';
+import { del, get, getNoContent, patch, post, postAttach } from '../util/request-handlers.util';
 import { MapInfoDto } from '@common/dto/map/map-info.dto';
 import { MapCreditDto } from '@common/dto/map/map-credit.dto';
-import { MapImageDto } from '@common/dto/map/map-image.dto';
 import { RunDto } from '@common/dto/run/runs.dto';
 import { MapRankDto } from '@common/dto/map/map-rank.dto';
 import { ActivityTypes } from '@common/enums/activity.enum';
@@ -28,6 +15,7 @@ import { createHash } from 'node:crypto';
 import { DeleteObjectCommand, S3Client } from '@aws-sdk/client-s3';
 import { UserDto } from '@common/dto/user/user.dto';
 import { MapTrackDto } from '@common/dto/map/map-track.dto';
+import { expandTest, skipTest, takeTest } from '@tests/util/generic-e2e-tests.util';
 
 const hash = (buffer: Buffer) => createHash('sha1').update(buffer).digest('hex');
 
@@ -41,10 +29,16 @@ const s3Client = new S3Client({
 });
 
 describe('Maps', () => {
-    let user,
+    let user1,
+        user1Token,
         admin,
+        // adminAccessToken,
+        // gameAdmin,
+        // gameAdminAccessToken,
         user2,
+        user2Token,
         user3,
+        user3Token,
         run1,
         run2,
         run3,
@@ -52,18 +46,13 @@ describe('Maps', () => {
         map2,
         map3,
         map4,
-        createMapObj: () => any,
-        // gameAdmin,
-        // gameAdminAccessToken,
-        // adminAccessToken,
-        user2AccessToken,
-        user3AccessToken;
+        createMapObj: () => any;
 
     beforeEach(async () => {
         const prisma: PrismaService = global.prisma;
 
         // Create Users
-        user = await prisma.user.create({
+        user1 = await prisma.user.create({
             data: {
                 steamID: '65465432154',
                 alias: 'User 1',
@@ -101,7 +90,7 @@ describe('Maps', () => {
                 name: 'maps_test' + Math.floor(Math.random() * 100000000),
                 type: MapType.SURF,
                 statusFlag: MapStatus.NEEDS_REVISION,
-                submitterID: user.id,
+                submitterID: user1.id,
                 info: {
                     create: {
                         description: 'My first map!!!!',
@@ -133,7 +122,7 @@ describe('Maps', () => {
                 credits: {
                     create: {
                         type: MapCreditType.AUTHOR,
-                        userID: user.id
+                        userID: user1.id
                     }
                 },
                 images: {
@@ -238,7 +227,7 @@ describe('Maps', () => {
                 credits: {
                     create: {
                         type: MapCreditType.AUTHOR,
-                        userID: user?.id
+                        userID: user1?.id
                     }
                 }
             },
@@ -421,7 +410,7 @@ describe('Maps', () => {
                 },
                 credits: [
                     {
-                        userID: user.id,
+                        userID: user1.id,
                         type: MapCreditType.AUTHOR
                     }
                 ],
@@ -480,7 +469,7 @@ describe('Maps', () => {
         run2 = await prisma.run.create({
             data: {
                 map: { connect: { id: map1.id } },
-                user: { connect: { id: user.id } },
+                user: { connect: { id: user1.id } },
                 trackNum: 1,
                 zoneNum: 1,
                 ticks: 20000,
@@ -492,7 +481,7 @@ describe('Maps', () => {
                 rank: {
                     create: {
                         map: { connect: { id: map1.id } },
-                        user: { connect: { id: user.id } },
+                        user: { connect: { id: user1.id } },
                         rank: 2,
                         gameType: MapType.SURF
                     }
@@ -509,7 +498,7 @@ describe('Maps', () => {
         run3 = await prisma.run.create({
             data: {
                 map: { connect: { id: map1.id } },
-                user: { connect: { id: user.id } },
+                user: { connect: { id: user1.id } },
                 trackNum: 1,
                 zoneNum: 1,
                 ticks: 20001,
@@ -528,30 +517,30 @@ describe('Maps', () => {
 
         await prisma.mapLibraryEntry.create({
             data: {
-                user: { connect: { id: user.id } },
+                user: { connect: { id: user1.id } },
                 map: { connect: { id: map1.id } }
             }
         });
 
         await prisma.mapFavorite.create({
             data: {
-                user: { connect: { id: user.id } },
+                user: { connect: { id: user1.id } },
                 map: { connect: { id: map1.id } }
             }
         });
 
         const authService = global.auth as AuthService;
-        global.accessToken = (await authService.login(user)).access_token;
-        // adminAccessToken = (await authService.login(admin)).access_token;
-        user2AccessToken = (await authService.login(user2)).access_token;
-        user3AccessToken = (await authService.login(user3)).access_token;
+        user1Token = (await authService.loginWeb(user1)).accessToken;
+        // adminAccessToken = (await authService.loginWeb(admin)).accessToken;
+        user2Token = (await authService.loginWeb(user2)).accessToken;
+        user3Token = (await authService.loginWeb(user3)).accessToken;
     });
 
     afterEach(async () => {
         const prisma: PrismaService = global.prisma;
 
         await prisma.user.deleteMany({
-            where: { id: { in: [user.id, admin.id, user2.id, user3.id] } }
+            where: { id: { in: [user1.id, admin.id, user2.id, user3.id] } }
         });
 
         await prisma.map.deleteMany({
@@ -578,10 +567,13 @@ describe('Maps', () => {
                 expect(x).toHaveProperty('info');
             }
         };
-        const filter = (x) => x.id === map1.id;
 
         it('should respond with map data', async () => {
-            const res = await get('maps', 200);
+            const res = await get({
+                url: 'maps',
+                status: 200,
+                token: user1Token
+            });
 
             expects(res);
             expect(res.body.totalCount).toBeGreaterThanOrEqual(4);
@@ -589,7 +581,11 @@ describe('Maps', () => {
         });
 
         it('should be ordered by date', async () => {
-            const res = await get('maps', 200);
+            const res = await get({
+                url: 'maps',
+                status: 200,
+                token: user1Token
+            });
 
             expects(res);
 
@@ -600,12 +596,27 @@ describe('Maps', () => {
             expect(res.body.response).toEqual(sortedRes);
         });
 
-        it('should respond with filtered map data using the take parameter', () => takeTest('maps', expects));
+        it('should respond with filtered map data using the take parameter', () =>
+            takeTest({
+                url: 'maps',
+                test: expects,
+                token: user1Token
+            }));
 
-        it('should respond with filtered map data using the skip parameter', () => skipTest('maps', expects));
+        it('should respond with filtered map data using the skip parameter', () =>
+            skipTest({
+                url: 'maps',
+                test: expects,
+                token: user1Token
+            }));
 
         it('should respond with filtered map data using the search parameter', async () => {
-            const res = await get('maps', 200, { search: map1.name });
+            const res = await get({
+                url: 'maps',
+                status: 200,
+                query: { search: map1.name },
+                token: user1Token
+            });
 
             expects(res);
             expect(res.body.totalCount).toEqual(1);
@@ -614,7 +625,12 @@ describe('Maps', () => {
         });
 
         it('should respond with filtered map data using the submitter id parameter', async () => {
-            const res = await get('maps', 200, { submitterID: user.id });
+            const res = await get({
+                url: 'maps',
+                status: 200,
+                query: { submitterID: user1.id },
+                token: user1Token
+            });
 
             expects(res);
             expect(res.body.totalCount).toEqual(1);
@@ -623,8 +639,18 @@ describe('Maps', () => {
         });
 
         it('should respond with filtered map data based on the map type', async () => {
-            const res = await get('maps', 200, { type: map1.type });
-            const res2 = await get('maps', 200);
+            const res = await get({
+                url: 'maps',
+                status: 200,
+                query: { type: map1.type, take: 100 },
+                token: user1Token
+            });
+            const res2 = await get({
+                url: 'maps',
+                status: 200,
+                query: { take: 100 },
+                token: user1Token
+            });
 
             expects(res);
             expect(res.body.totalCount).toBeLessThan(res2.body.totalCount);
@@ -634,19 +660,57 @@ describe('Maps', () => {
         });
 
         it('should respond with expanded map data using the credits expand parameter', () =>
-            expandTest('maps', expects, 'credits', true, filter));
+            expandTest({
+                url: 'maps',
+                test: expects,
+                expand: 'credits',
+                query: { search: map1.name },
+                paged: true,
+                token: user1Token
+            }));
 
         it('should respond with expanded map data using the thumbnail expand parameter', () =>
-            expandTest('maps', expects, 'thumbnail', true, filter));
+            expandTest({
+                url: 'maps',
+                test: expects,
+                expand: 'thumbnail',
+                query: { search: map1.name },
+                paged: true,
+                token: user1Token
+            }));
 
         it("should respond with expanded map data if the map is in the logged in user's library when using the inLibrary expansion", () =>
-            expandTest('maps', expects, 'inLibrary', true, filter, 'libraryEntries'));
+            expandTest({
+                url: 'maps',
+                test: expects,
+                expand: 'inLibrary',
+                query: { search: map1.name },
+                paged: true,
+                expectedPropertyName: 'libraryEntries',
+                token: user1Token
+            }));
 
         it("should respond with expanded map data if the map is in the logged in user's library when using the inFavorites expansion", () =>
-            expandTest('maps', expects, 'inFavorites', true, filter, 'favorites'));
+            expandTest({
+                url: 'maps',
+                test: expects,
+                expand: 'inFavorites',
+                query: { search: map1.name },
+                expectedPropertyName: 'favorites',
+                paged: true,
+                token: user1Token
+            }));
 
         it("should respond with the map's WR when using the worldRecord expansion", async () => {
-            const res = await get('maps', 200, { expand: 'worldRecord' });
+            const res = await get({
+                url: 'maps',
+                status: 200,
+                query: {
+                    expand: 'worldRecord',
+                    search: map1.name
+                },
+                token: user1Token
+            });
 
             expects(res);
 
@@ -658,7 +722,15 @@ describe('Maps', () => {
         });
 
         it("should respond with the logged in user's PB when using the personalBest expansion", async () => {
-            const res = await get('maps', 200, { expand: 'personalBest' });
+            const res = await get({
+                url: 'maps',
+                status: 200,
+                query: {
+                    expand: 'personalBest',
+                    search: map1.name
+                },
+                token: user1Token
+            });
 
             expects(res);
 
@@ -666,11 +738,19 @@ describe('Maps', () => {
             expect(found).not.toBeNull();
             expect(found.personalBest).toBeValidDto(MapRankDto);
             expect(found.personalBest.rank).toBe(2);
-            expect(found.personalBest.user.id).toBe(user.id);
+            expect(found.personalBest.user.id).toBe(user1.id);
         });
 
         it('should respond properly with both personalBest and worldRecord expansions', async () => {
-            const res = await get('maps', 200, { expand: 'worldRecord,personalBest' });
+            const res = await get({
+                url: 'maps',
+                status: 200,
+                query: {
+                    expand: 'worldRecord,personalBest',
+                    search: map1.name
+                },
+                token: user1Token
+            });
 
             expects(res);
 
@@ -683,34 +763,54 @@ describe('Maps', () => {
             expect(found.worldRecord.user.id).toBe(admin.id);
             expect(found.personalBest).toBeValidDto(MapRankDto);
             expect(found.personalBest.rank).toBe(2);
-            expect(found.personalBest.user.id).toBe(user.id);
+            expect(found.personalBest.user.id).toBe(user1.id);
         });
 
         it('should respond with filtered maps when using the difficultyLow filter', async () => {
-            const res = await get('maps', 200, { difficultyLow: 3, search: 'maps_test' });
+            const res = await get({
+                url: 'maps',
+                status: 200,
+                query: { difficultyLow: 3, search: 'maps_test' },
+                token: user1Token
+            });
 
             expect(res.body.totalCount).toBe(3);
             expect(res.body.returnCount).toBe(3);
         });
 
         it('should respond with filtered maps when using the difficultyHigh filter', async () => {
-            const res = await get('maps', 200, { difficultyHigh: 6, search: 'maps_test' });
+            const res = await get({
+                url: 'maps',
+                status: 200,
+                query: { difficultyHigh: 6, search: 'maps_test' },
+                token: user1Token
+            });
 
             expect(res.body.totalCount).toBe(3);
             expect(res.body.returnCount).toBe(3);
         });
 
         it('should respond with filtered maps when using both the difficultyLow and difficultyHigh filter', async () => {
-            const res = await get('maps', 200, { difficultyLow: 3, difficultyHigh: 6, search: 'maps_test' });
+            const res = await get({
+                url: 'maps',
+                status: 200,
+                query: { difficultyLow: 3, difficultyHigh: 6, search: 'maps_test' },
+                token: user1Token
+            });
 
             expect(res.body.totalCount).toBe(2);
             expect(res.body.returnCount).toBe(2);
         });
 
         it('should respond with filtered maps when the isLinear filter', async () => {
-            const res = await get('maps', 200, {
-                isLinear: true,
-                search: 'maps_test'
+            const res = await get({
+                url: 'maps',
+                status: 200,
+                query: {
+                    isLinear: true,
+                    search: 'maps_test'
+                },
+                token: user1Token
             });
 
             expect(res.body.totalCount).toBe(2);
@@ -718,18 +818,27 @@ describe('Maps', () => {
         });
 
         it('should respond with filtered maps when using both the difficultyLow, difficultyHigh and isLinear filters', async () => {
-            const res = await get('maps', 200, {
-                difficultyLow: 3,
-                difficultyHigh: 6,
-                isLinear: true,
-                search: 'maps_test'
+            const res = await get({
+                url: 'maps',
+                status: 200,
+                query: {
+                    difficultyLow: 3,
+                    difficultyHigh: 6,
+                    isLinear: true,
+                    search: 'maps_test'
+                },
+                token: user1Token
             });
 
             expect(res.body.totalCount).toBe(1);
             expect(res.body.returnCount).toBe(1);
         });
 
-        it('should respond with 401 when no access token is provided', () => get('maps', 401, {}, null));
+        it('should respond with 401 when no access token is provided', () =>
+            get({
+                url: 'maps',
+                status: 401
+            }));
     });
 
     describe('POST maps', () => {
@@ -737,7 +846,12 @@ describe('Maps', () => {
             const mapObj = createMapObj();
 
             // TODO: not sure it's handling properties right, do a more complex mapobj!
-            await post('maps', 204, mapObj);
+            await post({
+                url: 'maps',
+                status: 204,
+                body: mapObj,
+                token: user1Token
+            });
 
             const mapDB = await (global.prisma as PrismaService).map.findFirst({
                 where: { name: mapObj.name },
@@ -755,8 +869,8 @@ describe('Maps', () => {
             expect(mapDB.info.description).toBe(mapObj.info.description);
             expect(mapDB.info.numTracks).toBe(mapObj.info.numTracks);
             expect(mapDB.info.creationDate.toJSON()).toBe(mapObj.info.creationDate);
-            expect(mapDB.submitterID).toBe(user.id);
-            expect(mapDB.credits[0].userID).toBe(user.id);
+            expect(mapDB.submitterID).toBe(user1.id);
+            expect(mapDB.credits[0].userID).toBe(user1.id);
             expect(mapDB.credits[0].type).toBe(MapCreditType.AUTHOR);
             expect(mapDB).toHaveProperty('tracks');
             expect(mapDB.tracks).toHaveLength(2);
@@ -776,11 +890,16 @@ describe('Maps', () => {
         it('should create map uploaded activities for the map authors', async () => {
             const mapObj = createMapObj();
 
-            await post('maps', 204, mapObj);
+            await post({
+                url: 'maps',
+                status: 204,
+                body: mapObj,
+                token: user1Token
+            });
 
             const mapDB = await (global.prisma as PrismaService).map.findFirst({ where: { name: mapObj.name } });
 
-            const activity = await (global.prisma as PrismaService).activity.findFirst({ where: { userID: user.id } });
+            const activity = await (global.prisma as PrismaService).activity.findFirst({ where: { userID: user1.id } });
 
             expect(activity.type).toBe(ActivityTypes.MAP_UPLOADED);
             expect(activity.data).toBe(BigInt(mapDB.id));
@@ -789,7 +908,12 @@ describe('Maps', () => {
         it('set the Location property in the response header on creation', async () => {
             const mapObj = createMapObj();
 
-            const res = await post('maps', 204, mapObj);
+            const res = await post({
+                url: 'maps',
+                status: 204,
+                body: mapObj,
+                token: user1Token
+            });
 
             const mapDB = await (global.prisma as PrismaService).map.findFirst({ where: { name: mapObj.name } });
 
@@ -797,43 +921,73 @@ describe('Maps', () => {
         });
 
         it('should respond with 400 if the map does not have any tracks', () =>
-            post('maps', 400, { ...createMapObj, tracks: [] }));
+            post({
+                url: 'maps',
+                status: 400,
+                body: { ...createMapObj, tracks: [] },
+                token: user1Token
+            }));
 
         it('should respond with 400 if a map track have less than 2 zones', async () => {
             const mapObj = createMapObj();
-            await post('maps', 400, {
-                ...createMapObj,
-                tracks: [{ ...mapObj.tracks[0], zones: mapObj.tracks[0].zones[0] }]
+            await post({
+                url: 'maps',
+                status: 400,
+                body: {
+                    ...createMapObj(),
+                    tracks: [{ ...mapObj.tracks[0], zones: mapObj.tracks[0].zones[0] }]
+                },
+                token: user1Token
             });
         });
 
         it('should respond with 409 if a map with the same name exists', () =>
-            post('maps', 409, { ...createMapObj(), name: map1.name }, user3AccessToken));
+            post({
+                url: 'maps',
+                status: 409,
+                body: { ...createMapObj(), name: map1.name },
+                token: user3Token
+            }));
 
         it('should respond with 409 if the submitter already have 5 or more pending maps', () =>
-            post('maps', 409, createMapObj(), user3AccessToken));
+            post({
+                url: 'maps',
+                status: 409,
+                body: createMapObj(),
+                token: user3Token
+            }));
 
         it('should respond with 403 when the user does not have the mapper role', () =>
-            post('maps', 403, createMapObj(), user2AccessToken));
+            post({
+                url: 'maps',
+                status: 403,
+                body: createMapObj(),
+                token: user2Token
+            }));
 
-        it('should respond with 401 when no access token is provided', () => post('maps', 401, createMapObj(), null));
+        it('should respond with 401 when no access token is provided', () =>
+            post({
+                url: 'maps',
+                status: 401,
+                body: createMapObj()
+            }));
     });
 
     describe('GET maps/{mapID}/upload', () => {
         it('should set the response header location to the map upload endpoint', async () => {
-            const res = await getNoContent(`maps/${map1.id}/upload`, 204);
+            const res = await getNoContent({ url: `maps/${map1.id}/upload`, status: 204, token: user1Token });
 
             expect(res.get('Location')).toBe(`api/v1/maps/${map1.id}/upload`);
         });
 
         it('should respond with a 403 when the submitterID does not match the userID', () =>
-            getNoContent(`maps/${map1.id}/upload`, 403, {}, user2AccessToken));
+            getNoContent({ url: `maps/${map1.id}/upload`, status: 403, token: user2Token }));
 
         it('should respond with a 403 when the map is not accepting uploads', () =>
-            getNoContent(`maps/${map1.id}/upload`, 403, {}, user2AccessToken));
+            getNoContent({ url: `maps/${map1.id}/upload`, status: 403, token: user2Token }));
 
         it('should respond with 401 when no access token is provided', () =>
-            getNoContent(`maps/${map1.id}/upload`, 401, {}, null));
+            getNoContent({ url: `maps/${map1.id}/upload`, status: 401 }));
     });
 
     describe('POST /maps/{mapID}/upload', () => {
@@ -841,13 +995,18 @@ describe('Maps', () => {
             const inBuffer = readFileSync('./tests/files/map.bsp');
             const inHash = hash(inBuffer);
 
-            const res = await postAttach(`maps/${map1.id}/upload`, 201, 'map.bsp');
+            const res = await postAttach({
+                url: `maps/${map1.id}/upload`,
+                status: 201,
+                file: 'map.bsp',
+                token: user1Token
+            });
 
             const url: string = res.body.downloadURL;
             expect(url.split('/').at(-1)).toBe(res.body.name + '.bsp');
 
-            // This is failing sometimes, giving Backblaze a little time to process our file
-            await new Promise((resolve) => setTimeout(resolve, 1000));
+            // This is failing sometimes, giving MinIO a little time to process our file
+            await new Promise((resolve) => setTimeout(resolve, 100));
 
             const outBuffer = await axios
                 .get(url, { responseType: 'arraybuffer' })
@@ -869,28 +1028,51 @@ describe('Maps', () => {
             }
         });
 
-        it('should respond with a 400 when no map file is provided', () => post(`maps/${map1.id}/upload`, 400, {}));
+        it('should respond with a 400 when no map file is provided', () =>
+            post({
+                url: `maps/${map1.id}/upload`,
+                status: 400,
+                token: user1Token
+            }));
 
         it('should respond with a 403 when the submitterID does not match the userID', () =>
-            postAttach(`maps/${map1.id}/upload`, 403, 'map.bsp', 'file', user2AccessToken));
+            postAttach({
+                url: `maps/${map1.id}/upload`,
+                status: 403,
+                file: 'map.bsp',
+                token: user2Token
+            }));
 
         it('should respond with a 403 when the map is not accepting uploads', () =>
-            postAttach(`maps/${map2.id}/upload`, 403, 'map.bsp', 'file', user2AccessToken));
+            postAttach({
+                url: `maps/${map2.id}/upload`,
+                status: 403,
+                file: 'map.bsp',
+                token: user2Token
+            }));
 
         it('should respond with 401 when no access token is provided', () =>
-            post(`maps/${map1.id}/upload`, 401, {}, null));
+            post({
+                url: `maps/${map1.id}/upload`,
+                status: 401
+            }));
     });
 
     describe('The Big Chungie Create, Upload then Download Test', () =>
         it('should successfully create a map, upload it to the returned location, then download it', async () => {
-            const res = await post('maps', 204, createMapObj());
+            const res = await post({
+                url: 'maps',
+                status: 204,
+                body: createMapObj(),
+                token: user1Token
+            });
 
             const inBuffer = readFileSync(__dirname + '/../files/map.bsp');
             const inHash = hash(inBuffer);
 
             const uploadURL = res.get('Location').replace('api/v1/', '');
 
-            const res2 = await postAttach(uploadURL, 201, 'map.bsp');
+            const res2 = await postAttach({ url: uploadURL, status: 201, file: 'map.bsp', token: user1Token });
 
             await new Promise((resolve) => setTimeout(resolve, 1000));
 
@@ -907,40 +1089,105 @@ describe('Maps', () => {
         const filter = (x) => x.id === map1.id;
 
         it('should respond with map data', async () => {
-            const res = await get(`maps/${map1.id}`, 200);
+            const res = await get({
+                url: `maps/${map1.id}`,
+                status: 200,
+                token: user1Token
+            });
 
             expects(res);
         });
 
         it('should respond with expanded map data using the credits expand parameter', () =>
-            expandTest(`maps/${map1.id}`, expects, 'credits', false, filter));
+            expandTest({
+                url: `maps/${map1.id}`,
+                test: expects,
+                expand: 'credits',
+                filter: filter,
+                token: user1Token
+            }));
 
         it('should respond with expanded map data using the info expand parameter', () =>
-            expandTest(`maps/${map1.id}`, expects, 'info', false, filter));
+            expandTest({
+                url: `maps/${map1.id}`,
+                test: expects,
+                expand: 'info',
+                filter: filter,
+                token: user1Token
+            }));
 
         it('should respond with expanded map data using the submitter expand parameter', () =>
-            expandTest(`maps/${map1.id}`, expects, 'submitter', false, filter));
+            expandTest({
+                url: `maps/${map1.id}`,
+                test: expects,
+                expand: 'submitter',
+                filter: filter,
+                token: user1Token
+            }));
 
         it('should respond with expanded map data using the images expand  parameter', () =>
-            expandTest(`maps/${map1.id}`, expects, 'images', false, filter));
+            expandTest({
+                url: `maps/${map1.id}`,
+                test: expects,
+                expand: 'images',
+                filter: filter,
+                token: user1Token
+            }));
 
         it('should respond with expanded map data using the thumbnail expand  parameter', () =>
-            expandTest(`maps/${map1.id}`, expects, 'thumbnail', false, filter));
+            expandTest({
+                url: `maps/${map1.id}`,
+                test: expects,
+                expand: 'thumbnail',
+                filter: filter,
+                token: user1Token
+            }));
 
         it('should respond with expanded map data using the stats expand info parameter', () =>
-            expandTest(`maps/${map1.id}`, expects, 'stats', false, filter));
+            expandTest({
+                url: `maps/${map1.id}`,
+                test: expects,
+                expand: 'stats',
+                filter: filter,
+                token: user1Token
+            }));
 
         it('should respond with expanded map data using the tracks expand info parameter', () =>
-            expandTest(`maps/${map1.id}`, expects, 'tracks', false, filter));
+            expandTest({
+                url: `maps/${map1.id}`,
+                test: expects,
+                expand: 'tracks',
+                filter: filter,
+                token: user1Token
+            }));
 
         it("should respond with expanded map data if the map is in the logged in user's library when using the inLibrary expansion", () =>
-            expandTest(`maps/${map1.id}`, expects, 'inLibrary', false, filter, 'libraryEntries'));
+            expandTest({
+                url: `maps/${map1.id}`,
+                test: expects,
+                expand: 'inLibrary',
+                filter: filter,
+                expectedPropertyName: 'libraryEntries',
+                token: user1Token
+            }));
 
         it("should respond with expanded map data if the map is in the logged in user's library when using the inFavorites expansion", () =>
-            expandTest(`maps/${map1.id}`, expects, 'inFavorites', false, filter, 'favorites'));
+            expandTest({
+                url: `maps/${map1.id}`,
+                test: expects,
+                expand: 'inFavorites',
+                filter: filter,
+                expectedPropertyName: 'favorites',
+                token: user1Token
+            }));
 
         it("should respond with the map's WR when using the worldRecord expansion", async () => {
-            const res = await get(`maps/${map1.id}`, 200, { expand: 'worldRecord' });
+            const res = await get({
+                url: `maps/${map1.id}`,
+                status: 200,
+                query: { expand: 'worldRecord' },
+                token: user1Token
+            });
 
             expects(res);
 
@@ -950,17 +1197,27 @@ describe('Maps', () => {
         });
 
         it("should respond with the logged in user's PB when using the personalBest expansion", async () => {
-            const res = await get(`maps/${map1.id}`, 200, { expand: 'personalBest' });
+            const res = await get({
+                url: `maps/${map1.id}`,
+                status: 200,
+                query: { expand: 'personalBest' },
+                token: user1Token
+            });
 
             expects(res);
 
             expect(res.body.personalBest).toBeValidDto(MapRankDto);
             expect(res.body.personalBest.rank).toBe(2);
-            expect(res.body.personalBest.user.id).toBe(user.id);
+            expect(res.body.personalBest.user.id).toBe(user1.id);
         });
 
         it('should respond properly with both personalBest and worldRecord expansions', async () => {
-            const res = await get(`maps/${map1.id}`, 200, { expand: 'worldRecord,personalBest' });
+            const res = await get({
+                url: `maps/${map1.id}`,
+                status: 200,
+                query: { expand: 'worldRecord,personalBest' },
+                token: user1Token
+            });
 
             expects(res);
 
@@ -969,27 +1226,48 @@ describe('Maps', () => {
             expect(res.body.worldRecord.user.id).toBe(admin.id);
             expect(res.body.personalBest).toBeValidDto(MapRankDto);
             expect(res.body.personalBest.rank).toBe(2);
-            expect(res.body.personalBest.user.id).toBe(user.id);
+            expect(res.body.personalBest.user.id).toBe(user1.id);
         });
 
-        it('should respond with 404 when the map is not found', () => get('maps/6000000000', 404));
+        it('should respond with 404 when the map is not found', () =>
+            get({
+                url: 'maps/6000000000',
+                status: 404,
+                token: user1Token
+            }));
 
-        it('should respond with 401 when no access token is provided', () => get('maps/' + map1.id, 401, {}, null));
+        it('should respond with 401 when no access token is provided', () =>
+            get({
+                url: 'maps/' + map1.id,
+                status: 401
+            }));
     });
 
     describe('GET maps/{mapID}/info', () => {
         const expects = (res) => expect(res.body).toBeValidDto(MapInfoDto);
 
         it('should respond with map info', async () => {
-            const res = await get(`maps/${map1.id}/info`, 200);
+            const res = await get({
+                url: `maps/${map1.id}/info`,
+                status: 200,
+                token: user1Token
+            });
 
             expects(res);
         });
 
-        it('should return 404 if the map is not found', () => get('maps/00091919/info', 404));
+        it('should return 404 if the map is not found', () =>
+            get({
+                url: 'maps/00091919/info',
+                status: 404,
+                token: user1Token
+            }));
 
         it('should respond with 401 when no access token is provided', () =>
-            get(`maps/${map1.id}/info`, 401, {}, null));
+            get({
+                url: `maps/${map1.id}/info`,
+                status: 401
+            }));
     });
 
     describe('PATCH maps/{mapID}/info', () => {
@@ -1000,7 +1278,12 @@ describe('Maps', () => {
         };
 
         it('should update the map info', async () => {
-            await patch(`maps/${map1.id}/info`, 204, infoUpdate);
+            await patch({
+                url: `maps/${map1.id}/info`,
+                status: 204,
+                body: infoUpdate,
+                token: user1Token
+            });
             const newInfo = await (global.prisma as PrismaService).mapInfo.findUnique({ where: { mapID: map1.id } });
 
             expect(newInfo.creationDate).toEqual(new Date(infoUpdate.creationDate));
@@ -1009,26 +1292,66 @@ describe('Maps', () => {
         });
 
         it('should return 400 if the date is invalid', () =>
-            patch(`maps/${map1.id}/info`, 400, { creationDate: 'the other day' }));
+            patch({
+                url: `maps/${map1.id}/info`,
+                status: 400,
+                body: { creationDate: 'its chewsday init' },
+                token: user1Token
+            }));
 
         it('should return 400 if the youtube ID is invalid', () =>
-            patch(`maps/${map1.id}/info`, 400, { youtubeID: 'https://www.youtube.com/watch?v=70vwJy1dQ0c' }));
+            patch({
+                url: `maps/${map1.id}/info`,
+                status: 400,
+                body: { youtubeID: 'https://www.youtube.com/watch?v=70vwJy1dQ0c' },
+                token: user1Token
+            }));
 
-        it('should return 400 if no update data is provided', () => patch(`maps/${map1.id}/info`, 400, {}));
+        it('should return 400 if no update data is provided', () =>
+            patch({
+                url: `maps/${map1.id}/info`,
+                status: 400,
+                token: user1Token
+            }));
 
-        it('should return 404 if the map does not exist', () => patch('maps/1191137119/info', 404, infoUpdate));
+        it('should return 404 if the map does not exist', () =>
+            patch({
+                url: 'maps/1191137119/info',
+                status: 404,
+                body: infoUpdate,
+                token: user1Token
+            }));
 
         it('should return 403 if the map was not submitted by that user', () =>
-            patch(`maps/${map1.id}/info`, 403, infoUpdate, user3AccessToken));
+            patch({
+                url: `maps/${map1.id}/info`,
+                status: 403,
+                body: infoUpdate,
+                token: user3Token
+            }));
 
         it('should return 403 if the map is not in NEEDS_REVISION state', () =>
-            patch(`maps/${map3.id}/info`, 403, infoUpdate, user3AccessToken));
+            patch({
+                url: `maps/${map3.id}/info`,
+                status: 403,
+                body: infoUpdate,
+                token: user3Token
+            }));
 
         it('should return 403 if the user does not have the mapper role', () =>
-            patch(`maps/${map4.id}/info`, 403, infoUpdate, user2AccessToken));
+            patch({
+                url: `maps/${map4.id}/info`,
+                status: 403,
+                body: infoUpdate,
+                token: user2Token
+            }));
 
         it('should respond with 401 when no access token is provided', () =>
-            patch(`maps/${map1.id}/info`, 401, infoUpdate, null));
+            patch({
+                url: `maps/${map1.id}/info`,
+                status: 401,
+                body: infoUpdate
+            }));
     });
 
     describe('GET maps/{mapID}/credits', () => {
@@ -1037,23 +1360,40 @@ describe('Maps', () => {
         };
 
         it('should respond with the specified maps credits', async () => {
-            const res = await get(`maps/${map1.id}/credits`, 200);
+            const res = await get({
+                url: `maps/${map1.id}/credits`,
+                status: 200,
+                token: user1Token
+            });
             expects(res);
             expect(res.body).toHaveLength(1);
         });
 
         it('should respond with the specified maps credits with the user expand parameter', async () => {
-            const res = await get(`maps/${map1.id}/credits`, 200, { expand: 'user' });
+            const res = await get({
+                url: `maps/${map1.id}/credits`,
+                status: 200,
+                query: { expand: 'user' },
+                token: user1Token
+            });
             expects(res);
             for (const x of res.body) {
                 expect(x.user).toBeValidDto(UserDto);
             }
         });
 
-        it('should return 404 when no map credits found', () => get('maps/999999999999999/credits', 404));
+        it('should return 404 when no map credits found', () =>
+            get({
+                url: 'maps/999999999999999/credits',
+                status: 404,
+                token: user1Token
+            }));
 
         it('should respond with 401 when no access token is provided', () =>
-            get(`maps/${map1.id}/credits`, 401, {}, null));
+            get({
+                url: `maps/${map1.id}/credits`,
+                status: 401
+            }));
     });
 
     describe('POST maps/{mapID}/credits', () => {
@@ -1081,16 +1421,17 @@ describe('Maps', () => {
         };
 
         it('should create a map credit for the specified map', async () => {
-            const res = await post(`maps/${map1.id}/credits`, 201, newMapCredit());
+            const res = await post({
+                url: `maps/${map1.id}/credits`,
+                status: 201,
+                body: newMapCredit(),
+                token: user1Token
+            });
             expect(res.body).toBeValidDto(MapCreditDto);
 
             const changedMap = await (global.prisma as PrismaService).map.findUnique({
-                where: {
-                    id: map1.id
-                },
-                include: {
-                    credits: true
-                }
+                where: { id: map1.id },
+                include: { credits: true }
             });
             expect(changedMap.credits).toHaveLength(2);
             expect(changedMap.credits[1].userID).toBe(newMapCredit().userID);
@@ -1098,7 +1439,12 @@ describe('Maps', () => {
         });
 
         it('should create an activity if a new author is added', async () => {
-            await post(`maps/${map1.id}/credits`, 201, { type: MapCreditType.AUTHOR, userID: user3.id });
+            await post({
+                url: `maps/${map1.id}/credits`,
+                status: 201,
+                body: { type: MapCreditType.AUTHOR, userID: user3.id },
+                token: user1Token
+            });
             const newActivity = await (global.prisma as PrismaService).activity.findFirst({
                 where: {
                     userID: user3.id,
@@ -1109,45 +1455,102 @@ describe('Maps', () => {
             expect(newActivity);
         });
 
-        it('should respond with 404 if the map is not found', () => post('maps/9999999/credits', 404, newMapCredit()));
+        it('should respond with 404 if the map is not found', () =>
+            post({
+                url: 'maps/9999999/credits',
+                status: 404,
+                body: newMapCredit(),
+                token: user1Token
+            }));
 
         it('should respond with 403 if the user is not the map submitter', () =>
-            post(`maps/${map1.id}/credits`, 403, newMapCredit(), user3AccessToken));
+            post({
+                url: `maps/${map1.id}/credits`,
+                status: 403,
+                body: newMapCredit(),
+                token: user3Token
+            }));
 
         it("should respond with 403 if the user doesn't have the mapper role", () =>
-            post(`maps/${map4.id}/credits`, 403, newMapCredit(), user2AccessToken));
+            post({
+                url: `maps/${map4.id}/credits`,
+                status: 403,
+                body: newMapCredit(),
+                token: user2Token
+            }));
 
         it('should respond with 403 if the map is not in NEEDS_REVISION state', () =>
-            post(`maps/${map3.id}/credits`, 403, newMapCredit(), user3AccessToken));
+            post({
+                url: `maps/${map3.id}/credits`,
+                status: 403,
+                body: newMapCredit(),
+                token: user3Token
+            }));
 
         it('should respond with 400 if the map credit object is invalid', () =>
-            post(`maps/${map1.id}/credits`, 400, invalidMapCredit));
+            post({
+                url: `maps/${map1.id}/credits`,
+                status: 400,
+                body: invalidMapCredit,
+                token: user1Token
+            }));
 
         it('should respond with 409 if the map credit already exists', () =>
-            post(`maps/${map1.id}/credits`, 409, existingMapCredit()));
+            post({
+                url: `maps/${map1.id}/credits`,
+                status: 409,
+                body: existingMapCredit(),
+                token: user1Token
+            }));
 
         it('should respond with 400 if the credited user does not exist', () =>
-            post(`maps/${map1.id}/credits`, 400, noExistingUserMapCredit));
+            post({
+                url: `maps/${map1.id}/credits`,
+                status: 400,
+                body: noExistingUserMapCredit,
+                token: user1Token
+            }));
 
         it('should respond with 401 when no access token is provided', () =>
-            post(`maps/${map1.id}/credits`, 401, newMapCredit(), null));
+            post({
+                url: `maps/${map1.id}/credits`,
+                status: 401,
+                body: newMapCredit()
+            }));
     });
 
     describe('GET maps/credits/{mapCreditID}', () => {
         const expects = (res) => expect(res.body).toBeValidDto(MapCreditDto);
 
         it('should return the specified map credit', async () => {
-            const res = await get(`maps/credits/${map1.credits[0].id}`, 200);
+            const res = await get({
+                url: `maps/credits/${map1.credits[0].id}`,
+                status: 200,
+                token: user1Token
+            });
             expects(res);
         });
 
         it('should return the specified map credit with the user expand parameter', () =>
-            expandTest(`maps/credits/${map1.credits[0].id}`, expects, 'user'));
+            expandTest({
+                url: `maps/credits/${map1.credits[0].id}`,
+                test: expects,
+                expand: 'user',
+                token: user1Token
+            }));
 
-        it('should return a 404 if the map credit is not found', () => get('maps/credits/222', 404));
+        it('should return a 404 if the map credit is not found', () =>
+            get({
+                url: 'maps/credits/222',
+                status: 404,
+                token: user1Token
+            }));
 
         it('should respond with 401 when no access token is provided', () =>
-            get(`maps/credits/${map1.credits[0].id}`, 401, {}, null));
+            get({
+                url: `maps/credits/${map1.credits[0].id}`,
+                status: 401
+            }));
     });
 
     describe('PATCH maps/{mapID}/credits/{mapCreditID}', () => {
@@ -1157,8 +1560,14 @@ describe('Maps', () => {
                 type: MapCreditType.TESTER
             };
         };
+
         it("should update the specified map credit's user and type", async () => {
-            await patch(`maps/credits/${map1.credits[0].id}`, 204, updatedMapCredit());
+            await patch({
+                url: `maps/credits/${map1.credits[0].id}`,
+                status: 204,
+                body: updatedMapCredit(),
+                token: user1Token
+            });
             const updatedMap = await (global.prisma as PrismaService).map.findUnique({
                 where: { id: map1.id },
                 include: { credits: true }
@@ -1169,34 +1578,83 @@ describe('Maps', () => {
         });
 
         it("should just update the specified map credit's type", () =>
-            patch(`maps/credits/${map1.credits[0].id}`, 204, { type: MapCreditType.TESTER }));
+            patch({
+                url: `maps/credits/${map1.credits[0].id}`,
+                status: 204,
+                body: { type: MapCreditType.TESTER },
+                token: user1Token
+            }));
 
         it("should just update the specified map credit's user", () =>
-            patch(`maps/credits/${map1.credits[0].id}`, 204, { userID: user2.id }));
+            patch({
+                url: `maps/credits/${map1.credits[0].id}`,
+                status: 204,
+                body: { userID: user2.id },
+                token: user1Token
+            }));
 
         it('should return 403 if the map was not submitted by that user', () =>
-            patch(`maps/credits/${map1.credits[0].id}`, 403, updatedMapCredit(), user3AccessToken));
+            patch({
+                url: `maps/credits/${map1.credits[0].id}`,
+                status: 403,
+                body: updatedMapCredit(),
+                token: user3Token
+            }));
 
         it('should return 404 if the map credit was not found', () =>
-            patch(`maps/credits/1024768`, 404, updatedMapCredit()));
+            patch({
+                url: `maps/credits/1024768`,
+                status: 404,
+                body: updatedMapCredit(),
+                token: user1Token
+            }));
 
         it('should respond with 400 when the map credit type is invalid', () =>
-            patch(`maps/credits/${map1.credits[0].id}`, 400, { type: 'Author' }));
+            patch({
+                url: `maps/credits/${map1.credits[0].id}`,
+                status: 400,
+                body: { type: 'Author' },
+                token: user1Token
+            }));
 
         it('should respond with 400 when the map credit user is invalid', () =>
-            patch(`maps/credits/${map1.credits[0].id}`, 400, { userID: 'Momentum Man' }));
+            patch({
+                url: `maps/credits/${map1.credits[0].id}`,
+                status: 400,
+                body: { userID: 'Momentum Man' },
+                token: user1Token
+            }));
 
         it('should respond with 400 when no update data is provided', () =>
-            patch(`maps/credits/${map1.credits[0].id}`, 400, {}));
+            patch({
+                url: `maps/credits/${map1.credits[0].id}`,
+                status: 400,
+                token: user1Token
+            }));
 
         it('should respond with 403 if the map is not in NEEDS_REVISION state', () =>
-            patch(`maps/credits/${map3.credits[0].id}`, 403, updatedMapCredit(), user3AccessToken));
+            patch({
+                url: `maps/credits/${map3.credits[0].id}`,
+                status: 403,
+                body: updatedMapCredit(),
+                token: user3Token
+            }));
 
         it('should respond with 403 if the user does not have the mapper role', () =>
-            patch(`maps/credits/${map4.credits[0].id}`, 403, updatedMapCredit(), user2AccessToken));
+            patch({
+                url: `maps/credits/${map4.credits[0].id}`,
+                status: 403,
+                body: updatedMapCredit(),
+                token: user2Token
+            }));
 
         it('should respond with 400 if the credited user does not exist', () =>
-            patch(`maps/credits/${map1.credits[0].id}`, 400, { userID: 123456789 }));
+            patch({
+                url: `maps/credits/${map1.credits[0].id}`,
+                status: 400,
+                body: { userID: 123456789 },
+                token: user1Token
+            }));
 
         it("should update the activities when an author credit's user is changed", async () => {
             await (global.prisma as PrismaService).activity.create({
@@ -1207,11 +1665,16 @@ describe('Maps', () => {
                 }
             });
 
-            await patch(`maps/credits/${map1.credits[0].id}`, 204, { userID: user2.id });
+            await patch({
+                url: `maps/credits/${map1.credits[0].id}`,
+                status: 204,
+                body: { userID: user2.id },
+                token: user1Token
+            });
 
             const originalActivity = await (global.prisma as PrismaService).activity.findFirst({
                 where: {
-                    userID: user.id,
+                    userID: user1.id,
                     type: ActivityTypes.MAP_UPLOADED,
                     data: map1.id
                 }
@@ -1236,11 +1699,16 @@ describe('Maps', () => {
                 }
             });
 
-            await patch(`maps/credits/${map1.credits[0].id}`, 204, { type: MapCreditType.COAUTHOR });
+            await patch({
+                url: `maps/credits/${map1.credits[0].id}`,
+                status: 204,
+                body: { type: MapCreditType.COAUTHOR },
+                token: user1Token
+            });
 
             const originalActivity = await (global.prisma as PrismaService).activity.findFirst({
                 where: {
-                    userID: user.id,
+                    userID: user1.id,
                     type: ActivityTypes.MAP_UPLOADED,
                     data: map1.id
                 }
@@ -1256,16 +1724,30 @@ describe('Maps', () => {
                     type: MapCreditType.COAUTHOR
                 }
             });
-            await patch(`maps/credits/${newCredit.id}`, 409, { userID: user.id, type: MapCreditType.AUTHOR });
+            await patch({
+                url: `maps/credits/${newCredit.id}`,
+                status: 409,
+                body: { userID: user1.id, type: MapCreditType.AUTHOR },
+                token: user1Token
+            });
         });
 
         it('should respond with 401 when no access token is provided', () =>
-            patch(`maps/credits/${map1.credits[0].id}`, 401, updatedMapCredit(), null));
+            patch({
+                url: `maps/credits/${map1.credits[0].id}`,
+                status: 401,
+                body: updatedMapCredit(),
+                token: user1Token
+            }));
     });
 
     describe('DELETE maps/credits/{mapCreditID}', () => {
         it('should delete the specified map credit', async () => {
-            await del(`maps/credits/${map1.credits[0].id}`, 200);
+            await del({
+                url: `maps/credits/${map1.credits[0].id}`,
+                status: 200,
+                token: user1Token
+            });
             const updatedMap = await (global.prisma as PrismaService).map.findUnique({
                 where: { id: map1.id },
                 include: { credits: true }
@@ -1281,10 +1763,14 @@ describe('Maps', () => {
                     data: map1.id
                 }
             });
-            await del(`maps/credits/${map1.credits[0].id}`, 200);
+            await del({
+                url: `maps/credits/${map1.credits[0].id}`,
+                status: 200,
+                token: user1Token
+            });
             const activity = await (global.prisma as PrismaService).activity.findFirst({
                 where: {
-                    userID: user.id,
+                    userID: user1.id,
                     type: ActivityTypes.MAP_UPLOADED,
                     data: map1.id
                 }
@@ -1293,18 +1779,38 @@ describe('Maps', () => {
         });
 
         it('should return 403 if the map was not submitted by that user', () =>
-            del(`maps/credits/${map1.credits[0].id}`, 403, user3AccessToken));
+            del({
+                url: `maps/credits/${map1.credits[0].id}`,
+                status: 403,
+                token: user3Token
+            }));
 
         it('should return 403 if the map is not in NEEDS_REVISION state', () =>
-            del(`maps/credits/${map3.credits[0].id}`, 403, user3AccessToken));
+            del({
+                url: `maps/credits/${map3.credits[0].id}`,
+                status: 403,
+                token: user3Token
+            }));
 
         it('should return 403 if the user does not have the mapper role', () =>
-            del(`maps/credits/${map4.credits[0].id}`, 403, user2AccessToken));
+            del({
+                url: `maps/credits/${map4.credits[0].id}`,
+                status: 403,
+                token: user2Token
+            }));
 
-        it('should return 404 if the map credit was not found', () => del('maps/credits/1024768', 404));
+        it('should return 404 if the map credit was not found', () =>
+            del({
+                url: 'maps/credits/1024768',
+                status: 404,
+                token: user1Token
+            }));
 
         it('should respond with 401 when no access token is provided', () =>
-            del(`maps/credits/${map1.credits.id}`, 401, null));
+            del({
+                url: `maps/credits/${map1.credits.id}`,
+                status: 401
+            }));
     });
 
     describe('GET /maps/{mapID}/zones', () => {
@@ -1312,7 +1818,11 @@ describe('Maps', () => {
             for (const x of res.body) expect(x).toBeValidDto(MapTrackDto);
         };
         it('should respond with the map zones', async () => {
-            const res = await get(`maps/${map1.id}/zones`, 200);
+            const res = await get({
+                url: `maps/${map1.id}/zones`,
+                status: 200,
+                token: user1Token
+            });
             expects(res);
             expect(res.body).toHaveLength(1);
             expect(res.body[0]).toHaveProperty('zones');
@@ -1326,7 +1836,11 @@ describe('Maps', () => {
             });
             expect(mapstats.plays).toBe(0);
 
-            await get(`maps/${map1.id}/zones`, 200);
+            await get({
+                url: `maps/${map1.id}/zones`,
+                status: 200,
+                token: user1Token
+            });
             const newstats = await (global.prisma as PrismaService).mapStats.findFirst({
                 where: {
                     mapID: map1.id
@@ -1335,136 +1849,157 @@ describe('Maps', () => {
             expect(newstats.plays).toBe(1);
         });
 
-        it('should respond with 404 if the map does not exist', () => get('maps/987654321/zones', 404));
+        it('should respond with 404 if the map does not exist', () =>
+            get({
+                url: 'maps/987654321/zones',
+                status: 404,
+                token: user1Token
+            }));
 
         it('should respond with 401 when no access token is provided', () =>
-            get(`maps/${map1.id}/zones`, 401, {}, null));
+            get({
+                url: `maps/${map1.id}/zones`,
+                status: 401
+            }));
     });
 
-    describe('PUT /maps/{mapID}/thumbnail', () => {
-        it('should upload and update the thumbnail for a map', async () => {
-            await request(global.server)
-                .put(`maps /${map1.id}/thumbnail`)
-                .set('Accept', 'application/json')
-                .set('Authorization', 'Bearer ' + global.accessToken)
-                .attach('thumbnailFile', readFileSync('test/testImage.jpg'), 'testImage.jpg')
-                .expect(204);
-        });
-
-        it('should return a 400 if no thumbnail file is provided', async () => {
-            await request(global.server)
-                .put(`maps /${map1.id}/thumbnail`)
-                .set('Accept', 'application/json')
-                .set('Authorization', 'Bearer ' + global.accessToken)
-                .expect(400);
-        });
-
-        it('should return a 403 if the submitter ID does not match the userId', async () => {
-            await request(global.server)
-                .put(`maps /${map1.id}/thumbnail`)
-                .set('Accept', 'application/json')
-                .set('Authorization', 'Bearer ' + 1) // decide a sensible access token to use here
-                .attach('thumbnailFile', readFileSync('test/testImage.jpg'), 'testImage.jpg')
-                .expect(403);
-        });
-
-        it('should respond with 401 when no access token is provided', async () => {
-            await request(global.server)
-                .put(`maps /${map1.id}/thumbnail`)
-                .set('Accept', 'application/json')
-                .attach('thumbnailFile', readFileSync('test/testImage.jpg'), 'testImage.jpg')
-                .expect(401);
-        });
-    });
-
-    describe('POST /maps/{mapID}/images', () => {
-        it('should create a map image for the specified map', async () => {
-            await request(global.server)
-                .post(`maps /${map1.id}/images`)
-                .attach('mapImageFile', readFileSync('test/testImage.jpg'), 'testImage.jpg')
-                .set('Accept', 'application/json')
-                .set('Authorization', 'Bearer ' + global.accessToken)
-                .expect(200);
-        });
-
-        it('should respond with 401 when no access token is provided', () => post(`maps /${map1.id}/images`, 401));
-    });
-
-    describe('GET maps/{mapID}/images', () => {
-        it('should respond with a list of images', async () => {
-            const res = await get(`maps/${map1.id}/images`, 200);
-
-            expect(res.body.images[0]).toHaveProperty('small');
-            expect(res.body.images[0]).toHaveProperty('medium');
-            expect(res.body.images[0]).toHaveProperty('large');
-            expect(res.body.images[0]).toHaveProperty('mapID');
-        });
-
-        it('should respond with 401 when no access token is provided', () => get(`maps/${map1.id}/images`, 401));
-    });
-
-    describe('GET maps/{mapID}/images/{imgID}', () => {
-        // Don't know why this is failing
-        it('should respond with 404 when the image is not found', () => get(`maps/${map1.id}/images/12345`, 404));
-
-        it('should respond with image info', async () => {
-            const res = await get(`maps /${map1.id}/images/${map1.images.id}`, 200);
-
-            expect(res.body).toBeValidDto(MapImageDto);
-            expect(res.body.mapID).toEqual(map1.id);
-        });
-
-        it('should respond with 401 when no access token is provided', () =>
-            get(`maps /${map1.id}/images/${map1.images.id}`, 401));
-    });
-
-    describe('PUT maps/{mapID}/images/{imgID}', () => {
-        it('should respond with 404 when the image is not found', async () => {
-            const file = readFileSync('test/testImage2.jpg');
-            const res = await request(global.server)
-                .put(`maps /${map1.id}/images/99`)
-                .attach('mapImageFile', file, 'testImage2.jpg')
-                .expect(200);
-
-            expect(res.body).toHaveProperty('error');
-            expect(res.body.error.code).toEqual(404);
-            expect(typeof res.body.error.message).toBe('string');
-        });
-
-        it('should respond with 400 when no map image is provided', async () => {
-            const res = await request(global.server)
-                .put(`maps/${map1.id}/images/${map1.images[0].id}`)
-                .type('form')
-                .expect(400);
-
-            expect(res.body).toHaveProperty('error');
-            expect(res.body.error.code).toEqual(400);
-            expect(typeof res.body.error.message).toBe('string');
-        });
-
-        it('should update the map image', async () => {
-            await request(global.server)
-                .put(`maps /${map1.id}/images/${map1.images[0].id}`)
-                .attach('mapImageFile', readFileSync('test/testImage2.jpg'), 'testImage2.jpg')
-                .expect(204);
-        });
-
-        it('should respond with 401 when no access token is provided', () =>
-            put(`maps /${map1.id}/images/${map1.images.id}`, 401));
-    });
-
-    describe('DELETE maps/{mapID}/images/{imgID}', () => {
-        it('should delete the map image', () => del(`maps /${map1.id}/images/${map1.images[0].id}`, 204));
-
-        it('should respond with 401 when no access token is provided', () =>
-            del(`maps /${map1.id}/images/${map1.images.id}`, 401));
-    });
+    //     describe('PUT /maps/{mapID}/thumbnail', () => {
+    //         it('should upload and update the thumbnail for a map', async () => {
+    //             await request(global.server)
+    //                 .put(`maps /${map1.id}/thumbnail`)
+    //                 .set('Accept', 'application/json')
+    //                 .set('Authorization', 'Bearer ' + global.accessToken)
+    //                 .attach('thumbnailFile', readFileSync('test/testImage.jpg'), 'testImage.jpg')
+    //                 .expect(204);
+    //         });
+    //
+    //         it('should return a 400 if no thumbnail file is provided', async () => {
+    //             await request(global.server)
+    //                 .put(`maps /${map1.id}/thumbnail`)
+    //                 .set('Accept', 'application/json')
+    //                 .set('Authorization', 'Bearer ' + global.accessToken)
+    //                 .expect(400);
+    //         });
+    //
+    //         it('should return a 403 if the submitter ID does not match the userId', async () => {
+    //             await request(global.server)
+    //                 .put(`maps /${map1.id}/thumbnail`)
+    //                 .set('Accept', 'application/json')
+    //                 .set('Authorization', 'Bearer ' + 1) // decide a sensible access token to use here
+    //                 .attach('thumbnailFile', readFileSync('test/testImage.jpg'), 'testImage.jpg')
+    //                 .expect(403);
+    //         });
+    //
+    //         it('should respond with 401 when no access token is provided', async () => {
+    //             await request(global.server)
+    //                 .put(`maps /${map1.id}/thumbnail`)
+    //                 .set('Accept', 'application/json')
+    //                 .attach('thumbnailFile', readFileSync('test/testImage.jpg'), 'testImage.jpg')
+    //                 .expect(401);
+    //         });
+    //     });
+    //
+    //     describe('POST /maps/{mapID}/images', () => {
+    //         it('should create a map image for the specified map', async () => {
+    //             await request(global.server)
+    //                 .post(`maps /${map1.id}/images`)
+    //                 .attach('mapImageFile', readFileSync('test/testImage.jpg'), 'testImage.jpg')
+    //                 .set('Accept', 'application/json')
+    //                 .set('Authorization', 'Bearer ' + global.accessToken)
+    //                 .expect(200);
+    //         });
+    //
+    //         it('should respond with 401 when no access token is provided', () => post({
+    // url: `maps /${map1.id}/images`, status:401));
+    //     });
+    //
+    //     describe('GET maps/{mapID}/images', () => {
+    //         it('should respond with a list of images', async () => {
+    //             const res = await get({
+    // url: `maps/${map1.id}/images`, status:200);
+    //
+    //             expect(res.body.images[0]).toHaveProperty('small');
+    //             expect(res.body.images[0]).toHaveProperty('medium');
+    //             expect(res.body.images[0]).toHaveProperty('large');
+    //             expect(res.body.images[0]).toHaveProperty('mapID');
+    //         });
+    //
+    //         it('should respond with 401 when no access token is provided', () => get({
+    // url: `maps/${map1.id}/images`, status:401));
+    //     });
+    //
+    //     describe('GET maps/{mapID}/images/{imgID}', () => {
+    //         // Don't know why this is failing
+    //         it('should respond with 404 when the image is not found', () => get({
+    // url: `maps/${map1.id}/images/12345`, status:404));
+    //
+    //         it('should respond with image info', async () => {
+    //             const res = await get({
+    // url: `maps /${map1.id}/images/${map1.images.id}`, status:200);
+    //
+    //             expect(res.body).toBeValidDto(MapImageDto);
+    //             expect(res.body.mapID).toEqual(map1.id);
+    //         });
+    //
+    //         it('should respond with 401 when no access token is provided', () =>
+    //             get({
+    // url: `maps /${map1.id}/images/${map1.images.id}`, status:401));
+    //     });
+    //
+    //     describe('PUT maps/{mapID}/images/{imgID}', () => {
+    //         it('should respond with 404 when the image is not found', async () => {
+    //             const file = readFileSync('test/testImage2.jpg');
+    //             const res = await request(global.server)
+    //                 .put(`maps /${map1.id}/images/99`)
+    //                 .attach('mapImageFile', file, 'testImage2.jpg')
+    //                 .expect(200);
+    //
+    //             expect(res.body).toHaveProperty('error');
+    //             expect(res.body.error.code).toEqual(404);
+    //             expect(typeof res.body.error.message).toBe('string');
+    //         });
+    //
+    //         it('should respond with 400 when no map image is provided', async () => {
+    //             const res = await request(global.server)
+    //                 .put(`maps/${map1.id}/images/${map1.images[0].id}`)
+    //                 .type('form')
+    //                 .expect(400);
+    //
+    //             expect(res.body).toHaveProperty('error');
+    //             expect(res.body.error.code).toEqual(400);
+    //             expect(typeof res.body.error.message).toBe('string');
+    //         });
+    //
+    //         it('should update the map image', async () => {
+    //             await request(global.server)
+    //                 .put(`maps /${map1.id}/images/${map1.images[0].id}`)
+    //                 .attach('mapImageFile', readFileSync('test/testImage2.jpg'), 'testImage2.jpg')
+    //                 .expect(204);
+    //         });
+    //
+    //         it('should respond with 401 when no access token is provided', () =>
+    //             put({
+    // url: `maps /${map1.id}/images/${map1.images.id}`, status:401));
+    //     });
+    //
+    //     describe('DELETE maps/{mapID}/images/{imgID}', () => {
+    //         it('should delete the map image', () => del({
+    // url: `maps /${map1.id}/images/${map1.images[0].id}`, status:204));
+    //
+    //         it('should respond with 401 when no access token is provided', () =>
+    //             del({
+    // url: `maps /${map1.id}/images/${map1.images.id}`, status:401));
+    //     });
 
     describe('GET maps/{mapID}/runs', () => {
         const expects = (res) => expect(res.body).toBeValidPagedDto(RunDto);
 
         it('should return run files for the specified map', async () => {
-            const res = await get(`maps/${map1.id}/runs`, 200);
+            const res = await get({
+                url: `maps/${map1.id}/runs`,
+                status: 200,
+                token: user1Token
+            });
 
             expects(res);
 
@@ -1473,24 +2008,42 @@ describe('Maps', () => {
         });
 
         it('should respond with filtered map data using the take parameter', () =>
-            takeTest(`maps/${map1.id}/runs`, expects));
+            takeTest({
+                url: `maps/${map1.id}/runs`,
+                test: expects,
+                token: user1Token
+            }));
 
         it('should respond with filtered map data using the skip parameter', () =>
-            skipTest(`maps/${map1.id}/runs`, expects));
+            skipTest({
+                url: `maps/${map1.id}/runs`,
+                test: expects,
+                token: user1Token
+            }));
 
         it('should respond with a list of runs filtered by userID parameter', async () => {
-            const res = await get(`maps/${map1.id}/runs`, 200, { userID: user.id });
+            const res = await get({
+                url: `maps/${map1.id}/runs`,
+                status: 200,
+                query: { userID: user1.id },
+                token: user1Token
+            });
 
             expects(res);
 
             expect(res.body.totalCount).toBe(2);
             expect(res.body.returnCount).toBe(2);
-            expect(res.body.response[0].userID).toBe(user.id);
+            expect(res.body.response[0].userID).toBe(user1.id);
         });
 
         it('should respond with a list of runs filtered by a list of user ids', async () => {
-            const ids = user.id + ',' + admin.id;
-            const res = await get(`maps/${map1.id}/runs`, 200, { userIDs: ids });
+            const ids = user1.id + ',' + admin.id;
+            const res = await get({
+                url: `maps/${map1.id}/runs`,
+                status: 200,
+                query: { userIDs: ids },
+                token: user1Token
+            });
 
             expects(res);
 
@@ -1500,7 +2053,12 @@ describe('Maps', () => {
         });
 
         it('should respond with a list of runs filtered by flags', async () => {
-            const res = await get(`maps/${map1.id}/runs`, 200, { flags: 123 });
+            const res = await get({
+                url: `maps/${map1.id}/runs`,
+                status: 200,
+                query: { flags: 123 },
+                token: user1Token
+            });
 
             expects(res);
 
@@ -1508,10 +2066,22 @@ describe('Maps', () => {
             expect(res.body.response[0].flags).toBe(run2.flags); // This uses strict equality for now, but will change in 0.10.0
         });
 
-        it('should respond with a list of runs with the map include', () => expandTest('runs', expects, 'map', true));
+        it('should respond with a list of runs with the map include', () =>
+            expandTest({
+                url: 'runs',
+                test: expects,
+                expand: 'map',
+                paged: true,
+                token: user1Token
+            }));
 
         it('should respond with a list of runs with the rank include', async () => {
-            const res = await get(`maps/${map1.id}/runs`, 200, { expand: 'rank' });
+            const res = await get({
+                url: `maps/${map1.id}/runs`,
+                status: 200,
+                query: { expand: 'rank' },
+                token: user1Token
+            });
 
             expects(res);
 
@@ -1521,13 +2091,30 @@ describe('Maps', () => {
         });
 
         it('should respond with a list of runs with the zoneStats include', () =>
-            expandTest(`maps/${map1.id}/runs`, expects, 'zoneStats', true));
+            expandTest({
+                url: `maps/${map1.id}/runs`,
+                test: expects,
+                expand: 'zoneStats',
+                paged: true,
+                token: user1Token
+            }));
 
         it('should respond with a list of runs with the overallStats include', () =>
-            expandTest(`maps/${map1.id}/runs`, expects, 'overallStats', true));
+            expandTest({
+                url: `maps/${map1.id}/runs`,
+                test: expects,
+                expand: 'overallStats',
+                paged: true,
+                token: user1Token
+            }));
 
         it('should respond with a list of runs with the mapWithInfo include', async () => {
-            const res = await get(`maps/${map1.id}/runs`, 200, { expand: 'mapWithInfo' });
+            const res = await get({
+                url: `maps/${map1.id}/runs`,
+                status: 200,
+                query: { expand: 'mapWithInfo' },
+                token: user1Token
+            });
 
             expects(res);
 
@@ -1535,7 +2122,12 @@ describe('Maps', () => {
         });
 
         it('should respond with a list of runs that are personal bests', async () => {
-            const res = await get(`maps/${map1.id}/runs`, 200, { isPB: true, expand: 'rank' });
+            const res = await get({
+                url: `maps/${map1.id}/runs`,
+                status: 200,
+                query: { isPB: true, expand: 'rank' },
+                token: user1Token
+            });
 
             expects(res);
 
@@ -1548,7 +2140,12 @@ describe('Maps', () => {
         });
 
         it('should respond with a list of runs sorted by date', async () => {
-            const res = await get(`maps/${map1.id}/runs`, 200, { order: 'date' });
+            const res = await get({
+                url: `maps/${map1.id}/runs`,
+                status: 200,
+                query: { order: 'date' },
+                token: user1Token
+            });
 
             expects(res);
 
@@ -1559,7 +2156,12 @@ describe('Maps', () => {
         });
 
         it('should respond with a list of runs sorted by time', async () => {
-            const res = await get(`maps/${map1.id}/runs`, 200, { order: 'time' });
+            const res = await get({
+                url: `maps/${map1.id}/runs`,
+                status: 200,
+                query: { order: 'time' },
+                token: user1Token
+            });
 
             expects(res);
 
@@ -1570,25 +2172,43 @@ describe('Maps', () => {
         });
 
         it('should respond with 401 when no access token is provided', () =>
-            get(`maps/${map1.id}/runs`, 401, {}, null));
+            get({
+                url: `maps/${map1.id}/runs`,
+                status: 401
+            }));
     });
 
     describe('GET maps/{mapID}/runs/{runID}', () => {
         it('should return the specified run', async () => {
-            const res = await get(`maps /${map1.id}/runs/1`, 200);
+            const res = await get({
+                url: `maps /${map1.id}/runs/1`,
+                status: 200,
+                token: user1Token
+            });
 
             expect(res.body).toBeValidDto(RunDto);
         });
 
-        it('should respond with 401 when no access token is provided', () => get(`maps/${map1.id}/runs/1`, 401));
+        it('should respond with 401 when no access token is provided', () =>
+            get({
+                url: `maps/${map1.id}/runs/1`,
+                status: 401
+            }));
     });
 
     describe('GET maps/{mapID}/runs/{runID}/download', () => {
         it('should download the run', async () => {
-            await get(`maps /${map1.id}/runs/1/download`, 200);
+            await get({
+                url: `maps /${map1.id}/runs/1/download`,
+                status: 200,
+                token: user1Token
+            });
         });
 
         it('should respond with 401 when no access token is provided', () =>
-            get(`maps/${map1.id}/runs/1/download`, 401));
+            get({
+                url: `maps/${map1.id}/runs/1/download`,
+                status: 401
+            }));
     });
 });

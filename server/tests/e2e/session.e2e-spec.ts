@@ -3,9 +3,9 @@
 import { MapType, MapStatus, getDefaultTickRateForMapType } from '@common/enums/map.enum';
 import { AuthService } from '@modules/auth/auth.service';
 import { PrismaService } from '@modules/repo/prisma.service';
-import { RunTester, RunTesterProps } from '../util/run-tester';
+import { RunTester, RunTesterProps } from '../util/run-tester-util';
 import { CompletedRunDto } from '@common/dto/run/completed-run.dto';
-import { del, post } from '../util/test-util';
+import { del, post } from '../util/request-handlers.util';
 import { RunSessionDto } from '@common/dto/run/run-session.dto';
 import { RunSessionTimestampDto } from '@common/dto/run/run-session-timestamp.dto';
 import { UserMapRankDto } from '@common/dto/run/user-map-rank.dto';
@@ -15,6 +15,7 @@ import { RunValidationErrorTypes } from '@common/enums/run.enum';
 
 describe('Session', () => {
     let user1,
+        user1Token,
         user2,
         user2Token,
         user2Session,
@@ -141,8 +142,8 @@ describe('Session', () => {
         });
 
         const authService: AuthService = global.auth as AuthService;
-        global.accessToken = (await authService.login(user1)).access_token;
-        user2Token = (await authService.login(user2)).access_token;
+        user1Token = (await authService.loginGame(user1)).token;
+        user2Token = (await authService.loginGame(user2)).token;
         nonGameAuthToken = (await authService.loginWeb(user2)).accessToken;
     });
 
@@ -156,25 +157,54 @@ describe('Session', () => {
 
     describe('POST session/run', () => {
         it('should return a valid run run object', async () => {
-            const res = await post(`session/run`, 200, { mapID: map.id, trackNum: 0, zoneNum: 0 });
+            const res = await post({
+                url: 'session/run',
+                status: 200,
+                token: user1Token,
+                body: { mapID: map.id, trackNum: 0, zoneNum: 0 }
+            });
 
             expect(res.body).toBeValidDto(RunSessionDto);
             expect(res.body).toMatchObject({ trackNum: 0, zoneNum: 0, userID: user1.id });
         });
 
-        it('should 400 if not given a proper body', () => post(`session/run`, 400, null));
+        it('should 400 if not given a proper body', () =>
+            post({
+                url: 'session/run',
+                status: 400,
+                token: user1Token
+            }));
 
         it('should 400 if the map does not have the provided trackNum', () =>
-            post(`session/run`, 400, { mapID: map.id, trackNum: 2, zoneNum: 0 }));
+            post({
+                url: 'session/run',
+                status: 400,
+                body: { mapID: map.id, trackNum: 2, zoneNum: 0 },
+                token: user1Token
+            }));
 
         it('should 400 for staged runs UNTIL 0.12.0', () =>
-            post(`session/run`, 400, { mapID: map.id, trackNum: 0, zoneNum: 1 }));
+            post({
+                url: 'session/run',
+                status: 400,
+                body: { mapID: map.id, trackNum: 0, zoneNum: 1 },
+                token: user1Token
+            }));
 
         it('should 400 if the map does not exist', () =>
-            post(`session/run`, 400, { mapID: 111111111111, trackNum: 0, zoneNum: 0 }));
+            post({
+                url: `session/run`,
+                status: 400,
+                body: { mapID: 111111111111, trackNum: 0, zoneNum: 0 },
+                token: user1Token
+            }));
 
         it('should respond with 401 when no access token is provided', () =>
-            post(`session/run`, 401, { mapID: map.id, trackNum: 0, zoneNum: 0 }, null));
+            post({
+                url: `session/run`,
+                status: 401,
+                body: { mapID: map.id, trackNum: 0, zoneNum: 0 }
+            }));
 
         it('should return 403 if not using a game API key', () =>
             post({
@@ -187,16 +217,29 @@ describe('Session', () => {
 
     describe('DELETE session/run', () => {
         it('should delete the users run', async () => {
-            await del(`session/run`, 204, user2Token);
+            await del({
+                url: `session/run`,
+                status: 204,
+                token: user2Token
+            });
 
             expect(
                 await (global.prisma as PrismaService).runSession.findFirst({ where: { userID: user2.id } })
             ).toBeNull();
         });
 
-        it('should 400 if the run does not exist', () => del(`session/run`, 400)); // User1 doesn't have an active run
+        it('should 400 if the run does not exist', () =>
+            del({
+                url: `session/run`,
+                status: 400,
+                token: user1Token // User1 doesn't have an active run
+            }));
 
-        it('should respond with 401 when no access token is provided', () => del(`session/run`, 401, null));
+        it('should respond with 401 when no access token is provided', () =>
+            del({
+                url: `session/run`,
+                status: 401
+            }));
 
         it('should return 403 if not using a game API key', () =>
             del({
@@ -208,15 +251,15 @@ describe('Session', () => {
 
     describe('POST session/run/:sessionID', () => {
         it('should update an existing run run with the zone and tick', async () => {
-            const res = await post(
-                `session/run/${user2Session.id}`,
-                200,
-                {
+            const res = await post({
+                url: `session/run/${user2Session.id}`,
+                status: 200,
+                body: {
                     zoneNum: 2,
                     tick: 510
                 },
-                user2Token
-            );
+                token: user2Token
+            });
 
             expect(res.body).toBeValidDto(RunSessionTimestampDto);
             expect(res.body.sessionID).toBe(user2Session.id.toString());
@@ -225,38 +268,44 @@ describe('Session', () => {
         });
 
         it('should 403 if not the owner of the run', () =>
-            post(`session/run/${user2Session.id}`, 403, { zoneNum: 2, tick: 510 }));
+            post({
+                url: `session/run/${user2Session.id}`,
+                status: 403,
+                body: { zoneNum: 2, tick: 510 },
+                token: user1Token
+            }));
 
         it('should 400 if the run does not exist', () =>
-            post(`session/run/1234123413253245`, 400, { zoneNum: 2, tick: 510 }));
+            post({
+                url: `session/run/1234123413253245`,
+                status: 400,
+                body: { zoneNum: 2, tick: 510 },
+                token: user1Token
+            }));
 
-        // TODO once game auth done
         it('should 403 if not using a game API key', () =>
-            post(
-                `session/run/${user2Session.id}`,
-                403,
-                {
+            post({
+                url: `session/run/${user2Session.id}`,
+                status: 403,
+                body: {
                     zoneNum: 2,
                     tick: 510
                 },
-                nonGameAuthToken
-            ));
-
-        // TODO once game auth done
-        it('should return 403 if not using a game API key', () =>
-            post(`session/run/${user2Session.id}`, 401, null, null));
+                token: nonGameAuthToken
+            }));
     });
 
     // Testing this is HARD. We need a replay that matches our timestamps okay so we're going to be heavily relying on
     // this RunTester class to essentially generate a valid run the API will accept. NOTE: Before anyone gets any clever
     // ideas, this is *not* our anti-cheat. Just because this API will accept some goofy stuff, does not mean the live
-    // game will, and trying to use this method on the live API is likely to get you banned!
+    // game will, and trying to use this method on the live API may get you banned!
 
     // I'm not writing IL tests yet as I'm not completely sure how they're supposed to work and not supported yet ingame.
     // Around 0.12.0 we'll want to write tests for those.
     describe('POST session/run/:sessionID/end', () => {
         const defaultTesterProps = (): RunTesterProps => {
             return {
+                token: user1Token,
                 zoneNum: 0,
                 trackNum: 0,
                 runDate: Date.now().toString(),
