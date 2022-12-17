@@ -7,6 +7,10 @@ export default async () => {
     // Load in environment variables
     config({ path: '../.env' });
 
+    const prisma = new PrismaClient();
+
     // Nuke the current DB (Bye)
-    await nuke(new PrismaClient());
+    await nuke(prisma);
+
+    await prisma.$disconnect();
 };
