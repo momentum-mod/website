@@ -10,7 +10,10 @@ const jestConfig: JestConfigWithTsJest = {
     moduleNameMapper: pathsToModuleNameMapper(compilerOptions.paths, { prefix: '<rootDir>/' }),
     globalSetup: '<rootDir>/tests/global-setup.ts',
     setupFilesAfterEnv: ['<rootDir>/tests/matchers.ts'],
-    testEnvironment: '<rootDir>/tests/e2e/environment.ts'
+    testEnvironment: '<rootDir>/tests/e2e/environment.ts',
+    testTimeout: 10000
 };
 
 export default jestConfig;
+
+export const URL_PREFIX = '/api/';

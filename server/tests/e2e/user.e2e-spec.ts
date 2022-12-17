@@ -10,11 +10,13 @@ import { FollowStatusDto } from '@common/dto/user/followers.dto';
 import { ActivityDto } from '@common/dto/user/activity.dto';
 import { MapLibraryEntryDto } from '@common/dto/map/map-library-entry';
 import { NotificationDto } from '@common/dto/user/notification.dto';
-import { del, expandTest, get, getNoContent, patch, post, put, skipTest, takeTest } from '../util/test-util';
+import { del, get, getNoContent, patch, post, put } from '../util/request-handlers.util';
 import { MapFavoriteDto } from '@common/dto/map/map-favorite.dto';
+import { expandTest, skipTest, takeTest } from '@tests/util/generic-e2e-tests.util';
 
 describe('User', () => {
     let user1,
+        user1Token,
         user2,
         user2Token,
         user3,
@@ -84,7 +86,6 @@ describe('User', () => {
 
         admin = await prisma.user.create({
             data: {
-                aliasLocked: false,
                 steamID: '733345322',
                 alias: 'Arthur Weasley',
                 avatar: '',
@@ -272,9 +273,9 @@ describe('User', () => {
         });
 
         const authService = global.auth as AuthService;
-        global.accessToken = (await authService.login(user1)).access_token;
-        user2Token = (await authService.login(user2)).access_token;
-        user3Token = (await authService.login(user3)).access_token;
+        user1Token = (await authService.loginWeb(user1)).accessToken;
+        user2Token = (await authService.loginWeb(user2)).accessToken;
+        user3Token = (await authService.loginWeb(user3)).accessToken;
     });
 
     afterEach(async () => {
@@ -285,22 +286,32 @@ describe('User', () => {
         await prisma.map.deleteMany({ where: { id: { in: [map1.id, map2.id, map3.id] } } });
     });
 
-    describe('GET /api/v1/user', () => {
+    describe('GET /api/user', () => {
         const expects = (res) => expect(res.body).toBeValidDto(UserDto);
 
         it('should respond with user data', async () => {
-            const res = await get('user', 200);
+            const res = await get({
+                url: 'user',
+                status: 200,
+                token: user1Token
+            });
 
             expects(res);
             expect(res.body.alias).toBe(user1.alias);
             expect(res.body).not.toHaveProperty('profile');
         });
 
-        it('should respond with user data and expand profile data', () => expandTest('user', expects, 'profile'));
+        it('should respond with user data and expand profile data', () =>
+            expandTest({
+                url: 'user',
+                test: expects,
+                expand: 'profile',
+                token: user1Token
+            }));
 
         // it('should respond with user data and expand user stats', async () => {
         //     const res = await request(global.server)
-        //         .get('/api/v1/user')
+        //         .get('/api/user')
         //         .set('Authorization', 'Bearer ' + global.accessToken)
         //         .query({ expand: 'stats' })
         //         .expect(200)
@@ -310,63 +321,108 @@ describe('User', () => {
         //     expect(res.body.stats).toHaveProperty('id');
         // });
 
-        it('should respond with 401 when no access token is provided', () => get('user', 401, {}, null));
+        it('should respond with 401 when no access token is provided', () =>
+            get({
+                url: 'user',
+                status: 401
+            }));
     });
 
-    describe('PATCH /api/v1/user', () => {
+    describe('PATCH /api/user', () => {
         it('should update the authenticated users profile', async () => {
-            await patch(
-                'user',
-                204,
-                {
+            await patch({
+                url: 'user',
+                status: 204,
+                body: {
                     alias: 'Donkey Kong',
                     bio: 'I love Donkey Kong'
                 },
-                user3Token
-            );
+                token: user3Token
+            });
 
-            const res = await get('user', 200, { expand: 'profile' }, user3Token);
-            expect(res.body.alias).toBe('Donkey Kong');
-            expect(res.body.profile.bio).toBe('I love Donkey Kong');
+            const user = await (global.prisma as PrismaService).user.findFirst({
+                where: { id: user3.id },
+                include: { profile: true }
+            });
+
+            expect(user.alias).toBe('Donkey Kong');
+            expect(user.profile.bio).toBe('I love Donkey Kong');
         });
 
         it('should respond with 403 when trying to update bio when bio banned', () =>
-            patch('user', 403, { bio: 'Gamer Words' }, user2Token));
+            patch({
+                url: 'user',
+                status: 403,
+                body: { bio: 'Gamer Words' },
+                token: user2Token
+            }));
 
         it('should respond with 403 when trying to update alias when alias banned', () =>
-            patch('user', 403, { alias: 'Gamer Words' }, user2Token));
+            patch({
+                url: 'user',
+                status: 403,
+                body: { alias: 'Gamer Words' },
+                token: user2Token
+            }));
 
         it('should respond with 409 when a verified user tries to set their alias to something used by another verified user', () =>
-            patch('user', 409, { alias: user2.alias }, user3Token));
+            patch({
+                url: 'user',
+                status: 409,
+                body: { alias: user2.alias },
+                token: user3Token
+            }));
 
         it('should allow a verified user to set their alias to something used by an unverified user', () =>
-            patch('user', 204, { alias: user1.alias }, user3Token));
+            patch({
+                url: 'user',
+                status: 204,
+                body: { alias: user1.alias },
+                token: user3Token
+            }));
 
         it('should allow an unverified user to set their alias to something used by a verified user', () =>
-            patch('user', 204, { alias: user2.alias }));
+            patch({
+                url: 'user',
+                status: 204,
+                body: { alias: user2.alias },
+                token: user1Token
+            }));
 
-        it('should respond with 401 when no access token is provided', () => patch('user', 401, {}, null));
+        it('should respond with 401 when no access token is provided', () =>
+            patch({
+                url: 'user',
+                status: 401
+            }));
     });
 
-    describe('GET /api/v1/user/profile', () => {
+    describe('GET /api/user/profile', () => {
         it('should respond with authenticated users profile info', async () => {
-            const res = await get('user/profile', 200);
+            const res = await get({
+                url: 'user/profile',
+                status: 200,
+                token: user1Token
+            });
 
             expect(res.body).toBeValidDto(ProfileDto);
             expect(res.body.bio).toBe(user1.profile.bio);
         });
 
-        it('should respond with 401 when no access token is provided', () => get('user/profile', 401, {}, null));
+        it('should respond with 401 when no access token is provided', () =>
+            get({
+                url: 'user/profile',
+                status: 401
+            }));
     });
 
     // Come back to this after doing the Auth stuff for it, no point yet.
     // Note that I don't think this functionality was every written on the old API.
 
     /*
-    describe('DELETE /api/v1/user/profile/social/{type}', () => {
+    describe('DELETE /api/user/profile/social/{type}', () => {
         it('should return 200 and unlink the twitter account from the authd user', () => {
              const res = await request(global.server)
-            .delete('/api/v1/user/profile/social/' + 'twitter')
+            .delete('/api/user/profile/social/' + 'twitter')
             .set('Authorization', 'Bearer ' + global.accessToken)
             .then(res => {
                 .expect(200)
@@ -375,7 +431,7 @@ describe('User', () => {
         });
          it('should return 200 and unlink the discord account from the authd user', () => {
              const res = await request(global.server)
-            .delete('/api/v1/user/profile/social/' + 'discord')
+            .delete('/api/user/profile/social/' + 'discord')
             .set('Authorization', 'Bearer ' + global.accessToken)
             .then(res => {
                 .expect(200)
@@ -384,7 +440,7 @@ describe('User', () => {
         });
          it('should return 200 and unlink the twitch account from the authd user', () => {
              const res = await request(global.server)
-            .delete('/api/v1/user/profile/social/' + 'twitch')
+            .delete('/api/user/profile/social/' + 'twitch')
             .set('Authorization', 'Bearer ' + global.accessToken)
             .then(res => {
                 .expect(200)
@@ -394,10 +450,13 @@ describe('User', () => {
     });
     */
 
-    //TODO: YHER ARE BACKTICK STRINGS EVEREYWHERE WIOTHOUT THINGY VALUES, FIX
-    describe('GET /api/v1/user/follow/{userID}', () => {
+    describe('GET /api/user/follow/{userID}', () => {
         it('should return relationships of the given and local user who follow each other', async () => {
-            const res = await get(`user/follow/${user2.id}`, 200);
+            const res = await get({
+                url: `user/follow/${user2.id}`,
+                status: 200,
+                token: user1Token
+            });
 
             expect(res.body).toBeValidDto(FollowStatusDto);
             expect(res.body.local.followed.id).toBe(user2.id);
@@ -407,7 +466,11 @@ describe('User', () => {
         });
 
         it('should return a relationship of the local user who follows the target, but not the opposite', async () => {
-            const res = await get(`user/follow/${user3.id}`, 200);
+            const res = await get({
+                url: `user/follow/${user3.id}`,
+                status: 200,
+                token: user1Token
+            });
 
             expect(res.body).toBeValidDto(FollowStatusDto);
             expect(res.body.local.followed.id).toBe(user3.id);
@@ -416,7 +479,11 @@ describe('User', () => {
         });
 
         it('should return a relationship of the target user who follows the local user, but not the opposite', async () => {
-            const res = await get(`user/follow/${user1.id}`, 200, {}, user3Token);
+            const res = await get({
+                url: `user/follow/${user1.id}`,
+                status: 200,
+                token: user3Token
+            });
 
             expect(res.body).toBeValidDto(FollowStatusDto);
             expect(res.body.target.followed.id).toBe(user3.id);
@@ -425,151 +492,301 @@ describe('User', () => {
         });
 
         it('should respond with empty object if the followed relationship does not exist', async () => {
-            const res = await get(`user/follow/${user2.id}`, 200, {}, user3Token);
+            const res = await get({
+                url: `user/follow/${user2.id}`,
+                status: 200,
+                token: user3Token
+            });
             expect(res.body).toEqual({});
         });
 
-        it('should respond with 404 if the target user does not exist', () => get(`user/follow/283745692345`, 404));
+        it('should respond with 404 if the target user does not exist', () =>
+            get({
+                url: `user/follow/283745692345`,
+                status: 404,
+                token: user1Token
+            }));
 
         it('should respond with 401 when no access token is provided', () =>
-            get(`user/follow/${user2.id}`, 401, {}, null));
+            get({
+                url: `user/follow/${user2.id}`,
+                status: 401
+            }));
     });
 
-    describe('POST /api/v1/user/follow/{userID}', () => {
+    describe('POST /api/user/follow/{userID}', () => {
         it('should respond with 204 and add user to authenticated users follow list', async () => {
-            const res = await get(`user/follow/${user3.id}`, 200, {}, user2Token);
+            const res = await get({
+                url: `user/follow/${user3.id}`,
+                status: 200,
+                token: user2Token
+            });
 
             expect(res.body).not.toHaveProperty('local');
 
-            await post(`user/follow/${user3.id}`, 204, {}, user2Token);
+            await post({
+                url: `user/follow/${user3.id}`,
+                status: 204,
+                token: user2Token
+            });
 
-            const res2 = await get(`user/follow/${user3.id}`, 200, {}, user2Token);
+            const res2 = await get({
+                url: `user/follow/${user3.id}`,
+                status: 200,
+                token: user2Token
+            });
 
             expect(res2.body.local.followed.id).toBe(user3.id);
             expect(res2.body.local.followee.id).toBe(user2.id);
         });
 
-        it('should respond with 404 if the target user does not exist', () => post('user/follow/178124314563', 404));
+        it('should respond with 404 if the target user does not exist', () =>
+            post({
+                url: 'user/follow/178124314563',
+                status: 404,
+                token: user1Token
+            }));
 
         it('should respond with 401 when no access token is provided', () =>
-            post(`user/follow/${user3.id}`, 401, {}, null));
+            post({
+                url: `user/follow/${user3.id}`,
+                status: 401,
+                token: user1Token
+            }));
     });
 
-    describe('PATCH /api/v1/user/follow/{userID}', () => {
+    describe('PATCH /api/user/follow/{userID}', () => {
         it('should update the following status of the local user and the followed user', async () => {
-            const res = await get(`user/follow/${user2.id}`, 200, {});
+            const res = await get({
+                url: `user/follow/${user2.id}`,
+                status: 200,
+                token: user1Token
+            });
 
             expect(res.body.local.notifyOn).toBe(0);
 
-            await patch(`user/follow/${user2.id}`, 204, { notifyOn: ActivityTypes.REVIEW_MADE });
+            await patch({
+                url: `user/follow/${user2.id}`,
+                status: 204,
+                body: { notifyOn: ActivityTypes.REVIEW_MADE },
+                token: user1Token
+            });
 
-            const res2 = await get(`user/follow/${user2.id}`, 200, {});
+            const res2 = await get({
+                url: `user/follow/${user2.id}`,
+                status: 200,
+                token: user1Token
+            });
 
             expect(res2.body.local.notifyOn).toBe(ActivityTypes.REVIEW_MADE);
         });
 
-        // TODO: what?
         it('should respond with 400 if the body is invalid', () =>
-            get(`user/follow/${user2.id}`, 200, { notifyOn: 'burger' }));
+            patch({
+                url: `user/follow/${user2.id}`,
+                status: 200,
+                body: { notifyOn: 'burger' },
+                token: user1Token
+            }));
 
         it('should respond with 404 if the target user does not exist', () =>
-            patch('user/follow/178124314563', 404, { notifyOn: ActivityTypes.REVIEW_MADE }));
+            patch({
+                url: 'user/follow/178124314563',
+                status: 404,
+                body: { notifyOn: ActivityTypes.REVIEW_MADE },
+                token: user1Token
+            }));
 
         it('should respond with 401 when no access token is provided', () =>
-            patch(`user/follow/${user3.id}`, 401, { notifyOn: ActivityTypes.REVIEW_MADE }, null));
+            patch({
+                url: `user/follow/${user3.id}`,
+                status: 401,
+                body: { notifyOn: ActivityTypes.REVIEW_MADE }
+            }));
     });
 
-    describe('DELETE /api/v1/user/follow/{userID}', () => {
+    describe('DELETE /api/user/follow/{userID}', () => {
         it('should remove the user from the local users follow list', async () => {
-            await del(`user/follow/${user2.id}`, 204);
+            await del({
+                url: `user/follow/${user2.id}`,
+                status: 204,
+                token: user1Token
+            });
 
-            const res = await get(`user/follow/${user2.id}`, 200, {});
+            const res = await get({
+                url: `user/follow/${user2.id}`,
+                status: 200,
+                token: user1Token
+            });
 
             expect(res.body).not.toHaveProperty('local');
         });
 
         it('should respond with 404 if the user is not followed by the local user ', () =>
-            del(`user/follow/${user1.id}`, 404, user3Token));
+            del({
+                url: `user/follow/${user1.id}`,
+                status: 404,
+                token: user3Token
+            }));
 
-        it('should respond with 404 if the target user does not exist', () => del(`user/follow/178124314563`, 404));
+        it('should respond with 404 if the target user does not exist', () =>
+            del({
+                url: `user/follow/178124314563`,
+                status: 404,
+                token: user1Token
+            }));
 
-        it('should respond with 401 when no access token is provided', () => del(`user/follow/${user3.id}`, 401, null));
+        it('should respond with 401 when no access token is provided', () =>
+            del({
+                url: `user/follow/${user3.id}`,
+                status: 401
+            }));
     });
 
-    describe('GET /api/v1/user/notifyMap/{mapID}', () => {
+    describe('GET /api/user/notifyMap/{mapID}', () => {
         it('should return a mapnotify dto for a given user and map', async () => {
-            const res = await get(`user/notifyMap/${map1.id}`, 200);
+            const res = await get({
+                url: `user/notifyMap/${map1.id}`,
+                status: 200,
+                token: user1Token
+            });
 
             expect(res.body.notifyOn).toBe(ActivityTypes.WR_ACHIEVED);
         });
 
         it('should respond with an empty object if the user does not have mapnotify for given map', async () => {
-            const res = await get(`user/notifyMap/${map1.id}`, 200, {}, user2Token);
+            const res = await get({
+                url: `user/notifyMap/${map1.id}`,
+                status: 200,
+                token: user2Token
+            });
 
             expect(res.body).toEqual({});
         });
 
-        it('should respond with 404 if the target map does not exist', () => get(`user/notifyMap/8732165478321`, 404));
+        it('should respond with 404 if the target map does not exist', () =>
+            get({
+                url: `user/notifyMap/8732165478321`,
+                status: 404,
+                token: user1Token
+            }));
 
         it('should respond with 401 when no access token is provided', () =>
-            get(`user/notifyMap/${map1.id}`, 401, {}, null));
+            get({
+                url: `user/notifyMap/${map1.id}`,
+                status: 401
+            }));
     });
 
-    describe('PUT /api/v1/user/notifyMap/{mapID}', () => {
+    describe('PUT /api/user/notifyMap/{mapID}', () => {
         it('should update map notification status with existing notifications', async () => {
-            await put(`user/notifyMap/${map1.id}`, 204, { notifyOn: ActivityTypes.PB_ACHIEVED });
+            await put({
+                url: `user/notifyMap/${map1.id}`,
+                status: 204,
+                body: { notifyOn: ActivityTypes.PB_ACHIEVED },
+                token: user1Token
+            });
 
-            const res = await get(`user/notifyMap/${map1.id}`, 200);
+            const res = await get({
+                url: `user/notifyMap/${map1.id}`,
+                status: 200,
+                token: user1Token
+            });
 
             expect(res.body.notifyOn).toBe(ActivityTypes.PB_ACHIEVED);
         });
 
         it('should create new map notification status if no existing notifications', async () => {
-            await put(`user/notifyMap/${map1.id}`, 204, { notifyOn: ActivityTypes.PB_ACHIEVED });
+            await put({
+                url: `user/notifyMap/${map1.id}`,
+                status: 204,
+                body: { notifyOn: ActivityTypes.PB_ACHIEVED },
+                token: user1Token
+            });
 
-            const res = await get(`user/notifyMap/${map1.id}`, 200);
+            const res = await get({
+                url: `user/notifyMap/${map1.id}`,
+                status: 200,
+                token: user1Token
+            });
 
             expect(res.body.notifyOn).toBe(ActivityTypes.PB_ACHIEVED);
         });
 
-        // TODO: what???
         it('should respond with 400 is the body is invalid', async () => {
-            await put(`user/notifyMap/8231734`, 404, { notifyOn: 'this is a sausage' });
+            await put({
+                url: `user/notifyMap/8231734`,
+                status: 404,
+                body: { notifyOn: 'this is a sausage' },
+                token: user1Token
+            });
         });
 
         it('should respond with 404 if the target map does not exist', () =>
-            put(`user/notifyMap/8231734`, 404, { notifyOn: ActivityTypes.PB_ACHIEVED }));
+            put({
+                url: `user/notifyMap/8231734`,
+                status: 404,
+                body: { notifyOn: ActivityTypes.PB_ACHIEVED },
+                token: user1Token
+            }));
 
         it('should respond with 401 when no access token is provided', () =>
-            put(`user/notifyMap/${map1.id}`, 401, {}, null));
+            put({
+                url: `user/notifyMap/${map1.id}`,
+                status: 401
+            }));
     });
 
-    describe('DELETE /api/v1/user/notifyMap/{mapID}', () => {
+    describe('DELETE /api/user/notifyMap/{mapID}', () => {
         it('should remove the user from map notifcations list', async () => {
-            await del(`user/notifyMap/${map1.id}`, 204);
+            await del({
+                url: `user/notifyMap/${map1.id}`,
+                status: 204,
+                token: user1Token
+            });
 
-            const res = await get(`user/notifyMap/${map1.id}`, 200, {});
+            const res = await get({
+                url: `user/notifyMap/${map1.id}`,
+                status: 200,
+                token: user1Token
+            });
 
             expect(res.body).toEqual({});
         });
 
         it('should respond with 404 if the user is not following the map', () =>
-            del(`user/notifyMap/${map1.id}`, 404, user2Token));
+            del({
+                url: `user/notifyMap/${map1.id}`,
+                status: 404,
+                token: user2Token
+            }));
 
-        it('should respond with 404 if the target map does not exist', () => del(`user/notifyMap/324512341243`, 404));
+        it('should respond with 404 if the target map does not exist', () =>
+            del({
+                url: `user/notifyMap/324512341243`,
+                status: 404,
+                token: user1Token
+            }));
 
         it('should respond with 401 when no access token is provided', () =>
-            del(`user/notifyMap/${map1.id}`, 401, null));
+            del({
+                url: `user/notifyMap/${map1.id}`,
+                status: 401
+            }));
     });
 
-    describe('GET /api/v1/user/activities', () => {
+    describe('GET /api/user/activities', () => {
         const expects = (res) => {
             expect(res.body).toBeValidPagedDto(ActivityDto);
             for (const r of res.body.response) expect(r.user.alias).toBe(user1.alias);
         };
 
         it('should retrieve the local users activities', async () => {
-            const res = await get('user/activities', 200);
+            const res = await get({
+                url: 'user/activities',
+                status: 200,
+                token: user1Token
+            });
 
             expects(res);
             expect(res.body.totalCount).toBe(3);
@@ -577,14 +794,27 @@ describe('User', () => {
         });
 
         it('should respond with a limited list of activities for the local user when using the take query param', () =>
-            takeTest(`user/activities`, expects));
+            takeTest({
+                url: `user/activities`,
+                test: expects,
+                token: user1Token
+            }));
 
         it('should respond with a different list of activities for the local user when using the skip query param', () =>
-            skipTest(`user/activities`, expects));
+            skipTest({
+                url: `user/activities`,
+                test: expects,
+                token: user1Token
+            }));
 
         it('should respond with a filtered list of activities for the local user when using the type query param', async () => {
-            const res = await get(`user/activities`, 200, {
-                type: ActivityTypes.MAP_UPLOADED
+            const res = await get({
+                url: `user/activities`,
+                status: 200,
+                query: {
+                    type: ActivityTypes.MAP_UPLOADED
+                },
+                token: user1Token
             });
 
             expects(res);
@@ -594,8 +824,13 @@ describe('User', () => {
         });
 
         it('should respond with a filtered list of activities for the local user when using the data query param', async () => {
-            const res = await get(`user/activities`, 200, {
-                data: 101n
+            const res = await get({
+                url: `user/activities`,
+                status: 200,
+                query: {
+                    data: 101n
+                },
+                token: user1Token
             });
 
             expects(res);
@@ -604,22 +839,35 @@ describe('User', () => {
         });
 
         it('should respond with an empty list of activities for the local user when using the data query param with nonexistent data', async () => {
-            const res = await get(`user/activities`, 200, {
-                data: 1123412341n
+            const res = await get({
+                url: `user/activities`,
+                status: 200,
+                query: {
+                    data: 1123412341n
+                },
+                token: user1Token
             });
             expect(res.body.totalCount).toBe(0);
             expect(res.body.returnCount).toBe(0);
             expect(res.body.response).toBeInstanceOf(Array);
         });
 
-        it('should respond with 401 when no access token is provided', () => get(`user/activities`, 401, {}, null));
+        it('should respond with 401 when no access token is provided', () =>
+            get({
+                url: `user/activities`,
+                status: 401
+            }));
     });
 
-    describe('GET /api/v1/user/activities/followed', () => {
+    describe('GET /api/user/activities/followed', () => {
         const expects = (res) => expect(res.body).toBeValidPagedDto(ActivityDto);
 
         it('should retrieve a list of activities from the local users followed users', async () => {
-            const res = await get('user/activities/followed', 200);
+            const res = await get({
+                url: 'user/activities/followed',
+                status: 200,
+                token: user1Token
+            });
 
             expect(res.body.totalCount).toBe(2);
             expect(res.body.returnCount).toBe(2);
@@ -629,14 +877,27 @@ describe('User', () => {
         });
 
         it('should respond with a limited list of activities for the user when using the take query param', () =>
-            takeTest(`user/activities/followed`, expects));
+            takeTest({
+                url: `user/activities/followed`,
+                test: expects,
+                token: user1Token
+            }));
 
         it('should respond with a different list of activities for the user when using the skip query param', () =>
-            skipTest(`user/activities/followed`, expects));
+            skipTest({
+                url: `user/activities/followed`,
+                test: expects,
+                token: user1Token
+            }));
 
         it('should respond with a filtered list of activities for the user when using the type query param', async () => {
-            const res = await get(`user/activities/followed`, 200, {
-                type: ActivityTypes.WR_ACHIEVED
+            const res = await get({
+                url: `user/activities/followed`,
+                status: 200,
+                query: {
+                    type: ActivityTypes.WR_ACHIEVED
+                },
+                token: user1Token
             });
 
             expects(res);
@@ -646,8 +907,13 @@ describe('User', () => {
         });
 
         it('should respond with a filtered list of activities for the user when using the data query param', async () => {
-            const res = await get(`user/activities/followed`, 200, {
-                data: 4n
+            const res = await get({
+                url: `user/activities/followed`,
+                status: 200,
+                query: {
+                    data: 4n
+                },
+                token: user1Token
             });
 
             expects(res);
@@ -656,8 +922,13 @@ describe('User', () => {
         });
 
         it('should respond with an empty list of activities for the user when using the data query param with nonexistent data', async () => {
-            const res = await get(`user/activities/followed`, 200, {
-                data: 1123412341n
+            const res = await get({
+                url: `user/activities/followed`,
+                status: 200,
+                query: {
+                    data: 1123412341n
+                },
+                token: user1Token
             });
             expect(res.body.totalCount).toBe(0);
             expect(res.body.returnCount).toBe(0);
@@ -665,7 +936,11 @@ describe('User', () => {
         });
 
         it('should respond with an empty list of activities for a user that is not following anyone', async () => {
-            const res = await get(`user/activities/followed`, 200, {}, user3Token);
+            const res = await get({
+                url: `user/activities/followed`,
+                status: 200,
+                token: user3Token
+            });
 
             expect(res.body.totalCount).toBe(0);
             expect(res.body.returnCount).toBe(0);
@@ -673,13 +948,16 @@ describe('User', () => {
         });
 
         it('should respond with 401 when no access token is provided', () =>
-            get(`user/activities/followed`, 401, {}, null));
+            get({
+                url: `user/activities/followed`,
+                status: 401
+            }));
     });
 
-    //     describe('PUT /api/v1/user/maps/library/{mapID}', () => {
+    //     describe('PUT /api/user/maps/library/{mapID}', () => {
     //         it('should add a new map to the local users library', async () => {
     //             const res = await request(global.server)
-    //                 .put('/api/v1/user/maps/library/' + testMap2.id)
+    //                 .put('/api/user/maps/library/' + testMap2.id)
     //                 .set('Authorization', 'Bearer ' + global.accessToken)
     //                 .expect(200)
     //                 .expect('Content-Type', /json/);
@@ -687,14 +965,18 @@ describe('User', () => {
     //         });
     //
     //         it('should respond with 401 when no access token is provided', () =>
-    //             request(global.server).post('/api/v1/user/maps/library').expect(401).expect('Content-Type', /json/));
+    //             request(global.server).post('/api/user/maps/library').expect(401).expect('Content-Type', /json/));
     //     });
 
-    describe('GET /api/v1/user/maps/library', () => {
+    describe('GET /api/user/maps/library', () => {
         const expects = (res) => expect(res.body).toBeValidPagedDto(MapLibraryEntryDto);
 
         it('should retrieve the list of maps in the local users library', async () => {
-            const res = await get('user/maps/library', 200);
+            const res = await get({
+                url: 'user/maps/library',
+                status: 200,
+                token: user1Token
+            });
 
             expect(res.body).toBeValidPagedDto(MapLibraryEntryDto);
             expect(res.body.totalCount).toBe(2);
@@ -704,19 +986,35 @@ describe('User', () => {
         });
 
         it('should retrieve a filtered list of maps in the local users library using the take query', () =>
-            takeTest(`user/maps/library`, expects));
+            takeTest({
+                url: `user/maps/library`,
+                test: expects,
+                token: user1Token
+            }));
 
         it('should retrieve a filtered list of maps in the local users library using the skip query', () =>
-            skipTest(`user/maps/library`, expects));
+            skipTest({
+                url: `user/maps/library`,
+                test: expects,
+                token: user1Token
+            }));
 
-        it('should respond with 401 when no access token is provided', () => get(`user/maps/library`, 401, {}, null));
+        it('should respond with 401 when no access token is provided', () =>
+            get({
+                url: `user/maps/library`,
+                status: 401
+            }));
     });
 
-    describe('GET /api/v1/user/maps/favorites', () => {
+    describe('GET /api/user/maps/favorites', () => {
         const expects = (res) => expect(res.body).toBeValidPagedDto(MapFavoriteDto);
 
         it('should retrieve the list of maps in the local users favorites', async () => {
-            const res = await get('user/maps/favorites', 200);
+            const res = await get({
+                url: 'user/maps/favorites',
+                status: 200,
+                token: user1Token
+            });
 
             expects(res);
             expect(res.body.totalCount).toBe(2);
@@ -726,13 +1024,26 @@ describe('User', () => {
         });
 
         it('should retrieve a filtered list of maps in the local users favorites using the take query', () =>
-            takeTest(`user/maps/favorites`, expects));
+            takeTest({
+                url: `user/maps/favorites`,
+                test: expects,
+                token: user1Token
+            }));
 
         it('should retrieve a filtered list of maps in the local users favorites using the skip query', () =>
-            skipTest(`user/maps/favorites`, expects));
+            skipTest({
+                url: `user/maps/favorites`,
+                test: expects,
+                token: user1Token
+            }));
 
         it('should retrieve a list of maps in the local users favorites filtered using a search string', async () => {
-            const res = await get('user/maps/favorites', 200, { search: map2.name.slice(0, 8) });
+            const res = await get({
+                url: 'user/maps/favorites',
+                status: 200,
+                query: { search: map2.name.slice(0, 8) },
+                token: user1Token
+            });
 
             expects(res);
             expect(res.body.returnCount).toBe(1);
@@ -741,14 +1052,24 @@ describe('User', () => {
         });
 
         it('should retrieve a list of maps in the local users favorites with expanded submitter', async () => {
-            const res = await get('user/maps/favorites', 200, { expand: 'submitter' });
+            const res = await get({
+                url: 'user/maps/favorites',
+                status: 200,
+                query: { expand: 'submitter' },
+                token: user1Token
+            });
 
             expects(res);
             for (const x of res.body.response) expect(x.map).toHaveProperty('submitter');
         });
 
         it('should retrieve a list of maps in the local users favorites with expanded thumbnail', async () => {
-            const res = await get('user/maps/favorites', 200, { expand: 'thumbnail' });
+            const res = await get({
+                url: 'user/maps/favorites',
+                status: 200,
+                query: { expand: 'thumbnail' },
+                token: user1Token
+            });
 
             expects(res);
             for (const x of res.body.response) expect(x.map).toHaveProperty('thumbnail');
@@ -757,36 +1078,53 @@ describe('User', () => {
         // TODO ??? this is silly.
         // come back to this once the stuff on maps/ is done
         // it('should retrieve a list of maps in the local users favorites ', async () => {
-        //     const res = await get('user/maps/favorites', 200, { expand: 'inFavorites' });
+        //     const res = await get({
+        //     url: 'user/maps/favorites', status:200, query: { expand: 'inFavorites' },token:user1Token});
         // });
 
-        it('should respond with 401 when no access token is provided', () => get(`user/maps/favorites`, 401, {}, null));
+        it('should respond with 401 when no access token is provided', () =>
+            get({
+                url: `user/maps/favorites`,
+                status: 401
+            }));
     });
 
-    describe('GET /api/v1/user/maps/library/{mapID}', () => {
+    describe('GET /api/user/maps/library/{mapID}', () => {
         it('should check if a map exists in the local users library', () => {
-            getNoContent(`user/maps/library/${map1.id}`, 204);
+            getNoContent({
+                url: `user/maps/library/${map1.id}`,
+                status: 204,
+                token: user1Token
+            });
         });
 
         it('should return 404 since the map is not in the local users library', () => {
-            getNoContent(`user/maps/library/${map3.id}`, 404);
+            getNoContent({
+                url: `user/maps/library/${map3.id}`,
+                status: 404,
+                token: user1Token
+            });
         });
 
         it('should return 400 if the map is not in the database', () => {
-            getNoContent(`user/maps/library/999999999`, 400);
+            getNoContent({
+                url: `user/maps/library/999999999`,
+                status: 400,
+                token: user1Token
+            });
         });
     });
 
     //
-    //     describe('DELETE /api/v1/user/maps/library/{mapID}', () => {
+    //     describe('DELETE /api/user/maps/library/{mapID}', () => {
     //         it('should delete a library entry from the local users library', async () => {
     //             await request(global.server)
-    //                 .delete('/api/v1/user/maps/library/' + testMap.id)
+    //                 .delete('/api/user/maps/library/' + testMap.id)
     //                 .set('Authorization', 'Bearer ' + global.accessToken)
     //                 .expect(200)
     //                 .expect('Content-Type', /json/);
     //             await request(global.server)
-    //                 .get('/api/v1/user/maps/library/' + testMap.id)
+    //                 .get('/api/user/maps/library/' + testMap.id)
     //                 .set('Authorization', 'Bearer ' + global.accessToken)
     //                 .expect(404)
     //                 .expect('Content-Type', /json/);
@@ -794,15 +1132,15 @@ describe('User', () => {
     //
     //         it('should respond with 401 when no access token is provided', () =>
     //             request(global.server)
-    //                 .delete('/api/v1/user/maps/library/' + testMap.id)
+    //                 .delete('/api/user/maps/library/' + testMap.id)
     //                 .expect(401)
     //                 .expect('Content-Type', /json/));
     //     });
     //
-    //     describe('GET /api/v1/user/maps/submitted', () => {
+    //     describe('GET /api/user/maps/submitted', () => {
     //         it('should retrieve a list of maps submitted by the local user', async () => {
     //             const res = await request(global.server)
-    //                 .get('/api/v1/user/maps/submitted')
+    //                 .get('/api/user/maps/submitted')
     //                 .set('Authorization', 'Bearer ' + global.accessToken)
     //                 .expect(200)
     //                 .expect('Content-Type', /json/);
@@ -814,7 +1152,7 @@ describe('User', () => {
     //
     //         it('should should retrieve a list of maps submitted by the local user filtered with the limit query', async () => {
     //             const res = await request(global.server)
-    //                 .get('/api/v1/user/maps/submitted')
+    //                 .get('/api/user/maps/submitted')
     //                 .set('Authorization', 'Bearer ' + global.accessToken)
     //                 .query({ limit: 1 })
     //                 .expect(200)
@@ -827,7 +1165,7 @@ describe('User', () => {
     //
     //         it('should should retrieve a list of maps submitted by the local user filtered with the offset query', async () => {
     //             const res = await request(global.server)
-    //                 .get('/api/v1/user/maps/submitted')
+    //                 .get('/api/user/maps/submitted')
     //                 .set('Authorization', 'Bearer ' + global.accessToken)
     //                 .query({ offset: 1 })
     //                 .expect(200)
@@ -840,7 +1178,7 @@ describe('User', () => {
     //
     //         it('should should retrieve a list of maps submitted by the local user filtered with the search query', async () => {
     //             const res = await request(global.server)
-    //                 .get('/api/v1/user/maps/submitted')
+    //                 .get('/api/user/maps/submitted')
     //                 .set('Authorization', 'Bearer ' + global.accessToken2)
     //                 .query({ search: testMap3.name })
     //                 .expect(200)
@@ -853,7 +1191,7 @@ describe('User', () => {
     //
     //         it('should should retrieve a list of maps submitted by the local user filtered with the expand query', async () => {
     //             const res = await request(global.server)
-    //                 .get('/api/v1/user/maps/submitted')
+    //                 .get('/api/user/maps/submitted')
     //                 .set('Authorization', 'Bearer ' + global.accessToken)
     //                 .query({ expand: 'info' })
     //                 .expect(200)
@@ -866,13 +1204,13 @@ describe('User', () => {
     //         });
     //
     //         it('should respond with 401 when no access token is provided', () =>
-    //             request(global.server).get('/api/v1/user/maps/submitted').expect(401).expect('Content-Type', /json/));
+    //             request(global.server).get('/api/user/maps/submitted').expect(401).expect('Content-Type', /json/));
     //     });
     //
     //     describe('/user/maps/submitted/summary', () => {
     //         it('should return a summary of maps submitted by the user', async () => {
     //             const res = await request(global.server)
-    //                 .get('/api/v1/user/maps/submitted/summary')
+    //                 .get('/api/user/maps/submitted/summary')
     //                 .set('Authorization', 'Bearer ' + global.accessToken)
     //                 .expect(200)
     //                 .expect('Content-Type', /json/);
@@ -883,16 +1221,20 @@ describe('User', () => {
     //
     //         it('should respond with 401 when no access token is provided', () =>
     //             request(global.server)
-    //                 .get('/api/v1/user/maps/submitted/summary')
+    //                 .get('/api/user/maps/submitted/summary')
     //                 .expect(401)
     //                 .expect('Content-Type', /json/));
     //     });
     //
-    describe('GET /api/v1/user/notifications', () => {
+    describe('GET /api/user/notifications', () => {
         const expects = (res) => expect(res.body).toBeValidPagedDto(NotificationDto);
 
         it('should respond with a list of notifications for the local user', async () => {
-            const res = await get('user/notifications', 200);
+            const res = await get({
+                url: 'user/notifications',
+                status: 200,
+                token: user1Token
+            });
 
             expects(res);
 
@@ -904,54 +1246,112 @@ describe('User', () => {
         });
 
         it('should respond with a limited list of notifications for the user when using the take query param', () =>
-            takeTest(`user/notifications`, expects));
+            takeTest({
+                url: `user/notifications`,
+                test: expects,
+                token: user1Token
+            }));
 
         it('should respond with a different list of notifications for the user when using the skip query param', () =>
-            skipTest(`user/notifications`, expects));
+            skipTest({
+                url: `user/notifications`,
+                test: expects,
+                token: user1Token
+            }));
 
-        it('should respond with 401 when no access token is provided', () => get(`user/notifications`, 401, {}, null));
+        it('should respond with 401 when no access token is provided', () =>
+            get({
+                url: `user/notifications`,
+                status: 401
+            }));
     });
 
-    describe('PATCH /api/v1/user/notifications/{notifID}', () => {
+    describe('PATCH /api/user/notifications/{notifID}', () => {
         it('should update the notification', async () => {
-            const res = await get('user/notifications', 200);
+            const res = await get({
+                url: 'user/notifications',
+                status: 200,
+                token: user1Token
+            });
 
             expect(res.body.response[0].read).toBe(false);
 
-            await patch(`user/notifications/${res.body.response[0].id}`, 204, { read: true });
+            await patch({
+                url: `user/notifications/${res.body.response[0].id}`,
+                status: 204,
+                body: { read: true },
+                token: user1Token
+            });
 
-            const res2 = await get('user/notifications', 200);
+            const res2 = await get({
+                url: 'user/notifications',
+                status: 200,
+                token: user1Token
+            });
 
             expect(res2.body.response[0].read).toBe(true);
         });
 
         it('should respond with 400 if the body is invalid', () =>
-            patch(`user/notifications/32476671243`, 400, { read: 'horse' }));
+            patch({
+                url: `user/notifications/32476671243`,
+                status: 400,
+                body: { read: 'horse' },
+                token: user1Token
+            }));
 
         it('should respond with 404 if the notification does not exist', () =>
-            patch(`user/notifications/32476671243`, 404, { read: true }));
+            patch({
+                url: `user/notifications/32476671243`,
+                status: 404,
+                body: { read: true },
+                token: user1Token
+            }));
 
         it('should respond with 401 when no access token is provided', () =>
-            patch(`user/notifications/1`, 401, {}, null));
+            patch({
+                url: `user/notifications/1`,
+                status: 401
+            }));
     });
 
-    describe('DELETE /api/v1/user/notifications/{notifID}', () => {
+    describe('DELETE /api/user/notifications/{notifID}', () => {
         it('should delete the notification', async () => {
-            const res = await get('user/notifications', 200);
+            const res = await get({
+                url: 'user/notifications',
+                status: 200,
+                token: user1Token
+            });
 
             expect(res.body.response[0].read).toBe(false);
 
-            await del(`user/notifications/${res.body.response[0].id}`, 204);
+            await del({
+                url: `user/notifications/${res.body.response[0].id}`,
+                status: 204,
+                token: user1Token
+            });
 
-            const res2 = await get('user/notifications', 200);
+            const res2 = await get({
+                url: 'user/notifications',
+                status: 200,
+                token: user1Token
+            });
 
             expect(res2.body.response[0].id).not.toBe(res.body.response[0].id);
         });
 
         it('should respond with 404 if the notification does not exist', () =>
-            del(`user/notifications/324512341243`, 404));
+            del({
+                url: `user/notifications/324512341243`,
+                status: 404,
+                token: user1Token
+            }));
 
-        it('should respond with 401 when no access token is provided', () => del(`user/notifications/1`, 401, null));
+        it('should respond with 401 when no access token is provided', () =>
+            del({
+                url: `user/notifications/1`,
+                status: 401
+            }));
     });
 
     /*
@@ -960,7 +1360,7 @@ describe('User', () => {
         
             // testUser follows testUser2
             const res1 = await serv
-                .post('/api/v1/user/follow')
+                .post('/api/user/follow')
                 .set('Authorization', 'Bearer ' + global.accessToken)
                 .send({
                     userID: user2.id
@@ -969,7 +1369,7 @@ describe('User', () => {
         
             // changes the follow relationship between testUser and testUser2 to notify when a map is approved
             const res2 = await serv
-                .patch('/api/v1/user/follow/' + user2.id)
+                .patch('/api/user/follow/' + user2.id)
                 .set('Authorization', 'Bearer ' + global.accessToken)
                 .send({
                     notifyOn: 1 << activity.ACTIVITY_TYPES.MAP_APPROVED
@@ -1021,7 +1421,7 @@ describe('User', () => {
         
             // should get the notification that testUser2's map was approved
             const res6 = await serv
-                .get('/api/v1/user/notifications')
+                .get('/api/user/notifications')
                 .set('Authorization', 'Bearer ' + global.accessToken)
                 .expect(200);
         
@@ -1038,7 +1438,7 @@ describe('User', () => {
         () => {
         // enable map notifications for the given map
          const res = await request(global.server)
-            .put('/api/v1/user/notifyMap/' + testMap.id)
+            .put('/api/user/notifyMap/' + testMap.id)
             .set('Authorization', 'Bearer ' + global.accessToken)
             .send({
                 notifyOn: activity.ACTIVITY_TYPES.WR_ACHIEVED

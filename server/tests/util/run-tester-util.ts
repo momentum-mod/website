@@ -2,6 +2,7 @@
 import { ReplayFileWriter } from '@common/lib/replay-file-writer';
 import { BaseStatsFromGame, Replay, RunFrame, ZoneStatsFromGame } from '@modules/session/run/run-session.interfaces';
 import { Random } from '@lib/random.lib';
+import { URL_PREFIX } from '@tests/e2e/e2e.config';
 
 const DEFAULT_DELAY_MS = 50; // TODO: Can probably go lower
 
@@ -10,7 +11,7 @@ const MAGIC = 0x524d4f4d;
 const wait = (time) => new Promise((resolve) => setTimeout(resolve, time));
 
 export interface RunTesterProps {
-    accessToken?: string;
+    token?: string;
     mapID: number;
     mapName: string;
     mapHash: string;
@@ -45,7 +46,6 @@ export class RunTester {
 
     constructor(props: RunTesterProps) {
         this.props = props;
-        this.props.accessToken ??= global.accessToken;
         this.replayFile = new ReplayFileWriter();
 
         this.replay = {
@@ -93,9 +93,9 @@ export class RunTester {
         this.startTime = Date.now();
 
         const res = await request(global.server)
-            .post(`/api/v1/session/run`)
+            .post(`${URL_PREFIX}session/run`)
             .set('Accept', 'application/json')
-            .set('Authorization', 'Bearer ' + global.accessToken)
+            .set('Authorization', `Bearer ${this.props.token ?? ''}`)
             .send({ mapID: this.props.mapID, trackNum: this.props.trackNum, zoneNum: 0 })
             .expect(200);
         this.sessionID = res.body.id;
@@ -111,9 +111,9 @@ export class RunTester {
         const tickTotal = Math.ceil(timeTotal / 1000 / this.props.tickRate);
 
         await request(global.server)
-            .post(`/api/v1/session/run/${this.sessionID}`)
+            .post(`${URL_PREFIX}session/run/${this.sessionID}`)
             .set('Accept', 'application/json')
-            .set('Authorization', 'Bearer ' + global.accessToken)
+            .set('Authorization', `Bearer ${this.props.token ?? ''}`)
             .send({ zoneNum: this.currZone, tick: tickTotal })
             .expect(200);
 
@@ -193,9 +193,9 @@ export class RunTester {
         args?.beforeSubmit?.(this);
 
         return request(global.server)
-            .post(`/api/v1/session/run/${this.sessionID}/end`)
+            .post(`${URL_PREFIX}session/run/${this.sessionID}/end`)
             .set('Content-Type', 'multipart/form-data')
-            .set('Authorization', 'Bearer ' + global.accessToken)
+            .set('Authorization', `Bearer ${this.props.token ?? ''}`)
             .attach('file', this.replayFile.buffer, 'file');
     }
 

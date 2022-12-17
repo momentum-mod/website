@@ -4,10 +4,11 @@ import { RunDto } from '@common/dto/run/runs.dto';
 import { MapType, MapStatus, MapCreditType } from '@common/enums/map.enum';
 import { AuthService } from '@modules/auth/auth.service';
 import { PrismaService } from '@modules/repo/prisma.service';
-import { get, takeTest, skipTest, expandTest } from '../util/test-util';
+import { get } from '../util/request-handlers.util';
+import { expandTest, skipTest, takeTest } from '@tests/util/generic-e2e-tests.util';
 
 describe('runs', () => {
-    let user1, map1, run1, run2, run3, run4, user2, map2;
+    let user1, user1Token, map1, run1, run2, run3, run4, user2, map2;
 
     beforeEach(async () => {
         const prisma: PrismaService = global.prisma;
@@ -232,7 +233,7 @@ describe('runs', () => {
         });
 
         const authService: AuthService = global.auth as AuthService;
-        global.accessToken = (await authService.login(user1)).access_token;
+        user1Token = (await authService.loginWeb(user1)).accessToken;
     });
 
     afterEach(async () => {
@@ -243,11 +244,15 @@ describe('runs', () => {
         await prisma.map.deleteMany({ where: { id: { in: [map1.id, map2.id] } } });
     });
 
-    describe('GET /api/v1/runs', () => {
+    describe('GET /api/runs', () => {
         const expects = (res) => expect(res.body).toBeValidPagedDto(RunDto);
 
         it('should respond with a list of runs', async () => {
-            const res = await get('runs', 200);
+            const res = await get({
+                url: 'runs',
+                status: 200,
+                token: user1Token
+            });
 
             expects(res);
 
@@ -255,12 +260,27 @@ describe('runs', () => {
             expect(res.body.returnCount).toBeGreaterThanOrEqual(4);
         });
 
-        it('should respond with a list of runs with take parameter', () => takeTest('runs', expects));
+        it('should respond with a list of runs with take parameter', () =>
+            takeTest({
+                url: 'runs',
+                test: expects,
+                token: user1Token
+            }));
 
-        it('should respond with a list of runs with skip parameter', () => skipTest('runs', expects));
+        it('should respond with a list of runs with skip parameter', () =>
+            skipTest({
+                url: 'runs',
+                test: expects,
+                token: user1Token
+            }));
 
         it('should respond with list of runs filtered by mapID parameter', async () => {
-            const res = await get('runs', 200, { mapID: map1.id });
+            const res = await get({
+                url: 'runs',
+                status: 200,
+                query: { mapID: map1.id },
+                token: user1Token
+            });
 
             expects(res);
 
@@ -270,7 +290,12 @@ describe('runs', () => {
         });
 
         it('should respond with a list of runs filtered by userID parameter', async () => {
-            const res = await get('runs', 200, { userID: user1.id });
+            const res = await get({
+                url: 'runs',
+                status: 200,
+                query: { userID: user1.id },
+                token: user1Token
+            });
 
             expects(res);
 
@@ -281,7 +306,12 @@ describe('runs', () => {
 
         it('should respond with a list of runs filtered by a list of user ids', async () => {
             const ids = user1.id + ',' + user2.id;
-            const res = await get('runs', 200, { userIDs: ids });
+            const res = await get({
+                url: 'runs',
+                status: 200,
+                query: { userIDs: ids },
+                token: user1Token
+            });
 
             expects(res);
 
@@ -291,7 +321,12 @@ describe('runs', () => {
         });
 
         it('should respond with a list of runs filtered by flags', async () => {
-            const res = await get('runs', 200, { flags: 1 << 5 });
+            const res = await get({
+                url: 'runs',
+                status: 200,
+                query: { flags: 1 << 5 },
+                token: user1Token
+            });
 
             expects(res);
 
@@ -299,10 +334,22 @@ describe('runs', () => {
             expect(res.body.response[0].flags).toBe(run4.flags); // This uses strict equality for now, but will change in 0.10.0
         });
 
-        it('should respond with a list of runs with the map include', () => expandTest('runs', expects, 'map', true));
+        it('should respond with a list of runs with the map include', () =>
+            expandTest({
+                url: 'runs',
+                test: expects,
+                expand: 'map',
+                paged: true,
+                token: user1Token
+            }));
 
         it('should respond with a list of runs with the rank include', async () => {
-            const res = await get('runs', 200, { expand: 'rank' });
+            const res = await get({
+                url: 'runs',
+                status: 200,
+                query: { expand: 'rank' },
+                token: user1Token
+            });
 
             expects(res);
 
@@ -312,13 +359,30 @@ describe('runs', () => {
         });
 
         it('should respond with a list of runs with the zoneStats include', () =>
-            expandTest('runs', expects, 'zoneStats', true));
+            expandTest({
+                url: 'runs',
+                test: expects,
+                expand: 'zoneStats',
+                paged: true,
+                token: user1Token
+            }));
 
         it('should respond with a list of runs with the overallStats include', () =>
-            expandTest('runs', expects, 'overallStats', true));
+            expandTest({
+                url: 'runs',
+                test: expects,
+                expand: 'overallStats',
+                paged: true,
+                token: user1Token
+            }));
 
         it('should respond with a list of runs with the mapWithInfo include', async () => {
-            const res = await get('runs', 200, { expand: 'mapWithInfo' });
+            const res = await get({
+                url: 'runs',
+                status: 200,
+                query: { expand: 'mapWithInfo' },
+                token: user1Token
+            });
 
             expects(res);
 
@@ -326,7 +390,12 @@ describe('runs', () => {
         });
 
         it('should respond with a list of runs filtered by partial mapName match', async () => {
-            const res = await get('runs', 200, { mapName: 'epicf', expand: 'map' });
+            const res = await get({
+                url: 'runs',
+                status: 200,
+                query: { mapName: 'epicf', expand: 'map' },
+                token: user1Token
+            });
 
             expects(res);
 
@@ -335,7 +404,12 @@ describe('runs', () => {
         });
 
         it('should respond with a list of runs that are personal bests', async () => {
-            const res = await get('runs', 200, { isPB: true, expand: 'rank' });
+            const res = await get({
+                url: 'runs',
+                status: 200,
+                query: { isPB: true, expand: 'rank' },
+                token: user1Token
+            });
 
             expects(res);
 
@@ -348,7 +422,12 @@ describe('runs', () => {
         });
 
         it('should respond with a list of runs sorted by date', async () => {
-            const res = await get('runs', 200, { order: 'date' });
+            const res = await get({
+                url: 'runs',
+                status: 200,
+                query: { order: 'date' },
+                token: user1Token
+            });
 
             expects(res);
 
@@ -359,7 +438,12 @@ describe('runs', () => {
         });
 
         it('should respond with a list of runs sorted by time', async () => {
-            const res = await get('runs', 200, { order: 'time' });
+            const res = await get({
+                url: 'runs',
+                status: 200,
+                query: { order: 'time' },
+                token: user1Token
+            });
 
             expects(res);
 
@@ -369,13 +453,21 @@ describe('runs', () => {
             expect(res.body.response).toEqual(sortedRes);
         });
 
-        it('should respond with 401 if no access token is provided', () => get('runs', 401, {}, null));
+        it('should respond with 401 if no access token is provided', () =>
+            get({
+                url: 'runs',
+                status: 401
+            }));
     });
 
-    describe('GET /api/v1/runs/{runID}', () => {
+    describe('GET /api/runs/{runID}', () => {
         const expects = (res: request.Response) => expect(res.body).toBeValidDto(RunDto);
         it('should return a valid run', async () => {
-            const res = await get('runs/' + run1.id, 200);
+            const res = await get({
+                url: 'runs/' + run1.id,
+                status: 200,
+                token: user1Token
+            });
 
             expects(res);
 
@@ -384,27 +476,61 @@ describe('runs', () => {
         });
 
         it('should respond with a run using the overallStats include', () =>
-            expandTest('runs/' + run1.id, expects, 'overallStats', false));
+            expandTest({
+                url: 'runs/' + run1.id,
+                test: expects,
+                expand: 'overallStats',
+                token: user1Token
+            }));
 
         it('should respond with a run using the map include', () =>
-            expandTest('runs/' + run1.id, expects, 'map', false));
+            expandTest({
+                url: 'runs/' + run1.id,
+                test: expects,
+                expand: 'map',
+                token: user1Token
+            }));
 
         it('should respond with a run using the rank include', () =>
-            expandTest('runs/' + run1.id, expects, 'rank', false));
+            expandTest({
+                url: 'runs/' + run1.id,
+                test: expects,
+                expand: 'rank',
+                token: user1Token
+            }));
 
         it('should respond with a run using the zoneStats include', () =>
-            expandTest('runs/' + run1.id, expects, 'zoneStats', false));
+            expandTest({
+                url: 'runs/' + run1.id,
+                test: expects,
+                expand: 'zoneStats',
+                token: user1Token
+            }));
 
         it('should respond with a run using the mapWithInfo include', async () => {
-            const res = await get('runs/' + run1.id, 200, { expand: 'mapWithInfo' });
+            const res = await get({
+                url: 'runs/' + run1.id,
+                status: 200,
+                query: { expand: 'mapWithInfo' },
+                token: user1Token
+            });
 
             expects(res);
 
             expect(res.body.map).toHaveProperty('info');
         });
 
-        it('should respond with 404 when no run is found', () => get('runs/123456789', 404));
+        it('should respond with 404 when no run is found', () =>
+            get({
+                url: 'runs/123456789',
+                status: 404,
+                token: user1Token
+            }));
 
-        it('should respond with 401 when no access token is provided', () => get('runs/1', 401, {}, null));
+        it('should respond with 401 when no access token is provided', () =>
+            get({
+                url: 'runs/1',
+                status: 401
+            }));
     });
 });
