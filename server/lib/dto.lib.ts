@@ -20,7 +20,9 @@ export function DtoFactory<T>(
         if (nullReturnsEmptyObject) return {} as T;
         return undefined;
     }
-    return plainToInstance(type, input);
+    // Ignore decorators here, we don't seem to need them. They get applied when the class instance is converted
+    // back to JSON by the ClassSerializerInterceptor.
+    return plainToInstance(type, input, { ignoreDecorators: true });
 }
 
 /**
