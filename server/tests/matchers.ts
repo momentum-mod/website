@@ -1,6 +1,10 @@
 ﻿import { plainToInstance } from 'class-transformer';
 import { validateSync, ValidationError } from 'class-validator';
 
+BigInt.prototype['toJSON'] = function () {
+    return this.toString();
+};
+
 declare global {
     // eslint-disable-next-line @typescript-eslint/no-namespace
     namespace jest {
