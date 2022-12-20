@@ -144,7 +144,7 @@ describe('Users', () => {
                 time: 1000000,
                 flags: 0,
                 file: '',
-                hash: ''
+                hash: '7e020271296998570130e9be83f8ce44b39b843b'
             }
         });
 
@@ -173,7 +173,7 @@ describe('Users', () => {
                 time: 1000000,
                 flags: 0,
                 file: '',
-                hash: ''
+                hash: '7e16b5527c77ea58bac36dddda6f5b444f32e81b'
             }
         });
 
@@ -352,8 +352,7 @@ describe('Users', () => {
                 url: `users/${user2.id}`,
                 status: 200,
                 token: user1Token
-            });
-
+            }); 
             expects(res);
             expect(res.body).toHaveProperty('avatarURL');
             expect(res.body.avatarURL).toEqual(expect.stringContaining('https://avatars.cloudflare.steamstatic.com/'));

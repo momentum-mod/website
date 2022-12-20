@@ -449,7 +449,7 @@ describe('Maps', () => {
                 flags: 0,
                 file: '',
                 time: 123123123,
-                hash: '',
+                hash: 'bb7b1901d99e8b26bb91d2debdb7d7f24b3158cf',
                 rank: {
                     create: {
                         map: { connect: { id: map1.id } },
@@ -476,7 +476,7 @@ describe('Maps', () => {
                 tickRate: 100,
                 flags: 123,
                 file: '',
-                hash: '',
+                hash: '35a3a113d817ad904d471ffffb6a966cb241a350',
                 time: 20000000,
                 rank: {
                     create: {
@@ -505,7 +505,7 @@ describe('Maps', () => {
                 tickRate: 100,
                 flags: 0,
                 file: '',
-                hash: '',
+                hash: '3176dd209e4fc2d4a96dacdaaeed5b42032a3ed4',
                 time: 20000100,
                 overallStats: {
                     create: {
@@ -928,7 +928,7 @@ describe('Maps', () => {
                 token: user1Token
             }));
 
-        it('should respond with 400 if a map track have less than 2 zones', async () => {
+        it('should respond with 400 if a map track has less than 2 zones', async () => {
             const mapObj = createMapObj();
             await post({
                 url: 'maps',
@@ -2181,7 +2181,7 @@ describe('Maps', () => {
     describe('GET maps/{mapID}/runs/{runID}', () => {
         it('should return the specified run', async () => {
             const res = await get({
-                url: `maps /${map1.id}/runs/1`,
+                url: `maps/${map1.id}/runs/1`,
                 status: 200,
                 token: user1Token
             });
@@ -2199,7 +2199,7 @@ describe('Maps', () => {
     describe('GET maps/{mapID}/runs/{runID}/download', () => {
         it('should download the run', async () => {
             await get({
-                url: `maps /${map1.id}/runs/1/download`,
+                url: `maps/${map1.id}/runs/1/download`,
                 status: 200,
                 token: user1Token
             });
