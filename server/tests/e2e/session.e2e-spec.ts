@@ -358,7 +358,7 @@ describe('Session', () => {
                                         ticks: i * 100 + 1,
                                         tickRate: 0.01,
                                         file: '',
-                                        hash: '',
+                                        hash: '2a2c873a10e8088cc2e54a74fd1428d59e0c509b',
                                         time: i + 0.01
                                     }
                                 },
@@ -603,7 +603,9 @@ describe('Session', () => {
             });
 
             it('the hash of the map stored in the replay does not match the stored hash of the DB map', async () => {
-                const res = await submitWithOverrides({ props: { mapHash: 'egg' } });
+                const res = await submitWithOverrides({
+                    props: { mapHash: '4fa6024f12494d3a99d8bda9b7a55f7d140f328a' }
+                });
 
                 expect(res.status).toBe(400);
                 expect(res.body.code).toBe(RunValidationErrorTypes.BAD_META);

@@ -108,7 +108,7 @@ describe('runs', () => {
                 time: r1ticks * r1tickrate,
                 flags: 1 << 0,
                 file: 'world_record.run',
-                hash: '0xdeadbeef',
+                hash: 'e49512524f47b4138d850c9d9d85972927281da0',
                 rank: {
                     create: {
                         gameType: MapType.RJ,
@@ -147,7 +147,7 @@ describe('runs', () => {
                 time: r2ticks * r2tickrate,
                 flags: 1 << 1,
                 file: 'jumping.run',
-                hash: '0xfacade',
+                hash: 'b1ae48bc64bc11de93e67638009e2bfaec88596e',
                 overallStats: {
                     create: {
                         jumps: 1
@@ -176,7 +176,7 @@ describe('runs', () => {
 
                 flags: 1 << 4,
                 file: 'surfing_fast.run',
-                hash: '0x1137',
+                hash: 'f7a9e24777ec23212c54d7a350bc5bea5477fdbb',
                 overallStats: {
                     create: {
                         jumps: 1
@@ -203,7 +203,7 @@ describe('runs', () => {
                 time: r4ticks * r4tickrate,
                 flags: 1 << 5,
                 file: 'surfing_faster.run',
-                hash: '0xh4sh',
+                hash: 'd00eefc401c52ea50740691efe652391c8c02f15',
                 rank: {
                     create: {
                         gameType: MapType.RJ,
