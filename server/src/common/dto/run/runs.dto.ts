@@ -2,44 +2,41 @@ import { UserDto } from '../user/user.dto';
 import { MapRankDto } from '../map/map-rank.dto';
 import { Run } from '@prisma/client';
 import { ApiProperty } from '@nestjs/swagger';
-import { IsDateString, IsDefined, IsInt } from 'class-validator';
-import { Transform } from 'class-transformer';
+import { IsDateString, IsHash, IsInt, IsNumber, IsOptional, IsPositive, IsString } from 'class-validator';
 import { MapDto } from '../map/map.dto';
-import { NestedDto } from '@lib/dto.lib';
+import { NestedDtoOptional } from '@lib/dto.lib';
 import { BaseStatsDto } from '../stats/base-stats.dto';
 import { RunZoneStatsDto } from './run-zone-stats.dto';
+import { IsPositiveNumberString } from '@common/validators/is-positive-number-string.validator';
 
 // TODO: BaseStatsDTO, various other nested DTOs
 
 export class RunDto implements Run {
     @ApiProperty({
-        type: String,
+        type: Number,
         description: 'The ID of the run'
     })
-    @Transform(({ value }) => BigInt(value))
-    @IsDefined()
+    @IsPositiveNumberString()
     id: bigint;
 
     @ApiProperty({
         type: Number,
         description: 'The overall time of the run (ticks * tickRate)'
     })
-    @IsDefined()
+    @IsNumber()
     time: number;
 
     @ApiProperty({
         type: Number,
         description: 'The track the run took place on'
     })
-    @IsDefined()
-    @IsInt()
+    @IsPositive()
     trackNum: number;
 
     @ApiProperty({
         type: Number,
         description: 'The number of zones in the run'
     })
-    @IsDefined()
     @IsInt()
     zoneNum: number;
 
@@ -47,31 +44,53 @@ export class RunDto implements Run {
         type: Number,
         description: 'The total ticks'
     })
-    @IsDefined()
     @IsInt()
     ticks: number;
 
-    // TODO: I assume these will be improved in future
     @ApiProperty()
+    @IsNumber()
     tickRate: number;
 
     @ApiProperty()
+    @IsInt()
     flags: number;
 
     @ApiProperty()
+    @IsString()
     file: string;
 
     @ApiProperty()
+    @IsHash('sha1')
+    @IsOptional()
     hash: string;
 
-    @NestedDto(BaseStatsDto)
+    @ApiProperty()
+    @IsPositiveNumberString()
+    @IsOptional()
+    overallStatsID: bigint;
+
+    @NestedDtoOptional(BaseStatsDto)
     overallStats: BaseStatsDto;
 
-    @NestedDto(RunZoneStatsDto, { type: () => RunZoneStatsDto, isArray: true })
-    zoneStats: RunZoneStatsDto[];
+    @ApiProperty()
+    @IsPositive()
+    userID: number;
+
+    @NestedDtoOptional(UserDto, { type: () => UserDto })
+    user: UserDto;
 
     @ApiProperty()
-    overallStatsID: bigint;
+    @IsPositive()
+    mapID: number;
+
+    @NestedDtoOptional(MapDto)
+    map: MapDto;
+
+    @NestedDtoOptional(MapRankDto, { type: () => MapRankDto })
+    rank: MapRankDto;
+
+    @NestedDtoOptional(RunZoneStatsDto, { type: () => RunZoneStatsDto, isArray: true })
+    zoneStats: RunZoneStatsDto[];
 
     @ApiProperty()
     @IsDateString()
@@ -80,23 +99,4 @@ export class RunDto implements Run {
     @ApiProperty()
     @IsDateString()
     updatedAt: Date;
-
-    @ApiProperty()
-    @IsDefined()
-    @IsInt()
-    userID: number;
-
-    @NestedDto(UserDto, { type: () => UserDto })
-    user: UserDto;
-
-    @NestedDto(MapRankDto, { type: () => MapRankDto })
-    rank: MapRankDto;
-
-    @ApiProperty()
-    @IsDefined()
-    @IsInt()
-    mapID: number;
-
-    @NestedDto(MapDto)
-    map: MapDto;
 }

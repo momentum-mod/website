@@ -7,15 +7,14 @@ import {
     ArrayMinSize,
     IsArray,
     IsDateString,
-    IsDefined,
     IsEnum,
     IsHash,
-    IsInt,
     IsOptional,
+    IsPositive,
     IsString,
     IsUrl
 } from 'class-validator';
-import { NestedDto } from '@lib/dto.lib';
+import { NestedDto, NestedDtoOptional } from '@lib/dto.lib';
 import { CreateMapInfoDto, MapInfoDto } from './map-info.dto';
 import { CreateMapTrackDto, MapTrackDto } from './map-track.dto';
 import { IsMapName } from '../../validators/is-map-name.validator';
@@ -29,8 +28,7 @@ import { Config } from '@config/config';
 
 export class MapDto implements MapDB {
     @ApiProperty()
-    @IsDefined()
-    @IsInt()
+    @IsPositive()
     id: number;
 
     @ApiProperty()
@@ -57,58 +55,60 @@ export class MapDto implements MapDB {
     }
 
     @ApiProperty()
-    @IsOptional()
     @IsHash('sha1')
+    @IsOptional()
     hash: string;
 
     @ApiProperty()
+    @IsPositive()
+    @IsOptional()
     thumbnailID: number;
 
-    @NestedDto(MapImageDto)
+    @NestedDtoOptional(MapImageDto)
     thumbnail: MapImageDto;
 
     @ApiProperty()
+    @IsPositive()
     @IsOptional()
-    @IsInt()
     submitterID: number;
 
     @Exclude()
     mainTrackID: number;
 
-    @NestedDto(MapTrackDto, { required: false })
+    @NestedDtoOptional(MapTrackDto, { required: false })
     mainTrack?: MapTrackDto;
 
-    @NestedDto(MapInfoDto, { required: false })
+    @NestedDtoOptional(MapInfoDto, { required: false })
     info?: MapInfoDto;
 
-    @NestedDto(UserDto, {
+    @NestedDtoOptional(UserDto, {
         type: () => UserDto,
         description: 'The user the submitted the map'
     })
     submitter: UserDto;
 
-    @NestedDto(MapImageDto, { required: false, isArray: true })
+    @NestedDtoOptional(MapImageDto, { required: false, isArray: true })
     images?: MapImageDto[];
 
-    @NestedDto(MapTrackDto, { required: false, isArray: true })
+    @NestedDtoOptional(MapTrackDto, { required: false, isArray: true })
     tracks?: MapTrackDto[];
 
-    @NestedDto(BaseStatsDto)
+    @NestedDtoOptional(BaseStatsDto)
     stats: BaseStatsDto;
 
-    @NestedDto(MapCreditDto)
+    @NestedDtoOptional(MapCreditDto)
     credits: MapCreditDto[];
 
-    @NestedDto(MapFavoriteDto)
+    @NestedDtoOptional(MapFavoriteDto)
     favorites: MapFavoriteDto[];
 
-    @NestedDto(MapLibraryEntryDto, { required: false, isArray: true })
+    @NestedDtoOptional(MapLibraryEntryDto, { required: false, isArray: true })
     libraryEntries?: MapLibraryEntryDto[];
 
-    @NestedDto(MapRankDto, { type: () => MapRankDto, required: false })
+    @NestedDtoOptional(MapRankDto, { type: () => MapRankDto, required: false })
     worldRecord?: MapRankDto;
 
-    @NestedDto(MapRankDto, { type: () => MapRankDto, required: false })
+    @NestedDtoOptional(MapRankDto, { type: () => MapRankDto, required: false })
     personalBest?: MapRankDto;
 
     @ApiProperty()

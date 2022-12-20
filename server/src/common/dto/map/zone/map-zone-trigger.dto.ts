@@ -1,6 +1,6 @@
 ﻿import { MapZoneTrigger, Prisma } from '@prisma/client';
 import { Exclude } from 'class-transformer';
-import { IsInt, IsJSON, Max } from 'class-validator';
+import { IsInt, IsJSON, IsNumber, Max } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 import { MapZoneTriggerPropertiesDto } from './map-zone-trigger-properties.dto';
 import { NestedDto } from '@lib/dto.lib';
@@ -16,6 +16,7 @@ export class MapZoneTriggerDto implements MapZoneTrigger {
     type: number;
 
     @ApiProperty()
+    @IsNumber()
     pointsHeight: number;
 
     @ApiProperty()

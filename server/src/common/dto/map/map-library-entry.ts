@@ -1,6 +1,6 @@
 ﻿import { MapLibraryEntry } from '@prisma/client';
 import { ApiProperty } from '@nestjs/swagger';
-import { IsDateString, IsInt } from 'class-validator';
+import { IsDateString, IsPositive } from 'class-validator';
 import { UserDto } from '../user/user.dto';
 import { NestedDto } from '@lib/dto.lib';
 import { MapDto } from './map.dto';
@@ -10,18 +10,18 @@ export class MapLibraryEntryDto implements MapLibraryEntry {
         type: Number,
         description: 'The ID of the library entry'
     })
-    @IsInt()
+    @IsPositive()
     id: number;
 
     @ApiProperty()
-    @IsInt()
+    @IsPositive()
     userID: number;
 
     @NestedDto(UserDto, { type: () => UserDto })
     user: UserDto;
 
     @ApiProperty()
-    @IsInt()
+    @IsPositive()
     mapID: number;
 
     @NestedDto(MapDto, { type: () => MapDto })

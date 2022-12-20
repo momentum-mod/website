@@ -1,23 +1,24 @@
 import { UserMapRank } from '@prisma/client';
 import { ApiProperty } from '@nestjs/swagger';
-import { IsDateString, IsEnum, IsInt } from 'class-validator';
+import { IsDateString, IsEnum, IsInt, IsPositive } from 'class-validator';
 import { MapType } from '../../enums/map.enum';
 import { NestedDto } from '@lib/dto.lib';
 import { MapDto } from './map.dto';
 import { UserDto } from '../user/user.dto';
 import { RunDto } from '../run/runs.dto';
+import { Type } from 'class-transformer';
 
 // TODO: naming is weird here
 export class MapRankDto implements UserMapRank {
     @ApiProperty()
-    @IsInt()
+    @IsPositive()
     mapID: number;
 
     @NestedDto(MapDto, { type: () => MapDto })
     map: MapDto;
 
     @ApiProperty()
-    @IsInt()
+    @IsPositive()
     userID: number;
 
     @NestedDto(UserDto, { type: () => UserDto })
@@ -29,7 +30,10 @@ export class MapRankDto implements UserMapRank {
     @NestedDto(RunDto)
     run: RunDto;
 
-    @ApiProperty()
+    @ApiProperty({
+        type: Number
+    })
+    @Type(() => Number)
     @IsEnum(MapType)
     gameType: MapType;
 
@@ -46,7 +50,7 @@ export class MapRankDto implements UserMapRank {
     zoneNum: number;
 
     @ApiProperty()
-    @IsInt()
+    @IsPositive()
     rank: number;
 
     @ApiProperty()

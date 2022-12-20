@@ -1,8 +1,9 @@
 ﻿import { ApiPropertyOptional } from '@nestjs/swagger';
-import { IsInt, IsOptional, IsEnum } from 'class-validator';
+import { IsOptional, IsEnum, IsPositive } from 'class-validator';
 import { Transform, Type } from 'class-transformer';
 import { PaginationQuery } from './pagination.dto';
 import { ActivityTypes } from '../../enums/activity.enum';
+import { IsPositiveNumberString } from '@common/validators/is-positive-number-string.validator';
 
 export class ActivitiesGetQuery extends PaginationQuery {
     @ApiPropertyOptional({
@@ -11,8 +12,7 @@ export class ActivitiesGetQuery extends PaginationQuery {
         description: 'Filter by user ID'
     })
     @IsOptional()
-    @Type(() => Number)
-    @IsInt()
+    @IsPositive()
     userID: number;
 
     @ApiPropertyOptional({
@@ -21,18 +21,17 @@ export class ActivitiesGetQuery extends PaginationQuery {
         type: Number,
         description: 'Types of activities to include'
     })
-    @IsOptional()
-    @IsEnum(ActivityTypes)
     @Type(() => Number)
-    @IsInt()
+    @IsEnum(ActivityTypes)
+    @IsOptional()
     type: ActivityTypes;
 
     @ApiPropertyOptional({
         name: 'data',
-        type: BigInt,
+        type: String,
         description: 'The ID into the table of the corresponding activity'
     })
-    @IsOptional()
     @Transform(({ value }) => BigInt(value))
+    @IsPositiveNumberString()
     data: bigint;
 }

@@ -1,6 +1,6 @@
 ﻿import { Notification } from '@prisma/client';
 import { ApiProperty, PickType } from '@nestjs/swagger';
-import { IsBoolean, IsDateString, IsDefined, IsInt } from 'class-validator';
+import { IsBoolean, IsDateString, IsInt } from 'class-validator';
 import { Exclude } from 'class-transformer';
 import { ActivityDto } from './activity.dto';
 import { UserDto } from './user.dto';
@@ -11,7 +11,6 @@ export class NotificationDto implements Notification {
         type: Number,
         description: 'The ID of the notification'
     })
-    @IsDefined()
     @IsInt()
     id: number;
 
@@ -19,7 +18,6 @@ export class NotificationDto implements Notification {
         type: Boolean,
         description: 'Whether the notification has been read by the user'
     })
-    @IsDefined()
     @IsBoolean()
     read: boolean;
 

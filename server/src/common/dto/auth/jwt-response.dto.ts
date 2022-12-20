@@ -1,4 +1,4 @@
-﻿import { IsInt, IsJWT } from 'class-validator';
+﻿import { IsJWT, IsPositive, IsString } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 
 export class JWTResponseWebDto {
@@ -11,6 +11,7 @@ export class JWTResponseWebDto {
     refreshToken: string;
 
     @ApiProperty({ type: String, description: 'String representing the time until the token will expire' })
+    @IsString()
     expiresIn: string;
 }
 
@@ -20,6 +21,6 @@ export class JWTResponseGameDto {
     token: string;
 
     @ApiProperty({ type: Number, description: 'The length in chars of the token' })
-    @IsInt()
+    @IsPositive()
     length: number;
 }

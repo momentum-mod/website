@@ -1,16 +1,26 @@
 ﻿import { ApiProperty } from '@nestjs/swagger';
-import { IsBoolean } from 'class-validator';
+import { IsBoolean, IsNumber } from 'class-validator';
 import { NestedDto } from '@lib/dto.lib';
 import { UserMapRankDto } from './user-map-rank.dto';
 import { RunDto } from './runs.dto';
 
-export interface XpGain {
+class CosXpGain {
+    @IsNumber()
+    gainLvl: number;
+
+    @IsNumber()
+    oldXP: number;
+
+    @IsNumber()
+    gainXP: number;
+}
+
+export class XpGainDto {
+    @IsNumber()
     rankXP: number;
-    cosXP: {
-        gainLvl: number;
-        oldXP: number;
-        gainXP: number;
-    };
+
+    @NestedDto(CosXpGain)
+    cosXP: CosXpGain;
 }
 
 export class CompletedRunDto {
@@ -34,6 +44,6 @@ export class CompletedRunDto {
     @NestedDto(UserMapRankDto)
     run: RunDto;
 
-    @ApiProperty()
-    xp: XpGain;
+    @NestedDto(XpGainDto)
+    xp: XpGainDto;
 }

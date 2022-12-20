@@ -1,10 +1,11 @@
 import { MapImage } from '@prisma/client';
 import { ApiProperty } from '@nestjs/swagger';
-import { IsDateString, IsInt, IsUrl } from 'class-validator';
+import { IsDateString, IsPositive, IsUrl } from 'class-validator';
+import { Exclude } from 'class-transformer';
 
 export class MapImageDto implements MapImage {
     @ApiProperty()
-    @IsInt()
+    @IsPositive()
     id: number;
 
     @ApiProperty()
@@ -19,8 +20,7 @@ export class MapImageDto implements MapImage {
     @IsUrl()
     large: string;
 
-    @ApiProperty()
-    @IsInt()
+    @Exclude()
     mapID: number;
 
     @ApiProperty()

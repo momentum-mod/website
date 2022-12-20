@@ -15,9 +15,9 @@ export class UsersGetQuery {
         type: Number,
         description: "Include the user's rank and run for a map with mapID mapRank"
     })
-    @IsOptional()
     @Type(() => Number)
     @IsInt()
+    @IsOptional()
     mapRank: number;
 }
 
@@ -41,8 +41,8 @@ export class UsersGetAllQuery extends PaginationQuery {
         description: 'Filter by Steam Community ID',
         example: '123135674'
     })
-    @IsOptional()
     @IsSteamCommunityID()
+    @IsOptional()
     steamID: string;
 
     @ApiPropertyOptional({
@@ -51,9 +51,9 @@ export class UsersGetAllQuery extends PaginationQuery {
         description: 'Filter by CSV list of Steam Community IDs',
         example: '123135674,7987347263,98312287631'
     })
-    @IsOptional()
-    @IsSteamCommunityID({ each: true })
     @Transform(({ value }) => value.split(','))
+    @IsSteamCommunityID({ each: true })
+    @IsOptional()
     steamIDs: string[];
 
     @ApiPropertyOptional({
@@ -62,9 +62,9 @@ export class UsersGetAllQuery extends PaginationQuery {
         description: 'Include the rank and run for a map with mapID mapRank for all users',
         example: '4'
     })
-    @IsOptional()
     @Type(() => Number)
     @IsInt()
+    @IsOptional()
     mapRank: number;
 }
 
@@ -77,8 +77,8 @@ class UserMapsBaseGetQuery extends PaginationQuery {
         description: 'Filter by partial map name match',
         example: 'surf_ronweasley2'
     })
-    @IsOptional()
     @IsString()
+    @IsOptional()
     search: string;
 }
 
