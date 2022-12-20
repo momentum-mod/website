@@ -4,7 +4,7 @@ import { CreateRunSessionDto, RunSessionDto, UpdateRunSessionDto } from '@common
 import { MapsRepoService } from '../../repo/maps-repo.service';
 import { RunSessionTimestampDto } from '@common/dto/run/run-session-timestamp.dto';
 import { MapTrack, MapZone, MapZoneStats, Prisma, Run, RunSessionTimestamp, User } from '@prisma/client';
-import { CompletedRunDto, XpGain } from '@common/dto/run/completed-run.dto';
+import { CompletedRunDto, XpGainDto } from '@common/dto/run/completed-run.dto';
 import { UsersRepoService } from '../../repo/users-repo.service';
 import { RunProcessor } from './run-processor';
 import { FileStoreCloudService } from '../../filestore/file-store-cloud.service';
@@ -429,7 +429,7 @@ export class RunSessionService {
             requiredXP = this.xpSystems.getCosmeticXpForLevel(nextLevel + gainedLevels);
         }
 
-        const xpGain: XpGain = {
+        const xpGain: XpGainDto = {
             rankXP: rankXP,
             cosXP: {
                 gainLvl: gainedLevels,
