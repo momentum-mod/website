@@ -1,14 +1,13 @@
 ﻿import { MapInfo } from '@prisma/client';
 import { Exclude } from 'class-transformer';
 import { ApiProperty, PartialType, PickType } from '@nestjs/swagger';
-import { IsDateString, IsDefined, IsInt, IsOptional, IsString, Matches } from 'class-validator';
+import { IsDateString, IsOptional, IsPositive, IsString, Matches } from 'class-validator';
 
 export class MapInfoDto implements MapInfo {
     @Exclude()
     id: number;
 
     @ApiProperty()
-    @IsDefined()
     @IsString()
     description: string;
 
@@ -18,12 +17,10 @@ export class MapInfoDto implements MapInfo {
     youtubeID: string;
 
     @ApiProperty()
-    @IsDefined()
-    @IsInt()
+    @IsPositive()
     numTracks: number;
 
     @ApiProperty()
-    @IsDefined()
     @IsDateString()
     creationDate: Date;
 

@@ -1,7 +1,7 @@
 ﻿import { Report } from '@prisma/client';
 import { ApiProperty, ApiPropertyOptional, PickType } from '@nestjs/swagger';
 import { ReportCategory, ReportType } from '../../enums/report.enum';
-import { IsBoolean, IsDateString, IsDefined, IsEnum, IsInt, IsOptional, IsString } from 'class-validator';
+import { IsBoolean, IsDateString, IsDefined, IsEnum, IsInt, IsOptional, IsPositive, IsString } from 'class-validator';
 import { NestedDto } from '@lib/dto.lib';
 import { UserDto } from '../user/user.dto';
 
@@ -10,8 +10,7 @@ export class ReportDto implements Report {
         description: 'The ID of the report',
         type: Number
     })
-    @IsDefined()
-    @IsInt()
+    @IsPositive()
     id: number;
 
     @ApiProperty({
@@ -20,7 +19,6 @@ export class ReportDto implements Report {
     })
     // Using a string here is a bit gross, there's a comment about it in the db/report.js in old api.
     // Might be able to switch to int, look into this.
-    @IsDefined()
     @IsString()
     data: string;
 

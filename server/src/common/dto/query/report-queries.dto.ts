@@ -10,8 +10,8 @@ export class ReportGetQuery extends PaginationQuery {
         description: 'Filter by resolved',
         type: Boolean
     })
-    @IsOptional()
     @Type(() => Boolean)
+    @IsOptional()
     resolved: boolean; // Note: this was a string on old API.
 
     @ExpandQueryDecorators(['submitter', 'resolver'])

@@ -1,5 +1,5 @@
 ﻿import { ApiPropertyOptional } from '@nestjs/swagger';
-import { IsEnum, IsInt, IsOptional, IsString } from 'class-validator';
+import { IsBoolean, IsEnum, IsInt, IsOptional, IsPositive, IsString } from 'class-validator';
 import { Type } from 'class-transformer';
 import { MapStatus, MapType } from '../../enums/map.enum';
 import { ExpandQueryDecorators, SkipQuery, TakeQuery } from '@lib/dto.lib';
@@ -27,7 +27,7 @@ class MapsGetAllBaseQuery {
         description: 'Filter by submitter ID'
     })
     @Type(() => Number)
-    @IsInt()
+    @IsPositive()
     @IsOptional()
     submitterID: number;
 }
@@ -42,9 +42,9 @@ export class AdminCtlMapsGetAllQuery extends MapsGetAllBaseQuery {
         type: Number,
         description: 'Filter by map status flags'
     })
-    @IsOptional()
     @Type(() => Number)
     @IsEnum(MapStatus)
+    @IsOptional()
     status: MapStatus;
 
     @ApiPropertyOptional({
@@ -52,8 +52,9 @@ export class AdminCtlMapsGetAllQuery extends MapsGetAllBaseQuery {
         type: Boolean,
         description: 'Filter by priority or non-priority'
     })
+    @Type(() => Boolean)
+    @IsBoolean()
     @IsOptional()
-    @Type(() => Boolean) // TODO: Check this actually works!! Might run into some JS weirdness - Tom
     priority: boolean;
 }
 
@@ -76,9 +77,9 @@ export class MapsCtlGetAllQuery extends MapsGetAllBaseQuery {
         type: Number,
         description: 'Filter by map type (gamemode)'
     })
-    @IsOptional()
     @Type(() => Number)
     @IsEnum(MapType)
+    @IsOptional()
     type: MapType;
 
     @ApiPropertyOptional({

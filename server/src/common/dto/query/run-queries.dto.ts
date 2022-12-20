@@ -1,6 +1,6 @@
 ﻿import { ApiPropertyOptional, OmitType } from '@nestjs/swagger';
 import { Transform, Type } from 'class-transformer';
-import { IsInt, IsOptional } from 'class-validator';
+import { IsBoolean, IsInt, IsOptional, IsPositive, IsString } from 'class-validator';
 import { MapStatus } from '../../enums/map.enum';
 import { ExpandQueryDecorators, SkipQuery, TakeQuery } from '@lib/dto.lib';
 
@@ -20,7 +20,7 @@ export class RunsGetAllQuery {
         description: 'Filter by map ID'
     })
     @Type(() => Number)
-    @IsInt()
+    @IsPositive()
     @IsOptional()
     mapID: number;
 
@@ -29,6 +29,7 @@ export class RunsGetAllQuery {
         type: String,
         description: 'Filter by map name'
     })
+    @IsString()
     @IsOptional()
     mapName: string;
 
@@ -40,7 +41,7 @@ export class RunsGetAllQuery {
         description: 'Filter by user ID'
     })
     @Type(() => Number)
-    @IsInt()
+    @IsPositive()
     @IsOptional()
     userID: number;
 
@@ -50,6 +51,7 @@ export class RunsGetAllQuery {
         description: 'Filter by CSV list of user IDs'
     })
     @Transform(({ value }) => value.split(',').map((v) => Number.parseInt(v)))
+    @IsString()
     @IsOptional()
     userIDs: number[];
 
@@ -60,8 +62,9 @@ export class RunsGetAllQuery {
         type: Number,
         description: 'Filter by run flags (I dont really know what this is, I think a 0.10/0.11 thing -Tom)'
     })
-    @IsOptional()
     @Type(() => Number)
+    @IsInt()
+    @IsOptional()
     flags: number;
 
     @ApiPropertyOptional({
@@ -69,6 +72,7 @@ export class RunsGetAllQuery {
         type: Boolean,
         description: 'Whether or not to filter by only personal best runs.'
     })
+    @IsBoolean()
     @IsOptional()
     isPB: boolean;
 
@@ -78,6 +82,7 @@ export class RunsGetAllQuery {
         type: String,
         description: 'Order by date or time'
     })
+    @IsString()
     @IsOptional()
     order: string;
 }

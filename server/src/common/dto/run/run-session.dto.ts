@@ -1,16 +1,15 @@
 ﻿import { ApiProperty, PickType } from '@nestjs/swagger';
 import { RunSession } from '@prisma/client';
-import { IsDateString, IsDefined, IsInt, IsPositive } from 'class-validator';
-import { Transform } from 'class-transformer';
+import { IsDateString, IsInt, IsPositive } from 'class-validator';
+import { IsPositiveNumberString } from '@common/validators/is-positive-number-string.validator';
 
 export class RunSessionDto implements RunSession {
     @ApiProperty({
         type: String,
         description: 'The ID of the run run'
     })
-    @Transform(({ value }) => BigInt(value))
-    @IsDefined()
-    id: bigint; // TODO: Do we need BigInt here? Can we have IDs be reused when autoincrementing, after old sessions are deleted?
+    @IsPositiveNumberString()
+    id: bigint;
 
     @ApiProperty({
         description: 'The number of the track the run is on, 0 is main track',
@@ -33,6 +32,7 @@ export class RunSessionDto implements RunSession {
         type: Number,
         required: true
     })
+    @IsPositive()
     userID: number;
 
     @ApiProperty({
@@ -40,6 +40,7 @@ export class RunSessionDto implements RunSession {
         type: Number,
         required: true
     })
+    @IsPositive()
     trackID: number;
 
     @ApiProperty()
@@ -57,7 +58,7 @@ export class CreateRunSessionDto extends PickType(RunSessionDto, ['trackNum', 'z
         type: Number,
         required: true
     })
-    @IsInt()
+    @IsPositive()
     mapID: number;
 }
 
@@ -75,7 +76,6 @@ export class UpdateRunSessionDto {
         type: Number,
         required: true
     })
-    @IsInt()
     @IsPositive()
     tick: number;
 }

@@ -1,7 +1,7 @@
 ﻿import { MapTrack } from '@prisma/client';
 import { Exclude } from 'class-transformer';
 import { ApiProperty, PickType } from '@nestjs/swagger';
-import { ArrayMinSize, IsArray, IsBoolean, IsDateString, IsInt, Max } from 'class-validator';
+import { ArrayMinSize, IsArray, IsBoolean, IsDateString, IsInt, IsPositive, Max } from 'class-validator';
 import { CreateMapZoneDto, MapZoneDto } from './zone/map-zone.dto';
 import { NestedDto } from '@lib/dto.lib';
 
@@ -15,7 +15,7 @@ export class MapTrackDto implements MapTrack {
     trackNum: number;
 
     @ApiProperty()
-    @IsInt()
+    @IsPositive()
     @Max(64)
     numZones: number;
 
@@ -24,7 +24,7 @@ export class MapTrackDto implements MapTrack {
     isLinear: boolean;
 
     @ApiProperty()
-    @IsInt()
+    @IsPositive()
     @Max(10)
     difficulty: number;
 

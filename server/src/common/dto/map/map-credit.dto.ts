@@ -2,14 +2,14 @@ import { MapCredit } from '@prisma/client';
 import { UserDto } from '../user/user.dto';
 import { MapDto } from './map.dto';
 import { ApiProperty, ApiPropertyOptional, PickType } from '@nestjs/swagger';
-import { IsEnum, IsInt, IsOptional } from 'class-validator';
+import { IsEnum, IsOptional, IsPositive } from 'class-validator';
 import { MapCreditType } from '../../enums/map.enum';
 import { NestedDto } from '@lib/dto.lib';
 import { Exclude } from 'class-transformer';
 
 export class MapCreditDto implements MapCredit {
     @ApiProperty()
-    @IsInt()
+    @IsPositive()
     id: number;
 
     @ApiProperty()
@@ -17,11 +17,10 @@ export class MapCreditDto implements MapCredit {
     type: MapCreditType;
 
     @ApiProperty()
-    @IsInt()
+    @IsPositive()
     userID: number;
 
-    @ApiProperty()
-    @IsInt()
+    @Exclude()
     mapID: number;
 
     @NestedDto(UserDto, { type: () => UserDto })
@@ -41,7 +40,7 @@ export class CreateMapCreditDto extends PickType(MapCreditDto, ['userID', 'type'
 
 export class UpdateMapCreditDto {
     @ApiPropertyOptional({ description: 'The new user ID to set', type: Number })
-    @IsInt()
+    @IsPositive()
     @IsOptional()
     userID?: number;
 

@@ -2,10 +2,10 @@ import { Follow } from '@prisma/client';
 import { UserDto } from './user.dto';
 import { ApiProperty, ApiPropertyOptional, PickType } from '@nestjs/swagger';
 import { ActivityTypes } from '../../enums/activity.enum';
-import { IsDateString, IsDefined, ValidateNested } from 'class-validator';
-import { Exclude, Transform } from 'class-transformer';
+import { IsDateString } from 'class-validator';
+import { Exclude } from 'class-transformer';
 import { IsEnumFlag } from '../../validators/is-enum-flag.validator';
-import { DtoFactory, NestedDto } from '@lib/dto.lib';
+import { NestedDto, NestedDtoOptional } from '@lib/dto.lib';
 
 export class FollowDto implements Follow {
     @ApiPropertyOptional({
@@ -13,7 +13,6 @@ export class FollowDto implements Follow {
         description:
             'The bitwise flags for the activities that the followee will be notified of when they are performed by the user they follow'
     })
-    @IsDefined()
     @IsEnumFlag(ActivityTypes)
     notifyOn: ActivityTypes;
 
@@ -39,20 +38,16 @@ export class FollowDto implements Follow {
 }
 
 export class FollowStatusDto {
-    @ApiProperty({
+    @NestedDtoOptional(FollowDto, {
         description:
             'FollowerDto expressing the relationship between the LOCAL user and the target user, if the local user follows the target user'
     })
-    @Transform(({ value }) => DtoFactory(FollowDto, value))
-    @ValidateNested()
     local?: FollowDto;
 
-    @ApiProperty({
+    @NestedDtoOptional(FollowDto, {
         description:
             'FollowerDto expressing the relationship between the LOCAL user and the TARGET user, if the target user follows the local user'
     })
-    @Transform(({ value }) => DtoFactory(FollowDto, value))
-    @ValidateNested()
     target?: FollowDto;
 }
 

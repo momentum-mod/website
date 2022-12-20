@@ -44,11 +44,18 @@ export class UserDto implements User {
     @IsISO31661Alpha2()
     country: string;
 
-    @Exclude()
-    aliasLocked: boolean;
-
-    @Exclude()
+    @Exclude({ toPlainOnly: true })
     avatar: string;
+
+    @ApiProperty()
+    @Expose()
+    @IsString()
+    get avatarURL(): string {
+        return this.bans?.avatar || !this.avatar
+            ? // TODO: We shouldn't be serving this image ourselves, use a bucket or something?
+              Config.url.base + '/assets/images/blank_avatar.jpg'
+            : `https://avatars.cloudflare.steamstatic.com/${this.avatar}_full.jpg`;
+    }
 
     @NestedDto(ProfileDto, { description: "The users's bio, containing information like bio and badges" })
     profile: ProfileDto;
@@ -69,16 +76,6 @@ export class UserDto implements User {
     @ApiProperty()
     @IsDateString()
     updatedAt: Date;
-
-    @ApiProperty()
-    @Expose()
-    get avatarURL(): string {
-        if (this.bans?.avatar) {
-            return Config.url.base + '/assets/images/blank_avatar.jpg';
-        } else {
-            return this.avatar ? `https://avatars.cloudflare.steamstatic.com/${this.avatar}_full.jpg` : null;
-        }
-    }
 }
 
 export class CreateUserDto extends PickType(UserDto, ['alias'] as const) {}

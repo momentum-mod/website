@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsDateString, IsDefined, IsInt, IsOptional, IsString } from 'class-validator';
+import { IsDateString, IsInt, IsOptional, IsString } from 'class-validator';
 import { Exclude } from 'class-transformer';
 
 export class ProfileDto {
@@ -10,7 +10,7 @@ export class ProfileDto {
         type: Number,
         description: 'The ID of the user'
     })
-    @IsDefined()
+    @IsInt()
     userID: number;
 
     @ApiProperty({
@@ -29,7 +29,6 @@ export class ProfileDto {
     featuredBadgeID: number;
 
     @ApiProperty()
-    @IsDefined()
     @IsDateString()
     createdAt: Date;
 

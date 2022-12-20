@@ -1,26 +1,25 @@
 import { Activity } from '@prisma/client';
 import { ActivityTypes } from '../../enums/activity.enum';
 import { ApiProperty } from '@nestjs/swagger';
-import { IsDateString, IsDefined, IsInt, ValidateNested, IsEnum } from 'class-validator';
+import { IsDateString, ValidateNested, IsEnum, IsPositive } from 'class-validator';
 import { UserDto } from './user.dto';
 import { DtoFactory } from '@lib/dto.lib';
 import { Transform } from 'class-transformer';
+import { IsPositiveNumberString } from '@common/validators/is-positive-number-string.validator';
 
 export class ActivityDto implements Activity {
     @ApiProperty({
         type: Number,
         description: 'The ID of the activity'
     })
-    @IsDefined()
-    @IsInt()
+    @IsPositive()
     id: number;
 
     @ApiProperty({
         type: Number,
         description: 'The ID of the user the activity is associated with'
     })
-    @IsDefined()
-    @IsInt()
+    @IsPositive()
     userID: number;
 
     @ApiProperty()
@@ -32,7 +31,6 @@ export class ActivityDto implements Activity {
         enum: ActivityTypes,
         description: 'The bitwise flags for the activities'
     })
-    @IsDefined()
     @IsEnum(ActivityTypes)
     type: ActivityTypes;
 
@@ -41,7 +39,7 @@ export class ActivityDto implements Activity {
         // TODO: I kind of hate this approach, could we do individual DTOs for each using generics?
         description: 'ID of into the table of the relevant activity type e.g. Map, Run, User'
     })
-    @IsDefined()
+    @IsPositiveNumberString()
     data: bigint;
 
     @ApiProperty()

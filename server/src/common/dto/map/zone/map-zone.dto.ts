@@ -1,7 +1,7 @@
 ﻿import { MapZone } from '@prisma/client';
 import { Exclude } from 'class-transformer';
 import { ApiProperty, PickType } from '@nestjs/swagger';
-import { ArrayMinSize, IsInt, Max } from 'class-validator';
+import { ArrayMinSize, IsInt, IsPositive, Max } from 'class-validator';
 import { MapZoneTriggerDto } from './map-zone-trigger.dto';
 import { NestedDto } from '@lib/dto.lib';
 import { MapZoneStatsDto } from './map-zone-stats.dto';
@@ -17,7 +17,7 @@ export class MapZoneDto implements MapZone {
     zoneNum: number;
 
     @ApiProperty()
-    @IsInt()
+    @IsPositive()
     trackID: number;
 
     @NestedDto(MapZoneStatsDto, { isArray: true })
