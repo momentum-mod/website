@@ -1,19 +1,23 @@
 ﻿import { registerDecorator, ValidationOptions } from 'class-validator';
 
-export function IsSteamCommunityID(validationOptions?: ValidationOptions) {
+export function IsPositiveNumberString(validationOptions?: ValidationOptions) {
     return function (object: unknown, propertyName: string) {
         registerDecorator({
-            name: 'isSteamCommunityID',
+            name: 'isPositiveNumberString',
             target: object.constructor,
             propertyName: propertyName,
             options: validationOptions,
             validator: {
                 validate(value: any) {
-                    return typeof value === 'string' && /^\d{1,20}$/.test(value);
+                    try {
+                        return typeof value === 'string' && BigInt(value) > 0;
+                    } catch {
+                        return false;
+                    }
                 },
 
                 defaultMessage() {
-                    return `${propertyName} must be a string representing a uint64`;
+                    return `${propertyName} must be a string representing a number`;
                 }
             }
         });
