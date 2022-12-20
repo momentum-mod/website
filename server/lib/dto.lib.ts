@@ -1,7 +1,7 @@
 ﻿import { plainToInstance, Transform, Type as TypeDecorator } from 'class-transformer';
 import { applyDecorators, Type } from '@nestjs/common';
 import { ApiProperty, ApiPropertyOptional, ApiPropertyOptions } from '@nestjs/swagger';
-import { IsInt, IsOptional, IsString, ValidateNested } from 'class-validator';
+import { IsArray, IsInt, IsOptional, IsPositive, ValidateNested } from 'class-validator';
 
 /**
  * Factory method for constructing DTOs from objects (often from Prisma) easily.
@@ -16,6 +16,7 @@ export function DtoFactory<T>(
     input: Record<string, unknown>,
     nullReturnsEmptyObject = false
 ): T | undefined {
+    // TODO: This is stupid, we should just 404 and change any client and game code.
     if (!input) {
         if (nullReturnsEmptyObject) return {} as T;
         return undefined;
@@ -36,7 +37,7 @@ export function NestedDto<T>(type: Type<T>, swaggerOptions: ApiPropertyOptions =
     return applyDecorators(
         ApiProperty({ ...swaggerOptions }),
         TypeDecorator(() => type), // Note we rename the import, this is just class-transformer's @Type.
-        ValidateNested
+        ValidateNested()
     );
 }
 
@@ -50,8 +51,8 @@ export function NestedDtoOptional<T>(type: Type<T>, swaggerOptions: ApiPropertyO
     return applyDecorators(
         ApiPropertyOptional({ ...swaggerOptions }),
         TypeDecorator(() => type),
-        ValidateNested,
-        IsOptional
+        ValidateNested(),
+        IsOptional()
     );
 }
 
@@ -63,9 +64,9 @@ export function SkipQuery(def: number): PropertyDecorator {
             default: def,
             description: 'Skip this many records'
         }),
-        IsOptional,
         TypeDecorator(() => Number),
-        IsInt
+        IsInt(),
+        IsOptional()
     );
 }
 
@@ -81,9 +82,9 @@ export function TakeQuery(def: number): PropertyDecorator {
             default: def,
             description: 'Take this many records'
         }),
-        IsOptional,
         TypeDecorator(() => Number),
-        IsInt
+        IsPositive(),
+        IsOptional()
     );
 }
 
@@ -99,9 +100,9 @@ export function ExpandQueryDecorators(expansions: string[]): PropertyDecorator {
             enum: expansions,
             description: `Expands, comma-separated (${expansions.join(', ')}))`
         }),
-        IsString,
-        IsOptional,
-        Transform(({ value }) => value.split(',').filter((exp) => expansions.includes(exp)))
+        Transform(({ value }) => value.split(',').filter((exp) => expansions.includes(exp))),
+        IsArray(),
+        IsOptional()
     );
 }
 
