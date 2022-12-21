@@ -18,13 +18,13 @@ import { NestedDto, NestedDtoOptional } from '@lib/dto.lib';
 import { CreateMapInfoDto, MapInfoDto } from './map-info.dto';
 import { CreateMapTrackDto, MapTrackDto } from './map-track.dto';
 import { IsMapName } from '../../validators/is-map-name.validator';
-import { BaseStatsDto } from '../stats/base-stats.dto';
 import { CreateMapCreditDto, MapCreditDto } from './map-credit.dto';
 import { MapFavoriteDto } from './map-favorite.dto';
 import { MapLibraryEntryDto } from './map-library-entry';
 import { MapRankDto } from './map-rank.dto';
 import { Exclude, Expose } from 'class-transformer';
 import { Config } from '@config/config';
+import { MapStatsDto } from '@common/dto/map/map-stats.dto';
 
 export class MapDto implements MapDB {
     @ApiProperty()
@@ -93,8 +93,8 @@ export class MapDto implements MapDB {
     @NestedDtoOptional(MapTrackDto, { required: false, isArray: true })
     tracks?: MapTrackDto[];
 
-    @NestedDtoOptional(BaseStatsDto)
-    stats: BaseStatsDto;
+    @NestedDtoOptional(MapStatsDto)
+    stats: MapStatsDto;
 
     @NestedDtoOptional(MapCreditDto)
     credits: MapCreditDto[];

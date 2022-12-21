@@ -143,7 +143,10 @@ describe('Maps', () => {
                 },
                 stats: {
                     create: {
-                        reviews: 1
+                        reviews: 1,
+                        baseStats: {
+                            create: {}
+                        }
                     }
                 }
             },
