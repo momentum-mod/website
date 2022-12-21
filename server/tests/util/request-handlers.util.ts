@@ -28,7 +28,7 @@ export async function get(options: RequestOptions): Promise<Test> {
     token(req, options);
     contentType(req, options);
     query(req, options);
-    status(req, options);
+    // status(req, options);
     return req;
 }
 
@@ -95,7 +95,7 @@ export async function postAttach(options: AttachRequestOptions): Promise<Test> {
     token(req, options);
     req.set('Content-Type', 'multipart/form-data').attach(
         options.field ?? 'file',
-        typeof options.file === typeof String ? './tests/files/' + options.file : options.file
+        typeof options.file === 'string' ? './tests/files/' + options.file : options.file
     );
     status(req, options);
 
