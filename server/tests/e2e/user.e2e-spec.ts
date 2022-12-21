@@ -475,7 +475,7 @@ describe('User', () => {
             expect(res.body).toBeValidDto(FollowStatusDto);
             expect(res.body.local.followed.id).toBe(user3.id);
             expect(res.body.local.followee.id).toBe(user1.id);
-            expect(res.body).not.toHaveProperty('target');
+            expect(res.body.target).toBeNull();
         });
 
         it('should return a relationship of the target user who follows the local user, but not the opposite', async () => {
@@ -488,16 +488,18 @@ describe('User', () => {
             expect(res.body).toBeValidDto(FollowStatusDto);
             expect(res.body.target.followed.id).toBe(user3.id);
             expect(res.body.target.followee.id).toBe(user1.id);
-            expect(res.body).not.toHaveProperty('local');
+            expect(res.body.local).toBeNull();
         });
 
-        it('should respond with empty object if the followed relationship does not exist', async () => {
+        it('should have neither sides of relationship if their neither relationship exists', async () => {
             const res = await get({
                 url: `user/follow/${user2.id}`,
                 status: 200,
                 token: user3Token
             });
-            expect(res.body).toEqual({});
+
+            expect(res.body.local).toBeNull();
+            expect(res.body.target).toBeNull();
         });
 
         it('should respond with 404 if the target user does not exist', () =>
@@ -522,7 +524,7 @@ describe('User', () => {
                 token: user2Token
             });
 
-            expect(res.body).not.toHaveProperty('local');
+            expect(res.body.local).toBeNull();
 
             await post({
                 url: `user/follow/${user3.id}`,
@@ -619,7 +621,7 @@ describe('User', () => {
                 token: user1Token
             });
 
-            expect(res.body).not.toHaveProperty('local');
+            expect(res.body.local).toBeNull();
         });
 
         it('should respond with 404 if the user is not followed by the local user ', () =>
