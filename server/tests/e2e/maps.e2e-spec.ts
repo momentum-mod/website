@@ -1739,8 +1739,7 @@ describe('Maps', () => {
             patch({
                 url: `maps/credits/${map1.credits[0].id}`,
                 status: 401,
-                body: updatedMapCredit(),
-                token: user1Token
+                body: updatedMapCredit()
             }));
     });
 
