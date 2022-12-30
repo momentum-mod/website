@@ -82,6 +82,8 @@ export async function expandTest(options: ExpandTestOptions): Promise<void> {
 
     if (options.paged ?? false) {
         options.filter ??= () => true;
+        // Unicorn rule doesn't seem to parse this correctly.
+        // eslint-disable-next-line unicorn/no-array-callback-reference
         const toTest = res.body.response.filter((x) => options.filter(x));
         if (toTest.length === 0) throw 'nothing passed to expandTest passes filter';
         for (const x of toTest) expects(x);
