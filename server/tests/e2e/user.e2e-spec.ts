@@ -656,15 +656,13 @@ describe('User', () => {
             expect(res.body.notifyOn).toBe(ActivityTypes.WR_ACHIEVED);
         });
 
-        it('should respond with an empty object if the user does not have mapnotify for given map', async () => {
-            const res = await get({
+        it('should 404 if the user does not have mapnotify for given map', () =>
+            get({
                 url: `user/notifyMap/${map1.id}`,
-                status: 200,
-                token: user2Token
-            });
-
-            expect(res.body).toEqual({});
-        });
+                status: 404,
+                token: user2Token,
+                contentType: null
+            }));
 
         it('should respond with 404 if the target map does not exist', () =>
             get({
