@@ -8,19 +8,8 @@ import { IsArray, IsInt, IsOptional, IsPositive, ValidateNested } from 'class-va
  * class-transformer handles the heavy lifting.
  * @param type - The DTO type to transform into
  * @param input - The input data
- * @param nullReturnsEmptyObject - Don't attempt construction if input is empty. Used by some DTOs where we want to
- *  return an empty object rather than 404
  */
-export function DtoFactory<T>(
-    type: Type<T>,
-    input: Record<string, unknown>,
-    nullReturnsEmptyObject = false
-): T | undefined {
-    // TODO: This is stupid, we should just 404 and change any client and game code.
-    if (!input) {
-        if (nullReturnsEmptyObject) return {} as T;
-        return undefined;
-    }
+export function DtoFactory<T>(type: Type<T>, input: Record<string, unknown>): T | undefined {
     // Ignore decorators here, we don't seem to need them. They get applied when the class instance is converted
     // back to JSON by the ClassSerializerInterceptor.
     return plainToInstance(type, input, { ignoreDecorators: true });

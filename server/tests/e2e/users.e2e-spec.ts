@@ -352,7 +352,7 @@ describe('Users', () => {
                 url: `users/${user2.id}`,
                 status: 200,
                 token: user1Token
-            }); 
+            });
             expects(res);
             expect(res.body).toHaveProperty('avatarURL');
             expect(res.body.avatarURL).toEqual(expect.stringContaining('https://avatars.cloudflare.steamstatic.com/'));
@@ -496,6 +496,7 @@ describe('Users', () => {
                 },
                 token: user1Token
             });
+
             expect(res.body.totalCount).toBe(0);
             expect(res.body.returnCount).toBe(0);
             expect(res.body.response).toBeInstanceOf(Array);

@@ -398,7 +398,9 @@ export class UsersService {
 
         const dbResponse = await this.userRepo.getMapNotify(userID, mapID);
 
-        return DtoFactory(MapNotifyDto, dbResponse, true);
+        if (!dbResponse) throw new NotFoundException('User has no notifications for this map');
+
+        return DtoFactory(MapNotifyDto, dbResponse);
     }
 
     async updateMapNotify(userID: number, mapID: number, updateDto: UpdateMapNotifyDto) {
