@@ -1,6 +1,6 @@
 ﻿import { ApiPropertyOptional, OmitType } from '@nestjs/swagger';
 import { Transform, Type } from 'class-transformer';
-import { IsBoolean, IsInt, IsOptional, IsPositive, IsString } from 'class-validator';
+import { IsArray, IsBoolean, IsInt, IsOptional, IsPositive, IsString } from 'class-validator';
 import { MapStatus } from '../../enums/map.enum';
 import { ExpandQueryDecorators, SkipQuery, TakeQuery } from '@lib/dto.lib';
 
@@ -47,11 +47,11 @@ export class RunsGetAllQuery {
 
     @ApiPropertyOptional({
         name: 'userIDs',
-        type: Number,
+        type: String,
         description: 'Filter by CSV list of user IDs'
     })
     @Transform(({ value }) => value.split(',').map((v) => Number.parseInt(v)))
-    @IsString()
+    @IsArray()
     @IsOptional()
     userIDs: number[];
 
