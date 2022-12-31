@@ -5,7 +5,7 @@ import { ApiOkPaginatedResponse, PaginatedResponseDto } from '@common/dto/pagina
 import { RunDto } from '@common/dto/run/runs.dto';
 import { RunsGetAllQuery, RunsGetQuery } from '@common/dto/query/run-queries.dto';
 
-@Controller('runs')
+@Controller('api/runs')
 @ApiTags('Runs')
 @ApiBearerAuth()
 export class RunsController {

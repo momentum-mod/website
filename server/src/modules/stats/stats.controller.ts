@@ -2,7 +2,7 @@ import { Controller } from '@nestjs/common';
 import { StatsService } from './stats.service';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 
-@Controller('stats')
+@Controller('api/stats')
 @ApiTags('Stats')
 @ApiBearerAuth()
 export class StatsController {

@@ -45,7 +45,7 @@ import { MapsCtlRunsGetAllQuery } from '@common/dto/query/run-queries.dto';
 import { RunDto } from '@common/dto/run/runs.dto';
 import { RunsService } from '../runs/runs.service';
 
-@Controller('maps')
+@Controller('api/maps')
 @ApiTags('Maps')
 @ApiBearerAuth()
 export class MapsController {

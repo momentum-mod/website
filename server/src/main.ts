@@ -21,6 +21,7 @@ async function bootstrap() {
     };
 
     const app: NestExpressApplication = await NestFactory.create(AppModule, appOptions);
+    
     app.useStaticAssets(join(__dirname, 'assets/'));
 
     // Forbidding unknown values here ensures any request containing unexpected data on the query/body (i.e. does not
@@ -29,7 +30,8 @@ async function bootstrap() {
     app.useGlobalPipes(new ValidationPipe({ transform: true, forbidUnknownValues: true }));
     app.useGlobalInterceptors(new ClassSerializerInterceptor(app.get(Reflector)));
 
-    app.setGlobalPrefix('api', { exclude: ['auth'] });
+    // For some reason this doesn't exclude 'auth' properly. Messed with it a while and got nowhere.
+    // app.setGlobalPrefix('api', { exclude: ['auth'] });
 
     const prismaDalc: PrismaService = app.get(PrismaService);
     await prismaDalc.enableShutdownHooks(app);

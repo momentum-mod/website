@@ -32,7 +32,7 @@ import { Roles } from '@common/decorators/roles.decorator';
 import { Roles as RolesEnum } from '../../common/enums/user.enum';
 import { LoggedInUser } from '@common/decorators/logged-in-user.decorator';
 
-@Controller('admin')
+@Controller('api/admin')
 @Roles(RolesEnum.ADMIN)
 @ApiTags('Admin')
 @ApiBearerAuth()
