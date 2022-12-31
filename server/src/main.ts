@@ -21,7 +21,7 @@ async function bootstrap() {
     };
 
     const app: NestExpressApplication = await NestFactory.create(AppModule, appOptions);
-    
+
     app.useStaticAssets(join(__dirname, 'assets/'));
 
     // Forbidding unknown values here ensures any request containing unexpected data on the query/body (i.e. does not
