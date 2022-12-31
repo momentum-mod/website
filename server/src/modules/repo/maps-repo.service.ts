@@ -155,6 +155,20 @@ export class MapsRepoService {
     }
     //#endregion
 
+    //#region Map Submissions
+
+    public async getSubmittedMapsSummary(submitterID: number) {
+        return await this.prisma.map.groupBy({
+            by: ['statusFlag'],
+            where: { submitterID: submitterID },
+            _count: {
+                statusFlag: true
+            }
+        });
+    }
+
+    //#endregion
+
     //#region Map Stats
 
     async updateMapStats(mapID: number, data: Prisma.MapStatsUpdateInput): Promise<MapStats> {

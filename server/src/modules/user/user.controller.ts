@@ -44,6 +44,7 @@ import {
 import { MapDto } from '@common/dto/map/map.dto';
 import { MapFavoriteDto } from '@common/dto/map/map-favorite.dto';
 import { MapLibraryService } from '@modules/maps/map-library.service';
+import { MapSummaryDto } from '@common/dto/user/user-maps-summary.dto';
 
 @Controller('api/user')
 @ApiTags('User')
@@ -447,12 +448,12 @@ export class UserController {
         return this.usersService.getSubmittedMaps(userID, query.skip, query.take, query.search, query.expand);
     }
 
-    // I dunno what this last one is, check old API!
     @Get('/maps/submitted/summary')
+    @ApiOkPaginatedResponse(MapSummaryDto, { description: 'The users map statusFlags and their count' })
     @ApiOperation({ summary: 'Returns the summary of maps submitted by the local user' })
     @ApiOkResponse({ description: 'Summary of maps submitted by the local user' })
-    getSubmittedMapsSummary(@LoggedInUser('id') _userID: number) /*: Promise<who knows???> */ {
-        return void 0;
+    getSubmittedMapsSummary(@LoggedInUser('id') userID: number): Promise<MapSummaryDto[]> {
+        return this.usersService.getSubmittedMapsSummary(userID);
     }
 
     //#endregion
