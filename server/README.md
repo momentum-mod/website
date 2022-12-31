@@ -36,7 +36,6 @@ set up native MySQL and MinIO instances if you want, but Docker makes things con
 #### Dockerized
 
 From the `website` directory, run:
-
 ```
 docker compose --profile full up -d
 ```
@@ -51,21 +50,20 @@ CMD=start:seed docker compose --profile full up -d
 
 #### Local Node
 
-From the `website` directory, run:
-
-```
-docker compose up -d
-```
-
-This will build and start only the MySQL, MinIO containers.
-
-Then, `cd` into the `website/server` directory, and install the Node dependencies with
+First, `cd` into the `website/server` directory, and install the Node dependencies with
 ```
 npm install
 ```
+this will be several hundred MB, thanks Node!
 
-this will be several hundred MB, thanks Node! Finally, you're ready to start the full API, and can run the NPM scripts
-you want (see package.json), for example to have Prisma initialise the DB and the start the Node app, use
+Then, from the `website` directory, run:
+```
+docker compose up -d
+```
+This will build and start only the MySQL, MinIO containers.
+
+Finally, back in the `website/server` directory, you should be ready to start the full API with one of the various NPM
+scripts (see package.json), for example to have Prisma initialise the DB and the start the Node app, use
 ```
 npm run start:push
 ```
