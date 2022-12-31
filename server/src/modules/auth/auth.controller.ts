@@ -1,16 +1,4 @@
-import {
-    Body,
-    Controller,
-    Get,
-    HttpCode,
-    HttpStatus,
-    Post,
-    Redirect,
-    Req,
-    Res,
-    UseGuards,
-    VERSION_NEUTRAL
-} from '@nestjs/common';
+import { Body, Controller, Get, HttpCode, HttpStatus, Post, Redirect, Req, Res, UseGuards } from '@nestjs/common';
 import {
     ApiBearerAuth,
     ApiBody,
