@@ -441,11 +441,10 @@ export class UserController {
     @ApiOperation({ summary: 'Returns the maps submitted by the local user' })
     @ApiOkPaginatedResponse(MapDto, { description: 'Paginated list of submitted maps' })
     getSubmittedMaps(
-        @LoggedInUser('id') _userID: number,
-        @Query() _query?: UserMapSubmittedGetQuery
+        @LoggedInUser('id') userID: number,
+        @Query() query?: UserMapSubmittedGetQuery
     ): Promise<PaginatedResponseDto<MapDto>> {
-        return void 0;
-        //return this.usersService.GetSubmittedMaps(userID, query.skip, query.take, query.search, query.expand);
+        return this.usersService.getSubmittedMaps(userID, query.skip, query.take, query.search, query.expand);
     }
 
     // I dunno what this last one is, check old API!
