@@ -33,7 +33,7 @@ import { CompletedRunDto } from '@common/dto/run/completed-run.dto';
 import { RunSessionService } from './run/run-session.service';
 import { GameAuthGuard } from '@modules/auth/guards/game-auth.guard';
 
-@Controller('session')
+@Controller('api/session')
 @UseGuards(GameAuthGuard)
 @ApiTags('Session')
 @ApiBearerAuth()

@@ -45,7 +45,7 @@ import { MapDto } from '@common/dto/map/map.dto';
 import { MapFavoriteDto } from '@common/dto/map/map-favorite.dto';
 import { MapLibraryService } from '@modules/maps/map-library.service';
 
-@Controller('user')
+@Controller('api/user')
 @ApiTags('User')
 @ApiBearerAuth()
 export class UserController {
