@@ -1307,8 +1307,6 @@ describe('User', () => {
     });
 
     describe('GET /api/user/maps/submitted/summary', () => {
-        const expects = (res) => expect(res.body).toBeValidPagedDto(MapSummaryDto);
-
         it('should retrieve an array of objects that each contain a statusFlag and its count', async () => {
             const res = await get({
                 url: 'user/maps/submitted/summary',
@@ -1316,11 +1314,8 @@ describe('User', () => {
                 token: user1Token
             });
 
-            expects(res);
-            expect(res.body.totalCount).toBe(1);
-            expect(res.body.returnCount).toBe(1);
-            expect(res.body.response[0]).toHaveProperty('statusCount');
-            expect(res.body.response[0]).toHaveProperty('statusFlag');
+            expect(res.body).toBeInstanceOf(Array);
+            for (const item of res.body) expect(item).toBeValidDto(MapSummaryDto);
         });
 
         it('should retrieve an empty summary list', async () => {

@@ -29,6 +29,7 @@ import { ConfigService } from '@nestjs/config';
 import { UsersGetAllQuery } from '@common/dto/query/user-queries.dto';
 import { SteamUserSummaryData } from '@modules/auth/auth.interfaces';
 import { MapDto } from '@common/dto/map/map.dto';
+import { MapSummaryDto } from '@common/dto/user/user-maps-summary.dto';
 
 @Injectable()
 export class UsersService {
@@ -476,6 +477,22 @@ export class UsersService {
 
         return new PaginatedResponseDto(MapDto, submittedMapsRes);
     }
+
+    async getSubmittedMapsSummary(userID: number): Promise<MapSummaryDto[]> {
+        const result = await this.mapRepo.getSubmittedMapsSummary(userID);
+
+        if (!result) throw new NotFoundException('No submitted Maps found');
+
+        return result.map(({ _count, statusFlag }) =>
+            DtoFactory(MapSummaryDto, {
+                statusFlag: statusFlag,
+                statusCount: _count.statusFlag
+            })
+        );
+    }
+
+    //#endregion
+
     //#region Credits
 
     async getMapCredits(id: number, skip?: number, take?: number): Promise<PaginatedResponseDto<MapCreditDto>> {
