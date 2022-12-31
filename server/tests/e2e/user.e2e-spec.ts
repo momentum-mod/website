@@ -13,6 +13,8 @@ import { NotificationDto } from '@common/dto/user/notification.dto';
 import { del, get, getNoContent, patch, post, put } from '../util/request-handlers.util';
 import { MapFavoriteDto } from '@common/dto/map/map-favorite.dto';
 import { expandTest, skipTest, takeTest } from '@tests/util/generic-e2e-tests.util';
+import { MapDto } from '@common/dto/map/map.dto';
+import { MapSummaryDto } from '@common/dto/user/user-maps-summary.dto';
 
 describe('User', () => {
     let user1,
@@ -165,7 +167,14 @@ describe('User', () => {
             data: {
                 name: 'surf_whatisapromise',
                 type: MapType.SURF,
-                statusFlag: MapStatus.APPROVED
+                statusFlag: MapStatus.APPROVED,
+                info: {
+                    create: {
+                        description: 'Second map',
+                        numTracks: 1,
+                        creationDate: new Date()
+                    }
+                }
             }
         });
 
@@ -174,7 +183,14 @@ describe('User', () => {
                 name: 'surf_tendies',
                 type: MapType.SURF,
                 submitterID: user1.id,
-                statusFlag: MapStatus.APPROVED
+                statusFlag: MapStatus.APPROVED,
+                info: {
+                    create: {
+                        description: 'Third map',
+                        numTracks: 1,
+                        creationDate: new Date()
+                    }
+                }
             }
         });
 
@@ -1198,6 +1214,131 @@ describe('User', () => {
                 token: user1Token
             });
         });
+    });
+
+    describe('GET /api/user/maps/submitted', () => {
+        const expects = (res) => expect(res.body).toBeValidPagedDto(MapDto);
+
+        it('should retrieve the list of maps that the user submitted', async () => {
+            const res = await get({
+                url: 'user/maps/submitted',
+                status: 200,
+                token: user1Token
+            });
+
+            expects(res);
+            expect(res.body.totalCount).toBe(2);
+            expect(res.body.returnCount).toBe(2);
+            expect(res.body.response[0].id).toBe(map3.id);
+            expect(res.body.response[1].id).toBe(map1.id);
+        });
+
+        it('should retrieve an empty map list', async () => {
+            const res = await get({
+                url: 'user/maps/submitted',
+                status: 200,
+                token: user2Token
+            });
+
+            expect(res.body.totalCount).toBe(0);
+            expect(res.body.returnCount).toBe(0);
+        });
+
+        it('should retrieve the users submitted maps when using the skip query parameter', () =>
+            skipTest({
+                url: 'user/maps/submitted',
+                test: expects,
+                token: user1Token
+            }));
+
+        it('should retrieve the users submitted maps when using the take query parameter', () =>
+            takeTest({
+                url: 'user/maps/submitted',
+                test: expects,
+                token: user1Token
+            }));
+
+        it('should retrieve the submitted maps with expanded info', async () => {
+            return expandTest({
+                url: 'user/maps/submitted',
+                test: expects,
+                paged: true,
+                expand: 'info',
+                token: user1Token
+            });
+        });
+
+        it('should retrieve the submitted maps with expanded submitter', () =>
+            expandTest({
+                url: 'user/maps/submitted',
+                test: expects,
+                paged: true,
+                expand: 'submitter',
+                token: user1Token
+            }));
+
+        it('should retrieve the submitted maps with expanded credits', () =>
+            expandTest({
+                url: 'user/maps/submitted',
+                test: expects,
+                paged: true,
+                expand: 'credits',
+                token: user1Token
+            }));
+
+        it('should retrieve a map specified by a search query parameter', async () => {
+            const res = await get({
+                url: 'user/maps/submitted',
+                status: 200,
+                query: { search: map1.name },
+                token: user1Token
+            });
+
+            expect(res.body.totalCount).toBe(1);
+            expect(res.body.returnCount).toBe(1);
+            expect(res.body.response[0].id).toBe(map1.id);
+        });
+
+        it('should respond with 401 when no access token is provided', () =>
+            get({
+                url: `user/maps/submitted`,
+                status: 401
+            }));
+    });
+
+    describe('GET /api/user/maps/submitted/summary', () => {
+        const expects = (res) => expect(res.body).toBeValidPagedDto(MapSummaryDto);
+
+        it('should retrieve an array of objects that each contain a statusFlag and its count', async () => {
+            const res = await get({
+                url: 'user/maps/submitted/summary',
+                status: 200,
+                token: user1Token
+            });
+
+            expects(res);
+            expect(res.body.totalCount).toBe(1);
+            expect(res.body.returnCount).toBe(1);
+            expect(res.body.response[0]).toHaveProperty('statusCount');
+            expect(res.body.response[0]).toHaveProperty('statusFlag');
+        });
+
+        it('should retrieve an empty summary list', async () => {
+            const res = await get({
+                url: `user/maps/submitted/summary`,
+                status: 200,
+                token: user2Token //user2 has no maps
+            });
+
+            expect(res.body).toBeInstanceOf(Array);
+            expect(res.body.length).toBe(0);
+        });
+
+        it('should respond with 401 when no access token is provided', () =>
+            get({
+                url: `user/maps/submitted/summary`,
+                status: 401
+            }));
     });
 
     describe('PUT /api/user/maps/library/{mapID}', () => {
