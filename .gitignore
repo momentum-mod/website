@@ -2,6 +2,8 @@
 .env
 
 # compiled output
+# TODO: Add these back when we actually deploy!
+/server/prisma/migrations/
 /dist
 /dist-server
 /tmp
