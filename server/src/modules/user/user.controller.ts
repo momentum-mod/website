@@ -360,6 +360,7 @@ export class UserController {
     }
 
     @Delete('/maps/library/:mapID')
+    @HttpCode(HttpStatus.NO_CONTENT)
     @ApiOperation({ summary: "Removes the given map from the local user's library" })
     @ApiParam({
         name: 'mapID',
@@ -369,9 +370,8 @@ export class UserController {
     })
     @ApiNoContentResponse({ description: 'Map was removed from the library' })
     @ApiNotFoundResponse({ description: 'The map does not exist' })
-    removeMapLibraryEntry(@LoggedInUser('id') _userID: number, @Param('mapID', ParseIntPipe) _mapID: number) {
-        return void 0;
-        //return this.usersService.RemoveMapLibraryEntry(userID, mapID);
+    removeMapLibraryEntry(@LoggedInUser('id') userID: number, @Param('mapID', ParseIntPipe) mapID: number) {
+        return this.usersService.removeMapLibraryEntry(userID, mapID);
     }
 
     //#endregion
@@ -404,6 +404,7 @@ export class UserController {
     }
 
     @Put('/maps/favorites/:mapID')
+    @HttpCode(HttpStatus.NO_CONTENT)
     @ApiOperation({ summary: "Adds the given map to the local user's favorites" })
     @ApiParam({
         name: 'mapID',
@@ -413,12 +414,12 @@ export class UserController {
     })
     @ApiNoContentResponse({ description: 'Map was added to the favorites' })
     @ApiNotFoundResponse({ description: 'The map does not exist' })
-    addFavoritedMap(@LoggedInUser('id') _userID: number, @Param('mapID', ParseIntPipe) _mapID: number) {
-        return void 0;
-        //return this.usersService.AddFavoritedMap(userID, mapID);
+    addFavoritedMap(@LoggedInUser('id') userID: number, @Param('mapID', ParseIntPipe) mapID: number) {
+        return this.usersService.addFavoritedMap(userID, mapID);
     }
 
     @Delete('/maps/favorites/:mapID')
+    @HttpCode(HttpStatus.NO_CONTENT)
     @ApiOperation({ summary: "Removes the given map from the local user's favorites" })
     @ApiParam({
         name: 'mapID',
@@ -428,9 +429,8 @@ export class UserController {
     })
     @ApiNoContentResponse({ description: 'Map was removed from the favorites' })
     @ApiNotFoundResponse({ description: 'The map does not exist' })
-    removeFavoritedMap(@LoggedInUser('id') _userID: number, @Param('mapID', ParseIntPipe) _mapID: number) {
-        return void 0;
-        //return this.usersService.RemoveFavoritedMap(userID, mapID);
+    removeFavoritedMap(@LoggedInUser('id') userID: number, @Param('mapID', ParseIntPipe) mapID: number) {
+        return this.usersService.removeFavoritedMap(userID, mapID);
     }
 
     //#endregion

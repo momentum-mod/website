@@ -345,6 +345,7 @@ model MapFavorite {
     createdAt DateTime @default(now())
     updatedAt DateTime @updatedAt
 
+    @@unique([mapID, userID])
     @@index([mapID, userID])
 }
 
@@ -395,6 +396,7 @@ model MapLibraryEntry {
     createdAt DateTime @default(now())
     updatedAt DateTime @updatedAt
 
+    @@unique([mapID, userID])
     @@index([mapID, userID])
 }
 

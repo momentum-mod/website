@@ -306,6 +306,17 @@ export class UsersRepoService {
         });
     }
 
+    async deleteMapLibraryEntry(userID: number, mapID: number) {
+        await this.prisma.mapLibraryEntry.delete({
+            where: {
+                mapID_userID: {
+                    userID: userID,
+                    mapID: mapID
+                }
+            }
+        });
+    }
+
     //#endregion
 
     //#region Map Favorites
@@ -328,6 +339,26 @@ export class UsersRepoService {
         });
 
         return [mapFavorites, count];
+    }
+
+    async createFavouritedMapEntry(userID: number, mapID: number) {
+        await this.prisma.mapFavorite.create({
+            data: {
+                userID: userID,
+                mapID: mapID
+            }
+        });
+    }
+
+    async deleteFavouritedMapEntry(userID: number, mapID: number) {
+        await this.prisma.mapFavorite.delete({
+            where: {
+                mapID_userID: {
+                    userID: userID,
+                    mapID: mapID
+                }
+            }
+        });
     }
 
     //#endregion
