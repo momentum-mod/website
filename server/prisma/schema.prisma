@@ -286,6 +286,7 @@ model Map {
     fileKey    String? @db.VarChar(255)
     type       Int     @default(0) @db.UnsignedTinyInt
     statusFlag Int     @db.TinyInt
+    priority   Boolean @default(false)
     hash       String? @db.Char(40)
 
     thumbnail   MapImage? @relation("mapimage_thumbnail", fields: [thumbnailID], references: [id], onDelete: SetNull)
