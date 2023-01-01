@@ -8,7 +8,7 @@ import {
 import { UsersRepoService } from '../repo/users-repo.service';
 import { Follow, Prisma } from '@prisma/client';
 import { AdminUpdateUserDto, UserDto } from '@common/dto/user/user.dto';
-import {DtoFactory, ExpandToPrismaIncludes} from '@lib/dto.lib';
+import { DtoFactory, ExpandToPrismaIncludes } from '@lib/dto.lib';
 import { MapsRepoService } from '../repo/maps-repo.service';
 import { Bitflags } from '@lib/bitflag.lib';
 import { UpdateRolesDto } from '@common/dto/user/roles.dto';

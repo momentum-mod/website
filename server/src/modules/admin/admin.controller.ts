@@ -26,7 +26,7 @@ import {
 import { AdminUpdateUserDto, CreateUserDto, MergeUserDto, UserDto } from '@common/dto/user/user.dto';
 import { ApiOkPaginatedResponse, PaginatedResponseDto } from '@common/dto/paginated-response.dto';
 import { MapDto, UpdateMapDto } from '@common/dto/map/map.dto';
-import {AdminCtlMapsGetAllQuery, MapsCtlGetAllQuery} from '@common/dto/query/map-queries.dto';
+import { AdminCtlMapsGetAllQuery } from '@common/dto/query/map-queries.dto';
 import { ReportDto, UpdateReportDto } from '@common/dto/report/report.dto';
 import { Roles } from '@common/decorators/roles.decorator';
 import { Roles as RolesEnum } from '../../common/enums/user.enum';
