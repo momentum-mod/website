@@ -376,6 +376,16 @@ export class UsersService {
         await this.userRepo.createMapLibraryEntry(userID, mapID);
     }
 
+    async removeMapLibraryEntry(userID: number, mapID: number) {
+        const targetMap = await this.mapRepo.get(mapID);
+
+        if (!targetMap) throw new NotFoundException("Target map doesn't exist");
+
+        await this.userRepo.deleteMapLibraryEntry(userID, mapID).catch(() => {
+            throw new NotFoundException('Target map not in users library');
+        });
+    }
+
     //#endregion
 
     //#region Map Favorites
@@ -393,6 +403,24 @@ export class UsersService {
         const dbResponse = await this.userRepo.getFavoritedMaps(where, include, skip, take);
 
         return new PaginatedResponseDto(MapFavoriteDto, dbResponse);
+    }
+
+    async addFavoritedMap(userID: number, mapID: number) {
+        const targetMap = await this.mapRepo.get(mapID);
+
+        if (!targetMap) throw new NotFoundException('Target map not found');
+
+        await this.userRepo.createFavouritedMapEntry(userID, mapID);
+    }
+
+    async removeFavoritedMap(userID: number, mapID: number) {
+        const targetMap = await this.mapRepo.get(mapID);
+
+        if (!targetMap) throw new NotFoundException("Target map doesn't exist");
+
+        await this.userRepo.deleteFavouritedMapEntry(userID, mapID).catch(() => {
+            throw new NotFoundException('Target map not in users library');
+        });
     }
 
     //#endregion

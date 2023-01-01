@@ -1089,6 +1089,91 @@ describe('User', () => {
             }));
     });
 
+    describe('PUT /api/user/maps/favorites/{mapID}', () => {
+        it('should add a new map to the local users favorites', async () => {
+            const mapFavorite = await (global.prisma as PrismaService).mapFavorite.findFirst({
+                where: {
+                    userID: user1.id,
+                    mapID: map3.id
+                }
+            });
+            expect(mapFavorite).toBeNull();
+
+            await put({
+                url: `user/maps/favorites/${map3.id}`,
+                status: 204,
+                token: user1Token
+            });
+
+            const mapFavorite2 = await (global.prisma as PrismaService).mapFavorite.findFirst({
+                where: {
+                    userID: user1.id,
+                    mapID: map3.id
+                }
+            });
+            expect(mapFavorite2).not.toBeNull();
+        });
+
+        it("should respond with 404 if the map doesn't exist", () =>
+            put({
+                url: `user/maps/favorites/999999999`,
+                status: 404,
+                token: user1Token
+            }));
+
+        it('should respond with 401 when no access token is provided', () =>
+            put({
+                url: `user/maps/favorites/${map3.id}`,
+                status: 401
+            }));
+    });
+
+    describe('DELETE /api/user/maps/favorites/{mapID}', () => {
+        it('should delete a map from the local users favorites', async () => {
+            const mapFavorite = await global.prisma.mapFavorite.findFirst({
+                where: {
+                    userID: user1.id,
+                    mapID: map1.id
+                }
+            });
+            expect(mapFavorite).not.toBeNull();
+
+            await del({
+                url: `user/maps/favorites/${map1.id}`,
+                status: 204,
+                token: user1Token
+            });
+
+            const mapFavorite2 = await global.prisma.mapFavorite.findFirst({
+                where: {
+                    userID: user1.id,
+                    mapID: map1.id
+                }
+            });
+            expect(mapFavorite2).toBeNull();
+        });
+
+        it('should respond with 404 if the map is not in the local users favorites', () =>
+            del({
+                url: `user/maps/favorites/${map3.id}`,
+                status: 404,
+                token: user1Token
+            }));
+
+        it('should respond with 400 if the map is not in the database', () =>
+            del({
+                url: `user/maps/favorites/9999999999999999999999`,
+                status: 400,
+                token: user1Token
+            }));
+
+        it('should respond with 401 when no access token is provided', () =>
+            del({
+                url: `user/maps/favorites/${map1.id}`,
+                status: 401
+            }));
+    });
+
     describe('GET /api/user/maps/library/{mapID}', () => {
         it('should check if a map exists in the local users library', () => {
             getNoContent({
@@ -1154,8 +1239,6 @@ describe('User', () => {
             }));
     });
 
-    /*
-
     describe('DELETE /api/user/maps/library/{mapID}', () => {
         it('should delete a map from the local users library', async () => {
             const mapLibraryEntry = await global.prisma.mapLibraryEntry.findFirst({
@@ -1166,9 +1249,9 @@ describe('User', () => {
             });
             expect(mapLibraryEntry).not.toBeNull();
 
-            await delete({
+            await del({
                 url: `user/maps/library/${map1.id}`,
-                status: 200,
+                status: 204,
                 token: user1Token
             });
 
@@ -1182,27 +1265,25 @@ describe('User', () => {
         });
 
         it('should respond with 404 if the map is not in the local users library', () =>
-            delete({
+            del({
                 url: `user/maps/library/${map3.id}`,
                 status: 404,
                 token: user1Token
-		}));
+            }));
 
-		it('should respond with 400 if the map is not in the database', () =>
-			delete({
-				url: `user/maps/library/${map3.id`,
-				status: 400,
-				token: user1Token
-		}));
+        it('should respond with 400 if the map is not in the database', () =>
+            del({
+                url: `user/maps/library/9999999999999999999999`,
+                status: 400,
+                token: user1Token
+            }));
 
         it('should respond with 401 when no access token is provided', () =>
-            delete({
+            del({
                 url: `user/maps/library/${map1.id}`,
                 status: 401
-		}));
+            }));
     });
-
-*/
 
     //
     //     describe('DELETE /api/user/maps/library/{mapID}', () => {
