@@ -297,6 +297,15 @@ export class UsersRepoService {
         return [mapLibraryEntries, count];
     }
 
+    async createMapLibraryEntry(userID: number, mapID: number) {
+        await this.prisma.mapLibraryEntry.create({
+            data: {
+                userID: userID,
+                mapID: mapID
+            }
+        });
+    }
+
     //#endregion
 
     //#region Map Favorites

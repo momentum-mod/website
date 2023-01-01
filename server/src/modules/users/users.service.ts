@@ -368,6 +368,14 @@ export class UsersService {
         return new PaginatedResponseDto(MapLibraryEntryDto, dbResponse);
     }
 
+    async addMapLibraryEntry(userID: number, mapID: number) {
+        const targetMap = await this.mapRepo.get(mapID);
+
+        if (!targetMap) throw new NotFoundException('Target map not found');
+
+        await this.userRepo.createMapLibraryEntry(userID, mapID);
+    }
+
     //#endregion
 
     //#region Map Favorites

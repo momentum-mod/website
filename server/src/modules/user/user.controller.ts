@@ -345,6 +345,7 @@ export class UserController {
     }
 
     @Put('/maps/library/:mapID')
+    @HttpCode(HttpStatus.NO_CONTENT)
     @ApiOperation({ summary: "Adds the given map to the local user's library" })
     @ApiParam({
         name: 'mapID',
@@ -354,9 +355,8 @@ export class UserController {
     })
     @ApiNoContentResponse({ description: 'Map was added to the library' })
     @ApiNotFoundResponse({ description: 'The map does not exist' })
-    addMapLibraryEntry(@LoggedInUser('id') _userID: number, @Param('mapID', ParseIntPipe) _mapID: number) {
-        return void 0;
-        //return this.usersService.AddMapLibraryEntry(userID, mapID);
+    addMapLibraryEntry(@LoggedInUser('id') userID: number, @Param('mapID', ParseIntPipe) mapID: number) {
+        return this.usersService.addMapLibraryEntry(userID, mapID);
     }
 
     @Delete('/maps/library/:mapID')
