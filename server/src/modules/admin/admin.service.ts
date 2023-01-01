@@ -12,9 +12,9 @@ import { DtoFactory, ExpandToPrismaIncludes } from '@lib/dto.lib';
 import { MapsRepoService } from '../repo/maps-repo.service';
 import { Bitflags } from '@lib/bitflag.lib';
 import { UpdateRolesDto } from '@common/dto/user/roles.dto';
-import { MapStatus } from "@common/enums/map.enum";
-import { MapDto } from "@common/dto/map/map.dto";
-import { PaginatedResponseDto } from "@common/dto/paginated-response.dto";
+import { MapStatus } from '@common/enums/map.enum';
+import { MapDto } from '@common/dto/map/map.dto';
+import { PaginatedResponseDto } from '@common/dto/paginated-response.dto';
 
 @Injectable()
 export class AdminService {
