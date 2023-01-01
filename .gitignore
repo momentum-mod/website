@@ -1,16 +1,21 @@
 # Private environment vars
 .env
 
-# compiled output
 # TODO: Add these back when we actually deploy!
 /server/prisma/migrations/
+
+# Node
+node_modules/
+
+# Prisma
+ERD.svg
+
+# Compiled output
 /dist
-/dist-server
+/server/dist
+/client/dist
 /tmp
 /out-tsc
-
-# dependencies
-/node_modules
 
 # IDEs and editors
 /.idea
@@ -40,15 +45,8 @@ testem.log
 /typings
 *.iml
 
-# e2e
-/e2e/*.js
-/e2e/*.map
-
 # System Files
 .DS_Store
 Thumbs.db
 data/*
 data/grafana/grafana.db
-
-# Prisma
-ERD.svg
