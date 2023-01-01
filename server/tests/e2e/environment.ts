@@ -2,12 +2,11 @@
 import NodeEnvironment from 'jest-environment-node';
 import { Test } from '@nestjs/testing';
 import { AppModule } from '@/app.module';
-import { ClassSerializerInterceptor, INestApplication, Logger, LogLevel, ValidationPipe } from '@nestjs/common';
+import { INestApplication, Logger, LogLevel } from '@nestjs/common';
 import { PrismaService } from '@modules/repo/prisma.service';
 import { AuthService } from '@modules/auth/auth.service';
 import { XpSystemsService } from '@modules/xp-systems/xp-systems.service';
-import { appOptions } from '@/main';
-import { Reflector } from '@nestjs/core';
+import { appOptions, jsonBigIntFix, setupNestApplication } from '@/main';
 
 export default class E2ETestEnvironment extends NodeEnvironment {
     constructor(config, context) {
@@ -16,6 +15,8 @@ export default class E2ETestEnvironment extends NodeEnvironment {
 
     async setup() {
         await super.setup();
+
+        jsonBigIntFix();
 
         const logger = new Logger().localInstance;
         const logLevel: LogLevel[] = ['error'];
@@ -29,20 +30,13 @@ export default class E2ETestEnvironment extends NodeEnvironment {
             .setLogger(logger)
             .compile();
 
-        BigInt.prototype['toJSON'] = function () {
-            return this.toString();
-        };
-
         const app = moduleRef.createNestApplication(appOptions);
 
-        // Anything put in a query/body that doesn't correspond to a decorator-validated property on the DTO will error.
-        app.useGlobalPipes(new ValidationPipe({ transform: true, forbidNonWhitelisted: true }));
-        app.useGlobalInterceptors(new ClassSerializerInterceptor(app.get(Reflector)));
-
-        app.setGlobalPrefix('api', { exclude: ['auth'] });
-
-        const prismaDalc: PrismaService = app.get(PrismaService);
-        await prismaDalc.enableShutdownHooks(app);
+        await setupNestApplication(
+            app,
+            // Anything put in a query/body that doesn't correspond to a decorator-validated property on the DTO will error.
+            { transform: true, forbidNonWhitelisted: true }
+        );
 
         await app.init();
 
