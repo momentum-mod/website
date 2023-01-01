@@ -28,6 +28,7 @@ import { MapFavoriteDto } from '@common/dto/map/map-favorite.dto';
 import { ConfigService } from '@nestjs/config';
 import { UsersGetAllQuery } from '@common/dto/query/user-queries.dto';
 import { SteamUserSummaryData } from '@modules/auth/auth.interfaces';
+import {MapDto} from "@common/dto/map/map.dto";
 
 @Injectable()
 export class UsersService {
@@ -453,6 +454,14 @@ export class UsersService {
     }
 
     //#endregion
+
+    async getSubmittedMaps(userID: number,
+                                  skip: number,
+                                  take: number): Promise<PaginatedResponseDto<MapDto>> {
+        const dbResponse = await this.userRepo.getSubmittedMaps(userID, skip, take);
+
+        return new PaginatedResponseDto(MapDto, dbResponse);
+    }
 
     //#region Private
 

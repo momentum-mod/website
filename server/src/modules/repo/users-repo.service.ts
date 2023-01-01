@@ -13,7 +13,8 @@ import {
     Notification,
     MapLibraryEntry,
     MapFavorite,
-    UserStats
+    UserStats,
+    Map
 } from '@prisma/client';
 
 @Injectable()
@@ -493,6 +494,27 @@ export class UsersRepoService {
         return [runs, count];
     }
 
+    async getSubmittedMaps(userID: number, skip?: number, take?: number): Promise<[Map[], number]> {
+        const where: Prisma.MapWhereInput = {
+            submitterID: userID
+        };
+
+        const count = await this.prisma.map.count({
+            where: where
+        });
+
+        const maps = await this.prisma.map.findMany({
+            where: where,
+            skip: skip,
+            take: take,
+            include: {
+                submitter: true,
+                images: true
+            }
+        });
+
+        return [maps, count];
+    }
     //#endregion
 
     //#region Stats

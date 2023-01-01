@@ -444,8 +444,7 @@ export class UserController {
         @LoggedInUser('id') _userID: number,
         @Query() _query?: UserMapSubmittedGetQuery
     ): Promise<PaginatedResponseDto<MapDto>> {
-        return void 0;
-        //return this.usersService.GetSubmittedMaps(userID, query.skip, query.take, query.search, query.expand);
+        return this.usersService.getSubmittedMaps(_userID, _query.skip, _query.take);
     }
 
     // I dunno what this last one is, check old API!
