@@ -26,7 +26,7 @@ import {
 import { AdminUpdateUserDto, CreateUserDto, MergeUserDto, UserDto } from '@common/dto/user/user.dto';
 import { ApiOkPaginatedResponse, PaginatedResponseDto } from '@common/dto/paginated-response.dto';
 import { MapDto, UpdateMapDto } from '@common/dto/map/map.dto';
-import { MapsCtlGetAllQuery } from '@common/dto/query/map-queries.dto';
+import {AdminCtlMapsGetAllQuery, MapsCtlGetAllQuery} from '@common/dto/query/map-queries.dto';
 import { ReportDto, UpdateReportDto } from '@common/dto/report/report.dto';
 import { Roles } from '@common/decorators/roles.decorator';
 import { Roles as RolesEnum } from '../../common/enums/user.enum';
@@ -119,8 +119,8 @@ export class AdminController {
     @ApiOperation({ description: 'Retrieve a list of maps' })
     @ApiOkPaginatedResponse(MapDto, { description: 'Paginated list of maps' })
     @ApiBadRequestResponse({ description: 'Invalid query data' })
-    getMaps(@Query() _query: MapsCtlGetAllQuery): Promise<PaginatedResponseDto<MapDto>> {
-        return void 0;
+    getMaps(@Query() _query: AdminCtlMapsGetAllQuery): Promise<PaginatedResponseDto<MapDto>> {
+        return this.adminService.getMaps(_query.priority, _query.status, _query.skip, _query.take, _query.expand);
     }
 
     @Patch('/maps/:mapID')
