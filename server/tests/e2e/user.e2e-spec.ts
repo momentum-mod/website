@@ -1115,6 +1115,95 @@ describe('User', () => {
         });
     });
 
+    describe('PUT /api/user/maps/library/{mapID}', () => {
+        it('should add a new map to the local users library', async () => {
+            const mapLibraryEntry = await (global.prisma as PrismaService).mapLibraryEntry.findFirst({
+                where: {
+                    userID: user1.id,
+                    mapID: map3.id
+                }
+            });
+            expect(mapLibraryEntry).toBeNull();
+
+            await put({
+                url: `user/maps/library/${map3.id}`,
+                status: 204,
+                token: user1Token
+            });
+
+            const mapLibraryEntry2 = await (global.prisma as PrismaService).mapLibraryEntry.findFirst({
+                where: {
+                    userID: user1.id,
+                    mapID: map3.id
+                }
+            });
+            expect(mapLibraryEntry2).not.toBeNull();
+        });
+
+        it("should respond with 404 if the map doesn't exist", () =>
+            put({
+                url: `user/maps/library/999999999`,
+                status: 404,
+                token: user1Token
+            }));
+
+        it('should respond with 401 when no access token is provided', () =>
+            put({
+                url: `user/maps/library/${map3.id}`,
+                status: 401
+            }));
+    });
+
+    /*
+
+    describe('DELETE /api/user/maps/library/{mapID}', () => {
+        it('should delete a map from the local users library', async () => {
+            const mapLibraryEntry = await global.prisma.mapLibraryEntry.findFirst({
+                where: {
+                    userID: user1.id,
+                    mapID: map1.id
+                }
+            });
+            expect(mapLibraryEntry).not.toBeNull();
+
+            await delete({
+                url: `user/maps/library/${map1.id}`,
+                status: 200,
+                token: user1Token
+            });
+
+            const mapLibraryEntry2 = await global.prisma.mapLibraryEntry.findFirst({
+                where: {
+                    userID: user1.id,
+                    mapID: map1.id
+                }
+            });
+            expect(mapLibraryEntry2).toBeNull();
+        });
+
+        it('should respond with 404 if the map is not in the local users library', () =>
+            delete({
+                url: `user/maps/library/${map3.id}`,
+                status: 404,
+                token: user1Token
+		}));
+
+		it('should respond with 400 if the map is not in the database', () =>
+			delete({
+				url: `user/maps/library/${map3.id`,
+				status: 400,
+				token: user1Token
+		}));
+
+        it('should respond with 401 when no access token is provided', () =>
+            delete({
+                url: `user/maps/library/${map1.id}`,
+                status: 401
+		}));
+    });
+
+*/
+
     //
     //     describe('DELETE /api/user/maps/library/{mapID}', () => {
     //         it('should delete a library entry from the local users library', async () => {
