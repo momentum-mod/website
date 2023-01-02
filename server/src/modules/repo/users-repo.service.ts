@@ -13,7 +13,8 @@ import {
     Notification,
     MapLibraryEntry,
     MapFavorite,
-    UserStats
+    UserStats,
+    Report
 } from '@prisma/client';
 
 @Injectable()
@@ -543,4 +544,15 @@ export class UsersRepoService {
     }
 
     //#endregion
+
+    async getAllReports(where?: Prisma.ReportWhereInput, skip?: number, take?: number): Promise<[Report[], number]> {
+        const count = await this.prisma.report.count();
+        const reports = await this.prisma.report.findMany({
+            where: where,
+            skip: skip,
+            take: take
+        });
+        //console.log(count);
+        return [reports, count];
+    }
 }
