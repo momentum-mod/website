@@ -7,6 +7,7 @@ import { ActivityTypes } from '@common/enums/activity.enum';
 import { ReportType, ReportCategory } from '@common/enums/report.enum';
 import { UserDto } from '@common/dto/user/user.dto';
 import { ReportDto } from '@common/dto/report/report.dto';
+import { skipTest, takeTest } from '../util/generic-e2e-tests.util';
 
 describe('Admin', () => {
     let adminUser,
@@ -21,7 +22,9 @@ describe('Admin', () => {
         user1,
         user2,
         mergeUser1,
-        mergeUser2;
+        mergeUser2,
+        report1,
+        report2;
     // map1,
     // map2,
     // map3;
@@ -371,27 +374,28 @@ describe('Admin', () => {
             ]
         });
 
-        await prisma.report.createMany({
-            data: [
-                {
-                    data: 'report',
-                    type: ReportType.MAP_REPORT,
-                    category: ReportCategory.INAPPROPRIATE_CONTENT,
-                    message: 'report message',
-                    resolved: false,
-                    resolutionMessage: '',
-                    submitterID: user1.id
-                },
-                {
-                    data: 'report2',
-                    type: ReportType.USER_PROFILE_REPORT,
-                    category: ReportCategory.PLAGIARISM,
-                    message: 'report2 message',
-                    resolved: false,
-                    resolutionMessage: '2',
-                    submitterID: user2.id
-                }
-            ]
+        report1 = await prisma.report.create({
+            data: {
+                data: 'report',
+                type: ReportType.MAP_REPORT,
+                category: ReportCategory.INAPPROPRIATE_CONTENT,
+                message: 'report message',
+                resolved: false,
+                resolutionMessage: '',
+                submitterID: user1.id
+            }
+        });
+
+        report2 = await prisma.report.create({
+            data: {
+                data: 'report2',
+                type: ReportType.USER_PROFILE_REPORT,
+                category: ReportCategory.PLAGIARISM,
+                message: 'report2 message',
+                resolved: true,
+                resolutionMessage: '2',
+                submitterID: user2.id
+            }
         });
 
         const authService = global.auth as AuthService;
@@ -853,78 +857,96 @@ describe('Admin', () => {
     });
 
     describe('GET /api/admin/reports', () => {
+        const expects = (res) => expect(res.body).toBeValidPagedDto(ReportDto);
         it('should return a list of reports', async () => {
             const reports = await get({
-                url: `admin/reports`,
+                url: 'admin/reports',
                 status: 200,
                 token: adminUserToken
             });
             expect(reports.body).toBeValidPagedDto(ReportDto);
             expect(reports.body).toHaveProperty('response');
-
-            /*
-				data: "report",
-				type: ReportType.MAP_REPORT,
-				category: ReportCategory.INAPPROPRIATE_CONTENT,
-				message: "report message",
-				resolved: false,
-				resolutionMessage: "",
-				submitterID: user1.id,
-			*/
-
-            const count = await global.prisma.report.count();
-            expect(reports.body.response[0].data).toBe('report');
-            //expect(reports.body.responce[0].type).toBe(ReportType.MAP_REPORT);
-            expect(reports.body.response[0].category).toBe(ReportCategory.INAPPROPRIATE_CONTENT);
-            expect(reports.body.response[0].message).toBe('report message');
-            expect(reports.body.response[0].resolved).toBe(false);
-            expect(reports.body.response[0].resolutionMessage).toBe('');
-            expect(reports.body.response[0].submitterID).toBe(user1.id);
+            expect(reports.body.returnCount).toBe(2);
+            expect(reports.body.response[0].data).toBe(report1.data);
+            expect(reports.body.response[0].type).toBe(report1.type);
+            expect(reports.body.response[0].category).toBe(report1.category);
+            expect(reports.body.response[0].message).toBe(report1.message);
+            expect(reports.body.response[0].resolved).toBe(report1.resolved);
+            expect(reports.body.response[0].resolutionMessage).toBe(report1.resolutionMessage);
+            expect(reports.body.response[0].submitterID).toBe(report1.submitterID);
         });
 
-        it('should limit the result set when using the take query param', async () => {
-            const reports = await get({
-                url: `admin/reports`,
+        it('should only return resolved or non resolved based on query param resolved', async () => {
+            const reportsResolved = await get({
+                url: 'admin/reports',
                 status: 200,
                 query: {
-                    take: 1
+                    resolved: true
                 },
                 token: adminUserToken
             });
-            expect(reports.body).toBeValidPagedDto(ReportDto);
-            expect(reports.body).toHaveProperty('response');
-            expect(reports.body).toHaveProperty('returnCount');
-            expect(reports.body.returnCount).toBe(1);
-            expect(reports.body.response[0].data).toBe('report');
-        });
+            expect(reportsResolved.body).toBeValidPagedDto(ReportDto);
+            expect(reportsResolved.body.returnCount).toBe(1);
+            expect(reportsResolved.body.response[0].resolved).toBe(true);
 
-        it('should skip some of the result set when using the skip query param', async () => {
-            const reports = await get({
-                url: `admin/reports`,
+            const reportsNonResolved = await get({
+                url: 'admin/reports',
                 status: 200,
                 query: {
-                    skip: 1
+                    resolved: false
                 },
                 token: adminUserToken
             });
-            expect(reports.body).toBeValidPagedDto(ReportDto);
-            expect(reports.body).toHaveProperty('response');
-            expect(reports.body).toHaveProperty('returnCount');
-            expect(reports.body.returnCount).toBe(1);
-            expect(reports.body.response[0].data).toBe('report2');
+            expect(reportsNonResolved.body).toBeValidPagedDto(ReportDto);
+            expect(reportsNonResolved.body.returnCount).toBe(1);
+            expect(reportsNonResolved.body.response[0].resolved).toBe(false);
         });
+
+        it('should limit the result set when using the take query param', () =>
+            takeTest({
+                url: 'admin/reports',
+                test: expects,
+                token: adminUserToken
+            }));
+
+        it('should skip some of the result set when using the skip query param', () =>
+            skipTest({
+                url: 'admin/reports',
+                test: expects,
+                token: adminUserToken
+            }));
 
         it('should return 403 if a non admin access token is given', () =>
             getNoContent({
-                url: `admin/reports`,
+                url: 'admin/reports',
                 status: 403,
                 token: nonAdminAccessToken
             }));
         it('should return 401 if no access token is given', () =>
             getNoContent({
-                url: `admin/reports`,
+                url: 'admin/reports',
                 status: 401
             }));
+    });
+
+    describe('PATCH /api/admin/reports/{reportID}', () => {
+        it('should edit a report', async () => {
+            await patch({
+                url: `admin/reports/{report1.id}`,
+                status: 204,
+                body: {
+                    resolved: true,
+                    resolutionMessage: 'resolved'
+                },
+                token: adminUserToken
+            });
+            const changedReport = await (global.prisma as PrismaService).report.findFirst({
+                where: {
+                    id: report1.id
+                }
+            });
+            expect(changedReport.resolved).toBe(true);
+        });
     });
 
     // describe('GET /api/admin/maps', () => {

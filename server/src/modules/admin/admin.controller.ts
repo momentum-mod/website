@@ -25,7 +25,7 @@ import {
 } from '@nestjs/swagger';
 import { AdminUpdateUserDto, CreateUserDto, MergeUserDto, UserDto } from '@common/dto/user/user.dto';
 import { ApiOkPaginatedResponse, PaginatedResponseDto } from '@common/dto/paginated-response.dto';
-import { PaginationQuery } from '@common/dto/query/pagination.dto';
+import { AdminGetReportsQuery } from '@common/dto/query/admin-queries.dto';
 import { MapDto, UpdateMapDto } from '@common/dto/map/map.dto';
 import { MapsCtlGetAllQuery } from '@common/dto/query/map-queries.dto';
 import { ReportDto, UpdateReportDto } from '@common/dto/report/report.dto';
@@ -164,8 +164,8 @@ export class AdminController {
     @ApiOperation({ description: 'Retrieve a list of reports' })
     @ApiOkPaginatedResponse(ReportDto, { description: 'Paginated list of reports' })
     @ApiBadRequestResponse({ description: 'Invalid query data' })
-    getReports(@Query() query?: PaginationQuery): Promise<PaginatedResponseDto<ReportDto>> {
-        return this.adminService.getReports(query.skip, query.take);
+    getReports(@Query() query: AdminGetReportsQuery): Promise<PaginatedResponseDto<ReportDto>> {
+        return this.adminService.getReports(query.skip, query.take, query.resolved);
     }
 
     @Patch('/reports/:reportID')

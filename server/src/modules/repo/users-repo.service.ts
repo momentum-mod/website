@@ -552,7 +552,12 @@ export class UsersRepoService {
             skip: skip,
             take: take
         });
-        //console.log(count);
         return [reports, count];
+    }
+
+    async createReport(input: Prisma.ReportCreateInput): Promise<Report> {
+        return this.prisma.report.create({
+            data: input
+        });
     }
 }

@@ -188,8 +188,9 @@ export class AdminService {
         await this.userRepo.delete(userID);
     }
 
-    async getReports(skip?: number, take?: number) {
-        const dbResponce = await this.userRepo.getAllReports(undefined, skip, take);
-        return new PaginatedResponseDto(ReportDto, dbResponce);
+    async getReports(skip?: number, take?: number, resolved?: boolean) {
+        const where = { resolved: resolved };
+        const dbResponse = await this.userRepo.getAllReports(where, skip, take);
+        return new PaginatedResponseDto(ReportDto, dbResponse);
     }
 }
