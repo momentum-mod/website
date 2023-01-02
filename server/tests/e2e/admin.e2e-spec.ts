@@ -1,10 +1,12 @@
 // noinspection DuplicatedCode
 
 import { PrismaService } from '@modules/repo/prisma.service';
-import { del, get, patch, post } from '../util/request-handlers.util';
+import { del, get, getNoContent, patch, post } from '../util/request-handlers.util';
 import { AuthService } from '@modules/auth/auth.service';
 import { ActivityTypes } from '@common/enums/activity.enum';
+import { ReportType, ReportCategory } from '@common/enums/report.enum';
 import { UserDto } from '@common/dto/user/user.dto';
+import { ReportDto } from '@common/dto/report/report.dto';
 
 describe('Admin', () => {
     let adminUser,
@@ -369,6 +371,29 @@ describe('Admin', () => {
             ]
         });
 
+        await prisma.report.createMany({
+            data: [
+                {
+                    data: 'report',
+                    type: ReportType.MAP_REPORT,
+                    category: ReportCategory.INAPPROPRIATE_CONTENT,
+                    message: 'report message',
+                    resolved: false,
+                    resolutionMessage: '',
+                    submitterID: user1.id
+                },
+                {
+                    data: 'report2',
+                    type: ReportType.USER_PROFILE_REPORT,
+                    category: ReportCategory.PLAGIARISM,
+                    message: 'report2 message',
+                    resolved: false,
+                    resolutionMessage: '2',
+                    submitterID: user2.id
+                }
+            ]
+        });
+
         const authService = global.auth as AuthService;
         adminUserToken = (await authService.loginWeb(adminUser)).accessToken;
         nonAdminAccessToken = (await authService.loginWeb(nonAdminUser)).accessToken;
@@ -396,6 +421,7 @@ describe('Admin', () => {
                 }
             }
         });
+        await prisma.report.deleteMany();
     });
 
     describe('POST /api/admin/users', () => {
@@ -822,6 +848,81 @@ describe('Admin', () => {
         it('should respond with 401 when no access token is provided', () =>
             del({
                 url: `admin/users/${user1.id}`,
+                status: 401
+            }));
+    });
+
+    describe('GET /api/admin/reports', () => {
+        it('should return a list of reports', async () => {
+            const reports = await get({
+                url: `admin/reports`,
+                status: 200,
+                token: adminUserToken
+            });
+            expect(reports.body).toBeValidPagedDto(ReportDto);
+            expect(reports.body).toHaveProperty('response');
+
+            /*
+				data: "report",
+				type: ReportType.MAP_REPORT,
+				category: ReportCategory.INAPPROPRIATE_CONTENT,
+				message: "report message",
+				resolved: false,
+				resolutionMessage: "",
+				submitterID: user1.id,
+			*/
+
+            const count = await global.prisma.report.count();
+            expect(reports.body.response[0].data).toBe('report');
+            //expect(reports.body.responce[0].type).toBe(ReportType.MAP_REPORT);
+            expect(reports.body.response[0].category).toBe(ReportCategory.INAPPROPRIATE_CONTENT);
+            expect(reports.body.response[0].message).toBe('report message');
+            expect(reports.body.response[0].resolved).toBe(false);
+            expect(reports.body.response[0].resolutionMessage).toBe('');
+            expect(reports.body.response[0].submitterID).toBe(user1.id);
+        });
+
+        it('should limit the result set when using the take query param', async () => {
+            const reports = await get({
+                url: `admin/reports`,
+                status: 200,
+                query: {
+                    take: 1
+                },
+                token: adminUserToken
+            });
+            expect(reports.body).toBeValidPagedDto(ReportDto);
+            expect(reports.body).toHaveProperty('response');
+            expect(reports.body).toHaveProperty('returnCount');
+            expect(reports.body.returnCount).toBe(1);
+            expect(reports.body.response[0].data).toBe('report');
+        });
+
+        it('should skip some of the result set when using the skip query param', async () => {
+            const reports = await get({
+                url: `admin/reports`,
+                status: 200,
+                query: {
+                    skip: 1
+                },
+                token: adminUserToken
+            });
+            expect(reports.body).toBeValidPagedDto(ReportDto);
+            expect(reports.body).toHaveProperty('response');
+            expect(reports.body).toHaveProperty('returnCount');
+            expect(reports.body.returnCount).toBe(1);
+            expect(reports.body.response[0].data).toBe('report2');
+        });
+
+        it('should return 403 if a non admin access token is given', () =>
+            getNoContent({
+                url: `admin/reports`,
+                status: 403,
+                token: nonAdminAccessToken
+            }));
+        it('should return 401 if no access token is given', () =>
+            getNoContent({
+                url: `admin/reports`,
                 status: 401
             }));
     });

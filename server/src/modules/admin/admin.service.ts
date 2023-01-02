@@ -8,10 +8,12 @@ import {
 import { UsersRepoService } from '../repo/users-repo.service';
 import { Follow, Prisma } from '@prisma/client';
 import { AdminUpdateUserDto, UserDto } from '@common/dto/user/user.dto';
+import { PaginatedResponseDto } from '@common/dto/paginated-response.dto';
 import { DtoFactory } from '@lib/dto.lib';
 import { MapsRepoService } from '../repo/maps-repo.service';
 import { Bitflags } from '@lib/bitflag.lib';
 import { UpdateRolesDto } from '@common/dto/user/roles.dto';
+import { ReportDto } from '@common/dto/report/report.dto';
 
 @Injectable()
 export class AdminService {
@@ -184,5 +186,10 @@ export class AdminService {
             throw new ForbiddenException('Will delete admins or moderators, remove their roles first');
 
         await this.userRepo.delete(userID);
+    }
+
+    async getReports(skip?: number, take?: number) {
+        const dbResponce = await this.userRepo.getAllReports(undefined, skip, take);
+        return new PaginatedResponseDto(ReportDto, dbResponce);
     }
 }
