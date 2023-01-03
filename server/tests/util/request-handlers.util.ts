@@ -102,6 +102,20 @@ export async function postAttach(options: AttachRequestOptions): Promise<Test> {
     return req;
 }
 
+export async function putAttach(options: AttachRequestOptions): Promise<Test> {
+    const req = request(global.server)
+        .put(URL_PREFIX + options.url)
+        .set('Accept', 'application/json');
+    token(req, options);
+    req.set('Content-Type', 'multipart/form-data').attach(
+        options.field ?? 'file',
+        typeof options.file === 'string' ? './tests/files/' + options.file : options.file
+    );
+    status(req, options);
+
+    return req;
+}
+
 function contentType(req: Test, options: RequestOptions) {
     if (options.contentType !== null)
         if (options.contentType === undefined) req.expect('Content-Type', /json/);
