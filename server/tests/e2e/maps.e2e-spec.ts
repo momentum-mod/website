@@ -2001,6 +2001,33 @@ describe('Maps', () => {
             }));
     });
 
+    describe('PUT /maps/{mapID}/thumbnail', () => {
+        it('should update the thumbnail for a map', () =>
+            putAttach({ url: `maps/${map1.id}/thumbnail`, status: 204, file: 'image2.jpg', token: user1Token }));
+
+        it('should create a thumbnail if one does not exist already', async () => {
+            await (global.prisma as PrismaService).mapImage.delete({ where: { id: map1.thumbnailID } });
+            const map1NoThumb = await (global.prisma as PrismaService).map.findFirst({ where: { id: map1.id } });
+            expect(map1NoThumb.thumbnailID).toBeNull();
+
+            await putAttach({ url: `maps/${map1.id}/thumbnail`, status: 204, file: 'image.jpg', token: user1Token });
+            const map1NewThumb = await (global.prisma as PrismaService).map.findFirst({ where: { id: map1.id } });
+            expect(map1NewThumb.thumbnailID).toBeDefined();
+        });
+
+        it('should return a 400 if no thumbnail file is provided', () =>
+            put({ url: `maps/${map1.id}/thumbnail`, status: 400, token: user1Token }));
+
+        it('should respond with 403 if the user is not the submitter of the map', () =>
+            putAttach({ url: `maps/${map1.id}/thumbnail`, status: 403, file: 'image.jpg', token: user3Token }));
+
+        it('should respond with 403 if the user is not a mapper', () =>
+            putAttach({ url: `maps/${map4.id}/thumbnail`, status: 403, file: 'image.jpg', token: user2Token }));
+
+        it('should respond with 401 when no access token is provided', () =>
+            putAttach({ url: `maps/${map1.id}/thumbnail`, status: 204, file: 'image2.jpg' }));
+    });
+
     describe('POST /maps/{mapID}/images', () => {
         it('should create a map image for the specified map', async () => {
             const res = await postAttach({

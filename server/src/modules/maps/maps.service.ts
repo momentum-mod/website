@@ -562,6 +562,44 @@ export class MapsService {
     }
     //#endregion
 
+    //#region Map Thumbnail
+
+    async updateThumbnail(userID: number, mapID: number, imgBuffer: Buffer): Promise<void> {
+        let map = await this.mapRepo.get(mapID, { thumbnail: true });
+
+        if (!map) throw new NotFoundException('Map not found');
+        if (map.submitterID !== userID) throw new ForbiddenException('User is not the submitter of the map');
+        if (map.statusFlag !== MapStatus.NEEDS_REVISION)
+            throw new ForbiddenException('Map is not in NEEDS_REVISION state');
+
+        if (!map.thumbnailID) {
+            const newThumbnail = await this.mapRepo.createImage(mapID);
+            map = await this.mapRepo.update(mapID, { thumbnail: { connect: { id: newThumbnail.id } } });
+        }
+
+        const thumbnail = await this.mapRepo.getImage(map.thumbnailID);
+
+        const uploadedImages = await this.storeMapImage(imgBuffer, thumbnail.id);
+        if (uploadedImages) {
+            const cdnURL = this.config.get('url.cdn');
+            const bucketName = this.config.get('storage.bucketName');
+            await this.mapRepo.updateImage(
+                { id: thumbnail.id },
+                {
+                    small: `${cdnURL}/${bucketName}/${uploadedImages[0].fileKey}`,
+                    medium: `${cdnURL}/${bucketName}/${uploadedImages[1].fileKey}`,
+                    large: `${cdnURL}/${bucketName}/${uploadedImages[2].fileKey}`
+                }
+            );
+        } else {
+            // If the images failed to upload, we want to delete the map image object
+            // if there was no previous thumbnail
+            if (!thumbnail.small) this.mapRepo.deleteImage({ id: thumbnail.id });
+            throw new BadGatewayException('Failed to upload image to cdn');
+        }
+    }
+    //#endregion
+
     //#region Map Zones
 
     async getZones(mapID: number): Promise<MapTrackDto[]> {

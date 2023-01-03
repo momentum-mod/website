@@ -521,7 +521,50 @@ export class MapsController {
     deleteImage(@LoggedInUser('id') userID: number, @Param('imgID', ParseIntPipe) imgID: number): Promise<void> {
         return this.mapsService.deleteImage(userID, imgID);
     }
+
     //#endregion
+
+    //#region Thumbnail
+    @Put('/:mapID/thumbnail')
+    @Roles(RolesEnum.MAPPER)
+    @HttpCode(HttpStatus.NO_CONTENT)
+    @UseInterceptors(FileInterceptor('file'))
+    @ApiOperation({ summary: "Updates a map's thumbnail" })
+    @ApiNoContentResponse({ description: 'Thumbnail updated successfully' })
+    @ApiNotFoundResponse({ description: 'Map not found' })
+    @ApiForbiddenResponse({ description: 'Map is not in NEEDS_REVISION state' })
+    @ApiForbiddenResponse({ description: 'User does not have the mapper role' })
+    @ApiForbiddenResponse({ description: 'User is not the submitter of the map' })
+    @ApiBadRequestResponse({ description: 'Invalid image data' })
+    @ApiParam({
+        name: 'mapID',
+        type: Number,
+        description: 'Target Map ID',
+        required: true
+    })
+    @ApiBody({
+        schema: {
+            type: 'object',
+            properties: {
+                file: {
+                    type: 'string',
+                    format: 'binary'
+                }
+            }
+        }
+    })
+    updateThumbnail(
+        @LoggedInUser('id') userID: number,
+        @Param('mapID', ParseIntPipe) mapID: number,
+        @UploadedFile() file: Express.Multer.File
+    ): Promise<void> {
+        if (!file || !file.buffer || !Buffer.isBuffer(file.buffer)) throw new BadRequestException('Invalid image data');
+
+        return this.mapsService.updateThumbnail(userID, mapID, file.buffer);
+    }
+
+    //#endregion
+
     //#region Private
 
     // Frontend reads this header property and sends upload POST to that endpoint
