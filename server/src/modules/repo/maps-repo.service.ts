@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from './prisma.service';
-import { Map, MapCredit, MapInfo, MapStats, MapTrack, MapZone, MapZoneTrigger, Prisma } from '@prisma/client';
+import { Map, MapCredit, MapImage, MapInfo, MapStats, MapTrack, MapZone, MapZoneTrigger, Prisma } from '@prisma/client';
 
 @Injectable()
 export class MapsRepoService {
@@ -166,7 +166,24 @@ export class MapsRepoService {
             }
         });
     }
+    //#endregion
 
+    //#region Map Images
+    async getImages(where: Prisma.MapInfoWhereInput, include?: Prisma.MapInfoInclude): Promise<MapImage[]> {
+        return this.prisma.mapImage.findMany({ where: where, include: include });
+    }
+
+    async createImage(mapID: number): Promise<MapImage> {
+        return this.prisma.mapImage.create({
+            data: {
+                mapID: mapID
+            }
+        });
+    }
+
+    async deleteImage(where: Prisma.MapImageWhereUniqueInput): Promise<void> {
+        await this.prisma.mapImage.delete({ where: where });
+    }
     //#endregion
 
     //#region Map Stats

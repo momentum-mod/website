@@ -1,4 +1,5 @@
 import {
+    BadGatewayException,
     BadRequestException,
     ConflictException,
     ForbiddenException,
@@ -19,6 +20,12 @@ import { CreateMapCreditDto, MapCreditDto, UpdateMapCreditDto } from '@common/dt
 import { MapInfoDto, UpdateMapInfoDto } from '@common/dto/map/map-info.dto';
 import { MapTrackDto } from '@common/dto/map/map-track.dto';
 import { MapsCtlGetAllQuery } from '@common/dto/query/map-queries.dto';
+import { MapImageDto } from '../../common/dto/map/map-image.dto';
+import { FileStoreCloudFile } from '../filestore/file-store.interfaces';
+import { ConfigService } from '@nestjs/config';
+import sharp from 'sharp';
+
+const MAP_IMAGE_UPLOAD_LIMIT = 5; // TODO: Move this to a separate config file
 
 @Injectable()
 export class MapsService {
@@ -26,7 +33,8 @@ export class MapsService {
         private readonly authService: AuthService,
         private readonly mapRepo: MapsRepoService,
         private readonly userRepo: UsersRepoService,
-        private readonly fileCloudService: FileStoreCloudService
+        private readonly fileCloudService: FileStoreCloudService,
+        private readonly config: ConfigService
     ) {}
 
     //#region Maps
@@ -441,7 +449,77 @@ export class MapsService {
 
     //#endregion
 
-    //#region Zones
+    //#region Map Images
+    async getImages(mapID: number): Promise<MapImageDto[]> {
+        const map = await this.mapRepo.get(mapID);
+        if (!map) throw new NotFoundException('Map not found');
+
+        const where: Prisma.MapImageWhereInput = {
+            mapID: mapID
+        };
+        const images = await this.mapRepo.getImages(where);
+        return images.map((x) => DtoFactory(MapImageDto, x));
+    }
+    async createImage(userID: number, mapID: number, imgBuffer: Buffer): Promise<MapImageDto> {
+        const map = await this.mapRepo.get(mapID);
+        if (!map) throw new NotFoundException('Map not found');
+
+        if (map.submitterID !== userID) throw new ForbiddenException('User is not the submitter of the map');
+
+        if (map.statusFlag !== MapStatus.NEEDS_REVISION)
+            throw new ForbiddenException('Map is not in NEEDS_REVISION state');
+
+        const mapImages = await this.mapRepo.getImages({ mapID: mapID });
+        let imageCount = mapImages.length;
+        if (map.thumbnailID) imageCount--; // Don't count the thumbnail towards this limit
+        if (imageCount >= MAP_IMAGE_UPLOAD_LIMIT) throw new ConflictException('Map image file limit reached');
+
+        const newImage = await this.mapRepo.createImage(mapID);
+        const uploadedImages = await this.storeMapImage(imgBuffer, newImage.id);
+        if (uploadedImages) {
+            const cdnURL = this.config.get('url.cdn');
+            const bucketName = this.config.get('storage.bucketName');
+            return this.mapRepo.updateImage(
+                { id: newImage.id },
+                {
+                    small: `${cdnURL}/${bucketName}/${uploadedImages[0].fileKey}`,
+                    medium: `${cdnURL}/${bucketName}/${uploadedImages[1].fileKey}`,
+                    large: `${cdnURL}/${bucketName}/${uploadedImages[2].fileKey}`
+                }
+            );
+        } else {
+            this.mapRepo.deleteImage({ id: newImage.id });
+            throw new BadGatewayException('Error uploading image to cdn');
+        }
+    }
+
+    async editSaveMapImageFile(
+        imgBuffer: Buffer,
+        fileName: string,
+        width: number,
+        height: number
+    ): Promise<FileStoreCloudFile> {
+        try {
+            return this.fileCloudService.storeFileCloud(
+                await sharp(imgBuffer).resize(width, height, { fit: 'inside' }).jpeg({ mozjpeg: true }).toBuffer(),
+                fileName
+            );
+        } catch {
+            // This looks bad, but sharp is very non-specific about its errors
+            throw new BadRequestException('Invalid image file');
+        }
+    }
+
+    async storeMapImage(imgBuffer: Buffer, imgID: number): Promise<FileStoreCloudFile[]> {
+        return Promise.all([
+            this.editSaveMapImageFile(imgBuffer, `img/${imgID}-small.jpg`, 480, 360),
+            this.editSaveMapImageFile(imgBuffer, `img/${imgID}-medium.jpg`, 1280, 720),
+            this.editSaveMapImageFile(imgBuffer, `img/${imgID}-large.jpg`, 1920, 1080)
+        ]);
+    }
+    //#endregion
+
+    //#region Map Zones
 
     async getZones(mapID: number): Promise<MapTrackDto[]> {
         const map = await this.mapRepo.get(mapID, { stats: true });

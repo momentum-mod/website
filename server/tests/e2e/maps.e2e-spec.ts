@@ -16,6 +16,7 @@ import { DeleteObjectCommand, S3Client } from '@aws-sdk/client-s3';
 import { UserDto } from '@common/dto/user/user.dto';
 import { MapTrackDto } from '@common/dto/map/map-track.dto';
 import { expandTest, skipTest, takeTest } from '@tests/util/generic-e2e-tests.util';
+import { MapImageDto } from '@common/dto/map/map-image.dto';
 
 const hash = (buffer: Buffer) => createHash('sha1').update(buffer).digest('hex');
 
@@ -2000,133 +2001,58 @@ describe('Maps', () => {
             }));
     });
 
-    //     describe('PUT /maps/{mapID}/thumbnail', () => {
-    //         it('should upload and update the thumbnail for a map', async () => {
-    //             await request(global.server)
-    //                 .put(`maps /${map1.id}/thumbnail`)
-    //                 .set('Accept', 'application/json')
-    //                 .set('Authorization', 'Bearer ' + global.accessToken)
-    //                 .attach('thumbnailFile', readFileSync('test/testImage.jpg'), 'testImage.jpg')
-    //                 .expect(204);
-    //         });
-    //
-    //         it('should return a 400 if no thumbnail file is provided', async () => {
-    //             await request(global.server)
-    //                 .put(`maps /${map1.id}/thumbnail`)
-    //                 .set('Accept', 'application/json')
-    //                 .set('Authorization', 'Bearer ' + global.accessToken)
-    //                 .expect(400);
-    //         });
-    //
-    //         it('should return a 403 if the submitter ID does not match the userId', async () => {
-    //             await request(global.server)
-    //                 .put(`maps /${map1.id}/thumbnail`)
-    //                 .set('Accept', 'application/json')
-    //                 .set('Authorization', 'Bearer ' + 1) // decide a sensible access token to use here
-    //                 .attach('thumbnailFile', readFileSync('test/testImage.jpg'), 'testImage.jpg')
-    //                 .expect(403);
-    //         });
-    //
-    //         it('should respond with 401 when no access token is provided', async () => {
-    //             await request(global.server)
-    //                 .put(`maps /${map1.id}/thumbnail`)
-    //                 .set('Accept', 'application/json')
-    //                 .attach('thumbnailFile', readFileSync('test/testImage.jpg'), 'testImage.jpg')
-    //                 .expect(401);
-    //         });
-    //     });
-    //
-    //     describe('POST /maps/{mapID}/images', () => {
-    //         it('should create a map image for the specified map', async () => {
-    //             await request(global.server)
-    //                 .post(`maps /${map1.id}/images`)
-    //                 .attach('mapImageFile', readFileSync('test/testImage.jpg'), 'testImage.jpg')
-    //                 .set('Accept', 'application/json')
-    //                 .set('Authorization', 'Bearer ' + global.accessToken)
-    //                 .expect(200);
-    //         });
-    //
-    //         it('should respond with 401 when no access token is provided', () => post({
-    // url: `maps /${map1.id}/images`, status:401));
-    //     });
-    //
-    //     describe('GET maps/{mapID}/images', () => {
-    //         it('should respond with a list of images', async () => {
-    //             const res = await get({
-    // url: `maps/${map1.id}/images`, status:200);
-    //
-    //             expect(res.body.images[0]).toHaveProperty('small');
-    //             expect(res.body.images[0]).toHaveProperty('medium');
-    //             expect(res.body.images[0]).toHaveProperty('large');
-    //             expect(res.body.images[0]).toHaveProperty('mapID');
-    //         });
-    //
-    //         it('should respond with 401 when no access token is provided', () => get({
-    // url: `maps/${map1.id}/images`, status:401));
-    //     });
-    //
-    //     describe('GET maps/{mapID}/images/{imgID}', () => {
-    //         // Don't know why this is failing
-    //         it('should respond with 404 when the image is not found', () => get({
-    // url: `maps/${map1.id}/images/12345`, status:404));
-    //
-    //         it('should respond with image info', async () => {
-    //             const res = await get({
-    // url: `maps /${map1.id}/images/${map1.images.id}`, status:200);
-    //
-    //             expect(res.body).toBeValidDto(MapImageDto);
-    //             expect(res.body.mapID).toEqual(map1.id);
-    //         });
-    //
-    //         it('should respond with 401 when no access token is provided', () =>
-    //             get({
-    // url: `maps /${map1.id}/images/${map1.images.id}`, status:401));
-    //     });
-    //
-    //     describe('PUT maps/{mapID}/images/{imgID}', () => {
-    //         it('should respond with 404 when the image is not found', async () => {
-    //             const file = readFileSync('test/testImage2.jpg');
-    //             const res = await request(global.server)
-    //                 .put(`maps /${map1.id}/images/99`)
-    //                 .attach('mapImageFile', file, 'testImage2.jpg')
-    //                 .expect(200);
-    //
-    //             expect(res.body).toHaveProperty('error');
-    //             expect(res.body.error.code).toEqual(404);
-    //             expect(typeof res.body.error.message).toBe('string');
-    //         });
-    //
-    //         it('should respond with 400 when no map image is provided', async () => {
-    //             const res = await request(global.server)
-    //                 .put(`maps/${map1.id}/images/${map1.images[0].id}`)
-    //                 .type('form')
-    //                 .expect(400);
-    //
-    //             expect(res.body).toHaveProperty('error');
-    //             expect(res.body.error.code).toEqual(400);
-    //             expect(typeof res.body.error.message).toBe('string');
-    //         });
-    //
-    //         it('should update the map image', async () => {
-    //             await request(global.server)
-    //                 .put(`maps /${map1.id}/images/${map1.images[0].id}`)
-    //                 .attach('mapImageFile', readFileSync('test/testImage2.jpg'), 'testImage2.jpg')
-    //                 .expect(204);
-    //         });
-    //
-    //         it('should respond with 401 when no access token is provided', () =>
-    //             put({
-    // url: `maps /${map1.id}/images/${map1.images.id}`, status:401));
-    //     });
-    //
-    //     describe('DELETE maps/{mapID}/images/{imgID}', () => {
-    //         it('should delete the map image', () => del({
-    // url: `maps /${map1.id}/images/${map1.images[0].id}`, status:204));
-    //
-    //         it('should respond with 401 when no access token is provided', () =>
-    //             del({
-    // url: `maps /${map1.id}/images/${map1.images.id}`, status:401));
-    //     });
+    describe('POST /maps/{mapID}/images', () => {
+        it('should create a map image for the specified map', async () => {
+            const res = await postAttach({
+                url: `maps/${map1.id}/images`,
+                status: 201,
+                file: 'image.jpg',
+                token: user1Token
+            });
+            const urls = [res.body.small, res.body.medium, res.body.large];
+            for (const url of urls) expect(url).toBeDefined();
+        });
+
+        it('should respond with 409 when the map image limit has been reached', async () => {
+            await postAttach({ url: `maps/${map1.id}/images`, status: 201, file: 'image.jpg', token: user1Token });
+            await postAttach({ url: `maps/${map1.id}/images`, status: 201, file: 'image.jpg', token: user1Token });
+            await postAttach({ url: `maps/${map1.id}/images`, status: 201, file: 'image.jpg', token: user1Token });
+            await postAttach({ url: `maps/${map1.id}/images`, status: 201, file: 'image.jpg', token: user1Token });
+            await postAttach({ url: `maps/${map1.id}/images`, status: 409, file: 'image.jpg', token: user1Token });
+        }, 10000);
+
+        it('should respond with 400 if the map image is invalid', () =>
+            postAttach({ url: `maps/${map1.id}/images`, status: 400, file: 'map.zon', token: user1Token }));
+
+        it('should respond with 400 if no file is provided', () =>
+            post({ url: `maps/${map1.id}/images`, status: 400, token: user1Token }));
+
+        it('should respond with 403 if the user is not a mapper', () =>
+            postAttach({ url: `maps/${map4.id}/images`, status: 403, file: 'image2.jpg', token: user2Token }));
+
+        it('should respond with 403 if the user is not the submitter of the map', () =>
+            postAttach({ url: `maps/${map1.id}/images`, status: 403, file: 'image.jpg', token: user3Token }));
+
+        it('should respond with 401 when no access token is provided', () =>
+            postAttach({ url: `maps/${map1.id}/images`, status: 401, file: 'image.jpg' }));
+    });
+
+    describe('GET maps/{mapID}/images', () => {
+        const expects = (res) => {
+            for (const x of res.body) expect(x).toBeValidDto(MapImageDto);
+        };
+        it('should respond with a list of images', async () => {
+            const res = await get({ url: `maps/${map1.id}/images`, status: 200, token: user1Token });
+            expects(res);
+            expect(res.body).toHaveLength(2);
+        });
+
+        it('should respond with 404 if map does not exist', () =>
+            get({ url: 'maps/11235813/images', status: 404, token: user1Token }));
+
+        it('should respond with 401 when no access token is provided', () =>
+            get({ url: `maps/${map1.id}/images`, status: 401 }));
+    });
 
     describe('GET maps/{mapID}/runs', () => {
         const expects = (res) => expect(res.body).toBeValidPagedDto(RunDto);
