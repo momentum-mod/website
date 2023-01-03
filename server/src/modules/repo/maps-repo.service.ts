@@ -173,11 +173,22 @@ export class MapsRepoService {
         return this.prisma.mapImage.findMany({ where: where, include: include });
     }
 
+    async getImage(imgID: number) {
+        return this.prisma.mapImage.findUnique({ where: { id: imgID } });
+    }
+
     async createImage(mapID: number): Promise<MapImage> {
         return this.prisma.mapImage.create({
             data: {
                 mapID: mapID
             }
+        });
+    }
+
+    async updateImage(where: Prisma.MapImageWhereUniqueInput, data: Prisma.MapImageUpdateInput): Promise<MapImage> {
+        return this.prisma.mapImage.update({
+            where: where,
+            data: data
         });
     }
 
