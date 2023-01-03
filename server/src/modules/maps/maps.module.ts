@@ -9,9 +9,10 @@ import { SessionModule } from '../session/session.module';
 import { RunsService } from '../runs/runs.service';
 import { MapLibraryService } from './map-library.service';
 import { RolesGuard } from '@modules/auth/guards/roles.guard';
+import { ConfigModule } from '@nestjs/config';
 
 @Module({
-    imports: [RepoModule, AuthModule, FileStoreModule, SessionModule], // TODO: why is auth needed?
+    imports: [RepoModule, AuthModule, FileStoreModule, SessionModule, ConfigModule], // TODO: why is auth needed?
     controllers: [MapsController],
     providers: [{ provide: APP_GUARD, useClass: RolesGuard }, MapsService, RunsService, MapLibraryService],
     exports: [MapsService, MapLibraryService]

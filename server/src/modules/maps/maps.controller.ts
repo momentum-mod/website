@@ -44,6 +44,7 @@ import { MapTrackDto } from '@common/dto/map/map-track.dto';
 import { MapsCtlRunsGetAllQuery } from '@common/dto/query/run-queries.dto';
 import { RunDto } from '@common/dto/run/runs.dto';
 import { RunsService } from '../runs/runs.service';
+import { MapImageDto } from '../../common/dto/map/map-image.dto';
 
 @Controller('api/maps')
 @ApiTags('Maps')
@@ -397,6 +398,60 @@ export class MapsController {
 
     //#endregion
 
+    //#region Images
+    @Get('/:mapID/images')
+    @ApiOperation({ summary: "Gets a map's images" })
+    @ApiOkResponse({ description: "The found map's images" })
+    @ApiNotFoundResponse({ description: 'Map not found' })
+    @ApiParam({
+        name: 'mapID',
+        type: Number,
+        description: 'Target Map ID',
+        required: true
+    })
+    getImages(@Param('mapID', ParseIntPipe) mapID: number): Promise<MapImageDto[]> {
+        return this.mapsService.getImages(mapID);
+    }
+
+
+    @Post('/:mapID/images')
+    @Roles(RolesEnum.MAPPER)
+    @UseInterceptors(FileInterceptor('file'))
+    @ApiOperation({ summary: 'Uploads an image for the map' })
+    @ApiCreatedResponse({ description: 'The newly created map image', type: MapImageDto })
+    @ApiNotFoundResponse({ description: 'Map not found' })
+    @ApiForbiddenResponse({ description: 'Map is not in NEEDS_REVISION state' })
+    @ApiForbiddenResponse({ description: 'User does not have the mapper role' })
+    @ApiForbiddenResponse({ description: 'User is not the submitter of the map' })
+    @ApiBadRequestResponse({ description: 'Invalid image data' })
+    @ApiParam({
+        name: 'mapID',
+        type: Number,
+        description: 'Target Map ID',
+        required: true
+    })
+    @ApiConsumes('multipart/form-data')
+    @ApiBody({
+        schema: {
+            type: 'object',
+            properties: {
+                file: {
+                    type: 'string',
+                    format: 'binary'
+                }
+            }
+        }
+    })
+    createImage(
+        @LoggedInUser('id') userID: number,
+        @Param('mapID', ParseIntPipe) mapID: number,
+        @UploadedFile() file: Express.Multer.File
+    ): Promise<MapImageDto> {
+        if (!file || !file.buffer || !Buffer.isBuffer(file.buffer)) throw new BadRequestException('Invalid image data');
+
+        return this.mapsService.createImage(userID, mapID, file.buffer);
+    }
+    //#endregion
     //#region Private
 
     // Frontend reads this header property and sends upload POST to that endpoint
