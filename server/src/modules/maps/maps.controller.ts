@@ -13,7 +13,8 @@ import {
     HttpStatus,
     BadRequestException,
     Patch,
-    Delete
+    Delete,
+    Put
 } from '@nestjs/common';
 import {
     ApiBearerAuth,
@@ -413,6 +414,18 @@ export class MapsController {
         return this.mapsService.getImages(mapID);
     }
 
+    @Get('/images/:imgID')
+    @ApiOperation({ summary: 'Gets a single map image' })
+    @ApiOkResponse({ description: 'The found map image' })
+    @ApiNotFoundResponse({ description: 'Map image not found' })
+    @ApiParam({
+        name: 'imgID',
+        type: Number,
+        description: 'Target map image'
+    })
+    getImage(@Param('imgID', ParseIntPipe) imgID: number): Promise<MapImageDto> {
+        return this.mapsService.getImage(imgID);
+    }
 
     @Post('/:mapID/images')
     @Roles(RolesEnum.MAPPER)
@@ -450,6 +463,63 @@ export class MapsController {
         if (!file || !file.buffer || !Buffer.isBuffer(file.buffer)) throw new BadRequestException('Invalid image data');
 
         return this.mapsService.createImage(userID, mapID, file.buffer);
+    }
+
+    @Put('/images/:imgID')
+    @Roles(RolesEnum.MAPPER)
+    @HttpCode(HttpStatus.NO_CONTENT)
+    @UseInterceptors(FileInterceptor('file'))
+    @ApiOperation({ summary: 'Updates a map image' })
+    @ApiNoContentResponse({ description: 'Image updated successfully' })
+    @ApiNotFoundResponse({ description: 'Image not found' })
+    @ApiForbiddenResponse({ description: 'Map is not in NEEDS_REVISION state' })
+    @ApiForbiddenResponse({ description: 'User does not have the mapper role' })
+    @ApiForbiddenResponse({ description: 'User is not the submitter of the map' })
+    @ApiBadRequestResponse({ description: 'Invalid image data' })
+    @ApiParam({
+        name: 'imgID',
+        type: Number,
+        description: 'Target Image ID',
+        required: true
+    })
+    @ApiBody({
+        schema: {
+            type: 'object',
+            properties: {
+                file: {
+                    type: 'string',
+                    format: 'binary'
+                }
+            }
+        }
+    })
+    updateImage(
+        @LoggedInUser('id') userID: number,
+        @Param('imgID', ParseIntPipe) imgID: number,
+        @UploadedFile() file: Express.Multer.File
+    ): Promise<void> {
+        if (!file || !file.buffer || !Buffer.isBuffer(file.buffer)) throw new BadRequestException('Invalid image data');
+
+        return this.mapsService.updateImage(userID, imgID, file.buffer);
+    }
+
+    @Delete('/images/:imgID')
+    @Roles(RolesEnum.MAPPER)
+    @HttpCode(HttpStatus.NO_CONTENT)
+    @ApiOperation({ summary: 'Deletes a map image' })
+    @ApiNoContentResponse({ description: 'Image deleted successfully' })
+    @ApiNotFoundResponse({ description: 'Image not found' })
+    @ApiForbiddenResponse({ description: 'Map is not in NEEDS_REVISION state' })
+    @ApiForbiddenResponse({ description: 'User does not have the mapper role' })
+    @ApiForbiddenResponse({ description: 'User is not the submitter of the map' })
+    @ApiParam({
+        name: 'imgID',
+        type: Number,
+        description: 'Target Image ID',
+        required: true
+    })
+    deleteImage(@LoggedInUser('id') userID: number, @Param('imgID', ParseIntPipe) imgID: number): Promise<void> {
+        return this.mapsService.deleteImage(userID, imgID);
     }
     //#endregion
     //#region Private

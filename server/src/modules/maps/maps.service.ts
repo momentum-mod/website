@@ -460,6 +460,13 @@ export class MapsService {
         const images = await this.mapRepo.getImages(where);
         return images.map((x) => DtoFactory(MapImageDto, x));
     }
+
+    async getImage(imgID: number): Promise<MapImageDto> {
+        const mapImg = await this.mapRepo.getImage(imgID);
+        if (!mapImg) throw new NotFoundException('Map image not found');
+        return DtoFactory(MapImageDto, mapImg);
+    }
+
     async createImage(userID: number, mapID: number, imgBuffer: Buffer): Promise<MapImageDto> {
         const map = await this.mapRepo.get(mapID);
         if (!map) throw new NotFoundException('Map not found');
@@ -493,6 +500,34 @@ export class MapsService {
         }
     }
 
+    async updateImage(userID: number, imgID: number, imgBuffer: Buffer): Promise<void> {
+        const img = await this.mapRepo.getImage(imgID);
+        if (!img) throw new NotFoundException('Image not found');
+
+        const map = await this.mapRepo.get(img.mapID);
+        if (map.submitterID !== userID) throw new ForbiddenException('User is not the submitter of the map');
+
+        if (map.statusFlag !== MapStatus.NEEDS_REVISION)
+            throw new ForbiddenException('Map is not in NEEDS_REVISION state');
+
+        const uploadedImages = await this.storeMapImage(imgBuffer, imgID);
+        if (!uploadedImages) throw new BadGatewayException('Failed to upload image to cdn');
+    }
+
+    async deleteImage(userID: number, imgID: number): Promise<void> {
+        const img = await this.mapRepo.getImage(imgID);
+        if (!img) throw new NotFoundException('Image not found');
+
+        const map = await this.mapRepo.get(img.mapID);
+        if (map.submitterID !== userID) throw new ForbiddenException('User is not the submitter of the map');
+
+        if (map.statusFlag !== MapStatus.NEEDS_REVISION)
+            throw new ForbiddenException('Map is not in NEEDS_REVISION state');
+
+        await this.deleteStoredMapImage(imgID);
+        await this.mapRepo.deleteImage({ id: imgID });
+    }
+
     async editSaveMapImageFile(
         imgBuffer: Buffer,
         fileName: string,
@@ -515,6 +550,14 @@ export class MapsService {
             this.editSaveMapImageFile(imgBuffer, `img/${imgID}-small.jpg`, 480, 360),
             this.editSaveMapImageFile(imgBuffer, `img/${imgID}-medium.jpg`, 1280, 720),
             this.editSaveMapImageFile(imgBuffer, `img/${imgID}-large.jpg`, 1920, 1080)
+        ]);
+    }
+
+    async deleteStoredMapImage(imgID: number): Promise<void> {
+        await Promise.all([
+            this.fileCloudService.deleteFileCloud(`img/${imgID}-small.jpg`),
+            this.fileCloudService.deleteFileCloud(`img/${imgID}-medium.jpg`),
+            this.fileCloudService.deleteFileCloud(`img/${imgID}-large.jpg`)
         ]);
     }
     //#endregion

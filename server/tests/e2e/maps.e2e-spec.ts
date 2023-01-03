@@ -4,7 +4,7 @@ import { AuthService } from '@modules/auth/auth.service';
 import { PrismaService } from '@modules/repo/prisma.service';
 import { MapStatus, MapCreditType, MapType } from '@common/enums/map.enum';
 import { MapDto } from '@common/dto/map/map.dto';
-import { del, get, getNoContent, patch, post, postAttach } from '../util/request-handlers.util';
+import { del, get, getNoContent, patch, post, postAttach, put, putAttach } from '../util/request-handlers.util';
 import { MapInfoDto } from '@common/dto/map/map-info.dto';
 import { MapCreditDto } from '@common/dto/map/map-credit.dto';
 import { RunDto } from '@common/dto/run/runs.dto';
@@ -2052,6 +2052,69 @@ describe('Maps', () => {
 
         it('should respond with 401 when no access token is provided', () =>
             get({ url: `maps/${map1.id}/images`, status: 401 }));
+    });
+
+    describe('GET maps/images/{imgID}', () => {
+        it('should respond with 404 when the image is not found', () =>
+            get({ url: `maps/${map1.id}/images/12345`, status: 404, token: user1Token }));
+
+        it('should respond with image info', async () => {
+            const res = await get({ url: `maps/images/${map1.images[0].id}`, status: 200, token: user1Token });
+            expect(res.body).toBeValidDto(MapImageDto);
+        });
+
+        it('should respond with 401 when no access token is provided', () =>
+            get({ url: `maps/images/${map1.images.id}`, status: 401 }));
+    });
+
+    describe('PUT maps/images/{imgID}', () => {
+        it('should update the map image', async () => {
+            const oldImage = await (global.prisma as PrismaService).mapImage.findUnique({
+                where: { id: map1.images[0].id }
+            });
+            await putAttach({ url: `maps/images/${oldImage.id}`, status: 204, file: 'image2.jpg', token: user1Token });
+        });
+
+        it('should respond with 404 when the image is not found', () =>
+            putAttach({ url: 'maps/images/113707311', status: 404, file: 'image2.jpg', token: user1Token }));
+
+        it('should respond with 400 when no map image is provided', () =>
+            put({ url: `maps/images/${map1.images[0].id}`, status: 400, token: user1Token }));
+
+        it('should respond with 400 if the map image is invalid', () =>
+            putAttach({ url: `maps/images/${map1.images[0].id}`, status: 400, file: 'map.zon', token: user1Token }));
+
+        it('should respond with 400 if no file is provided', () =>
+            put({ url: `maps/images/${map1.images[0].id}`, status: 400, token: user1Token }));
+
+        it('should respond with 403 if the user is not a mapper', () =>
+            putAttach({ url: `maps/images/${map1.images[0].id}`, status: 403, file: 'image2.jpg', token: user2Token }));
+
+        it('should respond with 403 if the user is not the submitter of the map', () =>
+            putAttach({ url: `maps/images/${map1.images[0].id}`, status: 403, file: 'image.jpg', token: user3Token }));
+
+        it('should respond with 401 when no access token is provided', () =>
+            putAttach({ url: `maps/images/${map1.images[0].id}`, status: 401, file: 'image2.jpg' }));
+    });
+
+    describe('DELETE maps/images/{imgID}', () => {
+        it('should delete the map image', async () => {
+            await del({ url: `maps/images/${map1.images[0].id}`, status: 204, token: user1Token });
+            const updatedMap = await (global.prisma as PrismaService).map.findUnique({
+                where: { id: map1.id },
+                include: { images: true }
+            });
+            expect(updatedMap.images).toHaveLength(1);
+        });
+
+        it('should respond with 403 if the user is not a mapper', () =>
+            del({ url: `maps/images/${map1.images[0].id}`, status: 403, token: user2Token }));
+
+        it('should respond with 403 if the user is not the submitter of the map', () =>
+            del({ url: `maps/images/${map1.images[0].id}`, status: 403, token: user3Token }));
+
+        it('should respond with 401 when no access token is provided', () =>
+            del({ url: `maps/images/${map1.images[0].id}`, status: 401 }));
     });
 
     describe('GET maps/{mapID}/runs', () => {
