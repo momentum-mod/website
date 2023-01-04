@@ -184,8 +184,12 @@ export class AdminController {
         required: true
     })
     @ApiNoContentResponse({ description: 'The report was updated successfully' })
-    updateReport(@Param('reportID', ParseIntPipe) _reportID: number, @Body() _body: ReportDto) {
-        return void 0;
+    updateReport(
+        @LoggedInUser('id') userID: number,
+        @Param('reportID', ParseIntPipe) reportID: number,
+        @Body() body: UpdateReportDto
+    ) {
+        return this.adminService.updateReport(userID, reportID, body);
     }
 
     // TODO: XPSystem GET/PUT

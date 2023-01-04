@@ -262,6 +262,7 @@ model Report {
     createdAt DateTime @default(now())
     updatedAt DateTime @updatedAt
 
+    @@unique(id)
     @@index([resolverID, submitterID])
 }
 

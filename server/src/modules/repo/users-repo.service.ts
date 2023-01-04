@@ -546,7 +546,7 @@ export class UsersRepoService {
     //#endregion
 
     async getAllReports(where?: Prisma.ReportWhereInput, skip?: number, take?: number): Promise<[Report[], number]> {
-        const count = await this.prisma.report.count();
+        const count = await this.prisma.report.count({ where: where });
         const reports = await this.prisma.report.findMany({
             where: where,
             skip: skip,
@@ -558,6 +558,13 @@ export class UsersRepoService {
     async createReport(input: Prisma.ReportCreateInput): Promise<Report> {
         return this.prisma.report.create({
             data: input
+        });
+    }
+
+    async updateReports(where: Prisma.ReportWhereUniqueInput, data: Prisma.ReportUpdateInput) {
+        return this.prisma.report.update({
+            where: where,
+            data: data
         });
     }
 }
