@@ -922,6 +922,7 @@ describe('Admin', () => {
                 status: 403,
                 token: nonAdminAccessToken
             }));
+
         it('should return 401 if no access token is given', () =>
             getNoContent({
                 url: 'admin/reports',
@@ -932,7 +933,7 @@ describe('Admin', () => {
     describe('PATCH /api/admin/reports/{reportID}', () => {
         it('should edit a report', async () => {
             await patch({
-                url: `admin/reports/{report1.id}`,
+                url: `admin/reports/${report1.id}`,
                 status: 204,
                 body: {
                     resolved: true,
@@ -946,7 +947,32 @@ describe('Admin', () => {
                 }
             });
             expect(changedReport.resolved).toBe(true);
+            expect(changedReport.resolutionMessage).toBe('resolved');
         });
+
+        it('should return 404 if targeting a non existant report', () =>
+            patch({
+                url: 'admin/reports/9999999999',
+                status: 404,
+                body: {
+                    resolved: true,
+                    resolutionMessage: 'resolved'
+                },
+                token: adminUserToken
+            }));
+
+        it('should return 403 if a non admin access token is given', () =>
+            patch({
+                url: `admin/reports/${report1.id}`,
+                status: 403,
+                token: nonAdminAccessToken
+            }));
+
+        it('should return 401 if no access token is given', () =>
+            patch({
+                url: `admin/reports/${report1.id}`,
+                status: 401
+            }));
     });
 
     // describe('GET /api/admin/maps', () => {

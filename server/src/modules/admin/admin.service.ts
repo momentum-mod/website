@@ -13,7 +13,7 @@ import { DtoFactory } from '@lib/dto.lib';
 import { MapsRepoService } from '../repo/maps-repo.service';
 import { Bitflags } from '@lib/bitflag.lib';
 import { UpdateRolesDto } from '@common/dto/user/roles.dto';
-import { ReportDto } from '@common/dto/report/report.dto';
+import { ReportDto, UpdateReportDto } from '@common/dto/report/report.dto';
 
 @Injectable()
 export class AdminService {
@@ -192,5 +192,22 @@ export class AdminService {
         const where = { resolved: resolved };
         const dbResponse = await this.userRepo.getAllReports(where, skip, take);
         return new PaginatedResponseDto(ReportDto, dbResponse);
+    }
+
+    async updateReport(userID: number, reportID: number, reportDto: UpdateReportDto) {
+        const reports = await this.userRepo.getAllReports({ id: reportID });
+
+        if (reports[1] === 0) throw new NotFoundException('Report not found');
+
+        const where: Prisma.ReportWhereUniqueInput = {
+            id: reportID
+        };
+        const data: Prisma.ReportUpdateInput = {
+            resolved: reportDto.resolved,
+            resolutionMessage: reportDto.resolutionMessage
+        };
+        if (reportDto.resolved) data.resolver = { connect: { id: userID } };
+
+        return await this.userRepo.updateReports(where, data);
     }
 }
