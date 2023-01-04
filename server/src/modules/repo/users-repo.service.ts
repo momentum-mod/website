@@ -555,6 +555,12 @@ export class UsersRepoService {
         return [reports, count];
     }
 
+    async getReport(where?: Prisma.ReportWhereUniqueInput): Promise<Report> {
+        return await this.prisma.report.findUnique({
+            where: where
+        });
+    }
+
     async createReport(input: Prisma.ReportCreateInput): Promise<Report> {
         return this.prisma.report.create({
             data: input

@@ -948,9 +948,10 @@ describe('Admin', () => {
             });
             expect(changedReport.resolved).toBe(true);
             expect(changedReport.resolutionMessage).toBe('resolved');
+            expect(changedReport.resolverID).toBe(adminUser.id);
         });
 
-        it('should return 404 if targeting a non existant report', () =>
+        it('should return 404 if targeting a nonexistent report', () =>
             patch({
                 url: 'admin/reports/9999999999',
                 status: 404,

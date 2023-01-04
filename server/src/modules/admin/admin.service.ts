@@ -195,9 +195,9 @@ export class AdminService {
     }
 
     async updateReport(userID: number, reportID: number, reportDto: UpdateReportDto) {
-        const reports = await this.userRepo.getAllReports({ id: reportID });
+        const report = await this.userRepo.getReport({ id: reportID });
 
-        if (reports[1] === 0) throw new NotFoundException('Report not found');
+        if (!report) throw new NotFoundException('Report not found');
 
         const where: Prisma.ReportWhereUniqueInput = {
             id: reportID
@@ -208,6 +208,6 @@ export class AdminService {
         };
         if (reportDto.resolved) data.resolver = { connect: { id: userID } };
 
-        return await this.userRepo.updateReports(where, data);
+        await this.userRepo.updateReports(where, data);
     }
 }

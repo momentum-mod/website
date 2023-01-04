@@ -1,7 +1,7 @@
 ﻿import { plainToInstance, Transform, Type as TypeDecorator } from 'class-transformer';
 import { applyDecorators, Type } from '@nestjs/common';
 import { ApiProperty, ApiPropertyOptional, ApiPropertyOptions } from '@nestjs/swagger';
-import { IsArray, IsInt, IsOptional, IsPositive, ValidateNested } from 'class-validator';
+import { IsArray, IsInt, IsOptional, IsPositive, IsBoolean, ValidateNested } from 'class-validator';
 
 /**
  * Factory method for constructing DTOs from objects (often from Prisma) easily.
@@ -105,4 +105,18 @@ export function ExpandToPrismaIncludes(expansions: string[]): Record<string, boo
     const includes: Record<string, boolean> = {};
     for (const expansion of expansions) includes[expansion] = true;
     return includes;
+}
+
+/**
+ * Makes booleans work for queries
+ * */
+
+export function BooleanQueryParam() {
+    return applyDecorators(
+        Transform(({ value }) => {
+            if (value && typeof value == 'string') return value === 'true';
+            return;
+        }),
+        IsBoolean()
+    );
 }

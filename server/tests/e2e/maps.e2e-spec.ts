@@ -818,6 +818,18 @@ describe('Maps', () => {
 
             expect(res.body.totalCount).toBe(2);
             expect(res.body.returnCount).toBe(2);
+
+            const res2 = await get({
+                url: 'maps',
+                status: 200,
+                query: {
+                    isLinear: false,
+                    search: 'maps_test'
+                },
+                token: user1Token
+            });
+
+            expect(res2.body.response[0].mainTrack.isLinear).toBe(false);
         });
 
         it('should respond with filtered maps when using both the difficultyLow, difficultyHigh and isLinear filters', async () => {

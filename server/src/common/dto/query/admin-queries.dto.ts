@@ -19,7 +19,7 @@ export class AdminGetReportsQuery extends PaginationQuery {
         description: 'Specifies if you want resolved or not'
     })
     @IsOptional()
-    @BooleanFixer()
+    @BooleanQueryParam()
     @IsBoolean()
     resolved: boolean;
 }
