@@ -2,7 +2,8 @@ import { Injectable } from '@nestjs/common';
 import { PrismaService } from './prisma.service';
 import { CosXpParams, RankXpParams, XpParams } from '../xp-systems/xp-systems.interface';
 import { DatabaseError } from './repo.error';
-import { Prisma } from '@prisma/client';
+import { instanceToPlain } from 'class-transformer';
+import { XpSystemsDto } from '@/common/dto/xp-systems/xp-systems.dto';
 
 @Injectable()
 export class XpSystemsRepoService {
@@ -48,13 +49,13 @@ export class XpSystemsRepoService {
         await this.prisma.xpSystems.update({ where: { id: 1 }, data: { cosXP: cosParams } });
     }
 
-    async update(params: XpSystemsParams): Promise<void> {
+    async update(params: XpSystemsDto): Promise<void> {
         await this.prisma.xpSystems.update({
             where: { id: 1 },
-            data: Prisma.validator<Prisma.XpSystemsUpdateInput>()({
-                rankXP: params.rankXP,
-                cosXP: params.cosXP
-            })
+            data: {
+                cosXP: instanceToPlain(params.cosXP) as CosXpParams,
+                rankXP: instanceToPlain(params.rankXP) as RankXpParams
+            }
         });
     }
 }

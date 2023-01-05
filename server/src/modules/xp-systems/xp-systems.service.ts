@@ -1,6 +1,7 @@
-import { XpSystemsDto } from '@common/dto/xp-systems/xp-systems.dto';
+import { UpdateXpSystemsDto, XpSystemsDto } from '@common/dto/xp-systems/xp-systems.dto';
 import { DtoFactory } from '@lib/dto.lib';
 import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
+import { instanceToPlain } from 'class-transformer';
 import { XpSystemsRepoService } from '../repo/xp-systems-repo.service';
 import { CosXpParams, RankXpGain, RankXpParams, XpParams } from './xp-systems.interface';
 
@@ -240,6 +241,16 @@ export class XpSystemsService implements OnModuleInit {
             cosXP: this._cosXpParams,
             rankXP: this._rankXpParams
         });
+    }
+
+    public async update(body: UpdateXpSystemsDto): Promise<void> {
+        await this.xpRepo.update({
+            cosXP: body.cosXP,
+            rankXP: body.rankXP
+        });
+
+        this._cosXpParams = instanceToPlain(body.cosXP) as CosXpParams;
+        this._rankXpParams = instanceToPlain(body.rankXP) as RankXpParams;
     }
 
     private generateLevelsArrays() {
