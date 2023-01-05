@@ -1,11 +1,12 @@
 // noinspection DuplicatedCode
-
 import { PrismaService } from '@modules/repo/prisma.service';
-import { del, get, getNoContent, patch, post } from '../util/request-handlers.util';
+import { del, get, getNoContent, patch, post, put } from '../util/request-handlers.util';
 import { AuthService } from '@modules/auth/auth.service';
 import { ActivityTypes } from '@common/enums/activity.enum';
 import { ReportType, ReportCategory } from '@common/enums/report.enum';
 import { UserDto } from '@common/dto/user/user.dto';
+import { XpSystemsDto } from '@/common/dto/xp-systems/xp-systems.dto';
+import { RankXpParams, CosXpParams } from '@modules/xp-systems/xp-systems.interface';
 import { ReportDto } from '@common/dto/report/report.dto';
 import { skipTest, takeTest } from '../util/generic-e2e-tests.util';
 
@@ -398,6 +399,47 @@ describe('Admin', () => {
             }
         });
 
+        if ((await prisma.xpSystems.count()) === 0)
+            await prisma.xpSystems.create({
+                data: {
+                    id: 1,
+                    rankXP: {
+                        top10: {
+                            WRPoints: 3000,
+                            rankPercentages: [1, 0.75, 0.68, 0.61, 0.57, 0.53, 0.505, 0.48, 0.455, 0.43]
+                        },
+                        groups: {
+                            maxGroups: 4,
+                            groupMinSizes: [10, 45, 125, 250],
+                            groupExponents: [0.5, 0.56, 0.62, 0.68],
+                            groupPointPcts: [0.2, 0.13, 0.07, 0.03],
+                            groupScaleFactors: [1, 1.5, 2, 2.5]
+                        },
+                        formula: { A: 50000, B: 49 }
+                    } as RankXpParams,
+
+                    cosXP: {
+                        levels: {
+                            maxLevels: 500,
+                            startingValue: 20000,
+                            staticScaleStart: 101,
+                            linearScaleInterval: 10,
+                            staticScaleInterval: 25,
+                            linearScaleBaseIncrease: 1000,
+                            staticScaleBaseMultiplier: 1.5,
+                            linearScaleIntervalMultiplier: 1,
+                            staticScaleIntervalMultiplier: 0.5
+                        },
+                        completions: {
+                            repeat: { tierScale: { bonus: 40, linear: 20, staged: 40, stages: 5 } },
+                            unique: { tierScale: { linear: 2500, staged: 2500 } }
+                        }
+                    } as CosXpParams,
+                    createdAt: new Date('12/24/2021'),
+                    updatedAt: new Date('12/25/2021')
+                }
+            });
+
         const authService = global.auth as AuthService;
         adminUserToken = (await authService.loginWeb(adminUser)).accessToken;
         nonAdminAccessToken = (await authService.loginWeb(nonAdminUser)).accessToken;
@@ -424,6 +466,10 @@ describe('Admin', () => {
                     ]
                 }
             }
+        });
+
+        await prisma.xpSystems.delete({
+            where: { id: 1 }
         });
         await prisma.report.deleteMany();
     });
@@ -972,6 +1018,134 @@ describe('Admin', () => {
         it('should return 401 if no access token is given', () =>
             patch({
                 url: `admin/reports/${report1.id}`,
+                status: 401
+            }));
+    });
+
+    describe('GET /api/admin/xpsys', () => {
+        const expects = (res) => expect(res.body).toBeValidDto(XpSystemsDto);
+
+        it('should respond with the current XP System variables when the user is an admin', async () => {
+            const res = await get({
+                url: 'admin/xpsys/',
+                status: 200,
+                token: adminUserToken
+            });
+
+            expects(res);
+        });
+
+        it('should respond with the current XP System variables when the user is a moderator', async () => {
+            const res = await get({
+                url: 'admin/xpsys/',
+                status: 200,
+                token: modUserToken
+            });
+
+            expects(res);
+        });
+
+        it('should respond with 403 when the user requesting is not an admin', () =>
+            get({
+                url: `admin/users/${user1.id}`,
+                status: 403,
+                token: nonAdminAccessToken
+            }));
+
+        it('should respond with 401 when no access token is provided', () =>
+            get({
+                url: `admin/users/${user1.id}`,
+                status: 401
+            }));
+    });
+
+    describe('PUT /api/admin/xpsys', () => {
+        const body = {
+            rankXP: {
+                top10: {
+                    WRPoints: 3000,
+                    rankPercentages: [1, 0.75, 0.68, 0.61, 0.57, 0.53, 0.505, 0.48, 0.455, 0.43]
+                },
+                groups: {
+                    maxGroups: 4,
+                    groupMinSizes: [10, 45, 125, 250],
+                    groupExponents: [0.5, 0.56, 0.62, 0.68],
+                    groupPointPcts: [0.2, 0.13, 0.07, 0.03],
+                    groupScaleFactors: [1, 1.5, 2, 2.5]
+                },
+                formula: { A: 50000, B: 49 }
+            },
+
+            cosXP: {
+                levels: {
+                    maxLevels: 600,
+                    startingValue: 20000,
+                    staticScaleStart: 101,
+                    linearScaleInterval: 10,
+                    staticScaleInterval: 25,
+                    linearScaleBaseIncrease: 1000,
+                    staticScaleBaseMultiplier: 1.5,
+                    linearScaleIntervalMultiplier: 1,
+                    staticScaleIntervalMultiplier: 0.5
+                },
+                completions: {
+                    repeat: { tierScale: { bonus: 40, linear: 20, staged: 40, stages: 5 } },
+                    unique: { tierScale: { linear: 2500, staged: 2500 } }
+                }
+            }
+        };
+
+        it('should update the XP system variables', async () => {
+            await put({
+                url: 'admin/xpsys',
+                status: 204,
+                body: body,
+                token: adminUserToken
+            });
+
+            const res = await get({
+                url: 'admin/xpsys',
+                status: 200,
+                token: adminUserToken
+            });
+
+            expect(res.body).toBeValidDto(XpSystemsDto);
+            expect(res.body.cosXP.levels.maxLevels).toBe(600);
+            expect(res.body).toStrictEqual(body as XpSystemsDto);
+        });
+
+        it('should respond with 400 when updating the XP system variables with missing values', async () => {
+            const incompleteBody = body;
+            delete incompleteBody.rankXP.top10.rankPercentages;
+
+            await put({
+                url: 'admin/xpsys',
+                status: 400,
+                body: incompleteBody,
+                token: adminUserToken
+            });
+        });
+
+        it('should respond with 403 when the user requesting is a moderator', () =>
+            put({
+                url: 'admin/xpsys',
+                status: 403,
+                body: body,
+                token: modUserToken
+            }));
+
+        it('should respond with 403 when the user requesting is not an admin', () =>
+            put({
+                url: 'admin/xpsys',
+                status: 403,
+                body: body,
+                token: nonAdminAccessToken
+            }));
+
+        it('should respond with 401 when no access token is provided', () =>
+            put({
+                url: 'admin/xpsys',
+                body: body,
                 status: 401
             }));
     });
