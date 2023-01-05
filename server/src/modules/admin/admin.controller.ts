@@ -32,13 +32,15 @@ import { ReportDto, UpdateReportDto } from '@common/dto/report/report.dto';
 import { Roles } from '@common/decorators/roles.decorator';
 import { Roles as RolesEnum } from '../../common/enums/user.enum';
 import { LoggedInUser } from '@common/decorators/logged-in-user.decorator';
+import { XpSystemsService } from '@modules/xp-systems/xp-systems.service';
+import { XpSystemsDto } from '@common/dto/xp-systems/xp-systems.dto';
 
 @Controller('api/admin')
 @Roles(RolesEnum.ADMIN)
 @ApiTags('Admin')
 @ApiBearerAuth()
 export class AdminController {
-    constructor(private readonly adminService: AdminService) {}
+    constructor(private readonly adminService: AdminService, private readonly xpSystems: XpSystemsService) {}
 
     @Post('/users')
     @ApiBody({
@@ -192,6 +194,11 @@ export class AdminController {
         return this.adminService.updateReport(userID, reportID, body);
     }
 
-    // TODO: XPSystem GET/PUT
-    // I have no idea how these work, lets do them last.
+    @Get('/xpsys')
+    @Roles(RolesEnum.ADMIN, RolesEnum.MODERATOR)
+    @ApiOperation({ description: 'Retrives the current XP system variables' })
+    @ApiOkResponse({ type: XpSystemsDto, description: 'The current XP system variables' })
+    getXPSystems() {
+        return this.xpSystems.get();
+    }
 }

@@ -1,3 +1,5 @@
+import { XpSystemsDto } from '@common/dto/xp-systems/xp-systems.dto';
+import { DtoFactory } from '@lib/dto.lib';
 import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
 import { XpSystemsRepoService } from '../repo/xp-systems-repo.service';
 import { CosXpParams, RankXpGain, RankXpParams, XpParams } from './xp-systems.interface';
@@ -231,6 +233,13 @@ export class XpSystemsService implements OnModuleInit {
         }
 
         return rankGain;
+    }
+
+    public async get(): Promise<XpSystemsDto> {
+        return DtoFactory(XpSystemsDto, {
+            cosXP: this._cosXpParams,
+            rankXP: this._rankXpParams
+        });
     }
 
     private generateLevelsArrays() {
