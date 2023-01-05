@@ -9,6 +9,7 @@ import {
     ParseIntPipe,
     Patch,
     Post,
+    Put,
     Query
 } from '@nestjs/common';
 import { AdminService } from './admin.service';
@@ -33,7 +34,7 @@ import { Roles } from '@common/decorators/roles.decorator';
 import { Roles as RolesEnum } from '../../common/enums/user.enum';
 import { LoggedInUser } from '@common/decorators/logged-in-user.decorator';
 import { XpSystemsService } from '@modules/xp-systems/xp-systems.service';
-import { XpSystemsDto } from '@common/dto/xp-systems/xp-systems.dto';
+import { UpdateXpSystemsDto, XpSystemsDto } from '@common/dto/xp-systems/xp-systems.dto';
 
 @Controller('api/admin')
 @Roles(RolesEnum.ADMIN)
@@ -200,5 +201,19 @@ export class AdminController {
     @ApiOkResponse({ type: XpSystemsDto, description: 'The current XP system variables' })
     getXPSystems() {
         return this.xpSystems.get();
+    }
+
+    @Put('/xpsys')
+    @Roles(RolesEnum.ADMIN)
+    @ApiOperation({ description: 'Creates or Updates the current XP System variables' })
+    @HttpCode(HttpStatus.NO_CONTENT)
+    @ApiNoContentResponse({ description: 'The XP System variables were updated successfully' })
+    @ApiBody({
+        type: UpdateXpSystemsDto,
+        description: 'The XP System variables to set',
+        required: true
+    })
+    updateXPSystems(@Body() body: UpdateXpSystemsDto) {
+        return this.xpSystems.update(body);
     }
 }
