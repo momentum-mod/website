@@ -32,7 +32,7 @@ import {
 } from '@nestjs/swagger';
 import { ApiOkPaginatedResponse, PaginatedResponseDto } from '@common/dto/paginated-response.dto';
 import { MapsService } from './maps.service';
-import { CreateMapDto, MapDto } from '@common/dto/map/map.dto';
+import { CreateMapDto, MapDto, UpdateMapDto } from '@common/dto/map/map.dto';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { MapCreditsGetQuery, MapsCtlGetAllQuery, MapsGetQuery } from '@common/dto/query/map-queries.dto';
 import { Roles } from '@common/decorators/roles.decorator';
@@ -103,6 +103,28 @@ export class MapsController {
         @Query() query?: MapsGetQuery
     ): Promise<MapDto> {
         return this.mapsService.get(mapID, userID, query.expand);
+    }
+
+    @Patch('/:mapID')
+    @HttpCode(HttpStatus.NO_CONTENT)
+    @Roles(RolesEnum.MAPPER)
+    @ApiOperation({ summary: "Updates a single map's status flag" })
+    @ApiParam({
+        name: 'mapID',
+        type: Number,
+        description: 'Target Map ID',
+        required: true
+    })
+    @ApiNoContentResponse({ description: 'Map status updated successfully' })
+    @ApiNotFoundResponse({ description: 'Map was not found' })
+    @ApiForbiddenResponse({ description: 'User is not the submitter of the map' })
+    @ApiBadRequestResponse({ description: "Map's status does not allow updating" })
+    updateMap(
+        @LoggedInUser('id') userID: number,
+        @Param('mapID', ParseIntPipe) mapID: number,
+        @Body() body: UpdateMapDto
+    ): Promise<void> {
+        return this.mapsService.update(mapID, userID, body);
     }
 
     //#endregion
