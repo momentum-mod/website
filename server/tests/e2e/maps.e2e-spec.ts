@@ -402,6 +402,28 @@ describe('Maps', () => {
             })
         });
 
+        const pendingMaps = await prisma.map.findMany({ where: { name: { startsWith: 'pending_test' } } });
+
+        await prisma.mapCredit.createMany({
+            data: pendingMaps.map((m) => {
+                return {
+                    type: MapCreditType.AUTHOR,
+                    mapID: m.id,
+                    userID: user3.id
+                };
+            })
+        });
+
+        await prisma.map.create({
+            data: {
+                name: 'rejected_map1',
+                type: MapType.SURF,
+                statusFlag: MapStatus.REJECTED,
+                submitterID: user3.id,
+                createdAt: new Date()
+            }
+        });
+
         createMapObj = () => {
             return {
                 name: 'test_map' + Math.floor(Math.random() * 10000000),
@@ -551,7 +573,8 @@ describe('Maps', () => {
                 OR: [
                     { id: { in: [map1.id, map2.id, map3.id, map4.id] } },
                     { name: { startsWith: 'test_map' } },
-                    { name: { startsWith: 'pending_test' } }
+                    { name: { startsWith: 'pending_test' } },
+                    { name: { startsWith: 'rejected_map' } }
                 ]
             }
         });
@@ -1255,6 +1278,106 @@ describe('Maps', () => {
             get({
                 url: 'maps/' + map1.id,
                 status: 401
+            }));
+    });
+
+    describe('PATCH maps/{mapID}', () => {
+        const statusUpdate = {
+            statusFlag: MapStatus.READY_FOR_RELEASE
+        };
+
+        it('should update the status flag', async () => {
+            await patch({
+                url: `maps/${map1.id}`,
+                status: 204,
+                body: statusUpdate,
+                token: user1Token
+            });
+            const newStatus = await (global.prisma as PrismaService).map.findUnique({ where: { id: map1.id } });
+
+            expect(newStatus.statusFlag).toEqual(statusUpdate.statusFlag);
+        });
+
+        it('should update the status flag and create MAP_APPROVED activities', async () => {
+            const pendingMap = await (global.prisma as PrismaService).map.findFirst({
+                where: { name: { startsWith: 'pending_test' } }
+            });
+
+            await patch({
+                url: `maps/${pendingMap.id}`,
+                status: 204,
+                body: { statusFlag: MapStatus.APPROVED },
+                token: user3Token
+            });
+
+            const activities = await (global.prisma as PrismaService).activity.findMany({
+                where: {
+                    userID: user3.id,
+                    type: ActivityTypes.MAP_APPROVED
+                }
+            });
+
+            expect(activities).toEqual(
+                expect.arrayContaining([
+                    expect.objectContaining({
+                        type: ActivityTypes.MAP_APPROVED,
+                        userID: user3.id,
+                        data: BigInt(pendingMap.id)
+                    })
+                ])
+            );
+        });
+
+        it('should return 400 if the status Flag is invalid', () =>
+            patch({
+                url: `maps/${map1.id}`,
+                status: 400,
+                body: { statusFlag: 'shouldnt exist' },
+                token: user1Token
+            }));
+
+        it("should return 400 if the map's status is rejected", async () => {
+            const map = await (global.prisma as PrismaService).map.findFirst({
+                where: { name: 'rejected_map1' }
+            });
+
+            await patch({
+                url: `maps/${map.id}`,
+                status: 400,
+                body: statusUpdate,
+                token: user3Token
+            });
+        });
+
+        it('should return 403 if the map was not submitted by that user', () =>
+            patch({
+                url: `maps/${map1.id}`,
+                status: 403,
+                body: statusUpdate,
+                token: user3Token
+            }));
+
+        it('should return 403 if the user does not have the mapper role', () =>
+            patch({
+                url: `maps/${map4.id}`,
+                status: 403,
+                body: statusUpdate,
+                token: user2Token
+            }));
+
+        it('should respond with 404 when the map is not found', () =>
+            patch({
+                url: 'maps/1191137119',
+                status: 404,
+                body: statusUpdate,
+                token: user1Token
+            }));
+
+        it('should respond with 401 when no access token is provided', () =>
+            patch({
+                url: `maps/${map1.id}`,
+                status: 401,
+                body: statusUpdate
             }));
     });
 

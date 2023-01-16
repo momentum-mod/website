@@ -6,7 +6,7 @@ import {
     NotFoundException
 } from '@nestjs/common';
 import { Map as MapDB, MapCredit, MapTrack, Prisma } from '@prisma/client';
-import { CreateMapDto, MapDto } from '@common/dto/map/map.dto';
+import { CreateMapDto, MapDto, UpdateMapDto } from '@common/dto/map/map.dto';
 import { PaginatedResponseDto } from '@common/dto/paginated-response.dto';
 import { MapsRepoService } from '../repo/maps-repo.service';
 import { AuthService } from '../auth/auth.service';
@@ -246,6 +246,41 @@ export class MapsService {
 
         // Return the map ID to the controller so it can set it in the response header
         return mapDB.id;
+    }
+
+    async update(mapID: number, userID: number, updateBody: UpdateMapDto): Promise<void> {
+        const map = await this.mapRepo.get(mapID);
+
+        if (!map) throw new NotFoundException('No map found');
+        if (map.submitterID !== userID) throw new ForbiddenException('User is not the submitter of the map');
+        if ([MapStatus.REJECTED, MapStatus.REMOVED].includes(map.statusFlag))
+            throw new BadRequestException('Map status forbids updating');
+
+        const previousStatus = map.statusFlag;
+
+        const updatedMap = await this.mapRepo.update(mapID, {
+            statusFlag: updateBody.statusFlag
+        });
+
+        if (
+            updatedMap.statusFlag !== previousStatus &&
+            previousStatus === MapStatus.PENDING &&
+            updatedMap.statusFlag === MapStatus.APPROVED
+        ) {
+            // status changed and map went from PENDING -> APPROVED
+
+            const allCredits = await this.mapRepo.getCredits({ mapID: mapID, type: MapCreditType.AUTHOR });
+
+            return this.userRepo.createActivities(
+                allCredits.map((credit): Prisma.ActivityCreateManyInput => {
+                    return {
+                        type: ActivityTypes.MAP_APPROVED,
+                        userID: credit.userID,
+                        data: mapID
+                    };
+                })
+            );
+        }
     }
 
     //#endregion
