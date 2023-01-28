@@ -18,6 +18,7 @@ import { MapTrackDto } from '@common/dto/map/map-track.dto';
 import { expandTest, skipTest, takeTest } from '@tests/util/generic-e2e-tests.util';
 import { MapImageDto } from '@common/dto/map/map-image.dto';
 import { Config } from '@config/config';
+import { UserMapRankDto } from '@common/dto/run/user-map-rank.dto';
 
 const hash = (buffer: Buffer) => createHash('sha1').update(buffer).digest('hex');
 
@@ -44,6 +45,9 @@ describe('Maps', () => {
         run1,
         run2,
         run3,
+        run4,
+        run5,
+        run6,
         map1,
         map2,
         map3,
@@ -469,8 +473,8 @@ describe('Maps', () => {
             data: {
                 map: { connect: { id: map1.id } },
                 user: { connect: { id: admin.id } },
-                trackNum: 1,
-                zoneNum: 1,
+                trackNum: 0,
+                zoneNum: 0,
                 ticks: 10000,
                 tickRate: 100,
                 flags: 0,
@@ -497,8 +501,8 @@ describe('Maps', () => {
             data: {
                 map: { connect: { id: map1.id } },
                 user: { connect: { id: user1.id } },
-                trackNum: 1,
-                zoneNum: 1,
+                trackNum: 0,
+                zoneNum: 0,
                 ticks: 20000,
                 tickRate: 100,
                 flags: 123,
@@ -510,7 +514,8 @@ describe('Maps', () => {
                         map: { connect: { id: map1.id } },
                         user: { connect: { id: user1.id } },
                         rank: 2,
-                        gameType: MapType.SURF
+                        gameType: MapType.SURF,
+                        flags: 123
                     }
                 },
                 overallStats: {
@@ -542,6 +547,95 @@ describe('Maps', () => {
             }
         });
 
+        run4 = await prisma.run.create({
+            data: {
+                map: { connect: { id: map1.id } },
+                user: { connect: { id: user2.id } },
+                trackNum: 0,
+                zoneNum: 0,
+                ticks: 200000,
+                tickRate: 100,
+                flags: 123,
+                file: '',
+                hash: 'dbda2aef9e84233875372bf0509c15cb2126e23c',
+                time: 200000000,
+                rank: {
+                    create: {
+                        map: { connect: { id: map1.id } },
+                        user: { connect: { id: user2.id } },
+                        rank: 3,
+                        gameType: MapType.SURF,
+                        flags: 123
+                    }
+                },
+                overallStats: {
+                    create: {
+                        jumps: 1
+                    }
+                }
+            }
+        });
+
+        run5 = await prisma.run.create({
+            data: {
+                map: { connect: { id: map1.id } },
+                user: { connect: { id: user2.id } },
+                trackNum: 3,
+                zoneNum: 0,
+                ticks: 2000000,
+                tickRate: 100,
+                flags: 0,
+                file: '',
+                hash: '94517207d6864215269c5fab0cc9e928272372bd',
+                time: 2000000000,
+                rank: {
+                    create: {
+                        map: { connect: { id: map1.id } },
+                        user: { connect: { id: user2.id } },
+                        rank: 4,
+                        gameType: MapType.SURF,
+                        flags: 0
+                        //trackNum: 3
+                    }
+                },
+                overallStats: {
+                    create: {
+                        jumps: 1
+                    }
+                }
+            }
+        });
+
+        run6 = await prisma.run.create({
+            data: {
+                map: { connect: { id: map1.id } },
+                user: { connect: { id: user3.id } },
+                trackNum: 0,
+                zoneNum: 3,
+                ticks: 20000000,
+                tickRate: 100,
+                flags: 0,
+                file: '',
+                hash: 'e6f3985a030e1f8e5301acd0e2da80d19b32d114',
+                time: 2000000000,
+                rank: {
+                    create: {
+                        map: { connect: { id: map1.id } },
+                        user: { connect: { id: user3.id } },
+                        rank: 5,
+                        gameType: MapType.SURF,
+                        flags: 0
+                        //zoneNum: 3
+                    }
+                },
+                overallStats: {
+                    create: {
+                        jumps: 1
+                    }
+                }
+            }
+        });
+
         await prisma.mapLibraryEntry.create({
             data: {
                 user: { connect: { id: user1.id } },
@@ -558,7 +652,6 @@ describe('Maps', () => {
 
         const authService = global.auth as AuthService;
         user1Token = (await authService.loginWeb(user1)).accessToken;
-        // adminAccessToken = (await authService.loginWeb(admin)).accessToken;
         user2Token = (await authService.loginWeb(user2)).accessToken;
         user3Token = (await authService.loginWeb(user3)).accessToken;
     });
@@ -582,7 +675,7 @@ describe('Maps', () => {
         });
 
         await prisma.run.deleteMany({
-            where: { id: { in: [run1.id, run2.id, run3.id] } }
+            where: { id: { in: [run1.id, run2.id, run3.id, run4.id, run5.id, run6.id] } }
         });
     });
 
@@ -2365,4 +2458,325 @@ describe('Maps', () => {
     //             status: 401
     //         }));
     // });
+
+    describe('GET /api/maps/{mapID}/ranks', () => {
+        const expects = (res) => expect(res.body).toBeValidPagedDto(UserMapRankDto);
+
+        it("should return a list of a map's ranks", async () => {
+            const res = await get({
+                url: `maps/${map1.id}/ranks`,
+                status: 200,
+                token: user1Token
+            });
+
+            expects(res);
+            expect(res.body.totalCount).toBe(5);
+            expect(res.body.returnCount).toBe(5);
+            expect(res.body.response[0]).toMatchObject({
+                mapID: map1.id,
+                userID: admin.id,
+                runID: Number(run1.id),
+                gameType: MapType.SURF,
+                flags: 0,
+                rank: 1
+            });
+        });
+
+        it('should return only runs for a single player when given the query param playerID', async () => {
+            const res = await get({
+                url: `maps/${map1.id}/ranks`,
+                status: 200,
+                token: user1Token,
+                query: { playerID: user1.id }
+            });
+
+            expects(res);
+            expect(res.body.totalCount).toBe(1);
+            expect(res.body.returnCount).toBe(1);
+            expect(res.body.response[0]).toMatchObject({
+                mapID: map1.id,
+                userID: user1.id,
+                runID: Number(run2.id),
+                gameType: MapType.SURF,
+                flags: 123,
+                rank: 2
+            });
+        });
+
+        it('should return only runs for a set of players when given the query param playerIDs', async () => {
+            const res = await get({
+                url: `maps/${map1.id}/ranks`,
+                status: 200,
+                token: user1Token,
+                query: { playerIDs: `${admin.id},${user2.id}` }
+            });
+
+            expects(res);
+            expect(res.body.totalCount).toBe(3);
+            expect(res.body.returnCount).toBe(3);
+
+            for (const rank of res.body.response) {
+                expect([admin.id, user2.id]).toContain(rank.userID);
+                expect(rank.mapID).toBe(map1.id);
+            }
+        });
+
+        it('should return only runs with specific flags when given the query param flags', async () => {
+            const res = await get({
+                url: `maps/${map1.id}/ranks`,
+                status: 200,
+                token: user1Token,
+                query: { flags: 123 }
+            });
+
+            expects(res);
+            expect(res.body.totalCount).toBe(2);
+            expect(res.body.returnCount).toBe(2);
+
+            for (const rank of res.body.response) expect(rank.flags).toBe(123);
+        });
+
+        it('should order the list by date when given the query param orderByDate', async () => {
+            const ascRanks = await get({
+                url: `maps/${map1.id}/ranks`,
+                status: 200,
+                token: user1Token,
+                query: { orderByDate: true }
+            });
+
+            const sortedAscRanks = [...ascRanks.body.response].sort(
+                (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+            );
+
+            expect(ascRanks.body.response).toEqual(sortedAscRanks);
+
+            const descRanks = await get({
+                url: `maps/${map1.id}/ranks`,
+                status: 200,
+                token: user1Token,
+                query: { orderByDate: false }
+            });
+
+            const sortedDescRanks = [...descRanks.body.response].sort(
+                (a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
+            );
+
+            expect(descRanks.body.response).toEqual(sortedDescRanks);
+        });
+
+        it('should work with a skip query', () =>
+            skipTest({
+                url: `maps/${map1.id}/ranks`,
+                test: expect,
+                token: user1Token
+            }));
+
+        it('should work with a take query', () =>
+            takeTest({
+                url: `maps/${map1.id}/ranks`,
+                test: expect,
+                token: user1Token
+            }));
+
+        it('should return 404 for a nonexistent map', () =>
+            getNoContent({
+                url: 'maps/9999999999999/ranks',
+                status: 404,
+                token: user1Token
+            }));
+
+        it('should return 401 without a token', () =>
+            getNoContent({
+                url: `maps/${map1.id}/ranks`,
+                status: 401
+            }));
+    });
+
+    describe('GET /api/maps/{mapID}/ranks/{rankNumber}', () => {
+        const expects = (res) => expect(res.body).toBeValidDto(UserMapRankDto);
+
+        it('should return the rank info for the rank and map specified', async () => {
+            const res = await get({
+                url: `maps/${map1.id}/ranks/1`,
+                status: 200,
+                token: user1Token
+            });
+
+            expects(res);
+            expect(res.body).toMatchObject({
+                rank: 1,
+                mapID: map1.id,
+                userID: admin.id,
+                runID: Number(run1.id)
+            });
+        });
+
+        it('should return the rank info for the rank and map and flags specified', async () => {
+            const res = await get({
+                url: `maps/${map1.id}/ranks/2`,
+                status: 200,
+                token: user1Token,
+                query: { flags: 123 }
+            });
+
+            expects(res);
+            expect(res.body).toMatchObject({
+                rank: 2,
+                flags: 123,
+                mapID: map1.id,
+                userID: user1.id,
+                runID: Number(run2.id)
+            });
+        });
+
+        it('should return the rank info for the rank and map and trackNum specified', async () => {
+            const res = await get({
+                url: `maps/${map1.id}/ranks/4`,
+                status: 200,
+                token: user1Token,
+                query: { trackNum: 3 }
+            });
+
+            expects(res);
+            expect(res.body).toMatchObject({
+                trackNum: 3,
+                // The ranks here don't really make sense, there's no faster runs on this track.
+                // Sufficient for this test though (and similar for below).
+                rank: 4,
+                userID: user2.id,
+                mapID: map1.id,
+                runID: Number(run5.id)
+            });
+        });
+
+        it('should return the rank info for the rank and map and zoneNum specified', async () => {
+            const res = await get({
+                url: `maps/${map1.id}/ranks/5`,
+                status: 200,
+                token: user1Token,
+                query: { zoneNum: 3 }
+            });
+
+            expects(res);
+            expect(res.body).toMatchObject({
+                zoneNum: 3,
+                rank: 5,
+                userID: user3.id,
+                mapID: map1.id,
+                runID: Number(run6.id)
+            });
+        });
+
+        it('should return 404 for a nonexistent map', () =>
+            getNoContent({
+                url: 'maps/9999999999999/ranks/1',
+                status: 404,
+                token: user1Token
+            }));
+
+        it('should return 404 for a nonexistent rank', () =>
+            getNoContent({
+                url: `maps/${map1.id}/ranks/999999`,
+                status: 404,
+                token: user1Token
+            }));
+        it('should return 401 without a token', () =>
+            getNoContent({
+                url: `maps/${map1.id}/ranks/1`,
+                status: 401
+            }));
+    });
+
+    describe('GET /api/maps/{mapID}/ranks/around', () => {
+        it('should return a list of ranks around your rank', async () => {
+            const prisma: PrismaService = global.prisma;
+
+            const users = await Promise.all(
+                Array.from({ length: 12 }, (_, i) =>
+                    prisma.user.create({
+                        data: {
+                            steamID: Math.random().toString().slice(2),
+                            alias: `User${i + 1}`,
+                            roles: { create: { verified: true, mapper: true } }
+                        }
+                    })
+                )
+            );
+
+            // Prisma unfortunately doesn't seem clever enough to let us do nested User -> Run -> UMR creation;
+            // UMR needs a User to connect.
+            await Promise.all(
+                users.map((user, i) =>
+                    prisma.run.create({
+                        data: {
+                            map: { connect: { id: map4.id } },
+                            user: { connect: { id: user.id } },
+                            trackNum: 0,
+                            zoneNum: 0,
+                            ticks: i + 1,
+                            tickRate: 100,
+                            flags: 0,
+                            file: '',
+                            time: (i + 1) * 100,
+                            hash: '4fa6024f12494d3a99d8bda9b7a55f7d140f328' + i.toString(16),
+                            rank: {
+                                create: {
+                                    map: { connect: { id: map4.id } },
+                                    user: { connect: { id: user.id } },
+                                    rank: i + 1,
+                                    gameType: MapType.SURF
+                                }
+                            },
+                            overallStats: { create: { jumps: 1 } }
+                        }
+                    })
+                )
+            );
+
+            const authService = global.auth as AuthService;
+            const user7Token = (await authService.loginWeb(users[6])).accessToken;
+
+            try {
+                const res = await get({
+                    url: `maps/${map4.id}/ranks/around`,
+                    status: 200,
+                    token: user7Token
+                });
+
+                let prevRank = 1;
+                expect(res.body).toBeInstanceOf(Array);
+                expect(res.body.length).toBe(11);
+
+                for (const umr of res.body) {
+                    expect(umr).toBeValidDto(MapRankDto);
+                    expect(umr.rank).toBe(prevRank + 1);
+                    prevRank++;
+                }
+            } finally {
+                // User deletion doesn't cascade delete Runs, their UserID set to null instead.
+                prisma.run.deleteMany({ where: { mapID: map4.id } });
+                prisma.user.deleteMany({ where: { id: { in: users.map((user) => user.id) } } });
+            }
+        });
+
+        it('should return 404 for a nonexistent map', () =>
+            get({
+                url: 'maps/9999999999999/ranks/1',
+                status: 404,
+                token: user1Token
+            }));
+
+        it("should return 400 if rankNum isn't a number or around or friends", () =>
+            get({
+                url: `maps/${map1.id}/ranks/abcd`,
+                status: 400,
+                token: user1Token
+            }));
+
+        it('should return 401 without a token', () =>
+            get({
+                url: `maps/${map1.id}/ranks/1`,
+                status: 401
+            }));
+    });
 });

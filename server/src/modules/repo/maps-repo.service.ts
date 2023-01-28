@@ -1,6 +1,17 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from './prisma.service';
-import { Map, MapCredit, MapImage, MapInfo, MapStats, MapTrack, MapZone, MapZoneTrigger, Prisma } from '@prisma/client';
+import {
+    Map,
+    MapCredit,
+    MapInfo,
+    MapStats,
+    MapTrack,
+    MapZone,
+    MapZoneTrigger,
+    UserMapRank,
+    Prisma,
+    MapImage
+} from '@prisma/client';
 
 @Injectable()
 export class MapsRepoService {
@@ -271,4 +282,35 @@ export class MapsRepoService {
     }
 
     //#region
+
+    async getRanks(
+        where?: Prisma.UserMapRankWhereInput,
+        include?: Prisma.UserMapRankInclude,
+        order?: Prisma.UserMapRankOrderByWithAggregationInput,
+        skip?: number,
+        take?: number
+    ): Promise<[UserMapRank[], number]> {
+        const count = await this.prisma.userMapRank.count({
+            where: where,
+            skip: skip,
+            take: take
+        });
+        return [
+            await this.prisma.userMapRank.findMany({
+                where: where,
+                include: include,
+                orderBy: order,
+                skip: skip,
+                take: take
+            }),
+            count
+        ];
+    }
+
+    async getRank(where?: Prisma.UserMapRankWhereInput, include?: Prisma.UserMapRankInclude): Promise<UserMapRank> {
+        return await this.prisma.userMapRank.findFirst({
+            where: where,
+            include: include
+        });
+    }
 }

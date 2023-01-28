@@ -8,9 +8,10 @@ import { SessionModule } from '../session/session.module';
 import { RunsService } from '../runs/runs.service';
 import { MapLibraryService } from './map-library.service';
 import { ConfigModule } from '@nestjs/config';
+import { UsersModule } from '../users/users.module';
 
 @Module({
-    imports: [RepoModule, AuthModule, FileStoreModule, SessionModule, ConfigModule], // TODO: why is auth needed?
+    imports: [RepoModule, AuthModule, FileStoreModule, SessionModule, UsersModule, ConfigModule], // TODO: why is auth needed?
     controllers: [MapsController],
     providers: [MapsService, RunsService /* TODO: Huh? */, MapLibraryService],
     exports: [MapsService, MapLibraryService]

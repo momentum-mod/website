@@ -1,4 +1,6 @@
-﻿import { MapStatus, MapType } from '../../enums/map.enum';
+import { MapStatus, MapType } from '../../enums/map.enum';
+import { PaginationQuery } from './pagination.dto';
+
 import {
     BooleanQueryProperty,
     ExpandQueryProperty,
@@ -6,9 +8,9 @@ import {
     SkipQueryProperty,
     TakeQueryProperty,
     StringQueryProperty,
-    EnumQueryProperty
+    EnumQueryProperty,
+    IntCsvQueryProperty
 } from '@lib/dto.lib';
-
 class MapsGetAllBaseQuery {
     @SkipQueryProperty(0)
     skip = 0;
@@ -80,4 +82,29 @@ export class MapsGetQuery {
 export class MapCreditsGetQuery {
     @ExpandQueryProperty(['user'])
     expand: string[];
+}
+
+export class MapRanksGetQuery extends PaginationQuery {
+    @IntQueryProperty({ description: 'Steam ID of player to get rank for' })
+    playerID: number;
+
+    @IntCsvQueryProperty({ description: 'CSV list of steam IDs of players to get rank for' })
+    playerIDs: number[];
+
+    @IntQueryProperty({ description: 'Rank flags', default: 0 })
+    flags: number;
+
+    @BooleanQueryProperty({ description: 'Whether to order by date or not (false for reverse)' })
+    orderByDate: boolean;
+}
+
+export class MapRankGetNumberQuery {
+    @IntQueryProperty({ description: 'Track number', default: 0 })
+    trackNum: number;
+
+    @IntQueryProperty({ description: 'Zone number', default: 0 })
+    zoneNum: number;
+
+    @IntQueryProperty({ description: 'Rank flags', default: 0 })
+    flags: number;
 }

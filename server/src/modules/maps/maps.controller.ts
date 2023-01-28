@@ -36,7 +36,13 @@ import { ApiOkPaginatedResponse, PaginatedResponseDto } from '@common/dto/pagina
 import { MapsService } from './maps.service';
 import { CreateMapDto, MapDto, UpdateMapDto } from '@common/dto/map/map.dto';
 import { FileInterceptor } from '@nestjs/platform-express';
-import { MapCreditsGetQuery, MapsCtlGetAllQuery, MapsGetQuery } from '@common/dto/query/map-queries.dto';
+import {
+    MapCreditsGetQuery,
+    MapsCtlGetAllQuery,
+    MapsGetQuery,
+    MapRanksGetQuery,
+    MapRankGetNumberQuery
+} from '@common/dto/query/map-queries.dto';
 import { Roles } from '@common/decorators/roles.decorator';
 import { Roles as RolesEnum } from '../../common/enums/user.enum';
 import { LoggedInUser } from '@common/decorators/logged-in-user.decorator';
@@ -48,6 +54,7 @@ import { RunDto } from '@common/dto/run/run.dto';
 import { RunsService } from '../runs/runs.service';
 import { MapImageDto } from '../../common/dto/map/map-image.dto';
 import { RolesGuard } from '@modules/auth/guards/roles.guard';
+import { MapRankDto } from '@/common/dto/map/map-rank.dto';
 
 @Controller('api/maps')
 @UseGuards(RolesGuard)
@@ -568,6 +575,79 @@ export class MapsController {
 
     //#endregion
 
+    @Get('/:mapID/ranks')
+    @ApiOperation({ summary: "Returns a paginated list of a map's ranks" })
+    @ApiParam({
+        name: 'mapID',
+        type: Number,
+        description: 'Target Map ID',
+        required: true
+    })
+    @ApiOkResponse({ description: "The found map's ranks" })
+    getRanks(
+        @Param('mapID', ParseIntPipe) mapID: number,
+        @Query() query?: MapRanksGetQuery
+    ): Promise<PaginatedResponseDto<MapRankDto>> {
+        return this.mapsService.getRanks(mapID, query);
+    }
+
+    @Get('/:mapID/ranks/around')
+    @ApiOperation({ summary: 'Returns the 9 ranks around the user' })
+    @ApiParam({
+        name: 'mapID',
+        type: Number,
+        description: 'Target Map ID',
+        required: true
+    })
+    @ApiOkResponse({ description: 'The 9 ranks around your rank for a map' })
+    getRanksAround(
+        @LoggedInUser('id') userID: number,
+        @Param('mapID') mapID: number,
+        @Query() query?: MapRankGetNumberQuery
+    ): Promise<MapRankDto[]> {
+        return this.mapsService.getRankAround(userID, mapID, query);
+    }
+
+    @Get('/:mapID/ranks/friends')
+    @ApiOperation({ summary: 'Returns the ranks for the users steam friends' })
+    @ApiParam({
+        name: 'mapID',
+        type: Number,
+        description: 'Target Map ID',
+        required: true
+    })
+    @ApiOkResponse({ description: 'The ranks for your steam friends' })
+    getRanksFriends(
+        @LoggedInUser('steamID') steamID: string,
+        @Param('mapID') mapID: number,
+        @Query() query?: MapRankGetNumberQuery
+    ): Promise<MapRankDto[]> {
+        return this.mapsService.getRankFriends(steamID, mapID, query);
+    }
+
+    @Get('/:mapID/ranks/:rankNumber')
+    @ApiOperation({ summary: 'Returns the data for a specific rank' })
+    @ApiParam({
+        name: 'mapID',
+        type: Number,
+        description: 'Target Map ID',
+        required: true
+    })
+    @ApiParam({
+        name: 'rankNumber',
+        type: Number,
+        description: 'Target Rank',
+        required: true
+    })
+    @ApiOkResponse({ description: 'The found rank data' })
+    @ApiNotFoundResponse({ description: 'Either map or rank not found' })
+    getRankNumber(
+        @Param('mapID', ParseIntPipe) mapID: number,
+        @Param('rankNumber', ParseIntPipe) rankNumber: number,
+        @Query() query?: MapRankGetNumberQuery
+    ): Promise<MapRankDto> {
+        return this.mapsService.getRankNumber(mapID, rankNumber, query);
+    }
     //#region Private
 
     // Frontend reads this header property and sends upload POST to that endpoint
