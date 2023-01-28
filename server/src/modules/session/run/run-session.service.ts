@@ -198,9 +198,7 @@ export class RunSessionService {
     ): Promise<StatsUpdateReturn> {
         // Base Where input we'll be using variants of
         const umrWhere = {
-            trackNum: submittedRun.trackNum,
             mapID: submittedRun.mapID,
-            zoneNum: submittedRun.zoneNum,
             gameType: mapType,
             flags: submittedRun.flags
         };
@@ -208,11 +206,13 @@ export class RunSessionService {
         // This gets built up as we go, but can't be updated until we've created the actual Run entry we need it to key into
         let umrCreate: Prisma.UserMapRankCreateWithoutRunInput | null;
 
-        const existingRank = await this.runRepo.getUserMapRankUnique(
+        const existingRank = await this.runRepo.getUserMapRank(
             {
-                mapID_userID_gameType_flags_trackNum_zoneNum: {
-                    ...umrWhere,
-                    userID: submittedRun.userID
+                ...umrWhere,
+                userID: submittedRun.userID,
+                run: {
+                    trackNum: submittedRun.trackNum,
+                    zoneNum: submittedRun.zoneNum
                 }
             },
             { run: true }
@@ -225,9 +225,11 @@ export class RunSessionService {
             const existingWorldRecord = await this.runRepo.getUserMapRank(
                 {
                     rank: 1,
-                    trackNum: submittedRun.trackNum,
                     mapID: submittedRun.mapID,
-                    zoneNum: submittedRun.zoneNum,
+                    run: {
+                        trackNum: submittedRun.trackNum,
+                        zoneNum: submittedRun.zoneNum
+                    },
                     gameType: mapType,
                     flags: submittedRun.flags
                 },
@@ -339,8 +341,6 @@ export class RunSessionService {
             umrCreate = {
                 user: { connect: { id: submittedRun.userID } },
                 map: { connect: { id: submittedRun.mapID } },
-                trackNum: submittedRun.trackNum,
-                zoneNum: submittedRun.zoneNum,
                 gameType: mapType,
                 flags: submittedRun.flags,
                 rank: rank,
@@ -365,11 +365,13 @@ export class RunSessionService {
             await Promise.all(
                 ranks.map(
                     async (umr) =>
-                        await this.runRepo.updateUserMapRank(
+                        await this.runRepo.updateUserMapRanks(
                             {
-                                mapID_userID_gameType_flags_trackNum_zoneNum: {
-                                    ...umrWhere,
-                                    userID: umr.userID
+                                ...umrWhere,
+                                userID: umr.userID,
+                                run: {
+                                    trackNum: submittedRun.trackNum,
+                                    zoneNum: submittedRun.zoneNum
                                 }
                             },
                             {

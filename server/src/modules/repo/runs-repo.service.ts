@@ -190,6 +190,13 @@ export class RunsRepoService {
         );
     }
 
+    updateUserMapRanks(where: Prisma.UserMapRankWhereInput, data: Prisma.UserMapRankUpdateInput) {
+        return this.prisma.userMapRank.updateMany({
+            where,
+            data
+        });
+    }
+
     updateUserMapRank(where: Prisma.UserMapRankWhereUniqueInput, data: Prisma.UserMapRankUpdateInput) {
         return this.prisma.userMapRank.update({
             where,
