@@ -45,3 +45,9 @@ export interface SteamUserSummaryData {
     personastateflags: number;
     loccountrycode: string;
 }
+
+export interface SteamFriendData {
+    steamid: string;
+    relationship: string;
+    friend_since: number;
+}

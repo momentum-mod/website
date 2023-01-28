@@ -2,9 +2,11 @@ import {
     BadRequestException,
     ConflictException,
     ForbiddenException,
+    ImATeapotException,
     Injectable,
     InternalServerErrorException,
     NotFoundException,
+    ServiceUnavailableException,
     UnauthorizedException
 } from '@nestjs/common';
 import { Prisma, User, UserAuth } from '@prisma/client';
@@ -27,9 +29,10 @@ import { MapLibraryEntryDto } from '@common/dto/map/map-library-entry';
 import { MapFavoriteDto } from '@common/dto/map/map-favorite.dto';
 import { ConfigService } from '@nestjs/config';
 import { UsersGetAllQuery } from '@common/dto/query/user-queries.dto';
-import { SteamUserSummaryData } from '@modules/auth/auth.interfaces';
+import { SteamUserSummaryData, SteamFriendData } from '@modules/auth/auth.interfaces';
 import { MapDto } from '@common/dto/map/map.dto';
 import { MapSummaryDto } from '@common/dto/user/user-maps-summary.dto';
+import { catchError, firstValueFrom } from 'rxjs';
 
 @Injectable()
 export class UsersService {
@@ -515,7 +518,31 @@ export class UsersService {
 
     //#endregion
 
-    //#region Private
+    //#region Steam Queries
+
+    async getSteamFriends(steamID: string): Promise<SteamFriendData[]> {
+        const res = await firstValueFrom(
+            this.http
+                .get('https://api.steampowered.com/ISteamUser/GetFriendList/v1/', {
+                    params: {
+                        key: this.config.get('steam.webAPIKey'),
+                        steamID: steamID,
+                        relationship: 'friend'
+                    }
+                })
+                .pipe(
+                    catchError((_error) => {
+                        throw new ServiceUnavailableException('Failed to retrieve friends list from steam');
+                    })
+                )
+        );
+        if (res.data) {
+            const ret: SteamFriendData[] = res.data.friendslist.friends;
+
+            if (ret.length === 0) throw new ImATeapotException('No friends detected :(');
+        }
+        throw new InternalServerErrorException('Failed to get Steam friends list');
+    }
 
     private async extractUserProfileFromSteamID(steamID: string): Promise<UserCreateData> {
         const summaryData = await this.getSteamUserSummaryData(steamID);
