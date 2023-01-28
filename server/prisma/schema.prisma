@@ -419,10 +419,9 @@ model MapNotify {
 }
 
 model UserMapRank {
+    id       Int  @id @default(autoincrement())
     gameType Int  @db.UnsignedTinyInt
     flags    Int  @default(0) @db.UnsignedInt
-    trackNum Int  @default(0) @db.UnsignedTinyInt
-    zoneNum  Int  @default(0) @db.UnsignedTinyInt
     rank     Int? @db.UnsignedInt // Making this @unique would be quite nice but it'd probably shit itself when doing batch rank +1 increases
     rankXP   Int? @default(0) @db.UnsignedInt
 
@@ -438,8 +437,6 @@ model UserMapRank {
     createdAt DateTime @default(now())
     updatedAt DateTime @updatedAt
 
-    @@id([mapID, userID, gameType, flags, trackNum, zoneNum])
-    @@unique([mapID, userID, gameType, flags, trackNum, zoneNum])
     @@index([runID, userID])
 }
 

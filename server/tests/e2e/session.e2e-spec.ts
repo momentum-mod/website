@@ -377,8 +377,6 @@ describe('Session', () => {
                                         }
                                     },
                                     map: { connect: { id: map.id } },
-                                    zoneNum: 0,
-                                    trackNum: 0,
                                     rank: i + 1
                                 },
                                 include: { run: true, map: true, user: true }
@@ -408,7 +406,7 @@ describe('Session', () => {
 
             it('should be inserted in leaderboards, shifting other ranks', async () => {
                 const umrsBefore = await prisma.userMapRank.findMany({
-                    where: { mapID: map.id, zoneNum: 0, trackNum: 0, gameType: MapType.BHOP, flags: 0 }
+                    where: { mapID: map.id, run: { zoneNum: 0, trackNum: 0 }, gameType: MapType.BHOP, flags: 0 }
                 });
 
                 expect(umrsBefore.length).toBe(10);
@@ -416,7 +414,7 @@ describe('Session', () => {
                 await submitRun();
 
                 const umrsAfter = await prisma.userMapRank.findMany({
-                    where: { mapID: map.id, zoneNum: 0, trackNum: 0, gameType: MapType.BHOP, flags: 0 }
+                    where: { mapID: map.id, run: { zoneNum: 0, trackNum: 0 }, gameType: MapType.BHOP, flags: 0 }
                 });
 
                 expect(umrsAfter.length).toBe(11);
@@ -444,7 +442,7 @@ describe('Session', () => {
                 });
 
                 const umrsBefore = await prisma.userMapRank.findMany({
-                    where: { mapID: map.id, zoneNum: 0, trackNum: 0, gameType: MapType.BHOP, flags: 0 }
+                    where: { mapID: map.id, run: { zoneNum: 0, trackNum: 0 }, gameType: MapType.BHOP, flags: 0 }
                 });
 
                 expect(umrsBefore.length).toBe(10);
@@ -456,7 +454,7 @@ describe('Session', () => {
                 expect(res.body.isNewPersonalBest).toBe(true);
 
                 const umrsAfter = await prisma.userMapRank.findMany({
-                    where: { mapID: map.id, zoneNum: 0, trackNum: 0, gameType: MapType.BHOP, flags: 0 }
+                    where: { mapID: map.id, run: { zoneNum: 0, trackNum: 0 }, gameType: MapType.BHOP, flags: 0 }
                 });
 
                 // It should have *updated* our existing UMR, so this should still be 10
@@ -494,7 +492,7 @@ describe('Session', () => {
                 });
 
                 const umrsBefore = await prisma.userMapRank.findMany({
-                    where: { mapID: map.id, zoneNum: 0, trackNum: 0, gameType: MapType.BHOP, flags: 0 }
+                    where: { mapID: map.id, run: { zoneNum: 0, trackNum: 0 }, gameType: MapType.BHOP, flags: 0 }
                 });
 
                 expect(umrsBefore.length).toBe(10);
@@ -507,7 +505,7 @@ describe('Session', () => {
                 expect(res.body.xp.rankXP).toBe(0);
 
                 const umrsAfter = await prisma.userMapRank.findMany({
-                    where: { mapID: map.id, zoneNum: 0, trackNum: 0, gameType: MapType.BHOP, flags: 0 }
+                    where: { mapID: map.id, run: { zoneNum: 0, trackNum: 0 }, gameType: MapType.BHOP, flags: 0 }
                 });
 
                 expect(umrsBefore).toEqual(umrsAfter);
