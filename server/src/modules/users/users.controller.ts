@@ -27,6 +27,8 @@ import { UsersGetActivitiesQuery, UsersGetAllQuery, UsersGetQuery } from '@commo
 export class UsersController {
     constructor(private readonly usersService: UsersService) {}
 
+    //#region Main User Endpoints
+
     @Get()
     @ApiOperation({ summary: 'Returns paginated list of users' })
     @ApiOkPaginatedResponse(UserDto, { description: 'Paginated list of users' })
@@ -49,6 +51,10 @@ export class UsersController {
         return this.usersService.get(userID, query.expand, query.mapRank);
     }
 
+    //#endregion
+
+    //#region Profile
+
     @Get('/:userID/profile')
     @ApiOperation({ summary: "Returns single user's profile" })
     @ApiOkResponse({ type: ProfileDto, description: "The found user's profile" })
@@ -62,6 +68,10 @@ export class UsersController {
     getProfile(@Param('userID', ParseIntPipe) userID: number): Promise<ProfileDto> {
         return this.usersService.getProfile(userID);
     }
+
+    //#endregion
+
+    //#region Activities
 
     @Get('/:userID/activities')
     @ApiOperation({ summary: "Returns all of a single user's activities" })
@@ -78,6 +88,10 @@ export class UsersController {
     ): Promise<PaginatedResponseDto<ActivityDto>> {
         return this.usersService.getActivities(userID, query.skip, query.take, query.type, query.data);
     }
+
+    //#endregion
+
+    //#region Follows
 
     @Get('/:userID/followers')
     @ApiOperation({ summary: 'Returns all follows targeting the user' })
@@ -111,6 +125,10 @@ export class UsersController {
         return this.usersService.getFollowing(userID, query.skip, query.take);
     }
 
+    //#endregion
+
+    //#region Credits
+
     @Get('/:userID/credits')
     @ApiOperation({ summary: "Returns all of a single user's credits" })
     @ApiParam({
@@ -126,6 +144,10 @@ export class UsersController {
     ): Promise<PaginatedResponseDto<MapCreditDto>> {
         return this.usersService.getMapCredits(userID, query.skip, query.take);
     }
+
+    //#endregion
+
+    //#region Runs
 
     @Get('/:userID/runs')
     @ApiOperation({ summary: "Returns all of a single user's runs" })
@@ -144,4 +166,6 @@ export class UsersController {
         // doesn't need to exist in the users service.
         return this.usersService.getRuns(userID, query.skip, query.take);
     }
+
+    //#endregion
 }

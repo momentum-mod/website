@@ -148,11 +148,9 @@ export class RunSessionService {
     ): Promise<CompletedRunDto> {
         // We have two quite expensive, independent operations here, including a file store. So we may as well run in
         // parallel and await them both.
-        let statsUpdate: StatsUpdateReturn;
-        let savedRun: Run;
-        await Promise.all([
-            (statsUpdate = await this.updateStatsAndRanks(submittedRun, track, mapType)),
-            (savedRun = await this.createAndStoreRun(submittedRun, replayBuffer))
+        const [statsUpdate, savedRun] = await Promise.all([
+            await this.updateStatsAndRanks(submittedRun, track, mapType),
+            await this.createAndStoreRun(submittedRun, replayBuffer)
         ]);
 
         // Now the run is back we can actually update the UMR. We could use a Prisma upsert here but we already know
