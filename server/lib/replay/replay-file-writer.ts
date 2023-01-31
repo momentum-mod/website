@@ -59,35 +59,26 @@ export class ReplayFileWriter {
 
     writeString(str: string) {
         const len = str.length + 1; // +1 for \0
-
         this.checkBuffer(len);
-
         this.buffer.write(str + '\0', this.offset, 'ascii');
-
         this.offset += len;
     }
 
     writeFloat(val: number) {
         this.checkBuffer();
-
         this.buffer.writeFloatLE(val, this.offset);
-
         this.offset += 4;
     }
 
     writeInt32(val: number, unsigned = true) {
         this.checkBuffer();
-
         unsigned ? this.buffer.writeUInt32LE(val, this.offset) : this.buffer.writeInt32LE(val, this.offset);
-
         this.offset += 4;
     }
 
     writeInt8(val: number, unsigned = true) {
         this.checkBuffer();
-
         unsigned ? this.buffer.writeUInt8(val, this.offset) : this.buffer.writeInt8(val, this.offset);
-
         this.offset++;
     }
 

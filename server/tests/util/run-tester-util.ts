@@ -1,5 +1,5 @@
 ﻿import request from 'supertest';
-import { ReplayFileWriter } from '@common/lib/replay-file-writer';
+import { ReplayFileWriter } from '@lib/replay/replay-file-writer';
 import { BaseStatsFromGame, Replay, RunFrame, ZoneStatsFromGame } from '@modules/session/run/run-session.interfaces';
 import { Random } from '@lib/random.lib';
 import { URL_PREFIX } from '@tests/e2e/e2e.config';

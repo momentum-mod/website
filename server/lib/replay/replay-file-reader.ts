@@ -140,31 +140,22 @@ export class ReplayFileReader {
 
     private readFloat(): number | undefined {
         if (!this.checkBuffer()) return undefined;
-
         const val = this.buffer.readFloatLE(this.offset);
-
         this.offset += 4;
-
         return val;
     }
 
     private readInt32(unsigned = true): number | undefined {
         if (!this.checkBuffer()) return undefined;
-
         const val = unsigned ? this.buffer.readUInt32LE(this.offset) : this.buffer.readInt32LE(this.offset);
-
         this.offset += 4;
-
         return val;
     }
 
     private readInt8(unsigned = true): number | undefined {
         if (!this.checkBuffer()) return undefined;
-
         const val = unsigned ? this.buffer.readUInt8(this.offset) : this.buffer.readInt8(this.offset);
-
         this.offset++;
-
         return val;
     }
 }
