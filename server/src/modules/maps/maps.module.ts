@@ -14,7 +14,12 @@ import { ConfigModule } from '@nestjs/config';
 @Module({
     imports: [RepoModule, AuthModule, FileStoreModule, SessionModule, ConfigModule], // TODO: why is auth needed?
     controllers: [MapsController],
-    providers: [{ provide: APP_GUARD, useClass: RolesGuard }, MapsService, RunsService, MapLibraryService],
+    providers: [
+        { provide: APP_GUARD, useClass: RolesGuard },
+        MapsService,
+        RunsService /* TODO: Huh? */,
+        MapLibraryService
+    ],
     exports: [MapsService, MapLibraryService]
 })
 export class MapsModule {}

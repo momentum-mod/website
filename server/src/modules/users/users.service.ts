@@ -230,7 +230,7 @@ export class UsersService {
 
         const dbResponse = await this.userRepo.getActivities(where, skip, take);
 
-        // Do we want to be so open here? Shouldn't report activity be hidden?
+        // TODO: Do we want to be so open here? Shouldn't report activity be hidden?
 
         return new PaginatedResponseDto(ActivityDto, dbResponse);
     }
