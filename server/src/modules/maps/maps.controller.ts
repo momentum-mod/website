@@ -386,7 +386,7 @@ export class MapsController {
         description: 'Target Map ID',
         required: true
     })
-    @ApiOkResponse({ type: PaginatedResponseDto<RunDto>, description: "The found map's zones" })
+    @ApiOkResponse({ type: PaginatedResponseDto, description: "The found map's zones" })
     @ApiNotFoundResponse({ description: 'Map not found' })
     getRuns(
         @Param('mapID', ParseIntPipe) mapID: number,
