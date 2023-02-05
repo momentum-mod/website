@@ -76,7 +76,7 @@ export class AuthController {
         description: 'Octet-stream of a Steam user auth ticket from Steam',
         required: true
     })
-    @ApiOkResponse({ type: JWTResponseGameDto })
+    @ApiOkResponse({ type: JWTResponseGameDto, description: 'Authorized steam user token' })
     async getUserFromSteam(@Req() req): Promise<JWTResponseGameDto> {
         const id = req.headers['id'];
 
@@ -95,7 +95,7 @@ export class AuthController {
     @Post('/refresh')
     @ApiOperation({ summary: 'Generate a new access token for a given refresh token' })
     @ApiBody({ type: RefreshTokenDto })
-    @ApiOkResponse({ type: JWTResponseWebDto })
+    @ApiOkResponse({ type: JWTResponseWebDto, description: 'Refreshed web tokens' })
     refreshToken(@Body() body: RefreshTokenDto) {
         // TODO: (REQ FRONTEND CHANGE) The old API just returned a new access token here, it now returns a refresh token
         // as well. Just change stuff in refreshAccessToken in CLIENT (!) auth.service.ts.

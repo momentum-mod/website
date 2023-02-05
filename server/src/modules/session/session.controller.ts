@@ -63,7 +63,7 @@ export class SessionController {
     @HttpCode(HttpStatus.OK)
     @ApiParam({ name: 'mapID', type: Number, description: 'Target Map ID', required: true })
     @ApiParam({ name: 'sessionID', type: Number, description: 'Target Session ID', required: true })
-    @ApiOkResponse({ type: RunSessionTimestampDto })
+    @ApiOkResponse({ type: RunSessionTimestampDto, description: 'Timestamp of Run Session' })
     @ApiBadRequestResponse({ description: 'Session does not exist' })
     @ApiBadRequestResponse({ description: 'Timestamps are invalid' })
     @ApiForbiddenResponse({ description: 'Session does not belong to user' })

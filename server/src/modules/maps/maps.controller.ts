@@ -95,7 +95,7 @@ export class MapsController {
         description: 'Target Map ID',
         required: true
     })
-    @ApiOkResponse({ description: 'The found map' })
+    @ApiOkResponse({ type: MapDto, description: 'The found map' })
     @ApiNotFoundResponse({ description: 'Map was not found' })
     getMap(
         @LoggedInUser('id') userID: number,
@@ -254,7 +254,7 @@ export class MapsController {
         description: 'Target credit ID',
         required: true
     })
-    @ApiOkResponse({ description: 'The found map credit', type: MapCreditDto })
+    @ApiOkResponse({ type: MapCreditDto, description: 'The found map credit' })
     @ApiNotFoundResponse({ description: 'Map credit not found' })
     getCredit(
         @Param('mapCreditID', ParseIntPipe) mapCreditID: number,
@@ -328,7 +328,7 @@ export class MapsController {
         description: 'Target Map ID',
         required: true
     })
-    @ApiOkResponse({ description: "The found map's info" })
+    @ApiOkResponse({ type: MapInfoDto, description: "The found map's info" })
     @ApiNotFoundResponse({ description: 'Map not found' })
     getInfo(@Param('mapID', ParseIntPipe) mapID: number): Promise<MapInfoDto> {
         return this.mapsService.getInfo(mapID);
@@ -369,7 +369,7 @@ export class MapsController {
         description: 'Target Map ID',
         required: true
     })
-    @ApiOkResponse({ description: "The found map's zones" })
+    @ApiOkResponse({ type: MapTrackDto, isArray: true, description: "The found map's zones" })
     @ApiNotFoundResponse({ description: 'Map not found' })
     getZones(@Param('mapID', ParseIntPipe) mapID: number): Promise<MapTrackDto[]> {
         return this.mapsService.getZones(mapID);
@@ -386,7 +386,7 @@ export class MapsController {
         description: 'Target Map ID',
         required: true
     })
-    @ApiOkResponse({ description: "The found map's zones" })
+    @ApiOkResponse({ type: PaginatedResponseDto<RunDto>, description: "The found map's zones" })
     @ApiNotFoundResponse({ description: 'Map not found' })
     getRuns(
         @Param('mapID', ParseIntPipe) mapID: number,
