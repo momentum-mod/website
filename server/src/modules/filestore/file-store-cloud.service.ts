@@ -8,6 +8,8 @@ import { ConfigService } from '@nestjs/config';
 export class FileStoreCloudService {
     s3Client: S3Client;
 
+    private readonly logger = new Logger('File Store Cloud');
+
     constructor(private readonly config: ConfigService) {
         this.s3Client = new S3Client({
             region: this.config.get('storage.region'),
@@ -29,7 +31,7 @@ export class FileStoreCloudService {
             })
         );
 
-        Logger.log(`UPLOAD SUCCESS! Uploaded file ${fileKey} to bucket ${this.config.get('storage.bucketName')}`);
+        this.logger.log(`UPLOAD SUCCESS! Uploaded file ${fileKey} to bucket ${this.config.get('storage.bucketName')}`);
 
         return {
             fileKey: fileKey,
@@ -45,6 +47,6 @@ export class FileStoreCloudService {
             })
         );
 
-        Logger.log(`DELETE SUCCESS! Deleted file ${fileKey} from bucket ${this.config.get('storage.bucketName')}`);
+        this.logger.log(`DELETE SUCCESS! Deleted file ${fileKey} from bucket ${this.config.get('storage.bucketName')}`);
     }
 }
