@@ -25,6 +25,8 @@ export class RunSessionService {
         private readonly xpSystems: XpSystemsService
     ) {}
 
+    private readonly logger = new Logger('Run Session');
+
     //#region Create Session
 
     async createSession(userID: number, body: CreateRunSessionDto): Promise<RunSessionDto> {
@@ -418,7 +420,7 @@ export class RunSessionService {
         // MAX_SAFE_INTEGER (2^53). Warn us just in case that's ever about to happen.
         const currentCosXp = Number(userStats.cosXP);
         if (currentCosXp >= Number.MAX_SAFE_INTEGER)
-            Logger.error(
+            this.logger.error(
                 `User ${submittedRun.userID} is exceeding the maximum cosmetic XP a JS number can handle accurately!!`
             );
 
