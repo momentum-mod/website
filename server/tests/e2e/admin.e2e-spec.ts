@@ -559,7 +559,7 @@ describe('Admin', () => {
                 status: 200,
                 token: adminUserToken
             });
-            expect(mu2Activities.body.response[0].data).toBe('123456');
+            expect(mu2Activities.body.response[0].data).toBe(123456);
 
             // Placeholder should have been deleted
             await get({
