@@ -13,13 +13,13 @@ export class MapFavoriteDto implements MapFavorite {
     @IdProperty()
     mapID: number;
 
-    @NestedDto(MapDto, { type: () => MapDto })
+    @NestedProperty(MapDto, { lazy: true })
     map: MapDto;
 
     @IdProperty()
     userID: number;
 
-    @NestedDto(UserDto, { type: () => UserDto })
+    @NestedProperty(UserDto, { lazy: true })
     user: UserDto;
 
     @ApiProperty()

@@ -32,21 +32,21 @@ export class UserMapRankDto implements PrismaModelToDto<UserMapRank> {
     @IsNumber()
     rankXP: number;
 
-    @NestedDto(MapDto)
+    @NestedProperty(MapDto)
     map: MapDB;
 
     @ApiProperty()
     @IsInt()
     mapID: number;
 
-    @NestedDto(UserDto)
+    @NestedProperty(UserDto)
     user: User;
 
     @ApiProperty()
     @IsPositive()
     userID: number;
 
-    @NestedDto(RunDto)
+    @NestedProperty(RunDto)
     run: RunDto;
 
     @IdProperty({ bigint: true })

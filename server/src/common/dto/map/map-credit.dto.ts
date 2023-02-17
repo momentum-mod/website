@@ -18,14 +18,13 @@ export class MapCreditDto implements MapCredit {
     @IdProperty()
     userID: number;
 
-    @Exclude()
-    mapID: number;
-
-    @NestedDto(UserDto, { type: () => UserDto })
+    @NestedProperty(UserDto, { lazy: true })
     user: UserDto;
 
     @IdProperty()
     mapID: number;
+
+    @NestedProperty(MapDto, { lazy: true })
     map: MapDto;
 
     @Exclude()

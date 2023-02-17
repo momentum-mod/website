@@ -13,19 +13,19 @@ export class MapRankDto implements PrismaModelToDto<UserMapRank> {
     @IdProperty()
     mapID: number;
 
-    @NestedDto(MapDto, { type: () => MapDto })
+    @NestedProperty(MapDto, { lazy: true })
     map: MapDto;
 
     @IdProperty()
     userID: number;
 
-    @NestedDto(UserDto, { type: () => UserDto })
+    @NestedProperty(UserDto, { lazy: true })
     user: UserDto;
 
     @IdProperty({ bigint: true })
     runID: number;
 
-    @NestedDto(RunDto)
+    @NestedProperty(RunDto)
     run: RunDto;
 
     @ApiProperty({

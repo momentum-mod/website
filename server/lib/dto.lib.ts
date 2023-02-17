@@ -76,6 +76,30 @@ function conditionalDecorator(condition: boolean, decorator: () => PropertyDecor
 
 // NOTE: It may be possible to use reflection to get the types of all the below funcs but I've messed with it for hours
 // and can't figure it out, leaving for now.
+
+/**
+ * Decorator combo for
+ *  - @ApiProperty
+ *  - @Type
+ *  - @ValidateNested
+ *  - @IsOptional if options.required = true
+ *
+ *  Optional by default!
+ *
+ *  If options.lazy, use a lazy function to avoid circular dependencies (for when DTOs reference each other)
+ */
+export function NestedProperty<T>(
+    type: Type<T>,
+    options: { lazy?: boolean } & Omit<ApiPropertyOptions, 'type'> = {}
+): PropertyDecorator {
+    const required = options?.required ?? false;
+    return applyDecorators(
+        ApiProperty({ ...options, type: options?.lazy ? () => type : type, required: required }),
+        TypeDecorator(() => type), // Note we rename the import, this is just class-transformer's @Type.
+        ValidateNested(),
+        conditionalDecorator(!required, IsOptional)
+    );
+}
 /**
  * Decorator combo for
  *  - ApiProperty

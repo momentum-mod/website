@@ -23,7 +23,7 @@ export class MapZoneStatsDto implements PrismaModelToDto<MapZoneStats> {
     @Exclude()
     baseStatsID: number;
 
-    @NestedDto(BaseStatsDto, { required: false })
+    @NestedProperty(BaseStatsDto, { required: false })
     baseStats?: BaseStatsDto;
 
     @Exclude()

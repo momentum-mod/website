@@ -12,13 +12,13 @@ export class MapLibraryEntryDto implements MapLibraryEntry {
     @IdProperty({ description: 'ID of the user who owns the entry' })
     userID: number;
 
-    @NestedDto(UserDto, { type: () => UserDto })
+    @NestedProperty(UserDto, { lazy: true })
     user: UserDto;
 
     @IdProperty({ description: 'ID of the map the entry refers to' })
     mapID: number;
 
-    @NestedDto(MapDto, { type: () => MapDto })
+    @NestedProperty(MapDto, { lazy: true })
     map: MapDto;
 
     @ApiProperty()

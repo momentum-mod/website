@@ -22,10 +22,10 @@ export class FollowDto implements Follow {
     @Exclude()
     followeeID: number;
 
-    @NestedDto(UserDto, { description: 'The user that is being followed' })
+    @NestedProperty(UserDto, { description: 'The user that is being followed' })
     followed: UserDto;
 
-    @NestedDto(UserDto, { description: 'The user that is doing the following' })
+    @NestedProperty(UserDto, { description: 'The user that is doing the following' })
     followee: UserDto;
 
     @ApiProperty()
@@ -38,13 +38,15 @@ export class FollowDto implements Follow {
 }
 
 export class FollowStatusDto {
-    @NestedDtoOptional(FollowDto, {
+    @NestedProperty(FollowDto, {
+        required: false,
         description:
             'FollowerDto expressing the relationship between the LOCAL user and the target user, if the local user follows the target user'
     })
     local?: FollowDto;
 
-    @NestedDtoOptional(FollowDto, {
+    @NestedProperty(FollowDto, {
+        required: false,
         description:
             'FollowerDto expressing the relationship between the LOCAL user and the TARGET user, if the target user follows the local user'
     })

@@ -20,13 +20,13 @@ export class NotificationDto implements Notification {
     @IdProperty()
     userID: number;
 
-    @NestedDto(UserDto)
+    @NestedProperty(UserDto)
     user: UserDto;
 
     @IdProperty()
     activityID: number;
 
-    @NestedDto(ActivityDto, { description: 'The activity that the notification is about' })
+    @NestedProperty(ActivityDto, { description: 'The activity that the notification is about' })
     activity: ActivityDto;
 
     @ApiProperty()
