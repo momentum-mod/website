@@ -19,6 +19,7 @@
         "start:seed:debug": "npm run push && npm run start:debug",
         "start:migrate:prod": "dotenv -e ../.env -- prisma migrate dev --name production_deploy && npm run start:prod",
         "push": "dotenv -e ../.env -- prisma db push --accept-data-loss",
+        "generate": "dotenv -e ../.env -- prisma generate",
         "migrate": "dotenv -e ../.env -- prisma migrate dev --name init --skip-seed",
         "reset": "dotenv -e ../.env -- prisma migrate reset --force --skip-generate --skip-seed",
         "seed": "dotenv -e ../.env -- npm run migrate && dotenv -e ../.env -- prisma db seed",
