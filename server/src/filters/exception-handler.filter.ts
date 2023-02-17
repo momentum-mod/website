@@ -42,7 +42,7 @@ export class ExceptionHandlerFilter implements ExceptionFilter {
             }
 
             // In production, send to Sentry so long as it's enabled (if the DSN is invalid/empty it'll be disabled).
-            if (env === Environment.Production) {
+            if (env === Environment.PRODUCTION) {
                 if (this.sentryEnabled) {
                     eventID = this.sentryService.sendError(exception);
 
