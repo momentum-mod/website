@@ -6,32 +6,12 @@ import { ActivityTypes } from '../../enums/activity.enum';
 import { IsPositiveNumberString } from '@common/validators/is-positive-number-string.validator';
 
 export class ActivitiesGetQuery extends PaginationQuery {
-    @ApiPropertyOptional({
-        name: 'userID',
-        type: Number,
-        description: 'Filter by user ID'
-    })
-    @IsOptional()
-    @IsPositive()
+    @IntQueryProperty({ description: 'Filter by user ID' })
     userID: number;
 
-    @ApiPropertyOptional({
-        name: 'type',
-        enum: ActivityTypes,
-        type: Number,
-        description: 'Types of activities to include'
-    })
-    @Type(() => Number)
-    @IsEnum(ActivityTypes)
-    @IsOptional()
+    @EnumQueryProperty(ActivityTypes, { description: 'Types of activities to include' })
     type: ActivityTypes;
 
-    @ApiPropertyOptional({
-        name: 'data',
-        type: String,
-        description: 'The ID into the table of the corresponding activity'
-    })
-    @Transform(({ value }) => BigInt(value))
-    @IsPositiveNumberString()
-    data: bigint;
+    @IntQueryProperty({ description: 'The ID into the table of the corresponding activity' })
+    data: number;
 }

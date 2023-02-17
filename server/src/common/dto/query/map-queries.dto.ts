@@ -5,61 +5,32 @@ import { MapStatus, MapType } from '../../enums/map.enum';
 import { ExpandQueryDecorators, SkipQuery, TakeQuery } from '@lib/dto.lib';
 
 class MapsGetAllBaseQuery {
-    @SkipQuery(0)
+    @SkipQueryProperty(0)
     skip = 0;
 
-    @TakeQuery(100)
+    @TakeQueryProperty(100)
     take = 100;
 
-    @ApiPropertyOptional({
-        name: 'search',
-        type: String,
-        description: 'Filter by partial map name match',
-        example: 'de_dust2'
-    })
-    @IsString()
-    @IsOptional()
+    @StringQueryProperty({ description: 'Filter by partial map name match', example: 'de_dust2' })
     search: string;
 
-    @ApiPropertyOptional({
-        name: 'submitterID',
-        type: Number,
-        description: 'Filter by submitter ID'
-    })
-    @Type(() => Number)
-    @IsPositive()
-    @IsOptional()
+    @IntQueryProperty({ description: 'Filter by submitter ID' })
     submitterID: number;
 }
 
 export class AdminCtlMapsGetAllQuery extends MapsGetAllBaseQuery {
-    @ExpandQueryDecorators(['info', 'submitter', 'credits'])
+    @ExpandQueryProperty(['info', 'submitter', 'credits'])
     expand: string[];
 
-    @ApiPropertyOptional({
-        name: 'status',
-        enum: MapStatus,
-        type: Number,
-        description: 'Filter by map status flags'
-    })
-    @Type(() => Number)
-    @IsEnum(MapStatus)
-    @IsOptional()
+    @EnumQueryProperty(MapStatus, { description: 'Filter by map status flags' })
     status: MapStatus;
 
-    @ApiPropertyOptional({
-        name: 'priority',
-        type: Boolean,
-        description: 'Filter by priority or non-priority'
-    })
-    @Type(() => Boolean)
-    @IsBoolean()
-    @IsOptional()
+    @BooleanQueryProperty({ description: 'Filter by priority or non-priority' })
     priority: boolean;
 }
 
 export class MapsCtlGetAllQuery extends MapsGetAllBaseQuery {
-    @ExpandQueryDecorators([
+    @ExpandQueryProperty([
         'info',
         'submitter',
         'credits',
@@ -71,49 +42,21 @@ export class MapsCtlGetAllQuery extends MapsGetAllBaseQuery {
     ])
     expand: string[];
 
-    @ApiPropertyOptional({
-        name: 'type',
-        enum: MapType,
-        type: Number,
-        description: 'Filter by map type (gamemode)'
-    })
-    @Type(() => Number)
-    @IsEnum(MapType)
-    @IsOptional()
+    @EnumQueryProperty(MapType, { description: 'Filter by map type (gamemode)' })
     type: MapType;
 
-    @ApiPropertyOptional({
-        name: 'difficultyLow',
-        type: Number,
-        description: 'Filter by tier (lower bound)'
-    })
-    @IsOptional()
-    @Type(() => Number)
-    @IsInt()
+    @IntQueryProperty({ description: 'Filter by tier (lower bound)' })
     difficultyLow: number;
 
-    @ApiPropertyOptional({
-        name: 'difficultyHigh',
-        type: Number,
-        description: 'Filter by tier (upper bound)'
-    })
-    @IsOptional()
-    @Type(() => Number)
-    @IsInt()
+    @IntQueryProperty({ description: 'Filter by tier (upper bound)' })
     difficultyHigh: number;
 
-    @ApiPropertyOptional({
-        name: 'isLinear',
-        type: Boolean,
-        description: 'Filter by linear or staged'
-    })
-    @IsOptional()
-    @Type(() => Boolean)
+    @BooleanQueryProperty({ description: 'Filter by linear or staged' })
     isLinear: boolean;
 }
 
 export class MapsGetQuery {
-    @ExpandQueryDecorators([
+    @ExpandQueryProperty([
         'info',
         'credits',
         'submitter',
@@ -130,6 +73,6 @@ export class MapsGetQuery {
 }
 
 export class MapCreditsGetQuery {
-    @ExpandQueryDecorators(['user'])
+    @ExpandQueryProperty(['user'])
     expand: string[];
 }

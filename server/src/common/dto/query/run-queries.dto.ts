@@ -5,75 +5,35 @@ import { MapStatus } from '../../enums/map.enum';
 import { ExpandQueryDecorators, SkipQuery, TakeQuery } from '@lib/dto.lib';
 
 export class RunsGetAllQuery {
-    @SkipQuery(0)
+    @SkipQueryProperty(0)
     skip = 0;
 
-    @TakeQuery(10)
+    @TakeQueryProperty(10)
     take = 10;
 
-    @ExpandQueryDecorators(['overallStats', 'map', 'mapWithInfo', 'rank', 'zoneStats'])
+    @ExpandQueryProperty(['overallStats', 'map', 'mapWithInfo', 'rank', 'zoneStats'])
     expand: string[];
 
-    @ApiPropertyOptional({
-        name: 'mapID',
-        type: Number,
-        description: 'Filter by map ID'
-    })
-    @Type(() => Number)
-    @IsPositive()
-    @IsOptional()
+    @IntQueryProperty({ description: 'Filter by map ID' })
     mapID: number;
 
-    @ApiPropertyOptional({
-        name: 'mapName',
-        type: String,
-        description: 'Filter by map name'
-    })
-    @IsString()
-    @IsOptional()
+    @StringQueryProperty({ required: false, description: 'Filter by map name' })
     mapName: string;
 
     // Not sure if these two are supposed to be user IDs or steam IDs. Going to assume userid for now,
     // if I'm wrong do steam ID handling like users/getall does.
-    @ApiPropertyOptional({
-        name: 'userID',
-        type: Number,
-        description: 'Filter by user ID'
-    })
-    @Type(() => Number)
-    @IsPositive()
-    @IsOptional()
+    @IntQueryProperty({ description: 'Filter by user ID' })
     userID: number;
 
-    @ApiPropertyOptional({
-        name: 'userIDs',
-        type: String,
-        description: 'Filter by CSV list of user IDs'
-    })
-    @Transform(({ value }) => value.split(',').map((v) => Number.parseInt(v)))
-    @IsArray()
-    @IsOptional()
+    @IntCsvQueryProperty({ description: 'Filter by user IDs' })
     userIDs: number[];
 
-    // I'm not completely sure this is right, enum handling might not be valid - Tom
-    @ApiPropertyOptional({
-        name: 'flags',
-        enum: MapStatus,
-        type: Number,
+    @IntQueryProperty({
         description: 'Filter by run flags (I dont really know what this is, I think a 0.10/0.11 thing -Tom)'
     })
-    @Type(() => Number)
-    @IsInt()
-    @IsOptional()
     flags: number;
 
-    @ApiPropertyOptional({
-        name: 'isPB',
-        type: Boolean,
-        description: 'Whether or not to filter by only personal best runs.'
-    })
-    @IsBoolean()
-    @IsOptional()
+    @BooleanQueryProperty({ description: 'Whether or not to filter by only personal best runs.' })
     isPB: boolean;
 
     @ApiPropertyOptional({
@@ -90,6 +50,6 @@ export class RunsGetAllQuery {
 export class MapsCtlRunsGetAllQuery extends OmitType(RunsGetAllQuery, ['mapID', 'mapName'] as const) {}
 
 export class RunsGetQuery {
-    @ExpandQueryDecorators(['overallStats', 'map', 'mapWithInfo', 'rank', 'zoneStats'])
+    @ExpandQueryProperty(['overallStats', 'map', 'mapWithInfo', 'rank', 'zoneStats'])
     expand: string[];
 }
