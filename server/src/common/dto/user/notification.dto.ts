@@ -29,12 +29,10 @@ export class NotificationDto implements Notification {
     @NestedProperty(ActivityDto, { description: 'The activity that the notification is about' })
     activity: ActivityDto;
 
-    @ApiProperty()
-    @IsDateString()
+    @CreatedAtProperty()
     createdAt: Date;
 
-    @ApiProperty()
-    @IsDateString()
+    @UpdatedAtProperty()
     updatedAt: Date;
 }
 

@@ -18,11 +18,9 @@ export class RunSessionTimestampDto implements PrismaModelToDto<RunSessionTimest
     @IdProperty({ bigint: true })
     sessionID: number;
 
-    @ApiProperty()
-    @IsDateString()
+    @CreatedAtProperty()
     createdAt: Date;
 
-    @ApiProperty()
-    @IsDateString()
+    @UpdatedAtProperty()
     updatedAt: Date;
 }

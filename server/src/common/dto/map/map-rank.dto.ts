@@ -51,11 +51,9 @@ export class MapRankDto implements PrismaModelToDto<UserMapRank> {
     @IsInt()
     rankXP: number;
 
-    @ApiProperty()
-    @IsDateString()
+    @CreatedAtProperty()
     createdAt: Date;
 
-    @ApiProperty()
-    @IsDateString()
+    @UpdatedAtProperty()
     updatedAt: Date;
 }

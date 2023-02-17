@@ -26,12 +26,10 @@ export class FollowDto implements Follow {
     @NestedProperty(UserDto, { description: 'The user that is doing the following' })
     followee: UserDto;
 
-    @ApiProperty()
-    @IsDateString()
+    @CreatedAtProperty()
     createdAt: Date;
 
-    @ApiProperty()
-    @IsDateString()
+    @UpdatedAtProperty()
     updatedAt: Date;
 }
 

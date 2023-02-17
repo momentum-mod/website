@@ -47,11 +47,9 @@ export class MapStatsDto implements PrismaModelToDto<MapStats> {
     @IdProperty({ bigint: true })
     baseStatsID: number;
 
-    @ApiProperty()
-    @IsDateString()
+    @CreatedAtProperty()
     createdAt: Date;
 
-    @ApiProperty()
-    @IsDateString()
+    @UpdatedAtProperty()
     updatedAt: Date;
 }

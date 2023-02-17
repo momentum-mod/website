@@ -39,12 +39,10 @@ export class RunSessionDto implements PrismaModelToDto<RunSession> {
     @IsPositive()
     trackID: number;
 
-    @ApiProperty()
-    @IsDateString()
+    @CreatedAtProperty()
     createdAt: Date;
 
-    @ApiProperty()
-    @IsDateString()
+    @UpdatedAtProperty()
     updatedAt: Date;
 }
 

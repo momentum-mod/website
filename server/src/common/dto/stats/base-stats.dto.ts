@@ -63,11 +63,9 @@ export class BaseStatsDto implements PrismaModelToDto<BaseStats> {
     @IsNumber()
     velExit2D: number;
 
-    @ApiProperty()
-    @IsDateString()
+    @CreatedAtProperty()
     createdAt: Date;
 
-    @ApiProperty()
-    @IsDateString()
+    @UpdatedAtProperty()
     updatedAt: Date;
 }

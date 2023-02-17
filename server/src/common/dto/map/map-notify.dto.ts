@@ -13,10 +13,10 @@ export class MapNotifyDto implements MapNotify {
     @IdProperty()
     userID: number;
 
-    @Exclude()
+    @CreatedAtProperty()
     createdAt: Date;
 
-    @Exclude()
+    @UpdatedAtProperty()
     updatedAt: Date;
 }
 

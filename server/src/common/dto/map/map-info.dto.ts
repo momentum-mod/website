@@ -27,12 +27,10 @@ export class MapInfoDto implements MapInfo {
     @Exclude()
     mapID: number;
 
-    @ApiProperty()
-    @IsDateString()
+    @CreatedAtProperty()
     createdAt: Date;
 
-    @ApiProperty()
-    @IsDateString()
+    @UpdatedAtProperty()
     updatedAt: Date;
 }
 
