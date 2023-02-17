@@ -14,9 +14,23 @@ module.exports = {
     },
     ignorePatterns: ['.eslintrc.js', 'node_modules', '_*.ts', 'dist', '**/*.d.ts'],
     rules: {
-        '@typescript-eslint/interface-name-prefix': 'off',
         'no-var': ['error'],
         'no-empty': ['error', { allowEmptyCatch: true }],
+        '@typescript-eslint/naming-convention': [
+            'error',
+            { selector: 'variable', modifiers: ['global'], format: ['UPPER_CASE'] },
+            { selector: 'class', format: ['PascalCase'] },
+            { selector: 'enumMember', format: ['UPPER_CASE'] },
+            { selector: 'typeParameter', format: ['PascalCase'], prefix: ['T'] },
+            {
+                selector: 'interface',
+                format: ['PascalCase'],
+                custom: {
+                    regex: '^I[A-Z]',
+                    match: false
+                }
+            }
+        ],
         '@typescript-eslint/explicit-function-return-type': 'off',
         '@typescript-eslint/explicit-module-boundary-types': 'off',
         '@typescript-eslint/no-explicit-any': 'off',

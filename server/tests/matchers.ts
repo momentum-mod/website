@@ -8,7 +8,7 @@ BigInt.prototype['toJSON'] = function () {
 declare global {
     // eslint-disable-next-line @typescript-eslint/no-namespace
     namespace jest {
-        // eslint-disable-next-line unused-imports/no-unused-vars
+        // eslint-disable-next-line @typescript-eslint/naming-convention,unused-imports/no-unused-vars
         interface Matchers<R> {
             toBeValidDto: (type: any) => CustomMatcherResult;
             toBeValidPagedDto: (type: any) => CustomMatcherResult;
