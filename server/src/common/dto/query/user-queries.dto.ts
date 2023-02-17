@@ -7,7 +7,7 @@ import { ActivitiesGetQuery } from './activity-queries.dto';
 import { ExpandQueryDecorators } from '@lib/dto.lib';
 
 export class UsersGetQuery {
-    @ExpandQueryDecorators(['profile', 'userStats'])
+    @ExpandQueryProperty(['profile', 'userStats'])
     expand: string[];
 
     @ApiPropertyOptional({
@@ -22,7 +22,7 @@ export class UsersGetQuery {
 }
 
 export class UsersGetAllQuery extends PaginationQuery {
-    @ExpandQueryDecorators(['profile', 'userStats'])
+    @ExpandQueryProperty(['profile', 'userStats'])
     expand: string[];
 
     @ApiPropertyOptional({
@@ -83,16 +83,16 @@ class UserMapsBaseGetQuery extends PaginationQuery {
 }
 
 export class UserMapLibraryGetQuery extends UserMapsBaseGetQuery {
-    @ExpandQueryDecorators(['submitter', 'thumbnail', 'inFavorites'])
+    @ExpandQueryProperty(['submitter', 'thumbnail', 'inFavorites'])
     expand: string[];
 }
 
 export class UserMapFavoritesGetQuery extends UserMapsBaseGetQuery {
-    @ExpandQueryDecorators(['submitter', 'thumbnail', 'inFavorites'])
+    @ExpandQueryProperty(['submitter', 'thumbnail', 'inFavorites'])
     expand: string[];
 }
 
 export class UserMapSubmittedGetQuery extends UserMapsBaseGetQuery {
-    @ExpandQueryDecorators(['info', 'submitter', 'credits'])
+    @ExpandQueryProperty(['info', 'submitter', 'credits'])
     expand: string[];
 }

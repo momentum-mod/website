@@ -173,3 +173,161 @@ export function UpdatedAtProperty(): PropertyDecorator {
         IsDateString()
     );
 }
+
+/**
+ * Decorator collection for skip queries
+ * @param def - The default skip value
+ */
+export function SkipQueryProperty(def: number): PropertyDecorator {
+    return applyDecorators(
+        ApiPropertyOptional({
+            name: 'skip',
+            type: Number,
+            default: def,
+            description: 'Skip this many records'
+        }),
+        TypeDecorator(() => Number),
+        IsInt(),
+        IsOptional()
+    );
+}
+
+/**
+ * Decorator collection for take queries
+ * @param def - The default take value
+ */
+export function TakeQueryProperty(def: number): PropertyDecorator {
+    return applyDecorators(
+        ApiPropertyOptional({
+            name: 'take',
+            type: Number,
+            default: def,
+            description: 'Take this many records'
+        }),
+        TypeDecorator(() => Number),
+        IsPositive(),
+        IsOptional()
+    );
+}
+
+/**
+ * Transform comma-separared DB expansion strings into <string, bool> record for Prisma, and set Swagger properties
+ *
+ * @param expansions - String array of all the allowed expansions
+ */
+export function ExpandQueryProperty(expansions: string[]): PropertyDecorator {
+    return applyDecorators(
+        ApiPropertyOptional({
+            name: 'expand',
+            type: String,
+            enum: expansions,
+            description: `Expands, comma-separated (${expansions.join(', ')}))`
+        }),
+        Transform(({ value }) => value.split(',').filter((exp) => expansions.includes(exp))),
+        IsArray(),
+        IsOptional()
+    );
+}
+
+/**
+ * Transforms boolean queries.
+ *
+ * Optional by default!
+ *
+ * If `foo` is defined and is the string "true" (i.e. `?foo=true`), transforms to `true`, else `false`.
+ * */
+export function BooleanQueryProperty(options?: Omit<ApiPropertyOptions, 'type'>) {
+    const required = options?.required ?? false;
+    return applyDecorators(
+        ApiProperty({ ...options, type: Boolean, required: required }),
+        Transform(({ value }) => {
+            if (value && typeof value == 'string') return value === 'true';
+            return;
+        }),
+        IsBoolean(),
+        conditionalDecorator(!required, IsOptional)
+    );
+}
+
+/**
+ * Transforms integer queries.
+ *
+ * Optional by default!
+ * */
+export function IntQueryProperty(options?: Omit<ApiPropertyOptions, 'type'>) {
+    const required = options?.required ?? false;
+    return applyDecorators(
+        ApiProperty({ type: Number, required: required }),
+        // Even if this is a BigInt to Prisma, we treat it as a Number in service logic handling incoming data; all
+        // Prisma args for a stored BigInt take `bigint | number`.
+        TypeDecorator(() => Number),
+        conditionalDecorator(!required, IsOptional)
+    );
+}
+
+/**
+ * Handles strings queries.
+ *
+ * Optional by default!
+ * */
+export function StringQueryProperty(options?: Omit<ApiPropertyOptions, 'type'>) {
+    const required = options?.required ?? false;
+    return applyDecorators(
+        ApiProperty({ ...options, type: String, required: required }),
+        IsString(),
+        conditionalDecorator(!required, IsOptional)
+    );
+}
+
+/**
+ * Transform string CSV queries.
+ *
+ * Optional by default!
+ * */
+export function StringCsvQueryProperty(options?: Omit<ApiPropertyOptions, 'type'>) {
+    const required = options?.required ?? false;
+    return applyDecorators(
+        ApiProperty({
+            ...options,
+            type: String,
+            required: required,
+            description: '[CSV list of strings]' + options?.description ? ' ' + options.description : ''
+        }),
+        Transform(({ value }) => value.split(',')),
+        IsArray(),
+        conditionalDecorator(!required, IsOptional)
+    );
+}
+
+/**
+ * Transform integer CSV queries.
+ *
+ * Optional by default!
+ * */
+export function IntCsvQueryProperty(options?: Omit<ApiPropertyOptions, 'type'>) {
+    const required = options?.required ?? false;
+    return applyDecorators(
+        ApiProperty({
+            ...options,
+            type: String,
+            required: required,
+            description: '[CSV list of integers]' + options?.description ? ' ' + options.description : ''
+        }),
+        Transform(({ value }) => value.split(',').map((v) => Number.parseInt(v))),
+        IsArray(),
+        conditionalDecorator(!required, IsOptional)
+    );
+}
+
+/**
+ * Handles enum queries
+ *
+ * Optional by default!
+ * */
+export function EnumQueryProperty(
+    type: { [key: number]: string },
+    options: Omit<ApiPropertyOptions, 'type' | 'enum'> = {}
+) {
+    const opts = { required: false, ...options };
+    return EnumProperty(type, opts);
+}

@@ -4,22 +4,11 @@ import { BooleanQueryParam } from '@lib/dto.lib';
 import { PaginationQuery } from './pagination.dto';
 
 export class AdminCreateUserQuery {
-    @ApiProperty({
-        name: 'alias',
-        description: 'The alias to set the new user to'
-    })
-    @IsString()
+    @StringQueryProperty({ required: true, description: 'The alias to set the new user to' })
     alias: string;
 }
 
 export class AdminGetReportsQuery extends PaginationQuery {
-    @ApiPropertyOptional({
-        name: 'resolved',
-        type: Boolean,
-        description: 'Specifies if you want resolved or not'
-    })
-    @IsOptional()
-    @BooleanQueryParam()
-    @IsBoolean()
+    @BooleanQueryProperty({ required: false, description: 'Specifies if you want resolved or not' })
     resolved: boolean;
 }

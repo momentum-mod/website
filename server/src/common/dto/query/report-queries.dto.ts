@@ -5,15 +5,9 @@ import { ApiPropertyOptional } from '@nestjs/swagger';
 import { ExpandQueryDecorators } from '@lib/dto.lib';
 
 export class ReportGetQuery extends PaginationQuery {
-    @ApiPropertyOptional({
-        name: 'resolved',
-        description: 'Filter by resolved',
-        type: Boolean
-    })
-    @Type(() => Boolean)
-    @IsOptional()
+    @BooleanQueryProperty({ description: 'Filter by resolved' })
     resolved: boolean; // Note: this was a string on old API.
 
-    @ExpandQueryDecorators(['submitter', 'resolver'])
+    @ExpandQueryProperty(['submitter', 'resolver'])
     expand: string[];
 }
