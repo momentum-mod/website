@@ -23,6 +23,26 @@ export function DtoFactory<T>(type: Type<T>, input: Record<string, unknown>): T 
 // It may be possible to use reflection to get the type but I've messed with it for hours and can't figure
 // it out, leaving for now.
 export function NestedDto<T>(type: Type<T>, swaggerOptions: ApiPropertyOptions = {}): PropertyDecorator {
+
+/**
+ * Well, kind of safe. This is an annoying transform we do to ensure that we can use 64-bit ints with Prisma but numbers
+ * in JSON, rather than a string (currently we have handle BigInts as string, since class-transformer doesn't give us a
+ * way to use something like safe-stable-stringify).
+ * 
+ * Used for the various table IDs that use int64s that can conceivable be > 2^32, but not 2^53.
+ */
+export const SafeBigIntToNumber = () =>
+    Transform(
+        ({ value }) => {
+            const numberified = Number.parseInt(value);
+            if (numberified > Number.MAX_SAFE_INTEGER)
+                throw new InternalServerErrorException(
+                    'Tried to convert a BigInt to a number that exceeded MAX_SAFE_INTEGER!'
+                );
+            return numberified;
+        },
+        { toPlainOnly: true }
+    );
     return applyDecorators(
         ApiProperty({ ...swaggerOptions }),
         TypeDecorator(() => type), // Note we rename the import, this is just class-transformer's @Type.

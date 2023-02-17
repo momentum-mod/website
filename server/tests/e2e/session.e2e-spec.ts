@@ -262,7 +262,7 @@ describe('Session', () => {
             });
 
             expect(res.body).toBeValidDto(RunSessionTimestampDto);
-            expect(res.body.sessionID).toBe(user2Session.id.toString());
+            expect(res.body.sessionID).toBe(Number(user2Session.id));
             expect(res.body.tick).toBe(510);
             expect(res.body.zone).toBe(2);
         });
