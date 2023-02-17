@@ -38,7 +38,7 @@ describe('Session', () => {
         });
 
         nonGameAuthUser = await prisma.user.create({
-            data: { alias: 'Robert Brandom', steamID: '5asdf1234124', userStats: { create: {} } }
+            data: { alias: 'Robert Brandom', steamID: '521342131234124', userStats: { create: {} } }
         });
 
         map = await prisma.map.create({

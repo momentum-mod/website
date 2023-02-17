@@ -24,8 +24,8 @@ describe('Admin', () => {
         user2,
         mergeUser1,
         mergeUser2,
-        report1,
-        report2;
+        report1;
+    //report2;
     // map1,
     // map2,
     // map3;
