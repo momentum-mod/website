@@ -2,4 +2,5 @@
 . "$(dirname -- "$0")/_/husky.sh"
 
 cd server || exit
-npm run pre-commit
+npx lint-staged
+
