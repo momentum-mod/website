@@ -1,10 +1,7 @@
 ﻿import { MapFavorite } from '@prisma/client';
-import { ApiProperty } from '@nestjs/swagger';
-import { IsDateString, IsPositive } from 'class-validator';
-import { NestedDto } from '@lib/dto.lib';
+import { CreatedAtProperty, IdProperty, NestedProperty, UpdatedAtProperty } from '@lib/dto.lib';
 import { UserDto } from '../user/user.dto';
 import { MapDto } from './map.dto';
-import { Exclude } from 'class-transformer';
 
 export class MapFavoriteDto implements MapFavorite {
     @IdProperty()

@@ -1,7 +1,7 @@
 import { RunZoneStats } from '@prisma/client';
 import { ApiProperty } from '@nestjs/swagger';
-import { IsDateString, IsPositive } from 'class-validator';
-import { IsPositiveNumberString } from '@common/validators/is-positive-number-string.validator';
+import { IsPositive } from 'class-validator';
+import { CreatedAtProperty, IdProperty, PrismaModelToDto, UpdatedAtProperty } from '@lib/dto.lib';
 
 export class RunZoneStatsDto implements PrismaModelToDto<RunZoneStats> {
     @ApiProperty()

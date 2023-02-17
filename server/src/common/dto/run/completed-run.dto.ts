@@ -1,6 +1,6 @@
 ﻿import { ApiProperty } from '@nestjs/swagger';
-import { IsBoolean, IsNumber } from 'class-validator';
-import { NestedDto } from '@lib/dto.lib';
+import { IsBoolean, IsInt, IsNumber } from 'class-validator';
+import { NestedProperty } from '@lib/dto.lib';
 import { UserMapRankDto } from './user-map-rank.dto';
 import { RunDto } from './runs.dto';
 

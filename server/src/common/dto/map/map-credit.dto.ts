@@ -1,11 +1,9 @@
 import { MapCredit } from '@prisma/client';
 import { UserDto } from '../user/user.dto';
 import { MapDto } from './map.dto';
-import { ApiProperty, ApiPropertyOptional, PickType } from '@nestjs/swagger';
-import { IsEnum, IsOptional, IsPositive } from 'class-validator';
+import { PickType } from '@nestjs/swagger';
 import { MapCreditType } from '../../enums/map.enum';
-import { NestedDto } from '@lib/dto.lib';
-import { Exclude } from 'class-transformer';
+import { CreatedAtProperty, IdProperty, NestedProperty, EnumProperty, UpdatedAtProperty } from '@lib/dto.lib';
 
 export class MapCreditDto implements MapCredit {
     @IdProperty()

@@ -1,10 +1,9 @@
 ﻿import { Notification } from '@prisma/client';
 import { ApiProperty, PickType } from '@nestjs/swagger';
-import { IsBoolean, IsDateString, IsInt } from 'class-validator';
-import { Exclude } from 'class-transformer';
+import { IsBoolean } from 'class-validator';
 import { ActivityDto } from './activity.dto';
 import { UserDto } from './user.dto';
-import { NestedDto } from '@lib/dto.lib';
+import { CreatedAtProperty, IdProperty, NestedProperty, UpdatedAtProperty } from '@lib/dto.lib';
 
 export class NotificationDto implements Notification {
     @IdProperty()

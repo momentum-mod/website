@@ -1,5 +1,5 @@
 ﻿import { ApiProperty, PickType } from '@nestjs/swagger';
-import { NestedDto } from '@lib/dto.lib';
+import { NestedProperty } from '@lib/dto.lib';
 import { IsArray, IsDefined, IsNumber } from 'class-validator';
 
 // Could implement RankXpParams and CosXpParams in xp-systems.interface.ts but class-validator requires

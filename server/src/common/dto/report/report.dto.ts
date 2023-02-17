@@ -1,8 +1,15 @@
 ﻿import { Report } from '@prisma/client';
 import { ApiProperty, ApiPropertyOptional, PickType } from '@nestjs/swagger';
 import { ReportCategory, ReportType } from '../../enums/report.enum';
-import { IsBoolean, IsDateString, IsDefined, IsEnum, IsInt, IsOptional, IsPositive, IsString } from 'class-validator';
-import { NestedDto } from '@lib/dto.lib';
+import { IsBoolean, IsOptional, IsString } from 'class-validator';
+import {
+    CreatedAtProperty,
+    EnumProperty,
+    IdProperty,
+    NestedProperty,
+    PrismaModelToDto,
+    UpdatedAtProperty
+} from '@lib/dto.lib';
 import { UserDto } from '../user/user.dto';
 
 export class ReportDto implements PrismaModelToDto<Report> {

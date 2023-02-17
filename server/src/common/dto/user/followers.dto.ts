@@ -1,11 +1,9 @@
 import { Follow } from '@prisma/client';
 import { UserDto } from './user.dto';
-import { ApiProperty, ApiPropertyOptional, PickType } from '@nestjs/swagger';
+import { PickType } from '@nestjs/swagger';
 import { ActivityTypes } from '../../enums/activity.enum';
-import { IsDateString } from 'class-validator';
 import { Exclude } from 'class-transformer';
-import { IsEnumFlag } from '../../validators/is-enum-flag.validator';
-import { NestedDto, NestedDtoOptional } from '@lib/dto.lib';
+import { CreatedAtProperty, EnumProperty, NestedProperty, UpdatedAtProperty } from '@lib/dto.lib';
 
 export class FollowDto implements Follow {
     @EnumProperty(ActivityTypes, {

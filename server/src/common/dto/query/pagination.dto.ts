@@ -1,4 +1,4 @@
-﻿import { SkipQuery, TakeQuery } from '@lib/dto.lib';
+﻿import { SkipQueryProperty, TakeQueryProperty } from '@lib/dto.lib';
 
 export class PaginationQuery {
     @SkipQueryProperty(0)

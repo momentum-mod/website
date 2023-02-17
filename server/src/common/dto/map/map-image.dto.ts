@@ -1,7 +1,8 @@
 import { MapImage } from '@prisma/client';
 import { ApiProperty } from '@nestjs/swagger';
-import { IsDateString, IsPositive, IsUrl } from 'class-validator';
+import { IsUrl } from 'class-validator';
 import { Exclude } from 'class-transformer';
+import { CreatedAtProperty, IdProperty, UpdatedAtProperty } from '@lib/dto.lib';
 
 export class MapImageDto implements MapImage {
     @IdProperty()

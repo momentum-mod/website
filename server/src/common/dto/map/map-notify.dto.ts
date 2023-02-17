@@ -1,7 +1,7 @@
-﻿import { ApiProperty, PickType } from '@nestjs/swagger';
+﻿import { PickType } from '@nestjs/swagger';
 import { MapNotify } from '@prisma/client';
-import { Exclude } from 'class-transformer';
-import { IsPositive } from 'class-validator';
+import { ActivityTypes } from '@common/enums/activity.enum';
+import { CreatedAtProperty, IdProperty, EnumProperty, UpdatedAtProperty } from '@lib/dto.lib';
 
 export class MapNotifyDto implements MapNotify {
     @EnumProperty(ActivityTypes)

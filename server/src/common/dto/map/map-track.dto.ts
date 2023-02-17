@@ -1,9 +1,9 @@
 ﻿import { MapTrack } from '@prisma/client';
 import { Exclude } from 'class-transformer';
 import { ApiProperty, PickType } from '@nestjs/swagger';
-import { ArrayMinSize, IsArray, IsBoolean, IsDateString, IsInt, IsPositive, Max } from 'class-validator';
+import { ArrayMinSize, IsArray, IsBoolean, IsInt, IsPositive, Max } from 'class-validator';
 import { CreateMapZoneDto, MapZoneDto } from './zone/map-zone.dto';
-import { NestedDto } from '@lib/dto.lib';
+import { CreatedAtProperty, IdProperty, NestedProperty, UpdatedAtProperty } from '@lib/dto.lib';
 
 export class MapTrackDto implements MapTrack {
     @IdProperty()

@@ -1,6 +1,7 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsDateString, IsInt, IsOptional, IsString } from 'class-validator';
+import { IsInt, IsOptional, IsString } from 'class-validator';
 import { Exclude } from 'class-transformer';
+import { CreatedAtProperty, UpdatedAtProperty } from '@lib/dto.lib';
 
 export class ProfileDto {
     @Exclude()
