@@ -28,7 +28,7 @@ export async function get(options: RequestOptions): Promise<Test> {
     token(req, options);
     contentType(req, options);
     query(req, options);
-    // status(req, options);
+    status(req, options);
     return req;
 }
 
