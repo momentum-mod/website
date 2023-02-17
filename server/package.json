@@ -33,8 +33,7 @@
         "lint:check": "eslint \"{src,tests,lib,config}/**/*.ts\"",
         "format": "prettier --write \"{src,lib,tests,config,prisma}/**/*.{ts,js,md,prisma}\"",
         "format:check": "prettier --check \"{src,lib,tests,config,prisma}/**/*.{ts,js,md,prisma}\"",
-        "prepare": "cd .. && husky install",
-        "pre-commit": "lint-staged"
+        "prepare": "cd .. && husky install"
     },
     "jest": {
         "testTimeout": 15000
