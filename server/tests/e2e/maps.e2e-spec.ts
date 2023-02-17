@@ -17,15 +17,16 @@ import { UserDto } from '@common/dto/user/user.dto';
 import { MapTrackDto } from '@common/dto/map/map-track.dto';
 import { expandTest, skipTest, takeTest } from '@tests/util/generic-e2e-tests.util';
 import { MapImageDto } from '@common/dto/map/map-image.dto';
+import { Config } from '@config/config';
 
 const hash = (buffer: Buffer) => createHash('sha1').update(buffer).digest('hex');
 
 const s3Client = new S3Client({
-    region: process.env.region,
-    endpoint: process.env.endpointURL,
+    region: Config.storage.region,
+    endpoint: Config.storage.endpointUrl,
     credentials: {
-        accessKeyId: process.env.accessKeyID,
-        secretAccessKey: process.env.secretAccessKey
+        accessKeyId: Config.storage.accessKeyID,
+        secretAccessKey: Config.storage.secretAccessKey
     }
 });
 
@@ -1058,7 +1059,7 @@ describe('Maps', () => {
             try {
                 await s3Client.send(
                     new DeleteObjectCommand({
-                        Bucket: process.env.STORAGE_BUCKET_NAME,
+                        Bucket: Config.storage.bucketName,
                         Key: `maps/${map1.name}.bsp`
                     })
                 );
