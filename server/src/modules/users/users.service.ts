@@ -291,8 +291,10 @@ export class UsersService {
 
     async followUser(localUserID: number, targetUserID: number) {
         const targetUser = await this.userRepo.get(targetUserID);
-
         if (!targetUser) throw new NotFoundException('Target user not found');
+
+        const isFollowing = await this.userRepo.getFollower(localUserID, targetUserID);
+        if (isFollowing) throw new BadRequestException('User is already following the target user');
 
         await this.userRepo.createFollow(localUserID, targetUserID);
     }

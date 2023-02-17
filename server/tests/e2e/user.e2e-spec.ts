@@ -565,11 +565,17 @@ describe('User', () => {
                 token: user1Token
             }));
 
+        it('should respond with 400 if the authenticated user is already following the target user', () =>
+            post({
+                url: `user/follow/${user2.id}`,
+                status: 400,
+                token: user1Token
+            }));
+
         it('should respond with 401 when no access token is provided', () =>
             post({
                 url: `user/follow/${user3.id}`,
-                status: 401,
-                token: user1Token
+                status: 401
             }));
     });
 
