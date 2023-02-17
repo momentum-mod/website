@@ -7,19 +7,7 @@ import { ReportType, ReportCategory } from '@common/enums/report.enum';
 import { ReportDto } from '@common/dto/report/report.dto';
 
 describe('Reports', () => {
-    let adminUser,
-        adminUserToken,
-        adminGameUserToken,
-        adminUser2,
-        modUser,
-        modUser2,
-        nonAdminUser,
-        nonAdminAccessToken,
-        modUserToken,
-        user1,
-        user2,
-        report1,
-        report2;
+    let adminUser, adminUser2, modUser, modUser2, nonAdminUser, nonAdminAccessToken, user1, user2;
 
     beforeEach(async () => {
         const prisma: PrismaService = global.prisma;
@@ -128,10 +116,7 @@ describe('Reports', () => {
         });
 
         const authService = global.auth as AuthService;
-        adminUserToken = (await authService.loginWeb(adminUser)).accessToken;
         nonAdminAccessToken = (await authService.loginWeb(nonAdminUser)).accessToken;
-        modUserToken = (await authService.loginWeb(modUser)).accessToken;
-        adminGameUserToken = (await authService.loginGame(modUser)).token;
     });
 
     afterEach(async () => {
