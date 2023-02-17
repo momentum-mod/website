@@ -5,7 +5,7 @@ import { IsInt } from 'class-validator';
 import { BaseStatsDto } from '../../stats/base-stats.dto';
 import { NestedDto } from '@lib/dto.lib';
 
-export class MapZoneStatsDto implements MapZoneStats {
+export class MapZoneStatsDto implements PrismaModelToDto<MapZoneStats> {
     @Exclude()
     id: number;
 
@@ -21,7 +21,7 @@ export class MapZoneStatsDto implements MapZoneStats {
     zoneID: number;
 
     @Exclude()
-    baseStatsID: bigint;
+    baseStatsID: number;
 
     @NestedDto(BaseStatsDto, { required: false })
     baseStats?: BaseStatsDto;

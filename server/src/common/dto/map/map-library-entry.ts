@@ -6,22 +6,16 @@ import { NestedDto } from '@lib/dto.lib';
 import { MapDto } from './map.dto';
 
 export class MapLibraryEntryDto implements MapLibraryEntry {
-    @ApiProperty({
-        type: Number,
-        description: 'The ID of the library entry'
-    })
-    @IsPositive()
+    @IdProperty()
     id: number;
 
-    @ApiProperty()
-    @IsPositive()
+    @IdProperty({ description: 'ID of the user who owns the entry' })
     userID: number;
 
     @NestedDto(UserDto, { type: () => UserDto })
     user: UserDto;
 
-    @ApiProperty()
-    @IsPositive()
+    @IdProperty({ description: 'ID of the map the entry refers to' })
     mapID: number;
 
     @NestedDto(MapDto, { type: () => MapDto })

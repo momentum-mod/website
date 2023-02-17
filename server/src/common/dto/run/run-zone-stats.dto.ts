@@ -3,22 +3,19 @@ import { ApiProperty } from '@nestjs/swagger';
 import { IsDateString, IsPositive } from 'class-validator';
 import { IsPositiveNumberString } from '@common/validators/is-positive-number-string.validator';
 
-export class RunZoneStatsDto implements RunZoneStats {
+export class RunZoneStatsDto implements PrismaModelToDto<RunZoneStats> {
     @ApiProperty()
-    @IsPositiveNumberString()
     id: number;
 
     @ApiProperty()
     @IsPositive()
     zoneNum: number;
 
-    @ApiProperty()
-    @IsPositiveNumberString()
-    runID: bigint;
+    @IdProperty({ bigint: true })
+    runID: number;
 
-    @ApiProperty()
-    @IsPositiveNumberString()
-    baseStatsID: bigint;
+    @IdProperty({ bigint: true })
+    baseStatsID: number;
 
     @ApiProperty()
     @IsDateString()

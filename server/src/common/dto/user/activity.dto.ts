@@ -7,18 +7,11 @@ import { DtoFactory } from '@lib/dto.lib';
 import { Transform } from 'class-transformer';
 import { IsPositiveNumberString } from '@common/validators/is-positive-number-string.validator';
 
-export class ActivityDto implements Activity {
-    @ApiProperty({
-        type: Number,
-        description: 'The ID of the activity'
-    })
-    @IsPositive()
+export class ActivityDto implements PrismaModelToDto<Activity> {
+    @IdProperty()
     id: number;
 
-    @ApiProperty({
-        type: Number,
-        description: 'The ID of the user the activity is associated with'
-    })
+    @IdProperty({ description: 'The ID of the user the activity is associated with' })
     @IsPositive()
     userID: number;
 
@@ -34,13 +27,9 @@ export class ActivityDto implements Activity {
     @IsEnum(ActivityTypes)
     type: ActivityTypes;
 
-    @ApiProperty({
-        type: Number,
-        // TODO: I kind of hate this approach, could we do individual DTOs for each using generics?
-        description: 'ID of into the table of the relevant activity type e.g. Map, Run, User'
-    })
-    @IsPositiveNumberString()
-    data: bigint;
+    // TODO: I kind of hate this approach, could we do individual DTOs for each using generics?
+    @IdProperty({ bigint: true, description: 'ID of into the table of the relevant activity type e.g. Map, Run, User' })
+    data: number;
 
     @ApiProperty()
     @IsDateString()

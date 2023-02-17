@@ -8,11 +8,10 @@ export class MapNotifyDto implements MapNotify {
     @IsPositive()
     notifyOn: number;
 
-    @Exclude()
+    @IdProperty()
     mapID: number;
 
-    @ApiProperty()
-    @IsPositive()
+    @IdProperty()
     userID: number;
 
     @Exclude()

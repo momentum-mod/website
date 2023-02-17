@@ -5,7 +5,9 @@ import { IsArray, IsInt, IsOptional, IsPositive, IsBoolean, ValidateNested } fro
 
 /**
  * Factory method for constructing DTOs from objects (often from Prisma) easily.
+ * 
  * class-transformer handles the heavy lifting.
+ * 
  * @param type - The DTO type to transform into
  * @param input - The input data
  */
@@ -16,13 +18,33 @@ export function DtoFactory<T>(type: Type<T>, input: Record<string, unknown>): T 
 }
 
 /**
- * Combination of the @ApiProperty, @Type, and @ValidateNested decorators. Handles nested transformation and validation.
- * @param {Type} type - The DTO type to transform the nested data into, and document in Swagger.
- * @param {ApiPropertyOptions} swaggerOptions - Options to pass to Swagger, minus `type` and `required`.
+ * Utility type to allow implementations of Prisma models to treat their `bigint` properties as `number`s.
+ *
+ * Excludes properties with key TExclude.
+ *
+ * Combined with below NumberifyBigInt transformer to ensure we handle them safely.
  */
-// It may be possible to use reflection to get the type but I've messed with it for hours and can't figure
-// it out, leaving for now.
-export function NestedDto<T>(type: Type<T>, swaggerOptions: ApiPropertyOptions = {}): PropertyDecorator {
+export type PrismaModelToDto<TModel extends Record<string, any>, TExclude extends string | void = void> = {
+    [K in keyof TModel]: TModel[K] extends bigint
+        ? K extends TExclude
+            ? bigint
+            : number
+        : TModel[K] extends object
+        ? PrismaModelToDto<TModel[K], TExclude>
+        : TModel[K];
+};
+
+/**
+ * Transform an array of expansion strings into Prisma includes e.g. { foo: true, bar: true, ... }
+ * @param expansions - String array of all the allowed expansions
+ * */
+export function ExpandToPrismaIncludes(expansions: string[]): Record<string, boolean> | undefined {
+    if (!expansions || !Array.isArray(expansions)) return undefined;
+
+    const includes: Record<string, boolean> = {};
+    for (const expansion of expansions) includes[expansion] = true;
+    return includes;
+}
 
 /**
  * Well, kind of safe. This is an annoying transform we do to ensure that we can use 64-bit ints with Prisma but numbers
@@ -43,100 +65,33 @@ export const SafeBigIntToNumber = () =>
         },
         { toPlainOnly: true }
     );
-    return applyDecorators(
-        ApiProperty({ ...swaggerOptions }),
-        TypeDecorator(() => type), // Note we rename the import, this is just class-transformer's @Type.
-        ValidateNested()
-    );
+
+function conditionalDecorators(...args: [boolean, () => PropertyDecorator | undefined][]): PropertyDecorator[] {
+    return args.map(([condition, decorator]) => (condition ? decorator() : () => void 0));
 }
 
+function conditionalDecorator(condition: boolean, decorator: () => PropertyDecorator): PropertyDecorator {
+    return condition ? decorator() : () => void 0;
+}
+
+// NOTE: It may be possible to use reflection to get the types of all the below funcs but I've messed with it for hours
+// and can't figure it out, leaving for now.
 /**
- * Combination of the @ApiPropertyOptional, @Type, @ValidateNested and @IsOptional decorators. Handles nested
- * transformation and validation.
- * @param {Type} type - The DTO type to transform the nested data into, and document in Swagger.
- * @param {ApiPropertyOptions} swaggerOptions - Options to pass to Swagger, minus `type` and `required`.
+ * Decorator combo for
+ *  - ApiProperty
+ *  - IsPositive/IsPositiveNumberString
+ *  - Optional-ness
+ *  - BigInt handling: If the ID is a BigInt it will be transformed to a Number assuming it's of a valid size.
+ *
+ * Required by default!
  */
-export function NestedDtoOptional<T>(type: Type<T>, swaggerOptions: ApiPropertyOptions = {}): PropertyDecorator {
+export function IdProperty(options?: { bigint?: boolean } & Omit<ApiPropertyOptions, 'type'>): PropertyDecorator {
+    const required = options?.required ?? true;
+    const bigint = options?.bigint ?? false;
     return applyDecorators(
-        ApiPropertyOptional({ ...swaggerOptions }),
-        TypeDecorator(() => type),
-        ValidateNested(),
-        IsOptional()
-    );
-}
-
-export function SkipQuery(def: number): PropertyDecorator {
-    return applyDecorators(
-        ApiPropertyOptional({
-            name: 'skip',
-            type: Number,
-            default: def,
-            description: 'Skip this many records'
-        }),
-        TypeDecorator(() => Number),
-        IsInt(),
-        IsOptional()
-    );
-}
-
-/**
- * Decorator collection for take queries
- * @param def - The default skip value
- */
-export function TakeQuery(def: number): PropertyDecorator {
-    return applyDecorators(
-        ApiPropertyOptional({
-            name: 'take',
-            type: Number,
-            default: def,
-            description: 'Take this many records'
-        }),
-        TypeDecorator(() => Number),
+        ApiProperty({ type: Number, ...omit(options, ['bigint']), required: required }),
+        IsInt,
         IsPositive(),
-        IsOptional()
-    );
-}
-
-/**
- * Transform comma-separared DB expansion strings into <string, bool> record for Prisma, and set Swagger properties
- * @param expansions - String array of all the allowed expansions
- */
-export function ExpandQueryDecorators(expansions: string[]): PropertyDecorator {
-    return applyDecorators(
-        ApiPropertyOptional({
-            name: 'expand',
-            type: String,
-            enum: expansions,
-            description: `Expands, comma-separated (${expansions.join(', ')}))`
-        }),
-        Transform(({ value }) => value.split(',').filter((exp) => expansions.includes(exp))),
-        IsArray(),
-        IsOptional()
-    );
-}
-
-/**
- * Transform an array of expansion strings into Prisma includes e.g. { foo: true, bar: true, ... }
- * @param expansions - String array of all the allowed expansions
- * */
-export function ExpandToPrismaIncludes(expansions: string[]): Record<string, boolean> | undefined {
-    if (!expansions || !Array.isArray(expansions)) return undefined;
-
-    const includes: Record<string, boolean> = {};
-    for (const expansion of expansions) includes[expansion] = true;
-    return includes;
-}
-
-/**
- * Makes booleans work for queries
- * */
-
-export function BooleanQueryParam() {
-    return applyDecorators(
-        Transform(({ value }) => {
-            if (value && typeof value == 'string') return value === 'true';
-            return;
-        }),
-        IsBoolean()
+        ...conditionalDecorators([bigint, SafeBigIntToNumber], [!required, IsOptional])
     );
 }

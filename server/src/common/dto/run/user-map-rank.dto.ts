@@ -7,7 +7,7 @@ import { UserDto } from '../user/user.dto';
 import { MapDto } from '../map/map.dto';
 import { IsPositiveNumberString } from '@common/validators/is-positive-number-string.validator';
 
-export class UserMapRankDto implements UserMapRank {
+export class UserMapRankDto implements PrismaModelToDto<UserMapRank> {
     @ApiProperty({ description: 'The gamemode of the run' })
     @IsInt()
     gameType: number;
@@ -49,9 +49,8 @@ export class UserMapRankDto implements UserMapRank {
     @NestedDto(RunDto)
     run: RunDto;
 
-    @ApiProperty()
-    @IsPositiveNumberString()
-    runID: bigint;
+    @IdProperty({ bigint: true })
+    runID: number;
 
     @ApiProperty()
     @IsDateString()

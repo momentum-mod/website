@@ -6,7 +6,7 @@ import { CreateMapZoneDto, MapZoneDto } from './zone/map-zone.dto';
 import { NestedDto } from '@lib/dto.lib';
 
 export class MapTrackDto implements MapTrack {
-    @Exclude()
+    @IdProperty()
     id: number;
 
     @ApiProperty()

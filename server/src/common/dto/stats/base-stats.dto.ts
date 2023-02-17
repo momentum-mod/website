@@ -3,9 +3,9 @@ import { IsDateString, IsInt, IsNumber } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 import { IsPositiveNumberString } from '@common/validators/is-positive-number-string.validator';
 
-export class BaseStatsDto implements BaseStats {
-    @IsPositiveNumberString()
-    id: bigint;
+export class BaseStatsDto implements PrismaModelToDto<BaseStats> {
+    @IdProperty({ bigint: true })
+    id: number;
 
     @ApiProperty()
     @IsInt()

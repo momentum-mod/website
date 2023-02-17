@@ -4,7 +4,7 @@ import { IsDateString, IsInt, IsNumberString, IsPositive } from 'class-validator
 import { IsPositiveNumberString } from '@common/validators/is-positive-number-string.validator';
 import { Exclude } from 'class-transformer';
 
-export class MapStatsDto implements MapStats {
+export class MapStatsDto implements PrismaModelToDto<MapStats> {
     @ApiProperty()
     @IsPositive()
     id: number;
@@ -44,9 +44,8 @@ export class MapStatsDto implements MapStats {
     @IsNumberString()
     timePlayed: bigint;
 
-    @ApiProperty()
-    @IsPositiveNumberString()
-    baseStatsID: bigint;
+    @IdProperty({ bigint: true })
+    baseStatsID: number;
 
     @ApiProperty()
     @IsDateString()

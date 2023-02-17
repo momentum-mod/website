@@ -27,8 +27,7 @@ import { Config } from '@config/config';
 import { MapStatsDto } from '@common/dto/map/map-stats.dto';
 
 export class MapDto implements MapDB {
-    @ApiProperty()
-    @IsPositive()
+    @IdProperty()
     id: number;
 
     @ApiProperty()

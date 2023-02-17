@@ -12,12 +12,7 @@ import { Config } from '@config/config';
 
 // TODO: UserStats in here in future as well
 export class UserDto implements User {
-    @ApiProperty({
-        type: Number,
-        description: 'The unique numeric ID of the user'
-    })
-    @IsDefined()
-    @IsInt()
+    @IdProperty({ description: 'The unique numeric ID of the user' })
     id: number;
 
     @ApiProperty({
@@ -107,20 +102,11 @@ export class AdminUpdateUserDto extends UpdateUserDto {
 }
 
 export class MergeUserDto {
-    @ApiProperty({
-        description: 'The ID of the placeholder user to merge into the actual user',
-        type: Number
-    })
-    @IsDefined()
-    @IsInt()
-    @Type(() => Number)
+    @IdProperty({ description: 'The ID of the placeholder user to merge into the actual user' })
+    // @Type(() => Number) // TODO : I don't thiiiink this is needed since it's a body so should be transformed. Same below
     placeholderID: number;
 
-    @ApiProperty({
-        description: 'The ID of the actual user to merge the placeholder into',
-        type: Number
-    })
-    @IsDefined()
-    @Type(() => Number)
+    @IdProperty({ description: 'The ID of the actual user to merge the placeholder into' })
+    // @Type(() => Number)
     userID: number;
 }

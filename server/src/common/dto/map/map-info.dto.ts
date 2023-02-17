@@ -4,7 +4,7 @@ import { ApiProperty, PartialType, PickType } from '@nestjs/swagger';
 import { IsDateString, IsOptional, IsPositive, IsString, Matches } from 'class-validator';
 
 export class MapInfoDto implements MapInfo {
-    @Exclude()
+    @IdProperty()
     id: number;
 
     @ApiProperty()
