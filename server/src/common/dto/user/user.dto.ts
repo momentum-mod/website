@@ -64,12 +64,10 @@ export class UserDto implements User {
     @NestedProperty(MapRankDto, { description: 'The map rank data for the user on a specific map' })
     mapRank: MapRankDto;
 
-    @ApiProperty()
-    @IsDateString()
+    @CreatedAtProperty()
     createdAt: Date;
 
-    @ApiProperty()
-    @IsDateString()
+    @UpdatedAtProperty()
     updatedAt: Date;
 }
 

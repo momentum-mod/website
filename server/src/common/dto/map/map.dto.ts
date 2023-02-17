@@ -105,12 +105,10 @@ export class MapDto implements MapDB {
     @NestedProperty(MapRankDto, { lazy: true })
     personalBest: MapRankDto;
 
-    @ApiProperty()
-    @IsDateString()
+    @CreatedAtProperty()
     createdAt: Date;
 
-    @ApiProperty()
-    @IsDateString()
+    @UpdatedAtProperty()
     updatedAt: Date;
 }
 

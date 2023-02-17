@@ -84,11 +84,9 @@ export class RunDto implements PrismaModelToDto<Run> {
     @NestedProperty(RunZoneStatsDto, { required: false, lazy: true, isArray: true })
     zoneStats: RunZoneStatsDto[];
 
-    @ApiProperty()
-    @IsDateString()
+    @CreatedAtProperty()
     createdAt: Date;
 
-    @ApiProperty()
-    @IsDateString()
+    @UpdatedAtProperty()
     updatedAt: Date;
 }

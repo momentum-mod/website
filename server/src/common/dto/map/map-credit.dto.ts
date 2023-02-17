@@ -26,10 +26,10 @@ export class MapCreditDto implements MapCredit {
     @NestedProperty(MapDto, { lazy: true })
     map: MapDto;
 
-    @Exclude()
+    @CreatedAtProperty()
     createdAt: Date;
 
-    @Exclude()
+    @UpdatedAtProperty()
     updatedAt: Date;
 }
 

@@ -149,3 +149,27 @@ export function EnumProperty(
         conditionalDecorator(!required, IsOptional)
     );
 }
+
+/**
+ * Decorator combo for
+ *  - ApiProperty (with generic description)
+ *  - IsDateString
+ */
+export function CreatedAtProperty(): PropertyDecorator {
+    return applyDecorators(
+        ApiProperty({ type: String, description: 'When the item was first created, as ISO8601 date string' }),
+        IsDateString()
+    );
+}
+
+/**
+ * Decorator combo for
+ *  - ApiProperty (with generic description)
+ *  - IsDateString
+ */
+export function UpdatedAtProperty(): PropertyDecorator {
+    return applyDecorators(
+        ApiProperty({ type: String, description: 'When the item was last modified, as ISO8601 date string' }),
+        IsDateString()
+    );
+}

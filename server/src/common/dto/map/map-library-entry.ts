@@ -21,11 +21,9 @@ export class MapLibraryEntryDto implements MapLibraryEntry {
     @NestedProperty(MapDto, { lazy: true })
     map: MapDto;
 
-    @ApiProperty()
-    @IsDateString()
+    @CreatedAtProperty()
     createdAt: Date;
 
-    @ApiProperty()
-    @IsDateString()
+    @UpdatedAtProperty()
     updatedAt: Date;
 }

@@ -22,11 +22,9 @@ export class MapImageDto implements MapImage {
     @Exclude()
     mapID: number;
 
-    @ApiProperty()
-    @IsDateString()
+    @CreatedAtProperty()
     createdAt: Date;
 
-    @ApiProperty()
-    @IsDateString()
+    @UpdatedAtProperty()
     updatedAt: Date;
 }

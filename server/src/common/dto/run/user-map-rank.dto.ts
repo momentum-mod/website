@@ -52,11 +52,9 @@ export class UserMapRankDto implements PrismaModelToDto<UserMapRank> {
     @IdProperty({ bigint: true })
     runID: number;
 
-    @ApiProperty()
-    @IsDateString()
+    @CreatedAtProperty()
     createdAt: Date;
 
-    @ApiProperty()
-    @IsDateString()
+    @UpdatedAtProperty()
     updatedAt: Date;
 }

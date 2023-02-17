@@ -17,11 +17,9 @@ export class RunZoneStatsDto implements PrismaModelToDto<RunZoneStats> {
     @IdProperty({ bigint: true })
     baseStatsID: number;
 
-    @ApiProperty()
-    @IsDateString()
+    @CreatedAtProperty()
     createdAt: Date;
 
-    @ApiProperty()
-    @IsDateString()
+    @UpdatedAtProperty()
     updatedAt: Date;
 }

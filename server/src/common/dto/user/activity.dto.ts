@@ -25,11 +25,9 @@ export class ActivityDto implements PrismaModelToDto<Activity> {
     @IdProperty({ bigint: true, description: 'ID of into the table of the relevant activity type e.g. Map, Run, User' })
     data: number;
 
-    @ApiProperty()
-    @IsDateString()
+    @CreatedAtProperty()
     createdAt: Date;
 
-    @ApiProperty()
-    @IsDateString()
+    @UpdatedAtProperty()
     updatedAt: Date;
 }

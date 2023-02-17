@@ -58,12 +58,10 @@ export class ReportDto implements PrismaModelToDto<Report> {
     @IdProperty({ description: 'The user ID of the resolver, if its been resolved' })
     resolverID: number;
 
-    @ApiProperty()
-    @IsDateString()
+    @CreatedAtProperty()
     createdAt: Date;
 
-    @ApiProperty()
-    @IsDateString()
+    @UpdatedAtProperty()
     updatedAt: Date;
 }
 

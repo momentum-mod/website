@@ -34,12 +34,10 @@ export class MapTrackDto implements MapTrack {
     @Exclude()
     mapID: number;
 
-    @ApiProperty()
-    @IsDateString()
+    @CreatedAtProperty()
     createdAt: Date;
 
-    @ApiProperty()
-    @IsDateString()
+    @UpdatedAtProperty()
     updatedAt: Date;
 }
 
