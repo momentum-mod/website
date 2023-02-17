@@ -65,17 +65,14 @@ export function ExpandToPrismaIncludes(expansions: string[]): Record<string, boo
  * Used for the various table IDs that use int64s that can conceivable be > 2^32, but not 2^53.
  */
 export const SafeBigIntToNumber = () =>
-    Transform(
-        ({ value }) => {
-            const numberified = Number.parseInt(value);
-            if (numberified > Number.MAX_SAFE_INTEGER)
-                throw new InternalServerErrorException(
-                    'Tried to convert a BigInt to a number that exceeded MAX_SAFE_INTEGER!'
-                );
-            return numberified;
-        },
-        { toPlainOnly: true }
-    );
+    Transform(({ value }) => {
+        const numberified = Number.parseInt(value);
+        if (numberified > Number.MAX_SAFE_INTEGER)
+            throw new InternalServerErrorException(
+                'Tried to convert a BigInt to a number that exceeded MAX_SAFE_INTEGER!'
+            );
+        return numberified;
+    });
 
 function conditionalDecorators(...args: [boolean, () => PropertyDecorator | undefined][]): PropertyDecorator[] {
     return args.map(([condition, decorator]) => (condition ? decorator() : () => void 0));
