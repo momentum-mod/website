@@ -355,7 +355,7 @@ describe('runs', () => {
 
             expect(res.body.totalCount).toBeGreaterThanOrEqual(4);
             expect(res.body.returnCount).toBeGreaterThanOrEqual(4);
-            expect(res.body.response.filter((x) => x.hasOwnProperty('rank')).length).toBe(2); // 2 test runs have a rank, so we should see 2 in the response
+            expect(res.body.response.filter((x) => Object.hasOwn(x, 'rank')).length).toBe(2); // 2 test runs have a rank, so we should see 2 in the response
         });
 
         it('should respond with a list of runs with the zoneStats include', () =>

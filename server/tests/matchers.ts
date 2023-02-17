@@ -64,7 +64,7 @@ expect.extend({
     },
 
     toBeValidPagedDto(received, type) {
-        if (!received || !received.hasOwnProperty('response') || !Array.isArray(received.response)) {
+        if (!received || !Object.hasOwn(received, 'response') || !Array.isArray(received.response)) {
             return {
                 message: () => `expected paged DTO with response array, data was invalid`,
                 pass: false
