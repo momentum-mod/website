@@ -5,17 +5,22 @@ import { UserMapRankDto } from './user-map-rank.dto';
 import { RunDto } from './runs.dto';
 
 class CosXpGain {
-    @IsNumber()
+    @ApiProperty({ type: Number, description: 'Integer amount of levels gained' })
+    @IsInt()
     gainLvl: number;
 
+    // TODO: Are these two ints or floats? Don't seem like they're being rounded, but lets verify.
+    @ApiProperty({ type: Number, description: 'Cosmetic XP of player before the run' })
     @IsNumber()
     oldXP: number;
 
+    @ApiProperty({ type: Number, description: 'Cosmetic XP of player after the run' })
     @IsNumber()
     gainXP: number;
 }
 
 export class XpGainDto {
+    @ApiProperty({ type: Number, description: 'New ranked XP of player' })
     @IsNumber()
     rankXP: number;
 

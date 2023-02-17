@@ -32,13 +32,13 @@ export class ReportDto implements PrismaModelToDto<Report> {
         description: 'The main text of the report',
         type: String
     })
+    @IsString()
     message: string;
 
     @ApiProperty({
         description: 'Whether the report has been resolved or not',
         type: Boolean
     })
-    @IsDefined()
     @IsBoolean()
     resolved: boolean;
 
@@ -46,6 +46,7 @@ export class ReportDto implements PrismaModelToDto<Report> {
         description: 'The reason the report was resolved, if it was',
         type: String
     })
+    @IsString()
     @IsOptional()
     resolutionMessage: string;
 

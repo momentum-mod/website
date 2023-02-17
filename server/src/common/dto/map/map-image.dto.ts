@@ -7,15 +7,16 @@ export class MapImageDto implements MapImage {
     @IdProperty()
     id: number;
 
-    @ApiProperty()
+    // TODO: Specify exact resolutions
+    @ApiProperty({ type: String, description: 'URL to low resolution image file' })
     @IsUrl()
     small: string;
 
-    @ApiProperty()
+    @ApiProperty({ type: String, description: 'URL to medium resolution image file' })
     @IsUrl()
     medium: string;
 
-    @ApiProperty()
+    @ApiProperty({ type: String, description: 'URL to high resolution image file' })
     @IsUrl()
     large: string;
 

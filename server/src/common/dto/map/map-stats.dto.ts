@@ -40,7 +40,7 @@ export class MapStatsDto implements PrismaModelToDto<MapStats> {
     @IsInt()
     uniqueCompletions: number;
 
-    @ApiProperty()
+    @ApiProperty({ description: 'The total time played on the map', type: String })
     @IsNumberString()
     timePlayed: bigint;
 

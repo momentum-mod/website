@@ -7,13 +7,16 @@ export class MapInfoDto implements MapInfo {
     @IdProperty()
     id: number;
 
-    @ApiProperty()
+    @ApiProperty({ type: String, description: 'Author-submitted description of the map' })
     @IsString()
     description: string;
 
-    @ApiProperty()
+    @ApiProperty({
+        type: String,
+        description: 'ID of Youtube video for the map, for use with e.g. https://www.youtube.com/?v=[ID]'
+    })
     @IsOptional()
-    @Matches(/^[\w-]{11}$/)
+    @Matches(/^[\w-_]{11}$/)
     youtubeID: string;
 
     @ApiProperty()
