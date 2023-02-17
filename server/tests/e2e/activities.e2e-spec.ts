@@ -69,10 +69,10 @@ describe('Activities', () => {
 
             expects(res);
             expect(res.body.totalCount).toBeGreaterThanOrEqual(3);
-            expect(res.body.response.find((data) => data.userID === user1.id && data.data === '122').type).toBe(
+            expect(res.body.response.find((data) => data.userID === user1.id && data.data === 122).type).toBe(
                 ActivityTypes.MAP_APPROVED
             );
-            expect(res.body.response.find((data) => data.userID === user1.id && data.data === '123').type).toBe(
+            expect(res.body.response.find((data) => data.userID === user1.id && data.data === 123).type).toBe(
                 ActivityTypes.WR_ACHIEVED
             );
             expect(res.body.response.find((data) => data.userID === user2.id).type).toBe(ActivityTypes.REVIEW_MADE);

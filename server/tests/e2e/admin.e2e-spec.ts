@@ -377,7 +377,7 @@ describe('Admin', () => {
 
         report1 = await prisma.report.create({
             data: {
-                data: 'report',
+                data: 1,
                 type: ReportType.MAP_REPORT,
                 category: ReportCategory.INAPPROPRIATE_CONTENT,
                 message: 'report message',
@@ -387,9 +387,9 @@ describe('Admin', () => {
             }
         });
 
-        report2 = await prisma.report.create({
+        await prisma.report.create({
             data: {
-                data: 'report2',
+                data: 2,
                 type: ReportType.USER_PROFILE_REPORT,
                 category: ReportCategory.PLAGIARISM,
                 message: 'report2 message',
@@ -913,7 +913,7 @@ describe('Admin', () => {
             expect(reports.body).toBeValidPagedDto(ReportDto);
             expect(reports.body).toHaveProperty('response');
             expect(reports.body.returnCount).toBe(2);
-            expect(reports.body.response[0].data).toBe(report1.data);
+            expect(reports.body.response[0].data).toBe(Number(report1.data));
             expect(reports.body.response[0].type).toBe(report1.type);
             expect(reports.body.response[0].category).toBe(report1.category);
             expect(reports.body.response[0].message).toBe(report1.message);

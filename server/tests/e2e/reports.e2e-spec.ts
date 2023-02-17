@@ -91,9 +91,9 @@ describe('Reports', () => {
             }
         });
 
-        report1 = await prisma.report.create({
+        await prisma.report.create({
             data: {
-                data: 'report',
+                data: 1,
                 type: ReportType.MAP_REPORT,
                 category: ReportCategory.INAPPROPRIATE_CONTENT,
                 message: 'report message',
@@ -103,9 +103,9 @@ describe('Reports', () => {
             }
         });
 
-        report2 = await prisma.report.create({
+        await prisma.report.create({
             data: {
-                data: 'report2',
+                data: 2,
                 type: ReportType.USER_PROFILE_REPORT,
                 category: ReportCategory.PLAGIARISM,
                 message: 'report2 message',
@@ -134,26 +134,23 @@ describe('Reports', () => {
 
     describe('POST /api/reports', () => {
         it('should create a new report', async () => {
-            const data = 'report3';
-            const type = ReportType.MAP_COMMENT_REPORT;
-            const category = ReportCategory.SPAM;
-            const message = 'report3 message';
+            const data = 3;
             const resp = await post({
                 url: 'reports',
                 status: 201,
                 token: nonAdminAccessToken,
                 body: {
                     data: data,
-                    type: type,
-                    category: category,
-                    message: message
+                    type: ReportType.MAP_COMMENT_REPORT,
+                    category: ReportCategory.SPAM,
+                    message: 'report3 message'
                 }
             });
             expect(resp.body).toBeValidDto(ReportDto);
             expect(resp.body.data).toBe(data);
             const report = await (global.prisma as PrismaService).report.findFirst({
                 where: {
-                    data: data
+                    data: BigInt(data)
                 }
             });
             expect(report.data).toBe(data);

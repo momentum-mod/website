@@ -321,7 +321,7 @@ describe('Users', () => {
             expect(res.body.response[0]).toHaveProperty('mapRank');
             expect(res.body.response[0].mapRank.mapID).toBe(map1.id);
             expect(res.body.response[0].mapRank.userID).toBe(user1.id);
-            expect(res.body.response[0].mapRank.runID).toBe(run1.id.toString());
+            expect(res.body.response[0].mapRank.runID).toBe(Number(run1.id));
             expect(res.body.response[0].mapRank.rank).toBe(1);
         });
 
@@ -378,7 +378,7 @@ describe('Users', () => {
             expect(res.body).toHaveProperty('mapRank');
             expect(res.body.mapRank.mapID).toBe(map1.id);
             expect(res.body.mapRank.userID).toBe(user1.id);
-            expect(res.body.mapRank.runID).toBe(run1.id.toString());
+            expect(res.body.mapRank.runID).toBe(Number(run1.id));
             expect(res.body.mapRank.rank).toBe(1);
         });
 

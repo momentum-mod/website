@@ -471,7 +471,7 @@ describe('runs', () => {
 
             expects(res);
 
-            expect(res.body.id).toBe(run1.id.toString());
+            expect(res.body.id).toBe(Number(run1.id));
             expect(res.body.mapID).toBe(run1.mapID);
         });
 

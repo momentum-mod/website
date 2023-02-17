@@ -18,9 +18,9 @@ export const appOptions: NestApplicationOptions = {
     bodyParser: false
 };
 
-/* MDN recommended hack override for BigInt
+/* Transforms `BigInt`s to strings in JSON.stringify, for cases that haven't been explicitly
+ * transformed to numbers using @NumberifyBigInt().
  * https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/BigInt#use_within_json
- * https://github.com/GoogleChromeLabs/jsbi/issues/30#issuecomment-1006088574
  */
 export function jsonBigIntFix() {
     BigInt.prototype['toJSON'] = function () {

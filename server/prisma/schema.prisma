@@ -246,9 +246,9 @@ model Notification {
 model Report {
     id Int @id @default(autoincrement())
 
-    data              String?  @db.VarChar(255)
-    type              Int?     @db.UnsignedTinyInt
-    category          Int?     @db.UnsignedSmallInt
+    data              BigInt   @db.BigInt
+    type              Int      @db.UnsignedTinyInt
+    category          Int      @db.UnsignedSmallInt
     message           String?  @db.VarChar(1000)
     resolved          Boolean? @default(false)
     resolutionMessage String?  @db.VarChar(1000)
