@@ -1,6 +1,6 @@
 // noinspection DuplicatedCode
 import * as request from 'supertest';
-import { RunDto } from '@common/dto/run/runs.dto';
+import { RunDto } from '@common/dto/run/run.dto';
 import { MapType, MapStatus, MapCreditType } from '@common/enums/map.enum';
 import { AuthService } from '@modules/auth/auth.service';
 import { PrismaService } from '@modules/repo/prisma.service';

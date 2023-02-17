@@ -11,7 +11,7 @@ import { ActivityDto } from '@common/dto/user/activity.dto';
 import { ProfileDto } from '@common/dto/user/profile.dto';
 import { FollowDto } from '@common/dto/user/followers.dto';
 import { MapCreditDto } from '@common/dto/map/map-credit.dto';
-import { RunDto } from '@common/dto/run/runs.dto';
+import { RunDto } from '@common/dto/run/run.dto';
 import { expandTest, skipTest, takeTest } from '@tests/util/generic-e2e-tests.util';
 
 describe('Users', () => {

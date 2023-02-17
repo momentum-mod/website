@@ -12,7 +12,7 @@ import {
 } from '@lib/dto.lib';
 import { MapDto } from './map.dto';
 import { UserDto } from '../user/user.dto';
-import { RunDto } from '../run/runs.dto';
+import { RunDto } from '../run/run.dto';
 
 // TODO: naming is weird here
 export class MapRankDto implements PrismaModelToDto<UserMapRank> {
