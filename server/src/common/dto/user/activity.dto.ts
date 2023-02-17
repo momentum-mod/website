@@ -18,11 +18,7 @@ export class ActivityDto implements PrismaModelToDto<Activity> {
     @NestedProperty(UserDto, { description: 'The ID of the user the activity is associated with' })
     user: UserDto;
 
-    @ApiProperty({
-        enum: ActivityTypes,
-        description: 'The bitwise flags for the activities'
-    })
-    @IsEnum(ActivityTypes)
+    @EnumProperty(ActivityTypes)
     type: ActivityTypes;
 
     // TODO: I kind of hate this approach, could we do individual DTOs for each using generics?

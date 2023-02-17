@@ -100,6 +100,7 @@ export function NestedProperty<T>(
         conditionalDecorator(!required, IsOptional)
     );
 }
+
 /**
  * Decorator combo for
  *  - ApiProperty
@@ -117,5 +118,34 @@ export function IdProperty(options?: { bigint?: boolean } & Omit<ApiPropertyOpti
         IsInt,
         IsPositive(),
         ...conditionalDecorators([bigint, SafeBigIntToNumber], [!required, IsOptional])
+    );
+}
+
+/**
+ * Decorator combo for numeric enums using
+ *  - ApiProperty with nice Swagger type type/enum handling
+ *  - Type handling for queries
+ *  - IsEnum
+ *
+ *  Required by default!
+ * @param {Type} type - Enum type
+ * @param {ApiPropertyOptions} options - Options to pass to Swagger, minus `type` and `enum` (`type` arg handles this).
+ *                                       Also uses `required` to determine use of `@IsOptional()`
+ */
+export function EnumProperty(
+    type: { [key: number]: string },
+    options: Omit<ApiPropertyOptions, 'type' | 'enum'> = {}
+): PropertyDecorator {
+    const required = options?.required ?? true;
+    return applyDecorators(
+        ApiProperty({
+            type: Number,
+            enum: type,
+            ...options,
+            required: required
+        }),
+        TypeDecorator(() => Number),
+        IsEnum(type),
+        conditionalDecorator(!required, IsOptional)
     );
 }
