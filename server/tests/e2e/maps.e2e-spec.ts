@@ -7,7 +7,7 @@ import { MapDto } from '@common/dto/map/map.dto';
 import { del, get, getNoContent, patch, post, postAttach, put, putAttach } from '../util/request-handlers.util';
 import { MapInfoDto } from '@common/dto/map/map-info.dto';
 import { MapCreditDto } from '@common/dto/map/map-credit.dto';
-import { RunDto } from '@common/dto/run/runs.dto';
+import { RunDto } from '@common/dto/run/run.dto';
 import { MapRankDto } from '@common/dto/map/map-rank.dto';
 import { ActivityTypes } from '@common/enums/activity.enum';
 import axios from 'axios';

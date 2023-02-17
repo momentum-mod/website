@@ -17,7 +17,7 @@ import { ProfileDto } from '@common/dto/user/profile.dto';
 import { MapCreditDto } from '@common/dto/map/map-credit.dto';
 import { FollowDto } from '@common/dto/user/followers.dto';
 import { PaginationQuery } from '@common/dto/query/pagination.dto';
-import { RunDto } from '@common/dto/run/runs.dto';
+import { RunDto } from '@common/dto/run/run.dto';
 import { UsersGetActivitiesQuery, UsersGetAllQuery, UsersGetQuery } from '@common/dto/query/user-queries.dto';
 
 @Controller('api/users')

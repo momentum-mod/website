@@ -18,7 +18,7 @@ import { ActivityDto } from '@common/dto/user/activity.dto';
 import { FollowDto, FollowStatusDto, UpdateFollowStatusDto } from '@common/dto/user/followers.dto';
 import { MapCreditDto } from '@common/dto/map/map-credit.dto';
 import { ActivityTypes } from '@common/enums/activity.enum';
-import { RunDto } from '@common/dto/run/runs.dto';
+import { RunDto } from '@common/dto/run/run.dto';
 import { DtoFactory, ExpandToPrismaIncludes } from '@lib/dto.lib';
 import { MapNotifyDto, UpdateMapNotifyDto } from '@common/dto/map/map-notify.dto';
 import { MapsRepoService } from '../repo/maps-repo.service';

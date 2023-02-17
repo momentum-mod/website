@@ -2,7 +2,7 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { IsInt, IsNumber, IsPositive } from 'class-validator';
 import { CreatedAtProperty, IdProperty, NestedProperty, PrismaModelToDto, UpdatedAtProperty } from '@lib/dto.lib';
-import { RunDto } from './runs.dto';
+import { RunDto } from './run.dto';
 import { UserDto } from '../user/user.dto';
 import { MapDto } from '../map/map.dto';
 

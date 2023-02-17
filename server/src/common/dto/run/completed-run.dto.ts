@@ -2,7 +2,7 @@
 import { IsBoolean, IsInt, IsNumber } from 'class-validator';
 import { NestedProperty } from '@lib/dto.lib';
 import { UserMapRankDto } from './user-map-rank.dto';
-import { RunDto } from './runs.dto';
+import { RunDto } from './run.dto';
 
 class CosXpGain {
     @ApiProperty({ type: Number, description: 'Integer amount of levels gained' })

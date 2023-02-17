@@ -43,7 +43,7 @@ import { CreateMapCreditDto, MapCreditDto, UpdateMapCreditDto } from '@common/dt
 import { MapInfoDto, UpdateMapInfoDto } from '@common/dto/map/map-info.dto';
 import { MapTrackDto } from '@common/dto/map/map-track.dto';
 import { MapsCtlRunsGetAllQuery } from '@common/dto/query/run-queries.dto';
-import { RunDto } from '@common/dto/run/runs.dto';
+import { RunDto } from '@common/dto/run/run.dto';
 import { RunsService } from '../runs/runs.service';
 import { MapImageDto } from '../../common/dto/map/map-image.dto';
 

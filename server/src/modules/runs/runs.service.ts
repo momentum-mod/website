@@ -1,7 +1,7 @@
 import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { Prisma } from '@prisma/client';
 import { PaginatedResponseDto } from '@common/dto/paginated-response.dto';
-import { RunDto } from '@common/dto/run/runs.dto';
+import { RunDto } from '@common/dto/run/run.dto';
 import { DtoFactory, ExpandToPrismaIncludes } from '@lib/dto.lib';
 import { RunsRepoService } from '../repo/runs-repo.service';
 import { MapsCtlRunsGetAllQuery, RunsGetAllQuery } from '@common/dto/query/run-queries.dto';
