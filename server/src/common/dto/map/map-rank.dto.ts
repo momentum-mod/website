@@ -28,11 +28,7 @@ export class MapRankDto implements PrismaModelToDto<UserMapRank> {
     @NestedProperty(RunDto)
     run: RunDto;
 
-    @ApiProperty({
-        type: Number
-    })
-    @Type(() => Number)
-    @IsEnum(MapType)
+    @EnumProperty(MapType)
     gameType: MapType;
 
     @ApiProperty()

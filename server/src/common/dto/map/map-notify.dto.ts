@@ -4,9 +4,8 @@ import { Exclude } from 'class-transformer';
 import { IsPositive } from 'class-validator';
 
 export class MapNotifyDto implements MapNotify {
-    @ApiProperty()
-    @IsPositive()
-    notifyOn: number;
+    @EnumProperty(ActivityTypes)
+    notifyOn: ActivityTypes;
 
     @IdProperty()
     mapID: number;

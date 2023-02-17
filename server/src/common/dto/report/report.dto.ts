@@ -22,18 +22,10 @@ export class ReportDto implements PrismaModelToDto<Report> {
     @IdProperty({ description: 'The ID of the object being referred to by the report', bigint: true })
     data: number;
 
-    @ApiProperty({
-        description: 'The type of the report',
-        enum: ReportType
-    })
-    @IsEnum(ReportType)
+    @EnumProperty(ReportType, { description: 'The type of the report' })
     type: ReportType;
 
-    @ApiProperty({
-        description: 'The category of the report',
-        enum: ReportCategory
-    })
-    @IsEnum(ReportCategory)
+    @EnumProperty(ReportCategory, { description: 'The category of the report' })
     category: ReportCategory;
 
     @ApiProperty({

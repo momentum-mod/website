@@ -11,8 +11,7 @@ export class MapCreditDto implements MapCredit {
     @IdProperty()
     id: number;
 
-    @ApiProperty()
-    @IsEnum(MapCreditType)
+    @EnumProperty(MapCreditType)
     type: MapCreditType;
 
     @IdProperty()
@@ -37,11 +36,9 @@ export class MapCreditDto implements MapCredit {
 export class CreateMapCreditDto extends PickType(MapCreditDto, ['userID', 'type'] as const) {}
 
 export class UpdateMapCreditDto {
-
-    @ApiPropertyOptional({ description: 'The new map credit type to set', enum: MapCreditType })
-    @IsEnum(MapCreditType)
-    @IsOptional()
-    type?: number;
     @IdProperty({ required: false, description: 'The new user ID to set' })
     userID: number;
+
+    @EnumProperty(MapCreditType, { required: false, description: 'The new map credit type to set' })
+    type: number;
 }

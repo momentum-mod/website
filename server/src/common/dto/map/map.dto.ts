@@ -34,12 +34,10 @@ export class MapDto implements MapDB {
     @IsMapName()
     name: string;
 
-    @ApiProperty()
-    @IsEnum(MapType)
+    @EnumProperty(MapType)
     type: MapType;
 
-    @ApiProperty()
-    @IsEnum(MapStatus)
+    @EnumProperty(MapStatus)
     statusFlag: MapStatus;
 
     @Exclude()

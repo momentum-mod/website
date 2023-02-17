@@ -8,12 +8,10 @@ import { IsEnumFlag } from '../../validators/is-enum-flag.validator';
 import { NestedDto, NestedDtoOptional } from '@lib/dto.lib';
 
 export class FollowDto implements Follow {
-    @ApiPropertyOptional({
-        enum: ActivityTypes,
+    @EnumProperty(ActivityTypes, {
         description:
             'The bitwise flags for the activities that the followee will be notified of when they are performed by the user they follow'
     })
-    @IsEnumFlag(ActivityTypes)
     notifyOn: ActivityTypes;
 
     @Exclude()
