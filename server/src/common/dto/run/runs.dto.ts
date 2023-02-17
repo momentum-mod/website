@@ -14,17 +14,11 @@ export class RunDto implements PrismaModelToDto<Run> {
     @IdProperty({ bigint: true })
     id: number;
 
-    @ApiProperty({
-        type: Number,
-        description: 'The overall time of the run (ticks * tickRate)'
-    })
+    @ApiProperty({ type: Number, description: 'The overall time of the run (ticks * tickRate)' })
     @IsNumber()
     time: number;
 
-    @ApiProperty({
-        type: Number,
-        description: 'The track the run took place on'
-    })
+    @ApiProperty({ type: Number, description: 'The track the run took place on' })
     @IsPositive()
     trackNum: number;
 

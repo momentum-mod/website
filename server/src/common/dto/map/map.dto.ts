@@ -30,7 +30,7 @@ export class MapDto implements MapDB {
     @IdProperty()
     id: number;
 
-    @ApiProperty()
+    @ApiProperty({ type: String, example: 'bhop_arcane' })
     @IsMapName()
     name: string;
 
@@ -43,6 +43,7 @@ export class MapDto implements MapDB {
     @Exclude()
     fileKey: string;
 
+    @ApiProperty({ type: String, description: 'URL to S3 storage' })
     @Expose()
     @IsOptional()
     @IsString()
@@ -51,14 +52,12 @@ export class MapDto implements MapDB {
         return `${Config.url.cdn}/${Config.storage.bucketName}/${this.fileKey}`;
     }
 
-    @ApiProperty()
+    @ApiProperty({ description: 'SHA1 hash of the map file', type: String })
     @IsHash('sha1')
     @IsOptional()
     hash: string;
 
-    @ApiProperty()
-    @IsPositive()
-    @IsOptional()
+    @Exclude()
     thumbnailID: number;
 
     @NestedProperty(MapImageDto)

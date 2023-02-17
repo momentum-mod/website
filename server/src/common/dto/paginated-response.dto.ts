@@ -48,7 +48,7 @@ export class PaginatedResponseDto<T> {
     @IsArray()
     response: T[];
 
-    constructor(c: { new (): T }, [data, count]) {
+    constructor(c: { new (): T }, [data, count]: [any[], number]) {
         const dtos = data.map((x) => DtoFactory(c, x));
 
         this.totalCount = count;
