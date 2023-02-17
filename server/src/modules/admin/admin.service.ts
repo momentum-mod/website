@@ -137,8 +137,9 @@ export class AdminService {
                     if (adminID !== userID) {
                         throw new ForbiddenException('Cannot update user with >= power to you');
                     } else {
-                        if (update.roles.admin) throw new ForbiddenException('Cannot add yourself as admin');
-                        if (update.roles.moderator) throw new ForbiddenException('Cannot remove yourself as moderator');
+                        if (update.roles.admin === true) throw new ForbiddenException('Cannot add yourself as admin');
+                        if (update.roles.moderator === false)
+                            throw new ForbiddenException('Cannot remove yourself as moderator');
                     }
                 }
                 if (update.roles.admin) throw new ForbiddenException('Moderators may not add other users as admin');
