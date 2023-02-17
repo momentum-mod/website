@@ -9,23 +9,21 @@ import { RunDto } from '../run/runs.dto';
 import { Type } from 'class-transformer';
 
 // TODO: naming is weird here
-export class MapRankDto implements UserMapRank {
-    @ApiProperty()
-    @IsPositive()
+export class MapRankDto implements PrismaModelToDto<UserMapRank> {
+    @IdProperty()
     mapID: number;
 
     @NestedDto(MapDto, { type: () => MapDto })
     map: MapDto;
 
-    @ApiProperty()
-    @IsPositive()
+    @IdProperty()
     userID: number;
 
     @NestedDto(UserDto, { type: () => UserDto })
     user: UserDto;
 
-    @ApiProperty()
-    runID: bigint;
+    @IdProperty({ bigint: true })
+    runID: number;
 
     @NestedDto(RunDto)
     run: RunDto;

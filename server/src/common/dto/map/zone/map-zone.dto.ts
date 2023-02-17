@@ -16,8 +16,7 @@ export class MapZoneDto implements MapZone {
     @Max(64)
     zoneNum: number;
 
-    @ApiProperty()
-    @IsPositive()
+    @IdProperty()
     trackID: number;
 
     @NestedDto(MapZoneStatsDto, { isArray: true })

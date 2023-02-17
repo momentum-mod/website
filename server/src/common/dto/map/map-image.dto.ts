@@ -4,8 +4,7 @@ import { IsDateString, IsPositive, IsUrl } from 'class-validator';
 import { Exclude } from 'class-transformer';
 
 export class MapImageDto implements MapImage {
-    @ApiProperty()
-    @IsPositive()
+    @IdProperty()
     id: number;
 
     @ApiProperty()

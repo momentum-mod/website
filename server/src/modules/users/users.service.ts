@@ -220,7 +220,7 @@ export class UsersService {
         skip?: number,
         take?: number,
         type?: ActivityTypes,
-        data?: bigint
+        data?: number
     ): Promise<PaginatedResponseDto<ActivityDto>> {
         const where: Prisma.ActivityWhereInput = {
             userID: userID,
@@ -240,7 +240,7 @@ export class UsersService {
         skip?: number,
         take?: number,
         type?: ActivityTypes,
-        data?: bigint
+        data?: number
     ): Promise<PaginatedResponseDto<ActivityDto>> {
         const follows = await this.userRepo.getFollowing(userID);
 

@@ -7,11 +7,7 @@ import { UserDto } from './user.dto';
 import { NestedDto } from '@lib/dto.lib';
 
 export class NotificationDto implements Notification {
-    @ApiProperty({
-        type: Number,
-        description: 'The ID of the notification'
-    })
-    @IsInt()
+    @IdProperty()
     id: number;
 
     @ApiProperty({
@@ -21,13 +17,13 @@ export class NotificationDto implements Notification {
     @IsBoolean()
     read: boolean;
 
-    @Exclude()
+    @IdProperty()
     userID: number;
 
     @NestedDto(UserDto)
     user: UserDto;
 
-    @Exclude()
+    @IdProperty()
     activityID: number;
 
     @NestedDto(ActivityDto, { description: 'The activity that the notification is about' })

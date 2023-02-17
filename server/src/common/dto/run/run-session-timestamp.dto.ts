@@ -3,10 +3,9 @@ import { ApiProperty } from '@nestjs/swagger';
 import { IsDateString, IsInt } from 'class-validator';
 import { IsPositiveNumberString } from '@common/validators/is-positive-number-string.validator';
 
-export class RunSessionTimestampDto implements RunSessionTimestamp {
-    @ApiProperty()
-    @IsPositiveNumberString()
-    id: bigint;
+export class RunSessionTimestampDto implements PrismaModelToDto<RunSessionTimestamp> {
+    @IdProperty({ bigint: true })
+    id: number;
 
     @ApiProperty()
     @IsInt()
@@ -16,9 +15,8 @@ export class RunSessionTimestampDto implements RunSessionTimestamp {
     @IsInt()
     tick: number;
 
-    @ApiProperty()
-    @IsPositiveNumberString()
-    sessionID: bigint;
+    @IdProperty({ bigint: true })
+    sessionID: number;
 
     @ApiProperty()
     @IsDateString()

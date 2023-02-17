@@ -8,16 +8,14 @@ import { NestedDto } from '@lib/dto.lib';
 import { Exclude } from 'class-transformer';
 
 export class MapCreditDto implements MapCredit {
-    @ApiProperty()
-    @IsPositive()
+    @IdProperty()
     id: number;
 
     @ApiProperty()
     @IsEnum(MapCreditType)
     type: MapCreditType;
 
-    @ApiProperty()
-    @IsPositive()
+    @IdProperty()
     userID: number;
 
     @Exclude()
@@ -26,7 +24,8 @@ export class MapCreditDto implements MapCredit {
     @NestedDto(UserDto, { type: () => UserDto })
     user: UserDto;
 
-    @NestedDto(MapDto, { type: () => MapDto })
+    @IdProperty()
+    mapID: number;
     map: MapDto;
 
     @Exclude()
@@ -39,13 +38,11 @@ export class MapCreditDto implements MapCredit {
 export class CreateMapCreditDto extends PickType(MapCreditDto, ['userID', 'type'] as const) {}
 
 export class UpdateMapCreditDto {
-    @ApiPropertyOptional({ description: 'The new user ID to set', type: Number })
-    @IsPositive()
-    @IsOptional()
-    userID?: number;
 
     @ApiPropertyOptional({ description: 'The new map credit type to set', enum: MapCreditType })
     @IsEnum(MapCreditType)
     @IsOptional()
     type?: number;
+    @IdProperty({ required: false, description: 'The new user ID to set' })
+    userID: number;
 }

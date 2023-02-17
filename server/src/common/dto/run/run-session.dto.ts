@@ -3,13 +3,9 @@ import { RunSession } from '@prisma/client';
 import { IsDateString, IsInt, IsPositive } from 'class-validator';
 import { IsPositiveNumberString } from '@common/validators/is-positive-number-string.validator';
 
-export class RunSessionDto implements RunSession {
-    @ApiProperty({
-        type: String,
-        description: 'The ID of the run run'
-    })
-    @IsPositiveNumberString()
-    id: bigint;
+export class RunSessionDto implements PrismaModelToDto<RunSession> {
+    @IdProperty({ bigint: true })
+    id: number;
 
     @ApiProperty({
         description: 'The number of the track the run is on, 0 is main track',

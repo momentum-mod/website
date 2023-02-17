@@ -7,18 +7,16 @@ import { MapDto } from './map.dto';
 import { Exclude } from 'class-transformer';
 
 export class MapFavoriteDto implements MapFavorite {
-    @ApiProperty()
-    @IsPositive()
+    @IdProperty()
     id: number;
 
-    @Exclude()
+    @IdProperty()
     mapID: number;
 
     @NestedDto(MapDto, { type: () => MapDto })
     map: MapDto;
 
-    @ApiProperty()
-    @IsPositive()
+    @IdProperty()
     userID: number;
 
     @NestedDto(UserDto, { type: () => UserDto })

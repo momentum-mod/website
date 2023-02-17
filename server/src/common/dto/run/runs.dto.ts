@@ -10,14 +10,9 @@ import { RunZoneStatsDto } from './run-zone-stats.dto';
 import { IsPositiveNumberString } from '@common/validators/is-positive-number-string.validator';
 
 // TODO: BaseStatsDTO, various other nested DTOs
-
-export class RunDto implements Run {
-    @ApiProperty({
-        type: Number,
-        description: 'The ID of the run'
-    })
-    @IsPositiveNumberString()
-    id: bigint;
+export class RunDto implements PrismaModelToDto<Run> {
+    @IdProperty({ bigint: true })
+    id: number;
 
     @ApiProperty({
         type: Number,
@@ -64,10 +59,8 @@ export class RunDto implements Run {
     @IsOptional()
     hash: string;
 
-    @ApiProperty()
-    @IsPositiveNumberString()
-    @IsOptional()
-    overallStatsID: bigint;
+    @IdProperty({ required: false, bigint: true })
+    overallStatsID: number;
 
     @NestedDtoOptional(BaseStatsDto)
     overallStats: BaseStatsDto;
@@ -79,8 +72,7 @@ export class RunDto implements Run {
     @NestedDtoOptional(UserDto, { type: () => UserDto })
     user: UserDto;
 
-    @ApiProperty()
-    @IsPositive()
+    @IdProperty()
     mapID: number;
 
     @NestedDtoOptional(MapDto)

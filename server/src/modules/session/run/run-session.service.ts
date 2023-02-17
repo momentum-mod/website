@@ -9,8 +9,6 @@ import { UsersRepoService } from '../../repo/users-repo.service';
 import { RunProcessor } from './run-processor';
 import { FileStoreCloudService } from '../../filestore/file-store-cloud.service';
 import { DtoFactory } from '@lib/dto.lib';
-import { RunDto } from '@common/dto/run/runs.dto';
-import { UserMapRankDto } from '@common/dto/run/user-map-rank.dto';
 import { RunValidationError } from '@common/enums/run.enum';
 import { BaseStatsFromGame, ProcessedRun, StatsUpdateReturn } from './run-session.interfaces';
 import { XpSystemsService } from '../../xp-systems/xp-systems.service';
@@ -46,12 +44,14 @@ export class RunSessionService {
         else if (body.zoneNum > 0 && !((track as any)?.zones && (track as any)?.zones.length === 1))
             throw new BadRequestException('Track does not contain a zone with this zoneNum');
 
-        return this.runRepo.createRunSession({
+        const dbResponse = await this.runRepo.createRunSession({
             user: { connect: { id: userID } },
             track: { connect: { id: track.id } },
             trackNum: body.trackNum,
             zoneNum: body.zoneNum
         });
+
+        return DtoFactory(RunSessionDto, dbResponse);
     }
 
     //#endregion
@@ -75,11 +75,13 @@ export class RunSessionService {
         if ((session as any).timestamps.some((ts: RunSessionTimestamp) => ts.zone === body.zoneNum))
             throw new BadRequestException('Timestamp already exists');
 
-        return this.runRepo.createRunSessionTimestamp({
+        const dbResponse = await this.runRepo.createRunSessionTimestamp({
             session: { connect: { id: sessionID } },
             zone: body.zoneNum,
             tick: body.tick
         });
+
+        return DtoFactory(RunSessionTimestampDto, dbResponse);
     }
 
     //#endregion
@@ -179,14 +181,14 @@ export class RunSessionService {
             // TODO: Call activity service to create PB activity
         }
 
-        return {
+        return DtoFactory(CompletedRunDto, {
             isNewPersonalBest: statsUpdate.isPersonalBest,
             isNewWorldRecord: statsUpdate.isWorldRecord,
 
-            run: DtoFactory(RunDto, savedRun),
-            rank: DtoFactory(UserMapRankDto, mapRank),
+            run: savedRun,
+            rank: mapRank,
             xp: statsUpdate.xp
-        };
+        });
     }
 
     private async updateStatsAndRanks(
