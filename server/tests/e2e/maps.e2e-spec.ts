@@ -742,7 +742,7 @@ describe('Maps', () => {
 
             expects(res);
 
-            const found = res.body.response.find((x) => x.hasOwnProperty('worldRecord'));
+            const found = res.body.response.find((x) => Object.hasOwn(x, 'worldRecord'));
             expect(found).not.toBeNull();
             expect(found.worldRecord).toBeValidDto(MapRankDto);
             expect(found.worldRecord.rank).toBe(1);
@@ -762,7 +762,7 @@ describe('Maps', () => {
 
             expects(res);
 
-            const found = res.body.response.find((x) => x.hasOwnProperty('personalBest'));
+            const found = res.body.response.find((x) => Object.hasOwn(x, 'personalBest'));
             expect(found).not.toBeNull();
             expect(found.personalBest).toBeValidDto(MapRankDto);
             expect(found.personalBest.rank).toBe(2);
@@ -783,7 +783,7 @@ describe('Maps', () => {
             expects(res);
 
             const found = res.body.response.find(
-                (x) => x.hasOwnProperty('worldRecord') && x.hasOwnProperty('personalBest')
+                (x) => Object.hasOwn(x, 'worldRecord') && Object.hasOwn(x, 'personalBest')
             );
             expect(found).not.toBeNull();
             expect(found.worldRecord).toBeValidDto(MapRankDto);
@@ -2241,7 +2241,7 @@ describe('Maps', () => {
 
             expect(res.body.totalCount).toBeGreaterThanOrEqual(3);
             expect(res.body.returnCount).toBeGreaterThanOrEqual(3);
-            expect(res.body.response.filter((x) => x.hasOwnProperty('rank')).length).toBe(2); // 2 test runs have a rank, so we should see 2 in the response
+            expect(res.body.response.filter((x) => Object.hasOwn(x, 'rank')).length).toBe(2); // 2 test runs have a rank, so we should see 2 in the response
         });
 
         it('should respond with a list of runs with the zoneStats include', () =>
