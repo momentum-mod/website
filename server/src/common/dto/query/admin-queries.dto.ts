@@ -1,6 +1,4 @@
-﻿import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import { IsString, IsBoolean, IsOptional } from 'class-validator';
-import { BooleanQueryParam } from '@lib/dto.lib';
+﻿import { BooleanQueryProperty, StringQueryProperty } from '@lib/dto.lib';
 import { PaginationQuery } from './pagination.dto';
 
 export class AdminCreateUserQuery {

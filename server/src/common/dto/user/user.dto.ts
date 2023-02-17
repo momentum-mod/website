@@ -1,11 +1,11 @@
 import { User } from '@prisma/client';
 import { ApiProperty, ApiPropertyOptional, PickType } from '@nestjs/swagger';
-import { IsDateString, IsDefined, IsInt, IsISO31661Alpha2, IsOptional, IsString } from 'class-validator';
-import { Exclude, Expose, Type } from 'class-transformer';
+import { IsISO31661Alpha2, IsOptional, IsString } from 'class-validator';
+import { Exclude, Expose } from 'class-transformer';
 import { IsSteamCommunityID } from '../../validators/is-steam-id.validator';
 import { ProfileDto } from './profile.dto';
 import { MapRankDto } from '../map/map-rank.dto';
-import { NestedDto } from '@lib/dto.lib';
+import { CreatedAtProperty, IdProperty, NestedProperty, UpdatedAtProperty } from '@lib/dto.lib';
 import { BansDto, UpdateBansDto } from './bans.dto';
 import { RolesDto, UpdateRolesDto } from './roles.dto';
 import { Config } from '@config/config';

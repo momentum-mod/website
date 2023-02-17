@@ -2,6 +2,7 @@
 import { Exclude } from 'class-transformer';
 import { ApiProperty, PartialType, PickType } from '@nestjs/swagger';
 import { IsDateString, IsOptional, IsPositive, IsString, Matches } from 'class-validator';
+import { CreatedAtProperty, IdProperty, UpdatedAtProperty } from '@lib/dto.lib';
 
 export class MapInfoDto implements MapInfo {
     @IdProperty()

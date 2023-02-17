@@ -1,11 +1,10 @@
 ﻿import { User, UserMapRank, Map as MapDB } from '@prisma/client';
 import { ApiProperty } from '@nestjs/swagger';
-import { IsDateString, IsInt, IsNumber, IsPositive } from 'class-validator';
-import { NestedDto } from '@lib/dto.lib';
+import { IsInt, IsNumber, IsPositive } from 'class-validator';
+import { CreatedAtProperty, IdProperty, NestedProperty, PrismaModelToDto, UpdatedAtProperty } from '@lib/dto.lib';
 import { RunDto } from './runs.dto';
 import { UserDto } from '../user/user.dto';
 import { MapDto } from '../map/map.dto';
-import { IsPositiveNumberString } from '@common/validators/is-positive-number-string.validator';
 
 export class UserMapRankDto implements PrismaModelToDto<UserMapRank> {
     @ApiProperty({ description: 'The gamemode of the run' })

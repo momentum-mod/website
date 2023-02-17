@@ -1,11 +1,10 @@
 ﻿import { MapZone } from '@prisma/client';
 import { Exclude } from 'class-transformer';
 import { ApiProperty, PickType } from '@nestjs/swagger';
-import { ArrayMinSize, IsInt, IsPositive, Max } from 'class-validator';
+import { ArrayMinSize, IsInt, Max } from 'class-validator';
 import { MapZoneTriggerDto } from './map-zone-trigger.dto';
-import { NestedDto } from '@lib/dto.lib';
+import { IdProperty, NestedProperty } from '@lib/dto.lib';
 import { MapZoneStatsDto } from './map-zone-stats.dto';
-import { UserDto } from '@common/dto/user/user.dto';
 
 export class MapZoneDto implements MapZone {
     @Exclude()

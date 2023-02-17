@@ -1,9 +1,6 @@
-﻿import { ApiPropertyOptional } from '@nestjs/swagger';
-import { IsOptional, IsEnum, IsPositive } from 'class-validator';
-import { Transform, Type } from 'class-transformer';
-import { PaginationQuery } from './pagination.dto';
+﻿import { PaginationQuery } from './pagination.dto';
 import { ActivityTypes } from '../../enums/activity.enum';
-import { IsPositiveNumberString } from '@common/validators/is-positive-number-string.validator';
+import { EnumQueryProperty, IntQueryProperty } from '@lib/dto.lib';
 
 export class ActivitiesGetQuery extends PaginationQuery {
     @IntQueryProperty({ description: 'Filter by user ID' })

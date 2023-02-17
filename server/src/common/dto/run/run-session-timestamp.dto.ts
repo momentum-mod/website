@@ -1,7 +1,7 @@
 ﻿import { RunSessionTimestamp } from '@prisma/client';
 import { ApiProperty } from '@nestjs/swagger';
-import { IsDateString, IsInt } from 'class-validator';
-import { IsPositiveNumberString } from '@common/validators/is-positive-number-string.validator';
+import { IsInt } from 'class-validator';
+import { CreatedAtProperty, IdProperty, PrismaModelToDto, UpdatedAtProperty } from '@lib/dto.lib';
 
 export class RunSessionTimestampDto implements PrismaModelToDto<RunSessionTimestamp> {
     @IdProperty({ bigint: true })

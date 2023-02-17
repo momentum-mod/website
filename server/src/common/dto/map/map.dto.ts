@@ -3,18 +3,8 @@ import { MapStatus, MapType } from '../../enums/map.enum';
 import { UserDto } from '../user/user.dto';
 import { MapImageDto } from './map-image.dto';
 import { ApiProperty, PickType } from '@nestjs/swagger';
-import {
-    ArrayMinSize,
-    IsArray,
-    IsDateString,
-    IsEnum,
-    IsHash,
-    IsOptional,
-    IsPositive,
-    IsString,
-    IsUrl
-} from 'class-validator';
-import { NestedDto, NestedDtoOptional } from '@lib/dto.lib';
+import { ArrayMinSize, IsArray, IsHash, IsOptional, IsPositive, IsString, IsUrl } from 'class-validator';
+import { CreatedAtProperty, IdProperty, NestedProperty, EnumProperty, UpdatedAtProperty } from '@lib/dto.lib';
 import { CreateMapInfoDto, MapInfoDto } from './map-info.dto';
 import { CreateMapTrackDto, MapTrackDto } from './map-track.dto';
 import { IsMapName } from '../../validators/is-map-name.validator';

@@ -1,11 +1,15 @@
 import { Activity } from '@prisma/client';
 import { ActivityTypes } from '../../enums/activity.enum';
-import { ApiProperty } from '@nestjs/swagger';
-import { IsDateString, ValidateNested, IsEnum, IsPositive } from 'class-validator';
+import { IsPositive } from 'class-validator';
 import { UserDto } from './user.dto';
-import { DtoFactory } from '@lib/dto.lib';
-import { Transform } from 'class-transformer';
-import { IsPositiveNumberString } from '@common/validators/is-positive-number-string.validator';
+import {
+    CreatedAtProperty,
+    EnumProperty,
+    IdProperty,
+    NestedProperty,
+    PrismaModelToDto,
+    UpdatedAtProperty
+} from '@lib/dto.lib';
 
 export class ActivityDto implements PrismaModelToDto<Activity> {
     @IdProperty()

@@ -3,7 +3,7 @@ import { Exclude } from 'class-transformer';
 import { IsInt, IsJSON, IsNumber, Max } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 import { MapZoneTriggerPropertiesDto } from './map-zone-trigger-properties.dto';
-import { NestedDto } from '@lib/dto.lib';
+import { NestedProperty } from '@lib/dto.lib';
 
 export class MapZoneTriggerDto implements MapZoneTrigger {
     @Exclude()

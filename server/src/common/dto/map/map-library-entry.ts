@@ -1,8 +1,6 @@
 ﻿import { MapLibraryEntry } from '@prisma/client';
-import { ApiProperty } from '@nestjs/swagger';
-import { IsDateString, IsPositive } from 'class-validator';
 import { UserDto } from '../user/user.dto';
-import { NestedDto } from '@lib/dto.lib';
+import { CreatedAtProperty, IdProperty, NestedProperty, UpdatedAtProperty } from '@lib/dto.lib';
 import { MapDto } from './map.dto';
 
 export class MapLibraryEntryDto implements MapLibraryEntry {

@@ -1,8 +1,14 @@
 ﻿import { ApiPropertyOptional, OmitType } from '@nestjs/swagger';
-import { Transform, Type } from 'class-transformer';
-import { IsArray, IsBoolean, IsInt, IsOptional, IsPositive, IsString } from 'class-validator';
-import { MapStatus } from '../../enums/map.enum';
-import { ExpandQueryDecorators, SkipQuery, TakeQuery } from '@lib/dto.lib';
+import { IsOptional, IsString } from 'class-validator';
+import {
+    BooleanQueryProperty,
+    ExpandQueryProperty,
+    IntCsvQueryProperty,
+    IntQueryProperty,
+    SkipQueryProperty,
+    StringQueryProperty,
+    TakeQueryProperty
+} from '@lib/dto.lib';
 
 export class RunsGetAllQuery {
     @SkipQueryProperty(0)

@@ -1,7 +1,7 @@
 ﻿import { BaseStats } from '@prisma/client';
-import { IsDateString, IsInt, IsNumber } from 'class-validator';
+import { IsInt, IsNumber } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
-import { IsPositiveNumberString } from '@common/validators/is-positive-number-string.validator';
+import { CreatedAtProperty, IdProperty, PrismaModelToDto, UpdatedAtProperty } from '@lib/dto.lib';
 
 export class BaseStatsDto implements PrismaModelToDto<BaseStats> {
     @IdProperty({ bigint: true })

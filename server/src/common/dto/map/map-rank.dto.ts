@@ -1,12 +1,18 @@
 import { UserMapRank } from '@prisma/client';
 import { ApiProperty } from '@nestjs/swagger';
-import { IsDateString, IsEnum, IsInt, IsPositive } from 'class-validator';
+import { IsInt, IsPositive } from 'class-validator';
 import { MapType } from '../../enums/map.enum';
-import { NestedDto } from '@lib/dto.lib';
+import {
+    CreatedAtProperty,
+    EnumProperty,
+    IdProperty,
+    NestedProperty,
+    PrismaModelToDto,
+    UpdatedAtProperty
+} from '@lib/dto.lib';
 import { MapDto } from './map.dto';
 import { UserDto } from '../user/user.dto';
 import { RunDto } from '../run/runs.dto';
-import { Type } from 'class-transformer';
 
 // TODO: naming is weird here
 export class MapRankDto implements PrismaModelToDto<UserMapRank> {

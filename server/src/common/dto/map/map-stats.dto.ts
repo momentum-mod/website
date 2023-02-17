@@ -1,10 +1,10 @@
 import { MapStats } from '@prisma/client';
 import { ApiProperty } from '@nestjs/swagger';
-import { IsDateString, IsInt, IsNumberString, IsPositive } from 'class-validator';
-import { IsPositiveNumberString } from '@common/validators/is-positive-number-string.validator';
+import { IsInt, IsNumberString, IsPositive } from 'class-validator';
 import { Exclude } from 'class-transformer';
+import { CreatedAtProperty, IdProperty, PrismaModelToDto, UpdatedAtProperty } from '@lib/dto.lib';
 
-export class MapStatsDto implements PrismaModelToDto<MapStats> {
+export class MapStatsDto implements PrismaModelToDto<MapStats, 'timePlayed'> {
     @ApiProperty()
     @IsPositive()
     id: number;
