@@ -1,13 +1,24 @@
 ﻿import { plainToInstance, Transform, Type as TypeDecorator } from 'class-transformer';
-import { applyDecorators, Type } from '@nestjs/common';
+import { applyDecorators, InternalServerErrorException, Type } from '@nestjs/common';
 import { ApiProperty, ApiPropertyOptional, ApiPropertyOptions } from '@nestjs/swagger';
-import { IsArray, IsInt, IsOptional, IsPositive, IsBoolean, ValidateNested } from 'class-validator';
+import {
+    IsArray,
+    IsInt,
+    IsOptional,
+    IsPositive,
+    IsBoolean,
+    ValidateNested,
+    IsEnum,
+    IsDateString,
+    IsString
+} from 'class-validator';
+import { omit } from 'radash';
 
 /**
  * Factory method for constructing DTOs from objects (often from Prisma) easily.
- * 
+ *
  * class-transformer handles the heavy lifting.
- * 
+ *
  * @param type - The DTO type to transform into
  * @param input - The input data
  */
@@ -50,7 +61,7 @@ export function ExpandToPrismaIncludes(expansions: string[]): Record<string, boo
  * Well, kind of safe. This is an annoying transform we do to ensure that we can use 64-bit ints with Prisma but numbers
  * in JSON, rather than a string (currently we have handle BigInts as string, since class-transformer doesn't give us a
  * way to use something like safe-stable-stringify).
- * 
+ *
  * Used for the various table IDs that use int64s that can conceivable be > 2^32, but not 2^53.
  */
 export const SafeBigIntToNumber = () =>
