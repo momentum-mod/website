@@ -19,10 +19,10 @@ export class MapZoneDto implements MapZone {
     @IdProperty()
     trackID: number;
 
-    @NestedDto(MapZoneStatsDto, { isArray: true })
+    @NestedProperty(MapZoneStatsDto, { isArray: true })
     stats: MapZoneStatsDto[];
 
-    @NestedDto(MapZoneTriggerDto, { isArray: true })
+    @NestedProperty(MapZoneTriggerDto, { isArray: true })
     triggers: MapZoneTriggerDto[];
 
     @Exclude()
@@ -33,7 +33,7 @@ export class MapZoneDto implements MapZone {
 }
 
 export class CreateMapZoneDto extends PickType(MapZoneDto, ['zoneNum'] as const) {
-    @NestedDto(MapZoneTriggerDto, { type: () => UserDto, isArray: true })
+    @NestedProperty(MapZoneTriggerDto, { lazy: true, isArray: true })
     @ArrayMinSize(1)
     triggers: MapZoneTriggerDto[];
 

@@ -28,7 +28,7 @@ export class MapTrackDto implements MapTrack {
     @Max(10)
     difficulty: number;
 
-    @NestedDto(MapZoneDto, { isArray: true })
+    @NestedProperty(MapZoneDto, { isArray: true })
     zones: MapZoneDto[];
 
     @Exclude()
@@ -49,7 +49,7 @@ export class CreateMapTrackDto extends PickType(MapTrackDto, [
     'numZones',
     'difficulty'
 ] as const) {
-    @NestedDto(CreateMapZoneDto, { isArray: true })
+    @NestedProperty(CreateMapZoneDto, { isArray: true })
     @IsArray()
     @ArrayMinSize(2)
     zones: CreateMapZoneDto[];

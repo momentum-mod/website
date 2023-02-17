@@ -15,9 +15,7 @@ export class ActivityDto implements PrismaModelToDto<Activity> {
     @IsPositive()
     userID: number;
 
-    @ApiProperty()
-    @Transform(({ value }) => DtoFactory(UserDto, value))
-    @ValidateNested()
+    @NestedProperty(UserDto, { description: 'The ID of the user the activity is associated with' })
     user: UserDto;
 
     @ApiProperty({

@@ -27,7 +27,7 @@ export class MapZoneTriggerDto implements MapZoneTrigger {
     // TODO: Should have max 32 values and match /p\d+/
     points: Prisma.JsonValue;
 
-    @NestedDto(MapZoneTriggerPropertiesDto, { required: false })
+    @NestedProperty(MapZoneTriggerPropertiesDto, { required: false })
     properties?: MapZoneTriggerPropertiesDto;
 
     @Exclude()

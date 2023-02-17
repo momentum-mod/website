@@ -52,16 +52,16 @@ export class UserDto implements User {
             : `https://avatars.cloudflare.steamstatic.com/${this.avatar}_full.jpg`;
     }
 
-    @NestedDto(ProfileDto, { description: "The users's bio, containing information like bio and badges" })
+    @NestedProperty(ProfileDto, { description: "The users's bio, containing information like bio and badges" })
     profile: ProfileDto;
 
-    @NestedDto(RolesDto, { description: "The user's roles" })
+    @NestedProperty(RolesDto, { description: "The user's roles" })
     roles: RolesDto;
 
-    @NestedDto(BansDto, { description: "The user's bans" })
+    @NestedProperty(BansDto, { description: "The user's bans" })
     bans: BansDto;
 
-    @NestedDto(MapRankDto, { description: 'The map rank data for the user on a specific map' })
+    @NestedProperty(MapRankDto, { description: 'The map rank data for the user on a specific map' })
     mapRank: MapRankDto;
 
     @ApiProperty()
@@ -94,10 +94,10 @@ export class UpdateUserDto {
 }
 
 export class AdminUpdateUserDto extends UpdateUserDto {
-    @NestedDto(UpdateRolesDto, { description: 'The new roles to set', required: false })
+    @NestedProperty(UpdateRolesDto, { description: 'The new roles to set', required: false })
     roles?: UpdateRolesDto;
 
-    @NestedDto(UpdateRolesDto, { description: 'The new bans to set', required: false })
+    @NestedProperty(UpdateRolesDto, { description: 'The new bans to set', required: false })
     bans?: UpdateBansDto;
 }
 

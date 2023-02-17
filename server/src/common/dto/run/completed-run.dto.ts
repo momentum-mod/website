@@ -19,7 +19,7 @@ export class XpGainDto {
     @IsNumber()
     rankXP: number;
 
-    @NestedDto(CosXpGain)
+    @NestedProperty(CosXpGain)
     cosXP: CosXpGain;
 }
 
@@ -38,12 +38,12 @@ export class CompletedRunDto {
     @IsBoolean()
     isNewPersonalBest: boolean;
 
-    @NestedDto(UserMapRankDto)
+    @NestedProperty(UserMapRankDto)
     rank: UserMapRankDto;
 
-    @NestedDto(UserMapRankDto)
+    @NestedProperty(RunDto)
     run: RunDto;
 
-    @NestedDto(XpGainDto)
+    @NestedProperty(XpGainDto)
     xp: XpGainDto;
 }

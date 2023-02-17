@@ -27,22 +27,22 @@ class CosXpTierScale {
 class CosXpUniqueTierScale extends PickType(CosXpTierScale, ['linear', 'staged'] as const) {}
 class CosXpRepeatTierScale extends CosXpTierScale {}
 class CosXpUnique {
-    @NestedDto(CosXpUniqueTierScale)
+    @NestedProperty(CosXpUniqueTierScale)
     @IsDefined()
     tierScale: CosXpUniqueTierScale;
 }
 class CosXpRepeat {
-    @NestedDto(CosXpRepeatTierScale)
+    @NestedProperty(CosXpRepeatTierScale)
     @IsDefined()
     tierScale: CosXpRepeatTierScale;
 }
 
 class CosXpCompletions {
-    @NestedDto(CosXpUnique)
+    @NestedProperty(CosXpUnique)
     @IsDefined()
     unique: CosXpUnique;
 
-    @NestedDto(CosXpRepeat)
+    @NestedProperty(CosXpRepeat)
     @IsDefined()
     repeat: CosXpRepeat;
 }
@@ -85,11 +85,11 @@ class CosXpLevels {
 }
 
 class CosXpDto {
-    @NestedDto(CosXpCompletions)
+    @NestedProperty(CosXpCompletions)
     @IsDefined()
     completions: CosXpCompletions;
 
-    @NestedDto(CosXpLevels)
+    @NestedProperty(CosXpLevels)
     @IsDefined()
     levels: CosXpLevels;
 }
@@ -167,15 +167,15 @@ class RankXpTop10 {
 }
 
 class RankXpDto {
-    @NestedDto(RankXpFormula)
+    @NestedProperty(RankXpFormula)
     @IsDefined()
     formula: RankXpFormula;
 
-    @NestedDto(RankXpGroups)
+    @NestedProperty(RankXpGroups)
     @IsDefined()
     groups: RankXpGroups;
 
-    @NestedDto(RankXpTop10)
+    @NestedProperty(RankXpTop10)
     @IsDefined()
     top10: RankXpTop10;
 }
@@ -189,12 +189,12 @@ export class XpSystemsDto {
     // @IsInt()
     // id: number;
     @IsDefined()
-    @NestedDto(RankXpDto)
+    @NestedProperty(RankXpDto)
     @IsDefined()
     rankXP: RankXpDto;
 
     @IsDefined()
-    @NestedDto(CosXpDto)
+    @NestedProperty(CosXpDto)
     @IsDefined()
     cosXP: CosXpDto;
 

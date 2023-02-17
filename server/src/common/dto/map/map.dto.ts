@@ -63,7 +63,7 @@ export class MapDto implements MapDB {
     @IsOptional()
     thumbnailID: number;
 
-    @NestedDtoOptional(MapImageDto)
+    @NestedProperty(MapImageDto)
     thumbnail: MapImageDto;
 
     @ApiProperty()
@@ -74,41 +74,38 @@ export class MapDto implements MapDB {
     @Exclude()
     mainTrackID: number;
 
-    @NestedDtoOptional(MapTrackDto, { required: false })
-    mainTrack?: MapTrackDto;
+    @NestedProperty(MapTrackDto)
+    mainTrack: MapTrackDto;
 
-    @NestedDtoOptional(MapInfoDto, { required: false })
-    info?: MapInfoDto;
+    @NestedProperty(MapInfoDto)
+    info: MapInfoDto;
 
-    @NestedDtoOptional(UserDto, {
-        type: () => UserDto,
-        description: 'The user the submitted the map'
-    })
+    @NestedProperty(UserDto, { lazy: true, description: 'The user the submitted the map' })
     submitter: UserDto;
 
-    @NestedDtoOptional(MapImageDto, { required: false, isArray: true })
-    images?: MapImageDto[];
+    @NestedProperty(MapImageDto, { isArray: true })
+    images: MapImageDto[];
 
-    @NestedDtoOptional(MapTrackDto, { required: false, isArray: true })
-    tracks?: MapTrackDto[];
+    @NestedProperty(MapTrackDto, { isArray: true })
+    tracks: MapTrackDto[];
 
-    @NestedDtoOptional(MapStatsDto)
+    @NestedProperty(MapStatsDto)
     stats: MapStatsDto;
 
-    @NestedDtoOptional(MapCreditDto)
+    @NestedProperty(MapCreditDto)
     credits: MapCreditDto[];
 
-    @NestedDtoOptional(MapFavoriteDto)
+    @NestedProperty(MapFavoriteDto)
     favorites: MapFavoriteDto[];
 
-    @NestedDtoOptional(MapLibraryEntryDto, { required: false, isArray: true })
-    libraryEntries?: MapLibraryEntryDto[];
+    @NestedProperty(MapLibraryEntryDto, { isArray: true })
+    libraryEntries: MapLibraryEntryDto[];
 
-    @NestedDtoOptional(MapRankDto, { type: () => MapRankDto, required: false })
-    worldRecord?: MapRankDto;
+    @NestedProperty(MapRankDto, { lazy: true })
+    worldRecord: MapRankDto;
 
-    @NestedDtoOptional(MapRankDto, { type: () => MapRankDto, required: false })
-    personalBest?: MapRankDto;
+    @NestedProperty(MapRankDto, { lazy: true })
+    personalBest: MapRankDto;
 
     @ApiProperty()
     @IsDateString()
@@ -122,15 +119,15 @@ export class MapDto implements MapDB {
 export class UpdateMapDto extends PickType(MapDto, ['statusFlag'] as const) {}
 
 export class CreateMapDto extends PickType(MapDto, ['name', 'type'] as const) {
-    @NestedDto(CreateMapInfoDto)
+    @NestedProperty(CreateMapInfoDto, { required: true })
     info: CreateMapInfoDto;
 
-    @NestedDto(CreateMapTrackDto, { isArray: true })
+    @NestedProperty(CreateMapTrackDto, { required: true, isArray: true })
     @IsArray()
     @ArrayMinSize(1)
     tracks: CreateMapTrackDto[];
 
-    @NestedDto(CreateMapCreditDto, { isArray: true })
+    @NestedProperty(CreateMapCreditDto, { required: true, isArray: true })
     @IsArray()
     @ArrayMinSize(1)
     credits: CreateMapCreditDto[];

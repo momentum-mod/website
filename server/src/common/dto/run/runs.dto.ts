@@ -62,26 +62,26 @@ export class RunDto implements PrismaModelToDto<Run> {
     @IdProperty({ required: false, bigint: true })
     overallStatsID: number;
 
-    @NestedDtoOptional(BaseStatsDto)
+    @NestedProperty(BaseStatsDto, { required: false })
     overallStats: BaseStatsDto;
 
     @ApiProperty()
     @IsPositive()
     userID: number;
 
-    @NestedDtoOptional(UserDto, { type: () => UserDto })
+    @NestedProperty(UserDto, { required: false, lazy: true })
     user: UserDto;
 
     @IdProperty()
     mapID: number;
 
-    @NestedDtoOptional(MapDto)
+    @NestedProperty(MapDto, { required: false })
     map: MapDto;
 
-    @NestedDtoOptional(MapRankDto, { type: () => MapRankDto })
+    @NestedProperty(MapRankDto, { required: false, lazy: true })
     rank: MapRankDto;
 
-    @NestedDtoOptional(RunZoneStatsDto, { type: () => RunZoneStatsDto, isArray: true })
+    @NestedProperty(RunZoneStatsDto, { required: false, lazy: true, isArray: true })
     zoneStats: RunZoneStatsDto[];
 
     @ApiProperty()
