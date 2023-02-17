@@ -12,7 +12,7 @@ import { MapRankDto } from '@common/dto/map/map-rank.dto';
 import { ActivityTypes } from '@common/enums/activity.enum';
 import axios from 'axios';
 import { createHash } from 'node:crypto';
-import { DeleteObjectCommand, S3Client } from '@aws-sdk/client-s3';
+import { DeleteObjectCommand, PutObjectCommand, S3Client } from '@aws-sdk/client-s3';
 import { UserDto } from '@common/dto/user/user.dto';
 import { MapTrackDto } from '@common/dto/map/map-track.dto';
 import { expandTest, skipTest, takeTest } from '@tests/util/generic-e2e-tests.util';
@@ -362,11 +362,17 @@ describe('Maps', () => {
                         type: MapCreditType.AUTHOR,
                         userID: user2.id
                     }
+                },
+                stats: {
+                    create: {
+                        downloads: 0
+                    }
                 }
             },
             include: {
                 info: true,
                 credits: true,
+                stats: true,
                 images: true,
                 tracks: {
                     include: {
@@ -1123,6 +1129,81 @@ describe('Maps', () => {
 
             expect(inHash).toBe(outHash);
         }));
+
+    describe('GET maps/{mapID}/download', () => {
+        it("should respond with the map's bsp file", async () => {
+            const mapFile = readFileSync(__dirname + '/../files/map.bsp');
+            try {
+                await s3Client.send(
+                    new PutObjectCommand({
+                        Bucket: Config.storage.bucketName,
+                        Key: `${Config.storage.bucketName}/maps/${map4.name}.bsp`,
+                        Body: mapFile
+                    })
+                );
+            } catch {
+                console.warn('WARNING: Failed to upload test map! maps/{mapID}/download tests will fail.');
+            }
+
+            const prevStats = await (global.prisma as PrismaService).mapStats.findFirst({
+                where: {
+                    mapID: map4.id
+                }
+            });
+
+            const res = await get({
+                url: `maps/${map4.id}/download`,
+                status: 200,
+                token: user1Token,
+                contentType: 'application/octet-stream'
+            });
+
+            const newStats = await (global.prisma as PrismaService).mapStats.findFirst({
+                where: {
+                    mapID: map4.id
+                }
+            });
+
+            const inHash = hash(mapFile);
+            const outHash = hash(res.body);
+
+            expect(inHash).toEqual(outHash);
+            expect(prevStats.downloads + 1).toEqual(newStats.downloads);
+
+            try {
+                await s3Client.send(
+                    new DeleteObjectCommand({
+                        Bucket: Config.storage.bucketName,
+                        Key: `${Config.storage.bucketName}/maps/${map4.name}.bsp`
+                    })
+                );
+            } catch {
+                console.warn('WARNING: Failed to delete test map! Bucket likely now contains a junk map.');
+            }
+        });
+
+        it("should respond with 404 when the map's bsp file is not found", async () =>
+            get({
+                url: `maps/${map3.id}/download`,
+                status: 404,
+                token: user1Token,
+                contentType: 'application/octet-stream; charset=utf-8'
+            }));
+
+        it('should respond with 404 when the map is not found', () =>
+            get({
+                url: 'maps/6000000000/download',
+                status: 404,
+                token: user1Token,
+                contentType: 'application/octet-stream; charset=utf-8'
+            }));
+
+        it('should respond with 401 when no access token is provided', () =>
+            get({
+                url: `maps/${map4.id}/download`,
+                status: 401
+            }));
+    });
 
     describe('GET maps/{mapID}', () => {
         const expects = (res) => expect(res.body).toBeValidDto(MapDto);

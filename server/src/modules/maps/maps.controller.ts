@@ -15,7 +15,9 @@ import {
     Patch,
     Delete,
     Put,
-    UseGuards
+    UseGuards,
+    Header,
+    StreamableFile
 } from '@nestjs/common';
 import {
     ApiBearerAuth,
@@ -197,6 +199,22 @@ export class MapsController {
         if (!file || !file.buffer || !Buffer.isBuffer(file.buffer)) throw new BadRequestException('Map is not valid');
 
         return this.mapsService.upload(mapID, userID, file.buffer);
+    }
+
+    @Get('/:mapID/download')
+    @ApiOperation({ summary: "Download the map's BSP file" })
+    @Header('Content-Type', 'application/octet-stream')
+    @ApiOkResponse({ description: "The map's BSP file" })
+    @ApiNotFoundResponse({ description: 'Map was not found' })
+    @ApiNotFoundResponse({ description: "Map's BSP file could not be found" })
+    @ApiParam({
+        name: 'mapID',
+        type: Number,
+        description: 'Target Map ID',
+        required: true
+    })
+    downloadMap(@Param('mapID', ParseIntPipe) mapID: number): Promise<StreamableFile> {
+        return this.mapsService.download(mapID);
     }
 
     //#endregion

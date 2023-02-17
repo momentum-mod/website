@@ -1,6 +1,6 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { Injectable, Logger, StreamableFile } from '@nestjs/common';
 import { FileStoreCloudFile } from './file-store.interfaces';
-import { S3Client, PutObjectCommand, DeleteObjectCommand } from '@aws-sdk/client-s3';
+import { S3Client, PutObjectCommand, DeleteObjectCommand, GetObjectCommand } from '@aws-sdk/client-s3';
 import { FileStoreUtils } from './file-store.utility';
 import { ConfigService } from '@nestjs/config';
 
@@ -48,5 +48,24 @@ export class FileStoreCloudService {
         );
 
         this.logger.log(`DELETE SUCCESS! Deleted file ${fileKey} from bucket ${this.config.get('storage.bucketName')}`);
+    }
+
+    async getFileCloud(fileKey: string): Promise<StreamableFile> {
+        try {
+            const cmdRes = await this.s3Client.send(
+                new GetObjectCommand({
+                    Bucket: this.config.get('storage.bucketName'),
+                    Key: fileKey
+                })
+            );
+
+            return new StreamableFile(await cmdRes.Body.transformToByteArray());
+        } catch (error) {
+            this.logger.error(
+                `DOWNLOAD FAILED! Err:"${error.message}" Download file ${fileKey} from bucket ${this.config.get(
+                    'storage.bucketName'
+                )}`
+            );
+        }
     }
 }
