@@ -4,7 +4,8 @@ import {
     ConflictException,
     ForbiddenException,
     Injectable,
-    NotFoundException
+    NotFoundException,
+    StreamableFile
 } from '@nestjs/common';
 import { Map as MapDB, MapCredit, MapTrack, Prisma } from '@prisma/client';
 import { CreateMapDto, MapDto, UpdateMapDto } from '@common/dto/map/map.dto';
@@ -315,6 +316,28 @@ export class MapsService {
         });
 
         return DtoFactory(MapDto, dbResponse);
+    }
+
+    async download(mapID: number): Promise<StreamableFile> {
+        const map = await this.mapRepo.get(mapID);
+
+        if (!map) throw new NotFoundException('Map not found');
+
+        const mapDataStream = await this.getMapFileFromStore(map.name);
+
+        if (!mapDataStream) throw new NotFoundException(`Couldn't find BSP file for ${map.name}.bsp`);
+
+        await this.mapRepo.updateMapStats(mapID, {
+            downloads: { increment: 1 }
+        });
+
+        return mapDataStream;
+    }
+
+    private async getMapFileFromStore(mapName: string): Promise<StreamableFile> {
+        const fileName = `maps/${mapName}.bsp`;
+
+        return await this.fileCloudService.getFileCloud(fileName);
     }
 
     //#endregion
