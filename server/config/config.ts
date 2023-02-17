@@ -5,7 +5,7 @@ export const ConfigFactory = (): ConfigInterface => {
     const env: Environment = process.env.NODE_ENV as Environment;
     const port: number = +process.env.NODE_PORT;
 
-    const isProd = env === Environment.Production;
+    const isProd = env === Environment.PRODUCTION;
 
     // If we're not in production some stuff being missing in fine, we can just use sensible defaults.
     // In production we want to require them be defined, so they'll fail validation immediately if not.

@@ -29,7 +29,7 @@ export class SentryModule {
                         const logger = new Logger('Sentry');
                         let enabled = false;
 
-                        if (opts.environment === Environment.Production) {
+                        if (opts.environment === Environment.PRODUCTION) {
                             if (!opts.sentryOpts.dsn) {
                                 logger.error('Sentry DSN not set');
                             } else {
