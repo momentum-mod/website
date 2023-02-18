@@ -150,8 +150,10 @@ export class AdminService {
 
             // If all we make it through all these checks, finally we can update the flags
             updateInput.roles = {
-                create: update.roles,
-                update: update.roles
+                upsert: {
+                    create: update.roles,
+                    update: update.roles
+                }
             };
             newRoles = update.roles;
         } else {
