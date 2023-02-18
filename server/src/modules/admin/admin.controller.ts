@@ -11,6 +11,7 @@ import {
     Post,
     Put,
     Query
+    UseGuards
 } from '@nestjs/common';
 import { AdminService } from './admin.service';
 import {
@@ -35,8 +36,10 @@ import { Roles as RolesEnum } from '../../common/enums/user.enum';
 import { LoggedInUser } from '@common/decorators/logged-in-user.decorator';
 import { XpSystemsService } from '@modules/xp-systems/xp-systems.service';
 import { UpdateXpSystemsDto, XpSystemsDto } from '@common/dto/xp-systems/xp-systems.dto';
+import { RolesGuard } from '@modules/auth/guards/roles.guard';
 
 @Controller('api/admin')
+@UseGuards(RolesGuard)
 @Roles(RolesEnum.ADMIN)
 @ApiTags('Admin')
 @ApiBearerAuth()
