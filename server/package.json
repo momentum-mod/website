@@ -33,6 +33,8 @@
         "lint:check": "eslint \"{src,tests,lib,config}/**/*.ts\"",
         "format": "prettier --write \"{src,lib,tests,config,prisma}/**/*.{ts,js,md,prisma}\"",
         "format:check": "prettier --check \"{src,lib,tests,config,prisma}/**/*.{ts,js,md,prisma}\"",
+        "quality": "npm run lint && npm run format",
+        "quality:check": "npm run lint:check && npm run format:check",
         "prepare": "cd .. && husky install"
     },
     "jest": {
