@@ -520,7 +520,7 @@ describe('User', () => {
 
         it('should respond with 404 if the target user does not exist', () =>
             get({
-                url: `user/follow/283745692345`,
+                url: 'user/follow/283745692345',
                 status: 404,
                 token: user1Token
             }));
@@ -655,7 +655,7 @@ describe('User', () => {
 
         it('should respond with 404 if the target user does not exist', () =>
             del({
-                url: `user/follow/178124314563`,
+                url: 'user/follow/178124314563',
                 status: 404,
                 token: user1Token
             }));
@@ -688,7 +688,7 @@ describe('User', () => {
 
         it('should respond with 404 if the target map does not exist', () =>
             get({
-                url: `user/notifyMap/8732165478321`,
+                url: 'user/notifyMap/8732165478321',
                 status: 404,
                 token: user1Token
             }));
@@ -737,7 +737,7 @@ describe('User', () => {
 
         it('should respond with 400 is the body is invalid', async () => {
             await put({
-                url: `user/notifyMap/8231734`,
+                url: 'user/notifyMap/8231734',
                 status: 400,
                 body: { notifyOn: 'this is a sausage' },
                 token: user1Token
@@ -746,7 +746,7 @@ describe('User', () => {
 
         it('should respond with 404 if the target map does not exist', () =>
             put({
-                url: `user/notifyMap/8231734`,
+                url: 'user/notifyMap/8231734',
                 status: 404,
                 body: { notifyOn: ActivityTypes.PB_ACHIEVED },
                 token: user1Token
@@ -767,13 +767,11 @@ describe('User', () => {
                 token: user1Token
             });
 
-            const res = await get({
-                url: `user/notifyMap/${map1.id}`,
-                status: 200,
-                token: user1Token
+            const notify = await (global.prisma as PrismaService).mapNotify.findFirst({
+                where: { mapID: map1.id, userID: user1.id }
             });
 
-            expect(res.body).toEqual({});
+            expect(notify).toBeNull();
         });
 
         it('should respond with 404 if the user is not following the map', () =>
@@ -785,7 +783,7 @@ describe('User', () => {
 
         it('should respond with 404 if the target map does not exist', () =>
             del({
-                url: `user/notifyMap/324512341243`,
+                url: 'user/notifyMap/324512341243',
                 status: 404,
                 token: user1Token
             }));
@@ -817,21 +815,21 @@ describe('User', () => {
 
         it('should respond with a limited list of activities for the local user when using the take query param', () =>
             takeTest({
-                url: `user/activities`,
+                url: 'user/activities',
                 test: expects,
                 token: user1Token
             }));
 
         it('should respond with a different list of activities for the local user when using the skip query param', () =>
             skipTest({
-                url: `user/activities`,
+                url: 'user/activities',
                 test: expects,
                 token: user1Token
             }));
 
         it('should respond with a filtered list of activities for the local user when using the type query param', async () => {
             const res = await get({
-                url: `user/activities`,
+                url: 'user/activities',
                 status: 200,
                 query: {
                     type: ActivityTypes.MAP_UPLOADED
@@ -847,7 +845,7 @@ describe('User', () => {
 
         it('should respond with a filtered list of activities for the local user when using the data query param', async () => {
             const res = await get({
-                url: `user/activities`,
+                url: 'user/activities',
                 status: 200,
                 query: {
                     data: 101n
@@ -862,7 +860,7 @@ describe('User', () => {
 
         it('should respond with an empty list of activities for the local user when using the data query param with nonexistent data', async () => {
             const res = await get({
-                url: `user/activities`,
+                url: 'user/activities',
                 status: 200,
                 query: {
                     data: 1123412341n
@@ -876,7 +874,7 @@ describe('User', () => {
 
         it('should respond with 401 when no access token is provided', () =>
             get({
-                url: `user/activities`,
+                url: 'user/activities',
                 status: 401
             }));
     });
@@ -900,21 +898,21 @@ describe('User', () => {
 
         it('should respond with a limited list of activities for the user when using the take query param', () =>
             takeTest({
-                url: `user/activities/followed`,
+                url: 'user/activities/followed',
                 test: expects,
                 token: user1Token
             }));
 
         it('should respond with a different list of activities for the user when using the skip query param', () =>
             skipTest({
-                url: `user/activities/followed`,
+                url: 'user/activities/followed',
                 test: expects,
                 token: user1Token
             }));
 
         it('should respond with a filtered list of activities for the user when using the type query param', async () => {
             const res = await get({
-                url: `user/activities/followed`,
+                url: 'user/activities/followed',
                 status: 200,
                 query: {
                     type: ActivityTypes.WR_ACHIEVED
@@ -930,7 +928,7 @@ describe('User', () => {
 
         it('should respond with a filtered list of activities for the user when using the data query param', async () => {
             const res = await get({
-                url: `user/activities/followed`,
+                url: 'user/activities/followed',
                 status: 200,
                 query: {
                     data: 4n
@@ -945,7 +943,7 @@ describe('User', () => {
 
         it('should respond with an empty list of activities for the user when using the data query param with nonexistent data', async () => {
             const res = await get({
-                url: `user/activities/followed`,
+                url: 'user/activities/followed',
                 status: 200,
                 query: {
                     data: 1123412341n
@@ -959,7 +957,7 @@ describe('User', () => {
 
         it('should respond with an empty list of activities for a user that is not following anyone', async () => {
             const res = await get({
-                url: `user/activities/followed`,
+                url: 'user/activities/followed',
                 status: 200,
                 token: user3Token
             });
@@ -971,7 +969,7 @@ describe('User', () => {
 
         it('should respond with 401 when no access token is provided', () =>
             get({
-                url: `user/activities/followed`,
+                url: 'user/activities/followed',
                 status: 401
             }));
     });
@@ -1009,21 +1007,21 @@ describe('User', () => {
 
         it('should retrieve a filtered list of maps in the local users library using the take query', () =>
             takeTest({
-                url: `user/maps/library`,
+                url: 'user/maps/library',
                 test: expects,
                 token: user1Token
             }));
 
         it('should retrieve a filtered list of maps in the local users library using the skip query', () =>
             skipTest({
-                url: `user/maps/library`,
+                url: 'user/maps/library',
                 test: expects,
                 token: user1Token
             }));
 
         it('should respond with 401 when no access token is provided', () =>
             get({
-                url: `user/maps/library`,
+                url: 'user/maps/library',
                 status: 401
             }));
     });
@@ -1047,14 +1045,14 @@ describe('User', () => {
 
         it('should retrieve a filtered list of maps in the local users favorites using the take query', () =>
             takeTest({
-                url: `user/maps/favorites`,
+                url: 'user/maps/favorites',
                 test: expects,
                 token: user1Token
             }));
 
         it('should retrieve a filtered list of maps in the local users favorites using the skip query', () =>
             skipTest({
-                url: `user/maps/favorites`,
+                url: 'user/maps/favorites',
                 test: expects,
                 token: user1Token
             }));
@@ -1106,7 +1104,7 @@ describe('User', () => {
 
         it('should respond with 401 when no access token is provided', () =>
             get({
-                url: `user/maps/favorites`,
+                url: 'user/maps/favorites',
                 status: 401
             }));
     });
@@ -1138,7 +1136,7 @@ describe('User', () => {
 
         it("should respond with 404 if the map doesn't exist", () =>
             put({
-                url: `user/maps/favorites/999999999`,
+                url: 'user/maps/favorites/999999999',
                 status: 404,
                 token: user1Token
             }));
@@ -1184,7 +1182,7 @@ describe('User', () => {
 
         it('should respond with 400 if the map is not in the database', () =>
             del({
-                url: `user/maps/favorites/9999999999999999999999`,
+                url: 'user/maps/favorites/9999999999999999999999',
                 status: 400,
                 token: user1Token
             }));
@@ -1215,7 +1213,7 @@ describe('User', () => {
 
         it('should return 400 if the map is not in the database', () => {
             getNoContent({
-                url: `user/maps/library/999999999`,
+                url: 'user/maps/library/999999999',
                 status: 400,
                 token: user1Token
             });
@@ -1307,7 +1305,7 @@ describe('User', () => {
 
         it('should respond with 401 when no access token is provided', () =>
             get({
-                url: `user/maps/submitted`,
+                url: 'user/maps/submitted',
                 status: 401
             }));
     });
@@ -1326,7 +1324,7 @@ describe('User', () => {
 
         it('should retrieve an empty summary list', async () => {
             const res = await get({
-                url: `user/maps/submitted/summary`,
+                url: 'user/maps/submitted/summary',
                 status: 200,
                 token: user2Token //user2 has no maps
             });
@@ -1337,7 +1335,7 @@ describe('User', () => {
 
         it('should respond with 401 when no access token is provided', () =>
             get({
-                url: `user/maps/submitted/summary`,
+                url: 'user/maps/submitted/summary',
                 status: 401
             }));
     });
@@ -1369,7 +1367,7 @@ describe('User', () => {
 
         it("should respond with 404 if the map doesn't exist", () =>
             put({
-                url: `user/maps/library/999999999`,
+                url: 'user/maps/library/999999999',
                 status: 404,
                 token: user1Token
             }));
@@ -1415,7 +1413,7 @@ describe('User', () => {
 
         it('should respond with 400 if the map is not in the database', () =>
             del({
-                url: `user/maps/library/9999999999999999999999`,
+                url: 'user/maps/library/9999999999999999999999',
                 status: 400,
                 token: user1Token
             }));
@@ -1559,21 +1557,21 @@ describe('User', () => {
 
         it('should respond with a limited list of notifications for the user when using the take query param', () =>
             takeTest({
-                url: `user/notifications`,
+                url: 'user/notifications',
                 test: expects,
                 token: user1Token
             }));
 
         it('should respond with a different list of notifications for the user when using the skip query param', () =>
             skipTest({
-                url: `user/notifications`,
+                url: 'user/notifications',
                 test: expects,
                 token: user1Token
             }));
 
         it('should respond with 401 when no access token is provided', () =>
             get({
-                url: `user/notifications`,
+                url: 'user/notifications',
                 status: 401
             }));
     });
@@ -1606,7 +1604,7 @@ describe('User', () => {
 
         it('should respond with 400 if the body is invalid', () =>
             patch({
-                url: `user/notifications/32476671243`,
+                url: 'user/notifications/32476671243',
                 status: 400,
                 body: { read: 'horse' },
                 token: user1Token
@@ -1614,7 +1612,7 @@ describe('User', () => {
 
         it('should respond with 404 if the notification does not exist', () =>
             patch({
-                url: `user/notifications/32476671243`,
+                url: 'user/notifications/32476671243',
                 status: 404,
                 body: { read: true },
                 token: user1Token
@@ -1622,7 +1620,7 @@ describe('User', () => {
 
         it('should respond with 401 when no access token is provided', () =>
             patch({
-                url: `user/notifications/1`,
+                url: 'user/notifications/1',
                 status: 401
             }));
     });
@@ -1654,14 +1652,14 @@ describe('User', () => {
 
         it('should respond with 404 if the notification does not exist', () =>
             del({
-                url: `user/notifications/324512341243`,
+                url: 'user/notifications/324512341243',
                 status: 404,
                 token: user1Token
             }));
 
         it('should respond with 401 when no access token is provided', () =>
             del({
-                url: `user/notifications/1`,
+                url: 'user/notifications/1',
                 status: 401
             }));
     });
