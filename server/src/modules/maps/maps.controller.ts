@@ -14,7 +14,8 @@ import {
     BadRequestException,
     Patch,
     Delete,
-    Put
+    Put,
+    UseGuards
 } from '@nestjs/common';
 import {
     ApiBearerAuth,
@@ -46,8 +47,10 @@ import { MapsCtlRunsGetAllQuery } from '@common/dto/query/run-queries.dto';
 import { RunDto } from '@common/dto/run/run.dto';
 import { RunsService } from '../runs/runs.service';
 import { MapImageDto } from '../../common/dto/map/map-image.dto';
+import { RolesGuard } from '@modules/auth/guards/roles.guard';
 
 @Controller('api/maps')
+@UseGuards(RolesGuard)
 @ApiTags('Maps')
 @ApiBearerAuth()
 export class MapsController {
