@@ -63,8 +63,11 @@ export class ReportDto implements PrismaModelToDto<Report> {
     @NestedProperty(UserDto)
     submitter: UserDto;
 
-    @IdProperty({ description: 'The user ID of the resolver, if its been resolved' })
+    @IdProperty({ required: false, description: 'The user ID of the resolver, if its been resolved' })
     resolverID: number;
+
+    @NestedProperty(UserDto)
+    resolver: UserDto;
 
     @CreatedAtProperty()
     createdAt: Date;
