@@ -13,7 +13,7 @@ export class SentryService {
         Sentry.getCurrentHub().configureScope((scope) => {
             scope.setSpan(transaction);
 
-            scope.setContext(`API Error`, null);
+            scope.setContext('API Error', null);
         });
 
         const result: string = Sentry.captureException(exception);

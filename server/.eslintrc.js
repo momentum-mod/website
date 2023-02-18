@@ -14,7 +14,9 @@ module.exports = {
     },
     ignorePatterns: ['.eslintrc.js', 'node_modules', '_*.ts', 'dist', '**/*.d.ts'],
     rules: {
+        quotes: ['error', 'single', { avoidEscape: true }],
         'no-var': ['error'],
+        'prefer-const': ['error'],
         'no-empty': ['error', { allowEmptyCatch: true }],
         '@typescript-eslint/naming-convention': [
             'error',

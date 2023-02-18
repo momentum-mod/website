@@ -534,7 +534,7 @@ export class UsersService {
     private async getSteamUserSummaryData(steamID: string): Promise<SteamUserSummaryData> {
         const getPlayerResponse = await lastValueFrom(
             this.http
-                .get(`https://api.steampowered.com/ISteamUser/GetPlayerSummaries/v2/`, {
+                .get('https://api.steampowered.com/ISteamUser/GetPlayerSummaries/v2/', {
                     params: {
                         key: this.config.get('steam.webAPIKey'),
                         steamids: steamID

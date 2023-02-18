@@ -66,14 +66,14 @@ expect.extend({
     toBeValidPagedDto(received, type) {
         if (!received || !Object.hasOwn(received, 'response') || !Array.isArray(received.response)) {
             return {
-                message: () => `expected paged DTO with response array, data was invalid`,
+                message: () => 'expected paged DTO with response array, data was invalid',
                 pass: false
             };
         }
 
         if (received.response.length === 0) {
             return {
-                message: () => `expected paged DTO with populated response array, array was empty`,
+                message: () => 'expected paged DTO with populated response array, array was empty',
                 pass: false
             };
         }

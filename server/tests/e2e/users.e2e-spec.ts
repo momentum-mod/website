@@ -189,7 +189,7 @@ describe('Users', () => {
         await prisma.map.deleteMany({ where: { id: { in: [map1.id, map2.id] } } });
     });
 
-    describe(`GET /api/users`, () => {
+    describe('GET /api/users', () => {
         const expects = (res: request.Response) => expect(res.body).toBeValidPagedDto(UserDto);
 
         it('should respond with array of users', async () => {
@@ -311,7 +311,7 @@ describe('Users', () => {
 
         it('should respond with the specified user with with a corresponding map rank and run when given a mapRank mapid', async () => {
             const res = await get({
-                url: `users`,
+                url: 'users',
                 status: 200,
                 query: { mapRank: map1.id, steamID: user1.steamID },
                 token: user1Token
@@ -417,7 +417,7 @@ describe('Users', () => {
 
         it('should respond with 404 if the profile is not found', async () => {
             await get({
-                url: `users/9000000000009/profile`,
+                url: 'users/9000000000009/profile',
                 status: 404,
                 token: user1Token
             });

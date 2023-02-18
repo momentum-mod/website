@@ -193,7 +193,7 @@ describe('Session', () => {
 
         it('should 400 if the map does not exist', () =>
             post({
-                url: `session/run`,
+                url: 'session/run',
                 status: 400,
                 body: { mapID: 111111111111, trackNum: 0, zoneNum: 0 },
                 token: user1Token
@@ -201,14 +201,14 @@ describe('Session', () => {
 
         it('should respond with 401 when no access token is provided', () =>
             post({
-                url: `session/run`,
+                url: 'session/run',
                 status: 401,
                 body: { mapID: map.id, trackNum: 0, zoneNum: 0 }
             }));
 
         it('should return 403 if not using a game API key', () =>
             post({
-                url: `session/run`,
+                url: 'session/run',
                 status: 403,
                 body: { mapID: map.id, trackNum: 0, zoneNum: 0 },
                 token: nonGameAuthToken
@@ -218,7 +218,7 @@ describe('Session', () => {
     describe('DELETE session/run', () => {
         it('should delete the users run', async () => {
             await del({
-                url: `session/run`,
+                url: 'session/run',
                 status: 204,
                 token: user2Token
             });
@@ -230,20 +230,20 @@ describe('Session', () => {
 
         it('should 400 if the run does not exist', () =>
             del({
-                url: `session/run`,
+                url: 'session/run',
                 status: 400,
                 token: user1Token // User1 doesn't have an active run
             }));
 
         it('should respond with 401 when no access token is provided', () =>
             del({
-                url: `session/run`,
+                url: 'session/run',
                 status: 401
             }));
 
         it('should return 403 if not using a game API key', () =>
             del({
-                url: `session/run`,
+                url: 'session/run',
                 status: 403,
                 token: nonGameAuthToken
             }));
@@ -277,7 +277,7 @@ describe('Session', () => {
 
         it('should 400 if the run does not exist', () =>
             post({
-                url: `session/run/1234123413253245`,
+                url: 'session/run/1234123413253245',
                 status: 400,
                 body: { zoneNum: 2, tick: 510 },
                 token: user1Token

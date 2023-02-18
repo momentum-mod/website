@@ -1743,7 +1743,7 @@ describe('Maps', () => {
 
         it('should return 404 if the map credit was not found', () =>
             patch({
-                url: `maps/credits/1024768`,
+                url: 'maps/credits/1024768',
                 status: 404,
                 body: updatedMapCredit(),
                 token: user1Token
@@ -2026,7 +2026,7 @@ describe('Maps', () => {
             putAttach({ url: `maps/${map4.id}/thumbnail`, status: 403, file: 'image.jpg', token: user2Token }));
 
         it('should respond with 401 when no access token is provided', () =>
-            put({ url: `maps/${map1.id}/thumbnail`, status: 204 }));
+            put({ url: `maps/${map1.id}/thumbnail`, status: 401 }));
     });
 
     describe('POST /maps/{mapID}/images', () => {
