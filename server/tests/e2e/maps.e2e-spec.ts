@@ -1021,13 +1021,13 @@ describe('Maps', () => {
         });
 
         it('should respond with a 403 when the submitterID does not match the userID', () =>
-            getNoContent({ url: `maps/${map1.id}/upload`, status: 403, token: user2Token }));
+            get({ url: `maps/${map1.id}/upload`, status: 403, token: user2Token }));
 
         it('should respond with a 403 when the map is not accepting uploads', () =>
-            getNoContent({ url: `maps/${map1.id}/upload`, status: 403, token: user2Token }));
+            get({ url: `maps/${map1.id}/upload`, status: 403, token: user2Token }));
 
         it('should respond with 401 when no access token is provided', () =>
-            getNoContent({ url: `maps/${map1.id}/upload`, status: 401 }));
+            get({ url: `maps/${map1.id}/upload`, status: 401 }));
     });
 
     describe('POST /maps/{mapID}/upload', () => {
@@ -2026,7 +2026,7 @@ describe('Maps', () => {
             putAttach({ url: `maps/${map4.id}/thumbnail`, status: 403, file: 'image.jpg', token: user2Token }));
 
         it('should respond with 401 when no access token is provided', () =>
-            putAttach({ url: `maps/${map1.id}/thumbnail`, status: 204, file: 'image2.jpg' }));
+            put({ url: `maps/${map1.id}/thumbnail`, status: 204 }));
     });
 
     describe('POST /maps/{mapID}/images', () => {
@@ -2062,7 +2062,7 @@ describe('Maps', () => {
             postAttach({ url: `maps/${map1.id}/images`, status: 403, file: 'image.jpg', token: user3Token }));
 
         it('should respond with 401 when no access token is provided', () =>
-            postAttach({ url: `maps/${map1.id}/images`, status: 401, file: 'image.jpg' }));
+            post({ url: `maps/${map1.id}/images`, status: 401 }));
     });
 
     describe('GET maps/{mapID}/images', () => {
@@ -2122,7 +2122,7 @@ describe('Maps', () => {
             putAttach({ url: `maps/images/${map1.images[0].id}`, status: 403, file: 'image.jpg', token: user3Token }));
 
         it('should respond with 401 when no access token is provided', () =>
-            putAttach({ url: `maps/images/${map1.images[0].id}`, status: 401, file: 'image2.jpg' }));
+            put({ url: `maps/images/${map1.images[0].id}`, status: 401 }));
     });
 
     describe('DELETE maps/images/{imgID}', () => {
