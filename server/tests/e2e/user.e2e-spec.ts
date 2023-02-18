@@ -608,7 +608,7 @@ describe('User', () => {
         it('should respond with 400 if the body is invalid', () =>
             patch({
                 url: `user/follow/${user2.id}`,
-                status: 200,
+                status: 400,
                 body: { notifyOn: 'burger' },
                 token: user1Token
             }));
@@ -738,7 +738,7 @@ describe('User', () => {
         it('should respond with 400 is the body is invalid', async () => {
             await put({
                 url: `user/notifyMap/8231734`,
-                status: 404,
+                status: 400,
                 body: { notifyOn: 'this is a sausage' },
                 token: user1Token
             });
