@@ -1047,14 +1047,14 @@ describe('Admin', () => {
 
         it('should respond with 403 when the user requesting is not an admin', () =>
             get({
-                url: `admin/users/${user1.id}`,
+                url: 'admin/xpsys/',
                 status: 403,
                 token: nonAdminAccessToken
             }));
 
         it('should respond with 401 when no access token is provided', () =>
             get({
-                url: `admin/users/${user1.id}`,
+                url: 'admin/xpsys/',
                 status: 401
             }));
     });
