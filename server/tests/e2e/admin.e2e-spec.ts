@@ -9,6 +9,7 @@ import { XpSystemsDto } from '@/common/dto/xp-systems/xp-systems.dto';
 import { RankXpParams, CosXpParams } from '@modules/xp-systems/xp-systems.interface';
 import { ReportDto } from '@common/dto/report/report.dto';
 import { skipTest, takeTest } from '../util/generic-e2e-tests.util';
+import { pick } from 'radash';
 
 describe('Admin', () => {
     let adminUser,
@@ -720,7 +721,7 @@ describe('Admin', () => {
                 include: { bans: true }
             });
 
-            expect(userDB.bans).toBe(bans);
+            expect(pick(userDB.bans as any, Object.keys(bans))).toStrictEqual(bans);
         });
 
         it("should successfully update a specific user's roles", async () => {
