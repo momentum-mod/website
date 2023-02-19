@@ -18,7 +18,7 @@ export class RunDto implements PrismaModelToDto<Run> {
     time: number;
 
     @ApiProperty({ type: Number, description: 'The track the run took place on' })
-    @IsPositive()
+    @IsInt()
     trackNum: number;
 
     @ApiProperty({
