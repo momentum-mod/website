@@ -344,40 +344,56 @@ describe('Session', () => {
         // Splitting these out in multiple tests. It's slower, but there's so much stuff we want to test here that I
         // want to keep it organised well. `map` is a different map in the DB each time so these can run parallel fine.
         describe('should process a valid run and ', () => {
-            beforeEach(async () =>
-                Promise.all(
-                    Array.from({ length: 10 }, async (_, i) => {
-                        await prisma.userMapRank.create({
-                            data: {
-                                run: {
-                                    create: {
-                                        map: { connect: { id: map.id } },
-                                        zoneNum: 0,
-                                        trackNum: 0,
-                                        flags: 0,
-                                        ticks: i * 100 + 1,
-                                        tickRate: 0.01,
-                                        file: '',
-                                        hash: '2a2c873a10e8088cc2e54a74fd1428d59e0c509b',
-                                        time: i + 0.01
-                                    }
+            let umrs;
+            beforeEach(
+                async () =>
+                    (umrs = await Promise.all(
+                        Array.from({ length: 10 }, (_, i) =>
+                            prisma.userMapRank.create({
+                                data: {
+                                    run: {
+                                        create: {
+                                            map: { connect: { id: map.id } },
+                                            zoneNum: 0,
+                                            trackNum: 0,
+                                            flags: 0,
+                                            ticks: i * 100 + 1,
+                                            tickRate: 0.01,
+                                            file: '',
+                                            hash: '2a2c873a10e8088cc2e54a74fd1428d59e0c509b',
+                                            time: i + 0.01,
+                                            overallStats: {
+                                                create: {
+                                                    jumps: 1
+                                                }
+                                            }
+                                        }
+                                    },
+                                    gameType: MapType.BHOP,
+                                    user: {
+                                        create: {
+                                            alias: 'St. Thomas Hairdryer IV',
+                                            steamID: Math.random().toString().slice(2, 16)
+                                        }
+                                    },
+                                    map: { connect: { id: map.id } },
+                                    zoneNum: 0,
+                                    trackNum: 0,
+                                    rank: i + 1
                                 },
-                                gameType: MapType.BHOP,
-                                user: {
-                                    create: {
-                                        alias: 'St. Thomas Hairdryer IV',
-                                        steamID: Math.random().toString().slice(2, 16)
-                                    }
-                                },
-                                map: { connect: { id: map.id } },
-                                zoneNum: 0,
-                                trackNum: 0,
-                                rank: i + 1
-                            }
-                        });
-                    })
-                )
+                                include: { run: true, map: true, user: true }
+                            })
+                        )
+                    ))
             );
+
+            afterEach(async () => {
+                for (const umr of umrs) {
+                    await prisma.run.deleteMany({ where: { id: umr.run.id } });
+                    await prisma.user.deleteMany({ where: { id: umr.user.id } });
+                    await prisma.map.deleteMany({ where: { id: umr.map.id } });
+                }
+            });
 
             it('should respond with a CompletedRunDto', async () => {
                 const res = await submitRun();
