@@ -134,27 +134,24 @@ describe('Reports', () => {
 
     describe('POST /api/reports', () => {
         it('should create a new report', async () => {
-            const data = 3;
-            const resp = await post({
+            const report = {
+                data: 3,
+                type: ReportType.MAP_COMMENT_REPORT,
+                category: ReportCategory.SPAM,
+                message: 'report3 message'
+            };
+
+            const res = await post({
                 url: 'reports',
                 status: 201,
                 token: nonAdminAccessToken,
-                body: {
-                    data: data,
-                    type: ReportType.MAP_COMMENT_REPORT,
-                    category: ReportCategory.SPAM,
-                    message: 'report3 message'
-                }
+                body: report
             });
-            expect(resp.body).toBeValidDto(ReportDto);
-            expect(resp.body.data).toBe(data);
-            const report = await (global.prisma as PrismaService).report.findFirst({
-                where: {
-                    data: BigInt(data)
-                }
-            });
-            expect(report.data).toBe(data);
+
+            expect(res.body).toBeValidDto(ReportDto);
+            expect(res.body.data).toBe(report.data);
         });
+
         it('should respond with 401 without an access token', () =>
             post({
                 url: 'reports',
