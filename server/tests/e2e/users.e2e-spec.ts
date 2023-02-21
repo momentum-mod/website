@@ -144,7 +144,8 @@ describe('Users', () => {
                 time: 1000000,
                 flags: 0,
                 file: '',
-                hash: '7e020271296998570130e9be83f8ce44b39b843b'
+                hash: '7e020271296998570130e9be83f8ce44b39b843b',
+                overallStats: { create: { jumps: 1 } }
             }
         });
 
@@ -154,11 +155,7 @@ describe('Users', () => {
                 map: { connect: { id: map1.id } },
                 rank: 1,
                 gameType: MapType.SURF,
-                run: {
-                    connect: {
-                        id: run1.id
-                    }
-                }
+                run: { connect: { id: run1.id } }
             }
         });
 
@@ -173,7 +170,8 @@ describe('Users', () => {
                 time: 1000000,
                 flags: 0,
                 file: '',
-                hash: '7e16b5527c77ea58bac36dddda6f5b444f32e81b'
+                hash: '7e16b5527c77ea58bac36dddda6f5b444f32e81b',
+                overallStats: { create: { jumps: 1 } }
             }
         });
 
