@@ -131,7 +131,8 @@ describe('runs', () => {
                     }
                 },
                 createdAt: new Date('2013-09-05 15:34:00')
-            }
+            },
+            include: { zoneStats: true }
         });
 
         const r2ticks = 692001;
@@ -159,7 +160,8 @@ describe('runs', () => {
                     }
                 },
                 createdAt: new Date('2018-10-05 11:37:00')
-            }
+            },
+            include: { zoneStats: true }
         });
 
         const r3ticks = 123456;
@@ -187,7 +189,8 @@ describe('runs', () => {
                         data: [{ zoneNum: 1 }, { zoneNum: 2 }]
                     }
                 }
-            }
+            },
+            include: { zoneStats: true }
         });
 
         const r4ticks = 123456;
@@ -231,6 +234,14 @@ describe('runs', () => {
                 zoneStats: true
             }
         });
+
+        await Promise.all(
+            [run1, run2, run3, run4]
+                .flatMap((run) => run.zoneStats)
+                .map((zoneStats) =>
+                    prisma.baseStats.create({ data: { runZoneStats: { connect: { id: zoneStats.id } }, jumps: 1 } })
+                )
+        );
 
         const authService: AuthService = global.auth as AuthService;
         user1Token = (await authService.loginWeb(user1)).accessToken;
@@ -355,7 +366,7 @@ describe('runs', () => {
 
             expect(res.body.totalCount).toBeGreaterThanOrEqual(4);
             expect(res.body.returnCount).toBeGreaterThanOrEqual(4);
-            expect(res.body.response.filter((x) => Object.hasOwn(x, 'rank')).length).toBe(2); // 2 test runs have a rank, so we should see 2 in the response
+            expect(res.body.response.filter((x) => Object.hasOwn(x, 'rank')).length).toBe(4); // 4 test runs have a rank, so we should see 2 in the response
         });
 
         it('should respond with a list of runs with the zoneStats include', () =>
