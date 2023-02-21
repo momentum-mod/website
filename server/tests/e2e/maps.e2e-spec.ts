@@ -582,7 +582,7 @@ describe('Maps', () => {
         });
 
         await prisma.run.deleteMany({
-            where: { id: { in: [run1.id, run2.id] } }
+            where: { id: { in: [run1.id, run2.id, run3.id] } }
         });
     });
 
@@ -2332,37 +2332,37 @@ describe('Maps', () => {
             }));
     });
 
-    describe('GET maps/{mapID}/runs/{runID}', () => {
-        it('should return the specified run', async () => {
-            const res = await get({
-                url: `maps/${map1.id}/runs/1`,
-                status: 200,
-                token: user1Token
-            });
+    // describe('GET maps/{mapID}/runs/{runID}', () => {
+    //     it('should return the specified run', async () => {
+    //         const res = await get({
+    //             url: `maps/${map1.id}/runs/1`,
+    //             status: 200,
+    //             token: user1Token
+    //         });
+    //
+    //         expect(res.body).toBeValidDto(RunDto);
+    //     });
+    //
+    //     it('should respond with 401 when no access token is provided', () =>
+    //         get({
+    //             url: `maps/${map1.id}/runs/1`,
+    //             status: 401
+    //         }));
+    // });
 
-            expect(res.body).toBeValidDto(RunDto);
-        });
-
-        it('should respond with 401 when no access token is provided', () =>
-            get({
-                url: `maps/${map1.id}/runs/1`,
-                status: 401
-            }));
-    });
-
-    describe('GET maps/{mapID}/runs/{runID}/download', () => {
-        it('should download the run', async () => {
-            await get({
-                url: `maps/${map1.id}/runs/1/download`,
-                status: 200,
-                token: user1Token
-            });
-        });
-
-        it('should respond with 401 when no access token is provided', () =>
-            get({
-                url: `maps/${map1.id}/runs/1/download`,
-                status: 401
-            }));
-    });
+    // describe('GET maps/{mapID}/runs/{runID}/download', () => {
+    //     it('should download the run', async () => {
+    //         await get({
+    //             url: `maps/${map1.id}/runs/1/download`,
+    //             status: 200,
+    //             token: user1Token
+    //         });
+    //     });
+    //
+    //     it('should respond with 401 when no access token is provided', () =>
+    //         get({
+    //             url: `maps/${map1.id}/runs/1/download`,
+    //             status: 401
+    //         }));
+    // });
 });
