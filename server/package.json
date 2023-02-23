@@ -40,7 +40,7 @@
     "passport-jwt": "4.0.0",
     "passport-steam": "1.0.14",
     "passport-twitter": "1.0.4",
-    "sequelize": "6.2.2",
+    "sequelize": "6.28.2",
     "sharp": "0.30.5",
     "steam-appticket": "^1.0.1",
     "swagger-jsdoc": "4.0.0",
