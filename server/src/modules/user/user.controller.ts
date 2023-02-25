@@ -399,9 +399,8 @@ export class UserController {
     })
     @ApiNoContentResponse({ description: 'Map is in the favorites' })
     @ApiNotFoundResponse({ description: 'Map is not in the favorites' })
-    checkFavoritedMap(@LoggedInUser('id') _userID: number, @Param('mapID', ParseIntPipe) _mapID: number) {
-        return void 0;
-        //return this.usersService.CheckFavoritedMap(userID, mapID);
+    checkFavoritedMap(@LoggedInUser('id') userID: number, @Param('mapID', ParseIntPipe) mapID: number) {
+        return this.usersService.checkFavoritedMap(userID, mapID);
     }
 
     @Put('/maps/favorites/:mapID')

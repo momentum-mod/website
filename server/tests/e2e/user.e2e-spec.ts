@@ -1109,6 +1109,36 @@ describe('User', () => {
             }));
     });
 
+    describe('GET /api/user/maps/favorites/{mapID}', () => {
+        it('should return a map favorites', async () => {
+            const res = await get({
+                url: `user/maps/favorites/${map1.id}`,
+                token: user1Token,
+                status: 200
+            });
+            expect(res.body.mapID).toBe(map1.id);
+            expect(res.body.userID).toBe(user1.id);
+        });
+        it('should return 404 if the map is not in library', () =>
+            get({
+                url: `usr/maps/favorites/${map3.id}`,
+                token: user1Token,
+                status: 404
+            }));
+        it("should return 404 if the map doesn't exist", () =>
+            get({
+                url: 'usr/maps/favorites/99999999999',
+                token: user1Token,
+                status: 404
+            }));
+
+        it('should respond with 401 when no access token is provided', () =>
+            get({
+                url: `user/maps/favorites/${map1.id}`,
+                status: 401
+            }));
+    });
+
     describe('PUT /api/user/maps/favorites/{mapID}', () => {
         it('should add a new map to the local users favorites', async () => {
             const mapFavorite = await (global.prisma as PrismaService).mapFavorite.findFirst({

@@ -342,6 +342,17 @@ export class UsersRepoService {
         return [mapFavorites, count];
     }
 
+    async getFavoritedMap(
+        where: Prisma.MapFavoriteWhereInput,
+        include?: Prisma.MapFavoriteInclude
+    ): Promise<MapFavorite> {
+        const mapFavorite = await this.prisma.mapFavorite.findFirst({
+            where: where,
+            include: include
+        });
+        return mapFavorite;
+    }
+
     async createFavouritedMapEntry(userID: number, mapID: number) {
         await this.prisma.mapFavorite.create({
             data: {
