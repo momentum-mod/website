@@ -412,6 +412,17 @@ export class UsersService {
         return new PaginatedResponseDto(MapFavoriteDto, dbResponse);
     }
 
+    async checkFavoritedMap(userID: number, mapID: number) {
+        const where: Prisma.MapFavoriteWhereInput = {
+            userID: userID,
+            mapID: mapID
+        };
+        const dbResponse = await this.userRepo.getFavoritedMap(where);
+        if (!dbResponse) throw new NotFoundException('Target map not found');
+
+        return dbResponse;
+    }
+
     async addFavoritedMap(userID: number, mapID: number) {
         const targetMap = await this.mapRepo.get(mapID);
 
