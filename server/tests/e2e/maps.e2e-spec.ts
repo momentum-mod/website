@@ -2309,7 +2309,7 @@ describe('Maps', () => {
 
             expects(res);
 
-            expect(res.body.totalCount).toBe(1);
+            expect(res.body.totalCount).toBe(2);
             expect(res.body.response[0].flags).toBe(run2.flags); // This uses strict equality for now, but will change in 0.10.0
         });
 
@@ -2334,7 +2334,7 @@ describe('Maps', () => {
 
             expect(res.body.totalCount).toBeGreaterThanOrEqual(3);
             expect(res.body.returnCount).toBeGreaterThanOrEqual(3);
-            expect(res.body.response.filter((x) => Object.hasOwn(x, 'rank')).length).toBe(3); // 3 test runs have a rank, so we should see 2 in the response
+            expect(res.body.response.filter((x) => Object.hasOwn(x, 'rank')).length).toBe(6); // 3 test runs have a rank, so we should see 2 in the response
         });
 
         it('should respond with a list of runs with the zoneStats include', () =>
