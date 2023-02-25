@@ -5,10 +5,11 @@ import { RunDto } from '@common/dto/run/run.dto';
 import { DtoFactory, ExpandToPrismaIncludes } from '@lib/dto.lib';
 import { RunsRepoService } from '../repo/runs-repo.service';
 import { MapsCtlRunsGetAllQuery, RunsGetAllQuery } from '@common/dto/query/run-queries.dto';
+import { ConfigService } from '@nestjs/config';
 
 @Injectable()
 export class RunsService {
-    constructor(private readonly runRepo: RunsRepoService) {}
+    constructor(private readonly runRepo: RunsRepoService, private readonly configService: ConfigService) {}
 
     async get(runID: number, expand: string[]): Promise<RunDto> {
         const where: Prisma.RunWhereUniqueInput = { id: runID };
@@ -63,5 +64,15 @@ export class RunsService {
         const dbResponse = await this.runRepo.getAllRuns(where, query.skip, query.take, include, orderBy);
 
         return new PaginatedResponseDto(RunDto, dbResponse);
+    }
+
+    async getURL(runID: number): Promise<string> {
+        const run = await this.runRepo.getRun({ id: runID });
+        if (!run) throw new NotFoundException('Run not found.');
+
+        const cdnURL = this.configService.get('url.cdn');
+        const bucketName = this.configService.get('storage.bucketName');
+
+        return `${cdnURL}/${bucketName}/${run.file}`;
     }
 }

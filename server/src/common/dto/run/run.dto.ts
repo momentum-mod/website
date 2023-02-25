@@ -2,11 +2,13 @@ import { UserDto } from '../user/user.dto';
 import { MapRankDto } from '../map/map-rank.dto';
 import { Run } from '@prisma/client';
 import { ApiProperty } from '@nestjs/swagger';
-import { IsHash, IsInt, IsNumber, IsOptional, IsPositive, IsString } from 'class-validator';
+import { IsHash, IsInt, IsNumber, IsOptional, IsPositive, IsString, IsUrl } from 'class-validator';
 import { MapDto } from '../map/map.dto';
 import { CreatedAtProperty, IdProperty, NestedProperty, PrismaModelToDto, UpdatedAtProperty } from '@lib/dto.lib';
 import { BaseStatsDto } from '../stats/base-stats.dto';
 import { RunZoneStatsDto } from './run-zone-stats.dto';
+import { Config } from '@config/config';
+import { Exclude, Expose } from 'class-transformer';
 
 // TODO: BaseStatsDTO, various other nested DTOs
 export class RunDto implements PrismaModelToDto<Run> {
@@ -43,9 +45,17 @@ export class RunDto implements PrismaModelToDto<Run> {
     @IsInt()
     flags: number;
 
-    @ApiProperty()
-    @IsString()
+    @Exclude()
     file: string;
+
+    @ApiProperty({ type: String, description: 'URL to S3 storage' })
+    @Expose()
+    @IsOptional()
+    @IsString()
+    @IsUrl({ require_tld: false })
+    get downloadURL() {
+        return `${Config.url.cdn}/${Config.storage.bucketName}/${this.file}`;
+    }
 
     @ApiProperty()
     @IsHash('sha1')

@@ -1,4 +1,4 @@
-import { Controller, Get, Param, ParseIntPipe, Query } from '@nestjs/common';
+import { Controller, Get, Param, ParseIntPipe, Query, Redirect } from '@nestjs/common';
 import { RunsService } from './runs.service';
 import { ApiBearerAuth, ApiNotFoundResponse, ApiOkResponse, ApiOperation, ApiParam, ApiTags } from '@nestjs/swagger';
 import { ApiOkPaginatedResponse, PaginatedResponseDto } from '@common/dto/paginated-response.dto';
@@ -33,6 +33,7 @@ export class RunsController {
     }
 
     @Get('/:runID/download')
+    @Redirect()
     @ApiOperation({ summary: 'Downloads the replay file for a run' })
     @ApiParam({
         name: 'runID',
@@ -42,7 +43,8 @@ export class RunsController {
     })
     @ApiOkResponse({ description: 'A run replay file in binary format' })
     @ApiNotFoundResponse({ description: 'Run replay was not found' })
-    downloadRun(@Param('runID', ParseIntPipe) _runID: number): Promise<any> {
-        return void 0;
+    async downloadRun(@Param('runID', ParseIntPipe) runID: number) {
+        const runURL = await this.runsService.getURL(runID);
+        return { url: runURL };
     }
 }

@@ -6,6 +6,7 @@ import { AuthService } from '@modules/auth/auth.service';
 import { PrismaService } from '@modules/repo/prisma.service';
 import { get } from '../util/request-handlers.util';
 import { expandTest, skipTest, takeTest } from '@tests/util/generic-e2e-tests.util';
+import { Config } from '@config/config';
 
 describe('runs', () => {
     let user1, user1Token, map1, run1, run2, run3, run4, user2, map2;
@@ -541,6 +542,34 @@ describe('runs', () => {
         it('should respond with 401 when no access token is provided', () =>
             get({
                 url: 'runs/1',
+                status: 401
+            }));
+    });
+
+    describe('GET /api/runs/{runID}/download', () => {
+        it('should redirect to the download url of the run', async () => {
+            const res = await get({
+                url: `runs/${run1.id}/download`,
+                status: 302,
+                token: user1Token,
+                contentType: null
+            });
+
+            console.log(`${Config.url.cdn}/${Config.storage.bucketName}/${run1.file}`);
+            expect(res.header.location).toEqual(`${Config.url.cdn}/${Config.storage.bucketName}/${run1.file}`);
+            console.log(res.header.location);
+        });
+
+        it('should respond with 404 when no run is found', () =>
+            get({
+                url: 'runs/1191137119/download',
+                status: 404,
+                token: user1Token
+            }));
+
+        it('should respond with 401 when no access token is provided', () =>
+            get({
+                url: `runs/${run1.id}/download`,
                 status: 401
             }));
     });
