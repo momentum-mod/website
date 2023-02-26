@@ -56,7 +56,7 @@ import { RunDto } from '@common/dto/run/run.dto';
 import { RunsService } from '../runs/runs.service';
 import { MapImageDto } from '../../common/dto/map/map-image.dto';
 import { RolesGuard } from '@modules/auth/guards/roles.guard';
-import { MapRankDto } from '@/common/dto/map/map-rank.dto';
+import { UserMapRankDto } from '@common/dto/run/user-map-rank.dto';
 
 @Controller('api/maps')
 @UseGuards(RolesGuard)
@@ -605,7 +605,7 @@ export class MapsController {
     getRanks(
         @Param('mapID', ParseIntPipe) mapID: number,
         @Query() query?: MapRanksGetQuery
-    ): Promise<PaginatedResponseDto<MapRankDto>> {
+    ): Promise<PaginatedResponseDto<UserMapRankDto>> {
         return this.mapsService.getRanks(mapID, query);
     }
 
@@ -622,7 +622,7 @@ export class MapsController {
         @LoggedInUser('id') userID: number,
         @Param('mapID') mapID: number,
         @Query() query?: MapRankGetNumberQuery
-    ): Promise<MapRankDto[]> {
+    ): Promise<UserMapRankDto[]> {
         return this.mapsService.getRankAround(userID, mapID, query);
     }
 
@@ -639,7 +639,7 @@ export class MapsController {
         @LoggedInUser('steamID') steamID: string,
         @Param('mapID') mapID: number,
         @Query() query?: MapRankGetNumberQuery
-    ): Promise<MapRankDto[]> {
+    ): Promise<UserMapRankDto[]> {
         return this.mapsService.getRankFriends(steamID, mapID, query);
     }
 
@@ -663,7 +663,7 @@ export class MapsController {
         @Param('mapID', ParseIntPipe) mapID: number,
         @Param('rankNumber', ParseIntPipe) rankNumber: number,
         @Query() query?: MapRankGetNumberQuery
-    ): Promise<MapRankDto> {
+    ): Promise<UserMapRankDto> {
         return this.mapsService.getRankNumber(mapID, rankNumber, query);
     }
     //#region Private

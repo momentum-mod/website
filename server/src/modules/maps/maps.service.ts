@@ -9,7 +9,7 @@ import {
 } from '@nestjs/common';
 import { Map as MapDB, MapCredit, MapTrack, Prisma, UserMapRank } from '@prisma/client';
 import { CreateMapDto, MapDto, UpdateMapDto } from '@common/dto/map/map.dto';
-import { MapRankDto } from '@common/dto/map/map-rank.dto';
+import { UserMapRankDto } from '@common/dto/run/user-map-rank.dto';
 import { PaginatedResponseDto } from '@common/dto/paginated-response.dto';
 import { MapsRepoService } from '../repo/maps-repo.service';
 import { AuthService } from '../auth/auth.service';
@@ -660,7 +660,7 @@ export class MapsService {
 
     //#endregion
 
-    async getRanks(mapID: number, query: MapRanksGetQuery): Promise<PaginatedResponseDto<MapRankDto>> {
+    async getRanks(mapID: number, query: MapRanksGetQuery): Promise<PaginatedResponseDto<UserMapRankDto>> {
         const map = await this.mapRepo.get(mapID);
 
         if (!map) throw new NotFoundException('Map not found');
@@ -685,10 +685,10 @@ export class MapsService {
 
         this.formatRanksDbResponse(dbResponse[0]);
 
-        return new PaginatedResponseDto(MapRankDto, dbResponse);
+        return new PaginatedResponseDto(UserMapRankDto, dbResponse);
     }
 
-    async getRankNumber(mapID: number, rankNumber: number, query: MapRankGetNumberQuery): Promise<MapRankDto> {
+    async getRankNumber(mapID: number, rankNumber: number, query: MapRankGetNumberQuery): Promise<UserMapRankDto> {
         const map = await this.mapRepo.get(mapID);
 
         if (!map) throw new NotFoundException('Map not found');
@@ -717,10 +717,10 @@ export class MapsService {
         dbResponse.trackNum = (dbResponse as any).run.trackNum;
         dbResponse.zoneNum = (dbResponse as any).run.zoneNum;
 
-        return DtoFactory(MapRankDto, dbResponse);
+        return DtoFactory(UserMapRankDto, dbResponse);
     }
 
-    async getRankAround(userID: number, mapID: number, query: MapRankGetNumberQuery): Promise<MapRankDto[]> {
+    async getRankAround(userID: number, mapID: number, query: MapRankGetNumberQuery): Promise<UserMapRankDto[]> {
         const where: Prisma.UserMapRankWhereInput = {
             mapID: mapID,
             flags: 0,
@@ -761,10 +761,10 @@ export class MapsService {
 
         this.formatRanksDbResponse(ranks);
 
-        return ranks.map((umr) => DtoFactory(MapRankDto, umr));
+        return ranks.map((umr) => DtoFactory(UserMapRankDto, umr));
     }
 
-    async getRankFriends(steamID: string, mapID: number, query: MapRankGetNumberQuery): Promise<MapRankDto[]> {
+    async getRankFriends(steamID: string, mapID: number, query: MapRankGetNumberQuery): Promise<UserMapRankDto[]> {
         const steamFriends = await this.usersService.getSteamFriends(steamID);
         const friendSteamIDs = steamFriends.map((item) => item.steamid);
 
@@ -796,7 +796,7 @@ export class MapsService {
 
         this.formatRanksDbResponse(ranks);
 
-        return ranks.map((umr) => DtoFactory(MapRankDto, umr));
+        return ranks.map((umr) => DtoFactory(UserMapRankDto, umr));
     }
 
     // This is done because the MapRankDto still contains trackNum and zoneNum to conform to old API

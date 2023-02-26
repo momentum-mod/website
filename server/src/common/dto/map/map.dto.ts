@@ -11,7 +11,7 @@ import { IsMapName } from '../../validators/is-map-name.validator';
 import { CreateMapCreditDto, MapCreditDto } from './map-credit.dto';
 import { MapFavoriteDto } from './map-favorite.dto';
 import { MapLibraryEntryDto } from './map-library-entry';
-import { MapRankDto } from './map-rank.dto';
+import { UserMapRankDto } from '../run/user-map-rank.dto';
 import { Exclude, Expose } from 'class-transformer';
 import { Config } from '@config/config';
 import { MapStatsDto } from '@common/dto/map/map-stats.dto';
@@ -88,11 +88,11 @@ export class MapDto implements MapDB {
     @NestedProperty(MapLibraryEntryDto, { isArray: true })
     libraryEntries: MapLibraryEntryDto[];
 
-    @NestedProperty(MapRankDto, { lazy: true })
-    worldRecord: MapRankDto;
+    @NestedProperty(UserMapRankDto, { lazy: true })
+    worldRecord: UserMapRankDto;
 
-    @NestedProperty(MapRankDto, { lazy: true })
-    personalBest: MapRankDto;
+    @NestedProperty(UserMapRankDto, { lazy: true })
+    personalBest: UserMapRankDto;
 
     @CreatedAtProperty()
     createdAt: Date;
