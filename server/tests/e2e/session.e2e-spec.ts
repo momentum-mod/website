@@ -8,10 +8,10 @@ import { CompletedRunDto } from '@common/dto/run/completed-run.dto';
 import { del, post } from '../util/request-handlers.util';
 import { RunSessionDto } from '@common/dto/run/run-session.dto';
 import { RunSessionTimestampDto } from '@common/dto/run/run-session-timestamp.dto';
-import { UserMapRankDto } from '@common/dto/run/user-map-rank.dto';
 import { RunDto } from '@common/dto/run/run.dto';
 import { XpSystemsService } from '@modules/xp-systems/xp-systems.service';
 import { RunValidationErrorTypes } from '@common/enums/run.enum';
+import { UserMapRankDto } from '@common/dto/run/user-map-rank.dto';
 
 describe('Session', () => {
     let user1,

@@ -8,7 +8,7 @@ import { del, get, getNoContent, patch, post, postAttach, put, putAttach } from 
 import { MapInfoDto } from '@common/dto/map/map-info.dto';
 import { MapCreditDto } from '@common/dto/map/map-credit.dto';
 import { RunDto } from '@common/dto/run/run.dto';
-import { MapRankDto } from '@common/dto/map/map-rank.dto';
+import { UserMapRankDto } from '@common/dto/run/user-map-rank.dto';
 import { ActivityTypes } from '@common/enums/activity.enum';
 import axios from 'axios';
 import { createHash } from 'node:crypto';
@@ -18,7 +18,6 @@ import { MapTrackDto } from '@common/dto/map/map-track.dto';
 import { expandTest, skipTest, takeTest } from '@tests/util/generic-e2e-tests.util';
 import { MapImageDto } from '@common/dto/map/map-image.dto';
 import { Config } from '@config/config';
-import { UserMapRankDto } from '@common/dto/run/user-map-rank.dto';
 
 const hash = (buffer: Buffer) => createHash('sha1').update(buffer).digest('hex');
 
@@ -843,7 +842,7 @@ describe('Maps', () => {
 
             const found = res.body.response.find((x) => Object.hasOwn(x, 'worldRecord'));
             expect(found).not.toBeNull();
-            expect(found.worldRecord).toBeValidDto(MapRankDto);
+            expect(found.worldRecord).toBeValidDto(UserMapRankDto);
             expect(found.worldRecord.rank).toBe(1);
             expect(found.worldRecord.user.id).toBe(admin.id);
         });
@@ -863,7 +862,7 @@ describe('Maps', () => {
 
             const found = res.body.response.find((x) => Object.hasOwn(x, 'personalBest'));
             expect(found).not.toBeNull();
-            expect(found.personalBest).toBeValidDto(MapRankDto);
+            expect(found.personalBest).toBeValidDto(UserMapRankDto);
             expect(found.personalBest.rank).toBe(2);
             expect(found.personalBest.user.id).toBe(user1.id);
         });
@@ -885,10 +884,10 @@ describe('Maps', () => {
                 (x) => Object.hasOwn(x, 'worldRecord') && Object.hasOwn(x, 'personalBest')
             );
             expect(found).not.toBeNull();
-            expect(found.worldRecord).toBeValidDto(MapRankDto);
+            expect(found.worldRecord).toBeValidDto(UserMapRankDto);
             expect(found.worldRecord.rank).toBe(1);
             expect(found.worldRecord.user.id).toBe(admin.id);
-            expect(found.personalBest).toBeValidDto(MapRankDto);
+            expect(found.personalBest).toBeValidDto(UserMapRankDto);
             expect(found.personalBest.rank).toBe(2);
             expect(found.personalBest.user.id).toBe(user1.id);
         });
@@ -1405,7 +1404,7 @@ describe('Maps', () => {
 
             expects(res);
 
-            expect(res.body.worldRecord).toBeValidDto(MapRankDto);
+            expect(res.body.worldRecord).toBeValidDto(UserMapRankDto);
             expect(res.body.worldRecord.rank).toBe(1);
             expect(res.body.worldRecord.user.id).toBe(admin.id);
         });
@@ -1420,7 +1419,7 @@ describe('Maps', () => {
 
             expects(res);
 
-            expect(res.body.personalBest).toBeValidDto(MapRankDto);
+            expect(res.body.personalBest).toBeValidDto(UserMapRankDto);
             expect(res.body.personalBest.rank).toBe(2);
             expect(res.body.personalBest.user.id).toBe(user1.id);
         });
@@ -1435,10 +1434,10 @@ describe('Maps', () => {
 
             expects(res);
 
-            expect(res.body.worldRecord).toBeValidDto(MapRankDto);
+            expect(res.body.worldRecord).toBeValidDto(UserMapRankDto);
             expect(res.body.worldRecord.rank).toBe(1);
             expect(res.body.worldRecord.user.id).toBe(admin.id);
-            expect(res.body.personalBest).toBeValidDto(MapRankDto);
+            expect(res.body.personalBest).toBeValidDto(UserMapRankDto);
             expect(res.body.personalBest.rank).toBe(2);
             expect(res.body.personalBest.user.id).toBe(user1.id);
         });
@@ -2829,7 +2828,7 @@ describe('Maps', () => {
                 expect(res.body.length).toBe(11);
 
                 for (const umr of res.body) {
-                    expect(umr).toBeValidDto(MapRankDto);
+                    expect(umr).toBeValidDto(UserMapRankDto);
                     expect(umr.rank).toBe(prevRank + 1);
                     prevRank++;
                 }

@@ -1,55 +1,66 @@
-﻿import { User, UserMapRank, Map as MapDB } from '@prisma/client';
+import { UserMapRank } from '@prisma/client';
 import { ApiProperty } from '@nestjs/swagger';
-import { IsInt, IsNumber, IsPositive } from 'class-validator';
-import { CreatedAtProperty, IdProperty, NestedProperty, PrismaModelToDto, UpdatedAtProperty } from '@lib/dto.lib';
-import { RunDto } from './run.dto';
-import { UserDto } from '../user/user.dto';
+import { IsInt, IsOptional, IsPositive } from 'class-validator';
+import { MapType } from '../../enums/map.enum';
+import {
+    CreatedAtProperty,
+    EnumProperty,
+    IdProperty,
+    NestedProperty,
+    PrismaModelToDto,
+    UpdatedAtProperty
+} from '@lib/dto.lib';
 import { MapDto } from '../map/map.dto';
+import { UserDto } from '../user/user.dto';
+import { RunDto } from './run.dto';
 
 export class UserMapRankDto implements PrismaModelToDto<UserMapRank> {
-    @ApiProperty({ description: 'The gamemode of the run' })
-    @IsInt()
-    gameType: number;
+    @IdProperty()
+    id: number;
+
+    @EnumProperty(MapType)
+    gameType: MapType;
 
     @ApiProperty({ description: 'Unimplemented' })
-    @IsInt()
     flags: number;
 
+    // TODO_POST_REWRITE: We can remove this and zoneNum in the future since DB no longer stores dupes of this and zoneNum, but
+    // still expect a DTO with this structure seem to use it from here.
     @ApiProperty({ description: 'The track the run is on' })
     @IsInt()
+    @IsOptional()
     trackNum: number;
 
     @ApiProperty({ description: 'The zone the run is on. > 0 is a IL run, not yet supported' })
     @IsInt()
+    @IsOptional()
     zoneNum: number;
 
     @ApiProperty({ description: 'The leaderboard rank of the run' })
-    @IsInt()
+    @IsPositive()
     rank: number;
 
     @ApiProperty({ description: 'The ranked XP assigned for the run' })
-    @IsNumber()
+    @IsInt()
     rankXP: number;
 
-    @NestedProperty(MapDto)
-    map: MapDB;
-
-    @ApiProperty()
-    @IsInt()
+    @IdProperty()
     mapID: number;
 
-    @NestedProperty(UserDto)
-    user: User;
+    @NestedProperty(MapDto, { lazy: true })
+    map: MapDto;
 
-    @ApiProperty()
-    @IsPositive()
+    @IdProperty()
     userID: number;
 
-    @NestedProperty(RunDto)
-    run: RunDto;
+    @NestedProperty(UserDto, { lazy: true })
+    user: UserDto;
 
     @IdProperty({ bigint: true })
     runID: number;
+
+    @NestedProperty(RunDto)
+    run: RunDto;
 
     @CreatedAtProperty()
     createdAt: Date;

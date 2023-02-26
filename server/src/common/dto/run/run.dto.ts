@@ -1,5 +1,5 @@
 import { UserDto } from '../user/user.dto';
-import { MapRankDto } from '../map/map-rank.dto';
+import { UserMapRankDto } from './user-map-rank.dto';
 import { Run } from '@prisma/client';
 import { ApiProperty } from '@nestjs/swagger';
 import { IsHash, IsInt, IsNumber, IsOptional, IsPositive, IsString, IsUrl } from 'class-validator';
@@ -81,8 +81,8 @@ export class RunDto implements PrismaModelToDto<Run> {
     @NestedProperty(MapDto, { required: false })
     map: MapDto;
 
-    @NestedProperty(MapRankDto, { required: false, lazy: true })
-    rank: MapRankDto;
+    @NestedProperty(UserMapRankDto, { required: false, lazy: true })
+    rank: UserMapRankDto;
 
     @NestedProperty(RunZoneStatsDto, { required: false, lazy: true, isArray: true })
     zoneStats: RunZoneStatsDto[];
