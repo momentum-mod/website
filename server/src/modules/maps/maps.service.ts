@@ -709,7 +709,7 @@ export class MapsService {
 
         const include = { run: true, user: true };
 
-        const dbResponse = await this.mapRepo.getRank(where, include);
+        const dbResponse = (await this.mapRepo.getRank(where, include)) as any;
 
         if (!dbResponse) throw new NotFoundException('Rank not found');
 
@@ -801,7 +801,7 @@ export class MapsService {
 
     // This is done because the MapRankDto still contains trackNum and zoneNum to conform to old API
     // but UserMapRank doesn't. Probably worth changing frontend/game code in future.
-    private formatRanksDbResponse(ranks: UserMapRank[]) {
+    private formatRanksDbResponse(ranks: (UserMapRank & { trackNum?: any; zoneNum?: any })[]) {
         for (const mapRank of ranks) {
             mapRank.trackNum = (mapRank as any).run.trackNum;
             mapRank.zoneNum = (mapRank as any).run.zoneNum;
