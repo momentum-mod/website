@@ -283,8 +283,6 @@ async function createRandomMapRank(mapID, userID, runID) {
             runID: runID,
             gameType: Random.int(0, 127),
             flags: 0,
-            trackNum: Random.int(0, 127),
-            zoneNum: Random.int(0, 127),
             rank: Random.int(10000),
             rankXP: Random.int(10000),
             ...Random.createdUpdatedDates()

@@ -114,8 +114,6 @@ describe('runs', () => {
                     create: {
                         gameType: MapType.RJ,
                         flags: 0,
-                        trackNum: 0,
-                        zoneNum: 0,
                         rank: 6,
                         map: { connect: { id: map1.id } },
                         user: { connect: { id: user1.id } }
