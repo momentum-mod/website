@@ -3,7 +3,7 @@
 import { MapType, MapStatus, getDefaultTickRateForMapType } from '@common/enums/map.enum';
 import { AuthService } from '@modules/auth/auth.service';
 import { PrismaService } from '@modules/repo/prisma.service';
-import { RunTester, RunTesterProps } from '../util/run-tester-util';
+import { RunTester, RunTesterProps } from '../util/run-tester.util';
 import { CompletedRunDto } from '@common/dto/run/completed-run.dto';
 import { del, post } from '../util/request-handlers.util';
 import { RunSessionDto } from '@common/dto/run/run-session.dto';
