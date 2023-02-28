@@ -6,12 +6,33 @@ import { UserDto } from '@common/dto/user/user.dto';
 import { XpSystemsDto } from '@/common/dto/xp-systems/xp-systems.dto';
 import { RankXpParams, CosXpParams } from '@modules/xp-systems/xp-systems.interface';
 import { ReportDto } from '@common/dto/report/report.dto';
-import { skipTest, takeTest, unauthorizedTest } from '../util/generic-e2e-tests.util';
+import {
+    expandTest,
+    searchTest,
+    skipTest,
+    sortByDateTest,
+    takeTest,
+    unauthorizedTest
+} from '../util/generic-e2e-tests.util';
 import { pick } from 'lodash';
-import { cleanup, createAndLoginUser, createUser, loginNewUser, NULL_ID } from '../util/db.util';
+import {
+    cleanup,
+    createAndLoginUser,
+    createMap,
+    createMaps,
+    createRun,
+    createUser,
+    loginNewUser,
+    NULL_ID
+} from '../util/db.util';
 import { gameLogin } from '../util/auth.util';
+import { MapDto } from '@/common/dto/map/map.dto';
+import { MapCreditType, MapStatus } from '@/common/enums/map.enum';
+import { FileStoreHandler } from '@tests/util/s3.util';
+import { readFileSync } from 'node:fs';
 
 const prisma: PrismaService = global.prisma;
+const fileStore = new FileStoreHandler();
 
 describe('Admin', () => {
     describe('admin/users', () => {
@@ -472,6 +493,319 @@ describe('Admin', () => {
             it('should 401 when no access token is provided', () => del({ url: `admin/users/${u1.id}`, status: 401 }));
 
             unauthorizedTest('admin/users/1', del);
+        });
+    });
+
+    describe('admin/maps', () => {
+        describe('GET', () => {
+            let modToken, adminToken, u1, u1Token, m1, m2, m3, m4;
+
+            beforeAll(
+                async () =>
+                    ([modToken, adminToken, [u1, u1Token], [m1, m2, m3, m4]] = await Promise.all([
+                        loginNewUser({ data: { roles: { create: { moderator: true } } } }),
+                        loginNewUser({ data: { roles: { create: { admin: true } } } }),
+                        createAndLoginUser(),
+                        createMaps(4)
+                    ]))
+            );
+
+            afterAll(() => cleanup('user', 'map', 'run'));
+
+            it('should respond with map data', async () => {
+                const res = await get({
+                    url: 'admin/maps',
+                    status: 200,
+                    validatePaged: { type: MapDto, count: 4 },
+                    token: adminToken
+                });
+
+                for (const item of res.body.response) {
+                    expect(item).toHaveProperty('mainTrack');
+                    expect(item).toHaveProperty('info');
+                }
+            });
+
+            it('should be ordered by date', () =>
+                sortByDateTest({ url: 'admin/maps', validate: MapDto, token: adminToken }));
+
+            it('should respond with filtered map data using the take parameter', () =>
+                takeTest({ url: 'admin/maps', validate: MapDto, token: adminToken }));
+
+            it('should respond with filtered map data using the skip parameter', () =>
+                skipTest({ url: 'admin/maps', validate: MapDto, token: adminToken }));
+
+            it('should respond with filtered map data using the search parameter', async () => {
+                m2 = await prisma.map.update({ where: { id: m2.id }, data: { name: 'aaaaa' } });
+
+                await searchTest({
+                    url: 'admin/maps',
+                    token: adminToken,
+                    searchMethod: 'contains',
+                    searchString: 'aaaaa',
+                    searchPropertyName: 'name',
+                    validate: { type: MapDto, count: 1 }
+                });
+            });
+
+            it('should respond with filtered map data using the submitter id parameter', async () => {
+                await prisma.map.update({ where: { id: m2.id }, data: { submitterID: u1.id } });
+
+                const res = await get({
+                    url: 'admin/maps',
+                    status: 200,
+                    query: { submitterID: u1.id },
+                    validatePaged: { type: MapDto, count: 1 },
+                    token: adminToken
+                });
+
+                expect(res.body.response[0]).toMatchObject({ submitterID: u1.id, id: m2.id });
+            });
+
+            it('should respond with filtered map data based on the map type', async () => {
+                await prisma.map.update({ where: { id: m2.id }, data: { statusFlag: MapStatus.PUBLIC_TESTING } });
+
+                const res = await get({
+                    url: 'admin/maps',
+                    status: 200,
+                    query: { status: MapStatus.PUBLIC_TESTING },
+                    validatePaged: { type: MapDto, count: 1 },
+                    token: adminToken
+                });
+
+                expect(res.body.response[0]).toMatchObject({ statusFlag: MapStatus.PUBLIC_TESTING, id: m2.id });
+            });
+
+            it('should respond with expanded submitter data using the submitter expand parameter', async () => {
+                await prisma.map.updateMany({ data: { submitterID: u1.id } });
+
+                await expandTest({
+                    url: 'admin/maps',
+                    expand: 'submitter',
+                    paged: true,
+                    validate: MapDto,
+                    token: adminToken
+                });
+            });
+
+            it('should respond with expanded map data using the credits expand parameter', async () => {
+                await prisma.mapCredit.createMany({
+                    data: [
+                        { mapID: m1.id, userID: u1.id, type: MapCreditType.AUTHOR },
+                        { mapID: m2.id, userID: u1.id, type: MapCreditType.AUTHOR },
+                        { mapID: m3.id, userID: u1.id, type: MapCreditType.AUTHOR },
+                        { mapID: m4.id, userID: u1.id, type: MapCreditType.AUTHOR }
+                    ]
+                });
+
+                await expandTest({
+                    url: 'admin/maps',
+                    expand: 'credits',
+                    paged: true,
+                    validate: MapDto,
+                    token: adminToken
+                });
+            });
+
+            it('should return 403 if a non admin access token is given', () =>
+                get({
+                    url: 'admin/maps',
+                    status: 403,
+                    token: u1Token
+                }));
+
+            it('should return 403 if a mod access token is given', () =>
+                get({
+                    url: 'admin/maps',
+                    status: 403,
+                    token: modToken
+                }));
+
+            unauthorizedTest('admin/maps', get);
+        });
+    });
+
+    describe('admin/maps/{mapID}', () => {
+        describe('PATCH', () => {
+            let mod, modToken, admin, adminToken, u1, u1Token, m1, m2;
+
+            beforeAll(
+                async () =>
+                    ([[mod, modToken], [admin, adminToken], [u1, u1Token], [m1, m2]] = await Promise.all([
+                        createAndLoginUser({ data: { roles: { create: { moderator: true } } } }),
+                        createAndLoginUser({ data: { roles: { create: { admin: true } } } }),
+                        createAndLoginUser(),
+                        createMaps(2)
+                    ]))
+            );
+
+            afterAll(() => cleanup('user', 'map', 'run'));
+
+            it('should successfully update a map status', async () => {
+                await patch({
+                    url: `admin/maps/${m1.id}`,
+                    status: 204,
+                    body: { statusFlag: MapStatus.PUBLIC_TESTING },
+                    token: adminToken
+                });
+
+                const changedMap = await prisma.map.findFirst({ where: { id: m1.id } });
+
+                expect(changedMap.statusFlag).toBe(MapStatus.PUBLIC_TESTING);
+            });
+
+            it('should create activities for map authors with map approved type after map status changed from pending to approved', async () => {
+                await prisma.map.update({ where: { id: m1.id }, data: { statusFlag: MapStatus.PENDING } });
+
+                await prisma.mapCredit.createMany({
+                    data: [
+                        { type: MapCreditType.AUTHOR, mapID: m1.id, userID: u1.id },
+                        { type: MapCreditType.AUTHOR, mapID: m1.id, userID: admin.id },
+                        { type: MapCreditType.AUTHOR, mapID: m1.id, userID: mod.id }
+                    ]
+                });
+
+                await patch({
+                    url: `admin/maps/${m1.id}`,
+                    status: 204,
+                    body: { statusFlag: MapStatus.APPROVED },
+                    token: adminToken
+                });
+
+                const mapApprovedActvities = await prisma.activity.findMany({
+                    where: { type: ActivityTypes.MAP_APPROVED, data: m1.id }
+                });
+
+                expect(mapApprovedActvities.length).toBe(3);
+                expect(mapApprovedActvities.map((activity) => activity.userID).sort()).toEqual(
+                    [u1.id, admin.id, mod.id].sort()
+                );
+            });
+
+            it('should return 400 if rejected or removed map is being updated', async () => {
+                await prisma.map.update({ where: { id: m1.id }, data: { statusFlag: MapStatus.REJECTED } });
+                await patch({
+                    url: `admin/maps/${m1.id}`,
+                    status: 400,
+                    body: { statusFlag: MapStatus.PUBLIC_TESTING },
+                    token: adminToken
+                });
+
+                await prisma.map.update({ where: { id: m2.id }, data: { statusFlag: MapStatus.REMOVED } });
+                await patch({
+                    url: `admin/maps/${m2.id}`,
+                    status: 400,
+                    body: { statusFlag: MapStatus.PUBLIC_TESTING },
+                    token: adminToken
+                });
+            });
+
+            it('should return 404 if map not found', () =>
+                patch({
+                    url: `admin/maps/${NULL_ID}`,
+                    status: 404,
+                    body: { statusFlag: MapStatus.PUBLIC_TESTING },
+                    token: adminToken
+                }));
+
+            it('should return 403 if a non admin access token is given', () =>
+                patch({
+                    url: `admin/maps/${m1.id}`,
+                    status: 403,
+                    token: u1Token
+                }));
+
+            it('should return 403 if a mod access token is given', () =>
+                patch({
+                    url: `admin/maps/${m1.id}`,
+                    status: 403,
+                    token: modToken
+                }));
+
+            unauthorizedTest('admin/maps/1', patch);
+        });
+        describe('DELETE', () => {
+            let modToken, adminToken, u1, u1Token, m1;
+
+            beforeAll(async () => {
+                [modToken, adminToken, [u1, u1Token]] = await Promise.all([
+                    loginNewUser({ data: { roles: { create: { moderator: true } } } }),
+                    loginNewUser({ data: { roles: { create: { admin: true } } } }),
+                    createAndLoginUser({ data: { roles: { create: { mapper: true } } } })
+                ]);
+            });
+
+            afterAll(() => cleanup('user', 'map', 'run'));
+
+            beforeEach(async () => {
+                m1 = await createMap({
+                    submitter: { connect: { id: u1.id } },
+                    images: { create: {} }
+                });
+                await createRun({ map: m1, user: u1 });
+            });
+
+            afterEach(() => cleanup('map'));
+
+            it('should successfully delete the map and related stored data', async () => {
+                const fileKey = 'maps/my_cool_map.bsp';
+                await prisma.map.update({ where: { id: m1.id }, data: { fileKey } });
+
+                await fileStore.add(fileKey, readFileSync(__dirname + '/../files/map.bsp'));
+
+                const img = await prisma.mapImage.findFirst({ where: { mapID: m1.id } });
+                for (const size of ['small', 'medium', 'large']) {
+                    await fileStore.add(
+                        `img/${img.id}-${size}.jpg`,
+                        readFileSync(__dirname + '/../files/image_jpg.jpg')
+                    );
+                }
+
+                const run = await prisma.run.findFirst({ where: { mapID: m1.id } });
+                await fileStore.add(`runs/${run.id}`, Buffer.alloc(123));
+
+                await del({
+                    url: `admin/maps/${m1.id}`,
+                    status: 204,
+                    token: adminToken
+                });
+
+                expect(await prisma.map.findFirst({ where: { id: m1.id } })).toBeNull();
+                expect(await fileStore.exists(fileKey)).toBeFalsy();
+
+                const relatedRuns = await prisma.run.findMany({ where: { mapID: m1.id } });
+                expect(relatedRuns.length).toBe(0);
+                expect(await fileStore.exists(`runs/${run.id}`)).toBeFalsy();
+
+                const relatedImages = await prisma.mapImage.findMany({ where: { mapID: m1.id } });
+                expect(relatedImages.length).toBe(0);
+                for (const size of ['small', 'medium', 'large']) {
+                    expect(await fileStore.exists(`img/${img.id}-${size}.jpg`)).toBeFalsy();
+                }
+            });
+
+            it('should return 404 if map not found', () =>
+                del({
+                    url: `admin/maps/${NULL_ID}`,
+                    status: 404,
+                    token: adminToken
+                }));
+
+            it('should return 403 if a non admin access token is given', () =>
+                del({
+                    url: `admin/maps/${m1.id}`,
+                    status: 403,
+                    token: u1Token
+                }));
+
+            it('should return 403 if a mod access token is given', () =>
+                del({
+                    url: `admin/maps/${m1.id}`,
+                    status: 403,
+                    token: modToken
+                }));
+
+            unauthorizedTest('admin/maps/1', del);
         });
     });
 

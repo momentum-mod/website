@@ -64,6 +64,14 @@ export class MapsRepoService {
         });
     }
 
+    async delete(mapId: number): Promise<Map> {
+        return await this.prisma.map.delete({
+            where: {
+                id: mapId
+            }
+        });
+    }
+
     async getAll(
         where: Prisma.MapWhereInput,
         include?: Prisma.MapInclude,

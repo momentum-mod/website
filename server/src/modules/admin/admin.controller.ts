@@ -28,7 +28,7 @@ import { AdminUpdateUserDto, CreateUserDto, MergeUserDto, UserDto } from '@commo
 import { ApiOkPaginatedResponse, PaginatedResponseDto } from '@common/dto/paginated-response.dto';
 import { AdminGetReportsQuery } from '@common/dto/query/admin-queries.dto';
 import { MapDto, UpdateMapDto } from '@common/dto/map/map.dto';
-import { MapsCtlGetAllQuery } from '@common/dto/query/map-queries.dto';
+import { AdminCtlMapsGetAllQuery } from '@common/dto/query/map-queries.dto';
 import { ReportDto, UpdateReportDto } from '@common/dto/report/report.dto';
 import { Roles } from '@common/decorators/roles.decorator';
 import { Roles as RolesEnum } from '../../common/enums/user.enum';
@@ -38,6 +38,7 @@ import { UpdateXpSystemsDto, XpSystemsDto } from '@common/dto/xp-systems/xp-syst
 import { RolesGuard } from '@modules/auth/guards/roles.guard';
 import { NonGameAuthGuard } from '@modules/auth/guards/game-auth.guard';
 import { ParseIntSafePipe } from '@common/pipes/parse-int-safe.pipe';
+import { MapsService } from '../maps/maps.service';
 
 @Controller('admin')
 @UseGuards(RolesGuard)
@@ -46,7 +47,11 @@ import { ParseIntSafePipe } from '@common/pipes/parse-int-safe.pipe';
 @ApiTags('Admin')
 @ApiBearerAuth()
 export class AdminController {
-    constructor(private readonly adminService: AdminService, private readonly xpSystems: XpSystemsService) {}
+    constructor(
+        private readonly adminService: AdminService,
+        private readonly xpSystems: XpSystemsService,
+        private readonly mapsService: MapsService
+    ) {}
 
     @Post('/users')
     @ApiBody({
@@ -128,8 +133,11 @@ export class AdminController {
     @ApiOperation({ description: 'Retrieve a list of maps' })
     @ApiOkPaginatedResponse(MapDto, { description: 'Paginated list of maps' })
     @ApiBadRequestResponse({ description: 'Invalid query data' })
-    getMaps(@Query() _query: MapsCtlGetAllQuery): Promise<PaginatedResponseDto<MapDto>> {
-        return void 0;
+    getMaps(
+        @LoggedInUser('id') userID: number,
+        @Query() query: AdminCtlMapsGetAllQuery
+    ): Promise<PaginatedResponseDto<MapDto>> {
+        return this.mapsService.getAll(userID, query);
     }
 
     @Patch('/maps/:mapID')
@@ -148,8 +156,12 @@ export class AdminController {
     })
     @ApiNoContentResponse({ description: 'The map was updated successfully' })
     @ApiBadRequestResponse({ description: 'Invalid map update data' })
-    updateMap(@Param('mapID', ParseIntSafePipe) _mapID: number, @Body() _body: UpdateMapDto) {
-        return void 0;
+    updateMap(
+        @Param('mapID', ParseIntSafePipe) mapID: number,
+        @LoggedInUser('id') userID: number,
+        @Body() body: UpdateMapDto
+    ) {
+        return this.mapsService.update(mapID, userID, body, true);
     }
 
     @Delete('/maps/:mapID')
@@ -163,8 +175,8 @@ export class AdminController {
         required: true
     })
     @ApiNoContentResponse({ description: 'The map was deleted successfully' })
-    deleteMap(@Param('mapID', ParseIntSafePipe) _mapID: number) {
-        return void 0;
+    deleteMap(@Param('mapID', ParseIntSafePipe) mapID: number) {
+        return this.mapsService.delete(mapID);
     }
 
     @Get('/reports')

@@ -6,9 +6,10 @@ import { HttpModule } from '@nestjs/axios';
 import { ConfigModule } from '@nestjs/config';
 import { RunsModule } from '@modules/runs/runs.module';
 import { RunsService } from '@modules/runs/runs.service';
+import { FileStoreModule } from '../filestore/file-store.module';
 
 @Module({
-    imports: [RepoModule, HttpModule, ConfigModule, RunsModule],
+    imports: [RepoModule, HttpModule, ConfigModule, RunsModule, FileStoreModule],
     controllers: [UsersController],
     providers: [UsersService, RunsService],
     exports: [UsersService]

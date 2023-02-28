@@ -20,12 +20,18 @@ import { ActivityTypes } from '@common/enums/activity.enum';
 import { CreateMapCreditDto, MapCreditDto, UpdateMapCreditDto } from '@common/dto/map/map-credit.dto';
 import { MapInfoDto, UpdateMapInfoDto } from '@common/dto/map/map-info.dto';
 import { MapTrackDto } from '@common/dto/map/map-track.dto';
-import { MapsCtlGetAllQuery, MapRanksGetQuery, MapRankGetNumberQuery } from '@common/dto/query/map-queries.dto';
+import {
+    AdminCtlMapsGetAllQuery,
+    MapsCtlGetAllQuery,
+    MapRanksGetQuery,
+    MapRankGetNumberQuery
+} from '@common/dto/query/map-queries.dto';
 import { UsersService } from '../users/users.service';
 import { MapImageDto } from '@common/dto/map/map-image.dto';
 import { FileStoreCloudFile } from '../filestore/file-store.interfaces';
 import { ConfigService } from '@nestjs/config';
 import sharp from 'sharp';
+import { RunsService } from '../runs/runs.service';
 
 const MAP_IMAGE_UPLOAD_LIMIT = 5; // TODO: Move this to a separate config file
 
@@ -36,12 +42,16 @@ export class MapsService {
         private readonly userRepo: UsersRepoService,
         private readonly fileCloudService: FileStoreCloudService,
         private readonly config: ConfigService,
+        private readonly runsService: RunsService,
         private readonly usersService: UsersService
     ) {}
 
     //#region Maps
 
-    async getAll(userID: number, query: MapsCtlGetAllQuery): Promise<PaginatedResponseDto<MapDto>> {
+    async getAll(
+        userID: number,
+        query: MapsCtlGetAllQuery | AdminCtlMapsGetAllQuery
+    ): Promise<PaginatedResponseDto<MapDto>> {
         // Old API has some stuff for "status" and "statusNot" and "priority" but isn't in docs or validations or
         // used anywhere in client/game, leaving for now.
 
@@ -49,18 +59,22 @@ export class MapsService {
         const where: Prisma.MapWhereInput = {};
         if (query.search) where.name = { contains: query.search };
         if (query.submitterID) where.submitterID = query.submitterID;
-        if (query.type) where.type = query.type;
+        if (query instanceof MapsCtlGetAllQuery) {
+            if (query.type) where.type = query.type;
 
-        if (query.difficultyHigh && query.difficultyLow)
-            where.mainTrack = { is: { difficulty: { lt: query.difficultyHigh, gt: query.difficultyLow } } };
-        else if (query.difficultyLow) where.mainTrack = { is: { difficulty: { gt: query.difficultyLow } } };
-        else if (query.difficultyHigh) where.mainTrack = { is: { difficulty: { lt: query.difficultyHigh } } };
+            if (query.difficultyHigh && query.difficultyLow)
+                where.mainTrack = { is: { difficulty: { lt: query.difficultyHigh, gt: query.difficultyLow } } };
+            else if (query.difficultyLow) where.mainTrack = { is: { difficulty: { gt: query.difficultyLow } } };
+            else if (query.difficultyHigh) where.mainTrack = { is: { difficulty: { lt: query.difficultyHigh } } };
 
-        // If we have difficulty filters we have to construct quite a complicated filter...
-        if (typeof query.isLinear === 'boolean')
-            where.mainTrack = where.mainTrack
-                ? { is: { ...where.mainTrack.is, isLinear: query.isLinear } }
-                : { isLinear: query.isLinear };
+            // If we have difficulty filters we have to construct quite a complicated filter...
+            if (typeof query.isLinear === 'boolean')
+                where.mainTrack = where.mainTrack
+                    ? { is: { ...where.mainTrack.is, isLinear: query.isLinear } }
+                    : { isLinear: query.isLinear };
+        }
+        if (query instanceof AdminCtlMapsGetAllQuery && query.status) where.statusFlag = query.status;
+        // query.priority ignored
 
         // Include
         const include: Prisma.MapInclude = {
@@ -260,11 +274,12 @@ export class MapsService {
         return mapDB.id;
     }
 
-    async update(mapID: number, userID: number, updateBody: UpdateMapDto): Promise<void> {
+    async update(mapID: number, userID: number, updateBody: UpdateMapDto, isAdmin = false): Promise<void> {
         const map = await this.mapRepo.get(mapID);
 
         if (!map) throw new NotFoundException('No map found');
-        if (map.submitterID !== userID) throw new ForbiddenException('User is not the submitter of the map');
+        if (map.submitterID !== userID && !isAdmin)
+            throw new ForbiddenException('User is not the submitter of the map');
         if ([MapStatus.REJECTED, MapStatus.REMOVED].includes(map.statusFlag))
             throw new BadRequestException('Map status forbids updating');
 
@@ -293,6 +308,23 @@ export class MapsService {
                 })
             );
         }
+    }
+
+    async delete(mapID: number): Promise<void> {
+        const map = await this.mapRepo.get(mapID);
+        if (!map) throw new NotFoundException('No map found');
+
+        // Delete all stored map images
+        const images = await this.mapRepo.getImages({ mapID: mapID });
+        await Promise.all(images.map((img) => this.deleteStoredMapImage(img.id)));
+
+        // Delete all run files
+        await this.runsService.deleteStoredMapRuns(mapID);
+
+        // Delete stored map file
+        await this.fileCloudService.deleteFileCloud(map.fileKey);
+
+        await this.mapRepo.delete(mapID);
     }
 
     //#endregion
