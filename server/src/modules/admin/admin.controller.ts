@@ -6,7 +6,6 @@ import {
     HttpCode,
     HttpStatus,
     Param,
-    ParseIntPipe,
     Patch,
     Post,
     Put,
@@ -38,6 +37,7 @@ import { XpSystemsService } from '@modules/xp-systems/xp-systems.service';
 import { UpdateXpSystemsDto, XpSystemsDto } from '@common/dto/xp-systems/xp-systems.dto';
 import { RolesGuard } from '@modules/auth/guards/roles.guard';
 import { NonGameAuthGuard } from '@modules/auth/guards/game-auth.guard';
+import { ParseIntSafePipe } from '@common/pipes/parse-int-safe.pipe';
 
 @Controller('admin')
 @UseGuards(RolesGuard)
@@ -96,7 +96,7 @@ export class AdminController {
     @ApiBadRequestResponse({ description: 'Invalid user update data' })
     updateUser(
         @LoggedInUser('id') adminID: number,
-        @Param('userID', ParseIntPipe) userID: number,
+        @Param('userID', ParseIntSafePipe) userID: number,
         @Body() body: AdminUpdateUserDto
     ) {
         return this.adminService.updateUser(adminID, userID, body);
@@ -112,7 +112,7 @@ export class AdminController {
         required: true
     })
     @ApiNoContentResponse({ description: 'The user was deleted successfully' })
-    deleteUser(@Param('userID', ParseIntPipe) userID: number) {
+    deleteUser(@Param('userID', ParseIntSafePipe) userID: number) {
         return this.adminService.deleteUser(userID);
     }
 
@@ -148,7 +148,7 @@ export class AdminController {
     })
     @ApiNoContentResponse({ description: 'The map was updated successfully' })
     @ApiBadRequestResponse({ description: 'Invalid map update data' })
-    updateMap(@Param('mapID', ParseIntPipe) _mapID: number, @Body() _body: UpdateMapDto) {
+    updateMap(@Param('mapID', ParseIntSafePipe) _mapID: number, @Body() _body: UpdateMapDto) {
         return void 0;
     }
 
@@ -163,7 +163,7 @@ export class AdminController {
         required: true
     })
     @ApiNoContentResponse({ description: 'The map was deleted successfully' })
-    deleteMap(@Param('mapID', ParseIntPipe) _mapID: number) {
+    deleteMap(@Param('mapID', ParseIntSafePipe) _mapID: number) {
         return void 0;
     }
 
@@ -194,7 +194,7 @@ export class AdminController {
     @ApiNoContentResponse({ description: 'The report was updated successfully' })
     updateReport(
         @LoggedInUser('id') userID: number,
-        @Param('reportID', ParseIntPipe) reportID: number,
+        @Param('reportID', ParseIntSafePipe) reportID: number,
         @Body() body: UpdateReportDto
     ) {
         return this.adminService.updateReport(userID, reportID, body);

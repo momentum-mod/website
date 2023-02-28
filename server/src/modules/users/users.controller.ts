@@ -1,4 +1,4 @@
-import { Controller, Get, Param, ParseIntPipe, Query } from '@nestjs/common';
+import { Controller, Get, Param, Query } from '@nestjs/common';
 import {
     ApiBearerAuth,
     ApiOperation,
@@ -19,6 +19,7 @@ import { FollowDto } from '@common/dto/user/followers.dto';
 import { PaginationQuery } from '@common/dto/query/pagination.dto';
 import { RunDto } from '@common/dto/run/run.dto';
 import { UsersGetActivitiesQuery, UsersGetAllQuery, UsersGetQuery } from '@common/dto/query/user-queries.dto';
+import { ParseIntSafePipe } from '@common/pipes/parse-int-safe.pipe';
 
 @Controller('users')
 @ApiTags('Users')
@@ -47,7 +48,7 @@ export class UsersController {
     })
     @ApiOkResponse({ type: UserDto, description: 'The found user' })
     @ApiNotFoundResponse({ description: 'User was not found' })
-    getUser(@Param('userID', ParseIntPipe) userID: number, @Query() query?: UsersGetQuery): Promise<UserDto> {
+    getUser(@Param('userID', ParseIntSafePipe) userID: number, @Query() query?: UsersGetQuery): Promise<UserDto> {
         return this.usersService.get(userID, query.expand, query.mapRank);
     }
 
@@ -65,7 +66,7 @@ export class UsersController {
         description: 'Target User ID',
         required: true
     })
-    getProfile(@Param('userID', ParseIntPipe) userID: number): Promise<ProfileDto> {
+    getProfile(@Param('userID', ParseIntSafePipe) userID: number): Promise<ProfileDto> {
         return this.usersService.getProfile(userID);
     }
 
@@ -83,7 +84,7 @@ export class UsersController {
     })
     @ApiOkPaginatedResponse(UserDto, { description: "Paginated list of the user's activites" })
     getActivities(
-        @Param('userID', ParseIntPipe) userID: number,
+        @Param('userID', ParseIntSafePipe) userID: number,
         @Query() query?: UsersGetActivitiesQuery
     ): Promise<PaginatedResponseDto<ActivityDto>> {
         return this.usersService.getActivities(userID, query.skip, query.take, query.type, query.data);
@@ -103,7 +104,7 @@ export class UsersController {
     })
     @ApiOkPaginatedResponse(UserDto, { description: 'Paginated list of the follows targeting the user' })
     getFollowers(
-        @Param('userID', ParseIntPipe) userID: number,
+        @Param('userID', ParseIntSafePipe) userID: number,
         @Query() query?: PaginationQuery
     ): Promise<PaginatedResponseDto<FollowDto>> {
         return this.usersService.getFollowers(userID, query.skip, query.take);
@@ -119,7 +120,7 @@ export class UsersController {
     })
     @ApiOkPaginatedResponse(UserDto, { description: 'Paginated list of the follows for the user' })
     getFollowed(
-        @Param('userID', ParseIntPipe) userID: number,
+        @Param('userID', ParseIntSafePipe) userID: number,
         @Query() query: PaginationQuery
     ): Promise<PaginatedResponseDto<FollowDto>> {
         return this.usersService.getFollowing(userID, query.skip, query.take);
@@ -139,7 +140,7 @@ export class UsersController {
     })
     @ApiOkPaginatedResponse(UserDto, { description: 'Paginated list of map credits attributed to the user' })
     getMapCredits(
-        @Param('userID', ParseIntPipe) userID: number,
+        @Param('userID', ParseIntSafePipe) userID: number,
         @Query() query: PaginationQuery
     ): Promise<PaginatedResponseDto<MapCreditDto>> {
         return this.usersService.getMapCredits(userID, query.skip, query.take);
@@ -159,7 +160,7 @@ export class UsersController {
     })
     @ApiOkPaginatedResponse(UserDto, { description: "Paginated list of the user's runs" })
     getRuns(
-        @Param('userID', ParseIntPipe) userID: number,
+        @Param('userID', ParseIntSafePipe) userID: number,
         @Query() query: PaginationQuery
     ): Promise<PaginatedResponseDto<RunDto>> {
         // TODO: The old API calls the runs model here. We should do the same, this functionality
