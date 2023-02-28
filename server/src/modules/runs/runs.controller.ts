@@ -1,9 +1,10 @@
-import { Controller, Get, Param, ParseIntPipe, Query, Redirect } from '@nestjs/common';
+import { Controller, Get, Param, Query, Redirect } from '@nestjs/common';
 import { RunsService } from './runs.service';
 import { ApiBearerAuth, ApiNotFoundResponse, ApiOkResponse, ApiOperation, ApiParam, ApiTags } from '@nestjs/swagger';
 import { ApiOkPaginatedResponse, PaginatedResponseDto } from '@common/dto/paginated-response.dto';
 import { RunDto } from '@common/dto/run/run.dto';
 import { RunsGetAllQuery, RunsGetQuery } from '@common/dto/query/run-queries.dto';
+import { ParseIntSafePipe } from '@common/pipes/parse-int-safe.pipe';
 
 @Controller('runs')
 @ApiTags('Runs')
@@ -28,7 +29,7 @@ export class RunsController {
     })
     @ApiOkResponse({ type: RunDto, description: 'The found run' })
     @ApiNotFoundResponse({ description: 'Run was not found' })
-    getRun(@Param('runID', ParseIntPipe) runID: number, @Query() query?: RunsGetQuery): Promise<RunDto> {
+    getRun(@Param('runID', ParseIntSafePipe) runID: number, @Query() query?: RunsGetQuery): Promise<RunDto> {
         return this.runsService.get(runID, query.expand);
     }
 
@@ -43,7 +44,7 @@ export class RunsController {
     })
     @ApiOkResponse({ description: 'A run replay file in binary format' })
     @ApiNotFoundResponse({ description: 'Run replay was not found' })
-    async downloadRun(@Param('runID', ParseIntPipe) runID: number) {
+    async downloadRun(@Param('runID', ParseIntSafePipe) runID: number) {
         const runURL = await this.runsService.getURL(runID);
         return { url: runURL };
     }

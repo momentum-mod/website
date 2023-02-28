@@ -3,7 +3,6 @@ import {
     Controller,
     Get,
     Param,
-    ParseIntPipe,
     Post,
     Query,
     Res,
@@ -57,6 +56,7 @@ import { RunsService } from '../runs/runs.service';
 import { MapImageDto } from '../../common/dto/map/map-image.dto';
 import { RolesGuard } from '@modules/auth/guards/roles.guard';
 import { UserMapRankDto } from '@common/dto/run/user-map-rank.dto';
+import { ParseIntSafePipe } from '@common/pipes/parse-int-safe.pipe';
 
 @Controller('maps')
 @UseGuards(RolesGuard)
@@ -113,7 +113,7 @@ export class MapsController {
     @ApiNotFoundResponse({ description: 'Map was not found' })
     getMap(
         @LoggedInUser('id') userID: number,
-        @Param('mapID', ParseIntPipe) mapID: number,
+        @Param('mapID', ParseIntSafePipe) mapID: number,
         @Query() query?: MapsGetQuery
     ): Promise<MapDto> {
         return this.mapsService.get(mapID, userID, query.expand);
@@ -135,7 +135,7 @@ export class MapsController {
     @ApiBadRequestResponse({ description: "Map's status does not allow updating" })
     updateMap(
         @LoggedInUser('id') userID: number,
-        @Param('mapID', ParseIntPipe) mapID: number,
+        @Param('mapID', ParseIntSafePipe) mapID: number,
         @Body() body: UpdateMapDto
     ): Promise<void> {
         return this.mapsService.update(mapID, userID, body);
@@ -163,7 +163,7 @@ export class MapsController {
     async getUploadLocation(
         @Res({ passthrough: true }) res,
         @LoggedInUser('id') userID: number,
-        @Param('mapID', ParseIntPipe) mapID: number
+        @Param('mapID', ParseIntSafePipe) mapID: number
     ): Promise<void> {
         await this.mapsService.canUploadMap(mapID, userID);
 
@@ -198,7 +198,7 @@ export class MapsController {
     @ApiForbiddenResponse({ description: 'Map is not in ACCEPTS_REVISION state' })
     uploadMap(
         @LoggedInUser('id') userID: number,
-        @Param('mapID', ParseIntPipe) mapID: number,
+        @Param('mapID', ParseIntSafePipe) mapID: number,
         @UploadedFile() file: Express.Multer.File
     ): Promise<MapDto> {
         // We could do a great more validation here in the future using a custom pipe, probably when
@@ -220,7 +220,7 @@ export class MapsController {
         description: 'Target Map ID',
         required: true
     })
-    downloadMap(@Param('mapID', ParseIntPipe) mapID: number): Promise<StreamableFile> {
+    downloadMap(@Param('mapID', ParseIntSafePipe) mapID: number): Promise<StreamableFile> {
         return this.mapsService.download(mapID);
     }
 
@@ -240,7 +240,7 @@ export class MapsController {
     @ApiNotFoundResponse({ description: 'No map credits found' })
     @ApiNotFoundResponse({ description: 'Map not found' })
     getCredits(
-        @Param('mapID', ParseIntPipe) mapID: number,
+        @Param('mapID', ParseIntSafePipe) mapID: number,
         @Query() query?: MapCreditsGetQuery
     ): Promise<MapCreditDto[]> {
         return this.mapsService.getCredits(mapID, query.expand);
@@ -269,7 +269,7 @@ export class MapsController {
         required: true
     })
     createCredit(
-        @Param('mapID', ParseIntPipe) mapID: number,
+        @Param('mapID', ParseIntSafePipe) mapID: number,
         @Body() body: CreateMapCreditDto,
         @LoggedInUser('id') userID: number
     ): Promise<MapCreditDto> {
@@ -287,7 +287,7 @@ export class MapsController {
     @ApiOkResponse({ type: MapCreditDto, description: 'The found map credit' })
     @ApiNotFoundResponse({ description: 'Map credit not found' })
     getCredit(
-        @Param('mapCreditID', ParseIntPipe) mapCreditID: number,
+        @Param('mapCreditID', ParseIntSafePipe) mapCreditID: number,
         @Query() query?: MapCreditsGetQuery
     ): Promise<MapCreditDto> {
         return this.mapsService.getCredit(mapCreditID, query.expand);
@@ -318,7 +318,7 @@ export class MapsController {
     @ApiConflictResponse({ description: 'Cannot have duplicate map credits' })
     @ApiNotFoundResponse({ description: 'Map credit not found' })
     updateCredit(
-        @Param('mapCreditID', ParseIntPipe) mapCreditID: number,
+        @Param('mapCreditID', ParseIntSafePipe) mapCreditID: number,
         @Body() body: UpdateMapCreditDto,
         @LoggedInUser('id') userID: number
     ): Promise<void> {
@@ -340,7 +340,7 @@ export class MapsController {
     @ApiForbiddenResponse({ description: 'User is not the submitter of this map' })
     @ApiNotFoundResponse({ description: 'Map credit not found' })
     deleteCredit(
-        @Param('mapCreditID', ParseIntPipe) mapCreditID: number,
+        @Param('mapCreditID', ParseIntSafePipe) mapCreditID: number,
         @LoggedInUser('id') userID: number
     ): Promise<void> {
         return this.mapsService.deleteCredit(mapCreditID, userID);
@@ -360,7 +360,7 @@ export class MapsController {
     })
     @ApiOkResponse({ type: MapInfoDto, description: "The found map's info" })
     @ApiNotFoundResponse({ description: 'Map not found' })
-    getInfo(@Param('mapID', ParseIntPipe) mapID: number): Promise<MapInfoDto> {
+    getInfo(@Param('mapID', ParseIntSafePipe) mapID: number): Promise<MapInfoDto> {
         return this.mapsService.getInfo(mapID);
     }
 
@@ -382,7 +382,7 @@ export class MapsController {
     updateInfo(
         @LoggedInUser('id') userID: number,
         @Body() updateDto: UpdateMapInfoDto,
-        @Param('mapID', ParseIntPipe) mapID: number
+        @Param('mapID', ParseIntSafePipe) mapID: number
     ): Promise<void> {
         return this.mapsService.updateInfo(mapID, updateDto, userID);
     }
@@ -401,7 +401,7 @@ export class MapsController {
     })
     @ApiOkResponse({ type: MapTrackDto, isArray: true, description: "The found map's zones" })
     @ApiNotFoundResponse({ description: 'Map not found' })
-    getZones(@Param('mapID', ParseIntPipe) mapID: number): Promise<MapTrackDto[]> {
+    getZones(@Param('mapID', ParseIntSafePipe) mapID: number): Promise<MapTrackDto[]> {
         return this.mapsService.getZones(mapID);
     }
     //#endregion
@@ -419,7 +419,7 @@ export class MapsController {
     @ApiOkResponse({ type: PaginatedResponseDto, description: "The found map's zones" })
     @ApiNotFoundResponse({ description: 'Map not found' })
     getRuns(
-        @Param('mapID', ParseIntPipe) mapID: number,
+        @Param('mapID', ParseIntSafePipe) mapID: number,
         @Query() query?: MapsCtlRunsGetAllQuery
     ): Promise<PaginatedResponseDto<RunDto>> {
         return this.runsService.getAll(query);
@@ -438,7 +438,7 @@ export class MapsController {
         description: 'Target Map ID',
         required: true
     })
-    getImages(@Param('mapID', ParseIntPipe) mapID: number): Promise<MapImageDto[]> {
+    getImages(@Param('mapID', ParseIntSafePipe) mapID: number): Promise<MapImageDto[]> {
         return this.mapsService.getImages(mapID);
     }
 
@@ -451,7 +451,7 @@ export class MapsController {
         type: Number,
         description: 'Target map image'
     })
-    getImage(@Param('imgID', ParseIntPipe) imgID: number): Promise<MapImageDto> {
+    getImage(@Param('imgID', ParseIntSafePipe) imgID: number): Promise<MapImageDto> {
         return this.mapsService.getImage(imgID);
     }
 
@@ -485,7 +485,7 @@ export class MapsController {
     })
     createImage(
         @LoggedInUser('id') userID: number,
-        @Param('mapID', ParseIntPipe) mapID: number,
+        @Param('mapID', ParseIntSafePipe) mapID: number,
         @UploadedFile() file: Express.Multer.File
     ): Promise<MapImageDto> {
         if (!file || !file.buffer || !Buffer.isBuffer(file.buffer)) throw new BadRequestException('Invalid image data');
@@ -523,7 +523,7 @@ export class MapsController {
     })
     updateImage(
         @LoggedInUser('id') userID: number,
-        @Param('imgID', ParseIntPipe) imgID: number,
+        @Param('imgID', ParseIntSafePipe) imgID: number,
         @UploadedFile() file: Express.Multer.File
     ): Promise<void> {
         if (!file || !file.buffer || !Buffer.isBuffer(file.buffer)) throw new BadRequestException('Invalid image data');
@@ -546,7 +546,7 @@ export class MapsController {
         description: 'Target Image ID',
         required: true
     })
-    deleteImage(@LoggedInUser('id') userID: number, @Param('imgID', ParseIntPipe) imgID: number): Promise<void> {
+    deleteImage(@LoggedInUser('id') userID: number, @Param('imgID', ParseIntSafePipe) imgID: number): Promise<void> {
         return this.mapsService.deleteImage(userID, imgID);
     }
 
@@ -583,7 +583,7 @@ export class MapsController {
     })
     updateThumbnail(
         @LoggedInUser('id') userID: number,
-        @Param('mapID', ParseIntPipe) mapID: number,
+        @Param('mapID', ParseIntSafePipe) mapID: number,
         @UploadedFile() file: Express.Multer.File
     ): Promise<void> {
         if (!file || !file.buffer || !Buffer.isBuffer(file.buffer)) throw new BadRequestException('Invalid image data');
@@ -603,7 +603,7 @@ export class MapsController {
     })
     @ApiOkResponse({ description: "The found map's ranks" })
     getRanks(
-        @Param('mapID', ParseIntPipe) mapID: number,
+        @Param('mapID', ParseIntSafePipe) mapID: number,
         @Query() query?: MapRanksGetQuery
     ): Promise<PaginatedResponseDto<UserMapRankDto>> {
         return this.mapsService.getRanks(mapID, query);
@@ -660,8 +660,8 @@ export class MapsController {
     @ApiOkResponse({ description: 'The found rank data' })
     @ApiNotFoundResponse({ description: 'Either map or rank not found' })
     getRankNumber(
-        @Param('mapID', ParseIntPipe) mapID: number,
-        @Param('rankNumber', ParseIntPipe) rankNumber: number,
+        @Param('mapID', ParseIntSafePipe) mapID: number,
+        @Param('rankNumber', ParseIntSafePipe) rankNumber: number,
         @Query() query?: MapRankGetNumberQuery
     ): Promise<UserMapRankDto> {
         return this.mapsService.getRankNumber(mapID, rankNumber, query);

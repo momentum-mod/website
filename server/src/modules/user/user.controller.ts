@@ -1,17 +1,4 @@
-import {
-    Body,
-    Controller,
-    Delete,
-    Get,
-    HttpCode,
-    HttpStatus,
-    Param,
-    ParseIntPipe,
-    Patch,
-    Post,
-    Put,
-    Query
-} from '@nestjs/common';
+import { Body, Controller, Delete, Get, HttpCode, HttpStatus, Param, Patch, Post, Put, Query } from '@nestjs/common';
 import {
     ApiBadRequestResponse,
     ApiBearerAuth,
@@ -45,6 +32,7 @@ import { MapDto } from '@common/dto/map/map.dto';
 import { MapFavoriteDto } from '@common/dto/map/map-favorite.dto';
 import { MapLibraryService } from '@modules/maps/map-library.service';
 import { MapSummaryDto } from '@common/dto/user/user-maps-summary.dto';
+import { ParseIntSafePipe } from '@common/pipes/parse-int-safe.pipe';
 
 @Controller('user')
 @ApiTags('User')
@@ -118,7 +106,7 @@ export class UserController {
     @ApiNotFoundResponse({ description: 'Target user does not exist' })
     getFollowStatus(
         @LoggedInUser('id') localUserID: number,
-        @Param('userID', ParseIntPipe) targetUserID: number
+        @Param('userID', ParseIntSafePipe) targetUserID: number
     ): Promise<FollowStatusDto> {
         return this.usersService.getFollowStatus(localUserID, targetUserID);
     }
@@ -134,7 +122,7 @@ export class UserController {
     })
     @ApiNoContentResponse({ description: 'The user was successfully followed' })
     @ApiNotFoundResponse({ description: 'Target user does not exist' })
-    followUser(@LoggedInUser('id') localUserID: number, @Param('userID', ParseIntPipe) targetUserID: number) {
+    followUser(@LoggedInUser('id') localUserID: number, @Param('userID', ParseIntSafePipe) targetUserID: number) {
         return this.usersService.followUser(localUserID, targetUserID);
     }
 
@@ -156,7 +144,7 @@ export class UserController {
     @ApiNotFoundResponse({ description: 'Target user does not exist' })
     updateFollow(
         @LoggedInUser('id') localUserID: number,
-        @Param('userID', ParseIntPipe) targetUserID: number,
+        @Param('userID', ParseIntSafePipe) targetUserID: number,
         @Body() updateDto: UpdateFollowStatusDto
     ) {
         return this.usersService.updateFollow(localUserID, targetUserID, updateDto);
@@ -173,7 +161,7 @@ export class UserController {
     })
     @ApiNoContentResponse({ description: 'The user was successfully unfollowed' })
     @ApiNotFoundResponse({ description: 'Target user or follow does not exist' })
-    unfollowUser(@LoggedInUser('id') localUserID: number, @Param('userID', ParseIntPipe) targetUserID: number) {
+    unfollowUser(@LoggedInUser('id') localUserID: number, @Param('userID', ParseIntSafePipe) targetUserID: number) {
         return this.usersService.unfollowUser(localUserID, targetUserID);
     }
 
@@ -193,7 +181,7 @@ export class UserController {
     @ApiNotFoundResponse({ description: 'The map does not exist' })
     getMapNotifyStatus(
         @LoggedInUser('id') userID: number,
-        @Param('mapID', ParseIntPipe) mapID: number
+        @Param('mapID', ParseIntSafePipe) mapID: number
     ): Promise<MapNotifyDto> {
         return this.usersService.getMapNotifyStatus(userID, mapID);
     }
@@ -217,7 +205,7 @@ export class UserController {
     @ApiNotFoundResponse({ description: 'The map does not exist' })
     updateMapNotify(
         @LoggedInUser('id') userID: number,
-        @Param('mapID', ParseIntPipe) mapID: number,
+        @Param('mapID', ParseIntSafePipe) mapID: number,
         @Body() updateDto: UpdateMapNotifyDto
     ) {
         return this.usersService.updateMapNotify(userID, mapID, updateDto);
@@ -234,7 +222,7 @@ export class UserController {
     })
     @ApiNoContentResponse({ description: 'Map notification was deleted successfully' })
     @ApiNotFoundResponse({ description: 'The map does not exist' })
-    removeMapNotify(@LoggedInUser('id') userID: number, @Param('mapID', ParseIntPipe) mapID: number) {
+    removeMapNotify(@LoggedInUser('id') userID: number, @Param('mapID', ParseIntSafePipe) mapID: number) {
         return this.usersService.removeMapNotify(userID, mapID);
     }
 
@@ -295,7 +283,7 @@ export class UserController {
     @ApiNotFoundResponse({ description: 'The notification does not exist' })
     updateNotification(
         @LoggedInUser('id') userID: number,
-        @Param('notificationID', ParseIntPipe) notificationID: number,
+        @Param('notificationID', ParseIntSafePipe) notificationID: number,
         @Body() updateDto: UpdateNotificationDto
     ) {
         return this.usersService.updateNotification(userID, notificationID, updateDto);
@@ -308,7 +296,7 @@ export class UserController {
     @ApiNotFoundResponse({ description: 'The notification does not exist' })
     deleteNotification(
         @LoggedInUser('id') userID: number,
-        @Param('notificationID', ParseIntPipe) notificationID: number
+        @Param('notificationID', ParseIntSafePipe) notificationID: number
     ) {
         return this.usersService.deleteNotification(userID, notificationID);
     }
@@ -340,7 +328,7 @@ export class UserController {
     @ApiNotFoundResponse({ description: 'Map is not in the library' })
     checkMapLibraryEntry(
         @LoggedInUser('id') userID: number,
-        @Param('mapID', ParseIntPipe) mapID: number
+        @Param('mapID', ParseIntSafePipe) mapID: number
     ): Promise<void> {
         return this.mapLibraryService.isMapInLibrary(userID, mapID);
     }
@@ -356,7 +344,7 @@ export class UserController {
     })
     @ApiNoContentResponse({ description: 'Map was added to the library' })
     @ApiNotFoundResponse({ description: 'The map does not exist' })
-    addMapLibraryEntry(@LoggedInUser('id') userID: number, @Param('mapID', ParseIntPipe) mapID: number) {
+    addMapLibraryEntry(@LoggedInUser('id') userID: number, @Param('mapID', ParseIntSafePipe) mapID: number) {
         return this.usersService.addMapLibraryEntry(userID, mapID);
     }
 
@@ -371,7 +359,7 @@ export class UserController {
     })
     @ApiNoContentResponse({ description: 'Map was removed from the library' })
     @ApiNotFoundResponse({ description: 'The map does not exist' })
-    removeMapLibraryEntry(@LoggedInUser('id') userID: number, @Param('mapID', ParseIntPipe) mapID: number) {
+    removeMapLibraryEntry(@LoggedInUser('id') userID: number, @Param('mapID', ParseIntSafePipe) mapID: number) {
         return this.usersService.removeMapLibraryEntry(userID, mapID);
     }
 
@@ -399,7 +387,7 @@ export class UserController {
     })
     @ApiNoContentResponse({ description: 'Map is in the favorites' })
     @ApiNotFoundResponse({ description: 'Map is not in the favorites' })
-    checkFavoritedMap(@LoggedInUser('id') userID: number, @Param('mapID', ParseIntPipe) mapID: number) {
+    checkFavoritedMap(@LoggedInUser('id') userID: number, @Param('mapID', ParseIntSafePipe) mapID: number) {
         return this.usersService.checkFavoritedMap(userID, mapID);
     }
 
@@ -414,7 +402,7 @@ export class UserController {
     })
     @ApiNoContentResponse({ description: 'Map was added to the favorites' })
     @ApiNotFoundResponse({ description: 'The map does not exist' })
-    addFavoritedMap(@LoggedInUser('id') userID: number, @Param('mapID', ParseIntPipe) mapID: number) {
+    addFavoritedMap(@LoggedInUser('id') userID: number, @Param('mapID', ParseIntSafePipe) mapID: number) {
         return this.usersService.addFavoritedMap(userID, mapID);
     }
 
@@ -429,7 +417,7 @@ export class UserController {
     })
     @ApiNoContentResponse({ description: 'Map was removed from the favorites' })
     @ApiNotFoundResponse({ description: 'The map does not exist' })
-    removeFavoritedMap(@LoggedInUser('id') userID: number, @Param('mapID', ParseIntPipe) mapID: number) {
+    removeFavoritedMap(@LoggedInUser('id') userID: number, @Param('mapID', ParseIntSafePipe) mapID: number) {
         return this.usersService.removeFavoritedMap(userID, mapID);
     }
 

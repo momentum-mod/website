@@ -8,7 +8,6 @@ import {
     MaxFileSizeValidator,
     Param,
     ParseFilePipe,
-    ParseIntPipe,
     Post,
     UploadedFile,
     UseGuards,
@@ -32,6 +31,7 @@ import { FileInterceptor } from '@nestjs/platform-express';
 import { CompletedRunDto } from '@common/dto/run/completed-run.dto';
 import { RunSessionService } from './run/run-session.service';
 import { GameAuthGuard } from '@modules/auth/guards/game-auth.guard';
+import { ParseIntSafePipe } from '@common/pipes/parse-int-safe.pipe';
 
 @Controller('session')
 @UseGuards(GameAuthGuard)
@@ -69,7 +69,7 @@ export class SessionController {
     @ApiForbiddenResponse({ description: 'Session does not belong to user' })
     updateRunSession(
         @LoggedInUser('id') userID: number,
-        @Param('sessionID', ParseIntPipe) sessionID: number,
+        @Param('sessionID', ParseIntSafePipe) sessionID: number,
         @Body() body: UpdateRunSessionDto
     ): Promise<RunSessionTimestampDto> {
         return this.runSessionService.updateSession(userID, sessionID, body);
@@ -93,7 +93,7 @@ export class SessionController {
     })
     completeRunSession(
         @LoggedInUser('id') userID: number,
-        @Param('sessionID', ParseIntPipe) sessionID: number,
+        @Param('sessionID', ParseIntSafePipe) sessionID: number,
         @UploadedFile(
             'file',
             new ParseFilePipe({
