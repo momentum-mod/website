@@ -6,10 +6,15 @@ import { DtoFactory, ExpandToPrismaIncludes } from '@lib/dto.lib';
 import { RunsRepoService } from '../repo/runs-repo.service';
 import { MapsCtlRunsGetAllQuery, RunsGetAllQuery, UserCtlRunsGetAllQuery } from '@common/dto/query/run-queries.dto';
 import { ConfigService } from '@nestjs/config';
+import { FileStoreCloudService } from '../filestore/file-store-cloud.service';
 
 @Injectable()
 export class RunsService {
-    constructor(private readonly runRepo: RunsRepoService, private readonly configService: ConfigService) {}
+    constructor(
+        private readonly runRepo: RunsRepoService,
+        private readonly configService: ConfigService,
+        private readonly fileCloudService: FileStoreCloudService
+    ) {}
 
     async get(runID: number, expand: string[]): Promise<RunDto> {
         const where: Prisma.RunWhereUniqueInput = { id: runID };
@@ -81,5 +86,11 @@ export class RunsService {
         const bucketName = this.configService.get('storage.bucketName');
 
         return `${cdnURL}/${bucketName}/${run.file}`;
+    }
+
+    async deleteStoredMapRuns(mapID: number): Promise<void> {
+        const [runs] = await this.runRepo.getAllRuns({ mapID });
+
+        await Promise.all(runs.map((run) => this.fileCloudService.deleteFileCloud(`runs/${run.id}`)));
     }
 }
