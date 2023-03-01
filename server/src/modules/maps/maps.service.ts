@@ -49,7 +49,7 @@ export class MapsService {
 
         // Where
         const where: Prisma.MapWhereInput = {};
-        if (query.search) where.name = { startsWith: query.search };
+        if (query.search) where.name = { contains: query.search };
         if (query.submitterID) where.submitterID = query.submitterID;
         if (query.type) where.type = query.type;
 
