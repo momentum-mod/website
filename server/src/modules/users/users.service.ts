@@ -400,7 +400,7 @@ export class UsersService {
     async getFavoritedMaps(userID: number, skip: number, take: number, search: string, expand: string[]) {
         const where: Prisma.MapFavoriteWhereInput = { userID: userID };
 
-        if (search) where.map = { name: { startsWith: search } };
+        if (search) where.map = { name: { contains: search } };
 
         const include: Prisma.MapFavoriteInclude = {
             map: { include: ExpandToPrismaIncludes(expand) },
