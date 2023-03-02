@@ -1,8 +1,7 @@
 ﻿import fs from 'node:fs';
-import request, { Test } from 'supertest';
+import request, { Test, Response } from 'supertest';
 import { URL_PREFIX } from '@tests/e2e/e2e.config';
-
-//#region Interfaces
+import { Type } from '@nestjs/common';
 
 export interface RequestOptions {
     url: string;
@@ -10,6 +9,9 @@ export interface RequestOptions {
     query?: Record<string, unknown>;
     token?: string;
     contentType?: string | RegExp | null;
+    validate?: Type;
+    validateArray?: Type | { type: Type; length: number };
+    validatePaged?: Type | { type: Type; returnCount?: number; totalCount?: number } | { type: Type; count?: number };
 }
 
 export interface JsonBodyRequestOptions extends RequestOptions {
@@ -21,7 +23,7 @@ export type AttachRequestOptions = Omit<RequestOptions, 'contentType'> & {
     field?: string;
 };
 
-export async function get(options: RequestOptions): Promise<Test> {
+export async function get(options: RequestOptions): Promise<Response> {
     const req = request(global.server)
         .get(URL_PREFIX + options.url)
         .set('Accept', 'application/json');
@@ -29,10 +31,12 @@ export async function get(options: RequestOptions): Promise<Test> {
     contentType(req, options.contentType);
     query(req, options.query);
     status(req, options.status);
-    return req;
+    const res = await req;
+    validate(res, options);
+    return res;
 }
 
-export async function getNoContent(options: RequestOptions): Promise<Test> {
+export async function getNoContent(options: RequestOptions): Promise<Response> {
     const req = request(global.server)
         .get(URL_PREFIX + options.url)
         .set('Accept', 'application/json');
@@ -42,7 +46,7 @@ export async function getNoContent(options: RequestOptions): Promise<Test> {
     return req;
 }
 
-export async function post(options: JsonBodyRequestOptions): Promise<Test> {
+export async function post(options: JsonBodyRequestOptions): Promise<Response> {
     const req = request(global.server)
         .post(URL_PREFIX + options.url)
         .set('Accept', 'application/json')
@@ -51,10 +55,12 @@ export async function post(options: JsonBodyRequestOptions): Promise<Test> {
     query(req, options.query);
     body(req, options.body);
     status(req, options.status);
-    return req;
+    const res = await req;
+    validate(res, options);
+    return res;
 }
 
-export async function put(options: JsonBodyRequestOptions): Promise<Test> {
+export async function put(options: JsonBodyRequestOptions): Promise<Response> {
     const req = request(global.server)
         .put(URL_PREFIX + options.url)
         .set('Accept', 'application/json')
@@ -63,10 +69,12 @@ export async function put(options: JsonBodyRequestOptions): Promise<Test> {
     query(req, options.query);
     body(req, options.body);
     status(req, options.status);
-    return req;
+    const res = await req;
+    validate(res, options);
+    return res;
 }
 
-export async function patch(options: JsonBodyRequestOptions): Promise<Test> {
+export async function patch(options: JsonBodyRequestOptions): Promise<Response> {
     const req = request(global.server)
         .patch(URL_PREFIX + options.url)
         .set('Accept', 'application/json')
@@ -75,20 +83,24 @@ export async function patch(options: JsonBodyRequestOptions): Promise<Test> {
     query(req, options.query);
     body(req, options.body);
     status(req, options.status);
-    return req;
+    const res = await req;
+    validate(res, options);
+    return res;
 }
 
-export async function del(options: RequestOptions): Promise<Test> {
+export async function del(options: RequestOptions): Promise<Response> {
     const req = request(global.server)
         .delete(URL_PREFIX + options.url)
         .set('Accept', 'application/json');
     token(req, options.token);
     query(req, options.query);
     status(req, options.status);
-    return req;
+    const res = await req;
+    validate(res, options);
+    return res;
 }
 
-export async function postAttach(options: AttachRequestOptions): Promise<Test> {
+export async function postAttach(options: AttachRequestOptions): Promise<Response> {
     const req = request(global.server)
         .post(URL_PREFIX + options.url)
         .set('Accept', 'application/json');
@@ -99,10 +111,12 @@ export async function postAttach(options: AttachRequestOptions): Promise<Test> {
     );
     status(req, options.status);
 
-    return req;
+    const res = await req;
+    validate(res, options);
+    return res;
 }
 
-export async function putAttach(options: AttachRequestOptions): Promise<Test> {
+export async function putAttach(options: AttachRequestOptions): Promise<Response> {
     const req = request(global.server)
         .put(URL_PREFIX + options.url)
         .set('Accept', 'application/json');
@@ -113,7 +127,9 @@ export async function putAttach(options: AttachRequestOptions): Promise<Test> {
     );
     status(req, options.status);
 
-    return req;
+    const res = await req;
+    validate(res, options);
+    return res;
 }
 
 function contentType(req: Test, contentType: string | RegExp) {
@@ -138,4 +154,35 @@ function status(req: Test, status: number) {
 function body(req: Test, body: Record<string, unknown>): Test {
     if (body) req = req.send(body);
     return req;
+}
+
+function validate(res: Response, options: RequestOptions) {
+    if (options.validate) {
+        expect(res.body).toBeValidDto(options.validate);
+    } else if (options.validatePaged) {
+        if ('type' in options.validatePaged) {
+            if ('returnCount' in options.validatePaged) {
+                expect(res.body).toBeValidPagedDto(
+                    options.validatePaged.type,
+                    options.validatePaged.returnCount,
+                    options.validatePaged.totalCount
+                );
+            } else if ('count' in options.validatePaged) {
+                expect(res.body).toBeValidPagedDto(
+                    options.validatePaged.type,
+                    options.validatePaged.count,
+                    options.validatePaged.count
+                );
+            }
+        } else {
+            expect(res.body).toBeValidPagedDto(options.validatePaged);
+        }
+    } else if (options.validateArray) {
+        if ('type' in options.validateArray) {
+            for (const item of res.body) expect(item).toBeValidDto(options.validateArray.type);
+            expect(res.body).toHaveLength(options.validateArray.length);
+        } else {
+            for (const item of res.body) expect(item).toBeValidDto(options.validateArray);
+        }
+    }
 }
