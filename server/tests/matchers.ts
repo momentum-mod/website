@@ -11,7 +11,7 @@ declare global {
         // eslint-disable-next-line @typescript-eslint/naming-convention,unused-imports/no-unused-vars
         interface Matchers<R> {
             toBeValidDto: (type: any) => CustomMatcherResult;
-            toBeValidPagedDto: (type: any) => CustomMatcherResult;
+            toBeValidPagedDto: (type: any, returnCount?: number, totalCount?: number) => CustomMatcherResult;
         }
     }
 }
@@ -63,20 +63,30 @@ expect.extend({
         }
     },
 
-    toBeValidPagedDto(received, type) {
-        if (!received || !Object.hasOwn(received, 'response') || !Array.isArray(received.response)) {
+    toBeValidPagedDto(received, type, returnCount?: number, totalCount?: number) {
+        if (!received || !Object.hasOwn(received, 'response') || !Array.isArray(received.response))
             return {
                 message: () => 'expected paged DTO with response array, data was invalid',
                 pass: false
             };
-        }
 
-        if (received.response.length === 0) {
+        if (received.response.length === 0 && received.returnCount !== 0)
             return {
                 message: () => 'expected paged DTO with populated response array, array was empty',
                 pass: false
             };
-        }
+
+        if (returnCount && typeof returnCount === 'number' && received.returnCount !== returnCount)
+            return {
+                message: () => `expected returnCount of ${returnCount}, got ${received.returnCount}`,
+                pass: false
+            };
+
+        if (totalCount && typeof totalCount === 'number' && received.returnCount !== totalCount)
+            return {
+                message: () => `expected returnCount of ${totalCount}, got ${received.totalCount}`,
+                pass: false
+            };
 
         const totalErrors: [any, ValidationError[]][] = [];
 
@@ -94,12 +104,12 @@ expect.extend({
 
         const pass = totalErrors.length === 0;
 
-        if (pass) {
+        if (pass)
             return {
                 message: () => `expected at least one paged DTO data not to validate the ${type.name} DTO`,
                 pass: true
             };
-        } else {
+        else {
             const plural = totalErrors.length > 1;
             return {
                 message: () =>
