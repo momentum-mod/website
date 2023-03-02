@@ -1,10 +1,20 @@
 ﻿import request from 'supertest';
-import { get } from '@tests/util/request-handlers.util';
+import { get, RequestOptions } from '@tests/util/request-handlers.util';
+import { get as getDeep } from 'radash';
+import { Type } from '@nestjs/common';
 
-export interface TakeTestOptions {
+export interface BaseE2ETestOptions {
     url: string;
-    test: (res: request.Response) => void;
     token: string;
+    validate?: Type; // TODO: Make required
+}
+
+// TODO: Remove after refactor
+export interface TakeTestOptions extends BaseE2ETestOptions {
+    test?: (res: request.Response) => void;
+}
+export interface SkipTestOptions extends BaseE2ETestOptions {
+    test?: (res: request.Response) => void; // TODO: Remove after refactor
 }
 
 export async function takeTest(options: TakeTestOptions): Promise<void> {
@@ -12,18 +22,11 @@ export async function takeTest(options: TakeTestOptions): Promise<void> {
         url: options.url,
         status: 200,
         query: { take: 1 },
-        token: options.token
+        token: options.token,
+        validatePaged: options.validate
     });
 
-    options.test(res);
-
     expect(res.body.returnCount).toBe(1);
-}
-
-export interface SkipTestOptions {
-    url: string;
-    test: (res: request.Response) => void;
-    token: string;
 }
 
 export async function skipTest(options: SkipTestOptions): Promise<void> {
@@ -31,32 +34,29 @@ export async function skipTest(options: SkipTestOptions): Promise<void> {
         url: options.url,
         status: 200,
         query: { take: 1 },
-        token: options.token
+        token: options.token,
+        validatePaged: options.validate
     });
 
     const res2 = await get({
         url: options.url,
         status: 200,
         query: { skip: 1, take: 1 },
-        token: options.token
+        token: options.token,
+        validatePaged: options.validate
     });
-
-    options.test(res);
-    options.test(res2);
 
     expect(res.body.returnCount).toBe(1);
     expect(res2.body.returnCount).toBe(1);
     expect(res.body.response[0]).not.toEqual(res2.body.response[0]);
 }
 
-export interface ExpandTestOptions {
-    url: string;
-    test: (res: request.Response | unknown) => void;
+export interface ExpandTestOptions extends BaseE2ETestOptions {
     expand: string;
-    token: string;
+    test?: any; // TODO: Remove
     query?: Record<string, unknown>;
     paged?: boolean; // False by default
-    filter?: (item: Record<string, unknown>) => boolean;
+    filter?: (item: Record<string, unknown>) => boolean; // TODO: Remove
     expectedPropertyName?: string;
     expectedPropertyValue?: any;
 }
@@ -71,7 +71,9 @@ export async function expandTest(options: ExpandTestOptions): Promise<void> {
         token: options.token
     });
 
-    options.test(res);
+    if (options.validate)
+        if (options.paged) expect(res.body).toBeValidPagedDto(options.validate);
+        else expect(res.body).toBeValidDto(options.validate);
 
     const expects = (data) => {
         expect(data).toHaveProperty(options.expectedPropertyName);
