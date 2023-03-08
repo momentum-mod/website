@@ -50,7 +50,7 @@ export class FileStoreCloudService {
         this.logger.log(`DELETE SUCCESS! Deleted file ${fileKey} from bucket ${this.config.get('storage.bucketName')}`);
     }
 
-    async getFileCloud(fileKey: string): Promise<StreamableFile> {
+    async getFileCloud(fileKey: string): Promise<StreamableFile | undefined> {
         try {
             const cmdRes = await this.s3Client.send(
                 new GetObjectCommand({
@@ -61,11 +61,9 @@ export class FileStoreCloudService {
 
             return new StreamableFile(await cmdRes.Body.transformToByteArray());
         } catch (error) {
-            this.logger.error(
-                `DOWNLOAD FAILED! Err:"${error.message}" Download file ${fileKey} from bucket ${this.config.get(
-                    'storage.bucketName'
-                )}`
-            );
+            // If file isn't found, just return undefined and let the service handle 404 behaviour.
+            if (error?.Code === 'NoSuchKey') return;
+            throw error;
         }
     }
 }
