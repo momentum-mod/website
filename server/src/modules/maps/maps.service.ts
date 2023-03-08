@@ -59,8 +59,10 @@ export class MapsService {
         else if (query.difficultyHigh) where.mainTrack = { is: { difficulty: { lt: query.difficultyHigh } } };
 
         // If we have difficulty filters we have to construct quite a complicated filter...
-        if (query.isLinear)
-            where.mainTrack = where.mainTrack ? { is: { ...where.mainTrack.is, isLinear: true } } : { isLinear: true };
+        if (typeof query.isLinear === 'boolean')
+            where.mainTrack = where.mainTrack
+                ? { is: { ...where.mainTrack.is, isLinear: query.isLinear } }
+                : { isLinear: query.isLinear };
 
         // Include
         const include: Prisma.MapInclude = {
