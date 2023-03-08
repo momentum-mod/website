@@ -23,7 +23,7 @@ module.exports = {
             { selector: 'variable', modifiers: ['global'], format: ['UPPER_CASE'] },
             { selector: 'class', format: ['PascalCase'] },
             { selector: 'enumMember', format: ['UPPER_CASE'] },
-            { selector: 'typeParameter', format: ['PascalCase'], prefix: ['T'] },
+            { selector: 'typeParameter', format: ['PascalCase'] },
             {
                 selector: 'interface',
                 format: ['PascalCase'],
