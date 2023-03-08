@@ -132,10 +132,10 @@ export async function putAttach(options: AttachRequestOptions): Promise<Response
     return res;
 }
 
-function contentType(req: Test, contentType: string | RegExp) {
+function contentType(req: Test, contentType: string | RegExp | null) {
     if (contentType !== null)
         if (contentType === undefined) req.expect('Content-Type', /json/);
-        else if (typeof contentType === typeof String) req.expect('Content-Type', contentType as string);
+        else if (typeof contentType === 'string') req.expect('Content-Type', new RegExp(contentType));
         else req.expect('Content-Type', contentType as RegExp);
 }
 
