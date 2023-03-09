@@ -1,81 +1,47 @@
-// noinspection DuplicatedCode
-
-import { MapType, MapStatus, getDefaultTickRateForMapType } from '@common/enums/map.enum';
-import { AuthService } from '@modules/auth/auth.service';
+import { MapType, getDefaultTickRateForMapType } from '@common/enums/map.enum';
 import { PrismaService } from '@modules/repo/prisma.service';
-import { RunTester, RunTesterProps } from '../util/run-tester.util';
+import { RunTester, RunTesterProps } from '@tests/util/run-tester.util';
 import { CompletedRunDto } from '@common/dto/run/completed-run.dto';
-import { del, post } from '../util/request-handlers.util';
+import { del, post } from '@tests/util/request-handlers.util';
 import { RunSessionDto } from '@common/dto/run/run-session.dto';
 import { RunSessionTimestampDto } from '@common/dto/run/run-session-timestamp.dto';
 import { RunDto } from '@common/dto/run/run.dto';
 import { XpSystemsService } from '@modules/xp-systems/xp-systems.service';
 import { RunValidationErrorTypes } from '@common/enums/run.enum';
 import { UserMapRankDto } from '@common/dto/run/user-map-rank.dto';
+import { createAndLoginGameUser, createMap, loginNewGameUser, loginNewUser, NULL_ID } from '@tests/util/db.util';
+import { randomHash, randomSteamID } from '@tests/util/random.util';
 
 describe('Session', () => {
-    let user1,
-        user1Token,
-        user2,
-        user2Token,
-        user2Session,
-        map,
-        nonGameAuthUser,
-        nonGameAuthToken,
-        prisma: PrismaService,
-        xpSystems: XpSystemsService;
+    let prisma: PrismaService;
+    let xpSystems: XpSystemsService;
+    let map;
 
-    beforeEach(async () => {
+    beforeAll(async () => {
         prisma = global.prisma;
         xpSystems = global.xpSystems;
 
-        user1 = await prisma.user.create({
-            data: { alias: 'Hilary Putnam', steamID: '643563456', userStats: { create: {} } }
-        });
-
-        user2 = await prisma.user.create({
-            data: { alias: 'Michael Dummett', steamID: '976893546', userStats: { create: {} } }
-        });
-
-        nonGameAuthUser = await prisma.user.create({
-            data: { alias: 'Robert Brandom', steamID: '521342131234124', userStats: { create: {} } }
-        });
-
-        map = await prisma.map.create({
-            data: {
-                name: 'bhop_eazy' + Math.random().toString(36).slice(2),
-                statusFlag: MapStatus.APPROVED,
-                submitter: { connect: { id: user1.id } },
-                type: MapType.BHOP,
-                stats: { create: { baseStats: { create: {} } } },
-                hash: '07320480e9245c2363d806bc4d1661f8034709b5',
-                info: {
-                    create: {
-                        description: 'mamp',
-                        numTracks: 1,
-                        creationDate: '2022-07-07T18:33:33.000Z'
-                    }
-                },
-                tracks: {
-                    create: {
-                        trackNum: 0,
-                        numZones: 4,
-                        isLinear: false,
-                        difficulty: 5,
-                        stats: { create: { baseStats: { create: {} } } },
-                        zones: {
-                            createMany: {
-                                data: [{ zoneNum: 0 }, { zoneNum: 1 }, { zoneNum: 2 }, { zoneNum: 3 }, { zoneNum: 4 }]
-                            }
-                        }
+        // We can use this same map for all the run session testing. Suites just create their own users and runs.
+        map = await createMap(
+            {
+                name: 'bhop_eazy',
+                type: MapType.BHOP
+            },
+            {
+                trackNum: 0,
+                numZones: 4,
+                isLinear: false,
+                difficulty: 1,
+                zones: {
+                    createMany: {
+                        data: [{ zoneNum: 0 }, { zoneNum: 1 }, { zoneNum: 2 }, { zoneNum: 3 }, { zoneNum: 4 }]
                     }
                 }
-            },
-            include: { tracks: { include: { zones: true } } }
-        });
+            }
+        );
 
         await Promise.all(
-            map.tracks[0].zones.map(async (zone) => {
+            map.mainTrack.zones.map(async (zone) => {
                 await prisma.mapZone.update({
                     where: { id: zone.id },
                     data: { stats: { create: { baseStats: { create: {} } } } }
@@ -86,213 +52,212 @@ describe('Session', () => {
         await prisma.mapZoneTrigger.createMany({
             data: [
                 {
-                    zoneID: map.tracks[0].zones[0].id,
+                    zoneID: map.mainTrack.zones[0].id,
                     type: 0,
-                    pointsZPos: 64.031197,
-                    pointsHeight: 127.763,
-                    points: '{"p0": "2720.000 -1856.000","p1": "2560.000 -1856.000","p2": "2560.000 -1600.000","p3": "2720.000 -1600.000"}'
+                    pointsZPos: 64,
+                    pointsHeight: 128,
+                    points: '{"p0": "2720 -1856","p1": "2560 -1856","p2": "2560 -1600","p3": "2720 -1600"}'
                 },
                 {
-                    zoneID: map.tracks[0].zones[2].id,
+                    zoneID: map.mainTrack.zones[2].id,
                     type: 2,
-                    pointsZPos: 64.031197,
-                    pointsHeight: 127.867996,
-                    points: '{"p0": "2528.000 384.000","p1": "2720.000 384.000","p2": "2720.000 640.000","p3": "2528.000 640.000"}'
+                    pointsZPos: 64,
+                    pointsHeight: 128,
+                    points: '{"p0": "2528 384","p1": "2720 384","p2": "2720 640","p3": "2528 640"}'
                 },
                 {
-                    zoneID: map.tracks[0].zones[3].id,
+                    zoneID: map.mainTrack.zones[3].id,
                     type: 2,
-                    pointsZPos: 64.031197,
-                    pointsHeight: 127.765999,
-                    points: '{"p0": "-480.000 -1600.000","p1": "-288.000 -1600.000","p2": "-288.000 -1856.000","p3": "-480.000 -1856.000"}'
+                    pointsZPos: 6,
+                    pointsHeight: 128,
+                    points: '{"p0": "-480 -1600","p1": "-288 -1600","p2": "-288 -1856","p3": "-480 -1856"}'
                 },
                 {
-                    zoneID: map.tracks[0].zones[4].id,
+                    zoneID: map.mainTrack.zones[4].id,
                     type: 2,
-                    pointsZPos: 64.031197,
-                    pointsHeight: 127.780998,
-                    points: '{"p0": "2528.000 -992.000","p1": "2720.000 -992.000","p2": "2720.000 -736.000","p3": "2528.000 -736.000"}'
+                    pointsZPos: 64,
+                    pointsHeight: 128,
+                    points: '{"p0": "2528 -992","p1": "2720 -992","p2": "2720 -736","p3": "2528 -736"}'
                 }
             ]
         });
 
         await prisma.mapZoneTrigger.create({
             data: {
-                zoneID: map.tracks[0].zones[1].id,
+                zoneID: map.mainTrack.zones[1].id,
                 properties: {
                     create: {
                         properties:
-                            '{ "speed_limit": 350.000000, "limiting_speed": 1, "start_on_jump": 1, "speed_limit_type": 0 }'
+                            '{ "speed_limit": 350000, "limiting_speed": 1, "start_on_jump": 1, "speed_limit_type": 0 }'
                     }
                 },
                 type: 1,
-                pointsZPos: 64.031197,
-                pointsHeight: 128.179993,
-                points: '{"p0": "-224.000 -480.000","p1": "-480.000 -480.000","p2": "-480.000 -224.000","p3": "-224.000 -224.000"}'
+                pointsZPos: 64,
+                pointsHeight: 128,
+                points: '{"p0": "-224 -480","p1": "-480 -480","p2": "-480 -224","p3": "-224 -224"}'
             }
         });
-
-        user2Session = await prisma.runSession.create({
-            data: {
-                user: { connect: { id: user2.id } },
-                track: { connect: { id: map.tracks[0].id } },
-                trackNum: 0,
-                zoneNum: 0
-            }
-        });
-
-        const authService: AuthService = global.auth as AuthService;
-        user1Token = (await authService.loginGame(user1)).token;
-        user2Token = (await authService.loginGame(user2)).token;
-        nonGameAuthToken = (await authService.loginWeb(user2)).accessToken;
     });
 
-    afterEach(async () => {
-        const prisma: PrismaService = global.prisma;
+    afterAll(() => prisma.map.deleteMany());
 
-        await prisma.user.deleteMany({ where: { id: { in: [user1.id, user2.id, nonGameAuthUser.id] } } });
-        await prisma.run.deleteMany({ where: { map: { id: map.id } } });
-        await prisma.map.deleteMany({ where: { id: { in: [map.id] } } });
-    });
+    describe('session/run', () => {
+        describe('POST', () => {
+            let user, token;
 
-    describe('POST session/run', () => {
-        it('should return a valid run run object', async () => {
-            const res = await post({
-                url: 'session/run',
-                status: 200,
-                token: user1Token,
-                body: { mapID: map.id, trackNum: 0, zoneNum: 0 }
+            beforeAll(async () => ([user, token] = await createAndLoginGameUser()));
+
+            afterAll(() => Promise.all([prisma.user.deleteMany(), prisma.run.deleteMany()]));
+
+            it('should return a valid run DTO', async () => {
+                const res = await post({
+                    url: 'session/run',
+                    status: 200,
+                    token: token,
+                    body: { mapID: map.id, trackNum: 0, zoneNum: 0 }
+                });
+
+                expect(res.body).toBeValidDto(RunSessionDto);
+                expect(res.body).toMatchObject({ trackNum: 0, zoneNum: 0, userID: user.id });
             });
 
-            expect(res.body).toBeValidDto(RunSessionDto);
-            expect(res.body).toMatchObject({ trackNum: 0, zoneNum: 0, userID: user1.id });
+            it('should 400 if not given a proper body', () =>
+                post({
+                    url: 'session/run',
+                    status: 400,
+                    token: token
+                }));
+
+            it('should 400 if the map does not have the provided trackNum', () =>
+                post({
+                    url: 'session/run',
+                    status: 400,
+                    body: { mapID: map.id, trackNum: 2, zoneNum: 0 },
+                    token: token
+                }));
+
+            it('should 400 for staged runs UNTIL 0.12.0', () =>
+                post({
+                    url: 'session/run',
+                    status: 400,
+                    body: { mapID: map.id, trackNum: 0, zoneNum: 1 },
+                    token: token
+                }));
+
+            it('should 400 if the map does not exist', () =>
+                post({
+                    url: 'session/run',
+                    status: 400,
+                    body: { mapID: NULL_ID, trackNum: 0, zoneNum: 0 },
+                    token: token
+                }));
+
+            it('should 401 when no access token is provided', () =>
+                post({
+                    url: 'session/run',
+                    status: 401,
+                    body: { mapID: map.id, trackNum: 0, zoneNum: 0 }
+                }));
+
+            it('should return 403 if not using a game API key', async () => {
+                const nonGameToken = await loginNewUser();
+
+                await post({
+                    url: 'session/run',
+                    status: 403,
+                    body: { mapID: map.id, trackNum: 0, zoneNum: 0 },
+                    token: nonGameToken
+                });
+            });
         });
 
-        it('should 400 if not given a proper body', () =>
-            post({
-                url: 'session/run',
-                status: 400,
-                token: user1Token
-            }));
+        describe('DELETE', () => {
+            let user, token, map;
 
-        it('should 400 if the map does not have the provided trackNum', () =>
-            post({
-                url: 'session/run',
-                status: 400,
-                body: { mapID: map.id, trackNum: 2, zoneNum: 0 },
-                token: user1Token
-            }));
-
-        it('should 400 for staged runs UNTIL 0.12.0', () =>
-            post({
-                url: 'session/run',
-                status: 400,
-                body: { mapID: map.id, trackNum: 0, zoneNum: 1 },
-                token: user1Token
-            }));
-
-        it('should 400 if the map does not exist', () =>
-            post({
-                url: 'session/run',
-                status: 400,
-                body: { mapID: 111111111111, trackNum: 0, zoneNum: 0 },
-                token: user1Token
-            }));
-
-        it('should respond with 401 when no access token is provided', () =>
-            post({
-                url: 'session/run',
-                status: 401,
-                body: { mapID: map.id, trackNum: 0, zoneNum: 0 }
-            }));
-
-        it('should return 403 if not using a game API key', () =>
-            post({
-                url: 'session/run',
-                status: 403,
-                body: { mapID: map.id, trackNum: 0, zoneNum: 0 },
-                token: nonGameAuthToken
-            }));
-    });
-
-    describe('DELETE session/run', () => {
-        it('should delete the users run', async () => {
-            await del({
-                url: 'session/run',
-                status: 204,
-                token: user2Token
+            beforeAll(async () => {
+                [[user, token], map] = await Promise.all([createAndLoginGameUser(), createMap()]);
+                await prisma.runSession.create({
+                    data: { userID: user.id, trackID: map.mainTrack.id, trackNum: 0, zoneNum: 0 }
+                });
             });
 
-            expect(
-                await (global.prisma as PrismaService).runSession.findFirst({ where: { userID: user2.id } })
-            ).toBeNull();
-        });
+            afterAll(() => Promise.all([prisma.user.deleteMany(), prisma.run.deleteMany()]));
 
-        it('should 400 if the run does not exist', () =>
-            del({
-                url: 'session/run',
-                status: 400,
-                token: user1Token // User1 doesn't have an active run
-            }));
+            it('should delete the users run', async () => {
+                await del({ url: 'session/run', status: 204, token: token });
 
-        it('should respond with 401 when no access token is provided', () =>
-            del({
-                url: 'session/run',
-                status: 401
-            }));
-
-        it('should return 403 if not using a game API key', () =>
-            del({
-                url: 'session/run',
-                status: 403,
-                token: nonGameAuthToken
-            }));
-    });
-
-    describe('POST session/run/:sessionID', () => {
-        it('should update an existing run run with the zone and tick', async () => {
-            const res = await post({
-                url: `session/run/${user2Session.id}`,
-                status: 200,
-                body: {
-                    zoneNum: 2,
-                    tick: 510
-                },
-                token: user2Token
+                expect(await prisma.runSession.findFirst()).toBeNull();
             });
 
-            expect(res.body).toBeValidDto(RunSessionTimestampDto);
-            expect(res.body.sessionID).toBe(Number(user2Session.id));
-            expect(res.body.tick).toBe(510);
-            expect(res.body.zone).toBe(2);
+            it('should 400 if the run does not exist', () =>
+                // Just repeat last test
+                del({ url: 'session/run', status: 400, token: token }));
+
+            it('should 401 when no access token is provided', () => del({ url: 'session/run', status: 401 }));
+
+            it('should return 403 if not using a game API key', async () => {
+                const nonGameToken = await loginNewUser();
+
+                await del({ url: 'session/run', status: 403, token: nonGameToken });
+            });
         });
+    });
 
-        it('should 403 if not the owner of the run', () =>
-            post({
-                url: `session/run/${user2Session.id}`,
-                status: 403,
-                body: { zoneNum: 2, tick: 510 },
-                token: user1Token
-            }));
+    describe('session/run/:sessionID', () => {
+        describe('POST', () => {
+            let user, token, session;
 
-        it('should 400 if the run does not exist', () =>
-            post({
-                url: 'session/run/1234123413253245',
-                status: 400,
-                body: { zoneNum: 2, tick: 510 },
-                token: user1Token
-            }));
+            beforeAll(async () => {
+                [user, token] = await createAndLoginGameUser();
+                session = await prisma.runSession.create({
+                    data: { userID: user.id, trackID: map.mainTrack.id, trackNum: 0, zoneNum: 0 }
+                });
+            });
 
-        it('should 403 if not using a game API key', () =>
-            post({
-                url: `session/run/${user2Session.id}`,
-                status: 403,
-                body: {
-                    zoneNum: 2,
-                    tick: 510
-                },
-                token: nonGameAuthToken
-            }));
+            afterAll(() => Promise.all([prisma.user.deleteMany(), prisma.run.createMany()]));
+
+            it('should update an existing run with the zone and tick', async () => {
+                const res = await post({
+                    url: `session/run/${session.id}`,
+                    status: 200,
+                    body: { zoneNum: 2, tick: 510 },
+                    validate: RunSessionTimestampDto,
+                    token: token
+                });
+
+                expect(res.body).toMatchObject({ sessionID: Number(session.id), tick: 510, zone: 2 });
+            });
+
+            it('should 403 if not the owner of the run', async () => {
+                const u2Token = await loginNewGameUser();
+
+                await post({
+                    url: `session/run/${session.id}`,
+                    status: 403,
+                    body: { zoneNum: 2, tick: 510 },
+                    token: u2Token
+                });
+            });
+
+            it('should 400 if the run does not exist', () =>
+                post({
+                    url: `session/run/${NULL_ID}`,
+                    status: 400,
+                    body: { zoneNum: 2, tick: 510 },
+                    token: token
+                }));
+
+            it('should 403 if not using a game API key', async () => {
+                const nonGameToken = await loginNewUser();
+
+                await post({
+                    url: `session/run/${session.id}`,
+                    status: 403,
+                    body: { zoneNum: 2, tick: 510 },
+                    token: nonGameToken
+                });
+            });
+        });
     });
 
     // Testing this is HARD. We need a replay that matches our timestamps okay so we're going to be heavily relying on
@@ -302,433 +267,451 @@ describe('Session', () => {
 
     // I'm not writing IL tests yet as I'm not completely sure how they're supposed to work and not supported yet ingame.
     // Around 0.12.0 we'll want to write tests for those.
-    describe('POST session/run/:sessionID/end', () => {
-        const defaultTesterProps = (): RunTesterProps => {
-            return {
-                token: user1Token,
-                zoneNum: 0,
-                trackNum: 0,
-                runDate: Date.now().toString(),
-                runFlags: 0,
-                mapID: map.id,
-                mapName: map.name,
-                mapHash: map.hash,
-                steamID: user1.steamID,
-                tickRate: getDefaultTickRateForMapType(map.type),
-                startTick: 0,
-                playerName: 'Abstract Barry'
-            };
-        };
+    describe('session/run/:sessionID/end', () => {
+        describe('POST', () => {
+            let user, token, defaultTesterProperties;
 
-        // With the way we're constructed above DB inserts below the existing runs will be 0.01s, 1.01s, 2.01s ... 10.01s,
-        // this is ~500ms so will be rank 2.
-        const submitRun = (delay?: number) => RunTester.run(defaultTesterProps(), 3, delay);
+            beforeEach(async () => {
+                // Run submission affects so much stuff with UMRs, ranks etc. that's it's easiest to just clear and reset
+                // all this after each test.
+                [user, token] = await createAndLoginGameUser();
 
-        const submitWithOverrides = async (overrides: {
-            props?: Partial<RunTesterProps>;
-            delay?: number;
-            beforeSubmit?: (self: RunTester) => void;
-            beforeSave?: (self: RunTester) => void;
-            writeStats?: boolean;
-            writeFrames?: boolean;
-        }) => {
-            const tester = new RunTester({ ...defaultTesterProps(), ...overrides.props });
+                await prisma.runSession.create({
+                    data: { userID: user.id, trackID: map.mainTrack.id, trackNum: 0, zoneNum: 0 }
+                });
 
-            await tester.startRun();
-            await tester.doZones(3, overrides.delay);
+                defaultTesterProperties = (): RunTesterProps => ({
+                    token: token,
+                    zoneNum: 0,
+                    trackNum: 0,
+                    runDate: Date.now().toString(),
+                    runFlags: 0,
+                    mapID: map.id,
+                    mapName: map.name,
+                    mapHash: map.hash,
+                    steamID: user.steamID,
+                    tickRate: getDefaultTickRateForMapType(map.type),
+                    startTick: 0,
+                    playerName: 'Abstract Barry'
+                });
 
-            const { props: _, ...endRunProps } = overrides;
-            return tester.endRun(endRunProps);
-        };
-
-        // Splitting these out in multiple tests. It's slower, but there's so much stuff we want to test here that I
-        // want to keep it organised well. `map` is a different map in the DB each time so these can run parallel fine.
-        describe('should process a valid run and ', () => {
-            let umrs;
-            beforeEach(
-                async () =>
-                    (umrs = await Promise.all(
-                        Array.from({ length: 10 }, (_, i) =>
-                            prisma.userMapRank.create({
-                                data: {
-                                    run: {
-                                        create: {
-                                            map: { connect: { id: map.id } },
-                                            zoneNum: 0,
-                                            trackNum: 0,
-                                            flags: 0,
-                                            ticks: i * 100 + 1,
-                                            tickRate: 0.01,
-                                            file: '',
-                                            hash: '2a2c873a10e8088cc2e54a74fd1428d59e0c509b',
-                                            time: i + 0.01,
-                                            overallStats: {
-                                                create: {
-                                                    jumps: 1
-                                                }
-                                            }
-                                        }
-                                    },
-                                    gameType: MapType.BHOP,
-                                    user: {
-                                        create: {
-                                            alias: 'St. Thomas Hairdryer IV',
-                                            steamID: Math.random().toString().slice(2, 16)
-                                        }
-                                    },
-                                    map: { connect: { id: map.id } },
-                                    rank: i + 1
+                await Promise.all(
+                    Array.from({ length: 10 }, (_, i) =>
+                        prisma.userMapRank.create({
+                            data: {
+                                run: {
+                                    create: {
+                                        map: { connect: { id: map.id } },
+                                        zoneNum: 0,
+                                        trackNum: 0,
+                                        flags: 0,
+                                        ticks: i * 500 + 1,
+                                        tickRate: 0.005, // Silly tickrate, but lets tester run super fast
+                                        file: '',
+                                        hash: randomHash(),
+                                        time: i + 0.005,
+                                        overallStats: { create: { jumps: 1 } }
+                                    }
                                 },
-                                include: { run: true, map: true, user: true }
-                            })
-                        )
-                    ))
-            );
-
-            afterEach(async () => {
-                for (const umr of umrs) {
-                    await prisma.run.deleteMany({ where: { id: umr.run.id } });
-                    await prisma.user.deleteMany({ where: { id: umr.user.id } });
-                    await prisma.map.deleteMany({ where: { id: umr.map.id } });
-                }
-            });
-
-            it('should respond with a CompletedRunDto', async () => {
-                const res = await submitRun();
-
-                expect(res.status).toBe(200);
-                expect(res.body).toBeValidDto(CompletedRunDto);
-                expect(res.body.rank).toBeValidDto(UserMapRankDto);
-                expect(res.body.run).toBeValidDto(RunDto);
-                expect(res.body.isNewPersonalBest).toBe(true);
-                expect(res.body.isNewWorldRecord).toBe(false);
-            });
-
-            it('should be inserted in leaderboards, shifting other ranks', async () => {
-                const umrsBefore = await prisma.userMapRank.findMany({
-                    where: { mapID: map.id, run: { zoneNum: 0, trackNum: 0 }, gameType: MapType.BHOP, flags: 0 }
-                });
-
-                expect(umrsBefore.length).toBe(10);
-
-                await submitRun();
-
-                const umrsAfter = await prisma.userMapRank.findMany({
-                    where: { mapID: map.id, run: { zoneNum: 0, trackNum: 0 }, gameType: MapType.BHOP, flags: 0 }
-                });
-
-                expect(umrsAfter.length).toBe(11);
-                expect(umrsAfter.find((umr) => umr.userID === user1.id).rank).toBe(2);
-
-                for (const umrBefore of umrsBefore.filter((umr) => umr.rank > 1))
-                    expect(umrsAfter.find((umrAfter) => umrAfter.userID === umrBefore.userID).rank).toBe(
-                        umrBefore.rank + 1
-                    );
-            });
-
-            it('if has a PB, only shift ranks between the PB and old run', async () => {
-                // Update whatever UMR + run is rank 4 to belong to user1
-                const rankToUpdate = await prisma.userMapRank.findFirst({
-                    where: { mapID: map.id, rank: 4 },
-                    include: { run: true }
-                });
-
-                await prisma.userMapRank.update({
-                    where: { runID: (rankToUpdate as any).run.id },
-                    data: {
-                        user: { connect: { id: user1.id } },
-                        run: { update: { user: { connect: { id: user1.id } } } }
-                    }
-                });
-
-                const umrsBefore = await prisma.userMapRank.findMany({
-                    where: { mapID: map.id, run: { zoneNum: 0, trackNum: 0 }, gameType: MapType.BHOP, flags: 0 }
-                });
-
-                expect(umrsBefore.length).toBe(10);
-
-                const res = await submitRun();
-
-                expect(res.status).toBe(200);
-                expect(res.body).toBeValidDto(CompletedRunDto);
-                expect(res.body.isNewPersonalBest).toBe(true);
-
-                const umrsAfter = await prisma.userMapRank.findMany({
-                    where: { mapID: map.id, run: { zoneNum: 0, trackNum: 0 }, gameType: MapType.BHOP, flags: 0 }
-                });
-
-                // It should have *updated* our existing UMR, so this should still be 10
-                expect(umrsAfter.length).toBe(10);
-
-                // So, it should have shifted rank 2, 3 to rank 3, 4, our rank (4) now becoming 2.
-                // prettier-ignore
-                expect(umrsBefore.find((umr) => umr.rank == 2).userID).toBe(
-                    umrsAfter.find((umr) => umr.rank == 3).userID);
-
-                // prettier-ignore
-                expect(umrsBefore.find((umr) => umr.rank == 3).userID).toBe(
-                    umrsAfter.find((umr) => umr.rank == 4).userID);
-
-                // prettier-ignore
-                expect(umrsBefore.find((umr) => umr.rank == 4).userID).toBe(
-                    umrsAfter.find((umr) => umr.rank == 2).userID);
-
-                expect(umrsBefore.find((umr) => umr.rank == 4).userID).toBe(user1.id);
-            });
-
-            it('should not change ranks or assign rank XP if not a PB', async () => {
-                // Update whatever UMR + run is rank 1 to belong to user1
-                const rankToUpdate = await prisma.userMapRank.findFirst({
-                    where: { mapID: map.id, rank: 1 },
-                    include: { run: true }
-                });
-
-                await prisma.userMapRank.update({
-                    where: { runID: (rankToUpdate as any).run.id },
-                    data: {
-                        user: { connect: { id: user1.id } },
-                        run: { update: { user: { connect: { id: user1.id } } } }
-                    }
-                });
-
-                const umrsBefore = await prisma.userMapRank.findMany({
-                    where: { mapID: map.id, run: { zoneNum: 0, trackNum: 0 }, gameType: MapType.BHOP, flags: 0 }
-                });
-
-                expect(umrsBefore.length).toBe(10);
-
-                const res = await submitRun();
-
-                expect(res.status).toBe(200);
-                expect(res.body).toBeValidDto(CompletedRunDto);
-                expect(res.body.isNewPersonalBest).toBe(false);
-                expect(res.body.xp.rankXP).toBe(0);
-
-                const umrsAfter = await prisma.userMapRank.findMany({
-                    where: { mapID: map.id, run: { zoneNum: 0, trackNum: 0 }, gameType: MapType.BHOP, flags: 0 }
-                });
-
-                expect(umrsBefore).toEqual(umrsAfter);
-            });
-
-            it('should assign cosmetic and rank XP for the run', async () => {
-                const res = await submitRun();
-
-                expect(res.status).toBe(200);
-                expect(res.body.rank.rank).toBe(2);
-                expect(res.body.xp.rankXP).toBe(xpSystems.getRankXpForRank(2, 11).rankXP);
-                expect(res.body.xp.cosXP.oldXP).toBe(0);
-                expect(res.body.xp.cosXP.gainXP).toBe(
-                    xpSystems.getCosmeticXpForCompletion(5, true, false, true, false)
+                                gameType: MapType.BHOP,
+                                user: {
+                                    create: {
+                                        alias: `RunSessions Test User ${i + 1}`,
+                                        steamID: randomSteamID()
+                                    }
+                                },
+                                map: { connect: { id: map.id } },
+                                rank: i + 1
+                            },
+                            include: { run: true, map: true, user: true }
+                        })
+                    )
                 );
             });
 
-            it('should update completion stats for the map, track and zones', async () => {
-                await submitRun(10);
-                await submitRun(15);
-
-                // Our stats tracking on the old API is very weird, so I'm just checking completions for now.
-                // None of the runs we added to the DB at the start of this test actually added stats, so we can
-                // just check that completions are 1.
-                const mapStats = await prisma.mapStats.findUnique({ where: { mapID: map.id } });
-                expect(mapStats.completions).toBe(2);
-                expect(mapStats.uniqueCompletions).toBe(1);
-
-                const trackStats = await prisma.mapTrackStats.findUnique({ where: { trackID: map.tracks[0].id } });
-                expect(trackStats.completions).toBe(2);
-                expect(trackStats.uniqueCompletions).toBe(1);
-
-                const zoneStats = await prisma.mapZoneStats.findMany({
+            afterEach(async () => {
+                await prisma.run.deleteMany();
+                await prisma.user.deleteMany();
+                await prisma.mapStats.update({
+                    where: { mapID: map.id },
+                    data: { completions: 0, uniqueCompletions: 0 }
+                });
+                await prisma.mapTrackStats.update({
+                    where: { trackID: map.mainTrack.id },
+                    data: { completions: 0, uniqueCompletions: 0 }
+                });
+                await prisma.mapZoneStats.updateMany({
                     where: { zone: { track: { mapID: map.id } } },
-                    include: { zone: true }
+                    data: { completions: 0, uniqueCompletions: 0 }
                 });
-
-                for (const zone of zoneStats.filter((zs) => zs.zone.zoneNum !== 0)) {
-                    expect(zone.completions).toBe(2);
-                    expect(zone.uniqueCompletions).toBe(1);
-                }
             });
 
-            // TODO: Test activity creation once that's done!
-        });
+            // With the way we're constructed above DB inserts below the existing runs will be 0.01s, 1.01s, 2.01s ... 10.01s,
+            // this is ~500ms so will be rank 2.
+            const submitRun = (delay?: number) => RunTester.run(defaultTesterProperties(), 3, delay);
 
-        describe('should reject if ', () => {
-            it('there is no body', async () => {
-                const res = await submitWithOverrides({
-                    beforeSubmit: (self) => (self.replayFile.buffer = Buffer.from(''))
+            const submitWithOverrides = async (overrides: {
+                props?: Partial<RunTesterProps>;
+                delay?: number;
+                beforeSubmit?: (self: RunTester) => void;
+                beforeSave?: (self: RunTester) => void;
+                writeStats?: boolean;
+                writeFrames?: boolean;
+            }) => {
+                const tester = new RunTester({ ...defaultTesterProperties(), ...overrides.props });
+
+                await tester.startRun();
+                await tester.doZones(3, overrides.delay);
+
+                const { props: _, ...endRunProps } = overrides;
+                return tester.endRun(endRunProps);
+            };
+
+            // Splitting these out in multiple tests. It's slower, but there's so much stuff we want to test here that I
+            // want to keep it organised well.
+            describe('should process a valid run and ', () => {
+                it('should respond with a CompletedRunDto', async () => {
+                    const res = await submitRun();
+
+                    expect(res.status).toBe(200);
+                    expect(res.body).toBeValidDto(CompletedRunDto);
+                    expect(res.body.rank).toBeValidDto(UserMapRankDto);
+                    expect(res.body.run).toBeValidDto(RunDto);
+                    expect(res.body.isNewPersonalBest).toBe(true);
+                    expect(res.body.isNewWorldRecord).toBe(false);
                 });
 
-                expect(res.status).toBe(400);
-                expect(res.body.code).toBe(RunValidationErrorTypes.BAD_REPLAY_FILE);
+                it('should be inserted in leaderboards, shifting other ranks', async () => {
+                    const umrsBefore = await prisma.userMapRank.findMany({
+                        where: { mapID: map.id, run: { zoneNum: 0, trackNum: 0 }, gameType: MapType.BHOP, flags: 0 }
+                    });
+
+                    expect(umrsBefore.length).toBe(10);
+
+                    await submitRun();
+
+                    const umrsAfter = await prisma.userMapRank.findMany({
+                        where: { mapID: map.id, run: { zoneNum: 0, trackNum: 0 }, gameType: MapType.BHOP, flags: 0 }
+                    });
+
+                    expect(umrsAfter.length).toBe(11);
+                    expect(umrsAfter.find((umr) => umr.userID === user.id).rank).toBe(2);
+
+                    for (const umrBefore of umrsBefore.filter((umr) => umr.rank > 1))
+                        expect(umrsAfter.find((umrAfter) => umrAfter.userID === umrBefore.userID).rank).toBe(
+                            umrBefore.rank + 1
+                        );
+                });
+
+                it('if has a PB, only shift ranks between the PB and old run', async () => {
+                    // Update whatever UMR + run is rank 4 to belong to user1
+                    const rankToUpdate = await prisma.userMapRank.findFirst({
+                        where: { mapID: map.id, rank: 4 },
+                        include: { run: true }
+                    });
+
+                    await prisma.userMapRank.update({
+                        where: { runID: rankToUpdate.run.id },
+                        data: {
+                            user: { connect: { id: user.id } },
+                            run: { update: { user: { connect: { id: user.id } } } }
+                        }
+                    });
+
+                    const umrsBefore = await prisma.userMapRank.findMany({
+                        where: { mapID: map.id, run: { zoneNum: 0, trackNum: 0 }, gameType: MapType.BHOP, flags: 0 }
+                    });
+
+                    expect(umrsBefore.length).toBe(10);
+
+                    const res = await submitRun();
+
+                    expect(res.status).toBe(200);
+                    expect(res.body).toBeValidDto(CompletedRunDto);
+                    expect(res.body.isNewPersonalBest).toBe(true);
+
+                    const umrsAfter = await prisma.userMapRank.findMany({
+                        where: { mapID: map.id, run: { zoneNum: 0, trackNum: 0 }, gameType: MapType.BHOP, flags: 0 }
+                    });
+
+                    // It should have *updated* our existing UMR, so this should still be 10
+                    expect(umrsAfter.length).toBe(10);
+
+                    // So, it should have shifted rank 2, 3 to rank 3, 4, our rank (4) now becoming 2.
+                    // prettier-ignore
+                    expect(umrsBefore.find((umr) => umr.rank === 2).userID).toBe(
+                            umrsAfter.find((umr) => umr.rank === 3).userID);
+
+                    // prettier-ignore
+                    expect(umrsBefore.find((umr) => umr.rank === 3).userID).toBe(
+                            umrsAfter.find((umr) => umr.rank === 4).userID);
+
+                    // prettier-ignore
+                    expect(umrsBefore.find((umr) => umr.rank === 4).userID).toBe(
+                            umrsAfter.find((umr) => umr.rank === 2).userID);
+
+                    expect(umrsBefore.find((umr) => umr.rank == 4).userID).toBe(user.id);
+                });
+
+                it('should not change ranks or assign rank XP if not a PB', async () => {
+                    // Update whatever UMR + run is rank 1 to belong to user1
+                    const rankToUpdate = await prisma.userMapRank.findFirst({
+                        where: { mapID: map.id, rank: 1 },
+                        include: { run: true }
+                    });
+
+                    await prisma.userMapRank.update({
+                        where: { runID: rankToUpdate.run.id },
+                        data: {
+                            user: { connect: { id: user.id } },
+                            run: { update: { user: { connect: { id: user.id } } } }
+                        }
+                    });
+
+                    const umrsBefore = await prisma.userMapRank.findMany({
+                        where: { mapID: map.id, run: { zoneNum: 0, trackNum: 0 }, gameType: MapType.BHOP, flags: 0 }
+                    });
+
+                    expect(umrsBefore.length).toBe(10);
+
+                    const res = await submitRun();
+
+                    expect(res.status).toBe(200);
+                    expect(res.body).toBeValidDto(CompletedRunDto);
+                    expect(res.body.isNewPersonalBest).toBe(false);
+                    expect(res.body.xp.rankXP).toBe(0);
+
+                    const umrsAfter = await prisma.userMapRank.findMany({
+                        where: { mapID: map.id, run: { zoneNum: 0, trackNum: 0 }, gameType: MapType.BHOP, flags: 0 }
+                    });
+
+                    expect(umrsBefore).toEqual(umrsAfter);
+                });
+
+                it('should assign cosmetic and rank XP for the run', async () => {
+                    const res = await submitRun();
+
+                    expect(res.status).toBe(200);
+                    expect(res.body).toMatchObject({
+                        rank: { rank: 2 },
+                        xp: {
+                            rankXP: xpSystems.getRankXpForRank(2, 11).rankXP,
+                            cosXP: {
+                                oldXP: 0,
+                                gainXP: xpSystems.getCosmeticXpForCompletion(1, true, false, true, false)
+                            }
+                        }
+                    });
+                });
+
+                it('should update completion stats for the map, track and zones', async () => {
+                    await submitRun(10);
+                    await submitRun(15);
+
+                    // Our stats tracking on the old API is very weird, so I'm just checking completions for now.
+                    // None of the runs we added to the DB at the start of this test actually added stats, so we can
+                    // just check that completions are 1.
+                    const mapStats = await prisma.mapStats.findUnique({ where: { mapID: map.id } });
+                    expect(mapStats.completions).toBe(2);
+                    expect(mapStats.uniqueCompletions).toBe(1);
+
+                    const trackStats = await prisma.mapTrackStats.findUnique({ where: { trackID: map.mainTrack.id } });
+                    expect(trackStats.completions).toBe(2);
+                    expect(trackStats.uniqueCompletions).toBe(1);
+
+                    const zoneStats = await prisma.mapZoneStats.findMany({
+                        where: { zone: { track: { mapID: map.id } } },
+                        include: { zone: true }
+                    });
+
+                    for (const zone of zoneStats.filter((zs) => zs.zone.zoneNum !== 0)) {
+                        expect(zone.completions).toBe(2);
+                        expect(zone.uniqueCompletions).toBe(1);
+                    }
+
+                    // TODO: Test activity creation once that's done!
+                });
             });
 
-            it('the run does not have the proper number of timestamps', async () => {
-                for (const numZones of [2, 4]) {
-                    const tester = new RunTester(defaultTesterProps());
+            describe('should reject if ', () => {
+                it('there is no body', async () => {
+                    const res = await submitWithOverrides({
+                        beforeSubmit: (self) => (self.replayFile.buffer = Buffer.from(''))
+                    });
+
+                    expect(res.status).toBe(400);
+                    expect(res.body.code).toBe(RunValidationErrorTypes.BAD_REPLAY_FILE);
+                });
+
+                it('the run does not have the proper number of timestamps', async () => {
+                    for (const numZones of [2, 4]) {
+                        const tester = new RunTester(defaultTesterProperties());
+
+                        await tester.startRun();
+                        await tester.doZones(numZones);
+
+                        const res = await tester.endRun();
+
+                        expect(res.status).toBe(400);
+                        expect(res.body.code).toBe(RunValidationErrorTypes.BAD_TIMESTAMPS);
+                    }
+                });
+
+                it('the run was done out of order', async () => {
+                    const tester = new RunTester(defaultTesterProperties());
 
                     await tester.startRun();
-                    await tester.doZones(numZones);
 
+                    await tester.doZone();
+                    tester.currZone += 1;
+                    await tester.doZone();
+                    tester.currZone -= 2;
+                    await tester.doZone();
                     const res = await tester.endRun();
 
                     expect(res.status).toBe(400);
                     expect(res.body.code).toBe(RunValidationErrorTypes.BAD_TIMESTAMPS);
-                }
-            });
-
-            it('the run was done out of order', async () => {
-                const tester = new RunTester(defaultTesterProps());
-
-                await tester.startRun();
-
-                await tester.doZone();
-                tester.currZone += 1;
-                await tester.doZone();
-                tester.currZone -= 2;
-                await tester.doZone();
-                const res = await tester.endRun();
-
-                expect(res.status).toBe(400);
-                expect(res.body.code).toBe(RunValidationErrorTypes.BAD_TIMESTAMPS);
-            });
-
-            it('there was no timestamps for a track with >1 zones', async () => {
-                const tester = new RunTester(defaultTesterProps());
-
-                await tester.startRun();
-                const res = await tester.endRun();
-
-                expect(res.status).toBe(400);
-                expect(res.body.code).toBe(RunValidationErrorTypes.BAD_TIMESTAMPS);
-            });
-
-            it('the magic of the replay does not match', async () => {
-                const res = await submitWithOverrides({ beforeSave: (self) => (self.replay.magic = 0xbeefcafe) });
-
-                expect(res.status).toBe(400);
-                expect(res.body.code).toBe(RunValidationErrorTypes.BAD_META);
-            });
-
-            it('the SteamID in the replay does not match the submitter', async () => {
-                const res = await submitWithOverrides({ props: { steamID: '11111111111111' } });
-
-                expect(res.status).toBe(400);
-                expect(res.body.code).toBe(RunValidationErrorTypes.BAD_META);
-            });
-
-            it('the hash of the map stored in the replay does not match the stored hash of the DB map', async () => {
-                const res = await submitWithOverrides({
-                    props: { mapHash: '4fa6024f12494d3a99d8bda9b7a55f7d140f328a' }
                 });
 
-                expect(res.status).toBe(400);
-                expect(res.body.code).toBe(RunValidationErrorTypes.BAD_META);
-            });
+                it('there was no timestamps for a track with >1 zones', async () => {
+                    const tester = new RunTester(defaultTesterProperties());
 
-            it('the name of the map does not match the name of the map in the DB', async () => {
-                const res = await submitWithOverrides({ props: { mapName: 'bhop_egg' } });
+                    await tester.startRun();
+                    const res = await tester.endRun();
 
-                expect(res.status).toBe(400);
-                expect(res.body.code).toBe(RunValidationErrorTypes.BAD_META);
-            });
-
-            it('the run time in ticks is 0', async () => {
-                const res = await submitWithOverrides({
-                    delay: 0,
-                    beforeSave: (self) => {
-                        self.replay.header.startTick = 0;
-                        self.replay.header.stopTick = 0;
-                    }
+                    expect(res.status).toBe(400);
+                    expect(res.body.code).toBe(RunValidationErrorTypes.BAD_TIMESTAMPS);
                 });
 
-                expect(res.status).toBe(400);
-                expect(res.body.code).toBe(RunValidationErrorTypes.BAD_TIMESTAMPS);
-            });
+                it('the magic of the replay does not match', async () => {
+                    const res = await submitWithOverrides({ beforeSave: (self) => (self.replay.magic = 0xbeefcafe) });
 
-            it('the run time in ticks is negative', async () => {
-                const res = await submitWithOverrides({
-                    delay: 0,
-                    beforeSave: (self) => {
-                        self.replay.header.startTick = 1;
-                        self.replay.header.stopTick = 0;
-                    }
+                    expect(res.status).toBe(400);
+                    expect(res.body.code).toBe(RunValidationErrorTypes.BAD_META);
                 });
 
-                expect(res.status).toBe(400);
-                expect(res.body.code).toBe(RunValidationErrorTypes.BAD_TIMESTAMPS);
-            });
+                it('the SteamID in the replay does not match the submitter', async () => {
+                    const res = await submitWithOverrides({ props: { steamID: randomSteamID() } });
 
-            it('the replays track number is invalid for the map', async () => {
-                const res = await submitWithOverrides({
-                    beforeSave: (self) => {
-                        self.replay.header.trackNum = 1;
-                    }
+                    expect(res.status).toBe(400);
+                    expect(res.body.code).toBe(RunValidationErrorTypes.BAD_META);
                 });
 
-                expect(res.status).toBe(400);
-                expect(res.body.code).toBe(RunValidationErrorTypes.BAD_META);
-            });
+                it('the hash of the map stored in the replay does not match the stored hash of the DB map', async () => {
+                    const res = await submitWithOverrides({
+                        props: { mapHash: randomHash() }
+                    });
 
-            it('the replays zone number is invalid for the map', async () => {
-                const res = await submitWithOverrides({
-                    beforeSave: (self) => {
-                        self.replay.header.zoneNum = 1;
-                    }
+                    expect(res.status).toBe(400);
+                    expect(res.body.code).toBe(RunValidationErrorTypes.BAD_META);
                 });
 
-                expect(res.status).toBe(400);
-                expect(res.body.code).toBe(RunValidationErrorTypes.BAD_META);
-            });
+                it('the name of the map does not match the name of the map in the DB', async () => {
+                    const res = await submitWithOverrides({ props: { mapName: 'bhop_egg' } });
 
-            it('the run date is in the future', async () => {
-                const res = await submitWithOverrides({
-                    beforeSave: (self) => (self.replay.header.runDate = (Date.now() + 1000000).toString())
+                    expect(res.status).toBe(400);
+                    expect(res.body.code).toBe(RunValidationErrorTypes.BAD_META);
                 });
 
-                expect(res.status).toBe(400);
-                expect(res.body.code).toBe(RunValidationErrorTypes.OUT_OF_SYNC);
-            });
+                it('the run time in ticks is 0', async () => {
+                    const res = await submitWithOverrides({
+                        delay: 0,
+                        beforeSave: (self) => {
+                            self.replay.header.startTick = 0;
+                            self.replay.header.stopTick = 0;
+                        }
+                    });
 
-            it('the tickrate is not acceptable', async () => {
-                const res = await submitWithOverrides({
-                    beforeSave: (self) => (self.replay.header.tickRate = getDefaultTickRateForMapType(map.type) + 0.001)
+                    expect(res.status).toBe(400);
+                    expect(res.body.code).toBe(RunValidationErrorTypes.BAD_TIMESTAMPS);
                 });
 
-                expect(res.status).toBe(400);
-                expect(res.body.code).toBe(RunValidationErrorTypes.OUT_OF_SYNC);
-            });
+                it('the run time in ticks is negative', async () => {
+                    const res = await submitWithOverrides({
+                        delay: 0,
+                        beforeSave: (self) => {
+                            self.replay.header.startTick = 1;
+                            self.replay.header.stopTick = 0;
+                        }
+                    });
 
-            it('the run does not fall within the run run timestamps', async () => {
-                const res = await submitWithOverrides({
-                    beforeSave: (self) => (self.replay.header.stopTick *= 2)
+                    expect(res.status).toBe(400);
+                    expect(res.body.code).toBe(RunValidationErrorTypes.BAD_TIMESTAMPS);
                 });
 
-                expect(res.status).toBe(400);
-                expect(res.body.code).toBe(RunValidationErrorTypes.OUT_OF_SYNC);
+                it('the replays track number is invalid for the map', async () => {
+                    const res = await submitWithOverrides({
+                        beforeSave: (self) => {
+                            self.replay.header.trackNum = 1;
+                        }
+                    });
+
+                    expect(res.status).toBe(400);
+                    expect(res.body.code).toBe(RunValidationErrorTypes.BAD_META);
+                });
+
+                it('the replays zone number is invalid for the map', async () => {
+                    const res = await submitWithOverrides({
+                        beforeSave: (self) => {
+                            self.replay.header.zoneNum = 1;
+                        }
+                    });
+
+                    expect(res.status).toBe(400);
+                    expect(res.body.code).toBe(RunValidationErrorTypes.BAD_META);
+                });
+
+                it('the run date is in the future', async () => {
+                    const res = await submitWithOverrides({
+                        beforeSave: (self) => (self.replay.header.runDate = (Date.now() + 1000000).toString())
+                    });
+
+                    expect(res.status).toBe(400);
+                    expect(res.body.code).toBe(RunValidationErrorTypes.OUT_OF_SYNC);
+                });
+
+                it('the tickrate is not acceptable', async () => {
+                    const res = await submitWithOverrides({
+                        beforeSave: (self) =>
+                            (self.replay.header.tickRate = getDefaultTickRateForMapType(map.type) + 0.001)
+                    });
+
+                    expect(res.status).toBe(400);
+                    expect(res.body.code).toBe(RunValidationErrorTypes.OUT_OF_SYNC);
+                });
+
+                it('the run does not fall within the run run timestamps', async () => {
+                    const res = await submitWithOverrides({
+                        beforeSave: (self) => (self.replay.header.stopTick *= 2)
+                    });
+
+                    expect(res.status).toBe(400);
+                    expect(res.body.code).toBe(RunValidationErrorTypes.OUT_OF_SYNC);
+                });
+
+                it('the run does not have stats', async () => {
+                    const res = await submitWithOverrides({ writeStats: false });
+
+                    expect(res.status).toBe(400);
+                    expect(res.body.code).toBe(RunValidationErrorTypes.BAD_REPLAY_FILE);
+                });
+
+                it('the run has no run frames', async () => {
+                    const res = await submitWithOverrides({ writeFrames: false });
+
+                    expect(res.status).toBe(400);
+                    expect(res.body.code).toBe(RunValidationErrorTypes.BAD_REPLAY_FILE);
+                });
+
+                // TODO: This depends if Goc wants to do it https://discord.com/channels/235111289435717633/487354170546978816/1004921906094419978
+                // it('the run date is too old (5+ seconds old)', () => {
+                //     return;
+                // });
+
+                // it('there are timestamps for an IL run', () => {
+                //     return;
+                // });
             });
-
-            it('the run does not have stats', async () => {
-                const res = await submitWithOverrides({ writeStats: false });
-
-                expect(res.status).toBe(400);
-                expect(res.body.code).toBe(RunValidationErrorTypes.BAD_REPLAY_FILE);
-            });
-
-            it('the run has no run frames', async () => {
-                const res = await submitWithOverrides({ writeFrames: false });
-
-                expect(res.status).toBe(400);
-                expect(res.body.code).toBe(RunValidationErrorTypes.BAD_REPLAY_FILE);
-            });
-
-            // TODO: This depends if Goc wants to do it https://discord.com/channels/235111289435717633/487354170546978816/1004921906094419978
-            // it('the run date is too old (5+ seconds old)', () => {
-            //     return;
-            // });
-
-            // it('there are timestamps for an IL run', () => {
-            //     return;
-            // });
         });
     });
 });
