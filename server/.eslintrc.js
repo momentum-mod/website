@@ -65,7 +65,9 @@ module.exports = {
         // Better parity with other langauges, we use `1 << 0` frequently next to other shifts when defining bitflags.
         'unicorn/prefer-math-trunc': ['off'],
         // Why???
-        'unicorn/switch-case-braces': ['off']
+        'unicorn/switch-case-braces': ['off'],
+        // Overly strong, often clearer to handle some error first.
+        'unicorn/no-negated-condition': ['off']
     },
     overrides: [
         {
