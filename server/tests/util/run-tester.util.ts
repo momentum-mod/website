@@ -3,12 +3,10 @@ import { ReplayFileWriter } from '@lib/replay/replay-file-writer';
 import { BaseStatsFromGame, Replay, RunFrame, ZoneStatsFromGame } from '@modules/session/run/run-session.interfaces';
 import { Random } from '@lib/random.lib';
 import { URL_PREFIX } from '@tests/e2e/e2e.config';
+import { sleep } from 'radash';
 
-const DEFAULT_DELAY_MS = 50; // TODO: Can probably go lower
-
+const DEFAULT_DELAY_MS = 10;
 const MAGIC = 0x524d4f4d;
-
-const wait = (time) => new Promise((resolve) => setTimeout(resolve, time));
 
 export interface RunTesterProps {
     token?: string;
@@ -102,7 +100,7 @@ export class RunTester {
     }
 
     async doZone(delay = DEFAULT_DELAY_MS) {
-        await wait(delay);
+        await sleep(delay);
         this.currZone++;
 
         this.currTime = Date.now();
@@ -135,7 +133,7 @@ export class RunTester {
     }): Promise<request.Response> {
         const delay = args?.delay ?? DEFAULT_DELAY_MS;
 
-        await wait(delay);
+        await sleep(delay);
         const timeTotal = Date.now() - this.startTime;
         this.stopTick = Math.ceil(timeTotal / 1000 / this.props.tickRate);
 
