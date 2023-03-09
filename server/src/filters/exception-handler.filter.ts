@@ -1,6 +1,6 @@
 import { ExceptionFilter, Catch, ArgumentsHost, HttpStatus, Logger, HttpException, Inject } from '@nestjs/common';
 import { HttpAdapterHost } from '@nestjs/core';
-import { PrismaClientKnownRequestError } from '@prisma/client/runtime';
+import { PrismaClientKnownRequestError } from '@prisma/client/runtime/library';
 import { ConfigService } from '@nestjs/config';
 import { Environment } from '@config/config.interface';
 import { SentryService } from '@modules/sentry/sentry.service';
