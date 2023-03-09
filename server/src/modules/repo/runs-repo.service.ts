@@ -1,5 +1,5 @@
 ﻿import { Injectable } from '@nestjs/common';
-import { Prisma, PrismaPromise, Run, RunSession, RunSessionTimestamp, RunZoneStats } from '@prisma/client';
+import { Prisma, Run, RunSession, RunSessionTimestamp, RunZoneStats } from '@prisma/client';
 import { PrismaService } from './prisma.service';
 
 const runSessionCompletedInclude = {
@@ -148,10 +148,7 @@ export class RunsRepoService {
 
     //#region User Map Rank
 
-    getAllUserMapRanks(
-        where: Prisma.UserMapRankWhereInput,
-        select?: Prisma.UserMapRankSelect
-    ): PrismaPromise<unknown[]> {
+    getAllUserMapRanks(where: Prisma.UserMapRankWhereInput, select?: Prisma.UserMapRankSelect): Promise<unknown[]> {
         return this.prisma.userMapRank.findMany({
             where,
             select

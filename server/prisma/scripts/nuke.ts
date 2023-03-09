@@ -1,9 +1,9 @@
-﻿import { PrismaClient, PrismaPromise } from '@prisma/client';
+﻿import { Prisma, PrismaClient } from '@prisma/client';
 
 export const nuke = async (prisma: PrismaClient) => {
     // TODO: This is MySQL-specifc, change when porting to Postgres
     // https://www.prisma.io/docs/concepts/components/prisma-client/crud#delete-all-records-from-all-tables
-    const transactions: PrismaPromise<any>[] = [];
+    const transactions: Prisma.PrismaPromise<any>[] = [];
     transactions.push(prisma.$executeRaw`SET FOREIGN_KEY_CHECKS = 0;`);
 
     const tablenames = await prisma.$queryRaw<
