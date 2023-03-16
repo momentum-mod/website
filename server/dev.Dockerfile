@@ -13,8 +13,14 @@ RUN npm i
 
 COPY . .
 
+RUN apk update
+RUN apk add openssl1.1-compat
+
 RUN npx prisma generate
 
 FROM node:18-alpine
+
+RUN apk update
+RUN apk add openssl1.1-compat
 
 COPY --from=builder /app/. ./
