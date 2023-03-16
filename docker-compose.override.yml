@@ -63,6 +63,6 @@ services:
     ports:
       - "9229:9229" # Expose for NodeJS debugging
     build:
-      context: ./
+      context: ./server
       dockerfile: dev.Dockerfile
     command: npm run ${CMD:-start:push:debug}
