@@ -53,7 +53,7 @@ import { MapTrackDto } from '@common/dto/map/map-track.dto';
 import { MapsCtlRunsGetAllQuery } from '@common/dto/query/run-queries.dto';
 import { RunDto } from '@common/dto/run/run.dto';
 import { RunsService } from '../runs/runs.service';
-import { MapImageDto } from '../../common/dto/map/map-image.dto';
+import { MapImageDto } from '@common/dto/map/map-image.dto';
 import { RolesGuard } from '@modules/auth/guards/roles.guard';
 import { UserMapRankDto } from '@common/dto/run/user-map-rank.dto';
 import { ParseIntSafePipe } from '@common/pipes/parse-int-safe.pipe';
@@ -393,14 +393,14 @@ export class MapsController {
     //#region Zones
 
     @Get('/:mapID/zones')
-    @ApiOperation({ summary: "Gets a single map's zones" })
+    @ApiOperation({ summary: "Gets a single map's TRACKS (yes, tracks), containing their zones" })
     @ApiParam({
         name: 'mapID',
         type: Number,
         description: 'Target Map ID',
         required: true
     })
-    @ApiOkResponse({ type: MapTrackDto, isArray: true, description: "The found map's zones" })
+    @ApiOkResponse({ type: MapTrackDto, isArray: true, description: "The found map's tracks" })
     @ApiNotFoundResponse({ description: 'Map not found' })
     getZones(@Param('mapID', ParseIntSafePipe) mapID: number): Promise<MapTrackDto[]> {
         return this.mapsService.getZones(mapID);
