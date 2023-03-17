@@ -461,7 +461,7 @@ describe('runs', () => {
             expect(res.body.response).toEqual(sortedRes);
         });
 
-        it('should respond with 401 if no access token is provided', () =>
+        it('should 401 if no access token is provided', () =>
             get({
                 url: 'runs',
                 status: 401
@@ -528,14 +528,14 @@ describe('runs', () => {
             expect(res.body.map).toHaveProperty('info');
         });
 
-        it('should respond with 404 when no run is found', () =>
+        it('should 404 when no run is found', () =>
             get({
                 url: 'runs/123456789',
                 status: 404,
                 token: user1Token
             }));
 
-        it('should respond with 401 when no access token is provided', () =>
+        it('should 401 when no access token is provided', () =>
             get({
                 url: 'runs/1',
                 status: 401
@@ -556,14 +556,14 @@ describe('runs', () => {
             console.log(res.header.location);
         });
 
-        it('should respond with 404 when no run is found', () =>
+        it('should 404 when no run is found', () =>
             get({
                 url: 'runs/1191137119/download',
                 status: 404,
                 token: user1Token
             }));
 
-        it('should respond with 401 when no access token is provided', () =>
+        it('should 401 when no access token is provided', () =>
             get({
                 url: `runs/${run1.id}/download`,
                 status: 401

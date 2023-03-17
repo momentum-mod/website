@@ -323,7 +323,7 @@ describe('Users', () => {
             expect(res.body.response[0].mapRank.rank).toBe(1);
         });
 
-        it('should respond with 401 when no access token is provided', () =>
+        it('should 401 when no access token is provided', () =>
             get({
                 url: 'users',
                 status: 401
@@ -380,7 +380,7 @@ describe('Users', () => {
             expect(res.body.mapRank.rank).toBe(1);
         });
 
-        it('should respond with 404 if the user is not found', () =>
+        it('should 404 if the user is not found', () =>
             get({
                 url: 'users/213445312',
                 status: 404,
@@ -388,7 +388,7 @@ describe('Users', () => {
             }));
     });
 
-    it('should respond with 401 when no access token is provided', () =>
+    it('should 401 when no access token is provided', () =>
         get({
             url: `users/${user1.id}`,
             status: 401
@@ -406,14 +406,14 @@ describe('Users', () => {
             expects(res);
         });
 
-        it('should respond with 401 when no access token is provided', async () => {
+        it('should 401 when no access token is provided', async () => {
             await get({
                 url: `users/${user1.id}/profile`,
                 status: 401
             });
         });
 
-        it('should respond with 404 if the profile is not found', async () => {
+        it('should 404 if the profile is not found', async () => {
             await get({
                 url: 'users/9000000000009/profile',
                 status: 404,
@@ -500,7 +500,7 @@ describe('Users', () => {
             expect(res.body.response).toBeInstanceOf(Array);
         });
 
-        it('should respond with 401 when no access token is provided', async () =>
+        it('should 401 when no access token is provided', async () =>
             get({
                 url: `users/${user1.id}/activities`,
                 status: 401
@@ -551,7 +551,7 @@ describe('Users', () => {
             expect(res.body.returnCount).toBe(0);
         });
 
-        it('should respond with 401 when no access token is provided', () =>
+        it('should 401 when no access token is provided', () =>
             get({
                 url: `users/${user1.id}/follows`,
                 status: 401
@@ -602,7 +602,7 @@ describe('Users', () => {
             expect(res.body.returnCount).toBe(0);
         });
 
-        it('should respond with 401 when no access token is provided', () =>
+        it('should 401 when no access token is provided', () =>
             get({
                 url: `users/${user1.id}/followers`,
                 status: 401
@@ -637,7 +637,7 @@ describe('Users', () => {
                 token: user1Token
             }));
 
-        it('should respond with 401 when no access token is provided', () =>
+        it('should 401 when no access token is provided', () =>
             get({
                 url: `users/${user1.id}/followers`,
                 status: 401
@@ -678,7 +678,7 @@ describe('Users', () => {
                 token: user1Token
             }));
 
-        it('should respond with 401 when no access token is provided', () =>
+        it('should 401 when no access token is provided', () =>
             get({
                 url: `users/${user1.id}/runs`,
                 status: 401
