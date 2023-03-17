@@ -327,6 +327,7 @@ export class MapsController {
 
     @Delete('/credits/:mapCreditID')
     @Roles(RolesEnum.MAPPER)
+    @HttpCode(HttpStatus.NO_CONTENT)
     @ApiOperation({ summary: 'Deletes the specified map credit' })
     @ApiParam({
         name: 'mapCreditID',
