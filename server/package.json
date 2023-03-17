@@ -31,8 +31,8 @@
         "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
         "lint": "eslint \"{src,tests,lib,config}/**/*.ts\" --fix",
         "lint:check": "eslint \"{src,tests,lib,config}/**/*.ts\"",
-        "format": "prettier --write \"{src,lib,tests,config,prisma}/**/*.{ts,js,md,prisma}\"",
-        "format:check": "prettier --check \"{src,lib,tests,config,prisma}/**/*.{ts,js,md,prisma}\"",
+        "format": "prettier --write \"{src,lib,tests,config}/**/*.{ts,js,md}\"",
+        "format:check": "prettier --check \"{src,lib,tests,config}/**/*.{ts,js,md}\"",
         "quality": "npm run lint && npm run format",
         "quality:check": "npm run lint:check && npm run format:check",
         "prepare": "cd .. && husky install"
@@ -44,7 +44,7 @@
         "seed": "ts-node -r tsconfig-paths/register prisma/seed.ts"
     },
     "lint-staged": {
-        "{src,lib,tests,config,prisma}/**/*.{ts,js,md,prisma}": [
+        "{src,lib,tests,config}/**/*.{ts,js,md}": [
             "eslint --quiet --fix",
             "prettier --write"
         ]
