@@ -567,7 +567,7 @@ describe('Maps', () => {
                         url: `maps/${map.id}/download`,
                         status: 200,
                         token: token,
-                        contentType: null
+                        contentType: 'octet-stream'
                     });
 
                     const inHash = createSha1Hash(file);
@@ -591,7 +591,7 @@ describe('Maps', () => {
                     url: `maps/${map2.id}/download`,
                     status: 404,
                     token: token,
-                    contentType: 'application/octet-stream'
+                    contentType: 'json'
                 });
             });
 
@@ -600,7 +600,7 @@ describe('Maps', () => {
                     url: `maps/${NULL_ID}/download`,
                     status: 404,
                     token: token,
-                    contentType: 'application/octet-stream'
+                    contentType: 'json'
                 }));
 
             unauthorizedTest('maps/1/download', get);
