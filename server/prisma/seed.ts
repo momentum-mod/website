@@ -136,9 +136,6 @@ async function createRandomMapImage(mapID) {
 
     return await prisma.mapImage.create({
         data: {
-            small: imageURL,
-            medium: imageURL,
-            large: imageURL,
             mapID: mapID,
             ...Random.createdUpdatedDates()
         }
