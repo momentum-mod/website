@@ -393,7 +393,7 @@ export class MapsService {
 
         const dbResponse = await this.mapRepo.createCredit(newCredit);
 
-        await this.updateActivities(dbResponse);
+        await this.updateMapCreditActivities(dbResponse);
 
         return DtoFactory(MapCreditDto, dbResponse);
     }
@@ -425,7 +425,7 @@ export class MapsService {
 
         const newCredit = await this.mapRepo.updateCredit(mapCreditID, data);
 
-        await this.updateActivities(newCredit, mapCredit);
+        await this.updateMapCreditActivities(newCredit, mapCredit);
     }
 
     async deleteCredit(mapCreditID: number, userID: number): Promise<void> {
@@ -440,7 +440,7 @@ export class MapsService {
 
         await this.mapRepo.deleteCredit({ id: mapCreditID });
 
-        await this.updateActivities(null, mapCred);
+        await this.updateMapCreditActivities(null, mapCred);
     }
 
     //#endregion
@@ -478,14 +478,14 @@ export class MapsService {
     //#endregion
 
     //#region Map Images
+
     async getImages(mapID: number): Promise<MapImageDto[]> {
         const map = await this.mapRepo.get(mapID);
+
         if (!map) throw new NotFoundException('Map not found');
 
-        const where: Prisma.MapImageWhereInput = {
-            mapID: mapID
-        };
-        const images = await this.mapRepo.getImages(where);
+        const images = await this.mapRepo.getImages({ mapID: mapID });
+
         return images.map((x) => DtoFactory(MapImageDto, x));
     }
 
@@ -497,6 +497,7 @@ export class MapsService {
 
     async createImage(userID: number, mapID: number, imgBuffer: Buffer): Promise<MapImageDto> {
         const map = await this.mapRepo.get(mapID);
+
         if (!map) throw new NotFoundException('Map not found');
 
         if (map.submitterID !== userID) throw new ForbiddenException('User is not the submitter of the map');
@@ -504,56 +505,53 @@ export class MapsService {
         if (map.statusFlag !== MapStatus.NEEDS_REVISION)
             throw new ForbiddenException('Map is not in NEEDS_REVISION state');
 
-        const mapImages = await this.mapRepo.getImages({ mapID: mapID });
-        let imageCount = mapImages.length;
+        const images = await this.mapRepo.getImages({ mapID: mapID });
+        let imageCount = images.length;
         if (map.thumbnailID) imageCount--; // Don't count the thumbnail towards this limit
         if (imageCount >= MAP_IMAGE_UPLOAD_LIMIT) throw new ConflictException('Map image file limit reached');
 
         const newImage = await this.mapRepo.createImage(mapID);
+
         const uploadedImages = await this.storeMapImage(imgBuffer, newImage.id);
-        if (uploadedImages) {
-            const cdnURL = this.config.get('url.cdn');
-            const bucketName = this.config.get('storage.bucketName');
-            return this.mapRepo.updateImage(
-                { id: newImage.id },
-                {
-                    small: `${cdnURL}/${bucketName}/${uploadedImages[0].fileKey}`,
-                    medium: `${cdnURL}/${bucketName}/${uploadedImages[1].fileKey}`,
-                    large: `${cdnURL}/${bucketName}/${uploadedImages[2].fileKey}`
-                }
-            );
-        } else {
-            this.mapRepo.deleteImage({ id: newImage.id });
+
+        if (!uploadedImages) {
+            await this.mapRepo.deleteImage({ id: newImage.id });
             throw new BadGatewayException('Error uploading image to cdn');
         }
+
+        return DtoFactory(MapImageDto, newImage);
     }
 
     async updateImage(userID: number, imgID: number, imgBuffer: Buffer): Promise<void> {
-        const img = await this.mapRepo.getImage(imgID);
-        if (!img) throw new NotFoundException('Image not found');
+        const image = await this.mapRepo.getImage(imgID);
 
-        const map = await this.mapRepo.get(img.mapID);
+        if (!image) throw new NotFoundException('Image not found');
+
+        const map = await this.mapRepo.get(image.mapID);
+
         if (map.submitterID !== userID) throw new ForbiddenException('User is not the submitter of the map');
 
         if (map.statusFlag !== MapStatus.NEEDS_REVISION)
             throw new ForbiddenException('Map is not in NEEDS_REVISION state');
 
         const uploadedImages = await this.storeMapImage(imgBuffer, imgID);
-        if (!uploadedImages) throw new BadGatewayException('Failed to upload image to cdn');
+
+        if (!uploadedImages) throw new BadGatewayException('Failed to upload image to CDN');
     }
 
     async deleteImage(userID: number, imgID: number): Promise<void> {
-        const img = await this.mapRepo.getImage(imgID);
-        if (!img) throw new NotFoundException('Image not found');
+        const image = await this.mapRepo.getImage(imgID);
 
-        const map = await this.mapRepo.get(img.mapID);
+        if (!image) throw new NotFoundException('Image not found');
+
+        const map = await this.mapRepo.get(image.mapID);
+
         if (map.submitterID !== userID) throw new ForbiddenException('User is not the submitter of the map');
 
         if (map.statusFlag !== MapStatus.NEEDS_REVISION)
             throw new ForbiddenException('Map is not in NEEDS_REVISION state');
 
-        await this.deleteStoredMapImage(imgID);
-        await this.mapRepo.deleteImage({ id: imgID });
+        await Promise.all([this.deleteStoredMapImage(imgID), this.mapRepo.deleteImage({ id: imgID })]);
     }
 
     async editSaveMapImageFile(
@@ -588,6 +586,7 @@ export class MapsService {
             this.fileCloudService.deleteFileCloud(`img/${imgID}-large.jpg`)
         ]);
     }
+
     //#endregion
 
     //#region Map Thumbnail
@@ -608,22 +607,11 @@ export class MapsService {
         const thumbnail = await this.mapRepo.getImage(map.thumbnailID);
 
         const uploadedImages = await this.storeMapImage(imgBuffer, thumbnail.id);
-        if (uploadedImages) {
-            const cdnURL = this.config.get('url.cdn');
-            const bucketName = this.config.get('storage.bucketName');
-            await this.mapRepo.updateImage(
-                { id: thumbnail.id },
-                {
-                    small: `${cdnURL}/${bucketName}/${uploadedImages[0].fileKey}`,
-                    medium: `${cdnURL}/${bucketName}/${uploadedImages[1].fileKey}`,
-                    large: `${cdnURL}/${bucketName}/${uploadedImages[2].fileKey}`
-                }
-            );
-        } else {
+        if (!uploadedImages) {
             // If the images failed to upload, we want to delete the map image object
             // if there was no previous thumbnail
-            if (!thumbnail.small) this.mapRepo.deleteImage({ id: thumbnail.id });
-            throw new BadGatewayException('Failed to upload image to cdn');
+            await this.mapRepo.deleteImage({ id: thumbnail.id });
+            throw new BadGatewayException('Failed to upload image to CDN');
         }
     }
     //#endregion
@@ -879,7 +867,7 @@ export class MapsService {
         if (foundDupe) throw new ConflictException('Cannot have duplicate map credits');
     }
 
-    private async updateActivities(newCredit?: MapCredit, oldCredit?: MapCredit): Promise<void> {
+    private async updateMapCreditActivities(newCredit?: MapCredit, oldCredit?: MapCredit): Promise<void> {
         const deleteOldActivity = () =>
             this.userRepo.deleteActivities({
                 type: ActivityTypes.MAP_UPLOADED,

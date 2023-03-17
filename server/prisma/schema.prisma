@@ -353,10 +353,6 @@ model MapFavorite {
 model MapImage {
     id Int @id @default(autoincrement())
 
-    small  String? @db.VarChar(255)
-    medium String? @db.VarChar(255)
-    large  String? @db.VarChar(255)
-
     thumbnail Map? @relation("mapimage_thumbnail")
 
     map   Map @relation(fields: [mapID], references: [id], onDelete: Cascade)
