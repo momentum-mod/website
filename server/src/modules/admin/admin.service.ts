@@ -43,7 +43,7 @@ export class AdminService {
             throw new BadRequestException('Will not merge the same account');
         } else if (!placeholder) {
             throw new BadRequestException('Placeholder user not found');
-        } else if (!placeholder.roles.placeholder) {
+        } else if (!placeholder.roles?.placeholder) {
             throw new BadRequestException('Placeholder input is not a placeholder user');
         }
 
@@ -161,7 +161,7 @@ export class AdminService {
         }
 
         if (update.alias && update.alias !== user.alias) {
-            if (newRoles.verified) {
+            if (newRoles?.verified) {
                 const verifiedMatches = await this.userRepo.count({
                     alias: update.alias,
                     roles: { is: { verified: true } }
@@ -185,7 +185,7 @@ export class AdminService {
 
         if (!user) throw new NotFoundException('User not found');
 
-        if (user.roles.admin || user.roles.moderator)
+        if (user.roles?.admin || user.roles?.moderator)
             throw new ForbiddenException('Will delete admins or moderators, remove their roles first');
 
         await this.userRepo.delete(userID);
