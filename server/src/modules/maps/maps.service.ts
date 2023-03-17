@@ -631,23 +631,12 @@ export class MapsService {
     //#region Map Zones
 
     async getZones(mapID: number): Promise<MapTrackDto[]> {
-        const map = await this.mapRepo.get(mapID, { stats: true });
+        const tracks = await this.mapRepo.getMapTracks(
+            { mapID: mapID },
+            { zones: { include: { triggers: { include: { properties: true } } } } }
+        );
 
-        if (!map) throw new NotFoundException('Map not found');
-
-        const include: Prisma.MapTrackInclude = {
-            zones: {
-                include: {
-                    triggers: {
-                        include: {
-                            properties: true
-                        }
-                    }
-                }
-            }
-        };
-
-        const tracks = await this.mapRepo.getMapTracks({ mapID: mapID }, include);
+        if (!tracks || tracks.length === 0) throw new NotFoundException('Map not found');
 
         // This is dumb but it's what the old api does
         // \server\src\models\map.js Line 499
