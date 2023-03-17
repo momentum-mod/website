@@ -152,7 +152,7 @@ describe('Reports', () => {
             expect(res.body.data).toBe(report.data);
         });
 
-        it('should respond with 401 without an access token', () =>
+        it('should 401 without an access token', () =>
             post({
                 url: 'reports',
                 status: 401

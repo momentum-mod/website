@@ -143,7 +143,7 @@ describe('Auth', () => {
     // 		*/
     //
     // 		describe('POST /auth/refresh', () => {
-    //             it('should respond with a 401 when a bad refresh token is provided', () => {
+    //             it('should 401 when a bad refresh token is provided', () => {
     //                 return chai.request(server)
     //                 .post('/auth/refresh')
     //                 .send({ refreshToken: 'xD.xD.xD' })
@@ -166,14 +166,14 @@ describe('Auth', () => {
     //         });
     //
     //         describe('POST /auth/revoke', () => {
-    //             it('should respond with a 400 when no auth header is provided', () => {
+    //             it('should 400 when no auth header is provided', () => {
     //                 return chai.request(server)
     //                 .post('/auth/revoke')
     //                 .then(res => {
     //                     expect(res).to.have.status(400);
     //                 });
     //             });
-    //             it('should respond with a 401 when the auth header is invalid', () => {
+    //             it('should 401 when the auth header is invalid', () => {
     //                 return chai.request(server)
     //                 .post('/auth/revoke')
     //                 .set('Authorization', 'Bearer xD.xD.xD')
@@ -181,7 +181,7 @@ describe('Auth', () => {
     //                     expect(res).to.have.status(401);
     //                 });
     //             });
-    //             it('should respond with a 204 when the auth header is valid', () => {
+    //             it('should 204 when the auth header is valid', () => {
     //                 return chai.request(server)
     //                 .post('/auth/revoke')
     //                 .set('Authorization', 'Bearer ' + accessToken)
