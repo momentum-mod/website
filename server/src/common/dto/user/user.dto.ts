@@ -9,6 +9,7 @@ import { CreatedAtProperty, IdProperty, NestedProperty, UpdatedAtProperty } from
 import { BansDto, UpdateBansDto } from './bans.dto';
 import { RolesDto, UpdateRolesDto } from './roles.dto';
 import { Config } from '@config/config';
+import { UserStatsDto } from '@common/dto/user/user-stats.dto';
 
 // TODO: UserStats in here in future as well
 export class UserDto implements User {
@@ -52,8 +53,11 @@ export class UserDto implements User {
             : `https://avatars.cloudflare.steamstatic.com/${this.avatar}_full.jpg`;
     }
 
-    @NestedProperty(ProfileDto, { description: "The users's bio, containing information like bio and badges" })
+    @NestedProperty(ProfileDto, { description: "The users's profile, containing information like bio and badges" })
     profile: ProfileDto;
+
+    @NestedProperty(UserStatsDto, { description: "The user's stats, containing information like XP and level" })
+    userStats: UserStatsDto;
 
     @NestedProperty(RolesDto, { description: "The user's roles" })
     roles: RolesDto;
