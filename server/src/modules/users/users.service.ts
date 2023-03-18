@@ -65,14 +65,7 @@ export class UsersService {
         if (query.mapRank) {
             include ??= {};
 
-            include.mapRanks = {
-                where: {
-                    mapID: query.mapRank
-                },
-                include: {
-                    run: true
-                }
-            };
+            include.mapRanks = { where: { mapID: query.mapRank }, include: { run: true } };
         }
 
         const dbResponse = await this.userRepo.getAll(where, include, query.skip, query.take);
