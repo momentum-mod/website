@@ -17,7 +17,7 @@ import { UsersRepoService } from '../repo/users-repo.service';
 import { lastValueFrom, map } from 'rxjs';
 import { HttpService } from '@nestjs/axios';
 import { ActivityDto } from '@common/dto/user/activity.dto';
-import { FollowDto, FollowStatusDto, UpdateFollowStatusDto } from '@common/dto/user/followers.dto';
+import { FollowDto, FollowStatusDto, UpdateFollowStatusDto } from '@common/dto/user/follow.dto';
 import { MapCreditDto } from '@common/dto/map/map-credit.dto';
 import { ActivityTypes } from '@common/enums/activity.enum';
 import { RunDto } from '@common/dto/run/run.dto';
