@@ -337,10 +337,10 @@ export class MapsService {
         return mapDataStream;
     }
 
-    private async getMapFileFromStore(mapName: string): Promise<StreamableFile> {
+    private getMapFileFromStore(mapName: string): Promise<StreamableFile> {
         const fileName = `maps/${mapName}.bsp`;
 
-        return await this.fileCloudService.getFileCloud(fileName);
+        return this.fileCloudService.getFileCloud(fileName);
     }
 
     //#endregion
@@ -571,7 +571,7 @@ export class MapsService {
         }
     }
 
-    async storeMapImage(imgBuffer: Buffer, imgID: number): Promise<FileStoreCloudFile[]> {
+    storeMapImage(imgBuffer: Buffer, imgID: number): Promise<FileStoreCloudFile[]> {
         return Promise.all([
             this.editSaveMapImageFile(imgBuffer, `img/${imgID}-small.jpg`, 480, 360),
             this.editSaveMapImageFile(imgBuffer, `img/${imgID}-medium.jpg`, 1280, 720),

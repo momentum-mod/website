@@ -23,16 +23,16 @@ export class UsersRepoService {
 
     //#region Main User functions
 
-    async create(input: Prisma.UserCreateInput): Promise<User> {
+    create(input: Prisma.UserCreateInput): Promise<User> {
         // Always create corresponding profile and userStats entries
         input.profile ??= { create: {} };
         input.userStats ??= { create: {} };
 
-        return await this.prisma.user.create({ data: input });
+        return this.prisma.user.create({ data: input });
     }
 
-    async count(where: Prisma.UserWhereInput): Promise<number> {
-        return await this.prisma.user.count({
+    count(where: Prisma.UserWhereInput): Promise<number> {
+        return this.prisma.user.count({
             where: where
         });
     }
@@ -57,35 +57,35 @@ export class UsersRepoService {
         return [users, count];
     }
 
-    async get(userID: number, include?: Prisma.UserInclude): Promise<User> {
+    get(userID: number, include?: Prisma.UserInclude): Promise<User> {
         const where: Prisma.UserWhereUniqueInput = { id: userID };
 
-        return await this.prisma.user.findUnique({
+        return this.prisma.user.findUnique({
             where: where,
             include: include
         });
     }
 
-    async getBySteamID(steamID: string): Promise<User> {
+    getBySteamID(steamID: string): Promise<User> {
         const where: Prisma.UserWhereUniqueInput = {};
         where.steamID = steamID;
 
-        return await this.prisma.user.findUnique({
+        return this.prisma.user.findUnique({
             where: where
         });
     }
 
-    async update(userID: number, update: Prisma.UserUpdateInput): Promise<User> {
+    update(userID: number, update: Prisma.UserUpdateInput): Promise<User> {
         const where: Prisma.UserWhereUniqueInput = { id: userID };
 
-        return await this.prisma.user.update({
+        return this.prisma.user.update({
             where: where,
             data: update
         });
     }
 
-    async delete(userID: number): Promise<User> {
-        return await this.prisma.user.delete({
+    delete(userID: number): Promise<User> {
+        return this.prisma.user.delete({
             where: { id: userID }
         });
     }
@@ -94,12 +94,12 @@ export class UsersRepoService {
 
     //#region User Auth functions
 
-    async getAuth(userID: number): Promise<UserAuth> {
-        return await this.prisma.userAuth.findFirst({ where: { userID: userID } });
+    getAuth(userID: number): Promise<UserAuth> {
+        return this.prisma.userAuth.findFirst({ where: { userID: userID } });
     }
 
-    async upsertAuth(userID: number, refreshToken: string): Promise<UserAuth> {
-        return await this.prisma.userAuth.upsert({
+    upsertAuth(userID: number, refreshToken: string): Promise<UserAuth> {
+        return this.prisma.userAuth.upsert({
             where: { userID: userID },
             update: { refreshToken: refreshToken },
             create: { userID: userID, refreshToken: refreshToken }
@@ -110,10 +110,10 @@ export class UsersRepoService {
 
     //#region Profile
 
-    async getProfile(userID: number): Promise<Profile> {
+    getProfile(userID: number): Promise<Profile> {
         const where: Prisma.ProfileWhereInput = { userID: userID };
 
-        return await this.prisma.profile.findFirst({
+        return this.prisma.profile.findFirst({
             where: where
         });
     }
@@ -224,8 +224,8 @@ export class UsersRepoService {
         return [follows, count];
     }
 
-    async getFollower(followeeID: number, followedID: number): Promise<Follow> {
-        return await this.prisma.follow.findUnique({
+    getFollower(followeeID: number, followedID: number): Promise<Follow> {
+        return this.prisma.follow.findUnique({
             where: {
                 followeeID_followedID: {
                     followedID: followedID,
@@ -342,15 +342,11 @@ export class UsersRepoService {
         return [mapFavorites, count];
     }
 
-    async getFavoritedMap(
-        where: Prisma.MapFavoriteWhereInput,
-        include?: Prisma.MapFavoriteInclude
-    ): Promise<MapFavorite> {
-        const mapFavorite = await this.prisma.mapFavorite.findFirst({
+    getFavoritedMap(where: Prisma.MapFavoriteWhereInput, include?: Prisma.MapFavoriteInclude): Promise<MapFavorite> {
+        return this.prisma.mapFavorite.findFirst({
             where: where,
             include: include
         });
-        return mapFavorite;
     }
 
     async createFavouritedMapEntry(userID: number, mapID: number) {
@@ -377,8 +373,8 @@ export class UsersRepoService {
 
     //#region Notications
 
-    async getNotification(notificationID: number): Promise<Notification> {
-        return await this.prisma.notification.findUnique({
+    getNotification(notificationID: number): Promise<Notification> {
+        return this.prisma.notification.findUnique({
             where: {
                 id: notificationID
             }
@@ -434,8 +430,8 @@ export class UsersRepoService {
 
     //#region Map Notify
 
-    async getMapNotify(userID: number, mapID: number): Promise<MapNotify> {
-        return await this.prisma.mapNotify.findUnique({
+    getMapNotify(userID: number, mapID: number): Promise<MapNotify> {
+        return this.prisma.mapNotify.findUnique({
             where: {
                 userID_mapID: {
                     userID: userID,
@@ -566,19 +562,19 @@ export class UsersRepoService {
         return [reports, count];
     }
 
-    async getReport(where?: Prisma.ReportWhereUniqueInput): Promise<Report> {
-        return await this.prisma.report.findUnique({
+    getReport(where?: Prisma.ReportWhereUniqueInput): Promise<Report> {
+        return this.prisma.report.findUnique({
             where: where
         });
     }
 
-    async createReport(input: Prisma.ReportCreateInput): Promise<Report> {
+    createReport(input: Prisma.ReportCreateInput): Promise<Report> {
         return this.prisma.report.create({
             data: input
         });
     }
 
-    async updateReports(where: Prisma.ReportWhereUniqueInput, data: Prisma.ReportUpdateInput) {
+    updateReports(where: Prisma.ReportWhereUniqueInput, data: Prisma.ReportUpdateInput) {
         return this.prisma.report.update({
             where: where,
             data: data

@@ -68,14 +68,14 @@ export class AuthService {
         });
     }
 
-    private async generateAccessToken(payload: UserJwtAccessPayload): Promise<string> {
+    private generateAccessToken(payload: UserJwtAccessPayload): Promise<string> {
         const options = {
             expiresIn: payload.gameAuth
                 ? this.config.get('accessToken.gameExpTime')
                 : this.config.get('accessToken.expTime')
         };
 
-        return await this.jwtService.signAsync(payload, options);
+        return this.jwtService.signAsync(payload, options);
     }
 
     private async generateRefreshToken(payload: UserJwtPayload): Promise<string> {

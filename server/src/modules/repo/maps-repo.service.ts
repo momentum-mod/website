@@ -38,7 +38,7 @@ export class MapsRepoService {
         // complex (and slow) looping, which the logic in the maps service already needs to do. So it's being done there
         // for now, worth keeping in mind if anything else ever needs this method (nothing should really).
 
-        return await this.prisma.map.update({
+        return this.prisma.map.update({
             where: { id: map.id },
             data: {
                 mainTrack: {
@@ -55,8 +55,8 @@ export class MapsRepoService {
         });
     }
 
-    async update(mapId: number, data: Prisma.MapUpdateInput): Promise<Map> {
-        return await this.prisma.map.update({
+    update(mapId: number, data: Prisma.MapUpdateInput): Promise<Map> {
+        return this.prisma.map.update({
             where: {
                 id: mapId
             },
@@ -88,8 +88,8 @@ export class MapsRepoService {
         return [maps, count];
     }
 
-    async get(id: number, include?: Prisma.MapInclude): Promise<Map> {
-        return await this.prisma.map.findFirst({
+    get(id: number, include?: Prisma.MapInclude): Promise<Map> {
+        return this.prisma.map.findFirst({
             where: {
                 id: id
             },
@@ -97,8 +97,8 @@ export class MapsRepoService {
         });
     }
 
-    async count(where: Prisma.MapWhereInput): Promise<number> {
-        return await this.prisma.map.count({
+    count(where: Prisma.MapWhereInput): Promise<number> {
+        return this.prisma.map.count({
             where: where
         });
     }
@@ -107,11 +107,11 @@ export class MapsRepoService {
 
     //#region MapCredit
 
-    async findCredit(where: Prisma.MapCreditWhereInput): Promise<MapCredit> {
+    findCredit(where: Prisma.MapCreditWhereInput): Promise<MapCredit> {
         return this.prisma.mapCredit.findFirst({ where: where });
     }
 
-    async updateCredit(mapID: number, input: Prisma.MapCreditUncheckedUpdateManyInput): Promise<MapCredit> {
+    updateCredit(mapID: number, input: Prisma.MapCreditUncheckedUpdateManyInput): Promise<MapCredit> {
         return this.prisma.mapCredit.update({
             where: { id: mapID },
             data: input
@@ -128,11 +128,11 @@ export class MapsRepoService {
         });
     }
 
-    async getCredits(where: Prisma.MapCreditWhereInput, include?: Prisma.MapCreditInclude): Promise<MapCredit[]> {
+    getCredits(where: Prisma.MapCreditWhereInput, include?: Prisma.MapCreditInclude): Promise<MapCredit[]> {
         return this.prisma.mapCredit.findMany({ where: where, include: include });
     }
 
-    async createCredit(input: Prisma.MapCreditCreateInput): Promise<MapCredit> {
+    createCredit(input: Prisma.MapCreditCreateInput): Promise<MapCredit> {
         return this.prisma.mapCredit.create({
             data: input,
             include: {
@@ -141,7 +141,7 @@ export class MapsRepoService {
         });
     }
 
-    async getCredit(id: number, include?: Prisma.MapCreditInclude): Promise<MapCredit> {
+    getCredit(id: number, include?: Prisma.MapCreditInclude): Promise<MapCredit> {
         return this.prisma.mapCredit.findUnique({ where: { id: id }, include: include });
     }
 
@@ -152,11 +152,11 @@ export class MapsRepoService {
     //#endregion
 
     //#region MapInfo
-    async getInfo(mapId: number): Promise<MapInfo> {
-        return await this.prisma.mapInfo.findUnique({ where: { mapID: mapId } });
+    getInfo(mapId: number): Promise<MapInfo> {
+        return this.prisma.mapInfo.findUnique({ where: { mapID: mapId } });
     }
 
-    async updateInfo(mapID: number, data: Prisma.MapInfoUpdateInput): Promise<MapInfo> {
+    updateInfo(mapID: number, data: Prisma.MapInfoUpdateInput): Promise<MapInfo> {
         return this.prisma.mapInfo.update({
             where: {
                 mapID: mapID
@@ -168,8 +168,8 @@ export class MapsRepoService {
 
     //#region Map Submissions
 
-    public async getSubmittedMapsSummary(submitterID: number) {
-        return await this.prisma.map.groupBy({
+    public getSubmittedMapsSummary(submitterID: number) {
+        return this.prisma.map.groupBy({
             by: ['statusFlag'],
             where: { submitterID: submitterID },
             _count: {
@@ -180,15 +180,15 @@ export class MapsRepoService {
     //#endregion
 
     //#region Map Images
-    async getImages(where: Prisma.MapInfoWhereInput, include?: Prisma.MapInfoInclude): Promise<MapImage[]> {
+    getImages(where: Prisma.MapInfoWhereInput, include?: Prisma.MapInfoInclude): Promise<MapImage[]> {
         return this.prisma.mapImage.findMany({ where: where, include: include });
     }
 
-    async getImage(imgID: number) {
+    getImage(imgID: number) {
         return this.prisma.mapImage.findUnique({ where: { id: imgID } });
     }
 
-    async createImage(mapID: number): Promise<MapImage> {
+    createImage(mapID: number): Promise<MapImage> {
         return this.prisma.mapImage.create({
             data: {
                 mapID: mapID
@@ -196,7 +196,7 @@ export class MapsRepoService {
         });
     }
 
-    async updateImage(where: Prisma.MapImageWhereUniqueInput, data: Prisma.MapImageUpdateInput): Promise<MapImage> {
+    updateImage(where: Prisma.MapImageWhereUniqueInput, data: Prisma.MapImageUpdateInput): Promise<MapImage> {
         return this.prisma.mapImage.update({
             where: where,
             data: data
@@ -210,7 +210,7 @@ export class MapsRepoService {
 
     //#region Map Stats
 
-    async updateMapStats(mapID: number, data: Prisma.MapStatsUpdateInput): Promise<MapStats> {
+    updateMapStats(mapID: number, data: Prisma.MapStatsUpdateInput): Promise<MapStats> {
         return this.prisma.mapStats.update({
             where: {
                 mapID: mapID
@@ -223,11 +223,11 @@ export class MapsRepoService {
 
     //#region MapTrack
 
-    async getMapTrack(where: Prisma.MapTrackWhereInput, include?: Prisma.MapTrackInclude): Promise<MapTrack> {
-        return await this.prisma.mapTrack.findFirst({ where: where, include: include });
+    getMapTrack(where: Prisma.MapTrackWhereInput, include?: Prisma.MapTrackInclude): Promise<MapTrack> {
+        return this.prisma.mapTrack.findFirst({ where: where, include: include });
     }
 
-    async getMapTracks(where: Prisma.MapTrackWhereInput, include: Prisma.MapTrackInclude): Promise<MapTrack[]> {
+    getMapTracks(where: Prisma.MapTrackWhereInput, include: Prisma.MapTrackInclude): Promise<MapTrack[]> {
         return this.prisma.mapTrack.findMany({
             where: where,
             include: include
@@ -255,8 +255,8 @@ export class MapsRepoService {
 
     //#region MapZone
 
-    async createMapZone(input: Prisma.MapZoneCreateInput): Promise<MapZone> {
-        return await this.prisma.mapZone.create({
+    createMapZone(input: Prisma.MapZoneCreateInput): Promise<MapZone> {
+        return this.prisma.mapZone.create({
             data: input
         });
     }
@@ -275,8 +275,8 @@ export class MapsRepoService {
 
     //#region MapZoneTrigger
 
-    async createMapZoneTrigger(input: Prisma.MapZoneTriggerCreateInput): Promise<MapZoneTrigger> {
-        return await this.prisma.mapZoneTrigger.create({
+    createMapZoneTrigger(input: Prisma.MapZoneTriggerCreateInput): Promise<MapZoneTrigger> {
+        return this.prisma.mapZoneTrigger.create({
             data: input
         });
     }
@@ -307,8 +307,8 @@ export class MapsRepoService {
         ];
     }
 
-    async getRank(where?: Prisma.UserMapRankWhereInput, include?: Prisma.UserMapRankInclude): Promise<UserMapRank> {
-        return await this.prisma.userMapRank.findFirst({
+    getRank(where?: Prisma.UserMapRankWhereInput, include?: Prisma.UserMapRankInclude): Promise<UserMapRank> {
+        return this.prisma.userMapRank.findFirst({
             where: where,
             include: include
         });
