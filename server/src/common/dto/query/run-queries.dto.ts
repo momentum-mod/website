@@ -1,4 +1,4 @@
-﻿import { ApiPropertyOptional, OmitType } from '@nestjs/swagger';
+﻿import { ApiPropertyOptional, OmitType, PickType } from '@nestjs/swagger';
 import { IsOptional, IsString } from 'class-validator';
 import {
     BooleanQueryProperty,
@@ -54,6 +54,8 @@ export class RunsGetAllQuery {
 }
 
 export class MapsCtlRunsGetAllQuery extends OmitType(RunsGetAllQuery, ['mapID', 'mapName'] as const) {}
+
+export class UserCtlRunsGetAllQuery extends PickType(RunsGetAllQuery, ['userID', 'skip', 'take'] as const) {}
 
 export class RunsGetQuery {
     @ExpandQueryProperty(['overallStats', 'map', 'mapWithInfo', 'rank', 'zoneStats'])

@@ -20,7 +20,6 @@ import { ActivityDto } from '@common/dto/user/activity.dto';
 import { FollowDto, FollowStatusDto, UpdateFollowStatusDto } from '@common/dto/user/follow.dto';
 import { MapCreditDto } from '@common/dto/map/map-credit.dto';
 import { ActivityTypes } from '@common/enums/activity.enum';
-import { RunDto } from '@common/dto/run/run.dto';
 import { DtoFactory, ExpandToPrismaIncludes } from '@lib/dto.lib';
 import { MapNotifyDto, UpdateMapNotifyDto } from '@common/dto/map/map-notify.dto';
 import { MapsRepoService } from '../repo/maps-repo.service';
@@ -508,16 +507,6 @@ export class UsersService {
         const dbResponse = await this.userRepo.getMapCredits(id, skip, take);
 
         return new PaginatedResponseDto(MapCreditDto, dbResponse);
-    }
-
-    //#endregion
-
-    //#region Runs
-
-    async getRuns(id: number, skip?: number, take?: number): Promise<PaginatedResponseDto<RunDto>> {
-        const dbResponse = await this.userRepo.getRuns(id, skip, take);
-
-        return new PaginatedResponseDto(RunDto, dbResponse);
     }
 
     //#endregion

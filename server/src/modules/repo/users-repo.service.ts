@@ -7,7 +7,6 @@ import {
     MapNotify,
     Prisma,
     Profile,
-    Run,
     User,
     UserAuth,
     Notification,
@@ -502,34 +501,6 @@ export class UsersRepoService {
         });
 
         return [mapCredit, count];
-    }
-
-    //#endregion
-
-    //#region Runs
-
-    // TODO: Move to Runs module!!
-    async getRuns(userID: number, skip?: number, take?: number): Promise<[Run[], number]> {
-        const where: Prisma.RunWhereInput = {
-            userID: userID
-        };
-
-        const count = await this.prisma.run.count({
-            where: where
-        });
-
-        const runs = await this.prisma.run.findMany({
-            where: where,
-            skip: skip,
-            take: take,
-            include: {
-                user: true,
-                rank: true,
-                map: true
-            }
-        });
-
-        return [runs, count];
     }
 
     //#endregion
