@@ -2,7 +2,7 @@
 import { ActivityTypes } from '@common/enums/activity.enum';
 import { UserDto } from '@common/dto/user/user.dto';
 import { ProfileDto } from '@common/dto/user/profile.dto';
-import { FollowStatusDto } from '@common/dto/user/followers.dto';
+import { FollowStatusDto } from '@common/dto/user/follow.dto';
 import { ActivityDto } from '@common/dto/user/activity.dto';
 import { MapLibraryEntryDto } from '@common/dto/map/map-library-entry';
 import { NotificationDto } from '@common/dto/user/notification.dto';
@@ -662,7 +662,7 @@ describe('User', () => {
                     url: 'user/maps/library',
                     status: 200,
                     token: token,
-                    validatePaged: { type: MapLibraryEntryDto, returnCount: 2, totalCount: 2 }
+                    validatePaged: { type: MapLibraryEntryDto, count: 2 }
                 }));
 
             it('should retrieve a filtered list of maps in the local users library using the take query', () =>
@@ -767,7 +767,7 @@ describe('User', () => {
                     url: 'user/maps/favorites',
                     status: 200,
                     token: token,
-                    validatePaged: { type: MapFavoriteDto, totalCount: 2, returnCount: 2 }
+                    validatePaged: { type: MapFavoriteDto, count: 2 }
                 }));
 
             it('should retrieve a filtered list of maps in the local users favorites using the take query', () =>
@@ -919,14 +919,14 @@ describe('User', () => {
                 ]);
             });
 
-            afterAll(() => prisma.user.deleteMany());
+            afterAll(() => Promise.all([prisma.user.deleteMany(), prisma.map.deleteMany()]));
 
             it('should retrieve the list of maps that the user submitted', () =>
                 get({
                     url: 'user/maps/submitted',
                     status: 200,
                     token: u1Token,
-                    validatePaged: { type: MapDto, returnCount: 2, totalCount: 2 }
+                    validatePaged: { type: MapDto, count: 2 }
                 }));
 
             it('should retrieve an empty map list if the user has not submitted any maps', async () => {
@@ -994,7 +994,7 @@ describe('User', () => {
                 ]);
             });
 
-            afterAll(() => prisma.user.deleteMany());
+            afterAll(() => Promise.all([prisma.user.deleteMany(), prisma.map.deleteMany()]));
 
             it('should retrieve an array of objects that each contain a statusFlag and its count', async () => {
                 const res = await get({ url: 'user/maps/submitted/summary', status: 200, token: u1Token });
@@ -1040,7 +1040,7 @@ describe('User', () => {
                 const res = await get({
                     url: 'user/notifications',
                     status: 200,
-                    validatePaged: { type: NotificationDto, totalCount: 2, returnCount: 2 },
+                    validatePaged: { type: NotificationDto, count: 2 },
                     token: token
                 });
 
