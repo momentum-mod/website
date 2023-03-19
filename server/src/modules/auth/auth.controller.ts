@@ -89,7 +89,7 @@ export class AuthController {
 
         const user = await this.steamAuthService.validateFromInGame(id, rawBody, appID);
 
-        return await this.authService.loginGame(user);
+        return this.authService.loginGame(user);
     }
 
     @Post('/refresh')

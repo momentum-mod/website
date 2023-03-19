@@ -120,7 +120,7 @@ export class UsersService {
         return this.findOrCreateUser(profile);
     }
 
-    async findOrCreateFromWeb(profile: SteamUserSummaryData): Promise<User> {
+    findOrCreateFromWeb(profile: SteamUserSummaryData): Promise<User> {
         return this.findOrCreateUser({
             steamID: profile.steamid,
             alias: profile.personaname,
@@ -192,8 +192,8 @@ export class UsersService {
 
     //#region Auth
 
-    async getAuth(userID: number): Promise<UserAuth> {
-        return await this.userRepo.getAuth(userID);
+    getAuth(userID: number): Promise<UserAuth> {
+        return this.userRepo.getAuth(userID);
     }
 
     //#endregion
@@ -594,8 +594,8 @@ export class UsersService {
      * Web API doesn't return this, so we have to use this messier method of parsing the profile page as XML.
      * @private
      */
-    private async isAccountLimited(steamID: string): Promise<boolean> {
-        return await lastValueFrom(
+    private isAccountLimited(steamID: string): Promise<boolean> {
+        return lastValueFrom(
             this.http
                 .get(`https://steamcommunity.com/profiles/${steamID}?xml=1`)
                 .pipe(map((res) => /(?<=<isLimitedAccount>)\d(?=<\/isLimitedAccount>)/.exec(res.data)[0] === '1'))

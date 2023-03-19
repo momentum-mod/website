@@ -179,13 +179,13 @@ export class RunsRepoService {
         });
     }
 
-    async batchUpdateUserMapRank(
+    batchUpdateUserMapRank(
         updates: {
             where: Prisma.UserMapRankWhereUniqueInput;
             data: Prisma.UserMapRankUpdateInput;
         }[]
     ) {
-        return await this.prisma.$transaction(
+        return this.prisma.$transaction(
             updates.map((u) => this.prisma.userMapRank.update({ where: u.where, data: u.data }))
         );
     }
