@@ -85,12 +85,8 @@ export class UsersService {
         if (mapRank) {
             include ??= {};
             include.mapRanks = {
-                where: {
-                    mapID: mapRank
-                },
-                include: {
-                    run: true
-                }
+                where: { mapID: mapRank },
+                include: { run: true }
             };
         }
 
@@ -126,7 +122,7 @@ export class UsersService {
 
         const input: Prisma.UserUpdateInput | Prisma.UserCreateInput = {
             alias: userData.alias,
-            avatar: userData.avatar,
+            avatar: userData.avatar.replace('_full.jpg', ''),
             country: userData.country
         };
 
