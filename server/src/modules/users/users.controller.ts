@@ -20,7 +20,7 @@ import { PaginationQuery } from '@common/dto/query/pagination.dto';
 import { RunDto } from '@common/dto/run/run.dto';
 import { UsersGetActivitiesQuery, UsersGetAllQuery, UsersGetQuery } from '@common/dto/query/user-queries.dto';
 
-@Controller('api/users')
+@Controller('users')
 @ApiTags('Users')
 @ApiBearerAuth()
 @ApiExtraModels(PaginatedResponseDto)

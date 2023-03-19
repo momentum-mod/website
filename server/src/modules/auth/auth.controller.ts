@@ -17,9 +17,9 @@ import { ConfigService } from '@nestjs/config';
 import { RefreshTokenDto } from '@common/dto/auth/refresh-token.dto';
 import { SteamWebAuthGuard } from '@modules/auth/guards/steam-web-auth.guard';
 
+@Controller('auth')
 @ApiTags('Auth')
 @ApiBearerAuth()
-@Controller({ path: 'auth' })
 export class AuthController {
     constructor(
         private readonly authService: AuthService,

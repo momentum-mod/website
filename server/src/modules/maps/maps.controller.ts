@@ -49,7 +49,7 @@ import { RunsService } from '../runs/runs.service';
 import { MapImageDto } from '../../common/dto/map/map-image.dto';
 import { RolesGuard } from '@modules/auth/guards/roles.guard';
 
-@Controller('api/maps')
+@Controller('maps')
 @UseGuards(RolesGuard)
 @ApiTags('Maps')
 @ApiBearerAuth()
