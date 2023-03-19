@@ -123,7 +123,7 @@ export function IdProperty(options?: { bigint?: boolean } & Omit<ApiPropertyOpti
     const bigint = options?.bigint ?? false;
     return applyDecorators(
         ApiProperty({ type: Number, ...omit(options, ['bigint']), required: required }),
-        IsInt,
+        IsInt(),
         IsPositive(),
         ...conditionalDecorators([bigint, SafeBigIntToNumber], [!required, IsOptional])
     );
