@@ -1,6 +1,5 @@
-// noinspection DuplicatedCode
 import { PrismaService } from '@modules/repo/prisma.service';
-import { del, get, getNoContent, patch, post, put } from '../util/request-handlers.util';
+import { del, get, patch, post, put } from '../util/request-handlers.util';
 import { ActivityTypes } from '@common/enums/activity.enum';
 import { ReportType, ReportCategory } from '@common/enums/report.enum';
 import { UserDto } from '@common/dto/user/user.dto';
@@ -9,7 +8,7 @@ import { RankXpParams, CosXpParams } from '@modules/xp-systems/xp-systems.interf
 import { ReportDto } from '@common/dto/report/report.dto';
 import { skipTest, takeTest, unauthorizedTest } from '../util/generic-e2e-tests.util';
 import { pick } from 'radash';
-import { createAndLoginUser, createUser, NULL_ID } from '../util/db.util';
+import { createAndLoginUser, createUser, loginNewUser, NULL_ID } from '../util/db.util';
 import { gameLogin } from '../util/auth.util';
 
 describe('Admin', () => {
@@ -19,18 +18,17 @@ describe('Admin', () => {
 
     describe('admin/users', () => {
         describe('POST', () => {
-            let mod, modToken, admin, adminToken, nonAdmin, nonAdminToken;
+            let modToken, adminToken, nonAdminToken;
+
             beforeAll(async () => {
-                [[mod, modToken], [admin, adminToken], [nonAdmin, nonAdminToken]] = await Promise.all([
-                    createAndLoginUser({ data: { roles: { create: { moderator: true } } } }),
-                    createAndLoginUser({ data: { roles: { create: { admin: true } } } }),
-                    createAndLoginUser()
+                [modToken, adminToken, nonAdminToken] = await Promise.all([
+                    loginNewUser({ data: { roles: { create: { moderator: true } } } }),
+                    loginNewUser({ data: { roles: { create: { admin: true } } } }),
+                    loginNewUser()
                 ]);
             });
 
-            afterAll(async () => {
-                await prisma.user.deleteMany();
-            });
+            afterAll(() => prisma.user.deleteMany());
 
             it('should successfully create a placeholder user', async () => {
                 const res = await post({
@@ -66,9 +64,10 @@ describe('Admin', () => {
 
     describe('admin/users/merge', () => {
         describe('POST', () => {
-            let u1, u1Token, u2, mu1, mu2, admin, adminToken, mod, modToken;
+            let u1, u1Token, u2, mu1, mu2, adminToken, modToken;
+
             beforeEach(async () => {
-                [[u1, u1Token], u2, mu1, mu2, [admin, adminToken], [mod, modToken]] = await Promise.all([
+                [[u1, u1Token], u2, mu1, mu2, adminToken, modToken] = await Promise.all([
                     createAndLoginUser(),
                     createUser(),
                     createUser({ data: { roles: { create: { placeholder: true } } } }),
@@ -76,6 +75,7 @@ describe('Admin', () => {
                     createAndLoginUser({ data: { roles: { create: { admin: true } } } }),
                     createAndLoginUser({ data: { roles: { create: { moderator: true } } } })
                 ]);
+
                 await prisma.follow.createMany({
                     data: [
                         { followeeID: u1.id, followedID: mu1.id },
@@ -94,13 +94,13 @@ describe('Admin', () => {
                         { followeeID: mu2.id, followedID: mu1.id }
                     ]
                 });
+
                 await prisma.activity.create({
                     data: { type: ActivityTypes.REPORT_FILED, userID: mu1.id, data: 123456n }
                 });
             });
-            afterEach(() =>
-                Promise.all([prisma.user.deleteMany(), prisma.activity.deleteMany(), prisma.follow.deleteMany()])
-            );
+
+            afterEach(() => prisma.user.deleteMany());
 
             it('should merge two accounts together', async () => {
                 const res = await post({
@@ -212,6 +212,7 @@ describe('Admin', () => {
     describe('admin/users/{userID}', () => {
         describe('PATCH', () => {
             let admin, adminToken, adminGameToken, admin2, u1, u1Token, u2, u3, mod, modToken, mod2;
+
             beforeEach(async () => {
                 [[admin, adminToken], admin2, [u1, u1Token], u2, u3, [mod, modToken], mod2] = await Promise.all([
                     createAndLoginUser({ data: { roles: { create: { admin: true } } } }),
@@ -224,6 +225,7 @@ describe('Admin', () => {
                 ]);
                 adminGameToken = await gameLogin(admin);
             });
+
             afterEach(() => prisma.user.deleteMany());
 
             it("should successfully update a specific user's alias", async () => {
@@ -264,7 +266,7 @@ describe('Admin', () => {
                 }));
 
             it("should successfully update a specific user's bio", async () => {
-                const bio = 'Im hungry';
+                const bio = "I'm hungry";
                 await patch({
                     url: `admin/users/${u1.id}`,
                     status: 204,
@@ -441,17 +443,20 @@ describe('Admin', () => {
             it('should 401 when no access token is provided', () =>
                 patch({ url: `admin/users/${u1.id}`, status: 401 }));
 
-            // unauthorizedTest(`admin/users/${u1.id}`, patch);
+            unauthorizedTest('admin/users/1', patch);
         });
+
         describe('DELETE', () => {
-            let u1, u1Token, admin, adminToken, mod, modToken;
+            let u1, u1Token, adminToken, modToken;
+
             beforeEach(async () => {
-                [[u1, u1Token], [admin, adminToken], [mod, modToken]] = await Promise.all([
+                [[u1, u1Token], adminToken, modToken] = await Promise.all([
                     createAndLoginUser(),
-                    createAndLoginUser({ data: { roles: { create: { admin: true } } } }),
-                    createAndLoginUser({ data: { roles: { create: { moderator: true } } } })
+                    loginNewUser({ data: { roles: { create: { admin: true } } } }),
+                    loginNewUser({ data: { roles: { create: { moderator: true } } } })
                 ]);
             });
+
             afterEach(() => prisma.user.deleteMany());
 
             it('should delete a user', async () => {
@@ -467,18 +472,21 @@ describe('Admin', () => {
                 del({ url: `admin/users/${u1.id}`, status: 403, token: u1Token }));
 
             it('should 401 when no access token is provided', () => del({ url: `admin/users/${u1.id}`, status: 401 }));
-            // unauthorizedTest(`admin/users/${u1.id}`, del);
+
+            unauthorizedTest('admin/users/1', del);
         });
     });
 
     describe('admin/reports', () => {
         describe('GET', () => {
-            let admin, adminToken, u1, u1Token, r1, r2;
+            let adminToken, u1, u1Token, r1, _r2;
+
             beforeEach(async () => {
-                [[admin, adminToken], [u1, u1Token]] = await Promise.all([
+                [adminToken, [u1, u1Token]] = await Promise.all([
                     createAndLoginUser({ data: { roles: { create: { admin: true } } } }),
                     createAndLoginUser()
                 ]);
+
                 r1 = await prisma.report.create({
                     data: {
                         data: 1,
@@ -490,7 +498,8 @@ describe('Admin', () => {
                         submitterID: u1.id
                     }
                 });
-                r2 = await prisma.report.create({
+
+                _r2 = await prisma.report.create({
                     data: {
                         data: 2,
                         type: ReportType.USER_PROFILE_REPORT,
@@ -502,13 +511,15 @@ describe('Admin', () => {
                     }
                 });
             });
-            afterEach(() => Promise.all([prisma.user.deleteMany(), prisma.report.deleteMany()]));
+
+            afterEach(() => prisma.user.deleteMany());
+
             it('should return a list of reports', async () => {
                 const reports = await get({
                     url: 'admin/reports',
                     status: 200,
                     token: adminToken,
-                    validatePaged: { type: ReportDto, returnCount: 2, totalCount: 2 }
+                    validatePaged: { type: ReportDto, count: 2 }
                 });
                 expect(reports.body).toHaveProperty('response');
                 expect(reports.body.response[0].data).toBe(Number(r1.data));
@@ -526,8 +537,9 @@ describe('Admin', () => {
                     status: 200,
                     query: { resolved: true },
                     token: adminToken,
-                    validatePaged: { type: ReportDto, returnCount: 1, totalCount: 1 }
+                    validatePaged: { type: ReportDto, count: 1 }
                 });
+
                 expect(reportsResolved.body.response[0].resolved).toBe(true);
 
                 const reportsNonResolved = await get({
@@ -535,8 +547,9 @@ describe('Admin', () => {
                     status: 200,
                     query: { resolved: false },
                     token: adminToken,
-                    validatePaged: { type: ReportDto, returnCount: 1, totalCount: 1 }
+                    validatePaged: { type: ReportDto, count: 1 }
                 });
+
                 expect(reportsNonResolved.body.response[0].resolved).toBe(false);
             });
 
@@ -555,24 +568,26 @@ describe('Admin', () => {
                 }));
 
             it('should return 403 if a non admin access token is given', () =>
-                getNoContent({
+                get({
                     url: 'admin/reports',
                     status: 403,
                     token: u1Token
                 }));
 
-            unauthorizedTest('admin/reports', getNoContent);
+            unauthorizedTest('admin/reports', get);
         });
     });
 
     describe('admin/reports/{reportID}', () => {
         describe('PATCH', () => {
-            let admin, adminToken, u1, u1Token, r1, r2;
+            let admin, adminToken, u1, u1Token, r1, _r2;
+
             beforeEach(async () => {
                 [[admin, adminToken], [u1, u1Token]] = await Promise.all([
                     createAndLoginUser({ data: { roles: { create: { admin: true } } } }),
                     createAndLoginUser()
                 ]);
+
                 r1 = await prisma.report.create({
                     data: {
                         data: 1,
@@ -584,7 +599,8 @@ describe('Admin', () => {
                         submitterID: u1.id
                     }
                 });
-                r2 = await prisma.report.create({
+
+                _r2 = await prisma.report.create({
                     data: {
                         data: 2,
                         type: ReportType.USER_PROFILE_REPORT,
@@ -596,7 +612,8 @@ describe('Admin', () => {
                     }
                 });
             });
-            afterEach(() => Promise.all([prisma.user.deleteMany(), prisma.report.deleteMany()]));
+
+            afterEach(() => prisma.user.deleteMany());
 
             it('should edit a report', async () => {
                 await patch({
@@ -605,7 +622,9 @@ describe('Admin', () => {
                     body: { resolved: true, resolutionMessage: 'resolved' },
                     token: adminToken
                 });
+
                 const changedReport = await prisma.report.findFirst({ where: { id: r1.id } });
+
                 expect(changedReport.resolved).toBe(true);
                 expect(changedReport.resolutionMessage).toBe('resolved');
                 expect(changedReport.resolverID).toBe(admin.id);
@@ -628,55 +647,59 @@ describe('Admin', () => {
     });
 
     describe('admin/xpsys', () => {
-        let admin, adminToken, mod, modToken, u1, u1Token;
-        beforeEach(async () => {
-            [[admin, adminToken], [mod, modToken], [u1, u1Token]] = await Promise.all([
-                createAndLoginUser({ data: { roles: { create: { admin: true } } } }),
-                createAndLoginUser({ data: { roles: { create: { moderator: true } } } }),
-                createAndLoginUser()
-            ]);
-            if ((await prisma.xpSystems.count()) === 0)
-                await prisma.xpSystems.create({
-                    data: {
-                        id: 1,
-                        rankXP: {
-                            top10: {
-                                WRPoints: 3000,
-                                rankPercentages: [1, 0.75, 0.68, 0.61, 0.57, 0.53, 0.505, 0.48, 0.455, 0.43]
-                            },
-                            groups: {
-                                maxGroups: 4,
-                                groupMinSizes: [10, 45, 125, 250],
-                                groupExponents: [0.5, 0.56, 0.62, 0.68],
-                                groupPointPcts: [0.2, 0.13, 0.07, 0.03],
-                                groupScaleFactors: [1, 1.5, 2, 2.5]
-                            },
-                            formula: { A: 50000, B: 49 }
-                        } as RankXpParams,
+        let adminToken, modToken, u1Token;
 
-                        cosXP: {
-                            levels: {
-                                maxLevels: 500,
-                                startingValue: 20000,
-                                staticScaleStart: 101,
-                                linearScaleInterval: 10,
-                                staticScaleInterval: 25,
-                                linearScaleBaseIncrease: 1000,
-                                staticScaleBaseMultiplier: 1.5,
-                                linearScaleIntervalMultiplier: 1,
-                                staticScaleIntervalMultiplier: 0.5
-                            },
-                            completions: {
-                                repeat: { tierScale: { bonus: 40, linear: 20, staged: 40, stages: 5 } },
-                                unique: { tierScale: { linear: 2500, staged: 2500 } }
-                            }
-                        } as CosXpParams,
-                        createdAt: new Date('12/24/2021'),
-                        updatedAt: new Date('12/25/2021')
-                    }
-                });
+        beforeEach(async () => {
+            [adminToken, modToken, u1Token] = await Promise.all([
+                loginNewUser({ data: { roles: { create: { admin: true } } } }),
+                loginNewUser({ data: { roles: { create: { moderator: true } } } }),
+                loginNewUser()
+            ]);
+
+            await prisma.xpSystems.deleteMany();
+
+            await prisma.xpSystems.create({
+                data: {
+                    id: 1,
+                    rankXP: {
+                        top10: {
+                            WRPoints: 3000,
+                            rankPercentages: [1, 0.75, 0.68, 0.61, 0.57, 0.53, 0.505, 0.48, 0.455, 0.43]
+                        },
+                        groups: {
+                            maxGroups: 4,
+                            groupMinSizes: [10, 45, 125, 250],
+                            groupExponents: [0.5, 0.56, 0.62, 0.68],
+                            groupPointPcts: [0.2, 0.13, 0.07, 0.03],
+                            groupScaleFactors: [1, 1.5, 2, 2.5]
+                        },
+                        formula: { A: 50000, B: 49 }
+                    } as RankXpParams,
+
+                    cosXP: {
+                        levels: {
+                            maxLevels: 500,
+                            startingValue: 20000,
+                            staticScaleStart: 101,
+                            linearScaleInterval: 10,
+                            staticScaleInterval: 25,
+                            linearScaleBaseIncrease: 1000,
+                            staticScaleBaseMultiplier: 1.5,
+                            linearScaleIntervalMultiplier: 1,
+                            staticScaleIntervalMultiplier: 0.5
+                        },
+                        completions: {
+                            repeat: { tierScale: { bonus: 40, linear: 20, staged: 40, stages: 5 } },
+                            unique: { tierScale: { linear: 2500, staged: 2500 } }
+                        }
+                    } as CosXpParams,
+                    createdAt: new Date('12/24/2021'),
+                    updatedAt: new Date('12/25/2021')
+                }
+            });
         });
-        afterEach(() => Promise.all([prisma.xpSystems.delete({ where: { id: 1 } }), prisma.user.deleteMany()]));
+
+        afterEach(() => Promise.all([prisma.xpSystems.deleteMany(), prisma.user.deleteMany()]));
 
         describe('GET', () => {
             it('should respond with the current XP System variables when the user is an admin', () =>
@@ -742,19 +765,9 @@ describe('Admin', () => {
             };
 
             it('should update the XP system variables', async () => {
-                await put({
-                    url: 'admin/xpsys',
-                    status: 204,
-                    body: body,
-                    token: adminToken
-                });
+                await put({ url: 'admin/xpsys', status: 204, body: body, token: adminToken });
 
-                const res = await get({
-                    url: 'admin/xpsys',
-                    status: 200,
-                    token: adminToken,
-                    validate: XpSystemsDto
-                });
+                const res = await get({ url: 'admin/xpsys', status: 200, token: adminToken, validate: XpSystemsDto });
 
                 expect(res.body.cosXP.levels.maxLevels).toBe(600);
                 expect(res.body).toStrictEqual(body as XpSystemsDto);
@@ -764,36 +777,16 @@ describe('Admin', () => {
                 const incompleteBody = body;
                 delete incompleteBody.rankXP.top10.rankPercentages;
 
-                await put({
-                    url: 'admin/xpsys',
-                    status: 400,
-                    body: incompleteBody,
-                    token: adminToken
-                });
+                await put({ url: 'admin/xpsys', status: 400, body: incompleteBody, token: adminToken });
             });
 
             it('should 403 when the user requesting is a moderator', () =>
-                put({
-                    url: 'admin/xpsys',
-                    status: 403,
-                    body: body,
-                    token: modToken
-                }));
+                put({ url: 'admin/xpsys', status: 403, body: body, token: modToken }));
 
             it('should 403 when the user requesting is not an admin', () =>
-                put({
-                    url: 'admin/xpsys',
-                    status: 403,
-                    body: body,
-                    token: u1Token
-                }));
+                put({ url: 'admin/xpsys', status: 403, body: body, token: u1Token }));
 
-            it('should 401 when no access token is provided', () =>
-                put({
-                    url: 'admin/xpsys',
-                    body: body,
-                    status: 401
-                }));
+            unauthorizedTest('admin/xpsys', get);
         });
     });
 });
