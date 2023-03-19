@@ -64,7 +64,7 @@ describe('Maps', () => {
                 const res = await get({
                     url: 'maps',
                     status: 200,
-                    validatePaged: { type: MapDto, returnCount: 4, totalCount: 4 },
+                    validatePaged: { type: MapDto, count: 4 },
                     token: u1Token
                 });
 
@@ -102,7 +102,7 @@ describe('Maps', () => {
                     url: 'maps',
                     status: 200,
                     query: { submitterID: u1.id },
-                    validatePaged: { type: MapDto, totalCount: 1, returnCount: 1 },
+                    validatePaged: { type: MapDto, count: 1 },
                     token: u1Token
                 });
 
@@ -117,7 +117,7 @@ describe('Maps', () => {
                     url: 'maps',
                     status: 200,
                     query: { type: newType },
-                    validatePaged: { type: MapDto, totalCount: 1, returnCount: 1 },
+                    validatePaged: { type: MapDto, count: 1 },
                     token: u1Token
                 });
 
@@ -225,7 +225,7 @@ describe('Maps', () => {
                     status: 200,
                     query: { difficultyLow: 2 },
                     token: u1Token,
-                    validatePaged: { type: MapDto, returnCount: 3, totalCount: 3 }
+                    validatePaged: { type: MapDto, count: 3 }
                 });
             });
 
@@ -235,7 +235,7 @@ describe('Maps', () => {
                     status: 200,
                     query: { difficultyHigh: 4 },
                     token: u1Token,
-                    validatePaged: { type: MapDto, returnCount: 3, totalCount: 3 }
+                    validatePaged: { type: MapDto, count: 3 }
                 }));
 
             it('should respond with filtered maps when using both the difficultyLow and difficultyHigh filter', () =>
@@ -244,7 +244,7 @@ describe('Maps', () => {
                     status: 200,
                     query: { difficultyLow: 2, difficultyHigh: 4 },
                     token: u1Token,
-                    validatePaged: { type: MapDto, returnCount: 2, totalCount: 2 }
+                    validatePaged: { type: MapDto, count: 2 }
                 }));
 
             it('should respond with filtered maps when the isLinear filter', async () => {
@@ -257,7 +257,7 @@ describe('Maps', () => {
                     url: 'maps',
                     status: 200,
                     query: { isLinear: false },
-                    validatePaged: { type: MapDto, returnCount: 2, totalCount: 2 },
+                    validatePaged: { type: MapDto, count: 2 },
                     token: u1Token
                 });
 
@@ -267,7 +267,7 @@ describe('Maps', () => {
                     url: 'maps',
                     status: 200,
                     query: { isLinear: true },
-                    validatePaged: { type: MapDto, returnCount: 2, totalCount: 2 },
+                    validatePaged: { type: MapDto, count: 2 },
                     token: u1Token
                 });
 
@@ -1557,7 +1557,9 @@ describe('Maps', () => {
     describe('maps/images/{imgID}', () => {
         describe('GET', () => {
             let token, map;
+
             beforeAll(async () => ([token, map] = await Promise.all([loginNewUser(), createMap()])));
+
             afterAll(() => Promise.all([prisma.user.deleteMany(), prisma.map.deleteMany()]));
 
             it('should respond with image info', () =>
@@ -1762,7 +1764,7 @@ describe('Maps', () => {
                 get({
                     url: `maps/${map.id}/runs`,
                     status: 200,
-                    validatePaged: { type: RunDto, returnCount: 4, totalCount: 4 },
+                    validatePaged: { type: RunDto, count: 4 },
                     token: u1Token
                 }));
 
@@ -1777,7 +1779,7 @@ describe('Maps', () => {
                     url: `maps/${map.id}/runs`,
                     status: 200,
                     query: { userID: u2.id },
-                    validatePaged: { type: RunDto, returnCount: 1, totalCount: 1 },
+                    validatePaged: { type: RunDto, count: 1 },
                     token: u1Token
                 });
 
@@ -1789,7 +1791,7 @@ describe('Maps', () => {
                     url: `maps/${map.id}/runs`,
                     status: 200,
                     query: { userIDs: `${u2.id},${u3.id}` },
-                    validatePaged: { type: RunDto, returnCount: 2, totalCount: 2 },
+                    validatePaged: { type: RunDto, count: 2 },
                     token: u1Token
                 }));
 
@@ -1798,7 +1800,7 @@ describe('Maps', () => {
                     url: `maps/${map.id}/runs`,
                     status: 200,
                     query: { flags: 1 },
-                    validatePaged: { type: RunDto, returnCount: 3, totalCount: 3 },
+                    validatePaged: { type: RunDto, count: 3 },
                     token: u1Token
                 }));
 
@@ -1881,40 +1883,6 @@ describe('Maps', () => {
         });
     });
 
-    // describe('GET maps/{mapID}/runs/{runID}', () => {
-    //     it('should return the specified run', async () => {
-    //         const res = await get({
-    //             url: `maps/${map1.id}/runs/1`,
-    //             status: 200,
-    //             token: user1Token
-    //         });
-    //
-    //         expect(res.body).toBeValidDto(RunDto);
-    //     });
-    //
-    //     it('should 401 when no access token is provided', () =>
-    //         get({
-    //             url: `maps/${map1.id}/runs/1`,
-    //             status: 401
-    //         }));
-    // });
-
-    // describe('GET maps/{mapID}/runs/{runID}/download', () => {
-    //     it('should download the run', async () => {
-    //         await get({
-    //             url: `maps/${map1.id}/runs/1/download`,
-    //             status: 200,
-    //             token: user1Token
-    //         });
-    //     });
-    //
-    //     it('should 401 when no access token is provided', () =>
-    //         get({
-    //             url: `maps/${map1.id}/runs/1/download`,
-    //             status: 401
-    //         }));
-    // });
-
     describe('maps/{mapID}/ranks', () => {
         describe('GET', () => {
             let u1, u1Token, u2, u3, map;
@@ -1959,7 +1927,7 @@ describe('Maps', () => {
                 get({
                     url: `maps/${map.id}/ranks`,
                     status: 200,
-                    validatePaged: { type: UserMapRankDto, returnCount: 3, totalCount: 3 },
+                    validatePaged: { type: UserMapRankDto, count: 3 },
                     token: u1Token
                 }));
 
@@ -1968,7 +1936,7 @@ describe('Maps', () => {
                     url: `maps/${map.id}/ranks`,
                     status: 200,
                     query: { playerID: u2.id },
-                    validatePaged: { type: UserMapRankDto, returnCount: 1, totalCount: 1 },
+                    validatePaged: { type: UserMapRankDto, count: 1 },
                     token: u1Token
                 });
 
@@ -1980,7 +1948,7 @@ describe('Maps', () => {
                     url: `maps/${map.id}/ranks`,
                     status: 200,
                     query: { playerIDs: `${u1.id},${u2.id}` },
-                    validatePaged: { type: UserMapRankDto, returnCount: 2, totalCount: 2 },
+                    validatePaged: { type: UserMapRankDto, count: 2 },
                     token: u1Token
                 });
 
@@ -1992,7 +1960,7 @@ describe('Maps', () => {
                     url: `maps/${map.id}/ranks`,
                     status: 200,
                     query: { flags: 1 },
-                    validatePaged: { type: UserMapRankDto, returnCount: 2, totalCount: 2 },
+                    validatePaged: { type: UserMapRankDto, count: 2 },
                     token: u1Token
                 });
 
