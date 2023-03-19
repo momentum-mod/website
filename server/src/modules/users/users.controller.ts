@@ -15,7 +15,7 @@ import { ApiOkPaginatedResponse, PaginatedResponseDto } from '@common/dto/pagina
 import { ActivityDto } from '@common/dto/user/activity.dto';
 import { ProfileDto } from '@common/dto/user/profile.dto';
 import { MapCreditDto } from '@common/dto/map/map-credit.dto';
-import { FollowDto } from '@common/dto/user/followers.dto';
+import { FollowDto } from '@common/dto/user/follow.dto';
 import { PaginationQuery } from '@common/dto/query/pagination.dto';
 import { RunDto } from '@common/dto/run/run.dto';
 import { UsersGetActivitiesQuery, UsersGetAllQuery, UsersGetQuery } from '@common/dto/query/user-queries.dto';

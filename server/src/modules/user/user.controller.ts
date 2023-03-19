@@ -14,7 +14,7 @@ import {
 import { UpdateUserDto, UserDto } from '@common/dto/user/user.dto';
 import { UsersService } from '../users/users.service';
 import { LoggedInUser } from '@common/decorators/logged-in-user.decorator';
-import { FollowStatusDto, UpdateFollowStatusDto } from '@common/dto/user/followers.dto';
+import { FollowStatusDto, UpdateFollowStatusDto } from '@common/dto/user/follow.dto';
 import { ProfileDto } from '@common/dto/user/profile.dto';
 import { MapNotifyDto, UpdateMapNotifyDto } from '@common/dto/map/map-notify.dto';
 import { ApiOkPaginatedResponse, PaginatedResponseDto } from '@common/dto/paginated-response.dto';
