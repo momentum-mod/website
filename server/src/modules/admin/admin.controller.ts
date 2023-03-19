@@ -39,7 +39,7 @@ import { UpdateXpSystemsDto, XpSystemsDto } from '@common/dto/xp-systems/xp-syst
 import { RolesGuard } from '@modules/auth/guards/roles.guard';
 import { NonGameAuthGuard } from '@modules/auth/guards/game-auth.guard';
 
-@Controller('api/admin')
+@Controller('admin')
 @UseGuards(RolesGuard)
 @UseGuards(NonGameAuthGuard)
 @Roles(RolesEnum.ADMIN)

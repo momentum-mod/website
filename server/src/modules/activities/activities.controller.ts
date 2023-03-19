@@ -5,7 +5,7 @@ import { ApiOkPaginatedResponse, PaginatedResponseDto } from '@common/dto/pagina
 import { ActivityDto } from '@common/dto/user/activity.dto';
 import { ActivitiesGetQuery } from '@common/dto/query/activity-queries.dto';
 
-@Controller('api/activities')
+@Controller('activities')
 @ApiTags('Activities')
 @ApiBearerAuth()
 export class ActivitiesController {

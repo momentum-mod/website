@@ -58,7 +58,7 @@ import { MapImageDto } from '../../common/dto/map/map-image.dto';
 import { RolesGuard } from '@modules/auth/guards/roles.guard';
 import { UserMapRankDto } from '@common/dto/run/user-map-rank.dto';
 
-@Controller('api/maps')
+@Controller('maps')
 @UseGuards(RolesGuard)
 @ApiTags('Maps')
 @ApiBearerAuth()

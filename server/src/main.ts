@@ -32,8 +32,7 @@ export async function setupNestApplication(app: INestApplication, validationOpti
     app.useGlobalPipes(new ValidationPipe(validationOptions));
     app.useGlobalInterceptors(new ClassSerializerInterceptor(app.get(Reflector)));
 
-    // For some reason this doesn't exclude 'auth' properly. Messed with it a while and got nowhere.
-    // app.setGlobalPrefix('api', { exclude: ['auth'] });
+    app.setGlobalPrefix('api', { exclude: ['auth(.*)'] });
 
     const prismaDalc: PrismaService = app.get(PrismaService);
     await prismaDalc.enableShutdownHooks(app);
