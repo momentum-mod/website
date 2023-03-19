@@ -1,10 +1,8 @@
-﻿// noinspection DuplicatedCode
-
-import request from 'supertest';
+﻿import request from 'supertest';
 
 describe('Auth', () => {
-    describe('GET /auth', () => {
-        describe('GET /auth/steam', () => {
+    describe('auth/steam', () => {
+        describe('GET', () => {
             it('should redirect to steam login', async () => {
                 await request(global.server)
                     .get('/auth/steam')
