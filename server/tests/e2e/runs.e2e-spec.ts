@@ -3,23 +3,18 @@ import * as request from 'supertest';
 import { RunDto } from '@common/dto/run/run.dto';
 import { PrismaService } from '@modules/repo/prisma.service';
 import { get } from '../util/request-handlers.util';
-import { expandTest, skipTest, takeTest } from '@tests/util/generic-e2e-tests.util';
+import { expandTest, skipTest, takeTest, unauthorizedTest } from '@tests/util/generic-e2e-tests.util';
 import { Config } from '@config/config';
-import {
-    createAndLoginUser,
-    createUser,
-    createMap,
-    createMaps,
-    createRun,
-    createRunAndUmrForMap
-} from '@tests/util/db.util';
-
-//TODO globally make sure that all variables are in the right scope (perhaps shift to it instead of describe)
+import { createAndLoginUser, createUser, createMap, createRun, createRunAndUmrForMap } from '@tests/util/db.util';
+import { MapType } from '@/common/enums/map.enum';
 
 describe('Runs', () => {
     let prisma: PrismaService;
-    const r1ticks = 75724;
-    const r1tickrate = 100;
+
+    //LEGACY this is the ticks from the old tests converted to a different tick rate, not sure if necessary
+    const legacytickrate = 66.6;
+    const rtickrate = 100;
+    const r1ticks = Math.floor((113700 * legacytickrate) / rtickrate);
 
     beforeEach(async () => {
         prisma = global.prisma;
@@ -30,19 +25,47 @@ describe('Runs', () => {
             let u1, u1Token, u2, m1, m2, r1, r2, r3, r4;
 
             beforeAll(async () => {
-                [[u1, u1Token], u2, [m1, m2]] = await Promise.all([createAndLoginUser(), createUser(), createMaps(2)]);
+                [[u1, u1Token], u2, m1, m2] = await Promise.all([
+                    createAndLoginUser(),
+                    createUser(),
+                    createMap({ type: MapType.RJ }),
+                    createMap({ type: MapType.SURF, name: 'surf_epicfun_testingmap' })
+                ]);
 
-                //TODO create all the runs, perhaps move some to specific it, makes sure to create with Umr
-                r1 = createRunAndUmrForMap({
-                    map: m1,
-                    rank: 6,
-                    user: u1,
-                    ticks: r1ticks * r1tickrate,
-                    flags: 1 << 0,
-                    createdAt: new Date('2013-09-05 15:34:00'),
-                    trackNum: 1,
-                    zoneNum: 1
-                });
+                //LEGACY this is the ticks from the old tests converted to a different tick rate, not sure if necessary
+                const r2ticks = Math.floor((692001 * legacytickrate) / 100);
+                const r3ticks = Math.floor((123456 * legacytickrate) / rtickrate);
+                const r4ticks = Math.floor((123456 * legacytickrate) / rtickrate);
+                [r1, r2, r3, r4] = await Promise.all([
+                    createRunAndUmrForMap({
+                        map: m1,
+                        rank: 6,
+                        user: u1,
+                        ticks: r1ticks,
+                        flags: 1 << 0,
+                        createdAt: new Date('2013-09-05 15:34:00')
+                    }),
+                    createRun({
+                        map: m1,
+                        user: u2,
+                        ticks: r2ticks,
+                        flags: 1 << 1,
+                        createdAt: new Date('2018-10-05 11:37:00')
+                    }),
+                    createRun({
+                        map: m2,
+                        user: u1,
+                        ticks: r3ticks,
+                        flags: 1 << 4
+                    }),
+                    createRunAndUmrForMap({
+                        map: m2,
+                        rank: 111,
+                        user: u2,
+                        ticks: r4ticks,
+                        flags: 1 << 5
+                    })
+                ]);
             });
 
             afterAll(() => Promise.all([prisma.user.deleteMany(), prisma.map.deleteMany(), prisma.run.deleteMany()]));
@@ -133,7 +156,7 @@ describe('Runs', () => {
                 expects(res);
 
                 expect(res.body.totalCount).toBe(1);
-                expect(res.body.response[0].flags).toBe(run4.flags); // This uses strict equality for now, but will change in 0.10.0
+                expect(res.body.response[0].flags).toBe(r4.flags); // This uses strict equality for now, but will change in 0.10.0
             });
 
             it('should respond with a list of runs with the map include', () =>
@@ -219,7 +242,7 @@ describe('Runs', () => {
                 expect(res.body.returnCount).toBeGreaterThanOrEqual(2);
                 for (const x of res.body.response) {
                     expect(x).toHaveProperty('rank');
-                    expect([run2.id, run3.id]).not.toContain(BigInt(x.id));
+                    expect([r2.id, r3.id]).not.toContain(BigInt(x.id));
                 }
             });
 
@@ -255,11 +278,7 @@ describe('Runs', () => {
                 expect(res.body.response).toEqual(sortedRes);
             });
 
-            it('should 401 if no access token is provided', () =>
-                get({
-                    url: 'runs',
-                    status: 401
-                }));
+            unauthorizedTest('runs', get);
         });
     });
 
@@ -269,14 +288,13 @@ describe('Runs', () => {
 
             beforeAll(async () => {
                 [[u1, u1Token], m1] = await Promise.all([createAndLoginUser(), createMap()]);
-                r1 = createRun({
+                r1 = await createRunAndUmrForMap({
                     map: m1,
+                    rank: 1,
                     user: u1,
-                    ticks: r1ticks * r1tickrate,
+                    ticks: r1ticks,
                     flags: 1 << 0,
-                    createdAt: new Date('2013-09-05 15:34:00'),
-                    trackNum: 1,
-                    zoneNum: 1
+                    createdAt: new Date('2013-09-05 15:34:00')
                 });
             });
 
@@ -348,11 +366,7 @@ describe('Runs', () => {
                     token: u1Token
                 }));
 
-            it('should 401 when no access token is provided', () =>
-                get({
-                    url: 'runs/1',
-                    status: 401
-                }));
+            unauthorizedTest('runs/1', get);
         });
     });
 
@@ -362,16 +376,14 @@ describe('Runs', () => {
 
             beforeAll(async () => {
                 [[u1, u1Token], m1] = await Promise.all([createAndLoginUser(), createMap()]);
-                r1 = createRun({
+                r1 = await createRun({
                     map: m1,
                     user: u1,
-                    ticks: r1ticks * r1tickrate,
+                    ticks: r1ticks,
                     flags: 1 << 0,
-                    createdAt: new Date('2013-09-05 15:34:00'),
-                    trackNum: 1,
-                    zoneNum: 1
+                    createdAt: new Date('2013-09-05 15:34:00')
                 });
-                //TODO make the run file uploading work
+                //CHECK (see later comment)
             });
 
             afterAll(() => Promise.all([prisma.user.deleteMany(), prisma.map.deleteMany(), prisma.run.deleteMany()]));
@@ -384,7 +396,8 @@ describe('Runs', () => {
                     contentType: null
                 });
 
-                //TODO potentially change this
+                //LEGACY why are there logs here
+                //CHECK I have 0 idea how it manages to find a file
                 console.log(`${Config.url.cdn}/${Config.storage.bucketName}/${r1.file}`);
                 expect(res.header.location).toEqual(`${Config.url.cdn}/${Config.storage.bucketName}/${r1.file}`);
                 console.log(res.header.location);
@@ -397,7 +410,8 @@ describe('Runs', () => {
                     token: u1Token
                 }));
 
-            it('should 401 when no access token is provided', () =>
+            //LEGACY needed because otherwise error of r1.id undefined
+            it('should respond with 401 when no access token is provided', () =>
                 get({
                     url: `runs/${r1.id}/download`,
                     status: 401
