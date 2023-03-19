@@ -1,11 +1,9 @@
-// noinspection DuplicatedCode
-
 import { get } from '../util/request-handlers.util';
 import { ActivityTypes } from '@common/enums/activity.enum';
 import { PrismaService } from '@modules/repo/prisma.service';
 import { ActivityDto } from '@common/dto/user/activity.dto';
 import { skipTest, takeTest, unauthorizedTest } from '@tests/util/generic-e2e-tests.util';
-import { createAndLoginUser, NULL_ID } from '../util/db.util';
+import { createAndLoginUser, createUser, NULL_ID } from '../util/db.util';
 
 describe('Activities', () => {
     let prisma: PrismaService;
@@ -13,34 +11,40 @@ describe('Activities', () => {
 
     describe('activities', () => {
         describe('GET', () => {
-            let u1, u1Token, u2, u2Token;
-            let activity1, activity2, activity3;
+            let u1, u1Token, u2, _activity1, _activity2, activity3;
             beforeAll(async () => {
-                [[u1, u1Token], [u2, u2Token]] = await Promise.all([
+                [[u1, u1Token], u2] = await Promise.all([
                     createAndLoginUser({
                         data: { roles: { create: { verified: true, mapper: true } } },
                         include: { roles: true }
                     }),
-                    createAndLoginUser({ data: { roles: { create: { mapper: true } } }, include: { roles: true } })
+                    createUser({ data: { roles: { create: { mapper: true } } }, include: { roles: true } })
                 ]);
 
-                [activity1, activity2, activity3] = [
+                // Define these BEFORE insert for later checks, Prisma doesn't give us back our fookin created items.
+                [_activity1, _activity2, activity3] = [
                     { userID: u1.id, data: 122, type: ActivityTypes.MAP_APPROVED },
                     { userID: u1.id, data: 123, type: ActivityTypes.WR_ACHIEVED },
                     { userID: u2.id, data: 124, type: ActivityTypes.REVIEW_MADE }
                 ];
 
-                await prisma.activity.createMany({ data: [activity1, activity2, activity3] });
+                await prisma.activity.createMany({
+                    data: [
+                        { userID: u1.id, data: 122, type: ActivityTypes.MAP_APPROVED },
+                        { userID: u1.id, data: 123, type: ActivityTypes.WR_ACHIEVED },
+                        { userID: u2.id, data: 124, type: ActivityTypes.REVIEW_MADE }
+                    ]
+                });
             });
 
-            afterAll(() => Promise.all([prisma.user.deleteMany(), prisma.activity.deleteMany()]));
+            afterAll(() => prisma.user.deleteMany());
 
             it('should respond with an array of activities', async () => {
                 const res = await get({
                     url: 'activities',
                     status: 200,
                     token: u1Token,
-                    validatePaged: { type: ActivityDto, totalCount: 3, returnCount: 3 }
+                    validatePaged: { type: ActivityDto, count: 3 }
                 });
 
                 expect(res.body.response.find((data) => data.userID === u1.id && data.data === 122).type).toBe(
@@ -58,7 +62,7 @@ describe('Activities', () => {
                     status: 200,
                     query: { userID: u1.id },
                     token: u1Token,
-                    validatePaged: { type: ActivityDto, totalCount: 2, returnCount: 2 }
+                    validatePaged: { type: ActivityDto, count: 2 }
                 });
 
                 expect(res);
@@ -71,7 +75,7 @@ describe('Activities', () => {
                     status: 200,
                     query: { data: activity3.data },
                     token: u1Token,
-                    validatePaged: { type: ActivityDto, totalCount: 1, returnCount: 1 }
+                    validatePaged: { type: ActivityDto, count: 1 }
                 });
 
                 expect(res);
@@ -84,7 +88,7 @@ describe('Activities', () => {
                     status: 200,
                     query: { type: ActivityTypes.MAP_APPROVED },
                     token: u1Token,
-                    validatePaged: { type: ActivityDto, totalCount: 1, returnCount: 1 }
+                    validatePaged: { type: ActivityDto, count: 1 }
                 });
 
                 expect(res);
@@ -97,7 +101,7 @@ describe('Activities', () => {
                     status: 200,
                     query: { type: ActivityTypes.ALL },
                     token: u1Token,
-                    validatePaged: { type: ActivityDto, totalCount: 3, returnCount: 3 }
+                    validatePaged: { type: ActivityDto, count: 3 }
                 });
 
                 expect(res);
@@ -116,7 +120,7 @@ describe('Activities', () => {
                     status: 200,
                     query: { userID: NULL_ID },
                     token: u1Token,
-                    validatePaged: { type: ActivityDto, totalCount: 0, returnCount: 0 }
+                    validatePaged: { type: ActivityDto, count: 0 }
                 });
 
                 expect(res);
