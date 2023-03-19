@@ -20,13 +20,14 @@ import { PaginationQuery } from '@common/dto/query/pagination.dto';
 import { RunDto } from '@common/dto/run/run.dto';
 import { UsersGetActivitiesQuery, UsersGetAllQuery, UsersGetQuery } from '@common/dto/query/user-queries.dto';
 import { ParseIntSafePipe } from '@common/pipes/parse-int-safe.pipe';
+import { RunsService } from '@modules/runs/runs.service';
 
 @Controller('users')
 @ApiTags('Users')
 @ApiBearerAuth()
 @ApiExtraModels(PaginatedResponseDto)
 export class UsersController {
-    constructor(private readonly usersService: UsersService) {}
+    constructor(private readonly usersService: UsersService, private readonly runsService: RunsService) {}
 
     //#region Main User Endpoints
 
@@ -163,9 +164,7 @@ export class UsersController {
         @Param('userID', ParseIntSafePipe) userID: number,
         @Query() query: PaginationQuery
     ): Promise<PaginatedResponseDto<RunDto>> {
-        // TODO: The old API calls the runs model here. We should do the same, this functionality
-        // doesn't need to exist in the users service.
-        return this.usersService.getRuns(userID, query.skip, query.take);
+        return this.runsService.getAll({ userID: userID, take: query.take, skip: query.skip });
     }
 
     //#endregion
