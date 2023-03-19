@@ -11,7 +11,7 @@ export interface RequestOptions {
     contentType?: string | RegExp | null;
     validate?: Type;
     validateArray?: Type | { type: Type; length: number };
-    validatePaged?: Type | { type: Type; returnCount?: number; totalCount?: number };
+    validatePaged?: Type | { type: Type; returnCount?: number; totalCount?: number } | { type: Type; count?: number };
 }
 
 export interface JsonBodyRequestOptions extends RequestOptions {
@@ -157,18 +157,32 @@ function body(req: Test, body: Record<string, unknown>): Test {
 }
 
 function validate(res: Response, options: RequestOptions) {
-    if (options.validate) expect(res.body).toBeValidDto(options.validate);
-    else if (options.validatePaged)
-        if ('type' in options.validatePaged)
-            expect(res.body).toBeValidPagedDto(
-                options.validatePaged.type,
-                options.validatePaged.returnCount,
-                options.validatePaged.totalCount
-            );
-        else expect(res.body).toBeValidPagedDto(options.validatePaged);
-    else if (options.validateArray)
+    if (options.validate) {
+        expect(res.body).toBeValidDto(options.validate);
+    } else if (options.validatePaged) {
+        if ('type' in options.validatePaged) {
+            if ('returnCount' in options.validatePaged) {
+                expect(res.body).toBeValidPagedDto(
+                    options.validatePaged.type,
+                    options.validatePaged.returnCount,
+                    options.validatePaged.totalCount
+                );
+            } else if ('count' in options.validatePaged) {
+                expect(res.body).toBeValidPagedDto(
+                    options.validatePaged.type,
+                    options.validatePaged.count,
+                    options.validatePaged.count
+                );
+            }
+        } else {
+            expect(res.body).toBeValidPagedDto(options.validatePaged);
+        }
+    } else if (options.validateArray) {
         if ('type' in options.validateArray) {
             for (const item of res.body) expect(item).toBeValidDto(options.validateArray.type);
             expect(res.body).toHaveLength(options.validateArray.length);
-        } else for (const item of res.body) expect(item).toBeValidDto(options.validateArray);
+        } else {
+            for (const item of res.body) expect(item).toBeValidDto(options.validateArray);
+        }
+    }
 }
