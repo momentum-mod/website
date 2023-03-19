@@ -52,7 +52,7 @@ async function main() {
 }
 
 async function createRandomUser() {
-    return await prisma.user.create({
+    return prisma.user.create({
         data: {
             steamID: Random.int(1000000000, 99999999999).toString(),
             alias: faker.name.fullName(),
@@ -81,7 +81,7 @@ async function createRandomUser() {
 }
 
 async function createRandomUserProfile(userID) {
-    return await prisma.profile.create({
+    return prisma.profile.create({
         data: {
             userID: userID,
             bio: faker.lorem.paragraphs(),
@@ -91,7 +91,7 @@ async function createRandomUserProfile(userID) {
 }
 
 async function createRandomUserStats(userID) {
-    return await prisma.userStats.create({
+    return prisma.userStats.create({
         data: {
             userID: userID,
             totalJumps: Random.int(10000),
@@ -106,7 +106,7 @@ async function createRandomUserStats(userID) {
 }
 
 async function createRandomMap(submitterID) {
-    return await prisma.map.create({
+    return prisma.map.create({
         data: {
             name: faker.lorem.word(),
             type: Random.enumValue(MapType),
@@ -120,7 +120,7 @@ async function createRandomMap(submitterID) {
 }
 
 async function createRandomMapInfo(mapID) {
-    return await prisma.mapInfo.create({
+    return prisma.mapInfo.create({
         data: {
             mapID: mapID,
             description: faker.lorem.paragraphs(),
@@ -132,9 +132,7 @@ async function createRandomMapInfo(mapID) {
 }
 
 async function createRandomMapImage(mapID) {
-    const imageURL = faker.image.image();
-
-    return await prisma.mapImage.create({
+    return prisma.mapImage.create({
         data: {
             mapID: mapID,
             ...Random.createdUpdatedDates()
@@ -153,7 +151,7 @@ const createRandomMapCredit = async (mapID, userID) =>
     });
 
 async function createRandomBaseStats() {
-    return await prisma.baseStats.create({
+    return prisma.baseStats.create({
         data: {
             jumps: Random.int(10000),
             strafes: Random.int(10000),
@@ -175,7 +173,7 @@ async function createRandomBaseStats() {
 }
 
 async function createRandomMapStats(mapID, baseStatsID) {
-    return await prisma.mapStats.create({
+    return prisma.mapStats.create({
         data: {
             mapID: mapID,
             baseStatsID: baseStatsID,
@@ -193,7 +191,7 @@ async function createRandomMapStats(mapID, baseStatsID) {
 }
 
 async function createRandomMapTrack(mapID) {
-    return await prisma.mapTrack.create({
+    return prisma.mapTrack.create({
         data: {
             mapID: mapID,
             trackNum: Random.int(0, 127),
@@ -218,7 +216,7 @@ async function createRandomMapTrackStats(mapTrackID, baseStatsID) {
 }
 
 async function createRandomMapZone(mapTrackID) {
-    return await prisma.mapZone.create({
+    return prisma.mapZone.create({
         data: {
             trackID: mapTrackID,
             zoneNum: Random.int(0, 127),
@@ -228,7 +226,7 @@ async function createRandomMapZone(mapTrackID) {
 }
 
 async function createRandomMapZoneStats(mapZoneID, baseStatsID) {
-    return await prisma.mapZoneStats.create({
+    return prisma.mapZoneStats.create({
         data: {
             zoneID: mapZoneID,
             baseStatsID: baseStatsID,
@@ -243,7 +241,7 @@ async function createRandomRun(mapID, userID, baseStatsID) {
     const ticks = Random.int(10000);
     const tickRate = Random.int(24, 1000);
 
-    return await prisma.run.create({
+    return prisma.run.create({
         data: {
             mapID: mapID,
             userID: userID,
@@ -262,7 +260,7 @@ async function createRandomRun(mapID, userID, baseStatsID) {
 }
 
 async function createRandomRunZoneStats(runID, baseStatsID) {
-    return await prisma.runZoneStats.create({
+    return prisma.runZoneStats.create({
         data: {
             runID: runID,
             baseStatsID: baseStatsID,
@@ -273,7 +271,7 @@ async function createRandomRunZoneStats(runID, baseStatsID) {
 }
 
 async function createRandomMapRank(mapID, userID, runID) {
-    return await prisma.userMapRank.create({
+    return prisma.userMapRank.create({
         data: {
             mapID: mapID,
             userID: userID,
@@ -288,7 +286,7 @@ async function createRandomMapRank(mapID, userID, runID) {
 }
 
 async function createRandomUserFollow(followeeID, followedID) {
-    return await prisma.follow.create({
+    return prisma.follow.create({
         data: {
             followeeID: followeeID,
             followedID: followedID,
@@ -299,7 +297,7 @@ async function createRandomUserFollow(followeeID, followedID) {
 }
 
 async function createRandomMapReview(userID, mapID) {
-    return await prisma.mapReview.create({
+    return prisma.mapReview.create({
         data: {
             reviewerID: userID,
             mapID: mapID,
@@ -310,7 +308,7 @@ async function createRandomMapReview(userID, mapID) {
 }
 
 async function createRandomActivity(userID, type, data) {
-    return await prisma.activity.create({
+    return prisma.activity.create({
         data: {
             userID: userID,
             type: type,
@@ -321,7 +319,7 @@ async function createRandomActivity(userID, type, data) {
 }
 
 async function createRandomReport(reportType, data, submitterID, resolverID) {
-    return await prisma.report.create({
+    return prisma.report.create({
         data: {
             type: reportType,
             data: data.toString(),
