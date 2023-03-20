@@ -42,9 +42,13 @@ services:
   db:
     platform: linux/x86_64
     volumes:
-      - /var/lib/mysql
+      - ../postgres:/var/lib/postgresql/data
     env_file:
       - .env
+    expose:
+      - ${POSTGRES_PORT}
+    ports:
+      - ${POSTGRES_PORT}:${POSTGRES_PORT}
   api:
     depends_on:
       - minio
@@ -54,7 +58,7 @@ services:
       - .env
     environment:
       IS_DOCKERIZED_API: "true"
-      DATABASE_URL: "mysql://root:${MYSQL_ROOT_PASSWORD}@db:${MYSQL_PORT}/${MYSQL_DATABASE}?schema=public"
+      DATABASE_URL: postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@db/${POSTGRES_DB}?schema=public
     platform: linux/x86_64
     working_dir: /app/server
     volumes:

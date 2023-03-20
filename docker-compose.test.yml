@@ -4,13 +4,15 @@ services:
   db:
     platform: linux/x86_64
     environment:
-      MYSQL_DATABASE: 'momentum_test'
-      MYSQL_USER: 'mom_test'
-      MYSQL_PASSWORD: 'password'
-      MYSQL_ROOT_PASSWORD: 'root'
+      POSTGRES_DB: 'momentum_test'
+      POSTGRES_USER: 'mom_test'
+      POSTGRES_PASSWORD: 'password'
   api:
     platform: linux/x86_64
     restart: "no"
+    environment:
+      IS_DOCKERIZED_API: "true"
+      DATABASE_URL: postgresql://mom_test:password@db/momentum_test?schema=public
     volumes:
       - ./scripts:/app/scripts
       - ./server:/app/server
