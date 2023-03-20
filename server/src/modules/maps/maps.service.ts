@@ -12,7 +12,6 @@ import { CreateMapDto, MapDto, UpdateMapDto } from '@common/dto/map/map.dto';
 import { UserMapRankDto } from '@common/dto/run/user-map-rank.dto';
 import { PaginatedResponseDto } from '@common/dto/paginated-response.dto';
 import { MapsRepoService } from '../repo/maps-repo.service';
-import { AuthService } from '../auth/auth.service';
 import { MapCreditType, MapStatus } from '@common/enums/map.enum';
 import { FileStoreCloudService } from '../filestore/file-store-cloud.service';
 import { DtoFactory, ExpandToPrismaIncludes } from '@lib/dto.lib';
@@ -33,7 +32,6 @@ const MAP_IMAGE_UPLOAD_LIMIT = 5; // TODO: Move this to a separate config file
 @Injectable()
 export class MapsService {
     constructor(
-        private readonly authService: AuthService,
         private readonly mapRepo: MapsRepoService,
         private readonly userRepo: UsersRepoService,
         private readonly fileCloudService: FileStoreCloudService,
