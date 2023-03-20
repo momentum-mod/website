@@ -36,15 +36,15 @@ import { FileStoreHandler } from '@tests/util/s3.util';
 import { createSha1Hash } from '@tests/util/crypto.util';
 import { login } from '@tests/util/auth.util';
 
+const prisma: PrismaService = global.prisma;
+const fileStore = new FileStoreHandler();
+
 describe('Maps', () => {
-    let prisma: PrismaService;
-    let fileStore: FileStoreHandler;
-
-    beforeAll(async () => {
-        prisma = global.prisma;
-        fileStore = new FileStoreHandler();
+    afterAll(async () => {
+        if ((await prisma.map.findFirst()) || (await prisma.user.findFirst()) || (await prisma.run.findFirst())) {
+            1;
+        }
     });
-
     describe('maps', () => {
         describe('GET', () => {
             let u1, u1Token, u2, m1, m2, m3, m4;

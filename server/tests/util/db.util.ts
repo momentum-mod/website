@@ -4,6 +4,7 @@ import { randomHash, randomSteamID } from '@tests/util/random.util';
 import { gameLogin, login } from '@tests/util/auth.util';
 import { MapStatus, MapType } from '@common/enums/map.enum';
 import { AsyncReturnType, PartialDeep } from 'type-fest';
+import { merge } from 'lodash';
 
 const prisma: PrismaService = global.prisma;
 
@@ -22,8 +23,7 @@ const createUserData = () => ({
 type CreateUserArgs = PartialDeep<Prisma.UserCreateArgs>;
 
 export function createUser(args: CreateUserArgs = {}): Promise<User> {
-    // TODO: Replace mergeDeep with radash's assign once https://github.com/rayepps/radash/pull/249 is merged into radash.
-    return prisma.user.create(mergeDeep({ data: createUserData() }, args) as Prisma.UserCreateArgs);
+    return prisma.user.create(merge({ data: createUserData() }, args) as Prisma.UserCreateArgs);
 }
 
 export function createUsers(count: number, args: CreateUserArgs = {}): Promise<AsyncReturnType<typeof createUser>[]> {
@@ -67,7 +67,7 @@ export async function createMap(
 ): Promise<MapDB & { info: MapInfo; stats: MapStats; images: MapImage[]; thumbnail: MapImage; mainTrack: MapTrack }> {
     const createdMap = await prisma.map.create({
         data: {
-            ...mergeDeep(
+            ...merge(
                 {
                     name: `ahop_map${++maps}`,
                     type: MapType.AHOP,
@@ -80,7 +80,7 @@ export async function createMap(
                 map
             ),
             tracks: {
-                create: mergeDeep(
+                create: merge(
                     {
                         trackNum: 0,
                         numZones: 2,
@@ -90,9 +90,9 @@ export async function createMap(
                         zones: track?.zones ?? { createMany: { data: [{ zoneNum: 0 }, { zoneNum: 1 }] } }
                     },
                     track
-                )
-            }
-        },
+                ) as any // I'm sorry these types are just so annoying. They're valid!!
+            } as any
+        } as any,
         include: { images: true, tracks: true }
     });
 
@@ -121,27 +121,33 @@ export function createMaps(
 export async function createRun(args: {
     map: MapDB;
     user: User;
-    ticks: number;
+    ticks?: number;
     flags?: number;
     createdAt?: Date;
     trackNum?: number;
     zoneNum?: number;
-}): Promise<Run> {
+}): Promise<Run & { user: User; map: MapDB }> {
+    // Wanna create a user, map, AND run? Go for it!
+    const user = args.user ?? (await createUser());
+    const map = args.map ?? (await createMap());
+    const ticks = args.ticks ?? 1;
+
     return prisma.run.create({
         data: {
-            map: { connect: { id: args.map.id } },
-            user: { connect: { id: args.user.id } },
+            map: { connect: { id: map.id } },
+            user: { connect: { id: user.id } },
             trackNum: args.trackNum ?? 0,
             zoneNum: args.zoneNum ?? 0,
-            ticks: args.ticks,
+            ticks: ticks,
             tickRate: 100,
             flags: args.flags ?? 0,
             file: '',
-            time: args.ticks * 100,
+            time: ticks,
             hash: randomHash(),
             createdAt: args.createdAt ?? undefined,
             overallStats: { create: { jumps: 1 } }
-        }
+        },
+        include: { user: true, map: true }
     });
 }
 
@@ -158,13 +164,13 @@ export async function createRunAndUmrForMap(
         trackNum?: number;
         zoneNum?: number;
         createdAt?: Date;
+        file?: string;
     } = {}
-): Promise<Run & { rank: UserMapRank; user: User }> {
+): Promise<Run & { rank: UserMapRank; user: User; map: MapDB }> {
     // Prisma unfortunately doesn't seem clever enough to let us do nested User -> Run -> UMR creation;
     // UMR needs a User to connect. So when we want to create users for this, we to create one first.
     const user = args.user ?? (await createUser());
 
-    // Wanna create a user, map, AND run? Go for it!
     const map = args.map ?? (await createMap());
 
     const ticks = args.ticks ?? 1;
@@ -178,7 +184,7 @@ export async function createRunAndUmrForMap(
             ticks: ticks ?? 1,
             tickRate: 100,
             flags: args.flags ?? 0,
-            file: '',
+            file: args.file ?? '',
             time: ticks * 100,
             hash: randomHash(),
             createdAt: args.createdAt ?? undefined,
@@ -194,25 +200,8 @@ export async function createRunAndUmrForMap(
             },
             overallStats: { create: { jumps: 1 } }
         },
-        include: { rank: true, user: true }
+        include: { rank: true, user: true, map: true }
     });
 }
 
 //#endregion
-
-// TODO: Replace with radash's `assign` once https://github.com/rayepps/radash/pull/249 is merged
-// Or maybe just use Lodash... 🤮
-function mergeDeep(target, source) {
-    if (!(isObject(target) && isObject(source))) return;
-
-    const output = Object.assign({}, target);
-    for (const key of Object.keys(source))
-        if (isObject(source[key]))
-            if (!(key in target)) Object.assign(output, { [key]: source[key] });
-            else output[key] = mergeDeep(target[key], source[key]);
-        else Object.assign(output, { [key]: source[key] });
-    return output;
-}
-function isObject(item) {
-    return item && typeof item === 'object' && !Array.isArray(item);
-}

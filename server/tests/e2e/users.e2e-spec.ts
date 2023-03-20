@@ -20,11 +20,14 @@ import {
 } from '@tests/util/db.util';
 import { login } from '@tests/util/auth.util';
 
+const prisma: PrismaService = global.prisma;
+
 describe('Users', () => {
-    let prisma: PrismaService;
-
-    beforeAll(() => (prisma = global.prisma));
-
+    afterAll(async () => {
+        if ((await prisma.map.findFirst()) || (await prisma.user.findFirst()) || (await prisma.run.findFirst())) {
+            1;
+        }
+    });
     describe('users/', () => {
         describe('GET', () => {
             let users, token;

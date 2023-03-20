@@ -15,11 +15,14 @@ import { createAndLoginUser, createMap, createMaps, createUser, loginNewUser, NU
 import { randomString } from '@tests/util/random.util';
 import { MapNotifyDto } from '@common/dto/map/map-notify.dto';
 
+const prisma: PrismaService = global.prisma;
+
 describe('User', () => {
-    let prisma: PrismaService;
-
-    beforeAll(() => (prisma = global.prisma));
-
+    afterAll(async () => {
+        if ((await prisma.map.findFirst()) || (await prisma.user.findFirst()) || (await prisma.run.findFirst())) {
+            1;
+        }
+    });
     describe('user', () => {
         describe('GET', () => {
             let user, token;

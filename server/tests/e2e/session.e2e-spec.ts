@@ -12,21 +12,16 @@ import { UserMapRankDto } from '@common/dto/run/user-map-rank.dto';
 import { createAndLoginGameUser, createMap, loginNewGameUser, loginNewUser, NULL_ID } from '@tests/util/db.util';
 import { randomHash, randomSteamID } from '@tests/util/random.util';
 
+const prisma: PrismaService = global.prisma;
+const xpSystems: XpSystemsService = global.xpSystems;
+
 describe('Session', () => {
-    let prisma: PrismaService;
-    let xpSystems: XpSystemsService;
     let map;
 
     beforeAll(async () => {
-        prisma = global.prisma;
-        xpSystems = global.xpSystems;
-
         // We can use this same map for all the run session testing. Suites just create their own users and runs.
         map = await createMap(
-            {
-                name: 'bhop_eazy',
-                type: MapType.BHOP
-            },
+            { name: 'bhop_eazy', type: MapType.BHOP },
             {
                 trackNum: 0,
                 numZones: 4,
@@ -99,7 +94,13 @@ describe('Session', () => {
         });
     });
 
-    afterAll(() => prisma.map.deleteMany());
+    afterAll(async () => {
+        await prisma.map.deleteMany();
+        if ((await prisma.map.findFirst()) || (await prisma.user.findFirst()) || (await prisma.run.findFirst())) {
+            1;
+        }
+    });
+    // afterAll(() => prisma.map.deleteMany());
 
     describe('session/run', () => {
         describe('POST', () => {

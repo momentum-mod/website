@@ -5,10 +5,14 @@ import { ActivityDto } from '@common/dto/user/activity.dto';
 import { skipTest, takeTest, unauthorizedTest } from '@tests/util/generic-e2e-tests.util';
 import { createAndLoginUser, createUser, NULL_ID } from '../util/db.util';
 
-describe('Activities', () => {
-    let prisma: PrismaService;
-    beforeAll(() => (prisma = global.prisma));
+const prisma: PrismaService = global.prisma;
 
+describe('Activities', () => {
+    afterAll(async () => {
+        if ((await prisma.map.findFirst()) || (await prisma.user.findFirst()) || (await prisma.run.findFirst())) {
+            1;
+        }
+    });
     describe('activities', () => {
         describe('GET', () => {
             let u1, u1Token, u2, _activity1, _activity2, activity3;

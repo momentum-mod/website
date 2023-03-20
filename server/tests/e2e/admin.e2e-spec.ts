@@ -11,11 +11,14 @@ import { pick } from 'radash';
 import { createAndLoginUser, createUser, loginNewUser, NULL_ID } from '../util/db.util';
 import { gameLogin } from '../util/auth.util';
 
+const prisma: PrismaService = global.prisma;
+
 describe('Admin', () => {
-    let prisma: PrismaService;
-
-    beforeAll(() => (prisma = global.prisma));
-
+    afterAll(async () => {
+        if ((await prisma.map.findFirst()) || (await prisma.user.findFirst()) || (await prisma.run.findFirst())) {
+            1;
+        }
+    });
     describe('admin/users', () => {
         describe('POST', () => {
             let modToken, adminToken, nonAdminToken;
@@ -72,8 +75,8 @@ describe('Admin', () => {
                     createUser(),
                     createUser({ data: { roles: { create: { placeholder: true } } } }),
                     createUser(),
-                    createAndLoginUser({ data: { roles: { create: { admin: true } } } }),
-                    createAndLoginUser({ data: { roles: { create: { moderator: true } } } })
+                    loginNewUser({ data: { roles: { create: { admin: true } } } }),
+                    loginNewUser({ data: { roles: { create: { moderator: true } } } })
                 ]);
 
                 await prisma.follow.createMany({
@@ -483,7 +486,7 @@ describe('Admin', () => {
 
             beforeEach(async () => {
                 [adminToken, [u1, u1Token]] = await Promise.all([
-                    createAndLoginUser({ data: { roles: { create: { admin: true } } } }),
+                    loginNewUser({ data: { roles: { create: { admin: true } } } }),
                     createAndLoginUser()
                 ]);
 
@@ -512,7 +515,7 @@ describe('Admin', () => {
                 });
             });
 
-            afterEach(() => prisma.user.deleteMany());
+            afterEach(() => Promise.all([prisma.user.deleteMany(), prisma.report.deleteMany()]));
 
             it('should return a list of reports', async () => {
                 const reports = await get({
