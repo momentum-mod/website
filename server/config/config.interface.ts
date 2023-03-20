@@ -51,4 +51,7 @@ export interface Config {
     sentry: {
         dsn: string;
     };
+    limits: {
+        maxDailyReports: number;
+    };
 }

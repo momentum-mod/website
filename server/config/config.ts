@@ -73,6 +73,9 @@ export const ConfigFactory = (): ConfigInterface => {
             bucketName: process.env.STORAGE_BUCKET_NAME,
             accessKeyID: process.env.STORAGE_ACCESS_KEY_ID,
             secretAccessKey: process.env.STORAGE_SECRET_ACCESS_KEY
+        },
+        limits: {
+            maxDailyReports: 5
         }
     };
 };
