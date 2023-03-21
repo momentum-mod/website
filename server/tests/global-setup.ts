@@ -1,7 +1,7 @@
 ﻿import 'tsconfig-paths/register'; // This MUST be imported for absolute modules to be recognised!
 import { PrismaClient } from '@prisma/client';
 import { config } from 'dotenv';
-import { nuke } from '@db/nuke';
+import { nuke } from '@db/scripts/nuke';
 import { DeleteObjectsCommand, ListObjectsV2Command, S3Client } from '@aws-sdk/client-s3';
 
 export default async () => {

@@ -1,11 +1,15 @@
 #!/usr/bin/env node
 
+/**
+ * Ugly script for seeding the DB with faker.js data, useful for frontend developers.
+ */
+
 import { PrismaClient } from '@prisma/client';
 import { faker } from '@faker-js/faker';
 import { ReportCategory, ReportType } from '@common/enums/report.enum';
 import { MapStatus, MapType, MapCreditType } from '@common/enums/map.enum';
 import { ActivityTypes } from '@common/enums/activity.enum';
-import { nuke } from '@db/nuke';
+import { nuke } from '@db/scripts/nuke';
 import { Random } from '@lib/random.lib';
 
 const prisma = new PrismaClient();
