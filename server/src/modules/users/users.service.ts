@@ -148,7 +148,7 @@ export class UsersService {
         if (!update.alias && !update.bio) throw new BadRequestException('Request contains no valid update data');
 
         // Strict check - we want to handle if alias is empty string
-        if (typeof update.alias !== 'undefined') {
+        if (update.alias !== undefined) {
             if (user.bans?.alias === true) {
                 throw new ForbiddenException('User is banned from updating their alias');
             } else {
