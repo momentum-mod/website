@@ -36,7 +36,6 @@ import {
 import { ApiOkPaginatedResponse, PaginatedResponseDto } from '@common/dto/paginated-response.dto';
 import { MapsService } from './maps.service';
 import { CreateMapDto, MapDto, UpdateMapDto } from '@common/dto/map/map.dto';
-import { FileInterceptor } from '@nestjs/platform-express';
 import {
     MapCreditsGetQuery,
     MapsCtlGetAllQuery,
@@ -57,6 +56,8 @@ import { MapImageDto } from '@common/dto/map/map-image.dto';
 import { RolesGuard } from '@modules/auth/guards/roles.guard';
 import { UserMapRankDto } from '@common/dto/run/user-map-rank.dto';
 import { ParseIntSafePipe } from '@common/pipes/parse-int-safe.pipe';
+import { FastifyReply } from 'fastify';
+import { FileInterceptor } from '@nest-lab/fastify-multer';
 
 @Controller('maps')
 @UseGuards(RolesGuard)
@@ -92,13 +93,13 @@ export class MapsController {
         required: true
     })
     async createMap(
-        @Res({ passthrough: true }) res,
+        @Res({ passthrough: true }) res: FastifyReply,
         @Body() body: CreateMapDto,
         @LoggedInUser('id') userID: number
     ): Promise<void> {
         const id = await this.mapsService.create(body, userID);
 
-        MapsController.setMapUploadLocationHeader(res, id);
+        this.setMapUploadLocationHeader(res, id);
     }
 
     @Get('/:mapID')
@@ -167,7 +168,7 @@ export class MapsController {
     ): Promise<void> {
         await this.mapsService.canUploadMap(mapID, userID);
 
-        MapsController.setMapUploadLocationHeader(res, mapID);
+        this.setMapUploadLocationHeader(res, mapID);
     }
 
     @Post('/:mapID/upload')
@@ -199,7 +200,7 @@ export class MapsController {
     uploadMap(
         @LoggedInUser('id') userID: number,
         @Param('mapID', ParseIntSafePipe) mapID: number,
-        @UploadedFile() file: Express.Multer.File
+        @UploadedFile() file
     ): Promise<MapDto> {
         // We could do a great more validation here in the future using a custom pipe, probably when
         // we work on map submission. Anyone fancy writing a BSP parser in JS?
@@ -487,7 +488,7 @@ export class MapsController {
     createImage(
         @LoggedInUser('id') userID: number,
         @Param('mapID', ParseIntSafePipe) mapID: number,
-        @UploadedFile() file: Express.Multer.File
+        @UploadedFile() file
     ): Promise<MapImageDto> {
         if (!file || !file.buffer || !Buffer.isBuffer(file.buffer)) throw new BadRequestException('Invalid image data');
 
@@ -525,7 +526,7 @@ export class MapsController {
     updateImage(
         @LoggedInUser('id') userID: number,
         @Param('imgID', ParseIntSafePipe) imgID: number,
-        @UploadedFile() file: Express.Multer.File
+        @UploadedFile() file
     ): Promise<void> {
         if (!file || !file.buffer || !Buffer.isBuffer(file.buffer)) throw new BadRequestException('Invalid image data');
 
@@ -585,7 +586,7 @@ export class MapsController {
     updateThumbnail(
         @LoggedInUser('id') userID: number,
         @Param('mapID', ParseIntSafePipe) mapID: number,
-        @UploadedFile() file: Express.Multer.File
+        @UploadedFile() file
     ): Promise<void> {
         if (!file || !file.buffer || !Buffer.isBuffer(file.buffer)) throw new BadRequestException('Invalid image data');
 
@@ -670,8 +671,8 @@ export class MapsController {
     //#region Private
 
     // Frontend reads this header property and sends upload POST to that endpoint
-    private static setMapUploadLocationHeader(res, mapID): void {
-        res.set('Location', `api/v1/maps/${mapID}/upload`);
+    private setMapUploadLocationHeader(res: FastifyReply, mapID: number): void {
+        res.header('Location', `api/v1/maps/${mapID}/upload`);
     }
 
     //#endregion

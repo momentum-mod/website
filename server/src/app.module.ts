@@ -18,6 +18,7 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { validate } from '@config/config.validation';
 import { ConfigFactory } from '@config/config';
 import { JwtAuthGuard } from '@modules/auth/guards/jwt-auth.guard';
+import { FastifyMulterModule } from '@nest-lab/fastify-multer';
 
 @Module({
     imports: [
@@ -39,6 +40,7 @@ import { JwtAuthGuard } from '@modules/auth/guards/jwt-auth.guard';
             }),
             inject: [ConfigService]
         }),
+        FastifyMulterModule,
         AuthModule,
         ActivitiesModule,
         AdminModule,

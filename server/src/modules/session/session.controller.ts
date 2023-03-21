@@ -27,11 +27,11 @@ import {
 import { CreateRunSessionDto, RunSessionDto, UpdateRunSessionDto } from '@common/dto/run/run-session.dto';
 import { LoggedInUser } from '@common/decorators/logged-in-user.decorator';
 import { RunSessionTimestampDto } from '@common/dto/run/run-session-timestamp.dto';
-import { FileInterceptor } from '@nestjs/platform-express';
 import { CompletedRunDto } from '@common/dto/run/completed-run.dto';
 import { RunSessionService } from './run/run-session.service';
 import { GameAuthGuard } from '@modules/auth/guards/game-auth.guard';
 import { ParseIntSafePipe } from '@common/pipes/parse-int-safe.pipe';
+import { FileInterceptor } from '@nest-lab/fastify-multer';
 
 @Controller('session')
 @UseGuards(GameAuthGuard)
@@ -104,7 +104,7 @@ export class SessionController {
                 ]
             })
         )
-        replayFile: Express.Multer.File
+        replayFile
     ): Promise<CompletedRunDto> {
         if (!replayFile || !replayFile.buffer || !Buffer.isBuffer(replayFile.buffer))
             throw new BadRequestException('File is not a valid replay');
