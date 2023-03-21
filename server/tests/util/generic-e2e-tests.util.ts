@@ -3,21 +3,13 @@ import { get, RequestOptions } from '@tests/util/request-handlers.util';
 import { get as getDeep } from 'radash';
 import { Type } from '@nestjs/common';
 
-export interface BaseE2ETestOptions {
+export interface E2ETestOptions {
     url: string;
     token: string;
-    validate?: Type; // TODO: Make required
+    validate: Type;
 }
 
-// TODO: Remove after refactor
-export interface TakeTestOptions extends BaseE2ETestOptions {
-    test?: (res: request.Response) => void;
-}
-export interface SkipTestOptions extends BaseE2ETestOptions {
-    test?: (res: request.Response) => void; // TODO: Remove after refactor
-}
-
-export async function takeTest(options: TakeTestOptions): Promise<void> {
+export async function takeTest(options: E2ETestOptions): Promise<void> {
     const res = await get({
         url: options.url,
         status: 200,
@@ -29,7 +21,7 @@ export async function takeTest(options: TakeTestOptions): Promise<void> {
     expect(res.body.returnCount).toBe(1);
 }
 
-export async function skipTest(options: SkipTestOptions): Promise<void> {
+export async function skipTest(options: E2ETestOptions): Promise<void> {
     const res = await get({
         url: options.url,
         status: 200,
@@ -51,9 +43,8 @@ export async function skipTest(options: SkipTestOptions): Promise<void> {
     expect(res.body.response[0]).not.toEqual(res2.body.response[0]);
 }
 
-export interface ExpandTestOptions extends BaseE2ETestOptions {
+export interface ExpandTestOptions extends E2ETestOptions {
     expand: string;
-    test?: any; // TODO: Remove
     query?: Record<string, unknown>;
     paged?: boolean; // False by default
     filter?: (item: Record<string, unknown>) => boolean;
@@ -92,7 +83,7 @@ export async function expandTest(options: ExpandTestOptions): Promise<void> {
     } else expects(res.body);
 }
 
-export interface SortTestOptions extends BaseE2ETestOptions {
+export interface SortTestOptions extends E2ETestOptions {
     sortFn: (a: any, b: any) => number;
     query?: Record<string, unknown>;
 }
@@ -116,7 +107,7 @@ export function sortByDateTest(options: Omit<SortTestOptions, 'sortFn'>): Promis
     });
 }
 
-export interface SearchTestOptions extends Omit<BaseE2ETestOptions, 'validate'> {
+export interface SearchTestOptions extends Omit<E2ETestOptions, 'validate'> {
     searchString: string;
     searchMethod: 'startsWith' | 'contains';
     searchPropertyName: string;
@@ -154,5 +145,3 @@ export interface UnauthorizedTestOptions {
 export function unauthorizedTest(url: string, method: (options: RequestOptions) => Promise<request.Response>) {
     it('should 401 when no access token is provided', () => method({ url: url, status: 401 }));
 }
-
-// TODO: Game/Web auth test?

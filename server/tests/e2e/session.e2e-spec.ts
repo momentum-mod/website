@@ -101,14 +101,6 @@ describe('Session', () => {
         });
     });
 
-    afterAll(async () => {
-        await prisma.map.deleteMany();
-        if ((await prisma.map.findFirst()) || (await prisma.user.findFirst()) || (await prisma.run.findFirst())) {
-            1;
-        }
-    });
-    // afterAll(() => prisma.map.deleteMany());
-
     describe('session/run', () => {
         describe('POST', () => {
             let user, token;
