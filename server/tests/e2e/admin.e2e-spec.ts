@@ -697,6 +697,7 @@ describe('Admin', () => {
         });
 
         afterEach(() => cleanup('user'));
+        afterAll(() => cleanup('xpSystems'));
 
         describe('GET', () => {
             it('should respond with the current XP System variables when the user is an admin', () =>

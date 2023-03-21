@@ -11,7 +11,7 @@ const prisma: PrismaService = global.prisma;
 export const NULL_ID = 999999999999999;
 export const dateOffset = (offset: number) => new Date(Date.now() - offset * 1000);
 
-export const cleanup = (...models: ('user' | 'map' | 'run' | 'report' | 'activity')[]) =>
+export const cleanup = (...models: ('user' | 'map' | 'run' | 'report' | 'activity' | 'xpSystems')[]) =>
     prisma.$transaction(
         models.map((name) =>
             (prisma[name] as any) // >:D
