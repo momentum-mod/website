@@ -41,7 +41,7 @@
         "testTimeout": 15000
     },
     "prisma": {
-        "seed": "ts-node -r tsconfig-paths/register prisma/seed.ts"
+        "seed": "ts-node -r tsconfig-paths/register prisma/scripts/seed.ts"
     },
     "lint-staged": {
         "{src,lib,tests,config}/**/*.{ts,js,md}": [
