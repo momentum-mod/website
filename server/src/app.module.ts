@@ -1,5 +1,4 @@
-import { MiddlewareConsumer, Module, NestModule, RequestMethod } from '@nestjs/common';
-import * as Sentry from '@sentry/node';
+import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
 import { APP_FILTER, APP_GUARD } from '@nestjs/core';
 import { ExceptionHandlerFilter } from './filters/exception-handler.filter';
 import { AuthModule } from '@modules/auth/auth.module';
@@ -18,8 +17,6 @@ import { XpSystemsModule } from '@modules/xp-systems/xp-systems.module';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { validate } from '@config/config.validation';
 import { ConfigFactory } from '@config/config';
-import { RawBodyMiddleware } from '@/middlewares/raw-body.middleware';
-import { JsonBodyMiddleware } from '@/middlewares/json-body.middleware';
 import { JwtAuthGuard } from '@modules/auth/guards/jwt-auth.guard';
 
 @Module({
@@ -70,22 +67,12 @@ export class AppModule implements NestModule {
         consumer
             // Add the http logger to these paths
             .apply(HTTPLoggerMiddleware)
-            .forRoutes('/api/*')
-            .apply(RawBodyMiddleware)
-            // NestJS now ships with native raw body handling (https://docs.nestjs.com/faq/raw-body), but I've been
-            // completely unable to get it to work - following their setup exactly still results in `rawBody` being
-            // undefined. Could come to be in the future, but I don't mind explicitly setting our json/raw middlewares.
-            .forRoutes({
-                path: '/auth/steam/user',
-                method: RequestMethod.POST
-            })
-            .apply(JsonBodyMiddleware)
-            .forRoutes('*')
-            // Add Sentry to these paths
-            .apply(Sentry.Handlers.requestHandler())
-            .forRoutes({
-                path: '*',
-                method: RequestMethod.ALL
-            });
+            .forRoutes('*');
+        // // Add Sentry to these paths
+        // .apply(Sentry.Handlers.requestHandler())
+        // .forRoutes({
+        //     path: '*',
+        //     method: RequestMethod.ALL
+        // });
     }
 }
