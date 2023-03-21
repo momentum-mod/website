@@ -33,8 +33,6 @@ import { ConfigService } from '@nestjs/config';
 import sharp from 'sharp';
 import { RunsService } from '../runs/runs.service';
 
-const MAP_IMAGE_UPLOAD_LIMIT = 5; // TODO: Move this to a separate config file
-
 @Injectable()
 export class MapsService {
     constructor(
@@ -538,7 +536,8 @@ export class MapsService {
         const images = await this.mapRepo.getImages({ mapID: mapID });
         let imageCount = images.length;
         if (map.thumbnailID) imageCount--; // Don't count the thumbnail towards this limit
-        if (imageCount >= MAP_IMAGE_UPLOAD_LIMIT) throw new ConflictException('Map image file limit reached');
+        if (imageCount >= this.config.get('limits.mapImageUploads'))
+            throw new ConflictException('Map image file limit reached');
 
         const newImage = await this.mapRepo.createImage(mapID);
 

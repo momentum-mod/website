@@ -53,5 +53,8 @@ export interface Config {
     };
     limits: {
         maxDailyReports: number;
+        mapImageUploads: number;
+        mapSize: number;
+        imageSize: number;
     };
 }
