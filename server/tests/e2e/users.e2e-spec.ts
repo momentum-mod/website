@@ -76,10 +76,10 @@ describe('Users', () => {
                 }));
 
             it('should respond with a paged list of users with expanded profiles when using an expand parameter', () =>
-                expandTest({ url: 'users', expand: 'profile', paged: true, token: token }));
+                expandTest({ url: 'users', expand: 'profile', validate: UserDto, paged: true, token: token }));
 
             it('should respond with a paged list of users with expanded stats when using an expand parameter', () =>
-                expandTest({ url: 'users', expand: 'userStats', paged: true, token: token }));
+                expandTest({ url: 'users', expand: 'userStats', validate: UserDto, paged: true, token: token }));
 
             it('should respond with an array of one user for a matching SteamID parameter', async () => {
                 const res = await get({
@@ -175,7 +175,7 @@ describe('Users', () => {
             });
 
             it('should respond with the specified user with expanded profile when using an expand parameter', () =>
-                expandTest({ url: `users/${user.id}`, expand: 'profile', token: token }));
+                expandTest({ url: `users/${user.id}`, validate: UserDto, expand: 'profile', token: token }));
 
             it('should respond with the specified user with with a corresponding map rank and run when given a mapRank mapid', async () => {
                 const map = await createMap();

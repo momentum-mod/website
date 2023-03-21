@@ -1977,10 +1977,10 @@ describe('Maps', () => {
                 }));
 
             it('should respond with filtered map data using the skip parameter', () =>
-                skipTest({ url: `maps/${map.id}/ranks`, test: expect, token: u1Token }));
+                skipTest({ url: `maps/${map.id}/ranks`, validate: UserMapRankDto, token: u1Token }));
 
             it('should respond with filtered map data using the take parameter', () =>
-                takeTest({ url: `maps/${map.id}/ranks`, test: expect, token: u1Token }));
+                takeTest({ url: `maps/${map.id}/ranks`, validate: UserMapRankDto, token: u1Token }));
 
             it('should return 404 for a nonexistent map', () =>
                 get({ url: `maps/${NULL_ID}/ranks`, status: 404, token: u1Token }));
