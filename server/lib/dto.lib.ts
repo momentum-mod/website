@@ -12,7 +12,6 @@ import {
     IsDateString,
     IsString
 } from 'class-validator';
-import { omit } from 'radash';
 
 /**
  * Factory method for constructing DTOs from objects (often from Prisma) easily.
@@ -121,8 +120,9 @@ export function NestedProperty<T>(
 export function IdProperty(options?: { bigint?: boolean } & Omit<ApiPropertyOptions, 'type'>): PropertyDecorator {
     const required = options?.required ?? true;
     const bigint = options?.bigint ?? false;
+    delete options?.bigint;
     return applyDecorators(
-        ApiProperty({ type: Number, ...omit(options, ['bigint']), required: required }),
+        ApiProperty({ type: Number, ...options, required: required }),
         IsInt(),
         IsPositive(),
         ...conditionalDecorators([bigint, SafeBigIntToNumber], [!required, IsOptional])

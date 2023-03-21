@@ -1,6 +1,6 @@
 ﻿import request from 'supertest';
 import { get, RequestOptions } from '@tests/util/request-handlers.util';
-import { get as getDeep } from 'radash';
+import { get as getDeep } from 'lodash';
 import { Type } from '@nestjs/common';
 
 export interface E2ETestOptions {
