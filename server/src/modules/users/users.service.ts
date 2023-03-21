@@ -215,13 +215,11 @@ export class UsersService {
     ): Promise<PaginatedResponseDto<ActivityDto>> {
         const where: Prisma.ActivityWhereInput = {
             userID: userID,
-            type: type,
+            AND: [{ type: type }, { type: { not: ActivityTypes.REPORT_FILED } }],
             data: data
         };
 
         const dbResponse = await this.userRepo.getActivities(where, skip, take);
-
-        // TODO: Do we want to be so open here? Shouldn't report activity be hidden?
 
         return new PaginatedResponseDto(ActivityDto, dbResponse);
     }
