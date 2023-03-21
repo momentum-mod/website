@@ -1,5 +1,4 @@
-﻿import fs from 'node:fs';
-import request, { Test, Response } from 'supertest';
+﻿import request, { Test, Response } from 'supertest';
 import { URL_PREFIX } from '@tests/e2e/e2e.config';
 import { Type } from '@nestjs/common';
 
@@ -19,7 +18,7 @@ export interface JsonBodyRequestOptions extends RequestOptions {
 }
 
 export type AttachRequestOptions = Omit<RequestOptions, 'contentType'> & {
-    file: Blob | Buffer | fs.ReadStream | string;
+    file: Buffer | string;
     field?: string;
 };
 
@@ -105,10 +104,11 @@ export async function postAttach(options: AttachRequestOptions): Promise<Respons
         .post(URL_PREFIX + options.url)
         .set('Accept', 'application/json');
     token(req, options.token);
-    req.set('Content-Type', 'multipart/form-data').attach(
-        options.field ?? 'file',
-        typeof options.file === 'string' ? './tests/files/' + options.file : options.file
-    );
+    req.set('Content-Type', 'multipart/form-data');
+
+    if (typeof options.file === 'string') req.attach(options.field ?? 'file', './tests/files/' + options.file);
+    else req.attach(options.field ?? 'file', options.file, 'dummyFileName');
+
     status(req, options.status);
 
     const res = await req;
