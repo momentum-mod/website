@@ -7,7 +7,7 @@ import { XpSystemsDto } from '@/common/dto/xp-systems/xp-systems.dto';
 import { RankXpParams, CosXpParams } from '@modules/xp-systems/xp-systems.interface';
 import { ReportDto } from '@common/dto/report/report.dto';
 import { skipTest, takeTest, unauthorizedTest } from '../util/generic-e2e-tests.util';
-import { pick } from 'radash';
+import { pick } from 'lodash';
 import { cleanup, createAndLoginUser, createUser, loginNewUser, NULL_ID } from '../util/db.util';
 import { gameLogin } from '../util/auth.util';
 
