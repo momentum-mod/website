@@ -4,9 +4,10 @@ import { Test } from '@nestjs/testing';
 import { AppModule } from '@/app.module';
 import { INestApplication, Logger, LogLevel } from '@nestjs/common';
 import { PrismaService } from '@modules/repo/prisma.service';
+import { appOptions, jsonBigIntFix, setupNestApplication } from '@/main';
+import { FastifyAdapter, NestFastifyApplication } from '@nestjs/platform-fastify';
 import { AuthService } from '@modules/auth/auth.service';
 import { XpSystemsService } from '@modules/xp-systems/xp-systems.service';
-import { appOptions, jsonBigIntFix, setupNestApplication } from '@/main';
 
 export default class E2ETestEnvironment extends NodeEnvironment {
     constructor(config, context) {
@@ -22,7 +23,7 @@ export default class E2ETestEnvironment extends NodeEnvironment {
         const logLevel: LogLevel[] = ['error'];
         // Env var for heavier debugging. In WebStorm it's useful to have this in the env var settings for your
         // default configuration but *not* your main test configuration so it doesn't spam when running everything,
-        // but is enabled for when you run specific tests
+        // but is enabled for when you run specific tests.
         if (process.env.TEST_LOG_DEBUG === 'true') logLevel.push('debug', 'warn');
         logger.setLogLevels(logLevel);
 
@@ -30,7 +31,7 @@ export default class E2ETestEnvironment extends NodeEnvironment {
             .setLogger(logger)
             .compile();
 
-        const app = moduleRef.createNestApplication(appOptions);
+        const app = moduleRef.createNestApplication<NestFastifyApplication>(new FastifyAdapter(), appOptions);
 
         await setupNestApplication(
             app,
@@ -39,6 +40,7 @@ export default class E2ETestEnvironment extends NodeEnvironment {
         );
 
         await app.init();
+        await app.getHttpAdapter().getInstance().listen();
 
         this.global.app = app;
         this.global.server = app.getHttpServer();
