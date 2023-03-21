@@ -10,7 +10,7 @@ export const Random = {
 
     float: (max: number, min = 0, decimalPlaces?: number): number => {
         const float = Math.random() * (max - min) + min;
-        return typeof decimalPlaces != 'undefined'
+        return decimalPlaces !== undefined
             ? float
             : Number.parseFloat((Math.random() * (max - min) + min).toFixed(decimalPlaces));
     },
