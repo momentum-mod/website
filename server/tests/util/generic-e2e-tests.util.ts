@@ -142,6 +142,15 @@ export interface UnauthorizedTestOptions {
     method: (options: RequestOptions) => Promise<request.Response>;
 }
 
-export function unauthorizedTest(url: string, method: (options: RequestOptions) => Promise<request.Response>) {
-    it('should 401 when no access token is provided', () => method({ url: url, status: 401 }));
+export function unauthorizedTest(
+    url: string,
+    method: (options: RequestOptions & { body?: Record<string, unknown> }) => Promise<request.Response>
+) {
+    it('should 401 when no access token is provided', () =>
+        method({
+            url: url,
+            status: 401,
+            // Fastify will 400 empty content POST/PUT/PATCH https://github.com/fastify/fastify/issues/297
+            body: ['post', 'put', 'patch'].includes(method.name) ? {} : undefined
+        }));
 }
