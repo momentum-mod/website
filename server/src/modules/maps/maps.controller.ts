@@ -16,7 +16,9 @@ import {
     Put,
     UseGuards,
     Header,
-    StreamableFile
+    StreamableFile,
+    ParseFilePipe,
+    MaxFileSizeValidator
 } from '@nestjs/common';
 import {
     ApiBearerAuth,
@@ -58,6 +60,7 @@ import { UserMapRankDto } from '@common/dto/run/user-map-rank.dto';
 import { ParseIntSafePipe } from '@common/pipes/parse-int-safe.pipe';
 import { FastifyReply } from 'fastify';
 import { FileInterceptor } from '@nest-lab/fastify-multer';
+import { Config } from '@config/config';
 
 @Controller('maps')
 @UseGuards(RolesGuard)
@@ -200,7 +203,12 @@ export class MapsController {
     uploadMap(
         @LoggedInUser('id') userID: number,
         @Param('mapID', ParseIntSafePipe) mapID: number,
-        @UploadedFile() file
+        @UploadedFile(
+            new ParseFilePipe({
+                validators: [new MaxFileSizeValidator({ maxSize: Config.limits.mapSize })]
+            })
+        )
+        file
     ): Promise<MapDto> {
         // We could do a great more validation here in the future using a custom pipe, probably when
         // we work on map submission. Anyone fancy writing a BSP parser in JS?

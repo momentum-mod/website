@@ -6,6 +6,7 @@ export const ConfigFactory = (): ConfigInterface => {
     const port: number = +process.env.NODE_PORT;
 
     const isProd = env === Environment.PRODUCTION;
+    const isTest = env === Environment.TEST;
 
     // If we're not in production some stuff being missing in fine, we can just use sensible defaults.
     // In production we want to require them be defined, so they'll fail validation immediately if not.
@@ -75,7 +76,12 @@ export const ConfigFactory = (): ConfigInterface => {
             secretAccessKey: process.env.STORAGE_SECRET_ACCESS_KEY
         },
         limits: {
-            maxDailyReports: 5
+            maxDailyReports: 5,
+            mapImageUploads: 5,
+            // Keep low for tests, as we'll be generating buffers of slightly
+            // above this size to test make file size validation
+            mapSize: isTest ? 1e6 : 3e8,
+            imageSize: isTest ? 1e6 : 1e7
         }
     };
 };

@@ -36,6 +36,7 @@ import {
 import { FileStoreHandler } from '@tests/util/s3.util';
 import { createSha1Hash } from '@tests/util/crypto.util';
 import { login } from '@tests/util/auth.util';
+import { Config } from '@config/config';
 
 const prisma: PrismaService = global.prisma;
 const fileStore = new FileStoreHandler();
@@ -459,7 +460,7 @@ describe('Maps', () => {
                 const res = await postAttach({
                     url: `maps/${map.id}/upload`,
                     status: 201,
-                    file: 'map.bsp',
+                    file: inBuffer,
                     token: u1Token
                 });
 
@@ -479,6 +480,14 @@ describe('Maps', () => {
 
             it('should 400 when no map file is provided', () =>
                 post({ url: `maps/${map.id}/upload`, status: 400, token: u1Token }));
+
+            it("should 400 when the map file is greater than the config's max map file size", () =>
+                postAttach({
+                    url: `maps/${map.id}/upload`,
+                    status: 400,
+                    file: Buffer.alloc(Config.limits.mapSize + 1),
+                    token: u1Token
+                }));
 
             it('should 403 when the submitterID does not match the userID', () =>
                 postAttach({ url: `maps/${map.id}/upload`, status: 403, file: 'map.bsp', token: u2Token }));
@@ -1524,6 +1533,14 @@ describe('Maps', () => {
 
             it('should 400 if no file is provided', () =>
                 post({ url: `maps/${map.id}/images`, status: 400, token: token }));
+
+            it("should 400 when the image file is greater than the config's max image file size", () =>
+                postAttach({
+                    url: `maps/${map.id}/upload`,
+                    status: 400,
+                    file: Buffer.alloc(Config.limits.imageSize + 1),
+                    token: token
+                }));
 
             it('should 403 if the user is not a mapper', async () => {
                 await prisma.user.update({ where: { id: user.id }, data: { roles: { update: { mapper: false } } } });
