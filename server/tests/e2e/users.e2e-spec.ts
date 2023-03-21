@@ -291,6 +291,19 @@ describe('Users', () => {
                 token: token
             }));
 
+        it('should not include REPORT_FILED activities', async () => {
+            await prisma.activity.create({ data: { type: ActivityTypes.REPORT_FILED, data: 119n, userID: user.id } });
+
+            const res = await get({
+                url: `users/${user.id}/activities`,
+                status: 200,
+                validatePaged: { type: ActivityDto, count: 3 },
+                token: token
+            });
+
+            for (const act of res.body.response) expect(act.type).not.toBe(ActivityTypes.REPORT_FILED);
+        });
+
         unauthorizedTest('users/1/activities', get);
     });
 
