@@ -3,7 +3,7 @@ import { CreatedAtProperty, IdProperty, UpdatedAtProperty } from '@lib/dto.lib';
 import { Exclude } from 'class-transformer';
 import { ApiProperty } from '@nestjs/swagger';
 import { IsInt } from 'class-validator';
-import { IsPositiveNumberString } from '@common/validators/is-positive-number-string.validator';
+import { IsNumberString } from '@common/validators/is-number-string.validator';
 
 export class UserStatsDto implements UserStats {
     @IdProperty()
@@ -13,7 +13,7 @@ export class UserStatsDto implements UserStats {
     userID: number;
 
     @ApiProperty({ type: String, description: "The user's total cosmetic XP" })
-    @IsPositiveNumberString()
+    @IsNumberString()
     cosXP: bigint;
 
     @ApiProperty({ type: String, description: "The user's level" })
@@ -29,11 +29,11 @@ export class UserStatsDto implements UserStats {
     runsSubmitted: number;
 
     @ApiProperty({ type: String, description: "The user's total number of jumps" })
-    @IsPositiveNumberString()
+    @IsNumberString()
     totalJumps: bigint;
 
     @ApiProperty({ type: String, description: "The user's total number of strafes" })
-    @IsPositiveNumberString()
+    @IsNumberString()
     totalStrafes: bigint;
 
     @CreatedAtProperty()
