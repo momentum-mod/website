@@ -152,7 +152,7 @@ function status(req: Test, status: number) {
 }
 
 function body(req: Test, body: Record<string, unknown>): Test {
-    if (body) req = req.send(body);
+    req = req.send(body ?? {});
     return req;
 }
 
