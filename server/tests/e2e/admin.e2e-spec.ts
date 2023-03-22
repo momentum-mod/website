@@ -51,7 +51,7 @@ describe('Admin', () => {
 
             it('should successfully create a placeholder user', async () => {
                 const res = await post({
-                    url: 'admin/users/',
+                    url: 'admin/users',
                     status: 201,
                     body: { alias: 'Burger' },
                     token: adminToken,
@@ -63,7 +63,7 @@ describe('Admin', () => {
 
             it('should 403 when the user requesting only is a moderator', () =>
                 post({
-                    url: 'admin/users/',
+                    url: 'admin/users',
                     status: 403,
                     body: { alias: 'Barry 2' },
                     token: modToken
@@ -71,7 +71,7 @@ describe('Admin', () => {
 
             it('should 403 when the user requesting is not an admin', () =>
                 post({
-                    url: 'admin/users/',
+                    url: 'admin/users',
                     status: 403,
                     body: { alias: 'Barry 2' },
                     token: nonAdminToken
@@ -1036,7 +1036,7 @@ describe('Admin', () => {
         describe('GET', () => {
             it('should respond with the current XP System variables when the user is an admin', () =>
                 get({
-                    url: 'admin/xpsys/',
+                    url: 'admin/xpsys',
                     status: 200,
                     token: adminToken,
                     validate: XpSystemsDto
@@ -1044,7 +1044,7 @@ describe('Admin', () => {
 
             it('should respond with the current XP System variables when the user is a moderator', () =>
                 get({
-                    url: 'admin/xpsys/',
+                    url: 'admin/xpsys',
                     status: 200,
                     token: modToken,
                     validate: XpSystemsDto
@@ -1052,7 +1052,7 @@ describe('Admin', () => {
 
             it('should 403 when the user requesting is not an admin', () =>
                 get({
-                    url: 'admin/xpsys/',
+                    url: 'admin/xpsys',
                     status: 403,
                     token: u1Token
                 }));
