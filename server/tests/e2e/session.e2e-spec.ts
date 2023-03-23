@@ -18,6 +18,7 @@ import {
     NULL_ID
 } from '@tests/util/db.util';
 import { randomHash, randomSteamID } from '@tests/util/random.util';
+import { ActivityTypes } from '@common/enums/activity.enum';
 
 const prisma: PrismaService = global.prisma;
 const xpSystems: XpSystemsService = global.xpSystems;
@@ -528,8 +529,28 @@ describe('Session', () => {
                         expect(zone.completions).toBe(2);
                         expect(zone.uniqueCompletions).toBe(1);
                     }
+                });
 
-                    // TODO: Test activity creation once that's done!
+                it('should create an activity if the user achieved a PB', async () => {
+                    await submitRun();
+
+                    const numPBs = await prisma.activity.count({
+                        where: { userID: user.id, type: ActivityTypes.PB_ACHIEVED, data: map.id }
+                    });
+
+                    expect(numPBs).toBe(1);
+                });
+
+                it('should create an activity if the user achieved a WR', async () => {
+                    await prisma.userMapRank.deleteMany();
+                    await prisma.run.deleteMany();
+                    await submitRun();
+
+                    const numWRs = await prisma.activity.count({
+                        where: { userID: user.id, type: ActivityTypes.WR_ACHIEVED, data: map.id }
+                    });
+
+                    expect(numWRs).toBe(1);
                 });
             });
 

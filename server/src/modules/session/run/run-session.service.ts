@@ -12,6 +12,7 @@ import { DtoFactory } from '@lib/dto.lib';
 import { RunValidationError } from '@common/enums/run.enum';
 import { BaseStatsFromGame, ProcessedRun, StatsUpdateReturn } from './run-session.interfaces';
 import { XpSystemsService } from '../../xp-systems/xp-systems.service';
+import { ActivityTypes } from '@common/enums/activity.enum';
 
 @Injectable()
 export class RunSessionService {
@@ -176,9 +177,21 @@ export class RunSessionService {
         else mapRank = statsUpdate.existingRank;
 
         if (statsUpdate.isWorldRecord) {
-            // TODO: Call activity service to create WR activity
+            await this.userRepo.createActivities([
+                {
+                    type: ActivityTypes.WR_ACHIEVED,
+                    userID: submittedRun.userID,
+                    data: submittedRun.mapID
+                }
+            ]);
         } else if (statsUpdate.isPersonalBest) {
-            // TODO: Call activity service to create PB activity
+            await this.userRepo.createActivities([
+                {
+                    type: ActivityTypes.PB_ACHIEVED,
+                    userID: submittedRun.userID,
+                    data: submittedRun.mapID
+                }
+            ]);
         }
 
         return DtoFactory(CompletedRunDto, {
