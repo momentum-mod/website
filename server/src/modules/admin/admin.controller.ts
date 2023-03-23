@@ -165,7 +165,6 @@ export class AdminController {
     }
 
     @Delete('/maps/:mapID')
-    @Roles(RolesEnum.ADMIN)
     @HttpCode(HttpStatus.NO_CONTENT)
     @ApiOperation({ summary: 'Delete the target map' })
     @ApiParam({
