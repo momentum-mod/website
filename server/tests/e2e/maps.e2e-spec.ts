@@ -133,6 +133,12 @@ describe('Maps', () => {
                 await expandTest({ url: 'maps', expand: 'credits', paged: true, validate: MapDto, token: u1Token });
             });
 
+            it('should respond with expanded submitter data using the submitter expand parameter', async () => {
+                await prisma.map.updateMany({ data: { submitterID: u2.id } });
+
+                await expandTest({ url: 'maps', expand: 'submitter', paged: true, validate: MapDto, token: u1Token });
+            });
+
             it('should respond with expanded map data using the thumbnail expand parameter', () =>
                 expandTest({ url: 'maps', expand: 'thumbnail', paged: true, validate: MapDto, token: u1Token }));
 
