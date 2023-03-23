@@ -66,7 +66,7 @@ export class MapsService {
         const include: Prisma.MapInclude = {
             mainTrack: true,
             info: true,
-            ...ExpandToPrismaIncludes(query.expand?.filter((x) => ['credits', 'thumbnail'].includes(x)))
+            ...ExpandToPrismaIncludes(query.expand?.filter((x) => ['credits', 'thumbnail', 'submitter'].includes(x)))
         };
 
         const incPB = query.expand?.includes('personalBest');

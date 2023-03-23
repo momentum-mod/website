@@ -26,7 +26,7 @@ class MapsGetAllBaseQuery {
 }
 
 export class AdminCtlMapsGetAllQuery extends MapsGetAllBaseQuery {
-    @ExpandQueryProperty(['info', 'submitter', 'credits'])
+    @ExpandQueryProperty(['submitter', 'credits'])
     expand: string[];
 
     @EnumQueryProperty(MapStatus, { description: 'Filter by map status flags' })
@@ -38,7 +38,6 @@ export class AdminCtlMapsGetAllQuery extends MapsGetAllBaseQuery {
 
 export class MapsCtlGetAllQuery extends MapsGetAllBaseQuery {
     @ExpandQueryProperty([
-        'info',
         'submitter',
         'credits',
         'thumbnail',
