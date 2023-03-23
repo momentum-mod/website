@@ -299,13 +299,13 @@ export class MapsService {
             const allCredits = await this.mapRepo.getCredits({ mapID: mapID, type: MapCreditType.AUTHOR });
 
             return this.userRepo.createActivities(
-                allCredits.map((credit): Prisma.ActivityCreateManyInput => {
-                    return {
+                allCredits.map(
+                    (credit): Prisma.ActivityCreateManyInput => ({
                         type: ActivityTypes.MAP_APPROVED,
                         userID: credit.userID,
                         data: mapID
-                    };
-                })
+                    })
+                )
             );
         }
     }
