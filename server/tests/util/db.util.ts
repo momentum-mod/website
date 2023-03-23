@@ -3,7 +3,7 @@ import { PrismaService } from '@modules/repo/prisma.service';
 import { randomHash, randomSteamID } from '@tests/util/random.util';
 import { gameLogin, login } from '@tests/util/auth.util';
 import { MapStatus, MapType } from '@common/enums/map.enum';
-import { AsyncReturnType, PartialDeep } from 'type-fest';
+import { AsyncReturnType, CamelCase, PartialDeep } from 'type-fest';
 import { merge } from 'lodash';
 
 const prisma: PrismaService = global.prisma;
@@ -11,7 +11,7 @@ const prisma: PrismaService = global.prisma;
 export const NULL_ID = 999999999999999;
 export const dateOffset = (offset: number) => new Date(Date.now() - offset * 1000);
 
-export const cleanup = (...models: ('user' | 'map' | 'run' | 'report' | 'activity' | 'xpSystems')[]) =>
+export const cleanup = (...models: CamelCase<Prisma.ModelName>[]) =>
     prisma.$transaction(
         models.map((name) =>
             (prisma[name] as any) // >:D
