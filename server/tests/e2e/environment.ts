@@ -2,12 +2,12 @@
 import NodeEnvironment from 'jest-environment-node';
 import { Test } from '@nestjs/testing';
 import { AppModule } from '@/app.module';
-import { INestApplication, Logger, LogLevel } from '@nestjs/common';
+import { ClassSerializerInterceptor, INestApplication, Logger, LogLevel, ValidationPipe } from '@nestjs/common';
 import { PrismaService } from '@modules/repo/prisma.service';
-import { appOptions, jsonBigIntFix, setupNestApplication } from '@/main';
 import { FastifyAdapter, NestFastifyApplication } from '@nestjs/platform-fastify';
 import { AuthService } from '@modules/auth/auth.service';
 import { XpSystemsService } from '@modules/xp-systems/xp-systems.service';
+import { Reflector } from '@nestjs/core';
 
 export default class E2ETestEnvironment extends NodeEnvironment {
     constructor(config, context) {
@@ -17,7 +17,9 @@ export default class E2ETestEnvironment extends NodeEnvironment {
     async setup() {
         await super.setup();
 
-        jsonBigIntFix();
+        BigInt.prototype['toJSON'] = function () {
+            return this.toString();
+        };
 
         const logger = new Logger().localInstance;
         const logLevel: LogLevel[] = ['error'];
@@ -31,13 +33,13 @@ export default class E2ETestEnvironment extends NodeEnvironment {
             .setLogger(logger)
             .compile();
 
-        const app = moduleRef.createNestApplication<NestFastifyApplication>(new FastifyAdapter(), appOptions);
+        const app = moduleRef.createNestApplication<NestFastifyApplication>(new FastifyAdapter(), { rawBody: true });
 
-        await setupNestApplication(
-            app,
-            // Anything put in a query/body that doesn't correspond to a decorator-validated property on the DTO will error.
-            { transform: true, forbidNonWhitelisted: true }
-        );
+        // Anything put in a query/body that doesn't correspond to a decorator-validated property on the DTO will error.
+        app.useGlobalPipes(new ValidationPipe({ transform: true, forbidNonWhitelisted: true }));
+        app.useGlobalInterceptors(new ClassSerializerInterceptor(app.get(Reflector)));
+
+        app.setGlobalPrefix('api', { exclude: ['auth(.*)'] });
 
         await app.init();
         await app.getHttpAdapter().getInstance().listen();
