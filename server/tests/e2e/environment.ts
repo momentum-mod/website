@@ -8,6 +8,7 @@ import { FastifyAdapter, NestFastifyApplication } from '@nestjs/platform-fastify
 import { AuthService } from '@modules/auth/auth.service';
 import { XpSystemsService } from '@modules/xp-systems/xp-systems.service';
 import { Reflector } from '@nestjs/core';
+import { PrismaClient } from '@prisma/client';
 
 export default class E2ETestEnvironment extends NodeEnvironment {
     constructor(config, context) {
@@ -21,6 +22,8 @@ export default class E2ETestEnvironment extends NodeEnvironment {
             return this.toString();
         };
 
+        this.global.prisma = new PrismaClient();
+
         const logger = new Logger().localInstance;
         const logLevel: LogLevel[] = ['error'];
         // Env var for heavier debugging. In WebStorm it's useful to have this in the env var settings for your
@@ -31,6 +34,9 @@ export default class E2ETestEnvironment extends NodeEnvironment {
 
         const moduleRef = await Test.createTestingModule({ imports: [AppModule] })
             .setLogger(logger)
+            // Override the global Prisma client with our global instance. Note we're also avoiding shutdown hooks here.
+            .overrideProvider(PrismaService)
+            .useValue(this.global.prisma)
             .compile();
 
         const app = moduleRef.createNestApplication<NestFastifyApplication>(new FastifyAdapter(), { rawBody: true });
@@ -46,15 +52,15 @@ export default class E2ETestEnvironment extends NodeEnvironment {
 
         this.global.app = app;
         this.global.server = app.getHttpServer();
-        this.global.prisma = app.get(PrismaService);
         this.global.auth = app.get(AuthService);
         this.global.xpSystems = app.get(XpSystemsService);
     }
 
     async teardown() {
-        // TODO: Isn't actually doing anything! I have no idea why not!
-        await (this.global.app as INestApplication).close();
-        await (this.global.prisma as PrismaService).$disconnect();
+        const app = this.global.app as INestApplication;
+
+        await app.close();
+
         await super.teardown();
     }
 }
