@@ -115,7 +115,7 @@ describe('Admin', () => {
                 });
 
                 await prisma.activity.create({
-                    data: { type: ActivityTypes.REPORT_FILED, userID: mu1.id, data: 123456n }
+                    data: { type: ActivityTypes.REPORT_FILED, userID: mu1.id, data: 1n }
                 });
             });
 
@@ -134,46 +134,26 @@ describe('Admin', () => {
                 expect(res.body.alias).toBe(mu2.alias);
 
                 // U1 was following MU1, that should be transferred to MU2.
-                const u1Follows = await get({
-                    url: `users/${u1.id}/follows`,
-                    status: 200,
-                    token: adminToken
-                });
+                const u1Follow = await prisma.follow.findFirst({ where: { followeeID: u1.id, followedID: mu2.id } });
+                expect(u1Follow.followeeID).toBeTruthy();
 
-                expect(u1Follows.body.response.some((f) => f.followed.id === mu2.id)).toBe(true);
-
-                // U2 was following MU1 and MU2, the creation data should be earliest of the two and the \notifyOn flags combined.
-                const u2Follows = await get({
-                    url: `users/${u2.id}/follows`,
-                    status: 200,
-                    token: adminToken
-                });
-                const follow = u2Follows.body.response.find((f) => f.followed.id === mu2.id);
-                expect(new Date(follow.createdAt)).toEqual(new Date('12/24/2021'));
-                expect(follow.notifyOn).toBe(ActivityTypes.MAP_APPROVED | ActivityTypes.MAP_UPLOADED);
+                // U2 was following MU1 and MU2, the creation data should be earliest of the two and the notifyOn flags combined.
+                const u2Follow = await prisma.follow.findFirst({ where: { followeeID: u2.id, followedID: mu2.id } });
+                expect(new Date(u2Follow.createdAt)).toEqual(new Date('12/24/2021'));
+                expect(u2Follow.notifyOn).toBe(ActivityTypes.MAP_APPROVED | ActivityTypes.MAP_UPLOADED);
 
                 // MU2 was following MU1, that should be deleted
-                const mu2follows = await get({
-                    url: `users/${mu2.id}/follows`,
-                    status: 200,
-                    token: adminToken
-                });
-                expect(mu2follows.body.response.some((f) => f.followed.id === mu1.id)).toBe(false);
+                const mu2Follows = await prisma.follow.findFirst({ where: { followeeID: mu2.id, followedID: mu1.id } });
+                expect(mu2Follows).toBeNull();
 
                 // MU1's activities should have been transferred to MU2
-                const mu2Activities = await get({
-                    url: `users/${mu2.id}/activities`,
-                    status: 200,
-                    token: adminToken
-                });
-                expect(mu2Activities.body.response[0].data).toBe(123456);
+
+                const mu2Activities = await prisma.activity.findFirst({ where: { userID: mu2.id } });
+                expect(mu2Activities.type).toBe(ActivityTypes.REPORT_FILED);
 
                 // Placeholder should have been deleted
-                await get({
-                    url: `users/${mu1.id}`,
-                    status: 404,
-                    token: adminToken
-                });
+                const mu1DB = await prisma.user.findFirst({ where: { id: mu1.id } });
+                expect(mu1DB).toBeNull();
             });
 
             it('should 400 if the user to merge from is not a placeholder', () =>
