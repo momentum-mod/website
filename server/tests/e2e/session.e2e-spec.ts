@@ -102,6 +102,8 @@ describe('Session', () => {
         });
     });
 
+    afterAll(() => cleanup('map'));
+
     describe('session/run', () => {
         describe('POST', () => {
             let user, token;
@@ -173,10 +175,10 @@ describe('Session', () => {
         });
 
         describe('DELETE', () => {
-            let user, token, map;
+            let user, token;
 
             beforeAll(async () => {
-                [[user, token], map] = await Promise.all([createAndLoginGameUser(), createMap()]);
+                [user, token] = await createAndLoginGameUser();
                 await prisma.runSession.create({
                     data: { userID: user.id, trackID: map.mainTrack.id, trackNum: 0, zoneNum: 0 }
                 });
