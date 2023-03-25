@@ -765,7 +765,7 @@ export class MapsService {
             where,
             include,
             order,
-            // Minus 6 here because MySQL uses offset as a "skip the first X"
+            // Minus 6 here because offset will skip the number of rows provided
             // Example: if you want to offset to rank 9, you set offset to 8
             Math.max(userRank - 6, 0),
             11 // 5 + yours + 5
