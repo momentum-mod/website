@@ -10,7 +10,7 @@ generator client {
 //}
 
 datasource db {
-    provider = "mysql"
+    provider = "postgresql"
     url      = env("DATABASE_URL")
 }
 
@@ -95,12 +95,12 @@ model Profile {
 model UserStats {
     id Int @id @default(autoincrement())
 
-    totalJumps    BigInt @default(0) @db.UnsignedBigInt
-    totalStrafes  BigInt @default(0) @db.UnsignedBigInt
-    level         Int    @default(1) @db.UnsignedSmallInt
-    cosXP         BigInt @default(0) @db.UnsignedBigInt
-    mapsCompleted Int    @default(0) @db.UnsignedInt
-    runsSubmitted Int    @default(0) @db.UnsignedInt
+    totalJumps    BigInt @default(0) @db.BigInt
+    totalStrafes  BigInt @default(0) @db.BigInt
+    level         Int    @default(1) @db.SmallInt
+    cosXP         BigInt @default(0) @db.BigInt
+    mapsCompleted Int    @default(0)
+    runsSubmitted Int    @default(0)
 
     user   User @relation(fields: [userID], references: [id], onDelete: Cascade)
     userID Int  @unique
@@ -195,7 +195,7 @@ model UserBadge {
 model Activity {
     id Int @id @default(autoincrement())
 
-    type Int    @default(0) @db.TinyInt
+    type Int    @default(0) @db.SmallInt
     data BigInt @db.BigInt
 
     notifications Notification[]
@@ -210,7 +210,7 @@ model Activity {
 }
 
 model Follow {
-    notifyOn Int @default(0) @db.UnsignedTinyInt
+    notifyOn Int @default(0) @db.SmallInt
 
     followed   User @relation("follow_follower", fields: [followedID], references: [id], onDelete: Cascade)
     followedID Int
@@ -247,8 +247,8 @@ model Report {
     id Int @id @default(autoincrement())
 
     data              BigInt   @db.BigInt
-    type              Int      @db.UnsignedTinyInt
-    category          Int      @db.UnsignedSmallInt
+    type              Int      @db.SmallInt
+    category          Int      @db.SmallInt
     message           String?  @db.VarChar(1000)
     resolved          Boolean? @default(false)
     resolutionMessage String?  @db.VarChar(1000)
@@ -285,8 +285,8 @@ model Map {
 
     name       String  @db.VarChar(32)
     fileKey    String? @db.VarChar(255)
-    type       Int     @default(0) @db.UnsignedTinyInt
-    statusFlag Int     @db.TinyInt
+    type       Int     @default(0) @db.SmallInt
+    statusFlag Int     @db.SmallInt
     hash       String? @db.Char(40)
 
     thumbnail   MapImage? @relation("mapimage_thumbnail", fields: [thumbnailID], references: [id], onDelete: SetNull)
@@ -320,7 +320,7 @@ model Map {
 model MapCredit {
     id Int @id @default(autoincrement())
 
-    type Int @db.TinyInt
+    type Int @db.SmallInt
 
     map   Map @relation(fields: [mapID], references: [id], onDelete: Cascade)
     mapID Int
@@ -369,8 +369,8 @@ model MapInfo {
 
     description  String   @default("") @db.VarChar(1000)
     youtubeID    String?  @db.VarChar(11)
-    numTracks    Int      @db.UnsignedTinyInt
-    creationDate DateTime @db.DateTime
+    numTracks    Int      @db.SmallInt
+    creationDate DateTime
 
     map   Map @relation(fields: [mapID], references: [id], onDelete: Cascade)
     mapID Int @unique
@@ -398,7 +398,7 @@ model MapLibraryEntry {
 }
 
 model MapNotify {
-    notifyOn Int @db.UnsignedTinyInt
+    notifyOn Int @db.SmallInt
 
     map   Map @relation(fields: [mapID], references: [id], onDelete: Cascade)
     mapID Int
@@ -416,10 +416,10 @@ model MapNotify {
 
 model UserMapRank {
     id       Int  @id @default(autoincrement())
-    gameType Int  @db.UnsignedTinyInt
-    flags    Int  @default(0) @db.UnsignedInt
-    rank     Int? @db.UnsignedInt // Making this @unique would be quite nice but it'd probably shit itself when doing batch rank +1 increases
-    rankXP   Int? @default(0) @db.UnsignedInt
+    gameType Int  @db.SmallInt
+    flags    Int  @default(0)
+    rank     Int? // Making this @unique would be quite nice but it'd probably shit itself when doing batch rank +1 increases
+    rankXP   Int? @default(0)
 
     map   Map @relation(fields: [mapID], references: [id], onDelete: Cascade)
     mapID Int
@@ -456,10 +456,10 @@ model MapReview {
 model MapTrack {
     id Int @id @default(autoincrement())
 
-    trackNum   Int     @db.UnsignedTinyInt
-    numZones   Int     @db.UnsignedTinyInt
+    trackNum   Int     @db.SmallInt
+    numZones   Int     @db.SmallInt
     isLinear   Boolean
-    difficulty Int     @db.UnsignedTinyInt
+    difficulty Int     @db.SmallInt
 
     mainTrack Map? @relation("map_maintrack")
 
@@ -479,8 +479,8 @@ model MapTrack {
 model MapTrackStats {
     id Int @id @default(autoincrement())
 
-    completions       Int @default(0) @db.UnsignedInt
-    uniqueCompletions Int @default(0) @db.UnsignedInt
+    completions       Int @default(0)
+    uniqueCompletions Int @default(0)
 
     track   MapTrack @relation(fields: [trackID], references: [id], onDelete: Cascade)
     trackID Int      @unique
@@ -497,7 +497,7 @@ model MapTrackStats {
 model MapZone {
     id Int @id @default(autoincrement())
 
-    zoneNum Int @db.UnsignedTinyInt
+    zoneNum Int @db.SmallInt
 
     track   MapTrack @relation(fields: [trackID], references: [id], onDelete: Cascade)
     trackID Int
@@ -514,9 +514,9 @@ model MapZone {
 model MapZoneTrigger {
     id Int @id @default(autoincrement())
 
-    type         Int                       @db.UnsignedTinyInt
-    pointsHeight Float                     @db.Float
-    pointsZPos   Float                     @db.Float
+    type         Int                       @db.SmallInt
+    pointsHeight Float                     @db.Real
+    pointsZPos   Float                     @db.Real
     points       Json?
     properties   MapZoneTriggerProperties?
 
@@ -546,8 +546,8 @@ model MapZoneTriggerProperties {
 model MapZoneStats {
     id Int @id @default(autoincrement())
 
-    completions       Int @default(0) @db.UnsignedInt
-    uniqueCompletions Int @default(0) @db.UnsignedInt
+    completions       Int @default(0)
+    uniqueCompletions Int @default(0)
 
     zone   MapZone @relation(fields: [zoneID], references: [id], onDelete: Cascade)
     zoneID Int     @unique
@@ -564,14 +564,14 @@ model MapZoneStats {
 model MapStats {
     id Int @id @default(autoincrement())
 
-    reviews           Int    @default(0) @db.UnsignedInt
-    downloads         Int    @default(0) @db.UnsignedInt
-    subscriptions     Int    @default(0) @db.UnsignedInt
-    plays             Int    @default(0) @db.UnsignedInt
-    favorites         Int    @default(0) @db.UnsignedInt
-    completions       Int    @default(0) @db.UnsignedInt
-    uniqueCompletions Int    @default(0) @db.UnsignedInt
-    timePlayed        BigInt @default(0) @db.UnsignedBigInt
+    reviews           Int    @default(0)
+    downloads         Int    @default(0)
+    subscriptions     Int    @default(0)
+    plays             Int    @default(0)
+    favorites         Int    @default(0)
+    completions       Int    @default(0)
+    uniqueCompletions Int    @default(0)
+    timePlayed        BigInt @default(0) @db.BigInt
 
     map   Map @relation(fields: [mapID], references: [id], onDelete: Cascade)
     mapID Int @unique
@@ -588,20 +588,20 @@ model MapStats {
 model BaseStats {
     id BigInt @id @default(autoincrement())
 
-    jumps          Int   @default(0) @db.UnsignedInt
-    strafes        Int   @default(0) @db.UnsignedInt
-    avgStrafeSync  Float @default(0) @db.Float
-    avgStrafeSync2 Float @default(0) @db.Float
-    enterTime      Float @default(0) @db.Float
-    totalTime      Float @default(0) @db.Float
-    velAvg3D       Float @default(0) @db.Float
-    velAvg2D       Float @default(0) @db.Float
-    velMax3D       Float @default(0) @db.Float
-    velMax2D       Float @default(0) @db.Float
-    velEnter3D     Float @default(0) @db.Float
-    velEnter2D     Float @default(0) @db.Float
-    velExit3D      Float @default(0) @db.Float
-    velExit2D      Float @default(0) @db.Float
+    jumps          Int   @default(0)
+    strafes        Int   @default(0)
+    avgStrafeSync  Float @default(0) @db.Real
+    avgStrafeSync2 Float @default(0) @db.Real
+    enterTime      Float @default(0) @db.Real
+    totalTime      Float @default(0) @db.Real
+    velAvg3D       Float @default(0) @db.Real
+    velAvg2D       Float @default(0) @db.Real
+    velMax3D       Float @default(0) @db.Real
+    velMax2D       Float @default(0) @db.Real
+    velEnter3D     Float @default(0) @db.Real
+    velEnter2D     Float @default(0) @db.Real
+    velExit3D      Float @default(0) @db.Real
+    velExit2D      Float @default(0) @db.Real
 
     mapTrackStats MapTrackStats?
     mapStats      MapStats?
@@ -616,12 +616,12 @@ model BaseStats {
 model Run {
     id BigInt @id @default(autoincrement())
 
-    trackNum Int    @db.UnsignedTinyInt
-    zoneNum  Int    @db.UnsignedTinyInt
-    ticks    Int    @db.UnsignedInt
-    tickRate Float  @db.Float
-    time     Float  @db.Float
-    flags    Int    @db.UnsignedInt
+    trackNum Int    @db.SmallInt
+    zoneNum  Int    @db.SmallInt
+    ticks    Int   
+    tickRate Float  @db.Real
+    time     Float  @db.Real
+    flags    Int   
     file     String @db.VarChar(255)
     hash     String @db.VarChar(40)
 
@@ -647,7 +647,7 @@ model Run {
 model RunZoneStats {
     id Int @id @default(autoincrement())
 
-    zoneNum Int @default(0) @db.UnsignedTinyInt
+    zoneNum Int @default(0) @db.SmallInt
 
     run   Run    @relation(fields: [runID], references: [id], onDelete: Cascade)
     runID BigInt
@@ -664,8 +664,8 @@ model RunZoneStats {
 model RunSession {
     id BigInt @id @default(autoincrement())
 
-    trackNum   Int                   @db.UnsignedTinyInt
-    zoneNum    Int                   @db.UnsignedTinyInt
+    trackNum   Int                   @db.SmallInt
+    zoneNum    Int                   @db.SmallInt
     timestamps RunSessionTimestamp[]
 
     user   User @relation(fields: [userID], references: [id], onDelete: Cascade)
@@ -683,8 +683,8 @@ model RunSession {
 model RunSessionTimestamp {
     id BigInt @id @default(autoincrement())
 
-    zone Int @db.UnsignedTinyInt
-    tick Int @db.UnsignedInt
+    zone Int @db.SmallInt
+    tick Int
 
     session   RunSession @relation(fields: [sessionID], references: [id], onDelete: Cascade)
     sessionID BigInt
