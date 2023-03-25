@@ -30,8 +30,8 @@ We provide two ways to get the API up and running.
 1. Entirely Dockerized, the fastest way to get up and running, and best for frontend developers.
 2. Running Node natively. This is easier to interact with and debug, recommended for backend developers.
 
-In both cases, we use Docker to create [MySQL](https://www.mysql.com/) and [MinIO](https://min.io/) containers. You _can_
-set up native MySQL and MinIO instances if you want, but Docker makes things considerably easier.
+In both cases, we use Docker to create [PostgreSQL](https://www.postgresql.org/) and [MinIO](https://min.io/) containers. You _can_
+set up native PostgreSQL and MinIO instances if you want, but Docker makes things considerably easier.
 
 #### Dockerized
 
@@ -40,7 +40,7 @@ From the `website` directory, run:
 docker compose --profile full up -d
 ```
 
-This will build and start the MySQL, MinIO and main API containers.
+This will build and start the PostgreSQL, MinIO and main API containers.
 
 To override the NPM script we run to start up the API, set the CMD variable, e.g. to first seed the DB with mock data:
 
@@ -60,7 +60,7 @@ Then, from the `website` directory, run:
 ```
 docker compose up -d
 ```
-This will build and start only the MySQL, MinIO containers.
+This will build and start only the PostgreSQL, MinIO containers.
 
 Finally, back in the `website/server` directory, you should be ready to start the full API with one of the various NPM
 scripts (see package.json), for example to have Prisma initialise the DB and the start the Node app, use
