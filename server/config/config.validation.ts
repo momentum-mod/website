@@ -1,5 +1,5 @@
 ﻿import { Environment } from './config.interface';
-import { IsDefined, IsEnum, IsInt, IsOptional, IsPort, IsString, IsUrl, validateSync } from 'class-validator';
+import { IsDefined, IsEnum, IsInt, IsOptional, IsString, IsUrl, validateSync } from 'class-validator';
 import { plainToInstance } from 'class-transformer';
 import { IsOptionalWithEmptyString } from '@common/validators/is-optional-with-empty-string.validator';
 
@@ -52,13 +52,13 @@ export class ConfigValidation {
     SENTRY_DSN: string;
 
     @IsString()
-    MYSQL_ROOT_PASSWORD: string;
+    POSTGRES_USER: string;
 
     @IsString()
-    MYSQL_DATABASE: string;
+    POSTGRES_PASSWORD: string;
 
-    @IsPort()
-    MYSQL_PORT = 3307;
+    @IsString()
+    POSTGRES_DB: string;
 
     @IsString()
     STORAGE_REGION: string;
