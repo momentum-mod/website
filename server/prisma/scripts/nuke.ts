@@ -1,29 +1,18 @@
-﻿import { Prisma, PrismaClient } from '@prisma/client';
+import { PrismaClient } from '@prisma/client';
 
 export const nuke = async (prisma: PrismaClient) => {
-    // TODO: This is MySQL-specifc, change when porting to Postgres
-    // https://www.prisma.io/docs/concepts/components/prisma-client/crud#delete-all-records-from-all-tables
-    const transactions: Prisma.PrismaPromise<any>[] = [];
-    transactions.push(prisma.$executeRaw`SET FOREIGN_KEY_CHECKS = 0;`);
-
     const tablenames = await prisma.$queryRaw<
-        Array<{ TABLE_NAME: string }>
-    >`SELECT TABLE_NAME from information_schema.TABLES WHERE TABLE_SCHEMA = 'momentum';`;
+        Array<{ tablename: string }>
+    >`SELECT tablename FROM pg_tables WHERE schemaname='public'`;
 
-    for (const { TABLE_NAME } of tablenames) {
-        if (TABLE_NAME !== '_prisma_migrations') {
-            try {
-                transactions.push(prisma.$executeRawUnsafe(`TRUNCATE ${TABLE_NAME};`));
-            } catch (error) {
-                console.log({ error });
-            }
-        }
-    }
-
-    transactions.push(prisma.$executeRaw`SET FOREIGN_KEY_CHECKS = 1;`);
+    const tables = tablenames
+        .map(({ tablename }) => tablename)
+        .filter((name) => name !== '_prisma_migrations')
+        .map((name) => `"public"."${name}"`)
+        .join(', ');
 
     try {
-        await prisma.$transaction(transactions);
+        await prisma.$executeRawUnsafe(`TRUNCATE TABLE ${tables} CASCADE;`);
     } catch (error) {
         console.log({ error });
     }
