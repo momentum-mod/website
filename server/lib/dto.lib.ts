@@ -1,5 +1,5 @@
 ﻿import { plainToInstance, Transform, Type as TypeDecorator } from 'class-transformer';
-import { applyDecorators, InternalServerErrorException, Type } from '@nestjs/common';
+import { applyDecorators, BadRequestException, InternalServerErrorException, Type } from '@nestjs/common';
 import { ApiProperty, ApiPropertyOptional, ApiPropertyOptions } from '@nestjs/swagger';
 import {
     IsArray,
@@ -56,6 +56,9 @@ export function ExpandToPrismaIncludes(expansions: string[]): Record<string, boo
     return includes;
 }
 
+export function checkNotEmpty(body: object): void {
+    if (Object.keys(body).length === 0) throw new BadRequestException('Empty request body');
+}
 /**
  * Well, kind of safe. This is an annoying transform we do to ensure that we can use 64-bit ints with Prisma but numbers
  * in JSON, rather than a string (currently we have handle BigInts as string, since class-transformer doesn't give us a

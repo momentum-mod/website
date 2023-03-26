@@ -9,7 +9,7 @@ import { UsersRepoService } from '../repo/users-repo.service';
 import { Follow, Prisma } from '@prisma/client';
 import { AdminUpdateUserDto, UserDto } from '@common/dto/user/user.dto';
 import { PaginatedResponseDto } from '@common/dto/paginated-response.dto';
-import { DtoFactory } from '@lib/dto.lib';
+import { checkNotEmpty, DtoFactory } from '@lib/dto.lib';
 import { MapsRepoService } from '../repo/maps-repo.service';
 import { Bitflags } from '@lib/bitflag.lib';
 import { UpdateRolesDto } from '@common/dto/user/roles.dto';
@@ -113,9 +113,7 @@ export class AdminService {
 
         if (!user) throw new NotFoundException('User not found');
 
-        // TODO: Can we validate that update/create DTOs are not empty/undefined on all properties??
-        if (Object.values(update).every((v) => v === undefined))
-            throw new BadRequestException('Request contains no update data');
+        checkNotEmpty(update);
 
         const updateInput: Prisma.UserUpdateInput = {};
 
