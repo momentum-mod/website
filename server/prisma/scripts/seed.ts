@@ -88,7 +88,7 @@ async function createRandomUserProfile(userID) {
     return prisma.profile.create({
         data: {
             userID: userID,
-            bio: faker.lorem.paragraphs(),
+            bio: faker.lorem.paragraphs().slice(0, 999),
             ...Random.createdUpdatedDates()
         }
     });
@@ -127,7 +127,7 @@ async function createRandomMapInfo(mapID) {
     return prisma.mapInfo.create({
         data: {
             mapID: mapID,
-            description: faker.lorem.paragraphs(),
+            description: faker.lorem.paragraphs().slice(0, 999),
             numTracks: Random.int(1, 100),
             creationDate: Random.pastDateInYears(),
             ...Random.createdUpdatedDates()
@@ -326,7 +326,7 @@ async function createRandomReport(reportType, data, submitterID, resolverID) {
     return prisma.report.create({
         data: {
             type: reportType,
-            data: data.toString(),
+            data: BigInt(data),
             category: Random.enumValue(ReportCategory),
             message: faker.lorem.paragraph(),
             resolved: faker.datatype.boolean(),
