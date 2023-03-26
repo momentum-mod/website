@@ -2,7 +2,7 @@ import { NestFactory, Reflector } from '@nestjs/core';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { PrismaService } from '@modules/repo/prisma.service';
 import { AppModule } from './app.module';
-import { ClassSerializerInterceptor, ValidationPipe } from '@nestjs/common';
+import { ClassSerializerInterceptor, ValidationPipe, VersioningType } from '@nestjs/common';
 import { join } from 'node:path';
 import { ConfigService } from '@nestjs/config';
 import { FastifyAdapter, NestFastifyApplication } from '@nestjs/platform-fastify';
@@ -27,6 +27,10 @@ async function bootstrap() {
     app.useGlobalInterceptors(new ClassSerializerInterceptor(app.get(Reflector)));
 
     app.setGlobalPrefix('api', { exclude: ['auth(.*)'] });
+
+    // All routes (besides auth, which uses VERSION_NEUTRAL) are version 1 by default,
+    // versions can be incremented on a per-route basis upon future versions
+    app.enableVersioning({ type: VersioningType.URI, defaultVersion: '1', prefix: 'v' });
 
     const prismaDalc: PrismaService = app.get(PrismaService);
     await prismaDalc.enableShutdownHooks(app);

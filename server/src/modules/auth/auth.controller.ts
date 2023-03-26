@@ -1,4 +1,16 @@
-import { Body, Controller, Get, HttpCode, HttpStatus, Post, Redirect, Req, Res, UseGuards } from '@nestjs/common';
+import {
+    Body,
+    Controller,
+    Get,
+    HttpCode,
+    HttpStatus,
+    Post,
+    Redirect,
+    Req,
+    Res,
+    UseGuards,
+    VERSION_NEUTRAL
+} from '@nestjs/common';
 import {
     ApiBearerAuth,
     ApiBody,
@@ -17,7 +29,10 @@ import { ConfigService } from '@nestjs/config';
 import { RefreshTokenDto } from '@common/dto/auth/refresh-token.dto';
 import { SteamWebAuthGuard } from '@modules/auth/guards/steam-web-auth.guard';
 
-@Controller('auth')
+@Controller({
+    path: 'auth',
+    version: VERSION_NEUTRAL
+})
 @ApiTags('Auth')
 @ApiBearerAuth()
 export class AuthController {
