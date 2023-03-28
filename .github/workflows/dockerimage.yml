@@ -7,7 +7,7 @@ jobs:
     steps:
     - uses: actions/checkout@v2
     - name: Publish to Registry
-      uses: elgohr/Publish-Docker-Github-Action@2.14
+      uses: elgohr/Publish-Docker-Github-Action@v5
       with:
         name: momentum-mod/website/mmod-website
         username: ${{ github.actor }}
