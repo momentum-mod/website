@@ -1,20 +1,26 @@
 ﻿import { User } from '@prisma/client';
 import { AuthService } from '@modules/auth/auth.service';
 
-const authService = global.auth as AuthService;
+export class AuthUtil {
+    constructor(authService: AuthService) {
+        this.authService = authService;
+    }
 
-export function login(user: User): Promise<string> {
-    return authService.loginWeb(user).then((jwt) => jwt.accessToken);
-}
+    private authService: AuthService;
 
-export function logins(users: User[]): Promise<string[]> {
-    return Promise.all(users.map((user) => login(user)));
-}
+    login(user: User): Promise<string> {
+        return this.authService.loginWeb(user).then((jwt) => jwt.accessToken);
+    }
 
-export function gameLogin(user: User): Promise<string> {
-    return authService.loginGame(user).then((jwt) => jwt.token);
-}
+    logins(users: User[]): Promise<string[]> {
+        return Promise.all(users.map((user) => this.login(user)));
+    }
 
-export function gameLogins(users: User[]): Promise<string[]> {
-    return Promise.all(users.map((user) => gameLogin(user)));
+    gameLogin(user: User): Promise<string> {
+        return this.authService.loginGame(user).then((jwt) => jwt.token);
+    }
+
+    gameLogins(users: User[]): Promise<string[]> {
+        return Promise.all(users.map((user) => this.gameLogin(user)));
+    }
 }

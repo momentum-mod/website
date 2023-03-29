@@ -1,24 +1,34 @@
-import { get } from '../util/request-handlers.util';
 import { ActivityTypes } from '@common/enums/activity.enum';
 import { PrismaService } from '@modules/repo/prisma.service';
 import { ActivityDto } from '@common/dto/user/activity.dto';
-import { skipTest, takeTest, unauthorizedTest } from '@tests/util/generic-e2e-tests.util';
-import { cleanup, createAndLoginUser, createUser, NULL_ID } from '../util/db.util';
-
-const prisma: PrismaService = global.prisma;
+import { RequestUtil } from '@tests/util/request.util';
+import { DbUtil, NULL_ID } from '@tests/util/db.util';
+import { setupE2ETestEnvironment, teardownE2ETestEnvironment } from '@tests/e2e/environment';
 
 describe('Activities', () => {
+    let app, prisma: PrismaService, req: RequestUtil, db: DbUtil;
+
+    beforeAll(async () => {
+        const env = await setupE2ETestEnvironment();
+        prisma = env.prisma;
+        app = env.app;
+        req = env.req;
+        db = env.db;
+    });
+
+    afterAll(() => teardownE2ETestEnvironment(app));
+
     describe('activities', () => {
         describe('GET', () => {
             let u1, u1Token, u2, _activity1, _activity2, activity3;
 
             beforeAll(async () => {
                 [[u1, u1Token], u2] = await Promise.all([
-                    createAndLoginUser({
+                    db.createAndLoginUser({
                         data: { roles: { create: { verified: true, mapper: true } } },
                         include: { roles: true }
                     }),
-                    createUser({ data: { roles: { create: { mapper: true } } }, include: { roles: true } })
+                    db.createUser({ data: { roles: { create: { mapper: true } } }, include: { roles: true } })
                 ]);
 
                 // Define these BEFORE insert for later checks, Prisma doesn't give us back our fookin created items.
@@ -37,10 +47,10 @@ describe('Activities', () => {
                 });
             });
 
-            afterAll(() => cleanup('user'));
+            afterAll(() => db.cleanup('user'));
 
             it('should respond with an array of activities', async () => {
-                const res = await get({
+                const res = await req.get({
                     url: 'activities',
                     status: 200,
                     token: u1Token,
@@ -57,7 +67,7 @@ describe('Activities', () => {
             });
 
             it('should respond with array of activities with userID parameter', async () => {
-                const res = await get({
+                const res = await req.get({
                     url: 'activities',
                     status: 200,
                     query: { userID: u1.id },
@@ -70,7 +80,7 @@ describe('Activities', () => {
             });
 
             it('should respond with array of activities with data parameter', async () => {
-                const res = await get({
+                const res = await req.get({
                     url: 'activities',
                     status: 200,
                     query: { data: activity3.data },
@@ -83,7 +93,7 @@ describe('Activities', () => {
             });
 
             it('should respond with array of activities with type paramater', async () => {
-                const res = await get({
+                const res = await req.get({
                     url: 'activities',
                     status: 200,
                     query: { type: ActivityTypes.MAP_APPROVED },
@@ -96,7 +106,7 @@ describe('Activities', () => {
             });
 
             it('should respond with array of all activities with type ALL paramater', async () => {
-                const res = await get({
+                const res = await req.get({
                     url: 'activities',
                     status: 200,
                     query: { type: ActivityTypes.ALL },
@@ -109,13 +119,13 @@ describe('Activities', () => {
             });
 
             it('should respond with array of activities with take parameter', () =>
-                takeTest({ url: 'activities', validate: ActivityDto, token: u1Token }));
+                req.takeTest({ url: 'activities', validate: ActivityDto, token: u1Token }));
 
             it('should respond with array of users with skip parameter', async () =>
-                skipTest({ url: 'activities', validate: ActivityDto, token: u1Token }));
+                req.skipTest({ url: 'activities', validate: ActivityDto, token: u1Token }));
 
             it('should respond with an empty array for a nonexistent user', async () => {
-                const res = await get({
+                const res = await req.get({
                     url: 'activities',
                     status: 200,
                     query: { userID: NULL_ID },
@@ -128,9 +138,9 @@ describe('Activities', () => {
             });
 
             it('should 400 when a bad type is passed', () =>
-                get({ url: 'activities', status: 400, query: { type: 'POTATO' }, token: u1Token }));
+                req.get({ url: 'activities', status: 400, query: { type: 'POTATO' }, token: u1Token }));
 
-            unauthorizedTest('activities', get);
+            it('should 401 when no access token is provided', () => req.unauthorizedTest('activities', 'get'));
         });
     });
 });
