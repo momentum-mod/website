@@ -1,34 +1,35 @@
 import { MapType, getDefaultTickRateForMapType } from '@common/enums/map.enum';
-import { PrismaService } from '@modules/repo/prisma.service';
 import { RunTester, RunTesterProps } from '@tests/util/run-tester.util';
 import { CompletedRunDto } from '@common/dto/run/completed-run.dto';
-import { del, post } from '@tests/util/request-handlers.util';
 import { RunSessionDto } from '@common/dto/run/run-session.dto';
 import { RunSessionTimestampDto } from '@common/dto/run/run-session-timestamp.dto';
 import { RunDto } from '@common/dto/run/run.dto';
-import { XpSystemsService } from '@modules/xp-systems/xp-systems.service';
 import { RunValidationErrorTypes } from '@common/enums/run.enum';
 import { UserMapRankDto } from '@common/dto/run/user-map-rank.dto';
-import {
-    cleanup,
-    createAndLoginGameUser,
-    createMap,
-    loginNewGameUser,
-    loginNewUser,
-    NULL_ID
-} from '@tests/util/db.util';
 import { randomHash, randomSteamID } from '@tests/util/random.util';
 import { ActivityTypes } from '@common/enums/activity.enum';
-
-const prisma: PrismaService = global.prisma;
-const xpSystems: XpSystemsService = global.xpSystems;
+import { PrismaService } from '@modules/repo/prisma.service';
+import { RequestUtil } from '@tests/util/request.util';
+import { DbUtil, NULL_ID } from '@tests/util/db.util';
+import { setupE2ETestEnvironment, teardownE2ETestEnvironment } from '@tests/e2e/environment';
+import { XpSystemsService } from '@modules/xp-systems/xp-systems.service';
+import { Server } from 'node:http';
 
 describe('Session', () => {
+    let app, server: Server, prisma: PrismaService, req: RequestUtil, db: DbUtil, xpSystems: XpSystemsService;
     let map;
 
     beforeAll(async () => {
+        const env = await setupE2ETestEnvironment();
+        app = env.app;
+        server = env.server;
+        prisma = env.prisma;
+        req = env.req;
+        db = env.db;
+        xpSystems = app.get(XpSystemsService);
+
         // We can use this same map for all the run session testing. Suites just create their own users and runs.
-        map = await createMap(
+        map = await db.createMap(
             { name: 'bhop_eazy', type: MapType.BHOP },
             {
                 trackNum: 0,
@@ -102,18 +103,21 @@ describe('Session', () => {
         });
     });
 
-    afterAll(() => cleanup('map'));
+    afterAll(async () => {
+        await db.cleanup('map');
+        await teardownE2ETestEnvironment(app);
+    });
 
     describe('session/run', () => {
         describe('POST', () => {
             let user, token;
 
-            beforeAll(async () => ([user, token] = await createAndLoginGameUser()));
+            beforeAll(async () => ([user, token] = await db.createAndLoginGameUser()));
 
-            afterAll(() => cleanup('user', 'run'));
+            afterAll(() => db.cleanup('user', 'run'));
 
             it('should return a valid run DTO', async () => {
-                const res = await post({
+                const res = await req.post({
                     url: 'session/run',
                     status: 200,
                     token: token,
@@ -125,14 +129,14 @@ describe('Session', () => {
             });
 
             it('should 400 if not given a proper body', () =>
-                post({
+                req.post({
                     url: 'session/run',
                     status: 400,
                     token: token
                 }));
 
             it('should 400 if the map does not have the provided trackNum', () =>
-                post({
+                req.post({
                     url: 'session/run',
                     status: 400,
                     body: { mapID: map.id, trackNum: 2, zoneNum: 0 },
@@ -140,7 +144,7 @@ describe('Session', () => {
                 }));
 
             it('should 400 for staged runs UNTIL 0.12.0', () =>
-                post({
+                req.post({
                     url: 'session/run',
                     status: 400,
                     body: { mapID: map.id, trackNum: 0, zoneNum: 1 },
@@ -148,7 +152,7 @@ describe('Session', () => {
                 }));
 
             it('should 400 if the map does not exist', () =>
-                post({
+                req.post({
                     url: 'session/run',
                     status: 400,
                     body: { mapID: NULL_ID, trackNum: 0, zoneNum: 0 },
@@ -156,53 +160,57 @@ describe('Session', () => {
                 }));
 
             it('should 401 when no access token is provided', () =>
-                post({
+                req.post({
                     url: 'session/run',
                     status: 401,
                     body: { mapID: map.id, trackNum: 0, zoneNum: 0 }
                 }));
 
             it('should return 403 if not using a game API key', async () => {
-                const nonGameToken = await loginNewUser();
+                const nonGameToken = await db.loginNewUser();
 
-                await post({
+                await req.post({
                     url: 'session/run',
                     status: 403,
                     body: { mapID: map.id, trackNum: 0, zoneNum: 0 },
                     token: nonGameToken
                 });
             });
+
+            it('should 401 when no access token is provided', () => req.unauthorizedTest('session/run', 'post'));
         });
 
         describe('DELETE', () => {
             let user, token;
 
             beforeAll(async () => {
-                [user, token] = await createAndLoginGameUser();
+                [user, token] = await db.createAndLoginGameUser();
                 await prisma.runSession.create({
                     data: { userID: user.id, trackID: map.mainTrack.id, trackNum: 0, zoneNum: 0 }
                 });
             });
 
-            afterAll(() => cleanup('user', 'run'));
+            afterAll(() => db.cleanup('user', 'run'));
 
             it('should delete the users run', async () => {
-                await del({ url: 'session/run', status: 204, token: token });
+                await req.del({ url: 'session/run', status: 204, token: token });
 
                 expect(await prisma.runSession.findFirst()).toBeNull();
             });
 
             it('should 400 if the run does not exist', () =>
                 // Just repeat last test
-                del({ url: 'session/run', status: 400, token: token }));
+                req.del({ url: 'session/run', status: 400, token: token }));
 
-            it('should 401 when no access token is provided', () => del({ url: 'session/run', status: 401 }));
+            it('should 401 when no access token is provided', () => req.del({ url: 'session/run', status: 401 }));
 
             it('should return 403 if not using a game API key', async () => {
-                const nonGameToken = await loginNewUser();
+                const nonGameToken = await db.loginNewUser();
 
-                await del({ url: 'session/run', status: 403, token: nonGameToken });
+                await req.del({ url: 'session/run', status: 403, token: nonGameToken });
             });
+
+            it('should 401 when no access token is provided', () => req.unauthorizedTest('session/run', 'del'));
         });
     });
 
@@ -211,16 +219,16 @@ describe('Session', () => {
             let user, token, session;
 
             beforeAll(async () => {
-                [user, token] = await createAndLoginGameUser();
+                [user, token] = await db.createAndLoginGameUser();
                 session = await prisma.runSession.create({
                     data: { userID: user.id, trackID: map.mainTrack.id, trackNum: 0, zoneNum: 0 }
                 });
             });
 
-            afterAll(() => cleanup('user', 'run'));
+            afterAll(() => db.cleanup('user', 'run'));
 
             it('should update an existing run with the zone and tick', async () => {
-                const res = await post({
+                const res = await req.post({
                     url: `session/run/${session.id}`,
                     status: 200,
                     body: { zoneNum: 2, tick: 510 },
@@ -232,9 +240,9 @@ describe('Session', () => {
             });
 
             it('should 403 if not the owner of the run', async () => {
-                const u2Token = await loginNewGameUser();
+                const u2Token = await db.loginNewGameUser();
 
-                await post({
+                await req.post({
                     url: `session/run/${session.id}`,
                     status: 403,
                     body: { zoneNum: 2, tick: 510 },
@@ -243,7 +251,7 @@ describe('Session', () => {
             });
 
             it('should 400 if the run does not exist', () =>
-                post({
+                req.post({
                     url: `session/run/${NULL_ID}`,
                     status: 400,
                     body: { zoneNum: 2, tick: 510 },
@@ -251,15 +259,17 @@ describe('Session', () => {
                 }));
 
             it('should 403 if not using a game API key', async () => {
-                const nonGameToken = await loginNewUser();
+                const nonGameToken = await db.loginNewUser();
 
-                await post({
+                await req.post({
                     url: `session/run/${session.id}`,
                     status: 403,
                     body: { zoneNum: 2, tick: 510 },
                     token: nonGameToken
                 });
             });
+
+            it('should 401 when no access token is provided', () => req.unauthorizedTest('session/run/1', 'post'));
         });
     });
 
@@ -277,7 +287,7 @@ describe('Session', () => {
             beforeEach(async () => {
                 // Run submission affects so much stuff with UMRs, ranks etc. that's it's easiest to just clear and reset
                 // all this after each test.
-                [user, token] = await createAndLoginGameUser();
+                [user, token] = await db.createAndLoginGameUser();
 
                 await prisma.runSession.create({
                     data: { userID: user.id, trackID: map.mainTrack.id, trackNum: 0, zoneNum: 0 }
@@ -351,7 +361,7 @@ describe('Session', () => {
 
             // With the way we're constructed above DB inserts below the existing runs will be 0.01s, 1.01s, 2.01s ... 10.01s,
             // this is ~500ms so will be rank 2.
-            const submitRun = (delay?: number) => RunTester.run(defaultTesterProperties(), 3, delay);
+            const submitRun = (delay?: number) => RunTester.run(server, defaultTesterProperties(), 3, delay);
 
             const submitWithOverrides = async (overrides: {
                 props?: Partial<RunTesterProps>;
@@ -361,7 +371,7 @@ describe('Session', () => {
                 writeStats?: boolean;
                 writeFrames?: boolean;
             }) => {
-                const tester = new RunTester({ ...defaultTesterProperties(), ...overrides.props });
+                const tester = new RunTester(server, { ...defaultTesterProperties(), ...overrides.props });
 
                 await tester.startRun();
                 await tester.doZones(3, overrides.delay);
@@ -568,7 +578,7 @@ describe('Session', () => {
 
                 it('the run does not have the proper number of timestamps', async () => {
                     for (const numZones of [2, 4]) {
-                        const tester = new RunTester(defaultTesterProperties());
+                        const tester = new RunTester(server, defaultTesterProperties());
 
                         await tester.startRun();
                         await tester.doZones(numZones);
@@ -581,7 +591,7 @@ describe('Session', () => {
                 });
 
                 it('the run was done out of order', async () => {
-                    const tester = new RunTester(defaultTesterProperties());
+                    const tester = new RunTester(server, defaultTesterProperties());
 
                     await tester.startRun();
 
@@ -597,7 +607,7 @@ describe('Session', () => {
                 });
 
                 it('there was no timestamps for a track with >1 zones', async () => {
-                    const tester = new RunTester(defaultTesterProperties());
+                    const tester = new RunTester(server, defaultTesterProperties());
 
                     await tester.startRun();
                     const res = await tester.endRun();
@@ -734,6 +744,9 @@ describe('Session', () => {
                 // it('there are timestamps for an IL run', () => {
                 //     return;
                 // });
+
+                it('should 401 when no access token is provided', () =>
+                    req.unauthorizedTest('session/run/1/end', 'post'));
             });
         });
     });

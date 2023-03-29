@@ -12,7 +12,7 @@ import { createSha1Hash } from '@tests/util/crypto.util';
 /**
  * Simple handler class wrapped over the AWS S3 client for use in tests.
  */
-export class FileStoreHandler {
+export class FileStoreUtil {
     s3: S3Client;
 
     constructor() {

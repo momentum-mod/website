@@ -1,49 +1,45 @@
 import { RunDto } from '@common/dto/run/run.dto';
 import { PrismaService } from '@modules/repo/prisma.service';
-import { get, getNoContent } from '../util/request-handlers.util';
-import {
-    expandTest,
-    skipTest,
-    sortByDateTest,
-    sortTest,
-    takeTest,
-    unauthorizedTest
-} from '@tests/util/generic-e2e-tests.util';
 import { Config } from '@config/config';
-import {
-    createRun,
-    createRunAndUmrForMap,
-    createMaps,
-    createUsers,
-    dateOffset,
-    NULL_ID,
-    cleanup
-} from '@tests/util/db.util';
-import { login } from '@tests/util/auth.util';
-
-const prisma: PrismaService = global.prisma;
+import { RequestUtil } from '@tests/util/request.util';
+import { dateOffset, DbUtil, NULL_ID } from '@tests/util/db.util';
+import { AuthUtil } from '@tests/util/auth.util';
+import { setupE2ETestEnvironment, teardownE2ETestEnvironment } from '@tests/e2e/environment';
 
 describe('Runs', () => {
+    let app, prisma: PrismaService, req: RequestUtil, db: DbUtil, auth: AuthUtil;
+
+    beforeAll(async () => {
+        const env = await setupE2ETestEnvironment();
+        app = env.app;
+        prisma = env.prisma;
+        req = env.req;
+        db = env.db;
+        auth = env.auth;
+    });
+
+    afterAll(() => teardownE2ETestEnvironment(app));
+
     describe('runs', () => {
         describe('GET', () => {
             let users, token, maps;
 
             beforeAll(async () => {
-                [users, maps] = await Promise.all([createUsers(2), createMaps(2)]);
-                token = await login(users[0]);
+                [users, maps] = await Promise.all([db.createUsers(2), db.createMaps(2)]);
+                token = await auth.login(users[0]);
 
                 await Promise.all([
-                    createRunAndUmrForMap({ map: maps[0], user: users[0], createdAt: dateOffset(-4), flags: 1 }),
-                    createRun({ map: maps[0], user: users[1], createdAt: dateOffset(-3) }),
-                    createRunAndUmrForMap({ map: maps[1], user: users[0], createdAt: dateOffset(-2) }),
-                    createRun({ map: maps[1], user: users[1], createdAt: dateOffset(-1) })
+                    db.createRunAndUmrForMap({ map: maps[0], user: users[0], createdAt: dateOffset(-4), flags: 1 }),
+                    db.createRun({ map: maps[0], user: users[1], createdAt: dateOffset(-3) }),
+                    db.createRunAndUmrForMap({ map: maps[1], user: users[0], createdAt: dateOffset(-2) }),
+                    db.createRun({ map: maps[1], user: users[1], createdAt: dateOffset(-1) })
                 ]);
             });
 
             afterAll(() => Promise.all([prisma.user.deleteMany(), prisma.map.deleteMany(), prisma.run.deleteMany()]));
 
             it('should respond with a list of runs', async () => {
-                const res = await get({
+                const res = await req.get({
                     url: 'runs',
                     status: 200,
                     validatePaged: { type: RunDto, count: 4 },
@@ -54,13 +50,13 @@ describe('Runs', () => {
             });
 
             it('should respond with a list of runs with take parameter', () =>
-                takeTest({ url: 'runs', validate: RunDto, token: token }));
+                req.takeTest({ url: 'runs', validate: RunDto, token: token }));
 
             it('should respond with a list of runs with skip parameter', () =>
-                skipTest({ url: 'runs', validate: RunDto, token: token }));
+                req.skipTest({ url: 'runs', validate: RunDto, token: token }));
 
             it('should respond with list of runs filtered by mapID parameter', async () => {
-                const res = await get({
+                const res = await req.get({
                     url: 'runs',
                     status: 200,
                     query: { mapID: maps[0].id },
@@ -72,7 +68,7 @@ describe('Runs', () => {
             });
 
             it('should respond with a list of runs filtered by userID parameter', async () => {
-                const res = await get({
+                const res = await req.get({
                     url: 'runs',
                     status: 200,
                     query: { userID: users[0].id },
@@ -85,7 +81,7 @@ describe('Runs', () => {
 
             it('should respond with a list of runs filtered by a list of user ids', async () => {
                 const ids = `${users[0].id},${users[1].id}`;
-                const res = await get({
+                const res = await req.get({
                     url: 'runs',
                     status: 200,
                     query: { userIDs: ids },
@@ -97,7 +93,7 @@ describe('Runs', () => {
             });
 
             it('should respond with a list of runs filtered by flags', async () => {
-                const res = await get({
+                const res = await req.get({
                     url: 'runs',
                     status: 200,
                     query: { flags: 1 },
@@ -109,10 +105,10 @@ describe('Runs', () => {
             });
 
             it('should respond with a list of runs with the map include', () =>
-                expandTest({ url: 'runs', validate: RunDto, expand: 'map', paged: true, token: token }));
+                req.expandTest({ url: 'runs', validate: RunDto, expand: 'map', paged: true, token: token }));
 
             it('should respond with a list of runs with the rank include', async () => {
-                const res = await get({
+                const res = await req.get({
                     url: 'runs',
                     status: 200,
                     query: { expand: 'rank' },
@@ -124,13 +120,13 @@ describe('Runs', () => {
             });
 
             it('should respond with a list of runs with the zoneStats include', () =>
-                expandTest({ url: 'runs', validate: RunDto, expand: 'zoneStats', paged: true, token: token }));
+                req.expandTest({ url: 'runs', validate: RunDto, expand: 'zoneStats', paged: true, token: token }));
 
             it('should respond with a list of runs with the overallStats include', () =>
-                expandTest({ url: 'runs', validate: RunDto, expand: 'overallStats', paged: true, token: token }));
+                req.expandTest({ url: 'runs', validate: RunDto, expand: 'overallStats', paged: true, token: token }));
 
             it('should respond with a list of runs with the mapWithInfo include', async () => {
-                const res = await get({
+                const res = await req.get({
                     url: 'runs',
                     status: 200,
                     query: { expand: 'mapWithInfo' },
@@ -142,7 +138,7 @@ describe('Runs', () => {
             });
 
             it('should respond with a list of runs filtered by partial mapName match', async () => {
-                const res = await get({
+                const res = await req.get({
                     url: 'runs',
                     status: 200,
                     query: { mapName: maps[0].name.slice(-3) },
@@ -154,7 +150,7 @@ describe('Runs', () => {
             });
 
             it('should respond with a list of runs that are personal bests', async () => {
-                const res = await get({
+                const res = await req.get({
                     url: 'runs',
                     status: 200,
                     query: { isPB: true, expand: 'rank' },
@@ -166,10 +162,10 @@ describe('Runs', () => {
             });
 
             it('should respond with a list of runs sorted by date', () =>
-                sortByDateTest({ url: 'runs', query: { order: 'date' }, validate: RunDto, token: token }));
+                req.sortByDateTest({ url: 'runs', query: { order: 'date' }, validate: RunDto, token: token }));
 
             it('should respond with a list of runs sorted by time', () =>
-                sortTest({
+                req.sortTest({
                     url: 'runs',
                     query: { order: 'date' },
                     validate: RunDto,
@@ -177,7 +173,7 @@ describe('Runs', () => {
                     token: token
                 }));
 
-            unauthorizedTest('runs', get);
+            it('should 401 when no access token is provided', () => req.unauthorizedTest('runs', 'get'));
         });
     });
 
@@ -186,31 +182,31 @@ describe('Runs', () => {
             let user, token, map, run;
 
             beforeAll(async () => {
-                run = await createRunAndUmrForMap({ map: map, rank: 1, user: user, ticks: 1 });
+                run = await db.createRunAndUmrForMap({ map: map, rank: 1, user: user, ticks: 1 });
                 user = run.user;
                 map = run.map;
-                token = await login(user);
+                token = await auth.login(user);
             });
 
             afterAll(() => Promise.all([prisma.user.deleteMany(), prisma.map.deleteMany(), prisma.run.deleteMany()]));
 
             it('should return a valid run', () =>
-                get({ url: 'runs/' + run.id, status: 200, validate: RunDto, token: token }));
+                req.get({ url: 'runs/' + run.id, status: 200, validate: RunDto, token: token }));
 
             it('should respond with a run using the overallStats include', () =>
-                expandTest({ url: 'runs/' + run.id, validate: RunDto, expand: 'overallStats', token: token }));
+                req.expandTest({ url: 'runs/' + run.id, validate: RunDto, expand: 'overallStats', token: token }));
 
             it('should respond with a run using the map include', () =>
-                expandTest({ url: 'runs/' + run.id, validate: RunDto, expand: 'map', token: token }));
+                req.expandTest({ url: 'runs/' + run.id, validate: RunDto, expand: 'map', token: token }));
 
             it('should respond with a run using the rank include', () =>
-                expandTest({ url: 'runs/' + run.id, validate: RunDto, expand: 'rank', token: token }));
+                req.expandTest({ url: 'runs/' + run.id, validate: RunDto, expand: 'rank', token: token }));
 
             it('should respond with a run using the zoneStats include', () =>
-                expandTest({ url: 'runs/' + run.id, validate: RunDto, expand: 'zoneStats', token: token }));
+                req.expandTest({ url: 'runs/' + run.id, validate: RunDto, expand: 'zoneStats', token: token }));
 
             it('should respond with a run using the mapWithInfo include', async () => {
-                const res = await get({
+                const res = await req.get({
                     url: 'runs/' + run.id,
                     status: 200,
                     query: { expand: 'mapWithInfo' },
@@ -221,9 +217,9 @@ describe('Runs', () => {
                 expect(res.body.map).toHaveProperty('info');
             });
 
-            it('should 404 when no run is found', () => get({ url: `runs/${NULL_ID}`, status: 404, token: token }));
+            it('should 404 when no run is found', () => req.get({ url: `runs/${NULL_ID}`, status: 404, token: token }));
 
-            unauthorizedTest('runs/1', get);
+            it('should 401 when no access token is provided', () => req.unauthorizedTest('runs/1', 'get'));
         });
     });
 
@@ -232,7 +228,7 @@ describe('Runs', () => {
             let user, token, map, run;
 
             beforeAll(async () => {
-                run = await createRunAndUmrForMap({
+                run = await db.createRunAndUmrForMap({
                     map: map,
                     rank: 1,
                     user: user,
@@ -241,21 +237,21 @@ describe('Runs', () => {
                 });
                 user = run.user;
                 map = run.map;
-                token = await login(user);
+                token = await auth.login(user);
             });
 
-            afterAll(() => cleanup('user', 'map', 'run'));
+            afterAll(() => db.cleanup('user', 'map', 'run'));
 
             it('should redirect to the download url of the run', async () => {
-                const res = await getNoContent({ url: `runs/${run.id}/download`, status: 302, token: token });
+                const res = await req.getNoContent({ url: `runs/${run.id}/download`, status: 302, token: token });
 
                 expect(res.header.location).toEqual(`${Config.url.cdn}/${Config.storage.bucketName}/${run.file}`);
             });
 
             it('should 404 when no run is found', () =>
-                get({ url: `runs/${NULL_ID}/download`, status: 404, token: token }));
+                req.get({ url: `runs/${NULL_ID}/download`, status: 404, token: token }));
 
-            unauthorizedTest('runs/1/download', get);
+            it('should 401 when no access token is provided', () => req.unauthorizedTest('runs/1/download', 'get'));
         });
     });
 });

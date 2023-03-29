@@ -1,14 +1,24 @@
-import { post } from '../util/request-handlers.util';
 import { ReportType, ReportCategory } from '@common/enums/report.enum';
 import { ReportDto } from '@common/dto/report/report.dto';
-import { createAndLoginUser } from '@tests/util/db.util';
-import { unauthorizedTest } from '@tests/util/generic-e2e-tests.util';
-import { cleanup } from '@tests/util/db.util';
-import { PrismaService } from '@modules/repo/prisma.service';
 
-const prisma: PrismaService = global.prisma;
+import { PrismaService } from '@modules/repo/prisma.service';
+import { RequestUtil } from '@tests/util/request.util';
+import { DbUtil } from '@tests/util/db.util';
+import { setupE2ETestEnvironment, teardownE2ETestEnvironment } from '@tests/e2e/environment';
 
 describe('Reports', () => {
+    let app, prisma: PrismaService, req: RequestUtil, db: DbUtil;
+
+    beforeAll(async () => {
+        const env = await setupE2ETestEnvironment();
+        app = env.app;
+        prisma = env.prisma;
+        req = env.req;
+        db = env.db;
+    });
+
+    afterAll(() => teardownE2ETestEnvironment(app));
+
     describe('reports/', () => {
         describe('POST', () => {
             const report = {
@@ -20,13 +30,13 @@ describe('Reports', () => {
 
             let user, token;
 
-            beforeAll(async () => ([user, token] = await createAndLoginUser()));
+            beforeAll(async () => ([user, token] = await db.createAndLoginUser()));
 
-            afterAll(() => cleanup('user'));
-            afterEach(() => cleanup('report'));
+            afterAll(() => db.cleanup('user'));
+            afterEach(() => db.cleanup('report'));
 
             it('should create a new report', async () => {
-                const res = await post({
+                const res = await req.post({
                     url: 'reports',
                     status: 201,
                     body: report,
@@ -48,7 +58,7 @@ describe('Reports', () => {
                     }))
                 });
 
-                await post({ url: 'reports', status: 409, body: report, token: token });
+                await req.post({ url: 'reports', status: 409, body: report, token: token });
             });
 
             it('should create a new report if the pending reports are older than 24 hours', async () => {
@@ -63,7 +73,7 @@ describe('Reports', () => {
                     }))
                 });
 
-                await post({ url: 'reports', status: 201, body: report, validate: ReportDto, token: token });
+                await req.post({ url: 'reports', status: 201, body: report, validate: ReportDto, token: token });
             });
 
             it('should create a new report if recent reports are resolved', async () => {
@@ -78,10 +88,10 @@ describe('Reports', () => {
                     }))
                 });
 
-                await post({ url: 'reports', status: 201, body: report, validate: ReportDto, token: token });
+                await req.post({ url: 'reports', status: 201, body: report, validate: ReportDto, token: token });
             });
 
-            unauthorizedTest('reports', post);
+            it('should 401 when no access token is provided', () => req.unauthorizedTest('reports', 'post'));
         });
     });
 });
