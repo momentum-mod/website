@@ -33,7 +33,8 @@ import {
     ApiBadRequestResponse,
     ApiForbiddenResponse,
     ApiNoContentResponse,
-    ApiCreatedResponse
+    ApiCreatedResponse,
+    ApiResponse
 } from '@nestjs/swagger';
 import { ApiOkPaginatedResponse, PaginatedResponseDto } from '@common/dto/paginated-response.dto';
 import { MapsService } from './maps.service';
@@ -644,7 +645,8 @@ export class MapsController {
         description: 'Target Map ID',
         required: true
     })
-    @ApiOkResponse({ description: 'The ranks for your steam friends' })
+    @ApiOkResponse({ description: "The ranks of the user's steam friends" })
+    @ApiResponse({ status: 418, description: 'The user has no friends' })
     getRanksFriends(
         @LoggedInUser('steamID') steamID: string,
         @Param('mapID') mapID: number,

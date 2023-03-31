@@ -18,6 +18,7 @@ import { dateOffset, DbUtil, NULL_ID } from '@tests/util/db.util';
 import { RequestUtil } from '@tests/util/request.util';
 import { AuthUtil } from '@tests/util/auth.util';
 import { PrismaService } from '@modules/repo/prisma.service';
+import { SteamService } from '@modules/steam/steam.service';
 
 describe('Maps', () => {
     let app, prisma: PrismaService, req: RequestUtil, db: DbUtil, fs: FileStoreUtil, auth: AuthUtil;
@@ -2245,22 +2246,21 @@ describe('Maps', () => {
 
     describe('maps/{mapID}/ranks/around', () => {
         describe('GET', () => {
-            let map, token, runs;
+            let map, user7Token, runs;
 
             beforeAll(async () => {
-                [token, map] = await Promise.all([db.loginNewUser(), db.createMap()]);
+                map = await db.createMap();
                 runs = await Promise.all(
                     Array.from({ length: 12 }, (_, i) =>
                         db.createRunAndUmrForMap({ map: map, rank: i + 1, ticks: (i + 1) * 100 })
                     )
                 );
+                user7Token = await auth.login(runs[6].user);
             });
 
             afterAll(() => db.cleanup('user', 'map', 'run'));
 
             it('should return a list of ranks around your rank', async () => {
-                const user7Token = await auth.login(runs[6].user);
-
                 const res = await req.get({
                     url: `maps/${map.id}/ranks/around`,
                     status: 200,
@@ -2280,12 +2280,78 @@ describe('Maps', () => {
             });
 
             it('should return 404 for a nonexistent map', () =>
-                req.get({ url: `maps/${NULL_ID}/ranks/1`, status: 404, token: token }));
+                req.get({ url: `maps/${NULL_ID}/ranks/around`, status: 404, token: user7Token }));
 
             it("should return 400 if rankNum isn't a number or around or friends", () =>
-                req.get({ url: `maps/${map.id}/ranks/abcd`, status: 400, token: token }));
+                req.get({ url: `maps/${map.id}/ranks/abcd`, status: 400, token: user7Token }));
 
             it('should 401 when no access token is provided', () => req.unauthorizedTest('maps/1/ranks/around', 'get'));
+        });
+    });
+
+    describe('maps/{mapID}/ranks/friends', () => {
+        describe('GET', () => {
+            const mockSteamIDs = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10'] as const;
+            let map, user, token, steamService: SteamService;
+
+            beforeAll(async () => {
+                steamService = app.get(SteamService);
+                [[user, token], map] = await Promise.all([db.createAndLoginUser(), db.createMap()]);
+                const friends = await Promise.all(
+                    mockSteamIDs.map((steamID) => db.createUser({ data: { steamID: steamID } }))
+                );
+
+                // Make our user rank 1, friends have subsequent ranks 2-11.
+                await Promise.all([
+                    friends.map((user, i) =>
+                        db.createRunAndUmrForMap({
+                            map: map,
+                            user: user,
+                            rank: i + 2,
+                            ticks: (i + 2) * 100
+                        })
+                    ),
+                    db.createRunAndUmrForMap({ user: user, map: map, ticks: 1, rank: 1 })
+                ]);
+            });
+
+            it("should return a list of the user's Steam friend's ranks", async () => {
+                // Obviously our test users aren't real Steam users, so we can't use their API. So just mock the API call.
+                jest.spyOn(steamService, 'getSteamFriends').mockResolvedValueOnce(
+                    mockSteamIDs.map((id) => ({
+                        steamid: id,
+                        relationship: 'friend',
+                        friend_since: 0
+                    }))
+                );
+
+                const res = await req.get({
+                    url: `maps/${map.id}/ranks/friends`,
+                    status: 200,
+                    token: token,
+                    validateArray: { type: UserMapRankDto, length: 10 }
+                });
+
+                for (const umr of res.body) expect(mockSteamIDs).toContain(umr.user.steamID);
+            });
+
+            it('should 418 if the user has no Steam friends', async () => {
+                jest.spyOn(steamService, 'getSteamFriends').mockResolvedValueOnce([]);
+
+                return req.get({
+                    url: `maps/${map.id}/ranks/friends`,
+                    status: 418,
+                    token: token
+                });
+            });
+
+            it('should return 404 for a nonexistent map', () =>
+                req.get({ url: `maps/${NULL_ID}/ranks/friends`, status: 404, token: token }));
+
+            it('should 401 when no access token is provided', () =>
+                req.unauthorizedTest('maps/1/ranks/friends', 'get'));
+
+            afterAll(() => db.cleanup('user', 'map', 'run'));
         });
     });
 });
