@@ -8,7 +8,7 @@ import {
     UserJwtAccessPayload,
     UserJwtPayload,
     UserJwtPayloadVerified
-} from '@modules/auth/auth.interfaces';
+} from '@modules/auth/auth.interface';
 import { DtoFactory } from '@lib/dto.lib';
 
 @Injectable()

@@ -1,5 +1,5 @@
 ﻿import { Injectable, CanActivate, ExecutionContext } from '@nestjs/common';
-import { UserJwtAccessPayloadVerified } from '@modules/auth/auth.interfaces';
+import { UserJwtAccessPayloadVerified } from '@modules/auth/auth.interface';
 
 @Injectable()
 export class GameAuthGuard implements CanActivate {

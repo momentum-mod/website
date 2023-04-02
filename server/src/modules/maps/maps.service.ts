@@ -28,7 +28,7 @@ import {
     MapRankGetNumberQuery
 } from '@common/dto/query/map-queries.dto';
 import { MapImageDto } from '@common/dto/map/map-image.dto';
-import { FileStoreCloudFile } from '../filestore/file-store.interfaces';
+import { FileStoreCloudFile } from '../filestore/file-store.interface';
 import { ConfigService } from '@nestjs/config';
 import sharp from 'sharp';
 import { RunsService } from '../runs/runs.service';
