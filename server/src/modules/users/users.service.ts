@@ -27,6 +27,7 @@ import { MapDto } from '@common/dto/map/map.dto';
 import { MapSummaryDto } from '@common/dto/user/user-maps-summary.dto';
 import { SteamUserSummaryData } from '@modules/steam/steam.interface';
 import { SteamService } from '@modules/steam/steam.service';
+import { AuthenticatedUser } from '@modules/auth/auth.interfaces';
 
 @Injectable()
 export class UsersService {
@@ -97,7 +98,7 @@ export class UsersService {
         return DtoFactory(UserDto, dbResponse);
     }
 
-    async findOrCreateFromGame(steamID: string): Promise<User> {
+    async findOrCreateFromGame(steamID: string): Promise<AuthenticatedUser> {
         const summaryData = await this.steamService.getSteamUserSummaryData(steamID);
 
         if (steamID !== summaryData.steamid)
@@ -113,7 +114,7 @@ export class UsersService {
         return this.findOrCreateUser(profile);
     }
 
-    findOrCreateFromWeb(profile: SteamUserSummaryData): Promise<User> {
+    findOrCreateFromWeb(profile: SteamUserSummaryData): Promise<AuthenticatedUser> {
         return this.findOrCreateUser({
             steamID: profile.steamid,
             alias: profile.personaname,
@@ -122,7 +123,9 @@ export class UsersService {
         });
     }
 
-    async findOrCreateUser(userData: UserCreateData): Promise<User> {
+    async findOrCreateUser(
+        userData: Pick<User, 'steamID' | 'alias' | 'avatar' | 'country'>
+    ): Promise<AuthenticatedUser> {
         const user = await this.userRepo.getBySteamID(userData.steamID);
 
         const input: Prisma.UserUpdateInput | Prisma.UserCreateInput = {
@@ -132,7 +135,8 @@ export class UsersService {
         };
 
         if (user) {
-            return this.userRepo.update(user.id, input as Prisma.UserUpdateInput);
+            const { id, steamID } = await this.userRepo.update(user.id, input as Prisma.UserUpdateInput);
+            return { id, steamID };
         } else {
             if (this.config.get('steam.preventLimited') && (await this.steamService.isAccountLimited(userData.steamID)))
                 throw new UnauthorizedException(
@@ -141,7 +145,8 @@ export class UsersService {
 
             input.steamID = userData.steamID;
 
-            return this.userRepo.create(input as Prisma.UserCreateInput);
+            const { id, steamID } = await this.userRepo.create(input as Prisma.UserCreateInput);
+            return { id, steamID };
         }
     }
 
