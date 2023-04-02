@@ -6,6 +6,7 @@ import { ClassSerializerInterceptor, ValidationPipe, VersioningType } from '@nes
 import { join } from 'node:path';
 import { ConfigService } from '@nestjs/config';
 import { FastifyAdapter, NestFastifyApplication } from '@nestjs/platform-fastify';
+import fastifyCookie from '@fastify/cookie';
 
 async function bootstrap() {
     // Transforms `BigInt`s to strings in JSON.stringify, for cases that haven't been explicitly
@@ -18,6 +19,27 @@ async function bootstrap() {
     const app = await NestFactory.create<NestFastifyApplication>(AppModule, new FastifyAdapter(), {
         rawBody: true // So we can use RawBodyRequest
     });
+
+    const configService = app.get(ConfigService);
+
+    // Steam game auth sends a raw octet-stream, only use-case. Limit to 2kb
+    app.useBodyParser('application/octet-stream', { bodyLimit: 2e3 });
+
+    // TODO: desciprtion of this garbage
+    app.getHttpAdapter()
+        .getInstance()
+        .addHook('onRequest', (request, reply, done) => {
+            reply.setHeader = function (key, value) {
+                return this.raw.setHeader(key, value);
+            };
+            reply.end = function () {
+                this.raw.end();
+            };
+            request.res = reply;
+            done();
+        });
+
+    app.register(fastifyCookie, { secret: configService.get('sessionSecret') });
     app.useStaticAssets({ root: join(__dirname, 'assets/') });
 
     // Forbidding unknown values here ensures any request containing unexpected data on the query/body (i.e. does not

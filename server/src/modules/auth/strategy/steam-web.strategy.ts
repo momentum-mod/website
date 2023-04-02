@@ -3,8 +3,8 @@ import { PassportStrategy } from '@nestjs/passport';
 import { Strategy } from 'passport-steam';
 import { SteamAuthService } from '../steam-auth.service';
 import { ConfigService } from '@nestjs/config';
-import { SteamUserSummaryResponse } from '@modules/auth/auth.interfaces';
-import { User } from '@prisma/client';
+import { SteamUserSummaryResponse } from '@modules/steam/steam.interface';
+import { AuthenticatedUser } from '@modules/auth/auth.interfaces';
 
 @Injectable()
 export class SteamWebStrategy extends PassportStrategy(Strategy, 'steam') {
@@ -13,20 +13,16 @@ export class SteamWebStrategy extends PassportStrategy(Strategy, 'steam') {
             returnURL: config.get('url.auth') + '/auth/steam',
             realm: config.get('url.auth'),
             apiKey: config.get('steam.webAPIKey'),
-            passReqToCallback: true, // Used in referral system attempt, unneeded otherwise.
-            session: false
+            passReqToCallback: false, // Not using referral system for now, so unneeded. If using, add `request: FastifyRequest` as first arg in validate().
+            session: false // Don't want to use Passport's mystical session system
         });
     }
 
-    async validate(req, openID: string, response: SteamUserSummaryResponse): Promise<User & { referrer?: string }> {
-        const user = await this.steamAuthService.validateFromSteamWeb(response._json);
+    async validate(_openID: string, responseData: SteamUserSummaryResponse): Promise<AuthenticatedUser> {
+        const user = await this.steamAuthService.validateFromSteamWeb(responseData._json);
 
         if (!user) throw new InternalServerErrorException('Could not find or create user profile');
 
-        // TODO: This is a flawed attempt to fix the Passport referral issue, maybe interesting in the future.
-        // req.session.referrer is undefined here.
-        const referrer = req.session?.referrer;
-
-        return referrer ? { ...user, referrer: referrer as string } : user;
+        return user;
     }
 }
