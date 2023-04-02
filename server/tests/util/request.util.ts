@@ -1,7 +1,8 @@
 ﻿import request, { Test, Response } from 'supertest';
-import { URL_PREFIX } from '@tests/e2e/e2e.config';
 import { get as getDeep } from 'lodash';
 import { Type } from '@nestjs/common';
+
+export const URL_PREFIX = '/api/v1/';
 
 export class RequestUtil {
     constructor(server) {

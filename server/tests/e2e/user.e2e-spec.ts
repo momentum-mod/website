@@ -15,7 +15,7 @@ import { RequestUtil } from '@tests/util/request.util';
 import { DbUtil, NULL_ID } from '@tests/util/db.util';
 import { setupE2ETestEnvironment, teardownE2ETestEnvironment } from '@tests/e2e/environment';
 
-describe('User', () => {
+describe('User (E2E)', () => {
     let app, prisma: PrismaService, req: RequestUtil, db: DbUtil;
 
     beforeAll(async () => {

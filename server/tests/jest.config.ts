@@ -1,12 +1,12 @@
 import { JestConfigWithTsJest, pathsToModuleNameMapper } from 'ts-jest';
-import { compilerOptions } from '../../tsconfig.json';
+import { compilerOptions } from '../tsconfig.json';
 
 const jestConfig: JestConfigWithTsJest = {
     preset: 'ts-jest',
-    rootDir: '../../',
+    rootDir: '../',
     roots: ['<rootDir>'],
     modulePaths: [compilerOptions.baseUrl],
-    testRegex: 'tests/e2e/[^_].+e2e-spec.ts$',
+    testRegex: ['.*spec.ts'],
     moduleNameMapper: pathsToModuleNameMapper(compilerOptions.paths, { prefix: '<rootDir>/' }),
     globalSetup: '<rootDir>/tests/global-setup.ts',
     setupFilesAfterEnv: ['<rootDir>/tests/matchers.ts'],
@@ -14,5 +14,3 @@ const jestConfig: JestConfigWithTsJest = {
 };
 
 export default jestConfig;
-
-export const URL_PREFIX = '/api/';

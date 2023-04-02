@@ -12,7 +12,7 @@ import { setupE2ETestEnvironment, teardownE2ETestEnvironment } from '@tests/e2e/
 import { AuthUtil } from '@tests/util/auth.util';
 import { PrismaClient } from '@prisma/client';
 
-describe('Users', () => {
+describe('Users (E2E)', () => {
     let app, prisma: PrismaClient, req: RequestUtil, db: DbUtil, auth: AuthUtil;
 
     beforeAll(async () => {
