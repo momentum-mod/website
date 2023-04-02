@@ -1,7 +1,14 @@
 ﻿import 'tsconfig-paths/register'; // This MUST be imported for absolute modules to be recognised! // TODO: Is this doing anything
 import { Test, TestingModuleBuilder } from '@nestjs/testing';
 import { AppModule } from '@/app.module';
-import { ClassSerializerInterceptor, INestApplication, Logger, LogLevel, ValidationPipe } from '@nestjs/common';
+import {
+    ClassSerializerInterceptor,
+    INestApplication,
+    Logger,
+    LogLevel,
+    ValidationPipe,
+    VersioningType
+} from '@nestjs/common';
 import { PrismaService } from '@modules/repo/prisma.service';
 import { FastifyAdapter, NestFastifyApplication } from '@nestjs/platform-fastify';
 import { Reflector } from '@nestjs/core';
@@ -62,12 +69,12 @@ export async function setupE2ETestEnvironment(
     const configService = app.get(ConfigService);
     app.register(fastifyCookie, { secret: configService.get('sessionSecret') });
 
+    app.setGlobalPrefix('api', { exclude: ['auth(.*)'] });
+    app.enableVersioning({ type: VersioningType.URI, defaultVersion: '1', prefix: 'v' });
+
     // Anything put in a query/body that doesn't correspond to a decorator-validated property on the DTO will error.
     app.useGlobalPipes(new ValidationPipe({ transform: true, forbidNonWhitelisted: true }));
     app.useGlobalInterceptors(new ClassSerializerInterceptor(app.get(Reflector)));
-
-    app.setGlobalPrefix('api', { exclude: ['auth(.*)'] });
-
     await app.init();
     await app.getHttpAdapter().getInstance().listen();
 
