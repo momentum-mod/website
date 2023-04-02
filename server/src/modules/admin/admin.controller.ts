@@ -126,7 +126,7 @@ export class AdminController {
     @Patch('/user-stats')
     @ApiOperation({ summary: "Update every user's stats" })
     updateUserStats() {
-        return void 0;
+        return;
     }
 
     @Get('/maps')

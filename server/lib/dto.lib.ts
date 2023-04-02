@@ -77,11 +77,11 @@ export const SafeBigIntToNumber = () =>
     });
 
 function conditionalDecorators(...args: [boolean, () => PropertyDecorator | undefined][]): PropertyDecorator[] {
-    return args.map(([condition, decorator]) => (condition ? decorator() : () => void 0));
+    return args.map(([condition, decorator]) => (condition ? decorator() : () => {}));
 }
 
 function conditionalDecorator(condition: boolean, decorator: () => PropertyDecorator): PropertyDecorator {
-    return condition ? decorator() : () => void 0;
+    return condition ? decorator() : () => {};
 }
 
 // NOTE: It may be possible to use reflection to get the types of all the below funcs but I've messed with it for hours
