@@ -61,7 +61,7 @@ export const ConfigFactory = (): ConfigInterface => {
         sessionSecret: isProd ? process.env.SESSION_SECRET : 'honga suggested it make some cha',
         steam: {
             webAPIKey: process.env.STEAM_WEB_API_KEY,
-            preventLimited: process.env.STEAM_PREVENT_LIMITED === 'true' ?? true,
+            preventLimited: process.env.STEAM_PREVENT_LIMITED !== 'false' ?? true,
             useSteamTicketLibrary: process.env.STEAM_USE_ENCRYPTED_TICKETS === 'true' ?? false,
             ticketsSecretKey: ''
         },
