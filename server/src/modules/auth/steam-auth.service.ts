@@ -10,7 +10,7 @@ import { UsersRepoService } from '../repo/users-repo.service';
 import { ConfigService } from '@nestjs/config';
 import { SteamService } from '@modules/steam/steam.service';
 import { SteamUserSummaryData } from '@modules/steam/steam.interface';
-import { AuthenticatedUser } from '@modules/auth/auth.interfaces';
+import { AuthenticatedUser } from '@modules/auth/auth.interface';
 
 @Injectable()
 export class SteamAuthService {

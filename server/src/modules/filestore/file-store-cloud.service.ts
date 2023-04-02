@@ -1,5 +1,5 @@
 import { Injectable, StreamableFile } from '@nestjs/common';
-import { FileStoreCloudFile } from './file-store.interfaces';
+import { FileStoreCloudFile } from './file-store.interface';
 import { S3Client, PutObjectCommand, DeleteObjectCommand, GetObjectCommand } from '@aws-sdk/client-s3';
 import { FileStoreUtils } from './file-store.utility';
 import { ConfigService } from '@nestjs/config';

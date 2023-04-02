@@ -27,7 +27,7 @@ import { MapDto } from '@common/dto/map/map.dto';
 import { MapSummaryDto } from '@common/dto/user/user-maps-summary.dto';
 import { SteamUserSummaryData } from '@modules/steam/steam.interface';
 import { SteamService } from '@modules/steam/steam.service';
-import { AuthenticatedUser } from '@modules/auth/auth.interfaces';
+import { AuthenticatedUser } from '@modules/auth/auth.interface';
 
 @Injectable()
 export class UsersService {

@@ -4,7 +4,7 @@ import { Strategy } from 'passport-steam';
 import { SteamAuthService } from '../steam-auth.service';
 import { ConfigService } from '@nestjs/config';
 import { SteamUserSummaryResponse } from '@modules/steam/steam.interface';
-import { AuthenticatedUser } from '@modules/auth/auth.interfaces';
+import { AuthenticatedUser } from '@modules/auth/auth.interface';
 
 @Injectable()
 export class SteamWebStrategy extends PassportStrategy(Strategy, 'steam') {
