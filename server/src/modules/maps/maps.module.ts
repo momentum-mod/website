@@ -4,15 +4,15 @@ import { MapsService } from './maps.service';
 import { RepoModule } from '../repo/repo.module';
 import { FileStoreModule } from '../filestore/file-store.module';
 import { SessionModule } from '../session/session.module';
-import { RunsService } from '../runs/runs.service';
 import { MapLibraryService } from './map-library.service';
 import { ConfigModule } from '@nestjs/config';
-import { UsersModule } from '../users/users.module';
+import { SteamModule } from '@modules/steam/steam.module';
+import { RunsModule } from '@modules/runs/runs.module';
 
 @Module({
-    imports: [RepoModule, FileStoreModule, SessionModule, UsersModule, ConfigModule],
+    imports: [RepoModule, FileStoreModule, ConfigModule, SteamModule, SessionModule, RunsModule],
     controllers: [MapsController],
-    providers: [MapsService, RunsService, MapLibraryService],
+    providers: [MapsService, MapLibraryService],
     exports: [MapsService, MapLibraryService]
 })
 export class MapsModule {}

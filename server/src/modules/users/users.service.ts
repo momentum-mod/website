@@ -2,11 +2,8 @@ import {
     BadRequestException,
     ConflictException,
     ForbiddenException,
-    ImATeapotException,
     Injectable,
-    InternalServerErrorException,
     NotFoundException,
-    ServiceUnavailableException,
     UnauthorizedException
 } from '@nestjs/common';
 import { Prisma, User, UserAuth } from '@prisma/client';
@@ -14,8 +11,6 @@ import { UpdateUserDto, UserDto } from '@common/dto/user/user.dto';
 import { ProfileDto } from '@common/dto/user/profile.dto';
 import { PaginatedResponseDto } from '@common/dto/paginated-response.dto';
 import { UsersRepoService } from '../repo/users-repo.service';
-import { lastValueFrom, map } from 'rxjs';
-import { HttpService } from '@nestjs/axios';
 import { ActivityDto } from '@common/dto/user/activity.dto';
 import { FollowDto, FollowStatusDto, UpdateFollowStatusDto } from '@common/dto/user/follow.dto';
 import { MapCreditDto } from '@common/dto/map/map-credit.dto';
@@ -28,17 +23,17 @@ import { MapLibraryEntryDto } from '@common/dto/map/map-library-entry';
 import { MapFavoriteDto } from '@common/dto/map/map-favorite.dto';
 import { ConfigService } from '@nestjs/config';
 import { UsersGetAllQuery } from '@common/dto/query/user-queries.dto';
-import { SteamUserSummaryData, SteamFriendData } from '@modules/auth/auth.interfaces';
 import { MapDto } from '@common/dto/map/map.dto';
 import { MapSummaryDto } from '@common/dto/user/user-maps-summary.dto';
-import { catchError, firstValueFrom } from 'rxjs';
+import { SteamUserSummaryData } from '@modules/steam/steam.interface';
+import { SteamService } from '@modules/steam/steam.service';
 
 @Injectable()
 export class UsersService {
     constructor(
         private readonly userRepo: UsersRepoService,
         private readonly mapRepo: MapsRepoService,
-        private readonly http: HttpService,
+        private readonly steamService: SteamService,
         private readonly config: ConfigService
     ) {}
 
@@ -103,7 +98,17 @@ export class UsersService {
     }
 
     async findOrCreateFromGame(steamID: string): Promise<User> {
-        const profile = await this.extractUserProfileFromSteamID(steamID);
+        const summaryData = await this.steamService.getSteamUserSummaryData(steamID);
+
+        if (steamID !== summaryData.steamid)
+            throw new BadRequestException('User fetched is not the authenticated user!');
+
+        const profile = {
+            steamID,
+            alias: summaryData.personaname,
+            avatar: summaryData.avatarhash,
+            country: summaryData.loccountrycode
+        };
 
         return this.findOrCreateUser(profile);
     }
@@ -129,7 +134,7 @@ export class UsersService {
         if (user) {
             return this.userRepo.update(user.id, input as Prisma.UserUpdateInput);
         } else {
-            if (this.config.get('steam.preventLimited') && (await this.isAccountLimited(userData.steamID)))
+            if (this.config.get('steam.preventLimited') && (await this.steamService.isAccountLimited(userData.steamID)))
                 throw new UnauthorizedException(
                     'We do not authenticate limited Steam accounts. Buy something on Steam first!'
                 );
@@ -504,85 +509,4 @@ export class UsersService {
     }
 
     //#endregion
-
-    //#region Steam Queries
-
-    async getSteamFriends(steamID: string): Promise<SteamFriendData[]> {
-        const res = await firstValueFrom(
-            this.http
-                .get('https://api.steampowered.com/ISteamUser/GetFriendList/v1/', {
-                    params: {
-                        key: this.config.get('steam.webAPIKey'),
-                        steamID: steamID,
-                        relationship: 'friend'
-                    }
-                })
-                .pipe(
-                    catchError((_error) => {
-                        throw new ServiceUnavailableException('Failed to retrieve friends list from steam');
-                    })
-                )
-        );
-        if (res.data) {
-            const ret: SteamFriendData[] = res.data.friendslist.friends;
-
-            if (ret.length === 0) throw new ImATeapotException('No friends detected :(');
-        }
-        throw new InternalServerErrorException('Failed to get Steam friends list');
-    }
-
-    private async extractUserProfileFromSteamID(steamID: string): Promise<UserCreateData> {
-        const summaryData = await this.getSteamUserSummaryData(steamID);
-
-        if (steamID !== summaryData.steamid)
-            throw new BadRequestException('User fetched is not the authenticated user!');
-
-        return {
-            steamID: steamID,
-            alias: summaryData.personaname,
-            avatar: summaryData.avatarhash,
-            country: summaryData.loccountrycode
-        };
-    }
-
-    private async getSteamUserSummaryData(steamID: string): Promise<SteamUserSummaryData> {
-        const getPlayerResponse = await lastValueFrom(
-            this.http
-                .get('https://api.steampowered.com/ISteamUser/GetPlayerSummaries/v2/', {
-                    params: {
-                        key: this.config.get('steam.webAPIKey'),
-                        steamids: steamID
-                    }
-                })
-                .pipe(map((res) => res.data))
-        );
-
-        const userSummary = getPlayerResponse.response?.players?.[0];
-
-        if (getPlayerResponse.response.error || !userSummary)
-            throw new InternalServerErrorException('Failed to get player summary');
-
-        return userSummary;
-    }
-
-    /**
-     * Checks whether a Steam account is in "limited" mode i.e. hasn't spent $5 or more on Steam. Unfortunately Steam
-     * Web API doesn't return this, so we have to use this messier method of parsing the profile page as XML.
-     * @private
-     */
-    private isAccountLimited(steamID: string): Promise<boolean> {
-        return lastValueFrom(
-            this.http
-                .get(`https://steamcommunity.com/profiles/${steamID}?xml=1`)
-                .pipe(map((res) => /(?<=<isLimitedAccount>)\d(?=<\/isLimitedAccount>)/.exec(res.data)[0] === '1'))
-        );
-    }
-
-    //#endregion
 }
-
-//#region Private Types
-
-type UserCreateData = Pick<User, 'steamID' | 'alias' | 'avatar' | 'country'>;
-
-//#endregion

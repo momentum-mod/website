@@ -3,6 +3,7 @@ import {
     BadRequestException,
     ConflictException,
     ForbiddenException,
+    ImATeapotException,
     Injectable,
     NotFoundException,
     StreamableFile
@@ -26,12 +27,12 @@ import {
     MapRanksGetQuery,
     MapRankGetNumberQuery
 } from '@common/dto/query/map-queries.dto';
-import { UsersService } from '../users/users.service';
 import { MapImageDto } from '@common/dto/map/map-image.dto';
 import { FileStoreCloudFile } from '../filestore/file-store.interfaces';
 import { ConfigService } from '@nestjs/config';
 import sharp from 'sharp';
 import { RunsService } from '../runs/runs.service';
+import { SteamService } from '@modules/steam/steam.service';
 
 @Injectable()
 export class MapsService {
@@ -41,7 +42,7 @@ export class MapsService {
         private readonly fileCloudService: FileStoreCloudService,
         private readonly config: ConfigService,
         private readonly runsService: RunsService,
-        private readonly usersService: UsersService
+        private readonly steamService: SteamService
     ) {}
 
     //#region Maps
@@ -668,6 +669,9 @@ export class MapsService {
 
     //#endregion
 
+    // TODO: Move to own service!
+    //#region Ranks
+
     async getRanks(mapID: number, query: MapRanksGetQuery): Promise<PaginatedResponseDto<UserMapRankDto>> {
         const map = await this.mapRepo.get(mapID);
 
@@ -773,7 +777,10 @@ export class MapsService {
     }
 
     async getRankFriends(steamID: string, mapID: number, query: MapRankGetNumberQuery): Promise<UserMapRankDto[]> {
-        const steamFriends = await this.usersService.getSteamFriends(steamID);
+        const steamFriends = await this.steamService.getSteamFriends(steamID);
+
+        if (steamFriends.length === 0) throw new ImATeapotException('No friends detected :(');
+
         const friendSteamIDs = steamFriends.map((item) => item.steamid);
 
         const map = await this.mapRepo.get(mapID);
@@ -782,15 +789,8 @@ export class MapsService {
         const where: Prisma.UserMapRankWhereInput = {
             mapID: mapID,
             flags: 0,
-            user: {
-                steamID: {
-                    in: friendSteamIDs
-                }
-            },
-            run: {
-                trackNum: 0,
-                zoneNum: 0
-            }
+            user: { steamID: { in: friendSteamIDs } },
+            run: { trackNum: 0, zoneNum: 0 }
         };
 
         if (query.flags) where.flags = query.flags;
@@ -815,6 +815,8 @@ export class MapsService {
             mapRank.zoneNum = (mapRank as any).run.zoneNum;
         }
     }
+
+    //#endregion
 
     //#region Private
 
