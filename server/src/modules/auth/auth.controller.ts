@@ -5,21 +5,13 @@ import {
     HttpCode,
     HttpStatus,
     Post,
-    Redirect,
+    RawBodyRequest,
     Req,
     Res,
     UseGuards,
     VERSION_NEUTRAL
 } from '@nestjs/common';
-import {
-    ApiBearerAuth,
-    ApiBody,
-    ApiNoContentResponse,
-    ApiOkResponse,
-    ApiOperation,
-    ApiParam,
-    ApiTags
-} from '@nestjs/swagger';
+import { ApiBearerAuth, ApiBody, ApiNoContentResponse, ApiOkResponse, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { BypassJwtAuth } from '@common/decorators/bypass-jwt.decorator';
 import { AuthService } from './auth.service';
 import { SteamAuthService } from './steam-auth.service';
@@ -28,6 +20,7 @@ import { LoggedInUser } from '@common/decorators/logged-in-user.decorator';
 import { ConfigService } from '@nestjs/config';
 import { RefreshTokenDto } from '@common/dto/auth/refresh-token.dto';
 import { SteamWebAuthGuard } from '@modules/auth/guards/steam-web-auth.guard';
+import { FastifyReply, FastifyRequest } from 'fastify';
 
 @Controller({
     path: 'auth',
@@ -45,7 +38,7 @@ export class AuthController {
     //#region Main Auth
 
     // This endpoint is really complex, worth reading up on NestJS and Passport to understand it:
-    // https://docs.nestjs.com/security/authentication. Rather than requring a JWT access token, the route sitsm behind
+    // https://docs.nestjs.com/security/authentication. Rather than requring a JWT access token, the route sits behind
     // the SteamWebAuthGuard. Requesting this endpoint without having gone through Steam OpenID login will trigger the
     // guard, which calls the SteamWebStrategy. The validate method in there will try to find an existing user with the
     // OpenID token Steam provides (which contains the Steam user's SteamID). If the user doesn't exist we create it
@@ -53,33 +46,22 @@ export class AuthController {
     @Get('/steam')
     @BypassJwtAuth()
     @UseGuards(SteamWebAuthGuard)
-    @Redirect('/', 301)
     @ApiOperation({
         summary: 'Authenticates using the Steam OpenID portal'
     })
-    @ApiParam({
-        name: 'r',
-        description: 'The referrer URL i.e. relative URL of the location on the frontend',
-        type: String,
-        required: false
-    })
-    async steamAuth(@Req() req, @Res() res, @LoggedInUser() user) {
+    async steamAuth(@Req() req: FastifyRequest, @Res() res: FastifyReply, @LoggedInUser() user) {
         // Our Passport Strategy returns us to this endpoint once Steam auth has completed successfully, and our
-        // `validate` function has set the `user` property on the request: hence we can use @LoggedInUser to grab it.
+        // `validate` function has set the `user` property on the req: hence we can use @LoggedInUser to grab it.
         // Then we just need to generate our access and refresh tokens, and set them and the User data as cookies on
         // the client. The frontend handles taking the accessToken cookie and setting it as the bearer token on requests.
         const jwt = await this.authService.loginWeb(user);
 
         const domain = this.configService.get('domain');
-        res.cookie('accessToken', jwt.accessToken, { domain: domain });
-        res.cookie('refreshToken', jwt.refreshToken, { domain: domain });
-        //res.cookie('user', JSON.stringify(user), { domain: domain });
+        res.setCookie('accessToken', jwt.accessToken, { domain: domain });
+        res.setCookie('refreshToken', jwt.refreshToken, { domain: domain });
+        res.setCookie('user', JSON.stringify(user), { domain: domain });
 
-        const referrer = req.session?.referrer;
-        if (referrer) {
-            delete req.session.refeffer;
-            return { url: referrer }; // This overrides the '/' in the @Redirect
-        }
+        res.status(302).redirect('/dashboard');
     }
 
     // TODO: (REQ GAME CHANGE) This name is dumb, requires a game code change though.
@@ -92,17 +74,14 @@ export class AuthController {
         required: true
     })
     @ApiOkResponse({ type: JWTResponseGameDto, description: 'Authorized steam user token' })
-    async getUserFromSteam(@Req() req): Promise<JWTResponseGameDto> {
-        const id = req.headers['id'];
-
-        // raw-body middleware ensures that this is a buffer.
-        const rawBody = req.body as unknown as Buffer;
+    async getUserFromSteam(@Req() req: RawBodyRequest<FastifyRequest>): Promise<JWTResponseGameDto> {
+        const steamID = req.headers['id'] as string;
 
         // With playtest ongoing we want to check we have the right appID for the online Steam API request.
         // The game includes this in user-agent (e.g. `Valve/Steam HTTP Client 1.0 (<appID>)`), dig it out with a regex.
         const appID = Number.parseInt(/(?!=\()\d+(?=\))/.exec(req.headers['user-agent'])?.[0]);
 
-        const user = await this.steamAuthService.validateFromInGame(id, rawBody, appID);
+        const user = await this.steamAuthService.validateFromInGame(steamID, req.rawBody, appID);
 
         return this.authService.loginGame(user);
     }
