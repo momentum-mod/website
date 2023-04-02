@@ -58,7 +58,7 @@ export const ConfigFactory = (): ConfigInterface => {
         sentry: {
             dsn: process.env.SENTRY_DSN
         },
-        sessionSecret: isProd ? process.env.EXPRESS_SESSION_SECRET : 'keyboard cat',
+        sessionSecret: isProd ? process.env.SESSION_SECRET : 'honga suggested it make some cha',
         steam: {
             webAPIKey: process.env.STEAM_WEB_API_KEY,
             preventLimited: process.env.STEAM_PREVENT_LIMITED === 'true' ?? true,
