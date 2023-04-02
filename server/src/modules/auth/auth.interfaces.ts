@@ -1,4 +1,7 @@
-﻿import { JwtPayload } from 'jsonwebtoken';
+﻿import { User } from '@prisma/client';
+import { JwtPayload } from 'jsonwebtoken';
+
+export type AuthenticatedUser = Pick<User, 'id' | 'steamID'>;
 
 /**
  * Simplest payload, used for refresh tokens

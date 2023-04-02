@@ -4,12 +4,12 @@ import { JWTResponseGameDto, JWTResponseWebDto } from '@common/dto/auth/jwt-resp
 import { UsersRepoService } from '../repo/users-repo.service';
 import { ConfigService } from '@nestjs/config';
 import {
+    AuthenticatedUser,
     UserJwtAccessPayload,
     UserJwtPayload,
     UserJwtPayloadVerified
 } from '@modules/auth/auth.interfaces';
 import { DtoFactory } from '@lib/dto.lib';
-import { User } from '@prisma/client';
 
 @Injectable()
 export class AuthService {
@@ -21,13 +21,13 @@ export class AuthService {
 
     //#region Login
 
-    async loginWeb(user: User): Promise<JWTResponseWebDto> {
+    async loginWeb(user: AuthenticatedUser): Promise<JWTResponseWebDto> {
         await this.checkUserExists(user.id);
 
         return this.generateWebTokenPair(user.id, user.steamID);
     }
 
-    async loginGame(user: User): Promise<JWTResponseGameDto> {
+    async loginGame(user: AuthenticatedUser): Promise<JWTResponseGameDto> {
         // Game doesn't get a refresh token, just a longer lasting access token.
         const token = await this.generateAccessToken({
             id: user.id,
