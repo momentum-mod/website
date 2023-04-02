@@ -11,6 +11,8 @@ import { AuthUtil } from '@tests/util/auth.util';
 import { RequestUtil } from '@tests/util/request.util';
 import { AuthService } from '@modules/auth/auth.service';
 import { FileStoreUtil } from '@tests/util/s3.util';
+import fastifyCookie from '@fastify/cookie';
+import { ConfigService } from '@nestjs/config';
 
 export interface E2EUtils {
     app: INestApplication;
@@ -23,7 +25,7 @@ export interface E2EUtils {
 }
 
 export async function setupE2ETestEnvironment(
-    moduleOverrides?: (moduleRef: TestingModuleBuilder) => TestingModuleBuilder
+    moduleOverrides?: (moduleBuilder: TestingModuleBuilder) => TestingModuleBuilder
 ): Promise<E2EUtils> {
     BigInt.prototype['toJSON'] = function () {
         return this.toString();
@@ -56,6 +58,9 @@ export async function setupE2ETestEnvironment(
             request.res = reply;
             done();
         });
+
+    const configService = app.get(ConfigService);
+    app.register(fastifyCookie, { secret: configService.get('sessionSecret') });
 
     // Anything put in a query/body that doesn't correspond to a decorator-validated property on the DTO will error.
     app.useGlobalPipes(new ValidationPipe({ transform: true, forbidNonWhitelisted: true }));
