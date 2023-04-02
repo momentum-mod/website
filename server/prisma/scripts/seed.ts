@@ -9,7 +9,6 @@ import { faker } from '@faker-js/faker';
 import { ReportCategory, ReportType } from '@common/enums/report.enum';
 import { MapStatus, MapType, MapCreditType } from '@common/enums/map.enum';
 import { ActivityTypes } from '@common/enums/activity.enum';
-import { nuke } from '@db/scripts/nuke';
 import { Random } from '@lib/random.lib';
 
 const prisma = new PrismaClient();
@@ -34,9 +33,6 @@ let existingUserIDs: number[] = [],
     existingMapIDs: number[] = [];
 
 async function main() {
-    console.log('Clearing tables');
-    await nuke(prisma);
-
     console.log('Creating users');
     await createUsers();
 
