@@ -2,8 +2,8 @@
 import { ReplayFileWriter } from '@lib/replay/replay-file-writer';
 import { BaseStatsFromGame, Replay, RunFrame, ZoneStatsFromGame } from '@modules/session/run/run-session.interfaces';
 import { Random } from '@lib/random.lib';
-import { URL_PREFIX } from '@tests/e2e/e2e.config';
 import { Server } from 'node:http';
+import { URL_PREFIX } from '@tests/util/request.util';
 
 const DEFAULT_DELAY_MS = 50;
 const MAGIC = 0x524d4f4d;

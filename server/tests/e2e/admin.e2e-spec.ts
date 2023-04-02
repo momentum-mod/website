@@ -15,7 +15,7 @@ import { AuthUtil } from '@tests/util/auth.util';
 import { FileStoreUtil } from '@tests/util/s3.util';
 import { PrismaClient } from '@prisma/client';
 
-describe('Admin', () => {
+describe('Admin (E2E)', () => {
     let app, prisma: PrismaClient, req: RequestUtil, db: DbUtil, fs: FileStoreUtil, auth: AuthUtil;
 
     beforeAll(async () => {

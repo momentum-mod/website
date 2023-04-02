@@ -10,7 +10,7 @@ export const NULL_ID = 999999999999999;
 export const dateOffset = (offset: number) => new Date(Date.now() - offset * 1000);
 
 export class DbUtil {
-    constructor(prisma: PrismaService, authUtil: AuthUtil) {
+    constructor(prisma: PrismaService, authUtil?: AuthUtil) {
         this.prisma = prisma;
         this.auth = authUtil;
         this.users = 0;
@@ -157,7 +157,7 @@ export class DbUtil {
                 trackNum: args.trackNum ?? 0,
                 zoneNum: args.zoneNum ?? 0,
                 ticks: ticks,
-                tickRate: 100,
+                tickRate: ticks * 100,
                 flags: args.flags ?? 0,
                 file: '',
                 time: ticks,

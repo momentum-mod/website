@@ -6,7 +6,7 @@ import { dateOffset, DbUtil, NULL_ID } from '@tests/util/db.util';
 import { AuthUtil } from '@tests/util/auth.util';
 import { setupE2ETestEnvironment, teardownE2ETestEnvironment } from '@tests/e2e/environment';
 
-describe('Runs', () => {
+describe('Runs (E2E)', () => {
     let app, prisma: PrismaService, req: RequestUtil, db: DbUtil, auth: AuthUtil;
 
     beforeAll(async () => {

@@ -20,7 +20,7 @@ import { AuthUtil } from '@tests/util/auth.util';
 import { PrismaService } from '@modules/repo/prisma.service';
 import { SteamService } from '@modules/steam/steam.service';
 
-describe('Maps', () => {
+describe('Maps (E2E)', () => {
     let app, prisma: PrismaService, req: RequestUtil, db: DbUtil, fs: FileStoreUtil, auth: AuthUtil;
 
     beforeAll(async () => {

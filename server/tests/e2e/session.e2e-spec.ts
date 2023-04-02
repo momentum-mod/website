@@ -15,7 +15,7 @@ import { setupE2ETestEnvironment, teardownE2ETestEnvironment } from '@tests/e2e/
 import { XpSystemsService } from '@modules/xp-systems/xp-systems.service';
 import { Server } from 'node:http';
 
-describe('Session', () => {
+describe('Session (E2E)', () => {
     let app, server: Server, prisma: PrismaService, req: RequestUtil, db: DbUtil, xpSystems: XpSystemsService;
     let map;
 
