@@ -68,7 +68,10 @@ module.exports = {
         // Why???
         'unicorn/switch-case-braces': ['off'],
         // Overly strong, often clearer to handle some error first.
-        'unicorn/no-negated-condition': ['off']
+        'unicorn/no-negated-condition': ['off'],
+        // Sometimes we want things like `mockResolvedValue(undefined)` in tests. Rule below this handles the actually bad cases.
+        'unicorn/no-useless-undefined': ['off'],
+        'no-undef-init': ['error']
     },
     overrides: [
         {
