@@ -18,6 +18,7 @@ module.exports = {
         'no-var': ['error'],
         'prefer-const': ['error'],
         'no-empty': ['error', { allowEmptyCatch: true }],
+        '@typescript-eslint/no-empty-function': ['error', { allow: ['arrowFunctions'] }],
         '@typescript-eslint/naming-convention': [
             'error',
             { selector: 'variable', modifiers: ['global'], format: ['UPPER_CASE'] },

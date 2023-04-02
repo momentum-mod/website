@@ -63,7 +63,7 @@ export class AdminService {
 
         // Now follows, hardest part.
         // First edge case: delete the follow entry if the realUser is following the placeholder (can't follow yourself)
-        await this.userRepo.deleteFollow(userID, placeholderID).catch(() => void 0);
+        await this.userRepo.deleteFollow(userID, placeholderID).catch(() => {});
 
         const placeHolderFollowers = placeholder.followers as Follow[];
 
