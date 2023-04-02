@@ -604,6 +604,8 @@ export class MapsController {
 
     //#endregion
 
+    //#region Ranks
+
     @Get('/:mapID/ranks')
     @ApiOperation({ summary: "Returns a paginated list of a map's ranks" })
     @ApiParam({
@@ -678,6 +680,9 @@ export class MapsController {
     ): Promise<UserMapRankDto> {
         return this.mapsService.getRankNumber(mapID, rankNumber, query);
     }
+
+    //#endregion
+
     //#region Private
 
     // Frontend reads this header property and sends upload POST to that endpoint
