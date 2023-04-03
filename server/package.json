@@ -23,8 +23,9 @@
         "migrate": "dotenv -e ../.env -- prisma migrate dev --name init --skip-seed",
         "reset": "dotenv -e ../.env -- prisma migrate reset --force --skip-generate --skip-seed",
         "seed": "dotenv -e ../.env -- npm run migrate && dotenv -e ../.env -- prisma db seed",
-        "test": "jest --config tests/jest.config.ts --runInBand",
-        "test:watch": "jest --config tests/e2e/e2e.config.ts --watch --runInBand",
+        "test": "npm run test:unit && npm run test:e2e",
+        "test:e2e": "jest --config tests/e2e/jest.config.ts",
+        "test:unit": "jest --config tests/unit/jest.config.ts",
         "lint": "eslint \"{src,tests,lib,config}/**/*.ts\" --fix",
         "lint:check": "eslint \"{src,tests,lib,config}/**/*.ts\"",
         "format": "prettier --write \"{src,lib,tests,config}/**/*.{ts,js,md}\"",
@@ -32,9 +33,6 @@
         "quality": "npm run lint && npm run format",
         "quality:check": "npm run lint:check && npm run format:check",
         "prepare": "cd .. && husky install"
-    },
-    "jest": {
-        "testTimeout": 15000
     },
     "prisma": {
         "seed": "ts-node -r tsconfig-paths/register prisma/scripts/seed.ts"
