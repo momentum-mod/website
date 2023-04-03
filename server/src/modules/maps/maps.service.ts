@@ -777,15 +777,16 @@ export class MapsService {
     }
 
     async getRankFriends(steamID: string, mapID: number, query: MapRankGetNumberQuery): Promise<UserMapRankDto[]> {
+        const map = await this.mapRepo.get(mapID);
+
+        if (!map) throw new NotFoundException('Map not found');
+
         const steamFriends = await this.steamService.getSteamFriends(steamID);
 
         if (steamFriends.length === 0) throw new ImATeapotException('No friends detected :(');
 
         const friendSteamIDs = steamFriends.map((item) => item.steamid);
 
-        const map = await this.mapRepo.get(mapID);
-
-        if (!map) throw new NotFoundException('Map not found');
         const where: Prisma.UserMapRankWhereInput = {
             mapID: mapID,
             flags: 0,
