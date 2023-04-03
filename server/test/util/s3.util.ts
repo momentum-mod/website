@@ -7,7 +7,7 @@
     S3Client
 } from '@aws-sdk/client-s3';
 import { Config } from '@config/config';
-import { createSha1Hash } from '@tests/util/crypto.util';
+import { createSha1Hash } from '@test/util/crypto.util';
 
 /**
  * Simple handler class wrapped over the AWS S3 client for use in tests.

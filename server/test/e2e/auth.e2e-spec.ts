@@ -1,7 +1,6 @@
 ﻿import request from 'supertest';
-import { DbUtil } from '@tests/util/db.util';
-import { setupE2ETestEnvironment } from '@tests/e2e/environment';
-import { Server } from 'node:http';
+import { DbUtil } from '@test/util/db.util';
+import { setupE2ETestEnvironment } from '@test/e2e/environment';
 import { SteamWebAuthGuard } from '@modules/auth/guards/steam-web-auth.guard';
 import { ExecutionContext, ForbiddenException, UnauthorizedException } from '@nestjs/common';
 import { Config } from '@config/config';
@@ -22,9 +21,12 @@ import { JWTResponseGameDto, JWTResponseWebDto } from '@common/dto/auth/jwt-resp
 import { PrismaService } from '@modules/repo/prisma.service';
 import { RequestUtil } from '@test/util/request.util';
 
-describe('Auth (E2E)', () => {
-    const jwtService = new JwtService({ secret: Config.accessToken.secret });
-    let app: NestFastifyApplication, server: Server, prisma: PrismaService, db: DbUtil, req: RequestUtil;
+describe('Auth', () => {
+    const jwtService = new JwtService({
+        secret: Config.accessToken.secret,
+        signOptions: { expiresIn: Config.accessToken.expTime }
+    });
+    let app: NestFastifyApplication, prisma: PrismaService, db: DbUtil, req: RequestUtil;
 
     beforeAll(async () => {
         const env = await setupE2ETestEnvironment();

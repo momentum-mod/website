@@ -13,11 +13,11 @@ import { PrismaService } from '@modules/repo/prisma.service';
 import { FastifyAdapter, NestFastifyApplication } from '@nestjs/platform-fastify';
 import { Reflector } from '@nestjs/core';
 import { Server } from 'node:http';
-import { DbUtil } from '@tests/util/db.util';
-import { AuthUtil } from '@tests/util/auth.util';
-import { RequestUtil } from '@tests/util/request.util';
+import { DbUtil } from '@test/util/db.util';
+import { AuthUtil } from '@test/util/auth.util';
+import { RequestUtil } from '@test/util/request.util';
 import { AuthService } from '@modules/auth/auth.service';
-import { FileStoreUtil } from '@tests/util/s3.util';
+import { FileStoreUtil } from '@test/util/s3.util';
 import fastifyCookie from '@fastify/cookie';
 import { ConfigService } from '@nestjs/config';
 

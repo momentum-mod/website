@@ -1,10 +1,10 @@
 ﻿import { Prisma, User, Map as MapDB, MapInfo, MapStats, MapImage, MapTrack, UserMapRank, Run } from '@prisma/client';
 import { PrismaService } from '@modules/repo/prisma.service';
-import { randomHash, randomSteamID } from '@tests/util/random.util';
+import { randomHash, randomSteamID } from '@test/util/random.util';
 import { MapStatus, MapType } from '@common/enums/map.enum';
 import { AsyncReturnType, CamelCase, PartialDeep } from 'type-fest';
 import { merge } from 'lodash';
-import { AuthUtil } from '@tests/util/auth.util';
+import { AuthUtil } from '@test/util/auth.util';
 
 export const NULL_ID = 999999999999999;
 export const dateOffset = (offset: number) => new Date(Date.now() - offset * 1000);
@@ -128,7 +128,9 @@ export class DbUtil {
         count: number,
         map: CreateMapMapArgs = {},
         track: CreateMapMapTrackArgs = {}
-    ): Promise<AsyncReturnType<typeof this.createMap>[]> {
+    ): Promise<
+        (MapDB & { info: MapInfo; stats: MapStats; images: MapImage[]; thumbnail: MapImage; mainTrack: MapTrack })[]
+    > {
         return Promise.all(Array.from({ length: count }, () => this.createMap(map, track)));
     }
 

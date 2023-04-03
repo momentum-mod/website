@@ -1,12 +1,12 @@
 import { RunDto } from '@common/dto/run/run.dto';
 import { PrismaService } from '@modules/repo/prisma.service';
 import { Config } from '@config/config';
-import { RequestUtil } from '@tests/util/request.util';
-import { dateOffset, DbUtil, NULL_ID } from '@tests/util/db.util';
-import { AuthUtil } from '@tests/util/auth.util';
-import { setupE2ETestEnvironment, teardownE2ETestEnvironment } from '@tests/e2e/environment';
+import { RequestUtil } from '@test/util/request.util';
+import { dateOffset, DbUtil, NULL_ID } from '@test/util/db.util';
+import { AuthUtil } from '@test/util/auth.util';
+import { setupE2ETestEnvironment, teardownE2ETestEnvironment } from '@test/e2e/environment';
 
-describe('Runs (E2E)', () => {
+describe('Runs', () => {
     let app, prisma: PrismaService, req: RequestUtil, db: DbUtil, auth: AuthUtil;
 
     beforeAll(async () => {

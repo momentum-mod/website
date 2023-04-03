@@ -97,7 +97,7 @@ export class RequestUtil {
         this.token(req, options.token);
         req.set('Content-Type', 'multipart/form-data');
 
-        if (typeof options.file === 'string') req.attach(options.field ?? 'file', './tests/files/' + options.file);
+        if (typeof options.file === 'string') req.attach(options.field ?? 'file', './test/files/' + options.file);
         else req.attach(options.field ?? 'file', options.file, 'dummyFileName');
 
         this.status(req, options.status);
@@ -114,7 +114,7 @@ export class RequestUtil {
         this.token(req, options.token);
         req.set('Content-Type', 'multipart/form-data').attach(
             options.field ?? 'file',
-            typeof options.file === 'string' ? './tests/files/' + options.file : options.file
+            typeof options.file === 'string' ? './test/files/' + options.file : options.file
         );
         this.status(req, options.status);
 

@@ -19,7 +19,7 @@
             "@common/*": ["src/common/*"],
             "@modules/*": ["src/modules/*"],
             "@config/*": ["config/*"],
-            "@tests/*": ["tests/*"],
+            "@test/*": ["test/*"],
             "@db/*": ["prisma/*"],
             "@lib/*": ["lib/*"]
         }

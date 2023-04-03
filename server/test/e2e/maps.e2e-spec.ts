@@ -10,17 +10,17 @@ import axios from 'axios';
 import { UserDto } from '@common/dto/user/user.dto';
 import { MapTrackDto } from '@common/dto/map/map-track.dto';
 import { MapImageDto } from '@common/dto/map/map-image.dto';
-import { FileStoreUtil } from '@tests/util/s3.util';
-import { createSha1Hash } from '@tests/util/crypto.util';
+import { FileStoreUtil } from '@test/util/s3.util';
+import { createSha1Hash } from '@test/util/crypto.util';
 import { Config } from '@config/config';
-import { setupE2ETestEnvironment, teardownE2ETestEnvironment } from '@tests/e2e/environment';
-import { dateOffset, DbUtil, NULL_ID } from '@tests/util/db.util';
-import { RequestUtil } from '@tests/util/request.util';
-import { AuthUtil } from '@tests/util/auth.util';
+import { setupE2ETestEnvironment, teardownE2ETestEnvironment } from '@test/e2e/environment';
+import { dateOffset, DbUtil, NULL_ID } from '@test/util/db.util';
+import { RequestUtil } from '@test/util/request.util';
+import { AuthUtil } from '@test/util/auth.util';
 import { PrismaService } from '@modules/repo/prisma.service';
 import { SteamService } from '@modules/steam/steam.service';
 
-describe('Maps (E2E)', () => {
+describe('Maps', () => {
     let app, prisma: PrismaService, req: RequestUtil, db: DbUtil, fs: FileStoreUtil, auth: AuthUtil;
 
     beforeAll(async () => {
@@ -466,7 +466,7 @@ describe('Maps (E2E)', () => {
 
         describe('POST', () => {
             it('should upload the map file', async () => {
-                const inBuffer = readFileSync('./tests/files/map.bsp');
+                const inBuffer = readFileSync('./test/files/map.bsp');
                 const inHash = createSha1Hash(inBuffer);
 
                 const res = await req.postAttach({

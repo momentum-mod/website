@@ -8,14 +8,14 @@ import { pick } from 'lodash';
 import { MapDto } from '@/common/dto/map/map.dto';
 import { MapCreditType, MapStatus } from '@/common/enums/map.enum';
 import { readFileSync } from 'node:fs';
-import { RequestUtil } from '@tests/util/request.util';
-import { DbUtil, NULL_ID } from '@tests/util/db.util';
-import { setupE2ETestEnvironment, teardownE2ETestEnvironment } from '@tests/e2e/environment';
-import { AuthUtil } from '@tests/util/auth.util';
-import { FileStoreUtil } from '@tests/util/s3.util';
+import { RequestUtil } from '@test/util/request.util';
+import { DbUtil, NULL_ID } from '@test/util/db.util';
+import { setupE2ETestEnvironment, teardownE2ETestEnvironment } from '@test/e2e/environment';
+import { AuthUtil } from '@test/util/auth.util';
+import { FileStoreUtil } from '@test/util/s3.util';
 import { PrismaClient } from '@prisma/client';
 
-describe('Admin (E2E)', () => {
+describe('Admin', () => {
     let app, prisma: PrismaClient, req: RequestUtil, db: DbUtil, fs: FileStoreUtil, auth: AuthUtil;
 
     beforeAll(async () => {

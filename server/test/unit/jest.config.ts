@@ -6,7 +6,7 @@ const UnitTestConfig: JestConfigWithTsJest = {
     preset: 'ts-jest',
     rootDir: '../../',
     roots: ['<rootDir>'],
-    setupFilesAfterEnv: ['<rootDir>/tests/matchers.ts'],
+    setupFilesAfterEnv: ['<rootDir>/test/matchers.ts'],
     testTimeout: 1000,
     testMatch: ['<rootDir>/src/**/*.spec.ts'],
     modulePaths: [compilerOptions.baseUrl],
