@@ -5,6 +5,8 @@ services:
     restart: always
     env_file:
       - .env
+    volumes:
+      - ./postgres:/var/lib/postgresql/data
   api:
     image: docker.pkg.github.com/momentum-mod/website/mmod-website:staging
     restart: unless-stopped
