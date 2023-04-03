@@ -10,6 +10,9 @@ node_modules/
 # Prisma
 ERD.svg
 
+# Postgres
+postgres/
+
 # Compiled output
 /dist
 /server/dist
