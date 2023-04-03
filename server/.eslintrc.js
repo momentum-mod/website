@@ -75,7 +75,7 @@ module.exports = {
     },
     overrides: [
         {
-            files: ['tests/**/*.ts'],
+            files: ['test/**/*.ts'],
             rules: {
                 // These are very useful in tests and don't care about the perf hit.
                 'unicorn/consistent-function-scoping': ['off'],

@@ -6,10 +6,10 @@ const EndToEndTestConfig: JestConfigWithTsJest = {
     preset: 'ts-jest',
     rootDir: '../../',
     roots: ['<rootDir>'],
-    setupFilesAfterEnv: ['<rootDir>/tests/matchers.ts'],
+    setupFilesAfterEnv: ['<rootDir>/test/matchers.ts'],
     testTimeout: 5000,
-    globalSetup: '<rootDir>/tests/e2e/setup.ts',
-    testMatch: ['<rootDir>/tests/e2e/*.e2e-spec.ts'],
+    globalSetup: '<rootDir>/test/e2e/setup.ts',
+    testMatch: ['<rootDir>/test/e2e/*.e2e-spec.ts'],
     // E2E tests modify an actual database, so database clean between each tests, tests must be run sequentially.
     maxWorkers: 1,
     modulePaths: [compilerOptions.baseUrl],

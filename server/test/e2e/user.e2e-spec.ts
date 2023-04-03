@@ -9,13 +9,13 @@ import { NotificationDto } from '@common/dto/user/notification.dto';
 import { MapFavoriteDto } from '@common/dto/map/map-favorite.dto';
 import { MapDto } from '@common/dto/map/map.dto';
 import { MapSummaryDto } from '@common/dto/user/user-maps-summary.dto';
-import { randomString } from '@tests/util/random.util';
+import { randomString } from '@test/util/random.util';
 import { MapNotifyDto } from '@common/dto/map/map-notify.dto';
-import { RequestUtil } from '@tests/util/request.util';
-import { DbUtil, NULL_ID } from '@tests/util/db.util';
-import { setupE2ETestEnvironment, teardownE2ETestEnvironment } from '@tests/e2e/environment';
+import { RequestUtil } from '@test/util/request.util';
+import { DbUtil, NULL_ID } from '@test/util/db.util';
+import { setupE2ETestEnvironment, teardownE2ETestEnvironment } from '@test/e2e/environment';
 
-describe('User (E2E)', () => {
+describe('User', () => {
     let app, prisma: PrismaService, req: RequestUtil, db: DbUtil;
 
     beforeAll(async () => {

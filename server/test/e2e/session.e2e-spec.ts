@@ -1,21 +1,21 @@
 import { MapType, getDefaultTickRateForMapType } from '@common/enums/map.enum';
-import { RunTester, RunTesterProps } from '@tests/util/run-tester.util';
+import { RunTester, RunTesterProps } from '@test/util/run-tester.util';
 import { CompletedRunDto } from '@common/dto/run/completed-run.dto';
 import { RunSessionDto } from '@common/dto/run/run-session.dto';
 import { RunSessionTimestampDto } from '@common/dto/run/run-session-timestamp.dto';
 import { RunDto } from '@common/dto/run/run.dto';
 import { RunValidationErrorTypes } from '@common/enums/run.enum';
 import { UserMapRankDto } from '@common/dto/run/user-map-rank.dto';
-import { randomHash, randomSteamID } from '@tests/util/random.util';
+import { randomHash, randomSteamID } from '@test/util/random.util';
 import { ActivityTypes } from '@common/enums/activity.enum';
 import { PrismaService } from '@modules/repo/prisma.service';
-import { RequestUtil } from '@tests/util/request.util';
-import { DbUtil, NULL_ID } from '@tests/util/db.util';
-import { setupE2ETestEnvironment, teardownE2ETestEnvironment } from '@tests/e2e/environment';
+import { RequestUtil } from '@test/util/request.util';
+import { DbUtil, NULL_ID } from '@test/util/db.util';
+import { setupE2ETestEnvironment, teardownE2ETestEnvironment } from '@test/e2e/environment';
 import { XpSystemsService } from '@modules/xp-systems/xp-systems.service';
 import { Server } from 'node:http';
 
-describe('Session (E2E)', () => {
+describe('Session', () => {
     let app, server: Server, prisma: PrismaService, req: RequestUtil, db: DbUtil, xpSystems: XpSystemsService;
     let map;
 

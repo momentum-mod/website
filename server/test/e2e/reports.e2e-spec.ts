@@ -2,11 +2,11 @@ import { ReportType, ReportCategory } from '@common/enums/report.enum';
 import { ReportDto } from '@common/dto/report/report.dto';
 
 import { PrismaService } from '@modules/repo/prisma.service';
-import { RequestUtil } from '@tests/util/request.util';
-import { DbUtil } from '@tests/util/db.util';
-import { setupE2ETestEnvironment, teardownE2ETestEnvironment } from '@tests/e2e/environment';
+import { RequestUtil } from '@test/util/request.util';
+import { DbUtil } from '@test/util/db.util';
+import { setupE2ETestEnvironment, teardownE2ETestEnvironment } from '@test/e2e/environment';
 
-describe('Reports (E2E)', () => {
+describe('Reports', () => {
     let app, prisma: PrismaService, req: RequestUtil, db: DbUtil;
 
     beforeAll(async () => {

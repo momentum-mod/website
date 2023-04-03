@@ -6,13 +6,13 @@ import { ProfileDto } from '@common/dto/user/profile.dto';
 import { FollowDto } from '@common/dto/user/follow.dto';
 import { MapCreditDto } from '@common/dto/map/map-credit.dto';
 import { RunDto } from '@common/dto/run/run.dto';
-import { DbUtil, NULL_ID } from '@tests/util/db.util';
-import { RequestUtil } from '@tests/util/request.util';
-import { setupE2ETestEnvironment, teardownE2ETestEnvironment } from '@tests/e2e/environment';
-import { AuthUtil } from '@tests/util/auth.util';
+import { DbUtil, NULL_ID } from '@test/util/db.util';
+import { RequestUtil } from '@test/util/request.util';
+import { setupE2ETestEnvironment, teardownE2ETestEnvironment } from '@test/e2e/environment';
+import { AuthUtil } from '@test/util/auth.util';
 import { PrismaClient } from '@prisma/client';
 
-describe('Users (E2E)', () => {
+describe('Users', () => {
     let app, prisma: PrismaClient, req: RequestUtil, db: DbUtil, auth: AuthUtil;
 
     beforeAll(async () => {

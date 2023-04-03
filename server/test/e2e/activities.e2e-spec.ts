@@ -1,11 +1,11 @@
 import { ActivityTypes } from '@common/enums/activity.enum';
 import { PrismaService } from '@modules/repo/prisma.service';
 import { ActivityDto } from '@common/dto/user/activity.dto';
-import { RequestUtil } from '@tests/util/request.util';
-import { DbUtil, NULL_ID } from '@tests/util/db.util';
-import { setupE2ETestEnvironment, teardownE2ETestEnvironment } from '@tests/e2e/environment';
+import { RequestUtil } from '@test/util/request.util';
+import { DbUtil, NULL_ID } from '@test/util/db.util';
+import { setupE2ETestEnvironment, teardownE2ETestEnvironment } from '@test/e2e/environment';
 
-describe('Activities (E2E)', () => {
+describe('Activities', () => {
     let app, prisma: PrismaService, req: RequestUtil, db: DbUtil;
 
     beforeAll(async () => {
