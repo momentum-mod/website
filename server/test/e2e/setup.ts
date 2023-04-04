@@ -3,14 +3,17 @@ import { PrismaClient } from '@prisma/client';
 import { config } from 'dotenv';
 import { nuke } from '@db/scripts/nuke';
 import { DeleteObjectsCommand, ListObjectsV2Command, S3Client } from '@aws-sdk/client-s3';
+import { faker } from '@faker-js/faker';
 
 export default async () => {
     // Load in environment variables
     config({ path: '../.env' });
 
-    const prisma = new PrismaClient();
+    // Seed faker for consistent random number generation
+    faker.seed(1);
 
     // Nuke the current DB (Bye)
+    const prisma = new PrismaClient();
     await nuke(prisma);
     await prisma.$disconnect();
 

@@ -1,19 +1,16 @@
-﻿import { createHash, randomBytes } from 'node:crypto';
+﻿import { faker } from '@faker-js/faker';
+import { createHash } from 'node:crypto';
 
-export function randomString(): string {
-    return Math.random().toString(36).slice(2);
-}
-
-export function randomNumberString(bytes: number): string {
-    return BigInt('0x' + randomBytes(bytes).toString('hex')).toString(10);
+export function randomString(length = 12): string {
+    return faker.random.alphaNumeric(length);
 }
 
 export function randomSteamID(): string {
-    return randomNumberString(8);
+    return faker.random.numeric(19);
 }
 
 export function randomYoutubeID(): string {
-    return randomString().slice(0, 10);
+    return randomString(10);
 }
 
 export function randomHash(): string {
