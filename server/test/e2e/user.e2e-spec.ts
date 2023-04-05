@@ -707,16 +707,16 @@ describe('User', () => {
             it('should 204 if a map exists in the local users library', async () => {
                 await prisma.mapLibraryEntry.create({ data: { userID: user.id, mapID: map.id } });
 
-                await req.getNoContent({ url: `user/maps/library/${map.id}`, status: 204, token: token });
+                await req.get({ url: `user/maps/library/${map.id}`, status: 204, token: token });
 
                 await prisma.mapLibraryEntry.deleteMany();
             });
 
             it('should 404 if the map is not in the local users library', () =>
-                req.getNoContent({ url: `user/maps/library/${map.id}`, status: 404, token: token }));
+                req.get({ url: `user/maps/library/${map.id}`, status: 404, token: token }));
 
             it('should 400 if the map is not in the database', () =>
-                req.getNoContent({ url: `user/maps/library/${NULL_ID}`, status: 400, token: token }));
+                req.get({ url: `user/maps/library/${NULL_ID}`, status: 400, token: token }));
 
             it('should 401 when no access token is provided', () => req.unauthorizedTest('user/maps/library/1', 'get'));
         });

@@ -1,5 +1,4 @@
-﻿import request from 'supertest';
-import { DbUtil } from '@test/util/db.util';
+﻿import { DbUtil } from '@test/util/db.util';
 import { setupE2ETestEnvironment } from '@test/e2e/environment';
 import { SteamWebAuthGuard } from '@modules/auth/guards/steam-web-auth.guard';
 import { ExecutionContext, ForbiddenException, UnauthorizedException } from '@nestjs/common';
@@ -31,19 +30,18 @@ describe('Auth', () => {
     beforeAll(async () => {
         const env = await setupE2ETestEnvironment();
         app = env.app;
-        server = env.server;
         db = env.db;
         prisma = env.prisma;
         req = env.req;
     });
 
+    afterEach(() => db.cleanup('user'));
+
     describe('auth/steam', () => {
         describe('GET', () => {
             it('should redirect to steam login', async () => {
-                await request(server)
-                    .get('/auth/steam')
-                    .expect(302)
-                    .expect('Location', /^https:\/\/steamcommunity.com\/openid\/login.+/);
+                const res = await req.get({ url: 'auth/steam', skipApiPrefix: true, status: 302 });
+                expect(res.headers.location).toMatch(/^https:\/\/steamcommunity.com\/openid\/login.+/);
             });
 
             it('should login the user, set cookies, and redirect them when request passes the guard', async () => {
@@ -60,13 +58,11 @@ describe('Auth', () => {
                     }
                 );
 
-                const res = await request(server)
-                    .get('/auth/steam')
-                    .expect(302)
-                    .expect('Location', /\/dashboard$/);
+                const res = await req.get({ url: 'auth/steam', skipApiPrefix: true, status: 302 });
+                expect(res.headers.location).toMatch(/\/dashboard$/);
 
                 const cookies = {} as any;
-                for (const cookieString of res.headers['set-cookie']) {
+                for (const cookieString of res.headers['set-cookie'] as string) {
                     const [k, v] = cookieString.split('=');
                     cookies[k] = v.slice(0, v.indexOf(';'));
                 }
@@ -95,10 +91,8 @@ describe('Auth', () => {
             configService = app.get(ConfigService);
         });
 
-        afterEach(() => db.cleanup('user'));
-
         describe('Online API', () => {
-            beforeAll(() => {
+            beforeEach(() => {
                 jest.spyOn(configService, 'get').mockImplementation((key) => {
                     switch (key) {
                         case 'steam.useSteamTicketLibrary':
@@ -248,7 +242,7 @@ describe('Auth', () => {
         });
 
         describe('Local Library', () => {
-            beforeAll(() => {
+            beforeEach(() => {
                 jest.spyOn(configService, 'get').mockImplementation((key) => {
                     switch (key) {
                         case 'steam.useSteamTicketLibrary':
@@ -411,7 +405,7 @@ describe('Auth', () => {
             await prisma.userAuth.update({ where: { userID: user.id }, data: { refreshToken: originalRefreshToken } });
 
             const res = await req.post({
-                url: '/auth/refresh',
+                url: 'auth/refresh',
                 skipApiPrefix: true,
                 token: token,
                 body: { refreshToken: originalRefreshToken },

@@ -13,16 +13,14 @@ import { RequestUtil } from '@test/util/request.util';
 import { DbUtil, NULL_ID } from '@test/util/db.util';
 import { setupE2ETestEnvironment, teardownE2ETestEnvironment } from '@test/e2e/environment';
 import { XpSystemsService } from '@modules/xp-systems/xp-systems.service';
-import { Server } from 'node:http';
 
 describe('Session', () => {
-    let app, server: Server, prisma: PrismaService, req: RequestUtil, db: DbUtil, xpSystems: XpSystemsService;
+    let app, prisma: PrismaService, req: RequestUtil, db: DbUtil, xpSystems: XpSystemsService;
     let map;
 
     beforeAll(async () => {
         const env = await setupE2ETestEnvironment();
         app = env.app;
-        server = env.server;
         prisma = env.prisma;
         req = env.req;
         db = env.db;
@@ -361,7 +359,7 @@ describe('Session', () => {
 
             // With the way we're constructed above DB inserts below the existing runs will be 0.01s, 1.01s, 2.01s ... 10.01s,
             // this is ~500ms so will be rank 2.
-            const submitRun = (delay?: number) => RunTester.run(server, defaultTesterProperties(), 3, delay);
+            const submitRun = (delay?: number) => RunTester.run(req, defaultTesterProperties(), 3, delay);
 
             const submitWithOverrides = async (overrides: {
                 props?: Partial<RunTesterProps>;
@@ -371,7 +369,7 @@ describe('Session', () => {
                 writeStats?: boolean;
                 writeFrames?: boolean;
             }) => {
-                const tester = new RunTester(server, { ...defaultTesterProperties(), ...overrides.props });
+                const tester = new RunTester(req, { ...defaultTesterProperties(), ...overrides.props });
 
                 await tester.startRun();
                 await tester.doZones(3, overrides.delay);
@@ -386,7 +384,7 @@ describe('Session', () => {
                 it('should respond with a CompletedRunDto', async () => {
                     const res = await submitRun();
 
-                    expect(res.status).toBe(200);
+                    expect(res.statusCode).toBe(200);
                     expect(res.body).toBeValidDto(CompletedRunDto);
                     expect(res.body.rank).toBeValidDto(UserMapRankDto);
                     expect(res.body.run).toBeValidDto(RunDto);
@@ -439,7 +437,7 @@ describe('Session', () => {
 
                     const res = await submitRun();
 
-                    expect(res.status).toBe(200);
+                    expect(res.statusCode).toBe(200);
                     expect(res.body).toBeValidDto(CompletedRunDto);
                     expect(res.body.isNewPersonalBest).toBe(true);
 
@@ -489,7 +487,7 @@ describe('Session', () => {
 
                     const res = await submitRun();
 
-                    expect(res.status).toBe(200);
+                    expect(res.statusCode).toBe(200);
                     expect(res.body).toBeValidDto(CompletedRunDto);
                     expect(res.body.isNewPersonalBest).toBe(false);
                     expect(res.body.xp.rankXP).toBe(0);
@@ -504,7 +502,7 @@ describe('Session', () => {
                 it('should assign cosmetic and rank XP for the run', async () => {
                     const res = await submitRun();
 
-                    expect(res.status).toBe(200);
+                    expect(res.statusCode).toBe(200);
                     expect(res.body).toMatchObject({
                         rank: { rank: 2 },
                         xp: {
@@ -572,26 +570,26 @@ describe('Session', () => {
                         beforeSubmit: (self) => (self.replayFile.buffer = Buffer.from(''))
                     });
 
-                    expect(res.status).toBe(400);
+                    expect(res.statusCode).toBe(400);
                     expect(res.body.code).toBe(RunValidationErrorTypes.BAD_REPLAY_FILE);
                 });
 
                 it('the run does not have the proper number of timestamps', async () => {
                     for (const numZones of [2, 4]) {
-                        const tester = new RunTester(server, defaultTesterProperties());
+                        const tester = new RunTester(req, defaultTesterProperties());
 
                         await tester.startRun();
                         await tester.doZones(numZones);
 
                         const res = await tester.endRun();
 
-                        expect(res.status).toBe(400);
+                        expect(res.statusCode).toBe(400);
                         expect(res.body.code).toBe(RunValidationErrorTypes.BAD_TIMESTAMPS);
                     }
                 });
 
                 it('the run was done out of order', async () => {
-                    const tester = new RunTester(server, defaultTesterProperties());
+                    const tester = new RunTester(req, defaultTesterProperties());
 
                     await tester.startRun();
 
@@ -602,31 +600,31 @@ describe('Session', () => {
                     await tester.doZone();
                     const res = await tester.endRun();
 
-                    expect(res.status).toBe(400);
+                    expect(res.statusCode).toBe(400);
                     expect(res.body.code).toBe(RunValidationErrorTypes.BAD_TIMESTAMPS);
                 });
 
                 it('there was no timestamps for a track with >1 zones', async () => {
-                    const tester = new RunTester(server, defaultTesterProperties());
+                    const tester = new RunTester(req, defaultTesterProperties());
 
                     await tester.startRun();
                     const res = await tester.endRun();
 
-                    expect(res.status).toBe(400);
+                    expect(res.statusCode).toBe(400);
                     expect(res.body.code).toBe(RunValidationErrorTypes.BAD_TIMESTAMPS);
                 });
 
                 it('the magic of the replay does not match', async () => {
                     const res = await submitWithOverrides({ beforeSave: (self) => (self.replay.magic = 0xbeefcafe) });
 
-                    expect(res.status).toBe(400);
+                    expect(res.statusCode).toBe(400);
                     expect(res.body.code).toBe(RunValidationErrorTypes.BAD_META);
                 });
 
                 it('the SteamID in the replay does not match the submitter', async () => {
                     const res = await submitWithOverrides({ props: { steamID: randomSteamID() } });
 
-                    expect(res.status).toBe(400);
+                    expect(res.statusCode).toBe(400);
                     expect(res.body.code).toBe(RunValidationErrorTypes.BAD_META);
                 });
 
@@ -635,14 +633,14 @@ describe('Session', () => {
                         props: { mapHash: randomHash() }
                     });
 
-                    expect(res.status).toBe(400);
+                    expect(res.statusCode).toBe(400);
                     expect(res.body.code).toBe(RunValidationErrorTypes.BAD_META);
                 });
 
                 it('the name of the map does not match the name of the map in the DB', async () => {
                     const res = await submitWithOverrides({ props: { mapName: 'bhop_egg' } });
 
-                    expect(res.status).toBe(400);
+                    expect(res.statusCode).toBe(400);
                     expect(res.body.code).toBe(RunValidationErrorTypes.BAD_META);
                 });
 
@@ -655,7 +653,7 @@ describe('Session', () => {
                         }
                     });
 
-                    expect(res.status).toBe(400);
+                    expect(res.statusCode).toBe(400);
                     expect(res.body.code).toBe(RunValidationErrorTypes.BAD_TIMESTAMPS);
                 });
 
@@ -668,7 +666,7 @@ describe('Session', () => {
                         }
                     });
 
-                    expect(res.status).toBe(400);
+                    expect(res.statusCode).toBe(400);
                     expect(res.body.code).toBe(RunValidationErrorTypes.BAD_TIMESTAMPS);
                 });
 
@@ -679,7 +677,7 @@ describe('Session', () => {
                         }
                     });
 
-                    expect(res.status).toBe(400);
+                    expect(res.statusCode).toBe(400);
                     expect(res.body.code).toBe(RunValidationErrorTypes.BAD_META);
                 });
 
@@ -690,7 +688,7 @@ describe('Session', () => {
                         }
                     });
 
-                    expect(res.status).toBe(400);
+                    expect(res.statusCode).toBe(400);
                     expect(res.body.code).toBe(RunValidationErrorTypes.BAD_META);
                 });
 
@@ -699,7 +697,7 @@ describe('Session', () => {
                         beforeSave: (self) => (self.replay.header.runDate = (Date.now() + 1000000).toString())
                     });
 
-                    expect(res.status).toBe(400);
+                    expect(res.statusCode).toBe(400);
                     expect(res.body.code).toBe(RunValidationErrorTypes.OUT_OF_SYNC);
                 });
 
@@ -709,7 +707,7 @@ describe('Session', () => {
                             (self.replay.header.tickRate = getDefaultTickRateForMapType(map.type) + 0.001)
                     });
 
-                    expect(res.status).toBe(400);
+                    expect(res.statusCode).toBe(400);
                     expect(res.body.code).toBe(RunValidationErrorTypes.OUT_OF_SYNC);
                 });
 
@@ -718,21 +716,21 @@ describe('Session', () => {
                         beforeSave: (self) => (self.replay.header.stopTick *= 2)
                     });
 
-                    expect(res.status).toBe(400);
+                    expect(res.statusCode).toBe(400);
                     expect(res.body.code).toBe(RunValidationErrorTypes.OUT_OF_SYNC);
                 });
 
                 it('the run does not have stats', async () => {
                     const res = await submitWithOverrides({ writeStats: false });
 
-                    expect(res.status).toBe(400);
+                    expect(res.statusCode).toBe(400);
                     expect(res.body.code).toBe(RunValidationErrorTypes.BAD_REPLAY_FILE);
                 });
 
                 it('the run has no run frames', async () => {
                     const res = await submitWithOverrides({ writeFrames: false });
 
-                    expect(res.status).toBe(400);
+                    expect(res.statusCode).toBe(400);
                     expect(res.body.code).toBe(RunValidationErrorTypes.BAD_REPLAY_FILE);
                 });
 

@@ -1,9 +1,7 @@
-﻿import request from 'supertest';
-import { ReplayFileWriter } from '@lib/replay/replay-file-writer';
+﻿import { ReplayFileWriter } from '@lib/replay/replay-file-writer';
 import { BaseStatsFromGame, Replay, RunFrame, ZoneStatsFromGame } from '@modules/session/run/run-session.interfaces';
 import { Random } from '@lib/random.lib';
-import { Server } from 'node:http';
-import { URL_PREFIX } from '@test/util/request.util';
+import { ParsedResponse, RequestUtil } from '@test/util/request.util';
 
 const DEFAULT_DELAY_MS = 50;
 const MAGIC = 0x524d4f4d;
@@ -30,8 +28,6 @@ export interface RunTesterProps {
  * Doesn't currently support ILs, and likely to change a lot in future versions
  */
 export class RunTester {
-    server: Server;
-
     props: RunTesterProps;
 
     replay: Replay;
@@ -46,12 +42,12 @@ export class RunTester {
     currZone: number;
     currTime: number;
 
-    constructor(server, props: RunTesterProps) {
-        this.server = server;
+    private req: RequestUtil;
+
+    constructor(req: RequestUtil, props: RunTesterProps) {
+        this.req = req;
         this.props = props;
-
         this.replayFile = new ReplayFileWriter();
-
         this.replay = {
             magic: null,
             version: null,
@@ -74,8 +70,8 @@ export class RunTester {
         };
     }
 
-    static async run(server, props: RunTesterProps, zones: number, delay = DEFAULT_DELAY_MS) {
-        const runTester = new RunTester(server, props);
+    static async run(req: RequestUtil, props: RunTesterProps, zones: number, delay = DEFAULT_DELAY_MS) {
+        const runTester = new RunTester(req, props);
         await runTester.startRun();
         await runTester.doZones(zones, delay);
         return runTester.endRun({ delay: delay });
@@ -96,12 +92,12 @@ export class RunTester {
         this.startTick = this.props.startTick ?? 0;
         this.startTime = Date.now();
 
-        const res = await request(this.server)
-            .post(`${URL_PREFIX}session/run`)
-            .set('Accept', 'application/json')
-            .set('Authorization', `Bearer ${this.props.token ?? ''}`)
-            .send({ mapID: this.props.mapID, trackNum: this.props.trackNum, zoneNum: 0 })
-            .expect(200);
+        const res = await this.req.post({
+            url: 'session/run',
+            body: { mapID: this.props.mapID, trackNum: this.props.trackNum, zoneNum: 0 },
+            status: 200,
+            token: this.props.token ?? ''
+        });
         this.sessionID = res.body.id;
     }
 
@@ -114,12 +110,12 @@ export class RunTester {
         const timeTotal = Date.now() - this.startTime;
         const tickTotal = Math.ceil(timeTotal / 1000 / this.props.tickRate);
 
-        await request(this.server)
-            .post(`${URL_PREFIX}session/run/${this.sessionID}`)
-            .set('Accept', 'application/json')
-            .set('Authorization', `Bearer ${this.props.token ?? ''}`)
-            .send({ zoneNum: this.currZone, tick: tickTotal })
-            .expect(200);
+        await this.req.post({
+            url: `session/run/${this.sessionID}`,
+            body: { zoneNum: this.currZone, tick: tickTotal },
+            status: 200,
+            token: this.props.token ?? ''
+        });
 
         this.replay.zoneStats.push({
             zoneNum: this.currZone,
@@ -136,7 +132,7 @@ export class RunTester {
         beforeSave?: (self: RunTester) => void;
         writeStats?: boolean;
         writeFrames?: boolean;
-    }): Promise<request.Response> {
+    }): Promise<ParsedResponse> {
         const delay = args?.delay ?? DEFAULT_DELAY_MS;
 
         await sleep(delay);
@@ -196,11 +192,11 @@ export class RunTester {
 
         args?.beforeSubmit?.(this);
 
-        return request(this.server)
-            .post(`${URL_PREFIX}session/run/${this.sessionID}/end`)
-            .set('Content-Type', 'multipart/form-data')
-            .set('Authorization', `Bearer ${this.props.token ?? ''}`)
-            .attach('file', this.replayFile.buffer, 'file');
+        return this.req.postAttach({
+            url: `session/run/${this.sessionID}/end`,
+            file: this.replayFile.buffer,
+            token: this.props.token ?? ''
+        });
     }
 
     private sumField(fieldName: string): number {

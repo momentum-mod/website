@@ -122,7 +122,7 @@ describe('Users', () => {
                 req.get({
                     url: 'users',
                     status: 200,
-                    query: { steamIDs: [1111111111111111 + ',' + 2222222222222222] },
+                    query: { steamIDs: 1111111111111111 + ',' + 2222222222222222 },
                     validatePaged: { type: UserDto, count: 0 },
                     token: token
                 }));

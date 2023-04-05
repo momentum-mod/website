@@ -1,179 +1,149 @@
-﻿import request, { Test, Response } from 'supertest';
-import { get as getDeep } from 'lodash';
+﻿import { get as getDeep } from 'lodash';
 import { Type } from '@nestjs/common';
+import { NestFastifyApplication } from '@nestjs/platform-fastify';
+import { InjectOptions, Response } from 'light-my-request';
+import FormData from 'form-data';
+import * as fs from 'node:fs';
+import * as http from 'node:http';
 
 export const URL_PREFIX = '/api/v1/';
 
 export class RequestUtil {
-    constructor(server) {
-        this.server = server;
-    }
-
-    private server;
+    constructor(private readonly app: NestFastifyApplication) {}
 
     //#region Requests
 
-    async get(options: RequestOptions): Promise<Response> {
-        const req = request(this.server)
-            .get(URL_PREFIX + options.url)
-            .set('Accept', 'application/json');
-        this.token(req, options.token);
-        this.contentType(req, options.contentType);
-        this.query(req, options.query);
-        this.status(req, options.status);
-        const res = await req;
-        this.validate(res, options);
-        return res;
+    get(options: RequestOptions): Promise<ParsedResponse> {
+        return this.request({ method: 'GET', headers: { 'content-type': 'application/json' } }, options);
     }
 
-    async getNoContent(options: RequestOptions): Promise<Response> {
-        const req = request(this.server)
-            .get(URL_PREFIX + options.url)
-            .set('Accept', 'application/json');
-        this.status(req, options.status);
-        this.token(req, options.token);
-        this.query(req, options.query);
-        return req;
+    post(options: JsonBodyRequestOptions): Promise<ParsedResponse> {
+        return this.request({ method: 'POST', headers: { 'content-type': 'application/json' } }, options);
     }
 
-    async post(options: JsonBodyRequestOptions): Promise<Response> {
-        const req = request(this.server)
-            .post(URL_PREFIX + options.url)
-            .set('Accept', 'application/json')
-            .set('Content-Type', 'application/json');
-        this.token(req, options.token);
-        this.query(req, options.query);
-        this.body(req, options.body);
-        this.status(req, options.status);
-        const res = await req;
-        this.validate(res, options);
-        return res;
+    put(options: JsonBodyRequestOptions): Promise<ParsedResponse> {
+        return this.request({ method: 'PUT', headers: { 'content-type': 'application/json' } }, options);
     }
 
-    async put(options: JsonBodyRequestOptions): Promise<Response> {
-        const req = request(this.server)
-            .put(URL_PREFIX + options.url)
-            .set('Accept', 'application/json')
-            .set('Content-Type', 'application/json');
-        this.token(req, options.token);
-        this.query(req, options.query);
-        this.body(req, options.body);
-        this.status(req, options.status);
-        const res = await req;
-        this.validate(res, options);
-        return res;
+    patch(options: JsonBodyRequestOptions): Promise<ParsedResponse> {
+        return this.request({ method: 'PATCH', headers: { 'content-type': 'application/json' } }, options);
     }
 
-    async patch(options: JsonBodyRequestOptions): Promise<Response> {
-        const req = request(this.server)
-            .patch(URL_PREFIX + options.url)
-            .set('Accept', 'application/json')
-            .set('Content-Type', 'application/json');
-        this.token(req, options.token);
-        this.query(req, options.query);
-        this.body(req, options.body);
-        this.status(req, options.status);
-        const res = await req;
-        this.validate(res, options);
-        return res;
+    del(options: RequestOptions): Promise<ParsedResponse> {
+        return this.request({ method: 'DELETE', headers: { 'content-type': 'application/json' } }, options);
     }
 
-    async del(options: RequestOptions): Promise<Response> {
-        const req = request(this.server)
-            .delete(URL_PREFIX + options.url)
-            .set('Accept', 'application/json');
-        this.token(req, options.token);
-        this.query(req, options.query);
-        this.status(req, options.status);
-        const res = await req;
-        this.validate(res, options);
-        return res;
+    postAttach(options: AttachRequestOptions): Promise<ParsedResponse> {
+        return this.request({ method: 'POST', headers: { 'content-type': 'multipart/form-data' } }, options);
     }
 
-    async postAttach(options: AttachRequestOptions): Promise<Response> {
-        const req = request(this.server)
-            .post(URL_PREFIX + options.url)
-            .set('Accept', 'application/json');
-        this.token(req, options.token);
-        req.set('Content-Type', 'multipart/form-data');
-
-        if (typeof options.file === 'string') req.attach(options.field ?? 'file', './test/files/' + options.file);
-        else req.attach(options.field ?? 'file', options.file, 'dummyFileName');
-
-        this.status(req, options.status);
-
-        const res = await req;
-        this.validate(res, options);
-        return res;
+    putAttach(options: AttachRequestOptions): Promise<ParsedResponse> {
+        return this.request({ method: 'PUT', headers: { 'content-type': 'multipart/form-data' } }, options);
     }
 
-    async putAttach(options: AttachRequestOptions): Promise<Response> {
-        const req = request(this.server)
-            .put(URL_PREFIX + options.url)
-            .set('Accept', 'application/json');
-        this.token(req, options.token);
-        req.set('Content-Type', 'multipart/form-data').attach(
-            options.field ?? 'file',
-            typeof options.file === 'string' ? './test/files/' + options.file : options.file
-        );
-        this.status(req, options.status);
+    private async request(
+        injectOptions: InjectOptions,
+        options: RequestOptions | JsonBodyRequestOptions | AttachRequestOptions
+    ): Promise<ParsedResponse> {
+        injectOptions.headers = { ...injectOptions.headers, ...options.headers, accept: 'application/json' };
+        injectOptions.url = (options.skipApiPrefix ?? false ? '/' : URL_PREFIX) + options.url;
 
-        const res = await req;
-        this.validate(res, options);
-        return res;
+        if (options.query) {
+            if (typeof options.query === 'string') {
+                injectOptions.query = options.query;
+            } else {
+                const stringifiedQuery: Record<string, string> = {};
+                for (const [key, value] of Object.entries(options.query)) {
+                    stringifiedQuery[key] = value.toString();
+                }
+                injectOptions.query = new URLSearchParams(stringifiedQuery).toString();
+            }
+        }
+
+        if (options.token) {
+            injectOptions.headers.authorization = `Bearer ${options.token}`;
+        }
+
+        if (['POST', 'PUT', 'PATCH'].includes(injectOptions.method)) {
+            if ('file' in options && options.file) {
+                const form = new FormData();
+                const field = options.field ?? 'file';
+
+                if (typeof options.file === 'string') {
+                    const file = fs.readFileSync(`./test/files/${options.file}`);
+                    form.append(field, file, 'dummyFileName');
+                } else {
+                    form.append(field, options.file, 'dummyFileName');
+                }
+
+                injectOptions.payload = form;
+
+                Object.assign(injectOptions.headers, form.getHeaders());
+            } else injectOptions.payload = 'body' in options ? options.body ?? {} : {};
+        }
+
+        const response = await this.app.inject(injectOptions);
+
+        if (options.status) {
+            expect(response.statusCode).toBe(options.status);
+        }
+
+        let contentTypeMatcher;
+        if ('contentType' in options && options.contentType !== null) {
+            if (options.contentType === undefined) {
+                contentTypeMatcher = /json/; // Just expect JSON by default
+            } else if (typeof options.contentType === 'string') {
+                contentTypeMatcher = new RegExp(options.contentType);
+            } else {
+                contentTypeMatcher = options.contentType as RegExp;
+            }
+
+            expect(response.headers['content-type']).toMatch(contentTypeMatcher);
+        }
+
+        const parsedResponse: ParsedResponse =
+            typeof response.body === 'string' &&
+            response.body.length > 0 &&
+            /json/.test((response.headers['content-type'] as string) ?? '')
+                ? { ...response, body: response.json() }
+                : response;
+
+        this.validate(parsedResponse, options);
+
+        return parsedResponse;
     }
 
-    private contentType(req: Test, contentType: string | RegExp | null) {
-        if (contentType !== null)
-            if (contentType === undefined) req.expect('Content-Type', /json/);
-            else if (typeof contentType === 'string') req.expect('Content-Type', new RegExp(contentType));
-            else req.expect('Content-Type', contentType as RegExp);
-    }
-
-    private token(req: Test, token?: string) {
-        if (token) req.set('Authorization', 'Bearer ' + token);
-    }
-
-    private query(req: Test, query?: Record<string, unknown>) {
-        if (query) req.query(query);
-    }
-
-    private status(req: Test, status: number) {
-        req.expect(status);
-    }
-
-    private body(req: Test, body: Record<string, unknown>): Test {
-        req = req.send(body ?? {});
-        return req;
-    }
-
-    private validate(res: Response, options: RequestOptions) {
+    private validate({ body }: ParsedResponse, options: RequestOptions) {
         if (options.validate) {
-            expect(res.body).toBeValidDto(options.validate);
+            expect(body).toBeValidDto(options.validate);
         } else if (options.validatePaged) {
             if ('type' in options.validatePaged) {
                 if ('returnCount' in options.validatePaged) {
-                    expect(res.body).toBeValidPagedDto(
+                    expect(body).toBeValidPagedDto(
                         options.validatePaged.type,
                         options.validatePaged.returnCount,
                         options.validatePaged.totalCount
                     );
                 } else if ('count' in options.validatePaged) {
-                    expect(res.body).toBeValidPagedDto(
+                    expect(body).toBeValidPagedDto(
                         options.validatePaged.type,
                         options.validatePaged.count,
                         options.validatePaged.count
                     );
                 }
             } else {
-                expect(res.body).toBeValidPagedDto(options.validatePaged);
+                expect(body).toBeValidPagedDto(options.validatePaged);
             }
         } else if (options.validateArray) {
+            expect(body).toBeInstanceOf(Array);
             if ('type' in options.validateArray) {
-                for (const item of res.body) expect(item).toBeValidDto(options.validateArray.type);
-                expect(res.body).toHaveLength(options.validateArray.length);
+                for (const item of body as unknown as unknown[]) {
+                    expect(item).toBeValidDto(options.validateArray.type);
+                }
             } else {
-                for (const item of res.body) expect(item).toBeValidDto(options.validateArray);
+                for (const item of body as unknown as unknown[]) {
+                    expect(item).toBeValidDto(options.validateArray);
+                }
             }
         }
     }
@@ -301,15 +271,23 @@ export class RequestUtil {
 
 //#region Types
 
+export interface ParsedResponse extends Omit<Response, 'body'> {
+    body: Record<string, any> | any;
+}
+
+type Query = Record<string, string | number | boolean | bigint>;
+
 export interface RequestOptions {
     url: string;
-    status: number;
-    query?: Record<string, unknown>;
+    status?: number;
+    headers?: http.IncomingHttpHeaders;
+    query?: Query;
     token?: string;
     contentType?: string | RegExp | null;
     validate?: Type;
     validateArray?: Type | { type: Type; length: number };
     validatePaged?: Type | { type: Type; returnCount?: number; totalCount?: number } | { type: Type; count?: number };
+    skipApiPrefix?: boolean;
 }
 
 export interface JsonBodyRequestOptions extends RequestOptions {
@@ -329,7 +307,7 @@ export interface E2ETestOptions {
 
 export interface ExpandTestOptions extends E2ETestOptions {
     expand: string;
-    query?: Record<string, unknown>;
+    query?: Query;
     paged?: boolean; // False by default
     filter?: (item: Record<string, unknown>) => boolean;
     expectedPropertyName?: string;
@@ -338,7 +316,7 @@ export interface ExpandTestOptions extends E2ETestOptions {
 
 export interface SortTestOptions extends E2ETestOptions {
     sortFn: (a: any, b: any) => number;
-    query?: Record<string, unknown>;
+    query?: Query;
 }
 
 export interface SearchTestOptions extends Omit<E2ETestOptions, 'validate'> {
@@ -350,7 +328,7 @@ export interface SearchTestOptions extends Omit<E2ETestOptions, 'validate'> {
 
 export interface UnauthorizedTestOptions {
     url: string;
-    method: (options: RequestOptions) => Promise<request.Response>;
+    method: (options: RequestOptions) => Promise<ParsedResponse>;
 }
 
 //#endregion
