@@ -377,7 +377,7 @@ describe('Maps', () => {
                 });
 
                 it('set the Location property in the response header on creation', async () => {
-                    expect(res.get('Location')).toBe(`api/v1/maps/${createdMap.id}/upload`);
+                    expect(res.headers.location).toBe(`api/v1/maps/${createdMap.id}/upload`);
                 });
             });
 
@@ -442,9 +442,9 @@ describe('Maps', () => {
 
         describe('GET', () => {
             it('should set the response header location to the map upload endpoint', async () => {
-                const res = await req.getNoContent({ url: `maps/${map.id}/upload`, status: 204, token: u1Token });
+                const res = await req.get({ url: `maps/${map.id}/upload`, status: 204, token: u1Token });
 
-                expect(res.get('Location')).toBe(`api/v1/maps/${map.id}/upload`);
+                expect(res.headers.location).toBe(`api/v1/maps/${map.id}/upload`);
             });
 
             it('should 403 when the submitterID does not match the userID', async () => {
@@ -560,7 +560,7 @@ describe('Maps', () => {
             const inBuffer = readFileSync(__dirname + '/../files/map.bsp');
             const inHash = createSha1Hash(inBuffer);
 
-            const uploadURL = res.get('Location').replace('api/v1/', '');
+            const uploadURL = (res.headers.location as string).replace('api/v1/', '');
 
             const res2 = await req.postAttach({ url: uploadURL, status: 201, file: 'map.bsp', token: token });
 
@@ -598,7 +598,7 @@ describe('Maps', () => {
                     });
 
                     const inHash = createSha1Hash(file);
-                    const outHash = createSha1Hash(res.body);
+                    const outHash = createSha1Hash(res.rawPayload);
                     expect(inHash).toEqual(outHash);
 
                     await fs.delete(key);

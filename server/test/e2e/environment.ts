@@ -1,14 +1,7 @@
 ﻿import 'tsconfig-paths/register'; // This MUST be imported for absolute modules to be recognised! // TODO: Is this doing anything
 import { Test, TestingModuleBuilder } from '@nestjs/testing';
 import { AppModule } from '@/app.module';
-import {
-    ClassSerializerInterceptor,
-    INestApplication,
-    Logger,
-    LogLevel,
-    ValidationPipe,
-    VersioningType
-} from '@nestjs/common';
+import { ClassSerializerInterceptor, Logger, LogLevel, ValidationPipe, VersioningType } from '@nestjs/common';
 import { PrismaService } from '@modules/repo/prisma.service';
 import { FastifyAdapter, NestFastifyApplication } from '@nestjs/platform-fastify';
 import { Reflector } from '@nestjs/core';
@@ -22,7 +15,7 @@ import fastifyCookie from '@fastify/cookie';
 import { ConfigService } from '@nestjs/config';
 
 export interface E2EUtils {
-    app: INestApplication;
+    app: NestFastifyApplication;
     server: Server;
     prisma: PrismaService;
     req: RequestUtil;
@@ -76,7 +69,7 @@ export async function setupE2ETestEnvironment(
     app.useGlobalPipes(new ValidationPipe({ transform: true, forbidNonWhitelisted: true }));
     app.useGlobalInterceptors(new ClassSerializerInterceptor(app.get(Reflector)));
     await app.init();
-    await app.getHttpAdapter().getInstance().listen();
+    await app.getHttpAdapter().getInstance().ready();
 
     const server = app.getHttpServer();
     const prisma = app.get(PrismaService);
@@ -87,12 +80,12 @@ export async function setupE2ETestEnvironment(
         prisma,
         auth,
         db: new DbUtil(prisma, auth),
-        req: new RequestUtil(server),
+        req: new RequestUtil(app),
         fs: new FileStoreUtil()
     };
 }
 
-export async function teardownE2ETestEnvironment(app: INestApplication) {
+export async function teardownE2ETestEnvironment(app: NestFastifyApplication) {
     const prisma = app.get(PrismaService);
     await app.close();
     await prisma.$disconnect();

@@ -2,7 +2,7 @@
 import { PrismaService } from '@modules/repo/prisma.service';
 import { randomHash, randomSteamID } from '@test/util/random.util';
 import { MapStatus, MapType } from '@common/enums/map.enum';
-import { AsyncReturnType, CamelCase, PartialDeep } from 'type-fest';
+import { CamelCase, PartialDeep } from 'type-fest';
 import { merge } from 'lodash';
 import { AuthUtil } from '@test/util/auth.util';
 
@@ -46,7 +46,7 @@ export class DbUtil {
         return this.prisma.user.create(merge({ data: this.createUserData() }, args) as Prisma.UserCreateArgs);
     }
 
-    createUsers(count: number, args: CreateUserArgs = {}): Promise<AsyncReturnType<typeof this.createUser>[]> {
+    createUsers(count: number, args: CreateUserArgs = {}): Promise<User[]> {
         return Promise.all(Array.from({ length: count }, () => this.createUser(args)));
     }
 
