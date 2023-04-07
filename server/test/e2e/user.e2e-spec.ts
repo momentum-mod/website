@@ -252,7 +252,7 @@ describe('User', () => {
             });
 
             it('should 404 if the target user does not exist', () =>
-                req.get({ url: 'user/follow/283745692345', status: 404, token: u1Token }));
+                req.get({ url: `user/follow/${NULL_ID}`, status: 404, token: u1Token }));
 
             it('should 401 when no access token is provided', () => req.unauthorizedTest('user/follow/1', 'get'));
         });

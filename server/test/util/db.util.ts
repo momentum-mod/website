@@ -6,7 +6,7 @@ import { CamelCase, PartialDeep } from 'type-fest';
 import { merge } from 'lodash';
 import { AuthUtil } from '@test/util/auth.util';
 
-export const NULL_ID = 999999999999999;
+export const NULL_ID = 999999999;
 export const dateOffset = (offset: number) => new Date(Date.now() - offset * 1000);
 
 export class DbUtil {
