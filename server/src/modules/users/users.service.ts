@@ -3,8 +3,9 @@ import {
     ConflictException,
     ForbiddenException,
     Injectable,
+    InternalServerErrorException,
     NotFoundException,
-    UnauthorizedException
+    ServiceUnavailableException
 } from '@nestjs/common';
 import { Prisma, User, UserAuth } from '@prisma/client';
 import { UpdateUserDto, UserDto } from '@common/dto/user/user.dto';
@@ -99,7 +100,9 @@ export class UsersService {
     }
 
     async findOrCreateFromGame(steamID: string): Promise<AuthenticatedUser> {
-        const summaryData = await this.steamService.getSteamUserSummaryData(steamID);
+        const summaryData = await this.steamService.getSteamUserSummaryData(steamID).catch((_) => {
+            throw new ServiceUnavailableException('Failed to get player summary data from Steam');
+        });
 
         if (steamID !== summaryData.steamid)
             throw new BadRequestException('User fetched is not the authenticated user!');
@@ -114,13 +117,22 @@ export class UsersService {
         return this.findOrCreateUser(profile);
     }
 
-    findOrCreateFromWeb(profile: SteamUserSummaryData): Promise<AuthenticatedUser> {
-        return this.findOrCreateUser({
+    async findOrCreateFromWeb(profile: SteamUserSummaryData): Promise<AuthenticatedUser> {
+        if (profile.profilestate !== 1)
+            throw new ForbiddenException(
+                'We do not authenticate Steam accounts without a profile. Set up your community profile on Steam!'
+            );
+
+        const user = await this.findOrCreateUser({
             steamID: profile.steamid,
             alias: profile.personaname,
             avatar: profile.avatarhash,
             country: profile.loccountrycode
         });
+
+        if (!user) throw new InternalServerErrorException('Could not get or create user');
+
+        return user;
     }
 
     async findOrCreateUser(
@@ -139,7 +151,7 @@ export class UsersService {
             return { id, steamID };
         } else {
             if (this.config.get('steam.preventLimited') && (await this.steamService.isAccountLimited(userData.steamID)))
-                throw new UnauthorizedException(
+                throw new ForbiddenException(
                     'We do not authenticate limited Steam accounts. Buy something on Steam first!'
                 );
 

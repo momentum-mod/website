@@ -43,7 +43,7 @@ export class SteamService {
             !userSummary.personaname === undefined ||
             !userSummary.avatarhash
         )
-            throw new InternalServerErrorException('Failed to get player summary');
+            throw new ServiceUnavailableException('Failed to get player summary');
 
         return userSummary;
     }
@@ -125,7 +125,7 @@ export class SteamService {
 
     /**
      * Checks whether a Steam account is in "limited" mode i.e. hasn't spent $5 or more on Steam. Unfortunately Steam
-     * Web API doesn't return this, so we have to use this messier method of parsing the profile page as XML.
+     * Web API doesn't supply this anywhere, so we have to use this messier method of parsing the profile page as XML.
      */
     isAccountLimited(steamID: string): Promise<boolean> {
         return lastValueFrom(

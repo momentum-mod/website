@@ -35,10 +35,10 @@ import { Roles as RolesEnum } from '../../common/enums/user.enum';
 import { LoggedInUser } from '@common/decorators/logged-in-user.decorator';
 import { XpSystemsService } from '@modules/xp-systems/xp-systems.service';
 import { UpdateXpSystemsDto, XpSystemsDto } from '@common/dto/xp-systems/xp-systems.dto';
-import { RolesGuard } from '@modules/auth/guards/roles.guard';
-import { NonGameAuthGuard } from '@modules/auth/guards/game-auth.guard';
+import { RolesGuard } from '@modules/auth/roles.guard';
 import { ParseIntSafePipe } from '@common/pipes/parse-int-safe.pipe';
-import { MapsService } from '../maps/maps.service';
+import { MapsService } from '@modules/maps/maps.service';
+import { NonGameAuthGuard } from '@modules/auth/jwt/game.guard';
 
 @Controller('admin')
 @UseGuards(RolesGuard)
