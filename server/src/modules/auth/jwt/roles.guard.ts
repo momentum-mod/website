@@ -18,6 +18,14 @@ export class RolesGuard implements CanActivate {
 
         const request = context.switchToHttp().getRequest();
 
+        // Note that we're not storing this on the JWT. We *could* encode roles and bans using bitflags and store
+        // easily, but then you have the standard stateless/JWT problem of not being to invalidate tokens when a role
+        // is updated. This is particularly nasty for the case of a user's bans being updated - a user could be issued
+        // a JWT with no bans, get banned from, say, run submission, yet would still hold a JWT with no bans until it
+        // expires. So, we can't trust a JWT alone to tell us a user is not banned from performing some action.
+        //
+        // In our case, since most endpoints are *not* role or ban dependent, it's easiest to handle RBAC using (still
+        // relatively cheap) DB calls.
         const user: any = await this.userRepo.get(request.user.id, { roles: true });
         return requiredRoles.some((role) => user.roles?.[role] === true);
     }

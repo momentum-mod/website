@@ -9,7 +9,7 @@ import { Server } from 'node:http';
 import { DbUtil } from '@test/util/db.util';
 import { AuthUtil } from '@test/util/auth.util';
 import { RequestUtil } from '@test/util/request.util';
-import { AuthService } from '@modules/auth/auth.service';
+import { JwtAuthService } from '@modules/auth/jwt/jwt-auth.service';
 import { FileStoreUtil } from '@test/util/s3.util';
 import fastifyCookie from '@fastify/cookie';
 import { ConfigService } from '@nestjs/config';
@@ -46,34 +46,22 @@ export async function setupE2ETestEnvironment(
     const app = moduleRef.createNestApplication<NestFastifyApplication>(new FastifyAdapter(), { rawBody: true });
     app.useBodyParser('application/octet-stream', { bodyLimit: 2e3 });
 
-    app.getHttpAdapter()
-        .getInstance()
-        .addHook('onRequest', (request, reply, done) => {
-            reply.setHeader = function (key, value) {
-                return this.raw.setHeader(key, value);
-            };
-            reply.end = function () {
-                this.raw.end();
-            };
-            request.res = reply;
-            done();
-        });
-
-    const configService = app.get(ConfigService);
-    app.register(fastifyCookie, { secret: configService.get('sessionSecret') });
-
     app.setGlobalPrefix('api', { exclude: ['auth(.*)'] });
     app.enableVersioning({ type: VersioningType.URI, defaultVersion: '1', prefix: 'v' });
 
     // Anything put in a query/body that doesn't correspond to a decorator-validated property on the DTO will error.
     app.useGlobalPipes(new ValidationPipe({ transform: true, forbidNonWhitelisted: true }));
     app.useGlobalInterceptors(new ClassSerializerInterceptor(app.get(Reflector)));
+
+    const configService = app.get(ConfigService);
+    await app.register(fastifyCookie, { secret: configService.get('sessionSecret') });
+
     await app.init();
     await app.getHttpAdapter().getInstance().ready();
 
     const server = app.getHttpServer();
     const prisma = app.get(PrismaService);
-    const auth = new AuthUtil(app.get(AuthService));
+    const auth = new AuthUtil(app.get(JwtAuthService));
     return {
         app,
         server,

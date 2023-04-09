@@ -25,7 +25,8 @@ export class ConfigValidation {
     NODE_PORT: number;
 
     @IsDefined({
-        message: 'A Steam API is needed to run this application, go grab on from https://steamcommunity.com/dev/apikey'
+        message:
+            'A Steam API key is required to run this application, can be acquired from https://steamcommunity.com/dev/apikey. See README.md for more information.'
     })
     @IsString()
     STEAM_WEB_API_KEY: string;

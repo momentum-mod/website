@@ -29,9 +29,9 @@ import { LoggedInUser } from '@common/decorators/logged-in-user.decorator';
 import { RunSessionTimestampDto } from '@common/dto/run/run-session-timestamp.dto';
 import { CompletedRunDto } from '@common/dto/run/completed-run.dto';
 import { RunSessionService } from './run/run-session.service';
-import { GameAuthGuard } from '@modules/auth/guards/game-auth.guard';
 import { ParseIntSafePipe } from '@common/pipes/parse-int-safe.pipe';
 import { FileInterceptor } from '@nest-lab/fastify-multer';
+import { GameAuthGuard } from '@modules/auth/jwt/game.guard';
 
 @Controller('session')
 @UseGuards(GameAuthGuard)

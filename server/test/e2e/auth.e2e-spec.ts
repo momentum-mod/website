@@ -1,27 +1,18 @@
 ﻿import { DbUtil } from '@test/util/db.util';
 import { setupE2ETestEnvironment } from '@test/e2e/environment';
-import { SteamWebAuthGuard } from '@modules/auth/guards/steam-web-auth.guard';
-import { ExecutionContext, ForbiddenException, UnauthorizedException } from '@nestjs/common';
+import { UnauthorizedException } from '@nestjs/common';
 import { Config } from '@config/config';
 import { JwtService } from '@nestjs/jwt';
-import { SteamWebStrategy } from '@modules/auth/strategy/steam-web.strategy';
-import { AuthModule } from '@modules/auth/auth.module';
-import { UsersModule } from '@modules/users/users.module';
-import { RepoModule } from '@modules/repo/repo.module';
-import { SteamModule } from '@modules/steam/steam.module';
-import { SteamAuthService } from '@modules/auth/steam-auth.service';
-import { JwtStrategy } from '@modules/auth/strategy/jwt.strategy';
 import { SteamService } from '@modules/steam/steam.service';
-import { PrismaClient } from '@prisma/client';
-import { ConfigModule, ConfigService } from '@nestjs/config';
-import { Test, TestingModule } from '@nestjs/testing';
+import { ConfigService } from '@nestjs/config';
 import { NestFastifyApplication } from '@nestjs/platform-fastify';
 import { JWTResponseGameDto, JWTResponseWebDto } from '@common/dto/auth/jwt-response.dto';
 import { PrismaService } from '@modules/repo/prisma.service';
-import { RequestUtil } from '@test/util/request.util';
+import { ParsedResponse, RequestUtil } from '@test/util/request.util';
+import { SteamOpenIDService } from '@modules/auth/steam/steam-openid.service';
 
 describe('Auth', () => {
-    const jwtService = new JwtService({
+    const testJwtService = new JwtService({
         secret: Config.accessToken.secret,
         signOptions: { expiresIn: Config.accessToken.expTime }
     });
@@ -35,7 +26,7 @@ describe('Auth', () => {
         req = env.req;
     });
 
-    afterEach(() => db.cleanup('user'));
+    afterAll(() => db.cleanup('user'));
 
     describe('auth/steam', () => {
         describe('GET', () => {
@@ -43,37 +34,185 @@ describe('Auth', () => {
                 const res = await req.get({ url: 'auth/steam', skipApiPrefix: true, status: 302 });
                 expect(res.headers.location).toMatch(/^https:\/\/steamcommunity.com\/openid\/login.+/);
             });
+        });
+    });
 
-            it('should login the user, set cookies, and redirect them when request passes the guard', async () => {
-                const user = await db.createUser({
-                    data: { alias: 'baseballbobby2004', steamID: '76561198237811446' }
+    describe('auth/steam/return', () => {
+        describe('GET', () => {
+            const steamID = '123';
+            const steamData = {
+                profilestate: 1,
+                steamid: steamID,
+                personaname: 'bono',
+                avatarhash: 'sausage',
+                loccountrycode: 'IE'
+            };
+
+            let response: ParsedResponse,
+                verifyAssertionSpy: jest.SpyInstance,
+                steamSummarySpy: jest.SpyInstance,
+                steamIsLimitedSpy: jest.SpyInstance,
+                configService: ConfigService;
+
+            const request = () =>
+                req.get({
+                    url: 'auth/steam/return',
+                    skipApiPrefix: true,
+                    query: { 'openid.op_endpoint': 'https://steamcommunity.com/openid/login' }
                 });
 
-                // Override SteamWebAuthGuard to pass guard and hit controller logic
-                jest.spyOn(app.get(SteamWebAuthGuard), 'canActivate').mockImplementationOnce(
-                    (context: ExecutionContext) => {
-                        const request = context.switchToHttp().getRequest();
-                        request.user = { id: user.id, steamID: user.steamID };
-                        return true;
-                    }
+            beforeAll(() => {
+                configService = app.get(ConfigService);
+
+                verifyAssertionSpy = jest.spyOn(app.get(SteamOpenIDService)['relyingParty'], 'verifyAssertion');
+                verifyAssertionSpy.mockImplementation((request, callback) =>
+                    callback(undefined, {
+                        authenticated: true,
+                        claimedIdentifier: `https://steamcommunity.com/openid/id/${steamID}`
+                    })
                 );
+                steamSummarySpy = jest.spyOn(app.get(SteamService), 'getSteamUserSummaryData');
+                steamSummarySpy.mockResolvedValue(steamData as any);
 
-                const res = await req.get({ url: 'auth/steam', skipApiPrefix: true, status: 302 });
-                expect(res.headers.location).toMatch(/\/dashboard$/);
+                steamIsLimitedSpy = jest.spyOn(app.get(SteamService), 'isAccountLimited');
+                steamIsLimitedSpy.mockResolvedValue(false);
 
-                const cookies = {} as any;
-                for (const cookieString of res.headers['set-cookie'] as string) {
-                    const [k, v] = cookieString.split('=');
-                    cookies[k] = v.slice(0, v.indexOf(';'));
-                }
+                jest.spyOn(configService, 'get').mockImplementation((key) => {
+                    switch (key) {
+                        case 'steam.preventLimited':
+                            return true;
+                        case 'accessToken.expTime':
+                            return '1m';
+                        case 'accessToken.refreshExpTime':
+                            return '5m';
+                    }
+                });
+            });
 
-                const jwt = new JwtService({ secret: Config.accessToken.secret });
+            afterAll(() => jest.resetAllMocks());
 
-                const decodedAccessToken = jwt.decode(cookies.accessToken);
-                expect(decodedAccessToken).toMatchObject({ id: user.id, steamID: user.steamID, gameAuth: false });
+            describe('when given a valid login for a new user', () => {
+                beforeAll(async () => {
+                    response = await request();
+                });
 
-                const decodedRefreshToken = jwt.decode(cookies.refreshToken) as any;
-                expect(decodedRefreshToken.id).toBe(user.id);
+                afterAll(() => db.cleanup('user'));
+
+                it('should succeed and redirect to dashboard', () => {
+                    expect(response.statusCode).toBe(302);
+                    expect(response.headers.location).toBe('/dashboard');
+                });
+
+                it('should create a new user', async () => {
+                    const userDB = await prisma.user.findFirst();
+                    expect(userDB).toMatchObject({
+                        steamID: steamID,
+                        alias: steamData.personaname,
+                        avatar: steamData.avatarhash,
+                        country: steamData.loccountrycode
+                    });
+                });
+
+                it('should set cookies on the response containing JWTs', async () => {
+                    const cookies = {} as any;
+                    for (const cookieString of response.headers['set-cookie'] as string) {
+                        const [k, v] = cookieString.split('=');
+                        cookies[k] = v.slice(0, v.indexOf(';'));
+                    }
+
+                    const userDB = await prisma.user.findFirst();
+
+                    const decodedAccessToken = testJwtService.decode(cookies.accessToken);
+                    expect(decodedAccessToken).toMatchObject({
+                        id: userDB.id,
+                        steamID: userDB.steamID,
+                        gameAuth: false
+                    });
+
+                    const decodedRefreshToken = testJwtService.decode(cookies.refreshToken) as any;
+                    expect(decodedRefreshToken.id).toBe(userDB.id);
+                });
+            });
+
+            describe('when given a valid login for an existing user user', () => {
+                let user;
+
+                beforeAll(async () => {
+                    user = await db.createUser({ data: { steamID: steamID } });
+
+                    response = await request();
+                });
+
+                afterAll(() => db.cleanup('user'));
+
+                it('should succeed and redirect to dashboard', () => {
+                    expect(response.statusCode).toBe(302);
+                    expect(response.headers.location).toBe('/dashboard');
+                });
+
+                it('should create a new user', async () => {
+                    const updatedUser = await prisma.user.findFirst();
+                    expect(updatedUser).toMatchObject({
+                        id: user.id,
+                        steamID: steamID,
+                        alias: steamData.personaname,
+                        avatar: steamData.avatarhash,
+                        country: steamData.loccountrycode
+                    });
+                });
+
+                it('should set cookies on the response containing JWTs', async () => {
+                    const cookies = {} as any;
+                    for (const cookieString of response.headers['set-cookie'] as string) {
+                        const [k, v] = cookieString.split('=');
+                        cookies[k] = v.slice(0, v.indexOf(';'));
+                    }
+
+                    const userDB = await prisma.user.findFirst();
+
+                    const decodedAccessToken = testJwtService.decode(cookies.accessToken);
+                    expect(decodedAccessToken).toMatchObject({
+                        id: userDB.id,
+                        steamID: userDB.steamID,
+                        gameAuth: false
+                    });
+
+                    const decodedRefreshToken = testJwtService.decode(cookies.refreshToken) as any;
+                    expect(decodedRefreshToken.id).toBe(userDB.id);
+                });
+            });
+
+            it('should throw a ForbiddenException if the user has not set up their profile', async () => {
+                steamSummarySpy.mockResolvedValueOnce({ ...steamData, profilestate: 0 });
+                const res = await request();
+                expect(res.statusCode).toBe(403);
+            });
+
+            it('should throw a ForbiddenException if the user is a limited account and preventLimited is true', async () => {
+                steamIsLimitedSpy.mockResolvedValueOnce(true);
+
+                const res = await request();
+                expect(res.statusCode).toBe(403);
+            });
+
+            it('should create an account if the user is a limited account and preventLimited is false', async () => {
+                steamIsLimitedSpy.mockResolvedValueOnce(true);
+                jest.spyOn(configService, 'get').mockImplementationOnce((key) => {
+                    switch (key) {
+                        case 'steam.preventLimited':
+                            return false;
+                        case 'accessToken.expTime':
+                            return '1m';
+                        case 'accessToken.refreshExpTime':
+                            return '5m';
+                    }
+                });
+
+                steamIsLimitedSpy.mockResolvedValueOnce(true);
+
+                await request();
+
+                expect(await prisma.user.findFirst()).toMatchObject({ steamID: steamID });
 
                 await db.cleanup('user');
             });
@@ -92,7 +231,7 @@ describe('Auth', () => {
         });
 
         describe('Online API', () => {
-            beforeEach(() => {
+            beforeEach(() =>
                 jest.spyOn(configService, 'get').mockImplementation((key) => {
                     switch (key) {
                         case 'steam.useSteamTicketLibrary':
@@ -100,10 +239,12 @@ describe('Auth', () => {
                         case 'accessToken.gameExpTime':
                             return '1m';
                     }
-                });
-            });
+                })
+            );
 
-            afterEach(() => jest.clearAllMocks());
+            afterEach(() => db.cleanup('user'));
+
+            afterAll(() => jest.resetAllMocks());
 
             it('should create a new user and respond with a game JWT', async () => {
                 const userSteamID = '1';
@@ -128,7 +269,7 @@ describe('Auth', () => {
                 const body = JSON.parse(res.body);
                 expect(body).toBeValidDto(JWTResponseGameDto);
 
-                const decrypted = jwtService.decode(body.token) as Record<string, any>;
+                const decrypted = testJwtService.decode(body.token) as Record<string, any>;
                 expect(decrypted.steamID).toBe(userSteamID);
                 expect(decrypted.exp - decrypted.iat).toBe(60);
 
@@ -164,7 +305,7 @@ describe('Auth', () => {
                 const body = JSON.parse(res.body);
                 expect(body).toBeValidDto(JWTResponseGameDto);
 
-                const decrypted = jwtService.decode(body.token) as Record<string, any>;
+                const decrypted = testJwtService.decode(body.token) as Record<string, any>;
                 expect(decrypted.steamID).toBe(userDB.steamID);
 
                 expect(decrypted.exp - decrypted.iat).toBe(60);
@@ -212,9 +353,7 @@ describe('Auth', () => {
 
             it('should 401 when Steam does not return a valid user ticket', async () => {
                 jest.spyOn(steamService, 'tryAuthenticateUserTicketOnline').mockRejectedValueOnce(
-                    new UnauthorizedException(
-                        'hi uhhhhh sorry its a tuesday you cant login. no we cant hire a competent devops team'
-                    )
+                    new UnauthorizedException('hi uhhhhh sorry its a tuesday you cant login')
                 );
 
                 const res = await app.inject({
@@ -242,7 +381,7 @@ describe('Auth', () => {
         });
 
         describe('Local Library', () => {
-            beforeEach(() => {
+            beforeEach(() =>
                 jest.spyOn(configService, 'get').mockImplementation((key) => {
                     switch (key) {
                         case 'steam.useSteamTicketLibrary':
@@ -252,10 +391,12 @@ describe('Auth', () => {
                         case 'appIDs':
                             return [appID];
                     }
-                });
-            });
+                })
+            );
 
-            afterEach(() => jest.clearAllMocks());
+            afterEach(async () => db.cleanup('user'));
+
+            afterAll(() => jest.resetAllMocks());
 
             it('should create a new user and respond with a game JWT', async () => {
                 const userSteamID = '1';
@@ -283,7 +424,7 @@ describe('Auth', () => {
                 const body = JSON.parse(res.body);
                 expect(body).toBeValidDto(JWTResponseGameDto);
 
-                const decrypted = jwtService.decode(body.token) as Record<string, any>;
+                const decrypted = testJwtService.decode(body.token) as Record<string, any>;
                 expect(decrypted.steamID).toBe(userSteamID);
                 expect(decrypted.exp - decrypted.iat).toBe(60);
 
@@ -322,7 +463,7 @@ describe('Auth', () => {
                 const body = JSON.parse(res.body);
                 expect(body).toBeValidDto(JWTResponseGameDto);
 
-                const decrypted = jwtService.decode(body.token) as Record<string, any>;
+                const decrypted = testJwtService.decode(body.token) as Record<string, any>;
                 expect(decrypted.steamID).toBe(userDB.steamID);
 
                 expect(decrypted.exp - decrypted.iat).toBe(60);
@@ -399,9 +540,13 @@ describe('Auth', () => {
     });
 
     describe('auth/refresh', () => {
+        afterEach(() => db.cleanup('user'));
+
         it('should respond with a new token pair', async () => {
             const [user, token] = await db.createAndLoginUser();
-            const originalRefreshToken = jwtService.sign({ id: user.id });
+
+            const originalRefreshToken = testJwtService.sign({ id: user.id });
+
             await prisma.userAuth.update({ where: { userID: user.id }, data: { refreshToken: originalRefreshToken } });
 
             const res = await req.post({
@@ -413,12 +558,12 @@ describe('Auth', () => {
                 validate: JWTResponseWebDto
             });
 
-            expect(jwtService.decode(res.body.accessToken) as Record<string, any>).toMatchObject({
+            expect(testJwtService.decode(res.body.accessToken) as Record<string, any>).toMatchObject({
                 id: user.id,
                 steamID: user.steamID
             });
 
-            expect(jwtService.decode(res.body.refreshToken) as Record<string, any>).toMatchObject({
+            expect(testJwtService.decode(res.body.refreshToken) as Record<string, any>).toMatchObject({
                 id: user.id
             });
 
@@ -429,91 +574,91 @@ describe('Auth', () => {
     });
 });
 
-describe('Auth (Integration, with DB)', () => {
-    describe('SteamWebStrategy', () => {
-        let steamWebStrategy: SteamWebStrategy,
-            prisma: PrismaClient,
-            steamService: SteamService,
-            configService: ConfigService;
-
-        beforeAll(async () => {
-            prisma = new PrismaClient();
-
-            const module: TestingModule = await Test.createTestingModule({
-                imports: [AuthModule, UsersModule, RepoModule, SteamModule, ConfigModule],
-                providers: [SteamWebStrategy, SteamAuthService]
-            })
-                .overrideProvider(JwtStrategy)
-                .useValue({})
-                // Mock ConfigService so preventLimited defaults to true
-                .overrideProvider(ConfigService)
-                .useValue({ get: jest.fn(() => true) })
-                // Mock SteamService so isAccountLimited defaults to false
-                .overrideProvider(SteamService)
-                .useValue({ isAccountLimited: jest.fn(() => Promise.resolve(false)) })
-                .compile();
-
-            steamWebStrategy = module.get(SteamWebStrategy);
-            steamService = module.get(SteamService);
-            configService = module.get(ConfigService);
-        });
-
-        afterEach(() => prisma.user.deleteMany());
-
-        const steamData = {
-            profilestate: 1,
-            steamid: '1',
-            personaname: 'bono',
-            avatarhash: 'sausage',
-            loccountrycode: 'IE'
-        };
-
-        it('should create and return a new user for an unrecognised SteamID', async () => {
-            const user = await steamWebStrategy.validate('', { _json: steamData } as any);
-
-            expect(user.steamID).toBe(steamData.steamid);
-
-            const userDB = await prisma.user.findFirst();
-            expect(userDB.alias).toBe('bono');
-        });
-
-        it('should return a user for an existing SteamID', async () => {
-            await prisma.user.create({ data: { steamID: '123', alias: 'bono' } });
-
-            const user = await steamWebStrategy.validate('', { _json: { ...steamData, steamID: '123' } } as any);
-
-            expect(user.steamID).toBe(steamData.steamid);
-
-            const userDB = await prisma.user.findFirst();
-            expect(userDB).toMatchObject({ alias: 'bono', steamID: '123' });
-        });
-
-        it('should throw a ForbiddenException if the user has not set up their profile', async () =>
-            await expect(
-                steamWebStrategy.validate('', { _json: { ...steamData, profilestate: 0 } } as any)
-            ).rejects.toThrow(ForbiddenException));
-
-        it('should throw an UnauthorizedException if the user is a limited account and preventLimited is true', async () => {
-            jest.spyOn(steamService, 'isAccountLimited').mockResolvedValueOnce(true);
-
-            await expect(steamWebStrategy.validate('', { _json: steamData } as any)).rejects.toThrow(
-                UnauthorizedException
-            );
-        });
-
-        it('should create an account if the user is a limited account and preventLimited is false', async () => {
-            jest.spyOn(steamService, 'isAccountLimited').mockResolvedValueOnce(true);
-            jest.spyOn(configService, 'get').mockReturnValueOnce(false);
-
-            const user = await steamWebStrategy.validate('', { _json: steamData } as any);
-
-            expect(user.steamID).toBe(steamData.steamid);
-
-            const userDB = await prisma.user.findFirst();
-            expect(userDB.alias).toBe('bono');
-        });
-    });
-});
+// describe('Auth (Integration, with DB)', () => {
+//     describe('SteamWebStrategy', () => {
+//         let steamWebStrategy: SteamWebStrategy,
+//             prisma: PrismaClient,
+//             steamService: SteamService,
+//             configService: ConfigService;
+//
+//         beforeAll(async () => {
+//             prisma = new PrismaClient();
+//
+//             const module: TestingModule = await Test.createTestingModule({
+//                 imports: [AuthModule, UsersModule, RepoModule, SteamModule, ConfigModule],
+//                 providers: [SteamWebStrategy, SteamAuthService]
+//             })
+//                 .overrideProvider(JwtStrategy)
+//                 .useValue({})
+//                 // Mock ConfigService so preventLimited defaults to true
+//                 .overrideProvider(ConfigService)
+//                 .useValue({ get: jest.fn(() => true) })
+//                 // Mock SteamService so isAccountLimited defaults to false
+//                 .overrideProvider(SteamService)
+//                 .useValue({ isAccountLimited: jest.fn(() => Promise.resolve(false)) })
+//                 .compile();
+//
+//             steamWebStrategy = module.get(SteamWebStrategy);
+//             steamService = module.get(SteamService);
+//             configService = module.get(ConfigService);
+//         });
+//
+//         afterEach(() => prisma.user.deleteMany());
+//
+//         const steamData = {
+//             profilestate: 1,
+//             steamid: '1',
+//             personaname: 'bono',
+//             avatarhash: 'sausage',
+//             loccountrycode: 'IE'
+//         };
+//
+//         it('should create and return a new user for an unrecognised SteamID', async () => {
+//             const user = await steamWebStrategy.validate('', { _json: steamData } as any);
+//
+//             expect(user.steamID).toBe(steamData.steamid);
+//
+//             const userDB = await prisma.user.findFirst();
+//             expect(userDB.alias).toBe('bono');
+//         });
+//
+//         it('should return a user for an existing SteamID', async () => {
+//             await prisma.user.create({ data: { steamID: '123', alias: 'bono' } });
+//
+//             const user = await steamWebStrategy.validate('', { _json: { ...steamData, steamID: '123' } } as any);
+//
+//             expect(user.steamID).toBe(steamData.steamid);
+//
+//             const userDB = await prisma.user.findFirst();
+//             expect(userDB).toMatchObject({ alias: 'bono', steamID: '123' });
+//         });
+//
+//         it('should throw a ForbiddenException if the user has not set up their profile', async () =>
+//             await expect(
+//                 steamWebStrategy.validate('', { _json: { ...steamData, profilestate: 0 } } as any)
+//             ).rejects.toThrow(ForbiddenException));
+//
+//         it('should throw an UnauthorizedException if the user is a limited account and preventLimited is true', async () => {
+//             jest.spyOn(steamService, 'isAccountLimited').mockResolvedValueOnce(true);
+//
+//             await expect(steamWebStrategy.validate('', { _json: steamData } as any)).rejects.toThrow(
+//                 UnauthorizedException
+//             );
+//         });
+//
+//         it('should create an account if the user is a limited account and preventLimited is false', async () => {
+//             jest.spyOn(steamService, 'isAccountLimited').mockResolvedValueOnce(true);
+//             jest.spyOn(configService, 'get').mockReturnValueOnce(false);
+//
+//             const user = await steamWebStrategy.validate('', { _json: steamData } as any);
+//
+//             expect(user.steamID).toBe(steamData.steamid);
+//
+//             const userDB = await prisma.user.findFirst();
+//             expect(userDB.alias).toBe('bono');
+//         });
+//     });
+// });
 // 		describe('POST /auth/refresh', () => {
 //             it('should 401 when a bad refresh token is provided', () => {
 //                 return chai.request(server)

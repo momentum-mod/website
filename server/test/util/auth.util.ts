@@ -1,12 +1,12 @@
 ﻿import { User } from '@prisma/client';
-import { AuthService } from '@modules/auth/auth.service';
+import { JwtAuthService } from '@modules/auth/jwt/jwt-auth.service';
 
 export class AuthUtil {
-    constructor(authService: AuthService) {
+    constructor(authService: JwtAuthService) {
         this.authService = authService;
     }
 
-    private authService: AuthService;
+    private authService: JwtAuthService;
 
     login(user: User): Promise<string> {
         return this.authService.loginWeb(user).then((jwt) => jwt.accessToken);

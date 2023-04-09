@@ -1,7 +1,7 @@
 import { Injectable, InternalServerErrorException, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { JWTResponseGameDto, JWTResponseWebDto } from '@common/dto/auth/jwt-response.dto';
-import { UsersRepoService } from '../repo/users-repo.service';
+import { UsersRepoService } from '../../repo/users-repo.service';
 import { ConfigService } from '@nestjs/config';
 import {
     AuthenticatedUser,
@@ -12,7 +12,7 @@ import {
 import { DtoFactory } from '@lib/dto.lib';
 
 @Injectable()
-export class AuthService {
+export class JwtAuthService {
     constructor(
         private readonly userRepo: UsersRepoService,
         private readonly jwtService: JwtService,
@@ -22,8 +22,6 @@ export class AuthService {
     //#region Login
 
     async loginWeb(user: AuthenticatedUser): Promise<JWTResponseWebDto> {
-        await this.checkUserExists(user.id);
-
         return this.generateWebTokenPair(user.id, user.steamID);
     }
 
@@ -43,22 +41,12 @@ export class AuthService {
 
     //#endregion
 
-    //#region Validation
-
-    private async checkUserExists(userID: number) {
-        const user = await this.userRepo.get(userID);
-
-        if (!user) throw new UnauthorizedException('User not found');
-    }
-
-    //#endregion
-
     //#region Tokens
 
     async revokeRefreshToken(refreshToken: string): Promise<void> {
         const { id } = this.verifyRefreshToken(refreshToken);
 
-        await this.checkUserExists(id);
+        await this.getUser(id);
 
         await this.userRepo.upsertAuth(id, '');
     }
@@ -66,9 +54,7 @@ export class AuthService {
     async refreshRefreshToken(refreshToken: string): Promise<JWTResponseWebDto> {
         const { id } = this.verifyRefreshToken(refreshToken);
 
-        const user = await this.userRepo.get(id);
-
-        if (!user) throw new UnauthorizedException('User not found');
+        const user = await this.getUser(id);
 
         const tokenDto = await this.generateWebTokenPair(id, user.steamID);
 
@@ -79,11 +65,7 @@ export class AuthService {
 
     private async generateWebTokenPair(id: number, steamID: string): Promise<JWTResponseWebDto> {
         const [accessToken, refreshToken] = await Promise.all([
-            this.generateAccessToken({
-                id,
-                steamID: steamID,
-                gameAuth: false
-            }),
+            this.generateAccessToken({ id, steamID: steamID, gameAuth: false }),
             this.generateRefreshToken({ id })
         ]);
 
@@ -95,13 +77,11 @@ export class AuthService {
     }
 
     private generateAccessToken(payload: UserJwtAccessPayload): Promise<string> {
-        const options = {
+        return this.jwtService.signAsync(payload, {
             expiresIn: payload.gameAuth
                 ? this.config.get('accessToken.gameExpTime')
                 : this.config.get('accessToken.expTime')
-        };
-
-        return this.jwtService.signAsync(payload, options);
+        });
     }
 
     private async generateRefreshToken(payload: UserJwtPayload): Promise<string> {
@@ -121,6 +101,18 @@ export class AuthService {
                 ? new UnauthorizedException('Invalid token')
                 : new InternalServerErrorException();
         }
+    }
+
+    //#endregion
+
+    //#region Validation
+
+    private async getUser(userID: number) {
+        const user = await this.userRepo.get(userID);
+
+        if (!user) throw new UnauthorizedException('User not found');
+
+        return user;
     }
 
     //#endregion

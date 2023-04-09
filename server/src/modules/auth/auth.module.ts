@@ -1,22 +1,17 @@
 import { Module } from '@nestjs/common';
-import { AuthService } from './auth.service';
-import { PassportModule } from '@nestjs/passport';
-import { JwtStrategy } from './strategy/jwt.strategy';
-import { JwtModule } from '@nestjs/jwt';
-import { SteamWebStrategy } from '@modules/auth/strategy/steam-web.strategy';
-import { SteamAuthService } from '@modules/auth/steam-auth.service';
 import { AuthController } from '@modules/auth/auth.controller';
+import { JwtAuthService } from '@modules/auth/jwt/jwt-auth.service';
+import { JwtGuard } from '@modules/auth/jwt/jwt.guard';
+import { SteamModule } from '@modules/steam/steam.module';
 import { UsersModule } from '@modules/users/users.module';
 import { RepoModule } from '@modules/repo/repo.module';
 import { ConfigModule, ConfigService } from '@nestjs/config';
-import { JwtAuthGuard } from '@modules/auth/guards/jwt-auth.guard';
-import { SteamModule } from '@modules/steam/steam.module';
+import { SteamOpenIDService } from '@modules/auth/steam/steam-openid.service';
+import { JwtModule } from '@nestjs/jwt';
+import { APP_GUARD } from '@nestjs/core';
 
 @Module({
     imports: [
-        PassportModule.register({
-            defaultStrategy: 'jwt'
-        }),
         JwtModule.registerAsync({
             imports: [ConfigModule],
             useFactory: async (config: ConfigService) => ({
@@ -31,7 +26,14 @@ import { SteamModule } from '@modules/steam/steam.module';
         SteamModule
     ],
     controllers: [AuthController],
-    providers: [AuthService, SteamAuthService, JwtAuthGuard, JwtStrategy, SteamWebStrategy],
-    exports: [AuthService, SteamAuthService, JwtAuthGuard, JwtStrategy, SteamWebStrategy]
+    providers: [
+        {
+            // This enables the JWT guard globally.
+            provide: APP_GUARD,
+            useClass: JwtGuard
+        },
+        JwtAuthService,
+        SteamOpenIDService
+    ]
 })
 export class AuthModule {}

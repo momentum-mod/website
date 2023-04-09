@@ -1,12 +1,4 @@
 ﻿// https://developer.valvesoftware.com/wiki/Steam_Web_API#GetPlayerSummaries_.28v0002.29
-export interface SteamUserSummaryResponse {
-    _json: SteamUserSummaryData;
-    provider: string;
-    id: string;
-    displayName: string;
-    photos: [{ value: string }, { value: string }, { value: string }];
-}
-
 export interface SteamUserSummaryData {
     steamid: string;
     communityvisibilitystate: number;

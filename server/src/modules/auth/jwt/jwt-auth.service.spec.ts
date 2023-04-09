@@ -1,5 +1,5 @@
 ﻿import { Test, TestingModule } from '@nestjs/testing';
-import { AuthService } from './auth.service';
+import { JwtAuthService } from './jwt-auth.service';
 import { UsersRepoService } from '@modules/repo/users-repo.service';
 import { JwtModule, JwtService } from '@nestjs/jwt';
 import { JWTResponseGameDto, JWTResponseWebDto } from '@common/dto/auth/jwt-response.dto';
@@ -8,14 +8,12 @@ import { UnauthorizedException } from '@nestjs/common';
 import { UserJwtAccessPayloadVerified, UserJwtPayloadVerified } from '@modules/auth/auth.interface';
 import { createMock } from '@golevelup/ts-jest';
 
-describe('AuthService', () => {
-    let service: AuthService, userRepo: UsersRepoService;
+describe('JwtAuthService', () => {
+    let service: JwtAuthService, userRepo: UsersRepoService;
+    let userGetSpy: jest.SpyInstance;
 
     const jwtSecret = 'Homer Simpson';
-
-    const jwtService = new JwtService({
-        secret: jwtSecret
-    });
+    const testJwtService = new JwtService({ secret: jwtSecret });
 
     const jwtConfig = {
         expTime: '1m',
@@ -26,7 +24,7 @@ describe('AuthService', () => {
     const testWebTokenDto = (user, jwt) => {
         expect(jwt).toBeValidDto(JWTResponseWebDto);
 
-        const decodedAccessToken = jwtService.decode(jwt.accessToken) as UserJwtAccessPayloadVerified;
+        const decodedAccessToken = testJwtService.decode(jwt.accessToken) as UserJwtAccessPayloadVerified;
         expect(decodedAccessToken).toMatchObject({
             id: user.id,
             steamID: user.steamID,
@@ -35,7 +33,7 @@ describe('AuthService', () => {
 
         expect(decodedAccessToken.exp - decodedAccessToken.iat).toBe(60); // 1m. JWT times are seconds, not ms.
 
-        const decodedRefreshToken = jwtService.decode(jwt.refreshToken) as UserJwtPayloadVerified;
+        const decodedRefreshToken = testJwtService.decode(jwt.refreshToken) as UserJwtPayloadVerified;
         expect(decodedRefreshToken.id).toBe(user.id);
 
         expect(decodedRefreshToken.exp - decodedRefreshToken.iat).toBe(3 * 60); // 3m
@@ -45,12 +43,8 @@ describe('AuthService', () => {
 
     beforeAll(async () => {
         const module: TestingModule = await Test.createTestingModule({
-            imports: [
-                JwtModule.register({
-                    secret: jwtSecret
-                })
-            ],
-            providers: [AuthService]
+            imports: [JwtModule.register({ secret: jwtSecret })],
+            providers: [JwtAuthService]
         })
             .useMocker((token) => {
                 if (token === ConfigService)
@@ -70,8 +64,10 @@ describe('AuthService', () => {
             })
             .compile();
 
-        service = module.get(AuthService);
+        service = module.get(JwtAuthService);
         userRepo = module.get(UsersRepoService);
+
+        userGetSpy = jest.spyOn(userRepo, 'get');
     });
 
     it('should be defined', () => {
@@ -90,7 +86,7 @@ describe('AuthService', () => {
         };
 
         it('should generate a web JWT DTO', async () => {
-            jest.spyOn(userRepo, 'get').mockResolvedValueOnce(user);
+            userGetSpy.mockResolvedValueOnce(user);
             const upsertAuthSpy = jest.spyOn(userRepo, 'upsertAuth').mockResolvedValueOnce(undefined);
 
             const jwt = await service.loginWeb({
@@ -101,16 +97,6 @@ describe('AuthService', () => {
             expect(upsertAuthSpy).toHaveBeenCalledWith(user.id, jwt.refreshToken);
 
             testWebTokenDto(user, jwt);
-        });
-
-        it('should throw an UnauthorizedException is the user does not exist in DB', () => {
-            jest.spyOn(userRepo, 'get').mockResolvedValueOnce(undefined);
-            expect(
-                service.loginWeb({
-                    id: user.id + 1,
-                    steamID: user.steamID
-                })
-            ).rejects.toThrow(UnauthorizedException);
         });
     });
 
@@ -126,7 +112,7 @@ describe('AuthService', () => {
         };
 
         it('should generate a game JWT DTO', async () => {
-            jest.spyOn(userRepo, 'get').mockResolvedValueOnce(user);
+            userGetSpy.mockResolvedValueOnce(user);
 
             const jwt = await service.loginGame({
                 id: user.id,
@@ -135,7 +121,7 @@ describe('AuthService', () => {
 
             expect(jwt).toBeValidDto(JWTResponseGameDto);
 
-            const decodedAccessToken = jwtService.decode(jwt.token) as UserJwtAccessPayloadVerified;
+            const decodedAccessToken = testJwtService.decode(jwt.token) as UserJwtAccessPayloadVerified;
             expect(decodedAccessToken).toMatchObject({
                 id: user.id,
                 steamID: user.steamID,
@@ -143,16 +129,6 @@ describe('AuthService', () => {
             });
 
             expect(decodedAccessToken.exp - decodedAccessToken.iat).toBe(2 * 60); // 2m
-        });
-
-        it('should throw an UnauthorizedException is the user does not exist in DB', async () => {
-            jest.spyOn(userRepo, 'get').mockResolvedValueOnce(undefined);
-            await expect(
-                service.loginGame({
-                    id: user.id,
-                    steamID: user.steamID
-                })
-            ).rejects.toThrow(UnauthorizedException);
         });
     });
 
@@ -168,9 +144,9 @@ describe('AuthService', () => {
         };
 
         it('should revoke a valid refresh token', async () => {
-            const token = jwtService.sign({ id: user.id });
+            const token = testJwtService.sign({ id: user.id });
 
-            jest.spyOn(userRepo, 'get').mockResolvedValueOnce(user);
+            userGetSpy.mockResolvedValueOnce(user);
             const upsertSpy = jest.spyOn(userRepo, 'upsertAuth').mockResolvedValueOnce(undefined);
 
             await service.revokeRefreshToken(token);
@@ -179,15 +155,16 @@ describe('AuthService', () => {
         });
 
         it('should throw an UnauthorizedException for an invalid token', async () => {
-            const token = jwtService.sign({ id: user.id }) + 'a';
+            const token = testJwtService.sign({ id: user.id }) + 'a';
 
             await expect(service.revokeRefreshToken(token)).rejects.toThrow(UnauthorizedException);
         });
 
         it('should throw an UnauthorizedException is the user does not exist in DB', async () => {
-            const token = jwtService.sign({ id: user.id });
+            const token = testJwtService.sign({ id: user.id });
 
-            jest.spyOn(userRepo, 'get').mockResolvedValueOnce(undefined);
+            userGetSpy.mockRestore();
+            userGetSpy.mockReturnValueOnce(undefined);
             await expect(service.revokeRefreshToken(token)).rejects.toThrow(UnauthorizedException);
         });
     });
@@ -204,9 +181,9 @@ describe('AuthService', () => {
         };
 
         it('should generate a web JWT DTO for a valid refresh token', async () => {
-            const token = jwtService.sign({ id: user.id });
+            const token = testJwtService.sign({ id: user.id });
 
-            jest.spyOn(userRepo, 'get').mockResolvedValueOnce(user);
+            userGetSpy.mockResolvedValueOnce(user);
             const upsertAuthSpy = jest.spyOn(userRepo, 'upsertAuth').mockResolvedValueOnce(undefined);
 
             const jwt = await service.refreshRefreshToken(token);
@@ -217,15 +194,15 @@ describe('AuthService', () => {
         });
 
         it('should throw an UnauthorizedException for an invalid token', async () => {
-            const token = jwtService.sign({ id: user.id, steamID: user.steamID }) + 'a';
+            const token = testJwtService.sign({ id: user.id, steamID: user.steamID }) + 'a';
 
             await expect(service.refreshRefreshToken(token)).rejects.toThrow(UnauthorizedException);
         });
 
         it('should throw an UnauthorizedException is the user does not exist in DB', async () => {
-            const token = jwtService.sign({ id: user.id, steamID: user.steamID });
+            const token = testJwtService.sign({ id: user.id, steamID: user.steamID });
 
-            jest.spyOn(userRepo, 'get').mockResolvedValueOnce(undefined);
+            userGetSpy.mockResolvedValueOnce(undefined);
             await expect(service.refreshRefreshToken(token)).rejects.toThrow(UnauthorizedException);
         });
     });

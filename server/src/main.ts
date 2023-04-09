@@ -25,22 +25,6 @@ async function bootstrap() {
     // Steam game auth sends a raw octet-stream, only use-case. Limit to 2kb
     app.useBodyParser('application/octet-stream', { bodyLimit: 2e3 });
 
-    // TODO: desciprtion of this garbage
-    app.getHttpAdapter()
-        .getInstance()
-        .addHook('onRequest', (request, reply, done) => {
-            reply.setHeader = function (key, value) {
-                return this.raw.setHeader(key, value);
-            };
-            reply.end = function () {
-                this.raw.end();
-            };
-            request.res = reply;
-            done();
-        });
-
-    app.register(fastifyCookie, { secret: configService.get('sessionSecret') });
-
     // Just for Swagger assets
     app.useStaticAssets({ root: join(__dirname, 'assets/') });
 
@@ -56,6 +40,8 @@ async function bootstrap() {
     // All routes (besides auth, which uses VERSION_NEUTRAL) are version 1 by default,
     // versions can be incremented on a per-route basis upon future versions
     app.enableVersioning({ type: VersioningType.URI, defaultVersion: '1', prefix: 'v' });
+
+    await app.register(fastifyCookie, { secret: configService.get('sessionSecret') });
 
     // Hooks to ensure Nest and Prisma both shut down cleanly on exit
     // https://docs.nestjs.com/recipes/prisma#issues-with-enableshutdownhooks

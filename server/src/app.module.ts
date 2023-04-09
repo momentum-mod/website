@@ -1,5 +1,5 @@
 import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
-import { APP_FILTER, APP_GUARD } from '@nestjs/core';
+import { APP_FILTER } from '@nestjs/core';
 import { ExceptionHandlerFilter } from './filters/exception-handler.filter';
 import { AuthModule } from '@modules/auth/auth.module';
 import { HTTPLoggerMiddleware } from './middlewares/http-logger.middleware';
@@ -17,7 +17,6 @@ import { XpSystemsModule } from '@modules/xp-systems/xp-systems.module';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { validate } from '@config/config.validation';
 import { ConfigFactory } from '@config/config';
-import { JwtAuthGuard } from '@modules/auth/guards/jwt-auth.guard';
 import { FastifyMulterModule } from '@nest-lab/fastify-multer';
 
 @Module({
@@ -57,10 +56,6 @@ import { FastifyMulterModule } from '@nest-lab/fastify-multer';
         {
             provide: APP_FILTER,
             useClass: ExceptionHandlerFilter
-        },
-        {
-            provide: APP_GUARD,
-            useClass: JwtAuthGuard
         }
     ]
 })

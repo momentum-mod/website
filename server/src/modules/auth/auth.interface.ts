@@ -1,6 +1,12 @@
 ﻿import { User } from '@prisma/client';
 import { JwtPayload } from 'jsonwebtoken';
 
+declare module 'fastify' {
+    interface FastifyRequest {
+        user: AuthenticatedUser;
+    }
+}
+
 export type AuthenticatedUser = Pick<User, 'id' | 'steamID'>;
 
 /**

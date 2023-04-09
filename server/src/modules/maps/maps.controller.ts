@@ -56,7 +56,7 @@ import { MapsCtlRunsGetAllQuery } from '@common/dto/query/run-queries.dto';
 import { RunDto } from '@common/dto/run/run.dto';
 import { RunsService } from '../runs/runs.service';
 import { MapImageDto } from '@common/dto/map/map-image.dto';
-import { RolesGuard } from '@modules/auth/guards/roles.guard';
+import { RolesGuard } from '@modules/auth/roles.guard';
 import { UserMapRankDto } from '@common/dto/run/user-map-rank.dto';
 import { ParseIntSafePipe } from '@common/pipes/parse-int-safe.pipe';
 import { FastifyReply } from 'fastify';
