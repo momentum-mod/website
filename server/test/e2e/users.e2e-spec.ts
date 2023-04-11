@@ -1,4 +1,4 @@
-﻿import { ActivityTypes } from '@common/enums/activity.enum';
+﻿import { ActivityType } from '@common/enums/activity.enum';
 import { MapCreditType } from '@common/enums/map.enum';
 import { UserDto } from '@common/dto/user/user.dto';
 import { ActivityDto } from '@common/dto/user/activity.dto';
@@ -241,9 +241,9 @@ describe('Users', () => {
             [user, token] = await db.createAndLoginUser();
             await prisma.activity.createMany({
                 data: [
-                    { data: 1n, type: ActivityTypes.ALL, userID: user.id },
-                    { data: 2n, type: ActivityTypes.ALL, userID: user.id },
-                    { data: 2n, type: ActivityTypes.MAP_UPLOADED, userID: user.id }
+                    { data: 1n, type: ActivityType.ALL, userID: user.id },
+                    { data: 2n, type: ActivityType.ALL, userID: user.id },
+                    { data: 2n, type: ActivityType.MAP_UPLOADED, userID: user.id }
                 ]
             });
         });
@@ -268,12 +268,12 @@ describe('Users', () => {
             const res = await req.get({
                 url: `users/${user.id}/activities`,
                 status: 200,
-                query: { type: ActivityTypes.MAP_UPLOADED },
+                query: { type: ActivityType.MAP_UPLOADED },
                 validatePaged: { type: ActivityDto, count: 1 },
                 token: token
             });
 
-            expect(res.body.response[0].type).toBe(ActivityTypes.MAP_UPLOADED);
+            expect(res.body.response[0].type).toBe(ActivityType.MAP_UPLOADED);
         });
 
         it('should respond with a filtered list of activities for the user when using the data query param', () =>
@@ -295,7 +295,7 @@ describe('Users', () => {
             }));
 
         it('should not include REPORT_FILED activities', async () => {
-            await prisma.activity.create({ data: { type: ActivityTypes.REPORT_FILED, data: 119n, userID: user.id } });
+            await prisma.activity.create({ data: { type: ActivityType.REPORT_FILED, data: 119n, userID: user.id } });
 
             const res = await req.get({
                 url: `users/${user.id}/activities`,
@@ -304,7 +304,7 @@ describe('Users', () => {
                 token: token
             });
 
-            for (const act of res.body.response) expect(act.type).not.toBe(ActivityTypes.REPORT_FILED);
+            for (const act of res.body.response) expect(act.type).not.toBe(ActivityType.REPORT_FILED);
         });
 
         it('should 401 when no access token is provided', () => req.unauthorizedTest('users/1/activities', 'get'));

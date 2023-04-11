@@ -8,7 +8,7 @@ import { PrismaClient } from '@prisma/client';
 import { faker } from '@faker-js/faker';
 import { ReportCategory, ReportType } from '@common/enums/report.enum';
 import { MapStatus, MapType, MapCreditType } from '@common/enums/map.enum';
-import { ActivityTypes } from '@common/enums/activity.enum';
+import { ActivityType } from '@common/enums/activity.enum';
 import { Random } from '@lib/random.lib';
 
 const prisma = new PrismaClient();
@@ -419,8 +419,8 @@ async function uploadMaps() {
                     const baseStats = await createRandomBaseStats();
                     await createRandomMapStats(map.id, baseStats.id);
 
-                    await createRandomActivity(map.submitterID, ActivityTypes.MAP_UPLOADED, map.id);
-                    await createRandomActivity(map.submitterID, ActivityTypes.MAP_APPROVED, map.id);
+                    await createRandomActivity(map.submitterID, ActivityType.MAP_UPLOADED, map.id);
+                    await createRandomActivity(map.submitterID, ActivityType.MAP_APPROVED, map.id);
 
                     return map.id;
                 }

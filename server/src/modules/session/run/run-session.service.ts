@@ -12,7 +12,7 @@ import { DtoFactory } from '@lib/dto.lib';
 import { RunValidationError } from '@common/enums/run.enum';
 import { BaseStatsFromGame, ProcessedRun, StatsUpdateReturn } from './run-session.interfaces';
 import { XpSystemsService } from '../../xp-systems/xp-systems.service';
-import { ActivityTypes } from '@common/enums/activity.enum';
+import { ActivityType } from '@common/enums/activity.enum';
 
 @Injectable()
 export class RunSessionService {
@@ -179,7 +179,7 @@ export class RunSessionService {
         if (statsUpdate.isWorldRecord) {
             await this.userRepo.createActivities([
                 {
-                    type: ActivityTypes.WR_ACHIEVED,
+                    type: ActivityType.WR_ACHIEVED,
                     userID: submittedRun.userID,
                     data: submittedRun.mapID
                 }
@@ -187,7 +187,7 @@ export class RunSessionService {
         } else if (statsUpdate.isPersonalBest) {
             await this.userRepo.createActivities([
                 {
-                    type: ActivityTypes.PB_ACHIEVED,
+                    type: ActivityType.PB_ACHIEVED,
                     userID: submittedRun.userID,
                     data: submittedRun.mapID
                 }

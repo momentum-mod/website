@@ -1,16 +1,16 @@
 import { Follow } from '@prisma/client';
 import { UserDto } from './user.dto';
 import { PickType } from '@nestjs/swagger';
-import { ActivityTypes } from '../../enums/activity.enum';
+import { ActivityType } from '../../enums/activity.enum';
 import { Exclude } from 'class-transformer';
 import { CreatedAtProperty, EnumProperty, NestedProperty, UpdatedAtProperty } from '@lib/dto.lib';
 
 export class FollowDto implements Follow {
-    @EnumProperty(ActivityTypes, {
+    @EnumProperty(ActivityType, {
         description:
             'The bitwise flags for the activities that the followee will be notified of when they are performed by the user they follow'
     })
-    notifyOn: ActivityTypes;
+    notifyOn: ActivityType;
 
     @Exclude()
     followedID: number;

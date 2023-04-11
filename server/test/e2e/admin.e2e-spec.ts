@@ -1,4 +1,4 @@
-import { ActivityTypes } from '@common/enums/activity.enum';
+import { ActivityType } from '@common/enums/activity.enum';
 import { ReportType, ReportCategory } from '@common/enums/report.enum';
 import { UserDto } from '@common/dto/user/user.dto';
 import { XpSystemsDto } from '@/common/dto/xp-systems/xp-systems.dto';
@@ -96,13 +96,13 @@ describe('Admin', () => {
                         {
                             followeeID: u2.id,
                             followedID: mu1.id,
-                            notifyOn: ActivityTypes.MAP_APPROVED,
+                            notifyOn: ActivityType.MAP_APPROVED,
                             createdAt: new Date('12/24/2021')
                         },
                         {
                             followeeID: u2.id,
                             followedID: mu2.id,
-                            notifyOn: ActivityTypes.MAP_UPLOADED,
+                            notifyOn: ActivityType.MAP_UPLOADED,
                             createdAt: new Date('12/25/2021')
                         },
                         { followeeID: mu2.id, followedID: mu1.id }
@@ -110,7 +110,7 @@ describe('Admin', () => {
                 });
 
                 await prisma.activity.create({
-                    data: { type: ActivityTypes.REPORT_FILED, userID: mu1.id, data: 1n }
+                    data: { type: ActivityType.REPORT_FILED, userID: mu1.id, data: 1n }
                 });
             });
 
@@ -135,7 +135,7 @@ describe('Admin', () => {
                 // U2 was following MU1 and MU2, the creation data should be earliest of the two and the notifyOn flags combined.
                 const u2Follow = await prisma.follow.findFirst({ where: { followeeID: u2.id, followedID: mu2.id } });
                 expect(new Date(u2Follow.createdAt)).toEqual(new Date('12/24/2021'));
-                expect(u2Follow.notifyOn).toBe(ActivityTypes.MAP_APPROVED | ActivityTypes.MAP_UPLOADED);
+                expect(u2Follow.notifyOn).toBe(ActivityType.MAP_APPROVED | ActivityType.MAP_UPLOADED);
 
                 // MU2 was following MU1, that should be deleted
                 const mu2Follows = await prisma.follow.findFirst({ where: { followeeID: mu2.id, followedID: mu1.id } });
@@ -144,7 +144,7 @@ describe('Admin', () => {
                 // MU1's activities should have been transferred to MU2
 
                 const mu2Activities = await prisma.activity.findFirst({ where: { userID: mu2.id } });
-                expect(mu2Activities.type).toBe(ActivityTypes.REPORT_FILED);
+                expect(mu2Activities.type).toBe(ActivityType.REPORT_FILED);
 
                 // Placeholder should have been deleted
                 const mu1DB = await prisma.user.findFirst({ where: { id: mu1.id } });
@@ -649,7 +649,7 @@ describe('Admin', () => {
                 });
 
                 const mapApprovedActvities = await prisma.activity.findMany({
-                    where: { type: ActivityTypes.MAP_APPROVED, data: m1.id }
+                    where: { type: ActivityType.MAP_APPROVED, data: m1.id }
                 });
 
                 expect(mapApprovedActvities.length).toBe(3);

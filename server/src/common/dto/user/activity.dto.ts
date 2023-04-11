@@ -1,5 +1,5 @@
 import { Activity } from '@prisma/client';
-import { ActivityTypes } from '../../enums/activity.enum';
+import { ActivityType } from '../../enums/activity.enum';
 import { IsPositive } from 'class-validator';
 import { UserDto } from './user.dto';
 import {
@@ -22,8 +22,8 @@ export class ActivityDto implements PrismaModelToDto<Activity> {
     @NestedProperty(UserDto, { description: 'The ID of the user the activity is associated with' })
     user: UserDto;
 
-    @EnumProperty(ActivityTypes)
-    type: ActivityTypes;
+    @EnumProperty(ActivityType)
+    type: ActivityType;
 
     // TODO: I kind of hate this approach, could we do individual DTOs for each using generics?
     @IdProperty({ bigint: true, description: 'ID of into the table of the relevant activity type e.g. Map, Run, User' })

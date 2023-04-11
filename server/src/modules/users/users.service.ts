@@ -15,7 +15,7 @@ import { UsersRepoService } from '../repo/users-repo.service';
 import { ActivityDto } from '@common/dto/user/activity.dto';
 import { FollowDto, FollowStatusDto, UpdateFollowStatusDto } from '@common/dto/user/follow.dto';
 import { MapCreditDto } from '@common/dto/map/map-credit.dto';
-import { ActivityTypes } from '@common/enums/activity.enum';
+import { ActivityType } from '@common/enums/activity.enum';
 import { DtoFactory, ExpandToPrismaIncludes } from '@lib/dto.lib';
 import { MapNotifyDto, UpdateMapNotifyDto } from '@common/dto/map/map-notify.dto';
 import { MapsRepoService } from '../repo/maps-repo.service';
@@ -232,12 +232,12 @@ export class UsersService {
         userID: number,
         skip?: number,
         take?: number,
-        type?: ActivityTypes,
+        type?: ActivityType,
         data?: number
     ): Promise<PaginatedResponseDto<ActivityDto>> {
         const where: Prisma.ActivityWhereInput = {
             userID: userID,
-            AND: [{ type: type }, { type: { not: ActivityTypes.REPORT_FILED } }],
+            AND: [{ type: type }, { type: { not: ActivityType.REPORT_FILED } }],
             data: data
         };
 
@@ -250,7 +250,7 @@ export class UsersService {
         userID: number,
         skip?: number,
         take?: number,
-        type?: ActivityTypes,
+        type?: ActivityType,
         data?: number
     ): Promise<PaginatedResponseDto<ActivityDto>> {
         const follows = await this.userRepo.getFollowing(userID);
