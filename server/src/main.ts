@@ -56,9 +56,9 @@ async function bootstrap() {
         .setVersion('1.0')
         .build();
     const swaggerDocument = SwaggerModule.createDocument(app, swaggerConfig);
-    await SwaggerModule.setup('api-docs', app, swaggerDocument, {
+    SwaggerModule.setup('api-docs', app, swaggerDocument, {
         customSiteTitle: 'Momentum Mod API Docs',
-        customfavIcon: '../favicon.ico',
+        customfavIcon: 'https://momentum-mod.org/favicon.ico',
         swaggerOptions: {
             persistAuthorization: true
         }
