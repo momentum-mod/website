@@ -13,7 +13,7 @@ export interface Replay {
         mapName: string;
         mapHash: string;
         playerName: string;
-        steamID: string;
+        steamID: bigint;
         tickRate: number;
         runFlags: number;
         runDate: string;

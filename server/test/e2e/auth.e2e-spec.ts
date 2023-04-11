@@ -39,7 +39,7 @@ describe('Auth', () => {
 
     describe('auth/steam/return', () => {
         describe('GET', () => {
-            const steamID = '123';
+            const steamID = 123n;
             const steamData = {
                 profilestate: 1,
                 steamid: steamID,
@@ -106,7 +106,7 @@ describe('Auth', () => {
                 it('should create a new user', async () => {
                     const userDB = await prisma.user.findFirst();
                     expect(userDB).toMatchObject({
-                        steamID: steamID,
+                        steamID: BigInt(steamID),
                         alias: steamData.personaname,
                         avatar: steamData.avatarhash,
                         country: steamData.loccountrycode
@@ -125,7 +125,7 @@ describe('Auth', () => {
                     const decodedAccessToken = testJwtService.decode(cookies.accessToken);
                     expect(decodedAccessToken).toMatchObject({
                         id: userDB.id,
-                        steamID: userDB.steamID,
+                        steamID: userDB.steamID.toString(),
                         gameAuth: false
                     });
 
@@ -154,7 +154,7 @@ describe('Auth', () => {
                     const updatedUser = await prisma.user.findFirst();
                     expect(updatedUser).toMatchObject({
                         id: user.id,
-                        steamID: steamID,
+                        steamID: BigInt(steamID),
                         alias: steamData.personaname,
                         avatar: steamData.avatarhash,
                         country: steamData.loccountrycode
@@ -173,7 +173,7 @@ describe('Auth', () => {
                     const decodedAccessToken = testJwtService.decode(cookies.accessToken);
                     expect(decodedAccessToken).toMatchObject({
                         id: userDB.id,
-                        steamID: userDB.steamID,
+                        steamID: userDB.steamID.toString(),
                         gameAuth: false
                     });
 
@@ -247,7 +247,7 @@ describe('Auth', () => {
             afterAll(() => jest.resetAllMocks());
 
             it('should create a new user and respond with a game JWT', async () => {
-                const userSteamID = '1';
+                const userSteamID = 1n;
                 const userSteamSummary = {
                     steamid: userSteamID,
                     personaname: 'Dogathan',
@@ -262,7 +262,11 @@ describe('Auth', () => {
                     method: 'post',
                     url: '/auth/steam/user',
                     payload: Buffer.alloc(10),
-                    headers: { 'content-type': 'application/octet-stream', id: userSteamID, 'user-agent': userAgent }
+                    headers: {
+                        'content-type': 'application/octet-stream',
+                        id: userSteamID.toString(),
+                        'user-agent': userAgent
+                    }
                 });
 
                 expect(res.statusCode).toBe(201);
@@ -270,7 +274,7 @@ describe('Auth', () => {
                 expect(body).toBeValidDto(JWTResponseGameDto);
 
                 const decrypted = testJwtService.decode(body.token) as Record<string, any>;
-                expect(decrypted.steamID).toBe(userSteamID);
+                expect(decrypted.steamID).toBe(userSteamID.toString());
                 expect(decrypted.exp - decrypted.iat).toBe(60);
 
                 const userDB = await prisma.user.findFirst();
@@ -283,7 +287,7 @@ describe('Auth', () => {
             });
 
             it('should find an existing user and respond with a game JWT', async () => {
-                const userDB = await prisma.user.create({ data: { steamID: '1', alias: 'Dogathan', country: 'QA' } });
+                const userDB = await prisma.user.create({ data: { steamID: 1, alias: 'Dogathan', country: 'QA' } });
                 const userSteamSummary = {
                     steamid: userDB.steamID,
                     personaname: 'Manathan',
@@ -298,7 +302,11 @@ describe('Auth', () => {
                     method: 'post',
                     url: '/auth/steam/user',
                     payload: Buffer.alloc(10),
-                    headers: { 'content-type': 'application/octet-stream', id: userDB.steamID, 'user-agent': userAgent }
+                    headers: {
+                        'content-type': 'application/octet-stream',
+                        id: userDB.steamID.toString(),
+                        'user-agent': userAgent
+                    }
                 });
 
                 expect(res.statusCode).toBe(201);
@@ -306,7 +314,7 @@ describe('Auth', () => {
                 expect(body).toBeValidDto(JWTResponseGameDto);
 
                 const decrypted = testJwtService.decode(body.token) as Record<string, any>;
-                expect(decrypted.steamID).toBe(userDB.steamID);
+                expect(decrypted.steamID).toBe(userDB.steamID.toString());
 
                 expect(decrypted.exp - decrypted.iat).toBe(60);
 
@@ -367,7 +375,7 @@ describe('Auth', () => {
             });
 
             it("should 401 when Steam returns a SteamID that doesn't match the ID in the header", async () => {
-                jest.spyOn(steamService, 'tryAuthenticateUserTicketOnline').mockResolvedValueOnce('2');
+                jest.spyOn(steamService, 'tryAuthenticateUserTicketOnline').mockResolvedValueOnce(2n);
 
                 const res = await app.inject({
                     method: 'post',
@@ -399,7 +407,7 @@ describe('Auth', () => {
             afterAll(() => jest.resetAllMocks());
 
             it('should create a new user and respond with a game JWT', async () => {
-                const userSteamID = '1';
+                const userSteamID = 1n;
                 const userSteamSummary = {
                     steamid: userSteamID,
                     personaname: 'Dogathan',
@@ -417,7 +425,11 @@ describe('Auth', () => {
                     method: 'post',
                     url: '/auth/steam/user',
                     payload: Buffer.alloc(10),
-                    headers: { 'content-type': 'application/octet-stream', id: userSteamID, 'user-agent': userAgent }
+                    headers: {
+                        'content-type': 'application/octet-stream',
+                        id: userSteamID.toString(),
+                        'user-agent': userAgent
+                    }
                 });
 
                 expect(res.statusCode).toBe(201);
@@ -425,7 +437,7 @@ describe('Auth', () => {
                 expect(body).toBeValidDto(JWTResponseGameDto);
 
                 const decrypted = testJwtService.decode(body.token) as Record<string, any>;
-                expect(decrypted.steamID).toBe(userSteamID);
+                expect(decrypted.steamID).toBe(userSteamID.toString());
                 expect(decrypted.exp - decrypted.iat).toBe(60);
 
                 const userDB = await prisma.user.findFirst();
@@ -438,7 +450,7 @@ describe('Auth', () => {
             });
 
             it('should find an existing user and respond with a game JWT', async () => {
-                const userDB = await prisma.user.create({ data: { steamID: '1', alias: 'Dogathan', country: 'QA' } });
+                const userDB = await prisma.user.create({ data: { steamID: 1, alias: 'Dogathan', country: 'QA' } });
                 const userSteamSummary = {
                     steamid: userDB.steamID,
                     personaname: 'The PriceMaster',
@@ -456,7 +468,11 @@ describe('Auth', () => {
                     method: 'post',
                     url: '/auth/steam/user',
                     payload: Buffer.alloc(10),
-                    headers: { 'content-type': 'application/octet-stream', id: userDB.steamID, 'user-agent': userAgent }
+                    headers: {
+                        'content-type': 'application/octet-stream',
+                        id: userDB.steamID.toString(),
+                        'user-agent': userAgent
+                    }
                 });
 
                 expect(res.statusCode).toBe(201);
@@ -464,7 +480,7 @@ describe('Auth', () => {
                 expect(body).toBeValidDto(JWTResponseGameDto);
 
                 const decrypted = testJwtService.decode(body.token) as Record<string, any>;
-                expect(decrypted.steamID).toBe(userDB.steamID);
+                expect(decrypted.steamID).toBe(userDB.steamID.toString());
 
                 expect(decrypted.exp - decrypted.iat).toBe(60);
 
@@ -525,7 +541,7 @@ describe('Auth', () => {
             });
 
             it("should 401 when Steam returns a SteamID that doesn't match the ID in the header", async () => {
-                jest.spyOn(steamService, 'tryAuthenticateUserTicketOnline').mockResolvedValueOnce('2');
+                jest.spyOn(steamService, 'tryAuthenticateUserTicketOnline').mockResolvedValueOnce(2n);
 
                 const res = await app.inject({
                     method: 'post',
@@ -560,7 +576,7 @@ describe('Auth', () => {
 
             expect(testJwtService.decode(res.body.accessToken) as Record<string, any>).toMatchObject({
                 id: user.id,
-                steamID: user.steamID
+                steamID: user.steamID.toString()
             });
 
             expect(testJwtService.decode(res.body.refreshToken) as Record<string, any>).toMatchObject({

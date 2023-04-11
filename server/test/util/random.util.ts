@@ -5,8 +5,8 @@ export function randomString(length = 12): string {
     return faker.random.alphaNumeric(length);
 }
 
-export function randomSteamID(): string {
-    return faker.random.numeric(19);
+export function randomSteamID(): bigint {
+    return BigInt(faker.random.numeric(18));
 }
 
 export function randomYoutubeID(): string {

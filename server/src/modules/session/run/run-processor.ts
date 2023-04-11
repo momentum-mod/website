@@ -19,7 +19,7 @@ export class RunProcessor {
     track: MapTrack;
     map: MapDB;
     userID: number;
-    steamID: string;
+    steamID: bigint;
     zoneNum: number;
     trackNum: number;
     startTime: number;

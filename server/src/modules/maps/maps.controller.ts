@@ -650,7 +650,7 @@ export class MapsController {
     @ApiOkResponse({ description: "The ranks of the user's steam friends" })
     @ApiResponse({ status: 418, description: 'The user has no friends' })
     getRanksFriends(
-        @LoggedInUser('steamID') steamID: string,
+        @LoggedInUser('steamID') steamID: bigint,
         @Param('mapID') mapID: number,
         @Query() query?: MapRankGetNumberQuery
     ): Promise<UserMapRankDto[]> {

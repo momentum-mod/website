@@ -19,7 +19,7 @@ export class ReplayFileWriter {
         this.writeString(replay.header.mapName);
         this.writeString(replay.header.mapHash);
         this.writeString(replay.header.playerName);
-        this.writeString(replay.header.steamID);
+        this.writeString(replay.header.steamID.toString());
         this.writeFloat(replay.header.tickRate);
         this.writeInt32(replay.header.runFlags);
         this.writeString(replay.header.runDate);

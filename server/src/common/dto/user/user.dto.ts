@@ -22,7 +22,7 @@ export class UserDto implements User {
     })
     @IsOptional() // Placeholder don't have SteamIDs
     @IsSteamCommunityID()
-    steamID: string;
+    steamID: bigint;
 
     @ApiProperty({
         type: String,

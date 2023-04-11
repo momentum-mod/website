@@ -63,7 +63,7 @@ export class JwtAuthService {
         return tokenDto;
     }
 
-    private async generateWebTokenPair(id: number, steamID: string): Promise<JWTResponseWebDto> {
+    private async generateWebTokenPair(id: number, steamID: bigint): Promise<JWTResponseWebDto> {
         const [accessToken, refreshToken] = await Promise.all([
             this.generateAccessToken({ id, steamID: steamID, gameAuth: false }),
             this.generateRefreshToken({ id })

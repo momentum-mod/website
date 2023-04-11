@@ -17,8 +17,7 @@ datasource db {
 model User {
     id Int @id @default(autoincrement())
 
-    // TODO: Auth service does a find based on Steam ID, we should DEFINITELY be indexing this.
-    steamID String? @unique(map: "user_steamID") @db.VarChar(20) // Optional because placeholders don't have SteamIDs
+    steamID BigInt? @unique(map: "user_steamID") @db.BigInt // Optional because placeholders don't have SteamIDs
     alias   String  @db.VarChar(64)
     avatar  String? @db.VarChar(255)
     country String? @db.VarChar(2)
@@ -48,6 +47,8 @@ model User {
 
     createdAt DateTime @default(now())
     updatedAt DateTime @updatedAt
+
+    @@index([steamID])
 }
 
 model Bans {

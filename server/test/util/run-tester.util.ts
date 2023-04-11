@@ -13,7 +13,7 @@ export interface RunTesterProps {
     mapID: number;
     mapName: string;
     mapHash: string;
-    steamID: string;
+    steamID: bigint;
     playerName: string;
     tickRate: number;
     runFlags: number;

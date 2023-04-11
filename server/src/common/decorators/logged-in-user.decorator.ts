@@ -5,5 +5,9 @@
 // request. So this will be a UserJwtAccessPayloadVerified, i.e. id, steamID, and gameAuth, plus token stuff.
 export const LoggedInUser = createParamDecorator((data: string | undefined, context: ExecutionContext) => {
     const request = context.switchToHttp().getRequest();
-    return data ? request.user[data] : request.user;
+    return data
+        ? data === 'steamID'
+            ? BigInt(request.user[data])
+            : request.user[data]
+        : { ...request.user, steamID: BigInt(request.user.steamID) };
 });

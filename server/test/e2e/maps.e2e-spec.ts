@@ -2291,7 +2291,7 @@ describe('Maps', () => {
 
     describe('maps/{mapID}/ranks/friends', () => {
         describe('GET', () => {
-            const mockSteamIDs = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10'] as const;
+            const mockSteamIDs = [1n, 2n, 3n, 4n, 5n, 6n, 7n, 8n, 9n, 10n] as const;
             let map, user, token, steamService: SteamService;
 
             beforeAll(async () => {
@@ -2304,12 +2304,7 @@ describe('Maps', () => {
                 // Make our user rank 1, friends have subsequent ranks 2-11.
                 await Promise.all([
                     friends.map((user, i) =>
-                        db.createRunAndUmrForMap({
-                            map: map,
-                            user: user,
-                            rank: i + 2,
-                            ticks: (i + 2) * 100
-                        })
+                        db.createRunAndUmrForMap({ map: map, user: user, rank: i + 2, ticks: (i + 2) * 100 })
                     ),
                     db.createRunAndUmrForMap({ user: user, map: map, ticks: 1, rank: 1 })
                 ]);
@@ -2319,7 +2314,7 @@ describe('Maps', () => {
                 // Obviously our test users aren't real Steam users, so we can't use their API. So just mock the API call.
                 jest.spyOn(steamService, 'getSteamFriends').mockResolvedValueOnce(
                     mockSteamIDs.map((id) => ({
-                        steamid: id,
+                        steamid: id.toString(),
                         relationship: 'friend',
                         friend_since: 0
                     }))
@@ -2332,7 +2327,7 @@ describe('Maps', () => {
                     validateArray: { type: UserMapRankDto, length: 10 }
                 });
 
-                for (const umr of res.body) expect(mockSteamIDs).toContain(umr.user.steamID);
+                for (const umr of res.body) expect(mockSteamIDs).toContain(BigInt(umr.user.steamID));
             });
 
             it('should 418 if the user has no Steam friends', async () => {

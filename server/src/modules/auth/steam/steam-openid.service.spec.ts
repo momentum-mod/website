@@ -82,7 +82,7 @@ describe('SteamOpenIDService', () => {
                     query: { 'openid.op_endpoint': 'https://steamcommunity.com/openid/login' }
                 } as any)
             ).toBe('cabbage');
-            expect(getSteamUserSummaryDataSpy).toHaveBeenCalledWith('123');
+            expect(getSteamUserSummaryDataSpy).toHaveBeenCalledWith(123n);
         });
 
         // Note this isn't testing the core part of the security; the real security comes from verifyAssertion, which we're mocking.
