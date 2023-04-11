@@ -17,7 +17,7 @@ import { MapCreditType, MapStatus } from '@common/enums/map.enum';
 import { FileStoreCloudService } from '../filestore/file-store-cloud.service';
 import { DtoFactory, ExpandToPrismaIncludes } from '@lib/dto.lib';
 import { UsersRepoService } from '../repo/users-repo.service';
-import { ActivityTypes } from '@common/enums/activity.enum';
+import { ActivityType } from '@common/enums/activity.enum';
 import { CreateMapCreditDto, MapCreditDto, UpdateMapCreditDto } from '@common/dto/map/map-credit.dto';
 import { MapInfoDto, UpdateMapInfoDto } from '@common/dto/map/map-info.dto';
 import { MapTrackDto } from '@common/dto/map/map-track.dto';
@@ -256,7 +256,7 @@ export class MapsService {
                 .filter((credit) => credit.type === MapCreditType.AUTHOR)
                 .map((credit): Prisma.ActivityCreateManyInput => {
                     return {
-                        type: ActivityTypes.MAP_UPLOADED,
+                        type: ActivityType.MAP_UPLOADED,
                         userID: credit.userID,
                         data: mapDB.id
                     };
@@ -294,7 +294,7 @@ export class MapsService {
             return this.userRepo.createActivities(
                 allCredits.map(
                     (credit): Prisma.ActivityCreateManyInput => ({
-                        type: ActivityTypes.MAP_APPROVED,
+                        type: ActivityType.MAP_APPROVED,
                         userID: credit.userID,
                         data: mapID
                     })
@@ -890,7 +890,7 @@ export class MapsService {
     private async updateMapCreditActivities(newCredit?: MapCredit, oldCredit?: MapCredit): Promise<void> {
         const deleteOldActivity = () =>
             this.userRepo.deleteActivities({
-                type: ActivityTypes.MAP_UPLOADED,
+                type: ActivityType.MAP_UPLOADED,
                 data: oldCredit.mapID,
                 userID: oldCredit.userID
             });
@@ -898,7 +898,7 @@ export class MapsService {
         const createNewActivity = () =>
             this.userRepo.createActivities([
                 {
-                    type: ActivityTypes.MAP_UPLOADED,
+                    type: ActivityType.MAP_UPLOADED,
                     data: newCredit.mapID,
                     userID: newCredit.userID
                 }

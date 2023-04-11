@@ -7,7 +7,7 @@ import { RunDto } from '@common/dto/run/run.dto';
 import { RunValidationErrorType } from '@common/enums/run.enum';
 import { UserMapRankDto } from '@common/dto/run/user-map-rank.dto';
 import { randomHash, randomSteamID } from '@test/util/random.util';
-import { ActivityTypes } from '@common/enums/activity.enum';
+import { ActivityType } from '@common/enums/activity.enum';
 import { PrismaService } from '@modules/repo/prisma.service';
 import { RequestUtil } from '@test/util/request.util';
 import { DbUtil, NULL_ID } from '@test/util/db.util';
@@ -545,7 +545,7 @@ describe('Session', () => {
                     await submitRun();
 
                     const numPBs = await prisma.activity.count({
-                        where: { userID: user.id, type: ActivityTypes.PB_ACHIEVED, data: map.id }
+                        where: { userID: user.id, type: ActivityType.PB_ACHIEVED, data: map.id }
                     });
 
                     expect(numPBs).toBe(1);
@@ -557,7 +557,7 @@ describe('Session', () => {
                     await submitRun();
 
                     const numWRs = await prisma.activity.count({
-                        where: { userID: user.id, type: ActivityTypes.WR_ACHIEVED, data: map.id }
+                        where: { userID: user.id, type: ActivityType.WR_ACHIEVED, data: map.id }
                     });
 
                     expect(numWRs).toBe(1);

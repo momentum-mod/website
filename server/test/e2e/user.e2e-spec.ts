@@ -1,5 +1,5 @@
 ﻿import { PrismaService } from '@modules/repo/prisma.service';
-import { ActivityTypes } from '@common/enums/activity.enum';
+import { ActivityType } from '@common/enums/activity.enum';
 import { UserDto } from '@common/dto/user/user.dto';
 import { ProfileDto } from '@common/dto/user/profile.dto';
 import { FollowStatusDto } from '@common/dto/user/follow.dto';
@@ -303,12 +303,12 @@ describe('User', () => {
                 await req.patch({
                     url: `user/follow/${u2.id}`,
                     status: 204,
-                    body: { notifyOn: ActivityTypes.REVIEW_MADE },
+                    body: { notifyOn: ActivityType.REVIEW_MADE },
                     token: u1Token
                 });
 
                 follow = await prisma.follow.findFirst({ where: { followeeID: u1.id } });
-                expect(follow.notifyOn).toBe(ActivityTypes.REVIEW_MADE);
+                expect(follow.notifyOn).toBe(ActivityType.REVIEW_MADE);
             });
 
             it('should 400 if the body is invalid', () =>
@@ -318,7 +318,7 @@ describe('User', () => {
                 req.patch({
                     url: `user/follow/${NULL_ID}`,
                     status: 404,
-                    body: { notifyOn: ActivityTypes.REVIEW_MADE },
+                    body: { notifyOn: ActivityType.REVIEW_MADE },
                     token: u1Token
                 }));
 
@@ -370,7 +370,7 @@ describe('User', () => {
             afterAll(() => db.cleanup('user', 'map'));
 
             it('should return a MapNotify DTO for a given user and map', async () => {
-                const activityType = ActivityTypes.WR_ACHIEVED;
+                const activityType = ActivityType.WR_ACHIEVED;
                 await prisma.mapNotify.create({ data: { userID: user.id, mapID: map.id, notifyOn: activityType } });
 
                 const res = await req.get({
@@ -405,10 +405,10 @@ describe('User', () => {
 
             it('should update map notification status with existing notifications', async () => {
                 await prisma.mapNotify.create({
-                    data: { userID: user.id, mapID: map.id, notifyOn: ActivityTypes.WR_ACHIEVED }
+                    data: { userID: user.id, mapID: map.id, notifyOn: ActivityType.WR_ACHIEVED }
                 });
 
-                const newActivityType = ActivityTypes.PB_ACHIEVED;
+                const newActivityType = ActivityType.PB_ACHIEVED;
                 await req.put({
                     url: `user/notifyMap/${map.id}`,
                     status: 204,
@@ -423,7 +423,7 @@ describe('User', () => {
             });
 
             it('should create new map notification status if no existing notifications', async () => {
-                const activityType = ActivityTypes.REVIEW_MADE;
+                const activityType = ActivityType.REVIEW_MADE;
                 await req.put({
                     url: `user/notifyMap/${map.id}`,
                     status: 204,
@@ -450,7 +450,7 @@ describe('User', () => {
                 req.put({
                     url: `user/notifyMap/${NULL_ID}`,
                     status: 404,
-                    body: { notifyOn: ActivityTypes.PB_ACHIEVED },
+                    body: { notifyOn: ActivityType.PB_ACHIEVED },
                     token: token
                 }));
 
@@ -468,7 +468,7 @@ describe('User', () => {
 
             it('should remove the user from map notifications list', async () => {
                 await prisma.mapNotify.create({
-                    data: { userID: user.id, mapID: map.id, notifyOn: ActivityTypes.REVIEW_MADE }
+                    data: { userID: user.id, mapID: map.id, notifyOn: ActivityType.REVIEW_MADE }
                 });
 
                 await req.del({ url: `user/notifyMap/${map.id}`, status: 204, token: token });
@@ -495,9 +495,9 @@ describe('User', () => {
                 [user, token] = await db.createAndLoginUser();
                 await prisma.activity.createMany({
                     data: [
-                        { userID: user.id, data: 1n, type: ActivityTypes.ALL },
-                        { userID: user.id, data: 2n, type: ActivityTypes.ALL },
-                        { userID: user.id, data: 2n, type: ActivityTypes.MAP_UPLOADED }
+                        { userID: user.id, data: 1n, type: ActivityType.ALL },
+                        { userID: user.id, data: 2n, type: ActivityType.ALL },
+                        { userID: user.id, data: 2n, type: ActivityType.MAP_UPLOADED }
                     ]
                 });
             });
@@ -528,14 +528,14 @@ describe('User', () => {
                     url: 'user/activities',
                     status: 200,
                     validatePaged: ActivityDto,
-                    query: { type: ActivityTypes.MAP_UPLOADED },
+                    query: { type: ActivityType.MAP_UPLOADED },
                     token: token
                 });
 
                 expect(res.body).toMatchObject({
                     totalCount: 1,
                     returnCount: 1,
-                    response: [{ type: ActivityTypes.MAP_UPLOADED }]
+                    response: [{ type: ActivityType.MAP_UPLOADED }]
                 });
             });
 
@@ -576,8 +576,8 @@ describe('User', () => {
                 await prisma.follow.create({ data: { followeeID: u1.id, followedID: u2.id } });
                 await prisma.activity.createMany({
                     data: [
-                        { userID: u2.id, data: 1n, type: ActivityTypes.WR_ACHIEVED },
-                        { userID: u2.id, data: 2n, type: ActivityTypes.REVIEW_MADE }
+                        { userID: u2.id, data: 1n, type: ActivityType.WR_ACHIEVED },
+                        { userID: u2.id, data: 2n, type: ActivityType.REVIEW_MADE }
                     ]
                 });
             });
@@ -609,7 +609,7 @@ describe('User', () => {
                 const res = await req.get({
                     url: 'user/activities/followed',
                     status: 200,
-                    query: { type: ActivityTypes.WR_ACHIEVED },
+                    query: { type: ActivityType.WR_ACHIEVED },
                     validatePaged: ActivityDto,
                     token: u1Token
                 });
@@ -617,7 +617,7 @@ describe('User', () => {
                 expect(res.body).toMatchObject({
                     totalCount: 1,
                     returnCount: 1,
-                    response: [{ userID: u2.id, type: ActivityTypes.WR_ACHIEVED, data: 1 }]
+                    response: [{ userID: u2.id, type: ActivityType.WR_ACHIEVED, data: 1 }]
                 });
             });
 
@@ -633,7 +633,7 @@ describe('User', () => {
                 expect(res.body).toMatchObject({
                     totalCount: 1,
                     returnCount: 1,
-                    response: [{ userID: u2.id, data: 2, type: ActivityTypes.REVIEW_MADE }]
+                    response: [{ userID: u2.id, data: 2, type: ActivityType.REVIEW_MADE }]
                 });
             });
 
@@ -1057,8 +1057,8 @@ describe('User', () => {
                 [user, token] = await db.createAndLoginUser();
 
                 activities = await Promise.all([
-                    prisma.activity.create({ data: { data: 1n, type: ActivityTypes.ALL, userID: user.id } }),
-                    prisma.activity.create({ data: { data: 2n, type: ActivityTypes.ALL, userID: user.id } })
+                    prisma.activity.create({ data: { data: 1n, type: ActivityType.ALL, userID: user.id } }),
+                    prisma.activity.create({ data: { data: 2n, type: ActivityType.ALL, userID: user.id } })
                 ]);
 
                 await prisma.notification.create({
@@ -1100,7 +1100,7 @@ describe('User', () => {
                 [user, token] = await db.createAndLoginUser();
 
                 const activity = await prisma.activity.create({
-                    data: { data: 1n, type: ActivityTypes.ALL, userID: user.id }
+                    data: { data: 1n, type: ActivityType.ALL, userID: user.id }
                 });
 
                 notification = await prisma.notification.create({
@@ -1144,7 +1144,7 @@ describe('User', () => {
                 [user, token] = await db.createAndLoginUser();
 
                 const activity = await prisma.activity.create({
-                    data: { data: 1n, type: ActivityTypes.ALL, userID: user.id }
+                    data: { data: 1n, type: ActivityType.ALL, userID: user.id }
                 });
 
                 notification = await prisma.notification.create({

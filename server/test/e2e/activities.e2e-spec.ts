@@ -1,4 +1,4 @@
-import { ActivityTypes } from '@common/enums/activity.enum';
+import { ActivityType } from '@common/enums/activity.enum';
 import { PrismaService } from '@modules/repo/prisma.service';
 import { ActivityDto } from '@common/dto/user/activity.dto';
 import { RequestUtil } from '@test/util/request.util';
@@ -33,16 +33,16 @@ describe('Activities', () => {
 
                 // Define these BEFORE insert for later checks, Prisma doesn't give us back our fookin created items.
                 [_activity1, _activity2, activity3] = [
-                    { userID: u1.id, data: 122, type: ActivityTypes.MAP_APPROVED },
-                    { userID: u1.id, data: 123, type: ActivityTypes.WR_ACHIEVED },
-                    { userID: u2.id, data: 124, type: ActivityTypes.REVIEW_MADE }
+                    { userID: u1.id, data: 122, type: ActivityType.MAP_APPROVED },
+                    { userID: u1.id, data: 123, type: ActivityType.WR_ACHIEVED },
+                    { userID: u2.id, data: 124, type: ActivityType.REVIEW_MADE }
                 ];
 
                 await prisma.activity.createMany({
                     data: [
-                        { userID: u1.id, data: 122, type: ActivityTypes.MAP_APPROVED },
-                        { userID: u1.id, data: 123, type: ActivityTypes.WR_ACHIEVED },
-                        { userID: u2.id, data: 124, type: ActivityTypes.REVIEW_MADE }
+                        { userID: u1.id, data: 122, type: ActivityType.MAP_APPROVED },
+                        { userID: u1.id, data: 123, type: ActivityType.WR_ACHIEVED },
+                        { userID: u2.id, data: 124, type: ActivityType.REVIEW_MADE }
                     ]
                 });
             });
@@ -58,12 +58,12 @@ describe('Activities', () => {
                 });
 
                 expect(res.body.response.find((data) => data.userID === u1.id && data.data === 122).type).toBe(
-                    ActivityTypes.MAP_APPROVED
+                    ActivityType.MAP_APPROVED
                 );
                 expect(res.body.response.find((data) => data.userID === u1.id && data.data === 123).type).toBe(
-                    ActivityTypes.WR_ACHIEVED
+                    ActivityType.WR_ACHIEVED
                 );
-                expect(res.body.response.find((data) => data.userID === u2.id).type).toBe(ActivityTypes.REVIEW_MADE);
+                expect(res.body.response.find((data) => data.userID === u2.id).type).toBe(ActivityType.REVIEW_MADE);
             });
 
             it('should respond with array of activities with userID parameter', async () => {
@@ -96,7 +96,7 @@ describe('Activities', () => {
                 const res = await req.get({
                     url: 'activities',
                     status: 200,
-                    query: { type: ActivityTypes.MAP_APPROVED },
+                    query: { type: ActivityType.MAP_APPROVED },
                     token: u1Token,
                     validatePaged: { type: ActivityDto, count: 1 }
                 });
@@ -109,7 +109,7 @@ describe('Activities', () => {
                 const res = await req.get({
                     url: 'activities',
                     status: 200,
-                    query: { type: ActivityTypes.ALL },
+                    query: { type: ActivityType.ALL },
                     token: u1Token,
                     validatePaged: { type: ActivityDto, count: 3 }
                 });

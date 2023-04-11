@@ -5,7 +5,7 @@ import { MapInfoDto } from '@common/dto/map/map-info.dto';
 import { MapCreditDto } from '@common/dto/map/map-credit.dto';
 import { RunDto } from '@common/dto/run/run.dto';
 import { UserMapRankDto } from '@common/dto/run/user-map-rank.dto';
-import { ActivityTypes } from '@common/enums/activity.enum';
+import { ActivityType } from '@common/enums/activity.enum';
 import axios from 'axios';
 import { UserDto } from '@common/dto/user/user.dto';
 import { MapTrackDto } from '@common/dto/map/map-track.dto';
@@ -372,7 +372,7 @@ describe('Maps', () => {
                 it('should create map uploaded activities for the map authors', async () => {
                     const activity = await prisma.activity.findFirst();
 
-                    expect(activity.type).toBe(ActivityTypes.MAP_UPLOADED);
+                    expect(activity.type).toBe(ActivityType.MAP_UPLOADED);
                     expect(activity.data).toBe(BigInt(createdMap.id));
                 });
 
@@ -790,7 +790,7 @@ describe('Maps', () => {
                 const activities = await prisma.activity.findFirst();
 
                 expect(activities).toMatchObject({
-                    type: ActivityTypes.MAP_APPROVED,
+                    type: ActivityType.MAP_APPROVED,
                     userID: user.id,
                     data: BigInt(map.id)
                 });
@@ -1046,7 +1046,7 @@ describe('Maps', () => {
                 expect(activity).toMatchObject({
                     data: BigInt(map.id),
                     userID: u2.id,
-                    type: ActivityTypes.MAP_UPLOADED
+                    type: ActivityType.MAP_UPLOADED
                 });
             });
 
@@ -1275,7 +1275,7 @@ describe('Maps', () => {
                 await prisma.activity.deleteMany();
 
                 await prisma.activity.create({
-                    data: { type: ActivityTypes.MAP_UPLOADED, userID: u1.id, data: map.id }
+                    data: { type: ActivityType.MAP_UPLOADED, userID: u1.id, data: map.id }
                 });
 
                 await req.patch({
@@ -1286,20 +1286,20 @@ describe('Maps', () => {
                 });
 
                 const originalActivity = await prisma.activity.findFirst({
-                    where: { userID: u1.id, type: ActivityTypes.MAP_UPLOADED }
+                    where: { userID: u1.id, type: ActivityType.MAP_UPLOADED }
                 });
                 const newActivity = await prisma.activity.findFirst({
-                    where: { userID: u2.id, type: ActivityTypes.MAP_UPLOADED }
+                    where: { userID: u2.id, type: ActivityType.MAP_UPLOADED }
                 });
                 expect(originalActivity).toBeNull();
-                expect(newActivity).toMatchObject({ userID: u2.id, type: ActivityTypes.MAP_UPLOADED });
+                expect(newActivity).toMatchObject({ userID: u2.id, type: ActivityType.MAP_UPLOADED });
             });
 
             it("should update the activities when an author credit's type is changed", async () => {
                 await prisma.activity.deleteMany();
 
                 await prisma.activity.create({
-                    data: { type: ActivityTypes.MAP_UPLOADED, userID: u1.id, data: map.id }
+                    data: { type: ActivityType.MAP_UPLOADED, userID: u1.id, data: map.id }
                 });
 
                 await req.patch({
@@ -1310,7 +1310,7 @@ describe('Maps', () => {
                 });
 
                 const originalActivity = await prisma.activity.findFirst({
-                    where: { userID: u1.id, type: ActivityTypes.MAP_UPLOADED }
+                    where: { userID: u1.id, type: ActivityType.MAP_UPLOADED }
                 });
                 expect(originalActivity).toBeNull();
             });
@@ -1364,7 +1364,7 @@ describe('Maps', () => {
 
             it('should remove the activity when an author credit is deleted', async () => {
                 await prisma.activity.create({
-                    data: { type: ActivityTypes.MAP_UPLOADED, userID: u1.id, data: map.id }
+                    data: { type: ActivityType.MAP_UPLOADED, userID: u1.id, data: map.id }
                 });
 
                 await req.del({ url: `maps/credits/${credit.id}`, status: 204, token: u1Token });
