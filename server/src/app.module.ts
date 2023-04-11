@@ -1,8 +1,8 @@
 import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
 import { APP_FILTER } from '@nestjs/core';
-import { ExceptionHandlerFilter } from './filters/exception-handler.filter';
+import { ExceptionHandlerFilter } from '@common/filters/exception-handler.filter';
 import { AuthModule } from '@modules/auth/auth.module';
-import { HTTPLoggerMiddleware } from './middlewares/http-logger.middleware';
+import { HTTPLoggerMiddleware } from '@common/middlewares/http-logger.middleware';
 import { MapsModule } from '@modules/maps/maps.module';
 import { UsersModule } from '@modules/users/users.module';
 import { UserModule } from '@modules/user/user.module';
