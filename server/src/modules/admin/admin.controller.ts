@@ -31,7 +31,7 @@ import { MapDto, UpdateMapDto } from '@common/dto/map/map.dto';
 import { AdminCtlMapsGetAllQuery } from '@common/dto/query/map-queries.dto';
 import { ReportDto, UpdateReportDto } from '@common/dto/report/report.dto';
 import { Roles } from '@common/decorators/roles.decorator';
-import { Roles as RolesEnum } from '../../common/enums/user.enum';
+import { Role as RolesEnum } from '../../common/enums/user.enum';
 import { LoggedInUser } from '@common/decorators/logged-in-user.decorator';
 import { XpSystemsService } from '@modules/xp-systems/xp-systems.service';
 import { UpdateXpSystemsDto, XpSystemsDto } from '@common/dto/xp-systems/xp-systems.dto';
