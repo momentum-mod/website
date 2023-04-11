@@ -1,10 +1,10 @@
 ﻿import { ApiPropertyOptional, OmitType } from '@nestjs/swagger';
 import { IsInt, IsOptional, IsString } from 'class-validator';
-import { Transform, Type } from 'class-transformer';
+import { Type } from 'class-transformer';
 import { PaginationQuery } from './pagination.dto';
-import { IsSteamCommunityID } from '../../validators/is-steam-id.validator';
 import { ActivitiesGetQuery } from './activity-queries.dto';
-import { ExpandQueryProperty } from '@lib/dto.lib';
+import { BigIntQueryProperty, ExpandQueryProperty, IntCsvQueryProperty } from '@lib/dto.lib';
+import { IsBigInt } from '@common/validators/is-bigint';
 
 export class UsersGetQuery {
     @ExpandQueryProperty(['profile', 'userStats'])
@@ -35,26 +35,19 @@ export class UsersGetAllQuery extends PaginationQuery {
     @IsString()
     search: string;
 
-    @ApiPropertyOptional({
-        name: 'userID',
-        type: String,
-        description: 'Filter by Steam Community ID',
-        example: '123135674'
-    })
-    @IsSteamCommunityID()
+    @BigIntQueryProperty({ description: 'Filter by Steam Community ID', example: '123135674' })
+    @IsBigInt()
     @IsOptional()
-    steamID: string;
+    steamID: bigint;
 
-    @ApiPropertyOptional({
-        name: 'userIDs',
-        type: String,
+    @IntCsvQueryProperty({
         description: 'Filter by CSV list of Steam Community IDs',
-        example: '123135674,7987347263,98312287631'
+        example: '123135674,7987347263,98312287631',
+        bigint: true
     })
-    @Transform(({ value }) => value.split(','))
-    @IsSteamCommunityID({ each: true })
+    @IsBigInt({ each: true })
     @IsOptional()
-    steamIDs: string[];
+    steamIDs: bigint[];
 
     @ApiPropertyOptional({
         name: 'mapRank',

@@ -23,7 +23,9 @@ export class SteamGameGuard implements CanActivate {
     async canActivate(context: ExecutionContext): Promise<boolean> {
         const request: RawBodyRequest<FastifyRequest> = context.switchToHttp().getRequest();
 
-        const steamID = request.headers['id'] as string;
+        if (typeof request.headers['id'] !== 'string')
+            throw new BadRequestException('Invalid SteamID. Should be a Steam ID 64 (decimal).');
+        const steamID = BigInt(request.headers['id']);
 
         // With playtest ongoing we want to check we have the right appID for the online Steam API request.
         // The game includes this in user-agent (e.g. `Valve/Steam HTTP Client 1.0 (<appID>)`), dig it out with a regex.
@@ -48,13 +50,13 @@ export class SteamGameGuard implements CanActivate {
         return true;
     }
 
-    private async verifyUserTicketOnlineAPI(userTicket: string, steamIDToVerify: string, appID: number): Promise<void> {
+    private async verifyUserTicketOnlineAPI(userTicket: string, steamIDToVerify: bigint, appID: number): Promise<void> {
         const steamID = await this.steamService.tryAuthenticateUserTicketOnline(userTicket, appID);
 
         if (steamIDToVerify !== steamID) throw new UnauthorizedException('Invalid user ticket');
     }
 
-    private verifyUserTicketLocalLibrary(userTicketRaw: Buffer, steamIDToVerify: string): void {
+    private verifyUserTicketLocalLibrary(userTicketRaw: Buffer, steamIDToVerify: bigint): void {
         // Note: This hasn't been tested yet! Needs a secret that only Goc has access to.
         const { steamID, appID } = this.steamService.tryAuthenticateUserTicketLocal(userTicketRaw);
 

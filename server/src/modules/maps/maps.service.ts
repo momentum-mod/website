@@ -776,7 +776,7 @@ export class MapsService {
         return ranks.map((umr) => DtoFactory(UserMapRankDto, umr));
     }
 
-    async getRankFriends(steamID: string, mapID: number, query: MapRankGetNumberQuery): Promise<UserMapRankDto[]> {
+    async getRankFriends(steamID: bigint, mapID: number, query: MapRankGetNumberQuery): Promise<UserMapRankDto[]> {
         const map = await this.mapRepo.get(mapID);
 
         if (!map) throw new NotFoundException('Map not found');
@@ -785,7 +785,7 @@ export class MapsService {
 
         if (steamFriends.length === 0) throw new ImATeapotException('No friends detected :(');
 
-        const friendSteamIDs = steamFriends.map((item) => item.steamid);
+        const friendSteamIDs = steamFriends.map((item) => BigInt(item.steamid));
 
         const where: Prisma.UserMapRankWhereInput = {
             mapID: mapID,

@@ -12,6 +12,7 @@ import {
     IsDateString,
     IsString
 } from 'class-validator';
+import { IsBigInt } from '@common/validators/is-bigint';
 
 /**
  * Factory method for constructing DTOs from objects (often from Prisma) easily.
@@ -315,8 +316,9 @@ export function StringCsvQueryProperty(options?: Omit<ApiPropertyOptions, 'type'
  *
  * Optional by default!
  * */
-export function IntCsvQueryProperty(options?: Omit<ApiPropertyOptions, 'type'>) {
+export function IntCsvQueryProperty(options?: { bigint?: boolean } & Omit<ApiPropertyOptions, 'type'>) {
     const required = options?.required ?? false;
+    const bigint = options?.bigint ?? false;
     return applyDecorators(
         ApiProperty({
             ...options,
@@ -324,9 +326,24 @@ export function IntCsvQueryProperty(options?: Omit<ApiPropertyOptions, 'type'>) 
             required: required,
             description: '[CSV list of integers]' + options?.description ? ' ' + options.description : ''
         }),
-        Transform(({ value }) => value.split(',').map((v) => Number.parseInt(v))),
+        Transform(({ value }) => value.split(',').map((v) => (bigint ? BigInt(v) : Number.parseInt(v)))),
         IsArray(),
         conditionalDecorator(!required, IsOptional)
+    );
+}
+
+/**
+ * Transform strings representing BigInts into BigInts.
+ *
+ * Optional by default!
+ */
+export function BigIntQueryProperty(options?: Omit<ApiPropertyOptions, 'type'>) {
+    const required = options?.required ?? false;
+    return applyDecorators(
+        ApiProperty({ ...options, type: String, required: required }),
+        Transform(({ value }) => BigInt(value)),
+        conditionalDecorator(!required, IsOptional),
+        IsBigInt()
     );
 }
 

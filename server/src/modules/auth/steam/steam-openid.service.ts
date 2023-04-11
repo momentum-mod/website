@@ -51,7 +51,9 @@ export class SteamOpenIDService {
                     )
                         throw new UnauthorizedException('Claimed identity is invalid');
 
-                    const steamID = result.claimedIdentifier.replace('https://steamcommunity.com/openid/id/', '');
+                    const steamID = BigInt(
+                        result.claimedIdentifier.replace('https://steamcommunity.com/openid/id/', '')
+                    );
 
                     return this.steam.getSteamUserSummaryData(steamID).then((data) => resolve(data));
                 }

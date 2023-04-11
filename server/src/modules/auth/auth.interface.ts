@@ -20,7 +20,7 @@ export interface UserJwtPayload {
  * Access tokens also stores SteamID and if it's an ingame auth
  */
 export interface UserJwtAccessPayload extends UserJwtPayload {
-    steamID: string;
+    steamID: bigint;
     gameAuth: boolean;
 }
 

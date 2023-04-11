@@ -65,7 +65,7 @@ export class UsersRepoService {
         });
     }
 
-    getBySteamID(steamID: string): Promise<User> {
+    getBySteamID(steamID: bigint): Promise<User> {
         const where: Prisma.UserWhereUniqueInput = {};
         where.steamID = steamID;
 

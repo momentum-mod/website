@@ -99,12 +99,12 @@ export class UsersService {
         return DtoFactory(UserDto, dbResponse);
     }
 
-    async findOrCreateFromGame(steamID: string): Promise<AuthenticatedUser> {
+    async findOrCreateFromGame(steamID: bigint): Promise<AuthenticatedUser> {
         const summaryData = await this.steamService.getSteamUserSummaryData(steamID).catch((_) => {
             throw new ServiceUnavailableException('Failed to get player summary data from Steam');
         });
 
-        if (steamID !== summaryData.steamid)
+        if (steamID !== BigInt(summaryData.steamid))
             throw new BadRequestException('User fetched is not the authenticated user!');
 
         const profile = {
@@ -124,7 +124,7 @@ export class UsersService {
             );
 
         const user = await this.findOrCreateUser({
-            steamID: profile.steamid,
+            steamID: BigInt(profile.steamid),
             alias: profile.personaname,
             avatar: profile.avatarhash,
             country: profile.loccountrycode

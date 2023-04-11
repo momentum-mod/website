@@ -115,7 +115,7 @@ describe('Users', () => {
                 });
 
                 for (const user of res.body.response)
-                    expect([users[0].steamID, users[1].steamID]).toContain(user.steamID);
+                    expect([users[0].steamID, users[1].steamID]).toContain(BigInt(user.steamID));
             });
 
             it('should respond with should respond with an empty array for multiple nonexistent SteamID parameters', () =>

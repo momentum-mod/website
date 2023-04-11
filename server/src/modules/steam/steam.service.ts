@@ -23,13 +23,13 @@ export class SteamService {
     /**
      * Handler for ISteamUser/GetPlayerSummaries/v2/
      */
-    async getSteamUserSummaryData(steamID: string): Promise<SteamUserSummaryData> {
+    async getSteamUserSummaryData(steamID: bigint): Promise<SteamUserSummaryData> {
         const getPlayerResponse = await lastValueFrom(
             this.http
                 .get('https://api.steampowered.com/ISteamUser/GetPlayerSummaries/v2/', {
                     params: {
                         key: this.config.get('steam.webAPIKey'),
-                        steamids: steamID
+                        steamids: steamID.toString()
                     }
                 })
                 .pipe(map((res) => res.data))
@@ -51,7 +51,7 @@ export class SteamService {
     /**
      * Handler for ISteamUser/GetFriendList/v1/
      */
-    async getSteamFriends(steamID: string): Promise<SteamFriendData[]> {
+    async getSteamFriends(steamID: bigint): Promise<SteamFriendData[]> {
         const response = await lastValueFrom(
             this.http
                 .get('https://api.steampowered.com/ISteamUser/GetFriendList/v1/', {
@@ -80,7 +80,7 @@ export class SteamService {
      * @returns SteamID
      */
     // TODO: Test with debug build!!
-    async tryAuthenticateUserTicketOnline(ticket: string, appID: number): Promise<string> {
+    async tryAuthenticateUserTicketOnline(ticket: string, appID: number): Promise<bigint> {
         const steamResponse = await lastValueFrom(
             this.http
                 .get('https://api.steampowered.com/ISteamUserAuth/AuthenticateUserTicket/v1/', {
@@ -106,7 +106,7 @@ export class SteamService {
         )
             throw new UnauthorizedException('Invalid user ticket');
 
-        return steamResponse.response.params.steamid;
+        return BigInt(steamResponse.response.params.steamid);
     }
 
     /**
@@ -116,8 +116,8 @@ export class SteamService {
      * Please note, the steam.ticketsSecretKey key is only available to app publishers on Steam, so Momentum's
      * will never be available to developers. For development using live Steam services, use the online API.
      */
-    tryAuthenticateUserTicketLocal(ticket: Buffer): { steamID: string; appID: number } {
-        const decrypted = AppTicket.parseEncryptedAppTicket(ticket, this.steamTicketsSecretKey);
+    tryAuthenticateUserTicketLocal(ticket: Buffer): { steamID: bigint; appID: number } {
+        const decrypted = AppTicket.parseEncryptedAppTicket(ticket.toString(), this.steamTicketsSecretKey);
 
         if (decrypted) return decrypted.steamID.getSteamID64();
         else throw new UnauthorizedException('Invalid user ticket');
@@ -127,7 +127,7 @@ export class SteamService {
      * Checks whether a Steam account is in "limited" mode i.e. hasn't spent $5 or more on Steam. Unfortunately Steam
      * Web API doesn't supply this anywhere, so we have to use this messier method of parsing the profile page as XML.
      */
-    isAccountLimited(steamID: string): Promise<boolean> {
+    isAccountLimited(steamID: bigint): Promise<boolean> {
         return lastValueFrom(
             this.http
                 .get(`https://steamcommunity.com/profiles/${steamID}?xml=1`)

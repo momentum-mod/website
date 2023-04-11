@@ -25,11 +25,7 @@ describe('JwtAuthService', () => {
         expect(jwt).toBeValidDto(JWTResponseWebDto);
 
         const decodedAccessToken = testJwtService.decode(jwt.accessToken) as UserJwtAccessPayloadVerified;
-        expect(decodedAccessToken).toMatchObject({
-            id: user.id,
-            steamID: user.steamID,
-            gameAuth: false
-        });
+        expect(decodedAccessToken).toMatchObject({ id: user.id, steamID: user.steamID.toString(), gameAuth: false });
 
         expect(decodedAccessToken.exp - decodedAccessToken.iat).toBe(60); // 1m. JWT times are seconds, not ms.
 
@@ -80,7 +76,7 @@ describe('JwtAuthService', () => {
             avatar: 'milkshake.jpg',
             country: 'US',
             id: 1,
-            steamID: '1',
+            steamID: 1n,
             createdAt: new Date(),
             updatedAt: new Date()
         };
@@ -89,10 +85,7 @@ describe('JwtAuthService', () => {
             userGetSpy.mockResolvedValueOnce(user);
             const upsertAuthSpy = jest.spyOn(userRepo, 'upsertAuth').mockResolvedValueOnce(undefined);
 
-            const jwt = await service.loginWeb({
-                id: user.id,
-                steamID: user.steamID
-            });
+            const jwt = await service.loginWeb({ id: user.id, steamID: user.steamID });
 
             expect(upsertAuthSpy).toHaveBeenCalledWith(user.id, jwt.refreshToken);
 
@@ -105,7 +98,7 @@ describe('JwtAuthService', () => {
             alias: 'Reynolds Woodcock',
             avatar: 'mushrooms.gif',
             country: 'UK',
-            steamID: '1',
+            steamID: 1n,
             id: 1,
             createdAt: new Date(),
             updatedAt: new Date()
@@ -122,11 +115,7 @@ describe('JwtAuthService', () => {
             expect(jwt).toBeValidDto(JWTResponseGameDto);
 
             const decodedAccessToken = testJwtService.decode(jwt.token) as UserJwtAccessPayloadVerified;
-            expect(decodedAccessToken).toMatchObject({
-                id: user.id,
-                steamID: user.steamID,
-                gameAuth: true
-            });
+            expect(decodedAccessToken).toMatchObject({ id: user.id, steamID: user.steamID.toString(), gameAuth: true });
 
             expect(decodedAccessToken.exp - decodedAccessToken.iat).toBe(2 * 60); // 2m
         });

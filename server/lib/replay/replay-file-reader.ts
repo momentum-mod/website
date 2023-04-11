@@ -27,7 +27,7 @@ export class ReplayFileReader {
                 mapName: this.readString(),
                 mapHash: this.readString(),
                 playerName: this.readString(),
-                steamID: this.readString(),
+                steamID: BigInt(this.readString()),
                 tickRate: this.readFloat(),
                 runFlags: this.readInt32(),
                 runDate: this.readString(),
