@@ -16,7 +16,7 @@ export interface Config {
     domain: string;
     port: number;
     appIDs: number[];
-    accessToken: {
+    jwt: {
         secret: string;
         expTime: string;
         gameExpTime: string;

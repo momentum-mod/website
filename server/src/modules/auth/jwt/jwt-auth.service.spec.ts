@@ -51,11 +51,11 @@ describe('JwtAuthService', () => {
                     return {
                         get: jest.fn((key) => {
                             switch (key) {
-                                case 'accessToken.expTime':
+                                case 'jwt.expTime':
                                     return jwtConfig.expTime;
-                                case 'accessToken.gameExpTime':
+                                case 'jwt.gameExpTime':
                                     return jwtConfig.gameExpTime;
-                                case 'accessToken.refreshExpTime':
+                                case 'jwt.refreshExpTime':
                                     return jwtConfig.refreshExpTime;
                             }
                         })

@@ -37,7 +37,7 @@ export const ConfigFactory = (): ConfigInterface => {
         },
         domain: isProd ? 'momentum-mod.org' : 'localhost',
         appIDs: [669270, 1802710],
-        accessToken: {
+        jwt: {
             secret: process.env.JWT_SECRET ?? defaults.secret,
             expTime: '15m',
             gameExpTime: '24h',

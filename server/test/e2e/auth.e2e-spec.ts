@@ -13,8 +13,8 @@ import { SteamOpenIDService } from '@modules/auth/steam/steam-openid.service';
 
 describe('Auth', () => {
     const testJwtService = new JwtService({
-        secret: Config.accessToken.secret,
-        signOptions: { expiresIn: Config.accessToken.expTime }
+        secret: Config.jwt.secret,
+        signOptions: { expiresIn: Config.jwt.expTime }
     });
     let app: NestFastifyApplication, prisma: PrismaService, db: DbUtil, req: RequestUtil;
 
@@ -81,9 +81,9 @@ describe('Auth', () => {
                     switch (key) {
                         case 'steam.preventLimited':
                             return true;
-                        case 'accessToken.expTime':
+                        case 'jwt.expTime':
                             return '1m';
-                        case 'accessToken.refreshExpTime':
+                        case 'jwt.refreshExpTime':
                             return '5m';
                     }
                 });
@@ -201,9 +201,9 @@ describe('Auth', () => {
                     switch (key) {
                         case 'steam.preventLimited':
                             return false;
-                        case 'accessToken.expTime':
+                        case 'jwt.expTime':
                             return '1m';
-                        case 'accessToken.refreshExpTime':
+                        case 'jwt.refreshExpTime':
                             return '5m';
                     }
                 });
@@ -236,7 +236,7 @@ describe('Auth', () => {
                     switch (key) {
                         case 'steam.useSteamTicketLibrary':
                             return false;
-                        case 'accessToken.gameExpTime':
+                        case 'jwt.gameExpTime':
                             return '1m';
                     }
                 })
@@ -386,7 +386,7 @@ describe('Auth', () => {
                     switch (key) {
                         case 'steam.useSteamTicketLibrary':
                             return true;
-                        case 'accessToken.gameExpTime':
+                        case 'jwt.gameExpTime':
                             return '1m';
                         case 'appIDs':
                             return [appID];
