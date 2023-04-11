@@ -1030,7 +1030,7 @@ describe('User', () => {
 
             afterAll(() => db.cleanup('user', 'map'));
 
-            it('should retrieve an array of objects that each contain a statusFlag and its count', async () => {
+            it('should retrieve an array of objects that each contain a status and its count', async () => {
                 const res = await req.get({ url: 'user/maps/submitted/summary', status: 200, token: u1Token });
 
                 expect(res.body).toBeInstanceOf(Array);
@@ -1232,7 +1232,7 @@ describe('User', () => {
         const res5 = await serv
             .patch('/api/admin/maps/' + res3.body.id)
             .set('Authorization', 'Bearer ' + adminAccessToken)
-            .send({ statusFlag: EMapStatus.APPROVED })
+            .send({ status: EMapStatus.APPROVED })
             .status(204);
     
         // should get the notification that testUser2's map was approved

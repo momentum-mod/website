@@ -539,7 +539,7 @@ describe('Admin', () => {
             });
 
             it('should respond with filtered map data based on the map type', async () => {
-                await prisma.map.update({ where: { id: m2.id }, data: { statusFlag: MapStatus.PUBLIC_TESTING } });
+                await prisma.map.update({ where: { id: m2.id }, data: { status: MapStatus.PUBLIC_TESTING } });
 
                 const res = await req.get({
                     url: 'admin/maps',
@@ -549,7 +549,7 @@ describe('Admin', () => {
                     token: adminToken
                 });
 
-                expect(res.body.response[0]).toMatchObject({ statusFlag: MapStatus.PUBLIC_TESTING, id: m2.id });
+                expect(res.body.response[0]).toMatchObject({ status: MapStatus.PUBLIC_TESTING, id: m2.id });
             });
 
             it('should respond with expanded submitter data using the submitter expand parameter', async () => {
@@ -621,17 +621,17 @@ describe('Admin', () => {
                 await req.patch({
                     url: `admin/maps/${m1.id}`,
                     status: 204,
-                    body: { statusFlag: MapStatus.PUBLIC_TESTING },
+                    body: { status: MapStatus.PUBLIC_TESTING },
                     token: adminToken
                 });
 
                 const changedMap = await prisma.map.findFirst({ where: { id: m1.id } });
 
-                expect(changedMap.statusFlag).toBe(MapStatus.PUBLIC_TESTING);
+                expect(changedMap.status).toBe(MapStatus.PUBLIC_TESTING);
             });
 
             it('should create activities for map authors with map approved type after map status changed from pending to approved', async () => {
-                await prisma.map.update({ where: { id: m1.id }, data: { statusFlag: MapStatus.PENDING } });
+                await prisma.map.update({ where: { id: m1.id }, data: { status: MapStatus.PENDING } });
 
                 await prisma.mapCredit.createMany({
                     data: [
@@ -644,7 +644,7 @@ describe('Admin', () => {
                 await req.patch({
                     url: `admin/maps/${m1.id}`,
                     status: 204,
-                    body: { statusFlag: MapStatus.APPROVED },
+                    body: { status: MapStatus.APPROVED },
                     token: adminToken
                 });
 
@@ -659,19 +659,19 @@ describe('Admin', () => {
             });
 
             it('should return 400 if rejected or removed map is being updated', async () => {
-                await prisma.map.update({ where: { id: m1.id }, data: { statusFlag: MapStatus.REJECTED } });
+                await prisma.map.update({ where: { id: m1.id }, data: { status: MapStatus.REJECTED } });
                 await req.patch({
                     url: `admin/maps/${m1.id}`,
                     status: 400,
-                    body: { statusFlag: MapStatus.PUBLIC_TESTING },
+                    body: { status: MapStatus.PUBLIC_TESTING },
                     token: adminToken
                 });
 
-                await prisma.map.update({ where: { id: m2.id }, data: { statusFlag: MapStatus.REMOVED } });
+                await prisma.map.update({ where: { id: m2.id }, data: { status: MapStatus.REMOVED } });
                 await req.patch({
                     url: `admin/maps/${m2.id}`,
                     status: 400,
-                    body: { statusFlag: MapStatus.PUBLIC_TESTING },
+                    body: { status: MapStatus.PUBLIC_TESTING },
                     token: adminToken
                 });
             });
@@ -680,7 +680,7 @@ describe('Admin', () => {
                 req.patch({
                     url: `admin/maps/${NULL_ID}`,
                     status: 404,
-                    body: { statusFlag: MapStatus.PUBLIC_TESTING },
+                    body: { status: MapStatus.PUBLIC_TESTING },
                     token: adminToken
                 }));
 

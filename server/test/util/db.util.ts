@@ -89,7 +89,7 @@ export class DbUtil {
                     {
                         name: `ahop_map${++this.maps}`,
                         type: MapType.AHOP,
-                        statusFlag: MapStatus.APPROVED,
+                        status: MapStatus.APPROVED,
                         hash: randomHash(),
                         info: { create: { numTracks: 1, creationDate: new Date() } },
                         images: map?.images ?? { create: {} },

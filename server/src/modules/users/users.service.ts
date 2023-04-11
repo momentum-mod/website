@@ -507,10 +507,10 @@ export class UsersService {
 
         if (!result) throw new NotFoundException('No submitted Maps found');
 
-        return result.map(({ _count, statusFlag }) =>
+        return result.map(({ _count, status }) =>
             DtoFactory(MapSummaryDto, {
-                statusFlag: statusFlag,
-                statusCount: _count.statusFlag
+                status: status,
+                statusCount: _count.status
             })
         );
     }

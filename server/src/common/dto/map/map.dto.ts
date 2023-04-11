@@ -28,7 +28,7 @@ export class MapDto implements MapDB {
     type: MapType;
 
     @EnumProperty(MapStatus)
-    statusFlag: MapStatus;
+    status: MapStatus;
 
     @Exclude()
     fileKey: string;
@@ -101,7 +101,7 @@ export class MapDto implements MapDB {
     updatedAt: Date;
 }
 
-export class UpdateMapDto extends PickType(MapDto, ['statusFlag'] as const) {}
+export class UpdateMapDto extends PickType(MapDto, ['status'] as const) {}
 
 export class CreateMapDto extends PickType(MapDto, ['name', 'type'] as const) {
     @NestedProperty(CreateMapInfoDto, { required: true })

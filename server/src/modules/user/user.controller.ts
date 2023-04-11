@@ -436,7 +436,9 @@ export class UserController {
     }
 
     @Get('/maps/submitted/summary')
-    @ApiOkPaginatedResponse(MapSummaryDto, { description: 'The users map statusFlags and their count' })
+    @ApiOkPaginatedResponse(MapSummaryDto, {
+        description: 'The amount of each map submitted by a user of a each possible status'
+    })
     @ApiOperation({ summary: 'Returns the summary of maps submitted by the local user' })
     @ApiOkResponse({ type: MapSummaryDto, isArray: true, description: 'Summary of maps submitted by the local user' })
     getSubmittedMapsSummary(@LoggedInUser('id') userID: number): Promise<MapSummaryDto[]> {

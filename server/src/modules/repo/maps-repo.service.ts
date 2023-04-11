@@ -178,13 +178,14 @@ export class MapsRepoService {
 
     public getSubmittedMapsSummary(submitterID: number) {
         return this.prisma.map.groupBy({
-            by: ['statusFlag'],
+            by: ['status'],
             where: { submitterID: submitterID },
             _count: {
-                statusFlag: true
+                status: true
             }
         });
     }
+
     //#endregion
 
     //#region Map Images

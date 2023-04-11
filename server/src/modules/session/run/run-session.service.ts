@@ -217,7 +217,7 @@ export class RunSessionService {
         };
 
         // This gets built up as we go, but can't be updated until we've created the actual Run entry we need it to key into
-        let umrCreate: Prisma.UserMapRankCreateWithoutRunInput | null;
+        let umrCreate: Prisma.UserMapRankCreateWithoutRunInput | undefined;
 
         const existingRank = await this.runRepo.getUserMapRank(
             {

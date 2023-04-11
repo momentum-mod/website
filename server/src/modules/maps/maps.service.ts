@@ -72,7 +72,7 @@ export class MapsService {
                     ? { is: { ...where.mainTrack.is, isLinear: query.isLinear } }
                     : { isLinear: query.isLinear };
         }
-        if (query instanceof AdminCtlMapsGetAllQuery && query.status) where.statusFlag = query.status;
+        if (query instanceof AdminCtlMapsGetAllQuery && query.status) where.status = query.status;
         // query.priority ignored
 
         // Include
@@ -140,11 +140,7 @@ export class MapsService {
         // Check there's no map with same name
         const existingMaps: number = await this.mapRepo.count({
             name: mapCreateDto.name,
-            NOT: {
-                statusFlag: {
-                    in: [MapStatus.REJECTED, MapStatus.REMOVED]
-                }
-            }
+            NOT: { status: { in: [MapStatus.REJECTED, MapStatus.REMOVED] } }
         });
 
         if (existingMaps > 0) throw new ConflictException('Map with this name already exists');
@@ -154,9 +150,7 @@ export class MapsService {
         const mapUploadLimit = 5;
         const submittedMaps: number = await this.mapRepo.count({
             submitterID: submitterID,
-            statusFlag: {
-                in: [MapStatus.PENDING, MapStatus.NEEDS_REVISION]
-            }
+            status: { in: [MapStatus.PENDING, MapStatus.NEEDS_REVISION] }
         });
 
         if (submittedMaps >= mapUploadLimit)
@@ -176,7 +170,7 @@ export class MapsService {
             name: mapCreateDto.name,
             type: mapCreateDto.type,
             stats: { create: {} }, // Just init empty entry
-            statusFlag: MapStatus.NEEDS_REVISION,
+            status: MapStatus.NEEDS_REVISION,
             info: {
                 create: {
                     numTracks: mapCreateDto.info.numTracks,
@@ -279,19 +273,19 @@ export class MapsService {
         if (!map) throw new NotFoundException('No map found');
         if (map.submitterID !== userID && !isAdmin)
             throw new ForbiddenException('User is not the submitter of the map');
-        if ([MapStatus.REJECTED, MapStatus.REMOVED].includes(map.statusFlag))
+        if ([MapStatus.REJECTED, MapStatus.REMOVED].includes(map.status))
             throw new BadRequestException('Map status forbids updating');
 
-        const previousStatus = map.statusFlag;
+        const previousStatus = map.status;
 
         const updatedMap = await this.mapRepo.update(mapID, {
-            statusFlag: updateBody.statusFlag
+            status: updateBody.status
         });
 
         if (
-            updatedMap.statusFlag !== previousStatus &&
+            updatedMap.status !== previousStatus &&
             previousStatus === MapStatus.PENDING &&
-            updatedMap.statusFlag === MapStatus.APPROVED
+            updatedMap.status === MapStatus.APPROVED
         ) {
             // status changed and map went from PENDING -> APPROVED
 
@@ -344,7 +338,7 @@ export class MapsService {
         const result = await this.storeMapFile(mapFileBuffer, mapDB);
 
         const dbResponse = await this.mapRepo.update(mapDB.id, {
-            statusFlag: MapStatus.PENDING,
+            status: MapStatus.PENDING,
             fileKey: result[0],
             hash: result[1]
         });
@@ -399,8 +393,7 @@ export class MapsService {
 
         if (map.submitterID !== userID) throw new ForbiddenException('User is not the submitter of the map');
 
-        if (map.statusFlag !== MapStatus.NEEDS_REVISION)
-            throw new ForbiddenException('Map is not in NEEDS_REVISION state');
+        if (map.status !== MapStatus.NEEDS_REVISION) throw new ForbiddenException('Map is not in NEEDS_REVISION state');
 
         const dupeCredit = await this.mapRepo.findCredit({
             mapID: mapID,
@@ -464,7 +457,7 @@ export class MapsService {
         const mapOfCredit = await this.mapRepo.get(mapCred.mapID);
         if (mapOfCredit.submitterID !== userID) throw new ForbiddenException('User is not the submitter of this map');
 
-        if (mapOfCredit.statusFlag !== MapStatus.NEEDS_REVISION)
+        if (mapOfCredit.status !== MapStatus.NEEDS_REVISION)
             throw new ForbiddenException('Map is not in NEEDS_REVISION state');
 
         await this.mapRepo.deleteCredit({ id: mapCreditID });
@@ -492,8 +485,7 @@ export class MapsService {
 
         if (map.submitterID !== userID) throw new ForbiddenException('User is not the submitter of the map');
 
-        if (map.statusFlag !== MapStatus.NEEDS_REVISION)
-            throw new ForbiddenException('Map is not in NEEDS_REVISION state');
+        if (map.status !== MapStatus.NEEDS_REVISION) throw new ForbiddenException('Map is not in NEEDS_REVISION state');
 
         const data: Prisma.MapInfoUpdateInput = {};
 
@@ -531,8 +523,7 @@ export class MapsService {
 
         if (map.submitterID !== userID) throw new ForbiddenException('User is not the submitter of the map');
 
-        if (map.statusFlag !== MapStatus.NEEDS_REVISION)
-            throw new ForbiddenException('Map is not in NEEDS_REVISION state');
+        if (map.status !== MapStatus.NEEDS_REVISION) throw new ForbiddenException('Map is not in NEEDS_REVISION state');
 
         const images = await this.mapRepo.getImages({ mapID: mapID });
         let imageCount = images.length;
@@ -561,8 +552,7 @@ export class MapsService {
 
         if (map.submitterID !== userID) throw new ForbiddenException('User is not the submitter of the map');
 
-        if (map.statusFlag !== MapStatus.NEEDS_REVISION)
-            throw new ForbiddenException('Map is not in NEEDS_REVISION state');
+        if (map.status !== MapStatus.NEEDS_REVISION) throw new ForbiddenException('Map is not in NEEDS_REVISION state');
 
         const uploadedImages = await this.storeMapImage(imgBuffer, imgID);
 
@@ -578,8 +568,7 @@ export class MapsService {
 
         if (map.submitterID !== userID) throw new ForbiddenException('User is not the submitter of the map');
 
-        if (map.statusFlag !== MapStatus.NEEDS_REVISION)
-            throw new ForbiddenException('Map is not in NEEDS_REVISION state');
+        if (map.status !== MapStatus.NEEDS_REVISION) throw new ForbiddenException('Map is not in NEEDS_REVISION state');
 
         await Promise.all([this.deleteStoredMapImage(imgID), this.mapRepo.deleteImage({ id: imgID })]);
     }
@@ -626,8 +615,7 @@ export class MapsService {
 
         if (!map) throw new NotFoundException('Map not found');
         if (map.submitterID !== userID) throw new ForbiddenException('User is not the submitter of the map');
-        if (map.statusFlag !== MapStatus.NEEDS_REVISION)
-            throw new ForbiddenException('Map is not in NEEDS_REVISION state');
+        if (map.status !== MapStatus.NEEDS_REVISION) throw new ForbiddenException('Map is not in NEEDS_REVISION state');
 
         if (!map.thumbnailID) {
             const newThumbnail = await this.mapRepo.createImage(mapID);
@@ -870,7 +858,7 @@ export class MapsService {
 
         if (userID !== map.submitterID) throw new ForbiddenException('You are not the submitter of this map');
 
-        if (map.statusFlag !== MapStatus.NEEDS_REVISION)
+        if (map.status !== MapStatus.NEEDS_REVISION)
             throw new ForbiddenException('Map file cannot be uploaded, the map is not accepting revisions');
     }
 
@@ -883,7 +871,7 @@ export class MapsService {
         const mapOfCredit = await this.mapRepo.get(mapCred.mapID);
         if (mapOfCredit.submitterID !== userID) throw new ForbiddenException('User is not the submitter of this map');
 
-        if (mapOfCredit.statusFlag !== MapStatus.NEEDS_REVISION)
+        if (mapOfCredit.status !== MapStatus.NEEDS_REVISION)
             throw new ForbiddenException('Map is not in NEEDS_REVISION state');
 
         const checkDupe: Prisma.MapCreditWhereInput = {
