@@ -1,4 +1,4 @@
-export enum Roles {
+export enum Role {
     VERIFIED = 'verified',
     MAPPER = 'mapper',
     MODERATOR = 'moderator',

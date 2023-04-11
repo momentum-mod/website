@@ -47,7 +47,7 @@ import {
     MapRankGetNumberQuery
 } from '@common/dto/query/map-queries.dto';
 import { Roles } from '@common/decorators/roles.decorator';
-import { Roles as RolesEnum } from '../../common/enums/user.enum';
+import { Role as RolesEnum } from '../../common/enums/user.enum';
 import { LoggedInUser } from '@common/decorators/logged-in-user.decorator';
 import { CreateMapCreditDto, MapCreditDto, UpdateMapCreditDto } from '@common/dto/map/map-credit.dto';
 import { MapInfoDto, UpdateMapInfoDto } from '@common/dto/map/map-info.dto';
