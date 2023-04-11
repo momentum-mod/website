@@ -65,11 +65,5 @@ export class AppModule implements NestModule {
             // Add the http logger to these paths
             .apply(HTTPLoggerMiddleware)
             .forRoutes('*');
-        // // Add Sentry to these paths
-        // .apply(Sentry.Handlers.requestHandler())
-        // .forRoutes({
-        //     path: '*',
-        //     method: RequestMethod.ALL
-        // });
     }
 }
