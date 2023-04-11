@@ -407,7 +407,7 @@ describe('Maps', () => {
 
             it('should 409 if the submitter already have 5 or more pending maps', async () => {
                 await db.createMaps(5, {
-                    statusFlag: MapStatus.PENDING,
+                    status: MapStatus.PENDING,
                     submitter: { connect: { id: user.id } }
                 });
 
@@ -433,7 +433,7 @@ describe('Maps', () => {
                 db.loginNewUser()
             ]);
             map = await db.createMap({
-                statusFlag: MapStatus.NEEDS_REVISION,
+                status: MapStatus.NEEDS_REVISION,
                 submitter: { connect: { id: u1.id } }
             });
         });
@@ -454,11 +454,11 @@ describe('Maps', () => {
             });
 
             it('should 403 when the map is not accepting uploads', async () => {
-                await prisma.map.update({ where: { id: map.id }, data: { statusFlag: MapStatus.REJECTED } });
+                await prisma.map.update({ where: { id: map.id }, data: { status: MapStatus.REJECTED } });
 
                 await req.get({ url: `maps/${map.id}/upload`, status: 403, token: u2Token });
 
-                await prisma.map.update({ where: { id: map.id }, data: { statusFlag: MapStatus.NEEDS_REVISION } });
+                await prisma.map.update({ where: { id: map.id }, data: { status: MapStatus.NEEDS_REVISION } });
             });
 
             it('should 401 when no access token is provided', () => req.unauthorizedTest('maps/1/upload', 'get'));
@@ -505,7 +505,7 @@ describe('Maps', () => {
                 req.postAttach({ url: `maps/${map.id}/upload`, status: 403, file: 'map.bsp', token: u2Token }));
 
             it('should 403 when the map is not accepting uploads', async () => {
-                await prisma.map.update({ where: { id: map.id }, data: { statusFlag: MapStatus.REJECTED } });
+                await prisma.map.update({ where: { id: map.id }, data: { status: MapStatus.REJECTED } });
 
                 await req.postAttach({
                     url: `maps/${map.id}/upload`,
@@ -762,20 +762,20 @@ describe('Maps', () => {
 
             it('should allow a mapper set their map status', async () => {
                 const map = await db.createMap({
-                    statusFlag: MapStatus.NEEDS_REVISION,
+                    status: MapStatus.NEEDS_REVISION,
                     submitter: { connect: { id: user.id } }
                 });
 
                 const newStatus = MapStatus.READY_FOR_RELEASE;
-                await req.patch({ url: `maps/${map.id}`, status: 204, body: { statusFlag: newStatus }, token: token });
+                await req.patch({ url: `maps/${map.id}`, status: 204, body: { status: newStatus }, token: token });
 
                 const updatedMap = await prisma.map.findUnique({ where: { id: map.id } });
-                expect(updatedMap.statusFlag).toEqual(newStatus);
+                expect(updatedMap.status).toEqual(newStatus);
             });
 
             it('should create activities if the map was approved', async () => {
                 const map = await db.createMap({
-                    statusFlag: MapStatus.PENDING,
+                    status: MapStatus.PENDING,
                     submitter: { connect: { id: user.id } },
                     credits: { create: { type: MapCreditType.AUTHOR, userID: user.id } }
                 });
@@ -783,7 +783,7 @@ describe('Maps', () => {
                 await req.patch({
                     url: `maps/${map.id}`,
                     status: 204,
-                    body: { statusFlag: MapStatus.APPROVED },
+                    body: { status: MapStatus.APPROVED },
                     token: token
                 });
 
@@ -799,30 +799,30 @@ describe('Maps', () => {
             it('should return 400 if the status flag is invalid', async () => {
                 const map = await db.createMap({ submitter: { connect: { id: user.id } } });
 
-                await req.patch({ url: `maps/${map.id}`, status: 400, body: { statusFlag: 3000 }, token: token });
+                await req.patch({ url: `maps/${map.id}`, status: 400, body: { status: 3000 }, token: token });
             });
 
             it("should return 400 if the map's status is rejected", async () => {
                 const map = await db.createMap({
-                    statusFlag: MapStatus.REJECTED,
+                    status: MapStatus.REJECTED,
                     submitter: { connect: { id: user.id } }
                 });
 
                 await req.patch({
                     url: `maps/${map.id}`,
                     status: 400,
-                    body: { statusFlag: MapStatus.READY_FOR_RELEASE },
+                    body: { status: MapStatus.READY_FOR_RELEASE },
                     token: token
                 });
             });
 
             it('should return 403 if the map was not submitted by that user', async () => {
-                const map = await db.createMap({ statusFlag: MapStatus.NEEDS_REVISION });
+                const map = await db.createMap({ status: MapStatus.NEEDS_REVISION });
 
                 await req.patch({
                     url: `maps/${map.id}`,
                     status: 403,
-                    body: { statusFlag: MapStatus.READY_FOR_RELEASE },
+                    body: { status: MapStatus.READY_FOR_RELEASE },
                     token: token
                 });
             });
@@ -834,7 +834,7 @@ describe('Maps', () => {
                 await req.patch({
                     url: `maps/${map2.id}`,
                     status: 403,
-                    body: { statusFlag: MapStatus.READY_FOR_RELEASE },
+                    body: { status: MapStatus.READY_FOR_RELEASE },
                     token: u2Token
                 });
             });
@@ -843,7 +843,7 @@ describe('Maps', () => {
                 req.patch({
                     url: `maps/${NULL_ID}`,
                     status: 404,
-                    body: { statusFlag: MapStatus.READY_FOR_RELEASE },
+                    body: { status: MapStatus.READY_FOR_RELEASE },
                     token: token
                 }));
 
@@ -874,7 +874,7 @@ describe('Maps', () => {
             beforeAll(async () => {
                 [user, token] = await db.createAndLoginUser({ data: { roles: { create: { mapper: true } } } });
                 map = await db.createMap({
-                    statusFlag: MapStatus.NEEDS_REVISION,
+                    status: MapStatus.NEEDS_REVISION,
                     submitter: { connect: { id: user.id } }
                 });
             });
@@ -925,7 +925,7 @@ describe('Maps', () => {
 
             it('should return 403 if the map is not in NEEDS_REVISION state', async () => {
                 const map2 = await db.createMap({
-                    statusFlag: MapStatus.APPROVED,
+                    status: MapStatus.APPROVED,
                     submitter: { connect: { id: user.id } }
                 });
 
@@ -1005,7 +1005,7 @@ describe('Maps', () => {
                 ]);
                 map = await db.createMap({
                     submitter: { connect: { id: u1.id } },
-                    statusFlag: MapStatus.NEEDS_REVISION
+                    status: MapStatus.NEEDS_REVISION
                 });
                 newMapCredit = { type: MapCreditType.SPECIAL_THANKS, userID: u2.id };
             });
@@ -1070,11 +1070,11 @@ describe('Maps', () => {
             });
 
             it('should 403 if the map is not in NEEDS_REVISION state', async () => {
-                await prisma.map.update({ where: { id: map.id }, data: { statusFlag: MapStatus.APPROVED } });
+                await prisma.map.update({ where: { id: map.id }, data: { status: MapStatus.APPROVED } });
 
                 await req.post({ url: `maps/${map.id}/credits`, status: 403, body: newMapCredit, token: u1Token });
 
-                await prisma.map.update({ where: { id: map.id }, data: { statusFlag: MapStatus.NEEDS_REVISION } });
+                await prisma.map.update({ where: { id: map.id }, data: { status: MapStatus.NEEDS_REVISION } });
             });
 
             it('should 400 if the map credit object is invalid', () =>
@@ -1159,7 +1159,7 @@ describe('Maps', () => {
                 ]);
 
                 map = await db.createMap({
-                    statusFlag: MapStatus.NEEDS_REVISION,
+                    status: MapStatus.NEEDS_REVISION,
                     submitter: { connect: { id: u1.id } }
                 });
             });
@@ -1238,7 +1238,7 @@ describe('Maps', () => {
                 }));
 
             it('should 403 if the map is not in NEEDS_REVISION state', async () => {
-                await prisma.map.update({ where: { id: map.id }, data: { statusFlag: MapStatus.APPROVED } });
+                await prisma.map.update({ where: { id: map.id }, data: { status: MapStatus.APPROVED } });
 
                 await req.patch({
                     url: `maps/credits/${credit.id}`,
@@ -1247,7 +1247,7 @@ describe('Maps', () => {
                     token: u1Token
                 });
 
-                await prisma.map.update({ where: { id: map.id }, data: { statusFlag: MapStatus.NEEDS_REVISION } });
+                await prisma.map.update({ where: { id: map.id }, data: { status: MapStatus.NEEDS_REVISION } });
             });
 
             it('should 403 if the user does not have the mapper role', async () => {
@@ -1339,7 +1339,7 @@ describe('Maps', () => {
                 ]);
 
                 map = await db.createMap({
-                    statusFlag: MapStatus.NEEDS_REVISION,
+                    status: MapStatus.NEEDS_REVISION,
                     submitter: { connect: { id: u1.id } }
                 });
             });
@@ -1377,11 +1377,11 @@ describe('Maps', () => {
                 req.del({ url: `maps/credits/${credit.id}`, status: 403, token: u2Token }));
 
             it('should return 403 if the map is not in NEEDS_REVISION state', async () => {
-                await prisma.map.update({ where: { id: map.id }, data: { statusFlag: MapStatus.APPROVED } });
+                await prisma.map.update({ where: { id: map.id }, data: { status: MapStatus.APPROVED } });
 
                 await req.del({ url: `maps/credits/${credit.id}`, status: 403, token: u1Token });
 
-                await prisma.map.update({ where: { id: map.id }, data: { statusFlag: MapStatus.NEEDS_REVISION } });
+                await prisma.map.update({ where: { id: map.id }, data: { status: MapStatus.NEEDS_REVISION } });
             });
 
             it('should return 403 if the user does not have the mapper role', async () => {
@@ -1433,7 +1433,7 @@ describe('Maps', () => {
             beforeAll(async () => {
                 [user, token] = await db.createAndLoginUser({ data: { roles: { create: { mapper: true } } } });
                 map = await db.createMap({
-                    statusFlag: MapStatus.NEEDS_REVISION,
+                    status: MapStatus.NEEDS_REVISION,
                     submitter: { connect: { id: user.id } }
                 });
             });
@@ -1496,7 +1496,7 @@ describe('Maps', () => {
             });
 
             it('should 403 if the map is not in the NEEDS_REVISION state', async () => {
-                await prisma.map.update({ where: { id: map.id }, data: { statusFlag: MapStatus.APPROVED } });
+                await prisma.map.update({ where: { id: map.id }, data: { status: MapStatus.APPROVED } });
 
                 await req.putAttach({
                     url: `maps/${map.id}/thumbnail`,
@@ -1505,7 +1505,7 @@ describe('Maps', () => {
                     token: token
                 });
 
-                await prisma.map.update({ where: { id: map.id }, data: { statusFlag: MapStatus.NEEDS_REVISION } });
+                await prisma.map.update({ where: { id: map.id }, data: { status: MapStatus.NEEDS_REVISION } });
             });
 
             it('should 401 when no access token is provided', () => req.unauthorizedTest('maps/1/thumbnail', 'put'));
@@ -1549,7 +1549,7 @@ describe('Maps', () => {
             beforeAll(async () => {
                 [user, token] = await db.createAndLoginUser({ data: { roles: { create: { mapper: true } } } });
                 map = await db.createMap({
-                    statusFlag: MapStatus.NEEDS_REVISION,
+                    status: MapStatus.NEEDS_REVISION,
                     submitter: { connect: { id: user.id } },
                     images: {}
                 });
@@ -1632,7 +1632,7 @@ describe('Maps', () => {
             });
 
             it('should 403 if the map is not in the NEEDS_REVISION state', async () => {
-                await prisma.map.update({ where: { id: map.id }, data: { statusFlag: MapStatus.APPROVED } });
+                await prisma.map.update({ where: { id: map.id }, data: { status: MapStatus.APPROVED } });
 
                 await req.postAttach({
                     url: `maps/${map.id}/images`,
@@ -1641,7 +1641,7 @@ describe('Maps', () => {
                     token: token
                 });
 
-                await prisma.map.update({ where: { id: map.id }, data: { statusFlag: MapStatus.NEEDS_REVISION } });
+                await prisma.map.update({ where: { id: map.id }, data: { status: MapStatus.NEEDS_REVISION } });
             });
 
             it('should 401 when no access token is provided', () => req.unauthorizedTest('maps/1/images', 'post'));
@@ -1675,7 +1675,7 @@ describe('Maps', () => {
             beforeAll(async () => {
                 [user, token] = await db.createAndLoginUser({ data: { roles: { create: { mapper: true } } } });
                 map = await db.createMap({
-                    statusFlag: MapStatus.NEEDS_REVISION,
+                    status: MapStatus.NEEDS_REVISION,
                     submitter: { connect: { id: user.id } },
                     images: { create: {} }
                 });
@@ -1743,7 +1743,7 @@ describe('Maps', () => {
             });
 
             it('should 403 if the map is not in the NEEDS_REVISION state', async () => {
-                await prisma.map.update({ where: { id: map.id }, data: { statusFlag: MapStatus.APPROVED } });
+                await prisma.map.update({ where: { id: map.id }, data: { status: MapStatus.APPROVED } });
 
                 await req.putAttach({
                     url: `maps/images/${image.id}`,
@@ -1752,7 +1752,7 @@ describe('Maps', () => {
                     token: token
                 });
 
-                await prisma.map.update({ where: { id: map.id }, data: { statusFlag: MapStatus.NEEDS_REVISION } });
+                await prisma.map.update({ where: { id: map.id }, data: { status: MapStatus.NEEDS_REVISION } });
             });
 
             it('should 401 when no access token is provided', () => req.unauthorizedTest('maps/images/1', 'put'));
@@ -1764,7 +1764,7 @@ describe('Maps', () => {
             beforeAll(async () => {
                 [user, token] = await db.createAndLoginUser({ data: { roles: { create: { mapper: true } } } });
                 map = await db.createMap({
-                    statusFlag: MapStatus.NEEDS_REVISION,
+                    status: MapStatus.NEEDS_REVISION,
                     submitter: { connect: { id: user.id } },
                     images: { create: {} }
                 });
@@ -1822,11 +1822,11 @@ describe('Maps', () => {
             });
 
             it('should 403 if the map is not in the NEEDS_REVISION state', async () => {
-                await prisma.map.update({ where: { id: map.id }, data: { statusFlag: MapStatus.APPROVED } });
+                await prisma.map.update({ where: { id: map.id }, data: { status: MapStatus.APPROVED } });
 
                 await req.del({ url: `maps/images/${image.id}`, status: 403, token: token });
 
-                await prisma.map.update({ where: { id: map.id }, data: { statusFlag: MapStatus.NEEDS_REVISION } });
+                await prisma.map.update({ where: { id: map.id }, data: { status: MapStatus.NEEDS_REVISION } });
             });
 
             it('should 401 when no access token is provided', () => req.unauthorizedTest('maps/images/1', 'del'));
@@ -2129,7 +2129,7 @@ describe('Maps', () => {
                         prisma.map.create({
                             data: {
                                 name: 'surf_ronweasley',
-                                statusFlag: MapStatus.APPROVED,
+                                status: MapStatus.APPROVED,
                                 tracks: {
                                     createMany: {
                                         data: [

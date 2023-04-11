@@ -284,11 +284,11 @@ model UserAuth {
 model Map {
     id Int @id @default(autoincrement())
 
-    name       String  @db.VarChar(32)
-    fileKey    String? @db.VarChar(255)
-    type       Int     @default(0) @db.SmallInt
-    statusFlag Int     @db.SmallInt
-    hash       String? @db.Char(40)
+    name    String  @db.VarChar(32)
+    fileKey String? @db.VarChar(255)
+    type    Int     @default(0) @db.SmallInt
+    status  Int     @db.SmallInt
+    hash    String? @db.Char(40)
 
     thumbnail   MapImage? @relation("mapimage_thumbnail", fields: [thumbnailID], references: [id], onDelete: SetNull)
     thumbnailID Int?      @unique

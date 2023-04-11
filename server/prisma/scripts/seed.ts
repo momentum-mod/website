@@ -110,7 +110,7 @@ async function createRandomMap(submitterID) {
         data: {
             name: faker.lorem.word(),
             type: Random.enumValue(MapType),
-            statusFlag: Random.enumValue(MapStatus),
+            status: Random.enumValue(MapStatus),
             fileKey: faker.animal.cat(),
             hash: faker.random.alphaNumeric(),
             submitterID: submitterID,
