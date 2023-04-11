@@ -4,8 +4,8 @@ import { AllowedGameModes, getDefaultTickRateForMapType } from '@common/enums/ma
 import { ReplayFileReader } from '@lib/replay/replay-file-reader';
 import {
     RunValidationError,
-    RunValidationErrorTypes,
-    RunValidationErrorTypes as ErrorType
+    RunValidationErrorType,
+    RunValidationErrorType as ErrorType
 } from '../../../common/enums/run.enum';
 import { ProcessedRun, Replay } from './run-session.interfaces';
 
@@ -129,7 +129,7 @@ export class RunProcessor {
                 this.replay.header.tickRate
             );
         } catch {
-            throw new RunValidationError(RunValidationErrorTypes.BAD_REPLAY_FILE);
+            throw new RunValidationError(RunValidationErrorType.BAD_REPLAY_FILE);
         }
 
         // prettier-ignore
