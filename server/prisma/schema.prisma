@@ -5,7 +5,7 @@ generator client {
 // This can be used to generate an ERD, but the dependencies are like 500MB so we don't include it by default. To use,
 // `npm install prisma-erd-generator` then uncommment below lines. Doesn't work inside of Docker for some reason.
 // In future we could try hook this up to CI and never have developers touch it.
-//generator erd {
+// generator erd {
 //    provider = "prisma-erd-generator"
 //}
 
@@ -618,10 +618,10 @@ model Run {
 
     trackNum Int    @db.SmallInt
     zoneNum  Int    @db.SmallInt
-    ticks    Int   
+    ticks    Int
     tickRate Float  @db.Real
     time     Float  @db.Real
-    flags    Int   
+    flags    Int
     file     String @db.VarChar(255)
     hash     String @db.VarChar(40)
 
