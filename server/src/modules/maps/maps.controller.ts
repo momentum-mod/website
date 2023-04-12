@@ -62,13 +62,18 @@ import { ParseIntSafePipe } from '@common/pipes/parse-int-safe.pipe';
 import { FastifyReply } from 'fastify';
 import { FileInterceptor } from '@nest-lab/fastify-multer';
 import { Config } from '@config/config';
+import { RanksService } from '../ranks/ranks.service';
 
 @Controller('maps')
 @UseGuards(RolesGuard)
 @ApiTags('Maps')
 @ApiBearerAuth()
 export class MapsController {
-    constructor(private readonly mapsService: MapsService, private readonly runsService: RunsService) {}
+    constructor(
+        private readonly mapsService: MapsService,
+        private readonly runsService: RunsService,
+        private readonly ranksService: RanksService
+    ) {}
 
     //#region Main Map Endpoints
 
@@ -619,7 +624,7 @@ export class MapsController {
         @Param('mapID', ParseIntSafePipe) mapID: number,
         @Query() query?: MapRanksGetQuery
     ): Promise<PaginatedResponseDto<RankDto>> {
-        return this.mapsService.getRanks(mapID, query);
+        return this.ranksService.getRanks(mapID, query);
     }
 
     @Get('/:mapID/ranks/around')
@@ -636,7 +641,7 @@ export class MapsController {
         @Param('mapID') mapID: number,
         @Query() query?: MapRankGetNumberQuery
     ): Promise<RankDto[]> {
-        return this.mapsService.getRankAround(userID, mapID, query);
+        return this.ranksService.getRankAround(userID, mapID, query);
     }
 
     @Get('/:mapID/ranks/friends')
@@ -654,7 +659,7 @@ export class MapsController {
         @Param('mapID') mapID: number,
         @Query() query?: MapRankGetNumberQuery
     ): Promise<RankDto[]> {
-        return this.mapsService.getRankFriends(steamID, mapID, query);
+        return this.ranksService.getRankFriends(steamID, mapID, query);
     }
 
     @Get('/:mapID/ranks/:rankNumber')
@@ -678,7 +683,7 @@ export class MapsController {
         @Param('rankNumber', ParseIntSafePipe) rankNumber: number,
         @Query() query?: MapRankGetNumberQuery
     ): Promise<RankDto> {
-        return this.mapsService.getRankNumber(mapID, rankNumber, query);
+        return this.ranksService.getRankNumber(mapID, rankNumber, query);
     }
 
     //#endregion
