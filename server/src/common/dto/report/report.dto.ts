@@ -14,7 +14,7 @@ import { UserDto } from '../user/user.dto';
 
 export class ReportDto implements PrismaModelToDto<Report> {
     @IdProperty()
-    id: number;
+    readonly id: number;
 
     // @ApiProperty({
     //     description: 'The ID of the object being referred to by the report, as a string',
@@ -27,27 +27,27 @@ export class ReportDto implements PrismaModelToDto<Report> {
     // refactor, comment is "data: type.STRING, // everything's an int except for users..." and I have no idea why
     // it's different for users, need to read models/report.js or whatever closer
     @IdProperty({ description: 'The ID of the object being referred to by the report', bigint: true })
-    data: number;
+    readonly data: number;
 
     @EnumProperty(ReportType, { description: 'The type of the report' })
-    type: ReportType;
+    readonly type: ReportType;
 
     @EnumProperty(ReportCategory, { description: 'The category of the report' })
-    category: ReportCategory;
+    readonly category: ReportCategory;
 
     @ApiProperty({
         description: 'The main text of the report',
         type: String
     })
     @IsString()
-    message: string;
+    readonly message: string;
 
     @ApiProperty({
         description: 'Whether the report has been resolved or not',
         type: Boolean
     })
     @IsBoolean()
-    resolved: boolean;
+    readonly resolved: boolean;
 
     @ApiPropertyOptional({
         description: 'The reason the report was resolved, if it was',
@@ -55,25 +55,25 @@ export class ReportDto implements PrismaModelToDto<Report> {
     })
     @IsString()
     @IsOptional()
-    resolutionMessage: string;
+    readonly resolutionMessage: string;
 
     @IdProperty({ description: 'The user ID of the submitter' })
-    submitterID: number;
+    readonly submitterID: number;
 
     @NestedProperty(UserDto)
-    submitter: UserDto;
+    readonly submitter: UserDto;
 
     @IdProperty({ required: false, description: 'The user ID of the resolver, if its been resolved' })
-    resolverID: number;
+    readonly resolverID: number;
 
     @NestedProperty(UserDto)
-    resolver: UserDto;
+    readonly resolver: UserDto;
 
     @CreatedAtProperty()
-    createdAt: Date;
+    readonly createdAt: Date;
 
     @UpdatedAtProperty()
-    updatedAt: Date;
+    readonly updatedAt: Date;
 }
 
 export class CreateReportDto extends PickType(ReportDto, ['data', 'type', 'category', 'message'] as const) {}

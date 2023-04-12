@@ -5,21 +5,21 @@ import { CreatedAtProperty, IdProperty, PrismaModelToDto, UpdatedAtProperty } fr
 
 export class RunZoneStatsDto implements PrismaModelToDto<RunZoneStats> {
     @ApiProperty()
-    id: number;
+    readonly id: number;
 
     @ApiProperty()
     @IsPositive()
-    zoneNum: number;
+    readonly zoneNum: number;
 
     @IdProperty({ bigint: true })
-    runID: number;
+    readonly runID: number;
 
     @IdProperty({ bigint: true })
-    baseStatsID: number;
+    readonly baseStatsID: number;
 
     @CreatedAtProperty()
-    createdAt: Date;
+    readonly createdAt: Date;
 
     @UpdatedAtProperty()
-    updatedAt: Date;
+    readonly updatedAt: Date;
 }

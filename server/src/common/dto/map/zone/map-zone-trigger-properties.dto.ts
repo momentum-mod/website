@@ -7,18 +7,18 @@ import { IsJSON } from 'class-validator';
 // Think it's changing for 0.10 anyway ╚(•⌂•)╝
 export class MapZoneTriggerPropertiesDto implements MapZoneTriggerProperties {
     @Exclude()
-    id: number;
+    readonly id: number;
 
     @ApiProperty()
     @IsJSON()
-    properties: Prisma.JsonValue;
+    readonly properties: Prisma.JsonValue;
 
     @Exclude()
-    triggerID: number;
+    readonly triggerID: number;
 
     @Exclude()
-    createdAt: Date;
+    readonly createdAt: Date;
 
     @Exclude()
-    updatedAt: Date;
+    readonly updatedAt: Date;
 }

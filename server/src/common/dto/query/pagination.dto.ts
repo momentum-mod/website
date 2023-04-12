@@ -2,8 +2,8 @@
 
 export class PaginationQuery {
     @SkipQueryProperty(0)
-    skip = 0;
+    readonly skip = 0;
 
     @TakeQueryProperty(20)
-    take = 20;
+    readonly take = 20;
 }

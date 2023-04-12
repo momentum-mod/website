@@ -5,19 +5,19 @@ import { CreatedAtProperty, IdProperty, EnumProperty, UpdatedAtProperty } from '
 
 export class MapNotifyDto implements MapNotify {
     @EnumProperty(ActivityType)
-    notifyOn: ActivityType;
+    readonly notifyOn: ActivityType;
 
     @IdProperty()
-    mapID: number;
+    readonly mapID: number;
 
     @IdProperty()
-    userID: number;
+    readonly userID: number;
 
     @CreatedAtProperty()
-    createdAt: Date;
+    readonly createdAt: Date;
 
     @UpdatedAtProperty()
-    updatedAt: Date;
+    readonly updatedAt: Date;
 }
 
 export class UpdateMapNotifyDto extends PickType(MapNotifyDto, ['notifyOn'] as const) {}

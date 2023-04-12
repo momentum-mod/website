@@ -7,25 +7,25 @@ import { UserMapRankDto } from '@common/dto/run/user-map-rank.dto';
 class CosXpGain {
     @ApiProperty({ type: Number, description: 'Integer amount of levels gained' })
     @IsInt()
-    gainLvl: number;
+    readonly gainLvl: number;
 
     // TODO: Are these two ints or floats? Don't seem like they're being rounded, but lets verify.
     @ApiProperty({ type: Number, description: 'Cosmetic XP of player before the run' })
     @IsNumber()
-    oldXP: number;
+    readonly oldXP: number;
 
     @ApiProperty({ type: Number, description: 'Cosmetic XP of player after the run' })
     @IsNumber()
-    gainXP: number;
+    readonly gainXP: number;
 }
 
 export class XpGainDto {
     @ApiProperty({ type: Number, description: 'New ranked XP of player' })
     @IsNumber()
-    rankXP: number;
+    readonly rankXP: number;
 
     @NestedProperty(CosXpGain)
-    cosXP: CosXpGain;
+    readonly cosXP: CosXpGain;
 }
 
 export class CompletedRunDto {
@@ -34,21 +34,21 @@ export class CompletedRunDto {
         type: Boolean
     })
     @IsBoolean()
-    isNewWorldRecord: boolean;
+    readonly isNewWorldRecord: boolean;
 
     @ApiProperty({
         description: "Whether the run is the player's new personal best for this track",
         type: Boolean
     })
     @IsBoolean()
-    isNewPersonalBest: boolean;
+    readonly isNewPersonalBest: boolean;
 
     @NestedProperty(UserMapRankDto)
-    rank: UserMapRankDto;
+    readonly rank: UserMapRankDto;
 
     @NestedProperty(RunDto)
-    run: RunDto;
+    readonly run: RunDto;
 
     @NestedProperty(XpGainDto)
-    xp: XpGainDto;
+    readonly xp: XpGainDto;
 }

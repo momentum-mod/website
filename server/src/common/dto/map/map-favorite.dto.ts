@@ -5,23 +5,23 @@ import { MapDto } from './map.dto';
 
 export class MapFavoriteDto implements MapFavorite {
     @IdProperty()
-    id: number;
+    readonly id: number;
 
     @IdProperty()
-    mapID: number;
+    readonly mapID: number;
 
     @NestedProperty(MapDto, { lazy: true })
-    map: MapDto;
+    readonly map: MapDto;
 
     @IdProperty()
-    userID: number;
+    readonly userID: number;
 
     @NestedProperty(UserDto, { lazy: true })
-    user: UserDto;
+    readonly user: UserDto;
 
     @CreatedAtProperty()
-    createdAt: Date;
+    readonly createdAt: Date;
 
     @UpdatedAtProperty()
-    updatedAt: Date;
+    readonly updatedAt: Date;
 }

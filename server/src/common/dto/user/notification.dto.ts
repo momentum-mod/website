@@ -7,32 +7,29 @@ import { CreatedAtProperty, IdProperty, NestedProperty, UpdatedAtProperty } from
 
 export class NotificationDto implements Notification {
     @IdProperty()
-    id: number;
+    readonly id: number;
 
-    @ApiProperty({
-        type: Boolean,
-        description: 'Whether the notification has been read by the user'
-    })
+    @ApiProperty({ type: Boolean, description: 'Whether the notification has been read by the user' })
     @IsBoolean()
-    read: boolean;
+    readonly read: boolean;
 
     @IdProperty()
-    userID: number;
+    readonly userID: number;
 
     @NestedProperty(UserDto)
-    user: UserDto;
+    readonly user: UserDto;
 
     @IdProperty()
-    activityID: number;
+    readonly activityID: number;
 
     @NestedProperty(ActivityDto, { description: 'The activity that the notification is about' })
-    activity: ActivityDto;
+    readonly activity: ActivityDto;
 
     @CreatedAtProperty()
-    createdAt: Date;
+    readonly createdAt: Date;
 
     @UpdatedAtProperty()
-    updatedAt: Date;
+    readonly updatedAt: Date;
 }
 
 export class UpdateNotificationDto extends PickType(NotificationDto, ['read'] as const) {}

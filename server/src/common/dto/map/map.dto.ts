@@ -18,20 +18,20 @@ import { MapStatsDto } from '@common/dto/map/map-stats.dto';
 
 export class MapDto implements MapDB {
     @IdProperty()
-    id: number;
+    readonly id: number;
 
     @ApiProperty({ type: String, example: 'bhop_arcane' })
     @IsMapName()
-    name: string;
+    readonly name: string;
 
     @EnumProperty(MapType)
-    type: MapType;
+    readonly type: MapType;
 
     @EnumProperty(MapStatus)
-    status: MapStatus;
+    readonly status: MapStatus;
 
     @Exclude()
-    fileKey: string;
+    readonly fileKey: string;
 
     @ApiProperty({ type: String, description: 'URL to S3 storage' })
     @Expose()
@@ -45,60 +45,60 @@ export class MapDto implements MapDB {
     @ApiProperty({ description: 'SHA1 hash of the map file', type: String })
     @IsHash('sha1')
     @IsOptional()
-    hash: string;
+    readonly hash: string;
 
     @Exclude()
-    thumbnailID: number;
+    readonly thumbnailID: number;
 
     @NestedProperty(MapImageDto)
-    thumbnail: MapImageDto;
+    readonly thumbnail: MapImageDto;
 
     @ApiProperty()
     @IsPositive()
     @IsOptional()
-    submitterID: number;
+    readonly submitterID: number;
 
     @Exclude()
-    mainTrackID: number;
+    readonly mainTrackID: number;
 
     @NestedProperty(MapTrackDto)
-    mainTrack: MapTrackDto;
+    readonly mainTrack: MapTrackDto;
 
     @NestedProperty(MapInfoDto)
-    info: MapInfoDto;
+    readonly info: MapInfoDto;
 
     @NestedProperty(UserDto, { lazy: true, description: 'The user the submitted the map' })
-    submitter: UserDto;
+    readonly submitter: UserDto;
 
     @NestedProperty(MapImageDto, { isArray: true })
-    images: MapImageDto[];
+    readonly images: MapImageDto[];
 
     @NestedProperty(MapTrackDto, { isArray: true })
-    tracks: MapTrackDto[];
+    readonly tracks: MapTrackDto[];
 
     @NestedProperty(MapStatsDto)
-    stats: MapStatsDto;
+    readonly stats: MapStatsDto;
 
     @NestedProperty(MapCreditDto)
-    credits: MapCreditDto[];
+    readonly credits: MapCreditDto[];
 
     @NestedProperty(MapFavoriteDto)
-    favorites: MapFavoriteDto[];
+    readonly favorites: MapFavoriteDto[];
 
     @NestedProperty(MapLibraryEntryDto, { isArray: true })
-    libraryEntries: MapLibraryEntryDto[];
+    readonly libraryEntries: MapLibraryEntryDto[];
 
     @NestedProperty(UserMapRankDto, { lazy: true })
-    worldRecord: UserMapRankDto;
+    readonly worldRecord: UserMapRankDto;
 
     @NestedProperty(UserMapRankDto, { lazy: true })
-    personalBest: UserMapRankDto;
+    readonly personalBest: UserMapRankDto;
 
     @CreatedAtProperty()
-    createdAt: Date;
+    readonly createdAt: Date;
 
     @UpdatedAtProperty()
-    updatedAt: Date;
+    readonly updatedAt: Date;
 }
 
 export class UpdateMapDto extends PickType(MapDto, ['status'] as const) {}

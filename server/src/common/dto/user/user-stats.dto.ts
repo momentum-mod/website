@@ -7,38 +7,38 @@ import { IsNumberString } from '@common/validators/is-number-string.validator';
 
 export class UserStatsDto implements UserStats {
     @IdProperty()
-    id: number;
+    readonly id: number;
 
     @Exclude()
-    userID: number;
+    readonly userID: number;
 
     @ApiProperty({ type: String, description: "The user's total cosmetic XP" })
     @IsNumberString()
-    cosXP: bigint;
+    readonly cosXP: bigint;
 
     @ApiProperty({ type: String, description: "The user's level" })
     @IsInt()
-    level: number;
+    readonly level: number;
 
     @ApiProperty({ type: String, description: 'Total maps completed' })
     @IsInt()
-    mapsCompleted: number;
+    readonly mapsCompleted: number;
 
     @ApiProperty({ type: String, description: 'Total runs submitted' })
     @IsInt()
-    runsSubmitted: number;
+    readonly runsSubmitted: number;
 
     @ApiProperty({ type: String, description: "The user's total number of jumps" })
     @IsNumberString()
-    totalJumps: bigint;
+    readonly totalJumps: bigint;
 
     @ApiProperty({ type: String, description: "The user's total number of strafes" })
     @IsNumberString()
-    totalStrafes: bigint;
+    readonly totalStrafes: bigint;
 
     @CreatedAtProperty()
-    createdAt: Date;
+    readonly createdAt: Date;
 
     @UpdatedAtProperty()
-    updatedAt: Date;
+    readonly updatedAt: Date;
 }

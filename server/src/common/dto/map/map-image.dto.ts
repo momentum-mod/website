@@ -7,7 +7,7 @@ import { Config } from '@config/config';
 
 export class MapImageDto implements MapImage {
     @IdProperty()
-    id: number;
+    readonly id: number;
 
     @ApiProperty({ type: String, description: 'URL to low resolution (480x360) JPEG image file' })
     @Expose()
@@ -31,11 +31,11 @@ export class MapImageDto implements MapImage {
     }
 
     @Exclude()
-    mapID: number;
+    readonly mapID: number;
 
     @CreatedAtProperty()
-    createdAt: Date;
+    readonly createdAt: Date;
 
     @UpdatedAtProperty()
-    updatedAt: Date;
+    readonly updatedAt: Date;
 }

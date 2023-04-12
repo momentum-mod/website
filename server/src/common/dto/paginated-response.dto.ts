@@ -32,21 +32,21 @@ export class PaginatedResponseDto<T> {
         description: 'The total number of results found'
     })
     @IsInt()
-    totalCount: number;
+    readonly totalCount: number;
 
     @ApiProperty({
         type: Number,
         description: 'The number of results in the response'
     })
     @IsInt()
-    returnCount: number;
+    readonly returnCount: number;
 
     @ApiProperty({
         isArray: true,
         description: 'Array of the response type found'
     })
     @IsArray()
-    response: T[];
+    readonly response: T[];
 
     constructor(c: { new (): T }, [data, count]: [any[], number]) {
         const dtos = data.map((x) => DtoFactory(c, x));

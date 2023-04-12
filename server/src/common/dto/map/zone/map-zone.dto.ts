@@ -8,33 +8,33 @@ import { MapZoneStatsDto } from './map-zone-stats.dto';
 
 export class MapZoneDto implements MapZone {
     @Exclude()
-    id: number;
+    readonly id: number;
 
     @ApiProperty()
     @IsInt()
     @Max(64)
-    zoneNum: number;
+    readonly zoneNum: number;
 
     @IdProperty()
-    trackID: number;
+    readonly trackID: number;
 
     @NestedProperty(MapZoneStatsDto, { isArray: true })
-    stats: MapZoneStatsDto[];
+    readonly stats: MapZoneStatsDto[];
 
     @NestedProperty(MapZoneTriggerDto, { isArray: true })
-    triggers: MapZoneTriggerDto[];
+    readonly triggers: MapZoneTriggerDto[];
 
     @Exclude()
-    createdAt: Date;
+    readonly createdAt: Date;
 
     @Exclude()
-    updatedAt: Date;
+    readonly updatedAt: Date;
 }
 
 export class CreateMapZoneDto extends PickType(MapZoneDto, ['zoneNum'] as const) {
     @NestedProperty(MapZoneTriggerDto, { lazy: true, isArray: true })
     @ArrayMinSize(1)
-    triggers: MapZoneTriggerDto[];
+    readonly triggers: MapZoneTriggerDto[];
 
     // Old api also has a stats object just containing a basestats, I'm unsure why.
 }

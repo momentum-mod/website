@@ -8,7 +8,7 @@ import { IsBigInt } from '@common/validators/is-bigint';
 
 export class UsersGetQuery {
     @ExpandQueryProperty(['profile', 'userStats'])
-    expand: string[];
+    readonly expand: string[];
 
     @ApiPropertyOptional({
         name: 'mapRank',
@@ -18,12 +18,12 @@ export class UsersGetQuery {
     @Type(() => Number)
     @IsInt()
     @IsOptional()
-    mapRank: number;
+    readonly mapRank: number;
 }
 
 export class UsersGetAllQuery extends PaginationQuery {
     @ExpandQueryProperty(['profile', 'userStats'])
-    expand: string[];
+    readonly expand: string[];
 
     @ApiPropertyOptional({
         name: 'search',
@@ -33,12 +33,12 @@ export class UsersGetAllQuery extends PaginationQuery {
     })
     @IsOptional()
     @IsString()
-    search: string;
+    readonly search: string;
 
     @BigIntQueryProperty({ description: 'Filter by Steam Community ID', example: '123135674' })
     @IsBigInt()
     @IsOptional()
-    steamID: bigint;
+    readonly steamID: bigint;
 
     @IntCsvQueryProperty({
         description: 'Filter by CSV list of Steam Community IDs',
@@ -47,7 +47,7 @@ export class UsersGetAllQuery extends PaginationQuery {
     })
     @IsBigInt({ each: true })
     @IsOptional()
-    steamIDs: bigint[];
+    readonly steamIDs: bigint[];
 
     @ApiPropertyOptional({
         name: 'mapRank',
@@ -58,7 +58,7 @@ export class UsersGetAllQuery extends PaginationQuery {
     @Type(() => Number)
     @IsInt()
     @IsOptional()
-    mapRank: number;
+    readonly mapRank: number;
 }
 
 export class UsersGetActivitiesQuery extends OmitType(ActivitiesGetQuery, ['userID' as const]) {}
@@ -72,20 +72,20 @@ class UserMapsBaseGetQuery extends PaginationQuery {
     })
     @IsString()
     @IsOptional()
-    search: string;
+    readonly search: string;
 }
 
 export class UserMapLibraryGetQuery extends UserMapsBaseGetQuery {
     @ExpandQueryProperty(['submitter', 'thumbnail', 'inFavorites'])
-    expand: string[];
+    readonly expand: string[];
 }
 
 export class UserMapFavoritesGetQuery extends UserMapsBaseGetQuery {
     @ExpandQueryProperty(['submitter', 'thumbnail', 'inFavorites'])
-    expand: string[];
+    readonly expand: string[];
 }
 
 export class UserMapSubmittedGetQuery extends UserMapsBaseGetQuery {
     @ExpandQueryProperty(['info', 'submitter', 'credits'])
-    expand: string[];
+    readonly expand: string[];
 }

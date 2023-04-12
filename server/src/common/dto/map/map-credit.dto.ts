@@ -7,28 +7,28 @@ import { CreatedAtProperty, IdProperty, NestedProperty, EnumProperty, UpdatedAtP
 
 export class MapCreditDto implements MapCredit {
     @IdProperty()
-    id: number;
+    readonly id: number;
 
     @EnumProperty(MapCreditType)
-    type: MapCreditType;
+    readonly type: MapCreditType;
 
     @IdProperty()
-    userID: number;
+    readonly userID: number;
 
     @NestedProperty(UserDto, { lazy: true })
-    user: UserDto;
+    readonly user: UserDto;
 
     @IdProperty()
-    mapID: number;
+    readonly mapID: number;
 
     @NestedProperty(MapDto, { lazy: true })
-    map: MapDto;
+    readonly map: MapDto;
 
     @CreatedAtProperty()
-    createdAt: Date;
+    readonly createdAt: Date;
 
     @UpdatedAtProperty()
-    updatedAt: Date;
+    readonly updatedAt: Date;
 }
 
 export class CreateMapCreditDto extends PickType(MapCreditDto, ['userID', 'type'] as const) {}
