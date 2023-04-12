@@ -2,7 +2,7 @@
 import { IsBoolean, IsInt, IsNumber } from 'class-validator';
 import { NestedProperty } from '@lib/dto.lib';
 import { RunDto } from './run.dto';
-import { UserMapRankDto } from '@common/dto/run/user-map-rank.dto';
+import { RankDto } from '@common/dto/run/rank.dto';
 
 class CosXpGain {
     @ApiProperty({ type: Number, description: 'Integer amount of levels gained' })
@@ -43,8 +43,8 @@ export class CompletedRunDto {
     @IsBoolean()
     readonly isNewPersonalBest: boolean;
 
-    @NestedProperty(UserMapRankDto)
-    readonly rank: UserMapRankDto;
+    @NestedProperty(RankDto)
+    readonly rank: RankDto;
 
     @NestedProperty(RunDto)
     readonly run: RunDto;

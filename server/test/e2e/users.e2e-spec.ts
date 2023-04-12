@@ -129,7 +129,7 @@ describe('Users', () => {
 
             it('should respond with the specified user with with a corresponding map rank and run when given a mapRank mapid', async () => {
                 const map = await db.createMap();
-                const run = await db.createRunAndUmrForMap({ map: map, user: users[0], rank: 1, ticks: 1 });
+                const run = await db.createRunAndRankForMap({ map: map, user: users[0], rank: 1, ticks: 1 });
 
                 const res = await req.get({
                     url: 'users',
@@ -182,7 +182,7 @@ describe('Users', () => {
 
             it('should respond with the specified user with with a corresponding map rank and run when given a mapRank mapid', async () => {
                 const map = await db.createMap();
-                const run = await db.createRunAndUmrForMap({ map: map, user: user, rank: 1, ticks: 1 });
+                const run = await db.createRunAndRankForMap({ map: map, user: user, rank: 1, ticks: 1 });
 
                 const res = await req.get({
                     url: `users/${user.id}`,
@@ -462,7 +462,10 @@ describe('Users', () => {
 
             beforeAll(async () => {
                 [user, token] = await db.createAndLoginUser();
-                await Promise.all([db.createRunAndUmrForMap({ user: user }), db.createRunAndUmrForMap({ user: user })]);
+                await Promise.all([
+                    db.createRunAndRankForMap({ user: user }),
+                    db.createRunAndRankForMap({ user: user })
+                ]);
             });
 
             afterAll(() => db.cleanup('user', 'map', 'run'));

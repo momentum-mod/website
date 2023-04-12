@@ -8,7 +8,7 @@ import {
     MapTrack,
     MapZone,
     MapZoneTrigger,
-    UserMapRank,
+    Rank,
     Prisma,
     MapImage
 } from '@prisma/client';
@@ -293,19 +293,19 @@ export class MapsRepoService {
     //#region
 
     async getRanks(
-        where?: Prisma.UserMapRankWhereInput,
-        include?: Prisma.UserMapRankInclude,
-        order?: Prisma.UserMapRankOrderByWithAggregationInput,
+        where?: Prisma.RankWhereInput,
+        include?: Prisma.RankInclude,
+        order?: Prisma.RankOrderByWithAggregationInput,
         skip?: number,
         take?: number
-    ): Promise<[UserMapRank[], number]> {
-        const count = await this.prisma.userMapRank.count({
+    ): Promise<[Rank[], number]> {
+        const count = await this.prisma.rank.count({
             where: where,
             skip: skip,
             take: take
         });
         return [
-            await this.prisma.userMapRank.findMany({
+            await this.prisma.rank.findMany({
                 where: where,
                 include: include,
                 orderBy: order,
@@ -316,8 +316,8 @@ export class MapsRepoService {
         ];
     }
 
-    getRank(where?: Prisma.UserMapRankWhereInput, include?: Prisma.UserMapRankInclude): Promise<UserMapRank> {
-        return this.prisma.userMapRank.findFirst({
+    getRank(where?: Prisma.RankWhereInput, include?: Prisma.RankInclude): Promise<Rank> {
+        return this.prisma.rank.findFirst({
             where: where,
             include: include
         });

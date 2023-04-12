@@ -146,63 +146,61 @@ export class RunsRepoService {
 
     //#endregion
 
-    //#region User Map Rank
+    //#region Rank
 
-    getAllUserMapRanks(where: Prisma.UserMapRankWhereInput, select?: Prisma.UserMapRankSelect): Promise<unknown[]> {
-        return this.prisma.userMapRank.findMany({
+    getAllRanks(where: Prisma.RankWhereInput, select?: Prisma.RankSelect): Promise<unknown[]> {
+        return this.prisma.rank.findMany({
             where,
             select
         });
     }
 
-    getUserMapRank(where: Prisma.UserMapRankWhereInput, include?: Prisma.UserMapRankInclude) {
-        return this.prisma.userMapRank.findFirst({
+    getRank(where: Prisma.RankWhereInput, include?: Prisma.RankInclude) {
+        return this.prisma.rank.findFirst({
             where,
             include
         });
     }
 
-    getUserMapRankUnique(where: Prisma.UserMapRankWhereUniqueInput, include?: Prisma.UserMapRankInclude) {
-        return this.prisma.userMapRank.findUnique({
+    getRankUnique(where: Prisma.RankWhereUniqueInput, include?: Prisma.RankInclude) {
+        return this.prisma.rank.findUnique({
             where,
             include
         });
     }
 
-    createUserMapRank(data: Prisma.UserMapRankCreateInput, include?: Prisma.UserMapRankInclude) {
-        return this.prisma.userMapRank.create({
+    createRank(data: Prisma.RankCreateInput, include?: Prisma.RankInclude) {
+        return this.prisma.rank.create({
             data: data,
             include: include
         });
     }
 
-    batchUpdateUserMapRank(
+    batchUpdateRank(
         updates: {
-            where: Prisma.UserMapRankWhereUniqueInput;
-            data: Prisma.UserMapRankUpdateInput;
+            where: Prisma.RankWhereUniqueInput;
+            data: Prisma.RankUpdateInput;
         }[]
     ) {
-        return this.prisma.$transaction(
-            updates.map((u) => this.prisma.userMapRank.update({ where: u.where, data: u.data }))
-        );
+        return this.prisma.$transaction(updates.map((u) => this.prisma.rank.update({ where: u.where, data: u.data })));
     }
 
-    updateUserMapRanks(where: Prisma.UserMapRankWhereInput, data: Prisma.UserMapRankUpdateInput) {
-        return this.prisma.userMapRank.updateMany({
+    updateRanks(where: Prisma.RankWhereInput, data: Prisma.RankUpdateInput) {
+        return this.prisma.rank.updateMany({
             where,
             data
         });
     }
 
-    updateUserMapRank(where: Prisma.UserMapRankWhereUniqueInput, data: Prisma.UserMapRankUpdateInput) {
-        return this.prisma.userMapRank.update({
+    updateRank(where: Prisma.RankWhereUniqueInput, data: Prisma.RankUpdateInput) {
+        return this.prisma.rank.update({
             where,
             data
         });
     }
 
-    countUserMapRank(where: Prisma.UserMapRankWhereInput): Promise<number> {
-        return this.prisma.userMapRank.count({ where: where });
+    countRank(where: Prisma.RankWhereInput): Promise<number> {
+        return this.prisma.rank.count({ where: where });
     }
 
     //#endregion

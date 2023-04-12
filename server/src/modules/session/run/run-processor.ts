@@ -1,4 +1,4 @@
-﻿import { Map as MapDB, MapTrack, RunSessionTimestamp, User, UserMapRank } from '@prisma/client';
+﻿import { Map as MapDB, MapTrack, RunSessionTimestamp, User, Rank } from '@prisma/client';
 import { RunSessionCompleted } from '../../repo/runs-repo.service';
 import { AllowedGameModes, getDefaultTickRateForMapType } from '@common/enums/map.enum';
 import { ReplayFileReader } from '@lib/replay/replay-file-reader';
@@ -23,7 +23,7 @@ export class RunProcessor {
     zoneNum: number;
     trackNum: number;
     startTime: number;
-    mapRank: UserMapRank;
+    mapRank: Rank;
 
     constructor(buffer: Buffer, session: RunSessionCompleted, user: User) {
         this.replayFile = new ReplayFileReader(buffer);

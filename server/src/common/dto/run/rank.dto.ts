@@ -1,4 +1,4 @@
-import { UserMapRank } from '@prisma/client';
+import { Rank } from '@prisma/client';
 import { ApiProperty } from '@nestjs/swagger';
 import { IsInt, IsOptional, IsPositive } from 'class-validator';
 import { MapType } from '../../enums/map.enum';
@@ -14,7 +14,7 @@ import { MapDto } from '../map/map.dto';
 import { UserDto } from '../user/user.dto';
 import { RunDto } from './run.dto';
 
-export class UserMapRankDto implements PrismaModelToDto<UserMapRank> {
+export class RankDto implements PrismaModelToDto<Rank> {
     @IdProperty()
     readonly id: number;
 

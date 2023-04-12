@@ -1,4 +1,4 @@
-﻿import { BaseStats as BaseStatsDB, Prisma, Run as RunDB, UserMapRank } from '@prisma/client';
+﻿import { BaseStats as BaseStatsDB, Prisma, Rank, Run as RunDB } from '@prisma/client';
 import { XpGainDto } from '@common/dto/run/completed-run.dto';
 
 export type ProcessedRun = Omit<RunDB, 'id' | 'createdAt' | 'updatedAt' | 'overallStatsID' | 'file' | 'hash'> & {
@@ -50,7 +50,7 @@ export type ZoneStatsFromGame = {
 export interface StatsUpdateReturn {
     isPersonalBest: boolean;
     isWorldRecord: boolean;
-    existingRank: UserMapRank;
-    umrCreate: Prisma.UserMapRankCreateWithoutRunInput;
+    existingRank: Rank;
+    rankCreate: Prisma.RankCreateWithoutRunInput;
     xp: XpGainDto;
 }

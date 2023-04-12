@@ -156,21 +156,21 @@ export class RunSessionService {
             await this.createAndStoreRun(submittedRun, replayBuffer)
         ]);
 
-        // Now the run is back we can actually update the UMR. We could use a Prisma upsert here but we already know
+        // Now the run is back we can actually update the rank. We could use a Prisma upsert here but we already know
         // if the existing rank exists or not.
         let mapRank;
         if (statsUpdate.isPersonalBest)
             mapRank = await (statsUpdate.existingRank
-                ? this.runRepo.updateUserMapRank(
+                ? this.runRepo.updateRank(
                       { runID: statsUpdate.existingRank.runID },
                       {
                           run: { connect: { id: savedRun.id } },
-                          rank: statsUpdate.umrCreate.rank,
-                          rankXP: statsUpdate.umrCreate.rankXP
+                          rank: statsUpdate.rankCreate.rank,
+                          rankXP: statsUpdate.rankCreate.rankXP
                       }
                   )
-                : this.runRepo.createUserMapRank({
-                      ...statsUpdate.umrCreate,
+                : this.runRepo.createRank({
+                      ...statsUpdate.rankCreate,
                       run: { connect: { id: savedRun.id } }
                   }));
         // If it's not a PB then existingRank exists
@@ -210,18 +210,18 @@ export class RunSessionService {
         mapType: number
     ): Promise<StatsUpdateReturn> {
         // Base Where input we'll be using variants of
-        const umrWhere = {
+        const rankWhere = {
             mapID: submittedRun.mapID,
             gameType: mapType,
             flags: submittedRun.flags
         };
 
         // This gets built up as we go, but can't be updated until we've created the actual Run entry we need it to key into
-        let umrCreate: Prisma.UserMapRankCreateWithoutRunInput | undefined;
+        let rankCreate: Prisma.RankCreateWithoutRunInput | undefined;
 
-        const existingRank = await this.runRepo.getUserMapRank(
+        const existingRank = await this.runRepo.getRank(
             {
-                ...umrWhere,
+                ...rankWhere,
                 userID: submittedRun.userID,
                 run: {
                     trackNum: submittedRun.trackNum,
@@ -235,7 +235,7 @@ export class RunSessionService {
 
         let isWorldRecord = false;
         if (isPersonalBest) {
-            const existingWorldRecord = await this.runRepo.getUserMapRank(
+            const existingWorldRecord = await this.runRepo.getRank(
                 {
                     rank: 1,
                     mapID: submittedRun.mapID,
@@ -338,12 +338,12 @@ export class RunSessionService {
 
         let rankXP = 0;
 
-        // If it's a PB we're be creating or updating a UMR, then shifting all the other affected UMRs
+        // If it's a PB we're be creating or updating a rank, then shifting all the other affected rank
         if (isPersonalBest) {
             // If we don't have a rank we increment +1 since we want the total *after* we've added the new run
-            const totalRuns = (await this.runRepo.countUserMapRank(umrWhere)) + (existingRank ? 0 : 1);
-            const fasterRuns = await this.runRepo.countUserMapRank({
-                ...umrWhere,
+            const totalRuns = (await this.runRepo.countRank(rankWhere)) + (existingRank ? 0 : 1);
+            const fasterRuns = await this.runRepo.countRank({
+                ...rankWhere,
                 run: { ticks: { lte: submittedRun.ticks } }
             });
 
@@ -351,7 +351,7 @@ export class RunSessionService {
             const rank = fasterRuns + 1;
             rankXP = this.xpSystems.getRankXpForRank(rank, totalRuns).rankXP;
 
-            umrCreate = {
+            rankCreate = {
                 user: { connect: { id: submittedRun.userID } },
                 map: { connect: { id: submittedRun.mapID } },
                 gameType: mapType,
@@ -361,10 +361,10 @@ export class RunSessionService {
             };
 
             // If we only improved our rank the range to update is [newRank, oldRank), otherwise it's everything below
-            const rankWhere: Prisma.IntNullableFilter = existingRank ? { gte: rank, lt: oldRank } : { gte: rank };
+            const rankRangeWhere: Prisma.IntNullableFilter = existingRank ? { gte: rank, lt: oldRank } : { gte: rank };
 
-            const ranks: any = await this.runRepo.getAllUserMapRanks(
-                { ...umrWhere, rank: rankWhere },
+            const ranks: any = await this.runRepo.getAllRanks(
+                { ...rankWhere, rank: rankRangeWhere },
                 { rank: true, userID: true }
             );
 
@@ -377,36 +377,36 @@ export class RunSessionService {
 
             await Promise.all(
                 ranks.map(
-                    async (umr) =>
-                        await this.runRepo.updateUserMapRanks(
+                    async (rank) =>
+                        await this.runRepo.updateRanks(
                             {
-                                ...umrWhere,
-                                userID: umr.userID,
+                                ...rankWhere,
+                                userID: rank.userID,
                                 run: {
                                     trackNum: submittedRun.trackNum,
                                     zoneNum: submittedRun.zoneNum
                                 }
                             },
                             {
-                                rank: umr.rank + 1,
-                                rankXP: this.xpSystems.getRankXpForRank(umr.rank + 1, totalRuns).rankXP
+                                rank: rank.rank + 1,
+                                rankXP: this.xpSystems.getRankXpForRank(rank.rank + 1, totalRuns).rankXP
                             }
                         )
                 )
             );
 
-            // await this.runRepo.batchUpdateUserMapRank(
-            //     ranks.map((umr) => {
+            // await this.runRepo.batchUpdateRank(
+            //     ranks.map((rank) => {
             //         return {
             //             where: {
             //                 mapID_userID_gameType_flags_trackNum_zoneNum: {
-            //                     ...umrWhere,
-            //                     userID: umr.userID
+            //                     ...rankWhere,
+            //                     userID: rank.userID
             //                 }
             //             },
             //             data: {
-            //                 rank: umr.rank + 1,
-            //                 rankXP: this.xpSystems.getRankXpForRank(umr.rank + 1, totalRuns).rankXP
+            //                 rank: rank.rank + 1,
+            //                 rankXP: this.xpSystems.getRankXpForRank(rank.rank + 1, totalRuns).rankXP
             //             }
             //         };
             //     })
@@ -471,7 +471,7 @@ export class RunSessionService {
             isPersonalBest: isPersonalBest,
             isWorldRecord: isWorldRecord,
             existingRank: existingRank,
-            umrCreate: umrCreate,
+            rankCreate: rankCreate,
             xp: xpGain
         };
     }

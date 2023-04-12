@@ -57,7 +57,7 @@ import { RunDto } from '@common/dto/run/run.dto';
 import { RunsService } from '../runs/runs.service';
 import { MapImageDto } from '@common/dto/map/map-image.dto';
 import { RolesGuard } from '@modules/auth/roles.guard';
-import { UserMapRankDto } from '@common/dto/run/user-map-rank.dto';
+import { RankDto } from '@common/dto/run/rank.dto';
 import { ParseIntSafePipe } from '@common/pipes/parse-int-safe.pipe';
 import { FastifyReply } from 'fastify';
 import { FileInterceptor } from '@nest-lab/fastify-multer';
@@ -618,7 +618,7 @@ export class MapsController {
     getRanks(
         @Param('mapID', ParseIntSafePipe) mapID: number,
         @Query() query?: MapRanksGetQuery
-    ): Promise<PaginatedResponseDto<UserMapRankDto>> {
+    ): Promise<PaginatedResponseDto<RankDto>> {
         return this.mapsService.getRanks(mapID, query);
     }
 
@@ -635,7 +635,7 @@ export class MapsController {
         @LoggedInUser('id') userID: number,
         @Param('mapID') mapID: number,
         @Query() query?: MapRankGetNumberQuery
-    ): Promise<UserMapRankDto[]> {
+    ): Promise<RankDto[]> {
         return this.mapsService.getRankAround(userID, mapID, query);
     }
 
@@ -653,7 +653,7 @@ export class MapsController {
         @LoggedInUser('steamID') steamID: bigint,
         @Param('mapID') mapID: number,
         @Query() query?: MapRankGetNumberQuery
-    ): Promise<UserMapRankDto[]> {
+    ): Promise<RankDto[]> {
         return this.mapsService.getRankFriends(steamID, mapID, query);
     }
 
@@ -677,7 +677,7 @@ export class MapsController {
         @Param('mapID', ParseIntSafePipe) mapID: number,
         @Param('rankNumber', ParseIntSafePipe) rankNumber: number,
         @Query() query?: MapRankGetNumberQuery
-    ): Promise<UserMapRankDto> {
+    ): Promise<RankDto> {
         return this.mapsService.getRankNumber(mapID, rankNumber, query);
     }
 
