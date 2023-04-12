@@ -18,6 +18,7 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { validate } from '@config/config.validation';
 import { ConfigFactory } from '@config/config';
 import { FastifyMulterModule } from '@nest-lab/fastify-multer';
+import { RanksModule } from '@modules/ranks/ranks.module';
 
 @Module({
     imports: [
@@ -44,6 +45,7 @@ import { FastifyMulterModule } from '@nest-lab/fastify-multer';
         ActivitiesModule,
         AdminModule,
         MapsModule,
+        RanksModule,
         ReportsModule,
         RunsModule,
         StatsModule,

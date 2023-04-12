@@ -8,9 +8,10 @@ import { MapLibraryService } from './map-library.service';
 import { ConfigModule } from '@nestjs/config';
 import { SteamModule } from '@modules/steam/steam.module';
 import { RunsModule } from '@modules/runs/runs.module';
+import { RanksModule } from '@modules/ranks/ranks.module';
 
 @Module({
-    imports: [RepoModule, FileStoreModule, ConfigModule, SteamModule, SessionModule, RunsModule],
+    imports: [RepoModule, FileStoreModule, ConfigModule, SteamModule, SessionModule, RunsModule, RanksModule],
     controllers: [MapsController],
     providers: [MapsService, MapLibraryService],
     exports: [MapsService, MapLibraryService]
