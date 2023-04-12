@@ -29,9 +29,9 @@ describe('Runs', () => {
                 token = await auth.login(users[0]);
 
                 await Promise.all([
-                    db.createRunAndUmrForMap({ map: maps[0], user: users[0], createdAt: dateOffset(-4), flags: 1 }),
+                    db.createRunAndRankForMap({ map: maps[0], user: users[0], createdAt: dateOffset(-4), flags: 1 }),
                     db.createRun({ map: maps[0], user: users[1], createdAt: dateOffset(-3) }),
-                    db.createRunAndUmrForMap({ map: maps[1], user: users[0], createdAt: dateOffset(-2) }),
+                    db.createRunAndRankForMap({ map: maps[1], user: users[0], createdAt: dateOffset(-2) }),
                     db.createRun({ map: maps[1], user: users[1], createdAt: dateOffset(-1) })
                 ]);
             });
@@ -182,7 +182,7 @@ describe('Runs', () => {
             let user, token, map, run;
 
             beforeAll(async () => {
-                run = await db.createRunAndUmrForMap({ map: map, rank: 1, user: user, ticks: 1 });
+                run = await db.createRunAndRankForMap({ map: map, rank: 1, user: user, ticks: 1 });
                 user = run.user;
                 map = run.map;
                 token = await auth.login(user);
@@ -228,7 +228,7 @@ describe('Runs', () => {
             let user, token, map, run;
 
             beforeAll(async () => {
-                run = await db.createRunAndUmrForMap({
+                run = await db.createRunAndRankForMap({
                     map: map,
                     rank: 1,
                     user: user,

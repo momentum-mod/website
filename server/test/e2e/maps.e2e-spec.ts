@@ -4,7 +4,7 @@ import { MapDto } from '@common/dto/map/map.dto';
 import { MapInfoDto } from '@common/dto/map/map-info.dto';
 import { MapCreditDto } from '@common/dto/map/map-credit.dto';
 import { RunDto } from '@common/dto/run/run.dto';
-import { UserMapRankDto } from '@common/dto/run/user-map-rank.dto';
+import { RankDto } from '@common/dto/run/rank.dto';
 import { ActivityType } from '@common/enums/activity.enum';
 import axios from 'axios';
 import { UserDto } from '@common/dto/user/user.dto';
@@ -171,7 +171,7 @@ describe('Maps', () => {
             });
 
             it("should respond with the map's WR when using the worldRecord expansion", async () => {
-                await db.createRunAndUmrForMap({ map: m1, user: u2, ticks: 5, rank: 1 });
+                await db.createRunAndRankForMap({ map: m1, user: u2, ticks: 5, rank: 1 });
 
                 const res = await req.get({
                     url: 'maps',
@@ -186,7 +186,7 @@ describe('Maps', () => {
             });
 
             it("should respond with the logged in user's PB when using the personalBest expansion", async () => {
-                await db.createRunAndUmrForMap({ map: m1, user: u1, ticks: 10, rank: 2 });
+                await db.createRunAndRankForMap({ map: m1, user: u1, ticks: 10, rank: 2 });
 
                 const res = await req.get({
                     url: 'maps',
@@ -704,7 +704,7 @@ describe('Maps', () => {
             });
 
             it("should respond with the map's WR when using the worldRecord expansion", async () => {
-                await db.createRunAndUmrForMap({ map: map, user: u2, ticks: 5, rank: 1 });
+                await db.createRunAndRankForMap({ map: map, user: u2, ticks: 5, rank: 1 });
 
                 const res = await req.get({
                     url: `maps/${map.id}`,
@@ -717,7 +717,7 @@ describe('Maps', () => {
             });
 
             it("should respond with the logged in user's PB when using the personalBest expansion", async () => {
-                await db.createRunAndUmrForMap({ map: map, user: u1, ticks: 10, rank: 2 });
+                await db.createRunAndRankForMap({ map: map, user: u1, ticks: 10, rank: 2 });
 
                 const res = await req.get({
                     url: `maps/${map.id}`,
@@ -1842,7 +1842,7 @@ describe('Maps', () => {
                 // Flags are weird currently, seems like they're supposed to be bitflags but aren't treated as that,
                 // probably changing in 0.10.0.
                 await Promise.all([
-                    db.createRunAndUmrForMap({
+                    db.createRunAndRankForMap({
                         map: map,
                         user: u1,
                         rank: 1,
@@ -1850,7 +1850,7 @@ describe('Maps', () => {
                         flags: 1,
                         createdAt: dateOffset(3)
                     }),
-                    db.createRunAndUmrForMap({
+                    db.createRunAndRankForMap({
                         map: map,
                         user: u2,
                         rank: 3,
@@ -1858,7 +1858,7 @@ describe('Maps', () => {
                         flags: 1,
                         createdAt: dateOffset(2)
                     }),
-                    db.createRunAndUmrForMap({
+                    db.createRunAndRankForMap({
                         map: map,
                         user: u3,
                         rank: 2,
@@ -2012,7 +2012,7 @@ describe('Maps', () => {
                     db.createMap()
                 ]);
                 await Promise.all([
-                    db.createRunAndUmrForMap({
+                    db.createRunAndRankForMap({
                         map: map,
                         user: u1,
                         rank: 1,
@@ -2020,7 +2020,7 @@ describe('Maps', () => {
                         flags: 1,
                         createdAt: dateOffset(3)
                     }),
-                    db.createRunAndUmrForMap({
+                    db.createRunAndRankForMap({
                         map: map,
                         user: u2,
                         rank: 2,
@@ -2028,7 +2028,7 @@ describe('Maps', () => {
                         flags: 1,
                         createdAt: dateOffset(2)
                     }),
-                    db.createRunAndUmrForMap({
+                    db.createRunAndRankForMap({
                         map: map,
                         user: u3,
                         rank: 3,
@@ -2045,7 +2045,7 @@ describe('Maps', () => {
                 req.get({
                     url: `maps/${map.id}/ranks`,
                     status: 200,
-                    validatePaged: { type: UserMapRankDto, count: 3 },
+                    validatePaged: { type: RankDto, count: 3 },
                     token: u1Token
                 }));
 
@@ -2054,7 +2054,7 @@ describe('Maps', () => {
                     url: `maps/${map.id}/ranks`,
                     status: 200,
                     query: { playerID: u2.id },
-                    validatePaged: { type: UserMapRankDto, count: 1 },
+                    validatePaged: { type: RankDto, count: 1 },
                     token: u1Token
                 });
 
@@ -2066,7 +2066,7 @@ describe('Maps', () => {
                     url: `maps/${map.id}/ranks`,
                     status: 200,
                     query: { playerIDs: `${u1.id},${u2.id}` },
-                    validatePaged: { type: UserMapRankDto, count: 2 },
+                    validatePaged: { type: RankDto, count: 2 },
                     token: u1Token
                 });
 
@@ -2078,7 +2078,7 @@ describe('Maps', () => {
                     url: `maps/${map.id}/ranks`,
                     status: 200,
                     query: { flags: 1 },
-                    validatePaged: { type: UserMapRankDto, count: 2 },
+                    validatePaged: { type: RankDto, count: 2 },
                     token: u1Token
                 });
 
@@ -2089,23 +2089,23 @@ describe('Maps', () => {
                 req.sortByDateTest({
                     url: `maps/${map.id}/ranks`,
                     query: { orderByDate: true },
-                    validate: UserMapRankDto,
+                    validate: RankDto,
                     token: u1Token
                 }));
 
             it('should be ordered by rank by default', () =>
                 req.sortTest({
                     url: `maps/${map.id}/ranks`,
-                    validate: UserMapRankDto,
+                    validate: RankDto,
                     sortFn: (a, b) => a.time - b.time,
                     token: u1Token
                 }));
 
             it('should respond with filtered map data using the skip parameter', () =>
-                req.skipTest({ url: `maps/${map.id}/ranks`, validate: UserMapRankDto, token: u1Token }));
+                req.skipTest({ url: `maps/${map.id}/ranks`, validate: RankDto, token: u1Token }));
 
             it('should respond with filtered map data using the take parameter', () =>
-                req.takeTest({ url: `maps/${map.id}/ranks`, validate: UserMapRankDto, token: u1Token }));
+                req.takeTest({ url: `maps/${map.id}/ranks`, validate: RankDto, token: u1Token }));
 
             it('should return 404 for a nonexistent map', () =>
                 req.get({ url: `maps/${NULL_ID}/ranks`, status: 404, token: u1Token }));
@@ -2143,23 +2143,23 @@ describe('Maps', () => {
             afterEach(() => db.cleanup('run'));
 
             it('should return the rank info for the rank and map specified', async () => {
-                await db.createRunAndUmrForMap({ map: map, user: user, rank: 1, ticks: 1 });
+                await db.createRunAndRankForMap({ map: map, user: user, rank: 1, ticks: 1 });
 
                 const res = await req.get({
                     url: `maps/${map.id}/ranks/1`,
                     status: 200,
-                    validate: UserMapRankDto,
+                    validate: RankDto,
                     token: token
                 });
 
                 expect(res.body).toMatchObject({ rank: 1, mapID: map.id, userID: user.id });
 
-                const run2 = await db.createRunAndUmrForMap({ map: map, rank: 2, ticks: 2 });
+                const run2 = await db.createRunAndRankForMap({ map: map, rank: 2, ticks: 2 });
 
                 const res2 = await req.get({
                     url: `maps/${map.id}/ranks/2`,
                     status: 200,
-                    validate: UserMapRankDto,
+                    validate: RankDto,
                     token: token
                 });
 
@@ -2167,13 +2167,13 @@ describe('Maps', () => {
             });
 
             it('should return the rank info for the rank and map and flags specified', async () => {
-                await db.createRunAndUmrForMap({ map: map, user: user, rank: 1, ticks: 1, flags: 0 });
-                const flagRun = await db.createRunAndUmrForMap({ map: map, rank: 1, ticks: 1, flags: 1 });
+                await db.createRunAndRankForMap({ map: map, user: user, rank: 1, ticks: 1, flags: 0 });
+                const flagRun = await db.createRunAndRankForMap({ map: map, rank: 1, ticks: 1, flags: 1 });
 
                 const res = await req.get({
                     url: `maps/${map.id}/ranks/1`,
                     status: 200,
-                    validate: UserMapRankDto,
+                    validate: RankDto,
                     query: { flags: 1 },
                     token: token
                 });
@@ -2189,13 +2189,13 @@ describe('Maps', () => {
             });
 
             it('should return the rank info for the rank and map and trackNum specified', async () => {
-                await db.createRunAndUmrForMap({ map: map, user: user, rank: 1, ticks: 1, trackNum: 0 });
-                const trackNumRun = await db.createRunAndUmrForMap({ map: map, rank: 1, ticks: 1, trackNum: 1 });
+                await db.createRunAndRankForMap({ map: map, user: user, rank: 1, ticks: 1, trackNum: 0 });
+                const trackNumRun = await db.createRunAndRankForMap({ map: map, rank: 1, ticks: 1, trackNum: 1 });
 
                 const res = await req.get({
                     url: `maps/${map.id}/ranks/1`,
                     status: 200,
-                    validate: UserMapRankDto,
+                    validate: RankDto,
                     query: { trackNum: 1 },
                     token: token
                 });
@@ -2210,13 +2210,13 @@ describe('Maps', () => {
             });
 
             it('should return the rank info for the rank and map and zoneNum specified', async () => {
-                await db.createRunAndUmrForMap({ map: map, user: user, rank: 1, ticks: 1, zoneNum: 0 });
-                const zoneNum = await db.createRunAndUmrForMap({ map: map, rank: 1, ticks: 1, zoneNum: 1 });
+                await db.createRunAndRankForMap({ map: map, user: user, rank: 1, ticks: 1, zoneNum: 0 });
+                const zoneNum = await db.createRunAndRankForMap({ map: map, rank: 1, ticks: 1, zoneNum: 1 });
 
                 const res = await req.get({
                     url: `maps/${map.id}/ranks/1`,
                     status: 200,
-                    validate: UserMapRankDto,
+                    validate: RankDto,
                     query: { zoneNum: 1 },
                     token: token
                 });
@@ -2248,7 +2248,7 @@ describe('Maps', () => {
                 map = await db.createMap();
                 runs = await Promise.all(
                     Array.from({ length: 12 }, (_, i) =>
-                        db.createRunAndUmrForMap({ map: map, rank: i + 1, ticks: (i + 1) * 100 })
+                        db.createRunAndRankForMap({ map: map, rank: i + 1, ticks: (i + 1) * 100 })
                     )
                 );
                 user7Token = await auth.login(runs[6].user);
@@ -2261,14 +2261,14 @@ describe('Maps', () => {
                     url: `maps/${map.id}/ranks/around`,
                     status: 200,
                     token: user7Token,
-                    validateArray: { type: UserMapRankDto, length: 11 }
+                    validateArray: { type: RankDto, length: 11 }
                 });
 
                 // We're calling as user 7, so we expect ranks 2-6, our rank, then 8-12
                 let rankIndex = 2;
-                for (const umr of res.body) {
-                    expect(umr).toBeValidDto(UserMapRankDto);
-                    expect(umr.rank).toBe(rankIndex);
+                for (const rank of res.body) {
+                    expect(rank).toBeValidDto(RankDto);
+                    expect(rank.rank).toBe(rankIndex);
                     rankIndex++;
                 }
                 // Last tested was 12, then incremented once more, should be sitting on 13.
@@ -2300,9 +2300,9 @@ describe('Maps', () => {
                 // Make our user rank 1, friends have subsequent ranks 2-11.
                 await Promise.all([
                     friends.map((user, i) =>
-                        db.createRunAndUmrForMap({ map: map, user: user, rank: i + 2, ticks: (i + 2) * 100 })
+                        db.createRunAndRankForMap({ map: map, user: user, rank: i + 2, ticks: (i + 2) * 100 })
                     ),
-                    db.createRunAndUmrForMap({ user: user, map: map, ticks: 1, rank: 1 })
+                    db.createRunAndRankForMap({ user: user, map: map, ticks: 1, rank: 1 })
                 ]);
             });
 
@@ -2320,10 +2320,10 @@ describe('Maps', () => {
                     url: `maps/${map.id}/ranks/friends`,
                     status: 200,
                     token: token,
-                    validateArray: { type: UserMapRankDto, length: 10 }
+                    validateArray: { type: RankDto, length: 10 }
                 });
 
-                for (const umr of res.body) expect(mockSteamIDs).toContain(BigInt(umr.user.steamID));
+                for (const rank of res.body) expect(mockSteamIDs).toContain(BigInt(rank.user.steamID));
             });
 
             it('should 418 if the user has no Steam friends', async () => {

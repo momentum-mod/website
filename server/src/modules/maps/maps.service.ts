@@ -8,9 +8,9 @@ import {
     NotFoundException,
     StreamableFile
 } from '@nestjs/common';
-import { Map as MapDB, MapCredit, MapTrack, Prisma, UserMapRank } from '@prisma/client';
+import { Map as MapDB, MapCredit, MapTrack, Prisma, Rank } from '@prisma/client';
 import { CreateMapDto, MapDto, UpdateMapDto } from '@common/dto/map/map.dto';
-import { UserMapRankDto } from '@common/dto/run/user-map-rank.dto';
+import { RankDto } from '@common/dto/run/rank.dto';
 import { PaginatedResponseDto } from '@common/dto/paginated-response.dto';
 import { MapsRepoService } from '../repo/maps-repo.service';
 import { MapCreditType, MapStatus } from '@common/enums/map.enum';
@@ -669,12 +669,12 @@ export class MapsService {
     // TODO: Move to own service!
     //#region Ranks
 
-    async getRanks(mapID: number, query: MapRanksGetQuery): Promise<PaginatedResponseDto<UserMapRankDto>> {
+    async getRanks(mapID: number, query: MapRanksGetQuery): Promise<PaginatedResponseDto<RankDto>> {
         const map = await this.mapRepo.get(mapID);
 
         if (!map) throw new NotFoundException('Map not found');
 
-        const where: Prisma.UserMapRankWhereInput = {
+        const where: Prisma.RankWhereInput = {
             mapID: mapID,
             flags: query.flags
         };
@@ -684,7 +684,7 @@ export class MapsService {
 
         const include = { run: true, user: true };
 
-        const order: Prisma.UserMapRankOrderByWithAggregationInput = {};
+        const order: Prisma.RankOrderByWithAggregationInput = {};
         if (query.orderByDate !== undefined) order.createdAt = query.orderByDate ? 'desc' : 'asc';
         else order.rank = 'asc';
 
@@ -694,15 +694,15 @@ export class MapsService {
 
         this.formatRanksDbResponse(dbResponse[0]);
 
-        return new PaginatedResponseDto(UserMapRankDto, dbResponse);
+        return new PaginatedResponseDto(RankDto, dbResponse);
     }
 
-    async getRankNumber(mapID: number, rankNumber: number, query: MapRankGetNumberQuery): Promise<UserMapRankDto> {
+    async getRankNumber(mapID: number, rankNumber: number, query: MapRankGetNumberQuery): Promise<RankDto> {
         const map = await this.mapRepo.get(mapID);
 
         if (!map) throw new NotFoundException('Map not found');
 
-        const where: Prisma.UserMapRankWhereInput = {
+        const where: Prisma.RankWhereInput = {
             mapID: mapID,
             rank: rankNumber,
             flags: 0,
@@ -726,11 +726,11 @@ export class MapsService {
         dbResponse.trackNum = (dbResponse as any).run.trackNum;
         dbResponse.zoneNum = (dbResponse as any).run.zoneNum;
 
-        return DtoFactory(UserMapRankDto, dbResponse);
+        return DtoFactory(RankDto, dbResponse);
     }
 
-    async getRankAround(userID: number, mapID: number, query: MapRankGetNumberQuery): Promise<UserMapRankDto[]> {
-        const where: Prisma.UserMapRankWhereInput = {
+    async getRankAround(userID: number, mapID: number, query: MapRankGetNumberQuery): Promise<RankDto[]> {
+        const where: Prisma.RankWhereInput = {
             mapID: mapID,
             flags: 0,
             userID: userID,
@@ -746,7 +746,7 @@ export class MapsService {
 
         const include = { run: true, user: true };
 
-        const order: Prisma.UserMapRankOrderByWithAggregationInput = { rank: 'asc' };
+        const order: Prisma.RankOrderByWithAggregationInput = { rank: 'asc' };
 
         const userRankInfo = await this.mapRepo.getRank(where, include);
 
@@ -770,10 +770,10 @@ export class MapsService {
 
         this.formatRanksDbResponse(ranks);
 
-        return ranks.map((umr) => DtoFactory(UserMapRankDto, umr));
+        return ranks.map((rank) => DtoFactory(RankDto, rank));
     }
 
-    async getRankFriends(steamID: bigint, mapID: number, query: MapRankGetNumberQuery): Promise<UserMapRankDto[]> {
+    async getRankFriends(steamID: bigint, mapID: number, query: MapRankGetNumberQuery): Promise<RankDto[]> {
         const map = await this.mapRepo.get(mapID);
 
         if (!map) throw new NotFoundException('Map not found');
@@ -784,7 +784,7 @@ export class MapsService {
 
         const friendSteamIDs = steamFriends.map((item) => BigInt(item.steamid));
 
-        const where: Prisma.UserMapRankWhereInput = {
+        const where: Prisma.RankWhereInput = {
             mapID: mapID,
             flags: 0,
             user: { steamID: { in: friendSteamIDs } },
@@ -802,12 +802,12 @@ export class MapsService {
 
         this.formatRanksDbResponse(ranks);
 
-        return ranks.map((umr) => DtoFactory(UserMapRankDto, umr));
+        return ranks.map((rank) => DtoFactory(RankDto, rank));
     }
 
     // This is done because the MapRankDto still contains trackNum and zoneNum to conform to old API
-    // but UserMapRank doesn't. Probably worth changing frontend/game code in future.
-    private formatRanksDbResponse(ranks: (UserMapRank & { trackNum?: any; zoneNum?: any })[]) {
+    // but Rank model doesn't. Probably worth changing frontend/game code in future.
+    private formatRanksDbResponse(ranks: (Rank & { trackNum?: any; zoneNum?: any })[]) {
         for (const mapRank of ranks) {
             mapRank.trackNum = (mapRank as any).run.trackNum;
             mapRank.zoneNum = (mapRank as any).run.zoneNum;

@@ -1,4 +1,4 @@
-﻿import { Prisma, User, Map as MapDB, MapInfo, MapStats, MapImage, MapTrack, UserMapRank, Run } from '@prisma/client';
+﻿import { Prisma, User, Map as MapDB, MapInfo, MapStats, MapImage, MapTrack, Rank, Run } from '@prisma/client';
 import { PrismaService } from '@modules/repo/prisma.service';
 import { randomHash, randomSteamID } from '@test/util/random.util';
 import { MapStatus, MapType } from '@common/enums/map.enum';
@@ -174,7 +174,7 @@ export class DbUtil {
     /**
      * Create a run with attached UMR for a specific map. If a Prisma `User` is passed in, use that. Otherwise, create one.
      */
-    async createRunAndUmrForMap(
+    async createRunAndRankForMap(
         args: {
             map?: MapDB;
             user?: User;
@@ -186,7 +186,7 @@ export class DbUtil {
             createdAt?: Date;
             file?: string;
         } = {}
-    ): Promise<Run & { rank: UserMapRank; user: User; map: MapDB }> {
+    ): Promise<Run & { rank: Rank; user: User; map: MapDB }> {
         // Prisma unfortunately doesn't seem clever enough to let us do nested User -> Run -> UMR creation;
         // UMR needs a User to connect. So when we want to create users for this, we to create one first.
         const user = args.user ?? (await this.createUser());

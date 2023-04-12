@@ -271,7 +271,7 @@ async function createRandomRunZoneStats(runID, baseStatsID) {
 }
 
 async function createRandomMapRank(mapID, userID, runID) {
-    return prisma.userMapRank.create({
+    return prisma.rank.create({
         data: {
             mapID: mapID,
             userID: userID,

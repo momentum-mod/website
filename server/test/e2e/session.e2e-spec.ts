@@ -5,7 +5,7 @@ import { RunSessionDto } from '@common/dto/run/run-session.dto';
 import { RunSessionTimestampDto } from '@common/dto/run/run-session-timestamp.dto';
 import { RunDto } from '@common/dto/run/run.dto';
 import { RunValidationErrorType } from '@common/enums/run.enum';
-import { UserMapRankDto } from '@common/dto/run/user-map-rank.dto';
+import { RankDto } from '@common/dto/run/rank.dto';
 import { randomHash, randomSteamID } from '@test/util/random.util';
 import { ActivityType } from '@common/enums/activity.enum';
 import { PrismaService } from '@modules/repo/prisma.service';
@@ -283,7 +283,7 @@ describe('Session', () => {
             let user, token, defaultTesterProperties;
 
             beforeEach(async () => {
-                // Run submission affects so much stuff with UMRs, ranks etc. that's it's easiest to just clear and reset
+                // Run submission affects so much with ranks and stuff that's it's easiest to just clear and reset
                 // all this after each test.
                 [user, token] = await db.createAndLoginGameUser();
 
@@ -308,7 +308,7 @@ describe('Session', () => {
 
                 await Promise.all(
                     Array.from({ length: 10 }, (_, i) =>
-                        prisma.userMapRank.create({
+                        prisma.rank.create({
                             data: {
                                 run: {
                                     create: {
@@ -386,42 +386,42 @@ describe('Session', () => {
 
                     expect(res.statusCode).toBe(200);
                     expect(res.body).toBeValidDto(CompletedRunDto);
-                    expect(res.body.rank).toBeValidDto(UserMapRankDto);
+                    expect(res.body.rank).toBeValidDto(RankDto);
                     expect(res.body.run).toBeValidDto(RunDto);
                     expect(res.body.isNewPersonalBest).toBe(true);
                     expect(res.body.isNewWorldRecord).toBe(false);
                 });
 
                 it('should be inserted in leaderboards, shifting other ranks', async () => {
-                    const umrsBefore = await prisma.userMapRank.findMany({
+                    const ranksBefore = await prisma.rank.findMany({
                         where: { mapID: map.id, run: { zoneNum: 0, trackNum: 0 }, gameType: MapType.BHOP, flags: 0 }
                     });
 
-                    expect(umrsBefore.length).toBe(10);
+                    expect(ranksBefore.length).toBe(10);
 
                     await submitRun();
 
-                    const umrsAfter = await prisma.userMapRank.findMany({
+                    const ranksAfter = await prisma.rank.findMany({
                         where: { mapID: map.id, run: { zoneNum: 0, trackNum: 0 }, gameType: MapType.BHOP, flags: 0 }
                     });
 
-                    expect(umrsAfter.length).toBe(11);
-                    expect(umrsAfter.find((umr) => umr.userID === user.id).rank).toBe(2);
+                    expect(ranksAfter.length).toBe(11);
+                    expect(ranksAfter.find((rank) => rank.userID === user.id).rank).toBe(2);
 
-                    for (const umrBefore of umrsBefore.filter((umr) => umr.rank > 1))
-                        expect(umrsAfter.find((umrAfter) => umrAfter.userID === umrBefore.userID).rank).toBe(
-                            umrBefore.rank + 1
+                    for (const rankBefore of ranksBefore.filter((rank) => rank.rank > 1))
+                        expect(ranksAfter.find((rankAfter) => rankAfter.userID === rankBefore.userID).rank).toBe(
+                            rankBefore.rank + 1
                         );
                 });
 
                 it('if has a PB, only shift ranks between the PB and old run', async () => {
-                    // Update whatever UMR + run is rank 4 to belong to user1
-                    const rankToUpdate = await prisma.userMapRank.findFirst({
+                    // Update whatever rank + run is rank 4 to belong to user1
+                    const rankToUpdate = await prisma.rank.findFirst({
                         where: { mapID: map.id, rank: 4 },
                         include: { run: true }
                     });
 
-                    await prisma.userMapRank.update({
+                    await prisma.rank.update({
                         where: { runID: rankToUpdate.run.id },
                         data: {
                             user: { connect: { id: user.id } },
@@ -429,11 +429,11 @@ describe('Session', () => {
                         }
                     });
 
-                    const umrsBefore = await prisma.userMapRank.findMany({
+                    const ranksBefore = await prisma.rank.findMany({
                         where: { mapID: map.id, run: { zoneNum: 0, trackNum: 0 }, gameType: MapType.BHOP, flags: 0 }
                     });
 
-                    expect(umrsBefore.length).toBe(10);
+                    expect(ranksBefore.length).toBe(10);
 
                     const res = await submitRun();
 
@@ -441,37 +441,37 @@ describe('Session', () => {
                     expect(res.body).toBeValidDto(CompletedRunDto);
                     expect(res.body.isNewPersonalBest).toBe(true);
 
-                    const umrsAfter = await prisma.userMapRank.findMany({
+                    const ranksAfter = await prisma.rank.findMany({
                         where: { mapID: map.id, run: { zoneNum: 0, trackNum: 0 }, gameType: MapType.BHOP, flags: 0 }
                     });
 
-                    // It should have *updated* our existing UMR, so this should still be 10
-                    expect(umrsAfter.length).toBe(10);
+                    // It should have *updated* our existing rank, so this should still be 10
+                    expect(ranksAfter.length).toBe(10);
 
                     // So, it should have shifted rank 2, 3 to rank 3, 4, our rank (4) now becoming 2.
                     // prettier-ignore
-                    expect(umrsBefore.find((umr) => umr.rank === 2).userID).toBe(
-                            umrsAfter.find((umr) => umr.rank === 3).userID);
+                    expect(ranksBefore.find((rank) => rank.rank === 2).userID).toBe(
+                            ranksAfter.find((rank) => rank.rank === 3).userID);
 
                     // prettier-ignore
-                    expect(umrsBefore.find((umr) => umr.rank === 3).userID).toBe(
-                            umrsAfter.find((umr) => umr.rank === 4).userID);
+                    expect(ranksBefore.find((rank) => rank.rank === 3).userID).toBe(
+                            ranksAfter.find((rank) => rank.rank === 4).userID);
 
                     // prettier-ignore
-                    expect(umrsBefore.find((umr) => umr.rank === 4).userID).toBe(
-                            umrsAfter.find((umr) => umr.rank === 2).userID);
+                    expect(ranksBefore.find((rank) => rank.rank === 4).userID).toBe(
+                            ranksAfter.find((rank) => rank.rank === 2).userID);
 
-                    expect(umrsBefore.find((umr) => umr.rank == 4).userID).toBe(user.id);
+                    expect(ranksBefore.find((rank) => rank.rank == 4).userID).toBe(user.id);
                 });
 
                 it('should not change ranks or assign rank XP if not a PB', async () => {
-                    // Update whatever UMR + run is rank 1 to belong to user1
-                    const rankToUpdate = await prisma.userMapRank.findFirst({
+                    // Update whatever rank + run is rank 1 to belong to user1
+                    const rankToUpdate = await prisma.rank.findFirst({
                         where: { mapID: map.id, rank: 1 },
                         include: { run: true }
                     });
 
-                    await prisma.userMapRank.update({
+                    await prisma.rank.update({
                         where: { runID: rankToUpdate.run.id },
                         data: {
                             user: { connect: { id: user.id } },
@@ -479,11 +479,11 @@ describe('Session', () => {
                         }
                     });
 
-                    const umrsBefore = await prisma.userMapRank.findMany({
+                    const ranksBefore = await prisma.rank.findMany({
                         where: { mapID: map.id, run: { zoneNum: 0, trackNum: 0 }, gameType: MapType.BHOP, flags: 0 }
                     });
 
-                    expect(umrsBefore.length).toBe(10);
+                    expect(ranksBefore.length).toBe(10);
 
                     const res = await submitRun();
 
@@ -492,11 +492,11 @@ describe('Session', () => {
                     expect(res.body.isNewPersonalBest).toBe(false);
                     expect(res.body.xp.rankXP).toBe(0);
 
-                    const umrsAfter = await prisma.userMapRank.findMany({
+                    const ranksAfter = await prisma.rank.findMany({
                         where: { mapID: map.id, run: { zoneNum: 0, trackNum: 0 }, gameType: MapType.BHOP, flags: 0 }
                     });
 
-                    expect(umrsBefore).toEqual(umrsAfter);
+                    expect(ranksBefore).toEqual(ranksAfter);
                 });
 
                 it('should assign cosmetic and rank XP for the run', async () => {
@@ -552,7 +552,7 @@ describe('Session', () => {
                 });
 
                 it('should create an activity if the user achieved a WR', async () => {
-                    await prisma.userMapRank.deleteMany();
+                    await prisma.rank.deleteMany();
                     await prisma.run.deleteMany();
                     await submitRun();
 

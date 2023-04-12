@@ -4,7 +4,7 @@ import { IsISO31661Alpha2, IsOptional, IsString } from 'class-validator';
 import { Exclude, Expose } from 'class-transformer';
 import { IsSteamCommunityID } from '../../validators/is-steam-id.validator';
 import { ProfileDto } from './profile.dto';
-import { UserMapRankDto } from '../run/user-map-rank.dto';
+import { RankDto } from '../run/rank.dto';
 import { CreatedAtProperty, IdProperty, NestedProperty, UpdatedAtProperty } from '@lib/dto.lib';
 import { BansDto, UpdateBansDto } from './bans.dto';
 import { RolesDto, UpdateRolesDto } from './roles.dto';
@@ -64,8 +64,8 @@ export class UserDto implements User {
     @NestedProperty(BansDto, { description: "The user's bans" })
     readonly bans: BansDto;
 
-    @NestedProperty(UserMapRankDto, { description: 'The map rank data for the user on a specific map' })
-    readonly mapRank: UserMapRankDto;
+    @NestedProperty(RankDto, { description: 'The map rank data for the user on a specific map' })
+    readonly mapRank: RankDto;
 
     @CreatedAtProperty()
     readonly createdAt: Date;

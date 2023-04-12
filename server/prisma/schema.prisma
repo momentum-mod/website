@@ -32,7 +32,7 @@ model User {
     mapCredits        MapCredit[]
     mapFavorites      MapFavorite[]
     mapLibraryEntries MapLibraryEntry[]
-    mapRanks          UserMapRank[]
+    mapRanks          Rank[]
     mapReviews        MapReview[]
     activities        Activity[]
     follows           Follow[]          @relation("follow_follow")
@@ -307,7 +307,7 @@ model Map {
     images         MapImage[]
     libraryEntries MapLibraryEntry[]
     notifies       MapNotify[]
-    ranks          UserMapRank[]
+    ranks          Rank[]
     reviews        MapReview[]
     tracks         MapTrack[]
     runs           Run[]
@@ -413,28 +413,6 @@ model MapNotify {
     @@id([userID, mapID])
     @@unique([userID, mapID], map: "mapnotify_unique")
     @@index([userID, mapID])
-}
-
-model UserMapRank {
-    id       Int  @id @default(autoincrement())
-    gameType Int  @db.SmallInt
-    flags    Int  @default(0)
-    rank     Int? // Making this @unique would be quite nice but it'd probably shit itself when doing batch rank +1 increases
-    rankXP   Int? @default(0)
-
-    map   Map @relation(fields: [mapID], references: [id], onDelete: Cascade)
-    mapID Int
-
-    user   User @relation(fields: [userID], references: [id], onDelete: Cascade)
-    userID Int
-
-    run   Run    @relation(fields: [runID], references: [id], onDelete: Cascade)
-    runID BigInt @unique
-
-    createdAt DateTime @default(now())
-    updatedAt DateTime @updatedAt
-
-    @@index([runID, userID])
 }
 
 model MapReview {
@@ -626,7 +604,7 @@ model Run {
     file     String @db.VarChar(255)
     hash     String @db.VarChar(40)
 
-    rank UserMapRank?
+    rank Rank?
 
     overallStats   BaseStats? @relation(fields: [overallStatsID], references: [id], onDelete: Cascade)
     overallStatsID BigInt?    @unique
@@ -694,6 +672,28 @@ model RunSessionTimestamp {
     updatedAt DateTime @updatedAt
 
     @@index([sessionID])
+}
+
+model Rank {
+    id       Int  @id @default(autoincrement())
+    gameType Int  @db.SmallInt
+    flags    Int  @default(0)
+    rank     Int? // Making this @unique would be quite nice but it'd probably shit itself when doing batch rank +1 increases
+    rankXP   Int? @default(0)
+
+    map   Map @relation(fields: [mapID], references: [id], onDelete: Cascade)
+    mapID Int
+
+    user   User @relation(fields: [userID], references: [id], onDelete: Cascade)
+    userID Int
+
+    run   Run    @relation(fields: [runID], references: [id], onDelete: Cascade)
+    runID BigInt @unique
+
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+
+    @@index([runID, userID])
 }
 
 model XpSystems {
