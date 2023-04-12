@@ -658,11 +658,11 @@ describe('Admin', () => {
                 );
             });
 
-            it('should return 400 if rejected or removed map is being updated', async () => {
+            it('should return 403 if rejected or removed map is being updated', async () => {
                 await prisma.map.update({ where: { id: m1.id }, data: { status: MapStatus.REJECTED } });
                 await req.patch({
                     url: `admin/maps/${m1.id}`,
-                    status: 400,
+                    status: 403,
                     body: { status: MapStatus.PUBLIC_TESTING },
                     token: adminToken
                 });
@@ -670,7 +670,7 @@ describe('Admin', () => {
                 await prisma.map.update({ where: { id: m2.id }, data: { status: MapStatus.REMOVED } });
                 await req.patch({
                     url: `admin/maps/${m2.id}`,
-                    status: 400,
+                    status: 403,
                     body: { status: MapStatus.PUBLIC_TESTING },
                     token: adminToken
                 });
