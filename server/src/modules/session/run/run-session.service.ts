@@ -363,10 +363,11 @@ export class RunSessionService {
             // If we only improved our rank the range to update is [newRank, oldRank), otherwise it's everything below
             const rankRangeWhere: Prisma.IntNullableFilter = existingRank ? { gte: rank, lt: oldRank } : { gte: rank };
 
-            const ranks: any = await this.runRepo.getAllRanks(
-                { ...rankWhere, rank: rankRangeWhere },
-                { rank: true, userID: true }
-            );
+            const rankDbResponse = await this.runRepo.getRanks({ ...rankWhere, rank: rankRangeWhere }, undefined, {
+                rank: true,
+                userID: true
+            });
+            const ranks: any = rankDbResponse[0];
 
             // This is SLOOOOOW. Here's two different methods for doing the updates, they take about
             // 7s and 9s respectively for 10k ranks, far too slow for us. Probably going to use raw queries in the future,

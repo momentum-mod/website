@@ -34,7 +34,7 @@ export class RanksService {
         if (query.orderByDate !== undefined) order.createdAt = query.orderByDate ? 'desc' : 'asc';
         else order.rank = 'asc';
 
-        const dbResponse = await this.mapRepo.getRanks(where, include, order, query.skip, query.take);
+        const dbResponse = await this.runRepo.getRanks(where, include, undefined, order, query.skip, query.take);
 
         if (!dbResponse) throw new NotFoundException('No ranks found for map');
 
@@ -64,7 +64,7 @@ export class RanksService {
 
         const include = { run: true, user: true };
 
-        const dbResponse = (await this.mapRepo.getRank(where, include)) as any;
+        const dbResponse = (await this.runRepo.getRank(where, include)) as any;
 
         if (!dbResponse) throw new NotFoundException('Rank not found');
 
@@ -94,7 +94,7 @@ export class RanksService {
 
         const order: Prisma.RankOrderByWithAggregationInput = { rank: 'asc' };
 
-        const userRankInfo = await this.mapRepo.getRank(where, include);
+        const userRankInfo = await this.runRepo.getRank(where, include);
 
         if (!userRankInfo) throw new NotFoundException('No personal best found');
 
@@ -104,9 +104,10 @@ export class RanksService {
         where.userID = undefined;
 
         // Don't care about the count
-        const [ranks] = await this.mapRepo.getRanks(
+        const [ranks] = await this.runRepo.getRanks(
             where,
             include,
+            undefined,
             order,
             // Minus 6 here because offset will skip the number of rows provided
             // Example: if you want to offset to rank 9, you set offset to 8
@@ -144,7 +145,7 @@ export class RanksService {
         const include = { run: true, user: true };
 
         // Don't care about the count
-        const [ranks] = await this.mapRepo.getRanks(where, include);
+        const [ranks] = await this.runRepo.getRanks(where, include);
 
         this.formatRanksDbResponse(ranks);
 

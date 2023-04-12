@@ -1,17 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from './prisma.service';
-import {
-    Map,
-    MapCredit,
-    MapInfo,
-    MapStats,
-    MapTrack,
-    MapZone,
-    MapZoneTrigger,
-    Rank,
-    Prisma,
-    MapImage
-} from '@prisma/client';
+import { Map, MapCredit, MapInfo, MapStats, MapTrack, MapZone, MapZoneTrigger, Prisma, MapImage } from '@prisma/client';
 
 @Injectable()
 export class MapsRepoService {
@@ -287,39 +276,6 @@ export class MapsRepoService {
     createMapZoneTrigger(input: Prisma.MapZoneTriggerCreateInput): Promise<MapZoneTrigger> {
         return this.prisma.mapZoneTrigger.create({
             data: input
-        });
-    }
-
-    //#region
-
-    async getRanks(
-        where?: Prisma.RankWhereInput,
-        include?: Prisma.RankInclude,
-        order?: Prisma.RankOrderByWithAggregationInput,
-        skip?: number,
-        take?: number
-    ): Promise<[Rank[], number]> {
-        const count = await this.prisma.rank.count({
-            where: where,
-            skip: skip,
-            take: take
-        });
-        return [
-            await this.prisma.rank.findMany({
-                where: where,
-                include: include,
-                orderBy: order,
-                skip: skip,
-                take: take
-            }),
-            count
-        ];
-    }
-
-    getRank(where?: Prisma.RankWhereInput, include?: Prisma.RankInclude): Promise<Rank> {
-        return this.prisma.rank.findFirst({
-            where: where,
-            include: include
         });
     }
 }
