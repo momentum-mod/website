@@ -16,55 +16,55 @@ import { RunDto } from './run.dto';
 
 export class UserMapRankDto implements PrismaModelToDto<UserMapRank> {
     @IdProperty()
-    id: number;
+    readonly id: number;
 
     @EnumProperty(MapType)
-    gameType: MapType;
+    readonly gameType: MapType;
 
     @ApiProperty({ description: 'Unimplemented' })
-    flags: number;
+    readonly flags: number;
 
     // TODO_POST_REWRITE: We can remove this and zoneNum in the future since DB no longer stores dupes of this and zoneNum, but
     // still expect a DTO with this structure seem to use it from here.
     @ApiProperty({ description: 'The track the run is on' })
     @IsInt()
     @IsOptional()
-    trackNum: number;
+    readonly trackNum: number;
 
     @ApiProperty({ description: 'The zone the run is on. > 0 is a IL run, not yet supported' })
     @IsInt()
     @IsOptional()
-    zoneNum: number;
+    readonly zoneNum: number;
 
     @ApiProperty({ description: 'The leaderboard rank of the run' })
     @IsPositive()
-    rank: number;
+    readonly rank: number;
 
     @ApiProperty({ description: 'The ranked XP assigned for the run' })
     @IsInt()
-    rankXP: number;
+    readonly rankXP: number;
 
     @IdProperty()
-    mapID: number;
+    readonly mapID: number;
 
     @NestedProperty(MapDto, { lazy: true })
-    map: MapDto;
+    readonly map: MapDto;
 
     @IdProperty()
-    userID: number;
+    readonly userID: number;
 
     @NestedProperty(UserDto, { lazy: true })
-    user: UserDto;
+    readonly user: UserDto;
 
     @IdProperty({ bigint: true })
-    runID: number;
+    readonly runID: number;
 
     @NestedProperty(RunDto)
-    run: RunDto;
+    readonly run: RunDto;
 
     @CreatedAtProperty()
-    createdAt: Date;
+    readonly createdAt: Date;
 
     @UpdatedAtProperty()
-    updatedAt: Date;
+    readonly updatedAt: Date;
 }

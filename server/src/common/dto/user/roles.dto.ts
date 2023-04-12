@@ -6,29 +6,29 @@ import { Exclude } from 'class-transformer';
 export class RolesDto implements Roles {
     @ApiProperty({ description: 'If the user is verified', type: Boolean })
     @IsBoolean()
-    verified: boolean;
+    readonly verified: boolean;
 
     @ApiProperty({ description: 'If the user is a mapper', type: Boolean })
     @IsBoolean()
-    mapper: boolean;
+    readonly mapper: boolean;
 
     @ApiProperty({ description: 'If the user is a moderator', type: Boolean })
     @IsBoolean()
-    moderator: boolean;
+    readonly moderator: boolean;
 
     @ApiProperty({ description: 'If the user is an admin', type: Boolean })
     @IsBoolean()
-    admin: boolean;
+    readonly admin: boolean;
 
     @ApiProperty({
         description: 'If the user is a placeholder, i.e. has no actual Steam account, usually used for map credits',
         type: Boolean
     })
     @IsBoolean()
-    placeholder: boolean;
+    readonly placeholder: boolean;
 
     @Exclude()
-    userID: number;
+    readonly userID: number;
 }
 
 export class UpdateRolesDto extends PartialType(OmitType(RolesDto, ['userID'] as const)) {}

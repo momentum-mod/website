@@ -11,10 +11,9 @@ import { RolesDto, UpdateRolesDto } from './roles.dto';
 import { Config } from '@config/config';
 import { UserStatsDto } from '@common/dto/user/user-stats.dto';
 
-// TODO: UserStats in here in future as well
 export class UserDto implements User {
     @IdProperty({ description: 'The unique numeric ID of the user' })
-    id: number;
+    readonly id: number;
 
     @ApiProperty({
         type: String,
@@ -22,7 +21,7 @@ export class UserDto implements User {
     })
     @IsOptional() // Placeholder don't have SteamIDs
     @IsSteamCommunityID()
-    steamID: bigint;
+    readonly steamID: bigint;
 
     @ApiProperty({
         type: String,
@@ -30,7 +29,7 @@ export class UserDto implements User {
             "The user's alias, which is either a current or previous Steam name, or something they set themselves"
     })
     @IsString()
-    alias: string;
+    readonly alias: string;
 
     @ApiPropertyOptional({
         type: String,
@@ -38,10 +37,10 @@ export class UserDto implements User {
     })
     @IsOptional()
     @IsISO31661Alpha2()
-    country: string;
+    readonly country: string;
 
     @Exclude({ toPlainOnly: true })
-    avatar: string;
+    readonly avatar: string;
 
     @ApiProperty()
     @Expose()
@@ -54,25 +53,25 @@ export class UserDto implements User {
     }
 
     @NestedProperty(ProfileDto, { description: "The users's profile, containing information like bio and badges" })
-    profile: ProfileDto;
+    readonly profile: ProfileDto;
 
     @NestedProperty(UserStatsDto, { description: "The user's stats, containing information like XP and level" })
-    userStats: UserStatsDto;
+    readonly userStats: UserStatsDto;
 
     @NestedProperty(RolesDto, { description: "The user's roles" })
-    roles: RolesDto;
+    readonly roles: RolesDto;
 
     @NestedProperty(BansDto, { description: "The user's bans" })
-    bans: BansDto;
+    readonly bans: BansDto;
 
     @NestedProperty(UserMapRankDto, { description: 'The map rank data for the user on a specific map' })
-    mapRank: UserMapRankDto;
+    readonly mapRank: UserMapRankDto;
 
     @CreatedAtProperty()
-    createdAt: Date;
+    readonly createdAt: Date;
 
     @UpdatedAtProperty()
-    updatedAt: Date;
+    readonly updatedAt: Date;
 }
 
 export class CreateUserDto extends PickType(UserDto, ['alias'] as const) {}

@@ -10,25 +10,25 @@ export class FollowDto implements Follow {
         description:
             'The bitwise flags for the activities that the followee will be notified of when they are performed by the user they follow'
     })
-    notifyOn: ActivityType;
+    readonly notifyOn: ActivityType;
 
     @Exclude()
-    followedID: number;
+    readonly followedID: number;
 
     @Exclude()
-    followeeID: number;
+    readonly followeeID: number;
 
     @NestedProperty(UserDto, { description: 'The user that is being followed' })
-    followed: UserDto;
+    readonly followed: UserDto;
 
     @NestedProperty(UserDto, { description: 'The user that is doing the following' })
-    followee: UserDto;
+    readonly followee: UserDto;
 
     @CreatedAtProperty()
-    createdAt: Date;
+    readonly createdAt: Date;
 
     @UpdatedAtProperty()
-    updatedAt: Date;
+    readonly updatedAt: Date;
 }
 
 export class FollowStatusDto {

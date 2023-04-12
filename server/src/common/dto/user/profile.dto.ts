@@ -5,33 +5,24 @@ import { CreatedAtProperty, UpdatedAtProperty } from '@lib/dto.lib';
 
 export class ProfileDto {
     @Exclude()
-    id: number;
+    readonly id: number;
 
-    @ApiProperty({
-        type: Number,
-        description: 'The ID of the user'
-    })
+    @ApiProperty({ type: Number, description: 'The ID of the user' })
     @IsInt()
-    userID: number;
+    readonly userID: number;
 
-    @ApiProperty({
-        type: String,
-        description: 'The text-based bio of the user'
-    })
+    @ApiProperty({ type: String, description: 'The text-based bio of the user' })
     @IsString()
-    bio: string;
+    readonly bio: string;
 
-    @ApiProperty({
-        type: Number,
-        description: 'The ID of the badge of the user'
-    })
+    @ApiProperty({ type: Number, description: 'The ID of the badge of the user' })
     @IsOptional()
     @IsInt()
-    featuredBadgeID: number;
+    readonly featuredBadgeID: number;
 
     @CreatedAtProperty()
-    createdAt: Date;
+    readonly createdAt: Date;
 
     @UpdatedAtProperty()
-    updatedAt: Date;
+    readonly updatedAt: Date;
 }

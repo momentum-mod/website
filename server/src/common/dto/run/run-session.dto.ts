@@ -5,7 +5,7 @@ import { CreatedAtProperty, IdProperty, PrismaModelToDto, UpdatedAtProperty } fr
 
 export class RunSessionDto implements PrismaModelToDto<RunSession> {
     @IdProperty({ bigint: true })
-    id: number;
+    readonly id: number;
 
     @ApiProperty({
         description: 'The number of the track the run is on, 0 is main track',
@@ -13,7 +13,7 @@ export class RunSessionDto implements PrismaModelToDto<RunSession> {
         required: true
     })
     @IsInt()
-    trackNum: number;
+    readonly trackNum: number;
 
     @ApiProperty({
         description: 'The zone the run is on. Non-zero will imply an IL run, which are not yet implemented',
@@ -21,29 +21,21 @@ export class RunSessionDto implements PrismaModelToDto<RunSession> {
         required: true
     })
     @IsInt()
-    zoneNum: number;
+    readonly zoneNum: number;
 
-    @ApiProperty({
-        description: 'The ID of the user submitting the run',
-        type: Number,
-        required: true
-    })
+    @ApiProperty({ description: 'The ID of the user submitting the run', type: Number, required: true })
     @IsPositive()
-    userID: number;
+    readonly userID: number;
 
-    @ApiProperty({
-        description: 'The ID of the MapTrack the run is on',
-        type: Number,
-        required: true
-    })
+    @ApiProperty({ description: 'The ID of the MapTrack the run is on', type: Number, required: true })
     @IsPositive()
-    trackID: number;
+    readonly trackID: number;
 
     @CreatedAtProperty()
-    createdAt: Date;
+    readonly createdAt: Date;
 
     @UpdatedAtProperty()
-    updatedAt: Date;
+    readonly updatedAt: Date;
 }
 
 export class CreateRunSessionDto extends PickType(RunSessionDto, ['trackNum', 'zoneNum' as const]) {
@@ -57,19 +49,11 @@ export class CreateRunSessionDto extends PickType(RunSessionDto, ['trackNum', 'z
 }
 
 export class UpdateRunSessionDto {
-    @ApiProperty({
-        description: 'The zone the run is on',
-        type: Number,
-        required: true
-    })
+    @ApiProperty({ description: 'The zone the run is on', type: Number, required: true })
     @IsInt()
     zoneNum: number;
 
-    @ApiProperty({
-        description: 'The run tick at time of request',
-        type: Number,
-        required: true
-    })
+    @ApiProperty({ description: 'The run tick at time of request', type: Number, required: true })
     @IsPositive()
     tick: number;
 }

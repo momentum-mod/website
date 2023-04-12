@@ -5,67 +5,67 @@ import { CreatedAtProperty, IdProperty, PrismaModelToDto, UpdatedAtProperty } fr
 
 export class BaseStatsDto implements PrismaModelToDto<BaseStats> {
     @IdProperty({ bigint: true })
-    id: number;
+    readonly id: number;
 
     @ApiProperty()
     @IsInt()
-    jumps: number;
+    readonly jumps: number;
 
     @ApiProperty()
     @IsNumber()
-    strafes: number;
+    readonly strafes: number;
 
     @ApiProperty()
     @IsNumber()
-    avgStrafeSync: number;
+    readonly avgStrafeSync: number;
 
     @ApiProperty()
     @IsNumber()
-    avgStrafeSync2: number;
+    readonly avgStrafeSync2: number;
 
     @ApiProperty()
     @IsNumber()
-    enterTime: number;
+    readonly enterTime: number;
 
     @ApiProperty()
     @IsNumber()
-    totalTime: number;
+    readonly totalTime: number;
 
     @ApiProperty()
     @IsNumber()
-    velAvg3D: number;
+    readonly velAvg3D: number;
 
     @ApiProperty()
     @IsNumber()
-    velAvg2D: number;
+    readonly velAvg2D: number;
 
     @ApiProperty()
     @IsNumber()
-    velMax3D: number;
+    readonly velMax3D: number;
 
     @ApiProperty()
     @IsNumber()
-    velMax2D: number;
+    readonly velMax2D: number;
 
     @ApiProperty()
     @IsNumber()
-    velEnter3D: number;
+    readonly velEnter3D: number;
 
     @ApiProperty()
     @IsNumber()
-    velEnter2D: number;
+    readonly velEnter2D: number;
 
     @ApiProperty()
     @IsNumber()
-    velExit3D: number;
+    readonly velExit3D: number;
 
     @ApiProperty()
     @IsNumber()
-    velExit2D: number;
+    readonly velExit2D: number;
 
     @CreatedAtProperty()
-    createdAt: Date;
+    readonly createdAt: Date;
 
     @UpdatedAtProperty()
-    updatedAt: Date;
+    readonly updatedAt: Date;
 }

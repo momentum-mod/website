@@ -6,11 +6,11 @@ import { CreatedAtProperty, IdProperty, UpdatedAtProperty } from '@lib/dto.lib';
 
 export class MapInfoDto implements MapInfo {
     @IdProperty()
-    id: number;
+    readonly id: number;
 
     @ApiProperty({ type: String, description: 'Author-submitted description of the map' })
     @IsString()
-    description: string;
+    readonly description: string;
 
     @ApiProperty({
         type: String,
@@ -18,24 +18,24 @@ export class MapInfoDto implements MapInfo {
     })
     @IsOptional()
     @Matches(/^[\w-_]{11}$/)
-    youtubeID: string;
+    readonly youtubeID: string;
 
     @ApiProperty()
     @IsPositive()
-    numTracks: number;
+    readonly numTracks: number;
 
     @ApiProperty()
     @IsDateString()
-    creationDate: Date;
+    readonly creationDate: Date;
 
     @Exclude()
-    mapID: number;
+    readonly mapID: number;
 
     @CreatedAtProperty()
-    createdAt: Date;
+    readonly createdAt: Date;
 
     @UpdatedAtProperty()
-    updatedAt: Date;
+    readonly updatedAt: Date;
 }
 
 export class CreateMapInfoDto extends PickType(MapInfoDto, [

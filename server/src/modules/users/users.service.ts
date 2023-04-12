@@ -47,8 +47,9 @@ export class UsersService {
         if (query.steamID && query.steamIDs)
             throw new BadRequestException('Only one of steamID and steamIDs may be used at the same time');
 
+        let take = query.take;
         if (query.steamID) {
-            query.take = 1;
+            take = 1;
             where.steamID = query.steamID;
         } else if (query.steamIDs) {
             where.steamID = { in: query.steamIDs };
@@ -64,7 +65,7 @@ export class UsersService {
             include.mapRanks = { where: { mapID: query.mapRank }, include: { run: true } };
         }
 
-        const dbResponse = await this.userRepo.getAll(where, include, query.skip, query.take);
+        const dbResponse = await this.userRepo.getAll(where, include, query.skip, take);
 
         for (const user of dbResponse[0] as any[]) {
             if (user.mapRanks) {

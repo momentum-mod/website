@@ -7,49 +7,49 @@ import { CreatedAtProperty, IdProperty, PrismaModelToDto, UpdatedAtProperty } fr
 export class MapStatsDto implements PrismaModelToDto<MapStats, 'timePlayed'> {
     @ApiProperty()
     @IsPositive()
-    id: number;
+    readonly id: number;
 
     @Exclude()
-    mapID: number;
+    readonly mapID: number;
 
     @ApiProperty()
     @IsInt()
-    reviews: number;
+    readonly reviews: number;
 
     @ApiProperty()
     @IsInt()
-    downloads: number;
+    readonly downloads: number;
 
     @ApiProperty()
     @IsInt()
-    subscriptions: number;
+    readonly subscriptions: number;
 
     @ApiProperty()
     @IsInt()
-    plays: number;
+    readonly plays: number;
 
     @ApiProperty()
     @IsInt()
-    favorites: number;
+    readonly favorites: number;
 
     @ApiProperty()
     @IsInt()
-    completions: number;
+    readonly completions: number;
 
     @ApiProperty()
     @IsInt()
-    uniqueCompletions: number;
+    readonly uniqueCompletions: number;
 
     @ApiProperty({ description: 'The total time played on the map', type: String })
     @IsNumberString()
-    timePlayed: bigint;
+    readonly timePlayed: bigint;
 
     @IdProperty({ bigint: true })
-    baseStatsID: number;
+    readonly baseStatsID: number;
 
     @CreatedAtProperty()
-    createdAt: Date;
+    readonly createdAt: Date;
 
     @UpdatedAtProperty()
-    updatedAt: Date;
+    readonly updatedAt: Date;
 }

@@ -7,38 +7,38 @@ import { CreatedAtProperty, IdProperty, NestedProperty, UpdatedAtProperty } from
 
 export class MapTrackDto implements MapTrack {
     @IdProperty()
-    id: number;
+    readonly id: number;
 
     @ApiProperty()
     @IsInt()
     @Max(64)
-    trackNum: number;
+    readonly trackNum: number;
 
     @ApiProperty()
     @IsPositive()
     @Max(64)
-    numZones: number;
+    readonly numZones: number;
 
     @ApiProperty()
     @IsBoolean()
-    isLinear: boolean;
+    readonly isLinear: boolean;
 
     @ApiProperty()
     @IsPositive()
     @Max(10)
-    difficulty: number;
+    readonly difficulty: number;
 
     @NestedProperty(MapZoneDto, { isArray: true })
-    zones: MapZoneDto[];
+    readonly zones: MapZoneDto[];
 
     @Exclude()
-    mapID: number;
+    readonly mapID: number;
 
     @CreatedAtProperty()
-    createdAt: Date;
+    readonly createdAt: Date;
 
     @UpdatedAtProperty()
-    updatedAt: Date;
+    readonly updatedAt: Date;
 }
 
 export class CreateMapTrackDto extends PickType(MapTrackDto, [

@@ -5,5 +5,5 @@ import { MapDto } from '../map/map.dto';
 export class MapSummaryDto extends PickType(MapDto, ['status'] as const) {
     @ApiProperty()
     @IsInt()
-    statusCount: number;
+    readonly statusCount: number;
 }

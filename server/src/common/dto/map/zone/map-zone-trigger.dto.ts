@@ -7,35 +7,35 @@ import { NestedProperty } from '@lib/dto.lib';
 
 export class MapZoneTriggerDto implements MapZoneTrigger {
     @Exclude()
-    id: number;
+    readonly id: number;
 
     // Old api says this is int 0-4, probs start/end/cp/stage/?
     @ApiProperty()
     @IsInt()
     @Max(4)
-    type: number;
+    readonly type: number;
 
     @ApiProperty()
     @IsNumber()
-    pointsHeight: number;
+    readonly pointsHeight: number;
 
     @ApiProperty()
-    pointsZPos: number;
+    readonly pointsZPos: number;
 
     @ApiProperty()
     @IsJSON()
     // TODO: Should have max 32 values and match /p\d+/
-    points: Prisma.JsonValue;
+    readonly points: Prisma.JsonValue;
 
     @NestedProperty(MapZoneTriggerPropertiesDto, { required: false })
-    properties?: MapZoneTriggerPropertiesDto;
+    readonly properties?: MapZoneTriggerPropertiesDto;
 
     @Exclude()
-    zoneID: number;
+    readonly zoneID: number;
 
     @Exclude()
-    createdAt: Date;
+    readonly createdAt: Date;
 
     @Exclude()
-    updatedAt: Date;
+    readonly updatedAt: Date;
 }

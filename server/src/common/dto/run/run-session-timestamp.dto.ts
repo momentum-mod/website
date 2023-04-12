@@ -5,22 +5,22 @@ import { CreatedAtProperty, IdProperty, PrismaModelToDto, UpdatedAtProperty } fr
 
 export class RunSessionTimestampDto implements PrismaModelToDto<RunSessionTimestamp> {
     @IdProperty({ bigint: true })
-    id: number;
+    readonly id: number;
 
     @ApiProperty()
     @IsInt()
-    zone: number;
+    readonly zone: number;
 
     @ApiProperty()
     @IsInt()
-    tick: number;
+    readonly tick: number;
 
     @IdProperty({ bigint: true })
-    sessionID: number;
+    readonly sessionID: number;
 
     @CreatedAtProperty()
-    createdAt: Date;
+    readonly createdAt: Date;
 
     @UpdatedAtProperty()
-    updatedAt: Date;
+    readonly updatedAt: Date;
 }

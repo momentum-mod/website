@@ -5,23 +5,23 @@ import { MapDto } from './map.dto';
 
 export class MapLibraryEntryDto implements MapLibraryEntry {
     @IdProperty()
-    id: number;
+    readonly id: number;
 
     @IdProperty({ description: 'ID of the user who owns the entry' })
-    userID: number;
+    readonly userID: number;
 
     @NestedProperty(UserDto, { lazy: true })
-    user: UserDto;
+    readonly user: UserDto;
 
     @IdProperty({ description: 'ID of the map the entry refers to' })
-    mapID: number;
+    readonly mapID: number;
 
     @NestedProperty(MapDto, { lazy: true })
-    map: MapDto;
+    readonly map: MapDto;
 
     @CreatedAtProperty()
-    createdAt: Date;
+    readonly createdAt: Date;
 
     @UpdatedAtProperty()
-    updatedAt: Date;
+    readonly updatedAt: Date;
 }

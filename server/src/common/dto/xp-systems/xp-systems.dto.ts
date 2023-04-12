@@ -5,23 +5,22 @@ import { IsArray, IsDefined, IsNumber } from 'class-validator';
 // Could implement RankXpParams and CosXpParams in xp-systems.interface.ts but class-validator requires
 // we give it this wacky structure.
 
-// TODO: bunch of this can be readonly?
 class CosXpTierScale {
     @ApiProperty()
     @IsNumber()
-    linear: number;
+    readonly linear: number;
 
     @ApiProperty()
     @IsNumber()
-    staged: number;
+    readonly staged: number;
 
     @ApiProperty()
     @IsNumber()
-    stages: number;
+    readonly stages: number;
 
     @ApiProperty()
     @IsNumber()
-    bonus: number;
+    readonly bonus: number;
 }
 
 class CosXpUniqueTierScale extends PickType(CosXpTierScale, ['linear', 'staged'] as const) {}
@@ -29,85 +28,100 @@ class CosXpRepeatTierScale extends CosXpTierScale {}
 class CosXpUnique {
     @NestedProperty(CosXpUniqueTierScale)
     @IsDefined()
-    tierScale: CosXpUniqueTierScale;
+    readonly tierScale: CosXpUniqueTierScale;
 }
 class CosXpRepeat {
     @NestedProperty(CosXpRepeatTierScale)
     @IsDefined()
-    tierScale: CosXpRepeatTierScale;
+    readonly tierScale: CosXpRepeatTierScale;
 }
 
 class CosXpCompletions {
     @NestedProperty(CosXpUnique)
     @IsDefined()
-    unique: CosXpUnique;
+    readonly unique: CosXpUnique;
 
     @NestedProperty(CosXpRepeat)
     @IsDefined()
-    repeat: CosXpRepeat;
+    readonly repeat: CosXpRepeat;
 }
 class CosXpLevels {
     @ApiProperty()
     @IsNumber()
-    maxLevels: number;
+    readonly maxLevels: number;
 
     @ApiProperty()
     @IsNumber()
-    startingValue: number;
+    readonly startingValue: number;
 
     @ApiProperty()
     @IsNumber()
-    linearScaleBaseIncrease: number;
+    readonly linearScaleBaseIncrease: number;
 
     @ApiProperty()
     @IsNumber()
-    linearScaleInterval: number;
+    readonly linearScaleInterval: number;
 
     @ApiProperty()
     @IsNumber()
-    linearScaleIntervalMultiplier: number;
+    readonly linearScaleIntervalMultiplier: number;
 
     @ApiProperty()
     @IsNumber()
-    staticScaleStart: number;
+    readonly staticScaleStart: number;
 
     @ApiProperty()
     @IsNumber()
-    staticScaleBaseMultiplier: number;
+    readonly staticScaleBaseMultiplier: number;
 
     @ApiProperty()
     @IsNumber()
-    staticScaleInterval: number;
+    readonly staticScaleInterval: number;
 
     @ApiProperty()
     @IsNumber()
-    staticScaleIntervalMultiplier: number;
+    readonly staticScaleIntervalMultiplier: number;
 }
 
 class CosXpDto {
     @NestedProperty(CosXpCompletions)
     @IsDefined()
-    completions: CosXpCompletions;
+    readonly completions: CosXpCompletions;
 
     @NestedProperty(CosXpLevels)
     @IsDefined()
-    levels: CosXpLevels;
+    readonly levels: CosXpLevels;
 }
 
 class RankXpFormula {
     @ApiProperty()
     @IsNumber()
-    A: number;
+    readonly A: number;
 
     @ApiProperty()
     @IsNumber()
-    B: number;
+    readonly B: number;
 }
 
 class RankXpGroups {
     @ApiProperty()
     @IsNumber()
-    maxGroups: number;
+    readonly maxGroups: number;
+
+    @ApiProperty({ type: Number, isArray: true, minLength: 4, maxLength: 4 })
+    @IsNumber({}, { each: true })
+    @IsArray()
+    readonly groupScaleFactors: number[];
+
+    @ApiProperty({ type: Number, isArray: true, minLength: 4, maxLength: 4 })
+    @IsNumber({}, { each: true })
+    @IsArray()
+    readonly groupExponents: number[];
+
+    @ApiProperty({ type: Number, isArray: true, minLength: 4, maxLength: 4 })
+    @IsNumber({}, { each: true })
+    @IsArray()
+    readonly groupMinSizes: number[];
 
     @ApiProperty({
         type: Number,
@@ -117,43 +131,13 @@ class RankXpGroups {
     })
     @IsNumber({}, { each: true })
     @IsArray()
-    groupScaleFactors: number[];
-
-    @ApiProperty({
-        type: Number,
-        isArray: true,
-        minLength: 4,
-        maxLength: 4
-    })
-    @IsNumber({}, { each: true })
-    @IsArray()
-    groupExponents: number[];
-
-    @ApiProperty({
-        type: Number,
-        isArray: true,
-        minLength: 4,
-        maxLength: 4
-    })
-    @IsNumber({}, { each: true })
-    @IsArray()
-    groupMinSizes: number[];
-
-    @ApiProperty({
-        type: Number,
-        isArray: true,
-        minLength: 4,
-        maxLength: 4
-    })
-    @IsNumber({}, { each: true })
-    @IsArray()
-    groupPointPcts: number[];
+    readonly groupPointPcts: number[];
 }
 
 class RankXpTop10 {
     @ApiProperty()
     @IsNumber()
-    WRPoints: number;
+    readonly WRPoints: number;
 
     @ApiProperty({
         type: Number,
@@ -163,48 +147,33 @@ class RankXpTop10 {
     })
     @IsNumber({}, { each: true })
     @IsArray()
-    rankPercentages: number[];
+    readonly rankPercentages: number[];
 }
 
 class RankXpDto {
     @NestedProperty(RankXpFormula)
     @IsDefined()
-    formula: RankXpFormula;
+    readonly formula: RankXpFormula;
 
     @NestedProperty(RankXpGroups)
     @IsDefined()
-    groups: RankXpGroups;
+    readonly groups: RankXpGroups;
 
     @NestedProperty(RankXpTop10)
     @IsDefined()
-    top10: RankXpTop10;
+    readonly top10: RankXpTop10;
 }
 
 export class XpSystemsDto {
-    // The old API returns the id, createdAt and updatedAt fields as well. I'm leaving these fields commented if it turns out that they
-    // need to be returned too. In that case they xp-systems.service needs to change so that its "get()" function returns database data
-    // or the dates and id will have to be stored in class fields
-
-    // @ApiProperty()
-    // @IsInt()
-    // id: number;
     @IsDefined()
     @NestedProperty(RankXpDto)
     @IsDefined()
-    rankXP: RankXpDto;
+    readonly rankXP: RankXpDto;
 
     @IsDefined()
     @NestedProperty(CosXpDto)
     @IsDefined()
-    cosXP: CosXpDto;
-
-    // @ApiProperty()
-    // @IsDateString()
-    // createdAt: string;
-
-    // @ApiProperty()
-    // @IsDateString()
-    // updatedAt: string;
+    readonly cosXP: CosXpDto;
 }
 
 export class UpdateXpSystemsDto extends PickType(XpSystemsDto, ['cosXP', 'rankXP'] as const) {}

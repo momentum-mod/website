@@ -13,40 +13,40 @@ import { Exclude, Expose } from 'class-transformer';
 // TODO: BaseStatsDTO, various other nested DTOs
 export class RunDto implements PrismaModelToDto<Run> {
     @IdProperty({ bigint: true })
-    id: number;
+    readonly id: number;
 
     @ApiProperty({ type: Number, description: 'The overall time of the run (ticks * tickRate)' })
     @IsNumber()
-    time: number;
+    readonly time: number;
 
     @ApiProperty({ type: Number, description: 'The track the run took place on' })
     @IsInt()
-    trackNum: number;
+    readonly trackNum: number;
 
     @ApiProperty({
         type: Number,
         description: 'The number of zones in the run'
     })
     @IsInt()
-    zoneNum: number;
+    readonly zoneNum: number;
 
     @ApiProperty({
         type: Number,
         description: 'The total ticks'
     })
     @IsInt()
-    ticks: number;
+    readonly ticks: number;
 
     @ApiProperty()
     @IsNumber()
-    tickRate: number;
+    readonly tickRate: number;
 
     @ApiProperty()
     @IsInt()
-    flags: number;
+    readonly flags: number;
 
     @Exclude()
-    file: string;
+    readonly file: string;
 
     @ApiProperty({ type: String, description: 'URL to S3 storage' })
     @Expose()
@@ -60,36 +60,36 @@ export class RunDto implements PrismaModelToDto<Run> {
     @ApiProperty()
     @IsHash('sha1')
     @IsOptional()
-    hash: string;
+    readonly hash: string;
 
     @IdProperty({ required: false, bigint: true })
-    overallStatsID: number;
+    readonly overallStatsID: number;
 
     @NestedProperty(BaseStatsDto, { required: false })
-    overallStats: BaseStatsDto;
+    readonly overallStats: BaseStatsDto;
 
     @ApiProperty()
     @IsPositive()
-    userID: number;
+    readonly userID: number;
 
     @NestedProperty(UserDto, { required: false, lazy: true })
-    user: UserDto;
+    readonly user: UserDto;
 
     @IdProperty()
-    mapID: number;
+    readonly mapID: number;
 
     @NestedProperty(MapDto, { required: false })
-    map: MapDto;
+    readonly map: MapDto;
 
     @NestedProperty(UserMapRankDto, { required: false, lazy: true })
-    rank: UserMapRankDto;
+    readonly rank: UserMapRankDto;
 
     @NestedProperty(RunZoneStatsDto, { required: false, lazy: true, isArray: true })
-    zoneStats: RunZoneStatsDto[];
+    readonly zoneStats: RunZoneStatsDto[];
 
     @CreatedAtProperty()
-    createdAt: Date;
+    readonly createdAt: Date;
 
     @UpdatedAtProperty()
-    updatedAt: Date;
+    readonly updatedAt: Date;
 }

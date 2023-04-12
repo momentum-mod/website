@@ -6,22 +6,22 @@ import { IsBoolean } from 'class-validator';
 export class BansDto implements Bans {
     @ApiProperty({ description: 'If the user is banned from submitting runs', type: Boolean })
     @IsBoolean()
-    leaderboards: boolean;
+    readonly leaderboards: boolean;
 
     @ApiProperty({ description: 'If the user is banned from updating their alias', type: Boolean })
     @IsBoolean()
-    alias: boolean;
+    readonly alias: boolean;
 
     @ApiProperty({ description: 'If the user is banned from updating their avatar', type: Boolean })
     @IsBoolean()
-    avatar: boolean;
+    readonly avatar: boolean;
 
     @ApiProperty({ description: 'If the user is banned from updating their bio', type: Boolean })
     @IsBoolean()
-    bio: boolean;
+    readonly bio: boolean;
 
     @Exclude()
-    userID: number;
+    readonly userID: number;
 }
 
 export class UpdateBansDto extends PartialType(OmitType(BansDto, ['userID'] as const)) {}

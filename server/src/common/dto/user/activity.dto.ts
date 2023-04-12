@@ -13,25 +13,24 @@ import {
 
 export class ActivityDto implements PrismaModelToDto<Activity> {
     @IdProperty()
-    id: number;
+    readonly id: number;
 
     @IdProperty({ description: 'The ID of the user the activity is associated with' })
     @IsPositive()
-    userID: number;
+    readonly userID: number;
 
     @NestedProperty(UserDto, { description: 'The ID of the user the activity is associated with' })
-    user: UserDto;
+    readonly user: UserDto;
 
     @EnumProperty(ActivityType)
-    type: ActivityType;
+    readonly type: ActivityType;
 
-    // TODO: I kind of hate this approach, could we do individual DTOs for each using generics?
     @IdProperty({ bigint: true, description: 'ID of into the table of the relevant activity type e.g. Map, Run, User' })
-    data: number;
+    readonly data: number;
 
     @CreatedAtProperty()
-    createdAt: Date;
+    readonly createdAt: Date;
 
     @UpdatedAtProperty()
-    updatedAt: Date;
+    readonly updatedAt: Date;
 }
