@@ -1,5 +1,5 @@
 import { readFileSync } from 'node:fs';
-import { MapStatus, MapCreditType, MapType } from '@common/enums/map.enum';
+import { MapCreditType, MapStatus, MapType } from '@common/enums/map.enum';
 import { MapDto } from '@common/dto/map/map.dto';
 import { MapInfoDto } from '@common/dto/map/map-info.dto';
 import { MapCreditDto } from '@common/dto/map/map-credit.dto';
@@ -758,96 +758,92 @@ describe('Maps', () => {
             );
 
             afterAll(() => db.cleanup('user'));
-            afterEach(() => db.cleanup('map', 'activity'));
 
-            it('should allow a mapper set their map status', async () => {
-                const map = await db.createMap({
-                    status: MapStatus.NEEDS_REVISION,
-                    submitter: { connect: { id: user.id } }
-                });
+            describe('Status changes', () => {
+                let map;
 
-                const newStatus = MapStatus.READY_FOR_RELEASE;
-                await req.patch({ url: `maps/${map.id}`, status: 204, body: { status: newStatus }, token: token });
+                beforeAll(async () => (map = await db.createMap({ submitter: { connect: { id: user.id } } })));
+                afterAll(() => db.cleanup('map'));
 
-                const updatedMap = await prisma.map.findUnique({ where: { id: map.id } });
-                expect(updatedMap.status).toEqual(newStatus);
+                const statuses = Object.values(MapStatus).filter((v) => typeof v === 'number') as MapStatus[];
+                // Storing number tuple won't pass .has
+                const validChanges = new Set([MapStatus.NEEDS_REVISION + ',' + MapStatus.READY_FOR_RELEASE]);
+
+                for (const s1 of statuses) {
+                    for (const s2 of statuses.filter((s) => s !== s1)) {
+                        const shouldPass = validChanges.has(s1 + ',' + s2);
+
+                        it(`should ${shouldPass ? '' : 'not '}allow a mapper to change their map from ${
+                            MapStatus[s1]
+                        } to ${MapStatus[s2]}`, async () => {
+                            await prisma.map.update({ where: { id: map.id }, data: { status: s1 } });
+
+                            await req.patch({
+                                url: `maps/${map.id}`,
+                                status: shouldPass ? 204 : 403,
+                                body: { status: s2 },
+                                token: token
+                            });
+                        });
+                    }
+                }
             });
 
-            it('should create activities if the map was approved', async () => {
-                const map = await db.createMap({
-                    status: MapStatus.PENDING,
-                    submitter: { connect: { id: user.id } },
-                    credits: { create: { type: MapCreditType.AUTHOR, userID: user.id } }
+            describe('Everything else', () => {
+                afterEach(() => db.cleanup('map', 'activity'));
+
+                it('should allow a mapper set their map status to ready for release', async () => {
+                    const map = await db.createMap({
+                        status: MapStatus.NEEDS_REVISION,
+                        submitter: { connect: { id: user.id } }
+                    });
+
+                    const newStatus = MapStatus.READY_FOR_RELEASE;
+                    await req.patch({ url: `maps/${map.id}`, status: 204, body: { status: newStatus }, token: token });
+
+                    const updatedMap = await prisma.map.findUnique({ where: { id: map.id } });
+                    expect(updatedMap.status).toEqual(newStatus);
                 });
 
-                await req.patch({
-                    url: `maps/${map.id}`,
-                    status: 204,
-                    body: { status: MapStatus.APPROVED },
-                    token: token
+                it('should return 400 if the status flag is invalid', async () => {
+                    const map = await db.createMap({ submitter: { connect: { id: user.id } } });
+
+                    await req.patch({ url: `maps/${map.id}`, status: 400, body: { status: 3000 }, token: token });
                 });
 
-                const activities = await prisma.activity.findFirst();
+                it('should return 403 if the map was not submitted by that user', async () => {
+                    const map = await db.createMap({ status: MapStatus.NEEDS_REVISION });
 
-                expect(activities).toMatchObject({
-                    type: ActivityType.MAP_APPROVED,
-                    userID: user.id,
-                    data: BigInt(map.id)
+                    await req.patch({
+                        url: `maps/${map.id}`,
+                        status: 403,
+                        body: { status: MapStatus.READY_FOR_RELEASE },
+                        token: token
+                    });
                 });
+
+                it('should return 403 if the user does not have the mapper role', async () => {
+                    const [u2, u2Token] = await db.createAndLoginUser();
+                    const map2 = await db.createMap({ submitter: { connect: { id: u2.id } } });
+
+                    await req.patch({
+                        url: `maps/${map2.id}`,
+                        status: 403,
+                        body: { status: MapStatus.READY_FOR_RELEASE },
+                        token: u2Token
+                    });
+                });
+
+                it('should 404 when the map is not found', () =>
+                    req.patch({
+                        url: `maps/${NULL_ID}`,
+                        status: 404,
+                        body: { status: MapStatus.READY_FOR_RELEASE },
+                        token: token
+                    }));
+
+                it('should 401 when no access token is provided', () => req.unauthorizedTest('maps/1', 'patch'));
             });
-
-            it('should return 400 if the status flag is invalid', async () => {
-                const map = await db.createMap({ submitter: { connect: { id: user.id } } });
-
-                await req.patch({ url: `maps/${map.id}`, status: 400, body: { status: 3000 }, token: token });
-            });
-
-            it("should return 400 if the map's status is rejected", async () => {
-                const map = await db.createMap({
-                    status: MapStatus.REJECTED,
-                    submitter: { connect: { id: user.id } }
-                });
-
-                await req.patch({
-                    url: `maps/${map.id}`,
-                    status: 400,
-                    body: { status: MapStatus.READY_FOR_RELEASE },
-                    token: token
-                });
-            });
-
-            it('should return 403 if the map was not submitted by that user', async () => {
-                const map = await db.createMap({ status: MapStatus.NEEDS_REVISION });
-
-                await req.patch({
-                    url: `maps/${map.id}`,
-                    status: 403,
-                    body: { status: MapStatus.READY_FOR_RELEASE },
-                    token: token
-                });
-            });
-
-            it('should return 403 if the user does not have the mapper role', async () => {
-                const [u2, u2Token] = await db.createAndLoginUser();
-                const map2 = await db.createMap({ submitter: { connect: { id: u2.id } } });
-
-                await req.patch({
-                    url: `maps/${map2.id}`,
-                    status: 403,
-                    body: { status: MapStatus.READY_FOR_RELEASE },
-                    token: u2Token
-                });
-            });
-
-            it('should 404 when the map is not found', () =>
-                req.patch({
-                    url: `maps/${NULL_ID}`,
-                    status: 404,
-                    body: { status: MapStatus.READY_FOR_RELEASE },
-                    token: token
-                }));
-
-            it('should 401 when no access token is provided', () => req.unauthorizedTest('maps/1', 'patch'));
         });
     });
 

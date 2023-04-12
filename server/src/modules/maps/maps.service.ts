@@ -267,20 +267,29 @@ export class MapsService {
         return mapDB.id;
     }
 
-    async update(mapID: number, userID: number, updateBody: UpdateMapDto, isAdmin = false): Promise<void> {
+    async update(mapID: number, userID: number, update: UpdateMapDto, isAdmin = false): Promise<void> {
         const map = await this.mapRepo.get(mapID);
 
         if (!map) throw new NotFoundException('No map found');
+
+        if ([MapStatus.REJECTED, MapStatus.REMOVED].includes(map.status))
+            throw new ForbiddenException('Map status forbids updating');
+
         if (map.submitterID !== userID && !isAdmin)
             throw new ForbiddenException('User is not the submitter of the map');
-        if ([MapStatus.REJECTED, MapStatus.REMOVED].includes(map.status))
-            throw new BadRequestException('Map status forbids updating');
+
+        if (!isAdmin) {
+            if (map.submitterID !== userID) throw new ForbiddenException('User is not the submitter of the map');
+
+            // We probably want complex logic for map submission, for now, keeping it very strict.
+            if (map.status !== MapStatus.NEEDS_REVISION)
+                throw new ForbiddenException('Map is not in NEEDS_REVISION state');
+            if (update.status !== MapStatus.READY_FOR_RELEASE) throw new ForbiddenException();
+        }
 
         const previousStatus = map.status;
 
-        const updatedMap = await this.mapRepo.update(mapID, {
-            status: updateBody.status
-        });
+        const updatedMap = await this.mapRepo.update(mapID, { status: update.status });
 
         if (
             updatedMap.status !== previousStatus &&
