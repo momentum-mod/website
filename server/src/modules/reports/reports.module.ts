@@ -7,7 +7,6 @@ import { ConfigModule } from '@nestjs/config';
 @Module({
     imports: [RepoModule, ConfigModule],
     controllers: [ReportsController],
-    providers: [ReportsService],
-    exports: [ReportsService]
+    providers: [ReportsService]
 })
 export class ReportsModule {}

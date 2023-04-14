@@ -6,7 +6,6 @@ import { RepoModule } from '../repo/repo.module';
 @Module({
     imports: [RepoModule],
     controllers: [ActivitiesController],
-    providers: [ActivitiesService],
-    exports: [ActivitiesService]
+    providers: [ActivitiesService]
 })
 export class ActivitiesModule {}
