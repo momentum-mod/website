@@ -54,7 +54,6 @@
         "@nestjs/jwt": "^10.0.3",
         "@nestjs/platform-fastify": "^9.4.0",
         "@nestjs/swagger": "^6.3.0",
-        "@nestjs/terminus": "^9.2.2",
         "@prisma/client": "^4.12.0",
         "@sentry/node": "^7.47.0",
         "@sentry/tracing": "^7.47.0",
