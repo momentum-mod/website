@@ -69,7 +69,6 @@
         "openid": "^2.0.10",
         "prom-client": "^14.2.0",
         "reflect-metadata": "^0.1.13",
-        "rimraf": "^4.4.0",
         "rxjs": "^7.8.0",
         "sharp": "^0.31.3",
         "steam-appticket": "^1.0.1"
