@@ -2,12 +2,12 @@ import { Module } from '@nestjs/common';
 import { AdminController } from './admin.controller';
 import { AdminService } from './admin.service';
 import { RepoModule } from '../repo/repo.module';
-import { XpSystemsService } from '../xp-systems/xp-systems.service';
 import { MapsModule } from '../maps/maps.module';
+import { XpSystemsModule } from '@modules/xp-systems/xp-systems.module';
 
 @Module({
-    imports: [RepoModule, MapsModule],
+    imports: [RepoModule, MapsModule, XpSystemsModule],
     controllers: [AdminController],
-    providers: [AdminService, XpSystemsService]
+    providers: [AdminService]
 })
 export class AdminModule {}
