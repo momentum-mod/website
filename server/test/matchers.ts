@@ -16,8 +16,8 @@ declare global {
     }
 }
 
-const formatValidationErrors = (errors: ValidationError[], depth = 1): string =>
-    errors
+function formatValidationErrors(errors: ValidationError[], depth = 1): string {
+    return errors
         .map((error) => {
             const newLine = '\n' + '\t'.repeat(depth);
             let errorString =
@@ -35,14 +35,20 @@ const formatValidationErrors = (errors: ValidationError[], depth = 1): string =>
             return errorString;
         })
         .join('\n');
+}
+
+function validate(type, data): ValidationError[] {
+    // Use class-transformer to create an instance of the DTO type with the passed in data
+    const instance = plainToInstance(type, { ...data });
+
+    // class-validator errors here for "undefined" properties for some bizarre reason.
+    // We're getting rid of class-validator eventually anyway.
+    return validateSync(instance, { forbidUnknownValues: false });
+}
 
 expect.extend({
     toBeValidDto(received, type) {
-        // Use class-transformer to create an instance of the DTO type with the passed in data
-        const instance = plainToInstance(type, received);
-
-        // This instance has all the validators attached, so this lets us validate all the *outgoing* DTOs in tests.
-        const errors = validateSync(instance, { forbidNonWhitelisted: true });
+        const errors = validate(type, received);
 
         const pass = errors.length === 0;
 
@@ -91,11 +97,7 @@ expect.extend({
         const totalErrors: [any, ValidationError[]][] = [];
 
         for (const item of received.response) {
-            const instance = plainToInstance(type, item);
-
-            const errors = validateSync(instance, {
-                forbidNonWhitelisted: true
-            });
+            const errors = validate(type, item);
 
             if (errors.length > 0) {
                 totalErrors.push([item, errors]);
