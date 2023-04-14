@@ -5,13 +5,12 @@ import { RepoModule } from '../repo/repo.module';
 import { FileStoreModule } from '../filestore/file-store.module';
 import { SessionModule } from '../session/session.module';
 import { MapLibraryService } from './map-library.service';
-import { ConfigModule } from '@nestjs/config';
 import { SteamModule } from '@modules/steam/steam.module';
 import { RunsModule } from '@modules/runs/runs.module';
 import { RanksModule } from '@modules/ranks/ranks.module';
 
 @Module({
-    imports: [RepoModule, FileStoreModule, ConfigModule, SteamModule, SessionModule, RunsModule, RanksModule],
+    imports: [RepoModule, FileStoreModule, SteamModule, SessionModule, RunsModule, RanksModule],
     controllers: [MapsController],
     providers: [MapsService, MapLibraryService],
     exports: [MapsService, MapLibraryService]
