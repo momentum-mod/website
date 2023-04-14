@@ -69,4 +69,4 @@ services:
     build:
       context: ./server
       dockerfile: dev.Dockerfile
-    command: npm run ${CMD:-start:push:debug}
+    command: npm run ${CMD:-start:push}
