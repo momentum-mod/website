@@ -6,7 +6,6 @@ import { RepoModule } from '../repo/repo.module';
 @Module({
     imports: [RepoModule],
     controllers: [StatsController],
-    providers: [StatsService],
-    exports: [StatsService]
+    providers: [StatsService]
 })
 export class StatsModule {}

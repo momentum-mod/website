@@ -8,7 +8,6 @@ import { MapsModule } from '../maps/maps.module';
 @Module({
     imports: [RepoModule, MapsModule],
     controllers: [AdminController],
-    providers: [AdminService, XpSystemsService],
-    exports: [AdminService]
+    providers: [AdminService, XpSystemsService]
 })
 export class AdminModule {}
