@@ -2,10 +2,9 @@ import { Module } from '@nestjs/common';
 import { ReportsController } from './reports.controller';
 import { ReportsService } from './reports.service';
 import { RepoModule } from '../repo/repo.module';
-import { ConfigModule } from '@nestjs/config';
 
 @Module({
-    imports: [RepoModule, ConfigModule],
+    imports: [RepoModule],
     controllers: [ReportsController],
     providers: [ReportsService]
 })

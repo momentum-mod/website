@@ -26,10 +26,10 @@ import { RanksModule } from '@modules/ranks/ranks.module';
             envFilePath: '../.env',
             load: [ConfigFactory],
             cache: true,
+            isGlobal: true,
             validate
         }),
         SentryModule.forRootAsync({
-            imports: [ConfigModule],
             useFactory: async (config: ConfigService) => ({
                 environment: config.get('env'),
                 sentryOpts: {
