@@ -7,6 +7,7 @@ import { join } from 'node:path';
 import { ConfigService } from '@nestjs/config';
 import { FastifyAdapter, NestFastifyApplication } from '@nestjs/platform-fastify';
 import fastifyCookie from '@fastify/cookie';
+import helmet from '@fastify/helmet';
 
 async function bootstrap() {
     // Transforms `BigInt`s to strings in JSON.stringify, for cases that haven't been explicitly
@@ -40,6 +41,9 @@ async function bootstrap() {
     // All routes (besides auth, which uses VERSION_NEUTRAL) are version 1 by default,
     // versions can be incremented on a per-route basis upon future versions
     app.enableVersioning({ type: VersioningType.URI, defaultVersion: '1', prefix: 'v' });
+
+    // Enable @fastify/helmet header protections
+    await app.register(helmet, { global: true });
 
     await app.register(fastifyCookie, { secret: configService.get('sessionSecret') });
 
