@@ -58,6 +58,7 @@ export const ConfigFactory = (): ConfigInterface => {
         limits: {
             maxDailyReports: 5,
             mapImageUploads: 5,
+            pendingMaps: 3,
             // Keep low for tests, as we'll be generating buffers of slightly
             // above this size to test make file size validation
             mapSize: isTest ? 1e6 : 3e8,
