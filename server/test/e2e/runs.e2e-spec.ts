@@ -245,7 +245,9 @@ describe('Runs', () => {
             it('should redirect to the download url of the run', async () => {
                 const res = await req.get({ url: `runs/${run.id}/download`, status: 302, token: token });
 
-                expect(res.headers.location).toEqual(`${Config.url.cdn}/${Config.storage.bucketName}/${run.file}`);
+                expect(res.headers.location).toEqual(
+                    `${Config.storage.endpointUrl}/${Config.storage.bucketName}/${run.file}`
+                );
             });
 
             it('should 404 when no run is found', () =>

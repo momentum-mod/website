@@ -13,21 +13,21 @@ export class MapImageDto implements MapImage {
     @Expose()
     @IsUrl({ require_tld: false })
     get small(): string {
-        return `${Config.url.cdn}/${Config.storage.bucketName}/${this.id}-small.jpg`;
+        return `${Config.storage.endpointUrl}/${Config.storage.bucketName}/${this.id}-small.jpg`;
     }
 
     @ApiProperty({ type: String, description: 'URL to medium resolution (1280x720) JPEG image file' })
     @Expose()
     @IsUrl({ require_tld: false })
     get medium(): string {
-        return `${Config.url.cdn}/${Config.storage.bucketName}/${this.id}-medium.jpg`;
+        return `${Config.storage.endpointUrl}/${Config.storage.bucketName}/${this.id}-medium.jpg`;
     }
 
     @ApiProperty({ type: String, description: 'URL to high resolution (1920x1080) JPEG image file' })
     @Expose()
     @IsUrl({ require_tld: false })
     get large(): string {
-        return `${Config.url.cdn}/${Config.storage.bucketName}/${this.id}-large.jpg`;
+        return `${Config.storage.endpointUrl}/${Config.storage.bucketName}/${this.id}-large.jpg`;
     }
 
     @Exclude()

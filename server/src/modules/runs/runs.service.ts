@@ -82,7 +82,7 @@ export class RunsService {
         const run = await this.runRepo.getRun({ id: runID });
         if (!run) throw new NotFoundException('Run not found.');
 
-        const cdnURL = this.configService.get('url.cdn');
+        const cdnURL = this.configService.get('storage.endpointUrl');
         const bucketName = this.configService.get('storage.bucketName');
 
         return `${cdnURL}/${bucketName}/${run.file}`;

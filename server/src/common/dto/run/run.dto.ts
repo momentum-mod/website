@@ -54,7 +54,7 @@ export class RunDto implements PrismaModelToDto<Run> {
     @IsString()
     @IsUrl({ require_tld: false })
     get downloadURL() {
-        return `${Config.url.cdn}/${Config.storage.bucketName}/${this.file}`;
+        return `${Config.storage.endpointUrl}/${Config.storage.bucketName}/${this.file}`;
     }
 
     @ApiProperty()

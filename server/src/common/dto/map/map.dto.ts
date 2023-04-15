@@ -39,7 +39,7 @@ export class MapDto implements MapDB {
     @IsString()
     @IsUrl({ require_tld: false })
     get downloadURL() {
-        return `${Config.url.cdn}/${Config.storage.bucketName}/${this.fileKey}`;
+        return `${Config.storage.endpointUrl}/${Config.storage.bucketName}/${this.fileKey}`;
     }
 
     @ApiProperty({ description: 'SHA1 hash of the map file', type: String })
