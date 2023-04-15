@@ -8,8 +8,10 @@ import { RankDto } from '../run/rank.dto';
 import { CreatedAtProperty, IdProperty, NestedProperty, UpdatedAtProperty } from '@lib/dto.lib';
 import { BansDto, UpdateBansDto } from './bans.dto';
 import { RolesDto, UpdateRolesDto } from './roles.dto';
-import { Config } from '@config/config';
 import { UserStatsDto } from '@common/dto/user/user-stats.dto';
+
+// This is the specific key Steam uses for all missing avatars. They even kept in when migrating to Cloudflare!
+const STEAM_MISSING_AVATAR = 'fef49e7fa7e1997310d705b2a6158ff8dc1cdfeb_full';
 
 export class UserDto implements User {
     @IdProperty({ description: 'The unique numeric ID of the user' })
@@ -46,10 +48,9 @@ export class UserDto implements User {
     @Expose()
     @IsString()
     get avatarURL(): string {
-        return this.bans?.avatar || !this.avatar
-            ? // TODO: We shouldn't be serving this image ourselves, use a bucket or something?
-              Config.url + '/assets/images/blank_avatar.jpg'
-            : `https://avatars.cloudflare.steamstatic.com/${this.avatar}_full.jpg`;
+        return `https://avatars.cloudflare.steamstatic.com/${
+            this.bans?.avatar || !this.avatar ? STEAM_MISSING_AVATAR : this.avatar
+        }_full.jpg`;
     }
 
     @NestedProperty(ProfileDto, { description: "The users's profile, containing information like bio and badges" })
