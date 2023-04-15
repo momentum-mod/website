@@ -375,11 +375,22 @@ export class UsersService {
         userID: number,
         skip: number,
         take: number,
-        _search: string,
-        _expand: string[]
+        search: string,
+        expand: string[]
     ): Promise<PaginatedResponseDto<MapLibraryEntryDto>> {
-        const dbResponse = await this.userRepo.getMapLibraryEntry(userID, skip, take);
-        // TODO: Search and expansions
+        const include: { map: Prisma.MapArgs; user: boolean } = {
+            map: { include: ExpandToPrismaIncludes(expand?.filter((x) => x !== 'inFavorites')) },
+            user: true
+        };
+
+        if (expand?.includes('inFavorites')) {
+            include.map.include = { favorites: { where: { userID } } };
+        }
+
+        const where: Prisma.MapLibraryEntryWhereInput = { userID };
+        if (search) where.map = { name: { contains: search } };
+
+        const dbResponse = await this.userRepo.getMapLibraryEntry(where, include, skip, take);
 
         return new PaginatedResponseDto(MapLibraryEntryDto, dbResponse);
     }

@@ -274,24 +274,15 @@ export class UsersRepoService {
 
     //#region Map Library
 
-    async getMapLibraryEntry(userID: number, skip: number, take: number): Promise<[MapLibraryEntry[], number]> {
-        const where: Prisma.MapLibraryEntryWhereInput = {
-            userID: userID
-        };
+    async getMapLibraryEntry(
+        where: Prisma.MapLibraryEntryWhereInput,
+        include: Prisma.MapLibraryEntryInclude,
+        skip: number,
+        take: number
+    ): Promise<[MapLibraryEntry[], number]> {
+        const count = await this.prisma.mapLibraryEntry.count({ where });
 
-        const count = await this.prisma.mapLibraryEntry.count({
-            where: where
-        });
-
-        const mapLibraryEntries = await this.prisma.mapLibraryEntry.findMany({
-            where: where,
-            skip: skip,
-            take: take,
-            include: {
-                map: true,
-                user: true
-            }
-        });
+        const mapLibraryEntries = await this.prisma.mapLibraryEntry.findMany({ where, skip, take, include });
 
         return [mapLibraryEntries, count];
     }

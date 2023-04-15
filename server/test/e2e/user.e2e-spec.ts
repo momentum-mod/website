@@ -667,11 +667,11 @@ describe('User', () => {
 
     describe('user/maps/library', () => {
         describe('GET', () => {
-            let user, token;
+            let user, token, maps;
 
             beforeAll(async () => {
                 [user, token] = await db.createAndLoginUser();
-                await db.createMaps(2, { libraryEntries: { create: { userID: user.id } } });
+                maps = await db.createMaps(2, { libraryEntries: { create: { userID: user.id } } });
             });
 
             afterAll(() => db.cleanup('user', 'map'));
@@ -689,6 +689,64 @@ describe('User', () => {
 
             it('should retrieve a filtered list of maps in the local users library using the skip query', () =>
                 req.skipTest({ url: 'user/maps/library', validate: MapLibraryEntryDto, token: token }));
+
+            it('should retrieve a filtered list of maps in the local users library using the search query', async () => {
+                await prisma.map.update({
+                    where: { id: maps[0].id },
+                    data: { name: 'ahop_imsofuckingboredofwebdev' }
+                });
+
+                await req.searchTest({
+                    url: 'user/maps/library',
+                    token: token,
+                    searchMethod: 'contains',
+                    searchString: 'fuck',
+                    searchPropertyName: 'map.name',
+                    validate: { type: MapLibraryEntryDto, count: 1 }
+                });
+            });
+
+            it('should respond with expanded submitter data using the submitter expand parameter', async () => {
+                const u2 = await db.createUser();
+                await prisma.map.updateMany({ where: {}, data: { submitterID: u2.id } });
+
+                await req.expandTest({
+                    url: 'user/maps/library',
+                    expand: 'submitter',
+                    expectedPropertyName: 'map.submitter',
+                    paged: true,
+                    validate: MapLibraryEntryDto,
+                    token: token
+                });
+            });
+
+            it('should respond with expanded submitter data using the thumbnail expand parameter', async () => {
+                await req.expandTest({
+                    url: 'user/maps/library',
+                    expand: 'thumbnail',
+                    expectedPropertyName: 'map.thumbnail',
+                    paged: true,
+                    validate: MapLibraryEntryDto,
+                    token: token
+                });
+            });
+
+            it('should respond with expanded mapfavorite data for maps the logged in user has favorited when using the inFavorite expansion', async () => {
+                await Promise.all(
+                    maps.map((m) =>
+                        prisma.map.update({ where: { id: m.id }, data: { favorites: { create: { userID: user.id } } } })
+                    )
+                );
+
+                await req.expandTest({
+                    url: 'user/maps/library',
+                    expand: 'inFavorites',
+                    expectedPropertyName: 'map.favorites',
+                    paged: true,
+                    validate: MapLibraryEntryDto,
+                    token: token
+                });
+            });
 
             it('should 401 when no access token is provided', () => req.unauthorizedTest('user/maps/library', 'get'));
         });
