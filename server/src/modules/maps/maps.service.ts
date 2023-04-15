@@ -76,7 +76,7 @@ export class MapsService {
         const incPB = query.expand?.includes('personalBest');
         const incWR = query.expand?.includes('worldRecord');
 
-        MapsService.handleMapGetIncludes(
+        this.handleMapGetIncludes(
             include,
             query.expand?.includes('inFavorites'),
             query.expand?.includes('inLibrary'),
@@ -91,7 +91,7 @@ export class MapsService {
         const dbResponse = await this.mapRepo.getAll(where, include, order, query.skip, query.take);
 
         if (incPB || incWR) {
-            for (const map of dbResponse[0]) MapsService.handleMapGetPrismaResponse(map, userID, incPB, incWR);
+            for (const map of dbResponse[0]) this.handleMapGetPrismaResponse(map, userID, incPB, incWR);
         }
 
         return new PaginatedResponseDto(MapDto, dbResponse);
@@ -107,7 +107,7 @@ export class MapsService {
         const incPB = expand?.includes('personalBest');
         const incWR = expand?.includes('worldRecord');
 
-        MapsService.handleMapGetIncludes(
+        this.handleMapGetIncludes(
             include,
             expand?.includes('inFavorites'),
             expand?.includes('inLibrary'),
@@ -121,10 +121,46 @@ export class MapsService {
         if (!dbResponse) throw new NotFoundException('Map not found');
 
         if (incPB || incWR) {
-            MapsService.handleMapGetPrismaResponse(dbResponse, userID, incPB, incWR);
+            this.handleMapGetPrismaResponse(dbResponse, userID, incPB, incWR);
         }
 
         return DtoFactory(MapDto, dbResponse);
+    }
+
+    private handleMapGetIncludes(
+        include: Prisma.MapInclude,
+        fav: boolean,
+        lib: boolean,
+        PB: boolean,
+        WR: boolean,
+        userID?: number
+    ): void {
+        if (fav && userID) include.favorites = { where: { userID: userID } };
+        if (lib && userID) include.libraryEntries = { where: { userID: userID } };
+
+        if (PB || WR) {
+            include.ranks = { include: { run: true, user: true } };
+            if (PB && WR) {
+                include.ranks.where = { OR: [{ userID: userID }, { rank: 1 }] };
+            } else if (PB) {
+                include.ranks.where = { userID: userID };
+            } else {
+                include.ranks.where = { rank: 1 };
+            }
+        }
+    }
+
+    private handleMapGetPrismaResponse(mapObj: any, userID: number, PB: boolean, WR: boolean): void {
+        if (PB && WR) {
+            // Annoying to have to do this but we don't know what's what
+            mapObj.worldRecord = mapObj.ranks.find((r) => r.rank === 1);
+            mapObj.personalBest = mapObj.ranks.find((r) => r.userID === userID);
+        } else if (PB) {
+            mapObj.personalBest = mapObj.ranks[0];
+        } else {
+            mapObj.worldRecord = mapObj.ranks[0];
+        }
+        delete mapObj.ranks;
     }
 
     async create(mapCreateDto: CreateMapDto, submitterID: number): Promise<number> {
@@ -327,13 +363,13 @@ export class MapsService {
     async canUploadMap(mapID: number, userID: number): Promise<void> {
         const mapDB = await this.mapRepo.get(mapID);
 
-        MapsService.uploadMapChecks(mapDB, userID);
+        this.uploadMapChecks(mapDB, userID);
     }
 
     async upload(mapID: number, userID: number, mapFileBuffer: Buffer): Promise<MapDto> {
         const mapDB = await this.mapRepo.get(mapID);
 
-        MapsService.uploadMapChecks(mapDB, userID);
+        this.uploadMapChecks(mapDB, userID);
 
         const result = await this.storeMapFile(mapFileBuffer, mapDB);
 
@@ -362,10 +398,27 @@ export class MapsService {
         return mapDataStream;
     }
 
+    private async storeMapFile(mapFileBuffer: Buffer, mapModel: MapDB): Promise<[fileKey: string, hash: string]> {
+        const fileKey = `maps/${mapModel.name}.bsp`;
+
+        const result = await this.fileCloudService.storeFileCloud(mapFileBuffer, fileKey);
+
+        return [result.fileKey, result.hash];
+    }
+
     private getMapFileFromStore(mapName: string): Promise<StreamableFile> {
         const fileName = `maps/${mapName}.bsp`;
 
         return this.fileCloudService.getFileCloud(fileName);
+    }
+
+    private uploadMapChecks(map: MapDB, userID: number): void {
+        if (!map) throw new NotFoundException('Map not found');
+
+        if (userID !== map.submitterID) throw new ForbiddenException('You are not the submitter of this map');
+
+        if (map.status !== MapStatus.NEEDS_REVISION)
+            throw new ForbiddenException('Map file cannot be uploaded, the map is not accepting revisions');
     }
 
     //#endregion
@@ -465,6 +518,83 @@ export class MapsService {
         await this.updateMapCreditActivities(null, mapCred);
     }
 
+    private async updateCreditChecks(mapCred: MapCredit, creditUpdate: UpdateMapCreditDto, userID: number) {
+        if (creditUpdate.userID) {
+            const userExists = await this.userRepo.get(creditUpdate.userID);
+            if (!userExists) throw new BadRequestException('Credited user does not exist');
+        }
+
+        const mapOfCredit = await this.mapRepo.get(mapCred.mapID);
+        if (mapOfCredit.submitterID !== userID) throw new ForbiddenException('User is not the submitter of this map');
+
+        if (mapOfCredit.status !== MapStatus.NEEDS_REVISION)
+            throw new ForbiddenException('Map is not in NEEDS_REVISION state');
+
+        const checkDupe: Prisma.MapCreditWhereInput = {
+            NOT: {
+                id: mapCred.id
+            },
+            userID: creditUpdate.userID ?? mapCred.userID,
+            type: creditUpdate.type ?? mapCred.type,
+            mapID: mapCred.mapID
+        };
+
+        const foundDupe = await this.mapRepo.findCredit(checkDupe);
+        if (foundDupe) throw new ConflictException('Cannot have duplicate map credits');
+    }
+
+    private async updateMapCreditActivities(newCredit?: MapCredit, oldCredit?: MapCredit): Promise<void> {
+        const deleteOldActivity = () =>
+            this.userRepo.deleteActivities({
+                type: ActivityType.MAP_UPLOADED,
+                data: oldCredit.mapID,
+                userID: oldCredit.userID
+            });
+
+        const createNewActivity = () =>
+            this.userRepo.createActivities([
+                {
+                    type: ActivityType.MAP_UPLOADED,
+                    data: newCredit.mapID,
+                    userID: newCredit.userID
+                }
+            ]);
+
+        // If oldCredit is null, a credit was created
+        if (!oldCredit) {
+            if (newCredit?.type === MapCreditType.AUTHOR) await createNewActivity();
+            return;
+        }
+
+        // If newCredit is null, a credit was deleted
+        if (!newCredit) {
+            if (oldCredit?.type === MapCreditType.AUTHOR) await deleteOldActivity();
+            return;
+        }
+
+        const oldCreditIsAuthor = oldCredit.type === MapCreditType.AUTHOR;
+        const newCreditIsAuthor = newCredit.type === MapCreditType.AUTHOR;
+        const userChanged = oldCredit.userID !== newCredit.userID;
+
+        // If the new credit type was changed to author
+        if (!oldCreditIsAuthor && newCreditIsAuthor) {
+            // Create activity for newCredit.userID
+            await createNewActivity();
+            return;
+        } else if (oldCreditIsAuthor && !newCreditIsAuthor) {
+            // If the new credit type was changed from author to something else
+            // Delete activity for oldCredit.userID
+            await deleteOldActivity();
+            return;
+        } else if (oldCreditIsAuthor && newCreditIsAuthor && userChanged) {
+            // If the credit is still an author but the user changed
+            // Delete activity for oldCredit.userID and create activity for newCredit.userID
+            await deleteOldActivity();
+            await createNewActivity();
+            return;
+        } else return; // All other cases result in no change in authors
+    }
+
     //#endregion
 
     //#region Info
@@ -498,7 +628,7 @@ export class MapsService {
 
     //#endregion
 
-    //#region Map Images
+    //#region Images
 
     async getImages(mapID: number): Promise<MapImageDto[]> {
         const map = await this.mapRepo.get(mapID);
@@ -590,7 +720,7 @@ export class MapsService {
         }
     }
 
-    storeMapImage(imgBuffer: Buffer, imgID: number): Promise<FileStoreCloudFile[]> {
+    async storeMapImage(imgBuffer: Buffer, imgID: number): Promise<FileStoreCloudFile[]> {
         return Promise.all([
             this.editSaveMapImageFile(imgBuffer, `img/${imgID}-small.jpg`, 480, 360),
             this.editSaveMapImageFile(imgBuffer, `img/${imgID}-medium.jpg`, 1280, 720),
@@ -608,7 +738,7 @@ export class MapsService {
 
     //#endregion
 
-    //#region Map Thumbnail
+    //#region Thumbnails
 
     async updateThumbnail(userID: number, mapID: number, imgBuffer: Buffer): Promise<void> {
         let map = await this.mapRepo.get(mapID, { thumbnail: true });
@@ -634,7 +764,7 @@ export class MapsService {
     }
     //#endregion
 
-    //#region Map Zones
+    //#region Zones
 
     async getZones(mapID: number): Promise<MapTrackDto[]> {
         const tracks = await this.mapRepo.getMapTracks(
@@ -653,140 +783,6 @@ export class MapsService {
         });
 
         return tracks.map((x) => DtoFactory(MapTrackDto, x));
-    }
-
-    //#endregion
-
-    //#region Private
-
-    private static handleMapGetIncludes(
-        include: Prisma.MapInclude,
-        fav: boolean,
-        lib: boolean,
-        PB: boolean,
-        WR: boolean,
-        userID?: number
-    ): void {
-        if (fav && userID) include.favorites = { where: { userID: userID } };
-        if (lib && userID) include.libraryEntries = { where: { userID: userID } };
-
-        if (PB || WR) {
-            include.ranks = { include: { run: true, user: true } };
-            if (PB && WR) {
-                include.ranks.where = { OR: [{ userID: userID }, { rank: 1 }] };
-            } else if (PB) {
-                include.ranks.where = { userID: userID };
-            } else {
-                include.ranks.where = { rank: 1 };
-            }
-        }
-    }
-
-    private static handleMapGetPrismaResponse(mapObj: any, userID: number, PB: boolean, WR: boolean): void {
-        if (PB && WR) {
-            // Annoying to have to do this but we don't know what's what
-            mapObj.worldRecord = mapObj.ranks.find((r) => r.rank === 1);
-            mapObj.personalBest = mapObj.ranks.find((r) => r.userID === userID);
-        } else if (PB) {
-            mapObj.personalBest = mapObj.ranks[0];
-        } else {
-            mapObj.worldRecord = mapObj.ranks[0];
-        }
-        delete mapObj.ranks;
-    }
-
-    private async storeMapFile(mapFileBuffer: Buffer, mapModel: MapDB): Promise<[fileKey: string, hash: string]> {
-        const fileKey = `maps/${mapModel.name}.bsp`;
-
-        const result = await this.fileCloudService.storeFileCloud(mapFileBuffer, fileKey);
-
-        return [result.fileKey, result.hash];
-    }
-
-    private static uploadMapChecks(map: MapDB, userID: number): void {
-        if (!map) throw new NotFoundException('Map not found');
-
-        if (userID !== map.submitterID) throw new ForbiddenException('You are not the submitter of this map');
-
-        if (map.status !== MapStatus.NEEDS_REVISION)
-            throw new ForbiddenException('Map file cannot be uploaded, the map is not accepting revisions');
-    }
-
-    private async updateCreditChecks(mapCred: MapCredit, creditUpdate: UpdateMapCreditDto, userID: number) {
-        if (creditUpdate.userID) {
-            const userExists = await this.userRepo.get(creditUpdate.userID);
-            if (!userExists) throw new BadRequestException('Credited user does not exist');
-        }
-
-        const mapOfCredit = await this.mapRepo.get(mapCred.mapID);
-        if (mapOfCredit.submitterID !== userID) throw new ForbiddenException('User is not the submitter of this map');
-
-        if (mapOfCredit.status !== MapStatus.NEEDS_REVISION)
-            throw new ForbiddenException('Map is not in NEEDS_REVISION state');
-
-        const checkDupe: Prisma.MapCreditWhereInput = {
-            NOT: {
-                id: mapCred.id
-            },
-            userID: creditUpdate.userID ?? mapCred.userID,
-            type: creditUpdate.type ?? mapCred.type,
-            mapID: mapCred.mapID
-        };
-
-        const foundDupe = await this.mapRepo.findCredit(checkDupe);
-        if (foundDupe) throw new ConflictException('Cannot have duplicate map credits');
-    }
-
-    private async updateMapCreditActivities(newCredit?: MapCredit, oldCredit?: MapCredit): Promise<void> {
-        const deleteOldActivity = () =>
-            this.userRepo.deleteActivities({
-                type: ActivityType.MAP_UPLOADED,
-                data: oldCredit.mapID,
-                userID: oldCredit.userID
-            });
-
-        const createNewActivity = () =>
-            this.userRepo.createActivities([
-                {
-                    type: ActivityType.MAP_UPLOADED,
-                    data: newCredit.mapID,
-                    userID: newCredit.userID
-                }
-            ]);
-
-        // If oldCredit is null, a credit was created
-        if (!oldCredit) {
-            if (newCredit?.type === MapCreditType.AUTHOR) await createNewActivity();
-            return;
-        }
-
-        // If newCredit is null, a credit was deleted
-        if (!newCredit) {
-            if (oldCredit?.type === MapCreditType.AUTHOR) await deleteOldActivity();
-            return;
-        }
-
-        const oldCreditIsAuthor = oldCredit.type === MapCreditType.AUTHOR;
-        const newCreditIsAuthor = newCredit.type === MapCreditType.AUTHOR;
-        const userChanged = oldCredit.userID !== newCredit.userID;
-
-        // If the new credit type was changed to author
-        if (!oldCreditIsAuthor && newCreditIsAuthor) {
-            // Create activity for newCredit.userID
-            await createNewActivity();
-            return;
-        } else if (oldCreditIsAuthor && !newCreditIsAuthor) {
-            // If the new credit type was changed from author to something else
-            // Delete activity for oldCredit.userID
-            await deleteOldActivity();
-            return;
-        } else if (oldCreditIsAuthor && newCreditIsAuthor && userChanged) {
-            // If the credit is still an author but the user changed
-            // Delete activity for oldCredit.userID and create activity for newCredit.userID
-            await deleteOldActivity();
-            await createNewActivity();
-            return;
-        } else return; // All other cases result in no change in authors
     }
 
     //#endregion
