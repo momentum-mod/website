@@ -15,10 +15,10 @@ export function validate(config: Record<string, unknown>) {
 
 export class ConfigValidation {
     @IsEnum(Environment, {
-        message: 'A valid (development, production, test) NODE_ENV environment variable must be set'
+        message: 'A valid (dev, prod, test) NODE_ENV environment variable must be set'
     })
     @IsDefined()
-    NODE_ENV: Environment;
+    ENV: Environment;
 
     @IsDefined()
     @IsInt()
