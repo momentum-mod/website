@@ -48,7 +48,7 @@ export class UserDto implements User {
     get avatarURL(): string {
         return this.bans?.avatar || !this.avatar
             ? // TODO: We shouldn't be serving this image ourselves, use a bucket or something?
-              Config.url.base + '/assets/images/blank_avatar.jpg'
+              Config.url + '/assets/images/blank_avatar.jpg'
             : `https://avatars.cloudflare.steamstatic.com/${this.avatar}_full.jpg`;
     }
 

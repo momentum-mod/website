@@ -29,12 +29,7 @@ export const ConfigFactory = (): ConfigInterface => {
         env: env,
         root: path.normalize(__dirname + '/..'), // TODO: Might not be needed,
         port: port,
-        url: {
-            base: process.env.BASE_URL ?? defaults.url,
-            api: process.env.API_URL ?? defaults.url,
-            auth: process.env.AUTH_URL ?? defaults.url,
-            cdn: process.env.CDN_URL ?? defaults.cdnUrl
-        },
+        url: process.env.BASE_URL ?? !isProd ? `http://localhost:${port}` : undefined,
         domain: isProd ? 'momentum-mod.org' : 'localhost',
         appIDs: [669270, 1802710],
         jwt: {

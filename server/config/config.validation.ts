@@ -24,7 +24,9 @@ export class ConfigValidation {
     @IsInt()
     NODE_PORT: number;
 
-    @IsDefined({
+    @IsOptional()
+    @IsUrl({ require_tld: false })
+    URL: string;
         message:
             'A Steam API key is required to run this application, can be acquired from https://steamcommunity.com/dev/apikey. See README.md for more information.'
     })
@@ -33,19 +35,7 @@ export class ConfigValidation {
 
     @IsOptional()
     @IsUrl({ require_tld: false })
-    BASE_URL: string;
-
-    @IsOptional()
-    @IsUrl({ require_tld: false })
-    API_URL: string;
-
-    @IsOptional()
-    @IsUrl({ require_tld: false })
-    AUTH_URL: string;
-
-    @IsOptional()
-    @IsUrl({ require_tld: false })
-    CDN_URL: string;
+    ROOT_URL: string;
 
     @IsUrl()
     @IsOptionalWithEmptyString()

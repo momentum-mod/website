@@ -16,10 +16,10 @@ export class SteamOpenIDService {
     private readonly relyingParty: openid.RelyingParty;
 
     constructor(private readonly config: ConfigService, private readonly steam: SteamService) {
-        const authUrl = this.config.get('url.auth');
+        const authUrl = `${this.config.get('url')}/auth`;
         const apiKey = this.config.get('steam.webAPIKey');
 
-        this.relyingParty = new openid.RelyingParty(`${authUrl}/auth/steam/return`, authUrl, apiKey, true, []);
+        this.relyingParty = new openid.RelyingParty(`${authUrl}/steam/return`, authUrl, apiKey, true, []);
     }
 
     async getRedirectUrl(): Promise<string> {

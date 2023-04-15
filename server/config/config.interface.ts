@@ -7,12 +7,7 @@
 export interface Config {
     env: Environment;
     root: string;
-    url: {
-        base: string;
-        api: string;
-        auth: string;
-        cdn: string;
-    };
+    url: string;
     domain: string;
     port: number;
     appIDs: number[];
