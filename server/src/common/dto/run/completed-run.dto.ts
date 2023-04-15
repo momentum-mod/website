@@ -1,5 +1,5 @@
 ﻿import { ApiProperty } from '@nestjs/swagger';
-import { IsBoolean, IsInt, IsNumber } from 'class-validator';
+import { IsBoolean, IsInt } from 'class-validator';
 import { NestedProperty } from '@lib/dto.lib';
 import { RunDto } from './run.dto';
 import { RankDto } from '@common/dto/run/rank.dto';
@@ -9,19 +9,18 @@ class CosXpGain {
     @IsInt()
     readonly gainLvl: number;
 
-    // TODO: Are these two ints or floats? Don't seem like they're being rounded, but lets verify.
     @ApiProperty({ type: Number, description: 'Cosmetic XP of player before the run' })
-    @IsNumber()
+    @IsInt()
     readonly oldXP: number;
 
     @ApiProperty({ type: Number, description: 'Cosmetic XP of player after the run' })
-    @IsNumber()
+    @IsInt()
     readonly gainXP: number;
 }
 
 export class XpGainDto {
     @ApiProperty({ type: Number, description: 'New ranked XP of player' })
-    @IsNumber()
+    @IsInt()
     readonly rankXP: number;
 
     @NestedProperty(CosXpGain)
