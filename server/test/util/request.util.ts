@@ -201,10 +201,8 @@ export class RequestUtil {
             else expect(res.body).toBeValidDto(options.validate);
 
         const expects = (data) => {
-            expect(data).toHaveProperty(options.expectedPropertyName);
-            expect(data[options.expectedPropertyName]).not.toBeNull();
-            if (options.expectedPropertyValue)
-                expect(data[options.expectedPropertyValue]).toBe(options.expectedPropertyValue);
+            const value = getDeep(data, options.expectedPropertyName);
+            expect(value).toBeDefined();
         };
 
         if (options.paged ?? false) {

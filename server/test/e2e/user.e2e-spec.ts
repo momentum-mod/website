@@ -819,18 +819,15 @@ describe('User', () => {
                     validate: { type: MapFavoriteDto, count: 1 }
                 }));
 
-            // These two need to check for eg map.submitter rather than submitter so no expandTest
-            it('should retrieve a list of maps in the local users favorites with expanded submitter', async () => {
-                const res = await req.get({
+            it('should retrieve a list of maps in the local users favorites with expanded submitter', () =>
+                req.expandTest({
                     url: 'user/maps/favorites',
-                    status: 200,
-                    query: { expand: 'submitter' },
-                    validatePaged: MapFavoriteDto,
+                    expand: 'submitter',
+                    expectedPropertyName: 'map.submitter',
+                    paged: true,
+                    validate: MapFavoriteDto,
                     token: token
-                });
-
-                for (const x of res.body.response) expect(x.map).toHaveProperty('submitter');
-            });
+                }));
 
             it('should retrieve a list of maps in the local users favorites with expanded thumbnail', async () => {
                 const res = await req.get({
