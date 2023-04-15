@@ -25,7 +25,6 @@ import { FileStoreCloudFile } from '../filestore/file-store.interface';
 import { ConfigService } from '@nestjs/config';
 import sharp from 'sharp';
 import { RunsService } from '../runs/runs.service';
-import { RanksService } from '@modules/ranks/ranks.service';
 
 @Injectable()
 export class MapsService {
@@ -34,8 +33,7 @@ export class MapsService {
         private readonly userRepo: UsersRepoService,
         private readonly fileCloudService: FileStoreCloudService,
         private readonly config: ConfigService,
-        private readonly runsService: RunsService,
-        private readonly ranksService: RanksService
+        private readonly runsService: RunsService
     ) {}
 
     //#region Maps
