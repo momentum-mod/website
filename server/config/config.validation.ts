@@ -1,5 +1,15 @@
 ﻿import { Environment } from './config.interface';
-import { IsDefined, IsEnum, IsInt, IsOptional, IsString, IsUrl, validateSync } from 'class-validator';
+import {
+    IsDefined,
+    IsEnum,
+    IsInt,
+    IsOptional,
+    IsString,
+    IsUrl,
+    Length,
+    MinLength,
+    validateSync
+} from 'class-validator';
 import { plainToInstance } from 'class-transformer';
 import { IsOptionalWithEmptyString } from '@common/validators/is-optional-with-empty-string.validator';
 
@@ -22,20 +32,20 @@ export class ConfigValidation {
 
     @IsDefined()
     @IsInt()
-    NODE_PORT: number;
+    PORT: number;
 
     @IsOptional()
     @IsUrl({ require_tld: false })
     URL: string;
+
+    @IsString({
         message:
             'A Steam API key is required to run this application, can be acquired from https://steamcommunity.com/dev/apikey. See README.md for more information.'
     })
-    @IsString()
     STEAM_WEB_API_KEY: string;
-
-    @IsOptional()
-    @IsUrl({ require_tld: false })
-    ROOT_URL: string;
+    @IsString()
+    @MinLength(20)
+    JWT_SECRET: string;
 
     @IsUrl()
     @IsOptionalWithEmptyString()
@@ -64,4 +74,8 @@ export class ConfigValidation {
 
     @IsString()
     STORAGE_SECRET_ACCESS_KEY: string;
+
+    @IsString()
+    @Length(32, 32)
+    SESSION_SECRET: string;
 }

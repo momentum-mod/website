@@ -6,7 +6,6 @@
 
 export interface Config {
     env: Environment;
-    root: string;
     url: string;
     domain: string;
     port: number;

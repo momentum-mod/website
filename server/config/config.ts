@@ -1,5 +1,4 @@
 ﻿import { Config as ConfigInterface, Environment } from './config.interface';
-import * as path from 'node:path';
 
 export const ConfigFactory = (): ConfigInterface => {
     const env: Environment = process.env.NODE_ENV as Environment;
@@ -8,52 +7,38 @@ export const ConfigFactory = (): ConfigInterface => {
     const isProd = env === Environment.PRODUCTION;
     const isTest = env === Environment.TEST;
 
-    // If we're not in production some stuff being missing in fine, we can just use sensible defaults.
-    // In production we want to require them be defined, so they'll fail validation immediately if not.
-    const defaults = {
-        url: !isProd ? `http://localhost:${port}` : undefined,
-        cdnUrl: !isProd ? 'http://localhost:9000' : undefined,
-        secret: !isProd ? 'dev' : undefined,
-        social: !isProd
-            ? {
-                  id: 'thiswontwork123',
-                  secret: 'setupanapikeyifyouneedthistowork!!'
-              }
-            : {
-                  id: undefined,
-                  secret: undefined
-              }
-    };
+    const defaultSocials = !isProd
+        ? { id: 'thiswontwork123', secret: 'setupanapikeyifyouneedthistowork!' }
+        : { id: undefined, secret: undefined };
 
     return {
         env: env,
-        root: path.normalize(__dirname + '/..'), // TODO: Might not be needed,
         port: port,
         url: process.env.BASE_URL ?? !isProd ? `http://localhost:${port}` : undefined,
         domain: isProd ? 'momentum-mod.org' : 'localhost',
         appIDs: [669270, 1802710],
         jwt: {
-            secret: process.env.JWT_SECRET ?? defaults.secret,
+            secret: process.env.JWT_SECRET,
             expTime: '15m',
             gameExpTime: '24h',
             refreshExpTime: '5d'
         },
         discord: {
-            clientID: process.env.DISCORD_CLIENT_ID ?? defaults.social.id,
-            clientSecret: process.env.DISCORD_CLIENT_SECRET ?? defaults.social.secret
+            clientID: process.env.DISCORD_CLIENT_ID ?? defaultSocials.id,
+            clientSecret: process.env.DISCORD_CLIENT_SECRET ?? defaultSocials.secret
         },
         twitter: {
-            consumerKey: process.env.TWITTER_CONSUMER_KEY ?? defaults.social.id,
-            consumerSecret: process.env.TWITTER_CONSUMER_SECRET ?? defaults.social.secret
+            consumerKey: process.env.TWITTER_CONSUMER_KEY ?? defaultSocials.id,
+            consumerSecret: process.env.TWITTER_CONSUMER_SECRET ?? defaultSocials.secret
         },
         twitch: {
-            clientID: process.env.TWITCH_CLIENT_ID ?? defaults.social.id,
-            clientSecret: process.env.TWITCH_CLIENT_SECRET ?? defaults.social.secret
+            clientID: process.env.TWITCH_CLIENT_ID ?? defaultSocials.id,
+            clientSecret: process.env.TWITCH_CLIENT_SECRET ?? defaultSocials.secret
         },
         sentry: {
             dsn: process.env.SENTRY_DSN
         },
-        sessionSecret: isProd ? process.env.SESSION_SECRET : 'honga suggested it make some cha',
+        sessionSecret: process.env.SESSION_SECRET,
         steam: {
             webAPIKey: process.env.STEAM_WEB_API_KEY,
             preventLimited: process.env.STEAM_PREVENT_LIMITED !== 'false' ?? true,
