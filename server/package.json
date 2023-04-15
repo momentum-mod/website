@@ -20,6 +20,7 @@
         "db:push": "dotenv -e ../.env -- prisma db push --accept-data-loss",
         "db:generate": "dotenv -e ../.env -- prisma generate",
         "db:seed": "dotenv -e ../.env -- npm run migrate && dotenv -e ../.env -- prisma db seed",
+        "db:viewer": "dotenv -e ../.env -- prisma studio",
         "------------------------------------------------------": "",
         "test": "npm run test:unit && npm run test:e2e",
         "test:e2e": "jest --config test/e2e/jest.config.ts",
