@@ -49,6 +49,11 @@ services:
       - ${POSTGRES_PORT}:${POSTGRES_PORT}
     volumes:
       - ./data/postgres:/var/lib/postgresql/data
+  # Here we use the profiles feature to only load the API with Docker if launching with `--profile full`.
+  # This allows developers choose between running the Nest API in Docker (great for frontend-only dev) and
+  # running it natively, using a single command line option. Note we must construct the DATABASE_URL from
+  # other env variables in this mode, overriding whatever is in .env - we want to name it `db` in full mode
+  # so it's only exposed to the internal network.
   api:
     depends_on:
       - minio
