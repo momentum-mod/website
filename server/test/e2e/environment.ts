@@ -1,5 +1,4 @@
-﻿import 'tsconfig-paths/register'; // This MUST be imported for absolute modules to be recognised! // TODO: Is this doing anything
-import { Test, TestingModuleBuilder } from '@nestjs/testing';
+﻿import { Test, TestingModuleBuilder } from '@nestjs/testing';
 import { AppModule } from '@/app.module';
 import { ClassSerializerInterceptor, Logger, LogLevel, ValidationPipe, VersioningType } from '@nestjs/common';
 import { PrismaService } from '@modules/repo/prisma.service';
