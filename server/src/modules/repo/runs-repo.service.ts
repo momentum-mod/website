@@ -78,7 +78,6 @@ export class RunsRepoService {
         });
     }
 
-    // TODO: when moving to prismapromise returns idk if we want to return the batchpayload stuff
     async deleteRun(where: Prisma.RunWhereInput): Promise<void> {
         await this.prisma.run.deleteMany({ where: where });
     }

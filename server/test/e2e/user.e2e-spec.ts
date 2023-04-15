@@ -844,13 +844,6 @@ describe('User', () => {
                 for (const x of res.body.response) expect(x.map).toHaveProperty('thumbnail');
             });
 
-            // TODO ??? this is silly.
-            // come back to this once the stuff on maps/ is done
-            // it('should retrieve a list of maps in the local users favorites ', async () => {
-            //     const res = await req.get({
-            //     url: 'user/maps/favorites', status:200, query: { expand: 'inFavorites' },token:user1Token});
-            // });
-
             it('should 401 when no access token is provided', () => req.unauthorizedTest('user/maps/favorites', 'get'));
         });
     });

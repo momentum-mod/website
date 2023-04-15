@@ -287,7 +287,6 @@ export class UsersRepoService {
             where: where,
             skip: skip,
             take: take,
-            // TODO: move to service logic, same strat as below
             include: {
                 map: true,
                 user: true

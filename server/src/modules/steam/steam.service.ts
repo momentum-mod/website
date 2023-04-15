@@ -79,7 +79,6 @@ export class SteamService {
      * Returns SteamID if successful, throws otherwise.
      * @returns SteamID
      */
-    // TODO: Test with debug build!!
     async tryAuthenticateUserTicketOnline(ticket: string, appID: number): Promise<bigint> {
         const steamResponse = await lastValueFrom(
             this.http
