@@ -186,7 +186,16 @@ export class RequestUtil {
         expect(res.body.response[0]).not.toEqual(res2.body.response[0]);
     }
 
-    async expandTest(options: ExpandTestOptions): Promise<void> {
+    async expandTest(
+        options: E2ETestOptions & {
+            expand: string;
+            query?: Query;
+            paged?: boolean; // False by default
+            filter?: (item: Record<string, unknown>) => boolean;
+            expectedPropertyName?: string;
+            expectedPropertyValue?: any;
+        }
+    ): Promise<void> {
         options.expectedPropertyName ??= options.expand;
 
         const res = await this.get({
@@ -215,7 +224,12 @@ export class RequestUtil {
         } else expects(res.body);
     }
 
-    async sortTest(options: SortTestOptions): Promise<void> {
+    async sortTest(
+        options: E2ETestOptions & {
+            sortFn: (a: any, b: any) => number;
+            query?: Query;
+        }
+    ): Promise<void> {
         const res = await this.get({
             url: options.url,
             status: 200,
@@ -227,14 +241,21 @@ export class RequestUtil {
         expect(res.body.response).toStrictEqual([...res.body.response].sort(options.sortFn));
     }
 
-    sortByDateTest(options: Omit<SortTestOptions, 'sortFn'>): Promise<void> {
+    sortByDateTest(options: E2ETestOptions & { query?: Query }): Promise<void> {
         return this.sortTest({
             ...options,
             sortFn: (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
         });
     }
 
-    async searchTest(options: SearchTestOptions): Promise<void> {
+    async searchTest(
+        options: Omit<E2ETestOptions, 'validate'> & {
+            searchString: string;
+            searchMethod: 'startsWith' | 'contains';
+            searchPropertyName: string;
+            validate: { type: Type; count?: number };
+        }
+    ): Promise<void> {
         const res = await this.get({
             url: options.url,
             query: { search: options.searchString },
@@ -301,32 +322,6 @@ export interface E2ETestOptions {
     url: string;
     token: string;
     validate: Type;
-}
-
-export interface ExpandTestOptions extends E2ETestOptions {
-    expand: string;
-    query?: Query;
-    paged?: boolean; // False by default
-    filter?: (item: Record<string, unknown>) => boolean;
-    expectedPropertyName?: string;
-    expectedPropertyValue?: any;
-}
-
-export interface SortTestOptions extends E2ETestOptions {
-    sortFn: (a: any, b: any) => number;
-    query?: Query;
-}
-
-export interface SearchTestOptions extends Omit<E2ETestOptions, 'validate'> {
-    searchString: string;
-    searchMethod: 'startsWith' | 'contains';
-    searchPropertyName: string;
-    validate: { type: Type; count?: number };
-}
-
-export interface UnauthorizedTestOptions {
-    url: string;
-    method: (options: RequestOptions) => Promise<ParsedResponse>;
 }
 
 //#endregion
