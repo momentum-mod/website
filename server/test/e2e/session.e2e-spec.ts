@@ -734,15 +734,6 @@ describe('Session', () => {
                     expect(res.body.code).toBe(RunValidationErrorType.BAD_REPLAY_FILE);
                 });
 
-                // TODO: This depends if Goc wants to do it https://discord.com/channels/235111289435717633/487354170546978816/1004921906094419978
-                // it('the run date is too old (5+ seconds old)', () => {
-                //     return;
-                // });
-
-                // it('there are timestamps for an IL run', () => {
-                //     return;
-                // });
-
                 it('should 401 when no access token is provided', () =>
                     req.unauthorizedTest('session/run/1/end', 'post'));
             });

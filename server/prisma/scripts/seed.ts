@@ -40,7 +40,7 @@ async function main() {
     await makeRandomUsersMappers();
 
     console.log('Uploading maps for mappers');
-    await uploadMaps(); // TODO: Replace with actual map data and files?
+    await uploadMaps();
 
     console.log('Creating user to user interactions');
     await userToUserInteractions();

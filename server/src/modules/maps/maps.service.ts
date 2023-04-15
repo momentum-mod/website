@@ -150,7 +150,8 @@ export class MapsService {
             throw new ConflictException(`You can't have more than ${mapUploadLimit} maps pending at once`);
 
         // Extra checks...
-        // TODO: There's probs loads of these we could do, and with map submission incoming that's desirable, could be a good task for a new dev.
+        //// Note: We should add further checks here when working on map submission. Though need to decide if we're going to do
+        //// any BSP parsing on this API, or have mods check using Lumper.
         const trackNums = mapCreateDto.tracks.map((track) => track.trackNum);
         // Set construction ensures uniqueness, so just compare the lengths
         if (trackNums.length !== new Set(trackNums).size)

@@ -10,7 +10,6 @@ import { RunZoneStatsDto } from './run-zone-stats.dto';
 import { Config } from '@config/config';
 import { Exclude, Expose } from 'class-transformer';
 
-// TODO: BaseStatsDTO, various other nested DTOs
 export class RunDto implements PrismaModelToDto<Run> {
     @IdProperty({ bigint: true })
     readonly id: number;

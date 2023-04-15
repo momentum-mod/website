@@ -104,10 +104,8 @@ export class AdminUpdateUserDto extends UpdateUserDto {
 
 export class MergeUserDto {
     @IdProperty({ description: 'The ID of the placeholder user to merge into the actual user' })
-    // @Type(() => Number) // TODO : I don't thiiiink this is needed since it's a body so should be transformed. Same below
     placeholderID: number;
 
     @IdProperty({ description: 'The ID of the actual user to merge the placeholder into' })
-    // @Type(() => Number)
     userID: number;
 }
