@@ -1,9 +1,6 @@
 # Private environment vars
 .env
 
-# TODO: Add these back when we actually deploy!
-/server/prisma/migrations/
-
 # Node
 node_modules/
 
