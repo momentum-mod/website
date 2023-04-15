@@ -139,15 +139,14 @@ export class MapsService {
         if (existingMaps > 0) throw new ConflictException('Map with this name already exists');
 
         // Limit the number of pending maps a user can have at any one time
-        // TODO: Move this out to a config file
-        const mapUploadLimit = 5;
+        const pendingMapLimit = this.config.get('limits.pendingMaps');
         const submittedMaps: number = await this.mapRepo.count({
             submitterID: submitterID,
             status: { in: [MapStatus.PENDING, MapStatus.NEEDS_REVISION] }
         });
 
-        if (submittedMaps >= mapUploadLimit)
-            throw new ConflictException(`You can't have more than ${mapUploadLimit} maps pending at once`);
+        if (submittedMaps >= pendingMapLimit)
+            throw new ConflictException(`You can't have more than ${pendingMapLimit} maps pending at once`);
 
         // Extra checks...
         //// Note: We should add further checks here when working on map submission. Though need to decide if we're going to do

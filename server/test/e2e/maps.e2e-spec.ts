@@ -405,8 +405,8 @@ describe('Maps', () => {
                 });
             });
 
-            it('should 409 if the submitter already have 5 or more pending maps', async () => {
-                await db.createMaps(5, {
+            it('should 409 if the submitter has reached the pending map limit', async () => {
+                await db.createMaps(Config.limits.pendingMaps, {
                     status: MapStatus.PENDING,
                     submitter: { connect: { id: user.id } }
                 });

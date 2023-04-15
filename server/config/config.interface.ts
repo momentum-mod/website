@@ -48,6 +48,7 @@ export interface Config {
     limits: {
         maxDailyReports: number;
         mapImageUploads: number;
+        pendingMaps: number;
         mapSize: number;
         imageSize: number;
     };
