@@ -15,6 +15,7 @@
         "start:debug": "nest start --debug --watch",
         "start:push": "npm run db:push && npm run start:debug",
         "start:seed": "npm run db:seed && npm run start:debug",
+        "start:repl": "npm run start -- --entryFile src/repl",
         "------------------------------------------------------": "",
         "db:push": "dotenv -e ../.env -- prisma db push --accept-data-loss",
         "db:generate": "dotenv -e ../.env -- prisma generate",
