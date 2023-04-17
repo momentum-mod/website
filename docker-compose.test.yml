@@ -1,23 +1,69 @@
-version: '3.8'
+version: "3.8"
 
 services:
   db:
     platform: linux/x86_64
+    healthcheck:
+      test: ["CMD-SHELL", "sh -c 'pg_isready -U root -d momentum'"]
+      interval: 1s
+      timeout: 5s
+      retries: 3
     environment:
-      POSTGRES_DB: 'momentum_test'
-      POSTGRES_USER: 'mom_test'
-      POSTGRES_PASSWORD: 'password'
+      POSTGRES_USER: root
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: momentum
+  minio:
+    image: minio/minio
+    container_name: MinIO
+    command: server /data --console-address ":9001"
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    expose:
+      - 9000
+    volumes:
+      - ./data/minio:/data
+    environment:
+      MINIO_ROOT_USER: minio
+      MINIO_ROOT_PASSWORD: minio123
+      MINIO_SITE_REGION: us-west-1
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
+      interval: 5s
+      timeout: 20s
+      retries: 3
+  createbuckets:
+    image: minio/mc
+    container_name: MinIO_CreateBuckets
+    depends_on:
+      - minio
+    entrypoint: >
+      /bin/sh -c "
+      /usr/bin/mc alias set momentum_minio http://minio:9000 minio minio123;
+      /usr/bin/mc mb momentum_minio/momtest --ignore-existing;
+      /usr/bin/mc anonymous set public momentum_minio/momtest;
+      sleep infinity;"
   api:
     platform: linux/x86_64
+    image: node:18
     restart: "no"
     environment:
-      IS_DOCKERIZED_API: "true"
-      DATABASE_URL: postgresql://mom_test:password@db/momentum_test?schema=public
+      NODE_ENV: test
+      NODE_PORT: 3003
+      DATABASE_URL: postgresql://root:password@db/momentum?schema:public
+      IS_DOCKERIZED_API: true
+      STORAGE_REGION: us-west-1
+      STORAGE_BUCKET_NAME: momtest
+      STORAGE_ACCESS_KEY_ID: minio
+      STORAGE_SECRET_ACCESS_KEY: minio123
+      STORAGE_ENDPOINT_URL_DOCKERIZED: http://minio:9000
+      STEAM_WEB_API_KEY: thisisenoughtogenerateanopenidreferralforsomereason
+      SESSION_SECRET: thisisashitsecretdontuseitinprod
+      JWT_SECRET: thisisalsonotasecure
     volumes:
-      - ./scripts:/app/scripts
       - ./server:/app/server
       - /app/server/node_modules/
-    build:
-      context: ./server
-      dockerfile: dev.Dockerfile
-    entrypoint: "npm run test-docker"
+    depends_on:
+      - minio
+    working_dir: /app/server
+    command: "npm run test:ci"
