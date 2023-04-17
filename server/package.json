@@ -25,6 +25,7 @@
         "test": "npm run test:unit && npm run test:e2e",
         "test:e2e": "jest --config test/e2e/jest.config.ts",
         "test:unit": "jest --config test/unit/jest.config.ts",
+        "test:ci": "npm ci && npm run db:push && npm run test",
         "------------------------------------------------------": "",
         "lint:fix": "eslint {src,test,lib,config}/**/*.ts",
         "lint:check": "eslint {src,test,lib,config}/**/*.ts --fix",
