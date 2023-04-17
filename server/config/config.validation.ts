@@ -36,7 +36,7 @@ export class ConfigValidation {
 
     @IsOptional()
     @IsUrl({ require_tld: false })
-    URL: string;
+    ROOT_URL: string;
 
     @IsString({
         message:
@@ -52,20 +52,19 @@ export class ConfigValidation {
     @IsOptionalWithEmptyString()
     SENTRY_DSN: string;
 
-    @IsString()
-    POSTGRES_USER: string;
-
-    @IsString()
-    POSTGRES_PASSWORD: string;
-
-    @IsString()
-    POSTGRES_DB: string;
+    @IsUrl({ require_tld: false, protocols: ['postgresql'] })
+    DATABASE_URL: string;
 
     @IsString()
     STORAGE_REGION: string;
 
     @IsUrl({ require_tld: false })
+    @IsOptional()
     STORAGE_ENDPOINT_URL: string;
+
+    @IsUrl({ require_tld: false })
+    @IsOptional()
+    STORAGE_ENDPOINT_URL_DOCKERIZED: string;
 
     @IsString()
     STORAGE_BUCKET_NAME: string;
