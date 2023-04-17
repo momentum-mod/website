@@ -29,7 +29,7 @@
         "------------------------------------------------------": "",
         "lint:fix": "eslint {src,test,lib,config}/**/*.ts",
         "lint:check": "eslint {src,test,lib,config}/**/*.ts --fix",
-        "format:fix": "prettier --write {src,lib,test,config}/**/*.{ts,js,md}",
+        "format:fix": "prettier --write {src,lib,test,config}/**/*.{ts,js,md} && npx prisma format",
         "format:check": "prettier --check {src,lib,test,config}/**/*.{ts,js,md}",
         "quality:fix": "npm run lint:fix && npm run format:fix",
         "quality:check": "npm run format:check && npm run lint:check"
@@ -40,7 +40,8 @@
     "lint-staged": {
         "{src,lib,test,config}/**/*.{ts,js,md}": [
             "eslint --quiet --fix",
-            "prettier --write"
+            "prettier --write",
+            "prisma format"
         ]
     },
     "dependencies": {

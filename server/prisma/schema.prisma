@@ -1,5 +1,5 @@
 generator client {
-    provider = "prisma-client-js"
+  provider = "prisma-client-js"
 }
 
 // This can be used to generate an ERD, but the dependencies are like 500MB so we don't include it by default. To use,
@@ -10,697 +10,697 @@ generator client {
 //}
 
 datasource db {
-    provider = "postgresql"
-    url      = env("DATABASE_URL")
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
 }
 
 model User {
-    id Int @id @default(autoincrement())
+  id Int @id @default(autoincrement())
 
-    steamID BigInt? @unique(map: "user_steamID") @db.BigInt // Optional because placeholders don't have SteamIDs
-    alias   String  @db.VarChar(64)
-    avatar  String? @db.VarChar(255)
-    country String? @db.VarChar(2)
+  steamID BigInt? @unique(map: "user_steamID") @db.BigInt // Optional because placeholders don't have SteamIDs
+  alias   String  @db.VarChar(64)
+  avatar  String? @db.VarChar(255)
+  country String? @db.VarChar(2)
 
-    bans  Bans?
-    roles Roles?
+  bans  Bans?
+  roles Roles?
 
-    userAuth          UserAuth?
-    profile           Profile?
-    userStats         UserStats?
-    submittedMaps     Map[]
-    mapCredits        MapCredit[]
-    mapFavorites      MapFavorite[]
-    mapLibraryEntries MapLibraryEntry[]
-    mapRanks          Rank[]
-    mapReviews        MapReview[]
-    activities        Activity[]
-    follows           Follow[]          @relation("follow_follow")
-    followers         Follow[]          @relation("follow_follower")
-    mapNotifies       MapNotify[]
-    notifications     Notification[]
-    runSessions       RunSession[]
-    runs              Run[]
-    userBadges        UserBadge[]
-    reportSubmitted   Report[]          @relation("report_submitter")
-    reportResolved    Report[]          @relation("report_resolver")
+  userAuth          UserAuth?
+  profile           Profile?
+  userStats         UserStats?
+  submittedMaps     Map[]
+  mapCredits        MapCredit[]
+  mapFavorites      MapFavorite[]
+  mapLibraryEntries MapLibraryEntry[]
+  mapRanks          Rank[]
+  mapReviews        MapReview[]
+  activities        Activity[]
+  follows           Follow[]          @relation("follow_follow")
+  followers         Follow[]          @relation("follow_follower")
+  mapNotifies       MapNotify[]
+  notifications     Notification[]
+  runSessions       RunSession[]
+  runs              Run[]
+  userBadges        UserBadge[]
+  reportSubmitted   Report[]          @relation("report_submitter")
+  reportResolved    Report[]          @relation("report_resolver")
 
-    createdAt DateTime @default(now())
-    updatedAt DateTime @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
-    @@index([steamID])
+  @@index([steamID])
 }
 
 model Bans {
-    leaderboards Boolean @default(false)
-    alias        Boolean @default(false)
-    avatar       Boolean @default(false)
-    bio          Boolean @default(false)
+  leaderboards Boolean @default(false)
+  alias        Boolean @default(false)
+  avatar       Boolean @default(false)
+  bio          Boolean @default(false)
 
-    user   User @relation(fields: [userID], references: [id], onDelete: Cascade)
-    userID Int  @unique
+  user   User @relation(fields: [userID], references: [id], onDelete: Cascade)
+  userID Int  @unique
 }
 
 model Roles {
-    verified    Boolean @default(false)
-    mapper      Boolean @default(false)
-    moderator   Boolean @default(false)
-    admin       Boolean @default(false)
-    placeholder Boolean @default(false)
+  verified    Boolean @default(false)
+  mapper      Boolean @default(false)
+  moderator   Boolean @default(false)
+  admin       Boolean @default(false)
+  placeholder Boolean @default(false)
 
-    user   User @relation(fields: [userID], references: [id], onDelete: Cascade)
-    userID Int  @unique
+  user   User @relation(fields: [userID], references: [id], onDelete: Cascade)
+  userID Int  @unique
 }
 
 model Profile {
-    id Int @id @default(autoincrement())
+  id Int @id @default(autoincrement())
 
-    bio String @default("") @db.VarChar(1000)
+  bio String @default("") @db.VarChar(1000)
 
-    featuredBadge   UserBadge? @relation(fields: [featuredBadgeID], references: [id], onDelete: SetNull)
-    featuredBadgeID Int?       @unique
+  featuredBadge   UserBadge? @relation(fields: [featuredBadgeID], references: [id], onDelete: SetNull)
+  featuredBadgeID Int?       @unique
 
-    user   User @relation(fields: [userID], references: [id], onDelete: Cascade)
-    userID Int  @unique
+  user   User @relation(fields: [userID], references: [id], onDelete: Cascade)
+  userID Int  @unique
 
-    discordAuth DiscordAuth?
-    twitchAuth  TwitchAuth?
-    twitterAuth TwitterAuth?
+  discordAuth DiscordAuth?
+  twitchAuth  TwitchAuth?
+  twitterAuth TwitterAuth?
 
-    createdAt DateTime @default(now())
-    updatedAt DateTime @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
-    @@index([featuredBadgeID, userID])
+  @@index([featuredBadgeID, userID])
 }
 
 model UserStats {
-    id Int @id @default(autoincrement())
+  id Int @id @default(autoincrement())
 
-    totalJumps    BigInt @default(0) @db.BigInt
-    totalStrafes  BigInt @default(0) @db.BigInt
-    level         Int    @default(1) @db.SmallInt
-    cosXP         BigInt @default(0) @db.BigInt
-    mapsCompleted Int    @default(0)
-    runsSubmitted Int    @default(0)
+  totalJumps    BigInt @default(0) @db.BigInt
+  totalStrafes  BigInt @default(0) @db.BigInt
+  level         Int    @default(1) @db.SmallInt
+  cosXP         BigInt @default(0) @db.BigInt
+  mapsCompleted Int    @default(0)
+  runsSubmitted Int    @default(0)
 
-    user   User @relation(fields: [userID], references: [id], onDelete: Cascade)
-    userID Int  @unique
+  user   User @relation(fields: [userID], references: [id], onDelete: Cascade)
+  userID Int  @unique
 
-    createdAt DateTime @default(now())
-    updatedAt DateTime @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
-    @@index([userID])
+  @@index([userID])
 }
 
 model DiscordAuth {
-    id Int @id @default(autoincrement())
+  id Int @id @default(autoincrement())
 
-    discordID    String? @db.VarChar(255)
-    displayName  String? @db.VarChar(255)
-    accessToken  String? @db.VarChar(255)
-    refreshToken String? @db.VarChar(255)
+  discordID    String? @db.VarChar(255)
+  displayName  String? @db.VarChar(255)
+  accessToken  String? @db.VarChar(255)
+  refreshToken String? @db.VarChar(255)
 
-    profile   Profile @relation(fields: [profileID], references: [id], onDelete: Cascade)
-    profileID Int     @unique
+  profile   Profile @relation(fields: [profileID], references: [id], onDelete: Cascade)
+  profileID Int     @unique
 
-    createdAt DateTime @default(now())
-    updatedAt DateTime @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
-    @@index([profileID])
+  @@index([profileID])
 }
 
 model TwitchAuth {
-    id Int @id @default(autoincrement())
+  id Int @id @default(autoincrement())
 
-    twitchID    Int?
-    displayName String? @db.VarChar(255)
-    token       String? @db.VarChar(255)
+  twitchID    Int?
+  displayName String? @db.VarChar(255)
+  token       String? @db.VarChar(255)
 
-    profile   Profile @relation(fields: [profileID], references: [id], onDelete: Cascade)
-    profileID Int     @unique
+  profile   Profile @relation(fields: [profileID], references: [id], onDelete: Cascade)
+  profileID Int     @unique
 
-    createdAt DateTime @default(now())
-    updatedAt DateTime @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
-    @@index([profileID])
+  @@index([profileID])
 }
 
 model TwitterAuth {
-    id Int @id @default(autoincrement())
+  id Int @id @default(autoincrement())
 
-    twitterID   String? @db.VarChar(255)
-    displayName String? @db.VarChar(255)
-    oauthKey    String? @db.VarChar(255)
-    oauthSecret String? @db.VarChar(255)
+  twitterID   String? @db.VarChar(255)
+  displayName String? @db.VarChar(255)
+  oauthKey    String? @db.VarChar(255)
+  oauthSecret String? @db.VarChar(255)
 
-    profile   Profile @relation(fields: [profileID], references: [id], onDelete: Cascade)
-    profileID Int     @unique
+  profile   Profile @relation(fields: [profileID], references: [id], onDelete: Cascade)
+  profileID Int     @unique
 
-    createdAt DateTime @default(now())
-    updatedAt DateTime @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
-    @@index([profileID])
+  @@index([profileID])
 }
 
 model Badge {
-    id Int @id @default(autoincrement())
+  id Int @id @default(autoincrement())
 
-    name        String? @db.VarChar(255)
-    description String? @db.VarChar(255)
-    image       String? @db.VarChar(255)
+  name        String? @db.VarChar(255)
+  description String? @db.VarChar(255)
+  image       String? @db.VarChar(255)
 
-    userBadge UserBadge[]
+  userBadge UserBadge[]
 
-    createdAt DateTime @default(now())
-    updatedAt DateTime @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
 model UserBadge {
-    id Int @id @default(autoincrement())
+  id Int @id @default(autoincrement())
 
-    profile Profile?
+  profile Profile?
 
-    badge   Badge @relation(fields: [badgeID], references: [id], onDelete: Cascade)
-    badgeID Int
+  badge   Badge @relation(fields: [badgeID], references: [id], onDelete: Cascade)
+  badgeID Int
 
-    user   User @relation(fields: [userID], references: [id], onDelete: Cascade)
-    userID Int
+  user   User @relation(fields: [userID], references: [id], onDelete: Cascade)
+  userID Int
 
-    createdAt DateTime @default(now())
-    updatedAt DateTime @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
-    @@index([badgeID, userID])
-    @@map("UserBadges")
+  @@index([badgeID, userID])
+  @@map("UserBadges")
 }
 
 model Activity {
-    id Int @id @default(autoincrement())
+  id Int @id @default(autoincrement())
 
-    type Int    @default(0) @db.SmallInt
-    data BigInt @db.BigInt
+  type Int    @default(0) @db.SmallInt
+  data BigInt @db.BigInt
 
-    notifications Notification[]
+  notifications Notification[]
 
-    user   User @relation(fields: [userID], references: [id], onDelete: Cascade)
-    userID Int
+  user   User @relation(fields: [userID], references: [id], onDelete: Cascade)
+  userID Int
 
-    createdAt DateTime @default(now())
-    updatedAt DateTime @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
-    @@index([userID])
+  @@index([userID])
 }
 
 model Follow {
-    notifyOn Int @default(0) @db.SmallInt
+  notifyOn Int @default(0) @db.SmallInt
 
-    followed   User @relation("follow_follower", fields: [followedID], references: [id], onDelete: Cascade)
-    followedID Int
+  followed   User @relation("follow_follower", fields: [followedID], references: [id], onDelete: Cascade)
+  followedID Int
 
-    followee   User @relation("follow_follow", fields: [followeeID], references: [id], onDelete: Cascade)
-    followeeID Int
+  followee   User @relation("follow_follow", fields: [followeeID], references: [id], onDelete: Cascade)
+  followeeID Int
 
-    createdAt DateTime @default(now())
-    updatedAt DateTime @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
-    @@id([followeeID, followedID])
-    @@unique([followeeID, followedID], map: "follow_unique")
-    @@index([followeeID, followedID])
+  @@id([followeeID, followedID])
+  @@unique([followeeID, followedID], map: "follow_unique")
+  @@index([followeeID, followedID])
 }
 
 model Notification {
-    id Int @id @default(autoincrement())
+  id Int @id @default(autoincrement())
 
-    read Boolean @default(false)
+  read Boolean @default(false)
 
-    user   User @relation(fields: [userID], references: [id], onDelete: Cascade)
-    userID Int
+  user   User @relation(fields: [userID], references: [id], onDelete: Cascade)
+  userID Int
 
-    activity   Activity @relation(fields: [activityID], references: [id], onDelete: Cascade)
-    activityID Int
+  activity   Activity @relation(fields: [activityID], references: [id], onDelete: Cascade)
+  activityID Int
 
-    createdAt DateTime @default(now())
-    updatedAt DateTime @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
-    @@index([activityID, userID])
+  @@index([activityID, userID])
 }
 
 model Report {
-    id Int @id @default(autoincrement())
+  id Int @id @default(autoincrement())
 
-    data              BigInt   @db.BigInt
-    type              Int      @db.SmallInt
-    category          Int      @db.SmallInt
-    message           String?  @db.VarChar(1000)
-    resolved          Boolean? @default(false)
-    resolutionMessage String?  @db.VarChar(1000)
+  data              BigInt   @db.BigInt
+  type              Int      @db.SmallInt
+  category          Int      @db.SmallInt
+  message           String?  @db.VarChar(1000)
+  resolved          Boolean? @default(false)
+  resolutionMessage String?  @db.VarChar(1000)
 
-    submitter   User? @relation("report_submitter", fields: [submitterID], references: [id], onDelete: SetNull)
-    submitterID Int?
+  submitter   User? @relation("report_submitter", fields: [submitterID], references: [id], onDelete: SetNull)
+  submitterID Int?
 
-    resolver   User? @relation("report_resolver", fields: [resolverID], references: [id], onDelete: SetNull)
-    resolverID Int?
+  resolver   User? @relation("report_resolver", fields: [resolverID], references: [id], onDelete: SetNull)
+  resolverID Int?
 
-    createdAt DateTime @default(now())
-    updatedAt DateTime @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
-    @@unique(id)
-    @@index([resolverID, submitterID])
+  @@unique(id)
+  @@index([resolverID, submitterID])
 }
 
 model UserAuth {
-    id Int @id @default(autoincrement())
+  id Int @id @default(autoincrement())
 
-    refreshToken String? @db.VarChar(255)
+  refreshToken String? @db.VarChar(255)
 
-    user   User @relation(fields: [userID], references: [id], onDelete: Cascade)
-    userID Int  @unique
+  user   User @relation(fields: [userID], references: [id], onDelete: Cascade)
+  userID Int  @unique
 
-    createdAt DateTime @default(now())
-    updatedAt DateTime @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
-    @@index([userID])
+  @@index([userID])
 }
 
 model Map {
-    id Int @id @default(autoincrement())
+  id Int @id @default(autoincrement())
 
-    name    String  @db.VarChar(32)
-    fileKey String? @db.VarChar(255)
-    type    Int     @default(0) @db.SmallInt
-    status  Int     @db.SmallInt
-    hash    String? @db.Char(40)
+  name    String  @db.VarChar(32)
+  fileKey String? @db.VarChar(255)
+  type    Int     @default(0) @db.SmallInt
+  status  Int     @db.SmallInt
+  hash    String? @db.Char(40)
 
-    thumbnail   MapImage? @relation("mapimage_thumbnail", fields: [thumbnailID], references: [id], onDelete: SetNull)
-    thumbnailID Int?      @unique
+  thumbnail   MapImage? @relation("mapimage_thumbnail", fields: [thumbnailID], references: [id], onDelete: SetNull)
+  thumbnailID Int?      @unique
 
-    submitter   User? @relation(fields: [submitterID], references: [id], onDelete: SetNull)
-    submitterID Int?
+  submitter   User? @relation(fields: [submitterID], references: [id], onDelete: SetNull)
+  submitterID Int?
 
-    stats MapStats?
-    info  MapInfo?
+  stats MapStats?
+  info  MapInfo?
 
-    mainTrack   MapTrack? @relation("map_maintrack", fields: [mainTrackID], references: [id], onDelete: SetNull)
-    mainTrackID Int?      @unique
+  mainTrack   MapTrack? @relation("map_maintrack", fields: [mainTrackID], references: [id], onDelete: SetNull)
+  mainTrackID Int?      @unique
 
-    credits        MapCredit[]
-    favorites      MapFavorite[]
-    images         MapImage[]
-    libraryEntries MapLibraryEntry[]
-    notifies       MapNotify[]
-    ranks          Rank[]
-    reviews        MapReview[]
-    tracks         MapTrack[]
-    runs           Run[]
+  credits        MapCredit[]
+  favorites      MapFavorite[]
+  images         MapImage[]
+  libraryEntries MapLibraryEntry[]
+  notifies       MapNotify[]
+  ranks          Rank[]
+  reviews        MapReview[]
+  tracks         MapTrack[]
+  runs           Run[]
 
-    createdAt DateTime @default(now())
-    updatedAt DateTime @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
-    @@index([submitterID])
+  @@index([submitterID])
 }
 
 model MapCredit {
-    id Int @id @default(autoincrement())
+  id Int @id @default(autoincrement())
 
-    type Int @db.SmallInt
+  type Int @db.SmallInt
 
-    map   Map @relation(fields: [mapID], references: [id], onDelete: Cascade)
-    mapID Int
+  map   Map @relation(fields: [mapID], references: [id], onDelete: Cascade)
+  mapID Int
 
-    user   User @relation(fields: [userID], references: [id], onDelete: Cascade)
-    userID Int
+  user   User @relation(fields: [userID], references: [id], onDelete: Cascade)
+  userID Int
 
-    createdAt DateTime @default(now())
-    updatedAt DateTime @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
-    @@index([mapID, userID])
+  @@index([mapID, userID])
 }
 
 model MapFavorite {
-    id Int @id @default(autoincrement())
+  id Int @id @default(autoincrement())
 
-    map   Map @relation(fields: [mapID], references: [id], onDelete: Cascade)
-    mapID Int
+  map   Map @relation(fields: [mapID], references: [id], onDelete: Cascade)
+  mapID Int
 
-    user   User @relation(fields: [userID], references: [id], onDelete: Cascade)
-    userID Int
+  user   User @relation(fields: [userID], references: [id], onDelete: Cascade)
+  userID Int
 
-    createdAt DateTime @default(now())
-    updatedAt DateTime @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
-    @@unique([mapID, userID])
-    @@index([mapID, userID])
+  @@unique([mapID, userID])
+  @@index([mapID, userID])
 }
 
 model MapImage {
-    id Int @id @default(autoincrement())
+  id Int @id @default(autoincrement())
 
-    thumbnail Map? @relation("mapimage_thumbnail")
+  thumbnail Map? @relation("mapimage_thumbnail")
 
-    map   Map @relation(fields: [mapID], references: [id], onDelete: Cascade)
-    mapID Int
+  map   Map @relation(fields: [mapID], references: [id], onDelete: Cascade)
+  mapID Int
 
-    createdAt DateTime @default(now())
-    updatedAt DateTime @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
-    @@index([mapID])
+  @@index([mapID])
 }
 
 model MapInfo {
-    id Int @id @default(autoincrement())
+  id Int @id @default(autoincrement())
 
-    description  String   @default("") @db.VarChar(1000)
-    youtubeID    String?  @db.VarChar(11)
-    numTracks    Int      @db.SmallInt
-    creationDate DateTime
+  description  String   @default("") @db.VarChar(1000)
+  youtubeID    String?  @db.VarChar(11)
+  numTracks    Int      @db.SmallInt
+  creationDate DateTime
 
-    map   Map @relation(fields: [mapID], references: [id], onDelete: Cascade)
-    mapID Int @unique
+  map   Map @relation(fields: [mapID], references: [id], onDelete: Cascade)
+  mapID Int @unique
 
-    createdAt DateTime @default(now())
-    updatedAt DateTime @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
-    @@index([mapID])
+  @@index([mapID])
 }
 
 model MapLibraryEntry {
-    id Int @id @default(autoincrement())
+  id Int @id @default(autoincrement())
 
-    user   User @relation(fields: [userID], references: [id], onDelete: Cascade)
-    userID Int
+  user   User @relation(fields: [userID], references: [id], onDelete: Cascade)
+  userID Int
 
-    map   Map @relation(fields: [mapID], references: [id], onDelete: Cascade)
-    mapID Int
+  map   Map @relation(fields: [mapID], references: [id], onDelete: Cascade)
+  mapID Int
 
-    createdAt DateTime @default(now())
-    updatedAt DateTime @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
-    @@unique([mapID, userID])
-    @@index([mapID, userID])
+  @@unique([mapID, userID])
+  @@index([mapID, userID])
 }
 
 model MapNotify {
-    notifyOn Int @db.SmallInt
+  notifyOn Int @db.SmallInt
 
-    map   Map @relation(fields: [mapID], references: [id], onDelete: Cascade)
-    mapID Int
+  map   Map @relation(fields: [mapID], references: [id], onDelete: Cascade)
+  mapID Int
 
-    user   User @relation(fields: [userID], references: [id], onDelete: Cascade)
-    userID Int
+  user   User @relation(fields: [userID], references: [id], onDelete: Cascade)
+  userID Int
 
-    createdAt DateTime @default(now())
-    updatedAt DateTime @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
-    @@id([userID, mapID])
-    @@unique([userID, mapID], map: "mapnotify_unique")
-    @@index([userID, mapID])
+  @@id([userID, mapID])
+  @@unique([userID, mapID], map: "mapnotify_unique")
+  @@index([userID, mapID])
 }
 
 model MapReview {
-    id Int @id @default(autoincrement())
+  id Int @id @default(autoincrement())
 
-    text String @db.VarChar(1000)
+  text String @db.VarChar(1000)
 
-    map   Map @relation(fields: [mapID], references: [id], onDelete: Cascade)
-    mapID Int
+  map   Map @relation(fields: [mapID], references: [id], onDelete: Cascade)
+  mapID Int
 
-    reviewer   User @relation(fields: [reviewerID], references: [id], onDelete: Cascade)
-    reviewerID Int
+  reviewer   User @relation(fields: [reviewerID], references: [id], onDelete: Cascade)
+  reviewerID Int
 
-    createdAt DateTime @default(now())
-    updatedAt DateTime @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
-    @@index([mapID, reviewerID])
+  @@index([mapID, reviewerID])
 }
 
 model MapTrack {
-    id Int @id @default(autoincrement())
+  id Int @id @default(autoincrement())
 
-    trackNum   Int     @db.SmallInt
-    numZones   Int     @db.SmallInt
-    isLinear   Boolean
-    difficulty Int     @db.SmallInt
+  trackNum   Int     @db.SmallInt
+  numZones   Int     @db.SmallInt
+  isLinear   Boolean
+  difficulty Int     @db.SmallInt
 
-    mainTrack Map? @relation("map_maintrack")
+  mainTrack Map? @relation("map_maintrack")
 
-    map   Map @relation(fields: [mapID], references: [id], onDelete: Cascade)
-    mapID Int
+  map   Map @relation(fields: [mapID], references: [id], onDelete: Cascade)
+  mapID Int
 
-    stats       MapTrackStats?
-    zones       MapZone[]
-    runSessions RunSession[]
+  stats       MapTrackStats?
+  zones       MapZone[]
+  runSessions RunSession[]
 
-    createdAt DateTime @default(now())
-    updatedAt DateTime @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
-    @@index([mapID])
+  @@index([mapID])
 }
 
 model MapTrackStats {
-    id Int @id @default(autoincrement())
+  id Int @id @default(autoincrement())
 
-    completions       Int @default(0)
-    uniqueCompletions Int @default(0)
+  completions       Int @default(0)
+  uniqueCompletions Int @default(0)
 
-    track   MapTrack @relation(fields: [trackID], references: [id], onDelete: Cascade)
-    trackID Int      @unique
+  track   MapTrack @relation(fields: [trackID], references: [id], onDelete: Cascade)
+  trackID Int      @unique
 
-    baseStats   BaseStats @relation(fields: [baseStatsID], references: [id], onDelete: Cascade)
-    baseStatsID BigInt    @unique
+  baseStats   BaseStats @relation(fields: [baseStatsID], references: [id], onDelete: Cascade)
+  baseStatsID BigInt    @unique
 
-    createdAt DateTime @default(now())
-    updatedAt DateTime @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
-    @@index([baseStatsID, trackID])
+  @@index([baseStatsID, trackID])
 }
 
 model MapZone {
-    id Int @id @default(autoincrement())
+  id Int @id @default(autoincrement())
 
-    zoneNum Int @db.SmallInt
+  zoneNum Int @db.SmallInt
 
-    track   MapTrack @relation(fields: [trackID], references: [id], onDelete: Cascade)
-    trackID Int
+  track   MapTrack @relation(fields: [trackID], references: [id], onDelete: Cascade)
+  trackID Int
 
-    stats    MapZoneStats[]
-    triggers MapZoneTrigger[]
+  stats    MapZoneStats[]
+  triggers MapZoneTrigger[]
 
-    createdAt DateTime @default(now())
-    updatedAt DateTime @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
-    @@index([trackID, zoneNum])
+  @@index([trackID, zoneNum])
 }
 
 model MapZoneTrigger {
-    id Int @id @default(autoincrement())
+  id Int @id @default(autoincrement())
 
-    type         Int                       @db.SmallInt
-    pointsHeight Float                     @db.Real
-    pointsZPos   Float                     @db.Real
-    points       Json?
-    properties   MapZoneTriggerProperties?
+  type         Int                       @db.SmallInt
+  pointsHeight Float                     @db.Real
+  pointsZPos   Float                     @db.Real
+  points       Json?
+  properties   MapZoneTriggerProperties?
 
-    zone   MapZone @relation(fields: [zoneID], references: [id], onDelete: Cascade)
-    zoneID Int     @unique
+  zone   MapZone @relation(fields: [zoneID], references: [id], onDelete: Cascade)
+  zoneID Int     @unique
 
-    createdAt DateTime @default(now())
-    updatedAt DateTime @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
-    @@index([zoneID])
+  @@index([zoneID])
 }
 
 model MapZoneTriggerProperties {
-    id Int @id @default(autoincrement())
+  id Int @id @default(autoincrement())
 
-    properties Json?
+  properties Json?
 
-    trigger   MapZoneTrigger @relation(fields: [triggerID], references: [id], onDelete: Cascade)
-    triggerID Int            @unique
+  trigger   MapZoneTrigger @relation(fields: [triggerID], references: [id], onDelete: Cascade)
+  triggerID Int            @unique
 
-    createdAt DateTime @default(now())
-    updatedAt DateTime @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
-    @@index([triggerID])
+  @@index([triggerID])
 }
 
 model MapZoneStats {
-    id Int @id @default(autoincrement())
+  id Int @id @default(autoincrement())
 
-    completions       Int @default(0)
-    uniqueCompletions Int @default(0)
+  completions       Int @default(0)
+  uniqueCompletions Int @default(0)
 
-    zone   MapZone @relation(fields: [zoneID], references: [id], onDelete: Cascade)
-    zoneID Int     @unique
+  zone   MapZone @relation(fields: [zoneID], references: [id], onDelete: Cascade)
+  zoneID Int     @unique
 
-    baseStats   BaseStats? @relation(fields: [baseStatsID], references: [id], onDelete: Cascade)
-    baseStatsID BigInt?    @unique
+  baseStats   BaseStats? @relation(fields: [baseStatsID], references: [id], onDelete: Cascade)
+  baseStatsID BigInt?    @unique
 
-    createdAt DateTime @default(now())
-    updatedAt DateTime @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
-    @@index([baseStatsID, zoneID])
+  @@index([baseStatsID, zoneID])
 }
 
 model MapStats {
-    id Int @id @default(autoincrement())
+  id Int @id @default(autoincrement())
 
-    reviews           Int    @default(0)
-    downloads         Int    @default(0)
-    subscriptions     Int    @default(0)
-    plays             Int    @default(0)
-    favorites         Int    @default(0)
-    completions       Int    @default(0)
-    uniqueCompletions Int    @default(0)
-    timePlayed        BigInt @default(0) @db.BigInt
+  reviews           Int    @default(0)
+  downloads         Int    @default(0)
+  subscriptions     Int    @default(0)
+  plays             Int    @default(0)
+  favorites         Int    @default(0)
+  completions       Int    @default(0)
+  uniqueCompletions Int    @default(0)
+  timePlayed        BigInt @default(0) @db.BigInt
 
-    map   Map @relation(fields: [mapID], references: [id], onDelete: Cascade)
-    mapID Int @unique
+  map   Map @relation(fields: [mapID], references: [id], onDelete: Cascade)
+  mapID Int @unique
 
-    baseStats   BaseStats? @relation(fields: [baseStatsID], references: [id], onDelete: Cascade)
-    baseStatsID BigInt?    @unique
+  baseStats   BaseStats? @relation(fields: [baseStatsID], references: [id], onDelete: Cascade)
+  baseStatsID BigInt?    @unique
 
-    createdAt DateTime @default(now())
-    updatedAt DateTime @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
-    @@index([baseStatsID, mapID])
+  @@index([baseStatsID, mapID])
 }
 
 model BaseStats {
-    id BigInt @id @default(autoincrement())
+  id BigInt @id @default(autoincrement())
 
-    jumps          Int   @default(0)
-    strafes        Int   @default(0)
-    avgStrafeSync  Float @default(0) @db.Real
-    avgStrafeSync2 Float @default(0) @db.Real
-    enterTime      Float @default(0) @db.Real
-    totalTime      Float @default(0) @db.Real
-    velAvg3D       Float @default(0) @db.Real
-    velAvg2D       Float @default(0) @db.Real
-    velMax3D       Float @default(0) @db.Real
-    velMax2D       Float @default(0) @db.Real
-    velEnter3D     Float @default(0) @db.Real
-    velEnter2D     Float @default(0) @db.Real
-    velExit3D      Float @default(0) @db.Real
-    velExit2D      Float @default(0) @db.Real
+  jumps          Int   @default(0)
+  strafes        Int   @default(0)
+  avgStrafeSync  Float @default(0) @db.Real
+  avgStrafeSync2 Float @default(0) @db.Real
+  enterTime      Float @default(0) @db.Real
+  totalTime      Float @default(0) @db.Real
+  velAvg3D       Float @default(0) @db.Real
+  velAvg2D       Float @default(0) @db.Real
+  velMax3D       Float @default(0) @db.Real
+  velMax2D       Float @default(0) @db.Real
+  velEnter3D     Float @default(0) @db.Real
+  velEnter2D     Float @default(0) @db.Real
+  velExit3D      Float @default(0) @db.Real
+  velExit2D      Float @default(0) @db.Real
 
-    mapTrackStats MapTrackStats?
-    mapStats      MapStats?
-    mapZoneStats  MapZoneStats?
-    runZoneStats  RunZoneStats?
-    run           Run?
+  mapTrackStats MapTrackStats?
+  mapStats      MapStats?
+  mapZoneStats  MapZoneStats?
+  runZoneStats  RunZoneStats?
+  run           Run?
 
-    createdAt DateTime @default(now())
-    updatedAt DateTime @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
 model Run {
-    id BigInt @id @default(autoincrement())
+  id BigInt @id @default(autoincrement())
 
-    trackNum Int    @db.SmallInt
-    zoneNum  Int    @db.SmallInt
-    ticks    Int
-    tickRate Float  @db.Real
-    time     Float  @db.Real
-    flags    Int
-    file     String @db.VarChar(255)
-    hash     String @db.VarChar(40)
+  trackNum Int    @db.SmallInt
+  zoneNum  Int    @db.SmallInt
+  ticks    Int
+  tickRate Float  @db.Real
+  time     Float  @db.Real
+  flags    Int
+  file     String @db.VarChar(255)
+  hash     String @db.VarChar(40)
 
-    rank Rank?
+  rank Rank?
 
-    overallStats   BaseStats? @relation(fields: [overallStatsID], references: [id], onDelete: Cascade)
-    overallStatsID BigInt?    @unique
+  overallStats   BaseStats? @relation(fields: [overallStatsID], references: [id], onDelete: Cascade)
+  overallStatsID BigInt?    @unique
 
-    zoneStats RunZoneStats[]
+  zoneStats RunZoneStats[]
 
-    map   Map @relation(fields: [mapID], references: [id], onDelete: Cascade)
-    mapID Int
+  map   Map @relation(fields: [mapID], references: [id], onDelete: Cascade)
+  mapID Int
 
-    user   User? @relation(fields: [userID], references: [id], map: "run_user_fk", onDelete: SetNull)
-    userID Int?
+  user   User? @relation(fields: [userID], references: [id], map: "run_user_fk", onDelete: SetNull)
+  userID Int?
 
-    createdAt DateTime @default(now())
-    updatedAt DateTime @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
-    @@index([overallStatsID, mapID, userID, flags])
+  @@index([overallStatsID, mapID, userID, flags])
 }
 
 model RunZoneStats {
-    id Int @id @default(autoincrement())
+  id Int @id @default(autoincrement())
 
-    zoneNum Int @default(0) @db.SmallInt
+  zoneNum Int @default(0) @db.SmallInt
 
-    run   Run    @relation(fields: [runID], references: [id], onDelete: Cascade)
-    runID BigInt
+  run   Run    @relation(fields: [runID], references: [id], onDelete: Cascade)
+  runID BigInt
 
-    baseStats   BaseStats? @relation(fields: [baseStatsID], references: [id], onDelete: Cascade)
-    baseStatsID BigInt?    @unique
+  baseStats   BaseStats? @relation(fields: [baseStatsID], references: [id], onDelete: Cascade)
+  baseStatsID BigInt?    @unique
 
-    createdAt DateTime @default(now())
-    updatedAt DateTime @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
-    @@index([baseStatsID, runID])
+  @@index([baseStatsID, runID])
 }
 
 model RunSession {
-    id BigInt @id @default(autoincrement())
+  id BigInt @id @default(autoincrement())
 
-    trackNum   Int                   @db.SmallInt
-    zoneNum    Int                   @db.SmallInt
-    timestamps RunSessionTimestamp[]
+  trackNum   Int                   @db.SmallInt
+  zoneNum    Int                   @db.SmallInt
+  timestamps RunSessionTimestamp[]
 
-    user   User @relation(fields: [userID], references: [id], onDelete: Cascade)
-    userID Int  @unique
+  user   User @relation(fields: [userID], references: [id], onDelete: Cascade)
+  userID Int  @unique
 
-    track   MapTrack @relation(fields: [trackID], references: [id], onDelete: Cascade)
-    trackID Int
+  track   MapTrack @relation(fields: [trackID], references: [id], onDelete: Cascade)
+  trackID Int
 
-    createdAt DateTime @default(now())
-    updatedAt DateTime @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
-    @@index([trackID, userID])
+  @@index([trackID, userID])
 }
 
 model RunSessionTimestamp {
-    id BigInt @id @default(autoincrement())
+  id BigInt @id @default(autoincrement())
 
-    zone Int @db.SmallInt
-    tick Int
+  zone Int @db.SmallInt
+  tick Int
 
-    session   RunSession @relation(fields: [sessionID], references: [id], onDelete: Cascade)
-    sessionID BigInt
+  session   RunSession @relation(fields: [sessionID], references: [id], onDelete: Cascade)
+  sessionID BigInt
 
-    createdAt DateTime @default(now())
-    updatedAt DateTime @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
-    @@index([sessionID])
+  @@index([sessionID])
 }
 
 model Rank {
-    id       Int  @id @default(autoincrement())
-    gameType Int  @db.SmallInt
-    flags    Int  @default(0)
-    rank     Int? // Making this @unique would be quite nice but it'd probably shit itself when doing batch rank +1 increases
-    rankXP   Int? @default(0)
+  id       Int  @id @default(autoincrement())
+  gameType Int  @db.SmallInt
+  flags    Int  @default(0)
+  rank     Int? // Making this @unique would be quite nice but it'd probably shit itself when doing batch rank +1 increases
+  rankXP   Int? @default(0)
 
-    map   Map @relation(fields: [mapID], references: [id], onDelete: Cascade)
-    mapID Int
+  map   Map @relation(fields: [mapID], references: [id], onDelete: Cascade)
+  mapID Int
 
-    user   User @relation(fields: [userID], references: [id], onDelete: Cascade)
-    userID Int
+  user   User @relation(fields: [userID], references: [id], onDelete: Cascade)
+  userID Int
 
-    run   Run    @relation(fields: [runID], references: [id], onDelete: Cascade)
-    runID BigInt @unique
+  run   Run    @relation(fields: [runID], references: [id], onDelete: Cascade)
+  runID BigInt @unique
 
-    createdAt DateTime @default(now())
-    updatedAt DateTime @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
-    @@index([runID, userID])
+  @@index([runID, userID])
 }
 
 model XpSystems {
-    id     Int   @id
-    rankXP Json?
-    cosXP  Json?
+  id     Int   @id
+  rankXP Json?
+  cosXP  Json?
 
-    createdAt DateTime @default(now())
-    updatedAt DateTime @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
