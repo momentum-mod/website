@@ -28,11 +28,11 @@ export class ConfigValidation {
         message: 'A valid (dev, prod, test) NODE_ENV environment variable must be set'
     })
     @IsDefined()
-    ENV: Environment;
+    NODE_ENV: Environment;
 
     @IsDefined()
     @IsInt()
-    PORT: number;
+    NODE_PORT: number;
 
     @IsOptional()
     @IsUrl({ require_tld: false })
@@ -43,6 +43,7 @@ export class ConfigValidation {
             'A Steam API key is required to run this application, can be acquired from https://steamcommunity.com/dev/apikey. See README.md for more information.'
     })
     STEAM_WEB_API_KEY: string;
+
     @IsString()
     @MinLength(20)
     JWT_SECRET: string;
