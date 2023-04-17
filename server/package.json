@@ -19,19 +19,19 @@
         "------------------------------------------------------": "",
         "db:push": "dotenv -e ../.env -- prisma db push --accept-data-loss",
         "db:generate": "dotenv -e ../.env -- prisma generate",
-        "db:seed": "dotenv -e ../.env -- npm run migrate && dotenv -e ../.env -- prisma db seed",
+        "db:seed": "npm run db:push --accept-data-loss && dotenv -e ../.env -- prisma db seed",
         "db:viewer": "dotenv -e ../.env -- prisma studio",
         "------------------------------------------------------": "",
         "test": "npm run test:unit && npm run test:e2e",
         "test:e2e": "jest --config test/e2e/jest.config.ts",
         "test:unit": "jest --config test/unit/jest.config.ts",
         "------------------------------------------------------": "",
-        "lint:fix": "eslint \"{src,test,lib,config}/**/*.ts\"",
-        "lint:check": "eslint \"{src,test,lib,config}/**/*.ts\" --fix",
-        "format:fix": "prettier --write \"{src,lib,test,config}/**/*.{ts,js,md}\"",
-        "format:check": "prettier --check \"{src,lib,test,config}/**/*.{ts,js,md}\"",
+        "lint:fix": "eslint {src,test,lib,config}/**/*.ts",
+        "lint:check": "eslint {src,test,lib,config}/**/*.ts --fix",
+        "format:fix": "prettier --write {src,lib,test,config}/**/*.{ts,js,md}",
+        "format:check": "prettier --check {src,lib,test,config}/**/*.{ts,js,md}",
         "quality:fix": "npm run lint:fix && npm run format:fix",
-        "quality:check": "prettier --check \"{src,lib,test,config}/**/*.{ts,js,md}\""
+        "quality:check": "npm run format:check && npm run lint:check"
     },
     "prisma": {
         "seed": "ts-node -r tsconfig-paths/register prisma/scripts/seed.ts"
