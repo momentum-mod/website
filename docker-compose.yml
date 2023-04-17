@@ -15,7 +15,3 @@ services:
     depends_on:
       db:
         condition: service_healthy
-    ports:
-      - ${NODE_PORT}:${NODE_PORT}
-    expose:
-      - ${NODE_PORT}

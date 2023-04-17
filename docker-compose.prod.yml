@@ -1,4 +1,4 @@
-version: '3.8'
+version: "3.8"
 
 services:
   db:
@@ -10,6 +10,10 @@ services:
   api:
     image: docker.pkg.github.com/momentum-mod/website/mmod-website:staging
     restart: unless-stopped
+    ports:
+      - ${NODE_PORT}:${NODE_PORT}
+    expose:
+      - ${NODE_PORT}
     environment:
       IS_DOCKERIZED_API: "true"
       DATABASE_URL: postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@db/${POSTGRES_DB}?schema=public
@@ -19,4 +23,3 @@ services:
       - ./server/public/maps:/app/server/public/maps
       - ./server/public/runs:/app/server/public/runs
     command: sh -c "npm", "run", "start:migrate:prod"
-
