@@ -71,6 +71,9 @@ services:
       - /app/server/node_modules/
     ports:
       - "9229:9229" # Expose for NodeJS debugging
+      - ${NODE_PORT}:${NODE_PORT}
+    expose:
+      - ${NODE_PORT}
     build:
       context: ./server
       dockerfile: dev.Dockerfile
