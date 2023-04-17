@@ -28,17 +28,14 @@ services:
     container_name: MinIO_CreateBuckets
     depends_on:
       - minio
-    # If you want to clear the bucket, add the following line before the "mb myminio/momentum" command:
-    # /usr/bin/mc rm -r --force myminio/momentum;
+    # If you want to clear the bucket, add the following line before the
+    # "mb myminio/momentum" command:
+    # /usr/bin/mc rm -r --force momentum_minio/momtest;
     entrypoint: >
       /bin/sh -c "
       /usr/bin/mc alias set momentum_minio http://minio:9000 minio minio123;
-      /usr/bin/mc admin user add momentum_minio ${STORAGE_ACCESS_KEY_ID} ${STORAGE_SECRET_ACCESS_KEY};
-      /usr/bin/mc mb --ignore-existing momentum_minio/${STORAGE_BUCKET_NAME} --region ${STORAGE_REGION};
-      /usr/bin/mc anonymous set download momentum_minio/${STORAGE_BUCKET_NAME};
-      /usr/bin/mc admin policy set momentum_minio readwrite user=${STORAGE_ACCESS_KEY_ID};
-      exit 0;
-      "
+      /usr/bin/mc mb momentum_minio/momtest --ignore-existing;
+      /usr/bin/mc anonymous set public momentum_minio/momtest;"
   db:
     platform: linux/x86_64
     env_file:
@@ -49,12 +46,16 @@ services:
       - ${POSTGRES_PORT}:${POSTGRES_PORT}
     volumes:
       - ./data/postgres:/var/lib/postgresql/data
-  # Here we use the profiles feature to only load the API with Docker if launching with `--profile full`.
-  # This allows developers choose between running the Nest API in Docker (great for frontend-only dev) and
-  # running it natively, using a single command line option. Note we must construct the DATABASE_URL from
-  # other env variables in this mode, overriding whatever is in .env - we want to name it `db` in full mode
-  # so it's only exposed to the internal network.
+  # Here we use the profiles feature to only load the API with Docker if
+  # launching with `--profile full`. This allows developers choose between
+  # running the Nest API in Docker (great for frontend-only dev) and running
+  # it natively, using a single command line option. Note we must construct
+  # the DATABASE_URL from other env variables in this mode, overriding whatever
+  # is in .env - we want to name it `db` in full mode  so it's only exposed to
+  # the internal network.
   api:
+    platform: linux/x86_64
+    image: node:18
     depends_on:
       - minio
     profiles:
@@ -64,17 +65,15 @@ services:
     environment:
       IS_DOCKERIZED_API: "true"
       DATABASE_URL: postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@db/${POSTGRES_DB}?schema=public
-    platform: linux/x86_64
     working_dir: /app/server
     volumes:
       - ./server:/app/server
       - /app/server/node_modules/
     ports:
-      - "9229:9229" # Expose for NodeJS debugging
+      - "9229:9229" # For Node debugging
       - ${NODE_PORT}:${NODE_PORT}
     expose:
       - ${NODE_PORT}
-    build:
-      context: ./server
-      dockerfile: dev.Dockerfile
-    command: npm run ${CMD:-start:push}
+    command: >
+      sh -c "npm install &&
+      npm run ${CMD:-start:push}"
