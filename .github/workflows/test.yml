@@ -1,4 +1,4 @@
-name: Tests + Lint
+name: Tests and Linting
 
 on:
   pull_request:
@@ -7,10 +7,6 @@ on:
       - nestJS # TODO: Remove when done
     paths-ignore:
       - "**.md"
-
-env:
-  NODE_ENV: test
-  NODE_PORT: 3002
 
 # TODO: Client stuff will need upgrading when NestJS rewrite is completed.
 jobs:
@@ -94,41 +90,42 @@ jobs:
 #          npm install -g @angular/cli && yarn install --prefer-offline
 #          npm run test
 #          
-  server-lint:
-    name: Server linting and formatting
+  backend-lint:
+    name: Backend Lint/Formatting
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
-
-      - uses: actions/cache@v2
+      - uses: actions/setup-node@v3
         with:
-          path: 'server/node_modules'
-          key: ${{ runner.os }}-modules-${{ hashFiles('**/package-lock.json') }}
+          node-version: 18
+          cache: "npm"
+          cache-dependency-path: server/package-lock.json
 
       - name: Install packages
         working-directory: server
         run: npm install
 
-      - name: Formatting Checks
+      - name: Prettier
         working-directory: server
         run: npm run format:check
 
-      - name: ESLint Checks
+      - name: ESLint
         working-directory: server
         run: npm run lint:check
-#  server-tests:
-#    name: Server Tests
-#    runs-on: ubuntu-latest
-#    steps:
-#    - name: Checkout
-#      uses: actions/checkout@v2
-#
-#    - name: Get specific changed files
-#      id: changed-files-specific
-#      uses: tj-actions/changed-files@v12
-#      with:
-#        files: server\/.*\.(ts|js)$
-#
-#    - name: Execute tests
-#      if: steps.changed-files-specific.outputs.any_changed == 'true'
-#      run: docker compose -f docker-compose.yml -f docker-compose.test.yml up --exit-code-from api
+
+  backend-tests:
+    name: Backend Tests
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+        
+      - name: Get changed files
+        id: changed-files
+        uses: tj-actions/changed-files@v35
+        with:
+          files: server/**/*.{ts,js,prisma}
+
+      - name: Execute tests
+        if: steps.changed-files.outputs.any_changed == 'true'
+        run: docker compose -f docker-compose.yml -f docker-compose.test.yml up --build --exit-code-from api
