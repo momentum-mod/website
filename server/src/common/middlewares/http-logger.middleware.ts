@@ -9,7 +9,7 @@ export class HTTPLoggerMiddleware implements NestMiddleware {
         const {
             method,
             url,
-            connection: { remoteAddress: ip },
+            socket: { remoteAddress: ip },
             headers: { ['user-agent']: userAgent }
         } = request;
 
