@@ -7,8 +7,8 @@ node_modules/
 # Prisma
 ERD.svg
 
-# Postgres
-postgres/
+# Postgres, Grafana, MinIO, etc.
+/data
 
 # Compiled output
 /dist
@@ -48,5 +48,3 @@ testem.log
 # System Files
 .DS_Store
 Thumbs.db
-data/*
-data/grafana/grafana.db
