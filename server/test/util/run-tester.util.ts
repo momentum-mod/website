@@ -3,7 +3,7 @@ import { BaseStatsFromGame, Replay, RunFrame, ZoneStatsFromGame } from '@modules
 import { Random } from '@lib/random.lib';
 import { ParsedResponse, RequestUtil } from '@test/util/request.util';
 
-const DEFAULT_DELAY_MS = 50;
+const DEFAULT_DELAY_MS = 100;
 const MAGIC = 0x524d4f4d;
 
 const sleep = (duration: number) => new Promise((resolve) => setTimeout(resolve, duration));

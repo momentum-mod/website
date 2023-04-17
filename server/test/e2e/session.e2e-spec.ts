@@ -38,7 +38,8 @@ describe('Session', () => {
                     createMany: {
                         data: [{ zoneNum: 0 }, { zoneNum: 1 }, { zoneNum: 2 }, { zoneNum: 3 }, { zoneNum: 4 }]
                     }
-                }
+                },
+                stats: { create: { baseStats: { create: {} } } }
             }
         );
 
@@ -516,8 +517,8 @@ describe('Session', () => {
                 });
 
                 it('should update completion stats for the map, track and zones', async () => {
-                    await submitRun(10);
-                    await submitRun(15);
+                    await submitRun(100);
+                    await submitRun(150);
 
                     // Our stats tracking on the old API is very weird, so I'm just checking completions for now.
                     // None of the runs we added to the DB at the start of this test actually added stats, so we can
