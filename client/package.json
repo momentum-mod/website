@@ -56,7 +56,7 @@
     "echarts": "5.4.2",
     "flag-icons": "6.6.6",
     "marked": "4.3.0",
-    "ngx-cookie-service": "12.0.0",
+    "ngx-cookie-service": "15.0.0",
     "ngx-echarts": "15.0.3",
     "ngx-markdown": "15.1.2",
     "ngx-pagination": "6.0.3",
