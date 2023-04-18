@@ -51,7 +51,6 @@
     "@ngx-gallery/lightbox": "4.0.3",
     "@node-steam/vdf": "2.2.0",
     "bootstrap": "4.5.0",
-    "core-js": "3.6.5",
     "echarts": "5.1.2",
     "flag-icon-css": "3.5.0",
     "intl": "1.2.5",
