@@ -47,7 +47,7 @@
     "@auth0/angular-jwt": "^5.1.2",
     "@fontsource/bebas-neue": "4.5.9",
     "@fontsource/roboto": "4.5.8",
-    "@nebular/theme": "8.0.0",
+    "@nebular/theme": "11.0.0",
     "@ngx-gallery/core": "4.0.3",
     "@ngx-gallery/gallerize": "4.0.3",
     "@ngx-gallery/lightbox": "4.0.3",
