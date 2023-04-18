@@ -7,9 +7,6 @@
 // global app font size
 @import './font-size';
 
-// loading progress bar theme
-@import './pace.theme';
-
 // ngx-pagination theme
 @import './pagination';
 
@@ -20,9 +17,6 @@
 
   // framework global styles
   @include nb-theme-global();
-
-  // loading progress bar
-  @include ngx-pace-theme();
 
   @include mom-search-theme();
 };
