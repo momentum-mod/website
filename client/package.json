@@ -58,7 +58,7 @@
     "ngx-echarts": "15.0.3",
     "ngx-markdown": "15.1.2",
     "ngx-pagination": "6.0.3",
-    "ngx-timeago": "1.0.4",
+    "ngx-timeago": "2.0.0",
     "normalize.css": "8.0.1",
     "pace-js": "1.0.2",
     "rxjs": "6.6.7",
