@@ -63,7 +63,7 @@
     "ngx-timeago": "2.0.0",
     "normalize.css": "8.0.1",
     "rxjs": "6.6.7",
-    "tslib": "2.0.0",
+    "tslib": "2.5.0",
     "zone.js": "^0.13.0"
   },
   "devDependencies": {
