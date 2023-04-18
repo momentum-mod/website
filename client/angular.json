@@ -35,8 +35,8 @@
             ],
             "styles": [
               "node_modules/bootstrap/dist/css/bootstrap.css",
-              "node_modules/typeface-noto-sans-full/index.css",
               "node_modules/@fontsource/bebas-neue/index.css",
+              "node_modules/@fontsource/roboto/index.css",
               "src/app/@theme/styles/styles.scss",
               "node_modules/flag-icons/css/flag-icons.min.css"
             ],
@@ -103,8 +103,8 @@
             ],
             "styles": [
               "node_modules/bootstrap/dist/css/bootstrap.css",
-              "node_modules/typeface-noto-sans-full/index.css",
               "node_modules/@fontsource/bebas-neue/index.css",
+              "node_modules/@fontsource/roboto/index.css",
               "src/app/@theme/styles/styles.scss",
               "node_modules/flag-icons/css/flag-icons.min.css"
             ],

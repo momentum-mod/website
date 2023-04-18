@@ -46,6 +46,7 @@
     "@angular/router": "^15.2.7",
     "@auth0/angular-jwt": "^5.1.2",
     "@fontsource/bebas-neue": "4.5.9",
+    "@fontsource/roboto": "4.5.8",
     "@nebular/theme": "8.0.0",
     "@ngx-gallery/core": "4.0.3",
     "@ngx-gallery/gallerize": "4.0.3",
@@ -63,7 +64,6 @@
     "normalize.css": "8.0.1",
     "rxjs": "6.6.7",
     "tslib": "2.0.0",
-    "typeface-noto-sans-full": "1.0.1",
     "zone.js": "^0.13.0"
   },
   "devDependencies": {
@@ -81,8 +81,6 @@
     "@types/jasminewd2": "2.0.8",
     "@types/marked": "4.0.8",
     "@types/node": "12.12.30",
-    "@typescript-eslint/eslint-plugin": "4.28.2",
-    "@typescript-eslint/parser": "4.28.2",
     "codelyzer": "6.0.0",
     "eslint": "7.6.0",
     "eslint-plugin-import": "2.22.1",
