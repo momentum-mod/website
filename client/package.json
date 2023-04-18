@@ -81,7 +81,6 @@
     "@types/jasminewd2": "2.0.8",
     "@types/marked": "4.0.8",
     "@types/node": "12.12.30",
-    "codelyzer": "6.0.0",
     "eslint": "7.6.0",
     "eslint-plugin-import": "2.22.1",
     "eslint-plugin-jsdoc": "30.7.6",
