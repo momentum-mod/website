@@ -45,7 +45,7 @@
               "node_modules/pace-js/pace.min.js",
               "node_modules/echarts/dist/echarts.min.js",
               "node_modules/echarts/dist/extension/bmap.min.js",
-              "node_modules/marked/lib/marked.js"
+              "node_modules/marked/lib/marked.esm.js"
             ],
             "aot": false,
             "vendorChunk": true,
@@ -102,7 +102,7 @@
               "node_modules/pace-js/pace.min.js",
               "node_modules/echarts/dist/echarts.min.js",
               "node_modules/echarts/dist/extension/bmap.min.js",
-              "node_modules/marked/lib/marked.js"
+              "node_modules/marked/lib/marked.esm.js"
             ],
             "styles": [
               "node_modules/bootstrap/dist/css/bootstrap.css",
