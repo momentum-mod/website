@@ -49,7 +49,6 @@
     "@ngx-gallery/gallerize": "4.0.3",
     "@ngx-gallery/lightbox": "4.0.3",
     "@node-steam/vdf": "2.1.0",
-    "@trademe/ng-defer-load": "^8.2.1",
     "bootstrap": "4.5.0",
     "classlist.js": "1.1.20150312",
     "core-js": "3.6.5",
