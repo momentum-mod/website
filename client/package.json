@@ -54,7 +54,6 @@
     "core-js": "3.6.5",
     "echarts": "5.1.2",
     "flag-icon-css": "3.5.0",
-    "hammerjs": "2.0.8",
     "intl": "1.2.5",
     "ng2-completer": "3.0.3",
     "ngx-cookie-service": "12.0.0",
