@@ -96,7 +96,7 @@
           "options": {
             "main": "src/test.ts",
             "karmaConfig": "./karma.conf.js",
-            "polyfills": "src/polyfills.ts",
+            "polyfills": ["zone.js/dist/zone"],
             "tsConfig": "src/tsconfig.spec.json",
             "scripts": [
               "node_modules/pace-js/pace.min.js",
