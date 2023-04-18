@@ -39,7 +39,7 @@
               "node_modules/typeface-noto-sans-full/index.css",
               "node_modules/pace-js/templates/pace-theme-flash.tmpl.css",
               "src/app/@theme/styles/styles.scss",
-              "node_modules/flag-icon-css/css/flag-icon.min.css"
+              "node_modules/flag-icons/css/flag-icons.min.css"
             ],
             "scripts": [
               "node_modules/pace-js/pace.min.js",
@@ -110,7 +110,7 @@
               "node_modules/typeface-noto-sans-full/index.css",
               "node_modules/pace-js/templates/pace-theme-flash.tmpl.css",
               "src/app/@theme/styles/styles.scss",
-              "node_modules/flag-icon-css/css/flag-icon.min.css"
+              "node_modules/flag-icons/css/flag-icons.min.css"
             ],
             "assets": [
               "src/assets",

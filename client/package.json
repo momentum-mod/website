@@ -52,7 +52,7 @@
     "@node-steam/vdf": "2.2.0",
     "bootstrap": "4.5.0",
     "echarts": "5.4.2",
-    "flag-icon-css": "3.5.0",
+    "flag-icons": "6.6.6",
     "intl": "1.2.5",
     "ng2-completer": "3.0.3",
     "ngx-cookie-service": "12.0.0",
