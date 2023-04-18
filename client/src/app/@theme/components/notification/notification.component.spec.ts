@@ -8,7 +8,6 @@ import {RouterModule} from '@angular/router';
 import {APP_BASE_HREF} from '@angular/common';
 import {HttpClientTestingModule} from '@angular/common/http/testing';
 import {Activity_Type} from '../../../@core/models/activity-type.model';
-import {NbEvaIconsModule} from '@nebular/eva-icons';
 import {
   TimeagoClock,
   TimeagoDefaultClock,
@@ -36,7 +35,6 @@ describe('NotificationComponent', () => {
       imports: [
         NbListModule,
         NbUserModule,
-        NbEvaIconsModule,
         NbIconModule,
         RouterModule.forRoot([], { relativeLinkResolution: 'legacy' }),
         HttpClientTestingModule, CoreModule.forRoot(),

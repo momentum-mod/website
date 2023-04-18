@@ -15,7 +15,6 @@ import {OutgoingModule} from './pages/outgoing/outgoing.module';
 import {MarkdownModule, MarkedOptions} from 'ngx-markdown';
 import {NbDatepickerModule, NbDialogModule, NbGlobalPhysicalPosition, NbToastrModule} from '@nebular/theme';
 import {RefreshTokenInterceptorService} from './@core/utils/refresh-token-interceptor.service';
-import {NbEvaIconsModule} from '@nebular/eva-icons';
 import {TimeagoModule} from 'ngx-timeago';
 import { environment } from '../environments/environment';
 
@@ -32,7 +31,6 @@ export function tokenGetter() {
     NotFoundModule,
     OutgoingModule,
     AppRoutingModule,
-    NbEvaIconsModule,
     HttpClientModule,
     JwtModule.forRoot({
       config: {

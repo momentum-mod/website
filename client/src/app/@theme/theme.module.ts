@@ -39,14 +39,12 @@ import {ActivityListComponent} from './components/activity/activity-list/activit
 import {ReportButtonComponent} from './components/report/report-button/report-button.component';
 import {CreateReportDialogComponent} from './components/report/create-report-dialog/create-report-dialog.component';
 import {ConfirmDialogComponent} from './components/confirm-dialog/confirm-dialog.component';
-import {NbEvaIconsModule} from '@nebular/eva-icons';
 import {TimeagoModule} from 'ngx-timeago';
 
 
 const BASE_MODULES = [CommonModule, FormsModule, ReactiveFormsModule, RouterModule];
 
 const NB_MODULES = [
-  NbEvaIconsModule,
   NbIconModule,
   NbCardModule,
   NbLayoutModule,
