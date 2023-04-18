@@ -5,10 +5,11 @@
     "description": "Momentum Mod API",
     "license": "MIT",
     "scripts": {
-        "prebuild": "rm -rf dist/",
         "prepare": "cd .. && husky install",
+        "postinstall": "npm run db:generate",
+        "------------------------------------------------------": "",
+        "prebuild": "rm -rf dist/",
         "build": "nest build",
-        "env": "dotenv -e ../.env",
         "------------------------------------------------------": "",
         "start": "nest start",
         "start:dev": "nest start --watch",
@@ -32,7 +33,9 @@
         "format:fix": "prettier --write {src,lib,test,config}/**/*.{ts,js,md} && npx prisma format",
         "format:check": "prettier --check {src,lib,test,config}/**/*.{ts,js,md}",
         "quality:fix": "npm run lint:fix && npm run format:fix",
-        "quality:check": "npm run format:check && npm run lint:check"
+        "quality:check": "npm run format:check && npm run lint:check",
+        "------------------------------------------------------": "",
+        "env": "dotenv -e ../.env"
     },
     "prisma": {
         "seed": "ts-node -r tsconfig-paths/register prisma/scripts/seed.ts"
