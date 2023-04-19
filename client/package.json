@@ -1,20 +1,12 @@
 {
-  "name": "momentum-website",
+  "name": "momentum-website-frontend",
+  "description": "The Angular frontend (aka 'client') for Momentum Mod",
   "version": "1.0.0",
   "license": "MIT",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/momentum-mod/website.git"
   },
-  "bugs": {
-    "url": "https://github.com/momentum-mod/website/issues"
-  },
-  "browserslist": [
-    "> 1%",
-    "last 2 versions",
-    "not dead",
-    "not IE 11"
-  ],
   "scripts": {
     "ng": "ng",
     "start": "ng serve --proxy-config proxy.conf.json",
@@ -34,6 +26,11 @@
       "pre-push": "npm run lint:ci"
     }
   },
+  "browserslist": [
+    "last 2 versions",
+    "not dead",
+    "> 0.2%"
+  ],
   "dependencies": {
     "@angular/animations": "^15.2.7",
     "@angular/cdk": "^15.2.7",
