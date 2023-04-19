@@ -1,6 +1,6 @@
-import {MomentumMap} from './momentum-map.model';
-import {User} from './user.model';
-import {Run} from './run.model';
+import { MomentumMap } from './momentum-map.model';
+import { User } from './user.model';
+import { Run } from './run.model';
 
 export interface UserMapRank {
   id: number;

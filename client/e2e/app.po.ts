@@ -1,4 +1,3 @@
-
 import { browser, element, by } from 'protractor';
 
 export class NgHomePage {
@@ -22,5 +21,4 @@ export class NgHomePage {
    return browser.get('/dashboard/maps/library', 10000);
  }
  */
-
 }

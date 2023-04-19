@@ -10,9 +10,16 @@ import { RunsModule } from '@modules/runs/runs.module';
 import { RanksModule } from '@modules/ranks/ranks.module';
 
 @Module({
-    imports: [RepoModule, FileStoreModule, SteamModule, SessionModule, RunsModule, RanksModule],
-    controllers: [MapsController],
-    providers: [MapsService, MapLibraryService],
-    exports: [MapsService, MapLibraryService]
+  imports: [
+    RepoModule,
+    FileStoreModule,
+    SteamModule,
+    SessionModule,
+    RunsModule,
+    RanksModule
+  ],
+  controllers: [MapsController],
+  providers: [MapsService, MapLibraryService],
+  exports: [MapsService, MapLibraryService]
 })
 export class MapsModule {}

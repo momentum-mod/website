@@ -1,23 +1,23 @@
-import {Component, Input, OnInit} from '@angular/core';
-import {TwitchStream} from '../../../../../@core/models/twitch-stream.model';
+import { Component, Input, OnInit } from '@angular/core';
+import { TwitchStream } from '../../../../../@core/models/twitch-stream.model';
 
 @Component({
   selector: 'twitch-data',
   templateUrl: './twitch-data.component.html',
-  styleUrls: ['./twitch-data.component.scss'],
+  styleUrls: ['./twitch-data.component.scss']
 })
 export class TwitchDataComponent implements OnInit {
-
   @Input('stream') stream: TwitchStream;
   constructor() {
     this.stream = null;
   }
 
-  ngOnInit() {
-  }
+  ngOnInit() {}
   getImage(): string {
-    return this.stream ?
-      this.stream.thumbnail_url.replace('{width}', '300').replace('{height}', '200')
+    return this.stream
+      ? this.stream.thumbnail_url
+          .replace('{width}', '300')
+          .replace('{height}', '200')
       : 'NULL';
   }
 

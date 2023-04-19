@@ -1,6 +1,6 @@
-import {TwitterAuth} from './auth-twitter.model';
-import {DiscordAuth} from './auth-discord.model';
-import {TwitchAuth} from './auth-twitch.model';
+import { TwitterAuth } from './auth-twitter.model';
+import { DiscordAuth } from './auth-discord.model';
+import { TwitchAuth } from './auth-twitch.model';
 
 export interface UserProfile {
   id: string;

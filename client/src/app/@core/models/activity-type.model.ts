@@ -7,5 +7,5 @@ export enum Activity_Type {
   PB_ACHIEVED = 4,
   WR_ACHIEVED = 5,
   REPORT_FILED = 6,
-  USER_JOINED = 7,
+  USER_JOINED = 7
 }

@@ -4,8 +4,8 @@ import { ActivitiesService } from './activities.service';
 import { RepoModule } from '../repo/repo.module';
 
 @Module({
-    imports: [RepoModule],
-    controllers: [ActivitiesController],
-    providers: [ActivitiesService]
+  imports: [RepoModule],
+  controllers: [ActivitiesController],
+  providers: [ActivitiesService]
 })
 export class ActivitiesModule {}

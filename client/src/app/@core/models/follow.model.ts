@@ -1,4 +1,4 @@
-import {User} from './user.model';
+import { User } from './user.model';
 
 export interface UserFollowObject {
   followeeID: string; // The ID of the user following the followed

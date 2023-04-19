@@ -1,17 +1,16 @@
-import {Component, Input, OnInit} from '@angular/core';
-import {SiteNotification} from '../../../@core/models/notification.model';
-import {NotificationsService} from '../../../@core/utils/notifications.service';
+import { Component, Input, OnInit } from '@angular/core';
+import { SiteNotification } from '../../../@core/models/notification.model';
+import { NotificationsService } from '../../../@core/utils/notifications.service';
 
 @Component({
   selector: 'notifications',
   templateUrl: './notification.component.html',
-  styleUrls: ['./notification.component.scss'],
+  styleUrls: ['./notification.component.scss']
 })
 export class NotificationComponent implements OnInit {
-
   @Input('notifications') notifications: SiteNotification[];
 
-  constructor(private notificationService: NotificationsService) { }
+  constructor(private notificationService: NotificationsService) {}
 
   // This gets called every time the bell is clicked (to view notifications)
   ngOnInit() {
@@ -25,7 +24,9 @@ export class NotificationComponent implements OnInit {
       } else if (!b.read) {
         return 1;
       } else {
-        return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
+        return (
+          new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+        );
       }
     });
   }
@@ -43,7 +44,10 @@ export class NotificationComponent implements OnInit {
   }
 
   removeNotif(notification: SiteNotification) {
-    this.notifications.splice(this.notifications.findIndex(notif => notif.id === notification.id), 1);
+    this.notifications.splice(
+      this.notifications.findIndex((notif) => notif.id === notification.id),
+      1
+    );
     this.notificationService.dismissNotification(notification);
   }
 }

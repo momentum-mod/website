@@ -4,22 +4,22 @@ import * as Sentry from '@sentry/node';
 
 @Injectable()
 export class SentryService {
-    sendError(exception: any): string {
-        const transaction = Sentry.startTransaction({
-            op: 'API Error',
-            name: exception
-        });
+  sendError(exception: any): string {
+    const transaction = Sentry.startTransaction({
+      op: 'API Error',
+      name: exception
+    });
 
-        Sentry.getCurrentHub().configureScope((scope) => {
-            scope.setSpan(transaction);
+    Sentry.getCurrentHub().configureScope((scope) => {
+      scope.setSpan(transaction);
 
-            scope.setContext('API Error', null);
-        });
+      scope.setContext('API Error', null);
+    });
 
-        const result: string = Sentry.captureException(exception);
+    const result: string = Sentry.captureException(exception);
 
-        transaction.finish();
+    transaction.finish();
 
-        return result;
-    }
+    return result;
+  }
 }

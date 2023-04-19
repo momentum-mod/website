@@ -6,7 +6,6 @@
 
 @import '~@nebular/theme/styles/core/mixins';
 
-
 ::ng-deep nb-layout.modal-drop .layout {
   position: relative;
   transition: transform 0.4s, opacity 0.4s;
@@ -20,7 +19,6 @@
 }
 
 :host.modal-drop {
-
   .search-input {
     margin-top: 10vh;
   }

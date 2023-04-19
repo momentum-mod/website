@@ -9,10 +9,10 @@ import { AuthService } from './auth.service';
 import { StateService } from './state.service';
 import { SmartTableService } from './smart-table.service';
 import { LayoutService } from './layout.service';
-import {ActivityService} from './activity.service';
-import {MapsService} from './maps.service';
-import {TwitchAPIService} from './twitch-api.service';
-import {TumblrAPIService} from './tumblr-api.service';
+import { ActivityService } from './activity.service';
+import { MapsService } from './maps.service';
+import { TwitchAPIService } from './twitch-api.service';
+import { TumblrAPIService } from './tumblr-api.service';
 
 const SERVICES = [
   ActivityService,
@@ -25,24 +25,18 @@ const SERVICES = [
   SmartTableService,
   LayoutService,
   TwitchAPIService,
-  TumblrAPIService,
+  TumblrAPIService
 ];
 
 @NgModule({
-  imports: [
-    CommonModule,
-  ],
-  providers: [
-    ...SERVICES,
-  ],
+  imports: [CommonModule],
+  providers: [...SERVICES]
 })
 export class DataModule {
   static forRoot(): ModuleWithProviders<DataModule> {
     return {
       ngModule: DataModule,
-      providers: [
-        ...SERVICES,
-      ],
+      providers: [...SERVICES]
     };
   }
 }

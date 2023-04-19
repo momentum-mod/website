@@ -1,13 +1,12 @@
-import {Component, Input, OnInit, Output, EventEmitter} from '@angular/core';
-import {Activity} from '../../../../@core/models/activity.model';
+import { Component, Input, OnInit, Output, EventEmitter } from '@angular/core';
+import { Activity } from '../../../../@core/models/activity.model';
 
 @Component({
   selector: 'activity-list',
   templateUrl: './activity-list.component.html',
-  styleUrls: ['./activity-list.component.scss'],
+  styleUrls: ['./activity-list.component.scss']
 })
 export class ActivityListComponent implements OnInit {
-
   @Input('activities') activities: Activity[];
   @Input('hasRequested') hasRequested: boolean;
   @Output() showMore = new EventEmitter();
@@ -17,8 +16,7 @@ export class ActivityListComponent implements OnInit {
     this.activities = [];
   }
 
-  ngOnInit() {
-  }
+  ngOnInit() {}
 
   loadMore(): void {
     this.showMore.emit(null);

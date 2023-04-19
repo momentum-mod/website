@@ -1,19 +1,27 @@
 import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 
-import {NotificationComponent} from './notification.component';
-import {NbIconModule, NbListModule, NbStatusService, NbToastrConfig, NbToastRef, NbToastrService, NbUserModule} from '@nebular/theme';
-import {ActivityContentComponent} from '..';
-import {CoreModule} from '../../../@core/core.module';
-import {RouterModule} from '@angular/router';
-import {APP_BASE_HREF} from '@angular/common';
-import {HttpClientTestingModule} from '@angular/common/http/testing';
-import {Activity_Type} from '../../../@core/models/activity-type.model';
+import { NotificationComponent } from './notification.component';
+import {
+  NbIconModule,
+  NbListModule,
+  NbStatusService,
+  NbToastrConfig,
+  NbToastRef,
+  NbToastrService,
+  NbUserModule
+} from '@nebular/theme';
+import { ActivityContentComponent } from '..';
+import { CoreModule } from '../../../@core/core.module';
+import { RouterModule } from '@angular/router';
+import { APP_BASE_HREF } from '@angular/common';
+import { HttpClientTestingModule } from '@angular/common/http/testing';
+import { Activity_Type } from '../../../@core/models/activity-type.model';
 import {
   TimeagoClock,
   TimeagoDefaultClock,
   TimeagoDefaultFormatter,
   TimeagoFormatter,
-  TimeagoModule,
+  TimeagoModule
 } from 'ngx-timeago';
 
 describe('NotificationComponent', () => {
@@ -23,12 +31,20 @@ describe('NotificationComponent', () => {
   let toastrStub: Partial<NbToastrService>;
   beforeEach(waitForAsync(() => {
     toastrStub = {
-      danger(message: any, title?: any, config?: Partial<NbToastrConfig>): NbToastRef {
+      danger(
+        message: any,
+        title?: any,
+        config?: Partial<NbToastrConfig>
+      ): NbToastRef {
         return null;
       },
-      success(message: any, title?: any, config?: Partial<NbToastrConfig>): NbToastRef {
+      success(
+        message: any,
+        title?: any,
+        config?: Partial<NbToastrConfig>
+      ): NbToastRef {
         return null;
-      },
+      }
     };
 
     TestBed.configureTestingModule({
@@ -37,19 +53,19 @@ describe('NotificationComponent', () => {
         NbUserModule,
         NbIconModule,
         RouterModule.forRoot([], { relativeLinkResolution: 'legacy' }),
-        HttpClientTestingModule, CoreModule.forRoot(),
-        TimeagoModule.forRoot(),
+        HttpClientTestingModule,
+        CoreModule.forRoot(),
+        TimeagoModule.forRoot()
       ],
-      declarations: [ NotificationComponent, ActivityContentComponent ],
+      declarations: [NotificationComponent, ActivityContentComponent],
       providers: [
         NbStatusService,
         { provide: APP_BASE_HREF, useValue: '/' },
         { provide: NbToastrService, useValue: toastrStub },
         { provide: TimeagoFormatter, useClass: TimeagoDefaultFormatter },
-        { provide: TimeagoClock, useClass: TimeagoDefaultClock },
-      ],
-    })
-    .compileComponents();
+        { provide: TimeagoClock, useClass: TimeagoDefaultClock }
+      ]
+    }).compileComponents();
   }));
 
   beforeEach(() => {
@@ -66,7 +82,7 @@ describe('NotificationComponent', () => {
           avatarURL: '/assets/images/badges/BadgeVerified.png',
           country: 'US',
           roles: 0,
-          bans: 0,
+          bans: 0
         },
         activity: {
           id: 1,
@@ -81,15 +97,15 @@ describe('NotificationComponent', () => {
             bans: 0,
             profile: {
               id: '1',
-              bio: '',
-            },
+              bio: ''
+            }
           },
           type: Activity_Type.USER_JOINED,
           data: 'lol',
-          createdAt: new Date().toString(),
+          createdAt: new Date().toString()
         },
         read: false,
-        createdAt: new Date().toString(),
+        createdAt: new Date().toString()
       },
       {
         id: 1,
@@ -101,7 +117,7 @@ describe('NotificationComponent', () => {
           avatarURL: '/assets/images/badges/BadgeVerified.png',
           country: 'US',
           roles: 0,
-          bans: 0,
+          bans: 0
         },
         activity: {
           id: 1,
@@ -116,16 +132,16 @@ describe('NotificationComponent', () => {
             bans: 0,
             profile: {
               id: '1',
-              bio: '',
-            },
+              bio: ''
+            }
           },
           type: Activity_Type.PB_ACHIEVED,
           data: 'lol',
-          createdAt: new Date().toString(),
+          createdAt: new Date().toString()
         },
         read: false,
-        createdAt: new Date().toString(),
-      },
+        createdAt: new Date().toString()
+      }
     ];
     fixture.detectChanges();
   });

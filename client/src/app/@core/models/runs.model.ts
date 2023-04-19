@@ -1,4 +1,4 @@
-import {Run} from './run.model';
+import { Run } from './run.model';
 
 export interface Runs {
   count?: number;

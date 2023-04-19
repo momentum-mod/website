@@ -7,9 +7,9 @@ import { FileStoreModule } from '../filestore/file-store.module';
 import { SteamModule } from '@modules/steam/steam.module';
 
 @Module({
-    imports: [RepoModule, SteamModule, RunsModule, FileStoreModule],
-    controllers: [UsersController],
-    providers: [UsersService],
-    exports: [UsersService]
+  imports: [RepoModule, SteamModule, RunsModule, FileStoreModule],
+  controllers: [UsersController],
+  providers: [UsersService],
+  exports: [UsersService]
 })
 export class UsersModule {}

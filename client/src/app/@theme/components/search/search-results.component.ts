@@ -1,9 +1,9 @@
-import {Component, EventEmitter, Input, Output} from '@angular/core';
+import { Component, EventEmitter, Input, Output } from '@angular/core';
 
 @Component({
   selector: 'search-results',
   templateUrl: './search-results.component.html',
-  styleUrls: ['./search-results.component.scss'],
+  styleUrls: ['./search-results.component.scss']
 })
 export class SearchResultsComponent {
   @Input('user') usersResults: boolean;
@@ -11,27 +11,20 @@ export class SearchResultsComponent {
   @Input('onlyMaps') onlyMaps: boolean;
   @Input('elems') elems: any[];
   @Output() selectedURL: EventEmitter<string> = new EventEmitter();
-  constructor() {
-  }
+  constructor() {}
 
   getElemName(elem: any): string {
-    if (this.usersResults)
-      return elem.alias;
-    else
-      return elem.name;
+    if (this.usersResults) return elem.alias;
+    else return elem.name;
   }
   getElemURL(elem: any): string {
-    if (this.usersResults)
-      return '/dashboard/profile/' + elem.id;
-    else
-      return '/dashboard/maps/' + elem.id;
+    if (this.usersResults) return '/dashboard/profile/' + elem.id;
+    else return '/dashboard/maps/' + elem.id;
   }
 
   getElemPicture(elem: any) {
-    if (this.usersResults)
-      return elem.avatarURL;
-    else
-      return elem.thumbnail.small;
+    if (this.usersResults) return elem.avatarURL;
+    else return elem.thumbnail.small;
   }
 
   shouldShowEmpty(): boolean {

@@ -1,18 +1,32 @@
 <div class="row no-gutters align-items-center">
-  <div class="col-1 text-left">{{report.id}}</div>
-  <div class="col-1 text-left">{{typeText}}</div>
-  <div class="col-1 text-left">{{categoryText}}</div>
-  <div class="col-1 text-left">{{report.data}}</div>
+  <div class="col-1 text-left">{{ report.id }}</div>
+  <div class="col-1 text-left">{{ typeText }}</div>
+  <div class="col-1 text-left">{{ categoryText }}</div>
+  <div class="col-1 text-left">{{ report.data }}</div>
   <div class="col-1 text-left">
-    <nb-user [name]="report.submitter.alias" [picture]="report.submitter.avatarURL" size="medium"></nb-user>
+    <nb-user
+      [name]="report.submitter.alias"
+      [picture]="report.submitter.avatarURL"
+      size="medium"
+    ></nb-user>
   </div>
   <div class="col-1 text-left">
-    <nb-user *ngIf="report.resolver" [name]="report.resolver.alias" [picture]="report.resolver.avatarURL" size="medium"></nb-user>
+    <nb-user
+      *ngIf="report.resolver"
+      [name]="report.resolver.alias"
+      [picture]="report.resolver.avatarURL"
+      size="medium"
+    ></nb-user>
   </div>
-  <div class="col-2 text-center">{{report.message}}</div>
-  <div class="col-2 text-center">{{report.resolutionMessage}}</div>
+  <div class="col-2 text-center">{{ report.message }}</div>
+  <div class="col-2 text-center">{{ report.resolutionMessage }}</div>
   <div class="col-2 text-center">
     <button nbButton outline status="info" (click)="update()">UPDATE</button>
-    <a [routerLink]="reportedResourceURL" target="_blank" class="btn btn-outline-info">VIEW REPORTED RESOURCE</a>
+    <a
+      [routerLink]="reportedResourceURL"
+      target="_blank"
+      class="btn btn-outline-info"
+      >VIEW REPORTED RESOURCE</a
+    >
   </div>
 </div>

@@ -6,21 +6,11 @@
     "baseUrl": "./",
     "types": [],
     "paths": {
-      "@angular/*": [
-        "../node_modules/@angular/*"
-      ],
-      "@nebular/*": [
-        "../node_modules/@nebular/*"
-      ]
+      "@angular/*": ["../node_modules/@angular/*"],
+      "@nebular/*": ["../node_modules/@nebular/*"]
     }
   },
-  "files": [
-    "main.ts"
-  ],
-  "exclude": [
-    "../node_modules/@nebular/**/*.spec.ts"
-  ],
-  "include": [
-    "../node_modules/@nebular/**/*.ts"
-  ]
+  "files": ["main.ts"],
+  "exclude": ["../node_modules/@nebular/**/*.spec.ts"],
+  "include": ["../node_modules/@nebular/**/*.ts"]
 }

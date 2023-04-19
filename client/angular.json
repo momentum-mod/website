@@ -25,14 +25,8 @@
             "index": "src/index.html",
             "main": "src/main.ts",
             "tsConfig": "src/tsconfig.app.json",
-            "polyfills": [
-              "zone.js/dist/zone"
-            ],
-            "assets": [
-              "src/assets",
-              "src/favicon.ico",
-              "src/favicon.png"
-            ],
+            "polyfills": ["zone.js/dist/zone"],
+            "assets": ["src/assets", "src/favicon.ico", "src/favicon.png"],
             "styles": [
               "node_modules/bootstrap/dist/css/bootstrap.css",
               "node_modules/@fontsource/bebas-neue/index.css",
@@ -108,20 +102,13 @@
               "src/app/@theme/styles/styles.scss",
               "node_modules/flag-icons/css/flag-icons.min.css"
             ],
-            "assets": [
-              "src/assets",
-              "src/favicon.ico",
-              "src/favicon.png"
-            ]
+            "assets": ["src/assets", "src/favicon.ico", "src/favicon.png"]
           }
         },
         "lint": {
           "builder": "@angular-eslint/builder:lint",
           "options": {
-            "lintFilePatterns": [
-              "src/**/*.ts",
-              "src/**/*.html"
-            ]
+            "lintFilePatterns": ["src/**/*.ts", "src/**/*.html"]
           }
         }
       }
@@ -141,10 +128,7 @@
         "lint": {
           "builder": "@angular-eslint/builder:lint",
           "options": {
-            "lintFilePatterns": [
-              "src/**/*.ts",
-              "src/**/*.html"
-            ]
+            "lintFilePatterns": ["src/**/*.ts", "src/**/*.html"]
           }
         }
       }

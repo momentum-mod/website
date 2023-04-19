@@ -12,13 +12,13 @@
           <div class="col-3" formGroupName="top10">
             <label>
               WR Points:
-              <input nbInput type="number" formControlName="WRPoints">
+              <input nbInput type="number" formControlName="WRPoints" />
             </label>
             <div formArrayName="rankPercentages">
-              <div *ngFor="let _ of top10RankPercts.controls; let i=index">
+              <div *ngFor="let _ of top10RankPercts.controls; let i = index">
                 <label>
-                  Rank {{i + 1}} Percentage:
-                  <input nbInput type="number" [formControlName]="i">
+                  Rank {{ i + 1 }} Percentage:
+                  <input nbInput type="number" [formControlName]="i" />
                 </label>
               </div>
             </div>
@@ -26,50 +26,50 @@
           <div class="col-3" formGroupName="formula">
             <label>
               A:
-              <input nbInput type="number" formControlName="A">
+              <input nbInput type="number" formControlName="A" />
             </label>
             <label>
               B:
-              <input nbInput type="number" formControlName="B">
+              <input nbInput type="number" formControlName="B" />
             </label>
           </div>
           <div class="col-3" formGroupName="groups">
             <label>
               Max groups:
-              <input nbInput type="number" formControlName="maxGroups">
+              <input nbInput type="number" formControlName="maxGroups" />
             </label>
             <div formArrayName="groupScaleFactors">
-              <div *ngFor="let _ of groupScaleFactors.controls; let i=index">
+              <div *ngFor="let _ of groupScaleFactors.controls; let i = index">
                 <label>
-                  Group {{i + 1}} Scale Factor:
-                  <input nbInput type="number" [formControlName]="i">
+                  Group {{ i + 1 }} Scale Factor:
+                  <input nbInput type="number" [formControlName]="i" />
                 </label>
               </div>
             </div>
 
             <div formArrayName="groupExponents">
-              <div *ngFor="let _ of groupExponents.controls; let i=index">
+              <div *ngFor="let _ of groupExponents.controls; let i = index">
                 <label>
-                  Group {{i + 1}} Exponent:
-                  <input nbInput type="number" [formControlName]="i">
+                  Group {{ i + 1 }} Exponent:
+                  <input nbInput type="number" [formControlName]="i" />
                 </label>
               </div>
             </div>
 
             <div formArrayName="groupMinSizes">
-              <div *ngFor="let _ of groupMinSizes.controls; let i=index">
+              <div *ngFor="let _ of groupMinSizes.controls; let i = index">
                 <label>
-                  Group {{i + 1}} Minimum Size:
-                  <input nbInput type="number" [formControlName]="i">
+                  Group {{ i + 1 }} Minimum Size:
+                  <input nbInput type="number" [formControlName]="i" />
                 </label>
               </div>
             </div>
 
             <div formArrayName="groupPointPcts">
-              <div *ngFor="let _ of groupPointPcts.controls; let i=index">
+              <div *ngFor="let _ of groupPointPcts.controls; let i = index">
                 <label>
-                  Group {{i + 1}} WRPoints Percentage:
-                  <input nbInput type="number" [formControlName]="i">
+                  Group {{ i + 1 }} WRPoints Percentage:
+                  <input nbInput type="number" [formControlName]="i" />
                 </label>
               </div>
             </div>
@@ -84,39 +84,63 @@
           <div class="col-6" formGroupName="levels">
             <label>
               Max Levels:
-              <input nbInput type="number" formControlName="maxLevels">
+              <input nbInput type="number" formControlName="maxLevels" />
             </label>
             <label>
               Starting Value:
-              <input nbInput type="number" formControlName="startingValue">
+              <input nbInput type="number" formControlName="startingValue" />
             </label>
             <label>
               Linear Scale Base Increase:
-              <input nbInput type="number" formControlName="linearScaleBaseIncrease">
+              <input
+                nbInput
+                type="number"
+                formControlName="linearScaleBaseIncrease"
+              />
             </label>
             <label>
               Linear Scale Interval:
-              <input nbInput type="number" formControlName="linearScaleInterval">
+              <input
+                nbInput
+                type="number"
+                formControlName="linearScaleInterval"
+              />
             </label>
             <label>
               Linear Scale Interval Multiplier:
-              <input nbInput type="number" formControlName="linearScaleIntervalMultiplier">
+              <input
+                nbInput
+                type="number"
+                formControlName="linearScaleIntervalMultiplier"
+              />
             </label>
             <label>
               Static Scale Start Level:
-              <input nbInput type="number" formControlName="staticScaleStart">
+              <input nbInput type="number" formControlName="staticScaleStart" />
             </label>
             <label>
               Static Scale Base Multiplier:
-              <input nbInput type="number" formControlName="staticScaleBaseMultiplier">
+              <input
+                nbInput
+                type="number"
+                formControlName="staticScaleBaseMultiplier"
+              />
             </label>
             <label>
               Static Scale Interval:
-              <input nbInput type="number" formControlName="staticScaleInterval">
+              <input
+                nbInput
+                type="number"
+                formControlName="staticScaleInterval"
+              />
             </label>
             <label>
               Static Scale Interval Multiplier:
-              <input nbInput type="number" formControlName="staticScaleIntervalMultiplier">
+              <input
+                nbInput
+                type="number"
+                formControlName="staticScaleIntervalMultiplier"
+              />
             </label>
           </div>
           <div class="col-6" formGroupName="completions">
@@ -125,11 +149,11 @@
                 <div formGroupName="tierScale">
                   <label>
                     Unique Linear Scale:
-                    <input nbInput type="number" formControlName="linear">
+                    <input nbInput type="number" formControlName="linear" />
                   </label>
                   <label>
                     Unique Staged Scale:
-                    <input nbInput type="number" formControlName="staged">
+                    <input nbInput type="number" formControlName="staged" />
                   </label>
                 </div>
               </div>
@@ -137,19 +161,19 @@
                 <div formGroupName="tierScale">
                   <label>
                     Repeat Linear Scale:
-                    <input nbInput type="number" formControlName="linear">
+                    <input nbInput type="number" formControlName="linear" />
                   </label>
                   <label>
                     Repeat Staged Scale:
-                    <input nbInput type="number" formControlName="staged">
+                    <input nbInput type="number" formControlName="staged" />
                   </label>
                   <label>
                     Repeat Individual Stage Scale:
-                    <input nbInput type="number" formControlName="stages">
+                    <input nbInput type="number" formControlName="stages" />
                   </label>
                   <label>
                     Repeat Bonus Scale:
-                    <input nbInput type="number" formControlName="bonus">
+                    <input nbInput type="number" formControlName="bonus" />
                   </label>
                 </div>
               </div>
@@ -157,7 +181,14 @@
           </div>
         </div>
       </div>
-      <button nbButton class="d-block m-auto" type="button" (click)="submitXPSystems()">Submit</button>
+      <button
+        nbButton
+        class="d-block m-auto"
+        type="button"
+        (click)="submitXPSystems()"
+      >
+        Submit
+      </button>
     </form>
   </nb-card-body>
 </nb-card>

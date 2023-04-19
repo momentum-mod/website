@@ -12,9 +12,13 @@ export class TimingPipe implements PipeTransform {
     const seconds = Math.trunc(input % 60);
     const millis = input.toFixed(2).toString().split('.')[1];
     if (hours > 0) {
-      return `${TimingPipe.padNum(hours)}:${TimingPipe.padNum(minutes)}:${TimingPipe.padNum(seconds)}`;
+      return `${TimingPipe.padNum(hours)}:${TimingPipe.padNum(
+        minutes
+      )}:${TimingPipe.padNum(seconds)}`;
     } else if (minutes > 0) {
-      return `${TimingPipe.padNum(minutes)}:${TimingPipe.padNum(seconds)}.${millis}`;
+      return `${TimingPipe.padNum(minutes)}:${TimingPipe.padNum(
+        seconds
+      )}.${millis}`;
     } else {
       return `${seconds}.${millis}`;
     }

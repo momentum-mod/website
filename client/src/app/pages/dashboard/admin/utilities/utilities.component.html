@@ -6,15 +6,28 @@
     <div class="mb-lg-5">
       <form (ngSubmit)="createUser()" [formGroup]="userForm">
         <h4>Create Placeholder User</h4>
-        <input nbInput type="text" formControlName="alias">
+        <input nbInput type="text" formControlName="alias" />
         <button nbButton type="submit">Submit</button>
       </form>
     </div>
     <div>
-      <button nbButton outline status="danger" class="mr-2" (click)="showResetCosXPConfigDialog()">
+      <button
+        nbButton
+        outline
+        status="danger"
+        class="mr-2"
+        (click)="showResetCosXPConfigDialog()"
+      >
         Reset Cosmetic XP Globally
       </button>
-      <button nbButton outline status="danger" (click)="showResetRankXPConfirmDialog()">Reset Rank XP Globally</button>
+      <button
+        nbButton
+        outline
+        status="danger"
+        (click)="showResetRankXPConfirmDialog()"
+      >
+        Reset Rank XP Globally
+      </button>
     </div>
   </nb-card-body>
 </nb-card>

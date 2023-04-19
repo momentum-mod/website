@@ -4,7 +4,6 @@ import { delay, share } from 'rxjs/operators';
 
 @Injectable()
 export class LayoutService {
-
   protected layoutSize$ = new Subject();
 
   changeLayoutSize() {
@@ -12,9 +11,6 @@ export class LayoutService {
   }
 
   onChangeLayoutSize(): Observable<any> {
-    return this.layoutSize$.pipe(
-      share(),
-      delay(1),
-    );
+    return this.layoutSize$.pipe(share(), delay(1));
   }
 }

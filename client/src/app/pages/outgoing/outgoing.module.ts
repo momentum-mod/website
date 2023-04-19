@@ -1,11 +1,11 @@
-import {NgModule} from '@angular/core';
-import {OutgoingComponent} from './outgoing.component';
-import {ThemeModule} from '../../@theme/theme.module';
+import { NgModule } from '@angular/core';
+import { OutgoingComponent } from './outgoing.component';
+import { ThemeModule } from '../../@theme/theme.module';
 
 @NgModule({
   imports: [ThemeModule],
   declarations: [OutgoingComponent],
-  exports: [OutgoingComponent],
+  exports: [OutgoingComponent]
 })
 export class OutgoingModule {
   static readonly whitelistedOutgoingDomains: string[] = [
@@ -29,9 +29,7 @@ export class OutgoingModule {
     'poeditor.com',
     'discordapp.com',
     'discord.gg',
-    'momentum-mod.org',
+    'momentum-mod.org'
   ];
-  static readonly whitelistedOutgoingProtocols: string[] = [
-    'blob',
-  ];
+  static readonly whitelistedOutgoingProtocols: string[] = ['blob'];
 }

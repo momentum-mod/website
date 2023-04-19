@@ -1,54 +1,66 @@
 ﻿import { MapTrack } from '@prisma/client';
 import { Exclude } from 'class-transformer';
 import { ApiProperty, PickType } from '@nestjs/swagger';
-import { ArrayMinSize, IsArray, IsBoolean, IsInt, IsPositive, Max } from 'class-validator';
+import {
+  ArrayMinSize,
+  IsArray,
+  IsBoolean,
+  IsInt,
+  IsPositive,
+  Max
+} from 'class-validator';
 import { CreateMapZoneDto, MapZoneDto } from './zone/map-zone.dto';
-import { CreatedAtProperty, IdProperty, NestedProperty, UpdatedAtProperty } from '@lib/dto.lib';
+import {
+  CreatedAtProperty,
+  IdProperty,
+  NestedProperty,
+  UpdatedAtProperty
+} from '@lib/dto.lib';
 
 export class MapTrackDto implements MapTrack {
-    @IdProperty()
-    readonly id: number;
+  @IdProperty()
+  readonly id: number;
 
-    @ApiProperty()
-    @IsInt()
-    @Max(64)
-    readonly trackNum: number;
+  @ApiProperty()
+  @IsInt()
+  @Max(64)
+  readonly trackNum: number;
 
-    @ApiProperty()
-    @IsPositive()
-    @Max(64)
-    readonly numZones: number;
+  @ApiProperty()
+  @IsPositive()
+  @Max(64)
+  readonly numZones: number;
 
-    @ApiProperty()
-    @IsBoolean()
-    readonly isLinear: boolean;
+  @ApiProperty()
+  @IsBoolean()
+  readonly isLinear: boolean;
 
-    @ApiProperty()
-    @IsPositive()
-    @Max(10)
-    readonly difficulty: number;
+  @ApiProperty()
+  @IsPositive()
+  @Max(10)
+  readonly difficulty: number;
 
-    @NestedProperty(MapZoneDto, { isArray: true })
-    readonly zones: MapZoneDto[];
+  @NestedProperty(MapZoneDto, { isArray: true })
+  readonly zones: MapZoneDto[];
 
-    @Exclude()
-    readonly mapID: number;
+  @Exclude()
+  readonly mapID: number;
 
-    @CreatedAtProperty()
-    readonly createdAt: Date;
+  @CreatedAtProperty()
+  readonly createdAt: Date;
 
-    @UpdatedAtProperty()
-    readonly updatedAt: Date;
+  @UpdatedAtProperty()
+  readonly updatedAt: Date;
 }
 
 export class CreateMapTrackDto extends PickType(MapTrackDto, [
-    'trackNum',
-    'isLinear',
-    'numZones',
-    'difficulty'
+  'trackNum',
+  'isLinear',
+  'numZones',
+  'difficulty'
 ] as const) {
-    @NestedProperty(CreateMapZoneDto, { isArray: true })
-    @IsArray()
-    @ArrayMinSize(2)
-    zones: CreateMapZoneDto[];
+  @NestedProperty(CreateMapZoneDto, { isArray: true })
+  @IsArray()
+  @ArrayMinSize(2)
+  zones: CreateMapZoneDto[];
 }

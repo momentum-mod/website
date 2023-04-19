@@ -6,29 +6,29 @@ import { BaseStatsDto } from '../../stats/base-stats.dto';
 import { NestedProperty, PrismaModelToDto } from '@lib/dto.lib';
 
 export class MapZoneStatsDto implements PrismaModelToDto<MapZoneStats> {
-    @Exclude()
-    readonly id: number;
+  @Exclude()
+  readonly id: number;
 
-    @ApiProperty()
-    @IsInt()
-    readonly completions: number;
+  @ApiProperty()
+  @IsInt()
+  readonly completions: number;
 
-    @ApiProperty()
-    @IsInt()
-    readonly uniqueCompletions: number;
+  @ApiProperty()
+  @IsInt()
+  readonly uniqueCompletions: number;
 
-    @Exclude()
-    readonly zoneID: number;
+  @Exclude()
+  readonly zoneID: number;
 
-    @Exclude()
-    readonly baseStatsID: number;
+  @Exclude()
+  readonly baseStatsID: number;
 
-    @NestedProperty(BaseStatsDto, { required: false })
-    readonly baseStats?: BaseStatsDto;
+  @NestedProperty(BaseStatsDto, { required: false })
+  readonly baseStats?: BaseStatsDto;
 
-    @Exclude()
-    readonly createdAt: Date;
+  @Exclude()
+  readonly createdAt: Date;
 
-    @Exclude()
-    readonly updatedAt: Date;
+  @Exclude()
+  readonly updatedAt: Date;
 }

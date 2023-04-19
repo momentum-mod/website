@@ -1,4 +1,4 @@
-import {UserFollowObject} from './follow.model';
+import { UserFollowObject } from './follow.model';
 
 export interface FollowStatus {
   local?: UserFollowObject; // The relationship the local user has to the target, if it exists

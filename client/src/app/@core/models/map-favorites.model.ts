@@ -1,4 +1,4 @@
-import {MapFavorite} from './map-favorite.model';
+import { MapFavorite } from './map-favorite.model';
 
 export interface MapFavorites {
   count?: number;

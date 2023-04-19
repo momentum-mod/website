@@ -6,8 +6,8 @@ import { MapsModule } from '../maps/maps.module';
 import { XpSystemsModule } from '@modules/xp-systems/xp-systems.module';
 
 @Module({
-    imports: [RepoModule, MapsModule, XpSystemsModule],
-    controllers: [AdminController],
-    providers: [AdminService]
+  imports: [RepoModule, MapsModule, XpSystemsModule],
+  controllers: [AdminController],
+  providers: [AdminService]
 })
 export class AdminModule {}

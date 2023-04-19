@@ -1,9 +1,8 @@
-import {TestBed} from '@angular/core/testing';
+import { TestBed } from '@angular/core/testing';
 
-import {RanksService} from './ranks.service';
+import { RanksService } from './ranks.service';
 
-
-let httpClientSpy: { get: jasmine.Spy, post: jasmine.Spy  };
+let httpClientSpy: { get: jasmine.Spy; post: jasmine.Spy };
 let rankService: RanksService;
 describe('RanksService', () => {
   beforeEach(() => {

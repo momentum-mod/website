@@ -1,12 +1,16 @@
-import {Injectable} from '@angular/core';
-import {HttpRequest, HttpHandler, HttpEvent, HttpInterceptor} from '@angular/common/http';
-import {AuthService} from '../data/auth.service';
-import {BehaviorSubject, Observable, throwError} from 'rxjs';
-import {catchError, filter, switchMap, take} from 'rxjs/operators';
+import { Injectable } from '@angular/core';
+import {
+  HttpRequest,
+  HttpHandler,
+  HttpEvent,
+  HttpInterceptor
+} from '@angular/common/http';
+import { AuthService } from '../data/auth.service';
+import { BehaviorSubject, Observable, throwError } from 'rxjs';
+import { catchError, filter, switchMap, take } from 'rxjs/operators';
 
 @Injectable()
 export class RefreshTokenInterceptorService implements HttpInterceptor {
-
   private refreshInProgress: boolean;
   private refreshTokenSubject: BehaviorSubject<any>;
 
@@ -15,18 +19,21 @@ export class RefreshTokenInterceptorService implements HttpInterceptor {
     this.refreshTokenSubject = new BehaviorSubject<any>(null);
   }
 
-  intercept(req: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
+  intercept(
+    req: HttpRequest<any>,
+    next: HttpHandler
+  ): Observable<HttpEvent<any>> {
     return next.handle(req).pipe(
-      catchError(err => {
+      catchError((err) => {
         if (err.status === 401) {
           if (req.url.includes('refresh')) {
             this.authService.logout();
             return throwError(err);
           } else if (this.refreshInProgress) {
             return this.refreshTokenSubject.pipe(
-              filter(token => token !== null),
+              filter((token) => token !== null),
               take(1),
-              switchMap(() => next.handle(this.addAccessToken(req))),
+              switchMap(() => next.handle(this.addAccessToken(req)))
             );
           } else {
             this.refreshInProgress = true;
@@ -35,13 +42,13 @@ export class RefreshTokenInterceptorService implements HttpInterceptor {
               switchMap((token: string) => {
                 this.refreshInProgress = false;
                 this.refreshTokenSubject.next(token);
-                return next.handle(this.addAccessToken((req)));
-              }),
+                return next.handle(this.addAccessToken(req));
+              })
             );
           }
         }
         return throwError(err);
-      }),
+      })
     );
   }
 
@@ -50,13 +57,10 @@ export class RefreshTokenInterceptorService implements HttpInterceptor {
     if (accessToken) {
       return req.clone({
         setHeaders: {
-          Authorization: 'Bearer ' + accessToken,
-        },
+          Authorization: 'Bearer ' + accessToken
+        }
       });
     }
     return req;
   }
-
 }
-
-

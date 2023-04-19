@@ -1,4 +1,9 @@
-<nb-list nbInfiniteList [threshold]="0" (bottomThreshold)="loadMore()" listenWindowScroll>
+<nb-list
+  nbInfiniteList
+  [threshold]="0"
+  (bottomThreshold)="loadMore()"
+  listenWindowScroll
+>
   <nb-list-item *ngIf="activities.length === 0 && hasRequested">
     <h4 class="m-0 text-center text"><i>No activities found</i></h4>
   </nb-list-item>

@@ -1,21 +1,26 @@
-import {APP_BASE_HREF} from '@angular/common';
-import {BrowserModule} from '@angular/platform-browser';
-import {BrowserAnimationsModule} from '@angular/platform-browser/animations';
-import {NgModule} from '@angular/core';
-import {HTTP_INTERCEPTORS, HttpClientModule} from '@angular/common/http';
-import {CoreModule} from './@core/core.module';
+import { APP_BASE_HREF } from '@angular/common';
+import { BrowserModule } from '@angular/platform-browser';
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+import { NgModule } from '@angular/core';
+import { HTTP_INTERCEPTORS, HttpClientModule } from '@angular/common/http';
+import { CoreModule } from './@core/core.module';
 
-import {AppComponent} from './app.component';
-import {AppRoutingModule} from './app-routing.module';
-import {ThemeModule} from './@theme/theme.module';
-import {MainPageModule} from './pages/main/main-page.module';
-import {NotFoundModule} from './pages/not-found/not-found.module';
-import {JwtModule} from '@auth0/angular-jwt';
-import {OutgoingModule} from './pages/outgoing/outgoing.module';
-import {MarkdownModule, MarkedOptions} from 'ngx-markdown';
-import {NbDatepickerModule, NbDialogModule, NbGlobalPhysicalPosition, NbToastrModule} from '@nebular/theme';
-import {RefreshTokenInterceptorService} from './@core/utils/refresh-token-interceptor.service';
-import {TimeagoModule} from 'ngx-timeago';
+import { AppComponent } from './app.component';
+import { AppRoutingModule } from './app-routing.module';
+import { ThemeModule } from './@theme/theme.module';
+import { MainPageModule } from './pages/main/main-page.module';
+import { NotFoundModule } from './pages/not-found/not-found.module';
+import { JwtModule } from '@auth0/angular-jwt';
+import { OutgoingModule } from './pages/outgoing/outgoing.module';
+import { MarkdownModule, MarkedOptions } from 'ngx-markdown';
+import {
+  NbDatepickerModule,
+  NbDialogModule,
+  NbGlobalPhysicalPosition,
+  NbToastrModule
+} from '@nebular/theme';
+import { RefreshTokenInterceptorService } from './@core/utils/refresh-token-interceptor.service';
+import { TimeagoModule } from 'ngx-timeago';
 import { environment } from '../environments/environment';
 
 export function tokenGetter() {
@@ -39,11 +44,11 @@ export function tokenGetter() {
           'localhost:3002',
           'localhost:4200',
           'momentum-mod.org',
-          (new URL( environment.api )).host,
-          (new URL( environment.auth )).host,
+          new URL(environment.api).host,
+          new URL(environment.auth).host
         ],
-        throwNoTokenError: false,
-      },
+        throwNoTokenError: false
+      }
     }),
     MarkdownModule.forRoot({
       markedOptions: {
@@ -55,33 +60,36 @@ export function tokenGetter() {
           smartLists: true,
           smartypants: false,
           sanitize: true,
-          baseUrl: 'https://',
-        },
-      },
+          baseUrl: 'https://'
+        }
+      }
     }),
     NbDatepickerModule.forRoot(),
     NbToastrModule.forRoot({
       duration: 3000,
       destroyByClick: true,
       preventDuplicates: false,
-      position: NbGlobalPhysicalPosition.TOP_RIGHT,
+      position: NbGlobalPhysicalPosition.TOP_RIGHT
     }),
     NbDialogModule.forRoot({
       hasBackdrop: true,
       closeOnBackdropClick: true,
       closeOnEsc: true,
-      autoFocus: true,
+      autoFocus: true
     }),
 
     TimeagoModule.forRoot(),
     ThemeModule.forRoot(),
-    CoreModule.forRoot(),
+    CoreModule.forRoot()
   ],
   bootstrap: [AppComponent],
   providers: [
     { provide: APP_BASE_HREF, useValue: '/' },
-    { provide: HTTP_INTERCEPTORS, useClass: RefreshTokenInterceptorService, multi: true },
-  ],
+    {
+      provide: HTTP_INTERCEPTORS,
+      useClass: RefreshTokenInterceptorService,
+      multi: true
+    }
+  ]
 })
-export class AppModule {
-}
+export class AppModule {}

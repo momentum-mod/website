@@ -2,12 +2,28 @@
   <div class="col-12 col-xl-7">
     <nb-card *ngIf="user">
       <nb-card-header class="overflow-hidden">
-        <span *ngIf="user.country && user.country.length === 2" [title]="user.country"
-               class="rounded flg flag-icon flag-icon-{{user.country.toLowerCase()}}"></span>
+        <span
+          *ngIf="user.country && user.country.length === 2"
+          [title]="user.country"
+          class="rounded flg flag-icon flag-icon-{{
+            user.country.toLowerCase()
+          }}"
+        ></span>
         <div class="d-flex align-items-center top-right-toolbar">
-          <report-button *ngIf="!isLocal" [reportType]="ReportType.USER_PROFILE_REPORT" [reportData]="user.id"></report-button>
+          <report-button
+            *ngIf="!isLocal"
+            [reportType]="ReportType.USER_PROFILE_REPORT"
+            [reportData]="user.id"
+          ></report-button>
           <div *ngIf="canEdit()">
-            <button nbButton outline status="info" class="ml-2" type="button" (click)="onEditProfile()">
+            <button
+              nbButton
+              outline
+              status="info"
+              class="ml-2"
+              type="button"
+              (click)="onEditProfile()"
+            >
               <span class="d-none d-md-inline-block">Edit Profile</span>
               <nb-icon class="d-inline-block d-md-none" icon="edit"></nb-icon>
             </button>
@@ -16,29 +32,53 @@
 
         <div class="row mt-4">
           <div class="col-auto mb-2">
-            <div *ngIf="avatar_loaded" class="ml-2 ml-md-4 user-image" [ngStyle]="{'background-image':'url(' + avatar_url + ')'}">
-            </div>
+            <div
+              *ngIf="avatar_loaded"
+              class="ml-2 ml-md-4 user-image"
+              [ngStyle]="{ 'background-image': 'url(' + avatar_url + ')' }"
+            ></div>
           </div>
           <div class="col mb-2">
             <div class="d-flex flex-column justify-content-evenly h-100">
               <div class="d-flex align-items-center">
-                <h1>{{user.alias}}</h1>
-                <img *ngIf="isVerified" class="ml-2 verified" src="assets/images/badges/BadgeVerified.png"
-                      nbPopover="Verified" [nbPopoverTrigger]="'hint'" nbPopoverPlacement="bottom">
+                <h1>{{ user.alias }}</h1>
+                <img
+                  *ngIf="isVerified"
+                  class="ml-2 verified"
+                  src="assets/images/badges/BadgeVerified.png"
+                  nbPopover="Verified"
+                  [nbPopoverTrigger]="'hint'"
+                  nbPopoverPlacement="bottom"
+                />
               </div>
               <div class="d-flex badges" *ngIf="isMapper || isMod || isAdmin">
                 <div *ngIf="isMapper" class="mx-1">
-                  <img src="assets/images/badges/BadgeMapper.png" nbPopover="Mapper" nbPopoverTrigger="hint" nbPopoverPlacement="bottom">
+                  <img
+                    src="assets/images/badges/BadgeMapper.png"
+                    nbPopover="Mapper"
+                    nbPopoverTrigger="hint"
+                    nbPopoverPlacement="bottom"
+                  />
                 </div>
                 <div *ngIf="isMod" class="mx-1">
-                  <img src="assets/images/badges/BadgeMod.png" nbPopover="Moderator" nbPopoverTrigger="hint" nbPopoverPlacement="bottom">
+                  <img
+                    src="assets/images/badges/BadgeMod.png"
+                    nbPopover="Moderator"
+                    nbPopoverTrigger="hint"
+                    nbPopoverPlacement="bottom"
+                  />
                 </div>
                 <div *ngIf="isAdmin" class="mx-1">
-                  <img src="assets/images/badges/BadgeAdmin.png" nbPopover="Admin" nbPopoverTrigger="hint" nbPopoverPlacement="bottom">
+                  <img
+                    src="assets/images/badges/BadgeAdmin.png"
+                    nbPopover="Admin"
+                    nbPopoverTrigger="hint"
+                    nbPopoverPlacement="bottom"
+                  />
                 </div>
               </div>
               <div *ngIf="!hasRole(role.PLACEHOLDER)">
-                <h4 class="text">Level {{user.stats?.level}}</h4>
+                <h4 class="text">Level {{ user.stats?.level }}</h4>
               </div>
             </div>
           </div>
@@ -46,16 +86,46 @@
         <div class="row no-gutters align-items-center">
           <div class="col">
             <div class="ml-0 ml-md-2 socials">
-              <a *ngIf="!hasRole(role.PLACEHOLDER)" href="https://steamcommunity.com/profiles/{{user.steamID}}"
-                 target="_blank" class="fab fa-steam"></a>
-              <a *ngIf="user.profile?.twitchAuth" href="https://twitch.tv/{{user.profile.twitchAuth.displayName}}"
-                 title="{{user.profile.twitchAuth.displayName}}" target="_blank" class="fab fa-twitch"></a>
-              <a *ngIf="user.profile?.twitterAuth" href="https://twitter.com/{{user.profile.twitterAuth.displayName}}"
-                 title="{{user.profile.twitterAuth.displayName}}" target="_blank" class="fab fa-twitter"></a>
-              <a *ngIf="user.profile?.discordAuth" href="https://discordapp.com/users/{{user.profile.discordAuth.discordID}}"
-                 title="{{user.profile.discordAuth.displayName}}" target="_blank" class="fab fa-discord"></a>
-              <a *ngIf="user.profile?.youtubeName" href="https://youtube.com/user/{{user.profile.youtubeName}}"
-                 title="{{user.profile.youtubeName}}" target="_blank" class="fab fa-youtube"></a>
+              <a
+                *ngIf="!hasRole(role.PLACEHOLDER)"
+                href="https://steamcommunity.com/profiles/{{ user.steamID }}"
+                target="_blank"
+                class="fab fa-steam"
+              ></a>
+              <a
+                *ngIf="user.profile?.twitchAuth"
+                href="https://twitch.tv/{{
+                  user.profile.twitchAuth.displayName
+                }}"
+                title="{{ user.profile.twitchAuth.displayName }}"
+                target="_blank"
+                class="fab fa-twitch"
+              ></a>
+              <a
+                *ngIf="user.profile?.twitterAuth"
+                href="https://twitter.com/{{
+                  user.profile.twitterAuth.displayName
+                }}"
+                title="{{ user.profile.twitterAuth.displayName }}"
+                target="_blank"
+                class="fab fa-twitter"
+              ></a>
+              <a
+                *ngIf="user.profile?.discordAuth"
+                href="https://discordapp.com/users/{{
+                  user.profile.discordAuth.discordID
+                }}"
+                title="{{ user.profile.discordAuth.displayName }}"
+                target="_blank"
+                class="fab fa-discord"
+              ></a>
+              <a
+                *ngIf="user.profile?.youtubeName"
+                href="https://youtube.com/user/{{ user.profile.youtubeName }}"
+                title="{{ user.profile.youtubeName }}"
+                target="_blank"
+                class="fab fa-youtube"
+              ></a>
             </div>
           </div>
           <div class="col-auto" *ngIf="!isLocal">
@@ -65,36 +135,73 @@
       </nb-card-header>
       <nb-tabset>
         <nb-tab [tabTitle]="'INFO'">
-          <h5 class="m-0 text-center" *ngIf="!user.profile?.bio || user.profile?.bio?.length === 0"><i>No bio found</i></h5>
-          <markdown *ngIf="user.profile?.bio?.length > 0" [data]="user?.profile?.bio" ngPreserveWhitespaces></markdown>
+          <h5
+            class="m-0 text-center"
+            *ngIf="!user.profile?.bio || user.profile?.bio?.length === 0"
+          >
+            <i>No bio found</i>
+          </h5>
+          <markdown
+            *ngIf="user.profile?.bio?.length > 0"
+            [data]="user?.profile?.bio"
+            ngPreserveWhitespaces
+          ></markdown>
         </nb-tab>
-        <nb-tab [tabTitle]="'FOLLOWING&nbsp;(' + followingUsers.length + ')'" *ngIf="!hasRole(role.PLACEHOLDER)">
-          <h5 class="m-0 text-center" *ngIf="followingUsers.length === 0"><i>Not following anyone</i></h5>
+        <nb-tab
+          [tabTitle]="'FOLLOWING&nbsp;(' + followingUsers.length + ')'"
+          *ngIf="!hasRole(role.PLACEHOLDER)"
+        >
+          <h5 class="m-0 text-center" *ngIf="followingUsers.length === 0">
+            <i>Not following anyone</i>
+          </h5>
           <nb-list>
             <nb-list-item *ngFor="let usr of followingUsers">
               <a [routerLink]="'/dashboard/profile/' + usr.followed?.id">
-                <nb-user [name]="usr.followed?.alias" [picture]="usr.followed?.avatarURL"></nb-user>
+                <nb-user
+                  [name]="usr.followed?.alias"
+                  [picture]="usr.followed?.avatarURL"
+                ></nb-user>
               </a>
             </nb-list-item>
           </nb-list>
         </nb-tab>
         <nb-tab [tabTitle]="'FOLLOWERS&nbsp;(' + followedByUsers.length + ')'">
-          <h5 class="m-0 text-center" *ngIf="followedByUsers.length === 0"><i>No followers</i></h5>
+          <h5 class="m-0 text-center" *ngIf="followedByUsers.length === 0">
+            <i>No followers</i>
+          </h5>
           <nb-list>
             <nb-list-item *ngFor="let usr of followedByUsers">
               <a [routerLink]="'/dashboard/profile/' + usr.followee?.id">
-                <nb-user [name]="usr.followee?.alias" [picture]="usr.followee?.avatarURL"></nb-user>
+                <nb-user
+                  [name]="usr.followee?.alias"
+                  [picture]="usr.followee?.avatarURL"
+                ></nb-user>
               </a>
             </nb-list-item>
           </nb-list>
         </nb-tab>
         <nb-tab [tabTitle]="'STATS'" *ngIf="user.stats">
           <div class="d-flex flex-wrap justify-content-around text-center">
-            <div class="base m-1"><h6>Maps Completed</h6><h2>{{user.stats.mapsCompleted}}</h2></div>
-            <div class="base m-1"><h6>Total Jumps</h6><h2>{{user.stats.totalJumps}}</h2></div>
-            <div class="base m-1"><h6>Total Strafes</h6><h2>{{user.stats.totalStrafes}}</h2></div>
-            <div class="base m-1"><h6>Runs Submitted</h6><h2>{{user.stats.runsSubmitted}}</h2></div>
-            <div class="base m-1"><h6>Cosmetic XP</h6><h2>{{user.stats.cosXP}}</h2></div>
+            <div class="base m-1">
+              <h6>Maps Completed</h6>
+              <h2>{{ user.stats.mapsCompleted }}</h2>
+            </div>
+            <div class="base m-1">
+              <h6>Total Jumps</h6>
+              <h2>{{ user.stats.totalJumps }}</h2>
+            </div>
+            <div class="base m-1">
+              <h6>Total Strafes</h6>
+              <h2>{{ user.stats.totalStrafes }}</h2>
+            </div>
+            <div class="base m-1">
+              <h6>Runs Submitted</h6>
+              <h2>{{ user.stats.runsSubmitted }}</h2>
+            </div>
+            <div class="base m-1">
+              <h6>Cosmetic XP</h6>
+              <h2>{{ user.stats.cosXP }}</h2>
+            </div>
           </div>
         </nb-tab>
         <nb-tab [tabTitle]="'RUNS'" *ngIf="!hasRole(role.PLACEHOLDER)">
@@ -107,6 +214,10 @@
     </nb-card>
   </div>
   <div class="col-12 col-xl-5">
-    <activity-card *ngIf="user" [header]="'USER ACTIVITY'" [userSubj]="userSubj$"></activity-card>
+    <activity-card
+      *ngIf="user"
+      [header]="'USER ACTIVITY'"
+      [userSubj]="userSubj$"
+    ></activity-card>
   </div>
 </div>

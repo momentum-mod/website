@@ -3,8 +3,8 @@ import { SteamService } from './steam.service';
 import { HttpModule } from '@nestjs/axios';
 
 @Module({
-    imports: [HttpModule],
-    providers: [SteamService],
-    exports: [SteamService]
+  imports: [HttpModule],
+  providers: [SteamService],
+  exports: [SteamService]
 })
 export class SteamModule {}

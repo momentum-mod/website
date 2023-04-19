@@ -1,16 +1,16 @@
-import {NgModule} from '@angular/core';
-import {MainPageComponent} from './main-page.component';
-import {AboutComponent} from './about/about.component';
-import {CreditsComponent} from './credits/credits.component';
-import {HeaderComponent} from './header/header.component';
-import {FooterComponent} from './footer/footer.component';
-import {NavComponent} from './nav/nav.component';
-import {CommonModule} from '@angular/common';
-import {RouterModule} from '@angular/router';
-import {GalleryModule} from '@ngx-gallery/core';
-import {NbButtonModule, NbLayoutModule} from '@nebular/theme';
-import {GamemodesComponent} from './gamemodes/gamemodes.component';
-import {ThemeModule} from '../../@theme/theme.module';
+import { NgModule } from '@angular/core';
+import { MainPageComponent } from './main-page.component';
+import { AboutComponent } from './about/about.component';
+import { CreditsComponent } from './credits/credits.component';
+import { HeaderComponent } from './header/header.component';
+import { FooterComponent } from './footer/footer.component';
+import { NavComponent } from './nav/nav.component';
+import { CommonModule } from '@angular/common';
+import { RouterModule } from '@angular/router';
+import { GalleryModule } from '@ngx-gallery/core';
+import { NbButtonModule, NbLayoutModule } from '@nebular/theme';
+import { GamemodesComponent } from './gamemodes/gamemodes.component';
+import { ThemeModule } from '../../@theme/theme.module';
 
 @NgModule({
   imports: [
@@ -19,7 +19,7 @@ import {ThemeModule} from '../../@theme/theme.module';
     NbLayoutModule,
     NbButtonModule,
     GalleryModule,
-    ThemeModule,
+    ThemeModule
   ],
   declarations: [
     MainPageComponent,
@@ -28,8 +28,7 @@ import {ThemeModule} from '../../@theme/theme.module';
     HeaderComponent,
     FooterComponent,
     NavComponent,
-    GamemodesComponent,
-  ],
+    GamemodesComponent
+  ]
 })
-export class MainPageModule {
-}
+export class MainPageModule {}

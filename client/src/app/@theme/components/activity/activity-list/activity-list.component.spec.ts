@@ -1,11 +1,16 @@
 import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 
-import {ActivityListComponent} from './activity-list.component';
-import {ActivityContentComponent} from '../..';
-import {NbListModule, NbUserModule, NbLayoutScrollService, NbLayoutRulerService} from '@nebular/theme';
-import {APP_BASE_HREF} from '@angular/common';
-import {RouterModule} from '@angular/router';
-import {TimeagoModule} from 'ngx-timeago';
+import { ActivityListComponent } from './activity-list.component';
+import { ActivityContentComponent } from '../..';
+import {
+  NbListModule,
+  NbUserModule,
+  NbLayoutScrollService,
+  NbLayoutRulerService
+} from '@nebular/theme';
+import { APP_BASE_HREF } from '@angular/common';
+import { RouterModule } from '@angular/router';
+import { TimeagoModule } from 'ngx-timeago';
 
 describe('ActivityListComponent', () => {
   let component: ActivityListComponent;
@@ -13,15 +18,19 @@ describe('ActivityListComponent', () => {
 
   beforeEach(waitForAsync(() => {
     TestBed.configureTestingModule({
-      imports: [NbListModule, NbUserModule, RouterModule.forRoot([], { relativeLinkResolution: 'legacy' }), TimeagoModule.forRoot()],
-      declarations: [ ActivityListComponent, ActivityContentComponent ],
+      imports: [
+        NbListModule,
+        NbUserModule,
+        RouterModule.forRoot([], { relativeLinkResolution: 'legacy' }),
+        TimeagoModule.forRoot()
+      ],
+      declarations: [ActivityListComponent, ActivityContentComponent],
       providers: [
         { provide: APP_BASE_HREF, useValue: '/' },
         NbLayoutScrollService,
-        NbLayoutRulerService,
-      ],
-    })
-    .compileComponents();
+        NbLayoutRulerService
+      ]
+    }).compileComponents();
   }));
 
   beforeEach(() => {

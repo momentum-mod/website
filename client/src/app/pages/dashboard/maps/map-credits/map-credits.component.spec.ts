@@ -1,10 +1,16 @@
 import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 
-import {MapCreditsComponent} from './map-credits.component';
-import {MapCreditComponent} from './map-credit/map-credit.component';
-import {NbCardModule, NbListModule, NbPopoverModule, NbThemeModule, NbUserModule} from '@nebular/theme';
-import {UserModule} from '../../user/user.module';
-import {HttpClientTestingModule} from '@angular/common/http/testing';
+import { MapCreditsComponent } from './map-credits.component';
+import { MapCreditComponent } from './map-credit/map-credit.component';
+import {
+  NbCardModule,
+  NbListModule,
+  NbPopoverModule,
+  NbThemeModule,
+  NbUserModule
+} from '@nebular/theme';
+import { UserModule } from '../../user/user.module';
+import { HttpClientTestingModule } from '@angular/common/http/testing';
 
 describe('MapCreditsComponent', () => {
   let component: MapCreditsComponent;
@@ -18,11 +24,10 @@ describe('MapCreditsComponent', () => {
         NbPopoverModule,
         NbUserModule,
         UserModule,
-        HttpClientTestingModule,
+        HttpClientTestingModule
       ],
-      declarations: [ MapCreditsComponent, MapCreditComponent ],
-    })
-    .compileComponents();
+      declarations: [MapCreditsComponent, MapCreditComponent]
+    }).compileComponents();
   }));
 
   beforeEach(() => {

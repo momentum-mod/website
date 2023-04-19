@@ -3,17 +3,26 @@
     <div class="row align-items-center">
       <h2 class="col-auto">LIVE STREAMS</h2>
       <h4 class="col text-right">
-        <a href="https://www.twitch.tv/directory/game/Momentum%20Mod" target="_blank">View&nbsp;Momentum on&nbsp;Twitch</a>
+        <a
+          href="https://www.twitch.tv/directory/game/Momentum%20Mod"
+          target="_blank"
+          >View&nbsp;Momentum on&nbsp;Twitch</a
+        >
       </h4>
     </div>
   </nb-card-header>
   <nb-card-body>
     <div class="text-center">
-      <h3 class="m-0" *ngIf="streams.length === 0 && queriedStreams"><i>Nobody is currently streaming Momentum</i></h3>
+      <h3 class="m-0" *ngIf="streams.length === 0 && queriedStreams">
+        <i>Nobody is currently streaming Momentum</i>
+      </h3>
       <h3 class="m-0" *ngIf="!queriedStreams">Waiting for API response</h3>
     </div>
     <div class="row m-0">
-      <div class="col-12 col-sm-6 col-md-4 col-xl-3 my-3 twitch-data" *ngFor="let stream of streams">
+      <div
+        class="col-12 col-sm-6 col-md-4 col-xl-3 my-3 twitch-data"
+        *ngFor="let stream of streams"
+      >
         <twitch-data [stream]="stream"></twitch-data>
       </div>
     </div>

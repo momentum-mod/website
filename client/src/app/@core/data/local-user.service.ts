@@ -1,34 +1,34 @@
-import {Injectable} from '@angular/core';
-import {AuthService} from './auth.service';
-import {Observable, ReplaySubject, Subject} from 'rxjs';
-import {HttpClient} from '@angular/common/http';
-import {User} from '../models/user.model';
-import {Role} from '../models/role.model';
-import {Ban} from '../models/ban.model';
-import {UserFollowObject} from '../models/follow.model';
-import {FollowStatus} from '../models/follow-status.model';
-import {CookieService} from 'ngx-cookie-service';
-import {MapFavorites} from '../models/map-favorites.model';
-import {MapLibrary} from '../models/map-library.model';
-import {MapFavorite} from '../models/map-favorite.model';
-import {MomentumMaps} from '../models/momentum-maps.model';
-import {MapSubmissionSummaryElement} from '../models/map-submission-summary-element.model';
-import {UserCredits} from '../models/user-credits.model';
-import {MapNotify} from '../models/map-notify.model';
-import {environment} from '../../../environments/environment';
-
+import { Injectable } from '@angular/core';
+import { AuthService } from './auth.service';
+import { Observable, ReplaySubject, Subject } from 'rxjs';
+import { HttpClient } from '@angular/common/http';
+import { User } from '../models/user.model';
+import { Role } from '../models/role.model';
+import { Ban } from '../models/ban.model';
+import { UserFollowObject } from '../models/follow.model';
+import { FollowStatus } from '../models/follow-status.model';
+import { CookieService } from 'ngx-cookie-service';
+import { MapFavorites } from '../models/map-favorites.model';
+import { MapLibrary } from '../models/map-library.model';
+import { MapFavorite } from '../models/map-favorite.model';
+import { MomentumMaps } from '../models/momentum-maps.model';
+import { MapSubmissionSummaryElement } from '../models/map-submission-summary-element.model';
+import { UserCredits } from '../models/user-credits.model';
+import { MapNotify } from '../models/map-notify.model';
+import { environment } from '../../../environments/environment';
 
 @Injectable({
-  providedIn: 'root',
+  providedIn: 'root'
 })
 export class LocalUserService {
-
   public localUser: User;
   private locUserObtEmit: Subject<User>;
 
-  constructor(private authService: AuthService,
-              private cookieService: CookieService,
-              private http: HttpClient) {
+  constructor(
+    private authService: AuthService,
+    private cookieService: CookieService,
+    private http: HttpClient
+  ) {
     this.locUserObtEmit = new ReplaySubject<User>(1);
     const userCookieExists = this.cookieService.check('user');
     if (userCookieExists) {
@@ -46,8 +46,8 @@ export class LocalUserService {
 
   public refreshLocal(): void {
     this.getLocalUser({
-      params: { expand: 'profile' },
-    }).subscribe(usr => {
+      params: { expand: 'profile' }
+    }).subscribe((usr) => {
       this.locUserObtEmit.next(usr);
       this.localUser = usr;
       localStorage.setItem('user', JSON.stringify(usr));
@@ -66,11 +66,11 @@ export class LocalUserService {
     this.authService.logout();
   }
 
-  public hasRole(role: number|Role, user: User = this.localUser): boolean {
+  public hasRole(role: number | Role, user: User = this.localUser): boolean {
     return user ? (role & user.roles) !== 0 : false;
   }
 
-  public hasBan(ban: number|Ban, user: User = this.localUser): boolean {
+  public hasBan(ban: number | Ban, user: User = this.localUser): boolean {
     return user ? (ban & user.bans) !== 0 : false;
   }
 
@@ -96,7 +96,10 @@ export class LocalUserService {
    * @return a list of map library entries
    */
   public getMapLibrary(options?: object): Observable<MapLibrary> {
-    return this.http.get<MapLibrary>(environment.api + '/api/user/maps/library', options || {});
+    return this.http.get<MapLibrary>(
+      environment.api + '/api/user/maps/library',
+      options || {}
+    );
   }
 
   /**
@@ -104,7 +107,10 @@ export class LocalUserService {
    * @return adds map to user library
    */
   public addMapToLibrary(mapID: number): Observable<any> {
-    return this.http.put(environment.api + '/api/user/maps/library/' + mapID, {});
+    return this.http.put(
+      environment.api + '/api/user/maps/library/' + mapID,
+      {}
+    );
   }
 
   /**
@@ -112,7 +118,9 @@ export class LocalUserService {
    * @return remove map from user library
    */
   public removeMapFromLibrary(mapID: number): Observable<any> {
-    return this.http.delete(environment.api + '/api/user/maps/library/' + mapID);
+    return this.http.delete(
+      environment.api + '/api/user/maps/library/' + mapID
+    );
   }
 
   /**
@@ -128,7 +136,10 @@ export class LocalUserService {
    * @return a list of map favorites
    */
   public getMapFavorites(options?: object): Observable<MapFavorites> {
-    return this.http.get<MapFavorites>(environment.api + '/api/user/maps/favorites', options || {});
+    return this.http.get<MapFavorites>(
+      environment.api + '/api/user/maps/favorites',
+      options || {}
+    );
   }
 
   /**
@@ -136,21 +147,28 @@ export class LocalUserService {
    * @return a map favorite
    */
   public getMapFavorite(mapID: number): Observable<MapFavorite> {
-    return this.http.get<MapFavorite>(environment.api + '/api/user/maps/favorites/' + mapID);
+    return this.http.get<MapFavorite>(
+      environment.api + '/api/user/maps/favorites/' + mapID
+    );
   }
 
   /**
    * @param mapID
    */
   public addMapToFavorites(mapID: number): Observable<any> {
-    return this.http.put(environment.api + '/api/user/maps/favorites/' + mapID, {});
+    return this.http.put(
+      environment.api + '/api/user/maps/favorites/' + mapID,
+      {}
+    );
   }
 
   /**
    * @param mapID
    */
   public removeMapFromFavorites(mapID: number): Observable<any> {
-    return this.http.delete(environment.api + '/api/user/maps/favorites/' + mapID);
+    return this.http.delete(
+      environment.api + '/api/user/maps/favorites/' + mapID
+    );
   }
 
   /**
@@ -158,7 +176,10 @@ export class LocalUserService {
    * @return A list of credits featuring the local user
    */
   public getMapCredits(options?: object): Observable<UserCredits> {
-    return this.http.get<UserCredits>(environment.api + '/api/user/maps/credits', options || {});
+    return this.http.get<UserCredits>(
+      environment.api + '/api/user/maps/credits',
+      options || {}
+    );
   }
 
   /**
@@ -166,14 +187,19 @@ export class LocalUserService {
    * @return retrieve all submitted maps
    */
   public getSubmittedMaps(options?: object): Observable<MomentumMaps> {
-    return this.http.get<MomentumMaps>(environment.api + '/api/user/maps/submitted', options || {});
+    return this.http.get<MomentumMaps>(
+      environment.api + '/api/user/maps/submitted',
+      options || {}
+    );
   }
 
   /**
    * @return retrieve summary of the user's submitted maps
    */
   public getSubmittedMapSummary(): Observable<MapSubmissionSummaryElement[]> {
-    return this.http.get<MapSubmissionSummaryElement[]>(environment.api + '/api/user/maps/submitted/summary');
+    return this.http.get<MapSubmissionSummaryElement[]>(
+      environment.api + '/api/user/maps/submitted/summary'
+    );
   }
 
   /**
@@ -181,7 +207,9 @@ export class LocalUserService {
    * @return A json object with two booleans determining follow relationship
    */
   public checkFollowStatus(user: User): Observable<FollowStatus> {
-    return this.http.get<FollowStatus>(environment.api + '/api/user/follow/' + user.id);
+    return this.http.get<FollowStatus>(
+      environment.api + '/api/user/follow/' + user.id
+    );
   }
 
   /**
@@ -189,7 +217,10 @@ export class LocalUserService {
    * @return update user following
    */
   public followUser(user: User): Observable<UserFollowObject> {
-    return this.http.post<UserFollowObject>(environment.api + '/api/user/follow', {userID: user.id});
+    return this.http.post<UserFollowObject>(
+      environment.api + '/api/user/follow',
+      { userID: user.id }
+    );
   }
 
   /**
@@ -199,7 +230,7 @@ export class LocalUserService {
    */
   public updateFollowStatus(user: User, notifyOn: number): Observable<any> {
     return this.http.patch(environment.api + '/api/user/follow/' + user.id, {
-      notifyOn: notifyOn,
+      notifyOn: notifyOn
     });
   }
 
@@ -209,16 +240,18 @@ export class LocalUserService {
    */
   public unfollowUser(user: User): Observable<any> {
     return this.http.delete(environment.api + '/api/user/follow/' + user.id, {
-      responseType: 'text',
+      responseType: 'text'
     });
   }
 
   /**
-  * @param mapID The map to check if notifications are enabled
-  * @return A json object with the potential map and the activity type for notificaions
-  */
+   * @param mapID The map to check if notifications are enabled
+   * @return A json object with the potential map and the activity type for notificaions
+   */
   public checkMapNotify(mapID: number): Observable<MapNotify> {
-    return this.http.get<MapNotify>(environment.api + '/api/user/notifyMap/' + mapID);
+    return this.http.get<MapNotify>(
+      environment.api + '/api/user/notifyMap/' + mapID
+    );
   }
 
   /**
@@ -228,7 +261,7 @@ export class LocalUserService {
    */
   public updateMapNotify(mapID: number, notifyOn: number): Observable<any> {
     return this.http.put(environment.api + '/api/user/notifyMap/' + mapID, {
-      notifyOn: notifyOn,
+      notifyOn: notifyOn
     });
   }
 
@@ -238,14 +271,13 @@ export class LocalUserService {
    */
   public disableMapNotify(mapID: number): Observable<any> {
     return this.http.delete(environment.api + '/api/user/notifyMap/' + mapID, {
-      responseType: 'text',
+      responseType: 'text'
     });
   }
 
   public resetAliasToSteamAlias(): Observable<any> {
     return this.http.patch(environment.api + '/api/user', {
-      alias: '',
+      alias: ''
     });
   }
-
 }

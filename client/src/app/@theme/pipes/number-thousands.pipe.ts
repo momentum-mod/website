@@ -1,9 +1,7 @@
-import {Pipe, PipeTransform} from '@angular/core';
+import { Pipe, PipeTransform } from '@angular/core';
 
-
-@Pipe({name: 'numberThousands'})
+@Pipe({ name: 'numberThousands' })
 export class NumberThousandsPipe implements PipeTransform {
-
   transform(input: any, args?: any): any {
     const suffixes = ['k', 'M', 'G', 'T', 'P', 'E'];
 

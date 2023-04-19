@@ -18,6 +18,8 @@
     "lint:fix": "ng lint momentum-site --fix",
     "lint:styles": "stylelint ./src/**/*.scss",
     "lint:ci": "npm run lint && npm run lint:styles",
+    "format:fix": "prettier --write {src,e2e,maintenance}/**/*.{ts,js,json,md,html,scss,css} && npx prisma format",
+    "format:check": "prettier --check {src,e2e,maintenance}/**/*.{ts,js,json,md,html,scss,css}",
     "pree2e": "webdriver-manager update --standalone false --gecko false",
     "e2e": "ng e2e"
   },

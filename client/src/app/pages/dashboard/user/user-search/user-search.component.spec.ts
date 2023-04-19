@@ -1,10 +1,10 @@
 import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 
-import {UserSearchComponent} from './user-search.component';
-import {NbListModule, NbThemeModule, NbUserModule} from '@nebular/theme';
-import {FormsModule, ReactiveFormsModule} from '@angular/forms';
-import {DataModule} from '../../../../@core/data/data.module';
-import {HttpClientTestingModule} from '@angular/common/http/testing';
+import { UserSearchComponent } from './user-search.component';
+import { NbListModule, NbThemeModule, NbUserModule } from '@nebular/theme';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { DataModule } from '../../../../@core/data/data.module';
+import { HttpClientTestingModule } from '@angular/common/http/testing';
 
 describe('UserSearchComponent', () => {
   let component: UserSearchComponent;
@@ -13,11 +13,17 @@ describe('UserSearchComponent', () => {
 
   beforeEach(waitForAsync(() => {
     TestBed.configureTestingModule({
-      imports: [NbThemeModule, FormsModule, ReactiveFormsModule, NbUserModule, NbListModule, DataModule.forRoot(),
-        HttpClientTestingModule],
-      declarations: [ UserSearchComponent ],
-    })
-    .compileComponents();
+      imports: [
+        NbThemeModule,
+        FormsModule,
+        ReactiveFormsModule,
+        NbUserModule,
+        NbListModule,
+        DataModule.forRoot(),
+        HttpClientTestingModule
+      ],
+      declarations: [UserSearchComponent]
+    }).compileComponents();
     // httpMock = getTestBed().get(HttpTestingController);
   }));
 

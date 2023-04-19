@@ -1,14 +1,19 @@
 import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 
-import {CommunityActivityComponent} from './community-activity.component';
-import {ThemeModule} from '../../../../@theme/theme.module';
-import {ActivityService} from '../../../../@core/data/activity.service';
-import {of} from 'rxjs';
-import {Activity} from '../../../../@core/models/activity.model';
-import {Activity_Type} from '../../../../@core/models/activity-type.model';
-import {RouterModule} from '@angular/router';
-import {APP_BASE_HREF} from '@angular/common';
-import {TimeagoClock, TimeagoDefaultClock, TimeagoDefaultFormatter, TimeagoFormatter} from 'ngx-timeago';
+import { CommunityActivityComponent } from './community-activity.component';
+import { ThemeModule } from '../../../../@theme/theme.module';
+import { ActivityService } from '../../../../@core/data/activity.service';
+import { of } from 'rxjs';
+import { Activity } from '../../../../@core/models/activity.model';
+import { Activity_Type } from '../../../../@core/models/activity-type.model';
+import { RouterModule } from '@angular/router';
+import { APP_BASE_HREF } from '@angular/common';
+import {
+  TimeagoClock,
+  TimeagoDefaultClock,
+  TimeagoDefaultFormatter,
+  TimeagoFormatter
+} from 'ngx-timeago';
 
 describe('CommunityActivityComponent', () => {
   let component: CommunityActivityComponent;
@@ -31,31 +36,33 @@ describe('CommunityActivityComponent', () => {
           bans: 0,
           profile: {
             id: '7',
-            bio: '>:)',
-          },
+            bio: '>:)'
+          }
         },
         data: 'test',
-        createdAt: new Date().toString(),
-      },
+        createdAt: new Date().toString()
+      }
     ];
     actServiceStub = {
       getRecentActivity: () => {
         return of({
-          activities: testActivities,
+          activities: testActivities
         });
-      },
+      }
     };
     TestBed.configureTestingModule({
-      imports: [ThemeModule.forRoot(), RouterModule.forRoot([], { relativeLinkResolution: 'legacy' })],
-      declarations: [ CommunityActivityComponent ],
+      imports: [
+        ThemeModule.forRoot(),
+        RouterModule.forRoot([], { relativeLinkResolution: 'legacy' })
+      ],
+      declarations: [CommunityActivityComponent],
       providers: [
         { provide: ActivityService, useValue: actServiceStub },
         { provide: APP_BASE_HREF, useValue: '/' },
         { provide: TimeagoFormatter, useClass: TimeagoDefaultFormatter },
-        { provide: TimeagoClock, useClass: TimeagoDefaultClock },
-      ],
-    })
-    .compileComponents();
+        { provide: TimeagoClock, useClass: TimeagoDefaultClock }
+      ]
+    }).compileComponents();
   }));
 
   beforeEach(() => {

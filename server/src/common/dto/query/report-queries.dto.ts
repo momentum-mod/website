@@ -2,9 +2,9 @@
 import { BooleanQueryProperty, ExpandQueryProperty } from '@lib/dto.lib';
 
 export class ReportGetQuery extends PaginationQuery {
-    @BooleanQueryProperty({ description: 'Filter by resolved' })
-    readonly resolved: boolean; // Note: this was a string on old API.
+  @BooleanQueryProperty({ description: 'Filter by resolved' })
+  readonly resolved: boolean; // Note: this was a string on old API.
 
-    @ExpandQueryProperty(['submitter', 'resolver'])
-    readonly expand: string[];
+  @ExpandQueryProperty(['submitter', 'resolver'])
+  readonly expand: string[];
 }

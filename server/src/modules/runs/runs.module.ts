@@ -5,9 +5,9 @@ import { RepoModule } from '../repo/repo.module';
 import { FileStoreModule } from '../filestore/file-store.module';
 
 @Module({
-    imports: [RepoModule, FileStoreModule],
-    controllers: [RunsController],
-    providers: [RunsService],
-    exports: [RunsService]
+  imports: [RepoModule, FileStoreModule],
+  controllers: [RunsController],
+  providers: [RunsService],
+  exports: [RunsService]
 })
 export class RunsModule {}

@@ -1,16 +1,16 @@
-import {RouterModule, Routes} from '@angular/router';
-import {NgModule} from '@angular/core';
-import {MapComponent} from './map.component';
-import {NotFoundDashboardComponent} from '../../not-found/dashboard/not-found-dashboard.component';
-import {ViewMapsComponent} from './view-maps/view-maps.component';
-import {MapUploadFormComponent} from './upload-form/map-upload-form.component';
-import {UploadStatusComponent} from './upload-status/upload-status.component';
-import {MapInfoComponent} from './map-info/map-info.component';
-import {MapLibraryComponent} from './map-library/map-library.component';
-import {MapEditComponent} from './map-edit/map-edit.component';
-import {RoleGuard} from '../../../@core/guards/role.guard';
-import {Role} from '../../../@core/models/role.model';
-import {MapFavoritesComponent} from './map-favorites/map-favorites.component';
+import { RouterModule, Routes } from '@angular/router';
+import { NgModule } from '@angular/core';
+import { MapComponent } from './map.component';
+import { NotFoundDashboardComponent } from '../../not-found/dashboard/not-found-dashboard.component';
+import { ViewMapsComponent } from './view-maps/view-maps.component';
+import { MapUploadFormComponent } from './upload-form/map-upload-form.component';
+import { UploadStatusComponent } from './upload-status/upload-status.component';
+import { MapInfoComponent } from './map-info/map-info.component';
+import { MapLibraryComponent } from './map-library/map-library.component';
+import { MapEditComponent } from './map-edit/map-edit.component';
+import { RoleGuard } from '../../../@core/guards/role.guard';
+import { Role } from '../../../@core/models/role.model';
+import { MapFavoritesComponent } from './map-favorites/map-favorites.component';
 
 const routes: Routes = [
   {
@@ -20,55 +20,51 @@ const routes: Routes = [
       {
         path: '',
         pathMatch: 'full',
-        component: ViewMapsComponent,
+        component: ViewMapsComponent
       },
       {
         path: 'library',
-        component: MapLibraryComponent,
+        component: MapLibraryComponent
       },
       {
         path: 'favorites',
-        component: MapFavoritesComponent,
+        component: MapFavoritesComponent
       },
       {
         path: 'uploads',
         canActivate: [RoleGuard],
         data: {
-          onlyAllow: [
-            Role.MAPPER,
-            Role.ADMIN,
-          ],
+          onlyAllow: [Role.MAPPER, Role.ADMIN]
         },
         children: [
           {
             path: '',
-            component: UploadStatusComponent,
+            component: UploadStatusComponent
           },
           {
             path: 'new',
-            component: MapUploadFormComponent,
-          },
-        ],
+            component: MapUploadFormComponent
+          }
+        ]
       },
       {
         path: ':id',
-        component: MapInfoComponent,
+        component: MapInfoComponent
       },
       {
         path: ':id/edit',
-        component: MapEditComponent,
+        component: MapEditComponent
       },
       {
         path: '**',
-        component: NotFoundDashboardComponent,
-      },
-    ],
-  },
+        component: NotFoundDashboardComponent
+      }
+    ]
+  }
 ];
 
 @NgModule({
   imports: [RouterModule.forChild(routes)],
-  exports: [RouterModule],
+  exports: [RouterModule]
 })
-export class MapRoutingModule {
-}
+export class MapRoutingModule {}

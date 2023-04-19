@@ -2,14 +2,28 @@
   <nb-list-item *ngIf="notifications.length === 0">
     <span class="no-notifs">No notifications</span>
   </nb-list-item>
-  <nb-list-item *ngFor="let notification of notifications" class="overflow-hidden" [ngClass]="{'unread': !notification.read}">
-    <activity-content [activity]="notification.activity"
-                      [date-non]="true"
-                      (mouseenter)="onHoverNotif(notification)"
-                      (click)="onClickNotif(notification)">
+  <nb-list-item
+    *ngFor="let notification of notifications"
+    class="overflow-hidden"
+    [ngClass]="{ unread: !notification.read }"
+  >
+    <activity-content
+      [activity]="notification.activity"
+      [date-non]="true"
+      (mouseenter)="onHoverNotif(notification)"
+      (click)="onClickNotif(notification)"
+    >
     </activity-content>
-    <div class="text-center date">{{notification.activity.createdAt | timeago}}</div>
-    <button nbButton outline status="danger" size="tiny" (click)="removeNotif(notification)">
+    <div class="text-center date">
+      {{ notification.activity.createdAt | timeago }}
+    </div>
+    <button
+      nbButton
+      outline
+      status="danger"
+      size="tiny"
+      (click)="removeNotif(notification)"
+    >
       <nb-icon icon="close-outline"></nb-icon>
     </button>
   </nb-list-item>

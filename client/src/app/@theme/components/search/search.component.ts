@@ -11,7 +11,7 @@ import {
   OnDestroy,
   OnInit,
   ViewChild,
-  ChangeDetectorRef,
+  ChangeDetectorRef
 } from '@angular/core';
 import { NavigationEnd, Router } from '@angular/router';
 
@@ -20,7 +20,12 @@ import { filter, delay, takeWhile } from 'rxjs/operators';
 
 import { NbSearchService } from './search.service';
 
-import {NbOverlayRef, NbOverlayService, NbPortalDirective, NbThemeService} from '@nebular/theme';
+import {
+  NbOverlayRef,
+  NbOverlayService,
+  NbPortalDirective,
+  NbThemeService
+} from '@nebular/theme';
 /**
  * Beautiful full-page search control.
  *
@@ -66,10 +71,9 @@ import {NbOverlayRef, NbOverlayService, NbPortalDirective, NbThemeService} from 
 @Component({
   selector: 'mom-search',
   styleUrls: ['styles/search.component.scss'],
-  templateUrl: './search.component.html',
+  templateUrl: './search.component.html'
 })
 export class SearchComponent implements OnInit, OnDestroy {
-
   private alive = true;
   private overlayRef: NbOverlayRef;
   showSearchField = false;
@@ -102,36 +106,40 @@ export class SearchComponent implements OnInit, OnDestroy {
    */
   @Input() type: string;
 
-  @ViewChild(NbPortalDirective, {static: false}) searchFieldPortal: NbPortalDirective;
-  @ViewChild('searchButton', {static: false}) searchButton: ElementRef<HTMLElement>;
+  @ViewChild(NbPortalDirective, { static: false })
+  searchFieldPortal: NbPortalDirective;
+  @ViewChild('searchButton', { static: false })
+  searchButton: ElementRef<HTMLElement>;
 
   constructor(
     private searchService: NbSearchService,
     private themeService: NbThemeService,
     private router: Router,
     private overlayService: NbOverlayService,
-    private changeDetector: ChangeDetectorRef,
+    private changeDetector: ChangeDetectorRef
   ) {}
 
   ngOnInit() {
     this.router.events
       .pipe(
         takeWhile(() => this.alive),
-        filter(event => event instanceof NavigationEnd),
+        filter((event) => event instanceof NavigationEnd)
       )
       .subscribe(() => this.hideSearch());
 
-    this.searchService.onSearchActivate()
+    this.searchService
+      .onSearchActivate()
       .pipe(
         takeWhile(() => this.alive),
-        filter(data => !this.tag || data.tag === this.tag),
+        filter((data) => !this.tag || data.tag === this.tag)
       )
       .subscribe(() => this.openSearch());
 
-    this.searchService.onSearchDeactivate()
+    this.searchService
+      .onSearchDeactivate()
       .pipe(
         takeWhile(() => this.alive),
-        filter(data => !this.tag || data.tag === this.tag),
+        filter((data) => !this.tag || data.tag === this.tag)
       )
       .subscribe(() => this.hideSearch());
   }
@@ -152,11 +160,13 @@ export class SearchComponent implements OnInit, OnDestroy {
     }
 
     this.themeService.appendLayoutClass(this.type);
-    observableOf(null).pipe(delay(0)).subscribe(() => {
-      this.themeService.appendLayoutClass('with-search');
-      this.showSearchField = true;
-      this.changeDetector.detectChanges();
-    });
+    observableOf(null)
+      .pipe(delay(0))
+      .subscribe(() => {
+        this.themeService.appendLayoutClass('with-search');
+        this.showSearchField = true;
+        this.changeDetector.detectChanges();
+      });
   }
 
   hideSearch() {
@@ -172,8 +182,10 @@ export class SearchComponent implements OnInit, OnDestroy {
 
   private removeLayoutClasses() {
     this.themeService.removeLayoutClass('with-search');
-    observableOf(null).pipe(delay(500)).subscribe(() => {
-      this.themeService.removeLayoutClass(this.type);
-    });
+    observableOf(null)
+      .pipe(delay(500))
+      .subscribe(() => {
+        this.themeService.removeLayoutClass(this.type);
+      });
   }
 }

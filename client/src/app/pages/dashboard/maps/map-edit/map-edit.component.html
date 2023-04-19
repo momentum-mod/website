@@ -3,7 +3,12 @@
     <div class="row align-items-center">
       <h2 class="col">EDIT MAP</h2>
       <div class="col-auto ml-auto">
-        <button nbButton outline status="info" [routerLink]="'/dashboard/maps/' + map?.id">
+        <button
+          nbButton
+          outline
+          status="info"
+          [routerLink]="'/dashboard/maps/' + map?.id"
+        >
           Return to Map
         </button>
       </div>
@@ -14,27 +19,63 @@
       <form (ngSubmit)="onInfoSubmit()" [formGroup]="infoForm">
         <div class="form-group mt-2 mb-4">
           <h5>YouTube URL / ID</h5>
-          <input nbInput class="form-control youtube-inp" formControlName="youtubeID" type="text"
-                 [ngClass]="{'form-control-danger':youtubeID.invalid}">
+          <input
+            nbInput
+            class="form-control youtube-inp"
+            formControlName="youtubeID"
+            type="text"
+            [ngClass]="{ 'form-control-danger': youtubeID.invalid }"
+          />
         </div>
         <div class="form-group">
           <h5>Map Description</h5>
-          <textarea nbInput fullWidth rows="6" class="form-control" formControlName="description" type="description"
-                    [ngClass]="{'form-control-danger':description.invalid}"></textarea>
-          <nb-alert class="mb-0 mt-2 py-2 px-3 text-danger" outline="danger" *ngIf="description.hasError('maxlength')">
-              Text cannot exceed 1000 characters.
+          <textarea
+            nbInput
+            fullWidth
+            rows="6"
+            class="form-control"
+            formControlName="description"
+            type="description"
+            [ngClass]="{ 'form-control-danger': description.invalid }"
+          ></textarea>
+          <nb-alert
+            class="mb-0 mt-2 py-2 px-3 text-danger"
+            outline="danger"
+            *ngIf="description.hasError('maxlength')"
+          >
+            Text cannot exceed 1000 characters.
           </nb-alert>
           <div class="form-text">
             <div class="d-flex">
               <span class="mr-auto">
-                <i><a href="https://help.github.com/articles/basic-writing-and-formatting-syntax/" target="_blank">Markdown</a> is supported</i>
+                <i
+                  ><a
+                    href="https://help.github.com/articles/basic-writing-and-formatting-syntax/"
+                    target="_blank"
+                    >Markdown</a
+                  >
+                  is supported</i
+                >
               </span>
-              <span class="ml-2 text-right">{{1000 - description.value.length | ngxPlural:'character'}} remaining</span>
+              <span class="ml-2 text-right"
+                >{{
+                  1000 - description.value.length | ngxPlural : 'character'
+                }}
+                remaining</span
+              >
             </div>
           </div>
         </div>
-        <button nbButton outline status="info" class="submit-btn" type="submit"
-                [disabled]="infoForm.invalid">Save info</button>
+        <button
+          nbButton
+          outline
+          status="info"
+          class="submit-btn"
+          type="submit"
+          [disabled]="infoForm.invalid"
+        >
+          Save info
+        </button>
       </form>
     </nb-tab>
     <nb-tab tabTitle="IMAGES">
@@ -42,44 +83,96 @@
         <div class="text-center overflow-auto mt-2">
           <div class="d-inline-block text-left mb-3">
             <h5 class="font-weight-lighter mx-2">
-              <div class="d-inline-block font-weight-normal thumb-text">Thumbnail&nbsp;</div>
+              <div class="d-inline-block font-weight-normal thumb-text">
+                Thumbnail&nbsp;
+              </div>
               <div class="d-inline-block">Extra Images</div>
             </h5>
-            <div class="d-inline-flex align-items-center" cdkDropList cdkDropListOrientation="horizontal" (cdkDropListDropped)="imageDrop($event)">
-              <div class="map-image-cont mx-2" *ngFor="let img of mapImages" cdkDrag>
-                <img class="map-image" [src]="img.small">
-                <button nbButton outline status="danger" size="tiny" (click)="removeMapImage(img)">
+            <div
+              class="d-inline-flex align-items-center"
+              cdkDropList
+              cdkDropListOrientation="horizontal"
+              (cdkDropListDropped)="imageDrop($event)"
+            >
+              <div
+                class="map-image-cont mx-2"
+                *ngFor="let img of mapImages"
+                cdkDrag
+              >
+                <img class="map-image" [src]="img.small" />
+                <button
+                  nbButton
+                  outline
+                  status="danger"
+                  size="tiny"
+                  (click)="removeMapImage(img)"
+                >
                   <nb-icon icon="close-outline"></nb-icon>
                 </button>
               </div>
-              <div class="mx-2 upload-box" *ngIf="mapImages.length < mapImagesLimit">
-                <file-upload [type]="'image'" [multiple]="true" (fileSelected)="onMapImageSelected($event)"></file-upload>
+              <div
+                class="mx-2 upload-box"
+                *ngIf="mapImages.length < mapImagesLimit"
+              >
+                <file-upload
+                  [type]="'image'"
+                  [multiple]="true"
+                  (fileSelected)="onMapImageSelected($event)"
+                ></file-upload>
               </div>
             </div>
           </div>
         </div>
         <div class="d-inline-flex align-items-center submit-btn">
-          <button nbButton outline status="info" class="mr-2" type="submit">Save images</button>
-          <nb-icon class="text-warning" icon="alert-triangle-outline" title="Under Construction"></nb-icon> <!-- TODO: Remove when images submitting is added -->
+          <button nbButton outline status="info" class="mr-2" type="submit">
+            Save images
+          </button>
+          <nb-icon
+            class="text-warning"
+            icon="alert-triangle-outline"
+            title="Under Construction"
+          ></nb-icon>
+          <!-- TODO: Remove when images submitting is added -->
         </div>
       </form>
     </nb-tab>
     <nb-tab tabTitle="CREDITS">
       <form [formGroup]="creditsForm">
         <div class="mt-2">
-          <map-credits [creditArr]="mapCredits" [editable]="true" (creditChange)="onCreditChanged($event)"></map-credits>
+          <map-credits
+            [creditArr]="mapCredits"
+            [editable]="true"
+            (creditChange)="onCreditChanged($event)"
+          ></map-credits>
         </div>
-        <button nbButton outline status="info" type="submit" [disabled]="creditsForm.invalid"
-                (click)="onCreditsSubmit($event)">Save credits</button>
+        <button
+          nbButton
+          outline
+          status="info"
+          type="submit"
+          [disabled]="creditsForm.invalid"
+          (click)="onCreditsSubmit($event)"
+        >
+          Save credits
+        </button>
       </form>
     </nb-tab>
-    <nb-tab *ngIf="(isAdmin || isModerator) && map" tabTitle="ADMIN&nbsp;MAP&nbsp;SETTINGS">
+    <nb-tab
+      *ngIf="(isAdmin || isModerator) && map"
+      tabTitle="ADMIN&nbsp;MAP&nbsp;SETTINGS"
+    >
       <form [formGroup]="adminForm">
         <div class="text-right">
-          <button nbButton outline status="danger" (click)="showMapDeleteDialog()">Delete Map</button>
+          <button
+            nbButton
+            outline
+            status="danger"
+            (click)="showMapDeleteDialog()"
+          >
+            Delete Map
+          </button>
         </div>
       </form>
     </nb-tab>
   </nb-tabset>
 </nb-card>
-

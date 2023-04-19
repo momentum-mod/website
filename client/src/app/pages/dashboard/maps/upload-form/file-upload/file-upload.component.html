@@ -1,13 +1,34 @@
-<div class="pt-2 px-2 text-center drop_zone" (drop)="dropHandler($event);" (dragover)="dragOverHandler($event);"
-     (dragenter)="dragOver = dragOver + 1;" (dragleave)="dragOver = dragOver - 1;"
-     [ngClass]="{'files-ready': dragOver}">
-  <input nbInput [hidden]="true" type="file" [accept]="acceptString" [multiple]="multiple" (change)="onFileSelected($event);" #fileUploadInput/>
-  <h4 *ngIf="showSelected && selectedFile">{{selectedFile.name}}</h4>
+<div
+  class="pt-2 px-2 text-center drop_zone"
+  (drop)="dropHandler($event)"
+  (dragover)="dragOverHandler($event)"
+  (dragenter)="dragOver = dragOver + 1"
+  (dragleave)="dragOver = dragOver - 1"
+  [ngClass]="{ 'files-ready': dragOver }"
+>
+  <input
+    nbInput
+    [hidden]="true"
+    type="file"
+    [accept]="acceptString"
+    [multiple]="multiple"
+    (change)="onFileSelected($event)"
+    #fileUploadInput
+  />
+  <h4 *ngIf="showSelected && selectedFile">{{ selectedFile.name }}</h4>
   <h4 *ngIf="invalidSize" class="text-danger">File too big!</h4>
   <h4 *ngIf="invalidType" class="text-danger">Wrong type of file!</h4>
-  <button nbButton outline status="info" class="fileUpload mt-1 mb-2" type="button"
-          (click)="fileUploadInput.click(); invalidType = false; invalidSize = false;">
-    Choose {{type}} File{{multiple ? 's' : ''}}
+  <button
+    nbButton
+    outline
+    status="info"
+    class="fileUpload mt-1 mb-2"
+    type="button"
+    (click)="fileUploadInput.click(); invalidType = false; invalidSize = false"
+  >
+    Choose {{ type }} File{{ multiple ? 's' : '' }}
   </button>
-  <h6><i>Or drag {{type}} file{{multiple ? 's' : ''}} here</i></h6>
+  <h6>
+    <i>Or drag {{ type }} file{{ multiple ? 's' : '' }} here</i>
+  </h6>
 </div>

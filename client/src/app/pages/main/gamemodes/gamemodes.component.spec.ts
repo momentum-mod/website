@@ -1,5 +1,5 @@
 import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
-import {GalleryModule} from '@ngx-gallery/core';
+import { GalleryModule } from '@ngx-gallery/core';
 import { GamemodesComponent } from './gamemodes.component';
 
 describe('GamemodesComponent', () => {
@@ -8,10 +8,9 @@ describe('GamemodesComponent', () => {
 
   beforeEach(waitForAsync(() => {
     TestBed.configureTestingModule({
-      imports: [ GalleryModule ],
-      declarations: [ GamemodesComponent ],
-    })
-    .compileComponents();
+      imports: [GalleryModule],
+      declarations: [GamemodesComponent]
+    }).compileComponents();
   }));
 
   beforeEach(() => {

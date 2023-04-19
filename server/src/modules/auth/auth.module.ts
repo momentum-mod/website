@@ -11,27 +11,27 @@ import { JwtModule } from '@nestjs/jwt';
 import { APP_GUARD } from '@nestjs/core';
 
 @Module({
-    imports: [
-        JwtModule.registerAsync({
-            useFactory: async (config: ConfigService) => ({
-                secret: config.get('jwt.secret'),
-                signOptions: { issuer: config.get('domain') }
-            }),
-            inject: [ConfigService]
-        }),
-        UsersModule,
-        RepoModule,
-        SteamModule
-    ],
-    controllers: [AuthController],
-    providers: [
-        {
-            // This enables the JWT guard globally.
-            provide: APP_GUARD,
-            useClass: JwtGuard
-        },
-        JwtAuthService,
-        SteamOpenIDService
-    ]
+  imports: [
+    JwtModule.registerAsync({
+      useFactory: async (config: ConfigService) => ({
+        secret: config.get('jwt.secret'),
+        signOptions: { issuer: config.get('domain') }
+      }),
+      inject: [ConfigService]
+    }),
+    UsersModule,
+    RepoModule,
+    SteamModule
+  ],
+  controllers: [AuthController],
+  providers: [
+    {
+      // This enables the JWT guard globally.
+      provide: APP_GUARD,
+      useClass: JwtGuard
+    },
+    JwtAuthService,
+    SteamOpenIDService
+  ]
 })
 export class AuthModule {}

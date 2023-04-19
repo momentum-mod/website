@@ -4,43 +4,59 @@
       <div class="col-auto">
         <div class="d-flex flex-wrap align-items-center">
           <a [routerLink]="'/dashboard/profile/' + run.user.id">
-            <nb-user [picture]="run.user.avatarURL" [name]="run.user.alias" size="large"></nb-user>
+            <nb-user
+              [picture]="run.user.avatarURL"
+              [name]="run.user.alias"
+              size="large"
+            ></nb-user>
           </a>
           <h2 class="ml-2">on</h2>
-          <h2 class="ml-2"><a [routerLink]="'/dashboard/maps/' + run.mapID">{{run.map.name}}</a></h2>
+          <h2 class="ml-2">
+            <a [routerLink]="'/dashboard/maps/' + run.mapID">{{
+              run.map.name
+            }}</a>
+          </h2>
         </div>
       </div>
       <div class="col" *ngIf="personalBestRun && personalBestRun.id !== run.id">
         <div class="d-flex justify-content-end align-items-center">
-          <h4 class="mr-3 text-right d-none d-sm-block notice">Note:&nbsp;Not&nbsp;viewing their&nbsp;personal&nbsp;best!</h4>
-          <button nbButton outline status="info" type="button" routerLink="/dashboard/runs/{{personalBestRun.id}}">Go&nbsp;to PB&nbsp;run</button>
+          <h4 class="mr-3 text-right d-none d-sm-block notice">
+            Note:&nbsp;Not&nbsp;viewing their&nbsp;personal&nbsp;best!
+          </h4>
+          <button
+            nbButton
+            outline
+            status="info"
+            type="button"
+            routerLink="/dashboard/runs/{{ personalBestRun.id }}"
+          >
+            Go&nbsp;to PB&nbsp;run
+          </button>
         </div>
       </div>
     </div>
   </nb-card-header>
   <nb-card-body>
     <div class="d-flex flex-wrap justify-content-around text-center">
-
       <div class="base mx-1 mb-3">
         <h5>Time</h5>
-        <h1>{{run.time | timing}}</h1>
+        <h1>{{ run.time | timing }}</h1>
       </div>
 
       <div class="base mx-1 mb-3">
         <h5>Jumps</h5>
-        <h1>{{run.overallStats.jumps}}</h1>
+        <h1>{{ run.overallStats.jumps }}</h1>
       </div>
 
       <div class="base mx-1 mb-3">
         <h5>Strafes</h5>
-        <h1>{{run.overallStats.strafes}}</h1>
+        <h1>{{ run.overallStats.strafes }}</h1>
       </div>
 
       <div class="base mx-1 mb-3">
         <h5>Rank</h5>
-        <h1>{{run.rank?.rank || 'N/A'}}</h1>
+        <h1>{{ run.rank?.rank || 'N/A' }}</h1>
       </div>
-
     </div>
   </nb-card-body>
 </nb-card>

@@ -1,11 +1,11 @@
-import {AdminService} from './admin.service';
-import {of} from 'rxjs';
-import {MomentumMap} from '../models/momentum-map.model';
-import {User} from '../models/user.model';
-import {MomentumMapType} from '../models/map-type.model';
-import {MomentumMaps} from '../models/momentum-maps.model';
+import { AdminService } from './admin.service';
+import { of } from 'rxjs';
+import { MomentumMap } from '../models/momentum-map.model';
+import { User } from '../models/user.model';
+import { MomentumMapType } from '../models/map-type.model';
+import { MomentumMaps } from '../models/momentum-maps.model';
 
-let httpClientSpy: { get: jasmine.Spy, patch: jasmine.Spy  };
+let httpClientSpy: { get: jasmine.Spy; patch: jasmine.Spy };
 let adminService: AdminService;
 let expectedMaps: MomentumMaps;
 let expectedMap: MomentumMap;
@@ -14,7 +14,7 @@ let expectedUser: User;
 describe('AdminService', () => {
   beforeEach(() => {
     httpClientSpy = jasmine.createSpyObj('HttpClient', ['get', 'patch']);
-    adminService = new AdminService(<any> httpClientSpy);
+    adminService = new AdminService(<any>httpClientSpy);
     expectedUser = {
       id: 1,
       steamID: '54125',
@@ -26,8 +26,8 @@ describe('AdminService', () => {
       bans: 0,
       profile: {
         id: '0',
-        bio: 'I r 1337 ok',
-      },
+        bio: 'I r 1337 ok'
+      }
     };
     expectedMap = {
       id: 9,
@@ -37,7 +37,7 @@ describe('AdminService', () => {
       statusFlag: 0,
       createdAt: new Date().toString(),
       updatedAt: new Date().toString(),
-      submitterID: 12345,
+      submitterID: 12345
     };
     expectedMaps = {
       count: 2,
@@ -51,9 +51,9 @@ describe('AdminService', () => {
           statusFlag: 0,
           createdAt: new Date().toString(),
           updatedAt: new Date().toString(),
-          submitterID: 123456,
-        },
-      ],
+          submitterID: 123456
+        }
+      ]
     };
   });
 
@@ -61,26 +61,32 @@ describe('AdminService', () => {
     // TODO: change parameter to context(?)
     it('#getMaps() should return expected maps', () => {
       httpClientSpy.get.and.returnValue(of(expectedMaps));
-      adminService.getMaps(expectedMap).subscribe(value =>
-          expect(value).toEqual(expectedMaps, 'expected maps'),
-        fail,
-      );
+      adminService
+        .getMaps(expectedMap)
+        .subscribe(
+          (value) => expect(value).toEqual(expectedMaps, 'expected maps'),
+          fail
+        );
       expect(httpClientSpy.get.calls.count()).toBe(1, 'one call');
     });
     it('#updateMaps() should return updated maps', () => {
       httpClientSpy.patch.and.returnValue(of(expectedMaps));
-      adminService.updateMap(expectedMap.id, expectedMap).subscribe(value =>
-          expect(value).toEqual(expectedMaps, 'expected maps'),
-        fail,
-      );
+      adminService
+        .updateMap(expectedMap.id, expectedMap)
+        .subscribe(
+          (value) => expect(value).toEqual(expectedMaps, 'expected maps'),
+          fail
+        );
       expect(httpClientSpy.patch.calls.count()).toBe(1, 'one call');
     });
     it('#updateUser() should return updated user account', () => {
       httpClientSpy.patch.and.returnValue(of(expectedUser));
-      adminService.updateUser(expectedUser.id, expectedUser).subscribe(value =>
-          expect(value).toEqual(expectedUser, 'expected user'),
-        fail,
-      );
+      adminService
+        .updateUser(expectedUser.id, expectedUser)
+        .subscribe(
+          (value) => expect(value).toEqual(expectedUser, 'expected user'),
+          fail
+        );
       expect(httpClientSpy.patch.calls.count()).toBe(1, 'one call');
     });
   });

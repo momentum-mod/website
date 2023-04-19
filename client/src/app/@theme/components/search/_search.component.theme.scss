@@ -7,9 +7,7 @@
 @import '../../styles/themes';
 
 @mixin mom-search-theme() {
-
   mom-search-field {
-
     .search {
       background: nb-theme(search-background-color);
 
@@ -49,13 +47,12 @@
       .search::after {
         border: 1.5rem solid nb-theme(search-extra-background-color);
       }
-
     }
 
-		&.modal-half {
-			.form-wrapper {
-				background: nb-theme(search-background-color);
-			}
+    &.modal-half {
+      .form-wrapper {
+        background: nb-theme(search-background-color);
+      }
       .search::before {
         background: nb-theme(search-extra-background-color);
       }
@@ -79,7 +76,7 @@
       }
     }
 
-		&.column-curtain {
+    &.column-curtain {
       &::before {
         background: nb-theme(search-background-color);
       }
@@ -89,7 +86,7 @@
       &.show::after {
         background: nb-theme(search-extra-background-color);
       }
-		}
+    }
   }
 
   mom-search {

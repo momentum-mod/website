@@ -1,23 +1,23 @@
-import {AfterViewInit, Component, OnInit, ViewChild} from '@angular/core';
-import {HttpEvent, HttpEventType} from '@angular/common/http';
-import {Router} from '@angular/router';
-import {MapsService} from '../../../../@core/data/maps.service';
-import {FormBuilder, FormGroup, Validators} from '@angular/forms';
-import {User} from '../../../../@core/models/user.model';
-import {MapCreditType} from '../../../../@core/models/map-credit-type.model';
-import {MomentumMapType} from '../../../../@core/models/map-type.model';
-import {LocalUserService} from '../../../../@core/data/local-user.service';
-import {MapTrack} from '../../../../@core/models/map-track.model';
+import { AfterViewInit, Component, OnInit, ViewChild } from '@angular/core';
+import { HttpEvent, HttpEventType } from '@angular/common/http';
+import { Router } from '@angular/router';
+import { MapsService } from '../../../../@core/data/maps.service';
+import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { User } from '../../../../@core/models/user.model';
+import { MapCreditType } from '../../../../@core/models/map-credit-type.model';
+import { MomentumMapType } from '../../../../@core/models/map-type.model';
+import { LocalUserService } from '../../../../@core/data/local-user.service';
+import { MapTrack } from '../../../../@core/models/map-track.model';
 import * as VDF from '@node-steam/vdf';
-import {MapZone} from '../../../../@core/models/map-zone.model';
-import {CreditChangeEvent} from '../map-credits/map-credit/map-credit.component';
-import {MapZoneTrigger} from '../../../../@core/models/map-zone-trigger.model';
-import {MapZoneType} from '../../../../@core/models/map-zone-type.model';
-import {MomentumMapPreview} from '../../../../@core/models/momentum-map-preview.model';
-import {MapImage} from '../../../../@core/models/map-image.model';
-import {NbToastrService} from '@nebular/theme';
-import {mergeMap} from 'rxjs/operators';
-import {forkJoin, of} from 'rxjs';
+import { MapZone } from '../../../../@core/models/map-zone.model';
+import { CreditChangeEvent } from '../map-credits/map-credit/map-credit.component';
+import { MapZoneTrigger } from '../../../../@core/models/map-zone-trigger.model';
+import { MapZoneType } from '../../../../@core/models/map-zone-type.model';
+import { MomentumMapPreview } from '../../../../@core/models/momentum-map-preview.model';
+import { MapImage } from '../../../../@core/models/map-image.model';
+import { NbToastrService } from '@nebular/theme';
+import { mergeMap } from 'rxjs/operators';
+import { forkJoin, of } from 'rxjs';
 
 export interface ImageFilePreview {
   dataBlobURL: string;
@@ -29,11 +29,11 @@ const youtubeRegex = /[a-zA-Z0-9_-]{11}/;
 @Component({
   selector: 'map-upload-form',
   templateUrl: './map-upload-form.component.html',
-  styleUrls: ['./map-upload-form.component.scss'],
+  styleUrls: ['./map-upload-form.component.scss']
 })
 export class MapUploadFormComponent implements OnInit, AfterViewInit {
-  @ViewChild('datepicker', {static: false}) datePicker;
-  @ViewChild('stepper', {static: false}) stepper;
+  @ViewChild('datepicker', { static: false }) datePicker;
+  @ViewChild('stepper', { static: false }) stepper;
 
   mapFile: File;
   avatarFile: File;
@@ -50,38 +50,60 @@ export class MapUploadFormComponent implements OnInit, AfterViewInit {
   tracks: MapTrack[];
 
   filesForm: FormGroup = this.fb.group({
-    'map': ['', [Validators.required, Validators.pattern(/.+(\.bsp)/)]],
-    'avatar': ['', [Validators.required, Validators.pattern(/.+(\.(pn|jpe?)g)/i)]],
-    'youtubeURL': ['', [Validators.pattern(youtubeRegex)]],
+    map: ['', [Validators.required, Validators.pattern(/.+(\.bsp)/)]],
+    avatar: [
+      '',
+      [Validators.required, Validators.pattern(/.+(\.(pn|jpe?)g)/i)]
+    ],
+    youtubeURL: ['', [Validators.pattern(youtubeRegex)]]
   });
-  infoForm: FormGroup = this.fb.group( {
-    'name': ['', [Validators.required, Validators.maxLength(32)]],
-    'type': [ MomentumMapType.UNKNOWN, Validators.required],
-    'description': ['', [Validators.required, Validators.maxLength(1000)]],
-    'creationDate': [new Date(), [Validators.required, Validators.max(Date.now())]],
-    'zones': ['', [Validators.required, Validators.pattern(/.+(\.zon)/)]],
+  infoForm: FormGroup = this.fb.group({
+    name: ['', [Validators.required, Validators.maxLength(32)]],
+    type: [MomentumMapType.UNKNOWN, Validators.required],
+    description: ['', [Validators.required, Validators.maxLength(1000)]],
+    creationDate: [
+      new Date(),
+      [Validators.required, Validators.max(Date.now())]
+    ],
+    zones: ['', [Validators.required, Validators.pattern(/.+(\.zon)/)]]
   });
   creditsForm: FormGroup = this.fb.group({
-    'authors': [[], Validators.required],
-    'coauthors': [[]],
-    'testers': [[]],
-    'specialThanks': [[]],
+    authors: [[], Validators.required],
+    coauthors: [[]],
+    testers: [[]],
+    specialThanks: [[]]
   });
   forms: FormGroup[] = [this.filesForm, this.infoForm, this.creditsForm];
 
-  get map() { return this.filesForm.get('map'); }
-  get avatar() { return this.filesForm.get('avatar'); }
-  get youtubeURL() { return this.filesForm.get('youtubeURL'); }
-  get name() { return this.infoForm.get('name'); }
-  get type() { return this.infoForm.get('type'); }
-  get description() { return this.infoForm.get('description'); }
-  get creationDate() { return this.infoForm.get('creationDate'); }
+  get map() {
+    return this.filesForm.get('map');
+  }
+  get avatar() {
+    return this.filesForm.get('avatar');
+  }
+  get youtubeURL() {
+    return this.filesForm.get('youtubeURL');
+  }
+  get name() {
+    return this.infoForm.get('name');
+  }
+  get type() {
+    return this.infoForm.get('type');
+  }
+  get description() {
+    return this.infoForm.get('description');
+  }
+  get creationDate() {
+    return this.infoForm.get('creationDate');
+  }
 
-  constructor(private mapsService: MapsService,
-              private router: Router,
-              private localUsrService: LocalUserService,
-              private toasterService: NbToastrService,
-              private fb: FormBuilder) {
+  constructor(
+    private mapsService: MapsService,
+    private router: Router,
+    private localUsrService: LocalUserService,
+    private toasterService: NbToastrService,
+    private fb: FormBuilder
+  ) {
     this.stepper = null;
     this.isUploadingMap = false;
     this.mapUploadPercentage = 0;
@@ -111,39 +133,29 @@ export class MapUploadFormComponent implements OnInit, AfterViewInit {
     this.name.patchValue(nameVal);
     // Infer type from name
     let type = MomentumMapType.UNKNOWN;
-    if (nameVal.startsWith('surf_'))
-      type = MomentumMapType.SURF;
-    else if (nameVal.startsWith('bhop_'))
-      type = MomentumMapType.BHOP;
-    else if (nameVal.startsWith('climb_'))
-      type = MomentumMapType.KZ;
-    else if (nameVal.startsWith('rj_'))
-      type = MomentumMapType.RJ;
-    else if (nameVal.startsWith('sj_'))
-      type = MomentumMapType.SJ;
-    else if (nameVal.startsWith('tricksurf_'))
-      type = MomentumMapType.TRICKSURF;
-    else if (nameVal.startsWith('ahop_'))
-      type = MomentumMapType.AHOP;
-    else if (nameVal.startsWith('pk_'))
-      type = MomentumMapType.PARKOUR;
-    else if (nameVal.startsWith('conc_'))
-      type = MomentumMapType.CONC;
-    else if (nameVal.startsWith('dfrag_'))
-      type = MomentumMapType.DEFRAG;
+    if (nameVal.startsWith('surf_')) type = MomentumMapType.SURF;
+    else if (nameVal.startsWith('bhop_')) type = MomentumMapType.BHOP;
+    else if (nameVal.startsWith('climb_')) type = MomentumMapType.KZ;
+    else if (nameVal.startsWith('rj_')) type = MomentumMapType.RJ;
+    else if (nameVal.startsWith('sj_')) type = MomentumMapType.SJ;
+    else if (nameVal.startsWith('tricksurf_')) type = MomentumMapType.TRICKSURF;
+    else if (nameVal.startsWith('ahop_')) type = MomentumMapType.AHOP;
+    else if (nameVal.startsWith('pk_')) type = MomentumMapType.PARKOUR;
+    else if (nameVal.startsWith('conc_')) type = MomentumMapType.CONC;
+    else if (nameVal.startsWith('dfrag_')) type = MomentumMapType.DEFRAG;
     this.type.patchValue(type);
     this.inferredMapType = type !== MomentumMapType.UNKNOWN;
   }
 
   onAvatarFileSelected(file: File) {
     this.avatarFile = file;
-    this.getFileSource(file, true, ((blobURL, img) => {
+    this.getFileSource(file, true, (blobURL, img) => {
       this.avatarFilePreview = {
         dataBlobURL: blobURL,
-        file: img,
+        file: img
       };
       this.generatePreviewMap();
-    }));
+    });
     this.avatar.patchValue(this.avatarFile.name);
   }
 
@@ -155,8 +167,8 @@ export class MapUploadFormComponent implements OnInit, AfterViewInit {
       difficulty: 1,
       zones: [],
       stats: {
-        baseStats: {},
-      },
+        baseStats: {}
+      }
     };
     for (const zone in track) {
       if (track.hasOwnProperty(zone)) {
@@ -167,27 +179,29 @@ export class MapUploadFormComponent implements OnInit, AfterViewInit {
           zoneNum: zoneNum,
           triggers: [],
           stats: {
-            baseStats: {},
-          },
+            baseStats: {}
+          }
         };
         for (const trigger in track[zone].triggers) {
           if (track[zone].triggers.hasOwnProperty(trigger)) {
             const triggerObj = track[zone].triggers[trigger];
             if (!trackReturn.isLinear)
-              trackReturn.isLinear = triggerObj.type === MapZoneType.ZONE_CHECKPOINT;
+              trackReturn.isLinear =
+                triggerObj.type === MapZoneType.ZONE_CHECKPOINT;
             const zoneMdlTrigger: MapZoneTrigger = {
               type: triggerObj.type,
               points: triggerObj.points,
               pointsZPos: triggerObj.pointsZPos,
-              pointsHeight: triggerObj.pointsHeight,
+              pointsHeight: triggerObj.pointsHeight
             };
             if (triggerObj.zoneProps)
-              zoneMdlTrigger.zoneProps = {properties: triggerObj.zoneProps.properties};
+              zoneMdlTrigger.zoneProps = {
+                properties: triggerObj.zoneProps.properties
+              };
             zoneMdl.triggers.push(zoneMdlTrigger);
           }
         }
-        if (zoneNum === 0)
-          delete zoneMdl.stats;
+        if (zoneNum === 0) delete zoneMdl.stats;
         trackReturn.zones.push(zoneMdl);
       }
     }
@@ -207,11 +221,13 @@ export class MapUploadFormComponent implements OnInit, AfterViewInit {
       }
       this.generatePreviewMap();
     });
-    this.infoForm.patchValue({zones: this.zoneFile.name});
+    this.infoForm.patchValue({ zones: this.zoneFile.name });
   }
 
   onSubmit($event) {
-    if (!(this.filesForm.valid && this.infoForm.valid && this.creditsForm.valid))
+    if (
+      !(this.filesForm.valid && this.infoForm.valid && this.creditsForm.valid)
+    )
       return;
     // Prevent from spamming submit button
     $event.target.disabled = true;
@@ -227,61 +243,72 @@ export class MapUploadFormComponent implements OnInit, AfterViewInit {
         description: this.description.value,
         youtubeID: this.mapPreview.map.info.youtubeID,
         numTracks: this.tracks.length,
-        creationDate: this.creationDate.value,
+        creationDate: this.creationDate.value
       },
       tracks: this.tracks,
       credits: this.getAllCredits(),
-      stats: {baseStats: {}},
+      stats: { baseStats: {} }
     };
-    this.mapsService.createMap(mapObject)
+    this.mapsService
+      .createMap(mapObject)
       .pipe(
-        mergeMap(res => {
+        mergeMap((res) => {
           mapID = res.body.id;
           uploadLocation = res.headers.get('Location');
           mapCreated = true;
-          this.toasterService.success('Please wait for the map file to upload', 'Map successfully created');
+          this.toasterService.success(
+            'Please wait for the map file to upload',
+            'Map successfully created'
+          );
           return this.mapsService.updateMapAvatar(mapID, this.avatarFile);
         }),
         mergeMap(() => {
           const extraImageCreations = [];
           for (let i = 0; i < this.extraImages.length; i++)
-            extraImageCreations.push(this.mapsService.createMapImage(mapID, this.extraImages[i].file));
-          if (extraImageCreations.length)
-            return forkJoin(extraImageCreations);
+            extraImageCreations.push(
+              this.mapsService.createMapImage(mapID, this.extraImages[i].file)
+            );
+          if (extraImageCreations.length) return forkJoin(extraImageCreations);
           return of({});
         }),
         mergeMap(() => {
           return this.mapsService.uploadMapFile(uploadLocation, this.mapFile);
-        }),
-      ).subscribe((event: HttpEvent<any>) => {
-      switch (event.type) {
-        case HttpEventType.Sent:
-          // upload started
-          this.isUploadingMap = true;
-          break;
-        case HttpEventType.Response:
-          this.onSubmitSuccess();
-          break;
-        case HttpEventType.UploadProgress: {
-          const calc: number = Math.round(event['loaded'] / event['total'] * 100);
-          if (this.mapUploadPercentage !== calc) {
-            this.mapUploadPercentage = calc;
+        })
+      )
+      .subscribe(
+        (event: HttpEvent<any>) => {
+          switch (event.type) {
+            case HttpEventType.Sent:
+              // upload started
+              this.isUploadingMap = true;
+              break;
+            case HttpEventType.Response:
+              this.onSubmitSuccess();
+              break;
+            case HttpEventType.UploadProgress: {
+              const calc: number = Math.round(
+                (event['loaded'] / event['total']) * 100
+              );
+              if (this.mapUploadPercentage !== calc) {
+                this.mapUploadPercentage = calc;
+              }
+              break;
+            }
           }
-          break;
+        },
+        (err) => {
+          console.error(err);
+          const errorMessage = err.error.error
+            ? err.error.error.message
+            : 'Something went wrong!';
+          $event.target.disabled = false;
+          this.isUploadingMap = false;
+          if (mapCreated) {
+            this.onSubmitSuccess();
+          }
+          this.toasterService.danger(errorMessage, 'Failed to create map');
         }
-      }
-    }, err => {
-      console.error(err);
-      const errorMessage = err.error.error ?
-        err.error.error.message
-        : 'Something went wrong!';
-      $event.target.disabled = false;
-      this.isUploadingMap = false;
-      if (mapCreated) {
-        this.onSubmitSuccess();
-      }
-      this.toasterService.danger(errorMessage, 'Failed to create map');
-    });
+      );
   }
 
   private onSubmitSuccess() {
@@ -290,12 +317,11 @@ export class MapUploadFormComponent implements OnInit, AfterViewInit {
   }
 
   markFormAsDirty(formG: FormGroup) {
-    for (const i in formG.controls)
-      formG.controls[i].markAsTouched();
+    for (const i in formG.controls) formG.controls[i].markAsTouched();
   }
 
   touchForm(selected: number) {
-    if (selected >= 0 && selected < this.forms.length )
+    if (selected >= 0 && selected < this.forms.length)
       this.markFormAsDirty(this.forms[selected]);
   }
 
@@ -308,12 +334,16 @@ export class MapUploadFormComponent implements OnInit, AfterViewInit {
         authors: this.creditArr[MapCreditType.AUTHOR],
         coauthors: this.creditArr[MapCreditType.COAUTHOR],
         testers: this.creditArr[MapCreditType.TESTER],
-        specialThanks: this.creditArr[MapCreditType.SPECIAL_THANKS],
+        specialThanks: this.creditArr[MapCreditType.SPECIAL_THANKS]
       });
     }
   }
 
-  getFileSource(img: File, isImage: boolean, callback: (result: any, originalFile: File) => void) {
+  getFileSource(
+    img: File,
+    isImage: boolean,
+    callback: (result: any, originalFile: File) => void
+  ) {
     let reader = new FileReader();
     const handler = (e) => {
       callback(e.target.result, img);
@@ -321,33 +351,33 @@ export class MapUploadFormComponent implements OnInit, AfterViewInit {
       reader = null;
     };
     reader.addEventListener('load', handler, false);
-    if (isImage)
-      reader.readAsDataURL(img);
-    else
-      reader.readAsText(img);
+    if (isImage) reader.readAsDataURL(img);
+    else reader.readAsText(img);
   }
 
   onExtraImageSelected(file: File) {
     this.getFileSource(file, true, (blobURL, img) => {
-      if (this.extraImages.length >= this.extraImagesLimit)
-        return;
+      if (this.extraImages.length >= this.extraImagesLimit) return;
       this.extraImages.push({
         dataBlobURL: blobURL,
-        file: img,
+        file: img
       });
       this.generatePreviewMap();
     });
   }
 
   removeExtraImage(img: ImageFilePreview) {
-    this.extraImages.splice(this.extraImages.findIndex(i => i === img), 1);
+    this.extraImages.splice(
+      this.extraImages.findIndex((i) => i === img),
+      1
+    );
   }
 
   getAllCredits() {
     const credits = [];
     for (let credType = 0; credType < MapCreditType.LENGTH; credType++) {
       for (const usr of this.creditArr[credType]) {
-        credits.push({userID: usr.id, user: usr, type: credType});
+        credits.push({ userID: usr.id, user: usr, type: credType });
       }
     }
     return credits;
@@ -368,14 +398,14 @@ export class MapUploadFormComponent implements OnInit, AfterViewInit {
           description: this.description.value,
           youtubeID: youtubeIDMatch ? youtubeIDMatch[0] : null,
           numTracks: this.tracks.length,
-          creationDate: this.creationDate.value,
+          creationDate: this.creationDate.value
         },
         mainTrack: this.tracks.length > 0 ? this.tracks[0] : null,
         tracks: this.tracks,
         credits: this.getAllCredits(),
-        submitter: this.localUsrService.localUser,
+        submitter: this.localUsrService.localUser
       },
-      images: [],
+      images: []
     };
     if (this.avatarFilePreview) {
       this.mapPreview.images.push({
@@ -383,21 +413,26 @@ export class MapUploadFormComponent implements OnInit, AfterViewInit {
         mapID: 0,
         small: this.avatarFilePreview.dataBlobURL,
         medium: this.avatarFilePreview.dataBlobURL,
-        large: this.avatarFilePreview.dataBlobURL,
+        large: this.avatarFilePreview.dataBlobURL
       });
     }
-    this.extraImages.map((val: ImageFilePreview) => <MapImage>({
-      id: 0,
-      mapID: 0,
-      small: val.dataBlobURL,
-      medium: val.dataBlobURL,
-      large: val.dataBlobURL,
-    })).forEach((val: MapImage) => this.mapPreview.images.push(val));
+    this.extraImages
+      .map(
+        (val: ImageFilePreview) =>
+          <MapImage>{
+            id: 0,
+            mapID: 0,
+            small: val.dataBlobURL,
+            medium: val.dataBlobURL,
+            large: val.dataBlobURL
+          }
+      )
+      .forEach((val: MapImage) => this.mapPreview.images.push(val));
   }
 
   onRemoveZones() {
     this.tracks = [];
     this.zoneFile = null;
-    this.infoForm.patchValue({zones: ''});
+    this.infoForm.patchValue({ zones: '' });
   }
 }

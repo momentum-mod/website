@@ -1,8 +1,10 @@
 <div class="shadow overlay-backdrop outer">
   <a [href]="getURL()" target="_blank">
-    <h5 class=" py-1 px-2 text-truncate text-center twitch-text title">{{getTitle()}}</h5>
-    <span class=" py-1 px-2 twitch-text user">{{getUserName()}}</span>
-    <span class=" py-1 px-2 twitch-text views">{{getViewCount()}}</span>
-    <img [src]="getImage()">
+    <h5 class="py-1 px-2 text-truncate text-center twitch-text title">
+      {{ getTitle() }}
+    </h5>
+    <span class="py-1 px-2 twitch-text user">{{ getUserName() }}</span>
+    <span class="py-1 px-2 twitch-text views">{{ getViewCount() }}</span>
+    <img [src]="getImage()" />
   </a>
 </div>

@@ -1,6 +1,10 @@
 <nb-card>
   <nb-card-header><h2>MAP STATISTICS</h2></nb-card-header>
   <nb-card-body>
-    <div echarts [options]="mapCompletionPieChartOptions" (chartInit)="onChartInit($event)"></div>
+    <div
+      echarts
+      [options]="mapCompletionPieChartOptions"
+      (chartInit)="onChartInit($event)"
+    ></div>
   </nb-card-body>
 </nb-card>

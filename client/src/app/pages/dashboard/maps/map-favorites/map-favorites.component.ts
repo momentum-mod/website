@@ -7,13 +7,10 @@ import { Component, OnInit } from '@angular/core';
     <nb-card-body>
       <map-list [type]="'favorites'"></map-list>
     </nb-card-body>
-  </nb-card>`,
+  </nb-card>`
 })
 export class MapFavoritesComponent implements OnInit {
+  constructor() {}
 
-  constructor() { }
-
-  ngOnInit() {
-  }
-
+  ngOnInit() {}
 }

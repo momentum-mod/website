@@ -1,4 +1,4 @@
-import {Component, OnInit} from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 
 @Component({
   selector: 'map-library',
@@ -7,13 +7,10 @@ import {Component, OnInit} from '@angular/core';
     <nb-card-body>
       <map-list [type]="'library'"></map-list>
     </nb-card-body>
-  </nb-card>`,
+  </nb-card>`
 })
 export class MapLibraryComponent implements OnInit {
+  constructor() {}
 
-  constructor() {
-  }
-
-  ngOnInit() {
-  }
+  ngOnInit() {}
 }

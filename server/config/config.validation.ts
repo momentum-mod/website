@@ -1,81 +1,86 @@
 ﻿import { Environment } from './config.interface';
 import {
-    IsDefined,
-    IsEnum,
-    IsInt,
-    IsOptional,
-    IsString,
-    IsUrl,
-    Length,
-    MinLength,
-    validateSync
+  IsDefined,
+  IsEnum,
+  IsInt,
+  IsOptional,
+  IsString,
+  IsUrl,
+  Length,
+  MinLength,
+  validateSync
 } from 'class-validator';
 import { plainToInstance } from 'class-transformer';
 import { IsOptionalWithEmptyString } from '@common/validators/is-optional-with-empty-string.validator';
 
 export function validate(config: Record<string, unknown>) {
-    const validatedConfig = plainToInstance(ConfigValidation, config, { enableImplicitConversion: true });
+  const validatedConfig = plainToInstance(ConfigValidation, config, {
+    enableImplicitConversion: true
+  });
 
-    const errors = validateSync(validatedConfig, { skipMissingProperties: false });
+  const errors = validateSync(validatedConfig, {
+    skipMissingProperties: false
+  });
 
-    if (errors.length > 0) throw new Error(errors.toString());
+  if (errors.length > 0) throw new Error(errors.toString());
 
-    return validatedConfig;
+  return validatedConfig;
 }
 
 export class ConfigValidation {
-    @IsEnum(Environment, {
-        message: 'A valid (dev, prod, test) NODE_ENV environment variable must be set'
-    })
-    @IsDefined()
-    NODE_ENV: Environment;
+  @IsEnum(Environment, {
+    message:
+      'A valid (dev, prod, test) NODE_ENV environment variable must be set'
+  })
+  @IsDefined()
+  NODE_ENV: Environment;
 
-    @IsDefined()
-    @IsInt()
-    NODE_PORT: number;
+  @IsDefined()
+  @IsInt()
+  NODE_PORT: number;
 
-    @IsOptional()
-    @IsUrl({ require_tld: false })
-    ROOT_URL: string;
+  @IsOptional()
+  @IsUrl({ require_tld: false })
+  ROOT_URL: string;
 
-    @IsString({
-        message:
-            'A Steam API key is required to run this application, can be acquired from https://steamcommunity.com/dev/apikey. See README.md for more information.'
-    })
-    STEAM_WEB_API_KEY: string;
+  @IsString({
+    message:
+      'A Steam API key is required to run this application, can be acquired from https://steamcommunity.com/dev/apikey. See README.md for more information.'
+  })
+  STEAM_WEB_API_KEY: string;
 
-    @IsString()
-    @MinLength(20)
-    JWT_SECRET: string;
+  @IsString()
+  @MinLength(20)
+  JWT_SECRET: string;
 
-    @IsUrl()
-    @IsOptionalWithEmptyString()
-    SENTRY_DSN: string;
+  @IsUrl()
+  @IsOptionalWithEmptyString()
+  SENTRY_DSN: string;
 
-    @IsUrl({ require_tld: false, protocols: ['postgresql'] })
-    DATABASE_URL: string;
+  @IsUrl({ require_tld: false, protocols: ['postgresql'] })
+  DATABASE_URL: string;
 
-    @IsString()
-    STORAGE_REGION: string;
+  @IsString()
+  STORAGE_REGION: string;
 
-    @IsUrl({ require_tld: false })
-    @IsOptional()
-    STORAGE_ENDPOINT_URL: string;
+  @IsUrl({ require_tld: false })
+  @IsOptional()
+  STORAGE_ENDPOINT_URL: string;
 
-    @IsUrl({ require_tld: false })
-    @IsOptional()
-    STORAGE_ENDPOINT_URL_DOCKERIZED: string;
+  @IsUrl({ require_tld: false })
+  @IsOptional()
+  STORAGE_ENDPOINT_URL_DOCKERIZED: string;
 
-    @IsString()
-    STORAGE_BUCKET_NAME: string;
+  @IsString()
+  STORAGE_BUCKET_NAME: string;
 
-    @IsString()
-    STORAGE_ACCESS_KEY_ID: string;
+  @IsString()
+  STORAGE_ACCESS_KEY_ID: string;
 
-    @IsString()
-    STORAGE_SECRET_ACCESS_KEY: string;
+  @IsString()
+  STORAGE_SECRET_ACCESS_KEY: string;
 
-    @IsString()
-    @Length(32, 32)
-    SESSION_SECRET: string;
+  @IsString()
+  @Length(32, 32)
+  SESSION_SECRET: string;
 }

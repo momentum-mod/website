@@ -1,6 +1,6 @@
-import {ModuleWithProviders, NgModule} from '@angular/core';
-import {CommonModule} from '@angular/common';
-import {FormsModule, ReactiveFormsModule} from '@angular/forms';
+import { ModuleWithProviders, NgModule } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 
 import {
   NbActionsModule,
@@ -21,7 +21,7 @@ import {
   NbSidebarModule,
   NbTabsetModule,
   NbThemeModule,
-  NbUserModule,
+  NbUserModule
 } from '@nebular/theme';
 
 import {
@@ -29,20 +29,31 @@ import {
   ActivityContentComponent,
   HeaderComponent,
   NotificationComponent,
-  SearchInputComponent,
+  SearchInputComponent
 } from './components';
-import {CapitalizePipe, NumberThousandsPipe, NumberWithCommasPipe, PluralPipe, RoundPipe, TimingPipe} from './pipes';
-import {SampleLayoutComponent} from './layouts';
-import {NbSearchModule} from './components/search/search.module';
-import {RouterModule} from '@angular/router';
-import {ActivityListComponent} from './components/activity/activity-list/activity-list.component';
-import {ReportButtonComponent} from './components/report/report-button/report-button.component';
-import {CreateReportDialogComponent} from './components/report/create-report-dialog/create-report-dialog.component';
-import {ConfirmDialogComponent} from './components/confirm-dialog/confirm-dialog.component';
-import {TimeagoModule} from 'ngx-timeago';
+import {
+  CapitalizePipe,
+  NumberThousandsPipe,
+  NumberWithCommasPipe,
+  PluralPipe,
+  RoundPipe,
+  TimingPipe
+} from './pipes';
+import { SampleLayoutComponent } from './layouts';
+import { NbSearchModule } from './components/search/search.module';
+import { RouterModule } from '@angular/router';
+import { ActivityListComponent } from './components/activity/activity-list/activity-list.component';
+import { ReportButtonComponent } from './components/report/report-button/report-button.component';
+import { CreateReportDialogComponent } from './components/report/create-report-dialog/create-report-dialog.component';
+import { ConfirmDialogComponent } from './components/confirm-dialog/confirm-dialog.component';
+import { TimeagoModule } from 'ngx-timeago';
 
-
-const BASE_MODULES = [CommonModule, FormsModule, ReactiveFormsModule, RouterModule];
+const BASE_MODULES = [
+  CommonModule,
+  FormsModule,
+  ReactiveFormsModule,
+  RouterModule
+];
 
 const NB_MODULES = [
   NbIconModule,
@@ -63,7 +74,7 @@ const NB_MODULES = [
   NbProgressBarModule,
   NbButtonModule,
   NbSelectModule,
-  NbInputModule,
+  NbInputModule
 ];
 
 const COMPONENTS = [
@@ -76,7 +87,7 @@ const COMPONENTS = [
   ActivityListComponent,
   ReportButtonComponent,
   CreateReportDialogComponent,
-  ConfirmDialogComponent,
+  ConfirmDialogComponent
 ];
 
 const PIPES = [
@@ -85,30 +96,36 @@ const PIPES = [
   RoundPipe,
   TimingPipe,
   NumberWithCommasPipe,
-  NumberThousandsPipe,
+  NumberThousandsPipe
 ];
 
 const NB_THEME_PROVIDERS = [
   ...NbThemeModule.forRoot(
     {
-      name: 'mom',
+      name: 'mom'
     },
-    [ { name: 'mom', base: 'dark'} ],
+    [{ name: 'mom', base: 'dark' }]
   ).providers,
   ...NbSidebarModule.forRoot().providers,
-  ...NbMenuModule.forRoot().providers,
+  ...NbMenuModule.forRoot().providers
 ];
 
 @NgModule({
   imports: [...BASE_MODULES, ...NB_MODULES, TimeagoModule],
-  exports: [...BASE_MODULES, ...NB_MODULES, ...COMPONENTS, ...PIPES, TimeagoModule],
-  declarations: [...COMPONENTS, ...PIPES],
+  exports: [
+    ...BASE_MODULES,
+    ...NB_MODULES,
+    ...COMPONENTS,
+    ...PIPES,
+    TimeagoModule
+  ],
+  declarations: [...COMPONENTS, ...PIPES]
 })
 export class ThemeModule {
   static forRoot(): ModuleWithProviders<ThemeModule> {
     return {
       ngModule: ThemeModule,
-      providers: [...NB_THEME_PROVIDERS],
+      providers: [...NB_THEME_PROVIDERS]
     };
   }
 }

@@ -1,18 +1,16 @@
-import {Injectable} from '@angular/core';
-import {Observable} from 'rxjs';
-import {HttpClient, HttpResponse} from '@angular/common/http';
-import {MomentumMaps} from '../models/momentum-maps.model';
-import {MomentumMap} from '../models/momentum-map.model';
-import {MapImage} from '../models/map-image.model';
-import {MomentumMapInfo} from '../models/map-info.model';
-import {MapCredit} from '../models/map-credit.model';
-import {environment} from '../../../environments/environment';
+import { Injectable } from '@angular/core';
+import { Observable } from 'rxjs';
+import { HttpClient, HttpResponse } from '@angular/common/http';
+import { MomentumMaps } from '../models/momentum-maps.model';
+import { MomentumMap } from '../models/momentum-map.model';
+import { MapImage } from '../models/map-image.model';
+import { MomentumMapInfo } from '../models/map-info.model';
+import { MapCredit } from '../models/map-credit.model';
+import { environment } from '../../../environments/environment';
 
 @Injectable()
 export class MapsService {
-
-  constructor(private http: HttpClient) {
-  }
+  constructor(private http: HttpClient) {}
 
   /**
    * @param id The ID of the map
@@ -20,7 +18,10 @@ export class MapsService {
    * @return Retrieves a specific map
    */
   getMap(id: number, options?: object): Observable<MomentumMap> {
-    return this.http.get<MomentumMap>(environment.api + '/api/maps/' + id, options || {});
+    return this.http.get<MomentumMap>(
+      environment.api + '/api/maps/' + id,
+      options || {}
+    );
   }
 
   /**
@@ -28,7 +29,10 @@ export class MapsService {
    * @return a list of maps
    */
   getMaps(options?: object): Observable<MomentumMaps> {
-    return this.http.get<MomentumMaps>(environment.api + '/api/maps', options || {});
+    return this.http.get<MomentumMaps>(
+      environment.api + '/api/maps',
+      options || {}
+    );
   }
 
   /**
@@ -37,7 +41,7 @@ export class MapsService {
    */
   createMap(mapData: object): Observable<HttpResponse<MomentumMap>> {
     return this.http.post<MomentumMap>(environment.api + '/api/maps', mapData, {
-      observe: 'response',
+      observe: 'response'
     });
   }
 
@@ -47,7 +51,10 @@ export class MapsService {
    * @return response
    */
   updateMapInfo(id: number, mapInfo: MomentumMapInfo): Observable<any> {
-    return this.http.patch(environment.api + '/api/maps/' + id + '/info', mapInfo);
+    return this.http.patch(
+      environment.api + '/api/maps/' + id + '/info',
+      mapInfo
+    );
   }
 
   /**
@@ -55,7 +62,9 @@ export class MapsService {
    * @return credits list of the specific map
    */
   getMapCredits(id: number): Observable<any> {
-    return this.http.get<MapCredit>(environment.api + '/api/maps/' + id + '/credits');
+    return this.http.get<MapCredit>(
+      environment.api + '/api/maps/' + id + '/credits'
+    );
   }
 
   /**
@@ -64,7 +73,10 @@ export class MapsService {
    * @return newly created MapCredit
    */
   createMapCredit(id: number, credit: MapCredit): Observable<any> {
-    return this.http.post<MapCredit>(environment.api + '/api/maps/' + id + '/credits', credit);
+    return this.http.post<MapCredit>(
+      environment.api + '/api/maps/' + id + '/credits',
+      credit
+    );
   }
 
   /**
@@ -73,8 +85,15 @@ export class MapsService {
    * @param credit MapCredit with new values of properties
    * @return response
    */
-  updateMapCredit(id: number, creditID: number, credit: MapCredit): Observable<any> {
-    return this.http.patch(environment.api + '/api/maps/' + id + '/credits/' + creditID, credit);
+  updateMapCredit(
+    id: number,
+    creditID: number,
+    credit: MapCredit
+  ): Observable<any> {
+    return this.http.patch(
+      environment.api + '/api/maps/' + id + '/credits/' + creditID,
+      credit
+    );
   }
 
   /**
@@ -83,9 +102,12 @@ export class MapsService {
    * @return response
    */
   deleteMapCredit(id: number, creditID: number): Observable<any> {
-    return this.http.delete(environment.api + '/api/maps/' + id + '/credits/' + creditID, {
-      responseType: 'text',
-    });
+    return this.http.delete(
+      environment.api + '/api/maps/' + id + '/credits/' + creditID,
+      {
+        responseType: 'text'
+      }
+    );
   }
 
   /**
@@ -94,7 +116,7 @@ export class MapsService {
    */
   getMapFileUploadLocation(id: number): Observable<any> {
     return this.http.get(environment.api + '/api/maps/' + id + '/upload', {
-      observe: 'response',
+      observe: 'response'
     });
   }
 
@@ -109,7 +131,7 @@ export class MapsService {
     return this.http.post(uploadLocation, formData, {
       reportProgress: true,
       observe: 'events',
-      responseType: 'text',
+      responseType: 'text'
     });
   }
 
@@ -119,7 +141,7 @@ export class MapsService {
    */
   downloadMapFile(id: number): Observable<any> {
     return this.http.get(environment.api + '/api/maps/' + id + '/download', {
-      responseType: 'blob',
+      responseType: 'blob'
     });
   }
 
@@ -131,9 +153,13 @@ export class MapsService {
   updateMapAvatar(id: number, thumbnailFile: File): Observable<any> {
     const formData = new FormData();
     formData.append('thumbnailFile', thumbnailFile, thumbnailFile.name);
-    return this.http.put(environment.api + '/api/maps/' + id + '/thumbnail', formData, {
-      responseType: 'text',
-    });
+    return this.http.put(
+      environment.api + '/api/maps/' + id + '/thumbnail',
+      formData,
+      {
+        responseType: 'text'
+      }
+    );
   }
 
   /**
@@ -143,7 +169,10 @@ export class MapsService {
   createMapImage(id: number, mapImageFile: File): Observable<MapImage> {
     const formData = new FormData();
     formData.append('mapImageFile', mapImageFile, mapImageFile.name);
-    return this.http.post<MapImage>(environment.api + '/api/maps/' + id + '/images', formData);
+    return this.http.post<MapImage>(
+      environment.api + '/api/maps/' + id + '/images',
+      formData
+    );
   }
 
   /**
@@ -151,10 +180,17 @@ export class MapsService {
    * @param mapImageID
    * @param mapImageFile
    */
-  updateMapImage(id: number, mapImageID: number, mapImageFile: File): Observable<any> {
+  updateMapImage(
+    id: number,
+    mapImageID: number,
+    mapImageFile: File
+  ): Observable<any> {
     const formData = new FormData();
     formData.append('mapImageFile', mapImageFile, mapImageFile.name);
-    return this.http.put(environment.api + '/api/maps/' + id + '/images/' + mapImageID, formData);
+    return this.http.put(
+      environment.api + '/api/maps/' + id + '/images/' + mapImageID,
+      formData
+    );
   }
 
   /**
@@ -162,6 +198,8 @@ export class MapsService {
    * @param mapImageID
    */
   deleteMapImage(id: number, mapImageID: number): Observable<any> {
-    return this.http.delete(environment.api + '/api/maps/' + id + '/images/' + mapImageID);
+    return this.http.delete(
+      environment.api + '/api/maps/' + id + '/images/' + mapImageID
+    );
   }
 }

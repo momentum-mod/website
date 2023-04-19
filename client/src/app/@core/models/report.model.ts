@@ -1,6 +1,6 @@
-import {User} from './user.model';
-import {ReportType} from './report-type.model';
-import {ReportCategory} from './report-category.model';
+import { User } from './user.model';
+import { ReportType } from './report-type.model';
+import { ReportCategory } from './report-category.model';
 
 export interface Report {
   id: number;

@@ -3,19 +3,40 @@
   <nb-card-body>
     <div class="mb-4" *ngIf="globalMapStats?.topPlayedMap">
       <h5>Top Played</h5>
-      <h3><a [routerLink]="'/dashboard/maps/' + globalMapStats.topPlayedMap.id">{{globalMapStats.topPlayedMap.name}}</a></h3>
+      <h3>
+        <a [routerLink]="'/dashboard/maps/' + globalMapStats.topPlayedMap.id">{{
+          globalMapStats.topPlayedMap.name
+        }}</a>
+      </h3>
     </div>
     <div class="mb-4" *ngIf="globalMapStats?.topSubscribedMap">
       <h5>Top Subscribed</h5>
-      <h3><a [routerLink]="'/dashboard/maps/' + globalMapStats.topSubscribedMap.id">{{globalMapStats.topSubscribedMap.name}}</a></h3>
+      <h3>
+        <a
+          [routerLink]="'/dashboard/maps/' + globalMapStats.topSubscribedMap.id"
+          >{{ globalMapStats.topSubscribedMap.name }}</a
+        >
+      </h3>
     </div>
     <div class="mb-4" *ngIf="globalMapStats?.topDownloadedMap">
       <h5>Top Downloaded Map</h5>
-      <h3><a [routerLink]="'/dashboard/maps/' + globalMapStats.topDownloadedMap.id">{{globalMapStats.topDownloadedMap.name}}</a></h3>
+      <h3>
+        <a
+          [routerLink]="'/dashboard/maps/' + globalMapStats.topDownloadedMap.id"
+          >{{ globalMapStats.topDownloadedMap.name }}</a
+        >
+      </h3>
     </div>
     <div *ngIf="globalMapStats?.topUniquelyCompletedMap">
       <h5>Top Uniquely Completed Map</h5>
-      <h3><a [routerLink]="'/dashboard/maps/' + globalMapStats.topUniquelyCompletedMap.id">{{globalMapStats.topUniquelyCompletedMap.name}}</a></h3>
+      <h3>
+        <a
+          [routerLink]="
+            '/dashboard/maps/' + globalMapStats.topUniquelyCompletedMap.id
+          "
+          >{{ globalMapStats.topUniquelyCompletedMap.name }}</a
+        >
+      </h3>
     </div>
   </nb-card-body>
 </nb-card>

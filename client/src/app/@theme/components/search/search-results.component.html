@@ -1,17 +1,27 @@
 <h3 class="text-left">
   <nb-icon [icon]="usersResults ? 'people' : 'map-outline'"></nb-icon>
-  {{usersResults ? 'Users' : 'Maps'}}
+  {{ usersResults ? 'Users' : 'Maps' }}
 </h3>
-<hr>
-<span *ngIf="shouldShowEmpty()">No {{usersResults ? 'users' : 'maps'}} found</span>
+<hr />
+<span *ngIf="shouldShowEmpty()"
+  >No {{ usersResults ? 'users' : 'maps' }} found</span
+>
 <div class="d-inline-flex flex-column text-left">
   <div *ngFor="let elem of elems">
     <div class="mb-1 clickable" *ngIf="usersResults" (click)="clickElem(elem)">
-      <nb-user [picture]="getElemPicture(elem)" [name]="getElemName(elem)" [size]="'large'"></nb-user>
+      <nb-user
+        [picture]="getElemPicture(elem)"
+        [name]="getElemName(elem)"
+        [size]="'large'"
+      ></nb-user>
     </div>
-    <div class="mb-1 d-flex align-items-center clickable" *ngIf="!usersResults" (click)="clickElem(elem)">
-      <img class="mr-2 rounded avatar" [src]="getElemPicture(elem)">
-      <div class="ml-1 name">{{getElemName(elem)}}</div>
+    <div
+      class="mb-1 d-flex align-items-center clickable"
+      *ngIf="!usersResults"
+      (click)="clickElem(elem)"
+    >
+      <img class="mr-2 rounded avatar" [src]="getElemPicture(elem)" />
+      <div class="ml-1 name">{{ getElemName(elem) }}</div>
     </div>
   </div>
 </div>

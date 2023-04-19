@@ -1,4 +1,4 @@
-import {MapLibraryEntry} from './map-library-entry';
+import { MapLibraryEntry } from './map-library-entry';
 
 export interface MapLibrary {
   count?: number;

@@ -1,7 +1,7 @@
 // Run e2e tests with command ng e2e --port 49152 in the terminal while in the client folder
 
 // app.e2e-spec.ts
-import {NgHomePage} from './app.po';
+import { NgHomePage } from './app.po';
 // import {browser, protractor} from 'protractor';
 
 /*
@@ -22,7 +22,7 @@ let cookieService: CookieService;
 let authService: AuthService;
 */
 
-describe('ng-home App', function() {
+describe('ng-home App', function () {
   let page: NgHomePage;
 
   beforeEach(() => {
@@ -32,12 +32,13 @@ describe('ng-home App', function() {
     // authService = new AuthService(cookieService);
     // localUserService = new LocalUserService(authService, <any> httpClientSpy);
     // mapsService = new MapsService(<any> httpClientSpy);
-
   });
 
   it('should display heading talking about momentum', () => {
     page.navigateTo();
-    expect(page.getHeadingText()).toEqual('A free, open source movement game based on Counter-Strike: Source physics.');
+    expect(page.getHeadingText()).toEqual(
+      'A free, open source movement game based on Counter-Strike: Source physics.'
+    );
   });
 
   /*
@@ -50,7 +51,6 @@ describe('ng-home App', function() {
   });
 */
 });
-
 
 /*
   it('should take user to map page ', () => {

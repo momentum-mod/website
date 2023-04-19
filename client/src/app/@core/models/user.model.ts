@@ -1,5 +1,5 @@
-import {UserProfile} from './profile.model';
-import {UserStats} from './user-stats.model';
+import { UserProfile } from './profile.model';
+import { UserStats } from './user-stats.model';
 
 export interface User {
   id: number;

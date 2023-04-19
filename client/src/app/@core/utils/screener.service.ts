@@ -1,6 +1,6 @@
-import {Injectable} from '@angular/core';
-import {OutgoingModule} from '../../pages/outgoing/outgoing.module';
-import {Router} from '@angular/router';
+import { Injectable } from '@angular/core';
+import { OutgoingModule } from '../../pages/outgoing/outgoing.module';
+import { Router } from '@angular/router';
 
 @Injectable()
 export class ScreenerService {
@@ -10,8 +10,12 @@ export class ScreenerService {
   }
   static checkHref(href: URL): boolean {
     for (const domain of OutgoingModule.whitelistedOutgoingDomains) {
-      if (href.hostname === domain || href.host === domain ||
-        href.hostname.includes(domain) || href.host.includes(domain))
+      if (
+        href.hostname === domain ||
+        href.host === domain ||
+        href.hostname.includes(domain) ||
+        href.host.includes(domain)
+      )
         return true;
     }
     for (const protocol of OutgoingModule.whitelistedOutgoingProtocols) {
@@ -23,9 +27,12 @@ export class ScreenerService {
   intercept(_event) {
     const tEvent = _event || window.event;
     const element = tEvent.target || tEvent.srcElement;
-    if ((tEvent.which === 1 || tEvent.which === 2) &&
-      element.href && element.tagName === 'A' &&
-      !window.location.pathname.startsWith('/outgoing')) {
+    if (
+      (tEvent.which === 1 || tEvent.which === 2) &&
+      element.href &&
+      element.tagName === 'A' &&
+      !window.location.pathname.startsWith('/outgoing')
+    ) {
       const url: URL = new URL(element.href);
       if (!ScreenerService.checkHref(url)) {
         this.router.navigate(['/outgoing/', encodeURIComponent(element.href)]);

@@ -1,8 +1,8 @@
-import {User} from './user.model';
-import {MomentumMap} from './momentum-map.model';
-import {UserMapRank} from './user-map-rank.model';
-import {BaseStats} from './base-stats.model';
-import {RunZoneStats} from './run-zone-stats.model';
+import { User } from './user.model';
+import { MomentumMap } from './momentum-map.model';
+import { UserMapRank } from './user-map-rank.model';
+import { BaseStats } from './base-stats.model';
+import { RunZoneStats } from './run-zone-stats.model';
 
 export interface Run {
   id: number;

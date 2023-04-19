@@ -1,7 +1,7 @@
-import {of} from 'rxjs';
-import {RunsService} from './runs.service';
-import {Runs} from '../models/runs.model';
-import {Run} from '../models/run.model';
+import { of } from 'rxjs';
+import { RunsService } from './runs.service';
+import { Runs } from '../models/runs.model';
+import { Run } from '../models/run.model';
 
 let httpClientSpy: { get: jasmine.Spy };
 let runsServiceMock: RunsService;
@@ -34,34 +34,44 @@ describe('RunsService', () => {
         gameType: 0,
         trackNum: 0,
         zoneNum: 0,
-        flags: 0,
-      },
+        flags: 0
+      }
     };
     expectedRuns = {
       count: 1,
-      runs: [expectedRun],
+      runs: [expectedRun]
     };
   });
 
   describe('Unit Tests', () => {
     it('#getMapRuns() should return map runs', () => {
       httpClientSpy.get.and.returnValue(of(expectedRuns));
-      runsServiceMock.getMapRuns(12).subscribe(value =>
-          expect(value).toEqual(expectedRuns, 'expected runs'),
-        fail,
-      );
+      runsServiceMock
+        .getMapRuns(12)
+        .subscribe(
+          (value) => expect(value).toEqual(expectedRuns, 'expected runs'),
+          fail
+        );
       expect(httpClientSpy.get.calls.count()).toBe(1, 'one call');
     });
     it('#getRun should return run info', () => {
       httpClientSpy.get.and.returnValue(of(expectedRun));
-      runsServiceMock.getRun('125').subscribe(value =>
-        expect(value).toEqual(expectedRun, 'expected run'), fail);
+      runsServiceMock
+        .getRun('125')
+        .subscribe(
+          (value) => expect(value).toEqual(expectedRun, 'expected run'),
+          fail
+        );
       expect(httpClientSpy.get.calls.count()).toBe(1, 'one call');
     });
     it('#getRuns should return run info', () => {
       httpClientSpy.get.and.returnValue(of(expectedRuns));
-      runsServiceMock.getRuns().subscribe(value =>
-        expect(value).toEqual(expectedRuns, 'expected runs'), fail);
+      runsServiceMock
+        .getRuns()
+        .subscribe(
+          (value) => expect(value).toEqual(expectedRuns, 'expected runs'),
+          fail
+        );
       expect(httpClientSpy.get.calls.count()).toBe(1, 'one call');
     });
   });

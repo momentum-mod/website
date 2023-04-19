@@ -1,17 +1,16 @@
-import {Component, EventEmitter, Input, OnInit, Output} from '@angular/core';
-import {Report} from '../../../../../@core/models/report.model';
-import {ReportType} from '../../../../../@core/models/report-type.model';
-import {ReportCategory} from '../../../../../@core/models/report-category.model';
-import {NbDialogService} from '@nebular/theme';
-import {UpdateReportDialogComponent} from '../update-report-dialog/update-report-dialog.component';
+import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
+import { Report } from '../../../../../@core/models/report.model';
+import { ReportType } from '../../../../../@core/models/report-type.model';
+import { ReportCategory } from '../../../../../@core/models/report-category.model';
+import { NbDialogService } from '@nebular/theme';
+import { UpdateReportDialogComponent } from '../update-report-dialog/update-report-dialog.component';
 
 @Component({
   selector: 'queued-report',
   templateUrl: './queued-report.component.html',
-  styleUrls: ['./queued-report.component.scss'],
+  styleUrls: ['./queued-report.component.scss']
 })
 export class QueuedReportComponent implements OnInit {
-
   @Input('report') report: Report;
   @Output() reportUpdate: EventEmitter<Report>;
   typeText: string;
@@ -55,15 +54,16 @@ export class QueuedReportComponent implements OnInit {
   }
 
   update() {
-    this.dialogService.open(UpdateReportDialogComponent, {
-      context: {
-        report: this.report,
-      },
-    }).onClose.subscribe(report => {
-      if (report) {
-        this.reportUpdate.emit(report);
-      }
-    });
+    this.dialogService
+      .open(UpdateReportDialogComponent, {
+        context: {
+          report: this.report
+        }
+      })
+      .onClose.subscribe((report) => {
+        if (report) {
+          this.reportUpdate.emit(report);
+        }
+      });
   }
-
 }

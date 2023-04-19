@@ -14,36 +14,93 @@
       <nb-tab tabTitle="PROFILE" [formGroup]="profileEditFormGroup">
         <div class="row mt-2">
           <div class="col-12">
-            <div class="form-group mb-4" [ngClass]="{'has-error':!alias.valid}">
+            <div
+              class="form-group mb-4"
+              [ngClass]="{ 'has-error': !alias.valid }"
+            >
               <h5>Alias</h5>
               <div class="input-group">
-                <input nbInput class="form-control alias-inp" formControlName="alias" type="text">
+                <input
+                  nbInput
+                  class="form-control alias-inp"
+                  formControlName="alias"
+                  type="text"
+                />
                 <div class="input-group-append" *ngIf="user.aliasLocked">
-                  <button nbButton outline status="warning" size="small" type="button" (click)="resetAlias()">Reset To Steam Alias</button>
+                  <button
+                    nbButton
+                    outline
+                    status="warning"
+                    size="small"
+                    type="button"
+                    (click)="resetAlias()"
+                  >
+                    Reset To Steam Alias
+                  </button>
                 </div>
               </div>
-              <nb-alert class="mb-0 mt-3 py-2 px-3 text-danger" outline="danger" *ngIf="alias.hasError('minlength')">
+              <nb-alert
+                class="mb-0 mt-3 py-2 px-3 text-danger"
+                outline="danger"
+                *ngIf="alias.hasError('minlength')"
+              >
                 Username must be at least 3 characters.
               </nb-alert>
-              <nb-alert class="mb-0 mt-3 py-2 px-3 text-danger" outline="danger" *ngIf="alias.hasError('maxlength')">
+              <nb-alert
+                class="mb-0 mt-3 py-2 px-3 text-danger"
+                outline="danger"
+                *ngIf="alias.hasError('maxlength')"
+              >
                 Username cannot exceed 32 characters.
               </nb-alert>
-              <nb-alert class="mb-0 mt-3 py-2 px-3 text-danger" outline="danger" *ngIf="alias.hasError('required') && alias.dirty">
+              <nb-alert
+                class="mb-0 mt-3 py-2 px-3 text-danger"
+                outline="danger"
+                *ngIf="alias.hasError('required') && alias.dirty"
+              >
                 Username is required.
               </nb-alert>
             </div>
-            <div class="form-group" [ngClass]="{'has-error':!bio.valid}" formGroupName="profile">
+            <div
+              class="form-group"
+              [ngClass]="{ 'has-error': !bio.valid }"
+              formGroupName="profile"
+            >
               <h5>Bio</h5>
-              <textarea nbInput fullWidth rows="6" class="form-control" formControlName="bio" type="bio" #description></textarea>
-              <nb-alert class="mb-0 mt-2 py-2 px-3 text-danger" outline="danger" *ngIf="bio.hasError('maxlength')">
+              <textarea
+                nbInput
+                fullWidth
+                rows="6"
+                class="form-control"
+                formControlName="bio"
+                type="bio"
+                #description
+              ></textarea>
+              <nb-alert
+                class="mb-0 mt-2 py-2 px-3 text-danger"
+                outline="danger"
+                *ngIf="bio.hasError('maxlength')"
+              >
                 Text cannot exceed 1000 characters.
               </nb-alert>
               <div class="form-text">
                 <div class="d-flex">
                   <span class="mr-auto">
-                    <i><a href="https://help.github.com/articles/basic-writing-and-formatting-syntax/" target="_blank">Markdown</a> is supported</i>
+                    <i
+                      ><a
+                        href="https://help.github.com/articles/basic-writing-and-formatting-syntax/"
+                        target="_blank"
+                        >Markdown</a
+                      >
+                      is supported</i
+                    >
                   </span>
-                  <span class="ml-2 text-right">{{1000 - description.value.length | ngxPlural:'character'}} remaining</span>
+                  <span class="ml-2 text-right"
+                    >{{
+                      1000 - description.value.length | ngxPlural : 'character'
+                    }}
+                    remaining</span
+                  >
                 </div>
               </div>
             </div>
@@ -54,76 +111,229 @@
         <div class="d-flex justify-content-around flex-wrap my-2 text-center">
           <div class="mx-1 mt-2 mb-3">
             <h5>Twitter</h5>
-            <img *ngIf="!user.profile.twitterAuth" src="/assets/images/twitter_button.png" (click)="auth('twitter')">
+            <img
+              *ngIf="!user.profile.twitterAuth"
+              src="/assets/images/twitter_button.png"
+              (click)="auth('twitter')"
+            />
             <div *ngIf="user.profile.twitterAuth">
-              <h5 class="mb-3 text-success">Authorized as {{user.profile.twitterAuth.displayName}}</h5>
-              <button nbButton outline status="danger" size="small" type="button" (click)="unAuth('twitter')">Unauthorize</button>
+              <h5 class="mb-3 text-success">
+                Authorized as {{ user.profile.twitterAuth.displayName }}
+              </h5>
+              <button
+                nbButton
+                outline
+                status="danger"
+                size="small"
+                type="button"
+                (click)="unAuth('twitter')"
+              >
+                Unauthorize
+              </button>
             </div>
           </div>
           <div class="mx-1 mt-2 mb-3">
             <h5>Discord</h5>
-            <img *ngIf="!user.profile.discordAuth" src="/assets/images/discord_button.png" (click)="auth('discord')">
+            <img
+              *ngIf="!user.profile.discordAuth"
+              src="/assets/images/discord_button.png"
+              (click)="auth('discord')"
+            />
             <div *ngIf="user.profile.discordAuth">
-              <h5 class="mb-3 text-success">Authorized as {{user.profile.discordAuth.displayName}}</h5>
-              <button nbButton outline status="danger" size="small" type="button" (click)="unAuth('discord')">Unauthorize</button>
+              <h5 class="mb-3 text-success">
+                Authorized as {{ user.profile.discordAuth.displayName }}
+              </h5>
+              <button
+                nbButton
+                outline
+                status="danger"
+                size="small"
+                type="button"
+                (click)="unAuth('discord')"
+              >
+                Unauthorize
+              </button>
             </div>
           </div>
           <div class="mx-1 mt-2 mb-3">
             <h5>Twitch.tv</h5>
-            <img *ngIf="!user.profile.twitchAuth" src="/assets/images/twitch_button.png" (click)="auth('twitch')">
+            <img
+              *ngIf="!user.profile.twitchAuth"
+              src="/assets/images/twitch_button.png"
+              (click)="auth('twitch')"
+            />
             <div *ngIf="user.profile.twitchAuth">
-              <h5 class="mb-3 text-success">Authorized as {{user.profile.twitchAuth.displayName}}</h5>
-              <button nbButton outline status="danger" size="small" type="button" (click)="unAuth('twitch')">Unauthorize</button>
+              <h5 class="mb-3 text-success">
+                Authorized as {{ user.profile.twitchAuth.displayName }}
+              </h5>
+              <button
+                nbButton
+                outline
+                status="danger"
+                size="small"
+                type="button"
+                (click)="unAuth('twitch')"
+              >
+                Unauthorize
+              </button>
             </div>
           </div>
         </div>
-        <div *ngIf="user.profile.twitchAuth" class="mt-2 mb-3 text-right text-warning">
-          <div>Note: You'll also have to manually disconnect "Momentum" from your
-            <a href="https://www.twitch.tv/settings/connections" target="_blank">connections page</a>.</div>
-          <div>(Twitch is the only site that doesn't do this automatically.)</div>
+        <div
+          *ngIf="user.profile.twitchAuth"
+          class="mt-2 mb-3 text-right text-warning"
+        >
+          <div>
+            Note: You'll also have to manually disconnect "Momentum" from your
+            <a href="https://www.twitch.tv/settings/connections" target="_blank"
+              >connections page</a
+            >.
+          </div>
+          <div>
+            (Twitch is the only site that doesn't do this automatically.)
+          </div>
         </div>
       </nb-tab>
-      <nb-tab *ngIf="isAdmin" [formGroup]="adminEditFg" tabTitle="ADMIN&nbsp;USER&nbsp;SETTINGS">
+      <nb-tab
+        *ngIf="isAdmin"
+        [formGroup]="adminEditFg"
+        tabTitle="ADMIN&nbsp;USER&nbsp;SETTINGS"
+      >
         <div class="row">
           <div class="col">
             <h2>Bans</h2>
             <ul class="list-unstyled text-nowrap">
-              <li><nb-checkbox (change)="toggleBan(Ban.BANNED_ALIAS)" formControlName="banAlias">Ban changing alias</nb-checkbox></li>
-              <li><nb-checkbox (change)="toggleBan(Ban.BANNED_BIO)" formControlName="banBio">Ban changing bio</nb-checkbox></li>
-              <li><nb-checkbox (change)="toggleBan(Ban.BANNED_AVATAR)" formControlName="banAvatar">Ban avatar</nb-checkbox></li>
-              <li><nb-checkbox (change)="toggleBan(Ban.BANNED_LEADERBOARDS)" formControlName="banLeaderboards">
-                  Ban submitting to leaderboards</nb-checkbox></li>
+              <li>
+                <nb-checkbox
+                  (change)="toggleBan(Ban.BANNED_ALIAS)"
+                  formControlName="banAlias"
+                  >Ban changing alias</nb-checkbox
+                >
+              </li>
+              <li>
+                <nb-checkbox
+                  (change)="toggleBan(Ban.BANNED_BIO)"
+                  formControlName="banBio"
+                  >Ban changing bio</nb-checkbox
+                >
+              </li>
+              <li>
+                <nb-checkbox
+                  (change)="toggleBan(Ban.BANNED_AVATAR)"
+                  formControlName="banAvatar"
+                  >Ban avatar</nb-checkbox
+                >
+              </li>
+              <li>
+                <nb-checkbox
+                  (change)="toggleBan(Ban.BANNED_LEADERBOARDS)"
+                  formControlName="banLeaderboards"
+                >
+                  Ban submitting to leaderboards</nb-checkbox
+                >
+              </li>
             </ul>
           </div>
           <div class="col col-md-3">
             <h2>Roles</h2>
             <ul class="list-unstyled text-nowrap">
-              <li><nb-checkbox (change)="toggleRole(Role.VERIFIED)" formControlName="verified">Verified</nb-checkbox></li>
-              <li><nb-checkbox (change)="toggleRole(Role.MAPPER)" formControlName="mapper">Mapper</nb-checkbox></li>
-              <li><nb-checkbox *ngIf="isAdmin" (change)="toggleRole(Role.MODERATOR)" formControlName="moderator">Moderator</nb-checkbox></li>
-              <li><nb-checkbox *ngIf="isAdmin" (change)="toggleRole(Role.ADMIN)" formControlName="admin">Admin</nb-checkbox></li>
+              <li>
+                <nb-checkbox
+                  (change)="toggleRole(Role.VERIFIED)"
+                  formControlName="verified"
+                  >Verified</nb-checkbox
+                >
+              </li>
+              <li>
+                <nb-checkbox
+                  (change)="toggleRole(Role.MAPPER)"
+                  formControlName="mapper"
+                  >Mapper</nb-checkbox
+                >
+              </li>
+              <li>
+                <nb-checkbox
+                  *ngIf="isAdmin"
+                  (change)="toggleRole(Role.MODERATOR)"
+                  formControlName="moderator"
+                  >Moderator</nb-checkbox
+                >
+              </li>
+              <li>
+                <nb-checkbox
+                  *ngIf="isAdmin"
+                  (change)="toggleRole(Role.ADMIN)"
+                  formControlName="admin"
+                  >Admin</nb-checkbox
+                >
+              </li>
             </ul>
           </div>
           <div class="col" *ngIf="isAdmin">
             <div class="mb-3 merge-col" *ngIf="hasRole(Role.PLACEHOLDER)">
               <h5 class="text-nowrap">Merge to Real User:</h5>
-              <user-search (selectedUserEmit)="selectMergeUser($event)" *ngIf="!mergeUser"></user-search>
-              <div *ngIf="mergeErr" class="mt-2 text-center text-danger">{{mergeErr}}</div>
+              <user-search
+                (selectedUserEmit)="selectMergeUser($event)"
+                *ngIf="!mergeUser"
+              ></user-search>
+              <div *ngIf="mergeErr" class="mt-2 text-center text-danger">
+                {{ mergeErr }}
+              </div>
               <div *ngIf="mergeUser">
-                <nb-user [name]="mergeUser.alias" [picture]="mergeUser.avatarURL" class="mb-2"></nb-user>
-                <button type="button" nbButton outline status="info" size="small" (click)="cancelMerge()" class="mt-1 mr-2">Cancel</button>
-                <button type="button" nbButton outline status="danger" size="small" (click)="mergeUsers()" class="mt-1">Merge To User</button>
+                <nb-user
+                  [name]="mergeUser.alias"
+                  [picture]="mergeUser.avatarURL"
+                  class="mb-2"
+                ></nb-user>
+                <button
+                  type="button"
+                  nbButton
+                  outline
+                  status="info"
+                  size="small"
+                  (click)="cancelMerge()"
+                  class="mt-1 mr-2"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="button"
+                  nbButton
+                  outline
+                  status="danger"
+                  size="small"
+                  (click)="mergeUsers()"
+                  class="mt-1"
+                >
+                  Merge To User
+                </button>
               </div>
             </div>
             <div class="text-right">
-              <button type="button" nbButton outline status="danger" (click)="deleteUser()">Delete User</button>
+              <button
+                type="button"
+                nbButton
+                outline
+                status="danger"
+                (click)="deleteUser()"
+              >
+                Delete User
+              </button>
             </div>
           </div>
         </div>
       </nb-tab>
     </nb-tabset>
-    <button nbButton outline status="info" size="medium" class="submit-btn" type="submit" *ngIf="!(socials && socials.active)"
-            [disabled]="(profileEditFormGroup.touched && !profileEditFormGroup.valid)">
+    <button
+      nbButton
+      outline
+      status="info"
+      size="medium"
+      class="submit-btn"
+      type="submit"
+      *ngIf="!(socials && socials.active)"
+      [disabled]="profileEditFormGroup.touched && !profileEditFormGroup.valid"
+    >
       Save changes
     </button>
   </form>

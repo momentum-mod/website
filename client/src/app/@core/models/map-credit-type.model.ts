@@ -4,5 +4,5 @@ export enum MapCreditType {
   TESTER = 2,
   SPECIAL_THANKS = 3,
   // Should be last
-  LENGTH = 4,
+  LENGTH = 4
 }

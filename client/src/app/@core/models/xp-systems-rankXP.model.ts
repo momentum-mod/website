@@ -1,16 +1,16 @@
 export interface RankXPSystemParams {
   top10: {
-    WRPoints: number,
-    rankPercentages: number[],
+    WRPoints: number;
+    rankPercentages: number[];
   };
   formula: {
-    A: number,
-    B: number,
+    A: number;
+    B: number;
   };
   groups: {
-    maxGroups: number,
-    groupScaleFactors: number[],
-    groupExponents: number[],
+    maxGroups: number;
+    groupScaleFactors: number[];
+    groupExponents: number[];
     groupMinSizes: number[];
     groupPointPcts: number[]; // How much, of a % of WRPoints, does each group get
   };

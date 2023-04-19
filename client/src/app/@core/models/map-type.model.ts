@@ -9,7 +9,7 @@ export enum MomentumMapType {
   AHOP,
   PARKOUR,
   CONC,
-  DEFRAG,
+  DEFRAG
 }
 
 export function getTypeFromEnum(key: MomentumMapType): string {

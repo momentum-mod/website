@@ -1,7 +1,7 @@
 import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 
 import { GlobalStatsTopsComponent } from './global-stats-tops.component';
-import {ThemeModule} from '../../../../../@theme/theme.module';
+import { ThemeModule } from '../../../../../@theme/theme.module';
 import { NbStatusService } from '@nebular/theme';
 
 describe('GlobalStatsTopsComponent', () => {
@@ -10,11 +10,10 @@ describe('GlobalStatsTopsComponent', () => {
 
   beforeEach(waitForAsync(() => {
     TestBed.configureTestingModule({
-      declarations: [ GlobalStatsTopsComponent ],
-      providers: [ NbStatusService ],
-      imports: [ThemeModule],
-    })
-    .compileComponents();
+      declarations: [GlobalStatsTopsComponent],
+      providers: [NbStatusService],
+      imports: [ThemeModule]
+    }).compileComponents();
   }));
 
   beforeEach(() => {

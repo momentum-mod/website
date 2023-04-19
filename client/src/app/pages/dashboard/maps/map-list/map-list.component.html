@@ -3,7 +3,14 @@
     <div class="col-12 col-sm-9 col-md-10">
       <div class="row align-items-center">
         <div class="form-col col-12 col-sm-10 col-md-6 col-lg-4 col-xl-3">
-          <input nbInput fullWidth class="form-control" type="text" placeholder="Map Name" formControlName="search">
+          <input
+            nbInput
+            fullWidth
+            class="form-control"
+            type="text"
+            placeholder="Map Name"
+            formControlName="search"
+          />
         </div>
         <!-- TODO: Enable when map credits get reworked (#415) -->
         <!-- <div class="form-col col-12 col-sm-10 col-md-6 col-lg-4 col-xl-3 mt-3 mt-md-0">
@@ -12,52 +19,93 @@
         <!-- TODO: When the author field is added change mt-md-0 to mt-lg-0 -->
         <div class="form-col col-12 col-md-6 col-lg-auto mt-3 mt-md-0">
           <nb-select placeholder="Game Mode" formControlName="type">
-            <nb-option *ngFor="let enum of typeEnums" [value]="enum.value">{{enum.text}}</nb-option>
+            <nb-option *ngFor="let enum of typeEnums" [value]="enum.value">{{
+              enum.text
+            }}</nb-option>
           </nb-select>
         </div>
         <!-- TODO: When the author field is added change mt-lg-0 to mt-xl-0 -->
-        <div class="form-col col-12 col-md-6 col-lg-auto mt-3 mt-lg-0 mr-lg-n5" *ngIf="type === mapListType.TYPE_UPLOADS">
+        <div
+          class="form-col col-12 col-md-6 col-lg-auto mt-3 mt-lg-0 mr-lg-n5"
+          *ngIf="type === mapListType.TYPE_UPLOADS"
+        >
           <nb-select placeholder="Status" formControlName="status">
-            <nb-option *ngFor="let enum of statusEnums" [value]="enum.value">{{enum.text}}</nb-option>
+            <nb-option *ngFor="let enum of statusEnums" [value]="enum.value">{{
+              enum.text
+            }}</nb-option>
           </nb-select>
         </div>
-        
       </div>
     </div>
     <div class="col-12 col-sm-3 col-md-2 align-self-start">
-      <div class="row justify-content-start justify-content-sm-end mr-0 mr-sm-1 ml-1 ml-sm-0 mt-3 mt-sm-0">
-        <button nbButton outline status="info" (click)="onPageChange(1)">Search</button>
+      <div
+        class="row justify-content-start justify-content-sm-end mr-0 mr-sm-1 ml-1 ml-sm-0 mt-3 mt-sm-0"
+      >
+        <button nbButton outline status="info" (click)="onPageChange(1)">
+          Search
+        </button>
       </div>
     </div>
   </div>
 </div>
 <div *ngIf="maps.length && requestSent">
   <nb-list class="overflow-hidden">
-    <nb-list-item *ngFor="let map of maps | paginate: {
-        itemsPerPage: pageLimit,
-        currentPage: currentPage,
-        totalItems: mapCount
-      }">
-      <map-list-item [map]="map" [inLibrary]="isMapInLibrary(map)" (onLibraryUpdate)="libraryUpdate()"
-                     [isUpload]="type === mapListType.TYPE_UPLOADS"
-                     [inFavorites]="isMapInFavorites(map)" (onFavoriteUpdate)="favoriteUpdate()"></map-list-item>
+    <nb-list-item
+      *ngFor="
+        let map of maps
+          | paginate
+            : {
+                itemsPerPage: pageLimit,
+                currentPage: currentPage,
+                totalItems: mapCount
+              }
+      "
+    >
+      <map-list-item
+        [map]="map"
+        [inLibrary]="isMapInLibrary(map)"
+        (onLibraryUpdate)="libraryUpdate()"
+        [isUpload]="type === mapListType.TYPE_UPLOADS"
+        [inFavorites]="isMapInFavorites(map)"
+        (onFavoriteUpdate)="favoriteUpdate()"
+      ></map-list-item>
     </nb-list-item>
   </nb-list>
   <div class="text-center">
-    <pagination-controls (pageChange)="onPageChange($event)" [autoHide]="true" [responsive]="true"></pagination-controls>
+    <pagination-controls
+      (pageChange)="onPageChange($event)"
+      [autoHide]="true"
+      [responsive]="true"
+    ></pagination-controls>
   </div>
 </div>
-<div class="text-center" *ngIf="maps.length === 0 && requestSent && !isSearchFiltered()">
+<div
+  class="text-center"
+  *ngIf="maps.length === 0 && requestSent && !isSearchFiltered()"
+>
   <div [ngSwitch]="type">
     <h3 class="m-0" *ngSwitchDefault>No maps found!</h3>
-    <h3 class="m-0" *ngSwitchCase="mapListType.TYPE_LIBRARY">No maps in your library. Try <a routerLink="/dashboard/maps">adding some</a>!</h3>
-    <h3 class="m-0" *ngSwitchCase="mapListType.TYPE_FAVORITES">No favorite maps found. Try <a routerLink="/dashboard/maps">adding some</a>!</h3>
+    <h3 class="m-0" *ngSwitchCase="mapListType.TYPE_LIBRARY">
+      No maps in your library. Try
+      <a routerLink="/dashboard/maps">adding some</a>!
+    </h3>
+    <h3 class="m-0" *ngSwitchCase="mapListType.TYPE_FAVORITES">
+      No favorite maps found. Try
+      <a routerLink="/dashboard/maps">adding some</a>!
+    </h3>
     <h3 class="m-0" *ngSwitchCase="mapListType.TYPE_UPLOADS">
-      <i>You have not uploaded any maps. Try <a routerLink="/dashboard/maps/uploads/new">uploading a new one!</a></i></h3>
+      <i
+        >You have not uploaded any maps. Try
+        <a routerLink="/dashboard/maps/uploads/new">uploading a new one!</a></i
+      >
+    </h3>
   </div>
 </div>
-<div class="text-center" *ngIf="maps.length === 0 && requestSent && isSearchFiltered()">
-  <h3 class="m-0">{{noMapsText}}</h3>
+<div
+  class="text-center"
+  *ngIf="maps.length === 0 && requestSent && isSearchFiltered()"
+>
+  <h3 class="m-0">{{ noMapsText }}</h3>
 </div>
 <div class="text-center" *ngIf="!requestSent">
   <h3 class="m-0">Waiting for API response</h3>

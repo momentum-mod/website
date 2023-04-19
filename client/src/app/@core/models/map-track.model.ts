@@ -1,5 +1,5 @@
-import {MapZone} from './map-zone.model';
-import {MapTrackStats} from './map-track-stats.model';
+import { MapZone } from './map-zone.model';
+import { MapTrackStats } from './map-track-stats.model';
 
 export interface MapTrack {
   trackNum: number;

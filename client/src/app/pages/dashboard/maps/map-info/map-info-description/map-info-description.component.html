@@ -4,9 +4,11 @@
   </div>
 </div>
 <div *ngIf="map.mainTrack">
-  <h6>{{map.mainTrack.isLinear ? 'Linear' : 'Staged'}} map</h6>
-  <h6>Num zones: {{map.mainTrack.numZones}}</h6>
-  <h6>Difficulty: {{map.mainTrack.difficulty}}</h6>
-  <h6 *ngIf="map.tracks.length > 1">Num bonuses: {{map.tracks.length - 1}}</h6>
+  <h6>{{ map.mainTrack.isLinear ? 'Linear' : 'Staged' }} map</h6>
+  <h6>Num zones: {{ map.mainTrack.numZones }}</h6>
+  <h6>Difficulty: {{ map.mainTrack.difficulty }}</h6>
+  <h6 *ngIf="map.tracks.length > 1">
+    Num bonuses: {{ map.tracks.length - 1 }}
+  </h6>
 </div>
 <h6 *ngIf="!map.mainTrack">No track data found.</h6>

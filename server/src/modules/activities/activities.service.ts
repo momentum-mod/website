@@ -8,19 +8,25 @@ import { ActivityType } from '@common/enums/activity.enum';
 
 @Injectable()
 export class ActivitiesService {
-    constructor(private readonly userRepo: UsersRepoService) {}
+  constructor(private readonly userRepo: UsersRepoService) {}
 
-    async getAll(query: ActivitiesGetQuery): Promise<PaginatedResponseDto<ActivityDto>> {
-        const where: Prisma.ActivityWhereInput = {};
-        if (query.userID) where.userID = query.userID;
+  async getAll(
+    query: ActivitiesGetQuery
+  ): Promise<PaginatedResponseDto<ActivityDto>> {
+    const where: Prisma.ActivityWhereInput = {};
+    if (query.userID) where.userID = query.userID;
 
-        // if type is ALL, just don't add a type filter
-        if (query.type !== ActivityType.ALL) where.type = query.type;
+    // if type is ALL, just don't add a type filter
+    if (query.type !== ActivityType.ALL) where.type = query.type;
 
-        if (query.data) where.data = query.data;
+    if (query.data) where.data = query.data;
 
-        const dbResponse = await this.userRepo.getActivities(where, query.skip, query.take);
+    const dbResponse = await this.userRepo.getActivities(
+      where,
+      query.skip,
+      query.take
+    );
 
-        return new PaginatedResponseDto(ActivityDto, dbResponse);
-    }
+    return new PaginatedResponseDto(ActivityDto, dbResponse);
+  }
 }

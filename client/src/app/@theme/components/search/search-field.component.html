@@ -3,25 +3,41 @@
     <nb-icon icon="close-outline"></nb-icon>
   </button>
   <div class="form-wrapper">
-    <form class="form" (keyup.enter)="submitSearch(searchInput.value)" (submit)="retFalse()">
+    <form
+      class="form"
+      (keyup.enter)="submitSearch(searchInput.value)"
+      (submit)="retFalse()"
+    >
       <div class="form-content">
-        <input class="search-input"
-               #searchInput
-               autocomplete="off"
-               [attr.placeholder]="placeholder"
-               tabindex="-1"
-               (blur)="focusInput()"/>
+        <input
+          class="search-input"
+          #searchInput
+          autocomplete="off"
+          [attr.placeholder]="placeholder"
+          tabindex="-1"
+          (blur)="focusInput()"
+        />
       </div>
       <span class="info">{{ hint }}</span>
       <div class="mx-auto mt-4 content">
         <div class="row justify-content-center results">
           <div class="col-10 col-md-6" *ngIf="users?.length">
-            <search-results [user]="true" [onlyMaps]="onlyMaps" [onlyUsers]="onlyUsers" [elems]="users"
-                            (selectedURL)="selectedElem($event)"></search-results>
+            <search-results
+              [user]="true"
+              [onlyMaps]="onlyMaps"
+              [onlyUsers]="onlyUsers"
+              [elems]="users"
+              (selectedURL)="selectedElem($event)"
+            ></search-results>
           </div>
           <div class="col-10 col-md-6" *ngIf="maps?.length">
-            <search-results [user]="false" [onlyMaps]="onlyMaps" [onlyUsers]="onlyUsers" [elems]="maps"
-                            (selectedURL)="selectedElem($event)"></search-results>
+            <search-results
+              [user]="false"
+              [onlyMaps]="onlyMaps"
+              [onlyUsers]="onlyUsers"
+              [elems]="maps"
+              (selectedURL)="selectedElem($event)"
+            ></search-results>
           </div>
         </div>
       </div>

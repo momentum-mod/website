@@ -1,12 +1,12 @@
-import {Injectable} from '@angular/core';
-import {CookieService} from 'ngx-cookie-service';
-import {JwtHelperService} from '@auth0/angular-jwt';
-import {AccessTokenPayload} from '../models/access-token-payload';
-import {HttpClient} from '@angular/common/http';
-import {Observable, of} from 'rxjs';
-import {Router} from '@angular/router';
-import {map, share} from 'rxjs/operators';
-import {environment} from '../../../environments/environment';
+import { Injectable } from '@angular/core';
+import { CookieService } from 'ngx-cookie-service';
+import { JwtHelperService } from '@auth0/angular-jwt';
+import { AccessTokenPayload } from '../models/access-token-payload';
+import { HttpClient } from '@angular/common/http';
+import { Observable, of } from 'rxjs';
+import { Router } from '@angular/router';
+import { map, share } from 'rxjs/operators';
+import { environment } from '../../../environments/environment';
 
 export interface TokenRefreshResponse {
   accessToken: string;
@@ -14,9 +14,11 @@ export interface TokenRefreshResponse {
 
 @Injectable()
 export class AuthService {
-  constructor(private cookieService: CookieService,
-              private http: HttpClient,
-              private router: Router) {
+  constructor(
+    private cookieService: CookieService,
+    private http: HttpClient,
+    private router: Router
+  ) {
     this.moveCookieToLocalStorage('accessToken');
     this.moveCookieToLocalStorage('refreshToken');
   }
@@ -41,9 +43,12 @@ export class AuthService {
   }
 
   public removeSocialAuth(authType: string): Observable<any> {
-    return this.http.delete(environment.api + '/api/user/profile/social/' + authType, {
-      responseType: 'text',
-    });
+    return this.http.delete(
+      environment.api + '/api/user/profile/social/' + authType,
+      {
+        responseType: 'text'
+      }
+    );
   }
 
   private moveCookieToLocalStorage(cookieName: string): void {
@@ -60,18 +65,19 @@ export class AuthService {
     if (!refreshToken) {
       return of(null);
     }
-    return this.http.post(environment.auth + '/auth/refresh', { refreshToken: refreshToken }).pipe(
-      share(),
-      map((res: TokenRefreshResponse) => {
-        const newAccessToken = res.accessToken;
-        localStorage.setItem('accessToken', newAccessToken);
-        return newAccessToken;
-      }),
-    );
+    return this.http
+      .post(environment.auth + '/auth/refresh', { refreshToken: refreshToken })
+      .pipe(
+        share(),
+        map((res: TokenRefreshResponse) => {
+          const newAccessToken = res.accessToken;
+          localStorage.setItem('accessToken', newAccessToken);
+          return newAccessToken;
+        })
+      );
   }
 
   public getAccessToken(): string {
     return localStorage.getItem('accessToken');
   }
-
 }

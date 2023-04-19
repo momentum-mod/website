@@ -1,39 +1,40 @@
-import {Component, Input, OnInit} from '@angular/core';
-import {ReportType} from '../../../../@core/models/report-type.model';
-import {NbDialogRef, NbToastrService} from '@nebular/theme';
-import {FormBuilder, FormGroup, Validators} from '@angular/forms';
-import {ReportService} from '../../../../@core/data/report.service';
-import {ReportCategory} from '../../../../@core/models/report-category.model';
+import { Component, Input, OnInit } from '@angular/core';
+import { ReportType } from '../../../../@core/models/report-type.model';
+import { NbDialogRef, NbToastrService } from '@nebular/theme';
+import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { ReportService } from '../../../../@core/data/report.service';
+import { ReportCategory } from '../../../../@core/models/report-category.model';
 
 @Component({
   selector: 'create-report-dialog',
   templateUrl: './create-report-dialog.component.html',
-  styleUrls: ['./create-report-dialog.component.scss'],
+  styleUrls: ['./create-report-dialog.component.scss']
 })
 export class CreateReportDialogComponent implements OnInit {
-
   @Input() reportType: ReportType;
   @Input() reportData: string;
   ReportCategory: typeof ReportCategory;
   createReportForm: FormGroup;
 
-  constructor(protected ref: NbDialogRef<CreateReportDialogComponent>,
-              private fb: FormBuilder,
-              private reportService: ReportService,
-              private toastService: NbToastrService) {
+  constructor(
+    protected ref: NbDialogRef<CreateReportDialogComponent>,
+    private fb: FormBuilder,
+    private reportService: ReportService,
+    private toastService: NbToastrService
+  ) {
     this.ReportCategory = ReportCategory;
     this.createReportForm = this.fb.group({
-      'data': ['', Validators.required],
-      'type': ['', Validators.required],
-      'category': ['', Validators.required],
-      'message': ['', [Validators.required, Validators.maxLength(1000)]],
+      data: ['', Validators.required],
+      type: ['', Validators.required],
+      category: ['', Validators.required],
+      message: ['', [Validators.required, Validators.maxLength(1000)]]
     });
   }
 
   ngOnInit() {
     this.createReportForm.patchValue({
       type: this.reportType,
-      data: this.reportData.toString(),
+      data: this.reportData.toString()
     });
   }
 
@@ -42,14 +43,19 @@ export class CreateReportDialogComponent implements OnInit {
   }
 
   submit() {
-    this.reportService.createReport(this.createReportForm.value).subscribe(() => {
-      this.createReportForm.reset();
-      this.ref.close();
-      this.toastService.success('Report submitted');
-    }, err => {
-      console.error(err);
-      this.toastService.danger('Failed to submit report: ' + err.error.error.message, 'Error');
-    });
+    this.reportService.createReport(this.createReportForm.value).subscribe(
+      () => {
+        this.createReportForm.reset();
+        this.ref.close();
+        this.toastService.success('Report submitted');
+      },
+      (err) => {
+        console.error(err);
+        this.toastService.danger(
+          'Failed to submit report: ' + err.error.error.message,
+          'Error'
+        );
+      }
+    );
   }
-
 }

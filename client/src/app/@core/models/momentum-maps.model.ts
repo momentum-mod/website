@@ -1,4 +1,4 @@
-import {MomentumMap} from './momentum-map.model';
+import { MomentumMap } from './momentum-map.model';
 
 export interface MomentumMaps {
   count?: number;

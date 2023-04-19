@@ -1,24 +1,42 @@
-<h5 class="m-0 text-center" *ngIf="loadedCredits && mapCredits.length === 0"><i>No credits found</i></h5>
+<h5 class="m-0 text-center" *ngIf="loadedCredits && mapCredits.length === 0">
+  <i>No credits found</i>
+</h5>
 <nb-list class="overflow-hidden">
-  <nb-list-item *ngFor="let mapCredit of mapCredits | paginate: {
-    id: 'credits',
-    itemsPerPage: pageLimit,
-    currentPage: currentPage,
-    totalItems: creditCount
-  }">
+  <nb-list-item
+    *ngFor="
+      let mapCredit of mapCredits
+        | paginate
+          : {
+              id: 'credits',
+              itemsPerPage: pageLimit,
+              currentPage: currentPage,
+              totalItems: creditCount
+            }
+    "
+  >
     <div class="d-flex flex-wrap align-items-center justify-content-center">
       <div class="flex-grow-1 type-col text">
-        <div class="mb-3">{{mapCredType[mapCredit.type]}} ON</div>
-        <a routerLink="/dashboard/maps/{{mapCredit.map?.id}}">{{mapCredit.map?.name}}</a>
+        <div class="mb-3">{{ mapCredType[mapCredit.type] }} ON</div>
+        <a routerLink="/dashboard/maps/{{ mapCredit.map?.id }}">{{
+          mapCredit.map?.name
+        }}</a>
       </div>
       <div>
-        <a routerLink="/dashboard/maps/{{mapCredit.map?.id}}">
-          <img class="rounded map-image" [src]="mapCredit.map?.thumbnail?.small">
+        <a routerLink="/dashboard/maps/{{ mapCredit.map?.id }}">
+          <img
+            class="rounded map-image"
+            [src]="mapCredit.map?.thumbnail?.small"
+          />
         </a>
       </div>
     </div>
   </nb-list-item>
 </nb-list>
 <div class="text-center">
-  <pagination-controls id="credits" (pageChange)="onPageChange($event)" [autoHide]="true" [responsive]="true"></pagination-controls>
+  <pagination-controls
+    id="credits"
+    (pageChange)="onPageChange($event)"
+    [autoHide]="true"
+    [responsive]="true"
+  ></pagination-controls>
 </div>

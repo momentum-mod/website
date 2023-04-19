@@ -1,20 +1,25 @@
-import {Component, Input, OnChanges, OnInit, SimpleChanges} from '@angular/core';
-import {EChartsOption} from 'echarts';
-import {GlobalMapStats} from '../../../../../@core/models/global-map-stats.model';
+import {
+  Component,
+  Input,
+  OnChanges,
+  OnInit,
+  SimpleChanges
+} from '@angular/core';
+import { EChartsOption } from 'echarts';
+import { GlobalMapStats } from '../../../../../@core/models/global-map-stats.model';
 
 @Component({
   selector: 'global-stats-maps',
   templateUrl: './global-stats-maps.component.html',
-  styleUrls: ['./global-stats-maps.component.scss'],
+  styleUrls: ['./global-stats-maps.component.scss']
 })
 export class GlobalStatsMapsComponent implements OnInit, OnChanges {
-
   @Input('globalMapStats') globalMapStats: GlobalMapStats;
 
   mapCompletionPieChart;
   mapCompletionPieChartOptions: EChartsOption;
 
-  constructor() { }
+  constructor() {}
 
   ngOnChanges(changes: SimpleChanges) {
     if (changes.globalMapStats.currentValue) {
@@ -24,8 +29,8 @@ export class GlobalStatsMapsComponent implements OnInit, OnChanges {
           left: 'left',
           data: ['Completed', 'Not Completed'],
           textStyle: {
-            color: '#fff',
-          },
+            color: '#fff'
+          }
         },
         series: [
           {
@@ -34,29 +39,29 @@ export class GlobalStatsMapsComponent implements OnInit, OnChanges {
                 value: this.globalMapStats.totalCompletedMaps,
                 name: 'Completed',
                 label: {
-                  color: '#fff',
-                },
+                  color: '#fff'
+                }
               },
               {
-                value: this.globalMapStats.totalMaps - this.globalMapStats.totalCompletedMaps,
+                value:
+                  this.globalMapStats.totalMaps -
+                  this.globalMapStats.totalCompletedMaps,
                 name: 'Not Completed',
                 label: {
-                  color: '#fff',
-                },
-              },
+                  color: '#fff'
+                }
+              }
             ],
-            type: 'pie',
-          },
-        ],
+            type: 'pie'
+          }
+        ]
       };
     }
   }
 
-  ngOnInit() {
-  }
+  ngOnInit() {}
 
   onChartInit(chartInstance) {
     this.mapCompletionPieChart = chartInstance;
   }
-
 }

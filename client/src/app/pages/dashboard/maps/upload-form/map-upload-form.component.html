@@ -11,20 +11,47 @@
                 <div class="d-flex flex-wrap justify-content-around">
                   <div class="flex-grow-1 mx-3 mb-3 input-col">
                     <h5 class="mb-1 font-weight-normal">Map File</h5>
-                    <input nbInput [readonly]="true" class="mb-1 form-control" formControlName="map"
-                           [ngClass]="{'form-control-danger': map.invalid && (map.dirty || map.touched)}"/>
-                    <file-upload [type]="'map'" [limit-size]="300"
-                                 (fileSelected)="onMapFileSelected($event)"></file-upload>
+                    <input
+                      nbInput
+                      [readonly]="true"
+                      class="mb-1 form-control"
+                      formControlName="map"
+                      [ngClass]="{
+                        'form-control-danger':
+                          map.invalid && (map.dirty || map.touched)
+                      }"
+                    />
+                    <file-upload
+                      [type]="'map'"
+                      [limit-size]="300"
+                      (fileSelected)="onMapFileSelected($event)"
+                    ></file-upload>
                   </div>
                   <div class="flex-grow-1 mx-3 mb-3 input-col">
-                    <h5 class="mb-1 font-weight-normal">Map Thumbnail
-                      <nb-icon icon="question-mark-circle-outline"
-                               [nbPopover]="'Make sure to choose the image that represents your map the best! This will be the main image that shows up in the map selector for your map!'"
-                               [nbPopoverTrigger]="'hint'"></nb-icon>
+                    <h5 class="mb-1 font-weight-normal">
+                      Map Thumbnail
+                      <nb-icon
+                        icon="question-mark-circle-outline"
+                        [nbPopover]="
+                          'Make sure to choose the image that represents your map the best! This will be the main image that shows up in the map selector for your map!'
+                        "
+                        [nbPopoverTrigger]="'hint'"
+                      ></nb-icon>
                     </h5>
-                    <input nbInput [readonly]="true" class="mb-1 form-control" formControlName="avatar"
-                           [ngClass]="{'form-control-danger': avatar.invalid && (avatar.dirty || avatar.touched)}"/>
-                    <file-upload [type]="'image'" (fileSelected)="onAvatarFileSelected($event)"></file-upload>
+                    <input
+                      nbInput
+                      [readonly]="true"
+                      class="mb-1 form-control"
+                      formControlName="avatar"
+                      [ngClass]="{
+                        'form-control-danger':
+                          avatar.invalid && (avatar.dirty || avatar.touched)
+                      }"
+                    />
+                    <file-upload
+                      [type]="'image'"
+                      (fileSelected)="onAvatarFileSelected($event)"
+                    ></file-upload>
                   </div>
                 </div>
               </div>
@@ -32,28 +59,58 @@
                 <h3 class="mb-3 col-title">Optional</h3>
                 <div class="d-flex flex-wrap justify-content-around">
                   <div class="flex-grow-1 mx-3 mb-5 input-col">
-                    <h5 class="mb-1 font-weight-normal">YouTube URL
-                      <nb-icon icon="question-mark-circle-outline"
-                               [nbPopover]="'Any link with YouTube video ID or video ID itself will work'"
-                               [nbPopoverTrigger]="'hint'"></nb-icon>
+                    <h5 class="mb-1 font-weight-normal">
+                      YouTube URL
+                      <nb-icon
+                        icon="question-mark-circle-outline"
+                        [nbPopover]="
+                          'Any link with YouTube video ID or video ID itself will work'
+                        "
+                        [nbPopoverTrigger]="'hint'"
+                      ></nb-icon>
                     </h5>
-                    <input nbInput type="text" class="form-control" formControlName="youtubeURL"
-                           [ngClass]="{'form-control-danger': youtubeURL.invalid}"/>
+                    <input
+                      nbInput
+                      type="text"
+                      class="form-control"
+                      formControlName="youtubeURL"
+                      [ngClass]="{ 'form-control-danger': youtubeURL.invalid }"
+                    />
                   </div>
                   <div class="flex-grow-1 mx-3 mb-4 input-col">
-                    <h5 class="mb-1 font-weight-normal">Additional Map Photos
-                      <nb-icon icon="question-mark-circle-outline"
-                               [nbPopover]="'You may upload up to '+extraImagesLimit+' extra photos that also best represent your map.'"
-                               [nbPopoverTrigger]="'hint'"></nb-icon>
+                    <h5 class="mb-1 font-weight-normal">
+                      Additional Map Photos
+                      <nb-icon
+                        icon="question-mark-circle-outline"
+                        [nbPopover]="
+                          'You may upload up to ' +
+                          extraImagesLimit +
+                          ' extra photos that also best represent your map.'
+                        "
+                        [nbPopoverTrigger]="'hint'"
+                      ></nb-icon>
                     </h5>
-                    <file-upload [type]="'image'" [multiple]="true" (fileSelected)="onExtraImageSelected($event)"
-                                 *ngIf="extraImages.length < extraImagesLimit"></file-upload>
+                    <file-upload
+                      [type]="'image'"
+                      [multiple]="true"
+                      (fileSelected)="onExtraImageSelected($event)"
+                      *ngIf="extraImages.length < extraImagesLimit"
+                    ></file-upload>
                   </div>
                 </div>
                 <div class="d-flex flex-wrap justify-content-center">
-                  <div class="extra-image-cont m-2" *ngFor="let img of extraImages">
-                    <img class="extra-image" [src]="img.dataBlobURL">
-                    <button nbButton outline status="danger" size="tiny" (click)="removeExtraImage(img)">
+                  <div
+                    class="extra-image-cont m-2"
+                    *ngFor="let img of extraImages"
+                  >
+                    <img class="extra-image" [src]="img.dataBlobURL" />
+                    <button
+                      nbButton
+                      outline
+                      status="danger"
+                      size="tiny"
+                      (click)="removeExtraImage(img)"
+                    >
                       <nb-icon icon="close-outline"></nb-icon>
                     </button>
                   </div>
@@ -69,74 +126,166 @@
                 <div class="form-row">
                   <div class="form-group col-12 col-xl">
                     <label>Map Name</label>
-                    <input nbInput type="text" class="form-control" formControlName="name"
-                           [ngClass]="{'form-control-danger': name.invalid && (name.dirty || name.touched)}"/>
+                    <input
+                      nbInput
+                      type="text"
+                      class="form-control"
+                      formControlName="name"
+                      [ngClass]="{
+                        'form-control-danger':
+                          name.invalid && (name.dirty || name.touched)
+                      }"
+                    />
                   </div>
                   <div class="form-group col-12 col-sm">
-                    <label>Map Type
-                      <nb-icon icon="question-mark-circle-outline"
-                               [nbPopover]="'This is the style of gameplay found predominantly throughout the map.'"
-                               [nbPopoverTrigger]="'hint'"></nb-icon>
+                    <label
+                      >Map Type
+                      <nb-icon
+                        icon="question-mark-circle-outline"
+                        [nbPopover]="
+                          'This is the style of gameplay found predominantly throughout the map.'
+                        "
+                        [nbPopoverTrigger]="'hint'"
+                      ></nb-icon>
                     </label>
-                    <nb-select fullWidth placeholder="Map Type" formControlName="type" (selectedChange)="inferredMapType = false">
+                    <nb-select
+                      fullWidth
+                      placeholder="Map Type"
+                      formControlName="type"
+                      (selectedChange)="inferredMapType = false"
+                    >
                       <nb-option [value]="MapTypes.UNKNOWN">Unknown</nb-option>
                       <nb-option [value]="MapTypes.SURF">Surf</nb-option>
                       <nb-option [value]="MapTypes.BHOP">Bhop</nb-option>
                       <nb-option [value]="MapTypes.KZ">Climb (KZ)</nb-option>
                       <nb-option [value]="MapTypes.RJ">Rocket Jump</nb-option>
                       <nb-option [value]="MapTypes.SJ">Sticky Jump</nb-option>
-                      <nb-option [value]="MapTypes.TRICKSURF">Tricksurf</nb-option>
-                      <nb-option [value]="MapTypes.AHOP">Accelerated Hop</nb-option>
+                      <nb-option [value]="MapTypes.TRICKSURF"
+                        >Tricksurf</nb-option
+                      >
+                      <nb-option [value]="MapTypes.AHOP"
+                        >Accelerated Hop</nb-option
+                      >
                       <nb-option [value]="MapTypes.PARKOUR">Parkour</nb-option>
                       <nb-option [value]="MapTypes.CONC">Conc</nb-option>
                       <nb-option [value]="MapTypes.DEFRAG">Defrag</nb-option>
                     </nb-select>
-                    <div class="form-text text-center warning" *ngIf="inferredMapType">
+                    <div
+                      class="form-text text-center warning"
+                      *ngIf="inferredMapType"
+                    >
                       <i>Map type inferred from file name</i>
                     </div>
                   </div>
                   <div class="form-group col-12 col-sm">
                     <label>Date Created</label>
-                    <input nbInput class="form-control" formControlName="creationDate" [nbDatepicker]="datepicker"
-                           [ngClass]="{'form-control-danger': creationDate.invalid && (creationDate.dirty || creationDate.touched)}"/>
-                    <nb-datepicker #datepicker [boundingMonth]="false"></nb-datepicker>
+                    <input
+                      nbInput
+                      class="form-control"
+                      formControlName="creationDate"
+                      [nbDatepicker]="datepicker"
+                      [ngClass]="{
+                        'form-control-danger':
+                          creationDate.invalid &&
+                          (creationDate.dirty || creationDate.touched)
+                      }"
+                    />
+                    <nb-datepicker
+                      #datepicker
+                      [boundingMonth]="false"
+                    ></nb-datepicker>
                   </div>
                 </div>
                 <div class="form-group">
                   <label>Map Description</label>
-                  <textarea nbInput fullWidth rows="4" class="form-control" formControlName="description" [maxLength]="1000"
-                            [ngClass]="{'form-control-danger': description.invalid && (description.dirty || description.touched)}"></textarea>
+                  <textarea
+                    nbInput
+                    fullWidth
+                    rows="4"
+                    class="form-control"
+                    formControlName="description"
+                    [maxLength]="1000"
+                    [ngClass]="{
+                      'form-control-danger':
+                        description.invalid &&
+                        (description.dirty || description.touched)
+                    }"
+                  ></textarea>
                   <div class="form-text">
                     <div class="d-flex">
                       <span class="mr-auto">
-                        <i><a href="https://help.github.com/articles/basic-writing-and-formatting-syntax/" target="_blank">Markdown</a> is supported</i>
+                        <i
+                          ><a
+                            href="https://help.github.com/articles/basic-writing-and-formatting-syntax/"
+                            target="_blank"
+                            >Markdown</a
+                          >
+                          is supported</i
+                        >
                       </span>
-                      <span class="ml-2 text-right">{{1000 - description.value.length | ngxPlural:'character'}} remaining</span>
+                      <span class="ml-2 text-right"
+                        >{{
+                          1000 - description.value.length
+                            | ngxPlural : 'character'
+                        }}
+                        remaining</span
+                      >
                     </div>
                   </div>
                 </div>
               </div>
               <div class="col-12 col-md-6 mb-4">
                 <div *ngIf="!zoneFile">
-                  <file-upload [type]="'zones'" (fileSelected)="onZoneFileSelected($event)"></file-upload>
+                  <file-upload
+                    [type]="'zones'"
+                    (fileSelected)="onZoneFileSelected($event)"
+                  ></file-upload>
                 </div>
                 <div *ngIf="zoneFile">
                   <nb-list class="mb-2">
                     <nb-list-item *ngFor="let track of tracks">
                       <div class="row no-gutters align-items-center">
                         <div class="col mr-1">
-                          {{track.trackNum ? 'Bonus Track ' + track.trackNum : 'Main Track'}} with
-                          {{track.numZones | ngxPlural:(track.isLinear ? 'checkpoint' : 'stage')}}.
+                          {{
+                            track.trackNum
+                              ? 'Bonus Track ' + track.trackNum
+                              : 'Main Track'
+                          }}
+                          with
+                          {{
+                            track.numZones
+                              | ngxPlural
+                                : (track.isLinear ? 'checkpoint' : 'stage')
+                          }}.
                         </div>
                         <div class="col-auto">
-                          <label class="mr-1 mb-0" [for]="'trackDiff' + track.trackNum">Difficulty:</label>
-                          <input nbInput [id]="'trackDiff' + track.trackNum" [type]="'number'" min="1" max="12"
-                                 [(ngModel)]="track.difficulty" [ngModelOptions]="{standalone: true}">
+                          <label
+                            class="mr-1 mb-0"
+                            [for]="'trackDiff' + track.trackNum"
+                            >Difficulty:</label
+                          >
+                          <input
+                            nbInput
+                            [id]="'trackDiff' + track.trackNum"
+                            [type]="'number'"
+                            min="1"
+                            max="12"
+                            [(ngModel)]="track.difficulty"
+                            [ngModelOptions]="{ standalone: true }"
+                          />
                         </div>
                       </div>
                     </nb-list-item>
                   </nb-list>
-                  <button nbButton outline fullWidth [status]="'danger'" (click)="onRemoveZones()">Remove Zones</button>
+                  <button
+                    nbButton
+                    outline
+                    fullWidth
+                    [status]="'danger'"
+                    (click)="onRemoveZones()"
+                  >
+                    Remove Zones
+                  </button>
                 </div>
               </div>
             </div>
@@ -144,7 +293,11 @@
         </nb-step>
         <nb-step label="Credits" [stepControl]="creditsForm">
           <form [formGroup]="creditsForm">
-            <map-credits [creditArr]="creditArr" [editable]="true" (creditChange)="onCreditChanged($event)"></map-credits>
+            <map-credits
+              [creditArr]="creditArr"
+              [editable]="true"
+              (creditChange)="onCreditChanged($event)"
+            ></map-credits>
           </form>
         </nb-step>
         <nb-step label="Review">
@@ -152,22 +305,53 @@
         </nb-step>
       </nb-stepper>
       <div class="d-flex">
-        <button nbButton outline status="info" class="previous-button" type="submit" *ngIf="stepper.selectedIndex !== 0"
-                (click)="touchForm(stepper.selectedIndex); stepper.previous()">
+        <button
+          nbButton
+          outline
+          status="info"
+          class="previous-button"
+          type="submit"
+          *ngIf="stepper.selectedIndex !== 0"
+          (click)="touchForm(stepper.selectedIndex); stepper.previous()"
+        >
           <nb-icon icon="chevron-left-outline"></nb-icon>
         </button>
-        <button nbButton outline status="info" class="ml-auto" type="submit"
-                *ngIf="stepper.selectedIndex !== stepper.steps?.length - 1"
-                (click)="touchForm(stepper.selectedIndex); stepper.next()">
+        <button
+          nbButton
+          outline
+          status="info"
+          class="ml-auto"
+          type="submit"
+          *ngIf="stepper.selectedIndex !== stepper.steps?.length - 1"
+          (click)="touchForm(stepper.selectedIndex); stepper.next()"
+        >
           <nb-icon icon="chevron-right-outline"></nb-icon>
         </button>
-        <button *ngIf="stepper.selectedIndex === stepper.steps?.length - 1" nbButton outline status="info"
-                class="ml-auto" type="button" (click)="onSubmit($event)">Submit Map</button>
+        <button
+          *ngIf="stepper.selectedIndex === stepper.steps?.length - 1"
+          nbButton
+          outline
+          status="info"
+          class="ml-auto"
+          type="button"
+          (click)="onSubmit($event)"
+        >
+          Submit Map
+        </button>
       </div>
     </div>
-    <nb-progress-bar *ngIf="isUploadingMap" [value]="mapUploadPercentage" [size]="'giant'"
-                     [displayValue]="true"></nb-progress-bar>
+    <nb-progress-bar
+      *ngIf="isUploadingMap"
+      [value]="mapUploadPercentage"
+      [size]="'giant'"
+      [displayValue]="true"
+    ></nb-progress-bar>
   </nb-card-body>
 </nb-card>
 
-<map-info *ngIf="stepper?.selectedIndex === stepper?.steps?.length - 1 && !isUploadingMap" [previewMap]="mapPreview"></map-info>
+<map-info
+  *ngIf="
+    stepper?.selectedIndex === stepper?.steps?.length - 1 && !isUploadingMap
+  "
+  [previewMap]="mapPreview"
+></map-info>

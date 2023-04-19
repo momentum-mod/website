@@ -1,9 +1,9 @@
 import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 
-import {MapInfoDescriptionComponent} from './map-info-description.component';
-import {MarkdownModule} from 'ngx-markdown';
-import {NbUserModule} from '@nebular/theme';
-import {MomentumMapType} from '../../../../../@core/models/map-type.model';
+import { MapInfoDescriptionComponent } from './map-info-description.component';
+import { MarkdownModule } from 'ngx-markdown';
+import { NbUserModule } from '@nebular/theme';
+import { MomentumMapType } from '../../../../../@core/models/map-type.model';
 
 describe('MapInfoDescriptionComponent', () => {
   let component: MapInfoDescriptionComponent;
@@ -12,9 +12,8 @@ describe('MapInfoDescriptionComponent', () => {
   beforeEach(waitForAsync(() => {
     TestBed.configureTestingModule({
       imports: [MarkdownModule.forRoot(), NbUserModule],
-      declarations: [ MapInfoDescriptionComponent ],
-    })
-    .compileComponents();
+      declarations: [MapInfoDescriptionComponent]
+    }).compileComponents();
   }));
 
   beforeEach(() => {
@@ -30,15 +29,17 @@ describe('MapInfoDescriptionComponent', () => {
         id: '1',
         description: 'Test',
         numTracks: 1,
-        creationDate: new Date().toString(),
+        creationDate: new Date().toString()
       },
-      tracks: [{
-        trackNum: 0,
-        mapID: 1,
-        numZones: 1,
-        isLinear: false,
-        difficulty: 5,
-      }],
+      tracks: [
+        {
+          trackNum: 0,
+          mapID: 1,
+          numZones: 1,
+          isLinear: false,
+          difficulty: 5
+        }
+      ]
     };
     fixture.detectChanges();
   });

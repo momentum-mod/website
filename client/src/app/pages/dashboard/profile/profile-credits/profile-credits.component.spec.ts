@@ -1,12 +1,17 @@
 import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 
-import {ProfileCreditsComponent} from './profile-credits.component';
-import {NgxPaginationModule} from 'ngx-pagination';
-import {CommonModule} from '@angular/common';
-import {RouterTestingModule} from '@angular/router/testing';
-import {NbListModule, NbToastrConfig, NbToastRef, NbToastrService} from '@nebular/theme';
-import {UsersService} from '../../../../@core/data/users.service';
-import {Observable, of} from 'rxjs';
+import { ProfileCreditsComponent } from './profile-credits.component';
+import { NgxPaginationModule } from 'ngx-pagination';
+import { CommonModule } from '@angular/common';
+import { RouterTestingModule } from '@angular/router/testing';
+import {
+  NbListModule,
+  NbToastrConfig,
+  NbToastRef,
+  NbToastrService
+} from '@nebular/theme';
+import { UsersService } from '../../../../@core/data/users.service';
+import { Observable, of } from 'rxjs';
 
 describe('ProfileCreditsComponent', () => {
   let component: ProfileCreditsComponent;
@@ -15,26 +20,33 @@ describe('ProfileCreditsComponent', () => {
   let usersServiceStub: Partial<UsersService>;
   let toastrStub: Partial<NbToastrService>;
   beforeEach(waitForAsync(() => {
-
     usersServiceStub = {
       getMapCredits(userID: number, options?: object): Observable<any> {
         return of({
           count: 1,
           credits: [
             {
-              id: 1,
-            },
-          ],
+              id: 1
+            }
+          ]
         });
-      },
+      }
     };
     toastrStub = {
-      danger(message: any, title?: any, config?: Partial<NbToastrConfig>): NbToastRef {
+      danger(
+        message: any,
+        title?: any,
+        config?: Partial<NbToastrConfig>
+      ): NbToastRef {
         return null;
       },
-      success(message: any, title?: any, config?: Partial<NbToastrConfig>): NbToastRef {
+      success(
+        message: any,
+        title?: any,
+        config?: Partial<NbToastrConfig>
+      ): NbToastRef {
         return null;
-      },
+      }
     };
 
     TestBed.configureTestingModule({
@@ -42,15 +54,14 @@ describe('ProfileCreditsComponent', () => {
         CommonModule,
         NgxPaginationModule,
         RouterTestingModule,
-        NbListModule,
+        NbListModule
       ],
-      declarations: [ ProfileCreditsComponent ],
+      declarations: [ProfileCreditsComponent],
       providers: [
         { provide: UsersService, useValue: usersServiceStub },
-        { provide: NbToastrService, useValue: toastrStub },
-      ],
-    })
-    .compileComponents();
+        { provide: NbToastrService, useValue: toastrStub }
+      ]
+    }).compileComponents();
   }));
 
   beforeEach(() => {
@@ -64,7 +75,7 @@ describe('ProfileCreditsComponent', () => {
       avatarURL: '',
       country: 'US',
       roles: 0,
-      bans: 0,
+      bans: 0
     });
     fixture.detectChanges();
   });

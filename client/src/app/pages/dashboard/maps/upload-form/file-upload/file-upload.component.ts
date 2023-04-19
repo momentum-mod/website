@@ -1,19 +1,18 @@
-import {Component, EventEmitter, Input, OnInit, Output} from '@angular/core';
+import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 
 export enum FileUploadType {
   ALL = '',
   MAP = 'map',
   IMAGE = 'image',
-  ZONES = 'zones',
+  ZONES = 'zones'
 }
 
 @Component({
   selector: 'file-upload',
   templateUrl: './file-upload.component.html',
-  styleUrls: ['./file-upload.component.scss'],
+  styleUrls: ['./file-upload.component.scss']
 })
 export class FileUploadComponent implements OnInit {
-
   /**
    * The type of files this component allows to be uploaded
    */
@@ -94,8 +93,7 @@ export class FileUploadComponent implements OnInit {
             this.selectedFile = file;
             this.fileSelected.emit(file);
           }
-          if (!this.multiple)
-            break;
+          if (!this.multiple) break;
         }
       }
     } else {
@@ -105,8 +103,7 @@ export class FileUploadComponent implements OnInit {
           this.selectedFile = file;
           this.fileSelected.emit(file);
         }
-        if (!this.multiple)
-          break;
+        if (!this.multiple) break;
       }
     }
 

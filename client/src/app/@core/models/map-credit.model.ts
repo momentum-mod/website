@@ -1,6 +1,6 @@
-import {User} from './user.model';
-import {MomentumMap} from './momentum-map.model';
-import {MapCreditType} from './map-credit-type.model';
+import { User } from './user.model';
+import { MomentumMap } from './momentum-map.model';
+import { MapCreditType } from './map-credit-type.model';
 
 export interface MapCredit {
   id: string;

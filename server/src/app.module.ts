@@ -21,51 +21,51 @@ import { FastifyMulterModule } from '@nest-lab/fastify-multer';
 import { RanksModule } from '@modules/ranks/ranks.module';
 
 @Module({
-    imports: [
-        ConfigModule.forRoot({
-            envFilePath: '../.env',
-            load: [ConfigFactory],
-            cache: true,
-            isGlobal: true,
-            validate
-        }),
-        SentryModule.forRootAsync({
-            useFactory: async (config: ConfigService) => ({
-                environment: config.get('env'),
-                sentryOpts: {
-                    dsn: config.get('sentry.dsn'),
-                    debug: false,
-                    tracesSampleRate: 1
-                }
-            }),
-            inject: [ConfigService]
-        }),
-        FastifyMulterModule,
-        AuthModule,
-        ActivitiesModule,
-        AdminModule,
-        MapsModule,
-        RanksModule,
-        ReportsModule,
-        RunsModule,
-        StatsModule,
-        UserModule,
-        UsersModule,
-        SessionModule,
-        XpSystemsModule
-    ],
-    providers: [
-        {
-            provide: APP_FILTER,
-            useClass: ExceptionHandlerFilter
+  imports: [
+    ConfigModule.forRoot({
+      envFilePath: '../.env',
+      load: [ConfigFactory],
+      cache: true,
+      isGlobal: true,
+      validate
+    }),
+    SentryModule.forRootAsync({
+      useFactory: async (config: ConfigService) => ({
+        environment: config.get('env'),
+        sentryOpts: {
+          dsn: config.get('sentry.dsn'),
+          debug: false,
+          tracesSampleRate: 1
         }
-    ]
+      }),
+      inject: [ConfigService]
+    }),
+    FastifyMulterModule,
+    AuthModule,
+    ActivitiesModule,
+    AdminModule,
+    MapsModule,
+    RanksModule,
+    ReportsModule,
+    RunsModule,
+    StatsModule,
+    UserModule,
+    UsersModule,
+    SessionModule,
+    XpSystemsModule
+  ],
+  providers: [
+    {
+      provide: APP_FILTER,
+      useClass: ExceptionHandlerFilter
+    }
+  ]
 })
 export class AppModule implements NestModule {
-    public configure(consumer: MiddlewareConsumer): void {
-        consumer
-            // Add the http logger to these paths
-            .apply(HTTPLoggerMiddleware)
-            .forRoutes('*');
-    }
+  public configure(consumer: MiddlewareConsumer): void {
+    consumer
+      // Add the http logger to these paths
+      .apply(HTTPLoggerMiddleware)
+      .forRoutes('*');
+  }
 }

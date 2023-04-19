@@ -7,10 +7,15 @@ import { NgModule } from '@angular/core';
 
 import { SearchComponent } from './search.component';
 import { NbSearchService } from './search.service';
-import {NbIconModule, NbOverlayModule, NbThemeModule, NbUserModule} from '@nebular/theme';
-import {SearchFieldComponent} from './search-field.component';
-import {SearchResultsComponent} from './search-results.component';
-import {CommonModule} from '@angular/common';
+import {
+  NbIconModule,
+  NbOverlayModule,
+  NbThemeModule,
+  NbUserModule
+} from '@nebular/theme';
+import { SearchFieldComponent } from './search-field.component';
+import { SearchResultsComponent } from './search-results.component';
+import { CommonModule } from '@angular/common';
 
 @NgModule({
   imports: [
@@ -18,21 +23,10 @@ import {CommonModule} from '@angular/common';
     CommonModule,
     NbIconModule,
     NbUserModule,
-    NbOverlayModule,
+    NbOverlayModule
   ],
-  declarations: [
-    SearchComponent,
-    SearchFieldComponent,
-    SearchResultsComponent,
-  ],
-  exports: [
-    SearchComponent,
-    SearchFieldComponent,
-    SearchResultsComponent,
-  ],
-  providers: [
-    NbSearchService,
-  ],
+  declarations: [SearchComponent, SearchFieldComponent, SearchResultsComponent],
+  exports: [SearchComponent, SearchFieldComponent, SearchResultsComponent],
+  providers: [NbSearchService]
 })
-export class NbSearchModule {
-}
+export class NbSearchModule {}

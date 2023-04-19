@@ -3,5 +3,5 @@ import { UsersRepoService } from '../repo/users-repo.service';
 
 @Injectable()
 export class StatsService {
-    constructor(private readonly _userRepo: UsersRepoService) {}
+  constructor(private readonly _userRepo: UsersRepoService) {}
 }

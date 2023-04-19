@@ -1,68 +1,109 @@
 <section id="gamemodes" class="gamemodes-section bg-black">
-<div class="container">
-  <div class="row justify-content-center mb-5 mb-lg-5">
-    <div class="col-sm-12 col-md-11 col-lg-10 mb-2 mb-lg-2">
-      <div class="display-4 font-weight-normal gamemodes-header text-center">
-        Supported Game Modes
+  <div class="container">
+    <div class="row justify-content-center mb-5 mb-lg-5">
+      <div class="col-sm-12 col-md-11 col-lg-10 mb-2 mb-lg-2">
+        <div class="display-4 font-weight-normal gamemodes-header text-center">
+          Supported Game Modes
+        </div>
       </div>
     </div>
-  </div>
-  <div class="row justify-content-center mb-5 mb-lg-5">
-    <div class="col-3 col-sm-3 col-md-2 col-lg-1 gamemode"
-         *ngFor="let gamemode of gameModes; index as i"
-         (click)="setCurrentGamemode(i)">
-      <div class="base-timer" *ngIf="gameModeIndex === i">
-        <svg class="base-timer__svg" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
-          <path
-            id="base-timer-path-remaining"
-            stroke-dasharray="283"
-            class="base-timer__path-remaining"
-            d="
+    <div class="row justify-content-center mb-5 mb-lg-5">
+      <div
+        class="col-3 col-sm-3 col-md-2 col-lg-1 gamemode"
+        *ngFor="let gamemode of gameModes; index as i"
+        (click)="setCurrentGamemode(i)"
+      >
+        <div class="base-timer" *ngIf="gameModeIndex === i">
+          <svg
+            class="base-timer__svg"
+            viewBox="0 0 100 100"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <path
+              id="base-timer-path-remaining"
+              stroke-dasharray="283"
+              class="base-timer__path-remaining"
+              d="
                 M 50, 50
                 m -45, 0
                 a 45,45 0 1,0 90,0
                 a 45,45 0 1,0 -90,0
               "
-          ></path>
-        </svg>
-      </div>
-      <img class="gamemode-icon" [ngClass]="{'selected': (this.gameModeIndex === i)}"
-           [src]="gamemode.iconUrl"
-           [alt]="gamemode.modeTitle"
-           *ngIf="gameModeSectionVisible">
-      <span *ngIf="!gamemode.isImplemented" class="gamemode-coming-soon">soon™</span>
-    </div>
-  </div>
-  <div class="row justify-content-center mb-5 mb-lg-5">
-    <div class="display-5 font-weight-normal gamemodes-header text-center">
-      {{this.currentGameMode.modeTitle}}
-    </div>
-  </div>
-  <div class="row align-items-center justify-content-center mb-5 mb-lg-5">
-    <div class="row align-items-center col-sm-12 col-md-6 mb-3 mb-md-0">
-      <ng-container *ngIf="this.currentGameMode.useYoutubeEmbed; then youtubeTemplate; else webmTemplate"></ng-container>
-      <ng-template #webmTemplate>
-        <video class="gamemode-video" [src]="this.currentGameMode.url" [poster]="this.currentGameMode.imageUrl" preload="metadata" loop autoplay
-               *ngIf="gameModeSectionVisible">
-        </video>
-      </ng-template>
-      <ng-template #youtubeTemplate>
-        <div *ngIf="!this.currentGameMode.playingYoutubeEmbed && gameModeSectionVisible"
-             (click)="this.currentGameMode.playingYoutubeEmbed = true"
-             class="gamemode-youtube-play-container">
-          <img src="https://i.ytimg.com/vi/{{this.currentGameMode.youtubeVidID}}/sddefault.jpg">
-          <nb-icon icon="play-circle"></nb-icon>
+            ></path>
+          </svg>
         </div>
-        <iframe width="100%" height="305" [src]='this.currentGameMode.youtubeVidURL' frameborder="0"
-                allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture"
-                allowfullscreen
-                *ngIf="gameModeSectionVisible && this.currentGameMode.playingYoutubeEmbed && this.currentGameMode.youtubeVidURL">
-        </iframe>
-      </ng-template>
+        <img
+          class="gamemode-icon"
+          [ngClass]="{ selected: this.gameModeIndex === i }"
+          [src]="gamemode.iconUrl"
+          [alt]="gamemode.modeTitle"
+          *ngIf="gameModeSectionVisible"
+        />
+        <span *ngIf="!gamemode.isImplemented" class="gamemode-coming-soon"
+          >soon™</span
+        >
+      </div>
     </div>
-    <div class="col-12 col-md-6 gamemode-description">
-      {{this.currentGameMode.modeDescription}}
+    <div class="row justify-content-center mb-5 mb-lg-5">
+      <div class="display-5 font-weight-normal gamemodes-header text-center">
+        {{ this.currentGameMode.modeTitle }}
+      </div>
+    </div>
+    <div class="row align-items-center justify-content-center mb-5 mb-lg-5">
+      <div class="row align-items-center col-sm-12 col-md-6 mb-3 mb-md-0">
+        <ng-container
+          *ngIf="
+            this.currentGameMode.useYoutubeEmbed;
+            then youtubeTemplate;
+            else webmTemplate
+          "
+        ></ng-container>
+        <ng-template #webmTemplate>
+          <video
+            class="gamemode-video"
+            [src]="this.currentGameMode.url"
+            [poster]="this.currentGameMode.imageUrl"
+            preload="metadata"
+            loop
+            autoplay
+            *ngIf="gameModeSectionVisible"
+          ></video>
+        </ng-template>
+        <ng-template #youtubeTemplate>
+          <div
+            *ngIf="
+              !this.currentGameMode.playingYoutubeEmbed &&
+              gameModeSectionVisible
+            "
+            (click)="this.currentGameMode.playingYoutubeEmbed = true"
+            class="gamemode-youtube-play-container"
+          >
+            <img
+              src="https://i.ytimg.com/vi/{{
+                this.currentGameMode.youtubeVidID
+              }}/sddefault.jpg"
+            />
+            <nb-icon icon="play-circle"></nb-icon>
+          </div>
+          <iframe
+            width="100%"
+            height="305"
+            [src]="this.currentGameMode.youtubeVidURL"
+            frameborder="0"
+            allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture"
+            allowfullscreen
+            *ngIf="
+              gameModeSectionVisible &&
+              this.currentGameMode.playingYoutubeEmbed &&
+              this.currentGameMode.youtubeVidURL
+            "
+          >
+          </iframe>
+        </ng-template>
+      </div>
+      <div class="col-12 col-md-6 gamemode-description">
+        {{ this.currentGameMode.modeDescription }}
+      </div>
     </div>
   </div>
-</div>
 </section>

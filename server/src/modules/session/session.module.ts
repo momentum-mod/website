@@ -6,8 +6,8 @@ import { XpSystemsModule } from '../xp-systems/xp-systems.module';
 import { SessionController } from '@modules/session/session.controller';
 
 @Module({
-    imports: [RepoModule, FileStoreModule, XpSystemsModule],
-    controllers: [SessionController],
-    providers: [RunSessionService]
+  imports: [RepoModule, FileStoreModule, XpSystemsModule],
+  controllers: [SessionController],
+  providers: [RunSessionService]
 })
 export class SessionModule {}

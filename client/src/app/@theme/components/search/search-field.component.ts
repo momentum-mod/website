@@ -8,13 +8,13 @@ import {
   OnChanges,
   Output,
   SimpleChanges,
-  ViewChild,
+  ViewChild
 } from '@angular/core';
-import {UsersService} from '../../../@core/data/users.service';
-import {MapsService} from '../../../@core/data/maps.service';
-import {User} from '../../../@core/models/user.model';
-import {MomentumMap} from '../../../@core/models/momentum-map.model';
-import {Router} from '@angular/router';
+import { UsersService } from '../../../@core/data/users.service';
+import { MapsService } from '../../../@core/data/maps.service';
+import { User } from '../../../@core/models/user.model';
+import { MomentumMap } from '../../../@core/models/momentum-map.model';
+import { Router } from '@angular/router';
 
 /**
  * search-field-component is used under the hood by nb-search component
@@ -30,12 +30,11 @@ import {Router} from '@angular/router';
     'styles/search.component.column-curtain.scss',
     'styles/search.component.modal-drop.scss',
     'styles/search.component.modal-half.scss',
-    './search-field.component.scss',
+    './search-field.component.scss'
   ],
-  templateUrl: './search-field.component.html',
+  templateUrl: './search-field.component.html'
 })
 export class SearchFieldComponent implements OnChanges, AfterViewInit {
-
   static readonly TYPE_MODAL_ZOOMIN = 'modal-zoomin';
   static readonly TYPE_ROTATE_LAYOUT = 'rotate-layout';
   static readonly TYPE_MODAL_MOVE = 'modal-move';
@@ -57,7 +56,8 @@ export class SearchFieldComponent implements OnChanges, AfterViewInit {
   @Output() close = new EventEmitter();
   @Output() search = new EventEmitter();
 
-  @ViewChild('searchInput', {static: false}) inputElement: ElementRef<HTMLInputElement>;
+  @ViewChild('searchInput', { static: false })
+  inputElement: ElementRef<HTMLInputElement>;
 
   @HostBinding('class.show')
   get showClass() {
@@ -98,10 +98,11 @@ export class SearchFieldComponent implements OnChanges, AfterViewInit {
   get modalHalf() {
     return this.type === SearchFieldComponent.TYPE_MODAL_HALF;
   }
-  constructor(private usersService: UsersService,
-              private mapsService: MapsService,
-              private router: Router) {
-  }
+  constructor(
+    private usersService: UsersService,
+    private mapsService: MapsService,
+    private router: Router
+  ) {}
 
   ngOnChanges({ show }: SimpleChanges) {
     const becameHidden = !show.isFirstChange() && show.currentValue === false;
@@ -129,23 +130,27 @@ export class SearchFieldComponent implements OnChanges, AfterViewInit {
       this.onlyUsers = term.startsWith('user:');
       this.onlyMaps = term.startsWith('map:');
       if (!this.onlyMaps) {
-        this.usersService.getUsers({
-          params: {
-            search: term.substring(this.onlyUsers ? 5 : 0).trim(),
-          },
-        }).subscribe(resp => {
-          this.users = resp.users;
-        });
+        this.usersService
+          .getUsers({
+            params: {
+              search: term.substring(this.onlyUsers ? 5 : 0).trim()
+            }
+          })
+          .subscribe((resp) => {
+            this.users = resp.users;
+          });
       }
       if (!this.onlyUsers) {
-        this.mapsService.getMaps({
-          params: {
-            expand: 'thumbnail',
-            search: term.substring(this.onlyMaps ? 4 : 0).trim(),
-          },
-        }).subscribe(resp => {
-          this.maps = resp.maps;
-        });
+        this.mapsService
+          .getMaps({
+            params: {
+              expand: 'thumbnail',
+              search: term.substring(this.onlyMaps ? 4 : 0).trim()
+            }
+          })
+          .subscribe((resp) => {
+            this.maps = resp.maps;
+          });
       }
     }
   }

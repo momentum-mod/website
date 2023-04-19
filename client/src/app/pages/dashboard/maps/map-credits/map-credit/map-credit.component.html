@@ -1,10 +1,16 @@
-<h4 class="mb-3 text-center">{{category}}</h4>
+<h4 class="mb-3 text-center">{{ category }}</h4>
 <nb-list class="mb-3" cdkDropList (cdkDropListDropped)="drop($event)">
   <nb-list-item *ngFor="let user of creditArr[this.credType]" cdkDrag>
     <div class="d-flex align-items-center">
       <nb-user [name]="user.alias" [picture]="user.avatarURL"></nb-user>
       <div class="ml-auto" *ngIf="editable">
-        <button nbButton outline status="danger" size="tiny" (click)="removeUser(user)">
+        <button
+          nbButton
+          outline
+          status="danger"
+          size="tiny"
+          (click)="removeUser(user)"
+        >
           <nb-icon icon="close-outline"></nb-icon>
         </button>
       </div>
@@ -12,10 +18,23 @@
   </nb-list-item>
 </nb-list>
 <div class="text-center" *ngIf="userSearch">
-  <div class="mb-2 text-danger" *ngIf="userSearch.alreadySelected">User already selected!</div>
-  <user-search class="text-left" (selectedUserEmit)="addUser($event)"></user-search>
-  <button class="mt-3" nbButton outline status="danger" size="tiny"
-          (click)="removeUserSearch()">Cancel</button>
+  <div class="mb-2 text-danger" *ngIf="userSearch.alreadySelected">
+    User already selected!
+  </div>
+  <user-search
+    class="text-left"
+    (selectedUserEmit)="addUser($event)"
+  ></user-search>
+  <button
+    class="mt-3"
+    nbButton
+    outline
+    status="danger"
+    size="tiny"
+    (click)="removeUserSearch()"
+  >
+    Cancel
+  </button>
 </div>
 <div class="text-center" *ngIf="editable && !userSearch">
   <button nbButton outline status="info" (click)="addUserSearch()">

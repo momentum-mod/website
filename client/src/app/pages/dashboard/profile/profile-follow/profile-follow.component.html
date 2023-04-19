@@ -1,14 +1,34 @@
-<div class="text-secondary text-center mb-2 follow-status" *ngIf="targetFollowStatus">
-  <span [nbPopover]="'Following since: ' + (targetFollowStatus?.createdAt | date)" nbPopoverTrigger="hint">
+<div
+  class="text-secondary text-center mb-2 follow-status"
+  *ngIf="targetFollowStatus"
+>
+  <span
+    [nbPopover]="'Following since: ' + (targetFollowStatus?.createdAt | date)"
+    nbPopoverTrigger="hint"
+  >
     Follows You
   </span>
 </div>
-<div class="text-center" *ngIf="checked" [ngClass]="{'btn-group': localFollowStatus}">
+<div
+  class="text-center"
+  *ngIf="checked"
+  [ngClass]="{ 'btn-group': localFollowStatus }"
+>
   <button nbButton status="primary" class="btn" (click)="followClick()">
-    <span [ngClass]="{'c-anim-btn': localFollowStatus}">{{localFollowStatus ? 'Following' : 'Follow'}}</span>
+    <span [ngClass]="{ 'c-anim-btn': localFollowStatus }">{{
+      localFollowStatus ? 'Following' : 'Follow'
+    }}</span>
     <span *ngIf="localFollowStatus">Unfollow</span>
   </button>
-  <button nbButton status="primary" class="btn" *ngIf="localFollowStatus" (click)="editNotificationSettings()">
-    <nb-icon [icon]="localFollowStatus?.notifyOn === 0 ? 'bell-outline' : 'bell'"></nb-icon>
+  <button
+    nbButton
+    status="primary"
+    class="btn"
+    *ngIf="localFollowStatus"
+    (click)="editNotificationSettings()"
+  >
+    <nb-icon
+      [icon]="localFollowStatus?.notifyOn === 0 ? 'bell-outline' : 'bell'"
+    ></nb-icon>
   </button>
 </div>

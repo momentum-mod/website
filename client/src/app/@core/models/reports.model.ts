@@ -1,4 +1,4 @@
-import {Report} from './report.model';
+import { Report } from './report.model';
 
 export interface Reports {
   count?: number;

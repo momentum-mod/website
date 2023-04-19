@@ -1,40 +1,47 @@
-import {ExtraOptions, PreloadAllModules, RouterModule, Routes} from '@angular/router';
-import {NgModule} from '@angular/core';
-import {MainPageComponent} from './pages/main/main-page.component';
-import {NotFoundMainComponent} from './pages/not-found/main/not-found-main.component';
-import {AuthGuard} from './@core/guards/auth.guard';
-import {OutgoingComponent} from './pages/outgoing/outgoing.component';
+import {
+  ExtraOptions,
+  PreloadAllModules,
+  RouterModule,
+  Routes
+} from '@angular/router';
+import { NgModule } from '@angular/core';
+import { MainPageComponent } from './pages/main/main-page.component';
+import { NotFoundMainComponent } from './pages/not-found/main/not-found-main.component';
+import { AuthGuard } from './@core/guards/auth.guard';
+import { OutgoingComponent } from './pages/outgoing/outgoing.component';
 
 const routes: Routes = [
   {
     path: '',
-    component: MainPageComponent,
+    component: MainPageComponent
   },
   {
     path: 'dashboard',
     canActivate: [AuthGuard],
-    loadChildren: () => import('./pages/dashboard/dashboard.module').then(m => m.DashboardModule),
+    loadChildren: () =>
+      import('./pages/dashboard/dashboard.module').then(
+        (m) => m.DashboardModule
+      )
   },
   {
     path: 'outgoing/:url',
-    component: OutgoingComponent,
+    component: OutgoingComponent
   },
   {
     path: '**',
-    component: NotFoundMainComponent,
-  },
+    component: NotFoundMainComponent
+  }
 ];
 
 const config: ExtraOptions = {
-    useHash: false,
-    preloadingStrategy: PreloadAllModules,
-    relativeLinkResolution: 'legacy',
+  useHash: false,
+  preloadingStrategy: PreloadAllModules,
+  relativeLinkResolution: 'legacy'
 };
 
 @NgModule({
   imports: [RouterModule.forRoot(routes, config)],
   exports: [RouterModule],
-  providers: [AuthGuard],
+  providers: [AuthGuard]
 })
-export class AppRoutingModule {
-}
+export class AppRoutingModule {}

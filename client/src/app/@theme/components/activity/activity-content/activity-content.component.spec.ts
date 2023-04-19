@@ -1,11 +1,11 @@
 import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 
-import {ActivityContentComponent} from './activity-content.component';
-import {NbUserModule} from '@nebular/theme';
-import {Activity_Type} from '../../../../@core/models/activity-type.model';
-import {RouterModule} from '@angular/router';
-import {APP_BASE_HREF} from '@angular/common';
-import {TimeagoModule} from 'ngx-timeago';
+import { ActivityContentComponent } from './activity-content.component';
+import { NbUserModule } from '@nebular/theme';
+import { Activity_Type } from '../../../../@core/models/activity-type.model';
+import { RouterModule } from '@angular/router';
+import { APP_BASE_HREF } from '@angular/common';
+import { TimeagoModule } from 'ngx-timeago';
 
 describe('ActivityContentComponent', () => {
   let component: ActivityContentComponent;
@@ -13,13 +13,14 @@ describe('ActivityContentComponent', () => {
 
   beforeEach(waitForAsync(() => {
     TestBed.configureTestingModule({
-      imports: [NbUserModule, RouterModule.forRoot([], { relativeLinkResolution: 'legacy' }), TimeagoModule.forRoot()],
-      declarations: [ ActivityContentComponent ],
-      providers: [
-        { provide: APP_BASE_HREF, useValue: '/' },
+      imports: [
+        NbUserModule,
+        RouterModule.forRoot([], { relativeLinkResolution: 'legacy' }),
+        TimeagoModule.forRoot()
       ],
-    })
-    .compileComponents();
+      declarations: [ActivityContentComponent],
+      providers: [{ provide: APP_BASE_HREF, useValue: '/' }]
+    }).compileComponents();
   }));
 
   beforeEach(() => {
@@ -38,12 +39,12 @@ describe('ActivityContentComponent', () => {
         bans: 0,
         profile: {
           id: '1',
-          bio: '',
-        },
+          bio: ''
+        }
       },
       type: Activity_Type.USER_JOINED,
       data: 'lol',
-      createdAt: new Date().toString(),
+      createdAt: new Date().toString()
     };
     fixture.detectChanges();
   });

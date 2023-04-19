@@ -1,14 +1,13 @@
-import {Component, Input, OnInit} from '@angular/core';
-import {Activity} from '../../../../@core/models/activity.model';
-import {Activity_Type} from '../../../../@core/models/activity-type.model';
+import { Component, Input, OnInit } from '@angular/core';
+import { Activity } from '../../../../@core/models/activity.model';
+import { Activity_Type } from '../../../../@core/models/activity-type.model';
 
 @Component({
   selector: 'activity-content',
   templateUrl: './activity-content.component.html',
-  styleUrls: ['./activity-content.component.scss'],
+  styleUrls: ['./activity-content.component.scss']
 })
 export class ActivityContentComponent implements OnInit {
-
   @Input('activity') activity: Activity;
   /**
    * Whether the date should have display property set to none

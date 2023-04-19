@@ -1,30 +1,42 @@
 <div class="row">
   <div class="col-12 col-md-6 col-lg-3 mb-4">
-    <map-credit [editable]="editable" category="Authors"
-                [credType]="creditType.AUTHOR"
-                [creditArr]="creditArr"
-                (creditChange)="creditChange.emit($event)">
+    <map-credit
+      [editable]="editable"
+      category="Authors"
+      [credType]="creditType.AUTHOR"
+      [creditArr]="creditArr"
+      (creditChange)="creditChange.emit($event)"
+    >
     </map-credit>
   </div>
   <div class="col-12 col-md-6 col-lg-3 mb-4">
-    <map-credit [editable]="editable" category="Co-Authors"
-                [credType]="creditType.COAUTHOR"
-                [creditArr]="creditArr"
-                (creditChange)="creditChange.emit($event)">
+    <map-credit
+      [editable]="editable"
+      category="Co-Authors"
+      [credType]="creditType.COAUTHOR"
+      [creditArr]="creditArr"
+      (creditChange)="creditChange.emit($event)"
+    >
     </map-credit>
   </div>
   <div class="col-12 col-md-6 col-lg-3 mb-4">
-    <map-credit [editable]="editable" category="Testers"
-                [credType]="creditType.TESTER"
-                [creditArr]="creditArr"
-                (creditChange)="creditChange.emit($event)">
+    <map-credit
+      [editable]="editable"
+      category="Testers"
+      [credType]="creditType.TESTER"
+      [creditArr]="creditArr"
+      (creditChange)="creditChange.emit($event)"
+    >
     </map-credit>
   </div>
   <div class="col-12 col-md-6 col-lg-3 mb-4">
-    <map-credit [editable]="editable" category="Special Thanks"
-                [credType]="creditType.SPECIAL_THANKS"
-                [creditArr]="creditArr"
-                (creditChange)="creditChange.emit($event)">
+    <map-credit
+      [editable]="editable"
+      category="Special Thanks"
+      [credType]="creditType.SPECIAL_THANKS"
+      [creditArr]="creditArr"
+      (creditChange)="creditChange.emit($event)"
+    >
     </map-credit>
   </div>
 </div>

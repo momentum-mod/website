@@ -1,10 +1,10 @@
 import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 
-import {CommunityNewsComponent} from './community-news.component';
-import {NbCardModule, NbStatusService} from '@nebular/theme';
-import {TumblrAPIService} from '../../../../@core/data/tumblr-api.service';
-import {of} from 'rxjs';
-import {BlogPost} from '../../../../@core/models/blog-post.model';
+import { CommunityNewsComponent } from './community-news.component';
+import { NbCardModule, NbStatusService } from '@nebular/theme';
+import { TumblrAPIService } from '../../../../@core/data/tumblr-api.service';
+import { of } from 'rxjs';
+import { BlogPost } from '../../../../@core/models/blog-post.model';
 
 describe('CommunityNewsComponent', () => {
   let component: CommunityNewsComponent;
@@ -16,28 +16,25 @@ describe('CommunityNewsComponent', () => {
       title: 'Testy blog postarooni',
       post_url: 'localhost',
       body: 'This is a blog post, wow!',
-      timestamp: new Date(),
+      timestamp: new Date()
     };
     tumblrAPIStub = {
       getRecentBlogPosts: () => {
         return of({
           response: {
-            posts: [
-              blogPost,
-            ],
-          },
+            posts: [blogPost]
+          }
         });
-      },
+      }
     };
     TestBed.configureTestingModule({
       imports: [NbCardModule],
-      declarations: [ CommunityNewsComponent ],
+      declarations: [CommunityNewsComponent],
       providers: [
         NbStatusService,
-        { provide: TumblrAPIService, useValue: tumblrAPIStub },
-      ],
-    })
-    .compileComponents();
+        { provide: TumblrAPIService, useValue: tumblrAPIStub }
+      ]
+    }).compileComponents();
   }));
 
   beforeEach(() => {

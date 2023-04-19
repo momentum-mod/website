@@ -7,28 +7,37 @@
       <nb-card-body>
         <div *ngFor="let blogPost of blogPosts">
           <div class="row align-items-end">
-            <h4 class="col">{{blogPost.title}}</h4>
+            <h4 class="col">{{ blogPost.title }}</h4>
             <h6 class="col-auto ml-auto d-none d-sm-block">
-              {{blogPost.timestamp | date}}
+              {{ blogPost.timestamp | date }}
             </h6>
           </div>
           <p class="pt-2 pb-3">
-            <span class="mr-2">{{blogPost.body}}</span>
-            <a [href]="blogPost.post_url" target="_blank" class="text-nowrap">Read More</a>
+            <span class="mr-2">{{ blogPost.body }}</span>
+            <a [href]="blogPost.post_url" target="_blank" class="text-nowrap"
+              >Read More</a
+            >
           </p>
         </div>
         <h3 class="m-0 text-center" *ngIf="loadedPosts">
           Read more official posts
           <a href="https://blog.momentum-mod.org" target="_blank">here</a>!
         </h3>
-        <h3 class="m-0 text-center" *ngIf="!loadedPosts">Waiting for API response</h3>
+        <h3 class="m-0 text-center" *ngIf="!loadedPosts">
+          Waiting for API response
+        </h3>
       </nb-card-body>
     </nb-card>
   </div>
   <div class="col-12 col-lg-auto">
     <div class="mb-4">
-      <iframe src="https://discordapp.com/widget?id=235111289435717633&theme=dark" width="100%" height="500"
-              allowtransparency="true" frameborder="0"></iframe>
+      <iframe
+        src="https://discordapp.com/widget?id=235111289435717633&theme=dark"
+        width="100%"
+        height="500"
+        allowtransparency="true"
+        frameborder="0"
+      ></iframe>
     </div>
   </div>
 </div>

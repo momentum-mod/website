@@ -4,25 +4,25 @@ import { Exclude } from 'class-transformer';
 import { CreatedAtProperty, UpdatedAtProperty } from '@lib/dto.lib';
 
 export class ProfileDto {
-    @Exclude()
-    readonly id: number;
+  @Exclude()
+  readonly id: number;
 
-    @ApiProperty({ type: Number, description: 'The ID of the user' })
-    @IsInt()
-    readonly userID: number;
+  @ApiProperty({ type: Number, description: 'The ID of the user' })
+  @IsInt()
+  readonly userID: number;
 
-    @ApiProperty({ type: String, description: 'The text-based bio of the user' })
-    @IsString()
-    readonly bio: string;
+  @ApiProperty({ type: String, description: 'The text-based bio of the user' })
+  @IsString()
+  readonly bio: string;
 
-    @ApiProperty({ type: Number, description: 'The ID of the badge of the user' })
-    @IsOptional()
-    @IsInt()
-    readonly featuredBadgeID: number;
+  @ApiProperty({ type: Number, description: 'The ID of the badge of the user' })
+  @IsOptional()
+  @IsInt()
+  readonly featuredBadgeID: number;
 
-    @CreatedAtProperty()
-    readonly createdAt: Date;
+  @CreatedAtProperty()
+  readonly createdAt: Date;
 
-    @UpdatedAtProperty()
-    readonly updatedAt: Date;
+  @UpdatedAtProperty()
+  readonly updatedAt: Date;
 }

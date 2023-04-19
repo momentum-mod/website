@@ -5,15 +5,17 @@
  */
 import { Component, OnInit } from '@angular/core';
 import { AnalyticsService } from './@core/utils/analytics.service';
-import {ScreenerService} from './@core/utils/screener.service';
+import { ScreenerService } from './@core/utils/screener.service';
 
 @Component({
   selector: 'ngx-app',
-  template: `<router-outlet></router-outlet>`,
+  template: `<router-outlet></router-outlet>`
 })
 export class AppComponent implements OnInit {
-  constructor(private analytics: AnalyticsService,
-              private screener: ScreenerService) {
+  constructor(
+    private analytics: AnalyticsService,
+    private screener: ScreenerService
+  ) {
     this.screener.inject();
   }
 

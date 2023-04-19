@@ -24,8 +24,7 @@ th {
 .filter-content {
   max-height: 0;
   overflow: hidden;
-  transition: max-height 0.2s ease-out,
-              margin-bottom 0.2s ease-out 0.1s;
+  transition: max-height 0.2s ease-out, margin-bottom 0.2s ease-out 0.1s;
   background-color: nb-theme(background-basic-color-4);
 
   &.filter-active {
@@ -33,9 +32,9 @@ th {
   }
 }
 
-input[type=checkbox] + label {
+input[type='checkbox'] + label {
   color: #ccc;
 }
-input[type=checkbox]:checked + label {
+input[type='checkbox']:checked + label {
   color: seagreen;
 }

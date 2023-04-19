@@ -3,7 +3,8 @@
 :host ::ng-deep a {
   color: #fff;
 
-    &:focus, &:hover {
+  &:focus,
+  &:hover {
     text-decoration: none;
     color: #2e66a5;
   }

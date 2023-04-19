@@ -6,19 +6,19 @@ import { IsJSON } from 'class-validator';
 // Apparently there's some reason for this stupid table to exist, I can't remember what Goc said though
 // Think it's changing for 0.10 anyway ╚(•⌂•)╝
 export class MapZoneTriggerPropertiesDto implements MapZoneTriggerProperties {
-    @Exclude()
-    readonly id: number;
+  @Exclude()
+  readonly id: number;
 
-    @ApiProperty()
-    @IsJSON()
-    readonly properties: Prisma.JsonValue;
+  @ApiProperty()
+  @IsJSON()
+  readonly properties: Prisma.JsonValue;
 
-    @Exclude()
-    readonly triggerID: number;
+  @Exclude()
+  readonly triggerID: number;
 
-    @Exclude()
-    readonly createdAt: Date;
+  @Exclude()
+  readonly createdAt: Date;
 
-    @Exclude()
-    readonly updatedAt: Date;
+  @Exclude()
+  readonly updatedAt: Date;
 }

@@ -1,18 +1,28 @@
-<div class="d-flex flex-wrap align-items-center text" [ngClass]="dateNon ? 'cont' : ''">
-  <a routerLink="/dashboard/profile/{{activity.user.id}}" class="mr-1">
-    <nb-user [name]="activity.user.alias" [picture]="activity.user.avatarURL"></nb-user>
+<div
+  class="d-flex flex-wrap align-items-center text"
+  [ngClass]="dateNon ? 'cont' : ''"
+>
+  <a routerLink="/dashboard/profile/{{ activity.user.id }}" class="mr-1">
+    <nb-user
+      [name]="activity.user.alias"
+      [picture]="activity.user.avatarURL"
+    ></nb-user>
   </a>
   <div class="d-flex align-items-center">
-    <div class="mr-1">{{actionText}}</div>
-    <div [ngStyle]="{'cursor': eventLink ? 'pointer' : 'auto'}"
-         [routerLink]="eventLink ? eventLink : null" class="mr-2">
-      <b [ngStyle]="{'color': eventColor}">{{eventText}}</b>!
+    <div class="mr-1">{{ actionText }}</div>
+    <div
+      [ngStyle]="{ cursor: eventLink ? 'pointer' : 'auto' }"
+      [routerLink]="eventLink ? eventLink : null"
+      class="mr-2"
+    >
+      <b [ngStyle]="{ color: eventColor }">{{ eventText }}</b
+      >!
     </div>
-    <div class="icon" [ngStyle]="{'color': eventColor}">
+    <div class="icon" [ngStyle]="{ color: eventColor }">
       <nb-icon [icon]="activityIcon"></nb-icon>
     </div>
   </div>
   <div class="ml-auto" [ngClass]="dateNon ? 'd-none' : ''">
-    <div>{{activity.createdAt | timeago}}</div>
+    <div>{{ activity.createdAt | timeago }}</div>
   </div>
 </div>
