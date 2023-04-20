@@ -41,7 +41,7 @@ export function tokenGetter() {
       config: {
         tokenGetter: tokenGetter,
         allowedDomains: [
-          'localhost:3002',
+          'localhost:3000',
           'localhost:4200',
           'momentum-mod.org',
           new URL(environment.api).host,
