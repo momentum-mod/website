@@ -52,7 +52,7 @@ describe('NotificationComponent', () => {
         NbListModule,
         NbUserModule,
         NbIconModule,
-        RouterModule.forRoot([], { relativeLinkResolution: 'legacy' }),
+        RouterModule.forRoot([]),
         HttpClientTestingModule,
         CoreModule.forRoot(),
         TimeagoModule.forRoot()

@@ -15,7 +15,7 @@ describe('ActivityContentComponent', () => {
     TestBed.configureTestingModule({
       imports: [
         NbUserModule,
-        RouterModule.forRoot([], { relativeLinkResolution: 'legacy' }),
+        RouterModule.forRoot([]),
         TimeagoModule.forRoot()
       ],
       declarations: [ActivityContentComponent],

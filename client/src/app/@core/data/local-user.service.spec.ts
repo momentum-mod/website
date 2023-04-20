@@ -113,7 +113,7 @@ describe('LocalUserService', () => {
     TestBed.configureTestingModule({
       imports: [
         ThemeModule,
-        RouterModule.forRoot([], { relativeLinkResolution: 'legacy' })
+        RouterModule.forRoot([])
       ],
       providers: [
         LocalUserService,

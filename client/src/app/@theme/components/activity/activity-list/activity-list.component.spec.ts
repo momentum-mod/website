@@ -21,7 +21,7 @@ describe('ActivityListComponent', () => {
       imports: [
         NbListModule,
         NbUserModule,
-        RouterModule.forRoot([], { relativeLinkResolution: 'legacy' }),
+        RouterModule.forRoot([]),
         TimeagoModule.forRoot()
       ],
       declarations: [ActivityListComponent, ActivityContentComponent],

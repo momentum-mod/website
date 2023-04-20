@@ -35,8 +35,7 @@ const routes: Routes = [
 
 const config: ExtraOptions = {
   useHash: false,
-  preloadingStrategy: PreloadAllModules,
-  relativeLinkResolution: 'legacy'
+  preloadingStrategy: PreloadAllModules
 };
 
 @NgModule({

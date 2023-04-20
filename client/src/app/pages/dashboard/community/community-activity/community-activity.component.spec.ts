@@ -51,10 +51,7 @@ describe('CommunityActivityComponent', () => {
       }
     };
     TestBed.configureTestingModule({
-      imports: [
-        ThemeModule.forRoot(),
-        RouterModule.forRoot([], { relativeLinkResolution: 'legacy' })
-      ],
+      imports: [ThemeModule.forRoot(), RouterModule.forRoot([])],
       declarations: [CommunityActivityComponent],
       providers: [
         { provide: ActivityService, useValue: actServiceStub },
