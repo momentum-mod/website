@@ -8,7 +8,7 @@ import { NotificationsService } from '../../../@core/utils/notifications.service
   styleUrls: ['./notification.component.scss']
 })
 export class NotificationComponent implements OnInit {
-  @Input('notifications') notifications: SiteNotification[];
+  @Input() notifications: SiteNotification[];
 
   constructor(private notificationService: NotificationsService) {}
 
@@ -16,11 +16,7 @@ export class NotificationComponent implements OnInit {
   ngOnInit() {
     this.notifications.sort((a: SiteNotification, b: SiteNotification) => {
       if (!a.read) {
-        if (!b.read) {
-          return 0;
-        } else {
-          return -1;
-        }
+        return !b.read ? 0 : -1;
       } else if (!b.read) {
         return 1;
       } else {

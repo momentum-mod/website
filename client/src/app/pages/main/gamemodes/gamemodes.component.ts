@@ -220,7 +220,7 @@ export class GamemodesComponent implements OnDestroy {
   // Length = 2πr = 2 * π * 45 = 282.6
   readonly FULL_DASH_ARRAY = 283;
 
-  timePassed: number = 0;
+  timePassed = 0;
   timeLeft: number = GamemodesComponent.GAMEMODE_CHANGE_TIME;
   circleTimerInterval: NodeJS.Timeout = null;
 
@@ -253,7 +253,7 @@ export class GamemodesComponent implements OnDestroy {
       this.calculateTimeFraction(timeLimit) * this.FULL_DASH_ARRAY
     ).toFixed(0)} 283`;
     document
-      .getElementById('base-timer-path-remaining')
+      .querySelector('#base-timer-path-remaining')
       .setAttribute('stroke-dasharray', circleDasharray);
   }
 }

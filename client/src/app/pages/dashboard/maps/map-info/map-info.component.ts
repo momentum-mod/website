@@ -27,7 +27,7 @@ import { MapNotifyEditComponent } from './map-info-notify-edit/map-info-notify-e
 })
 export class MapInfoComponent implements OnInit, OnDestroy {
   private ngUnsub = new Subject();
-  @Input('previewMap') previewMap: MomentumMapPreview;
+  @Input() previewMap: MomentumMapPreview;
   ReportType: typeof ReportType;
   map: MomentumMap;
   mapNotify: MapNotify;
@@ -112,9 +112,9 @@ export class MapInfoComponent implements OnInit, OnDestroy {
                 );
             }
           );
-          if (this.map.favorites && this.map.favorites.length)
+          if (this.map.favorites && this.map.favorites.length > 0)
             this.mapInFavorites = true;
-          if (this.map.libraryEntries && this.map.libraryEntries.length)
+          if (this.map.libraryEntries && this.map.libraryEntries.length > 0)
             this.mapInLibrary = true;
           this.updateGallery(galleryRef, map.images, map.info.youtubeID);
           this.locUserService
@@ -234,11 +234,11 @@ export class MapInfoComponent implements OnInit, OnDestroy {
       galleryItems.push(new YoutubeItem({ src: youtubeID }));
     }
 
-    for (let i = 0; i < mapImages.length; i++) {
+    for (const mapImage of mapImages) {
       galleryItems.push(
         new ImageItem({
-          src: mapImages[i].large,
-          thumb: mapImages[i].small
+          src: mapImage.large,
+          thumb: mapImage.small
         })
       );
     }

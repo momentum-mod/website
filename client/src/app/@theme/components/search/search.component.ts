@@ -90,14 +90,14 @@ export class SearchComponent implements OnInit, OnDestroy {
    * Search input placeholder
    * @type {string}
    */
-  @Input() placeholder: string = 'Search...';
+  @Input() placeholder = 'Search...';
 
   /**
    * Hint showing under the input field to improve user experience
    *
    * @type {string}
    */
-  @Input() hint: string = 'Hit enter to search';
+  @Input() hint = 'Hit enter to search';
 
   /**
    * Search design type, available types are

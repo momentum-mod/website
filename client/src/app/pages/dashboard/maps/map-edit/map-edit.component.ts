@@ -17,7 +17,7 @@ import { NbDialogService, NbToastrService } from '@nebular/theme';
 import { ConfirmDialogComponent } from '../../../../@theme/components/confirm-dialog/confirm-dialog.component';
 import { forkJoin, Subject } from 'rxjs';
 
-const youtubeRegex = /[a-zA-Z0-9_-]{11}/;
+const youtubeRegex = /[\w-]{11}/;
 
 @Component({
   selector: 'map-edit',
@@ -130,8 +130,7 @@ export class MapEditComponent implements OnInit, OnDestroy {
     $event.target.disabled = true;
     const allCredits: MapCredit[] = this.getAllCredits();
     const creditUpdates = [];
-    for (let i = 0; i < allCredits.length; i++) {
-      const credit = allCredits[i];
+    for (const [i, credit] of allCredits.entries()) {
       if (i < this.mapCreditsIDs.length) {
         creditUpdates.push(
           this.mapService.updateMapCredit(
@@ -199,10 +198,7 @@ export class MapEditComponent implements OnInit, OnDestroy {
   }
 
   removeMapImage(img: MapImage) {
-    this.mapImages.splice(
-      this.mapImages.findIndex((i) => i === img),
-      1
-    );
+    this.mapImages.splice(this.mapImages.indexOf(img), 1);
   }
 
   imageDrop(event: CdkDragDrop<MapImage[]>) {

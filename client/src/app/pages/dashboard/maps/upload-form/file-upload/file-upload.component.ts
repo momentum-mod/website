@@ -16,7 +16,7 @@ export class FileUploadComponent implements OnInit {
   /**
    * The type of files this component allows to be uploaded
    */
-  @Input('type') type: FileUploadType;
+  @Input() type: FileUploadType;
   /**
    * The total size, in MB, allowed for the size of the file
    */
@@ -28,7 +28,7 @@ export class FileUploadComponent implements OnInit {
   /**
    * Whether allow multiple selections
    */
-  @Input('multiple') multiple: boolean;
+  @Input() multiple: boolean;
   @Output() fileSelected: EventEmitter<File>;
   dragOver: number;
   invalidSize: boolean;
@@ -51,15 +51,26 @@ export class FileUploadComponent implements OnInit {
   }
 
   ngOnInit() {
-    if (this.type === FileUploadType.MAP) {
-      this.acceptString = '.bsp';
-      this.matchString = /.+(\.bsp)/;
-    } else if (this.type === FileUploadType.IMAGE) {
-      this.acceptString = 'image/png,image/jpeg';
-      this.matchString = /.+(\.(pn|jpe?)g)/i;
-    } else if (this.type === FileUploadType.ZONES) {
-      this.acceptString = '.zon';
-      this.matchString = /.+(\.zon)/;
+    switch (this.type) {
+      case FileUploadType.MAP: {
+        this.acceptString = '.bsp';
+        this.matchString = /.+(\.bsp)/;
+
+        break;
+      }
+      case FileUploadType.IMAGE: {
+        this.acceptString = 'image/png,image/jpeg';
+        this.matchString = /.+(\.(pn|jpe?)g)/i;
+
+        break;
+      }
+      case FileUploadType.ZONES: {
+        this.acceptString = '.zon';
+        this.matchString = /.+(\.zon)/;
+
+        break;
+      }
+      // No default
     }
   }
 

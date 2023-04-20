@@ -7,8 +7,8 @@ import { Activity } from '../../../../@core/models/activity.model';
   styleUrls: ['./activity-list.component.scss']
 })
 export class ActivityListComponent implements OnInit {
-  @Input('activities') activities: Activity[];
-  @Input('hasRequested') hasRequested: boolean;
+  @Input() activities: Activity[];
+  @Input() hasRequested: boolean;
   @Output() showMore = new EventEmitter();
 
   constructor() {

@@ -7,7 +7,7 @@ import { TwitchStream } from '../../../../../@core/models/twitch-stream.model';
   styleUrls: ['./twitch-data.component.scss']
 })
 export class TwitchDataComponent implements OnInit {
-  @Input('stream') stream: TwitchStream;
+  @Input() stream: TwitchStream;
   constructor() {
     this.stream = null;
   }

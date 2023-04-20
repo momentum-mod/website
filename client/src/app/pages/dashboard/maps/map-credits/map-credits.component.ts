@@ -10,8 +10,8 @@ import { CreditChangeEvent } from './map-credit/map-credit.component';
 })
 export class MapCreditsComponent {
   creditType: typeof MapCreditType = MapCreditType;
-  @Input('creditArr') creditArr: User[][];
-  @Input('editable') editable: boolean;
+  @Input() creditArr: User[][];
+  @Input() editable: boolean;
   @Output() creditChange: EventEmitter<CreditChangeEvent>;
   constructor() {
     this.creditArr = [];

@@ -7,7 +7,7 @@ import { UserStats } from '../../../../@core/models/user-stats.model';
   styleUrls: ['./home-stats.component.scss']
 })
 export class HomeStatsComponent implements OnInit {
-  @Input('userStats') userStats: UserStats;
+  @Input() userStats: UserStats;
 
   constructor() {}
 

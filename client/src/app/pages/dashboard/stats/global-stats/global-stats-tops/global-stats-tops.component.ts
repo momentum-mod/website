@@ -7,7 +7,7 @@ import { GlobalMapStats } from '../../../../../@core/models/global-map-stats.mod
   styleUrls: ['./global-stats-tops.component.scss']
 })
 export class GlobalStatsTopsComponent implements OnInit {
-  @Input('globalMapStats') globalMapStats: GlobalMapStats;
+  @Input() globalMapStats: GlobalMapStats;
 
   constructor() {}
 

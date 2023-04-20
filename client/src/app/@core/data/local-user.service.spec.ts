@@ -111,10 +111,7 @@ describe('LocalUserService', () => {
     };
 
     TestBed.configureTestingModule({
-      imports: [
-        ThemeModule,
-        RouterModule.forRoot([])
-      ],
+      imports: [ThemeModule, RouterModule.forRoot([])],
       providers: [
         LocalUserService,
         { provide: CookieService, useValue: cookieServiceStub },

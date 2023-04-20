@@ -19,7 +19,7 @@ export enum LeaderboardType {
 })
 export class MapLeaderboardComponent implements OnInit {
   private _mapID: number;
-  @Input('mapID')
+  @Input()
   set mapID(value: number) {
     this._mapID = value;
     this.loadLeaderboardRuns();
@@ -45,29 +45,32 @@ export class MapLeaderboardComponent implements OnInit {
   ngOnInit() {}
 
   filterLeaderboardRuns(mapID?: number) {
-    if (this.filterLeaderboardType === this.LeaderboardTypeEnum.TOP10) {
-      return this.rankService.getRanks(mapID || this.mapID, {
-        params: {
-          // TODO do further filtering here
-          limit: 10
-        }
-      });
-    } else if (this.filterLeaderboardType === this.LeaderboardTypeEnum.AROUND) {
-      return this.rankService.getAroundRanks(mapID || this.mapID, {
-        params: {
-          // TODO do further filtering here
-          limit: 10
-        }
-      });
-    } else if (
-      this.filterLeaderboardType === this.LeaderboardTypeEnum.FRIENDS
-    ) {
-      return this.rankService.getFriendsRanks(mapID || this.mapID, {
-        params: {
-          // TODO do further filtering here
-          limit: 10
-        }
-      });
+    switch (this.filterLeaderboardType) {
+      case this.LeaderboardTypeEnum.TOP10: {
+        return this.rankService.getRanks(mapID || this.mapID, {
+          params: {
+            // TODO do further filtering here
+            limit: 10
+          }
+        });
+      }
+      case this.LeaderboardTypeEnum.AROUND: {
+        return this.rankService.getAroundRanks(mapID || this.mapID, {
+          params: {
+            // TODO do further filtering here
+            limit: 10
+          }
+        });
+      }
+      case this.LeaderboardTypeEnum.FRIENDS: {
+        return this.rankService.getFriendsRanks(mapID || this.mapID, {
+          params: {
+            // TODO do further filtering here
+            limit: 10
+          }
+        });
+      }
+      // No default
     }
   }
 

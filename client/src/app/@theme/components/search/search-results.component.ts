@@ -7,32 +7,29 @@ import { Component, EventEmitter, Input, Output } from '@angular/core';
 })
 export class SearchResultsComponent {
   @Input('user') usersResults: boolean;
-  @Input('onlyUsers') onlyUsers: boolean;
-  @Input('onlyMaps') onlyMaps: boolean;
-  @Input('elems') elems: any[];
+  @Input() onlyUsers: boolean;
+  @Input() onlyMaps: boolean;
+  @Input() elems: any[];
   @Output() selectedURL: EventEmitter<string> = new EventEmitter();
   constructor() {}
 
   getElemName(elem: any): string {
-    if (this.usersResults) return elem.alias;
-    else return elem.name;
+    return this.usersResults ? elem.alias : elem.name;
   }
   getElemURL(elem: any): string {
-    if (this.usersResults) return '/dashboard/profile/' + elem.id;
-    else return '/dashboard/maps/' + elem.id;
+    return this.usersResults
+      ? '/dashboard/profile/' + elem.id
+      : '/dashboard/maps/' + elem.id;
   }
 
   getElemPicture(elem: any) {
-    if (this.usersResults) return elem.avatarURL;
-    else return elem.thumbnail.small;
+    return this.usersResults ? elem.avatarURL : elem.thumbnail.small;
   }
 
   shouldShowEmpty(): boolean {
-    if (this.usersResults) {
-      return !this.onlyMaps && this.elems && this.elems.length === 0;
-    } else {
-      return !this.onlyUsers && this.elems && this.elems.length === 0;
-    }
+    return this.usersResults
+      ? !this.onlyMaps && this.elems && this.elems.length === 0
+      : !this.onlyUsers && this.elems && this.elems.length === 0;
   }
 
   clickElem(elem: any) {

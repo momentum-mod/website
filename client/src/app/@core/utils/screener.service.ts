@@ -6,7 +6,7 @@ import { Router } from '@angular/router';
 export class ScreenerService {
   constructor(private router: Router) {}
   inject(): void {
-    document.onclick = this.intercept.bind(this);
+    document.addEventListener('click', this.intercept.bind(this));
   }
   static checkHref(href: URL): boolean {
     for (const domain of OutgoingModule.whitelistedOutgoingDomains) {

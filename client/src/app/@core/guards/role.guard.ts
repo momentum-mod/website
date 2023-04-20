@@ -29,11 +29,11 @@ export class RoleGuard implements CanActivate {
 
   checkPermissions(roles): boolean {
     let hasPermission = false;
-    roles.forEach((role) => {
+    for (const role of roles) {
       if (this.userService.hasRole(role)) {
         hasPermission = true;
       }
-    });
+    }
     return hasPermission;
   }
 }

@@ -24,7 +24,7 @@ export interface ImageFilePreview {
   file: File;
 }
 
-const youtubeRegex = /[a-zA-Z0-9_-]{11}/;
+const youtubeRegex = /[\w-]{11}/;
 
 @Component({
   selector: 'map-upload-form',
@@ -233,7 +233,7 @@ export class MapUploadFormComponent implements OnInit, AfterViewInit {
     $event.target.disabled = true;
 
     let mapCreated = false;
-    let mapID: number = -1;
+    let mapID = -1;
     let uploadLocation = '';
 
     const mapObject = {
@@ -268,7 +268,8 @@ export class MapUploadFormComponent implements OnInit, AfterViewInit {
             extraImageCreations.push(
               this.mapsService.createMapImage(mapID, this.extraImages[i].file)
             );
-          if (extraImageCreations.length) return forkJoin(extraImageCreations);
+          if (extraImageCreations.length > 0)
+            return forkJoin(extraImageCreations);
           return of({});
         }),
         mergeMap(() => {
@@ -367,10 +368,7 @@ export class MapUploadFormComponent implements OnInit, AfterViewInit {
   }
 
   removeExtraImage(img: ImageFilePreview) {
-    this.extraImages.splice(
-      this.extraImages.findIndex((i) => i === img),
-      1
-    );
+    this.extraImages.splice(this.extraImages.indexOf(img), 1);
   }
 
   getAllCredits() {

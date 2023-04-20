@@ -20,7 +20,7 @@ import { NbToastrService } from '@nebular/theme';
 })
 export class QueuedMapComponent implements OnInit {
   MapUploadStatus: typeof MapUploadStatus = MapUploadStatus;
-  @Input('map') map: MomentumMap;
+  @Input() map: MomentumMap;
   @Output() onStatusUpdate = new EventEmitter();
   @ViewChild('mapFileDownloadLink', { static: false })
   private mapFileDownloadLink: ElementRef;

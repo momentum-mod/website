@@ -8,8 +8,8 @@ import { GlobalMapStats } from '../../../../../@core/models/global-map-stats.mod
   styleUrls: ['./global-stats-base.component.scss']
 })
 export class GlobalStatsBaseComponent implements OnInit {
-  @Input('globalBaseStats') globalBaseStats: GlobalBaseStats;
-  @Input('globalMapStats') globalMapStats: GlobalMapStats;
+  @Input() globalBaseStats: GlobalBaseStats;
+  @Input() globalMapStats: GlobalMapStats;
 
   constructor() {}
 

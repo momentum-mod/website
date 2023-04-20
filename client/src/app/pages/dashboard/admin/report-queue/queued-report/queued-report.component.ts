@@ -11,7 +11,7 @@ import { UpdateReportDialogComponent } from '../update-report-dialog/update-repo
   styleUrls: ['./queued-report.component.scss']
 })
 export class QueuedReportComponent implements OnInit {
-  @Input('report') report: Report;
+  @Input() report: Report;
   @Output() reportUpdate: EventEmitter<Report>;
   typeText: string;
   categoryText: string;

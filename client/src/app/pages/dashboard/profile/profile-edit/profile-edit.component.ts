@@ -89,7 +89,7 @@ export class ProfileEditComponent implements OnInit, OnDestroy {
       )
       .subscribe((id: string) => {
         if (id) {
-          const numID: number = Number(id);
+          const numID = Number(id);
           this.isLocal = numID === this.localUserService.localUser.id;
           if (!this.isLocal) {
             this.usersService

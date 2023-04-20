@@ -8,7 +8,7 @@ import { Activity_Type } from '../../../../@core/models/activity-type.model';
   styleUrls: ['./activity-content.component.scss']
 })
 export class ActivityContentComponent implements OnInit {
-  @Input('activity') activity: Activity;
+  @Input() activity: Activity;
   /**
    * Whether the date should have display property set to none
    * and limit content width on md media query (for notifications)

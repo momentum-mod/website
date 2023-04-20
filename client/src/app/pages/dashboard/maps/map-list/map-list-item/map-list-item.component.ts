@@ -10,16 +10,16 @@ import { NbToastrService } from '@nebular/theme';
   styleUrls: ['./map-list-item.component.scss']
 })
 export class MapListItemComponent implements OnInit {
-  @Input('map') map: MomentumMap;
-  @Input('isUpload') isUpload: boolean;
-  @Input('inLibrary') inLibrary: boolean;
-  @Input('inFavorites') inFavorites: boolean;
-  @Input('showDownloadButton') showDownloadButton: boolean;
+  @Input() map: MomentumMap;
+  @Input() isUpload: boolean;
+  @Input() inLibrary: boolean;
+  @Input() inFavorites: boolean;
+  @Input() showDownloadButton: boolean;
   @Output() onLibraryUpdate = new EventEmitter();
   @Output() onFavoriteUpdate = new EventEmitter();
   mapInFavorites: boolean;
   mapInLibrary: boolean;
-  status: String;
+  status: string;
 
   constructor(
     private localUserService: LocalUserService,

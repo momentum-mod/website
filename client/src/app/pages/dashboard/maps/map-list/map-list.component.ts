@@ -30,7 +30,7 @@ export enum MapListType {
   styleUrls: ['./map-list.component.scss']
 })
 export class MapListComponent implements OnInit {
-  @Input('type') type: MapListType;
+  @Input() type: MapListType;
   mapListType = MapListType;
   statusEnums = [];
   typeEnums = [];
@@ -157,24 +157,35 @@ export class MapListComponent implements OnInit {
   loadMaps() {
     const options = { params: this.genQueryParams() };
     let observer: Observable<any>;
-    if (this.type === MapListType.TYPE_LIBRARY) {
-      observer = this.locUsrService.getMapLibrary(options).pipe(
-        map((res) => ({
-          count: res.count,
-          maps: res.entries.map((val) => val.map)
-        }))
-      );
-    } else if (this.type === MapListType.TYPE_FAVORITES) {
-      observer = this.locUsrService.getMapFavorites(options).pipe(
-        map((res) => ({
-          count: res.count,
-          maps: res.favorites.map((val) => val.map)
-        }))
-      );
-    } else if (this.type === MapListType.TYPE_UPLOADS) {
-      observer = this.locUsrService.getSubmittedMaps(options);
-    } else {
-      observer = this.mapService.getMaps(options);
+    switch (this.type) {
+      case MapListType.TYPE_LIBRARY: {
+        observer = this.locUsrService.getMapLibrary(options).pipe(
+          map((res) => ({
+            count: res.count,
+            maps: res.entries.map((val) => val.map)
+          }))
+        );
+
+        break;
+      }
+      case MapListType.TYPE_FAVORITES: {
+        observer = this.locUsrService.getMapFavorites(options).pipe(
+          map((res) => ({
+            count: res.count,
+            maps: res.favorites.map((val) => val.map)
+          }))
+        );
+
+        break;
+      }
+      case MapListType.TYPE_UPLOADS: {
+        observer = this.locUsrService.getSubmittedMaps(options);
+
+        break;
+      }
+      default: {
+        observer = this.mapService.getMaps(options);
+      }
     }
 
     observer.pipe(finalize(() => (this.requestSent = true))).subscribe(
@@ -200,8 +211,9 @@ export class MapListComponent implements OnInit {
   }
 
   isMapInLibrary(m: MomentumMap): boolean {
-    if (this.type === MapListType.TYPE_LIBRARY) return true;
-    else return m.libraryEntries && m.libraryEntries.length > 0;
+    return this.type === MapListType.TYPE_LIBRARY
+      ? true
+      : m.libraryEntries && m.libraryEntries.length > 0;
   }
 
   libraryUpdate(): void {
@@ -219,8 +231,9 @@ export class MapListComponent implements OnInit {
   }
 
   isMapInFavorites(m: MomentumMap) {
-    if (this.type === MapListType.TYPE_FAVORITES) return true;
-    else return m.favorites && m.favorites.length > 0;
+    return this.type === MapListType.TYPE_FAVORITES
+      ? true
+      : m.favorites && m.favorites.length > 0;
   }
 
   isSearchFiltered(): boolean {

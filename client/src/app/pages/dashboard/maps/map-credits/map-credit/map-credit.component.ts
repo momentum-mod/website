@@ -19,10 +19,10 @@ export interface CreditChangeEvent {
   styleUrls: ['./map-credit.component.scss']
 })
 export class MapCreditComponent {
-  @Input('category') category: string;
-  @Input('credType') credType: MapCreditType;
-  @Input('creditArr') creditArr: User[][];
-  @Input('editable') editable: boolean;
+  @Input() category: string;
+  @Input() credType: MapCreditType;
+  @Input() creditArr: User[][];
+  @Input() editable: boolean;
   @Output() creditChange: EventEmitter<CreditChangeEvent>;
   userSearch: UserSearch;
 

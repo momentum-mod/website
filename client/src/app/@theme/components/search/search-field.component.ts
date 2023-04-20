@@ -45,8 +45,8 @@ export class SearchFieldComponent implements OnChanges, AfterViewInit {
 
   users: User[] = null;
   maps: MomentumMap[] = null;
-  onlyUsers: boolean = false;
-  onlyMaps: boolean = false;
+  onlyUsers = false;
+  onlyMaps = false;
 
   @Input() type: string;
   @Input() placeholder: string;
@@ -133,7 +133,7 @@ export class SearchFieldComponent implements OnChanges, AfterViewInit {
         this.usersService
           .getUsers({
             params: {
-              search: term.substring(this.onlyUsers ? 5 : 0).trim()
+              search: term.slice(Math.max(0, this.onlyUsers ? 5 : 0)).trim()
             }
           })
           .subscribe((resp) => {
@@ -145,7 +145,7 @@ export class SearchFieldComponent implements OnChanges, AfterViewInit {
           .getMaps({
             params: {
               expand: 'thumbnail',
-              search: term.substring(this.onlyMaps ? 4 : 0).trim()
+              search: term.slice(Math.max(0, this.onlyMaps ? 4 : 0)).trim()
             }
           })
           .subscribe((resp) => {

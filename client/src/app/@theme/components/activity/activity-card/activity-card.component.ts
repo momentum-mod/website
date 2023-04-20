@@ -12,8 +12,8 @@ import { User } from '../../../../@core/models/user.model';
 })
 export class ActivityCardComponent implements OnInit {
   @Input('header') headerTitle: string;
-  @Input('follow') follow: boolean;
-  @Input('recent') recent: boolean;
+  @Input() follow: boolean;
+  @Input() recent: boolean;
   @Input('userSubj') userSubj$: ReplaySubject<User>;
 
   constructor(private actService: ActivityService) {
@@ -67,7 +67,7 @@ export class ActivityCardComponent implements OnInit {
       .getRecentActivity(10 * this.recentActPage++)
       .subscribe((res) => {
         // Don't call the API anymore if there are no more activities left
-        if (res.activities.length !== 0) {
+        if (res.activities.length > 0) {
           this.canLoadMore = true;
           this.activities.push(...res.activities);
           this.filterActivites(this.activities);

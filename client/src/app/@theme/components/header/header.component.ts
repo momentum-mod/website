@@ -93,9 +93,6 @@ export class HeaderComponent implements OnInit, OnDestroy {
   }
 
   getNotificationIconClass() {
-    if (this.notifications.length === 0) return 'bell-outline';
-    else {
-      return 'bell';
-    }
+    return this.notifications.length === 0 ? 'bell-outline' : 'bell';
   }
 }

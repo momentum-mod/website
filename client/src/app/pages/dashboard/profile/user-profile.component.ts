@@ -57,7 +57,7 @@ export class UserProfileComponent implements OnInit, OnDestroy {
       .pipe(
         switchMap((params: ParamMap) => {
           if (params.has('id')) {
-            const idNum: number = Number(params.get('id'));
+            const idNum = Number(params.get('id'));
             this.userService
               .getLocal()
               .pipe(takeUntil(this.ngUnsub))

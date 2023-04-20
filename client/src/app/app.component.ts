@@ -9,7 +9,7 @@ import { ScreenerService } from './@core/utils/screener.service';
 
 @Component({
   selector: 'ngx-app',
-  template: `<router-outlet></router-outlet>`
+  template: '<router-outlet></router-outlet>'
 })
 export class AppComponent implements OnInit {
   constructor(

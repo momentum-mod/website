@@ -24,25 +24,25 @@ export class DashboardComponent implements OnInit {
   }
 
   ngOnInit() {
-    this.menu.forEach((item) => {
+    for (const item of this.menu) {
       this.authMenuItem(item);
-    });
+    }
   }
 
   authMenuItem(menuItem: NbMenuItem) {
     if (menuItem.data && menuItem.data.roles) {
       let hideMenuItem = true;
-      menuItem.data.roles.forEach((role) => {
+      for (const role of menuItem.data.roles) {
         if (this.userService.hasRole(role)) {
           hideMenuItem = false;
         }
-      });
+      }
       menuItem.hidden = hideMenuItem;
     }
     if (menuItem.children) {
-      menuItem.children.forEach((item) => {
+      for (const item of menuItem.children) {
         this.authMenuItem(item);
-      });
+      }
     }
   }
 }

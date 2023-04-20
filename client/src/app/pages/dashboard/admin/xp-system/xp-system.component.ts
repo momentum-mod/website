@@ -41,7 +41,7 @@ export class XPSystemComponent implements OnInit {
         startingValue: [20000, Validators.required],
         linearScaleBaseIncrease: [1000, Validators.required],
         linearScaleInterval: [10, Validators.required],
-        linearScaleIntervalMultiplier: [1.0, Validators.required],
+        linearScaleIntervalMultiplier: [1, Validators.required],
         staticScaleStart: [101, Validators.required],
         staticScaleBaseMultiplier: [1.5, Validators.required],
         staticScaleInterval: [25, Validators.required],

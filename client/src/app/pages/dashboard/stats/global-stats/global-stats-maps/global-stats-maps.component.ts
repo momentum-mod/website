@@ -14,7 +14,7 @@ import { GlobalMapStats } from '../../../../../@core/models/global-map-stats.mod
   styleUrls: ['./global-stats-maps.component.scss']
 })
 export class GlobalStatsMapsComponent implements OnInit, OnChanges {
-  @Input('globalMapStats') globalMapStats: GlobalMapStats;
+  @Input() globalMapStats: GlobalMapStats;
 
   mapCompletionPieChart;
   mapCompletionPieChartOptions: EChartsOption;

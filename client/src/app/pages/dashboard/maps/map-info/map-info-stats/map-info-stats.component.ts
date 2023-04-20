@@ -7,7 +7,7 @@ import { MomentumMap } from '../../../../../@core/models/momentum-map.model';
   styleUrls: ['./map-info-stats.component.scss']
 })
 export class MapInfoStatsComponent implements OnInit {
-  @Input('map') map: MomentumMap;
+  @Input() map: MomentumMap;
 
   constructor() {}
 

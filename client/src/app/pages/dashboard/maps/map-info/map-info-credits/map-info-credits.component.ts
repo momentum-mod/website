@@ -9,7 +9,7 @@ import { MomentumMap } from '../../../../../@core/models/momentum-map.model';
   styleUrls: ['./map-info-credits.component.scss']
 })
 export class MapInfoCreditsComponent implements OnInit {
-  @Input('map') map: MomentumMap;
+  @Input() map: MomentumMap;
   Map_Credit_Type: typeof MapCreditType = MapCreditType;
 
   constructor() {}
@@ -22,8 +22,8 @@ export class MapInfoCreditsComponent implements OnInit {
   ): MapCredit[] {
     if (!mapCredits) return [];
     const credits = [];
-    for (let i = 0; i < mapCredits.length; i++) {
-      if (mapCredits[i].type === creditType) credits.push(mapCredits[i]);
+    for (const mapCredit of mapCredits) {
+      if (mapCredit.type === creditType) credits.push(mapCredit);
     }
     return credits;
   }
