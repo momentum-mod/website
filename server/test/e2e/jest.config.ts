@@ -10,7 +10,8 @@ const EndToEndTestConfig: JestConfigWithTsJest = {
   testTimeout: 5000,
   globalSetup: '<rootDir>/test/e2e/setup.ts',
   testMatch: ['<rootDir>/test/e2e/*.e2e-spec.ts'],
-  // E2E tests modify an actual database, so database clean between each tests, tests must be run sequentially.
+  // E2E tests modify an actual database, so database clean between each
+  // tests, tests must be run sequentially.
   maxWorkers: 1,
   modulePaths: [compilerOptions.baseUrl],
   moduleNameMapper: pathsToModuleNameMapper(compilerOptions.paths, {
