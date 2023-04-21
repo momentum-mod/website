@@ -4,7 +4,7 @@
     <ul class="list-unstyled">
       <li
         *ngFor="
-          let credit of filterMapCredits(map?.credits, Map_Credit_Type.AUTHOR)
+          let credit of filterMapCredits(map?.credits, MapCreditType.AUTHOR)
         "
       >
         <a [routerLink]="'/dashboard/profile/' + credit?.user.id">
@@ -22,7 +22,7 @@
     <ul class="list-unstyled">
       <li
         *ngFor="
-          let credit of filterMapCredits(map?.credits, Map_Credit_Type.COAUTHOR)
+          let credit of filterMapCredits(map?.credits, MapCreditType.COAUTHOR)
         "
       >
         <a [routerLink]="'/dashboard/profile/' + credit?.user.id">
@@ -40,7 +40,7 @@
     <ul class="list-unstyled">
       <li
         *ngFor="
-          let credit of filterMapCredits(map?.credits, Map_Credit_Type.TESTER)
+          let credit of filterMapCredits(map?.credits, MapCreditType.TESTER)
         "
       >
         <a [routerLink]="'/dashboard/profile/' + credit?.user.id">
@@ -60,7 +60,7 @@
         *ngFor="
           let credit of filterMapCredits(
             map?.credits,
-            Map_Credit_Type.SPECIAL_THANKS
+            MapCreditType.SPECIAL_THANKS
           )
         "
       >

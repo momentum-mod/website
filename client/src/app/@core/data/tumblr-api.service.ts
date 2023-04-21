@@ -13,6 +13,7 @@ export class TumblrAPIService {
         params: {
           limit: '10',
           filter: 'text',
+          // eslint-disable-next-line @typescript-eslint/naming-convention
           api_key: 'lgxN5L8jWr0TUkNtwcHbVMVwGavy3lYzSQ6lY6oYfHDThTsAGg'
         }
       }

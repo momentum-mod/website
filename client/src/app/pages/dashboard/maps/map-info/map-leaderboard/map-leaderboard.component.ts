@@ -18,10 +18,10 @@ export enum LeaderboardType {
   styleUrls: ['./map-leaderboard.component.scss']
 })
 export class MapLeaderboardComponent {
-  private _mapID: number;
+  private mapID: number;
   @Input()
-  set mapID(value: number) {
-    this._mapID = value;
+  set setMapID(value: number) {
+    this.mapID = value;
     this.loadLeaderboardRuns();
   }
   filterActive: boolean;
@@ -74,7 +74,7 @@ export class MapLeaderboardComponent {
 
   loadLeaderboardRuns() {
     this.searchedRanks = false;
-    this.filterLeaderboardRuns(this._mapID)
+    this.filterLeaderboardRuns(this.mapID)
       .pipe(finalize(() => (this.searchedRanks = true)))
       .subscribe(
         (res) => {

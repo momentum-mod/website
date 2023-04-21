@@ -20,11 +20,11 @@ export class FileUploadComponent implements OnInit {
   /**
    * The total size, in MB, allowed for the size of the file
    */
-  @Input('limit-size') limit_size: number;
+  @Input() limitSize: number;
   /**
    * Whether this component should show the selected file's name
    */
-  @Input('show-selected') showSelected: boolean;
+  @Input() showSelected: boolean;
   /**
    * Whether allow multiple selections
    */
@@ -38,7 +38,7 @@ export class FileUploadComponent implements OnInit {
   matchString: any;
   constructor() {
     this.selectedFile = null;
-    this.limit_size = 0;
+    this.limitSize = 0;
     this.fileSelected = new EventEmitter<File>();
     this.dragOver = 0;
     this.acceptString = '';
@@ -76,7 +76,7 @@ export class FileUploadComponent implements OnInit {
 
   validateFile(file: File): boolean {
     const size = file.size / 1048576;
-    if (this.limit_size > 0 && size > this.limit_size) {
+    if (this.limitSize > 0 && size > this.limitSize) {
       this.invalidSize = true;
       return false;
     }

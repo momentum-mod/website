@@ -10,7 +10,7 @@ import { MomentumMap } from '../../../../../@core/models/momentum-map.model';
 })
 export class MapInfoCreditsComponent {
   @Input() map: MomentumMap;
-  Map_Credit_Type: typeof MapCreditType = MapCreditType;
+  protected readonly MapCreditType = MapCreditType;
 
   filterMapCredits(
     mapCredits: MapCredit[],

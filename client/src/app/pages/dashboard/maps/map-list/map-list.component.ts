@@ -18,10 +18,10 @@ import {
 } from '../../../../@core/models/map-type.model';
 
 export enum MapListType {
-  TYPE_BROWSE = 'browse',
-  TYPE_LIBRARY = 'library',
-  TYPE_FAVORITES = 'favorites',
-  TYPE_UPLOADS = 'uploads'
+  BROWSE = 'browse',
+  LIBRARY = 'library',
+  FAVORITES = 'favorites',
+  UPLOAD = 'uploads'
 }
 
 @Component({
@@ -65,7 +65,7 @@ export class MapListComponent implements OnInit {
   ) {
     this.pageLimit = 10;
     this.currentPage = 1;
-    this.type = MapListType.TYPE_BROWSE;
+    this.type = MapListType.BROWSE;
     this.requestSent = false;
     this.maps = [];
     this.mapCount = 0;
@@ -112,15 +112,15 @@ export class MapListComponent implements OnInit {
 
   ngOnInit() {
     switch (this.type) {
-      case MapListType.TYPE_LIBRARY:
+      case MapListType.LIBRARY:
         this.noMapsText =
           'No maps with those search parameters found in your library.';
         break;
-      case MapListType.TYPE_FAVORITES:
+      case MapListType.FAVORITES:
         this.noMapsText =
           'No favorite maps with those search parameters found.';
         break;
-      case MapListType.TYPE_UPLOADS:
+      case MapListType.UPLOAD:
         this.noMapsText =
           'You have not uploaded any maps with those search parameters.';
         break;
@@ -158,7 +158,7 @@ export class MapListComponent implements OnInit {
     const options = { params: this.genQueryParams() };
     let observer: Observable<any>;
     switch (this.type) {
-      case MapListType.TYPE_LIBRARY: {
+      case MapListType.LIBRARY: {
         observer = this.locUsrService.getMapLibrary(options).pipe(
           map((res) => ({
             count: res.count,
@@ -168,7 +168,7 @@ export class MapListComponent implements OnInit {
 
         break;
       }
-      case MapListType.TYPE_FAVORITES: {
+      case MapListType.FAVORITES: {
         observer = this.locUsrService.getMapFavorites(options).pipe(
           map((res) => ({
             count: res.count,
@@ -178,7 +178,7 @@ export class MapListComponent implements OnInit {
 
         break;
       }
-      case MapListType.TYPE_UPLOADS: {
+      case MapListType.UPLOAD: {
         observer = this.locUsrService.getSubmittedMaps(options);
 
         break;
@@ -197,7 +197,7 @@ export class MapListComponent implements OnInit {
         this.toasterService.danger(
           err.message,
           `Failed to get ${
-            this.type === MapListType.TYPE_LIBRARY ? 'map library' : 'maps'
+            this.type === MapListType.LIBRARY ? 'map library' : 'maps'
           }`
         );
       }
@@ -211,27 +211,27 @@ export class MapListComponent implements OnInit {
   }
 
   isMapInLibrary(m: MomentumMap): boolean {
-    return this.type === MapListType.TYPE_LIBRARY
+    return this.type === MapListType.LIBRARY
       ? true
       : m.libraryEntries && m.libraryEntries.length > 0;
   }
 
   libraryUpdate(): void {
-    if (this.type === MapListType.TYPE_LIBRARY) {
+    if (this.type === MapListType.LIBRARY) {
       if (this.isLastItemInLastPage()) this.currentPage--;
       this.loadMaps();
     }
   }
 
   favoriteUpdate() {
-    if (this.type === MapListType.TYPE_FAVORITES) {
+    if (this.type === MapListType.FAVORITES) {
       if (this.isLastItemInLastPage()) this.currentPage--;
       this.loadMaps();
     }
   }
 
   isMapInFavorites(m: MomentumMap) {
-    return this.type === MapListType.TYPE_FAVORITES
+    return this.type === MapListType.FAVORITES
       ? true
       : m.favorites && m.favorites.length > 0;
   }

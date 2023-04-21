@@ -15,6 +15,7 @@ export class TwitchAPIService {
     this.clientID = '5aerrhj5xm0lgbrpdjw50wjh6pnmbc';
     this.gameID = '492973';
     this.headers = new HttpHeaders({
+      // eslint-disable-next-line @typescript-eslint/naming-convention
       'Client-ID': this.clientID
     });
   }

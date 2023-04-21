@@ -36,6 +36,7 @@ export class CommunityNewsComponent implements OnInit {
           for (const post of resp.response.posts) {
             this.blogPosts.push({
               title: post.title,
+              // eslint-disable-next-line @typescript-eslint/naming-convention
               post_url: post.post_url,
               body: post.body.slice(0, 500) + '...',
               timestamp: new Date(post.timestamp * 1000)

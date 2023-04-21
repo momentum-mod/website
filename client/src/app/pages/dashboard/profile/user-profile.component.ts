@@ -28,8 +28,8 @@ export class UserProfileComponent implements OnInit, OnDestroy {
   isVerified: boolean;
   isMod: boolean;
   isAdmin: boolean;
-  avatar_url: string;
-  avatar_loaded: boolean;
+  avatarUrl: string;
+  avatarLoaded: boolean;
   followingUsers: UserFollowObject[];
   followedByUsers: UserFollowObject[];
 
@@ -49,7 +49,7 @@ export class UserProfileComponent implements OnInit, OnDestroy {
     this.isVerified = false;
     this.followingUsers = [];
     this.followedByUsers = [];
-    this.avatar_url = '/assets/images/blank_avatar.jpg';
+    this.avatarUrl = '/assets/images/blank_avatar.jpg';
   }
 
   ngOnInit() {
@@ -92,9 +92,9 @@ export class UserProfileComponent implements OnInit, OnDestroy {
           this.isVerified = this.hasRole(Role.VERIFIED);
           this.userSubj$.next(usr);
           if (!this.hasBan(Ban.BANNED_AVATAR) && this.user.avatarURL) {
-            this.avatar_url = this.user.avatarURL;
+            this.avatarUrl = this.user.avatarURL;
           }
-          this.avatar_loaded = true;
+          this.avatarLoaded = true;
           this.usersService.getUserFollows(this.user).subscribe(
             (resp) => {
               this.followingUsers = resp.followed;

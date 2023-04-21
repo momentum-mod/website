@@ -14,9 +14,13 @@ describe('CommunityTwitchStreamComponent', () => {
   let twitchAPIStub: Partial<TwitchAPIService>;
   const twitchStream: TwitchStream = {
     title: 'This is a test stream!',
+    // eslint-disable-next-line @typescript-eslint/naming-convention
     user_name: 'Testy',
+    // eslint-disable-next-line @typescript-eslint/naming-convention
     viewer_count: 1000,
+    // eslint-disable-next-line @typescript-eslint/naming-convention
     started_at: new Date().toString(),
+    // eslint-disable-next-line @typescript-eslint/naming-convention
     thumbnail_url: ''
   };
 

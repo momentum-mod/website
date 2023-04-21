@@ -218,7 +218,7 @@ export class GamemodesComponent implements OnDestroy {
   // Credit: Mateusz Rybczonec
 
   // Length = 2πr = 2 * π * 45 = 282.6
-  readonly FULL_DASH_ARRAY = 283;
+  static readonly FULL_DASH_ARRAY = 283;
 
   timePassed = 0;
   timeLeft: number = GamemodesComponent.GAMEMODE_CHANGE_TIME;
@@ -250,7 +250,7 @@ export class GamemodesComponent implements OnDestroy {
 
   setCircleDasharray(timeLimit: number) {
     const circleDasharray = `${(
-      this.calculateTimeFraction(timeLimit) * this.FULL_DASH_ARRAY
+      this.calculateTimeFraction(timeLimit) * GamemodesComponent.FULL_DASH_ARRAY
     ).toFixed(0)} 283`;
     document
       .querySelector('#base-timer-path-remaining')

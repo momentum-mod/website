@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/naming-convention */
 export interface TwitchStream {
   title: string;
   user_name: string;

@@ -11,10 +11,10 @@ export class ProfileNotifyEditComponent implements OnInit {
   @Input() flags: number;
   ActivityType: typeof Activity_Type = Activity_Type;
   checkboxFlags = {
-    PB: { checked: false, value: Activity_Type.PB_ACHIEVED },
-    WR: { checked: false, value: Activity_Type.WR_ACHIEVED },
-    MAP_APPROVED: { checked: false, value: Activity_Type.MAP_APPROVED },
-    MAP_UPLOADED: { checked: false, value: Activity_Type.MAP_UPLOADED }
+    pb: { checked: false, value: Activity_Type.PB_ACHIEVED },
+    wr: { checked: false, value: Activity_Type.WR_ACHIEVED },
+    approved: { checked: false, value: Activity_Type.MAP_APPROVED },
+    uploaded: { checked: false, value: Activity_Type.MAP_UPLOADED }
   };
 
   constructor(protected dialogRef: NbDialogRef<ProfileNotifyEditComponent>) {}

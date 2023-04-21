@@ -14,6 +14,7 @@ describe('CommunityNewsComponent', () => {
   beforeEach(waitForAsync(() => {
     const blogPost: BlogPost = {
       title: 'Testy blog postarooni',
+      // eslint-disable-next-line @typescript-eslint/naming-convention
       post_url: 'localhost',
       body: 'This is a blog post, wow!',
       timestamp: new Date()

@@ -1,4 +1,4 @@
-import { RouterModule, Routes } from '@angular/router';
+import { RouterModule } from '@angular/router';
 import { UserProfileComponent } from './user-profile.component';
 import { ProfileEditComponent } from './profile-edit/profile-edit.component';
 import { Role } from '../../../@core/models/role.model';
@@ -7,45 +7,31 @@ import { NotFoundDashboardComponent } from '../../not-found/dashboard/not-found-
 import { NgModule } from '@angular/core';
 import { ProfileComponent } from './profile.component';
 
-const routes: Routes = [
-  {
-    path: '',
-    component: ProfileComponent,
-    children: [
-      {
-        path: 'edit',
-        component: ProfileEditComponent
-      },
-      {
-        path: ':id',
-        children: [
-          {
-            path: '',
-            component: UserProfileComponent
-          },
-          {
-            path: 'edit',
-            component: ProfileEditComponent,
-            data: {
-              onlyAllow: [Role.MODERATOR, Role.ADMIN]
-            }
-          }
-        ]
-      },
+@NgModule({
+  imports: [
+    RouterModule.forChild([
       {
         path: '',
-        component: UserProfileComponent
-      },
-      {
-        path: '**',
-        component: NotFoundDashboardComponent
+        component: ProfileComponent,
+        children: [
+          { path: 'edit', component: ProfileEditComponent },
+          {
+            path: ':id',
+            children: [
+              { path: '', component: UserProfileComponent },
+              {
+                path: 'edit',
+                component: ProfileEditComponent,
+                data: { onlyAllow: [Role.MODERATOR, Role.ADMIN] }
+              }
+            ]
+          },
+          { path: '', component: UserProfileComponent },
+          { path: '**', component: NotFoundDashboardComponent }
+        ]
       }
-    ]
-  }
-];
-
-@NgModule({
-  imports: [RouterModule.forChild(routes)],
+    ])
+  ],
   exports: [RouterModule],
   providers: [RoleGuard]
 })

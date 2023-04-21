@@ -9,7 +9,7 @@ export class ScreenerService {
     document.addEventListener('click', this.intercept.bind(this));
   }
   static checkHref(href: URL): boolean {
-    for (const domain of OutgoingModule.whitelistedOutgoingDomains) {
+    for (const domain of OutgoingModule.WHITELISTED_OUTGOING_DOMAINS) {
       if (
         href.hostname === domain ||
         href.host === domain ||
@@ -18,7 +18,7 @@ export class ScreenerService {
       )
         return true;
     }
-    for (const protocol of OutgoingModule.whitelistedOutgoingProtocols) {
+    for (const protocol of OutgoingModule.WHITELISTED_OUTGOING_PROTOCOLS) {
       if (href.protocol === protocol || href.protocol.includes(protocol))
         return true;
     }

@@ -27,7 +27,7 @@
         <!-- TODO: When the author field is added change mt-lg-0 to mt-xl-0 -->
         <div
           class="form-col col-12 col-md-6 col-lg-auto mt-3 mt-lg-0 mr-lg-n5"
-          *ngIf="type === mapListType.TYPE_UPLOADS"
+          *ngIf="type === mapListType.UPLOAD"
         >
           <nb-select placeholder="Status" formControlName="status">
             <nb-option *ngFor="let enum of statusEnums" [value]="enum.value">{{
@@ -65,7 +65,7 @@
         [map]="map"
         [inLibrary]="isMapInLibrary(map)"
         (onLibraryUpdate)="libraryUpdate()"
-        [isUpload]="type === mapListType.TYPE_UPLOADS"
+        [isUpload]="type === mapListType.UPLOAD"
         [inFavorites]="isMapInFavorites(map)"
         (onFavoriteUpdate)="favoriteUpdate()"
       ></map-list-item>
@@ -85,15 +85,15 @@
 >
   <div [ngSwitch]="type">
     <h3 class="m-0" *ngSwitchDefault>No maps found!</h3>
-    <h3 class="m-0" *ngSwitchCase="mapListType.TYPE_LIBRARY">
+    <h3 class="m-0" *ngSwitchCase="mapListType.LIBRARY">
       No maps in your library. Try
       <a routerLink="/dashboard/maps">adding some</a>!
     </h3>
-    <h3 class="m-0" *ngSwitchCase="mapListType.TYPE_FAVORITES">
+    <h3 class="m-0" *ngSwitchCase="mapListType.FAVORITES">
       No favorite maps found. Try
       <a routerLink="/dashboard/maps">adding some</a>!
     </h3>
-    <h3 class="m-0" *ngSwitchCase="mapListType.TYPE_UPLOADS">
+    <h3 class="m-0" *ngSwitchCase="mapListType.UPLOAD">
       <i
         >You have not uploaded any maps. Try
         <a routerLink="/dashboard/maps/uploads/new">uploading a new one!</a></i

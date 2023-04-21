@@ -8,7 +8,7 @@ import { ThemeModule } from '../../@theme/theme.module';
   exports: [OutgoingComponent]
 })
 export class OutgoingModule {
-  static readonly whitelistedOutgoingDomains: string[] = [
+  static readonly WHITELISTED_OUTGOING_DOMAINS: string[] = [
     window.location.host,
     'twitter.com',
     'twitch.tv',
@@ -31,5 +31,5 @@ export class OutgoingModule {
     'discord.gg',
     'momentum-mod.org'
   ];
-  static readonly whitelistedOutgoingProtocols: string[] = ['blob'];
+  static readonly WHITELISTED_OUTGOING_PROTOCOLS: string[] = ['blob'];
 }
