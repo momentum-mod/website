@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component } from '@angular/core';
 import { NbDialogService, NbToastrService } from '@nebular/theme';
 import { AdminService } from '../../../../@core/data/admin.service';
 import { ConfirmDialogComponent } from '../../../../@theme/components/confirm-dialog/confirm-dialog.component';
@@ -9,7 +9,7 @@ import { FormControl, FormGroup } from '@angular/forms';
   templateUrl: './utilities.component.html',
   styleUrls: ['./utilities.component.scss']
 })
-export class UtilitiesComponent implements OnInit {
+export class UtilitiesComponent {
   userForm: FormGroup = new FormGroup({
     alias: new FormControl('')
   });
@@ -21,8 +21,6 @@ export class UtilitiesComponent implements OnInit {
     private toasterService: NbToastrService,
     private dialogService: NbDialogService
   ) {}
-
-  ngOnInit() {}
 
   showResetCosXPConfigDialog() {
     this.dialogService

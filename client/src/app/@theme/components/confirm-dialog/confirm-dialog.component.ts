@@ -1,4 +1,4 @@
-import { Component, Input, OnInit } from '@angular/core';
+import { Component, Input } from '@angular/core';
 import { NbDialogRef } from '@nebular/theme';
 
 @Component({
@@ -6,14 +6,12 @@ import { NbDialogRef } from '@nebular/theme';
   templateUrl: './confirm-dialog.component.html',
   styleUrls: ['./confirm-dialog.component.scss']
 })
-export class ConfirmDialogComponent implements OnInit {
+export class ConfirmDialogComponent {
   @Input() title: string;
   @Input() message: string;
 
   constructor(protected ref: NbDialogRef<ConfirmDialogComponent>) {}
-
-  ngOnInit() {}
-
+  
   close(response: boolean) {
     this.ref.close(response);
   }

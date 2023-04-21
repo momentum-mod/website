@@ -2,7 +2,6 @@ import {
   Component,
   Input,
   Output,
-  OnInit,
   EventEmitter,
   ViewChild,
   ElementRef
@@ -18,7 +17,7 @@ import { NbToastrService } from '@nebular/theme';
   templateUrl: './queued-map.component.html',
   styleUrls: ['./queued-map.component.scss']
 })
-export class QueuedMapComponent implements OnInit {
+export class QueuedMapComponent {
   MapUploadStatus: typeof MapUploadStatus = MapUploadStatus;
   @Input() map: MomentumMap;
   @Output() onStatusUpdate = new EventEmitter();
@@ -30,9 +29,6 @@ export class QueuedMapComponent implements OnInit {
     private mapService: MapsService,
     private toasterService: NbToastrService
   ) {}
-
-  ngOnInit() {}
-
   updateMapStatus(mapID: number, statusFlag: number) {
     this.adminService
       .updateMap(mapID, {

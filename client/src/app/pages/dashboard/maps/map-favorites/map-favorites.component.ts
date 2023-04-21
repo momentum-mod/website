@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component } from '@angular/core';
 import { MapListType } from '../map-list/map-list.component';
 
 @Component({
@@ -10,10 +10,6 @@ import { MapListType } from '../map-list/map-list.component';
     </nb-card-body>
   </nb-card>`
 })
-export class MapFavoritesComponent implements OnInit {
-  constructor() {}
-
-  ngOnInit() {}
-
+export class MapFavoritesComponent {
   protected readonly MapListType = MapListType;
 }

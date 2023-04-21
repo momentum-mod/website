@@ -11,7 +11,6 @@ export class SearchResultsComponent {
   @Input() onlyMaps: boolean;
   @Input() elems: any[];
   @Output() selectedURL: EventEmitter<string> = new EventEmitter();
-  constructor() {}
 
   getElemName(elem: any): string {
     return this.usersResults ? elem.alias : elem.name;

@@ -1,4 +1,4 @@
-import { Component, Input, OnInit } from '@angular/core';
+import { Component, Input } from '@angular/core';
 import { MapCredit } from '../../../../../@core/models/map-credit.model';
 import { MapCreditType } from '../../../../../@core/models/map-credit-type.model';
 import { MomentumMap } from '../../../../../@core/models/momentum-map.model';
@@ -8,13 +8,9 @@ import { MomentumMap } from '../../../../../@core/models/momentum-map.model';
   templateUrl: './map-info-credits.component.html',
   styleUrls: ['./map-info-credits.component.scss']
 })
-export class MapInfoCreditsComponent implements OnInit {
+export class MapInfoCreditsComponent {
   @Input() map: MomentumMap;
   Map_Credit_Type: typeof MapCreditType = MapCreditType;
-
-  constructor() {}
-
-  ngOnInit() {}
 
   filterMapCredits(
     mapCredits: MapCredit[],

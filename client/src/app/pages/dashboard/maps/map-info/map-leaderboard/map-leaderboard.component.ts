@@ -1,4 +1,4 @@
-import { Component, Input, OnInit } from '@angular/core';
+import { Component, Input } from '@angular/core';
 import { Run } from '../../../../../@core/models/run.model';
 import { Router } from '@angular/router';
 import { finalize } from 'rxjs/operators';
@@ -17,7 +17,7 @@ export enum LeaderboardType {
   templateUrl: './map-leaderboard.component.html',
   styleUrls: ['./map-leaderboard.component.scss']
 })
-export class MapLeaderboardComponent implements OnInit {
+export class MapLeaderboardComponent {
   private _mapID: number;
   @Input()
   set mapID(value: number) {
@@ -41,8 +41,6 @@ export class MapLeaderboardComponent implements OnInit {
     this.LeaderboardTypeEnum = LeaderboardType;
     this.filterLeaderboardType = LeaderboardType.TOP10;
   }
-
-  ngOnInit() {}
 
   filterLeaderboardRuns(mapID?: number) {
     switch (this.filterLeaderboardType) {

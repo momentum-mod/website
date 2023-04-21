@@ -1,10 +1,4 @@
-import {
-  Component,
-  Input,
-  OnChanges,
-  OnInit,
-  SimpleChanges
-} from '@angular/core';
+import { Component, Input, OnChanges, SimpleChanges } from '@angular/core';
 import { EChartsOption } from 'echarts';
 import { GlobalMapStats } from '../../../../../@core/models/global-map-stats.model';
 
@@ -13,13 +7,11 @@ import { GlobalMapStats } from '../../../../../@core/models/global-map-stats.mod
   templateUrl: './global-stats-maps.component.html',
   styleUrls: ['./global-stats-maps.component.scss']
 })
-export class GlobalStatsMapsComponent implements OnInit, OnChanges {
+export class GlobalStatsMapsComponent implements OnChanges {
   @Input() globalMapStats: GlobalMapStats;
 
   mapCompletionPieChart;
   mapCompletionPieChartOptions: EChartsOption;
-
-  constructor() {}
 
   ngOnChanges(changes: SimpleChanges) {
     if (changes.globalMapStats.currentValue) {
@@ -58,8 +50,6 @@ export class GlobalStatsMapsComponent implements OnInit, OnChanges {
       };
     }
   }
-
-  ngOnInit() {}
 
   onChartInit(chartInstance) {
     this.mapCompletionPieChart = chartInstance;

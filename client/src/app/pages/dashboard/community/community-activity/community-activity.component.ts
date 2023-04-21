@@ -5,6 +5,4 @@ import { Component } from '@angular/core';
   templateUrl: './community-activity.component.html',
   styleUrls: ['./community-activity.component.scss']
 })
-export class CommunityActivityComponent {
-  constructor() {}
-}
+export class CommunityActivityComponent {}

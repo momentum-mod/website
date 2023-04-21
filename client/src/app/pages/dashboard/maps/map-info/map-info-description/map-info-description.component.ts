@@ -1,4 +1,4 @@
-import { Component, Input, OnInit } from '@angular/core';
+import { Component, Input } from '@angular/core';
 import { MomentumMap } from '../../../../../@core/models/momentum-map.model';
 
 @Component({
@@ -6,10 +6,6 @@ import { MomentumMap } from '../../../../../@core/models/momentum-map.model';
   templateUrl: './map-info-description.component.html',
   styleUrls: ['./map-info-description.component.scss']
 })
-export class MapInfoDescriptionComponent implements OnInit {
+export class MapInfoDescriptionComponent {
   @Input() map: MomentumMap;
-
-  constructor() {}
-
-  ngOnInit() {}
 }
