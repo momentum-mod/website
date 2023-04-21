@@ -13,7 +13,7 @@
           <report-button
             *ngIf="!isLocal"
             [reportType]="ReportType.USER_PROFILE_REPORT"
-            [reportData]="user.id"
+            [reportData]="user.id.toString()"
           ></report-button>
           <div *ngIf="canEdit()">
             <button
@@ -47,7 +47,7 @@
                   class="ml-2 verified"
                   src="assets/images/badges/BadgeVerified.png"
                   nbPopover="Verified"
-                  [nbPopoverTrigger]="'hint'"
+                  [nbPopoverTrigger]="NbTrigger.HINT"
                   nbPopoverPlacement="bottom"
                 />
               </div>
@@ -77,7 +77,7 @@
                   />
                 </div>
               </div>
-              <div *ngIf="!hasRole(role.PLACEHOLDER)">
+              <div *ngIf="!hasRole(Role.PLACEHOLDER)">
                 <h4 class="text">Level {{ user.stats?.level }}</h4>
               </div>
             </div>
@@ -87,7 +87,7 @@
           <div class="col">
             <div class="ml-0 ml-md-2 socials">
               <a
-                *ngIf="!hasRole(role.PLACEHOLDER)"
+                *ngIf="!hasRole(Role.PLACEHOLDER)"
                 href="https://steamcommunity.com/profiles/{{ user.steamID }}"
                 target="_blank"
                 class="fab fa-steam"
@@ -149,7 +149,7 @@
         </nb-tab>
         <nb-tab
           [tabTitle]="'FOLLOWING&nbsp;(' + followingUsers.length + ')'"
-          *ngIf="!hasRole(role.PLACEHOLDER)"
+          *ngIf="!hasRole(Role.PLACEHOLDER)"
         >
           <h5 class="m-0 text-center" *ngIf="followingUsers.length === 0">
             <i>Not following anyone</i>
@@ -204,7 +204,7 @@
             </div>
           </div>
         </nb-tab>
-        <nb-tab [tabTitle]="'RUNS'" *ngIf="!hasRole(role.PLACEHOLDER)">
+        <nb-tab [tabTitle]="'RUNS'" *ngIf="!hasRole(Role.PLACEHOLDER)">
           <profile-run-history [userSubj]="userSubj$"></profile-run-history>
         </nb-tab>
         <nb-tab tabTitle="CREDITS">

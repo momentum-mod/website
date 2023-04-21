@@ -16,6 +16,7 @@ import { AdminService } from '../../../../@core/data/admin.service';
 import { NbDialogService, NbToastrService } from '@nebular/theme';
 import { ConfirmDialogComponent } from '../../../../@theme/components/confirm-dialog/confirm-dialog.component';
 import { forkJoin, Subject } from 'rxjs';
+import { FileUploadType } from '../upload-form/file-upload/file-upload.component';
 
 const youtubeRegex = /[\w-]{11}/;
 
@@ -256,4 +257,6 @@ export class MapEditComponent implements OnInit, OnDestroy {
     this.ngUnsub.next();
     this.ngUnsub.complete();
   }
+
+  protected readonly FileUploadType = FileUploadType;
 }

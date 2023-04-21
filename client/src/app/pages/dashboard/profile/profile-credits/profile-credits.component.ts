@@ -16,7 +16,7 @@ export class ProfileCreditsComponent implements OnInit {
   @Input('userSubj') userSubj$: Observable<User>;
 
   user: User;
-  mapCredType: typeof MapCreditType = MapCreditType;
+  protected readonly MapCreditType = MapCreditType;
   mapCredits: MapCredit[];
   loadedCredits: boolean;
   pageLimit: number;

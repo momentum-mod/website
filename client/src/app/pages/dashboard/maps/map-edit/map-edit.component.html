@@ -115,7 +115,7 @@
                 *ngIf="mapImages.length < mapImagesLimit"
               >
                 <file-upload
-                  [type]="'image'"
+                  [type]="FileUploadType.IMAGE"
                   [multiple]="true"
                   (fileSelected)="onMapImageSelected($event)"
                 ></file-upload>

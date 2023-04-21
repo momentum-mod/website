@@ -27,7 +27,7 @@ export class MapLeaderboardComponent implements OnInit {
   filterActive: boolean;
   leaderboardRanks: UserMapRank[];
   searchedRanks: boolean;
-  LeaderboardTypeEnum: any;
+  protected readonly LeaderboardTypeEnum = LeaderboardType;
   filterLeaderboardType: LeaderboardType;
 
   constructor(

@@ -1,11 +1,10 @@
-import { Component, OnInit } from '@angular/core';
+import { Component } from '@angular/core';
+import { MapListType } from '../map-list/map-list.component';
 
 @Component({
   selector: 'app-map-queue',
   templateUrl: './upload-status.component.html'
 })
-export class UploadStatusComponent implements OnInit {
-  constructor() {}
-
-  ngOnInit(): void {}
+export class UploadStatusComponent {
+  protected readonly MapListType = MapListType;
 }

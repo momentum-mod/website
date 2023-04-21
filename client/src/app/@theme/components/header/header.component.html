@@ -21,7 +21,7 @@
       nbPopoverPlacement="bottom"
       badgePosition="top"
       badgeStatus="danger"
-      [badgeText]="numUnreadNotifs === 0 ? '' : +numUnreadNotifs"
+      [badgeText]="numUnreadNotifs === 0 ? '' : numUnreadNotifs.toString()"
     >
     </nb-action>
     <ng-template #notifTempl8>

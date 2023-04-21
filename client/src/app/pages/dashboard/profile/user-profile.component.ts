@@ -9,7 +9,7 @@ import { Role } from '../../../@core/models/role.model';
 import { Ban } from '../../../@core/models/ban.model';
 import { UserFollowObject } from '../../../@core/models/follow.model';
 import { ReportType } from '../../../@core/models/report-type.model';
-import { NbToastrService } from '@nebular/theme';
+import { NbToastrService, NbTrigger } from '@nebular/theme';
 
 @Component({
   selector: 'user-profile',
@@ -18,8 +18,9 @@ import { NbToastrService } from '@nebular/theme';
 })
 export class UserProfileComponent implements OnInit, OnDestroy {
   private ngUnsub = new Subject();
-  role: typeof Role;
-  ReportType: typeof ReportType;
+  protected readonly Role = Role;
+  protected readonly ReportType = ReportType;
+  protected readonly NbTrigger = NbTrigger;
   userSubj$: ReplaySubject<User>;
   user: User;
   isLocal: boolean;
@@ -40,7 +41,6 @@ export class UserProfileComponent implements OnInit, OnDestroy {
     private toastService: NbToastrService
   ) {
     this.ReportType = ReportType;
-    this.role = Role;
     this.isLocal = true;
     this.userSubj$ = new ReplaySubject<User>(1);
     this.isMapper = false;
