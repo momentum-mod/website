@@ -15,13 +15,9 @@ describe('HomeUserLibraryComponent', () => {
   beforeEach(waitForAsync(() => {
     const authService: Partial<AuthService> = {};
     const cookServ: Partial<CookieService> = {
-      check(name: string): boolean {
-        return true;
-      },
-      get(name: string): string {
-        return '';
-      },
-      delete(name: string, path?: string, domain?: string): void {}
+      check: (): boolean => true,
+      get: (): string => '',
+      delete: (): void => {}
     };
     TestBed.configureTestingModule({
       imports: [

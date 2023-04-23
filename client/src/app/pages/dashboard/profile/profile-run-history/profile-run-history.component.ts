@@ -13,7 +13,7 @@ import { NbToastrService } from '@nebular/theme';
   styleUrls: ['./profile-run-history.component.scss']
 })
 export class ProfileRunHistoryComponent implements OnInit {
-  @Input('userSubj') userSubj$: Observable<User>;
+  @Input() userSubj: Observable<User>;
   user: User;
   runHistory: Run[];
   loadedRuns: boolean;
@@ -52,7 +52,7 @@ export class ProfileRunHistoryComponent implements OnInit {
   }
 
   ngOnInit() {
-    this.userSubj$.subscribe((usr) => {
+    this.userSubj.subscribe((usr) => {
       this.user = usr;
       this.loadRunHistory();
     });

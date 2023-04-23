@@ -13,7 +13,7 @@ import { ProfileNotifyEditComponent } from './profile-notify-edit/profile-notify
   styleUrls: ['./profile-follow.component.scss']
 })
 export class ProfileFollowComponent implements OnInit {
-  @Input('userSubj') userSubj$: ReplaySubject<User>;
+  @Input() userSubj: ReplaySubject<User>;
   user: User;
   localFollowStatus: UserFollowObject; // The follow object of the local user following target user
   targetFollowStatus: UserFollowObject; // The follow object of the target user following local user
@@ -30,7 +30,7 @@ export class ProfileFollowComponent implements OnInit {
   }
 
   ngOnInit() {
-    this.userSubj$.subscribe((usr) => {
+    this.userSubj.subscribe((usr) => {
       this.user = usr;
       this.localUserService
         .checkFollowStatus(this.user)

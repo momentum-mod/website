@@ -34,7 +34,7 @@ export class MapCreditComponent {
     // Check if in any category already
     let alreadySel = false;
     for (let cred = 0; cred < MapCreditType.LENGTH; cred++) {
-      if (this.creditArr[cred].find((val) => val.id === user.id)) {
+      if (this.creditArr[cred].some((val) => val.id === user.id)) {
         alreadySel = true;
         break;
       }

@@ -11,10 +11,10 @@ import { User } from '../../../../@core/models/user.model';
   styleUrls: ['./activity-card.component.scss']
 })
 export class ActivityCardComponent implements OnInit {
-  @Input('header') headerTitle: string;
+  @Input() headerTitle: string;
   @Input() follow: boolean;
   @Input() recent: boolean;
-  @Input('userSubj') userSubj$: ReplaySubject<User>;
+  @Input() userSubj: ReplaySubject<User>;
 
   constructor(private actService: ActivityService) {
     this.headerTitle = 'Activity';
@@ -52,8 +52,8 @@ export class ActivityCardComponent implements OnInit {
       this.filterActivites(this.activities);
     };
     if (this.follow) this.actService.getFollowedActivity().subscribe(func);
-    else if (this.userSubj$)
-      this.userSubj$.subscribe((usr) => {
+    else if (this.userSubj)
+      this.userSubj.subscribe((usr) => {
         this.actService.getUserActivity(usr.id).subscribe(func);
       });
     else if (this.recent) this.actService.getRecentActivity(0).subscribe(func);

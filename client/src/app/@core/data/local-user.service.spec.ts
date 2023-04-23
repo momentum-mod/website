@@ -102,13 +102,11 @@ describe('LocalUserService', () => {
     };
 
     cookieServiceStub = {
-      check: (name: 'user') => true,
-      get: (name: 'user') => 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9',
-      delete: (name: 'user') => null
+      check: () => true,
+      get: () => 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9',
+      delete: () => null
     };
-    const routerStub = {
-      navigate(commands: any): void {}
-    };
+    const routerStub = { navigate: (): void => {} };
 
     TestBed.configureTestingModule({
       imports: [ThemeModule, RouterModule.forRoot([])],

@@ -13,7 +13,7 @@ export class ActivityContentComponent implements OnInit {
    * Whether the date should have display property set to none
    * and limit content width on md media query (for notifications)
    */
-  @Input('date-non') dateNon: boolean;
+  @Input() dateNone: boolean;
   activityIcon: string;
   actionText: string;
   eventText: string;
@@ -24,7 +24,7 @@ export class ActivityContentComponent implements OnInit {
     this.actionText = '';
     this.eventText = '';
     this.eventLink = null;
-    this.dateNon = false;
+    this.dateNone = false;
   }
 
   ngOnInit() {

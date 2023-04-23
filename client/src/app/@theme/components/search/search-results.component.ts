@@ -6,7 +6,7 @@ import { Component, EventEmitter, Input, Output } from '@angular/core';
   styleUrls: ['./search-results.component.scss']
 })
 export class SearchResultsComponent {
-  @Input('user') usersResults: boolean;
+  @Input() usersResults: boolean;
   @Input() onlyUsers: boolean;
   @Input() onlyMaps: boolean;
   @Input() elems: any[];

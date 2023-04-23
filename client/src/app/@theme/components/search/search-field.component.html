@@ -23,7 +23,7 @@
         <div class="row justify-content-center results">
           <div class="col-10 col-md-6" *ngIf="users?.length">
             <search-results
-              [user]="true"
+              [userResults]="true"
               [onlyMaps]="onlyMaps"
               [onlyUsers]="onlyUsers"
               [elems]="users"
@@ -32,7 +32,7 @@
           </div>
           <div class="col-10 col-md-6" *ngIf="maps?.length">
             <search-results
-              [user]="false"
+              [userResults]="false"
               [onlyMaps]="onlyMaps"
               [onlyUsers]="onlyUsers"
               [elems]="maps"
