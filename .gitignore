@@ -12,8 +12,6 @@ ERD.svg
 
 # Compiled output
 /dist
-/server/dist
-/client/dist
 /tmp
 /out-tsc
 
@@ -48,3 +46,5 @@ testem.log
 # System Files
 .DS_Store
 Thumbs.db
+
+.angular

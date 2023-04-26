@@ -1,0 +1,122 @@
+{
+  "root": true,
+  "ignorePatterns": ["**/*"],
+  "plugins": ["@nrwl/nx", "unicorn", "unused-imports", "prettier"],
+  "overrides": [
+    {
+      "files": ["*.ts", "*.tsx", "*.js", "*.jsx"],
+      "rules": {
+        "@nrwl/nx/enforce-module-boundaries": [
+          "error",
+          {
+            "enforceBuildableLibDependency": true,
+            "allow": [],
+            "depConstraints": [
+              {
+                "sourceTag": "*",
+                "onlyDependOnLibsWithTags": ["*"]
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "files": ["*.ts", "*.tsx"],
+      "extends": [
+        "plugin:@nrwl/nx/typescript",
+        "eslint:recommended",
+        "plugin:@typescript-eslint/recommended",
+        "plugin:unicorn/recommended",
+        "prettier"
+      ],
+      "parserOptions": {
+        "project": "tsconfig.base.json"
+      },
+      "rules": {
+        "quotes": [
+          "error",
+          "single",
+          {
+            "avoidEscape": true
+          }
+        ],
+        "no-var": ["error"],
+        "prefer-const": ["error"],
+        "no-empty": [
+          "error",
+          {
+            "allowEmptyCatch": true
+          }
+        ],
+        "@typescript-eslint/no-empty-function": [
+          "error",
+          {
+            "allow": ["arrowFunctions"]
+          }
+        ],
+        "@typescript-eslint/naming-convention": [
+          "error",
+          {
+            "selector": "variable",
+            "types": ["boolean", "string", "number"],
+            "modifiers": ["global"],
+            "format": ["UPPER_CASE"]
+          },
+          { "selector": "class", "format": ["PascalCase"] },
+          { "selector": "enumMember", "format": ["UPPER_CASE"] },
+          { "selector": "typeParameter", "format": ["PascalCase"] },
+          {
+            "selector": "interface",
+            "format": ["PascalCase"],
+            "custom": { "regex": "^I[A-Z]", "match": false }
+          }
+        ],
+        "@typescript-eslint/explicit-function-return-type": "off",
+        "@typescript-eslint/explicit-module-boundary-types": "off",
+        "@typescript-eslint/no-explicit-any": "off",
+        "@typescript-eslint/no-unused-vars": "off",
+        "unused-imports/no-unused-imports": "error",
+        "unused-imports/no-unused-vars": [
+          "warn",
+          {
+            "vars": "all",
+            "args": "after-used",
+            "varsIgnorePattern": "^_",
+            "argsIgnorePattern": "^_"
+          }
+        ],
+        "@typescript-eslint/no-inferrable-types": [
+          "warn",
+          { "ignoreParameters": true }
+        ],
+        "unicorn/prevent-abbreviations": ["off"],
+        "unicorn/numeric-separators-style": [
+          "warn",
+          { "onlyIfContainsSeparator": true }
+        ],
+        "unicorn/no-null": ["off"],
+        "unicorn/prefer-module": ["off"],
+        "unicorn/prefer-top-level-await": ["off"],
+        "unicorn/prefer-ternary": ["error", "only-single-line"],
+        "unicorn/prefer-math-trunc": ["off"],
+        "unicorn/switch-case-braces": ["off"],
+        "unicorn/no-negated-condition": ["off"],
+        "unicorn/no-useless-undefined": ["off"],
+        "no-undef-init": ["error"]
+      }
+    },
+    {
+      "files": ["*.js", "*.jsx"],
+      "extends": ["plugin:@nrwl/nx/javascript"],
+      "rules": {}
+    },
+    {
+      "files": ["*.spec.ts", "*.spec.tsx", "*.spec.js", "*.spec.jsx"],
+      "env": {
+        "jest": true
+      },
+      "rules": {}
+    }
+  ]
+}

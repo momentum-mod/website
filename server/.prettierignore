@@ -1,6 +1,0 @@
-﻿dist
-node_modules
-test/files
-prisma/*.svg
-.gitignore
-.prettierignore

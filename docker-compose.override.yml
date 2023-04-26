@@ -1,4 +1,4 @@
-version: "3.8"
+version: '3.8'
 
 services:
   minio:
@@ -6,8 +6,8 @@ services:
     container_name: MinIO
     command: server /data --console-address ":9001"
     ports:
-      - "9000:9000"
-      - "9001:9001"
+      - '9000:9000'
+      - '9001:9001'
     expose:
       - 9000
     volumes:
@@ -19,7 +19,7 @@ services:
     env_file:
       - .env
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
+      test: ['CMD', 'curl', '-f', 'http://localhost:9000/minio/health/live']
       interval: 5s
       timeout: 20s
       retries: 3
@@ -63,14 +63,14 @@ services:
     env_file:
       - .env
     environment:
-      IS_DOCKERIZED_API: "true"
+      IS_DOCKERIZED_API: 'true'
       DATABASE_URL: postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@db/${POSTGRES_DB}?schema=public
     working_dir: /app/server
     volumes:
       - ./server:/app/server
       - /app/server/node_modules/
     ports:
-      - "9229:9229" # For Node debugging
+      - '9229:9229' # For Node debugging
       - ${NODE_PORT}:${NODE_PORT}
     expose:
       - ${NODE_PORT}

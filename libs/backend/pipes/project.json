@@ -1,0 +1,26 @@
+{
+  "name": "backend-pipes",
+  "$schema": "../../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "libs/backend/pipes/src",
+  "projectType": "library",
+  "targets": {
+    "build": {
+      "executor": "@nrwl/js:tsc",
+      "outputs": ["{options.outputPath}"],
+      "options": {
+        "outputPath": "dist/libs/backend/pipes",
+        "main": "libs/backend/pipes/src/index.ts",
+        "tsConfig": "libs/backend/pipes/tsconfig.lib.json",
+        "assets": ["libs/backend/pipes/*.md"]
+      }
+    },
+    "lint": {
+      "executor": "@nrwl/linter:eslint",
+      "outputs": ["{options.outputFile}"],
+      "options": {
+        "lintFilePatterns": ["libs/backend/pipes/**/*.ts"]
+      }
+    }
+  },
+  "tags": []
+}

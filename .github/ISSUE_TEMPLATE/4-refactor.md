@@ -1,10 +1,7 @@
 ---
-name: "♻️ Refactor"
+name: '♻️ Refactor'
 about: 'Something that needs improving while not changing functionality '
-title: "♻️"
+title: '♻️'
 labels: 'Type: Enhancement'
 assignees: 'Hona'
-
 ---
-
-

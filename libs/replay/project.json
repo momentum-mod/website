@@ -1,0 +1,26 @@
+{
+  "name": "replay",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "libs/replay/src",
+  "projectType": "library",
+  "targets": {
+    "build": {
+      "executor": "@nrwl/js:tsc",
+      "outputs": ["{options.outputPath}"],
+      "options": {
+        "outputPath": "dist/libs/replay",
+        "main": "libs/replay/src/index.ts",
+        "tsConfig": "libs/replay/tsconfig.lib.json",
+        "assets": ["libs/replay/*.md"]
+      }
+    },
+    "lint": {
+      "executor": "@nrwl/linter:eslint",
+      "outputs": ["{options.outputFile}"],
+      "options": {
+        "lintFilePatterns": ["libs/replay/**/*.ts"]
+      }
+    }
+  },
+  "tags": []
+}

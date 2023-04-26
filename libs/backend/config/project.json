@@ -1,0 +1,26 @@
+{
+  "name": "backend-config",
+  "$schema": "../../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "libs/backend/config/src",
+  "projectType": "library",
+  "targets": {
+    "build": {
+      "executor": "@nrwl/js:tsc",
+      "outputs": ["{options.outputPath}"],
+      "options": {
+        "outputPath": "dist/libs/backend/config",
+        "main": "libs/backend/config/src/index.ts",
+        "tsConfig": "libs/backend/config/tsconfig.lib.json",
+        "assets": ["libs/backend/config/*.md"]
+      }
+    },
+    "lint": {
+      "executor": "@nrwl/linter:eslint",
+      "outputs": ["{options.outputFile}"],
+      "options": {
+        "lintFilePatterns": ["libs/backend/config/**/*.ts"]
+      }
+    }
+  },
+  "tags": []
+}

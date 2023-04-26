@@ -1,11 +1,11 @@
-name: AngularBuild 
+name: AngularBuild
 on:
   pull_request:
     branches:
       - staging
     paths-ignore:
       - '**.md'
-jobs: 
+jobs:
   build:
     name: Production Frontend Build
     runs-on: ubuntu-latest

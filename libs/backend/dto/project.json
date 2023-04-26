@@ -1,0 +1,26 @@
+{
+  "name": "backend-dto",
+  "$schema": "../../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "libs/backend/dto/src",
+  "projectType": "library",
+  "targets": {
+    "build": {
+      "executor": "@nrwl/js:tsc",
+      "outputs": ["{options.outputPath}"],
+      "options": {
+        "outputPath": "dist/libs/backend/dto",
+        "main": "libs/backend/dto/src/index.ts",
+        "tsConfig": "libs/backend/dto/tsconfig.lib.json",
+        "assets": ["libs/backend/dto/*.md"]
+      }
+    },
+    "lint": {
+      "executor": "@nrwl/linter:eslint",
+      "outputs": ["{options.outputFile}"],
+      "options": {
+        "lintFilePatterns": ["libs/backend/dto/**/*.ts"]
+      }
+    }
+  },
+  "tags": []
+}

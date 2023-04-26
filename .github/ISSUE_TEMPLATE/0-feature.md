@@ -1,10 +1,9 @@
 ---
-name: "✨ New Feature"
+name: '✨ New Feature'
 about: Suggest an idea for this project
-title: "✨"
+title: '✨'
 labels: 'Type: Feature'
 assignees: Hona
-
 ---
 
 **Is your feature request related to a problem? Please describe.**

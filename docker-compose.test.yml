@@ -1,10 +1,10 @@
-version: "3.8"
+version: '3.8'
 
 services:
   db:
     platform: linux/x86_64
     healthcheck:
-      test: ["CMD-SHELL", "sh -c 'pg_isready -U root -d momentum'"]
+      test: ['CMD-SHELL', "sh -c 'pg_isready -U root -d momentum'"]
       interval: 1s
       timeout: 5s
       retries: 3
@@ -17,8 +17,8 @@ services:
     container_name: MinIO
     command: server /data --console-address ":9001"
     ports:
-      - "9000:9000"
-      - "9001:9001"
+      - '9000:9000'
+      - '9001:9001'
     expose:
       - 9000
     volumes:
@@ -28,7 +28,7 @@ services:
       MINIO_ROOT_PASSWORD: minio123
       MINIO_SITE_REGION: us-west-1
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
+      test: ['CMD', 'curl', '-f', 'http://localhost:9000/minio/health/live']
       interval: 5s
       timeout: 20s
       retries: 3
@@ -46,7 +46,7 @@ services:
   api:
     platform: linux/x86_64
     image: node:18
-    restart: "no"
+    restart: 'no'
     environment:
       NODE_ENV: test
       NODE_PORT: 3003
@@ -66,4 +66,4 @@ services:
     depends_on:
       - minio
     working_dir: /app/server
-    command: "npm run test:ci"
+    command: 'npm run test:ci'

@@ -4,7 +4,4 @@ about: Updating the piplines
 title: "\U0001F477"
 labels: 'For: DevOps'
 assignees: 'Hona'
-
 ---
-
-

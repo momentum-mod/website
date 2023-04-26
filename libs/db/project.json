@@ -1,0 +1,61 @@
+{
+  "name": "db",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "libs/db/src",
+  "projectType": "library",
+  "targets": {
+    "build": {
+      "executor": "@nrwl/js:tsc",
+      "outputs": ["{options.outputPath}"],
+      "options": {
+        "outputPath": "dist/libs/db",
+        "main": "libs/db/src/index.ts",
+        "tsConfig": "libs/db/tsconfig.lib.json",
+        "assets": ["libs/db/*.md"]
+      }
+    },
+    "lint": {
+      "executor": "@nrwl/linter:eslint",
+      "outputs": ["{options.outputFile}"],
+      "options": {
+        "lintFilePatterns": ["libs/bitflags/**/*.ts"]
+      }
+    },
+    "format": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "npx prisma format",
+        "cwd": "libs/db"
+      }
+    },
+    "push": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "npx prisma db push --accept-data-loss",
+        "cwd": "libs/db"
+      }
+    },
+    "generate": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "npx prisma generate",
+        "cwd": "libs/db"
+      }
+    },
+    "seed": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "npx prisma db seed",
+        "cwd": "libs/db"
+      }
+    },
+    "studio": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "npx prisma studio",
+        "cwd": "libs/db"
+      }
+    }
+  },
+  "tags": []
+}

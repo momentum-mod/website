@@ -1,4 +1,4 @@
-version: "3.8"
+version: '3.8'
 
 services:
   db:
@@ -15,7 +15,7 @@ services:
     expose:
       - ${NODE_PORT}
     environment:
-      IS_DOCKERIZED_API: "true"
+      IS_DOCKERIZED_API: 'true'
       DATABASE_URL: postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@db/${POSTGRES_DB}?schema=public
     # TODO: This looks like old API pre-S3 shit. Probably remove when setting up prod properly.
     volumes:

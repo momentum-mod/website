@@ -1,0 +1,10 @@
+export enum MapStatus {
+  APPROVED = 0,
+  PENDING = 1,
+  NEEDS_REVISION = 2,
+  PRIVATE_TESTING = 3,
+  PUBLIC_TESTING = 4,
+  READY_FOR_RELEASE = 5,
+  REJECTED = 6,
+  REMOVED = 7
+}

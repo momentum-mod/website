@@ -1,0 +1,32 @@
+{
+  "compileOnSave": false,
+  "compilerOptions": {
+    "rootDir": ".",
+    "sourceMap": true,
+    "declaration": false,
+    "moduleResolution": "node",
+    "emitDecoratorMetadata": true,
+    "experimentalDecorators": true,
+    "importHelpers": true,
+    "target": "ES2022",
+    "module": "esnext",
+    "lib": ["ES2022", "dom"],
+    "skipLibCheck": true,
+    "skipDefaultLibCheck": true,
+    "baseUrl": ".",
+    "paths": {
+      "@momentum/backend/config": ["libs/backend/config/src/index.ts"],
+      "@momentum/backend/decorators": ["libs/backend/decorators/src/index.ts"],
+      "@momentum/backend/dto": ["libs/backend/dto/src/index.ts"],
+      "@momentum/backend/pipes": ["libs/backend/pipes/src/index.ts"],
+      "@momentum/backend/test-utils": ["libs/backend/test-utils/src/index.ts"],
+      "@momentum/backend/validators": ["libs/backend/validators/src/index.ts"],
+      "@momentum/bitflags": ["libs/bitflags/src/index.ts"],
+      "@momentum/constants": ["libs/constants/src/index.ts"],
+      "@momentum/db": ["libs/db/src/index.ts"],
+      "@momentum/random": ["libs/random/src/index.ts"],
+      "@momentum/replay": ["libs/replay/src/index.ts"]
+    }
+  },
+  "exclude": ["node_modules", "tmp"]
+}
