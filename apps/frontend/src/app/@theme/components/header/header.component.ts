@@ -15,7 +15,7 @@ import { Subject } from 'rxjs';
   templateUrl: './header.component.html'
 })
 export class HeaderComponent implements OnInit, OnDestroy {
-  private ngUnsub = new Subject();
+  private ngUnsub = new Subject<void>();
 
   userMenu: NbMenuItem[] = [
     {

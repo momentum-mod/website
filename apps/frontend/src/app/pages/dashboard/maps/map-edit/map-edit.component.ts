@@ -26,7 +26,7 @@ const youtubeRegex = /[\w-]{11}/;
   styleUrls: ['./map-edit.component.scss']
 })
 export class MapEditComponent implements OnInit, OnDestroy {
-  private ngUnsub = new Subject();
+  private ngUnsub = new Subject<void>();
   map: MomentumMap;
   mapImages: MapImage[];
   mapImagesLimit: number;

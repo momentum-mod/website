@@ -24,7 +24,7 @@ import { environment } from '../../../../../environments/environment';
   styleUrls: ['./profile-edit.component.scss']
 })
 export class ProfileEditComponent implements OnInit, OnDestroy {
-  private ngUnSub = new Subject();
+  private ngUnSub = new Subject<void>();
 
   profileEditFormGroup: FormGroup = this.fb.group({
     alias: [

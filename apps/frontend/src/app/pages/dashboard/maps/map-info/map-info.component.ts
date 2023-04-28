@@ -26,7 +26,7 @@ import { MapNotifyEditComponent } from './map-info-notify-edit/map-info-notify-e
   styleUrls: ['./map-info.component.scss']
 })
 export class MapInfoComponent implements OnInit, OnDestroy {
-  private ngUnsub = new Subject();
+  private ngUnsub = new Subject<void>();
   @Input() previewMap: MomentumMapPreview;
   protected readonly ReportType = ReportType;
   protected readonly NbTrigger = NbTrigger;

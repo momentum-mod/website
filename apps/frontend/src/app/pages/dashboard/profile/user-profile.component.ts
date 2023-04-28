@@ -17,7 +17,7 @@ import { NbToastrService, NbTrigger } from '@nebular/theme';
   styleUrls: ['./user-profile.component.scss']
 })
 export class UserProfileComponent implements OnInit, OnDestroy {
-  private ngUnsub = new Subject();
+  private ngUnsub = new Subject<void>();
   protected readonly Role = Role;
   protected readonly ReportType = ReportType;
   protected readonly NbTrigger = NbTrigger;
