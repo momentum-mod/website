@@ -21,6 +21,7 @@ export class AuthGuard implements CanActivate {
       window.location.href =
         environment.auth + '/auth/steam?r=' + window.location.href;
     else window.location.href = environment.auth + '/auth/steam';
+    return false;
   }
 
   checkPermissions(roles): boolean {

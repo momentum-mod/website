@@ -39,5 +39,6 @@ export class ScreenerService {
         return false; // prevent default action and stop event propagation
       }
     }
+    return false; // TODO: Not 100% sure if this is the right return value. Revisit this service. -Tom 28/04
   }
 }
