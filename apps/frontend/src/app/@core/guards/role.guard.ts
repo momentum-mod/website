@@ -14,8 +14,8 @@ export class RoleGuard implements CanActivate {
 
   canActivate(route: ActivatedRouteSnapshot): boolean {
     let hasPermission = true;
-    if (route.data && route.data.onlyAllow) {
-      hasPermission = this.checkPermissions(route.data.onlyAllow);
+    if (route.data && route.data['onlyAllow']) {
+      hasPermission = this.checkPermissions(route.data['onlyAllow']);
     }
     if (this.userService.isLoggedIn() && hasPermission) return true;
     else {

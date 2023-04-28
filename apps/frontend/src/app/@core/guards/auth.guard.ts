@@ -11,8 +11,8 @@ export class AuthGuard implements CanActivate {
 
   canActivate(route: ActivatedRouteSnapshot): boolean {
     let hasPermission = true;
-    if (route.data && route.data.onlyAllow) {
-      hasPermission = this.checkPermissions(route.data.onlyAllow);
+    if (route.data && route.data['onlyAllow']) {
+      hasPermission = this.checkPermissions(route.data['onlyAllow']);
     }
     if (hasPermission && this.userService.isLoggedIn()) {
       return true;

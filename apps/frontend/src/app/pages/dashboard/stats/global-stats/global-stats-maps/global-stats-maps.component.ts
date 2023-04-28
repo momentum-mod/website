@@ -14,7 +14,7 @@ export class GlobalStatsMapsComponent implements OnChanges {
   mapCompletionPieChartOptions: EChartsOption;
 
   ngOnChanges(changes: SimpleChanges) {
-    if (changes.globalMapStats.currentValue) {
+    if (changes['globalMapStats'].currentValue) {
       this.mapCompletionPieChartOptions = {
         legend: {
           orient: 'vertical',
