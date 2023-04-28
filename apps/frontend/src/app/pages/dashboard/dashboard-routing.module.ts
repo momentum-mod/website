@@ -17,37 +17,29 @@ import { RunInfoComponent } from './runs/run-info/run-info.component';
           {
             path: 'maps',
             loadChildren: () =>
-              import('app/pages/dashboard/maps/map.module').then(
-                (m) => m.MapModule
-              )
+              import('./maps/map.module').then((m) => m.MapModule)
           },
           {
             path: 'stats',
             loadChildren: () =>
-              import('app/pages/dashboard/stats/stats.module').then(
-                (m) => m.StatsModule
-              )
+              import('./stats/stats.module').then((m) => m.StatsModule)
           },
           {
             path: 'community',
             loadChildren: () =>
-              import('app/pages/dashboard/community/community.module').then(
+              import('./community/community.module').then(
                 (m) => m.CommunityModule
               )
           },
           {
             path: 'profile',
             loadChildren: () =>
-              import('app/pages/dashboard/profile/profile.module').then(
-                (m) => m.ProfileModule
-              )
+              import('./profile/profile.module').then((m) => m.ProfileModule)
           },
           {
             path: 'admin',
             loadChildren: () =>
-              import('app/pages/dashboard/admin/admin.module').then(
-                (m) => m.AdminModule
-              ),
+              import('./admin/admin.module').then((m) => m.AdminModule),
             canActivate: [RoleGuard],
             data: {
               onlyAllow: [Role.MODERATOR, Role.ADMIN]
