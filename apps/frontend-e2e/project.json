@@ -26,6 +26,12 @@
       "options": {
         "lintFilePatterns": ["apps/frontend-e2e/**/*.{js,ts}"]
       }
+    },
+    "watch": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "nx e2e frontend-e2e --watch"
+      }
     }
   },
   "tags": [],
