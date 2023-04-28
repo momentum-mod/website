@@ -8,8 +8,8 @@ import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
   styleUrls: ['./gamemodes.component.scss']
 })
 export class GamemodesComponent implements OnDestroy {
-  timer: NodeJS.Timeout;
-  delay: NodeJS.Timeout;
+  timer: number;
+  delay: number;
 
   gameModes: GameModeDetails[] = [
     {
@@ -146,7 +146,9 @@ export class GamemodesComponent implements OnDestroy {
 
   gameModeIndex: number;
   gameModeSectionVisible: boolean;
+  // eslint-disable-next-line @typescript-eslint/member-ordering
   static readonly GAMEMODE_CHANGE_TIME = 25;
+  // eslint-disable-next-line @typescript-eslint/member-ordering
   static readonly GAMEMODE_CHANGE_TIME_MANUAL = 60;
 
   constructor(private sanitizer: DomSanitizer) {
@@ -199,7 +201,7 @@ export class GamemodesComponent implements OnDestroy {
     this.timer = this.getGameModeChangeInterval();
   }
 
-  getGameModeChangeInterval(): NodeJS.Timeout {
+  getGameModeChangeInterval(): number {
     return setInterval(() => {
       this.incrementGamemodeIndex();
     }, GamemodesComponent.GAMEMODE_CHANGE_TIME * 1000);
@@ -218,11 +220,15 @@ export class GamemodesComponent implements OnDestroy {
   // Credit: Mateusz Rybczonec
 
   // Length = 2πr = 2 * π * 45 = 282.6
+  // eslint-disable-next-line @typescript-eslint/member-ordering
   static readonly FULL_DASH_ARRAY = 283;
 
+  // eslint-disable-next-line @typescript-eslint/member-ordering
   timePassed = 0;
+  // eslint-disable-next-line @typescript-eslint/member-ordering
   timeLeft: number = GamemodesComponent.GAMEMODE_CHANGE_TIME;
-  circleTimerInterval: NodeJS.Timeout = null;
+  // eslint-disable-next-line @typescript-eslint/member-ordering
+  circleTimerInterval: number = null;
 
   onTimesUp() {
     clearInterval(this.circleTimerInterval);
