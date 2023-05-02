@@ -4,16 +4,6 @@
   "sourceRoot": "libs/db/src",
   "projectType": "library",
   "targets": {
-    "build": {
-      "executor": "@nx/js:tsc",
-      "outputs": ["{options.outputPath}"],
-      "options": {
-        "outputPath": "dist/libs/db",
-        "main": "libs/db/src/index.ts",
-        "tsConfig": "libs/db/tsconfig.lib.json",
-        "assets": ["libs/db/*.md"]
-      }
-    },
     "lint": {
       "executor": "@nx/linter:eslint",
       "outputs": ["{options.outputFile}"],
@@ -42,11 +32,27 @@
         "cwd": "libs/db"
       }
     },
+    "seed-build": {
+      "executor": "@nx/webpack:webpack",
+      "outputs": ["{options.outputPath}"],
+      "defaultConfiguration": "development",
+      "options": {
+        "target": "node",
+        "compiler": "tsc",
+        "outputPath": "dist/libs/db/",
+        "outputFileName": "seed.js",
+        "main": "libs/db/src/seed.ts",
+        "tsConfig": "libs/db/tsconfig.lib.json"
+      },
+      "configurations": {
+        "development": {}
+      }
+    },
     "seed": {
       "executor": "nx:run-commands",
+      "dependsOn": ["seed-build"],
       "options": {
-        "command": "npx prisma db seed",
-        "cwd": "libs/db"
+        "command": "node dist/libs/db/seed.js"
       }
     },
     "studio": {

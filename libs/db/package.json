@@ -1,4 +1,7 @@
 {
   "name": "@momentum/db",
-  "type": "commonjs"
+  "type": "commonjs",
+  "prisma": {
+    "seed": "npx nx run db:seed"
+  }
 }
