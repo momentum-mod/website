@@ -1,0 +1,20 @@
+{
+  "name": "frontend-directives",
+  "$schema": "../../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "libs/frontend/directives/src",
+  "prefix": "momentum",
+  "tags": [],
+  "projectType": "library",
+  "targets": {
+    "lint": {
+      "executor": "@nx/linter:eslint",
+      "outputs": ["{options.outputFile}"],
+      "options": {
+        "lintFilePatterns": [
+          "libs/frontend/directives/**/*.ts",
+          "libs/frontend/directives/**/*.html"
+        ]
+      }
+    }
+  }
+}

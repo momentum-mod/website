@@ -1,0 +1,17 @@
+{
+  "name": "frontend-icons",
+  "$schema": "../../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "libs/frontend/icons/src",
+  "prefix": "momentum",
+  "tags": [],
+  "projectType": "library",
+  "targets": {
+    "lint": {
+      "executor": "@nx/linter:eslint",
+      "outputs": ["{options.outputFile}"],
+      "options": {
+        "lintFilePatterns": ["libs/frontend/icons/**/*.ts"]
+      }
+    }
+  }
+}

@@ -103,7 +103,8 @@
         "unicorn/switch-case-braces": ["off"],
         "unicorn/no-negated-condition": ["off"],
         "unicorn/no-useless-undefined": ["off"],
-        "no-undef-init": ["error"]
+        "no-undef-init": ["error"],
+        "unicorn/prefer-export-from": ["error", { "ignoreUsedVariables": true }]
       }
     },
     {

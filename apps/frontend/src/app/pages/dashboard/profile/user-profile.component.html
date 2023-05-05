@@ -25,7 +25,11 @@
               (click)="onEditProfile()"
             >
               <span class="d-none d-md-inline-block">Edit Profile</span>
-              <nb-icon class="d-inline-block d-md-none" icon="edit"></nb-icon>
+              <nb-icon
+                class="d-inline-block d-md-none"
+                icon="note-edit"
+                pack="mdi"
+              ></nb-icon>
             </button>
           </div>
         </div>
@@ -214,10 +218,10 @@
     </nb-card>
   </div>
   <div class="col-12 col-xl-5">
-    <activity-card
+    <mom-activity-card
       *ngIf="user"
       [headerTitle]="'USER ACTIVITY'"
       [userSubj]="userSubj$"
-    ></activity-card>
+    ></mom-activity-card>
   </div>
 </div>

@@ -24,6 +24,10 @@
       "@momentum/bitflags": ["libs/bitflags/src/index.ts"],
       "@momentum/constants": ["libs/constants/src/index.ts"],
       "@momentum/db": ["libs/db/src/index.ts"],
+      "@momentum/frontend/directives": [
+        "libs/frontend/directives/src/index.ts"
+      ],
+      "@momentum/frontend/icons": ["libs/frontend/icons/src/index.ts"],
       "@momentum/random": ["libs/random/src/index.ts"],
       "@momentum/replay": ["libs/replay/src/index.ts"]
     }

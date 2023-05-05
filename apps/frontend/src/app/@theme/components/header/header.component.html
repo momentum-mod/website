@@ -1,7 +1,7 @@
 <div class="header-container">
   <div class="logo-container">
     <a (click)="toggleSidebar()" href="#" class="sidebar-toggle">
-      <nb-icon icon="menu-outline"></nb-icon>
+      <nb-icon icon="menu" pack="mdi"></nb-icon>
     </a>
     <a class="logo" routerLink="/">
       <img src="assets/images/logo.svg" />
@@ -16,7 +16,10 @@
     </nb-action>
     <nb-action
       class="control-item"
-      [icon]="notifications.length ? 'bell' : 'bell-outline'"
+      [icon]="{
+        icon: notifications.length ? 'bell-alert' : 'bell-outline',
+        pack: 'mdi'
+      }"
       [nbPopover]="notifTempl8"
       nbPopoverPlacement="bottom"
       badgePosition="top right"

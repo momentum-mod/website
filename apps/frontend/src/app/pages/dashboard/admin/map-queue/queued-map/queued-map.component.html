@@ -25,7 +25,7 @@
               [name]="map?.submitter.alias"
               [picture]="map?.submitter.avatarURL"
               size="small"
-            ></nb-user>
+            />
           </li>
         </ul>
       </div>
@@ -51,14 +51,14 @@
             class="btn btn-success mr-2 mr-lg-0 mb-lg-2"
             (click)="updateMapStatus(map?.id, MapUploadStatus.APPROVED)"
           >
-            <nb-icon icon="checkmark-circle-2"></nb-icon>
+            <nb-icon icon="check-circle-outline" pack="mdi" />
           </button>
           <button
             type="button"
             class="btn btn-danger"
             (click)="updateMapStatus(map?.id, MapUploadStatus.REJECTED)"
           >
-            <nb-icon icon="close-outline"></nb-icon>
+            <nb-icon icon="close-circle-outline" pack="mdi" />
           </button>
         </div>
       </div>

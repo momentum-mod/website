@@ -11,7 +11,7 @@
           size="tiny"
           (click)="removeUser(user)"
         >
-          <nb-icon icon="close-outline"></nb-icon>
+          <nb-icon icon="close-circle-outline" pack="mdi"></nb-icon>
         </button>
       </div>
     </div>
@@ -38,6 +38,6 @@
 </div>
 <div class="text-center" *ngIf="editable && !userSearch">
   <button nbButton outline status="info" (click)="addUserSearch()">
-    <nb-icon icon="plus-outline"></nb-icon>
+    <nb-icon icon="plus-outline" pack="mdi"></nb-icon>
   </button>
 </div>

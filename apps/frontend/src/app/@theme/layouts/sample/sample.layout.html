@@ -1,6 +1,6 @@
 <nb-layout>
   <nb-layout-header fixed>
-    <ngx-header></ngx-header>
+    <ngx-header />
   </nb-layout-header>
 
   <nb-sidebar
@@ -14,27 +14,22 @@
       <a
         href="https://store.steampowered.com/app/669270/Momentum_Mod/"
         target="_blank"
-        class="fab fa-steam"
-      ></a>
-      <a
-        href="https://github.com/momentum-mod/"
-        target="_blank"
-        class="fab fa-github"
-      ></a>
-      <a
-        href="https://discord.gg/n4v52uv"
-        target="_blank"
-        class="fab fa-discord"
-      ></a>
-      <a
-        href="https://twitter.com/MomentumMod"
-        target="_blank"
-        class="fab fa-twitter"
-      ></a>
+      >
+        <nb-icon icon="steam" pack="si" />
+      </a>
+      <a href="https://github.com/momentum-mod/" target="_blank">
+        <nb-icon icon="github" pack="si" />
+      </a>
+      <a href="https://discord.gg/n4v52uv" target="_blank">
+        <nb-icon icon="discord" pack="si" />
+      </a>
+      <a href="https://twitter.com/MomentumMod" target="_blank">
+        <nb-icon icon="twitter" pack="si" />
+      </a>
     </div>
   </nb-sidebar>
 
   <nb-layout-column class="main-content">
-    <ng-content select="router-outlet"></ng-content>
+    <ng-content select="router-outlet" />
   </nb-layout-column>
 </nb-layout>

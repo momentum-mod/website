@@ -27,7 +27,8 @@
           "node_modules/echarts/dist/echarts.min.js",
           "node_modules/echarts/dist/extension/bmap.min.js",
           "node_modules/marked/marked.min.js"
-        ]
+        ],
+        "allowedCommonJsDependencies": ["eva-icons"]
       },
       "configurations": {
         "production": {

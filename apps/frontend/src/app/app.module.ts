@@ -22,6 +22,7 @@ import {
 import { RefreshTokenInterceptorService } from './@core/utils/refresh-token-interceptor.service';
 import { TimeagoModule } from 'ngx-timeago';
 import { environment } from '../environments/environment';
+import { NbEvaIconsModule } from '@nebular/eva-icons';
 
 export function tokenGetter() {
   return localStorage.getItem('accessToken');
@@ -64,6 +65,7 @@ export function tokenGetter() {
         }
       }
     }),
+    NbEvaIconsModule,
     NbDatepickerModule.forRoot(),
     NbToastrModule.forRoot({
       duration: 3000,

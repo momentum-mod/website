@@ -31,7 +31,8 @@
                     <h5 class="mb-1 font-weight-normal">
                       Map Thumbnail
                       <nb-icon
-                        icon="question-mark-circle-outline"
+                        icon="tooltip-question-outline"
+                        pack="mdi"
                         [nbPopover]="
                           'Make sure to choose the image that represents your map the best! This will be the main image that shows up in the map selector for your map!'
                         "
@@ -62,7 +63,8 @@
                     <h5 class="mb-1 font-weight-normal">
                       YouTube URL
                       <nb-icon
-                        icon="question-mark-circle-outline"
+                        icon="tooltip-question-outline"
+                        pack="mdi"
                         [nbPopover]="
                           'Any link with YouTube video ID or video ID itself will work'
                         "
@@ -81,7 +83,8 @@
                     <h5 class="mb-1 font-weight-normal">
                       Additional Map Photos
                       <nb-icon
-                        icon="question-mark-circle-outline"
+                        icon="tooltip-question-outline"
+                        pack="mdi"
                         [nbPopover]="
                           'You may upload up to ' +
                           extraImagesLimit +
@@ -111,7 +114,7 @@
                       size="tiny"
                       (click)="removeExtraImage(img)"
                     >
-                      <nb-icon icon="close-outline"></nb-icon>
+                      <nb-icon icon="close-circle-outline" pack="mdi"></nb-icon>
                     </button>
                   </div>
                 </div>
@@ -141,7 +144,8 @@
                     <label
                       >Map Type
                       <nb-icon
-                        icon="question-mark-circle-outline"
+                        icon="tooltip-question-outline"
+                        pack="mdi"
                         [nbPopover]="
                           'This is the style of gameplay found predominantly throughout the map.'
                         "
@@ -314,7 +318,7 @@
           *ngIf="stepper.selectedIndex !== 0"
           (click)="touchForm(stepper.selectedIndex); stepper.previous()"
         >
-          <nb-icon icon="chevron-left-outline"></nb-icon>
+          <nb-icon icon="chevron-left-circle-outline" pack="mdi"></nb-icon>
         </button>
         <button
           nbButton
@@ -325,7 +329,7 @@
           *ngIf="stepper.selectedIndex !== stepper.steps?.length - 1"
           (click)="touchForm(stepper.selectedIndex); stepper.next()"
         >
-          <nb-icon icon="chevron-right-outline"></nb-icon>
+          <nb-icon icon="chevron-right-circle-outline" pack="mdi"></nb-icon>
         </button>
         <button
           *ngIf="stepper.selectedIndex === stepper.steps?.length - 1"

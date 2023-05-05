@@ -47,12 +47,15 @@ import { ReportButtonComponent } from './components/report/report-button/report-
 import { CreateReportDialogComponent } from './components/report/create-report-dialog/create-report-dialog.component';
 import { ConfirmDialogComponent } from './components/confirm-dialog/confirm-dialog.component';
 import { TimeagoModule } from 'ngx-timeago';
+import { NgxAdminDashboard } from './layouts/dashboard/dashboard.layout';
+import { DirectivesModule } from '@momentum/frontend/directives';
 
 const BASE_MODULES = [
   CommonModule,
   FormsModule,
   ReactiveFormsModule,
-  RouterModule
+  RouterModule,
+  DirectivesModule
 ];
 
 const NB_MODULES = [
