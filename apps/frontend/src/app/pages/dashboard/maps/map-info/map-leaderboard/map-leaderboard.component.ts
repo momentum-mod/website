@@ -13,7 +13,7 @@ export enum LeaderboardType {
 }
 
 @Component({
-  selector: 'map-leaderboard',
+  selector: 'mom-map-leaderboard',
   templateUrl: './map-leaderboard.component.html',
   styleUrls: ['./map-leaderboard.component.scss']
 })

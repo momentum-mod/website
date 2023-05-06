@@ -5,7 +5,7 @@ import { AdminService } from '../../../../@core/data/admin.service';
 import { NbToastrService } from '@nebular/theme';
 
 @Component({
-  selector: 'xp-system',
+  selector: 'mom-xp-system',
   templateUrl: './xp-system.component.html',
   styleUrls: ['./xp-system.component.scss']
 })

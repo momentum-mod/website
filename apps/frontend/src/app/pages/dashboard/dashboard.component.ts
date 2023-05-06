@@ -5,7 +5,7 @@ import { LocalUserService } from '../../@core/data/local-user.service';
 import { NotificationsService } from '../../@core/utils/notifications.service';
 
 @Component({
-  selector: 'dashboard',
+  selector: 'mom-dashboard',
   template: `
     <ngx-sample-layout>
       <nb-menu [autoCollapse]="true" [items]="menu"></nb-menu>

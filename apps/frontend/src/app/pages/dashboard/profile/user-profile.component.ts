@@ -12,7 +12,7 @@ import { ReportType } from '../../../@core/models/report-type.model';
 import { NbToastrService, NbTrigger } from '@nebular/theme';
 
 @Component({
-  selector: 'user-profile',
+  selector: 'mom-user-profile',
   templateUrl: './user-profile.component.html',
   styleUrls: ['./user-profile.component.scss']
 })

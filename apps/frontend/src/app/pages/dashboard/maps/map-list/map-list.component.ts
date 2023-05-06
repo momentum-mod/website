@@ -25,7 +25,7 @@ export enum MapListType {
 }
 
 @Component({
-  selector: 'map-list',
+  selector: 'mom-map-list',
   templateUrl: './map-list.component.html',
   styleUrls: ['./map-list.component.scss']
 })

@@ -8,7 +8,7 @@ import { UsersService } from '../../../../@core/data/users.service';
 import { NbToastrService } from '@nebular/theme';
 
 @Component({
-  selector: 'profile-credits',
+  selector: 'mom-profile-credits',
   templateUrl: './profile-credits.component.html',
   styleUrls: ['./profile-credits.component.scss']
 })

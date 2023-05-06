@@ -4,7 +4,7 @@ import { BlogPost } from '../../../../@core/models/blog-post.model';
 import { finalize } from 'rxjs/operators';
 
 @Component({
-  selector: 'community-news',
+  selector: 'mom-community-news',
   templateUrl: './community-news.component.html',
   styleUrls: ['./community-news.component.scss']
 })

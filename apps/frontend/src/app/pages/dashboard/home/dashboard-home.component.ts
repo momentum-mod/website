@@ -3,7 +3,7 @@ import { LocalUserService } from '../../../@core/data/local-user.service';
 import { User } from '../../../@core/models/user.model';
 
 @Component({
-  selector: 'dashboard-home',
+  selector: 'mom-dashboard-home',
   styleUrls: ['./dashboard-home.component.scss'],
   templateUrl: './dashboard-home.component.html'
 })

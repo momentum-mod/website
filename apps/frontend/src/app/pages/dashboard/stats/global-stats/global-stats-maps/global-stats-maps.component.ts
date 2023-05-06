@@ -3,7 +3,7 @@ import { EChartsOption } from 'echarts';
 import { GlobalMapStats } from '../../../../../@core/models/global-map-stats.model';
 
 @Component({
-  selector: 'global-stats-maps',
+  selector: 'mom-global-stats-maps',
   templateUrl: './global-stats-maps.component.html',
   styleUrls: ['./global-stats-maps.component.scss']
 })

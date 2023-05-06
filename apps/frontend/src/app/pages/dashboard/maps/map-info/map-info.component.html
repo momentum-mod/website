@@ -4,12 +4,11 @@
       <h2 class="col my-auto">{{ map.name }}</h2>
       <div class="col-auto ml-auto">
         <div class="d-flex align-items-center" *ngIf="!previewMap">
-          <report-button
+          <mom-report-button
             *ngIf="!isSubmitter"
             [reportType]="ReportType.MAP_REPORT"
             [reportData]="map.id.toString()"
-          >
-          </report-button>
+          />
           <div *ngIf="isSubmitter || isAdmin || isModerator">
             <button
               nbButton
@@ -24,7 +23,7 @@
                 icon="image-edit"
                 pack="mdi"
                 class="d-inline-block d-md-none"
-              ></nb-icon>
+              />
             </button>
           </div>
           <div class="m-2">
@@ -44,7 +43,7 @@
               <nb-icon
                 [icon]="mapNotifications ? 'bell-alert' : 'bell-outline'"
                 pack="mdi"
-              ></nb-icon>
+              />
             </button>
           </div>
         </div>
@@ -63,14 +62,14 @@
             [tabIcon]="{ icon: 'file-outline', pack: 'mdi' }"
             responsive
           >
-            <map-info-description [map]="map"></map-info-description>
+            <mom-map-info-description [map]="map"/>
           </nb-tab>
           <nb-tab
             [tabTitle]="'CREDITS'"
             [tabIcon]="{ icon: 'account-multiple-outline', pack: 'mdi' }"
             responsive
           >
-            <map-info-credits [map]="map"></map-info-credits>
+            <mom-map-info-credits [map]="map"/>
           </nb-tab>
           <nb-tab
             [tabTitle]="'STATISTICS'"
@@ -78,7 +77,7 @@
             responsive
             *ngIf="!previewMap"
           >
-            <map-info-stats [map]="map"></map-info-stats>
+            <mom-map-info-stats [map]="map"/>
           </nb-tab>
         </nb-tabset>
         <div class="row no-gutters">
@@ -184,7 +183,7 @@
   </nb-card-body>
 </nb-card>
 
-<map-leaderboard
+<mom-map-leaderboard
   *ngIf="!previewMap && map"
   [setMapID]="map?.id"
-></map-leaderboard>
+/>

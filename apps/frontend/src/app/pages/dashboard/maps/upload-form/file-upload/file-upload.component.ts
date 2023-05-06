@@ -8,7 +8,7 @@ export enum FileUploadType {
 }
 
 @Component({
-  selector: 'file-upload',
+  selector: 'mom-file-upload',
   templateUrl: './file-upload.component.html',
   styleUrls: ['./file-upload.component.scss']
 })

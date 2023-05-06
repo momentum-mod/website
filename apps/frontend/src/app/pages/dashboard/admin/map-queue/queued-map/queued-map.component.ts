@@ -13,7 +13,7 @@ import { MapsService } from '../../../../../@core/data/maps.service';
 import { NbToastrService } from '@nebular/theme';
 
 @Component({
-  selector: 'queued-map',
+  selector: 'mom-queued-map',
   templateUrl: './queued-map.component.html',
   styleUrls: ['./queued-map.component.scss']
 })

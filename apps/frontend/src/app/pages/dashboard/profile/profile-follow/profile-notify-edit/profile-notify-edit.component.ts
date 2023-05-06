@@ -3,7 +3,7 @@ import { Activity_Type } from '../../../../../@core/models/activity-type.model';
 import { NbDialogRef } from '@nebular/theme';
 
 @Component({
-  selector: 'profile-notify-edit-modal',
+  selector: 'mom-profile-notify-edit-modal',
   templateUrl: './profile-notify-edit.component.html',
   styleUrls: ['./profile-notify-edit.component.scss']
 })

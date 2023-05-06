@@ -2,7 +2,7 @@ import { Component, Input, Output, EventEmitter } from '@angular/core';
 import { Activity } from '../../../../@core/models/activity.model';
 
 @Component({
-  selector: 'activity-list',
+  selector: 'mom-activity-list',
   templateUrl: './activity-list.component.html',
   styleUrls: ['./activity-list.component.scss']
 })

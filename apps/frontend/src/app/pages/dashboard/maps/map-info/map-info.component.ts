@@ -21,7 +21,7 @@ import { MapNotify } from '../../../../@core/models/map-notify.model';
 import { MapNotifyEditComponent } from './map-info-notify-edit/map-info-notify-edit.component';
 
 @Component({
-  selector: 'map-info',
+  selector: 'mom-map-info',
   templateUrl: './map-info.component.html',
   styleUrls: ['./map-info.component.scss']
 })

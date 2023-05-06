@@ -10,11 +10,11 @@
           }}"
         ></span>
         <div class="d-flex align-items-center top-right-toolbar">
-          <report-button
+          <mom-report-button
             *ngIf="!isLocal"
             [reportType]="ReportType.USER_PROFILE_REPORT"
             [reportData]="user.id.toString()"
-          ></report-button>
+          />
           <div *ngIf="canEdit()">
             <button
               nbButton
@@ -29,7 +29,7 @@
                 class="d-inline-block d-md-none"
                 icon="note-edit"
                 pack="mdi"
-              ></nb-icon>
+              />
             </button>
           </div>
         </div>
@@ -49,35 +49,39 @@
                 <img
                   *ngIf="isVerified"
                   class="ml-2 verified"
-                  src="assets/images/badges/BadgeVerified.png"
+                  ngSrc="assets/images/badges/BadgeVerified.png"
                   nbPopover="Verified"
                   [nbPopoverTrigger]="NbTrigger.HINT"
                   nbPopoverPlacement="bottom"
+                  fill
                 />
               </div>
               <div class="d-flex badges" *ngIf="isMapper || isMod || isAdmin">
                 <div *ngIf="isMapper" class="mx-1">
                   <img
-                    src="assets/images/badges/BadgeMapper.png"
+                    ngSrc="assets/images/badges/BadgeMapper.png"
                     nbPopover="Mapper"
                     nbPopoverTrigger="hint"
                     nbPopoverPlacement="bottom"
+                    fill
                   />
                 </div>
                 <div *ngIf="isMod" class="mx-1">
                   <img
-                    src="assets/images/badges/BadgeMod.png"
+                    ngSrc="assets/images/badges/BadgeMod.png"
                     nbPopover="Moderator"
                     nbPopoverTrigger="hint"
                     nbPopoverPlacement="bottom"
+                    fill
                   />
                 </div>
                 <div *ngIf="isAdmin" class="mx-1">
                   <img
-                    src="assets/images/badges/BadgeAdmin.png"
+                    ngSrc="assets/images/badges/BadgeAdmin.png"
                     nbPopover="Admin"
                     nbPopoverTrigger="hint"
                     nbPopoverPlacement="bottom"
+                    fill
                   />
                 </div>
               </div>
@@ -133,7 +137,7 @@
             </div>
           </div>
           <div class="col-auto" *ngIf="!isLocal">
-            <profile-follow [userSubj]="userSubj$"></profile-follow>
+            <mom-profile-follow [userSubj]="userSubj$" />
           </div>
         </div>
       </nb-card-header>
@@ -209,10 +213,10 @@
           </div>
         </nb-tab>
         <nb-tab [tabTitle]="'RUNS'" *ngIf="!hasRole(Role.PLACEHOLDER)">
-          <profile-run-history [userSubj]="userSubj$"></profile-run-history>
+          <mom-profile-run-history [userSubj]="userSubj$" />
         </nb-tab>
         <nb-tab tabTitle="CREDITS">
-          <profile-credits [userSubj]="userSubj$"></profile-credits>
+          <mom-profile-credits [userSubj]="userSubj$" />
         </nb-tab>
       </nb-tabset>
     </nb-card>
@@ -222,6 +226,6 @@
       *ngIf="user"
       [headerTitle]="'USER ACTIVITY'"
       [userSubj]="userSubj$"
-    ></mom-activity-card>
+    />
   </div>
 </div>

@@ -6,7 +6,7 @@ import { ReplaySubject } from 'rxjs';
 import { User } from '../../../../@core/models/user.model';
 
 @Component({
-  selector: 'activity-card',
+  selector: 'mom-activity-card',
   templateUrl: './activity-card.component.html',
   styleUrls: ['./activity-card.component.scss']
 })

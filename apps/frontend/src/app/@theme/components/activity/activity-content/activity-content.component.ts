@@ -4,7 +4,7 @@ import { Activity_Type } from '../../../../@core/models/activity-type.model';
 import { Icon } from '@momentum/frontend/icons';
 
 @Component({
-  selector: 'activity-content',
+  selector: 'mom-activity-content',
   templateUrl: './activity-content.component.html',
   styleUrls: ['./activity-content.component.scss']
 })

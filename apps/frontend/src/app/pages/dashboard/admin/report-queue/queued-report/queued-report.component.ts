@@ -6,7 +6,7 @@ import { NbDialogService } from '@nebular/theme';
 import { UpdateReportDialogComponent } from '../update-report-dialog/update-report-dialog.component';
 
 @Component({
-  selector: 'queued-report',
+  selector: 'mom-queued-report',
   templateUrl: './queued-report.component.html',
   styleUrls: ['./queued-report.component.scss']
 })

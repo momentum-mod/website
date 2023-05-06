@@ -2,7 +2,7 @@ import { Component } from '@angular/core';
 import { MapListType } from '../map-list/map-list.component';
 
 @Component({
-  selector: 'app-map-queue',
+  selector: 'mom-upload-status',
   templateUrl: './upload-status.component.html'
 })
 export class UploadStatusComponent {

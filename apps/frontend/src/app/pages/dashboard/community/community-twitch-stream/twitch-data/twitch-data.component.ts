@@ -2,7 +2,7 @@ import { Component, Input } from '@angular/core';
 import { TwitchStream } from '../../../../../@core/models/twitch-stream.model';
 
 @Component({
-  selector: 'twitch-data',
+  selector: 'mom-twitch-data',
   templateUrl: './twitch-data.component.html',
   styleUrls: ['./twitch-data.component.scss']
 })

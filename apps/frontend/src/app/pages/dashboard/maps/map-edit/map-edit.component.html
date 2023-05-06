@@ -114,11 +114,11 @@
                 class="mx-2 upload-box"
                 *ngIf="mapImages.length < mapImagesLimit"
               >
-                <file-upload
+                <mom-file-upload
                   [type]="FileUploadType.IMAGE"
                   [multiple]="true"
                   (fileSelected)="onMapImageSelected($event)"
-                ></file-upload>
+                />
               </div>
             </div>
           </div>
@@ -140,11 +140,11 @@
     <nb-tab tabTitle="CREDITS">
       <form [formGroup]="creditsForm">
         <div class="mt-2">
-          <map-credits
+          <mom-map-credits
             [creditArr]="mapCredits"
             [editable]="true"
             (creditChange)="onCreditChanged($event)"
-          ></map-credits>
+          />
         </div>
         <button
           nbButton

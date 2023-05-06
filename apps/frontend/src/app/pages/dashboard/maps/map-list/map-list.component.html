@@ -61,14 +61,14 @@
               }
       "
     >
-      <map-list-item
+      <mom-map-list-item
         [map]="map"
         [inLibrary]="isMapInLibrary(map)"
         (onLibraryUpdate)="libraryUpdate()"
         [isUpload]="type === mapListType.UPLOAD"
         [inFavorites]="isMapInFavorites(map)"
         (onFavoriteUpdate)="favoriteUpdate()"
-      ></map-list-item>
+      />
     </nb-list-item>
   </nb-list>
   <div class="text-center">

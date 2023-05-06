@@ -8,16 +8,15 @@
         "@angular-eslint/directive-selector": [
           "error",
           {
-            "type": "attribute",
-            "prefix": ["mom"],
-            "style": "camelCase"
+            "type": ["element", "attribute"],
+            "prefix": ["mom", "nb"]
           }
         ],
         "@angular-eslint/component-selector": [
           "error",
           {
             "type": "element",
-            "prefix": "mom",
+            "prefix": ["mom"],
             "style": "kebab-case"
           }
         ]

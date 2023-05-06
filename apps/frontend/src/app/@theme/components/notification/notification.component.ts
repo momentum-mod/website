@@ -3,7 +3,7 @@ import { SiteNotification } from '../../../@core/models/notification.model';
 import { NotificationsService } from '../../../@core/utils/notifications.service';
 
 @Component({
-  selector: 'notifications',
+  selector: 'mom-notifications',
   templateUrl: './notification.component.html',
   styleUrls: ['./notification.component.scss']
 })

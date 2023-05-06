@@ -6,7 +6,7 @@ import { ReportService } from '../../../../@core/data/report.service';
 import { ReportCategory } from '../../../../@core/models/report-category.model';
 
 @Component({
-  selector: 'create-report-dialog',
+  selector: 'mom-create-report-dialog',
   templateUrl: './create-report-dialog.component.html',
   styleUrls: ['./create-report-dialog.component.scss']
 })

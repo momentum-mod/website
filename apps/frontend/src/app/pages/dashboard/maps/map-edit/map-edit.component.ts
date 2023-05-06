@@ -21,7 +21,7 @@ import { FileUploadType } from '../upload-form/file-upload/file-upload.component
 const youtubeRegex = /[\w-]{11}/;
 
 @Component({
-  selector: 'map-edit',
+  selector: 'mom-map-edit',
   templateUrl: './map-edit.component.html',
   styleUrls: ['./map-edit.component.scss']
 })

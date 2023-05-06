@@ -1,7 +1,7 @@
 import { Component } from '@angular/core';
 
 @Component({
-  selector: 'ngx-about',
+  selector: 'mom-about',
   templateUrl: './about.component.html',
   styleUrls: ['./about.component.scss']
 })

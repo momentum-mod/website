@@ -5,7 +5,7 @@ import { ConfirmDialogComponent } from '../../../../@theme/components/confirm-di
 import { FormControl, FormGroup } from '@angular/forms';
 
 @Component({
-  selector: 'utilities',
+  selector: 'mom-utilities',
   templateUrl: './utilities.component.html',
   styleUrls: ['./utilities.component.scss']
 })

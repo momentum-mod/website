@@ -2,7 +2,7 @@ import { Component, Input } from '@angular/core';
 import { MomentumMap } from '../../../../../@core/models/momentum-map.model';
 
 @Component({
-  selector: 'map-info-description',
+  selector: 'mom-map-info-description',
   templateUrl: './map-info-description.component.html',
   styleUrls: ['./map-info-description.component.scss']
 })

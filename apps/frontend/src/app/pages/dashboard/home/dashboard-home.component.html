@@ -1,13 +1,11 @@
-<home-stats class="home-card" [userStats]="user?.stats"></home-stats>
+<mom-home-stats class="home-card" [userStats]="user?.stats" />
 <div class="row">
   <div class="col-12 col-md mb-4">
-    <home-user-maps></home-user-maps>
+    <mom-home-user-maps/>
   </div>
   <div class="col-12 col-md mb-4">
-    <home-user-library></home-user-library>
+    <mom-home-user-library/>
   </div>
 </div>
-<activity-card
-  [headerTitle]="'FOLLOWED ACTIVITY'"
-  [follow]="true"
-></activity-card>
+<mom-activity-card [headerTitle]="'FOLLOWED ACTIVITY'" [follow]="true" />
+

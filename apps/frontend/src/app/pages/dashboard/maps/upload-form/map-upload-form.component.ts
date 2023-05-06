@@ -28,7 +28,7 @@ export interface ImageFilePreview {
 const youtubeRegex = /[\w-]{11}/;
 
 @Component({
-  selector: 'map-upload-form',
+  selector: 'mom-map-upload-form',
   templateUrl: './map-upload-form.component.html',
   styleUrls: ['./map-upload-form.component.scss']
 })

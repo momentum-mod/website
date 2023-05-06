@@ -1,15 +1,15 @@
-<global-stats-filter></global-stats-filter>
+<mom-global-stats-filter/>
 
-<global-stats-base
+<mom-global-stats-base
   [globalBaseStats]="globalBaseStats"
   [globalMapStats]="globalMapStats"
-></global-stats-base>
+/>
 
 <div class="row">
   <div class="col-md-6">
-    <global-stats-maps [globalMapStats]="globalMapStats"></global-stats-maps>
+    <mom-global-stats-maps [globalMapStats]="globalMapStats"/>
   </div>
   <div class="col-md-6">
-    <global-stats-tops [globalMapStats]="globalMapStats"></global-stats-tops>
+    <mom-global-stats-tops [globalMapStats]="globalMapStats"/>
   </div>
 </div>

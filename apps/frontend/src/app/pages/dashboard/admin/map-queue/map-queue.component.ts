@@ -5,7 +5,6 @@ import { MapUploadStatus } from '../../../../@core/models/map-upload-status.mode
 import { NbToastrService } from '@nebular/theme';
 
 @Component({
-  selector: 'app-map-queue',
   templateUrl: './map-queue.component.html',
   styleUrls: ['./map-queue.component.scss']
 })

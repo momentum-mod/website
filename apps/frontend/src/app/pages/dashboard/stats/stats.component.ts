@@ -1,7 +1,7 @@
 import { Component } from '@angular/core';
 
 @Component({
-  selector: 'stats',
+  selector: 'mom-stats',
   template: '<router-outlet></router-outlet>'
 })
 export class StatsComponent {}

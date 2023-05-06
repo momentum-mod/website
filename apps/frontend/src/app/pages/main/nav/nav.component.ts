@@ -10,7 +10,7 @@ import { NbDialogService } from '@nebular/theme';
 import { Router } from '@angular/router';
 
 @Component({
-  selector: 'ngx-nav',
+  selector: 'mom-nav',
   templateUrl: './nav.component.html',
   styleUrls: ['./nav.component.scss']
 })

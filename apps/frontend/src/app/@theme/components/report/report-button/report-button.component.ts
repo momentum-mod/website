@@ -4,7 +4,7 @@ import { CreateReportDialogComponent } from '../create-report-dialog/create-repo
 import { ReportType } from '../../../../@core/models/report-type.model';
 
 @Component({
-  selector: 'report-button',
+  selector: 'mom-report-button',
   templateUrl: './report-button.component.html',
   styleUrls: ['./report-button.component.scss']
 })

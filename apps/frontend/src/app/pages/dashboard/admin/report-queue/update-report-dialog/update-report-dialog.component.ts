@@ -5,7 +5,7 @@ import { NbDialogRef, NbToastrService } from '@nebular/theme';
 import { AdminService } from '../../../../../@core/data/admin.service';
 
 @Component({
-  selector: 'update-report-dialog',
+  selector: 'mom-update-report-dialog',
   templateUrl: './update-report-dialog.component.html',
   styleUrls: ['./update-report-dialog.component.scss']
 })

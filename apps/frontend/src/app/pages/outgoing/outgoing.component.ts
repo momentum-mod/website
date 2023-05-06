@@ -4,7 +4,7 @@ import { switchMap } from 'rxjs/operators';
 import { of } from 'rxjs';
 
 @Component({
-  selector: 'outgoing-catch',
+  selector: 'mom-outgoing-catch',
   templateUrl: './outgoing.component.html',
   styleUrls: ['./outgoing.component.scss']
 })

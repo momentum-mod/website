@@ -3,7 +3,7 @@ import { Activity_Type } from '../../../../../@core/models/activity-type.model';
 import { NbDialogRef } from '@nebular/theme';
 
 @Component({
-  selector: 'map-info-notify-edit-modal',
+  selector: 'mom-map-info-notify-edit-modal',
   templateUrl: './map-info-notify-edit.component.html',
   styleUrls: ['./map-info-notify-edit.component.scss']
 })

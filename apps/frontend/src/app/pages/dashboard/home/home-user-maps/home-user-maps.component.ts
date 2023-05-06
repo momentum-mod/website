@@ -3,7 +3,7 @@ import { LocalUserService } from '../../../../@core/data/local-user.service';
 import { MapUploadStatus } from '../../../../@core/models/map-upload-status.model';
 
 @Component({
-  selector: 'home-user-maps',
+  selector: 'mom-home-user-maps',
   templateUrl: './home-user-maps.component.html',
   styleUrls: ['./home-user-maps.component.scss']
 })

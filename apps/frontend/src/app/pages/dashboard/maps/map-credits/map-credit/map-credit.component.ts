@@ -14,7 +14,7 @@ export interface CreditChangeEvent {
 }
 
 @Component({
-  selector: 'map-credit',
+  selector: 'mom-map-credit',
   templateUrl: './map-credit.component.html',
   styleUrls: ['./map-credit.component.scss']
 })

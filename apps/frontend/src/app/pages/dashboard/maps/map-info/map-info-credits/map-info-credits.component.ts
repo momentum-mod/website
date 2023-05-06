@@ -4,7 +4,7 @@ import { MapCreditType } from '../../../../../@core/models/map-credit-type.model
 import { MomentumMap } from '../../../../../@core/models/momentum-map.model';
 
 @Component({
-  selector: 'map-info-credits',
+  selector: 'mom-map-info-credits',
   templateUrl: './map-info-credits.component.html',
   styleUrls: ['./map-info-credits.component.scss']
 })

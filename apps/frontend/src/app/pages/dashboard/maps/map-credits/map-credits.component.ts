@@ -4,7 +4,7 @@ import { MapCreditType } from '../../../../@core/models/map-credit-type.model';
 import { CreditChangeEvent } from './map-credit/map-credit.component';
 
 @Component({
-  selector: 'map-credits',
+  selector: 'mom-map-credits',
   templateUrl: './map-credits.component.html',
   styleUrls: ['./map-credits.component.scss']
 })

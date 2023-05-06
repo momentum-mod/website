@@ -3,7 +3,7 @@ import { MomentumMap } from '../../../../@core/models/momentum-map.model';
 import { LocalUserService } from '../../../../@core/data/local-user.service';
 
 @Component({
-  selector: 'home-user-library',
+  selector: 'mom-home-user-library',
   templateUrl: './home-user-library.component.html',
   styleUrls: ['./home-user-library.component.scss']
 })

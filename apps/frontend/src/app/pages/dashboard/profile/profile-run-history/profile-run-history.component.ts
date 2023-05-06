@@ -8,7 +8,7 @@ import { FormBuilder, FormGroup } from '@angular/forms';
 import { NbToastrService } from '@nebular/theme';
 
 @Component({
-  selector: 'profile-run-history',
+  selector: 'mom-profile-run-history',
   templateUrl: './profile-run-history.component.html',
   styleUrls: ['./profile-run-history.component.scss']
 })

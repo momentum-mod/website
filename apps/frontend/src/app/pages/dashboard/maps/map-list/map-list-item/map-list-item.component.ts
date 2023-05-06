@@ -5,7 +5,7 @@ import { getStatusFromEnum } from '../../../../../@core/models/map-upload-status
 import { NbToastrService, NbTrigger } from '@nebular/theme';
 
 @Component({
-  selector: 'map-list-item',
+  selector: 'mom-map-list-item',
   templateUrl: './map-list-item.component.html',
   styleUrls: ['./map-list-item.component.scss']
 })

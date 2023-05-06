@@ -3,7 +3,7 @@ import { GlobalBaseStats } from '../../../../../@core/models/global-base-stats.m
 import { GlobalMapStats } from '../../../../../@core/models/global-map-stats.model';
 
 @Component({
-  selector: 'global-stats-base',
+  selector: 'mom-global-stats-base',
   templateUrl: './global-stats-base.component.html',
   styleUrls: ['./global-stats-base.component.scss']
 })

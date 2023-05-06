@@ -19,7 +19,7 @@ import {
 import { environment } from '../../../../../environments/environment';
 
 @Component({
-  selector: 'profile-edit',
+  selector: 'mom-profile-edit',
   templateUrl: './profile-edit.component.html',
   styleUrls: ['./profile-edit.component.scss']
 })

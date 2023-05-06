@@ -6,7 +6,7 @@ import { finalize } from 'rxjs/operators';
 import { NbToastrService } from '@nebular/theme';
 
 @Component({
-  selector: 'report-queue',
+  selector: 'mom-report-queue',
   templateUrl: './report-queue.component.html',
   styleUrls: ['./report-queue.component.scss']
 })

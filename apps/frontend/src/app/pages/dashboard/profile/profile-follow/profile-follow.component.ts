@@ -8,7 +8,7 @@ import { UserFollowObject } from '../../../../@core/models/follow.model';
 import { ProfileNotifyEditComponent } from './profile-notify-edit/profile-notify-edit.component';
 
 @Component({
-  selector: 'profile-follow',
+  selector: 'mom-profile-follow',
   templateUrl: './profile-follow.component.html',
   styleUrls: ['./profile-follow.component.scss']
 })

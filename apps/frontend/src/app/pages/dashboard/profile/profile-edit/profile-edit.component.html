@@ -272,10 +272,10 @@
           <div class="col" *ngIf="isAdmin">
             <div class="mb-3 merge-col" *ngIf="hasRole(Role.PLACEHOLDER)">
               <h5 class="text-nowrap">Merge to Real User:</h5>
-              <user-search
+              <mom-user-search
                 (selectedUserEmit)="selectMergeUser($event)"
                 *ngIf="!mergeUser"
-              ></user-search>
+              />
               <div *ngIf="mergeErr" class="mt-2 text-center text-danger">
                 {{ mergeErr }}
               </div>
@@ -284,7 +284,7 @@
                   [name]="mergeUser.alias"
                   [picture]="mergeUser.avatarURL"
                   class="mb-2"
-                ></nb-user>
+                />
                 <button
                   type="button"
                   nbButton

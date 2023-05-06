@@ -12,7 +12,7 @@ import { FormBuilder, FormGroup } from '@angular/forms';
 import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
 
 @Component({
-  selector: 'user-search',
+  selector: 'mom-user-search',
   templateUrl: './user-search.component.html',
   styleUrls: ['./user-search.component.scss']
 })

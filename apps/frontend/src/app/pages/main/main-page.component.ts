@@ -3,7 +3,7 @@ import { CookieService } from 'ngx-cookie-service';
 import { NbToastrService } from '@nebular/theme';
 
 @Component({
-  selector: 'ngx-main-page',
+  selector: 'mom-main-page',
   templateUrl: './main-page.component.html',
   styleUrls: ['./main-page.component.scss']
 })

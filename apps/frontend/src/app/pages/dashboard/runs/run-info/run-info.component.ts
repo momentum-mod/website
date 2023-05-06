@@ -6,7 +6,7 @@ import { Run } from '../../../../@core/models/run.model';
 import { RanksService } from '../../../../@core/data/ranks.service';
 
 @Component({
-  selector: 'run-info',
+  selector: 'mom-run-info',
   templateUrl: './run-info.component.html',
   styleUrls: ['./run-info.component.scss']
 })
