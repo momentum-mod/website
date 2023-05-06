@@ -63,6 +63,12 @@
             "modifiers": ["global"],
             "format": ["UPPER_CASE"]
           },
+          {
+            "selector": "variable",
+            "types": ["boolean", "string", "number"],
+            "modifiers": ["exported"],
+            "format": ["strictCamelCase"]
+          },
           { "selector": "class", "format": ["PascalCase"] },
           { "selector": "enumMember", "format": ["UPPER_CASE"] },
           { "selector": "typeParameter", "format": ["PascalCase"] },
