@@ -99,7 +99,7 @@
                 *ngFor="let img of mapImages"
                 cdkDrag
               >
-                <img class="map-image" [src]="img.small" />
+                <img class="map-image" [ngSrc]="img.small" fill />
                 <button
                   nbButton
                   outline

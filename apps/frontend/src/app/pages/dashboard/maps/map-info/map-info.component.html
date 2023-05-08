@@ -62,14 +62,14 @@
             [tabIcon]="{ icon: 'file-outline', pack: 'mdi' }"
             responsive
           >
-            <mom-map-info-description [map]="map"/>
+            <mom-map-info-description [map]="map" />
           </nb-tab>
           <nb-tab
             [tabTitle]="'CREDITS'"
             [tabIcon]="{ icon: 'account-multiple-outline', pack: 'mdi' }"
             responsive
           >
-            <mom-map-info-credits [map]="map"/>
+            <mom-map-info-credits [map]="map" />
           </nb-tab>
           <nb-tab
             [tabTitle]="'STATISTICS'"
@@ -77,7 +77,7 @@
             responsive
             *ngIf="!previewMap"
           >
-            <mom-map-info-stats [map]="map"/>
+            <mom-map-info-stats [map]="map" />
           </nb-tab>
         </nb-tabset>
         <div class="row no-gutters">
@@ -183,7 +183,4 @@
   </nb-card-body>
 </nb-card>
 
-<mom-map-leaderboard
-  *ngIf="!previewMap && map"
-  [setMapID]="map?.id"
-/>
+<mom-map-leaderboard *ngIf="!previewMap && map" [setMapID]="map?.id" />

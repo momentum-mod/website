@@ -7,9 +7,15 @@ import { CommunityActivityComponent } from './community-activity/community-activ
 import { ThemeModule } from '../../../@theme/theme.module';
 import { NotFoundModule } from '../../not-found/not-found.module';
 import { TwitchDataComponent } from './community-twitch-stream/twitch-data/twitch-data.component';
+import { NgOptimizedImage } from '@angular/common';
 
 @NgModule({
-  imports: [ThemeModule, NotFoundModule, CommunityRoutingModule],
+  imports: [
+    ThemeModule,
+    NotFoundModule,
+    CommunityRoutingModule,
+    NgOptimizedImage
+  ],
   declarations: [
     CommunityComponent,
     CommunityNewsComponent,

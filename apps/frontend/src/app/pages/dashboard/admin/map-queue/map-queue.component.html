@@ -17,10 +17,7 @@
                   }
           "
         >
-          <mom-queued-map
-            [map]="map"
-            (onStatusUpdate)="loadMapQueue(true)"
-          />
+          <mom-queued-map [map]="map" (onStatusUpdate)="loadMapQueue(true)" />
         </nb-list-item>
       </nb-list>
       <div class="text-center">
@@ -49,10 +46,7 @@
                   }
           "
         >
-          <mom-queued-map
-            [map]="map"
-            (onStatusUpdate)="loadMapQueue(false)"
-          />
+          <mom-queued-map [map]="map" (onStatusUpdate)="loadMapQueue(false)" />
         </nb-list-item>
       </nb-list>
       <div class="text-center">

@@ -35,6 +35,7 @@ import { MapListItemComponent } from './map-list/map-list-item/map-list-item.com
 import { MapEditComponent } from './map-edit/map-edit.component';
 import { MapFavoritesComponent } from './map-favorites/map-favorites.component';
 import { MapListComponent } from './map-list/map-list.component';
+import { NgOptimizedImage } from '@angular/common';
 
 @NgModule({
   imports: [
@@ -55,7 +56,8 @@ import { MapListComponent } from './map-list/map-list.component';
     GallerizeModule,
     UserModule,
     MarkdownModule.forChild(),
-    MapRoutingModule
+    MapRoutingModule,
+    NgOptimizedImage
   ],
   declarations: [
     MapComponent,

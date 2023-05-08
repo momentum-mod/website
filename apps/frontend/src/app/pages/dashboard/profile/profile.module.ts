@@ -19,6 +19,7 @@ import { FormsModule } from '@angular/forms';
 import { NgxPaginationModule } from 'ngx-pagination';
 import { UserModule } from '../user/user.module';
 import { ProfileNotifyEditComponent } from './profile-follow/profile-notify-edit/profile-notify-edit.component';
+import { NgOptimizedImage } from '@angular/common';
 
 @NgModule({
   imports: [
@@ -32,7 +33,8 @@ import { ProfileNotifyEditComponent } from './profile-follow/profile-notify-edit
     NgxPaginationModule,
     NotFoundModule,
     ProfileRoutingModule,
-    UserModule
+    UserModule,
+    NgOptimizedImage
   ],
   declarations: [
     ProfileComponent,

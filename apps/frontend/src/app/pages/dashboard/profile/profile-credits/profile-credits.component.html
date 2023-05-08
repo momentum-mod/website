@@ -25,7 +25,8 @@
         <a routerLink="/dashboard/maps/{{ mapCredit.map?.id }}">
           <img
             class="rounded map-image"
-            [src]="mapCredit.map?.thumbnail?.small"
+            [ngSrc]="mapCredit.map?.thumbnail?.small"
+            fill
           />
         </a>
       </div>

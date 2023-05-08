@@ -13,6 +13,7 @@ import { UpdateReportDialogComponent } from './report-queue/update-report-dialog
 import { NbDialogModule } from '@nebular/theme';
 import { UtilitiesComponent } from './utilities/utilities.component';
 import { XPSystemComponent } from './xp-system/xp-system.component';
+import { NgOptimizedImage } from '@angular/common';
 
 @NgModule({
   imports: [
@@ -20,7 +21,8 @@ import { XPSystemComponent } from './xp-system/xp-system.component';
     NotFoundModule,
     AdminRoutingModule,
     NgxPaginationModule,
-    NbDialogModule.forChild()
+    NbDialogModule.forChild(),
+    NgOptimizedImage
   ],
   declarations: [
     MapQueueComponent,

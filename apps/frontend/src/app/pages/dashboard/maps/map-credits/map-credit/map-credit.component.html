@@ -21,10 +21,7 @@
   <div class="mb-2 text-danger" *ngIf="userSearch.alreadySelected">
     User already selected!
   </div>
-  <mom-user-search
-    class="text-left"
-    (selectedUserEmit)="addUser($event)"
-  />
+  <mom-user-search class="text-left" (selectedUserEmit)="addUser($event)" />
   <button
     class="mt-3"
     nbButton

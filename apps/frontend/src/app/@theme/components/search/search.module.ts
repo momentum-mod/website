@@ -15,7 +15,7 @@ import {
 } from '@nebular/theme';
 import { SearchFieldComponent } from './search-field.component';
 import { SearchResultsComponent } from './search-results.component';
-import { CommonModule } from '@angular/common';
+import { CommonModule, NgOptimizedImage } from '@angular/common';
 
 @NgModule({
   imports: [
@@ -23,7 +23,8 @@ import { CommonModule } from '@angular/common';
     CommonModule,
     NbIconModule,
     NbUserModule,
-    NbOverlayModule
+    NbOverlayModule,
+    NgOptimizedImage
   ],
   declarations: [SearchComponent, SearchFieldComponent, SearchResultsComponent],
   exports: [SearchComponent, SearchFieldComponent, SearchResultsComponent],

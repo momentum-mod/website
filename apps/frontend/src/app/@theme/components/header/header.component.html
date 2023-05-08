@@ -4,7 +4,7 @@
       <nb-icon icon="menu" pack="mdi"></nb-icon>
     </a>
     <a class="logo" routerLink="/">
-      <img src="assets/images/logo.svg" />
+      <img ngSrc="assets/images/logo.svg" fill />
     </a>
   </div>
 </div>
@@ -12,7 +12,7 @@
 <div class="header-container">
   <nb-actions size="medium">
     <nb-action class="control-item">
-      <mom-search type="modal-drop" (click)="startSearch()"/>
+      <mom-search type="modal-drop" (click)="startSearch()" />
     </nb-action>
     <nb-action
       class="control-item"
@@ -27,7 +27,7 @@
       [badgeText]="numUnreadNotifs === 0 ? '' : numUnreadNotifs.toString()"
     />
     <ng-template #notifTempl8>
-      <mom-notifications [notifications]="notifications"/>
+      <mom-notifications [notifications]="notifications" />
     </ng-template>
     <nb-action class="user-action">
       <nb-user

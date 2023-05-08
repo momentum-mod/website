@@ -106,7 +106,7 @@
                     class="extra-image-cont m-2"
                     *ngFor="let img of extraImages"
                   >
-                    <img class="extra-image" [src]="img.dataBlobURL" />
+                    <img class="extra-image" [ngSrc]="img.dataBlobURL" fill />
                     <button
                       nbButton
                       outline

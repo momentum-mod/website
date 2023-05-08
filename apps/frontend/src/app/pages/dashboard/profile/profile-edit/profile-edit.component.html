@@ -113,8 +113,9 @@
             <h5>Twitter</h5>
             <img
               *ngIf="!user.profile.twitterAuth"
-              src="/assets/images/twitter_button.png"
+              ngSrc="/assets/images/twitter_button.png"
               (click)="auth('twitter')"
+              fill
             />
             <div *ngIf="user.profile.twitterAuth">
               <h5 class="mb-3 text-success">
@@ -136,8 +137,9 @@
             <h5>Discord</h5>
             <img
               *ngIf="!user.profile.discordAuth"
-              src="/assets/images/discord_button.png"
+              ngSrc="/assets/images/discord_button.png"
               (click)="auth('discord')"
+              fill
             />
             <div *ngIf="user.profile.discordAuth">
               <h5 class="mb-3 text-success">
@@ -159,8 +161,9 @@
             <h5>Twitch.tv</h5>
             <img
               *ngIf="!user.profile.twitchAuth"
-              src="/assets/images/twitch_button.png"
+              ngSrc="/assets/images/twitch_button.png"
               (click)="auth('twitch')"
+              fill
             />
             <div *ngIf="user.profile.twitchAuth">
               <h5 class="mb-3 text-success">

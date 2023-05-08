@@ -1,5 +1,5 @@
 import { ModuleWithProviders, NgModule } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { CommonModule, NgOptimizedImage } from '@angular/common';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 
 import {
@@ -55,7 +55,8 @@ const BASE_MODULES = [
   FormsModule,
   ReactiveFormsModule,
   RouterModule,
-  DirectivesModule
+  DirectivesModule,
+  NgOptimizedImage
 ];
 
 const NB_MODULES = [

@@ -23,7 +23,7 @@
       *ngIf="!usersResults"
       (click)="clickElem(elem)"
     >
-      <img class="mr-2 rounded avatar" [src]="getElemPicture(elem)" />
+      <img class="mr-2 rounded avatar" [ngSrc]="getElemPicture(elem)" fill />
       <div class="ml-1 name">{{ getElemName(elem) }}</div>
     </div>
   </div>
