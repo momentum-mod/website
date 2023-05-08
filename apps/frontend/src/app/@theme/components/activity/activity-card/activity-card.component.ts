@@ -45,18 +45,21 @@ export class ActivityCardComponent implements OnInit {
       );
   }
 
+  onGetActivities(response): void {
+    this.initialAct = true;
+    this.activities = response.activities;
+    this.filterActivites(this.activities);
+  }
+
   getActivities(): void {
-    const func = (resp) => {
-      this.initialAct = true;
-      this.activities = resp.activities;
-      this.filterActivites(this.activities);
-    };
-    if (this.follow) this.actService.getFollowedActivity().subscribe(func);
+    if (this.follow)
+      this.actService.getFollowedActivity().subscribe(this.onGetActivities);
     else if (this.userSubj)
-      this.userSubj.subscribe((usr) => {
-        this.actService.getUserActivity(usr.id).subscribe(func);
-      });
-    else if (this.recent) this.actService.getRecentActivity(0).subscribe(func);
+      this.userSubj.subscribe((usr) =>
+        this.actService.getUserActivity(usr.id).subscribe(this.onGetActivities)
+      );
+    else if (this.recent)
+      this.actService.getRecentActivity(0).subscribe(this.onGetActivities);
   }
 
   getMoreActivities(): void {
