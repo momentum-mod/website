@@ -7,10 +7,10 @@ import { NotificationsService } from '../../@core/utils/notifications.service';
 @Component({
   selector: 'mom-dashboard',
   template: `
-    <ngx-sample-layout>
+    <ngx-admin-dashboard>
       <nb-menu [autoCollapse]="true" [items]="menu"></nb-menu>
       <router-outlet></router-outlet>
-    </ngx-sample-layout>
+    </ngx-admin-dashboard>
   `
 })
 export class DashboardComponent implements OnInit {

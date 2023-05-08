@@ -16,7 +16,7 @@
           "error",
           {
             "type": "element",
-            "prefix": ["mom"],
+            "prefix": ["mom", "ngx"],
             "style": "kebab-case"
           }
         ]
