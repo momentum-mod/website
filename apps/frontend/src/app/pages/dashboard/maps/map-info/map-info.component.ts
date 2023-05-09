@@ -15,7 +15,7 @@ import { MapImage } from '../../../../@core/models/map-image.model';
 import { Role } from '../../../../@core/models/role.model';
 import { ReportType } from '../../../../@core/models/report-type.model';
 import { MomentumMapPreview } from '../../../../@core/models/momentum-map-preview.model';
-import { NbDialogService, NbToastrService, NbTrigger } from '@nebular/theme';
+import { NbDialogService, NbToastrService } from '@nebular/theme';
 import { Subject } from 'rxjs';
 import { MapNotify } from '../../../../@core/models/map-notify.model';
 import { MapNotifyEditComponent } from './map-info-notify-edit/map-info-notify-edit.component';
@@ -29,7 +29,6 @@ export class MapInfoComponent implements OnInit, OnDestroy {
   private ngUnsub = new Subject<void>();
   @Input() previewMap: MomentumMapPreview;
   protected readonly ReportType = ReportType;
-  protected readonly NbTrigger = NbTrigger;
   map: MomentumMap;
   mapNotify: MapNotify;
   mapNotifications: boolean;

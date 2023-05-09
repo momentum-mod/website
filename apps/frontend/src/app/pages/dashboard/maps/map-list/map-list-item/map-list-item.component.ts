@@ -2,7 +2,7 @@ import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { MomentumMap } from '../../../../../@core/models/momentum-map.model';
 import { LocalUserService } from '../../../../../@core/data/local-user.service';
 import { getStatusFromEnum } from '../../../../../@core/models/map-upload-status.model';
-import { NbToastrService, NbTrigger } from '@nebular/theme';
+import { NbToastrService } from '@nebular/theme';
 
 @Component({
   selector: 'mom-map-list-item',
@@ -20,7 +20,6 @@ export class MapListItemComponent implements OnInit {
   mapInFavorites: boolean;
   mapInLibrary: boolean;
   status: string;
-  protected readonly NbTrigger = NbTrigger;
 
   constructor(
     private localUserService: LocalUserService,

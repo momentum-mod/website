@@ -15,7 +15,7 @@ import { MapZoneTrigger } from '../../../../@core/models/map-zone-trigger.model'
 import { MapZoneType } from '../../../../@core/models/map-zone-type.model';
 import { MomentumMapPreview } from '../../../../@core/models/momentum-map-preview.model';
 import { MapImage } from '../../../../@core/models/map-image.model';
-import { NbToastrService, NbTrigger } from '@nebular/theme';
+import { NbToastrService } from '@nebular/theme';
 import { mergeMap } from 'rxjs/operators';
 import { forkJoin, of } from 'rxjs';
 import { FileUploadType } from './file-upload/file-upload.component';
@@ -34,7 +34,6 @@ const youtubeRegex = /[\w-]{11}/;
 })
 export class MapUploadFormComponent implements OnInit, AfterViewInit {
   protected readonly FileUploadType = FileUploadType;
-  protected readonly NbTrigger = NbTrigger;
 
   @ViewChild('datepicker', { static: false }) datePicker;
   @ViewChild('stepper', { static: false }) stepper;

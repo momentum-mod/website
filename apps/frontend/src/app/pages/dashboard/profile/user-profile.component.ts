@@ -9,7 +9,7 @@ import { Role } from '../../../@core/models/role.model';
 import { Ban } from '../../../@core/models/ban.model';
 import { UserFollowObject } from '../../../@core/models/follow.model';
 import { ReportType } from '../../../@core/models/report-type.model';
-import { NbToastrService, NbTrigger } from '@nebular/theme';
+import { NbToastrService } from '@nebular/theme';
 
 @Component({
   selector: 'mom-user-profile',
@@ -20,7 +20,6 @@ export class UserProfileComponent implements OnInit, OnDestroy {
   private ngUnsub = new Subject<void>();
   protected readonly Role = Role;
   protected readonly ReportType = ReportType;
-  protected readonly NbTrigger = NbTrigger;
   userSubj$: ReplaySubject<User>;
   user: User;
   isLocal: boolean;

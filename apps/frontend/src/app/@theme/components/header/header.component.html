@@ -20,13 +20,13 @@
         icon: notifications.length ? 'bell-alert' : 'bell-outline',
         pack: 'mdi'
       }"
-      [nbPopover]="notifTempl8"
+      [nbPopover]="notifTemplate"
       nbPopoverPlacement="bottom"
       badgePosition="top right"
       badgeStatus="danger"
       [badgeText]="numUnreadNotifs === 0 ? '' : numUnreadNotifs.toString()"
     />
-    <ng-template #notifTempl8>
+    <ng-template #notifTemplate>
       <mom-notifications [notifications]="notifications" />
     </ng-template>
     <nb-action class="user-action">
