@@ -142,7 +142,7 @@
         </div>
       </nb-card-header>
       <nb-tabset>
-        <nb-tab [tabTitle]="'INFO'">
+        <nb-tab [tabTitle]="'Info'">
           <h5
             class="m-0 text-center"
             *ngIf="!user.profile?.bio || user.profile?.bio?.length === 0"
@@ -156,7 +156,7 @@
           ></markdown>
         </nb-tab>
         <nb-tab
-          [tabTitle]="'FOLLOWING&nbsp;(' + followingUsers.length + ')'"
+          tabTitle="Following ({{ followingUsers.length }})"
           *ngIf="!hasRole(Role.PLACEHOLDER)"
         >
           <h5 class="m-0 text-center" *ngIf="followingUsers.length === 0">
@@ -173,7 +173,7 @@
             </nb-list-item>
           </nb-list>
         </nb-tab>
-        <nb-tab [tabTitle]="'FOLLOWERS&nbsp;(' + followedByUsers.length + ')'">
+        <nb-tab tabTitle="Followers ({{ followedByUsers.length }})">
           <h5 class="m-0 text-center" *ngIf="followedByUsers.length === 0">
             <i>No followers</i>
           </h5>
@@ -188,7 +188,7 @@
             </nb-list-item>
           </nb-list>
         </nb-tab>
-        <nb-tab [tabTitle]="'STATS'" *ngIf="user.stats">
+        <nb-tab [tabTitle]="'Stats'" *ngIf="user.stats">
           <div class="d-flex flex-wrap justify-content-around text-center">
             <div class="base m-1">
               <h6>Maps Completed</h6>
@@ -212,10 +212,10 @@
             </div>
           </div>
         </nb-tab>
-        <nb-tab [tabTitle]="'RUNS'" *ngIf="!hasRole(Role.PLACEHOLDER)">
+        <nb-tab [tabTitle]="'Runs'" *ngIf="!hasRole(Role.PLACEHOLDER)">
           <mom-profile-run-history [userSubj]="userSubj$" />
         </nb-tab>
-        <nb-tab tabTitle="CREDITS">
+        <nb-tab tabTitle="Credits">
           <mom-profile-credits [userSubj]="userSubj$" />
         </nb-tab>
       </nb-tabset>
@@ -224,7 +224,7 @@
   <div class="col-12 col-xl-5">
     <mom-activity-card
       *ngIf="user"
-      [headerTitle]="'USER ACTIVITY'"
+      [headerTitle]="'User Activity'"
       [userSubj]="userSubj$"
     />
   </div>

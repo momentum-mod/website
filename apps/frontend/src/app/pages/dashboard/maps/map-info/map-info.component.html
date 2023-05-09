@@ -58,21 +58,21 @@
       <div class="col-12 col-lg-7">
         <nb-tabset [fullWidth]="true" class="shadow overflow-hidden mb-4">
           <nb-tab
-            tabTitle="DESCRIPTION"
+            tabTitle="Description"
             [tabIcon]="{ icon: 'file-outline', pack: 'mdi' }"
             responsive
           >
             <mom-map-info-description [map]="map" />
           </nb-tab>
           <nb-tab
-            [tabTitle]="'CREDITS'"
+            [tabTitle]="'Credits'"
             [tabIcon]="{ icon: 'account-multiple-outline', pack: 'mdi' }"
             responsive
           >
             <mom-map-info-credits [map]="map" />
           </nb-tab>
           <nb-tab
-            [tabTitle]="'STATISTICS'"
+            [tabTitle]="'Statistics'"
             [tabIcon]="{ icon: 'chart-pie-outline', pack: 'mdi' }"
             responsive
             *ngIf="!previewMap"

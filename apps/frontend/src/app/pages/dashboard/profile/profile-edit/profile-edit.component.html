@@ -1,7 +1,7 @@
 <nb-card *ngIf="user">
   <nb-card-header>
     <div class="row align-items-center">
-      <h2 class="col">EDIT PROFILE</h2>
+      <h2 class="col">Edit Profile</h2>
       <div class="col-auto ml-auto">
         <button nbButton outline status="info" (click)="returnToProfile()">
           Return to Profile
@@ -11,7 +11,7 @@
   </nb-card-header>
   <form (ngSubmit)="onSubmit()">
     <nb-tabset class="overflow-hidden">
-      <nb-tab tabTitle="PROFILE" [formGroup]="profileEditFormGroup">
+      <nb-tab tabTitle="Profile" [formGroup]="profileEditFormGroup">
         <div class="row mt-2">
           <div class="col-12">
             <div
@@ -107,7 +107,7 @@
           </div>
         </div>
       </nb-tab>
-      <nb-tab *ngIf="isLocal" tabTitle="SOCIAL&nbsp;LINKS" #socials>
+      <nb-tab *ngIf="isLocal" tabTitle="Social Links" #socials>
         <div class="d-flex justify-content-around flex-wrap my-2 text-center">
           <div class="mx-1 mt-2 mb-3">
             <h5>Twitter</h5>
@@ -200,7 +200,7 @@
       <nb-tab
         *ngIf="isAdmin"
         [formGroup]="adminEditFg"
-        tabTitle="ADMIN&nbsp;USER&nbsp;SETTINGS"
+        tabTitle="Admin User Settings"
       >
         <div class="row">
           <div class="col">
