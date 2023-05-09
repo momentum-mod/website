@@ -1,4 +1,3 @@
-/* eslint-disable */
 export default {
   displayName: 'bitflags',
   preset: '../../jest.preset.js',
