@@ -271,7 +271,7 @@
                           <input
                             nbInput
                             [id]="'trackDiff' + track.trackNum"
-                            [type]="'number'"
+                            type="number"
                             min="1"
                             max="12"
                             [(ngModel)]="track.difficulty"
@@ -285,7 +285,7 @@
                     nbButton
                     outline
                     fullWidth
-                    [status]="'danger'"
+                    status="danger"
                     (click)="onRemoveZones()"
                   >
                     Remove Zones
@@ -347,7 +347,7 @@
     <nb-progress-bar
       *ngIf="isUploadingMap"
       [value]="mapUploadPercentage"
-      [size]="'giant'"
+      size="giant"
       [displayValue]="true"
     ></nb-progress-bar>
   </nb-card-body>

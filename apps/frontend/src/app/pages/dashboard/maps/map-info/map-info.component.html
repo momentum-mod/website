@@ -65,14 +65,14 @@
             <mom-map-info-description [map]="map" />
           </nb-tab>
           <nb-tab
-            [tabTitle]="'Credits'"
+            tabTitle="Credits"
             [tabIcon]="{ icon: 'account-multiple-outline', pack: 'mdi' }"
             responsive
           >
             <mom-map-info-credits [map]="map" />
           </nb-tab>
           <nb-tab
-            [tabTitle]="'Statistics'"
+            tabTitle="Statistics"
             [tabIcon]="{ icon: 'chart-pie-outline', pack: 'mdi' }"
             responsive
             *ngIf="!previewMap"
@@ -95,8 +95,7 @@
                   [picture]="map.submitter?.avatarURL"
                   size="small"
                   class="d-inline-block align-middle"
-                >
-                </nb-user>
+                />
               </a>
             </h6>
           </div>

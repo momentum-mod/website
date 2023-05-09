@@ -142,7 +142,7 @@
         </div>
       </nb-card-header>
       <nb-tabset>
-        <nb-tab [tabTitle]="'Info'">
+        <nb-tab tabTitle="Info">
           <h5
             class="m-0 text-center"
             *ngIf="!user.profile?.bio || user.profile?.bio?.length === 0"
@@ -188,7 +188,7 @@
             </nb-list-item>
           </nb-list>
         </nb-tab>
-        <nb-tab [tabTitle]="'Stats'" *ngIf="user.stats">
+        <nb-tab tabTitle="Stats" *ngIf="user.stats">
           <div class="d-flex flex-wrap justify-content-around text-center">
             <div class="base m-1">
               <h6>Maps Completed</h6>
@@ -212,7 +212,7 @@
             </div>
           </div>
         </nb-tab>
-        <nb-tab [tabTitle]="'Runs'" *ngIf="!hasRole(Role.PLACEHOLDER)">
+        <nb-tab tabTitle="Runs" *ngIf="!hasRole(Role.PLACEHOLDER)">
           <mom-profile-run-history [userSubj]="userSubj$" />
         </nb-tab>
         <nb-tab tabTitle="Credits">
@@ -224,7 +224,7 @@
   <div class="col-12 col-xl-5">
     <mom-activity-card
       *ngIf="user"
-      [headerTitle]="'User Activity'"
+      headerTitle="User Activity"
       [userSubj]="userSubj$"
     />
   </div>
