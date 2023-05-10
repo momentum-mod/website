@@ -4,7 +4,7 @@
   "plugins": ["@nx", "unicorn", "unused-imports", "prettier"],
   "overrides": [
     {
-      "files": ["*.ts", "*.tsx", "*.js", "*.jsx"],
+      "files": ["*.ts", "*.js"],
       "rules": {
         "@nx/enforce-module-boundaries": [
           "error",
@@ -22,7 +22,7 @@
       }
     },
     {
-      "files": ["*.ts", "*.tsx"],
+      "files": ["*.ts"],
       "extends": [
         "plugin:@nx/typescript",
         "eslint:recommended",
@@ -67,7 +67,7 @@
             "selector": "variable",
             "types": ["boolean", "string", "number"],
             "modifiers": ["exported"],
-            "format": ["strictCamelCase"]
+            "format": ["strictCamelCase", "UPPER_CASE"]
           },
           { "selector": "class", "format": ["PascalCase"] },
           { "selector": "enumMember", "format": ["UPPER_CASE"] },
@@ -96,6 +96,8 @@
           "warn",
           { "ignoreParameters": true }
         ],
+        "@typescript-eslint/no-namespace": "off",
+
         "unicorn/prevent-abbreviations": ["off"],
         "unicorn/numeric-separators-style": [
           "warn",
@@ -109,20 +111,27 @@
         "unicorn/switch-case-braces": ["off"],
         "unicorn/no-negated-condition": ["off"],
         "unicorn/no-useless-undefined": ["off"],
+        "unicorn/no-empty-file": ["off"],
         "no-undef-init": ["error"],
-        "unicorn/prefer-export-from": ["error", { "ignoreUsedVariables": true }]
+        "unicorn/prefer-export-from": [
+          "error",
+          { "ignoreUsedVariables": true }
+        ],
+        "unicorn/no-array-callback-reference": ["off"]
       }
     },
     {
-      "files": ["*.js", "*.jsx"],
-      "extends": ["plugin:@nx/javascript"],
-      "rules": {}
-    },
-    {
-      "files": ["*.spec.ts", "*.spec.tsx", "*.spec.js", "*.spec.jsx"],
+      "files": ["*.spec.ts", "*.spec.js", "*.e2e-spec.ts"],
       "env": {
         "jest": true
       },
+      "rules": {
+        "unicorn/consistent-function-scoping": ["off"]
+      }
+    },
+    {
+      "files": ["*.js"],
+      "extends": ["plugin:@nx/javascript"],
       "rules": {}
     }
   ]

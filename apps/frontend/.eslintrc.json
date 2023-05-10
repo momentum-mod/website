@@ -19,7 +19,8 @@
             "prefix": ["mom", "ngx"],
             "style": "kebab-case"
           }
-        ]
+        ],
+        "unicorn/prefer-module": ["error"]
       },
       "extends": [
         "plugin:@nx/angular",
