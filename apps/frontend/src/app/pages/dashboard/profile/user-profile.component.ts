@@ -60,17 +60,14 @@ export class UserProfileComponent implements OnInit, OnDestroy {
             this.userService
               .getLocal()
               .pipe(takeUntil(this.ngUnsub))
-              .subscribe(
-                (usr) => {
-                  this.isLocal = idNum === usr.id;
-                },
-                (error) => {
+              .subscribe({
+                next: (user) => (this.isLocal = idNum === user.id),
+                error: (error) =>
                   this.toastService.danger(
                     error.message,
                     'Cannot get user profile'
-                  );
-                }
-              );
+                  )
+              });
             return this.usersService.getUser(idNum, {
               params: { expand: 'profile,stats' }
             });
@@ -82,43 +79,38 @@ export class UserProfileComponent implements OnInit, OnDestroy {
           }
         })
       )
-      .subscribe(
-        (usr) => {
-          this.user = usr;
+      .subscribe({
+        next: (user) => {
+          this.user = user;
           this.isMapper = this.hasRole(Role.MAPPER);
           this.isMod = this.hasRole(Role.MODERATOR);
           this.isAdmin = this.hasRole(Role.ADMIN);
           this.isVerified = this.hasRole(Role.VERIFIED);
-          this.userSubj$.next(usr);
-          if (!this.hasBan(Ban.BANNED_AVATAR) && this.user.avatarURL) {
+          this.userSubj$.next(user);
+          if (!this.hasBan(Ban.BANNED_AVATAR) && this.user.avatarURL)
             this.avatarUrl = this.user.avatarURL;
-          }
+
           this.avatarLoaded = true;
-          this.usersService.getUserFollows(this.user).subscribe(
-            (resp) => {
-              this.followingUsers = resp.followed;
-            },
-            (err) =>
+          this.usersService.getUserFollows(this.user).subscribe({
+            next: (response) => (this.followingUsers = response.followed),
+            error: (error) =>
               this.toastService.danger(
-                err.message,
+                error.message,
                 'Could not retrieve user follows'
               )
-          );
-          this.usersService.getFollowersOfUser(this.user).subscribe(
-            (resp) => {
-              this.followedByUsers = resp.followers;
-            },
-            (err) =>
+          });
+          this.usersService.getFollowersOfUser(this.user).subscribe({
+            next: (response) => (this.followedByUsers = response.followers),
+            error: (error) =>
               this.toastService.danger(
-                err.message,
+                error.message,
                 'Could not retrieve user following'
               )
-          );
+          });
         },
-        (error) => {
-          this.toastService.danger(error.message, 'Cannot get user details');
-        }
-      );
+        error: (error) =>
+          this.toastService.danger(error.message, 'Cannot get user details')
+      });
   }
 
   ngOnDestroy(): void {

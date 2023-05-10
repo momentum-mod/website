@@ -31,9 +31,9 @@ export class CommunityNewsComponent implements OnInit {
     this.tumblrAPI
       .getRecentBlogPosts()
       .pipe(finalize(() => (this.loadedPosts = true)))
-      .subscribe((resp) => {
-        if (resp.response && resp.response.posts) {
-          for (const post of resp.response.posts) {
+      .subscribe((response) => {
+        if (response.response && response.response.posts) {
+          for (const post of response.response.posts) {
             this.blogPosts.push({
               title: post.title,
               // eslint-disable-next-line @typescript-eslint/naming-convention

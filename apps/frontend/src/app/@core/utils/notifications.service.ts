@@ -23,9 +23,7 @@ export class NotificationsService {
   public inject(): void {
     this.router.events
       .pipe(filter((event) => event instanceof NavigationEnd))
-      .subscribe(() => {
-        this.checkNotifications();
-      });
+      .subscribe(() => this.checkNotifications());
     setInterval(() => {
       if (document.hasFocus()) this.checkNotifications();
     }, 1000 * 60 * 3);
@@ -46,15 +44,13 @@ export class NotificationsService {
         read: true
       })
       .pipe(finalize(() => this.checkNotifications()))
-      .subscribe(
-        (resp) => {},
-        (err) => {
+      .subscribe({
+        error: (error) =>
           this.toasterService.danger(
-            err.message,
+            error.message,
             'Could not mark notification as read'
-          );
-        }
-      );
+          )
+      });
   }
   dismissNotification(notif: SiteNotification) {
     this.http
@@ -62,14 +58,12 @@ export class NotificationsService {
         responseType: 'text'
       })
       .pipe(finalize(() => this.checkNotifications()))
-      .subscribe(
-        (resp) => {},
-        (err) => {
+      .subscribe({
+        error: (error) =>
           this.toasterService.danger(
-            err.message,
+            error.message,
             'Could not dismiss notification'
-          );
-        }
-      );
+          )
+      });
   }
 }

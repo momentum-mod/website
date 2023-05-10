@@ -39,20 +39,11 @@ export class UserSearchComponent implements OnInit {
       .pipe(debounceTime(500), distinctUntilChanged())
       .subscribe((val: string) => {
         val = val.trim();
-        if (val.length > 0) {
+        if (val.length > 0)
           this.usersService
-            .getUsers({
-              params: {
-                search: val,
-                limit: 5
-              }
-            })
-            .subscribe((resp) => {
-              this.foundUsers = resp.users;
-            });
-        } else {
-          this.foundUsers = [];
-        }
+            .getUsers({ params: { search: val, limit: 5 } })
+            .subscribe((resp) => (this.foundUsers = resp.users));
+        else this.foundUsers = [];
       });
   }
 

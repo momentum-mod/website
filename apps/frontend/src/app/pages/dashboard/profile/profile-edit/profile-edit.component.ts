@@ -128,24 +128,26 @@ export class ProfileEditComponent implements OnInit, OnDestroy {
       if (!this.profileEditFormGroup.valid) return;
       this.localUserService
         .updateUser(this.profileEditFormGroup.value)
-        .subscribe(
-          () => {
+        .subscribe({
+          next: () => {
             this.localUserService.refreshLocal();
             this.toasterService.success('Updated user profile!', 'Success');
           },
-          (error) => this.err('Failed to update user profile!', error.message)
-        );
+          error: (error) =>
+            this.err('Failed to update user profile!', error.message)
+        });
     } else {
       const userUpdate: User = this.profileEditFormGroup.value;
       userUpdate.roles = this.user.roles;
       userUpdate.bans = this.user.bans;
-      this.adminService.updateUser(this.user.id, userUpdate).subscribe(
-        () => {
+      this.adminService.updateUser(this.user.id, userUpdate).subscribe({
+        next: () => {
           if (this.isLocal) this.localUserService.refreshLocal();
           this.toasterService.success('Updated user profile!', 'Success');
         },
-        (error) => this.err('Failed to update user profile!', error.message)
-      );
+        error: (error) =>
+          this.err('Failed to update user profile!', error.message)
+      });
     }
   }
 
@@ -169,17 +171,14 @@ export class ProfileEditComponent implements OnInit, OnDestroy {
     }, 500);
   }
   unAuth(platform: string) {
-    this.authService.removeSocialAuth(platform).subscribe(
-      (resp) => {
-        this.localUserService.refreshLocal();
-      },
-      (err) => {
+    this.authService.removeSocialAuth(platform).subscribe({
+      next: () => this.localUserService.refreshLocal(),
+      error: (error) =>
         this.toasterService.danger(
-          err.message,
+          error.message,
           `Failed to unauthorize ${platform} account`
-        );
-      }
-    );
+        )
+    });
   }
 
   toggleRole(role: Role) {
@@ -247,17 +246,14 @@ export class ProfileEditComponent implements OnInit, OnDestroy {
         }
       })
       .onClose.subscribe((response) => {
-        if (response) {
-          this.adminService.deleteUser(this.user.id).subscribe(
-            () => {
-              this.toasterService.success('Successfully deleted user!');
-              this.router.navigate(['/dashboard']);
-            },
-            (err) => {
-              this.toasterService.danger('Failed to delete user!');
-            }
-          );
-        }
+        if (!response) return;
+        this.adminService.deleteUser(this.user.id).subscribe({
+          next: () => {
+            this.toasterService.success('Successfully deleted user!');
+            this.router.navigate(['/dashboard']);
+          },
+          error: () => this.toasterService.danger('Failed to delete user!')
+        });
       });
   }
 
@@ -282,18 +278,15 @@ export class ProfileEditComponent implements OnInit, OnDestroy {
         }
       })
       .onClose.subscribe((response) => {
-        if (response) {
-          this.adminService.mergeUsers(this.user, this.mergeUser).subscribe(
-            () => {
-              this.toasterService.success('Successfully merged the two users!');
-              this.router.navigate([`/dashboard/profile/${this.mergeUser.id}`]);
-              this.mergeUser = null;
-            },
-            (err) => {
-              this.toasterService.danger('Failed to merge users!');
-            }
-          );
-        }
+        if (!response) return;
+        this.adminService.mergeUsers(this.user, this.mergeUser).subscribe({
+          next: () => {
+            this.toasterService.success('Successfully merged the two users!');
+            this.router.navigate([`/dashboard/profile/${this.mergeUser.id}`]);
+            this.mergeUser = null;
+          },
+          error: () => this.toasterService.danger('Failed to merge users!')
+        });
       });
   }
 
@@ -302,21 +295,20 @@ export class ProfileEditComponent implements OnInit, OnDestroy {
   }
 
   resetAlias() {
-    this.localUserService.resetAliasToSteamAlias().subscribe(
-      (response) => {
+    this.localUserService.resetAliasToSteamAlias().subscribe({
+      next: () => {
         this.localUserService.refreshLocal();
         this.toasterService.success(
           'Successfully reset alias to Steam name!',
           'Success'
         );
       },
-      (err) => {
+      error: () =>
         this.toasterService.danger(
           'Failed to reset alias to Steam alias!',
           'Failed'
-        );
-      }
-    );
+        )
+    });
   }
 
   ngOnDestroy(): void {

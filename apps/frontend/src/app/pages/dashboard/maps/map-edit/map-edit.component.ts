@@ -113,13 +113,11 @@ export class MapEditComponent implements OnInit, OnDestroy {
       const youtubeIDMatch = this.youtubeID.value.match(youtubeRegex);
       this.youtubeID.patchValue(youtubeIDMatch ? youtubeIDMatch[0] : null);
     }
-    this.mapService.updateMapInfo(this.map.id, this.infoForm.value).subscribe(
-      () => {
-        this.toasterService.success('Updated the map!', 'Success');
-      },
-      (error) =>
+    this.mapService.updateMapInfo(this.map.id, this.infoForm.value).subscribe({
+      next: () => this.toasterService.success('Updated the map!', 'Success'),
+      error: (error) =>
         this.toasterService.danger(error.message, 'Failed to update the map!')
-    );
+    });
   }
 
   onImagesSubmit() {
@@ -155,19 +153,18 @@ export class MapEditComponent implements OnInit, OnDestroy {
     forkJoin(creditUpdates)
       .pipe(
         finalize(() => {
-          this.mapService.getMapCredits(this.map.id).subscribe((res) => {
-            this.mapCreditsIDs = res.mapCredits.map((val) => +val.id);
+          this.mapService.getMapCredits(this.map.id).subscribe((response) => {
+            this.mapCreditsIDs = response.mapCredits.map((val) => +val.id);
             $event.target.disabled = false;
           });
         })
       )
-      .subscribe(
-        () => {
-          this.toasterService.success('Updated map credits!', 'Success');
-        },
-        (error) =>
+      .subscribe({
+        next: () =>
+          this.toasterService.success('Updated map credits!', 'Success'),
+        error: (error) =>
           this.toasterService.danger(error.message, 'Failed to update credits!')
-      );
+      });
   }
 
   getImageSource(
@@ -237,19 +234,16 @@ export class MapEditComponent implements OnInit, OnDestroy {
         }
       })
       .onClose.subscribe((response) => {
-        if (response) {
-          this.adminService.deleteMap(this.map.id).subscribe(
-            (res) => {
-              this.toasterService.success(
-                'Successfully deleted the map',
-                'Success'
-              );
-            },
-            (err) => {
-              this.toasterService.danger('Failed to delete the map', 'Failed');
-            }
-          );
-        }
+        if (!response) return;
+        this.adminService.deleteMap(this.map.id).subscribe({
+          next: () =>
+            this.toasterService.success(
+              'Successfully deleted the map',
+              'Success'
+            ),
+          error: () =>
+            this.toasterService.danger('Failed to delete the map', 'Failed')
+        });
       });
   }
 

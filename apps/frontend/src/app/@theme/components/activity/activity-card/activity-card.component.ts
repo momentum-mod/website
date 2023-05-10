@@ -68,11 +68,11 @@ export class ActivityCardComponent implements OnInit {
     this.canLoadMore = false;
     this.actService
       .getRecentActivity(10 * this.recentActPage++)
-      .subscribe((res) => {
+      .subscribe((response) => {
         // Don't call the API anymore if there are no more activities left
-        if (res.activities.length > 0) {
+        if (response.activities.length > 0) {
           this.canLoadMore = true;
-          this.activities.push(...res.activities);
+          this.activities.push(...response.activities);
           this.filterActivites(this.activities);
         }
       });

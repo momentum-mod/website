@@ -22,8 +22,6 @@ export class CommunityTwitchStreamComponent implements OnInit {
     this.twitchAPI
       .getGameStreams()
       .pipe(finalize(() => (this.queriedStreams = true)))
-      .subscribe((resp) => {
-        this.streams = resp.data;
-      });
+      .subscribe((response) => (this.streams = response.data));
   }
 }

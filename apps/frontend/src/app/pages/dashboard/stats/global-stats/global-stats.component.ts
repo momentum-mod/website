@@ -20,24 +20,16 @@ export class GlobalStatsComponent implements OnInit {
   }
 
   loadGlobalBaseStats() {
-    this.statsService.getGlobalBaseStats().subscribe(
-      (baseStats) => {
-        this.globalBaseStats = baseStats;
-      },
-      (err) => {
-        console.error(err);
-      }
-    );
+    this.statsService.getGlobalBaseStats().subscribe({
+      next: (baseStats) => (this.globalBaseStats = baseStats),
+      error: (error) => console.error(error)
+    });
   }
 
   loadGlobalMapStats() {
-    this.statsService.getGlobalMapStats().subscribe(
-      (mapStats) => {
-        this.globalMapStats = mapStats;
-      },
-      (err) => {
-        console.error(err);
-      }
-    );
+    this.statsService.getGlobalMapStats().subscribe({
+      next: (mapStats) => (this.globalMapStats = mapStats),
+      error: (error) => console.error(error)
+    });
   }
 }

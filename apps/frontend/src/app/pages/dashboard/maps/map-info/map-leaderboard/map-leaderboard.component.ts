@@ -76,14 +76,13 @@ export class MapLeaderboardComponent {
     this.searchedRanks = false;
     this.filterLeaderboardRuns(this.mapID)
       .pipe(finalize(() => (this.searchedRanks = true)))
-      .subscribe(
-        (res) => {
-          if (res.count) this.leaderboardRanks = res.ranks;
+      .subscribe({
+        next: (response) => {
+          if (response.count) this.leaderboardRanks = response.ranks;
         },
-        (err) => {
-          this.toasterService.danger(err.message, 'Could not find runs');
-        }
-      );
+        error: (error) =>
+          this.toasterService.danger(error.message, 'Could not find runs')
+      });
   }
 
   viewRun(run: Run) {

@@ -60,45 +60,35 @@ export class UtilitiesComponent {
         level: 1,
         cosXP: 0
       })
-      .subscribe(
-        (res) => {
+      .subscribe({
+        next: () =>
           this.toasterService.success(
             'Successfully reset cosmetic XP globally'
-          );
-        },
-        (err) => {
-          this.toasterService.danger('Failed to reset cosmetic XP globally');
-        }
-      );
+          ),
+        error: () =>
+          this.toasterService.danger('Failed to reset cosmetic XP globally')
+      });
   }
 
   resetRankXPGobally() {
-    this.adminService
-      .updateAllUserStats({
-        rankXP: 0
-      })
-      .subscribe(
-        (res) => {
-          this.toasterService.success('Successfully reset rank XP globally');
-        },
-        (err) => {
-          this.toasterService.danger('Failed to reset rank XP globally');
-        }
-      );
+    this.adminService.updateAllUserStats({ rankXP: 0 }).subscribe({
+      next: () =>
+        this.toasterService.success('Successfully reset rank XP globally'),
+      error: () =>
+        this.toasterService.danger('Failed to reset rank XP globally')
+    });
   }
 
   createUser() {
     if (!this.userForm.valid) return;
-    this.adminService.createUser(this.alias.value).subscribe(
-      (res) => {
-        if (res.alias && res.alias === this.alias.value) {
+    this.adminService.createUser(this.alias.value).subscribe({
+      next: (response) => {
+        if (response.alias && response.alias === this.alias.value) {
           this.toasterService.success('Successfully created user!');
           this.userForm.reset();
         }
       },
-      (err) => {
-        this.toasterService.danger('Failed to create user!');
-      }
-    );
+      error: () => this.toasterService.danger('Failed to create user!')
+    });
   }
 }

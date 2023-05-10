@@ -11,17 +11,9 @@ export class DashboardHomeComponent {
   user: User;
 
   constructor(public locUsrService: LocalUserService) {
-    this.locUsrService
-      .getLocalUser({
-        params: { expand: 'stats' }
-      })
-      .subscribe(
-        (res) => {
-          this.user = res;
-        },
-        (err) => {
-          console.error(err);
-        }
-      );
+    this.locUsrService.getLocalUser({ params: { expand: 'stats' } }).subscribe({
+      next: (response) => (this.user = response),
+      error: (error) => console.error(error)
+    });
   }
 }

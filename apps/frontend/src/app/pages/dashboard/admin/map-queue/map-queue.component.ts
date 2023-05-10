@@ -47,21 +47,21 @@ export class MapQueueComponent implements OnInit {
           status: MapUploadStatus.PENDING
         }
       })
-      .subscribe(
-        (res) => {
+      .subscribe({
+        next: (response) => {
           if (priority) {
-            this.priorityQueueCount = res.count;
-            this.priorityQueue = res.maps;
+            this.priorityQueueCount = response.count;
+            this.priorityQueue = response.maps;
           } else {
-            this.nonPriorityQueueCount = res.count;
-            this.nonPriorityQueue = res.maps;
+            this.nonPriorityQueueCount = response.count;
+            this.nonPriorityQueue = response.maps;
           }
         },
-        (err) => {
-          console.error(err);
+        error: (error) => {
+          console.error(error);
           this.toasterService.danger('Failed to load priority queue');
         }
-      );
+      });
   }
 
   onPageChange(pageNum, isPriority: boolean) {

@@ -255,9 +255,9 @@ export class MapUploadFormComponent implements OnInit, AfterViewInit {
     this.mapsService
       .createMap(mapObject)
       .pipe(
-        mergeMap((res) => {
-          mapID = res.body.id;
-          uploadLocation = res.headers.get('Location');
+        mergeMap((response) => {
+          mapID = response.body.id;
+          uploadLocation = response.headers.get('Location');
           mapCreated = true;
           this.toasterService.success(
             'Please wait for the map file to upload',
@@ -279,8 +279,8 @@ export class MapUploadFormComponent implements OnInit, AfterViewInit {
           return this.mapsService.uploadMapFile(uploadLocation, this.mapFile);
         })
       )
-      .subscribe(
-        (event: HttpEvent<any>) => {
+      .subscribe({
+        next: (event: HttpEvent<any>) => {
           switch (event.type) {
             case HttpEventType.Sent:
               // upload started
@@ -293,26 +293,25 @@ export class MapUploadFormComponent implements OnInit, AfterViewInit {
               const calc: number = Math.round(
                 (event['loaded'] / event['total']) * 100
               );
-              if (this.mapUploadPercentage !== calc) {
+              if (this.mapUploadPercentage !== calc)
                 this.mapUploadPercentage = calc;
-              }
               break;
             }
           }
         },
-        (err) => {
-          console.error(err);
-          const errorMessage = err.error.error
-            ? err.error.error.message
+        error: (error) => {
+          console.error(error);
+          const errorMessage = error.error.error
+            ? error.error.error.message
             : 'Something went wrong!';
+
           $event.target.disabled = false;
           this.isUploadingMap = false;
-          if (mapCreated) {
-            this.onSubmitSuccess();
-          }
+          if (mapCreated) this.onSubmitSuccess();
+
           this.toasterService.danger(errorMessage, 'Failed to create map');
         }
-      );
+      });
   }
 
   private onSubmitSuccess() {

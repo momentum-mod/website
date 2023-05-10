@@ -34,22 +34,19 @@ export class QueuedMapComponent {
       .updateMap(mapID, {
         statusFlag: statusFlag
       })
-      .subscribe(
-        () => {
-          this.onStatusUpdate.emit();
-        },
-        (err) => {
+      .subscribe({
+        next: () => this.onStatusUpdate.emit(),
+        error: (error) =>
           this.toasterService.danger(
-            err.message,
+            error.message,
             'Failed to update map status'
-          );
-        }
-      );
+          )
+      });
   }
 
   onMapFileDownload(mapID: number) {
-    this.mapService.downloadMapFile(mapID).subscribe(
-      (data) => {
+    this.mapService.downloadMapFile(mapID).subscribe({
+      next: (data) => {
         const url = window.URL.createObjectURL(data);
         const link = this.mapFileDownloadLink.nativeElement;
         link.href = url;
@@ -57,13 +54,13 @@ export class QueuedMapComponent {
         link.click();
         window.URL.revokeObjectURL(url);
       },
-      (err) => {
-        console.error(err);
+      error: (error) => {
+        console.error(error);
         this.toasterService.danger(
-          err.message,
+          error.message,
           'Failed to start map file download'
         );
       }
-    );
+    });
   }
 }

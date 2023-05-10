@@ -14,8 +14,6 @@ export class OutgoingComponent implements OnInit {
   ngOnInit(): void {
     this.route.paramMap
       .pipe(switchMap((params: ParamMap) => of(params.get('url'))))
-      .subscribe((url) => {
-        this.outgoingURL = decodeURIComponent(url);
-      });
+      .subscribe((url) => (this.outgoingURL = decodeURIComponent(url)));
   }
 }

@@ -35,39 +35,32 @@ export class ProfileFollowComponent implements OnInit {
       this.localUserService
         .checkFollowStatus(this.user)
         .pipe(finalize(() => (this.checked = true)))
-        .subscribe(
-          (resp) => {
-            this.localFollowStatus = resp.local;
-            this.targetFollowStatus = resp.target;
+        .subscribe({
+          next: (response) => {
+            this.localFollowStatus = response.local;
+            this.targetFollowStatus = response.target;
           },
-          (err) => {
+          error: (error) =>
             this.toastService.danger(
-              err.message,
+              error.message,
               'Could not check follow status'
-            );
-          }
-        );
+            )
+        });
     });
   }
   followClick() {
     if (!this.localFollowStatus) {
-      this.localUserService.followUser(this.user).subscribe(
-        (resp) => {
-          this.localFollowStatus = resp;
-        },
-        (err) => {
-          this.toastService.danger(err.message, 'Could not follow user');
-        }
-      );
+      this.localUserService.followUser(this.user).subscribe({
+        next: (response) => (this.localFollowStatus = response),
+        error: (error) =>
+          this.toastService.danger(error.message, 'Could not follow user')
+      });
     } else {
-      this.localUserService.unfollowUser(this.user).subscribe(
-        (resp) => {
-          this.localFollowStatus = null;
-        },
-        (err) => {
-          this.toastService.danger(err.message, 'Could not unfollow user');
-        }
-      );
+      this.localUserService.unfollowUser(this.user).subscribe({
+        next: () => (this.localFollowStatus = null),
+        error: (error) =>
+          this.toastService.danger(error.message, 'Could not unfollow user')
+      });
     }
   }
 
@@ -75,26 +68,20 @@ export class ProfileFollowComponent implements OnInit {
     if (!this.localFollowStatus) return;
     this.dialogService
       .open(ProfileNotifyEditComponent, {
-        context: {
-          flags: this.localFollowStatus.notifyOn
-        }
+        context: { flags: this.localFollowStatus.notifyOn }
       })
-      .onClose.subscribe((resp) => {
-        if (resp) {
-          this.localUserService
-            .updateFollowStatus(this.user, resp.newFlags)
-            .subscribe(
-              () => {
-                this.localFollowStatus.notifyOn = resp.newFlags;
-              },
-              (err) => {
-                this.toastService.danger(
-                  'Could not update follow status',
-                  err.message
-                );
-              }
-            );
-        }
+      .onClose.subscribe((response) => {
+        if (!response) return;
+        this.localUserService
+          .updateFollowStatus(this.user, response.newFlags)
+          .subscribe({
+            next: () => (this.localFollowStatus.notifyOn = response.newFlags),
+            error: (error) =>
+              this.toastService.danger(
+                'Could not update follow status',
+                error.message
+              )
+          });
       });
   }
 }

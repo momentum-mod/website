@@ -111,35 +111,30 @@ export class XPSystemComponent implements OnInit {
   }
 
   ngOnInit() {
-    this.adminService.getXPSystems().subscribe(
-      (res) => {
-        this.xpSystems = res;
+    this.adminService.getXPSystems().subscribe({
+      next: (response) => {
+        this.xpSystems = response;
         this.xpSystemsFormGroup.patchValue(this.xpSystems);
       },
-      (err) => {
+      error: () =>
         this.toasterService.danger(
           'Failed to get the XP system params!',
           'Failed'
-        );
-      }
-    );
+        )
+    });
   }
   submitXPSystems() {
     if (!this.xpSystemsFormGroup.valid) return;
-    this.adminService.updateXPSystems(this.xpSystemsFormGroup.value).subscribe(
-      (res) => {
+    this.adminService.updateXPSystems(this.xpSystemsFormGroup.value).subscribe({
+      next: () => {
         this.xpSystems = this.xpSystemsFormGroup.value;
         this.toasterService.success(
           'Successfully updated XP systems!',
           'Success'
         );
       },
-      (err) => {
-        this.toasterService.danger(
-          'Failed to update the XP systems!',
-          'Failed'
-        );
-      }
-    );
+      error: () =>
+        this.toasterService.danger('Failed to update the XP systems!', 'Failed')
+    });
   }
 }

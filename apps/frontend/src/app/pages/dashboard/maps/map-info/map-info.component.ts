@@ -99,19 +99,19 @@ export class MapInfoComponent implements OnInit, OnDestroy {
         )
         .subscribe((map) => {
           this.map = map;
-          this.locUserService.checkMapNotify(this.map.id).subscribe(
-            (resp) => {
+          this.locUserService.checkMapNotify(this.map.id).subscribe({
+            next: (resp) => {
               this.mapNotify = resp;
               if (resp) this.mapNotifications = true;
             },
-            (err) => {
-              if (err.status !== 404)
+            error: (error) => {
+              if (error.status !== 404)
                 this.toastService.danger(
-                  err.message,
+                  error.message,
                   'Could not check if following'
                 );
             }
-          );
+          });
           if (this.map.favorites && this.map.favorites.length > 0)
             this.mapInFavorites = true;
           if (this.map.libraryEntries && this.map.libraryEntries.length > 0)
@@ -144,15 +144,14 @@ export class MapInfoComponent implements OnInit, OnDestroy {
         this.map.stats.totalSubscriptions--;
       });
     } else {
-      this.locUserService.addMapToLibrary(this.map.id).subscribe(
-        (resp) => {
+      this.locUserService.addMapToLibrary(this.map.id).subscribe({
+        next: () => {
           this.mapInLibrary = true;
           this.map.stats.totalSubscriptions++;
         },
-        (error) => {
-          this.toastService.danger(error.message, 'Cannot add map to library');
-        }
-      );
+        error: (error) =>
+          this.toastService.danger(error.message, 'Cannot add map to library')
+      });
     }
   }
 
@@ -163,18 +162,17 @@ export class MapInfoComponent implements OnInit, OnDestroy {
         this.map.stats.totalFavorites--;
       });
     } else {
-      this.locUserService.addMapToFavorites(this.map.id).subscribe(
-        (resp) => {
+      this.locUserService.addMapToFavorites(this.map.id).subscribe({
+        next: () => {
           this.mapInFavorites = true;
           this.map.stats.totalFavorites++;
         },
-        (error) => {
+        error: (error) =>
           this.toastService.danger(
             error.message,
             'Failed to add map to favorites'
-          );
-        }
-      );
+          )
+      });
     }
   }
 
@@ -185,40 +183,36 @@ export class MapInfoComponent implements OnInit, OnDestroy {
           flags: this.mapNotify ? this.mapNotify.notifyOn : 0
         }
       })
-      .onClose.subscribe((resp) => {
-        if (resp) {
-          if (resp.newFlags === 0) {
-            if (this.mapNotify != null) {
-              this.locUserService.disableMapNotify(this.map.id).subscribe(
-                () => {
-                  this.mapNotify.notifyOn = 0;
-                  this.mapNotifications = false;
-                },
-                (err) => {
-                  this.toastService.danger(
-                    'Could not disable notifications',
-                    err.message
-                  );
-                }
-              );
-            }
-          } else {
-            this.locUserService
-              .updateMapNotify(this.map.id, resp.newFlags)
-              .subscribe(
-                (res) => {
-                  this.mapNotifications = true;
-                  if (this.mapNotify == null) this.mapNotify = res;
-                  else this.mapNotify.notifyOn = resp.newFlags;
-                },
-                (err) => {
-                  this.toastService.danger(
-                    'Could not enable notificaions',
-                    err.message
-                  );
-                }
-              );
-          }
+      .onClose.subscribe((response) => {
+        if (!response) return;
+        if (response.newFlags === 0) {
+          if (this.mapNotify === null) return;
+          this.locUserService.disableMapNotify(this.map.id).subscribe({
+            next: () => {
+              this.mapNotify.notifyOn = 0;
+              this.mapNotifications = false;
+            },
+            error: (error) =>
+              this.toastService.danger(
+                'Could not disable notifications',
+                error.message
+              )
+          });
+        } else {
+          this.locUserService
+            .updateMapNotify(this.map.id, response.newFlags)
+            .subscribe({
+              next: (response) => {
+                this.mapNotifications = true;
+                if (this.mapNotify == null) this.mapNotify = response;
+                else this.mapNotify.notifyOn = response.newFlags;
+              },
+              error: (error) =>
+                this.toastService.danger(
+                  'Could not enable notificaions',
+                  error.message
+                )
+            });
         }
       });
   }

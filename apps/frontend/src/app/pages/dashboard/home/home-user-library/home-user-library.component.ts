@@ -18,14 +18,13 @@ export class HomeUserLibraryComponent implements OnInit {
       .getMapLibrary({
         params: { limit: 1 }
       })
-      .subscribe(
-        (res) => {
-          this.mapLibraryCount = res.count;
-          if (res.entries[0]) this.mostRecentlyAddedMap = res.entries[0].map;
+      .subscribe({
+        next: (response) => {
+          this.mapLibraryCount = response.count;
+          if (response.entries[0])
+            this.mostRecentlyAddedMap = response.entries[0].map;
         },
-        (err) => {
-          console.error(err);
-        }
-      );
+        error: (error) => console.error(error)
+      });
   }
 }

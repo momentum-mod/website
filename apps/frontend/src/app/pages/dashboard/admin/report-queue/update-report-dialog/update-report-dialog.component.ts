@@ -42,15 +42,18 @@ export class UpdateReportDialogComponent implements OnInit {
   save() {
     this.adminService
       .updateReport(this.report.id, this.updateReportForm.value)
-      .subscribe(
-        (res) => {
+      .subscribe({
+        next: () => {
           this.updateReportForm.reset();
           this.ref.close(this.report);
           this.toastService.success('Report has been updated');
         },
-        (err) => {
-          this.toastService.danger(err.message, 'Failed to update the report');
+        error: (error) => {
+          this.toastService.danger(
+            error.message,
+            'Failed to update the report'
+          );
         }
-      );
+      });
   }
 }

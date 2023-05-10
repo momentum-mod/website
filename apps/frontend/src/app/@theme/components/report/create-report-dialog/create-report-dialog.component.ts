@@ -43,19 +43,19 @@ export class CreateReportDialogComponent implements OnInit {
   }
 
   submit() {
-    this.reportService.createReport(this.createReportForm.value).subscribe(
-      () => {
+    this.reportService.createReport(this.createReportForm.value).subscribe({
+      next: () => {
         this.createReportForm.reset();
         this.ref.close();
         this.toastService.success('Report submitted');
       },
-      (err) => {
-        console.error(err);
+      error: (error) => {
+        console.error(error);
         this.toastService.danger(
-          'Failed to submit report: ' + err.error.error.message,
+          `Failed to submit report: ${error.error.error.message}`,
           'Error'
         );
       }
-    );
+    });
   }
 }

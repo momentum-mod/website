@@ -24,11 +24,11 @@ export class RefreshTokenInterceptorService implements HttpInterceptor {
     next: HttpHandler
   ): Observable<HttpEvent<any>> {
     return next.handle(req).pipe(
-      catchError((err) => {
-        if (err.status === 401) {
+      catchError((error) => {
+        if (error.status === 401) {
           if (req.url.includes('refresh')) {
             this.authService.logout();
-            return throwError(err);
+            return throwError(error);
           } else if (this.refreshInProgress) {
             return this.refreshTokenSubject.pipe(
               filter((token) => token !== null),
@@ -47,7 +47,7 @@ export class RefreshTokenInterceptorService implements HttpInterceptor {
             );
           }
         }
-        return throwError(err);
+        return throwError(error);
       })
     );
   }

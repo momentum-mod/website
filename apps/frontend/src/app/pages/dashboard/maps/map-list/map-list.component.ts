@@ -160,9 +160,9 @@ export class MapListComponent implements OnInit {
     switch (this.type) {
       case MapListType.LIBRARY: {
         observer = this.locUsrService.getMapLibrary(options).pipe(
-          map((res) => ({
-            count: res.count,
-            maps: res.entries.map((val) => val.map)
+          map((response) => ({
+            count: response.count,
+            maps: response.entries.map((val) => val.map)
           }))
         );
 
@@ -170,9 +170,9 @@ export class MapListComponent implements OnInit {
       }
       case MapListType.FAVORITES: {
         observer = this.locUsrService.getMapFavorites(options).pipe(
-          map((res) => ({
-            count: res.count,
-            maps: res.favorites.map((val) => val.map)
+          map((response) => ({
+            count: response.count,
+            maps: response.favorites.map((val) => val.map)
           }))
         );
 
@@ -188,20 +188,19 @@ export class MapListComponent implements OnInit {
       }
     }
 
-    observer.pipe(finalize(() => (this.requestSent = true))).subscribe(
-      (res) => {
-        this.mapCount = res.count;
-        this.maps = res.maps;
+    observer.pipe(finalize(() => (this.requestSent = true))).subscribe({
+      next: (response) => {
+        this.mapCount = response.count;
+        this.maps = response.maps;
       },
-      (err) => {
+      error: (error) =>
         this.toasterService.danger(
-          err.message,
+          error.message,
           `Failed to get ${
             this.type === MapListType.LIBRARY ? 'map library' : 'maps'
           }`
-        );
-      }
-    );
+        )
+    });
   }
 
   onPageChange(pageNum: number) {

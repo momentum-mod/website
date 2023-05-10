@@ -61,9 +61,7 @@ export class QueuedReportComponent implements OnInit {
         }
       })
       .onClose.subscribe((report) => {
-        if (report) {
-          this.reportUpdate.emit(report);
-        }
+        if (report) this.reportUpdate.emit(report);
       });
   }
 }

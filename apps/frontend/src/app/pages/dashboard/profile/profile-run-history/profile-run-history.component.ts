@@ -52,8 +52,8 @@ export class ProfileRunHistoryComponent implements OnInit {
   }
 
   ngOnInit() {
-    this.userSubj.subscribe((usr) => {
-      this.user = usr;
+    this.userSubj.subscribe((user) => {
+      this.user = user;
       this.loadRunHistory();
     });
   }
@@ -71,14 +71,14 @@ export class ProfileRunHistoryComponent implements OnInit {
         }
       })
       .pipe(finalize(() => (this.loadedRuns = true)))
-      .subscribe(
-        (resp) => {
-          this.runCount = resp.count;
-          this.runHistory = resp.runs;
+      .subscribe({
+        next: (response) => {
+          this.runCount = response.count;
+          this.runHistory = response.runs;
         },
-        (err) =>
-          this.toastService.danger(err.message, 'Cannot get user map credits')
-      );
+        error: (error) =>
+          this.toastService.danger(error.message, 'Cannot get user map credits')
+      });
   }
 
   onPageChange(pageNum: number) {

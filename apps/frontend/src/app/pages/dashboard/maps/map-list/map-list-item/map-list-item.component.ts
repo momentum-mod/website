@@ -40,59 +40,58 @@ export class MapListItemComponent implements OnInit {
 
   toggleMapInFavorites() {
     if (this.mapInFavorites) {
-      this.localUserService.removeMapFromFavorites(this.map.id).subscribe(
-        () => {
+      this.localUserService.removeMapFromFavorites(this.map.id).subscribe({
+        next: () => {
           this.mapInFavorites = false;
           this.onFavoriteUpdate.emit(false);
           this.toastService.success('Removed map from favorites', 'Success');
         },
-        (err) => {
+        error: () =>
           this.toastService.danger(
             'Failed to remove map from favorites',
             'Error'
-          );
-        }
-      );
+          )
+      });
     } else {
-      this.localUserService.addMapToFavorites(this.map.id).subscribe(
-        () => {
+      this.localUserService.addMapToFavorites(this.map.id).subscribe({
+        next: () => {
           this.mapInFavorites = true;
           this.onFavoriteUpdate.emit(true);
           this.toastService.success('Added map to favorites', 'Success');
         },
-        (err) => {
-          this.toastService.danger('Failed to add map to favorites', 'Error');
-        }
-      );
+        error: () =>
+          this.toastService.danger('Failed to add map to favorites', 'Error')
+      });
     }
   }
 
   toggleMapInLibrary() {
     if (this.mapInLibrary) {
-      this.localUserService.removeMapFromLibrary(this.map.id).subscribe(
-        () => {
+      this.localUserService.removeMapFromLibrary(this.map.id).subscribe({
+        next: () => {
           this.mapInLibrary = false;
           this.onLibraryUpdate.emit(false);
           this.toastService.success('Removed map from library', 'Success');
         },
-        (err) => {
+        error: (error) =>
           this.toastService.danger(
-            err.message,
+            error.message,
             'Failed to remove map from library'
-          );
-        }
-      );
+          )
+      });
     } else {
-      this.localUserService.addMapToLibrary(this.map.id).subscribe(
-        (resp) => {
+      this.localUserService.addMapToLibrary(this.map.id).subscribe({
+        next: () => {
           this.mapInLibrary = true;
           this.onLibraryUpdate.emit(true);
           this.toastService.success('Added map to library', 'Success');
         },
-        (err) => {
-          this.toastService.danger(err.message, 'Failed to add map to library');
-        }
-      );
+        error: (error) =>
+          this.toastService.danger(
+            error.message,
+            'Failed to add map to library'
+          )
+      });
     }
   }
 }

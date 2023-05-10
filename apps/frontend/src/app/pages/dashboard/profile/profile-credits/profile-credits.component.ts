@@ -35,8 +35,8 @@ export class ProfileCreditsComponent implements OnInit {
   }
 
   ngOnInit() {
-    this.userSubj$.subscribe((usr) => {
-      this.user = usr;
+    this.userSubj$.subscribe((user) => {
+      this.user = user;
       this.loadCredits();
     });
   }
@@ -51,14 +51,14 @@ export class ProfileCreditsComponent implements OnInit {
         }
       })
       .pipe(finalize(() => (this.loadedCredits = true)))
-      .subscribe(
-        (resp) => {
-          this.creditCount = resp.count;
-          this.mapCredits = resp.credits;
+      .subscribe({
+        next: (response) => {
+          this.creditCount = response.count;
+          this.mapCredits = response.credits;
         },
-        (err) =>
-          this.toastService.danger(err.message, 'Cannot get user map credits')
-      );
+        error: (error) =>
+          this.toastService.danger(error.message, 'Cannot get user map credits')
+      });
   }
 
   onPageChange(pageNum: number) {

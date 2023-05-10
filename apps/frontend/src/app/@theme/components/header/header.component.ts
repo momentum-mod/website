@@ -45,9 +45,9 @@ export class HeaderComponent implements OnInit, OnDestroy {
   ) {
     this.notifications = [];
     this.numUnreadNotifs = 0;
-    this.menuService.onItemClick().subscribe((event) => {
-      this.onContextItemSelection(event.item.title);
-    });
+    this.menuService
+      .onItemClick()
+      .subscribe((event) => this.onContextItemSelection(event.item.title));
   }
 
   ngOnInit() {

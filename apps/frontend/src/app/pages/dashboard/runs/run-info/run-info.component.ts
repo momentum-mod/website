@@ -46,9 +46,9 @@ export class RunInfoComponent implements OnInit {
           };
           this.rankService
             .getRanks(this.run.mapID, options)
-            .subscribe((resp) => {
-              if (resp.count && resp.count === 1)
-                this.personalBestRun = resp.ranks[0].run;
+            .subscribe((response) => {
+              if (response.count && response.count === 1)
+                this.personalBestRun = response.ranks[0].run;
             });
         }
       });

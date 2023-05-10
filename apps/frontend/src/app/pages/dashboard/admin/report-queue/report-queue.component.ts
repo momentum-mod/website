@@ -50,16 +50,16 @@ export class ReportQueueComponent implements OnInit {
         }
       })
       .pipe(finalize(() => (this.isLoading = false)))
-      .subscribe(
-        (res) => {
-          this.reportQueueCount = res.count;
-          this.reportQueue = res.reports;
+      .subscribe({
+        next: (response) => {
+          this.reportQueueCount = response.count;
+          this.reportQueue = response.reports;
         },
-        (err) => {
-          console.error(err);
+        error: (error) => {
+          console.error(error);
           this.toasterService.danger('Failed to load report queue');
         }
-      );
+      });
   }
 
   onPageChange(pageNum) {
