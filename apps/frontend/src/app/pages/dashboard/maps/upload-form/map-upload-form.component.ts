@@ -14,7 +14,6 @@ import { CreditChangeEvent } from '../map-credits/map-credit/map-credit.componen
 import { MapZoneTrigger } from '../../../../@core/models/map-zone-trigger.model';
 import { MapZoneType } from '../../../../@core/models/map-zone-type.model';
 import { MomentumMapPreview } from '../../../../@core/models/momentum-map-preview.model';
-import { MapImage } from '../../../../@core/models/map-image.model';
 import { NbToastrService } from '@nebular/theme';
 import { mergeMap } from 'rxjs/operators';
 import { forkJoin, of } from 'rxjs';
@@ -424,18 +423,14 @@ export class MapUploadFormComponent implements OnInit, AfterViewInit {
         large: this.avatarFilePreview.dataBlobURL
       });
     }
-    this.extraImages
-      .map(
-        (val: ImageFilePreview) =>
-          <MapImage>{
-            id: 0,
-            mapID: 0,
-            small: val.dataBlobURL,
-            medium: val.dataBlobURL,
-            large: val.dataBlobURL
-          }
-      )
-      .forEach((val: MapImage) => this.mapPreview.images.push(val));
+    for (const image of this.extraImages)
+      this.mapPreview.images.push({
+        id: 0,
+        mapID: 0,
+        small: image.dataBlobURL,
+        medium: image.dataBlobURL,
+        large: image.dataBlobURL
+      });
   }
 
   onRemoveZones() {
