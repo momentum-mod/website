@@ -26,6 +26,7 @@ const youtubeRegex = /[\w-]{11}/;
   styleUrls: ['./map-edit.component.scss']
 })
 export class MapEditComponent implements OnInit, OnDestroy {
+  protected readonly FileUploadType = FileUploadType;
   private ngUnsub = new Subject<void>();
   map: MomentumMap;
   mapImages: MapImage[];
@@ -251,6 +252,4 @@ export class MapEditComponent implements OnInit, OnDestroy {
     this.ngUnsub.next();
     this.ngUnsub.complete();
   }
-
-  protected readonly FileUploadType = FileUploadType;
 }
