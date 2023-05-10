@@ -182,7 +182,7 @@ export class MapEditComponent implements OnInit, OnDestroy {
   }
 
   onMapImageSelected(file: File) {
-    this.getImageSource(file, (blobURL, img) => {
+    this.getImageSource(file, (blobURL) => {
       if (this.mapImages.length >= this.mapImagesLimit) return;
       this.mapImages.push({
         id: -1,

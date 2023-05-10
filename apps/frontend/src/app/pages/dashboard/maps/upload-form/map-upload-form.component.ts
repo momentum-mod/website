@@ -217,7 +217,7 @@ export class MapUploadFormComponent implements OnInit, AfterViewInit {
   onZoneFileSelected(file: File) {
     this.tracks = [];
     this.zoneFile = file;
-    this.getFileSource(file, false, (result, originalFile) => {
+    this.getFileSource(file, false, (result) => {
       const zoneFile = VDF.parse(result);
       const tracks = zoneFile.tracks;
       for (const trackNum in tracks) {

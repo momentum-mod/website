@@ -14,7 +14,7 @@ export class ReportButtonComponent {
 
   constructor(private dialogService: NbDialogService) {}
 
-  onClick(event: Event) {
+  onClick() {
     this.dialogService.open(CreateReportDialogComponent, {
       context: {
         reportData: this.reportData,
