@@ -5,15 +5,13 @@ import { Router } from '@angular/router';
 @Injectable()
 export class ScreenerService {
   constructor(private router: Router) {}
-  inject(): void {
-    document.addEventListener('click', this.intercept.bind(this));
-  }
-  static checkHref(href: URL): boolean {
+
+  static isWhitelistedDomain(href: URL): boolean {
     for (const domain of OutgoingModule.WHITELISTED_OUTGOING_DOMAINS) {
       if (
         href.hostname === domain ||
-        href.host === domain ||
         href.hostname.includes(domain) ||
+        href.host === domain ||
         href.host.includes(domain)
       )
         return true;
@@ -24,21 +22,24 @@ export class ScreenerService {
     }
     return false;
   }
-  intercept(_event) {
-    const tEvent = _event || window.event;
-    const element = tEvent.target || tEvent.srcElement;
+
+  inject(): void {
+    document.addEventListener('click', this.intercept.bind(this));
+  }
+
+  intercept(event: PointerEvent): void {
     if (
-      (tEvent.which === 1 || tEvent.which === 2) &&
-      element.href &&
-      element.tagName === 'A' &&
-      !window.location.pathname.startsWith('/outgoing')
-    ) {
-      const url: URL = new URL(element.href);
-      if (!ScreenerService.checkHref(url)) {
-        this.router.navigate(['/outgoing/', encodeURIComponent(element.href)]);
-        return false; // prevent default action and stop event propagation
-      }
+      window.location.pathname.startsWith('/outgoing') ||
+      !(event || !event.target || !(event.button === 1 || event.button === 2))
+    )
+      return;
+
+    if (!(event.target as any).href) return;
+    const element = event.target as HTMLAnchorElement;
+    const url = new URL(element.href);
+    if (!ScreenerService.isWhitelistedDomain(url)) {
+      this.router.navigate(['/outgoing/', encodeURIComponent(element.href)]);
+      event.preventDefault(); // Prevent default action and stop event propagation
     }
-    return false; // TODO: Not 100% sure if this is the right return value. Revisit this service. -Tom 28/04
   }
 }
