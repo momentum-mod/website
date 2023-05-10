@@ -3,6 +3,9 @@ import { ActivatedRouteSnapshot, CanActivate } from '@angular/router';
 import { LocalUserService } from '../data/local-user.service';
 import { environment } from '../../../environments/environment';
 
+// TODO: CanActivate is deprecated, don't understand ng routing properly yet
+// Come back in future
+// noinspection JSDeprecatedSymbols
 @Injectable({
   providedIn: 'root'
 })

@@ -173,6 +173,8 @@ export class MapUploadFormComponent implements OnInit, AfterViewInit {
         baseStats: {}
       }
     };
+    // This code is really ugly but I don't wanna mess with it too much.
+    // Will rewrite at 0.10.0. - Tom
     for (const zone in track) {
       if (track.hasOwnProperty(zone)) {
         const zoneNum = Number(zone);
@@ -204,7 +206,8 @@ export class MapUploadFormComponent implements OnInit, AfterViewInit {
             zoneMdl.triggers.push(zoneMdlTrigger);
           }
         }
-        if (zoneNum === 0) delete zoneMdl.stats;
+        // Old code - wtf is this?
+        // if (zoneNum === 0) delete zoneMdl.stats;
         trackReturn.zones.push(zoneMdl);
       }
     }
@@ -256,6 +259,11 @@ export class MapUploadFormComponent implements OnInit, AfterViewInit {
       .createMap(mapObject)
       .pipe(
         mergeMap((response) => {
+          // TODO: The new API doesn't actually set this, didn't realise it needed to.
+          // It's a fucking nasty approach though, lets
+          // 1. make this POST include the upload location as a KEY on dto (so extend mapdto)
+          // 2. keep the mapfileuploadlocation for now at least since map submission system
+          // probs needs it
           mapID = response.body.id;
           uploadLocation = response.headers.get('Location');
           mapCreated = true;
