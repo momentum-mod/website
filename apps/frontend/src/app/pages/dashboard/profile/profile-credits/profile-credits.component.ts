@@ -13,7 +13,7 @@ import { NbToastrService } from '@nebular/theme';
   styleUrls: ['./profile-credits.component.scss']
 })
 export class ProfileCreditsComponent implements OnInit {
-  @Input('userSubj') userSubj$: Observable<User>;
+  @Input() userSubj: Observable<User>;
 
   user: User;
   protected readonly MapCreditType = MapCreditType;
@@ -35,7 +35,7 @@ export class ProfileCreditsComponent implements OnInit {
   }
 
   ngOnInit() {
-    this.userSubj$.subscribe((user) => {
+    this.userSubj.subscribe((user) => {
       this.user = user;
       this.loadCredits();
     });

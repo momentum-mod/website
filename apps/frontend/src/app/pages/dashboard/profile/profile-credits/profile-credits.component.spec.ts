@@ -67,7 +67,7 @@ describe('ProfileCreditsComponent', () => {
   beforeEach(() => {
     fixture = TestBed.createComponent(ProfileCreditsComponent);
     component = fixture.componentInstance;
-    component.userSubj$ = of({
+    component.userSubj = of({
       id: 1,
       steamID: '2',
       alias: 'IAmWhoIAmWhoAmI',
