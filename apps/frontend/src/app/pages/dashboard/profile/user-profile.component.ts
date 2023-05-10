@@ -20,7 +20,7 @@ export class UserProfileComponent implements OnInit, OnDestroy {
   private ngUnsub = new Subject<void>();
   protected readonly Role = Role;
   protected readonly ReportType = ReportType;
-  userSubj$: ReplaySubject<User>;
+  userSubject: ReplaySubject<User>;
   user: User;
   isLocal: boolean;
   isMapper: boolean;
@@ -41,7 +41,7 @@ export class UserProfileComponent implements OnInit, OnDestroy {
   ) {
     this.ReportType = ReportType;
     this.isLocal = true;
-    this.userSubj$ = new ReplaySubject<User>(1);
+    this.userSubject = new ReplaySubject<User>(1);
     this.isMapper = false;
     this.isMod = false;
     this.isAdmin = false;
@@ -86,7 +86,7 @@ export class UserProfileComponent implements OnInit, OnDestroy {
           this.isMod = this.hasRole(Role.MODERATOR);
           this.isAdmin = this.hasRole(Role.ADMIN);
           this.isVerified = this.hasRole(Role.VERIFIED);
-          this.userSubj$.next(user);
+          this.userSubject.next(user);
           if (!this.hasBan(Ban.BANNED_AVATAR) && this.user.avatarURL)
             this.avatarUrl = this.user.avatarURL;
 

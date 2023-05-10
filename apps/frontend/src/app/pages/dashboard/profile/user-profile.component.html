@@ -137,7 +137,7 @@
             </div>
           </div>
           <div class="col-auto" *ngIf="!isLocal">
-            <mom-profile-follow [userSubj]="userSubj$" />
+            <mom-profile-follow [userSubj]="userSubject" />
           </div>
         </div>
       </nb-card-header>
@@ -213,10 +213,10 @@
           </div>
         </nb-tab>
         <nb-tab tabTitle="Runs" *ngIf="!hasRole(Role.PLACEHOLDER)">
-          <mom-profile-run-history [userSubj]="userSubj$" />
+          <mom-profile-run-history [userSubj]="userSubject" />
         </nb-tab>
         <nb-tab tabTitle="Credits">
-          <mom-profile-credits [userSubj]="userSubj$" />
+          <mom-profile-credits [userSubj]="userSubject" />
         </nb-tab>
       </nb-tabset>
     </nb-card>
@@ -225,7 +225,7 @@
     <mom-activity-card
       *ngIf="user"
       headerTitle="User Activity"
-      [userSubj]="userSubj$"
+      [userSubj]="userSubject"
     />
   </div>
 </div>

@@ -10,7 +10,7 @@ import { environment } from '../../../environments/environment';
 
 @Injectable()
 export class NotificationsService {
-  notifications$: ReplaySubject<SiteNotification[]>;
+  notificationsSubject: ReplaySubject<SiteNotification[]>;
 
   constructor(
     private router: Router,
@@ -18,7 +18,7 @@ export class NotificationsService {
     private authService: AuthService,
     private toasterService: NbToastrService
   ) {
-    this.notifications$ = new ReplaySubject<SiteNotification[]>(1);
+    this.notificationsSubject = new ReplaySubject<SiteNotification[]>(1);
   }
   public inject(): void {
     this.router.events
@@ -32,10 +32,12 @@ export class NotificationsService {
     if (this.authService.isAuthenticated())
       this.http
         .get<any>(environment.api + '/api/user/notifications')
-        .subscribe((resp) => this.notifications$.next(resp.notifications));
+        .subscribe((resp) =>
+          this.notificationsSubject.next(resp.notifications)
+        );
   }
   get notifications(): Observable<SiteNotification[]> {
-    return this.notifications$.asObservable();
+    return this.notificationsSubject.asObservable();
   }
 
   markNotificationAsRead(notification: SiteNotification) {

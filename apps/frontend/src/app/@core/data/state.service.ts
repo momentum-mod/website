@@ -39,8 +39,8 @@ export class StateService implements OnDestroy {
     }
   ];
 
-  protected layoutState$ = new BehaviorSubject(this.layouts[0]);
-  protected sidebarState$ = new BehaviorSubject(this.sidebars[0]);
+  protected layoutState = new BehaviorSubject(this.layouts[0]);
+  protected sidebarState = new BehaviorSubject(this.sidebars[0]);
 
   alive = true;
 
@@ -71,7 +71,7 @@ export class StateService implements OnDestroy {
   }
 
   setLayoutState(state: any): any {
-    this.layoutState$.next(state);
+    this.layoutState.next(state);
   }
 
   getLayoutStates(): Observable<any[]> {
@@ -79,11 +79,11 @@ export class StateService implements OnDestroy {
   }
 
   onLayoutState(): Observable<any> {
-    return this.layoutState$.asObservable();
+    return this.layoutState.asObservable();
   }
 
   setSidebarState(state: any): any {
-    this.sidebarState$.next(state);
+    this.sidebarState.next(state);
   }
 
   getSidebarStates(): Observable<any[]> {
@@ -91,6 +91,6 @@ export class StateService implements OnDestroy {
   }
 
   onSidebarState(): Observable<any> {
-    return this.sidebarState$.asObservable();
+    return this.sidebarState.asObservable();
   }
 }

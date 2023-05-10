@@ -13,12 +13,12 @@ import { share } from 'rxjs/operators';
  */
 @Injectable()
 export class NbSearchService {
-  private searchSubmittings$ = new Subject<{ term: string; tag?: string }>();
-  private searchActivations$ = new Subject<{
+  private searchSubmittings = new Subject<{ term: string; tag?: string }>();
+  private searchActivations = new Subject<{
     searchType: string;
     tag?: string;
   }>();
-  private searchDeactivations$ = new Subject<{
+  private searchDeactivations = new Subject<{
     searchType: string;
     tag?: string;
   }>();
@@ -29,7 +29,7 @@ export class NbSearchService {
    * @param {string} tag
    */
   activateSearch(searchType: string, tag?: string) {
-    this.searchActivations$.next({ searchType, tag });
+    this.searchActivations.next({ searchType, tag });
   }
 
   /**
@@ -38,7 +38,7 @@ export class NbSearchService {
    * @param {string} tag
    */
   deactivateSearch(searchType: string, tag?: string) {
-    this.searchDeactivations$.next({ searchType, tag });
+    this.searchDeactivations.next({ searchType, tag });
   }
 
   /**
@@ -47,7 +47,7 @@ export class NbSearchService {
    * @param {string} tag
    */
   submitSearch(term: string, tag?: string) {
-    this.searchSubmittings$.next({ term, tag });
+    this.searchSubmittings.next({ term, tag });
   }
 
   /**
@@ -55,7 +55,7 @@ export class NbSearchService {
    * @returns Observable<{searchType: string; tag?: string}>
    */
   onSearchActivate(): Observable<{ searchType: string; tag?: string }> {
-    return this.searchActivations$.pipe(share());
+    return this.searchActivations.pipe(share());
   }
 
   /**
@@ -63,7 +63,7 @@ export class NbSearchService {
    * @returns Observable<{searchType: string; tag?: string}>
    */
   onSearchDeactivate(): Observable<{ searchType: string; tag?: string }> {
-    return this.searchDeactivations$.pipe(share());
+    return this.searchDeactivations.pipe(share());
   }
 
   /**
@@ -71,6 +71,6 @@ export class NbSearchService {
    * @returns Observable<{term: string; tag?: string}>
    */
   onSearchSubmit(): Observable<{ term: string; tag?: string }> {
-    return this.searchSubmittings$.pipe(share());
+    return this.searchSubmittings.pipe(share());
   }
 }
