@@ -3,7 +3,6 @@ import { Component } from '@angular/core';
 
 @Component({
   selector: 'mom-not-found-dashboard',
-  styleUrls: ['./not-found-dashboard.component.scss'],
   templateUrl: './not-found-dashboard.component.html'
 })
 export class NotFoundDashboardComponent {
