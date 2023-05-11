@@ -20,7 +20,6 @@ import {
   NbToastrModule
 } from '@nebular/theme';
 import { RefreshTokenInterceptorService } from './@core/utils/refresh-token-interceptor.service';
-import { TimeagoModule } from 'ngx-timeago';
 import { environment } from '../environments/environment';
 import { NbEvaIconsModule } from '@nebular/eva-icons';
 import { PipesModule } from '@momentum/frontend/pipes';
@@ -80,8 +79,6 @@ export function tokenGetter() {
       closeOnEsc: true,
       autoFocus: true
     }),
-
-    TimeagoModule.forRoot(),
     ThemeModule.forRoot(),
     CoreModule.forRoot(),
     PipesModule

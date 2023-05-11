@@ -60,7 +60,6 @@
     "ngx-echarts": "15.0.3",
     "ngx-markdown": "15.1.2",
     "ngx-pagination": "6.0.3",
-    "ngx-timeago": "2.0.0",
     "normalize.css": "8.0.1",
     "openid": "2.0.10",
     "prom-client": "14.2.0",

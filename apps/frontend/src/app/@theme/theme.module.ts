@@ -38,7 +38,6 @@ import { ActivityListComponent } from './components/activity/activity-list/activ
 import { ReportButtonComponent } from './components/report/report-button/report-button.component';
 import { CreateReportDialogComponent } from './components/report/create-report-dialog/create-report-dialog.component';
 import { ConfirmDialogComponent } from './components/confirm-dialog/confirm-dialog.component';
-import { TimeagoModule } from 'ngx-timeago';
 import { FrontendDirectivesModule } from '@momentum/frontend/directives';
 import { PipesModule } from '@momentum/frontend/pipes';
 
@@ -94,8 +93,8 @@ const NB_THEME_PROVIDERS = [
 ];
 
 @NgModule({
-  imports: [...BASE_MODULES, ...NB_MODULES, TimeagoModule],
-  exports: [...BASE_MODULES, ...NB_MODULES, ...COMPONENTS, TimeagoModule],
+  imports: [...BASE_MODULES, ...NB_MODULES],
+  exports: [...BASE_MODULES, ...NB_MODULES, ...COMPONENTS],
   declarations: [...COMPONENTS]
 })
 export class ThemeModule {
