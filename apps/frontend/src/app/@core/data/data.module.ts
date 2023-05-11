@@ -7,7 +7,6 @@ import { LocalUserService } from './local-user.service';
 import { UsersService } from './users.service';
 import { AuthService } from './auth.service';
 import { StateService } from './state.service';
-import { SmartTableService } from './smart-table.service';
 import { LayoutService } from './layout.service';
 import { ActivityService } from './activity.service';
 import { MapsService } from './maps.service';
@@ -22,7 +21,6 @@ const SERVICES = [
   AuthService,
   CookieService,
   StateService,
-  SmartTableService,
   LayoutService,
   TwitchAPIService,
   TumblrAPIService
