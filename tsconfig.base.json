@@ -28,6 +28,7 @@
         "libs/frontend/directives/src/index.ts"
       ],
       "@momentum/frontend/icons": ["libs/frontend/icons/src/index.ts"],
+      "@momentum/frontend/pipes": ["libs/frontend/pipes/src/index.ts"],
       "@momentum/random": ["libs/random/src/index.ts"],
       "@momentum/replay": ["libs/replay/src/index.ts"]
     }

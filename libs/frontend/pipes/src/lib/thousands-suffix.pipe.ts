@@ -1,8 +1,8 @@
 import { Pipe, PipeTransform } from '@angular/core';
 
 /**
- * Rounds really big numbers and puts a thousand / million / billion / trillion
- * / quadrillion / quintillion suffix on the end.
+ * Rounds really big numbers and puts a thousand/million/billion/trillion/etc
+ * suffix on the end.
  *
  * @param precision the number of decimal places
  * @example
@@ -20,8 +20,8 @@ export class ThousandsSuffixPipe implements PipeTransform {
 
   transform(input: number, precision = 0): string {
     if (
-      Number.isNaN(input) ||
-      Number.isNaN(precision) ||
+      Number.isNaN(+input) ||
+      Number.isNaN(+precision) ||
       !Number.isInteger(precision)
     ) {
       throw new TypeError(

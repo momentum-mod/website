@@ -107,7 +107,7 @@
                 class="stat"
                 nbPopover="{{
                   map.stats?.totalSubscriptions
-                    | ngxPlural : 'Library' : 'Libraries'
+                    | plural : 'Library' : 'Libraries'
                 }}"
                 nbPopoverTrigger="hint"
               >
@@ -117,7 +117,7 @@
               <div
                 class="ml-sm-4 stat"
                 nbPopover="{{
-                  map.stats?.totalFavorites | ngxPlural : 'Favorite'
+                  map.stats?.totalFavorites | plural : 'Favorite'
                 }}"
                 nbPopoverTrigger="hint"
               >
@@ -127,7 +127,7 @@
               <div
                 class="ml-sm-4 stat"
                 nbPopover="{{
-                  map.stats?.totalDownloads | ngxPlural : 'Download'
+                  map.stats?.totalDownloads | plural : 'Download'
                 }}"
                 nbPopoverTrigger="hint"
               >
@@ -136,7 +136,7 @@
               </div>
               <div
                 class="ml-sm-4 stat"
-                nbPopover="{{ map.stats?.totalPlays | ngxPlural : 'Play' }}"
+                nbPopover="{{ map.stats?.totalPlays | plural : 'Play' }}"
                 nbPopoverTrigger="hint"
               >
                 <nb-icon icon="play-circle-outline" pack="mdi"></nb-icon>

@@ -23,6 +23,7 @@ import { RefreshTokenInterceptorService } from './@core/utils/refresh-token-inte
 import { TimeagoModule } from 'ngx-timeago';
 import { environment } from '../environments/environment';
 import { NbEvaIconsModule } from '@nebular/eva-icons';
+import { FrontendPipesModule } from '@momentum/frontend/pipes';
 
 export function tokenGetter() {
   return localStorage.getItem('accessToken');
@@ -82,7 +83,8 @@ export function tokenGetter() {
 
     TimeagoModule.forRoot(),
     ThemeModule.forRoot(),
-    CoreModule.forRoot()
+    CoreModule.forRoot(),
+    FrontendPipesModule
   ],
   bootstrap: [AppComponent],
   providers: [

@@ -31,14 +31,7 @@ import {
   NotificationComponent,
   SearchInputComponent
 } from './components';
-import {
-  CapitalizePipe,
-  ThousandsSuffixPipe,
-  NumberWithCommasPipe,
-  PluralPipe,
-  RoundPipe,
-  TimingPipe
-} from './pipes';
+
 import { NbSearchModule } from './components/search/search.module';
 import { RouterModule } from '@angular/router';
 import { ActivityListComponent } from './components/activity/activity-list/activity-list.component';
@@ -47,15 +40,17 @@ import { CreateReportDialogComponent } from './components/report/create-report-d
 import { ConfirmDialogComponent } from './components/confirm-dialog/confirm-dialog.component';
 import { TimeagoModule } from 'ngx-timeago';
 import { NgxAdminDashboardComponent } from './layouts/dashboard/dashboard.layout';
-import { DirectivesModule } from '@momentum/frontend/directives';
+import { FrontendDirectivesModule } from '@momentum/frontend/directives';
+import { FrontendPipesModule } from '@momentum/frontend/pipes';
 
 const BASE_MODULES = [
   CommonModule,
   FormsModule,
   ReactiveFormsModule,
   RouterModule,
-  DirectivesModule,
-  NgOptimizedImage
+  FrontendDirectivesModule,
+  NgOptimizedImage,
+  FrontendPipesModule
 ];
 
 const NB_MODULES = [
@@ -93,36 +88,17 @@ const COMPONENTS = [
   ConfirmDialogComponent
 ];
 
-const PIPES = [
-  CapitalizePipe,
-  PluralPipe,
-  RoundPipe,
-  TimingPipe,
-  NumberWithCommasPipe,
-  ThousandsSuffixPipe
-];
-
 const NB_THEME_PROVIDERS = [
-  ...NbThemeModule.forRoot(
-    {
-      name: 'mom'
-    },
-    [{ name: 'mom', base: 'dark' }]
-  ).providers,
+  ...NbThemeModule.forRoot({ name: 'mom' }, [{ name: 'mom', base: 'dark' }])
+    .providers,
   ...NbSidebarModule.forRoot().providers,
   ...NbMenuModule.forRoot().providers
 ];
 
 @NgModule({
   imports: [...BASE_MODULES, ...NB_MODULES, TimeagoModule],
-  exports: [
-    ...BASE_MODULES,
-    ...NB_MODULES,
-    ...COMPONENTS,
-    ...PIPES,
-    TimeagoModule
-  ],
-  declarations: [...COMPONENTS, ...PIPES]
+  exports: [...BASE_MODULES, ...NB_MODULES, ...COMPONENTS, TimeagoModule],
+  declarations: [...COMPONENTS]
 })
 export class ThemeModule {
   static forRoot(): ModuleWithProviders<ThemeModule> {
