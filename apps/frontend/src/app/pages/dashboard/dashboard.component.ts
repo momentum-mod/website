@@ -6,12 +6,8 @@ import { NotificationsService } from '../../@core/utils/notifications.service';
 
 @Component({
   selector: 'mom-dashboard',
-  template: `
-    <ngx-admin-dashboard>
-      <nb-menu [autoCollapse]="true" [items]="menu"></nb-menu>
-      <router-outlet></router-outlet>
-    </ngx-admin-dashboard>
-  `
+  templateUrl: 'dashboard.component.html',
+  styleUrls: ['dashboard.component.scss']
 })
 export class DashboardComponent implements OnInit {
   menu = MENU_ITEMS;

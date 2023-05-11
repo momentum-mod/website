@@ -39,7 +39,6 @@ import { ReportButtonComponent } from './components/report/report-button/report-
 import { CreateReportDialogComponent } from './components/report/create-report-dialog/create-report-dialog.component';
 import { ConfirmDialogComponent } from './components/confirm-dialog/confirm-dialog.component';
 import { TimeagoModule } from 'ngx-timeago';
-import { NgxAdminDashboardComponent } from './layouts/dashboard/dashboard.layout';
 import { FrontendDirectivesModule } from '@momentum/frontend/directives';
 import { PipesModule } from '@momentum/frontend/pipes';
 
@@ -76,7 +75,6 @@ const NB_MODULES = [
 ];
 
 const COMPONENTS = [
-  NgxAdminDashboardComponent,
   HeaderComponent,
   SearchInputComponent,
   NotificationComponent,

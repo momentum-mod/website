@@ -9,7 +9,7 @@
     responsive
     [containerFixed]="true"
   >
-    <ng-content select="nb-menu"></ng-content>
+    <nb-menu [autoCollapse]="true" [items]="menu"></nb-menu>
     <div class="socials">
       <a
         href="https://store.steampowered.com/app/669270/Momentum_Mod/"
@@ -30,6 +30,6 @@
   </nb-sidebar>
 
   <nb-layout-column class="main-content">
-    <ng-content select="router-outlet" />
+    <router-outlet></router-outlet>
   </nb-layout-column>
 </nb-layout>
