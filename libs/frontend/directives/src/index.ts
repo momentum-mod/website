@@ -1,1 +1,1 @@
-export * from './lib/frontend-directives.module';
+export * from './lib/directives.module';

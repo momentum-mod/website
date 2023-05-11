@@ -8,4 +8,4 @@ const DIRECTIVES = [NbIconIconDirective, NbTabIconDirective];
   declarations: DIRECTIVES,
   exports: DIRECTIVES
 })
-export class FrontendDirectivesModule {}
+export class DirectivesModule {}

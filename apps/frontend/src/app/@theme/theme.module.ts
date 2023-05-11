@@ -38,7 +38,7 @@ import { ActivityListComponent } from './components/activity/activity-list/activ
 import { ReportButtonComponent } from './components/report/report-button/report-button.component';
 import { CreateReportDialogComponent } from './components/report/create-report-dialog/create-report-dialog.component';
 import { ConfirmDialogComponent } from './components/confirm-dialog/confirm-dialog.component';
-import { FrontendDirectivesModule } from '@momentum/frontend/directives';
+import { DirectivesModule } from '@momentum/frontend/directives';
 import { PipesModule } from '@momentum/frontend/pipes';
 
 const BASE_MODULES = [
@@ -46,7 +46,7 @@ const BASE_MODULES = [
   FormsModule,
   ReactiveFormsModule,
   RouterModule,
-  FrontendDirectivesModule,
+  DirectivesModule,
   NgOptimizedImage,
   PipesModule
 ];
