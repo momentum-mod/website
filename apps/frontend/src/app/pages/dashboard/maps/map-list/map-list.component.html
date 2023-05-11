@@ -64,10 +64,10 @@
       <mom-map-list-item
         [map]="map"
         [inLibrary]="isMapInLibrary(map)"
-        (onLibraryUpdate)="libraryUpdate()"
+        (libraryUpdate)="libraryUpdate()"
         [isUpload]="type === mapListType.UPLOAD"
         [inFavorites]="isMapInFavorites(map)"
-        (onFavoriteUpdate)="favoriteUpdate()"
+        (favoriteUpdate)="favoriteUpdate()"
       />
     </nb-list-item>
   </nb-list>

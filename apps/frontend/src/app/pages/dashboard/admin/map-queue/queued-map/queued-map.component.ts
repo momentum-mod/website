@@ -20,7 +20,6 @@ import { NbToastrService } from '@nebular/theme';
 export class QueuedMapComponent {
   MapUploadStatus: typeof MapUploadStatus = MapUploadStatus;
   @Input() map: MomentumMap;
-  @Output() onStatusUpdate = new EventEmitter();
   @ViewChild('mapFileDownloadLink', { static: false })
   private mapFileDownloadLink: ElementRef;
 
@@ -35,7 +34,7 @@ export class QueuedMapComponent {
         statusFlag: statusFlag
       })
       .subscribe({
-        next: () => this.onStatusUpdate.emit(),
+        next: () => this.statusUpdate.emit(),
         error: (error) =>
           this.toasterService.danger(
             error.message,

@@ -15,8 +15,8 @@ export class MapListItemComponent implements OnInit {
   @Input() inLibrary: boolean;
   @Input() inFavorites: boolean;
   @Input() showDownloadButton: boolean;
-  @Output() onLibraryUpdate = new EventEmitter();
-  @Output() onFavoriteUpdate = new EventEmitter();
+  @Output() libraryUpdate = new EventEmitter();
+  @Output() favoriteUpdate = new EventEmitter();
   mapInFavorites: boolean;
   mapInLibrary: boolean;
   status: string;
@@ -43,7 +43,7 @@ export class MapListItemComponent implements OnInit {
       this.localUserService.removeMapFromFavorites(this.map.id).subscribe({
         next: () => {
           this.mapInFavorites = false;
-          this.onFavoriteUpdate.emit(false);
+          this.favoriteUpdate.emit(false);
           this.toastService.success('Removed map from favorites', 'Success');
         },
         error: () =>
@@ -56,7 +56,7 @@ export class MapListItemComponent implements OnInit {
       this.localUserService.addMapToFavorites(this.map.id).subscribe({
         next: () => {
           this.mapInFavorites = true;
-          this.onFavoriteUpdate.emit(true);
+          this.favoriteUpdate.emit(true);
           this.toastService.success('Added map to favorites', 'Success');
         },
         error: () =>
@@ -70,7 +70,7 @@ export class MapListItemComponent implements OnInit {
       this.localUserService.removeMapFromLibrary(this.map.id).subscribe({
         next: () => {
           this.mapInLibrary = false;
-          this.onLibraryUpdate.emit(false);
+          this.libraryUpdate.emit(false);
           this.toastService.success('Removed map from library', 'Success');
         },
         error: (error) =>
@@ -83,7 +83,7 @@ export class MapListItemComponent implements OnInit {
       this.localUserService.addMapToLibrary(this.map.id).subscribe({
         next: () => {
           this.mapInLibrary = true;
-          this.onLibraryUpdate.emit(true);
+          this.libraryUpdate.emit(true);
           this.toastService.success('Added map to library', 'Success');
         },
         error: (error) =>
