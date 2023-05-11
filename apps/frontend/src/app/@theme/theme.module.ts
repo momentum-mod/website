@@ -41,7 +41,7 @@ import { ConfirmDialogComponent } from './components/confirm-dialog/confirm-dial
 import { TimeagoModule } from 'ngx-timeago';
 import { NgxAdminDashboardComponent } from './layouts/dashboard/dashboard.layout';
 import { FrontendDirectivesModule } from '@momentum/frontend/directives';
-import { FrontendPipesModule } from '@momentum/frontend/pipes';
+import { PipesModule } from '@momentum/frontend/pipes';
 
 const BASE_MODULES = [
   CommonModule,
@@ -50,7 +50,7 @@ const BASE_MODULES = [
   RouterModule,
   FrontendDirectivesModule,
   NgOptimizedImage,
-  FrontendPipesModule
+  PipesModule
 ];
 
 const NB_MODULES = [

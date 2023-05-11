@@ -1,1 +1,1 @@
-export * from './lib/frontend-pipes.module';
+export * from './lib/pipes.module';

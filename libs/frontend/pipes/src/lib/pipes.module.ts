@@ -17,4 +17,4 @@ const PIPES = [
   exports: PIPES,
   declarations: PIPES
 })
-export class FrontendPipesModule {}
+export class PipesModule {}
