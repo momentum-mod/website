@@ -33,7 +33,7 @@ import {
 } from './components';
 import {
   CapitalizePipe,
-  NumberThousandsPipe,
+  ThousandsSuffixPipe,
   NumberWithCommasPipe,
   PluralPipe,
   RoundPipe,
@@ -99,7 +99,7 @@ const PIPES = [
   RoundPipe,
   TimingPipe,
   NumberWithCommasPipe,
-  NumberThousandsPipe
+  ThousandsSuffixPipe
 ];
 
 const NB_THEME_PROVIDERS = [

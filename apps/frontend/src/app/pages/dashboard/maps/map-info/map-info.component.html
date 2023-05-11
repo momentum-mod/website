@@ -112,7 +112,7 @@
                 nbPopoverTrigger="hint"
               >
                 <nb-icon icon="folder" pack="mdi"></nb-icon>
-                {{ map.stats?.totalSubscriptions | numberThousands : 1 }}
+                {{ map.stats?.totalSubscriptions | thousandsSuffix : 1 }}
               </div>
               <div
                 class="ml-sm-4 stat"
@@ -122,7 +122,7 @@
                 nbPopoverTrigger="hint"
               >
                 <nb-icon icon="star" pack="mdi"></nb-icon>
-                {{ map.stats?.totalFavorites | numberThousands : 1 }}
+                {{ map.stats?.totalFavorites | thousandsSuffix : 1 }}
               </div>
               <div
                 class="ml-sm-4 stat"
@@ -132,7 +132,7 @@
                 nbPopoverTrigger="hint"
               >
                 <nb-icon icon="download-outline" pack="mdi"></nb-icon>
-                {{ map.stats?.totalDownloads | numberThousands : 1 }}
+                {{ map.stats?.totalDownloads | thousandsSuffix : 1 }}
               </div>
               <div
                 class="ml-sm-4 stat"
@@ -140,7 +140,7 @@
                 nbPopoverTrigger="hint"
               >
                 <nb-icon icon="play-circle-outline" pack="mdi"></nb-icon>
-                {{ map.stats?.totalPlays | numberThousands : 1 }}
+                {{ map.stats?.totalPlays | thousandsSuffix : 1 }}
               </div>
             </div>
             <div class="btn-group text-center text-sm-right">
