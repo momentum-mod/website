@@ -6,9 +6,7 @@ import { MomentumMaps } from '../models/momentum-maps.model';
 import { Reports } from '../models/reports.model';
 import { environment } from '../../../environments/environment';
 
-@Injectable({
-  providedIn: 'root'
-})
+@Injectable({ providedIn: 'root' })
 export class AdminService {
   constructor(private http: HttpClient) {}
 

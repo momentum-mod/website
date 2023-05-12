@@ -5,9 +5,7 @@ import { GlobalBaseStats } from '../models/global-base-stats.model';
 import { GlobalMapStats } from '../models/global-map-stats.model';
 import { environment } from '../../../environments/environment';
 
-@Injectable({
-  providedIn: 'root'
-})
+@Injectable({ providedIn: 'root' })
 export class StatsService {
   constructor(private http: HttpClient) {}
 

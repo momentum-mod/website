@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { OutgoingModule } from '../../pages/outgoing/outgoing.module';
 import { Router } from '@angular/router';
 
-@Injectable()
+@Injectable({ providedIn: 'root' })
 export class ScreenerService {
   constructor(private router: Router) {}
 

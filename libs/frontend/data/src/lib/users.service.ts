@@ -9,7 +9,7 @@ import { UserCredits } from '../models/user-credits.model';
 import { Runs } from '../models/runs.model';
 import { environment } from '../../../environments/environment';
 
-@Injectable()
+@Injectable({ providedIn: 'root' })
 export class UsersService {
   constructor(private http: HttpClient) {}
 

@@ -9,7 +9,7 @@ import { AuthService } from '../data/auth.service';
 import { BehaviorSubject, Observable, throwError } from 'rxjs';
 import { catchError, filter, switchMap, take } from 'rxjs/operators';
 
-@Injectable()
+@Injectable({ providedIn: 'root' })
 export class RefreshTokenInterceptorService implements HttpInterceptor {
   private refreshInProgress: boolean;
   private refreshTokenSubject: BehaviorSubject<any>;

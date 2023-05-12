@@ -4,9 +4,7 @@ import { Observable } from 'rxjs';
 import { Report } from '../models/report.model';
 import { environment } from '../../../environments/environment';
 
-@Injectable({
-  providedIn: 'root'
-})
+@Injectable({ providedIn: 'root' })
 export class ReportService {
   constructor(private http: HttpClient) {}
 

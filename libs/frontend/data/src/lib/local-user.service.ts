@@ -17,9 +17,7 @@ import { UserCredits } from '../models/user-credits.model';
 import { MapNotify } from '../models/map-notify.model';
 import { environment } from '../../../environments/environment';
 
-@Injectable({
-  providedIn: 'root'
-})
+@Injectable({ providedIn: 'root' })
 export class LocalUserService {
   public localUser: User;
   private locUserObtEmit: Subject<User>;

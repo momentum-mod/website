@@ -1,7 +1,6 @@
 import { Injectable } from '@angular/core';
 import { CookieService } from 'ngx-cookie-service';
 import { JwtHelperService } from '@auth0/angular-jwt';
-import { AccessTokenPayload } from '../models/access-token-payload';
 import { HttpClient } from '@angular/common/http';
 import { Observable, of } from 'rxjs';
 import { Router } from '@angular/router';
@@ -12,7 +11,7 @@ export interface TokenRefreshResponse {
   accessToken: string;
 }
 
-@Injectable()
+@Injectable({ providedIn: 'root' })
 export class AuthService {
   constructor(
     private cookieService: CookieService,
@@ -36,7 +35,7 @@ export class AuthService {
     return !!accessToken;
   }
 
-  public getAccessTokenPayload(): AccessTokenPayload {
+  public getAccessTokenPayload(): any /* TODO: was AccessTokenPayload */ {
     const accessToken = this.getAccessToken();
     const jwtHelperService = new JwtHelperService();
     return jwtHelperService.decodeToken(accessToken);
@@ -63,7 +62,7 @@ export class AuthService {
   public refreshAccessToken(): Observable<string> {
     const refreshToken = localStorage.getItem('refreshToken');
     if (!refreshToken) {
-      return of(null);
+      return of('null');
     }
     return this.http
       .post(environment.auth + '/auth/refresh', { refreshToken: refreshToken })

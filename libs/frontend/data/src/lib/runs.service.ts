@@ -5,9 +5,7 @@ import { Runs } from '../models/runs.model';
 import { Run } from '../models/run.model';
 import { environment } from '../../../environments/environment';
 
-@Injectable({
-  providedIn: 'root'
-})
+@Injectable({ providedIn: 'root' })
 export class RunsService {
   constructor(private http: HttpClient) {}
 

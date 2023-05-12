@@ -1,14 +1,14 @@
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { HttpClient, HttpResponse } from '@angular/common/http';
+import { Map as MomMap } from '@prisma/client';
 import { MomentumMaps } from '../models/momentum-maps.model';
-import { MomentumMap } from '../models/momentum-map.model';
 import { MapImage } from '../models/map-image.model';
 import { MomentumMapInfo } from '../models/map-info.model';
 import { MapCredit } from '../models/map-credit.model';
 import { environment } from '../../../environments/environment';
 
-@Injectable()
+@Injectable({ providedIn: 'root' })
 export class MapsService {
   constructor(private http: HttpClient) {}
 
@@ -17,7 +17,7 @@ export class MapsService {
    * @param options The options for the request
    * @return Retrieves a specific map
    */
-  getMap(id: number, options?: object): Observable<MomentumMap> {
+  getMap(id: number, options?: object): Observable<Map> {
     return this.http.get<MomentumMap>(
       environment.api + '/api/maps/' + id,
       options || {}

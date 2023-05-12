@@ -8,7 +8,7 @@ import { AuthService } from '../data/auth.service';
 import { NbToastrService } from '@nebular/theme';
 import { environment } from '../../../environments/environment';
 
-@Injectable()
+@Injectable({ providedIn: 'root' })
 export class NotificationsService {
   notificationsSubject: ReplaySubject<SiteNotification[]>;
 

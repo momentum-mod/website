@@ -4,7 +4,7 @@ import { Observable } from 'rxjs';
 import { Activities } from '../models/activities.model';
 import { environment } from '../../../environments/environment';
 
-@Injectable()
+@Injectable({ providedIn: 'root' })
 export class ActivityService {
   constructor(private http: HttpClient) {}
 
