@@ -6,7 +6,7 @@ import { Observable, ReplaySubject } from 'rxjs';
 import { SiteNotification } from '../models/notification.model';
 import { AuthService } from '../data/auth.service';
 import { NbToastrService } from '@nebular/theme';
-import { environment } from '../../../environments/environment';
+import { env } from '@momentum/frontend/env';
 
 @Injectable({ providedIn: 'root' })
 export class NotificationsService {
@@ -31,7 +31,7 @@ export class NotificationsService {
   checkNotifications() {
     if (this.authService.isAuthenticated())
       this.http
-        .get<any>(environment.api + '/api/user/notifications')
+        .get<any>(env.api + '/api/user/notifications')
         .subscribe((resp) =>
           this.notificationsSubject.next(resp.notifications)
         );
@@ -42,7 +42,7 @@ export class NotificationsService {
 
   markNotificationAsRead(notification: SiteNotification) {
     this.http
-      .patch(environment.api + '/api/user/notifications/' + notification.id, {
+      .patch(env.api + '/api/user/notifications/' + notification.id, {
         read: true
       })
       .pipe(finalize(() => this.checkNotifications()))
@@ -56,7 +56,7 @@ export class NotificationsService {
   }
   dismissNotification(notif: SiteNotification) {
     this.http
-      .delete(environment.api + '/api/user/notifications/' + notif.id, {
+      .delete(env.api + '/api/user/notifications/' + notif.id, {
         responseType: 'text'
       })
       .pipe(finalize(() => this.checkNotifications()))

@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { ActivatedRouteSnapshot, CanActivate } from '@angular/router';
 import { LocalUserService } from '../data/local-user.service';
-import { environment } from '../../../environments/environment';
+import { env } from '@momentum/frontend/env';
 
 // TODO: CanActivate is deprecated, don't understand ng routing properly yet
 // Come back in future
@@ -22,9 +22,8 @@ export class AuthGuard implements CanActivate {
       return true;
     }
     if (window.location.pathname !== '/')
-      window.location.href =
-        environment.auth + '/auth/steam?r=' + window.location.href;
-    else window.location.href = environment.auth + '/auth/steam';
+      window.location.href = env.auth + '/auth/steam?r=' + window.location.href;
+    else window.location.href = env.auth + '/auth/steam';
     return false;
   }
 

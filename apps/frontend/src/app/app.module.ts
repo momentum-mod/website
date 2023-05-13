@@ -20,7 +20,7 @@ import {
   NbToastrModule
 } from '@nebular/theme';
 import { RefreshTokenInterceptorService } from './@core/utils/refresh-token-interceptor.service';
-import { environment } from '../environments/environment';
+import { env } from '@momentum/frontend/env';
 import { NbEvaIconsModule } from '@nebular/eva-icons';
 import { PipesModule } from '@momentum/frontend/pipes';
 
@@ -45,8 +45,8 @@ export function tokenGetter() {
           'localhost:3000',
           'localhost:4200',
           'momentum-mod.org',
-          new URL(environment.api).host,
-          new URL(environment.auth).host
+          new URL(env.api).host,
+          new URL(env.auth).host
         ],
         throwNoTokenError: false
       }

@@ -16,7 +16,7 @@ import {
   NbTabComponent,
   NbToastrService
 } from '@nebular/theme';
-import { environment } from '../../../../../environments/environment';
+import { env } from '@momentum/frontend/env';
 
 @Component({
   selector: 'mom-profile-edit',
@@ -157,9 +157,7 @@ export class ProfileEditComponent implements OnInit, OnDestroy {
 
   auth(platform: string) {
     const childWnd = window.open(
-      environment.auth +
-        `/auth/${platform}?jwt=` +
-        localStorage.getItem('accessToken'),
+      env.auth + `/auth/${platform}?jwt=` + localStorage.getItem('accessToken'),
       'myWindow',
       'width=500,height=500'
     );
