@@ -1,8 +1,8 @@
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
-import { MomentumMap } from '../../../../../@core/models/momentum-map.model';
-import { LocalUserService } from '../../../../../@core/data/local-user.service';
-import { getStatusFromEnum } from '../../../../../@core/models/map-upload-status.model';
 import { NbToastrService } from '@nebular/theme';
+import { Map } from '@momentum/types';
+import { LocalUserService } from '@momentum/frontend/data';
+import { MapStatusName } from '@momentum/constants';
 
 @Component({
   selector: 'mom-map-list-item',
@@ -10,7 +10,7 @@ import { NbToastrService } from '@nebular/theme';
   styleUrls: ['./map-list-item.component.scss']
 })
 export class MapListItemComponent implements OnInit {
-  @Input() map: MomentumMap;
+  @Input() map: Map;
   @Input() isUpload: boolean;
   @Input() inLibrary: boolean;
   @Input() inFavorites: boolean;

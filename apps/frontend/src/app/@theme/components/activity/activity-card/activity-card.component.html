@@ -10,10 +10,10 @@
             [(selected)]="filterValue"
             (selectedChange)="filterActivites(activities)"
           >
-            <nb-option [value]="activityType.ALL">All</nb-option>
-            <nb-option [value]="activityType.MAP_APPROVED">Maps Only</nb-option>
-            <nb-option [value]="activityType.PB_ACHIEVED">PBs Only</nb-option>
-            <nb-option [value]="activityType.WR_ACHIEVED">WRs Only</nb-option>
+            <nb-option [value]="ActivityType.ALL">All</nb-option>
+            <nb-option [value]="ActivityType.MAP_APPROVED">Maps Only</nb-option>
+            <nb-option [value]="ActivityType.PB_ACHIEVED">PBs Only</nb-option>
+            <nb-option [value]="ActivityType.WR_ACHIEVED">WRs Only</nb-option>
           </nb-select>
         </div>
       </div>

@@ -1,5 +1,5 @@
 import { Component, Input, OnInit } from '@angular/core';
-import { Activity_Type } from '../../../../../@core/models/activity-type.model';
+import { ActivityType } from '@momentum/constants';
 import { NbDialogRef } from '@nebular/theme';
 
 @Component({
@@ -11,10 +11,10 @@ export class ProfileNotifyEditComponent implements OnInit {
   @Input() flags: number;
   ActivityType: typeof Activity_Type = Activity_Type;
   checkboxFlags = {
-    pb: { checked: false, value: Activity_Type.PB_ACHIEVED },
-    wr: { checked: false, value: Activity_Type.WR_ACHIEVED },
-    approved: { checked: false, value: Activity_Type.MAP_APPROVED },
-    uploaded: { checked: false, value: Activity_Type.MAP_UPLOADED }
+    pb: { checked: false, value: ActivityType.PB_ACHIEVED },
+    wr: { checked: false, value: ActivityType.WR_ACHIEVED },
+    approved: { checked: false, value: ActivityType.MAP_APPROVED },
+    uploaded: { checked: false, value: ActivityType.MAP_UPLOADED }
   };
 
   constructor(protected dialogRef: NbDialogRef<ProfileNotifyEditComponent>) {}

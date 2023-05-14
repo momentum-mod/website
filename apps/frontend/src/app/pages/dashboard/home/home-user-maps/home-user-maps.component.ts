@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
-import { LocalUserService } from '../../../../@core/data/local-user.service';
-import { MapUploadStatus } from '../../../../@core/models/map-upload-status.model';
+import { MapStatus } from '@momentum/constants';
+import { LocalUserService } from '@momentum/frontend/data';
 
 @Component({
   selector: 'mom-home-user-maps',

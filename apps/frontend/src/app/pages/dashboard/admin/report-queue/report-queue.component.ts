@@ -1,9 +1,9 @@
 import { Component, OnInit } from '@angular/core';
-import { AdminService } from '../../../../@core/data/admin.service';
-import { Report } from '../../../../@core/models/report.model';
-import { ReportType } from '../../../../@core/models/report-type.model';
 import { finalize } from 'rxjs/operators';
 import { NbToastrService } from '@nebular/theme';
+import { ReportType } from '@momentum/constants';
+import { Report } from '@momentum/types';
+import { AdminService } from '@momentum/frontend/data';
 
 @Component({
   selector: 'mom-report-queue',
@@ -52,8 +52,8 @@ export class ReportQueueComponent implements OnInit {
       .pipe(finalize(() => (this.isLoading = false)))
       .subscribe({
         next: (response) => {
-          this.reportQueueCount = response.count;
-          this.reportQueue = response.reports;
+          this.reportQueueCount = response.totalCount;
+          this.reportQueue = response.response;
         },
         error: (error) => {
           console.error(error);

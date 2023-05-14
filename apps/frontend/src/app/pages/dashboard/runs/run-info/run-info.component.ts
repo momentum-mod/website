@@ -1,9 +1,8 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, ParamMap } from '@angular/router';
-import { RunsService } from '../../../../@core/data/runs.service';
+import { RanksService, RunsService } from '@momentum/frontend/data';
+import { Run } from '@momentum/types';
 import { switchMap } from 'rxjs/operators';
-import { Run } from '../../../../@core/models/run.model';
-import { RanksService } from '../../../../@core/data/ranks.service';
 
 @Component({
   selector: 'mom-run-info',

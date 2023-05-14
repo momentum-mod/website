@@ -1,22 +1,20 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
-import { MomentumMap } from '../../../../@core/models/momentum-map.model';
-import { MapImage } from '../../../../@core/models/map-image.model';
-import { User } from '../../../../@core/models/user.model';
-import { MapCredit } from '../../../../@core/models/map-credit.model';
-import { MapCreditType } from '../../../../@core/models/map-credit-type.model';
 import { CreditChangeEvent } from '../map-credits/map-credit/map-credit.component';
-import { MapsService } from '../../../../@core/data/maps.service';
 import { finalize, switchMap, takeUntil } from 'rxjs/operators';
 import { ActivatedRoute, ParamMap, Router } from '@angular/router';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { CdkDragDrop, moveItemInArray } from '@angular/cdk/drag-drop';
-import { Role } from '../../../../@core/models/role.model';
-import { LocalUserService } from '../../../../@core/data/local-user.service';
-import { AdminService } from '../../../../@core/data/admin.service';
 import { NbDialogService, NbToastrService } from '@nebular/theme';
 import { ConfirmDialogComponent } from '../../../../@theme/components/confirm-dialog/confirm-dialog.component';
 import { forkJoin, Subject } from 'rxjs';
+import { Map, MapCredit, MapImage } from '@momentum/types';
 import { FileUploadType } from '../upload-form/file-upload/file-upload.component';
+import {
+  AdminService,
+  LocalUserService,
+  MapsService
+} from '@momentum/frontend/data';
+import { MapCreditType } from '@momentum/constants';
 
 const youtubeRegex = /[\w-]{11}/;
 
@@ -28,11 +26,11 @@ const youtubeRegex = /[\w-]{11}/;
 export class MapEditComponent implements OnInit, OnDestroy {
   protected readonly FileUploadType = FileUploadType;
   private ngUnsub = new Subject<void>();
-  map: MomentumMap;
-  mapImages: MapImage[];
-  mapImagesLimit: number;
   mapCredits: User[][];
   mapCreditsIDs: number[];
+  map: Map;
+  images: MapImage[];
+  imagesLimit: number;
   isSubmitter: boolean;
   isAdmin: boolean;
   isModerator: boolean;

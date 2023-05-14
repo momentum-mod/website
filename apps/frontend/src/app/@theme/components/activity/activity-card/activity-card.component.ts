@@ -1,9 +1,8 @@
 import { Component, Input, OnInit } from '@angular/core';
-import { ActivityService } from '../../../../@core/data/activity.service';
-import { Activity_Type } from '../../../../@core/models/activity-type.model';
-import { Activity } from '../../../../@core/models/activity.model';
 import { ReplaySubject } from 'rxjs';
-import { User } from '../../../../@core/models/user.model';
+import { ActivityService } from '@momentum/frontend/data';
+import { ActivityType } from '@momentum/constants';
+import { Activity, User } from '@momentum/types';
 
 @Component({
   selector: 'mom-activity-card',
@@ -18,13 +17,13 @@ export class ActivityCardComponent implements OnInit {
 
   constructor(private actService: ActivityService) {
     this.headerTitle = 'Activity';
-    this.filterValue = Activity_Type.ALL;
+    this.filterValue = ActivityType.ALL;
     this.initialAct = false;
     this.activities = [];
     this.actsFiltered = [];
   }
-  activityType = Activity_Type;
-  filterValue: Activity_Type;
+  ActivityType = ActivityType;
+  filterValue: ActivityType;
   activities: Activity[];
   actsFiltered: Activity[];
   initialAct: boolean;
@@ -38,7 +37,7 @@ export class ActivityCardComponent implements OnInit {
   }
 
   filterActivites(acts: Activity[]): void {
-    if (this.filterValue === this.activityType.ALL) this.actsFiltered = acts;
+    if (this.filterValue === this.ActivityType.ALL) this.actsFiltered = acts;
     else
       this.actsFiltered = acts.filter(
         (value) => value.type === this.filterValue
@@ -70,9 +69,9 @@ export class ActivityCardComponent implements OnInit {
       .getRecentActivity(10 * this.recentActPage++)
       .subscribe((response) => {
         // Don't call the API anymore if there are no more activities left
-        if (response.activities.length > 0) {
+        if (response.response.length > 0) {
           this.canLoadMore = true;
-          this.activities.push(...response.activities);
+          this.activities.push(...response.response);
           this.filterActivites(this.activities);
         }
       });

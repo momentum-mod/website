@@ -1,11 +1,10 @@
 import { Component, Input, OnInit } from '@angular/core';
 import { Observable } from 'rxjs';
-import { User } from '../../../../@core/models/user.model';
-import { UsersService } from '../../../../@core/data/users.service';
 import { finalize } from 'rxjs/operators';
-import { Run } from '../../../../@core/models/run.model';
 import { FormBuilder, FormGroup } from '@angular/forms';
 import { NbToastrService } from '@nebular/theme';
+import { Run, User } from '@momentum/types';
+import { RunsService, UsersService } from '@momentum/frontend/data';
 
 @Component({
   selector: 'mom-profile-run-history',

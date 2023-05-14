@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
-import { XPSystems } from '../../../../@core/models/xp-systems.model';
 import { FormArray, FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { AdminService } from '../../../../@core/data/admin.service';
+import { AdminService } from '@momentum/frontend/data';
+import { XpSystems } from '@momentum/types';
 import { NbToastrService } from '@nebular/theme';
 
 @Component({
@@ -10,7 +10,7 @@ import { NbToastrService } from '@nebular/theme';
   styleUrls: ['./xp-system.component.scss']
 })
 export class XPSystemComponent implements OnInit {
-  xpSystems: XPSystems;
+  xpSystems: XpSystems;
 
   xpSystemsFormGroup: FormGroup = this.fb.group({
     rankXP: this.fb.group({

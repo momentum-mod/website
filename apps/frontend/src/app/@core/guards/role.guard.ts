@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { ActivatedRouteSnapshot, CanActivate } from '@angular/router';
-import { LocalUserService } from '../data/local-user.service';
+import { LocalUserService } from '@momentum/frontend/data';
 import { NbToastrService } from '@nebular/theme';
 
 @Injectable({

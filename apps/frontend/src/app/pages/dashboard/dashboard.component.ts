@@ -1,8 +1,8 @@
 import { Component, OnInit } from '@angular/core';
 import { NbMenuItem } from '@nebular/theme';
 import { MENU_ITEMS } from './dashboard-menu';
-import { LocalUserService } from '../../@core/data/local-user.service';
-import { NotificationsService } from '../../@core/utils/notifications.service';
+import { NotificationsService } from '../../services/notifications.service';
+import { LocalUserService } from '@momentum/frontend/data';
 
 @Component({
   selector: 'mom-dashboard',

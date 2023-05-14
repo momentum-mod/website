@@ -1,5 +1,5 @@
+import { Role } from '@momentum/constants';
 import { NbMenuItem } from '@nebular/theme';
-import { Role } from '../../@core/models/role.model';
 
 export const MENU_ITEMS: NbMenuItem[] = [
   {

@@ -1,8 +1,8 @@
 import { Component } from '@angular/core';
 import { NbDialogService, NbToastrService } from '@nebular/theme';
-import { AdminService } from '../../../../@core/data/admin.service';
 import { ConfirmDialogComponent } from '../../../../@theme/components/confirm-dialog/confirm-dialog.component';
 import { FormControl, FormGroup } from '@angular/forms';
+import { AdminService } from '@momentum/frontend/data';
 
 @Component({
   selector: 'mom-utilities',

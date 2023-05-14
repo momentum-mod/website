@@ -1,6 +1,7 @@
 ﻿import { PaginationQuery } from './pagination.model';
+import { Query } from './query.interface';
 
-export interface AdminCreateUserQuery {
+export interface AdminCreateUserQuery extends Query {
   alias: string;
 }
 

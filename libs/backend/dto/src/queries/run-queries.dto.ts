@@ -15,8 +15,9 @@ import {
   StringQueryProperty,
   TakeQueryProperty
 } from '../decorators';
+import { QueryDto } from './query.dto';
 
-export class RunsGetAllQueryDto implements RunsGetAllQuery {
+export class RunsGetAllQueryDto extends QueryDto implements RunsGetAllQuery {
   @SkipQueryProperty(0)
   skip = 0;
 
@@ -30,32 +31,32 @@ export class RunsGetAllQueryDto implements RunsGetAllQuery {
     'rank',
     'zoneStats'
   ])
-  readonly expand: string[];
+  expand: string[];
 
   @IntQueryProperty({ description: 'Filter by map ID' })
-  readonly mapID: number;
+  mapID: number;
 
   @StringQueryProperty({ required: false, description: 'Filter by map name' })
-  readonly mapName: string;
+  mapName: string;
 
   // Not sure if these two are supposed to be user IDs or steam IDs. Going to assume userid for now,
   // if I'm wrong do steam ID handling like users/getall does.
   @IntQueryProperty({ description: 'Filter by user ID' })
-  readonly userID: number;
+  userID: number;
 
   @IntCsvQueryProperty({ description: 'Filter by user IDs' })
-  readonly userIDs: number[];
+  userIDs: number[];
 
   @IntQueryProperty({
     description:
       'Filter by run flags (I dont really know what this is, I think a 0.10/0.11 thing -Tom)'
   })
-  readonly flags: number;
+  flags: number;
 
   @BooleanQueryProperty({
     description: 'Whether or not to filter by only personal best runs.'
   })
-  readonly isPB: boolean;
+  isPB: boolean;
 
   @ApiPropertyOptional({
     name: 'order',
@@ -65,7 +66,7 @@ export class RunsGetAllQueryDto implements RunsGetAllQuery {
   })
   @IsString()
   @IsOptional()
-  readonly order: string;
+  order: string;
 }
 
 export class MapsCtlRunsGetAllQueryDto
@@ -76,7 +77,7 @@ export class UserCtlRunsGetAllQueryDto
   extends PickType(RunsGetAllQueryDto, ['userID', 'skip', 'take'] as const)
   implements UserCtlRunsGetAllQuery {}
 
-export class RunsGetQueryDto implements RunsGetQuery {
+export class RunsGetQueryDto extends QueryDto implements RunsGetQuery {
   @ExpandQueryProperty([
     'overallStats',
     'map',

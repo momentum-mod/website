@@ -6,6 +6,7 @@ import { RoleGuard } from '../../../@core/guards/role.guard';
 import { NotFoundDashboardComponent } from '../../not-found/dashboard/not-found-dashboard.component';
 import { NgModule } from '@angular/core';
 import { ProfileComponent } from './profile.component';
+import { Role } from '@momentum/constants';
 
 @NgModule({
   imports: [

@@ -6,9 +6,9 @@ import {
   Output,
   ViewChild
 } from '@angular/core';
-import { UsersService } from '../../../../@core/data/users.service';
-import { User } from '../../../../@core/models/user.model';
 import { FormBuilder, FormGroup } from '@angular/forms';
+import { UsersService } from '@momentum/frontend/data';
+import { User } from '@momentum/types';
 import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
 
 @Component({
@@ -42,7 +42,7 @@ export class UserSearchComponent implements OnInit {
         if (val.length > 0)
           this.usersService
             .getUsers({ params: { search: val, limit: 5 } })
-            .subscribe((resp) => (this.foundUsers = resp.users));
+            .subscribe((resp) => (this.foundUsers = resp.response));
         else this.foundUsers = [];
       });
   }

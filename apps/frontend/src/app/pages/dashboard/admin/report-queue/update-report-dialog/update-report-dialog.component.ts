@@ -1,8 +1,8 @@
 import { Component, Input, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { Report } from '../../../../../@core/models/report.model';
 import { NbDialogRef, NbToastrService } from '@nebular/theme';
-import { AdminService } from '../../../../../@core/data/admin.service';
+import { Report } from '@momentum/types';
+import { AdminService } from '@momentum/frontend/data';
 
 @Component({
   selector: 'mom-update-report-dialog',

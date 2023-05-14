@@ -1,5 +1,5 @@
 import { Component, Input } from '@angular/core';
-import { MomentumMap } from '../../../../../@core/models/momentum-map.model';
+import { Map } from '@momentum/types';
 
 @Component({
   selector: 'mom-map-info-description',
@@ -7,5 +7,5 @@ import { MomentumMap } from '../../../../../@core/models/momentum-map.model';
   styleUrls: ['./map-info-description.component.scss']
 })
 export class MapInfoDescriptionComponent {
-  @Input() map: MomentumMap;
+  @Input() map: Map;
 }

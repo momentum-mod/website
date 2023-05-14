@@ -5,7 +5,7 @@ import { HttpClient } from '@angular/common/http';
 import { Observable, of } from 'rxjs';
 import { Router } from '@angular/router';
 import { map, share } from 'rxjs/operators';
-import { environment } from '../../../environments/environment';
+import { env } from '@momentum/frontend/env';
 
 export interface TokenRefreshResponse {
   accessToken: string;
@@ -23,7 +23,7 @@ export class AuthService {
   }
 
   public logout(): void {
-    this.http.post(environment.auth + '/auth/revoke', {}).subscribe();
+    this.http.post(env.auth + '/auth/revoke', {}).subscribe();
     localStorage.removeItem('accessToken');
     localStorage.removeItem('refreshToken');
     localStorage.removeItem('user');
@@ -42,12 +42,9 @@ export class AuthService {
   }
 
   public removeSocialAuth(authType: string): Observable<any> {
-    return this.http.delete(
-      environment.api + '/api/user/profile/social/' + authType,
-      {
-        responseType: 'text'
-      }
-    );
+    return this.http.delete(env.api + '/api/user/profile/social/' + authType, {
+      responseType: 'text'
+    });
   }
 
   private moveCookieToLocalStorage(cookieName: string): void {
@@ -65,11 +62,12 @@ export class AuthService {
       return of('null');
     }
     return this.http
-      .post(environment.auth + '/auth/refresh', { refreshToken: refreshToken })
+      .post(env.auth + '/auth/refresh', { refreshToken: refreshToken })
       .pipe(
         share(),
-        map((res: TokenRefreshResponse) => {
-          const newAccessToken = res.accessToken;
+        map((res) => {
+          const newAccessToken = (res as TokenRefreshResponse)?.accessToken;
+          if (!newAccessToken) return 'null';
           localStorage.setItem('accessToken', newAccessToken);
           return newAccessToken;
         })
@@ -77,6 +75,6 @@ export class AuthService {
   }
 
   public getAccessToken(): string {
-    return localStorage.getItem('accessToken');
+    return localStorage.getItem('accessToken') ?? '';
   }
 }

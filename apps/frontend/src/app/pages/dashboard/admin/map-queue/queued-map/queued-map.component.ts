@@ -6,10 +6,9 @@ import {
   ViewChild,
   ElementRef
 } from '@angular/core';
-import { MomentumMap } from '../../../../../@core/models/momentum-map.model';
-import { MapUploadStatus } from '../../../../../@core/models/map-upload-status.model';
-import { AdminService } from '../../../../../@core/data/admin.service';
-import { MapsService } from '../../../../../@core/data/maps.service';
+import { MapStatus } from '@momentum/constants';
+import { AdminService, MapsService } from '@momentum/frontend/data';
+import { Map } from '@momentum/types';
 import { NbToastrService } from '@nebular/theme';
 
 @Component({
@@ -18,8 +17,9 @@ import { NbToastrService } from '@nebular/theme';
   styleUrls: ['./queued-map.component.scss']
 })
 export class QueuedMapComponent {
-  MapUploadStatus: typeof MapUploadStatus = MapUploadStatus;
-  @Input() map: MomentumMap;
+  MapUploadStatus: typeof MapStatus = MapStatus;
+  @Input() map: Map;
+  @Output() statusUpdate = new EventEmitter();
   @ViewChild('mapFileDownloadLink', { static: false })
   private mapFileDownloadLink: ElementRef;
 
@@ -28,19 +28,12 @@ export class QueuedMapComponent {
     private mapService: MapsService,
     private toasterService: NbToastrService
   ) {}
-  updateMapStatus(mapID: number, statusFlag: number) {
-    this.adminService
-      .updateMap(mapID, {
-        statusFlag: statusFlag
-      })
-      .subscribe({
-        next: () => this.statusUpdate.emit(),
-        error: (error) =>
-          this.toasterService.danger(
-            error.message,
-            'Failed to update map status'
-          )
-      });
+  updateMapStatus(mapID: number, status: number) {
+    this.adminService.updateMap(mapID, { status }).subscribe({
+      next: () => this.statusUpdate.emit(),
+      error: (error) =>
+        this.toasterService.danger(error.message, 'Failed to update map status')
+    });
   }
 
   onMapFileDownload(mapID: number) {

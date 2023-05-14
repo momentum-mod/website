@@ -1,7 +1,7 @@
 import { Component, Input } from '@angular/core';
+import { ReportType } from '@momentum/constants';
 import { NbDialogService } from '@nebular/theme';
 import { CreateReportDialogComponent } from '../create-report-dialog/create-report-dialog.component';
-import { ReportType } from '../../../../@core/models/report-type.model';
 
 @Component({
   selector: 'mom-report-button',

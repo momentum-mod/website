@@ -10,11 +10,9 @@ import {
   SimpleChanges,
   ViewChild
 } from '@angular/core';
-import { UsersService } from '../../../@core/data/users.service';
-import { MapsService } from '../../../@core/data/maps.service';
-import { User } from '../../../@core/models/user.model';
-import { MomentumMap } from '../../../@core/models/momentum-map.model';
 import { Router } from '@angular/router';
+import { UsersService, MapsService } from '@momentum/frontend/data';
+import { User, Map } from '@momentum/types';
 
 /**
  * search-field-component is used under the hood by nb-search component
@@ -44,7 +42,7 @@ export class SearchFieldComponent implements OnChanges, AfterViewInit {
   static readonly TYPE_MODAL_HALF = 'modal-half';
 
   users: User[] = null;
-  maps: MomentumMap[] = null;
+  maps: Map[] = null;
   onlyUsers = false;
   onlyMaps = false;
 
@@ -118,7 +116,7 @@ export class SearchFieldComponent implements OnChanges, AfterViewInit {
   }
 
   emitClose() {
-    this.close.emit();
+    this.closeSearch.emit();
     this.clearSearchResults();
   }
 
@@ -137,7 +135,7 @@ export class SearchFieldComponent implements OnChanges, AfterViewInit {
             }
           })
           .subscribe((resp) => {
-            this.users = resp.users;
+            this.users = resp.response;
           });
       }
       if (!this.onlyUsers) {
@@ -149,7 +147,7 @@ export class SearchFieldComponent implements OnChanges, AfterViewInit {
             }
           })
           .subscribe((resp) => {
-            this.maps = resp.maps;
+            this.maps = resp.response;
           });
       }
     }

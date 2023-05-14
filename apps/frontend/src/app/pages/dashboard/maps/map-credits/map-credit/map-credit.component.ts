@@ -1,6 +1,4 @@
 import { Component, EventEmitter, Input, Output } from '@angular/core';
-import { User } from '../../../../../@core/models/user.model';
-import { MapCreditType } from '../../../../../@core/models/map-credit-type.model';
 import { CdkDragDrop, moveItemInArray } from '@angular/cdk/drag-drop';
 
 export interface UserSearch {

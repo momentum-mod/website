@@ -4,8 +4,8 @@ import { DashboardComponent } from './dashboard.component';
 import { DashboardHomeComponent } from './home/dashboard-home.component';
 import { NotFoundDashboardComponent } from '../not-found/dashboard/not-found-dashboard.component';
 import { RoleGuard } from '../../@core/guards/role.guard';
-import { Role } from '../../@core/models/role.model';
 import { RunInfoComponent } from './runs/run-info/run-info.component';
+import { Role } from '@momentum/constants';
 
 @NgModule({
   imports: [

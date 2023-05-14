@@ -1,11 +1,10 @@
 import { Component, Input, OnInit } from '@angular/core';
 import { ReplaySubject } from 'rxjs';
-import { User } from '../../../../@core/models/user.model';
-import { LocalUserService } from '../../../../@core/data/local-user.service';
 import { NbDialogService, NbToastrService } from '@nebular/theme';
 import { finalize } from 'rxjs/operators';
-import { UserFollowObject } from '../../../../@core/models/follow.model';
 import { ProfileNotifyEditComponent } from './profile-notify-edit/profile-notify-edit.component';
+import { Follow, User } from '@momentum/types';
+import { LocalUserService } from '@momentum/frontend/data';
 
 @Component({
   selector: 'mom-profile-follow',
@@ -15,9 +14,10 @@ import { ProfileNotifyEditComponent } from './profile-notify-edit/profile-notify
 export class ProfileFollowComponent implements OnInit {
   @Input() userSubj: ReplaySubject<User>;
   user: User;
-  localFollowStatus: UserFollowObject; // The follow object of the local user following target user
-  targetFollowStatus: UserFollowObject; // The follow object of the target user following local user
+  localFollowStatus: Follow; // The follow object of the local user following target user
+  targetFollowStatus: Follow; // The follow object of the target user following local user
   checked: boolean;
+
   constructor(
     private localUserService: LocalUserService,
     private toastService: NbToastrService,
@@ -48,6 +48,7 @@ export class ProfileFollowComponent implements OnInit {
         });
     });
   }
+
   followClick() {
     if (!this.localFollowStatus) {
       this.localUserService.followUser(this.user).subscribe({

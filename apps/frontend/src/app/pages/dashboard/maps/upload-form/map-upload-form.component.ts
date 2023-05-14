@@ -1,23 +1,25 @@
 import { AfterViewInit, Component, OnInit, ViewChild } from '@angular/core';
 import { HttpEvent, HttpEventType } from '@angular/common/http';
 import { Router } from '@angular/router';
-import { MapsService } from '../../../../@core/data/maps.service';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { User } from '../../../../@core/models/user.model';
-import { MapCreditType } from '../../../../@core/models/map-credit-type.model';
-import { MomentumMapType } from '../../../../@core/models/map-type.model';
-import { LocalUserService } from '../../../../@core/data/local-user.service';
-import { MapTrack } from '../../../../@core/models/map-track.model';
 import * as VDF from '@node-steam/vdf';
-import { MapZone } from '../../../../@core/models/map-zone.model';
 import { CreditChangeEvent } from '../map-credits/map-credit/map-credit.component';
-import { MapZoneTrigger } from '../../../../@core/models/map-zone-trigger.model';
-import { MapZoneType } from '../../../../@core/models/map-zone-type.model';
-import { MomentumMapPreview } from '../../../../@core/models/momentum-map-preview.model';
 import { NbToastrService } from '@nebular/theme';
 import { mergeMap } from 'rxjs/operators';
 import { forkJoin, of } from 'rxjs';
 import { FileUploadType } from './file-upload/file-upload.component';
+import {
+  Map,
+  MapCredit,
+  MapImage,
+  MapZoneTrigger,
+  CreateMapTrack,
+  CreateMapZone,
+  CreateMap
+} from '@momentum/types';
+import { LocalUserService, MapsService } from '@momentum/frontend/data';
+import { MapCreditType, MapType, ZoneType } from '@momentum/constants';
+import { PartialDeep } from 'type-fest';
 
 export interface ImageFilePreview {
   dataBlobURL: string;
@@ -47,9 +49,11 @@ export class MapUploadFormComponent implements OnInit, AfterViewInit {
   isUploadingMap: boolean;
   creditArr: User[][];
   inferredMapType: boolean;
-  MapTypes = MomentumMapType;
-  mapPreview: MomentumMapPreview;
-  tracks: MapTrack[];
+  mapPreview: PartialDeep<
+    { map: Map; images: MapImage[] },
+    { recurseIntoArrays: true }
+  >;
+  tracks: CreateMapTrack[];
 
   filesForm: FormGroup = this.fb.group({
     map: ['', [Validators.required, Validators.pattern(/.+(\.bsp)/)]],
@@ -61,7 +65,7 @@ export class MapUploadFormComponent implements OnInit, AfterViewInit {
   });
   infoForm: FormGroup = this.fb.group({
     name: ['', [Validators.required, Validators.maxLength(32)]],
-    type: [MomentumMapType.UNKNOWN, Validators.required],
+    type: [MapType.UNKNOWN, Validators.required],
     description: ['', [Validators.required, Validators.maxLength(1000)]],
     creationDate: [
       new Date(),
@@ -134,19 +138,19 @@ export class MapUploadFormComponent implements OnInit, AfterViewInit {
     const nameVal = this.mapFile.name.replace(/.bsp/g, '').toLowerCase();
     this.name.patchValue(nameVal);
     // Infer type from name
-    let type = MomentumMapType.UNKNOWN;
-    if (nameVal.startsWith('surf_')) type = MomentumMapType.SURF;
-    else if (nameVal.startsWith('bhop_')) type = MomentumMapType.BHOP;
-    else if (nameVal.startsWith('climb_')) type = MomentumMapType.KZ;
-    else if (nameVal.startsWith('rj_')) type = MomentumMapType.RJ;
-    else if (nameVal.startsWith('sj_')) type = MomentumMapType.SJ;
-    else if (nameVal.startsWith('tricksurf_')) type = MomentumMapType.TRICKSURF;
-    else if (nameVal.startsWith('ahop_')) type = MomentumMapType.AHOP;
-    else if (nameVal.startsWith('pk_')) type = MomentumMapType.PARKOUR;
-    else if (nameVal.startsWith('conc_')) type = MomentumMapType.CONC;
-    else if (nameVal.startsWith('dfrag_')) type = MomentumMapType.DEFRAG;
+    let type = MapType.UNKNOWN;
+    if (nameVal.startsWith('surf_')) type = MapType.SURF;
+    else if (nameVal.startsWith('bhop_')) type = MapType.BHOP;
+    else if (nameVal.startsWith('climb_')) type = MapType.KZ;
+    else if (nameVal.startsWith('rj_')) type = MapType.RJ;
+    else if (nameVal.startsWith('sj_')) type = MapType.SJ;
+    else if (nameVal.startsWith('tricksurf_')) type = MapType.TRICKSURF;
+    else if (nameVal.startsWith('ahop_')) type = MapType.AHOP;
+    else if (nameVal.startsWith('pk_')) type = MapType.PARKOUR;
+    else if (nameVal.startsWith('conc_')) type = MapType.CONC;
+    else if (nameVal.startsWith('dfrag_')) type = MapType.DEFRAG;
     this.type.patchValue(type);
-    this.inferredMapType = type !== MomentumMapType.UNKNOWN;
+    this.inferredMapType = type !== MapType.UNKNOWN;
   }
 
   onAvatarFileSelected(file: File) {
@@ -161,16 +165,17 @@ export class MapUploadFormComponent implements OnInit, AfterViewInit {
     this.avatar.patchValue(this.avatarFile.name);
   }
 
-  parseTrack(trackNum: number, track: Object): MapTrack {
-    const trackReturn: MapTrack = {
+  parseTrack(
+    trackNum: number,
+    // TODO: For 0.10.0 zon files, make types for the parsed kv1/kv3 file
+    track: object
+  ): CreateMapTrack {
+    const trackReturn: CreateMapTrack = {
       trackNum: trackNum,
       numZones: 0,
       isLinear: false,
       difficulty: 1,
-      zones: [],
-      stats: {
-        baseStats: {}
-      }
+      zones: []
     };
     // This code is really ugly but I don't wanna mess with it too much.
     // Will rewrite at 0.10.0. - Tom
@@ -179,30 +184,27 @@ export class MapUploadFormComponent implements OnInit, AfterViewInit {
         const zoneNum = Number(zone);
         trackReturn.numZones = Math.max(trackReturn.numZones, zoneNum);
 
-        const zoneMdl: MapZone = {
+        const zoneMdl: CreateMapZone = {
           zoneNum: zoneNum,
-          triggers: [],
-          stats: {
-            baseStats: {}
-          }
+          triggers: []
         };
         for (const trigger in track[zone].triggers) {
           if (track[zone].triggers.hasOwnProperty(trigger)) {
             const triggerObj = track[zone].triggers[trigger];
             if (!trackReturn.isLinear)
               trackReturn.isLinear =
-                triggerObj.type === MapZoneType.ZONE_CHECKPOINT;
-            const zoneMdlTrigger: MapZoneTrigger = {
+                triggerObj.type === ZoneType.ZONE_CHECKPOINT;
+            const zoneMdlTrigger: PartialDeep<MapZoneTrigger> = {
               type: triggerObj.type,
               points: triggerObj.points,
               pointsZPos: triggerObj.pointsZPos,
               pointsHeight: triggerObj.pointsHeight
             };
             if (triggerObj.zoneProps)
-              zoneMdlTrigger.zoneProps = {
+              zoneMdlTrigger.properties = {
                 properties: triggerObj.zoneProps.properties
               };
-            zoneMdl.triggers.push(zoneMdlTrigger);
+            zoneMdl.triggers.push(zoneMdlTrigger as MapZoneTrigger);
           }
         }
         // Old code - wtf is this?
@@ -241,7 +243,7 @@ export class MapUploadFormComponent implements OnInit, AfterViewInit {
     let mapID = -1;
     let uploadLocation = '';
 
-    const mapObject = {
+    const mapObject: CreateMap = {
       name: this.name.value,
       type: this.type.value,
       info: {
@@ -398,10 +400,9 @@ export class MapUploadFormComponent implements OnInit, AfterViewInit {
         name: this.name.value,
         type: this.type.value,
         hash: 'not-important-yet',
-        statusFlag: 0,
+        status: 0,
         info: {
-          id: '0',
-          mapID: 0,
+          id: 0,
           description: this.description.value,
           youtubeID: youtubeIDMatch ? youtubeIDMatch[0] : null,
           numTracks: this.tracks.length,

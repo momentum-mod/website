@@ -1,9 +1,8 @@
 import { Component, Input, OnInit } from '@angular/core';
-import { ReportType } from '../../../../@core/models/report-type.model';
 import { NbDialogRef, NbToastrService } from '@nebular/theme';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { ReportService } from '../../../../@core/data/report.service';
-import { ReportCategory } from '../../../../@core/models/report-category.model';
+import { ReportService } from '@momentum/frontend/data';
+import { ReportCategory, ReportType } from '@momentum/constants';
 
 @Component({
   selector: 'mom-create-report-dialog',

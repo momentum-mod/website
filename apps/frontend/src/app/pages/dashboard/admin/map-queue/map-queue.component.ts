@@ -1,16 +1,16 @@
 import { Component, OnInit } from '@angular/core';
-import { AdminService } from '../../../../@core/data/admin.service';
-import { MomentumMap } from '../../../../@core/models/momentum-map.model';
-import { MapUploadStatus } from '../../../../@core/models/map-upload-status.model';
 import { NbToastrService } from '@nebular/theme';
+import { Map } from '@momentum/types';
+import { AdminService } from '@momentum/frontend/data';
+import { MapStatus } from '@momentum/constants';
 
 @Component({
   templateUrl: './map-queue.component.html',
   styleUrls: ['./map-queue.component.scss']
 })
 export class MapQueueComponent implements OnInit {
-  priorityQueue: MomentumMap[];
-  nonPriorityQueue: MomentumMap[];
+  priorityQueue: Map[];
+  nonPriorityQueue: Map[];
   priorityQueueCount: number;
   nonPriorityQueueCount: number;
   pageLimit: number;
@@ -44,17 +44,17 @@ export class MapQueueComponent implements OnInit {
             this.pageLimit,
           limit: this.pageLimit,
           priority: priority,
-          status: MapUploadStatus.PENDING
+          status: MapStatus.PENDING
         }
       })
       .subscribe({
         next: (response) => {
           if (priority) {
-            this.priorityQueueCount = response.count;
-            this.priorityQueue = response.maps;
+            this.priorityQueueCount = response.totalCount;
+            this.priorityQueue = response.response;
           } else {
-            this.nonPriorityQueueCount = response.count;
-            this.nonPriorityQueue = response.maps;
+            this.nonPriorityQueueCount = response.totalCount;
+            this.nonPriorityQueue = response.response;
           }
         },
         error: (error) => {

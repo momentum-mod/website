@@ -1,7 +1,8 @@
 ﻿import { ActivitiesGetQuery } from './activity-queries.model';
 import { PaginationQuery } from './pagination.model';
+import { Query } from './query.interface';
 
-export interface UsersGetQuery {
+export interface UsersGetQuery extends Query {
   expand: string[];
   mapRank: number;
 }
@@ -9,8 +10,8 @@ export interface UsersGetQuery {
 export interface UsersGetAllQuery extends PaginationQuery {
   expand: string[];
   search: string;
-  steamID: bigint;
-  steamIDs: bigint[];
+  steamID: string;
+  steamIDs: string[];
   mapRank: number;
 }
 

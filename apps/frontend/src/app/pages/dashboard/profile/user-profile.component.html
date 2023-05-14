@@ -86,7 +86,7 @@
                 </div>
               </div>
               <div *ngIf="!hasRole(Role.PLACEHOLDER)">
-                <h4 class="text">Level {{ user.stats?.level }}</h4>
+                <h4 class="text">Level {{ user.userStats?.level }}</h4>
               </div>
             </div>
           </div>
@@ -188,27 +188,27 @@
             </nb-list-item>
           </nb-list>
         </nb-tab>
-        <nb-tab tabTitle="Stats" *ngIf="user.stats">
+        <nb-tab tabTitle="Stats" *ngIf="user.userStats">
           <div class="d-flex flex-wrap justify-content-around text-center">
             <div class="base m-1">
               <h6>Maps Completed</h6>
-              <h2>{{ user.stats.mapsCompleted }}</h2>
+              <h2>{{ user.userStats.mapsCompleted }}</h2>
             </div>
             <div class="base m-1">
               <h6>Total Jumps</h6>
-              <h2>{{ user.stats.totalJumps }}</h2>
+              <h2>{{ user.userStats.totalJumps }}</h2>
             </div>
             <div class="base m-1">
               <h6>Total Strafes</h6>
-              <h2>{{ user.stats.totalStrafes }}</h2>
+              <h2>{{ user.userStats.totalStrafes }}</h2>
             </div>
             <div class="base m-1">
               <h6>Runs Submitted</h6>
-              <h2>{{ user.stats.runsSubmitted }}</h2>
+              <h2>{{ user.userStats.runsSubmitted }}</h2>
             </div>
             <div class="base m-1">
               <h6>Cosmetic XP</h6>
-              <h2>{{ user.stats.cosXP }}</h2>
+              <h2>{{ user.userStats.cosXP }}</h2>
             </div>
           </div>
         </nb-tab>

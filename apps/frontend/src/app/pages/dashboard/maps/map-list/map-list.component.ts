@@ -1,21 +1,23 @@
 import { Component, Input, OnInit } from '@angular/core';
-import { MomentumMap } from '../../../../@core/models/momentum-map.model';
 import { FormBuilder, FormGroup } from '@angular/forms';
-import { MapsService } from '../../../../@core/data/maps.service';
-import { MapAPIQueryParams } from '../../../../@core/models/map-api-query-params.model';
 import { finalize, map } from 'rxjs/operators';
 import { ActivatedRoute, ParamMap } from '@angular/router';
-import { LocalUserService } from '../../../../@core/data/local-user.service';
 import { Observable } from 'rxjs';
 import { NbLayoutScrollService, NbToastrService } from '@nebular/theme';
+import { LocalUserService, MapsService } from '@momentum/frontend/data';
 import {
-  MapUploadStatus,
-  getStatusFromEnum
-} from '../../../../@core/models/map-upload-status.model';
+  MapStatus,
+  MapStatusName,
+  MapType,
+  MapTypeName
+} from '@momentum/constants';
 import {
-  MomentumMapType,
-  getTypeFromEnum
-} from '../../../../@core/models/map-type.model';
+  Map,
+  UserMapFavoritesGetQuery,
+  UserMapLibraryGetQuery,
+  UserMapSubmittedGetQuery
+} from '@momentum/types';
+import { Enum } from '@momentum/enum';
 
 export enum MapListType {
   BROWSE = 'browse',
@@ -36,7 +38,7 @@ export class MapListComponent implements OnInit {
   typeEnums = [];
   requestSent: boolean;
   mapCount: number;
-  maps: MomentumMap[];
+  maps: Map[];
   pageLimit: number;
   currentPage: number;
   noMapsText: string;
@@ -136,7 +138,10 @@ export class MapListComponent implements OnInit {
     });
   }
 
-  genQueryParams(): MapAPIQueryParams {
+  genQueryParams():
+    | UserMapLibraryGetQuery
+    | UserMapFavoritesGetQuery
+    | UserMapSubmittedGetQuery {
     this.lastSearch = this.searchOptions.value;
     const queryParams: MapAPIQueryParams = {
       expand: 'info,submitter,thumbnail,inFavorites,inLibrary',
@@ -209,7 +214,7 @@ export class MapListComponent implements OnInit {
     this.loadMaps();
   }
 
-  isMapInLibrary(m: MomentumMap): boolean {
+  isMapInLibrary(m: Map): boolean {
     return this.type === MapListType.LIBRARY
       ? true
       : m.libraryEntries && m.libraryEntries.length > 0;
@@ -229,7 +234,7 @@ export class MapListComponent implements OnInit {
     }
   }
 
-  isMapInFavorites(m: MomentumMap) {
+  isMapInFavorites(m: Map) {
     return this.type === MapListType.FAVORITES
       ? true
       : m.favorites && m.favorites.length > 0;

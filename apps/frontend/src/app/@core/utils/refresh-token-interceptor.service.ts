@@ -5,9 +5,9 @@ import {
   HttpEvent,
   HttpInterceptor
 } from '@angular/common/http';
-import { AuthService } from '../data/auth.service';
 import { BehaviorSubject, Observable, throwError } from 'rxjs';
 import { catchError, filter, switchMap, take } from 'rxjs/operators';
+import { AuthService } from '@momentum/frontend/data';
 
 @Injectable({ providedIn: 'root' })
 export class RefreshTokenInterceptorService implements HttpInterceptor {

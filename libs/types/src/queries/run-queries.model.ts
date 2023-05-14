@@ -1,4 +1,6 @@
-﻿export interface RunsGetAllQuery {
+﻿import { Query } from './query.interface';
+
+export interface RunsGetAllQuery extends Query {
   skip: number;
   take: number;
   expand: string[];
@@ -17,6 +19,6 @@ export interface MapsCtlRunsGetAllQuery
 export interface UserCtlRunsGetAllQuery
   extends Pick<RunsGetAllQuery, 'userID' | 'skip' | 'take'> {}
 
-export interface RunsGetQuery {
+export interface RunsGetQuery extends Query {
   expand: string[];
 }

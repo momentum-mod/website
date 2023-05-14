@@ -1,9 +1,6 @@
 import { Component, Input, OnDestroy, OnInit } from '@angular/core';
 import { ActivatedRoute, ParamMap, Router } from '@angular/router';
 import { switchMap, takeUntil } from 'rxjs/operators';
-import { MapsService } from '../../../../@core/data/maps.service';
-import { MomentumMap } from '../../../../@core/models/momentum-map.model';
-import { LocalUserService } from '../../../../@core/data/local-user.service';
 import {
   Gallery,
   GalleryRef,
@@ -11,14 +8,13 @@ import {
   ImageItem,
   YoutubeItem
 } from '@ngx-gallery/core';
-import { MapImage } from '../../../../@core/models/map-image.model';
-import { Role } from '../../../../@core/models/role.model';
-import { ReportType } from '../../../../@core/models/report-type.model';
-import { MomentumMapPreview } from '../../../../@core/models/momentum-map-preview.model';
 import { NbDialogService, NbToastrService } from '@nebular/theme';
 import { Subject } from 'rxjs';
-import { MapNotify } from '../../../../@core/models/map-notify.model';
 import { MapNotifyEditComponent } from './map-info-notify-edit/map-info-notify-edit.component';
+import { Map, MapImage, MapNotify } from '@momentum/types';
+import { ReportType } from '@momentum/constants';
+import { LocalUserService, MapsService } from '@momentum/frontend/data';
+import { PartialDeep } from 'type-fest';
 
 @Component({
   selector: 'mom-map-info',
@@ -27,9 +23,12 @@ import { MapNotifyEditComponent } from './map-info-notify-edit/map-info-notify-e
 })
 export class MapInfoComponent implements OnInit, OnDestroy {
   private ngUnsub = new Subject<void>();
-  @Input() previewMap: MomentumMapPreview;
+  @Input() previewMap: PartialDeep<
+    { map: Map; images: MapImage[] },
+    { recurseIntoArrays: true }
+  >;
   protected readonly ReportType = ReportType;
-  map: MomentumMap;
+  map: Map;
   mapNotify: MapNotify;
   mapNotifications: boolean;
   mapInLibrary: boolean;
@@ -79,10 +78,10 @@ export class MapInfoComponent implements OnInit, OnDestroy {
     lightboxRef.setConfig(this.lightboxConfig);
 
     if (this.previewMap) {
-      this.map = this.previewMap.map;
+      this.map = this.previewMap.map as Map;
       this.updateGallery(
         galleryRef,
-        this.previewMap.images,
+        this.previewMap.images as MapImage[],
         this.previewMap.map.info.youtubeID
       );
     } else {

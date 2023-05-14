@@ -18,8 +18,9 @@ import {
   TakeQueryProperty
 } from '../decorators';
 import { PaginationQueryDto } from './pagination.dto';
+import { QueryDto } from './query.dto';
 
-class MapsGetAllBaseQuery {
+class MapsGetAllBaseQuery extends QueryDto {
   @SkipQueryProperty(0)
   skip = 0;
 
@@ -78,7 +79,7 @@ export class MapsCtlGetAllQueryDto
   readonly isLinear: boolean;
 }
 
-export class MapsGetQueryDto implements MapsGetQuery {
+export class MapsGetQueryDto extends QueryDto implements MapsGetQuery {
   @ExpandQueryProperty([
     'info',
     'credits',
@@ -95,7 +96,7 @@ export class MapsGetQueryDto implements MapsGetQuery {
   readonly expand: string[];
 }
 
-export class MapCreditsGetQueryDto implements MapCreditsGetQuery {
+export class MapCreditsGetQueryDto extends QueryDto implements MapCreditsGetQuery {
   @ExpandQueryProperty(['user'])
   readonly expand: string[];
 }
@@ -121,7 +122,7 @@ export class MapRanksGetQueryDto
   readonly orderByDate: boolean;
 }
 
-export class MapRankGetNumberQueryDto implements MapRankGetNumberQuery {
+export class MapRankGetNumberQueryDto extends QueryDto implements MapRankGetNumberQuery {
   @IntQueryProperty({ description: 'Track number', default: 0 })
   readonly trackNum: number;
 

@@ -3,14 +3,14 @@ import { NavigationEnd, Router } from '@angular/router';
 import { filter, finalize } from 'rxjs/operators';
 import { HttpClient } from '@angular/common/http';
 import { Observable, ReplaySubject } from 'rxjs';
-import { SiteNotification } from '../models/notification.model';
-import { AuthService } from '../data/auth.service';
 import { NbToastrService } from '@nebular/theme';
 import { env } from '@momentum/frontend/env';
+import { Notification } from '@momentum/types';
+import { AuthService } from '@momentum/frontend/data';
 
 @Injectable({ providedIn: 'root' })
 export class NotificationsService {
-  notificationsSubject: ReplaySubject<SiteNotification[]>;
+  notificationsSubject: ReplaySubject<Notification[]>;
 
   constructor(
     private router: Router,
@@ -18,7 +18,7 @@ export class NotificationsService {
     private authService: AuthService,
     private toasterService: NbToastrService
   ) {
-    this.notificationsSubject = new ReplaySubject<SiteNotification[]>(1);
+    this.notificationsSubject = new ReplaySubject<Notification[]>(1);
   }
   public inject(): void {
     this.router.events
@@ -36,11 +36,11 @@ export class NotificationsService {
           this.notificationsSubject.next(resp.notifications)
         );
   }
-  get notifications(): Observable<SiteNotification[]> {
+  get notifications(): Observable<Notification[]> {
     return this.notificationsSubject.asObservable();
   }
 
-  markNotificationAsRead(notification: SiteNotification) {
+  markNotificationAsRead(notification: Notification) {
     this.http
       .patch(env.api + '/api/user/notifications/' + notification.id, {
         read: true
@@ -54,7 +54,7 @@ export class NotificationsService {
           )
       });
   }
-  dismissNotification(notif: SiteNotification) {
+  dismissNotification(notif: Notification) {
     this.http
       .delete(env.api + '/api/user/notifications/' + notif.id, {
         responseType: 'text'

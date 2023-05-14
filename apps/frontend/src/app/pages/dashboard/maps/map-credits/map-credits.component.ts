@@ -1,7 +1,7 @@
 import { Component, EventEmitter, Input, Output } from '@angular/core';
-import { User } from '../../../../@core/models/user.model';
-import { MapCreditType } from '../../../../@core/models/map-credit-type.model';
+import { MapCreditType } from '@momentum/constants';
 import { CreditChangeEvent } from './map-credit/map-credit.component';
+import { MapCredit } from '@momentum/types';
 
 @Component({
   selector: 'mom-map-credits',

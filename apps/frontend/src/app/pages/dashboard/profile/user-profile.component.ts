@@ -1,15 +1,11 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
-import { LocalUserService } from '../../../@core/data/local-user.service';
 import { switchMap, takeUntil } from 'rxjs/operators';
 import { ActivatedRoute, ParamMap, Router } from '@angular/router';
-import { UsersService } from '../../../@core/data/users.service';
-import { User } from '../../../@core/models/user.model';
 import { ReplaySubject, Subject } from 'rxjs';
-import { Role } from '../../../@core/models/role.model';
-import { Ban } from '../../../@core/models/ban.model';
-import { UserFollowObject } from '../../../@core/models/follow.model';
-import { ReportType } from '../../../@core/models/report-type.model';
 import { NbToastrService } from '@nebular/theme';
+import { Ban, ReportType, Role } from '@momentum/constants';
+import { Follow, User } from '@momentum/types';
+import { LocalUserService, UsersService } from '@momentum/frontend/data';
 
 @Component({
   selector: 'mom-user-profile',
@@ -21,7 +17,8 @@ export class UserProfileComponent implements OnInit, OnDestroy {
   protected readonly Role = Role;
   protected readonly ReportType = ReportType;
   userSubject: ReplaySubject<User>;
-  user: User;
+  // TODO: Removing types on this for now, add back once socials auth is done!
+  user: any; // User;
   isLocal: boolean;
   isMapper: boolean;
   isVerified: boolean;
@@ -29,8 +26,8 @@ export class UserProfileComponent implements OnInit, OnDestroy {
   isAdmin: boolean;
   avatarUrl: string;
   avatarLoaded: boolean;
-  followingUsers: UserFollowObject[];
-  followedByUsers: UserFollowObject[];
+  followingUsers: Follow[];
+  followedByUsers: Follow[];
 
   constructor(
     private route: ActivatedRoute,

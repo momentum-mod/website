@@ -1,15 +1,8 @@
 import { Component, OnDestroy, OnInit, ViewChild } from '@angular/core';
-import { LocalUserService } from '../../../../@core/data/local-user.service';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { AuthService } from '../../../../@core/data/auth.service';
 import { ActivatedRoute, ParamMap, Router } from '@angular/router';
-import { UsersService } from '../../../../@core/data/users.service';
 import { switchMap, takeUntil } from 'rxjs/operators';
 import { of, Subject } from 'rxjs';
-import { Role } from '../../../../@core/models/role.model';
-import { Ban } from '../../../../@core/models/ban.model';
-import { User } from '../../../../@core/models/user.model';
-import { AdminService } from '../../../../@core/data/admin.service';
 import { ConfirmDialogComponent } from '../../../../@theme/components/confirm-dialog/confirm-dialog.component';
 import {
   NbDialogService,
@@ -17,6 +10,13 @@ import {
   NbToastrService
 } from '@nebular/theme';
 import { env } from '@momentum/frontend/env';
+import { User } from '@momentum/types';
+import {
+  AdminService,
+  AuthService,
+  LocalUserService,
+  UsersService
+} from '@momentum/frontend/data';
 
 @Component({
   selector: 'mom-profile-edit',
@@ -52,7 +52,8 @@ export class ProfileEditComponent implements OnInit, OnDestroy {
     admin: [false]
   });
 
-  user: User;
+  // TODO: Removing types on this for now, add back once socials auth is done!
+  user: any; // User;
   mergeUser: User;
   mergeErr: string;
   isLocal: boolean;

@@ -1,13 +1,12 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { NbMenuItem, NbMenuService, NbSidebarService } from '@nebular/theme';
-import { LocalUserService } from '../../../@core/data/local-user.service';
 import { AnalyticsService } from '../../../@core/utils/analytics.service';
-import { LayoutService } from '../../../@core/data/layout.service';
-import { User } from '../../../@core/models/user.model';
 import { NotificationsService } from '../../../@core/utils/notifications.service';
-import { SiteNotification } from '../../../@core/models/notification.model';
 import { takeUntil } from 'rxjs/operators';
 import { Subject } from 'rxjs';
+import { Notification, User } from '@momentum/types';
+import { LocalUserService } from '@momentum/frontend/data';
+import { LayoutService } from '../../../services/layout.service';
 
 @Component({
   selector: 'ngx-header',
@@ -32,7 +31,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
   ];
 
   user: User;
-  notifications: SiteNotification[];
+  notifications: Notification[];
   numUnreadNotifs: number;
 
   constructor(

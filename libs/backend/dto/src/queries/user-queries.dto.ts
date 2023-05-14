@@ -1,12 +1,13 @@
-﻿import { ApiPropertyOptional, OmitType } from '@nestjs/swagger';
+﻿import { ApiPropertyOptional } from '@nestjs/swagger';
 import { IsInt, IsOptional, IsString } from 'class-validator';
 import { Type } from 'class-transformer';
 import { PaginationQueryDto } from './pagination.dto';
-import { ActivitiesGetQueryDto } from './activity-queries.dto';
 import {
   BigIntQueryProperty,
+  EnumQueryProperty,
   ExpandQueryProperty,
-  IntCsvQueryProperty
+  IntCsvQueryProperty,
+  IntQueryProperty
 } from '../decorators';
 import { IsBigintValidator } from '@momentum/backend/validators';
 import {
@@ -17,8 +18,10 @@ import {
   UsersGetAllQuery,
   UsersGetQuery
 } from '@momentum/types';
+import { QueryDto } from './query.dto';
+import { ActivityType } from '@momentum/constants';
 
-export class UsersGetQueryDto implements UsersGetQuery {
+export class UsersGetQueryDto extends QueryDto implements UsersGetQuery {
   @ExpandQueryProperty(['profile', 'userStats'])
   readonly expand: string[];
 
@@ -56,7 +59,7 @@ export class UsersGetAllQueryDto
   })
   @IsBigintValidator()
   @IsOptional()
-  readonly steamID: bigint;
+  readonly steamID: string;
 
   @IntCsvQueryProperty({
     description: 'Filter by CSV list of Steam Community IDs',
@@ -65,7 +68,7 @@ export class UsersGetAllQueryDto
   })
   @IsBigintValidator({ each: true })
   @IsOptional()
-  readonly steamIDs: bigint[];
+  readonly steamIDs: string[];
 
   @ApiPropertyOptional({
     name: 'mapRank',
@@ -81,8 +84,22 @@ export class UsersGetAllQueryDto
 }
 
 export class UsersGetActivitiesQueryDto
-  extends OmitType(ActivitiesGetQueryDto, ['userID' as const])
-  implements UsersGetActivitiesQuery {}
+  extends PaginationQueryDto
+  implements UsersGetActivitiesQuery
+{
+  @IntQueryProperty({ description: 'Filter by user ID' })
+  readonly userID: number;
+
+  @EnumQueryProperty(ActivityType, {
+    description: 'Types of activities to include'
+  })
+  readonly type: ActivityType;
+
+  @IntQueryProperty({
+    description: 'The ID into the table of the corresponding activity'
+  })
+  readonly data: number;
+}
 
 class UserMapsBaseGetQuery extends PaginationQueryDto {
   @ApiPropertyOptional({

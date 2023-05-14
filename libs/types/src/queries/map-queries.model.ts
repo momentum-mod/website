@@ -1,7 +1,8 @@
 import { MapStatus, MapType } from '@momentum/constants';
 import { PaginationQuery } from './pagination.model';
+import { Query } from './query.interface';
 
-interface MapsGetAllBaseQuery {
+interface MapsGetAllBaseQuery extends Query {
   skip: number;
   take: number;
   search: string;
@@ -22,11 +23,11 @@ export interface MapsCtlGetAllQuery extends MapsGetAllBaseQuery {
   isLinear: boolean;
 }
 
-export interface MapsGetQuery {
+export interface MapsGetQuery extends Query {
   expand: string[];
 }
 
-export interface MapCreditsGetQuery {
+export interface MapCreditsGetQuery extends Query {
   expand: string[];
 }
 
@@ -37,7 +38,7 @@ export interface MapRanksGetQuery extends PaginationQuery {
   orderByDate: boolean;
 }
 
-export interface MapRankGetNumberQuery {
+export interface MapRankGetNumberQuery extends Query {
   trackNum: number;
   zoneNum: number;
   flags: number;

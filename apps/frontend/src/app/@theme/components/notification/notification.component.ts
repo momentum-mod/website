@@ -1,6 +1,6 @@
 import { Component, Input, OnInit } from '@angular/core';
-import { SiteNotification } from '../../../@core/models/notification.model';
-import { NotificationsService } from '../../../@core/utils/notifications.service';
+import { NotificationsService } from '../../../services/notifications.service';
+import { Notification } from '@momentum/types';
 
 @Component({
   selector: 'mom-notifications',
@@ -8,13 +8,13 @@ import { NotificationsService } from '../../../@core/utils/notifications.service
   styleUrls: ['./notification.component.scss']
 })
 export class NotificationComponent implements OnInit {
-  @Input() notifications: SiteNotification[];
+  @Input() notifications: Notification[];
 
   constructor(private notificationService: NotificationsService) {}
 
   // This gets called every time the bell is clicked (to view notifications)
   ngOnInit() {
-    this.notifications.sort((a: SiteNotification, b: SiteNotification) => {
+    this.notifications.sort((a: Notification, b: Notification) => {
       if (!a.read) {
         return !b.read ? 0 : -1;
       } else if (!b.read) {
@@ -26,20 +26,21 @@ export class NotificationComponent implements OnInit {
       }
     });
   }
-  readNotif(notif: SiteNotification) {
+  
+  readNotif(notif: Notification) {
     if (!notif.read) {
       notif.read = true;
       this.notificationService.markNotificationAsRead(notif);
     }
   }
-  onClickNotif(notif: SiteNotification) {
+  onClickNotif(notif: Notification) {
     this.readNotif(notif);
   }
-  onHoverNotif(notif: SiteNotification) {
+  onHoverNotif(notif: Notification) {
     this.readNotif(notif);
   }
 
-  removeNotif(notification: SiteNotification) {
+  removeNotif(notification: Notification) {
     this.notifications.splice(
       this.notifications.findIndex((notif) => notif.id === notification.id),
       1

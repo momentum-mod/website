@@ -1,10 +1,10 @@
 import { Component, Input } from '@angular/core';
-import { Run } from '../../../../../@core/models/run.model';
 import { Router } from '@angular/router';
 import { finalize } from 'rxjs/operators';
-import { RanksService } from '../../../../../@core/data/ranks.service';
-import { UserMapRank } from '../../../../../@core/models/user-map-rank.model';
 import { NbToastrService } from '@nebular/theme';
+import { PagedResponse, Rank, Run } from '@momentum/types';
+import { RanksService } from '@momentum/frontend/data';
+import { Observable } from 'rxjs';
 
 export enum LeaderboardType {
   TOP10 = 1,
@@ -24,10 +24,11 @@ export class MapLeaderboardComponent {
     this.mapID = value;
     this.loadLeaderboardRuns();
   }
+
   filterActive: boolean;
-  leaderboardRanks: UserMapRank[];
+  leaderboardRanks: Rank[];
   searchedRanks: boolean;
-  protected readonly LeaderboardTypeEnum = LeaderboardType;
+  protected readonly LeaderboardType = LeaderboardType;
   filterLeaderboardType: LeaderboardType;
 
   constructor(
@@ -38,7 +39,7 @@ export class MapLeaderboardComponent {
     this.filterActive = false;
     this.searchedRanks = false;
     this.leaderboardRanks = [];
-    this.LeaderboardTypeEnum = LeaderboardType;
+    this.LeaderboardType = LeaderboardType;
     this.filterLeaderboardType = LeaderboardType.TOP10;
   }
 

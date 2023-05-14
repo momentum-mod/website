@@ -11,11 +11,12 @@ The layers of Prisma > Models > Validators/Transformers is quite ugly, and class
 so this will likely be significantly refactored in the future.
 
 The overall structure for this and related libraries works like this:
-- `@momentum/types`: *Only* type definitions such as type aliases and
+
+- `@momentum/types`: _Only_ type definitions such as type aliases and
   interfaces. Essentially, only stuff compiled out during Typescript
   compilation.
 - `@momentum/backend/dto`: DTO layer of the backend containing Typescript
-  *classes* which implement the models in `@momentum/types` and perform
+  _classes_ which implement the models in `@momentum/types` and perform
   runtime transformation and validation.
 - `@momentum/constants`: Similar to `@momentum/types` in that it contain
   no significant logic, but rather contains literal values, rather than

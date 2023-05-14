@@ -1,5 +1,5 @@
 import { Component, Input, OnInit } from '@angular/core';
-import { Activity_Type } from '../../../../../@core/models/activity-type.model';
+import { ActivityType } from '@momentum/constants';
 import { NbDialogRef } from '@nebular/theme';
 
 @Component({
@@ -11,8 +11,8 @@ export class MapNotifyEditComponent implements OnInit {
   @Input() flags: number;
   ActivityType: typeof Activity_Type = Activity_Type;
   checkboxFlags = {
-    PB: { checked: false, value: Activity_Type.PB_ACHIEVED },
-    WR: { checked: false, value: Activity_Type.WR_ACHIEVED }
+    PB: { checked: false, value: ActivityType.PB_ACHIEVED },
+    WR: { checked: false, value: ActivityType.WR_ACHIEVED }
   };
   constructor(protected dialogRef: NbDialogRef<MapNotifyEditComponent>) {}
 

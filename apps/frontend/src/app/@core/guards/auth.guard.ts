@@ -1,14 +1,12 @@
 import { Injectable } from '@angular/core';
 import { ActivatedRouteSnapshot, CanActivate } from '@angular/router';
-import { LocalUserService } from '../data/local-user.service';
+import { LocalUserService } from '@momentum/frontend/data';
 import { env } from '@momentum/frontend/env';
 
 // TODO: CanActivate is deprecated, don't understand ng routing properly yet
 // Come back in future
 // noinspection JSDeprecatedSymbols
-@Injectable({
-  providedIn: 'root'
-})
+@Injectable({ providedIn: 'root' })
 export class AuthGuard implements CanActivate {
   constructor(private userService: LocalUserService) {}
 

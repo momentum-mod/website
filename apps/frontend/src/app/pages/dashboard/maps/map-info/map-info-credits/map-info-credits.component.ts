@@ -1,7 +1,6 @@
 import { Component, Input } from '@angular/core';
-import { MapCredit } from '../../../../../@core/models/map-credit.model';
-import { MapCreditType } from '../../../../../@core/models/map-credit-type.model';
-import { MomentumMap } from '../../../../../@core/models/momentum-map.model';
+import { MapCreditType } from '@momentum/constants';
+import { Map, MapCredit } from '@momentum/types';
 
 @Component({
   selector: 'mom-map-info-credits',
@@ -9,7 +8,7 @@ import { MomentumMap } from '../../../../../@core/models/momentum-map.model';
   styleUrls: ['./map-info-credits.component.scss']
 })
 export class MapInfoCreditsComponent {
-  @Input() map: MomentumMap;
+  @Input() map: Map;
   protected readonly MapCreditType = MapCreditType;
 
   filterMapCredits(

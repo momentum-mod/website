@@ -1,5 +1,5 @@
 import { Component, Input } from '@angular/core';
-import { UserStats } from '../../../../@core/models/user-stats.model';
+import { UserStats } from '@momentum/types';
 
 @Component({
   selector: 'mom-home-stats',
