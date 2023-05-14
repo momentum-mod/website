@@ -72,38 +72,18 @@ export class LocalUserService {
     return user ? (ban & user.bans) !== 0 : false;
   }
 
-  /**
-   * @param options The options for the request
-   * @return specific user's profile
-   */
   public getLocalUser(options?: object): Observable<User> {
     return this.http.get<User>(environment.api + '/api/user', options || {});
   }
 
-  /**
-   *
-   * @param user User with new values of properties
-   * @return response
-   */
   public updateUser(user: User): Observable<any> {
     return this.http.patch(environment.api + '/api/user', user);
   }
 
-  /**
-   * @param options The options for the request
-   * @return a list of map library entries
-   */
-  public getMapLibrary(options?: object): Observable<MapLibrary> {
-    return this.http.get<MapLibrary>(
-      environment.api + '/api/user/maps/library',
       options || {}
     );
   }
 
-  /**
-   * @param mapID ID of a specific map
-   * @return adds map to user library
-   */
   public addMapToLibrary(mapID: number): Observable<any> {
     return this.http.put(
       environment.api + '/api/user/maps/library/' + mapID,
@@ -111,28 +91,16 @@ export class LocalUserService {
     );
   }
 
-  /**
-   * @param mapID ID of a specific map
-   * @return remove map from user library
-   */
   public removeMapFromLibrary(mapID: number): Observable<any> {
     return this.http.delete(
       environment.api + '/api/user/maps/library/' + mapID
     );
   }
 
-  /**
-   * @param mapID ID of a specific map
-   * @return the added map in library
-   */
   public isMapInLibrary(mapID: number): Observable<any> {
     return this.http.get(environment.api + '/api/user/maps/library/' + mapID);
   }
 
-  /**
-   * @param options The options for the request
-   * @return a list of map favorites
-   */
   public getMapFavorites(options?: object): Observable<MapFavorites> {
     return this.http.get<MapFavorites>(
       environment.api + '/api/user/maps/favorites',
@@ -140,19 +108,12 @@ export class LocalUserService {
     );
   }
 
-  /**
-   * @param mapID ID of a specific map
-   * @return a map favorite
-   */
   public getMapFavorite(mapID: number): Observable<MapFavorite> {
     return this.http.get<MapFavorite>(
       environment.api + '/api/user/maps/favorites/' + mapID
     );
   }
 
-  /**
-   * @param mapID
-   */
   public addMapToFavorites(mapID: number): Observable<any> {
     return this.http.put(
       environment.api + '/api/user/maps/favorites/' + mapID,
@@ -160,19 +121,12 @@ export class LocalUserService {
     );
   }
 
-  /**
-   * @param mapID
-   */
   public removeMapFromFavorites(mapID: number): Observable<any> {
     return this.http.delete(
       environment.api + '/api/user/maps/favorites/' + mapID
     );
   }
 
-  /**
-   * @param options An object of options
-   * @return A list of credits featuring the local user
-   */
   public getMapCredits(options?: object): Observable<UserCredits> {
     return this.http.get<UserCredits>(
       environment.api + '/api/user/maps/credits',
@@ -180,10 +134,6 @@ export class LocalUserService {
     );
   }
 
-  /**
-   * @param options
-   * @return retrieve all submitted maps
-   */
   public getSubmittedMaps(options?: object): Observable<MomentumMaps> {
     return this.http.get<MomentumMaps>(
       environment.api + '/api/user/maps/submitted',
@@ -191,29 +141,18 @@ export class LocalUserService {
     );
   }
 
-  /**
-   * @return retrieve summary of the user's submitted maps
-   */
   public getSubmittedMapSummary(): Observable<MapSubmissionSummaryElement[]> {
     return this.http.get<MapSubmissionSummaryElement[]>(
       environment.api + '/api/user/maps/submitted/summary'
     );
   }
 
-  /**
-   * @param user The user to check the follow status of
-   * @return A json object with two booleans determining follow relationship
-   */
   public checkFollowStatus(user: User): Observable<FollowStatus> {
     return this.http.get<FollowStatus>(
       environment.api + '/api/user/follow/' + user.id
     );
   }
 
-  /**
-   * @param user specific user's profile
-   * @return update user following
-   */
   public followUser(user: User): Observable<UserFollowObject> {
     return this.http.post<UserFollowObject>(
       environment.api + '/api/user/follow',
@@ -221,52 +160,30 @@ export class LocalUserService {
     );
   }
 
-  /**
-   * @param user Specific user's profile
-   * @param notifyOn The flags to notify the followee on
-   * @return update the following status on the user's profile
-   */
   public updateFollowStatus(user: User, notifyOn: number): Observable<any> {
     return this.http.patch(environment.api + '/api/user/follow/' + user.id, {
       notifyOn: notifyOn
     });
   }
 
-  /**
-   * @param user specific user's profile
-   * @return user us unfollowed
-   */
   public unfollowUser(user: User): Observable<any> {
     return this.http.delete(environment.api + '/api/user/follow/' + user.id, {
       responseType: 'text'
     });
   }
 
-  /**
-   * @param mapID The map to check if notifications are enabled
-   * @return A json object with the potential map and the activity type for notificaions
-   */
   public checkMapNotify(mapID: number): Observable<MapNotify> {
     return this.http.get<MapNotify>(
       environment.api + '/api/user/notifyMap/' + mapID
     );
   }
 
-  /**
-   * @param mapID The map to create or update notifications for
-   * @param notifyOn The flags to notify the followee on
-   * @return update the map notification status on the user's profile
-   */
   public updateMapNotify(mapID: number, notifyOn: number): Observable<any> {
     return this.http.put(environment.api + '/api/user/notifyMap/' + mapID, {
       notifyOn: notifyOn
     });
   }
 
-  /**
-   * @param mapID The map to disable notificaions for
-   * @return Notifications disabled for map
-   */
   public disableMapNotify(mapID: number): Observable<any> {
     return this.http.delete(environment.api + '/api/user/notifyMap/' + mapID, {
       responseType: 'text'

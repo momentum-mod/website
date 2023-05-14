@@ -9,18 +9,12 @@ import { environment } from '../../../environments/environment';
 export class StatsService {
   constructor(private http: HttpClient) {}
 
-  /**
-   * global base stats
-   */
   getGlobalBaseStats(): Observable<GlobalBaseStats> {
     return this.http.get<GlobalBaseStats>(
       environment.api + '/api/stats/global'
     );
   }
 
-  /**
-   * @return global stats for all maps
-   */
   getGlobalMapStats(): Observable<GlobalMapStats> {
     return this.http.get<GlobalMapStats>(
       environment.api + '/api/stats/global/maps'

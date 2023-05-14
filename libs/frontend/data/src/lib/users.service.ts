@@ -13,18 +13,10 @@ import { environment } from '../../../environments/environment';
 export class UsersService {
   constructor(private http: HttpClient) {}
 
-  /**
-   * @return a list of users
-   */
   getUsers(options?: object): Observable<Users> {
     return this.http.get<Users>(environment.api + '/api/users', options || {});
   }
 
-  /**
-   * @param userID ID of a specific User
-   * @param options The options for the request
-   * @return Retrieves a specific user
-   */
   getUser(userID: number, options?: object): Observable<User> {
     return this.http.get<User>(
       environment.api + '/api/users/' + userID,
@@ -32,20 +24,12 @@ export class UsersService {
     );
   }
 
-  /**
-   * @param user specific user's profile
-   * @return followers of that user
-   */
   getFollowersOfUser(user: User): Observable<Followers> {
     return this.http.get<Followers>(
       environment.api + '/api/users/' + user.id + '/followers'
     );
   }
 
-  /**
-   * @param user specific user's profile
-   * @return the user's following
-   */
   getUserFollows(user: User): Observable<Followed> {
     return this.http.get<Followed>(
       environment.api + '/api/users/' + user.id + '/follows'
