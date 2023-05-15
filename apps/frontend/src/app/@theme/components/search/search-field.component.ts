@@ -53,7 +53,7 @@ export class SearchFieldComponent implements OnChanges, AfterViewInit {
   @Input() hint: string;
   @Input() show = false;
 
-  @Output() close = new EventEmitter();
+  @Output() closeSearch = new EventEmitter();
   @Output() search = new EventEmitter();
 
   @ViewChild('searchInput', { static: false })
