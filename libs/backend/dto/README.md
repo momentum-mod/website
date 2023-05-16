@@ -7,6 +7,9 @@ class-validator-based pattern where classes are declared with properties not
 set in constructors or initializers - they are set by class-transformer's
 `plainToInstance` when they are instantiated.
 
+The layers of Prisma > Models > Validators/Transformers is quite ugly, and class-validator is slow,
+so this will likely be significantly refactored in the future.
+
 The overall structure for this and related libraries works like this:
 - `@momentum/types`: *Only* type definitions such as type aliases and
   interfaces. Essentially, only stuff compiled out during Typescript

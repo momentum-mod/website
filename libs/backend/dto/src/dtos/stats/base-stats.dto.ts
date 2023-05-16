@@ -1,14 +1,13 @@
-﻿import { BaseStats } from '@prisma/client';
+﻿import { BaseStats } from '@momentum/types';
 import { IsInt, IsNumber } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
-import { PrismaModelToDto } from '../../types';
 import {
   CreatedAtProperty,
   IdProperty,
   UpdatedAtProperty
 } from '../../decorators';
 
-export class BaseStatsDto implements PrismaModelToDto<BaseStats> {
+export class BaseStatsDto implements BaseStats {
   @IdProperty({ bigint: true })
   readonly id: number;
 

@@ -1,4 +1,10 @@
-﻿import { ApiPropertyOptional, OmitType, PickType } from '@nestjs/swagger';
+﻿import {
+  MapsCtlRunsGetAllQuery,
+  RunsGetAllQuery,
+  RunsGetQuery,
+  UserCtlRunsGetAllQuery
+} from '@momentum/types';
+import { ApiPropertyOptional, OmitType, PickType } from '@nestjs/swagger';
 import { IsOptional, IsString } from 'class-validator';
 import {
   BooleanQueryProperty,
@@ -10,7 +16,7 @@ import {
   TakeQueryProperty
 } from '../decorators';
 
-export class RunsGetAllQuery {
+export class RunsGetAllQueryDto implements RunsGetAllQuery {
   @SkipQueryProperty(0)
   skip = 0;
 
@@ -62,18 +68,15 @@ export class RunsGetAllQuery {
   readonly order: string;
 }
 
-export class MapsCtlRunsGetAllQuery extends OmitType(RunsGetAllQuery, [
-  'mapID',
-  'mapName'
-] as const) {}
+export class MapsCtlRunsGetAllQueryDto
+  extends OmitType(RunsGetAllQueryDto, ['mapID', 'mapName'] as const)
+  implements MapsCtlRunsGetAllQuery {}
 
-export class UserCtlRunsGetAllQuery extends PickType(RunsGetAllQuery, [
-  'userID',
-  'skip',
-  'take'
-] as const) {}
+export class UserCtlRunsGetAllQueryDto
+  extends PickType(RunsGetAllQueryDto, ['userID', 'skip', 'take'] as const)
+  implements UserCtlRunsGetAllQuery {}
 
-export class RunsGetQuery {
+export class RunsGetQueryDto implements RunsGetQuery {
   @ExpandQueryProperty([
     'overallStats',
     'map',

@@ -189,8 +189,7 @@ async function createRandomMapStats(mapID, baseStatsID) {
       favorites: Random.int(10000),
       completions: Random.int(10000),
       uniqueCompletions: Random.int(10000),
-      timePlayed: Random.int(10000),
-      ...Random.createdUpdatedDates()
+      timePlayed: Random.int(10000)
     }
   });
 }
@@ -224,8 +223,7 @@ async function createRandomMapZone(mapTrackID) {
   return prisma.mapZone.create({
     data: {
       trackID: mapTrackID,
-      zoneNum: Random.int(0, 127),
-      ...Random.createdUpdatedDates()
+      zoneNum: Random.int(0, 127)
     }
   });
 }
@@ -236,8 +234,7 @@ async function createRandomMapZoneStats(mapZoneID, baseStatsID) {
       zoneID: mapZoneID,
       baseStatsID: baseStatsID,
       completions: Random.int(10000),
-      uniqueCompletions: Random.int(10000),
-      ...Random.createdUpdatedDates()
+      uniqueCompletions: Random.int(10000)
     }
   });
 }

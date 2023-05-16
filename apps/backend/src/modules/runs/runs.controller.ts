@@ -12,8 +12,8 @@ import {
   ApiOkPaginatedResponse,
   PaginatedResponseDto,
   RunDto,
-  RunsGetAllQuery,
-  RunsGetQuery
+  RunsGetAllQueryDto,
+  RunsGetQueryDto
 } from '@momentum/backend/dto';
 import { ParseIntSafePipe } from '@momentum/backend/pipes';
 
@@ -27,7 +27,7 @@ export class RunsController {
   @ApiOperation({ summary: 'Returns a paginated list of runs' })
   @ApiOkPaginatedResponse(RunDto, { description: 'Paginated list of runs' })
   getRuns(
-    @Query() query?: RunsGetAllQuery
+    @Query() query?: RunsGetAllQueryDto
   ): Promise<PaginatedResponseDto<RunDto>> {
     return this.runsService.getAll(query);
   }
@@ -44,7 +44,7 @@ export class RunsController {
   @ApiNotFoundResponse({ description: 'Run was not found' })
   getRun(
     @Param('runID', ParseIntSafePipe) runID: number,
-    @Query() query?: RunsGetQuery
+    @Query() query?: RunsGetQueryDto
   ): Promise<RunDto> {
     return this.runsService.get(runID, query.expand);
   }

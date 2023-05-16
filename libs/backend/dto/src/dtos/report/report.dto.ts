@@ -1,8 +1,7 @@
-﻿import { Report } from '@prisma/client';
+﻿import { Report } from '@momentum/types';
 import { ApiProperty, ApiPropertyOptional, PickType } from '@nestjs/swagger';
 import { IsBoolean, IsOptional, IsString } from 'class-validator';
 import { UserDto } from '../user/user.dto';
-import { PrismaModelToDto } from '../../types';
 import {
   CreatedAtProperty,
   EnumProperty,
@@ -12,7 +11,7 @@ import {
 } from '../../decorators';
 import { ReportCategory, ReportType } from '@momentum/constants';
 
-export class ReportDto implements PrismaModelToDto<Report> {
+export class ReportDto implements Report {
   @IdProperty()
   readonly id: number;
 

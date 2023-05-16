@@ -1,17 +1,20 @@
-import { MapImage } from '@prisma/client';
 import { ApiProperty } from '@nestjs/swagger';
 import { IsUrl } from 'class-validator';
-import { Exclude, Expose } from 'class-transformer';
+import { Expose } from 'class-transformer';
 import { Config } from '@momentum/backend/config';
 import {
   CreatedAtProperty,
   IdProperty,
   UpdatedAtProperty
 } from '../../decorators';
+import { MapImage } from '@momentum/types';
 
 export class MapImageDto implements MapImage {
   @IdProperty()
   readonly id: number;
+
+  @IdProperty()
+  readonly mapID: number;
 
   @ApiProperty({
     type: String,
@@ -42,9 +45,6 @@ export class MapImageDto implements MapImage {
   get large(): string {
     return `${Config.storage.endpointUrl}/${Config.storage.bucketName}/${this.id}-large.jpg`;
   }
-
-  @Exclude()
-  readonly mapID: number;
 
   @CreatedAtProperty()
   readonly createdAt: Date;

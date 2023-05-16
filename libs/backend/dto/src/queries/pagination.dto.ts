@@ -1,6 +1,7 @@
-﻿import { SkipQueryProperty, TakeQueryProperty } from '../decorators';
+﻿import { PaginationQuery } from '@momentum/types';
+import { SkipQueryProperty, TakeQueryProperty } from '../decorators';
 
-export class PaginationQuery {
+export class PaginationQueryDto implements PaginationQuery {
   @SkipQueryProperty(0)
   readonly skip = 0;
 

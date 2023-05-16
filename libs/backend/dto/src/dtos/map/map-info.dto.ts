@@ -1,6 +1,6 @@
-﻿import { MapInfo } from '@prisma/client';
-import { Exclude } from 'class-transformer';
+﻿import { CreateMapInfo, MapInfo, UpdateMapInfo } from '@momentum/types';
 import { ApiProperty, PartialType, PickType } from '@nestjs/swagger';
+import { Exclude } from 'class-transformer';
 import {
   IsDateString,
   IsOptional,
@@ -17,6 +17,9 @@ import {
 export class MapInfoDto implements MapInfo {
   @IdProperty()
   readonly id: number;
+
+  @Exclude()
+  readonly mapID: number;
 
   @ApiProperty({
     type: String,
@@ -42,9 +45,6 @@ export class MapInfoDto implements MapInfo {
   @IsDateString()
   readonly creationDate: Date;
 
-  @Exclude()
-  readonly mapID: number;
-
   @CreatedAtProperty()
   readonly createdAt: Date;
 
@@ -52,13 +52,17 @@ export class MapInfoDto implements MapInfo {
   readonly updatedAt: Date;
 }
 
-export class CreateMapInfoDto extends PickType(MapInfoDto, [
-  'description',
-  'youtubeID',
-  'numTracks',
-  'creationDate'
-] as const) {}
+export class CreateMapInfoDto
+  extends PickType(MapInfoDto, [
+    'description',
+    'youtubeID',
+    'numTracks',
+    'creationDate'
+  ] as const)
+  implements CreateMapInfo {}
 
-export class UpdateMapInfoDto extends PartialType(
-  PickType(MapInfoDto, ['description', 'youtubeID', 'creationDate'] as const)
-) {}
+export class UpdateMapInfoDto
+  extends PartialType(
+    PickType(MapInfoDto, ['description', 'youtubeID', 'creationDate'] as const)
+  )
+  implements UpdateMapInfo {}

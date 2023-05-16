@@ -10,11 +10,11 @@ import { FileStoreCloudService } from '../filestore/file-store-cloud.service';
 import {
   DtoFactory,
   ExpandToPrismaIncludes,
-  MapsCtlRunsGetAllQuery,
+  MapsCtlRunsGetAllQueryDto,
   PaginatedResponseDto,
   RunDto,
-  RunsGetAllQuery,
-  UserCtlRunsGetAllQuery
+  RunsGetAllQueryDto,
+  UserCtlRunsGetAllQueryDto
 } from '@momentum/backend/dto';
 
 @Injectable()
@@ -47,13 +47,13 @@ export class RunsService {
   }
 
   async getAll(
-    query: RunsGetAllQuery | MapsCtlRunsGetAllQuery | UserCtlRunsGetAllQuery
+    query: RunsGetAllQueryDto | MapsCtlRunsGetAllQueryDto | UserCtlRunsGetAllQueryDto
   ): Promise<PaginatedResponseDto<RunDto>> {
     const where: Prisma.RunWhereInput = {};
     let include: Prisma.RunInclude = {};
     const orderBy: Prisma.RunOrderByWithRelationInput = {};
 
-    if (query instanceof UserCtlRunsGetAllQuery) {
+    if (query instanceof UserCtlRunsGetAllQueryDto) {
       where.userID = query.userID;
     } else {
       include = {
@@ -73,7 +73,7 @@ export class RunsService {
           'Only one of userID and userIDs may be used at the same time'
         );
 
-      if (!(query instanceof MapsCtlRunsGetAllQuery)) {
+      if (!(query instanceof MapsCtlRunsGetAllQueryDto)) {
         if (query.mapID && query.mapName)
           throw new BadRequestException(
             'Only one of mapID and mapName may be used at the same time'

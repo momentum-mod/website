@@ -1,4 +1,4 @@
-import { Follow } from '@prisma/client';
+import { Follow, FollowStatus, UpdateFollowStatus } from '@momentum/types';
 import { UserDto } from './user.dto';
 import { PickType } from '@nestjs/swagger';
 import { Exclude } from 'class-transformer';
@@ -38,7 +38,7 @@ export class FollowDto implements Follow {
   readonly updatedAt: Date;
 }
 
-export class FollowStatusDto {
+export class FollowStatusDto implements FollowStatus {
   @NestedProperty(FollowDto, {
     required: false,
     description:
@@ -54,6 +54,6 @@ export class FollowStatusDto {
   target?: FollowDto;
 }
 
-export class UpdateFollowStatusDto extends PickType(FollowDto, [
-  'notifyOn'
-] as const) {}
+export class UpdateFollowStatusDto
+  extends PickType(FollowDto, ['notifyOn'] as const)
+  implements UpdateFollowStatus {}

@@ -1,6 +1,6 @@
+import { Run } from '@momentum/types';
 import { UserDto } from '../user/user.dto';
 import { RankDto } from './rank.dto';
-import { Run } from '@prisma/client';
 import { ApiProperty } from '@nestjs/swagger';
 import {
   IsHash,
@@ -15,7 +15,6 @@ import { MapDto } from '../map/map.dto';
 import { BaseStatsDto } from '../stats/base-stats.dto';
 import { RunZoneStatsDto } from './run-zone-stats.dto';
 import { Exclude, Expose } from 'class-transformer';
-import { PrismaModelToDto } from '../../types';
 import {
   CreatedAtProperty,
   IdProperty,
@@ -24,7 +23,7 @@ import {
 } from '../../decorators';
 import { Config } from '@momentum/backend/config';
 
-export class RunDto implements PrismaModelToDto<Run> {
+export class RunDto implements Run {
   @IdProperty({ bigint: true })
   readonly id: number;
 

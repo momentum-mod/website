@@ -1,4 +1,4 @@
-import { MapCredit } from '@prisma/client';
+import { MapCredit, CreateMapCredit, UpdateMapCredit } from '@momentum/types';
 import { UserDto } from '../user/user.dto';
 import { MapDto } from './map.dto';
 import { PickType } from '@nestjs/swagger';
@@ -37,12 +37,11 @@ export class MapCreditDto implements MapCredit {
   readonly updatedAt: Date;
 }
 
-export class CreateMapCreditDto extends PickType(MapCreditDto, [
-  'userID',
-  'type'
-] as const) {}
+export class CreateMapCreditDto
+  extends PickType(MapCreditDto, ['userID', 'type'] as const)
+  implements CreateMapCredit {}
 
-export class UpdateMapCreditDto {
+export class UpdateMapCreditDto implements UpdateMapCredit {
   @IdProperty({ required: false, description: 'The new user ID to set' })
   userID: number;
 

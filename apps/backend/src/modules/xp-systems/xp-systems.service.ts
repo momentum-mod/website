@@ -3,15 +3,15 @@ import {
   UpdateXpSystemsDto,
   XpSystemsDto
 } from '@momentum/backend/dto';
-import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
-import { instanceToPlain } from 'class-transformer';
-import { XpSystemsRepoService } from '../repo/xp-systems-repo.service';
 import {
   CosXpParams,
   RankXpGain,
   RankXpParams,
   XpParams
-} from './xp-systems.interface';
+} from '@momentum/types';
+import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
+import { instanceToPlain } from 'class-transformer';
+import { XpSystemsRepoService } from '../repo/xp-systems-repo.service';
 
 const DEFAULT_RANK_XP: RankXpParams = {
   top10: {

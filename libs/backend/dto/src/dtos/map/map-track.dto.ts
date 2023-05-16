@@ -1,4 +1,4 @@
-﻿import { MapTrack } from '@prisma/client';
+﻿import { CreateMapTrack, MapTrack } from '@momentum/types';
 import { Exclude } from 'class-transformer';
 import { ApiProperty, PickType } from '@nestjs/swagger';
 import {
@@ -53,12 +53,15 @@ export class MapTrackDto implements MapTrack {
   readonly updatedAt: Date;
 }
 
-export class CreateMapTrackDto extends PickType(MapTrackDto, [
-  'trackNum',
-  'isLinear',
-  'numZones',
-  'difficulty'
-] as const) {
+export class CreateMapTrackDto
+  extends PickType(MapTrackDto, [
+    'trackNum',
+    'isLinear',
+    'numZones',
+    'difficulty'
+  ] as const)
+  implements CreateMapTrack
+{
   @NestedProperty(CreateMapZoneDto, { isArray: true })
   @IsArray()
   @ArrayMinSize(2)

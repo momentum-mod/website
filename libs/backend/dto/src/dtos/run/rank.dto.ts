@@ -1,4 +1,4 @@
-import { Rank } from '@prisma/client';
+import { Rank } from '@momentum/types';
 import { ApiProperty } from '@nestjs/swagger';
 import { IsInt, IsOptional, IsPositive } from 'class-validator';
 import { MapDto } from '../map/map.dto';
@@ -11,10 +11,9 @@ import {
   NestedProperty,
   UpdatedAtProperty
 } from '../../decorators';
-import { PrismaModelToDto } from '../../types';
 import { MapType } from '@momentum/constants';
 
-export class RankDto implements PrismaModelToDto<Rank> {
+export class RankDto implements Rank {
   @IdProperty()
   readonly id: number;
 

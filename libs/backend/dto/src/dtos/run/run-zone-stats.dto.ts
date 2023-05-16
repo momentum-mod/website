@@ -1,14 +1,13 @@
-import { RunZoneStats } from '@prisma/client';
+import { RunZoneStats } from '@momentum/types';
 import { ApiProperty } from '@nestjs/swagger';
 import { IsPositive } from 'class-validator';
-import { PrismaModelToDto } from '../../types';
 import {
   CreatedAtProperty,
   IdProperty,
   UpdatedAtProperty
 } from '../../decorators';
 
-export class RunZoneStatsDto implements PrismaModelToDto<RunZoneStats> {
+export class RunZoneStatsDto implements RunZoneStats {
   @ApiProperty()
   readonly id: number;
 

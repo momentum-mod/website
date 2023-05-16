@@ -1,10 +1,10 @@
-﻿import { MapZone } from '@prisma/client';
-import { Exclude } from 'class-transformer';
-import { ApiProperty, PickType } from '@nestjs/swagger';
+﻿import { ApiProperty, PickType } from '@nestjs/swagger';
 import { ArrayMinSize, IsInt, Max } from 'class-validator';
 import { MapZoneTriggerDto } from './map-zone-trigger.dto';
 import { MapZoneStatsDto } from './map-zone-stats.dto';
 import { IdProperty, NestedProperty } from '../../../decorators';
+import { MapZone } from '@momentum/types';
+import { Exclude } from 'class-transformer';
 
 export class MapZoneDto implements MapZone {
   @Exclude()
@@ -23,12 +23,6 @@ export class MapZoneDto implements MapZone {
 
   @NestedProperty(MapZoneTriggerDto, { isArray: true })
   readonly triggers: MapZoneTriggerDto[];
-
-  @Exclude()
-  readonly createdAt: Date;
-
-  @Exclude()
-  readonly updatedAt: Date;
 }
 
 export class CreateMapZoneDto extends PickType(MapZoneDto, [

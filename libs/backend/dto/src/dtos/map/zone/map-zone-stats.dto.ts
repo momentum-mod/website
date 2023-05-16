@@ -1,15 +1,11 @@
-﻿import { MapZoneStats } from '@prisma/client';
-import { Exclude } from 'class-transformer';
-import { ApiProperty } from '@nestjs/swagger';
+﻿import { ApiProperty } from '@nestjs/swagger';
 import { IsInt } from 'class-validator';
 import { BaseStatsDto } from '../../stats/base-stats.dto';
 import { NestedProperty } from '../../../decorators';
-import { PrismaModelToDto } from '../../../types';
+import { MapZoneStats } from '@momentum/types';
+import { Exclude } from 'class-transformer';
 
-export class MapZoneStatsDto implements PrismaModelToDto<MapZoneStats> {
-  @Exclude()
-  readonly id: number;
-
+export class MapZoneStatsDto implements MapZoneStats {
   @ApiProperty()
   @IsInt()
   readonly completions: number;
@@ -18,18 +14,12 @@ export class MapZoneStatsDto implements PrismaModelToDto<MapZoneStats> {
   @IsInt()
   readonly uniqueCompletions: number;
 
+  @NestedProperty(BaseStatsDto, { required: false })
+  readonly baseStats?: BaseStatsDto;
+
   @Exclude()
   readonly zoneID: number;
 
   @Exclude()
   readonly baseStatsID: number;
-
-  @NestedProperty(BaseStatsDto, { required: false })
-  readonly baseStats?: BaseStatsDto;
-
-  @Exclude()
-  readonly createdAt: Date;
-
-  @Exclude()
-  readonly updatedAt: Date;
 }

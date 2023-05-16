@@ -2,7 +2,7 @@ import { Controller, Get, Query } from '@nestjs/common';
 import { ActivitiesService } from './activities.service';
 import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 import {
-  ActivitiesGetQuery,
+  ActivitiesGetQueryDto,
   ActivityDto,
   ApiOkPaginatedResponse,
   PaginatedResponseDto
@@ -20,7 +20,7 @@ export class ActivitiesController {
     description: 'Paginated list of activities'
   })
   getActivities(
-    @Query() query?: ActivitiesGetQuery
+    @Query() query?: ActivitiesGetQueryDto
   ): Promise<PaginatedResponseDto<ActivityDto>> {
     return this.activitiesService.getAll(query);
   }

@@ -1,4 +1,4 @@
-﻿import { Bans } from '@prisma/client';
+﻿import { Bans, UpdateBans } from '@momentum/types';
 import { ApiProperty, OmitType, PartialType } from '@nestjs/swagger';
 import { Exclude } from 'class-transformer';
 import { IsBoolean } from 'class-validator';
@@ -36,6 +36,6 @@ export class BansDto implements Bans {
   readonly userID: number;
 }
 
-export class UpdateBansDto extends PartialType(
-  OmitType(BansDto, ['userID'] as const)
-) {}
+export class UpdateBansDto
+  extends PartialType(OmitType(BansDto, ['userID'] as const))
+  implements UpdateBans {}

@@ -1,4 +1,4 @@
-﻿import { Roles } from '@prisma/client';
+﻿import { Roles, UpdateRoles } from '@momentum/types';
 import { ApiProperty, OmitType, PartialType } from '@nestjs/swagger';
 import { IsBoolean } from 'class-validator';
 import { Exclude } from 'class-transformer';
@@ -32,6 +32,6 @@ export class RolesDto implements Roles {
   readonly userID: number;
 }
 
-export class UpdateRolesDto extends PartialType(
-  OmitType(RolesDto, ['userID'] as const)
-) {}
+export class UpdateRolesDto
+  extends PartialType(OmitType(RolesDto, ['userID'] as const))
+  implements UpdateRoles {}

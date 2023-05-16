@@ -128,6 +128,9 @@ function validate(type, data): ValidationError[] {
 
   // class-validator errors here for "undefined" properties for some bizarre reason.
   // We're getting rid of class-validator eventually anyway.
+  // TODO: We should test better that `excludeExtraneousValues: true` is really
+  // being applied properly, otherwise we could potentially expose a value we
+  // don't want to.
   return validateSync(instance, { forbidUnknownValues: false });
 }
 

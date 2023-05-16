@@ -16,7 +16,7 @@ import { ConfigService } from '@nestjs/config';
 import sharp from 'sharp';
 import { RunsService } from '../runs/runs.service';
 import {
-  AdminCtlMapsGetAllQuery,
+  AdminCtlMapsGetAllQueryDto,
   CreateMapCreditDto,
   CreateMapDto,
   DtoFactory,
@@ -25,7 +25,7 @@ import {
   MapDto,
   MapImageDto,
   MapInfoDto,
-  MapsCtlGetAllQuery,
+  MapsCtlGetAllQueryDto,
   MapTrackDto,
   PaginatedResponseDto,
   UpdateMapCreditDto,
@@ -48,7 +48,7 @@ export class MapsService {
 
   async getAll(
     userID: number,
-    query: MapsCtlGetAllQuery | AdminCtlMapsGetAllQuery
+    query: MapsCtlGetAllQueryDto | AdminCtlMapsGetAllQueryDto
   ): Promise<PaginatedResponseDto<MapDto>> {
     // Old API has some stuff for "status" and "statusNot" and "priority" but isn't in docs or validations or
     // used anywhere in client/game, leaving for now.
@@ -57,7 +57,7 @@ export class MapsService {
     const where: Prisma.MapWhereInput = {};
     if (query.search) where.name = { contains: query.search };
     if (query.submitterID) where.submitterID = query.submitterID;
-    if (query instanceof MapsCtlGetAllQuery) {
+    if (query instanceof MapsCtlGetAllQueryDto) {
       if (query.type) where.type = query.type;
 
       if (query.difficultyHigh && query.difficultyLow)
@@ -77,7 +77,7 @@ export class MapsService {
           ? { is: { ...where.mainTrack.is, isLinear: query.isLinear } }
           : { isLinear: query.isLinear };
     }
-    if (query instanceof AdminCtlMapsGetAllQuery && query.status)
+    if (query instanceof AdminCtlMapsGetAllQueryDto && query.status)
       where.status = query.status;
     // query.priority ignored
 

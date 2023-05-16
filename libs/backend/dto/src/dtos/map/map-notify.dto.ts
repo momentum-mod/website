@@ -1,6 +1,6 @@
 ﻿import { ActivityType } from '@momentum/constants';
+import { MapNotify, UpdateMapNotify } from '@momentum/types';
 import { PickType } from '@nestjs/swagger';
-import { MapNotify } from '@prisma/client';
 import {
   CreatedAtProperty,
   EnumProperty,
@@ -25,6 +25,6 @@ export class MapNotifyDto implements MapNotify {
   readonly updatedAt: Date;
 }
 
-export class UpdateMapNotifyDto extends PickType(MapNotifyDto, [
-  'notifyOn'
-] as const) {}
+export class UpdateMapNotifyDto
+  extends PickType(MapNotifyDto, ['notifyOn'] as const)
+  implements UpdateMapNotify {}

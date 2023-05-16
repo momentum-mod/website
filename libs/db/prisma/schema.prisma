@@ -484,26 +484,20 @@ model MapZone {
   stats    MapZoneStats[]
   triggers MapZoneTrigger[]
 
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
   @@index([trackID, zoneNum])
 }
 
 model MapZoneTrigger {
   id Int @id @default(autoincrement())
 
-  type         Int                       @db.SmallInt
+  type         Int                       @db.SmallInt // Old api says this is int 0-4, probs start/end/cp/stage/?
   pointsHeight Float                     @db.Real
   pointsZPos   Float                     @db.Real
-  points       Json?
+  points       Json? // TODO_0.10: Validate these. On current zone system, should have max 32 values and match /p\d+/
   properties   MapZoneTriggerProperties?
 
   zone   MapZone @relation(fields: [zoneID], references: [id], onDelete: Cascade)
   zoneID Int     @unique
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
 
   @@index([zoneID])
 }
@@ -515,9 +509,6 @@ model MapZoneTriggerProperties {
 
   trigger   MapZoneTrigger @relation(fields: [triggerID], references: [id], onDelete: Cascade)
   triggerID Int            @unique
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
 
   @@index([triggerID])
 }
@@ -533,9 +524,6 @@ model MapZoneStats {
 
   baseStats   BaseStats? @relation(fields: [baseStatsID], references: [id], onDelete: Cascade)
   baseStatsID BigInt?    @unique
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
 
   @@index([baseStatsID, zoneID])
 }
@@ -557,9 +545,6 @@ model MapStats {
 
   baseStats   BaseStats? @relation(fields: [baseStatsID], references: [id], onDelete: Cascade)
   baseStatsID BigInt?    @unique
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
 
   @@index([baseStatsID, mapID])
 }

@@ -10,17 +10,17 @@ import {
   MapSummaryDto,
   NotificationDto,
   PaginatedResponseDto,
-  PaginationQuery,
+  PaginationQueryDto,
   ProfileDto,
   UpdateFollowStatusDto,
   UpdateMapNotifyDto,
   UpdateNotificationDto,
   UpdateUserDto,
   UserDto,
-  UserMapLibraryGetQuery,
-  UserMapSubmittedGetQuery,
-  UsersGetActivitiesQuery,
-  UsersGetQuery
+  UserMapLibraryGetQueryDto,
+  UserMapSubmittedGetQueryDto,
+  UsersGetActivitiesQueryDto,
+  UsersGetQueryDto
 } from '@momentum/backend/dto';
 import { ParseIntSafePipe } from '@momentum/backend/pipes';
 import {
@@ -67,7 +67,7 @@ export class UserController {
   @ApiOkResponse({ type: UserDto, description: 'The logged in user data' })
   getUser(
     @LoggedInUser('id') userID: number,
-    @Query() query?: UsersGetQuery
+    @Query() query?: UsersGetQueryDto
   ): Promise<UserDto> {
     return this.usersService.get(userID, query.expand);
   }
@@ -302,7 +302,7 @@ export class UserController {
   })
   getActivities(
     @LoggedInUser('id') userID: number,
-    @Query() query?: UsersGetActivitiesQuery
+    @Query() query?: UsersGetActivitiesQueryDto
   ): Promise<PaginatedResponseDto<ActivityDto>> {
     return this.usersService.getActivities(
       userID,
@@ -326,7 +326,7 @@ export class UserController {
   })
   getFollowedActivities(
     @LoggedInUser('id') userID: number,
-    @Query() query?: UsersGetActivitiesQuery
+    @Query() query?: UsersGetActivitiesQueryDto
   ): Promise<PaginatedResponseDto<ActivityDto>> {
     return this.usersService.getFollowedActivities(
       userID,
@@ -348,7 +348,7 @@ export class UserController {
   })
   getNotifications(
     @LoggedInUser('id') userID: number,
-    @Query() query?: PaginationQuery
+    @Query() query?: PaginationQueryDto
   ): Promise<PaginatedResponseDto<NotificationDto>> {
     return this.usersService.getNotifications(userID, query.skip, query.take);
   }
@@ -404,7 +404,7 @@ export class UserController {
   })
   getMapLibraryEntry(
     @LoggedInUser('id') userID: number,
-    @Query() query?: UserMapLibraryGetQuery
+    @Query() query?: UserMapLibraryGetQueryDto
   ): Promise<PaginatedResponseDto<MapLibraryEntryDto>> {
     return this.usersService.getMapLibraryEntry(
       userID,
@@ -484,7 +484,7 @@ export class UserController {
   })
   getFavoritedMaps(
     @LoggedInUser('id') userID: number,
-    @Query() query?: UserMapLibraryGetQuery
+    @Query() query?: UserMapLibraryGetQueryDto
   ): Promise<PaginatedResponseDto<MapFavoriteDto>> {
     return this.usersService.getFavoritedMaps(
       userID,
@@ -563,7 +563,7 @@ export class UserController {
   })
   getSubmittedMaps(
     @LoggedInUser('id') userID: number,
-    @Query() query?: UserMapSubmittedGetQuery
+    @Query() query?: UserMapSubmittedGetQueryDto
   ): Promise<PaginatedResponseDto<MapDto>> {
     return this.usersService.getSubmittedMaps(
       userID,

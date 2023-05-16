@@ -1,4 +1,4 @@
-import { Map as MapDB } from '@prisma/client';
+import { CreateMap, Map } from '@momentum/types';
 import { UserDto } from '../user/user.dto';
 import { MapImageDto } from './map-image.dto';
 import { ApiProperty, PickType } from '@nestjs/swagger';
@@ -30,7 +30,7 @@ import {
 import { IsMapName } from '@momentum/backend/validators';
 import { MapStatus, MapType } from '@momentum/constants';
 
-export class MapDto implements MapDB {
+export class MapDto implements Map {
   @IdProperty()
   readonly id: number;
 
@@ -120,7 +120,10 @@ export class MapDto implements MapDB {
 
 export class UpdateMapDto extends PickType(MapDto, ['status'] as const) {}
 
-export class CreateMapDto extends PickType(MapDto, ['name', 'type'] as const) {
+export class CreateMapDto
+  extends PickType(MapDto, ['name', 'type'] as const)
+  implements CreateMap
+{
   @NestedProperty(CreateMapInfoDto, { required: true })
   info: CreateMapInfoDto;
 

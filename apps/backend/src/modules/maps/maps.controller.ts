@@ -47,15 +47,15 @@ import {
   CreateMapCreditDto,
   CreateMapDto,
   MapCreditDto,
-  MapCreditsGetQuery,
+  MapCreditsGetQueryDto,
   MapDto,
   MapImageDto,
   MapInfoDto,
-  MapRankGetNumberQuery,
-  MapRanksGetQuery,
-  MapsCtlGetAllQuery,
-  MapsCtlRunsGetAllQuery,
-  MapsGetQuery,
+  MapRankGetNumberQueryDto,
+  MapRanksGetQueryDto,
+  MapsCtlGetAllQueryDto,
+  MapsCtlRunsGetAllQueryDto,
+  MapsGetQueryDto,
   MapTrackDto,
   PaginatedResponseDto,
   RankDto,
@@ -87,7 +87,7 @@ export class MapsController {
   @ApiOkPaginatedResponse(MapDto, { description: 'Paginated list of maps' })
   getAllMaps(
     @LoggedInUser('id') userID: number,
-    @Query() query?: MapsCtlGetAllQuery
+    @Query() query?: MapsCtlGetAllQueryDto
   ): Promise<PaginatedResponseDto<MapDto>> {
     return this.mapsService.getAll(userID, query);
   }
@@ -131,7 +131,7 @@ export class MapsController {
   getMap(
     @LoggedInUser('id') userID: number,
     @Param('mapID', ParseIntSafePipe) mapID: number,
-    @Query() query?: MapsGetQuery
+    @Query() query?: MapsGetQueryDto
   ): Promise<MapDto> {
     return this.mapsService.get(mapID, userID, query.expand);
   }
@@ -277,7 +277,7 @@ export class MapsController {
   @ApiNotFoundResponse({ description: 'Map not found' })
   getCredits(
     @Param('mapID', ParseIntSafePipe) mapID: number,
-    @Query() query?: MapCreditsGetQuery
+    @Query() query?: MapCreditsGetQueryDto
   ): Promise<MapCreditDto[]> {
     return this.mapsService.getCredits(mapID, query.expand);
   }
@@ -324,7 +324,7 @@ export class MapsController {
   @ApiNotFoundResponse({ description: 'Map credit not found' })
   getCredit(
     @Param('mapCreditID', ParseIntSafePipe) mapCreditID: number,
-    @Query() query?: MapCreditsGetQuery
+    @Query() query?: MapCreditsGetQueryDto
   ): Promise<MapCreditDto> {
     return this.mapsService.getCredit(mapCreditID, query.expand);
   }
@@ -480,7 +480,7 @@ export class MapsController {
   @ApiNotFoundResponse({ description: 'Map not found' })
   getRuns(
     @Param('mapID', ParseIntSafePipe) mapID: number,
-    @Query() query?: MapsCtlRunsGetAllQuery
+    @Query() query?: MapsCtlRunsGetAllQueryDto
   ): Promise<PaginatedResponseDto<RunDto>> {
     return this.runsService.getAll(query);
   }
@@ -679,7 +679,7 @@ export class MapsController {
   @ApiOkResponse({ description: "The found map's ranks" })
   getRanks(
     @Param('mapID', ParseIntSafePipe) mapID: number,
-    @Query() query?: MapRanksGetQuery
+    @Query() query?: MapRanksGetQueryDto
   ): Promise<PaginatedResponseDto<RankDto>> {
     return this.ranksService.getRanks(mapID, query);
   }
@@ -696,7 +696,7 @@ export class MapsController {
   getRanksAround(
     @LoggedInUser('id') userID: number,
     @Param('mapID') mapID: number,
-    @Query() query?: MapRankGetNumberQuery
+    @Query() query?: MapRankGetNumberQueryDto
   ): Promise<RankDto[]> {
     return this.ranksService.getRankAround(userID, mapID, query);
   }
@@ -714,7 +714,7 @@ export class MapsController {
   getRanksFriends(
     @LoggedInUser('steamID') steamID: bigint,
     @Param('mapID') mapID: number,
-    @Query() query?: MapRankGetNumberQuery
+    @Query() query?: MapRankGetNumberQueryDto
   ): Promise<RankDto[]> {
     return this.ranksService.getRankFriends(steamID, mapID, query);
   }
@@ -738,7 +738,7 @@ export class MapsController {
   getRankNumber(
     @Param('mapID', ParseIntSafePipe) mapID: number,
     @Param('rankNumber', ParseIntSafePipe) rankNumber: number,
-    @Query() query?: MapRankGetNumberQuery
+    @Query() query?: MapRankGetNumberQueryDto
   ): Promise<RankDto> {
     return this.ranksService.getRankNumber(mapID, rankNumber, query);
   }

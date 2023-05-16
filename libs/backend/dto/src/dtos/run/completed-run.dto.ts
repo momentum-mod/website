@@ -3,6 +3,7 @@ import { IsBoolean, IsInt } from 'class-validator';
 import { RunDto } from './run.dto';
 import { RankDto } from './rank.dto';
 import { NestedProperty } from '../../decorators';
+import { CompletedRun } from '@momentum/types';
 
 class CosXpGain {
   @ApiProperty({ type: Number, description: 'Integer amount of levels gained' })
@@ -33,7 +34,7 @@ export class XpGainDto {
   readonly cosXP: CosXpGain;
 }
 
-export class CompletedRunDto {
+export class CompletedRunDto implements CompletedRun {
   @ApiProperty({
     description: 'Whether the run is the new world record for this track',
     type: Boolean

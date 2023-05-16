@@ -1,4 +1,4 @@
-﻿import { MapLibraryEntry } from '@prisma/client';
+﻿import { MapLibraryEntry } from '@momentum/types';
 import {
   CreatedAtProperty,
   IdProperty,

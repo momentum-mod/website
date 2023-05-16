@@ -1,7 +1,6 @@
-﻿import { RunSessionTimestamp } from '@prisma/client';
+﻿import { RunSessionTimestamp } from '@momentum/types';
 import { ApiProperty } from '@nestjs/swagger';
 import { IsInt } from 'class-validator';
-import { PrismaModelToDto } from '../../types';
 import {
   CreatedAtProperty,
   IdProperty,
@@ -9,7 +8,7 @@ import {
 } from '../../decorators';
 
 export class RunSessionTimestampDto
-  implements PrismaModelToDto<RunSessionTimestamp>
+  implements RunSessionTimestamp
 {
   @IdProperty({ bigint: true })
   readonly id: number;

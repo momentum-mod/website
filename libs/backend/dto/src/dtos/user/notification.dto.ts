@@ -1,4 +1,4 @@
-﻿import { Notification } from '@prisma/client';
+﻿import { Notification, UpdateNotification } from '@momentum/types';
 import { ApiProperty, PickType } from '@nestjs/swagger';
 import { IsBoolean } from 'class-validator';
 import { ActivityDto } from './activity.dto';
@@ -42,6 +42,6 @@ export class NotificationDto implements Notification {
   readonly updatedAt: Date;
 }
 
-export class UpdateNotificationDto extends PickType(NotificationDto, [
-  'read'
-] as const) {}
+export class UpdateNotificationDto
+  extends PickType(NotificationDto, ['read'] as const)
+  implements UpdateNotification {}

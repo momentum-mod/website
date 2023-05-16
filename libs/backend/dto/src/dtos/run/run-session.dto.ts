@@ -1,14 +1,13 @@
-﻿import { ApiProperty, PickType } from '@nestjs/swagger';
-import { RunSession } from '@prisma/client';
+﻿import { RunSession } from '@momentum/types';
+import { ApiProperty, PickType } from '@nestjs/swagger';
 import { IsInt, IsPositive } from 'class-validator';
 import {
   CreatedAtProperty,
   IdProperty,
   UpdatedAtProperty
 } from '../../decorators';
-import { PrismaModelToDto } from '../../types';
 
-export class RunSessionDto implements PrismaModelToDto<RunSession> {
+export class RunSessionDto implements RunSession {
   @IdProperty({ bigint: true })
   readonly id: number;
 

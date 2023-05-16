@@ -1,4 +1,4 @@
-﻿import { MapFavorite } from '@prisma/client';
+﻿import { MapFavorite } from '@momentum/types';
 import {
   CreatedAtProperty,
   IdProperty,

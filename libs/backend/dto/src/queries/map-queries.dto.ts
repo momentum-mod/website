@@ -1,5 +1,13 @@
 import { MapStatus, MapType } from '@momentum/constants';
 import {
+  AdminCtlMapsGetAllQuery,
+  MapCreditsGetQuery,
+  MapRankGetNumberQuery,
+  MapRanksGetQuery,
+  MapsCtlGetAllQuery,
+  MapsGetQuery
+} from '@momentum/types';
+import {
   BooleanQueryProperty,
   EnumQueryProperty,
   ExpandQueryProperty,
@@ -9,7 +17,7 @@ import {
   StringQueryProperty,
   TakeQueryProperty
 } from '../decorators';
-import { PaginationQuery } from './pagination.dto';
+import { PaginationQueryDto } from './pagination.dto';
 
 class MapsGetAllBaseQuery {
   @SkipQueryProperty(0)
@@ -28,7 +36,10 @@ class MapsGetAllBaseQuery {
   readonly submitterID: number;
 }
 
-export class AdminCtlMapsGetAllQuery extends MapsGetAllBaseQuery {
+export class AdminCtlMapsGetAllQueryDto
+  extends MapsGetAllBaseQuery
+  implements AdminCtlMapsGetAllQuery
+{
   @ExpandQueryProperty(['submitter', 'credits'])
   readonly expand: string[];
 
@@ -39,7 +50,10 @@ export class AdminCtlMapsGetAllQuery extends MapsGetAllBaseQuery {
   readonly priority: boolean;
 }
 
-export class MapsCtlGetAllQuery extends MapsGetAllBaseQuery {
+export class MapsCtlGetAllQueryDto
+  extends MapsGetAllBaseQuery
+  implements MapsCtlGetAllQuery
+{
   @ExpandQueryProperty([
     'submitter',
     'credits',
@@ -64,7 +78,7 @@ export class MapsCtlGetAllQuery extends MapsGetAllBaseQuery {
   readonly isLinear: boolean;
 }
 
-export class MapsGetQuery {
+export class MapsGetQueryDto implements MapsGetQuery {
   @ExpandQueryProperty([
     'info',
     'credits',
@@ -81,12 +95,15 @@ export class MapsGetQuery {
   readonly expand: string[];
 }
 
-export class MapCreditsGetQuery {
+export class MapCreditsGetQueryDto implements MapCreditsGetQuery {
   @ExpandQueryProperty(['user'])
   readonly expand: string[];
 }
 
-export class MapRanksGetQuery extends PaginationQuery {
+export class MapRanksGetQueryDto
+  extends PaginationQueryDto
+  implements MapRanksGetQuery
+{
   @IntQueryProperty({ description: 'Steam ID of player to get rank for' })
   readonly playerID: number;
 
@@ -104,7 +121,7 @@ export class MapRanksGetQuery extends PaginationQuery {
   readonly orderByDate: boolean;
 }
 
-export class MapRankGetNumberQuery {
+export class MapRankGetNumberQueryDto implements MapRankGetNumberQuery {
   @IntQueryProperty({ description: 'Track number', default: 0 })
   readonly trackNum: number;
 

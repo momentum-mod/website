@@ -1,7 +1,7 @@
 # types
 
 A library for type definitions used throughout the repo - in particular for
-models provided by the backend.
+models of the backend's DTOs.
 
 The overall structure for this and related libraries works like this:
 - `@momentum/types`: *Only* type definitions such as type aliases and

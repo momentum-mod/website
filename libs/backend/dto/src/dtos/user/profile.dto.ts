@@ -2,8 +2,9 @@ import { ApiProperty } from '@nestjs/swagger';
 import { IsInt, IsOptional, IsString } from 'class-validator';
 import { Exclude } from 'class-transformer';
 import { CreatedAtProperty, UpdatedAtProperty } from '../../decorators';
+import { Profile } from '@prisma/client';
 
-export class ProfileDto {
+export class ProfileDto implements Profile {
   @Exclude()
   readonly id: number;
 

@@ -1,4 +1,4 @@
-import { User } from '@prisma/client';
+import { User } from '@momentum/types';
 import { ApiProperty, ApiPropertyOptional, PickType } from '@nestjs/swagger';
 import { IsISO31661Alpha2, IsOptional, IsString } from 'class-validator';
 import { Exclude, Expose } from 'class-transformer';

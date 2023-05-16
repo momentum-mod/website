@@ -4,13 +4,13 @@ import {
   FollowDto,
   MapCreditDto,
   PaginatedResponseDto,
-  PaginationQuery,
+  PaginationQueryDto,
   ProfileDto,
   RunDto,
   UserDto,
-  UsersGetActivitiesQuery,
-  UsersGetAllQuery,
-  UsersGetQuery
+  UsersGetActivitiesQueryDto,
+  UsersGetAllQueryDto,
+  UsersGetQueryDto
 } from '@momentum/backend/dto';
 import { ParseIntSafePipe } from '@momentum/backend/pipes';
 import { Controller, Get, Param, Query } from '@nestjs/common';
@@ -46,7 +46,7 @@ export class UsersController {
     description: 'The query contained conflicting parameters'
   })
   getAll(
-    @Query() query?: UsersGetAllQuery
+    @Query() query?: UsersGetAllQueryDto
   ): Promise<PaginatedResponseDto<UserDto>> {
     return this.usersService.getAll(query);
   }
@@ -63,7 +63,7 @@ export class UsersController {
   @ApiNotFoundResponse({ description: 'User was not found' })
   getUser(
     @Param('userID', ParseIntSafePipe) userID: number,
-    @Query() query?: UsersGetQuery
+    @Query() query?: UsersGetQueryDto
   ): Promise<UserDto> {
     return this.usersService.get(userID, query.expand, query.mapRank);
   }
@@ -105,7 +105,7 @@ export class UsersController {
   })
   getActivities(
     @Param('userID', ParseIntSafePipe) userID: number,
-    @Query() query?: UsersGetActivitiesQuery
+    @Query() query?: UsersGetActivitiesQueryDto
   ): Promise<PaginatedResponseDto<ActivityDto>> {
     return this.usersService.getActivities(
       userID,
@@ -133,7 +133,7 @@ export class UsersController {
   })
   getFollowers(
     @Param('userID', ParseIntSafePipe) userID: number,
-    @Query() query?: PaginationQuery
+    @Query() query?: PaginationQueryDto
   ): Promise<PaginatedResponseDto<FollowDto>> {
     return this.usersService.getFollowers(userID, query.skip, query.take);
   }
@@ -151,7 +151,7 @@ export class UsersController {
   })
   getFollowed(
     @Param('userID', ParseIntSafePipe) userID: number,
-    @Query() query: PaginationQuery
+    @Query() query: PaginationQueryDto
   ): Promise<PaginatedResponseDto<FollowDto>> {
     return this.usersService.getFollowing(userID, query.skip, query.take);
   }
@@ -173,7 +173,7 @@ export class UsersController {
   })
   getMapCredits(
     @Param('userID', ParseIntSafePipe) userID: number,
-    @Query() query: PaginationQuery
+    @Query() query: PaginationQueryDto
   ): Promise<PaginatedResponseDto<MapCreditDto>> {
     return this.usersService.getMapCredits(userID, query.skip, query.take);
   }
@@ -195,7 +195,7 @@ export class UsersController {
   })
   getRuns(
     @Param('userID', ParseIntSafePipe) userID: number,
-    @Query() query: PaginationQuery
+    @Query() query: PaginationQueryDto
   ): Promise<PaginatedResponseDto<RunDto>> {
     return this.runsService.getAll({
       userID: userID,

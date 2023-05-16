@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { UsersRepoService } from '../repo/users-repo.service';
 import { Prisma } from '@prisma/client';
 import {
-  ActivitiesGetQuery,
+  ActivitiesGetQueryDto,
   ActivityDto,
   PaginatedResponseDto
 } from '@momentum/backend/dto';
@@ -13,7 +13,7 @@ export class ActivitiesService {
   constructor(private readonly userRepo: UsersRepoService) {}
 
   async getAll(
-    query: ActivitiesGetQuery
+    query: ActivitiesGetQueryDto
   ): Promise<PaginatedResponseDto<ActivityDto>> {
     const where: Prisma.ActivityWhereInput = {};
     if (query.userID) where.userID = query.userID;

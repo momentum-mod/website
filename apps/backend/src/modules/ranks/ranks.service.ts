@@ -9,8 +9,8 @@ import { RunsRepoService } from '../repo/runs-repo.service';
 import { SteamService } from '../steam/steam.service';
 import {
   DtoFactory,
-  MapRankGetNumberQuery,
-  MapRanksGetQuery,
+  MapRankGetNumberQueryDto,
+  MapRanksGetQueryDto,
   PaginatedResponseDto,
   RankDto
 } from '@momentum/backend/dto';
@@ -24,7 +24,7 @@ export class RanksService {
   ) {}
   async getRanks(
     mapID: number,
-    query: MapRanksGetQuery
+    query: MapRanksGetQueryDto
   ): Promise<PaginatedResponseDto<RankDto>> {
     const map = await this.mapRepo.get(mapID);
 
@@ -64,7 +64,7 @@ export class RanksService {
   async getRankNumber(
     mapID: number,
     rankNumber: number,
-    query: MapRankGetNumberQuery
+    query: MapRankGetNumberQueryDto
   ): Promise<RankDto> {
     const map = await this.mapRepo.get(mapID);
 
@@ -100,7 +100,7 @@ export class RanksService {
   async getRankAround(
     userID: number,
     mapID: number,
-    query: MapRankGetNumberQuery
+    query: MapRankGetNumberQueryDto
   ): Promise<RankDto[]> {
     const where: Prisma.RankWhereInput = {
       mapID: mapID,
@@ -149,7 +149,7 @@ export class RanksService {
   async getRankFriends(
     steamID: bigint,
     mapID: number,
-    query: MapRankGetNumberQuery
+    query: MapRankGetNumberQueryDto
   ): Promise<RankDto[]> {
     const map = await this.mapRepo.get(mapID);
 

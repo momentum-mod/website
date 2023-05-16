@@ -1,16 +1,24 @@
 ﻿import { ApiPropertyOptional, OmitType } from '@nestjs/swagger';
 import { IsInt, IsOptional, IsString } from 'class-validator';
 import { Type } from 'class-transformer';
-import { PaginationQuery } from './pagination.dto';
-import { ActivitiesGetQuery } from './activity-queries.dto';
+import { PaginationQueryDto } from './pagination.dto';
+import { ActivitiesGetQueryDto } from './activity-queries.dto';
 import {
   BigIntQueryProperty,
   ExpandQueryProperty,
   IntCsvQueryProperty
 } from '../decorators';
 import { IsBigintValidator } from '@momentum/backend/validators';
+import {
+  UserMapFavoritesGetQuery,
+  UserMapLibraryGetQuery,
+  UserMapSubmittedGetQuery,
+  UsersGetActivitiesQuery,
+  UsersGetAllQuery,
+  UsersGetQuery
+} from '@momentum/types';
 
-export class UsersGetQuery {
+export class UsersGetQueryDto implements UsersGetQuery {
   @ExpandQueryProperty(['profile', 'userStats'])
   readonly expand: string[];
 
@@ -25,7 +33,10 @@ export class UsersGetQuery {
   readonly mapRank: number;
 }
 
-export class UsersGetAllQuery extends PaginationQuery {
+export class UsersGetAllQueryDto
+  extends PaginationQueryDto
+  implements UsersGetAllQuery
+{
   @ExpandQueryProperty(['profile', 'userStats'])
   readonly expand: string[];
 
@@ -69,11 +80,11 @@ export class UsersGetAllQuery extends PaginationQuery {
   readonly mapRank: number;
 }
 
-export class UsersGetActivitiesQuery extends OmitType(ActivitiesGetQuery, [
-  'userID' as const
-]) {}
+export class UsersGetActivitiesQueryDto
+  extends OmitType(ActivitiesGetQueryDto, ['userID' as const])
+  implements UsersGetActivitiesQuery {}
 
-class UserMapsBaseGetQuery extends PaginationQuery {
+class UserMapsBaseGetQuery extends PaginationQueryDto {
   @ApiPropertyOptional({
     name: 'search',
     type: String,
@@ -85,17 +96,26 @@ class UserMapsBaseGetQuery extends PaginationQuery {
   readonly search: string;
 }
 
-export class UserMapLibraryGetQuery extends UserMapsBaseGetQuery {
+export class UserMapLibraryGetQueryDto
+  extends UserMapsBaseGetQuery
+  implements UserMapLibraryGetQuery
+{
   @ExpandQueryProperty(['submitter', 'thumbnail', 'inFavorites'])
   readonly expand: string[];
 }
 
-export class UserMapFavoritesGetQuery extends UserMapsBaseGetQuery {
+export class UserMapFavoritesGetQueryDto
+  extends UserMapsBaseGetQuery
+  implements UserMapFavoritesGetQuery
+{
   @ExpandQueryProperty(['submitter', 'thumbnail', 'inFavorites'])
   readonly expand: string[];
 }
 
-export class UserMapSubmittedGetQuery extends UserMapsBaseGetQuery {
+export class UserMapSubmittedGetQueryDto
+  extends UserMapsBaseGetQuery
+  implements UserMapSubmittedGetQuery
+{
   @ExpandQueryProperty(['info', 'submitter', 'credits'])
   readonly expand: string[];
 }

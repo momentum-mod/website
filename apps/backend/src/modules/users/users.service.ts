@@ -31,7 +31,7 @@ import {
   UpdateNotificationDto,
   UpdateUserDto,
   UserDto,
-  UsersGetAllQuery
+  UsersGetAllQueryDto
 } from '@momentum/backend/dto';
 import { UsersRepoService } from '../repo/users-repo.service';
 import { AuthenticatedUser } from '../auth/auth.interface';
@@ -50,7 +50,7 @@ export class UsersService {
   //#region Main User Functions
 
   async getAll(
-    query: UsersGetAllQuery
+    query: UsersGetAllQueryDto
   ): Promise<PaginatedResponseDto<UserDto>> {
     const where: Prisma.UserWhereInput = {};
 

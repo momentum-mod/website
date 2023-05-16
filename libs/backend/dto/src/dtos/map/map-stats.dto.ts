@@ -1,15 +1,11 @@
-import { MapStats } from '@prisma/client';
 import { ApiProperty } from '@nestjs/swagger';
 import { IsInt, IsNumberString, IsPositive } from 'class-validator';
 import { Exclude } from 'class-transformer';
-import { PrismaModelToDto } from '../../types';
-import {
-  CreatedAtProperty,
-  IdProperty,
-  UpdatedAtProperty
-} from '../../decorators';
+import { IdProperty, NestedProperty } from '../../decorators';
+import { MapStats } from '@momentum/types';
+import { BaseStatsDto } from '../stats/base-stats.dto';
 
-export class MapStatsDto implements PrismaModelToDto<MapStats, 'timePlayed'> {
+export class MapStatsDto implements MapStats {
   @ApiProperty()
   @IsPositive()
   readonly id: number;
@@ -55,9 +51,6 @@ export class MapStatsDto implements PrismaModelToDto<MapStats, 'timePlayed'> {
   @IdProperty({ bigint: true })
   readonly baseStatsID: number;
 
-  @CreatedAtProperty()
-  readonly createdAt: Date;
-
-  @UpdatedAtProperty()
-  readonly updatedAt: Date;
+  @NestedProperty(BaseStatsDto)
+  readonly baseStats: BaseStatsDto;
 }

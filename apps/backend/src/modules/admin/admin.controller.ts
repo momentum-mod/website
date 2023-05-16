@@ -31,8 +31,8 @@ import { Role as RolesEnum } from '@momentum/constants';
 import { XpSystemsService } from '../xp-systems/xp-systems.service';
 import { MapsService } from '../maps/maps.service';
 import {
-  AdminCtlMapsGetAllQuery,
-  AdminGetReportsQuery,
+  AdminCtlMapsGetAllQueryDto,
+  AdminGetReportsQueryDto,
   AdminUpdateUserDto,
   ApiOkPaginatedResponse,
   CreateUserDto,
@@ -147,7 +147,7 @@ export class AdminController {
   @ApiBadRequestResponse({ description: 'Invalid query data' })
   getMaps(
     @LoggedInUser('id') userID: number,
-    @Query() query: AdminCtlMapsGetAllQuery
+    @Query() query: AdminCtlMapsGetAllQueryDto
   ): Promise<PaginatedResponseDto<MapDto>> {
     return this.mapsService.getAll(userID, query);
   }
@@ -198,7 +198,7 @@ export class AdminController {
   })
   @ApiBadRequestResponse({ description: 'Invalid query data' })
   getReports(
-    @Query() query: AdminGetReportsQuery
+    @Query() query: AdminGetReportsQueryDto
   ): Promise<PaginatedResponseDto<ReportDto>> {
     return this.adminService.getReports(query.skip, query.take, query.resolved);
   }

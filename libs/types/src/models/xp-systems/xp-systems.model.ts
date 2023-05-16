@@ -1,25 +1,21 @@
 ﻿import { Prisma } from '@prisma/client';
 
-export interface Top10XpParams extends Prisma.JsonObject {
-  WRPoints: number;
-  rankPercentages: number[];
-}
-export interface FormulaXpParams extends Prisma.JsonObject {
-  A: number;
-  B: number;
-}
-export interface GroupsXpParams extends Prisma.JsonObject {
-  maxGroups: number;
-  groupScaleFactors: number[];
-  groupExponents: number[];
-  groupMinSizes: number[];
-  groupPointPcts: number[]; // How much, of a % of WRPoints, does each group get
-}
-
 export interface RankXpParams extends Prisma.JsonObject {
-  top10: Top10XpParams;
-  formula: FormulaXpParams;
-  groups: GroupsXpParams;
+  top10: {
+    WRPoints: number;
+    rankPercentages: number[];
+  };
+  formula: {
+    A: number;
+    B: number;
+  };
+  groups: {
+    maxGroups: number;
+    groupScaleFactors: number[];
+    groupExponents: number[];
+    groupMinSizes: number[];
+    groupPointPcts: number[]; // How much, of a % of WRPoints, does each group get
+  };
 }
 
 export interface CosXpParams extends Prisma.JsonObject {
@@ -67,3 +63,5 @@ export interface RankXpGain {
     groupNum: number; // What group they're in
   };
 }
+
+export interface UpdateXpSystems extends Pick<XpParams, 'cosXP' | 'rankXP'> {}

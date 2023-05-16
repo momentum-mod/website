@@ -1,8 +1,7 @@
-import { Activity } from '@prisma/client';
+import { Activity } from '@momentum/types';
 import { ActivityType } from '@momentum/constants';
 import { IsPositive } from 'class-validator';
 import { UserDto } from './user.dto';
-import { PrismaModelToDto } from '../../types';
 import {
   CreatedAtProperty,
   EnumProperty,
@@ -11,7 +10,7 @@ import {
   UpdatedAtProperty
 } from '../../decorators';
 
-export class ActivityDto implements PrismaModelToDto<Activity> {
+export class ActivityDto implements Activity {
   @IdProperty()
   readonly id: number;
 
