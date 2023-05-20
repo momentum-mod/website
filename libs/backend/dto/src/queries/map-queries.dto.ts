@@ -17,7 +17,7 @@ import {
   StringQueryProperty,
   TakeQueryProperty
 } from '../decorators';
-import { PaginationQueryDto } from './pagination.dto';
+import { PagedQueryDto } from './pagination.dto';
 import { QueryDto } from './query.dto';
 
 class MapsGetAllBaseQuery extends QueryDto {
@@ -96,13 +96,16 @@ export class MapsGetQueryDto extends QueryDto implements MapsGetQuery {
   readonly expand: string[];
 }
 
-export class MapCreditsGetQueryDto extends QueryDto implements MapCreditsGetQuery {
+export class MapCreditsGetQueryDto
+  extends QueryDto
+  implements MapCreditsGetQuery
+{
   @ExpandQueryProperty(['user'])
   readonly expand: string[];
 }
 
 export class MapRanksGetQueryDto
-  extends PaginationQueryDto
+  extends PagedQueryDto
   implements MapRanksGetQuery
 {
   @IntQueryProperty({ description: 'Steam ID of player to get rank for' })
@@ -122,7 +125,10 @@ export class MapRanksGetQueryDto
   readonly orderByDate: boolean;
 }
 
-export class MapRankGetNumberQueryDto extends QueryDto implements MapRankGetNumberQuery {
+export class MapRankGetNumberQueryDto
+  extends QueryDto
+  implements MapRankGetNumberQuery
+{
   @IntQueryProperty({ description: 'Track number', default: 0 })
   readonly trackNum: number;
 

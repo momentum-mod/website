@@ -9,8 +9,8 @@ import {
   ApiTags
 } from '@nestjs/swagger';
 import {
-  ApiOkPaginatedResponse,
-  PaginatedResponseDto,
+  ApiOkPagedResponse,
+  PagedResponseDto,
   RunDto,
   RunsGetAllQueryDto,
   RunsGetQueryDto
@@ -25,10 +25,10 @@ export class RunsController {
 
   @Get()
   @ApiOperation({ summary: 'Returns a paginated list of runs' })
-  @ApiOkPaginatedResponse(RunDto, { description: 'Paginated list of runs' })
+  @ApiOkPagedResponse(RunDto, { description: 'Paginated list of runs' })
   getRuns(
     @Query() query?: RunsGetAllQueryDto
-  ): Promise<PaginatedResponseDto<RunDto>> {
+  ): Promise<PagedResponseDto<RunDto>> {
     return this.runsService.getAll(query);
   }
 

@@ -1,7 +1,7 @@
 import { LoggedInUser } from '@momentum/backend/decorators';
 import {
   ActivityDto,
-  ApiOkPaginatedResponse,
+  ApiOkPagedResponse,
   FollowStatusDto,
   MapDto,
   MapFavoriteDto,
@@ -9,8 +9,8 @@ import {
   MapNotifyDto,
   MapSummaryDto,
   NotificationDto,
-  PaginatedResponseDto,
-  PaginationQueryDto,
+  PagedResponseDto,
+  PagedQueryDto,
   ProfileDto,
   UpdateFollowStatusDto,
   UpdateMapNotifyDto,
@@ -297,13 +297,13 @@ export class UserController {
 
   @Get('/activities')
   @ApiOperation({ summary: "Returns all of the local user's activities" })
-  @ApiOkPaginatedResponse(UserDto, {
+  @ApiOkPagedResponse(UserDto, {
     description: "Paginated list of the local user's activites"
   })
   getActivities(
     @LoggedInUser('id') userID: number,
     @Query() query?: UsersGetActivitiesQueryDto
-  ): Promise<PaginatedResponseDto<ActivityDto>> {
+  ): Promise<PagedResponseDto<ActivityDto>> {
     return this.usersService.getActivities(
       userID,
       query.skip,
@@ -321,13 +321,13 @@ export class UserController {
     description: 'Target User ID',
     required: true
   })
-  @ApiOkPaginatedResponse(UserDto, {
+  @ApiOkPagedResponse(UserDto, {
     description: "Paginated list of the activities of the user's followers"
   })
   getFollowedActivities(
     @LoggedInUser('id') userID: number,
     @Query() query?: UsersGetActivitiesQueryDto
-  ): Promise<PaginatedResponseDto<ActivityDto>> {
+  ): Promise<PagedResponseDto<ActivityDto>> {
     return this.usersService.getFollowedActivities(
       userID,
       query.skip,
@@ -343,13 +343,13 @@ export class UserController {
 
   @Get('/notifications')
   @ApiOperation({ summary: "Returns all of the local user's notifications" })
-  @ApiOkPaginatedResponse(NotificationDto, {
+  @ApiOkPagedResponse(NotificationDto, {
     description: "Paginated list of the local user's notifications"
   })
   getNotifications(
     @LoggedInUser('id') userID: number,
-    @Query() query?: PaginationQueryDto
-  ): Promise<PaginatedResponseDto<NotificationDto>> {
+    @Query() query?: PagedQueryDto
+  ): Promise<PagedResponseDto<NotificationDto>> {
     return this.usersService.getNotifications(userID, query.skip, query.take);
   }
 
@@ -399,13 +399,13 @@ export class UserController {
 
   @Get('/maps/library')
   @ApiOperation({ summary: "Returns the maps in the local user's library" })
-  @ApiOkPaginatedResponse(MapLibraryEntryDto, {
+  @ApiOkPagedResponse(MapLibraryEntryDto, {
     description: 'Paginated list of the library entries'
   })
   getMapLibraryEntry(
     @LoggedInUser('id') userID: number,
     @Query() query?: UserMapLibraryGetQueryDto
-  ): Promise<PaginatedResponseDto<MapLibraryEntryDto>> {
+  ): Promise<PagedResponseDto<MapLibraryEntryDto>> {
     return this.usersService.getMapLibraryEntry(
       userID,
       query.skip,
@@ -479,13 +479,13 @@ export class UserController {
 
   @Get('/maps/favorites')
   @ApiOperation({ summary: "Returns the maps in the local user's favorites" })
-  @ApiOkPaginatedResponse(MapFavoriteDto, {
+  @ApiOkPagedResponse(MapFavoriteDto, {
     description: 'Paginated list of favorited maps'
   })
   getFavoritedMaps(
     @LoggedInUser('id') userID: number,
     @Query() query?: UserMapLibraryGetQueryDto
-  ): Promise<PaginatedResponseDto<MapFavoriteDto>> {
+  ): Promise<PagedResponseDto<MapFavoriteDto>> {
     return this.usersService.getFavoritedMaps(
       userID,
       query.skip,
@@ -558,13 +558,13 @@ export class UserController {
 
   @Get('/maps/submitted')
   @ApiOperation({ summary: 'Returns the maps submitted by the local user' })
-  @ApiOkPaginatedResponse(MapDto, {
+  @ApiOkPagedResponse(MapDto, {
     description: 'Paginated list of submitted maps'
   })
   getSubmittedMaps(
     @LoggedInUser('id') userID: number,
     @Query() query?: UserMapSubmittedGetQueryDto
-  ): Promise<PaginatedResponseDto<MapDto>> {
+  ): Promise<PagedResponseDto<MapDto>> {
     return this.usersService.getSubmittedMaps(
       userID,
       query.skip,
@@ -575,7 +575,7 @@ export class UserController {
   }
 
   @Get('/maps/submitted/summary')
-  @ApiOkPaginatedResponse(MapSummaryDto, {
+  @ApiOkPagedResponse(MapSummaryDto, {
     description:
       'The amount of each map submitted by a user of a each possible status'
   })

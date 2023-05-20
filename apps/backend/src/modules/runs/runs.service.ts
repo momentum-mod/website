@@ -11,7 +11,7 @@ import {
   DtoFactory,
   ExpandToPrismaIncludes,
   MapsCtlRunsGetAllQueryDto,
-  PaginatedResponseDto,
+  PagedResponseDto,
   RunDto,
   RunsGetAllQueryDto,
   UserCtlRunsGetAllQueryDto
@@ -47,8 +47,11 @@ export class RunsService {
   }
 
   async getAll(
-    query: RunsGetAllQueryDto | MapsCtlRunsGetAllQueryDto | UserCtlRunsGetAllQueryDto
-  ): Promise<PaginatedResponseDto<RunDto>> {
+    query:
+      | RunsGetAllQueryDto
+      | MapsCtlRunsGetAllQueryDto
+      | UserCtlRunsGetAllQueryDto
+  ): Promise<PagedResponseDto<RunDto>> {
     const where: Prisma.RunWhereInput = {};
     let include: Prisma.RunInclude = {};
     const orderBy: Prisma.RunOrderByWithRelationInput = {};
@@ -103,7 +106,7 @@ export class RunsService {
       orderBy
     );
 
-    return new PaginatedResponseDto(RunDto, dbResponse);
+    return new PagedResponseDto(RunDto, dbResponse);
   }
 
   async getURL(runID: number): Promise<string> {

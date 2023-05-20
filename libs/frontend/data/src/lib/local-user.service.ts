@@ -15,7 +15,7 @@ import {
   User
 } from '@momentum/types';
 import { Role } from '@momentum/constants';
-import { PaginatedResponse } from '@momentum/types'; 
+import { Paged } from '@momentum/types'; 
 import { MapSummary } from "./models/map-summary.model";
 import { FollowStatus } from './models/follow-status.model';
 
@@ -97,8 +97,8 @@ export class LocalUserService {
 
   public getMapLibrary(
     options?: object
-  ): Observable<PaginatedResponse<MapLibraryEntry>> {
-    return this.http.get<PaginatedResponse<MapLibraryEntry>>(
+  ): Observable<Paged<MapLibraryEntry>> {
+    return this.http.get<Paged<MapLibraryEntry>>(
       env.api + '/api/user/maps/library',
       options || {}
     );
@@ -118,8 +118,8 @@ export class LocalUserService {
 
   public getMapFavorites(
     options?: object
-  ): Observable<PaginatedResponse<MapFavorite>> {
-    return this.http.get<PaginatedResponse<MapFavorite>>(
+  ): Observable<Paged<MapFavorite>> {
+    return this.http.get<Paged<MapFavorite>>(
       env.api + '/api/user/maps/favorites',
       options || {}
     );
@@ -139,15 +139,15 @@ export class LocalUserService {
     return this.http.delete(env.api + '/api/user/maps/favorites/' + mapID);
   }
 
-  public getMapCredits(options?: object): Observable<PaginatedResponse<MapCredit>> {
-    return this.http.get<PaginatedResponse<MapCredit>>(
+  public getMapCredits(options?: object): Observable<Paged<MapCredit>> {
+    return this.http.get<Paged<MapCredit>>(
       env.api + '/api/user/maps/credits',
       options || {}
     );
   }
 
-  public getSubmittedMaps(options?: object): Observable<PaginatedResponse<Map>> {
-    return this.http.get<PaginatedResponse<Map>>(
+  public getSubmittedMaps(options?: object): Observable<Paged<Map>> {
+    return this.http.get<Paged<Map>>(
       env.api + '/api/user/maps/submitted',
       options || {}
     );

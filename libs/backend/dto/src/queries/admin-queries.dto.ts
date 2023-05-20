@@ -1,5 +1,5 @@
 ﻿import { BooleanQueryProperty, StringQueryProperty } from '../decorators';
-import { PaginationQueryDto } from './pagination.dto';
+import { PagedQueryDto } from './pagination.dto';
 import { AdminCreateUserQuery, AdminGetReportsQuery } from '@momentum/types';
 import { QueryDto } from './query.dto';
 
@@ -15,7 +15,7 @@ export class AdminCreateUserQueryDto
 }
 
 export class AdminGetReportsQueryDto
-  extends PaginationQueryDto
+  extends PagedQueryDto
   implements AdminGetReportsQuery
 {
   @BooleanQueryProperty({

@@ -4,7 +4,7 @@ import { Prisma } from '@prisma/client';
 import {
   ActivitiesGetQueryDto,
   ActivityDto,
-  PaginatedResponseDto
+  PagedResponseDto
 } from '@momentum/backend/dto';
 import { ActivityType } from '@momentum/constants';
 
@@ -14,7 +14,7 @@ export class ActivitiesService {
 
   async getAll(
     query: ActivitiesGetQueryDto
-  ): Promise<PaginatedResponseDto<ActivityDto>> {
+  ): Promise<PagedResponseDto<ActivityDto>> {
     const where: Prisma.ActivityWhereInput = {};
     if (query.userID) where.userID = query.userID;
 
@@ -29,6 +29,6 @@ export class ActivitiesService {
       query.take
     );
 
-    return new PaginatedResponseDto(ActivityDto, dbResponse);
+    return new PagedResponseDto(ActivityDto, dbResponse);
   }
 }

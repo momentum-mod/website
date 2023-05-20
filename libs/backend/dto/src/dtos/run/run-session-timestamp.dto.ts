@@ -7,9 +7,7 @@ import {
   UpdatedAtProperty
 } from '../../decorators';
 
-export class RunSessionTimestampDto
-  implements RunSessionTimestamp
-{
+export class RunSessionTimestampDto implements RunSessionTimestamp {
   @IdProperty({ bigint: true })
   readonly id: number;
 

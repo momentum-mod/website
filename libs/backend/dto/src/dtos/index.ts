@@ -1,4 +1,4 @@
-export * from './paginated-response.dto';
+export * from './paged-response.dto';
 export * from './auth/jwt-response.dto';
 export * from './auth/refresh-token.dto';
 export * from './map/zone/map-zone.dto';

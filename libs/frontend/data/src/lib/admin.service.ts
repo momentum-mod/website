@@ -3,7 +3,7 @@ import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { Map, Report, User } from '@momentum/types';
 import { env } from '@momentum/frontend/env';
-import { PaginatedResponse } from '@momentum/types';
+import { Paged } from '@momentum/types';
 
 @Injectable({ providedIn: 'root' })
 export class AdminService {
@@ -13,8 +13,8 @@ export class AdminService {
     return this.http.patch(env.api + '/api/admin/maps/' + mapID, map);
   }
 
-  getMaps(context?: object): Observable<PaginatedResponse<Map>> {
-    return this.http.get<PaginatedResponse<Map>>(
+  getMaps(context?: object): Observable<Paged<Map>> {
+    return this.http.get<Paged<Map>>(
       env.api + '/api/admin/maps/',
       context
     );
@@ -32,8 +32,8 @@ export class AdminService {
     });
   }
 
-  getReports(options?: object): Observable<PaginatedResponse<Report>> {
-    return this.http.get<PaginatedResponse<Report>>(
+  getReports(options?: object): Observable<Paged<Report>> {
+    return this.http.get<Paged<Report>>(
       env.api + '/api/admin/reports',
       options || {}
     );

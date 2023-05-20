@@ -4,7 +4,7 @@ import { SchemaObject } from '@nestjs/swagger/dist/interfaces/open-api-spec.inte
 import { IsArray, IsInt } from 'class-validator';
 import { DtoFactory } from '../functions';
 
-export const ApiOkPaginatedResponse = <TModel extends Type>(
+export const ApiOkPagedResponse = <TModel extends Type>(
   model: TModel,
   schema?: SchemaObject
 ) => {
@@ -12,9 +12,9 @@ export const ApiOkPaginatedResponse = <TModel extends Type>(
     ApiOkResponse({
       schema: {
         ...schema,
-        title: `PaginatedResponseOf${model.name}`,
+        title: `PagedResponseOf${model.name}`,
         allOf: [
-          { $ref: getSchemaPath(PaginatedResponseDto) },
+          { $ref: getSchemaPath(PagedResponseDto) },
           {
             properties: {
               response: {
@@ -29,7 +29,7 @@ export const ApiOkPaginatedResponse = <TModel extends Type>(
   );
 };
 
-export class PaginatedResponseDto<T> {
+export class PagedResponseDto<T> {
   @ApiProperty({
     type: Number,
     description: 'The total number of results found'

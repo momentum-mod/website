@@ -43,7 +43,7 @@ import { RanksService } from '../ranks/ranks.service';
 import { RolesGuard } from '../auth/roles.guard';
 import { RunsService } from '../runs/runs.service';
 import {
-  ApiOkPaginatedResponse,
+  ApiOkPagedResponse,
   CreateMapCreditDto,
   CreateMapDto,
   MapCreditDto,
@@ -57,7 +57,7 @@ import {
   MapsCtlRunsGetAllQueryDto,
   MapsGetQueryDto,
   MapTrackDto,
-  PaginatedResponseDto,
+  PagedResponseDto,
   RankDto,
   RunDto,
   UpdateMapCreditDto,
@@ -84,11 +84,11 @@ export class MapsController {
 
   @Get()
   @ApiOperation({ summary: 'Returns all maps' })
-  @ApiOkPaginatedResponse(MapDto, { description: 'Paginated list of maps' })
+  @ApiOkPagedResponse(MapDto, { description: 'Paginated list of maps' })
   getAllMaps(
     @LoggedInUser('id') userID: number,
     @Query() query?: MapsCtlGetAllQueryDto
-  ): Promise<PaginatedResponseDto<MapDto>> {
+  ): Promise<PagedResponseDto<MapDto>> {
     return this.mapsService.getAll(userID, query);
   }
 
@@ -270,7 +270,7 @@ export class MapsController {
     description: 'Target Map ID',
     required: true
   })
-  @ApiOkPaginatedResponse(MapCreditDto, {
+  @ApiOkPagedResponse(MapCreditDto, {
     description: "The found map's credits"
   })
   @ApiNotFoundResponse({ description: 'No map credits found' })
@@ -474,14 +474,14 @@ export class MapsController {
     required: true
   })
   @ApiOkResponse({
-    type: PaginatedResponseDto,
+    type: PagedResponseDto,
     description: "The found map's zones"
   })
   @ApiNotFoundResponse({ description: 'Map not found' })
   getRuns(
     @Param('mapID', ParseIntSafePipe) mapID: number,
     @Query() query?: MapsCtlRunsGetAllQueryDto
-  ): Promise<PaginatedResponseDto<RunDto>> {
+  ): Promise<PagedResponseDto<RunDto>> {
     return this.runsService.getAll(query);
   }
 
@@ -680,7 +680,7 @@ export class MapsController {
   getRanks(
     @Param('mapID', ParseIntSafePipe) mapID: number,
     @Query() query?: MapRanksGetQueryDto
-  ): Promise<PaginatedResponseDto<RankDto>> {
+  ): Promise<PagedResponseDto<RankDto>> {
     return this.ranksService.getRanks(mapID, query);
   }
 

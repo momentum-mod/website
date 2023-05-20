@@ -3,7 +3,7 @@ import { Observable } from 'rxjs';
 import { HttpClient, HttpResponse } from '@angular/common/http';
 import { Map, MapCredit, MapImage, MapInfo } from '@momentum/types';
 import { env } from '@momentum/frontend/env';
-import { PaginatedResponse } from '@momentum/types';
+import { Paged } from '@momentum/types';
 
 @Injectable({ providedIn: 'root' })
 export class MapsService {
@@ -13,8 +13,8 @@ export class MapsService {
     return this.http.get<Map>(env.api + '/api/maps/' + id, options || {});
   }
 
-  getMaps(options?: object): Observable<PaginatedResponse<Map>> {
-    return this.http.get<PaginatedResponse<Map>>(
+  getMaps(options?: object): Observable<Paged<Map>> {
+    return this.http.get<Paged<Map>>(
       env.api + '/api/maps',
       options || {}
     );

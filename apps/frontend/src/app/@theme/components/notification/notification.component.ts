@@ -26,7 +26,7 @@ export class NotificationComponent implements OnInit {
       }
     });
   }
-  
+
   readNotif(notif: Notification) {
     if (!notif.read) {
       notif.read = true;

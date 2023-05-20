@@ -1,13 +1,21 @@
-import { Bans, Profile, Rank, Roles,UpdateBans,UpdateRoles, UserStats } from "@momentum/types";
+import {
+  Bans,
+  Profile,
+  Rank,
+  Roles,
+  UpdateBans,
+  UpdateRoles,
+  UserStats
+} from '@momentum/types';
 import { User as PrismaUser } from '@prisma/client';
 
 export interface User extends Omit<PrismaUser, 'avatar'> {
   avatarURL: string;
-   profile?: Profile;
-   userStats?: UserStats;
-   roles?: Roles;
-   bans?: Bans;
-   mapRank?: Rank;
+  profile?: Profile;
+  userStats?: UserStats;
+  roles?: Roles;
+  bans?: Bans;
+  mapRank?: Rank;
 }
 
 export interface CreateUser extends Pick<User, 'alias'> {}

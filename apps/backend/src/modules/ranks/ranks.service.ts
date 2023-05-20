@@ -11,7 +11,7 @@ import {
   DtoFactory,
   MapRankGetNumberQueryDto,
   MapRanksGetQueryDto,
-  PaginatedResponseDto,
+  PagedResponseDto,
   RankDto
 } from '@momentum/backend/dto';
 
@@ -25,7 +25,7 @@ export class RanksService {
   async getRanks(
     mapID: number,
     query: MapRanksGetQueryDto
-  ): Promise<PaginatedResponseDto<RankDto>> {
+  ): Promise<PagedResponseDto<RankDto>> {
     const map = await this.mapRepo.get(mapID);
 
     if (!map) throw new NotFoundException('Map not found');
@@ -58,7 +58,7 @@ export class RanksService {
 
     this.formatRanksDbResponse(dbResponse[0]);
 
-    return new PaginatedResponseDto(RankDto, dbResponse);
+    return new PagedResponseDto(RankDto, dbResponse);
   }
 
   async getRankNumber(

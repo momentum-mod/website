@@ -1,7 +1,7 @@
 ﻿import { ApiPropertyOptional } from '@nestjs/swagger';
 import { IsInt, IsOptional, IsString } from 'class-validator';
 import { Type } from 'class-transformer';
-import { PaginationQueryDto } from './pagination.dto';
+import { PagedQueryDto } from './pagination.dto';
 import {
   BigIntQueryProperty,
   EnumQueryProperty,
@@ -37,7 +37,7 @@ export class UsersGetQueryDto extends QueryDto implements UsersGetQuery {
 }
 
 export class UsersGetAllQueryDto
-  extends PaginationQueryDto
+  extends PagedQueryDto
   implements UsersGetAllQuery
 {
   @ExpandQueryProperty(['profile', 'userStats'])
@@ -84,7 +84,7 @@ export class UsersGetAllQueryDto
 }
 
 export class UsersGetActivitiesQueryDto
-  extends PaginationQueryDto
+  extends PagedQueryDto
   implements UsersGetActivitiesQuery
 {
   @IntQueryProperty({ description: 'Filter by user ID' })
@@ -101,7 +101,7 @@ export class UsersGetActivitiesQueryDto
   readonly data: number;
 }
 
-class UserMapsBaseGetQuery extends PaginationQueryDto {
+class UserMapsBaseGetQuery extends PagedQueryDto {
   @ApiPropertyOptional({
     name: 'search',
     type: String,

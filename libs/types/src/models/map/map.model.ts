@@ -15,8 +15,7 @@ import {
 import { MapInfo } from '@momentum/types';
 import { MapTrack } from '@momentum/types';
 
-export interface Map
-  extends Omit<PrismaMap, 'thumbnailID' | 'mainTrackID'> {
+export interface Map extends Omit<PrismaMap, 'thumbnailID' | 'mainTrackID'> {
   type: MapType;
   status: MapStatus;
   downloadURL: string;

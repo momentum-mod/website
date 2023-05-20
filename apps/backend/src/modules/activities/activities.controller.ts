@@ -4,8 +4,8 @@ import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 import {
   ActivitiesGetQueryDto,
   ActivityDto,
-  ApiOkPaginatedResponse,
-  PaginatedResponseDto
+  ApiOkPagedResponse,
+  PagedResponseDto
 } from '@momentum/backend/dto';
 
 @Controller('activities')
@@ -16,12 +16,12 @@ export class ActivitiesController {
 
   @Get()
   @ApiOperation({ summary: 'Returns a list of activities' })
-  @ApiOkPaginatedResponse(ActivityDto, {
+  @ApiOkPagedResponse(ActivityDto, {
     description: 'Paginated list of activities'
   })
   getActivities(
     @Query() query?: ActivitiesGetQueryDto
-  ): Promise<PaginatedResponseDto<ActivityDto>> {
+  ): Promise<PagedResponseDto<ActivityDto>> {
     return this.activitiesService.getAll(query);
   }
 }

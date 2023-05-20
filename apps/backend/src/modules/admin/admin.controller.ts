@@ -34,11 +34,11 @@ import {
   AdminCtlMapsGetAllQueryDto,
   AdminGetReportsQueryDto,
   AdminUpdateUserDto,
-  ApiOkPaginatedResponse,
+  ApiOkPagedResponse,
   CreateUserDto,
   MapDto,
   MergeUserDto,
-  PaginatedResponseDto,
+  PagedResponseDto,
   ReportDto,
   UpdateMapDto,
   UpdateReportDto,
@@ -143,12 +143,12 @@ export class AdminController {
 
   @Get('/maps')
   @ApiOperation({ description: 'Retrieve a list of maps' })
-  @ApiOkPaginatedResponse(MapDto, { description: 'Paginated list of maps' })
+  @ApiOkPagedResponse(MapDto, { description: 'Paginated list of maps' })
   @ApiBadRequestResponse({ description: 'Invalid query data' })
   getMaps(
     @LoggedInUser('id') userID: number,
     @Query() query: AdminCtlMapsGetAllQueryDto
-  ): Promise<PaginatedResponseDto<MapDto>> {
+  ): Promise<PagedResponseDto<MapDto>> {
     return this.mapsService.getAll(userID, query);
   }
 
@@ -193,13 +193,13 @@ export class AdminController {
   @Get('/reports')
   @Roles(RolesEnum.ADMIN, RolesEnum.MODERATOR)
   @ApiOperation({ description: 'Retrieve a list of reports' })
-  @ApiOkPaginatedResponse(ReportDto, {
+  @ApiOkPagedResponse(ReportDto, {
     description: 'Paginated list of reports'
   })
   @ApiBadRequestResponse({ description: 'Invalid query data' })
   getReports(
     @Query() query: AdminGetReportsQueryDto
-  ): Promise<PaginatedResponseDto<ReportDto>> {
+  ): Promise<PagedResponseDto<ReportDto>> {
     return this.adminService.getReports(query.skip, query.take, query.resolved);
   }
 

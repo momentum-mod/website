@@ -31,4 +31,4 @@ export * from './user/user-maps-summary.model';
 export * from './stats/base-stats.model';
 export * from './report/report.model';
 export * from './xp-systems/xp-systems.model';
-export * from './paginated-response.model';
+export * from './paged-response.model';

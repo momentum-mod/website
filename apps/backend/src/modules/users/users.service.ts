@@ -24,7 +24,7 @@ import {
   MapNotifyDto,
   MapSummaryDto,
   NotificationDto,
-  PaginatedResponseDto,
+  PagedResponseDto,
   ProfileDto,
   UpdateFollowStatusDto,
   UpdateMapNotifyDto,
@@ -49,9 +49,7 @@ export class UsersService {
 
   //#region Main User Functions
 
-  async getAll(
-    query: UsersGetAllQueryDto
-  ): Promise<PaginatedResponseDto<UserDto>> {
+  async getAll(query: UsersGetAllQueryDto): Promise<PagedResponseDto<UserDto>> {
     const where: Prisma.UserWhereInput = {};
 
     if (query.steamID && query.steamIDs)
@@ -94,7 +92,7 @@ export class UsersService {
       }
     }
 
-    return new PaginatedResponseDto(UserDto, dbResponse);
+    return new PagedResponseDto(UserDto, dbResponse);
   }
 
   async get(id: number, expand?: string[], mapRank?: number): Promise<UserDto> {
@@ -283,7 +281,7 @@ export class UsersService {
     take?: number,
     type?: ActivityType,
     data?: number
-  ): Promise<PaginatedResponseDto<ActivityDto>> {
+  ): Promise<PagedResponseDto<ActivityDto>> {
     const where: Prisma.ActivityWhereInput = {
       userID: userID,
       AND: [{ type: type }, { type: { not: ActivityType.REPORT_FILED } }],
@@ -292,7 +290,7 @@ export class UsersService {
 
     const dbResponse = await this.userRepo.getActivities(where, skip, take);
 
-    return new PaginatedResponseDto(ActivityDto, dbResponse);
+    return new PagedResponseDto(ActivityDto, dbResponse);
   }
 
   async getFollowedActivities(
@@ -301,7 +299,7 @@ export class UsersService {
     take?: number,
     type?: ActivityType,
     data?: number
-  ): Promise<PaginatedResponseDto<ActivityDto>> {
+  ): Promise<PagedResponseDto<ActivityDto>> {
     const follows = await this.userRepo.getFollowing(userID);
 
     const following = follows[0].map((follow) => follow.followedID);
@@ -316,7 +314,7 @@ export class UsersService {
 
     const dbResponse = await this.userRepo.getActivities(where, skip, take);
 
-    return new PaginatedResponseDto(ActivityDto, dbResponse);
+    return new PagedResponseDto(ActivityDto, dbResponse);
   }
 
   //#endregion
@@ -327,20 +325,20 @@ export class UsersService {
     id: number,
     skip?: number,
     take?: number
-  ): Promise<PaginatedResponseDto<FollowDto>> {
+  ): Promise<PagedResponseDto<FollowDto>> {
     const dbResponse = await this.userRepo.getFollowers(id, skip, take);
 
-    return new PaginatedResponseDto(FollowDto, dbResponse);
+    return new PagedResponseDto(FollowDto, dbResponse);
   }
 
   async getFollowing(
     id: number,
     skip?: number,
     take?: number
-  ): Promise<PaginatedResponseDto<FollowDto>> {
+  ): Promise<PagedResponseDto<FollowDto>> {
     const dbResponse = await this.userRepo.getFollowing(id, skip, take);
 
-    return new PaginatedResponseDto(FollowDto, dbResponse);
+    return new PagedResponseDto(FollowDto, dbResponse);
   }
 
   async getFollowStatus(
@@ -418,10 +416,10 @@ export class UsersService {
     userID: number,
     skip?: number,
     take?: number
-  ): Promise<PaginatedResponseDto<NotificationDto>> {
+  ): Promise<PagedResponseDto<NotificationDto>> {
     const dbResponse = await this.userRepo.getNotifications(userID, skip, take);
 
-    return new PaginatedResponseDto(NotificationDto, dbResponse);
+    return new PagedResponseDto(NotificationDto, dbResponse);
   }
 
   async updateNotification(
@@ -462,7 +460,7 @@ export class UsersService {
     take: number,
     search: string,
     expand: string[]
-  ): Promise<PaginatedResponseDto<MapLibraryEntryDto>> {
+  ): Promise<PagedResponseDto<MapLibraryEntryDto>> {
     const include: { map: Prisma.MapArgs; user: boolean } = {
       map: {
         include: ExpandToPrismaIncludes(
@@ -486,7 +484,7 @@ export class UsersService {
       take
     );
 
-    return new PaginatedResponseDto(MapLibraryEntryDto, dbResponse);
+    return new PagedResponseDto(MapLibraryEntryDto, dbResponse);
   }
 
   async addMapLibraryEntry(userID: number, mapID: number) {
@@ -534,7 +532,7 @@ export class UsersService {
       take
     );
 
-    return new PaginatedResponseDto(MapFavoriteDto, dbResponse);
+    return new PagedResponseDto(MapFavoriteDto, dbResponse);
   }
 
   async checkFavoritedMap(userID: number, mapID: number) {
@@ -638,7 +636,7 @@ export class UsersService {
       take
     );
 
-    return new PaginatedResponseDto(MapDto, submittedMapsRes);
+    return new PagedResponseDto(MapDto, submittedMapsRes);
   }
 
   async getSubmittedMapsSummary(userID: number): Promise<MapSummaryDto[]> {
@@ -662,10 +660,10 @@ export class UsersService {
     id: number,
     skip?: number,
     take?: number
-  ): Promise<PaginatedResponseDto<MapCreditDto>> {
+  ): Promise<PagedResponseDto<MapCreditDto>> {
     const dbResponse = await this.userRepo.getMapCredits(id, skip, take);
 
-    return new PaginatedResponseDto(MapCreditDto, dbResponse);
+    return new PagedResponseDto(MapCreditDto, dbResponse);
   }
 
   //#endregion

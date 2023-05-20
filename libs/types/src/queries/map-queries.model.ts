@@ -1,5 +1,5 @@
 import { MapStatus, MapType } from '@momentum/constants';
-import { PaginationQuery } from './pagination.model';
+import { PagedQuery } from './pagination.model';
 import { Query } from './query.interface';
 
 interface MapsGetAllBaseQuery extends Query {
@@ -31,7 +31,7 @@ export interface MapCreditsGetQuery extends Query {
   expand: string[];
 }
 
-export interface MapRanksGetQuery extends PaginationQuery {
+export interface MapRanksGetQuery extends PagedQuery {
   playerID: number;
   playerIDs: number[];
   flags: number;

@@ -11,15 +11,9 @@ export class RanksService {
     return this.http.get(`${env.api}/api/maps/${mapID}/ranks`, options);
   }
   getFriendsRanks(mapID: number, options: object): Observable<any> {
-    return this.http.get(
-      `${env.api}/api/maps/${mapID}/ranks/friends`,
-      options
-    );
+    return this.http.get(`${env.api}/api/maps/${mapID}/ranks/friends`, options);
   }
   getAroundRanks(mapID: number, options: object): Observable<any> {
-    return this.http.get(
-      `${env.api}/api/maps/${mapID}/ranks/around`,
-      options
-    );
+    return this.http.get(`${env.api}/api/maps/${mapID}/ranks/around`, options);
   }
 }

@@ -13,4 +13,4 @@ export * from './lib/layout.service';
 export * from './lib/report.service';
 export * from './lib/twitch-api.service';
 export * from './lib/tumblr-api.service';
-export * from './lib/models/paged-response.model'
+export * from './lib/models/paged-response.model';

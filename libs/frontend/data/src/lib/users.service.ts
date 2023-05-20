@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { env } from '@momentum/frontend/env';
-import { PaginatedResponse, UsersGetQuery } from '@momentum/types';
+import { Paged, UsersGetQuery } from '@momentum/types';
 import { MapCredit, Run, User } from '@momentum/types';
 import { HttpService } from './http.service';
 
@@ -9,22 +9,22 @@ import { HttpService } from './http.service';
 export class UsersService {
   constructor(private http: HttpService) {}
 
-  getUsers(options?: UsersGetQuery): Observable<PaginatedResponse<User>> {
-    return this.http.get<PaginatedResponse<User>>('users', options);
+  getUsers(options?: UsersGetQuery): Observable<Paged<User>> {
+    return this.http.get<Paged<User>>('users', options);
   }
 
   getUser(userID: number, options?: object): Observable<User> {
     return this.http.get<User>(env.api + '/api/users/' + userID, options || {});
   }
 
-  getFollowersOfUser(user: User): Observable<PaginatedResponse<User>> {
-    return this.http.get<PaginatedResponse<User>>(
+  getFollowersOfUser(user: User): Observable<Paged<User>> {
+    return this.http.get<Paged<User>>(
       env.api + '/api/users/' + user.id + '/followers'
     );
   }
 
-  getUserFollows(user: User): Observable<PaginatedResponse<User>> {
-    return this.http.get<PaginatedResponse<User>>(
+  getUserFollows(user: User): Observable<Paged<User>> {
+    return this.http.get<Paged<User>>(
       env.api + '/api/users/' + user.id + '/follows'
     );
   }
@@ -32,8 +32,8 @@ export class UsersService {
   getMapCredits(
     userID: number,
     options?: object
-  ): Observable<PaginatedResponse<MapCredit>> {
-    return this.http.get<PaginatedResponse<MapCredit>>(
+  ): Observable<Paged<MapCredit>> {
+    return this.http.get<Paged<MapCredit>>(
       `${env.api}/api/users/${userID}/credits`,
       options || {}
     );
@@ -42,8 +42,8 @@ export class UsersService {
   getRunHistory(
     userID: number,
     options?: object
-  ): Observable<PaginatedResponse<Run>> {
-    return this.http.get<PaginatedResponse<Run>>(
+  ): Observable<Paged<Run>> {
+    return this.http.get<Paged<Run>>(
       `${env.api}/api/users/${userID}/runs`,
       options || {}
     );

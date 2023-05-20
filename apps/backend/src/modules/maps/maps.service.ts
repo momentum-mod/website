@@ -27,7 +27,7 @@ import {
   MapInfoDto,
   MapsCtlGetAllQueryDto,
   MapTrackDto,
-  PaginatedResponseDto,
+  PagedResponseDto,
   UpdateMapCreditDto,
   UpdateMapDto,
   UpdateMapInfoDto
@@ -49,7 +49,7 @@ export class MapsService {
   async getAll(
     userID: number,
     query: MapsCtlGetAllQueryDto | AdminCtlMapsGetAllQueryDto
-  ): Promise<PaginatedResponseDto<MapDto>> {
+  ): Promise<PagedResponseDto<MapDto>> {
     // Old API has some stuff for "status" and "statusNot" and "priority" but isn't in docs or validations or
     // used anywhere in client/game, leaving for now.
 
@@ -120,7 +120,7 @@ export class MapsService {
         this.handleMapGetPrismaResponse(map, userID, incPB, incWR);
     }
 
-    return new PaginatedResponseDto(MapDto, dbResponse);
+    return new PagedResponseDto(MapDto, dbResponse);
   }
 
   async get(

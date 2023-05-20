@@ -5,3 +5,4 @@ export * from './user-queries.model';
 export * from './admin-queries.model';
 export * from './report-queries.model';
 export * from './activity-queries.model';
+export * from './query.interface';

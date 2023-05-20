@@ -1,10 +1,10 @@
-﻿import { PaginationQueryDto } from './pagination.dto';
+﻿import { PagedQueryDto } from './pagination.dto';
 import { EnumQueryProperty, IntQueryProperty } from '../decorators';
 import { ActivityType } from '@momentum/constants';
 import { ActivitiesGetQuery } from '@momentum/types';
 
 export class ActivitiesGetQueryDto
-  extends PaginationQueryDto
+  extends PagedQueryDto
   implements ActivitiesGetQuery
 {
   @IntQueryProperty({ description: 'Filter by user ID' })

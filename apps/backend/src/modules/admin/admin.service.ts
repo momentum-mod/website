@@ -12,7 +12,7 @@ import {
   AdminUpdateUserDto,
   checkNotEmpty,
   DtoFactory,
-  PaginatedResponseDto,
+  PagedResponseDto,
   ReportDto,
   UpdateReportDto,
   UpdateRolesDto,
@@ -240,7 +240,7 @@ export class AdminService {
   async getReports(skip?: number, take?: number, resolved?: boolean) {
     const where = { resolved: resolved };
     const dbResponse = await this.userRepo.getAllReports(where, skip, take);
-    return new PaginatedResponseDto(ReportDto, dbResponse);
+    return new PagedResponseDto(ReportDto, dbResponse);
   }
 
   async updateReport(
