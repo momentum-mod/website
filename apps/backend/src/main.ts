@@ -48,7 +48,7 @@ async function bootstrap() {
   );
   app.useGlobalInterceptors(new ClassSerializerInterceptor(app.get(Reflector)));
 
-  // Prefix everything by auth with /apid
+  // Prefix everything by auth with /api
   app.setGlobalPrefix('api', { exclude: ['auth(.*)'] });
 
   // All routes (besides auth, which uses VERSION_NEUTRAL) are version 1 by default,
