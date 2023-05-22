@@ -5,5 +5,6 @@ export interface AdminCreateUserQuery {
 }
 
 export interface AdminGetReportsQuery extends PagedQuery {
+  expand?: string[];
   resolved?: boolean;
 }

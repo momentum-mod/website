@@ -1002,6 +1002,24 @@ describe('Admin', () => {
           token: adminToken
         }));
 
+      it('should return a list of reports with the submitter include', () =>
+        req.expandTest({
+          url: 'admin/reports',
+          validate: ReportDto,
+          expand: 'submitter',
+          paged: true,
+          token: adminToken
+        }));
+
+      it('should return a list of reports with the resolver include', () =>
+        req.expandTest({
+          url: 'admin/reports',
+          validate: ReportDto,
+          expand: 'submitter',
+          paged: true,
+          token: adminToken
+        }));
+
       it('should return 403 if a non admin access token is given', () =>
         req.get({
           url: 'admin/reports',

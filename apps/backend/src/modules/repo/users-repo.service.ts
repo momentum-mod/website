@@ -558,14 +558,16 @@ export class UsersRepoService {
 
   async getAllReports(
     where?: Prisma.ReportWhereInput,
+    include?: Prisma.ReportInclude,
     skip?: number,
     take?: number
   ): Promise<[Report[], number]> {
     const count = await this.prisma.report.count({ where: where });
     const reports = await this.prisma.report.findMany({
-      where: where,
-      skip: skip,
-      take: take
+      where,
+      skip,
+      include,
+      take
     });
     return [reports, count];
   }

@@ -200,7 +200,12 @@ export class AdminController {
   getReports(
     @Query() query: AdminGetReportsQueryDto
   ): Promise<PagedResponseDto<ReportDto>> {
-    return this.adminService.getReports(query.skip, query.take, query.resolved);
+    return this.adminService.getReports(
+      query.skip,
+      query.take,
+      query.expand,
+      query.resolved
+    );
   }
 
   @Patch('/reports/:reportID')

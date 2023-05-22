@@ -12,6 +12,7 @@ import {
   AdminUpdateUserDto,
   checkNotEmpty,
   DtoFactory,
+  ExpandToPrismaIncludes,
   PagedResponseDto,
   ReportDto,
   UpdateReportDto,
@@ -237,9 +238,18 @@ export class AdminService {
     await this.userRepo.delete(userID);
   }
 
-  async getReports(skip?: number, take?: number, resolved?: boolean) {
-    const where = { resolved: resolved };
-    const dbResponse = await this.userRepo.getAllReports(where, skip, take);
+  async getReports(
+    skip?: number,
+    take?: number,
+    expand?: string[],
+    resolved?: boolean
+  ) {
+    const dbResponse = await this.userRepo.getAllReports(
+      { resolved },
+      ExpandToPrismaIncludes(expand),
+      skip,
+      take
+    );
     return new PagedResponseDto(ReportDto, dbResponse);
   }
 
