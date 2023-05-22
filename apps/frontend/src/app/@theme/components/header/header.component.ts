@@ -1,7 +1,7 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { NbMenuItem, NbMenuService, NbSidebarService } from '@nebular/theme';
-import { AnalyticsService } from '../../../@core/utils/analytics.service';
-import { NotificationsService } from '../../../@core/utils/notifications.service';
+import { AnalyticsService } from '../../../services/analytics.service';
+import { NotificationsService } from '../../../services/notifications.service';
 import { takeUntil } from 'rxjs/operators';
 import { Subject } from 'rxjs';
 import { Notification, User } from '@momentum/types';

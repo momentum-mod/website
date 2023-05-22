@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { OutgoingModule } from '../../pages/outgoing/outgoing.module';
+import { OutgoingModule } from '../pages/outgoing/outgoing.module';
 import { Router } from '@angular/router';
 
 @Injectable({ providedIn: 'root' })

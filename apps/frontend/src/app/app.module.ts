@@ -19,7 +19,7 @@ import {
   NbGlobalPhysicalPosition,
   NbToastrModule
 } from '@nebular/theme';
-import { RefreshTokenInterceptorService } from './@core/utils/refresh-token-interceptor.service';
+import { RefreshTokenInterceptorService } from './services/refresh-token-interceptor.service';
 import { env } from '@momentum/frontend/env';
 import { NbEvaIconsModule } from '@nebular/eva-icons';
 import { PipesModule } from '@momentum/frontend/pipes';

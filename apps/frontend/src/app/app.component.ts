@@ -4,8 +4,8 @@
  * Licensed under the MIT License. See License.txt in the project root for license information.
  */
 import { Component, OnInit } from '@angular/core';
-import { AnalyticsService } from './@core/utils/analytics.service';
-import { ScreenerService } from './@core/utils/screener.service';
+import { AnalyticsService } from './services/analytics.service';
+import { ScreenerService } from './services/screener.service';
 import { NbIconLibraries } from '@nebular/theme';
 import { kebabCase } from 'lodash-es';
 import {

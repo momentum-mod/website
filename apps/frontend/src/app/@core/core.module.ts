@@ -7,9 +7,9 @@ import {
 import { CommonModule } from '@angular/common';
 
 import { throwIfAlreadyLoaded } from './module-import-guard';
-import { AnalyticsService } from './utils/analytics.service';
-import { ScreenerService } from './utils/screener.service';
-import { NotificationsService } from './utils/notifications.service';
+import { AnalyticsService } from '../services/analytics.service';
+import { ScreenerService } from '../services/screener.service';
+import { NotificationsService } from '../services/notifications.service';
 
 export const NB_CORE_PROVIDERS = [
   AnalyticsService,
