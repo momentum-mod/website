@@ -24,6 +24,7 @@
       "@momentum/bitflags": ["libs/bitflags/src/index.ts"],
       "@momentum/constants": ["libs/constants/src/index.ts"],
       "@momentum/db": ["libs/db/src/index.ts"],
+      "@momentum/enum": ["libs/enum/src/index.ts"],
       "@momentum/frontend/data": ["libs/frontend/data/src/index.ts"],
       "@momentum/frontend/directives": [
         "libs/frontend/directives/src/index.ts"
