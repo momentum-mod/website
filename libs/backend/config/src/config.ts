@@ -1,4 +1,11 @@
 ﻿import { ConfigInterface, Environment } from './config.interface';
+import {
+  MAX_IMAGE_SIZE,
+  MAX_MAP_IMAGE_UPLOADS,
+  MAX_MAP_SIZE,
+  MAX_DAILY_REPORTS,
+  MAX_PENDING_MAPS
+} from '@momentum/constants';
 
 export const ConfigFactory = (): ConfigInterface => {
   const env: Environment = process.env['NODE_ENV'] as Environment;
@@ -60,13 +67,13 @@ export const ConfigFactory = (): ConfigInterface => {
       secretAccessKey: process.env['STORAGE_SECRET_ACCESS_KEY'] ?? ''
     },
     limits: {
-      maxDailyReports: 5,
-      mapImageUploads: 5,
-      pendingMaps: 3,
+      maxDailyReports: MAX_DAILY_REPORTS,
+      mapImageUploads: MAX_MAP_IMAGE_UPLOADS,
+      pendingMaps: MAX_PENDING_MAPS,
       // Keep low for tests, as we'll be generating buffers of slightly
       // above this size to test make file size validation
-      mapSize: isTest ? 1e6 : 3e8,
-      imageSize: isTest ? 1e6 : 1e7
+      mapSize: isTest ? 1e6 : MAX_MAP_SIZE,
+      imageSize: isTest ? 1e6 : MAX_IMAGE_SIZE
     }
   };
 };

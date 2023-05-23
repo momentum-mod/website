@@ -9,3 +9,4 @@ export * from './activity-type.enum';
 export * from './allowed-modes.const';
 export * from './map-credit-type.enum';
 export * from './report-category.enum';
+export * from './limits.const';
