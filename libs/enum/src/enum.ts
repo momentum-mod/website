@@ -9,7 +9,11 @@ export type StringEnum<T> = Record<StringKeyOf<T>, string>;
  * @return true if the specified object key value is NOT a numeric key.
  */
 function isNonNumericKey(key: string): boolean {
-  return key !== String(Number.parseFloat(key));
+  return (
+    key !== String(Number.parseFloat(key)) ||
+    // If you do this you're a psycho, but okay, this would be a bug otherwise
+    key === 'NaN'
+  );
 }
 
 /**
@@ -63,9 +67,7 @@ export const Enum = {
    * @return An array of the enum's keys
    */
   keys: <T extends HeteroEnum<T>>(enumObj: T): StringKeyOf<T>[] =>
-    getOwnEnumerableNonNumericKeys(enumObj).filter(
-      isNonNumericKey
-    ) as StringKeyOf<T>[],
+    getOwnEnumerableNonNumericKeys(enumObj) as StringKeyOf<T>[],
 
   /**
    * Get the enum's values.

@@ -71,6 +71,14 @@ describe('Enum', () => {
     expect(Enum.keys(StringEnum)).toEqual(['A', 'B', 'C']);
     expect(Enum.keys(HeteroEnum)).toEqual(['A', 'B']);
     expect(Enum.keys(EmptyEnum)).toEqual([]);
+
+    enum NaNTest {
+      A,
+      // eslint-disable-next-line @typescript-eslint/naming-convention
+      NaN
+    }
+    console.log(Enum.keys(NaNTest));
+    expect(Enum.keys(NaNTest)).toEqual(['A', 'NaN']);
   });
 
   it('should return an array of the values of the enum', () => {
