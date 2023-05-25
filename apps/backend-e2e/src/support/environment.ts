@@ -52,7 +52,7 @@ export async function setupE2ETestEnvironment(
   if (process.env.TEST_LOG_DEBUG === 'true') logLevel.push('debug', 'warn');
   logger.setLogLevels(logLevel);
 
-  let moduleBuilder = await Test.createTestingModule({
+  let moduleBuilder = Test.createTestingModule({
     imports: [AppModule]
   }).setLogger(logger);
   if (moduleOverrides) moduleBuilder = moduleOverrides(moduleBuilder);

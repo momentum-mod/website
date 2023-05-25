@@ -67,13 +67,13 @@ export class DbUtil {
 
   async createAndLoginUser(args?: CreateUserArgs): Promise<[User, string]> {
     const user = await this.createUser(args);
-    const token = await this.auth.login(user);
+    const token = this.auth.login(user);
     return [user, token];
   }
 
   async createAndLoginGameUser(args?: CreateUserArgs): Promise<[User, string]> {
     const user = await this.createUser(args);
-    const token = await this.auth.gameLogin(user);
+    const token = this.auth.gameLogin(user);
     return [user, token];
   }
 
