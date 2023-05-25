@@ -7,6 +7,7 @@ import {
   dateOffset,
   DbUtil,
   FileStoreUtil,
+  FILES_PATH,
   NULL_ID,
   RequestUtil
 } from '@momentum/backend/test-utils';
@@ -31,6 +32,7 @@ import {
   MapType
 } from '@momentum/constants';
 import { Config } from '@momentum/backend/config';
+import path from 'node:path';
 
 describe('Maps', () => {
   let app,
@@ -412,8 +414,8 @@ describe('Maps', () => {
         };
       });
 
-      afterEach(() => () => db.cleanup('map'));
-      afterAll(() => () => db.cleanup('user'));
+      afterEach(() => db.cleanup('map'));
+      afterAll(() => db.cleanup('user'));
 
       describe('should create a new map', () => {
         let res, createdMap;
@@ -613,7 +615,8 @@ describe('Maps', () => {
 
     describe('POST', () => {
       it('should upload the map file', async () => {
-        const inBuffer = readFileSync(`${process.cwd()}/files/map.bsp`);
+
+        const inBuffer = readFileSync(path.join(FILES_PATH, 'map.bsp'));
         const inHash = createSha1Hash(inBuffer);
 
         const res = await req.postAttach({

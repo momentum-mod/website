@@ -5,6 +5,8 @@ import { InjectOptions, Response } from 'light-my-request';
 import FormData from 'form-data';
 import * as fs from 'node:fs';
 import * as http from 'node:http';
+import path from 'node:path';
+import { FILES_PATH } from '../files-path.const';
 
 export const URL_PREFIX = '/api/v1/';
 
@@ -96,9 +98,7 @@ export class RequestUtil {
         const field = options.field ?? 'file';
 
         if (typeof options.file === 'string') {
-          const file = fs.readFileSync(
-            `${process.cwd()}/files/${options.file}`
-          );
+          const file = fs.readFileSync(path.join(FILES_PATH, options.file));
           form.append(field, file, 'dummyFileName');
         } else {
           form.append(field, options.file, 'dummyFileName');

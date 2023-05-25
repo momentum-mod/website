@@ -6,3 +6,4 @@ export * from './utils/random.util';
 export * from './utils/request.util';
 export * from './utils/run-tester.util';
 export * from './matchers/to-be-valid-dto';
+export * from './files-path.const';
