@@ -1,4 +1,6 @@
-﻿import { UnauthorizedException } from '@nestjs/common';
+﻿// noinspection DuplicatedCode
+
+import { UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
 import { NestFastifyApplication } from '@nestjs/platform-fastify';

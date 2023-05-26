@@ -1,3 +1,5 @@
+// noinspection DuplicatedCode
+
 import { readFileSync } from 'node:fs';
 import axios from 'axios';
 import { PrismaClient } from '@prisma/client';

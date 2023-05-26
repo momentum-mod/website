@@ -1,3 +1,5 @@
+// noinspection DuplicatedCode
+
 import {
   CompletedRunDto,
   RankDto,
