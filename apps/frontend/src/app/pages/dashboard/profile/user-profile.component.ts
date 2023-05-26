@@ -84,7 +84,7 @@ export class UserProfileComponent implements OnInit, OnDestroy {
           this.isAdmin = this.hasRole(Role.ADMIN);
           this.isVerified = this.hasRole(Role.VERIFIED);
           this.userSubject.next(user);
-          if (!this.hasBan(Ban.BANNED_AVATAR) && this.user.avatarURL)
+          if (!this.hasBan(Ban.AVATAR) && this.user.avatarURL)
             this.avatarUrl = this.user.avatarURL;
 
           this.avatarLoaded = true;

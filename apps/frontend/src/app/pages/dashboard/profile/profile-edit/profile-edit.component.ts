@@ -17,6 +17,8 @@ import {
   LocalUserService,
   UsersService
 } from '@momentum/frontend/data';
+import { Ban, Role } from '@momentum/constants';
+import { Bitflags } from '@momentum/bitflags';
 
 @Component({
   selector: 'mom-profile-edit',
@@ -60,8 +62,8 @@ export class ProfileEditComponent implements OnInit, OnDestroy {
   isAdmin: boolean;
   isModerator: boolean;
   // TODO
-  // Role: typeof Role = Role;
-  // Ban: typeof Ban = Ban;
+  protected readonly Role = Role;
+  protected readonly Ban = Ban;
 
   @ViewChild('socials', { static: false }) socials: NbTabComponent;
 
@@ -104,13 +106,12 @@ export class ProfileEditComponent implements OnInit, OnDestroy {
           .getLocal()
           .pipe(takeUntil(this.ngUnSub))
           .subscribe((usr) => {
-            //  TODO
-            // this.isAdmin = this.localUserService.hasRole(Role.ADMIN, usr);
-            // this.isModerator = this.localUserService.hasRole(
-            //   Role.MODERATOR,
-            //   usr
-            // );
-            // if (this.isLocal) this.setUser(usr);
+            this.isAdmin = this.localUserService.hasRole(Role.ADMIN, usr);
+            this.isModerator = this.localUserService.hasRole(
+              Role.MODERATOR,
+              usr
+            );
+            if (this.isLocal) this.setUser(usr);
           });
       });
   }
@@ -170,7 +171,7 @@ export class ProfileEditComponent implements OnInit, OnDestroy {
       }
     }, 500);
   }
-  
+
   unAuth(platform: string) {
     this.authService.removeSocialAuth(platform).subscribe({
       next: () => this.localUserService.refreshLocal(),
@@ -182,38 +183,34 @@ export class ProfileEditComponent implements OnInit, OnDestroy {
     });
   }
 
-  // toggleRole(role: Role) {
-  //   if (this.hasRole(role)) {
-  //     this.user.roles &= ~role;
-  //   } else {
-  //     this.user.roles |= role;
-  //   }
-  //   this.checkUserPermissions();
-  // }
-  //
-  // toggleBan(ban: Ban) {
-  //   if (this.hasBan(ban)) {
-  //     this.user.bans &= ~ban;
-  //   } else {
-  //     this.user.bans |= ban;
-  //   }
-  //   this.checkUserPermissions();
-  // }
+  toggleRole(role: Role) {
+    this.user.roles = this.hasRole(role)
+      ? Bitflags.remove(this.user.roles, role)
+      : Bitflags.add(this.user.roles, role);
+    this.checkUserPermissions();
+  }
 
-  // hasRole(role: Role) {
-  //   return this.localUserService.hasRole(role, this.user);
-  // }
-  //
-  // hasBan(ban: Ban) {
-  //   return this.localUserService.hasBan(ban, this.user);
+  toggleBan(ban: Ban) {
+    this.user.bans = this.hasBan(ban)
+      ? Bitflags.remove(this.user.bans, ban)
+      : Bitflags.add(this.user.bans, ban);
+    this.checkUserPermissions();
+  }
+
+  hasRole(role: Role) {
+    return this.localUserService.hasRole(role, this.user);
+  }
+
+  hasBan(ban: Ban) {
+    return this.localUserService.hasBan(ban, this.user);
   }
 
   checkUserPermissions() {
     const permStatus = {
-      banAlias: this.hasBan(Ban.BANNED_ALIAS),
-      banBio: this.hasBan(Ban.BANNED_BIO),
-      banAvatar: this.hasBan(Ban.BANNED_AVATAR),
-      banLeaderboards: this.hasBan(Ban.BANNED_LEADERBOARDS),
+      banAlias: this.hasBan(Ban.ALIAS),
+      banBio: this.hasBan(Ban.BIO),
+      banAvatar: this.hasBan(Ban.AVATAR),
+      banLeaderboards: this.hasBan(Ban.LEADERBOARDS),
       verified: this.hasRole(Role.VERIFIED),
       mapper: this.hasRole(Role.MAPPER),
       moderator: this.hasRole(Role.MODERATOR),

@@ -3,6 +3,7 @@ import { Role } from '@momentum/constants';
 import { Injectable, CanActivate, ExecutionContext } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 import { UsersRepoService } from '../repo/users-repo.service';
+import { Bitflags } from '@momentum/bitflags';
 
 @Injectable()
 export class RolesGuard implements CanActivate {
@@ -29,7 +30,29 @@ export class RolesGuard implements CanActivate {
     //
     // In our case, since most endpoints are *not* role or ban dependent, it's easiest to handle RBAC using (still
     // relatively cheap) DB calls.
-    const user: any = await this.userRepo.get(request.user.id, { roles: true });
-    return requiredRoles.some((role) => user.roles?.[role] === true);
+    const user: any = await this.userRepo.get(request.user.id);
+
+    // If you're not familiar with bit flags, they're just a bunch of booleans
+    // encoded into a single integer. Always think of them in terms of binary
+    // numbers, not decimal! Let's say the allowed roles are 0100 and 1000 (
+    // so joined together as 1100). The user's roles are some combination of
+    // flags (or none, in which case just 0000). By ANDing the allowed roles
+    // with the actual roles, we see if any 1s line up, and if so, the resultant
+    // value will be non-zero.
+    //
+    // E.g. if user roles are 0001 we have
+    //   1100
+    // & 0001 (if top and bottom place are 1, resultant place is 1, otherwise 0)
+    // = 0000 = 0 (fail)
+    //
+    // For 0101:
+    //   0101
+    // & 1100
+    // = 0100 != 0 (pass)
+    //
+    // This method saves making an SQL table full of booleans, and is easy to
+    // work with once you get the general concept. Remember, rows of binary
+    // digits, no decimals!
+    return (Bitflags.join(...requiredRoles) & user.roles) != 0;
   }
 }

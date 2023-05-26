@@ -1,11 +1,9 @@
-import { User } from '@momentum/types';
+import { BitwiseEnum, User } from '@momentum/types';
 import { ApiProperty, ApiPropertyOptional, PickType } from '@nestjs/swagger';
-import { IsISO31661Alpha2, IsOptional, IsString } from 'class-validator';
+import { IsInt, IsISO31661Alpha2, IsOptional, IsString } from 'class-validator';
 import { Exclude, Expose } from 'class-transformer';
 import { ProfileDto } from './profile.dto';
 import { RankDto } from '../run/rank.dto';
-import { BansDto, UpdateBansDto } from './bans.dto';
-import { RolesDto, UpdateRolesDto } from './roles.dto';
 import { UserStatsDto } from './user-stats.dto';
 import {
   CreatedAtProperty,
@@ -14,8 +12,11 @@ import {
   UpdatedAtProperty
 } from '../../decorators';
 import { IsSteamCommunityID } from '@momentum/backend/validators';
+import { Ban, Role } from '@momentum/constants';
+import { Bitflags } from '@momentum/bitflags';
 
-// This is the specific key Steam uses for all missing avatars. They even kept in when migrating to Cloudflare!
+// This is the specific key Steam uses for all missing avatars.
+// They even kept it when migrating to Cloudflare!
 const STEAM_MISSING_AVATAR = 'fef49e7fa7e1997310d705b2a6158ff8dc1cdfeb_full';
 
 export class UserDto implements User {
@@ -55,7 +56,9 @@ export class UserDto implements User {
   @IsString()
   get avatarURL(): string {
     return `https://avatars.cloudflare.steamstatic.com/${
-      this.bans?.avatar || !this.avatar ? STEAM_MISSING_AVATAR : this.avatar
+      Bitflags.has(this.bans, Ban.AVATAR) || !this.avatar
+        ? STEAM_MISSING_AVATAR
+        : this.avatar
     }_full.jpg`;
   }
 
@@ -70,11 +73,13 @@ export class UserDto implements User {
   })
   readonly userStats: UserStatsDto;
 
-  @NestedProperty(RolesDto, { description: "The user's roles" })
-  readonly roles: RolesDto;
+  @ApiProperty({ type: Number, description: "The user's roles, as bitflags" })
+  @IsInt()
+  readonly roles: BitwiseEnum<Role>;
 
-  @NestedProperty(BansDto, { description: "The user's bans" })
-  readonly bans: BansDto;
+  @ApiProperty({ type: Number, description: "The user's bans, as bitflags" })
+  @IsInt()
+  readonly bans: BitwiseEnum<Ban>;
 
   @NestedProperty(RankDto, {
     description: 'The map rank data for the user on a specific map'
@@ -109,17 +114,23 @@ export class UpdateUserDto {
 }
 
 export class AdminUpdateUserDto extends UpdateUserDto {
-  @NestedProperty(UpdateRolesDto, {
+  @ApiProperty({
+    type: Number,
     description: 'The new roles to set',
     required: false
   })
-  roles?: UpdateRolesDto;
+  @IsInt()
+  @IsOptional()
+  roles?: BitwiseEnum<Role>;
 
-  @NestedProperty(UpdateRolesDto, {
+  @ApiProperty({
+    type: Number,
     description: 'The new bans to set',
     required: false
   })
-  bans?: UpdateBansDto;
+  @IsInt()
+  @IsOptional()
+  bans?: BitwiseEnum<Ban>;
 }
 
 export class MergeUserDto {

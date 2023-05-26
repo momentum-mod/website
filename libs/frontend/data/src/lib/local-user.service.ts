@@ -15,7 +15,6 @@ import {
   MapNotify,
   MapSummary,
   QueryParam,
-  Roles,
   UpdateUser,
   User,
   UserMapFavoritesGetQuery,
@@ -23,15 +22,13 @@ import {
   UserMapSubmittedGetQuery,
   UsersGetQuery
 } from '@momentum/types';
-import { Role } from '@momentum/constants';
+import { Ban, Role } from '@momentum/constants';
 import { PagedResponse } from '@momentum/types';
+import { Bitflags } from '@momentum/bitflags';
 
-// TODO: The roles and bans stuff needs changing, either we go back to bitflags
-// (that's my current inclination), or this class needs refactoring to use
-// the separate Bans and Roles objects.
 @Injectable({ providedIn: 'root' })
 export class LocalUserService {
-  public localUser: User & { roles: Roles };
+  public localUser: User;
   private localUserSubject: Subject<User>;
 
   constructor(
@@ -57,11 +54,10 @@ export class LocalUserService {
   }
 
   public refreshLocal(): void {
-    this.getLocalUser({ expand: ['profile'] }).subscribe((usr) => {
-      this.localUserSubject.next(usr);
-      this.localUser = usr as any;
-      // this.localUser = usr as User;
-      localStorage.setItem('user', JSON.stringify(usr));
+    this.getLocalUser({ expand: ['profile'] }).subscribe((user) => {
+      this.localUserSubject.next(user);
+      this.localUser = user as User;
+      localStorage.setItem('user', JSON.stringify(user));
     });
   }
 
@@ -77,19 +73,12 @@ export class LocalUserService {
     this.authService.logout();
   }
 
-  public hasRole(
-    role: Role,
-    user: User & { roles: Roles } = this.localUser
-  ): boolean {
-    return true; // TODO: Think we want to go back to bitflags, so this approach
-    // is okay, don't want to do that backend refactor yet though.
-    // return user ? (role & user.roles) !== 0 : false;
+  public hasRole(role: Role, user: User = this.localUser): boolean {
+    return user.roles ? Bitflags.has(user.roles, role) : false;
   }
 
-  public hasBan(ban: any, user: User = this.localUser): boolean {
-    //public hasBan(ban: number | Ban, user: User = this.localUser): boolean {
-    return false;
-    // return user ? (ban & user.bans) !== 0 : false;
+  public hasBan(ban: Ban, user: User = this.localUser): boolean {
+    return user.bans ? Bitflags.has(user.bans, ban) : false;
   }
 
   public getLocalUser(query?: UsersGetQuery): Observable<User> {
@@ -128,9 +117,7 @@ export class LocalUserService {
   ): Observable<PagedResponse<MapFavorite>> {
     return this.http.get<PagedResponse<MapFavorite>>(
       env.api + '/user/maps/favorites',
-      {
-        params: query as QueryParam
-      }
+      { params: query as QueryParam }
     );
   }
 

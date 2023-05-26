@@ -18,7 +18,7 @@ import {
   randomString,
   RequestUtil
 } from '@momentum/backend/test-utils';
-import { ActivityType } from '@momentum/constants';
+import { ActivityType, Ban, Role } from '@momentum/constants';
 import { PrismaClient } from '@prisma/client';
 import {
   setupE2ETestEnvironment,
@@ -128,7 +128,7 @@ describe('User', () => {
 
       it('should 403 when trying to update bio when bio banned', async () => {
         const [_, token] = await db.createAndLoginUser({
-          data: { bans: { create: { bio: true } } }
+          data: { bans: Ban.BIO }
         });
 
         await req.patch({
@@ -141,7 +141,7 @@ describe('User', () => {
 
       it('should 403 when trying to update bio when alias banned', async () => {
         const [_, token] = await db.createAndLoginUser({
-          data: { bans: { create: { alias: true } } }
+          data: { bans: Ban.ALIAS }
         });
 
         await req.patch({
@@ -154,10 +154,10 @@ describe('User', () => {
 
       it('should 409 when a verified user tries to set their alias to something used by another verified user', async () => {
         const [u1] = await db.createAndLoginUser({
-          data: { roles: { create: { verified: true } } }
+          data: { roles: Role.VERIFIED }
         });
         const [_, u2Token] = await db.createAndLoginUser({
-          data: { roles: { create: { verified: true } } }
+          data: { roles: Role.VERIFIED }
         });
 
         await req.patch({
@@ -170,7 +170,7 @@ describe('User', () => {
 
       it('should allow a verified user to set their alias to something used by an unverified user', async () => {
         const [_, u1Token] = await db.createAndLoginUser({
-          data: { roles: { create: { verified: true } } }
+          data: { roles: Role.VERIFIED }
         });
         const [u2] = await db.createAndLoginUser();
 
@@ -184,7 +184,7 @@ describe('User', () => {
 
       it('should allow an unverified user to set their alias to something used by a verified user', async () => {
         const [_, u1Token] = await db.createAndLoginUser({
-          data: { roles: { create: { verified: false } } }
+          data: { roles: Role.VERIFIED }
         });
         const [u2] = await db.createAndLoginUser();
 

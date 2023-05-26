@@ -36,7 +36,8 @@ import {
 import { UsersRepoService } from '../repo/users-repo.service';
 import { AuthenticatedUser } from '../auth/auth.interface';
 import { SteamUserSummaryData } from '../steam/steam.interface';
-import { ActivityType } from '@momentum/constants';
+import { ActivityType, Ban, Role } from '@momentum/constants';
+import { Bitflags } from '@momentum/bitflags';
 
 @Injectable()
 export class UsersService {
@@ -199,11 +200,7 @@ export class UsersService {
   }
 
   async update(userID: number, update: UpdateUserDto) {
-    const user: any = await this.userRepo.get(userID, {
-      profile: true,
-      bans: true,
-      roles: true
-    });
+    const user: any = await this.userRepo.get(userID, { profile: true });
 
     const updateInput: Prisma.UserUpdateInput = {};
 
@@ -212,7 +209,7 @@ export class UsersService {
 
     // Strict check - we want to handle if alias is empty string
     if (update.alias !== undefined) {
-      if (user.bans?.alias === true) {
+      if (Bitflags.has(user.bans, Ban.ALIAS)) {
         throw new ForbiddenException(
           'User is banned from updating their alias'
         );
@@ -220,13 +217,15 @@ export class UsersService {
         updateInput.alias = update.alias;
       }
 
-      if (user.roles?.verified === true) {
-        const verifiedMatches = await this.userRepo.count({
-          alias: update.alias,
-          roles: { is: { verified: true } }
+      if (Bitflags.has(user.roles, Role.VERIFIED)) {
+        const [sameNameMatches] = await this.userRepo.getAll({
+          alias: update.alias
         });
-
-        if (verifiedMatches > 0)
+        if (
+          sameNameMatches.some((user) =>
+            Bitflags.has(user.roles, Role.VERIFIED)
+          )
+        )
           throw new ConflictException(
             'Alias is in use by another verified user'
           );
@@ -234,7 +233,7 @@ export class UsersService {
     }
 
     if (update.bio) {
-      if (user.bans?.bio === true) {
+      if (Bitflags.has(user.bans, Ban.BIO)) {
         throw new ForbiddenException('User is banned from updating their bio');
       } else {
         updateInput.profile = { update: { bio: update.bio } };

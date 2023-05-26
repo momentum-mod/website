@@ -10,6 +10,7 @@ import { MapLibraryComponent } from './map-library/map-library.component';
 import { MapEditComponent } from './map-edit/map-edit.component';
 import { RoleGuard } from '../../../@core/guards/role.guard';
 import { MapFavoritesComponent } from './map-favorites/map-favorites.component';
+import { Role } from '@momentum/constants';
 
 @NgModule({
   imports: [
@@ -24,8 +25,7 @@ import { MapFavoritesComponent } from './map-favorites/map-favorites.component';
           {
             path: 'uploads',
             canActivate: [RoleGuard],
-            // TODO
-            // data: { onlyAllow: [Role.MAPPER, Role.ADMIN] },
+            data: { onlyAllow: [Role.MAPPER, Role.ADMIN] },
             children: [
               { path: '', component: UploadStatusComponent },
               { path: 'new', component: MapUploadFormComponent }

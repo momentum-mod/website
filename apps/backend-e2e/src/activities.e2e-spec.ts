@@ -2,12 +2,13 @@
 
 import { DbUtil, NULL_ID, RequestUtil } from '@momentum/backend/test-utils';
 import { ActivityDto } from '@momentum/backend/dto';
-import { ActivityType } from '@momentum/constants';
+import { ActivityType, Role } from '@momentum/constants';
 import { PrismaClient } from '@prisma/client';
 import {
   setupE2ETestEnvironment,
   teardownE2ETestEnvironment
 } from './support/environment';
+import { Bitflags } from '@momentum/bitflags';
 
 describe('Activities', () => {
   let app, prisma: PrismaClient, req: RequestUtil, db: DbUtil;
@@ -29,12 +30,10 @@ describe('Activities', () => {
       beforeAll(async () => {
         [[u1, u1Token], u2] = await Promise.all([
           db.createAndLoginUser({
-            data: { roles: { create: { verified: true, mapper: true } } },
-            include: { roles: true }
+            data: { roles: Bitflags.join(Role.VERIFIED, Role.MAPPER) }
           }),
           db.createUser({
-            data: { roles: { create: { mapper: true } } },
-            include: { roles: true }
+            data: { roles: Role.MAPPER }
           })
         ]);
 

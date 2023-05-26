@@ -17,13 +17,13 @@ datasource db {
 model User {
   id Int @id @default(autoincrement())
 
+  roles Int @default(0) @db.SmallInt
+  bans  Int @default(0) @db.SmallInt
+
   steamID BigInt? @unique(map: "user_steamID") @db.BigInt // Optional because placeholders don't have SteamIDs
   alias   String  @db.VarChar(64)
   avatar  String? @db.VarChar(255)
   country String? @db.VarChar(2)
-
-  bans  Bans?
-  roles Roles?
 
   userAuth          UserAuth?
   profile           Profile?
@@ -49,27 +49,6 @@ model User {
   updatedAt DateTime @updatedAt
 
   @@index([steamID])
-}
-
-model Bans {
-  leaderboards Boolean @default(false)
-  alias        Boolean @default(false)
-  avatar       Boolean @default(false)
-  bio          Boolean @default(false)
-
-  user   User @relation(fields: [userID], references: [id], onDelete: Cascade)
-  userID Int  @unique
-}
-
-model Roles {
-  verified    Boolean @default(false)
-  mapper      Boolean @default(false)
-  moderator   Boolean @default(false)
-  admin       Boolean @default(false)
-  placeholder Boolean @default(false)
-
-  user   User @relation(fields: [userID], references: [id], onDelete: Cascade)
-  userID Int  @unique
 }
 
 model Profile {

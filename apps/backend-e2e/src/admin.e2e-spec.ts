@@ -1,4 +1,5 @@
-import { pick } from 'lodash';
+// noinspection DuplicatedCode
+
 import { readFileSync } from 'node:fs';
 import { PrismaClient } from '@prisma/client';
 import {
@@ -20,11 +21,14 @@ import {
 } from '@momentum/backend/dto';
 import {
   ActivityType,
+  Ban,
   MapCreditType,
   MapStatus,
   ReportCategory,
-  ReportType
+  ReportType,
+  Role
 } from '@momentum/constants';
+import { Bitflags } from '@momentum/bitflags';
 
 describe('Admin', () => {
   let app,
@@ -52,8 +56,8 @@ describe('Admin', () => {
 
       beforeAll(async () => {
         [modToken, adminToken, nonAdminToken] = await Promise.all([
-          db.loginNewUser({ data: { roles: { create: { moderator: true } } } }),
-          db.loginNewUser({ data: { roles: { create: { admin: true } } } }),
+          db.loginNewUser({ data: { roles: Role.MODERATOR } }),
+          db.loginNewUser({ data: { roles: Role.ADMIN } }),
           db.loginNewUser()
         ]);
       });
@@ -103,12 +107,12 @@ describe('Admin', () => {
             db.createAndLoginUser(),
             db.createUser(),
             db.createUser({
-              data: { roles: { create: { placeholder: true } } }
+              data: { roles: Role.PLACEHOLDER }
             }),
             db.createUser(),
-            db.loginNewUser({ data: { roles: { create: { admin: true } } } }),
+            db.loginNewUser({ data: { roles: Role.ADMIN } }),
             db.loginNewUser({
-              data: { roles: { create: { moderator: true } } }
+              data: { roles: Role.MODERATOR }
             })
           ]
         );
@@ -262,18 +266,16 @@ describe('Admin', () => {
           mod2
         ] = await Promise.all([
           db.createAndLoginUser({
-            data: { roles: { create: { admin: true } } }
+            data: { roles: Role.ADMIN }
           }),
-          db.createUser({ data: { roles: { create: { admin: true } } } }),
+          db.createUser({ data: { roles: Role.ADMIN } }),
           db.createAndLoginUser(),
-          db.createUser({ data: { roles: { create: { verified: true } } } }),
-          db.createUser({ data: { roles: { create: { verified: true } } } }),
-          db.createAndLoginUser({
-            data: { roles: { create: { moderator: true } } }
-          }),
-          db.createUser({ data: { roles: { create: { moderator: true } } } })
+          db.createUser({ data: { roles: Role.VERIFIED } }),
+          db.createUser({ data: { roles: Role.VERIFIED } }),
+          db.createAndLoginUser({ data: { roles: Role.MODERATOR } }),
+          db.createUser({ data: { roles: Role.MODERATOR } })
         ]);
-        adminGameToken = await auth.gameLogin(admin);
+        adminGameToken = auth.gameLogin(admin);
       });
 
       afterAll(() => db.cleanup('user'));
@@ -338,10 +340,7 @@ describe('Admin', () => {
       });
 
       it("should successfully update a specific user's bans", async () => {
-        const bans = {
-          avatar: true,
-          leaderboards: true
-        };
+        const bans = Bitflags.join(Ban.AVATAR, Ban.LEADERBOARDS);
 
         await req.patch({
           url: `admin/users/${u1.id}`,
@@ -350,35 +349,29 @@ describe('Admin', () => {
           token: adminToken
         });
 
-        const userDB = await prisma.user.findFirst({
-          where: { id: u1.id },
-          include: { bans: true }
-        });
+        const userDB = await prisma.user.findFirst({ where: { id: u1.id } });
 
-        expect(pick(userDB.bans as any, Object.keys(bans))).toStrictEqual(bans);
+        expect(userDB.bans).toBe(bans);
       });
 
       it("should successfully update a specific user's roles", async () => {
         await req.patch({
           url: `admin/users/${u1.id}`,
           status: 204,
-          body: { roles: { mapper: true } },
+          body: { roles: Role.MAPPER },
           token: adminToken
         });
 
-        const userDB = await prisma.user.findFirst({
-          where: { id: u1.id },
-          include: { roles: true }
-        });
+        const userDB = await prisma.user.findFirst({ where: { id: u1.id } });
 
-        expect(userDB.roles.mapper).toBe(true);
+        expect(Bitflags.has(userDB.roles, Role.MAPPER)).toBe(true);
       });
 
       it('should allow an admin to make a regular user a moderator', () =>
         req.patch({
           url: `admin/users/${u1.id}`,
           status: 204,
-          body: { roles: { moderator: true } },
+          body: { roles: Role.MODERATOR },
           token: adminToken
         }));
 
@@ -386,7 +379,7 @@ describe('Admin', () => {
         req.patch({
           url: `admin/users/${mod.id}`,
           status: 204,
-          body: { roles: { mapper: true } },
+          body: { roles: Role.MAPPER },
           token: adminToken
         }));
 
@@ -394,7 +387,7 @@ describe('Admin', () => {
         req.patch({
           url: `admin/users/${mod.id}`,
           status: 204,
-          body: { roles: { moderator: false } },
+          body: { roles: 0 },
           token: adminToken
         }));
 
@@ -402,7 +395,7 @@ describe('Admin', () => {
         req.patch({
           url: `admin/users/${admin2.id}`,
           status: 403,
-          body: { roles: { mapper: true } },
+          body: { roles: Role.MAPPER },
           token: adminToken
         }));
 
@@ -410,7 +403,7 @@ describe('Admin', () => {
         req.patch({
           url: `admin/users/${admin.id}`,
           status: 204,
-          body: { roles: { mapper: true } },
+          body: { roles: Role.MAPPER },
           token: adminToken
         }));
 
@@ -418,7 +411,7 @@ describe('Admin', () => {
         req.patch({
           url: `admin/users/${admin.id}`,
           status: 204,
-          body: { roles: { moderator: true } },
+          body: { roles: Role.MODERATOR },
           token: adminToken
         }));
 
@@ -426,7 +419,7 @@ describe('Admin', () => {
         req.patch({
           url: `admin/users/${admin.id}`,
           status: 204,
-          body: { roles: { admin: false } },
+          body: { roles: 0 },
           token: adminToken
         }));
 
@@ -434,7 +427,7 @@ describe('Admin', () => {
         req.patch({
           url: `admin/users/${u1.id}`,
           status: 204,
-          body: { roles: { mapper: true } },
+          body: { roles: Role.MAPPER },
           token: modToken
         }));
 
@@ -442,7 +435,7 @@ describe('Admin', () => {
         req.patch({
           url: `admin/users/${u1.id}`,
           status: 403,
-          body: { roles: { moderator: true } },
+          body: { roles: Role.MODERATOR },
           token: modToken
         }));
 
@@ -450,7 +443,7 @@ describe('Admin', () => {
         req.patch({
           url: `admin/users/${mod2.id}`,
           status: 403,
-          body: { roles: { moderator: false } },
+          body: { roles: 0 },
           token: modToken
         }));
 
@@ -458,7 +451,7 @@ describe('Admin', () => {
         req.patch({
           url: `admin/users/${admin2.id}`,
           status: 403,
-          body: { roles: { mapper: true } },
+          body: { roles: Role.MAPPER },
           token: modToken
         }));
 
@@ -466,7 +459,7 @@ describe('Admin', () => {
         req.patch({
           url: `admin/users/${mod.id}`,
           status: 204,
-          body: { roles: { mapper: true } },
+          body: { roles: Bitflags.join(Role.MAPPER, Role.MODERATOR) },
           token: modToken
         }));
 
@@ -474,7 +467,7 @@ describe('Admin', () => {
         req.patch({
           url: `admin/users/${mod.id}`,
           status: 403,
-          body: { roles: { moderator: false } },
+          body: { roles: 0 },
           token: modToken
         }));
 
@@ -490,7 +483,7 @@ describe('Admin', () => {
         req.patch({
           url: `admin/users/${u1.id}`,
           status: 403,
-          body: { roles: { mapper: true } },
+          body: { roles: Role.MAPPER },
           token: adminGameToken
         }));
 
@@ -507,8 +500,8 @@ describe('Admin', () => {
       beforeEach(async () => {
         [[u1, u1Token], adminToken, modToken] = await Promise.all([
           db.createAndLoginUser(),
-          db.loginNewUser({ data: { roles: { create: { admin: true } } } }),
-          db.loginNewUser({ data: { roles: { create: { moderator: true } } } })
+          db.loginNewUser({ data: { roles: Role.ADMIN } }),
+          db.loginNewUser({ data: { roles: Role.MODERATOR } })
         ]);
       });
 
@@ -551,9 +544,9 @@ describe('Admin', () => {
           ([modToken, adminToken, [u1, u1Token], [m1, m2, m3, m4]] =
             await Promise.all([
               db.loginNewUser({
-                data: { roles: { create: { moderator: true } } }
+                data: { roles: Role.MODERATOR }
               }),
-              db.loginNewUser({ data: { roles: { create: { admin: true } } } }),
+              db.loginNewUser({ data: { roles: Role.ADMIN } }),
               db.createAndLoginUser(),
               db.createMaps(4)
             ]))
@@ -711,10 +704,10 @@ describe('Admin', () => {
           ([[mod, modToken], [admin, adminToken], [u1, u1Token], [m1, m2]] =
             await Promise.all([
               db.createAndLoginUser({
-                data: { roles: { create: { moderator: true } } }
+                data: { roles: Role.MODERATOR }
               }),
               db.createAndLoginUser({
-                data: { roles: { create: { admin: true } } }
+                data: { roles: Role.ADMIN }
               }),
               db.createAndLoginUser(),
               db.createMaps(2)
@@ -821,11 +814,9 @@ describe('Admin', () => {
 
       beforeAll(async () => {
         [modToken, adminToken, [u1, u1Token]] = await Promise.all([
-          db.loginNewUser({ data: { roles: { create: { moderator: true } } } }),
-          db.loginNewUser({ data: { roles: { create: { admin: true } } } }),
-          db.createAndLoginUser({
-            data: { roles: { create: { mapper: true } } }
-          })
+          db.loginNewUser({ data: { roles: Role.MODERATOR } }),
+          db.loginNewUser({ data: { roles: Role.ADMIN } }),
+          db.createAndLoginUser({ data: { roles: Role.MAPPER } })
         ]);
       });
 
@@ -916,7 +907,7 @@ describe('Admin', () => {
 
       beforeAll(async () => {
         [adminToken, [u1, u1Token]] = await Promise.all([
-          db.loginNewUser({ data: { roles: { create: { admin: true } } } }),
+          db.loginNewUser({ data: { roles: Role.ADMIN } }),
           db.createAndLoginUser()
         ]);
 
@@ -1039,7 +1030,7 @@ describe('Admin', () => {
       beforeEach(async () => {
         [[admin, adminToken], [u1, u1Token]] = await Promise.all([
           db.createAndLoginUser({
-            data: { roles: { create: { admin: true } } }
+            data: { roles: Role.ADMIN }
           }),
           db.createAndLoginUser()
         ]);
@@ -1113,8 +1104,8 @@ describe('Admin', () => {
 
     beforeEach(async () => {
       [adminToken, modToken, u1Token] = await Promise.all([
-        db.loginNewUser({ data: { roles: { create: { admin: true } } } }),
-        db.loginNewUser({ data: { roles: { create: { moderator: true } } } }),
+        db.loginNewUser({ data: { roles: Role.ADMIN } }),
+        db.loginNewUser({ data: { roles: Role.MODERATOR } }),
         db.loginNewUser()
       ]);
 

@@ -10,3 +10,4 @@ export * from './allowed-modes.const';
 export * from './map-credit-type.enum';
 export * from './report-category.enum';
 export * from './limits.const';
+export * from './bans.enum';

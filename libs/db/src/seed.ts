@@ -1,5 +1,7 @@
 #!/usr/bin/env node
 
+import { Bitflags } from '@momentum/bitflags';
+
 /**
  * Ugly script for seeding the DB with faker.js data, useful for frontend developers.
  */
@@ -9,11 +11,13 @@ import { faker } from '@faker-js/faker';
 import { Random } from '@momentum/random';
 import {
   ActivityType,
+  Ban,
   MapCreditType,
   MapStatus,
   MapType,
   ReportCategory,
-  ReportType
+  ReportType,
+  Role
 } from '@momentum/constants';
 
 const prisma = new PrismaClient();
@@ -64,23 +68,18 @@ async function createRandomUser() {
       avatar: 'ac7305567f93a4c9eec4d857df993191c61fb240_full.jpg',
       country: faker.address.countryCode(),
       ...Random.createdUpdatedDates(),
-      roles: {
-        create: {
-          mapper: false,
-          verified: Random.weightedBool(0.2),
-          placeholder: Random.weightedBool(0.2),
-          admin: Random.weightedBool(0.2),
-          moderator: Random.weightedBool(0.2)
-        }
-      },
-      bans: {
-        create: {
-          leaderboards: Random.weightedBool(0.1),
-          avatar: Random.weightedBool(0.1),
-          alias: Random.weightedBool(0.1),
-          bio: Random.weightedBool(0.1)
-        }
-      }
+      roles: Bitflags.join(
+        Random.weightedBool(0.1) ? Role.VERIFIED : 0,
+        Random.weightedBool(0.1) ? Role.PLACEHOLDER : 0,
+        Random.weightedBool(0.1) ? Role.ADMIN : 0,
+        Random.weightedBool(0.1) ? Role.MODERATOR : 0
+      ),
+      bans: Bitflags.join(
+        Random.weightedBool(0.1) ? Ban.BIO : 0,
+        Random.weightedBool(0.1) ? Ban.AVATAR : 0,
+        Random.weightedBool(0.1) ? Ban.LEADERBOARDS : 0,
+        Random.weightedBool(0.1) ? Ban.ALIAS : 0
+      )
     }
   });
 }
@@ -359,7 +358,7 @@ async function makeRandomUsersMappers() {
     users.map((user) =>
       prisma.user.update({
         where: { id: user.id },
-        data: { roles: { update: { mapper: true } } }
+        data: { roles: Role.MAPPER }
       })
     )
   );
@@ -368,7 +367,7 @@ async function makeRandomUsersMappers() {
 async function uploadMaps() {
   const mappers = await prisma.user.findMany({
     select: { id: true },
-    where: { roles: { mapper: true } },
+    where: { roles: Role.MAPPER },
     take: NUM_OF_MAPPERS_TO_UPLOAD_MAPS
   });
 

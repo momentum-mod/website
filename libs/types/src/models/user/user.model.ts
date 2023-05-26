@@ -1,20 +1,14 @@
-import {
-  Bans,
-  Profile,
-  Rank,
-  Roles,
-  UpdateBans,
-  UpdateRoles,
-  UserStats
-} from '@momentum/types';
+import { Ban, Role } from '@momentum/constants';
+import { Profile, Rank, UserStats } from '@momentum/types';
 import { User as PrismaUser } from '@prisma/client';
+import { BitwiseEnum } from '../../bitwise-enum.interface';
 
 export interface User extends Omit<PrismaUser, 'avatar'> {
+  roles: BitwiseEnum<Role>;
+  bans: BitwiseEnum<Ban>;
   avatarURL: string;
   profile?: Profile;
   userStats?: UserStats;
-  roles?: Roles;
-  bans?: Bans;
   mapRank?: Rank;
 }
 
@@ -26,8 +20,8 @@ export interface UpdateUser {
 }
 
 export interface AdminUpdateUser extends UpdateUser {
-  roles?: UpdateRoles;
-  bans?: UpdateBans;
+  roles?: BitwiseEnum<Role>;
+  bans?: BitwiseEnum<Ban>;
 }
 
 export interface MergeUser {

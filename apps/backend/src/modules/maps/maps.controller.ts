@@ -65,7 +65,7 @@ import {
   UpdateMapInfoDto
 } from '@momentum/backend/dto';
 import { LoggedInUser, Roles } from '@momentum/backend/decorators';
-import { Role as RolesEnum } from '@momentum/constants';
+import { Role } from '@momentum/constants';
 import { ParseIntSafePipe } from '@momentum/backend/pipes';
 import { Config } from '@momentum/backend/config';
 
@@ -94,7 +94,7 @@ export class MapsController {
 
   @Post()
   @HttpCode(HttpStatus.NO_CONTENT)
-  @Roles(RolesEnum.MAPPER, RolesEnum.MODERATOR, RolesEnum.ADMIN)
+  @Roles(Role.MAPPER, Role.MODERATOR, Role.ADMIN)
   @ApiOperation({ summary: 'Creates a single map' })
   @ApiOkResponse({ type: MapDto, description: 'The newly created map' })
   @ApiForbiddenResponse({ description: 'User does not have the Mapper role' })
@@ -138,7 +138,7 @@ export class MapsController {
 
   @Patch('/:mapID')
   @HttpCode(HttpStatus.NO_CONTENT)
-  @Roles(RolesEnum.MAPPER)
+  @Roles(Role.MAPPER)
   @ApiOperation({ summary: "Updates a single map's status flag" })
   @ApiParam({
     name: 'mapID',
@@ -165,7 +165,7 @@ export class MapsController {
   //#region Upload/Download
 
   @Get('/:mapID/upload')
-  @Roles(RolesEnum.MAPPER)
+  @Roles(Role.MAPPER)
   @HttpCode(HttpStatus.NO_CONTENT)
   @ApiOperation({ summary: 'Get the map upload endpoint in response header' })
   @ApiNoContentResponse({
@@ -283,7 +283,7 @@ export class MapsController {
   }
 
   @Post('/:mapID/credits')
-  @Roles(RolesEnum.MAPPER)
+  @Roles(Role.MAPPER)
   @ApiOperation({ summary: 'Adds a map credit to the map' })
   @ApiParam({
     name: 'mapID',
@@ -330,7 +330,7 @@ export class MapsController {
   }
 
   @Patch('/credits/:mapCreditID')
-  @Roles(RolesEnum.MAPPER)
+  @Roles(Role.MAPPER)
   @HttpCode(HttpStatus.NO_CONTENT)
   @ApiOperation({ summary: 'Updates the specified map credit' })
   @ApiParam({
@@ -364,7 +364,7 @@ export class MapsController {
   }
 
   @Delete('/credits/:mapCreditID')
-  @Roles(RolesEnum.MAPPER)
+  @Roles(Role.MAPPER)
   @HttpCode(HttpStatus.NO_CONTENT)
   @ApiOperation({ summary: 'Deletes the specified map credit' })
   @ApiParam({
@@ -408,7 +408,7 @@ export class MapsController {
   }
 
   @Patch('/:mapID/info')
-  @Roles(RolesEnum.MAPPER)
+  @Roles(Role.MAPPER)
   @HttpCode(HttpStatus.NO_CONTENT)
   @ApiOperation({ summary: 'Update the map info' })
   @ApiBody({
@@ -520,7 +520,7 @@ export class MapsController {
   }
 
   @Post('/:mapID/images')
-  @Roles(RolesEnum.MAPPER)
+  @Roles(Role.MAPPER)
   @UseInterceptors(FileInterceptor('file'))
   @ApiOperation({ summary: 'Uploads an image for the map' })
   @ApiCreatedResponse({
@@ -562,7 +562,7 @@ export class MapsController {
   }
 
   @Put('/images/:imgID')
-  @Roles(RolesEnum.MAPPER)
+  @Roles(Role.MAPPER)
   @HttpCode(HttpStatus.NO_CONTENT)
   @UseInterceptors(FileInterceptor('file'))
   @ApiOperation({ summary: 'Updates a map image' })
@@ -601,7 +601,7 @@ export class MapsController {
   }
 
   @Delete('/images/:imgID')
-  @Roles(RolesEnum.MAPPER)
+  @Roles(Role.MAPPER)
   @HttpCode(HttpStatus.NO_CONTENT)
   @ApiOperation({ summary: 'Deletes a map image' })
   @ApiNoContentResponse({ description: 'Image deleted successfully' })
@@ -626,7 +626,7 @@ export class MapsController {
 
   //#region Thumbnail
   @Put('/:mapID/thumbnail')
-  @Roles(RolesEnum.MAPPER)
+  @Roles(Role.MAPPER)
   @HttpCode(HttpStatus.NO_CONTENT)
   @UseInterceptors(FileInterceptor('file'))
   @ApiOperation({ summary: "Updates a map's thumbnail" })

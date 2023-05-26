@@ -31,7 +31,8 @@ import {
   ActivityType,
   MapCreditType,
   MapStatus,
-  MapType
+  MapType,
+  Role
 } from '@momentum/constants';
 import { Config } from '@momentum/backend/config';
 import path from 'node:path';
@@ -381,7 +382,7 @@ describe('Maps', () => {
 
       beforeAll(async () => {
         [user, token] = await db.createAndLoginUser({
-          data: { roles: { create: { mapper: true } } }
+          data: { roles: Role.MAPPER }
         });
 
         createMapObject = {
@@ -538,7 +539,7 @@ describe('Maps', () => {
       it('should 403 when the user does not have the mapper role', async () => {
         await prisma.user.update({
           where: { id: user.id },
-          data: { roles: { update: { mapper: false } } }
+          data: { roles: 0 }
         });
 
         await req.post({
@@ -559,9 +560,7 @@ describe('Maps', () => {
 
     beforeAll(async () => {
       [[u1, u1Token], u2Token] = await Promise.all([
-        db.createAndLoginUser({
-          data: { roles: { create: { mapper: true } } }
-        }),
+        db.createAndLoginUser({ data: { roles: Role.MAPPER } }),
         db.loginNewUser()
       ]);
       map = await db.createMap({
@@ -617,7 +616,6 @@ describe('Maps', () => {
 
     describe('POST', () => {
       it('should upload the map file', async () => {
-
         const inBuffer = readFileSync(path.join(FILES_PATH, 'map.bsp'));
         const inHash = createSha1Hash(inBuffer);
 
@@ -689,7 +687,7 @@ describe('Maps', () => {
 
     it('should successfully create a map, upload it to the returned location, then download it', async () => {
       const [user, token] = await db.createAndLoginUser({
-        data: { roles: { create: { mapper: true } } }
+        data: { roles: Role.MAPPER }
       });
 
       const res = await req.post({
@@ -1004,7 +1002,7 @@ describe('Maps', () => {
       beforeAll(
         async () =>
           ([user, token] = await db.createAndLoginUser({
-            data: { roles: { create: { mapper: true } } }
+            data: { roles: Role.MAPPER }
           }))
       );
 
@@ -1163,7 +1161,7 @@ describe('Maps', () => {
 
       beforeAll(async () => {
         [user, token] = await db.createAndLoginUser({
-          data: { roles: { create: { mapper: true } } }
+          data: { roles: Role.MAPPER }
         });
         map = await db.createMap({
           status: MapStatus.NEEDS_REVISION,
@@ -1223,7 +1221,7 @@ describe('Maps', () => {
 
       it('should return 403 if the map was not submitted by that user', async () => {
         const [_, u2Token] = await db.createAndLoginUser({
-          data: { roles: { create: { mapper: true } } }
+          data: { roles: Role.MAPPER }
         });
 
         await req.patch({
@@ -1251,7 +1249,7 @@ describe('Maps', () => {
       it('should return 403 if the user does not have the mapper role', async () => {
         await prisma.user.update({
           where: { id: user.id },
-          data: { roles: { update: { mapper: false } } }
+          data: { roles: 0 }
         });
 
         await req.patch({
@@ -1342,12 +1340,8 @@ describe('Maps', () => {
 
       beforeAll(async () => {
         [[u1, u1Token], [u2, u2Token]] = await Promise.all([
-          db.createAndLoginUser({
-            data: { roles: { create: { mapper: true } } }
-          }),
-          db.createAndLoginUser({
-            data: { roles: { create: { mapper: true } } }
-          })
+          db.createAndLoginUser({ data: { roles: Role.MAPPER } }),
+          db.createAndLoginUser({ data: { roles: Role.MAPPER } })
         ]);
         map = await db.createMap({
           submitter: { connect: { id: u1.id } },
@@ -1413,9 +1407,9 @@ describe('Maps', () => {
         }));
 
       it("should 403 if the user doesn't have the mapper role", async () => {
-        await prisma.roles.update({
-          where: { userID: u1.id },
-          data: { mapper: false }
+        await prisma.user.update({
+          where: { id: u1.id },
+          data: { roles: 0 }
         });
 
         await req.post({
@@ -1425,9 +1419,9 @@ describe('Maps', () => {
           token: u1Token
         });
 
-        await prisma.roles.update({
-          where: { userID: u1.id },
-          data: { mapper: true }
+        await prisma.user.update({
+          where: { id: u1.id },
+          data: { roles: Role.MAPPER }
         });
       });
 
@@ -1548,12 +1542,8 @@ describe('Maps', () => {
 
       beforeAll(async () => {
         [[u1, u1Token], [u2, u2Token]] = await Promise.all([
-          db.createAndLoginUser({
-            data: { roles: { create: { mapper: true } } }
-          }),
-          db.createAndLoginUser({
-            data: { roles: { create: { mapper: true } } }
-          })
+          db.createAndLoginUser({ data: { roles: Role.MAPPER } }),
+          db.createAndLoginUser({ data: { roles: Role.MAPPER } })
         ]);
 
         map = await db.createMap({
@@ -1667,7 +1657,7 @@ describe('Maps', () => {
       it('should 403 if the user does not have the mapper role', async () => {
         await prisma.user.update({
           where: { id: u1.id },
-          data: { roles: { update: { mapper: false } } }
+          data: { roles: 0 }
         });
 
         await req.patch({
@@ -1679,7 +1669,7 @@ describe('Maps', () => {
 
         await prisma.user.update({
           where: { id: u1.id },
-          data: { roles: { update: { mapper: true } } }
+          data: { roles: Role.MAPPER }
         });
       });
 
@@ -1761,9 +1751,9 @@ describe('Maps', () => {
       beforeAll(async () => {
         [[u1, u1Token], u2Token] = await Promise.all([
           db.createAndLoginUser({
-            data: { roles: { create: { mapper: true } } }
+            data: { roles: Role.MAPPER }
           }),
-          db.loginNewUser({ data: { roles: { create: { mapper: true } } } })
+          db.loginNewUser({ data: { roles: Role.MAPPER } })
         ]);
 
         map = await db.createMap({
@@ -1837,7 +1827,7 @@ describe('Maps', () => {
       it('should return 403 if the user does not have the mapper role', async () => {
         await prisma.user.update({
           where: { id: u1.id },
-          data: { roles: { update: { mapper: false } } }
+          data: { roles: 0 }
         });
 
         await req.del({
@@ -1848,7 +1838,7 @@ describe('Maps', () => {
 
         await prisma.user.update({
           where: { id: u1.id },
-          data: { roles: { update: { mapper: true } } }
+          data: { roles: Role.MAPPER }
         });
       });
 
@@ -1909,7 +1899,7 @@ describe('Maps', () => {
       let user, token, map;
       beforeAll(async () => {
         [user, token] = await db.createAndLoginUser({
-          data: { roles: { create: { mapper: true } } }
+          data: { roles: Role.MAPPER }
         });
         map = await db.createMap({
           status: MapStatus.NEEDS_REVISION,
@@ -1978,7 +1968,7 @@ describe('Maps', () => {
       it('should 403 if the user is not a mapper', async () => {
         await prisma.user.update({
           where: { id: user.id },
-          data: { roles: { update: { mapper: false } } }
+          data: { roles: 0 }
         });
 
         await req.putAttach({
@@ -1990,7 +1980,7 @@ describe('Maps', () => {
 
         await prisma.user.update({
           where: { id: user.id },
-          data: { roles: { update: { mapper: true } } }
+          data: { roles: Role.MAPPER }
         });
       });
 
@@ -2055,7 +2045,7 @@ describe('Maps', () => {
       let user, token, map;
       beforeAll(async () => {
         [user, token] = await db.createAndLoginUser({
-          data: { roles: { create: { mapper: true } } }
+          data: { roles: Role.MAPPER }
         });
         map = await db.createMap({
           status: MapStatus.NEEDS_REVISION,
@@ -2125,7 +2115,7 @@ describe('Maps', () => {
       it('should 403 if the user is not a mapper', async () => {
         await prisma.user.update({
           where: { id: user.id },
-          data: { roles: { update: { mapper: false } } }
+          data: { roles: 0 }
         });
 
         await req.postAttach({
@@ -2137,7 +2127,7 @@ describe('Maps', () => {
 
         await prisma.user.update({
           where: { id: user.id },
-          data: { roles: { update: { mapper: true } } }
+          data: { roles: Role.MAPPER }
         });
       });
 
@@ -2217,7 +2207,7 @@ describe('Maps', () => {
       let user, token, map, image, hash;
       beforeAll(async () => {
         [user, token] = await db.createAndLoginUser({
-          data: { roles: { create: { mapper: true } } }
+          data: { roles: Role.MAPPER }
         });
         map = await db.createMap({
           status: MapStatus.NEEDS_REVISION,
@@ -2275,7 +2265,7 @@ describe('Maps', () => {
       it('should 403 if the user is not a mapper', async () => {
         await prisma.user.update({
           where: { id: user.id },
-          data: { roles: { update: { mapper: false } } }
+          data: { roles: 0 }
         });
 
         await req.putAttach({
@@ -2287,7 +2277,7 @@ describe('Maps', () => {
 
         await prisma.user.update({
           where: { id: user.id },
-          data: { roles: { update: { mapper: true } } }
+          data: { roles: Role.MAPPER }
         });
       });
 
@@ -2338,7 +2328,7 @@ describe('Maps', () => {
 
       beforeAll(async () => {
         [user, token] = await db.createAndLoginUser({
-          data: { roles: { create: { mapper: true } } }
+          data: { roles: Role.MAPPER }
         });
         map = await db.createMap({
           status: MapStatus.NEEDS_REVISION,
@@ -2388,7 +2378,7 @@ describe('Maps', () => {
       it('should 403 if the user is not a mapper', async () => {
         await prisma.user.update({
           where: { id: user.id },
-          data: { roles: { update: { mapper: false } } }
+          data: { roles: 0 }
         });
 
         await req.del({
@@ -2399,7 +2389,7 @@ describe('Maps', () => {
 
         await prisma.user.update({
           where: { id: user.id },
-          data: { roles: { update: { mapper: true } } }
+          data: { roles: Role.MAPPER }
         });
       });
 
@@ -2960,7 +2950,7 @@ describe('Maps', () => {
             })
           )
         );
-        user7Token = await auth.login(runs[6].user);
+        user7Token = auth.login(runs[6].user);
       });
 
       afterAll(() => db.cleanup('user', 'map', 'run'));

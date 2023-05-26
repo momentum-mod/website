@@ -256,7 +256,7 @@ describe('Runs', () => {
         });
         user = run.user;
         map = run.map;
-        token = await auth.login(user);
+        token = auth.login(user);
       });
 
       afterAll(() =>
@@ -341,7 +341,7 @@ describe('Runs', () => {
         });
         user = run.user;
         map = run.map;
-        token = await auth.login(user);
+        token = auth.login(user);
       });
 
       afterAll(() => db.cleanup('user', 'map', 'run'));

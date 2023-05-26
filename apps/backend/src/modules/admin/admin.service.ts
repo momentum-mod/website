@@ -16,10 +16,10 @@ import {
   PagedResponseDto,
   ReportDto,
   UpdateReportDto,
-  UpdateRolesDto,
   UserDto
 } from '@momentum/backend/dto';
 import { Bitflags } from '@momentum/bitflags';
+import { Role } from '@momentum/constants';
 
 @Injectable()
 export class AdminService {
@@ -31,7 +31,7 @@ export class AdminService {
   async createPlaceholderUser(alias: string): Promise<UserDto> {
     const input: Prisma.UserCreateInput = {
       alias: alias,
-      roles: { create: { placeholder: true } }
+      roles: Role.PLACEHOLDER
     };
 
     const dbResponse = await this.userRepo.create(input);
@@ -42,8 +42,7 @@ export class AdminService {
   async mergeUsers(placeholderID: number, userID: number): Promise<UserDto> {
     const includeFollows: Prisma.UserInclude = {
       follows: true,
-      followers: true,
-      roles: true
+      followers: true
     };
 
     const placeholder = (await this.userRepo.get(
@@ -55,7 +54,7 @@ export class AdminService {
       throw new BadRequestException('Will not merge the same account');
     } else if (!placeholder) {
       throw new BadRequestException('Placeholder user not found');
-    } else if (!placeholder.roles?.placeholder) {
+    } else if (!Bitflags.has(placeholder.roles, Role.PLACEHOLDER)) {
       throw new BadRequestException(
         'Placeholder input is not a placeholder user'
       );
@@ -67,12 +66,8 @@ export class AdminService {
 
     // Update credits to point to new ID
     await this.mapRepo.updateCredits(
-      {
-        userID: placeholderID
-      },
-      {
-        userID: userID
-      }
+      { userID: placeholderID },
+      { userID: userID }
     );
 
     // Now follows, hardest part.
@@ -139,11 +134,7 @@ export class AdminService {
     userID: number,
     update: AdminUpdateUserDto
   ) {
-    const user: any = await this.userRepo.get(userID, {
-      profile: true,
-      bans: true,
-      roles: true
-    });
+    const user: any = await this.userRepo.get(userID, { profile: true });
 
     if (!user) throw new NotFoundException('User not found');
 
@@ -151,65 +142,60 @@ export class AdminService {
 
     const updateInput: Prisma.UserUpdateInput = {};
 
-    if (update.bans)
-      updateInput.bans = {
-        upsert: {
-          create: update.bans,
-          update: update.bans
-        }
-      };
+    if (update.bans) updateInput.bans = update.bans;
 
-    let newRoles: UpdateRolesDto;
+    let newRoles: number;
 
-    if (update.roles) {
-      const admin: any = await this.userRepo.get(adminID, { roles: true });
+    if (update.roles !== undefined) {
+      const admin = await this.userRepo.get(adminID);
 
-      if (admin.roles?.moderator) {
-        if (user.roles?.moderator || user.roles?.admin) {
+      if (Bitflags.has(admin.roles, Role.MODERATOR)) {
+        if (
+          Bitflags.has(user.roles, Role.MODERATOR) ||
+          Bitflags.has(user.roles, Role.ADMIN)
+        ) {
           if (adminID !== userID) {
             throw new ForbiddenException(
               'Cannot update user with >= power to you'
             );
           } else {
-            if (update.roles.admin === true)
+            if (Bitflags.has(update.roles, Role.ADMIN))
               throw new ForbiddenException('Cannot add yourself as admin');
-            if (update.roles.moderator === false)
+            if (!Bitflags.has(update.roles, Role.MODERATOR))
               throw new ForbiddenException(
                 'Cannot remove yourself as moderator'
               );
           }
         }
-        if (update.roles.admin)
+        if (Bitflags.has(update.roles, Role.ADMIN))
           throw new ForbiddenException(
             'Moderators may not add other users as admin'
           );
-        if (update.roles.moderator && adminID !== userID)
+        if (Bitflags.has(update.roles, Role.MODERATOR) && adminID !== userID)
           throw new ForbiddenException(
             'Moderators may not add other users as moderators'
           );
-      } else if (user.roles?.admin && adminID !== userID)
+      } else if (Bitflags.has(user.roles, Role.ADMIN) && adminID !== userID)
         throw new ForbiddenException('Cannot update other admins');
 
       // If all we make it through all these checks, finally we can update the flags
-      updateInput.roles = {
-        upsert: {
-          create: update.roles,
-          update: update.roles
-        }
-      };
+      updateInput.roles = update.roles;
+
       newRoles = update.roles;
     } else {
       newRoles = user.roles;
     }
 
     if (update.alias && update.alias !== user.alias) {
-      if (newRoles?.verified) {
-        const verifiedMatches = await this.userRepo.count({
-          alias: update.alias,
-          roles: { is: { verified: true } }
+      if (Bitflags.has(newRoles, Role.VERIFIED)) {
+        const [sameNameMatches] = await this.userRepo.getAll({
+          alias: update.alias
         });
-
-        if (verifiedMatches > 0)
+        if (
+          sameNameMatches.some((user) =>
+            Bitflags.has(user.roles, Role.VERIFIED)
+          )
+        )
           throw new ConflictException(
             'Alias is in use by another verified user'
           );
@@ -226,11 +212,14 @@ export class AdminService {
   }
 
   async deleteUser(userID: number) {
-    const user: any = await this.userRepo.get(userID, { roles: true });
+    const user: any = await this.userRepo.get(userID);
 
     if (!user) throw new NotFoundException('User not found');
 
-    if (user.roles?.admin || user.roles?.moderator)
+    if (
+      Bitflags.has(user.roles, Role.ADMIN) ||
+      Bitflags.has(user.roles, Role.MODERATOR)
+    )
       throw new ForbiddenException(
         'Will delete admins or moderators, remove their roles first'
       );

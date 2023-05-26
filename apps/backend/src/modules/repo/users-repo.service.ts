@@ -38,7 +38,7 @@ export class UsersRepoService {
 
   async getAll(
     where: Prisma.UserWhereInput,
-    include: Prisma.UserInclude,
+    include?: Prisma.UserInclude,
     skip?: number,
     take?: number
   ): Promise<[User[], number]> {
