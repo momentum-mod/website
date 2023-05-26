@@ -44,11 +44,11 @@
         "lintFilePatterns": ["apps/backend/**/*.ts"]
       }
     },
-    "test-unit": {
+    "test": {
       "executor": "@nx/jest:jest",
       "outputs": ["{workspaceRoot}/coverage/{projectRoot}"],
       "options": {
-        "jestConfig": "apps/backend/test/unit/jest.config.ts",
+        "jestConfig": "apps/backend/jest.config.ts",
         "passWithNoTests": true
       },
       "configurations": {

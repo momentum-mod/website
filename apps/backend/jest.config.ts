@@ -1,33 +1,11 @@
-import { JestConfigWithTsJest } from 'ts-jest';
-
-const UnitTestConfig: JestConfigWithTsJest = {
-  displayName: 'backend (Unit Tests)',
+export default {
+  displayName: 'backend',
   preset: '../../jest.preset.js',
-  rootDir: '../../',
   roots: ['<rootDir>'],
-  setupFilesAfterEnv: [
-    '<rootDir>/test/unit/setup.ts',
-    '<rootDir>/test/matchers.ts'
-  ],
+  setupFilesAfterEnv: ['<rootDir>/src/test-setup.ts'],
   testEnvironment: 'node',
   transform: {
     '^.+\\.[tj]s$': ['ts-jest', { tsconfig: '<rootDir>/tsconfig.spec.json' }]
-  }
-  // testMatch: ['<rootDir>/src/**/*.spec.ts'],
-  // modulePaths: [compilerOptions.baseUrl],
-  // moduleNameMapper: pathsToModuleNameMapper(compilerOptions.paths, {
-  //   prefix: '<rootDir>/'
-  // })
+  },
+  transformIgnorePatterns: ['node_modules/(?!.*\\.mjs$)']
 };
-
-export default UnitTestConfig;
-
-// export default {
-//   displayName: 'backend',
-//   preset: '../../jest.preset.js',
-//   testEnvironment: 'node',
-//   transform: {
-//     '^.+\\.[tj]s$': ['ts-jest', { tsconfig: '<rootDir>/tsconfig.spec.json' }]
-//   },
-//   moduleFileExtensions: ['ts', 'js', 'html'],
-// };
