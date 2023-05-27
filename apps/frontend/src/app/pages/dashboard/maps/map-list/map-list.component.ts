@@ -34,8 +34,8 @@ export enum MapListType {
 export class MapListComponent implements OnInit {
   @Input() type: MapListType;
   mapListType = MapListType;
-  statusEnums = [];
-  typeEnums = [];
+  statuses: { value: MapStatus; text: string }[] = [];
+  types: { value: MapType; text: string }[] = [];
   requestSent: boolean;
   mapCount: number;
   maps: Map[];
@@ -72,44 +72,20 @@ export class MapListComponent implements OnInit {
     this.maps = [];
     this.mapCount = 0;
 
-    /*
-     * Set statusEnums to be an array of objects that hold the enum values
-     * and the strings we want to display in the dropdown menu
-     * That way we can sort the items alphabetically without losing their values
-     */
-    let arr = Object.values(MapUploadStatus);
-    // Enums are objects with keys/values mapped both ways in JS, so we discard half the results to keep only the keys
-    arr = arr.slice(arr.length / 2);
-    for (const i of arr) {
-      this.statusEnums.push({
-        value: Number(i),
-        text: getStatusFromEnum(Number(i))
-      });
-    }
-    // Sort items alphabetically
-    this.statusEnums.sort((a, b) => (a.value > b.value ? 1 : -1));
-    this.statusEnums.unshift({
-      value: -1,
-      text: 'All'
-    });
+    this.statuses = [
+      { value: -1, text: 'All' },
+      ...Enum.values(MapStatus)
+        .map((status) => ({ value: status, text: MapStatusName[status] }))
+        .sort((a, b) => (a.text < b.text ? 1 : -1))
+    ];
 
-    // Do the same for typeEnums
-    // 'UNKNOWN' is thrown out in this case; should users be able to search for it as 'Other'?
-    let arr2 = Object.values(MomentumMapType);
-    arr2 = arr2.slice(arr2.length / 2);
-    for (const i of arr2) {
-      if (i !== MomentumMapType.UNKNOWN) {
-        this.typeEnums.push({
-          value: Number(i),
-          text: getTypeFromEnum(Number(i))
-        });
-      }
-    }
-    this.typeEnums.sort((a, b) => (a.value > b.value ? 1 : -1));
-    this.typeEnums.unshift({
-      value: -1,
-      text: 'All'
-    });
+    this.types = [
+      { value: -1, text: 'All' },
+      ...Enum.values(MapType)
+        .filter((status) => status !== MapType.UNKNOWN)
+        .map((status) => ({ value: status, text: MapTypeName[status] }))
+        .sort((a, b) => (a.text < b.text ? 1 : -1))
+    ];
   }
 
   ngOnInit() {
