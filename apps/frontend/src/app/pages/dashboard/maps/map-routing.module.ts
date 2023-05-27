@@ -8,7 +8,7 @@ import { UploadStatusComponent } from './upload-status/upload-status.component';
 import { MapInfoComponent } from './map-info/map-info.component';
 import { MapLibraryComponent } from './map-library/map-library.component';
 import { MapEditComponent } from './map-edit/map-edit.component';
-import { RoleGuard } from '../../../@core/guards/role.guard';
+import { RoleGuard } from '../../../guards/role.guard';
 import { MapFavoritesComponent } from './map-favorites/map-favorites.component';
 import { Role } from '@momentum/constants';
 
