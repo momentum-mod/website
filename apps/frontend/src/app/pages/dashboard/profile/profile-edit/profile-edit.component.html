@@ -110,30 +110,6 @@
       <nb-tab *ngIf="isLocal" tabTitle="Social Links" #socials>
         <div class="d-flex justify-content-around flex-wrap my-2 text-center">
           <div class="mx-1 mt-2 mb-3">
-            <h5>Twitter</h5>
-            <img
-              *ngIf="!user.profile.twitterAuth"
-              ngSrc="/assets/images/twitter_button.png"
-              (click)="auth('twitter')"
-              fill
-            />
-            <div *ngIf="user.profile.twitterAuth">
-              <h5 class="mb-3 text-success">
-                Authorized as {{ user.profile.twitterAuth.displayName }}
-              </h5>
-              <button
-                nbButton
-                outline
-                status="danger"
-                size="small"
-                type="button"
-                (click)="unAuth('twitter')"
-              >
-                Unauthorize
-              </button>
-            </div>
-          </div>
-          <div class="mx-1 mt-2 mb-3">
             <h5>Discord</h5>
             <img
               *ngIf="!user.profile.discordAuth"

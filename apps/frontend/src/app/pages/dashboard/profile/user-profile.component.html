@@ -110,15 +110,6 @@
                 class="fab fa-twitch"
               ></a>
               <a
-                *ngIf="user.profile?.twitterAuth"
-                href="https://twitter.com/{{
-                  user.profile.twitterAuth.displayName
-                }}"
-                title="{{ user.profile.twitterAuth.displayName }}"
-                target="_blank"
-                class="fab fa-twitter"
-              ></a>
-              <a
                 *ngIf="user.profile?.discordAuth"
                 href="https://discordapp.com/users/{{
                   user.profile.discordAuth.discordID
