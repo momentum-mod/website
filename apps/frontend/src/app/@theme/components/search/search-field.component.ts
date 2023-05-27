@@ -121,35 +121,26 @@ export class SearchFieldComponent implements OnChanges, AfterViewInit {
   }
 
   submitSearch(term) {
-    if (term) {
-      this.search.emit(term);
+    if (!term) return;
+    this.search.emit(term);
 
-      this.clearSearchResults();
-      this.onlyUsers = term.startsWith('user:');
-      this.onlyMaps = term.startsWith('map:');
-      if (!this.onlyMaps) {
-        this.usersService
-          .getUsers({
-            params: {
-              search: term.slice(Math.max(0, this.onlyUsers ? 5 : 0)).trim()
-            }
-          })
-          .subscribe((resp) => {
-            this.users = resp.response;
-          });
-      }
-      if (!this.onlyUsers) {
-        this.mapsService
-          .getMaps({
-            params: {
-              expand: 'thumbnail',
-              search: term.slice(Math.max(0, this.onlyMaps ? 4 : 0)).trim()
-            }
-          })
-          .subscribe((resp) => {
-            this.maps = resp.response;
-          });
-      }
+    this.clearSearchResults();
+    this.onlyUsers = term.startsWith('user:');
+    this.onlyMaps = term.startsWith('map:');
+    if (!this.onlyMaps) {
+      this.usersService
+        .getUsers({
+          search: term.slice(Math.max(0, this.onlyUsers ? 5 : 0)).trim()
+        })
+        .subscribe((resp) => (this.users = resp.response));
+    }
+    if (!this.onlyUsers) {
+      this.mapsService
+        .getMaps({
+          expand: ['thumbnail'],
+          search: term.slice(Math.max(0, this.onlyMaps ? 4 : 0)).trim()
+        })
+        .subscribe((resp) => (this.maps = resp.response));
     }
   }
 

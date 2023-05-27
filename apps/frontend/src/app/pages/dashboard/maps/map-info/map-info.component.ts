@@ -89,10 +89,16 @@ export class MapInfoComponent implements OnInit, OnDestroy {
         .pipe(
           switchMap((params: ParamMap) =>
             this.mapService.getMap(Number(params.get('id')), {
-              params: {
-                expand:
-                  'info,credits,submitter,stats,images,inFavorites,inLibrary,tracks'
-              }
+              expand: [
+                'info',
+                'credits',
+                'submitter',
+                'stats',
+                'images',
+                'inFavorites',
+                'inLibrary',
+                'tracks'
+              ]
             })
           )
         )

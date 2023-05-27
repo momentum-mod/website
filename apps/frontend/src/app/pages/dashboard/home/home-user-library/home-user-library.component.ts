@@ -14,17 +14,13 @@ export class HomeUserLibraryComponent implements OnInit {
   constructor(private userService: LocalUserService) {}
 
   ngOnInit() {
-    this.userService
-      .getMapLibrary({
-        params: { limit: 1 }
-      })
-      .subscribe({
-        next: (response) => {
-          this.mapLibraryCount = response.count;
-          if (response.entries[0])
-            this.mostRecentlyAddedMap = response.entries[0].map;
-        },
-        error: (error) => console.error(error)
-      });
+    this.userService.getMapLibrary({ take: 1 }).subscribe({
+      next: (response) => {
+        this.mapLibraryCount = response.totalCount;
+        if (response.response[0])
+          this.mostRecentlyAddedMap = response.response[0].map;
+      },
+      error: (error) => console.error(error)
+    });
   }
 }

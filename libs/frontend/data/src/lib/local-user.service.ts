@@ -1,23 +1,30 @@
 import { Injectable } from '@angular/core';
 import { AuthService } from './auth.service';
-import { Observable, ReplaySubject, Subject } from 'rxjs';
+import { Observable, of, ReplaySubject, Subject } from 'rxjs';
 import { HttpClient } from '@angular/common/http';
 import { CookieService } from 'ngx-cookie-service';
 import { env } from '@momentum/frontend/env';
 import {
-    Follow,
+  Follow,
+  FollowStatus,
   Map,
   MapCredit,
+  MapCreditsGetQuery,
   MapFavorite,
   MapLibraryEntry,
   MapNotify,
+  MapSummary,
+  QueryParam,
   Roles,
-  User
+  UpdateUser,
+  User,
+  UserMapFavoritesGetQuery,
+  UserMapLibraryGetQuery,
+  UserMapSubmittedGetQuery,
+  UsersGetQuery
 } from '@momentum/types';
 import { Role } from '@momentum/constants';
-import { Paged } from '@momentum/types'; 
-import { MapSummary } from "./models/map-summary.model";
-import { FollowStatus } from './models/follow-status.model';
+import { PagedResponse } from '@momentum/types';
 
 // TODO: The roles and bans stuff needs changing, either we go back to bitflags
 // (that's my current inclination), or this class needs refactoring to use
@@ -50,9 +57,7 @@ export class LocalUserService {
   }
 
   public refreshLocal(): void {
-    this.getLocalUser({
-      params: { expand: 'profile' }
-    }).subscribe((usr) => {
+    this.getLocalUser({ expand: ['profile'] }).subscribe((usr) => {
       this.localUserSubject.next(usr);
       this.localUser = usr as any;
       // this.localUser = usr as User;
@@ -87,119 +92,120 @@ export class LocalUserService {
     // return user ? (ban & user.bans) !== 0 : false;
   }
 
-  public getLocalUser(options?: object): Observable<User> {
-    return this.http.get<User>(env.api + '/api/user', options || {});
+  public getLocalUser(query?: UsersGetQuery): Observable<User> {
+    return this.http.get<User>(env.api + '/user', {
+      params: query as QueryParam
+    });
   }
 
-  public updateUser(user: User): Observable<any> {
-    return this.http.patch(env.api + '/api/user', user);
+  public updateUser(user: UpdateUser): Observable<any> {
+    return this.http.patch(env.api + '/user', user);
   }
 
   public getMapLibrary(
-    options?: object
-  ): Observable<Paged<MapLibraryEntry>> {
-    return this.http.get<Paged<MapLibraryEntry>>(
-      env.api + '/api/user/maps/library',
-      options || {}
+    query?: UserMapLibraryGetQuery
+  ): Observable<PagedResponse<MapLibraryEntry>> {
+    return this.http.get<PagedResponse<MapLibraryEntry>>(
+      env.api + '/user/maps/library',
+      { params: query as QueryParam }
     );
   }
 
   public addMapToLibrary(mapID: number): Observable<any> {
-    return this.http.put(env.api + '/api/user/maps/library/' + mapID, {});
+    return this.http.put(env.api + '/user/maps/library/' + mapID, {});
   }
 
   public removeMapFromLibrary(mapID: number): Observable<any> {
-    return this.http.delete(env.api + '/api/user/maps/library/' + mapID);
+    return this.http.delete(env.api + '/user/maps/library/' + mapID);
   }
 
   public isMapInLibrary(mapID: number): Observable<any> {
-    return this.http.get(env.api + '/api/user/maps/library/' + mapID);
+    return this.http.get(env.api + '/user/maps/library/' + mapID);
   }
 
   public getMapFavorites(
-    options?: object
-  ): Observable<Paged<MapFavorite>> {
-    return this.http.get<Paged<MapFavorite>>(
-      env.api + '/api/user/maps/favorites',
-      options || {}
+    query?: UserMapFavoritesGetQuery
+  ): Observable<PagedResponse<MapFavorite>> {
+    return this.http.get<PagedResponse<MapFavorite>>(
+      env.api + '/user/maps/favorites',
+      {
+        params: query as QueryParam
+      }
     );
   }
 
   public getMapFavorite(mapID: number): Observable<MapFavorite> {
     return this.http.get<MapFavorite>(
-      env.api + '/api/user/maps/favorites/' + mapID
+      env.api + '/user/maps/favorites/' + mapID
     );
   }
 
   public addMapToFavorites(mapID: number): Observable<any> {
-    return this.http.put(env.api + '/api/user/maps/favorites/' + mapID, {});
+    return this.http.put(env.api + '/user/maps/favorites/' + mapID, {});
   }
 
   public removeMapFromFavorites(mapID: number): Observable<any> {
-    return this.http.delete(env.api + '/api/user/maps/favorites/' + mapID);
+    return this.http.delete(env.api + '/user/maps/favorites/' + mapID);
   }
 
-  public getMapCredits(options?: object): Observable<Paged<MapCredit>> {
-    return this.http.get<Paged<MapCredit>>(
-      env.api + '/api/user/maps/credits',
-      options || {}
-    );
+  public getMapCredits(
+    query?: Omit<MapCreditsGetQuery, 'userID'>
+  ): Observable<PagedResponse<MapCredit>> {
+    // TODO!!
+    return of(undefined as any);
+    // return this.http.get<Paged<MapCredit>>(
+    //   env.api + '/user/maps/credits',
+    //   options || {}
+    // );
   }
 
-  public getSubmittedMaps(options?: object): Observable<Paged<Map>> {
-    return this.http.get<Paged<Map>>(
-      env.api + '/api/user/maps/submitted',
-      options || {}
-    );
+  public getSubmittedMaps(
+    query?: UserMapSubmittedGetQuery
+  ): Observable<PagedResponse<Map>> {
+    return this.http.get<PagedResponse<Map>>(env.api + '/user/maps/submitted', {
+      params: query as QueryParam
+    });
   }
 
   public getSubmittedMapSummary(): Observable<MapSummary[]> {
     return this.http.get<MapSummary[]>(
-      env.api + '/api/user/maps/submitted/summary'
+      env.api + '/user/maps/submitted/summary'
     );
   }
 
   public checkFollowStatus(user: User): Observable<FollowStatus> {
-    return this.http.get<FollowStatus>(env.api + '/api/user/follow/' + user.id);
+    return this.http.get<FollowStatus>(env.api + '/user/follow/' + user.id);
   }
 
   public followUser(user: User): Observable<Follow> {
-    return this.http.post<Follow>(env.api + '/api/user/follow', {
+    return this.http.post<Follow>(env.api + '/user/follow', {
       userID: user.id
     });
   }
 
   public updateFollowStatus(user: User, notifyOn: number): Observable<any> {
-    return this.http.patch(env.api + '/api/user/follow/' + user.id, {
-      notifyOn: notifyOn
-    });
+    return this.http.patch(env.api + '/user/follow/' + user.id, { notifyOn });
   }
 
   public unfollowUser(user: User): Observable<any> {
-    return this.http.delete(env.api + '/api/user/follow/' + user.id, {
+    return this.http.delete(env.api + '/user/follow/' + user.id, {
       responseType: 'text'
     });
   }
 
   public checkMapNotify(mapID: number): Observable<MapNotify> {
-    return this.http.get<MapNotify>(env.api + '/api/user/notifyMap/' + mapID);
+    return this.http.get<MapNotify>(env.api + '/user/notifyMap/' + mapID);
   }
 
   public updateMapNotify(mapID: number, notifyOn: number): Observable<any> {
-    return this.http.put(env.api + '/api/user/notifyMap/' + mapID, {
-      notifyOn: notifyOn
-    });
+    return this.http.put(env.api + '/user/notifyMap/' + mapID, { notifyOn });
   }
 
   public disableMapNotify(mapID: number): Observable<any> {
-    return this.http.delete(env.api + '/api/user/notifyMap/' + mapID, {
-      responseType: 'text'
-    });
+    return this.http.delete(env.api + '/user/notifyMap/' + mapID, {});
   }
 
   public resetAliasToSteamAlias(): Observable<any> {
-    return this.http.patch(env.api + '/api/user', {
-      alias: ''
-    });
+    return this.http.patch(env.api + '/user', { alias: '' });
   }
 }

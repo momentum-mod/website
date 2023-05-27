@@ -66,12 +66,12 @@ export class UserProfileComponent implements OnInit, OnDestroy {
                   )
               });
             return this.usersService.getUser(idNum, {
-              params: { expand: 'profile,stats' }
+              expand: ['profile', 'stats']
             });
           } else {
             this.isLocal = true;
             return this.userService.getLocalUser({
-              params: { expand: 'profile,stats' }
+              expand: ['profile', 'stats']
             });
           }
         })
@@ -89,7 +89,7 @@ export class UserProfileComponent implements OnInit, OnDestroy {
 
           this.avatarLoaded = true;
           this.usersService.getUserFollows(this.user).subscribe({
-            next: (response) => (this.followingUsers = response.followed),
+            next: (response) => (this.followingUsers = response.response),
             error: (error) =>
               this.toastService.danger(
                 error.message,
@@ -97,7 +97,7 @@ export class UserProfileComponent implements OnInit, OnDestroy {
               )
           });
           this.usersService.getFollowersOfUser(this.user).subscribe({
-            next: (response) => (this.followedByUsers = response.followers),
+            next: (response) => (this.followedByUsers = response.response),
             error: (error) =>
               this.toastService.danger(
                 error.message,

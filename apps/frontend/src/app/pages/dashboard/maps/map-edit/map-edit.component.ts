@@ -74,7 +74,7 @@ export class MapEditComponent implements OnInit, OnDestroy {
       .pipe(
         switchMap((params: ParamMap) =>
           this.mapService.getMap(Number(params.get('id')), {
-            params: { expand: 'info,credits,images' }
+            expand: ['info', 'credits', 'images']
           })
         )
       )

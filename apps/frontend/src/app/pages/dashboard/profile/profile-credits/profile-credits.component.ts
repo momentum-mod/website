@@ -43,11 +43,10 @@ export class ProfileCreditsComponent implements OnInit {
   loadCredits() {
     this.usersService
       .getMapCredits(this.user.id, {
-        params: {
-          expand: 'map,mapInfo,mapThumbnail',
-          limit: this.pageLimit,
-          offset: (this.currentPage - 1) * this.pageLimit
-        }
+        expand: ['map', 'mapInfo', 'mapThumbnail']
+        // TODO
+        // take: this.pageLimit,
+        // skip: (this.currentPage - 1) * this.pageLimit
       })
       .pipe(finalize(() => (this.loadedCredits = true)))
       .subscribe({

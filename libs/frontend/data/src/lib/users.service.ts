@@ -1,51 +1,58 @@
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { env } from '@momentum/frontend/env';
-import { Paged, UsersGetQuery } from '@momentum/types';
+import {
+  PagedQuery,
+  PagedResponse,
+  QueryParam,
+  UsersGetQuery,
+  UsersGetAllQuery,
+  MapCreditsGetQuery,
+  Follow
+} from '@momentum/types';
 import { MapCredit, Run, User } from '@momentum/types';
-import { HttpService } from './http.service';
+import { HttpClient } from '@angular/common/http';
 
 @Injectable({ providedIn: 'root' })
 export class UsersService {
-  constructor(private http: HttpService) {}
+  constructor(private http: HttpClient) {}
 
-  getUsers(options?: UsersGetQuery): Observable<Paged<User>> {
-    return this.http.get<Paged<User>>('users', options);
+  getUsers(query?: UsersGetAllQuery): Observable<PagedResponse<User>> {
+    return this.http.get<PagedResponse<User>>('users', {
+      params: query as QueryParam
+    });
   }
 
-  getUser(userID: number, options?: object): Observable<User> {
-    return this.http.get<User>(env.api + '/api/users/' + userID, options || {});
+  getUser(userID: number, query?: UsersGetQuery): Observable<User> {
+    return this.http.get<User>(`users/${userID}`, {
+      params: query as QueryParam
+    });
   }
 
-  getFollowersOfUser(user: User): Observable<Paged<User>> {
-    return this.http.get<Paged<User>>(
-      env.api + '/api/users/' + user.id + '/followers'
-    );
+  getFollowersOfUser(user: User): Observable<PagedResponse<Follow>> {
+    return this.http.get<PagedResponse<Follow>>(`users/${user.id}/followers`);
   }
 
-  getUserFollows(user: User): Observable<Paged<User>> {
-    return this.http.get<Paged<User>>(
-      env.api + '/api/users/' + user.id + '/follows'
-    );
+  getUserFollows(user: User): Observable<PagedResponse<Follow>> {
+    return this.http.get<PagedResponse<Follow>>(`users/${user.id}/follows`);
   }
 
   getMapCredits(
     userID: number,
-    options?: object
-  ): Observable<Paged<MapCredit>> {
-    return this.http.get<Paged<MapCredit>>(
-      `${env.api}/api/users/${userID}/credits`,
-      options || {}
-    );
+    options?: MapCreditsGetQuery
+  ): Observable<PagedResponse<MapCredit>> {
+    return this.http.get<PagedResponse<MapCredit>>(`users/${userID}/credits`, {
+      params: options as QueryParam
+    });
   }
 
   getRunHistory(
     userID: number,
-    options?: object
-  ): Observable<Paged<Run>> {
-    return this.http.get<Paged<Run>>(
+    options?: PagedQuery
+  ): Observable<PagedResponse<Run>> {
+    return this.http.get<PagedResponse<Run>>(
       `${env.api}/api/users/${userID}/runs`,
-      options || {}
+      { params: options as QueryParam }
     );
   }
 }

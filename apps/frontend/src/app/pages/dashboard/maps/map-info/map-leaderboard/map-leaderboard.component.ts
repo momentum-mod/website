@@ -43,32 +43,22 @@ export class MapLeaderboardComponent {
     this.filterLeaderboardType = LeaderboardType.TOP10;
   }
 
-  filterLeaderboardRuns(mapID?: number) {
+  filterLeaderboardRuns(
+    mapID?: number
+  ): Observable<PagedResponse<Rank> | Rank[]> {
     switch (this.filterLeaderboardType) {
-      case this.LeaderboardTypeEnum.TOP10: {
+      case this.LeaderboardType.TOP10:
         return this.rankService.getRanks(mapID || this.mapID, {
-          params: {
-            // TODO do further filtering here
-            limit: 10
-          }
+          // TODO do further filtering here
+          take: 10
         });
-      }
-      case this.LeaderboardTypeEnum.AROUND: {
-        return this.rankService.getAroundRanks(mapID || this.mapID, {
-          params: {
-            // TODO do further filtering here
-            limit: 10
-          }
-        });
-      }
-      case this.LeaderboardTypeEnum.FRIENDS: {
-        return this.rankService.getFriendsRanks(mapID || this.mapID, {
-          params: {
-            // TODO do further filtering here
-            limit: 10
-          }
-        });
-      }
+
+      case this.LeaderboardType.AROUND:
+        return this.rankService.getAroundRanks(mapID || this.mapID);
+
+      case this.LeaderboardType.FRIENDS:
+        return this.rankService.getFriendsRanks(mapID || this.mapID);
+
       // No default
     }
   }
@@ -79,7 +69,8 @@ export class MapLeaderboardComponent {
       .pipe(finalize(() => (this.searchedRanks = true)))
       .subscribe({
         next: (response) => {
-          if (response.count) this.leaderboardRanks = response.ranks;
+          if (!Array.isArray(response))
+            this.leaderboardRanks = response.response;
         },
         error: (error) =>
           this.toasterService.danger(error.message, 'Could not find runs')

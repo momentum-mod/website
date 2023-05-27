@@ -1,75 +1,83 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { Map, Report, User } from '@momentum/types';
+import {
+  AdminGetReportsQuery,
+  AdminMapsGetAllQuery,
+  Map,
+  QueryParam,
+  Report,
+  UpdateReport,
+  UpdateUser,
+  UpdateXpSystems,
+  User,
+  XpSystems
+} from '@momentum/types';
 import { env } from '@momentum/frontend/env';
-import { Paged } from '@momentum/types';
+import { PagedResponse } from '@momentum/types';
 
 @Injectable({ providedIn: 'root' })
 export class AdminService {
   constructor(private http: HttpClient) {}
 
   updateMap(mapID: number, map: object): Observable<any> {
-    return this.http.patch(env.api + '/api/admin/maps/' + mapID, map);
+    return this.http.patch(env.api + '/admin/maps/' + mapID, map);
   }
 
-  getMaps(context?: object): Observable<Paged<Map>> {
-    return this.http.get<Paged<Map>>(
-      env.api + '/api/admin/maps/',
-      context
-    );
+  getMaps(query?: AdminMapsGetAllQuery): Observable<PagedResponse<Map>> {
+    return this.http.get<PagedResponse<Map>>(env.api + '/admin/maps/', {
+      params: query as QueryParam
+    });
   }
 
   deleteMap(mapID: number): Observable<string> {
-    return this.http.delete(env.api + '/api/admin/maps/' + mapID, {
+    return this.http.delete(env.api + '/admin/maps/' + mapID, {
       responseType: 'text'
     });
   }
 
-  updateUser(userID: number, user: User): Observable<any> {
-    return this.http.patch(env.api + '/api/admin/users/' + userID, user, {
+  updateUser(userID: number, update: UpdateUser): Observable<any> {
+    return this.http.patch(env.api + '/admin/users/' + userID, update, {
       responseType: 'text'
     });
   }
 
-  getReports(options?: object): Observable<Paged<Report>> {
-    return this.http.get<Paged<Report>>(
-      env.api + '/api/admin/reports',
-      options || {}
-    );
+  getReports(query?: AdminGetReportsQuery): Observable<PagedResponse<Report>> {
+    return this.http.get<PagedResponse<Report>>(env.api + '/admin/reports', {
+      params: (query as QueryParam) || {}
+    });
   }
 
-  updateReport(reportID: number, report: object): Observable<any> {
-    return this.http.patch(env.api + '/api/admin/reports/' + reportID, report);
+  updateReport(reportID: number, update: UpdateReport): Observable<any> {
+    return this.http.patch(env.api + '/admin/reports/' + reportID, update);
   }
 
+  // TODO: Delete
   updateAllUserStats(userStats: object): Observable<any> {
-    return this.http.patch(env.api + '/api/admin/user-stats', userStats);
+    return this.http.patch(env.api + '/admin/user-stats', userStats);
   }
 
-  getXPSystems(): Observable<any> {
-    return this.http.get(env.api + '/api/admin/xpsys');
+  getXPSystems(): Observable<XpSystems> {
+    return this.http.get<XpSystems>(env.api + '/admin/xpsys');
   }
 
-  updateXPSystems(xpSystems: object): Observable<any> {
-    return this.http.put(env.api + '/api/admin/xpsys', xpSystems);
+  updateXPSystems(xpSystems: UpdateXpSystems): Observable<any> {
+    return this.http.put(env.api + '/admin/xpsys', xpSystems);
   }
 
-  createUser(alias: string): Observable<any> {
-    return this.http.post(env.api + '/api/admin/users', {
-      alias: alias
-    });
+  createUser(alias: string): Observable<User> {
+    return this.http.post<User>(env.api + '/admin/users', { alias });
   }
 
   deleteUser(id: number): Observable<any> {
-    return this.http.delete(env.api + `/api/admin/users/${id}`, {
+    return this.http.delete(env.api + '/admin/users/' + id, {
       responseType: 'text'
     });
   }
 
   mergeUsers(placeholder: User, realUser: User): Observable<any> {
     return this.http.post(
-      env.api + '/api/admin/users/merge',
+      env.api + '/admin/users/merge',
       { placeholderID: placeholder.id, realID: realUser.id },
       { responseType: 'text' }
     );

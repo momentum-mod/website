@@ -41,7 +41,7 @@ export class UserSearchComponent implements OnInit {
         val = val.trim();
         if (val.length > 0)
           this.usersService
-            .getUsers({ params: { search: val, limit: 5 } })
+            .getUsers({ search: val, take: 5 })
             .subscribe((resp) => (this.foundUsers = resp.response));
         else this.foundUsers = [];
       });

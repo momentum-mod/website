@@ -143,31 +143,34 @@ export class MapListComponent implements OnInit {
     | UserMapFavoritesGetQuery
     | UserMapSubmittedGetQuery {
     this.lastSearch = this.searchOptions.value;
-    const queryParams: MapAPIQueryParams = {
-      expand: 'info,submitter,thumbnail,inFavorites,inLibrary',
-      limit: this.pageLimit,
-      offset: (this.currentPage - 1) * this.pageLimit
+
+    const queryParams: Partial<UserMapLibraryGetQuery> = {
+      expand: ['info', 'submitter', 'thumbnail', 'inFavorites', 'inLibrary'],
+      take: this.pageLimit,
+      skip: (this.currentPage - 1) * this.pageLimit
     };
+
     if (this.lastSearch.search) queryParams.search = this.lastSearch.search;
     // TODO: Enable when map credits get reworked (#415)
     // if (searchOptions.author)
     //   queryParams.author = this.lastSearch.author;
-    if (this.lastSearch.status !== null && this.lastSearch.status >= 0)
-      queryParams.status = this.lastSearch.status;
-    if (this.lastSearch.type !== null && this.lastSearch.type >= 0)
-      queryParams.type = this.lastSearch.type;
+    // TODO: New API doesn't support these yet.
+    // if (this.lastSearch.status !== null && this.lastSearch.status >= 0)
+    //   queryParams.status = this.lastSearch.status;
+    // if (this.lastSearch.type !== null && this.lastSearch.type >= 0)
+    //   queryParams.type = this.lastSearch.type;
     return queryParams;
   }
 
   loadMaps() {
-    const options = { params: this.genQueryParams() };
+    const options = this.genQueryParams();
     let observer: Observable<any>;
     switch (this.type) {
       case MapListType.LIBRARY: {
-        observer = this.locUsrService.getMapLibrary(options).pipe(
+        observer = this.localUserService.getMapLibrary(options).pipe(
           map((response) => ({
-            count: response.count,
-            maps: response.entries.map((val) => val.map)
+            count: response.totalCount,
+            maps: response.response.map((val) => val.map)
           }))
         );
 
@@ -176,8 +179,8 @@ export class MapListComponent implements OnInit {
       case MapListType.FAVORITES: {
         observer = this.locUsrService.getMapFavorites(options).pipe(
           map((response) => ({
-            count: response.count,
-            maps: response.favorites.map((val) => val.map)
+            count: response.totalCount,
+            maps: response.response.map((val) => val.map)
           }))
         );
 
@@ -195,8 +198,8 @@ export class MapListComponent implements OnInit {
 
     observer.pipe(finalize(() => (this.requestSent = true))).subscribe({
       next: (response) => {
-        this.mapCount = response.count;
-        this.maps = response.maps;
+        this.mapCount = response.totalCount;
+        this.maps = response.response;
       },
       error: (error) =>
         this.toasterService.danger(

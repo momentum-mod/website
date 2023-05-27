@@ -11,13 +11,13 @@ export class StatsService {
   // completely. Leaving stubbed for now.
   // getGlobalBaseStats(): Observable<GlobalBaseStats> {
   //   return this.http.get<GlobalBaseStats>(
-  //     env.api + '/api/stats/global'
+  //     env.api + '/stats/global'
   //   );
   // }
   //
   // getGlobalMapStats(): Observable<GlobalMapStats> {
   //   return this.http.get<GlobalMapStats>(
-  //     env.api + '/api/stats/global/maps'
+  //     env.api + '/stats/global/maps'
   //   );
   // }
 }

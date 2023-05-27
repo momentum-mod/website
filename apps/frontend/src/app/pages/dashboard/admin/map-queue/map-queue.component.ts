@@ -36,16 +36,14 @@ export class MapQueueComponent implements OnInit {
   loadMapQueue(priority: boolean) {
     this.adminService
       .getMaps({
-        params: {
-          expand: 'info,submitter,thumbnail',
-          offset:
-            ((priority ? this.priorityQueuePage : this.nonPriorityQueuePage) -
-              1) *
-            this.pageLimit,
-          limit: this.pageLimit,
-          priority: priority,
-          status: MapStatus.PENDING
-        }
+        expand: ['info,submitter,thumbnail'],
+        skip:
+          ((priority ? this.priorityQueuePage : this.nonPriorityQueuePage) -
+            1) *
+          this.pageLimit,
+        take: this.pageLimit,
+        priority: priority,
+        status: MapStatus.PENDING
       })
       .subscribe({
         next: (response) => {
