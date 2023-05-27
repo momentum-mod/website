@@ -96,7 +96,7 @@
             >
               <div
                 class="map-image-cont mx-2"
-                *ngFor="let img of mapImages"
+                *ngFor="let img of images"
                 cdkDrag
               >
                 <img class="map-image" [ngSrc]="img.small" fill />
@@ -110,10 +110,7 @@
                   <nb-icon icon="close-circle-outline" pack="mdi"></nb-icon>
                 </button>
               </div>
-              <div
-                class="mx-2 upload-box"
-                *ngIf="mapImages.length < mapImagesLimit"
-              >
+              <div class="mx-2 upload-box" *ngIf="images.length < imagesLimit">
                 <mom-file-upload
                   [type]="FileUploadType.IMAGE"
                   [multiple]="true"
@@ -141,7 +138,7 @@
       <form [formGroup]="creditsForm">
         <div class="mt-2">
           <mom-map-credits
-            [creditArr]="mapCredits"
+            [credits]="credits"
             [editable]="true"
             (creditChange)="onCreditChanged($event)"
           />

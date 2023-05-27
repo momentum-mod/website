@@ -32,8 +32,8 @@ describe('MapCreditComponent', () => {
   beforeEach(() => {
     fixture = TestBed.createComponent(MapCreditComponent);
     component = fixture.componentInstance;
-    component.creditArr = [[], [], [], []];
-    component.credType = MapCreditType.AUTHOR;
+    component.credits = [[], [], [], []];
+    component.type = MapCreditType.AUTHOR;
     fixture.detectChanges();
   });
 

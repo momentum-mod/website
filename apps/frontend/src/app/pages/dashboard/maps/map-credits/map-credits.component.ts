@@ -9,12 +9,17 @@ import { MapCredit } from '@momentum/types';
   styleUrls: ['./map-credits.component.scss']
 })
 export class MapCreditsComponent {
-  creditType: typeof MapCreditType = MapCreditType;
-  @Input() creditArr: User[][];
+  protected readonly MapCreditType = MapCreditType;
+  @Input() credits: Record<MapCreditType, Partial<MapCredit>[]>;
   @Input() editable: boolean;
   @Output() creditChange: EventEmitter<CreditChangeEvent>;
   constructor() {
-    this.creditArr = [];
+    this.credits = {
+      [MapCreditType.AUTHOR]: [],
+      [MapCreditType.COAUTHOR]: [],
+      [MapCreditType.TESTER]: [],
+      [MapCreditType.SPECIAL_THANKS]: []
+    };
     this.editable = false;
     this.creditChange = new EventEmitter<CreditChangeEvent>();
   }

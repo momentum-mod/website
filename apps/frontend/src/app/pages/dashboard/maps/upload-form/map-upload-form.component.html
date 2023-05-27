@@ -289,7 +289,7 @@
         <nb-step label="Credits" [stepControl]="creditsForm">
           <form [formGroup]="creditsForm">
             <mom-map-credits
-              [creditArr]="creditArr"
+              [credits]="credits"
               [editable]="true"
               (creditChange)="onCreditChanged($event)"
             />

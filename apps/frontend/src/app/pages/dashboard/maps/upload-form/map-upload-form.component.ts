@@ -48,7 +48,7 @@ export class MapUploadFormComponent implements OnInit, AfterViewInit {
   extraImagesLimit: number;
   mapUploadPercentage: number;
   isUploadingMap: boolean;
-  creditArr: User[][];
+  credits: Record<MapCreditType, MapCredit[]>;
   inferredMapType: boolean;
   mapPreview: PartialDeep<
     { map: Map; images: MapImage[] },
@@ -115,7 +115,12 @@ export class MapUploadFormComponent implements OnInit, AfterViewInit {
     this.isUploadingMap = false;
     this.mapUploadPercentage = 0;
     this.extraImagesLimit = 5;
-    this.creditArr = [[], [], [], []];
+    this.credits = this.credits = {
+      [MapCreditType.AUTHOR]: [],
+      [MapCreditType.COAUTHOR]: [],
+      [MapCreditType.TESTER]: [],
+      [MapCreditType.SPECIAL_THANKS]: []
+    };
     this.extraImages = [];
     this.tracks = [];
     this.inferredMapType = false;
@@ -256,8 +261,7 @@ export class MapUploadFormComponent implements OnInit, AfterViewInit {
         creationDate: this.creationDate.value
       },
       tracks: this.tracks,
-      credits: this.getAllCredits(),
-      stats: { baseStats: {} }
+      credits: this.getAllCredits()
     };
     this.mapsService
       .createMap(mapObject)
@@ -346,10 +350,10 @@ export class MapUploadFormComponent implements OnInit, AfterViewInit {
       this.creditsForm.get(types[$event.type]).patchValue($event.user);
     } else {
       this.creditsForm.setValue({
-        authors: this.creditArr[MapCreditType.AUTHOR],
-        coauthors: this.creditArr[MapCreditType.COAUTHOR],
-        testers: this.creditArr[MapCreditType.TESTER],
-        specialThanks: this.creditArr[MapCreditType.SPECIAL_THANKS]
+        authors: this.credits[MapCreditType.AUTHOR],
+        coauthors: this.credits[MapCreditType.COAUTHOR],
+        testers: this.credits[MapCreditType.TESTER],
+        specialThanks: this.credits[MapCreditType.SPECIAL_THANKS]
       });
     }
   }
@@ -385,14 +389,10 @@ export class MapUploadFormComponent implements OnInit, AfterViewInit {
     this.extraImages.splice(this.extraImages.indexOf(img), 1);
   }
 
-  getAllCredits() {
-    const credits = [];
-    for (let credType = 0; credType < MapCreditType.LENGTH; credType++) {
-      for (const usr of this.creditArr[credType]) {
-        credits.push({ userID: usr.id, user: usr, type: credType });
-      }
-    }
-    return credits;
+  getAllCredits(): { userID: number; type: MapCreditType }[] {
+    return Object.values(this.credits)
+      .flat()
+      .map((credit) => ({ type: credit.type, userID: credit.userID }));
   }
 
   generatePreviewMap(): void {

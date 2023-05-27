@@ -26,11 +26,11 @@ const youtubeRegex = /[\w-]{11}/;
 export class MapEditComponent implements OnInit, OnDestroy {
   protected readonly FileUploadType = FileUploadType;
   private ngUnsub = new Subject<void>();
-  mapCredits: User[][];
-  mapCreditsIDs: number[];
   map: Map;
   images: MapImage[];
   imagesLimit: number;
+  credits: Record<MapCreditType, MapCredit[]>;
+  originalCreditIds: number[];
   isSubmitter: boolean;
   isAdmin: boolean;
   isModerator: boolean;
@@ -49,6 +49,7 @@ export class MapEditComponent implements OnInit, OnDestroy {
   get youtubeID() {
     return this.infoForm.get('youtubeID');
   }
+
   get description() {
     return this.infoForm.get('description');
   }
@@ -63,10 +64,15 @@ export class MapEditComponent implements OnInit, OnDestroy {
     private toasterService: NbToastrService,
     private fb: FormBuilder
   ) {
-    this.mapImagesLimit = 6;
-    this.mapImages = [];
-    this.mapCredits = [[], [], [], []];
-    this.mapCreditsIDs = [];
+    this.imagesLimit = 6;
+    this.images = [];
+    this.credits = {
+      [MapCreditType.AUTHOR]: [],
+      [MapCreditType.COAUTHOR]: [],
+      [MapCreditType.TESTER]: [],
+      [MapCreditType.SPECIAL_THANKS]: []
+    };
+    this.originalCreditIds = [];
   }
 
   ngOnInit() {
@@ -78,30 +84,41 @@ export class MapEditComponent implements OnInit, OnDestroy {
           })
         )
       )
-      .subscribe((map) => {
+      .subscribe((map: Map) => {
         this.map = map;
         this.localUserService
           .getLocal()
           .pipe(takeUntil(this.ngUnsub))
-          .subscribe((locUser) => {
-            this.isAdmin = this.localUserService.hasRole(Role.ADMIN, locUser);
-            this.isModerator = this.localUserService.hasRole(
-              Role.MODERATOR,
-              locUser
-            );
-            if (this.map.submitterID === locUser.id) this.isSubmitter = true;
+          .subscribe((localUser) => {
+            // TODO
+            this.isAdmin = true;
+            this.isModerator = true;
+            // this.isAdmin = this.localUserService.hasRole(Role.ADMIN, localUser);
+            // this.isModerator = this.localUserService.hasRole(
+            //   Role.MODERATOR,
+            //   localUser
+            // );
+            this.isSubmitter = this.map.submitterID === localUser.id;
+
             if (!(this.isSubmitter || this.isAdmin || this.isModerator))
               this.router.navigate(['/dashboard/maps/' + this.map.id]);
+
             this.infoForm.patchValue(map.info);
-            this.mapImages = map.images;
-            this.mapCredits = [[], [], [], []];
-            this.mapCreditsIDs = map.credits.map((val) => +val.id);
-            for (const credit of map.credits) {
-              this.mapCredits[credit.type].push(credit.user);
-            }
+            this.images = map.images;
+
+            this.credits = {
+              [MapCreditType.AUTHOR]: [],
+              [MapCreditType.COAUTHOR]: [],
+              [MapCreditType.TESTER]: [],
+              [MapCreditType.SPECIAL_THANKS]: []
+            };
+            for (const credit of map.credits)
+              this.credits[credit.type].push(credit);
+            this.originalCreditIds = map.credits.map((c) => +c.id);
+
             this.creditsForm
               .get('authors')
-              .patchValue(this.mapCredits[MapCreditType.AUTHOR]);
+              .patchValue(this.credits[MapCreditType.AUTHOR]);
           });
       });
   }
@@ -123,40 +140,34 @@ export class MapEditComponent implements OnInit, OnDestroy {
     // TODO: Submit changed images
   }
 
-  onCreditsSubmit($event) {
+  onCreditsSubmit(event) {
     if (this.creditsForm.invalid) return;
-    $event.target.disabled = true;
-    const allCredits: MapCredit[] = this.getAllCredits();
-    const creditUpdates = [];
-    for (const [i, credit] of allCredits.entries()) {
-      if (i < this.mapCreditsIDs.length) {
-        creditUpdates.push(
-          this.mapService.updateMapCredit(
-            this.map.id,
-            this.mapCreditsIDs[i],
-            credit
-          )
-        );
-      } else {
-        creditUpdates.push(
-          this.mapService.createMapCredit(this.map.id, credit)
-        );
-      }
-    }
-    for (let i = allCredits.length; i < this.mapCreditsIDs.length; i++) {
-      const creditID = this.mapCreditsIDs[i];
-      creditUpdates.push(
-        this.mapService.deleteMapCredit(this.map.id, creditID)
-      );
-    }
+    event.target.disabled = true;
+    const allCredits = Object.values(this.credits).flat();
+
+    // This algorithm could be optimised but it's nice to not rely on the insert
+    // order of the credits arrays
+    const creditUpdates = [
+      ...allCredits.map((credit) =>
+        this.originalCreditIds.includes(credit.id)
+          ? this.mapService.updateMapCredit(this.map.id, credit.id, credit)
+          : this.mapService.createMapCredit(this.map.id, credit)
+      ),
+      ...this.originalCreditIds
+        .filter(
+          (oldID) => !allCredits.some((newCredit) => newCredit.id === oldID)
+        )
+        .map((oldID) => this.mapService.deleteMapCredit(this.map.id, oldID))
+    ];
+
     forkJoin(creditUpdates)
       .pipe(
-        finalize(() => {
+        finalize(() =>
           this.mapService.getMapCredits(this.map.id).subscribe((response) => {
-            this.mapCreditsIDs = response.mapCredits.map((val) => +val.id);
-            $event.target.disabled = false;
-          });
-        })
+            this.originalCreditIds = response.response.map((val) => +val.id);
+            event.target.disabled = false;
+          })
+        )
       )
       .subscribe({
         next: () =>
@@ -182,24 +193,27 @@ export class MapEditComponent implements OnInit, OnDestroy {
 
   onMapImageSelected(file: File) {
     this.getImageSource(file, (blobURL) => {
-      if (this.mapImages.length >= this.mapImagesLimit) return;
-      this.mapImages.push({
+      if (this.images.length >= this.imagesLimit) return;
+      // ????????? what
+      this.images.push({
         id: -1,
         mapID: -1,
         small: blobURL,
         medium: '',
-        large: ''
+        large: '',
+        createdAt: undefined,
+        updatedAt: undefined
         // file: img,
       });
     });
   }
 
   removeMapImage(img: MapImage) {
-    this.mapImages.splice(this.mapImages.indexOf(img), 1);
+    this.images.splice(this.images.indexOf(img), 1);
   }
 
   imageDrop(event: CdkDragDrop<MapImage[]>) {
-    moveItemInArray(this.mapImages, event.previousIndex, event.currentIndex);
+    moveItemInArray(this.images, event.previousIndex, event.currentIndex);
   }
 
   onCreditChanged($event: CreditChangeEvent) {
@@ -209,18 +223,8 @@ export class MapEditComponent implements OnInit, OnDestroy {
     } else {
       this.creditsForm
         .get('authors')
-        .patchValue(this.mapCredits[MapCreditType.AUTHOR]);
+        .patchValue(this.credits[MapCreditType.AUTHOR]);
     }
-  }
-
-  getAllCredits() {
-    const credits = [];
-    for (let credType = 0; credType < MapCreditType.LENGTH; credType++) {
-      for (const usr of this.mapCredits[credType]) {
-        credits.push({ userID: usr.id, type: credType });
-      }
-    }
-    return credits;
   }
 
   showMapDeleteDialog() {

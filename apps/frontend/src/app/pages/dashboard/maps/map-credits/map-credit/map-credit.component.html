@@ -1,6 +1,6 @@
 <h4 class="mb-3 text-center">{{ category }}</h4>
 <nb-list class="mb-3" cdkDropList (cdkDropListDropped)="drop($event)">
-  <nb-list-item *ngFor="let user of creditArr[this.credType]" cdkDrag>
+  <nb-list-item *ngFor="let user of credits[this.type]['user']" cdkDrag>
     <div class="d-flex align-items-center">
       <nb-user [name]="user.alias" [picture]="user.avatarURL"></nb-user>
       <div class="ml-auto" *ngIf="editable">
@@ -17,8 +17,11 @@
     </div>
   </nb-list-item>
 </nb-list>
-<div class="text-center" *ngIf="userSearch">
-  <div class="mb-2 text-danger" *ngIf="userSearch.alreadySelected">
+<div class="text-center" *ngIf="userSearchState">
+  <div
+    class="mb-2 text-danger"
+    *ngIf="userSearchState === UserSearchState.CHOSEN"
+  >
     User already selected!
   </div>
   <mom-user-search class="text-left" (selectedUserEmit)="addUser($event)" />
@@ -33,7 +36,7 @@
     Cancel
   </button>
 </div>
-<div class="text-center" *ngIf="editable && !userSearch">
+<div class="text-center" *ngIf="editable && !userSearchState">
   <button nbButton outline status="info" (click)="addUserSearch()">
     <nb-icon icon="plus-outline" pack="mdi" />
   </button>

@@ -1,14 +1,18 @@
 import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { CdkDragDrop, moveItemInArray } from '@angular/cdk/drag-drop';
-
-export interface UserSearch {
-  alreadySelected: boolean;
-}
+import { MapCredit, User } from '@momentum/types';
+import { MapCreditType } from '@momentum/constants';
 
 export interface CreditChangeEvent {
   user: User;
   added: boolean;
   type: MapCreditType;
+}
+
+enum UserSearchState {
+  HIDDEN,
+  UNCHOSEN,
+  CHOSEN
 }
 
 @Component({
@@ -18,72 +22,52 @@ export interface CreditChangeEvent {
 })
 export class MapCreditComponent {
   @Input() category: string;
-  @Input() credType: MapCreditType;
-  @Input() creditArr: User[][];
+  @Input() type: MapCreditType;
+  @Input() credits: Record<MapCreditType, Partial<MapCredit>[]>;
   @Input() editable: boolean;
   @Output() creditChange: EventEmitter<CreditChangeEvent>;
-  userSearch: UserSearch;
+  protected readonly UserSearchState = UserSearchState;
+  userSearchState: UserSearchState;
 
   constructor() {
     this.creditChange = new EventEmitter<CreditChangeEvent>();
   }
 
   addUser(user: User) {
-    // Check if in any category already
-    let alreadySel = false;
-    for (let cred = 0; cred < MapCreditType.LENGTH; cred++) {
-      if (this.creditArr[cred].some((val) => val.id === user.id)) {
-        alreadySel = true;
-        break;
-      }
-    }
-    if (alreadySel) {
-      this.userSearch.alreadySelected = true;
+    const alreadyContainsUser = Object.values(this.credits)
+      .flat()
+      .some((userEntry) => userEntry.id === user.id);
+    if (alreadyContainsUser) {
+      this.userSearchState = UserSearchState.CHOSEN;
     } else {
-      this.creditArr[this.credType].push(user);
-      this.creditChange.emit({
-        type: this.credType,
-        user: user,
-        added: true
-      });
+      this.credits[this.type].push({ user });
+      this.creditChange.emit({ type: this.type, user, added: true });
       this.removeUserSearch();
     }
   }
 
   removeUser(user: User) {
-    const indx = this.creditArr[this.credType].indexOf(user);
-    if (indx > -1) {
-      this.creditArr[this.credType].splice(indx, 1);
-      this.creditChange.emit({
-        type: this.credType,
-        user: user,
-        added: false
-      });
-    }
+    const userIndex = this.credits[this.type].indexOf(user);
+    if (userIndex === -1) return;
+    this.credits[this.type].splice(userIndex, 1);
+    this.creditChange.emit({ type: this.type, user, added: false });
   }
 
   addUserSearch() {
-    this.userSearch = {
-      alreadySelected: false
-    };
+    this.userSearchState = UserSearchState.HIDDEN;
   }
 
   removeUserSearch() {
-    delete this.userSearch;
+    this.userSearchState = UserSearchState.UNCHOSEN;
   }
 
   drop(event: CdkDragDrop<User[]>) {
-    if (this.editable) {
-      moveItemInArray(
-        this.creditArr[this.credType],
-        event.previousIndex,
-        event.currentIndex
-      );
-      this.creditChange.emit({
-        type: this.credType,
-        user: null,
-        added: false
-      });
-    }
+    if (!this.editable) return;
+    moveItemInArray(
+      this.credits[this.type],
+      event.previousIndex,
+      event.currentIndex
+    );
+    this.creditChange.emit({ type: this.type, user: null, added: false });
   }
 }
