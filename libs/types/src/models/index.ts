@@ -28,6 +28,7 @@ export * from './user/activity.model';
 export * from './user/user-stats.model';
 export * from './user/notification.model';
 export * from './user/user-maps-summary.model';
+export * from './socials/twitch-stream.model';
 export * from './stats/base-stats.model';
 export * from './report/report.model';
 export * from './xp-systems/xp-systems.model';
