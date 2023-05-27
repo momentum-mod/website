@@ -13,20 +13,20 @@ export class ActivityCardComponent implements OnInit {
   @Input() headerTitle: string;
   @Input() follow: boolean;
   @Input() recent: boolean;
-  @Input() userSubj: ReplaySubject<User>;
+  @Input() userSubject: ReplaySubject<User>;
 
-  constructor(private actService: ActivityService) {
+  constructor(private activityService: ActivityService) {
     this.headerTitle = 'Activity';
     this.filterValue = ActivityType.ALL;
     this.initialAct = false;
     this.activities = [];
     this.actsFiltered = [];
   }
-  ActivityType = ActivityType;
+  protected readonly ActivityType = ActivityType;
   filterValue: ActivityType;
   activities: Activity[];
-  actsFiltered: Activity[];
-  initialAct: boolean;
+  filteredActivities: Activity[];
+  initialActivity: boolean;
   recentActPage = 1;
   canLoadMore = true;
 
@@ -37,35 +37,39 @@ export class ActivityCardComponent implements OnInit {
   }
 
   filterActivites(acts: Activity[]): void {
-    if (this.filterValue === this.ActivityType.ALL) this.actsFiltered = acts;
-    else
-      this.actsFiltered = acts.filter(
-        (value) => value.type === this.filterValue
-      );
+    this.filteredActivities =
+      this.filterValue === this.ActivityType.ALL
+        ? acts
+        : acts.filter((value) => value.type === this.filterValue);
   }
 
   onGetActivities(response): void {
-    this.initialAct = true;
+    this.initialActivity = true;
     this.activities = response.activities;
     this.filterActivites(this.activities);
   }
 
   getActivities(): void {
     if (this.follow)
-      this.actService.getFollowedActivity().subscribe(this.onGetActivities);
-    else if (this.userSubj)
-      this.userSubj.subscribe((usr) =>
-        this.actService.getUserActivity(usr.id).subscribe(this.onGetActivities)
+      this.activityService
+        .getFollowedActivity()
+        .subscribe(this.onGetActivities);
+    else if (this.userSubject)
+      this.userSubject.subscribe((user) =>
+        this.activityService
+          .getUserActivity(user.id)
+          .subscribe(this.onGetActivities)
       );
     else if (this.recent)
-      this.actService.getRecentActivity(0).subscribe(this.onGetActivities);
+      this.activityService
+        .getRecentActivity({ skip: 0 })
+        .subscribe(this.onGetActivities);
   }
 
   getMoreActivities(): void {
     if (!this.canLoadMore || !this.recent) return;
-
     this.canLoadMore = false;
-    this.actService
+    this.activityService
       .getRecentActivity({ skip: 10 * this.recentActPage++ })
       .subscribe((response) => {
         // Don't call the API anymore if there are no more activities left

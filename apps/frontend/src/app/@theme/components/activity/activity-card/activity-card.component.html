@@ -20,8 +20,8 @@
     </div>
   </nb-card-header>
   <mom-activity-list
-    [activities]="actsFiltered"
-    [hasRequested]="initialAct"
+    [activities]="filteredActivities"
+    [hasRequested]="initialActivity"
     (showMore)="getMoreActivities()"
   ></mom-activity-list>
 </nb-card>

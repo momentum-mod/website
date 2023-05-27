@@ -10,8 +10,8 @@ import { User } from '@momentum/types';
 export class DashboardHomeComponent {
   user: User;
 
-  constructor(public locUsrService: LocalUserService) {
-    this.locUsrService.getLocalUser({ params: { expand: 'stats' } }).subscribe({
+  constructor(public localUserService: LocalUserService) {
+    this.localUserService.getLocalUser({ expand: ['stats'] }).subscribe({
       next: (response) => (this.user = response),
       error: (error) => console.error(error)
     });

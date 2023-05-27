@@ -62,7 +62,7 @@ export class MapListComponent implements OnInit {
     private mapService: MapsService,
     private toasterService: NbToastrService,
     private scrollService: NbLayoutScrollService,
-    private locUsrService: LocalUserService,
+    private localUserService: LocalUserService,
     private fb: FormBuilder
   ) {
     this.pageLimit = 10;
@@ -177,7 +177,7 @@ export class MapListComponent implements OnInit {
         break;
       }
       case MapListType.FAVORITES: {
-        observer = this.locUsrService.getMapFavorites(options).pipe(
+        observer = this.localUserService.getMapFavorites(options).pipe(
           map((response) => ({
             count: response.totalCount,
             maps: response.response.map((val) => val.map)
@@ -187,7 +187,7 @@ export class MapListComponent implements OnInit {
         break;
       }
       case MapListType.UPLOAD: {
-        observer = this.locUsrService.getSubmittedMaps(options);
+        observer = this.localUserService.getSubmittedMaps(options);
 
         break;
       }

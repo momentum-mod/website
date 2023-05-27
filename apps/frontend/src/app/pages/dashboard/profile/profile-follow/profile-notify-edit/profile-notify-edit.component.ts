@@ -9,7 +9,7 @@ import { NbDialogRef } from '@nebular/theme';
 })
 export class ProfileNotifyEditComponent implements OnInit {
   @Input() flags: number;
-  ActivityType: typeof Activity_Type = Activity_Type;
+  protected readonly ActivityType = ActivityType;
   checkboxFlags = {
     pb: { checked: false, value: ActivityType.PB_ACHIEVED },
     wr: { checked: false, value: ActivityType.WR_ACHIEVED },

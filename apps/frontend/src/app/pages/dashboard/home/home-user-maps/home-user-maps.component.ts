@@ -8,7 +8,7 @@ import { LocalUserService } from '@momentum/frontend/data';
   styleUrls: ['./home-user-maps.component.scss']
 })
 export class HomeUserMapsComponent implements OnInit {
-  MapUploadStatus: typeof MapUploadStatus = MapUploadStatus;
+  protected readonly MapStatus = MapStatus;
   submittedMapStatusSummary;
 
   constructor(private userService: LocalUserService) {

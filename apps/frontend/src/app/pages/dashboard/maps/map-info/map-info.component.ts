@@ -56,7 +56,7 @@ export class MapInfoComponent implements OnInit, OnDestroy {
     private route: ActivatedRoute,
     private router: Router,
     private mapService: MapsService,
-    private locUserService: LocalUserService,
+    private localUserService: LocalUserService,
     private toastService: NbToastrService,
     private dialogService: NbDialogService,
     private gallery: Gallery
@@ -104,7 +104,7 @@ export class MapInfoComponent implements OnInit, OnDestroy {
         )
         .subscribe((map) => {
           this.map = map;
-          this.locUserService.checkMapNotify(this.map.id).subscribe({
+          this.localUserService.checkMapNotify(this.map.id).subscribe({
             next: (resp) => {
               this.mapNotify = resp;
               if (resp) this.mapNotifications = true;
@@ -122,7 +122,7 @@ export class MapInfoComponent implements OnInit, OnDestroy {
           if (this.map.libraryEntries && this.map.libraryEntries.length > 0)
             this.mapInLibrary = true;
           this.updateGallery(galleryRef, map.images, map.info.youtubeID);
-          this.locUserService
+          this.localUserService
             .getLocal()
             .pipe(takeUntil(this.ngUnsub))
             .subscribe((locUser) => {
@@ -144,12 +144,12 @@ export class MapInfoComponent implements OnInit, OnDestroy {
 
   onLibraryUpdate() {
     if (this.mapInLibrary) {
-      this.locUserService.removeMapFromLibrary(this.map.id).subscribe(() => {
+      this.localUserService.removeMapFromLibrary(this.map.id).subscribe(() => {
         this.mapInLibrary = false;
         this.map.stats.totalSubscriptions--;
       });
     } else {
-      this.locUserService.addMapToLibrary(this.map.id).subscribe({
+      this.localUserService.addMapToLibrary(this.map.id).subscribe({
         next: () => {
           this.mapInLibrary = true;
           this.map.stats.totalSubscriptions++;
@@ -167,7 +167,7 @@ export class MapInfoComponent implements OnInit, OnDestroy {
         this.map.stats.totalFavorites--;
       });
     } else {
-      this.locUserService.addMapToFavorites(this.map.id).subscribe({
+      this.localUserService.addMapToFavorites(this.map.id).subscribe({
         next: () => {
           this.mapInFavorites = true;
           this.map.stats.totalFavorites++;
@@ -192,7 +192,7 @@ export class MapInfoComponent implements OnInit, OnDestroy {
         if (!response) return;
         if (response.newFlags === 0) {
           if (this.mapNotify === null) return;
-          this.locUserService.disableMapNotify(this.map.id).subscribe({
+          this.localUserService.disableMapNotify(this.map.id).subscribe({
             next: () => {
               this.mapNotify.notifyOn = 0;
               this.mapNotifications = false;
@@ -204,7 +204,7 @@ export class MapInfoComponent implements OnInit, OnDestroy {
               )
           });
         } else {
-          this.locUserService
+          this.localUserService
             .updateMapNotify(this.map.id, response.newFlags)
             .subscribe({
               next: (response) => {
