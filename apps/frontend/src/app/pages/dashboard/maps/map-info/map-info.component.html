@@ -106,41 +106,36 @@
               <div
                 class="stat"
                 nbPopover="{{
-                  map.stats?.totalSubscriptions
-                    | plural : 'Library' : 'Libraries'
+                  map.stats?.subscriptions | plural : 'Library' : 'Libraries'
                 }}"
                 nbPopoverTrigger="hint"
               >
                 <nb-icon icon="folder" pack="mdi"></nb-icon>
-                {{ map.stats?.totalSubscriptions | thousandsSuffix : 1 }}
+                {{ map.stats?.subscriptions | thousandsSuffix : 1 }}
               </div>
               <div
                 class="ml-sm-4 stat"
-                nbPopover="{{
-                  map.stats?.totalFavorites | plural : 'Favorite'
-                }}"
+                nbPopover="{{ map.stats?.favorites | plural : 'Favorite' }}"
                 nbPopoverTrigger="hint"
               >
                 <nb-icon icon="star" pack="mdi"></nb-icon>
-                {{ map.stats?.totalFavorites | thousandsSuffix : 1 }}
+                {{ map.stats?.favorites | thousandsSuffix : 1 }}
               </div>
               <div
                 class="ml-sm-4 stat"
-                nbPopover="{{
-                  map.stats?.totalDownloads | plural : 'Download'
-                }}"
+                nbPopover="{{ map.stats?.downloads | plural : 'Download' }}"
                 nbPopoverTrigger="hint"
               >
                 <nb-icon icon="download-outline" pack="mdi"></nb-icon>
-                {{ map.stats?.totalDownloads | thousandsSuffix : 1 }}
+                {{ map.stats?.downloads | thousandsSuffix : 1 }}
               </div>
               <div
                 class="ml-sm-4 stat"
-                nbPopover="{{ map.stats?.totalPlays | plural : 'Play' }}"
+                nbPopover="{{ map.stats?.plays | plural : 'Play' }}"
                 nbPopoverTrigger="hint"
               >
                 <nb-icon icon="play-circle-outline" pack="mdi"></nb-icon>
-                {{ map.stats?.totalPlays | thousandsSuffix : 1 }}
+                {{ map.stats?.plays | thousandsSuffix : 1 }}
               </div>
             </div>
             <div class="btn-group text-center text-sm-right">

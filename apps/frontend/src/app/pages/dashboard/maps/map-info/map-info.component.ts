@@ -146,13 +146,13 @@ export class MapInfoComponent implements OnInit, OnDestroy {
     if (this.mapInLibrary) {
       this.localUserService.removeMapFromLibrary(this.map.id).subscribe(() => {
         this.mapInLibrary = false;
-        this.map.stats.totalSubscriptions--;
+        this.map.stats.subscriptions--;
       });
     } else {
       this.localUserService.addMapToLibrary(this.map.id).subscribe({
         next: () => {
           this.mapInLibrary = true;
-          this.map.stats.totalSubscriptions++;
+          this.map.stats.subscriptions++;
         },
         error: (error) =>
           this.toastService.danger(error.message, 'Cannot add map to library')
@@ -162,15 +162,17 @@ export class MapInfoComponent implements OnInit, OnDestroy {
 
   onFavoriteUpdate() {
     if (this.mapInFavorites) {
-      this.locUserService.removeMapFromFavorites(this.map.id).subscribe(() => {
-        this.mapInFavorites = false;
-        this.map.stats.totalFavorites--;
-      });
+      this.localUserService
+        .removeMapFromFavorites(this.map.id)
+        .subscribe(() => {
+          this.mapInFavorites = false;
+          this.map.stats.favorites--;
+        });
     } else {
       this.localUserService.addMapToFavorites(this.map.id).subscribe({
         next: () => {
           this.mapInFavorites = true;
-          this.map.stats.totalFavorites++;
+          this.map.stats.favorites++;
         },
         error: (error) =>
           this.toastService.danger(
