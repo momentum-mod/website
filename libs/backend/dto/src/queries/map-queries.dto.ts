@@ -1,10 +1,10 @@
 import { MapStatus, MapType } from '@momentum/constants';
 import {
-  AdminCtlMapsGetAllQuery,
+  AdminMapsGetAllQuery,
   MapCreditsGetQuery,
   MapRankGetNumberQuery,
   MapRanksGetQuery,
-  MapsCtlGetAllQuery,
+  MapsGetAllQuery,
   MapsGetQuery
 } from '@momentum/types';
 import {
@@ -20,7 +20,7 @@ import {
 import { PagedQueryDto } from './pagination.dto';
 import { QueryDto } from './query.dto';
 
-class MapsGetAllBaseQuery extends QueryDto {
+export class AdminCtlMapsGetAllQueryDto implements AdminMapsGetAllQuery {
   @SkipQueryProperty(0)
   skip = 0;
 
@@ -37,10 +37,6 @@ class MapsGetAllBaseQuery extends QueryDto {
   readonly submitterID: number;
 }
 
-export class AdminCtlMapsGetAllQueryDto
-  extends MapsGetAllBaseQuery
-  implements AdminCtlMapsGetAllQuery
-{
   @ExpandQueryProperty(['submitter', 'credits'])
   readonly expand: string[];
 
@@ -51,10 +47,22 @@ export class AdminCtlMapsGetAllQueryDto
   readonly priority: boolean;
 }
 
-export class MapsCtlGetAllQueryDto
-  extends MapsGetAllBaseQuery
-  implements MapsCtlGetAllQuery
-{
+export class MapsCtlGetAllQueryDto implements MapsGetAllQuery {
+  @SkipQueryProperty(0)
+  skip = 0;
+
+  @TakeQueryProperty(100)
+  take = 100;
+
+  @StringQueryProperty({
+    description: 'Filter by partial map name match',
+    example: 'de_dust2'
+  })
+  readonly search?: string;
+
+  @IntQueryProperty({ description: 'Filter by submitter ID' })
+  readonly submitterID?: number;
+
   @ExpandQueryProperty([
     'submitter',
     'credits',

@@ -4,7 +4,7 @@
   RunsGetQuery,
   UserCtlRunsGetAllQuery
 } from '@momentum/types';
-import { ApiPropertyOptional, OmitType, PickType } from '@nestjs/swagger';
+import { ApiPropertyOptional } from '@nestjs/swagger';
 import { IsOptional, IsString } from 'class-validator';
 import {
   BooleanQueryProperty,
@@ -39,6 +39,50 @@ export class RunsGetAllQueryDto extends QueryDto implements RunsGetAllQuery {
   @StringQueryProperty({ required: false, description: 'Filter by map name' })
   mapName: string;
 
+  @IntQueryProperty({ description: 'Filter by user ID' })
+  userID?: number;
+
+  @IntCsvQueryProperty({ description: 'Filter by user IDs' })
+  userIDs?: number[];
+
+  @IntQueryProperty({
+    description:
+      'Filter by run flags (I dont really know what this is, I think a 0.10/0.11 thing -Tom)'
+  })
+  flags?: number;
+
+  @BooleanQueryProperty({
+    description: 'Whether or not to filter by only personal best runs.'
+  })
+  isPB?: boolean;
+
+  @ApiPropertyOptional({
+    name: 'order',
+    enum: ['date', 'time'],
+    type: String,
+    description: 'Order by date or time'
+  })
+  @IsString()
+  @IsOptional()
+  order?: string;
+}
+
+export class MapsCtlRunsGetAllQueryDto implements MapsCtlRunsGetAllQuery {
+  @SkipQueryProperty(0)
+  skip = 0;
+
+  @TakeQueryProperty(10)
+  take = 10;
+
+  @ExpandQueryProperty([
+    'overallStats',
+    'map',
+    'mapWithInfo',
+    'rank',
+    'zoneStats'
+  ])
+  expand?: string[];
+
   // Not sure if these two are supposed to be user IDs or steam IDs. Going to assume userid for now,
   // if I'm wrong do steam ID handling like users/getall does.
   @IntQueryProperty({ description: 'Filter by user ID' })
@@ -69,13 +113,16 @@ export class RunsGetAllQueryDto extends QueryDto implements RunsGetAllQuery {
   order: string;
 }
 
-export class MapsCtlRunsGetAllQueryDto
-  extends OmitType(RunsGetAllQueryDto, ['mapID', 'mapName'] as const)
-  implements MapsCtlRunsGetAllQuery {}
+export class UserCtlRunsGetAllQueryDto implements UserCtlRunsGetAllQuery {
+  @SkipQueryProperty(0)
+  skip = 0;
 
-export class UserCtlRunsGetAllQueryDto
-  extends PickType(RunsGetAllQueryDto, ['userID', 'skip', 'take'] as const)
-  implements UserCtlRunsGetAllQuery {}
+  @TakeQueryProperty(10)
+  take = 10;
+
+  @IntQueryProperty({ description: 'Filter by user ID' })
+  userID?: number;
+}
 
 export class RunsGetQueryDto extends QueryDto implements RunsGetQuery {
   @ExpandQueryProperty([
