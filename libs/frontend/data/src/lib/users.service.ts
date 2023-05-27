@@ -45,14 +45,4 @@ export class UsersService {
       params: options as QueryParam
     });
   }
-
-  getRunHistory(
-    userID: number,
-    options?: PagedQuery
-  ): Observable<PagedResponse<Run>> {
-    return this.http.get<PagedResponse<Run>>(
-      `${env.api}/api/users/${userID}/runs`,
-      { params: options as QueryParam }
-    );
-  }
 }

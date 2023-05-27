@@ -33,7 +33,7 @@ export class ProfileRunHistoryComponent implements OnInit {
   });
 
   constructor(
-    private usersService: UsersService,
+    private runsService: RunsService,
     private toastService: NbToastrService,
     private fb: FormBuilder
   ) {
@@ -58,22 +58,21 @@ export class ProfileRunHistoryComponent implements OnInit {
   }
 
   loadRunHistory() {
-    this.usersService
-      .getRunHistory(this.user.id, {
-        params: {
-          expand: 'map',
-          mapName: this.currentFilter.map,
-          isPB: this.currentFilter.isPersonalBest,
-          order: this.currentFilter.order,
-          limit: this.pageLimit,
-          offset: (this.currentPage - 1) * this.pageLimit
-        }
+    this.runsService
+      .getRuns({
+        userID: this.user.id,
+        expand: ['map'],
+        mapName: this.currentFilter.map,
+        isPB: this.currentFilter.isPersonalBest,
+        order: this.currentFilter.order,
+        take: this.pageLimit,
+        skip: (this.currentPage - 1) * this.pageLimit
       })
       .pipe(finalize(() => (this.loadedRuns = true)))
       .subscribe({
         next: (response) => {
-          this.runCount = response.count;
-          this.runHistory = response.runs;
+          this.runCount = response.totalCount;
+          this.runHistory = response.response;
         },
         error: (error) =>
           this.toastService.danger(error.message, 'Cannot get user map credits')

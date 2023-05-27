@@ -26,7 +26,7 @@ export class RunInfoComponent implements OnInit {
       .pipe(
         switchMap((params: ParamMap) =>
           this.runService.getRun(params.get('id'), {
-            params: { expand: 'user,map,runStats,runZoneStats,rank' }
+            expand: ['user', 'map', 'runStats', 'runZoneStats', 'rank']
           })
         )
       )
@@ -35,19 +35,17 @@ export class RunInfoComponent implements OnInit {
         if (this.run.rank) this.personalBestRun = this.run;
         else {
           const options = {
-            params: {
-              userID: this.run.playerID,
-              track: this.run.trackNum,
-              zone: this.run.zoneNum,
-              flags: this.run.flags,
-              limit: 1
-            }
+            userID: this.run.userID,
+            track: this.run.trackNum,
+            zone: this.run.zoneNum,
+            flags: this.run.flags,
+            take: 1
           };
           this.rankService
             .getRanks(this.run.mapID, options)
             .subscribe((response) => {
-              if (response.count && response.count === 1)
-                this.personalBestRun = response.ranks[0].run;
+              if (response.totalCount && response.totalCount === 1)
+                this.personalBestRun = response.response[0].run;
             });
         }
       });
