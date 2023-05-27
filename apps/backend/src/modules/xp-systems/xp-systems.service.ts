@@ -7,7 +7,7 @@ import {
   CosXpParams,
   RankXpGain,
   RankXpParams,
-  XpParams
+  XpSystems
 } from '@momentum/types';
 import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
 import { instanceToPlain } from 'class-transformer';
@@ -72,7 +72,7 @@ export class XpSystemsService implements OnModuleInit {
   private xpInLevels: number[];
   private xpForLevels: number[];
 
-  public get xpParams(): XpParams {
+  public get xpParams(): XpSystems {
     return {
       cosXP: this._cosXpParams,
       rankXP: this._rankXpParams

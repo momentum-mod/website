@@ -1,19 +1,16 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from './prisma.service';
-import {
-  CosXpParams,
-  RankXpParams,
-  XpParams
-} from '../xp-systems/xp-systems.interface';
+
 import { DatabaseError } from './repo.error';
 import { instanceToPlain } from 'class-transformer';
 import { XpSystemsDto } from '@momentum/backend/dto';
+import { CosXpParams, RankXpParams, XpSystems } from '@momentum/types';
 
 @Injectable()
 export class XpSystemsRepoService {
   constructor(private prisma: PrismaService) {}
 
-  async getXpParams(): Promise<XpParams | undefined> {
+  async getXpParams(): Promise<XpSystems | undefined> {
     const dbResponse = await this.prisma.xpSystems.findUnique({
       where: { id: 1 }
     });

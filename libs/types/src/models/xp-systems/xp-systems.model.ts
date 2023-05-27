@@ -49,7 +49,7 @@ export interface CosXpParams extends Prisma.JsonObject {
   };
 }
 
-export interface XpParams {
+export interface XpSystems {
   rankXP: RankXpParams;
   cosXP: CosXpParams;
 }
@@ -64,4 +64,4 @@ export interface RankXpGain {
   };
 }
 
-export interface UpdateXpSystems extends Pick<XpParams, 'cosXP' | 'rankXP'> {}
+export interface UpdateXpSystems extends Pick<XpSystems, 'cosXP' | 'rankXP'> {}
