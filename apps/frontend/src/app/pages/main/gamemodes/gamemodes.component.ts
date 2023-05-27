@@ -1,6 +1,7 @@
 import { Component, OnDestroy } from '@angular/core';
-import { GameModeDetails } from '../../../@core/models/gamemode-details.model';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
+
+type timeout = ReturnType<typeof setTimeout>;
 
 @Component({
   selector: 'ngx-gamemodes',
@@ -8,10 +9,10 @@ import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
   styleUrls: ['./gamemodes.component.scss']
 })
 export class GamemodesComponent implements OnDestroy {
-  timer: number;
-  delay: number;
+  timer: timeout;
+  delay: timeout;
 
-  gameModes: GameModeDetails[] = [
+  gameModes = [
     {
       url: '/assets/images/surf_loop.webm',
       modeTitle: 'Surf',
@@ -142,7 +143,7 @@ export class GamemodesComponent implements OnDestroy {
     }
   ];
 
-  currentGameMode?: GameModeDetails;
+  currentGameMode?: any;
 
   gameModeIndex: number;
   gameModeSectionVisible: boolean;
@@ -201,7 +202,7 @@ export class GamemodesComponent implements OnDestroy {
     this.timer = this.getGameModeChangeInterval();
   }
 
-  getGameModeChangeInterval(): number {
+  getGameModeChangeInterval(): timeout {
     return setInterval(() => {
       this.incrementGamemodeIndex();
     }, GamemodesComponent.GAMEMODE_CHANGE_TIME * 1000);
@@ -228,7 +229,7 @@ export class GamemodesComponent implements OnDestroy {
   // eslint-disable-next-line @typescript-eslint/member-ordering
   timeLeft: number = GamemodesComponent.GAMEMODE_CHANGE_TIME;
   // eslint-disable-next-line @typescript-eslint/member-ordering
-  circleTimerInterval: number = null;
+  circleTimerInterval: timeout = null;
 
   onTimesUp() {
     clearInterval(this.circleTimerInterval);
