@@ -6,10 +6,10 @@ import { PagedResponse, Rank, Run } from '@momentum/types';
 import { RanksService } from '@momentum/frontend/data';
 import { Observable } from 'rxjs';
 
-export enum LeaderboardType {
-  TOP10 = 1,
-  AROUND = 2,
-  FRIENDS = 3
+enum LeaderboardType {
+  TOP10,
+  AROUND,
+  FRIENDS
 }
 
 @Component({
