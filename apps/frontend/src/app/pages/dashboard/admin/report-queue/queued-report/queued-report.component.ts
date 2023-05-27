@@ -54,11 +54,7 @@ export class QueuedReportComponent implements OnInit {
 
   update() {
     this.dialogService
-      .open(UpdateReportDialogComponent, {
-        context: {
-          report: this.report
-        }
-      })
+      .open(UpdateReportDialogComponent, { context: { report: this.report } })
       .onClose.subscribe((report) => {
         if (report) this.reportUpdate.emit(report);
       });

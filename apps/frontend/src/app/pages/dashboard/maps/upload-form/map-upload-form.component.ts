@@ -123,10 +123,12 @@ export class MapUploadFormComponent implements OnInit, AfterViewInit {
     this.avatarFile = null;
     this.mapFile = null;
   }
+
   ngAfterViewInit() {
     this.datePicker.max = new Date();
     this.datePicker.date = new Date();
   }
+
   ngOnInit(): void {
     this.youtubeURL.valueChanges.subscribe(() => this.generatePreviewMap());
     this.creditsForm.valueChanges.subscribe(() => this.generatePreviewMap());

@@ -150,9 +150,7 @@ export class SearchFieldComponent implements OnChanges, AfterViewInit {
   }
 
   focusInput() {
-    if (this.show && this.inputElement) {
-      this.inputElement.nativeElement.focus();
-    }
+    if (this.show && this.inputElement) this.inputElement.nativeElement.focus();
   }
 
   selectedElem($event: string) {

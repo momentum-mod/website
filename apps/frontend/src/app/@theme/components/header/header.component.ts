@@ -53,9 +53,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
     this.userService
       .getLocal()
       .pipe(takeUntil(this.ngUnsub))
-      .subscribe((usr) => {
-        this.user = usr;
-      });
+      .subscribe((usr) => (this.user = usr));
     this.notificationService.notifications.subscribe((notifs) => {
       this.notifications = notifs;
       this.numUnreadNotifs = this.notifications.filter(

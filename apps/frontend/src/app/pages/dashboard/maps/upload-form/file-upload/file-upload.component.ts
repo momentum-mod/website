@@ -55,19 +55,16 @@ export class FileUploadComponent implements OnInit {
       case FileUploadType.MAP: {
         this.acceptString = '.bsp';
         this.matchString = /.+(\.bsp)/;
-
         break;
       }
       case FileUploadType.IMAGE: {
         this.acceptString = 'image/png,image/jpeg';
         this.matchString = /.+(\.(pn|jpe?)g)/i;
-
         break;
       }
       case FileUploadType.ZONES: {
         this.acceptString = '.zon';
         this.matchString = /.+(\.zon)/;
-
         break;
       }
       // No default

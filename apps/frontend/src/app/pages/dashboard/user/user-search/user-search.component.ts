@@ -17,9 +17,7 @@ import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
   styleUrls: ['./user-search.component.scss']
 })
 export class UserSearchComponent implements OnInit {
-  userSearchForm: FormGroup = this.fb.group({
-    search: ['']
-  });
+  userSearchForm: FormGroup = this.fb.group({ search: [''] });
   get nameSearch() {
     return this.userSearchForm.get('search');
   }
