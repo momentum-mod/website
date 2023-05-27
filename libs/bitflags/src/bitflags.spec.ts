@@ -33,4 +33,17 @@ describe('Bitflags', () => {
       expect(Bitflags.toggle(0b0111, 0b0010)).toBe(0b0101);
     });
   });
+
+  describe('join', () => {
+    it('should return the first argument when only one argument is passed', () => {
+      expect(Bitflags.join(0b0001)).toBe(0b0001);
+      expect(Bitflags.join(0b0011)).toBe(0b0011);
+    });
+
+    it('should return the bitwise OR of all arguments when multiple arguments are passed', () => {
+      expect(Bitflags.join(0b0001, 0b0011)).toBe(0b11);
+      expect(Bitflags.join(0b0001, 0b0010, 0b0100)).toBe(0b111);
+      expect(Bitflags.join(0b0110, 0b0010, 0b0100)).toBe(0b110);
+    });
+  });
 });
