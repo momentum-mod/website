@@ -46,10 +46,10 @@ export class LocalUserService {
       localStorage.setItem('user', userCookie);
       this.cookieService.delete('user', '/');
     }
-    const user = localStorage.getItem('user');
+    const user = localStorage.getItem('user') as string;
 
     // TODO: Handle this properly - redirect to login?
-    if (!user) throw new Error('fuck');
+    // if (!user) throw new Error('fuck');
 
     this.localUser = JSON.parse(user);
     this.localUserSubject.next(this.localUser);

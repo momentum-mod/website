@@ -59,8 +59,9 @@ export class ProfileEditComponent implements OnInit, OnDestroy {
   isLocal: boolean;
   isAdmin: boolean;
   isModerator: boolean;
-  Role: typeof Role = Role;
-  Ban: typeof Ban = Ban;
+  // TODO
+  // Role: typeof Role = Role;
+  // Ban: typeof Ban = Ban;
 
   @ViewChild('socials', { static: false }) socials: NbTabComponent;
 
@@ -81,6 +82,7 @@ export class ProfileEditComponent implements OnInit, OnDestroy {
     this.mergeUser = null;
     this.mergeErr = null;
   }
+
   ngOnInit(): void {
     this.route.paramMap
       .pipe(
@@ -94,9 +96,7 @@ export class ProfileEditComponent implements OnInit, OnDestroy {
           this.isLocal = numID === this.localUserService.localUser.id;
           if (!this.isLocal) {
             this.usersService
-              .getUser(numID, {
-                params: { expand: 'profile' }
-              })
+              .getUser(numID, { expand: ['profile'] })
               .subscribe((usr) => this.setUser(usr));
           }
         }
@@ -104,12 +104,13 @@ export class ProfileEditComponent implements OnInit, OnDestroy {
           .getLocal()
           .pipe(takeUntil(this.ngUnSub))
           .subscribe((usr) => {
-            this.isAdmin = this.localUserService.hasRole(Role.ADMIN, usr);
-            this.isModerator = this.localUserService.hasRole(
-              Role.MODERATOR,
-              usr
-            );
-            if (this.isLocal) this.setUser(usr);
+            //  TODO
+            // this.isAdmin = this.localUserService.hasRole(Role.ADMIN, usr);
+            // this.isModerator = this.localUserService.hasRole(
+            //   Role.MODERATOR,
+            //   usr
+            // );
+            // if (this.isLocal) this.setUser(usr);
           });
       });
   }
@@ -169,6 +170,7 @@ export class ProfileEditComponent implements OnInit, OnDestroy {
       }
     }, 500);
   }
+  
   unAuth(platform: string) {
     this.authService.removeSocialAuth(platform).subscribe({
       next: () => this.localUserService.refreshLocal(),
@@ -180,30 +182,30 @@ export class ProfileEditComponent implements OnInit, OnDestroy {
     });
   }
 
-  toggleRole(role: Role) {
-    if (this.hasRole(role)) {
-      this.user.roles &= ~role;
-    } else {
-      this.user.roles |= role;
-    }
-    this.checkUserPermissions();
-  }
+  // toggleRole(role: Role) {
+  //   if (this.hasRole(role)) {
+  //     this.user.roles &= ~role;
+  //   } else {
+  //     this.user.roles |= role;
+  //   }
+  //   this.checkUserPermissions();
+  // }
+  //
+  // toggleBan(ban: Ban) {
+  //   if (this.hasBan(ban)) {
+  //     this.user.bans &= ~ban;
+  //   } else {
+  //     this.user.bans |= ban;
+  //   }
+  //   this.checkUserPermissions();
+  // }
 
-  toggleBan(ban: Ban) {
-    if (this.hasBan(ban)) {
-      this.user.bans &= ~ban;
-    } else {
-      this.user.bans |= ban;
-    }
-    this.checkUserPermissions();
-  }
-
-  hasRole(role: Role) {
-    return this.localUserService.hasRole(role, this.user);
-  }
-
-  hasBan(ban: Ban) {
-    return this.localUserService.hasBan(ban, this.user);
+  // hasRole(role: Role) {
+  //   return this.localUserService.hasRole(role, this.user);
+  // }
+  //
+  // hasBan(ban: Ban) {
+  //   return this.localUserService.hasBan(ban, this.user);
   }
 
   checkUserPermissions() {

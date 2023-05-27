@@ -126,11 +126,12 @@ export class MapInfoComponent implements OnInit, OnDestroy {
             .getLocal()
             .pipe(takeUntil(this.ngUnsub))
             .subscribe((locUser) => {
-              this.isAdmin = this.locUserService.hasRole(Role.ADMIN, locUser);
-              this.isModerator = this.locUserService.hasRole(
-                Role.MODERATOR,
-                locUser
-              );
+              // TODO
+              // this.isAdmin = this.locUserService.hasRole(Role.ADMIN, locUser);
+              // this.isModerator = this.locUserService.hasRole(
+              //   Role.MODERATOR,
+              //   locUser
+              // );
               this.isSubmitter = this.map.submitterID === locUser.id;
             });
         });
