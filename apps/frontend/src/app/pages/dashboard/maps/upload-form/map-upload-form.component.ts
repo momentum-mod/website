@@ -188,7 +188,7 @@ export class MapUploadFormComponent implements OnInit, AfterViewInit {
     // This code is really ugly but I don't wanna mess with it too much.
     // Will rewrite at 0.10.0. - Tom
     for (const zone in track) {
-      if (track.hasOwnProperty(zone)) {
+      if (Object.hasOwn(track, zone)) {
         const zoneNum = Number(zone);
         trackReturn.numZones = Math.max(trackReturn.numZones, zoneNum);
 
@@ -197,7 +197,7 @@ export class MapUploadFormComponent implements OnInit, AfterViewInit {
           triggers: []
         };
         for (const trigger in track[zone].triggers) {
-          if (track[zone].triggers.hasOwnProperty(trigger)) {
+          if (Object.hasOwn(track[zone].triggers, trigger)) {
             const triggerObj = track[zone].triggers[trigger];
             if (!trackReturn.isLinear)
               trackReturn.isLinear =
@@ -230,7 +230,7 @@ export class MapUploadFormComponent implements OnInit, AfterViewInit {
       const zoneFile = VDF.parse(result);
       const tracks = zoneFile.tracks;
       for (const trackNum in tracks) {
-        if (tracks.hasOwnProperty(trackNum)) {
+        if (Object.hasOwn(tracks, trackNum)) {
           this.tracks.push(this.parseTrack(Number(trackNum), tracks[trackNum]));
         }
       }
