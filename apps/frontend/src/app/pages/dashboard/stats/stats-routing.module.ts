@@ -3,7 +3,6 @@ import { NgModule } from '@angular/core';
 import { RoleGuard } from '../../../@core/guards/role.guard';
 import { NotFoundDashboardComponent } from '../../not-found/dashboard/not-found-dashboard.component';
 import { StatsComponent } from './stats.component';
-import { GlobalStatsComponent } from './global-stats/global-stats.component';
 
 @NgModule({
   imports: [
@@ -11,10 +10,7 @@ import { GlobalStatsComponent } from './global-stats/global-stats.component';
       {
         path: '',
         component: StatsComponent,
-        children: [
-          { path: '', component: GlobalStatsComponent },
-          { path: '**', component: NotFoundDashboardComponent }
-        ]
+        children: [{ path: '**', component: NotFoundDashboardComponent }]
       }
     ])
   ],
