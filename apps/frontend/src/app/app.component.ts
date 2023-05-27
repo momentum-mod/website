@@ -3,8 +3,7 @@
  * Copyright Akveo. All Rights Reserved.
  * Licensed under the MIT License. See License.txt in the project root for license information.
  */
-import { Component, OnInit } from '@angular/core';
-import { AnalyticsService } from './services/analytics.service';
+import { Component } from '@angular/core';
 import { ScreenerService } from './services/screener.service';
 import { NbIconLibraries } from '@nebular/theme';
 import { kebabCase } from 'lodash-es';
@@ -18,18 +17,13 @@ import {
   selector: 'mom-app',
   template: '<router-outlet></router-outlet>'
 })
-export class AppComponent implements OnInit {
+export class AppComponent {
   constructor(
-    private analytics: AnalyticsService,
     private screener: ScreenerService,
     private iconLibraries: NbIconLibraries
   ) {
     this.screener.inject();
     this.initIconPacks();
-  }
-
-  ngOnInit(): void {
-    this.analytics.trackPageViews();
   }
 
   initIconPacks(): void {

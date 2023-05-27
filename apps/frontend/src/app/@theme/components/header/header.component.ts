@@ -1,6 +1,5 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { NbMenuItem, NbMenuService, NbSidebarService } from '@nebular/theme';
-import { AnalyticsService } from '../../../services/analytics.service';
 import { NotificationsService } from '../../../services/notifications.service';
 import { takeUntil } from 'rxjs/operators';
 import { Subject } from 'rxjs';
@@ -38,7 +37,6 @@ export class HeaderComponent implements OnInit, OnDestroy {
     private sidebarService: NbSidebarService,
     private menuService: NbMenuService,
     private userService: LocalUserService,
-    private analyticsService: AnalyticsService,
     private layoutService: LayoutService,
     private notificationService: NotificationsService
   ) {
@@ -83,10 +81,6 @@ export class HeaderComponent implements OnInit, OnDestroy {
   navigateHome() {
     this.menuService.navigateHome();
     return false;
-  }
-
-  startSearch() {
-    this.analyticsService.trackEvent('startSearch');
   }
 
   getNotificationIconClass() {
