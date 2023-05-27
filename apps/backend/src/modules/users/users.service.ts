@@ -60,9 +60,9 @@ export class UsersService {
     let take = query.take;
     if (query.steamID) {
       take = 1;
-      where.steamID = query.steamID;
+      where.steamID = BigInt(query.steamID);
     } else if (query.steamIDs) {
-      where.steamID = { in: query.steamIDs };
+      where.steamID = { in: query.steamIDs.map(BigInt) };
     }
 
     if (query.search) where.alias = { startsWith: query.search };
