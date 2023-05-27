@@ -2,7 +2,7 @@ import { Component, Input, OnInit } from '@angular/core';
 import { ReplaySubject } from 'rxjs';
 import { ActivityService } from '@momentum/frontend/data';
 import { ActivityType } from '@momentum/constants';
-import { Activity, User } from '@momentum/types';
+import { Activity, PagedResponse, User } from '@momentum/types';
 
 @Component({
   selector: 'mom-activity-card',
@@ -18,9 +18,10 @@ export class ActivityCardComponent implements OnInit {
   constructor(private activityService: ActivityService) {
     this.headerTitle = 'Activity';
     this.filterValue = ActivityType.ALL;
-    this.initialAct = false;
     this.activities = [];
-    this.actsFiltered = [];
+    this.filteredActivities = [];
+    this.initialActivity = false;
+    this.canLoadMore = true;
   }
   protected readonly ActivityType = ActivityType;
   filterValue: ActivityType;
@@ -28,12 +29,10 @@ export class ActivityCardComponent implements OnInit {
   filteredActivities: Activity[];
   initialActivity: boolean;
   recentActPage = 1;
-  canLoadMore = true;
+  canLoadMore: boolean;
 
   ngOnInit(): void {
-    if (!this.initialAct) {
-      this.getActivities();
-    }
+    if (!this.initialActivity) this.getActivities();
   }
 
   filterActivites(acts: Activity[]): void {
@@ -43,9 +42,9 @@ export class ActivityCardComponent implements OnInit {
         : acts.filter((value) => value.type === this.filterValue);
   }
 
-  onGetActivities(response): void {
+  onGetActivities(response: PagedResponse<Activity>): void {
     this.initialActivity = true;
-    this.activities = response.activities;
+    this.activities = response.response;
     this.filterActivites(this.activities);
   }
 
