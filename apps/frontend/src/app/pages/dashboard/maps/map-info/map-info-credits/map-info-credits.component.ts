@@ -16,10 +16,6 @@ export class MapInfoCreditsComponent {
     creditType: MapCreditType
   ): MapCredit[] {
     if (!mapCredits) return [];
-    const credits = [];
-    for (const mapCredit of mapCredits) {
-      if (mapCredit.type === creditType) credits.push(mapCredit);
-    }
-    return credits;
+    return mapCredits.filter((credit) => credit.type === creditType);
   }
 }

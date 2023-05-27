@@ -17,11 +17,10 @@ export class HomeUserMapsComponent implements OnInit {
 
   ngOnInit() {
     this.userService.getSubmittedMapSummary().subscribe({
-      next: (response) => {
-        this.submittedMapStatusSummary = {};
-        for (const sum of response)
-          this.submittedMapStatusSummary[sum.statusFlag] = sum.statusCount;
-      },
+      next: (response) =>
+        (this.submittedMapStatusSummary = Object.fromEntries(
+          response.map((sum) => [sum.status, sum.statusCount])
+        )),
       error: (error) => console.error(error)
     });
   }
