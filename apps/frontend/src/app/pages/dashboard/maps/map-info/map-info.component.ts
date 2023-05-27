@@ -63,10 +63,10 @@ export class MapInfoComponent implements OnInit, OnDestroy {
   ) {
     this.ReportType = ReportType;
     this.mapInLibrary = false;
-    this.map = null;
-    this.previewMap = null;
+    this.map = undefined;
+    this.previewMap = undefined;
     this.mapInFavorites = false;
-    this.mapNotify = null;
+    this.mapNotify = undefined;
     this.mapNotifications = false;
   }
 
@@ -194,7 +194,7 @@ export class MapInfoComponent implements OnInit, OnDestroy {
       .onClose.subscribe((response) => {
         if (!response) return;
         if (response.newFlags === 0) {
-          if (this.mapNotify === null) return;
+          if (!this.mapNotify) return;
           this.localUserService.disableMapNotify(this.map.id).subscribe({
             next: () => {
               this.mapNotify.notifyOn = 0;
@@ -212,7 +212,7 @@ export class MapInfoComponent implements OnInit, OnDestroy {
             .subscribe({
               next: (response) => {
                 this.mapNotifications = true;
-                if (this.mapNotify == null) this.mapNotify = response;
+                if (!this.mapNotify) this.mapNotify = response;
                 else this.mapNotify.notifyOn = response.newFlags;
               },
               error: (error) =>

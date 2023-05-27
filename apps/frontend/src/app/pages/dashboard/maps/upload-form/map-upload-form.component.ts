@@ -407,11 +407,11 @@ export class MapUploadFormComponent implements OnInit, AfterViewInit {
         info: {
           id: 0,
           description: this.description.value,
-          youtubeID: youtubeIDMatch ? youtubeIDMatch[0] : null,
+          youtubeID: youtubeIDMatch ? youtubeIDMatch[0] : undefined,
           numTracks: this.tracks.length,
           creationDate: this.creationDate.value
         },
-        mainTrack: this.tracks.length > 0 ? this.tracks[0] : null,
+        mainTrack: this.tracks.length > 0 ? this.tracks[0] : undefined,
         tracks: this.tracks,
         credits: this.getAllCredits(),
         submitter: this.localUsrService.localUser
@@ -439,7 +439,7 @@ export class MapUploadFormComponent implements OnInit, AfterViewInit {
 
   onRemoveZones() {
     this.tracks = [];
-    this.zoneFile = null;
+    this.zoneFile = undefined;
     this.infoForm.patchValue({ zones: '' });
   }
 }
