@@ -1,20 +1,15 @@
-/*
-import { async, ComponentFixture, TestBed } from '@angular/core/testing';
-
+import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { HomeStatsComponent } from './home-stats.component';
-import {ThemeModule} from '../../../../@theme/theme.module';
 
 describe('HomeStatsComponent', () => {
   let component: HomeStatsComponent;
   let fixture: ComponentFixture<HomeStatsComponent>;
 
-  beforeEach(async(() => {
+  beforeEach(() => {
     TestBed.configureTestingModule({
-      imports: [ThemeModule],
-      declarations: [ HomeStatsComponent ],
-    })
-    .compileComponents();
-  }));
+      declarations: [HomeStatsComponent]
+    }).compileComponents();
+  });
 
   beforeEach(() => {
     fixture = TestBed.createComponent(HomeStatsComponent);
@@ -26,4 +21,3 @@ describe('HomeStatsComponent', () => {
     expect(component).toBeTruthy();
   });
 });
-*/

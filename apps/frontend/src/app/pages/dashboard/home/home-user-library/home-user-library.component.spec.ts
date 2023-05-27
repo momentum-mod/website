@@ -1,47 +1,55 @@
-import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
-
+import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { HomeUserLibraryComponent } from './home-user-library.component';
-import { APP_BASE_HREF } from '@angular/common';
-import { NbAccordionModule, NbStatusService } from '@nebular/theme';
-import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
-import { AuthService } from '../../../../@core/data/auth.service';
-import { CookieService } from 'ngx-cookie-service';
-import { HttpClientTestingModule } from '@angular/common/http/testing';
+import { LocalUserService } from '@momentum/frontend/data';
+import { of } from 'rxjs';
 
 describe('HomeUserLibraryComponent', () => {
   let component: HomeUserLibraryComponent;
   let fixture: ComponentFixture<HomeUserLibraryComponent>;
+  let userService: LocalUserService;
 
-  beforeEach(waitForAsync(() => {
-    const authService: Partial<AuthService> = {};
-    const cookServ: Partial<CookieService> = {
-      check: (): boolean => true,
-      get: (): string => '',
-      delete: (): void => {}
-    };
+  // Before each test, we set up the test bed
+  beforeEach(async () => {
     TestBed.configureTestingModule({
-      imports: [
-        NbAccordionModule,
-        BrowserAnimationsModule,
-        HttpClientTestingModule
-      ],
       declarations: [HomeUserLibraryComponent],
       providers: [
-        NbStatusService,
-        { provide: APP_BASE_HREF, useValue: '/' },
-        { provide: AuthService, useValue: authService },
-        { provide: CookieService, useValue: cookServ }
+        {
+          provide: LocalUserService,
+          useValue: {
+            getMapLibrary: jest.fn()
+          }
+        }
       ]
-    }).compileComponents();
-  }));
+    });
+
+    await TestBed.compileComponents();
+  });
 
   beforeEach(() => {
     fixture = TestBed.createComponent(HomeUserLibraryComponent);
     component = fixture.componentInstance;
-    fixture.detectChanges();
+    userService = TestBed.inject(LocalUserService);
   });
 
   it('should create', () => {
     expect(component).toBeTruthy();
+  });
+
+  it('should call getMapLibrary on init', () => {
+    jest
+      .spyOn(userService, 'getMapLibrary')
+      .mockReturnValue(of({ totalCount: 0, returnCount: 0, response: [] }));
+    component.ngOnInit();
+    expect(userService.getMapLibrary).toHaveBeenCalled();
+  });
+
+  it('should update mapLibraryCount and mostRecentlyAddedMap on init', () => {
+    const res = [{ map: { whatever: 1 } }] as any;
+    jest
+      .spyOn(userService, 'getMapLibrary')
+      .mockReturnValue(of({ totalCount: 1, returnCount: 0, response: res }));
+    component.ngOnInit();
+    expect(component.mapLibraryCount).toBe(1);
+    expect(component.mostRecentlyAddedMap).toEqual({ whatever: 1 });
   });
 });
