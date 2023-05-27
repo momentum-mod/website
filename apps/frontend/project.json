@@ -7,7 +7,7 @@
   "tags": [],
   "targets": {
     "build": {
-      "executor": "@angular-devkit/build-angular:browser",
+      "executor": "@nx/angular:webpack-browser",
       "outputs": ["{options.outputPath}"],
       "options": {
         "outputPath": "dist/apps/frontend",
@@ -28,7 +28,8 @@
           "node_modules/echarts/dist/extension/bmap.min.js",
           "node_modules/marked/marked.min.js"
         ],
-        "allowedCommonJsDependencies": ["eva-icons"]
+        "allowedCommonJsDependencies": ["eva-icons"],
+        "aot": true
       },
       "configurations": {
         "production": {
@@ -64,7 +65,7 @@
       "defaultConfiguration": "production"
     },
     "serve": {
-      "executor": "@angular-devkit/build-angular:dev-server",
+      "executor": "@nx/angular:webpack-dev-server",
       "options": {
         "proxyConfig": "apps/frontend/proxy.conf.json"
       },
