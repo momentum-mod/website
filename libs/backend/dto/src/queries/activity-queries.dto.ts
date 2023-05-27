@@ -8,15 +8,15 @@ export class ActivitiesGetQueryDto
   implements ActivitiesGetQuery
 {
   @IntQueryProperty({ description: 'Filter by user ID' })
-  readonly userID: number;
+  readonly userID?: number;
 
   @EnumQueryProperty(ActivityType, {
     description: 'Types of activities to include'
   })
-  readonly type: ActivityType;
+  readonly type?: ActivityType;
 
   @IntQueryProperty({
     description: 'The ID into the table of the corresponding activity'
   })
-  readonly data: number;
+  readonly data?: number;
 }

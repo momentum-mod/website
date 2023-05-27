@@ -23,7 +23,7 @@ import { ActivityType } from '@momentum/constants';
 
 export class UsersGetQueryDto extends QueryDto implements UsersGetQuery {
   @ExpandQueryProperty(['profile', 'userStats'])
-  readonly expand: string[];
+  readonly expand?: string[];
 
   @ApiPropertyOptional({
     name: 'mapRank',
@@ -33,7 +33,7 @@ export class UsersGetQueryDto extends QueryDto implements UsersGetQuery {
   @Type(() => Number)
   @IsInt()
   @IsOptional()
-  readonly mapRank: number;
+  readonly mapRank?: number;
 }
 
 export class UsersGetAllQueryDto
@@ -41,7 +41,7 @@ export class UsersGetAllQueryDto
   implements UsersGetAllQuery
 {
   @ExpandQueryProperty(['profile', 'userStats'])
-  readonly expand: string[];
+  readonly expand?: string[];
 
   @ApiPropertyOptional({
     name: 'search',
@@ -51,7 +51,7 @@ export class UsersGetAllQueryDto
   })
   @IsOptional()
   @IsString()
-  readonly search: string;
+  readonly search?: string;
 
   @BigIntQueryProperty({
     description: 'Filter by Steam Community ID',
@@ -59,7 +59,7 @@ export class UsersGetAllQueryDto
   })
   @IsBigintValidator()
   @IsOptional()
-  readonly steamID: string;
+  readonly steamID?: string;
 
   @IntCsvQueryProperty({
     description: 'Filter by CSV list of Steam Community IDs',

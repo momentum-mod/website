@@ -11,7 +11,7 @@ export class AdminCreateUserQueryDto
     required: true,
     description: 'The alias to set the new user to'
   })
-  readonly alias: string;
+  readonly alias?: string;
 }
 
 export class AdminGetReportsQueryDto
@@ -22,5 +22,5 @@ export class AdminGetReportsQueryDto
     required: false,
     description: 'Specifies if you want resolved or not'
   })
-  readonly resolved: boolean;
+  readonly resolved?: boolean;
 }

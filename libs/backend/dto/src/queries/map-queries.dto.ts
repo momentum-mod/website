@@ -31,20 +31,19 @@ export class AdminCtlMapsGetAllQueryDto implements AdminMapsGetAllQuery {
     description: 'Filter by partial map name match',
     example: 'de_dust2'
   })
-  readonly search: string;
+  readonly search?: string;
 
   @IntQueryProperty({ description: 'Filter by submitter ID' })
-  readonly submitterID: number;
-}
+  readonly submitterID?: number;
 
   @ExpandQueryProperty(['submitter', 'credits'])
-  readonly expand: string[];
+  readonly expand?: string[];
 
   @EnumQueryProperty(MapStatus, { description: 'Filter by map status flags' })
-  readonly status: MapStatus;
+  readonly status?: MapStatus;
 
   @BooleanQueryProperty({ description: 'Filter by priority or non-priority' })
-  readonly priority: boolean;
+  readonly priority?: boolean;
 }
 
 export class MapsCtlGetAllQueryDto implements MapsGetAllQuery {
@@ -72,19 +71,19 @@ export class MapsCtlGetAllQueryDto implements MapsGetAllQuery {
     'personalBest',
     'worldRecord'
   ])
-  readonly expand: string[];
+  readonly expand?: string[];
 
   @EnumQueryProperty(MapType, { description: 'Filter by map type (gamemode)' })
-  readonly type: MapType;
+  readonly type?: MapType;
 
   @IntQueryProperty({ description: 'Filter by tier (lower bound)' })
-  readonly difficultyLow: number;
+  readonly difficultyLow?: number;
 
   @IntQueryProperty({ description: 'Filter by tier (upper bound)' })
-  readonly difficultyHigh: number;
+  readonly difficultyHigh?: number;
 
   @BooleanQueryProperty({ description: 'Filter by linear or staged' })
-  readonly isLinear: boolean;
+  readonly isLinear?: boolean;
 }
 
 export class MapsGetQueryDto extends QueryDto implements MapsGetQuery {
@@ -101,7 +100,7 @@ export class MapsGetQueryDto extends QueryDto implements MapsGetQuery {
     'worldRecord',
     'tracks'
   ])
-  readonly expand: string[];
+  readonly expand?: string[];
 }
 
 export class MapCreditsGetQueryDto
@@ -109,7 +108,7 @@ export class MapCreditsGetQueryDto
   implements MapCreditsGetQuery
 {
   @ExpandQueryProperty(['user'])
-  readonly expand: string[];
+  readonly expand?: string[];
 }
 
 export class MapRanksGetQueryDto
@@ -117,20 +116,20 @@ export class MapRanksGetQueryDto
   implements MapRanksGetQuery
 {
   @IntQueryProperty({ description: 'Steam ID of player to get rank for' })
-  readonly playerID: number;
+  readonly playerID?: number;
 
   @IntCsvQueryProperty({
     description: 'CSV list of steam IDs of players to get rank for'
   })
-  readonly playerIDs: number[];
+  readonly playerIDs?: number[];
 
   @IntQueryProperty({ description: 'Rank flags', default: 0 })
-  readonly flags: number;
+  readonly flags?: number;
 
   @BooleanQueryProperty({
     description: 'Whether to order by date or not (false for reverse)'
   })
-  readonly orderByDate: boolean;
+  readonly orderByDate?: boolean;
 }
 
 export class MapRankGetNumberQueryDto
@@ -138,11 +137,11 @@ export class MapRankGetNumberQueryDto
   implements MapRankGetNumberQuery
 {
   @IntQueryProperty({ description: 'Track number', default: 0 })
-  readonly trackNum: number;
+  readonly trackNum?: number;
 
   @IntQueryProperty({ description: 'Zone number', default: 0 })
-  readonly zoneNum: number;
+  readonly zoneNum?: number;
 
   @IntQueryProperty({ description: 'Rank flags', default: 0 })
-  readonly flags: number;
+  readonly flags?: number;
 }

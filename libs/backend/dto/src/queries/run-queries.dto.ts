@@ -31,13 +31,13 @@ export class RunsGetAllQueryDto extends QueryDto implements RunsGetAllQuery {
     'rank',
     'zoneStats'
   ])
-  expand: string[];
+  expand?: string[];
 
   @IntQueryProperty({ description: 'Filter by map ID' })
-  mapID: number;
+  mapID?: number;
 
   @StringQueryProperty({ required: false, description: 'Filter by map name' })
-  mapName: string;
+  mapName?: string;
 
   @IntQueryProperty({ description: 'Filter by user ID' })
   userID?: number;
@@ -86,21 +86,21 @@ export class MapsCtlRunsGetAllQueryDto implements MapsCtlRunsGetAllQuery {
   // Not sure if these two are supposed to be user IDs or steam IDs. Going to assume userid for now,
   // if I'm wrong do steam ID handling like users/getall does.
   @IntQueryProperty({ description: 'Filter by user ID' })
-  userID: number;
+  userID?: number;
 
   @IntCsvQueryProperty({ description: 'Filter by user IDs' })
-  userIDs: number[];
+  userIDs?: number[];
 
   @IntQueryProperty({
     description:
       'Filter by run flags (I dont really know what this is, I think a 0.10/0.11 thing -Tom)'
   })
-  flags: number;
+  flags?: number;
 
   @BooleanQueryProperty({
     description: 'Whether or not to filter by only personal best runs.'
   })
-  isPB: boolean;
+  isPB?: boolean;
 
   @ApiPropertyOptional({
     name: 'order',
@@ -110,7 +110,7 @@ export class MapsCtlRunsGetAllQueryDto implements MapsCtlRunsGetAllQuery {
   })
   @IsString()
   @IsOptional()
-  order: string;
+  order?: string;
 }
 
 export class UserCtlRunsGetAllQueryDto implements UserCtlRunsGetAllQuery {
@@ -132,5 +132,5 @@ export class RunsGetQueryDto extends QueryDto implements RunsGetQuery {
     'rank',
     'zoneStats'
   ])
-  readonly expand: string[];
+  readonly expand?: string[];
 }

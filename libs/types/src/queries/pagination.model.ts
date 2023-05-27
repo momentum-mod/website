@@ -1,6 +1,4 @@
-﻿import { Query } from './query.interface';
-
-export interface PagedQuery extends Query {
-  skip: number;
-  take: number;
+﻿export interface PagedQuery {
+  skip?: number;
+  take?: number;
 }
