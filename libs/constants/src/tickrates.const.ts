@@ -1,4 +1,4 @@
-import { MapType } from './map-type';
+import { MapType } from './map-type.enum';
 
 /**
  * The tickrates each gamemode uses. May change in future when we allow surf 100 tick etc.
