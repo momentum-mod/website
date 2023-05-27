@@ -35,7 +35,7 @@ export class MapListItemComponent implements OnInit {
   ngOnInit() {
     this.mapInFavorites = this.inFavorites;
     this.mapInLibrary = this.inLibrary;
-    this.status = getStatusFromEnum(this.map.statusFlag);
+    this.status = MapStatusName[this.map.status];
   }
 
   toggleMapInFavorites() {

@@ -3,6 +3,8 @@ export * from './run.enum';
 export * from './role.enum';
 export * from './zone-type.enum';
 export * from './map-status.enum';
+export * from './map-status-name.const';
+export * from './map-type-name.const';
 export * from './tickrates.const';
 export * from './report-type.enum';
 export * from './activity-type.enum';
