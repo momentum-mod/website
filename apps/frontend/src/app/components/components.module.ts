@@ -10,10 +10,11 @@ import { ReportButtonComponent } from './report/report-button/report-button.comp
 import { SearchInputComponent } from './search-input/search-input.component';
 import { CommonModule, NgOptimizedImage } from '@angular/common';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
-import { ThemeModule } from '../theme/theme.module';
+import { ThemeModule } from '@momentum/frontend/theme';
 import { DirectivesModule } from '@momentum/frontend/directives';
 import { PipesModule } from '@momentum/frontend/pipes';
 import { RouterModule } from '@angular/router';
+import { SearchComponent } from './search/search.component';
 
 const COMPONENTS = [
   HeaderComponent,
@@ -24,7 +25,8 @@ const COMPONENTS = [
   ActivityListComponent,
   ReportButtonComponent,
   CreateReportDialogComponent,
-  ConfirmDialogComponent
+  ConfirmDialogComponent,
+  SearchComponent
 ];
 
 @NgModule({

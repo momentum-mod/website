@@ -21,7 +21,7 @@
           "node_modules/@fontsource/bebas-neue/index.css",
           "node_modules/@fontsource/roboto/index.css",
           "node_modules/flag-icons/css/flag-icons.min.css",
-          "apps/frontend/src/app/theme/styles/styles.scss"
+          "libs/frontend/theme/src/styles/styles.scss"
         ],
         "scripts": [
           "node_modules/echarts/dist/echarts.min.js",
@@ -29,7 +29,10 @@
           "node_modules/marked/marked.min.js"
         ],
         "allowedCommonJsDependencies": ["eva-icons"],
-        "aot": true
+        "aot": true,
+        "stylePreprocessorOptions": {
+          "includePaths": ["libs/frontend/theme/src/styles"]
+        }
       },
       "configurations": {
         "production": {

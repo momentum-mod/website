@@ -1,0 +1,170 @@
+@forward '@nebular/theme/styles/theming';
+@use '@nebular/theme/styles/theming' as *;
+@use '@nebular/theme/styles/themes/dark';
+
+$momentum-theme: (
+  font-family-primary: unquote('Roboto, sans-serif'),
+  font-family-secondary: unquote('Bebas Neue, sans-serif'),
+  color-primary-100: #e8f6fc,
+  color-primary-200: #bae3f7,
+  color-primary-300: #8dd1f2,
+  color-primary-400: #5fbeed,
+  color-primary-500: #1896d3,
+  color-primary-600: #1272a0,
+  color-primary-700: #0d5172,
+  color-primary-800: #083145,
+  color-primary-900: #031017,
+
+  color-basic-100: #fff,
+  color-basic-200: #e8f6fc,
+  color-basic-300: #bae3f7,
+  color-basic-400: #8dd1f2,
+  color-basic-500: #5fbeed,
+  color-basic-600: #1896d3,
+  color-basic-700: #1272a0,
+  color-basic-800: #0d5172,
+  color-basic-900: #083145,
+  color-basic-1000: #031017,
+  color-basic-1100: #050a10,
+
+  background-basic-color-1: #222,
+  background-basic-color-2: #1f1f1f,
+  background-basic-color-3: #1b1b1b,
+  background-basic-color-4: #181818,
+
+  color-primary-focus: color-primary-700,
+  color-primary-hover: color-primary-400,
+  color-primary-default: color-primary-500,
+  color-primary-active: color-primary-600,
+  color-primary-disabled: color-primary-300,
+
+  color-info-transparent-default: transparent,
+  color-info-transparent-hover: transparent,
+  color-info-transparent-active: transparent,
+
+  color-danger-transparent-default: transparent,
+  color-danger-transparent-hover: transparent,
+  color-danger-transparent-active: transparent,
+
+  color-basic-focus: color-basic-700,
+  color-basic-hover: color-basic-400,
+  color-basic-default: color-basic-100,
+  color-basic-active: color-basic-600,
+  color-basic-disabled: color-basic-300,
+
+  text-hint-color: #fff,
+
+  input-background-color: layout-background-color,
+  input-border-color: #061f3b,
+  input-focus-border-color: #4172aa,
+
+  layout-background-color: #080808,
+  layout-content-width: 1400px,
+
+  accordion-header-border-color: layout-background-color,
+
+  tabset-tab-text-color: #fff,
+  tabset-tab-underline-color: #fff,
+  tabset-tab-active-text-color: color-primary-default,
+  tabset-tab-active-underline-color: color-primary-default,
+  tabset-content-text-color: #fff,
+  tabset-content-padding: 1.25rem,
+
+  menu-text-font-size: 1.2rem,
+  menu-text-line-height: 2rem,
+  menu-item-active-text-color: color-primary-default,
+  menu-item-icon-active-color: color-primary-default,
+  menu-item-icon-width: 2rem,
+  menu-item-hover-text-color: color-primary-default,
+  menu-submenu-padding: 0,
+  menu-submenu-item-padding: 0.75rem 2.25rem,
+  menu-submenu-item-active-border-color: color-primary-default,
+
+  popover-border-color: #2e66a5,
+
+  shadow: 0 0.25rem 0.5rem 0 rgba(0, 0, 0, 0.5),
+  calendar-cell-hover-background-color: color-primary-default,
+  calendar-cell-today-background-color: #061f3b,
+  calendar-cell-selected-background-color: color-primary-default,
+  calendar-cell-active-background-color: color-primary-default,
+
+  stepper-step-text-font-size: 1.25rem,
+  stepper-step-index-width: 3rem,
+  stepper-horizontal-connector-margin: calc(1.5rem - 1px) 1rem,
+  stepper-vertical-connector-margin: 1rem calc(1.5rem - 1px),
+  stepper-step-content-padding: 0.5rem,
+  stepper-step-active-text-color: #fff,
+  stepper-step-text-color: #fff,
+
+  datepicker-border-color: color-primary-default,
+  datepicker-text-color: #061f3b,
+
+  progress-bar-default-background-color:
+    linear-gradient(90deg, #00c7c7 0%, #00d977 100%),
+  button-filled-primary-background-color: color-primary-default,
+  button-filled-success-background-color: color-primary-default,
+
+  checkbox-default-checked-border-color: color-primary-default,
+
+  search-background-color: linear-gradient(to right, #061f3b, #4172aa),
+  divider-color: layout-background-color,
+
+  icon-primary-color: #fff,
+
+  user-large-name-text-font-size: 1.5rem,
+  user-picture-box-border-color: color-primary-default,
+  user-picture-box-border-width: 2px,
+
+  search-divider-color: #fff,
+
+  // app wise variables for each theme
+  sidebar-header-height: initial,
+
+  color-bg: #222222,
+  color-fg-text: #fff,
+  smart-table-bg-even: #525252,
+  smart-table-bg-active: #3e3e3e,
+  smart-table-header-bg: #3e3e3e,
+  scrollbar-fg: color-primary-default,
+  scrollbar-bg: #1b3d64,
+  color-fg: #ffffff,
+  color-fg-highlight: color-primary-default,
+
+  smart-table-paging-bg-active: color-primary-default,
+  smart-table-paging-border-color: color-primary-default,
+
+  context-menu-border: color-primary-default,
+
+  link-color: color-primary-default,
+  link-color-hover: #1b3d64,
+  link-text-decoration: none,
+
+  switcher-background: #4e41a5,
+  switcher-background-percentage: 14%,
+  drops-icon-line-gadient: -webkit-linear-gradient(#a258fe, #7958fa),
+  list-item-border-width: 1px,
+
+  slide-out-container-width: 30%,
+  slide-out-background: radial-gradient(circle, #302c6e 0%, #423f8c 100%),
+  slide-out-shadow-color: 2px 0 3px rgba(19, 19, 94, 0.9),
+  slide-out-shadow-color-rtl: -2px 0 3px rgba(19, 19, 94, 0.9),
+  chart-panel-summary-box-shadow: none,
+  chart-panel-summary-background-color: rgba(0, 0, 0, 0.1),
+  chart-panel-summary-border-color: #332e73,
+  chart-panel-summary-border-width: 1px,
+
+  text-heading-1-font-weight: 400,
+  text-heading-2-font-weight: 400,
+  text-heading-3-font-weight: 400,
+  text-heading-4-font-weight: 400,
+  text-heading-5-font-weight: 400,
+  text-heading-6-font-weight: 400,
+
+  // Custom definitions
+  notif-unread-bg: rgba(0, 130, 350, 0.25),
+  user-follow-fg: color-primary-default,
+  file-upload-border-color: #1b3d64,
+  file-upload-border-color-hover: color-primary-default
+);
+
+$nb-themes: nb-register-theme($momentum-theme, momentum, dark);

@@ -1,6 +1,6 @@
 import { NgModule } from '@angular/core';
 import { OutgoingComponent } from './outgoing.component';
-import { ThemeModule } from '../../theme/theme.module';
+import { ThemeModule } from '../../../../../../libs/frontend/theme/src/theme.module';
 
 @NgModule({
   imports: [ThemeModule],

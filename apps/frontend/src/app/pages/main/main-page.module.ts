@@ -10,7 +10,6 @@ import { RouterModule } from '@angular/router';
 import { GalleryModule } from '@ngx-gallery/core';
 import { NbButtonModule, NbLayoutModule } from '@nebular/theme';
 import { GamemodesComponent } from './gamemodes/gamemodes.component';
-import { ThemeModule } from '../../theme/theme.module';
 import { SharedModule } from '../../shared.module';
 
 @NgModule({

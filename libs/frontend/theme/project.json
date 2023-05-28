@@ -1,0 +1,20 @@
+{
+  "name": "frontend-theme",
+  "$schema": "../../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "libs/frontend/theme/src",
+  "prefix": "momentum",
+  "tags": [],
+  "projectType": "library",
+  "targets": {
+    "lint": {
+      "executor": "@nx/linter:eslint",
+      "outputs": ["{options.outputFile}"],
+      "options": {
+        "lintFilePatterns": [
+          "libs/frontend/theme/**/*.ts",
+          "libs/frontend/theme/**/*.html"
+        ]
+      }
+    }
+  }
+}

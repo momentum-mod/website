@@ -3,7 +3,7 @@ import { DragDropModule } from '@angular/cdk/drag-drop';
 import { NotFoundModule } from '../../not-found/not-found.module';
 import { MapComponent } from './map.component';
 import { MapRoutingModule } from './map-routing.module';
-import { ThemeModule } from '../../../theme/theme.module';
+import { ThemeModule } from '../../../../../../../libs/frontend/theme/src/theme.module';
 import { GalleryModule } from '@ngx-gallery/core';
 import { LightboxModule } from '@ngx-gallery/lightbox';
 import { GallerizeModule } from '@ngx-gallery/gallerize';

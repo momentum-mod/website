@@ -28,13 +28,9 @@ import {
   NbToastrModule,
   NbUserModule
 } from '@nebular/theme';
-import { NbSearchModule } from '../components/search/search.module';
 import { NbEvaIconsModule } from '@nebular/eva-icons';
 
-//  TODO: Needed?
-const BASE_MODULES = [CommonModule, FormsModule, ReactiveFormsModule];
-
-const NB_MODULES = [
+const NEBULAR_MODULES = [
   NbIconModule,
   NbCardModule,
   NbLayoutModule,
@@ -44,7 +40,6 @@ const NB_MODULES = [
   NbUserModule,
   NbListModule,
   NbActionsModule,
-  NbSearchModule,
   NbSidebarModule,
   NbCheckboxModule,
   NbRadioModule,
@@ -61,34 +56,33 @@ const NB_MODULES = [
   NbAlertModule
 ];
 
-const NB_THEME_PROVIDERS = [
-  ...NbThemeModule.forRoot({ name: 'mom' }, [{ name: 'mom', base: 'dark' }])
-    .providers,
-  ...NbSidebarModule.forRoot().providers,
-  ...NbMenuModule.forRoot().providers,
-  ...NbToastrModule.forRoot({
-    duration: 3000,
-    destroyByClick: true,
-    preventDuplicates: false,
-    position: NbGlobalPhysicalPosition.TOP_RIGHT
-  }).providers,
-  ...NbDialogModule.forRoot({
-    hasBackdrop: true,
-    closeOnBackdropClick: true,
-    closeOnEsc: true,
-    autoFocus: true
-  }).providers
-];
-
 @NgModule({
-  imports: [...BASE_MODULES, ...NB_MODULES],
-  exports: [...NB_MODULES]
+  imports: [CommonModule, FormsModule, ReactiveFormsModule, ...NEBULAR_MODULES],
+  exports: NEBULAR_MODULES
 })
 export class ThemeModule {
   static forRoot(): ModuleWithProviders<ThemeModule> {
     return {
       ngModule: ThemeModule,
-      providers: [...NB_THEME_PROVIDERS]
+      providers: [
+        ...NbThemeModule.forRoot({ name: 'momentum' }, [
+          { name: 'momentum', base: 'dark' }
+        ]).providers,
+        ...NbSidebarModule.forRoot().providers,
+        ...NbMenuModule.forRoot().providers,
+        ...NbToastrModule.forRoot({
+          duration: 3000,
+          destroyByClick: true,
+          preventDuplicates: false,
+          position: NbGlobalPhysicalPosition.TOP_RIGHT
+        }).providers,
+        ...NbDialogModule.forRoot({
+          hasBackdrop: true,
+          closeOnBackdropClick: true,
+          closeOnEsc: true,
+          autoFocus: true
+        }).providers
+      ]
     };
   }
 }

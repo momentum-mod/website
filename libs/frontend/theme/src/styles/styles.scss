@@ -2,15 +2,15 @@
 @import 'themes';
 
 // framework component themes (styles tied to theme variables)
-@import '@nebular/theme/styles/globals';
+@import 'globals';
 
 // global app font size
-@import './font-size';
+@import 'font-size';
 
 // ngx-pagination theme
-@import './pagination';
+@import 'pagination';
 
-@import '../../components/search/search.component.theme';
+@import '../../../../../apps/frontend/src/app/components/search/search.component.theme';
 
 // install the framework and custom global styles
 @include nb-install() {
