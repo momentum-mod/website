@@ -1,7 +1,6 @@
 import { RouterModule } from '@angular/router';
 import { UserProfileComponent } from './user-profile.component';
 import { ProfileEditComponent } from './profile-edit/profile-edit.component';
-import { Role } from '../../../@core/models/role.model';
 import { RoleGuard } from '../../../guards/role.guard';
 import { NotFoundDashboardComponent } from '../../not-found/dashboard/not-found-dashboard.component';
 import { NgModule } from '@angular/core';

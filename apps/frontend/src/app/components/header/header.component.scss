@@ -1,6 +1,6 @@
-@import '../../styles/themes';
-@import 'bootstrap/scss/mixins/breakpoints';
-@import '@nebular/theme/styles/global/breakpoints';
+@import 'theme/styles/themes';
+@import 'breakpoints';
+@import 'breakpoints';
 
 @include nb-install-component() {
   display: flex;

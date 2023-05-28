@@ -1,7 +1,7 @@
 import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 
 import { ActivityListComponent } from './activity-list.component';
-import { ActivityContentComponent } from '../..';
+import { ActivityContentComponent } from '../../index';
 import {
   NbListModule,
   NbUserModule,

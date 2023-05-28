@@ -5,7 +5,7 @@ import { ActivatedRoute, ParamMap, Router } from '@angular/router';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { CdkDragDrop, moveItemInArray } from '@angular/cdk/drag-drop';
 import { NbDialogService, NbToastrService } from '@nebular/theme';
-import { ConfirmDialogComponent } from '../../../../@theme/components/confirm-dialog/confirm-dialog.component';
+import { ConfirmDialogComponent } from '../../../../components/confirm-dialog/confirm-dialog.component';
 import { forkJoin, Subject } from 'rxjs';
 import { Map, MapCredit, MapImage } from '@momentum/types';
 import { FileUploadType } from '../upload-form/file-upload/file-upload.component';

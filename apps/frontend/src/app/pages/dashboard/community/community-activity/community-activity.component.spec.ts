@@ -1,7 +1,7 @@
 import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 
 import { CommunityActivityComponent } from './community-activity.component';
-import { ThemeModule } from '../../../../@theme/theme.module';
+import { ThemeModule } from '../../../../theme/theme.module';
 import { ActivityService } from '../../../../@core/data/activity.service';
 import { of } from 'rxjs';
 import { Activity } from '../../../../@core/models/activity.model';

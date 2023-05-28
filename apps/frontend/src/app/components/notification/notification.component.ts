@@ -1,5 +1,5 @@
 import { Component, Input, OnInit } from '@angular/core';
-import { NotificationsService } from '../../../services/notifications.service';
+import { NotificationsService } from '../../services/notifications.service';
 import { Notification } from '@momentum/types';
 
 @Component({

@@ -6,7 +6,7 @@ import { MapCreditsComponent } from '../map-credits/map-credits.component';
 import { MapCreditComponent } from '../map-credits/map-credit/map-credit.component';
 import { UserSearchComponent } from '../../user/user-search/user-search.component';
 import { RouterTestingModule } from '@angular/router/testing';
-import { ThemeModule } from '../../../../@theme/theme.module';
+import { ThemeModule } from '../../../../theme/theme.module';
 import { APP_BASE_HREF } from '@angular/common';
 import { MapsService } from '../../../../@core/data/maps.service';
 import { of } from 'rxjs';

@@ -1,7 +1,7 @@
 import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 
 import { RunInfoComponent } from './run-info.component';
-import { ThemeModule } from '../../../../@theme/theme.module';
+import { ThemeModule } from '../../../../theme/theme.module';
 import { RouterTestingModule } from '@angular/router/testing';
 import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { Observable, of } from 'rxjs';

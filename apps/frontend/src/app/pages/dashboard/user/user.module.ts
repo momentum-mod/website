@@ -1,10 +1,9 @@
 import { NgModule } from '@angular/core';
 import { UserSearchComponent } from './user-search/user-search.component';
-import { ThemeModule } from '../../../@theme/theme.module';
-import { NbListModule } from '@nebular/theme';
+import { SharedModule } from '../../../shared.module';
 
 @NgModule({
-  imports: [ThemeModule, NbListModule],
+  imports: [SharedModule],
   declarations: [UserSearchComponent],
   exports: [UserSearchComponent]
 })

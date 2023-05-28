@@ -20,8 +20,8 @@
           "node_modules/bootstrap/dist/css/bootstrap.css",
           "node_modules/@fontsource/bebas-neue/index.css",
           "node_modules/@fontsource/roboto/index.css",
-          "apps/frontend/src/app/@theme/styles/styles.scss",
-          "node_modules/flag-icons/css/flag-icons.min.css"
+          "node_modules/flag-icons/css/flag-icons.min.css",
+          "apps/frontend/src/app/theme/styles/styles.scss"
         ],
         "scripts": [
           "node_modules/echarts/dist/echarts.min.js",

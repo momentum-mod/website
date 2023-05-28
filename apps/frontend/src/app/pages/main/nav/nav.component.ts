@@ -5,9 +5,9 @@ import {
   OnInit,
   ViewChild
 } from '@angular/core';
-import { ConfirmDialogComponent } from '../../../@theme/components/confirm-dialog/confirm-dialog.component';
 import { NbDialogService } from '@nebular/theme';
 import { Router } from '@angular/router';
+import { ConfirmDialogComponent } from '../../../components/confirm-dialog/confirm-dialog.component';
 
 @Component({
   selector: 'mom-nav',

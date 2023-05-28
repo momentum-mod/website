@@ -10,7 +10,7 @@ import {
   NbToastrService,
   NbUserModule
 } from '@nebular/theme';
-import { ActivityContentComponent } from '..';
+import { ActivityContentComponent } from '../index';
 import { CoreModule } from '../../../@core/core.module';
 import { RouterModule } from '@angular/router';
 import { APP_BASE_HREF } from '@angular/common';

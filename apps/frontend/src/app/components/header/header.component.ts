@@ -1,11 +1,11 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { NbMenuItem, NbMenuService, NbSidebarService } from '@nebular/theme';
-import { NotificationsService } from '../../../services/notifications.service';
+import { NotificationsService } from '../../services/notifications.service';
 import { takeUntil } from 'rxjs/operators';
 import { Subject } from 'rxjs';
 import { Notification, User } from '@momentum/types';
 import { LocalUserService } from '@momentum/frontend/data';
-import { LayoutService } from '../../../services/layout.service';
+import { LayoutService } from '../../services/layout.service';
 
 @Component({
   selector: 'ngx-header',

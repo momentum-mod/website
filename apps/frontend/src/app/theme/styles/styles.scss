@@ -10,7 +10,7 @@
 // ngx-pagination theme
 @import './pagination';
 
-@import '../components/search/search.component.theme';
+@import '../../components/search/search.component.theme';
 
 // install the framework and custom global styles
 @include nb-install() {

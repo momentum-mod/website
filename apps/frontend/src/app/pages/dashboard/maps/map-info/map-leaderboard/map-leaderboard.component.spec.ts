@@ -11,7 +11,7 @@ import {
   NbToastrService,
   NbUserModule
 } from '@nebular/theme';
-import { TimingPipe } from '../../../../../@theme/pipes';
+import { TimingPipe } from '../../../../../theme/pipes';
 import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { TimeagoModule } from 'ngx-timeago';
 

@@ -5,37 +5,13 @@ import { ProfileFollowComponent } from './profile-follow/profile-follow.componen
 import { ProfileCreditsComponent } from './profile-credits/profile-credits.component';
 import { ProfileRunHistoryComponent } from './profile-run-history/profile-run-history.component';
 import { ProfileRoutingModule } from './profile-routing.module';
-import { NotFoundModule } from '../../not-found/not-found.module';
 import { ProfileComponent } from './profile.component';
-import { ThemeModule } from '../../../@theme/theme.module';
-import {
-  NbAccordionModule,
-  NbDialogModule,
-  NbAlertModule
-} from '@nebular/theme';
-import { NgxEchartsModule } from 'ngx-echarts';
-import { MarkdownModule } from 'ngx-markdown';
-import { FormsModule } from '@angular/forms';
-import { NgxPaginationModule } from 'ngx-pagination';
 import { UserModule } from '../user/user.module';
 import { ProfileNotifyEditComponent } from './profile-follow/profile-notify-edit/profile-notify-edit.component';
-import { NgOptimizedImage } from '@angular/common';
+import { SharedModule } from '../../../shared.module';
 
 @NgModule({
-  imports: [
-    ThemeModule,
-    NbAccordionModule,
-    NbAlertModule,
-    NgxEchartsModule,
-    NbDialogModule.forChild(),
-    MarkdownModule.forChild(),
-    FormsModule,
-    NgxPaginationModule,
-    NotFoundModule,
-    ProfileRoutingModule,
-    UserModule,
-    NgOptimizedImage
-  ],
+  imports: [SharedModule, ProfileRoutingModule, UserModule],
   declarations: [
     ProfileComponent,
     UserProfileComponent,
