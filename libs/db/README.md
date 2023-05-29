@@ -1,11 +1,4 @@
 # db
 
-This library was generated with [Nx](https://nx.dev).
-
-## Running unit tests
-
-Run `nx test db` to execute the unit tests via [Jest](https://jestjs.io).
-
-## Running lint
-
-Run `nx lint db` to execute the lint via [ESLint](https://eslint.org/).
+This library stores our Prisma schema and migrations (which are sacred to us),
+as well as db-related utility scripts used in development and testing.
