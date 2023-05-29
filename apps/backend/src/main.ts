@@ -1,6 +1,6 @@
 import { NestFactory, Reflector } from '@nestjs/core';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
-import { AppModule } from './app.module';
+import { AppModule } from './app/app.module';
 import {
   ClassSerializerInterceptor,
   ValidationPipe,
@@ -14,7 +14,7 @@ import {
 } from '@nestjs/platform-fastify';
 import fastifyCookie from '@fastify/cookie';
 import helmet from '@fastify/helmet';
-import { PrismaService } from './modules/repo/prisma.service';
+import { PrismaService } from './app/modules/repo/prisma.service';
 
 async function bootstrap() {
   // Transforms `BigInt`s to strings in JSON.stringify, for cases that haven't been explicitly

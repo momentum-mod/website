@@ -1,5 +1,5 @@
 ﻿import { repl } from '@nestjs/core';
-import { AppModule } from './app.module';
+import { AppModule } from './app/app.module';
 
 /**
  * Run this file via `npm run start:repl` launch the API in REPL (Read-Eval-Print-Loop) mode,

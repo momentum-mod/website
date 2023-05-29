@@ -17,7 +17,7 @@ import { ConfigService } from '@nestjs/config';
 import { PrismaClient } from '@prisma/client';
 // https://github.com/nrwl/nx/issues/1098#issuecomment-691542724
 // eslint-disable-next-line @nx/enforce-module-boundaries
-import { AppModule } from '../../../backend/src/app.module';
+import { AppModule } from '../../../backend/src/app/app.module';
 import {
   AuthUtil,
   DbUtil,
