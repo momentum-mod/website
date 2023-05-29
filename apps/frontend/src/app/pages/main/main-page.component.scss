@@ -1,4 +1,4 @@
-@import '../../@theme/styles/themes';
+@use 'theme' as *;
 
 :host ::ng-deep a {
   color: #fff;

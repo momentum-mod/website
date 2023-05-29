@@ -1,4 +1,4 @@
-@import 'themes';
+@use 'theme' as *;
 
 nb-tabset {
   background-color: nb-theme(background-basic-color-4);

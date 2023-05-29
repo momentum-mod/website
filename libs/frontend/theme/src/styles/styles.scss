@@ -1,24 +1,26 @@
-// themes - our custom or/and out of the box themes
-@import 'themes';
+// Themes - our custom/out of the box themes
+@use 'theme' as *;
 
-// framework component themes (styles tied to theme variables)
-@import 'globals';
+// Framework component themes (styles tied to theme variables)
+@use '@nebular/theme/styles/globals' as *;
 
-// global app font size
-@import 'font-size';
+// Global app font size
+@use './font-size';
 
 // ngx-pagination theme
-@import 'pagination';
+@use './pagination';
 
-@import '../../../../../apps/frontend/src/app/components/search/search.component.theme';
+// TODO: Delete!!! https://github.com/momentum-mod/website/issues/746
+@use '../../../../../apps/frontend/src/app/components/search/search.component.theme'
+  as search;
 
-// install the framework and custom global styles
+// Install the framework and custom global styles
 @include nb-install() {
-  // framework global styles
   @include nb-theme-global();
-
-  @include mom-search-theme();
+  @include search.mom-search-theme();
 }
+
+// Global CSS overrides
 
 .nb-theme-dark input[type='number'] {
   padding-top: 0;

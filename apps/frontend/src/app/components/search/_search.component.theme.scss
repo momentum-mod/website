@@ -4,7 +4,7 @@
  * Licensed under the MIT License. See License.txt in the project root for license information.
  */
 
-@import 'themes';
+@use 'theme' as *;
 
 @mixin mom-search-theme() {
   mom-search-field {
