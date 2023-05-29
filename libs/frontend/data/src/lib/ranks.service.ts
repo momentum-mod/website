@@ -19,7 +19,7 @@ export class RanksService {
     query?: MapRanksGetQuery
   ): Observable<PagedResponse<Rank>> {
     return this.http.get<PagedResponse<Rank>>(
-      `${env.api}/maps/${mapID}/ranks`,
+      `${env.api}/v1/maps/${mapID}/ranks`,
       { params: query as QueryParam }
     );
   }
@@ -28,7 +28,7 @@ export class RanksService {
     mapID: number,
     query?: MapRankGetNumberQuery
   ): Observable<Rank[]> {
-    return this.http.get<Rank[]>(`${env.api}/maps/${mapID}/ranks/friends`, {
+    return this.http.get<Rank[]>(`${env.api}/v1/maps/${mapID}/ranks/friends`, {
       params: query as QueryParam
     });
   }
@@ -37,7 +37,7 @@ export class RanksService {
     mapID: number,
     query?: MapRankGetNumberQuery
   ): Observable<Rank[]> {
-    return this.http.get<Rank[]>(`${env.api}/maps/${mapID}/ranks/around`, {
+    return this.http.get<Rank[]>(`${env.api}/v1/maps/${mapID}/ranks/around`, {
       params: query as QueryParam
     });
   }

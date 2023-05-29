@@ -9,6 +9,6 @@ export class ReportService {
   constructor(private http: HttpClient) {}
 
   createReport(report: object): Observable<Report> {
-    return this.http.post<Report>(env.api + '/reports', report);
+    return this.http.post<Report>(`${env.api}/v1/reports`, report);
   }
 }

@@ -21,38 +21,35 @@ export class MapsService {
   constructor(private http: HttpClient) {}
 
   getMap(id: number, query?: MapsGetQuery): Observable<Map> {
-    return this.http.get<Map>(env.api + '/maps/' + id, {
+    return this.http.get<Map>(`${env.api}/v1/maps/${id}`, {
       params: query as QueryParam
     });
   }
 
   getMaps(query?: MapsGetAllQuery): Observable<PagedResponse<Map>> {
-    return this.http.get<PagedResponse<Map>>(env.api + '/maps', {
+    return this.http.get<PagedResponse<Map>>(`${env.api}/v1/maps`, {
       params: query as QueryParam
     });
   }
 
   createMap(mapData: CreateMap): Observable<HttpResponse<Map>> {
-    return this.http.post<Map>(env.api + '/maps', mapData, {
+    return this.http.post<Map>(`${env.api}/v1/maps`, mapData, {
       observe: 'response'
     });
   }
 
   updateMapInfo(id: number, mapInfo: MapInfo): Observable<any> {
-    return this.http.patch(env.api + '/maps/' + id + '/info', mapInfo);
+    return this.http.patch(`${env.api}/v1/maps/${id}/info`, mapInfo);
   }
 
   getMapCredits(id: number): Observable<PagedResponse<MapCredit>> {
     return this.http.get<PagedResponse<MapCredit>>(
-      env.api + '/maps/' + id + '/credits'
+      `${env.api}/v1/maps/${id}/credits`
     );
   }
 
   createMapCredit(id: number, credit: CreateMapCredit): Observable<any> {
-    return this.http.post<MapCredit>(
-      env.api + '/maps/' + id + '/credits',
-      credit
-    );
+    return this.http.post<MapCredit>(`${env.api}/v1/maps/${id}/credits`, credit);
   }
 
   updateMapCredit(
@@ -60,21 +57,18 @@ export class MapsService {
     creditID: number,
     credit: UpdateMapCredit
   ): Observable<any> {
-    return this.http.patch(
-      env.api + '/maps/' + id + '/credits/' + creditID,
-      credit
-    );
+    return this.http.patch(`${env.api}/v1/maps/${id}/credits/${creditID}`, credit);
   }
 
   deleteMapCredit(id: number, creditID: number): Observable<any> {
-    return this.http.delete(env.api + '/maps/' + id + '/credits/' + creditID, {
+    return this.http.delete(`${env.api}/v1/maps/${id}/credits/${creditID}`, {
       responseType: 'text'
     });
   }
 
   // TODO
   getMapFileUploadLocation(id: number): Observable<any> {
-    return this.http.get(env.api + '/maps/' + id + '/upload', {
+    return this.http.get(`${env.api}/v1/maps/${id}/upload`, {
       observe: 'response'
     });
   }
@@ -93,7 +87,7 @@ export class MapsService {
   }
 
   downloadMapFile(id: number): Observable<Blob> {
-    return this.http.get(env.api + '/maps/' + id + '/download', {
+    return this.http.get(`${env.api}/v1/maps/${id}/download`, {
       responseType: 'blob'
     });
   }
@@ -101,7 +95,7 @@ export class MapsService {
   updateMapAvatar(id: number, thumbnailFile: File): Observable<any> {
     const formData = new FormData();
     formData.append('thumbnailFile', thumbnailFile, thumbnailFile.name);
-    return this.http.put(env.api + '/maps/' + id + '/thumbnail', formData, {
+    return this.http.put(`${env.api}/v1/maps/${id}/thumbnail`, formData, {
       responseType: 'text'
     });
   }
@@ -109,10 +103,7 @@ export class MapsService {
   createMapImage(id: number, mapImageFile: File): Observable<MapImage> {
     const formData = new FormData();
     formData.append('mapImageFile', mapImageFile, mapImageFile.name);
-    return this.http.post<MapImage>(
-      env.api + '/maps/' + id + '/images',
-      formData
-    );
+    return this.http.post<MapImage>(`${env.api}/v1/maps/${id}/images`, formData);
   }
 
   updateMapImage(
@@ -123,12 +114,12 @@ export class MapsService {
     const formData = new FormData();
     formData.append('mapImageFile', mapImageFile, mapImageFile.name);
     return this.http.put(
-      env.api + '/maps/' + id + '/images/' + mapImageID,
+      `${env.api}/v1/maps/${id}/images/${mapImageID}`,
       formData
     );
   }
 
   deleteMapImage(id: number, mapImageID: number): Observable<any> {
-    return this.http.delete(env.api + '/maps/' + id + '/images/' + mapImageID);
+    return this.http.delete(`${env.api}/v1/maps/${id}/images/${mapImageID}`);
   }
 }

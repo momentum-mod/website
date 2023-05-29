@@ -21,63 +21,63 @@ export class AdminService {
   constructor(private http: HttpClient) {}
 
   updateMap(mapID: number, map: object): Observable<any> {
-    return this.http.patch(env.api + '/admin/maps/' + mapID, map);
+    return this.http.patch(`${env.api}/v1/admin/maps/${mapID}`, map);
   }
 
   getMaps(query?: AdminMapsGetAllQuery): Observable<PagedResponse<Map>> {
-    return this.http.get<PagedResponse<Map>>(env.api + '/admin/maps/', {
+    return this.http.get<PagedResponse<Map>>(`${env.api}/v1/admin/maps/`, {
       params: query as QueryParam
     });
   }
 
   deleteMap(mapID: number): Observable<string> {
-    return this.http.delete(env.api + '/admin/maps/' + mapID, {
+    return this.http.delete(`${env.api}/v1/admin/maps/${mapID}`, {
       responseType: 'text'
     });
   }
 
   updateUser(userID: number, update: UpdateUser): Observable<any> {
-    return this.http.patch(env.api + '/admin/users/' + userID, update, {
+    return this.http.patch(`${env.api}/v1/admin/users/${userID}`, update, {
       responseType: 'text'
     });
   }
 
   getReports(query?: AdminGetReportsQuery): Observable<PagedResponse<Report>> {
-    return this.http.get<PagedResponse<Report>>(env.api + '/admin/reports', {
+    return this.http.get<PagedResponse<Report>>(`${env.api}/v1/admin/reports`, {
       params: (query as QueryParam) || {}
     });
   }
 
   updateReport(reportID: number, update: UpdateReport): Observable<any> {
-    return this.http.patch(env.api + '/admin/reports/' + reportID, update);
+    return this.http.patch(`${env.api}/v1/admin/reports/${reportID}`, update);
   }
 
   // TODO: Delete
   updateAllUserStats(userStats: object): Observable<any> {
-    return this.http.patch(env.api + '/admin/user-stats', userStats);
+    return this.http.patch(`${env.api}/v1/admin/user-stats`, userStats);
   }
 
   getXPSystems(): Observable<XpSystems> {
-    return this.http.get<XpSystems>(env.api + '/admin/xpsys');
+    return this.http.get<XpSystems>(`${env.api}/v1/admin/xpsys`);
   }
 
   updateXPSystems(xpSystems: UpdateXpSystems): Observable<any> {
-    return this.http.put(env.api + '/admin/xpsys', xpSystems);
+    return this.http.put(`${env.api}/v1/admin/xpsys`, xpSystems);
   }
 
   createUser(alias: string): Observable<User> {
-    return this.http.post<User>(env.api + '/admin/users', { alias });
+    return this.http.post<User>(`${env.api}/v1/admin/users`, { alias });
   }
 
   deleteUser(id: number): Observable<any> {
-    return this.http.delete(env.api + '/admin/users/' + id, {
+    return this.http.delete(`${env.api}/v1/admin/users/${id}`, {
       responseType: 'text'
     });
   }
 
   mergeUsers(placeholder: User, realUser: User): Observable<any> {
     return this.http.post(
-      env.api + '/admin/users/merge',
+      `${env.api}/v1/admin/users/merge`,
       { placeholderID: placeholder.id, realID: realUser.id },
       { responseType: 'text' }
     );

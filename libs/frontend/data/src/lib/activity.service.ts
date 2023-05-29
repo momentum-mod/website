@@ -11,20 +11,20 @@ export class ActivityService {
 
   getFollowedActivity(): Observable<PagedResponse<Activity>> {
     return this.http.get<PagedResponse<Activity>>(
-      `${env.api}/user/activities/followed`
+      `${env.api}/v1/user/activities/followed`
     );
   }
 
   getUserActivity(userID: number): Observable<PagedResponse<Activity>> {
     return this.http.get<PagedResponse<Activity>>(
-      `${env.api}/users/${userID}/activities`
+      `${env.api}/v1/users/${userID}/activities`
     );
   }
 
   getRecentActivity(
     query: ActivitiesGetQuery
   ): Observable<PagedResponse<Activity>> {
-    return this.http.get<PagedResponse<Activity>>(`${env.api}/activities`, {
+    return this.http.get<PagedResponse<Activity>>(`${env.api}/v1/activities`, {
       params: query as QueryParam
     });
   }

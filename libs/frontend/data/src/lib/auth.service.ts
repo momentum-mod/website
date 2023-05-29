@@ -42,7 +42,7 @@ export class AuthService {
   }
 
   public removeSocialAuth(authType: string): Observable<any> {
-    return this.http.delete(env.api + '/user/profile/social/' + authType, {
+    return this.http.delete(`${env.api}/v1/user/profile/social/${authType}`, {
       responseType: 'text'
     });
   }

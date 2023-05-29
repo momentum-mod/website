@@ -15,13 +15,13 @@ export class RunsService {
   constructor(private http: HttpClient) {}
 
   getRuns(query?: RunsGetAllQuery): Observable<PagedResponse<Run>> {
-    return this.http.get<PagedResponse<Run>>(env.api + '/runs', {
+    return this.http.get<PagedResponse<Run>>(`${env.api}/v1/runs`, {
       params: query as QueryParam
     });
   }
 
   getRun(runID: string, query?: RunsGetQuery): Observable<Run> {
-    return this.http.get<Run>(env.api + '/runs/' + runID, {
+    return this.http.get<Run>(`${env.api}/v1/runs/${runID}`, {
       params: query as QueryParam
     });
   }

@@ -31,7 +31,7 @@ export class NotificationsService {
   checkNotifications() {
     if (this.authService.isAuthenticated())
       this.http
-        .get<any>(env.api + '/user/notifications')
+        .get<any>(`${env.api}/v1/user/notifications`)
         .subscribe((resp) =>
           this.notificationsSubject.next(resp.notifications)
         );
@@ -42,7 +42,7 @@ export class NotificationsService {
 
   markNotificationAsRead(notification: Notification) {
     this.http
-      .patch(env.api + '/user/notifications/' + notification.id, {
+      .patch(`${env.api}/v1/user/notifications/${notification.id}`, {
         read: true
       })
       .pipe(finalize(() => this.checkNotifications()))
@@ -56,7 +56,7 @@ export class NotificationsService {
   }
   dismissNotification(notif: Notification) {
     this.http
-      .delete(env.api + '/user/notifications/' + notif.id, {
+      .delete(`${env.api}/v1/user/notifications/${notif.id}`, {
         responseType: 'text'
       })
       .pipe(finalize(() => this.checkNotifications()))
