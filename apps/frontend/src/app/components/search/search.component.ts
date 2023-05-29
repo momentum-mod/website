@@ -18,7 +18,7 @@ import { NavigationEnd, Router } from '@angular/router';
 import { of as observableOf } from 'rxjs';
 import { filter, delay, takeWhile } from 'rxjs/operators';
 
-import { NbSearchService } from './search.service';
+import { NbSearchService } from '../../services/search.service';
 
 import {
   NbOverlayRef,

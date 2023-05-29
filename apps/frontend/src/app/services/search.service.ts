@@ -10,8 +10,10 @@ import { share } from 'rxjs/operators';
 
 /**
  * Search component service, connects your code to a page-level search component.
+ * BEING REMOVED IN FUTURE, DON'T WORK ON THIS!
+ * https://github.com/momentum-mod/website/issues/746
  */
-@Injectable()
+@Injectable({ providedIn: 'root' })
 export class NbSearchService {
   private searchSubmittings = new Subject<{ term: string; tag?: string }>();
   private searchActivations = new Subject<{

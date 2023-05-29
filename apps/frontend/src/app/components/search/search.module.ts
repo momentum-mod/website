@@ -6,7 +6,6 @@
 import { NgModule } from '@angular/core';
 
 import { SearchComponent } from './search.component';
-import { NbSearchService } from './search.service';
 import {
   NbIconModule,
   NbOverlayModule,
@@ -27,7 +26,6 @@ import { CommonModule, NgOptimizedImage } from '@angular/common';
     NgOptimizedImage
   ],
   declarations: [SearchComponent, SearchFieldComponent, SearchResultsComponent],
-  exports: [SearchComponent, SearchFieldComponent, SearchResultsComponent],
-  providers: [NbSearchService]
+  exports: [SearchComponent, SearchFieldComponent, SearchResultsComponent]
 })
 export class NbSearchModule {}

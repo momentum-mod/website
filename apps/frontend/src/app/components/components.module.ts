@@ -14,7 +14,7 @@ import { ThemeModule } from '@momentum/frontend/theme';
 import { DirectivesModule } from '@momentum/frontend/directives';
 import { PipesModule } from '@momentum/frontend/pipes';
 import { RouterModule } from '@angular/router';
-import { SearchComponent } from './search/search.component';
+import { NbSearchModule } from './search/search.module';
 
 const COMPONENTS = [
   HeaderComponent,
@@ -25,8 +25,7 @@ const COMPONENTS = [
   ActivityListComponent,
   ReportButtonComponent,
   CreateReportDialogComponent,
-  ConfirmDialogComponent,
-  SearchComponent
+  ConfirmDialogComponent
 ];
 
 @NgModule({
@@ -38,9 +37,10 @@ const COMPONENTS = [
     ThemeModule.forRoot(),
     DirectivesModule,
     PipesModule,
-    RouterModule
+    RouterModule,
+    NbSearchModule
   ],
-  exports: COMPONENTS,
+  exports: [...COMPONENTS, NbSearchModule],
   declarations: COMPONENTS
 })
 export class ComponentsModule {}
