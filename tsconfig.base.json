@@ -31,7 +31,8 @@
       "@momentum/frontend/icons": ["libs/frontend/icons/src/index.ts"],
       "@momentum/frontend/pipes": ["libs/frontend/pipes/src/index.ts"],
       "@momentum/random": ["libs/random/src/index.ts"],
-      "@momentum/replay": ["libs/replay/src/index.ts"]
+      "@momentum/replay": ["libs/replay/src/index.ts"],
+      "@momentum/types": ["libs/types/src/index.ts"]
     }
   },
   "exclude": ["node_modules", "tmp"]
