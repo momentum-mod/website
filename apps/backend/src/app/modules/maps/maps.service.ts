@@ -32,7 +32,8 @@ import {
   UpdateMapDto,
   UpdateMapInfoDto
 } from '@momentum/backend/dto';
-import { ActivityType, MapCreditType, MapStatus } from '@momentum/constants';
+import { ActivityType, MapCreditType, MapStatus } from '@momentum/constants'; 
+import { isEmpty } from "lodash";
 
 @Injectable()
 export class MapsService {
@@ -140,7 +141,7 @@ export class MapsService {
           'tracks'
         ].includes(x)
       )
-    );
+    ) ?? {};
 
     const incPB = expand?.includes('personalBest');
     const incWR = expand?.includes('worldRecord');
@@ -154,7 +155,10 @@ export class MapsService {
       userID
     );
 
-    const dbResponse = await this.mapRepo.get(mapID, include);
+    const dbResponse = await this.mapRepo.get(
+      mapID,
+      isEmpty(include) ? undefined : include
+    );
 
     if (!dbResponse) throw new NotFoundException('Map not found');
 

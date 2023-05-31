@@ -25,7 +25,8 @@ export function DtoFactory<T>(
 export function ExpandToPrismaIncludes(
   expansions: string[]
 ): Record<string, boolean> | undefined {
-  if (!expansions || !Array.isArray(expansions)) return undefined;
+  if (!expansions || !Array.isArray(expansions) || expansions.length === 0)
+    return undefined;
 
   const includes: Record<string, boolean> = {};
   for (const expansion of expansions) includes[expansion] = true;
