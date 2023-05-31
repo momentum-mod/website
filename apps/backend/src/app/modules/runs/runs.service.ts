@@ -9,7 +9,7 @@ import { ConfigService } from '@nestjs/config';
 import { FileStoreCloudService } from '../filestore/file-store-cloud.service';
 import {
   DtoFactory,
-  ExpandToPrismaIncludes,
+  expandToPrismaIncludes,
   MapsCtlRunsGetAllQueryDto,
   PagedResponseDto,
   RunDto,
@@ -29,7 +29,7 @@ export class RunsService {
     const where: Prisma.RunWhereUniqueInput = { id: runID };
     const include: Prisma.RunInclude = {
       user: true,
-      ...ExpandToPrismaIncludes(
+      ...expandToPrismaIncludes(
         expand?.filter((x) =>
           ['overallStats', 'map', 'rank', 'zoneStats'].includes(x)
         )
@@ -61,7 +61,7 @@ export class RunsService {
     } else {
       include = {
         user: true,
-        ...ExpandToPrismaIncludes(
+        ...expandToPrismaIncludes(
           query.expand?.filter((x) =>
             ['overallStats', 'zoneStats', 'rank', 'map'].includes(x)
           )

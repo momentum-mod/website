@@ -22,7 +22,7 @@ export function DtoFactory<T>(
  * Transform an array of expansion strings into Prisma includes e.g. { foo: true, bar: true, ... }
  * @param expansions - String array of all the allowed expansions
  * */
-export function ExpandToPrismaIncludes(
+export function expandToPrismaIncludes(
   expansions: string[]
 ): Record<string, boolean> | undefined {
   if (!expansions || !Array.isArray(expansions) || expansions.length === 0)

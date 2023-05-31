@@ -14,7 +14,7 @@ import { SteamService } from '../steam/steam.service';
 import {
   ActivityDto,
   DtoFactory,
-  ExpandToPrismaIncludes,
+  expandToPrismaIncludes,
   FollowDto,
   FollowStatusDto,
   MapCreditDto,
@@ -68,7 +68,7 @@ export class UsersService {
 
     if (query.search) where.alias = { startsWith: query.search };
 
-    let include: Prisma.UserInclude = ExpandToPrismaIncludes(query.expand);
+    let include: Prisma.UserInclude = expandToPrismaIncludes(query.expand);
 
     if (query.mapRank) {
       include ??= {};
@@ -97,7 +97,7 @@ export class UsersService {
   }
 
   async get(id: number, expand?: string[], mapRank?: number): Promise<UserDto> {
-    let include: Prisma.UserInclude = ExpandToPrismaIncludes(expand);
+    let include: Prisma.UserInclude = expandToPrismaIncludes(expand);
 
     if (mapRank) {
       include ??= {};
@@ -462,7 +462,7 @@ export class UsersService {
   ): Promise<PagedResponseDto<MapLibraryEntryDto>> {
     const include: { map: Prisma.MapArgs; user: boolean } = {
       map: {
-        include: ExpandToPrismaIncludes(
+        include: expandToPrismaIncludes(
           expand?.filter((x) => x !== 'inFavorites')
         )
       },
@@ -520,7 +520,7 @@ export class UsersService {
     if (search) where.map = { name: { contains: search } };
 
     const include: Prisma.MapFavoriteInclude = {
-      map: { include: ExpandToPrismaIncludes(expand) },
+      map: { include: expandToPrismaIncludes(expand) },
       user: true
     };
 
@@ -625,7 +625,7 @@ export class UsersService {
 
     if (search) where.name = { contains: search };
 
-    const include: Prisma.MapInclude = ExpandToPrismaIncludes(expand);
+    const include: Prisma.MapInclude = expandToPrismaIncludes(expand);
 
     const submittedMapsRes = await this.mapRepo.getAll(
       where,

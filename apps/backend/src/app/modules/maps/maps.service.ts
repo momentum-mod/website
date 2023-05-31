@@ -20,7 +20,7 @@ import {
   CreateMapCreditDto,
   CreateMapDto,
   DtoFactory,
-  ExpandToPrismaIncludes,
+  expandToPrismaIncludes,
   MapCreditDto,
   MapDto,
   MapImageDto,
@@ -32,8 +32,8 @@ import {
   UpdateMapDto,
   UpdateMapInfoDto
 } from '@momentum/backend/dto';
-import { ActivityType, MapCreditType, MapStatus } from '@momentum/constants'; 
-import { isEmpty } from "lodash";
+import { ActivityType, MapCreditType, MapStatus } from '@momentum/constants';
+import { isEmpty } from 'lodash';
 
 @Injectable()
 export class MapsService {
@@ -86,7 +86,7 @@ export class MapsService {
     const include: Prisma.MapInclude = {
       mainTrack: true,
       info: true,
-      ...ExpandToPrismaIncludes(
+      ...expandToPrismaIncludes(
         query.expand?.filter((x) =>
           ['credits', 'thumbnail', 'submitter'].includes(x)
         )
@@ -129,19 +129,20 @@ export class MapsService {
     userID?: number,
     expand?: string[]
   ): Promise<MapDto> {
-    const include: Prisma.MapInclude = ExpandToPrismaIncludes(
-      expand?.filter((x) =>
-        [
-          'info',
-          'credits',
-          'submitter',
-          'images',
-          'thumbnail',
-          'stats',
-          'tracks'
-        ].includes(x)
-      )
-    ) ?? {};
+    const include: Prisma.MapInclude =
+      expandToPrismaIncludes(
+        expand?.filter((x) =>
+          [
+            'info',
+            'credits',
+            'submitter',
+            'images',
+            'thumbnail',
+            'stats',
+            'tracks'
+          ].includes(x)
+        )
+      ) ?? {};
 
     const incPB = expand?.includes('personalBest');
     const incWR = expand?.includes('worldRecord');
@@ -514,7 +515,7 @@ export class MapsService {
     const foundMap = await this.mapRepo.get(mapID);
     if (!foundMap) throw new NotFoundException('Map not found');
 
-    const include: Prisma.MapCreditInclude = ExpandToPrismaIncludes(
+    const include: Prisma.MapCreditInclude = expandToPrismaIncludes(
       expand?.filter((x) => ['user'].includes(x))
     );
     const where: Prisma.MapCreditWhereInput = { mapID: mapID };
@@ -572,7 +573,7 @@ export class MapsService {
     mapCreditID: number,
     expand: string[]
   ): Promise<MapCreditDto> {
-    const include: Prisma.MapCreditInclude = ExpandToPrismaIncludes(
+    const include: Prisma.MapCreditInclude = expandToPrismaIncludes(
       expand?.filter((x) => ['user'].includes(x))
     );
 

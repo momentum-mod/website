@@ -12,7 +12,7 @@ import {
   AdminUpdateUserDto,
   checkNotEmpty,
   DtoFactory,
-  ExpandToPrismaIncludes,
+  expandToPrismaIncludes,
   PagedResponseDto,
   ReportDto,
   UpdateReportDto,
@@ -235,7 +235,7 @@ export class AdminService {
   ) {
     const dbResponse = await this.userRepo.getAllReports(
       { resolved },
-      ExpandToPrismaIncludes(expand),
+      expandToPrismaIncludes(expand),
       skip,
       take
     );
