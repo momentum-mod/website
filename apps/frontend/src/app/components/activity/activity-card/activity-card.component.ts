@@ -52,17 +52,17 @@ export class ActivityCardComponent implements OnInit {
     if (this.follow)
       this.activityService
         .getFollowedActivity()
-        .subscribe(this.onGetActivities);
+        .subscribe(this.onGetActivities.bind(this));
     else if (this.userSubject)
       this.userSubject.subscribe((user) =>
         this.activityService
           .getUserActivity(user.id)
-          .subscribe(this.onGetActivities)
+          .subscribe(this.onGetActivities.bind(this))
       );
     else if (this.recent)
       this.activityService
         .getRecentActivity({ skip: 0 })
-        .subscribe(this.onGetActivities);
+        .subscribe(this.onGetActivities.bind(this));
   }
 
   getMoreActivities(): void {
