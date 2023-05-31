@@ -1,12 +1,11 @@
 import { Injectable } from '@angular/core';
 import { NavigationEnd, Router } from '@angular/router';
 import { filter, finalize } from 'rxjs/operators';
-import { HttpClient } from '@angular/common/http';
 import { Observable, ReplaySubject } from 'rxjs';
 import { NbToastrService } from '@nebular/theme';
 import { env } from '@momentum/frontend/env';
 import { Notification } from '@momentum/types';
-import { AuthService } from '@momentum/frontend/data';
+import { AuthService, LocalUserService } from '@momentum/frontend/data';
 
 @Injectable({ providedIn: 'root' })
 export class NotificationsService {
@@ -14,12 +13,13 @@ export class NotificationsService {
 
   constructor(
     private router: Router,
-    private http: HttpClient,
     private authService: AuthService,
+    private localUserService: LocalUserService,
     private toasterService: NbToastrService
   ) {
     this.notificationsSubject = new ReplaySubject<Notification[]>(1);
   }
+
   public inject(): void {
     this.router.events
       .pipe(filter((event) => event instanceof NavigationEnd))
@@ -28,23 +28,21 @@ export class NotificationsService {
       if (document.hasFocus()) this.checkNotifications();
     }, 1000 * 60 * 3);
   }
+
   checkNotifications() {
     if (this.authService.isAuthenticated())
-      this.http
-        .get<any>(`${env.api}/v1/user/notifications`)
-        .subscribe((resp) =>
-          this.notificationsSubject.next(resp.notifications)
-        );
+      this.localUserService.getNotifications().subscribe((resp) => {
+        if (resp) this.notificationsSubject.next(resp.response);
+      });
   }
+
   get notifications(): Observable<Notification[]> {
     return this.notificationsSubject.asObservable();
   }
 
   markNotificationAsRead(notification: Notification) {
-    this.http
-      .patch(`${env.api}/v1/user/notifications/${notification.id}`, {
-        read: true
-      })
+    this.localUserService
+      .updateNotification(notification.id, { read: true })
       .pipe(finalize(() => this.checkNotifications()))
       .subscribe({
         error: (error) =>
@@ -54,11 +52,10 @@ export class NotificationsService {
           )
       });
   }
+
   dismissNotification(notif: Notification) {
-    this.http
-      .delete(`${env.api}/v1/user/notifications/${notif.id}`, {
-        responseType: 'text'
-      })
+    this.localUserService
+      .deleteNotification(notif.id)
       .pipe(finalize(() => this.checkNotifications()))
       .subscribe({
         error: (error) =>

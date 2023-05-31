@@ -2,7 +2,6 @@ import { Injectable } from '@angular/core';
 import { AuthService } from './auth.service';
 import { Observable, of, ReplaySubject, Subject } from 'rxjs';
 import { CookieService } from 'ngx-cookie-service';
-import { env } from '@momentum/frontend/env';
 import {
   Follow,
   FollowStatus,
@@ -13,6 +12,8 @@ import {
   MapLibraryEntry,
   MapNotify,
   MapSummary,
+  Notification,
+  UpdateNotification,
   UpdateUser,
   User,
   UserMapFavoritesGetQuery,
