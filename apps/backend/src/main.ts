@@ -12,9 +12,11 @@ import {
   FastifyAdapter,
   NestFastifyApplication
 } from '@nestjs/platform-fastify';
-import helmet from '@fastify/helmet';
 import { PrismaService } from './app/modules/repo/prisma.service';
+import { Environment } from '@momentum/backend/config';
 import cookie from '@fastify/cookie';
+import helmet from '@fastify/helmet';
+import cors from '@fastify/cors';
 
 async function bootstrap() {
   // Transforms `BigInt`s to strings in JSON.stringify, for cases that haven't been explicitly
@@ -33,6 +35,7 @@ async function bootstrap() {
   );
 
   const configService = app.get(ConfigService);
+  const env: Environment = configService.get('env');
 
   // Steam game auth sends a raw octet-stream, only use-case. Limit to 2kb
   app.useBodyParser('application/octet-stream', { bodyLimit: 2e3 });
@@ -60,7 +63,31 @@ async function bootstrap() {
   });
 
   // Enable @fastify/helmet header protections
-  await app.register(helmet, { global: true });
+  await app.register(helmet, {
+    global: true,
+    // Needed for ugly above redirect script to work.
+    contentSecurityPolicy: env === Environment.PRODUCTION
+  });
+
+  // We use a pretty strict CORS policy, so register these headers
+  // In production this allows https://momentum-mod.org to communicate with 
+  // https://api.momentum-mod.org/
+  await app.register(cors, {
+    origin:
+      env === Environment.PRODUCTION
+        ? this.config.get('url')
+        : 'http://localhost:4200',
+    allowedHeaders: [
+      'Origin',
+      'Access-Control-Allow-Origin',
+      'X-Requested-With',
+      'Accept',
+      'Content-Type',
+      'Authorization'
+    ],
+    exposedHeaders: 'Location',
+    methods: ['GET', 'PUT', 'OPTIONS', 'POST', 'DELETE', 'PATCH']
+  });
 
   // Cookies for transferring JWTs back to client after OpenID auth
   await app.register(cookie, { secret: configService.get('sessionSecret') });

@@ -19,6 +19,7 @@
     "@auth0/angular-jwt": "5.1.2",
     "@aws-sdk/client-s3": "3.319.0",
     "@fastify/cookie": "8.3.0",
+    "@fastify/cors": "^8.3.0",
     "@fastify/helmet": "10.1.0",
     "@fastify/static": "6.10.1",
     "@fastify/swagger": "8.3.1",
