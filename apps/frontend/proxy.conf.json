@@ -1,12 +1,16 @@
 {
-  "/api/*": {
+  "/api": {
     "target": "http://localhost:3000",
-    "secure": false,
-    "logLevel": "debug"
+    "secure": true,
+    "logLevel": "debug",
+    "cookieDomainRewrite": "http://localhost:3000",
+    "changeOrigin": true
   },
-  "/auth/*": {
+  "/auth": {
     "target": "http://localhost:3000",
-    "secure": false,
-    "logLevel": "debug"
+    "secure": true,
+    "logLevel": "debug",
+    "cookieDomainRewrite": "http://localhost:3000",
+    "changeOrigin": true
   }
 }
