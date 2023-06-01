@@ -12,9 +12,9 @@ import {
   FastifyAdapter,
   NestFastifyApplication
 } from '@nestjs/platform-fastify';
-import fastifyCookie from '@fastify/cookie';
 import helmet from '@fastify/helmet';
 import { PrismaService } from './app/modules/repo/prisma.service';
+import cookie from '@fastify/cookie';
 
 async function bootstrap() {
   // Transforms `BigInt`s to strings in JSON.stringify, for cases that haven't been explicitly
@@ -62,9 +62,8 @@ async function bootstrap() {
   // Enable @fastify/helmet header protections
   await app.register(helmet, { global: true });
 
-  await app.register(fastifyCookie, {
-    secret: configService.get('sessionSecret')
-  });
+  // Cookies for transferring JWTs back to client after OpenID auth
+  await app.register(cookie, { secret: configService.get('sessionSecret') });
 
   // Hooks to ensure Nest and Prisma both shut down cleanly on exit
   // https://docs.nestjs.com/recipes/prisma#issues-with-enableshutdownhooks

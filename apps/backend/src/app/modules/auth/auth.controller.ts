@@ -32,6 +32,7 @@ import {
   JWTResponseWebDto,
   RefreshTokenDto
 } from '@momentum/backend/dto';
+import { CookieSerializeOptions } from '@fastify/cookie';
 
 @Controller({
   path: 'auth',
@@ -40,11 +41,24 @@ import {
 @ApiTags('Auth')
 @ApiBearerAuth()
 export class AuthController {
+  private readonly cookieOptions: CookieSerializeOptions;
+
   constructor(
     private readonly authService: JwtAuthService,
     private readonly configService: ConfigService,
     private readonly steamOpenID: SteamOpenIDService
-  ) {}
+  ) {
+    this.cookieOptions = {
+      domain: this.configService.get('domain'),
+      // The value on the cookies gets transferred to local storage immediately,
+      // so just use a short lifetime of 10s.
+      maxAge: 10000,
+      path: '/',
+      // So frontend can access. Cookie is deleted immediately so never
+      // retrurned to the backend, so no CSRF risk.
+      httpOnly: false
+    };
+  }
 
   //#region Main Auth
 
@@ -62,20 +76,14 @@ export class AuthController {
   @UseGuards(SteamWebGuard)
   async steamWebAuthReturn(
     @Req() req: FastifyRequest,
-    @Res() res: FastifyReply,
+    @Res({ passthrough: true }) res: FastifyReply,
     @LoggedInUser() user
   ) {
     const jwt = await this.authService.loginWeb(user);
 
-    res.setCookie('accessToken', jwt.accessToken, {
-      domain: this.configService.get('domain')
-    });
-    res.setCookie('refreshToken', jwt.refreshToken, {
-      domain: this.configService.get('domain')
-    });
-    res.setCookie('user', JSON.stringify(user), {
-      domain: this.configService.get('domain')
-    });
+    res.setCookie('accessToken', jwt.accessToken, this.cookieOptions);
+    res.setCookie('refreshToken', jwt.refreshToken, this.cookieOptions);
+    res.setCookie('user', JSON.stringify(user), this.cookieOptions);
   }
 
   // TODO: (REQ GAME CHANGE) This name is dumb, requires a game code change though.
