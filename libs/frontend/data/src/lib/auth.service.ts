@@ -1,11 +1,11 @@
 import { Injectable } from '@angular/core';
 import { CookieService } from 'ngx-cookie-service';
 import { JwtHelperService } from '@auth0/angular-jwt';
-import { HttpClient } from '@angular/common/http';
 import { Observable, of } from 'rxjs';
 import { Router } from '@angular/router';
 import { map, share } from 'rxjs/operators';
 import { env } from '@momentum/frontend/env';
+import { HttpService } from './http.service';
 
 export interface TokenRefreshResponse {
   accessToken: string;
@@ -15,7 +15,7 @@ export interface TokenRefreshResponse {
 export class AuthService {
   constructor(
     private cookieService: CookieService,
-    private http: HttpClient,
+    private http: HttpService,
     private router: Router
   ) {
     this.moveCookieToLocalStorage('accessToken');
@@ -23,7 +23,7 @@ export class AuthService {
   }
 
   public logout(): void {
-    this.http.post(env.auth + '/auth/revoke', {}).subscribe();
+    this.http.post('revoke', { type: 'auth' }).subscribe();
     localStorage.removeItem('accessToken');
     localStorage.removeItem('refreshToken');
     localStorage.removeItem('user');
@@ -42,18 +42,17 @@ export class AuthService {
   }
 
   public removeSocialAuth(authType: string): Observable<any> {
-    return this.http.delete(`${env.api}/v1/user/profile/social/${authType}`, {
+    return this.http.delete(`user/profile/social/${authType}`, {
       responseType: 'text'
     });
   }
 
   private moveCookieToLocalStorage(cookieName: string): void {
-    const cookieExists = this.cookieService.check(cookieName);
-    if (cookieExists) {
-      const cookieValue = this.cookieService.get(cookieName);
-      localStorage.setItem(cookieName, cookieValue);
-      this.cookieService.delete(cookieName, '/');
-    }
+    if (!this.cookieService.check(cookieName)) return;
+
+    const cookieValue = this.cookieService.get(cookieName);
+    localStorage.setItem(cookieName, cookieValue);
+    this.cookieService.delete(cookieName, '/');
   }
 
   public refreshAccessToken(): Observable<string> {
@@ -62,7 +61,7 @@ export class AuthService {
       return of('null');
     }
     return this.http
-      .post(env.auth + '/auth/refresh', { refreshToken: refreshToken })
+      .post('refresh', { type: 'auth', body: { refreshToken } })
       .pipe(
         share(),
         map((res) => {

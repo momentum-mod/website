@@ -1,7 +1,6 @@
 import { Injectable } from '@angular/core';
 import { AuthService } from './auth.service';
 import { Observable, of, ReplaySubject, Subject } from 'rxjs';
-import { HttpClient } from '@angular/common/http';
 import { CookieService } from 'ngx-cookie-service';
 import { env } from '@momentum/frontend/env';
 import {
@@ -14,7 +13,6 @@ import {
   MapLibraryEntry,
   MapNotify,
   MapSummary,
-  QueryParam,
   UpdateUser,
   User,
   UserMapFavoritesGetQuery,
@@ -25,6 +23,7 @@ import {
 import { Ban, Role } from '@momentum/constants';
 import { PagedResponse } from '@momentum/types';
 import { Bitflags } from '@momentum/bitflags';
+import { HttpService } from './http.service';
 
 @Injectable({ providedIn: 'root' })
 export class LocalUserService {
@@ -34,7 +33,7 @@ export class LocalUserService {
   constructor(
     private authService: AuthService,
     private cookieService: CookieService,
-    private http: HttpClient
+    private http: HttpService
   ) {
     this.localUserSubject = new ReplaySubject<User>(1);
     const userCookieExists = this.cookieService.check('user');
@@ -82,57 +81,66 @@ export class LocalUserService {
   }
 
   public getLocalUser(query?: UsersGetQuery): Observable<User> {
-    return this.http.get<User>(`${env.api}/v1/user`, {
-      params: query as QueryParam
-    });
+    return this.http.get<User>('user', { query });
   }
 
-  public updateUser(user: UpdateUser): Observable<any> {
-    return this.http.patch(`${env.api}/v1/user`, user);
+  public updateUser(body: UpdateUser): Observable<void> {
+    return this.http.patch('user', { body });
   }
 
   public getMapLibrary(
     query?: UserMapLibraryGetQuery
   ): Observable<PagedResponse<MapLibraryEntry>> {
-    return this.http.get<PagedResponse<MapLibraryEntry>>(
-      `${env.api}/v1/user/maps/library`,
-      { params: query as QueryParam }
-    );
+    return this.http.get<PagedResponse<MapLibraryEntry>>('user/maps/library', {
+      query
+    });
   }
 
-  public addMapToLibrary(mapID: number): Observable<any> {
-    return this.http.put(`${env.api}/v1/user/maps/library/${mapID}`, {});
+  public getNotifications(): Observable<PagedResponse<Notification>> {
+    return this.http.get<PagedResponse<Notification>>('user/notifications');
   }
 
-  public removeMapFromLibrary(mapID: number): Observable<any> {
-    return this.http.delete(`${env.api}/v1/user/maps/library/${mapID}`);
+  public updateNotification(
+    notifID: number,
+    body: UpdateNotification
+  ): Observable<void> {
+    return this.http.patch(`user/notifications/${notifID}`, { body });
   }
 
-  public isMapInLibrary(mapID: number): Observable<any> {
-    return this.http.get(`${env.api}/v1/user/maps/library/${mapID}`);
+  public deleteNotification(notifID: number): Observable<void> {
+    return this.http.delete(`user/notifications/${notifID}`);
+  }
+
+  public addMapToLibrary(mapID: number): Observable<void> {
+    return this.http.put(`user/maps/library/${mapID}`, {});
+  }
+
+  public removeMapFromLibrary(mapID: number): Observable<void> {
+    return this.http.delete(`user/maps/library/${mapID}`);
+  }
+
+  public isMapInLibrary(mapID: number): Observable<Map> {
+    return this.http.get<Map>(`user/maps/library/${mapID}`);
   }
 
   public getMapFavorites(
     query?: UserMapFavoritesGetQuery
   ): Observable<PagedResponse<MapFavorite>> {
-    return this.http.get<PagedResponse<MapFavorite>>(
-      `${env.api}/v1/user/maps/favorites`,
-      { params: query as QueryParam }
-    );
+    return this.http.get<PagedResponse<MapFavorite>>('user/maps/favorites', {
+      query
+    });
   }
 
   public getMapFavorite(mapID: number): Observable<MapFavorite> {
-    return this.http.get<MapFavorite>(
-      `${env.api}/v1/user/maps/favorites/${mapID}`
-    );
+    return this.http.get<MapFavorite>(`user/maps/favorites/${mapID}`);
   }
 
-  public addMapToFavorites(mapID: number): Observable<any> {
-    return this.http.put(`${env.api}/v1/user/maps/favorites/${mapID}`, {});
+  public addMapToFavorites(mapID: number): Observable<void> {
+    return this.http.put(`user/maps/favorites/${mapID}`, {});
   }
 
   public removeMapFromFavorites(mapID: number): Observable<any> {
-    return this.http.delete(`${env.api}/v1/user/maps/favorites/${mapID}`);
+    return this.http.delete(`user/maps/favorites/${mapID}`);
   }
 
   public getMapCredits(
@@ -141,7 +149,7 @@ export class LocalUserService {
     // TODO!!
     return of(undefined as any);
     // return this.http.get<Paged<MapCredit>>(
-    // `${env.api}/v1/user/maps/credits`,
+    // `user/maps/credits`,
     //   options || {}
     // );
   }
@@ -149,50 +157,50 @@ export class LocalUserService {
   public getSubmittedMaps(
     query?: UserMapSubmittedGetQuery
   ): Observable<PagedResponse<Map>> {
-    return this.http.get<PagedResponse<Map>>(`${env.api}/v1/user/maps/submitted`, {
-      params: query as QueryParam
-    });
+    return this.http.get<PagedResponse<Map>>('user/maps/submitted', { query });
   }
 
   public getSubmittedMapSummary(): Observable<MapSummary[]> {
-    return this.http.get<MapSummary[]>(
-      `${env.api}/v1/user/maps/submitted/summary`
-    );
+    return this.http.get<MapSummary[]>('user/maps/submitted/summary');
   }
 
   public checkFollowStatus(user: User): Observable<FollowStatus> {
-    return this.http.get<FollowStatus>(`${env.api}/v1/user/follow/${user.id}`);
+    return this.http.get<FollowStatus>(`user/follow/${user.id}`);
   }
 
   public followUser(user: User): Observable<Follow> {
-    return this.http.post<Follow>(`${env.api}/v1/user/follow`, {
-      userID: user.id
+    return this.http.post<Follow>('user/follow', {
+      body: { userID: user.id }
     });
   }
 
-  public updateFollowStatus(user: User, notifyOn: number): Observable<any> {
-    return this.http.patch(`${env.api}/v1/user/follow/${user.id}`, { notifyOn });
+  public updateFollowStatus(user: User, notifyOn: number): Observable<void> {
+    return this.http.patch(`user/follow/${user.id}`, {
+      body: { notifyOn }
+    });
   }
 
-  public unfollowUser(user: User): Observable<any> {
-    return this.http.delete(`${env.api}/v1/user/follow/${user.id}`, {
-      responseType: 'text'
-    });
+  public unfollowUser(user: User): Observable<void> {
+    return this.http.delete(`user/follow/${user.id}`);
   }
 
   public checkMapNotify(mapID: number): Observable<MapNotify> {
-    return this.http.get<MapNotify>(`${env.api}/v1/user/notifyMap/${mapID}`);
+    return this.http.get<MapNotify>(`user/notifyMap/${mapID}`);
   }
 
+  // TODO: Making this return a Obs<MapNotify> breaks everything.
+  // wtf is newFLags??
   public updateMapNotify(mapID: number, notifyOn: number): Observable<any> {
-    return this.http.put(`${env.api}/v1/user/notifyMap/${mapID}`, { notifyOn });
+    return this.http.put<MapNotify>(`user/notifyMap/${mapID}`, {
+      body: notifyOn
+    });
   }
 
-  public disableMapNotify(mapID: number): Observable<any> {
-    return this.http.delete(`${env.api}/v1/user/notifyMap/${mapID}`, {});
+  public disableMapNotify(mapID: number): Observable<void> {
+    return this.http.delete(`user/notifyMap/${mapID}`);
   }
 
-  public resetAliasToSteamAlias(): Observable<any> {
-    return this.http.patch(`${env.api}/v1/user`, { alias: '' });
+  public resetAliasToSteamAlias(): Observable<void> {
+    return this.http.patch('user', { body: { alias: '' } });
   }
 }

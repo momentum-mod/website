@@ -1,14 +1,13 @@
 import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { env } from '@momentum/frontend/env';
-import { Report } from '@momentum/types';
+import { CreateReport, Report } from '@momentum/types';
+import { HttpService } from './http.service';
 
 @Injectable({ providedIn: 'root' })
 export class ReportService {
-  constructor(private http: HttpClient) {}
+  constructor(private http: HttpService) {}
 
-  createReport(report: object): Observable<Report> {
-    return this.http.post<Report>(`${env.api}/v1/reports`, report);
+  createReport(body: CreateReport): Observable<Report> {
+    return this.http.post<Report>('reports', { body });
   }
 }

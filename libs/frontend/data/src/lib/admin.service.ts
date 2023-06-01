@@ -1,85 +1,75 @@
 import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
-import { Observable } from 'rxjs';
+import { EMPTY, Observable } from 'rxjs';
 import {
   AdminGetReportsQuery,
   AdminMapsGetAllQuery,
   Map,
-  QueryParam,
   Report,
+  UpdateMap,
   UpdateReport,
   UpdateUser,
   UpdateXpSystems,
   User,
   XpSystems
 } from '@momentum/types';
-import { env } from '@momentum/frontend/env';
 import { PagedResponse } from '@momentum/types';
+import { HttpService } from './http.service';
 
 @Injectable({ providedIn: 'root' })
 export class AdminService {
-  constructor(private http: HttpClient) {}
+  constructor(private http: HttpService) {}
 
-  updateMap(mapID: number, map: object): Observable<any> {
-    return this.http.patch(`${env.api}/v1/admin/maps/${mapID}`, map);
+  updateMap(mapID: number, body: UpdateMap): Observable<void> {
+    return this.http.patch(`admin/maps/${mapID}`, { body });
   }
 
-  getMaps(query?: AdminMapsGetAllQuery): Observable<PagedResponse<Map>> {
-    return this.http.get<PagedResponse<Map>>(`${env.api}/v1/admin/maps/`, {
-      params: query as QueryParam
-    });
+  getMaps(query: AdminMapsGetAllQuery): Observable<PagedResponse<Map>> {
+    return this.http.get<PagedResponse<Map>>('admin/maps/', { query });
   }
 
-  deleteMap(mapID: number): Observable<string> {
-    return this.http.delete(`${env.api}/v1/admin/maps/${mapID}`, {
-      responseType: 'text'
-    });
+  deleteMap(mapID: number): Observable<void> {
+    return this.http.delete(`admin/maps/${mapID}`);
   }
 
-  updateUser(userID: number, update: UpdateUser): Observable<any> {
-    return this.http.patch(`${env.api}/v1/admin/users/${userID}`, update, {
-      responseType: 'text'
-    });
+  updateUser(userID: number, body: UpdateUser): Observable<void> {
+    return this.http.patch(`admin/users/${userID}`, { body });
   }
 
   getReports(query?: AdminGetReportsQuery): Observable<PagedResponse<Report>> {
-    return this.http.get<PagedResponse<Report>>(`${env.api}/v1/admin/reports`, {
-      params: (query as QueryParam) || {}
-    });
+    return this.http.get<PagedResponse<Report>>('admin/reports', { query });
   }
 
-  updateReport(reportID: number, update: UpdateReport): Observable<any> {
-    return this.http.patch(`${env.api}/v1/admin/reports/${reportID}`, update);
+  updateReport(reportID: number, body: UpdateReport): Observable<void> {
+    return this.http.patch(`admin/reports/${reportID}`, { body });
   }
 
-  // TODO: Delete
-  updateAllUserStats(userStats: object): Observable<any> {
-    return this.http.patch(`${env.api}/v1/admin/user-stats`, userStats);
+  updateAllUserStats(userStats: object): Observable<never> {
+    // Removed
+    return EMPTY;
   }
 
   getXPSystems(): Observable<XpSystems> {
-    return this.http.get<XpSystems>(`${env.api}/v1/admin/xpsys`);
+    return this.http.get<XpSystems>('admin/xpsys');
   }
 
-  updateXPSystems(xpSystems: UpdateXpSystems): Observable<any> {
-    return this.http.put(`${env.api}/v1/admin/xpsys`, xpSystems);
+  updateXPSystems(body: UpdateXpSystems): Observable<void> {
+    return this.http.put('admin/xpsys', { body });
   }
 
   createUser(alias: string): Observable<User> {
-    return this.http.post<User>(`${env.api}/v1/admin/users`, { alias });
+    return this.http.post<User>('admin/users', { body: alias });
   }
 
-  deleteUser(id: number): Observable<any> {
-    return this.http.delete(`${env.api}/v1/admin/users/${id}`, {
-      responseType: 'text'
+  deleteUser(id: number): Observable<void> {
+    return this.http.delete(`admin/users/${id}`);
+  }
+
+  mergeUsers(placeholder: User, realUser: User): Observable<User> {
+    return this.http.post<User>('admin/users/merge', {
+      body: {
+        placeholderID: placeholder.id,
+        realID: realUser.id
+      }
     });
-  }
-
-  mergeUsers(placeholder: User, realUser: User): Observable<any> {
-    return this.http.post(
-      `${env.api}/v1/admin/users/merge`,
-      { placeholderID: placeholder.id, realID: realUser.id },
-      { responseType: 'text' }
-    );
   }
 }

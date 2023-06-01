@@ -1,7 +1,6 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { env } from '@momentum/frontend/env';
 import {
   MapRankGetNumberQuery,
   MapRanksGetQuery,
@@ -9,36 +8,30 @@ import {
   PagedResponse,
   Rank
 } from '@momentum/types';
+import { HttpService } from './http.service';
 
 @Injectable({ providedIn: 'root' })
 export class RanksService {
-  constructor(private http: HttpClient) {}
+  constructor(private http: HttpService) {}
 
   getRanks(
     mapID: number,
     query?: MapRanksGetQuery
   ): Observable<PagedResponse<Rank>> {
-    return this.http.get<PagedResponse<Rank>>(
-      `${env.api}/v1/maps/${mapID}/ranks`,
-      { params: query as QueryParam }
-    );
+    return this.http.get<PagedResponse<Rank>>(`maps/${mapID}/ranks`, { query });
   }
 
   getFriendsRanks(
     mapID: number,
     query?: MapRankGetNumberQuery
   ): Observable<Rank[]> {
-    return this.http.get<Rank[]>(`${env.api}/v1/maps/${mapID}/ranks/friends`, {
-      params: query as QueryParam
-    });
+    return this.http.get<Rank[]>(`maps/${mapID}/ranks/friends`, { query });
   }
 
   getAroundRanks(
     mapID: number,
     query?: MapRankGetNumberQuery
   ): Observable<Rank[]> {
-    return this.http.get<Rank[]>(`${env.api}/v1/maps/${mapID}/ranks/around`, {
-      params: query as QueryParam
-    });
+    return this.http.get<Rank[]>(`maps/${mapID}/ranks/around`, { query });
   }
 }
