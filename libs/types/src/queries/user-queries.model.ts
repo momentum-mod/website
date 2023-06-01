@@ -1,34 +1,33 @@
 ﻿import { ActivitiesGetQuery } from './activity-queries.model';
 import { PagedQuery } from './pagination.model';
 
-export interface UsersGetQuery {
+export type UsersGetQuery = {
   expand?: string[];
   mapRank?: number;
-}
+};
 
-export interface UsersGetAllQuery extends PagedQuery {
+export type UsersGetAllQuery = PagedQuery & {
   expand?: string[];
   search?: string;
   steamID?: string;
   steamIDs?: string[];
   mapRank?: number;
-}
+};
 
-export interface UsersGetActivitiesQuery
-  extends Omit<ActivitiesGetQuery, 'userID'> {}
+export type UsersGetActivitiesQuery = Omit<ActivitiesGetQuery, 'userID'>;
 
-interface UserMapsBaseGetQuery extends PagedQuery {
+type UserMapsBaseGetQuery = PagedQuery & {
   search?: string;
-}
+};
 
-export interface UserMapLibraryGetQuery extends UserMapsBaseGetQuery {
+export type UserMapLibraryGetQuery = UserMapsBaseGetQuery & {
   expand?: string[];
-}
+};
 
-export interface UserMapFavoritesGetQuery extends UserMapsBaseGetQuery {
+export type UserMapFavoritesGetQuery = UserMapsBaseGetQuery & {
   expand?: string[];
-}
+};
 
-export interface UserMapSubmittedGetQuery extends UserMapsBaseGetQuery {
+export type UserMapSubmittedGetQuery = UserMapsBaseGetQuery & {
   expand?: string[];
-}
+};

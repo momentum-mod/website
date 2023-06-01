@@ -1,6 +1,6 @@
 ﻿import { PagedQuery } from './pagination.model';
 
-export interface RunsGetAllQuery extends PagedQuery {
+export type RunsGetAllQuery = PagedQuery & {
   expand?: string[];
   mapID?: number;
   mapName?: string;
@@ -9,14 +9,15 @@ export interface RunsGetAllQuery extends PagedQuery {
   isPB?: boolean;
   flags?: number;
   order?: string;
-}
+};
 
-export interface MapsCtlRunsGetAllQuery
-  extends Omit<RunsGetAllQuery, 'mapID' | 'mapName'> {}
+export type MapsCtlRunsGetAllQuery = Omit<RunsGetAllQuery, 'mapID' | 'mapName'>;
 
-export interface UserCtlRunsGetAllQuery
-  extends Pick<RunsGetAllQuery, 'userID' | 'skip' | 'take'> {}
+export type UserCtlRunsGetAllQuery = Pick<
+  RunsGetAllQuery,
+  'userID' | 'skip' | 'take'
+>;
 
-export interface RunsGetQuery {
+export type RunsGetQuery = {
   expand?: string[];
-}
+};

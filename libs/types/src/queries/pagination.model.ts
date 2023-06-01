@@ -1,4 +1,4 @@
-﻿export interface PagedQuery {
+﻿export type PagedQuery = {
   skip?: number;
   take?: number;
-}
+};

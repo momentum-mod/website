@@ -1,10 +1,10 @@
 ﻿import { PagedQuery } from './pagination.model';
 
-export interface AdminCreateUserQuery {
+export type AdminCreateUserQuery = {
   alias?: string;
-}
+};
 
-export interface AdminGetReportsQuery extends PagedQuery {
+export type AdminGetReportsQuery = PagedQuery & {
   expand?: string[];
   resolved?: boolean;
-}
+};

@@ -1,44 +1,44 @@
 import { MapStatus, MapType } from '@momentum/constants';
 import { PagedQuery } from './pagination.model';
 
-interface MapsGetAllBaseQuery {
+type MapsGetAllBaseQuery = {
   skip?: number;
   take?: number;
   search?: string;
   submitterID?: number;
-}
+};
 
-export interface AdminMapsGetAllQuery extends MapsGetAllBaseQuery {
+export type AdminMapsGetAllQuery = MapsGetAllBaseQuery & {
   expand?: string[];
   status?: MapStatus;
   priority?: boolean;
-}
+};
 
-export interface MapsGetAllQuery extends MapsGetAllBaseQuery {
+export type MapsGetAllQuery = MapsGetAllBaseQuery & {
   expand?: string[];
   type?: MapType;
   difficultyLow?: number;
   difficultyHigh?: number;
   isLinear?: boolean;
-}
+};
 
-export interface MapsGetQuery {
+export type MapsGetQuery = {
   expand?: string[];
-}
+};
 
-export interface MapCreditsGetQuery {
+export type MapCreditsGetQuery = {
   expand?: string[];
-}
+};
 
-export interface MapRanksGetQuery extends PagedQuery {
+export type MapRanksGetQuery = PagedQuery & {
   playerID?: number;
   playerIDs?: number[];
   flags?: number;
   orderByDate?: boolean;
-}
+};
 
-export interface MapRankGetNumberQuery {
+export type MapRankGetNumberQuery = {
   trackNum?: number;
   zoneNum?: number;
   flags?: number;
-}
+};
