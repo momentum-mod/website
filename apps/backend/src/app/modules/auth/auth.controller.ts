@@ -107,6 +107,7 @@ export class AuthController {
     return this.authService.loginGame(user);
   }
 
+  @BypassJwtAuth()
   @Post('/refresh')
   @ApiOperation({
     summary: 'Generate a new access token for a given refresh token'
