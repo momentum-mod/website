@@ -65,7 +65,7 @@ async function createRandomUser() {
     data: {
       steamID: Random.int(1000000000, 99999999999),
       alias: faker.name.fullName(),
-      avatar: 'ac7305567f93a4c9eec4d857df993191c61fb240_full.jpg',
+      avatar: '0227a240393e6d62f539ee7b306dd048b0830eeb',
       country: faker.address.countryCode(),
       ...Random.createdUpdatedDates(),
       roles: Bitflags.join(
