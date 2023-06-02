@@ -453,7 +453,7 @@ export class UsersService {
 
   //#region Map Library
 
-  async getMapLibraryEntry(
+  async getMapLibraryEntries(
     userID: number,
     skip: number,
     take: number,

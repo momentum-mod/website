@@ -406,7 +406,7 @@ export class UserController {
     @LoggedInUser('id') userID: number,
     @Query() query?: UserMapLibraryGetQueryDto
   ): Promise<PagedResponseDto<MapLibraryEntryDto>> {
-    return this.usersService.getMapLibraryEntry(
+    return this.usersService.getMapLibraryEntries(
       userID,
       query.skip,
       query.take,
