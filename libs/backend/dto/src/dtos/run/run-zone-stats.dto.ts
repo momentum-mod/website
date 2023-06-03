@@ -1,6 +1,6 @@
 import { RunZoneStats } from '@momentum/types';
 import { ApiProperty } from '@nestjs/swagger';
-import { IsPositive } from 'class-validator';
+import { IsInt } from 'class-validator';
 import {
   CreatedAtProperty,
   IdProperty,
@@ -12,7 +12,7 @@ export class RunZoneStatsDto implements RunZoneStats {
   readonly id: number;
 
   @ApiProperty()
-  @IsPositive()
+  @IsInt()
   readonly zoneNum: number;
 
   @IdProperty({ bigint: true })
