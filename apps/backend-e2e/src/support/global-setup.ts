@@ -15,6 +15,11 @@ module.exports = async function () {
 
   // Clear out the S3 bucket
   await nukeS3();
+
+  // Explicitly set test environment. When running this Nx it seems to be 'dev',
+  // probably because it's loading .env later. So it probably doesn't matter in
+  // CI, just in local dev.
+  (process.env as any).NODE_ENV = 'test';
 };
 
 // Nx is having an issue resolving paths from this file, after trying to solve
