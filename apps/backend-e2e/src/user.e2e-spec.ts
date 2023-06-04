@@ -1178,6 +1178,37 @@ describe('User', () => {
           validate: { type: MapFavoriteDto, count: 1 }
         }));
 
+      it('should retrieve a list of maps in the local users favorites with expanded info', () =>
+        req.expandTest({
+          url: 'user/maps/favorites',
+          expand: 'info',
+          expectedPropertyName: 'map.info',
+          paged: true,
+          validate: MapFavoriteDto,
+          token: token
+        }));
+
+      it('should retrieve a list of maps in the local users favorites with expanded credits', () =>
+        req.expandTest({
+          url: 'user/maps/favorites',
+          expand: 'credits',
+          expectedPropertyName: 'map.credits',
+          paged: true,
+          validate: MapFavoriteDto,
+          token: token,
+          some: true
+        }));
+
+      it('should retrieve a list of maps in the local users favorites with expanded thumbnail', () =>
+        req.expandTest({
+          url: 'user/maps/favorites',
+          expand: 'thumbnail',
+          expectedPropertyName: 'map.thumbnail',
+          paged: true,
+          validate: MapFavoriteDto,
+          token: token
+        }));
+
       it('should retrieve a list of maps in the local users favorites with expanded submitter', () =>
         req.expandTest({
           url: 'user/maps/favorites',
@@ -1188,7 +1219,23 @@ describe('User', () => {
           token: token
         }));
 
-      it('should retrieve a list of maps in the local users favorites with expanded thumbnail', async () => {
+      it("should retrieve a list of maps in the local users favorites with expanded library entries if its in the user's library", async () => {
+        await prisma.mapLibraryEntry.create({
+          data: { userID: user.id, mapID: m1.id }
+        });
+
+        await req.expandTest({
+          url: 'user/maps/favorites',
+          expand: 'inLibrary',
+          expectedPropertyName: 'map.libraryEntries',
+          paged: true,
+          validate: MapFavoriteDto,
+          token: token,
+          some: true
+        });
+      });
+
+      it('should retrieve a list of maps in the local users favorites with expanded PBs if the user has a PB', async () => {
         const res = await req.get({
           url: 'user/maps/favorites',
           status: 200,

@@ -38,6 +38,7 @@ import { AuthenticatedUser } from '../auth/auth.interface';
 import { SteamUserSummaryData } from '../steam/steam.interface';
 import { ActivityType, Ban, Role } from '@momentum/constants';
 import { Bitflags } from '@momentum/bitflags';
+import { isEmpty } from 'lodash';
 
 @Injectable()
 export class UsersService {
@@ -520,9 +521,21 @@ export class UsersService {
     if (search) where.map = { name: { contains: search } };
 
     const include: Prisma.MapFavoriteInclude = {
-      map: { include: expandToPrismaIncludes(expand) },
       user: true
     };
+
+    const mapIncludes =
+      (expandToPrismaIncludes(
+        expand?.filter((x) => !['inLibrary', 'personalBest'].includes(x))
+      ) as Prisma.MapInclude) ?? {};
+
+    if (expand?.includes('inLibrary'))
+      mapIncludes.libraryEntries = { where: { userID } };
+
+    if (expand?.includes('personalBest'))
+      mapIncludes.ranks = { where: { userID } };
+
+    include.map = !isEmpty(mapIncludes) ? { include: mapIncludes } : true;
 
     const dbResponse = await this.userRepo.getFavoritedMaps(
       where,

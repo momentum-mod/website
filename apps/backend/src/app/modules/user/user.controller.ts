@@ -20,7 +20,8 @@ import {
   UserMapLibraryGetQueryDto,
   UserMapSubmittedGetQueryDto,
   UsersGetActivitiesQueryDto,
-  UsersGetQueryDto
+  UsersGetQueryDto,
+  UserMapFavoritesGetQueryDto
 } from '@momentum/backend/dto';
 import { ParseIntSafePipe } from '@momentum/backend/pipes';
 import {
@@ -484,7 +485,7 @@ export class UserController {
   })
   getFavoritedMaps(
     @LoggedInUser('id') userID: number,
-    @Query() query?: UserMapLibraryGetQueryDto
+    @Query() query?: UserMapFavoritesGetQueryDto
   ): Promise<PagedResponseDto<MapFavoriteDto>> {
     return this.usersService.getFavoritedMaps(
       userID,
