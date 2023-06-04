@@ -6,7 +6,6 @@ import {
   ValidationPipe,
   VersioningType
 } from '@nestjs/common';
-import { join } from 'node:path';
 import { ConfigService } from '@nestjs/config';
 import {
   FastifyAdapter,
@@ -39,9 +38,6 @@ async function bootstrap() {
 
   // Steam game auth sends a raw octet-stream, only use-case. Limit to 2kb
   app.useBodyParser('application/octet-stream', { bodyLimit: 2e3 });
-
-  // Just for Swagger assets
-  app.useStaticAssets({ root: join(__dirname, 'assets/') });
 
   // Forbidding unknown values here ensures any request containing unexpected data on the query/body (i.e. does not
   // have validators) will fail. Our tests even more strict: passing an unexpected value will throw an error.
