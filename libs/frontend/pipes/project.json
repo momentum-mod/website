@@ -16,7 +16,7 @@
       "configurations": {
         "ci": {
           "ci": true,
-          "codeCoverage": true
+          "codeCoverage": false
         }
       }
     },
