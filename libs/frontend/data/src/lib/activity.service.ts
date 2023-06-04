@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
-import { ActivitiesGetQuery, Activity, QueryParam } from '@momentum/types';
+import { ActivitiesGetQuery, Activity } from '@momentum/types';
 import { PagedResponse } from '@momentum/types';
 import { HttpService } from './http.service';
 

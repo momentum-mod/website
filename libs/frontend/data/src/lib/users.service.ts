@@ -2,14 +2,12 @@ import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import {
   PagedResponse,
-  QueryParam,
   UsersGetQuery,
   UsersGetAllQuery,
   MapCreditsGetQuery,
   Follow
 } from '@momentum/types';
-import { MapCredit, Run, User } from '@momentum/types';
-import { HttpClient } from '@angular/common/http';
+import { MapCredit, User } from '@momentum/types';
 import { HttpService } from './http.service';
 
 @Injectable({ providedIn: 'root' })

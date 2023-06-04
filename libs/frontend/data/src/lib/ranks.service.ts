@@ -1,10 +1,8 @@
 import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import {
   MapRankGetNumberQuery,
   MapRanksGetQuery,
-  QueryParam,
   PagedResponse,
   Rank
 } from '@momentum/types';

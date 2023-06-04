@@ -4,7 +4,6 @@ import { JwtHelperService } from '@auth0/angular-jwt';
 import { Observable, of } from 'rxjs';
 import { Router } from '@angular/router';
 import { map, share } from 'rxjs/operators';
-import { env } from '@momentum/frontend/env';
 import { HttpService } from './http.service';
 
 export interface TokenRefreshResponse {

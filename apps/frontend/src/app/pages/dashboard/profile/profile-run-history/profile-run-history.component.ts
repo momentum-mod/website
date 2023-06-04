@@ -4,7 +4,7 @@ import { finalize } from 'rxjs/operators';
 import { FormBuilder, FormGroup } from '@angular/forms';
 import { NbToastrService } from '@nebular/theme';
 import { Run, User } from '@momentum/types';
-import { RunsService, UsersService } from '@momentum/frontend/data';
+import { RunsService } from '@momentum/frontend/data';
 
 @Component({
   selector: 'mom-profile-run-history',

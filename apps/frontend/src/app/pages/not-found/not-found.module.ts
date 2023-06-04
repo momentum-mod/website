@@ -1,5 +1,5 @@
 import { NgModule } from '@angular/core';
-import { ThemeModule } from '../../../../../../libs/frontend/theme/src/theme.module';
+import { ThemeModule } from '@momentum/frontend/theme';
 import { NotFoundDashboardComponent } from './dashboard/not-found-dashboard.component';
 import { NotFoundMainComponent } from './main/not-found-main.component';
 
