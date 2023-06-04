@@ -16,6 +16,7 @@ import { Environment } from '@momentum/backend/config';
 import cookie from '@fastify/cookie';
 import helmet from '@fastify/helmet';
 import cors from '@fastify/cors';
+import { FastifyReply } from 'fastify';
 
 async function bootstrap() {
   // Transforms `BigInt`s to strings in JSON.stringify, for cases that haven't been explicitly
@@ -58,6 +59,19 @@ async function bootstrap() {
     prefix: 'v'
   });
 
+  // In dev, serve a script to the client to handle redirecting after auth.
+  // Usually we'd let Nest handle routing, but doing a separate controller file
+  // would be silly, especially since this is developer-only.
+  if (env !== Environment.PRODUCTION) {
+    const fastify = app.getHttpAdapter().getInstance() as FastifyAdapter;
+    fastify.get('/', (_, reply: FastifyReply) => reply.redirect('/dashboard'));
+    fastify.get('/dashboard', (_, reply: FastifyReply) =>
+      reply
+        .type('text/html')
+        .send("<script>window.location.port = '4200';</script>")
+    );
+  }
+
   // Enable @fastify/helmet header protections
   await app.register(helmet, {
     global: true,
@@ -66,7 +80,7 @@ async function bootstrap() {
   });
 
   // We use a pretty strict CORS policy, so register these headers
-  // In production this allows https://momentum-mod.org to communicate with 
+  // In production this allows https://momentum-mod.org to communicate with
   // https://api.momentum-mod.org/
   await app.register(cors, {
     origin:
