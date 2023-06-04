@@ -43,7 +43,7 @@ export class AdminService {
     return this.http.patch(`admin/reports/${reportID}`, { body });
   }
 
-  updateAllUserStats(userStats: object): Observable<never> {
+  updateAllUserStats(_userStats: object): Observable<never> {
     // Removed
     return EMPTY;
   }

@@ -145,7 +145,7 @@ export class LocalUserService {
   }
 
   public getMapCredits(
-    query?: Omit<MapCreditsGetQuery, 'userID'>
+    _query?: Omit<MapCreditsGetQuery, 'userID'>
   ): Observable<PagedResponse<MapCredit>> {
     // TODO!!
     return of(undefined as any);
