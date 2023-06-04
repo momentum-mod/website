@@ -3,9 +3,10 @@ import { ActivatedRouteSnapshot, CanActivate, Router } from '@angular/router';
 import { LocalUserService } from '@momentum/frontend/data';
 import { env } from '@momentum/frontend/env';
 
-// TODO: CanActivate is deprecated, don't understand ng routing properly yet
-// Come back in future
-// noinspection JSDeprecatedSymbols
+// TODO: CanActivate is deprecated in Angular 14 and now uses "functional
+// guards" (I don't really understand how that simplifies anything - for this
+// guard we'll still have to do a bunch of DI stuff using e.g. `inject(Router)`)
+// Lets switch to that when refactoring auth to make more routes public.
 @Injectable({ providedIn: 'root' })
 export class AuthGuard implements CanActivate {
   constructor(
