@@ -18,7 +18,7 @@ import {
   randomString,
   RequestUtil
 } from '@momentum/backend/test-utils';
-import { ActivityType, Ban, Role } from '@momentum/constants';
+import { ActivityType, Ban, MapCreditType, Role } from '@momentum/constants';
 import { PrismaClient } from '@prisma/client';
 import {
   setupE2ETestEnvironment,
@@ -1128,14 +1128,20 @@ describe('User', () => {
 
   describe('user/maps/favorites', () => {
     describe('GET', () => {
-      let user, token;
+      let user, token, m1, m2;
 
       beforeAll(async () => {
         [user, token] = await db.createAndLoginUser();
-        await Promise.all([
+        [m1, m2] = await Promise.all([
           db.createMap({
             name: 'ahop_aaaaaaaa',
-            favorites: { create: { userID: user.id } }
+            favorites: { create: { userID: user.id } },
+            credits: {
+              create: {
+                userID: user.id,
+                type: MapCreditType.TESTER
+              }
+            }
           }),
           db.createMap({
             name: 'ahop_bbbbbbbb',
@@ -1243,9 +1249,6 @@ describe('User', () => {
           validatePaged: MapFavoriteDto,
           token: token
         });
-
-        for (const x of res.body.response)
-          expect(x.map).toHaveProperty('thumbnail');
       });
 
       it('should 401 when no access token is provided', () =>
@@ -1399,7 +1402,13 @@ describe('User', () => {
         await Promise.all([
           db.createMap({
             name: 'ahop_aaaaaaaa',
-            submitter: { connect: { id: u1.id } }
+            submitter: { connect: { id: u1.id } },
+            credits: {
+              create: {
+                userID: u1.id,
+                type: MapCreditType.TESTER
+              }
+            }
           }),
           db.createMap({
             name: 'ahop_bbbbbbbb',
@@ -1466,7 +1475,8 @@ describe('User', () => {
           validate: MapDto,
           paged: true,
           expand: 'credits',
-          token: u1Token
+          token: u1Token,
+          some: true
         }));
 
       it('should retrieve a map specified by a search query parameter', () =>

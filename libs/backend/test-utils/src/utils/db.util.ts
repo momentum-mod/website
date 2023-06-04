@@ -204,7 +204,10 @@ export class DbUtil {
         time: ticks,
         hash: randomHash(),
         createdAt: args.createdAt ?? undefined,
-        overallStats: { create: { jumps: 1 } }
+        overallStats: { create: { jumps: 1 } },
+        zoneStats: {
+          create: { baseStats: { create: {} }, zoneNum: args.zoneNum ?? 0 }
+        }
       },
       include: { user: true, map: true }
     });
@@ -257,7 +260,10 @@ export class DbUtil {
             createdAt: args.createdAt ?? undefined
           }
         },
-        overallStats: { create: { jumps: 1 } }
+        overallStats: { create: { jumps: 1 } },
+        zoneStats: {
+          create: { baseStats: { create: {} }, zoneNum: args.zoneNum ?? 0 }
+        }
       },
       include: { rank: true, user: true, map: true }
     });

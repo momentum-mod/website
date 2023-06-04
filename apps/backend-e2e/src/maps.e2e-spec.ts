@@ -201,7 +201,8 @@ describe('Maps', () => {
           paged: true,
           validate: MapDto,
           expectedPropertyName: 'libraryEntries',
-          token: u1Token
+          token: u1Token,
+          some: true
         });
       });
 
@@ -216,7 +217,8 @@ describe('Maps', () => {
           paged: true,
           validate: MapDto,
           expectedPropertyName: 'favorites',
-          token: u1Token
+          token: u1Token,
+          some: true
         });
       });
 

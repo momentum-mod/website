@@ -1,4 +1,4 @@
-﻿import { get as getDeep } from 'lodash';
+﻿import { get as getDeep, isEmpty, isObject } from 'lodash';
 import { Type } from '@nestjs/common';
 import { NestFastifyApplication } from '@nestjs/platform-fastify';
 import { InjectOptions, Response } from 'light-my-request';
@@ -223,6 +223,7 @@ export class RequestUtil {
       filter?: (item: Record<string, unknown>) => boolean;
       expectedPropertyName?: string;
       expectedPropertyValue?: any;
+      some?: boolean; // Only test that one or more paged entry passes
     }
   ): Promise<void> {
     options.expectedPropertyName ??= options.expand;
@@ -235,23 +236,38 @@ export class RequestUtil {
     });
 
     if (options.validate)
-      if (options.paged) expect(res.body).toBeValidPagedDto(options.validate);
-      else expect(res.body).toBeValidDto(options.validate);
+      if (options.paged) {
+        expect(res.body).toBeValidPagedDto(options.validate);
+      } else {
+        expect(res.body).toBeValidDto(options.validate);
+      }
 
-    const expects = (data) => {
-      const value = getDeep(data, options.expectedPropertyName);
-      expect(value).toBeDefined();
-    };
+    const test = (item) =>
+      !(
+        item === undefined ||
+        (Array.isArray(item) && item.length === 0) ||
+        (isObject(item) && isEmpty(item))
+      );
 
     if (options.paged ?? false) {
       options.filter ??= () => true;
-      // Unicorn rule doesn't seem to parse this correctly.
-      // eslint-disable-next-line unicorn/no-array-callback-reference
-      const toTest = res.body.response.filter((x) => options.filter(x));
+      const toTest = res.body.response.filter(options.filter);
       if (toTest.length === 0)
         throw 'nothing passed to expandTest passes filter';
-      for (const x of toTest) expects(x);
-    } else expects(res.body);
+
+      const propertyNames = toTest.map((x) =>
+        getDeep(x, options.expectedPropertyName)
+      );
+      if (options.some ?? false) {
+        expect(propertyNames.some(test)).toBeTruthy();
+      } else {
+        expect(propertyNames.every(test)).toBeTruthy();
+      }
+    } else {
+      expect(
+        test(getDeep(res.body, options.expectedPropertyName))
+      ).toBeTruthy();
+    }
   }
 
   async sortTest(
