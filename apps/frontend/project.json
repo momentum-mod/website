@@ -32,7 +32,8 @@
         "aot": true,
         "stylePreprocessorOptions": {
           "includePaths": ["libs/frontend/theme/src/styles"]
-        }
+        },
+        "statsJson": true
       },
       "configurations": {
         "production": {
@@ -94,6 +95,9 @@
       "options": {
         "buildTarget": "frontend:build"
       }
+    },
+    "bundle-analyzer": {
+      "command": "webpack-bundle-analyzer dist/apps/frontend/stats.json"
     }
   }
 }
