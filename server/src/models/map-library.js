@@ -10,7 +10,7 @@ module.exports = {
 		const queryOptions = {
 			distinct: true,
 			where: {userID: userID},
-			limit: 100,
+			limit: 300,
 			order: [['createdAt', 'DESC']],
 			include: [
 				{

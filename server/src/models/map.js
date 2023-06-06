@@ -146,7 +146,7 @@ module.exports = {
 				{model: MapInfo, as: 'info', where: {}},
 			],
 			where: {},
-			limit: 100,
+			limit: 300,
 			order: [['createdAt', 'DESC']]
 		};
 		if (queryParams.limit)
