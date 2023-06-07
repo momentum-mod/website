@@ -1,22 +1,22 @@
-import {Injectable} from '@angular/core';
-import {AuthService} from './auth.service';
-import {Observable, ReplaySubject, Subject} from 'rxjs';
-import {HttpClient} from '@angular/common/http';
-import {User} from '../models/user.model';
-import {Role} from '../models/role.model';
-import {Ban} from '../models/ban.model';
-import {UserFollowObject} from '../models/follow.model';
-import {FollowStatus} from '../models/follow-status.model';
-import {CookieService} from 'ngx-cookie-service';
-import {MapFavorites} from '../models/map-favorites.model';
-import {MapLibrary} from '../models/map-library.model';
-import {MapFavorite} from '../models/map-favorite.model';
-import {MomentumMaps} from '../models/momentum-maps.model';
-import {MapSubmissionSummaryElement} from '../models/map-submission-summary-element.model';
-import {UserCredits} from '../models/user-credits.model';
-import {MapNotify} from '../models/map-notify.model';
-import {environment} from '../../../environments/environment';
-
+import { Injectable } from '@angular/core';
+import { AuthService } from './auth.service';
+import { Observable, ReplaySubject, Subject } from 'rxjs';
+import { HttpClient } from '@angular/common/http';
+import { User } from '../models/user.model';
+import { Role } from '../models/role.model';
+import { Ban } from '../models/ban.model';
+import { UserFollowObject } from '../models/follow.model';
+import { FollowStatus } from '../models/follow-status.model';
+import { CookieService } from 'ngx-cookie-service';
+import { MapFavorites } from '../models/map-favorites.model';
+import { MapLibrary } from '../models/map-library.model';
+import { MapFavorite } from '../models/map-favorite.model';
+import { MomentumMaps } from '../models/momentum-maps.model';
+import { MapSubmissionSummaryElement } from '../models/map-submission-summary-element.model';
+import { UserCredits } from '../models/user-credits.model';
+import { MapNotify } from '../models/map-notify.model';
+import { environment } from '../../../environments/environment';
+import * as Sentry from '@sentry/angular';
 
 @Injectable({
   providedIn: 'root',
@@ -26,9 +26,11 @@ export class LocalUserService {
   public localUser: User;
   private locUserObtEmit: Subject<User>;
 
-  constructor(private authService: AuthService,
-              private cookieService: CookieService,
-              private http: HttpClient) {
+  constructor(
+    private authService: AuthService,
+    private cookieService: CookieService,
+    private http: HttpClient,
+  ) {
     this.locUserObtEmit = new ReplaySubject<User>(1);
     const userCookieExists = this.cookieService.check('user');
     if (userCookieExists) {
@@ -48,6 +50,7 @@ export class LocalUserService {
     this.getLocalUser({
       params: { expand: 'profile' },
     }).subscribe(usr => {
+      Sentry.setUser({ ...usr, id: usr.id.toString() });
       this.locUserObtEmit.next(usr);
       this.localUser = usr;
       localStorage.setItem('user', JSON.stringify(usr));
@@ -64,13 +67,14 @@ export class LocalUserService {
 
   public logout() {
     this.authService.logout();
+    Sentry.configureScope(scope => scope.setUser(null));
   }
 
-  public hasRole(role: number|Role, user: User = this.localUser): boolean {
+  public hasRole(role: number | Role, user: User = this.localUser): boolean {
     return user ? (role & user.roles) !== 0 : false;
   }
 
-  public hasBan(ban: number|Ban, user: User = this.localUser): boolean {
+  public hasBan(ban: number | Ban, user: User = this.localUser): boolean {
     return user ? (ban & user.bans) !== 0 : false;
   }
 
@@ -189,7 +193,7 @@ export class LocalUserService {
    * @return update user following
    */
   public followUser(user: User): Observable<UserFollowObject> {
-    return this.http.post<UserFollowObject>(environment.api + '/api/user/follow', {userID: user.id});
+    return this.http.post<UserFollowObject>(environment.api + '/api/user/follow', { userID: user.id });
   }
 
   /**
@@ -214,9 +218,9 @@ export class LocalUserService {
   }
 
   /**
-  * @param mapID The map to check if notifications are enabled
-  * @return A json object with the potential map and the activity type for notifications
-  */
+   * @param mapID The map to check if notifications are enabled
+   * @return A json object with the potential map and the activity type for notifications
+   */
   public checkMapNotify(mapID: number): Observable<MapNotify> {
     return this.http.get<MapNotify>(environment.api + '/api/user/notifyMap/' + mapID);
   }

@@ -8,6 +8,8 @@ The frontend of Momentum's main site acts as the extension to the game, allowing
 
 The backend of the website is the core of the interactive functionality of the game and handles things like map uploads/downloads, run submission/viewing, and stats congregation/filtering. The backend runs on [NodeJS](https://nodejs.org/) and utilizes the [Express](https://expressjs.com/) framework. More info about it and instructions to run it can be found in the [server/](server/) folder.
 
+Both frontend and backend utilize [Sentry](https://sentry.io/) for error handling.
+
 ## *Something wrong with the site?*  
 [Submit an issue](https://github.com/momentum-mod/website/issues/new) with some pictures and/or web console error output!
 
