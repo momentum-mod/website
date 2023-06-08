@@ -19,15 +19,12 @@ and frontend, handling database and file storage, and providing much of Momentum
 Mod's core functionality, such as map uploads/downloads, run submission/viewing,
 and stats congregation/filtering.
 
-# Architecture
+# Tech Stack
 
 The vast majority of the codebase is written in
 [Typescript](https://www.typescriptlang.org/). It's structured as an
 [integrated monorepo](https://nx.dev/concepts/integrated-vs-package-based#integrated-repos)
-using [Nx](https://nx.dev) as a build system - in simple terms this means we
-have a single `package.json` for Node dependencies, and use the `nx` CLI tool
-(or editor plugins) for everything build-related. We use npm as our package
-manager.
+using [Nx](https://nx.dev). We use npm as our package manager.
 
 The frontend runs on [Angular](https://angular.io) and uses the
 [Nebular](https://github.com/akveo/nebular) component library.
@@ -40,14 +37,23 @@ The backend runs on [NodeJS](https://nodejs.org/) with
 
 # Contributing
 
-Momentum Mod is developed entirely by volunteers, thus we are very happy to
-accept any contributions.
+Momentum Mod is developed entirely by volunteers, so we're always on the lookout
+for more contributors! If you want to get involved, we highly recommend joining
+our [Discord](https://discord.gg/momentummod) and letting us know. Whilst you
+_could_ just work off of the open issues board, it's much easier for us to
+organize if we know who is working on what, and can make sure there's no
+overlap.
 
 To get started check out the
-[setup guide](https://github.com/momentum-mod/website/wiki/Setup), as well 
-as the rest of the wiki.
+[setup guide](https://github.com/momentum-mod/website/wiki/Setup), as well as
+the rest of the wiki. READMEs on Git are annoying so we don't use them much, 
+the majority of guides and things live on the wiki!
 
-## Guidelines
+Please see our
+[contribution guidelines](https://github.com/momentum-mod/website/wiki/Contribution-Guidelines)
+before making a pull request.
 
-### Linting/Formatting
+# Bug Reports
 
+If you've found a problem with the website, please [open an issue]
+(https://github.com/momentum-mod/website/issues/new/choose!)
