@@ -19,21 +19,13 @@ import {
 } from '@momentum/types';
 import { Enum } from '@momentum/enum';
 
-export enum MapListType {
-  BROWSE = 'browse',
-  LIBRARY = 'library',
-  FAVORITES = 'favorites',
-  UPLOAD = 'uploads'
-}
-
 @Component({
   selector: 'mom-map-list',
   templateUrl: './map-list.component.html',
   styleUrls: ['./map-list.component.scss']
 })
 export class MapListComponent implements OnInit {
-  @Input() type: MapListType;
-  mapListType = MapListType;
+  @Input() isUpload: boolean;
   statuses: { value: MapStatus; text: string }[] = [];
   types: { value: MapType; text: string }[] = [];
   requestSent: boolean;
@@ -47,7 +39,9 @@ export class MapListComponent implements OnInit {
     // TODO: Enable when map credits get reworked (#415)
     // 'author': [''],
     status: [],
-    type: []
+    type: [],
+    inLibrary: [false],
+    inFavorites: [false]
   });
   lastSearch: {
     search: string;
@@ -55,6 +49,8 @@ export class MapListComponent implements OnInit {
     // author: string,
     status: number;
     type: number;
+    inLibrary: boolean;
+    inFavorites: boolean;
   };
 
   constructor(
@@ -67,7 +63,7 @@ export class MapListComponent implements OnInit {
   ) {
     this.pageLimit = 10;
     this.currentPage = 1;
-    this.type = MapListType.BROWSE;
+    this.isUpload = false;
     this.requestSent = false;
     this.maps = [];
     this.mapCount = 0;
@@ -89,23 +85,10 @@ export class MapListComponent implements OnInit {
   }
 
   ngOnInit() {
-    switch (this.type) {
-      case MapListType.LIBRARY:
-        this.noMapsText =
-          'No maps with those search parameters found in your library.';
-        break;
-      case MapListType.FAVORITES:
-        this.noMapsText =
-          'No favorite maps with those search parameters found.';
-        break;
-      case MapListType.UPLOAD:
-        this.noMapsText =
-          'You have not uploaded any maps with those search parameters.';
-        break;
-      default:
-        this.noMapsText = 'No maps with those search parameters found.';
-        break;
-    }
+    this.noMapsText = this.isUpload
+      ? 'You have not uploaded any maps with those search parameters.'
+      : 'No maps with those search parameters found.';
+
     this.route.queryParamMap.subscribe((paramMap: ParamMap) => {
       this.currentPage = +paramMap.get('page') || 1;
       const count = this.pageLimit * this.currentPage;
@@ -141,49 +124,46 @@ export class MapListComponent implements OnInit {
   loadMaps() {
     const options = this.genQueryParams();
     let observer: Observable<any>;
-    switch (this.type) {
-      case MapListType.LIBRARY: {
-        observer = this.localUserService.getMapLibrary(options).pipe(
-          map((response) => ({
-            count: response.totalCount,
-            maps: response.response.map((val) => val.map)
-          }))
-        );
-
-        break;
-      }
-      case MapListType.FAVORITES: {
-        observer = this.localUserService.getMapFavorites(options).pipe(
-          map((response) => ({
-            count: response.totalCount,
-            maps: response.response.map((val) => val.map)
-          }))
-        );
-
-        break;
-      }
-      case MapListType.UPLOAD: {
-        observer = this.localUserService.getSubmittedMaps(options);
-
-        break;
-      }
-      default: {
-        observer = this.mapService.getMaps(options);
-      }
+    if (this.isUpload) {
+      observer = this.localUserService.getSubmittedMaps(options);
+    } else if (
+      this.searchOptions.value.inLibrary &&
+      this.searchOptions.value.inFavorites
+    ) {
+      observer = this.localUserService.getMapLibrary(options).pipe(
+        map((res) => ({
+          count: res.returnCount,
+          response: res.response
+            .filter((item) => item.map.favorites.length > 0)
+            .map((item) => item.map)
+        }))
+      );
+    } else if (this.searchOptions.value.inLibrary) {
+      observer = this.localUserService.getMapLibrary(options).pipe(
+        map((res) => ({
+          count: res.returnCount,
+          response: res.response.map((item) => item.map)
+        }))
+      );
+    } else if (this.searchOptions.value.inFavorites) {
+      observer = this.localUserService.getMapFavorites(options).pipe(
+        map((res) => ({
+          count: res.returnCount,
+          response: res.response.map((item) => item.map)
+        }))
+      );
+    } else {
+      observer = this.mapService.getMaps(options);
     }
 
     observer.pipe(finalize(() => (this.requestSent = true))).subscribe({
-      next: (response) => {
-        this.mapCount = response.totalCount;
-        this.maps = response.response;
+      next: (res) => {
+        this.mapCount = res.returnCount;
+        this.maps = res.response;
       },
-      error: (error) =>
-        this.toasterService.danger(
-          error.message,
-          `Failed to get ${
-            this.type === MapListType.LIBRARY ? 'map library' : 'maps'
-          }`
-        )
+      error: (err) => {
+        this.toasterService.danger(err.message, 'Failed to get maps');
+      }
     });
   }
 
@@ -193,28 +173,28 @@ export class MapListComponent implements OnInit {
     this.loadMaps();
   }
 
-  isMapInLibrary(m: Map): boolean {
-    return this.type === MapListType.LIBRARY
+  isMapInLibrary(map: Map): boolean {
+    return this.searchOptions.value.inLibrary
       ? true
-      : m.libraryEntries && m.libraryEntries.length > 0;
+      : map.libraryEntries && map.libraryEntries.length > 0;
   }
 
   libraryUpdate(): void {
-    if (this.type === MapListType.LIBRARY) {
+    if (this.searchOptions.value.inLibrary) {
       if (this.isLastItemInLastPage()) this.currentPage--;
       this.loadMaps();
     }
   }
 
   favoriteUpdate() {
-    if (this.type === MapListType.FAVORITES) {
+    if (this.searchOptions.value.inFavorites) {
       if (this.isLastItemInLastPage()) this.currentPage--;
       this.loadMaps();
     }
   }
 
   isMapInFavorites(m: Map) {
-    return this.type === MapListType.FAVORITES
+    return this.searchOptions.value.inFavorites
       ? true
       : m.favorites && m.favorites.length > 0;
   }
