@@ -30,6 +30,15 @@ li {
   height: $image-height;
 }
 
+.library-popover {
+  width: 200px;
+
+  nb-card-header,
+  nb-card-body {
+    padding: 0.5rem 1rem;
+  }
+}
+
 .icon {
   font-size: 1.25rem;
 }

@@ -1,15 +1,12 @@
 import { Component } from '@angular/core';
-import { MapListType } from '../map-list/map-list.component';
 
 @Component({
   selector: 'mom-view-map-queue',
   template: `<nb-card>
     <nb-card-header><h2>Browse Maps</h2></nb-card-header>
     <nb-card-body>
-      <mom-map-list [type]="MapListType.BROWSE" />
+      <mom-map-list [isUpload]="false" />
     </nb-card-body>
   </nb-card>`
 })
-export class ViewMapsComponent {
-  protected readonly MapListType = MapListType;
-}
+export class ViewMapsComponent {}

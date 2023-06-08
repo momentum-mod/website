@@ -59,6 +59,7 @@
             type="button"
             class="mr-2 mr-lg-0 mb-lg-2"
             (click)="toggleMapInFavorites()"
+            size="large"
             [nbPopover]="
               mapInFavorites
                 ? 'Remove map from favorites'
@@ -76,9 +77,8 @@
             type="button"
             class="btn btn-dark"
             (click)="toggleMapInLibrary()"
-            [nbPopover]="
-              mapInLibrary ? 'Remove map from library' : 'Add map to library'
-            "
+            size="large"
+            [nbPopover]="libraryPopover"
             nbPopoverTrigger="hint"
           >
             <nb-icon
@@ -86,6 +86,16 @@
               pack="mdi"
             ></nb-icon>
           </button>
+          <ng-template #libraryPopover>
+            <nb-card class="library-popover mb-0">
+              <nb-card-header>{{
+                mapInLibrary ? 'Remove map from library' : 'Add map to library'
+              }}</nb-card-header>
+              <nb-card-body
+                >Maps in your library are automatically downloaded in-game.
+              </nb-card-body>
+            </nb-card>
+          </ng-template>
         </div>
       </div>
     </div>
