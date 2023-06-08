@@ -1,7 +1,6 @@
 ---
-name: "\U0001F4DD Documentation"
+name: 'Documentation'
 about: Updating documentation (e.g. README, Wiki, Guides etc.)
-title: "\U0001F4DD"
+title: ''
 labels: 'For: Documentation'
-assignees: 'Hona'
 ---
