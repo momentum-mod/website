@@ -890,6 +890,7 @@ describe('Maps', () => {
           url: `maps/${map.id}`,
           validate: MapDto,
           expand: 'credits',
+          expectedPropertyName: 'credits[0].user',
           token: u1Token
         });
       });
