@@ -58,7 +58,7 @@
     <button nbButton outline status="info" type="submit">Search</button>
   </form>
 </div>
-<div *ngIf="maps.length && requestSent">
+<div *ngIf="requestSent && maps?.length">
   <nb-list class="overflow-hidden">
     <nb-list-item
       *ngFor="
@@ -91,7 +91,7 @@
 </div>
 <div
   class="text-center"
-  *ngIf="maps.length === 0 && requestSent && !isSearchFiltered()"
+  *ngIf="requestSent && maps?.length === 0 && !isSearchFiltered()"
 >
   <h3 class="m-0">
     <ng-template *ngIf="isUpload; else elseBlock">
@@ -107,7 +107,7 @@
 </div>
 <div
   class="text-center"
-  *ngIf="maps.length === 0 && requestSent && isSearchFiltered()"
+  *ngIf="requestSent && maps?.length === 0 && isSearchFiltered()"
 >
   <h3 class="m-0">{{ noMapsText }}</h3>
 </div>
