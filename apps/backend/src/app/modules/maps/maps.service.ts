@@ -88,10 +88,21 @@ export class MapsService {
       info: true,
       ...expandToPrismaIncludes(
         query.expand?.filter((x) =>
-          ['credits', 'thumbnail', 'submitter'].includes(x)
+          [
+            'credits',
+            'thumbnail',
+            'submitter',
+            'stats',
+            'images',
+            'tracks',
+            'info'
+          ].includes(x)
         )
       )
     };
+
+    if (query.expand?.includes('credits'))
+      include.credits = { include: { user: true } };
 
     const incPB = query.expand?.includes('personalBest');
     const incWR = query.expand?.includes('worldRecord');
