@@ -62,14 +62,16 @@ describe('Maps', () => {
     describe('GET', () => {
       let u1, u1Token, u2, m1, m2, m3, m4;
 
-      beforeAll(
-        async () =>
-          ([[u1, u1Token], [u2], [m1, m2, m3, m4]] = await Promise.all([
-            db.createAndLoginUser(),
-            db.createAndLoginUser(),
-            db.createMaps(4)
-          ]))
-      );
+      beforeAll(async () => {
+        [[u1, u1Token], [u2]] = await Promise.all([
+          db.createAndLoginUser(),
+          db.createAndLoginUser()
+        ]);
+
+        [m1, m2, m3, m4] = await db.createMaps(4, {
+          credits: { create: { type: 0, userID: u1.id } }
+        });
+      });
 
       afterAll(() => db.cleanup('user', 'map', 'run'));
 
@@ -163,6 +165,7 @@ describe('Maps', () => {
         await req.expandTest({
           url: 'maps',
           expand: 'credits',
+          expectedPropertyName: 'credits[0].user', // This should always include user as well
           paged: true,
           validate: MapDto,
           token: u1Token
@@ -185,6 +188,42 @@ describe('Maps', () => {
         req.expandTest({
           url: 'maps',
           expand: 'thumbnail',
+          paged: true,
+          validate: MapDto,
+          token: u1Token
+        }));
+
+      it('should respond with expanded map data using the images expand parameter', () =>
+        req.expandTest({
+          url: 'maps',
+          expand: 'images',
+          paged: true,
+          validate: MapDto,
+          token: u1Token
+        }));
+
+      it('should respond with expanded map data using the stats expand parameter', () =>
+        req.expandTest({
+          url: 'maps',
+          expand: 'stats',
+          paged: true,
+          validate: MapDto,
+          token: u1Token
+        }));
+
+      it('should respond with expanded map data using the tracks expand parameter', () =>
+        req.expandTest({
+          url: 'maps',
+          expand: 'tracks',
+          paged: true,
+          validate: MapDto,
+          token: u1Token
+        }));
+
+      it('should respond with expanded map data using the tracks info parameter', () =>
+        req.expandTest({
+          url: 'maps',
+          expand: 'info',
           paged: true,
           validate: MapDto,
           token: u1Token
