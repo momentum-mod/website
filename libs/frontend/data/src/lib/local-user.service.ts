@@ -170,9 +170,7 @@ export class LocalUserService {
   }
 
   public followUser(user: User): Observable<Follow> {
-    return this.http.post<Follow>('user/follow', {
-      body: { userID: user.id }
-    });
+    return this.http.post<Follow>(`user/follow/${user.id}`);
   }
 
   public updateFollowStatus(user: User, notifyOn: number): Observable<void> {
