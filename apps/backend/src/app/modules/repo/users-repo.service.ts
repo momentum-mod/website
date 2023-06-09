@@ -255,8 +255,8 @@ export class UsersRepoService {
     });
   }
 
-  async createFollow(followeeID: number, followedID: number) {
-    await this.prisma.follow.create({
+  async createFollow(followeeID: number, followedID: number): Promise<Follow> {
+    return this.prisma.follow.create({
       data: {
         followedID: followedID,
         followeeID: followeeID
