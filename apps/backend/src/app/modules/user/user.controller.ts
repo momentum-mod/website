@@ -21,7 +21,8 @@ import {
   UserMapSubmittedGetQueryDto,
   UsersGetActivitiesQueryDto,
   UsersGetQueryDto,
-  UserMapFavoritesGetQueryDto
+  UserMapFavoritesGetQueryDto,
+  FollowDto
 } from '@momentum/backend/dto';
 import { ParseIntSafePipe } from '@momentum/backend/pipes';
 import {
@@ -154,7 +155,6 @@ export class UserController {
   }
 
   @Post('/follow/:userID')
-  @HttpCode(HttpStatus.NO_CONTENT)
   @ApiOperation({ summary: 'Follows the target user' })
   @ApiParam({
     name: 'userID',
@@ -162,12 +162,15 @@ export class UserController {
     description: 'ID of the user to follow',
     required: true
   })
-  @ApiNoContentResponse({ description: 'The user was successfully followed' })
+  @ApiOkResponse({
+    type: FollowDto,
+    description: 'The follow DTO of the local user following the target user'
+  })
   @ApiNotFoundResponse({ description: 'Target user does not exist' })
   followUser(
     @LoggedInUser('id') localUserID: number,
     @Param('userID', ParseIntSafePipe) targetUserID: number
-  ) {
+  ): Promise<FollowDto> {
     return this.usersService.followUser(localUserID, targetUserID);
   }
 

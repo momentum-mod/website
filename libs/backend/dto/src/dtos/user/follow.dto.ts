@@ -1,10 +1,10 @@
 import { Follow, FollowStatus, UpdateFollowStatus } from '@momentum/types';
 import { UserDto } from './user.dto';
 import { PickType } from '@nestjs/swagger';
-import { Exclude } from 'class-transformer';
 import {
   CreatedAtProperty,
   EnumProperty,
+  IdProperty,
   NestedProperty,
   UpdatedAtProperty
 } from '../../decorators';
@@ -17,10 +17,10 @@ export class FollowDto implements Follow {
   })
   readonly notifyOn: ActivityType;
 
-  @Exclude()
+  @IdProperty({ description: 'ID of the user being followed' })
   readonly followedID: number;
 
-  @Exclude()
+  @IdProperty({ description: 'ID of the user doing the following' })
   readonly followeeID: number;
 
   @NestedProperty(UserDto, { description: 'The user that is being followed' })

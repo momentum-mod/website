@@ -364,7 +364,10 @@ export class UsersService {
     });
   }
 
-  async followUser(localUserID: number, targetUserID: number) {
+  async followUser(
+    localUserID: number,
+    targetUserID: number
+  ): Promise<FollowDto> {
     const targetUser = await this.userRepo.get(targetUserID);
     if (!targetUser) throw new NotFoundException('Target user not found');
 
@@ -377,7 +380,12 @@ export class UsersService {
         'User is already following the target user'
       );
 
-    await this.userRepo.createFollow(localUserID, targetUserID);
+    const dbResponse = await this.userRepo.createFollow(
+      localUserID,
+      targetUserID
+    );
+
+    return DtoFactory(FollowDto, dbResponse);
   }
 
   async updateFollow(

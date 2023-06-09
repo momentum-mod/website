@@ -2,6 +2,7 @@
 
 import {
   ActivityDto,
+  FollowDto,
   FollowStatusDto,
   MapDto,
   MapFavoriteDto,
@@ -371,10 +372,16 @@ describe('User', () => {
       afterAll(() => db.cleanup('user'));
 
       it("should 204 and add user to authenticated user's follow list", async () => {
-        await req.post({
+        const res = await req.post({
           url: `user/follow/${u2.id}`,
-          status: 204,
+          status: 201,
+          validate: FollowDto,
           token: u1Token
+        });
+        expect(res.body).toMatchObject({
+          followedID: u2.id,
+          followeeID: u1.id,
+          notifyOn: 0
         });
 
         const follow = await prisma.follow.findFirst({
