@@ -46,8 +46,8 @@ overlap.
 
 To get started check out the
 [setup guide](https://github.com/momentum-mod/website/wiki/Setup), as well as
-the rest of the wiki. READMEs on Git are annoying so we don't use them much, 
-the majority of guides and things live on the wiki!
+the rest of the wiki. READMEs on Git are annoying so we don't use them much, the
+majority of guides and things live on the wiki!
 
 Please see our
 [contribution guidelines](https://github.com/momentum-mod/website/wiki/Contribution-Guidelines)
