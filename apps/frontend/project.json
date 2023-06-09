@@ -23,11 +23,7 @@
           "node_modules/flag-icons/css/flag-icons.min.css",
           "libs/frontend/theme/src/styles/styles.scss"
         ],
-        "scripts": [
-          "node_modules/echarts/dist/echarts.min.js",
-          "node_modules/echarts/dist/extension/bmap.min.js",
-          "node_modules/marked/marked.min.js"
-        ],
+        "scripts": [],
         "allowedCommonJsDependencies": ["eva-icons"],
         "aot": true,
         "stylePreprocessorOptions": {
