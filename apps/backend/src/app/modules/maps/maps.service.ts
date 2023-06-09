@@ -145,7 +145,6 @@ export class MapsService {
         expand?.filter((x) =>
           [
             'info',
-            'credits',
             'submitter',
             'images',
             'thumbnail',
@@ -154,6 +153,9 @@ export class MapsService {
           ].includes(x)
         )
       ) ?? {};
+
+    if (expand?.includes('credits'))
+      include.credits = { include: { user: true } };
 
     const incPB = expand?.includes('personalBest');
     const incWR = expand?.includes('worldRecord');
