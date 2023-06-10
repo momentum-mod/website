@@ -52,7 +52,7 @@
       "executor": "nx:run-commands",
       "dependsOn": ["seed-build"],
       "options": {
-        "command": "node dist/libs/db/seed.js"
+        "command": "node dist/libs/db/seed.js --reset --s3files"
       }
     },
     "studio": {
