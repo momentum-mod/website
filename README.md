@@ -55,5 +55,5 @@ before making a pull request.
 
 # Bug Reports
 
-If you've found a problem with the website, please [open an issue]
-(https://github.com/momentum-mod/website/issues/new/choose!)
+If you've found a problem with the website, please
+[open an issue](https://github.com/momentum-mod/website/issues/new/choose!)
