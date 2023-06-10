@@ -9,7 +9,12 @@
         class="col-12 col-sm-4 col-lg-5 mb-3 mb-sm-0 text-center text-sm-left map-image-container"
       >
         <a [routerLink]="'/dashboard/maps/' + map?.id">
-          <img [ngSrc]="map.thumbnail?.small" fill />
+          <img
+            [ngSrc]="map.thumbnail?.small"
+            priority
+            width="186"
+            height="105"
+          />
         </a>
       </div>
       <div class="col-6 col-sm-4 col-lg-3 text-right text-sm-left">
