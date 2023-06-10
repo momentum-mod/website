@@ -16,6 +16,7 @@ import {
   UserMapSubmittedGetQuery,
   UsersGetActivitiesQuery,
   UsersGetAllQuery,
+  UsersGetCreditsQuery,
   UsersGetQuery
 } from '@momentum/types';
 import { QueryDto } from './query.dto';
@@ -99,6 +100,14 @@ export class UsersGetActivitiesQueryDto
     description: 'The ID into the table of the corresponding activity'
   })
   readonly data: number;
+}
+
+export class UsersGetCreditsQueryDto
+  extends PagedQueryDto
+  implements UsersGetCreditsQuery
+{
+  @ExpandQueryProperty(['map', 'info', 'thumbnail'])
+  expand: string[];
 }
 
 class UserMapsBaseGetQuery extends PagedQueryDto {

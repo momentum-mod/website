@@ -549,6 +549,35 @@ describe('Users', () => {
           token: token
         }));
 
+      it('should respond with list of credits with map expand', () =>
+        req.expandTest({
+          url: `users/${user.id}/credits`,
+          expand: 'map',
+          validate: MapCreditDto,
+          paged: true,
+          token: token
+        }));
+
+      it('should respond with list of credits with info expand', () =>
+        req.expandTest({
+          url: `users/${user.id}/credits`,
+          expand: 'info',
+          expectedPropertyName: 'map.info',
+          validate: MapCreditDto,
+          paged: true,
+          token: token
+        }));
+
+      it('should respond with list of credits with thumbnail expand', () =>
+        req.expandTest({
+          url: `users/${user.id}/credits`,
+          expand: 'thumbnail',
+          expectedPropertyName: 'map.thumbnail',
+          validate: MapCreditDto,
+          paged: true,
+          token: token
+        }));
+
       it('should 401 when no access token is provided', () =>
         req.unauthorizedTest('users/1/credits', 'get'));
     });

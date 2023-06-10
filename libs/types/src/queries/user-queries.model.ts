@@ -16,9 +16,9 @@ export type UsersGetAllQuery = PagedQuery & {
 
 export type UsersGetActivitiesQuery = Omit<ActivitiesGetQuery, 'userID'>;
 
-type UserMapsBaseGetQuery = PagedQuery & {
-  search?: string;
-};
+export type UsersGetCreditsQuery = PagedQuery & { expand?: string[] };
+
+type UserMapsBaseGetQuery = PagedQuery & { search?: string };
 
 export type UserMapLibraryGetQuery = UserMapsBaseGetQuery & {
   expand?: string[];
