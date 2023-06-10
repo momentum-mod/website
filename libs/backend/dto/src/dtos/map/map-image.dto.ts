@@ -23,7 +23,7 @@ export class MapImageDto implements MapImage {
   @Expose()
   @IsUrl({ require_tld: false })
   get small(): string {
-    return `${Config.storage.endpointUrl}/${Config.storage.bucketName}/${this.id}-small.jpg`;
+    return `${Config.storage.endpointUrl}/${Config.storage.bucketName}/img/${this.id}-small.jpg`;
   }
 
   @ApiProperty({
@@ -33,7 +33,7 @@ export class MapImageDto implements MapImage {
   @Expose()
   @IsUrl({ require_tld: false })
   get medium(): string {
-    return `${Config.storage.endpointUrl}/${Config.storage.bucketName}/${this.id}-medium.jpg`;
+    return `${Config.storage.endpointUrl}/${Config.storage.bucketName}/img/${this.id}-medium.jpg`;
   }
 
   @ApiProperty({
@@ -43,7 +43,7 @@ export class MapImageDto implements MapImage {
   @Expose()
   @IsUrl({ require_tld: false })
   get large(): string {
-    return `${Config.storage.endpointUrl}/${Config.storage.bucketName}/${this.id}-large.jpg`;
+    return `${Config.storage.endpointUrl}/${Config.storage.bucketName}/img/${this.id}-large.jpg`;
   }
 
   @CreatedAtProperty()
