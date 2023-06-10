@@ -15,7 +15,11 @@ import {
   ReportType,
   Role
 } from '@momentum/constants';
+import { PutObjectCommand, S3Client } from '@aws-sdk/client-s3';
 import { Bitflags } from '@momentum/bitflags';
+import axios from 'axios';
+import sharp from 'sharp';
+import { nuke } from './nuke';
 
 const prisma = new PrismaClient();
 
@@ -33,18 +37,69 @@ const USERS_TO_CREATE = 50,
   MAX_MAP_IMAGES_PER_MAP = 5,
   MIN_CREDITS_PER_MAP = 1,
   MAX_CREDITS_PER_MAP = 10,
-  MAP_IMAGES_TO_DOWNLOAD = 10;
+  MAP_IMAGES_TO_DOWNLOAD = 20;
 
 // Arrays below are used to prevent many queries to get currently existing user IDs and map IDs
 let existingUserIDs: number[] = [],
   existingMapIDs: number[] = [];
 
-async function main() {
-  console.log('Creating users');
-  await createUsers();
+const args = process.argv.slice(1);
+if (args.includes('-h') || args.includes('--help')) {
+  console.log('usage: seed.js [-h] [--s3files] [--reset]');
+}
 
-  console.log('Making random users mappers');
-  await makeRandomUsersMappers();
+const doFileUploads = args.includes('--s3files');
+let imageBuffers: { small: Buffer; medium: Buffer; large: Buffer }[];
+const s3 = doFileUploads
+  ? new S3Client({
+      region: process.env['STORAGE_REGION'],
+      endpoint: process.env['STORAGE_ENDPOINT_URL'],
+      credentials: {
+        accessKeyId: process.env['STORAGE_ACCESS_KEY_ID'],
+        secretAccessKey: process.env['STORAGE_SECRET_ACCESS_KEY']
+      },
+      forcePathStyle: true
+    })
+  : undefined;
+
+async function main() {
+  if (args.includes('--reset')) {
+    console.log('Resetting DB');
+    await nuke(prisma);
+  }
+
+  await Promise.all([
+    (async () => {
+      console.log('Creating users');
+      await createUsers();
+
+      console.log('Making random users mappers');
+      await makeRandomUsersMappers();
+    })(),
+    (async () => {
+      if (!doFileUploads) return;
+      imageBuffers = await Promise.all(
+        Array.from({ length: MAP_IMAGES_TO_DOWNLOAD }, () =>
+          axios
+            .get('https://picsum.photos/1920/1080', {
+              responseType: 'arraybuffer'
+            })
+            .then(async (res) => ({
+              small: await sharp(res.data)
+                .resize(480, 360, { fit: 'inside' })
+                .jpeg({ mozjpeg: true })
+                .toBuffer(),
+              medium: await sharp(res.data)
+                .resize(1280, 720, { fit: 'inside' })
+                .jpeg({ mozjpeg: true })
+                .toBuffer(),
+              large: res.data
+            }))
+        )
+      );
+      console.log('Fetched map images');
+    })()
+  ]);
 
   console.log('Uploading maps for mappers');
   await uploadMaps();
@@ -134,12 +189,29 @@ async function createRandomMapInfo(mapID) {
 }
 
 async function createRandomMapImage(mapID) {
-  return prisma.mapImage.create({
+  const image = await prisma.mapImage.create({
     data: {
       mapID: mapID,
       ...Random.createdUpdatedDates()
     }
   });
+
+  const buffer = Random.element(imageBuffers);
+  if (doFileUploads) {
+    await Promise.all(
+      ['small', 'medium', 'large'].map((size) =>
+        s3.send(
+          new PutObjectCommand({
+            Bucket: process.env['STORAGE_BUCKET_NAME'],
+            Key: `img/${image.id}-${size}.jpg`,
+            Body: buffer[size]
+          })
+        )
+      )
+    );
+  }
+
+  return image;
 }
 
 const createRandomMapCredit = async (mapID, userID) =>
