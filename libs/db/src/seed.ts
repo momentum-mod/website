@@ -1,7 +1,3 @@
-#!/usr/bin/env node
-
-import { Bitflags } from '@momentum/bitflags';
-
 /**
  * Ugly script for seeding the DB with faker.js data, useful for frontend developers.
  */
@@ -19,23 +15,25 @@ import {
   ReportType,
   Role
 } from '@momentum/constants';
+import { Bitflags } from '@momentum/bitflags';
 
 const prisma = new PrismaClient();
 
 // Seed Configuration
-const NUM_OF_USERS_TO_CREATE = 50,
-  NUM_OF_USERS_TO_MAKE_MAPPERS = 5,
-  NUM_OF_MAPPERS_TO_UPLOAD_MAPS = 10,
-  MIN_NUM_OF_MAPS_TO_UPLOAD_EACH = 1,
-  MAX_NUM_OF_MAPS_TO_UPLOAD_EACH = 4,
-  MIN_NUM_OF_TRACKS_PER_MAP = 1,
-  MAX_NUM_OF_TRACKS_PER_MAP = 20,
-  MIN_NUM_OF_ZONES_PER_TRACK = 1,
-  MAX_NUM_OF_ZONES_PER_TRACK = 10,
-  MIN_NUM_OF_MAP_IMAGES_PER_MAP = 2,
-  MAX_NUM_OF_MAP_IMAGES_PER_MAP = 5,
-  MIN_NUM_OF_CREDITS_PER_MAP = 1,
-  MAX_NUM_OF_CREDITS_PER_MAP = 10;
+const USERS_TO_CREATE = 50,
+  USERS_TO_MAKE_MAPPERS = 5,
+  MAPPERS_TO_UPLOAD_MAPS = 10,
+  MIN_MAPS_TO_UPLOAD_EACH = 1,
+  MAX_MAPS_TO_UPLOAD_EACH = 4,
+  MIN_TRACKS_PER_MAP = 1,
+  MAX_TRACKS_PER_MAP = 20,
+  MIN_ZONES_PER_TRACK = 1,
+  MAX_ZONES_PER_TRACK = 10,
+  MIN_MAP_IMAGES_PER_MAP = 2,
+  MAX_MAP_IMAGES_PER_MAP = 5,
+  MIN_CREDITS_PER_MAP = 1,
+  MAX_CREDITS_PER_MAP = 10,
+  MAP_IMAGES_TO_DOWNLOAD = 10;
 
 // Arrays below are used to prevent many queries to get currently existing user IDs and map IDs
 let existingUserIDs: number[] = [],
@@ -336,7 +334,7 @@ async function createRandomReport(reportType, data, submitterID, resolverID) {
 
 async function createUsers() {
   existingUserIDs = await Promise.all(
-    Array.from({ length: NUM_OF_USERS_TO_CREATE }, async () => {
+    Array.from({ length: USERS_TO_CREATE }, async () => {
       const newUser = await createRandomUser();
       await createRandomUserProfile(newUser.id);
       await createRandomUserStats(newUser.id);
@@ -351,7 +349,7 @@ async function makeRandomUsersMappers() {
       id: true,
       roles: true
     },
-    take: NUM_OF_USERS_TO_MAKE_MAPPERS
+    take: USERS_TO_MAKE_MAPPERS
   });
 
   return Promise.all(
@@ -368,17 +366,14 @@ async function uploadMaps() {
   const mappers = await prisma.user.findMany({
     select: { id: true },
     where: { roles: Role.MAPPER },
-    take: NUM_OF_MAPPERS_TO_UPLOAD_MAPS
+    take: MAPPERS_TO_UPLOAD_MAPS
   });
 
   existingMapIDs = await Promise.all(
     mappers.flatMap((mapper) =>
       Array.from(
         {
-          length: Random.int(
-            MIN_NUM_OF_MAPS_TO_UPLOAD_EACH,
-            MAX_NUM_OF_MAPS_TO_UPLOAD_EACH
-          )
+          length: Random.int(MIN_MAPS_TO_UPLOAD_EACH, MAX_MAPS_TO_UPLOAD_EACH)
         },
         async () => {
           const map = await createRandomMap(mapper.id);
@@ -387,10 +382,7 @@ async function uploadMaps() {
           await Promise.all(
             Array.from(
               {
-                length: Random.int(
-                  MIN_NUM_OF_TRACKS_PER_MAP,
-                  MAX_NUM_OF_TRACKS_PER_MAP
-                )
+                length: Random.int(MIN_TRACKS_PER_MAP, MAX_TRACKS_PER_MAP)
               },
               async () => {
                 const track = await createRandomMapTrack(map.id);
@@ -402,8 +394,8 @@ async function uploadMaps() {
                   Array.from(
                     {
                       length: Random.int(
-                        MIN_NUM_OF_ZONES_PER_TRACK,
-                        MAX_NUM_OF_ZONES_PER_TRACK
+                        MIN_ZONES_PER_TRACK,
+                        MAX_ZONES_PER_TRACK
                       )
                     },
                     async () => {
@@ -421,8 +413,8 @@ async function uploadMaps() {
             Array.from(
               {
                 length: Random.int(
-                  MIN_NUM_OF_MAP_IMAGES_PER_MAP,
-                  MAX_NUM_OF_MAP_IMAGES_PER_MAP
+                  MIN_MAP_IMAGES_PER_MAP,
+                  MAX_MAP_IMAGES_PER_MAP
                 )
               },
               () => createRandomMapImage(map.id)
@@ -437,10 +429,7 @@ async function uploadMaps() {
           await Promise.all(
             Array.from(
               {
-                length: Random.int(
-                  MIN_NUM_OF_CREDITS_PER_MAP,
-                  MAX_NUM_OF_CREDITS_PER_MAP
-                )
+                length: Random.int(MIN_CREDITS_PER_MAP, MAX_CREDITS_PER_MAP)
               },
               () =>
                 createRandomMapCredit(map.id, Random.element(existingUserIDs))
