@@ -678,10 +678,29 @@ export class UsersService {
 
   async getMapCredits(
     id: number,
+    expand?: string[],
     skip?: number,
     take?: number
   ): Promise<PagedResponseDto<MapCreditDto>> {
-    const dbResponse = await this.userRepo.getMapCredits(id, skip, take);
+    let include: Prisma.MapCreditInclude;
+    if (expand?.length > 0) {
+      include = {};
+      // Other expands are nested properties of the map, if anything but just 'map',
+      // it'll be a more complex include object, which trivially includes the map
+      if (expand[0] === 'map' && expand.length === 1) include.map = true;
+      else {
+        include.map = { include: {} };
+        if (expand.includes('info')) include.map.include.info = true;
+        if (expand.includes('thumbnail')) include.map.include.thumbnail = true;
+      }
+    }
+
+    const dbResponse = await this.userRepo.getMapCredits(
+      id,
+      include,
+      skip,
+      take
+    );
 
     return new PagedResponseDto(MapCreditDto, dbResponse);
   }

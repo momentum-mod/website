@@ -10,7 +10,8 @@ import {
   UserDto,
   UsersGetActivitiesQueryDto,
   UsersGetAllQueryDto,
-  UsersGetQueryDto
+  UsersGetQueryDto,
+  UsersGetCreditsQueryDto
 } from '@momentum/backend/dto';
 import { ParseIntSafePipe } from '@momentum/backend/pipes';
 import { Controller, Get, Param, Query } from '@nestjs/common';
@@ -173,9 +174,14 @@ export class UsersController {
   })
   getMapCredits(
     @Param('userID', ParseIntSafePipe) userID: number,
-    @Query() query: PagedQueryDto
+    @Query() query: UsersGetCreditsQueryDto
   ): Promise<PagedResponseDto<MapCreditDto>> {
-    return this.usersService.getMapCredits(userID, query.skip, query.take);
+    return this.usersService.getMapCredits(
+      userID,
+      query.expand,
+      query.skip,
+      query.take
+    );
   }
 
   //#endregion

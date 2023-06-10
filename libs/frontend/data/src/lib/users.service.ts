@@ -4,8 +4,8 @@ import {
   PagedResponse,
   UsersGetQuery,
   UsersGetAllQuery,
-  MapCreditsGetQuery,
-  Follow
+  Follow,
+  UsersGetCreditsQuery
 } from '@momentum/types';
 import { MapCredit, User } from '@momentum/types';
 import { HttpService } from './http.service';
@@ -32,7 +32,7 @@ export class UsersService {
 
   getMapCredits(
     userID: number,
-    query?: MapCreditsGetQuery
+    query?: UsersGetCreditsQuery
   ): Observable<PagedResponse<MapCredit>> {
     return this.http.get<PagedResponse<MapCredit>>(`users/${userID}/credits`, {
       query

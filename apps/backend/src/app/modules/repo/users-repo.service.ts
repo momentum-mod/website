@@ -499,6 +499,7 @@ export class UsersRepoService {
 
   async getMapCredits(
     userID: number,
+    include?: Prisma.MapCreditInclude,
     skip?: number,
     take?: number
   ): Promise<[MapCredit[], number]> {
@@ -510,21 +511,9 @@ export class UsersRepoService {
 
     const mapCredit = await this.prisma.mapCredit.findMany({
       where: where,
+      include: include,
       skip: skip,
-      take: take,
-      include: {
-        user: {
-          include: {
-            profile: true
-          }
-        },
-        map: {
-          include: {
-            submitter: true,
-            images: true
-          }
-        }
-      }
+      take: take
     });
 
     return [mapCredit, count];
