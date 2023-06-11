@@ -51,7 +51,6 @@ const NEBULAR_MODULES = [
   NbInputModule,
   NbAccordionModule,
   NbEvaIconsModule,
-  NbDatepickerModule,
   NbToastrModule,
   NbAlertModule
 ];
@@ -81,7 +80,8 @@ export class ThemeModule {
           closeOnBackdropClick: true,
           closeOnEsc: true,
           autoFocus: true
-        }).providers
+        }).providers,
+        ...NbDatepickerModule.forRoot().providers
       ]
     };
   }
