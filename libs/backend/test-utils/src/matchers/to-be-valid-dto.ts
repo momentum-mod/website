@@ -123,14 +123,15 @@ export function toBeValidPagedDto(
 }
 
 function validate(type, data): ValidationError[] {
-  // Use class-transformer to create an instance of the DTO type with the passed in data
+  // Use class-transformer to create an instance of the DTO type with the
+  // passed in data
   const instance = plainToInstance(type, { ...data });
 
-  // class-validator errors here for "undefined" properties for some bizarre reason.
-  // We're getting rid of class-validator eventually anyway.
-  // TODO: We should test better that `excludeExtraneousValues: true` is really
-  // being applied properly, otherwise we could potentially expose a value we
-  // don't want to.
+  // class-validator errors here for "undefined" properties for some bizarre
+  // reason. We're getting rid of class-validator eventually anyway. TODO: We
+  // should test better that `excludeExtraneousValues: true` is really being
+  // applied properly, otherwise we could potentially expose a value we don't
+  // want to.
   return validateSync(instance, { forbidUnknownValues: false });
 }
 

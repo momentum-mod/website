@@ -46,9 +46,10 @@ export async function setupE2ETestEnvironment(
 
   const logger = new Logger().localInstance;
   const logLevel: LogLevel[] = ['error'];
-  // Env var for heavier debugging. In WebStorm it's useful to have this in the env var settings for your
-  // default configuration but *not* your main test configuration so it doesn't spam when running everything,
-  // but is enabled for when you run specific tests.
+  // Env var for heavier debugging. In WebStorm it's useful to have this in the
+  // env var settings for your default configuration but *not* your main test
+  // configuration so it doesn't spam when running everything, but is enabled
+  // for when you run specific tests.
   if (process.env.TEST_LOG_DEBUG === 'true') logLevel.push('debug', 'warn');
   logger.setLogLevels(logLevel);
 
@@ -71,7 +72,8 @@ export async function setupE2ETestEnvironment(
     prefix: 'v'
   });
 
-  // Anything put in a query/body that doesn't correspond to a decorator-validated property on the DTO will error.
+  // Anything put in a query/body that doesn't correspond to a
+  // decorator-validated property on the DTO will error.
   app.useGlobalPipes(
     new ValidationPipe({ transform: true, forbidNonWhitelisted: true })
   );

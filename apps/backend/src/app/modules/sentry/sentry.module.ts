@@ -45,7 +45,8 @@ export class SentryModule {
               }
             }
 
-            // Tracks whether we initialised Sentry and provides it to the below provider and other modules
+            // Tracks whether we initialised Sentry and provides it to the
+            // below provider and other modules
             return enabled;
           }
         },

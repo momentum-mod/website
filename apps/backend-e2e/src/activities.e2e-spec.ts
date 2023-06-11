@@ -37,7 +37,8 @@ describe('Activities', () => {
           })
         ]);
 
-        // Define these BEFORE insert for later checks, Prisma doesn't give us back our fookin created items.
+        // Define these BEFORE insert for later checks, Prisma doesn't give us
+        // back our fookin created items.
         [_activity1, _activity2, activity3] = [
           { userID: u1.id, data: 122, type: ActivityType.MAP_APPROVED },
           { userID: u1.id, data: 123, type: ActivityType.WR_ACHIEVED },

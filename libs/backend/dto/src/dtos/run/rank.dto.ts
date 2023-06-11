@@ -23,8 +23,9 @@ export class RankDto implements Rank {
   @ApiProperty({ description: 'Unimplemented' })
   readonly flags: number;
 
-  // TODO_POST_REWRITE: We can remove this and zoneNum in the future since DB no longer stores dupes of this and zoneNum, but
-  // still expect a DTO with this structure seem to use it from here.
+  // TODO_POST_REWRITE: We can remove this and zoneNum in the future since DB
+  // no longer stores dupes of this and zoneNum, but still expect a DTO with
+  // this structure seem to use it from here.
   @ApiProperty({ description: 'The track the run is on' })
   @IsInt()
   @IsOptional()

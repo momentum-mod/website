@@ -51,8 +51,9 @@ export class MapsService {
     userID: number,
     query: MapsCtlGetAllQueryDto | AdminCtlMapsGetAllQueryDto
   ): Promise<PagedResponseDto<MapDto>> {
-    // Old API has some stuff for "status" and "statusNot" and "priority" but isn't in docs or validations or
-    // used anywhere in client/game, leaving for now.
+    // Old API has some stuff for "status" and "statusNot" and "priority" but
+    // isn't in docs or validations or used anywhere in client/game, leaving for
+    // now.
 
     // Where
     const where: Prisma.MapWhereInput = {};
@@ -72,7 +73,8 @@ export class MapsService {
       else if (query.difficultyHigh)
         where.mainTrack = { is: { difficulty: { lt: query.difficultyHigh } } };
 
-      // If we have difficulty filters we have to construct quite a complicated filter...
+      // If we have difficulty filters we have to construct quite a complicated
+      // filter...
       if (typeof query.isLinear === 'boolean')
         where.mainTrack = where.mainTrack
           ? { is: { ...where.mainTrack.is, isLinear: query.isLinear } }
@@ -322,13 +324,17 @@ export class MapsService {
               stats: { create: { baseStats: { create: {} } } }
             });
 
-            // We could do a `createMany` for the triggers in the above input but we then need to attach a
-            // `MapZoneTriggerProperties` to each using the DTO properties, and I'm not certain the data we
-            // get back from the `createMany` is in the order we inserted. For tracks we use the find w/
-            // `trackNum` above, but `MapZoneTriggerProperties` don't have any distinguishing features like that.
-            // So I'm doing the triggers with looped `create`s so I can include the `MapZoneTriggerProperties`.
-            // Hopefully `MapZoneTriggerProperties` will be removed in 0.10.0 anyway (they're stupid) in which
-            // case we should be able to use a `createMany` for the triggers.
+            // We could do a `createMany` for the triggers in the above input
+            // but we then need to attach a `MapZoneTriggerProperties` to each
+            // using the DTO properties, and I'm not certain the data we get
+            // back from the `createMany` is in the order we inserted. For
+            // tracks we use the find w/ `trackNum` above, but
+            // `MapZoneTriggerProperties` don't have any distinguishing features
+            // like that. So I'm doing the triggers with looped `create`s so I
+            // can include the `MapZoneTriggerProperties`. Hopefully
+            // `MapZoneTriggerProperties` will be removed in 0.10.0 anyway
+            // (they're stupid) in which case we should be able to use a
+            // `createMany` for the triggers.
             await Promise.all(
               zone.triggers.map(async (trigger) => {
                 await this.mapRepo.createMapZoneTrigger({
@@ -363,7 +369,8 @@ export class MapsService {
         })
     );
 
-    // Return the map ID to the controller so it can set it in the response header
+    // Return the map ID to the controller so it can set it in the response
+    // header
     return mapDB.id;
   }
 
@@ -387,7 +394,8 @@ export class MapsService {
       if (map.submitterID !== userID)
         throw new ForbiddenException('User is not the submitter of the map');
 
-      // We probably want complex logic for map submission, for now, keeping it very strict.
+      // We probably want complex logic for map submission, for now, keeping it
+      // very strict.
       if (map.status !== MapStatus.NEEDS_REVISION)
         throw new ForbiddenException('Map is not in NEEDS_REVISION state');
       if (update.status !== MapStatus.READY_FOR_RELEASE)
@@ -719,7 +727,8 @@ export class MapsService {
       return;
     } else if (oldCreditIsAuthor && newCreditIsAuthor && userChanged) {
       // If the credit is still an author but the user changed
-      // Delete activity for oldCredit.userID and create activity for newCredit.userID
+      // Delete activity for oldCredit.userID and create activity for
+      // newCredit.userID
       await deleteOldActivity();
       await createNewActivity();
       return;

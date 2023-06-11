@@ -2,8 +2,8 @@
 import { NestedProperty } from '../../decorators';
 import { IsArray, IsDefined, IsNumber } from 'class-validator';
 
-// Could implement RankXpParams and CosXpParams in xp-systems.interface.ts but class-validator requires
-// we give it this wacky structure.
+// Could implement RankXpParams and CosXpParams in xp-systems.interface.ts but
+// class-validator requires we give it this wacky structure.
 
 class CosXpTierScale {
   @ApiProperty()

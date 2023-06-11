@@ -13,8 +13,9 @@ export function DtoFactory<T>(
   type: Type<T>,
   input: Record<string, unknown>
 ): T | undefined {
-  // Ignore decorators here, we don't seem to need them. They get applied when the class instance is converted
-  // back to JSON by the ClassSerializerInterceptor.
+  // Ignore decorators here, we don't seem to need them. They get applied when
+  // the class instance is converted back to JSON by the
+  // ClassSerializerInterceptor.
   return plainToInstance(type, input, { ignoreDecorators: true });
 }
 

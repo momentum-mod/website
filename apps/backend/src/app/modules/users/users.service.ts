@@ -685,8 +685,9 @@ export class UsersService {
     let include: Prisma.MapCreditInclude;
     if (expand?.length > 0) {
       include = {};
-      // Other expands are nested properties of the map, if anything but just 'map',
-      // it'll be a more complex include object, which trivially includes the map
+      // Other expands are nested properties of the map, if anything but just
+      // 'map', it'll be a more complex include object, which trivially includes
+      // the map
       if (expand[0] === 'map' && expand.length === 1) include.map = true;
       else {
         include.map = { include: {} };

@@ -71,14 +71,16 @@ export class AdminService {
     );
 
     // Now follows, hardest part.
-    // First edge case: delete the follow entry if the realUser is following the placeholder (can't follow yourself)
+    // First edge case: delete the follow entry if the realUser is following
+    // the placeholder (can't follow yourself)
     await this.userRepo.deleteFollow(userID, placeholderID).catch(() => {});
 
     const placeHolderFollowers = placeholder.followers as Follow[];
 
     // Update all the follows targeting the placeholder user
     for (const follow of placeHolderFollowers) {
-      // We deleted the real user -> placeholder follow already but it can still be in this array
+      // We deleted the real user -> placeholder follow already but it can
+      // still be in this array
       if (follow.followeeID === userID) continue;
 
       // Second edge case: user(s) is (are) following both placeholder and real user

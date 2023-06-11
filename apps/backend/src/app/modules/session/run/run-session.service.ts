@@ -53,7 +53,8 @@ export class RunSessionService {
     userID: number,
     body: CreateRunSessionDto
   ): Promise<RunSessionDto> {
-    // We do this to block IL/Bonus stuff for now, but there's code all over the place for IL stuff.
+    // We do this to block IL/Bonus stuff for now, but there's code all over
+    // the place for IL stuff.
     if (body.trackNum !== 0 || body.zoneNum !== 0)
       throw new BadRequestException('IL/Bonus runs are not yet supported');
 
@@ -110,8 +111,8 @@ export class RunSessionService {
     if (session.zoneNum > 0)
       throw new BadRequestException('You cannot update an IL run');
 
-    // Currently we don't require all zones in a run be completed, so this is quite a weak check
-    // May change in 0.10.0?
+    // Currently we don't require all zones in a run be completed, so this is
+    // quite a weak check May change in 0.10.0?
     if (
       (session as any).timestamps.some(
         (ts: RunSessionTimestamp) => ts.zone === body.zoneNum
@@ -177,8 +178,9 @@ export class RunSessionService {
     session: RunSessionCompleted,
     user: User
   ): ProcessedRun {
-    // Make a new run processor instance. This is going to store the replay and run data structure,
-    // parse the replay file in the buffer, then perform a bunch of validations
+    // Make a new run processor instance. This is going to store the replay and
+    // run data structure, parse the replay file in the buffer, then perform a
+    // bunch of validations
     const processor = new RunProcessor(replay, session, user);
 
     let processedRun: ProcessedRun;
@@ -193,7 +195,8 @@ export class RunSessionService {
       processedRun = processor.processReplayFileContents();
     } catch (error) {
       if (error instanceof RunValidationError) {
-        // If we hit any errors during validation we combine into bitflags to send back to client
+        // If we hit any errors during validation we combine into bitflags to
+        // send back to client
         throw new BadRequestException({
           message: `Run validation failed: ${error.message}`,
           code: error.code
@@ -210,15 +213,16 @@ export class RunSessionService {
     mapType: number,
     replayBuffer: Buffer
   ): Promise<CompletedRunDto> {
-    // We have two quite expensive, independent operations here, including a file store. So we may as well run in
-    // parallel and await them both.
+    // We have two quite expensive, independent operations here, including a
+    // file store. So we may as well run in parallel and await them both.
     const [statsUpdate, savedRun] = await Promise.all([
       await this.updateStatsAndRanks(submittedRun, track, mapType),
       await this.createAndStoreRun(submittedRun, replayBuffer)
     ]);
 
-    // Now the run is back we can actually update the rank. We could use a Prisma upsert here but we already know
-    // if the existing rank exists or not.
+    // Now the run is back we can actually update the rank. We could use a
+    // Prisma upsert here but we already know if the existing rank exists or
+    // not.
     let mapRank;
     if (statsUpdate.isPersonalBest)
       mapRank = await (statsUpdate.existingRank
@@ -277,7 +281,8 @@ export class RunSessionService {
       flags: submittedRun.flags
     };
 
-    // This gets built up as we go, but can't be updated until we've created the actual Run entry we need it to key into
+    // This gets built up as we go, but can't be updated until we've created
+    // the actual Run entry we need it to key into
     let rankCreate: Prisma.RankCreateWithoutRunInput | undefined;
 
     const existingRank = await this.runRepo.getRank(
@@ -342,9 +347,11 @@ export class RunSessionService {
       if (existingRunZoneStats) hasCompletedZoneBefore = true;
     }
 
-    // Now, depending on if we're a singular zone or the whole track, we need to update our stats accordingly
+    // Now, depending on if we're a singular zone or the whole track, we need
+    // to update our stats accordingly
     if (isTrackRun) {
-      // It's the entire track. Update the track's stats, each of its zones, and the map's stats as well
+      // It's the entire track. Update the track's stats, each of its zones,
+      // and the map's stats as well
       const trackStatsUpdate: Prisma.MapTrackStatsUpdateInput = {
         completions: { increment: 1 },
         baseStats: {
@@ -375,7 +382,8 @@ export class RunSessionService {
               }
             };
 
-            // TODO_0.12: This logic is wrong, the user might have IL times, gonna have to do a find.
+            // TODO_0.12: This logic is wrong, the user might have IL times,
+            // gonna have to do a find.
             if (!hasCompletedZoneBefore)
               zoneStatsUpdate.uniqueCompletions = { increment: 1 };
 
@@ -402,7 +410,8 @@ export class RunSessionService {
         await this.mapRepo.updateMapStats(submittedRun.mapID, mapStatsUpdate);
       }
     } else {
-      // It's a particular zone, so update just it. The zone's stats should be in the processed run's overallStats
+      // It's a particular zone, so update just it. The zone's stats should be
+      // in the processed run's overallStats
       const zone: MapZoneStats = (track as any).zones.find(
         (zone) => zone.zoneNum === submittedRun.zoneNum
       );
@@ -427,9 +436,11 @@ export class RunSessionService {
 
     let rankXP = 0;
 
-    // If it's a PB we're be creating or updating a rank, then shifting all the other affected rank
+    // If it's a PB we're be creating or updating a rank, then shifting all the
+    // other affected rank
     if (isPersonalBest) {
-      // If we don't have a rank we increment +1 since we want the total *after* we've added the new run
+      // If we don't have a rank we increment +1 since we want the total
+      // *after* we've added the new run
       const totalRuns =
         (await this.runRepo.countRank(rankWhere)) + (existingRank ? 0 : 1);
       const fasterRuns = await this.runRepo.countRank({
@@ -450,7 +461,8 @@ export class RunSessionService {
         rankXP: rankXP
       };
 
-      // If we only improved our rank the range to update is [newRank, oldRank), otherwise it's everything below
+      // If we only improved our rank the range to update is [newRank,
+      // oldRank), otherwise it's everything below
       const rankRangeWhere: Prisma.IntNullableFilter = existingRank
         ? { gte: rank, lt: oldRank }
         : { gte: rank };
@@ -465,10 +477,10 @@ export class RunSessionService {
       );
       const ranks: any = rankDbResponse[0];
 
-      // This is SLOOOOOW. Here's two different methods for doing the updates, they take about
-      // 7s and 9s respectively for 10k ranks, far too slow for us. Probably going to use raw queries in the future,
-      // may have to come up with some clever DB optimisations.
-      // https://discord.com/channels/235111289435717633/487354170546978816/1000450260830793839
+      // This is SLOOOOOW. Here's two different methods for doing the updates,
+      // they take about 7s and 9s respectively for 10k ranks, far too slow for
+      // us. Probably going to use raw queries in the future, may have to come
+      // up with some clever DB optimisations. https://discord.com/channels/235111289435717633/487354170546978816/1000450260830793839
 
       // const t1 = Date.now();
 
@@ -533,8 +545,9 @@ export class RunSessionService {
     const currentLevel = userStats.level;
     const nextLevel = currentLevel + 1;
 
-    // We want a 64 rather than 32 bit int in the DB, but in reality a user should never exceed
-    // MAX_SAFE_INTEGER (2^53). Warn us just in case that's ever about to happen.
+    // We want a 64 rather than 32 bit int in the DB, but in reality a user
+    // should never exceed MAX_SAFE_INTEGER (2^53). Warn us just in case that's
+    // ever about to happen.
     const currentCosXp = Number(userStats.cosXP);
     if (currentCosXp >= Number.MAX_SAFE_INTEGER)
       this.logger.error(
@@ -615,8 +628,9 @@ export class RunSessionService {
       { zoneStats: true }
     );
 
-    // We have to loop through each zoneStats to set their baseStats due to Prisma's lack of nested createMany
-    // Might as well get our file uploading at the same time...
+    // We have to loop through each zoneStats to set their baseStats due to
+    // Prisma's lack of nested createMany Might as well get our file uploading
+    // at the same time...
     await Promise.all([
       (async () => {
         const uploadResult = await this.fileCloudService.storeFileCloud(

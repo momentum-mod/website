@@ -127,11 +127,12 @@ export class SteamService {
   }
 
   /**
-   * Try to decrypt a player's app ticket from ingame using the steam-appticket library.
-   * Returns SteamID if successful, throws otherwise.
+   * Try to decrypt a player's app ticket from ingame using the steam-appticket
+   * library. Returns SteamID if successful, throws otherwise.
    *
-   * Please note, the steam.ticketsSecretKey key is only available to app publishers on Steam, so Momentum's
-   * will never be available to developers. For development using live Steam services, use the online API.
+   * Please note, the steam.ticketsSecretKey key is only available to app
+   * publishers on Steam, so Momentum's will never be available to developers.
+   * For development using live Steam services, use the online API.
    */
   tryAuthenticateUserTicketLocal(ticket: Buffer): {
     steamID: bigint;
@@ -147,8 +148,9 @@ export class SteamService {
   }
 
   /**
-   * Checks whether a Steam account is in "limited" mode i.e. hasn't spent $5 or more on Steam. Unfortunately Steam
-   * Web API doesn't supply this anywhere, so we have to use this messier method of parsing the profile page as XML.
+   * Checks whether a Steam account is in "limited" mode i.e. hasn't spent $5
+   * or more on Steam. Unfortunately Steam Web API doesn't supply this anywhere,
+   * so we have to use this messier method of parsing the profile page as XML.
    */
   isAccountLimited(steamID: bigint): Promise<boolean> {
     return lastValueFrom(

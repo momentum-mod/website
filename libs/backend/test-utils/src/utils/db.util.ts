@@ -89,7 +89,10 @@ export class DbUtil {
 
   //#region Maps
 
-  /** Create a map with generally sensible defaults for things that don't require connecting a User or Run */
+  /**
+   * Create a map with generally sensible defaults for things that don't
+   * require connecting a User or Run
+   */
   async createMap(
     map: CreateMapMapArgs = {},
     track: CreateMapMapTrackArgs = {}
@@ -214,7 +217,8 @@ export class DbUtil {
   }
 
   /**
-   * Create a run with attached UMR for a specific map. If a Prisma `User` is passed in, use that. Otherwise, create one.
+   * Create a run with attached UMR for a specific map. If a Prisma `User` is
+   * passed in, use that. Otherwise, create one.
    */
   async createRunAndRankForMap(
     args: {
@@ -229,8 +233,9 @@ export class DbUtil {
       file?: string;
     } = {}
   ): Promise<Run & { rank: Rank; user: User; map: MapDB }> {
-    // Prisma unfortunately doesn't seem clever enough to let us do nested User -> Run -> UMR creation;
-    // UMR needs a User to connect. So when we want to create users for this, we to create one first.
+    // Prisma unfortunately doesn't seem clever enough to let us do nested User
+    // -> Run -> UMR creation; UMR needs a User to connect. So when we want to
+    // create users for this, we to create one first.
     const user = args.user ?? (await this.createUser());
 
     const map = args.map ?? (await this.createMap());
