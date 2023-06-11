@@ -57,7 +57,7 @@ export class AdminService {
   }
 
   createUser(alias: string): Observable<User> {
-    return this.http.post<User>('admin/users', { body: alias });
+    return this.http.post<User>('admin/users', { body: { alias } });
   }
 
   deleteUser(id: number): Observable<void> {
