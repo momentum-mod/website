@@ -3,12 +3,6 @@
 @import '@nebular/theme/styles/global/breakpoints';
 
 @include nb-install-component() {
-  @include media-breakpoint-down(xs) {
-    .main-content {
-      padding: 1rem 0.75rem 0 !important;
-    }
-  }
-
   .socials {
     position: absolute;
     bottom: 0.25em;
