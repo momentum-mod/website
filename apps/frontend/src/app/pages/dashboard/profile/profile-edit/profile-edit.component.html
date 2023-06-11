@@ -61,11 +61,7 @@
                 Username is required.
               </nb-alert>
             </div>
-            <div
-              class="form-group"
-              [ngClass]="{ 'has-error': !bio.valid }"
-              formGroupName="profile"
-            >
+            <div class="form-group" [ngClass]="{ 'has-error': !bio.valid }">
               <h5>Bio</h5>
               <textarea
                 nbInput

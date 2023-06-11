@@ -33,15 +33,13 @@ export class ProfileEditComponent implements OnInit, OnDestroy {
       '',
       [Validators.required, Validators.minLength(3), Validators.maxLength(32)]
     ],
-    profile: this.fb.group({
-      bio: ['', [Validators.maxLength(1000)]]
-    })
+    bio: ['', [Validators.maxLength(1000)]]
   });
   get alias() {
     return this.profileEditFormGroup.get('alias');
   }
   get bio() {
-    return this.profileEditFormGroup.get('profile').get('bio');
+    return this.profileEditFormGroup.get('bio');
   }
   adminEditFg: FormGroup = this.fb.group({
     banAlias: [false],
