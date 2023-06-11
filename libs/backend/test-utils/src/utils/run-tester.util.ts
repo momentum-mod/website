@@ -205,7 +205,8 @@ export class RunTester {
       RunTester.createFrame()
     );
 
-    // Pass context to callback and execute, allowing tests to manipulate all sorts of nonsense. Gotta love JS!
+    // Pass context to callback and execute, allowing tests to manipulate all
+    // sorts of nonsense. Gotta love JS!
     args?.beforeSave?.(this);
 
     this.writeReplayFile(args?.writeStats ?? true, args?.writeFrames ?? true);

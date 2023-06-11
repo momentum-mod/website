@@ -232,8 +232,9 @@ export class MapsController {
     )
     file
   ): Promise<MapDto> {
-    // We could do a great more validation here in the future using a custom pipe, probably when
-    // we work on map submission. Anyone fancy writing a BSP parser in JS?
+    // We could do a great more validation here in the future using a custom
+    // pipe, probably when we work on map submission. Anyone fancy writing a BSP
+    // parser in JS?
     if (!file || !file.buffer || !Buffer.isBuffer(file.buffer))
       throw new BadRequestException('Map is not valid');
 

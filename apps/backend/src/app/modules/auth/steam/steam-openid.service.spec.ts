@@ -109,7 +109,8 @@ describe('SteamOpenIDService', () => {
       expect(getSteamUserSummaryDataSpy).toHaveBeenCalledWith(123n);
     });
 
-    // Note this isn't testing the core part of the security; the real security comes from verifyAssertion, which we're mocking.
+    // Note this isn't testing the core part of the security; the real security
+    // comes from verifyAssertion, which we're mocking.
     it('should reject requests that cause openID verification to error', async () => {
       verifyAssertionSpy.mockImplementationOnce((request, callback) =>
         callback(new Error('this is not a real user'), {

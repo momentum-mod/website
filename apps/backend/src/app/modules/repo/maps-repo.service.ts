@@ -33,9 +33,11 @@ export class MapsRepoService {
 
     const mainTrack = map.tracks.find((track) => track.trackNum === 0);
 
-    // We also want to ensure that various stats entries are initialised when creating maps, but requires
-    // complex (and slow) looping, which the logic in the maps service already needs to do. So it's being done there
-    // for now, worth keeping in mind if anything else ever needs this method (nothing should really).
+    // We also want to ensure that various stats entries are initialised when
+    // creating maps, but requires complex (and slow) looping, which the logic
+    // in the maps service already needs to do. So it's being done there for
+    // now, worth keeping in mind if anything else ever needs this method
+    // (nothing should really).
 
     return this.prisma.map.update({
       where: { id: map.id },

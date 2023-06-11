@@ -23,11 +23,13 @@ import {
 import { IsBigintValidator } from '@momentum/backend/validators';
 
 /**
- * Well, kind of safe. This is an annoying transform we do to ensure that we can use 64-bit ints with Prisma but numbers
- * in JSON, rather than a string (currently we have handle BigInts as string, since class-transformer doesn't give us a
- * way to use something like safe-stable-stringify).
+ * Well, kind of safe. This is an annoying transform we do to ensure that we
+ * can use 64-bit ints with Prisma but numbers in JSON, rather than a string
+ * (currently we have handle BigInts as string, since class-transformer doesn't
+ * give us a way to use something like safe-stable-stringify).
  *
- * Used for the various table IDs that use int64s that can conceivable be > 2^32, but not 2^53.
+ * Used for the various table IDs that use int64s that can conceivable be >
+ * 2^32, but not 2^53.
  */
 export const SafeBigIntToNumber = () =>
   Transform(({ value }) => {
@@ -55,8 +57,9 @@ function conditionalDecorator(
   return condition ? decorator() : () => {};
 }
 
-// NOTE: It may be possible to use reflection to get the types of all the below funcs but I've messed with it for hours
-// and can't figure it out, leaving for now.
+// NOTE: It may be possible to use reflection to get the types of all the below
+// funcs but I've messed with it for hours and can't figure it out, leaving for
+// now.
 
 /**
  * Decorator combo for
@@ -67,7 +70,8 @@ function conditionalDecorator(
  *
  *  Optional by default!
  *
- *  If options.lazy, use a lazy function to avoid circular dependencies (for when DTOs reference each other)
+ *  If options.lazy, use a lazy function to avoid circular dependencies (for
+ *  when DTOs reference each other)
  */
 export function NestedProperty<T>(
   type: Type<T>,
@@ -91,7 +95,8 @@ export function NestedProperty<T>(
  *  - ApiProperty
  *  - IsPositive/IsPositiveNumberString
  *  - Optional-ness
- *  - BigInt handling: If the ID is a BigInt it will be transformed to a Number assuming it's of a valid size.
+ *  - BigInt handling: If the ID is a BigInt it will be transformed to a Number
+ *  assuming it's of a valid size.
  *
  * Required by default!
  */
@@ -121,7 +126,8 @@ export function IdProperty(
  *  Required by default!
  * @param {Type} type - Enum type
  * @param {ApiPropertyOptions} options - Options to pass to Swagger, minus `type` and `enum` (`type` arg handles this).
- *                                       Also uses `required` to determine use of `@IsOptional()`
+ *                                       Also uses `required` to determine use
+ *                                       of `@IsOptional()`
  */
 export function EnumProperty(
   type: { [key: number]: string },
@@ -208,7 +214,8 @@ export function TakeQueryProperty(def: number): PropertyDecorator {
 }
 
 /**
- * Transform comma-separared DB expansion strings into <string, bool> record for Prisma, and set Swagger properties
+ * Transform comma-separared DB expansion strings into <string, bool> record
+ * for Prisma, and set Swagger properties
  *
  * @param expansions - String array of all the allowed expansions
  */
@@ -233,7 +240,8 @@ export function ExpandQueryProperty(expansions: string[]): PropertyDecorator {
  *
  * Optional by default!
  *
- * If `foo` is defined and is the string "true" (i.e. `?foo=true`), transforms to `true`, else `false`.
+ * If `foo` is defined and is the string "true" (i.e. `?foo=true`), transforms
+ * to `true`, else `false`.
  * */
 export function BooleanQueryProperty(
   options?: Omit<ApiPropertyOptions, 'type'>
@@ -259,8 +267,9 @@ export function IntQueryProperty(options?: Omit<ApiPropertyOptions, 'type'>) {
   const required = options?.required ?? false;
   return applyDecorators(
     ApiProperty({ type: Number, required: required }),
-    // Even if this is a BigInt to Prisma, we treat it as a Number in service logic handling incoming data; all
-    // Prisma args for a stored BigInt take `bigint | number`.
+    // Even if this is a BigInt to Prisma, we treat it as a Number in service
+    // logic handling incoming data; all Prisma args for a stored BigInt take
+    // `bigint | number`.
     TypeDecorator(() => Number),
     conditionalDecorator(!required, IsOptional)
   );

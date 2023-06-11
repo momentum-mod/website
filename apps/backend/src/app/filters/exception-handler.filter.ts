@@ -51,7 +51,8 @@ export class ExceptionHandlerFilter implements ExceptionFilter {
         };
       }
 
-      // In production, send to Sentry so long as it's enabled (if the DSN is invalid/empty it'll be disabled).
+      // In production, send to Sentry so long as it's enabled (if the DSN is
+      // invalid/empty it'll be disabled).
       if (env === Environment.PRODUCTION) {
         if (this.sentryEnabled) {
           eventID = this.sentryService.sendError(exception);
@@ -61,7 +62,8 @@ export class ExceptionHandlerFilter implements ExceptionFilter {
           this.log(exception, path);
         }
       }
-      // We're in development, print actual errors (non-HttpException and 500s) as errors and the rest as debug
+      // We're in development, print actual errors (non-HttpException and 500s)
+      // as errors and the rest as debug
       else this.log(exception, path, status && status >= 500);
 
       // Add timestamp, path

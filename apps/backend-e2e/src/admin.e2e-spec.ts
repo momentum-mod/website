@@ -161,7 +161,8 @@ describe('Admin', () => {
         });
         expect(u1Follow.followeeID).toBeTruthy();
 
-        // U2 was following MU1 and MU2, the creation data should be earliest of the two and the notifyOn flags combined.
+        // U2 was following MU1 and MU2, the creation data should be earliest
+        // of the two and the notifyOn flags combined.
         const u2Follow = await prisma.follow.findFirst({
           where: { followeeID: u2.id, followedID: mu2.id }
         });

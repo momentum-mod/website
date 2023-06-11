@@ -118,8 +118,9 @@ export class AuthController {
     description: 'Refreshed web tokens'
   })
   refreshToken(@Body() body: RefreshTokenDto) {
-    // TODO: (REQ FRONTEND CHANGE) The old API just returned a new access token here, it now returns a refresh token
-    // as well. Just change stuff in refreshAccessToken in CLIENT (!) auth.service.ts.
+    // TODO: (REQ FRONTEND CHANGE) The old API just returned a new access token
+    // here, it now returns a refresh token as well. Just change stuff in
+    // refreshAccessToken in CLIENT (!) auth.service.ts.
     return this.authService.refreshRefreshToken(body.refreshToken);
   }
 

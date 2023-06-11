@@ -227,11 +227,13 @@ describe('User', () => {
     });
 
     // Come back to this after doing the Auth stuff for it, no point yet.
-    // Note that I don't think this functionality was every written on the old API.
+    // Note that I don't think this functionality was every written on the old
+    // API.
 
     /*
         describe('DELETE /api/user/profile/social/{type}', () => {
-            it('should return 200 and unlink the twitter account from the authd user', () => {
+     *             it('should return 200 and unlink the twitter account from
+     *             the authd user', () => {
                  const res = await request(global.server)
                 .delete('/api/user/profile/social/' + 'twitter')
                 .set('Authorization', 'Bearer ' + global.accessToken)
@@ -240,7 +242,8 @@ describe('User', () => {
                     .expect('Content-Type', /json/)
                 });
             });
-             it('should return 200 and unlink the discord account from the authd user', () => {
+     *              it('should return 200 and unlink the discord account from
+     *              the authd user', () => {
                  const res = await request(global.server)
                 .delete('/api/user/profile/social/' + 'discord')
                 .set('Authorization', 'Bearer ' + global.accessToken)
@@ -249,7 +252,8 @@ describe('User', () => {
                     .expect('Content-Type', /json/)
                 });
             });
-             it('should return 200 and unlink the twitch account from the authd user', () => {
+     *              it('should return 200 and unlink the twitch account from
+     *              the authd user', () => {
                  const res = await request(global.server)
                 .delete('/api/user/profile/social/' + 'twitch')
                 .set('Authorization', 'Bearer ' + global.accessToken)
@@ -1706,8 +1710,9 @@ describe('User', () => {
 });
 
 /*
-    Some lengthy tests we could port later, probably near the end of porting, once the activities/notifications system is implemented.
-    it('should respond with notification data', async () => {
+ *     Some lengthy tests we could port later, probably near the end of
+ *     porting, once the activities/notifications system is implemented.
+ *     it('should respond with notification data', async () => {
 
         // testUser follows testUser2
         const res1 = await serv
@@ -1760,8 +1765,8 @@ describe('User', () => {
         const res4 = await serv
             .post(new URL(res3.header.location).pathname)
             .set('Authorization', 'Bearer ' + global.accessToken2)
-            .attach('mapFile', fs.readFileSync('test/testMap.bsp'), 'testMap.bsp')
-            .status(200);
+ *             .attach('mapFile', fs.readFileSync('test/testMap.bsp'),
+ *             'testMap.bsp') .status(200);
 
         // testadmin approves the map
         const res5 = await serv
@@ -1808,8 +1813,8 @@ describe('User', () => {
                     let sesID = res2.body.id;
                      const res = await request(global.server)
                         .post(`/api/maps/${testMap.id}/session/${sesID}`)
-                        .set('Authorization', 'Bearer ' + adminGameAccessToken)
-                        .send({
+ *                         .set('Authorization', 'Bearer ' +
+ *                         adminGameAccessToken) .send({
                             zoneNum: 2,
                             tick: 510,
                         })
@@ -1817,9 +1822,9 @@ describe('User', () => {
                             // end the run session
                              const res = await request(global.server)
                                 .post(`/api/maps/${testMap.id}/session/1/end`)
-                                .set('Authorization', 'Bearer ' + adminGameAccessToken)
-                                .set('Content-Type', 'application/octet-stream')
-                                .send(
+ *                                 .set('Authorization', 'Bearer ' +
+ *                                 adminGameAccessToken) .set('Content-Type',
+ *                                 'application/octet-stream') .send(
                                     fs.readFileSync('test/testRun.momrec')
                                 )
                                 .then(res4 => {

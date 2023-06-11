@@ -31,8 +31,9 @@ export class SteamGameGuard implements CanActivate {
       );
     const steamID = BigInt(request.headers['id']);
 
-    // With playtest ongoing we want to check we have the right appID for the online Steam API request.
-    // The game includes this in user-agent (e.g. `Valve/Steam HTTP Client 1.0 (<appID>)`), dig it out with a regex.
+    // With playtest ongoing we want to check we have the right appID for the
+    // online Steam API request. The game includes this in user-agent (e.g.
+    // `Valve/Steam HTTP Client 1.0 (<appID>)`), dig it out with a regex.
     const appID = Number.parseInt(
       /(?!=\()\d+(?=\))/.exec(request.headers['user-agent'])?.[0]
     );
@@ -84,7 +85,8 @@ export class SteamGameGuard implements CanActivate {
     userTicketRaw: Buffer,
     steamIDToVerify: bigint
   ): void {
-    // Note: This hasn't been tested yet! Needs a secret that only Goc has access to.
+    // Note: This hasn't been tested yet! Needs a secret that only Goc has
+    // access to.
     const { steamID, appID } =
       this.steamService.tryAuthenticateUserTicketLocal(userTicketRaw);
 

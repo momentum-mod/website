@@ -38,7 +38,8 @@ describe('Session', () => {
     req = env.req;
     db = env.db;
 
-    // We can use this same map for all the run session testing. Suites just create their own users and runs.
+    // We can use this same map for all the run session testing. Suites just
+    // create their own users and runs.
     map = await db.createMap(
       { name: 'bhop_eazy', type: MapType.BHOP },
       {
@@ -319,20 +320,23 @@ describe('Session', () => {
     });
   });
 
-  // Testing this is HARD. We need a replay that matches our timestamps okay so we're going to be heavily relying on
-  // this RunTester class to essentially generate a valid run the API will accept. NOTE: Before anyone gets any clever
-  // ideas, this is *not* our anti-cheat. Just because this API will accept some goofy stuff, does not mean the live
-  // game will, and trying to use this method on the live API may get you banned!
+  // Testing this is HARD. We need a replay that matches our timestamps okay so
+  // we're going to be heavily relying on this RunTester class to essentially
+  // generate a valid run the API will accept. NOTE: Before anyone gets any
+  // clever ideas, this is *not* our anti-cheat. Just because this API will
+  // accept some goofy stuff, does not mean the live game will, and trying to
+  // use this method on the live API may get you banned!
 
-  // I'm not writing IL tests yet as I'm not completely sure how they're supposed to work and not supported yet ingame.
-  // Around 0.12.0 we'll want to write tests for those.
+  // I'm not writing IL tests yet as I'm not completely sure how they're
+  // supposed to work and not supported yet ingame. Around 0.12.0 we'll want to
+  // write tests for those.
   describe('session/run/:sessionID/end', () => {
     describe('POST', () => {
       let user, token, defaultTesterProperties;
 
       beforeEach(async () => {
-        // Run submission affects so much with ranks and stuff that's it's easiest to just clear and reset
-        // all this after each test.
+        // Run submission affects so much with ranks and stuff that's it's
+        // easiest to just clear and reset all this after each test.
         [user, token] = await db.createAndLoginGameUser();
 
         await prisma.runSession.create({
@@ -410,8 +414,9 @@ describe('Session', () => {
         });
       });
 
-      // With the way we're constructed above DB inserts below the existing runs will be 0.01s, 1.01s, 2.01s ... 10.01s,
-      // this is ~500ms so will be rank 2.
+      // With the way we're constructed above DB inserts below the existing
+      // runs will be 0.01s, 1.01s, 2.01s ... 10.01s, this is ~500ms so will be
+      // rank 2.
       const submitRun = (delay?: number) =>
         RunTester.run(req, defaultTesterProperties(), 3, delay);
 
@@ -435,8 +440,8 @@ describe('Session', () => {
         return tester.endRun(endRunProps);
       };
 
-      // Splitting these out in multiple tests. It's slower, but there's so much stuff we want to test here that I
-      // want to keep it organised well.
+      // Splitting these out in multiple tests. It's slower, but there's so
+      // much stuff we want to test here that I want to keep it organised well.
       describe('should process a valid run and ', () => {
         it('should respond with a CompletedRunDto', async () => {
           const res = await submitRun();
@@ -526,13 +531,15 @@ describe('Session', () => {
             }
           });
 
-          // It should have *updated* our existing rank, so this should still be 10
+          // It should have *updated* our existing rank, so this should still
+          // be 10
           expect(ranksAfter.length).toBe(10);
 
-          // So, it should have shifted rank 2, 3 to rank 3, 4, our rank (4) now becoming 2.
-          // prettier-ignore
+          // So, it should have shifted rank 2, 3 to rank 3, 4, our rank (4)
+          // now becoming 2. prettier-ignore
           expect(ranksBefore.find((rank) => rank.rank === 2).userID).toBe(
-                            ranksAfter.find((rank) => rank.rank === 3).userID);
+            ranksAfter.find((rank) => rank.rank === 3).userID
+          );
 
           // prettier-ignore
           expect(ranksBefore.find((rank) => rank.rank === 3).userID).toBe(
@@ -612,9 +619,10 @@ describe('Session', () => {
           await submitRun(100);
           await submitRun(150);
 
-          // Our stats tracking on the old API is very weird, so I'm just checking completions for now.
-          // None of the runs we added to the DB at the start of this test actually added stats, so we can
-          // just check that completions are 1.
+          // Our stats tracking on the old API is very weird, so I'm just
+          // checking completions for now. None of the runs we added to the DB
+          // at the start of this test actually added stats, so we can just
+          // check that completions are 1.
           const mapStats = await prisma.mapStats.findUnique({
             where: { mapID: map.id }
           });

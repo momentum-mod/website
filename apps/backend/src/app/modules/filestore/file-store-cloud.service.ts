@@ -65,7 +65,8 @@ export class FileStoreCloudService {
         await commandResponse.Body.transformToByteArray()
       );
     } catch (error) {
-      // If file isn't found, just return undefined and let the service handle 404 behaviour.
+      // If file isn't found, just return undefined and let the service handle
+      // 404 behaviour.
       if (error?.Code === 'NoSuchKey') return;
       throw error;
     }

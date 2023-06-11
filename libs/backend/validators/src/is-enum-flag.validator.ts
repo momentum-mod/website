@@ -23,7 +23,8 @@ export function IsEnumFlag(
           ] as number;
           // A valid flag will be less than 2 ^ numflags - 1.
           // Typescript generates reverse mappings [https://www.typescriptlang.org/docs/handbook/enums.html#reverse-mappings]
-          // for numeric enums, so we divide the size of it by 2, this runs a lot so best to do it fastest way.
+          // for numeric enums, so we divide the size of it by 2, this runs a
+          // lot so best to do it fastest way.
           return (
             Number.isInteger(relatedValue) &&
             relatedValue < 1 << (Object.keys(enumObject).length / 2)

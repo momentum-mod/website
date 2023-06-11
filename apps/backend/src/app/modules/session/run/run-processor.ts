@@ -16,7 +16,8 @@ import {
 import { ProcessedRun } from './run-session.interface';
 
 /**
- * Class for managing the parsing of a replay file and validating it against run data
+ * Class for managing the parsing of a replay file and validating it against
+ * run data
  */
 export class RunProcessor {
   replayFile: ReplayFileReader;
@@ -94,7 +95,8 @@ export class RunProcessor {
     const epsilon = 0.000001;
 
     // Old api performs this check (https://github.com/momentum-mod/website/blob/369072802447e91cfdd7637a5e66fd9faa109a0c/server/src/models/run.js#L128)
-    // but, if it fails, sends it back to the client for some reason. Do we want to start invalidating if this fails?
+    // but, if it fails, sends it back to the client for some reason. Do we
+    // want to start invalidating if this fails?
     /*
         // 5 seconds for the stop tick -> end record -> submit, then we add a second for every minute in the replay
         // so longer replays have more time to submit, up to a max of 10 seconds

@@ -19,9 +19,8 @@ import cors from '@fastify/cors';
 import { FastifyReply } from 'fastify';
 
 async function bootstrap() {
-  // Transforms `BigInt`s to strings in JSON.stringify, for cases that haven't been explicitly
-  // transformed to numbers using @NumberifyBigInt()
-  // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/BigInt#use_within_json
+  // Transforms `BigInt`s to strings in JSON.stringify, for cases that haven't
+  // been explicitly transformed to numbers using @NumberifyBigInt() https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/BigInt#use_within_json
   BigInt.prototype['toJSON'] = function () {
     return this.toString();
   };
@@ -40,9 +39,10 @@ async function bootstrap() {
   // Steam game auth sends a raw octet-stream, only use-case. Limit to 2kb
   app.useBodyParser('application/octet-stream', { bodyLimit: 2e3 });
 
-  // Forbidding unknown values here ensures any request containing unexpected data on the query/body (i.e. does not
-  // have validators) will fail. Our tests even more strict: passing an unexpected value will throw an error.
-  // In effect, you MUST include validation decorators
+  // Forbidding unknown values here ensures any request containing unexpected
+  // data on the query/body (i.e. does not have validators) will fail. Our tests
+  // even more strict: passing an unexpected value will throw an error. In
+  // effect, you MUST include validation decorators
   app.useGlobalPipes(
     new ValidationPipe({ transform: true, forbidUnknownValues: true })
   );
@@ -51,8 +51,9 @@ async function bootstrap() {
   // Prefix everything by auth with /api
   app.setGlobalPrefix('api', { exclude: ['auth(.*)'] });
 
-  // All routes (besides auth, which uses VERSION_NEUTRAL) are version 1 by default,
-  // versions can be incremented on a per-route basis upon future versions
+  // All routes (besides auth, which uses VERSION_NEUTRAL) are version 1 by
+  // default, versions can be incremented on a per-route basis upon future
+  // versions
   app.enableVersioning({
     type: VersioningType.URI,
     defaultVersion: '1',

@@ -809,7 +809,8 @@ describe('Auth', () => {
 			});
 		});
         describe('GET /auth/discord/return', () => {
-            it('should return 200 if discord account is successfully linked', () => {
+ *             it('should return 200 if discord account is successfully
+ *             linked', () => {
                 return chai.request(server)
                     .get('/auth/discord/return')
                     .then(res => {
@@ -829,7 +830,8 @@ describe('Auth', () => {
 			});
 		});
         describe('GET /auth/twitch/return', () => {
-            it('should return 200 if twitch account is successfully linked', () => {
+ *             it('should return 200 if twitch account is successfully linked',
+ *             () => {
                 return chai.request(server)
                     .get('/auth/twitch/return')
                     .then(res => {

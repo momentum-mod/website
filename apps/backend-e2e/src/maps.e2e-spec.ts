@@ -2408,9 +2408,10 @@ describe('Maps', () => {
         for (const size of ['small', 'medium', 'large'])
           expect(await fs.exists(`img/${image.id}-${size}.jpg`)).toBe(false);
 
-        // We've just successfully deleted an image and want to have one for the remaining tests
-        // (though they don't actually need the files to exist in the bucket). So create a new image
-        // for the remaining ones. Much faster than `beforeEach`ing everything.
+        // We've just successfully deleted an image and want to have one for
+        // the remaining tests (though they don't actually need the files to
+        // exist in the bucket). So create a new image for the remaining ones.
+        // Much faster than `beforeEach`ing everything.
         image = await prisma.mapImage.create({ data: { mapID: map.id } });
       });
 
@@ -2486,8 +2487,8 @@ describe('Maps', () => {
           db.createUser(),
           db.createMap()
         ]);
-        // Flags are weird currently, seems like they're supposed to be bitflags but aren't treated as that,
-        // probably changing in 0.10.0.
+        // Flags are weird currently, seems like they're supposed to be
+        // bitflags but aren't treated as that, probably changing in 0.10.0.
         await Promise.all([
           db.createRunAndRankForMap({
             map: map,
@@ -2888,7 +2889,8 @@ describe('Maps', () => {
           token: token
         });
 
-        // Check that we actually get the run with the special flags back, not `user`'s run with flags: 0
+        // Check that we actually get the run with the special flags back, not
+        // `user`'s run with flags: 0
         expect(res.body).toMatchObject({
           rank: 1,
           flags: 1,
@@ -3012,7 +3014,8 @@ describe('Maps', () => {
           expect(rank.rank).toBe(rankIndex);
           rankIndex++;
         }
-        // Last tested was 12, then incremented once more, should be sitting on 13.
+        // Last tested was 12, then incremented once more, should be sitting on
+        // 13.
         expect(rankIndex).toBe(13);
       });
 
@@ -3037,8 +3040,8 @@ describe('Maps', () => {
 
   // describe('maps/{mapID}/ranks/friends', () => {
   //   describe('GET', () => {
-  //     const mockSteamIDs = [1n, 2n, 3n, 4n, 5n, 6n, 7n, 8n, 9n, 10n] as const;
-  //     let map, user, token, steamService: SteamService;
+  // const mockSteamIDs = [1n, 2n, 3n, 4n, 5n, 6n, 7n, 8n, 9n, 10n] as const;
+  // let map, user, token, steamService: SteamService;
   //
   //     beforeAll(async () => {
   //       steamService = app.get(SteamService);
@@ -3062,8 +3065,7 @@ describe('Maps', () => {
   //             ticks: (i + 2) * 100
   //           })
   //         ),
-  //         db.createRunAndRankForMap({ user: user, map: map, ticks: 1, rank: 1 })
-  //       ]);
+  // db.createRunAndRankForMap({ user: user, map: map, ticks: 1, rank: 1 }) ]);
   //     });
   //
   //     it("should return a list of the user's Steam friend's ranks", async () => {
@@ -3088,7 +3090,7 @@ describe('Maps', () => {
   //     });
   //
   //     it('should 418 if the user has no Steam friends', async () => {
-  //       jest.spyOn(steamService, 'getSteamFriends').mockResolvedValueOnce([]);
+  // jest.spyOn(steamService, 'getSteamFriends').mockResolvedValueOnce([]);
   //
   //       return req.get({
   //         url: `maps/${map.id}/ranks/friends`,

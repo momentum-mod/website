@@ -10,8 +10,9 @@ import { SteamService } from '../../steam/steam.service';
 import { SteamUserSummaryData } from '../../steam/steam.interface';
 
 /**
- * Handles OpenID calls to Steam. Unfortunately, Steam still uses OpenID 2.0 because Valve are fucking luddites,
- * so we have to use an old library for it, which uses a pretty archaic callback approach.
+ * Handles OpenID calls to Steam. Unfortunately, Steam still uses OpenID 2.0
+ * because Valve are fucking luddites, so we have to use an old library for it,
+ * which uses a pretty archaic callback approach.
  *
  * Heavily based on https://github.com/LeeviHalme/node-steam-openid and https://github.com/liamcurry/passport-steam
  */

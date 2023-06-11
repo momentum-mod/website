@@ -99,7 +99,8 @@ export class XpSystemsService implements OnModuleInit {
       try {
         await this.xpRepo.initXpParams(DEFAULT_RANK_XP, DEFAULT_COS_XP);
       } catch (error) {
-        // The only time this can ever really happen is during tests, that's no big deal, just warn
+        // The only time this can ever really happen is during tests, that's no
+        // big deal, just warn
         this.logger.warn(error.message);
       }
 

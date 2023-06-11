@@ -183,8 +183,9 @@ export class RanksService {
     return ranks.map((rank) => DtoFactory(RankDto, rank));
   }
 
-  // This is done because the MapRankDto still contains trackNum and zoneNum to conform to old API
-  // but Rank model doesn't. Probably worth changing frontend/game code in future.
+  // This is done because the MapRankDto still contains trackNum and zoneNum to
+  // conform to old API but Rank model doesn't. Probably worth changing
+  // frontend/game code in future.
   private formatRanksDbResponse(
     ranks: (Rank & { trackNum?: any; zoneNum?: any })[]
   ) {
