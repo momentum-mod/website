@@ -51,3 +51,10 @@ nb-sidebar:not(.expanded) .menu-icon {
 iframe {
   border: none;
 }
+
+// Removes extra layer of padding added by nested `<nb-layout>`s,
+// see page-outlet.ts
+.page-outlet,
+.page-outlet__column {
+  padding: 0 !important;
+}
