@@ -1381,13 +1381,16 @@ describe('Maps', () => {
     });
 
     describe('POST', () => {
-      let u1, u1Token, u2, u2Token, map, newMapCredit;
+      let u1, u1Token, u2, u2Token, adminToken, modToken, map, newMapCredit;
 
-      beforeAll(async () => {
-        [[u1, u1Token], [u2, u2Token]] = await Promise.all([
-          db.createAndLoginUser({ data: { roles: Role.MAPPER } }),
-          db.createAndLoginUser({ data: { roles: Role.MAPPER } })
-        ]);
+      beforeEach(async () => {
+        [[u1, u1Token], [u2, u2Token], adminToken, modToken] =
+          await Promise.all([
+            db.createAndLoginUser({ data: { roles: Role.MAPPER } }),
+            db.createAndLoginUser({ data: { roles: Role.MAPPER } }),
+            db.loginNewUser({ data: { roles: Role.ADMIN } }),
+            db.loginNewUser({ data: { roles: Role.MODERATOR } })
+          ]);
         map = await db.createMap({
           submitter: { connect: { id: u1.id } },
           status: MapStatus.NEEDS_REVISION
@@ -1395,7 +1398,7 @@ describe('Maps', () => {
         newMapCredit = { type: MapCreditType.SPECIAL_THANKS, userID: u2.id };
       });
 
-      afterAll(() => db.cleanup('user', 'map'));
+      afterEach(() => db.cleanup('user', 'map'));
 
       it('should create a map credit for the specified map', async () => {
         await req.post({
@@ -1410,14 +1413,22 @@ describe('Maps', () => {
         expect(credit).toMatchObject({ userID: u2.id, mapID: map.id });
       });
 
-      it('should 409 if the map credit already exists', () =>
-        // Just repeat the exact same request as above
-        req.post({
+      it('should 409 if the map credit already exists', async () => {
+        // Just do it twice
+        await req.post({
+          url: `maps/${map.id}/credits`,
+          status: 201,
+          body: newMapCredit,
+          token: u1Token
+        });
+
+        await req.post({
           url: `maps/${map.id}/credits`,
           status: 409,
           body: newMapCredit,
           token: u1Token
-        }));
+        });
+      });
 
       it('should create an activity if a new author is added', async () => {
         await req.post({
@@ -1432,6 +1443,64 @@ describe('Maps', () => {
           data: BigInt(map.id),
           userID: u2.id,
           type: ActivityType.MAP_UPLOADED
+        });
+      });
+
+      it('should allow an admin to create a credit', () =>
+        req.post({
+          url: `maps/${map.id}/credits`,
+          status: 201,
+          body: newMapCredit,
+          validate: MapCreditDto,
+          token: adminToken
+        }));
+
+      it('should allow an admin to update a create even if the map is not in the NEEDS_REVISION state', async () => {
+        await prisma.map.update({
+          where: { id: map.id },
+          data: { status: MapStatus.APPROVED }
+        });
+
+        await req.post({
+          url: `maps/${map.id}/credits`,
+          status: 201,
+          body: newMapCredit,
+          validate: MapCreditDto,
+          token: adminToken
+        });
+
+        await prisma.map.update({
+          where: { id: map.id },
+          data: { status: MapStatus.NEEDS_REVISION }
+        });
+      });
+
+      it('should allow a mod to create a credit', () =>
+        req.post({
+          url: `maps/${map.id}/credits`,
+          status: 201,
+          body: newMapCredit,
+          validate: MapCreditDto,
+          token: modToken
+        }));
+
+      it('should allow a mod to update the credit even if the map is not in the NEEDS_REVISION state', async () => {
+        await prisma.map.update({
+          where: { id: map.id },
+          data: { status: MapStatus.APPROVED }
+        });
+
+        await req.post({
+          url: `maps/${map.id}/credits`,
+          status: 201,
+          body: newMapCredit,
+          validate: MapCreditDto,
+          token: modToken
+        });
+
+        await prisma.map.update({
+          where: { id: map.id },
+          data: { status: MapStatus.NEEDS_REVISION }
         });
       });
 
@@ -1583,13 +1652,16 @@ describe('Maps', () => {
     });
 
     describe('PATCH', () => {
-      let u1, u1Token, u2, u2Token, map, credit;
+      let u1, u1Token, u2, u2Token, adminToken, modToken, map, credit, _;
 
       beforeAll(async () => {
-        [[u1, u1Token], [u2, u2Token]] = await Promise.all([
-          db.createAndLoginUser({ data: { roles: Role.MAPPER } }),
-          db.createAndLoginUser({ data: { roles: Role.MAPPER } })
-        ]);
+        [[u1, u1Token], [u2, u2Token], adminToken, modToken] =
+          await Promise.all([
+            db.createAndLoginUser({ data: { roles: Role.MAPPER } }),
+            db.createAndLoginUser({ data: { roles: Role.MAPPER } }),
+            db.loginNewUser({ data: { roles: Role.ADMIN } }),
+            db.loginNewUser({ data: { roles: Role.MODERATOR } })
+          ]);
 
         map = await db.createMap({
           status: MapStatus.NEEDS_REVISION,
@@ -1640,6 +1712,60 @@ describe('Maps', () => {
           body: { userID: u1.id },
           token: u1Token
         }));
+
+      it('should allow an admin to update the credit', () =>
+        req.patch({
+          url: `maps/credits/${credit.id}`,
+          status: 204,
+          body: { type: MapCreditType.COAUTHOR },
+          token: adminToken
+        }));
+
+      it('should allow an admin to update the credit even if the map is not in the NEEDS_REVISION state', async () => {
+        await prisma.map.update({
+          where: { id: map.id },
+          data: { status: MapStatus.APPROVED }
+        });
+
+        await req.patch({
+          url: `maps/credits/${credit.id}`,
+          status: 204,
+          body: { type: MapCreditType.COAUTHOR },
+          token: adminToken
+        });
+
+        await prisma.map.update({
+          where: { id: map.id },
+          data: { status: MapStatus.NEEDS_REVISION }
+        });
+      });
+
+      it('should allow a mod to update the credit', () =>
+        req.patch({
+          url: `maps/credits/${credit.id}`,
+          status: 204,
+          body: { type: MapCreditType.COAUTHOR },
+          token: modToken
+        }));
+
+      it('should allow a mod to update the credit even if the map is not in the NEEDS_REVISION state', async () => {
+        await prisma.map.update({
+          where: { id: map.id },
+          data: { status: MapStatus.APPROVED }
+        });
+
+        await req.patch({
+          url: `maps/credits/${credit.id}`,
+          status: 204,
+          body: { type: MapCreditType.COAUTHOR },
+          token: modToken
+        });
+
+        await prisma.map.update({
+          where: { id: map.id },
+          data: { status: MapStatus.NEEDS_REVISION }
+        });
+      });
 
       it('should return 403 if the map was not submitted by that user', () =>
         req.patch({
@@ -1791,14 +1917,14 @@ describe('Maps', () => {
     });
 
     describe('DELETE', () => {
-      let u1, u1Token, u2Token, map, credit;
+      let u1, u1Token, u2Token, map, credit, adminToken, modToken;
 
       beforeAll(async () => {
-        [[u1, u1Token], u2Token] = await Promise.all([
-          db.createAndLoginUser({
-            data: { roles: Role.MAPPER }
-          }),
-          db.loginNewUser({ data: { roles: Role.MAPPER } })
+        [[u1, u1Token], u2Token, adminToken, modToken] = await Promise.all([
+          db.createAndLoginUser({ data: { roles: Role.MAPPER } }),
+          db.loginNewUser({ data: { roles: Role.MAPPER } }),
+          db.loginNewUser({ data: { roles: Role.ADMIN } }),
+          db.loginNewUser({ data: { roles: Role.MODERATOR } })
         ]);
 
         map = await db.createMap({
@@ -1842,6 +1968,56 @@ describe('Maps', () => {
 
         const activity = await prisma.activity.findFirst();
         expect(activity).toBeNull();
+      });
+
+      it('should allow an admin to delete the credit', () =>
+        req.del({
+          url: `maps/credits/${credit.id}`,
+          status: 204,
+          token: adminToken
+        }));
+
+      it('should allow an admin to delete the credit even if the map is not in the NEEDS_REVISION state', async () => {
+        await prisma.map.update({
+          where: { id: map.id },
+          data: { status: MapStatus.APPROVED }
+        });
+
+        await req.del({
+          url: `maps/credits/${credit.id}`,
+          status: 204,
+          token: adminToken
+        });
+
+        await prisma.map.update({
+          where: { id: map.id },
+          data: { status: MapStatus.NEEDS_REVISION }
+        });
+      });
+
+      it('should allow a mod to delete the credit', () =>
+        req.del({
+          url: `maps/credits/${credit.id}`,
+          status: 204,
+          token: modToken
+        }));
+
+      it('should allow a mod to delete the credit even if the map is not in the NEEDS_REVISION state', async () => {
+        await prisma.map.update({
+          where: { id: map.id },
+          data: { status: MapStatus.APPROVED }
+        });
+
+        await req.del({
+          url: `maps/credits/${credit.id}`,
+          status: 204,
+          token: modToken
+        });
+
+        await prisma.map.update({
+          where: { id: map.id },
+          data: { status: MapStatus.NEEDS_REVISION }
+        });
       });
 
       it('should return 403 if the map was not submitted by that user', () =>

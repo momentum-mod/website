@@ -1,40 +1,40 @@
 import {
+  BadRequestException,
   Body,
   Controller,
+  Delete,
   Get,
-  Param,
-  Post,
-  Query,
-  Res,
-  UploadedFile,
-  UseInterceptors,
+  Header,
   HttpCode,
   HttpStatus,
-  BadRequestException,
-  Patch,
-  Delete,
-  Put,
-  UseGuards,
-  Header,
-  StreamableFile,
+  MaxFileSizeValidator,
+  Param,
   ParseFilePipe,
-  MaxFileSizeValidator
+  Patch,
+  Post,
+  Put,
+  Query,
+  Res,
+  StreamableFile,
+  UploadedFile,
+  UseGuards,
+  UseInterceptors
 } from '@nestjs/common';
 import {
+  ApiBadRequestResponse,
   ApiBearerAuth,
   ApiBody,
-  ApiOperation,
-  ApiTags,
-  ApiParam,
-  ApiConsumes,
-  ApiNotFoundResponse,
-  ApiOkResponse,
   ApiConflictResponse,
-  ApiBadRequestResponse,
+  ApiConsumes,
+  ApiCreatedResponse,
   ApiForbiddenResponse,
   ApiNoContentResponse,
-  ApiCreatedResponse,
-  ApiResponse
+  ApiNotFoundResponse,
+  ApiOkResponse,
+  ApiOperation,
+  ApiParam,
+  ApiResponse,
+  ApiTags
 } from '@nestjs/swagger';
 import { MapsService } from './maps.service';
 import { FastifyReply } from 'fastify';
@@ -283,7 +283,7 @@ export class MapsController {
   }
 
   @Post('/:mapID/credits')
-  @Roles(Role.MAPPER)
+  @Roles(Role.MAPPER, Role.MODERATOR, Role.ADMIN)
   @ApiOperation({ summary: 'Adds a map credit to the map' })
   @ApiParam({
     name: 'mapID',
@@ -330,7 +330,7 @@ export class MapsController {
   }
 
   @Patch('/credits/:mapCreditID')
-  @Roles(Role.MAPPER)
+  @Roles(Role.MAPPER, Role.MODERATOR, Role.ADMIN)
   @HttpCode(HttpStatus.NO_CONTENT)
   @ApiOperation({ summary: 'Updates the specified map credit' })
   @ApiParam({
@@ -364,7 +364,7 @@ export class MapsController {
   }
 
   @Delete('/credits/:mapCreditID')
-  @Roles(Role.MAPPER)
+  @Roles(Role.MAPPER, Role.MODERATOR, Role.ADMIN)
   @HttpCode(HttpStatus.NO_CONTENT)
   @ApiOperation({ summary: 'Deletes the specified map credit' })
   @ApiParam({
