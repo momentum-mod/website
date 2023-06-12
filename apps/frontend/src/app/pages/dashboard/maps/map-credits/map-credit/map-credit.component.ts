@@ -9,10 +9,10 @@ export interface CreditChangeEvent {
   type: MapCreditType;
 }
 
-enum UserSearchState {
+enum SearchState {
   HIDDEN,
-  UNCHOSEN,
-  CHOSEN
+  VISIBLE,
+  USER_ALREADY_SELECTED
 }
 
 @Component({
@@ -26,11 +26,13 @@ export class MapCreditComponent {
   @Input() credits: Record<MapCreditType, Partial<MapCredit>[]>;
   @Input() editable: boolean;
   @Output() creditChange: EventEmitter<CreditChangeEvent>;
-  protected readonly UserSearchState = UserSearchState;
-  userSearchState: UserSearchState;
+
+  protected readonly SearchState = SearchState;
+  searchState: SearchState;
 
   constructor() {
     this.creditChange = new EventEmitter<CreditChangeEvent>();
+    this.searchState = SearchState.HIDDEN;
   }
 
   addUser(user: User) {
@@ -38,27 +40,29 @@ export class MapCreditComponent {
       .flat()
       .some((userEntry) => userEntry.id === user.id);
     if (alreadyContainsUser) {
-      this.userSearchState = UserSearchState.CHOSEN;
+      this.searchState = SearchState.USER_ALREADY_SELECTED;
     } else {
       this.credits[this.type].push({ user });
       this.creditChange.emit({ type: this.type, user, added: true });
-      this.removeUserSearch();
+      this.hideUserSearch();
     }
   }
 
   removeUser(user: User) {
-    const userIndex = this.credits[this.type].indexOf(user);
+    const userIndex = this.credits[this.type].findIndex(
+      (credit) => credit.user.id === user.id
+    );
     if (userIndex === -1) return;
     this.credits[this.type].splice(userIndex, 1);
     this.creditChange.emit({ type: this.type, user, added: false });
   }
 
-  addUserSearch() {
-    this.userSearchState = UserSearchState.HIDDEN;
+  showUserSearch() {
+    this.searchState = SearchState.VISIBLE;
   }
 
-  removeUserSearch() {
-    this.userSearchState = UserSearchState.UNCHOSEN;
+  hideUserSearch() {
+    this.searchState = SearchState.HIDDEN;
   }
 
   drop(event: CdkDragDrop<User[]>) {
