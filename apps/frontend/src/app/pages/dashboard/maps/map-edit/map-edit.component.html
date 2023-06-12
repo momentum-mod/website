@@ -109,10 +109,9 @@
                   nbButton
                   outline
                   status="danger"
-                  size="tiny"
                   (click)="removeMapImage(img)"
                 >
-                  <nb-icon icon="close-circle-outline" pack="mdi"></nb-icon>
+                  <nb-icon class="full" icon="close" pack="mdi"></nb-icon>
                 </button>
               </div>
               <div class="mx-2 upload-box" *ngIf="images.length < imagesLimit">

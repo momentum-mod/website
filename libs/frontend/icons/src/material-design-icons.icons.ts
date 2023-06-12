@@ -2,6 +2,7 @@
 export {
   mdiAlert,
   mdiFlagOutline,
+  mdiClose,
   mdiCloseCircleOutline,
   mdiMenu,
   // This is better than `map` or similar for symbolising Source engine maps!
@@ -15,7 +16,7 @@ export {
   mdiBellOutline,
   mdiMagnify,
   mdiCheckCircleOutline,
-  mdiPlusOutline,
+  mdiPlus,
   mdiImageEditOutline,
   mdiFolder,
   mdiFolderOutline,
