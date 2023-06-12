@@ -274,7 +274,6 @@ export class MapsController {
   @ApiOkPagedResponse(MapCreditDto, {
     description: "The found map's credits"
   })
-  @ApiNotFoundResponse({ description: 'No map credits found' })
   @ApiNotFoundResponse({ description: 'Map not found' })
   getCredits(
     @Param('mapID', ParseIntSafePipe) mapID: number,
