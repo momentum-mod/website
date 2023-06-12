@@ -150,14 +150,14 @@ export class MapEditComponent implements OnInit, OnDestroy {
     const creditUpdates = [
       ...allCredits.map((credit) =>
         this.originalCreditIds.includes(credit.id)
-          ? this.mapService.updateMapCredit(this.map.id, credit.id, credit)
+          ? this.mapService.updateMapCredit(credit.id, credit)
           : this.mapService.createMapCredit(this.map.id, credit)
       ),
       ...this.originalCreditIds
         .filter(
           (oldID) => !allCredits.some((newCredit) => newCredit.id === oldID)
         )
-        .map((oldID) => this.mapService.deleteMapCredit(this.map.id, oldID))
+        .map((oldID) => this.mapService.deleteMapCredit(oldID))
     ];
 
     forkJoin(creditUpdates)

@@ -43,16 +43,12 @@ export class MapsService {
     return this.http.post<MapCredit>(`maps/${id}/credits`, { body });
   }
 
-  updateMapCredit(
-    id: number,
-    creditID: number,
-    body: UpdateMapCredit
-  ): Observable<any> {
-    return this.http.patch(`maps/${id}/credits/${creditID}`, { body });
+  updateMapCredit(creditID: number, body: UpdateMapCredit): Observable<any> {
+    return this.http.patch(`maps/credits/${creditID}`, { body });
   }
 
-  deleteMapCredit(id: number, creditID: number): Observable<void> {
-    return this.http.delete(`maps/${id}/credits/${creditID}`);
+  deleteMapCredit(creditID: number): Observable<void> {
+    return this.http.delete(`maps/credits/${creditID}`);
   }
 
   // TODO
