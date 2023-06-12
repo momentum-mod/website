@@ -7,7 +7,13 @@ import {
   NotFoundException,
   StreamableFile
 } from '@nestjs/common';
-import { Map as MapDB, MapCredit, MapTrack, Prisma } from '@prisma/client';
+import {
+  Map as MapDB,
+  MapCredit,
+  MapTrack,
+  Prisma,
+  User
+} from '@prisma/client';
 import { MapsRepoService } from '../repo/maps-repo.service';
 import { FileStoreCloudService } from '../filestore/file-store-cloud.service';
 import { UsersRepoService } from '../repo/users-repo.service';
@@ -32,8 +38,14 @@ import {
   UpdateMapDto,
   UpdateMapInfoDto
 } from '@momentum/backend/dto';
-import { ActivityType, MapCreditType, MapStatus } from '@momentum/constants';
+import {
+  ActivityType,
+  MapCreditType,
+  MapStatus,
+  Role
+} from '@momentum/constants';
 import { isEmpty } from 'lodash';
+import { Bitflags } from '@momentum/bitflags';
 
 @Injectable()
 export class MapsService {
@@ -555,22 +567,16 @@ export class MapsService {
 
     if (!map) throw new NotFoundException('Map not found');
 
-    if (map.submitterID !== userID)
-      throw new ForbiddenException('User is not the submitter of the map');
-
-    if (map.status !== MapStatus.NEEDS_REVISION)
-      throw new ForbiddenException('Map is not in NEEDS_REVISION state');
+    await this.checkCreditChangePermissions(map, userID);
 
     const dupeCredit = await this.mapRepo.findCredit({
       mapID: mapID,
       userID: createMapCredit.userID,
       type: createMapCredit.type
     });
-
     if (dupeCredit) throw new ConflictException('Map credit already exists');
 
     const existingUser = await this.userRepo.get(createMapCredit.userID);
-
     if (!existingUser)
       throw new BadRequestException('Credited user does not exist');
 
@@ -591,9 +597,7 @@ export class MapsService {
     mapCreditID: number,
     expand: string[]
   ): Promise<MapCreditDto> {
-    const include: Prisma.MapCreditInclude = expandToPrismaIncludes(
-      expand?.filter((x) => ['user'].includes(x))
-    );
+    const include: Prisma.MapCreditInclude = expandToPrismaIncludes(expand);
 
     const dbResponse = await this.mapRepo.getCredit(mapCreditID, include);
 
@@ -610,70 +614,76 @@ export class MapsService {
     if (!creditUpdate.userID && !creditUpdate.type)
       throw new BadRequestException('No update data provided');
 
-    const mapCredit = await this.mapRepo.getCredit(mapCreditID, { user: true });
+    const credit: MapCredit & { user: User; map: MapDB } =
+      (await this.mapRepo.getCredit(mapCreditID, {
+        user: true,
+        map: true
+      })) as any;
 
-    if (!mapCredit) throw new NotFoundException('Map credit not found');
+    if (!credit || !credit.map || !credit.user)
+      throw new NotFoundException('Invalid map credit');
 
-    await this.updateCreditChecks(mapCredit, creditUpdate, userID);
+    await this.checkCreditChangePermissions(credit.map, userID);
 
-    const data: Prisma.MapCreditUpdateInput = {};
-
-    if (creditUpdate.userID)
-      data.user = { connect: { id: creditUpdate.userID } };
-
-    if (creditUpdate.type) data.type = creditUpdate.type;
-
-    const newCredit = await this.mapRepo.updateCredit(mapCreditID, data);
-
-    await this.updateMapCreditActivities(newCredit, mapCredit);
-  }
-
-  async deleteCredit(mapCreditID: number, userID: number): Promise<void> {
-    const mapCred = await this.mapRepo.getCredit(mapCreditID, { user: true });
-    if (!mapCred) throw new NotFoundException('Map credit not found');
-
-    const mapOfCredit = await this.mapRepo.get(mapCred.mapID);
-    if (mapOfCredit.submitterID !== userID)
-      throw new ForbiddenException('User is not the submitter of this map');
-
-    if (mapOfCredit.status !== MapStatus.NEEDS_REVISION)
-      throw new ForbiddenException('Map is not in NEEDS_REVISION state');
-
-    await this.mapRepo.deleteCredit({ id: mapCreditID });
-
-    await this.updateMapCreditActivities(null, mapCred);
-  }
-
-  private async updateCreditChecks(
-    mapCred: MapCredit,
-    creditUpdate: UpdateMapCreditDto,
-    userID: number
-  ) {
     if (creditUpdate.userID) {
       const userExists = await this.userRepo.get(creditUpdate.userID);
       if (!userExists)
         throw new BadRequestException('Credited user does not exist');
     }
 
-    const mapOfCredit = await this.mapRepo.get(mapCred.mapID);
-    if (mapOfCredit.submitterID !== userID)
-      throw new ForbiddenException('User is not the submitter of this map');
-
-    if (mapOfCredit.status !== MapStatus.NEEDS_REVISION)
-      throw new ForbiddenException('Map is not in NEEDS_REVISION state');
-
-    const checkDupe: Prisma.MapCreditWhereInput = {
-      NOT: {
-        id: mapCred.id
-      },
-      userID: creditUpdate.userID ?? mapCred.userID,
-      type: creditUpdate.type ?? mapCred.type,
-      mapID: mapCred.mapID
-    };
-
-    const foundDupe = await this.mapRepo.findCredit(checkDupe);
-    if (foundDupe)
+    // Check for different credits with same map, user and type, throw if exists
+    if (
+      await this.mapRepo.findCredit({
+        NOT: { id: credit.id },
+        userID: creditUpdate.userID ?? credit.userID,
+        type: creditUpdate.type ?? credit.type,
+        mapID: credit.mapID
+      })
+    )
       throw new ConflictException('Cannot have duplicate map credits');
+
+    const data: Prisma.MapCreditUpdateInput = {};
+    if (creditUpdate.userID)
+      data.user = { connect: { id: creditUpdate.userID } };
+    if (creditUpdate.type) data.type = creditUpdate.type;
+
+    const newCredit = await this.mapRepo.updateCredit(mapCreditID, data);
+
+    await this.updateMapCreditActivities(newCredit, credit);
+  }
+
+  async deleteCredit(mapCreditID: number, userID: number): Promise<void> {
+    const credit: MapCredit & { user: User; map: MapDB } =
+      (await this.mapRepo.getCredit(mapCreditID, {
+        user: true,
+        map: true
+      })) as any;
+
+    if (!credit || !credit.map || !credit.user)
+      throw new NotFoundException('Invalid map credit');
+
+    await this.checkCreditChangePermissions(credit.map, userID);
+
+    await this.mapRepo.deleteCredit({ id: mapCreditID });
+
+    await this.updateMapCreditActivities(null, credit);
+  }
+
+  private async checkCreditChangePermissions(map: MapDB, userID: number) {
+    const user = await this.userRepo.get(userID);
+
+    // Let admins/mods update in any state
+    if (
+      !(
+        Bitflags.has(user.roles, Role.MODERATOR) ||
+        Bitflags.has(user.roles, Role.ADMIN)
+      )
+    ) {
+      if (map.submitterID !== userID)
+        throw new ForbiddenException('User is not the submitter of this map');
+      if (map.status !== MapStatus.NEEDS_REVISION)
+        throw new ForbiddenException('Map is not in NEEDS_REVISION state');
+    }
   }
 
   private async updateMapCreditActivities(
