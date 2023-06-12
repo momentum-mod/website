@@ -1356,14 +1356,17 @@ describe('Maps', () => {
         }
       });
 
-      it('should return 404 when no map credits found', async () => {
+      it('should return an empty array when no map credits found', async () => {
         const map = await db.createMap();
 
-        await req.get({
+        const res = await req.get({
           url: `maps/${map.id}/credits`,
-          status: 404,
+          status: 200,
           token: u1Token
         });
+
+        expect(res.body).toBeInstanceOf(Array);
+        expect(res.body.length).toBe(0);
       });
 
       it('should return 404 when the map does not exist', () =>

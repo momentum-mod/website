@@ -543,9 +543,6 @@ export class MapsService {
 
     const dbResponse = await this.mapRepo.getCredits(where, include);
 
-    if (dbResponse.length === 0)
-      throw new NotFoundException('No map credits found');
-
     return dbResponse.map((x) => DtoFactory(MapCreditDto, x));
   }
 
