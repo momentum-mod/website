@@ -156,7 +156,7 @@ export class MapUploadFormComponent implements OnInit, AfterViewInit {
     else if (nameVal.startsWith('ahop_')) type = MapType.AHOP;
     else if (nameVal.startsWith('pk_')) type = MapType.PARKOUR;
     else if (nameVal.startsWith('conc_')) type = MapType.CONC;
-    else if (nameVal.startsWith('dfrag_')) type = MapType.DEFRAG;
+    else if (nameVal.startsWith('df_')) type = MapType.DEFRAG;
     this.type.patchValue(type);
     this.inferredMapType = type !== MapType.UNKNOWN;
   }
