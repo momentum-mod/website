@@ -150,21 +150,13 @@
                       formControlName="type"
                       (selectedChange)="inferredMapType = false"
                     >
-                      <nb-option [value]="MapType.UNKNOWN">Unknown</nb-option>
-                      <nb-option [value]="MapType.SURF">Surf</nb-option>
-                      <nb-option [value]="MapType.BHOP">Bhop</nb-option>
-                      <nb-option [value]="MapType.KZ">Climb (KZ)</nb-option>
-                      <nb-option [value]="MapType.RJ">Rocket Jump</nb-option>
-                      <nb-option [value]="MapType.SJ">Sticky Jump</nb-option>
-                      <nb-option [value]="MapType.TRICKSURF"
-                        >Tricksurf</nb-option
+                      <!-- Cast `item.key` back to Number since this was a key
+                      so was stringified.-->
+                      <nb-option
+                        *ngFor="let item of MapTypeName | keyvalue"
+                        [value]="+item.key"
+                        >{{ item.value }}</nb-option
                       >
-                      <nb-option [value]="MapType.AHOP"
-                        >Accelerated Hop</nb-option
-                      >
-                      <nb-option [value]="MapType.PARKOUR">Parkour</nb-option>
-                      <nb-option [value]="MapType.CONC">Conc</nb-option>
-                      <nb-option [value]="MapType.DEFRAG">Defrag</nb-option>
                     </nb-select>
                     <div
                       class="form-text text-center warning"
