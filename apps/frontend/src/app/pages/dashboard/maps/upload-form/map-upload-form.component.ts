@@ -36,6 +36,7 @@ const youtubeRegex = /[\w-]{11}/;
 export class MapUploadFormComponent implements OnInit, AfterViewInit {
   protected readonly FileUploadType = FileUploadType;
   protected readonly MapType = MapType;
+  protected readonly MapTypeName = MapTypeName;
 
   @ViewChild('datepicker', { static: false }) datePicker;
   @ViewChild('stepper', { static: false }) stepper;
