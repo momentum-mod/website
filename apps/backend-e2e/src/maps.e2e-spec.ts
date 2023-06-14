@@ -467,7 +467,7 @@ describe('Maps', () => {
         beforeAll(async () => {
           res = await req.post({
             url: 'maps',
-            status: 204,
+            status: 201,
             body: createMapObject,
             token: token
           });
@@ -486,6 +486,14 @@ describe('Maps', () => {
               }
             }
           });
+        });
+
+        it('should respond with a MapDto', () => {
+          expect(res.body).toBeValidDto(MapDto);
+          // Check the whacky JSON parsing stuff works
+          const trigger = res.body.tracks[0].zones[0].triggers[0];
+          expect(trigger.points).toStrictEqual({ p1: '0', p2: '0' });
+          expect(trigger.properties.properties).toStrictEqual({});
         });
 
         it('should create a map within the database', () => {
@@ -733,7 +741,7 @@ describe('Maps', () => {
 
       const res = await req.post({
         url: 'maps',
-        status: 204,
+        status: 201,
         body: {
           name: 'test_map',
           type: MapType.SURF,
@@ -770,10 +778,11 @@ describe('Maps', () => {
       const inBuffer = readFileSync(__dirname + '/../files/map.bsp');
       const inHash = createSha1Hash(inBuffer);
 
-      const uploadURL = (res.headers.location as string).replace('api/v1/', '');
+      const uploadURL = res.headers.location as string;
 
       const res2 = await req.postAttach({
         url: uploadURL,
+        skipApiPrefix: true,
         status: 201,
         file: 'map.bsp',
         token: token
