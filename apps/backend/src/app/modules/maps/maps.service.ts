@@ -362,7 +362,9 @@ export class MapsService {
                   points: trigger.points,
                   properties: {
                     create: {
-                      properties: trigger.properties.properties
+                      // This will create an empty table for triggers with no
+                      // properties, probably bad, revisit in 0.10.0
+                      properties: trigger?.properties?.properties ?? {}
                     }
                   }
                 });
