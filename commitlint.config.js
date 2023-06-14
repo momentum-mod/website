@@ -39,6 +39,7 @@ module.exports = {
       1,
       'never',
       ['sentence-case', 'start-case', 'pascal-case', 'upper-case']
-    ]
+    ],
+    'body-max-line-length': [0, 'always', 0]
   }
 };
