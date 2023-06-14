@@ -447,9 +447,9 @@ describe('Maps', () => {
                   type: j == 0 ? 1 : j == 1 ? 0 : 2,
                   pointsHeight: 512,
                   pointsZPos: 0,
-                  points: '{"p1": "0", "p2": "0"}',
+                  points: { p1: '0', p2: '0' },
                   properties: {
-                    properties: '{}'
+                    properties: {}
                   }
                 }
               ]
@@ -516,8 +516,8 @@ describe('Maps', () => {
             for (const zone of track.zones) {
               expect(zone.zoneNum).toBeLessThanOrEqual(10);
               for (const trigger of zone.triggers) {
-                expect(trigger.points).toBe('{"p1": "0", "p2": "0"}');
-                expect(trigger.properties.properties).toBe('{}');
+                expect(trigger.points).toStrictEqual({ p1: '0', p2: '0' });
+                expect(trigger.properties.properties).toStrictEqual({});
               }
             }
           }
@@ -763,7 +763,7 @@ describe('Maps', () => {
                   type: j == 0 ? 1 : j == 1 ? 0 : 2,
                   pointsHeight: 512,
                   pointsZPos: 0,
-                  points: '{"p1": "0", "p2": "0"}',
+                  points: { p1: '0', p2: '0' },
                   properties: {
                     properties: '{}'
                   }

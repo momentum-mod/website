@@ -1,8 +1,8 @@
-﻿import { Prisma } from '@prisma/client';
-import { Exclude } from 'class-transformer';
+﻿import { Exclude } from 'class-transformer';
 import { ApiProperty } from '@nestjs/swagger';
-import { IsJSON } from 'class-validator';
 import { MapZoneTriggerProperties } from '@momentum/types';
+import { IsDefined } from 'class-validator';
+import { Prisma } from '@prisma/client';
 
 // Apparently there's some reason for this stupid table to exist, I can't
 // remember what Goc said though Think it's changing for 0.10 anyway ╚(•⌂•)╝
@@ -11,7 +11,7 @@ export class MapZoneTriggerPropertiesDto implements MapZoneTriggerProperties {
   readonly id: number;
 
   @ApiProperty()
-  @IsJSON()
+  @IsDefined()
   readonly properties: Prisma.JsonValue;
 
   @Exclude()
