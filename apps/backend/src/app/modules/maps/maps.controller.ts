@@ -93,7 +93,6 @@ export class MapsController {
   }
 
   @Post()
-  @HttpCode(HttpStatus.NO_CONTENT)
   @Roles(Role.MAPPER, Role.MODERATOR, Role.ADMIN)
   @ApiOperation({ summary: 'Creates a single map' })
   @ApiOkResponse({ type: MapDto, description: 'The newly created map' })
@@ -112,10 +111,16 @@ export class MapsController {
     @Res({ passthrough: true }) res: FastifyReply,
     @Body() body: CreateMapDto,
     @LoggedInUser('id') userID: number
-  ): Promise<void> {
-    const id = await this.mapsService.create(body, userID);
+  ): Promise<MapDto> {
+    const map = await this.mapsService.create(body, userID);
 
-    this.setMapUploadLocationHeader(res, id);
+    // TODO: This is pointless, frontend knows this URL from the map ID.
+    // However we are going to want this and the getUploadLocation endpoints
+    // in the future when (if?) we move to direct upload to s3 using presigned
+    // URLs.
+    this.setMapUploadLocationHeader(res, map.id);
+
+    return map;
   }
 
   @Get('/:mapID')

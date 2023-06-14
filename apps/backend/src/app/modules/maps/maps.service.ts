@@ -241,7 +241,7 @@ export class MapsService {
   async create(
     mapCreateDto: CreateMapDto,
     submitterID: number
-  ): Promise<number> {
+  ): Promise<MapDto> {
     // Check there's no map with same name
     const existingMaps: number = await this.mapRepo.count({
       name: mapCreateDto.name,
@@ -264,7 +264,8 @@ export class MapsService {
       );
 
     // Extra checks...
-    //// Note: We should add further checks here when working on map submission. Though need to decide if we're going to do
+    //// Note: We should add further checks here when working on map submission.
+    //// Though need to decide if we're going to do
     //// any BSP parsing on this API, or have mods check using Lumper.
     const trackNums = mapCreateDto.tracks.map((track) => track.trackNum);
     // Set construction ensures uniqueness, so just compare the lengths
@@ -273,9 +274,13 @@ export class MapsService {
         'All map tracks must have unique track numbers'
       );
 
-    // Actually build our input. Prisma doesn't let you do nested createMany (https://github.com/prisma/prisma/issues/5455)
+    // Actually build our input. Prisma doesn't let you do nested createMany
+    // (https://github.com/prisma/prisma/issues/5455)
     // so we have to do it in parts... Fortunately this doesn't run often.
-    const createInput = {
+    const createInput: Prisma.MapCreateInput & {
+      info: NonNullable<Prisma.MapCreateInput['info']>;
+      tracks: NonNullable<Prisma.MapCreateInput['tracks']>;
+    } = {
       submitter: { connect: { id: submitterID } },
       name: mapCreateDto.name,
       type: mapCreateDto.type,
@@ -381,9 +386,38 @@ export class MapsService {
         })
     );
 
-    // Return the map ID to the controller so it can set it in the response
-    // header
-    return mapDB.id;
+    const finalizedMap = await this.mapRepo.get(mapDB.id, {
+      info: true,
+      stats: { include: { baseStats: true } },
+      submitter: true,
+      images: true,
+      thumbnail: true,
+      credits: { include: { user: true } },
+      tracks: {
+        include: {
+          zones: {
+            include: {
+              triggers: { include: { properties: true } },
+              stats: { include: { baseStats: true } }
+            }
+          },
+          stats: { include: { baseStats: true } }
+        }
+      },
+      mainTrack: {
+        include: {
+          zones: {
+            include: {
+              triggers: { include: { properties: true } },
+              stats: { include: { baseStats: true } }
+            }
+          },
+          stats: { include: { baseStats: true } }
+        }
+      }
+    });
+
+    return DtoFactory(MapDto, finalizedMap);
   }
 
   async update(
