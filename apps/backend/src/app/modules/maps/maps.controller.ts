@@ -143,7 +143,7 @@ export class MapsController {
 
   @Patch('/:mapID')
   @HttpCode(HttpStatus.NO_CONTENT)
-  @Roles(Role.MAPPER)
+  @Roles(Role.MAPPER, Role.MODERATOR, Role.ADMIN)
   @ApiOperation({ summary: "Updates a single map's status flag" })
   @ApiParam({
     name: 'mapID',
@@ -170,7 +170,7 @@ export class MapsController {
   //#region Upload/Download
 
   @Get('/:mapID/upload')
-  @Roles(Role.MAPPER)
+  @Roles(Role.MAPPER, Role.MODERATOR, Role.ADMIN)
   @HttpCode(HttpStatus.NO_CONTENT)
   @ApiOperation({ summary: 'Get the map upload endpoint in response header' })
   @ApiNoContentResponse({
@@ -413,7 +413,7 @@ export class MapsController {
   }
 
   @Patch('/:mapID/info')
-  @Roles(Role.MAPPER)
+  @Roles(Role.MAPPER, Role.MODERATOR, Role.ADMIN)
   @HttpCode(HttpStatus.NO_CONTENT)
   @ApiOperation({ summary: 'Update the map info' })
   @ApiBody({
@@ -525,7 +525,7 @@ export class MapsController {
   }
 
   @Post('/:mapID/images')
-  @Roles(Role.MAPPER)
+  @Roles(Role.MAPPER, Role.MODERATOR, Role.ADMIN)
   @UseInterceptors(FileInterceptor('file'))
   @ApiOperation({ summary: 'Uploads an image for the map' })
   @ApiCreatedResponse({
@@ -567,7 +567,7 @@ export class MapsController {
   }
 
   @Put('/images/:imgID')
-  @Roles(Role.MAPPER)
+  @Roles(Role.MAPPER, Role.MODERATOR, Role.ADMIN)
   @HttpCode(HttpStatus.NO_CONTENT)
   @UseInterceptors(FileInterceptor('file'))
   @ApiOperation({ summary: 'Updates a map image' })
@@ -606,7 +606,7 @@ export class MapsController {
   }
 
   @Delete('/images/:imgID')
-  @Roles(Role.MAPPER)
+  @Roles(Role.MAPPER, Role.MODERATOR, Role.ADMIN)
   @HttpCode(HttpStatus.NO_CONTENT)
   @ApiOperation({ summary: 'Deletes a map image' })
   @ApiNoContentResponse({ description: 'Image deleted successfully' })
@@ -630,8 +630,9 @@ export class MapsController {
   //#endregion
 
   //#region Thumbnail
+
   @Put('/:mapID/thumbnail')
-  @Roles(Role.MAPPER)
+  @Roles(Role.MAPPER, Role.MODERATOR, Role.ADMIN)
   @HttpCode(HttpStatus.NO_CONTENT)
   @UseInterceptors(FileInterceptor('file'))
   @ApiOperation({ summary: "Updates a map's thumbnail" })
