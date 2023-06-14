@@ -58,13 +58,10 @@ export class MapsService {
     });
   }
 
-  uploadMapFile(
-    uploadLocation: string,
-    mapFile: File
-  ): Observable<HttpEvent<string>> {
+  uploadMapFile(mapID: number, mapFile: File): Observable<HttpEvent<string>> {
     const formData = new FormData();
-    formData.append('mapFile', mapFile, mapFile.name);
-    return this.http.post(uploadLocation, {
+    formData.append('file', mapFile, mapFile.name);
+    return this.http.post(`maps/${mapID}/upload`, {
       body: formData,
       reportProgress: true,
       observe: 'events',
@@ -80,7 +77,7 @@ export class MapsService {
 
   updateMapAvatar(id: number, thumbnailFile: File): Observable<any> {
     const formData = new FormData();
-    formData.append('thumbnailFile', thumbnailFile, thumbnailFile.name);
+    formData.append('file', thumbnailFile, thumbnailFile.name);
     return this.http.put(`maps/${id}/thumbnail`, {
       body: formData,
       responseType: 'text'
@@ -89,7 +86,7 @@ export class MapsService {
 
   createMapImage(id: number, mapImageFile: File): Observable<MapImage> {
     const formData = new FormData();
-    formData.append('mapImageFile', mapImageFile, mapImageFile.name);
+    formData.append('file', mapImageFile, mapImageFile.name);
     return this.http.post<MapImage>(`maps/${id}/images`, { body: formData });
   }
 
@@ -99,7 +96,7 @@ export class MapsService {
     mapImageFile: File
   ): Observable<void> {
     const formData = new FormData();
-    formData.append('mapImageFile', mapImageFile, mapImageFile.name);
+    formData.append('file', mapImageFile, mapImageFile.name);
     return this.http.put(`maps/${id}/images/${mapImageID}`, { body: formData });
   }
 
