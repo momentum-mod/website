@@ -1,4 +1,4 @@
-﻿import { IsInt, IsJSON, IsNumber, Max } from 'class-validator';
+﻿import { IsDefined, IsInt, IsNumber, Max } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 import { MapZoneTriggerPropertiesDto } from './map-zone-trigger-properties.dto';
 import { NestedProperty } from '../../../decorators';
@@ -24,9 +24,9 @@ export class MapZoneTriggerDto implements MapZoneTrigger {
   readonly pointsZPos: number;
 
   @ApiProperty()
-  @IsJSON()
   // TODO_0.10: Validate these. On current zone system, should have max 32
   // values and match /p\d+/
+  @IsDefined()
   readonly points: Prisma.JsonValue;
 
   @NestedProperty(MapZoneTriggerPropertiesDto, { required: false })
