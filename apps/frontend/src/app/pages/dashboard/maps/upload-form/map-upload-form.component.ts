@@ -316,17 +316,15 @@ export class MapUploadFormComponent implements OnInit, AfterViewInit {
             }
           }
         },
-        error: (error) => {
-          console.error(error);
-          const errorMessage = error.error.error
-            ? error.error.error.message
-            : 'Something went wrong!';
-
+        error: (httpError: HttpErrorResponse) => {
+          const errorMessage = httpError?.error?.message ?? 'Unknown error';
           $event.target.disabled = false;
           this.isUploadingMap = false;
           if (mapCreated) this.onSubmitSuccess();
-
-          this.toasterService.danger(errorMessage, 'Failed to create map');
+          this.toasterService.danger(
+            errorMessage,
+            'Something went wrong during submission!'
+          );
         }
       });
   }
