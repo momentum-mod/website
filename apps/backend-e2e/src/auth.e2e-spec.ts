@@ -78,14 +78,16 @@ describe('Auth', () => {
           url: 'auth/steam/return',
           skipApiPrefix: true,
           query: {
-            'openid.op_endpoint': 'https://steamcommunity.com/openid/login'
+            'openid.op_endpoint': 'https://steamcommunity.com/openid/login',
+            'openid.ns': 'http://specs.openid.net/auth/2.0',
+            'openid.claimed_id': 'https://steamcommunity.com/openid/id/123',
+            'openid.identity': 'https://steamcommunity.com/openid/id/123'
           }
         });
 
       beforeAll(() => {
         configService = app.get(ConfigService);
 
-        // UUUUUUUUUUUGH THIS IS REALLY ANNOYING. WHERE SHOULD THESE TESTS GO?
         verifyAssertionSpy = jest.spyOn(
           app.get(SteamOpenIDService)['relyingParty'],
           'verifyAssertion'
@@ -259,7 +261,7 @@ describe('Auth', () => {
     });
   });
 
-  describe('auth/steam/user', () => {
+  describe('auth/game', () => {
     const appID = 669270;
     const userAgent = `Valve/Steam HTTP Client 1.0 (${appID})`;
 
@@ -304,7 +306,7 @@ describe('Auth', () => {
 
         const res = await app.inject({
           method: 'post',
-          url: '/auth/steam/user',
+          url: '/auth/game',
           payload: Buffer.alloc(10),
           headers: {
             'content-type': 'application/octet-stream',
@@ -353,7 +355,7 @@ describe('Auth', () => {
 
         const res = await app.inject({
           method: 'post',
-          url: '/auth/steam/user',
+          url: '/auth/game',
           payload: Buffer.alloc(10),
           headers: {
             'content-type': 'application/octet-stream',
@@ -386,7 +388,7 @@ describe('Auth', () => {
       it('should 400 when header is missing ID', async () => {
         const res = await app.inject({
           method: 'post',
-          url: '/auth/steam/user',
+          url: '/auth/game',
           payload: Buffer.alloc(10),
           headers: {
             'content-type': 'application/octet-stream',
@@ -400,7 +402,7 @@ describe('Auth', () => {
       it('should 400 when body is not a buffer', async () => {
         const res = await app.inject({
           method: 'post',
-          url: '/auth/steam/user',
+          url: '/auth/game',
           payload: 'Hello. I am not a buffer. How do you do?',
           headers: {
             'content-type': 'application/json',
@@ -415,7 +417,7 @@ describe('Auth', () => {
       it('should 400 when body is missing', async () => {
         const res = await app.inject({
           method: 'post',
-          url: '/auth/steam/user',
+          url: '/auth/game',
           headers: {
             'content-type': 'application/octet-stream',
             id: '1',
@@ -437,7 +439,7 @@ describe('Auth', () => {
 
         const res = await app.inject({
           method: 'post',
-          url: '/auth/steam/user',
+          url: '/auth/game',
           payload: Buffer.alloc(10),
           headers: {
             'content-type': 'application/octet-stream',
@@ -456,7 +458,7 @@ describe('Auth', () => {
 
         const res = await app.inject({
           method: 'post',
-          url: '/auth/steam/user',
+          url: '/auth/game',
           payload: Buffer.alloc(10),
           headers: {
             'content-type': 'application/octet-stream',
@@ -508,7 +510,7 @@ describe('Auth', () => {
 
         const res = await app.inject({
           method: 'post',
-          url: '/auth/steam/user',
+          url: '/auth/game',
           payload: Buffer.alloc(10),
           headers: {
             'content-type': 'application/octet-stream',
@@ -560,7 +562,7 @@ describe('Auth', () => {
 
         const res = await app.inject({
           method: 'post',
-          url: '/auth/steam/user',
+          url: '/auth/game',
           payload: Buffer.alloc(10),
           headers: {
             'content-type': 'application/octet-stream',
@@ -593,7 +595,7 @@ describe('Auth', () => {
       it('should 400 when header is missing ID', async () => {
         const res = await app.inject({
           method: 'post',
-          url: '/auth/steam/user',
+          url: '/auth/game',
           payload: Buffer.alloc(10),
           headers: {
             'content-type': 'application/octet-stream',
@@ -607,7 +609,7 @@ describe('Auth', () => {
       it('should 400 when body is not a buffer', async () => {
         const res = await app.inject({
           method: 'post',
-          url: '/auth/steam/user',
+          url: '/auth/game',
           payload: "Hello again. I'm still not a buffer.",
           headers: {
             'content-type': 'application/json',
@@ -622,7 +624,7 @@ describe('Auth', () => {
       it('should 400 when body is missing', async () => {
         const res = await app.inject({
           method: 'post',
-          url: '/auth/steam/user',
+          url: '/auth/game',
           headers: {
             'content-type': 'application/octet-stream',
             id: '1',
@@ -644,7 +646,7 @@ describe('Auth', () => {
 
         const res = await app.inject({
           method: 'post',
-          url: '/auth/steam/user',
+          url: '/auth/game',
           payload: Buffer.alloc(10),
           headers: {
             'content-type': 'application/octet-stream',
@@ -663,7 +665,7 @@ describe('Auth', () => {
 
         const res = await app.inject({
           method: 'post',
-          url: '/auth/steam/user',
+          url: '/auth/game',
           payload: Buffer.alloc(10),
           headers: {
             'content-type': 'application/octet-stream',

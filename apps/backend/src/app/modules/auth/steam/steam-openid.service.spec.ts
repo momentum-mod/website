@@ -102,7 +102,10 @@ describe('SteamOpenIDService', () => {
       expect(
         await service.authenticate({
           query: {
-            'openid.op_endpoint': 'https://steamcommunity.com/openid/login'
+            'openid.op_endpoint': 'https://steamcommunity.com/openid/login',
+            'openid.ns': 'http://specs.openid.net/auth/2.0',
+            'openid.claimed_id': 'https://steamcommunity.com/openid/id/123',
+            'openid.identity': 'https://steamcommunity.com/openid/id/123'
           }
         } as any)
       ).toBe('cabbage');
@@ -122,7 +125,10 @@ describe('SteamOpenIDService', () => {
       await expect(
         service.authenticate({
           query: {
-            'openid.op_endpoint': 'https://steamcommunity.com/openid/login'
+            'openid.op_endpoint': 'https://steamcommunity.com/openid/login',
+            'openid.ns': 'http://specs.openid.net/auth/2.0',
+            'openid.claimed_id': 'https://steamcommunity.com/openid/id/',
+            'openid.identity': 'https://steamcommunity.com/openid/id/'
           }
         } as any)
       ).rejects.toThrow(UnauthorizedException);
@@ -139,27 +145,71 @@ describe('SteamOpenIDService', () => {
       await expect(
         service.authenticate({
           query: {
-            'openid.op_endpoint': 'https://steamcommunity.com/openid/login'
+            'openid.op_endpoint': 'https://steamcommunity.com/openid/login',
+            'openid.ns': 'http://specs.openid.net/auth/2.0',
+            'openid.claimed_id': 'https://steamcommunity.com/openid/id/',
+            'openid.identity': 'https://steamcommunity.com/openid/id/'
           }
         } as any)
       ).rejects.toThrow(UnauthorizedException);
     });
 
     it('should reject requests not from Steam', async () => {
-      verifyAssertionSpy.mockImplementationOnce((request, callback) =>
+      verifyAssertionSpy.mockImplementation((request, callback) =>
         callback(undefined, {
           authenticated: true,
           claimedIdentifier: 'https://steamcommunity.com/openid/id/123'
         })
       );
 
-      getSteamUserSummaryDataSpy.mockResolvedValueOnce('cabbage' as any);
+      getSteamUserSummaryDataSpy.mockResolvedValue('cabbage' as any);
 
       await expect(
         service.authenticate({
-          query: { 'openid.op_endpoint': 'https://g2a.com/openid/login' }
+          query: {
+            'openid.op_endpoint': 'https://g2a.com/openid/login',
+            'openid.ns': 'http://specs.openid.net/auth/2.0',
+            'openid.claimed_id': 'https://steamcommunity.com/openid/id/123',
+            'openid.identity': 'https://steamcommunity.com/openid/id/123'
+          }
         } as any)
       ).rejects.toThrow(UnauthorizedException);
+
+      await expect(
+        service.authenticate({
+          query: {
+            'openid.op_endpoint': 'https://steamcommunity.com/openid/login',
+            'openid.ns': 'http://specs.openid.biz/auth/2.0',
+            'openid.claimed_id': 'https://steamcommunity.com/openid/id/123',
+            'openid.identity': 'https://steamcommunity.com/openid/id/123'
+          }
+        } as any)
+      ).rejects.toThrow(UnauthorizedException);
+
+      await expect(
+        service.authenticate({
+          query: {
+            'openid.op_endpoint': 'https://steamcommunity.com/openid/login',
+            'openid.ns': 'http://specs.openid.net/auth/2.0',
+            'openid.claimed_id': 'https://steamedhamns.com/openid/id/123',
+            'openid.identity': 'https://steamcommunity.com/openid/id/123'
+          }
+        } as any)
+      ).rejects.toThrow(UnauthorizedException);
+
+      await expect(
+        service.authenticate({
+          query: {
+            'openid.op_endpoint': 'https://steamcommunity.com/openid/login',
+            'openid.ns': 'http://specs.openid.net/auth/2.0',
+            'openid.claimed_id': 'https://steamcommunity.com/openid/id/123',
+            'openid.identity': 'https://ebay.com/openid/id/123'
+          }
+        } as any)
+      ).rejects.toThrow(UnauthorizedException);
+
+      verifyAssertionSpy.mockClear();
+      getSteamUserSummaryDataSpy.mockClear();
     });
 
     it('should reject invalid Steam IDs', async () => {
@@ -175,7 +225,10 @@ describe('SteamOpenIDService', () => {
       await expect(
         service.authenticate({
           query: {
-            'openid.op_endpoint': 'https://steamcommunity.com/openid/login'
+            'openid.op_endpoint': 'https://steamcommunity.com/openid/login',
+            'openid.ns': 'http://specs.openid.net/auth/2.0',
+            'openid.claimed_id': 'https://steamcommunity.com/openid/id/walrus',
+            'openid.identity': 'https://steamcommunity.com/openid/id/walrus'
           }
         } as any)
       ).rejects.toThrow(UnauthorizedException);
