@@ -66,11 +66,17 @@ export class SteamOpenIDService {
               'Failed to authenticate user with Steam'
             );
 
+          const query = request.query;
           if (
-            request.query['openid.op_endpoint'] !==
+            query['openid.op_endpoint'] !==
               'https://steamcommunity.com/openid/login' ||
-            !/^https?:\/\/steamcommunity\.com\/openid\/id\/(\d+)$/.test(
-              result.claimedIdentifier
+            query['openid.ns'] !== 'http://specs.openid.net/auth/2.0' ||
+            ![
+              result.claimedIdentifier,
+              query['openid.claimed_id'],
+              query['openid.identity']
+            ].every((x) =>
+              /^https?:\/\/steamcommunity\.com\/openid\/id\/(\d+)$/.test(x)
             )
           )
             throw new UnauthorizedException('Claimed identity is invalid');
