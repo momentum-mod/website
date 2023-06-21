@@ -86,8 +86,7 @@ export class AuthController {
     res.setCookie('user', JSON.stringify(user), this.cookieOptions);
   }
 
-  // TODO: (REQ GAME CHANGE) This name is dumb, requires a game code change though.
-  @Post('/steam/user')
+  @Post('/game')
   @BypassJwtAuth()
   @UseGuards(SteamGameGuard)
   @ApiOperation({ summary: 'Gets the JWT using a Steam user ticket' })
