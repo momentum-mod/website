@@ -6,6 +6,7 @@ export * from './map-status.enum';
 export * from './map-status-name.const';
 export * from './map-type.enum';
 export * from './map-type-name.const';
+export * from './map-type-prefix.const';
 export * from './tickrates.const';
 export * from './report-type.enum';
 export * from './activity-type.enum';
