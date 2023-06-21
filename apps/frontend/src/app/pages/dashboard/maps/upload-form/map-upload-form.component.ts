@@ -146,18 +146,16 @@ export class MapUploadFormComponent implements OnInit, AfterViewInit {
     this.map.patchValue(this.mapFile.name);
     const nameVal = this.mapFile.name.replace(/.bsp/g, '').toLowerCase();
     this.name.patchValue(nameVal);
+
     // Infer type from name
     let type = MapType.UNKNOWN;
-    if (nameVal.startsWith('surf_')) type = MapType.SURF;
-    else if (nameVal.startsWith('bhop_')) type = MapType.BHOP;
-    else if (nameVal.startsWith('climb_')) type = MapType.KZ;
-    else if (nameVal.startsWith('rj_')) type = MapType.RJ;
-    else if (nameVal.startsWith('sj_')) type = MapType.SJ;
-    else if (nameVal.startsWith('tricksurf_')) type = MapType.TRICKSURF;
-    else if (nameVal.startsWith('ahop_')) type = MapType.AHOP;
-    else if (nameVal.startsWith('pk_')) type = MapType.PARKOUR;
-    else if (nameVal.startsWith('conc_')) type = MapType.CONC;
-    else if (nameVal.startsWith('df_')) type = MapType.DEFRAG;
+    for (const [key, prefix] of Object.entries(MapTypePrefix)) {
+      if (nameVal.startsWith(prefix + '_')) {
+        type = +key;
+        break;
+      }
+    }
+
     this.type.patchValue(type);
     this.inferredMapType = type !== MapType.UNKNOWN;
   }
