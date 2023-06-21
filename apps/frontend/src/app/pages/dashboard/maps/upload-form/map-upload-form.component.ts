@@ -1,12 +1,16 @@
 import { AfterViewInit, Component, OnInit, ViewChild } from '@angular/core';
-import { HttpEvent, HttpEventType } from '@angular/common/http';
+import {
+  HttpErrorResponse,
+  HttpEvent,
+  HttpEventType
+} from '@angular/common/http';
 import { Router } from '@angular/router';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import * as VDF from '@node-steam/vdf';
 import { CreditChangeEvent } from '../map-credits/map-credit/map-credit.component';
 import { NbToastrService } from '@nebular/theme';
 import { mergeMap } from 'rxjs/operators';
-import { forkJoin, of } from 'rxjs';
+import { forkJoin } from 'rxjs';
 import { FileUploadType } from './file-upload/file-upload.component';
 import {
   Map,
@@ -255,7 +259,6 @@ export class MapUploadFormComponent implements OnInit, AfterViewInit {
 
     let mapCreated = false;
     let mapID = -1;
-    let uploadLocation = '';
 
     const mapObject: CreateMap = {
       name: this.name.value,
@@ -285,33 +288,20 @@ export class MapUploadFormComponent implements OnInit, AfterViewInit {
       .createMap(mapObject)
       .pipe(
         mergeMap((response) => {
-          // TODO: The new API doesn't actually set this, didn't realise it needed to.
-          // It's a fucking nasty approach though, lets
-          // 1. make this POST include the upload location as a KEY on dto (so extend mapdto)
-          // 2. keep the mapfileuploadlocation for now at least since map submission system
-          // probs needs it
           mapID = response.body.id;
-          uploadLocation = response.headers.get('Location');
           mapCreated = true;
           this.toasterService.success(
             'Please wait for the map file to upload',
             'Map successfully created'
           );
-          return this.mapsService.updateMapAvatar(mapID, this.avatarFile);
+          return forkJoin([
+            this.mapsService.updateMapAvatar(mapID, this.avatarFile),
+            ...this.extraImages.map((image) =>
+              this.mapsService.createMapImage(mapID, image.file)
+            )
+          ]);
         }),
-        mergeMap(() => {
-          const extraImageCreations = [];
-          for (let i = 0; i < this.extraImages.length; i++)
-            extraImageCreations.push(
-              this.mapsService.createMapImage(mapID, this.extraImages[i].file)
-            );
-          if (extraImageCreations.length > 0)
-            return forkJoin(extraImageCreations);
-          return of({});
-        }),
-        mergeMap(() => {
-          return this.mapsService.uploadMapFile(uploadLocation, this.mapFile);
-        })
+        mergeMap(() => this.mapsService.uploadMapFile(mapID, this.mapFile))
       )
       .subscribe({
         next: (event: HttpEvent<any>) => {
