@@ -18,8 +18,15 @@ import {
   CreateMap
 } from '@momentum/types';
 import { LocalUserService, MapsService } from '@momentum/frontend/data';
-import { MapCreditType, MapType, ZoneType } from '@momentum/constants';
+import {
+  MapCreditType,
+  MapType,
+  MapTypeName,
+  ZoneType
+} from '@momentum/constants';
 import { PartialDeep } from 'type-fest';
+import { Enum } from '@momentum/enum';
+import { MapTypePrefix } from '@momentum/constants';
 
 export interface ImageFilePreview {
   dataBlobURL: string;
@@ -76,10 +83,10 @@ export class MapUploadFormComponent implements OnInit, AfterViewInit {
     zones: ['', [Validators.required, Validators.pattern(/.+(\.zon)/)]]
   });
   creditsForm: FormGroup = this.fb.group({
-    authors: [[], Validators.required],
-    coauthors: [[]],
-    testers: [[]],
-    specialThanks: [[]]
+    [MapCreditType.AUTHOR]: [[], Validators.required],
+    [MapCreditType.COAUTHOR]: [[]],
+    [MapCreditType.TESTER]: [[]],
+    [MapCreditType.SPECIAL_THANKS]: [[]]
   });
   forms: FormGroup[] = [this.filesForm, this.infoForm, this.creditsForm];
 
@@ -116,7 +123,7 @@ export class MapUploadFormComponent implements OnInit, AfterViewInit {
     this.isUploadingMap = false;
     this.mapUploadPercentage = 0;
     this.extraImagesLimit = 5;
-    this.credits = this.credits = {
+    this.credits = {
       [MapCreditType.AUTHOR]: [],
       [MapCreditType.COAUTHOR]: [],
       [MapCreditType.TESTER]: [],
@@ -260,8 +267,20 @@ export class MapUploadFormComponent implements OnInit, AfterViewInit {
         creationDate: this.creationDate.value
       },
       tracks: this.tracks,
-      credits: this.getAllCredits()
+      credits: Object.entries(this.credits).flatMap(([type, users]) =>
+        users.map((credit) => ({
+          // Have to convert type to Number here which is a bit gross, since
+          // using an Object so its keys are strings.
+          // Would make sense to refactor to use Map/WeakMap but cba to
+          // do rn, plus rewrite a bunch of credit stuff soon anyway.
+          // Note: doing this will still require using an objectified version
+          // of whatever data structure we use, in the FormGroup.
+          type: +type,
+          userID: credit.user.id
+        }))
+      )
     };
+
     this.mapsService
       .createMap(mapObject)
       .pipe(
@@ -343,15 +362,15 @@ export class MapUploadFormComponent implements OnInit, AfterViewInit {
 
   onCreditChanged($event: CreditChangeEvent) {
     if ($event.added) {
-      const types = ['authors', 'coauthors', 'testers', 'specialThanks'];
-      this.creditsForm.get(types[$event.type]).patchValue($event.user);
+      this.creditsForm.get($event.type.toString()).patchValue($event.user);
     } else {
-      this.creditsForm.setValue({
-        authors: this.credits[MapCreditType.AUTHOR],
-        coauthors: this.credits[MapCreditType.COAUTHOR],
-        testers: this.credits[MapCreditType.TESTER],
-        specialThanks: this.credits[MapCreditType.SPECIAL_THANKS]
-      });
+      this.creditsForm.setValue(
+        // Map to object of form e.g.
+        // { [MapCreditType.AUTHOR]: this.credits[MapCreditType.AUTHOR] }
+        Object.fromEntries(
+          Enum.values(MapCreditType).map((type) => [type, this.credits[type]])
+        )
+      );
     }
   }
 
@@ -386,12 +405,6 @@ export class MapUploadFormComponent implements OnInit, AfterViewInit {
     this.extraImages.splice(this.extraImages.indexOf(img), 1);
   }
 
-  getAllCredits(): { userID: number; type: MapCreditType }[] {
-    return Object.values(this.credits)
-      .flat()
-      .map((credit) => ({ type: credit.type, userID: credit.userID }));
-  }
-
   generatePreviewMap(): void {
     const youtubeIDMatch = this.youtubeURL.value.match(youtubeRegex);
     this.mapPreview = {
@@ -410,7 +423,12 @@ export class MapUploadFormComponent implements OnInit, AfterViewInit {
         },
         mainTrack: this.tracks.length > 0 ? this.tracks[0] : undefined,
         tracks: this.tracks,
-        credits: this.getAllCredits(),
+        credits: Object.entries(this.credits).flatMap(([type, users]) =>
+          users.map((credit) => ({
+            type: +type,
+            user: credit.user
+          }))
+        ),
         submitter: this.localUsrService.localUser
       },
       images: []
