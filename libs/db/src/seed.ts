@@ -11,6 +11,7 @@ import {
   MapCreditType,
   MapStatus,
   MapType,
+  MapTypePrefix,
   ReportCategory,
   ReportType,
   Role
@@ -20,6 +21,7 @@ import { Bitflags } from '@momentum/bitflags';
 import axios from 'axios';
 import sharp from 'sharp';
 import { nuke } from './nuke';
+import { Enum } from '@momentum/enum';
 
 const prisma = new PrismaClient();
 
@@ -163,10 +165,14 @@ async function createRandomUserStats(userID) {
 }
 
 async function createRandomMap(submitterID) {
+  const type = Random.element(
+    Enum.values(MapType).filter((x) => x !== MapType.UNKNOWN)
+  );
+
   return prisma.map.create({
     data: {
-      name: faker.lorem.word(),
-      type: Random.enumValue(MapType),
+      name: `${MapTypePrefix[+type]}_${faker.lorem.word()}`,
+      type: type,
       status: Random.enumValue(MapStatus),
       fileKey: faker.animal.cat(),
       hash: faker.random.alphaNumeric(),
