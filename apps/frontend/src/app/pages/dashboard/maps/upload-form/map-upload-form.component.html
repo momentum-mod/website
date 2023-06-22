@@ -150,11 +150,9 @@
                       formControlName="type"
                       (selectedChange)="inferredMapType = false"
                     >
-                      <!-- Cast `item.key` back to Number since this was a key
-                      so was stringified.-->
                       <nb-option
                         *ngFor="let item of MapTypeName | keyvalue"
-                        [value]="+item.key"
+                        [value]="item.key"
                         >{{ item.value }}</nb-option
                       >
                     </nb-select>

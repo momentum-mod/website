@@ -358,7 +358,7 @@ describe('Session', () => {
           mapName: map.name,
           mapHash: map.hash,
           steamID: user.steamID,
-          tickRate: Tickrates[map.type],
+          tickRate: Tickrates.get(map.type),
           startTick: 0,
           playerName: 'Abstract Barry'
         });
@@ -824,7 +824,7 @@ describe('Session', () => {
         it('the tickrate is not acceptable', async () => {
           const res = await submitWithOverrides({
             beforeSave: (self) =>
-              (self.replay.header.tickRate = Tickrates[map.type] + 0.001)
+              (self.replay.header.tickRate = Tickrates.get(map.type) + 0.001)
           });
 
           expect(res.statusCode).toBe(400);

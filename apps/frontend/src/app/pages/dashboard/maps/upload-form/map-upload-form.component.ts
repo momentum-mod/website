@@ -160,9 +160,9 @@ export class MapUploadFormComponent implements OnInit, AfterViewInit {
 
     // Infer type from name
     let type = MapType.UNKNOWN;
-    for (const [key, prefix] of Object.entries(MapTypePrefix)) {
+    for (const [key, prefix] of MapTypePrefix.entries()) {
       if (nameVal.startsWith(prefix + '_')) {
-        type = +key;
+        type = key;
         break;
       }
     }

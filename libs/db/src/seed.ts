@@ -171,7 +171,7 @@ async function createRandomMap(submitterID) {
 
   return prisma.map.create({
     data: {
-      name: `${MapTypePrefix[+type]}_${faker.lorem.word()}`,
+      name: `${MapTypePrefix.get(type)}_${faker.lorem.word()}`,
       type: type,
       status: Random.enumValue(MapStatus),
       fileKey: faker.animal.cat(),

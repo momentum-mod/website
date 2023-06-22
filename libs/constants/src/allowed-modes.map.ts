@@ -3,7 +3,7 @@ import { MapType } from './map-type.enum';
 /**
  * The MapTypes that will accept run submissions
  */
-export const AllowedMapTypes: MapType[] = [
+export const AllowedMapTypes: ReadonlyArray<MapType> = Object.freeze([
   MapType.SURF,
   MapType.BHOP,
   MapType.RJ,
@@ -11,4 +11,4 @@ export const AllowedMapTypes: MapType[] = [
   MapType.AHOP,
   MapType.CONC,
   MapType.DEFRAG
-];
+]);

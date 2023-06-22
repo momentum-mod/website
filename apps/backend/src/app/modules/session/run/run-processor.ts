@@ -122,7 +122,7 @@ export class RunProcessor {
             [!Number.isNaN(Number(this.replay.header.runDate)),     ErrorType.BAD_REPLAY_FILE],
             [Number(this.replay.header.runDate) <= nowDate,         ErrorType.OUT_OF_SYNC],
             [Math.abs(this.replay.header.tickRate
-                - Tickrates[this.map.type])
+                - Tickrates.get(this.map.type))
                 < epsilon,                                          ErrorType.OUT_OF_SYNC],
             [runTime * 1000 <= sessionDiff,                         ErrorType.OUT_OF_SYNC],
             [AllowedMapTypes.includes(this.map.type),               ErrorType.UNSUPPORTED_MODE]
