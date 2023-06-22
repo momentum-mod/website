@@ -24,7 +24,7 @@ export class AdminService {
   }
 
   getMaps(query: AdminMapsGetAllQuery): Observable<PagedResponse<Map>> {
-    return this.http.get<PagedResponse<Map>>('admin/maps/', { query });
+    return this.http.get<PagedResponse<Map>>('admin/maps', { query });
   }
 
   deleteMap(mapID: number): Observable<void> {
