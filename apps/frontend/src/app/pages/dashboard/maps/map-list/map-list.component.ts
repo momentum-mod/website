@@ -71,7 +71,7 @@ export class MapListComponent implements OnInit {
     this.statuses = [
       { value: -1, text: 'All' },
       ...Enum.values(MapStatus)
-        .map((status) => ({ value: status, text: MapStatusName[status] }))
+        .map((status) => ({ value: status, text: MapStatusName.get(status) }))
         .sort((a, b) => (a.text < b.text ? 1 : -1))
     ];
 
@@ -79,7 +79,7 @@ export class MapListComponent implements OnInit {
       { value: -1, text: 'All' },
       ...Enum.values(MapType)
         .filter((status) => status !== MapType.UNKNOWN)
-        .map((status) => ({ value: status, text: MapTypeName[status] }))
+        .map((status) => ({ value: status, text: MapTypeName.get(status) }))
         .sort((a, b) => (a.text < b.text ? 1 : -1))
     ];
   }
