@@ -38,7 +38,7 @@ describe('HomeUserLibraryComponent', () => {
   it('should call getMapLibrary on init', () => {
     jest
       .spyOn(userService, 'getMapLibrary')
-      .mockReturnValue(of({ totalCount: 0, returnCount: 0, response: [] }));
+      .mockReturnValue(of({ totalCount: 0, returnCount: 0, data: [] }));
     component.ngOnInit();
     expect(userService.getMapLibrary).toHaveBeenCalled();
   });
@@ -47,7 +47,7 @@ describe('HomeUserLibraryComponent', () => {
     const res = [{ map: { whatever: 1 } }] as any;
     jest
       .spyOn(userService, 'getMapLibrary')
-      .mockReturnValue(of({ totalCount: 1, returnCount: 0, response: res }));
+      .mockReturnValue(of({ totalCount: 1, returnCount: 0, data: res }));
     component.ngOnInit();
     expect(component.mapLibraryCount).toBe(1);
     expect(component.mostRecentlyAddedMap).toEqual({ whatever: 1 });

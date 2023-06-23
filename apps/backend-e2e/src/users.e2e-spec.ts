@@ -57,7 +57,7 @@ describe('Users', () => {
 
         // Quick check we're not sending back stuff that wasn't included.
         // Not doing these for all tests, once or twice can't hurt.
-        for (const user of res.body.response)
+        for (const user of res.body.data)
           expect(user).not.toHaveProperty('profile');
       });
 
@@ -76,7 +76,7 @@ describe('Users', () => {
           token: token
         });
 
-        expect(res.body.response[0].id).toBe(users[0].id);
+        expect(res.body.data[0].id).toBe(users[0].id);
       });
 
       it('should respond with an empty a paged list of users using a search by parameter containing a nonexistent alias', () =>
@@ -115,7 +115,7 @@ describe('Users', () => {
           token: token
         });
 
-        expect(res.body.response[0].id).toBe(users[0].id);
+        expect(res.body.data[0].id).toBe(users[0].id);
       });
 
       it('should respond with an empty array for a nonexistent SteamID parameter', () =>
@@ -136,7 +136,7 @@ describe('Users', () => {
           token: token
         });
 
-        for (const user of res.body.response)
+        for (const user of res.body.data)
           expect([users[0].steamID, users[1].steamID]).toContain(
             BigInt(user.steamID)
           );
@@ -167,7 +167,7 @@ describe('Users', () => {
           token: token
         });
 
-        expect(res.body.response[0].mapRank).toMatchObject({
+        expect(res.body.data[0].mapRank).toMatchObject({
           mapID: map.id,
           userID: users[0].id,
           runID: Number(run.id),
@@ -338,7 +338,7 @@ describe('Users', () => {
         token: token
       });
 
-      expect(res.body.response[0].type).toBe(ActivityType.MAP_UPLOADED);
+      expect(res.body.data[0].type).toBe(ActivityType.MAP_UPLOADED);
     });
 
     it('should respond with a filtered list of activities for the user when using the data query param', () =>
@@ -371,7 +371,7 @@ describe('Users', () => {
         token: token
       });
 
-      for (const act of res.body.response)
+      for (const act of res.body.data)
         expect(act.type).not.toBe(ActivityType.REPORT_FILED);
     });
 
@@ -409,7 +409,7 @@ describe('Users', () => {
         });
 
         // Follow users always include profiles
-        for (const follow of res.body.response) {
+        for (const follow of res.body.data) {
           expect(follow.followee).toHaveProperty('profile');
           expect(follow.followed).toHaveProperty('profile');
         }
@@ -472,7 +472,7 @@ describe('Users', () => {
           token: u1Token
         });
 
-        for (const follow of res.body.response) {
+        for (const follow of res.body.data) {
           expect(follow.followee).toHaveProperty('profile');
           expect(follow.followed).toHaveProperty('profile');
         }

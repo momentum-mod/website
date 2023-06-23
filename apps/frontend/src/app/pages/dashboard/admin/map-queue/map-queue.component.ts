@@ -49,10 +49,10 @@ export class MapQueueComponent implements OnInit {
         next: (response) => {
           if (priority) {
             this.priorityQueueCount = response.totalCount;
-            this.priorityQueue = response.response;
+            this.priorityQueue = response.data;
           } else {
             this.nonPriorityQueueCount = response.totalCount;
-            this.nonPriorityQueue = response.response;
+            this.nonPriorityQueue = response.data;
           }
         },
         error: (error) => {

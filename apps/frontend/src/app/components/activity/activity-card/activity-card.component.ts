@@ -44,7 +44,7 @@ export class ActivityCardComponent implements OnInit {
 
   onGetActivities(response: PagedResponse<Activity>): void {
     this.initialActivity = true;
-    this.activities = response.response;
+    this.activities = response.data;
     this.filterActivites(this.activities);
   }
 
@@ -72,9 +72,9 @@ export class ActivityCardComponent implements OnInit {
       .getRecentActivity({ skip: 10 * this.recentActPage++ })
       .subscribe((response) => {
         // Don't call the API anymore if there are no more activities left
-        if (response.response.length > 0) {
+        if (response.data.length > 0) {
           this.canLoadMore = true;
-          this.activities.push(...response.response);
+          this.activities.push(...response.data);
           this.filterActivites(this.activities);
         }
       });

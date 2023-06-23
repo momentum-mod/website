@@ -89,7 +89,7 @@ export class UserProfileComponent implements OnInit, OnDestroy {
 
           this.avatarLoaded = true;
           this.usersService.getUserFollows(this.user).subscribe({
-            next: (response) => (this.followingUsers = response.response),
+            next: (response) => (this.followingUsers = response.data),
             error: (error) =>
               this.toastService.danger(
                 error.message,
@@ -97,7 +97,7 @@ export class UserProfileComponent implements OnInit, OnDestroy {
               )
           });
           this.usersService.getFollowersOfUser(this.user).subscribe({
-            next: (response) => (this.followedByUsers = response.response),
+            next: (response) => (this.followedByUsers = response.data),
             error: (error) =>
               this.toastService.danger(
                 error.message,

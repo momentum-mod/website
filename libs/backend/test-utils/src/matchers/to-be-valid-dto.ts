@@ -1,5 +1,6 @@
 import { plainToInstance } from 'class-transformer';
 import { validateSync, ValidationError } from 'class-validator';
+import { PagedResponseDto } from '@momentum/backend/dto';
 
 declare global {
   // eslint-disable-next-line @typescript-eslint/no-namespace
@@ -40,22 +41,22 @@ export function toBeValidDto(received, type) {
 }
 
 export function toBeValidPagedDto(
-  received,
+  received: PagedResponseDto<any>,
   type,
   returnCount?: number,
   totalCount?: number
 ) {
   if (
     !received ||
-    !Object.hasOwn(received, 'response') ||
-    !Array.isArray(received.response)
+    !Object.hasOwn(received, 'data') ||
+    !Array.isArray(received.data)
   )
     return {
       message: () => 'expected paged DTO with response array, data was invalid',
       pass: false
     };
 
-  if (received.response.length === 0 && received.returnCount !== 0)
+  if (received.data.length === 0 && received.returnCount !== 0)
     return {
       message: () =>
         'expected paged DTO with populated response array, array was empty',
@@ -86,7 +87,7 @@ export function toBeValidPagedDto(
 
   const totalErrors: [any, ValidationError[]][] = [];
 
-  for (const item of received.response) {
+  for (const item of received.data) {
     const errors = validate(type, item);
 
     if (errors.length > 0) {

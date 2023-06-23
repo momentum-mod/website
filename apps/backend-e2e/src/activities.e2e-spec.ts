@@ -65,18 +65,18 @@ describe('Activities', () => {
         });
 
         expect(
-          res.body.response.find(
+          res.body.data.find(
             (data) => data.userID === u1.id && data.data === 122
           ).type
         ).toBe(ActivityType.MAP_APPROVED);
         expect(
-          res.body.response.find(
+          res.body.data.find(
             (data) => data.userID === u1.id && data.data === 123
           ).type
         ).toBe(ActivityType.WR_ACHIEVED);
-        expect(
-          res.body.response.find((data) => data.userID === u2.id).type
-        ).toBe(ActivityType.REVIEW_MADE);
+        expect(res.body.data.find((data) => data.userID === u2.id).type).toBe(
+          ActivityType.REVIEW_MADE
+        );
       });
 
       it('should respond with array of activities with userID parameter', async () => {
@@ -89,9 +89,7 @@ describe('Activities', () => {
         });
 
         expect(res);
-        expect(res.body.response.every((data) => data.userID == u1.id)).toBe(
-          true
-        );
+        expect(res.body.data.every((data) => data.userID == u1.id)).toBe(true);
       });
 
       it('should respond with array of activities with data parameter', async () => {
@@ -104,9 +102,7 @@ describe('Activities', () => {
         });
 
         expect(res);
-        expect(res.body.response.every((data) => data.data == '124')).toBe(
-          true
-        );
+        expect(res.body.data.every((data) => data.data == '124')).toBe(true);
       });
 
       it('should respond with array of activities with type paramater', async () => {
@@ -120,9 +116,8 @@ describe('Activities', () => {
 
         expect(res);
         expect(
-          res.body.response.filter(
-            (d) => d.userID === u1.id || d.userID === u2.id
-          ).length
+          res.body.data.filter((d) => d.userID === u1.id || d.userID === u2.id)
+            .length
         ).toBe(1);
       });
 
@@ -137,9 +132,8 @@ describe('Activities', () => {
 
         expect(res);
         expect(
-          res.body.response.filter(
-            (d) => d.userID === u1.id || d.userID === u2.id
-          ).length
+          res.body.data.filter((d) => d.userID === u1.id || d.userID === u2.id)
+            .length
         ).toBe(3);
       });
 
@@ -167,7 +161,7 @@ describe('Activities', () => {
         });
 
         expect(res);
-        expect(res.body.response).toBeInstanceOf(Array);
+        expect(res.body.data).toBeInstanceOf(Array);
       });
 
       it('should 400 when a bad type is passed', () =>

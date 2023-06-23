@@ -720,8 +720,7 @@ describe('User', () => {
           validatePaged: ActivityDto
         });
 
-        for (const r of res.body.response)
-          expect(r.user.alias).toBe(user.alias);
+        for (const r of res.body.data) expect(r.user.alias).toBe(user.alias);
         expect(res.body.totalCount).toBe(3);
         expect(res.body.returnCount).toBe(3);
       });
@@ -752,7 +751,7 @@ describe('User', () => {
         expect(res.body).toMatchObject({
           totalCount: 1,
           returnCount: 1,
-          response: [{ type: ActivityType.MAP_UPLOADED }]
+          data: [{ type: ActivityType.MAP_UPLOADED }]
         });
       });
 
@@ -777,7 +776,7 @@ describe('User', () => {
         });
 
         expect(res.body).toMatchObject({ totalCount: 0, returnCount: 0 });
-        expect(res.body.response).toBeInstanceOf(Array);
+        expect(res.body.data).toBeInstanceOf(Array);
       });
 
       it('should 401 when no access token is provided', () =>
@@ -818,10 +817,7 @@ describe('User', () => {
         expect(res.body).toMatchObject({
           totalCount: 2,
           returnCount: 2,
-          response: [
-            { user: { alias: u2.alias } },
-            { user: { alias: u2.alias } }
-          ]
+          data: [{ user: { alias: u2.alias } }, { user: { alias: u2.alias } }]
         });
       });
 
@@ -851,7 +847,7 @@ describe('User', () => {
         expect(res.body).toMatchObject({
           totalCount: 1,
           returnCount: 1,
-          response: [{ userID: u2.id, type: ActivityType.WR_ACHIEVED, data: 1 }]
+          data: [{ userID: u2.id, type: ActivityType.WR_ACHIEVED, data: 1 }]
         });
       });
 
@@ -867,7 +863,7 @@ describe('User', () => {
         expect(res.body).toMatchObject({
           totalCount: 1,
           returnCount: 1,
-          response: [{ userID: u2.id, data: 2, type: ActivityType.REVIEW_MADE }]
+          data: [{ userID: u2.id, data: 2, type: ActivityType.REVIEW_MADE }]
         });
       });
 
@@ -880,7 +876,7 @@ describe('User', () => {
         });
 
         expect(res.body).toMatchObject({ totalCount: 0, returnCount: 0 });
-        expect(res.body.response).toBeInstanceOf(Array);
+        expect(res.body.data).toBeInstanceOf(Array);
       });
 
       it('should respond with an empty list of activities for a u1 that is not following anyone', async () => {
@@ -891,7 +887,7 @@ describe('User', () => {
         });
 
         expect(res.body).toMatchObject({ totalCount: 0, returnCount: 0 });
-        expect(res.body.response).toBeInstanceOf(Array);
+        expect(res.body.data).toBeInstanceOf(Array);
       });
 
       it('should 401 when no access token is provided', () =>
@@ -1589,10 +1585,7 @@ describe('User', () => {
           token: token
         });
 
-        expect(res.body.response).toMatchObject([
-          { read: false },
-          { read: true }
-        ]);
+        expect(res.body.data).toMatchObject([{ read: false }, { read: true }]);
       });
 
       it('should respond with a limited list of notifications for the user when using the take query param', () =>

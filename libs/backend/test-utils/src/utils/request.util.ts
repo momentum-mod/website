@@ -212,7 +212,7 @@ export class RequestUtil {
 
     expect(res.body.returnCount).toBe(1);
     expect(res2.body.returnCount).toBe(1);
-    expect(res.body.response[0]).not.toEqual(res2.body.response[0]);
+    expect(res.body.data[0]).not.toEqual(res2.body.data[0]);
   }
 
   async expandTest(
@@ -251,7 +251,7 @@ export class RequestUtil {
 
     if (options.paged ?? false) {
       options.filter ??= () => true;
-      const toTest = res.body.response.filter(options.filter);
+      const toTest = res.body.data.filter(options.filter);
       if (toTest.length === 0)
         throw 'nothing passed to expandTest passes filter';
 
@@ -284,8 +284,8 @@ export class RequestUtil {
       token: options.token
     });
 
-    expect(res.body.response).toStrictEqual(
-      [...res.body.response].sort(options.sortFn)
+    expect(res.body.data).toStrictEqual(
+      [...res.body.data].sort(options.sortFn)
     );
   }
 
@@ -317,7 +317,7 @@ export class RequestUtil {
       }
     });
 
-    for (const item of res.body.response) {
+    for (const item of res.body.data) {
       const propertyValue: string = getDeep(item, options.searchPropertyName);
       const stringCheck =
         options.searchMethod === 'startsWith'

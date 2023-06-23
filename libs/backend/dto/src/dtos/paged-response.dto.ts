@@ -49,13 +49,13 @@ export class PagedResponseDto<T> {
     description: 'Array of the response type found'
   })
   @IsArray()
-  readonly response: T[];
+  readonly data: T[];
 
   constructor(c: { new (): T }, [data, count]: [any[], number]) {
     const dtos = data.map((x) => DtoFactory(c, x));
 
     this.totalCount = count;
     this.returnCount = dtos.length;
-    this.response = dtos;
+    this.data = dtos;
   }
 }

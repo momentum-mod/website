@@ -83,7 +83,7 @@ describe('Maps', () => {
           token: u1Token
         });
 
-        for (const item of res.body.response) {
+        for (const item of res.body.data) {
           expect(item).toHaveProperty('mainTrack');
           expect(item).toHaveProperty('info');
         }
@@ -128,7 +128,7 @@ describe('Maps', () => {
           token: u1Token
         });
 
-        expect(res.body.response[0]).toMatchObject({
+        expect(res.body.data[0]).toMatchObject({
           submitterID: u1.id,
           id: m2.id
         });
@@ -149,7 +149,7 @@ describe('Maps', () => {
           token: u1Token
         });
 
-        expect(res.body.response[0].type).toBe(newType);
+        expect(res.body.data[0].type).toBe(newType);
       });
 
       it('should respond with expanded map data using the credits expand parameter', async () => {
@@ -277,7 +277,7 @@ describe('Maps', () => {
           token: u1Token
         });
 
-        const map = res.body.response.find((map) => map.id === m1.id);
+        const map = res.body.data.find((map) => map.id === m1.id);
         expect(map).toMatchObject({
           worldRecord: { rank: 1, user: { id: u2.id } }
         });
@@ -299,7 +299,7 @@ describe('Maps', () => {
           token: u1Token
         });
 
-        const map = res.body.response.find((map) => map.id === m1.id);
+        const map = res.body.data.find((map) => map.id === m1.id);
         expect(map).toMatchObject({
           personalBest: { rank: 2, user: { id: u1.id } }
         });
@@ -314,7 +314,7 @@ describe('Maps', () => {
           token: u1Token
         });
 
-        const map = res.body.response.find((map) => map.id === m1.id);
+        const map = res.body.data.find((map) => map.id === m1.id);
         expect(map).toMatchObject({
           worldRecord: { rank: 1, user: { id: u2.id } },
           personalBest: { rank: 2, user: { id: u1.id } }
@@ -388,8 +388,7 @@ describe('Maps', () => {
           token: u1Token
         });
 
-        for (const r of res.body.response)
-          expect(r.mainTrack.isLinear).toBe(false);
+        for (const r of res.body.data) expect(r.mainTrack.isLinear).toBe(false);
 
         const res2 = await req.get({
           url: 'maps',
@@ -399,7 +398,7 @@ describe('Maps', () => {
           token: u1Token
         });
 
-        expect(res2.body.response[0].mainTrack.isLinear).toBe(true);
+        expect(res2.body.data[0].mainTrack.isLinear).toBe(true);
       });
 
       it('should respond with filtered maps when using both the difficultyLow, difficultyHigh and isLinear filters', async () => {
@@ -2745,7 +2744,7 @@ describe('Maps', () => {
           token: u1Token
         });
 
-        expect(res.body.response[0].userID).toBe(u2.id);
+        expect(res.body.data[0].userID).toBe(u2.id);
       });
 
       it('should respond with a list of runs filtered by a list of user ids', () =>
@@ -2812,7 +2811,7 @@ describe('Maps', () => {
           token: u1Token
         });
 
-        for (const x of res.body.response) expect(x.map).toHaveProperty('info');
+        for (const x of res.body.data) expect(x.map).toHaveProperty('info');
       });
 
       it('should respond with a list of runs that are personal bests', () =>
@@ -2903,7 +2902,7 @@ describe('Maps', () => {
           token: u1Token
         });
 
-        expect(res.body.response[0]).toMatchObject({
+        expect(res.body.data[0]).toMatchObject({
           mapID: map.id,
           userID: u2.id,
           flags: 1,
@@ -2920,7 +2919,7 @@ describe('Maps', () => {
           token: u1Token
         });
 
-        for (const rank of res.body.response)
+        for (const rank of res.body.data)
           expect([u1.id, u2.id]).toContain(rank.userID);
       });
 
@@ -2933,7 +2932,7 @@ describe('Maps', () => {
           token: u1Token
         });
 
-        for (const rank of res.body.response)
+        for (const rank of res.body.data)
           expect([u1.id, u2.id]).toContain(rank.userID);
       });
 

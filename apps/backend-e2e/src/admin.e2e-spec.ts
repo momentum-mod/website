@@ -563,7 +563,7 @@ describe('Admin', () => {
           token: adminToken
         });
 
-        for (const item of res.body.response) {
+        for (const item of res.body.data) {
           expect(item).toHaveProperty('mainTrack');
           expect(item).toHaveProperty('info');
         }
@@ -620,7 +620,7 @@ describe('Admin', () => {
           token: adminToken
         });
 
-        expect(res.body.response[0]).toMatchObject({
+        expect(res.body.data[0]).toMatchObject({
           submitterID: u1.id,
           id: m2.id
         });
@@ -640,7 +640,7 @@ describe('Admin', () => {
           token: adminToken
         });
 
-        expect(res.body.response[0]).toMatchObject({
+        expect(res.body.data[0]).toMatchObject({
           status: MapStatus.PUBLIC_TESTING,
           id: m2.id
         });
@@ -946,16 +946,16 @@ describe('Admin', () => {
           token: adminToken,
           validatePaged: { type: ReportDto, count: 2 }
         });
-        expect(reports.body).toHaveProperty('response');
-        expect(reports.body.response[0].data).toBe(Number(r1.data));
-        expect(reports.body.response[0].type).toBe(r1.type);
-        expect(reports.body.response[0].category).toBe(r1.category);
-        expect(reports.body.response[0].message).toBe(r1.message);
-        expect(reports.body.response[0].resolved).toBe(r1.resolved);
-        expect(reports.body.response[0].resolutionMessage).toBe(
+        expect(reports.body).toHaveProperty('data');
+        expect(reports.body.data[0].data).toBe(Number(r1.data));
+        expect(reports.body.data[0].type).toBe(r1.type);
+        expect(reports.body.data[0].category).toBe(r1.category);
+        expect(reports.body.data[0].message).toBe(r1.message);
+        expect(reports.body.data[0].resolved).toBe(r1.resolved);
+        expect(reports.body.data[0].resolutionMessage).toBe(
           r1.resolutionMessage
         );
-        expect(reports.body.response[0].submitterID).toBe(r1.submitterID);
+        expect(reports.body.data[0].submitterID).toBe(r1.submitterID);
       });
 
       it('should only return resolved or non resolved based on query param resolved', async () => {
@@ -967,7 +967,7 @@ describe('Admin', () => {
           validatePaged: { type: ReportDto, count: 1 }
         });
 
-        expect(reportsResolved.body.response[0].resolved).toBe(true);
+        expect(reportsResolved.body.data[0].resolved).toBe(true);
 
         const reportsNonResolved = await req.get({
           url: 'admin/reports',
@@ -977,7 +977,7 @@ describe('Admin', () => {
           validatePaged: { type: ReportDto, count: 1 }
         });
 
-        expect(reportsNonResolved.body.response[0].resolved).toBe(false);
+        expect(reportsNonResolved.body.data[0].resolved).toBe(false);
       });
 
       it('should limit the result set when using the take query param', () =>
