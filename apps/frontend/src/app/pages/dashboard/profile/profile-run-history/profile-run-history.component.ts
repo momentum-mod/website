@@ -72,7 +72,7 @@ export class ProfileRunHistoryComponent implements OnInit {
       .subscribe({
         next: (response) => {
           this.runCount = response.totalCount;
-          this.runHistory = response.response;
+          this.runHistory = response.data;
         },
         error: (error) =>
           this.toastService.danger(error.message, 'Cannot get user map credits')

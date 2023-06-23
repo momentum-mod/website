@@ -133,7 +133,7 @@ export class MapListComponent implements OnInit {
       observer = this.localUserService.getMapLibrary(options).pipe(
         map((res) => ({
           count: res.returnCount,
-          response: res.response
+          response: res.data
             .filter((item) => item.map.favorites.length > 0)
             .map((item) => item.map)
         }))
@@ -142,14 +142,14 @@ export class MapListComponent implements OnInit {
       observer = this.localUserService.getMapLibrary(options).pipe(
         map((res) => ({
           count: res.returnCount,
-          response: res.response.map((item) => item.map)
+          response: res.data.map((item) => item.map)
         }))
       );
     } else if (this.searchOptions.value.inFavorites) {
       observer = this.localUserService.getMapFavorites(options).pipe(
         map((res) => ({
           count: res.returnCount,
-          response: res.response.map((item) => item.map)
+          response: res.data.map((item) => item.map)
         }))
       );
     } else {
@@ -159,7 +159,7 @@ export class MapListComponent implements OnInit {
     observer.pipe(finalize(() => (this.requestSent = true))).subscribe({
       next: (res) => {
         this.mapCount = res.returnCount;
-        this.maps = res.response;
+        this.maps = res.data;
       },
       error: (err) => {
         this.toasterService.danger(err.message, 'Failed to get maps');

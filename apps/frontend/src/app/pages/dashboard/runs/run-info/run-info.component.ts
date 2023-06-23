@@ -45,7 +45,7 @@ export class RunInfoComponent implements OnInit {
             .getRanks(this.run.mapID, options)
             .subscribe((response) => {
               if (response.totalCount && response.totalCount === 1)
-                this.personalBestRun = response.response[0].run;
+                this.personalBestRun = response.data[0].run;
             });
         }
       });

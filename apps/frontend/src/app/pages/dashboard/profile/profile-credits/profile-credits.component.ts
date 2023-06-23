@@ -51,7 +51,7 @@ export class ProfileCreditsComponent implements OnInit {
       .subscribe({
         next: (response) => {
           this.creditCount = response.totalCount;
-          this.mapCredits = response.response;
+          this.mapCredits = response.data;
         },
         error: (error) =>
           this.toastService.danger(error.message, 'Cannot get user map credits')

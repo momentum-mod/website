@@ -17,8 +17,7 @@ export class HomeUserLibraryComponent implements OnInit {
     this.userService.getMapLibrary({ take: 1 }).subscribe({
       next: (response) => {
         this.mapLibraryCount = response.totalCount;
-        if (response.response[0])
-          this.mostRecentlyAddedMap = response.response[0].map;
+        if (response.data[0]) this.mostRecentlyAddedMap = response.data[0].map;
       },
       error: (error) => console.error(error)
     });

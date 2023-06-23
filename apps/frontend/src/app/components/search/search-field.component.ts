@@ -132,7 +132,7 @@ export class SearchFieldComponent implements OnChanges, AfterViewInit {
         .getUsers({
           search: term.slice(Math.max(0, this.onlyUsers ? 5 : 0)).trim()
         })
-        .subscribe((resp) => (this.users = resp.response));
+        .subscribe((resp) => (this.users = resp.data));
     }
     if (!this.onlyUsers) {
       this.mapsService
@@ -140,7 +140,7 @@ export class SearchFieldComponent implements OnChanges, AfterViewInit {
           expand: ['thumbnail'],
           search: term.slice(Math.max(0, this.onlyMaps ? 4 : 0)).trim()
         })
-        .subscribe((resp) => (this.maps = resp.response));
+        .subscribe((resp) => (this.maps = resp.data));
     }
   }
 

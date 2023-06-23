@@ -164,7 +164,7 @@ export class MapEditComponent implements OnInit, OnDestroy {
       .pipe(
         finalize(() =>
           this.mapService.getMapCredits(this.map.id).subscribe((response) => {
-            this.originalCreditIds = response.response.map((val) => +val.id);
+            this.originalCreditIds = response.data.map((val) => +val.id);
             event.target.disabled = false;
           })
         )

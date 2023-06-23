@@ -51,7 +51,7 @@ export class ReportQueueComponent implements OnInit {
       .subscribe({
         next: (response) => {
           this.reportQueueCount = response.totalCount;
-          this.reportQueue = response.response;
+          this.reportQueue = response.data;
         },
         error: (error) => {
           console.error(error);

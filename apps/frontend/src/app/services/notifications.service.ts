@@ -31,7 +31,7 @@ export class NotificationsService {
   checkNotifications() {
     if (this.authService.isAuthenticated())
       this.localUserService.getNotifications().subscribe((resp) => {
-        if (resp) this.notificationsSubject.next(resp.response);
+        if (resp) this.notificationsSubject.next(resp.data);
       });
   }
 

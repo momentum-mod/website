@@ -81,7 +81,7 @@ describe('Runs', () => {
           token: token
         });
 
-        for (const run of res.body.response) expect(run).toHaveProperty('user');
+        for (const run of res.body.data) expect(run).toHaveProperty('user');
       });
 
       it('should respond with a list of runs with take parameter', () =>
@@ -99,7 +99,7 @@ describe('Runs', () => {
           token: token
         });
 
-        for (const run of res.body.response) expect(run.mapID).toBe(maps[0].id);
+        for (const run of res.body.data) expect(run.mapID).toBe(maps[0].id);
       });
 
       it('should respond with a list of runs filtered by userID parameter', async () => {
@@ -111,8 +111,7 @@ describe('Runs', () => {
           token: token
         });
 
-        for (const run of res.body.response)
-          expect(run.userID).toBe(users[0].id);
+        for (const run of res.body.data) expect(run.userID).toBe(users[0].id);
       });
 
       it('should respond with a list of runs filtered by a list of user ids', async () => {
@@ -125,7 +124,7 @@ describe('Runs', () => {
           token: token
         });
 
-        for (const run of res.body.response)
+        for (const run of res.body.data)
           expect(ids).toContain(run.userID.toString());
       });
 
@@ -138,7 +137,7 @@ describe('Runs', () => {
           token: token
         });
 
-        expect(res.body.response[0]).toMatchObject({
+        expect(res.body.data[0]).toMatchObject({
           flags: 1,
           userID: users[0].id,
           mapID: maps[0].id
@@ -163,7 +162,7 @@ describe('Runs', () => {
           token: token
         });
 
-        expect(res.body.response.filter((x) => x.rank !== null).length).toBe(2);
+        expect(res.body.data.filter((x) => x.rank !== null).length).toBe(2);
       });
 
       it('should respond with a list of runs with the zoneStats include', () =>
@@ -193,8 +192,7 @@ describe('Runs', () => {
           token: token
         });
 
-        for (const run of res.body.response)
-          expect(run.map).toHaveProperty('info');
+        for (const run of res.body.data) expect(run.map).toHaveProperty('info');
       });
 
       it('should respond with a list of runs filtered by partial mapName match', async () => {
@@ -206,7 +204,7 @@ describe('Runs', () => {
           token: token
         });
 
-        expect(res.body.response[0].mapID).toBe(maps[0].id);
+        expect(res.body.data[0].mapID).toBe(maps[0].id);
       });
 
       it('should respond with a list of runs that are personal bests', async () => {
@@ -218,7 +216,7 @@ describe('Runs', () => {
           token: token
         });
 
-        for (const run of res.body.response) expect(run).toHaveProperty('rank');
+        for (const run of res.body.data) expect(run).toHaveProperty('rank');
       });
 
       it('should respond with a list of runs sorted by date', () =>

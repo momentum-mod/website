@@ -69,8 +69,7 @@ export class MapLeaderboardComponent {
       .pipe(finalize(() => (this.searchedRanks = true)))
       .subscribe({
         next: (response) => {
-          if (!Array.isArray(response))
-            this.leaderboardRanks = response.response;
+          if (!Array.isArray(response)) this.leaderboardRanks = response.data;
         },
         error: (error) =>
           this.toasterService.danger(error.message, 'Could not find runs')
