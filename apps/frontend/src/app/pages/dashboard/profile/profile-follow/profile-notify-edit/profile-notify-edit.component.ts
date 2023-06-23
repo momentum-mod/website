@@ -1,6 +1,7 @@
 import { Component, Input, OnInit } from '@angular/core';
 import { ActivityType } from '@momentum/constants';
 import { NbDialogRef } from '@nebular/theme';
+import { Bitflags } from '@momentum/bitflags';
 
 @Component({
   selector: 'mom-profile-notify-edit-modal',
@@ -20,11 +21,11 @@ export class ProfileNotifyEditComponent implements OnInit {
   constructor(protected dialogRef: NbDialogRef<ProfileNotifyEditComponent>) {}
 
   ngOnInit() {
-    for (const perm in this.checkboxFlags) {
-      if ((1 << this.checkboxFlags[perm].value) & this.flags) {
-        this.checkboxFlags[perm].checked = true;
-      }
-    }
+    for (const [type, { value }] of Object.entries(this.checkboxFlags))
+      // prettier-ignore
+      // Prettier removes braces around `1 << value which` errors in WebStorm.
+      // https://youtrack.jetbrains.com/issue/WEB-61626/Parsing-error-for-valid-Typescript-bit-shift-expression
+      this.checkboxFlags[type].checked = Bitflags.has((1 << value), this.flags);
   }
 
   close() {
@@ -32,11 +33,10 @@ export class ProfileNotifyEditComponent implements OnInit {
   }
 
   submit() {
-    for (const perm in this.checkboxFlags) {
-      if (this.checkboxFlags[perm].checked) {
-        this.flags |= 1 << this.checkboxFlags[perm].value;
-      } else this.flags &= ~(1 << this.checkboxFlags[perm].value);
-    }
+    for (const { checked, value } of Object.values(this.checkboxFlags))
+      this.flags = checked
+        ? Bitflags.add(this.flags, 1 << value)
+        : Bitflags.remove(this.flags, 1 << value);
     this.dialogRef.close({ newFlags: this.flags });
   }
 }
