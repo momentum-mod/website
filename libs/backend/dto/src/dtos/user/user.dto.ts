@@ -111,6 +111,14 @@ export class UpdateUserDto {
   @IsString()
   @IsOptional()
   bio?: string;
+
+  @ApiPropertyOptional({
+    type: String,
+    description: 'The country code to set (requires ISO Alpha-2 code)'
+  })
+  @IsISO31661Alpha2()
+  @IsOptional()
+  country?: string;
 }
 
 export class AdminUpdateUserDto extends UpdateUserDto {
