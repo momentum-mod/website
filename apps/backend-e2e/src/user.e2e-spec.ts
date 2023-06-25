@@ -199,6 +199,37 @@ describe('User', () => {
 
       it('should 401 when no access token is provided', () =>
         req.unauthorizedTest('user', 'patch'));
+
+      it("should update the authenticated user's country code", async () => {
+        const [user, token] = await db.createAndLoginUser();
+        const newCountryCode = 'TL';
+
+        await req.patch({
+          url: 'user',
+          status: 204,
+          body: { countryCode: newCountryCode },
+          token: token
+        });
+
+        const updatedUser = await prisma.user.findFirst({
+          where: { id: user.id },
+          include: { profile: true }
+        });
+
+        expect(updatedUser.country).toBe(newCountryCode);
+      });
+
+      it('should 400 since countryCode is not ISO Alpha-2 (verified by class-validator)', async () => {
+        const [_, token] = await db.createAndLoginUser();
+        const newCountryCode = 'NAN';
+
+        await req.patch({
+          url: 'user',
+          status: 400,
+          body: { countryCode: newCountryCode },
+          token: token
+        });
+      });
     });
   });
 

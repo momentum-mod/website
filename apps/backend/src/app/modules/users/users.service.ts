@@ -205,7 +205,7 @@ export class UsersService {
 
     const updateInput: Prisma.UserUpdateInput = {};
 
-    if (!update.alias && !update.bio)
+    if (!update.alias && !update.bio && !update.country)
       throw new BadRequestException('Request contains no valid update data');
 
     // Strict check - we want to handle if alias is empty string
@@ -239,6 +239,10 @@ export class UsersService {
       } else {
         updateInput.profile = { update: { bio: update.bio } };
       }
+    }
+
+    if (update.country) {
+      updateInput.country = update.country;
     }
 
     await this.userRepo.update(userID, updateInput);
