@@ -1,0 +1,24 @@
+.user-search-result {
+  display: flex;
+  align-items: center;
+
+  .avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 5px;
+  }
+
+  .content {
+    margin-left: 1rem;
+
+    .alias {
+      font-size: 1.1rem;
+      font-weight: 700;
+    }
+
+    .steamid {
+      font-size: 0.95rem;
+      font-style: italic;
+    }
+  }
+}

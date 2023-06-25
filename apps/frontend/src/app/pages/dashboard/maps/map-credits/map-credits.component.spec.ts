@@ -9,7 +9,7 @@ import {
   NbThemeModule,
   NbUserModule
 } from '@nebular/theme';
-import { UserModule } from '../../user/user.module';
+import { UserSearchComponent } from '../../../../components/user-search/user-search.component';
 import { HttpClientTestingModule } from '@angular/common/http/testing';
 
 describe('MapCreditsComponent', () => {
@@ -23,10 +23,13 @@ describe('MapCreditsComponent', () => {
         NbCardModule,
         NbPopoverModule,
         NbUserModule,
-        UserModule,
         HttpClientTestingModule
       ],
-      declarations: [MapCreditsComponent, MapCreditComponent]
+      declarations: [
+        MapCreditsComponent,
+        MapCreditComponent,
+        UserSearchComponent
+      ]
     }).compileComponents();
   }));
 

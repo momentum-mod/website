@@ -6,12 +6,11 @@ import { ProfileCreditsComponent } from './profile-credits/profile-credits.compo
 import { ProfileRunHistoryComponent } from './profile-run-history/profile-run-history.component';
 import { ProfileRoutingModule } from './profile-routing.module';
 import { ProfileComponent } from './profile.component';
-import { UserModule } from '../user/user.module';
 import { ProfileNotifyEditComponent } from './profile-follow/profile-notify-edit/profile-notify-edit.component';
 import { SharedModule } from '../../../shared.module';
 
 @NgModule({
-  imports: [SharedModule, ProfileRoutingModule, UserModule],
+  imports: [SharedModule, ProfileRoutingModule],
   declarations: [
     ProfileComponent,
     UserProfileComponent,

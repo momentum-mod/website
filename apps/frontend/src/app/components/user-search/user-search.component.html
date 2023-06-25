@@ -2,7 +2,7 @@
   <input nbInput formControlName="search" class="form-control" type="text" #searchInput />
   <nb-list class="shadow overlay-backdrop mt-2" *ngIf="foundUsers.length > 0">
     <nb-list-item *ngFor="let user of foundUsers" (click)="confirmUser(user)">
-      <nb-user [name]="user.alias" [picture]="user.avatarURL"></nb-user>
+      <mom-user-search-result [user]="user" />
     </nb-list-item>
   </nb-list>
 </form>

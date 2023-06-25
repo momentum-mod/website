@@ -16,6 +16,8 @@ import { DirectivesModule } from '@momentum/frontend/directives';
 import { PipesModule } from '@momentum/frontend/pipes';
 import { RouterModule } from '@angular/router';
 import { NbSearchModule } from './search/search.module';
+import { UserSearchComponent } from './user-search/user-search.component';
+import { UserSearchResultComponent } from './user-search/user-search-result.component';
 
 const COMPONENTS = [
   HeaderComponent,
@@ -27,7 +29,9 @@ const COMPONENTS = [
   ReportButtonComponent,
   CreateReportDialogComponent,
   ConfirmDialogComponent,
-  DeleteUserDialogComponent
+  DeleteUserDialogComponent,
+  UserSearchComponent,
+  UserSearchResultComponent
 ];
 
 @NgModule({
