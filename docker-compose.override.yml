@@ -32,9 +32,11 @@ services:
     # "mb myminio/momentum" command:
     # /usr/bin/mc rm -r --force momentum_minio/momtest;
     entrypoint: >
-      /bin/sh -c " /usr/bin/mc alias set momentum_minio http://minio:9000 minio
-      minio123; /usr/bin/mc mb momentum_minio/momtest --ignore-existing;
-      /usr/bin/mc anonymous set public momentum_minio/momtest;"
+      /bin/sh -c "
+        mc alias set momentum_minio http://minio:9000 minio minio123 &&
+        mc mb momentum_minio/momtest --ignore-existing &&
+        mc anonymous set public momentum_minio/momtest
+      "
   db:
     platform: linux/x86_64
     env_file:
