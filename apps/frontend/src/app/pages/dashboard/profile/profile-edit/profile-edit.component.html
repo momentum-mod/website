@@ -61,6 +61,20 @@
                 Username is required.
               </nb-alert>
             </div>
+
+            <div class="form-group">
+              <h5>Country</h5>
+              <nb-select
+                formControlName="country"
+              >
+                <nb-option
+                  *ngFor="let item of ISOCountryCode | keyvalue"
+                  [value]="item.key"
+                  >{{ item.value }}</nb-option
+                >
+              </nb-select>
+            </div>
+
             <div class="form-group" [ngClass]="{ 'has-error': !bio.valid }">
               <h5>Bio</h5>
               <textarea

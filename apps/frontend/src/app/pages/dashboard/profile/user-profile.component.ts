@@ -3,7 +3,7 @@ import { switchMap, takeUntil } from 'rxjs/operators';
 import { ActivatedRoute, ParamMap, Router } from '@angular/router';
 import { ReplaySubject, Subject } from 'rxjs';
 import { NbToastrService } from '@nebular/theme';
-import { Ban, ReportType, Role } from '@momentum/constants';
+import { Ban, ISOCountryCode, ReportType, Role } from '@momentum/constants';
 import { Follow, User } from '@momentum/types';
 import { LocalUserService, UsersService } from '@momentum/frontend/data';
 
@@ -26,6 +26,7 @@ export class UserProfileComponent implements OnInit, OnDestroy {
   isAdmin: boolean;
   avatarUrl: string;
   avatarLoaded: boolean;
+  countryDisplayName: string;
   followingUsers: Follow[];
   followedByUsers: Follow[];
 
@@ -46,6 +47,7 @@ export class UserProfileComponent implements OnInit, OnDestroy {
     this.followingUsers = [];
     this.followedByUsers = [];
     this.avatarUrl = '/assets/images/blank_avatar.jpg';
+    this.countryDisplayName = '';
   }
 
   ngOnInit() {
@@ -88,6 +90,7 @@ export class UserProfileComponent implements OnInit, OnDestroy {
             this.avatarUrl = this.user.avatarURL;
 
           this.avatarLoaded = true;
+          this.countryDisplayName = ISOCountryCode[this.user.country];
           this.usersService.getUserFollows(this.user).subscribe({
             next: (response) => (this.followingUsers = response.data),
             error: (error) =>
