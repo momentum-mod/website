@@ -17,7 +17,7 @@ import {
   LocalUserService,
   UsersService
 } from '@momentum/frontend/data';
-import { Ban, Role } from '@momentum/constants';
+import { Ban, ISOCountryCode, Role } from '@momentum/constants';
 import { Bitflags } from '@momentum/bitflags';
 
 @Component({
@@ -26,6 +26,7 @@ import { Bitflags } from '@momentum/bitflags';
   styleUrls: ['./profile-edit.component.scss']
 })
 export class ProfileEditComponent implements OnInit, OnDestroy {
+  protected readonly ISOCountryCode = ISOCountryCode;
   private ngUnSub = new Subject<void>();
 
   profileEditFormGroup: FormGroup = this.fb.group({
@@ -33,7 +34,8 @@ export class ProfileEditComponent implements OnInit, OnDestroy {
       '',
       [Validators.required, Validators.minLength(3), Validators.maxLength(32)]
     ],
-    bio: ['', [Validators.maxLength(1000)]]
+    bio: ['', [Validators.maxLength(1000)]],
+    country: ['']
   });
   get alias() {
     return this.profileEditFormGroup.get('alias');
@@ -41,6 +43,10 @@ export class ProfileEditComponent implements OnInit, OnDestroy {
   get bio() {
     return this.profileEditFormGroup.get('bio');
   }
+  get country() {
+    return this.profileEditFormGroup.get('country');
+  }
+
   adminEditFg: FormGroup = this.fb.group({
     banAlias: [false],
     banBio: [false],
