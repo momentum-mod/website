@@ -22,6 +22,13 @@ export class UserSearchComponent implements OnInit {
     return this.userSearchForm.get('search');
   }
 
+  get isSteamId() {
+    return (
+      typeof this.userSearchForm.get('search').value == 'string' &&
+      this.userSearchForm.get('search').value.startsWith('steam:')
+    );
+  }
+
   foundUsers: User[];
 
   @Output() selectedUserEmit: EventEmitter<User>;
@@ -38,9 +45,14 @@ export class UserSearchComponent implements OnInit {
       .subscribe((val: string) => {
         val = val.trim();
         if (val.length > 0)
-          this.usersService
-            .getUsers({ search: val, take: 5 })
-            .subscribe((resp) => (this.foundUsers = resp.data));
+          if (val.startsWith('steam:'))
+            this.usersService
+              .getUsers({ steamID: val.slice(6), take: 5 })
+              .subscribe((resp) => (this.foundUsers = resp.data));
+          else
+            this.usersService
+              .getUsers({ search: val, take: 5 })
+              .subscribe((resp) => (this.foundUsers = resp.data));
         else this.foundUsers = [];
       });
   }
