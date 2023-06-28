@@ -18,6 +18,7 @@ import { RouterModule } from '@angular/router';
 import { NbSearchModule } from './search/search.module';
 import { UserSearchComponent } from './user-search/user-search.component';
 import { UserSearchResultComponent } from './user-search/user-search-result.component';
+import { NbFormFieldModule } from '@nebular/theme';
 
 const COMPONENTS = [
   HeaderComponent,
@@ -44,7 +45,8 @@ const COMPONENTS = [
     DirectivesModule,
     PipesModule,
     RouterModule,
-    NbSearchModule
+    NbSearchModule,
+    NbFormFieldModule
   ],
   exports: [...COMPONENTS, NbSearchModule],
   declarations: COMPONENTS

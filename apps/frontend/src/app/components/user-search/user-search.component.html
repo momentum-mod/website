@@ -1,5 +1,9 @@
 <form [formGroup]="userSearchForm">
-  <input nbInput formControlName="search" class="form-control" type="text" #searchInput />
+  <nb-form-field>
+    <nb-icon *ngIf="isSteamId" class="steam-icon" nbPrefix nbPopover="Searches on SteamID" nbPopoverTrigger="hint"
+      nbPopoverPlacement="bottom" icon="steam" pack="si"></nb-icon>
+    <input nbInput formControlName="search" class="form-control" type="text" #searchInput />
+  </nb-form-field>
   <nb-list class="shadow overlay-backdrop mt-2" *ngIf="foundUsers.length > 0">
     <nb-list-item *ngFor="let user of foundUsers" (click)="confirmUser(user)">
       <mom-user-search-result [user]="user" />
