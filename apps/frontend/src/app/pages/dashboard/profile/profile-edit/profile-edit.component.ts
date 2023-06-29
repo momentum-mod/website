@@ -26,7 +26,9 @@ import { Bitflags } from '@momentum/bitflags';
   styleUrls: ['./profile-edit.component.scss']
 })
 export class ProfileEditComponent implements OnInit, OnDestroy {
-  protected readonly ISOCountryCode = ISOCountryCode;
+  protected readonly AlphabeticalCountryCode = Object.fromEntries(
+    Object.entries(ISOCountryCode).sort(([_, a], [__, b]) => a.localeCompare(b))
+  );
   private ngUnSub = new Subject<void>();
 
   profileEditFormGroup: FormGroup = this.fb.group({
