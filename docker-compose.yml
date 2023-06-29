@@ -14,8 +14,3 @@ services:
       interval: 5s
       timeout: 10s
       retries: 3
-  api:
-    container_name: MomentumModAPI
-    depends_on:
-      db:
-        condition: service_healthy
