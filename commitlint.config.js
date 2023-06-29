@@ -29,6 +29,7 @@ module.exports = {
         'back-e2e',
         'shared',
         'meta',
+        'deps',
         'db',
         'utils',
         'discord',
