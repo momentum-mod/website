@@ -18,7 +18,7 @@
     "@angular/platform-browser-dynamic": "15.2.8",
     "@angular/router": "15.2.8",
     "@auth0/angular-jwt": "5.1.2",
-    "@aws-sdk/client-s3": "3.319.0",
+    "@aws-sdk/client-s3": "3.363.0",
     "@fastify/cookie": "8.3.0",
     "@fastify/cors": "8.3.0",
     "@fastify/helmet": "10.1.0",
