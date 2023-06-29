@@ -64,11 +64,9 @@
 
             <div class="form-group">
               <h5>Country</h5>
-              <nb-select
-                formControlName="country"
-              >
+              <nb-select formControlName="country">
                 <nb-option
-                  *ngFor="let item of ISOCountryCode | keyvalue"
+                  *ngFor="let item of AlphabeticalCountryCode | keyvalue"
                   [value]="item.key"
                   >{{ item.value }}</nb-option
                 >
