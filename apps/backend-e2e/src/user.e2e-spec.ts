@@ -207,7 +207,7 @@ describe('User', () => {
         await req.patch({
           url: 'user',
           status: 204,
-          body: { countryCode: newCountryCode },
+          body: { country: newCountryCode },
           token: token
         });
 
