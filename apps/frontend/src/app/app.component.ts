@@ -39,5 +39,6 @@ export class AppComponent {
           ])
         )
       );
+    this.iconLibraries.setDefaultPack('mdi');
   }
 }

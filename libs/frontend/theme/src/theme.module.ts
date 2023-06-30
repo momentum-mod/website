@@ -28,7 +28,6 @@ import {
   NbToastrModule,
   NbUserModule
 } from '@nebular/theme';
-import { NbEvaIconsModule } from '@nebular/eva-icons';
 
 const NEBULAR_MODULES = [
   NbIconModule,
@@ -50,7 +49,6 @@ const NEBULAR_MODULES = [
   NbSelectModule,
   NbInputModule,
   NbAccordionModule,
-  NbEvaIconsModule,
   NbToastrModule,
   NbAlertModule
 ];
