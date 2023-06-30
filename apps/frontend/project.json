@@ -24,7 +24,6 @@
           "libs/frontend/theme/src/styles/styles.scss"
         ],
         "scripts": [],
-        "allowedCommonJsDependencies": ["eva-icons"],
         "aot": true,
         "stylePreprocessorOptions": {
           "includePaths": ["libs/frontend/theme/src/styles"]
