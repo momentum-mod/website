@@ -2,13 +2,6 @@ generator client {
   provider = "prisma-client-js"
 }
 
-// This can be used to generate an ERD, but the dependencies are like 500MB so we don't include it by default. To use,
-// `npm install prisma-erd-generator` then uncommment below lines. Doesn't work inside of Docker for some reason.
-// In future we could try hook this up to CI and never have developers touch it.
-// generator erd {
-//    provider = "prisma-erd-generator"
-//}
-
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
