@@ -1,7 +1,6 @@
 import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 
 import { MapInfoDescriptionComponent } from './map-info-description.component';
-import { MarkdownModule } from 'ngx-markdown';
 import { NbUserModule } from '@nebular/theme';
 import { MomentumMapType } from '../../../../../@core/models/map-type.model';
 
@@ -11,7 +10,7 @@ describe('MapInfoDescriptionComponent', () => {
 
   beforeEach(waitForAsync(() => {
     TestBed.configureTestingModule({
-      imports: [MarkdownModule.forRoot(), NbUserModule],
+      imports: [NbUserModule],
       declarations: [MapInfoDescriptionComponent]
     }).compileComponents();
   }));

@@ -91,26 +91,12 @@
               >
                 Text cannot exceed 1000 characters.
               </nb-alert>
-              <div class="form-text">
-                <div class="d-flex">
-                  <span class="mr-auto">
-                    <i
-                      ><a
-                        href="https://help.github.com/articles/basic-writing-and-formatting-syntax/"
-                        target="_blank"
-                        >Markdown</a
-                      >
-                      is supported</i
-                    >
-                  </span>
-                  <span class="ml-2 text-right"
-                    >{{
-                      1000 - description.value.length | plural : 'character'
-                    }}
-                    remaining</span
-                  >
-                </div>
-              </div>
+              <span class="form-text d-flex justify-content-end mt-2 mr-2"
+                >{{
+                  1000 - description.value.length | plural : 'character'
+                }}
+                remaining</span
+              >
             </div>
           </div>
         </div>
