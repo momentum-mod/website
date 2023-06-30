@@ -7,7 +7,6 @@ import { PipesModule } from '@momentum/frontend/pipes';
 import { ComponentsModule } from './components/components.module';
 import { NgxEchartsModule } from 'ngx-echarts';
 import * as echarts from 'echarts';
-import { MarkdownModule } from 'ngx-markdown';
 import { NgxPaginationModule } from 'ngx-pagination';
 import { NotFoundModule } from './pages/not-found/not-found.module';
 
@@ -21,7 +20,6 @@ import { NotFoundModule } from './pages/not-found/not-found.module';
     PipesModule,
     NgOptimizedImage,
     NgxEchartsModule.forRoot({ echarts }),
-    MarkdownModule.forChild(),
     NgxPaginationModule
   ],
   declarations: [],
@@ -36,7 +34,6 @@ import { NotFoundModule } from './pages/not-found/not-found.module';
     PipesModule,
     NgOptimizedImage,
     NgxEchartsModule,
-    MarkdownModule,
     NgxPaginationModule
   ]
 })

@@ -5,9 +5,7 @@
         <span
           *ngIf="user.country && user.country.length === 2"
           [title]="countryDisplayName"
-          class="rounded flg fi fi-{{
-            user.country.toLowerCase()
-          }}"
+          class="rounded flg fi fi-{{ user.country.toLowerCase() }}"
         ></span>
         <div class="d-flex align-items-center top-right-toolbar">
           <mom-report-button
@@ -144,11 +142,9 @@
           >
             <i>No bio found</i>
           </h5>
-          <markdown
-            *ngIf="user.profile?.bio?.length > 0"
-            [data]="user?.profile?.bio"
-            ngPreserveWhitespaces
-          ></markdown>
+          <p class="bio" *ngIf="user.profile?.bio?.length > 0">
+            {{ user?.profile?.bio }}
+          </p>
         </nb-tab>
         <nb-tab
           tabTitle="Following ({{ followingUsers.length }})"
