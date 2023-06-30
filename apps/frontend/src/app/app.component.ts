@@ -4,7 +4,6 @@
  * Licensed under the MIT License. See License.txt in the project root for license information.
  */
 import { Component } from '@angular/core';
-import { ScreenerService } from './services/screener.service';
 import { NbIconLibraries } from '@nebular/theme';
 import { kebabCase } from 'lodash-es';
 import {
@@ -18,11 +17,7 @@ import {
   template: '<router-outlet></router-outlet>'
 })
 export class AppComponent {
-  constructor(
-    private screener: ScreenerService,
-    private iconLibraries: NbIconLibraries
-  ) {
-    this.screener.inject();
+  constructor(private iconLibraries: NbIconLibraries) {
     this.initIconPacks();
   }
 
