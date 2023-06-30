@@ -1,12 +1,7 @@
-import {
-  ExtendedPrismaClient,
-  getExtendedPrismaClient
-} from '../prisma/extended-client';
+import { PrismaClient } from '@prisma/client';
 
-export const prismaWrapper = (
-  fn: (prisma: ExtendedPrismaClient) => Promise<void>
-) => {
-  const prisma = getExtendedPrismaClient();
+export const prismaWrapper = (fn: (prisma: PrismaClient) => Promise<void>) => {
+  const prisma = new PrismaClient();
 
   const env = process.env.NODE_ENV;
   if (!(env === 'dev' || env === 'test')) {

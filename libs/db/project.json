@@ -42,7 +42,10 @@
         "tsConfig": "libs/db/tsconfig.scripts.json",
         "bundle": true,
         "format": ["cjs"],
-        "additionalEntryPoints": ["libs/db/src/scripts/reset.ts"]
+        "additionalEntryPoints": [
+          "libs/db/src/scripts/reset.ts",
+          "libs/db/src/scripts/make-me-admin.ts"
+        ]
       }
     },
     "seed": {
@@ -57,6 +60,13 @@
       "dependsOn": ["build-scripts"],
       "options": {
         "command": "node dist/libs/db/scripts/reset.cjs"
+      }
+    },
+    "makemeadmin": {
+      "executor": "nx:run-commands",
+      "dependsOn": ["build-scripts"],
+      "options": {
+        "command": "node dist/libs/db/scripts/make-me-admin.cjs"
       }
     },
     "studio": {
