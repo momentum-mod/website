@@ -8,7 +8,6 @@ import { AppRoutingModule } from './app-routing.module';
 import { MainPageModule } from './pages/main/main-page.module';
 import { NotFoundModule } from './pages/not-found/not-found.module';
 import { JwtModule } from '@auth0/angular-jwt';
-import { OutgoingModule } from './pages/outgoing/outgoing.module';
 import { RefreshTokenInterceptorService } from './services/refresh-token-interceptor.service';
 import { env } from '@momentum/frontend/env';
 
@@ -23,7 +22,6 @@ export function tokenGetter() {
     BrowserAnimationsModule,
     MainPageModule,
     NotFoundModule,
-    OutgoingModule,
     AppRoutingModule,
     HttpClientModule,
     JwtModule.forRoot({

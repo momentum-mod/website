@@ -3,7 +3,6 @@ import { NgModule } from '@angular/core';
 import { MainPageComponent } from './pages/main/main-page.component';
 import { NotFoundMainComponent } from './pages/not-found/main/not-found-main.component';
 import { AuthGuard } from './guards/auth.guard';
-import { OutgoingComponent } from './pages/outgoing/outgoing.component';
 
 @NgModule({
   imports: [
@@ -18,7 +17,6 @@ import { OutgoingComponent } from './pages/outgoing/outgoing.component';
               (m) => m.DashboardModule
             )
         },
-        { path: 'outgoing/:url', component: OutgoingComponent },
         { path: '**', component: NotFoundMainComponent }
       ],
       {
