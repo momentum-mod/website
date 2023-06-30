@@ -8,58 +8,62 @@
       "executor": "@nx/linter:eslint",
       "outputs": ["{options.outputFile}"],
       "options": {
-        "lintFilePatterns": ["libs/bitflags/**/*.ts"]
+        "lintFilePatterns": ["libs/db/**/*.ts"]
       }
     },
     "format": {
       "executor": "nx:run-commands",
       "options": {
         "command": "npx prisma format",
-        "cwd": "libs/db"
+        "cwd": "libs/db/src/prisma"
       }
     },
     "push": {
       "executor": "nx:run-commands",
       "options": {
         "command": "npx prisma db push --accept-data-loss",
-        "cwd": "libs/db"
+        "cwd": "libs/db/src/prisma"
       }
     },
     "generate": {
       "executor": "nx:run-commands",
       "options": {
         "command": "npx prisma generate",
-        "cwd": "libs/db"
+        "cwd": "libs/db/src/prisma"
       }
     },
-    "seed-build": {
-      "executor": "@nx/webpack:webpack",
+    "build-scripts": {
+      "executor": "@nx/esbuild:esbuild",
       "outputs": ["{options.outputPath}"],
-      "defaultConfiguration": "development",
       "options": {
-        "target": "node",
-        "compiler": "tsc",
-        "outputPath": "dist/libs/db/",
-        "outputFileName": "seed.js",
-        "main": "libs/db/src/seed.ts",
-        "tsConfig": "libs/db/tsconfig.lib.json"
-      },
-      "configurations": {
-        "development": {}
+        "platform": "node",
+        "outputPath": "dist/libs/db/scripts",
+        "main": "libs/db/src/scripts/seed.ts",
+        "tsConfig": "libs/db/tsconfig.scripts.json",
+        "bundle": true,
+        "format": ["cjs"],
+        "additionalEntryPoints": ["libs/db/src/scripts/reset.ts"]
       }
     },
     "seed": {
       "executor": "nx:run-commands",
-      "dependsOn": ["seed-build"],
+      "dependsOn": ["build-scripts"],
       "options": {
-        "command": "node dist/libs/db/seed.js --reset --s3files"
+        "command": "node dist/libs/db/scripts/seed.cjs --reset --s3files"
+      }
+    },
+    "reset": {
+      "executor": "nx:run-commands",
+      "dependsOn": ["build-scripts"],
+      "options": {
+        "command": "node dist/libs/db/scripts/reset.cjs"
       }
     },
     "studio": {
       "executor": "nx:run-commands",
       "options": {
         "command": "npx prisma studio",
-        "cwd": "libs/db"
+        "cwd": "libs/db/src/prisma"
       }
     }
   },
