@@ -3,20 +3,59 @@
   <div class="content">
     <div class="alias">
       <span class="mr-1">{{ user.alias }}</span>
-      <img *ngIf="userRoles.isPlaceholder" class="ml-1 placeholder" ngSrc="assets/images/badges/BadgePlaceholder.svg"
-        nbPopover="Placeholder" nbPopoverTrigger="hint" nbPopoverPlacement="bottom" width="12" height="12" />
-      <img *ngIf="userRoles.isVerified" class="ml-1 verified" ngSrc="assets/images/badges/BadgeVerified.svg"
-        nbPopover="Verified" nbPopoverTrigger="hint" nbPopoverPlacement="bottom" width="12" height="12" />
-      <img *ngIf="userRoles.isMapper" class="ml-1 mapper" ngSrc="assets/images/badges/BadgeMapper.svg"
-        nbPopover="Mapper" nbPopoverTrigger="hint" nbPopoverPlacement="bottom" width="12" height="12" />
-      <img *ngIf="userRoles.isMod" class="ml-1 mod" ngSrc="assets/images/badges/BadgeMod.svg" nbPopover="Moderator"
-        nbPopoverTrigger="hint" nbPopoverPlacement="bottom" width="12" height="12" />
-      <img *ngIf="userRoles.isAdmin" class="ml-1 admin" ngSrc="assets/images/badges/BadgeAdmin.svg" nbPopover="Admin"
-        nbPopoverTrigger="hint" nbPopoverPlacement="bottom" width="12" height="12" />
+      <img
+        *ngIf="userRoles.isPlaceholder"
+        class="ml-1 placeholder"
+        ngSrc="assets/images/badges/BadgePlaceholder.svg"
+        nbPopover="Placeholder"
+        nbPopoverTrigger="hint"
+        nbPopoverPlacement="bottom"
+        width="12"
+        height="12"
+      />
+      <img
+        *ngIf="userRoles.isVerified"
+        class="ml-1 verified"
+        ngSrc="assets/images/badges/BadgeVerified.svg"
+        nbPopover="Verified"
+        nbPopoverTrigger="hint"
+        nbPopoverPlacement="bottom"
+        width="12"
+        height="12"
+      />
+      <img
+        *ngIf="userRoles.isMapper"
+        class="ml-1 mapper"
+        ngSrc="assets/images/badges/BadgeMapper.svg"
+        nbPopover="Mapper"
+        nbPopoverTrigger="hint"
+        nbPopoverPlacement="bottom"
+        width="12"
+        height="12"
+      />
+      <img
+        *ngIf="userRoles.isMod"
+        class="ml-1 mod"
+        ngSrc="assets/images/badges/BadgeMod.svg"
+        nbPopover="Moderator"
+        nbPopoverTrigger="hint"
+        nbPopoverPlacement="bottom"
+        width="12"
+        height="12"
+      />
+      <img
+        *ngIf="userRoles.isAdmin"
+        class="ml-1 admin"
+        ngSrc="assets/images/badges/BadgeAdmin.svg"
+        nbPopover="Admin"
+        nbPopoverTrigger="hint"
+        nbPopoverPlacement="bottom"
+        width="12"
+        height="12"
+      />
     </div>
     <div *ngIf="!userRoles.isPlaceholder">
-      <a (click)="$event.stopPropagation()" class="steamid" target="_blank"
-        href="http://steamcommunity.com/profiles/{{ user.steamID }}">
+      <a (click)="$event.stopPropagation()" class="steamid" target="_blank" href="http://steamcommunity.com/profiles/{{ user.steamID }}">
         {{ user.steamID }}
       </a>
     </div>
