@@ -46,7 +46,6 @@
     "class-validator": "0.14.0",
     "dotenv-cli": "7.2.1",
     "echarts": "5.4.2",
-    "fastify": "4.16.0",
     "flag-icons": "6.6.6",
     "lodash": "4.17.21",
     "lodash-es": "4.17.21",
