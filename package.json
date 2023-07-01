@@ -33,7 +33,6 @@
     "@nestjs/config": "2.3.1",
     "@nestjs/core": "9.4.0",
     "@nestjs/jwt": "10.0.3",
-    "@nestjs/platform-express": "9.4.0",
     "@nestjs/platform-fastify": "9.4.0",
     "@nestjs/swagger": "6.3.0",
     "@node-steam/vdf": "2.2.0",
