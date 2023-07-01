@@ -85,7 +85,6 @@
     "@nestjs/cli": "9.4.2",
     "@nestjs/schematics": "9.1.0",
     "@nestjs/testing": "9.4.0",
-    "@nx-tools/nx-prisma": "4.0.3",
     "@nx/angular": "16.0.2",
     "@nx/cypress": "16.0.2",
     "@nx/eslint-plugin": "16.0.2",
