@@ -64,7 +64,9 @@ async function bootstrap() {
   // Usually we'd let Nest handle routing, but doing a separate controller file
   // would be silly, especially since this is developer-only.
   if (env !== Environment.PRODUCTION) {
-    const fastify = app.getHttpAdapter().getInstance() as FastifyAdapter;
+    // Since TS 5 / Nest 10 this `any` cast has been necessary. May be possible
+    // to remove once `@nestjs/platform-fastify` is on latest `fastify`.
+    const fastify = app.getHttpAdapter().getInstance() as any as FastifyAdapter;
     fastify.get('/', (_, reply: FastifyReply) => reply.redirect('/dashboard'));
     fastify.get('/dashboard', (_, reply: FastifyReply) =>
       reply
