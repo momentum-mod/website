@@ -19,6 +19,7 @@ import { NbSearchModule } from './search/search.module';
 import { UserSearchComponent } from './user-search/user-search.component';
 import { UserSearchResultComponent } from './user-search/user-search-result.component';
 import { NbFormFieldModule } from '@nebular/theme';
+import { NgxPaginationModule } from 'ngx-pagination';
 
 const COMPONENTS = [
   HeaderComponent,
@@ -46,7 +47,8 @@ const COMPONENTS = [
     PipesModule,
     RouterModule,
     NbSearchModule,
-    NbFormFieldModule
+    NbFormFieldModule,
+    NgxPaginationModule
   ],
   exports: [...COMPONENTS, NbSearchModule],
   declarations: COMPONENTS

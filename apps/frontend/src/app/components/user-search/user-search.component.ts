@@ -31,33 +31,63 @@ export class UserSearchComponent implements OnInit {
 
   foundUsers: User[];
 
+  pageLimit: number;
+  userSearchCount: number;
+  userSearchPage: number;
+
   @Output() selectedUserEmit: EventEmitter<User>;
   @ViewChild('searchInput', { static: true }) searchInput: ElementRef;
   constructor(private fb: FormBuilder, private usersService: UsersService) {
     this.selectedUserEmit = new EventEmitter<User>();
     this.foundUsers = [];
+    this.pageLimit = 5;
+    this.userSearchCount = 0;
+    this.userSearchPage = 1;
+  }
+
+  findUsers(val: string) {
+    val = val.trim();
+    if (val.length > 0)
+      if (val.startsWith('steam:') && Number.isNaN(val.slice(6)))
+        this.usersService
+          .getUsers({
+            steamID: val.slice(6)
+          })
+          .subscribe((resp) => {
+            this.foundUsers = resp.data;
+            this.userSearchCount = resp.totalCount;
+          });
+      else
+        this.usersService
+          .getUsers({
+            search: val,
+            take: this.pageLimit,
+            skip: (this.userSearchPage - 1) * this.pageLimit
+          })
+          .subscribe((resp) => {
+            this.foundUsers = resp.data;
+            this.userSearchCount = resp.totalCount;
+          });
+    else {
+      this.foundUsers = [];
+      this.userSearchPage = 1;
+      this.userSearchCount = 0;
+    }
   }
 
   ngOnInit() {
     this.searchInput.nativeElement.focus();
     this.nameSearch.valueChanges
       .pipe(debounceTime(500), distinctUntilChanged())
-      .subscribe((val: string) => {
-        val = val.trim();
-        if (val.length > 0)
-          if (val.startsWith('steam:'))
-            this.usersService
-              .getUsers({ steamID: val.slice(6), take: 5 })
-              .subscribe((resp) => (this.foundUsers = resp.data));
-          else
-            this.usersService
-              .getUsers({ search: val, take: 5 })
-              .subscribe((resp) => (this.foundUsers = resp.data));
-        else this.foundUsers = [];
-      });
+      .subscribe((val: string) => this.findUsers(val));
   }
 
   confirmUser(user: User) {
     this.selectedUserEmit.emit(user);
+  }
+
+  onPageChange(pageNum) {
+    this.userSearchPage = pageNum;
+    this.findUsers(this.nameSearch.value);
   }
 }

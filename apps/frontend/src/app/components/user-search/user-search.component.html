@@ -1,12 +1,40 @@
 <form [formGroup]="userSearchForm">
   <nb-form-field>
-    <nb-icon *ngIf="isSteamId" class="steam-icon" nbPrefix nbPopover="Searches on SteamID" nbPopoverTrigger="hint"
-      nbPopoverPlacement="bottom" icon="steam" pack="si"></nb-icon>
+    <nb-icon
+      *ngIf="isSteamId"
+      class="steam-icon"
+      nbPrefix
+      nbPopover="Searches on SteamID"
+      nbPopoverTrigger="hint"
+      nbPopoverPlacement="bottom"
+      icon="steam"
+      pack="si"
+    ></nb-icon>
     <input nbInput formControlName="search" class="form-control" type="text" #searchInput />
   </nb-form-field>
   <nb-list class="shadow overlay-backdrop mt-2" *ngIf="foundUsers.length > 0">
-    <nb-list-item *ngFor="let user of foundUsers" (click)="confirmUser(user)">
+    <nb-list-item
+      *ngFor="
+        let user of foundUsers
+          | paginate
+            : {
+                id: 'user-search-page-ctrl',
+                itemsPerPage: pageLimit,
+                currentPage: userSearchPage,
+                totalItems: userSearchCount
+              }
+      "
+      (click)="confirmUser(user)"
+    >
       <mom-user-search-result [user]="user" />
     </nb-list-item>
   </nb-list>
+  <div class="text-center" *ngIf="foundUsers.length > 0">
+    <pagination-controls
+      id="user-search-page-ctrl"
+      (pageChange)="onPageChange($event)"
+      [autoHide]="true"
+      [responsive]="true"
+    ></pagination-controls>
+  </div>
 </form>
