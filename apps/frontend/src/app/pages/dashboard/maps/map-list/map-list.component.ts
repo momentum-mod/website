@@ -26,7 +26,7 @@ import { Enum } from '@momentum/enum';
 })
 export class MapListComponent implements OnInit {
   @Input() isUpload: boolean;
-  statuses: { value: MapStatus; text: string }[] = [];
+  statuses: { value?: MapStatus; text: string }[] = [];
   types: { value: MapType; text: string }[] = [];
   requestSent: boolean;
   mapCount: number;
@@ -69,14 +69,14 @@ export class MapListComponent implements OnInit {
     this.mapCount = 0;
 
     this.statuses = [
-      { value: -1, text: 'All' },
+      { value: undefined, text: 'All' },
       ...Enum.values(MapStatus)
         .map((status) => ({ value: status, text: MapStatusName.get(status) }))
         .sort((a, b) => (a.text > b.text ? 1 : -1))
     ];
 
     this.types = [
-      { value: -1, text: 'All' },
+      { value: undefined, text: 'All' },
       ...Enum.values(MapType)
         .filter((status) => status !== MapType.UNKNOWN)
         .map((status) => ({ value: status, text: MapTypeName.get(status) }))
