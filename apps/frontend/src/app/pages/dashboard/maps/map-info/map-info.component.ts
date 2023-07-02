@@ -1,20 +1,14 @@
 import { Component, Input, OnDestroy, OnInit } from '@angular/core';
 import { ActivatedRoute, ParamMap, Router } from '@angular/router';
 import { switchMap, takeUntil } from 'rxjs/operators';
-import {
-  Gallery,
-  GalleryRef,
-  GalleryConfig,
-  ImageItem,
-  YoutubeItem
-} from '@ngx-gallery/core';
 import { NbDialogService, NbToastrService } from '@nebular/theme';
 import { Subject } from 'rxjs';
 import { MapNotifyEditComponent } from './map-info-notify-edit/map-info-notify-edit.component';
 import { Map, MapImage, MapNotify } from '@momentum/types';
-import { ReportType } from '@momentum/constants';
+import { ReportType, Role } from '@momentum/constants';
 import { LocalUserService, MapsService } from '@momentum/frontend/data';
 import { PartialDeep } from 'type-fest';
+import { Gallery, GalleryRef, ImageItem, YoutubeItem } from 'ng-gallery';
 
 @Component({
   selector: 'mom-map-info',
@@ -36,21 +30,6 @@ export class MapInfoComponent implements OnInit, OnDestroy {
   isSubmitter: boolean;
   isAdmin: boolean;
   isModerator: boolean;
-  galleryConfig: GalleryConfig = {
-    loadingMode: 'indeterminate',
-    loadingStrategy: 'lazy',
-    imageSize: 'cover',
-    thumbMode: 'free',
-    thumbHeight: 68,
-    counter: false
-  };
-  lightboxConfig: GalleryConfig = {
-    loadingMode: 'indeterminate',
-    loadingStrategy: 'preload',
-    thumb: false,
-    counter: false,
-    dots: true
-  };
 
   constructor(
     private route: ActivatedRoute,
@@ -74,8 +53,19 @@ export class MapInfoComponent implements OnInit, OnDestroy {
     const galleryRef = this.gallery.ref('image-gallery');
     const lightboxRef = this.gallery.ref('lightbox');
 
-    galleryRef.setConfig(this.galleryConfig);
-    lightboxRef.setConfig(this.lightboxConfig);
+    galleryRef.setConfig({
+      loadingStrategy: 'lazy',
+      imageSize: 'cover',
+      thumbHeight: 68,
+      counter: false
+    });
+    lightboxRef.setConfig({
+      loadingStrategy: 'preload',
+      thumb: false,
+      counter: false,
+      imageSize: 'contain',
+      dots: true
+    });
 
     if (this.previewMap) {
       this.map = this.previewMap.map as Map;
@@ -126,12 +116,11 @@ export class MapInfoComponent implements OnInit, OnDestroy {
             .getLocal()
             .pipe(takeUntil(this.ngUnsub))
             .subscribe((locUser) => {
-              // TODO
-              // this.isAdmin = this.locUserService.hasRole(Role.ADMIN, locUser);
-              // this.isModerator = this.locUserService.hasRole(
-              //   Role.MODERATOR,
-              //   locUser
-              // );
+              this.isAdmin = this.localUserService.hasRole(Role.ADMIN, locUser);
+              this.isModerator = this.localUserService.hasRole(
+                Role.MODERATOR,
+                locUser
+              );
               this.isSubmitter = this.map.submitterID === locUser.id;
             });
         });

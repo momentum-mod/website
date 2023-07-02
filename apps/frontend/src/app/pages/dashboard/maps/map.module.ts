@@ -3,9 +3,8 @@ import { DragDropModule } from '@angular/cdk/drag-drop';
 import { NotFoundModule } from '../../not-found/not-found.module';
 import { MapComponent } from './map.component';
 import { MapRoutingModule } from './map-routing.module';
-import { GalleryModule } from '@ngx-gallery/core';
-import { LightboxModule } from '@ngx-gallery/lightbox';
-import { GallerizeModule } from '@ngx-gallery/gallerize';
+import { GalleryModule } from 'ng-gallery';
+import { LightboxModule } from 'ng-gallery/lightbox';
 import { ViewMapsComponent } from './view-maps/view-maps.component';
 import { MapUploadFormComponent } from './upload-form/map-upload-form.component';
 import { UploadStatusComponent } from './upload-status/upload-status.component';
@@ -43,9 +42,8 @@ import { SharedModule } from '../../../shared.module';
     NbAlertModule,
     NbToggleModule,
     NgxPaginationModule,
-    LightboxModule.withConfig({ panelClass: 'fullscreen' }),
     GalleryModule,
-    GallerizeModule,
+    LightboxModule,
     UserModule,
     MapRoutingModule
   ],
@@ -66,7 +64,6 @@ import { SharedModule } from '../../../shared.module';
     MapListItemComponent,
     MapEditComponent,
     MapListComponent
-  ],
-  providers: []
+  ]
 })
 export class MapModule {}
