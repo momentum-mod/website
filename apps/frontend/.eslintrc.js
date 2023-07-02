@@ -20,7 +20,11 @@ module.exports = {
             style: 'kebab-case'
           }
         ],
-        'unicorn/prefer-module': ['error']
+        // Overall project has this disabled, but we want it on for frontend.
+        'unicorn/prefer-module': ['error'],
+        // Messing with @angular/core's EventEmitter:
+        // https://github.com/sindresorhus/eslint-plugin-unicorn/issues/1853
+        'unicorn/prefer-event-target': ['off']
       },
       extends: [
         'plugin:@nx/angular',
