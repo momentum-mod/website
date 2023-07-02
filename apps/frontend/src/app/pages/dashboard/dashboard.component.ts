@@ -26,15 +26,11 @@ export class DashboardComponent implements OnInit {
   }
 
   authMenuItem(menuItem: NbMenuItem) {
-    if (menuItem.data && menuItem.data.roles) {
-      let hideMenuItem = true;
-      for (const role of menuItem.data.roles) {
-        if (this.userService.hasRole(role)) {
-          hideMenuItem = false;
-        }
-      }
-      menuItem.hidden = hideMenuItem;
-    }
+    const allowedRoles = menuItem?.data?.roles;
+    menuItem.hidden =
+      allowedRoles &&
+      !allowedRoles.some((role) => this.userService.hasRole(role));
+
     if (menuItem.children) {
       for (const item of menuItem.children) {
         this.authMenuItem(item);
