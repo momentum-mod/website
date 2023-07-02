@@ -119,9 +119,9 @@ async function createRandomUser() {
   return prisma.user.create({
     data: {
       steamID: Random.int(1000000000, 99999999999),
-      alias: faker.name.fullName(),
+      alias: faker.person.fullName(),
       avatar: '0227a240393e6d62f539ee7b306dd048b0830eeb',
-      country: faker.address.countryCode(),
+      country: faker.location.countryCode(),
       ...Random.createdUpdatedDates(),
       roles: Bitflags.join(
         Random.weightedBool(0.1) ? Role.VERIFIED : 0,
@@ -175,7 +175,7 @@ async function createRandomMap(submitterID) {
       type: type,
       status: Random.enumValue(MapStatus),
       fileKey: faker.animal.cat(),
-      hash: faker.random.alphaNumeric(),
+      hash: faker.string.alphanumeric(),
       submitterID: submitterID,
       ...Random.createdUpdatedDates()
     }
@@ -328,8 +328,8 @@ async function createRandomRun(mapID, userID, baseStatsID) {
       ticks: ticks,
       tickRate: tickRate,
       flags: 0,
-      file: faker.image.cats(),
-      hash: faker.random.alphaNumeric(),
+      file: faker.image.urlLoremFlickr({ category: 'cats' }),
+      hash: faker.string.alphanumeric(),
       time: ticks * tickRate,
       ...Random.createdUpdatedDates()
     }
