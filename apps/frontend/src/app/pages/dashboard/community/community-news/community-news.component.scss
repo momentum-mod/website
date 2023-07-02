@@ -1,4 +1,26 @@
-p {
+/* 
+ * Note that this component uses ViewEncapsulation.None to override the
+ * styling imposed by markdown (the blog format)
+*/
+
+p.post-separator {
   border-bottom: 2px dashed rgba(0, 0, 0, 0.5);
   color: grey;
+}
+
+.pubDate {
+  line-height: 35px;
+}
+
+.md-override {
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    margin: 0;
+    font-size: revert;
+    line-height: normal;
+  }
 }
