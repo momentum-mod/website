@@ -1,57 +1,36 @@
-import { Injectable } from '@angular/core';
-import { ActivatedRouteSnapshot, CanActivate, Router } from '@angular/router';
+import { inject } from '@angular/core';
+import { CanActivateFn, Router } from '@angular/router';
 import { LocalUserService } from '@momentum/frontend/data';
 import { env } from '@momentum/frontend/env';
 
-// TODO: CanActivate is deprecated in Angular 14 and now uses "functional
-// guards" (I don't really understand how that simplifies anything - for this
-// guard we'll still have to do a bunch of DI stuff using e.g. `inject(Router)`)
-// Lets switch to that when refactoring auth to make more routes public.
-@Injectable({ providedIn: 'root' })
-export class AuthGuard implements CanActivate {
-  constructor(
-    private readonly userService: LocalUserService,
-    private readonly router: Router
-  ) {}
+const POST_AUTH_REDIRECT_KEY = 'postAuthLocation';
 
-  private readonly postAuthRedirectKey = 'postAuthLocation';
+export const AuthGuard: CanActivateFn = () => {
+  const router = inject(Router);
+  const userService = inject(LocalUserService);
 
-  canActivate(route: ActivatedRouteSnapshot) {
-    // Previously we handled this redirection by passing this as a param to the
-    // backend, then having that redirect. However this is actually really
-    // annoying to do with an OAuth workflow (in short, you need a kind of
-    // session store for each user undergoing login, in the backend). It's much
-    // easier to just use a local session store like this.
-    const redirect = sessionStorage.getItem(this.postAuthRedirectKey);
-    if (redirect) {
-      sessionStorage.removeItem(this.postAuthRedirectKey);
-      return this.router.parseUrl('/' + redirect);
-    }
-
-    let hasPermission = true;
-    if (route.data && route.data['onlyAllow']) {
-      hasPermission = this.checkPermissions(route.data['onlyAllow']);
-    }
-    if (hasPermission && this.userService.isLoggedIn()) {
-      return true;
-    }
-
-    if (window.location.pathname !== '/')
-      sessionStorage.setItem(
-        this.postAuthRedirectKey,
-        window.location.pathname
-      );
-    window.location.href = env.auth + '/steam';
-    return false;
+  // Check whether redirect URL exists in session storage. If this is the case,
+  // this is the second time this function has been called: the user failed auth
+  // once, the URL was stored, then they were redirected back to the dashboard.
+  // So, now we redirect remove the token (so no infinite loop), and redirect
+  // back to their original requested URL on this site.
+  const redirect = sessionStorage.getItem(POST_AUTH_REDIRECT_KEY);
+  if (redirect) {
+    sessionStorage.removeItem(POST_AUTH_REDIRECT_KEY);
+    return router.parseUrl('/' + redirect);
   }
 
-  checkPermissions(roles): boolean {
-    let hasPermission = false;
-    for (const role of roles) {
-      if (this.userService.hasRole(role)) {
-        hasPermission = true;
-      }
-    }
-    return hasPermission;
+  // This guard passes iff the client is logged in (essentially, if they
+  // have an access token in local storage).
+  if (userService.isLoggedIn()) {
+    return true;
   }
-}
+
+  // They're not logged in, so store current path in session storage and send
+  // them over to Steam
+  if (window.location.pathname !== '/')
+    sessionStorage.setItem(POST_AUTH_REDIRECT_KEY, window.location.pathname);
+
+  window.location.href = env.auth + '/steam';
+  return false;
+};

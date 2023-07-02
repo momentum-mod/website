@@ -3,9 +3,8 @@ import { NgModule } from '@angular/core';
 import { DashboardComponent } from './dashboard.component';
 import { DashboardHomeComponent } from './home/dashboard-home.component';
 import { NotFoundDashboardComponent } from '../not-found/dashboard/not-found-dashboard.component';
-import { RoleGuard } from '../../guards/role.guard';
 import { RunInfoComponent } from './runs/run-info/run-info.component';
-import { Role } from '@momentum/constants';
+import { AuthGuard } from '../../guards/auth.guard';
 
 @NgModule({
   imports: [
@@ -13,6 +12,7 @@ import { Role } from '@momentum/constants';
       {
         path: '',
         component: DashboardComponent,
+        canActivate: [AuthGuard],
         children: [
           {
             path: 'maps',
@@ -39,11 +39,7 @@ import { Role } from '@momentum/constants';
           {
             path: 'admin',
             loadChildren: () =>
-              import('./admin/admin.module').then((m) => m.AdminModule),
-            canActivate: [RoleGuard],
-            data: {
-              onlyAllow: [Role.MODERATOR, Role.ADMIN]
-            }
+              import('./admin/admin.module').then((m) => m.AdminModule)
           },
           {
             path: 'runs',
@@ -66,7 +62,6 @@ import { Role } from '@momentum/constants';
       }
     ])
   ],
-  exports: [RouterModule],
-  providers: [RoleGuard]
+  exports: [RouterModule]
 })
 export class DashboardRoutingModule {}

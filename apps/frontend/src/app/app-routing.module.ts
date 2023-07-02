@@ -2,7 +2,6 @@ import { PreloadAllModules, RouterModule } from '@angular/router';
 import { NgModule } from '@angular/core';
 import { MainPageComponent } from './pages/main/main-page.component';
 import { NotFoundMainComponent } from './pages/not-found/main/not-found-main.component';
-import { AuthGuard } from './guards/auth.guard';
 
 @NgModule({
   imports: [
@@ -11,7 +10,6 @@ import { AuthGuard } from './guards/auth.guard';
         { path: '', component: MainPageComponent },
         {
           path: 'dashboard',
-          canActivate: [AuthGuard],
           loadChildren: () =>
             import('./pages/dashboard/dashboard.module').then(
               (m) => m.DashboardModule
@@ -25,7 +23,6 @@ import { AuthGuard } from './guards/auth.guard';
       }
     )
   ],
-  exports: [RouterModule],
-  providers: [AuthGuard]
+  exports: [RouterModule]
 })
 export class AppRoutingModule {}
