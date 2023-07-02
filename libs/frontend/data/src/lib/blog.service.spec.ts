@@ -1,23 +1,23 @@
 import { of } from 'rxjs';
-import { TumblrAPIService } from './tumblr-api.service';
+import { BlogService } from './blog.service';
 
 let httpClientSpy: { get: jasmine.Spy };
-let tumblrAPIService: TumblrAPIService;
+let blogService: BlogService;
 
-describe('TumblrAPIService', () => {
+describe('MomBlogService', () => {
   beforeEach(() => {
     httpClientSpy = jasmine.createSpyObj('HttpClient', ['get']);
-    tumblrAPIService = new TumblrAPIService(<any>httpClientSpy);
+    blogService = new BlogService(<any>httpClientSpy);
   });
 
   describe('Unit Tests', () => {
     it('#getRecentBlogPosts() should return followed recent posts', () => {
-      httpClientSpy.get.and.returnValue(of(tumblrAPIService));
-      tumblrAPIService
+      httpClientSpy.get.and.returnValue(of(blogService));
+      blogService
         .getRecentBlogPosts()
         .subscribe(
-          (value) =>
-            expect(value).toEqual(tumblrAPIService, 'expected activity'),
+          (value: any) =>
+            expect(value).toEqual(blogService, 'expected activity'),
           fail
         );
       expect(httpClientSpy.get.calls.count()).toBe(1, 'one call');
