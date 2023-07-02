@@ -6,6 +6,8 @@ import { AdminComponent } from './admin.component';
 import { ReportQueueComponent } from './report-queue/report-queue.component';
 import { UtilitiesComponent } from './utilities/utilities.component';
 import { XPSystemComponent } from './xp-system/xp-system.component';
+import { RoleGuard } from '../../../guards/role.guard';
+import { Role } from '@momentum/constants';
 
 @NgModule({
   imports: [
@@ -13,6 +15,8 @@ import { XPSystemComponent } from './xp-system/xp-system.component';
       {
         path: '',
         component: AdminComponent,
+        canActivate: [RoleGuard],
+        data: { roles: [Role.ADMIN, Role.MODERATOR] },
         children: [
           {
             path: 'map-queue',

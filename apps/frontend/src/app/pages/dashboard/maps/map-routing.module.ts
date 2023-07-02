@@ -21,7 +21,7 @@ import { Role } from '@momentum/constants';
           {
             path: 'uploads',
             canActivate: [RoleGuard],
-            data: { onlyAllow: [Role.MAPPER, Role.ADMIN] },
+            data: { roles: [Role.MAPPER, Role.ADMIN] },
             children: [
               { path: '', component: UploadStatusComponent },
               { path: 'new', component: MapUploadFormComponent }

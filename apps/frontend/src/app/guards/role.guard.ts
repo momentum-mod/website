@@ -1,39 +1,26 @@
-import { Injectable } from '@angular/core';
-import { ActivatedRouteSnapshot, CanActivate } from '@angular/router';
+import { inject } from '@angular/core';
+import { ActivatedRouteSnapshot, CanActivateFn, Router } from '@angular/router';
 import { LocalUserService } from '@momentum/frontend/data';
-import { NbToastrService } from '@nebular/theme';
 
-@Injectable({
-  providedIn: 'root'
-})
-export class RoleGuard implements CanActivate {
-  constructor(
-    private userService: LocalUserService,
-    private toastService: NbToastrService
-  ) {}
+export const RoleGuard: CanActivateFn = (route: ActivatedRouteSnapshot) => {
+  const userService: LocalUserService = inject(LocalUserService);
+  const router = inject(Router);
 
-  canActivate(route: ActivatedRouteSnapshot): boolean {
-    let hasPermission = true;
-    if (route.data && route.data['onlyAllow']) {
-      hasPermission = this.checkPermissions(route.data['onlyAllow']);
-    }
-    if (this.userService.isLoggedIn() && hasPermission) return true;
-    else {
-      this.toastService.danger(
-        'You are not authorized to view this.',
-        'Not Authorized'
-      );
-      return false;
-    }
+  const allowedRoles = route?.data?.['roles'];
+  if (!allowedRoles && !Array.isArray(allowedRoles))
+    throw new Error('RoleGuard applied on route without `roles` arrays');
+
+  // Passes iff user logged in and has one of the roles in data.roles.
+  if (
+    userService.isLoggedIn() &&
+    allowedRoles.some((role) => userService.hasRole(role))
+  ) {
+    return true;
+  } else {
+    // We would use a toast here, but since a guard isn't associated with
+    // any specific page, NbToastrService can't find an <nb-layout> and errors.
+    alert('You are not authorized to view this.');
+    // Return UrlTree, which fails guard and redirects.
+    return router.parseUrl('/dashboard');
   }
-
-  checkPermissions(roles): boolean {
-    let hasPermission = false;
-    for (const role of roles) {
-      if (this.userService.hasRole(role)) {
-        hasPermission = true;
-      }
-    }
-    return hasPermission;
-  }
-}
+};
