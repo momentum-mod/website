@@ -9,4 +9,4 @@ export * from './lib/stats.service';
 export * from './lib/users.service';
 export * from './lib/report.service';
 export * from './lib/twitch-api.service';
-export * from './lib/tumblr-api.service';
+export * from './lib/blog.service';
