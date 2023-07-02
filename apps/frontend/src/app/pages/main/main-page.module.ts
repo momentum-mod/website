@@ -7,10 +7,10 @@ import { FooterComponent } from './footer/footer.component';
 import { NavComponent } from './nav/nav.component';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
-import { GalleryModule } from '@ngx-gallery/core';
 import { NbButtonModule, NbLayoutModule } from '@nebular/theme';
 import { GamemodesComponent } from './gamemodes/gamemodes.component';
 import { SharedModule } from '../../shared.module';
+import { GalleryModule } from 'ng-gallery';
 
 @NgModule({
   imports: [
