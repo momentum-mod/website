@@ -155,7 +155,7 @@ export class MapUploadFormComponent implements OnInit, AfterViewInit {
   onMapFileSelected(file: File) {
     this.mapFile = file;
     this.map.patchValue(this.mapFile.name);
-    const nameVal = this.mapFile.name.replace(/.bsp/g, '').toLowerCase();
+    const nameVal = this.mapFile.name.replaceAll(/.bsp/g, '').toLowerCase();
     this.name.patchValue(nameVal);
 
     // Infer type from name
