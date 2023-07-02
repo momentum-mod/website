@@ -2,11 +2,11 @@
 import { createHash } from 'node:crypto';
 
 export function randomString(length = 12): string {
-  return faker.random.alphaNumeric(length);
+  return faker.string.alphanumeric(length);
 }
 
 export function randomSteamID(): bigint {
-  return BigInt(faker.random.numeric(18));
+  return BigInt(faker.string.numeric(18));
 }
 
 export function randomYoutubeID(): string {
