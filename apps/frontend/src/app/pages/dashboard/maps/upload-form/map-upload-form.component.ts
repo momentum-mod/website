@@ -233,19 +233,18 @@ export class MapUploadFormComponent implements OnInit, AfterViewInit {
     return trackReturn;
   }
 
-  onZoneFileSelected(file: File) {
+  async onZoneFileSelected(file: File) {
     this.tracks = [];
     this.zoneFile = file;
-    this.getFileSource(file, false, (result) => {
-      const zoneFile = VDF.parse(result);
-      const tracks = zoneFile.tracks;
-      for (const trackNum in tracks) {
-        if (Object.hasOwn(tracks, trackNum)) {
-          this.tracks.push(this.parseTrack(Number(trackNum), tracks[trackNum]));
-        }
+    const zoneData = await (file as Blob).text();
+    const zoneFile = VDF.parse(zoneData);
+    const tracks = zoneFile.tracks;
+    for (const trackNum in tracks) {
+      if (Object.hasOwn(tracks, trackNum)) {
+        this.tracks.push(this.parseTrack(Number(trackNum), tracks[trackNum]));
       }
-      this.generatePreviewMap();
-    });
+    }
+    this.generatePreviewMap();
     this.infoForm.patchValue({ zones: this.zoneFile.name });
   }
 
