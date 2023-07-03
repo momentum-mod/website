@@ -10,30 +10,33 @@ export const MENU_ITEMS: NbMenuItem[] = [
   },
   {
     title: 'Community',
-    icon: 'people-outline',
+    icon: 'account-multiple-outline',
     children: [
       {
-        title: 'Momentum Official',
-        link: '/dashboard/community/news'
+        title: 'Momentum',
+        link: '/dashboard/community/news',
+        icon: { icon: 'logo', pack: 'mom' }
       },
       {
         title: 'Twitch',
-        link: '/dashboard/community/twitch'
+        link: '/dashboard/community/twitch',
+        icon: { icon: 'twitch', pack: 'si' }
       },
       {
         title: 'Recent Activity',
-        link: '/dashboard/community/activity'
+        link: '/dashboard/community/activity',
+        icon: 'run-fast'
       }
     ]
   },
   {
     title: 'Maps',
-    icon: 'map-outline',
+    icon: 'panorama-outline',
     link: '/dashboard/maps',
     children: [
       {
         title: 'Map Uploads',
-        icon: 'upload-outline',
+        icon: 'cloud-upload-outline',
         link: '/dashboard/maps/uploads',
         pathMatch: 'prefix',
         data: {
@@ -42,7 +45,7 @@ export const MENU_ITEMS: NbMenuItem[] = [
       },
       {
         title: 'Browse Maps',
-        icon: 'cloud-download-outline',
+        icon: 'panorama-variant-outline',
         pathMatch: 'prefix',
         link: '/dashboard/maps'
       }
@@ -50,12 +53,12 @@ export const MENU_ITEMS: NbMenuItem[] = [
   },
   {
     title: 'Statistics',
-    icon: 'bar-chart-outline',
+    icon: 'chart-box-outline',
     link: '/dashboard/stats'
   },
   {
     title: 'Administration',
-    icon: 'lock-outline',
+    icon: 'shield-crown-outline',
     link: '/dashboard/admin',
     data: {
       roles: [Role.ADMIN, Role.MODERATOR]
@@ -81,7 +84,7 @@ export const MENU_ITEMS: NbMenuItem[] = [
   },
   {
     title: 'Documentation',
-    icon: 'file-text-outline',
+    icon: 'book-open-variant',
     url: 'https://docs.momentum-mod.org'
   }
 ];

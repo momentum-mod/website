@@ -1,12 +1,11 @@
-// noinspection JSUnusedGlobalSymbols
 export {
   mdiAlert,
   mdiFlagOutline,
   mdiClose,
   mdiCloseCircleOutline,
   mdiMenu,
-  // This is better than `map` or similar for symbolising Source engine maps!
   mdiPanoramaOutline,
+  mdiPanoramaVariantOutline,
   mdiEarth,
   mdiTrophy,
   mdiTrophyOutline,
@@ -33,5 +32,11 @@ export {
   mdiForumOutline,
   mdiFileOutline,
   mdiChartPieOutline,
-  mdiImageEdit
+  mdiImageEdit,
+  mdiChartBoxOutline,
+  mdiHomeOutline,
+  mdiCloudUploadOutline,
+  mdiRunFast,
+  mdiBookOpenVariant,
+  mdiShieldCrownOutline
 } from '@mdi/js';
