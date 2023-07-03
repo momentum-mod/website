@@ -80,11 +80,6 @@ export const MENU_ITEMS: NbMenuItem[] = [
     ]
   },
   {
-    title: 'Forums',
-    icon: 'people',
-    url: 'https://forum.momentum-mod.org/'
-  },
-  {
     title: 'Documentation',
     icon: 'file-text-outline',
     url: 'https://docs.momentum-mod.org'
