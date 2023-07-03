@@ -171,15 +171,13 @@ export class MapUploadFormComponent implements OnInit, AfterViewInit {
     this.inferredMapType = type !== MapType.UNKNOWN;
   }
 
-  onAvatarFileSelected(file: File) {
+  async onAvatarFileSelected(file: File) {
     this.avatarFile = file;
-    this.getFileSource(file, true, (blobURL, img) => {
-      this.avatarFilePreview = {
-        dataBlobURL: blobURL,
-        file: img
-      };
-      this.generatePreviewMap();
-    });
+    this.avatarFilePreview = {
+      dataBlobURL: await this.readAsDataUrl(file),
+      file: file
+    };
+    this.generatePreviewMap();
     this.avatar.patchValue(this.avatarFile.name);
   }
 
@@ -363,31 +361,26 @@ export class MapUploadFormComponent implements OnInit, AfterViewInit {
     }
   }
 
-  getFileSource(
-    img: File,
-    isImage: boolean,
-    callback: (result: any, originalFile: File) => void
-  ) {
-    let reader = new FileReader();
-    const handler = (e) => {
-      callback(e.target.result, img);
-      reader.removeEventListener('load', handler, false);
-      reader = null;
-    };
-    reader.addEventListener('load', handler, false);
-    if (isImage) reader.readAsDataURL(img);
-    else reader.readAsText(img);
+  readAsDataUrl(img: File): Promise<string> {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.addEventListener('loadend', () =>
+        resolve(reader.result as string)
+      );
+      reader.addEventListener('error', () =>
+        reject(new Error('Error parsing file'))
+      );
+      reader.readAsDataURL(img);
+    });
   }
 
-  onExtraImageSelected(file: File) {
-    this.getFileSource(file, true, (blobURL, img) => {
-      if (this.extraImages.length >= this.extraImagesLimit) return;
-      this.extraImages.push({
-        dataBlobURL: blobURL,
-        file: img
-      });
-      this.generatePreviewMap();
+  async onExtraImageSelected(file: File) {
+    if (this.extraImages.length >= this.extraImagesLimit) return;
+    this.extraImages.push({
+      dataBlobURL: await this.readAsDataUrl(file),
+      file: file
     });
+    this.generatePreviewMap();
   }
 
   removeExtraImage(img: ImageFilePreview) {
