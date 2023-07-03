@@ -1,3 +1,5 @@
+export * from './init-icons';
+
 import { KebabCase, Replace } from 'type-fest';
 
 import * as MaterialDesignIcons from './material-design-icons.icons';
