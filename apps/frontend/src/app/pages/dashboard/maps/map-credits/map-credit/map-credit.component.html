@@ -14,7 +14,7 @@
           size="tiny"
           (click)="removeUser(credit.user)"
         >
-          <nb-icon icon="close" pack="mdi" />
+          <nb-icon icon="close" />
         </button>
       </div>
     </div>
@@ -40,6 +40,6 @@
 </div>
 <div class="text-center" *ngIf="editable && searchState === SearchState.HIDDEN">
   <button nbButton outline status="info" (click)="showUserSearch()">
-    <nb-icon icon="plus" pack="mdi" />
+    <nb-icon icon="plus" />
   </button>
 </div>

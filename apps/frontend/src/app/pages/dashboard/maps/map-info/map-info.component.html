@@ -19,11 +19,7 @@
               (click)="onEditMap()"
             >
               <span class="d-none d-md-inline-block">Edit Map</span>
-              <nb-icon
-                icon="image-edit"
-                pack="mdi"
-                class="d-inline-block d-md-none"
-              />
+              <nb-icon icon="image-edit" class="d-inline-block d-md-none" />
             </button>
           </div>
           <div class="m-2">
@@ -42,7 +38,6 @@
             >
               <nb-icon
                 [icon]="mapNotifications ? 'bell-alert' : 'bell-outline'"
-                pack="mdi"
               />
             </button>
           </div>
@@ -110,7 +105,7 @@
                 }}"
                 nbPopoverTrigger="hint"
               >
-                <nb-icon icon="folder" pack="mdi"></nb-icon>
+                <nb-icon icon="folder"></nb-icon>
                 {{ map.stats?.subscriptions | thousandsSuffix : 1 }}
               </div>
               <div
@@ -118,7 +113,7 @@
                 nbPopover="{{ map.stats?.favorites | plural : 'Favorite' }}"
                 nbPopoverTrigger="hint"
               >
-                <nb-icon icon="star" pack="mdi"></nb-icon>
+                <nb-icon icon="star"></nb-icon>
                 {{ map.stats?.favorites | thousandsSuffix : 1 }}
               </div>
               <div
@@ -126,7 +121,7 @@
                 nbPopover="{{ map.stats?.downloads | plural : 'Download' }}"
                 nbPopoverTrigger="hint"
               >
-                <nb-icon icon="download-outline" pack="mdi"></nb-icon>
+                <nb-icon icon="download-outline"></nb-icon>
                 {{ map.stats?.downloads | thousandsSuffix : 1 }}
               </div>
               <div
@@ -134,7 +129,7 @@
                 nbPopover="{{ map.stats?.plays | plural : 'Play' }}"
                 nbPopoverTrigger="hint"
               >
-                <nb-icon icon="play-circle-outline" pack="mdi"></nb-icon>
+                <nb-icon icon="play-circle-outline"></nb-icon>
                 {{ map.stats?.plays | thousandsSuffix : 1 }}
               </div>
             </div>
@@ -166,7 +161,6 @@
               >
                 <nb-icon
                   [icon]="mapInFavorites ? 'star' : 'star-outline'"
-                  pack="mdi"
                 ></nb-icon>
               </button>
             </div>
