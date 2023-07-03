@@ -32,7 +32,6 @@
                       Map Thumbnail
                       <nb-icon
                         icon="tooltip-question-outline"
-                        pack="mdi"
                         nbPopover="Make sure to choose the image that represents your map the best! This will be the main image that shows up in the map selector for your map!"
                         nbPopoverTrigger="hint"
                       />
@@ -62,7 +61,6 @@
                       YouTube URL
                       <nb-icon
                         icon="tooltip-question-outline"
-                        pack="mdi"
                         nbPopover="Any link with YouTube video ID or video ID itself will work"
                         nbPopoverTrigger="hint"
                       />
@@ -80,7 +78,6 @@
                       Additional Map Photos
                       <nb-icon
                         icon="tooltip-question-outline"
-                        pack="mdi"
                         nbPopover="You may upload up to {{
                           extraImagesLimit
                         }} extra photos that also best represent your map."
@@ -108,7 +105,7 @@
                       size="tiny"
                       (click)="removeExtraImage(img)"
                     >
-                      <nb-icon icon="close" pack="mdi" />
+                      <nb-icon icon="close" />
                     </button>
                   </div>
                 </div>
@@ -139,7 +136,6 @@
                       >Map Type
                       <nb-icon
                         icon="tooltip-question-outline"
-                        pack="mdi"
                         nbPopover="This is the style of gameplay found predominantly throughout the map."
                         nbPopoverTrigger="hint"
                       />
@@ -285,7 +281,7 @@
           *ngIf="stepper.selectedIndex !== 0"
           (click)="touchForm(stepper.selectedIndex); stepper.previous()"
         >
-          <nb-icon icon="chevron-left-circle-outline" pack="mdi"></nb-icon>
+          <nb-icon icon="chevron-left-circle-outline"></nb-icon>
         </button>
         <button
           nbButton
@@ -296,7 +292,7 @@
           *ngIf="stepper.selectedIndex !== stepper.steps?.length - 1"
           (click)="touchForm(stepper.selectedIndex); stepper.next()"
         >
-          <nb-icon icon="chevron-right-circle-outline" pack="mdi"></nb-icon>
+          <nb-icon icon="chevron-right-circle-outline"></nb-icon>
         </button>
         <button
           *ngIf="stepper.selectedIndex === stepper.steps?.length - 1"

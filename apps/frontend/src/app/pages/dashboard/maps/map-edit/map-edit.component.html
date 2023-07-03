@@ -97,7 +97,7 @@
                   status="danger"
                   (click)="removeMapImage(img)"
                 >
-                  <nb-icon class="full" icon="close" pack="mdi"></nb-icon>
+                  <nb-icon class="full" icon="close"></nb-icon>
                 </button>
               </div>
               <div class="mx-2 upload-box" *ngIf="images.length < imagesLimit">
@@ -117,7 +117,6 @@
           <nb-icon
             class="text-warning"
             icon="alert"
-            pack="mdi"
             title="Under Construction"
           ></nb-icon>
           <!-- TODO: Remove when images submitting is added -->
