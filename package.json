@@ -63,6 +63,7 @@
     "simple-icons": "9.3.0",
     "steam-appticket": "1.0.1",
     "tslib": "2.6.0",
+    "txml": "5.1.1",
     "zone.js": "0.13.1"
   },
   "devDependencies": {
