@@ -77,7 +77,6 @@ describe('Enum', () => {
       // eslint-disable-next-line @typescript-eslint/naming-convention
       NaN
     }
-    console.log(Enum.keys(NaNTest));
     expect(Enum.keys(NaNTest)).toEqual(['A', 'NaN']);
   });
 
