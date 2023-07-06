@@ -5,7 +5,7 @@ import {
   Injectable,
   NotFoundException
 } from '@nestjs/common';
-import { Follow, Prisma } from '@prisma/client';
+import { Prisma } from '@prisma/client';
 import {
   AdminUpdateUserDto,
   checkNotEmpty,
@@ -25,28 +25,24 @@ export class AdminService {
   constructor(private readonly db: DbService) {}
 
   async createPlaceholderUser(alias: string): Promise<UserDto> {
-    const input: Prisma.UserCreateInput = {
-      alias: alias,
-      roles: Role.PLACEHOLDER
-    };
-
-    const dbResponse = await this.userRepo.create(input);
-
-    return DtoFactory(UserDto, dbResponse);
+    return DtoFactory(
+      UserDto,
+      await this.db.user.create({
+        data: {
+          alias: alias,
+          roles: Role.PLACEHOLDER
+        }
+      })
+    );
   }
 
   async mergeUsers(placeholderID: number, userID: number): Promise<UserDto> {
-    const includeFollows: Prisma.UserInclude = {
-      follows: true,
-      followers: true
-    };
+    const placeholder = await this.db.user.findUnique({
+      where: { id: placeholderID },
+      include: { follows: true, followers: true }
+    });
 
-    const placeholder = (await this.userRepo.get(
-      placeholderID,
-      includeFollows
-    )) as any;
-
-    if (placeholderID == userID) {
+    if (placeholderID === userID) {
       throw new BadRequestException('Will not merge the same account');
     } else if (!placeholder) {
       throw new BadRequestException('Placeholder user not found');
@@ -56,34 +52,45 @@ export class AdminService {
       );
     }
 
-    const user = (await this.userRepo.get(userID, includeFollows)) as any;
+    this;
+
+    const user = await this.db.user.findUnique({
+      where: { id: userID },
+      include: { follows: true, followers: true }
+    });
 
     if (!user) throw new BadRequestException('Merging user not found');
 
     // Update credits to point to new ID
-    await this.mapRepo.updateCredits(
-      { userID: placeholderID },
-      { userID: userID }
-    );
+    await this.db.mapCredit.updateMany({
+      where: { userID: placeholderID },
+      data: { userID }
+    });
 
     // Now follows, hardest part.
     // First edge case: delete the follow entry if the realUser is following
     // the placeholder (can't follow yourself)
-    await this.userRepo.deleteFollow(userID, placeholderID).catch(() => {});
-
-    const placeHolderFollowers = placeholder.followers as Follow[];
+    await this.db.follow.deleteMany({
+      where: { followedID: userID, followeeID: placeholderID }
+    });
 
     // Update all the follows targeting the placeholder user
-    for (const follow of placeHolderFollowers) {
+    for (const follow of placeholder.followers) {
       // We deleted the real user -> placeholder follow already but it can
       // still be in this array
       if (follow.followeeID === userID) continue;
 
       // Second edge case: user(s) is (are) following both placeholder and real user
-      const overlappingFollow = await this.userRepo.getFollower(
-        follow.followeeID,
-        userID
-      );
+      const overlappingFollow = await this.db.follow.findUnique({
+        where: {
+          followeeID_followedID: {
+            followeeID: follow.followeeID,
+            followedID: userID
+          }
+        },
+        include: { followed: true, followee: true }
+      });
+
       if (overlappingFollow) {
         const mergedNotifies = Bitflags.add(
           overlappingFollow.notifyOn,
@@ -97,32 +104,52 @@ export class AdminService {
           )
         );
 
-        await this.userRepo.updateFollow(follow.followeeID, userID, {
-          notifyOn: mergedNotifies,
-          createdAt: earliestCreationDate
+        await this.db.follow.update({
+          where: {
+            followeeID_followedID: {
+              followeeID: follow.followeeID,
+              followedID: userID
+            }
+          },
+          data: { notifyOn: mergedNotifies, createdAt: earliestCreationDate }
         });
 
-        await this.userRepo.deleteFollow(follow.followeeID, placeholderID);
+        await this.db.follow.delete({
+          where: {
+            followeeID_followedID: {
+              followeeID: follow.followeeID,
+              followedID: placeholderID
+            }
+          }
+        });
       }
       // If they don't overlap, just move the followedID
       else {
-        await this.userRepo.updateFollow(follow.followeeID, placeholderID, {
-          followed: { connect: { id: userID } }
+        await this.db.follow.update({
+          where: {
+            followeeID_followedID: {
+              followeeID: follow.followeeID,
+              followedID: placeholderID
+            }
+          },
+          data: { followed: { connect: { id: userID } } }
         });
       }
     }
 
     // Finally, activities.
-    await this.userRepo.updateActivities(
-      { userID: placeholderID },
-      { userID: userID }
-    );
+    await this.db.activity.updateMany({
+      where: { userID: placeholderID },
+      data: { userID }
+    });
 
     // Delete the placeholder
-    await this.userRepo.delete(placeholderID);
+    await this.db.user.delete({ where: { id: placeholderID } });
 
     // Fetch the merged user now everything's done
-    const mergedUserDbResponse = await this.userRepo.get(userID);
+    const mergedUserDbResponse = await this.db.user.findUnique({
+      where: { id: userID }
+    });
 
     return DtoFactory(UserDto, mergedUserDbResponse);
   }
@@ -132,7 +159,10 @@ export class AdminService {
     userID: number,
     update: AdminUpdateUserDto
   ) {
-    const user: any = await this.userRepo.get(userID, { profile: true });
+    const user: any = await this.db.user.findUnique({
+      where: { id: userID },
+      include: { profile: true }
+    });
 
     if (!user) throw new NotFoundException('User not found');
 
@@ -145,7 +175,10 @@ export class AdminService {
     let newRoles: number;
 
     if (update.roles !== undefined) {
-      const admin = await this.userRepo.get(adminID);
+      const admin = await this.db.user.findUnique({
+        where: { id: adminID },
+        select: { roles: true }
+      });
 
       if (Bitflags.has(admin.roles, Role.MODERATOR)) {
         if (
@@ -186,8 +219,9 @@ export class AdminService {
 
     if (update.alias && update.alias !== user.alias) {
       if (Bitflags.has(newRoles, Role.VERIFIED)) {
-        const [sameNameMatches] = await this.userRepo.getAll({
-          alias: update.alias
+        const sameNameMatches = await this.db.user.findMany({
+          where: { alias: update.alias },
+          select: { roles: true }
         });
         if (
           sameNameMatches.some((user) =>
@@ -206,11 +240,14 @@ export class AdminService {
       updateInput.profile = { update: { bio: update.bio } };
     }
 
-    await this.userRepo.update(userID, updateInput);
+    await this.db.user.update({ where: { id: userID }, data: updateInput });
   }
 
   async deleteUser(userID: number) {
-    const user: any = await this.userRepo.get(userID);
+    const user = await this.db.user.findUnique({
+      where: { id: userID },
+      select: { roles: true }
+    });
 
     if (!user) throw new NotFoundException('User not found');
 
@@ -222,7 +259,7 @@ export class AdminService {
         'Will delete admins or moderators, remove their roles first'
       );
 
-    await this.userRepo.delete(userID);
+    await this.db.user.delete({ where: { id: userID } });
   }
 
   async getReports(
@@ -231,12 +268,12 @@ export class AdminService {
     expand?: string[],
     resolved?: boolean
   ) {
-    const dbResponse = await this.userRepo.getAllReports(
-      { resolved },
-      expandToPrismaIncludes(expand),
+    const dbResponse = await this.db.report.findManyAndCount({
+      where: { resolved },
+      include: expandToPrismaIncludes(expand),
       skip,
       take
-    );
+    });
     return new PagedResponseDto(ReportDto, dbResponse);
   }
 
@@ -245,19 +282,23 @@ export class AdminService {
     reportID: number,
     reportDto: UpdateReportDto
   ) {
-    const report = await this.userRepo.getReport({ id: reportID });
+    const report = await this.db.report.findUnique({
+      where: { id: reportID }
+    });
 
     if (!report) throw new NotFoundException('Report not found');
 
-    const where: Prisma.ReportWhereUniqueInput = {
-      id: reportID
-    };
     const data: Prisma.ReportUpdateInput = {
       resolved: reportDto.resolved,
       resolutionMessage: reportDto.resolutionMessage
     };
     if (reportDto.resolved) data.resolver = { connect: { id: userID } };
 
-    await this.userRepo.updateReports(where, data);
+    await this.db.report.update({
+      where: {
+        id: reportID
+      },
+      data
+    });
   }
 }

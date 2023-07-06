@@ -10,23 +10,14 @@ export class MapLibraryService {
   constructor(private readonly db: DbService) {}
 
   async isMapInLibrary(userID: number, mapID: number) {
-    const map = await this.prisma.map.findFirst({
-      where: {
-        id: mapID
-      }
-    });
+    if (!(await this.db.map.exists({ where: { id: mapID } })))
+      throw new BadRequestException('Map does not exist');
 
-    if (!map) throw new BadRequestException('Map does not exist');
-
-    const where: Prisma.MapLibraryEntryWhereInput = {
-      userID: userID,
-      mapID: mapID
-    };
-
-    const dbResponse = await this.prisma.mapLibraryEntry.findFirst({
-      where: where
-    });
-
-    if (!dbResponse) throw new NotFoundException('Map not found');
+    if (
+      !(await this.db.mapLibraryEntry.exists({
+        where: { userID, mapID }
+      }))
+    )
+      throw new NotFoundException('Map not found');
   }
 }

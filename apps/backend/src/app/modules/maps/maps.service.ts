@@ -7,13 +7,7 @@ import {
   NotFoundException,
   StreamableFile
 } from '@nestjs/common';
-import {
-  Map as MapDB,
-  MapCredit,
-  MapTrack,
-  Prisma,
-  User
-} from '@prisma/client';
+import { Map as MapDB, MapCredit, MapTrack, Prisma } from '@prisma/client';
 import { FileStoreCloudService } from '../filestore/file-store-cloud.service';
 import { FileStoreCloudFile } from '../filestore/file-store.interface';
 import { ConfigService } from '@nestjs/config';
@@ -128,16 +122,13 @@ export class MapsService {
       userID
     );
 
-    // Order
-    const order: Prisma.MapOrderByWithRelationInput = { createdAt: 'desc' };
-
-    const dbResponse = await this.mapRepo.getAll(
+    const dbResponse = await this.db.map.findManyAndCount({
       where,
       include,
-      order,
-      query.skip,
-      query.take
-    );
+      orderBy: { createdAt: 'desc' },
+      skip: query.skip,
+      take: query.take
+    });
 
     if (incPB || incWR) {
       for (const map of dbResponse[0])
@@ -181,10 +172,10 @@ export class MapsService {
       userID
     );
 
-    const dbResponse = await this.mapRepo.get(
-      mapID,
-      isEmpty(include) ? undefined : include
-    );
+    const dbResponse = await this.db.map.findFirst({
+      where: { id: mapID },
+      include: isEmpty(include) ? undefined : include
+    });
 
     if (!dbResponse) throw new NotFoundException('Map not found');
 
@@ -241,19 +232,23 @@ export class MapsService {
     submitterID: number
   ): Promise<MapDto> {
     // Check there's no map with same name
-    const existingMaps: number = await this.mapRepo.count({
-      name: mapCreateDto.name,
-      NOT: { status: { in: [MapStatus.REJECTED, MapStatus.REMOVED] } }
+    const mapExists = await this.db.map.exists({
+      where: {
+        name: mapCreateDto.name,
+        NOT: { status: { in: [MapStatus.REJECTED, MapStatus.REMOVED] } }
+      }
     });
 
-    if (existingMaps > 0)
+    if (mapExists)
       throw new ConflictException('Map with this name already exists');
 
     // Limit the number of pending maps a user can have at any one time
     const pendingMapLimit = this.config.get('limits.pendingMaps');
-    const submittedMaps: number = await this.mapRepo.count({
-      submitterID: submitterID,
-      status: { in: [MapStatus.PENDING, MapStatus.NEEDS_REVISION] }
+    const submittedMaps: number = await this.db.map.count({
+      where: {
+        submitterID: submitterID,
+        status: { in: [MapStatus.PENDING, MapStatus.NEEDS_REVISION] }
+      }
     });
 
     if (submittedMaps >= pendingMapLimit)
@@ -318,7 +313,28 @@ export class MapsService {
       }
     };
 
-    const mapDB: any = await this.mapRepo.create(createInput);
+    const initialMap = await this.db.map.create({
+      data: createInput,
+      select: { id: true, tracks: true }
+    });
+
+    const mainTrack = initialMap.tracks.find((track) => track.trackNum === 0);
+
+    const mapDB = await this.db.map.update({
+      where: { id: initialMap.id },
+      data: {
+        mainTrack: {
+          connect: {
+            id: mainTrack.id
+          }
+        }
+      },
+      include: {
+        info: true,
+        credits: true,
+        tracks: true
+      }
+    });
 
     await Promise.all(
       mapDB.tracks.map(async (track: MapTrack) => {
@@ -326,17 +342,19 @@ export class MapsService {
           (dtoTrack) => dtoTrack.trackNum === track.trackNum
         );
 
-        await this.mapRepo.updateMapTrack(
-          { id: track.id },
-          { stats: { create: { baseStats: { create: {} } } } }
-        ); // Init empty MapTrackStats entry
+        await this.db.mapTrack.update({
+          where: { id: track.id },
+          data: { stats: { create: { baseStats: { create: {} } } } }
+        }); // Init empty MapTrackStats entry
 
         await Promise.all(
           dtoTrack.zones.map(async (zone) => {
-            const zoneDB: any = await this.mapRepo.createMapZone({
-              track: { connect: { id: track.id } },
-              zoneNum: zone.zoneNum,
-              stats: { create: { baseStats: { create: {} } } }
+            const zoneDB = await this.db.mapZone.create({
+              data: {
+                track: { connect: { id: track.id } },
+                zoneNum: zone.zoneNum,
+                stats: { create: { baseStats: { create: {} } } }
+              }
             });
 
             // We could do a `createMany` for the triggers in the above input
@@ -352,17 +370,19 @@ export class MapsService {
             // `createMany` for the triggers.
             await Promise.all(
               zone.triggers.map(async (trigger) => {
-                await this.mapRepo.createMapZoneTrigger({
-                  zone: { connect: { id: zoneDB.id } },
-                  type: trigger.type,
-                  pointsHeight: trigger.pointsHeight,
-                  pointsZPos: trigger.pointsZPos,
-                  points: trigger.points,
-                  properties: {
-                    create: {
-                      // This will create an empty table for triggers with no
-                      // properties, probably bad, revisit in 0.10.0
-                      properties: trigger?.properties?.properties ?? {}
+                await this.db.mapZoneTrigger.create({
+                  data: {
+                    zone: { connect: { id: zoneDB.id } },
+                    type: trigger.type,
+                    pointsHeight: trigger.pointsHeight,
+                    pointsZPos: trigger.pointsZPos,
+                    points: trigger.points,
+                    properties: {
+                      create: {
+                        // This will create an empty table for triggers with no
+                        // properties, probably bad, revisit in 0.10.0
+                        properties: trigger?.properties?.properties ?? {}
+                      }
                     }
                   }
                 });
@@ -374,8 +394,8 @@ export class MapsService {
     );
 
     // Create MAP_UPLOADED activities for each author
-    await this.userRepo.createActivities(
-      mapDB.credits
+    await this.db.activity.createMany({
+      data: mapDB.credits
         .filter((credit) => credit.type === MapCreditType.AUTHOR)
         .map((credit): Prisma.ActivityCreateManyInput => {
           return {
@@ -384,35 +404,38 @@ export class MapsService {
             data: mapDB.id
           };
         })
-    );
+    });
 
-    const finalizedMap = await this.mapRepo.get(mapDB.id, {
-      info: true,
-      stats: { include: { baseStats: true } },
-      submitter: true,
-      images: true,
-      thumbnail: true,
-      credits: { include: { user: true } },
-      tracks: {
-        include: {
-          zones: {
-            include: {
-              triggers: { include: { properties: true } },
-              stats: { include: { baseStats: true } }
-            }
-          },
-          stats: { include: { baseStats: true } }
-        }
-      },
-      mainTrack: {
-        include: {
-          zones: {
-            include: {
-              triggers: { include: { properties: true } },
-              stats: { include: { baseStats: true } }
-            }
-          },
-          stats: { include: { baseStats: true } }
+    const finalizedMap = await this.db.map.findUnique({
+      where: { id: mapDB.id },
+      include: {
+        info: true,
+        stats: { include: { baseStats: true } },
+        submitter: true,
+        images: true,
+        thumbnail: true,
+        credits: { include: { user: true } },
+        tracks: {
+          include: {
+            zones: {
+              include: {
+                triggers: { include: { properties: true } },
+                stats: { include: { baseStats: true } }
+              }
+            },
+            stats: { include: { baseStats: true } }
+          }
+        },
+        mainTrack: {
+          include: {
+            zones: {
+              include: {
+                triggers: { include: { properties: true } },
+                stats: { include: { baseStats: true } }
+              }
+            },
+            stats: { include: { baseStats: true } }
+          }
         }
       }
     });
@@ -426,7 +449,7 @@ export class MapsService {
     update: UpdateMapDto,
     isAdmin = false
   ): Promise<void> {
-    const map = await this.mapRepo.get(mapID);
+    const map = await this.db.map.findUnique({ where: { id: mapID } });
 
     if (!map) throw new NotFoundException('No map found');
 
@@ -450,8 +473,9 @@ export class MapsService {
 
     const previousStatus = map.status;
 
-    const updatedMap = await this.mapRepo.update(mapID, {
-      status: update.status
+    const updatedMap = await this.db.map.update({
+      where: { id: mapID },
+      data: { status: update.status }
     });
 
     if (
@@ -460,30 +484,29 @@ export class MapsService {
       updatedMap.status === MapStatus.APPROVED
     ) {
       // status changed and map went from PENDING -> APPROVED
-
-      const allCredits = await this.mapRepo.getCredits({
-        mapID: mapID,
-        type: MapCreditType.AUTHOR
+      const allCredits = await this.db.mapCredit.findMany({
+        where: { mapID, type: MapCreditType.AUTHOR }
       });
 
-      return this.userRepo.createActivities(
-        allCredits.map(
+      await this.db.activity.createMany({
+        data: allCredits.map(
           (credit): Prisma.ActivityCreateManyInput => ({
             type: ActivityType.MAP_APPROVED,
             userID: credit.userID,
             data: mapID
           })
         )
-      );
+      });
     }
   }
 
   async delete(mapID: number): Promise<void> {
-    const map = await this.mapRepo.get(mapID);
+    const map = await this.db.map.findUnique({ where: { id: mapID } });
+
     if (!map) throw new NotFoundException('No map found');
 
     // Delete all stored map images
-    const images = await this.mapRepo.getImages({ mapID: mapID });
+    const images = await this.db.mapImage.findMany({ where: { mapID } });
     await Promise.all(images.map((img) => this.deleteStoredMapImage(img.id)));
 
     // Delete all run files
@@ -492,7 +515,7 @@ export class MapsService {
     // Delete stored map file
     await this.fileCloudService.deleteFileCloud(map.fileKey);
 
-    await this.mapRepo.delete(mapID);
+    await this.db.map.delete({ where: { id: mapID } });
   }
 
   //#endregion
@@ -500,7 +523,7 @@ export class MapsService {
   //#region Upload/Download
 
   async canUploadMap(mapID: number, userID: number): Promise<void> {
-    const mapDB = await this.mapRepo.get(mapID);
+    const mapDB = await this.db.map.findUnique({ where: { id: mapID } });
 
     this.uploadMapChecks(mapDB, userID);
   }
@@ -510,23 +533,27 @@ export class MapsService {
     userID: number,
     mapFileBuffer: Buffer
   ): Promise<MapDto> {
-    const mapDB = await this.mapRepo.get(mapID);
+    const mapDB = await this.db.map.findUnique({ where: { id: mapID } });
 
     this.uploadMapChecks(mapDB, userID);
 
     const result = await this.storeMapFile(mapFileBuffer, mapDB);
 
-    const dbResponse = await this.mapRepo.update(mapDB.id, {
-      status: MapStatus.PENDING,
-      fileKey: result[0],
-      hash: result[1]
-    });
-
-    return DtoFactory(MapDto, dbResponse);
+    return DtoFactory(
+      MapDto,
+      await this.db.map.update({
+        where: { id: mapDB.id },
+        data: {
+          status: MapStatus.PENDING,
+          fileKey: result[0],
+          hash: result[1]
+        }
+      })
+    );
   }
 
   async download(mapID: number): Promise<StreamableFile> {
-    const map = await this.mapRepo.get(mapID);
+    const map = await this.db.map.findUnique({ where: { id: mapID } });
 
     if (!map) throw new NotFoundException('Map not found');
 
@@ -535,8 +562,9 @@ export class MapsService {
     if (!mapDataStream)
       throw new NotFoundException(`Couldn't find BSP file for ${map.name}.bsp`);
 
-    await this.mapRepo.updateMapStats(mapID, {
-      downloads: { increment: 1 }
+    await this.db.mapStats.update({
+      where: { mapID },
+      data: { downloads: { increment: 1 } }
     });
 
     return mapDataStream;
@@ -579,15 +607,15 @@ export class MapsService {
   //#region Credits
 
   async getCredits(mapID: number, expand: string[]): Promise<MapCreditDto[]> {
-    const foundMap = await this.mapRepo.get(mapID);
-    if (!foundMap) throw new NotFoundException('Map not found');
+    if (!(await this.db.map.exists({ where: { id: mapID } })))
+      throw new NotFoundException('Map not found');
 
-    const include: Prisma.MapCreditInclude = expandToPrismaIncludes(
-      expand?.filter((x) => ['user'].includes(x))
-    );
-    const where: Prisma.MapCreditWhereInput = { mapID: mapID };
-
-    const dbResponse = await this.mapRepo.getCredits(where, include);
+    const dbResponse = await this.db.mapCredit.findMany({
+      where: { mapID },
+      include: expandToPrismaIncludes(
+        expand?.filter((x) => ['user'].includes(x))
+      )
+    });
 
     return dbResponse.map((x) => DtoFactory(MapCreditDto, x));
   }
@@ -597,30 +625,40 @@ export class MapsService {
     createMapCredit: CreateMapCreditDto,
     userID: number
   ): Promise<MapCreditDto> {
-    const map = await this.mapRepo.get(mapID, { credits: true });
+    const map = await this.db.map.findUnique({
+      where: { id: mapID },
+      include: { credits: true }
+    });
 
     if (!map) throw new NotFoundException('Map not found');
 
     await this.checkCreditChangePermissions(map, userID);
 
-    const dupeCredit = await this.mapRepo.findCredit({
-      mapID: mapID,
-      userID: createMapCredit.userID,
-      type: createMapCredit.type
-    });
-    if (dupeCredit) throw new ConflictException('Map credit already exists');
+    if (
+      await this.db.mapCredit.exists({
+        where: {
+          mapID,
+          userID: createMapCredit.userID,
+          type: createMapCredit.type
+        }
+      })
+    )
+      throw new ConflictException('Map credit already exists');
 
-    const existingUser = await this.userRepo.get(createMapCredit.userID);
-    if (!existingUser)
+    if (
+      !(await this.db.user.exists({
+        where: { id: createMapCredit.userID }
+      }))
+    )
       throw new BadRequestException('Credited user does not exist');
 
-    const newCredit: Prisma.MapCreditCreateInput = {
-      type: createMapCredit.type,
-      map: { connect: { id: mapID } },
-      user: { connect: { id: createMapCredit.userID } }
-    };
-
-    const dbResponse = await this.mapRepo.createCredit(newCredit);
+    const dbResponse = await this.db.mapCredit.create({
+      data: {
+        type: createMapCredit.type,
+        map: { connect: { id: mapID } },
+        user: { connect: { id: createMapCredit.userID } }
+      }
+    });
 
     await this.updateMapCreditActivities(dbResponse);
 
@@ -631,9 +669,10 @@ export class MapsService {
     mapCreditID: number,
     expand: string[]
   ): Promise<MapCreditDto> {
-    const include: Prisma.MapCreditInclude = expandToPrismaIncludes(expand);
-
-    const dbResponse = await this.mapRepo.getCredit(mapCreditID, include);
+    const dbResponse = await this.db.mapCredit.findUnique({
+      where: { id: mapCreditID },
+      include: expandToPrismaIncludes(expand)
+    });
 
     if (!dbResponse) throw new NotFoundException('Map credit not found');
 
@@ -648,30 +687,33 @@ export class MapsService {
     if (!creditUpdate.userID && !creditUpdate.type)
       throw new BadRequestException('No update data provided');
 
-    const credit: MapCredit & { user: User; map: MapDB } =
-      (await this.mapRepo.getCredit(mapCreditID, {
-        user: true,
-        map: true
-      })) as any;
+    const credit = await this.db.mapCredit.findUnique({
+      where: { id: mapCreditID },
+      include: { user: true, map: true }
+    });
 
     if (!credit || !credit.map || !credit.user)
       throw new NotFoundException('Invalid map credit');
 
     await this.checkCreditChangePermissions(credit.map, userID);
 
-    if (creditUpdate.userID) {
-      const userExists = await this.userRepo.get(creditUpdate.userID);
-      if (!userExists)
-        throw new BadRequestException('Credited user does not exist');
-    }
+    if (
+      creditUpdate.userID &&
+      !(await this.db.user.exists({
+        where: { id: creditUpdate.userID }
+      }))
+    )
+      throw new BadRequestException('Credited user does not exist');
 
     // Check for different credits with same map, user and type, throw if exists
     if (
-      await this.mapRepo.findCredit({
-        NOT: { id: credit.id },
-        userID: creditUpdate.userID ?? credit.userID,
-        type: creditUpdate.type ?? credit.type,
-        mapID: credit.mapID
+      await this.db.mapCredit.exists({
+        where: {
+          NOT: { id: credit.id },
+          userID: creditUpdate.userID ?? credit.userID,
+          type: creditUpdate.type ?? credit.type,
+          mapID: credit.mapID
+        }
       })
     )
       throw new ConflictException('Cannot have duplicate map credits');
@@ -681,30 +723,38 @@ export class MapsService {
       data.user = { connect: { id: creditUpdate.userID } };
     if (creditUpdate.type) data.type = creditUpdate.type;
 
-    const newCredit = await this.mapRepo.updateCredit(mapCreditID, data);
+    const newCredit = await this.db.mapCredit.update({
+      where: { id: mapCreditID },
+      data
+    });
 
     await this.updateMapCreditActivities(newCredit, credit);
   }
 
   async deleteCredit(mapCreditID: number, userID: number): Promise<void> {
-    const credit: MapCredit & { user: User; map: MapDB } =
-      (await this.mapRepo.getCredit(mapCreditID, {
+    const credit = await this.db.mapCredit.findUnique({
+      where: { id: mapCreditID },
+      include: {
         user: true,
         map: true
-      })) as any;
+      }
+    });
 
     if (!credit || !credit.map || !credit.user)
       throw new NotFoundException('Invalid map credit');
 
     await this.checkCreditChangePermissions(credit.map, userID);
 
-    await this.mapRepo.deleteCredit({ id: mapCreditID });
+    await this.db.mapCredit.delete({ where: { id: mapCreditID } });
 
     await this.updateMapCreditActivities(null, credit);
   }
 
   private async checkCreditChangePermissions(map: MapDB, userID: number) {
-    const user = await this.userRepo.get(userID);
+    const user = await this.db.user.findUnique({
+      where: { id: userID },
+      select: { roles: true }
+    });
 
     // Let admins/mods update in any state
     if (
@@ -725,20 +775,22 @@ export class MapsService {
     oldCredit?: MapCredit
   ): Promise<void> {
     const deleteOldActivity = () =>
-      this.userRepo.deleteActivities({
-        type: ActivityType.MAP_UPLOADED,
-        data: oldCredit.mapID,
-        userID: oldCredit.userID
+      this.db.activity.deleteMany({
+        where: {
+          type: ActivityType.MAP_UPLOADED,
+          data: oldCredit.mapID,
+          userID: oldCredit.userID
+        }
       });
 
     const createNewActivity = () =>
-      this.userRepo.createActivities([
-        {
+      this.db.activity.create({
+        data: {
           type: ActivityType.MAP_UPLOADED,
           data: newCredit.mapID,
           userID: newCredit.userID
         }
-      ]);
+      });
 
     // If oldCredit is null, a credit was created
     if (!oldCredit) {
@@ -781,7 +833,7 @@ export class MapsService {
   //#region Info
 
   async getInfo(mapID: number): Promise<MapInfoDto> {
-    const mapInfo = await this.mapRepo.getInfo(mapID);
+    const mapInfo = await this.db.mapInfo.findUnique({ where: { mapID } });
 
     if (!mapInfo) throw new NotFoundException('Map not found');
 
@@ -795,7 +847,9 @@ export class MapsService {
   ): Promise<void> {
     if (!mapInfo.description && !mapInfo.youtubeID && !mapInfo.creationDate)
       throw new BadRequestException('Request contains no valid update data');
-    const map = await this.mapRepo.get(mapID);
+
+    const map = await this.db.map.findUnique({ where: { id: mapID } });
+
     if (!map) throw new NotFoundException('Map not found');
 
     if (map.submitterID !== userID)
@@ -811,7 +865,7 @@ export class MapsService {
     if (mapInfo.creationDate)
       data.creationDate = new Date(mapInfo.creationDate);
 
-    await this.mapRepo.updateInfo(mapID, data);
+    await this.db.mapInfo.update({ where: { mapID }, data });
   }
 
   //#endregion
@@ -819,19 +873,20 @@ export class MapsService {
   //#region Images
 
   async getImages(mapID: number): Promise<MapImageDto[]> {
-    const map = await this.mapRepo.get(mapID);
+    if (!(await this.db.map.exists({ where: { id: mapID } })))
+      throw new NotFoundException('Map not found');
 
-    if (!map) throw new NotFoundException('Map not found');
-
-    const images = await this.mapRepo.getImages({ mapID: mapID });
+    const images = await this.db.mapImage.findMany({ where: { mapID } });
 
     return images.map((x) => DtoFactory(MapImageDto, x));
   }
 
   async getImage(imgID: number): Promise<MapImageDto> {
-    const mapImg = await this.mapRepo.getImage(imgID);
-    if (!mapImg) throw new NotFoundException('Map image not found');
-    return DtoFactory(MapImageDto, mapImg);
+    const img = await this.db.mapImage.findUnique({ where: { id: imgID } });
+
+    if (!img) throw new NotFoundException('Map image not found');
+
+    return DtoFactory(MapImageDto, img);
   }
 
   async createImage(
@@ -839,7 +894,7 @@ export class MapsService {
     mapID: number,
     imgBuffer: Buffer
   ): Promise<MapImageDto> {
-    const map = await this.mapRepo.get(mapID);
+    const map = await this.db.map.findUnique({ where: { id: mapID } });
 
     if (!map) throw new NotFoundException('Map not found');
 
@@ -849,19 +904,22 @@ export class MapsService {
     if (map.status !== MapStatus.NEEDS_REVISION)
       throw new ForbiddenException('Map is not in NEEDS_REVISION state');
 
-    const images = await this.mapRepo.getImages({ mapID: mapID });
+    const images = await this.db.mapImage.findMany({ where: { mapID } });
     let imageCount = images.length;
     if (map.thumbnailID) imageCount--; // Don't count the thumbnail towards this limit
     if (imageCount >= this.config.get('limits.mapImageUploads'))
       throw new ConflictException('Map image file limit reached');
 
-    const newImage = await this.mapRepo.createImage(mapID);
+    // It may seem strange to create an entry with nothing but a key into Map,
+    // but we're doing it so we get an ID from Postgres, and can store the image
+    // file at a corresponding URL.
+    const newImage = await this.db.mapImage.create({ data: { mapID } });
 
     const uploadedImages = await this.storeMapImage(imgBuffer, newImage.id);
 
     if (!uploadedImages) {
-      await this.mapRepo.deleteImage({ id: newImage.id });
-      throw new BadGatewayException('Error uploading image to cdn');
+      await this.db.mapImage.delete({ where: { id: newImage.id } });
+      throw new BadGatewayException('Error uploading image to CDN');
     }
 
     return DtoFactory(MapImageDto, newImage);
@@ -872,11 +930,11 @@ export class MapsService {
     imgID: number,
     imgBuffer: Buffer
   ): Promise<void> {
-    const image = await this.mapRepo.getImage(imgID);
+    const image = await this.db.mapImage.findUnique({ where: { id: imgID } });
 
     if (!image) throw new NotFoundException('Image not found');
 
-    const map = await this.mapRepo.get(image.mapID);
+    const map = await this.db.map.findUnique({ where: { id: image.mapID } });
 
     if (map.submitterID !== userID)
       throw new ForbiddenException('User is not the submitter of the map');
@@ -891,11 +949,12 @@ export class MapsService {
   }
 
   async deleteImage(userID: number, imgID: number): Promise<void> {
-    const image = await this.mapRepo.getImage(imgID);
+    // TODO: Split up duplicate shit into one fn
+    const image = await this.db.mapImage.findUnique({ where: { id: imgID } });
 
     if (!image) throw new NotFoundException('Image not found');
 
-    const map = await this.mapRepo.get(image.mapID);
+    const map = await this.db.map.findUnique({ where: { id: image.mapID } });
 
     if (map.submitterID !== userID)
       throw new ForbiddenException('User is not the submitter of the map');
@@ -905,10 +964,11 @@ export class MapsService {
 
     await Promise.all([
       this.deleteStoredMapImage(imgID),
-      this.mapRepo.deleteImage({ id: imgID })
+      this.db.mapImage.delete({ where: { id: imgID } })
     ]);
   }
 
+  // TODO: Make private
   async editSaveMapImageFile(
     imgBuffer: Buffer,
     fileName: string,
@@ -962,7 +1022,10 @@ export class MapsService {
     mapID: number,
     imgBuffer: Buffer
   ): Promise<void> {
-    let map = await this.mapRepo.get(mapID, { thumbnail: true });
+    let map = await this.db.map.findUnique({
+      where: { id: mapID },
+      select: { thumbnailID: true, submitterID: true, status: true }
+    });
 
     if (!map) throw new NotFoundException('Map not found');
     if (map.submitterID !== userID)
@@ -971,19 +1034,22 @@ export class MapsService {
       throw new ForbiddenException('Map is not in NEEDS_REVISION state');
 
     if (!map.thumbnailID) {
-      const newThumbnail = await this.mapRepo.createImage(mapID);
-      map = await this.mapRepo.update(mapID, {
-        thumbnail: { connect: { id: newThumbnail.id } }
+      const newThumbnail = await this.db.mapImage.create({ data: { mapID } });
+      map = await this.db.map.update({
+        where: { id: mapID },
+        data: { thumbnail: { connect: { id: newThumbnail.id } } }
       });
     }
 
-    const thumbnail = await this.mapRepo.getImage(map.thumbnailID);
+    const thumbnail = await this.db.mapImage.findUnique({
+      where: { id: map.thumbnailID }
+    });
 
     const uploadedImages = await this.storeMapImage(imgBuffer, thumbnail.id);
     if (!uploadedImages) {
       // If the images failed to upload, we want to delete the map image object
       // if there was no previous thumbnail
-      await this.mapRepo.deleteImage({ id: thumbnail.id });
+      await this.db.mapImage.delete({ where: { id: thumbnail.id } });
       throw new BadGatewayException('Failed to upload image to CDN');
     }
   }
@@ -992,10 +1058,12 @@ export class MapsService {
   //#region Zones
 
   async getZones(mapID: number): Promise<MapTrackDto[]> {
-    const tracks = await this.mapRepo.getMapTracks(
-      { mapID: mapID },
-      { zones: { include: { triggers: { include: { properties: true } } } } }
-    );
+    const tracks = await this.db.mapTrack.findMany({
+      where: { mapID },
+      include: {
+        zones: { include: { triggers: { include: { properties: true } } } }
+      }
+    });
 
     if (!tracks || tracks.length === 0)
       throw new NotFoundException('Map not found');
@@ -1004,8 +1072,9 @@ export class MapsService {
     // \server\src\models\map.js Line 499
     // TODO_POST_REWRITE: When map sessions are done this should be removed
 
-    await this.mapRepo.updateMapStats(mapID, {
-      plays: { increment: 1 }
+    await this.db.mapStats.update({
+      where: { mapID },
+      data: { plays: { increment: 1 } }
     });
 
     return tracks.map((x) => DtoFactory(MapTrackDto, x));

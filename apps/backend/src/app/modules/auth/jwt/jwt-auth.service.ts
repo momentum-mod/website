@@ -55,7 +55,11 @@ export class JwtAuthService {
 
     await this.getUser(id);
 
-    await this.userRepo.upsertAuth(id, '');
+    await this.db.userAuth.upsert({
+      where: { userID: id },
+      update: { refreshToken: '' },
+      create: { userID: id, refreshToken: '' }
+    });
   }
 
   async refreshRefreshToken(refreshToken: string): Promise<JWTResponseWebDto> {
@@ -65,7 +69,11 @@ export class JwtAuthService {
 
     const tokenDto = await this.generateWebTokenPair(id, user.steamID);
 
-    await this.userRepo.upsertAuth(id, tokenDto.refreshToken);
+    await this.db.userAuth.upsert({
+      where: { userID: id },
+      update: { refreshToken: tokenDto.refreshToken },
+      create: { userID: id, refreshToken: tokenDto.refreshToken }
+    });
 
     return tokenDto;
   }
@@ -96,11 +104,15 @@ export class JwtAuthService {
 
   private async generateRefreshToken(payload: UserJwtPayload): Promise<string> {
     const options = { expiresIn: this.config.get('jwt.refreshExpTime') };
-    const token = await this.jwtService.signAsync(payload, options);
+    const refreshToken = await this.jwtService.signAsync(payload, options);
 
-    await this.userRepo.upsertAuth(payload.id, token);
+    await this.db.userAuth.upsert({
+      where: { userID: payload.id },
+      update: { refreshToken },
+      create: { userID: payload.id, refreshToken }
+    });
 
-    return token;
+    return refreshToken;
   }
 
   private verifyRefreshToken(token: string): UserJwtPayloadVerified {
@@ -122,7 +134,7 @@ export class JwtAuthService {
   //#region Validation
 
   private async getUser(userID: number) {
-    const user = await this.userRepo.get(userID);
+    const user = await this.db.user.findUnique({ where: { id: userID } });
 
     if (!user) throw new UnauthorizedException('User not found');
 
