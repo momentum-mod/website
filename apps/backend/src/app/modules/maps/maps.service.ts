@@ -968,8 +968,7 @@ export class MapsService {
     ]);
   }
 
-  // TODO: Make private
-  async editSaveMapImageFile(
+  private async editSaveMapImageFile(
     imgBuffer: Buffer,
     fileName: string,
     width: number,
