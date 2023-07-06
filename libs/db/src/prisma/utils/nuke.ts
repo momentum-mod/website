@@ -4,7 +4,7 @@ export const nuke = async (prisma: PrismaClient) => {
   // Just to be extra safe...
   const env = process.env.NODE_ENV;
   if (!(env === 'dev' || env === 'test')) {
-    console.error('seed.ts: This script should never be used in production!');
+    console.error('nuke.ts: This script should never be used in production!');
     process.abort();
   }
 
