@@ -44,7 +44,12 @@ async function bootstrap() {
   // even more strict: passing an unexpected value will throw an error. In
   // effect, you MUST include validation decorators
   app.useGlobalPipes(
-    new ValidationPipe({ transform: true, forbidUnknownValues: true })
+    new ValidationPipe({
+      transform: true,
+      forbidUnknownValues: true,
+      whitelist: true,
+      forbidNonWhitelisted: true
+    })
   );
   app.useGlobalInterceptors(new ClassSerializerInterceptor(app.get(Reflector)));
 
