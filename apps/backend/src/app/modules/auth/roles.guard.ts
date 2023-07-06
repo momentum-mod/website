@@ -30,7 +30,10 @@ export class RolesGuard implements CanActivate {
     //
     // In our case, since most endpoints are *not* role or ban dependent, it's
     // easiest to handle RBAC using (still relatively cheap) DB calls.
-    const user: any = await this.userRepo.get(request.user.id);
+    const user = await this.db.user.findUnique({
+      where: { id: request.user.id },
+      select: { roles: true }
+    });
 
     // If you're not familiar with bit flags, they're just a bunch of booleans
     // encoded into a single integer. Always think of them in terms of binary
@@ -52,7 +55,7 @@ export class RolesGuard implements CanActivate {
     //
     // This method saves making an SQL table full of booleans, and is easy to
     // work with once you get the general concept. Remember, rows of binary
-    // digits, no decimals!
+    // digits, not decimals!
     return (Bitflags.join(...requiredRoles) & user.roles) != 0;
   }
 }

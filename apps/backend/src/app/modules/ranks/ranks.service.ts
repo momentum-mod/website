@@ -24,7 +24,7 @@ export class RanksService {
     mapID: number,
     query: MapRanksGetQueryDto
   ): Promise<PagedResponseDto<RankDto>> {
-    const map = await this.mapRepo.get(mapID);
+    const map = await this.db.map.findUnique({ where: { id: mapID } });
 
     if (!map) throw new NotFoundException('Map not found');
 
@@ -38,19 +38,18 @@ export class RanksService {
 
     const include = { run: true, user: true };
 
-    const order: Prisma.RankOrderByWithAggregationInput = {};
+    const orderBy: Prisma.RankOrderByWithAggregationInput = {};
     if (query.orderByDate !== undefined)
-      order.createdAt = query.orderByDate ? 'desc' : 'asc';
-    else order.rank = 'asc';
+      orderBy.createdAt = query.orderByDate ? 'desc' : 'asc';
+    else orderBy.rank = 'asc';
 
-    const dbResponse = await this.runRepo.getRanks(
+    const dbResponse = await this.db.rank.findManyAndCount({
       where,
       include,
-      undefined,
-      order,
-      query.skip,
-      query.take
-    );
+      orderBy,
+      skip: query.skip,
+      take: query.take
+    });
 
     if (!dbResponse) throw new NotFoundException('No ranks found for map');
 
@@ -64,7 +63,7 @@ export class RanksService {
     rankNumber: number,
     query: MapRankGetNumberQueryDto
   ): Promise<RankDto> {
-    const map = await this.mapRepo.get(mapID);
+    const map = await this.db.map.findUnique({ where: { id: mapID } });
 
     if (!map) throw new NotFoundException('Map not found');
 
@@ -82,17 +81,19 @@ export class RanksService {
     if (query.trackNum) where.run.trackNum = query.trackNum;
     if (query.zoneNum) where.run.zoneNum = query.zoneNum;
 
-    const include = { run: true, user: true };
-
-    const dbResponse = (await this.runRepo.getRank(where, include)) as any;
+    const dbResponse = await this.db.rank.findFirst({
+      where,
+      include: { run: true, user: true }
+    });
 
     if (!dbResponse) throw new NotFoundException('Rank not found');
 
     // Same approach as formatRanksDbResponse
-    dbResponse.trackNum = (dbResponse as any).run.trackNum;
-    dbResponse.zoneNum = (dbResponse as any).run.zoneNum;
-
-    return DtoFactory(RankDto, dbResponse);
+    return DtoFactory(RankDto, {
+      ...dbResponse,
+      trackNum: dbResponse.run.trackNum,
+      zoneNum: dbResponse.run.zoneNum
+    });
   }
 
   async getRankAround(
@@ -116,9 +117,11 @@ export class RanksService {
 
     const include = { run: true, user: true };
 
-    const order: Prisma.RankOrderByWithAggregationInput = { rank: 'asc' };
+    const orderBy: Prisma.RankOrderByWithAggregationInput = { rank: 'asc' };
 
-    const userRankInfo = await this.runRepo.getRank(where, include);
+    const userRankInfo = await this.db.rank.findFirst({
+      where
+    });
 
     if (!userRankInfo) throw new NotFoundException('No personal best found');
 
@@ -128,16 +131,15 @@ export class RanksService {
     where.userID = undefined;
 
     // Don't care about the count
-    const [ranks] = await this.runRepo.getRanks(
+    const ranks = await this.db.rank.findMany({
       where,
       include,
-      undefined,
-      order,
+      orderBy,
       // Minus 6 here because offset will skip the number of rows provided
       // Example: if you want to offset to rank 9, you set offset to 8
-      Math.max(userRank - 6, 0),
-      11 // 5 + yours + 5
-    );
+      skip: Math.max(userRank - 6, 0),
+      take: 11 // 5 + yours + 5
+    });
 
     this.formatRanksDbResponse(ranks);
 
@@ -149,7 +151,7 @@ export class RanksService {
     mapID: number,
     query: MapRankGetNumberQueryDto
   ): Promise<RankDto[]> {
-    const map = await this.mapRepo.get(mapID);
+    const map = await this.db.map.findUnique({ where: { id: mapID } });
 
     if (!map) throw new NotFoundException('Map not found');
 
@@ -171,10 +173,11 @@ export class RanksService {
     if (query.trackNum) where.run.trackNum = query.trackNum;
     if (query.zoneNum) where.run.zoneNum = query.zoneNum;
 
-    const include = { run: true, user: true };
-
     // Don't care about the count
-    const [ranks] = await this.runRepo.getRanks(where, include);
+    const ranks = await this.db.rank.findMany({
+      where,
+      include: { run: true, user: true }
+    });
 
     this.formatRanksDbResponse(ranks);
 

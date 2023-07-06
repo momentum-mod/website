@@ -5,13 +5,8 @@ import {
   Logger
 } from '@nestjs/common';
 import {
-  RunSessionCompleted,
-  RunsRepoService
-} from '../../repo/runs-repo.service';
-import {
   MapTrack,
   MapZone,
-  MapZoneStats,
   Prisma,
   Run,
   RunSessionTimestamp,
@@ -29,7 +24,12 @@ import {
   UpdateRunSessionDto,
   XpGainDto
 } from '@momentum/backend/dto';
-import { ProcessedRun, StatsUpdateReturn } from './run-session.interface';
+import {
+  CompletedRunSession,
+  ProcessedRun,
+  RUN_SESSION_COMPLETED_INCLUDE,
+  StatsUpdateReturn
+} from './run-session.interface';
 import { ActivityType, RunValidationError } from '@momentum/constants';
 import { BaseStats } from '@momentum/replay';
 import { DbService } from '../../database/db.service';
@@ -55,33 +55,33 @@ export class RunSessionService {
     if (body.trackNum !== 0 || body.zoneNum !== 0)
       throw new BadRequestException('IL/Bonus runs are not yet supported');
 
-    await this.runRepo.deleteRunSession({ userID: userID });
+    await this.db.runSession.deleteMany({ where: { userID } });
 
-    const track = await this.mapRepo.getMapTrack(
-      { mapID: body.mapID, trackNum: body.trackNum },
-      body.zoneNum > 0
-        ? { zones: { where: { zoneNum: body.zoneNum } } }
-        : undefined
-    );
+    const track = await this.db.mapTrack.findFirst({
+      where: { mapID: body.mapID, trackNum: body.trackNum },
+      include:
+        body.zoneNum > 0
+          ? { zones: { where: { zoneNum: body.zoneNum } } }
+          : undefined
+    });
 
     if (!track)
       throw new BadRequestException(
         'Map does not exist or does not contain a track with this trackNum'
       );
     // If zoneNum > 0, check we got an include zone back
-    else if (
-      body.zoneNum > 0 &&
-      !((track as any)?.zones && (track as any)?.zones.length === 1)
-    )
+    else if (body.zoneNum > 0 && !(track?.zones && track?.zones.length === 1))
       throw new BadRequestException(
         'Track does not contain a zone with this zoneNum'
       );
 
-    const dbResponse = await this.runRepo.createRunSession({
-      user: { connect: { id: userID } },
-      track: { connect: { id: track.id } },
-      trackNum: body.trackNum,
-      zoneNum: body.zoneNum
+    const dbResponse = await this.db.runSession.create({
+      data: {
+        user: { connect: { id: userID } },
+        track: { connect: { id: track.id } },
+        trackNum: body.trackNum,
+        zoneNum: body.zoneNum
+      }
     });
 
     return DtoFactory(RunSessionDto, dbResponse);
@@ -96,9 +96,12 @@ export class RunSessionService {
     sessionID: number,
     body: UpdateRunSessionDto
   ): Promise<RunSessionTimestampDto> {
-    const session = await this.runRepo.getRunSessionUnique(sessionID, {
-      timestamps: true,
-      track: true
+    const session = await this.db.runSession.findUnique({
+      where: { id: sessionID },
+      include: {
+        timestamps: true,
+        track: true
+      }
     });
 
     if (!session) throw new BadRequestException('No run found');
@@ -111,16 +114,18 @@ export class RunSessionService {
     // Currently we don't require all zones in a run be completed, so this is
     // quite a weak check May change in 0.10.0?
     if (
-      (session as any).timestamps.some(
+      session.timestamps.some(
         (ts: RunSessionTimestamp) => ts.zone === body.zoneNum
       )
     )
       throw new BadRequestException('Timestamp already exists');
 
-    const dbResponse = await this.runRepo.createRunSessionTimestamp({
-      session: { connect: { id: sessionID } },
-      zone: body.zoneNum,
-      tick: body.tick
+    const dbResponse = await this.db.runSessionTimestamp.create({
+      data: {
+        session: { connect: { id: sessionID } },
+        zone: body.zoneNum,
+        tick: body.tick
+      }
     });
 
     return DtoFactory(RunSessionTimestampDto, dbResponse);
@@ -132,7 +137,7 @@ export class RunSessionService {
 
   async invalidateSession(userID: number): Promise<void> {
     try {
-      await this.runRepo.deleteRunSessionUnique({ userID: userID });
+      await this.db.runSession.delete({ where: { userID } });
     } catch {
       throw new BadRequestException('Session does not exist');
     }
@@ -147,18 +152,21 @@ export class RunSessionService {
     sessionID: number,
     replay: Buffer
   ): Promise<CompletedRunDto> {
-    const session = await this.runRepo.getRunSessionCompleted(sessionID);
+    const session = await this.db.runSession.findUnique({
+      where: { id: sessionID },
+      include: RUN_SESSION_COMPLETED_INCLUDE
+    });
 
-    const user = await this.userRepo.get(userID);
+    const user = await this.db.user.findUnique({ where: { id: userID } });
 
     if (!session || !session.track || !session.track.map)
       throw new BadRequestException('Invalid run');
 
-    await this.runRepo.deleteRunSessionUnique({ id: sessionID });
+    await this.db.runSession.delete({ where: { id: sessionID } });
 
     const processedRun = RunSessionService.processSubmittedRun(
       replay,
-      session,
+      session as CompletedRunSession,
       user
     );
 
@@ -172,7 +180,7 @@ export class RunSessionService {
 
   private static processSubmittedRun(
     replay: Buffer,
-    session: RunSessionCompleted,
+    session: CompletedRunSession,
     user: User
   ): ProcessedRun {
     // Make a new run processor instance. This is going to store the replay and
@@ -206,7 +214,7 @@ export class RunSessionService {
 
   private async saveSubmittedRun(
     submittedRun: ProcessedRun,
-    track: MapTrack,
+    track: MapTrack & { zones: MapZone[] },
     mapType: number,
     replayBuffer: Buffer
   ): Promise<CompletedRunDto> {
@@ -223,37 +231,39 @@ export class RunSessionService {
     let mapRank;
     if (statsUpdate.isPersonalBest)
       mapRank = await (statsUpdate.existingRank
-        ? this.runRepo.updateRank(
-            { runID: statsUpdate.existingRank.runID },
-            {
+        ? this.db.rank.update({
+            where: { runID: statsUpdate.existingRank.runID },
+            data: {
               run: { connect: { id: savedRun.id } },
               rank: statsUpdate.rankCreate.rank,
               rankXP: statsUpdate.rankCreate.rankXP
             }
-          )
-        : this.runRepo.createRank({
-            ...statsUpdate.rankCreate,
-            run: { connect: { id: savedRun.id } }
+          })
+        : this.db.rank.create({
+            data: {
+              ...statsUpdate.rankCreate,
+              run: { connect: { id: savedRun.id } }
+            }
           }));
     // If it's not a PB then existingRank exists
     else mapRank = statsUpdate.existingRank;
 
     if (statsUpdate.isWorldRecord) {
-      await this.userRepo.createActivities([
-        {
+      await this.db.activity.create({
+        data: {
           type: ActivityType.WR_ACHIEVED,
           userID: submittedRun.userID,
           data: submittedRun.mapID
         }
-      ]);
+      });
     } else if (statsUpdate.isPersonalBest) {
-      await this.userRepo.createActivities([
-        {
+      await this.db.activity.create({
+        data: {
           type: ActivityType.PB_ACHIEVED,
           userID: submittedRun.userID,
           data: submittedRun.mapID
         }
-      ]);
+      });
     }
 
     return DtoFactory(CompletedRunDto, {
@@ -268,7 +278,7 @@ export class RunSessionService {
 
   private async updateStatsAndRanks(
     submittedRun: ProcessedRun,
-    track: MapTrack,
+    track: MapTrack & { zones: MapZone[] },
     mapType: number
   ): Promise<StatsUpdateReturn> {
     // Base Where input we'll be using variants of
@@ -282,8 +292,8 @@ export class RunSessionService {
     // the actual Run entry we need it to key into
     let rankCreate: Prisma.RankCreateWithoutRunInput | undefined;
 
-    const existingRank = await this.runRepo.getRank(
-      {
+    const existingRank = await this.db.rank.findFirst({
+      where: {
         ...rankWhere,
         userID: submittedRun.userID,
         run: {
@@ -291,17 +301,17 @@ export class RunSessionService {
           zoneNum: submittedRun.zoneNum
         }
       },
-      { run: true }
-    );
+      include: { run: true }
+    });
 
     const isPersonalBest =
       !existingRank ||
-      (existingRank && (existingRank as any).run.ticks > submittedRun.ticks);
+      (existingRank && existingRank.run.ticks > submittedRun.ticks);
 
     let isWorldRecord = false;
     if (isPersonalBest) {
-      const existingWorldRecord = await this.runRepo.getRank(
-        {
+      const existingWorldRecord = await this.db.rank.findFirst({
+        where: {
           rank: 1,
           mapID: submittedRun.mapID,
           run: {
@@ -311,15 +321,15 @@ export class RunSessionService {
           gameType: mapType,
           flags: submittedRun.flags
         },
-        { run: true }
-      );
+        include: { run: true }
+      });
 
       isWorldRecord =
         !existingWorldRecord ||
-        (existingWorldRecord as any)?.run?.ticks > submittedRun.ticks;
+        existingWorldRecord?.run?.ticks > submittedRun.ticks;
     }
 
-    const existingRun = (existingRank as any)?.run as Run;
+    const existingRun = existingRank?.run as Run;
 
     const isTrackRun = submittedRun.zoneNum === 0;
     const isMainTrackRun = submittedRun.trackNum === 0 && isTrackRun;
@@ -330,16 +340,16 @@ export class RunSessionService {
     if (isTrackRun) {
       hasCompletedZoneBefore = hasCompletedTrackBefore;
     } else {
-      const existingRunZoneStats = await this.runRepo.getRunZoneStats(
-        {
+      const existingRunZoneStats = await this.db.runZoneStats.findFirst({
+        where: {
           zoneNum: submittedRun.zoneNum,
           run: {
             mapID: submittedRun.mapID,
             userID: submittedRun.userID
           }
         },
-        { run: true }
-      );
+        include: { run: true }
+      });
 
       if (existingRunZoneStats) hasCompletedZoneBefore = true;
     }
@@ -361,13 +371,13 @@ export class RunSessionService {
       if (!hasCompletedTrackBefore)
         trackStatsUpdate.uniqueCompletions = { increment: 1 };
 
-      await this.mapRepo.updateMapTrackStats(
-        { trackID: track.id },
-        trackStatsUpdate
-      );
+      await this.db.mapTrackStats.update({
+        where: { trackID: track.id },
+        data: trackStatsUpdate
+      });
 
       await Promise.all(
-        (track as any).zones
+        track.zones
           .filter((zone) => zone.zoneNum !== 0) // Start zone doesn't get stats
           .map(async (zone: MapZone) => {
             const zoneStatsUpdate: Prisma.MapZoneStatsUpdateInput = {
@@ -384,10 +394,10 @@ export class RunSessionService {
             if (!hasCompletedZoneBefore)
               zoneStatsUpdate.uniqueCompletions = { increment: 1 };
 
-            await this.mapRepo.updateMapZoneStats(
-              { zoneID: zone.id },
-              zoneStatsUpdate
-            );
+            await this.db.mapZoneStats.update({
+              where: { zoneID: zone.id },
+              data: zoneStatsUpdate
+            });
           })
       );
 
@@ -404,12 +414,15 @@ export class RunSessionService {
 
         if (!existingRun) mapStatsUpdate.uniqueCompletions = { increment: 1 };
 
-        await this.mapRepo.updateMapStats(submittedRun.mapID, mapStatsUpdate);
+        await this.db.mapStats.update({
+          where: { mapID: submittedRun.mapID },
+          data: mapStatsUpdate
+        });
       }
     } else {
       // It's a particular zone, so update just it. The zone's stats should be
       // in the processed run's overallStats
-      const zone: MapZoneStats = (track as any).zones.find(
+      const zone: MapZone = track.zones.find(
         (zone) => zone.zoneNum === submittedRun.zoneNum
       );
 
@@ -425,10 +438,10 @@ export class RunSessionService {
       if (!hasCompletedZoneBefore)
         zoneStatsUpdate.uniqueCompletions = { increment: 1 };
 
-      await this.mapRepo.updateMapZoneStats(
-        { zoneID: zone.id },
-        zoneStatsUpdate
-      );
+      await this.db.mapZoneStats.update({
+        where: { zoneID: zone.id },
+        data: zoneStatsUpdate
+      });
     }
 
     let rankXP = 0;
@@ -438,11 +451,14 @@ export class RunSessionService {
     if (isPersonalBest) {
       // If we don't have a rank we increment +1 since we want the total
       // *after* we've added the new run
-      const totalRuns =
-        (await this.runRepo.countRank(rankWhere)) + (existingRank ? 0 : 1);
-      const fasterRuns = await this.runRepo.countRank({
-        ...rankWhere,
-        run: { ticks: { lte: submittedRun.ticks } }
+      let totalRuns = await this.db.rank.count({ where: rankWhere });
+      if (!existingRank) totalRuns++;
+
+      const fasterRuns = await this.db.rank.count({
+        where: {
+          ...rankWhere,
+          run: { ticks: { lte: submittedRun.ticks } }
+        }
       });
 
       const oldRank = existingRank?.rank;
@@ -464,15 +480,13 @@ export class RunSessionService {
         ? { gte: rank, lt: oldRank }
         : { gte: rank };
 
-      const rankDbResponse = await this.runRepo.getRanks(
-        { ...rankWhere, rank: rankRangeWhere },
-        undefined,
-        {
+      const ranks = await this.db.rank.findMany({
+        where: { ...rankWhere, rank: rankRangeWhere },
+        select: {
           rank: true,
           userID: true
         }
-      );
-      const ranks: any = rankDbResponse[0];
+      });
 
       // This is SLOOOOOW. Here's two different methods for doing the updates,
       // they take about 7s and 9s respectively for 10k ranks, far too slow for
@@ -483,9 +497,10 @@ export class RunSessionService {
 
       await Promise.all(
         ranks.map(
+          // TODO: pointless async/await?
           async (rank) =>
-            await this.runRepo.updateRanks(
-              {
+            await this.db.rank.updateMany({
+              where: {
                 ...rankWhere,
                 userID: rank.userID,
                 run: {
@@ -493,14 +508,14 @@ export class RunSessionService {
                   zoneNum: submittedRun.zoneNum
                 }
               },
-              {
+              data: {
                 rank: rank.rank + 1,
                 rankXP: this.xpSystems.getRankXpForRank(
                   rank.rank + 1,
                   totalRuns
                 ).rankXP
               }
-            )
+            })
         )
       );
 
@@ -533,8 +548,8 @@ export class RunSessionService {
       submittedRun.zoneNum > 0
     );
 
-    const userStats = await this.userRepo.getUserStatsUnique({
-      userID: submittedRun.userID
+    const userStats = await this.db.userStats.findUnique({
+      where: { userID: submittedRun.userID }
     });
 
     if (!userStats) throw new BadRequestException('User stats not found');
@@ -572,9 +587,9 @@ export class RunSessionService {
       }
     };
 
-    await this.userRepo.updateUserStats(
-      { userID: submittedRun.userID },
-      {
+    await this.db.userStats.update({
+      where: { userID: submittedRun.userID },
+      data: {
         totalJumps: { increment: submittedRun.overallStats.jumps },
         totalStrafes: { increment: submittedRun.overallStats.strafes },
         level: { increment: gainedLevels },
@@ -584,7 +599,7 @@ export class RunSessionService {
           ? { increment: 1 }
           : undefined
       }
-    );
+    });
 
     return {
       isPersonalBest: isPersonalBest,
@@ -599,8 +614,8 @@ export class RunSessionService {
     processedRun: ProcessedRun,
     buffer: Buffer
   ): Promise<Run> {
-    const run = await this.runRepo.createRun(
-      {
+    const run = await this.db.run.create({
+      data: {
         user: { connect: { id: processedRun.userID } },
         map: { connect: { id: processedRun.mapID } },
         trackNum: processedRun.trackNum,
@@ -622,8 +637,8 @@ export class RunSessionService {
         file: '', // Init these as empty, we'll be updating once uploaded. We want to ID of this Run to use as filename.
         hash: ''
       },
-      { zoneStats: true }
-    );
+      include: { zoneStats: true }
+    });
 
     // We have to loop through each zoneStats to set their baseStats due to
     // Prisma's lack of nested createMany Might as well get our file uploading
@@ -635,33 +650,34 @@ export class RunSessionService {
           'runs/' + run.id
         );
 
-        await this.runRepo.updateRun(
-          { id: run.id },
-          {
+        await this.db.run.update({
+          where: { id: run.id },
+          data: {
             file: uploadResult.fileKey,
             hash: uploadResult.hash
           }
-        );
+        });
       })(),
-      ...(run as any).zoneStats.map(
+      // TODO: Pointless?
+      ...run.zoneStats.map(
         async (zs) =>
-          await this.runRepo.updateRunZoneStats(
-            { id: zs.id },
-            {
+          await this.db.runZoneStats.update({
+            where: { id: zs.id },
+            data: {
               baseStats: {
                 create: processedRun.zoneStats.find(
                   (przs) => przs.zoneNum === zs.zoneNum
                 ).baseStats
               }
             }
-          )
+          })
       )
     ]);
 
-    return this.runRepo.getRunUnique(
-      { id: run.id },
-      { overallStats: true, zoneStats: true }
-    );
+    return this.db.run.findUnique({
+      where: { id: run.id },
+      include: { overallStats: true, zoneStats: true }
+    });
   }
 
   // The old API performs some averaging here that makes absolutely no sense. Getting it to work would also be a massive

@@ -26,7 +26,6 @@ export class RunsService {
   ) {}
 
   async get(runID: number, expand: string[]): Promise<RunDto> {
-    const where: Prisma.RunWhereUniqueInput = { id: runID };
     const include: Prisma.RunInclude = {
       user: true,
       ...expandToPrismaIncludes(
@@ -39,7 +38,10 @@ export class RunsService {
     if (expand?.includes('mapWithInfo'))
       include.map = { include: { info: true } };
 
-    const dbResponse = await this.runRepo.getRunUnique(where, include);
+    const dbResponse = await this.db.run.findUnique({
+      where: { id: runID },
+      include: include
+    });
 
     if (!dbResponse) throw new NotFoundException('Run not found');
 
@@ -98,19 +100,20 @@ export class RunsService {
       else orderBy.ticks = 'asc';
     }
 
-    const dbResponse = await this.runRepo.getAllRuns(
+    const dbResponse = await this.db.run.findManyAndCount({
       where,
-      query.skip,
-      query.take,
+      skip: query.skip,
+      take: query.take,
       include,
       orderBy
-    );
+    });
 
     return new PagedResponseDto(RunDto, dbResponse);
   }
 
   async getURL(runID: number): Promise<string> {
-    const run = await this.runRepo.getRun({ id: runID });
+    const run = await this.db.run.findUnique({ where: { id: runID } });
+
     if (!run) throw new NotFoundException('Run not found.');
 
     const cdnURL = this.configService.get('storage.endpointUrl');
@@ -120,7 +123,7 @@ export class RunsService {
   }
 
   async deleteStoredMapRuns(mapID: number): Promise<void> {
-    const [runs] = await this.runRepo.getAllRuns({ mapID });
+    const runs = await this.db.run.findMany({ where: { mapID } });
 
     await Promise.all(
       runs.map((run) => this.fileCloudService.deleteFileCloud(`runs/${run.id}`))

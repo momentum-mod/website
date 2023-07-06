@@ -23,11 +23,12 @@ export class ActivitiesService {
 
     if (query.data) where.data = query.data;
 
-    const dbResponse = await this.userRepo.getActivities(
+    const dbResponse = await this.db.activity.findManyAndCount({
       where,
-      query.skip,
-      query.take
-    );
+      include: { user: { include: { profile: true } } },
+      skip: query.skip,
+      take: query.take
+    });
 
     return new PagedResponseDto(ActivityDto, dbResponse);
   }

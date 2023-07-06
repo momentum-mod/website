@@ -5,7 +5,6 @@
   User,
   Rank
 } from '@prisma/client';
-import { RunSessionCompleted } from '../../repo/runs-repo.service';
 import { Replay, ReplayFileReader } from '@momentum/replay';
 import {
   AllowedMapTypes,
@@ -13,7 +12,7 @@ import {
   RunValidationErrorType as ErrorType,
   Tickrates
 } from '@momentum/constants';
-import { ProcessedRun } from './run-session.interface';
+import { CompletedRunSession, ProcessedRun } from './run-session.interface';
 
 /**
  * Class for managing the parsing of a replay file and validating it against
@@ -32,7 +31,7 @@ export class RunProcessor {
   startTime: number;
   mapRank: Rank;
 
-  constructor(buffer: Buffer, session: RunSessionCompleted, user: User) {
+  constructor(buffer: Buffer, session: CompletedRunSession, user: User) {
     this.replayFile = new ReplayFileReader(buffer);
     this.zoneNum = session.zoneNum;
     this.trackNum = session.trackNum;

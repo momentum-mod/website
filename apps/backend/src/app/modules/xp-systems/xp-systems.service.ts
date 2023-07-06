@@ -88,21 +88,28 @@ export class XpSystemsService implements OnModuleInit {
   }
 
   async onModuleInit() {
-    const params = await this.xpRepo.getXpParams();
+    const params = await this.db.xpSystems.findUnique({
+      where: { id: 1 }
+    });
 
     if (params) {
-      this._rankXpParams = params.rankXP;
-      this._cosXpParams = params.cosXP;
+      this._rankXpParams = params.rankXP as RankXpParams;
+      this._cosXpParams = params.cosXP as CosXpParams;
     } else {
       this.logger.log('Initialising empty XP parameters with defaults');
 
-      try {
-        await this.xpRepo.initXpParams(DEFAULT_RANK_XP, DEFAULT_COS_XP);
-      } catch (error) {
+      if ((await this.db.xpSystems.count()) > 0) {
         // The only time this can ever really happen is during tests, that's no
         // big deal, just warn
-        this.logger.warn(error.message);
+        this.logger.warn(
+          "Tried to init XP systems, but the table wasn't empty!"
+        );
+        return;
       }
+
+      await this.db.xpSystems.create({
+        data: { id: 1, rankXP: DEFAULT_RANK_XP, cosXP: DEFAULT_COS_XP }
+      });
 
       this._rankXpParams = DEFAULT_RANK_XP;
       this._cosXpParams = DEFAULT_COS_XP;
@@ -274,13 +281,15 @@ export class XpSystemsService implements OnModuleInit {
   }
 
   public async update(body: UpdateXpSystemsDto): Promise<void> {
-    await this.xpRepo.update({
-      cosXP: body.cosXP,
-      rankXP: body.rankXP
+    const cosXP = instanceToPlain(body.cosXP) as CosXpParams;
+    const rankXP = instanceToPlain(body.rankXP) as RankXpParams;
+    await this.db.xpSystems.update({
+      where: { id: 1 },
+      data: { cosXP, rankXP }
     });
 
-    this._cosXpParams = instanceToPlain(body.cosXP) as CosXpParams;
-    this._rankXpParams = instanceToPlain(body.rankXP) as RankXpParams;
+    this._cosXpParams = cosXP;
+    this._rankXpParams = rankXP;
   }
 
   private generateLevelsArrays() {

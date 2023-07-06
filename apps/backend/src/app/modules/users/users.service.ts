@@ -7,7 +7,7 @@ import {
   NotFoundException,
   ServiceUnavailableException
 } from '@nestjs/common';
-import { Prisma, User, UserAuth } from '@prisma/client';
+import { Follow, Prisma, Rank, User, UserAuth } from '@prisma/client';
 import { ConfigService } from '@nestjs/config';
 import { SteamService } from '../steam/steam.service';
 import {
@@ -78,20 +78,30 @@ export class UsersService {
       };
     }
 
-    const dbResponse = await this.userRepo.getAll(
+    const dbResponse = await this.db.user.findManyAndCount({
       where,
       include,
-      query.skip,
+      skip: query.skip,
       take
-    );
+    });
 
-    for (const user of dbResponse[0] as any[]) {
-      if (user.mapRanks) {
-        user.mapRank = user.mapRanks[0];
-        delete user.mapRanks;
+    // If had the mapRank expand, and the first attached rank
+    // (should be PB? Is this guaranteed?)
+    // TODO: MapRank handling does make much sense. We're not selecting for
+    // mainTrack specifically, and not confident the ordering is always right.
+    // This will change in future ranking system refactors anyway (in fact this
+    // entire endpoint is going to change)
+    if (query.mapRank) {
+      for (const user of dbResponse[0] as (User & {
+        mapRank?: Rank; // Doesn't exist on Prisma User but does on UserDto
+        mapRanks: Rank[];
+      })[]) {
+        if (user.mapRanks) {
+          user.mapRank = user.mapRanks[0];
+          delete user.mapRanks;
+        }
       }
     }
-
     return new PagedResponseDto(UserDto, dbResponse);
   }
 
@@ -106,7 +116,10 @@ export class UsersService {
       };
     }
 
-    const dbResponse: any = await this.userRepo.get(id, include);
+    const dbResponse: any = await this.db.user.findUnique({
+      where: { id },
+      include
+    });
 
     if (!dbResponse) throw new NotFoundException('User not found');
 
@@ -166,7 +179,9 @@ export class UsersService {
   async findOrCreateUser(
     userData: Pick<User, 'steamID' | 'alias' | 'avatar' | 'country'>
   ): Promise<AuthenticatedUser> {
-    const user = await this.userRepo.getBySteamID(userData.steamID);
+    const user = await this.db.user.findUnique({
+      where: { steamID: userData.steamID }
+    });
 
     const input: Prisma.UserUpdateInput | Prisma.UserCreateInput = {
       alias: userData.alias,
@@ -175,11 +190,11 @@ export class UsersService {
     };
 
     if (user) {
-      const { id, steamID } = await this.userRepo.update(
-        user.id,
-        input as Prisma.UserUpdateInput
-      );
-      return { id, steamID };
+      return await this.db.user.update({
+        where: { id: user.id },
+        data: input as Prisma.UserUpdateInput,
+        select: { id: true, steamID: true }
+      });
     } else {
       if (
         this.config.get('steam.preventLimited') &&
@@ -191,15 +206,18 @@ export class UsersService {
 
       input.steamID = userData.steamID;
 
-      const { id, steamID } = await this.userRepo.create(
-        input as Prisma.UserCreateInput
-      );
-      return { id, steamID };
+      return await this.db.user.create({
+        data: input as Prisma.UserCreateInput,
+        select: { id: true, steamID: true }
+      });
     }
   }
 
   async update(userID: number, update: UpdateUserDto) {
-    const user: any = await this.userRepo.get(userID, { profile: true });
+    const user = await this.db.user.findUnique({
+      where: { id: userID },
+      include: { profile: true }
+    });
 
     const updateInput: Prisma.UserUpdateInput = {};
 
@@ -217,8 +235,9 @@ export class UsersService {
       }
 
       if (Bitflags.has(user.roles, Role.VERIFIED)) {
-        const [sameNameMatches] = await this.userRepo.getAll({
-          alias: update.alias
+        const sameNameMatches = await this.db.user.findMany({
+          where: { alias: update.alias },
+          select: { roles: true }
         });
         if (
           sameNameMatches.some((user) =>
@@ -243,7 +262,7 @@ export class UsersService {
       updateInput.country = update.country;
     }
 
-    await this.userRepo.update(userID, updateInput);
+    await this.db.user.update({ where: { id: userID }, data: updateInput });
   }
 
   //#endregion
@@ -251,7 +270,7 @@ export class UsersService {
   //#region Auth
 
   getAuth(userID: number): Promise<UserAuth> {
-    return this.userRepo.getAuth(userID);
+    return this.db.userAuth.findUnique({ where: { userID } });
   }
 
   //#endregion
@@ -259,7 +278,7 @@ export class UsersService {
   //#region Profile
 
   async getProfile(userID: number): Promise<ProfileDto> {
-    const dbResponse = await this.userRepo.getProfile(userID);
+    const dbResponse = await this.db.profile.findUnique({ where: { userID } });
 
     if (!dbResponse) throw new NotFoundException();
 
@@ -284,13 +303,16 @@ export class UsersService {
     type?: ActivityType,
     data?: number
   ): Promise<PagedResponseDto<ActivityDto>> {
-    const where: Prisma.ActivityWhereInput = {
-      userID: userID,
-      AND: [{ type: type }, { type: { not: ActivityType.REPORT_FILED } }],
-      data: data
-    };
-
-    const dbResponse = await this.userRepo.getActivities(where, skip, take);
+    const dbResponse = await this.db.activity.findManyAndCount({
+      where: {
+        userID,
+        AND: [{ type }, { type: { not: ActivityType.REPORT_FILED } }],
+        data
+      },
+      include: { user: { include: { profile: true } } },
+      skip,
+      take
+    });
 
     return new PagedResponseDto(ActivityDto, dbResponse);
   }
@@ -302,19 +324,21 @@ export class UsersService {
     type?: ActivityType,
     data?: number
   ): Promise<PagedResponseDto<ActivityDto>> {
-    const follows = await this.userRepo.getFollowing(userID);
+    const follows = await this.db.follow.findMany({
+      where: { followeeID: userID },
+      select: { followedID: true }
+    });
 
-    const following = follows[0].map((follow) => follow.followedID);
-
-    const where: Prisma.ActivityWhereInput = {
-      userID: {
-        in: following
+    const dbResponse = await this.db.activity.findManyAndCount({
+      where: {
+        userID: { in: follows.map((follow) => follow.followedID) },
+        type,
+        data
       },
-      type: type,
-      data: data
-    };
-
-    const dbResponse = await this.userRepo.getActivities(where, skip, take);
+      include: { user: { include: { profile: true } } },
+      skip,
+      take
+    });
 
     return new PagedResponseDto(ActivityDto, dbResponse);
   }
@@ -328,7 +352,15 @@ export class UsersService {
     skip?: number,
     take?: number
   ): Promise<PagedResponseDto<FollowDto>> {
-    const dbResponse = await this.userRepo.getFollowers(id, skip, take);
+    const dbResponse = await this.db.follow.findManyAndCount({
+      where: { followedID: id },
+      include: {
+        followee: { include: { profile: true } },
+        followed: { include: { profile: true } }
+      },
+      skip,
+      take
+    });
 
     return new PagedResponseDto(FollowDto, dbResponse);
   }
@@ -338,7 +370,15 @@ export class UsersService {
     skip?: number,
     take?: number
   ): Promise<PagedResponseDto<FollowDto>> {
-    const dbResponse = await this.userRepo.getFollowing(id, skip, take);
+    const dbResponse = await this.db.follow.findManyAndCount({
+      where: { followeeID: id },
+      include: {
+        followee: { include: { profile: true } },
+        followed: { include: { profile: true } }
+      },
+      skip,
+      take
+    });
 
     return new PagedResponseDto(FollowDto, dbResponse);
   }
@@ -347,18 +387,11 @@ export class UsersService {
     localUserID: number,
     targetUserID: number
   ): Promise<FollowStatusDto> {
-    const targetUser = await this.userRepo.get(targetUserID);
+    if (!(await this.db.user.exists({ where: { id: targetUserID } })))
+      throw new NotFoundException('Target user not found');
 
-    if (!targetUser) throw new NotFoundException('Target user not found');
-
-    const localToTarget = await this.userRepo.getFollower(
-      localUserID,
-      targetUserID
-    );
-    const targetToLocal = await this.userRepo.getFollower(
-      targetUserID,
-      localUserID
-    );
+    const localToTarget = await this.getFollower(localUserID, targetUserID);
+    const targetToLocal = await this.getFollower(targetUserID, localUserID);
 
     return DtoFactory(FollowStatusDto, {
       local: localToTarget,
@@ -370,22 +403,18 @@ export class UsersService {
     localUserID: number,
     targetUserID: number
   ): Promise<FollowDto> {
-    const targetUser = await this.userRepo.get(targetUserID);
-    if (!targetUser) throw new NotFoundException('Target user not found');
+    if (!(await this.db.user.exists({ where: { id: targetUserID } })))
+      throw new NotFoundException('Target user not found');
 
-    const isFollowing = await this.userRepo.getFollower(
-      localUserID,
-      targetUserID
-    );
+    const isFollowing = await this.getFollower(localUserID, targetUserID);
     if (isFollowing)
       throw new BadRequestException(
         'User is already following the target user'
       );
 
-    const dbResponse = await this.userRepo.createFollow(
-      localUserID,
-      targetUserID
-    );
+    const dbResponse = await this.db.follow.create({
+      data: { followeeID: localUserID, followedID: targetUserID }
+    });
 
     return DtoFactory(FollowDto, dbResponse);
   }
@@ -397,24 +426,60 @@ export class UsersService {
   ) {
     if (!updateDto) return;
 
-    const targetUser = await this.userRepo.get(targetUserID);
+    if (
+      !(await this.db.user.exists({
+        where: { id: targetUserID }
+      }))
+    )
+      throw new NotFoundException('Target user not found');
 
-    if (!targetUser) throw new NotFoundException('Target user not found');
-
-    await this.userRepo.updateFollow(localUserID, targetUserID, {
-      notifyOn: updateDto.notifyOn
+    await this.db.follow.update({
+      where: {
+        followeeID_followedID: {
+          followeeID: localUserID,
+          followedID: targetUserID
+        }
+      },
+      data: { notifyOn: updateDto.notifyOn }
     });
   }
 
   async unfollowUser(localUserID: number, targetUserID: number) {
-    const targetUser = await this.userRepo.get(targetUserID);
-
-    if (!targetUser) throw new NotFoundException('Target user not found');
+    if (
+      !(await this.db.user.exists({
+        where: { id: targetUserID }
+      }))
+    )
+      throw new NotFoundException('Target user not found');
 
     // Prisma errors on trying to delete an entry that does not exist
     // (https://github.com/prisma/prisma/issues/4072), where we want to just 404.
-    await this.userRepo.deleteFollow(localUserID, targetUserID).catch(() => {
-      throw new NotFoundException('Target follow does not exist');
+    await this.db.follow
+      .delete({
+        where: {
+          followeeID_followedID: {
+            followeeID: localUserID,
+            followedID: targetUserID
+          }
+        }
+      })
+      .catch(() => {
+        throw new NotFoundException('Target follow does not exist');
+      });
+  }
+
+  private getFollower(followeeID: number, followedID: number): Promise<Follow> {
+    return this.db.follow.findUnique({
+      where: {
+        followeeID_followedID: {
+          followedID: followedID,
+          followeeID: followeeID
+        }
+      },
+      include: {
+        followed: true,
+        followee: true
+      }
     });
   }
 
@@ -427,7 +492,12 @@ export class UsersService {
     skip?: number,
     take?: number
   ): Promise<PagedResponseDto<NotificationDto>> {
-    const dbResponse = await this.userRepo.getNotifications(userID, skip, take);
+    const dbResponse = await this.db.notification.findManyAndCount({
+      where: { userID },
+      include: { user: { include: { profile: true } }, activity: true },
+      skip,
+      take
+    });
 
     return new PagedResponseDto(NotificationDto, dbResponse);
   }
@@ -437,7 +507,9 @@ export class UsersService {
     notificationID: number,
     updateDto: UpdateNotificationDto
   ) {
-    const notification = await this.userRepo.getNotification(notificationID);
+    const notification = await this.db.notification.findUnique({
+      where: { id: notificationID }
+    });
 
     if (!notification)
       throw new NotFoundException('Notification does not exist');
@@ -445,11 +517,16 @@ export class UsersService {
     if (notification.userID !== userID)
       throw new ForbiddenException('Notification does not belong to user');
 
-    await this.userRepo.updateNotification(notificationID, updateDto.read);
+    await this.db.notification.update({
+      where: { id: notificationID },
+      data: { read: updateDto.read }
+    });
   }
 
   async deleteNotification(userID: number, notificationID: number) {
-    const notification = await this.userRepo.getNotification(notificationID);
+    const notification = await this.db.notification.findUnique({
+      where: { id: notificationID }
+    });
 
     if (!notification)
       throw new NotFoundException('Notification does not exist');
@@ -457,7 +534,7 @@ export class UsersService {
     if (notification.userID !== userID)
       throw new ForbiddenException('Notification does not belong to user');
 
-    await this.userRepo.deleteNotification(notificationID);
+    await this.db.notification.delete({ where: { id: notificationID } });
   }
 
   //#endregion
@@ -487,32 +564,32 @@ export class UsersService {
     const where: Prisma.MapLibraryEntryWhereInput = { userID };
     if (search) where.map = { name: { contains: search } };
 
-    const dbResponse = await this.userRepo.getMapLibraryEntry(
+    const dbResponse = await this.db.mapLibraryEntry.findManyAndCount({
       where,
       include,
       skip,
       take
-    );
+    });
 
     return new PagedResponseDto(MapLibraryEntryDto, dbResponse);
   }
 
   async addMapLibraryEntry(userID: number, mapID: number) {
-    const targetMap = await this.mapRepo.get(mapID);
+    if (!(await this.db.map.exists({ where: { id: mapID } })))
+      throw new NotFoundException('Target map not found');
 
-    if (!targetMap) throw new NotFoundException('Target map not found');
-
-    await this.userRepo.createMapLibraryEntry(userID, mapID);
+    await this.db.mapLibraryEntry.create({ data: { userID, mapID } });
   }
 
   async removeMapLibraryEntry(userID: number, mapID: number) {
-    const targetMap = await this.mapRepo.get(mapID);
+    if (!(await this.db.map.exists({ where: { id: mapID } })))
+      throw new NotFoundException("Target map doesn't exist");
 
-    if (!targetMap) throw new NotFoundException("Target map doesn't exist");
-
-    await this.userRepo.deleteMapLibraryEntry(userID, mapID).catch(() => {
-      throw new NotFoundException('Target map not in users library');
-    });
+    await this.db.mapLibraryEntry
+      .delete({ where: { mapID_userID: { userID, mapID } } })
+      .catch(() => {
+        throw new NotFoundException('Target map not in users library');
+      });
   }
 
   //#endregion
@@ -547,43 +624,42 @@ export class UsersService {
 
     include.map = !isEmpty(mapIncludes) ? { include: mapIncludes } : true;
 
-    const dbResponse = await this.userRepo.getFavoritedMaps(
+    const dbResponse = await this.db.mapFavorite.findManyAndCount({
       where,
       include,
       skip,
       take
-    );
+    });
 
     return new PagedResponseDto(MapFavoriteDto, dbResponse);
   }
 
   async checkFavoritedMap(userID: number, mapID: number) {
-    const where: Prisma.MapFavoriteWhereInput = {
-      userID: userID,
-      mapID: mapID
-    };
-    const dbResponse = await this.userRepo.getFavoritedMap(where);
+    const dbResponse = await this.db.mapFavorite.findUnique({
+      where: { mapID_userID: { userID, mapID } }
+    });
+
     if (!dbResponse) throw new NotFoundException('Target map not found');
 
     return dbResponse;
   }
 
   async addFavoritedMap(userID: number, mapID: number) {
-    const targetMap = await this.mapRepo.get(mapID);
+    if (!(await this.db.map.exists({ where: { id: mapID } })))
+      throw new NotFoundException('Target map not found');
 
-    if (!targetMap) throw new NotFoundException('Target map not found');
-
-    await this.userRepo.createFavouritedMapEntry(userID, mapID);
+    await this.db.mapFavorite.create({ data: { userID, mapID } });
   }
 
   async removeFavoritedMap(userID: number, mapID: number) {
-    const targetMap = await this.mapRepo.get(mapID);
+    if (!(await this.db.map.exists({ where: { id: mapID } })))
+      throw new NotFoundException('Target map not found');
 
-    if (!targetMap) throw new NotFoundException("Target map doesn't exist");
-
-    await this.userRepo.deleteFavouritedMapEntry(userID, mapID).catch(() => {
-      throw new NotFoundException('Target map not in users library');
-    });
+    await this.db.mapFavorite
+      .delete({ where: { mapID_userID: { userID, mapID } } })
+      .catch(() => {
+        throw new NotFoundException("Target map is not in user's favorites");
+      });
   }
 
   //#endregion
@@ -594,11 +670,12 @@ export class UsersService {
     userID: number,
     mapID: number
   ): Promise<MapNotifyDto> {
-    const targetMap = await this.mapRepo.get(mapID);
+    if (!(await this.db.map.exists({ where: { id: mapID } })))
+      throw new NotFoundException('Target map not found');
 
-    if (!targetMap) throw new NotFoundException('Target map not found');
-
-    const dbResponse = await this.userRepo.getMapNotify(userID, mapID);
+    const dbResponse = await this.db.mapNotify.findUnique({
+      where: { userID_mapID: { userID, mapID } }
+    });
 
     if (!dbResponse)
       throw new NotFoundException('User has no notifications for this map');
@@ -616,21 +693,25 @@ export class UsersService {
         'Request does not contain valid notification type data'
       );
 
-    const targetMap = await this.mapRepo.get(mapID);
+    if (!(await this.db.map.exists({ where: { id: mapID } })))
+      throw new NotFoundException('Target map not found');
 
-    if (!targetMap) throw new NotFoundException('Target map not found');
-
-    await this.userRepo.upsertMapNotify(userID, mapID, updateDto.notifyOn);
+    await this.db.mapNotify.upsert({
+      where: { userID_mapID: { userID, mapID } },
+      update: { notifyOn: updateDto.notifyOn },
+      create: { notifyOn: updateDto.notifyOn, mapID, userID }
+    });
   }
 
   async removeMapNotify(userID: number, mapID: number) {
-    const targetMap = await this.mapRepo.get(mapID);
+    if (!(await this.db.map.exists({ where: { id: mapID } })))
+      throw new NotFoundException('Target map not found');
 
-    if (!targetMap) throw new NotFoundException('Target map not found');
-
-    await this.userRepo.deleteMapNotify(userID, mapID).catch(() => {
-      throw new NotFoundException('Target map notification does not exist');
-    });
+    await this.db.mapNotify
+      .delete({ where: { userID_mapID: { userID: userID, mapID: mapID } } })
+      .catch(() => {
+        throw new NotFoundException('Target map notification does not exist');
+      });
   }
 
   //#endregion
@@ -643,26 +724,29 @@ export class UsersService {
     take?: number,
     search?: string,
     expand?: string[]
-  ) {
+  ): Promise<PagedResponseDto<MapDto>> {
     const where: Prisma.MapWhereInput = { submitterID: userID };
 
     if (search) where.name = { contains: search };
 
-    const include: Prisma.MapInclude = expandToPrismaIncludes(expand);
-
-    const submittedMapsRes = await this.mapRepo.getAll(
+    const submittedMapsRes = await this.db.map.findManyAndCount({
       where,
-      include,
-      undefined,
+      include: expandToPrismaIncludes(expand),
       skip,
       take
-    );
+    });
 
     return new PagedResponseDto(MapDto, submittedMapsRes);
   }
 
   async getSubmittedMapsSummary(userID: number): Promise<MapSummaryDto[]> {
-    const result = await this.mapRepo.getSubmittedMapsSummary(userID);
+    const result = await this.db.map.groupBy({
+      by: ['status'],
+      where: { submitterID: userID },
+      _count: {
+        status: true
+      }
+    });
 
     if (!result) throw new NotFoundException('No submitted Maps found');
 
@@ -679,7 +763,7 @@ export class UsersService {
   //#region Credits
 
   async getMapCredits(
-    id: number,
+    userID: number,
     expand?: string[],
     skip?: number,
     take?: number
@@ -698,12 +782,12 @@ export class UsersService {
       }
     }
 
-    const dbResponse = await this.userRepo.getMapCredits(
-      id,
+    const dbResponse = await this.db.mapCredit.findManyAndCount({
+      where: { userID },
       include,
       skip,
       take
-    );
+    });
 
     return new PagedResponseDto(MapCreditDto, dbResponse);
   }
