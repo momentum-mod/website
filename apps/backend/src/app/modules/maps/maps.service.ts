@@ -930,17 +930,7 @@ export class MapsService {
     imgID: number,
     imgBuffer: Buffer
   ): Promise<void> {
-    const image = await this.db.mapImage.findUnique({ where: { id: imgID } });
-
-    if (!image) throw new NotFoundException('Image not found');
-
-    const map = await this.db.map.findUnique({ where: { id: image.mapID } });
-
-    if (map.submitterID !== userID)
-      throw new ForbiddenException('User is not the submitter of the map');
-
-    if (map.status !== MapStatus.NEEDS_REVISION)
-      throw new ForbiddenException('Map is not in NEEDS_REVISION state');
+    await this.editMapImageChecks(userID, imgID);
 
     const uploadedImages = await this.storeMapImage(imgBuffer, imgID);
 
@@ -949,7 +939,18 @@ export class MapsService {
   }
 
   async deleteImage(userID: number, imgID: number): Promise<void> {
-    // TODO: Split up duplicate shit into one fn
+    await this.editMapImageChecks(userID, imgID);
+
+    await Promise.all([
+      this.deleteStoredMapImage(imgID),
+      this.db.mapImage.delete({ where: { id: imgID } })
+    ]);
+  }
+
+  private async editMapImageChecks(
+    userID: number,
+    imgID: number
+  ): Promise<void> {
     const image = await this.db.mapImage.findUnique({ where: { id: imgID } });
 
     if (!image) throw new NotFoundException('Image not found');
@@ -961,11 +962,6 @@ export class MapsService {
 
     if (map.status !== MapStatus.NEEDS_REVISION)
       throw new ForbiddenException('Map is not in NEEDS_REVISION state');
-
-    await Promise.all([
-      this.deleteStoredMapImage(imgID),
-      this.db.mapImage.delete({ where: { id: imgID } })
-    ]);
   }
 
   private async editSaveMapImageFile(
