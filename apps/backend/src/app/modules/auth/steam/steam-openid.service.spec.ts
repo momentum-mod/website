@@ -1,5 +1,4 @@
 ﻿import { Test, TestingModule } from '@nestjs/testing';
-import { createMock } from '@golevelup/ts-jest';
 import { ConfigService } from '@nestjs/config';
 import {
   ServiceUnavailableException,
@@ -7,6 +6,7 @@ import {
 } from '@nestjs/common';
 import { SteamService } from '../../steam/steam.service';
 import { SteamOpenIDService } from './steam-openid.service';
+import { mockDeep } from 'jest-mock-extended';
 
 describe('SteamOpenIDService', () => {
   let service: SteamOpenIDService, steamService: SteamService;
@@ -27,7 +27,7 @@ describe('SteamOpenIDService', () => {
               }
             })
           };
-        else return createMock(token);
+        else return mockDeep(token);
       })
       .compile();
 
