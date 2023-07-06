@@ -51,12 +51,14 @@ jobs:
     needs: install-deps
     steps:
       - uses: actions/checkout@v3
+        with:
+          ref: ${{ github.event.pull_request.head.ref }}
+          fetch-depth: 0
       - name: Cache node_modules
         uses: actions/cache@v3
         with:
           path: node_modules
           key: modules-${{ hashFiles('package-lock.json') }}
-      - run: git fetch --no-tags --prune --depth=1 origin main
       - run: npx nx affected --target=test --base=origin/main --parallel=3
   build:
     name: Build
@@ -64,12 +66,14 @@ jobs:
     needs: install-deps
     steps:
       - uses: actions/checkout@v3
+        with:
+          ref: ${{ github.event.pull_request.head.ref }}
+          fetch-depth: 0
       - name: Cache node_modules
         uses: actions/cache@v3
         with:
           path: node_modules
           key: modules-${{ hashFiles('package-lock.json') }}
-      - run: git fetch --no-tags --prune --depth=1 origin main
       - run: npx nx affected --target=build --base=origin/main --parallel=3
   backend-e2e:
     name: Backend E2E Tests
@@ -77,12 +81,14 @@ jobs:
     needs: install-deps
     steps:
       - uses: actions/checkout@v3
+        with:
+          ref: ${{ github.event.pull_request.head.ref }}
+          fetch-depth: 0
       - name: Cache node_modules
         uses: actions/cache@v3
         with:
           path: node_modules
           key: modules-${{ hashFiles('package-lock.json') }}
-      - run: git fetch --no-tags --prune --depth=1 origin main
       - name: Check affected
         run:
           |
@@ -108,6 +114,9 @@ jobs:
     needs: install-deps
     steps:
       - uses: actions/checkout@v3
+        with:
+          ref: ${{ github.event.pull_request.head.ref }}
+          fetch-depth: 0
       - name: Cache node_modules
         uses: actions/cache@v3
         with:
