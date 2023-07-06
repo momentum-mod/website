@@ -4,7 +4,6 @@ import {
   UnauthorizedException
 } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
-import { UsersRepoService } from '../../repo/users-repo.service';
 import { ConfigService } from '@nestjs/config';
 import {
   DtoFactory,
@@ -17,11 +16,12 @@ import {
   UserJwtPayload,
   UserJwtPayloadVerified
 } from '../auth.interface';
+import { DbService } from '../../database/db.service';
 
 @Injectable()
 export class JwtAuthService {
   constructor(
-    private readonly userRepo: UsersRepoService,
+    private readonly db: DbService,
     private readonly jwtService: JwtService,
     private readonly config: ConfigService
   ) {}

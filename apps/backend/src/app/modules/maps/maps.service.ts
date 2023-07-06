@@ -14,9 +14,7 @@ import {
   Prisma,
   User
 } from '@prisma/client';
-import { MapsRepoService } from '../repo/maps-repo.service';
 import { FileStoreCloudService } from '../filestore/file-store-cloud.service';
-import { UsersRepoService } from '../repo/users-repo.service';
 import { FileStoreCloudFile } from '../filestore/file-store.interface';
 import { ConfigService } from '@nestjs/config';
 import sharp from 'sharp';
@@ -46,12 +44,12 @@ import {
 } from '@momentum/constants';
 import { isEmpty } from 'lodash';
 import { Bitflags } from '@momentum/bitflags';
+import { DbService } from '../database/db.service';
 
 @Injectable()
 export class MapsService {
   constructor(
-    private readonly mapRepo: MapsRepoService,
-    private readonly userRepo: UsersRepoService,
+    private readonly db: DbService,
     private readonly fileCloudService: FileStoreCloudService,
     private readonly config: ConfigService,
     private readonly runsService: RunsService

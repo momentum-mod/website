@@ -2,15 +2,12 @@
 import { Role } from '@momentum/constants';
 import { Injectable, CanActivate, ExecutionContext } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
-import { UsersRepoService } from '../repo/users-repo.service';
 import { Bitflags } from '@momentum/bitflags';
+import { DbService } from '../database/db.service';
 
 @Injectable()
 export class RolesGuard implements CanActivate {
-  constructor(
-    private reflector: Reflector,
-    private readonly userRepo: UsersRepoService
-  ) {}
+  constructor(private reflector: Reflector, private readonly db: DbService) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
     const requiredRoles = this.reflector.getAllAndOverride<Role[]>(ROLES_KEY, [

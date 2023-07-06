@@ -1,5 +1,4 @@
 import { Injectable } from '@nestjs/common';
-import { UsersRepoService } from '../repo/users-repo.service';
 import { Prisma } from '@prisma/client';
 import {
   ActivitiesGetQueryDto,
@@ -7,10 +6,11 @@ import {
   PagedResponseDto
 } from '@momentum/backend/dto';
 import { ActivityType } from '@momentum/constants';
+import { DbService } from '../database/db.service';
 
 @Injectable()
 export class ActivitiesService {
-  constructor(private readonly userRepo: UsersRepoService) {}
+  constructor(private readonly db: DbService) {}
 
   async getAll(
     query: ActivitiesGetQueryDto

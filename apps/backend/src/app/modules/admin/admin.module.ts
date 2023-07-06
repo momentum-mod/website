@@ -1,12 +1,12 @@
 import { Module } from '@nestjs/common';
 import { AdminController } from './admin.controller';
 import { AdminService } from './admin.service';
-import { RepoModule } from '../repo/repo.module';
+import { DbModule } from '../database/db.module';
 import { MapsModule } from '../maps/maps.module';
 import { XpSystemsModule } from '../xp-systems/xp-systems.module';
 
 @Module({
-  imports: [RepoModule, MapsModule, XpSystemsModule],
+  imports: [DbModule, MapsModule, XpSystemsModule],
   controllers: [AdminController],
   providers: [AdminService]
 })

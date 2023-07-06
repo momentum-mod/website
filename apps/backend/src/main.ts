@@ -11,7 +11,7 @@ import {
   FastifyAdapter,
   NestFastifyApplication
 } from '@nestjs/platform-fastify';
-import { PrismaService } from './app/modules/repo/prisma.service';
+import { DbService } from './app/modules/database/db.service';
 import { Environment } from '@momentum/backend/config';
 import cookie from '@fastify/cookie';
 import helmet from '@fastify/helmet';
@@ -107,7 +107,7 @@ async function bootstrap() {
 
   // Hooks to ensure Nest and Prisma both shut down cleanly on exit
   // https://docs.nestjs.com/recipes/prisma#issues-with-enableshutdownhooks
-  const prismaDalc: PrismaService = app.get(PrismaService);
+  const prismaDalc: DbService = app.get(DbService);
   await prismaDalc.enableShutdownHooks(app);
 
   // Swagger stuff

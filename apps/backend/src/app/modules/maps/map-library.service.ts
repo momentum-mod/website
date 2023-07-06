@@ -3,12 +3,11 @@ import {
   Injectable,
   NotFoundException
 } from '@nestjs/common';
-import { PrismaService } from '../repo/prisma.service';
-import { Prisma } from '@prisma/client';
+import { DbService } from '../database/db.service';
 
 @Injectable()
 export class MapLibraryService {
-  constructor(private prisma: PrismaService) {}
+  constructor(private readonly db: DbService) {}
 
   async isMapInLibrary(userID: number, mapID: number) {
     const map = await this.prisma.map.findFirst({

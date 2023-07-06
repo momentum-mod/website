@@ -4,8 +4,6 @@ import {
   NotFoundException
 } from '@nestjs/common';
 import { Prisma, Rank } from '@prisma/client';
-import { MapsRepoService } from '../repo/maps-repo.service';
-import { RunsRepoService } from '../repo/runs-repo.service';
 import { SteamService } from '../steam/steam.service';
 import {
   DtoFactory,
@@ -14,12 +12,12 @@ import {
   PagedResponseDto,
   RankDto
 } from '@momentum/backend/dto';
+import { DbService } from '../database/db.service';
 
 @Injectable()
 export class RanksService {
   constructor(
-    private readonly runRepo: RunsRepoService,
-    private readonly mapRepo: MapsRepoService,
+    private readonly db: DbService,
     private readonly steamService: SteamService
   ) {}
   async getRanks(

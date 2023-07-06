@@ -8,7 +8,6 @@ import {
   RunSessionCompleted,
   RunsRepoService
 } from '../../repo/runs-repo.service';
-import { MapsRepoService } from '../../repo/maps-repo.service';
 import {
   MapTrack,
   MapZone,
@@ -18,7 +17,6 @@ import {
   RunSessionTimestamp,
   User
 } from '@prisma/client';
-import { UsersRepoService } from '../../repo/users-repo.service';
 import { RunProcessor } from './run-processor';
 import { FileStoreCloudService } from '../../filestore/file-store-cloud.service';
 import { XpSystemsService } from '../../xp-systems/xp-systems.service';
@@ -34,13 +32,12 @@ import {
 import { ProcessedRun, StatsUpdateReturn } from './run-session.interface';
 import { ActivityType, RunValidationError } from '@momentum/constants';
 import { BaseStats } from '@momentum/replay';
+import { DbService } from '../../database/db.service';
 
 @Injectable()
 export class RunSessionService {
   constructor(
-    private readonly runRepo: RunsRepoService,
-    private readonly mapRepo: MapsRepoService,
-    private readonly userRepo: UsersRepoService,
+    private readonly db: DbService,
     private readonly fileCloudService: FileStoreCloudService,
     private readonly xpSystems: XpSystemsService
   ) {}
