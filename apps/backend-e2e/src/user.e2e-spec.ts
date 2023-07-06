@@ -70,17 +70,13 @@ describe('User', () => {
           token: token
         }));
 
-      // it('should respond with user data and expand user stats', async () => {
-      //     const res = await request(global.server)
-      //         .get('/api/user')
-      //         .set('Authorization', 'Bearer ' + global.accessToken)
-      //         .query({ expand: 'stats' })
-      //         .expect(200)
-      //         .expect('Content-Type', /json/);
-      //     expect(res.body).toHaveProperty('id');
-      //     expect(res.body.stats).toHaveProperty('totalJumps');
-      //     expect(res.body.stats).toHaveProperty('id');
-      // });
+      it('should respond with user data and expand userStats data', () =>
+        req.expandTest({
+          url: 'user',
+          validate: UserDto,
+          expand: 'userStats',
+          token: token
+        }));
 
       it('should 401 when no access token is provided', () =>
         req.unauthorizedTest('user', 'get'));
