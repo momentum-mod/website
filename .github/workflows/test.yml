@@ -86,10 +86,15 @@ jobs:
       - name: Check affected
         run:
           |
-          if npx nx show projects --affected | grep -q backend-e2e; then
-              echo "affected=true" >> $GITHUB_ENV
+          if npx nx show projects \
+            --affected \
+            --base=${{ github.event.pull_request.base.sha }} \
+            --head=${{ github.event.pull_request.head.sha }} |
+            grep -q backend-e2e
+          then
+            echo "affected=true" >> $GITHUB_ENV
           else
-              echo "affected=false" >> $GITHUB_ENV
+            echo "affected=false" >> $GITHUB_ENV
           fi
       - name: Run tests in Docker
         if: env.affected == 'true'
@@ -112,10 +117,15 @@ jobs:
       - name: Check affected
         run:
           |
-          if npx nx show projects --affected | grep -q frontend-e2e; then
-              echo "affected=true" >> $GITHUB_ENV
+          if npx nx show projects \
+            --affected \
+            --base=${{ github.event.pull_request.base.sha }} \
+            --head=${{ github.event.pull_request.head.sha }} |
+            grep -q frontend-e2e
+          then
+            echo "affected=true" >> $GITHUB_ENV
           else
-              echo "affected=false" >> $GITHUB_ENV
+            echo "affected=false" >> $GITHUB_ENV
           fi
       - name: Run tests in Docker
         if: env.affected == 'true'
