@@ -496,26 +496,22 @@ export class RunSessionService {
       // const t1 = Date.now();
 
       await Promise.all(
-        ranks.map(
-          // TODO: pointless async/await?
-          async (rank) =>
-            await this.db.rank.updateMany({
-              where: {
-                ...rankWhere,
-                userID: rank.userID,
-                run: {
-                  trackNum: submittedRun.trackNum,
-                  zoneNum: submittedRun.zoneNum
-                }
-              },
-              data: {
-                rank: rank.rank + 1,
-                rankXP: this.xpSystems.getRankXpForRank(
-                  rank.rank + 1,
-                  totalRuns
-                ).rankXP
+        ranks.map((rank) =>
+          this.db.rank.updateMany({
+            where: {
+              ...rankWhere,
+              userID: rank.userID,
+              run: {
+                trackNum: submittedRun.trackNum,
+                zoneNum: submittedRun.zoneNum
               }
-            })
+            },
+            data: {
+              rank: rank.rank + 1,
+              rankXP: this.xpSystems.getRankXpForRank(rank.rank + 1, totalRuns)
+                .rankXP
+            }
+          })
         )
       );
 
@@ -659,18 +655,17 @@ export class RunSessionService {
         });
       })(),
       // TODO: Pointless?
-      ...run.zoneStats.map(
-        async (zs) =>
-          await this.db.runZoneStats.update({
-            where: { id: zs.id },
-            data: {
-              baseStats: {
-                create: processedRun.zoneStats.find(
-                  (przs) => przs.zoneNum === zs.zoneNum
-                ).baseStats
-              }
+      ...run.zoneStats.map((zs) =>
+        this.db.runZoneStats.update({
+          where: { id: zs.id },
+          data: {
+            baseStats: {
+              create: processedRun.zoneStats.find(
+                (przs) => przs.zoneNum === zs.zoneNum
+              ).baseStats
             }
-          })
+          }
+        })
       )
     ]);
 
