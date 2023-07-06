@@ -1,5 +1,5 @@
 ﻿import { ApiProperty, PickType } from '@nestjs/swagger';
-import { ArrayMinSize, IsInt, Max } from 'class-validator';
+import { IsDefined, IsInt, Max } from 'class-validator';
 import { MapZoneTriggerDto } from './map-zone-trigger.dto';
 import { MapZoneStatsDto } from './map-zone-stats.dto';
 import { IdProperty, NestedProperty } from '../../../decorators';
@@ -28,9 +28,6 @@ export class MapZoneDto implements MapZone {
 export class CreateMapZoneDto extends PickType(MapZoneDto, [
   'zoneNum'
 ] as const) {
-  @NestedProperty(MapZoneTriggerDto, { lazy: true, isArray: true })
-  @ArrayMinSize(1)
+  @IsDefined()
   readonly triggers: MapZoneTriggerDto[];
-
-  // Old api also has a stats object just containing a basestats, I'm unsure why.
 }
