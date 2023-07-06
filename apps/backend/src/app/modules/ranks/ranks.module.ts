@@ -1,10 +1,10 @@
 import { Module } from '@nestjs/common';
-import { RepoModule } from '../repo/repo.module';
+import { DbModule } from '../database/db.module';
 import { SteamModule } from '../steam/steam.module';
 import { RanksService } from './ranks.service';
 
 @Module({
-  imports: [RepoModule, SteamModule],
+  imports: [DbModule, SteamModule],
   providers: [RanksService],
   exports: [RanksService]
 })

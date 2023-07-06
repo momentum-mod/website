@@ -5,9 +5,7 @@ import {
   Injectable,
   NotFoundException
 } from '@nestjs/common';
-import { UsersRepoService } from '../repo/users-repo.service';
 import { Follow, Prisma } from '@prisma/client';
-import { MapsRepoService } from '../repo/maps-repo.service';
 import {
   AdminUpdateUserDto,
   checkNotEmpty,
@@ -20,13 +18,11 @@ import {
 } from '@momentum/backend/dto';
 import { Bitflags } from '@momentum/bitflags';
 import { Role } from '@momentum/constants';
+import { DbService } from '../database/db.service';
 
 @Injectable()
 export class AdminService {
-  constructor(
-    private readonly userRepo: UsersRepoService,
-    private readonly mapRepo: MapsRepoService
-  ) {}
+  constructor(private readonly db: DbService) {}
 
   async createPlaceholderUser(alias: string): Promise<UserDto> {
     const input: Prisma.UserCreateInput = {

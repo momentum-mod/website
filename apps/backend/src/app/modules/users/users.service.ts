@@ -8,7 +8,6 @@ import {
   ServiceUnavailableException
 } from '@nestjs/common';
 import { Prisma, User, UserAuth } from '@prisma/client';
-import { MapsRepoService } from '../repo/maps-repo.service';
 import { ConfigService } from '@nestjs/config';
 import { SteamService } from '../steam/steam.service';
 import {
@@ -33,18 +32,17 @@ import {
   UserDto,
   UsersGetAllQueryDto
 } from '@momentum/backend/dto';
-import { UsersRepoService } from '../repo/users-repo.service';
 import { AuthenticatedUser } from '../auth/auth.interface';
 import { SteamUserSummaryData } from '../steam/steam.interface';
 import { ActivityType, Ban, Role } from '@momentum/constants';
 import { Bitflags } from '@momentum/bitflags';
 import { isEmpty } from 'lodash';
+import { DbService } from '../database/db.service';
 
 @Injectable()
 export class UsersService {
   constructor(
-    private readonly userRepo: UsersRepoService,
-    private readonly mapRepo: MapsRepoService,
+    private readonly db: DbService,
     private readonly steamService: SteamService,
     private readonly config: ConfigService
   ) {}

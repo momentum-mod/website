@@ -1,11 +1,11 @@
 import { Module } from '@nestjs/common';
 import { RunsController } from './runs.controller';
 import { RunsService } from './runs.service';
-import { RepoModule } from '../repo/repo.module';
+import { DbModule } from '../database/db.module';
 import { FileStoreModule } from '../filestore/file-store.module';
 
 @Module({
-  imports: [RepoModule, FileStoreModule],
+  imports: [DbModule, FileStoreModule],
   controllers: [RunsController],
   providers: [RunsService],
   exports: [RunsService]

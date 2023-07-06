@@ -4,12 +4,12 @@ import { JwtModule, JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
 import { UnauthorizedException } from '@nestjs/common';
 import { createMock } from '@golevelup/ts-jest';
-import { UsersRepoService } from '../../repo/users-repo.service';
 import { JWTResponseGameDto, JWTResponseWebDto } from '@momentum/backend/dto';
 import {
   UserJwtAccessPayloadVerified,
   UserJwtPayloadVerified
 } from '../auth.interface';
+import { DbService } from '../../database/db.service';
 
 describe('JwtAuthService', () => {
   let service: JwtAuthService, userRepo: UsersRepoService;

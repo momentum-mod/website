@@ -3,7 +3,7 @@ import { ConfigService } from '@nestjs/config';
 import { JwtModule } from '@nestjs/jwt';
 import { APP_GUARD } from '@nestjs/core';
 import { UsersModule } from '../users/users.module';
-import { RepoModule } from '../repo/repo.module';
+import { DbModule } from '../database/db.module';
 import { SteamModule } from '../steam/steam.module';
 import { AuthController } from './auth.controller';
 import { JwtGuard } from './jwt/jwt.guard';
@@ -20,7 +20,7 @@ import { SteamOpenIDService } from './steam/steam-openid.service';
       inject: [ConfigService]
     }),
     UsersModule,
-    RepoModule,
+    DbModule,
     SteamModule
   ],
   controllers: [AuthController],

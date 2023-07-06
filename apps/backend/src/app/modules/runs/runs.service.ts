@@ -4,7 +4,6 @@ import {
   NotFoundException
 } from '@nestjs/common';
 import { Prisma } from '@prisma/client';
-import { RunsRepoService } from '../repo/runs-repo.service';
 import { ConfigService } from '@nestjs/config';
 import { FileStoreCloudService } from '../filestore/file-store-cloud.service';
 import {
@@ -16,11 +15,12 @@ import {
   RunsGetAllQueryDto,
   UserCtlRunsGetAllQueryDto
 } from '@momentum/backend/dto';
+import { DbService } from '../database/db.service';
 
 @Injectable()
 export class RunsService {
   constructor(
-    private readonly runRepo: RunsRepoService,
+    private readonly db: DbService,
     private readonly configService: ConfigService,
     private readonly fileCloudService: FileStoreCloudService
   ) {}

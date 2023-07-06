@@ -1,9 +1,9 @@
 import { Module } from '@nestjs/common';
 import { XpSystemsService } from './xp-systems.service';
-import { RepoModule } from '../repo/repo.module';
+import { DbModule } from '../database/db.module';
 
 @Module({
-  imports: [RepoModule],
+  imports: [DbModule],
   providers: [XpSystemsService],
   exports: [XpSystemsService]
 })

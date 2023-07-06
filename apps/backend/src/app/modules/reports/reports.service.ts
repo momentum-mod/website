@@ -1,14 +1,14 @@
 import { Injectable } from '@nestjs/common';
-import { UsersRepoService } from '../repo/users-repo.service';
 import { Prisma, Report } from '@prisma/client';
 import { ConfigService } from '@nestjs/config';
 import { ConflictException } from '@nestjs/common/exceptions/conflict.exception';
 import { CreateReportDto, DtoFactory, ReportDto } from '@momentum/backend/dto';
+import { DbService } from '../database/db.service';
 
 @Injectable()
 export class ReportsService {
   constructor(
-    private readonly userRepo: UsersRepoService,
+    private readonly db: DbService,
     private readonly config: ConfigService
   ) {}
 

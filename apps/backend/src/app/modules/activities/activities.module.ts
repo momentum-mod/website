@@ -1,10 +1,10 @@
 import { Module } from '@nestjs/common';
 import { ActivitiesController } from './activities.controller';
 import { ActivitiesService } from './activities.service';
-import { RepoModule } from '../repo/repo.module';
+import { DbModule } from '../database/db.module';
 
 @Module({
-  imports: [RepoModule],
+  imports: [DbModule],
   controllers: [ActivitiesController],
   providers: [ActivitiesService]
 })

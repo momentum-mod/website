@@ -11,7 +11,7 @@ import {
 } from '@momentum/types';
 import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
 import { instanceToPlain } from 'class-transformer';
-import { XpSystemsRepoService } from '../repo/xp-systems-repo.service';
+import { DbService } from '../database/db.service';
 
 const DEFAULT_RANK_XP: RankXpParams = {
   top10: {
@@ -63,7 +63,7 @@ const DEFAULT_COS_XP: CosXpParams = {
 
 @Injectable()
 export class XpSystemsService implements OnModuleInit {
-  constructor(private xpRepo: XpSystemsRepoService) {}
+  constructor(private readonly db: DbService) {}
 
   private readonly logger = new Logger('XP Systems');
 
