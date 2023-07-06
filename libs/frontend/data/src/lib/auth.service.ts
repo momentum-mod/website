@@ -40,12 +40,6 @@ export class AuthService {
     return jwtHelperService.decodeToken(accessToken);
   }
 
-  public removeSocialAuth(authType: string): Observable<any> {
-    return this.http.delete(`user/profile/social/${authType}`, {
-      responseType: 'text'
-    });
-  }
-
   private moveCookieToLocalStorage(cookieName: string): void {
     if (!this.cookieService.check(cookieName)) return;
 

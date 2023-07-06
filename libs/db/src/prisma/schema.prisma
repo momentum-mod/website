@@ -55,9 +55,6 @@ model Profile {
   user   User @relation(fields: [userID], references: [id], onDelete: Cascade)
   userID Int  @unique
 
-  discordAuth DiscordAuth?
-  twitchAuth  TwitchAuth?
-  twitterAuth TwitterAuth?
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -82,56 +79,6 @@ model UserStats {
   updatedAt DateTime @updatedAt
 
   @@index([userID])
-}
-
-model DiscordAuth {
-  id Int @id @default(autoincrement())
-
-  discordID    String? @db.VarChar(255)
-  displayName  String? @db.VarChar(255)
-  accessToken  String? @db.VarChar(255)
-  refreshToken String? @db.VarChar(255)
-
-  profile   Profile @relation(fields: [profileID], references: [id], onDelete: Cascade)
-  profileID Int     @unique
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  @@index([profileID])
-}
-
-model TwitchAuth {
-  id Int @id @default(autoincrement())
-
-  twitchID    Int?
-  displayName String? @db.VarChar(255)
-  token       String? @db.VarChar(255)
-
-  profile   Profile @relation(fields: [profileID], references: [id], onDelete: Cascade)
-  profileID Int     @unique
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  @@index([profileID])
-}
-
-model TwitterAuth {
-  id Int @id @default(autoincrement())
-
-  twitterID   String? @db.VarChar(255)
-  displayName String? @db.VarChar(255)
-  oauthKey    String? @db.VarChar(255)
-  oauthSecret String? @db.VarChar(255)
-
-  profile   Profile @relation(fields: [profileID], references: [id], onDelete: Cascade)
-  profileID Int     @unique
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  @@index([profileID])
 }
 
 model Badge {

@@ -253,46 +253,6 @@ describe('User', () => {
         req.unauthorizedTest('user/profile', 'get'));
     });
 
-    // Come back to this after doing the Auth stuff for it, no point yet.
-    // Note that I don't think this functionality was every written on the old
-    // API.
-
-    /*
-        describe('DELETE /api/user/profile/social/{type}', () => {
-     *             it('should return 200 and unlink the twitter account from
-     *             the authd user', () => {
-                 const res = await request(global.server)
-                .delete('/api/user/profile/social/' + 'twitter')
-                .set('Authorization', 'Bearer ' + global.accessToken)
-                .then(res => {
-                    .expect(200)
-                    .expect('Content-Type', /json/)
-                });
-            });
-     *              it('should return 200 and unlink the discord account from
-     *              the authd user', () => {
-                 const res = await request(global.server)
-                .delete('/api/user/profile/social/' + 'discord')
-                .set('Authorization', 'Bearer ' + global.accessToken)
-                .then(res => {
-                    .expect(200)
-                    .expect('Content-Type', /json/)
-                });
-            });
-     *              it('should return 200 and unlink the twitch account from
-     *              the authd user', () => {
-                 const res = await request(global.server)
-                .delete('/api/user/profile/social/' + 'twitch')
-                .set('Authorization', 'Bearer ' + global.accessToken)
-                .then(res => {
-                    .expect(200)
-                    .expect('Content-Type', /json/)
-                });
-            });
-        });
-        */
-  });
-
   describe('user/follow/{userID}', () => {
     describe('GET', () => {
       let u1, u1Token, u2;

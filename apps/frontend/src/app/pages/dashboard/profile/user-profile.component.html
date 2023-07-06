@@ -61,27 +61,6 @@
                 target="_blank"
                 class="fab fa-steam"
               ></a>
-              <a
-                *ngIf="user.profile?.twitchAuth"
-                href="https://twitch.tv/{{ user.profile.twitchAuth.displayName }}"
-                title="{{ user.profile.twitchAuth.displayName }}"
-                target="_blank"
-                class="fab fa-twitch"
-              ></a>
-              <a
-                *ngIf="user.profile?.discordAuth"
-                href="https://discordapp.com/users/{{ user.profile.discordAuth.discordID }}"
-                title="{{ user.profile.discordAuth.displayName }}"
-                target="_blank"
-                class="fab fa-discord"
-              ></a>
-              <a
-                *ngIf="user.profile?.youtubeName"
-                href="https://youtube.com/user/{{ user.profile.youtubeName }}"
-                title="{{ user.profile.youtubeName }}"
-                target="_blank"
-                class="fab fa-youtube"
-              ></a>
             </div>
           </div>
           <div class="col-auto" *ngIf="!isLocal">

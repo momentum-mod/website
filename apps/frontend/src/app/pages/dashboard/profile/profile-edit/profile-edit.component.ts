@@ -160,35 +160,6 @@ export class ProfileEditComponent implements OnInit, OnDestroy {
     }
   }
 
-  onAuthWindowClose(): void {
-    this.localUserService.refreshLocal();
-  }
-
-  auth(platform: string) {
-    const childWnd = window.open(
-      env.auth + `/auth/${platform}?jwt=` + localStorage.getItem('accessToken'),
-      'myWindow',
-      'width=500,height=500'
-    );
-    const timer = setInterval(() => {
-      if (childWnd.closed) {
-        this.onAuthWindowClose();
-        clearInterval(timer);
-      }
-    }, 500);
-  }
-
-  unAuth(platform: string) {
-    this.authService.removeSocialAuth(platform).subscribe({
-      next: () => this.localUserService.refreshLocal(),
-      error: (error) =>
-        this.toasterService.danger(
-          error.message,
-          `Failed to unauthorize ${platform} account`
-        )
-    });
-  }
-
   toggleRole(role: Role) {
     this.user.roles = this.hasRole(role)
       ? Bitflags.remove(this.user.roles, role)

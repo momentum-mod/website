@@ -16,18 +16,6 @@ export interface ConfigInterface {
     gameExpTime: string;
     refreshExpTime: string;
   };
-  discord: {
-    clientID: string;
-    clientSecret: string;
-  };
-  twitch: {
-    clientID: string;
-    clientSecret: string;
-  };
-  twitter: {
-    consumerKey: string;
-    consumerSecret: string;
-  };
   steam: {
     webAPIKey: string;
     preventLimited: boolean;
