@@ -47,7 +47,6 @@ import {
   ApiOkResponse,
   ApiOperation,
   ApiParam,
-  ApiResponse,
   ApiTags
 } from '@nestjs/swagger';
 import { MapLibraryService } from '../maps/map-library.service';
@@ -104,27 +103,6 @@ export class UserController {
   @ApiNotFoundResponse({ description: 'Profile does not exist' })
   getProfile(@LoggedInUser('id') userID: number): Promise<ProfileDto> {
     return this.usersService.getProfile(userID);
-  }
-
-  @Delete('/profile/:type')
-  @ApiOperation({ summary: 'Unlink the passed social account type' })
-  @ApiParam({
-    name: 'type',
-    description: 'The type of social to enum',
-    enum: ['twitter', 'discord', 'twitch'],
-    type: String,
-    required: true
-  })
-  @ApiResponse({
-    status: HttpStatus.NO_CONTENT,
-    description: 'The account was successfully unlinked'
-  })
-  @ApiBadRequestResponse({ description: 'Invalid social account' })
-  unlinkSocial(
-    @LoggedInUser('id') userID: number,
-    @Param('type') type: string
-  ) {
-    return this.usersService.unlinkSocial(userID, type);
   }
 
   //#endregion

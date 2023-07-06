@@ -31,20 +31,6 @@ export const ConfigFactory = (): ConfigInterface => {
       gameExpTime: '24h',
       refreshExpTime: '5d'
     },
-    discord: {
-      clientID: process.env['DISCORD_CLIENT_ID'] ?? defaultSocials.id,
-      clientSecret:
-        process.env['DISCORD_CLIENT_SECRET'] ?? defaultSocials.secret
-    },
-    twitter: {
-      consumerKey: process.env['TWITTER_CONSUMER_KEY'] ?? defaultSocials.id,
-      consumerSecret:
-        process.env['TWITTER_CONSUMER_SECRET'] ?? defaultSocials.secret
-    },
-    twitch: {
-      clientID: process.env['TWITCH_CLIENT_ID'] ?? defaultSocials.id,
-      clientSecret: process.env['TWITCH_CLIENT_SECRET'] ?? defaultSocials.secret
-    },
     sentry: {
       dsn: process.env['SENTRY_DSN'] ?? ''
     },

@@ -285,13 +285,6 @@ export class UsersService {
     return DtoFactory(ProfileDto, dbResponse);
   }
 
-  async unlinkSocial(userID: number, type: string) {
-    if (!['steam', 'discord', 'twitch'].includes(type))
-      throw new BadRequestException('Invalid social type');
-
-    // TODO: Implement me!
-  }
-
   //#endregion
 
   //#region Activities
