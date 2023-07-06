@@ -75,7 +75,12 @@ export async function setupE2ETestEnvironment(
   // Anything put in a query/body that doesn't correspond to a
   // decorator-validated property on the DTO will error.
   app.useGlobalPipes(
-    new ValidationPipe({ transform: true, forbidNonWhitelisted: true })
+    new ValidationPipe({
+      transform: true,
+      forbidUnknownValues: true,
+      whitelist: true,
+      forbidNonWhitelisted: true
+    })
   );
   app.useGlobalInterceptors(new ClassSerializerInterceptor(app.get(Reflector)));
 
