@@ -1,7 +1,9 @@
 import { Prisma, PrismaClient } from '@prisma/client';
+import { deepmerge } from '@fastify/deepmerge';
 
-export const ExtendPrismaClient = (prisma: PrismaClient) =>
-  prisma.$extends({
+export const ExtendPrismaClient = (prisma: PrismaClient) => {
+  const merge = deepmerge();
+  return prisma.$extends({
     model: {
       $allModels: {
         /**
@@ -44,16 +46,17 @@ export const ExtendPrismaClient = (prisma: PrismaClient) =>
          * Create a User, ensuring profile and userStats entries are created.
          */
         async create({ args, query }) {
-          const newArgs = {
-            data: { profile: { create: {} }, userStats: {} },
-            ...args
-          };
-
-          return query(newArgs);
+          return query(
+            merge(
+              { data: { profile: { create: {} }, userStats: { create: {} } } },
+              args
+            )
+          );
         }
       }
     }
   });
+};
 
 export type ExtendedPrismaClient = ReturnType<typeof ExtendPrismaClient>;
 

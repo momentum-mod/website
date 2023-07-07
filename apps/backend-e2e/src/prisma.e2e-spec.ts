@@ -65,4 +65,28 @@ describe('Prisma Client Extensions', () => {
       expect(await ePrisma.user.exists({ where: { roles: 1 } })).toBe(false);
     });
   });
+
+  describe('user.create', () => {
+    afterAll(() => db.cleanup('user'));
+
+    it('should always create profile and userStats entries', async () => {
+      expect(await prisma.user.findFirst()).toBeNull();
+      expect(await prisma.profile.findFirst()).toBeNull();
+      expect(await prisma.userStats.findFirst()).toBeNull();
+
+      const { id: userID } = await ePrisma.user.create({ data: { alias: '' } });
+      const profile = await prisma.profile.findFirst();
+      const userStats = await prisma.userStats.findFirst();
+      expect(profile.userID).toBe(userID);
+      expect(userStats).toMatchObject({
+        userID: userID,
+        level: 1,
+        cosXP: 0n,
+        mapsCompleted: 0,
+        runsSubmitted: 0,
+        totalJumps: 0n,
+        totalStrafes: 0n
+      });
+    });
+  });
 });
