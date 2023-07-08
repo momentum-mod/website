@@ -3,23 +3,13 @@
   {{ usersResults ? 'Users' : 'Maps' }}
 </h3>
 <hr />
-<span *ngIf="shouldShowEmpty()"
-  >No {{ usersResults ? 'users' : 'maps' }} found</span
->
+<span *ngIf="shouldShowEmpty()">No {{ usersResults ? 'users' : 'maps' }} found</span>
 <div class="d-inline-flex flex-column text-left">
   <div *ngFor="let elem of elems">
     <div class="mb-1 clickable" *ngIf="usersResults" (click)="clickElem(elem)">
-      <nb-user
-        [picture]="getElemPicture(elem)"
-        [name]="getElemName(elem)"
-        size="large"
-      />
+      <nb-user [picture]="getElemPicture(elem)" [name]="getElemName(elem)" size="large" />
     </div>
-    <div
-      class="mb-1 d-flex align-items-center clickable"
-      *ngIf="!usersResults"
-      (click)="clickElem(elem)"
-    >
+    <div class="mb-1 d-flex align-items-center clickable" *ngIf="!usersResults" (click)="clickElem(elem)">
       <img class="mr-2 rounded avatar" [src]="getElemPicture(elem)" fill />
       <div class="ml-1 name">{{ getElemName(elem) }}</div>
     </div>

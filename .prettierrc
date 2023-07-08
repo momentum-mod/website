@@ -18,7 +18,8 @@
     {
       "files": "*.html",
       "options": {
-        "parser": "angular"
+        "parser": "angular",
+        "printWidth": 140
       }
     }
   ]

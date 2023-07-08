@@ -1,16 +1,9 @@
 <div class="row no-gutters py-2 pt-sm-0 pb-lg-0 align-items-center">
   <div class="col-12 col-lg-6 mb-3 mb-lg-0">
     <div class="row align-items-sm-center">
-      <div
-        class="col-12 col-sm-4 col-lg-5 mb-3 mb-sm-0 text-center text-sm-left map-image-container"
-      >
+      <div class="col-12 col-sm-4 col-lg-5 mb-3 mb-sm-0 text-center text-sm-left map-image-container">
         <a [routerLink]="'/dashboard/maps/' + map?.id">
-          <img
-            [ngSrc]="map?.thumbnail?.small"
-            priority
-            width="186"
-            height="105"
-          />
+          <img [ngSrc]="map?.thumbnail?.small" priority width="186" height="105" />
         </a>
       </div>
       <div class="col-6 col-sm-4 col-lg-3 text-right text-sm-left">
@@ -25,12 +18,7 @@
           <li>{{ map?.name }}</li>
           <li>{{ map?.createdAt | date }}</li>
           <li>
-            <nb-user
-              class="d-inline-block"
-              [name]="map?.submitter.alias"
-              [picture]="map?.submitter.avatarURL"
-              size="small"
-            />
+            <nb-user class="d-inline-block" [name]="map?.submitter.alias" [picture]="map?.submitter.avatarURL" size="small" />
           </li>
         </ul>
       </div>
@@ -40,29 +28,14 @@
     <div class="row no-gutters align-items-sm-center">
       <div class="col-12 col-sm mb-2 mb-sm-0 text-center">
         <a #mapFileDownloadLink class="allowed"></a>
-        <button
-          nbButton
-          outline
-          status="info"
-          (click)="onMapFileDownload(map?.id)"
-        >
-          Download
-        </button>
+        <button nbButton outline status="info" (click)="onMapFileDownload(map?.id)">Download</button>
       </div>
       <div class="col-auto mx-auto mr-sm-2">
         <div class="d-flex flex-lg-column button-group">
-          <button
-            type="button"
-            class="btn btn-success mr-2 mr-lg-0 mb-lg-2"
-            (click)="updateMapStatus(map?.id, MapUploadStatus.APPROVED)"
-          >
+          <button type="button" class="btn btn-success mr-2 mr-lg-0 mb-lg-2" (click)="updateMapStatus(map?.id, MapUploadStatus.APPROVED)">
             <nb-icon icon="check-circle-outline" />
           </button>
-          <button
-            type="button"
-            class="btn btn-danger"
-            (click)="updateMapStatus(map?.id, MapUploadStatus.REJECTED)"
-          >
+          <button type="button" class="btn btn-danger" (click)="updateMapStatus(map?.id, MapUploadStatus.REJECTED)">
             <nb-icon icon="close" />
           </button>
         </div>

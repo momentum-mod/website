@@ -2,16 +2,7 @@
   <i>No runs found</i>
 </h5>
 <div *ngIf="loadedRuns && runHistory.length > 0">
-  <button
-    class="mb-3"
-    nbButton
-    outline
-    shape="round"
-    size="small"
-    status="info"
-    [fullWidth]="true"
-    (click)="showFilters = !showFilters"
-  >
+  <button class="mb-3" nbButton outline shape="round" size="small" status="info" [fullWidth]="true" (click)="showFilters = !showFilters">
     Filters
   </button>
   <div
@@ -22,21 +13,12 @@
     }"
     #filterContent
   >
-    <div
-      class="row row-cols-md-3 align-items-center p-3"
-      [formGroup]="filterFG"
-    >
+    <div class="row row-cols-md-3 align-items-center p-3" [formGroup]="filterFG">
       <div class="col-md-2">
         <nb-checkbox formControlName="isPersonalBest">Is PB</nb-checkbox>
       </div>
       <div class="col-md mb-2 mb-md-0 text-left text-md-center">
-        <input
-          nbInput
-          class="form-control"
-          type="text"
-          placeholder="Map"
-          formControlName="map"
-        />
+        <input nbInput class="form-control" type="text" placeholder="Map" formControlName="map" />
       </div>
       <div class="col-md text-left text-md-center">
         <nb-select placeholder="Sort by" formControlName="order">
@@ -45,9 +27,7 @@
         </nb-select>
       </div>
       <div class="col col-md-auto mr-6 mt-2 mt-md-0">
-        <button nbButton outline status="info" (click)="onFilterApply()">
-          Apply
-        </button>
+        <button nbButton outline status="info" (click)="onFilterApply()">Apply</button>
       </div>
     </div>
   </div>
@@ -66,18 +46,11 @@
     >
       <div class="row no-gutters align-items-center">
         <div class="col-2 col-sm-1 icon pl-0 pl-md-3">
-          <nb-icon
-            *ngIf="run.rank"
-            icon="trophy-outline"
-            nbPopover="Personal Best"
-            nbPopoverTrigger="hint"
-          />
+          <nb-icon *ngIf="run.rank" icon="trophy-outline" nbPopover="Personal Best" nbPopoverTrigger="hint" />
         </div>
         <div class="col">
           <a routerLink="/dashboard/runs/{{ run.id }}">
-            <span class="text"
-              >{{ run.time | timing }} on {{ run.map?.name }}</span
-            >
+            <span class="text">{{ run.time | timing }} on {{ run.map?.name }}</span>
           </a>
         </div>
         <div class="col-auto ml-auto text">{{ run.createdAt | timeAgo }}</div>
@@ -85,11 +58,6 @@
     </nb-list-item>
   </nb-list>
   <div class="text-center">
-    <pagination-controls
-      id="run-history"
-      (pageChange)="onPageChange($event)"
-      [autoHide]="true"
-      [responsive]="true"
-    ></pagination-controls>
+    <pagination-controls id="run-history" (pageChange)="onPageChange($event)" [autoHide]="true" [responsive]="true"></pagination-controls>
   </div>
 </div>

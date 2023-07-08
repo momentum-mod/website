@@ -1,20 +1,9 @@
-<div
-  *ngIf="map"
-  class="row no-gutters py-2 pt-sm-0 pb-lg-0 align-items-center outer"
-  [ngClass]="isUpload ? status : ''"
->
+<div *ngIf="map" class="row no-gutters py-2 pt-sm-0 pb-lg-0 align-items-center outer" [ngClass]="isUpload ? status : ''">
   <div class="col-12 col-lg-6 mb-3 mb-lg-0">
     <div class="row align-items-sm-center">
-      <div
-        class="col-12 col-sm-4 col-lg-5 mb-3 mb-sm-0 text-center text-sm-left map-image-container"
-      >
+      <div class="col-12 col-sm-4 col-lg-5 mb-3 mb-sm-0 text-center text-sm-left map-image-container">
         <a [routerLink]="'/dashboard/maps/' + map?.id">
-          <img
-            [ngSrc]="map.thumbnail?.small"
-            priority
-            width="186"
-            height="105"
-          />
+          <img [ngSrc]="map.thumbnail?.small" priority width="186" height="105" />
         </a>
       </div>
       <div class="col-6 col-sm-4 col-lg-3 text-right text-sm-left">
@@ -32,12 +21,7 @@
           <li>{{ map.createdAt | date }}</li>
           <li>
             <a [routerLink]="'/dashboard/profile/' + map.submitter?.id">
-              <nb-user
-                class="d-inline-block"
-                [name]="map.submitter?.alias"
-                [picture]="map.submitter?.avatarURL"
-                size="small"
-              ></nb-user>
+              <nb-user class="d-inline-block" [name]="map.submitter?.alias" [picture]="map.submitter?.avatarURL" size="small"></nb-user>
             </a>
           </li>
         </ul>
@@ -49,10 +33,7 @@
       <div class="col-12 col-sm mb-3 mb-sm-0 text-center" *ngIf="isUpload">
         <span class="mapStatus">{{ status }}</span>
       </div>
-      <div
-        class="col-12 col-sm mb-2 mb-sm-0 text-center"
-        *ngIf="showDownloadButton"
-      >
+      <div class="col-12 col-sm mb-2 mb-sm-0 text-center" *ngIf="showDownloadButton">
         <a #mapFileDownloadLink class="allowed"></a>
         <button nbButton outline status="info">DOWNLOAD</button>
       </div>
@@ -65,16 +46,10 @@
             class="mr-2 mr-lg-0 mb-lg-2"
             (click)="toggleMapInFavorites()"
             size="large"
-            [nbPopover]="
-              mapInFavorites
-                ? 'Remove map from favorites'
-                : 'Add map to favorites'
-            "
+            [nbPopover]="mapInFavorites ? 'Remove map from favorites' : 'Add map to favorites'"
             nbPopoverTrigger="hint"
           >
-            <nb-icon
-              [icon]="mapInFavorites ? 'star' : 'star-outline'"
-            ></nb-icon>
+            <nb-icon [icon]="mapInFavorites ? 'star' : 'star-outline'"></nb-icon>
           </button>
           <button
             nbButton
@@ -85,18 +60,12 @@
             [nbPopover]="libraryPopover"
             nbPopoverTrigger="hint"
           >
-            <nb-icon
-              [icon]="mapInLibrary ? 'folder' : 'folder-outline'"
-            ></nb-icon>
+            <nb-icon [icon]="mapInLibrary ? 'folder' : 'folder-outline'"></nb-icon>
           </button>
           <ng-template #libraryPopover>
             <nb-card class="library-popover mb-0">
-              <nb-card-header>{{
-                mapInLibrary ? 'Remove map from library' : 'Add map to library'
-              }}</nb-card-header>
-              <nb-card-body
-                >Maps in your library are automatically downloaded in-game.
-              </nb-card-body>
+              <nb-card-header>{{ mapInLibrary ? 'Remove map from library' : 'Add map to library' }}</nb-card-header>
+              <nb-card-body>Maps in your library are automatically downloaded in-game. </nb-card-body>
             </nb-card>
           </ng-template>
         </div>

@@ -50,12 +50,7 @@
         </nb-list-item>
       </nb-list>
       <div class="text-center">
-        <pagination-controls
-          id="non-priority-page-ctrl"
-          (pageChange)="onPageChange($event, false)"
-          [autoHide]="true"
-          [responsive]="true"
-        />
+        <pagination-controls id="non-priority-page-ctrl" (pageChange)="onPageChange($event, false)" [autoHide]="true" [responsive]="true" />
       </div>
       <div class="text-center" *ngIf="!nonPriorityQueue?.length">
         <h3 class="m-0">There are currently no maps in this queue.</h3>

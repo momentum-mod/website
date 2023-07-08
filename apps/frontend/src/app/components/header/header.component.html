@@ -4,12 +4,7 @@
       <nb-icon icon="menu"></nb-icon>
     </a>
     <a class="logo" routerLink="/">
-      <img
-        src="assets/images/logo.svg"
-        width="310"
-        height="50"
-        alt="Momentum Mod Logo"
-      />
+      <img src="assets/images/logo.svg" width="310" height="50" alt="Momentum Mod Logo" />
     </a>
   </div>
 </div>
@@ -35,11 +30,7 @@
       <mom-notifications [notifications]="notifications" />
     </ng-template>
     <nb-action class="user-action">
-      <nb-user
-        [nbContextMenu]="userMenu"
-        [name]="user?.alias"
-        [picture]="user?.avatarURL"
-      />
+      <nb-user [nbContextMenu]="userMenu" [name]="user?.alias" [picture]="user?.avatarURL" />
     </nb-action>
   </nb-actions>
 </div>

@@ -13,22 +13,15 @@
             </h5>
           </div>
           <p class="pb-3 post-separator">
-            <span
-              class="mr-2 md-override"
-              [innerHTML]="blogPost['content:encoded']"
-            ></span>
-            <a [href]="blogPost.link" target="_blank" class="text-nowrap"
-              >Read More</a
-            >
+            <span class="mr-2 md-override" [innerHTML]="blogPost['content:encoded']"></span>
+            <a [href]="blogPost.link" target="_blank" class="text-nowrap">Read More</a>
           </p>
         </div>
         <h3 class="m-0 text-center" *ngIf="loaded">
           Read more official posts
           <a href="https://blog.momentum-mod.org" target="_blank">here</a>!
         </h3>
-        <h3 class="m-0 text-center" *ngIf="!loaded">
-          Waiting for API response
-        </h3>
+        <h3 class="m-0 text-center" *ngIf="!loaded">Waiting for API response</h3>
       </nb-card-body>
     </nb-card>
   </div>
