@@ -5,13 +5,15 @@ import { PluralPipe } from './plural.pipe';
 import { TimingPipe } from './timing.pipe';
 import { NumberWithCommasPipe } from './number-with-commas.pipe';
 import { TimeAgoPipe } from './time-ago.pipe';
+import { UnsortedKeyvaluePipe } from './unsorted-keyvalue.pipe';
 
 const PIPES = [
   NumberWithCommasPipe,
   PluralPipe,
   ThousandsSuffixPipe,
   TimingPipe,
-  TimeAgoPipe
+  TimeAgoPipe,
+  UnsortedKeyvaluePipe
 ];
 
 @NgModule({
