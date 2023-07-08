@@ -2,23 +2,13 @@
   <div class="container">
     <div class="row justify-content-center mb-5 mb-lg-5">
       <div class="col-sm-12 col-md-11 col-lg-10 mb-2 mb-lg-2">
-        <div class="display-4 font-weight-normal gamemodes-header text-center">
-          Supported Game Modes
-        </div>
+        <div class="display-4 font-weight-normal gamemodes-header text-center">Supported Game Modes</div>
       </div>
     </div>
     <div class="row justify-content-center mb-5 mb-lg-5">
-      <div
-        class="col-3 col-sm-3 col-md-2 col-lg-1 gamemode"
-        *ngFor="let gamemode of gameModes; index as i"
-        (click)="setCurrentGamemode(i)"
-      >
+      <div class="col-3 col-sm-3 col-md-2 col-lg-1 gamemode" *ngFor="let gamemode of gameModes; index as i" (click)="setCurrentGamemode(i)">
         <div class="base-timer" *ngIf="gameModeIndex === i">
-          <svg
-            class="base-timer__svg"
-            viewBox="0 0 100 100"
-            xmlns="http://www.w3.org/2000/svg"
-          >
+          <svg class="base-timer__svg" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
             <path
               id="base-timer-path-remaining"
               stroke-dasharray="283"
@@ -39,9 +29,7 @@
           [alt]="gamemode.modeTitle"
           *ngIf="gameModeSectionVisible"
         />
-        <span *ngIf="!gamemode.isImplemented" class="gamemode-coming-soon"
-          >soon™</span
-        >
+        <span *ngIf="!gamemode.isImplemented" class="gamemode-coming-soon">soon™</span>
       </div>
     </div>
     <div class="row justify-content-center mb-5 mb-lg-5">
@@ -51,13 +39,7 @@
     </div>
     <div class="row align-items-center justify-content-center mb-5 mb-lg-5">
       <div class="row align-items-center col-sm-12 col-md-6 mb-3 mb-md-0">
-        <ng-container
-          *ngIf="
-            this.currentGameMode.useYoutubeEmbed;
-            then youtubeTemplate;
-            else webmTemplate
-          "
-        ></ng-container>
+        <ng-container *ngIf="this.currentGameMode.useYoutubeEmbed; then youtubeTemplate; else webmTemplate"></ng-container>
         <ng-template #webmTemplate>
           <video
             class="gamemode-video"
@@ -71,18 +53,11 @@
         </ng-template>
         <ng-template #youtubeTemplate>
           <div
-            *ngIf="
-              !this.currentGameMode.playingYoutubeEmbed &&
-              gameModeSectionVisible
-            "
+            *ngIf="!this.currentGameMode.playingYoutubeEmbed && gameModeSectionVisible"
             (click)="this.currentGameMode.playingYoutubeEmbed = true"
             class="gamemode-youtube-play-container"
           >
-            <img
-              src="https://i.ytimg.com/vi/{{
-                this.currentGameMode.youtubeVidID
-              }}/sddefault.jpg"
-            />
+            <img src="https://i.ytimg.com/vi/{{ this.currentGameMode.youtubeVidID }}/sddefault.jpg" />
             <nb-icon icon="play-circle-outline"></nb-icon>
           </div>
           <iframe
@@ -92,11 +67,7 @@
             frameborder="0"
             allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture"
             allowfullscreen
-            *ngIf="
-              gameModeSectionVisible &&
-              this.currentGameMode.playingYoutubeEmbed &&
-              this.currentGameMode.youtubeVidURL
-            "
+            *ngIf="gameModeSectionVisible && this.currentGameMode.playingYoutubeEmbed && this.currentGameMode.youtubeVidURL"
           >
           </iframe>
         </ng-template>

@@ -4,32 +4,18 @@
       <div class="col-auto">
         <div class="d-flex flex-wrap align-items-center">
           <a [routerLink]="'/dashboard/profile/' + run.user.id">
-            <nb-user
-              [picture]="run.user.avatarURL"
-              [name]="run.user.alias"
-              size="large"
-            />
+            <nb-user [picture]="run.user.avatarURL" [name]="run.user.alias" size="large" />
           </a>
           <h2 class="ml-2">on</h2>
           <h2 class="ml-2">
-            <a [routerLink]="'/dashboard/maps/' + run.mapID">{{
-              run.map.name
-            }}</a>
+            <a [routerLink]="'/dashboard/maps/' + run.mapID">{{ run.map.name }}</a>
           </h2>
         </div>
       </div>
       <div class="col" *ngIf="personalBestRun && personalBestRun.id !== run.id">
         <div class="d-flex justify-content-end align-items-center">
-          <h4 class="mr-3 text-right d-none d-sm-block notice">
-            Note: Not viewing their personal best!
-          </h4>
-          <button
-            nbButton
-            outline
-            status="info"
-            type="button"
-            routerLink="/dashboard/runs/{{ personalBestRun.id }}"
-          >
+          <h4 class="mr-3 text-right d-none d-sm-block notice">Note: Not viewing their personal best!</h4>
+          <button nbButton outline status="info" type="button" routerLink="/dashboard/runs/{{ personalBestRun.id }}">
             Go&nbsp;to PB&nbsp;run
           </button>
         </div>

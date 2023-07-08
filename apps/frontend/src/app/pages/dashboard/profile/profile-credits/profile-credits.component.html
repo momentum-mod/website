@@ -17,27 +17,16 @@
     <div class="d-flex flex-wrap align-items-center justify-content-center">
       <div class="flex-grow-1 type-col text">
         <div class="mb-3">{{ MapCreditType[mapCredit.type] }} ON</div>
-        <a routerLink="/dashboard/maps/{{ mapCredit.map?.id }}">{{
-          mapCredit.map?.name
-        }}</a>
+        <a routerLink="/dashboard/maps/{{ mapCredit.map?.id }}">{{ mapCredit.map?.name }}</a>
       </div>
       <div>
         <a routerLink="/dashboard/maps/{{ mapCredit.map?.id }}">
-          <img
-            class="rounded map-image"
-            [ngSrc]="mapCredit.map?.thumbnail?.small"
-            fill
-          />
+          <img class="rounded map-image" [ngSrc]="mapCredit.map?.thumbnail?.small" fill />
         </a>
       </div>
     </div>
   </nb-list-item>
 </nb-list>
 <div class="text-center">
-  <pagination-controls
-    id="credits"
-    (pageChange)="onPageChange($event)"
-    [autoHide]="true"
-    [responsive]="true"
-  ></pagination-controls>
+  <pagination-controls id="credits" (pageChange)="onPageChange($event)" [autoHide]="true" [responsive]="true"></pagination-controls>
 </div>

@@ -3,15 +3,7 @@
     <div class="row">
       <h2 class="col">LEADERBOARD</h2>
       <div class="col-auto ml-auto">
-        <button
-          nbButton
-          outline
-          status="info"
-          type="button"
-          (click)="filterActive = !filterActive"
-        >
-          Filter
-        </button>
+        <button nbButton outline status="info" type="button" (click)="filterActive = !filterActive">Filter</button>
       </div>
     </div>
   </nb-card-header>
@@ -27,68 +19,32 @@
       <div class="p-3">
         <div class="row mb-3">
           <div class="col-md mb-2 mb-md-0">
-            <input
-              nbInput
-              fullWidth
-              type="text"
-              class="form-control"
-              placeholder="Rank"
-            />
+            <input nbInput fullWidth type="text" class="form-control" placeholder="Rank" />
           </div>
           <div class="col-md mb-2 mb-md-0">
-            <input
-              nbInput
-              fullWidth
-              type="text"
-              class="form-control"
-              placeholder="Name"
-            />
+            <input nbInput fullWidth type="text" class="form-control" placeholder="Name" />
           </div>
           <div class="col-md">
             <nb-radio-group [(value)]="filterLeaderboardType">
-              <nb-radio [value]="LeaderboardType.TOP10"
-                >Show top 10 times</nb-radio
-              >
-              <nb-radio [value]="LeaderboardType.AROUND"
-                >Show ranks around me</nb-radio
-              >
-              <nb-radio [value]="LeaderboardType.FRIENDS"
-                >Show friend's time</nb-radio
-              >
+              <nb-radio [value]="LeaderboardType.TOP10">Show top 10 times</nb-radio>
+              <nb-radio [value]="LeaderboardType.AROUND">Show ranks around me</nb-radio>
+              <nb-radio [value]="LeaderboardType.FRIENDS">Show friend's time</nb-radio>
             </nb-radio-group>
           </div>
         </div>
         <div class="row no-gutters">
           <div class="col col-md-auto pr-2">
-            <button
-              nbButton
-              outline
-              status="info"
-              class="w-100"
-              (click)="loadLeaderboardRuns()"
-            >
-              Update
-            </button>
+            <button nbButton outline status="info" class="w-100" (click)="loadLeaderboardRuns()">Update</button>
           </div>
           <div class="col col-md-auto pl-2">
-            <button nbButton outline status="warning" class="w-100">
-              Clear
-            </button>
+            <button nbButton outline status="warning" class="w-100">Clear</button>
           </div>
         </div>
       </div>
     </div>
     <h4 *ngIf="!searchedRanks" class="text-center">Waiting for API response</h4>
-    <h4
-      *ngIf="searchedRanks && leaderboardRanks.length === 0"
-      class="text-center"
-    >
-      No runs found
-    </h4>
-    <div
-      *ngIf="searchedRanks && leaderboardRanks.length > 0"
-      class="table-responsive"
-    >
+    <h4 *ngIf="searchedRanks && leaderboardRanks.length === 0" class="text-center">No runs found</h4>
+    <div *ngIf="searchedRanks && leaderboardRanks.length > 0" class="table-responsive">
       <table>
         <tr>
           <th>Rank</th>
@@ -102,25 +58,14 @@
           <td>{{ rank.rank }}</td>
           <td>
             <a [routerLink]="'/dashboard/profile/' + rank.user.id">
-              <nb-user
-                [name]="rank.user.alias"
-                [picture]="rank.user.avatarURL"
-                size="large"
-              ></nb-user>
+              <nb-user [name]="rank.user.alias" [picture]="rank.user.avatarURL" size="large"></nb-user>
             </a>
           </td>
           <td>{{ rank.run.time | timing }}</td>
           <td></td>
           <td>{{ rank.run.createdAt | timeAgo }}</td>
           <td>
-            <button
-              nbButton
-              outline
-              status="info"
-              shape="round"
-              type="button"
-              (click)="viewRun(rank.run)"
-            >
+            <button nbButton outline status="info" shape="round" type="button" (click)="viewRun(rank.run)">
               <nb-icon icon="arrow-right-thick"></nb-icon>
             </button>
           </td>

@@ -8,20 +8,9 @@
           class="rounded flg fi fi-{{ user.country.toLowerCase() }}"
         ></span>
         <div class="d-flex align-items-center top-right-toolbar">
-          <mom-report-button
-            *ngIf="!isLocal"
-            [reportType]="ReportType.USER_PROFILE_REPORT"
-            [reportData]="user.id.toString()"
-          />
+          <mom-report-button *ngIf="!isLocal" [reportType]="ReportType.USER_PROFILE_REPORT" [reportData]="user.id.toString()" />
           <div *ngIf="canEdit()">
-            <button
-              nbButton
-              outline
-              status="info"
-              class="ml-2"
-              type="button"
-              (click)="onEditProfile()"
-            >
+            <button nbButton outline status="info" class="ml-2" type="button" (click)="onEditProfile()">
               <span class="d-none d-md-inline-block">Edit Profile</span>
               <nb-icon class="d-inline-block d-md-none" icon="note-edit" />
             </button>
@@ -30,11 +19,7 @@
 
         <div class="row mt-4">
           <div class="col-auto mb-2">
-            <div
-              *ngIf="avatarLoaded"
-              class="ml-2 ml-md-4 user-image"
-              [ngStyle]="{ 'background-image': 'url(' + avatarUrl + ')' }"
-            ></div>
+            <div *ngIf="avatarLoaded" class="ml-2 ml-md-4 user-image" [ngStyle]="{ 'background-image': 'url(' + avatarUrl + ')' }"></div>
           </div>
           <div class="col mb-2">
             <div class="d-flex flex-column justify-content-evenly h-100">
@@ -100,18 +85,14 @@
               ></a>
               <a
                 *ngIf="user.profile?.twitchAuth"
-                href="https://twitch.tv/{{
-                  user.profile.twitchAuth.displayName
-                }}"
+                href="https://twitch.tv/{{ user.profile.twitchAuth.displayName }}"
                 title="{{ user.profile.twitchAuth.displayName }}"
                 target="_blank"
                 class="fab fa-twitch"
               ></a>
               <a
                 *ngIf="user.profile?.discordAuth"
-                href="https://discordapp.com/users/{{
-                  user.profile.discordAuth.discordID
-                }}"
+                href="https://discordapp.com/users/{{ user.profile.discordAuth.discordID }}"
                 title="{{ user.profile.discordAuth.displayName }}"
                 target="_blank"
                 class="fab fa-discord"
@@ -132,30 +113,21 @@
       </nb-card-header>
       <nb-tabset>
         <nb-tab tabTitle="Info">
-          <h5
-            class="m-0 text-center"
-            *ngIf="!user.profile?.bio || user.profile?.bio?.length === 0"
-          >
+          <h5 class="m-0 text-center" *ngIf="!user.profile?.bio || user.profile?.bio?.length === 0">
             <i>No bio found</i>
           </h5>
           <p class="bio" *ngIf="user.profile?.bio?.length > 0">
             {{ user?.profile?.bio }}
           </p>
         </nb-tab>
-        <nb-tab
-          tabTitle="Following ({{ followingUsers.length }})"
-          *ngIf="!hasRole(Role.PLACEHOLDER)"
-        >
+        <nb-tab tabTitle="Following ({{ followingUsers.length }})" *ngIf="!hasRole(Role.PLACEHOLDER)">
           <h5 class="m-0 text-center" *ngIf="followingUsers.length === 0">
             <i>Not following anyone</i>
           </h5>
           <nb-list>
             <nb-list-item *ngFor="let usr of followingUsers">
               <a [routerLink]="'/dashboard/profile/' + usr.followed?.id">
-                <nb-user
-                  [name]="usr.followed?.alias"
-                  [picture]="usr.followed?.avatarURL"
-                ></nb-user>
+                <nb-user [name]="usr.followed?.alias" [picture]="usr.followed?.avatarURL"></nb-user>
               </a>
             </nb-list-item>
           </nb-list>
@@ -167,10 +139,7 @@
           <nb-list>
             <nb-list-item *ngFor="let usr of followedByUsers">
               <a [routerLink]="'/dashboard/profile/' + usr.followee?.id">
-                <nb-user
-                  [name]="usr.followee?.alias"
-                  [picture]="usr.followee?.avatarURL"
-                ></nb-user>
+                <nb-user [name]="usr.followee?.alias" [picture]="usr.followee?.avatarURL"></nb-user>
               </a>
             </nb-list-item>
           </nb-list>
@@ -209,10 +178,6 @@
     </nb-card>
   </div>
   <div class="col-12 col-xl-5">
-    <mom-activity-card
-      *ngIf="user"
-      headerTitle="User Activity"
-      [userSubject]="userSubject"
-    />
+    <mom-activity-card *ngIf="user" headerTitle="User Activity" [userSubject]="userSubject" />
   </div>
 </div>

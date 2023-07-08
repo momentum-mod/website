@@ -6,53 +6,22 @@
     (change)="onPageChange(1)"
   >
     <div class="d-flex flex-wrap align-items-center search-controls">
-      <input
-        nbInput
-        class="form-control"
-        type="text"
-        placeholder="Map Name"
-        formControlName="search"
-      />
+      <input nbInput class="form-control" type="text" placeholder="Map Name" formControlName="search" />
       <!-- TODO: Enable when map credits get reworked (#415) -->
       <!-- <div class="form-col col-12 col-sm-10 col-md-6 col-lg-4 col-xl-3 mt-3 mt-md-0">
         <input nbInput fullWidth class="form-control" type="text" placeholder="Author" formControlName="author">
       </div> -->
       <!-- TODO: When the author field is added change mt-md-0 to mt-lg-0 -->
-      <nb-select
-        placeholder="Game Mode"
-        formControlName="type"
-        (selectedChange)="onPageChange(1)"
-      >
-        <nb-option *ngFor="let enum of types" [value]="enum.value">{{
-          enum.text
-        }}</nb-option>
+      <nb-select placeholder="Game Mode" formControlName="type" (selectedChange)="onPageChange(1)">
+        <nb-option *ngFor="let enum of types" [value]="enum.value">{{ enum.text }}</nb-option>
       </nb-select>
       <!-- TODO: When the author field is added change mt-lg-0 to mt-xl-0 -->
-      <nb-select
-        placeholder="Status"
-        formControlName="status"
-        (selectedChange)="onPageChange(1)"
-        *ngIf="isUpload"
-      >
-        <nb-option *ngFor="let enum of statuses" [value]="enum.value">{{
-          enum.text
-        }}</nb-option>
+      <nb-select placeholder="Status" formControlName="status" (selectedChange)="onPageChange(1)" *ngIf="isUpload">
+        <nb-option *ngFor="let enum of statuses" [value]="enum.value">{{ enum.text }}</nb-option>
       </nb-select>
       <div class="d-flex search-toggles">
-        <nb-toggle
-          class="test"
-          formControlName="inLibrary"
-          labelPosition="left"
-          *ngIf="!isUpload"
-          >In Library</nb-toggle
-        >
-        <nb-toggle
-          class="test"
-          formControlName="inFavorites"
-          labelPosition="left"
-          *ngIf="!isUpload"
-          >Favorites
-        </nb-toggle>
+        <nb-toggle class="test" formControlName="inLibrary" labelPosition="left" *ngIf="!isUpload">In Library</nb-toggle>
+        <nb-toggle class="test" formControlName="inFavorites" labelPosition="left" *ngIf="!isUpload">Favorites </nb-toggle>
       </div>
     </div>
     <button nbButton outline status="info" type="submit">Search</button>
@@ -82,33 +51,20 @@
     </nb-list-item>
   </nb-list>
   <div class="text-center">
-    <pagination-controls
-      (pageChange)="onPageChange($event)"
-      [autoHide]="true"
-      [responsive]="true"
-    ></pagination-controls>
+    <pagination-controls (pageChange)="onPageChange($event)" [autoHide]="true" [responsive]="true"></pagination-controls>
   </div>
 </div>
-<div
-  class="text-center"
-  *ngIf="requestSent && maps?.length === 0 && !isSearchFiltered()"
->
+<div class="text-center" *ngIf="requestSent && maps?.length === 0 && !isSearchFiltered()">
   <h3 class="m-0">
     <ng-template *ngIf="isUpload; else elseBlock">
-      <i
-        >You have not uploaded any maps. Try
-        <a routerLink="/dashboard/maps/uploads/new">uploading a new one!</a></i
-      >
+      <i>You have not uploaded any maps. Try <a routerLink="/dashboard/maps/uploads/new">uploading a new one!</a></i>
     </ng-template>
     <ng-template #elseBlock>
       <h3>No maps found!</h3>
     </ng-template>
   </h3>
 </div>
-<div
-  class="text-center"
-  *ngIf="requestSent && maps?.length === 0 && isSearchFiltered()"
->
+<div class="text-center" *ngIf="requestSent && maps?.length === 0 && isSearchFiltered()">
   <h3 class="m-0">{{ noMapsText }}</h3>
 </div>
 <div class="text-center" *ngIf="!requestSent">

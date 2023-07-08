@@ -5,11 +5,7 @@
       <div class="col-auto ml-auto">
         <div class="d-flex align-items-center">
           <span class="mr-2">Filter:</span>
-          <nb-select
-            placeholder="All"
-            [(selected)]="filterValue"
-            (selectedChange)="filterActivites(activities)"
-          >
+          <nb-select placeholder="All" [(selected)]="filterValue" (selectedChange)="filterActivites(activities)">
             <nb-option [value]="ActivityType.ALL">All</nb-option>
             <nb-option [value]="ActivityType.MAP_APPROVED">Maps Only</nb-option>
             <nb-option [value]="ActivityType.PB_ACHIEVED">PBs Only</nb-option>

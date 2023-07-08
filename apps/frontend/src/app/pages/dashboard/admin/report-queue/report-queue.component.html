@@ -5,11 +5,7 @@
       <div class="col-2">
         <div class="text-right">
           <label>Resolved: </label>
-          <select
-            name="Resolved"
-            (change)="loadReportQueue()"
-            [(ngModel)]="filters.resolved"
-          >
+          <select name="Resolved" (change)="loadReportQueue()" [(ngModel)]="filters.resolved">
             <option value="true">Yes</option>
             <option selected="selected" value="false">No</option>
           </select>
@@ -45,10 +41,7 @@
                 }
         "
       >
-        <mom-queued-report
-          [report]="report"
-          (reportUpdate)="loadReportQueue()"
-        />
+        <mom-queued-report [report]="report" (reportUpdate)="loadReportQueue()" />
       </nb-list-item>
     </nb-list>
     <div class="text-center">
