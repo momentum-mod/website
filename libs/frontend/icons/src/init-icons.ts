@@ -16,7 +16,7 @@ export const initIconPacks = (iconLibraries: NbIconLibraries): void => {
           kebabCase(
             packName === 'mdi' ? iconName.replace(/^mdi/, '') : iconName
           ),
-          `<svg viewBox="0 0 24 24"><path fill="#fff" d="${path}"></path></svg>`
+          `<svg viewBox="0 0 24 24"><path fill="currentColor" d="${path}"></path></svg>`
         ])
       )
     );
