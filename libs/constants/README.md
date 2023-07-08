@@ -10,8 +10,7 @@ The overall structure for this and related libraries works like this:
   interfaces. Essentially, only stuff compiled out during Typescript
   compilation.
 - `@momentum/backend/dto`: DTO layer of the backend containing Typescript
-  _classes_ which implement the models in `@momentum/types` and perform
-  runtime transformation and validation.
-- `@momentum/constants`: Similar to `@momentum/types` in that it contain
-  no significant logic, but rather contains literal values, rather than
-  types.
+  _classes_ which implement the models in `@momentum/types` and perform runtime
+  transformation and validation.
+- `@momentum/constants`: Similar to `@momentum/types` in that it contain no
+  significant logic, but rather contains literal values, rather than types.
