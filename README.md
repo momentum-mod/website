@@ -30,9 +30,10 @@ The frontend runs on [Angular](https://angular.io) and uses the
 [Nebular](https://github.com/akveo/nebular) component library.
 
 The backend runs on [NodeJS](https://nodejs.org/), with
+
 - [NestJS](https://nestjs.com/): handling architecture and routing,
 - [Fastify](https://www.fastify.io/): the underlying HTTP server,
-- [Prisma](https://www.prisma.io/): an ORM, 
+- [Prisma](https://www.prisma.io/): an ORM,
 - [Postgres](https://www.postgresql.org/): the underlying database
 
 # Contributing
@@ -46,8 +47,8 @@ overlap.
 
 To get started check out the
 [setup guide](https://github.com/momentum-mod/website/wiki/Setup), as well as
-the rest of the [wiki](https://github.com/momentum-mod/website/wiki).
-The majority of information about this repo lives on the wiki!
+the rest of the [wiki](https://github.com/momentum-mod/website/wiki). The
+majority of information about this repo lives on the wiki!
 
 Please see our
 [contribution guidelines](https://github.com/momentum-mod/website/wiki/Contribution-Guidelines)
