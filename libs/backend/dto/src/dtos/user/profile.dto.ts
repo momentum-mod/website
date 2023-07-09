@@ -1,8 +1,13 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { IsInt, IsOptional, IsString } from 'class-validator';
 import { Exclude } from 'class-transformer';
-import { CreatedAtProperty, UpdatedAtProperty } from '../../decorators';
+import {
+  CreatedAtProperty,
+  NestedProperty,
+  UpdatedAtProperty
+} from '../../decorators';
 import { Profile } from '@prisma/client';
+import { SocialsDto } from './socials.dto';
 
 export class ProfileDto implements Profile {
   @Exclude()
@@ -20,6 +25,9 @@ export class ProfileDto implements Profile {
   @IsOptional()
   @IsInt()
   readonly featuredBadgeID: number;
+
+  @NestedProperty(SocialsDto)
+  readonly socials: SocialsDto;
 
   @CreatedAtProperty()
   readonly createdAt: Date;

@@ -12,6 +12,7 @@ import { ConfigService } from '@nestjs/config';
 import { SteamService } from '../steam/steam.service';
 import {
   ActivityDto,
+  checkNotEmpty,
   DtoFactory,
   expandToPrismaIncludes,
   FollowDto,
@@ -221,8 +222,7 @@ export class UsersService {
 
     const updateInput: Prisma.UserUpdateInput = {};
 
-    if (!update.alias && !update.bio && !update.country)
-      throw new BadRequestException('Request contains no valid update data');
+    checkNotEmpty(update);
 
     // Strict check - we want to handle if alias is empty string
     if (update.alias !== undefined) {
@@ -260,6 +260,22 @@ export class UsersService {
 
     if (update.country) {
       updateInput.country = update.country;
+    }
+
+    // Note implementing any ban checks here, since our current bans system
+    // doesn't make sense - would we really want a ban *specifically* for
+    // blocking updating socials? Started a gdoc, waiting til we write full spec
+    if (update.socials) {
+      // Delete empty string values - no point storing
+      for (const [k, v] of Object.entries(update.socials)) {
+        if (v === '') delete update.socials[k];
+      }
+
+      if (updateInput.profile?.update) {
+        updateInput.profile.update.socials = update.socials;
+      } else {
+        updateInput.profile = { update: { socials: update.socials } };
+      }
     }
 
     await this.db.user.update({ where: { id: userID }, data: updateInput });
