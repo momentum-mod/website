@@ -8,9 +8,12 @@ import * as MomentumIcons from './momentum.icons';
 
 export { MaterialDesignIcons, SimpleIcons, MomentumIcons };
 
-export type Icon =
-  | KebabCase<Replace<keyof typeof MaterialDesignIcons, 'mdi', ''>>
-  | KebabCase<keyof typeof SimpleIcons>
-  | KebabCase<keyof typeof MomentumIcons>;
+export type SimpleIcon = KebabCase<keyof typeof SimpleIcons>;
+export type MaterialDesignIcon = KebabCase<
+  Replace<keyof typeof MaterialDesignIcons, 'mdi', ''>
+>;
+export type MomentumIcon = KebabCase<keyof typeof MomentumIcons>;
+
+export type Icon = MaterialDesignIcon | SimpleIcon | MomentumIcon;
 
 export type IconPack = 'mdi' | 'si' | 'mom';
