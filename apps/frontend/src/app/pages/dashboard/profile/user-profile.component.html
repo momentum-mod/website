@@ -49,22 +49,27 @@
               <div *ngIf="!hasRole(Role.PLACEHOLDER)">
                 <h4 class="text">Level {{ user.userStats?.level }}</h4>
               </div>
+              <div class="socials">
+                <div>
+                  <a href="https://steamcommunity.com/profiles/{{ user.steamID }}" target="_blank" nbTooltip="Steam">
+                    <nb-icon icon="steam" pack="si" />
+                  </a>
+                </div>
+                <div *ngFor="let social of user.profile.socials | unsortedKeyvalue">
+                  <a
+                    *ngIf="social.value"
+                    href="https://{{ SocialsData[social.key].url }}/{{ social.value }}"
+                    target="_blank"
+                    [nbTooltip]="social.key"
+                  >
+                    <nb-icon [icon]="SocialsData[social.key].icon" pack="si" />
+                  </a>
+                </div>
+                <div class="ml-auto" *ngIf="!isLocal">
+                  <mom-profile-follow [userSubj]="userSubject" />
+                </div>
+              </div>
             </div>
-          </div>
-        </div>
-        <div class="row no-gutters align-items-center">
-          <div class="col">
-            <div class="ml-0 ml-md-2 socials">
-              <a
-                *ngIf="!hasRole(Role.PLACEHOLDER)"
-                href="https://steamcommunity.com/profiles/{{ user.steamID }}"
-                target="_blank"
-                class="fab fa-steam"
-              ></a>
-            </div>
-          </div>
-          <div class="col-auto" *ngIf="!isLocal">
-            <mom-profile-follow [userSubj]="userSubject" />
           </div>
         </div>
       </nb-card-header>

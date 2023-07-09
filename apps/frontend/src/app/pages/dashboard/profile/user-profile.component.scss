@@ -39,16 +39,21 @@ nb-card-header {
 }
 
 .socials {
-  font-size: 2.5rem;
-  font-weight: 400;
+  display: flex;
+  margin: 1rem 0.25rem;
 
   a {
-    padding: 0.4rem;
-    text-decoration: none;
-    color: nb-theme(text-control-color);
-    transition: color ease-out 0.1s;
+    font-size: 2rem;
+    margin-right: 1rem;
 
-    &:hover {
+    nb-icon {
+      color: nb-theme(text-control-color);
+      transition: color ease-out 0.1s;
+      width: 2rem;
+      height: 2rem;
+    }
+
+    &:hover nb-icon {
       color: nb-theme(color-primary-default);
     }
   }
