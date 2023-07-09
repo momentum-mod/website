@@ -7,127 +7,107 @@
       </div>
     </div>
   </nb-card-header>
-  <form (ngSubmit)="onSubmit()">
-    <nb-tabset class="overflow-hidden">
-      <nb-tab tabTitle="Profile" [formGroup]="profileEditFormGroup">
-        <div class="row mt-2">
-          <div class="col-12">
-            <div class="form-group mb-4" [ngClass]="{ 'has-error': !alias.valid }">
-              <h5>Alias</h5>
-              <div class="input-group">
-                <input nbInput class="form-control alias-inp" formControlName="alias" type="text" />
-                <div class="input-group-append" *ngIf="user.aliasLocked">
-                  <button nbButton outline status="warning" size="small" type="button" (click)="resetAlias()">Reset To Steam Alias</button>
-                </div>
-              </div>
-              <nb-alert class="mb-0 mt-3 py-2 px-3 text-danger" outline="danger" *ngIf="alias.hasError('minlength')">
-                Username must be at least 3 characters.
-              </nb-alert>
-              <nb-alert class="mb-0 mt-3 py-2 px-3 text-danger" outline="danger" *ngIf="alias.hasError('maxlength')">
-                Username cannot exceed 32 characters.
-              </nb-alert>
-              <nb-alert class="mb-0 mt-3 py-2 px-3 text-danger" outline="danger" *ngIf="alias.hasError('required') && alias.dirty">
-                Username is required.
-              </nb-alert>
+  <form class="m-4" (ngSubmit)="onSubmit()" [formGroup]="form">
+    <div class="row">
+      <div class="col-12">
+        <div class="form-group mb-4" [ngClass]="{ 'has-error': !alias.valid }">
+          <h3>Alias</h3>
+          <div class="input-group">
+            <input nbInput class="form-control" formControlName="alias" type="text" />
+            <div class="input-group-append" *ngIf="hasBan(Ban.ALIAS)">
+              <button nbButton outline status="warning" size="small" type="button" (click)="resetAlias()">Reset To Steam Alias</button>
             </div>
+          </div>
+          <nb-alert class="mb-0 mt-3 py-2 px-3 text-danger" outline="danger" *ngIf="alias.hasError('minlength')">
+            Username must be at least 3 characters.
+          </nb-alert>
+          <nb-alert class="mb-0 mt-3 py-2 px-3 text-danger" outline="danger" *ngIf="alias.hasError('maxlength')">
+            Username cannot exceed 32 characters.
+          </nb-alert>
+          <nb-alert class="mb-0 mt-3 py-2 px-3 text-danger" outline="danger" *ngIf="alias.hasError('required') && alias.dirty">
+            Username is required.
+          </nb-alert>
+        </div>
 
-            <div class="form-group">
-              <h5>Country</h5>
-              <nb-select formControlName="country">
-                <nb-option *ngFor="let item of AlphabeticalCountryCode | keyvalue" [value]="item.key">{{ item.value }}</nb-option>
-              </nb-select>
+        <div class="form-group">
+          <h3>Country</h3>
+          <nb-select formControlName="country">
+            <nb-option *ngFor="let item of AlphabeticalCountryCode | keyvalue" [value]="item.key">{{ item.value }}</nb-option>
+          </nb-select>
+        </div>
+
+        <div class="form-group" [ngClass]="{ 'has-error': !bio.valid }">
+          <h3>Bio</h3>
+          <textarea nbInput fullWidth rows="6" class="form-control" formControlName="bio" type="bio" #description></textarea>
+          <nb-alert class="mb-0 mt-2 py-2 px-3 text-danger" outline="danger" *ngIf="bio.hasError('maxlength')">
+            Text cannot exceed 1000 characters.
+          </nb-alert>
+          <span class="form-text d-flex justify-content-end mt-2 mr-2"
+            >{{ 1000 - description.value.length | plural : 'character' }} remaining</span
+          >
+        </div>
             </div>
-
-            <div class="form-group" [ngClass]="{ 'has-error': !bio.valid }">
-              <h5>Bio</h5>
-              <textarea nbInput fullWidth rows="6" class="form-control" formControlName="bio" type="bio" #description></textarea>
-              <nb-alert class="mb-0 mt-2 py-2 px-3 text-danger" outline="danger" *ngIf="bio.hasError('maxlength')">
-                Text cannot exceed 1000 characters.
-              </nb-alert>
-              <span class="form-text d-flex justify-content-end mt-2 mr-2"
-                >{{ 1000 - description.value.length | plural : 'character' }} remaining</span
+          </div>
+        </div>
+      </div>
+    </div>
+    <div *ngIf="isAdmin" [formGroup]="adminEditForm">
+      <h1>Admin Settings</h1>
+      <div class="row">
+        <div class="col">
+          <h2>Bans</h2>
+          <ul class="list-unstyled text-nowrap">
+            <li>
+              <nb-checkbox (change)="toggleBan(Ban.ALIAS)" formControlName="banAlias">Ban changing alias</nb-checkbox>
+            </li>
+            <li>
+              <nb-checkbox (change)="toggleBan(Ban.BIO)" formControlName="banBio">Ban changing bio</nb-checkbox>
+            </li>
+            <li>
+              <nb-checkbox (change)="toggleBan(Ban.AVATAR)" formControlName="banAvatar">Ban avatar</nb-checkbox>
+            </li>
+            <li>
+              <nb-checkbox (change)="toggleBan(Ban.LEADERBOARDS)" formControlName="banLeaderboards"
+                >Ban submitting to leaderboards</nb-checkbox
               >
+            </li>
+          </ul>
+        </div>
+        <div class="col col-md-3">
+          <h2>Roles</h2>
+          <ul class="list-unstyled text-nowrap">
+            <li>
+              <nb-checkbox (change)="toggleRole(Role.VERIFIED)" formControlName="verified">Verified</nb-checkbox>
+            </li>
+            <li>
+              <nb-checkbox (change)="toggleRole(Role.MAPPER)" formControlName="mapper">Mapper</nb-checkbox>
+            </li>
+            <li>
+              <nb-checkbox *ngIf="isAdmin" (change)="toggleRole(Role.MODERATOR)" formControlName="moderator">Moderator</nb-checkbox>
+            </li>
+            <li>
+              <nb-checkbox *ngIf="isAdmin" (change)="toggleRole(Role.ADMIN)" formControlName="admin">Admin</nb-checkbox>
+            </li>
+          </ul>
+        </div>
+        <div class="col">
+          <div class="mb-3" *ngIf="hasRole(Role.PLACEHOLDER)">
+            <h5 class="text-nowrap">Merge to Real User:</h5>
+            <mom-user-search (selectedUserEmit)="selectMergeUser($event)" *ngIf="!mergeUser" />
+            <div *ngIf="mergeErr" class="mt-2 text-center text-danger">
+              {{ mergeErr }}
+            </div>
+            <div *ngIf="mergeUser">
+              <nb-user [name]="mergeUser.alias" [picture]="mergeUser.avatarURL" class="mb-2" />
+              <button type="button" nbButton outline status="info" size="small" (click)="cancelMerge()" class="mt-1 mr-2">Cancel</button>
+              <button type="button" nbButton outline status="danger" size="small" (click)="mergeUsers()" class="mt-1">Merge To User</button>
             </div>
           </div>
+          <button type="button" class="mt-5" nbButton outline status="danger" (click)="deleteUser()">Delete User</button>
         </div>
-      </nb-tab>
-      <nb-tab *ngIf="isLocal" tabTitle="Social Links" #socials>
-        <div class="d-flex justify-content-around flex-wrap my-2 text-center">
-            </div>
-          </div>
-        </div>
-        </div>
-      </nb-tab>
-      <nb-tab *ngIf="isAdmin" [formGroup]="adminEditFg" tabTitle="Admin User Settings">
-        <div class="row">
-          <div class="col">
-            <h2>Bans</h2>
-            <ul class="list-unstyled text-nowrap">
-              <li>
-                <nb-checkbox (change)="toggleBan(Ban.ALIAS)" formControlName="banAlias">Ban changing alias</nb-checkbox>
-              </li>
-              <li>
-                <nb-checkbox (change)="toggleBan(Ban.BIO)" formControlName="banBio">Ban changing bio</nb-checkbox>
-              </li>
-              <li>
-                <nb-checkbox (change)="toggleBan(Ban.AVATAR)" formControlName="banAvatar">Ban avatar</nb-checkbox>
-              </li>
-              <li>
-                <nb-checkbox (change)="toggleBan(Ban.LEADERBOARDS)" formControlName="banLeaderboards">
-                  Ban submitting to leaderboards</nb-checkbox
-                >
-              </li>
-            </ul>
-          </div>
-          <div class="col col-md-3">
-            <h2>Roles</h2>
-            <ul class="list-unstyled text-nowrap">
-              <li>
-                <nb-checkbox (change)="toggleRole(Role.VERIFIED)" formControlName="verified">Verified</nb-checkbox>
-              </li>
-              <li>
-                <nb-checkbox (change)="toggleRole(Role.MAPPER)" formControlName="mapper">Mapper</nb-checkbox>
-              </li>
-              <li>
-                <nb-checkbox *ngIf="isAdmin" (change)="toggleRole(Role.MODERATOR)" formControlName="moderator">Moderator</nb-checkbox>
-              </li>
-              <li>
-                <nb-checkbox *ngIf="isAdmin" (change)="toggleRole(Role.ADMIN)" formControlName="admin">Admin</nb-checkbox>
-              </li>
-            </ul>
-          </div>
-          <div class="col" *ngIf="isAdmin">
-            <div class="mb-3 merge-col" *ngIf="hasRole(Role.PLACEHOLDER)">
-              <h5 class="text-nowrap">Merge to Real User:</h5>
-              <mom-user-search (selectedUserEmit)="selectMergeUser($event)" *ngIf="!mergeUser" />
-              <div *ngIf="mergeErr" class="mt-2 text-center text-danger">
-                {{ mergeErr }}
-              </div>
-              <div *ngIf="mergeUser">
-                <nb-user [name]="mergeUser.alias" [picture]="mergeUser.avatarURL" class="mb-2" />
-                <button type="button" nbButton outline status="info" size="small" (click)="cancelMerge()" class="mt-1 mr-2">Cancel</button>
-                <button type="button" nbButton outline status="danger" size="small" (click)="mergeUsers()" class="mt-1">
-                  Merge To User
-                </button>
-              </div>
-            </div>
-            <div class="text-right">
-              <button type="button" nbButton outline status="danger" (click)="deleteUser()">Delete User</button>
-            </div>
-          </div>
-        </div>
-      </nb-tab>
-    </nb-tabset>
-    <button
-      nbButton
-      outline
-      status="info"
-      size="medium"
-      class="submit-btn"
-      type="submit"
-      *ngIf="!(socials && socials.active)"
-      [disabled]="profileEditFormGroup.touched && !profileEditFormGroup.valid"
-    >
+      </div>
+    </div>
+    <button nbButton outline status="info" size="medium" class="submit-btn" type="submit" [disabled]="form.touched && !form.valid">
       Save changes
     </button>
   </form>
