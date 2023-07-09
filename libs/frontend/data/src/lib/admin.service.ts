@@ -3,11 +3,11 @@ import { EMPTY, Observable } from 'rxjs';
 import {
   AdminGetReportsQuery,
   AdminMapsGetAllQuery,
+  AdminUpdateUser,
   Map,
   Report,
   UpdateMap,
   UpdateReport,
-  UpdateUser,
   UpdateXpSystems,
   User,
   XpSystems
@@ -31,7 +31,7 @@ export class AdminService {
     return this.http.delete(`admin/maps/${mapID}`);
   }
 
-  updateUser(userID: number, body: UpdateUser): Observable<void> {
+  updateUser(userID: number, body: AdminUpdateUser): Observable<void> {
     return this.http.patch(`admin/users/${userID}`, { body });
   }
 
