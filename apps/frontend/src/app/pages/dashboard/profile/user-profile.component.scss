@@ -25,14 +25,17 @@ nb-card-header {
 }
 
 .verified {
-  max-width: 2rem;
+  width: 2rem;
+  height: 2rem;
+  margin-left: 0.75rem;
+  margin-bottom: 0.5rem;
 }
 
 .flg {
   font-size: 2.5rem;
   position: absolute;
-  left: 3px;
-  top: 3px;
+  left: 4px;
+  top: 4px;
 }
 
 .socials {
@@ -51,10 +54,9 @@ nb-card-header {
   }
 }
 
-.badges {
-  img {
-    max-width: 3.5rem;
-  }
+.badges img {
+  width: 3rem;
+  height: 3rem;
 }
 
 .top-right-toolbar {

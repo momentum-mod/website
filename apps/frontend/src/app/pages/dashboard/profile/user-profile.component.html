@@ -27,45 +27,23 @@
                 <h1>{{ user.alias }}</h1>
                 <img
                   *ngIf="isVerified"
-                  class="ml-2 verified"
+                  class="verified"
                   ngSrc="assets/images/badges/BadgeVerified.svg"
-                  nbPopover="Verified"
-                  nbPopoverTrigger="hint"
-                  nbPopoverPlacement="bottom"
+                  nbTooltip="Verified"
                   width="49"
                   height="49"
+                  alt="Verified Badge"
                 />
               </div>
               <div class="d-flex badges" *ngIf="isMapper || isMod || isAdmin">
                 <div *ngIf="isMapper" class="mx-1">
-                  <img
-                    ngSrc="assets/images/badges/BadgeMapper.svg"
-                    nbPopover="Mapper"
-                    nbPopoverTrigger="hint"
-                    nbPopoverPlacement="bottom"
-                    width="49"
-                    height="49"
-                  />
+                  <img ngSrc="assets/images/badges/BadgeMapper.svg" nbTooltip="Mapper" width="49" height="49" alt="Mapper Badge" />
                 </div>
                 <div *ngIf="isMod" class="mx-1">
-                  <img
-                    ngSrc="assets/images/badges/BadgeMod.svg"
-                    nbPopover="Moderator"
-                    nbPopoverTrigger="hint"
-                    nbPopoverPlacement="bottom"
-                    width="49"
-                    height="49"
-                  />
+                  <img ngSrc="assets/images/badges/BadgeMod.svg" nbTooltip="Moderator" width="49" height="49" alt="Moderator Badge" />
                 </div>
                 <div *ngIf="isAdmin" class="mx-1">
-                  <img
-                    ngSrc="assets/images/badges/BadgeAdmin.svg"
-                    nbPopover="Admin"
-                    nbPopoverTrigger="hint"
-                    nbPopoverPlacement="bottom"
-                    width="49"
-                    height="49"
-                  />
+                  <img ngSrc="assets/images/badges/BadgeAdmin.svg" nbTooltip="Admin" width="49" height="49" alt="Admin Badge" />
                 </div>
               </div>
               <div *ngIf="!hasRole(Role.PLACEHOLDER)">
