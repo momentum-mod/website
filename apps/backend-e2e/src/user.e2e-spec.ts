@@ -19,7 +19,13 @@ import {
   randomString,
   RequestUtil
 } from '@momentum/backend/test-utils';
-import { ActivityType, Ban, MapCreditType, Role } from '@momentum/constants';
+import {
+  ActivityType,
+  Ban,
+  MapCreditType,
+  Role,
+  Socials
+} from '@momentum/constants';
 import { PrismaClient } from '@prisma/client';
 import {
   setupE2ETestEnvironment,
@@ -104,7 +110,7 @@ describe('User', () => {
         expect(updatedUser.alias).toBe(newAlias);
       });
 
-      it("should update the authenticated user's profile", async () => {
+      it("should update the authenticated user's bio", async () => {
         const [user, token] = await db.createAndLoginUser();
         const newBio = 'I Love Donkey Kong';
 
@@ -121,6 +127,100 @@ describe('User', () => {
         });
 
         expect(updatedUser.profile.bio).toBe(newBio);
+      });
+
+      it("should update the authenticated user's socials", async () => {
+        const [user, token] = await db.createAndLoginUser();
+        const socialNames: Record<keyof Socials, string> = {
+          Discord: 'wumpusfan123',
+          Mastodon: '@user@domain.com',
+          Twitter: 'istwiterdeadyet',
+          YouTube: '@DSPGaming',
+          Twitch: 'pogchamp123',
+          'Ko-fi': 'givememoney',
+          Paypal: '@givememoney',
+          Patreon: 'givememoneyregularly',
+          Github: 'TheLispGenius',
+          Instagram: 'picture_of_food',
+          Spotify: 'oinhusyaby7f98gt6s',
+          LinkedIn: 'gamer-ceo-123'
+        };
+
+        await req.patch({
+          url: 'user',
+          status: 204,
+          body: { socials: socialNames },
+          token: token
+        });
+
+        const updatedUser = await prisma.user.findFirst({
+          where: { id: user.id },
+          include: { profile: true }
+        });
+
+        const socials = updatedUser.profile.socials as Socials;
+
+        expect(socials).toMatchObject(socialNames);
+      });
+
+      it('should delete any social not on the update object', async () => {
+        const [user, token] = await db.createAndLoginUser({
+          data: {
+            profile: {
+              create: { socials: { YouTube: 'theminecraftplay2003' } }
+            }
+          }
+        });
+
+        await req.patch({
+          url: 'user',
+          status: 204,
+          body: { socials: { LinkedIn: 'thegamerCEO2003' } },
+          token: token
+        });
+
+        const updatedUser = await prisma.user.findFirst({
+          where: { id: user.id },
+          include: { profile: true }
+        });
+
+        const socials = updatedUser.profile.socials as Socials;
+
+        expect(socials.YouTube).toBeUndefined();
+      });
+
+      it("should update the both authenticated user's bio and profile", async () => {
+        const [user, token] = await db.createAndLoginUser();
+        const newBio = 'I Love Donkey Kong';
+        const discordUsername = 'discorduser123';
+
+        await req.patch({
+          url: 'user',
+          status: 204,
+          body: { bio: newBio, socials: { Discord: discordUsername } },
+          token: token
+        });
+
+        const updatedUser = await prisma.user.findFirst({
+          where: { id: user.id },
+          include: { profile: true }
+        });
+
+        const socials = updatedUser.profile.socials as Socials;
+        expect(socials.Discord).toBe(discordUsername);
+
+        expect(updatedUser.profile.bio).toBe(newBio);
+      });
+
+      it('should 400 for an invalid social', async () => {
+        const token = await db.loginNewUser();
+
+        await req.patch({
+          url: 'user',
+          status: 400,
+          body: { socials: { rateyourmusic: 'acdcfan1965' } },
+          token: token
+        });
       });
 
       it('should 403 when trying to update bio when bio banned', async () => {
@@ -252,7 +352,7 @@ describe('User', () => {
       it('should 401 when no access token is provided', () =>
         req.unauthorizedTest('user/profile', 'get'));
     });
-
+  });
   describe('user/follow/{userID}', () => {
     describe('GET', () => {
       let u1, u1Token, u2;

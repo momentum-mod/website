@@ -55,6 +55,7 @@ model Profile {
   user   User @relation(fields: [userID], references: [id], onDelete: Cascade)
   userID Int  @unique
 
+  socials Json?
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
