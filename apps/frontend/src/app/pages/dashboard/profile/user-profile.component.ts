@@ -3,9 +3,17 @@ import { switchMap, takeUntil } from 'rxjs/operators';
 import { ActivatedRoute, ParamMap, Router } from '@angular/router';
 import { ReplaySubject, Subject } from 'rxjs';
 import { NbToastrService } from '@nebular/theme';
-import { Ban, ISOCountryCode, ReportType, Role } from '@momentum/constants';
+import {
+  Ban,
+  ISOCountryCode,
+  ReportType,
+  Role,
+  Socials,
+  SocialsData
+} from '@momentum/constants';
 import { Follow, User } from '@momentum/types';
 import { LocalUserService, UsersService } from '@momentum/frontend/data';
+import { Icon } from '@momentum/frontend/icons';
 
 @Component({
   selector: 'mom-user-profile',
@@ -16,9 +24,21 @@ export class UserProfileComponent implements OnInit, OnDestroy {
   private ngUnsub = new Subject<void>();
   protected readonly Role = Role;
   protected readonly ReportType = ReportType;
+  protected readonly SocialsData = SocialsData as Readonly<
+    Record<
+      keyof Socials,
+      {
+        // We can't enforce this type-constraint in @momentum/constants because
+        // of module boundaries, but we need it here.
+        icon: Icon;
+        regex: RegExp;
+        example: string;
+        url: string;
+      }
+    >
+  >;
   userSubject: ReplaySubject<User>;
-  // TODO: Removing types on this for now, add back once socials auth is done!
-  user: any; // User;
+  user: User;
   isLocal: boolean;
   isMapper: boolean;
   isVerified: boolean;
@@ -81,6 +101,7 @@ export class UserProfileComponent implements OnInit, OnDestroy {
       .subscribe({
         next: (user) => {
           this.user = user;
+          this.user.profile.socials ??= {}; // So we can ngFor over this safely
           this.isMapper = this.hasRole(Role.MAPPER);
           this.isMod = this.hasRole(Role.MODERATOR);
           this.isAdmin = this.hasRole(Role.ADMIN);
