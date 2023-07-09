@@ -26,6 +26,7 @@ import {
   NbTabsetModule,
   NbThemeModule,
   NbToastrModule,
+  NbTooltipModule,
   NbUserModule
 } from '@nebular/theme';
 
@@ -50,7 +51,8 @@ const NEBULAR_MODULES = [
   NbInputModule,
   NbAccordionModule,
   NbToastrModule,
-  NbAlertModule
+  NbAlertModule,
+  NbTooltipModule
 ];
 
 @NgModule({
