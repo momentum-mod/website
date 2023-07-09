@@ -1,4 +1,4 @@
-import { Ban, Role } from '@momentum/constants';
+import { Ban, Role, Socials } from '@momentum/constants';
 import { Profile, Rank, UserStats } from '@momentum/types';
 import { User as PrismaUser } from '@prisma/client';
 import { BitwiseEnum } from '../../bitwise-enum.interface';
@@ -17,6 +17,7 @@ export interface CreateUser extends Pick<User, 'alias'> {}
 export interface UpdateUser {
   alias?: string;
   bio?: string;
+  socials?: Socials;
 }
 
 export interface AdminUpdateUser extends UpdateUser {
