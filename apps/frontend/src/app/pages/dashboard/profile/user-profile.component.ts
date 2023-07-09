@@ -68,12 +68,12 @@ export class UserProfileComponent implements OnInit, OnDestroy {
                   )
               });
             return this.usersService.getUser(idNum, {
-              expand: ['profile', 'stats']
+              expand: ['profile', 'userStats']
             });
           } else {
             this.isLocal = true;
             return this.userService.getLocalUser({
-              expand: ['profile', 'stats']
+              expand: ['profile', 'userStats']
             });
           }
         })
