@@ -16,3 +16,4 @@ export * from './report-category.enum';
 export * from './limits.const';
 export * from './bans.enum';
 export * from './country-codes.enum';
+export * from './socials.const';
