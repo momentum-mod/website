@@ -1,11 +1,24 @@
-.alias-inp {
-  max-width: 400px;
-}
+.social {
+  margin-bottom: 32px;
 
-.merge-col {
-  max-width: 300px;
-}
+  .social-header {
+    display: flex;
+    margin-bottom: 0.25rem;
+    margin-left: 0.25rem;
+    margin-top: 0.5rem;
 
-.submit-btn {
-  margin: 0 1.25rem 1.25rem;
+    nb-icon {
+      width: 1.2rem;
+      height: 1.2rem;
+      margin: auto 0.5rem auto 0;
+    }
+
+    h4 {
+      margin: auto 0;
+    }
+  }
+
+  input {
+    width: 100%;
+  }
 }

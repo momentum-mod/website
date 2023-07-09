@@ -1,24 +1,27 @@
-import { Component, OnDestroy, OnInit, ViewChild } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute, ParamMap, Router } from '@angular/router';
 import { switchMap, takeUntil } from 'rxjs/operators';
 import { of, Subject } from 'rxjs';
 import { ConfirmDialogComponent } from '../../../../components/confirm-dialog/confirm-dialog.component';
-import {
-  NbDialogService,
-  NbTabComponent,
-  NbToastrService
-} from '@nebular/theme';
-import { env } from '@momentum/frontend/env';
-import { User } from '@momentum/types';
+import { NbDialogService, NbToastrService } from '@nebular/theme';
+import { AdminUpdateUser, UpdateUser, User } from '@momentum/types';
 import {
   AdminService,
   AuthService,
   LocalUserService,
   UsersService
 } from '@momentum/frontend/data';
-import { Ban, ISOCountryCode, Role } from '@momentum/constants';
+import {
+  Ban,
+  ISOCountryCode,
+  Role,
+  Socials,
+  SocialsData
+} from '@momentum/constants';
 import { Bitflags } from '@momentum/bitflags';
+import { Icon } from '@momentum/frontend/icons';
+import { omit } from 'lodash-es';
 
 @Component({
   selector: 'mom-profile-edit',
@@ -29,49 +32,39 @@ export class ProfileEditComponent implements OnInit, OnDestroy {
   protected readonly AlphabeticalCountryCode = Object.fromEntries(
     Object.entries(ISOCountryCode).sort(([_, a], [__, b]) => a.localeCompare(b))
   );
-  private ngUnSub = new Subject<void>();
+  protected readonly Role = Role;
+  protected readonly Ban = Ban;
+  protected readonly SocialsData = SocialsData as Readonly<
+    Record<
+      keyof Socials,
+      { icon: Icon; regex: RegExp; example: string; url: string }
+    >
+  >;
 
-  profileEditFormGroup: FormGroup = this.fb.group({
-    alias: [
-      '',
-      [Validators.required, Validators.minLength(3), Validators.maxLength(32)]
-    ],
-    bio: ['', [Validators.maxLength(1000)]],
-    country: ['']
-  });
+  form: FormGroup;
+  adminEditForm: FormGroup;
+
   get alias() {
-    return this.profileEditFormGroup.get('alias');
+    return this.form.get('alias');
   }
   get bio() {
-    return this.profileEditFormGroup.get('bio');
+    return this.form.get('bio');
   }
   get country() {
-    return this.profileEditFormGroup.get('country');
+    return this.form.get('country');
+  }
+  get socials() {
+    return this.form.get('socials');
   }
 
-  adminEditFg: FormGroup = this.fb.group({
-    banAlias: [false],
-    banBio: [false],
-    banAvatar: [false],
-    banLeaderboards: [false],
-    verified: [false],
-    mapper: [false],
-    moderator: [false],
-    admin: [false]
-  });
-
-  // TODO: Removing types on this for now, add back once socials auth is done!
-  user: any; // User;
+  user: User;
   mergeUser: User;
   mergeErr: string;
   isLocal: boolean;
   isAdmin: boolean;
   isModerator: boolean;
-  // TODO
-  protected readonly Role = Role;
-  protected readonly Ban = Ban;
 
-  @ViewChild('socials', { static: false }) socials: NbTabComponent;
+  private ngUnSub = new Subject<void>();
 
   constructor(
     private route: ActivatedRoute,
@@ -89,15 +82,37 @@ export class ProfileEditComponent implements OnInit, OnDestroy {
     this.isAdmin = false;
     this.mergeUser = null;
     this.mergeErr = null;
+
+    const socialsForm = {};
+    for (const [name, { regex }] of Object.entries(SocialsData)) {
+      socialsForm[name] = ['', [Validators.pattern(regex)]];
+    }
+
+    this.form = this.fb.group({
+      alias: [
+        '',
+        [Validators.required, Validators.minLength(3), Validators.maxLength(32)]
+      ],
+      bio: ['', [Validators.maxLength(1000)]],
+      country: [''],
+      socials: this.fb.group(socialsForm)
+    });
+
+    this.adminEditForm = this.fb.group({
+      banAlias: [false],
+      banBio: [false],
+      banAvatar: [false],
+      banLeaderboards: [false],
+      verified: [false],
+      mapper: [false],
+      moderator: [false],
+      admin: [false]
+    });
   }
 
   ngOnInit(): void {
     this.route.paramMap
-      .pipe(
-        switchMap((params: ParamMap) => {
-          return of(params.get('id'));
-        })
-      )
+      .pipe(switchMap((params: ParamMap) => of(params.get('id'))))
       .subscribe((id: string) => {
         if (id) {
           const numID = Number(id);
@@ -105,57 +120,67 @@ export class ProfileEditComponent implements OnInit, OnDestroy {
           if (!this.isLocal) {
             this.usersService
               .getUser(numID, { expand: ['profile'] })
-              .subscribe((usr) => this.setUser(usr));
+              .subscribe((user) => this.setUser(user));
           }
         }
         this.localUserService
           .getLocal()
           .pipe(takeUntil(this.ngUnSub))
-          .subscribe((usr) => {
-            this.isAdmin = this.localUserService.hasRole(Role.ADMIN, usr);
+          .subscribe((user) => {
+            this.isAdmin = this.localUserService.hasRole(Role.ADMIN, user);
             this.isModerator = this.localUserService.hasRole(
               Role.MODERATOR,
-              usr
+              user
             );
-            if (this.isLocal) this.setUser(usr);
+            if (this.isLocal) this.setUser(user);
           });
       });
   }
 
   setUser(user: User) {
     this.user = user;
-    this.profileEditFormGroup.patchValue(user);
+    // On DTO profile stuff in within `profile` sub-object - for form we don't
+    // want that nesting.
+    this.form.patchValue({ ...omit(user, 'profile'), ...user.profile });
     this.checkUserPermissions();
   }
 
-  err(title: string, msg?: string) {
-    this.toasterService.danger(msg || '', title);
-  }
-
   onSubmit(): void {
+    if (!this.form.valid) return;
+
+    const update: UpdateUser = this.form.value;
+
+    // Don't include empty values on update input (they'd fail backend
+    // validation!)
+    for (const [k, v] of Object.entries(update.socials)) {
+      if (v === '') delete update.socials[k];
+    }
+
     if (this.isLocal && !this.isAdmin) {
-      if (!this.profileEditFormGroup.valid) return;
-      this.localUserService
-        .updateUser(this.profileEditFormGroup.value)
-        .subscribe({
-          next: () => {
-            this.localUserService.refreshLocal();
-            this.toasterService.success('Updated user profile!', 'Success');
-          },
-          error: (error) =>
-            this.err('Failed to update user profile!', error.message)
-        });
+      this.localUserService.updateUser(update).subscribe({
+        next: () => {
+          this.localUserService.refreshLocal();
+          this.toasterService.success('Updated user profile!', 'Success');
+        },
+        error: (error) =>
+          this.toasterService.danger(
+            'Failed to update user profile!',
+            error.message
+          )
+      });
     } else {
-      const userUpdate: User = this.profileEditFormGroup.value;
-      userUpdate.roles = this.user.roles;
-      userUpdate.bans = this.user.bans;
-      this.adminService.updateUser(this.user.id, userUpdate).subscribe({
+      (update as AdminUpdateUser).roles = this.user.roles;
+      (update as AdminUpdateUser).bans = this.user.bans;
+      this.adminService.updateUser(this.user.id, update).subscribe({
         next: () => {
           if (this.isLocal) this.localUserService.refreshLocal();
           this.toasterService.success('Updated user profile!', 'Success');
         },
         error: (error) =>
-          this.err('Failed to update user profile!', error.message)
+          this.toasterService.danger(
+            'Failed to update user profile!',
+            error.message
+          )
       });
     }
   }
@@ -201,7 +226,7 @@ export class ProfileEditComponent implements OnInit, OnDestroy {
       ? this.bio.disable()
       : this.bio.enable();
 
-    this.adminEditFg.patchValue(permStatus);
+    this.adminEditForm.patchValue(permStatus);
   }
 
   returnToProfile() {

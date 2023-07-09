@@ -58,3 +58,7 @@ iframe {
 .page-outlet__column {
   padding: 0 !important;
 }
+
+input[nbInput].ng-invalid {
+  color: nb-theme(red);
+}
