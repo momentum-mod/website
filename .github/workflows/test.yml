@@ -28,13 +28,14 @@ jobs:
     needs: install-deps
     steps:
       - uses: actions/checkout@v3
-        with: 
+        with:
+          ref: ${{ github.event.pull_request.head.ref }}
+          repository: ${{ github.event.pull_request.head.repo.full_name }}
           fetch-depth: 0
       - uses: actions/cache@v3
         with:
           path: node_modules
           key: modules-${{ hashFiles('package-lock.json') }}
-      - run: git fetch --no-tags --prune --depth=1 origin main
       - name: commitlint
         if: github.event_name == 'pull_request'
         run: npx commitlint
@@ -53,6 +54,7 @@ jobs:
       - uses: actions/checkout@v3
         with:
           ref: ${{ github.event.pull_request.head.ref }}
+          repository: ${{ github.event.pull_request.head.repo.full_name }}
           fetch-depth: 0
       - name: Cache node_modules
         uses: actions/cache@v3
@@ -68,6 +70,7 @@ jobs:
       - uses: actions/checkout@v3
         with:
           ref: ${{ github.event.pull_request.head.ref }}
+          repository: ${{ github.event.pull_request.head.repo.full_name }}
           fetch-depth: 0
       - name: Cache node_modules
         uses: actions/cache@v3
@@ -83,6 +86,7 @@ jobs:
       - uses: actions/checkout@v3
         with:
           ref: ${{ github.event.pull_request.head.ref }}
+          repository: ${{ github.event.pull_request.head.repo.full_name }}
           fetch-depth: 0
       - name: Cache node_modules
         uses: actions/cache@v3
@@ -116,6 +120,7 @@ jobs:
       - uses: actions/checkout@v3
         with:
           ref: ${{ github.event.pull_request.head.ref }}
+          repository: ${{ github.event.pull_request.head.repo.full_name }}
           fetch-depth: 0
       - name: Cache node_modules
         uses: actions/cache@v3
