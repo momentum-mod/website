@@ -126,9 +126,9 @@ export class AuthController {
   @ApiBody({ type: RefreshTokenDto })
   @ApiNoContentResponse()
   async revokeToken(@Req() req) {
-    const token = req.headers['Authorization'].replace('Bearer ', '');
-
-    await this.authService.revokeRefreshToken(token);
+    // If passed JwtGuard, `authorization` must be in headers.
+    const accessToken = req.headers.authorization.replace('Bearer ', '');
+    await this.authService.revokeRefreshToken(accessToken);
   }
 
   //#endregion
