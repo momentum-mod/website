@@ -1,149 +1,31 @@
-import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
-
+import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { CommonModule } from '@angular/common';
+import { ThemeModule } from '@momentum/frontend/theme';
+import { RouterTestingModule } from '@angular/router/testing';
 import { NotificationComponent } from './notification.component';
-import {
-  NbIconModule,
-  NbListModule,
-  NbStatusService,
-  NbToastrConfig,
-  NbToastRef,
-  NbToastrService,
-  NbUserModule
-} from '@nebular/theme';
-import { ActivityContentComponent } from '../index';
-import { CoreModule } from '../../../@core/core.module';
-import { RouterModule } from '@angular/router';
-import { APP_BASE_HREF } from '@angular/common';
 import { HttpClientTestingModule } from '@angular/common/http/testing';
-import { Activity_Type } from '../../../@core/models/activity-type.model';
-import {
-  TimeagoClock,
-  TimeagoDefaultClock,
-  TimeagoDefaultFormatter,
-  TimeagoFormatter,
-  TimeagoModule
-} from 'ngx-timeago';
 
 describe('NotificationComponent', () => {
   let component: NotificationComponent;
   let fixture: ComponentFixture<NotificationComponent>;
 
-  let toastrStub: Partial<NbToastrService>;
-  beforeEach(waitForAsync(() => {
-    toastrStub = {
-      danger(
-        message: any,
-        title?: any,
-        config?: Partial<NbToastrConfig>
-      ): NbToastRef {
-        return null;
-      },
-      success(
-        message: any,
-        title?: any,
-        config?: Partial<NbToastrConfig>
-      ): NbToastRef {
-        return null;
-      }
-    };
-
+  beforeEach(async () => {
     TestBed.configureTestingModule({
       imports: [
-        NbListModule,
-        NbUserModule,
-        NbIconModule,
-        RouterModule.forRoot([]),
-        HttpClientTestingModule,
-        CoreModule.forRoot(),
-        TimeagoModule.forRoot()
+        CommonModule,
+        ThemeModule.forRoot(),
+        RouterTestingModule,
+        HttpClientTestingModule
       ],
-      declarations: [NotificationComponent, ActivityContentComponent],
-      providers: [
-        NbStatusService,
-        { provide: APP_BASE_HREF, useValue: '/' },
-        { provide: NbToastrService, useValue: toastrStub },
-        { provide: TimeagoFormatter, useClass: TimeagoDefaultFormatter },
-        { provide: TimeagoClock, useClass: TimeagoDefaultClock }
-      ]
-    }).compileComponents();
-  }));
+      declarations: [NotificationComponent]
+    });
+
+    await TestBed.compileComponents();
+  });
 
   beforeEach(() => {
     fixture = TestBed.createComponent(NotificationComponent);
     component = fixture.componentInstance;
-    component.notifications = [
-      {
-        id: 1,
-        forUser: {
-          id: 1,
-          steamID: '1',
-          alias: 'Ninjaz',
-          aliasLocked: false,
-          avatarURL: '/assets/images/badges/BadgeVerified.png',
-          country: 'US',
-          roles: 0,
-          bans: 0
-        },
-        activity: {
-          id: 1,
-          user: {
-            id: 1,
-            steamID: '1',
-            alias: 'Ninja',
-            aliasLocked: false,
-            avatarURL: '/assets/images/badges/BadgeVerified.png',
-            country: 'US',
-            roles: 0,
-            bans: 0,
-            profile: {
-              id: '1',
-              bio: ''
-            }
-          },
-          type: Activity_Type.USER_JOINED,
-          data: 'lol',
-          createdAt: new Date().toString()
-        },
-        read: false,
-        createdAt: new Date().toString()
-      },
-      {
-        id: 1,
-        forUser: {
-          id: 1,
-          steamID: '1',
-          alias: 'Ninjazzz',
-          aliasLocked: false,
-          avatarURL: '/assets/images/badges/BadgeVerified.png',
-          country: 'US',
-          roles: 0,
-          bans: 0
-        },
-        activity: {
-          id: 1,
-          user: {
-            id: 1,
-            steamID: '1',
-            alias: 'TESSSSSSSSSSSSSSSSSSST',
-            aliasLocked: false,
-            avatarURL: '/assets/images/badges/BadgeVerified.png',
-            country: 'US',
-            roles: 0,
-            bans: 0,
-            profile: {
-              id: '1',
-              bio: ''
-            }
-          },
-          type: Activity_Type.PB_ACHIEVED,
-          data: 'lol',
-          createdAt: new Date().toString()
-        },
-        read: false,
-        createdAt: new Date().toString()
-      }
-    ];
-    fixture.detectChanges();
   });
 
   it('should create', () => {

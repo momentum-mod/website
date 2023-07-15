@@ -183,7 +183,9 @@ describe('ActivityCardComponent', () => {
   describe('onGetActivities', () => {
     it('should set initialActivity to true and update activities and filteredActivities on onGetActivities', () => {
       const response = {
-        activities: [
+        returnCount: 3,
+        totalCount: 3,
+        data: [
           { type: ActivityType.REVIEW_MADE, ...newActivityData() },
           { type: ActivityType.MAP_UPLOADED, ...newActivityData() },
           { type: ActivityType.MAP_APPROVED, ...newActivityData() }
@@ -192,7 +194,7 @@ describe('ActivityCardComponent', () => {
       component.filterValue = ActivityType.REVIEW_MADE;
       component.onGetActivities(response);
       expect(component.initialActivity).toBe(true);
-      expect(component.activities).toEqual(response.activities);
+      expect(component.activities).toEqual(response.data);
       expect(component.filteredActivities.length).toBe(1);
       expect(component.filteredActivities[0].type).toBe(
         ActivityType.REVIEW_MADE

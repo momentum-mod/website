@@ -1,71 +1,33 @@
-import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
-
+import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { CommonModule } from '@angular/common';
+import { ThemeModule } from '@momentum/frontend/theme';
+import { RouterTestingModule } from '@angular/router/testing';
 import { CommunityActivityComponent } from './community-activity.component';
-import { ThemeModule } from '../../../../theme/theme.module';
-import { ActivityService } from '../../../../@core/data/activity.service';
-import { of } from 'rxjs';
-import { Activity } from '../../../../@core/models/activity.model';
-import { Activity_Type } from '../../../../@core/models/activity-type.model';
-import { RouterModule } from '@angular/router';
-import { APP_BASE_HREF } from '@angular/common';
-import {
-  TimeagoClock,
-  TimeagoDefaultClock,
-  TimeagoDefaultFormatter,
-  TimeagoFormatter
-} from 'ngx-timeago';
+import { ComponentsModule } from '../../../../components/components.module';
+import { HttpClientTestingModule } from '@angular/common/http/testing';
 
 describe('CommunityActivityComponent', () => {
   let component: CommunityActivityComponent;
   let fixture: ComponentFixture<CommunityActivityComponent>;
 
-  let actServiceStub: Partial<ActivityService>;
-  beforeEach(waitForAsync(() => {
-    const testActivities: Activity[] = [
-      {
-        id: 3,
-        type: Activity_Type.MAP_APPROVED,
-        user: {
-          id: 2,
-          steamID: '2',
-          alias: 'dude',
-          aliasLocked: false,
-          avatarURL: 'IJJJ',
-          country: 'US',
-          roles: 0,
-          bans: 0,
-          profile: {
-            id: '7',
-            bio: '>:)'
-          }
-        },
-        data: 'test',
-        createdAt: new Date().toString()
-      }
-    ];
-    actServiceStub = {
-      getRecentActivity: () => {
-        return of({
-          activities: testActivities
-        });
-      }
-    };
+  beforeEach(async () => {
     TestBed.configureTestingModule({
-      imports: [ThemeModule.forRoot(), RouterModule.forRoot([])],
-      declarations: [CommunityActivityComponent],
-      providers: [
-        { provide: ActivityService, useValue: actServiceStub },
-        { provide: APP_BASE_HREF, useValue: '/' },
-        { provide: TimeagoFormatter, useClass: TimeagoDefaultFormatter },
-        { provide: TimeagoClock, useClass: TimeagoDefaultClock }
-      ]
-    }).compileComponents();
-  }));
+      imports: [
+        CommonModule,
+        ThemeModule,
+        RouterTestingModule,
+        ComponentsModule,
+        HttpClientTestingModule
+      ],
+      declarations: [CommunityActivityComponent]
+    });
+
+    await TestBed.compileComponents();
+  });
 
   beforeEach(() => {
     fixture = TestBed.createComponent(CommunityActivityComponent);
     component = fixture.componentInstance;
-    fixture.detectChanges();
   });
 
   it('should create', () => {
