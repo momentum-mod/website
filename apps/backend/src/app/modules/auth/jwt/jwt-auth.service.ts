@@ -50,8 +50,8 @@ export class JwtAuthService {
 
   //#region Tokens
 
-  async revokeRefreshToken(refreshToken: string): Promise<void> {
-    const { id } = this.verifyRefreshToken(refreshToken);
+  async revokeRefreshToken(accessToken: string): Promise<void> {
+    const { id } = this.verifyJwt(accessToken);
 
     await this.getUser(id);
 
@@ -63,7 +63,7 @@ export class JwtAuthService {
   }
 
   async refreshRefreshToken(refreshToken: string): Promise<JWTResponseWebDto> {
-    const { id } = this.verifyRefreshToken(refreshToken);
+    const { id } = this.verifyJwt(refreshToken);
 
     const user = await this.getUser(id);
 
@@ -115,7 +115,7 @@ export class JwtAuthService {
     return refreshToken;
   }
 
-  private verifyRefreshToken(token: string): UserJwtPayloadVerified {
+  private verifyJwt(token: string): UserJwtPayloadVerified {
     try {
       return this.jwtService.verify(token);
     } catch (error) {
