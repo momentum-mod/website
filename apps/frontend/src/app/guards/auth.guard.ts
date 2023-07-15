@@ -31,6 +31,6 @@ export const AuthGuard: CanActivateFn = () => {
   if (window.location.pathname !== '/')
     sessionStorage.setItem(POST_AUTH_REDIRECT_KEY, window.location.pathname);
 
-  window.location.href = env.auth + '/steam';
+  window.location.href = env.auth + '/web';
   return false;
 };
