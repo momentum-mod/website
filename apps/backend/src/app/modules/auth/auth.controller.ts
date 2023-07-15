@@ -62,18 +62,22 @@ export class AuthController {
 
   //#region Main Auth
 
-  @Get('/steam')
+  @Get('/web')
   @Redirect('', HttpStatus.FOUND)
   @BypassJwtAuth()
-  @ApiOperation({ summary: 'Authenticates using the Steam OpenID portal' })
+  @ApiOperation({
+    summary:
+      'Initiates a browser-based OpenID login workflow using the Steam portal'
+  })
   async steamWebAuth() {
     return { url: await this.steamOpenID.getRedirectUrl() };
   }
 
-  @Get('/steam/return')
+  @Get('/web/return')
   @Redirect('/dashboard', HttpStatus.FOUND)
   @BypassJwtAuth()
   @UseGuards(SteamWebGuard)
+  @ApiOperation({ summary: 'Assigns a JWT using OpenID data from Steam login' })
   async steamWebAuthReturn(
     @Req() req: FastifyRequest,
     @Res({ passthrough: true }) res: FastifyReply,
@@ -89,7 +93,9 @@ export class AuthController {
   @Post('/game')
   @BypassJwtAuth()
   @UseGuards(SteamGameGuard)
-  @ApiOperation({ summary: 'Gets the JWT using a Steam user ticket' })
+  @ApiOperation({
+    summary: 'Assigns a JWT using user ticket from the Momentum client'
+  })
   @ApiBody({
     type: 'application/octet-stream',
     description: 'Octet-stream of a Steam user auth ticket from Steam',

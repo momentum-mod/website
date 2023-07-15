@@ -41,11 +41,11 @@ describe('Auth', () => {
 
   afterAll(() => db.cleanup('user'));
 
-  describe('auth/steam', () => {
+  describe('auth/web', () => {
     describe('GET', () => {
       it('should redirect to steam login', async () => {
         const res = await req.get({
-          url: 'auth/steam',
+          url: 'auth/web',
           skipApiPrefix: true,
           status: 302
         });
@@ -56,7 +56,7 @@ describe('Auth', () => {
     });
   });
 
-  describe('auth/steam/return', () => {
+  describe('auth/web/return', () => {
     describe('GET', () => {
       const steamID = 123n;
       const steamData = {
@@ -75,7 +75,7 @@ describe('Auth', () => {
 
       const request = () =>
         req.get({
-          url: 'auth/steam/return',
+          url: 'auth/web/return',
           skipApiPrefix: true,
           query: {
             'openid.op_endpoint': 'https://steamcommunity.com/openid/login',
