@@ -1,52 +1,34 @@
-import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
-
+import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { ActivityContentComponent } from './activity-content.component';
-import { NbUserModule } from '@nebular/theme';
-import { Activity_Type } from '../../../../@core/models/activity-type.model';
-import { RouterModule } from '@angular/router';
-import { APP_BASE_HREF } from '@angular/common';
-import { TimeagoModule } from 'ngx-timeago';
+import { SharedModule } from '../../../shared.module';
+import { CommonModule, NgOptimizedImage } from '@angular/common';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { ThemeModule } from '@momentum/frontend/theme';
+import { DirectivesModule } from '@momentum/frontend/directives';
+import { PipesModule } from '@momentum/frontend/pipes';
+import { RouterTestingModule } from '@angular/router/testing';
 
 describe('ActivityContentComponent', () => {
   let component: ActivityContentComponent;
   let fixture: ComponentFixture<ActivityContentComponent>;
 
-  beforeEach(waitForAsync(() => {
+  beforeEach(async () => {
     TestBed.configureTestingModule({
       imports: [
-        NbUserModule,
-        RouterModule.forRoot([]),
-        TimeagoModule.forRoot()
+        CommonModule,
+        ThemeModule.forRoot(),
+        PipesModule,
+        RouterTestingModule
       ],
-      declarations: [ActivityContentComponent],
-      providers: [{ provide: APP_BASE_HREF, useValue: '/' }]
-    }).compileComponents();
-  }));
+      declarations: [ActivityContentComponent]
+    });
+
+    await TestBed.compileComponents();
+  });
 
   beforeEach(() => {
     fixture = TestBed.createComponent(ActivityContentComponent);
     component = fixture.componentInstance;
-    component.activity = {
-      id: 1,
-      user: {
-        id: 1,
-        steamID: '1',
-        alias: 'Ninja',
-        aliasLocked: false,
-        avatarURL: '/assets/images/badges/BadgeVerified.png',
-        country: 'US',
-        roles: 0,
-        bans: 0,
-        profile: {
-          id: '1',
-          bio: ''
-        }
-      },
-      type: Activity_Type.USER_JOINED,
-      data: 'lol',
-      createdAt: new Date().toString()
-    };
-    fixture.detectChanges();
   });
 
   it('should create', () => {

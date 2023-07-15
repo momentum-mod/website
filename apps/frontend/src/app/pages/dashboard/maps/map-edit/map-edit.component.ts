@@ -14,7 +14,7 @@ import {
   LocalUserService,
   MapsService
 } from '@momentum/frontend/data';
-import { MapCreditType } from '@momentum/constants';
+import { MapCreditType, Role } from '@momentum/constants';
 
 const youtubeRegex = /[\w-]{11}/;
 
@@ -90,14 +90,11 @@ export class MapEditComponent implements OnInit, OnDestroy {
           .getLocal()
           .pipe(takeUntil(this.ngUnsub))
           .subscribe((localUser) => {
-            // TODO
-            this.isAdmin = true;
-            this.isModerator = true;
-            // this.isAdmin = this.localUserService.hasRole(Role.ADMIN, localUser);
-            // this.isModerator = this.localUserService.hasRole(
-            //   Role.MODERATOR,
-            //   localUser
-            // );
+            this.isAdmin = this.localUserService.hasRole(Role.ADMIN, localUser);
+            this.isModerator = this.localUserService.hasRole(
+              Role.MODERATOR,
+              localUser
+            );
             this.isSubmitter = this.map.submitterID === localUser.id;
 
             if (!(this.isSubmitter || this.isAdmin || this.isModerator))

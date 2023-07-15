@@ -9,7 +9,7 @@ import {
   NbUserModule
 } from '@nebular/theme';
 import { UserModule } from '../../../user/user.module';
-import { MapCreditType } from '../../../../../@core/models/map-credit-type.model';
+import { MapCreditType } from '@momentum/constants';
 
 describe('MapCreditComponent', () => {
   let component: MapCreditComponent;

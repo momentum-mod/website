@@ -1,8 +1,7 @@
 import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
-
 import { MapInfoDescriptionComponent } from './map-info-description.component';
 import { NbUserModule } from '@nebular/theme';
-import { MomentumMapType } from '../../../../../@core/models/map-type.model';
+import { MapType } from '@momentum/constants';
 
 describe('MapInfoDescriptionComponent', () => {
   let component: MapInfoDescriptionComponent;
@@ -21,11 +20,11 @@ describe('MapInfoDescriptionComponent', () => {
     component.map = {
       id: 1,
       name: 'test',
-      type: MomentumMapType.SURF,
+      type: MapType.SURF,
       hash: 'no thanks',
       statusFlag: 0,
       info: {
-        id: '1',
+        id: 1,
         description: 'Test',
         numTracks: 1,
         creationDate: new Date().toString()
@@ -39,7 +38,7 @@ describe('MapInfoDescriptionComponent', () => {
           difficulty: 5
         }
       ]
-    };
+    } as any;
     fixture.detectChanges();
   });
 
