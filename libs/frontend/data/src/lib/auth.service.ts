@@ -1,14 +1,10 @@
 import { Injectable } from '@angular/core';
 import { CookieService } from 'ngx-cookie-service';
-import { JwtHelperService } from '@auth0/angular-jwt';
-import { Observable, of } from 'rxjs';
+import { Observable } from 'rxjs';
 import { Router } from '@angular/router';
-import { map, share } from 'rxjs/operators';
+import { map } from 'rxjs/operators';
 import { HttpService } from './http.service';
-
-export interface TokenRefreshResponse {
-  accessToken: string;
-}
+import { JWTResponseWebDto } from '@momentum/backend/dto';
 
 @Injectable({ providedIn: 'root' })
 export class AuthService {
@@ -26,18 +22,15 @@ export class AuthService {
     localStorage.removeItem('accessToken');
     localStorage.removeItem('refreshToken');
     localStorage.removeItem('user');
+    // Redirects to frontpage for now, once we remove that from this project,
+    // we've have to do an ugly `window.location.href` redirect, at least until
+    // we have sections of the dashboard than can be used without a login.
     this.router.navigateByUrl('/');
   }
 
   public isAuthenticated(): boolean {
     const accessToken = this.getAccessToken();
-    return !!accessToken;
-  }
-
-  public getAccessTokenPayload(): any /* TODO: was AccessTokenPayload */ {
-    const accessToken = this.getAccessToken();
-    const jwtHelperService = new JwtHelperService();
-    return jwtHelperService.decodeToken(accessToken);
+    return Boolean(accessToken);
   }
 
   private moveCookieToLocalStorage(cookieName: string): void {
@@ -50,23 +43,24 @@ export class AuthService {
 
   public refreshAccessToken(): Observable<string> {
     const refreshToken = localStorage.getItem('refreshToken');
-    if (!refreshToken) {
-      return of('null');
-    }
+    if (!refreshToken) throw new Error('Missing refresh token');
     return this.http
-      .post('refresh', { type: 'auth', body: { refreshToken } })
+      .post<JWTResponseWebDto>('refresh', {
+        type: 'auth',
+        body: { refreshToken }
+      })
       .pipe(
-        share(),
         map((res) => {
-          const newAccessToken = (res as TokenRefreshResponse)?.accessToken;
-          if (!newAccessToken) return 'null';
-          localStorage.setItem('accessToken', newAccessToken);
-          return newAccessToken;
+          if (!res.accessToken || !res.refreshToken)
+            throw new Error('Missing tokens');
+          localStorage.setItem('accessToken', res.accessToken);
+          localStorage.setItem('refreshToken', res.refreshToken);
+          return res.accessToken;
         })
       );
   }
 
-  public getAccessToken(): string {
-    return localStorage.getItem('accessToken') ?? '';
+  public getAccessToken(): string | null {
+    return localStorage.getItem('accessToken');
   }
 }

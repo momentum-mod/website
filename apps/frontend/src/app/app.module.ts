@@ -7,13 +7,7 @@ import { AppComponent } from './app.component';
 import { AppRoutingModule } from './app-routing.module';
 import { MainPageModule } from './pages/main/main-page.module';
 import { NotFoundModule } from './pages/not-found/not-found.module';
-import { JwtModule } from '@auth0/angular-jwt';
-import { RefreshTokenInterceptorService } from './services/refresh-token-interceptor.service';
-import { env } from '@momentum/frontend/env';
-
-export function tokenGetter() {
-  return localStorage.getItem('accessToken');
-}
+import { AuthInterceptor } from './services/auth.interceptor';
 
 @NgModule({
   declarations: [AppComponent],
@@ -23,27 +17,14 @@ export function tokenGetter() {
     MainPageModule,
     NotFoundModule,
     AppRoutingModule,
-    HttpClientModule,
-    JwtModule.forRoot({
-      config: {
-        tokenGetter: tokenGetter,
-        allowedDomains: [
-          'localhost:3000',
-          'localhost:4200',
-          'momentum-mod.org',
-          new URL(env.api).host,
-          new URL(env.auth).host
-        ],
-        throwNoTokenError: false
-      }
-    })
+    HttpClientModule
   ],
   bootstrap: [AppComponent],
   providers: [
     { provide: APP_BASE_HREF, useValue: '/' },
     {
       provide: HTTP_INTERCEPTORS,
-      useClass: RefreshTokenInterceptorService,
+      useClass: AuthInterceptor,
       multi: true
     }
   ]
