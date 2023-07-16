@@ -215,9 +215,9 @@ export class RunTester {
 
     args?.beforeSubmit?.(this);
 
-    return this.req.postAttach({
+    return this.req.postOctetStream({
       url: `session/run/${this.sessionID}/end`,
-      file: this.replayFile.buffer,
+      body: this.replayFile.buffer,
       token: this.props.token ?? ''
     });
   }

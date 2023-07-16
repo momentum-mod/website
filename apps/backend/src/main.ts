@@ -36,8 +36,12 @@ async function bootstrap() {
   const configService = app.get(ConfigService);
   const env: Environment = configService.get('env');
 
-  // Steam game auth sends a raw octet-stream, only use-case. Limit to 2kb
-  app.useBodyParser('application/octet-stream', { bodyLimit: 2e3 });
+  // Steam game auth and replay submission from game send raw octet-streams.
+  // Steam auth we could limit to 2kb, but replays can be massive. Limiting
+  // to 100mb for now, we should *really* switch out SteamHTTP to less shit
+  // C++ HTTP handler that allows multipart/form-data requests, which would give
+  // use much more fine-grained control over file uploads from the game.
+  app.useBodyParser('application/octet-stream', { bodyLimit: 1e8 });
 
   // Forbidding unknown values here ensures any request containing unexpected
   // data on the query/body (i.e. does not have validators) will fail. Our tests

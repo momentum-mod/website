@@ -50,6 +50,18 @@ export class RequestUtil {
     );
   }
 
+  postOctetStream(
+    options: RawBodyBufferRequestOptions
+  ): Promise<ParsedResponse> {
+    return this.request(
+      {
+        method: 'POST',
+        headers: { 'content-type': 'application/octet-stream' }
+      },
+      options
+    );
+  }
+
   postAttach(options: AttachRequestOptions): Promise<ParsedResponse> {
     return this.request(
       { method: 'POST', headers: { 'content-type': 'multipart/form-data' } },
@@ -66,7 +78,11 @@ export class RequestUtil {
 
   private async request(
     injectOptions: InjectOptions,
-    options: RequestOptions | JsonBodyRequestOptions | AttachRequestOptions
+    options:
+      | RequestOptions
+      | JsonBodyRequestOptions
+      | RawBodyBufferRequestOptions
+      | AttachRequestOptions
   ): Promise<ParsedResponse> {
     injectOptions.headers = {
       ...injectOptions.headers,
@@ -107,8 +123,9 @@ export class RequestUtil {
         injectOptions.payload = form;
 
         Object.assign(injectOptions.headers, form.getHeaders());
-      } else
+      } else {
         injectOptions.payload = 'body' in options ? options.body ?? {} : {};
+      }
     }
 
     const response = await this.app.inject(injectOptions);
@@ -366,6 +383,10 @@ export interface RequestOptions {
 
 export interface JsonBodyRequestOptions extends RequestOptions {
   body?: Record<string, unknown>;
+}
+
+export interface RawBodyBufferRequestOptions extends RequestOptions {
+  body?: Buffer;
 }
 
 export type AttachRequestOptions = Omit<RequestOptions, 'contentType'> & {

@@ -5,13 +5,11 @@ import {
   Delete,
   HttpCode,
   HttpStatus,
-  MaxFileSizeValidator,
   Param,
-  ParseFilePipe,
   Post,
-  UploadedFile,
-  UseGuards,
-  UseInterceptors
+  RawBodyRequest,
+  Req,
+  UseGuards
 } from '@nestjs/common';
 import {
   ApiBadRequestResponse,
@@ -25,7 +23,6 @@ import {
   ApiTags
 } from '@nestjs/swagger';
 import { RunSessionService } from './run/run-session.service';
-import { FileInterceptor } from '@nest-lab/fastify-multer';
 import { GameAuthGuard } from '../auth/jwt/game.guard';
 import {
   CompletedRunDto,
@@ -36,6 +33,7 @@ import {
 } from '@momentum/backend/dto';
 import { LoggedInUser } from '@momentum/backend/decorators';
 import { ParseIntSafePipe } from '@momentum/backend/pipes';
+import { FastifyRequest } from 'fastify';
 
 @Controller('session')
 @UseGuards(GameAuthGuard)
@@ -70,12 +68,6 @@ export class SessionController {
   @Post('/run/:sessionID')
   @HttpCode(HttpStatus.OK)
   @ApiParam({
-    name: 'mapID',
-    type: Number,
-    description: 'Target Map ID',
-    required: true
-  })
-  @ApiParam({
     name: 'sessionID',
     type: Number,
     description: 'Target Session ID',
@@ -98,7 +90,6 @@ export class SessionController {
 
   @Post('/run/:sessionID/end')
   @HttpCode(HttpStatus.OK)
-  @UseInterceptors(FileInterceptor('file'))
   @ApiParam({
     name: 'sessionID',
     type: Number,
@@ -107,42 +98,23 @@ export class SessionController {
   })
   @ApiConsumes('multipart/form-data')
   @ApiBody({
-    schema: {
-      type: 'object',
-      properties: {
-        file: {
-          type: 'string',
-          format: 'binary'
-        }
-      }
-    }
+    type: 'application/octet-stream',
+    description: 'Octet-stream of a replay data',
+    required: true
   })
   completeRunSession(
     @LoggedInUser('id') userID: number,
-    @Param('sessionID', ParseIntSafePipe) sessionID: number,
-    @UploadedFile(
-      'file',
-      new ParseFilePipe({
-        validators: [
-          new MaxFileSizeValidator({
-            maxSize: 80 * 1000 * 1000 // 80 MB is the upper bound limit of ~10 hours of replay file
-          })
-        ]
-      })
-    )
-    replayFile
+    @Req() req: RawBodyRequest<FastifyRequest>,
+    @Param('sessionID', ParseIntSafePipe) sessionID: number
   ): Promise<CompletedRunDto> {
-    if (
-      !replayFile ||
-      !replayFile.buffer ||
-      !Buffer.isBuffer(replayFile.buffer)
-    )
+    const replayBuffer = req.rawBody;
+    if (!replayBuffer || !Buffer.isBuffer(replayBuffer))
       throw new BadRequestException('File is not a valid replay');
 
     return this.runSessionService.completeSession(
       userID,
       sessionID,
-      replayFile.buffer
+      replayBuffer
     );
   }
 }

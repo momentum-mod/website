@@ -63,7 +63,7 @@ export async function setupE2ETestEnvironment(
     new FastifyAdapter(),
     { rawBody: true }
   );
-  app.useBodyParser('application/octet-stream', { bodyLimit: 2e3 });
+  app.useBodyParser('application/octet-stream', { bodyLimit: 1e8 });
 
   app.setGlobalPrefix('api', { exclude: ['auth(.*)'] });
   app.enableVersioning({
