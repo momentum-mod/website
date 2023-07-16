@@ -1,0 +1,58 @@
+"tracks"
+{
+	"0"
+	{
+		"0"
+		{
+			"zoneNum"		"0"
+			"triggers"
+			{
+				"1"
+				{
+					"type"		"0"
+					"zoneNum"		"0"
+					"pointsHeight"		"128.000000"
+					"pointsZPos"		"0.000000"
+					"points"
+					{
+						"p0"		"384.000 -192.000"
+						"p1"		"512.000 -192.000"
+						"p2"		"512.000 192.000"
+						"p3"		"384.000 192.000"
+					}
+				}
+			}
+		}
+		"1"
+		{
+			"zoneNum"		"1"
+			"triggers"
+			{
+				"1"
+				{
+					"type"		"1"
+					"zoneNum"		"1"
+					"zoneProps"
+					{
+						"properties"
+						{
+							"speed_limit"		"289"
+							"limiting_speed"		"1"
+							"start_on_jump"		"1"
+							"speed_limit_type"		"0"
+						}
+					}
+					"pointsHeight"		"128.000000"
+					"pointsZPos"		"0.000000"
+					"points"
+					{
+						"p0"		"-512.000 -192.000"
+						"p1"		"-384.000 -192.000"
+						"p2"		"-384.000 192.000"
+						"p3"		"-512.000 192.000"
+					}
+				}
+			}
+		}
+	}
+}
