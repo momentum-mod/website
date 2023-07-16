@@ -52,8 +52,6 @@ export class AdminService {
       );
     }
 
-    this;
-
     const user = await this.db.user.findUnique({
       where: { id: userID },
       include: { follows: true, followers: true }
