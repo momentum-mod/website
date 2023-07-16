@@ -7,7 +7,15 @@ import {
   NotFoundException,
   StreamableFile
 } from '@nestjs/common';
-import { Map as MapDB, MapCredit, MapTrack, Prisma } from '@prisma/client';
+import {
+  Map as MapDB,
+  MapCredit,
+  MapTrack,
+  MapZone,
+  MapZoneTrigger,
+  MapZoneTriggerProperties,
+  Prisma
+} from '@prisma/client';
 import { FileStoreCloudService } from '../filestore/file-store-cloud.service';
 import { FileStoreCloudFile } from '../filestore/file-store.interface';
 import { ConfigService } from '@nestjs/config';
@@ -146,16 +154,16 @@ export class MapsService {
     const include: Prisma.MapInclude =
       expandToPrismaIncludes(
         expand?.filter((x) =>
-          [
-            'info',
-            'submitter',
-            'images',
-            'thumbnail',
-            'stats',
-            'tracks'
-          ].includes(x)
+          ['info', 'submitter', 'images', 'thumbnail', 'stats'].includes(x)
         )
       ) ?? {};
+
+    if (expand?.includes('tracks'))
+      include.tracks = {
+        include: {
+          zones: { include: { triggers: { include: { properties: true } } } }
+        }
+      };
 
     if (expand?.includes('credits'))
       include.credits = { include: { user: true } };
@@ -178,6 +186,23 @@ export class MapsService {
     });
 
     if (!dbResponse) throw new NotFoundException('Map not found');
+
+    // We'll delete this stupid shit soon
+    if (expand?.includes('tracks'))
+      for (const track of dbResponse.tracks as (MapTrack & {
+        zones: (MapZone & {
+          triggers: MapZoneTrigger &
+            {
+              properties: MapZoneTriggerProperties;
+              zoneProps: MapZoneTriggerProperties;
+            }[];
+        })[];
+      })[])
+        for (const zone of track.zones)
+          for (const trigger of zone.triggers) {
+            trigger.zoneProps = structuredClone(trigger.properties);
+            delete trigger.properties;
+          }
 
     if (incPB || incWR) {
       this.handleMapGetPrismaResponse(dbResponse, userID, incPB, incWR);
@@ -381,7 +406,7 @@ export class MapsService {
                       create: {
                         // This will create an empty table for triggers with no
                         // properties, probably bad, revisit in 0.10.0
-                        properties: trigger?.properties?.properties ?? {}
+                        properties: trigger?.zoneProps?.properties ?? {}
                       }
                     }
                   }
