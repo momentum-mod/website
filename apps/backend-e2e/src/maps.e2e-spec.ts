@@ -3228,77 +3228,77 @@ describe('Maps', () => {
     });
   });
 
-  // describe('maps/{mapID}/ranks/friends', () => {
-  //   describe('GET', () => {
-  // const mockSteamIDs = [1n, 2n, 3n, 4n, 5n, 6n, 7n, 8n, 9n, 10n] as const;
-  // let map, user, token, steamService: SteamService;
-  //
-  //     beforeAll(async () => {
-  //       steamService = app.get(SteamService);
-  //       [[user, token], map] = await Promise.all([
-  //         db.createAndLoginUser(),
-  //         db.createMap()
-  //       ]);
-  //       const friends = await Promise.all(
-  //         mockSteamIDs.map((steamID) =>
-  //           db.createUser({ data: { steamID: steamID } })
-  //         )
-  //       );
-  //
-  //       // Make our user rank 1, friends have subsequent ranks 2-11.
-  //       await Promise.all([
-  //         friends.map((user, i) =>
-  //           db.createRunAndRankForMap({
-  //             map: map,
-  //             user: user,
-  //             rank: i + 2,
-  //             ticks: (i + 2) * 100
-  //           })
-  //         ),
-  // db.createRunAndRankForMap({ user: user, map: map, ticks: 1, rank: 1 }) ]);
-  //     });
-  //
-  //     it("should return a list of the user's Steam friend's ranks", async () => {
-  //       // Obviously our test users aren't real Steam users, so we can't use their API. So just mock the API call.
-  //       jest.spyOn(steamService, 'getSteamFriends').mockResolvedValueOnce(
-  //         mockSteamIDs.map((id) => ({
-  //           steamid: id.toString(),
-  //           relationship: 'friend',
-  //           friend_since: 0
-  //         }))
-  //       );
-  //
-  //       const res = await req.get({
-  //         url: `maps/${map.id}/ranks/friends`,
-  //         status: 200,
-  //         token: token,
-  //         validateArray: { type: RankDto, length: 10 }
-  //       });
-  //
-  //       for (const rank of res.body)
-  //         expect(mockSteamIDs).toContain(BigInt(rank.user.steamID));
-  //     });
-  //
-  //     it('should 418 if the user has no Steam friends', async () => {
-  // jest.spyOn(steamService, 'getSteamFriends').mockResolvedValueOnce([]);
-  //
-  //       return req.get({
-  //         url: `maps/${map.id}/ranks/friends`,
-  //         status: 418,
-  //         token: token
-  //       });
-  //     });
-  //
-  //     it('should return 404 for a nonexistent map', () =>
-  //       req.get({
-  //         url: `maps/${NULL_ID}/ranks/friends`,
-  //         status: 404,
-  //         token: token
-  //       }));
-  //
-  //     it('should 401 when no access token is provided', () =>
-  //       req.unauthorizedTest('maps/1/ranks/friends', 'get'));
-  //
-  //     afterAll(() => db.cleanup('user', 'map', 'run'));
-  //   });
+  describe('maps/{mapID}/ranks/friends', () => {
+    describe('GET', () => {
+      const mockSteamIDs = [1n, 2n, 3n, 4n, 5n, 6n, 7n, 8n, 9n, 10n] as const;
+      let map, user, token, steamService: SteamService;
+
+      beforeAll(async () => {
+        steamService = app.get(SteamService);
+        [[user, token], map] = await Promise.all([
+          db.createAndLoginUser(),
+          db.createMap()
+        ]);
+        const friends = await Promise.all(
+          mockSteamIDs.map((steamID) => db.createUser({ data: { steamID } }))
+        );
+
+        // Make our user rank 1, friends have subsequent ranks 2-11.
+        await Promise.all([
+          friends.map((user, i) =>
+            db.createRunAndRankForMap({
+              map: map,
+              user: user,
+              rank: i + 2,
+              ticks: (i + 2) * 1000
+            })
+          ),
+          db.createRunAndRankForMap({ user: user, map: map, ticks: 1, rank: 1 })
+        ]);
+      });
+
+      it("should return a list of the user's Steam friend's ranks", async () => {
+        // Obviously our test users aren't real Steam users, so we can't use their API. So just mock the API call.
+        jest.spyOn(steamService, 'getSteamFriends').mockResolvedValueOnce(
+          mockSteamIDs.map((id) => ({
+            steamid: id.toString(),
+            relationship: 'friend',
+            friend_since: 0
+          }))
+        );
+
+        const res = await req.get({
+          url: `maps/${map.id}/ranks/friends`,
+          status: 200,
+          token: token,
+          validatePaged: { type: RankDto, count: 10 }
+        });
+
+        for (const rank of res.body.data)
+          expect(mockSteamIDs).toContain(BigInt(rank.user.steamID));
+      });
+
+      it('should 418 if the user has no Steam friends', async () => {
+        jest.spyOn(steamService, 'getSteamFriends').mockResolvedValueOnce([]);
+
+        return req.get({
+          url: `maps/${map.id}/ranks/friends`,
+          status: 418,
+          token: token
+        });
+      });
+
+      it('should return 404 for a nonexistent map', () =>
+        req.get({
+          url: `maps/${NULL_ID}/ranks/friends`,
+          status: 404,
+          token: token
+        }));
+
+      it('should 401 when no access token is provided', () =>
+        req.unauthorizedTest('maps/1/ranks/friends', 'get'));
+
+      afterAll(() => db.cleanup('user', 'map', 'run'));
+    });
+  });
 });
