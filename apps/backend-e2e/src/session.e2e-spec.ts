@@ -78,32 +78,48 @@ describe('Session', () => {
           type: 0,
           pointsZPos: 64,
           pointsHeight: 128,
-          points:
-            '{"p0": "2720 -1856","p1": "2560 -1856","p2": "2560 -1600","p3": "2720 -1600"}'
+          points: {
+            p0: '2720 -1856',
+            p1: '2560 -1856',
+            p2: '2560 -1600',
+            p3: '2720 -1600'
+          }
         },
         {
           zoneID: map.mainTrack.zones[2].id,
           type: 2,
           pointsZPos: 64,
           pointsHeight: 128,
-          points:
-            '{"p0": "2528 384","p1": "2720 384","p2": "2720 640","p3": "2528 640"}'
+          points: {
+            p0: '2528 384',
+            p1: '2720 384',
+            p2: '2720 640',
+            p3: '2528 640'
+          }
         },
         {
           zoneID: map.mainTrack.zones[3].id,
           type: 2,
           pointsZPos: 6,
           pointsHeight: 128,
-          points:
-            '{"p0": "-480 -1600","p1": "-288 -1600","p2": "-288 -1856","p3": "-480 -1856"}'
+          points: {
+            p0: '-480 -1600',
+            p1: '-288 -1600',
+            p2: '-288 -1856',
+            p3: '-480 -1856'
+          }
         },
         {
           zoneID: map.mainTrack.zones[4].id,
           type: 2,
           pointsZPos: 64,
           pointsHeight: 128,
-          points:
-            '{"p0": "2528 -992","p1": "2720 -992","p2": "2720 -736","p3": "2528 -736"}'
+          points: {
+            p0: '2528 -992',
+            p1: '2720 -992',
+            p2: '2720 -736',
+            p3: '2528 -736'
+          }
         }
       ]
     });
@@ -113,15 +129,23 @@ describe('Session', () => {
         zoneID: map.mainTrack.zones[1].id,
         properties: {
           create: {
-            properties:
-              '{ "speed_limit": 350000, "limiting_speed": 1, "start_on_jump": 1, "speed_limit_type": 0 }'
+            properties: {
+              speed_limit: 350000,
+              limiting_speed: 1,
+              start_on_jump: 1,
+              speed_limit_type: 0
+            }
           }
         },
         type: 1,
         pointsZPos: 64,
         pointsHeight: 128,
-        points:
-          '{"p0": "-224 -480","p1": "-480 -480","p2": "-480 -224","p3": "-224 -224"}'
+        points: {
+          p0: '-224 -480',
+          p1: '-480 -480',
+          p2: '-480 -224',
+          p3: '-224 -224'
+        }
       }
     });
   });
