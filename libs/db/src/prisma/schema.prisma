@@ -34,7 +34,6 @@ model User {
   notifications     Notification[]
   runSessions       RunSession[]
   runs              Run[]
-  userBadges        UserBadge[]
   reportSubmitted   Report[]          @relation("report_submitter")
   reportResolved    Report[]          @relation("report_resolver")
 
@@ -49,9 +48,6 @@ model Profile {
 
   bio String @default("") @db.VarChar(1000)
 
-  featuredBadge   UserBadge? @relation(fields: [featuredBadgeID], references: [id], onDelete: SetNull)
-  featuredBadgeID Int?       @unique
-
   user   User @relation(fields: [userID], references: [id], onDelete: Cascade)
   userID Int  @unique
 
@@ -60,7 +56,7 @@ model Profile {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  @@index([featuredBadgeID, userID])
+  @@index([userID])
 }
 
 model UserStats {
@@ -80,37 +76,6 @@ model UserStats {
   updatedAt DateTime @updatedAt
 
   @@index([userID])
-}
-
-model Badge {
-  id Int @id @default(autoincrement())
-
-  name        String? @db.VarChar(255)
-  description String? @db.VarChar(255)
-  image       String? @db.VarChar(255)
-
-  userBadge UserBadge[]
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-}
-
-model UserBadge {
-  id Int @id @default(autoincrement())
-
-  profile Profile?
-
-  badge   Badge @relation(fields: [badgeID], references: [id], onDelete: Cascade)
-  badgeID Int
-
-  user   User @relation(fields: [userID], references: [id], onDelete: Cascade)
-  userID Int
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  @@index([badgeID, userID])
-  @@map("UserBadges")
 }
 
 model Activity {

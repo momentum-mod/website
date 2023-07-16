@@ -1,12 +1,12 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsInt, IsOptional, IsString } from 'class-validator';
+import { IsInt, IsString } from 'class-validator';
 import { Exclude } from 'class-transformer';
 import {
   CreatedAtProperty,
   NestedProperty,
   UpdatedAtProperty
 } from '../../decorators';
-import { Profile } from '@prisma/client';
+import { Profile } from '@momentum/types';
 import { SocialsDto } from './socials.dto';
 
 export class ProfileDto implements Profile {
@@ -20,11 +20,6 @@ export class ProfileDto implements Profile {
   @ApiProperty({ type: String, description: 'The text-based bio of the user' })
   @IsString()
   readonly bio: string;
-
-  @ApiProperty({ type: Number, description: 'The ID of the badge of the user' })
-  @IsOptional()
-  @IsInt()
-  readonly featuredBadgeID: number;
 
   @NestedProperty(SocialsDto)
   readonly socials: SocialsDto;

@@ -665,11 +665,7 @@ describe('Admin', () => {
           avatar: null,
           country: null,
           userAuth: null,
-          profile: {
-            bio: '',
-            featuredBadgeID: null,
-            socials: {}
-          },
+          profile: { bio: '', socials: {} },
           userStats: userToBeDeleted.userStats,
           submittedMaps: userToBeDeleted.submittedMaps,
           mapCredits: userToBeDeleted.mapCredits,

@@ -399,8 +399,10 @@ describe('User', () => {
             reportResolved: true
           }
         });
+
         const token = auth.login(userToBeDeleted);
         await db.createRunAndRankForMap({ map, user: userToBeDeleted });
+
         await prisma.activity.create({
           data: {
             type: ActivityType.MAP_APPROVED,
@@ -414,6 +416,7 @@ describe('User', () => {
             user: { connect: { id: userToBeDeleted.id } }
           }
         });
+
         await prisma.report.create({
           data: {
             data: 123,
@@ -489,11 +492,7 @@ describe('User', () => {
           avatar: null,
           country: null,
           userAuth: null,
-          profile: {
-            bio: '',
-            featuredBadgeID: null,
-            socials: {}
-          },
+          profile: { bio: '', socials: {} },
           userStats: userToBeDeleted.userStats,
           submittedMaps: userToBeDeleted.submittedMaps,
           mapCredits: userToBeDeleted.mapCredits,
