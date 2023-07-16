@@ -30,7 +30,7 @@ export class MapZoneTriggerDto implements MapZoneTrigger {
   readonly points: Prisma.JsonValue;
 
   @NestedProperty(MapZoneTriggerPropertiesDto, { required: false })
-  readonly properties?: MapZoneTriggerPropertiesDto;
+  readonly zoneProps?: MapZoneTriggerPropertiesDto;
 
   @Exclude()
   readonly zoneID: number;

@@ -3,5 +3,5 @@ import { MapZoneTriggerProperties } from '@momentum/types';
 
 export interface MapZoneTrigger
   extends Omit<PrismaMapZoneTrigger, 'id' | 'zoneID'> {
-  properties?: MapZoneTriggerProperties;
+  zoneProps?: MapZoneTriggerProperties;
 }
