@@ -44,7 +44,8 @@
         "format": ["cjs"],
         "additionalEntryPoints": [
           "libs/db/src/scripts/reset.ts",
-          "libs/db/src/scripts/make-me-admin.ts"
+          "libs/db/src/scripts/make-me-admin.ts",
+          "libs/db/src/scripts/add-real-map.ts"
         ]
       }
     },
@@ -67,6 +68,13 @@
       "dependsOn": ["build-scripts"],
       "options": {
         "command": "node dist/libs/db/scripts/make-me-admin.cjs"
+      }
+    },
+    "addrealmap": {
+      "executor": "nx:run-commands",
+      "dependsOn": ["build-scripts"],
+      "options": {
+        "command": "node dist/libs/db/scripts/add-real-map.cjs"
       }
     },
     "studio": {
