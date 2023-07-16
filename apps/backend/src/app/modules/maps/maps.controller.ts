@@ -703,7 +703,7 @@ export class MapsController {
     @LoggedInUser('id') userID: number,
     @Param('mapID') mapID: number,
     @Query() query?: MapRankGetNumberQueryDto
-  ): Promise<RankDto[]> {
+  ): Promise<PagedResponseDto<RankDto>> {
     return this.ranksService.getRankAround(userID, mapID, query);
   }
 
@@ -721,7 +721,7 @@ export class MapsController {
     @LoggedInUser('steamID') steamID: bigint,
     @Param('mapID') mapID: number,
     @Query() query?: MapRankGetNumberQueryDto
-  ): Promise<RankDto[]> {
+  ): Promise<PagedResponseDto<RankDto>> {
     return this.ranksService.getRankFriends(steamID, mapID, query);
   }
 

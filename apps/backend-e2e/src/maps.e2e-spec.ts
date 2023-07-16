@@ -35,6 +35,9 @@ import {
   Role
 } from '@momentum/constants';
 import { Config } from '@momentum/backend/config';
+// See auth.e2e-spec.ts for justification of this sin
+// eslint-disable-next-line @nx/enforce-module-boundaries
+import { SteamService } from '../../backend/src/app/modules/steam/steam.service';
 import path from 'node:path';
 
 describe('Maps', () => {
@@ -3191,12 +3194,12 @@ describe('Maps', () => {
           url: `maps/${map.id}/ranks/around`,
           status: 200,
           token: user7Token,
-          validateArray: { type: RankDto, length: 11 }
+          validatePaged: { type: RankDto, count: 11 }
         });
 
         // We're calling as user 7, so we expect ranks 2-6, our rank, then 8-12
         let rankIndex = 2;
-        for (const rank of res.body) {
+        for (const rank of res.body.data) {
           expect(rank).toBeValidDto(RankDto);
           expect(rank.rank).toBe(rankIndex);
           rankIndex++;

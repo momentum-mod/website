@@ -100,7 +100,7 @@ export class RanksService {
     userID: number,
     mapID: number,
     query: MapRankGetNumberQueryDto
-  ): Promise<RankDto[]> {
+  ): Promise<PagedResponseDto<RankDto>> {
     const where: Prisma.RankWhereInput = {
       mapID: mapID,
       flags: 0,
@@ -143,14 +143,14 @@ export class RanksService {
 
     this.formatRanksDbResponse(ranks);
 
-    return ranks.map((rank) => DtoFactory(RankDto, rank));
+    return new PagedResponseDto(RankDto, [ranks, ranks.length]);
   }
 
   async getRankFriends(
     steamID: bigint,
     mapID: number,
     query: MapRankGetNumberQueryDto
-  ): Promise<RankDto[]> {
+  ): Promise<PagedResponseDto<RankDto>> {
     const map = await this.db.map.findUnique({ where: { id: mapID } });
 
     if (!map) throw new NotFoundException('Map not found');
@@ -181,7 +181,7 @@ export class RanksService {
 
     this.formatRanksDbResponse(ranks);
 
-    return ranks.map((rank) => DtoFactory(RankDto, rank));
+    return new PagedResponseDto(RankDto, [ranks, ranks.length]);
   }
 
   // This is done because the MapRankDto still contains trackNum and zoneNum to
