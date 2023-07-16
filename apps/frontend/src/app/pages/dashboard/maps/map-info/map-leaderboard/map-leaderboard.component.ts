@@ -43,9 +43,7 @@ export class MapLeaderboardComponent {
     this.filterLeaderboardType = LeaderboardType.TOP10;
   }
 
-  filterLeaderboardRuns(
-    mapID?: number
-  ): Observable<PagedResponse<Rank> | Rank[]> {
+  filterLeaderboardRuns(mapID?: number): Observable<PagedResponse<Rank>> {
     switch (this.filterLeaderboardType) {
       case this.LeaderboardType.TOP10:
         return this.rankService.getRanks(mapID || this.mapID, {
@@ -69,7 +67,7 @@ export class MapLeaderboardComponent {
       .pipe(finalize(() => (this.searchedRanks = true)))
       .subscribe({
         next: (response) => {
-          if (!Array.isArray(response)) this.leaderboardRanks = response.data;
+          this.leaderboardRanks = response.data;
         },
         error: (error) =>
           this.toasterService.danger(error.message, 'Could not find runs')

@@ -22,14 +22,18 @@ export class RanksService {
   getFriendsRanks(
     mapID: number,
     query?: MapRankGetNumberQuery
-  ): Observable<Rank[]> {
-    return this.http.get<Rank[]>(`maps/${mapID}/ranks/friends`, { query });
+  ): Observable<PagedResponse<Rank>> {
+    return this.http.get<PagedResponse<Rank>>(`maps/${mapID}/ranks/friends`, {
+      query
+    });
   }
 
   getAroundRanks(
     mapID: number,
     query?: MapRankGetNumberQuery
-  ): Observable<Rank[]> {
-    return this.http.get<Rank[]>(`maps/${mapID}/ranks/around`, { query });
+  ): Observable<PagedResponse<Rank>> {
+    return this.http.get<PagedResponse<Rank>>(`maps/${mapID}/ranks/around`, {
+      query
+    });
   }
 }
