@@ -632,7 +632,11 @@ export class UsersService {
     if (!(await this.db.map.exists({ where: { id: mapID } })))
       throw new NotFoundException('Target map not found');
 
-    await this.db.mapLibraryEntry.create({ data: { userID, mapID } });
+    await this.db.mapLibraryEntry.upsert({
+      where: { mapID_userID: { userID, mapID } },
+      create: { userID, mapID },
+      update: {}
+    });
   }
 
   async removeMapLibraryEntry(userID: number, mapID: number) {
