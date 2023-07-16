@@ -73,12 +73,12 @@ export class LocalUserService {
     this.authService.logout();
   }
 
-  public hasRole(role: Role, user: User = this.localUser): boolean {
-    return user.roles ? Bitflags.has(user.roles, role) : false;
+  public hasRole(roles: Role, user: User = this.localUser): boolean {
+    return user.roles ? Bitflags.has(roles, user.roles) : false;
   }
 
-  public hasBan(ban: Ban, user: User = this.localUser): boolean {
-    return user.bans ? Bitflags.has(user.bans, ban) : false;
+  public hasBan(bans: Ban, user: User = this.localUser): boolean {
+    return user.bans ? Bitflags.has(bans, user.bans) : false;
   }
 
   public getLocalUser(query?: UsersGetQuery): Observable<User> {
