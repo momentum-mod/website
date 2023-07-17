@@ -1,5 +1,4 @@
-import { Role } from '../../enums/role.enum';
-import { Ban } from '../../enums/bans.enum';
-
-// TODO: Stupid, change to type Bitfield = number;
-export type BitwiseEnum<T extends Role | Ban> = number;
+/**
+ * Alias to distinguish a number supposed to represent a bit field.
+ */
+export type Bitfield = number;
