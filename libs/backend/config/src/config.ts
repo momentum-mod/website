@@ -14,11 +14,6 @@ export const ConfigFactory = (): ConfigInterface => {
   const isProd = env === Environment.PRODUCTION;
   const isTest = env === Environment.TEST;
 
-  const defaultSocials = {
-    id: 'thiswontwork123',
-    secret: 'setupanapikeyifyouneedthistowork!'
-  };
-
   return {
     env: env,
     port: port,
