@@ -1,14 +1,12 @@
 ﻿import { MapInfo as PrismaMapInfo } from '@prisma/client';
 
-export interface MapInfo extends Omit<PrismaMapInfo, 'mapID'> {}
+export type MapInfo = Omit<PrismaMapInfo, 'mapID'>
 
-export interface CreateMapInfo
-  extends Pick<
+export type CreateMapInfo = Pick<
     MapInfo,
     'description' | 'youtubeID' | 'numTracks' | 'creationDate'
-  > {}
+  >
 
-export interface UpdateMapInfo
-  extends Partial<
+export type UpdateMapInfo = Partial<
     Pick<MapInfo, 'description' | 'youtubeID' | 'creationDate'>
-  > {}
+  >

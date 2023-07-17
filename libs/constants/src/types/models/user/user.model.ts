@@ -16,7 +16,7 @@ export interface User extends Omit<PrismaUser, 'avatar'> {
   mapRank?: Rank;
 }
 
-export interface CreateUser extends Pick<User, 'alias'> {}
+export type CreateUser = Pick<User, 'alias'>
 
 export interface UpdateUser {
   alias?: string;

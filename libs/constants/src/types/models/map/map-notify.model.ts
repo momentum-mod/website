@@ -5,4 +5,4 @@ export interface MapNotify extends PrismaMapNotify {
   notifyOn: ActivityType;
 }
 
-export interface UpdateMapNotify extends Pick<MapNotify, 'notifyOn'> {}
+export type UpdateMapNotify = Pick<MapNotify, 'notifyOn'>
