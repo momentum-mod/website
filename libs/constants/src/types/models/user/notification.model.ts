@@ -7,4 +7,4 @@ export interface Notification extends PrismaNotification {
   user?: User;
 }
 
-export interface UpdateNotification extends Pick<Notification, 'read'> {}
+export type UpdateNotification = Pick<Notification, 'read'>

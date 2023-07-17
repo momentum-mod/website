@@ -13,4 +13,4 @@ export interface FollowStatus {
   target?: Follow;
 }
 
-export interface UpdateFollowStatus extends Pick<Follow, 'notifyOn'> {}
+export type UpdateFollowStatus = Pick<Follow, 'notifyOn'>
