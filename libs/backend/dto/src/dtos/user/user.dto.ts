@@ -1,4 +1,4 @@
-import { BitwiseEnum, User } from '@momentum/constants';
+import { Bitfield, User } from '@momentum/constants';
 import { ApiProperty, ApiPropertyOptional, PickType } from '@nestjs/swagger';
 import { IsInt, IsISO31661Alpha2, IsOptional, IsString } from 'class-validator';
 import { Exclude, Expose } from 'class-transformer';
@@ -12,7 +12,7 @@ import {
   UpdatedAtProperty
 } from '../../decorators';
 import { IsSteamCommunityID } from '@momentum/backend/validators';
-import { Ban, Role } from '@momentum/constants';
+import { Ban } from '@momentum/constants';
 import { Bitflags } from '@momentum/bitflags';
 
 // This is the specific key Steam uses for all missing avatars.
@@ -76,11 +76,11 @@ export class UserDto implements User {
 
   @ApiProperty({ type: Number, description: "The user's roles, as bitflags" })
   @IsInt()
-  readonly roles: BitwiseEnum<Role>;
+  readonly roles: Bitfield;
 
   @ApiProperty({ type: Number, description: "The user's bans, as bitflags" })
   @IsInt()
-  readonly bans: BitwiseEnum<Ban>;
+  readonly bans: Bitfield;
 
   @NestedProperty(RankDto, {
     description: 'The map rank data for the user on a specific map'
@@ -133,7 +133,7 @@ export class AdminUpdateUserDto extends UpdateUserDto {
   })
   @IsInt()
   @IsOptional()
-  roles?: BitwiseEnum<Role>;
+  roles?: Bitfield;
 
   @ApiProperty({
     type: Number,
@@ -142,7 +142,7 @@ export class AdminUpdateUserDto extends UpdateUserDto {
   })
   @IsInt()
   @IsOptional()
-  bans?: BitwiseEnum<Ban>;
+  bans?: Bitfield;
 }
 
 export class MergeUserDto {

@@ -1,22 +1,20 @@
 import { User as PrismaUser } from '@prisma/client';
-import { BitwiseEnum } from '../../bitwise-enum.interface';
-import { Ban } from '../../../enums/bans.enum';
-import { Role } from '../../../enums/role.enum';
 import { Profile } from './profile.model';
 import { UserStats } from './user-stats.model';
 import { Rank } from '../run/rank.model';
 import { Socials } from './socials.model';
+import { Bitfield } from '../../utils';
 
 export interface User extends Omit<PrismaUser, 'avatar'> {
-  roles: BitwiseEnum<Role>;
-  bans: BitwiseEnum<Ban>;
+  roles: Bitfield;
+  bans: Bitfield;
   avatarURL: string;
   profile?: Profile;
   userStats?: UserStats;
   mapRank?: Rank;
 }
 
-export type CreateUser = Pick<User, 'alias'>
+export type CreateUser = Pick<User, 'alias'>;
 
 export interface UpdateUser {
   alias?: string;
@@ -25,8 +23,8 @@ export interface UpdateUser {
 }
 
 export interface AdminUpdateUser extends UpdateUser {
-  roles?: BitwiseEnum<Role>;
-  bans?: BitwiseEnum<Ban>;
+  roles?: Bitfield;
+  bans?: Bitfield;
 }
 
 export interface MergeUser {
