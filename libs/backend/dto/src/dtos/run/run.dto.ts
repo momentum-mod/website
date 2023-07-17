@@ -1,4 +1,4 @@
-import { Run } from '@momentum/types';
+import { Run } from '@momentum/constants';
 import { UserDto } from '../user/user.dto';
 import { RankDto } from './rank.dto';
 import { ApiProperty } from '@nestjs/swagger';

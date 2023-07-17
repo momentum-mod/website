@@ -1,4 +1,4 @@
-﻿import { Report } from '@momentum/types';
+﻿import { Report } from '@momentum/constants';
 import { ApiProperty, ApiPropertyOptional, PickType } from '@nestjs/swagger';
 import { IsBoolean, IsOptional, IsString } from 'class-validator';
 import { UserDto } from '../user/user.dto';

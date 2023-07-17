@@ -2,7 +2,7 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { MapZoneTriggerPropertiesDto } from './map-zone-trigger-properties.dto';
 import { NestedProperty } from '../../../decorators';
-import { MapZoneTrigger } from '@momentum/types';
+import { MapZoneTrigger } from '@momentum/constants';
 import { Prisma } from '@prisma/client';
 import { Exclude } from 'class-transformer';
 

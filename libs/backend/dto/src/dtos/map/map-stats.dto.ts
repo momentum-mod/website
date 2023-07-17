@@ -2,7 +2,7 @@ import { ApiProperty } from '@nestjs/swagger';
 import { IsInt, IsNumberString, IsPositive } from 'class-validator';
 import { Exclude } from 'class-transformer';
 import { IdProperty, NestedProperty } from '../../decorators';
-import { MapStats } from '@momentum/types';
+import { MapStats } from '@momentum/constants';
 import { BaseStatsDto } from '../stats/base-stats.dto';
 
 export class MapStatsDto implements MapStats {

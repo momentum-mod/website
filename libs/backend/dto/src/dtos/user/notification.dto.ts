@@ -1,4 +1,4 @@
-﻿import { Notification, UpdateNotification } from '@momentum/types';
+﻿import { Notification, UpdateNotification } from '@momentum/constants';
 import { ApiProperty, PickType } from '@nestjs/swagger';
 import { IsBoolean } from 'class-validator';
 import { ActivityDto } from './activity.dto';

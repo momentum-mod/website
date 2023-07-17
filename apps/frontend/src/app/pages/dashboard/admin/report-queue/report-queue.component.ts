@@ -2,7 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { finalize } from 'rxjs/operators';
 import { NbToastrService } from '@nebular/theme';
 import { ReportType } from '@momentum/constants';
-import { Report } from '@momentum/types';
+import { Report } from '@momentum/constants';
 import { AdminService } from '@momentum/frontend/data';
 
 @Component({

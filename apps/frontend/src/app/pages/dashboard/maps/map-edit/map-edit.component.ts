@@ -7,7 +7,7 @@ import { CdkDragDrop, moveItemInArray } from '@angular/cdk/drag-drop';
 import { NbDialogService, NbToastrService } from '@nebular/theme';
 import { ConfirmDialogComponent } from '../../../../components/confirm-dialog/confirm-dialog.component';
 import { forkJoin, Subject } from 'rxjs';
-import { Map, MapCredit, MapImage } from '@momentum/types';
+import { Map, MapCredit, MapImage } from '@momentum/constants';
 import { FileUploadType } from '../upload-form/file-upload/file-upload.component';
 import {
   AdminService,

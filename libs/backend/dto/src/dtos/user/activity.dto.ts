@@ -1,4 +1,4 @@
-import { Activity } from '@momentum/types';
+import { Activity } from '@momentum/constants';
 import { ActivityType } from '@momentum/constants';
 import { IsPositive } from 'class-validator';
 import { UserDto } from './user.dto';

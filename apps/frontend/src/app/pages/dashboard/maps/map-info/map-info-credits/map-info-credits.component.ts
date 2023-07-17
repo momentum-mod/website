@@ -1,6 +1,6 @@
 import { Component, Input } from '@angular/core';
 import { MapCreditType } from '@momentum/constants';
-import { Map, MapCredit } from '@momentum/types';
+import { Map, MapCredit } from '@momentum/constants';
 
 @Component({
   selector: 'mom-map-info-credits',

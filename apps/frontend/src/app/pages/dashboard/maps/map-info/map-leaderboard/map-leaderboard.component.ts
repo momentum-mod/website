@@ -2,7 +2,7 @@ import { Component, Input } from '@angular/core';
 import { Router } from '@angular/router';
 import { finalize } from 'rxjs/operators';
 import { NbToastrService } from '@nebular/theme';
-import { PagedResponse, Rank, Run } from '@momentum/types';
+import { PagedResponse, Rank, Run } from '@momentum/constants';
 import { RanksService } from '@momentum/frontend/data';
 import { Observable } from 'rxjs';
 

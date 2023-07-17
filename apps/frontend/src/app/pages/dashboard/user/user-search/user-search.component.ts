@@ -8,7 +8,7 @@ import {
 } from '@angular/core';
 import { FormBuilder, FormGroup } from '@angular/forms';
 import { UsersService } from '@momentum/frontend/data';
-import { User } from '@momentum/types';
+import { User } from '@momentum/constants';
 import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
 
 @Component({

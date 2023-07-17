@@ -1,6 +1,6 @@
 import { Component, Input, OnInit } from '@angular/core';
 import { NotificationsService } from '../../services/notifications.service';
-import { Notification } from '@momentum/types';
+import { Notification } from '@momentum/constants';
 
 @Component({
   selector: 'mom-notifications',

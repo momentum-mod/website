@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
 import { LocalUserService } from '@momentum/frontend/data';
-import { User } from '@momentum/types';
+import { User } from '@momentum/constants';
 
 @Component({
   selector: 'mom-dashboard-home',

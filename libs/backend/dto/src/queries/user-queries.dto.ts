@@ -18,7 +18,7 @@ import {
   UsersGetAllQuery,
   UsersGetCreditsQuery,
   UsersGetQuery
-} from '@momentum/types';
+} from '@momentum/constants';
 import { QueryDto } from './query.dto';
 import { ActivityType } from '@momentum/constants';
 

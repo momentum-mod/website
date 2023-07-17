@@ -2,7 +2,7 @@ import { Component, Input, OnInit } from '@angular/core';
 import { finalize } from 'rxjs/operators';
 import { Observable } from 'rxjs';
 import { NbToastrService } from '@nebular/theme';
-import { MapCredit, User } from '@momentum/types';
+import { MapCredit, User } from '@momentum/constants';
 import { MapCreditType } from '@momentum/constants';
 import { UsersService } from '@momentum/frontend/data';
 

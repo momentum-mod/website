@@ -1,4 +1,4 @@
-import { Rank } from '@momentum/types';
+import { Rank } from '@momentum/constants';
 import { ApiProperty } from '@nestjs/swagger';
 import { IsInt, IsOptional, IsPositive } from 'class-validator';
 import { MapDto } from '../map/map.dto';

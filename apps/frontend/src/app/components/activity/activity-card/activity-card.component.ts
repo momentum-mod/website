@@ -2,7 +2,7 @@ import { Component, Input, OnInit } from '@angular/core';
 import { ReplaySubject } from 'rxjs';
 import { ActivityService } from '@momentum/frontend/data';
 import { ActivityType } from '@momentum/constants';
-import { Activity, PagedResponse, User } from '@momentum/types';
+import { Activity, PagedResponse, User } from '@momentum/constants';
 
 @Component({
   selector: 'mom-activity-card',

@@ -16,7 +16,7 @@ import {
   UserMapFavoritesGetQuery,
   UserMapLibraryGetQuery,
   UserMapSubmittedGetQuery
-} from '@momentum/types';
+} from '@momentum/constants';
 import { Enum } from '@momentum/enum';
 
 @Component({

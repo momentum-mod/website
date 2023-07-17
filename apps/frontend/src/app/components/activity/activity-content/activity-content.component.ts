@@ -1,6 +1,6 @@
 import { Component, Input, OnInit } from '@angular/core';
 import { Icon } from '@momentum/frontend/icons';
-import { Activity } from '@momentum/types';
+import { Activity } from '@momentum/constants';
 import { ActivityType } from '@momentum/constants';
 
 @Component({

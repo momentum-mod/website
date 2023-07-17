@@ -1,6 +1,6 @@
 ﻿import { Exclude } from 'class-transformer';
 import { ApiProperty } from '@nestjs/swagger';
-import { MapZoneTriggerProperties } from '@momentum/types';
+import { MapZoneTriggerProperties } from '@momentum/constants';
 import { IsDefined } from 'class-validator';
 import { Prisma } from '@prisma/client';
 

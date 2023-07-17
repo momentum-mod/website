@@ -3,7 +3,7 @@ import { Observable } from 'rxjs';
 import { finalize } from 'rxjs/operators';
 import { FormBuilder, FormGroup } from '@angular/forms';
 import { NbToastrService } from '@nebular/theme';
-import { Run, User } from '@momentum/types';
+import { Run, User } from '@momentum/constants';
 import { RunsService } from '@momentum/frontend/data';
 
 @Component({

@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, ParamMap } from '@angular/router';
 import { RanksService, RunsService } from '@momentum/frontend/data';
-import { Run } from '@momentum/types';
+import { Run } from '@momentum/constants';
 import { switchMap } from 'rxjs/operators';
 
 @Component({

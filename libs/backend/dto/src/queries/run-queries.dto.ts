@@ -3,7 +3,7 @@
   RunsGetAllQuery,
   RunsGetQuery,
   UserCtlRunsGetAllQuery
-} from '@momentum/types';
+} from '@momentum/constants';
 import { ApiPropertyOptional } from '@nestjs/swagger';
 import { IsOptional, IsString } from 'class-validator';
 import {

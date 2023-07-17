@@ -3,7 +3,7 @@ import { IsDefined, IsInt, Max } from 'class-validator';
 import { MapZoneTriggerDto } from './map-zone-trigger.dto';
 import { MapZoneStatsDto } from './map-zone-stats.dto';
 import { IdProperty, NestedProperty } from '../../../decorators';
-import { MapZone } from '@momentum/types';
+import { MapZone } from '@momentum/constants';
 import { Exclude } from 'class-transformer';
 
 export class MapZoneDto implements MapZone {

@@ -12,7 +12,7 @@ import {
 } from '@angular/core';
 import { Router } from '@angular/router';
 import { UsersService, MapsService } from '@momentum/frontend/data';
-import { User, Map } from '@momentum/types';
+import { User, Map } from '@momentum/constants';
 
 /**
  * search-field-component is used under the hood by nb-search component

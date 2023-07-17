@@ -1,4 +1,4 @@
-﻿import { BaseStats } from '@momentum/types';
+﻿import { BaseStats } from '@momentum/constants';
 import { IsInt, IsNumber } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 import {

@@ -1,4 +1,4 @@
-﻿import { CreateMapTrack, MapTrack } from '@momentum/types';
+﻿import { CreateMapTrack, MapTrack } from '@momentum/constants';
 import { Exclude } from 'class-transformer';
 import { ApiProperty, PickType } from '@nestjs/swagger';
 import {

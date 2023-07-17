@@ -4,7 +4,7 @@ import { switchMap, takeUntil } from 'rxjs/operators';
 import { NbDialogService, NbToastrService } from '@nebular/theme';
 import { Subject } from 'rxjs';
 import { MapNotifyEditComponent } from './map-info-notify-edit/map-info-notify-edit.component';
-import { Map, MapImage, MapNotify } from '@momentum/types';
+import { Map, MapImage, MapNotify } from '@momentum/constants';
 import { ReportType, Role } from '@momentum/constants';
 import { LocalUserService, MapsService } from '@momentum/frontend/data';
 import { PartialDeep } from 'type-fest';

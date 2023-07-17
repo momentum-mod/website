@@ -1,7 +1,7 @@
 import { Component, Input, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { NbDialogRef, NbToastrService } from '@nebular/theme';
-import { Report } from '@momentum/types';
+import { Report } from '@momentum/constants';
 import { AdminService } from '@momentum/frontend/data';
 
 @Component({

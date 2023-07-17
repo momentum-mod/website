@@ -1,6 +1,6 @@
 ﻿import { IsJWT, IsPositive, IsString } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
-import { JWTResponseGame, JWTResponseWeb } from '@momentum/types';
+import { JWTResponseGame, JWTResponseWeb } from '@momentum/constants';
 
 export class JWTResponseWebDto implements JWTResponseWeb {
   @ApiProperty({ type: String, description: 'A JWT access token' })

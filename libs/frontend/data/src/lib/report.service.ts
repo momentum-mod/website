@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
-import { CreateReport, Report } from '@momentum/types';
+import { CreateReport, Report } from '@momentum/constants';
 import { HttpService } from './http.service';
 
 @Injectable({ providedIn: 'root' })

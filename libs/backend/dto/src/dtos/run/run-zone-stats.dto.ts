@@ -1,4 +1,4 @@
-import { RunZoneStats } from '@momentum/types';
+import { RunZoneStats } from '@momentum/constants';
 import { ApiProperty } from '@nestjs/swagger';
 import { IsInt } from 'class-validator';
 import {

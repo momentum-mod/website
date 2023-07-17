@@ -3,7 +3,7 @@ import { NbMenuItem, NbMenuService, NbSidebarService } from '@nebular/theme';
 import { NotificationsService } from '../../services/notifications.service';
 import { takeUntil } from 'rxjs/operators';
 import { Subject } from 'rxjs';
-import { Notification, User } from '@momentum/types';
+import { Notification, User } from '@momentum/constants';
 import { LocalUserService } from '@momentum/frontend/data';
 import { LayoutService } from '../../services/layout.service';
 

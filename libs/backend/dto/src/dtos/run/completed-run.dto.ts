@@ -3,7 +3,7 @@ import { IsBoolean, IsInt } from 'class-validator';
 import { RunDto } from './run.dto';
 import { RankDto } from './rank.dto';
 import { NestedProperty } from '../../decorators';
-import { CompletedRun } from '@momentum/types';
+import { CompletedRun } from '@momentum/constants';
 
 class CosXpGain {
   @ApiProperty({ type: Number, description: 'Integer amount of levels gained' })

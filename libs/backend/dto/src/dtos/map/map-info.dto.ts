@@ -1,4 +1,4 @@
-﻿import { CreateMapInfo, MapInfo, UpdateMapInfo } from '@momentum/types';
+﻿import { CreateMapInfo, MapInfo, UpdateMapInfo } from '@momentum/constants';
 import { ApiProperty, PartialType, PickType } from '@nestjs/swagger';
 import { Exclude } from 'class-transformer';
 import {

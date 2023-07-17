@@ -1,4 +1,4 @@
-﻿import { MapLibraryEntry } from '@momentum/types';
+﻿import { MapLibraryEntry } from '@momentum/constants';
 import {
   CreatedAtProperty,
   IdProperty,

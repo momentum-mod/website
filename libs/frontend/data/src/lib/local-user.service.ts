@@ -20,9 +20,9 @@ import {
   UserMapLibraryGetQuery,
   UserMapSubmittedGetQuery,
   UsersGetQuery
-} from '@momentum/types';
+} from '@momentum/constants';
 import { Ban, Role } from '@momentum/constants';
-import { PagedResponse } from '@momentum/types';
+import { PagedResponse } from '@momentum/constants';
 import { Bitflags } from '@momentum/bitflags';
 import { HttpService } from './http.service';
 

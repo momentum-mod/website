@@ -1,5 +1,5 @@
 ﻿import { ActivityType } from '@momentum/constants';
-import { MapNotify, UpdateMapNotify } from '@momentum/types';
+import { MapNotify, UpdateMapNotify } from '@momentum/constants';
 import { PickType } from '@nestjs/swagger';
 import {
   CreatedAtProperty,

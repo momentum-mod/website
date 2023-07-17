@@ -1,4 +1,4 @@
-﻿import { RunSession } from '@momentum/types';
+﻿import { RunSession } from '@momentum/constants';
 import { ApiProperty, PickType } from '@nestjs/swagger';
 import { IsInt, IsPositive } from 'class-validator';
 import {
