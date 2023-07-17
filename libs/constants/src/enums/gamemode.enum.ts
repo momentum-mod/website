@@ -1,4 +1,7 @@
-export enum MapType {
+/**
+ * All the gamemodes, and in the future, submodes, available in Momentum.
+ */
+export enum Gamemode {
   UNKNOWN = 0,
   SURF = 1,
   BHOP = 2,

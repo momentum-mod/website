@@ -1,6 +1,6 @@
 import { Map as PrismaMap } from '@prisma/client';
 import { MapStatus } from '../../../enums/map-status.enum';
-import { MapType } from '../../../enums/map-type.enum';
+import { Gamemode } from '../../../enums/gamemode.enum';
 import { MapImage } from './map-image.model';
 import { CreateMapTrack, MapTrack } from './map-track.model';
 import { CreateMapInfo, MapInfo } from './map-info.model';
@@ -12,7 +12,7 @@ import { MapLibraryEntry } from './map-library-entry';
 import { Rank } from '../run/rank.model';
 
 export interface Map extends Omit<PrismaMap, 'thumbnailID' | 'mainTrackID'> {
-  type: MapType;
+  type: Gamemode;
   status: MapStatus;
   downloadURL: string;
   thumbnail?: MapImage;
@@ -29,7 +29,7 @@ export interface Map extends Omit<PrismaMap, 'thumbnailID' | 'mainTrackID'> {
   personalBest?: Rank;
 }
 
-export type UpdateMap = Pick<Map, 'status'>
+export type UpdateMap = Pick<Map, 'status'>;
 
 export interface CreateMap extends Pick<Map, 'name' | 'type'> {
   info: CreateMapInfo;

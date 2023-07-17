@@ -18,7 +18,7 @@ import {
 } from '@momentum/backend/test-utils';
 import {
   ActivityType,
-  MapType,
+  Gamemode,
   RunValidationErrorType,
   Tickrates
 } from '@momentum/constants';
@@ -41,7 +41,7 @@ describe('Session', () => {
     // We can use this same map for all the run session testing. Suites just
     // create their own users and runs.
     map = await db.createMap(
-      { name: 'bhop_eazy', type: MapType.BHOP },
+      { name: 'bhop_eazy', type: Gamemode.BHOP },
       {
         trackNum: 0,
         numZones: 4,
@@ -405,7 +405,7 @@ describe('Session', () => {
                     overallStats: { create: { jumps: 1 } }
                   }
                 },
-                gameType: MapType.BHOP,
+                gameType: Gamemode.BHOP,
                 user: {
                   create: {
                     alias: `RunSessions Test User ${i + 1}`,
@@ -483,7 +483,7 @@ describe('Session', () => {
             where: {
               mapID: map.id,
               run: { zoneNum: 0, trackNum: 0 },
-              gameType: MapType.BHOP,
+              gameType: Gamemode.BHOP,
               flags: 0
             }
           });
@@ -496,7 +496,7 @@ describe('Session', () => {
             where: {
               mapID: map.id,
               run: { zoneNum: 0, trackNum: 0 },
-              gameType: MapType.BHOP,
+              gameType: Gamemode.BHOP,
               flags: 0
             }
           });
@@ -533,7 +533,7 @@ describe('Session', () => {
             where: {
               mapID: map.id,
               run: { zoneNum: 0, trackNum: 0 },
-              gameType: MapType.BHOP,
+              gameType: Gamemode.BHOP,
               flags: 0
             }
           });
@@ -550,7 +550,7 @@ describe('Session', () => {
             where: {
               mapID: map.id,
               run: { zoneNum: 0, trackNum: 0 },
-              gameType: MapType.BHOP,
+              gameType: Gamemode.BHOP,
               flags: 0
             }
           });
@@ -597,7 +597,7 @@ describe('Session', () => {
             where: {
               mapID: map.id,
               run: { zoneNum: 0, trackNum: 0 },
-              gameType: MapType.BHOP,
+              gameType: Gamemode.BHOP,
               flags: 0
             }
           });
@@ -615,7 +615,7 @@ describe('Session', () => {
             where: {
               mapID: map.id,
               run: { zoneNum: 0, trackNum: 0 },
-              gameType: MapType.BHOP,
+              gameType: Gamemode.BHOP,
               flags: 0
             }
           });

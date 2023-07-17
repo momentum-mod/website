@@ -1,6 +1,6 @@
 import { PrismaClient } from '@prisma/client';
 import { prismaWrapper } from './prisma-wrapper';
-import { MapCreditType, MapStatus, MapType } from '@momentum/constants';
+import { MapCreditType, MapStatus, Gamemode } from '@momentum/constants';
 import { PutObjectCommand, S3Client } from '@aws-sdk/client-s3';
 import * as fs from 'node:fs';
 import sharp from 'sharp';
@@ -26,7 +26,7 @@ prismaWrapper(async (prisma: PrismaClient) => {
   const map = await prisma.map.create({
     data: {
       name: 'bhop_apitest',
-      type: MapType.BHOP,
+      type: Gamemode.BHOP,
       status: MapStatus.APPROVED,
       hash: createHash('sha1').update(mapBuffer).digest('hex'),
       fileKey: 'maps/bhop_apitest.bsp',

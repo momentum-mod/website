@@ -64,4 +64,4 @@ export interface RankXpGain {
   };
 }
 
-export type UpdateXpSystems = Pick<XpSystems, 'cosXP' | 'rankXP'>
+export type UpdateXpSystems = Pick<XpSystems, 'cosXP' | 'rankXP'>;

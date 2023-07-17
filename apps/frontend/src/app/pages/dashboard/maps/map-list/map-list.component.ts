@@ -8,7 +8,7 @@ import { LocalUserService, MapsService } from '@momentum/frontend/data';
 import {
   MapStatus,
   MapStatusName,
-  MapType,
+  Gamemode,
   MapTypeName
 } from '@momentum/constants';
 import {
@@ -27,7 +27,7 @@ import { Enum } from '@momentum/enum';
 export class MapListComponent implements OnInit {
   @Input() isUpload: boolean;
   statuses: { value?: MapStatus; text: string }[] = [];
-  types: { value: MapType; text: string }[] = [];
+  types: { value: Gamemode; text: string }[] = [];
   requestSent: boolean;
   mapCount: number;
   maps: Map[];
@@ -77,8 +77,8 @@ export class MapListComponent implements OnInit {
 
     this.types = [
       { value: undefined, text: 'All' },
-      ...Enum.values(MapType)
-        .filter((status) => status !== MapType.UNKNOWN)
+      ...Enum.values(Gamemode)
+        .filter((status) => status !== Gamemode.UNKNOWN)
         .map((status) => ({ value: status, text: MapTypeName.get(status) }))
         .sort((a, b) => (a.text > b.text ? 1 : -1))
     ];

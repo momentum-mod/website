@@ -31,7 +31,7 @@ import {
   ActivityType,
   MapCreditType,
   MapStatus,
-  MapType,
+  Gamemode,
   Role
 } from '@momentum/constants';
 import { Config } from '@momentum/backend/config';
@@ -138,7 +138,7 @@ describe('Maps', () => {
       });
 
       it('should respond with filtered map data based on the map type', async () => {
-        const newType = MapType.BHOP;
+        const newType = Gamemode.BHOP;
         await prisma.map.update({
           where: { id: m2.id },
           data: { type: newType }
@@ -430,7 +430,7 @@ describe('Maps', () => {
 
         createMapObject = {
           name: 'test_map',
-          type: MapType.SURF,
+          type: Gamemode.SURF,
           info: {
             description: 'mamp',
             numTracks: 1,
@@ -746,7 +746,7 @@ describe('Maps', () => {
         status: 201,
         body: {
           name: 'test_map',
-          type: MapType.SURF,
+          type: Gamemode.SURF,
           info: {
             description: 'mamp',
             numTracks: 1,

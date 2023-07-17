@@ -24,7 +24,7 @@ import {
 import { LocalUserService, MapsService } from '@momentum/frontend/data';
 import {
   MapCreditType,
-  MapType,
+  Gamemode,
   MapTypeName,
   ZoneType
 } from '@momentum/constants';
@@ -46,7 +46,7 @@ const youtubeRegex = /[\w-]{11}/;
 })
 export class MapUploadFormComponent implements OnInit, AfterViewInit {
   protected readonly FileUploadType = FileUploadType;
-  protected readonly MapType = MapType;
+  protected readonly MapType = Gamemode;
   protected readonly MapTypeName = MapTypeName;
 
   @ViewChild('datepicker', { static: false }) datePicker;
@@ -78,7 +78,7 @@ export class MapUploadFormComponent implements OnInit, AfterViewInit {
   });
   infoForm: FormGroup = this.fb.group({
     name: ['', [Validators.required, Validators.maxLength(32)]],
-    type: [MapType.UNKNOWN, Validators.required],
+    type: [Gamemode.UNKNOWN, Validators.required],
     description: ['', [Validators.required, Validators.maxLength(1000)]],
     creationDate: [
       new Date(),
@@ -159,7 +159,7 @@ export class MapUploadFormComponent implements OnInit, AfterViewInit {
     this.name.patchValue(nameVal);
 
     // Infer type from name
-    let type = MapType.UNKNOWN;
+    let type = Gamemode.UNKNOWN;
     for (const [key, prefix] of MapTypePrefix.entries()) {
       if (nameVal.startsWith(prefix + '_')) {
         type = key;
@@ -168,7 +168,7 @@ export class MapUploadFormComponent implements OnInit, AfterViewInit {
     }
 
     this.type.patchValue(type);
-    this.inferredMapType = type !== MapType.UNKNOWN;
+    this.inferredMapType = type !== Gamemode.UNKNOWN;
   }
 
   async onAvatarFileSelected(file: File) {
