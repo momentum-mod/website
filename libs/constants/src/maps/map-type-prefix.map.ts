@@ -1,15 +1,15 @@
-import { MapType } from '../enums/map-type.enum';
+import { Gamemode } from '../enums/gamemode.enum';
 
-export const MapTypePrefix: ReadonlyMap<MapType, string> = new Map([
-  [MapType.UNKNOWN, ''],
-  [MapType.SURF, 'surf'],
-  [MapType.BHOP, 'bhop'],
-  [MapType.KZ, 'climb'],
-  [MapType.RJ, 'rj'],
-  [MapType.SJ, 'sj'],
-  [MapType.TRICKSURF, 'tricksurf'],
-  [MapType.AHOP, 'ahop'],
-  [MapType.PARKOUR, 'pk'],
-  [MapType.CONC, 'conc'],
-  [MapType.DEFRAG, 'df']
+export const MapTypePrefix: ReadonlyMap<Gamemode, string> = new Map([
+  [Gamemode.UNKNOWN, ''],
+  [Gamemode.SURF, 'surf'],
+  [Gamemode.BHOP, 'bhop'],
+  [Gamemode.KZ, 'climb'],
+  [Gamemode.RJ, 'rj'],
+  [Gamemode.SJ, 'sj'],
+  [Gamemode.TRICKSURF, 'tricksurf'],
+  [Gamemode.AHOP, 'ahop'],
+  [Gamemode.PARKOUR, 'pk'],
+  [Gamemode.CONC, 'conc'],
+  [Gamemode.DEFRAG, 'df']
 ]);

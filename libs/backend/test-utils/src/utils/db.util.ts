@@ -14,7 +14,7 @@ import { CamelCase, PartialDeep } from 'type-fest';
 import { merge } from 'lodash';
 import { AuthUtil } from './auth.util';
 import { randomHash, randomSteamID } from './random.util';
-import { MapStatus, MapType } from '@momentum/constants';
+import { MapStatus, Gamemode } from '@momentum/constants';
 
 export const NULL_ID = 999999999;
 export const dateOffset = (offset: number) =>
@@ -110,7 +110,7 @@ export class DbUtil {
         ...merge(
           {
             name: `ahop_map${++this.maps}`,
-            type: MapType.AHOP,
+            type: Gamemode.AHOP,
             status: MapStatus.APPROVED,
             hash: randomHash(),
             info: { create: { numTracks: 1, creationDate: new Date() } },

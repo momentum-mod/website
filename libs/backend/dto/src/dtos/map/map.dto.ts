@@ -28,7 +28,7 @@ import {
   UpdatedAtProperty
 } from '../../decorators';
 import { IsMapName } from '@momentum/backend/validators';
-import { MapStatus, MapType } from '@momentum/constants';
+import { MapStatus, Gamemode } from '@momentum/constants';
 
 export class MapDto implements Map {
   @IdProperty()
@@ -38,8 +38,8 @@ export class MapDto implements Map {
   @IsMapName()
   readonly name: string;
 
-  @EnumProperty(MapType)
-  readonly type: MapType;
+  @EnumProperty(Gamemode)
+  readonly type: Gamemode;
 
   @EnumProperty(MapStatus)
   readonly status: MapStatus;

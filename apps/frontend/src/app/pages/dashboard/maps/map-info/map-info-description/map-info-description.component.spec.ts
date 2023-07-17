@@ -1,7 +1,7 @@
 import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 import { MapInfoDescriptionComponent } from './map-info-description.component';
 import { NbUserModule } from '@nebular/theme';
-import { MapType } from '@momentum/constants';
+import { Gamemode } from '@momentum/constants';
 
 describe('MapInfoDescriptionComponent', () => {
   let component: MapInfoDescriptionComponent;
@@ -20,7 +20,7 @@ describe('MapInfoDescriptionComponent', () => {
     component.map = {
       id: 1,
       name: 'test',
-      type: MapType.SURF,
+      type: Gamemode.SURF,
       hash: 'no thanks',
       statusFlag: 0,
       info: {

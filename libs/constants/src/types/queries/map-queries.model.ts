@@ -1,5 +1,5 @@
 import { PagedQuery } from './pagination.model';
-import { MapType } from '../../enums/map-type.enum';
+import { Gamemode } from '../../enums/gamemode.enum';
 import { MapStatus } from '../../enums/map-status.enum';
 
 type MapsGetAllBaseQuery = {
@@ -17,7 +17,7 @@ export type AdminMapsGetAllQuery = MapsGetAllBaseQuery & {
 
 export type MapsGetAllQuery = MapsGetAllBaseQuery & {
   expand?: string[];
-  type?: MapType;
+  type?: Gamemode;
   difficultyLow?: number;
   difficultyHigh?: number;
   isLinear?: boolean;

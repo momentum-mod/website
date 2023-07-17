@@ -1,4 +1,4 @@
-import { MapStatus, MapType } from '@momentum/constants';
+import { MapStatus, Gamemode } from '@momentum/constants';
 import {
   AdminMapsGetAllQuery,
   MapCreditsGetQuery,
@@ -77,8 +77,8 @@ export class MapsCtlGetAllQueryDto implements MapsGetAllQuery {
   ])
   readonly expand?: string[];
 
-  @EnumQueryProperty(MapType, { description: 'Filter by map type (gamemode)' })
-  readonly type?: MapType;
+  @EnumQueryProperty(Gamemode, { description: 'Filter by map type (gamemode)' })
+  readonly type?: Gamemode;
 
   @IntQueryProperty({ description: 'Filter by tier (lower bound)' })
   readonly difficultyLow?: number;

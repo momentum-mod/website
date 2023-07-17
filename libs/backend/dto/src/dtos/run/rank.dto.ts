@@ -11,14 +11,14 @@ import {
   NestedProperty,
   UpdatedAtProperty
 } from '../../decorators';
-import { MapType } from '@momentum/constants';
+import { Gamemode } from '@momentum/constants';
 
 export class RankDto implements Rank {
   @IdProperty()
   readonly id: number;
 
-  @EnumProperty(MapType)
-  readonly gameType: MapType;
+  @EnumProperty(Gamemode)
+  readonly gameType: Gamemode;
 
   @ApiProperty({ description: 'Unimplemented' })
   readonly flags: number;

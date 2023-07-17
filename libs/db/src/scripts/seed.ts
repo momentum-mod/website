@@ -10,7 +10,7 @@ import {
   Ban,
   MapCreditType,
   MapStatus,
-  MapType,
+  Gamemode,
   MapTypePrefix,
   ReportCategory,
   ReportType,
@@ -92,7 +92,7 @@ async function main(prisma: PrismaClient) {
 
   async function createRandomMap(submitterID) {
     const type = Random.element(
-      Enum.values(MapType).filter((x) => x !== MapType.UNKNOWN)
+      Enum.values(Gamemode).filter((x) => x !== Gamemode.UNKNOWN)
     );
 
     return prisma.map.create({

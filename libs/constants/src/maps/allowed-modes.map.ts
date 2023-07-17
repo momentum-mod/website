@@ -1,14 +1,14 @@
-import { MapType } from '../enums/map-type.enum';
+import { Gamemode } from '../enums/gamemode.enum';
 
 /**
  * The MapTypes that will accept run submissions
  */
-export const AllowedMapTypes: ReadonlyArray<MapType> = Object.freeze([
-  MapType.SURF,
-  MapType.BHOP,
-  MapType.RJ,
-  MapType.SJ,
-  MapType.AHOP,
-  MapType.CONC,
-  MapType.DEFRAG
+export const AllowedMapTypes: ReadonlyArray<Gamemode> = Object.freeze([
+  Gamemode.SURF,
+  Gamemode.BHOP,
+  Gamemode.RJ,
+  Gamemode.SJ,
+  Gamemode.AHOP,
+  Gamemode.CONC,
+  Gamemode.DEFRAG
 ]);
