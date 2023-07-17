@@ -2,7 +2,7 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { ActivityCardComponent } from './activity-card.component';
 import { ActivityService } from '@momentum/frontend/data';
 import { ReplaySubject } from 'rxjs';
-import { Activity, User } from '@momentum/types';
+import { Activity, User } from '@momentum/constants';
 import { ActivityType } from '@momentum/constants';
 
 describe('ActivityCardComponent', () => {

@@ -1,4 +1,4 @@
-﻿import { MapFavorite } from '@momentum/types';
+﻿import { MapFavorite } from '@momentum/constants';
 import {
   CreatedAtProperty,
   IdProperty,

@@ -6,7 +6,7 @@ import {
   NestedProperty,
   UpdatedAtProperty
 } from '../../decorators';
-import { Profile } from '@momentum/types';
+import { Profile } from '@momentum/constants';
 import { SocialsDto } from './socials.dto';
 
 export class ProfileDto implements Profile {

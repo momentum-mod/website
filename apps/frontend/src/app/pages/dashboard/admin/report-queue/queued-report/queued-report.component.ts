@@ -1,6 +1,6 @@
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { ReportCategory, ReportType } from '@momentum/constants';
-import { Report } from '@momentum/types';
+import { Report } from '@momentum/constants';
 import { NbDialogService } from '@nebular/theme';
 import { UpdateReportDialogComponent } from '../update-report-dialog/update-report-dialog.component';
 

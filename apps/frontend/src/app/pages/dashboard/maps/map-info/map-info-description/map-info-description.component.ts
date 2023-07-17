@@ -1,5 +1,5 @@
 import { Component, Input } from '@angular/core';
-import { Map } from '@momentum/types';
+import { Map } from '@momentum/constants';
 
 @Component({
   selector: 'mom-map-info-description',

@@ -1,5 +1,5 @@
 import { Component, Input, Output, EventEmitter } from '@angular/core';
-import { Activity } from '@momentum/types';
+import { Activity } from '@momentum/constants';
 
 @Component({
   selector: 'mom-activity-list',

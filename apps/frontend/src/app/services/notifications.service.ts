@@ -3,7 +3,7 @@ import { NavigationEnd, Router } from '@angular/router';
 import { filter, finalize } from 'rxjs/operators';
 import { Observable, ReplaySubject } from 'rxjs';
 import { NbToastrService } from '@nebular/theme';
-import { Notification } from '@momentum/types';
+import { Notification } from '@momentum/constants';
 import { AuthService, LocalUserService } from '@momentum/frontend/data';
 
 @Injectable({ providedIn: 'root' })

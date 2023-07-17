@@ -1,4 +1,4 @@
-import { CreateMap, Map } from '@momentum/types';
+import { CreateMap, Map } from '@momentum/constants';
 import { UserDto } from '../user/user.dto';
 import { MapImageDto } from './map-image.dto';
 import { ApiProperty, PickType } from '@nestjs/swagger';

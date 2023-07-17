@@ -2,7 +2,7 @@
 import { IsInt } from 'class-validator';
 import { BaseStatsDto } from '../../stats/base-stats.dto';
 import { NestedProperty } from '../../../decorators';
-import { MapZoneStats } from '@momentum/types';
+import { MapZoneStats } from '@momentum/constants';
 import { Exclude } from 'class-transformer';
 
 export class MapZoneStatsDto implements MapZoneStats {

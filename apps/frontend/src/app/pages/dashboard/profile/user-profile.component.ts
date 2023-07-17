@@ -11,7 +11,7 @@ import {
   Socials,
   SocialsData
 } from '@momentum/constants';
-import { Follow, User } from '@momentum/types';
+import { Follow, User } from '@momentum/constants';
 import { LocalUserService, UsersService } from '@momentum/frontend/data';
 import { Icon } from '@momentum/frontend/icons';
 

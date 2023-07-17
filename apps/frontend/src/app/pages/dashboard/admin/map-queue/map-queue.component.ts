@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { NbToastrService } from '@nebular/theme';
-import { Map } from '@momentum/types';
+import { Map } from '@momentum/constants';
 import { AdminService } from '@momentum/frontend/data';
 import { MapStatus } from '@momentum/constants';
 

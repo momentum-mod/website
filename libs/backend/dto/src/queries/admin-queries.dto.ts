@@ -4,7 +4,10 @@
   StringQueryProperty
 } from '../decorators';
 import { PagedQueryDto } from './pagination.dto';
-import { AdminCreateUserQuery, AdminGetReportsQuery } from '@momentum/types';
+import {
+  AdminCreateUserQuery,
+  AdminGetReportsQuery
+} from '@momentum/constants';
 import { QueryDto } from './query.dto';
 
 export class AdminCreateUserQueryDto

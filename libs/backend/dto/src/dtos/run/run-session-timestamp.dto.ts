@@ -1,4 +1,4 @@
-﻿import { RunSessionTimestamp } from '@momentum/types';
+﻿import { RunSessionTimestamp } from '@momentum/constants';
 import { ApiProperty } from '@nestjs/swagger';
 import { IsInt } from 'class-validator';
 import {

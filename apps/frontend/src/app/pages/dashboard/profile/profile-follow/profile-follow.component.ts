@@ -3,7 +3,7 @@ import { ReplaySubject } from 'rxjs';
 import { NbDialogService, NbToastrService } from '@nebular/theme';
 import { finalize } from 'rxjs/operators';
 import { ProfileNotifyEditComponent } from './profile-notify-edit/profile-notify-edit.component';
-import { Follow, User } from '@momentum/types';
+import { Follow, User } from '@momentum/constants';
 import { LocalUserService } from '@momentum/frontend/data';
 
 @Component({

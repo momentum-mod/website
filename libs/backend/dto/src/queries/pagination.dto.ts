@@ -1,4 +1,4 @@
-﻿import { PagedQuery } from '@momentum/types';
+﻿import { PagedQuery } from '@momentum/constants';
 import { SkipQueryProperty, TakeQueryProperty } from '../decorators';
 import { QueryDto } from './query.dto';
 

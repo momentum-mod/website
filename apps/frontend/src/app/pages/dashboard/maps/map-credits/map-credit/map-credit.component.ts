@@ -1,6 +1,6 @@
 import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { CdkDragDrop, moveItemInArray } from '@angular/cdk/drag-drop';
-import { MapCredit, User } from '@momentum/types';
+import { MapCredit, User } from '@momentum/constants';
 import { MapCreditType } from '@momentum/constants';
 
 export interface CreditChangeEvent {

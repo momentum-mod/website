@@ -20,7 +20,7 @@ import {
   CreateMapTrack,
   CreateMapZone,
   CreateMap
-} from '@momentum/types';
+} from '@momentum/constants';
 import { LocalUserService, MapsService } from '@momentum/frontend/data';
 import {
   MapCreditType,

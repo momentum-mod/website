@@ -8,7 +8,7 @@ import {
 } from '@angular/core';
 import { MapStatus } from '@momentum/constants';
 import { AdminService, MapsService } from '@momentum/frontend/data';
-import { Map } from '@momentum/types';
+import { Map } from '@momentum/constants';
 import { NbToastrService } from '@nebular/theme';
 
 @Component({

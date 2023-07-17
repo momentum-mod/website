@@ -8,7 +8,7 @@ import {
   RankXpGain,
   RankXpParams,
   XpSystems
-} from '@momentum/types';
+} from '@momentum/constants';
 import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
 import { instanceToPlain } from 'class-transformer';
 import { DbService } from '../database/db.service';

@@ -1,7 +1,7 @@
 ﻿import { PagedQueryDto } from './pagination.dto';
 import { EnumQueryProperty, IntQueryProperty } from '../decorators';
 import { ActivityType } from '@momentum/constants';
-import { ActivitiesGetQuery } from '@momentum/types';
+import { ActivitiesGetQuery } from '@momentum/constants';
 
 export class ActivitiesGetQueryDto
   extends PagedQueryDto

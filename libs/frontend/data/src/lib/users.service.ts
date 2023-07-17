@@ -6,8 +6,8 @@ import {
   UsersGetAllQuery,
   Follow,
   UsersGetCreditsQuery
-} from '@momentum/types';
-import { MapCredit, User } from '@momentum/types';
+} from '@momentum/constants';
+import { MapCredit, User } from '@momentum/constants';
 import { HttpService } from './http.service';
 
 @Injectable({ providedIn: 'root' })

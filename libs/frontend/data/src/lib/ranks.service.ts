@@ -5,7 +5,7 @@ import {
   MapRanksGetQuery,
   PagedResponse,
   Rank
-} from '@momentum/types';
+} from '@momentum/constants';
 import { HttpService } from './http.service';
 
 @Injectable({ providedIn: 'root' })

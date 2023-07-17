@@ -25,7 +25,7 @@ it.todo('This one is a nightmare to mock...');
 // } from '@momentum/frontend/data';
 // import { mock, mockDeep } from 'jest-mock-extended';
 // import { ThemeModule } from '@momentum/frontend/theme';
-// import { Map, User } from '@momentum/types';
+// import { Map, User } from '@momentum/constants';
 // import { PipesModule } from '@momentum/frontend/pipes';
 // import { of } from 'rxjs';
 //

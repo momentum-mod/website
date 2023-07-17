@@ -1,4 +1,4 @@
-import { Follow, FollowStatus, UpdateFollowStatus } from '@momentum/types';
+import { Follow, FollowStatus, UpdateFollowStatus } from '@momentum/constants';
 import { UserDto } from './user.dto';
 import { PickType } from '@nestjs/swagger';
 import {

@@ -1,4 +1,4 @@
-import { BitwiseEnum, User } from '@momentum/types';
+import { BitwiseEnum, User } from '@momentum/constants';
 import { ApiProperty, ApiPropertyOptional, PickType } from '@nestjs/swagger';
 import { IsInt, IsISO31661Alpha2, IsOptional, IsString } from 'class-validator';
 import { Exclude, Expose } from 'class-transformer';

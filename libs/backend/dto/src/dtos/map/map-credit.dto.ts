@@ -1,4 +1,8 @@
-import { MapCredit, CreateMapCredit, UpdateMapCredit } from '@momentum/types';
+import {
+  MapCredit,
+  CreateMapCredit,
+  UpdateMapCredit
+} from '@momentum/constants';
 import { UserDto } from '../user/user.dto';
 import { MapDto } from './map.dto';
 import { PickType } from '@nestjs/swagger';

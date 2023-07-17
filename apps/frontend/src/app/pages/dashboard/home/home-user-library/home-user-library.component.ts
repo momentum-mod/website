@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { LocalUserService } from '@momentum/frontend/data';
-import { Map } from '@momentum/types';
+import { Map } from '@momentum/constants';
 
 @Component({
   selector: 'mom-home-user-library',

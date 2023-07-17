@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { FormArray, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { AdminService } from '@momentum/frontend/data';
-import { XpSystems } from '@momentum/types';
+import { XpSystems } from '@momentum/constants';
 import { NbToastrService } from '@nebular/theme';
 
 @Component({

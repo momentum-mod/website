@@ -6,7 +6,7 @@ import {
   MapRanksGetQuery,
   MapsGetAllQuery,
   MapsGetQuery
-} from '@momentum/types';
+} from '@momentum/constants';
 import {
   BooleanQueryProperty,
   EnumQueryProperty,

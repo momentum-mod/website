@@ -7,7 +7,7 @@ import {
   IdProperty,
   UpdatedAtProperty
 } from '../../decorators';
-import { MapImage } from '@momentum/types';
+import { MapImage } from '@momentum/constants';
 
 export class MapImageDto implements MapImage {
   @IdProperty()

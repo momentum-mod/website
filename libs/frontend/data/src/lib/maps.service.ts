@@ -11,8 +11,8 @@ import {
   MapsGetAllQuery,
   MapsGetQuery,
   UpdateMapCredit
-} from '@momentum/types';
-import { PagedResponse } from '@momentum/types';
+} from '@momentum/constants';
+import { PagedResponse } from '@momentum/constants';
 import { HttpService } from './http.service';
 
 @Injectable({ providedIn: 'root' })

@@ -1,5 +1,5 @@
 import { Component, Input } from '@angular/core';
-import { TwitchStream } from '@momentum/types';
+import { TwitchStream } from '@momentum/constants';
 
 @Component({
   selector: 'mom-twitch-data',
