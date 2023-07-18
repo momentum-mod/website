@@ -44,6 +44,7 @@ export class UserProfileComponent implements OnInit, OnDestroy {
   isVerified: boolean;
   isMod: boolean;
   isAdmin: boolean;
+  isDeleted: boolean;
   avatarUrl: string;
   avatarLoaded: boolean;
   countryDisplayName: string;
@@ -63,6 +64,7 @@ export class UserProfileComponent implements OnInit, OnDestroy {
     this.isMapper = false;
     this.isMod = false;
     this.isAdmin = false;
+    this.isDeleted = false;
     this.isVerified = false;
     this.followingUsers = [];
     this.followedByUsers = [];
@@ -105,6 +107,7 @@ export class UserProfileComponent implements OnInit, OnDestroy {
           this.isMapper = this.hasRole(Role.MAPPER);
           this.isMod = this.hasRole(Role.MODERATOR);
           this.isAdmin = this.hasRole(Role.ADMIN);
+          this.isDeleted = this.hasRole(Role.DELETED);
           this.isVerified = this.hasRole(Role.VERIFIED);
           this.userSubject.next(user);
           if (!this.hasBan(Ban.AVATAR) && this.user.avatarURL)

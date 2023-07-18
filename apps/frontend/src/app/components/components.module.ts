@@ -8,6 +8,7 @@ import { NotificationComponent } from './notification/notification.component';
 import { CreateReportDialogComponent } from './report/create-report-dialog/create-report-dialog.component';
 import { ReportButtonComponent } from './report/report-button/report-button.component';
 import { SearchInputComponent } from './search-input/search-input.component';
+import { DeleteUserDialogComponent } from './delete-user-dialog/delete-user-dialog.component';
 import { CommonModule, NgOptimizedImage } from '@angular/common';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { ThemeModule } from '@momentum/frontend/theme';
@@ -25,7 +26,8 @@ const COMPONENTS = [
   ActivityListComponent,
   ReportButtonComponent,
   CreateReportDialogComponent,
-  ConfirmDialogComponent
+  ConfirmDialogComponent,
+  DeleteUserDialogComponent
 ];
 
 @NgModule({
