@@ -508,17 +508,184 @@ describe('Admin', () => {
 
       afterEach(() => prisma.user.deleteMany());
 
-      it('should delete a user', async () => {
+      afterAll(() => db.cleanup('map', 'rank', 'run', 'report', 'activity'));
+
+      it('should delete user data, leaving placeholder', async () => {
+        const followeeUser = await db.createUser();
+        const map = await db.createMap();
+        let userToBeDeleted = await prisma.user.create({
+          data: {
+            roles: Role.MAPPER,
+            bans: Ban.BIO,
+            steamID: 12345,
+            alias: 'User to be deleted',
+            avatar: 'yeeeee',
+            country: 'NA',
+            userAuth: { create: { refreshToken: 'yeeeee' } },
+            profile: {
+              create: { bio: 'yeeeee', socials: { RandomSocial: 'bemyguest' } }
+            },
+            userStats: { create: { totalJumps: 100 } },
+            submittedMaps: { connect: [{ id: map.id }] },
+            mapCredits: {
+              create: { type: MapCreditType.AUTHOR, mapID: map.id }
+            },
+            mapFavorites: { create: { map: { connect: { id: map.id } } } },
+            mapLibraryEntries: { create: { map: { connect: { id: map.id } } } },
+            mapReviews: {
+              create: {
+                map: { connect: { id: map.id } },
+                text: "That's a good map"
+              }
+            },
+            follows: {
+              create: { followed: { connect: { id: followeeUser.id } } }
+            },
+            followers: {
+              create: { followee: { connect: { id: followeeUser.id } } }
+            },
+            mapNotifies: {
+              create: { map: { connect: { id: map.id } }, notifyOn: 8 }
+            },
+            runSessions: {
+              create: {
+                trackNum: 1,
+                zoneNum: 1,
+                track: { connect: { id: map.mainTrackID } }
+              }
+            }
+          },
+          include: {
+            userAuth: true,
+            profile: true,
+            userStats: true,
+            submittedMaps: true,
+            mapCredits: true,
+            mapFavorites: true,
+            mapLibraryEntries: true,
+            mapRanks: true,
+            mapReviews: true,
+            activities: true,
+            follows: true,
+            followers: true,
+            mapNotifies: true,
+            notifications: true,
+            runSessions: true,
+            runs: true,
+            reportSubmitted: true,
+            reportResolved: true
+          }
+        });
+        await db.createRunAndRankForMap({ map, user: userToBeDeleted });
+        await prisma.activity.create({
+          data: {
+            type: ActivityType.MAP_APPROVED,
+            data: 123,
+            notifications: {
+              create: {
+                read: true,
+                user: { connect: { id: userToBeDeleted.id } }
+              }
+            },
+            user: { connect: { id: userToBeDeleted.id } }
+          }
+        });
+        await prisma.report.create({
+          data: {
+            data: 123,
+            type: ReportType.MAP_REPORT,
+            category: ReportCategory.INAPPROPRIATE_CONTENT,
+            message: 'yeeeee',
+            resolved: true,
+            resolutionMessage: 'yeeeeee',
+            submitter: { connect: { id: userToBeDeleted.id } },
+            resolver: { connect: { id: userToBeDeleted.id } }
+          }
+        });
+
+        userToBeDeleted = await prisma.user.findUnique({
+          where: { id: userToBeDeleted.id },
+          include: {
+            userAuth: true,
+            profile: true,
+            userStats: true,
+            submittedMaps: true,
+            mapCredits: true,
+            mapFavorites: true,
+            mapLibraryEntries: true,
+            mapRanks: true,
+            mapReviews: true,
+            activities: true,
+            follows: true,
+            followers: true,
+            mapNotifies: true,
+            notifications: true,
+            runSessions: true,
+            runs: true,
+            reportSubmitted: true,
+            reportResolved: true
+          }
+        });
+
         await req.del({
-          url: `admin/users/${u1.id}`,
+          url: `admin/users/${userToBeDeleted.id}`,
           status: 204,
           token: adminToken
         });
 
-        await req.get({
-          url: `users/${u1.id}`,
-          status: 404,
-          token: adminToken
+        const deletedUser = await prisma.user.findUnique({
+          where: { id: userToBeDeleted.id },
+          include: {
+            userAuth: true,
+            profile: true,
+            userStats: true,
+            submittedMaps: true,
+            mapCredits: true,
+            mapFavorites: true,
+            mapLibraryEntries: true,
+            mapRanks: true,
+            mapReviews: true,
+            activities: true,
+            follows: true,
+            followers: true,
+            mapNotifies: true,
+            notifications: true,
+            runSessions: true,
+            runs: true,
+            reportSubmitted: true,
+            reportResolved: true
+          }
+        });
+
+        expect(deletedUser).toMatchObject({
+          roles: Role.DELETED,
+          bans: userToBeDeleted.bans,
+          steamID: null,
+          alias: 'Deleted User',
+          avatar: null,
+          country: null,
+          userAuth: null,
+          profile: {
+            bio: '',
+            featuredBadgeID: null,
+            socials: {}
+          },
+          userStats: userToBeDeleted.userStats,
+          submittedMaps: userToBeDeleted.submittedMaps,
+          mapCredits: userToBeDeleted.mapCredits,
+          mapFavorites: [],
+          mapLibraryEntries: [],
+          mapRanks: userToBeDeleted.mapRanks,
+          mapReviews: userToBeDeleted.mapReviews,
+          activities: [],
+          follows: [],
+          followers: [],
+          mapNotifies: userToBeDeleted.mapNotifies,
+          notifications: [],
+          runSessions: [],
+          runs: userToBeDeleted.runs,
+          reportSubmitted: userToBeDeleted.reportSubmitted,
+          reportResolved: userToBeDeleted.reportResolved
         });
       });
 

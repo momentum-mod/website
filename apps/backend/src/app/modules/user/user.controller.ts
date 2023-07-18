@@ -90,6 +90,14 @@ export class UserController {
     return this.usersService.update(userID, updateDto);
   }
 
+  @Delete()
+  @HttpCode(HttpStatus.NO_CONTENT)
+  @ApiOperation({ summary: "Delete the local users's data" })
+  @ApiNoContentResponse({ description: 'The user was successfully deleted' })
+  deleteUser(@LoggedInUser('id') userID: number) {
+    return this.usersService.delete(userID);
+  }
+
   //#endregion
 
   //#region Profile

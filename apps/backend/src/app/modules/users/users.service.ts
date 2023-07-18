@@ -281,6 +281,46 @@ export class UsersService {
     await this.db.user.update({ where: { id: userID }, data: updateInput });
   }
 
+  async delete(userID: number) {
+    const user = await this.db.user.findUnique({
+      where: { id: userID }
+    });
+
+    if (!user) throw new NotFoundException('Could not find the user');
+    if (Bitflags.has(user.roles, Role.DELETED)) return;
+
+    const updateInputToClean: Prisma.UserUpdateInput = {
+      roles: Role.DELETED,
+      steamID: null,
+      alias: 'Deleted User',
+      avatar: null,
+      country: null,
+      profile: {
+        update: { bio: '', socials: {} }
+      },
+      mapFavorites: { deleteMany: {} },
+      mapLibraryEntries: { deleteMany: {} },
+      activities: { deleteMany: {} },
+      follows: { deleteMany: {} },
+      followers: { deleteMany: {} },
+      notifications: { deleteMany: {} },
+      runSessions: { deleteMany: {} }
+    };
+
+    // TODO: Use this.db.$transaction instead of Promise.all
+    await Promise.all([
+      this.db.user.update({
+        where: { id: userID },
+        data: updateInputToClean
+      }),
+      this.db.userAuth.deleteMany({
+        where: {
+          userID
+        }
+      })
+    ]);
+  }
+
   //#endregion
 
   //#region Auth
