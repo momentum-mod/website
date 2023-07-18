@@ -89,6 +89,10 @@ export class LocalUserService {
     return this.http.patch('user', { body });
   }
 
+  public deleteUser(): Observable<void> {
+    return this.http.delete('user');
+  }
+
   public getMapLibrary(
     query?: UserMapLibraryGetQuery
   ): Observable<PagedResponse<MapLibraryEntry>> {

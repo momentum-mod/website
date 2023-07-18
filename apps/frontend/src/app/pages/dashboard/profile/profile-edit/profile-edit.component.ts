@@ -4,6 +4,7 @@ import { ActivatedRoute, ParamMap, Router } from '@angular/router';
 import { switchMap, takeUntil } from 'rxjs/operators';
 import { of, Subject } from 'rxjs';
 import { ConfirmDialogComponent } from '../../../../components/confirm-dialog/confirm-dialog.component';
+import { DeleteUserDialogComponent } from '../../../../components/delete-user-dialog/delete-user-dialog.component';
 import { NbDialogService, NbToastrService } from '@nebular/theme';
 import { AdminUpdateUser, UpdateUser, User } from '@momentum/types';
 import {
@@ -237,24 +238,32 @@ export class ProfileEditComponent implements OnInit, OnDestroy {
 
   deleteUser() {
     this.dialogService
-      .open(ConfirmDialogComponent, {
-        context: {
-          title: 'Delete user?',
-          message: `You are about to delete this user!
-        This will erase everything that the user has ever done!
-        Are you sure you want to proceed?`
-        }
-      })
+      .open(DeleteUserDialogComponent)
       .onClose.subscribe((response) => {
         if (!response) return;
-        this.adminService.deleteUser(this.user.id).subscribe({
-          next: () => {
-            this.toasterService.success('Successfully deleted user!');
-            this.router.navigate(['/dashboard']);
-          },
-          error: () => this.toasterService.danger('Failed to delete user!')
-        });
+        if (this.isLocal) this.deleteLocalUser();
+        else this.deleteUserAsAdmin();
       });
+  }
+
+  deleteUserAsAdmin() {
+    this.adminService.deleteUser(this.user.id).subscribe({
+      next: () => {
+        this.toasterService.success('Successfully deleted user!');
+        this.router.navigate(['/dashboard']);
+      },
+      error: () => this.toasterService.danger('Failed to delete user!')
+    });
+  }
+
+  deleteLocalUser() {
+    this.localUserService.deleteUser().subscribe({
+      next: () => {
+        this.toasterService.success('Successfully deleted user!');
+        this.authService.logout();
+      },
+      error: () => this.toasterService.danger('Failed to delete user!')
+    });
   }
 
   selectMergeUser(user1: User) {

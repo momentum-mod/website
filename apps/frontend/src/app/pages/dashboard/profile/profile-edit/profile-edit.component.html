@@ -117,9 +117,11 @@
               <button type="button" nbButton outline status="danger" size="small" (click)="mergeUsers()" class="mt-1">Merge To User</button>
             </div>
           </div>
-          <button type="button" class="mt-5" nbButton outline status="danger" (click)="deleteUser()">Delete User</button>
         </div>
       </div>
+    </div>
+    <div class="mb-3">
+      <button type="button" nbButton outline *ngIf="!hasRole(Role.DELETED)" status="danger" (click)="deleteUser()">Delete User</button>
     </div>
     <button nbButton outline status="info" size="medium" class="submit-btn" type="submit" [disabled]="form.touched && !form.valid">
       Save changes
