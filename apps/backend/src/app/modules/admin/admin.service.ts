@@ -243,25 +243,6 @@ export class AdminService {
     await this.db.user.update({ where: { id: userID }, data: updateInput });
   }
 
-  async deleteUser(userID: number) {
-    const user = await this.db.user.findUnique({
-      where: { id: userID },
-      select: { roles: true }
-    });
-
-    if (!user) throw new NotFoundException('User not found');
-
-    if (
-      Bitflags.has(user.roles, Role.ADMIN) ||
-      Bitflags.has(user.roles, Role.MODERATOR)
-    )
-      throw new ForbiddenException(
-        'Will delete admins or moderators, remove their roles first'
-      );
-
-    await this.db.user.delete({ where: { id: userID } });
-  }
-
   async getReports(
     skip?: number,
     take?: number,

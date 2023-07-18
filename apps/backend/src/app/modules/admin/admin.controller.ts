@@ -30,6 +30,7 @@ import { LoggedInUser, Roles } from '@momentum/backend/decorators';
 import { Role as RolesEnum } from '@momentum/constants';
 import { XpSystemsService } from '../xp-systems/xp-systems.service';
 import { MapsService } from '../maps/maps.service';
+import { UsersService } from '../users/users.service';
 import {
   AdminCtlMapsGetAllQueryDto,
   AdminGetReportsQueryDto,
@@ -58,7 +59,8 @@ export class AdminController {
   constructor(
     private readonly adminService: AdminService,
     private readonly xpSystems: XpSystemsService,
-    private readonly mapsService: MapsService
+    private readonly mapsService: MapsService,
+    private readonly usersService: UsersService
   ) {}
 
   @Post('/users')
@@ -130,7 +132,7 @@ export class AdminController {
   })
   @ApiNoContentResponse({ description: 'The user was deleted successfully' })
   deleteUser(@Param('userID', ParseIntSafePipe) userID: number) {
-    return this.adminService.deleteUser(userID);
+    return this.usersService.delete(userID);
   }
 
   // This seems to only be used to reset all cosmetic or ranked XP.
