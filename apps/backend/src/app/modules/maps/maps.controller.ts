@@ -41,7 +41,6 @@ import { FastifyReply } from 'fastify';
 import { FileInterceptor } from '@nest-lab/fastify-multer';
 import { RanksService } from '../ranks/ranks.service';
 import { RolesGuard } from '../auth/roles.guard';
-import { RunsService } from '../runs/runs.service';
 import {
   ApiOkPagedResponse,
   CreateMapCreditDto,
@@ -54,12 +53,10 @@ import {
   MapRankGetNumberQueryDto,
   MapRanksGetQueryDto,
   MapsCtlGetAllQueryDto,
-  MapsCtlRunsGetAllQueryDto,
   MapsGetQueryDto,
   MapTrackDto,
   PagedResponseDto,
   RankDto,
-  RunDto,
   UpdateMapCreditDto,
   UpdateMapDto,
   UpdateMapInfoDto
@@ -76,7 +73,6 @@ import { Config } from '@momentum/backend/config';
 export class MapsController {
   constructor(
     private readonly mapsService: MapsService,
-    private readonly runsService: RunsService,
     private readonly ranksService: RanksService
   ) {}
 
@@ -464,32 +460,6 @@ export class MapsController {
   ): Promise<MapTrackDto[]> {
     return this.mapsService.getZones(mapID);
   }
-  //#endregion
-
-  //#region Runs
-
-  @Get('/:mapID/runs')
-  @ApiOperation({
-    summary: 'Returns a paginated list of runs for a specific map'
-  })
-  @ApiParam({
-    name: 'mapID',
-    type: Number,
-    description: 'Target Map ID',
-    required: true
-  })
-  @ApiOkResponse({
-    type: PagedResponseDto,
-    description: "The found map's zones"
-  })
-  @ApiNotFoundResponse({ description: 'Map not found' })
-  getRuns(
-    @Param('mapID', ParseIntSafePipe) mapID: number,
-    @Query() query?: MapsCtlRunsGetAllQueryDto
-  ): Promise<PagedResponseDto<RunDto>> {
-    return this.runsService.getAll(query);
-  }
-
   //#endregion
 
   //#region Images
