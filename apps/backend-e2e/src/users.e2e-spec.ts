@@ -5,7 +5,6 @@ import {
   FollowDto,
   MapCreditDto,
   ProfileDto,
-  RunDto,
   UserDto
 } from '@momentum/backend/dto';
 import {
@@ -592,47 +591,6 @@ describe('Users', () => {
 
       it('should 401 when no access token is provided', () =>
         req.unauthorizedTest('users/1/credits', 'get'));
-    });
-  });
-
-  describe('users/{userID}/runs', () => {
-    describe('GET', () => {
-      let user, token;
-
-      beforeAll(async () => {
-        [user, token] = await db.createAndLoginUser();
-        await Promise.all([
-          db.createRunAndRankForMap({ user: user }),
-          db.createRunAndRankForMap({ user: user })
-        ]);
-      });
-
-      afterAll(() => db.cleanup('user', 'map', 'run'));
-
-      it('should respond with a list of runs for a specific user', () =>
-        req.get({
-          url: `users/${user.id}/runs`,
-          status: 200,
-          validatePaged: { type: RunDto, count: 2 },
-          token: token
-        }));
-
-      it('should respond with limited list of runs with take parameter', () =>
-        req.takeTest({
-          url: `users/${user.id}/runs`,
-          validate: RunDto,
-          token: token
-        }));
-
-      it('should respond with different list of runs with skip parameter', () =>
-        req.skipTest({
-          url: `users/${user.id}/runs`,
-          validate: RunDto,
-          token: token
-        }));
-
-      it('should 401 when no access token is provided', () =>
-        req.unauthorizedTest('users/1/runs', 'get'));
     });
   });
 });

@@ -6,7 +6,6 @@ import {
   PagedResponseDto,
   PagedQueryDto,
   ProfileDto,
-  RunDto,
   UserDto,
   UsersGetActivitiesQueryDto,
   UsersGetAllQueryDto,
@@ -25,7 +24,6 @@ import {
   ApiOkResponse,
   ApiNotFoundResponse
 } from '@nestjs/swagger';
-import { RunsService } from '../runs/runs.service';
 import { UsersService } from './users.service';
 
 @Controller('users')
@@ -33,10 +31,7 @@ import { UsersService } from './users.service';
 @ApiBearerAuth()
 @ApiExtraModels(PagedResponseDto)
 export class UsersController {
-  constructor(
-    private readonly usersService: UsersService,
-    private readonly runsService: RunsService
-  ) {}
+  constructor(private readonly usersService: UsersService) {}
 
   //#region Main User Endpoints
 
@@ -182,32 +177,6 @@ export class UsersController {
       query.skip,
       query.take
     );
-  }
-
-  //#endregion
-
-  //#region Runs
-
-  @Get('/:userID/runs')
-  @ApiOperation({ summary: "Returns all of a single user's runs" })
-  @ApiParam({
-    name: 'userID',
-    type: Number,
-    description: 'Target User ID',
-    required: true
-  })
-  @ApiOkPagedResponse(UserDto, {
-    description: "Paginated list of the user's runs"
-  })
-  getRuns(
-    @Param('userID', ParseIntSafePipe) userID: number,
-    @Query() query: PagedQueryDto
-  ): Promise<PagedResponseDto<RunDto>> {
-    return this.runsService.getAll({
-      userID: userID,
-      take: query.take,
-      skip: query.skip
-    });
   }
 
   //#endregion

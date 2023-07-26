@@ -9,11 +9,9 @@ import { FileStoreCloudService } from '../filestore/file-store-cloud.service';
 import {
   DtoFactory,
   expandToPrismaIncludes,
-  MapsCtlRunsGetAllQueryDto,
   PagedResponseDto,
   RunDto,
-  RunsGetAllQueryDto,
-  UserCtlRunsGetAllQueryDto
+  RunsGetAllQueryDto
 } from '@momentum/backend/dto';
 import { DbService } from '../database/db.service';
 
@@ -48,57 +46,45 @@ export class RunsService {
     return DtoFactory(RunDto, dbResponse);
   }
 
-  async getAll(
-    query:
-      | RunsGetAllQueryDto
-      | MapsCtlRunsGetAllQueryDto
-      | UserCtlRunsGetAllQueryDto
-  ): Promise<PagedResponseDto<RunDto>> {
+  async getAll(query: RunsGetAllQueryDto): Promise<PagedResponseDto<RunDto>> {
     const where: Prisma.RunWhereInput = {};
     let include: Prisma.RunInclude = {};
     const orderBy: Prisma.RunOrderByWithRelationInput = {};
 
-    if (query instanceof UserCtlRunsGetAllQueryDto) {
-      where.userID = query.userID;
-    } else {
-      include = {
-        user: true,
-        ...expandToPrismaIncludes(
-          query.expand?.filter((x) =>
-            ['overallStats', 'zoneStats', 'rank', 'map'].includes(x)
-          )
+    include = {
+      user: true,
+      ...expandToPrismaIncludes(
+        query.expand?.filter((x) =>
+          ['overallStats', 'zoneStats', 'rank', 'map'].includes(x)
         )
-      };
+      )
+    };
 
-      if (query.expand?.includes('mapWithInfo'))
-        include.map = { include: { info: true } };
+    if (query.expand?.includes('mapWithInfo'))
+      include.map = { include: { info: true } };
 
-      if (query.userID && query.userIDs)
-        throw new BadRequestException(
-          'Only one of userID and userIDs may be used at the same time'
-        );
+    if (query.userID && query.userIDs)
+      throw new BadRequestException(
+        'Only one of userID and userIDs may be used at the same time'
+      );
 
-      if (!(query instanceof MapsCtlRunsGetAllQueryDto)) {
-        if (query.mapID && query.mapName)
-          throw new BadRequestException(
-            'Only one of mapID and mapName may be used at the same time'
-          );
+    if (query.mapID && query.mapName)
+      throw new BadRequestException(
+        'Only one of mapID and mapName may be used at the same time'
+      );
 
-        if (query.mapID) where.mapID = query.mapID;
-        else if (query.mapName)
-          where.map = { name: { contains: query.mapName } };
-      }
+    if (query.mapID) where.mapID = query.mapID;
+    else if (query.mapName) where.map = { name: { contains: query.mapName } };
 
-      if (query.userID) where.userID = query.userID;
-      else if (query.userIDs) where.userID = { in: query.userIDs };
+    if (query.userID) where.userID = query.userID;
+    else if (query.userIDs) where.userID = { in: query.userIDs };
 
-      if (query.isPB) where.rank = { isNot: null };
+    if (query.isPB) where.rank = { isNot: null };
 
-      if (query.flags) where.flags = query.flags; // Currently checks for exact equality, will change in 0.10.0
+    if (query.flags) where.flags = query.flags; // Currently checks for exact equality, will change in 0.10.0
 
-      if (query.order === 'date') orderBy.createdAt = 'desc';
-      else orderBy.ticks = 'asc';
-    }
+    if (query.order === 'date') orderBy.createdAt = 'desc';
+    else orderBy.ticks = 'asc';
 
     const dbResponse = await this.db.run.findManyAndCount({
       where,
