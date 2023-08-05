@@ -79,6 +79,18 @@ describe('Users', () => {
         expect(res.body.data[0].id).toBe(users[0].id);
       });
 
+      it('should respond with a paged list of users containing a case-insensitive match on an alias', async () => {
+        const res = await req.get({
+          url: 'users',
+          status: 200,
+          query: { search: users[0].alias.toUpperCase() },
+          validatePaged: { type: UserDto, count: 1 },
+          token: token
+        });
+
+        expect(res.body.data[0].id).toBe(users[0].id);
+      });
+
       it('should respond with an empty a paged list of users using a search by parameter containing a nonexistent alias', () =>
         req.get({
           url: 'users',

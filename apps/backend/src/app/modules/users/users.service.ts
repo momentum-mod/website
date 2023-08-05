@@ -66,7 +66,12 @@ export class UsersService {
       where.steamID = { in: query.steamIDs.map(BigInt) };
     }
 
-    if (query.search) where.alias = { startsWith: query.search };
+    if (query.search) {
+      where.alias = {
+        startsWith: query.search,
+        mode: 'insensitive'
+      };
+    }
 
     let include: Prisma.UserInclude = expandToPrismaIncludes(query.expand);
 
