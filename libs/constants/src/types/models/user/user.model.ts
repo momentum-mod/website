@@ -4,10 +4,12 @@ import { UserStats } from './user-stats.model';
 import { Rank } from '../run/rank.model';
 import { Socials } from './socials.model';
 import { Bitfield } from '../../utils';
+import { Role } from '../../../enums/role.enum';
+import { Ban } from '../../../enums/bans.enum';
 
 export interface User extends Omit<PrismaUser, 'avatar'> {
-  roles: Bitfield;
-  bans: Bitfield;
+  roles: Bitfield<Role>;
+  bans: Bitfield<Ban>;
   avatarURL: string;
   profile?: Profile;
   userStats?: UserStats;
@@ -23,8 +25,8 @@ export interface UpdateUser {
 }
 
 export interface AdminUpdateUser extends UpdateUser {
-  roles?: Bitfield;
-  bans?: Bitfield;
+  roles?: Bitfield<Role>;
+  bans?: Bitfield<Ban>;
 }
 
 export interface MergeUser {
