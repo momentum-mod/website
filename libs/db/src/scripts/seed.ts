@@ -302,9 +302,10 @@ async function main(prisma: PrismaClient) {
   async function createRandomMapReview(userID, mapID) {
     return prisma.mapReview.create({
       data: {
+        resolved: false,
         reviewerID: userID,
         mapID: mapID,
-        text: faker.lorem.sentences(),
+        mainText: faker.lorem.sentences(),
         ...Random.createdUpdatedDates()
       }
     });

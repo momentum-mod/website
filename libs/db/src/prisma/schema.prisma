@@ -27,16 +27,19 @@ model User {
   mapFavorites      MapFavorite[]
   mapLibraryEntries MapLibraryEntry[]
   mapRanks          Rank[]
-  mapReviews        MapReview[]
   activities        Activity[]
-  follows           Follow[]          @relation("follow_follow")
-  followers         Follow[]          @relation("follow_follower")
+  follows           Follow[]            @relation("follow_follow")
+  followers         Follow[]            @relation("follow_follower")
   mapNotifies       MapNotify[]
   notifications     Notification[]
   runSessions       RunSession[]
   runs              Run[]
-  reportSubmitted   Report[]          @relation("report_submitter")
-  reportResolved    Report[]          @relation("report_resolver")
+  reportSubmitted   Report[]            @relation("report_submitter")
+  reportResolved    Report[]            @relation("report_resolver")
+  testingRequests   MapTestingRequest[]
+  reviewsSubmitted  MapReview[]         @relation("mapreview_reviewer")
+  reviewsResolved   MapReview[]         @relation("mapreview_resolver")
+  reviewComments    MapReviewComment[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -193,15 +196,17 @@ model Map {
   mainTrack   MapTrack? @relation("map_maintrack", fields: [mainTrackID], references: [id], onDelete: SetNull)
   mainTrackID Int?      @unique
 
-  credits        MapCredit[]
-  favorites      MapFavorite[]
-  images         MapImage[]
-  libraryEntries MapLibraryEntry[]
-  notifies       MapNotify[]
-  ranks          Rank[]
-  reviews        MapReview[]
-  tracks         MapTrack[]
-  runs           Run[]
+  credits         MapCredit[]
+  favorites       MapFavorite[]
+  images          MapImage[]
+  libraryEntries  MapLibraryEntry[]
+  notifies        MapNotify[]
+  ranks           Rank[]
+  reviews         MapReview[]
+  tracks          MapTrack[]
+  runs            Run[]
+  submission      MapSubmission?
+  testingRequests MapTestingRequest[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -304,23 +309,6 @@ model MapNotify {
   @@id([userID, mapID])
   @@unique([userID, mapID], map: "mapnotify_unique")
   @@index([userID, mapID])
-}
-
-model MapReview {
-  id Int @id @default(autoincrement())
-
-  text String @db.VarChar(1000)
-
-  map   Map @relation(fields: [mapID], references: [id], onDelete: Cascade)
-  mapID Int
-
-  reviewer   User @relation(fields: [reviewerID], references: [id], onDelete: Cascade)
-  reviewerID Int
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  @@index([mapID, reviewerID])
 }
 
 model MapTrack {
@@ -438,6 +426,97 @@ model MapStats {
   baseStatsID BigInt?    @unique
 
   @@index([baseStatsID, mapID])
+}
+
+model MapTestingRequest {
+  mapID Int
+  map   Map @relation(fields: [mapID], references: [id], onDelete: Cascade)
+
+  userID Int
+  user   User @relation(fields: [userID], references: [id], onDelete: Cascade)
+
+  state Int @db.SmallInt /// map-testing-request-state.enum.ts
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@id([mapID, userID])
+  @@index([mapID])
+}
+
+model MapSubmission {
+  mapID Int
+  map   Map @relation(fields: [mapID], references: [id], onDelete: Cascade)
+
+  type Int @db.SmallInt /// map-submission-type.enum.ts
+
+  suggestions         Json /// map-submission-suggestions.model.ts
+  wantsPrivateTesting Boolean
+  placeholders        Json?
+
+  versions MapSubmissionVersion[]
+
+  currentVersion   MapSubmissionVersion? @relation(name: "current_version", fields: [currentVersionID], references: [id])
+  currentVersionID String                @unique
+
+  @@id([mapID])
+}
+
+model MapSubmissionVersion {
+  id String @id @default(uuid()) // BSP file stored relative to this
+
+  currentVersion MapSubmission? @relation(name: "current_version")
+
+  versionNum Int    @db.SmallInt
+  changelog  String
+
+  submission   MapSubmission? @relation(fields: [submissionID], references: [mapID], onDelete: Cascade)
+  submissionID Int
+
+  @@index([submissionID])
+}
+
+// This model will be greatly expanded in the future to include screenshots,
+// replays, savestates etc.
+model MapReview {
+  id Int @id @default(autoincrement())
+
+  mainText    String
+  comments    MapReviewComment[]
+  suggestions Json               @default("{}") // map-submission-suggestions.model.ts
+  editHistory Json? // map-review-edit-history.model.ts
+
+  map   Map @relation(fields: [mapID], references: [id], onDelete: Cascade)
+  mapID Int
+
+  reviewer   User @relation(name: "mapreview_reviewer", fields: [reviewerID], references: [id], onDelete: Cascade)
+  reviewerID Int
+
+  resolved   Boolean @default(false)
+  resolver   User?   @relation(name: "mapreview_resolver", fields: [resolverID], references: [id], onDelete: Cascade)
+  resolverID Int?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([mapID])
+}
+
+model MapReviewComment {
+  id Int @id @default(autoincrement())
+
+  text String
+
+  user   User @relation(fields: [userID], references: [id], onDelete: Cascade)
+  userID Int
+
+  review   MapReview @relation(fields: [reviewID], references: [id], onDelete: Cascade)
+  reviewID Int
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([reviewID])
 }
 
 model BaseStats {
