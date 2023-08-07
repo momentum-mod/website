@@ -10,10 +10,11 @@ datasource db {
 model User {
   id Int @id @default(autoincrement())
 
-  roles Int @default(0) @db.SmallInt
-  bans  Int @default(0) @db.SmallInt
+  roles Int @default(0) @db.SmallInt /// Bitfield of roles.enum.ts
+  bans  Int @default(0) @db.SmallInt /// Bitfield of bans.enum.ts
 
-  steamID BigInt? @unique(map: "user_steamID") @db.BigInt // Optional because placeholders don't have SteamIDs
+  /// Optional because placeholders don't have SteamIDs
+  steamID BigInt? @unique(map: "user_steamID") @db.BigInt
   alias   String
   avatar  String?
   country String? @db.Char(2)
@@ -51,7 +52,7 @@ model Profile {
   user   User @relation(fields: [userID], references: [id], onDelete: Cascade)
   userID Int  @unique
 
-  socials Json?
+  socials Json? /// socials.model.ts
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -81,7 +82,10 @@ model UserStats {
 model Activity {
   id Int @id @default(autoincrement())
 
-  type Int    @default(0) @db.SmallInt
+  type Int @default(0) @db.SmallInt /// activity-type.enum.ts
+
+  /// This is used as a primary key into one of many possible tables,
+  /// determined by the value of `type`.
   data BigInt @db.BigInt
 
   notifications Notification[]
@@ -96,7 +100,7 @@ model Activity {
 }
 
 model Follow {
-  notifyOn Int @default(0) @db.SmallInt
+  notifyOn Int @default(0) @db.SmallInt /// Bitfield of activity-type.enum.ts
 
   followed   User @relation("follow_follower", fields: [followedID], references: [id], onDelete: Cascade)
   followedID Int
@@ -132,8 +136,10 @@ model Notification {
 model Report {
   id Int @id @default(autoincrement())
 
+  type              Int      @db.SmallInt /// report-type.enum.ts
+  /// This is used as a primary key into one of many possible tables,
+  /// determined by the value of `type`.
   data              BigInt   @db.BigInt
-  type              Int      @db.SmallInt
   category          Int      @db.SmallInt
   message           String?
   resolved          Boolean? @default(false)
@@ -169,10 +175,10 @@ model UserAuth {
 model Map {
   id Int @id @default(autoincrement())
 
-  type    Int     @default(0) @db.SmallInt
-  status  Int     @db.SmallInt
   name    String
   fileKey String?
+  type    Int     @default(0) @db.SmallInt /// gamemodes.enum.ts
+  status  Int     @db.SmallInt /// map-status.enum.ts
   hash    String? @db.Char(40)
 
   thumbnail   MapImage? @relation("mapimage_thumbnail", fields: [thumbnailID], references: [id], onDelete: SetNull)
@@ -206,7 +212,7 @@ model Map {
 model MapCredit {
   id Int @id @default(autoincrement())
 
-  type Int @db.SmallInt
+  type Int @db.SmallInt /// map-credit-type.enum.ts
 
   map   Map @relation(fields: [mapID], references: [id], onDelete: Cascade)
   mapID Int
@@ -284,7 +290,7 @@ model MapLibraryEntry {
 }
 
 model MapNotify {
-  notifyOn Int @db.SmallInt
+  notifyOn Int @db.SmallInt /// Bitfield of activity-type.enum.ts
 
   map   Map @relation(fields: [mapID], references: [id], onDelete: Cascade)
   mapID Int
