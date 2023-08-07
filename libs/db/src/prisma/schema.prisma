@@ -14,9 +14,9 @@ model User {
   bans  Int @default(0) @db.SmallInt
 
   steamID BigInt? @unique(map: "user_steamID") @db.BigInt // Optional because placeholders don't have SteamIDs
-  alias   String  @db.VarChar(64)
-  avatar  String? @db.VarChar(255)
-  country String? @db.VarChar(2)
+  alias   String
+  avatar  String?
+  country String? @db.Char(2)
 
   userAuth          UserAuth?
   profile           Profile?
@@ -46,7 +46,7 @@ model User {
 model Profile {
   id Int @id @default(autoincrement())
 
-  bio String @default("") @db.VarChar(1000)
+  bio String @default("")
 
   user   User @relation(fields: [userID], references: [id], onDelete: Cascade)
   userID Int  @unique
@@ -135,9 +135,9 @@ model Report {
   data              BigInt   @db.BigInt
   type              Int      @db.SmallInt
   category          Int      @db.SmallInt
-  message           String?  @db.VarChar(1000)
+  message           String?
   resolved          Boolean? @default(false)
-  resolutionMessage String?  @db.VarChar(1000)
+  resolutionMessage String?
 
   submitter   User? @relation("report_submitter", fields: [submitterID], references: [id], onDelete: SetNull)
   submitterID Int?
@@ -155,7 +155,7 @@ model Report {
 model UserAuth {
   id Int @id @default(autoincrement())
 
-  refreshToken String? @db.VarChar(255)
+  refreshToken String?
 
   user   User @relation(fields: [userID], references: [id], onDelete: Cascade)
   userID Int  @unique
@@ -169,10 +169,10 @@ model UserAuth {
 model Map {
   id Int @id @default(autoincrement())
 
-  name    String  @db.VarChar(32)
-  fileKey String? @db.VarChar(255)
   type    Int     @default(0) @db.SmallInt
   status  Int     @db.SmallInt
+  name    String
+  fileKey String?
   hash    String? @db.Char(40)
 
   thumbnail   MapImage? @relation("mapimage_thumbnail", fields: [thumbnailID], references: [id], onDelete: SetNull)
@@ -253,8 +253,8 @@ model MapImage {
 model MapInfo {
   id Int @id @default(autoincrement())
 
-  description  String   @default("") @db.VarChar(1000)
-  youtubeID    String?  @db.VarChar(11)
+  description  String   @default("")
+  youtubeID    String?
   numTracks    Int      @db.SmallInt
   creationDate DateTime
 
@@ -471,8 +471,8 @@ model Run {
   tickRate Float  @db.Real
   time     Float  @db.Real
   flags    Int
-  file     String @db.VarChar(255)
-  hash     String @db.VarChar(40)
+  file     String
+  hash     String @db.Char(40)
 
   rank Rank?
 
