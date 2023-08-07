@@ -1,7 +1,8 @@
 // prettier-ignore
 export enum Ban {
-  LEADERBOARDS = 0b0001,
-  ALIAS        = 0b0010,
-  AVATAR       = 0b0100,
-  BIO          = 0b1000,
+  LEADERBOARDS   = 0b00001,
+  ALIAS          = 0b00010,
+  AVATAR         = 0b00100,
+  BIO            = 0b01000,
+  MAP_SUBMISSION = 0b10000
 }
