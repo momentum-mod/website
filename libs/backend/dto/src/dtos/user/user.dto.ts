@@ -1,4 +1,4 @@
-import { Bitfield, User } from '@momentum/constants';
+import { Bitfield, Role, User } from '@momentum/constants';
 import { ApiProperty, ApiPropertyOptional, PickType } from '@nestjs/swagger';
 import { IsInt, IsISO31661Alpha2, IsOptional, IsString } from 'class-validator';
 import { Exclude, Expose } from 'class-transformer';
@@ -133,7 +133,7 @@ export class AdminUpdateUserDto extends UpdateUserDto {
   })
   @IsInt()
   @IsOptional()
-  roles?: Bitfield;
+  roles?: Bitfield<Role>;
 
   @ApiProperty({
     type: Number,
@@ -142,7 +142,7 @@ export class AdminUpdateUserDto extends UpdateUserDto {
   })
   @IsInt()
   @IsOptional()
-  bans?: Bitfield;
+  bans?: Bitfield<Ban>;
 }
 
 export class MergeUserDto {
