@@ -1,9 +1,11 @@
 // prettier-ignore
 export enum Role {
-  VERIFIED    = 0b000001,
-  MAPPER      = 0b000010,
-  MODERATOR   = 0b000100,
-  ADMIN       = 0b001000,
-  PLACEHOLDER = 0b010000,
-  DELETED     = 0b100000
+  ADMIN       = 0b00000001,
+  MODERATOR   = 0b00000010,
+  VERIFIED    = 0b00000100,
+  PLACEHOLDER = 0b00001000,
+  DELETED     = 0b00010000,
+  REVIEWER    = 0b00100000,
+  MAPPER      = 0b01000000,
+  PORTER      = 0b10000000,
 }
