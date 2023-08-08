@@ -510,10 +510,11 @@ describe('Admin', () => {
 
       afterAll(() => db.cleanup('map', 'rank', 'run', 'report', 'activity'));
 
-      it('should delete user data, leaving placeholder', async () => {
+      it('should delete user data. leaving user with Role.DELETED', async () => {
         const followeeUser = await db.createUser();
         const map = await db.createMap();
-        let userToBeDeleted = await prisma.user.create({
+
+        const newUser = await prisma.user.create({
           data: {
             roles: Role.MAPPER,
             bans: Ban.BIO,
@@ -532,10 +533,22 @@ describe('Admin', () => {
             },
             mapFavorites: { create: { map: { connect: { id: map.id } } } },
             mapLibraryEntries: { create: { map: { connect: { id: map.id } } } },
-            mapReviews: {
+            reviewsSubmitted: {
               create: {
                 map: { connect: { id: map.id } },
-                text: "That's a good map"
+                mainText: "That's a good map"
+              }
+            },
+            reviewsResolved: {
+              create: {
+                map: { connect: { id: map.id } },
+                resolved: true,
+                mainText: 'This map sucks',
+                reviewer: {
+                  connect: {
+                    id: followeeUser.id // Whatever, any user is fine
+                  }
+                }
               }
             },
             follows: {
@@ -554,29 +567,10 @@ describe('Admin', () => {
                 track: { connect: { id: map.mainTrackID } }
               }
             }
-          },
-          include: {
-            userAuth: true,
-            profile: true,
-            userStats: true,
-            submittedMaps: true,
-            mapCredits: true,
-            mapFavorites: true,
-            mapLibraryEntries: true,
-            mapRanks: true,
-            mapReviews: true,
-            activities: true,
-            follows: true,
-            followers: true,
-            mapNotifies: true,
-            notifications: true,
-            runSessions: true,
-            runs: true,
-            reportSubmitted: true,
-            reportResolved: true
           }
         });
-        await db.createRunAndRankForMap({ map, user: userToBeDeleted });
+
+        await db.createRunAndRankForMap({ map, user: newUser });
         await prisma.activity.create({
           data: {
             type: ActivityType.MAP_APPROVED,
@@ -584,12 +578,13 @@ describe('Admin', () => {
             notifications: {
               create: {
                 read: true,
-                user: { connect: { id: userToBeDeleted.id } }
+                user: { connect: { id: newUser.id } }
               }
             },
-            user: { connect: { id: userToBeDeleted.id } }
+            user: { connect: { id: newUser.id } }
           }
         });
+
         await prisma.report.create({
           data: {
             data: 123,
@@ -598,13 +593,13 @@ describe('Admin', () => {
             message: 'yeeeee',
             resolved: true,
             resolutionMessage: 'yeeeeee',
-            submitter: { connect: { id: userToBeDeleted.id } },
-            resolver: { connect: { id: userToBeDeleted.id } }
+            submitter: { connect: { id: newUser.id } },
+            resolver: { connect: { id: newUser.id } }
           }
         });
 
-        userToBeDeleted = await prisma.user.findUnique({
-          where: { id: userToBeDeleted.id },
+        const userBeforeDeletion = await prisma.user.findUnique({
+          where: { id: newUser.id },
           include: {
             userAuth: true,
             profile: true,
@@ -614,7 +609,8 @@ describe('Admin', () => {
             mapFavorites: true,
             mapLibraryEntries: true,
             mapRanks: true,
-            mapReviews: true,
+            reviewsResolved: true,
+            reviewsSubmitted: true,
             activities: true,
             follows: true,
             followers: true,
@@ -628,13 +624,13 @@ describe('Admin', () => {
         });
 
         await req.del({
-          url: `admin/users/${userToBeDeleted.id}`,
+          url: `admin/users/${userBeforeDeletion.id}`,
           status: 204,
           token: adminToken
         });
 
         const deletedUser = await prisma.user.findUnique({
-          where: { id: userToBeDeleted.id },
+          where: { id: newUser.id },
           include: {
             userAuth: true,
             profile: true,
@@ -644,7 +640,8 @@ describe('Admin', () => {
             mapFavorites: true,
             mapLibraryEntries: true,
             mapRanks: true,
-            mapReviews: true,
+            reviewsSubmitted: true,
+            reviewsResolved: true,
             activities: true,
             follows: true,
             followers: true,
@@ -659,29 +656,29 @@ describe('Admin', () => {
 
         expect(deletedUser).toMatchObject({
           roles: Role.DELETED,
-          bans: userToBeDeleted.bans,
+          bans: userBeforeDeletion.bans,
           steamID: null,
           alias: 'Deleted User',
           avatar: null,
           country: null,
           userAuth: null,
           profile: { bio: '', socials: {} },
-          userStats: userToBeDeleted.userStats,
-          submittedMaps: userToBeDeleted.submittedMaps,
-          mapCredits: userToBeDeleted.mapCredits,
+          userStats: userBeforeDeletion.userStats,
+          submittedMaps: userBeforeDeletion.submittedMaps,
+          mapCredits: userBeforeDeletion.mapCredits,
           mapFavorites: [],
           mapLibraryEntries: [],
-          mapRanks: userToBeDeleted.mapRanks,
-          mapReviews: userToBeDeleted.mapReviews,
+          mapRanks: userBeforeDeletion.mapRanks,
+          reviewsSubmitted: userBeforeDeletion.reviewsSubmitted,
           activities: [],
           follows: [],
           followers: [],
-          mapNotifies: userToBeDeleted.mapNotifies,
+          mapNotifies: userBeforeDeletion.mapNotifies,
           notifications: [],
           runSessions: [],
-          runs: userToBeDeleted.runs,
-          reportSubmitted: userToBeDeleted.reportSubmitted,
-          reportResolved: userToBeDeleted.reportResolved
+          runs: userBeforeDeletion.runs,
+          reportSubmitted: userBeforeDeletion.reportSubmitted,
+          reportResolved: userBeforeDeletion.reportResolved
         });
       });
 
