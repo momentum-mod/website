@@ -65,6 +65,9 @@ import { LoggedInUser, Roles } from '@momentum/backend/decorators';
 import { Role } from '@momentum/constants';
 import { ParseIntSafePipe } from '@momentum/backend/pipes';
 import { Config } from '@momentum/backend/config';
+import { MapCreditsService } from './map-credits.service';
+import { MapReviewService } from './map-review.service';
+import { MapImageService } from './map-image.service';
 
 @Controller('maps')
 @UseGuards(RolesGuard)
@@ -73,6 +76,9 @@ import { Config } from '@momentum/backend/config';
 export class MapsController {
   constructor(
     private readonly mapsService: MapsService,
+    private readonly mapCreditsService: MapCreditsService,
+    private readonly mapReviewService: MapReviewService,
+    private readonly mapImageService: MapImageService,
     private readonly ranksService: RanksService
   ) {}
 
@@ -280,7 +286,7 @@ export class MapsController {
     @Param('mapID', ParseIntSafePipe) mapID: number,
     @Query() query?: MapCreditsGetQueryDto
   ): Promise<MapCreditDto[]> {
-    return this.mapsService.getCredits(mapID, query.expand);
+    return this.mapCreditsService.getCredits(mapID, query.expand);
   }
 
   @Post('/:mapID/credits')
@@ -310,7 +316,7 @@ export class MapsController {
     @Body() body: CreateMapCreditDto,
     @LoggedInUser('id') userID: number
   ): Promise<MapCreditDto> {
-    return this.mapsService.createCredit(mapID, body, userID);
+    return this.mapCreditsService.createCredit(mapID, body, userID);
   }
 
   @Get('/credits/:mapCreditID')
@@ -327,7 +333,7 @@ export class MapsController {
     @Param('mapCreditID', ParseIntSafePipe) mapCreditID: number,
     @Query() query?: MapCreditsGetQueryDto
   ): Promise<MapCreditDto> {
-    return this.mapsService.getCredit(mapCreditID, query.expand);
+    return this.mapCreditsService.getCredit(mapCreditID, query.expand);
   }
 
   @Patch('/credits/:mapCreditID')
@@ -361,7 +367,7 @@ export class MapsController {
     @Body() body: UpdateMapCreditDto,
     @LoggedInUser('id') userID: number
   ): Promise<void> {
-    return this.mapsService.updateCredit(mapCreditID, body, userID);
+    return this.mapCreditsService.updateCredit(mapCreditID, body, userID);
   }
 
   @Delete('/credits/:mapCreditID')
@@ -385,7 +391,7 @@ export class MapsController {
     @Param('mapCreditID', ParseIntSafePipe) mapCreditID: number,
     @LoggedInUser('id') userID: number
   ): Promise<void> {
-    return this.mapsService.deleteCredit(mapCreditID, userID);
+    return this.mapCreditsService.deleteCredit(mapCreditID, userID);
   }
 
   //#endregion
@@ -476,7 +482,7 @@ export class MapsController {
   getImages(
     @Param('mapID', ParseIntSafePipe) mapID: number
   ): Promise<MapImageDto[]> {
-    return this.mapsService.getImages(mapID);
+    return this.mapImageService.getImages(mapID);
   }
 
   @Get('/images/:imgID')
@@ -491,7 +497,7 @@ export class MapsController {
   getImage(
     @Param('imgID', ParseIntSafePipe) imgID: number
   ): Promise<MapImageDto> {
-    return this.mapsService.getImage(imgID);
+    return this.mapImageService.getImage(imgID);
   }
 
   @Post('/:mapID/images')
@@ -533,7 +539,7 @@ export class MapsController {
     if (!file || !file.buffer || !Buffer.isBuffer(file.buffer))
       throw new BadRequestException('Invalid image data');
 
-    return this.mapsService.createImage(userID, mapID, file.buffer);
+    return this.mapImageService.createImage(userID, mapID, file.buffer);
   }
 
   @Put('/images/:imgID')
@@ -572,7 +578,7 @@ export class MapsController {
     if (!file || !file.buffer || !Buffer.isBuffer(file.buffer))
       throw new BadRequestException('Invalid image data');
 
-    return this.mapsService.updateImage(userID, imgID, file.buffer);
+    return this.mapImageService.updateImage(userID, imgID, file.buffer);
   }
 
   @Delete('/images/:imgID')
@@ -594,7 +600,7 @@ export class MapsController {
     @LoggedInUser('id') userID: number,
     @Param('imgID', ParseIntSafePipe) imgID: number
   ): Promise<void> {
-    return this.mapsService.deleteImage(userID, imgID);
+    return this.mapImageService.deleteImage(userID, imgID);
   }
 
   //#endregion
@@ -637,7 +643,7 @@ export class MapsController {
     if (!file || !file.buffer || !Buffer.isBuffer(file.buffer))
       throw new BadRequestException('Invalid image data');
 
-    return this.mapsService.updateThumbnail(userID, mapID, file.buffer);
+    return this.mapImageService.updateThumbnail(userID, mapID, file.buffer);
   }
 
   //#endregion
