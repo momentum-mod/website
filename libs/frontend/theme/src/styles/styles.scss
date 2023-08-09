@@ -4,9 +4,6 @@
 // Framework component themes (styles tied to theme variables)
 @use '@nebular/theme/styles/globals' as *;
 
-// Global app font size
-@use './font-size';
-
 // ngx-pagination theme
 @use './pagination';
 
