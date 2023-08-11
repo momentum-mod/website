@@ -23,6 +23,9 @@ import {
 } from '../../decorators';
 import { Config } from '@momentum/backend/config';
 
+const ENDPOINT_URL = Config.storage.endpointUrl;
+const BUCKET = Config.storage.bucketName;
+
 export class RunDto implements Run {
   @IdProperty({ bigint: true })
   readonly id: number;
@@ -69,7 +72,7 @@ export class RunDto implements Run {
   @IsString()
   @IsUrl({ require_tld: false })
   get downloadURL() {
-    return `${Config.storage.endpointUrl}/${Config.storage.bucketName}/${this.file}`;
+    return `${ENDPOINT_URL}/${BUCKET}/${this.file}`;
   }
 
   @ApiProperty()

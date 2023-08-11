@@ -30,6 +30,9 @@ import {
 import { IsMapName } from '@momentum/backend/validators';
 import { MapStatus, Gamemode } from '@momentum/constants';
 
+const ENDPOINT_URL = Config.storage.endpointUrl;
+const BUCKET = Config.storage.bucketName;
+
 export class MapDto implements Map {
   @IdProperty()
   readonly id: number;
@@ -53,7 +56,7 @@ export class MapDto implements Map {
   @IsString()
   @IsUrl({ require_tld: false })
   get downloadURL() {
-    return `${Config.storage.endpointUrl}/${Config.storage.bucketName}/${this.fileKey}`;
+    return `${ENDPOINT_URL}/${BUCKET}/maps/${this.fileName}.bsp`;
   }
 
   @ApiProperty({ description: 'SHA1 hash of the map file', type: String })
