@@ -35,7 +35,7 @@ describe('Admin', () => {
     prisma: PrismaClient,
     req: RequestUtil,
     db: DbUtil,
-    fs: FileStoreUtil,
+    fileStore: FileStoreUtil,
     auth: AuthUtil;
 
   beforeAll(async () => {
@@ -45,7 +45,7 @@ describe('Admin', () => {
     req = env.req;
     db = env.db;
     auth = env.auth;
-    fs = env.fs;
+    fileStore = env.fileStore;
   });
 
   afterAll(() => teardownE2ETestEnvironment(app));
@@ -997,20 +997,23 @@ describe('Admin', () => {
         const fileName = 'my_cool_map';
         await prisma.map.update({ where: { id: m1.id }, data: { fileName } });
 
-        await fs.add(fileKey, readFileSync(__dirname + '/../files/map.bsp'));
+        await fileStore.add(
+          `maps/${fileName}.bsp`,
+          readFileSync(__dirname + '/../files/map.bsp')
+        );
 
         const img = await prisma.mapImage.findFirst({
           where: { mapID: m1.id }
         });
         for (const size of ['small', 'medium', 'large']) {
-          await fs.add(
+          await fileStore.add(
             `img/${img.id}-${size}.jpg`,
             readFileSync(__dirname + '/../files/image_jpg.jpg')
           );
         }
 
         const run = await prisma.run.findFirst({ where: { mapID: m1.id } });
-        await fs.add(`runs/${run.id}`, Buffer.alloc(123));
+        await fileStore.add(`runs/${run.id}`, Buffer.alloc(123));
 
         await req.del({
           url: `admin/maps/${m1.id}`,
@@ -1019,20 +1022,22 @@ describe('Admin', () => {
         });
 
         expect(await prisma.map.findFirst({ where: { id: m1.id } })).toBeNull();
-        expect(await fs.exists(fileKey)).toBeFalsy();
+        expect(await fileStore.exists(`maps/${fileName}.bsp`)).toBeFalsy();
 
         const relatedRuns = await prisma.run.findMany({
           where: { mapID: m1.id }
         });
         expect(relatedRuns.length).toBe(0);
-        expect(await fs.exists(`runs/${run.id}`)).toBeFalsy();
+        expect(await fileStore.exists(`runs/${run.id}`)).toBeFalsy();
 
         const relatedImages = await prisma.mapImage.findMany({
           where: { mapID: m1.id }
         });
         expect(relatedImages.length).toBe(0);
         for (const size of ['small', 'medium', 'large']) {
-          expect(await fs.exists(`img/${img.id}-${size}.jpg`)).toBeFalsy();
+          expect(
+            await fileStore.exists(`img/${img.id}-${size}.jpg`)
+          ).toBeFalsy();
         }
       });
 
