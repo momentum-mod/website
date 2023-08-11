@@ -14,6 +14,7 @@ import {
   UpdatedAtProperty
 } from '../../decorators';
 import { MapCreditType } from '@momentum/constants';
+import { Exclude, Expose } from 'class-transformer';
 
 export class MapCreditDto implements MapCredit {
   @IdProperty()
@@ -31,8 +32,14 @@ export class MapCreditDto implements MapCredit {
   @IdProperty()
   readonly mapID: number;
 
-  @NestedProperty(MapDto, { lazy: true })
-  readonly map: MapDto;
+  @NestedProperty(MapDto, { lazy: true, required: false })
+  @Expose()
+  get map(): MapDto {
+    return this.mmap;
+  }
+
+  @Exclude()
+  readonly mmap: MapDto;
 
   @CreatedAtProperty()
   readonly createdAt: Date;

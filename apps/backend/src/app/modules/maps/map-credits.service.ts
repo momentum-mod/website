@@ -13,7 +13,7 @@ import {
   UpdateMapCreditDto
 } from '@momentum/backend/dto';
 import { MapCredit, Prisma } from '@prisma/client';
-import { Map as MapDB } from '.prisma/client';
+import { MMap } from '.prisma/client';
 import { Bitflags } from '@momentum/bitflags';
 import {
   ActivityType,
@@ -28,7 +28,7 @@ export class MapCreditsService {
   constructor(private readonly db: DbService) {}
 
   async getCredits(mapID: number, expand: string[]): Promise<MapCreditDto[]> {
-    if (!(await this.db.map.exists({ where: { id: mapID } })))
+    if (!(await this.db.mMap.exists({ where: { id: mapID } })))
       throw new NotFoundException('Map not found');
 
     const dbResponse = await this.db.mapCredit.findMany({
@@ -46,7 +46,7 @@ export class MapCreditsService {
     createMapCredit: CreateMapCreditDto,
     userID: number
   ): Promise<MapCreditDto> {
-    const map = await this.db.map.findUnique({
+    const map = await this.db.mMap.findUnique({
       where: { id: mapID },
       include: { credits: true }
     });
@@ -76,7 +76,7 @@ export class MapCreditsService {
     const dbResponse = await this.db.mapCredit.create({
       data: {
         type: createMapCredit.type,
-        map: { connect: { id: mapID } },
+        mmap: { connect: { id: mapID } },
         user: { connect: { id: createMapCredit.userID } }
       }
     });
@@ -110,13 +110,13 @@ export class MapCreditsService {
 
     const credit = await this.db.mapCredit.findUnique({
       where: { id: mapCreditID },
-      include: { user: true, map: true }
+      include: { user: true, mmap: true }
     });
 
-    if (!credit || !credit.map || !credit.user)
+    if (!credit || !credit.mmap || !credit.user)
       throw new NotFoundException('Invalid map credit');
 
-    await this.checkCreditChangePermissions(credit.map, userID);
+    await this.checkCreditChangePermissions(credit.mmap, userID);
 
     if (
       creditUpdate.userID &&
@@ -155,23 +155,20 @@ export class MapCreditsService {
   async deleteCredit(mapCreditID: number, userID: number): Promise<void> {
     const credit = await this.db.mapCredit.findUnique({
       where: { id: mapCreditID },
-      include: {
-        user: true,
-        map: true
-      }
+      include: { user: true, mmap: true }
     });
 
-    if (!credit || !credit.map || !credit.user)
+    if (!credit || !credit.mmap || !credit.user)
       throw new NotFoundException('Invalid map credit');
 
-    await this.checkCreditChangePermissions(credit.map, userID);
+    await this.checkCreditChangePermissions(credit.mmap, userID);
 
     await this.db.mapCredit.delete({ where: { id: mapCreditID } });
 
     await this.updateMapCreditActivities(null, credit);
   }
 
-  private async checkCreditChangePermissions(map: MapDB, userID: number) {
+  private async checkCreditChangePermissions(map: MMap, userID: number) {
     const user = await this.db.user.findUnique({
       where: { id: userID },
       select: { roles: true }

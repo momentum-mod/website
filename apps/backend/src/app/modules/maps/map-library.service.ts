@@ -10,7 +10,7 @@ export class MapLibraryService {
   constructor(private readonly db: DbService) {}
 
   async isMapInLibrary(userID: number, mapID: number) {
-    if (!(await this.db.map.exists({ where: { id: mapID } })))
+    if (!(await this.db.mMap.exists({ where: { id: mapID } })))
       throw new BadRequestException('Map does not exist');
 
     if (

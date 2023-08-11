@@ -151,7 +151,7 @@ describe('Session', () => {
   });
 
   afterAll(async () => {
-    await db.cleanup('map');
+    await db.cleanup('mMap');
     await teardownE2ETestEnvironment(app);
   });
 
@@ -393,7 +393,7 @@ describe('Session', () => {
               data: {
                 run: {
                   create: {
-                    map: { connect: { id: map.id } },
+                    mmap: { connect: { id: map.id } },
                     zoneNum: 0,
                     trackNum: 0,
                     flags: 0,
@@ -412,10 +412,10 @@ describe('Session', () => {
                     steamID: randomSteamID()
                   }
                 },
-                map: { connect: { id: map.id } },
+                mmap: { connect: { id: map.id } },
                 rank: i + 1
               },
-              include: { run: true, map: true, user: true }
+              include: { run: true, mmap: true, user: true }
             })
           )
         );

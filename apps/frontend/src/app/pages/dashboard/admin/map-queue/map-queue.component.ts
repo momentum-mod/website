@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { NbToastrService } from '@nebular/theme';
-import { Map } from '@momentum/constants';
+import { MMap } from '@momentum/constants';
 import { AdminService } from '@momentum/frontend/data';
 import { MapStatus } from '@momentum/constants';
 
@@ -9,8 +9,8 @@ import { MapStatus } from '@momentum/constants';
   styleUrls: ['./map-queue.component.scss']
 })
 export class MapQueueComponent implements OnInit {
-  priorityQueue: Map[];
-  nonPriorityQueue: Map[];
+  priorityQueue: MMap[];
+  nonPriorityQueue: MMap[];
   priorityQueueCount: number;
   nonPriorityQueueCount: number;
   pageLimit: number;

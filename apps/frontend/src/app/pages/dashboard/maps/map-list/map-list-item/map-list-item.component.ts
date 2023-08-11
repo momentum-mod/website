@@ -1,6 +1,6 @@
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { NbToastrService } from '@nebular/theme';
-import { Map } from '@momentum/constants';
+import { MMap } from '@momentum/constants';
 import { LocalUserService } from '@momentum/frontend/data';
 import { MapStatusName } from '@momentum/constants';
 
@@ -10,7 +10,7 @@ import { MapStatusName } from '@momentum/constants';
   styleUrls: ['./map-list-item.component.scss']
 })
 export class MapListItemComponent implements OnInit {
-  @Input() map: Map;
+  @Input() map: MMap;
   @Input() isUpload: boolean;
   @Input() inLibrary: boolean;
   @Input() inFavorites: boolean;

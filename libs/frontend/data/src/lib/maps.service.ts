@@ -4,7 +4,7 @@ import { HttpEvent, HttpResponse } from '@angular/common/http';
 import {
   CreateMap,
   CreateMapCredit,
-  Map,
+  MMap,
   MapCredit,
   MapImage,
   MapInfo,
@@ -19,16 +19,16 @@ import { HttpService } from './http.service';
 export class MapsService {
   constructor(private http: HttpService) {}
 
-  getMap(id: number, query?: MapsGetQuery): Observable<Map> {
-    return this.http.get<Map>(`maps/${id}`, { query });
+  getMap(id: number, query?: MapsGetQuery): Observable<MMap> {
+    return this.http.get<MMap>(`maps/${id}`, { query });
   }
 
-  getMaps(query?: MapsGetAllQuery): Observable<PagedResponse<Map>> {
-    return this.http.get<PagedResponse<Map>>('maps', { query });
+  getMaps(query?: MapsGetAllQuery): Observable<PagedResponse<MMap>> {
+    return this.http.get<PagedResponse<MMap>>('maps', { query });
   }
 
-  createMap(body: CreateMap): Observable<HttpResponse<Map>> {
-    return this.http.post<Map>('maps', { body, observe: 'response' });
+  createMap(body: CreateMap): Observable<HttpResponse<MMap>> {
+    return this.http.post<MMap>('maps', { body, observe: 'response' });
   }
 
   updateMapInfo(id: number, body: MapInfo): Observable<any> {

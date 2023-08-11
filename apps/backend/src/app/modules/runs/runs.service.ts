@@ -27,14 +27,16 @@ export class RunsService {
     const include: Prisma.RunInclude = {
       user: true,
       ...expandToPrismaIncludes(
-        expand?.filter((x) =>
-          ['overallStats', 'map', 'rank', 'zoneStats'].includes(x)
-        )
+        expand?.filter((x) => ['overallStats', 'rank', 'zoneStats'].includes(x))
       )
     };
 
+    if (expand?.includes('map')) {
+      include.mmap = true;
+    }
+
     if (expand?.includes('mapWithInfo'))
-      include.map = { include: { info: true } };
+      include.mmap = { include: { info: true } };
 
     const dbResponse = await this.db.run.findUnique({
       where: { id: runID },
@@ -55,13 +57,17 @@ export class RunsService {
       user: true,
       ...expandToPrismaIncludes(
         query.expand?.filter((x) =>
-          ['overallStats', 'zoneStats', 'rank', 'map'].includes(x)
+          ['overallStats', 'zoneStats', 'rank'].includes(x)
         )
       )
     };
 
+    if (query.expand?.includes('map')) {
+      include.mmap = true;
+    }
+
     if (query.expand?.includes('mapWithInfo'))
-      include.map = { include: { info: true } };
+      include.mmap = { include: { info: true } };
 
     if (query.userID && query.userIDs)
       throw new BadRequestException(
@@ -74,7 +80,7 @@ export class RunsService {
       );
 
     if (query.mapID) where.mapID = query.mapID;
-    else if (query.mapName) where.map = { name: { contains: query.mapName } };
+    else if (query.mapName) where.mmap = { name: { contains: query.mapName } };
 
     if (query.userID) where.userID = query.userID;
     else if (query.userIDs) where.userID = { in: query.userIDs };

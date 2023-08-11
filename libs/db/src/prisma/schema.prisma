@@ -22,7 +22,7 @@ model User {
   userAuth          UserAuth?
   profile           Profile?
   userStats         UserStats?
-  submittedMaps     Map[]
+  submittedMaps     MMap[]
   mapCredits        MapCredit[]
   mapFavorites      MapFavorite[]
   mapLibraryEntries MapLibraryEntry[]
@@ -175,7 +175,9 @@ model UserAuth {
   @@index([userID])
 }
 
-model Map {
+/// The term 'MMap' is used to avoid collisions with the JS data structure, just
+/// in cases where the exact name "Map" is used.
+model MMap {
   id Int @id @default(autoincrement())
 
   name     String
@@ -219,7 +221,7 @@ model MapCredit {
 
   type Int @db.SmallInt /// map-credit-type.enum.ts
 
-  map   Map @relation(fields: [mapID], references: [id], onDelete: Cascade)
+  mmap  MMap @relation(fields: [mapID], references: [id], onDelete: Cascade)
   mapID Int
 
   user   User @relation(fields: [userID], references: [id], onDelete: Cascade)
@@ -234,7 +236,7 @@ model MapCredit {
 model MapFavorite {
   id Int @id @default(autoincrement())
 
-  map   Map @relation(fields: [mapID], references: [id], onDelete: Cascade)
+  mmap  MMap @relation(fields: [mapID], references: [id], onDelete: Cascade)
   mapID Int
 
   user   User @relation(fields: [userID], references: [id], onDelete: Cascade)
@@ -250,9 +252,9 @@ model MapFavorite {
 model MapImage {
   id Int @id @default(autoincrement())
 
-  thumbnail Map? @relation("mapimage_thumbnail")
+  thumbnail MMap? @relation("mapimage_thumbnail")
 
-  map   Map @relation(fields: [mapID], references: [id], onDelete: Cascade)
+  mmap  MMap @relation(fields: [mapID], references: [id], onDelete: Cascade)
   mapID Int
 
   createdAt DateTime @default(now())
@@ -269,8 +271,8 @@ model MapInfo {
   numTracks    Int      @db.SmallInt
   creationDate DateTime
 
-  map   Map @relation(fields: [mapID], references: [id], onDelete: Cascade)
-  mapID Int @unique
+  mmap  MMap @relation(fields: [mapID], references: [id], onDelete: Cascade)
+  mapID Int  @unique
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -284,7 +286,7 @@ model MapLibraryEntry {
   user   User @relation(fields: [userID], references: [id], onDelete: Cascade)
   userID Int
 
-  map   Map @relation(fields: [mapID], references: [id], onDelete: Cascade)
+  mmap  MMap @relation(fields: [mapID], references: [id], onDelete: Cascade)
   mapID Int
 
   createdAt DateTime @default(now())
@@ -297,7 +299,7 @@ model MapLibraryEntry {
 model MapNotify {
   notifyOn Int @db.SmallInt /// Bitfield of activity-type.enum.ts
 
-  map   Map @relation(fields: [mapID], references: [id], onDelete: Cascade)
+  mmap  MMap @relation(fields: [mapID], references: [id], onDelete: Cascade)
   mapID Int
 
   user   User @relation(fields: [userID], references: [id], onDelete: Cascade)
@@ -319,9 +321,9 @@ model MapTrack {
   isLinear   Boolean
   difficulty Int     @db.SmallInt
 
-  mainTrack Map? @relation("map_maintrack")
+  mainTrack MMap? @relation("map_maintrack")
 
-  map   Map @relation(fields: [mapID], references: [id], onDelete: Cascade)
+  mmap  MMap @relation(fields: [mapID], references: [id], onDelete: Cascade)
   mapID Int
 
   stats       MapTrackStats?
@@ -419,8 +421,8 @@ model MapStats {
   uniqueCompletions Int    @default(0)
   timePlayed        BigInt @default(0) @db.BigInt
 
-  map   Map @relation(fields: [mapID], references: [id], onDelete: Cascade)
-  mapID Int @unique
+  mmap  MMap @relation(fields: [mapID], references: [id], onDelete: Cascade)
+  mapID Int  @unique
 
   baseStats   BaseStats? @relation(fields: [baseStatsID], references: [id], onDelete: Cascade)
   baseStatsID BigInt?    @unique
@@ -430,7 +432,7 @@ model MapStats {
 
 model MapTestingRequest {
   mapID Int
-  map   Map @relation(fields: [mapID], references: [id], onDelete: Cascade)
+  mmap  MMap @relation(fields: [mapID], references: [id], onDelete: Cascade)
 
   userID Int
   user   User @relation(fields: [userID], references: [id], onDelete: Cascade)
@@ -446,7 +448,7 @@ model MapTestingRequest {
 
 model MapSubmission {
   mapID Int
-  map   Map @relation(fields: [mapID], references: [id], onDelete: Cascade)
+  mmap  MMap @relation(fields: [mapID], references: [id], onDelete: Cascade)
 
   type Int @db.SmallInt /// map-submission-type.enum.ts
 
@@ -486,7 +488,7 @@ model MapReview {
   suggestions Json               @default("{}") // map-submission-suggestions.model.ts
   editHistory Json? // map-review-edit-history.model.ts
 
-  map   Map @relation(fields: [mapID], references: [id], onDelete: Cascade)
+  mmap  MMap @relation(fields: [mapID], references: [id], onDelete: Cascade)
   mapID Int
 
   reviewer   User @relation(name: "mapreview_reviewer", fields: [reviewerID], references: [id], onDelete: Cascade)
@@ -566,7 +568,7 @@ model Run {
 
   zoneStats RunZoneStats[]
 
-  map   Map @relation(fields: [mapID], references: [id], onDelete: Cascade)
+  mmap  MMap @relation(fields: [mapID], references: [id], onDelete: Cascade)
   mapID Int
 
   user   User? @relation(fields: [userID], references: [id], map: "run_user_fk", onDelete: SetNull)
@@ -636,7 +638,7 @@ model Rank {
   rank     Int? // Making this @unique would be quite nice but it'd probably shit itself when doing batch rank +1 increases
   rankXP   Int? @default(0)
 
-  map   Map @relation(fields: [mapID], references: [id], onDelete: Cascade)
+  mmap  MMap @relation(fields: [mapID], references: [id], onDelete: Cascade)
   mapID Int
 
   user   User @relation(fields: [userID], references: [id], onDelete: Cascade)

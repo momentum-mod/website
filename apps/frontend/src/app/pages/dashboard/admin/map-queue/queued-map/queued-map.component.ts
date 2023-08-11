@@ -8,7 +8,7 @@ import {
 } from '@angular/core';
 import { MapStatus } from '@momentum/constants';
 import { AdminService, MapsService } from '@momentum/frontend/data';
-import { Map } from '@momentum/constants';
+import { MMap } from '@momentum/constants';
 import { NbToastrService } from '@nebular/theme';
 
 @Component({
@@ -18,7 +18,7 @@ import { NbToastrService } from '@nebular/theme';
 })
 export class QueuedMapComponent {
   MapUploadStatus: typeof MapStatus = MapStatus;
-  @Input() map: Map;
+  @Input() map: MMap;
   @Output() statusUpdate = new EventEmitter();
   @ViewChild('mapFileDownloadLink', { static: false })
   private mapFileDownloadLink: ElementRef;

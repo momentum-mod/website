@@ -6,7 +6,7 @@ export const RUN_SESSION_COMPLETED_INCLUDE = {
   timestamps: true,
   track: {
     include: {
-      map: { include: { info: true, stats: true } },
+      mmap: { include: { info: true, stats: true } },
       stats: { include: { baseStats: true } },
       zones: { include: { stats: { include: { baseStats: true } } } }
     }

@@ -18,11 +18,9 @@ import {
   FollowDto,
   FollowStatusDto,
   MapCreditDto,
-  MapDto,
   MapFavoriteDto,
   MapLibraryEntryDto,
   MapNotifyDto,
-  MapSummaryDto,
   NotificationDto,
   PagedResponseDto,
   ProfileDto,
@@ -602,8 +600,8 @@ export class UsersService {
     search: string,
     expand: string[]
   ): Promise<PagedResponseDto<MapLibraryEntryDto>> {
-    const include: { map: Prisma.MapArgs; user: boolean } = {
-      map: {
+    const include: { mmap: Prisma.MMapArgs; user: boolean } = {
+      mmap: {
         include: expandToPrismaIncludes(
           expand?.filter((x) => x !== 'inFavorites')
         )
@@ -612,11 +610,11 @@ export class UsersService {
     };
 
     if (expand?.includes('inFavorites')) {
-      include.map.include = { favorites: { where: { userID } } };
+      include.mmap.include = { favorites: { where: { userID } } };
     }
 
     const where: Prisma.MapLibraryEntryWhereInput = { userID };
-    if (search) where.map = { name: { contains: search } };
+    if (search) where.mmap = { name: { contains: search } };
 
     const dbResponse = await this.db.mapLibraryEntry.findManyAndCount({
       where,
@@ -629,7 +627,7 @@ export class UsersService {
   }
 
   async addMapLibraryEntry(userID: number, mapID: number) {
-    if (!(await this.db.map.exists({ where: { id: mapID } })))
+    if (!(await this.db.mMap.exists({ where: { id: mapID } })))
       throw new NotFoundException('Target map not found');
 
     await this.db.mapLibraryEntry.upsert({
@@ -640,7 +638,7 @@ export class UsersService {
   }
 
   async removeMapLibraryEntry(userID: number, mapID: number) {
-    if (!(await this.db.map.exists({ where: { id: mapID } })))
+    if (!(await this.db.mMap.exists({ where: { id: mapID } })))
       throw new NotFoundException("Target map doesn't exist");
 
     await this.db.mapLibraryEntry
@@ -663,7 +661,7 @@ export class UsersService {
   ) {
     const where: Prisma.MapFavoriteWhereInput = { userID: userID };
 
-    if (search) where.map = { name: { contains: search } };
+    if (search) where.mmap = { name: { contains: search } };
 
     const include: Prisma.MapFavoriteInclude = {
       user: true
@@ -672,7 +670,7 @@ export class UsersService {
     const mapIncludes =
       (expandToPrismaIncludes(
         expand?.filter((x) => !['inLibrary', 'personalBest'].includes(x))
-      ) as Prisma.MapInclude) ?? {};
+      ) as Prisma.MMapInclude) ?? {};
 
     if (expand?.includes('inLibrary'))
       mapIncludes.libraryEntries = { where: { userID } };
@@ -680,7 +678,7 @@ export class UsersService {
     if (expand?.includes('personalBest'))
       mapIncludes.ranks = { where: { userID } };
 
-    include.map = !isEmpty(mapIncludes) ? { include: mapIncludes } : true;
+    include.mmap = !isEmpty(mapIncludes) ? { include: mapIncludes } : true;
 
     const dbResponse = await this.db.mapFavorite.findManyAndCount({
       where,
@@ -703,14 +701,14 @@ export class UsersService {
   }
 
   async addFavoritedMap(userID: number, mapID: number) {
-    if (!(await this.db.map.exists({ where: { id: mapID } })))
+    if (!(await this.db.mMap.exists({ where: { id: mapID } })))
       throw new NotFoundException('Target map not found');
 
     await this.db.mapFavorite.create({ data: { userID, mapID } });
   }
 
   async removeFavoritedMap(userID: number, mapID: number) {
-    if (!(await this.db.map.exists({ where: { id: mapID } })))
+    if (!(await this.db.mMap.exists({ where: { id: mapID } })))
       throw new NotFoundException('Target map not found');
 
     await this.db.mapFavorite
@@ -728,7 +726,7 @@ export class UsersService {
     userID: number,
     mapID: number
   ): Promise<MapNotifyDto> {
-    if (!(await this.db.map.exists({ where: { id: mapID } })))
+    if (!(await this.db.mMap.exists({ where: { id: mapID } })))
       throw new NotFoundException('Target map not found');
 
     const dbResponse = await this.db.mapNotify.findUnique({
@@ -751,7 +749,7 @@ export class UsersService {
         'Request does not contain valid notification type data'
       );
 
-    if (!(await this.db.map.exists({ where: { id: mapID } })))
+    if (!(await this.db.mMap.exists({ where: { id: mapID } })))
       throw new NotFoundException('Target map not found');
 
     await this.db.mapNotify.upsert({
@@ -762,7 +760,7 @@ export class UsersService {
   }
 
   async removeMapNotify(userID: number, mapID: number) {
-    if (!(await this.db.map.exists({ where: { id: mapID } })))
+    if (!(await this.db.mMap.exists({ where: { id: mapID } })))
       throw new NotFoundException('Target map not found');
 
     await this.db.mapNotify
@@ -788,11 +786,11 @@ export class UsersService {
       // Other expands are nested properties of the map, if anything but just
       // 'map', it'll be a more complex include object, which trivially includes
       // the map
-      if (expand[0] === 'map' && expand.length === 1) include.map = true;
+      if (expand[0] === 'map' && expand.length === 1) include.mmap = true;
       else {
-        include.map = { include: {} };
-        if (expand.includes('info')) include.map.include.info = true;
-        if (expand.includes('thumbnail')) include.map.include.thumbnail = true;
+        include.mmap = { include: {} };
+        if (expand.includes('info')) include.mmap.include.info = true;
+        if (expand.includes('thumbnail')) include.mmap.include.thumbnail = true;
       }
     }
 

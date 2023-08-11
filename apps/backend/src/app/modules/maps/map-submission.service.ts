@@ -20,11 +20,11 @@ export class MapSubmissionService {
     search?: string,
     expand?: string[]
   ): Promise<PagedResponseDto<MapDto>> {
-    const where: Prisma.MapWhereInput = { submitterID: userID };
+    const where: Prisma.MMapWhereInput = { submitterID: userID };
 
     if (search) where.name = { contains: search };
 
-    const submittedMapsRes = await this.db.map.findManyAndCount({
+    const submittedMapsRes = await this.db.mMap.findManyAndCount({
       where,
       include: expandToPrismaIncludes(expand),
       skip,
@@ -35,7 +35,7 @@ export class MapSubmissionService {
   }
 
   async getSubmittedMapsSummary(userID: number): Promise<MapSummaryDto[]> {
-    const result = await this.db.map.groupBy({
+    const result = await this.db.mMap.groupBy({
       by: ['status'],
       where: { submitterID: userID },
       _count: {

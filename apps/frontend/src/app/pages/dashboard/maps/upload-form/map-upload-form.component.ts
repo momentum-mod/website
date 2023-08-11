@@ -13,7 +13,7 @@ import { mergeMap } from 'rxjs/operators';
 import { forkJoin } from 'rxjs';
 import { FileUploadType } from './file-upload/file-upload.component';
 import {
-  Map,
+  MMap,
   MapCredit,
   MapImage,
   MapZoneTrigger,
@@ -63,7 +63,7 @@ export class MapUploadFormComponent implements OnInit, AfterViewInit {
   credits: Record<MapCreditType, MapCredit[]>;
   inferredMapType: boolean;
   mapPreview: PartialDeep<
-    { map: Map; images: MapImage[] },
+    { map: MMap; images: MapImage[] },
     { recurseIntoArrays: true }
   >;
   tracks: CreateMapTrack[];

@@ -97,7 +97,13 @@ export class RunDto implements Run {
   readonly mapID: number;
 
   @NestedProperty(MapDto, { required: false })
-  readonly map: MapDto;
+  @Expose()
+  get map(): MapDto {
+    return this.mmap;
+  }
+
+  @Exclude()
+  readonly mmap: MapDto;
 
   @NestedProperty(RankDto, { required: false, lazy: true })
   readonly rank: RankDto;

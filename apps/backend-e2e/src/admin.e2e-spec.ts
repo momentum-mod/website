@@ -508,7 +508,7 @@ describe('Admin', () => {
 
       afterEach(() => prisma.user.deleteMany());
 
-      afterAll(() => db.cleanup('map', 'rank', 'run', 'report', 'activity'));
+      afterAll(() => db.cleanup('mMap', 'rank', 'run', 'report', 'activity'));
 
       it('should delete user data. leaving user with Role.DELETED', async () => {
         const followeeUser = await db.createUser();
@@ -531,17 +531,19 @@ describe('Admin', () => {
             mapCredits: {
               create: { type: MapCreditType.AUTHOR, mapID: map.id }
             },
-            mapFavorites: { create: { map: { connect: { id: map.id } } } },
-            mapLibraryEntries: { create: { map: { connect: { id: map.id } } } },
+            mapFavorites: { create: { mmap: { connect: { id: map.id } } } },
+            mapLibraryEntries: {
+              create: { mmap: { connect: { id: map.id } } }
+            },
             reviewsSubmitted: {
               create: {
-                map: { connect: { id: map.id } },
+                mmap: { connect: { id: map.id } },
                 mainText: "That's a good map"
               }
             },
             reviewsResolved: {
               create: {
-                map: { connect: { id: map.id } },
+                mmap: { connect: { id: map.id } },
                 resolved: true,
                 mainText: 'This map sucks',
                 reviewer: {
@@ -558,7 +560,7 @@ describe('Admin', () => {
               create: { followee: { connect: { id: followeeUser.id } } }
             },
             mapNotifies: {
-              create: { map: { connect: { id: map.id } }, notifyOn: 8 }
+              create: { mmap: { connect: { id: map.id } }, notifyOn: 8 }
             },
             runSessions: {
               create: {
@@ -570,7 +572,7 @@ describe('Admin', () => {
           }
         });
 
-        await db.createRunAndRankForMap({ map, user: newUser });
+        await db.createRunAndRankForMap({ map: map, user: newUser });
         await prisma.activity.create({
           data: {
             type: ActivityType.MAP_APPROVED,
@@ -713,7 +715,7 @@ describe('Admin', () => {
             ]))
       );
 
-      afterAll(() => db.cleanup('user', 'map', 'run'));
+      afterAll(() => db.cleanup('user', 'mMap', 'run'));
 
       it('should respond with map data', async () => {
         const res = await req.get({
@@ -751,7 +753,7 @@ describe('Admin', () => {
         }));
 
       it('should respond with filtered map data using the search parameter', async () => {
-        m2 = await prisma.map.update({
+        m2 = await prisma.mMap.update({
           where: { id: m2.id },
           data: { name: 'aaaaa' }
         });
@@ -767,7 +769,7 @@ describe('Admin', () => {
       });
 
       it('should respond with filtered map data using the submitter id parameter', async () => {
-        await prisma.map.update({
+        await prisma.mMap.update({
           where: { id: m2.id },
           data: { submitterID: u1.id }
         });
@@ -787,7 +789,7 @@ describe('Admin', () => {
       });
 
       it('should respond with filtered map data based on the map type', async () => {
-        await prisma.map.update({
+        await prisma.mMap.update({
           where: { id: m2.id },
           data: { status: MapStatus.PUBLIC_TESTING }
         });
@@ -807,7 +809,7 @@ describe('Admin', () => {
       });
 
       it('should respond with expanded submitter data using the submitter expand parameter', async () => {
-        await prisma.map.updateMany({ data: { submitterID: u1.id } });
+        await prisma.mMap.updateMany({ data: { submitterID: u1.id } });
 
         await req.expandTest({
           url: 'admin/maps',
@@ -875,7 +877,7 @@ describe('Admin', () => {
             ]))
       );
 
-      afterAll(() => db.cleanup('user', 'map', 'run'));
+      afterAll(() => db.cleanup('user', 'mMap', 'run'));
 
       it('should successfully update a map status', async () => {
         await req.patch({
@@ -885,13 +887,15 @@ describe('Admin', () => {
           token: adminToken
         });
 
-        const changedMap = await prisma.map.findFirst({ where: { id: m1.id } });
+        const changedMap = await prisma.mMap.findFirst({
+          where: { id: m1.id }
+        });
 
         expect(changedMap.status).toBe(MapStatus.PUBLIC_TESTING);
       });
 
       it('should create activities for map authors with map approved type after map status changed from pending to approved', async () => {
-        await prisma.map.update({
+        await prisma.mMap.update({
           where: { id: m1.id },
           data: { status: MapStatus.PENDING }
         });
@@ -922,7 +926,7 @@ describe('Admin', () => {
       });
 
       it('should return 403 if rejected or removed map is being updated', async () => {
-        await prisma.map.update({
+        await prisma.mMap.update({
           where: { id: m1.id },
           data: { status: MapStatus.REJECTED }
         });
@@ -933,7 +937,7 @@ describe('Admin', () => {
           token: adminToken
         });
 
-        await prisma.map.update({
+        await prisma.mMap.update({
           where: { id: m2.id },
           data: { status: MapStatus.REMOVED }
         });
@@ -981,7 +985,7 @@ describe('Admin', () => {
         ]);
       });
 
-      afterAll(() => db.cleanup('user', 'map', 'run'));
+      afterAll(() => db.cleanup('user', 'mMap', 'run'));
 
       beforeEach(async () => {
         m1 = await db.createMap({
@@ -991,11 +995,11 @@ describe('Admin', () => {
         await db.createRun({ map: m1, user: u1 });
       });
 
-      afterEach(() => db.cleanup('map'));
+      afterEach(() => db.cleanup('mMap'));
 
       it('should successfully delete the map and related stored data', async () => {
         const fileName = 'my_cool_map';
-        await prisma.map.update({ where: { id: m1.id }, data: { fileName } });
+        await prisma.mMap.update({ where: { id: m1.id }, data: { fileName } });
 
         await fileStore.add(
           `maps/${fileName}.bsp`,
@@ -1021,7 +1025,9 @@ describe('Admin', () => {
           token: adminToken
         });
 
-        expect(await prisma.map.findFirst({ where: { id: m1.id } })).toBeNull();
+        expect(
+          await prisma.mMap.findFirst({ where: { id: m1.id } })
+        ).toBeNull();
         expect(await fileStore.exists(`maps/${fileName}.bsp`)).toBeFalsy();
 
         const relatedRuns = await prisma.run.findMany({

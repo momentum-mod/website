@@ -4,7 +4,7 @@ import {
   AdminGetReportsQuery,
   AdminMapsGetAllQuery,
   AdminUpdateUser,
-  Map,
+  MMap,
   Report,
   UpdateMap,
   UpdateReport,
@@ -23,8 +23,8 @@ export class AdminService {
     return this.http.patch(`admin/maps/${mapID}`, { body });
   }
 
-  getMaps(query: AdminMapsGetAllQuery): Observable<PagedResponse<Map>> {
-    return this.http.get<PagedResponse<Map>>('admin/maps', { query });
+  getMaps(query: AdminMapsGetAllQuery): Observable<PagedResponse<MMap>> {
+    return this.http.get<PagedResponse<MMap>>('admin/maps', { query });
   }
 
   deleteMap(mapID: number): Observable<void> {

@@ -1,4 +1,4 @@
-import { Map as PrismaMap } from '@prisma/client';
+import { MMap as PrismaMMap } from '@prisma/client';
 import { MapStatus } from '../../../enums/map-status.enum';
 import { Gamemode } from '../../../enums/gamemode.enum';
 import { MapImage } from './map-image.model';
@@ -11,7 +11,11 @@ import { MapFavorite } from './map-favorite.model';
 import { MapLibraryEntry } from './map-library-entry';
 import { Rank } from '../run/rank.model';
 
-export interface Map extends Omit<PrismaMap, 'thumbnailID' | 'mainTrackID'> {
+/**
+ * The term "MMap" (Momentum Map)  is used just in cases where we would use
+ * "Map" to avoid collision with the "Map" data structure.
+ */
+export interface MMap extends Omit<PrismaMMap, 'thumbnailID' | 'mainTrackID'> {
   type: Gamemode;
   status: MapStatus;
   downloadURL: string;
@@ -29,9 +33,9 @@ export interface Map extends Omit<PrismaMap, 'thumbnailID' | 'mainTrackID'> {
   personalBest?: Rank;
 }
 
-export type UpdateMap = Pick<Map, 'status'>;
+export type UpdateMap = Pick<MMap, 'status'>;
 
-export interface CreateMap extends Pick<Map, 'name' | 'type'> {
+export interface CreateMap extends Pick<MMap, 'name' | 'type'> {
   info: CreateMapInfo;
   tracks: CreateMapTrack[];
   credits: CreateMapCredit[];

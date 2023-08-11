@@ -24,7 +24,7 @@ export class RanksService {
     mapID: number,
     query: MapRanksGetQueryDto
   ): Promise<PagedResponseDto<RankDto>> {
-    const map = await this.db.map.findUnique({ where: { id: mapID } });
+    const map = await this.db.mMap.findUnique({ where: { id: mapID } });
 
     if (!map) throw new NotFoundException('Map not found');
 
@@ -63,7 +63,7 @@ export class RanksService {
     rankNumber: number,
     query: MapRankGetNumberQueryDto
   ): Promise<RankDto> {
-    const map = await this.db.map.findUnique({ where: { id: mapID } });
+    const map = await this.db.mMap.findUnique({ where: { id: mapID } });
 
     if (!map) throw new NotFoundException('Map not found');
 
@@ -151,7 +151,7 @@ export class RanksService {
     mapID: number,
     query: MapRankGetNumberQueryDto
   ): Promise<PagedResponseDto<RankDto>> {
-    const map = await this.db.map.findUnique({ where: { id: mapID } });
+    const map = await this.db.mMap.findUnique({ where: { id: mapID } });
 
     if (!map) throw new NotFoundException('Map not found');
 

@@ -7,7 +7,7 @@ import {
   StreamableFile
 } from '@nestjs/common';
 import {
-  Map as MapDB,
+  MMap,
   MapTrack,
   MapZone,
   MapZoneTrigger,
@@ -56,7 +56,7 @@ export class MapsService {
     // now.
 
     // Where
-    const where: Prisma.MapWhereInput = {};
+    const where: Prisma.MMapWhereInput = {};
     if (query.search) where.name = { contains: query.search };
     if (query.submitterID) where.submitterID = query.submitterID;
     if (query instanceof MapsCtlGetAllQueryDto) {
@@ -85,7 +85,7 @@ export class MapsService {
     // query.priority ignored
 
     // Include
-    const include: Prisma.MapInclude = {
+    const include: Prisma.MMapInclude = {
       mainTrack: true,
       info: true,
       ...expandToPrismaIncludes(
@@ -118,7 +118,7 @@ export class MapsService {
       userID
     );
 
-    const dbResponse = await this.db.map.findManyAndCount({
+    const dbResponse = await this.db.mMap.findManyAndCount({
       where,
       include,
       orderBy: { createdAt: 'desc' },
@@ -139,7 +139,7 @@ export class MapsService {
     userID?: number,
     expand?: string[]
   ): Promise<MapDto> {
-    const include: Prisma.MapInclude =
+    const include: Prisma.MMapInclude =
       expandToPrismaIncludes(
         expand?.filter((x) =>
           ['info', 'submitter', 'images', 'thumbnail', 'stats'].includes(x)
@@ -168,7 +168,7 @@ export class MapsService {
       userID
     );
 
-    const dbResponse = await this.db.map.findFirst({
+    const dbResponse = await this.db.mMap.findFirst({
       where: { id: mapID },
       include: isEmpty(include) ? undefined : include
     });
@@ -200,7 +200,7 @@ export class MapsService {
   }
 
   private handleMapGetIncludes(
-    include: Prisma.MapInclude,
+    include: Prisma.MMapInclude,
     fav: boolean,
     lib: boolean,
     PB: boolean,
@@ -245,7 +245,7 @@ export class MapsService {
     submitterID: number
   ): Promise<MapDto> {
     // Check there's no map with same name
-    const mapExists = await this.db.map.exists({
+    const mapExists = await this.db.mMap.exists({
       where: {
         fileName: mapCreateDto.fileName,
         NOT: { status: { in: [MapStatus.REJECTED, MapStatus.REMOVED] } }
@@ -257,7 +257,7 @@ export class MapsService {
 
     // Limit the number of pending maps a user can have at any one time
     const pendingMapLimit = this.config.get('limits.pendingMaps');
-    const submittedMaps: number = await this.db.map.count({
+    const submittedMaps: number = await this.db.mMap.count({
       where: {
         submitterID: submitterID,
         status: { in: [MapStatus.PENDING, MapStatus.NEEDS_REVISION] }
@@ -283,9 +283,9 @@ export class MapsService {
     // Actually build our input. Prisma doesn't let you do nested createMany
     // (https://github.com/prisma/prisma/issues/5455)
     // so we have to do it in parts... Fortunately this doesn't run often.
-    const createInput: Prisma.MapCreateInput & {
-      info: NonNullable<Prisma.MapCreateInput['info']>;
-      tracks: NonNullable<Prisma.MapCreateInput['tracks']>;
+    const createInput: Prisma.MMapCreateInput & {
+      info: NonNullable<Prisma.MMapCreateInput['info']>;
+      tracks: NonNullable<Prisma.MMapCreateInput['tracks']>;
     } = {
       submitter: { connect: { id: submitterID } },
       name: mapCreateDto.name,
@@ -314,7 +314,7 @@ export class MapsService {
       tracks: {
         createMany: {
           data: mapCreateDto.tracks.map(
-            (track): Prisma.MapTrackCreateManyMapInput => {
+            (track): Prisma.MapTrackCreateManyMmapInput => {
               return {
                 isLinear: track.isLinear,
                 numZones: track.numZones,
@@ -327,14 +327,14 @@ export class MapsService {
       }
     };
 
-    const initialMap = await this.db.map.create({
+    const initialMap = await this.db.mMap.create({
       data: createInput,
       select: { id: true, tracks: true }
     });
 
     const mainTrack = initialMap.tracks.find((track) => track.trackNum === 0);
 
-    const mapDB = await this.db.map.update({
+    const mapDB = await this.db.mMap.update({
       where: { id: initialMap.id },
       data: {
         mainTrack: {
@@ -420,7 +420,7 @@ export class MapsService {
         })
     });
 
-    const finalizedMap = await this.db.map.findUnique({
+    const finalizedMap = await this.db.mMap.findUnique({
       where: { id: mapDB.id },
       include: {
         info: true,
@@ -463,7 +463,7 @@ export class MapsService {
     update: UpdateMapDto,
     isAdmin = false
   ): Promise<void> {
-    const map = await this.db.map.findUnique({ where: { id: mapID } });
+    const map = await this.db.mMap.findUnique({ where: { id: mapID } });
 
     if (!map) throw new NotFoundException('No map found');
 
@@ -487,7 +487,7 @@ export class MapsService {
 
     const previousStatus = map.status;
 
-    const updatedMap = await this.db.map.update({
+    const updatedMap = await this.db.mMap.update({
       where: { id: mapID },
       data: { status: update.status }
     });
@@ -515,7 +515,7 @@ export class MapsService {
   }
 
   async delete(mapID: number): Promise<void> {
-    const map = await this.db.map.findUnique({ where: { id: mapID } });
+    const map = await this.db.mMap.findUnique({ where: { id: mapID } });
 
     if (!map) throw new NotFoundException('No map found');
 
@@ -532,7 +532,7 @@ export class MapsService {
     const fileKey = this.getMapFileKey(map.fileName);
     await this.fileCloudService.deleteFileCloud(fileKey);
 
-    await this.db.map.delete({ where: { id: mapID } });
+    await this.db.mMap.delete({ where: { id: mapID } });
   }
 
   //#endregion
@@ -540,7 +540,7 @@ export class MapsService {
   //#region Upload/Download
 
   async canUploadMap(mapID: number, userID: number): Promise<void> {
-    const mapDB = await this.db.map.findUnique({ where: { id: mapID } });
+    const mapDB = await this.db.mMap.findUnique({ where: { id: mapID } });
 
     this.uploadMapChecks(mapDB, userID);
   }
@@ -550,7 +550,7 @@ export class MapsService {
     userID: number,
     mapFileBuffer: Buffer
   ): Promise<MapDto> {
-    const mapDB = await this.db.map.findUnique({ where: { id: mapID } });
+    const mapDB = await this.db.mMap.findUnique({ where: { id: mapID } });
 
     this.uploadMapChecks(mapDB, userID);
 
@@ -558,7 +558,7 @@ export class MapsService {
 
     return DtoFactory(
       MapDto,
-      await this.db.map.update({
+      await this.db.mMap.update({
         where: { id: mapDB.id },
         data: {
           status: MapStatus.PENDING,
@@ -569,7 +569,7 @@ export class MapsService {
   }
 
   async download(mapID: number): Promise<StreamableFile> {
-    const map = await this.db.map.findUnique({ where: { id: mapID } });
+    const map = await this.db.mMap.findUnique({ where: { id: mapID } });
 
     if (!map) throw new NotFoundException('Map not found');
 
@@ -588,7 +588,7 @@ export class MapsService {
 
   private async storeMapFile(
     mapFileBuffer: Buffer,
-    mapModel: MapDB
+    mapModel: MMap
   ): Promise<string> {
     const fileKey = this.getMapFileKey(mapModel.fileName);
 
@@ -610,7 +610,7 @@ export class MapsService {
     return this.fileCloudService.getFileCloud(fileKey);
   }
 
-  private uploadMapChecks(map: MapDB, userID: number): void {
+  private uploadMapChecks(map: MMap, userID: number): void {
     if (!map) throw new NotFoundException('Map not found');
 
     if (userID !== map.submitterID)
@@ -642,7 +642,7 @@ export class MapsService {
     if (!mapInfo.description && !mapInfo.youtubeID && !mapInfo.creationDate)
       throw new BadRequestException('Request contains no valid update data');
 
-    const map = await this.db.map.findUnique({ where: { id: mapID } });
+    const map = await this.db.mMap.findUnique({ where: { id: mapID } });
 
     if (!map) throw new NotFoundException('Map not found');
 

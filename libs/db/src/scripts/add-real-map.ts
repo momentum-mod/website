@@ -23,7 +23,7 @@ prismaWrapper(async (prisma: PrismaClient) => {
   const imageBuffer = fs.readFileSync(path.join(dir, '/bhop_apitest.jpg'));
   const mapBuffer = fs.readFileSync(path.join(dir, '/bhop_apitest.bsp'));
 
-  const map = await prisma.map.create({
+  const map = await prisma.mMap.create({
     data: {
       name: 'bhop_apitest',
       type: Gamemode.BHOP,
@@ -67,7 +67,7 @@ prismaWrapper(async (prisma: PrismaClient) => {
     )
   );
 
-  await prisma.map.update({
+  await prisma.mMap.update({
     where: { id: map.id },
     data: {
       thumbnail: { connect: { id: map.images[0].id } },

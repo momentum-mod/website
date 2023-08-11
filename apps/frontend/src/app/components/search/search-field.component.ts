@@ -12,7 +12,7 @@ import {
 } from '@angular/core';
 import { Router } from '@angular/router';
 import { UsersService, MapsService } from '@momentum/frontend/data';
-import { User, Map } from '@momentum/constants';
+import { User, MMap } from '@momentum/constants';
 
 /**
  * search-field-component is used under the hood by nb-search component
@@ -42,7 +42,7 @@ export class SearchFieldComponent implements OnChanges, AfterViewInit {
   static readonly TYPE_MODAL_HALF = 'modal-half';
 
   users: User[] = null;
-  maps: Map[] = null;
+  maps: MMap[] = null;
   onlyUsers = false;
   onlyMaps = false;
 
