@@ -44,7 +44,7 @@ describe('Maps', () => {
     prisma: PrismaClient,
     req: RequestUtil,
     db: DbUtil,
-    fs: FileStoreUtil,
+    fileStore: FileStoreUtil,
     auth: AuthUtil;
 
   beforeAll(async () => {
@@ -53,9 +53,8 @@ describe('Maps', () => {
     prisma = env.prisma;
     req = env.req;
     db = env.db;
-    fs = env.fs;
+    fileStore = env.fileStore;
     auth = env.auth;
-    fs = env.fs;
   });
 
   afterAll(() => teardownE2ETestEnvironment(app));
@@ -689,7 +688,7 @@ describe('Maps', () => {
         expect(inHash).toBe(res.body.hash);
         expect(outHash).toBe(res.body.hash);
 
-        await fs.delete(`maps/${map.name}.bsp`);
+        await fileStore.delete(`maps/${map.name}.bsp`);
       });
 
       it('should 400 when no map file is provided', () =>
@@ -799,7 +798,7 @@ describe('Maps', () => {
 
       expect(inHash).toBe(outHash);
 
-      await fs.delete('maps/test_map.bsp');
+      await fileStore.delete('maps/test_map.bsp');
     });
   });
 
@@ -822,7 +821,7 @@ describe('Maps', () => {
           const key = `maps/${map.name}.bsp`;
           file = readFileSync(__dirname + '/../files/map.bsp');
 
-          await fs.add(key, file);
+          await fileStore.add(key, file);
 
           const res = await req.get({
             url: `maps/${map.id}/download`,
@@ -835,7 +834,7 @@ describe('Maps', () => {
           const outHash = createSha1Hash(res.rawPayload);
           expect(inHash).toEqual(outHash);
 
-          await fs.delete(key);
+          await fileStore.delete(key);
         });
 
         it('should update the map download stats', async () => {
@@ -2168,9 +2167,9 @@ describe('Maps', () => {
         expect(map.thumbnailID).toBeDefined();
 
         for (const size of ['small', 'medium', 'large'])
-          expect(await fs.exists(`img/${map.thumbnailID}-${size}.jpg`)).toBe(
-            true
-          );
+          expect(
+            await fileStore.exists(`img/${map.thumbnailID}-${size}.jpg`)
+          ).toBe(true);
       });
 
       it('should return a 400 if no thumbnail file is provided', () =>
@@ -2291,7 +2290,10 @@ describe('Maps', () => {
       afterAll(() => db.cleanup('user', 'map'));
 
       afterEach(() =>
-        Promise.all([prisma.mapImage.deleteMany(), fs.deleteDirectory('img')])
+        Promise.all([
+          prisma.mapImage.deleteMany(),
+          fileStore.deleteDirectory('img')
+        ])
       );
 
       it('should create a map image for the specified map', async () => {
@@ -2309,7 +2311,7 @@ describe('Maps', () => {
         for (const size of ['small', 'medium', 'large']) {
           expect(res.body[size]).toBeDefined();
           expect(
-            await fs.exists(`img/${updatedMap.images[0].id}-${size}.jpg`)
+            await fileStore.exists(`img/${updatedMap.images[0].id}-${size}.jpg`)
           ).toBe(true);
         }
       });
@@ -2454,11 +2456,14 @@ describe('Maps', () => {
         hash = createSha1Hash(fileBuffer);
 
         for (const size of ['small', 'medium', 'large'])
-          await fs.add(`img/${image.id}-${size}.jpg`, fileBuffer);
+          await fileStore.add(`img/${image.id}-${size}.jpg`, fileBuffer);
       });
 
       afterAll(() =>
-        Promise.all([db.cleanup('user', 'map'), fs.deleteDirectory('img')])
+        Promise.all([
+          db.cleanup('user', 'map'),
+          fileStore.deleteDirectory('img')
+        ])
       );
 
       it('should update the map image', async () => {
@@ -2470,10 +2475,12 @@ describe('Maps', () => {
         });
 
         for (const size of ['small', 'medium', 'large']) {
-          expect(await fs.exists(`img/${image.id}-${size}.jpg`)).toBe(true);
-          expect(await fs.checkHash(`img/${image.id}-${size}.jpg`, hash)).toBe(
-            false
+          expect(await fileStore.exists(`img/${image.id}-${size}.jpg`)).toBe(
+            true
           );
+          expect(
+            await fileStore.checkHash(`img/${image.id}-${size}.jpg`, hash)
+          ).toBe(false);
         }
       });
 
@@ -2573,17 +2580,19 @@ describe('Maps', () => {
 
         const fileBuffer = readFileSync(__dirname + '/../files/image_jpg.jpg');
         for (const size of ['small', 'medium', 'large'])
-          await fs.add(`img/${image.id}-${size}.jpg`, fileBuffer);
+          await fileStore.add(`img/${image.id}-${size}.jpg`, fileBuffer);
       });
 
       afterAll(async () => {
         await db.cleanup('user', 'map', 'run');
-        await fs.deleteDirectory('img');
+        await fileStore.deleteDirectory('img');
       });
 
       it('should delete the map image', async () => {
         for (const size of ['small', 'medium', 'large'])
-          expect(await fs.exists(`img/${image.id}-${size}.jpg`)).toBe(true);
+          expect(await fileStore.exists(`img/${image.id}-${size}.jpg`)).toBe(
+            true
+          );
 
         await req.del({
           url: `maps/images/${image.id}`,
@@ -2598,7 +2607,9 @@ describe('Maps', () => {
         expect(updatedMap.images).toHaveLength(0);
 
         for (const size of ['small', 'medium', 'large'])
-          expect(await fs.exists(`img/${image.id}-${size}.jpg`)).toBe(false);
+          expect(await fileStore.exists(`img/${image.id}-${size}.jpg`)).toBe(
+            false
+          );
 
         // We've just successfully deleted an image and want to have one for
         // the remaining tests (though they don't actually need the files to

@@ -32,7 +32,7 @@ export interface E2EUtils {
   req: RequestUtil;
   db: DbUtil;
   auth: AuthUtil;
-  fs: FileStoreUtil;
+  fileStore: FileStoreUtil;
 }
 
 export async function setupE2ETestEnvironment(
@@ -102,7 +102,7 @@ export async function setupE2ETestEnvironment(
     auth,
     db: new DbUtil(prisma, auth),
     req: new RequestUtil(app),
-    fs: new FileStoreUtil()
+    fileStore: new FileStoreUtil()
   };
 }
 
