@@ -109,7 +109,8 @@ export class DbUtil {
       data: {
         ...merge(
           {
-            name: `ahop_map${++this.maps}`,
+            name: `map${++this.maps}`,
+            fileName: `ahop_map${this.maps}`,
             type: Gamemode.AHOP,
             status: MapStatus.APPROVED,
             hash: randomHash(),

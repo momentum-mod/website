@@ -95,14 +95,16 @@ async function main(prisma: PrismaClient) {
       Enum.values(Gamemode).filter((x) => x !== Gamemode.UNKNOWN)
     );
 
+    const name = faker.lorem.word();
+
     return prisma.map.create({
       data: {
-        name: `${MapTypePrefix.get(type)}_${faker.lorem.word()}`,
-        type: type,
+        name,
+        type,
         status: Random.enumValue(MapStatus),
-        fileKey: faker.animal.cat(),
+        fileName: `${MapTypePrefix.get(type)}_${name}`,
         hash: faker.string.alphanumeric(),
-        submitterID: submitterID,
+        submitterID,
         ...Random.createdUpdatedDates()
       }
     });
