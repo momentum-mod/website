@@ -1,5 +1,5 @@
 import { Component, Input } from '@angular/core';
-import { Map } from '@momentum/constants';
+import { MMap } from '@momentum/constants';
 
 @Component({
   selector: 'mom-map-info-stats',
@@ -7,5 +7,5 @@ import { Map } from '@momentum/constants';
   styleUrls: ['./map-info-stats.component.scss']
 })
 export class MapInfoStatsComponent {
-  @Input() map: Map;
+  @Input() map: MMap;
 }

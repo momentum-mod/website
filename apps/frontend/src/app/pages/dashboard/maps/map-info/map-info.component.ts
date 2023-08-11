@@ -4,7 +4,7 @@ import { switchMap, takeUntil } from 'rxjs/operators';
 import { NbDialogService, NbToastrService } from '@nebular/theme';
 import { Subject } from 'rxjs';
 import { MapNotifyEditComponent } from './map-info-notify-edit/map-info-notify-edit.component';
-import { Map, MapImage, MapNotify } from '@momentum/constants';
+import { MMap, MapImage, MapNotify } from '@momentum/constants';
 import { ReportType, Role } from '@momentum/constants';
 import { LocalUserService, MapsService } from '@momentum/frontend/data';
 import { PartialDeep } from 'type-fest';
@@ -18,11 +18,11 @@ import { Gallery, GalleryRef, ImageItem, YoutubeItem } from 'ng-gallery';
 export class MapInfoComponent implements OnInit, OnDestroy {
   private ngUnsub = new Subject<void>();
   @Input() previewMap: PartialDeep<
-    { map: Map; images: MapImage[] },
+    { map: MMap; images: MapImage[] },
     { recurseIntoArrays: true }
   >;
   protected readonly ReportType = ReportType;
-  map: Map;
+  map: MMap;
   mapNotify: MapNotify;
   mapNotifications: boolean;
   mapInLibrary: boolean;
@@ -68,7 +68,7 @@ export class MapInfoComponent implements OnInit, OnDestroy {
     });
 
     if (this.previewMap) {
-      this.map = this.previewMap.map as Map;
+      this.map = this.previewMap.map as MMap;
       this.updateGallery(
         galleryRef,
         this.previewMap.images as MapImage[],

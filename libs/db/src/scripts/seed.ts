@@ -97,7 +97,7 @@ async function main(prisma: PrismaClient) {
 
     const name = faker.lorem.word();
 
-    return prisma.map.create({
+    return prisma.mMap.create({
       data: {
         name,
         type,
@@ -431,7 +431,7 @@ async function main(prisma: PrismaClient) {
               )
             );
 
-            await prisma.map.update({
+            await prisma.mMap.update({
               where: { id: map.id },
               data: { thumbnailID: images[0].id }
             });

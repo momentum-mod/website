@@ -1,4 +1,4 @@
-import { CreateMap, Map } from '@momentum/constants';
+import { CreateMap, MMap } from '@momentum/constants';
 import { UserDto } from '../user/user.dto';
 import { MapImageDto } from './map-image.dto';
 import { ApiProperty, PickType } from '@nestjs/swagger';
@@ -34,7 +34,7 @@ import { MapStatus, Gamemode } from '@momentum/constants';
 const ENDPOINT_URL = Config.storage.endpointUrl;
 const BUCKET = Config.storage.bucketName;
 
-export class MapDto implements Map {
+export class MapDto implements MMap {
   @IdProperty()
   readonly id: number;
 

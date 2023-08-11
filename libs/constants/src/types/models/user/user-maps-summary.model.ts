@@ -1,5 +1,5 @@
-import { Map } from '@prisma/client';
+import { MMap } from '@prisma/client';
 
-export interface MapSummary extends Pick<Map, 'status'> {
+export interface MapSummary extends Pick<MMap, 'status'> {
   statusCount: number;
 }

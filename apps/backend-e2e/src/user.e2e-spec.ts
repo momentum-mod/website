@@ -353,17 +353,19 @@ describe('User', () => {
             mapCredits: {
               create: { type: MapCreditType.AUTHOR, mapID: map.id }
             },
-            mapFavorites: { create: { map: { connect: { id: map.id } } } },
-            mapLibraryEntries: { create: { map: { connect: { id: map.id } } } },
+            mapFavorites: { create: { mmap: { connect: { id: map.id } } } },
+            mapLibraryEntries: {
+              create: { mmap: { connect: { id: map.id } } }
+            },
             reviewsSubmitted: {
               create: {
-                map: { connect: { id: map.id } },
+                mmap: { connect: { id: map.id } },
                 mainText: "That's a good map"
               }
             },
             reviewsResolved: {
               create: {
-                map: { connect: { id: map.id } },
+                mmap: { connect: { id: map.id } },
                 resolved: true,
                 mainText: 'This map sucks',
                 reviewer: {
@@ -380,7 +382,7 @@ describe('User', () => {
               create: { followee: { connect: { id: followeeUser.id } } }
             },
             mapNotifies: {
-              create: { map: { connect: { id: map.id } }, notifyOn: 8 }
+              create: { mmap: { connect: { id: map.id } }, notifyOn: 8 }
             },
             runSessions: {
               create: {
@@ -797,7 +799,7 @@ describe('User', () => {
           ]))
       );
 
-      afterAll(() => db.cleanup('user', 'map'));
+      afterAll(() => db.cleanup('user', 'mMap'));
 
       it('should return a MapNotify DTO for a given user and map', async () => {
         const activityType = ActivityType.WR_ACHIEVED;
@@ -846,7 +848,7 @@ describe('User', () => {
           ]))
       );
 
-      afterAll(() => db.cleanup('user', 'map'));
+      afterAll(() => db.cleanup('user', 'mMap'));
 
       it('should update map notification status with existing notifications', async () => {
         await prisma.mapNotify.create({
@@ -922,7 +924,7 @@ describe('User', () => {
           ]))
       );
 
-      afterAll(() => db.cleanup('user', 'map'));
+      afterAll(() => db.cleanup('user', 'mMap'));
 
       it('should remove the user from map notifications list', async () => {
         await prisma.mapNotify.create({
@@ -1175,7 +1177,7 @@ describe('User', () => {
         });
       });
 
-      afterAll(() => db.cleanup('user', 'map'));
+      afterAll(() => db.cleanup('user', 'mMap'));
 
       it('should retrieve the list of maps in the local users library', () =>
         req.get({
@@ -1200,7 +1202,7 @@ describe('User', () => {
         }));
 
       it('should retrieve a filtered list of maps in the local users library using the search query', async () => {
-        await prisma.map.update({
+        await prisma.mMap.update({
           where: { id: maps[0].id },
           data: { name: 'ahop_imsofuckingboredofwebdev' }
         });
@@ -1217,7 +1219,7 @@ describe('User', () => {
 
       it('should respond with expanded submitter data using the submitter expand parameter', async () => {
         const u2 = await db.createUser();
-        await prisma.map.updateMany({
+        await prisma.mMap.updateMany({
           where: {},
           data: { submitterID: u2.id }
         });
@@ -1246,7 +1248,7 @@ describe('User', () => {
       it('should respond with expanded mapfavorite data for maps the logged in user has favorited when using the inFavorite expansion', async () => {
         await Promise.all(
           maps.map((m) =>
-            prisma.map.update({
+            prisma.mMap.update({
               where: { id: m.id },
               data: { favorites: { create: { userID: user.id } } }
             })
@@ -1280,7 +1282,7 @@ describe('User', () => {
           ]))
       );
 
-      afterAll(() => db.cleanup('user', 'map'));
+      afterAll(() => db.cleanup('user', 'mMap'));
 
       it('should 204 if a map exists in the local users library', async () => {
         await prisma.mapLibraryEntry.create({
@@ -1325,7 +1327,7 @@ describe('User', () => {
           ]))
       );
 
-      afterAll(() => db.cleanup('user', 'map'));
+      afterAll(() => db.cleanup('user', 'mMap'));
 
       it('should add a new map to the local users library', async () => {
         await req.put({
@@ -1364,7 +1366,7 @@ describe('User', () => {
           ]))
       );
 
-      afterAll(() => db.cleanup('user', 'map'));
+      afterAll(() => db.cleanup('user', 'mMap'));
 
       it('should delete a map from the local users library', async () => {
         await prisma.mapLibraryEntry.create({
@@ -1426,7 +1428,7 @@ describe('User', () => {
         ]);
       });
 
-      afterAll(() => db.cleanup('user', 'map'));
+      afterAll(() => db.cleanup('user', 'mMap'));
 
       it('should retrieve the list of maps in the local users favorites', () =>
         req.get({
@@ -1544,7 +1546,7 @@ describe('User', () => {
           ]))
       );
 
-      afterAll(() => db.cleanup('user', 'map'));
+      afterAll(() => db.cleanup('user', 'mMap'));
 
       it('should return a map favorites', async () => {
         await prisma.mapFavorite.create({
@@ -1591,7 +1593,7 @@ describe('User', () => {
           ]))
       );
 
-      afterAll(() => db.cleanup('user', 'map'));
+      afterAll(() => db.cleanup('user', 'mMap'));
 
       it('should add a new map to the local users favorites', async () => {
         await req.put({
@@ -1628,7 +1630,7 @@ describe('User', () => {
           ]))
       );
 
-      afterAll(() => db.cleanup('user', 'map'));
+      afterAll(() => db.cleanup('user', 'mMap'));
 
       it('should delete a map from the local users favorites', async () => {
         await prisma.mapFavorite.create({
@@ -1693,7 +1695,7 @@ describe('User', () => {
         ]);
       });
 
-      afterAll(() => db.cleanup('user', 'map'));
+      afterAll(() => db.cleanup('user', 'mMap'));
 
       it('should retrieve the list of maps that the user submitted', () =>
         req.get({
@@ -1791,7 +1793,7 @@ describe('User', () => {
         ]);
       });
 
-      afterAll(() => db.cleanup('user', 'map'));
+      afterAll(() => db.cleanup('user', 'mMap'));
 
       it('should retrieve an array of objects that each contain a status and its count', async () => {
         const res = await req.get({

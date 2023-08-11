@@ -23,7 +23,7 @@ export class MapImageService {
   ) {}
 
   async getImages(mapID: number): Promise<MapImageDto[]> {
-    if (!(await this.db.map.exists({ where: { id: mapID } })))
+    if (!(await this.db.mMap.exists({ where: { id: mapID } })))
       throw new NotFoundException('Map not found');
 
     const images = await this.db.mapImage.findMany({ where: { mapID } });
@@ -44,7 +44,7 @@ export class MapImageService {
     mapID: number,
     imgBuffer: Buffer
   ): Promise<MapImageDto> {
-    const map = await this.db.map.findUnique({ where: { id: mapID } });
+    const map = await this.db.mMap.findUnique({ where: { id: mapID } });
 
     if (!map) throw new NotFoundException('Map not found');
 
@@ -105,7 +105,7 @@ export class MapImageService {
 
     if (!image) throw new NotFoundException('Image not found');
 
-    const map = await this.db.map.findUnique({ where: { id: image.mapID } });
+    const map = await this.db.mMap.findUnique({ where: { id: image.mapID } });
 
     if (map.submitterID !== userID)
       throw new ForbiddenException('User is not the submitter of the map');
@@ -167,7 +167,7 @@ export class MapImageService {
     mapID: number,
     imgBuffer: Buffer
   ): Promise<void> {
-    let map = await this.db.map.findUnique({
+    let map = await this.db.mMap.findUnique({
       where: { id: mapID },
       select: { thumbnailID: true, submitterID: true, status: true }
     });
@@ -180,7 +180,7 @@ export class MapImageService {
 
     if (!map.thumbnailID) {
       const newThumbnail = await this.db.mapImage.create({ data: { mapID } });
-      map = await this.db.map.update({
+      map = await this.db.mMap.update({
         where: { id: mapID },
         data: { thumbnail: { connect: { id: newThumbnail.id } } }
       });

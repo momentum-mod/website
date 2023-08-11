@@ -5,7 +5,7 @@ import { CookieService } from 'ngx-cookie-service';
 import {
   Follow,
   FollowStatus,
-  Map,
+  MMap,
   MapCredit,
   MapCreditsGetQuery,
   MapFavorite,
@@ -124,8 +124,8 @@ export class LocalUserService {
     return this.http.delete(`user/maps/library/${mapID}`);
   }
 
-  public isMapInLibrary(mapID: number): Observable<Map> {
-    return this.http.get<Map>(`user/maps/library/${mapID}`);
+  public isMapInLibrary(mapID: number): Observable<MMap> {
+    return this.http.get<MMap>(`user/maps/library/${mapID}`);
   }
 
   public getMapFavorites(
@@ -161,8 +161,8 @@ export class LocalUserService {
 
   public getSubmittedMaps(
     query?: UserMapSubmittedGetQuery
-  ): Observable<PagedResponse<Map>> {
-    return this.http.get<PagedResponse<Map>>('user/maps/submitted', { query });
+  ): Observable<PagedResponse<MMap>> {
+    return this.http.get<PagedResponse<MMap>>('user/maps/submitted', { query });
   }
 
   public getSubmittedMapSummary(): Observable<MapSummary[]> {

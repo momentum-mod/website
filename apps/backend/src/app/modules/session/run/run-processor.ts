@@ -1,5 +1,5 @@
 ﻿import {
-  Map as MapDB,
+  MMap,
   MapTrack,
   RunSessionTimestamp,
   User,
@@ -23,7 +23,7 @@ export class RunProcessor {
   replay: Replay;
   timestamps: RunSessionTimestamp[];
   track: MapTrack;
-  map: MapDB;
+  map: MMap;
   userID: number;
   steamID: bigint;
   zoneNum: number;
@@ -38,7 +38,7 @@ export class RunProcessor {
     this.startTime = session.createdAt.getTime();
     this.timestamps = session.timestamps;
     this.track = session.track;
-    this.map = session.track.map;
+    this.map = session.track.mmap;
     this.userID = user.id;
     this.steamID = user.steamID;
   }

@@ -68,7 +68,7 @@ describe('Runs', () => {
       afterAll(() =>
         Promise.all([
           prisma.user.deleteMany(),
-          prisma.map.deleteMany(),
+          prisma.mMap.deleteMany(),
           prisma.run.deleteMany()
         ])
       );
@@ -260,7 +260,7 @@ describe('Runs', () => {
       afterAll(() =>
         Promise.all([
           prisma.user.deleteMany(),
-          prisma.map.deleteMany(),
+          prisma.mMap.deleteMany(),
           prisma.run.deleteMany()
         ])
       );
@@ -342,7 +342,7 @@ describe('Runs', () => {
         token = auth.login(user);
       });
 
-      afterAll(() => db.cleanup('user', 'map', 'run'));
+      afterAll(() => db.cleanup('user', 'mMap', 'run'));
 
       it('should redirect to the download url of the run', async () => {
         const res = await req.get({

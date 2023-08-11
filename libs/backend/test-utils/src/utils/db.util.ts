@@ -1,7 +1,7 @@
 ﻿import {
   Prisma,
   User,
-  Map as MapDB,
+  MMap,
   MapInfo,
   MapStats,
   MapImage,
@@ -94,10 +94,10 @@ export class DbUtil {
    * require connecting a User or Run
    */
   async createMap(
-    map: CreateMapMapArgs = {},
+    mmap: CreateMapMMapArgs = {},
     track: CreateMapMapTrackArgs = {}
   ): Promise<
-    MapDB & {
+    MMap & {
       info: MapInfo;
       stats: MapStats;
       images: MapImage[];
@@ -105,7 +105,7 @@ export class DbUtil {
       mainTrack: MapTrack;
     }
   > {
-    const createdMap = await this.prisma.map.create({
+    const createdMap = await this.prisma.mMap.create({
       data: {
         ...merge(
           {
@@ -115,10 +115,10 @@ export class DbUtil {
             status: MapStatus.APPROVED,
             hash: randomHash(),
             info: { create: { numTracks: 1, creationDate: new Date() } },
-            images: map?.images ?? { create: {} },
-            stats: map?.stats ?? { create: { baseStats: { create: {} } } }
+            images: mmap?.images ?? { create: {} },
+            stats: mmap?.stats ?? { create: { baseStats: { create: {} } } }
           },
-          map
+          mmap
         ),
         tracks: {
           create: merge(
@@ -139,7 +139,7 @@ export class DbUtil {
       include: { images: true, tracks: true }
     });
 
-    return this.prisma.map.update({
+    return this.prisma.mMap.update({
       where: { id: createdMap.id },
       data: {
         thumbnail: createdMap.images[0]
@@ -161,10 +161,10 @@ export class DbUtil {
 
   createMaps(
     count: number,
-    map: CreateMapMapArgs = {},
+    map: CreateMapMMapArgs = {},
     track: CreateMapMapTrackArgs = {}
   ): Promise<
-    (MapDB & {
+    (MMap & {
       info: MapInfo;
       stats: MapStats;
       images: MapImage[];
@@ -182,14 +182,14 @@ export class DbUtil {
   //#region Runs
 
   async createRun(args: {
-    map: MapDB;
+    map: MMap;
     user: User;
     ticks?: number;
     flags?: number;
     createdAt?: Date;
     trackNum?: number;
     zoneNum?: number;
-  }): Promise<Run & { user: User; map: MapDB }> {
+  }): Promise<Run & { user: User; mmap: MMap }> {
     // Wanna create a user, map, AND run? Go for it!
     const user = args.user ?? (await this.createUser());
     const map = args.map ?? (await this.createMap());
@@ -197,7 +197,7 @@ export class DbUtil {
 
     return this.prisma.run.create({
       data: {
-        map: { connect: { id: map.id } },
+        mmap: { connect: { id: map.id } },
         user: { connect: { id: user.id } },
         trackNum: args.trackNum ?? 0,
         zoneNum: args.zoneNum ?? 0,
@@ -213,7 +213,7 @@ export class DbUtil {
           create: { baseStats: { create: {} }, zoneNum: args.zoneNum ?? 0 }
         }
       },
-      include: { user: true, map: true }
+      include: { user: true, mmap: true }
     });
   }
 
@@ -223,7 +223,7 @@ export class DbUtil {
    */
   async createRunAndRankForMap(
     args: {
-      map?: MapDB;
+      map?: MMap;
       user?: User;
       ticks?: number;
       rank?: number;
@@ -233,7 +233,7 @@ export class DbUtil {
       createdAt?: Date;
       file?: string;
     } = {}
-  ): Promise<Run & { rank: Rank; user: User; map: MapDB }> {
+  ): Promise<Run & { rank: Rank; user: User; mmap: MMap }> {
     // Prisma unfortunately doesn't seem clever enough to let us do nested User
     // -> Run -> UMR creation; UMR needs a User to connect. So when we want to
     // create users for this, we to create one first.
@@ -245,7 +245,7 @@ export class DbUtil {
 
     return this.prisma.run.create({
       data: {
-        map: { connect: { id: map.id } },
+        mmap: { connect: { id: map.id } },
         user: { connect: { id: user.id } },
         trackNum: args.trackNum ?? 0,
         zoneNum: args.zoneNum ?? 0,
@@ -258,7 +258,7 @@ export class DbUtil {
         createdAt: args.createdAt ?? undefined,
         rank: {
           create: {
-            map: { connect: { id: map.id } },
+            mmap: { connect: { id: map.id } },
             user: { connect: { id: user.id } },
             rank: args.rank ?? 1,
             gameType: map.type,
@@ -271,7 +271,7 @@ export class DbUtil {
           create: { baseStats: { create: {} }, zoneNum: args.zoneNum ?? 0 }
         }
       },
-      include: { rank: true, user: true, map: true }
+      include: { rank: true, user: true, mmap: true }
     });
   }
 
@@ -281,7 +281,7 @@ export class DbUtil {
 //#region Types
 
 type CreateUserArgs = PartialDeep<Prisma.UserCreateArgs>;
-type CreateMapMapArgs = PartialDeep<Omit<Prisma.MapCreateInput, 'tracks'>>;
-type CreateMapMapTrackArgs = PartialDeep<Prisma.MapTrackCreateWithoutMapInput>;
+type CreateMapMMapArgs = PartialDeep<Omit<Prisma.MMapCreateInput, 'tracks'>>;
+type CreateMapMapTrackArgs = PartialDeep<Prisma.MapTrackCreateWithoutMmapInput>;
 
 //#endregion

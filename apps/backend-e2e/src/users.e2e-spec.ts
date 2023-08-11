@@ -44,7 +44,7 @@ describe('Users', () => {
         token = auth.login(users[0]);
       });
 
-      afterAll(() => db.cleanup('user', 'map', 'run'));
+      afterAll(() => db.cleanup('user', 'mMap', 'run'));
 
       it('should respond with paged list of users', async () => {
         const res = await req.get({
@@ -205,7 +205,7 @@ describe('Users', () => {
           }))
       );
 
-      afterAll(() => db.cleanup('user', 'map', 'run'));
+      afterAll(() => db.cleanup('user', 'mMap', 'run'));
 
       it('should respond with the specified user', async () => {
         const res = await req.get({
@@ -535,7 +535,7 @@ describe('Users', () => {
         });
       });
 
-      afterAll(() => db.cleanup('user', 'map'));
+      afterAll(() => db.cleanup('user', 'mMap'));
 
       it('should respond with a list of map credits for a specific user', () => {
         req.get({

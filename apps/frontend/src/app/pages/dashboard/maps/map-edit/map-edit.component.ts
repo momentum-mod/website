@@ -7,7 +7,7 @@ import { CdkDragDrop, moveItemInArray } from '@angular/cdk/drag-drop';
 import { NbDialogService, NbToastrService } from '@nebular/theme';
 import { ConfirmDialogComponent } from '../../../../components/confirm-dialog/confirm-dialog.component';
 import { forkJoin, Subject } from 'rxjs';
-import { Map, MapCredit, MapImage } from '@momentum/constants';
+import { MMap, MapCredit, MapImage } from '@momentum/constants';
 import { FileUploadType } from '../upload-form/file-upload/file-upload.component';
 import {
   AdminService,
@@ -26,7 +26,7 @@ const youtubeRegex = /[\w-]{11}/;
 export class MapEditComponent implements OnInit, OnDestroy {
   protected readonly FileUploadType = FileUploadType;
   private ngUnsub = new Subject<void>();
-  map: Map;
+  map: MMap;
   images: MapImage[];
   imagesLimit: number;
   credits: Record<MapCreditType, MapCredit[]>;
@@ -84,7 +84,7 @@ export class MapEditComponent implements OnInit, OnDestroy {
           })
         )
       )
-      .subscribe((map: Map) => {
+      .subscribe((map: MMap) => {
         this.map = map;
         this.localUserService
           .getLocal()

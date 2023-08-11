@@ -159,7 +159,7 @@ export class RunSessionService {
 
     const user = await this.db.user.findUnique({ where: { id: userID } });
 
-    if (!session || !session.track || !session.track.map)
+    if (!session || !session.track || !session.track.mmap)
       throw new BadRequestException('Invalid run');
 
     await this.db.runSession.delete({ where: { id: sessionID } });
@@ -173,7 +173,7 @@ export class RunSessionService {
     return this.saveSubmittedRun(
       processedRun,
       session.track,
-      session.track.map.type,
+      session.track.mmap.type,
       replay
     );
   }
@@ -467,7 +467,7 @@ export class RunSessionService {
 
       rankCreate = {
         user: { connect: { id: submittedRun.userID } },
-        map: { connect: { id: submittedRun.mapID } },
+        mmap: { connect: { id: submittedRun.mapID } },
         gameType: mapType,
         flags: submittedRun.flags,
         rank: rank,
@@ -613,7 +613,7 @@ export class RunSessionService {
     const run = await this.db.run.create({
       data: {
         user: { connect: { id: processedRun.userID } },
-        map: { connect: { id: processedRun.mapID } },
+        mmap: { connect: { id: processedRun.mapID } },
         trackNum: processedRun.trackNum,
         zoneNum: processedRun.zoneNum,
         ticks: processedRun.ticks,

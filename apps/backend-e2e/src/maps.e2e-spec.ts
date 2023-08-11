@@ -74,7 +74,7 @@ describe('Maps', () => {
         });
       });
 
-      afterAll(() => db.cleanup('user', 'map', 'run'));
+      afterAll(() => db.cleanup('user', 'mMap', 'run'));
 
       it('should respond with map data', async () => {
         const res = await req.get({
@@ -100,7 +100,7 @@ describe('Maps', () => {
         req.skipTest({ url: 'maps', validate: MapDto, token: u1Token }));
 
       it('should respond with filtered map data using the search parameter', async () => {
-        m2 = await prisma.map.update({
+        m2 = await prisma.mMap.update({
           where: { id: m2.id },
           data: { name: 'aaaaa' }
         });
@@ -116,7 +116,7 @@ describe('Maps', () => {
       });
 
       it('should respond with filtered map data using the submitter id parameter', async () => {
-        await prisma.map.update({
+        await prisma.mMap.update({
           where: { id: m2.id },
           data: { submitterID: u1.id }
         });
@@ -137,7 +137,7 @@ describe('Maps', () => {
 
       it('should respond with filtered map data based on the map type', async () => {
         const newType = Gamemode.BHOP;
-        await prisma.map.update({
+        await prisma.mMap.update({
           where: { id: m2.id },
           data: { type: newType }
         });
@@ -174,7 +174,7 @@ describe('Maps', () => {
       });
 
       it('should respond with expanded submitter data using the submitter expand parameter', async () => {
-        await prisma.map.updateMany({ data: { submitterID: u2.id } });
+        await prisma.mMap.updateMany({ data: { submitterID: u2.id } });
 
         await req.expandTest({
           url: 'maps',
@@ -324,19 +324,19 @@ describe('Maps', () => {
 
       it('should respond with filtered maps when using the difficultyLow filter', async () => {
         await Promise.all([
-          prisma.map.update({
+          prisma.mMap.update({
             where: { id: m1.id },
             data: { mainTrack: { update: { difficulty: 1 } } }
           }),
-          prisma.map.update({
+          prisma.mMap.update({
             where: { id: m2.id },
             data: { mainTrack: { update: { difficulty: 3 } } }
           }),
-          prisma.map.update({
+          prisma.mMap.update({
             where: { id: m3.id },
             data: { mainTrack: { update: { difficulty: 3 } } }
           }),
-          prisma.map.update({
+          prisma.mMap.update({
             where: { id: m4.id },
             data: { mainTrack: { update: { difficulty: 5 } } }
           })
@@ -371,11 +371,11 @@ describe('Maps', () => {
 
       it('should respond with filtered maps when the isLinear filter', async () => {
         await Promise.all([
-          prisma.map.update({
+          prisma.mMap.update({
             where: { id: m1.id },
             data: { mainTrack: { update: { isLinear: false } } }
           }),
-          prisma.map.update({
+          prisma.mMap.update({
             where: { id: m2.id },
             data: { mainTrack: { update: { isLinear: false } } }
           })
@@ -459,7 +459,7 @@ describe('Maps', () => {
         };
       });
 
-      afterEach(() => db.cleanup('map'));
+      afterEach(() => db.cleanup('mMap'));
       afterAll(() => db.cleanup('user'));
 
       describe('should create a new map', () => {
@@ -472,7 +472,7 @@ describe('Maps', () => {
             body: createMapObject,
             token: token
           });
-          createdMap = await prisma.map.findFirst({
+          createdMap = await prisma.mMap.findFirst({
             include: {
               info: true,
               stats: true,
@@ -620,7 +620,7 @@ describe('Maps', () => {
       });
     });
 
-    afterAll(() => db.cleanup('user', 'map'));
+    afterAll(() => db.cleanup('user', 'mMap'));
 
     describe('GET', () => {
       it('should set the response header location to the map upload endpoint', async () => {
@@ -644,7 +644,7 @@ describe('Maps', () => {
       });
 
       it('should 403 when the map is not accepting uploads', async () => {
-        await prisma.map.update({
+        await prisma.mMap.update({
           where: { id: map.id },
           data: { status: MapStatus.REJECTED }
         });
@@ -655,7 +655,7 @@ describe('Maps', () => {
           token: u2Token
         });
 
-        await prisma.map.update({
+        await prisma.mMap.update({
           where: { id: map.id },
           data: { status: MapStatus.NEEDS_REVISION }
         });
@@ -715,7 +715,7 @@ describe('Maps', () => {
         }));
 
       it('should 403 when the map is not accepting uploads', async () => {
-        await prisma.map.update({
+        await prisma.mMap.update({
           where: { id: map.id },
           data: { status: MapStatus.REJECTED }
         });
@@ -734,7 +734,7 @@ describe('Maps', () => {
   });
 
   describe('The Big Chungie Create, Upload then Download Test', () => {
-    afterAll(() => db.cleanup('user', 'map'));
+    afterAll(() => db.cleanup('user', 'mMap'));
 
     it('should successfully create a map, upload it to the returned location, then download it', async () => {
       const [user, token] = await db.createAndLoginUser({
@@ -814,7 +814,7 @@ describe('Maps', () => {
           ]))
       );
 
-      afterAll(() => db.cleanup('user', 'map'));
+      afterAll(() => db.cleanup('user', 'mMap'));
 
       describe('should download a map', () => {
         it("should respond with the map's BSP file", async () => {
@@ -883,7 +883,7 @@ describe('Maps', () => {
           ]))
       );
 
-      afterAll(() => db.cleanup('user', 'map', 'run'));
+      afterAll(() => db.cleanup('user', 'mMap', 'run'));
 
       it('should respond with map data', () =>
         req.get({
@@ -916,7 +916,7 @@ describe('Maps', () => {
         }));
 
       it('should respond with expanded map data using the submitter expand parameter', async () => {
-        await prisma.map.update({
+        await prisma.mMap.update({
           where: { id: map.id },
           data: { submitterID: u1.id }
         });
@@ -1071,7 +1071,7 @@ describe('Maps', () => {
               submitter: { connect: { id: user.id } }
             }))
         );
-        afterAll(() => db.cleanup('map'));
+        afterAll(() => db.cleanup('mMap'));
 
         const statuses = Object.values(MapStatus).filter(
           (v) => typeof v === 'number'
@@ -1090,7 +1090,7 @@ describe('Maps', () => {
             }allow a mapper to change their map from ${MapStatus[s1]} to ${
               MapStatus[s2]
             }`, async () => {
-              await prisma.map.update({
+              await prisma.mMap.update({
                 where: { id: map.id },
                 data: { status: s1 }
               });
@@ -1107,7 +1107,7 @@ describe('Maps', () => {
       });
 
       describe('Everything else', () => {
-        afterEach(() => db.cleanup('map', 'activity'));
+        afterEach(() => db.cleanup('mMap', 'activity'));
 
         it('should allow a mapper set their map status to ready for release', async () => {
           const map = await db.createMap({
@@ -1123,7 +1123,7 @@ describe('Maps', () => {
             token: token
           });
 
-          const updatedMap = await prisma.map.findUnique({
+          const updatedMap = await prisma.mMap.findUnique({
             where: { id: map.id }
           });
           expect(updatedMap.status).toEqual(newStatus);
@@ -1193,7 +1193,7 @@ describe('Maps', () => {
           ]))
       );
 
-      afterAll(() => db.cleanup('user', 'map'));
+      afterAll(() => db.cleanup('user', 'mMap'));
 
       it('should respond with map info', () =>
         req.get({
@@ -1223,7 +1223,7 @@ describe('Maps', () => {
         });
       });
 
-      afterAll(() => db.cleanup('user', 'map'));
+      afterAll(() => db.cleanup('user', 'mMap'));
 
       const infoUpdate = {
         description: 'This map is EXTREME',
@@ -1340,7 +1340,7 @@ describe('Maps', () => {
         });
       });
 
-      afterAll(() => db.cleanup('user', 'map'));
+      afterAll(() => db.cleanup('user', 'mMap'));
 
       it('should respond with the specified maps credits', async () => {
         const res = await req.get({
@@ -1410,7 +1410,7 @@ describe('Maps', () => {
         newMapCredit = { type: MapCreditType.SPECIAL_THANKS, userID: u2.id };
       });
 
-      afterEach(() => db.cleanup('user', 'map'));
+      afterEach(() => db.cleanup('user', 'mMap'));
 
       it('should create a map credit for the specified map', async () => {
         await req.post({
@@ -1468,7 +1468,7 @@ describe('Maps', () => {
         }));
 
       it('should allow an admin to update a create even if the map is not in the NEEDS_REVISION state', async () => {
-        await prisma.map.update({
+        await prisma.mMap.update({
           where: { id: map.id },
           data: { status: MapStatus.APPROVED }
         });
@@ -1481,7 +1481,7 @@ describe('Maps', () => {
           token: adminToken
         });
 
-        await prisma.map.update({
+        await prisma.mMap.update({
           where: { id: map.id },
           data: { status: MapStatus.NEEDS_REVISION }
         });
@@ -1497,7 +1497,7 @@ describe('Maps', () => {
         }));
 
       it('should allow a mod to update the credit even if the map is not in the NEEDS_REVISION state', async () => {
-        await prisma.map.update({
+        await prisma.mMap.update({
           where: { id: map.id },
           data: { status: MapStatus.APPROVED }
         });
@@ -1510,7 +1510,7 @@ describe('Maps', () => {
           token: modToken
         });
 
-        await prisma.map.update({
+        await prisma.mMap.update({
           where: { id: map.id },
           data: { status: MapStatus.NEEDS_REVISION }
         });
@@ -1552,7 +1552,7 @@ describe('Maps', () => {
       });
 
       it('should 403 if the map is not in NEEDS_REVISION state', async () => {
-        await prisma.map.update({
+        await prisma.mMap.update({
           where: { id: map.id },
           data: { status: MapStatus.APPROVED }
         });
@@ -1564,7 +1564,7 @@ describe('Maps', () => {
           token: u1Token
         });
 
-        await prisma.map.update({
+        await prisma.mMap.update({
           where: { id: map.id },
           data: { status: MapStatus.NEEDS_REVISION }
         });
@@ -1622,7 +1622,7 @@ describe('Maps', () => {
         });
       });
 
-      afterAll(() => db.cleanup('user', 'map'));
+      afterAll(() => db.cleanup('user', 'mMap'));
 
       beforeEach(
         async () =>
@@ -1681,7 +1681,7 @@ describe('Maps', () => {
         });
       });
 
-      afterAll(() => db.cleanup('user', 'map'));
+      afterAll(() => db.cleanup('user', 'mMap'));
 
       beforeEach(
         async () =>
@@ -1734,7 +1734,7 @@ describe('Maps', () => {
         }));
 
       it('should allow an admin to update the credit even if the map is not in the NEEDS_REVISION state', async () => {
-        await prisma.map.update({
+        await prisma.mMap.update({
           where: { id: map.id },
           data: { status: MapStatus.APPROVED }
         });
@@ -1746,7 +1746,7 @@ describe('Maps', () => {
           token: adminToken
         });
 
-        await prisma.map.update({
+        await prisma.mMap.update({
           where: { id: map.id },
           data: { status: MapStatus.NEEDS_REVISION }
         });
@@ -1761,7 +1761,7 @@ describe('Maps', () => {
         }));
 
       it('should allow a mod to update the credit even if the map is not in the NEEDS_REVISION state', async () => {
-        await prisma.map.update({
+        await prisma.mMap.update({
           where: { id: map.id },
           data: { status: MapStatus.APPROVED }
         });
@@ -1773,7 +1773,7 @@ describe('Maps', () => {
           token: modToken
         });
 
-        await prisma.map.update({
+        await prisma.mMap.update({
           where: { id: map.id },
           data: { status: MapStatus.NEEDS_REVISION }
         });
@@ -1819,7 +1819,7 @@ describe('Maps', () => {
         }));
 
       it('should 403 if the map is not in NEEDS_REVISION state', async () => {
-        await prisma.map.update({
+        await prisma.mMap.update({
           where: { id: map.id },
           data: { status: MapStatus.APPROVED }
         });
@@ -1831,7 +1831,7 @@ describe('Maps', () => {
           token: u1Token
         });
 
-        await prisma.map.update({
+        await prisma.mMap.update({
           where: { id: map.id },
           data: { status: MapStatus.NEEDS_REVISION }
         });
@@ -1945,7 +1945,7 @@ describe('Maps', () => {
         });
       });
 
-      afterAll(() => db.cleanup('user', 'map'));
+      afterAll(() => db.cleanup('user', 'mMap'));
 
       beforeEach(
         async () =>
@@ -1990,7 +1990,7 @@ describe('Maps', () => {
         }));
 
       it('should allow an admin to delete the credit even if the map is not in the NEEDS_REVISION state', async () => {
-        await prisma.map.update({
+        await prisma.mMap.update({
           where: { id: map.id },
           data: { status: MapStatus.APPROVED }
         });
@@ -2001,7 +2001,7 @@ describe('Maps', () => {
           token: adminToken
         });
 
-        await prisma.map.update({
+        await prisma.mMap.update({
           where: { id: map.id },
           data: { status: MapStatus.NEEDS_REVISION }
         });
@@ -2015,7 +2015,7 @@ describe('Maps', () => {
         }));
 
       it('should allow a mod to delete the credit even if the map is not in the NEEDS_REVISION state', async () => {
-        await prisma.map.update({
+        await prisma.mMap.update({
           where: { id: map.id },
           data: { status: MapStatus.APPROVED }
         });
@@ -2026,7 +2026,7 @@ describe('Maps', () => {
           token: modToken
         });
 
-        await prisma.map.update({
+        await prisma.mMap.update({
           where: { id: map.id },
           data: { status: MapStatus.NEEDS_REVISION }
         });
@@ -2040,7 +2040,7 @@ describe('Maps', () => {
         }));
 
       it('should return 403 if the map is not in NEEDS_REVISION state', async () => {
-        await prisma.map.update({
+        await prisma.mMap.update({
           where: { id: map.id },
           data: { status: MapStatus.APPROVED }
         });
@@ -2051,7 +2051,7 @@ describe('Maps', () => {
           token: u1Token
         });
 
-        await prisma.map.update({
+        await prisma.mMap.update({
           where: { id: map.id },
           data: { status: MapStatus.NEEDS_REVISION }
         });
@@ -2105,7 +2105,7 @@ describe('Maps', () => {
           ]))
       );
 
-      afterAll(() => db.cleanup('user', 'map'));
+      afterAll(() => db.cleanup('user', 'mMap'));
 
       it('should respond with the map zones', async () => {
         const res = await req.get({
@@ -2140,7 +2140,7 @@ describe('Maps', () => {
         });
       });
 
-      afterAll(() => db.cleanup('user', 'map'));
+      afterAll(() => db.cleanup('user', 'mMap'));
 
       it('should update the thumbnail for a map', () =>
         req.putAttach({
@@ -2153,7 +2153,7 @@ describe('Maps', () => {
       it('should create a thumbnail if one does not exist already', async () => {
         await prisma.mapImage.deleteMany();
 
-        let map = await prisma.map.findFirst();
+        let map = await prisma.mMap.findFirst();
         expect(map.thumbnailID).toBeNull();
 
         await req.putAttach({
@@ -2163,7 +2163,7 @@ describe('Maps', () => {
           token: token
         });
 
-        map = await prisma.map.findFirst();
+        map = await prisma.mMap.findFirst();
         expect(map.thumbnailID).toBeDefined();
 
         for (const size of ['small', 'medium', 'large'])
@@ -2180,7 +2180,7 @@ describe('Maps', () => {
         }));
 
       it('should 403 if the user is not the submitter of the map', async () => {
-        await prisma.map.update({
+        await prisma.mMap.update({
           where: { id: map.id },
           data: { submitter: { create: { alias: 'Ron Weasley' } } }
         });
@@ -2192,7 +2192,7 @@ describe('Maps', () => {
           token: token
         });
 
-        await prisma.map.update({
+        await prisma.mMap.update({
           where: { id: map.id },
           data: { submitterID: user.id }
         });
@@ -2218,7 +2218,7 @@ describe('Maps', () => {
       });
 
       it('should 403 if the map is not in the NEEDS_REVISION state', async () => {
-        await prisma.map.update({
+        await prisma.mMap.update({
           where: { id: map.id },
           data: { status: MapStatus.APPROVED }
         });
@@ -2230,7 +2230,7 @@ describe('Maps', () => {
           token: token
         });
 
-        await prisma.map.update({
+        await prisma.mMap.update({
           where: { id: map.id },
           data: { status: MapStatus.NEEDS_REVISION }
         });
@@ -2257,7 +2257,7 @@ describe('Maps', () => {
         ]);
       });
 
-      afterAll(() => db.cleanup('user', 'map'));
+      afterAll(() => db.cleanup('user', 'mMap'));
 
       it('should respond with a list of images', () =>
         req.get({
@@ -2287,7 +2287,7 @@ describe('Maps', () => {
         });
       });
 
-      afterAll(() => db.cleanup('user', 'map'));
+      afterAll(() => db.cleanup('user', 'mMap'));
 
       afterEach(() =>
         Promise.all([
@@ -2305,7 +2305,7 @@ describe('Maps', () => {
           token: token
         });
 
-        const updatedMap = await prisma.map.findFirst({
+        const updatedMap = await prisma.mMap.findFirst({
           include: { images: true }
         });
         for (const size of ['small', 'medium', 'large']) {
@@ -2368,7 +2368,7 @@ describe('Maps', () => {
       });
 
       it('should 403 if the user is not the submitter of the map', async () => {
-        await prisma.map.update({
+        await prisma.mMap.update({
           where: { id: map.id },
           data: { submitter: { create: { alias: 'George Weasley' } } }
         });
@@ -2380,14 +2380,14 @@ describe('Maps', () => {
           token: token
         });
 
-        await prisma.map.update({
+        await prisma.mMap.update({
           where: { id: map.id },
           data: { submitter: { connect: { id: user.id } } }
         });
       });
 
       it('should 403 if the map is not in the NEEDS_REVISION state', async () => {
-        await prisma.map.update({
+        await prisma.mMap.update({
           where: { id: map.id },
           data: { status: MapStatus.APPROVED }
         });
@@ -2399,7 +2399,7 @@ describe('Maps', () => {
           token: token
         });
 
-        await prisma.map.update({
+        await prisma.mMap.update({
           where: { id: map.id },
           data: { status: MapStatus.NEEDS_REVISION }
         });
@@ -2422,7 +2422,7 @@ describe('Maps', () => {
           ]))
       );
 
-      afterAll(() => db.cleanup('user', 'map'));
+      afterAll(() => db.cleanup('user', 'mMap'));
 
       it('should respond with image info', () =>
         req.get({
@@ -2461,7 +2461,7 @@ describe('Maps', () => {
 
       afterAll(() =>
         Promise.all([
-          db.cleanup('user', 'map'),
+          db.cleanup('user', 'mMap'),
           fileStore.deleteDirectory('img')
         ])
       );
@@ -2523,7 +2523,7 @@ describe('Maps', () => {
       });
 
       it('should 403 if the user is not the submitter of the map', async () => {
-        await prisma.map.update({
+        await prisma.mMap.update({
           where: { id: map.id },
           data: { submitter: { create: { alias: 'Fred Weasley' } } }
         });
@@ -2535,14 +2535,14 @@ describe('Maps', () => {
           token: token
         });
 
-        await prisma.map.update({
+        await prisma.mMap.update({
           where: { id: map.id },
           data: { submitter: { connect: { id: user.id } } }
         });
       });
 
       it('should 403 if the map is not in the NEEDS_REVISION state', async () => {
-        await prisma.map.update({
+        await prisma.mMap.update({
           where: { id: map.id },
           data: { status: MapStatus.APPROVED }
         });
@@ -2554,7 +2554,7 @@ describe('Maps', () => {
           token: token
         });
 
-        await prisma.map.update({
+        await prisma.mMap.update({
           where: { id: map.id },
           data: { status: MapStatus.NEEDS_REVISION }
         });
@@ -2584,7 +2584,7 @@ describe('Maps', () => {
       });
 
       afterAll(async () => {
-        await db.cleanup('user', 'map', 'run');
+        await db.cleanup('user', 'mMap', 'run');
         await fileStore.deleteDirectory('img');
       });
 
@@ -2600,7 +2600,7 @@ describe('Maps', () => {
           token: token
         });
 
-        const updatedMap = await prisma.map.findFirst({
+        const updatedMap = await prisma.mMap.findFirst({
           include: { images: true }
         });
 
@@ -2640,7 +2640,7 @@ describe('Maps', () => {
       });
 
       it('should 403 if the user is not the submitter of the map', async () => {
-        await prisma.map.update({
+        await prisma.mMap.update({
           where: { id: map.id },
           data: { submitter: { create: { alias: 'Bill Weasley' } } }
         });
@@ -2651,14 +2651,14 @@ describe('Maps', () => {
           token: token
         });
 
-        await prisma.map.update({
+        await prisma.mMap.update({
           where: { id: map.id },
           data: { submitter: { connect: { id: user.id } } }
         });
       });
 
       it('should 403 if the map is not in the NEEDS_REVISION state', async () => {
-        await prisma.map.update({
+        await prisma.mMap.update({
           where: { id: map.id },
           data: { status: MapStatus.APPROVED }
         });
@@ -2669,7 +2669,7 @@ describe('Maps', () => {
           token: token
         });
 
-        await prisma.map.update({
+        await prisma.mMap.update({
           where: { id: map.id },
           data: { status: MapStatus.NEEDS_REVISION }
         });
@@ -2718,7 +2718,7 @@ describe('Maps', () => {
         ]);
       });
 
-      afterAll(() => db.cleanup('user', 'map', 'run'));
+      afterAll(() => db.cleanup('user', 'mMap', 'run'));
 
       it("should return a list of a map's ranks", () =>
         req.get({
@@ -2817,7 +2817,7 @@ describe('Maps', () => {
         async () =>
           ([[user, token], map] = await Promise.all([
             db.createAndLoginUser(),
-            prisma.map.create({
+            prisma.mMap.create({
               data: {
                 name: 'surf_ronweasley',
                 status: MapStatus.APPROVED,
@@ -2844,7 +2844,7 @@ describe('Maps', () => {
           ]))
       );
 
-      afterAll(() => db.cleanup('user', 'map'));
+      afterAll(() => db.cleanup('user', 'mMap'));
       afterEach(() => db.cleanup('run'));
 
       it('should return the rank info for the rank and map specified', async () => {
@@ -3019,7 +3019,7 @@ describe('Maps', () => {
         user7Token = auth.login(runs[6].user);
       });
 
-      afterAll(() => db.cleanup('user', 'map', 'run'));
+      afterAll(() => db.cleanup('user', 'mMap', 'run'));
 
       it('should return a list of ranks around your rank', async () => {
         const res = await req.get({
@@ -3133,7 +3133,7 @@ describe('Maps', () => {
       it('should 401 when no access token is provided', () =>
         req.unauthorizedTest('maps/1/ranks/friends', 'get'));
 
-      afterAll(() => db.cleanup('user', 'map', 'run'));
+      afterAll(() => db.cleanup('user', 'mMap', 'run'));
     });
   });
 });

@@ -12,7 +12,7 @@ import {
   MapTypeName
 } from '@momentum/constants';
 import {
-  Map,
+  MMap,
   UserMapFavoritesGetQuery,
   UserMapLibraryGetQuery,
   UserMapSubmittedGetQuery
@@ -30,7 +30,7 @@ export class MapListComponent implements OnInit {
   types: { value: Gamemode; text: string }[] = [];
   requestSent: boolean;
   mapCount: number;
-  maps: Map[];
+  maps: MMap[];
   pageLimit: number;
   currentPage: number;
   noMapsText: string;
@@ -173,7 +173,7 @@ export class MapListComponent implements OnInit {
     this.loadMaps();
   }
 
-  isMapInLibrary(map: Map): boolean {
+  isMapInLibrary(map: MMap): boolean {
     return this.searchOptions.value.inLibrary
       ? true
       : map.libraryEntries && map.libraryEntries.length > 0;
@@ -193,7 +193,7 @@ export class MapListComponent implements OnInit {
     }
   }
 
-  isMapInFavorites(m: Map) {
+  isMapInFavorites(m: MMap) {
     return this.searchOptions.value.inFavorites
       ? true
       : m.favorites && m.favorites.length > 0;
