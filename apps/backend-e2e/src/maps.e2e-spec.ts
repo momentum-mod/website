@@ -3062,17 +3062,20 @@ describe('Maps', () => {
         );
 
         // Make our user rank 1, friends have subsequent ranks 2-11.
-        await Promise.all([
-          friends.map((user, i) =>
-            db.createRunAndRankForMap({
-              map: map,
-              user: user,
-              rank: i + 2,
-              ticks: (i + 2) * 1000
-            })
-          ),
-          db.createRunAndRankForMap({ user: user, map: map, ticks: 1, rank: 1 })
-        ]);
+        for (const [i, user] of friends.entries())
+          await db.createRunAndRankForMap({
+            map: map,
+            user: user,
+            rank: i + 2,
+            ticks: (i + 2) * 1000
+          });
+
+        await db.createRunAndRankForMap({
+          user: user,
+          map: map,
+          ticks: 1,
+          rank: 1
+        });
       });
 
       it("should return a list of the user's Steam friend's ranks", async () => {
