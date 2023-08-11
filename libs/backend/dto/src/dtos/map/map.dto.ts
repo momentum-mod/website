@@ -6,6 +6,7 @@ import {
   ArrayMinSize,
   IsArray,
   IsHash,
+  IsLowercase,
   IsOptional,
   IsPositive,
   IsString,
@@ -37,18 +38,28 @@ export class MapDto implements Map {
   @IdProperty()
   readonly id: number;
 
-  @ApiProperty({ type: String, example: 'bhop_arcane' })
-  @IsMapName()
+  @ApiProperty({
+    type: String,
+    description:
+      'The name of the map, without gamemode prefix and any extra embellishments e.g. "_final"',
+    example: 'arcane'
+  })
+  @IsLowercase()
   readonly name: string;
+
+  @ApiProperty({
+    type: String,
+    description: 'The full filename of the map',
+    example: 'bhop_arcane'
+  })
+  @IsMapName()
+  readonly fileName: string;
 
   @EnumProperty(Gamemode)
   readonly type: Gamemode;
 
   @EnumProperty(MapStatus)
   readonly status: MapStatus;
-
-  @Exclude()
-  readonly fileKey: string;
 
   @ApiProperty({ type: String, description: 'URL to S3 storage' })
   @Expose()
@@ -124,7 +135,7 @@ export class MapDto implements Map {
 export class UpdateMapDto extends PickType(MapDto, ['status'] as const) {}
 
 export class CreateMapDto
-  extends PickType(MapDto, ['name', 'type'] as const)
+  extends PickType(MapDto, ['name', 'fileName', 'type'] as const)
   implements CreateMap
 {
   @NestedProperty(CreateMapInfoDto, { required: true })

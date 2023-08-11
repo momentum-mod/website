@@ -29,7 +29,7 @@ prismaWrapper(async (prisma: PrismaClient) => {
       type: Gamemode.BHOP,
       status: MapStatus.APPROVED,
       hash: createHash('sha1').update(mapBuffer).digest('hex'),
-      fileKey: 'maps/bhop_apitest.bsp',
+      fileName: 'bhop_apitest',
       info: { create: { numTracks: 1, creationDate: new Date() } },
       images: { create: {} },
       stats: { create: { baseStats: { create: {} } } },

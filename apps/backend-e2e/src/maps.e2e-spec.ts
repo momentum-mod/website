@@ -428,7 +428,8 @@ describe('Maps', () => {
         });
 
         createMapObject = {
-          name: 'test_map',
+          name: 'map',
+          fileName: 'surf_map',
           type: Gamemode.SURF,
           info: {
             description: 'mamp',
@@ -498,7 +499,8 @@ describe('Maps', () => {
         });
 
         it('should create a map within the database', () => {
-          expect(createdMap.name).toBe('test_map');
+          expect(createdMap.name).toBe('map');
+          expect(createdMap.fileName).toBe('surf_map');
           expect(createdMap.info.description).toBe('mamp');
           expect(createdMap.info.numTracks).toBe(1);
           expect(createdMap.info.creationDate.toJSON()).toBe(
@@ -560,14 +562,14 @@ describe('Maps', () => {
         }));
 
       it('should 409 if a map with the same name exists', async () => {
-        const name = 'ron_weasley';
+        const fileName = 'ron_weasley';
 
-        await db.createMap({ name: name });
+        await db.createMap({ fileName });
 
         await req.post({
           url: 'maps',
           status: 409,
-          body: { ...createMapObject, name: name },
+          body: { ...createMapObject, fileName },
           token: token
         });
       });
@@ -677,7 +679,7 @@ describe('Maps', () => {
         });
 
         const url: string = res.body.downloadURL;
-        expect(url.split('/').at(-1)).toBe(res.body.name + '.bsp');
+        expect(url.split('/').at(-1)).toBe(res.body.fileName + '.bsp');
 
         const outBuffer = await axios
           .get(url, { responseType: 'arraybuffer' })
@@ -744,7 +746,8 @@ describe('Maps', () => {
         url: 'maps',
         status: 201,
         body: {
-          name: 'test_map',
+          name: 'map',
+          fileName: 'surf_map',
           type: Gamemode.SURF,
           info: {
             description: 'mamp',

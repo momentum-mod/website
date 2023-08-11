@@ -178,11 +178,11 @@ model UserAuth {
 model Map {
   id Int @id @default(autoincrement())
 
-  name    String
-  fileKey String?
-  type    Int     @default(0) @db.SmallInt /// gamemodes.enum.ts
-  status  Int     @db.SmallInt /// map-status.enum.ts
-  hash    String? @db.Char(40)
+  name     String
+  fileName String?
+  type     Int     @default(0) @db.SmallInt /// gamemodes.enum.ts
+  status   Int     @db.SmallInt /// map-status.enum.ts
+  hash     String? @db.Char(40)
 
   thumbnail   MapImage? @relation("mapimage_thumbnail", fields: [thumbnailID], references: [id], onDelete: SetNull)
   thumbnailID Int?      @unique

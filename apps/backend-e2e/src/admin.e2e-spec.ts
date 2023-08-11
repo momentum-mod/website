@@ -994,8 +994,8 @@ describe('Admin', () => {
       afterEach(() => db.cleanup('map'));
 
       it('should successfully delete the map and related stored data', async () => {
-        const fileKey = 'maps/my_cool_map.bsp';
-        await prisma.map.update({ where: { id: m1.id }, data: { fileKey } });
+        const fileName = 'my_cool_map';
+        await prisma.map.update({ where: { id: m1.id }, data: { fileName } });
 
         await fs.add(fileKey, readFileSync(__dirname + '/../files/map.bsp'));
 

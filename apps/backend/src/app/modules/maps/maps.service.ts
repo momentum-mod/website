@@ -247,7 +247,7 @@ export class MapsService {
     // Check there's no map with same name
     const mapExists = await this.db.map.exists({
       where: {
-        name: mapCreateDto.name,
+        fileName: mapCreateDto.fileName,
         NOT: { status: { in: [MapStatus.REJECTED, MapStatus.REMOVED] } }
       }
     });
@@ -289,6 +289,7 @@ export class MapsService {
     } = {
       submitter: { connect: { id: submitterID } },
       name: mapCreateDto.name,
+      fileName: mapCreateDto.fileName,
       type: mapCreateDto.type,
       stats: { create: { baseStats: { create: {} } } }, // Just init empty entry
       status: MapStatus.NEEDS_REVISION,
@@ -528,7 +529,8 @@ export class MapsService {
     await this.runsService.deleteStoredMapRuns(mapID);
 
     // Delete stored map file
-    await this.fileCloudService.deleteFileCloud(map.fileKey);
+    const fileKey = this.getMapFileKey(map.fileName);
+    await this.fileCloudService.deleteFileCloud(fileKey);
 
     await this.db.map.delete({ where: { id: mapID } });
   }
@@ -552,7 +554,7 @@ export class MapsService {
 
     this.uploadMapChecks(mapDB, userID);
 
-    const result = await this.storeMapFile(mapFileBuffer, mapDB);
+    const hash = await this.storeMapFile(mapFileBuffer, mapDB);
 
     return DtoFactory(
       MapDto,
@@ -560,8 +562,7 @@ export class MapsService {
         where: { id: mapDB.id },
         data: {
           status: MapStatus.PENDING,
-          fileKey: result[0],
-          hash: result[1]
+          hash
         }
       })
     );
@@ -588,21 +589,25 @@ export class MapsService {
   private async storeMapFile(
     mapFileBuffer: Buffer,
     mapModel: MapDB
-  ): Promise<[fileKey: string, hash: string]> {
-    const fileKey = `maps/${mapModel.name}.bsp`;
+  ): Promise<string> {
+    const fileKey = this.getMapFileKey(mapModel.fileName);
 
     const result = await this.fileCloudService.storeFileCloud(
       mapFileBuffer,
       fileKey
     );
 
-    return [result.fileKey, result.hash];
+    return result.hash;
+  }
+
+  private getMapFileKey(mapName: string): string {
+    return `maps/${mapName}.bsp`;
   }
 
   private getMapFileFromStore(mapName: string): Promise<StreamableFile> {
-    const fileName = `maps/${mapName}.bsp`;
+    const fileKey = this.getMapFileKey(mapName);
 
-    return this.fileCloudService.getFileCloud(fileName);
+    return this.fileCloudService.getFileCloud(fileKey);
   }
 
   private uploadMapChecks(map: MapDB, userID: number): void {
