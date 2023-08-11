@@ -1,7 +1,1 @@
-<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="64" height="64">
-	<linearGradient id="a" x1="9.469" x2="54.516" y1="19.002" y2="45.01" gradientUnits="userSpaceOnUse">
-		<stop offset="0" style="stop-color:#996425"/>
-		<stop offset="1" style="stop-color:#7f3800"/>
-	</linearGradient>
-	<path d="M32 6C17.6 6 6 17.6 6 32s11.6 26 26 26 26-11.6 26-26S46.3 6 32 6M18.4 23.7l2.8-2.8 2.8 2.8 2.8-2.8 2.8 2.8-2.8 2.8 2.8 2.8-3 2.7-2.8-2.8-2.7 2.8-2.8-2.8 2.8-2.8-2.7-2.7m.3 22.6c2.1-5.3 7.2-9.1 13.3-9.1s11.2 3.8 13.3 9.1H18.7m26.9-17.1L42.9 32l-2.8-2.8-2.7 2.8-2.8-2.8 2.8-2.8-2.8-2.8 2.8-2.8 2.8 2.8 2.8-2.8 2.8 2.8-2.8 2.8 2.6 2.8z" style="fill:url(#a)"/>
-</svg>
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="64" height="64"><linearGradient id="a" x1="9.469" x2="54.516" y1="19.002" y2="45.01" gradientUnits="userSpaceOnUse"><stop offset="0" style="stop-color:#996425"/><stop offset="1" style="stop-color:#7f3800"/></linearGradient><path d="M32 6C17.6 6 6 17.6 6 32s11.6 26 26 26 26-11.6 26-26S46.3 6 32 6M18.4 23.7l2.8-2.8 2.8 2.8 2.8-2.8 2.8 2.8-2.8 2.8 2.8 2.8-3 2.7-2.8-2.8-2.7 2.8-2.8-2.8 2.8-2.8-2.7-2.7m.3 22.6c2.1-5.3 7.2-9.1 13.3-9.1s11.2 3.8 13.3 9.1H18.7m26.9-17.1L42.9 32l-2.8-2.8-2.7 2.8-2.8-2.8 2.8-2.8-2.8-2.8 2.8-2.8 2.8 2.8 2.8-2.8 2.8 2.8-2.8 2.8 2.6 2.8z" style="fill:url(#a)"/></svg>
