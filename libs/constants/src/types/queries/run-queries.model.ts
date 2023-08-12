@@ -11,13 +11,6 @@ export type RunsGetAllQuery = PagedQuery & {
   order?: string;
 };
 
-export type MapsCtlRunsGetAllQuery = Omit<RunsGetAllQuery, 'mapID' | 'mapName'>;
-
-export type UserCtlRunsGetAllQuery = Pick<
-  RunsGetAllQuery,
-  'userID' | 'skip' | 'take'
->;
-
 export type RunsGetQuery = {
   expand?: string[];
 };
