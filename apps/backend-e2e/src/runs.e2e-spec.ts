@@ -65,13 +65,7 @@ describe('Runs', () => {
         ]);
       });
 
-      afterAll(() =>
-        Promise.all([
-          prisma.user.deleteMany(),
-          prisma.mMap.deleteMany(),
-          prisma.run.deleteMany()
-        ])
-      );
+      afterAll(() => db.cleanup('user', 'mMap', 'run'));
 
       it('should respond with a list of runs', async () => {
         const res = await req.get({
