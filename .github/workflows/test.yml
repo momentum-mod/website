@@ -44,8 +44,12 @@ jobs:
           --verbose
       - name: Prettier
         run: npx nx format:check --base=origin/main
-      - name: ESLint
-        run: npx nx affected --target=lint --base=origin/main --parallel=3
+      - name: Lint Affected
+        run: npx nx affected
+          --target=lint
+          --base=${{ github.event.pull_request.base.sha }}
+          --head=${{ github.event.pull_request.head.sha }}
+          --parallel=3
   test:
     name: Unit Tests
     runs-on: ubuntu-latest
@@ -61,7 +65,12 @@ jobs:
         with:
           path: node_modules
           key: modules-${{ hashFiles('package-lock.json') }}
-      - run: npx nx affected --target=test --base=origin/main --parallel=3
+      - name: Test Affected
+        run: npx nx affected
+          --target=test
+          --base=${{ github.event.pull_request.base.sha }}
+          --head=${{ github.event.pull_request.head.sha }}
+          --parallel=3
   build:
     name: Build
     runs-on: ubuntu-latest
@@ -77,7 +86,12 @@ jobs:
         with:
           path: node_modules
           key: modules-${{ hashFiles('package-lock.json') }}
-      - run: npx nx affected --target=build --base=origin/main --parallel=3
+      - name: Build Affected
+        run: npx nx affected
+            --target=build
+            --base=${{ github.event.pull_request.base.sha }}
+            --head=${{ github.event.pull_request.head.sha }}
+            --parallel=3
   backend-e2e:
     name: Backend E2E Tests
     runs-on: ubuntu-latest
@@ -127,7 +141,6 @@ jobs:
         with:
           path: node_modules
           key: modules-${{ hashFiles('package-lock.json') }}
-      - run: git fetch --no-tags --prune --depth=1 origin main
       - name: Check affected
         run:
           |
