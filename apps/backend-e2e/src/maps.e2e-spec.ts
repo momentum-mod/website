@@ -6,7 +6,7 @@ import { PrismaClient } from '@prisma/client';
 import {
   AuthUtil,
   createSha1Hash,
-  dateOffset,
+  futureDateOffset,
   DbUtil,
   FileStoreUtil,
   FILES_PATH,
@@ -2697,7 +2697,7 @@ describe('Maps', () => {
             rank: 1,
             ticks: 10,
             flags: 1,
-            createdAt: dateOffset(3)
+            createdAt: futureDateOffset(3)
           }),
           db.createRunAndRankForMap({
             map: map,
@@ -2705,7 +2705,7 @@ describe('Maps', () => {
             rank: 2,
             ticks: 20,
             flags: 1,
-            createdAt: dateOffset(2)
+            createdAt: futureDateOffset(2)
           }),
           db.createRunAndRankForMap({
             map: map,
@@ -2713,7 +2713,7 @@ describe('Maps', () => {
             rank: 3,
             ticks: 30,
             flags: 2,
-            createdAt: dateOffset(1)
+            createdAt: futureDateOffset(1)
           })
         ]);
       });

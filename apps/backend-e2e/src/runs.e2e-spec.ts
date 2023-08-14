@@ -4,7 +4,7 @@ import { Config } from '@momentum/backend/config';
 import { RunDto } from '@momentum/backend/dto';
 import {
   AuthUtil,
-  dateOffset,
+  futureDateOffset,
   DbUtil,
   NULL_ID,
   RequestUtil
@@ -44,23 +44,23 @@ describe('Runs', () => {
           db.createRunAndRankForMap({
             map: maps[0],
             user: users[0],
-            createdAt: dateOffset(-4),
+            createdAt: futureDateOffset(4),
             flags: 1
           }),
           db.createRun({
             map: maps[0],
             user: users[1],
-            createdAt: dateOffset(-3)
+            createdAt: futureDateOffset(3)
           }),
           db.createRunAndRankForMap({
             map: maps[1],
             user: users[0],
-            createdAt: dateOffset(-2)
+            createdAt: futureDateOffset(2)
           }),
           db.createRun({
             map: maps[1],
             user: users[1],
-            createdAt: dateOffset(-1)
+            createdAt: futureDateOffset(1)
           })
         ]);
       });

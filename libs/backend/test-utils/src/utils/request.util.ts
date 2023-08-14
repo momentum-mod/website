@@ -301,16 +301,23 @@ export class RequestUtil {
       token: options.token
     });
 
-    expect(res.body.data).toStrictEqual(
-      [...res.body.data].sort(options.sortFn)
+    expect(res.body.data).toEqual(
+      structuredClone(res.body.data).sort(options.sortFn)
     );
   }
 
-  sortByDateTest(options: E2ETestOptions & { query?: Query }): Promise<void> {
+  /*
+   * Test for date ordering. Default to descending (newest to oldest)
+   */
+  sortByDateTest(
+    options: E2ETestOptions & { query?: Query; descending?: boolean }
+  ): Promise<void> {
+    const ascending = options.descending ?? true;
     return this.sortTest({
       ...options,
       sortFn: (a, b) =>
-        new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+        new Date((ascending ? b : a).createdAt).getTime() -
+        new Date((ascending ? a : b).createdAt).getTime()
     });
   }
 
