@@ -16,6 +16,7 @@ import {
 import {
   AuthUtil,
   DbUtil,
+  futureDateOffset,
   NULL_ID,
   randomString,
   RequestUtil
@@ -1069,8 +1070,18 @@ describe('User', () => {
         });
         await prisma.activity.createMany({
           data: [
-            { userID: u2.id, data: 1n, type: ActivityType.WR_ACHIEVED },
-            { userID: u2.id, data: 2n, type: ActivityType.REVIEW_MADE }
+            {
+              userID: u2.id,
+              data: 1n,
+              type: ActivityType.WR_ACHIEVED,
+              createdAt: futureDateOffset(2)
+            },
+            {
+              userID: u2.id,
+              data: 2n,
+              type: ActivityType.REVIEW_MADE,
+              createdAt: futureDateOffset(1)
+            }
           ]
         });
       });
@@ -1091,6 +1102,13 @@ describe('User', () => {
           data: [{ user: { alias: u2.alias } }, { user: { alias: u2.alias } }]
         });
       });
+
+      it('should order the list by descending date', () =>
+        req.sortByDateTest({
+          url: 'user/activities/followed',
+          validate: ActivityDto,
+          token: u1Token
+        }));
 
       it('should respond with a limited list of activities for the u1 when using the take query param', () =>
         req.takeTest({

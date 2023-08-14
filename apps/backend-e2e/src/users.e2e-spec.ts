@@ -9,6 +9,7 @@ import {
 } from '@momentum/backend/dto';
 import {
   AuthUtil,
+  futureDateOffset,
   DbUtil,
   NULL_ID,
   RequestUtil
@@ -309,9 +310,24 @@ describe('Users', () => {
       [user, token] = await db.createAndLoginUser();
       await prisma.activity.createMany({
         data: [
-          { data: 1n, type: ActivityType.ALL, userID: user.id },
-          { data: 2n, type: ActivityType.ALL, userID: user.id },
-          { data: 2n, type: ActivityType.MAP_UPLOADED, userID: user.id }
+          {
+            data: 1n,
+            type: ActivityType.ALL,
+            userID: user.id,
+            createdAt: futureDateOffset(1)
+          },
+          {
+            data: 2n,
+            type: ActivityType.ALL,
+            userID: user.id,
+            createdAt: futureDateOffset(0)
+          },
+          {
+            data: 2n,
+            type: ActivityType.MAP_UPLOADED,
+            userID: user.id,
+            createdAt: futureDateOffset(2)
+          }
         ]
       });
     });
@@ -324,6 +340,13 @@ describe('Users', () => {
         status: 200,
         validatePaged: { type: ActivityDto, count: 3 },
         token: token
+      }));
+
+    it('should order the list by descending date', () =>
+      req.sortByDateTest({
+        url: `users/${user.id}/activities`,
+        validate: ActivityDto,
+        token
       }));
 
     it('should respond with a limited list of activities for the user when using the take query param', () =>
