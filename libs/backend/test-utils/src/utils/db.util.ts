@@ -17,8 +17,15 @@ import { randomHash, randomSteamID } from './random.util';
 import { MapStatus, Gamemode } from '@momentum/constants';
 
 export const NULL_ID = 999999999;
-export const dateOffset = (offset: number) =>
-  new Date(Date.now() - offset * 1000);
+
+/**
+ * Returns a date an `offset` number of seconds *in the future*.
+ * Prisma/Postgres won't let us set a date in past, so always positive numbers,
+ * where largest offset is furthest in the future
+ * @param offset
+ */
+export const futureDateOffset = (offset: number) =>
+  new Date(Date.now() + offset * 1000);
 
 export class DbUtil {
   constructor(prisma: PrismaClient, authUtil?: AuthUtil) {
