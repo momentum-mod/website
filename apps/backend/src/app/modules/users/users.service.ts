@@ -362,6 +362,7 @@ export class UsersService {
         data
       },
       include: { user: { include: { profile: true } } },
+      orderBy: { createdAt: 'desc' },
       skip,
       take
     });
@@ -388,6 +389,7 @@ export class UsersService {
         data
       },
       include: { user: { include: { profile: true } } },
+      orderBy: { createdAt: 'desc' },
       skip,
       take
     });
