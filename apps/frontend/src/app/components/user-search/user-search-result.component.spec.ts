@@ -1,35 +1,29 @@
 import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 
 import { UserSearchResultComponent } from './user-search-result.component';
-import { NbListModule, NbThemeModule, NbUserModule } from '@nebular/theme';
-import { FormsModule, ReactiveFormsModule } from '@angular/forms';
-import { DataModule } from '../../../../@core/data/data.module';
 import { HttpClientTestingModule } from '@angular/common/http/testing';
+import { SharedModule } from '../../shared.module';
+import { LocalUserService } from '@momentum/frontend/data';
+import { mock } from 'jest-mock-extended';
 
 describe('UserSearchComponent', () => {
   let component: UserSearchResultComponent;
   let fixture: ComponentFixture<UserSearchResultComponent>;
-  // let httpMock: HttpTestingController;
 
   beforeEach(waitForAsync(() => {
     TestBed.configureTestingModule({
-      imports: [
-        NbThemeModule,
-        FormsModule,
-        ReactiveFormsModule,
-        NbUserModule,
-        NbListModule,
-        DataModule.forRoot(),
-        HttpClientTestingModule
-      ],
-      declarations: [UserSearchResultComponent]
+      imports: [SharedModule, HttpClientTestingModule],
+      declarations: [UserSearchResultComponent],
+      providers: [
+        { provide: LocalUserService, useValue: mock<LocalUserService>() }
+      ]
     }).compileComponents();
-    // httpMock = getTestBed().get(HttpTestingController);
   }));
 
   beforeEach(() => {
     fixture = TestBed.createComponent(UserSearchResultComponent);
     component = fixture.componentInstance;
+    component.user = { id: 1, avatarURL: '', roles: 0 } as any;
     fixture.detectChanges();
   });
 

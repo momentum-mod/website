@@ -1,15 +1,7 @@
 import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
-
 import { MapCreditComponent } from './map-credit.component';
-import {
-  NbCardModule,
-  NbListModule,
-  NbPopoverModule,
-  NbThemeModule,
-  NbUserModule
-} from '@nebular/theme';
-import { UserModule } from '../../../user/user.module';
 import { MapCreditType } from '@momentum/constants';
+import { SharedModule } from '../../../../../shared.module';
 
 describe('MapCreditComponent', () => {
   let component: MapCreditComponent;
@@ -17,14 +9,7 @@ describe('MapCreditComponent', () => {
 
   beforeEach(waitForAsync(() => {
     TestBed.configureTestingModule({
-      imports: [
-        NbThemeModule,
-        NbListModule,
-        NbCardModule,
-        NbUserModule,
-        NbPopoverModule,
-        UserModule
-      ],
+      imports: [SharedModule],
       declarations: [MapCreditComponent]
     }).compileComponents();
   }));
