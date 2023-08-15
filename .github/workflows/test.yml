@@ -9,17 +9,23 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
-      - uses: actions/cache@v3
-        id: cache
+      - name: Original node_modules Cache
+        uses: actions/cache@v3
+        id: original_cache
         with:
           path: node_modules
           key: modules-${{ hashFiles('package-lock.json') }}
+      - name: node_modules Cache with Prisma Client
+        uses: actions/cache@v3
+        with:
+          path: node_modules
+          key: modules-${{ github.run_id }}
       - uses: actions/setup-node@v3
         with:
           node-version: 18.x
           cache: 'npm'
       - name: npm install
-        if: steps.cache.outputs.cache-hit != 'true'
+        if: steps.original_cache.outputs.cache-hit != 'true'
         run: npm ci --no-scripts
       - name: prisma generate
         run: npx nx run db:generate
@@ -36,7 +42,7 @@ jobs:
       - uses: actions/cache@v3
         with:
           path: node_modules
-          key: modules-${{ hashFiles('package-lock.json') }}
+          key: modules-${{ github.run_id }}
       - name: commitlint
         if: github.event_name == 'pull_request'
         run: npx commitlint
@@ -65,7 +71,7 @@ jobs:
         uses: actions/cache@v3
         with:
           path: node_modules
-          key: modules-${{ hashFiles('package-lock.json') }}
+          key: modules-${{ github.run_id }}
       - name: Test Affected
         run: npx nx affected
           --target=test
@@ -86,7 +92,7 @@ jobs:
         uses: actions/cache@v3
         with:
           path: node_modules
-          key: modules-${{ hashFiles('package-lock.json') }}
+          key: modules-${{ github.run_id }}
       - name: Build Affected
         run: npx nx affected
             --target=build
@@ -107,7 +113,7 @@ jobs:
         uses: actions/cache@v3
         with:
           path: node_modules
-          key: modules-${{ hashFiles('package-lock.json') }}
+          key: modules-${{ github.run_id }}
       - name: Check affected
         run:
           |
@@ -141,7 +147,7 @@ jobs:
         uses: actions/cache@v3
         with:
           path: node_modules
-          key: modules-${{ hashFiles('package-lock.json') }}
+          key: modules-${{ github.run_id }}
       - name: Check affected
         run:
           |
