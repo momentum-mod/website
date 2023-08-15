@@ -15,13 +15,14 @@ jobs:
           path: node_modules
           key: modules-${{ hashFiles('package-lock.json') }}
       - uses: actions/setup-node@v3
-        if: steps.cache.outputs.cache-hit != 'true'
         with:
           node-version: 18.x
           cache: 'npm'
       - name: npm install
         if: steps.cache.outputs.cache-hit != 'true'
         run: npm ci --no-scripts
+      - name: prisma generate
+        run: npx nx run db:generate
   lint:
     name: Linting and Formatting
     runs-on: ubuntu-latest
