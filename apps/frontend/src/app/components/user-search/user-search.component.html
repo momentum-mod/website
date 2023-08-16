@@ -1,16 +1,14 @@
 <form [formGroup]="userSearchForm">
   <nb-form-field>
+    <input nbInput fullWidth formControlName="search" class="form-control" type="text" #searchInput />
     <nb-icon
-      *ngIf="isSteamId"
-      class="steam-icon"
-      nbPrefix
-      nbPopover="Searches on SteamID"
+      nbSuffix
+      nbPopover="Prefix with steam: to search by steamID64"
       nbPopoverTrigger="hint"
       nbPopoverPlacement="bottom"
       icon="steam"
       pack="si"
     ></nb-icon>
-    <input nbInput formControlName="search" class="form-control" type="text" #searchInput />
   </nb-form-field>
   <nb-list class="shadow overlay-backdrop mt-2" *ngIf="foundUsers.length > 0">
     <nb-list-item

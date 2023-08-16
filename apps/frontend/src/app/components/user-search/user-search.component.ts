@@ -48,7 +48,10 @@ export class UserSearchComponent implements OnInit {
   findUsers(val: string) {
     val = val.trim();
     if (val.length > 0)
-      if (val.startsWith('steam:') && Number.isNaN(val.slice(6)))
+      if (
+        val.startsWith('steam:') &&
+        !Number.isNaN(Number.parseInt(val.slice(6)))
+      )
         this.usersService
           .getUsers({
             steamID: val.slice(6)
