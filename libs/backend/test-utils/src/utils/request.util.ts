@@ -389,7 +389,7 @@ export interface RequestOptions {
 }
 
 export interface JsonBodyRequestOptions extends RequestOptions {
-  body?: Record<string, unknown>;
+  body?: Record<string, unknown> | Record<string, unknown>[];
 }
 
 export interface RawBodyBufferRequestOptions extends RequestOptions {
