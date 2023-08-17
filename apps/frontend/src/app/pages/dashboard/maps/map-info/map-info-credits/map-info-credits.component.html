@@ -1,40 +1,14 @@
 <div class="row">
-  <div class="col-6 col-sm-3">
-    <h6>Authors:</h6>
+  <div *ngFor="let type of MapCreditNames | keyvalue" class="col-6 col-md-3">
+    <h6>{{ type.value }}</h6>
     <ul class="list-unstyled">
-      <li *ngFor="let credit of filterMapCredits(map?.credits, MapCreditType.AUTHOR)">
-        <a [routerLink]="'/dashboard/profile/' + credit?.user.id">
-          <nb-user [name]="credit?.user.alias" [picture]="credit?.user.avatarURL" size="small"></nb-user>
-        </a>
-      </li>
-    </ul>
-  </div>
-  <div class="col-6 col-sm-3">
-    <h6>Contributors:</h6>
-    <ul class="list-unstyled">
-      <li *ngFor="let credit of filterMapCredits(map?.credits, MapCreditType.CONTRIBUTOR)">
-        <a [routerLink]="'/dashboard/profile/' + credit?.user.id">
-          <nb-user [name]="credit?.user.alias" [picture]="credit?.user.avatarURL" size="small"></nb-user>
-        </a>
-      </li>
-    </ul>
-  </div>
-  <div class="col-6 col-sm-3">
-    <h6>Testers:</h6>
-    <ul class="list-unstyled">
-      <li *ngFor="let credit of filterMapCredits(map?.credits, MapCreditType.TESTER)">
-        <a [routerLink]="'/dashboard/profile/' + credit?.user.id">
-          <nb-user [name]="credit?.user.alias" [picture]="credit?.user.avatarURL" size="small"></nb-user>
-        </a>
-      </li>
-    </ul>
-  </div>
-  <div class="col-6 col-sm-3">
-    <h6>Special Thanks:</h6>
-    <ul class="list-unstyled">
-      <li *ngFor="let credit of filterMapCredits(map?.credits, MapCreditType.SPECIAL_THANKS)">
-        <a [routerLink]="'/dashboard/profile/' + credit?.user.id">
-          <nb-user [name]="credit?.user.alias" [picture]="credit?.user.avatarURL" size="small"></nb-user>
+      <li *ngFor="let credit of filterMapCredits(map?.credits, type.key)">
+        <a class="credit-entry" [routerLink]="'/dashboard/profile/' + credit?.user.id">
+          <nb-user class="avatar" [picture]="credit?.user.avatarURL" onlyPicture />
+          <div class="main">
+            <span class="name">{{ credit.user.alias }}</span>
+            <span class="description">{{ credit.description }}</span>
+          </div>
         </a>
       </li>
     </ul>

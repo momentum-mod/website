@@ -5,3 +5,23 @@ h6 {
 li {
   margin-bottom: 1rem;
 }
+
+.credit-entry {
+  display: flex;
+
+  &:hover {
+    text-decoration: none;
+  }
+
+  .main {
+    margin-left: 0.5rem;
+    .name {
+      display: block;
+      color: #fff;
+    }
+    .description {
+      display: block;
+      color: #ccc;
+    }
+  }
+}
