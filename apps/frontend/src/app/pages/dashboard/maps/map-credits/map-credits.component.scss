@@ -1,0 +1,103 @@
+$timing-func: cubic-bezier(0, 0, 0.2, 1);
+
+h4 {
+  margin-bottom: 1rem;
+  text-align: center;
+}
+
+nb-list {
+  border: 1px solid var(--list-item-divider-color);
+  border-radius: 4px;
+}
+
+nb-list-item {
+  width: 100%;
+  padding: 1rem;
+  cursor: move;
+  background-color: rgba(255, 255, 255, 0.05);
+  transition: background-color ease-out 0.1s, box-shadow 0.2s $timing-func;
+
+  .avatar {
+    flex: 0 1 auto;
+    margin-right: 0.75rem;
+  }
+
+  .main {
+    flex: 1 1 auto;
+
+    .name,
+    .description {
+      display: block;
+      width: 100%;
+    }
+
+    .name {
+      margin-bottom: 0.5rem;
+      padding-left: 0.25rem;
+    }
+
+    .description {
+      padding: 0.125rem 0.75rem;
+    }
+  }
+
+  .delete {
+    flex: 0 1 auto;
+    margin-left: 1rem;
+    margin-bottom: auto;
+
+    & > nb-icon {
+      width: 1rem;
+      height: 1rem;
+    }
+  }
+
+  &:hover {
+    background-color: rgba(255, 255, 255, 0.075);
+  }
+  &:first-child {
+    border-top: none;
+  }
+  &:last-child {
+    border-bottom: none;
+  }
+}
+
+.cdk-drag-preview {
+  background-color: #555;
+  border-radius: 4px;
+  box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+}
+
+.cdk-drag-placeholder {
+  opacity: 0;
+}
+
+.cdk-drag-animating {
+  transition: transform 0.25s $timing-func;
+}
+
+.cdk-drop-list-dragging .cdk-drag:not(.cdk-drag-placeholder) {
+  transition: transform 0.25s $timing-func;
+}
+
+.new-user {
+  margin-top: 1rem;
+  width: 100%;
+}
+
+.search-wrapper {
+  margin-top: 1rem;
+
+  .selected-warning {
+    margin-bottom: 0.5rem;
+    color: red;
+    font-weight: 500;
+    font-style: italic;
+  }
+
+  .cancel {
+    margin-top: 1rem;
+    float: right;
+  }
+}

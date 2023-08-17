@@ -1,5 +1,5 @@
 import { Component, Input } from '@angular/core';
-import { MapCreditType } from '@momentum/constants';
+import { MapCreditNames, MapCreditType } from '@momentum/constants';
 import { MMap, MapCredit } from '@momentum/constants';
 
 @Component({
@@ -10,6 +10,7 @@ import { MMap, MapCredit } from '@momentum/constants';
 export class MapInfoCreditsComponent {
   @Input() map: MMap;
   protected readonly MapCreditType = MapCreditType;
+  protected readonly MapCreditNames = MapCreditNames;
 
   filterMapCredits(
     mapCredits: MapCredit[],
