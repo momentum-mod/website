@@ -438,15 +438,24 @@ async function main(prisma: PrismaClient) {
               data: { thumbnailID: images[0].id }
             });
 
-            await Promise.all(
-              Array.from(
+            await Promise.all([
+              // A map should always have at least one author
+              createRandomMapCredit(
+                map.id,
+                Random.element(existingUserIDs),
+                MapCreditType.AUTHOR
+              ),
+              ...Array.from(
                 {
-                  length: Random.int(MIN_CREDITS_PER_MAP, MAX_CREDITS_PER_MAP)
+                  length: Random.int(
+                    Math.max(0, MIN_CREDITS_PER_MAP - 1),
+                    MAX_CREDITS_PER_MAP - 1
+                  )
                 },
                 () =>
                   createRandomMapCredit(map.id, Random.element(existingUserIDs))
               )
-            );
+            ]);
 
             const baseStats = await createRandomBaseStats();
             await createRandomMapStats(map.id, baseStats.id);
