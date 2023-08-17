@@ -9,8 +9,7 @@ import {
   MapImage,
   MapInfo,
   MapsGetAllQuery,
-  MapsGetQuery,
-  UpdateMapCredit
+  MapsGetQuery
 } from '@momentum/constants';
 import { PagedResponse } from '@momentum/constants';
 import { HttpService } from './http.service';
@@ -31,24 +30,19 @@ export class MapsService {
     return this.http.post<MMap>('maps', { body, observe: 'response' });
   }
 
-  updateMapInfo(id: number, body: MapInfo): Observable<any> {
-    return this.http.patch(`maps/${id}/info`, { body });
+  updateMapInfo(mapID: number, body: MapInfo): Observable<any> {
+    return this.http.patch(`maps/${mapID}/info`, { body });
   }
 
-  getMapCredits(id: number): Observable<PagedResponse<MapCredit>> {
-    return this.http.get<PagedResponse<MapCredit>>(`maps/${id}/credits`);
+  getMapCredits(mapID: number): Observable<PagedResponse<MapCredit>> {
+    return this.http.get<PagedResponse<MapCredit>>(`maps/${mapID}/credits`);
   }
 
-  createMapCredit(id: number, body: CreateMapCredit): Observable<any> {
-    return this.http.post<MapCredit>(`maps/${id}/credits`, { body });
-  }
-
-  updateMapCredit(creditID: number, body: UpdateMapCredit): Observable<any> {
-    return this.http.patch(`maps/credits/${creditID}`, { body });
-  }
-
-  deleteMapCredit(creditID: number): Observable<void> {
-    return this.http.delete(`maps/credits/${creditID}`);
+  updateMapCredits(
+    mapID: number,
+    body: CreateMapCredit[]
+  ): Observable<MapCredit[]> {
+    return this.http.put<MapCredit[]>(`maps/${mapID}/credits`, { body });
   }
 
   // TODO
