@@ -36,7 +36,7 @@ export class MapCreditsComponent {
     this.creditChange = new EventEmitter();
     this.searchStates = {
       [MapCreditType.AUTHOR]: SearchState.HIDDEN,
-      [MapCreditType.COAUTHOR]: SearchState.HIDDEN,
+      [MapCreditType.CONTRIBUTOR]: SearchState.HIDDEN,
       [MapCreditType.TESTER]: SearchState.HIDDEN,
       [MapCreditType.SPECIAL_THANKS]: SearchState.HIDDEN
     };

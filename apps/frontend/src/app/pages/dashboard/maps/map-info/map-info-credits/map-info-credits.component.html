@@ -1,6 +1,6 @@
 <div class="row">
   <div class="col-6 col-sm-3">
-    <h6>Author(s):</h6>
+    <h6>Authors:</h6>
     <ul class="list-unstyled">
       <li *ngFor="let credit of filterMapCredits(map?.credits, MapCreditType.AUTHOR)">
         <a [routerLink]="'/dashboard/profile/' + credit?.user.id">
@@ -10,9 +10,9 @@
     </ul>
   </div>
   <div class="col-6 col-sm-3">
-    <h6>Co-Author(s):</h6>
+    <h6>Contributors:</h6>
     <ul class="list-unstyled">
-      <li *ngFor="let credit of filterMapCredits(map?.credits, MapCreditType.COAUTHOR)">
+      <li *ngFor="let credit of filterMapCredits(map?.credits, MapCreditType.CONTRIBUTOR)">
         <a [routerLink]="'/dashboard/profile/' + credit?.user.id">
           <nb-user [name]="credit?.user.alias" [picture]="credit?.user.avatarURL" size="small"></nb-user>
         </a>
@@ -20,7 +20,7 @@
     </ul>
   </div>
   <div class="col-6 col-sm-3">
-    <h6>Tester(s):</h6>
+    <h6>Testers:</h6>
     <ul class="list-unstyled">
       <li *ngFor="let credit of filterMapCredits(map?.credits, MapCreditType.TESTER)">
         <a [routerLink]="'/dashboard/profile/' + credit?.user.id">

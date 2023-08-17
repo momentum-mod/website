@@ -21,7 +21,7 @@ export class SortedMapCredits
   implements Record<MapCreditType, PartialMapCredit[]>
 {
   [MapCreditType.AUTHOR]: PartialMapCredit[];
-  [MapCreditType.COAUTHOR]: PartialMapCredit[];
+  [MapCreditType.CONTRIBUTOR]: PartialMapCredit[];
   [MapCreditType.TESTER]: PartialMapCredit[];
   [MapCreditType.SPECIAL_THANKS]: PartialMapCredit[];
 
