@@ -7,14 +7,12 @@ import {
 import { Router } from '@angular/router';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import * as VDF from '@node-steam/vdf';
-import { CreditChangeEvent } from '../map-credits/map-credit/map-credit.component';
 import { NbToastrService } from '@nebular/theme';
 import { mergeMap } from 'rxjs/operators';
 import { forkJoin } from 'rxjs';
 import { FileUploadType } from './file-upload/file-upload.component';
 import {
   MMap,
-  MapCredit,
   MapImage,
   MapZoneTrigger,
   CreateMapTrack,
@@ -29,8 +27,8 @@ import {
   ZoneType
 } from '@momentum/constants';
 import { PartialDeep } from 'type-fest';
-import { Enum } from '@momentum/enum';
 import { MapTypePrefix } from '@momentum/constants';
+import { SortedMapCredits } from '../map-credits/sorted-map-credits.class';
 
 export interface ImageFilePreview {
   dataBlobURL: string;
@@ -47,6 +45,7 @@ const youtubeRegex = /[\w-]{11}/;
 export class MapUploadFormComponent implements OnInit, AfterViewInit {
   protected readonly FileUploadType = FileUploadType;
   protected readonly MapType = Gamemode;
+
   protected readonly MapTypeName = MapTypeName;
 
   @ViewChild('datepicker', { static: false }) datePicker;
@@ -60,7 +59,7 @@ export class MapUploadFormComponent implements OnInit, AfterViewInit {
   extraImagesLimit: number;
   mapUploadPercentage: number;
   isUploadingMap: boolean;
-  credits: Record<MapCreditType, MapCredit[]>;
+  credits: SortedMapCredits;
   inferredMapType: boolean;
   mapPreview: PartialDeep<
     { map: MMap; images: MapImage[] },
@@ -87,10 +86,7 @@ export class MapUploadFormComponent implements OnInit, AfterViewInit {
     zones: ['', [Validators.required, Validators.pattern(/.+(\.zon)/)]]
   });
   creditsForm: FormGroup = this.fb.group({
-    [MapCreditType.AUTHOR]: [[], Validators.required],
-    [MapCreditType.COAUTHOR]: [[]],
-    [MapCreditType.TESTER]: [[]],
-    [MapCreditType.SPECIAL_THANKS]: [[]]
+    authors: [[], Validators.required]
   });
   forms: FormGroup[] = [this.filesForm, this.infoForm, this.creditsForm];
 
@@ -127,12 +123,7 @@ export class MapUploadFormComponent implements OnInit, AfterViewInit {
     this.isUploadingMap = false;
     this.mapUploadPercentage = 0;
     this.extraImagesLimit = 5;
-    this.credits = {
-      [MapCreditType.AUTHOR]: [],
-      [MapCreditType.COAUTHOR]: [],
-      [MapCreditType.TESTER]: [],
-      [MapCreditType.SPECIAL_THANKS]: []
-    };
+    this.credits = new SortedMapCredits();
     this.extraImages = [];
     this.tracks = [];
     this.inferredMapType = false;
@@ -259,6 +250,7 @@ export class MapUploadFormComponent implements OnInit, AfterViewInit {
 
     const mapObject: CreateMap = {
       name: this.name.value,
+      fileName: this.name.value, // TODO: Proper filename field
       type: this.type.value,
       info: {
         description: this.description.value,
@@ -267,18 +259,7 @@ export class MapUploadFormComponent implements OnInit, AfterViewInit {
         creationDate: this.creationDate.value
       },
       tracks: this.tracks,
-      credits: Object.entries(this.credits).flatMap(([type, users]) =>
-        users.map((credit) => ({
-          // Have to convert type to Number here which is a bit gross, since
-          // using an Object so its keys are strings.
-          // Would make sense to refactor to use Map/WeakMap but cba to
-          // do rn, plus rewrite a bunch of credit stuff soon anyway.
-          // Note: doing this will still require using an objectified version
-          // of whatever data structure we use, in the FormGroup.
-          type: +type,
-          userID: credit.user.id
-        }))
-      )
+      credits: this.credits.getAllSubmittable()
     };
 
     this.mapsService
@@ -347,18 +328,10 @@ export class MapUploadFormComponent implements OnInit, AfterViewInit {
       this.markFormAsDirty(this.forms[selected]);
   }
 
-  onCreditChanged($event: CreditChangeEvent) {
-    if ($event.added) {
-      this.creditsForm.get($event.type.toString()).patchValue($event.user);
-    } else {
-      this.creditsForm.setValue(
-        // Map to object of form e.g.
-        // { [MapCreditType.AUTHOR]: this.credits[MapCreditType.AUTHOR] }
-        Object.fromEntries(
-          Enum.values(MapCreditType).map((type) => [type, this.credits[type]])
-        )
-      );
-    }
+  onCreditChanged() {
+    this.creditsForm
+      .get('authors')
+      .patchValue(this.credits[MapCreditType.AUTHOR]);
   }
 
   readAsDataUrl(img: File): Promise<string> {

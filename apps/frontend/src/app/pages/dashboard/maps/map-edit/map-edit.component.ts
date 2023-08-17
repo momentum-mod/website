@@ -1,13 +1,12 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
-import { CreditChangeEvent } from '../map-credits/map-credit/map-credit.component';
 import { finalize, switchMap, takeUntil } from 'rxjs/operators';
 import { ActivatedRoute, ParamMap, Router } from '@angular/router';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { CdkDragDrop, moveItemInArray } from '@angular/cdk/drag-drop';
 import { NbDialogService, NbToastrService } from '@nebular/theme';
 import { ConfirmDialogComponent } from '../../../../components/confirm-dialog/confirm-dialog.component';
-import { forkJoin, Subject } from 'rxjs';
-import { MMap, MapCredit, MapImage } from '@momentum/constants';
+import { Subject } from 'rxjs';
+import { MMap, MapImage } from '@momentum/constants';
 import { FileUploadType } from '../upload-form/file-upload/file-upload.component';
 import {
   AdminService,
@@ -15,6 +14,7 @@ import {
   MapsService
 } from '@momentum/frontend/data';
 import { MapCreditType, Role } from '@momentum/constants';
+import { SortedMapCredits } from '../map-credits/sorted-map-credits.class';
 
 const youtubeRegex = /[\w-]{11}/;
 
@@ -29,8 +29,7 @@ export class MapEditComponent implements OnInit, OnDestroy {
   map: MMap;
   images: MapImage[];
   imagesLimit: number;
-  credits: Record<MapCreditType, MapCredit[]>;
-  originalCreditIds: number[];
+  credits: SortedMapCredits;
   isSubmitter: boolean;
   isAdmin: boolean;
   isModerator: boolean;
@@ -66,13 +65,7 @@ export class MapEditComponent implements OnInit, OnDestroy {
   ) {
     this.imagesLimit = 6;
     this.images = [];
-    this.credits = {
-      [MapCreditType.AUTHOR]: [],
-      [MapCreditType.COAUTHOR]: [],
-      [MapCreditType.TESTER]: [],
-      [MapCreditType.SPECIAL_THANKS]: []
-    };
-    this.originalCreditIds = [];
+    this.credits = new SortedMapCredits();
   }
 
   ngOnInit() {
@@ -85,6 +78,7 @@ export class MapEditComponent implements OnInit, OnDestroy {
         )
       )
       .subscribe((map: MMap) => {
+        // TODO: Reduce nesting?
         this.map = map;
         this.localUserService
           .getLocal()
@@ -103,15 +97,7 @@ export class MapEditComponent implements OnInit, OnDestroy {
             this.infoForm.patchValue(map.info);
             this.images = map.images;
 
-            this.credits = {
-              [MapCreditType.AUTHOR]: [],
-              [MapCreditType.COAUTHOR]: [],
-              [MapCreditType.TESTER]: [],
-              [MapCreditType.SPECIAL_THANKS]: []
-            };
-            for (const credit of map.credits)
-              this.credits[credit.type].push(credit);
-            this.originalCreditIds = map.credits.map((c) => +c.id);
+            this.credits.set(map.credits);
 
             this.creditsForm
               .get('authors')
@@ -137,38 +123,20 @@ export class MapEditComponent implements OnInit, OnDestroy {
     // TODO: Submit changed images
   }
 
-  onCreditsSubmit(event) {
+  onCreditsSubmit($event: Event) {
     if (this.creditsForm.invalid) return;
-    event.target.disabled = true;
-    const allCredits = Object.values(this.credits).flat();
 
-    // This algorithm could be optimised but it's nice to not rely on the insert
-    // order of the credits arrays
-    const creditUpdates = [
-      ...allCredits.map((credit) =>
-        this.originalCreditIds.includes(credit.id)
-          ? this.mapService.updateMapCredit(credit.id, credit)
-          : this.mapService.createMapCredit(this.map.id, credit)
-      ),
-      ...this.originalCreditIds
-        .filter(
-          (oldID) => !allCredits.some((newCredit) => newCredit.id === oldID)
-        )
-        .map((oldID) => this.mapService.deleteMapCredit(oldID))
-    ];
+    const saveButton = $event.target as HTMLButtonElement;
+    saveButton.disabled = true;
 
-    forkJoin(creditUpdates)
-      .pipe(
-        finalize(() =>
-          this.mapService.getMapCredits(this.map.id).subscribe((response) => {
-            this.originalCreditIds = response.data.map((val) => +val.id);
-            event.target.disabled = false;
-          })
-        )
-      )
+    this.mapService
+      .updateMapCredits(this.map.id, this.credits.getAllSubmittable())
+      .pipe(finalize(() => (saveButton.disabled = false)))
       .subscribe({
-        next: () =>
-          this.toasterService.success('Updated map credits!', 'Success'),
+        next: (credits) => {
+          this.credits.set(credits);
+          this.toasterService.success('Updated map credits!', 'Success');
+        },
         error: (error) =>
           this.toasterService.danger(error.message, 'Failed to update credits!')
       });
@@ -213,15 +181,11 @@ export class MapEditComponent implements OnInit, OnDestroy {
     moveItemInArray(this.images, event.previousIndex, event.currentIndex);
   }
 
-  onCreditChanged($event: CreditChangeEvent) {
-    if ($event.added) {
-      if ($event.type === MapCreditType.AUTHOR)
-        this.creditsForm.get('authors').patchValue($event.user);
-    } else {
-      this.creditsForm
-        .get('authors')
-        .patchValue(this.credits[MapCreditType.AUTHOR]);
-    }
+  onCreditChanged() {
+    console.log('credits changed!', { credits: this.credits });
+    this.creditsForm
+      .get('authors')
+      .patchValue(this.credits[MapCreditType.AUTHOR]);
   }
 
   showMapDeleteDialog() {

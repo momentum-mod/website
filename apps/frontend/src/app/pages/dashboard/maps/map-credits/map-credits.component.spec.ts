@@ -1,7 +1,6 @@
 import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 
 import { MapCreditsComponent } from './map-credits.component';
-import { MapCreditComponent } from './map-credit/map-credit.component';
 import {
   NbCardModule,
   NbListModule,
@@ -11,6 +10,7 @@ import {
 } from '@nebular/theme';
 import { UserSearchComponent } from '../../../../components/user-search/user-search.component';
 import { HttpClientTestingModule } from '@angular/common/http/testing';
+import { SortedMapCredits } from './sorted-map-credits.class';
 
 describe('MapCreditsComponent', () => {
   let component: MapCreditsComponent;
@@ -25,17 +25,14 @@ describe('MapCreditsComponent', () => {
         NbUserModule,
         HttpClientTestingModule
       ],
-      declarations: [
-        MapCreditsComponent,
-        MapCreditComponent,
-        UserSearchComponent
-      ]
+      declarations: [MapCreditsComponent, UserSearchComponent]
     }).compileComponents();
   }));
 
   beforeEach(() => {
     fixture = TestBed.createComponent(MapCreditsComponent);
     component = fixture.componentInstance;
+    component.credits = new SortedMapCredits();
     fixture.detectChanges();
   });
 

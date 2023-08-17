@@ -13,6 +13,7 @@ export * from './enums/bans.enum';
 export * from './enums/country-codes.enum';
 export * from './maps/map-type-name.map';
 export * from './maps/map-type-prefix.map';
+export * from './maps/map-credit-name.map';
 export * from './maps/tickrates.map';
 export * from './maps/map-status-name.map';
 export * from './maps/allowed-modes.map';

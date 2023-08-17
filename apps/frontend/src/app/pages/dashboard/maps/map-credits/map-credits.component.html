@@ -1,38 +1,27 @@
 <div class="row">
-  <div class="col-12 col-md-6 col-lg-3 mb-4">
-    <mom-map-credit
-      category="Authors"
-      [editable]="editable"
-      [type]="MapCreditType.AUTHOR"
-      [credits]="credits"
-      (creditChange)="creditChange.emit($event)"
-    />
-  </div>
-  <div class="col-12 col-md-6 col-lg-3 mb-4">
-    <mom-map-credit
-      category="Co-Authors"
-      [editable]="editable"
-      [type]="MapCreditType.COAUTHOR"
-      [credits]="credits"
-      (creditChange)="creditChange.emit($event)"
-    />
-  </div>
-  <div class="col-12 col-md-6 col-lg-3 mb-4">
-    <mom-map-credit
-      category="Testers"
-      [editable]="editable"
-      [type]="MapCreditType.TESTER"
-      [credits]="credits"
-      (creditChange)="creditChange.emit($event)"
-    />
-  </div>
-  <div class="col-12 col-md-6 col-lg-3 mb-4">
-    <mom-map-credit
-      category="Special Thanks"
-      [editable]="editable"
-      [type]="MapCreditType.SPECIAL_THANKS"
-      [credits]="credits"
-      (creditChange)="creditChange.emit($event)"
-    />
+  <div *ngFor="let type of MapCreditNames | keyvalue" class="col-12 col-md-6 col-lg-3 mb-4">
+    <h4 class="mb-3 text-center">{{ type.value }}</h4>
+    <nb-list class="mb-3" cdkDropList (cdkDropListDropped)="drop($event, +type.key)">
+      <nb-list-item *ngFor="let credit of credits[+type.key]" cdkDrag>
+        <div class="d-flex align-items-center">
+          <nb-user [name]="credit.user.alias" [picture]="credit.user.avatarURL"></nb-user>
+          <div class="ml-auto" *ngIf="editable">
+            <button nbButton outline status="danger" size="tiny" (click)="removeUser(+type.key, credit.user)">
+              <nb-icon icon="close" />
+            </button>
+          </div>
+        </div>
+      </nb-list-item>
+    </nb-list>
+    <div class="text-center" *ngIf="searchStates[type.key] !== SearchState.HIDDEN">
+      <div class="mb-2 text-danger" *ngIf="searchStates[type.key] === SearchState.USER_ALREADY_SELECTED">User already selected!</div>
+      <mom-user-search class="text-left" (selectedUserEmit)="addUser(+type.key, $event)" />
+      <button class="mt-3" nbButton outline status="danger" (click)="hideUserSearch(+type.key)">Cancel</button>
+    </div>
+    <div class="text-center" *ngIf="editable && searchStates[type.key] === SearchState.HIDDEN">
+      <button nbButton outline status="info" (click)="showUserSearch(+type.key)">
+        <nb-icon icon="plus" />
+      </button>
+    </div>
   </div>
 </div>
