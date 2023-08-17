@@ -35,7 +35,7 @@ export interface MMap extends Omit<PrismaMMap, 'thumbnailID' | 'mainTrackID'> {
 
 export type UpdateMap = Pick<MMap, 'status'>;
 
-export interface CreateMap extends Pick<MMap, 'name' | 'type'> {
+export interface CreateMap extends Pick<MMap, 'name' | 'fileName' | 'type'> {
   info: CreateMapInfo;
   tracks: CreateMapTrack[];
   credits: CreateMapCredit[];
