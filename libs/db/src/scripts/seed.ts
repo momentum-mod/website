@@ -148,15 +148,17 @@ async function main(prisma: PrismaClient) {
     return image;
   }
 
-  const createRandomMapCredit = async (mapID, userID) =>
-    await prisma.mapCredit.create({
-      data: {
-        type: Random.enumValue(MapCreditType),
-        mapID: mapID,
-        userID: userID,
-        ...Random.createdUpdatedDates()
-      }
-    });
+  const createRandomMapCredit = async (mapID, userID, type?: MapCreditType) => {
+    try {
+      await prisma.mapCredit.create({
+        data: {
+          type: type ?? Random.enumValue(MapCreditType),
+          mapID: mapID,
+          userID: userID,
+        }
+      });
+    } catch {} // Ignore any creates that violate uniqueness
+  };
 
   async function createRandomBaseStats() {
     return prisma.baseStats.create({

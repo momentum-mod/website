@@ -9,10 +9,9 @@ import {
   CreateMapCreditDto,
   DtoFactory,
   expandToPrismaIncludes,
-  MapCreditDto,
-  UpdateMapCreditDto
+  MapCreditDto
 } from '@momentum/backend/dto';
-import { MapCredit, Prisma } from '@prisma/client';
+import { Prisma } from '@prisma/client';
 import { MMap } from '.prisma/client';
 import { Bitflags } from '@momentum/bitflags';
 import {
@@ -41,57 +40,13 @@ export class MapCreditsService {
     return dbResponse.map((x) => DtoFactory(MapCreditDto, x));
   }
 
-  async createCredit(
-    mapID: number,
-    createMapCredit: CreateMapCreditDto,
-    userID: number
-  ): Promise<MapCreditDto> {
-    const map = await this.db.mMap.findUnique({
-      where: { id: mapID },
-      include: { credits: true }
-    });
-
-    if (!map) throw new NotFoundException('Map not found');
-
-    await this.checkCreditChangePermissions(map, userID);
-
-    if (
-      await this.db.mapCredit.exists({
-        where: {
-          mapID,
-          userID: createMapCredit.userID,
-          type: createMapCredit.type
-        }
-      })
-    )
-      throw new ConflictException('Map credit already exists');
-
-    if (
-      !(await this.db.user.exists({
-        where: { id: createMapCredit.userID }
-      }))
-    )
-      throw new BadRequestException('Credited user does not exist');
-
-    const dbResponse = await this.db.mapCredit.create({
-      data: {
-        type: createMapCredit.type,
-        mmap: { connect: { id: mapID } },
-        user: { connect: { id: createMapCredit.userID } }
-      }
-    });
-
-    await this.updateMapCreditActivities(dbResponse);
-
-    return DtoFactory(MapCreditDto, dbResponse);
-  }
-
   async getCredit(
-    mapCreditID: number,
+    mapID: number,
+    userID: number,
     expand: string[]
   ): Promise<MapCreditDto> {
     const dbResponse = await this.db.mapCredit.findUnique({
-      where: { id: mapCreditID },
+      where: { mapID_userID: { mapID, userID } },
       include: expandToPrismaIncludes(expand)
     });
 
@@ -100,72 +55,99 @@ export class MapCreditsService {
     return DtoFactory(MapCreditDto, dbResponse);
   }
 
-  async updateCredit(
-    mapCreditID: number,
-    creditUpdate: UpdateMapCreditDto,
-    userID: number
-  ): Promise<void> {
-    if (!creditUpdate.userID && !creditUpdate.type)
-      throw new BadRequestException('No update data provided');
+  async updateCredits(
+    mapID: number,
+    body: CreateMapCreditDto[],
+    loggedInUserID: number
+  ): Promise<MapCreditDto[]> {
+    if (body.length === 0) {
+      throw new BadRequestException('Empty body');
+    }
 
-    const credit = await this.db.mapCredit.findUnique({
-      where: { id: mapCreditID },
-      include: { user: true, mmap: true }
+    if (!body.some((credit) => credit.type === MapCreditType.AUTHOR))
+      throw new BadRequestException('Credits do not contain an AUTHOR');
+
+    const map = await this.db.mMap.findUnique({
+      where: { id: mapID },
+      include: { credits: true }
     });
+    if (!map) {
+      throw new NotFoundException('Map not found');
+    }
 
-    if (!credit || !credit.mmap || !credit.user)
-      throw new NotFoundException('Invalid map credit');
+    await this.checkCreditChangePermissions(map, loggedInUserID);
 
-    await this.checkCreditChangePermissions(credit.mmap, userID);
+    // TODO: Wrap in transaction!
 
-    if (
-      creditUpdate.userID &&
-      !(await this.db.user.exists({
-        where: { id: creditUpdate.userID }
-      }))
-    )
-      throw new BadRequestException('Credited user does not exist');
+    const oldCredits = map.credits;
 
-    // Check for different credits with same map, user and type, throw if exists
-    if (
-      await this.db.mapCredit.exists({
-        where: {
-          NOT: { id: credit.id },
-          userID: creditUpdate.userID ?? credit.userID,
-          type: creditUpdate.type ?? credit.type,
-          mapID: credit.mapID
+    // Since we don't care about `createdAt`/`updatedAt`s, by far the simplest
+    // approach to this is to delete existing credits, then insert again
+    // in order of the body array. That way, we get every item ordered in DB
+    // (so no need for complex ordering relations, which would be especially
+    // annoying on joins. Perhaps slightly slower, but not a common endpoint
+    // anyway.
+    await this.db.mapCredit.deleteMany({ where: { mapID } });
+
+    const response = [];
+
+    try {
+      // Using loop instead of createMany as unsure if it guarantees correct
+      // creation order.
+      for (const credit of body) {
+        const newCredit = await this.db.mapCredit.create({
+          data: { mapID, ...credit },
+          include: { user: true }
+        });
+        response.push(DtoFactory(MapCreditDto, newCredit));
+
+        const oldCreditIdx = oldCredits.findIndex(
+          (c) => c.userID === newCredit.userID
+        );
+        const oldCredit = oldCredits[oldCreditIdx];
+
+        // If it's an author credit, create activity, unless credit already
+        // existed.
+        if (
+          newCredit.type === MapCreditType.AUTHOR &&
+          !(oldCredit?.type === MapCreditType.AUTHOR)
+        ) {
+          await this.db.activity.create({
+            data: {
+              type: ActivityType.MAP_UPLOADED,
+              data: newCredit.mapID,
+              userID: newCredit.userID
+            }
+          });
         }
-      })
-    )
-      throw new ConflictException('Cannot have duplicate map credits');
 
-    const data: Prisma.MapCreditUpdateInput = {};
-    if (creditUpdate.userID)
-      data.user = { connect: { id: creditUpdate.userID } };
-    if (creditUpdate.type) data.type = creditUpdate.type;
+        // Remove matching old credit, if exists
+        oldCredits.splice(oldCreditIdx, 1);
+      }
 
-    const newCredit = await this.db.mapCredit.update({
-      where: { id: mapCreditID },
-      data
-    });
+      // Any credits remaining in here have been deleted, so deleted any
+      // MAP_UPLOADED activities for author credits
+      for (const oldCredit of oldCredits) {
+        if (oldCredit.type === MapCreditType.AUTHOR)
+          await this.db.activity.deleteMany({
+            where: {
+              type: ActivityType.MAP_UPLOADED,
+              data: oldCredit.mapID,
+              userID: oldCredit.userID
+            }
+          });
+      }
+    } catch (error) {
+      if (
+        error instanceof Prisma.PrismaClientKnownRequestError &&
+        error.code === 'P2002'
+      ) {
+        throw new ConflictException('Input contains duplicate users');
+      }
+      throw error;
+    }
 
-    await this.updateMapCreditActivities(newCredit, credit);
-  }
-
-  async deleteCredit(mapCreditID: number, userID: number): Promise<void> {
-    const credit = await this.db.mapCredit.findUnique({
-      where: { id: mapCreditID },
-      include: { user: true, mmap: true }
-    });
-
-    if (!credit || !credit.mmap || !credit.user)
-      throw new NotFoundException('Invalid map credit');
-
-    await this.checkCreditChangePermissions(credit.mmap, userID);
-
-    await this.db.mapCredit.delete({ where: { id: mapCreditID } });
-
-    await this.updateMapCreditActivities(null, credit);
+    return response;
   }
 
   private async checkCreditChangePermissions(map: MMap, userID: number) {
@@ -186,63 +168,5 @@ export class MapCreditsService {
       if (map.status !== MapStatus.NEEDS_REVISION)
         throw new ForbiddenException('Map is not in NEEDS_REVISION state');
     }
-  }
-
-  private async updateMapCreditActivities(
-    newCredit?: MapCredit,
-    oldCredit?: MapCredit
-  ): Promise<void> {
-    const deleteOldActivity = () =>
-      this.db.activity.deleteMany({
-        where: {
-          type: ActivityType.MAP_UPLOADED,
-          data: oldCredit.mapID,
-          userID: oldCredit.userID
-        }
-      });
-
-    const createNewActivity = () =>
-      this.db.activity.create({
-        data: {
-          type: ActivityType.MAP_UPLOADED,
-          data: newCredit.mapID,
-          userID: newCredit.userID
-        }
-      });
-
-    // If oldCredit is null, a credit was created
-    if (!oldCredit) {
-      if (newCredit?.type === MapCreditType.AUTHOR) await createNewActivity();
-      return;
-    }
-
-    // If newCredit is null, a credit was deleted
-    if (!newCredit) {
-      if (oldCredit?.type === MapCreditType.AUTHOR) await deleteOldActivity();
-      return;
-    }
-
-    const oldCreditIsAuthor = oldCredit.type === MapCreditType.AUTHOR;
-    const newCreditIsAuthor = newCredit.type === MapCreditType.AUTHOR;
-    const userChanged = oldCredit.userID !== newCredit.userID;
-
-    // If the new credit type was changed to author
-    if (!oldCreditIsAuthor && newCreditIsAuthor) {
-      // Create activity for newCredit.userID
-      await createNewActivity();
-      return;
-    } else if (oldCreditIsAuthor && !newCreditIsAuthor) {
-      // If the new credit type was changed from author to something else
-      // Delete activity for oldCredit.userID
-      await deleteOldActivity();
-      return;
-    } else if (oldCreditIsAuthor && newCreditIsAuthor && userChanged) {
-      // If the credit is still an author but the user changed
-      // Delete activity for oldCredit.userID and create activity for
-      // newCredit.userID
-      await deleteOldActivity();
-      await createNewActivity();
-      return;
-    } else return; // All other cases result in no change in authors
   }
 }

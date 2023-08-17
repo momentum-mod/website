@@ -1,7 +1,7 @@
 import {
   MapCredit,
   CreateMapCredit,
-  UpdateMapCredit
+  MAX_CREDIT_DESCRIPTION_LENGTH
 } from '@momentum/constants';
 import { UserDto } from '../user/user.dto';
 import { MapDto } from './map.dto';
@@ -17,9 +17,6 @@ import { MapCreditType } from '@momentum/constants';
 import { Exclude, Expose } from 'class-transformer';
 
 export class MapCreditDto implements MapCredit {
-  @IdProperty()
-  readonly id: number;
-
   @EnumProperty(MapCreditType)
   readonly type: MapCreditType;
 
@@ -40,25 +37,8 @@ export class MapCreditDto implements MapCredit {
 
   @Exclude()
   readonly mmap: MapDto;
-
-  @CreatedAtProperty()
-  readonly createdAt: Date;
-
-  @UpdatedAtProperty()
-  readonly updatedAt: Date;
 }
 
 export class CreateMapCreditDto
   extends PickType(MapCreditDto, ['userID', 'type'] as const)
   implements CreateMapCredit {}
-
-export class UpdateMapCreditDto implements UpdateMapCredit {
-  @IdProperty({ required: false, description: 'The new user ID to set' })
-  userID: number;
-
-  @EnumProperty(MapCreditType, {
-    required: false,
-    description: 'The new map credit type to set'
-  })
-  type: number;
-}
