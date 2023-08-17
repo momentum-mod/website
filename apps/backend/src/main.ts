@@ -17,6 +17,7 @@ import cookie from '@fastify/cookie';
 import helmet from '@fastify/helmet';
 import cors from '@fastify/cors';
 import { FastifyReply } from 'fastify';
+import { VALIDATION_PIPE_CONFIG } from '@momentum/backend/dto';
 
 async function bootstrap() {
   // Transforms `BigInt`s to strings in JSON.stringify, for cases that haven't
@@ -47,14 +48,7 @@ async function bootstrap() {
   // data on the query/body (i.e. does not have validators) will fail. Our tests
   // even more strict: passing an unexpected value will throw an error. In
   // effect, you MUST include validation decorators
-  app.useGlobalPipes(
-    new ValidationPipe({
-      transform: true,
-      forbidUnknownValues: true,
-      whitelist: true,
-      forbidNonWhitelisted: true
-    })
-  );
+  app.useGlobalPipes(new ValidationPipe(VALIDATION_PIPE_CONFIG));
   app.useGlobalInterceptors(new ClassSerializerInterceptor(app.get(Reflector)));
 
   // Prefix everything by auth with /api
