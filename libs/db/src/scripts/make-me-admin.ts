@@ -1,5 +1,6 @@
 import { PrismaClient } from '@prisma/client';
 import { prismaWrapper } from './prisma-wrapper';
+import { Role } from '@momentum/constants';
 
 prismaWrapper(async (prisma: PrismaClient) => {
   const users = await prisma.user.findMany();
@@ -12,7 +13,7 @@ prismaWrapper(async (prisma: PrismaClient) => {
   for (const user of realUsers) {
     await prisma.user.update({
       where: { id: user.id },
-      data: { roles: 8 }
+      data: { roles: Role.ADMIN }
     });
     console.log(`Made ${user.alias} (${user.steamID}) an admin!`);
   }
