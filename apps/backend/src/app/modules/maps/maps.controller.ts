@@ -9,6 +9,7 @@ import {
   HttpStatus,
   MaxFileSizeValidator,
   Param,
+  ParseArrayPipe,
   ParseFilePipe,
   Patch,
   Post,
@@ -59,9 +60,9 @@ import {
   MapTrackDto,
   PagedResponseDto,
   RankDto,
-  UpdateMapCreditDto,
   UpdateMapDto,
-  UpdateMapInfoDto
+  UpdateMapInfoDto,
+  VALIDATION_PIPE_CONFIG
 } from '@momentum/backend/dto';
 import { LoggedInUser, Roles } from '@momentum/backend/decorators';
 import { Role } from '@momentum/constants';
@@ -291,66 +292,47 @@ export class MapsController {
     return this.mapCreditsService.getCredits(mapID, query.expand);
   }
 
-  @Post('/:mapID/credits')
-  @Roles(Role.MAPPER, Role.MODERATOR, Role.ADMIN)
-  @ApiOperation({ summary: 'Adds a map credit to the map' })
+  @Get('/:mapID/credits/:userID')
+  @ApiOperation({
+    summary: 'Gets a MapCredit for on a map for a specific user'
+  })
   @ApiParam({
     name: 'mapID',
     type: Number,
     description: 'Target Map ID',
     required: true
   })
-  @ApiCreatedResponse({ description: 'The newly added credit' })
-  @ApiNotFoundResponse({ description: 'Map was not found' })
-  @ApiForbiddenResponse({ description: 'User does not have the Mapper role' })
-  @ApiForbiddenResponse({ description: 'User is not the submitter of the map' })
-  @ApiForbiddenResponse({ description: 'Map is not in NEEDS_REVISION state' })
-  @ApiBadRequestResponse({ description: 'Map credit object is invalid' })
-  @ApiBadRequestResponse({ description: 'Credited user does not exist' })
-  @ApiConflictResponse({ description: 'Map credit already exists' })
-  @ApiBody({
-    type: CreateMapCreditDto,
-    description: 'The create map credit data transfer object',
-    required: true
-  })
-  createCredit(
-    @Param('mapID', ParseIntSafePipe) mapID: number,
-    @Body() body: CreateMapCreditDto,
-    @LoggedInUser('id') userID: number
-  ): Promise<MapCreditDto> {
-    return this.mapCreditsService.createCredit(mapID, body, userID);
-  }
-
-  @Get('/credits/:mapCreditID')
-  @ApiOperation({ summary: 'Gets a single map credit' })
   @ApiParam({
-    name: 'mapCreditID',
+    name: 'userID',
     type: Number,
-    description: 'Target credit ID',
+    description: 'Target User ID',
     required: true
   })
   @ApiOkResponse({ type: MapCreditDto, description: 'The found map credit' })
   @ApiNotFoundResponse({ description: 'Map credit not found' })
   getCredit(
-    @Param('mapCreditID', ParseIntSafePipe) mapCreditID: number,
+    @Param('mapID', ParseIntSafePipe) mapID: number,
+    @Param('userID', ParseIntSafePipe) userID: number,
     @Query() query?: MapCreditsGetQueryDto
   ): Promise<MapCreditDto> {
-    return this.mapCreditsService.getCredit(mapCreditID, query.expand);
+    return this.mapCreditsService.getCredit(mapID, userID, query.expand);
   }
 
-  @Patch('/credits/:mapCreditID')
+  @Put('/:mapID/credits')
   @Roles(Role.MAPPER, Role.MODERATOR, Role.ADMIN)
-  @HttpCode(HttpStatus.NO_CONTENT)
-  @ApiOperation({ summary: 'Updates the specified map credit' })
+  @HttpCode(HttpStatus.CREATED)
+  @ApiOperation({
+    summary: 'Updates the MapCredits on a map'
+  })
   @ApiParam({
-    name: 'mapCreditID',
+    name: 'mapID',
     type: Number,
-    description: 'Target credit ID',
+    description: 'Target Map ID',
     required: true
   })
   @ApiBody({
-    type: UpdateMapCreditDto,
-    description: 'The create map credit data transfer object',
+    type: Array<CreateMapCreditDto>,
+    description: 'Array of map credit creation objects',
     required: true
   })
   @ApiNoContentResponse({ description: 'Map credit updated successfully' })
@@ -363,37 +345,18 @@ export class MapsController {
     description: 'User is not the submitter of this map'
   })
   @ApiConflictResponse({ description: 'Cannot have duplicate map credits' })
-  @ApiNotFoundResponse({ description: 'Map credit not found' })
-  updateCredit(
-    @Param('mapCreditID', ParseIntSafePipe) mapCreditID: number,
-    @Body() body: UpdateMapCreditDto,
-    @LoggedInUser('id') userID: number
-  ): Promise<void> {
-    return this.mapCreditsService.updateCredit(mapCreditID, body, userID);
-  }
-
-  @Delete('/credits/:mapCreditID')
-  @Roles(Role.MAPPER, Role.MODERATOR, Role.ADMIN)
-  @HttpCode(HttpStatus.NO_CONTENT)
-  @ApiOperation({ summary: 'Deletes the specified map credit' })
-  @ApiParam({
-    name: 'mapCreditID',
-    type: Number,
-    description: 'Target credit ID',
-    required: true
-  })
-  @ApiOkResponse({ description: 'Map credit deleted successfully' })
-  @ApiForbiddenResponse({ description: 'Map is not in NEEDS_REVISION state' })
-  @ApiForbiddenResponse({ description: 'User does not have the mapper role' })
-  @ApiForbiddenResponse({
-    description: 'User is not the submitter of this map'
-  })
-  @ApiNotFoundResponse({ description: 'Map credit not found' })
-  deleteCredit(
-    @Param('mapCreditID', ParseIntSafePipe) mapCreditID: number,
-    @LoggedInUser('id') userID: number
-  ): Promise<void> {
-    return this.mapCreditsService.deleteCredit(mapCreditID, userID);
+  updateCredits(
+    @Param('mapID', ParseIntSafePipe) mapID: number,
+    @Body(
+      new ParseArrayPipe({
+        items: CreateMapCreditDto,
+        ...VALIDATION_PIPE_CONFIG
+      })
+    )
+    body: CreateMapCreditDto[],
+    @LoggedInUser('id') loggedInUserID: number
+  ): Promise<MapCreditDto[]> {
+    return this.mapCreditsService.updateCredits(mapID, body, loggedInUserID);
   }
 
   //#endregion

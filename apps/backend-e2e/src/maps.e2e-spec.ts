@@ -1393,61 +1393,194 @@ describe('Maps', () => {
         req.unauthorizedTest('maps/1/credits', 'get'));
     });
 
-    describe('POST', () => {
-      let u1, u1Token, u2, u2Token, adminToken, modToken, map, newMapCredit;
+    describe('PUT', () => {
+      let u1,
+        u1Token,
+        u2,
+        u2Token,
+        u3,
+        u4,
+        adminToken,
+        modToken,
+        map,
+        newMapCredit;
 
       beforeEach(async () => {
-        [[u1, u1Token], [u2, u2Token], adminToken, modToken] =
-          await Promise.all([
-            db.createAndLoginUser({ data: { roles: Role.MAPPER } }),
-            db.createAndLoginUser({ data: { roles: Role.MAPPER } }),
-            db.loginNewUser({ data: { roles: Role.ADMIN } }),
-            db.loginNewUser({ data: { roles: Role.MODERATOR } })
-          ]);
+        [u1, u1Token] = await db.createAndLoginUser({
+          data: { roles: Role.MAPPER }
+        });
+        [u2, u2Token] = await db.createAndLoginUser({
+          data: { roles: Role.MAPPER }
+        });
+        u3 = await db.createUser();
+        u4 = await db.createUser();
+        adminToken = await db.loginNewUser({ data: { roles: Role.ADMIN } });
+        modToken = await db.loginNewUser({ data: { roles: Role.MODERATOR } });
         map = await db.createMap({
           submitter: { connect: { id: u1.id } },
           status: MapStatus.NEEDS_REVISION
         });
-        newMapCredit = { type: MapCreditType.SPECIAL_THANKS, userID: u2.id };
+        newMapCredit = [
+          {
+            type: MapCreditType.AUTHOR,
+            userID: u2.id,
+          }
+        ];
       });
 
       afterEach(() => db.cleanup('user', 'mMap'));
 
-      it('should create a map credit for the specified map', async () => {
-        await req.post({
+      it('should create a map credit', async () => {
+        const res = await req.put({
           url: `maps/${map.id}/credits`,
           status: 201,
           body: newMapCredit,
-          validate: MapCreditDto,
+          validateArray: MapCreditDto,
           token: u1Token
         });
 
+        expect(res).toMatchObject({
+          userID: u2.id,
+          mapID: map.id,
+          user: { id: u2.id } // Check we include the user
+        });
         const credit = await prisma.mapCredit.findFirst();
         expect(credit).toMatchObject({ userID: u2.id, mapID: map.id });
       });
 
-      it('should 409 if the map credit already exists', async () => {
-        // Just do it twice
-        await req.post({
+      it('should delete an credits for the map not on the new DTO', async () => {
+        await prisma.mapCredit.create({
+          data: { type: MapCreditType.AUTHOR, userID: u1.id, mapID: map.id }
+        });
+
+        await req.put({
           url: `maps/${map.id}/credits`,
           status: 201,
-          body: newMapCredit,
+          body: [{ type: MapCreditType.AUTHOR, userID: u2.id }],
+          validateArray: MapCreditDto,
           token: u1Token
         });
 
-        await req.post({
+        const credits = await prisma.mapCredit.findMany();
+        expect(credits.length).toBe(1);
+        expect(credits[0].userID).toBe(u2.id);
+      });
+
+      it('should create multiple map credit and store in order', async () => {
+        await req.put({
+          url: `maps/${map.id}/credits`,
+          status: 201,
+          body: [
+            { userID: u4.id, type: MapCreditType.AUTHOR },
+            { userID: u2.id, type: MapCreditType.AUTHOR },
+            {
+              userID: u3.id,
+              type: MapCreditType.CONTRIBUTOR,
+            },
+            {
+              userID: u1.id,
+              type: MapCreditType.CONTRIBUTOR,
+            }
+          ],
+          validateArray: MapCreditDto,
+          token: u1Token
+        });
+
+        const credits = await prisma.mapCredit.findMany();
+        expect(credits).toMatchObject([
+          { userID: u4.id, mapID: map.id },
+          { userID: u2.id, mapID: map.id },
+          { userID: u3.id, mapID: map.id },
+          { userID: u1.id, mapID: map.id }
+        ]);
+
+        const got = await req.get({
+          url: `maps/${map.id}/credits`,
+          status: 200,
+          token: u1Token
+        });
+
+        expect(got.body[0].userID).toBe(u4.id);
+        expect(got.body[1].userID).toBe(u2.id);
+        expect(got.body[2].userID).toBe(u3.id);
+        expect(got.body[3].userID).toBe(u1.id);
+      });
+
+      // Exact same as above but we swap the order of the body, just to check
+      // that that affects what order the results are fetched in
+      it('should create multiple map credit and store in order part 2', async () => {
+        await req.put({
+          url: `maps/${map.id}/credits`,
+          status: 201,
+          body: [
+            { userID: u1.id, type: MapCreditType.AUTHOR },
+            { userID: u2.id, type: MapCreditType.AUTHOR },
+            {
+              userID: u3.id,
+              type: MapCreditType.CONTRIBUTOR,
+            },
+            {
+              userID: u4.id,
+              type: MapCreditType.CONTRIBUTOR,
+            }
+          ],
+          validateArray: MapCreditDto,
+          token: u1Token
+        });
+
+        const credits = await prisma.mapCredit.findMany();
+        expect(credits).toMatchObject([
+          { userID: u1.id, mapID: map.id },
+          { userID: u2.id, mapID: map.id },
+          { userID: u3.id, mapID: map.id },
+          { userID: u4.id, mapID: map.id }
+        ]);
+
+        const got = await req.get({
+          url: `maps/${map.id}/credits`,
+          status: 200,
+          token: u1Token
+        });
+
+        expect(got.body[0].userID).toBe(u1.id);
+        expect(got.body[1].userID).toBe(u2.id);
+        expect(got.body[2].userID).toBe(u3.id);
+        expect(got.body[3].userID).toBe(u4.id);
+      });
+
+      it('should 409 if the request contains duplicate credits', async () => {
+        await req.put({
           url: `maps/${map.id}/credits`,
           status: 409,
-          body: newMapCredit,
+          body: [...newMapCredit, ...newMapCredit],
           token: u1Token
         });
       });
 
       it('should create an activity if a new author is added', async () => {
-        await req.post({
+        await req.put({
           url: `maps/${map.id}/credits`,
           status: 201,
-          body: { type: MapCreditType.AUTHOR, userID: u2.id },
+          body: [{ type: MapCreditType.AUTHOR, userID: u2.id }],
+          token: u1Token
+        });
+
+        const activity = await prisma.activity.findFirst();
+        expect(activity).toMatchObject({
+          data: BigInt(map.id),
+          userID: u2.id,
+          type: ActivityType.MAP_UPLOADED
+        });
+      });
+
+      it('should remove activity if an author is removed', async () => {
+        await prisma.activity.create({
+          data: { type: ActivityType.MAP_UPLOADED, data: map.id, userID: u2.id }
+        });
+        await req.put({
+          url: `maps/${map.id}/credits`,
+          status: 201,
+          body: [{ type: MapCreditType.AUTHOR, userID: u1.id }],
           token: u1Token
         });
 
@@ -1460,25 +1593,25 @@ describe('Maps', () => {
       });
 
       it('should allow an admin to create a credit', () =>
-        req.post({
+        req.put({
           url: `maps/${map.id}/credits`,
           status: 201,
           body: newMapCredit,
-          validate: MapCreditDto,
+          validateArray: MapCreditDto,
           token: adminToken
         }));
 
-      it('should allow an admin to update a create even if the map is not in the NEEDS_REVISION state', async () => {
+      it('should allow an admin to update a credit even if the map is not in the NEEDS_REVISION state', async () => {
         await prisma.mMap.update({
           where: { id: map.id },
           data: { status: MapStatus.APPROVED }
         });
 
-        await req.post({
+        await req.put({
           url: `maps/${map.id}/credits`,
           status: 201,
           body: newMapCredit,
-          validate: MapCreditDto,
+          validateArray: MapCreditDto,
           token: adminToken
         });
 
@@ -1489,11 +1622,11 @@ describe('Maps', () => {
       });
 
       it('should allow a mod to create a credit', () =>
-        req.post({
+        req.put({
           url: `maps/${map.id}/credits`,
           status: 201,
           body: newMapCredit,
-          validate: MapCreditDto,
+          validateArray: MapCreditDto,
           token: modToken
         }));
 
@@ -1503,11 +1636,11 @@ describe('Maps', () => {
           data: { status: MapStatus.APPROVED }
         });
 
-        await req.post({
+        await req.put({
           url: `maps/${map.id}/credits`,
           status: 201,
           body: newMapCredit,
-          validate: MapCreditDto,
+          validateArray: MapCreditDto,
           token: modToken
         });
 
@@ -1526,7 +1659,7 @@ describe('Maps', () => {
         }));
 
       it('should 403 if the user is not the map submitter', () =>
-        req.post({
+        req.put({
           url: `maps/${map.id}/credits`,
           status: 403,
           body: newMapCredit,
@@ -1539,7 +1672,7 @@ describe('Maps', () => {
           data: { roles: 0 }
         });
 
-        await req.post({
+        await req.put({
           url: `maps/${map.id}/credits`,
           status: 403,
           body: newMapCredit,
@@ -1558,7 +1691,7 @@ describe('Maps', () => {
           data: { status: MapStatus.APPROVED }
         });
 
-        await req.post({
+        await req.put({
           url: `maps/${map.id}/credits`,
           status: 403,
           body: newMapCredit,
@@ -1571,24 +1704,52 @@ describe('Maps', () => {
         });
       });
 
-      it('should 400 if the map credit object is invalid', () =>
-        req.post({
+      it('should 400 if the map credit object is invalid', async () => {
+        await req.put({
           url: `maps/${map.id}/credits`,
           status: 400,
-          body: { type: -6 },
+          body: { type: -6, userID: u1.id }, // Endpoint only takes arrays!
+          token: u1Token
+        });
+
+        await req.put({
+          url: `maps/${map.id}/credits`,
+          status: 400,
+          body: [{ type: -6, userID: u1.id }],
+          token: u1Token
+        });
+
+        await req.put({
+          url: `maps/${map.id}/credits`,
+          status: 400,
+          body: [{ type: MapCreditType.AUTHOR, userID: 'Bono' }],
+          token: u1Token
+        });
+      });
+
+      it('should 400 if a user ID is missing on a credit', () =>
+        req.put({
+          url: `maps/${map.id}/credits`,
+          status: 400,
+          body: [{ type: MapCreditType.TESTER }],
           token: u1Token
         }));
 
-      it('should 400 if the user ID is missing', () =>
-        req.post({
+      it('should 400 if a type is missing on a credit', () =>
+        req.put({
           url: `maps/${map.id}/credits`,
           status: 400,
-          body: { type: MapCreditType.TESTER },
+          body: [{ userID: u2.id }],
           token: u1Token
         }));
 
-      it('should 400 if the type is missing', () =>
-        req.post({
+      it('should 400 if theres no AUTHOR credits', () =>
+        req.put({
+          url: `maps/${map.id}/credits`,
+          status: 400,
+          body: [{ userID: u2.id, type: MapCreditType.TESTER }],
+          token: u1Token
+        }));
           url: `maps/${map.id}/credits`,
           status: 400,
           body: { userID: u2.id },
@@ -1596,21 +1757,21 @@ describe('Maps', () => {
         }));
 
       it('should 400 if the credited user does not exist', () =>
-        req.post({
+        req.put({
           url: `maps/${map.id}/credits`,
           status: 400,
-          body: { type: MapCreditType.TESTER, userID: NULL_ID },
+          body: { type: MapCreditType.AUTHOR, userID: NULL_ID },
           token: u1Token
         }));
 
       it('should 401 when no access token is provided', () =>
-        req.unauthorizedTest('maps/1/credits', 'post'));
+        req.unauthorizedTest(`maps/${map.id}/credits`, 'put'));
     });
   });
 
-  describe('maps/credits/{mapCreditID}', () => {
+  describe('maps/{mapID}/credits/{userID}', () => {
     describe('GET', () => {
-      let user, token, map, credit;
+      let user, token, map;
       const creditType = MapCreditType.AUTHOR;
 
       beforeAll(async () => {
@@ -1618,25 +1779,21 @@ describe('Maps', () => {
           db.createAndLoginUser(),
           db.createMap()
         ]);
-        credit = await prisma.mapCredit.create({
-          data: { mapID: map.id, userID: user.id, type: creditType }
-        });
       });
 
       afterAll(() => db.cleanup('user', 'mMap'));
 
-      beforeEach(
-        async () =>
-          (credit = await prisma.mapCredit.create({
-            data: { mapID: map.id, userID: user.id, type: creditType }
-          }))
+      beforeEach(() =>
+        prisma.mapCredit.create({
+          data: { mapID: map.id, userID: user.id, type: creditType }
+        })
       );
 
       afterEach(() => prisma.mapCredit.deleteMany());
 
       it('should return the specified map credit', async () => {
         const res = await req.get({
-          url: `maps/credits/${credit.id}`,
+          url: `maps/${map.id}/credits/${user.id}`,
           status: 200,
           validate: MapCreditDto,
           token: token
@@ -1651,440 +1808,28 @@ describe('Maps', () => {
 
       it('should return the specified map credit with the user expand parameter', () =>
         req.expandTest({
-          url: `maps/credits/${credit.id}`,
+          url: `maps/${map.id}/credits/${user.id}`,
           expand: 'user',
           validate: MapCreditDto,
           token: token
         }));
 
-      it('should return a 404 if the map credit is not found', () =>
-        req.get({ url: `maps/credits/${NULL_ID}`, status: 404, token: token }));
-
-      it('should 401 when no access token is provided', () =>
-        req.unauthorizedTest('maps/credits/1', 'get'));
-    });
-
-    describe('PATCH', () => {
-      let u1, u1Token, u2, u2Token, adminToken, modToken, map, credit, _;
-
-      beforeAll(async () => {
-        [[u1, u1Token], [u2, u2Token], adminToken, modToken] =
-          await Promise.all([
-            db.createAndLoginUser({ data: { roles: Role.MAPPER } }),
-            db.createAndLoginUser({ data: { roles: Role.MAPPER } }),
-            db.loginNewUser({ data: { roles: Role.ADMIN } }),
-            db.loginNewUser({ data: { roles: Role.MODERATOR } })
-          ]);
-
-        map = await db.createMap({
-          status: MapStatus.NEEDS_REVISION,
-          submitter: { connect: { id: u1.id } }
-        });
-      });
-
-      afterAll(() => db.cleanup('user', 'mMap'));
-
-      beforeEach(
-        async () =>
-          (credit = await prisma.mapCredit.create({
-            data: { mapID: map.id, userID: u1.id, type: MapCreditType.AUTHOR }
-          }))
-      );
-
-      afterEach(() => prisma.mapCredit.deleteMany());
-
-      it("should update the specified map credit's user and type", async () => {
-        await req.patch({
-          url: `maps/credits/${credit.id}`,
-          status: 204,
-          body: { userID: u2.id, type: MapCreditType.COAUTHOR },
-          token: u1Token
-        });
-
-        const updatedCredit = await prisma.mapCredit.findUnique({
-          where: { id: credit.id }
-        });
-        expect(updatedCredit).toMatchObject({
-          userID: u2.id,
-          type: MapCreditType.COAUTHOR
-        });
-      });
-
-      it("should just update the specified map credit's type", () =>
-        req.patch({
-          url: `maps/credits/${credit.id}`,
-          status: 204,
-          body: { type: MapCreditType.SPECIAL_THANKS },
-          token: u1Token
-        }));
-
-      it("should just update the specified map credit's user", () =>
-        req.patch({
-          url: `maps/credits/${credit.id}`,
-          status: 204,
-          body: { userID: u1.id },
-          token: u1Token
-        }));
-
-      it('should allow an admin to update the credit', () =>
-        req.patch({
-          url: `maps/credits/${credit.id}`,
-          status: 204,
-          body: { type: MapCreditType.COAUTHOR },
-          token: adminToken
-        }));
-
-      it('should allow an admin to update the credit even if the map is not in the NEEDS_REVISION state', async () => {
-        await prisma.mMap.update({
-          where: { id: map.id },
-          data: { status: MapStatus.APPROVED }
-        });
-
-        await req.patch({
-          url: `maps/credits/${credit.id}`,
-          status: 204,
-          body: { type: MapCreditType.COAUTHOR },
-          token: adminToken
-        });
-
-        await prisma.mMap.update({
-          where: { id: map.id },
-          data: { status: MapStatus.NEEDS_REVISION }
-        });
-      });
-
-      it('should allow a mod to update the credit', () =>
-        req.patch({
-          url: `maps/credits/${credit.id}`,
-          status: 204,
-          body: { type: MapCreditType.COAUTHOR },
-          token: modToken
-        }));
-
-      it('should allow a mod to update the credit even if the map is not in the NEEDS_REVISION state', async () => {
-        await prisma.mMap.update({
-          where: { id: map.id },
-          data: { status: MapStatus.APPROVED }
-        });
-
-        await req.patch({
-          url: `maps/credits/${credit.id}`,
-          status: 204,
-          body: { type: MapCreditType.COAUTHOR },
-          token: modToken
-        });
-
-        await prisma.mMap.update({
-          where: { id: map.id },
-          data: { status: MapStatus.NEEDS_REVISION }
-        });
-      });
-
-      it('should return 403 if the map was not submitted by that user', () =>
-        req.patch({
-          url: `maps/credits/${credit.id}`,
-          status: 403,
-          body: { type: MapCreditType.COAUTHOR },
-          token: u2Token
-        }));
-
-      it('should return 404 if the map credit was not found', () =>
-        req.patch({
-          url: `maps/credits/${NULL_ID}`,
+      it('should return a 404 if the map is not found', () =>
+        req.get({
+          url: `maps/${NULL_ID}/credits/${user.id}`,
           status: 404,
-          body: { type: MapCreditType.COAUTHOR },
-          token: u1Token
+          token: token
         }));
 
-      it('should 400 when the map credit type is invalid', () =>
-        req.patch({
-          url: `maps/credits/${credit.id}`,
-          status: 400,
-          body: { type: 'Author' },
-          token: u1Token
-        }));
-
-      it('should 400 when the map credit user is invalid', () =>
-        req.patch({
-          url: `maps/credits/${credit.id}`,
-          status: 400,
-          body: { userID: 'Momentum Man' },
-          token: u1Token
-        }));
-
-      it('should 400 when no update data is provided', () =>
-        req.patch({
-          url: `maps/credits/${credit.id}`,
-          status: 400,
-          token: u1Token
-        }));
-
-      it('should 403 if the map is not in NEEDS_REVISION state', async () => {
-        await prisma.mMap.update({
-          where: { id: map.id },
-          data: { status: MapStatus.APPROVED }
-        });
-
-        await req.patch({
-          url: `maps/credits/${credit.id}`,
-          status: 403,
-          body: { type: MapCreditType.COAUTHOR },
-          token: u1Token
-        });
-
-        await prisma.mMap.update({
-          where: { id: map.id },
-          data: { status: MapStatus.NEEDS_REVISION }
-        });
-      });
-
-      it('should 403 if the user does not have the mapper role', async () => {
-        await prisma.user.update({
-          where: { id: u1.id },
-          data: { roles: 0 }
-        });
-
-        await req.patch({
-          url: `maps/credits/${credit.id}`,
-          status: 403,
-          body: { type: MapCreditType.COAUTHOR },
-          token: u1Token
-        });
-
-        await prisma.user.update({
-          where: { id: u1.id },
-          data: { roles: Role.MAPPER }
-        });
-      });
-
-      it('should 400 if the credited user does not exist', () =>
-        req.patch({
-          url: `maps/credits/${credit.id}`,
-          status: 400,
-          body: { userID: NULL_ID },
-          token: u1Token
-        }));
-
-      it("should update the activities when an author credit's user is changed", async () => {
-        await prisma.activity.deleteMany();
-
-        await prisma.activity.create({
-          data: { type: ActivityType.MAP_UPLOADED, userID: u1.id, data: map.id }
-        });
-
-        await req.patch({
-          url: `maps/credits/${credit.id}`,
-          status: 204,
-          body: { userID: u2.id },
-          token: u1Token
-        });
-
-        const originalActivity = await prisma.activity.findFirst({
-          where: { userID: u1.id, type: ActivityType.MAP_UPLOADED }
-        });
-        const newActivity = await prisma.activity.findFirst({
-          where: { userID: u2.id, type: ActivityType.MAP_UPLOADED }
-        });
-        expect(originalActivity).toBeNull();
-        expect(newActivity).toMatchObject({
-          userID: u2.id,
-          type: ActivityType.MAP_UPLOADED
-        });
-      });
-
-      it("should update the activities when an author credit's type is changed", async () => {
-        await prisma.activity.deleteMany();
-
-        await prisma.activity.create({
-          data: { type: ActivityType.MAP_UPLOADED, userID: u1.id, data: map.id }
-        });
-
-        await req.patch({
-          url: `maps/credits/${credit.id}`,
-          status: 204,
-          body: { type: MapCreditType.COAUTHOR },
-          token: u1Token
-        });
-
-        const originalActivity = await prisma.activity.findFirst({
-          where: { userID: u1.id, type: ActivityType.MAP_UPLOADED }
-        });
-        expect(originalActivity).toBeNull();
-      });
-
-      it('should 409 if the user tries to update a credit to be identical to another credit', async () => {
-        await prisma.mapCredit.create({
-          data: { mapID: map.id, userID: u2.id, type: MapCreditType.COAUTHOR }
-        });
-
-        await req.patch({
-          url: `maps/credits/${credit.id}`,
-          status: 409,
-          body: { userID: u2.id, type: MapCreditType.COAUTHOR },
-          token: u1Token
-        });
-      });
-
-      it('should 401 when no access token is provided', () =>
-        req.unauthorizedTest('maps/credits/1', 'patch'));
-    });
-
-    describe('DELETE', () => {
-      let u1, u1Token, u2Token, map, credit, adminToken, modToken;
-
-      beforeAll(async () => {
-        [[u1, u1Token], u2Token, adminToken, modToken] = await Promise.all([
-          db.createAndLoginUser({ data: { roles: Role.MAPPER } }),
-          db.loginNewUser({ data: { roles: Role.MAPPER } }),
-          db.loginNewUser({ data: { roles: Role.ADMIN } }),
-          db.loginNewUser({ data: { roles: Role.MODERATOR } })
-        ]);
-
-        map = await db.createMap({
-          status: MapStatus.NEEDS_REVISION,
-          submitter: { connect: { id: u1.id } }
-        });
-      });
-
-      afterAll(() => db.cleanup('user', 'mMap'));
-
-      beforeEach(
-        async () =>
-          (credit = await prisma.mapCredit.create({
-            data: { mapID: map.id, userID: u1.id, type: MapCreditType.AUTHOR }
-          }))
-      );
-
-      afterEach(() => prisma.mapCredit.deleteMany());
-
-      it('should delete the specified map credit', async () => {
-        await req.del({
-          url: `maps/credits/${credit.id}`,
-          status: 204,
-          token: u1Token
-        });
-
-        const deletedCredit = await prisma.mapCredit.findFirst();
-        expect(deletedCredit).toBeNull();
-      });
-
-      it('should remove the activity when an author credit is deleted', async () => {
-        await prisma.activity.create({
-          data: { type: ActivityType.MAP_UPLOADED, userID: u1.id, data: map.id }
-        });
-
-        await req.del({
-          url: `maps/credits/${credit.id}`,
-          status: 204,
-          token: u1Token
-        });
-
-        const activity = await prisma.activity.findFirst();
-        expect(activity).toBeNull();
-      });
-
-      it('should allow an admin to delete the credit', () =>
-        req.del({
-          url: `maps/credits/${credit.id}`,
-          status: 204,
-          token: adminToken
-        }));
-
-      it('should allow an admin to delete the credit even if the map is not in the NEEDS_REVISION state', async () => {
-        await prisma.mMap.update({
-          where: { id: map.id },
-          data: { status: MapStatus.APPROVED }
-        });
-
-        await req.del({
-          url: `maps/credits/${credit.id}`,
-          status: 204,
-          token: adminToken
-        });
-
-        await prisma.mMap.update({
-          where: { id: map.id },
-          data: { status: MapStatus.NEEDS_REVISION }
-        });
-      });
-
-      it('should allow a mod to delete the credit', () =>
-        req.del({
-          url: `maps/credits/${credit.id}`,
-          status: 204,
-          token: modToken
-        }));
-
-      it('should allow a mod to delete the credit even if the map is not in the NEEDS_REVISION state', async () => {
-        await prisma.mMap.update({
-          where: { id: map.id },
-          data: { status: MapStatus.APPROVED }
-        });
-
-        await req.del({
-          url: `maps/credits/${credit.id}`,
-          status: 204,
-          token: modToken
-        });
-
-        await prisma.mMap.update({
-          where: { id: map.id },
-          data: { status: MapStatus.NEEDS_REVISION }
-        });
-      });
-
-      it('should return 403 if the map was not submitted by that user', () =>
-        req.del({
-          url: `maps/credits/${credit.id}`,
-          status: 403,
-          token: u2Token
-        }));
-
-      it('should return 403 if the map is not in NEEDS_REVISION state', async () => {
-        await prisma.mMap.update({
-          where: { id: map.id },
-          data: { status: MapStatus.APPROVED }
-        });
-
-        await req.del({
-          url: `maps/credits/${credit.id}`,
-          status: 403,
-          token: u1Token
-        });
-
-        await prisma.mMap.update({
-          where: { id: map.id },
-          data: { status: MapStatus.NEEDS_REVISION }
-        });
-      });
-
-      it('should return 403 if the user does not have the mapper role', async () => {
-        await prisma.user.update({
-          where: { id: u1.id },
-          data: { roles: 0 }
-        });
-
-        await req.del({
-          url: `maps/credits/${credit.id}`,
-          status: 403,
-          token: u1Token
-        });
-
-        await prisma.user.update({
-          where: { id: u1.id },
-          data: { roles: Role.MAPPER }
-        });
-      });
-
-      it('should return 404 if the map credit was not found', () =>
-        req.del({
-          url: `maps/credits/${NULL_ID}`,
+      it('should return a 404 if the user is not found', () =>
+        req.get({
+          url: `maps/${map.id}/credits/${NULL_ID}`,
           status: 404,
-          token: u1Token
+          token: token
         }));
 
       it('should 401 when no access token is provided', () =>
-        req.unauthorizedTest('maps/credits/1', 'del'));
+        req.unauthorizedTest(`maps/${map.id}/credits/${user.id}`, 'get'));
     });
   });
 

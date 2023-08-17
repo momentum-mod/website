@@ -9,9 +9,6 @@ export interface MapCredit extends PrismaMapCredit {
   map?: MMap;
 }
 
-export type CreateMapCredit = Pick<MapCredit, 'userID' | 'type'>;
-
-export interface UpdateMapCredit {
-  userID: number;
-  type: number;
+export interface CreateMapCredit extends Pick<MapCredit, 'type'> {
+  description?: string;
 }
