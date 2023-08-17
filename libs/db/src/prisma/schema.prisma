@@ -217,9 +217,7 @@ model MMap {
 }
 
 model MapCredit {
-  id Int @id @default(autoincrement())
-
-  type Int @db.SmallInt /// map-credit-type.enum.ts
+  type        Int     @db.SmallInt /// map-credit-type.enum.ts
 
   mmap  MMap @relation(fields: [mapID], references: [id], onDelete: Cascade)
   mapID Int
@@ -227,10 +225,8 @@ model MapCredit {
   user   User @relation(fields: [userID], references: [id], onDelete: Cascade)
   userID Int
 
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  @@index([mapID, userID])
+  @@id([mapID, userID])
+  @@index([mapID])
 }
 
 model MapFavorite {
