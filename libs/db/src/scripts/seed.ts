@@ -155,6 +155,7 @@ async function main(prisma: PrismaClient) {
           type: type ?? Random.enumValue(MapCreditType),
           mapID: mapID,
           userID: userID,
+          description: faker.lorem.words({ min: 1, max: 2 })
         }
       });
     } catch {} // Ignore any creates that violate uniqueness

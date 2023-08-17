@@ -436,7 +436,13 @@ describe('Maps', () => {
             numTracks: 1,
             creationDate: '2022-07-07T18:33:33.000Z'
           },
-          credits: [{ userID: user.id, type: MapCreditType.AUTHOR }],
+          credits: [
+            {
+              userID: user.id,
+              type: MapCreditType.AUTHOR,
+              description: 'Walrus'
+            }
+          ],
           tracks: Array.from({ length: 2 }, (_, i) => ({
             trackNum: i,
             numZones: 1,
@@ -509,6 +515,7 @@ describe('Maps', () => {
           expect(createdMap.submitterID).toBe(user.id);
           expect(createdMap.credits[0].userID).toBe(user.id);
           expect(createdMap.credits[0].type).toBe(MapCreditType.AUTHOR);
+          expect(createdMap.credits[0].description).toBe('Walrus');
           expect(createdMap.tracks).toHaveLength(2);
           expect(createdMap.mainTrack.id).toBe(
             createdMap.tracks.find((track) => track.trackNum === 0).id
@@ -1424,6 +1431,7 @@ describe('Maps', () => {
           {
             type: MapCreditType.AUTHOR,
             userID: u2.id,
+            description: 'My hairdresser'
           }
         ];
       });
@@ -1439,11 +1447,14 @@ describe('Maps', () => {
           token: u1Token
         });
 
-        expect(res).toMatchObject({
-          userID: u2.id,
-          mapID: map.id,
-          user: { id: u2.id } // Check we include the user
-        });
+        expect(res.body).toMatchObject([
+          {
+            userID: u2.id,
+            mapID: map.id,
+            user: { id: u2.id } // Check we include the user
+          }
+        ]);
+
         const credit = await prisma.mapCredit.findFirst();
         expect(credit).toMatchObject({ userID: u2.id, mapID: map.id });
       });
@@ -1476,10 +1487,12 @@ describe('Maps', () => {
             {
               userID: u3.id,
               type: MapCreditType.CONTRIBUTOR,
+              description: 'Emotional support'
             },
             {
               userID: u1.id,
               type: MapCreditType.CONTRIBUTOR,
+              description: 'Physical support'
             }
           ],
           validateArray: MapCreditDto,
@@ -1518,10 +1531,12 @@ describe('Maps', () => {
             {
               userID: u3.id,
               type: MapCreditType.CONTRIBUTOR,
+              description: 'Culinary support'
             },
             {
               userID: u4.id,
               type: MapCreditType.CONTRIBUTOR,
+              description: 'Legal support'
             }
           ],
           validateArray: MapCreditDto,
@@ -1750,9 +1765,17 @@ describe('Maps', () => {
           body: [{ userID: u2.id, type: MapCreditType.TESTER }],
           token: u1Token
         }));
+
+      it('should 400 if the description is too long', () =>
+        req.put({
           url: `maps/${map.id}/credits`,
           status: 400,
-          body: { userID: u2.id },
+          body: {
+            userID: u2.id,
+            type: MapCreditType.AUTHOR,
+            description:
+              'Momentum Man; The fabled master of every gamemode, with more records than ever seen. Scientist, lover, Source movement legend. But how did he die? Follow in his footsteps, unlock the mystery.'
+          },
           token: u1Token
         }));
 

@@ -218,6 +218,7 @@ model MMap {
 
 model MapCredit {
   type        Int     @db.SmallInt /// map-credit-type.enum.ts
+  description String?
 
   mmap  MMap @relation(fields: [mapID], references: [id], onDelete: Cascade)
   mapID Int

@@ -306,7 +306,8 @@ export class MapsService {
           data: mapCreateDto.credits.map((credit) => {
             return {
               type: credit.type,
-              userID: credit.userID
+              userID: credit.userID,
+              description: credit.description
             };
           })
         }
