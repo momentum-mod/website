@@ -24,6 +24,7 @@ import {
   FileStoreUtil,
   RequestUtil
 } from '@momentum/backend/test-utils';
+import { VALIDATION_PIPE_CONFIG } from '@momentum/backend/dto';
 
 export interface E2EUtils {
   app: NestFastifyApplication;
@@ -74,14 +75,7 @@ export async function setupE2ETestEnvironment(
 
   // Anything put in a query/body that doesn't correspond to a
   // decorator-validated property on the DTO will error.
-  app.useGlobalPipes(
-    new ValidationPipe({
-      transform: true,
-      forbidUnknownValues: true,
-      whitelist: true,
-      forbidNonWhitelisted: true
-    })
-  );
+  app.useGlobalPipes(new ValidationPipe(VALIDATION_PIPE_CONFIG));
   app.useGlobalInterceptors(new ClassSerializerInterceptor(app.get(Reflector)));
 
   const configService = app.get(ConfigService);

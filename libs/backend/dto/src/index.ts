@@ -3,3 +3,4 @@
 export * from './dtos';
 export * from './queries';
 export * from './functions';
+export * from './validation-pipe-config';
