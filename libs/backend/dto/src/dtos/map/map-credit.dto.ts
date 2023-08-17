@@ -5,20 +5,24 @@ import {
 } from '@momentum/constants';
 import { UserDto } from '../user/user.dto';
 import { MapDto } from './map.dto';
-import { PickType } from '@nestjs/swagger';
-import {
-  CreatedAtProperty,
-  EnumProperty,
-  IdProperty,
-  NestedProperty,
-  UpdatedAtProperty
-} from '../../decorators';
+import { ApiProperty, PickType } from '@nestjs/swagger';
+import { EnumProperty, IdProperty, NestedProperty } from '../../decorators';
 import { MapCreditType } from '@momentum/constants';
 import { Exclude, Expose } from 'class-transformer';
+import { IsOptional, IsString, MaxLength } from 'class-validator';
 
 export class MapCreditDto implements MapCredit {
   @EnumProperty(MapCreditType)
   readonly type: MapCreditType;
+
+  @ApiProperty({
+    description: "Description of the user's contribution",
+    example: 'Stage 3'
+  })
+  @IsString()
+  @IsOptional()
+  @MaxLength(MAX_CREDIT_DESCRIPTION_LENGTH)
+  readonly description: string;
 
   @IdProperty()
   readonly userID: number;
@@ -40,5 +44,5 @@ export class MapCreditDto implements MapCredit {
 }
 
 export class CreateMapCreditDto
-  extends PickType(MapCreditDto, ['userID', 'type'] as const)
+  extends PickType(MapCreditDto, ['userID', 'type', 'description'] as const)
   implements CreateMapCredit {}
