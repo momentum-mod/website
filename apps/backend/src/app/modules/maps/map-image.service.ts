@@ -3,6 +3,7 @@ import {
   BadRequestException,
   ConflictException,
   ForbiddenException,
+  Inject,
   Injectable,
   NotFoundException
 } from '@nestjs/common';
@@ -10,14 +11,16 @@ import { DtoFactory, MapImageDto } from '@momentum/backend/dto';
 import { MapStatus } from '@momentum/constants';
 import { FileStoreCloudFile } from '../filestore/file-store.interface';
 import sharp from 'sharp';
-import { DbService } from '../database/db.service';
 import { FileStoreCloudService } from '../filestore/file-store-cloud.service';
 import { ConfigService } from '@nestjs/config';
+import { EXTENDED_PRISMA_SERVICE } from '../database/db.constants';
+import { ExtendedPrismaService } from '../database/prisma.extension';
 
 @Injectable()
 export class MapImageService {
   constructor(
-    private readonly db: DbService,
+    @Inject(EXTENDED_PRISMA_SERVICE) private readonly db: ExtendedPrismaService,
+
     private readonly fileCloudService: FileStoreCloudService,
     private readonly config: ConfigService
   ) {}

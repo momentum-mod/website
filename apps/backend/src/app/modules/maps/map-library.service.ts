@@ -1,13 +1,17 @@
 import {
   BadRequestException,
+  Inject,
   Injectable,
   NotFoundException
 } from '@nestjs/common';
-import { DbService } from '../database/db.service';
+import { EXTENDED_PRISMA_SERVICE } from '../database/db.constants';
+import { ExtendedPrismaService } from '../database/prisma.extension';
 
 @Injectable()
 export class MapLibraryService {
-  constructor(private readonly db: DbService) {}
+  constructor(
+    @Inject(EXTENDED_PRISMA_SERVICE) private readonly db: ExtendedPrismaService
+  ) {}
 
   async isMapInLibrary(userID: number, mapID: number) {
     if (!(await this.db.mMap.exists({ where: { id: mapID } })))

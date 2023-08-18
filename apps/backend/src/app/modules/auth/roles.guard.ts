@@ -1,13 +1,22 @@
 ﻿import { ROLES_KEY } from '@momentum/backend/decorators';
 import { Role } from '@momentum/constants';
-import { Injectable, CanActivate, ExecutionContext } from '@nestjs/common';
+import {
+  Injectable,
+  CanActivate,
+  ExecutionContext,
+  Inject
+} from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 import { Bitflags } from '@momentum/bitflags';
-import { DbService } from '../database/db.service';
+import { EXTENDED_PRISMA_SERVICE } from '../database/db.constants';
+import { ExtendedPrismaService } from '../database/prisma.extension';
 
 @Injectable()
 export class RolesGuard implements CanActivate {
-  constructor(private reflector: Reflector, private readonly db: DbService) {}
+  constructor(
+    private reflector: Reflector,
+    @Inject(EXTENDED_PRISMA_SERVICE) private readonly db: ExtendedPrismaService
+  ) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
     const requiredRoles = this.reflector.getAllAndOverride<Role[]>(ROLES_KEY, [

@@ -7,7 +7,7 @@ import { SteamModule } from '../steam/steam.module';
 import { RunsModule } from '../runs/runs.module';
 
 @Module({
-  imports: [DbModule, SteamModule, RunsModule, FileStoreModule],
+  imports: [DbModule.forRoot(), SteamModule, RunsModule, FileStoreModule],
   controllers: [UsersController],
   providers: [UsersService],
   exports: [UsersService]

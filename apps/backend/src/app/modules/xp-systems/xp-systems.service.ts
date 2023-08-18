@@ -9,9 +9,10 @@ import {
   RankXpParams,
   XpSystems
 } from '@momentum/constants';
-import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
+import { Inject, Injectable, Logger, OnModuleInit } from '@nestjs/common';
 import { instanceToPlain } from 'class-transformer';
-import { DbService } from '../database/db.service';
+import { EXTENDED_PRISMA_SERVICE } from '../database/db.constants';
+import { ExtendedPrismaService } from '../database/prisma.extension';
 
 const DEFAULT_RANK_XP: RankXpParams = {
   top10: {
@@ -63,7 +64,9 @@ const DEFAULT_COS_XP: CosXpParams = {
 
 @Injectable()
 export class XpSystemsService implements OnModuleInit {
-  constructor(private readonly db: DbService) {}
+  constructor(
+    @Inject(EXTENDED_PRISMA_SERVICE) private readonly db: ExtendedPrismaService
+  ) {}
 
   private readonly logger = new Logger('XP Systems');
 

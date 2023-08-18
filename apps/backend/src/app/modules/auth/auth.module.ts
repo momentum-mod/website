@@ -20,7 +20,7 @@ import { SteamOpenIDService } from './steam/steam-openid.service';
       inject: [ConfigService]
     }),
     UsersModule,
-    DbModule,
+    DbModule.forRoot(),
     SteamModule
   ],
   controllers: [AuthController],

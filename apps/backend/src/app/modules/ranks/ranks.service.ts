@@ -1,5 +1,6 @@
 import {
   ImATeapotException,
+  Inject,
   Injectable,
   NotFoundException
 } from '@nestjs/common';
@@ -12,12 +13,14 @@ import {
   PagedResponseDto,
   RankDto
 } from '@momentum/backend/dto';
-import { DbService } from '../database/db.service';
+import { EXTENDED_PRISMA_SERVICE } from '../database/db.constants';
+import { ExtendedPrismaService } from '../database/prisma.extension';
 
 @Injectable()
 export class RanksService {
   constructor(
-    private readonly db: DbService,
+    @Inject(EXTENDED_PRISMA_SERVICE) private readonly db: ExtendedPrismaService,
+
     private readonly steamService: SteamService
   ) {}
   async getRanks(

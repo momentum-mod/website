@@ -1,5 +1,6 @@
 import {
   BadRequestException,
+  Inject,
   Injectable,
   NotFoundException
 } from '@nestjs/common';
@@ -13,12 +14,14 @@ import {
   RunDto,
   RunsGetAllQueryDto
 } from '@momentum/backend/dto';
-import { DbService } from '../database/db.service';
+import { EXTENDED_PRISMA_SERVICE } from '../database/db.constants';
+import { ExtendedPrismaService } from '../database/prisma.extension';
 
 @Injectable()
 export class RunsService {
   constructor(
-    private readonly db: DbService,
+    @Inject(EXTENDED_PRISMA_SERVICE) private readonly db: ExtendedPrismaService,
+
     private readonly configService: ConfigService,
     private readonly fileCloudService: FileStoreCloudService
   ) {}

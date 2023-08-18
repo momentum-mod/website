@@ -5,7 +5,7 @@ import { DbModule } from '../database/db.module';
 import { FileStoreModule } from '../filestore/file-store.module';
 
 @Module({
-  imports: [DbModule, FileStoreModule],
+  imports: [DbModule.forRoot(), FileStoreModule],
   controllers: [RunsController],
   providers: [RunsService],
   exports: [RunsService]

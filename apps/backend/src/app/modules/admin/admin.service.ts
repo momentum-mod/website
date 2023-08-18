@@ -2,6 +2,7 @@ import {
   BadRequestException,
   ConflictException,
   ForbiddenException,
+  Inject,
   Injectable,
   NotFoundException
 } from '@nestjs/common';
@@ -18,11 +19,14 @@ import {
 } from '@momentum/backend/dto';
 import { Bitflags } from '@momentum/bitflags';
 import { Role } from '@momentum/constants';
-import { DbService } from '../database/db.service';
+import { EXTENDED_PRISMA_SERVICE } from '../database/db.constants';
+import { ExtendedPrismaService } from '../database/prisma.extension';
 
 @Injectable()
 export class AdminService {
-  constructor(private readonly db: DbService) {}
+  constructor(
+    @Inject(EXTENDED_PRISMA_SERVICE) private readonly db: ExtendedPrismaService
+  ) {}
 
   async createPlaceholderUser(alias: string): Promise<UserDto> {
     return DtoFactory(
