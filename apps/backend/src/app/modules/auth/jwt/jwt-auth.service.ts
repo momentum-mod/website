@@ -1,4 +1,5 @@
 import {
+  Inject,
   Injectable,
   InternalServerErrorException,
   UnauthorizedException
@@ -16,12 +17,14 @@ import {
   UserJwtPayload,
   UserJwtPayloadVerified
 } from '../auth.interface';
-import { DbService } from '../../database/db.service';
+import { EXTENDED_PRISMA_SERVICE } from '../../database/db.constants';
+import { ExtendedPrismaService } from '../../database/prisma.extension';
 
 @Injectable()
 export class JwtAuthService {
   constructor(
-    private readonly db: DbService,
+    @Inject(EXTENDED_PRISMA_SERVICE) private readonly db: ExtendedPrismaService,
+
     private readonly jwtService: JwtService,
     private readonly config: ConfigService
   ) {}

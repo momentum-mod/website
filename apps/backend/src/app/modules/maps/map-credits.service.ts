@@ -2,6 +2,7 @@ import {
   BadRequestException,
   ConflictException,
   ForbiddenException,
+  Inject,
   Injectable,
   NotFoundException
 } from '@nestjs/common';
@@ -20,11 +21,14 @@ import {
   MapStatus,
   Role
 } from '@momentum/constants';
-import { DbService } from '../database/db.service';
+import { EXTENDED_PRISMA_SERVICE } from '../database/db.constants';
+import { ExtendedPrismaService } from '../database/prisma.extension';
 
 @Injectable()
 export class MapCreditsService {
-  constructor(private readonly db: DbService) {}
+  constructor(
+    @Inject(EXTENDED_PRISMA_SERVICE) private readonly db: ExtendedPrismaService
+  ) {}
 
   async getCredits(mapID: number, expand: string[]): Promise<MapCreditDto[]> {
     if (!(await this.db.mMap.exists({ where: { id: mapID } })))

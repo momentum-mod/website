@@ -2,6 +2,7 @@ import {
   BadRequestException,
   ConflictException,
   ForbiddenException,
+  Inject,
   Injectable,
   InternalServerErrorException,
   NotFoundException,
@@ -36,12 +37,13 @@ import { SteamUserSummaryData } from '../steam/steam.interface';
 import { ActivityType, Ban, Role } from '@momentum/constants';
 import { Bitflags } from '@momentum/bitflags';
 import { isEmpty } from 'lodash';
-import { DbService } from '../database/db.service';
+import { EXTENDED_PRISMA_SERVICE } from '../database/db.constants';
+import { ExtendedPrismaService } from '../database/prisma.extension';
 
 @Injectable()
 export class UsersService {
   constructor(
-    private readonly db: DbService,
+    @Inject(EXTENDED_PRISMA_SERVICE) private readonly db: ExtendedPrismaService,
     private readonly steamService: SteamService,
     private readonly config: ConfigService
   ) {}

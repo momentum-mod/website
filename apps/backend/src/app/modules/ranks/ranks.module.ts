@@ -4,7 +4,7 @@ import { SteamModule } from '../steam/steam.module';
 import { RanksService } from './ranks.service';
 
 @Module({
-  imports: [DbModule, SteamModule],
+  imports: [DbModule.forRoot(), SteamModule],
   providers: [RanksService],
   exports: [RanksService]
 })

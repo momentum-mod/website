@@ -15,7 +15,7 @@ import { MapSubmissionService } from './map-submission.service';
 
 @Module({
   imports: [
-    DbModule,
+    DbModule.forRoot(),
     FileStoreModule,
     SteamModule,
     SessionModule,

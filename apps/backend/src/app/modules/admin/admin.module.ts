@@ -7,7 +7,7 @@ import { XpSystemsModule } from '../xp-systems/xp-systems.module';
 import { UsersModule } from '../users/users.module';
 
 @Module({
-  imports: [DbModule, MapsModule, XpSystemsModule, UsersModule],
+  imports: [DbModule.forRoot(), MapsModule, XpSystemsModule, UsersModule],
   controllers: [AdminController],
   providers: [AdminService]
 })

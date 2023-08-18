@@ -1,5 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
-import { DbService } from '../database/db.service';
+import { Inject, Injectable, NotFoundException } from '@nestjs/common';
 import {
   MapReviewDto,
   MapReviewsGetQueryDto,
@@ -8,10 +7,16 @@ import {
 } from '@momentum/backend/dto';
 import { Role } from '@momentum/constants';
 import { Prisma } from '@prisma/client';
+import { EXTENDED_PRISMA_SERVICE } from '../database/db.constants';
+import { ExtendedPrismaService } from '../database/prisma.extension';
+import { MapsService } from './maps.service';
 
 @Injectable()
 export class MapReviewService {
-  constructor(private readonly db: DbService) {}
+  constructor(
+    @Inject(EXTENDED_PRISMA_SERVICE) private readonly db: ExtendedPrismaService,
+    private readonly mapsService: MapsService
+  ) {}
 
   async getReviews(
     mapID: number,

@@ -6,7 +6,7 @@ import { XpSystemsModule } from '../xp-systems/xp-systems.module';
 import { SessionController } from './session.controller';
 
 @Module({
-  imports: [DbModule, FileStoreModule, XpSystemsModule],
+  imports: [DbModule.forRoot(), FileStoreModule, XpSystemsModule],
   controllers: [SessionController],
   providers: [RunSessionService]
 })

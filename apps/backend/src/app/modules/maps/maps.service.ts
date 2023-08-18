@@ -2,6 +2,7 @@ import {
   BadRequestException,
   ConflictException,
   ForbiddenException,
+  Inject,
   Injectable,
   NotFoundException,
   StreamableFile
@@ -32,13 +33,14 @@ import {
 } from '@momentum/backend/dto';
 import { ActivityType, MapCreditType, MapStatus } from '@momentum/constants';
 import { isEmpty } from 'lodash';
-import { DbService } from '../database/db.service';
 import { MapImageService } from './map-image.service';
+import { EXTENDED_PRISMA_SERVICE } from '../database/db.constants';
+import { ExtendedPrismaService } from '../database/prisma.extension';
 
 @Injectable()
 export class MapsService {
   constructor(
-    private readonly db: DbService,
+    @Inject(EXTENDED_PRISMA_SERVICE) private readonly db: ExtendedPrismaService,
     private readonly fileCloudService: FileStoreCloudService,
     private readonly config: ConfigService,
     private readonly runsService: RunsService,

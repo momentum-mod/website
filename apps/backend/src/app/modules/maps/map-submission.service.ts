@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Inject, Injectable, NotFoundException } from '@nestjs/common';
 import {
   DtoFactory,
   expandToPrismaIncludes,
@@ -7,11 +7,14 @@ import {
   PagedResponseDto
 } from '@momentum/backend/dto';
 import { Prisma } from '@prisma/client';
-import { DbService } from '../database/db.service';
+import { EXTENDED_PRISMA_SERVICE } from '../database/db.constants';
+import { ExtendedPrismaService } from '../database/prisma.extension';
 
 @Injectable()
 export class MapSubmissionService {
-  constructor(private readonly db: DbService) {}
+  constructor(
+    @Inject(EXTENDED_PRISMA_SERVICE) private readonly db: ExtendedPrismaService
+  ) {}
 
   async getSubmittedMaps(
     userID: number,

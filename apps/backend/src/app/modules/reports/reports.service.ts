@@ -1,13 +1,15 @@
-import { Injectable } from '@nestjs/common';
+import { Inject, Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { ConflictException } from '@nestjs/common/exceptions/conflict.exception';
 import { CreateReportDto, DtoFactory, ReportDto } from '@momentum/backend/dto';
-import { DbService } from '../database/db.service';
+import { EXTENDED_PRISMA_SERVICE } from '../database/db.constants';
+import { ExtendedPrismaService } from '../database/prisma.extension';
 
 @Injectable()
 export class ReportsService {
   constructor(
-    private readonly db: DbService,
+    @Inject(EXTENDED_PRISMA_SERVICE) private readonly db: ExtendedPrismaService,
+
     private readonly config: ConfigService
   ) {}
 

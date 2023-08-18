@@ -11,13 +11,14 @@ import {
   FastifyAdapter,
   NestFastifyApplication
 } from '@nestjs/platform-fastify';
-import { DbService } from './app/modules/database/db.service';
 import { Environment } from '@momentum/backend/config';
 import cookie from '@fastify/cookie';
 import helmet from '@fastify/helmet';
 import cors from '@fastify/cors';
 import { FastifyReply } from 'fastify';
 import { VALIDATION_PIPE_CONFIG } from '@momentum/backend/dto';
+import { EXTENDED_PRISMA_SERVICE } from './app/modules/database/db.constants';
+import { ExtendedPrismaService } from './app/modules/database/prisma.extension';
 
 async function bootstrap() {
   // Transforms `BigInt`s to strings in JSON.stringify, for cases that haven't
@@ -110,7 +111,7 @@ async function bootstrap() {
 
   // Hooks to ensure Nest and Prisma both shut down cleanly on exit
   // https://docs.nestjs.com/recipes/prisma#issues-with-enableshutdownhooks
-  const prismaDalc: DbService = app.get(DbService);
+  const prismaDalc: ExtendedPrismaService = app.get(EXTENDED_PRISMA_SERVICE);
   await prismaDalc.enableShutdownHooks(app);
 
   // Swagger stuff

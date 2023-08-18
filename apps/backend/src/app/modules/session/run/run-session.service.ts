@@ -1,6 +1,7 @@
 import {
   BadRequestException,
   ForbiddenException,
+  Inject,
   Injectable,
   Logger
 } from '@nestjs/common';
@@ -32,12 +33,14 @@ import {
 } from './run-session.interface';
 import { ActivityType, RunValidationError } from '@momentum/constants';
 import { BaseStats } from '@momentum/replay';
-import { DbService } from '../../database/db.service';
+import { EXTENDED_PRISMA_SERVICE } from '../../database/db.constants';
+import { ExtendedPrismaService } from '../../database/prisma.extension';
 
 @Injectable()
 export class RunSessionService {
   constructor(
-    private readonly db: DbService,
+    @Inject(EXTENDED_PRISMA_SERVICE) private readonly db: ExtendedPrismaService,
+
     private readonly fileCloudService: FileStoreCloudService,
     private readonly xpSystems: XpSystemsService
   ) {}
