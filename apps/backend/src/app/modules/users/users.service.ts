@@ -312,8 +312,7 @@ export class UsersService {
       runSessions: { deleteMany: {} }
     };
 
-    // TODO: Use this.db.$transaction instead of Promise.all
-    await Promise.all([
+    await this.db.$transaction([
       this.db.user.update({
         where: { id: userID },
         data: updateInputToClean

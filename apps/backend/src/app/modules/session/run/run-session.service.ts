@@ -34,13 +34,15 @@ import {
 import { ActivityType, RunValidationError } from '@momentum/constants';
 import { BaseStats } from '@momentum/replay';
 import { EXTENDED_PRISMA_SERVICE } from '../../database/db.constants';
-import { ExtendedPrismaService } from '../../database/prisma.extension';
+import {
+  ExtendedPrismaService,
+  ExtendedPrismaServiceTransaction
+} from '../../database/prisma.extension';
 
 @Injectable()
 export class RunSessionService {
   constructor(
     @Inject(EXTENDED_PRISMA_SERVICE) private readonly db: ExtendedPrismaService,
-
     private readonly fileCloudService: FileStoreCloudService,
     private readonly xpSystems: XpSystemsService
   ) {}
@@ -173,11 +175,14 @@ export class RunSessionService {
       user
     );
 
-    return this.saveSubmittedRun(
-      processedRun,
-      session.track,
-      session.track.mmap.type,
-      replay
+    return this.db.$transaction((tx) =>
+      this.saveSubmittedRun(
+        tx,
+        processedRun,
+        session.track,
+        session.track.mmap.type,
+        replay
+      )
     );
   }
 
@@ -216,6 +221,7 @@ export class RunSessionService {
   }
 
   private async saveSubmittedRun(
+    tx: ExtendedPrismaServiceTransaction,
     submittedRun: ProcessedRun,
     track: MapTrack & { zones: MapZone[] },
     mapType: number,
@@ -224,8 +230,8 @@ export class RunSessionService {
     // We have two quite expensive, independent operations here, including a
     // file store. So we may as well run in parallel and await them both.
     const [statsUpdate, savedRun] = await Promise.all([
-      await this.updateStatsAndRanks(submittedRun, track, mapType),
-      await this.createAndStoreRun(submittedRun, replayBuffer)
+      await this.updateStatsAndRanks(tx, submittedRun, track, mapType),
+      await this.createAndStoreRun(tx, submittedRun, replayBuffer)
     ]);
 
     // Now the run is back we can actually update the rank. We could use a
@@ -234,7 +240,7 @@ export class RunSessionService {
     let mapRank;
     if (statsUpdate.isPersonalBest)
       mapRank = await (statsUpdate.existingRank
-        ? this.db.rank.update({
+        ? tx.rank.update({
             where: { runID: statsUpdate.existingRank.runID },
             data: {
               run: { connect: { id: savedRun.id } },
@@ -242,7 +248,7 @@ export class RunSessionService {
               rankXP: statsUpdate.rankCreate.rankXP
             }
           })
-        : this.db.rank.create({
+        : tx.rank.create({
             data: {
               ...statsUpdate.rankCreate,
               run: { connect: { id: savedRun.id } }
@@ -252,7 +258,7 @@ export class RunSessionService {
     else mapRank = statsUpdate.existingRank;
 
     if (statsUpdate.isWorldRecord) {
-      await this.db.activity.create({
+      await tx.activity.create({
         data: {
           type: ActivityType.WR_ACHIEVED,
           userID: submittedRun.userID,
@@ -260,7 +266,7 @@ export class RunSessionService {
         }
       });
     } else if (statsUpdate.isPersonalBest) {
-      await this.db.activity.create({
+      await tx.activity.create({
         data: {
           type: ActivityType.PB_ACHIEVED,
           userID: submittedRun.userID,
@@ -280,6 +286,7 @@ export class RunSessionService {
   }
 
   private async updateStatsAndRanks(
+    tx: ExtendedPrismaServiceTransaction,
     submittedRun: ProcessedRun,
     track: MapTrack & { zones: MapZone[] },
     mapType: number
@@ -295,7 +302,7 @@ export class RunSessionService {
     // the actual Run entry we need it to key into
     let rankCreate: Prisma.RankCreateWithoutRunInput | undefined;
 
-    const existingRank = await this.db.rank.findFirst({
+    const existingRank = await tx.rank.findFirst({
       where: {
         ...rankWhere,
         userID: submittedRun.userID,
@@ -313,7 +320,7 @@ export class RunSessionService {
 
     let isWorldRecord = false;
     if (isPersonalBest) {
-      const existingWorldRecord = await this.db.rank.findFirst({
+      const existingWorldRecord = await tx.rank.findFirst({
         where: {
           rank: 1,
           mapID: submittedRun.mapID,
@@ -343,7 +350,7 @@ export class RunSessionService {
     if (isTrackRun) {
       hasCompletedZoneBefore = hasCompletedTrackBefore;
     } else {
-      const existingRunZoneStats = await this.db.runZoneStats.findFirst({
+      const existingRunZoneStats = await tx.runZoneStats.findFirst({
         where: {
           zoneNum: submittedRun.zoneNum,
           run: {
@@ -374,7 +381,7 @@ export class RunSessionService {
       if (!hasCompletedTrackBefore)
         trackStatsUpdate.uniqueCompletions = { increment: 1 };
 
-      await this.db.mapTrackStats.update({
+      await tx.mapTrackStats.update({
         where: { trackID: track.id },
         data: trackStatsUpdate
       });
@@ -397,7 +404,7 @@ export class RunSessionService {
             if (!hasCompletedZoneBefore)
               zoneStatsUpdate.uniqueCompletions = { increment: 1 };
 
-            await this.db.mapZoneStats.update({
+            await tx.mapZoneStats.update({
               where: { zoneID: zone.id },
               data: zoneStatsUpdate
             });
@@ -417,7 +424,7 @@ export class RunSessionService {
 
         if (!existingRun) mapStatsUpdate.uniqueCompletions = { increment: 1 };
 
-        await this.db.mapStats.update({
+        await tx.mapStats.update({
           where: { mapID: submittedRun.mapID },
           data: mapStatsUpdate
         });
@@ -441,7 +448,7 @@ export class RunSessionService {
       if (!hasCompletedZoneBefore)
         zoneStatsUpdate.uniqueCompletions = { increment: 1 };
 
-      await this.db.mapZoneStats.update({
+      await tx.mapZoneStats.update({
         where: { zoneID: zone.id },
         data: zoneStatsUpdate
       });
@@ -454,10 +461,10 @@ export class RunSessionService {
     if (isPersonalBest) {
       // If we don't have a rank we increment +1 since we want the total
       // *after* we've added the new run
-      let totalRuns = await this.db.rank.count({ where: rankWhere });
+      let totalRuns = await tx.rank.count({ where: rankWhere });
       if (!existingRank) totalRuns++;
 
-      const fasterRuns = await this.db.rank.count({
+      const fasterRuns = await tx.rank.count({
         where: {
           ...rankWhere,
           run: { ticks: { lte: submittedRun.ticks } }
@@ -483,7 +490,7 @@ export class RunSessionService {
         ? { gte: rank, lt: oldRank }
         : { gte: rank };
 
-      const ranks = await this.db.rank.findMany({
+      const ranks = await tx.rank.findMany({
         where: { ...rankWhere, rank: rankRangeWhere },
         select: {
           rank: true,
@@ -500,7 +507,7 @@ export class RunSessionService {
 
       await Promise.all(
         ranks.map((rank) =>
-          this.db.rank.updateMany({
+          tx.rank.updateMany({
             where: {
               ...rankWhere,
               userID: rank.userID,
@@ -547,7 +554,7 @@ export class RunSessionService {
       submittedRun.zoneNum > 0
     );
 
-    const userStats = await this.db.userStats.findUnique({
+    const userStats = await tx.userStats.findUnique({
       where: { userID: submittedRun.userID }
     });
 
@@ -586,7 +593,7 @@ export class RunSessionService {
       }
     };
 
-    await this.db.userStats.update({
+    await tx.userStats.update({
       where: { userID: submittedRun.userID },
       data: {
         totalJumps: { increment: submittedRun.overallStats.jumps },
@@ -610,10 +617,11 @@ export class RunSessionService {
   }
 
   private async createAndStoreRun(
+    tx: ExtendedPrismaServiceTransaction,
     processedRun: ProcessedRun,
     buffer: Buffer
   ): Promise<Run> {
-    const run = await this.db.run.create({
+    const run = await tx.run.create({
       data: {
         user: { connect: { id: processedRun.userID } },
         mmap: { connect: { id: processedRun.mapID } },
@@ -649,7 +657,7 @@ export class RunSessionService {
           'runs/' + run.id
         );
 
-        await this.db.run.update({
+        await tx.run.update({
           where: { id: run.id },
           data: {
             file: uploadResult.fileKey,
@@ -659,7 +667,7 @@ export class RunSessionService {
       })(),
       // TODO: Pointless?
       ...run.zoneStats.map((zs) =>
-        this.db.runZoneStats.update({
+        tx.runZoneStats.update({
           where: { id: zs.id },
           data: {
             baseStats: {
@@ -672,7 +680,7 @@ export class RunSessionService {
       )
     ]);
 
-    return this.db.run.findUnique({
+    return tx.run.findUnique({
       where: { id: run.id },
       include: { overallStats: true, zoneStats: true }
     });

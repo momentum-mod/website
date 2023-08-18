@@ -490,31 +490,33 @@ export class MapsService {
 
     const previousStatus = map.status;
 
-    const updatedMap = await this.db.mMap.update({
-      where: { id: mapID },
-      data: { status: update.status }
+    await this.db.$transaction(async (tx) => {
+      const updatedMap = await tx.mMap.update({
+        where: { id: mapID },
+        data: { status: update.status }
+      });
+
+      if (
+        updatedMap.status !== previousStatus &&
+        previousStatus === MapStatus.PENDING &&
+        updatedMap.status === MapStatus.APPROVED
+      ) {
+        // status changed and map went from PENDING -> APPROVED
+        const allCredits = await tx.mapCredit.findMany({
+          where: { mapID, type: MapCreditType.AUTHOR }
+        });
+
+        await tx.activity.createMany({
+          data: allCredits.map(
+            (credit): Prisma.ActivityCreateManyInput => ({
+              type: ActivityType.MAP_APPROVED,
+              userID: credit.userID,
+              data: mapID
+            })
+          )
+        });
+      }
     });
-
-    if (
-      updatedMap.status !== previousStatus &&
-      previousStatus === MapStatus.PENDING &&
-      updatedMap.status === MapStatus.APPROVED
-    ) {
-      // status changed and map went from PENDING -> APPROVED
-      const allCredits = await this.db.mapCredit.findMany({
-        where: { mapID, type: MapCreditType.AUTHOR }
-      });
-
-      await this.db.activity.createMany({
-        data: allCredits.map(
-          (credit): Prisma.ActivityCreateManyInput => ({
-            type: ActivityType.MAP_APPROVED,
-            userID: credit.userID,
-            data: mapID
-          })
-        )
-      });
-    }
   }
 
   async delete(mapID: number): Promise<void> {
