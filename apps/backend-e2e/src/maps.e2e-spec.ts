@@ -22,6 +22,7 @@ import {
   MapDto,
   MapImageDto,
   MapInfoDto,
+  MapReviewDto,
   MapTrackDto,
   RankDto,
   UserDto
@@ -3134,6 +3135,125 @@ describe('Maps', () => {
         req.unauthorizedTest('maps/1/ranks/friends', 'get'));
 
       afterAll(() => db.cleanup('user', 'mMap', 'run'));
+    });
+  });
+
+  describe('maps/{mapID}/reviews', () => {
+    describe('GET', () => {
+      let u1, u1token, u2, u2token, mmap, reviewOfficial, reviewUnofficial;
+      beforeAll(async () => {
+        [[u1, u1token], [u2, u2token]] = await Promise.all([
+          db.createAndLoginUser({ data: { roles: Role.MAPPER } }),
+          db.createAndLoginUser({ data: { roles: Role.REVIEWER } })
+        ]);
+
+        mmap = await db.createMap({
+          status: MapStatus.PUBLIC_TESTING,
+          submitter: { connect: { id: u1.id } }
+        });
+
+        // official review
+        reviewOfficial = await prisma.mapReview.create({
+          data: {
+            mainText: 'Great map!',
+            suggestions: {},
+            mmap: { connect: { id: mmap.id } },
+            reviewer: { connect: { id: u2.id } },
+            resolved: true,
+            createdAt: undefined
+          }
+        });
+
+        // unofficial review
+        reviewUnofficial = await prisma.mapReview.create({
+          data: {
+            mainText: 'Wow, what a map.',
+            suggestions: {},
+            mmap: { connect: { id: mmap.id } },
+            reviewer: { connect: { id: u1.id } },
+            resolved: true,
+            createdAt: undefined
+          }
+        });
+      });
+
+      it('should return all reviews associated to the given map', async () => {
+        const response = await req.get({
+          url: `maps/${mmap.id}/reviews`,
+          status: 200,
+          validatePaged: { type: MapReviewDto, count: 2 },
+          token: u1token
+        });
+        expect(response.body.data[0]).toMatchObject({
+          mainText: 'Great map!',
+          mapID: mmap.id
+        });
+      });
+
+      it('should return the reviews associated to the given map expanding the map information', async () => {
+        await req.expandTest({
+          url: `maps/${mmap.id}/reviews`,
+          token: u1token,
+          expand: 'map',
+          validate: MapReviewDto,
+          paged: true,
+          expectedPropertyName: 'map'
+        });
+      });
+
+      it('should return the reviews associated to the given map expanding the author information', async () => {
+        await req.expandTest({
+          url: `maps/${mmap.id}/reviews`,
+          token: u1token,
+          expand: 'reviewer',
+          validate: MapReviewDto,
+          paged: true,
+          expectedPropertyName: 'reviewer'
+        });
+      });
+
+      it('should return the official reviews associated to the given map', async () => {
+        const response = await req.get({
+          url: `maps/${mmap.id}/reviews`,
+          status: 200,
+          validatePaged: { type: MapReviewDto, count: 1 },
+          query: { official: true },
+          token: u1token
+        });
+        expect(response.body.data[0]).toMatchObject({
+          mainText: reviewOfficial.mainText,
+          mapID: reviewOfficial.mapID
+        });
+      });
+
+      it('should return the unofficial reviews associated to the given map', async () => {
+        const response = await req.get({
+          url: `maps/${mmap.id}/reviews`,
+          status: 200,
+          validatePaged: { type: MapReviewDto, count: 1 },
+          query: { official: false },
+          token: u2token
+        });
+        expect(response.body.data[0]).toMatchObject({
+          mainText: reviewUnofficial.mainText,
+          mapID: reviewUnofficial.mapID
+        });
+      });
+
+      it('should return the official reviews including reviewers', async () => {
+        const response = await req.get({
+          url: `maps/${mmap.id}/reviews`,
+          status: 200,
+          validatePaged: { type: MapReviewDto, count: 1 },
+          query: { official: true, expand: 'reviewer' },
+          token: u1token
+        });
+        expect(response.body.data[0]).toHaveProperty('reviewer');
+        expect(response.body.data[0]).toMatchObject({
+          mainText: reviewOfficial.mainText,
+          mapID: reviewOfficial.mapID
+        });
+      });
     });
   });
 });
