@@ -1,4 +1,4 @@
-import { MapStatus, Gamemode } from '@momentum/constants';
+import { MapStatus, Gamemode, MapReviewsGetQuery } from '@momentum/constants';
 import {
   AdminMapsGetAllQuery,
   MapCreditsGetQuery,
@@ -148,4 +148,17 @@ export class MapRankGetNumberQueryDto
 
   @IntQueryProperty({ description: 'Rank flags', default: 0 })
   readonly flags?: number;
+}
+
+export class MapReviewsGetQueryDto
+  extends PagedQueryDto
+  implements MapReviewsGetQuery
+{
+  @BooleanQueryProperty({
+    description: 'Filter by official or unofficial reviews'
+  })
+  readonly official?: boolean;
+
+  @ExpandQueryProperty(['map', 'reviewer'])
+  readonly expand?: string[];
 }

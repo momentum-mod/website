@@ -13,6 +13,7 @@ export * from './map/map-track.dto';
 export * from './map/map-credit.dto';
 export * from './map/map-notify.dto';
 export * from './map/map-favorite.dto';
+export * from './map/map-review.dto';
 export * from './map/map-library-entry';
 export * from './report/report.dto';
 export * from './run/run.dto';

@@ -43,3 +43,8 @@ export type MapRankGetNumberQuery = {
   zoneNum?: number;
   flags?: number;
 };
+
+export type MapReviewsGetQuery = {
+  official?: boolean;
+  expand?: string[];
+};
