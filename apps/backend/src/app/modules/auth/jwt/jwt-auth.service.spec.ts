@@ -8,11 +8,15 @@ import {
   UserJwtAccessPayloadVerified,
   UserJwtPayloadVerified
 } from '../auth.interface';
-import { DbService } from '../../database/db.service';
-import { DeepMockProxy, mockDeep } from 'jest-mock-extended';
+import { mockDeep } from 'jest-mock-extended';
+import {
+  PRISMA_MOCK_PROVIDER,
+  PrismaMock
+} from '../../../../../test/prisma-mock.const';
+import { EXTENDED_PRISMA_SERVICE } from '../../database/db.constants';
 
 describe('JwtAuthService', () => {
-  let service: JwtAuthService, db: DeepMockProxy<DbService>;
+  let service: JwtAuthService, db: PrismaMock;
 
   const jwtSecret = 'Homer Simpson';
   const testJwtService = new JwtService({ secret: jwtSecret });
@@ -50,7 +54,7 @@ describe('JwtAuthService', () => {
   beforeAll(async () => {
     const module: TestingModule = await Test.createTestingModule({
       imports: [JwtModule.register({ secret: jwtSecret })],
-      providers: [JwtAuthService]
+      providers: [JwtAuthService, PRISMA_MOCK_PROVIDER]
     })
       .useMocker((token) => {
         if (token === ConfigService)
@@ -71,7 +75,7 @@ describe('JwtAuthService', () => {
       .compile();
 
     service = module.get(JwtAuthService);
-    db = module.get(DbService);
+    db = module.get(EXTENDED_PRISMA_SERVICE);
   });
 
   it('should be defined', () => {
