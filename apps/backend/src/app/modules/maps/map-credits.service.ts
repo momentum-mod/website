@@ -81,77 +81,77 @@ export class MapCreditsService {
 
     await this.checkCreditChangePermissions(map, loggedInUserID);
 
-    // TODO: Wrap in transaction!
-
     const oldCredits = map.credits;
 
-    // Since we don't care about `createdAt`/`updatedAt`s, by far the simplest
-    // approach to this is to delete existing credits, then insert again
-    // in order of the body array. That way, we get every item ordered in DB
-    // (so no need for complex ordering relations, which would be especially
-    // annoying on joins. Perhaps slightly slower, but not a common endpoint
-    // anyway.
-    await this.db.mapCredit.deleteMany({ where: { mapID } });
+    return await this.db.$transaction(async (tx) => {
+      // Since we don't care about `createdAt`/`updatedAt`s, by far the simplest
+      // approach to this is to delete existing credits, then insert again
+      // in order of the body array. That way, we get every item ordered in DB
+      // (so no need for complex ordering relations, which would be especially
+      // annoying on joins. Perhaps slightly slower, but not a common endpoint
+      // anyway.
+      await tx.mapCredit.deleteMany({ where: { mapID } });
 
-    const response = [];
+      const response: MapCreditDto[] = [];
 
-    try {
-      // Using loop instead of createMany as unsure if it guarantees correct
-      // creation order.
-      for (const credit of body) {
-        const newCredit = await this.db.mapCredit.create({
-          data: { mapID, ...credit },
-          include: { user: true }
-        });
-        response.push(DtoFactory(MapCreditDto, newCredit));
-
-        const oldCreditIdx = oldCredits.findIndex(
-          (c) => c.userID === newCredit.userID
-        );
-        const oldCredit = oldCredits[oldCreditIdx];
-
-        // If it's an author credit, create activity, unless credit already
-        // existed.
-        if (
-          newCredit.type === MapCreditType.AUTHOR &&
-          !(oldCredit?.type === MapCreditType.AUTHOR)
-        ) {
-          await this.db.activity.create({
-            data: {
-              type: ActivityType.MAP_UPLOADED,
-              data: newCredit.mapID,
-              userID: newCredit.userID
-            }
+      try {
+        // Using loop instead of createMany as unsure if it guarantees correct
+        // creation order.
+        for (const credit of body) {
+          const newCredit = await tx.mapCredit.create({
+            data: { mapID, ...credit },
+            include: { user: true }
           });
+          response.push(DtoFactory(MapCreditDto, newCredit));
+
+          const oldCreditIdx = oldCredits.findIndex(
+            (c) => c.userID === newCredit.userID
+          );
+          const oldCredit = oldCredits[oldCreditIdx];
+
+          // If it's an author credit, create activity, unless credit already
+          // existed.
+          if (
+            newCredit.type === MapCreditType.AUTHOR &&
+            !(oldCredit?.type === MapCreditType.AUTHOR)
+          ) {
+            await tx.activity.create({
+              data: {
+                type: ActivityType.MAP_UPLOADED,
+                data: newCredit.mapID,
+                userID: newCredit.userID
+              }
+            });
+          }
+
+          // Remove matching old credit, if exists
+          oldCredits.splice(oldCreditIdx, 1);
         }
 
-        // Remove matching old credit, if exists
-        oldCredits.splice(oldCreditIdx, 1);
+        // Any credits remaining in here have been deleted, so deleted any
+        // MAP_UPLOADED activities for author credits
+        for (const oldCredit of oldCredits) {
+          if (oldCredit.type === MapCreditType.AUTHOR)
+            await tx.activity.deleteMany({
+              where: {
+                type: ActivityType.MAP_UPLOADED,
+                data: oldCredit.mapID,
+                userID: oldCredit.userID
+              }
+            });
+        }
+      } catch (error) {
+        if (
+          error instanceof Prisma.PrismaClientKnownRequestError &&
+          error.code === 'P2002'
+        ) {
+          throw new ConflictException('Input contains duplicate users');
+        }
+        throw error;
       }
 
-      // Any credits remaining in here have been deleted, so deleted any
-      // MAP_UPLOADED activities for author credits
-      for (const oldCredit of oldCredits) {
-        if (oldCredit.type === MapCreditType.AUTHOR)
-          await this.db.activity.deleteMany({
-            where: {
-              type: ActivityType.MAP_UPLOADED,
-              data: oldCredit.mapID,
-              userID: oldCredit.userID
-            }
-          });
-      }
-    } catch (error) {
-      if (
-        error instanceof Prisma.PrismaClientKnownRequestError &&
-        error.code === 'P2002'
-      ) {
-        throw new ConflictException('Input contains duplicate users');
-      }
-      throw error;
-    }
-
-    return response;
+      return response;
+    });
   }
 
   private async checkCreditChangePermissions(map: MMap, userID: number) {

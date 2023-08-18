@@ -63,97 +63,99 @@ export class AdminService {
 
     if (!user) throw new BadRequestException('Merging user not found');
 
-    // Update credits to point to new ID
-    await this.db.mapCredit.updateMany({
-      where: { userID: placeholderID },
-      data: { userID }
-    });
-
-    // Now follows, hardest part.
-    // First edge case: delete the follow entry if the realUser is following
-    // the placeholder (can't follow yourself)
-    await this.db.follow.deleteMany({
-      where: { followedID: userID, followeeID: placeholderID }
-    });
-
-    // Update all the follows targeting the placeholder user
-    for (const follow of placeholder.followers) {
-      // We deleted the real user -> placeholder follow already but it can
-      // still be in this array
-      if (follow.followeeID === userID) continue;
-
-      // Second edge case: user(s) is (are) following both placeholder and real user
-      const overlappingFollow = await this.db.follow.findUnique({
-        where: {
-          followeeID_followedID: {
-            followeeID: follow.followeeID,
-            followedID: userID
-          }
-        },
-        include: { followed: true, followee: true }
+    return await this.db.$transaction(async (tx) => {
+      // Update credits to point to new ID
+      await tx.mapCredit.updateMany({
+        where: { userID: placeholderID },
+        data: { userID }
       });
 
-      if (overlappingFollow) {
-        const mergedNotifies = Bitflags.add(
-          overlappingFollow.notifyOn,
-          follow.notifyOn
-        );
+      // Now follows, hardest part.
+      // First edge case: delete the follow entry if the realUser is following
+      // the placeholder (can't follow yourself)
+      await tx.follow.deleteMany({
+        where: { followedID: userID, followeeID: placeholderID }
+      });
 
-        const earliestCreationDate = new Date(
-          Math.min(
-            overlappingFollow.createdAt.getTime(),
-            follow.createdAt.getTime()
-          )
-        );
+      // Update all the follows targeting the placeholder user
+      for (const follow of placeholder.followers) {
+        // We deleted the real user -> placeholder follow already but it can
+        // still be in this array
+        if (follow.followeeID === userID) continue;
 
-        await this.db.follow.update({
+        // Second edge case: user(s) is (are) following both placeholder and real user
+        const overlappingFollow = await tx.follow.findUnique({
           where: {
             followeeID_followedID: {
               followeeID: follow.followeeID,
               followedID: userID
             }
           },
-          data: { notifyOn: mergedNotifies, createdAt: earliestCreationDate }
+          include: { followed: true, followee: true }
         });
 
-        await this.db.follow.delete({
-          where: {
-            followeeID_followedID: {
-              followeeID: follow.followeeID,
-              followedID: placeholderID
+        if (overlappingFollow) {
+          const mergedNotifies = Bitflags.add(
+            overlappingFollow.notifyOn,
+            follow.notifyOn
+          );
+
+          const earliestCreationDate = new Date(
+            Math.min(
+              overlappingFollow.createdAt.getTime(),
+              follow.createdAt.getTime()
+            )
+          );
+
+          await tx.follow.update({
+            where: {
+              followeeID_followedID: {
+                followeeID: follow.followeeID,
+                followedID: userID
+              }
+            },
+            data: { notifyOn: mergedNotifies, createdAt: earliestCreationDate }
+          });
+
+          await tx.follow.delete({
+            where: {
+              followeeID_followedID: {
+                followeeID: follow.followeeID,
+                followedID: placeholderID
+              }
             }
-          }
-        });
+          });
+        }
+        // If they don't overlap, just move the followedID
+        else {
+          await tx.follow.update({
+            where: {
+              followeeID_followedID: {
+                followeeID: follow.followeeID,
+                followedID: placeholderID
+              }
+            },
+            data: { followed: { connect: { id: userID } } }
+          });
+        }
       }
-      // If they don't overlap, just move the followedID
-      else {
-        await this.db.follow.update({
-          where: {
-            followeeID_followedID: {
-              followeeID: follow.followeeID,
-              followedID: placeholderID
-            }
-          },
-          data: { followed: { connect: { id: userID } } }
-        });
-      }
-    }
 
-    // Finally, activities.
-    await this.db.activity.updateMany({
-      where: { userID: placeholderID },
-      data: { userID }
+      // Finally, activities.
+      await tx.activity.updateMany({
+        where: { userID: placeholderID },
+        data: { userID }
+      });
+
+      // Delete the placeholder
+      await tx.user.delete({ where: { id: placeholderID } });
+
+      // Fetch the merged user now everything's done
+      const mergedUserDbResponse = await tx.user.findUnique({
+        where: { id: userID }
+      });
+
+      return DtoFactory(UserDto, mergedUserDbResponse);
     });
-
-    // Delete the placeholder
-    await this.db.user.delete({ where: { id: placeholderID } });
-
-    // Fetch the merged user now everything's done
-    const mergedUserDbResponse = await this.db.user.findUnique({
-      where: { id: userID }
-    });
-
-    return DtoFactory(UserDto, mergedUserDbResponse);
   }
 
   async updateUser(
