@@ -45,6 +45,10 @@ nb-sidebar:not(.expanded) .menu-icon {
   margin: 0 !important;
 }
 
+nb-menu a:hover {
+  transition: background-color 0.1s ease-in;
+}
+
 iframe {
   border: none;
 }
@@ -58,4 +62,8 @@ iframe {
 
 input[nbInput].ng-invalid {
   color: nb-theme(red);
+}
+
+nb-card-header {
+  background-color: #171718;
 }
