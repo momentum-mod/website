@@ -1,4 +1,8 @@
-import { MapStatus, Gamemode, MapReviewsGetQuery } from '@momentum/constants';
+import {
+  MapStatusNew,
+  Gamemode,
+  MapReviewsGetQuery
+} from '@momentum/constants';
 import {
   AdminMapsGetAllQuery,
   MapCreditsGetQuery,
@@ -39,8 +43,10 @@ export class AdminCtlMapsGetAllQueryDto implements AdminMapsGetAllQuery {
   @ExpandQueryProperty(['submitter', 'credits'])
   readonly expand?: string[];
 
-  @EnumQueryProperty(MapStatus, { description: 'Filter by map status flags' })
-  readonly status?: MapStatus;
+  @EnumQueryProperty(MapStatusNew, {
+    description: 'Filter by map status flags'
+  })
+  readonly status?: MapStatusNew;
 
   @BooleanQueryProperty({ description: 'Filter by priority or non-priority' })
   readonly priority?: boolean;
