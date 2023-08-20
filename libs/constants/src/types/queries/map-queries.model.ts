@@ -1,6 +1,6 @@
 import { PagedQuery } from './pagination.model';
 import { Gamemode } from '../../enums/gamemode.enum';
-import { MapStatus } from '../../enums/map-status.enum';
+import { MapStatusNew } from '../../enums/map-status.enum';
 
 type MapsGetAllBaseQuery = {
   skip?: number;
@@ -11,7 +11,7 @@ type MapsGetAllBaseQuery = {
 
 export type AdminMapsGetAllQuery = MapsGetAllBaseQuery & {
   expand?: string[];
-  status?: MapStatus;
+  status?: MapStatusNew;
   priority?: boolean;
 };
 
