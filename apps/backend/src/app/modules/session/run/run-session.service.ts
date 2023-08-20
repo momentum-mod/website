@@ -38,13 +38,15 @@ import {
   ExtendedPrismaService,
   ExtendedPrismaServiceTransaction
 } from '../../database/prisma.extension';
+import { MapsService } from '../../maps/maps.service';
 
 @Injectable()
 export class RunSessionService {
   constructor(
     @Inject(EXTENDED_PRISMA_SERVICE) private readonly db: ExtendedPrismaService,
     private readonly fileCloudService: FileStoreCloudService,
-    private readonly xpSystems: XpSystemsService
+    private readonly xpSystems: XpSystemsService,
+    private readonly mapsService: MapsService
   ) {}
 
   private readonly logger = new Logger('Run Session');
@@ -161,6 +163,14 @@ export class RunSessionService {
       where: { id: sessionID },
       include: RUN_SESSION_COMPLETED_INCLUDE
     });
+
+    // Check user has read permissions for this map. Someone *could* actually
+    // start/update a session on this map through weird API calls, but that'd be
+    // completely pointless since we block actual submission here.
+    await this.mapsService.getMapAndCheckReadAccess(
+      session.track.mapID,
+      userID
+    );
 
     const user = await this.db.user.findUnique({ where: { id: userID } });
 

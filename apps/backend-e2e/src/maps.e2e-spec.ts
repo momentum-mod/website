@@ -32,7 +32,8 @@ import {
   MapCreditType,
   MapStatus,
   Gamemode,
-  Role
+  Role,
+  MapStatusNew
 } from '@momentum/constants';
 import { Config } from '@momentum/backend/config';
 // See auth.e2e-spec.ts for justification of this sin
@@ -903,7 +904,7 @@ describe('Maps', () => {
 
       it('should respond with expanded map data using the credits expand parameter', async () => {
         await prisma.mapCredit.create({
-          data: { mapID: map.id, userID: u1.id, type: MapCreditType.AUTHOR }
+          data: { mapID: map.id, userID: u2.id, type: MapCreditType.AUTHOR }
         });
 
         await req.expandTest({
@@ -926,7 +927,7 @@ describe('Maps', () => {
       it('should respond with expanded map data using the submitter expand parameter', async () => {
         await prisma.mMap.update({
           where: { id: map.id },
-          data: { submitterID: u1.id }
+          data: { submitterID: u2.id }
         });
 
         await req.expandTest({
@@ -1048,6 +1049,27 @@ describe('Maps', () => {
         expect(res.body).toMatchObject({
           worldRecord: { rank: 1, user: { id: u2.id } },
           personalBest: { rank: 2, user: { id: u1.id } }
+        });
+      });
+
+      // This test is sufficient to test that getMapAndCheckReadAccess is being
+      // called, so we don't need to test the endless variations of states/perms
+      // as they're extensively covered by unit tests.
+      it('should 403 if the user does not have permission to access to the map', async () => {
+        await prisma.mMap.update({
+          where: { id: map.id },
+          data: { status: MapStatusNew.PRIVATE_TESTING }
+        });
+
+        await req.get({
+          url: `maps/${map.id}`,
+          status: 403,
+          token: u1Token
+        });
+
+        await prisma.mMap.update({
+          where: { id: map.id },
+          data: { status: MapStatusNew.APPROVED }
         });
       });
 
@@ -1211,6 +1233,25 @@ describe('Maps', () => {
           token: token
         }));
 
+      // Test that permissions checks are getting called
+      it('should 403 if the user does not have permission to access to the map', async () => {
+        await prisma.mMap.update({
+          where: { id: map.id },
+          data: { status: MapStatusNew.PRIVATE_TESTING }
+        });
+
+        await req.get({
+          url: `maps/${map.id}/info`,
+          status: 403,
+          token: token
+        });
+
+        await prisma.mMap.update({
+          where: { id: map.id },
+          data: { status: MapStatusNew.APPROVED }
+        });
+      });
+
       it('should return 404 if the map is not found', () =>
         req.get({ url: `maps/${NULL_ID}/info`, status: 404, token: token }));
 
@@ -1329,12 +1370,13 @@ describe('Maps', () => {
 
   describe('maps/{mapID}/credits', () => {
     describe('GET', () => {
-      let u1, u1Token, u2, map;
+      let u1, u1Token, u2, u3Token, map;
 
       beforeAll(async () => {
-        [[u1, u1Token], u2] = await Promise.all([
+        [[u1, u1Token], u2, u3Token] = await Promise.all([
           db.createAndLoginUser(),
-          db.createUser()
+          db.createUser(),
+          db.loginNewUser()
         ]);
         map = await db.createMap({
           credits: {
@@ -1387,6 +1429,25 @@ describe('Maps', () => {
 
         expect(res.body).toBeInstanceOf(Array);
         expect(res.body.length).toBe(0);
+      });
+
+      // Test that permissions checks are getting called
+      it('should 403 if the user does not have permission to access to the map', async () => {
+        await prisma.mMap.update({
+          where: { id: map.id },
+          data: { status: MapStatusNew.PRIVATE_TESTING }
+        });
+
+        await req.get({
+          url: `maps/${map.id}/credits`,
+          status: 403,
+          token: u3Token
+        });
+
+        await prisma.mMap.update({
+          where: { id: map.id },
+          data: { status: MapStatusNew.APPROVED }
+        });
       });
 
       it('should return 404 when the map does not exist', () =>
@@ -1794,13 +1855,14 @@ describe('Maps', () => {
 
   describe('maps/{mapID}/credits/{userID}', () => {
     describe('GET', () => {
-      let user, token, map;
+      let user, token, map, u2Token;
       const creditType = MapCreditType.AUTHOR;
 
       beforeAll(async () => {
-        [[user, token], map] = await Promise.all([
+        [[user, token], map, u2Token] = await Promise.all([
           db.createAndLoginUser(),
-          db.createMap()
+          db.createMap(),
+          db.loginNewUser()
         ]);
       });
 
@@ -1836,6 +1898,25 @@ describe('Maps', () => {
           validate: MapCreditDto,
           token: token
         }));
+
+      // Test that permissions checks are getting called
+      it('should 403 if the user does not have permission to access to the map', async () => {
+        await prisma.mMap.update({
+          where: { id: map.id },
+          data: { status: MapStatusNew.PRIVATE_TESTING }
+        });
+
+        await req.get({
+          url: `maps/${map.id}/credits/${user.id}`,
+          status: 403,
+          token: u2Token
+        });
+
+        await prisma.mMap.update({
+          where: { id: map.id },
+          data: { status: MapStatusNew.APPROVED }
+        });
+      });
 
       it('should return a 404 if the map is not found', () =>
         req.get({
@@ -2016,13 +2097,7 @@ describe('Maps', () => {
       beforeAll(async () => {
         [token, map] = await Promise.all([
           db.loginNewUser(),
-          db.createMap({
-            images: {
-              createMany: {
-                data: [{}, {}]
-              }
-            }
-          })
+          db.createMap({ images: { createMany: { data: [{}, {}] } } })
         ]);
       });
 
@@ -2035,6 +2110,25 @@ describe('Maps', () => {
           validateArray: { type: MapImageDto, length: 2 },
           token: token
         }));
+
+      // Test that permissions checks are getting called
+      it('should 403 if the user does not have permission to access to the map', async () => {
+        await prisma.mMap.update({
+          where: { id: map.id },
+          data: { status: MapStatusNew.PRIVATE_TESTING }
+        });
+
+        await req.get({
+          url: `maps/${map.id}/images`,
+          status: 403,
+          token: token
+        });
+
+        await prisma.mMap.update({
+          where: { id: map.id },
+          data: { status: MapStatusNew.APPROVED }
+        });
+      });
 
       it('should 404 if map does not exist', () =>
         req.get({ url: `maps/${NULL_ID}/images`, status: 404, token: token }));
@@ -2200,6 +2294,25 @@ describe('Maps', () => {
           validate: MapImageDto,
           token: token
         }));
+
+      // Test that permissions checks are getting called
+      it('should 403 if the user does not have permission to access to the map', async () => {
+        await prisma.mMap.update({
+          where: { id: map.id },
+          data: { status: MapStatusNew.PRIVATE_TESTING }
+        });
+
+        await req.get({
+          url: `maps/images/${map.images[0].id}`,
+          status: 403,
+          token: token
+        });
+
+        await prisma.mMap.update({
+          where: { id: map.id },
+          data: { status: MapStatusNew.APPROVED }
+        });
+      });
 
       it('should 404 when the image is not found', () =>
         req.get({ url: `maps/images/${NULL_ID}`, status: 404, token: token }));
@@ -2570,6 +2683,26 @@ describe('Maps', () => {
           token: u1Token
         }));
 
+      // Test that permissions checks are getting called
+      // Yes, u1 has runs on the map, but we don't actually test for that
+      it('should 403 if the user does not have permission to access to the map', async () => {
+        await prisma.mMap.update({
+          where: { id: map.id },
+          data: { status: MapStatusNew.PRIVATE_TESTING }
+        });
+
+        await req.get({
+          url: `maps/${map.id}/ranks`,
+          status: 403,
+          token: u1Token
+        });
+
+        await prisma.mMap.update({
+          where: { id: map.id },
+          data: { status: MapStatusNew.APPROVED }
+        });
+      });
+
       it('should return 404 for a nonexistent map', () =>
         req.get({ url: `maps/${NULL_ID}/ranks`, status: 404, token: u1Token }));
 
@@ -2755,6 +2888,25 @@ describe('Maps', () => {
         });
       });
 
+      // Test that permissions checks are getting called
+      it('should 403 if the user does not have permission to access to the map', async () => {
+        await prisma.mMap.update({
+          where: { id: map.id },
+          data: { status: MapStatusNew.PRIVATE_TESTING }
+        });
+
+        await req.get({
+          url: `maps/${map.id}/ranks/1`,
+          status: 403,
+          token: token
+        });
+
+        await prisma.mMap.update({
+          where: { id: map.id },
+          data: { status: MapStatusNew.APPROVED }
+        });
+      });
+
       it('should 404 for a nonexistent map', () =>
         req.get({ url: `maps/${NULL_ID}/ranks/1`, status: 404, token: token }));
 
@@ -2808,6 +2960,25 @@ describe('Maps', () => {
         // Last tested was 12, then incremented once more, should be sitting on
         // 13.
         expect(rankIndex).toBe(13);
+      });
+
+      // Test that permissions checks are getting called
+      it('should 403 if the user does not have permission to access to the map', async () => {
+        await prisma.mMap.update({
+          where: { id: map.id },
+          data: { status: MapStatusNew.PRIVATE_TESTING }
+        });
+
+        await req.get({
+          url: `maps/${map.id}/ranks/around`,
+          status: 403,
+          token: user7Token
+        });
+
+        await prisma.mMap.update({
+          where: { id: map.id },
+          data: { status: MapStatusNew.APPROVED }
+        });
       });
 
       it('should return 404 for a nonexistent map', () =>
@@ -2874,7 +3045,7 @@ describe('Maps', () => {
         const res = await req.get({
           url: `maps/${map.id}/ranks/friends`,
           status: 200,
-          token: token,
+          token,
           validatePaged: { type: RankDto, count: 10 }
         });
 
@@ -2888,7 +3059,26 @@ describe('Maps', () => {
         return req.get({
           url: `maps/${map.id}/ranks/friends`,
           status: 418,
-          token: token
+          token
+        });
+      });
+
+      // Test that permissions checks are getting called
+      it('should 403 if the user does not have permission to access to the map', async () => {
+        await prisma.mMap.update({
+          where: { id: map.id },
+          data: { status: MapStatusNew.PRIVATE_TESTING }
+        });
+
+        await req.get({
+          url: `maps/${map.id}/ranks/friends`,
+          status: 403,
+          token
+        });
+
+        await prisma.mMap.update({
+          where: { id: map.id },
+          data: { status: MapStatusNew.APPROVED }
         });
       });
 
@@ -2896,7 +3086,7 @@ describe('Maps', () => {
         req.get({
           url: `maps/${NULL_ID}/ranks/friends`,
           status: 404,
-          token: token
+          token
         }));
 
       it('should 401 when no access token is provided', () =>

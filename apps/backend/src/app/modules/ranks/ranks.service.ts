@@ -15,21 +15,21 @@ import {
 } from '@momentum/backend/dto';
 import { EXTENDED_PRISMA_SERVICE } from '../database/db.constants';
 import { ExtendedPrismaService } from '../database/prisma.extension';
+import { MapsService } from '../maps/maps.service';
 
 @Injectable()
 export class RanksService {
   constructor(
     @Inject(EXTENDED_PRISMA_SERVICE) private readonly db: ExtendedPrismaService,
-
+    private readonly mapsService: MapsService,
     private readonly steamService: SteamService
   ) {}
   async getRanks(
     mapID: number,
+    loggedInUserID: number,
     query: MapRanksGetQueryDto
   ): Promise<PagedResponseDto<RankDto>> {
-    const map = await this.db.mMap.findUnique({ where: { id: mapID } });
-
-    if (!map) throw new NotFoundException('Map not found');
+    await this.mapsService.getMapAndCheckReadAccess(mapID, loggedInUserID);
 
     const where: Prisma.RankWhereInput = {
       mapID: mapID,
@@ -63,12 +63,11 @@ export class RanksService {
 
   async getRankNumber(
     mapID: number,
+    userID: number,
     rankNumber: number,
     query: MapRankGetNumberQueryDto
   ): Promise<RankDto> {
-    const map = await this.db.mMap.findUnique({ where: { id: mapID } });
-
-    if (!map) throw new NotFoundException('Map not found');
+    await this.mapsService.getMapAndCheckReadAccess(mapID, userID);
 
     const where: Prisma.RankWhereInput = {
       mapID: mapID,
@@ -104,6 +103,8 @@ export class RanksService {
     mapID: number,
     query: MapRankGetNumberQueryDto
   ): Promise<PagedResponseDto<RankDto>> {
+    await this.mapsService.getMapAndCheckReadAccess(mapID, userID);
+
     const where: Prisma.RankWhereInput = {
       mapID: mapID,
       flags: 0,
@@ -150,13 +151,12 @@ export class RanksService {
   }
 
   async getRankFriends(
+    userID: number,
     steamID: bigint,
     mapID: number,
     query: MapRankGetNumberQueryDto
   ): Promise<PagedResponseDto<RankDto>> {
-    const map = await this.db.mMap.findUnique({ where: { id: mapID } });
-
-    if (!map) throw new NotFoundException('Map not found');
+    await this.mapsService.getMapAndCheckReadAccess(mapID, userID);
 
     const steamFriends = await this.steamService.getSteamFriends(steamID);
 

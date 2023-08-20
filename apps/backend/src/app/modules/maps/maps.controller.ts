@@ -65,7 +65,7 @@ import {
   VALIDATION_PIPE_CONFIG
 } from '@momentum/backend/dto';
 import { LoggedInUser, Roles } from '@momentum/backend/decorators';
-import { Role } from '@momentum/constants';
+import { Role, User } from '@momentum/constants';
 import { ParseIntSafePipe } from '@momentum/backend/pipes';
 import { Config } from '@momentum/backend/config';
 import { MapCreditsService } from './map-credits.service';
@@ -287,9 +287,10 @@ export class MapsController {
   @ApiNotFoundResponse({ description: 'Map not found' })
   getCredits(
     @Param('mapID', ParseIntSafePipe) mapID: number,
+    @LoggedInUser('id') userID: number,
     @Query() query?: MapCreditsGetQueryDto
   ): Promise<MapCreditDto[]> {
-    return this.mapCreditsService.getCredits(mapID, query.expand);
+    return this.mapCreditsService.getCredits(mapID, userID, query.expand);
   }
 
   @Get('/:mapID/credits/:userID')
@@ -313,9 +314,15 @@ export class MapsController {
   getCredit(
     @Param('mapID', ParseIntSafePipe) mapID: number,
     @Param('userID', ParseIntSafePipe) userID: number,
+    @LoggedInUser('id') loggedInUserID: number,
     @Query() query?: MapCreditsGetQueryDto
   ): Promise<MapCreditDto> {
-    return this.mapCreditsService.getCredit(mapID, userID, query.expand);
+    return this.mapCreditsService.getCredit(
+      mapID,
+      userID,
+      loggedInUserID,
+      query.expand
+    );
   }
 
   @Put('/:mapID/credits')
@@ -374,9 +381,10 @@ export class MapsController {
   @ApiOkResponse({ type: MapInfoDto, description: "The found map's info" })
   @ApiNotFoundResponse({ description: 'Map not found' })
   getInfo(
-    @Param('mapID', ParseIntSafePipe) mapID: number
+    @Param('mapID', ParseIntSafePipe) mapID: number,
+    @LoggedInUser('id') userID: number
   ): Promise<MapInfoDto> {
-    return this.mapsService.getInfo(mapID);
+    return this.mapsService.getInfo(mapID, userID);
   }
 
   @Patch('/:mapID/info')
@@ -445,9 +453,10 @@ export class MapsController {
     required: true
   })
   getImages(
-    @Param('mapID', ParseIntSafePipe) mapID: number
+    @Param('mapID', ParseIntSafePipe) mapID: number,
+    @LoggedInUser('id') userID: number
   ): Promise<MapImageDto[]> {
-    return this.mapImageService.getImages(mapID);
+    return this.mapImageService.getImages(mapID, userID);
   }
 
   @Get('/images/:imgID')
@@ -460,9 +469,10 @@ export class MapsController {
     description: 'Target map image'
   })
   getImage(
-    @Param('imgID', ParseIntSafePipe) imgID: number
+    @Param('imgID', ParseIntSafePipe) imgID: number,
+    @LoggedInUser('id') userID: number
   ): Promise<MapImageDto> {
-    return this.mapImageService.getImage(imgID);
+    return this.mapImageService.getImage(imgID, userID);
   }
 
   @Post('/:mapID/images')
@@ -626,9 +636,10 @@ export class MapsController {
   @ApiOkResponse({ description: "The found map's ranks" })
   getRanks(
     @Param('mapID', ParseIntSafePipe) mapID: number,
+    @LoggedInUser('id') userID: number,
     @Query() query?: MapRanksGetQueryDto
   ): Promise<PagedResponseDto<RankDto>> {
-    return this.ranksService.getRanks(mapID, query);
+    return this.ranksService.getRanks(mapID, userID, query);
   }
 
   @Get('/:mapID/ranks/around')
@@ -659,11 +670,11 @@ export class MapsController {
   @ApiOkResponse({ description: "The ranks of the user's steam friends" })
   @ApiResponse({ status: 418, description: 'The user has no friends' })
   getRanksFriends(
-    @LoggedInUser('steamID') steamID: bigint,
+    @LoggedInUser() { id, steamID }: User,
     @Param('mapID') mapID: number,
     @Query() query?: MapRankGetNumberQueryDto
   ): Promise<PagedResponseDto<RankDto>> {
-    return this.ranksService.getRankFriends(steamID, mapID, query);
+    return this.ranksService.getRankFriends(id, steamID, mapID, query);
   }
 
   @Get('/:mapID/ranks/:rankNumber')
@@ -685,14 +696,16 @@ export class MapsController {
   getRankNumber(
     @Param('mapID', ParseIntSafePipe) mapID: number,
     @Param('rankNumber', ParseIntSafePipe) rankNumber: number,
+    @LoggedInUser('id') userID: number,
     @Query() query?: MapRankGetNumberQueryDto
   ): Promise<RankDto> {
-    return this.ranksService.getRankNumber(mapID, rankNumber, query);
+    return this.ranksService.getRankNumber(mapID, userID, rankNumber, query);
   }
 
   //#endregion
 
   //#region Reviews
+
   @Get('/:mapID/reviews')
   @ApiOperation({ summary: 'Returns the reviews for a specific map' })
   @ApiParam({
@@ -705,10 +718,12 @@ export class MapsController {
   @ApiNotFoundResponse({ description: 'Map was not found' })
   getReviews(
     @Param('mapID', ParseIntSafePipe) mapID: number,
+    @LoggedInUser('id') userID: number,
     @Query() query?: MapReviewsGetQueryDto
   ): Promise<PagedResponseDto<MapReviewDto>> {
-    return this.mapReviewService.getReviews(mapID, query);
+    return this.mapReviewService.getReviews(mapID, userID, query);
   }
+
   //endregion
 
   //#region Private
