@@ -9,3 +9,9 @@ export enum Role {
   MAPPER      = 0b01000000,
   PORTER      = 0b10000000,
 }
+
+export const CombinedRoles: Readonly<Record<string, Role>> = Object.freeze({
+  MOD_OR_ADMIN: Role.MODERATOR | Role.ADMIN,
+  REVIEWER_AND_ABOVE: Role.REVIEWER | Role.MODERATOR | Role.ADMIN,
+  MAPPER_OR_PORTER: Role.MAPPER | Role.PORTER
+});
