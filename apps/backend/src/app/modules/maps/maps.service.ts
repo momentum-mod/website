@@ -64,10 +64,6 @@ export class MapsService {
     userID: number,
     query: MapsCtlGetAllQueryDto | AdminCtlMapsGetAllQueryDto
   ): Promise<PagedResponseDto<MapDto>> {
-    // Old API has some stuff for "status" and "statusNot" and "priority" but
-    // isn't in docs or validations or used anywhere in client/game, leaving for
-    // now.
-
     // Where
     const where: Prisma.MMapWhereInput = {};
     if (query.search) where.name = { contains: query.search };
@@ -93,9 +89,13 @@ export class MapsService {
           ? { is: { ...where.mainTrack.is, isLinear: query.isLinear } }
           : { isLinear: query.isLinear };
     }
-    if (query instanceof AdminCtlMapsGetAllQueryDto && query.status)
-      where.status = query.status;
-    // query.priority ignored
+
+    // Allow /admin/maps GET to filter by status, otherwise return *every*
+    // status. /maps GET only returns APPROVED.
+    where.status =
+      query instanceof AdminCtlMapsGetAllQueryDto
+        ? query.status
+        : MapStatusNew.APPROVED;
 
     // Include
     const include: Prisma.MMapInclude = {
