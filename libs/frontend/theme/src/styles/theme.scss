@@ -5,6 +5,16 @@
 $momentum-theme: (
   font-family-primary: unquote('Roboto, sans-serif'),
   font-family-secondary: unquote('Bebas Neue, sans-serif'),
+  // Bebas looks awful at small scales, only use it for h1/h2s.
+  // We may find this change in font clashes on some pages in the future, if so
+  // we can experiment with different weights/`text-transform: uppercase;`.
+  text-heading-1-font-family: font-family-secondary,
+  text-heading-2-font-family: font-family-secondary,
+  text-heading-3-font-family: font-family-primary,
+  text-heading-4-font-family: font-family-primary,
+  text-heading-5-font-family: font-family-primary,
+  text-heading-6-font-family: font-family-primary,
+
   color-primary-100: #e8f6fc,
   color-primary-200: #bae3f7,
   color-primary-300: #8dd1f2,
@@ -25,12 +35,26 @@ $momentum-theme: (
   color-basic-800: #0d5172,
   color-basic-900: #083145,
   color-basic-1000: #031017,
-  color-basic-1100: #050a10,
+  color-basic-1100: #161617,
 
-  background-basic-color-1: #222,
-  background-basic-color-2: #1f1f1f,
-  background-basic-color-3: #1b1b1b,
-  background-basic-color-4: #181818,
+  layout-background-color: #232323,
+  card-shadow: shadow,
+  card-border-width: 1px,
+  border-radius: 4px,
+  shadow: (
+    0px 3px 6px 0px rgba(0, 0, 0, 0.2)
+  ),
+
+  card-divider-color: card-border-color,
+
+  // TODO: Was this doing anything?
+  //layout-content-width: 1400px,
+  border-basic-color-4: #232323,
+
+  background-basic-color-1: #1b1b1b,
+  background-basic-color-2: #1e1e1e,
+  background-basic-color-3: #202020,
+  background-basic-color-4: #232323,
 
   color-primary-focus: color-primary-700,
   color-primary-hover: color-primary-400,
@@ -58,9 +82,6 @@ $momentum-theme: (
   input-border-color: #061f3b,
   input-focus-border-color: #4172aa,
 
-  layout-background-color: #080808,
-  layout-content-width: 1400px,
-
   accordion-header-border-color: layout-background-color,
 
   tabset-tab-text-color: #fff,
@@ -70,19 +91,20 @@ $momentum-theme: (
   tabset-content-text-color: #fff,
   tabset-content-padding: 1.25rem,
 
-  menu-text-font-size: 1.2rem,
-  menu-text-line-height: 2rem,
+  divider-color: #00000055,
+  menu-text-font-weight: 400,
+  //menu-text-line-height: 2rem,
+  menu-text-font-size: 1rem,
+  menu-item-hover-background-color: rgba(255, 255, 255, 0.05),
   menu-item-active-text-color: color-primary-default,
   menu-item-icon-active-color: color-primary-default,
   menu-item-icon-width: 2rem,
-  menu-item-hover-text-color: color-primary-default,
-  menu-submenu-padding: 0,
-  menu-submenu-item-padding: 0.75rem 2.25rem,
-  menu-submenu-item-active-border-color: color-primary-default,
-
+  menu-item-hover-text-color: menu-text-color,
+  //menu-submenu-padding: 0,
+  //menu-submenu-item-padding: 0.75rem 2.25rem,
+  //menu-submenu-item-active-border-color: color-primary-default,
   popover-border-color: #2e66a5,
 
-  shadow: 0 0.25rem 0.5rem 0 rgba(0, 0, 0, 0.5),
   calendar-cell-hover-background-color: color-primary-default,
   calendar-cell-today-background-color: #061f3b,
   calendar-cell-selected-background-color: color-primary-default,
@@ -107,8 +129,6 @@ $momentum-theme: (
   checkbox-default-checked-border-color: color-primary-default,
 
   search-background-color: linear-gradient(to right, #061f3b, #4172aa),
-  divider-color: layout-background-color,
-
   icon-primary-color: #fff,
 
   user-large-name-text-font-size: 1.5rem,
