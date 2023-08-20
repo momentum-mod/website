@@ -2,6 +2,7 @@ import {
   BadRequestException,
   ConflictException,
   ForbiddenException,
+  forwardRef,
   Inject,
   Injectable,
   InternalServerErrorException,
@@ -53,6 +54,7 @@ export class MapsService {
     private readonly fileCloudService: FileStoreCloudService,
     private readonly config: ConfigService,
     private readonly runsService: RunsService,
+    @Inject(forwardRef(() => MapImageService))
     private readonly mapImageService: MapImageService
   ) {}
 
@@ -179,16 +181,15 @@ export class MapsService {
       userID
     );
 
-    const dbResponse = await this.db.mMap.findFirst({
-      where: { id: mapID },
-      include: isEmpty(include) ? undefined : include
-    });
-
-    if (!dbResponse) throw new NotFoundException('Map not found');
+    const map = await this.getMapAndCheckReadAccess(
+      mapID,
+      userID,
+      isEmpty(include) ? undefined : include
+    );
 
     // We'll delete this stupid shit soon
     if (expand?.includes('tracks'))
-      for (const track of dbResponse.tracks as (MapTrack & {
+      for (const track of map.tracks as (MapTrack & {
         zones: (MapZone & {
           triggers: MapZoneTrigger &
             {
@@ -204,10 +205,10 @@ export class MapsService {
           }
 
     if (incPB || incWR) {
-      this.handleMapGetPrismaResponse(dbResponse, userID, incPB, incWR);
+      this.handleMapGetPrismaResponse(map, userID, incPB, incWR);
     }
 
-    return DtoFactory(MapDto, dbResponse);
+    return DtoFactory(MapDto, map);
   }
 
   private handleMapGetIncludes(
@@ -640,10 +641,15 @@ export class MapsService {
 
   //#region Info
 
-  async getInfo(mapID: number): Promise<MapInfoDto> {
-    const mapInfo = await this.db.mapInfo.findUnique({ where: { mapID } });
+  async getInfo(mapID: number, userID: number): Promise<MapInfoDto> {
+    // Checks need to fetch map anyway and we have no includes on mapInfo, so
+    // may as well just have this function include mapInfo and pull that off the
+    // return value.
+    const map = await this.getMapAndCheckReadAccess(mapID, userID, {
+      info: true
+    });
 
-    if (!mapInfo) throw new NotFoundException('Map not found');
+    const mapInfo = map.info;
 
     return DtoFactory(MapInfoDto, mapInfo);
   }
@@ -680,6 +686,8 @@ export class MapsService {
 
   //#region Zones
 
+  // TODO: haven't done 0.10.0 perms checks here since this endpoint is changing
+  // drastically, needs doing eventually
   async getZones(mapID: number): Promise<MapTrackDto[]> {
     const tracks = await this.db.mapTrack.findMany({
       where: { mapID },

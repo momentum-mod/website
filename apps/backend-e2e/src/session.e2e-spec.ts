@@ -19,6 +19,7 @@ import {
 import {
   ActivityType,
   Gamemode,
+  MapStatusNew,
   RunValidationErrorType,
   Tickrates
 } from '@momentum/constants';
@@ -41,12 +42,13 @@ describe('Session', () => {
     // We can use this same map for all the run session testing. Suites just
     // create their own users and runs.
     map = await db.createMap(
-      { name: 'bhop_eazy', type: Gamemode.BHOP },
+      { name: 'bhop_eazy', type: Gamemode.BHOP, status: MapStatusNew.APPROVED },
       {
         trackNum: 0,
         numZones: 4,
         isLinear: false,
         difficulty: 1,
+
         zones: {
           createMany: {
             data: [
@@ -561,17 +563,18 @@ describe('Session', () => {
 
           // So, it should have shifted rank 2, 3 to rank 3, 4, our rank (4)
           // now becoming 2. prettier-ignore
+          // prettier-ignore
           expect(ranksBefore.find((rank) => rank.rank === 2).userID).toBe(
-            ranksAfter.find((rank) => rank.rank === 3).userID
+                  ranksAfter.find((rank) => rank.rank === 3).userID
           );
 
           // prettier-ignore
           expect(ranksBefore.find((rank) => rank.rank === 3).userID).toBe(
-                            ranksAfter.find((rank) => rank.rank === 4).userID);
+                  ranksAfter.find((rank) => rank.rank === 4).userID);
 
           // prettier-ignore
           expect(ranksBefore.find((rank) => rank.rank === 4).userID).toBe(
-                            ranksAfter.find((rank) => rank.rank === 2).userID);
+                  ranksAfter.find((rank) => rank.rank === 2).userID);
 
           expect(ranksBefore.find((rank) => rank.rank == 4).userID).toBe(
             user.id
@@ -710,6 +713,26 @@ describe('Session', () => {
           expect(res.statusCode).toBe(400);
           expect(res.body.code).toBe(RunValidationErrorType.BAD_REPLAY_FILE);
         });
+
+        // Test that permissions checks are getting called
+        // Yes, u1 has runs on the map, but we don't actually test for that
+        it('should 403 if the user does not have permission to access to the map', async () => {
+          await prisma.mMap.update({
+            where: { id: map.id },
+            data: { status: MapStatusNew.PRIVATE_TESTING }
+          });
+
+          const res = await submitRun();
+          expect(res.statusCode).toBe(403);
+
+          await prisma.mMap.update({
+            where: { id: map.id },
+            data: { status: MapStatusNew.APPROVED }
+          });
+        });
+        // Same approach as maps endpoints, test that permissions checks are
+        // getting called and let unit tests handle the complex logic
+        it('the user is not authorized to access the map', () => {});
 
         it('the run does not have the proper number of timestamps', async () => {
           for (const numZones of [2, 4]) {

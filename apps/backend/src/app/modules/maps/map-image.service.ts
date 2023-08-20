@@ -3,6 +3,7 @@ import {
   BadRequestException,
   ConflictException,
   ForbiddenException,
+  forwardRef,
   Inject,
   Injectable,
   NotFoundException
@@ -15,29 +16,37 @@ import { FileStoreCloudService } from '../filestore/file-store-cloud.service';
 import { ConfigService } from '@nestjs/config';
 import { EXTENDED_PRISMA_SERVICE } from '../database/db.constants';
 import { ExtendedPrismaService } from '../database/prisma.extension';
+import { MapsService } from './maps.service';
 
 @Injectable()
 export class MapImageService {
   constructor(
     @Inject(EXTENDED_PRISMA_SERVICE) private readonly db: ExtendedPrismaService,
-
+    @Inject(forwardRef(() => MapsService))
+    private readonly mapsService: MapsService,
     private readonly fileCloudService: FileStoreCloudService,
     private readonly config: ConfigService
   ) {}
 
-  async getImages(mapID: number): Promise<MapImageDto[]> {
-    if (!(await this.db.mMap.exists({ where: { id: mapID } })))
-      throw new NotFoundException('Map not found');
-
-    const images = await this.db.mapImage.findMany({ where: { mapID } });
+  async getImages(
+    mapID: number,
+    loggedInUserID: number
+  ): Promise<MapImageDto[]> {
+    const { images } = await this.mapsService.getMapAndCheckReadAccess(
+      mapID,
+      loggedInUserID,
+      { images: true }
+    );
 
     return images.map((x) => DtoFactory(MapImageDto, x));
   }
 
-  async getImage(imgID: number): Promise<MapImageDto> {
+  async getImage(imgID: number, loggedInUserID: number): Promise<MapImageDto> {
     const img = await this.db.mapImage.findUnique({ where: { id: imgID } });
 
     if (!img) throw new NotFoundException('Map image not found');
+
+    await this.mapsService.getMapAndCheckReadAccess(img.mapID, loggedInUserID);
 
     return DtoFactory(MapImageDto, img);
   }

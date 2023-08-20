@@ -23,16 +23,21 @@ import {
 } from '@momentum/constants';
 import { EXTENDED_PRISMA_SERVICE } from '../database/db.constants';
 import { ExtendedPrismaService } from '../database/prisma.extension';
+import { MapsService } from './maps.service';
 
 @Injectable()
 export class MapCreditsService {
   constructor(
-    @Inject(EXTENDED_PRISMA_SERVICE) private readonly db: ExtendedPrismaService
+    @Inject(EXTENDED_PRISMA_SERVICE) private readonly db: ExtendedPrismaService,
+    private readonly mapsService: MapsService
   ) {}
 
-  async getCredits(mapID: number, expand: string[]): Promise<MapCreditDto[]> {
-    if (!(await this.db.mMap.exists({ where: { id: mapID } })))
-      throw new NotFoundException('Map not found');
+  async getCredits(
+    mapID: number,
+    loggedInUserID: number,
+    expand: string[]
+  ): Promise<MapCreditDto[]> {
+    await this.mapsService.getMapAndCheckReadAccess(mapID, loggedInUserID);
 
     const dbResponse = await this.db.mapCredit.findMany({
       where: { mapID },
@@ -47,8 +52,11 @@ export class MapCreditsService {
   async getCredit(
     mapID: number,
     userID: number,
+    loggedInUserID: number,
     expand: string[]
   ): Promise<MapCreditDto> {
+    await this.mapsService.getMapAndCheckReadAccess(mapID, loggedInUserID);
+
     const dbResponse = await this.db.mapCredit.findUnique({
       where: { mapID_userID: { mapID, userID } },
       include: expandToPrismaIncludes(expand)

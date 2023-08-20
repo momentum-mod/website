@@ -1,4 +1,4 @@
-import { Inject, Injectable, NotFoundException } from '@nestjs/common';
+import { Inject, Injectable } from '@nestjs/common';
 import {
   MapReviewDto,
   MapReviewsGetQueryDto,
@@ -7,9 +7,9 @@ import {
 } from '@momentum/backend/dto';
 import { Role } from '@momentum/constants';
 import { Prisma } from '@prisma/client';
+import { MapsService } from './maps.service';
 import { EXTENDED_PRISMA_SERVICE } from '../database/db.constants';
 import { ExtendedPrismaService } from '../database/prisma.extension';
-import { MapsService } from './maps.service';
 
 @Injectable()
 export class MapReviewService {
@@ -20,11 +20,10 @@ export class MapReviewService {
 
   async getReviews(
     mapID: number,
+    userID: number,
     query: MapReviewsGetQueryDto
   ): Promise<PagedResponseDto<MapReviewDto>> {
-    // check if map exists
-    if (!(await this.db.mMap.exists({ where: { id: mapID } })))
-      throw new NotFoundException('Map not found');
+    await this.mapsService.getMapAndCheckReadAccess(mapID, userID);
 
     let include: Prisma.MapReviewInclude = expandToPrismaIncludes(
       // Map 'map' expand to 'mmap'
