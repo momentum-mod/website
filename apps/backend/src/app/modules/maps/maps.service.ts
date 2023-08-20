@@ -4,6 +4,7 @@ import {
   ForbiddenException,
   Inject,
   Injectable,
+  InternalServerErrorException,
   NotFoundException,
   StreamableFile
 } from '@nestjs/common';
@@ -31,11 +32,19 @@ import {
   UpdateMapDto,
   UpdateMapInfoDto
 } from '@momentum/backend/dto';
-import { ActivityType, MapCreditType, MapStatus } from '@momentum/constants';
+import {
+  ActivityType,
+  CombinedRoles,
+  MapCreditType,
+  MapStatus,
+  MapStatusNew
+} from '@momentum/constants';
 import { isEmpty } from 'lodash';
 import { MapImageService } from './map-image.service';
 import { EXTENDED_PRISMA_SERVICE } from '../database/db.constants';
 import { ExtendedPrismaService } from '../database/prisma.extension';
+import { Bitflags } from '@momentum/bitflags';
+import { MapTestingRequestState } from '@momentum/constants';
 
 @Injectable()
 export class MapsService {
@@ -692,6 +701,102 @@ export class MapsService {
     });
 
     return tracks.map((x) => DtoFactory(MapTrackDto, x));
+  }
+
+  //#endregion
+
+  //#region Access Checks
+
+  /**
+   * Perform various checks based on map status to determine if the user has
+   * permission to access this data.
+   *
+   * Always requires query for the specified map, to save calling DB twice we
+   * return that object, so we let you pass in an `include`.However we'll need
+   * to cast the return type to manually add for included models for
+   * now; I can't figure out the crazy Prisma type stuff. By following
+   * https://www.prisma.io/docs/concepts/components/prisma-client/advanced-type-safety
+   * and some of our existing stuff in extended-client.ts we could probably
+   * figure it out eventually, but the TS language server takes so long to
+   * resolve everything it's a nightmare to work with. Leaving for now!
+   */
+  async getMapAndCheckReadAccess(
+    mapID: number,
+    userID: number,
+    include?: Prisma.MMapInclude
+  ) {
+    const map = await this.db.mMap.findUnique({
+      where: { id: mapID },
+      include
+    });
+
+    if (!map) {
+      throw new NotFoundException('Map does not exist');
+    }
+
+    if (map.status === undefined) {
+      throw new InternalServerErrorException('Invalid map data');
+    }
+
+    // If APPROVED/PUBLIC_TESTING, anyone can access.
+    if (
+      map.status === MapStatusNew.APPROVED ||
+      map.status === MapStatusNew.PUBLIC_TESTING
+    ) {
+      return map;
+    }
+
+    // For any other state, we need to know roles
+    const user = await this.db.user.findUnique({ where: { id: userID } });
+
+    switch (map.status) {
+      // PRIVATE_TESTING, only allow:
+      // - The submitter
+      // - Moderator/Admin
+      // - in the credits
+      // - Has an accepted MapTestingRequest
+      case MapStatusNew.PRIVATE_TESTING: {
+        if (
+          map.submitterID === userID ||
+          Bitflags.has(user.roles, CombinedRoles.MOD_OR_ADMIN)
+        )
+          return map;
+
+        if (
+          await this.db.mapTestingRequest.exists({
+            where: { mapID, userID, state: MapTestingRequestState.ACCEPTED }
+          })
+        )
+          return map;
+
+        if (await this.db.mapCredit.exists({ where: { mapID, userID } }))
+          return map;
+
+        break;
+      }
+      // CONTENT_APPROVAL/FINAL_APPROVAL, only allow:
+      // - The submitter
+      // - Moderator/Admin
+      case MapStatusNew.CONTENT_APPROVAL:
+      case MapStatusNew.FINAL_APPROVAL: {
+        if (
+          map.submitterID === userID ||
+          Bitflags.has(user.roles, CombinedRoles.MOD_OR_ADMIN)
+        )
+          return map;
+
+        break;
+      }
+      // DISABLED/REJECTED, only allow:
+      // - Moderator/Admin
+      case MapStatusNew.REJECTED:
+      case MapStatusNew.DISABLED: {
+        if (Bitflags.has(user.roles, CombinedRoles.MOD_OR_ADMIN)) return map;
+        break;
+      }
+    }
+
+    throw new ForbiddenException('User not authorized to access map data');
   }
 
   //#endregion
