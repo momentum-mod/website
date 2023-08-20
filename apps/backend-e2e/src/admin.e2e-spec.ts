@@ -24,6 +24,7 @@ import {
   Ban,
   MapCreditType,
   MapStatus,
+  MapStatusNew,
   ReportCategory,
   ReportType,
   Role
@@ -700,20 +701,28 @@ describe('Admin', () => {
 
   describe('admin/maps', () => {
     describe('GET', () => {
-      let modToken, adminToken, u1, u1Token, m1, m2, m3, m4;
+      let modToken, adminToken, u1, u1Token, m1, m2, m3, m4, privateMap;
 
-      beforeAll(
-        async () =>
-          ([modToken, adminToken, [u1, u1Token], [m1, m2, m3, m4]] =
-            await Promise.all([
-              db.loginNewUser({
-                data: { roles: Role.MODERATOR }
-              }),
-              db.loginNewUser({ data: { roles: Role.ADMIN } }),
-              db.createAndLoginUser(),
-              db.createMaps(4)
-            ]))
-      );
+      beforeAll(async () => {
+        [modToken, adminToken, [u1, u1Token], [m1, m2, m3, m4]] =
+          await Promise.all([
+            db.loginNewUser({
+              data: { roles: Role.MODERATOR }
+            }),
+            db.loginNewUser({ data: { roles: Role.ADMIN } }),
+            db.createAndLoginUser(),
+            db.createMaps(4)
+          ]);
+
+        privateMap = await db.createMap({
+          status: MapStatusNew.PRIVATE_TESTING
+        });
+        await db.createMap({ status: MapStatusNew.CONTENT_APPROVAL });
+        await db.createMap({ status: MapStatusNew.PUBLIC_TESTING });
+        await db.createMap({ status: MapStatusNew.FINAL_APPROVAL });
+        await db.createMap({ status: MapStatusNew.REJECTED });
+        await db.createMap({ status: MapStatusNew.DISABLED });
+      });
 
       afterAll(() => db.cleanup('user', 'mMap', 'run'));
 
@@ -721,7 +730,7 @@ describe('Admin', () => {
         const res = await req.get({
           url: 'admin/maps',
           status: 200,
-          validatePaged: { type: MapDto, count: 4 },
+          validatePaged: { type: MapDto },
           token: adminToken
         });
 
@@ -729,6 +738,15 @@ describe('Admin', () => {
           expect(item).toHaveProperty('mainTrack');
           expect(item).toHaveProperty('info');
         }
+      });
+
+      it('should include maps with any map statuses by default', async () => {
+        const res = await req.get({
+          url: 'admin/maps',
+          status: 200,
+          validatePaged: { type: MapDto, count: 10 },
+          token: adminToken
+        });
       });
 
       it('should be ordered by date', () =>
@@ -788,23 +806,18 @@ describe('Admin', () => {
         });
       });
 
-      it('should respond with filtered map data based on the map type', async () => {
-        await prisma.mMap.update({
-          where: { id: m2.id },
-          data: { status: MapStatus.PUBLIC_TESTING }
-        });
-
+      it('should respond with filtered map data based on the status', async () => {
         const res = await req.get({
           url: 'admin/maps',
           status: 200,
-          query: { status: MapStatus.PUBLIC_TESTING },
+          query: { status: MapStatusNew.PRIVATE_TESTING },
           validatePaged: { type: MapDto, count: 1 },
           token: adminToken
         });
 
         expect(res.body.data[0]).toMatchObject({
-          status: MapStatus.PUBLIC_TESTING,
-          id: m2.id
+          status: MapStatusNew.PRIVATE_TESTING,
+          id: privateMap.id
         });
       });
 
@@ -834,6 +847,7 @@ describe('Admin', () => {
           url: 'admin/maps',
           expand: 'credits',
           paged: true,
+          some: true,
           validate: MapDto,
           token: adminToken
         });

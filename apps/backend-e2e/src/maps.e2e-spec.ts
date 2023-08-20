@@ -71,9 +71,17 @@ describe('Maps', () => {
           db.createAndLoginUser()
         ]);
 
-        [m1, m2, m3, m4] = await db.createMaps(4, {
-          credits: { create: { type: 0, userID: u1.id } }
-        });
+        [[m1, m2, m3, m4]] = await Promise.all([
+          db.createMaps(4, {
+            credits: { create: { type: 0, userID: u1.id } }
+          }),
+          db.createMap({ status: MapStatusNew.PRIVATE_TESTING }),
+          db.createMap({ status: MapStatusNew.REJECTED }),
+          db.createMap({ status: MapStatusNew.DISABLED }),
+          db.createMap({ status: MapStatusNew.FINAL_APPROVAL }),
+          db.createMap({ status: MapStatusNew.CONTENT_APPROVAL }),
+          db.createMap({ status: MapStatusNew.PUBLIC_TESTING })
+        ]);
       });
 
       afterAll(() => db.cleanup('user', 'mMap', 'run'));
@@ -82,13 +90,26 @@ describe('Maps', () => {
         const res = await req.get({
           url: 'maps',
           status: 200,
-          validatePaged: { type: MapDto, count: 4 },
+          validatePaged: { type: MapDto },
           token: u1Token
         });
 
         for (const item of res.body.data) {
           expect(item).toHaveProperty('mainTrack');
           expect(item).toHaveProperty('info');
+        }
+      });
+
+      it('should only include APPROVED maps', async () => {
+        const res = await req.get({
+          url: 'maps',
+          status: 200,
+          validatePaged: { type: MapDto, count: 4 },
+          token: u1Token
+        });
+
+        for (const item of res.body.data) {
+          expect(item.status).toBe(MapStatusNew.APPROVED);
         }
       });
 
