@@ -34,7 +34,8 @@
       "@momentum/frontend/pipes": ["libs/frontend/pipes/src/index.ts"],
       "@momentum/frontend/theme": ["libs/frontend/theme/src/index.ts"],
       "@momentum/random": ["libs/random/src/index.ts"],
-      "@momentum/replay": ["libs/replay/src/index.ts"]
+      "@momentum/replay": ["libs/replay/src/index.ts"],
+      "@momentum/util-fn": ["libs/util-fn/src/index.ts"]
     }
   },
   "exclude": ["node_modules", "tmp"]
