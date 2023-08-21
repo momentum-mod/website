@@ -112,10 +112,10 @@ export class MapCreditsService {
           });
           response.push(DtoFactory(MapCreditDto, newCredit));
 
-          const oldCreditIdx = oldCredits.findIndex(
+          const [oldCredit, oldCreditIdx] = findWithIndex(
+            oldCredits,
             (c) => c.userID === newCredit.userID
           );
-          const oldCredit = oldCredits[oldCreditIdx];
 
           // If it's an author credit, create activity, unless credit already
           // existed.
