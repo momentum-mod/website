@@ -1,7 +1,6 @@
 import { Inject, Injectable, NotFoundException } from '@nestjs/common';
 import {
   DtoFactory,
-  expandToPrismaIncludes,
   MapDto,
   MapSummaryDto,
   PagedResponseDto
@@ -9,6 +8,7 @@ import {
 import { Prisma } from '@prisma/client';
 import { EXTENDED_PRISMA_SERVICE } from '../database/db.constants';
 import { ExtendedPrismaService } from '../database/prisma.extension';
+import { expandToIncludes } from '@momentum/util-fn';
 
 @Injectable()
 export class MapSubmissionService {
@@ -29,7 +29,7 @@ export class MapSubmissionService {
 
     const submittedMapsRes = await this.db.mMap.findManyAndCount({
       where,
-      include: expandToPrismaIncludes(expand),
+      include: expandToIncludes(expand),
       skip,
       take
     });

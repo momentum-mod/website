@@ -2,14 +2,14 @@ import { Inject, Injectable } from '@nestjs/common';
 import {
   MapReviewDto,
   MapReviewsGetQueryDto,
-  PagedResponseDto,
-  expandToPrismaIncludes
+  PagedResponseDto
 } from '@momentum/backend/dto';
 import { Role } from '@momentum/constants';
-import { Prisma } from '@prisma/client';
+import { MapReview, Prisma, User } from '@prisma/client';
 import { MapsService } from './maps.service';
 import { EXTENDED_PRISMA_SERVICE } from '../database/db.constants';
 import { ExtendedPrismaService } from '../database/prisma.extension';
+import { expandToIncludes, undefinedIfEmpty } from '@momentum/util-fn';
 
 @Injectable()
 export class MapReviewService {
@@ -25,10 +25,10 @@ export class MapReviewService {
   ): Promise<PagedResponseDto<MapReviewDto>> {
     await this.mapsService.getMapAndCheckReadAccess(mapID, userID);
 
-    let include: Prisma.MapReviewInclude = expandToPrismaIncludes(
-      // Map 'map' expand to 'mmap'
-      query.expand?.map((x) => (x === 'map' ? 'mmap' : x))
-    );
+    const include: Prisma.MapReviewInclude =
+      expandToIncludes(query.expand, {
+        mappings: [{ expand: 'map', model: 'mmap' }]
+      }) ?? {};
 
     // If we're filtering by officiality we need to know user roles
     const hasRoleFiltering = query.official !== undefined;
@@ -36,10 +36,11 @@ export class MapReviewService {
       include['reviewer'] = true;
     }
 
-    const dbResponse = await this.db.mapReview.findMany({
-      where: { mapID },
-      include: trueIfEmpty(include)
-    });
+    const dbResponse: (MapReview & { reviewer?: User })[] =
+      await this.db.mapReview.findMany({
+        where: { mapID },
+        include: undefinedIfEmpty(include)
+      });
 
     // Filter by official/unofficial if exists on query
     const filteredResponse = hasRoleFiltering

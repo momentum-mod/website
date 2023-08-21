@@ -28,11 +28,3 @@ export function throwIfEmpty(obj: object) {
 export function undefinedIfEmpty(obj: object) {
   return isEmpty(obj) ? undefined : obj;
 }
-
-/**
- * Return undefined if provided object is empty, otherwise return the object.
- * Useful for Prisma includes.
- */
-export function trueIfEmpty(obj: object) {
-  return isEmpty(obj) ? true : obj;
-}

@@ -9,9 +9,7 @@ import {
 import { Prisma } from '@prisma/client';
 import {
   AdminUpdateUserDto,
-  checkNotEmpty,
   DtoFactory,
-  expandToPrismaIncludes,
   PagedResponseDto,
   ReportDto,
   UpdateReportDto,
@@ -21,6 +19,7 @@ import { Bitflags } from '@momentum/bitflags';
 import { Role } from '@momentum/constants';
 import { EXTENDED_PRISMA_SERVICE } from '../database/db.constants';
 import { ExtendedPrismaService } from '../database/prisma.extension';
+import { expandToIncludes, throwIfEmpty } from '@momentum/util-fn';
 
 @Injectable()
 export class AdminService {
@@ -172,7 +171,6 @@ export class AdminService {
 
     if (!user) throw new NotFoundException('User not found');
 
-
     const updateInput: Prisma.UserUpdateInput = {};
 
     if (update.bans) updateInput.bans = update.bans;
@@ -256,7 +254,7 @@ export class AdminService {
   ) {
     const dbResponse = await this.db.report.findManyAndCount({
       where: { resolved },
-      include: expandToPrismaIncludes(expand),
+      include: expandToIncludes(expand),
       skip,
       take
     });

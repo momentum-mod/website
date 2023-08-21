@@ -23,6 +23,7 @@ import {
 import { EXTENDED_PRISMA_SERVICE } from '../database/db.constants';
 import { ExtendedPrismaService } from '../database/prisma.extension';
 import { MapsService } from './maps.service';
+import { expandToIncludes, findWithIndex } from '@momentum/util-fn';
 
 @Injectable()
 export class MapCreditsService {
@@ -40,9 +41,7 @@ export class MapCreditsService {
 
     const dbResponse = await this.db.mapCredit.findMany({
       where: { mapID },
-      include: expandToPrismaIncludes(
-        expand?.filter((x) => ['user'].includes(x))
-      )
+      include: expandToIncludes(expand)
     });
 
     return dbResponse.map((x) => DtoFactory(MapCreditDto, x));
@@ -58,7 +57,7 @@ export class MapCreditsService {
 
     const dbResponse = await this.db.mapCredit.findUnique({
       where: { mapID_userID: { mapID, userID } },
-      include: expandToPrismaIncludes(expand)
+      include: expandToIncludes(expand)
     });
 
     if (!dbResponse) throw new NotFoundException('Map credit not found');

@@ -24,7 +24,6 @@ import {
   AdminCtlMapsGetAllQueryDto,
   CreateMapDto,
   DtoFactory,
-  expandToPrismaIncludes,
   MapDto,
   MapInfoDto,
   MapsCtlGetAllQueryDto,
@@ -37,15 +36,16 @@ import {
   ActivityType,
   CombinedRoles,
   MapCreditType,
+  MapsGetExpand,
   MapStatus,
   MapStatusNew
 } from '@momentum/constants';
-import { isEmpty } from 'lodash';
 import { MapImageService } from './map-image.service';
 import { EXTENDED_PRISMA_SERVICE } from '../database/db.constants';
 import { ExtendedPrismaService } from '../database/prisma.extension';
 import { Bitflags } from '@momentum/bitflags';
 import { MapTestingRequestState } from '@momentum/constants';
+import { expandToIncludes, undefinedIfEmpty } from '@momentum/util-fn';
 
 @Injectable()
 export class MapsService {
@@ -101,35 +101,30 @@ export class MapsService {
     const include: Prisma.MMapInclude = {
       mainTrack: true,
       info: true,
-      ...expandToPrismaIncludes(
-        query.expand?.filter((x) =>
-          [
-            'credits',
-            'thumbnail',
-            'submitter',
-            'stats',
-            'images',
-            'tracks',
-            'info'
-          ].includes(x)
-        )
-      )
+      ...expandToIncludes(query.expand, {
+        without: ['personalBest', 'worldRecord'],
+        mappings: [
+          { expand: 'credits', value: { include: { user: true } } },
+          {
+            expand: 'inFavorites',
+            model: 'favorites',
+            value: { where: { userID: userID } }
+          },
+          {
+            expand: 'inLibrary',
+            model: 'libraryEntries',
+            value: { where: { userID: userID } }
+          }
+        ]
+      })
     };
 
-    if (query.expand?.includes('credits'))
-      include.credits = { include: { user: true } };
-
-    const incPB = query.expand?.includes('personalBest');
-    const incWR = query.expand?.includes('worldRecord');
-
-    this.handleMapGetIncludes(
-      include,
-      query.expand?.includes('inFavorites'),
-      query.expand?.includes('inLibrary'),
-      incPB,
-      incWR,
-      userID
-    );
+    let incPB: boolean, incWR: boolean;
+    if (query instanceof MapsCtlGetAllQueryDto) {
+      incPB = query.expand?.includes('personalBest');
+      incWR = query.expand?.includes('worldRecord');
+      this.handleMapGetIncludes(include, incPB, incWR, userID);
+    }
 
     const dbResponse = await this.db.mMap.findManyAndCount({
       where,
@@ -150,36 +145,39 @@ export class MapsService {
   async get(
     mapID: number,
     userID?: number,
-    expand?: string[]
+    expand?: MapsGetExpand
   ): Promise<MapDto> {
-    const include: Prisma.MMapInclude =
-      expandToPrismaIncludes(
-        expand?.filter((x) =>
-          ['info', 'submitter', 'images', 'thumbnail', 'stats'].includes(x)
-        )
-      ) ?? {};
-
-    if (expand?.includes('tracks'))
-      include.tracks = {
-        include: {
-          zones: { include: { triggers: { include: { properties: true } } } }
+    const include: Prisma.MMapInclude = expandToIncludes(expand, {
+      without: ['personalBest', 'worldRecord'],
+      mappings: [
+        {
+          expand: 'tracks',
+          value: {
+            include: {
+              zones: {
+                include: { triggers: { include: { properties: true } } }
+              }
+            }
+          }
+        },
+        { expand: 'credits', value: { include: { user: true } } },
+        {
+          expand: 'inFavorites',
+          model: 'favorites',
+          value: { where: { userID: userID } }
+        },
+        {
+          expand: 'inLibrary',
+          model: 'libraryEntries',
+          value: { where: { userID: userID } }
         }
-      };
-
-    if (expand?.includes('credits'))
-      include.credits = { include: { user: true } };
+      ]
+    });
 
     const incPB = expand?.includes('personalBest');
     const incWR = expand?.includes('worldRecord');
 
-    this.handleMapGetIncludes(
-      include,
-      expand?.includes('inFavorites'),
-      expand?.includes('inLibrary'),
-      incPB,
-      incWR,
-      userID
-    );
+    this.handleMapGetIncludes(include, incPB, incWR, userID);
 
     const map = await this.getMapAndCheckReadAccess(
       mapID,
@@ -213,24 +211,19 @@ export class MapsService {
 
   private handleMapGetIncludes(
     include: Prisma.MMapInclude,
-    fav: boolean,
-    lib: boolean,
     PB: boolean,
     WR: boolean,
     userID?: number
   ): void {
-    if (fav && userID) include.favorites = { where: { userID: userID } };
-    if (lib && userID) include.libraryEntries = { where: { userID: userID } };
+    if (!(PB || WR)) return;
 
-    if (PB || WR) {
-      include.ranks = { include: { run: true, user: true } };
-      if (PB && WR) {
-        include.ranks.where = { OR: [{ userID: userID }, { rank: 1 }] };
-      } else if (PB) {
-        include.ranks.where = { userID: userID };
-      } else {
-        include.ranks.where = { rank: 1 };
-      }
+    include.ranks = { include: { run: true, user: true } };
+    if (PB && WR) {
+      include.ranks.where = { OR: [{ userID: userID }, { rank: 1 }] };
+    } else if (PB) {
+      include.ranks.where = { userID: userID };
+    } else {
+      include.ranks.where = { rank: 1 };
     }
   }
 
