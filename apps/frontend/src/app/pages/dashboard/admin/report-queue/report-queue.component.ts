@@ -43,7 +43,7 @@ export class ReportQueueComponent implements OnInit {
     this.isLoading = true;
     this.adminService
       .getReports({
-        expand: ['submitter,resolver'],
+        expand: ['submitter', 'resolver'],
         skip: (this.currentPage - 1) * this.pageLimit,
         resolved: this.filters.resolved
       })
