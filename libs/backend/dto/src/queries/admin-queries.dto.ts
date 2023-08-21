@@ -8,18 +8,6 @@ import {
   AdminCreateUserQuery,
   AdminGetReportsQuery
 } from '@momentum/constants';
-import { QueryDto } from './query.dto';
-
-export class AdminCreateUserQueryDto
-  extends QueryDto
-  implements AdminCreateUserQuery
-{
-  @StringQueryProperty({
-    required: true,
-    description: 'The alias to set the new user to'
-  })
-  readonly alias?: string;
-}
 
 export class AdminGetReportsQueryDto
   extends PagedQueryDto
