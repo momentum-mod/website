@@ -8,7 +8,15 @@ import {
   NotFoundException,
   ServiceUnavailableException
 } from '@nestjs/common';
-import { Follow, Prisma, Rank, User, UserAuth } from '@prisma/client';
+import {
+  Follow,
+  MapFavorite,
+  MMap,
+  Prisma,
+  Rank,
+  User,
+  UserAuth
+} from '@prisma/client';
 import { ConfigService } from '@nestjs/config';
 import { SteamService } from '../steam/steam.service';
 import {
@@ -32,7 +40,13 @@ import {
 } from '@momentum/backend/dto';
 import { AuthenticatedUser } from '../auth/auth.interface';
 import { SteamUserSummaryData } from '../steam/steam.interface';
-import { ActivityType, Ban, Role } from '@momentum/constants';
+import {
+  ActivityType,
+  Ban,
+  Role,
+  UserMapFavoritesGetExpand,
+  UserMapLibraryGetExpand
+} from '@momentum/constants';
 import { Bitflags } from '@momentum/bitflags';
 import { EXTENDED_PRISMA_SERVICE } from '../database/db.constants';
 import { ExtendedPrismaService } from '../database/prisma.extension';
@@ -40,7 +54,6 @@ import {
   expandToIncludes,
   isEmpty,
   throwIfEmpty,
-  trueIfEmpty,
   undefinedIfEmpty
 } from '@momentum/util-fn';
 
@@ -619,7 +632,6 @@ export class UsersService {
       user: true
     };
 
-
     const where: Prisma.MapLibraryEntryWhereInput = { userID };
     if (search) where.mmap = { name: { contains: search } };
 
@@ -690,13 +702,24 @@ export class UsersService {
       mmap: !isEmpty(mapIncludes) ? { include: mapIncludes } : undefined
     };
 
-
-    const dbResponse = await this.db.mapFavorite.findManyAndCount({
+    const dbResponse: [
+      (MapFavorite & { mmap?: MMap & { personalBest?: Rank } })[],
+      number
+    ] = await this.db.mapFavorite.findManyAndCount({
       where,
       include,
       skip,
       take
     });
+
+    if (expand?.includes('personalBest')) {
+      for (const { mmap } of dbResponse[0] as (MapFavorite & {
+        mmap?: MMap & { personalBest?: Rank; ranks?: Rank[] };
+      })[]) {
+        mmap.personalBest = mmap.ranks[0];
+        delete mmap.ranks;
+      }
+    }
 
     return new PagedResponseDto(MapFavoriteDto, dbResponse);
   }
