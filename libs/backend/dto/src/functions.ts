@@ -18,18 +18,3 @@ export function DtoFactory<T>(
   // ClassSerializerInterceptor.
   return plainToInstance(type, input, { ignoreDecorators: true });
 }
-
-/**
- * Transform an array of expansion strings into Prisma includes e.g. { foo: true, bar: true, ... }
- * @param expansions - String array of all the allowed expansions
- * */
-export function expandToPrismaIncludes(
-  expansions: string[]
-): Record<string, boolean> | undefined {
-  if (!expansions || !Array.isArray(expansions) || expansions.length === 0)
-    return undefined;
-
-  const includes: Record<string, boolean> = {};
-  for (const expansion of expansions) includes[expansion] = true;
-  return includes;
-}
