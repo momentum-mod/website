@@ -184,7 +184,7 @@ export class MapsService {
     const map = await this.getMapAndCheckReadAccess(
       mapID,
       userID,
-      isEmpty(include) ? undefined : include
+      undefinedIfEmpty(include)
     );
 
     // We'll delete this stupid shit soon

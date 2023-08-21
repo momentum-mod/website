@@ -33,13 +33,12 @@ export class MapReviewService {
     // If we're filtering by officiality we need to know user roles
     const hasRoleFiltering = query.official !== undefined;
     if (hasRoleFiltering) {
-      include ??= {};
       include['reviewer'] = true;
     }
 
     const dbResponse = await this.db.mapReview.findMany({
       where: { mapID },
-      include
+      include: trueIfEmpty(include)
     });
 
     // Filter by official/unofficial if exists on query

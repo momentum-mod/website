@@ -163,6 +163,8 @@ export class AdminService {
     userID: number,
     update: AdminUpdateUserDto
   ) {
+    throwIfEmpty(update);
+
     const user: any = await this.db.user.findUnique({
       where: { id: userID },
       include: { profile: true }
@@ -170,7 +172,6 @@ export class AdminService {
 
     if (!user) throw new NotFoundException('User not found');
 
-    checkNotEmpty(update);
 
     const updateInput: Prisma.UserUpdateInput = {};
 
