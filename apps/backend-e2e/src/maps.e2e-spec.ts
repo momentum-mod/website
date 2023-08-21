@@ -3119,15 +3119,15 @@ describe('Maps', () => {
 
   describe('maps/{mapID}/reviews', () => {
     describe('GET', () => {
-      let u1, u1token, u2, u2token, mmap, reviewOfficial, reviewUnofficial;
+      let u1, u1Token, u2, u2Token, map, reviewOfficial, reviewUnofficial;
       beforeAll(async () => {
-        [[u1, u1token], [u2, u2token]] = await Promise.all([
+        [[u1, u1Token], [u2, u2Token]] = await Promise.all([
           db.createAndLoginUser({ data: { roles: Role.MAPPER } }),
           db.createAndLoginUser({ data: { roles: Role.REVIEWER } })
         ]);
 
-        mmap = await db.createMap({
-          status: MapStatus.PUBLIC_TESTING,
+        map = await db.createMap({
+          status: MapStatusNew.PUBLIC_TESTING,
           submitter: { connect: { id: u1.id } }
         });
 
@@ -3136,43 +3136,43 @@ describe('Maps', () => {
           data: {
             mainText: 'Great map!',
             suggestions: {},
-            mmap: { connect: { id: mmap.id } },
+            mmap: { connect: { id: map.id } },
             reviewer: { connect: { id: u2.id } },
-            resolved: true,
-            createdAt: undefined
+            resolved: true
           }
         });
 
         // unofficial review
         reviewUnofficial = await prisma.mapReview.create({
           data: {
-            mainText: 'Wow, what a map.',
+            mainText: 'Wow, what a shit map.',
             suggestions: {},
-            mmap: { connect: { id: mmap.id } },
+            mmap: { connect: { id: map.id } },
             reviewer: { connect: { id: u1.id } },
-            resolved: true,
-            createdAt: undefined
+            resolved: true
           }
         });
       });
 
+      afterAll(() => db.cleanup('mMap', 'user'));
+
       it('should return all reviews associated to the given map', async () => {
         const response = await req.get({
-          url: `maps/${mmap.id}/reviews`,
+          url: `maps/${map.id}/reviews`,
           status: 200,
           validatePaged: { type: MapReviewDto, count: 2 },
-          token: u1token
+          token: u1Token
         });
         expect(response.body.data[0]).toMatchObject({
           mainText: 'Great map!',
-          mapID: mmap.id
+          mapID: map.id
         });
       });
 
       it('should return the reviews associated to the given map expanding the map information', async () => {
         await req.expandTest({
-          url: `maps/${mmap.id}/reviews`,
-          token: u1token,
+          url: `maps/${map.id}/reviews`,
+          token: u1Token,
           expand: 'map',
           validate: MapReviewDto,
           paged: true,
@@ -3182,8 +3182,8 @@ describe('Maps', () => {
 
       it('should return the reviews associated to the given map expanding the author information', async () => {
         await req.expandTest({
-          url: `maps/${mmap.id}/reviews`,
-          token: u1token,
+          url: `maps/${map.id}/reviews`,
+          token: u1Token,
           expand: 'reviewer',
           validate: MapReviewDto,
           paged: true,
@@ -3193,11 +3193,11 @@ describe('Maps', () => {
 
       it('should return the official reviews associated to the given map', async () => {
         const response = await req.get({
-          url: `maps/${mmap.id}/reviews`,
+          url: `maps/${map.id}/reviews`,
           status: 200,
           validatePaged: { type: MapReviewDto, count: 1 },
           query: { official: true },
-          token: u1token
+          token: u1Token
         });
         expect(response.body.data[0]).toMatchObject({
           mainText: reviewOfficial.mainText,
@@ -3207,11 +3207,11 @@ describe('Maps', () => {
 
       it('should return the unofficial reviews associated to the given map', async () => {
         const response = await req.get({
-          url: `maps/${mmap.id}/reviews`,
+          url: `maps/${map.id}/reviews`,
           status: 200,
           validatePaged: { type: MapReviewDto, count: 1 },
           query: { official: false },
-          token: u2token
+          token: u2Token
         });
         expect(response.body.data[0]).toMatchObject({
           mainText: reviewUnofficial.mainText,
@@ -3221,11 +3221,11 @@ describe('Maps', () => {
 
       it('should return the official reviews including reviewers', async () => {
         const response = await req.get({
-          url: `maps/${mmap.id}/reviews`,
+          url: `maps/${map.id}/reviews`,
           status: 200,
           validatePaged: { type: MapReviewDto, count: 1 },
           query: { official: true, expand: 'reviewer' },
-          token: u1token
+          token: u1Token
         });
         expect(response.body.data[0]).toHaveProperty('reviewer');
         expect(response.body.data[0]).toMatchObject({
@@ -3233,6 +3233,35 @@ describe('Maps', () => {
           mapID: reviewOfficial.mapID
         });
       });
+
+      // Test that permissions checks are getting called
+      it('should 403 if the user does not have permission to access to the map', async () => {
+        await prisma.mMap.update({
+          where: { id: map.id },
+          data: { status: MapStatusNew.PRIVATE_TESTING }
+        });
+
+        await req.get({
+          url: `maps/${map.id}/reviews`,
+          status: 403,
+          token: u2Token
+        });
+
+        await prisma.mMap.update({
+          where: { id: map.id },
+          data: { status: MapStatusNew.APPROVED }
+        });
+      });
+
+      it('should return 404 for a nonexistent map', () =>
+        req.get({
+          url: `maps/${NULL_ID}/reviews`,
+          status: 404,
+          token: u1Token
+        }));
+
+      it('should 401 when no access token is provided', () =>
+        req.unauthorizedTest('maps/1/reviews', 'get'));
     });
   });
 });
