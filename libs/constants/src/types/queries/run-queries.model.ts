@@ -1,7 +1,15 @@
 ﻿import { PagedQuery } from './pagination.model';
 
+export type RunsGetAllExpand = (
+  | 'overallStats'
+  | 'map'
+  | 'mapWithInfo'
+  | 'rank'
+  | 'zoneStats'
+)[];
+
 export type RunsGetAllQuery = PagedQuery & {
-  expand?: string[];
+  expand?: RunsGetAllExpand;
   mapID?: number;
   mapName?: string;
   userID?: number;
@@ -11,6 +19,8 @@ export type RunsGetAllQuery = PagedQuery & {
   order?: string;
 };
 
+export type RunsGetExpand = RunsGetAllExpand;
+
 export type RunsGetQuery = {
-  expand?: string[];
+  expand?: RunsGetExpand;
 };

@@ -1,4 +1,9 @@
-﻿import { RunsGetAllQuery, RunsGetQuery } from '@momentum/constants';
+﻿import {
+  RunsGetAllExpand,
+  RunsGetAllQuery,
+  RunsGetExpand,
+  RunsGetQuery
+} from '@momentum/constants';
 import { ApiPropertyOptional } from '@nestjs/swagger';
 import { IsOptional, IsString } from 'class-validator';
 import {
@@ -26,7 +31,7 @@ export class RunsGetAllQueryDto extends QueryDto implements RunsGetAllQuery {
     'rank',
     'zoneStats'
   ])
-  expand?: string[];
+  expand?: RunsGetAllExpand;
 
   @IntQueryProperty({ description: 'Filter by map ID' })
   mapID?: number;
@@ -70,5 +75,5 @@ export class RunsGetQueryDto extends QueryDto implements RunsGetQuery {
     'rank',
     'zoneStats'
   ])
-  readonly expand?: string[];
+  readonly expand?: RunsGetExpand;
 }

@@ -16,6 +16,7 @@ import { MMap } from '.prisma/client';
 import { Bitflags } from '@momentum/bitflags';
 import {
   ActivityType,
+  MapCreditsGetExpand,
   MapCreditType,
   MapStatus,
   Role
@@ -35,7 +36,7 @@ export class MapCreditsService {
   async getCredits(
     mapID: number,
     loggedInUserID: number,
-    expand: string[]
+    expand: MapCreditsGetExpand
   ): Promise<MapCreditDto[]> {
     await this.mapsService.getMapAndCheckReadAccess(mapID, loggedInUserID);
 
@@ -51,7 +52,7 @@ export class MapCreditsService {
     mapID: number,
     userID: number,
     loggedInUserID: number,
-    expand: string[]
+    expand: MapCreditsGetExpand
   ): Promise<MapCreditDto> {
     await this.mapsService.getMapAndCheckReadAccess(mapID, loggedInUserID);
 

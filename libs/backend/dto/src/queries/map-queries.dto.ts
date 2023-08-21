@@ -1,7 +1,12 @@
 import {
   MapStatusNew,
   Gamemode,
-  MapReviewsGetQuery
+  MapReviewsGetQuery,
+  MapsGetAllExpand,
+  MapReviewsGetExpand,
+  MapCreditsGetExpand,
+  MapsGetExpand,
+  AdminMapsGetAllExpand
 } from '@momentum/constants';
 import {
   AdminMapsGetAllQuery,
@@ -41,7 +46,7 @@ export class AdminCtlMapsGetAllQueryDto implements AdminMapsGetAllQuery {
   readonly submitterID?: number;
 
   @ExpandQueryProperty(['submitter', 'credits'])
-  readonly expand?: string[];
+  readonly expand?: AdminMapsGetAllExpand;
 
   @EnumQueryProperty(MapStatusNew, {
     description: 'Filter by map status flags'
@@ -69,19 +74,19 @@ export class MapsCtlGetAllQueryDto implements MapsGetAllQuery {
   readonly submitterID?: number;
 
   @ExpandQueryProperty([
-    'submitter',
+    'info',
     'credits',
+    'submitter',
+    'images',
     'thumbnail',
     'stats',
-    'images',
     'tracks',
-    'info',
     'inFavorites',
     'inLibrary',
     'personalBest',
     'worldRecord'
   ])
-  readonly expand?: string[];
+  readonly expand?: MapsGetAllExpand;
 
   @EnumQueryProperty(Gamemode, { description: 'Filter by map type (gamemode)' })
   readonly type?: Gamemode;
@@ -104,13 +109,13 @@ export class MapsGetQueryDto extends QueryDto implements MapsGetQuery {
     'images',
     'thumbnail',
     'stats',
+    'tracks',
     'inFavorites',
     'inLibrary',
     'personalBest',
-    'worldRecord',
-    'tracks'
+    'worldRecord'
   ])
-  readonly expand?: string[];
+  readonly expand?: MapsGetExpand;
 }
 
 export class MapCreditsGetQueryDto
@@ -118,7 +123,7 @@ export class MapCreditsGetQueryDto
   implements MapCreditsGetQuery
 {
   @ExpandQueryProperty(['user'])
-  readonly expand?: string[];
+  readonly expand?: MapCreditsGetExpand;
 }
 
 export class MapRanksGetQueryDto
@@ -166,5 +171,5 @@ export class MapReviewsGetQueryDto
   readonly official?: boolean;
 
   @ExpandQueryProperty(['map', 'reviewer'])
-  readonly expand?: string[];
+  readonly expand?: MapReviewsGetExpand;
 }
