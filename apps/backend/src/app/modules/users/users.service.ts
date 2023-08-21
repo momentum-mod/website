@@ -36,7 +36,6 @@ import { AuthenticatedUser } from '../auth/auth.interface';
 import { SteamUserSummaryData } from '../steam/steam.interface';
 import { ActivityType, Ban, Role } from '@momentum/constants';
 import { Bitflags } from '@momentum/bitflags';
-import { isEmpty } from 'lodash';
 import { EXTENDED_PRISMA_SERVICE } from '../database/db.constants';
 import { ExtendedPrismaService } from '../database/prisma.extension';
 
@@ -73,11 +72,9 @@ export class UsersService {
       };
     }
 
-    let include: Prisma.UserInclude = expandToPrismaIncludes(query.expand);
+    const include: Prisma.UserInclude = expandToIncludes(query.expand) ?? {};
 
     if (query.mapRank) {
-      include ??= {};
-
       include.mapRanks = {
         where: { mapID: query.mapRank },
         include: { run: true }
@@ -86,7 +83,7 @@ export class UsersService {
 
     const dbResponse = await this.db.user.findManyAndCount({
       where,
-      include,
+      include: trueIfEmpty(include),
       skip: query.skip,
       take
     });
@@ -112,10 +109,9 @@ export class UsersService {
   }
 
   async get(id: number, expand?: string[], mapRank?: number): Promise<UserDto> {
-    let include: Prisma.UserInclude = expandToPrismaIncludes(expand);
+    const include: Prisma.UserInclude = expandToIncludes(expand) ?? {};
 
     if (mapRank) {
-      include ??= {};
       include.mapRanks = {
         where: { mapID: mapRank },
         include: { run: true }
@@ -124,7 +120,7 @@ export class UsersService {
 
     const dbResponse: any = await this.db.user.findUnique({
       where: { id },
-      include
+      include: trueIfEmpty(include)
     });
 
     if (!dbResponse) throw new NotFoundException('User not found');
@@ -220,14 +216,14 @@ export class UsersService {
   }
 
   async update(userID: number, update: UpdateUserDto) {
+    throwIfEmpty(update);
+
     const user = await this.db.user.findUnique({
       where: { id: userID },
       include: { profile: true }
     });
 
     const updateInput: Prisma.UserUpdateInput = {};
-
-    checkNotEmpty(update);
 
     // Strict check - we want to handle if alias is empty string
     if (update.alias !== undefined) {
@@ -667,7 +663,9 @@ export class UsersService {
     if (search) where.mmap = { name: { contains: search } };
 
     const include: Prisma.MapFavoriteInclude = {
-      user: true
+      user: true,
+      mmap: trueIfEmpty(
+      )
     };
 
     const mapIncludes =

@@ -1,4 +1,4 @@
-import { BadRequestException, Type } from '@nestjs/common';
+import { Type } from '@nestjs/common';
 import { plainToInstance } from 'class-transformer';
 
 /**
@@ -32,12 +32,4 @@ export function expandToPrismaIncludes(
   const includes: Record<string, boolean> = {};
   for (const expansion of expansions) includes[expansion] = true;
   return includes;
-}
-
-/**
- * Return 400 whenever a request body is empty
- */
-export function checkNotEmpty(body: object): void {
-  if (Object.keys(body).length === 0)
-    throw new BadRequestException('Empty request body');
 }
