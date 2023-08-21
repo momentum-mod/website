@@ -13,9 +13,7 @@ import { ConfigService } from '@nestjs/config';
 import { SteamService } from '../steam/steam.service';
 import {
   ActivityDto,
-  checkNotEmpty,
   DtoFactory,
-  expandToPrismaIncludes,
   FollowDto,
   FollowStatusDto,
   MapCreditDto,
@@ -38,6 +36,13 @@ import { ActivityType, Ban, Role } from '@momentum/constants';
 import { Bitflags } from '@momentum/bitflags';
 import { EXTENDED_PRISMA_SERVICE } from '../database/db.constants';
 import { ExtendedPrismaService } from '../database/prisma.extension';
+import {
+  expandToIncludes,
+  isEmpty,
+  throwIfEmpty,
+  trueIfEmpty,
+  undefinedIfEmpty
+} from '@momentum/util-fn';
 
 @Injectable()
 export class UsersService {
@@ -83,7 +88,7 @@ export class UsersService {
 
     const dbResponse = await this.db.user.findManyAndCount({
       where,
-      include: trueIfEmpty(include),
+      include: undefinedIfEmpty(include),
       skip: query.skip,
       take
     });
@@ -120,7 +125,7 @@ export class UsersService {
 
     const dbResponse: any = await this.db.user.findUnique({
       where: { id },
-      include: trueIfEmpty(include)
+      include: undefinedIfEmpty(include)
     });
 
     if (!dbResponse) throw new NotFoundException('User not found');
@@ -597,20 +602,23 @@ export class UsersService {
     skip: number,
     take: number,
     search: string,
-    expand: string[]
+    expand: UserMapLibraryGetExpand
   ): Promise<PagedResponseDto<MapLibraryEntryDto>> {
-    const include: { mmap: Prisma.MMapArgs; user: boolean } = {
+    const include: Prisma.MapLibraryEntryInclude = {
       mmap: {
-        include: expandToPrismaIncludes(
-          expand?.filter((x) => x !== 'inFavorites')
-        )
+        include: expandToIncludes(expand, {
+          mappings: [
+            {
+              expand: 'inFavorites',
+              model: 'favorites',
+              value: { where: { userID } }
+            }
+          ]
+        })
       },
       user: true
     };
 
-    if (expand?.includes('inFavorites')) {
-      include.mmap.include = { favorites: { where: { userID } } };
-    }
 
     const where: Prisma.MapLibraryEntryWhereInput = { userID };
     if (search) where.mmap = { name: { contains: search } };
@@ -662,24 +670,26 @@ export class UsersService {
 
     if (search) where.mmap = { name: { contains: search } };
 
+    const mapIncludes: Prisma.MMapInclude = expandToIncludes(expand, {
+      mappings: [
+        {
+          expand: 'inLibrary',
+          model: 'libraryEntries',
+          value: { where: { userID } }
+        },
+        {
+          expand: 'personalBest',
+          model: 'ranks',
+          value: { where: { userID } }
+        }
+      ]
+    });
+
     const include: Prisma.MapFavoriteInclude = {
       user: true,
-      mmap: trueIfEmpty(
-      )
+      mmap: !isEmpty(mapIncludes) ? { include: mapIncludes } : undefined
     };
 
-    const mapIncludes =
-      (expandToPrismaIncludes(
-        expand?.filter((x) => !['inLibrary', 'personalBest'].includes(x))
-      ) as Prisma.MMapInclude) ?? {};
-
-    if (expand?.includes('inLibrary'))
-      mapIncludes.libraryEntries = { where: { userID } };
-
-    if (expand?.includes('personalBest'))
-      mapIncludes.ranks = { where: { userID } };
-
-    include.mmap = !isEmpty(mapIncludes) ? { include: mapIncludes } : true;
 
     const dbResponse = await this.db.mapFavorite.findManyAndCount({
       where,

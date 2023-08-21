@@ -9,41 +9,41 @@ import { ConfigService } from '@nestjs/config';
 import { FileStoreCloudService } from '../filestore/file-store-cloud.service';
 import {
   DtoFactory,
-  expandToPrismaIncludes,
   PagedResponseDto,
   RunDto,
   RunsGetAllQueryDto
 } from '@momentum/backend/dto';
 import { EXTENDED_PRISMA_SERVICE } from '../database/db.constants';
 import { ExtendedPrismaService } from '../database/prisma.extension';
+import { expandToIncludes } from '@momentum/util-fn';
+import { RunsGetAllExpand } from '@momentum/constants';
 
 @Injectable()
 export class RunsService {
   constructor(
     @Inject(EXTENDED_PRISMA_SERVICE) private readonly db: ExtendedPrismaService,
-
     private readonly configService: ConfigService,
     private readonly fileCloudService: FileStoreCloudService
   ) {}
 
-  async get(runID: number, expand: string[]): Promise<RunDto> {
+  async get(runID: number, expand: RunsGetAllExpand): Promise<RunDto> {
     const include: Prisma.RunInclude = {
       user: true,
-      ...expandToPrismaIncludes(
-        expand?.filter((x) => ['overallStats', 'rank', 'zoneStats'].includes(x))
-      )
+      ...expandToIncludes(expand, {
+        mappings: [
+          { expand: 'map', model: 'mmap' },
+          {
+            expand: 'mapWithInfo',
+            model: 'mmap',
+            value: { include: { info: true } }
+          }
+        ]
+      })
     };
-
-    if (expand?.includes('map')) {
-      include.mmap = true;
-    }
-
-    if (expand?.includes('mapWithInfo'))
-      include.mmap = { include: { info: true } };
 
     const dbResponse = await this.db.run.findUnique({
       where: { id: runID },
-      include: include
+      include
     });
 
     if (!dbResponse) throw new NotFoundException('Run not found');
@@ -53,24 +53,20 @@ export class RunsService {
 
   async getAll(query: RunsGetAllQueryDto): Promise<PagedResponseDto<RunDto>> {
     const where: Prisma.RunWhereInput = {};
-    let include: Prisma.RunInclude = {};
     const orderBy: Prisma.RunOrderByWithRelationInput = {};
-
-    include = {
+    const include: Prisma.RunInclude = {
       user: true,
-      ...expandToPrismaIncludes(
-        query.expand?.filter((x) =>
-          ['overallStats', 'zoneStats', 'rank'].includes(x)
-        )
-      )
+      ...expandToIncludes(query.expand, {
+        mappings: [
+          { expand: 'map', model: 'mmap' },
+          {
+            expand: 'mapWithInfo',
+            model: 'mmap',
+            value: { include: { info: true } }
+          }
+        ]
+      })
     };
-
-    if (query.expand?.includes('map')) {
-      include.mmap = true;
-    }
-
-    if (query.expand?.includes('mapWithInfo'))
-      include.mmap = { include: { info: true } };
 
     if (query.userID && query.userIDs)
       throw new BadRequestException(

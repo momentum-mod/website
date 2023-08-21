@@ -1,9 +1,4 @@
-import {
-  isEmpty,
-  throwIfEmpty,
-  trueIfEmpty,
-  undefinedIfEmpty
-} from './is-empty';
+import { isEmpty, throwIfEmpty, undefinedIfEmpty } from './is-empty';
 
 const testObj = { a: 1 };
 
@@ -35,15 +30,5 @@ describe('undefinedIfEmpty', () => {
 
   test('should return the object if it is not empty', () => {
     expect(undefinedIfEmpty(testObj)).toBe(testObj);
-  });
-});
-
-describe('trueIfEmpty', () => {
-  test('should return true if object is empty', () => {
-    expect(trueIfEmpty({})).toBe(true);
-  });
-
-  test('should return the object if it is not empty', () => {
-    expect(trueIfEmpty(testObj)).toBe(testObj);
   });
 });
