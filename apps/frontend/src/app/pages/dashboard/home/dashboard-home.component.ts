@@ -11,7 +11,7 @@ export class DashboardHomeComponent {
   user: User;
 
   constructor(public localUserService: LocalUserService) {
-    this.localUserService.getLocalUser({ expand: ['stats'] }).subscribe({
+    this.localUserService.getLocalUser({ expand: ['userStats'] }).subscribe({
       next: (response) => (this.user = response),
       error: (error) => console.error(error)
     });

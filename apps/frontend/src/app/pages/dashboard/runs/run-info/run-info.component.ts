@@ -26,7 +26,7 @@ export class RunInfoComponent implements OnInit {
       .pipe(
         switchMap((params: ParamMap) =>
           this.runService.getRun(params.get('id'), {
-            expand: ['user', 'map', 'runStats', 'runZoneStats', 'rank']
+            expand: ['map', 'overallStats', 'zoneStats', 'rank']
           })
         )
       )

@@ -97,6 +97,7 @@ export class MapListComponent implements OnInit {
     });
   }
 
+  // TODO: These types are ridiculous, but not worth messing with until we remove the map library system.
   genQueryParams():
     | UserMapLibraryGetQuery
     | UserMapFavoritesGetQuery
@@ -104,7 +105,7 @@ export class MapListComponent implements OnInit {
     this.lastSearch = this.searchOptions.value;
 
     const queryParams: Partial<UserMapLibraryGetQuery> = {
-      expand: ['info', 'submitter', 'thumbnail', 'inFavorites', 'inLibrary'],
+      expand: ['submitter', 'thumbnail', 'inFavorites'],
       take: this.pageLimit,
       skip: (this.currentPage - 1) * this.pageLimit
     };
@@ -125,33 +126,39 @@ export class MapListComponent implements OnInit {
     const options = this.genQueryParams();
     let observer: Observable<any>;
     if (this.isUpload) {
-      observer = this.localUserService.getSubmittedMaps(options);
+      observer = this.localUserService.getSubmittedMaps(
+        options as UserMapSubmittedGetQuery
+      );
     } else if (
       this.searchOptions.value.inLibrary &&
       this.searchOptions.value.inFavorites
     ) {
-      observer = this.localUserService.getMapLibrary(options).pipe(
-        map((res) => ({
-          count: res.returnCount,
-          response: res.data
-            .filter((item) => item.map.favorites.length > 0)
-            .map((item) => item.map)
-        }))
-      );
+      observer = this.localUserService
+        .getMapLibrary(options as UserMapLibraryGetQuery)
+        .pipe(
+          map((res) => ({
+            count: res.returnCount,
+            response: res.data
+              .filter((item) => item.map.favorites.length > 0)
+              .map((item) => item.map)
+          }))
+        );
     } else if (this.searchOptions.value.inLibrary) {
-      observer = this.localUserService.getMapLibrary(options).pipe(
+      observer = this.localUserService.getMapLibrary(options as any).pipe(
         map((res) => ({
           count: res.returnCount,
           response: res.data.map((item) => item.map)
         }))
       );
     } else if (this.searchOptions.value.inFavorites) {
-      observer = this.localUserService.getMapFavorites(options).pipe(
-        map((res) => ({
-          count: res.returnCount,
-          response: res.data.map((item) => item.map)
-        }))
-      );
+      observer = this.localUserService
+        .getMapFavorites(options as UserMapFavoritesGetQuery)
+        .pipe(
+          map((res) => ({
+            count: res.returnCount,
+            response: res.data.map((item) => item.map)
+          }))
+        );
     } else {
       observer = this.mapService.getMaps(options);
     }
