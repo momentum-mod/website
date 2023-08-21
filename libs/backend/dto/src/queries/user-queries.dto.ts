@@ -11,12 +11,18 @@ import {
 } from '../decorators';
 import { IsBigintValidator } from '@momentum/backend/validators';
 import {
+  UserMapFavoritesGetExpand,
   UserMapFavoritesGetQuery,
+  UserMapLibraryGetExpand,
   UserMapLibraryGetQuery,
+  UserMapSubmittedGetExpand,
   UserMapSubmittedGetQuery,
   UsersGetActivitiesQuery,
+  UsersGetAllExpand,
   UsersGetAllQuery,
+  UsersGetCreditsExpand,
   UsersGetCreditsQuery,
+  UsersGetExpand,
   UsersGetQuery
 } from '@momentum/constants';
 import { QueryDto } from './query.dto';
@@ -24,7 +30,7 @@ import { ActivityType } from '@momentum/constants';
 
 export class UsersGetQueryDto extends QueryDto implements UsersGetQuery {
   @ExpandQueryProperty(['profile', 'userStats'])
-  readonly expand?: string[];
+  readonly expand?: UsersGetExpand;
 
   @ApiPropertyOptional({
     name: 'mapRank',
@@ -42,7 +48,7 @@ export class UsersGetAllQueryDto
   implements UsersGetAllQuery
 {
   @ExpandQueryProperty(['profile', 'userStats'])
-  readonly expand?: string[];
+  readonly expand?: UsersGetAllExpand;
 
   @ApiPropertyOptional({
     name: 'search',
@@ -107,7 +113,7 @@ export class UsersGetCreditsQueryDto
   implements UsersGetCreditsQuery
 {
   @ExpandQueryProperty(['map', 'info', 'thumbnail'])
-  expand: string[];
+  expand: UsersGetCreditsExpand;
 }
 
 class UserMapsBaseGetQuery extends PagedQueryDto {
@@ -127,7 +133,7 @@ export class UserMapLibraryGetQueryDto
   implements UserMapLibraryGetQuery
 {
   @ExpandQueryProperty(['submitter', 'thumbnail', 'inFavorites'])
-  readonly expand: string[];
+  readonly expand: UserMapLibraryGetExpand;
 }
 
 export class UserMapFavoritesGetQueryDto
@@ -142,7 +148,7 @@ export class UserMapFavoritesGetQueryDto
     'inLibrary',
     'personalBest'
   ])
-  readonly expand: string[];
+  readonly expand: UserMapFavoritesGetExpand;
 }
 
 export class UserMapSubmittedGetQueryDto
@@ -150,5 +156,5 @@ export class UserMapSubmittedGetQueryDto
   implements UserMapSubmittedGetQuery
 {
   @ExpandQueryProperty(['info', 'submitter', 'credits'])
-  readonly expand: string[];
+  readonly expand: UserMapSubmittedGetExpand;
 }

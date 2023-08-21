@@ -9,26 +9,46 @@ type MapsGetAllBaseQuery = {
   submitterID?: number;
 };
 
+export type AdminMapsGetAllExpand = ('submitter' | 'credits')[];
+
 export type AdminMapsGetAllQuery = MapsGetAllBaseQuery & {
-  expand?: string[];
+  expand?: AdminMapsGetAllExpand;
   status?: MapStatusNew;
   priority?: boolean;
 };
 
+export type MapsGetAllExpand = (
+  | 'submitter'
+  | 'credits'
+  | 'thumbnail'
+  | 'stats'
+  | 'images'
+  | 'tracks'
+  | 'info'
+  | 'inFavorites'
+  | 'inLibrary'
+  | 'personalBest'
+  | 'worldRecord'
+)[];
+
 export type MapsGetAllQuery = MapsGetAllBaseQuery & {
-  expand?: string[];
+  expand?: MapsGetAllExpand;
   type?: Gamemode;
   difficultyLow?: number;
   difficultyHigh?: number;
   isLinear?: boolean;
 };
 
+export type MapsGetExpand = MapsGetAllExpand;
+
 export type MapsGetQuery = {
   expand?: string[];
 };
 
+export type MapCreditsGetExpand = ['user'];
+
 export type MapCreditsGetQuery = {
-  expand?: string[];
+  expand?: MapCreditsGetExpand;
 };
 
 export type MapRanksGetQuery = PagedQuery & {
@@ -43,6 +63,8 @@ export type MapRankGetNumberQuery = {
   zoneNum?: number;
   flags?: number;
 };
+
+export type MapReviewsGetExpand = ('map' | 'reviewer')[];
 
 export type MapReviewsGetQuery = {
   official?: boolean;

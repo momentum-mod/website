@@ -664,7 +664,7 @@ export class UsersService {
     skip: number,
     take: number,
     search: string,
-    expand: string[]
+    expand?: UserMapFavoritesGetExpand
   ) {
     const where: Prisma.MapFavoriteWhereInput = { userID: userID };
 

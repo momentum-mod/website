@@ -1,11 +1,7 @@
-﻿import {
-  BooleanQueryProperty,
-  ExpandQueryProperty,
-  StringQueryProperty
-} from '../decorators';
+﻿import { BooleanQueryProperty, ExpandQueryProperty } from '../decorators';
 import { PagedQueryDto } from './pagination.dto';
 import {
-  AdminCreateUserQuery,
+  AdminGetReportsExpand,
   AdminGetReportsQuery
 } from '@momentum/constants';
 
@@ -14,7 +10,7 @@ export class AdminGetReportsQueryDto
   implements AdminGetReportsQuery
 {
   @ExpandQueryProperty(['submitter', 'resolver'])
-  readonly expand: string[];
+  readonly expand: AdminGetReportsExpand;
 
   @BooleanQueryProperty({
     required: false,

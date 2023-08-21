@@ -1,10 +1,8 @@
 ﻿import { PagedQuery } from './pagination.model';
 
-export type AdminCreateUserQuery = {
-  alias?: string;
-};
+export type AdminGetReportsExpand = ('submitter' | 'resolver')[];
 
 export type AdminGetReportsQuery = PagedQuery & {
-  expand?: string[];
+  expand?: AdminGetReportsExpand;
   resolved?: boolean;
 };
