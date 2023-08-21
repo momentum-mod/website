@@ -20,5 +20,4 @@ export * from './maps/map-status-name.map';
 export * from './maps/allowed-modes.map';
 export * from './types/models';
 export * from './types/queries';
-export * from './types/utils/numberify-big-int.type';
-export * from './types/utils/bitwise-enum.type';
+export * from './types/utils/';
