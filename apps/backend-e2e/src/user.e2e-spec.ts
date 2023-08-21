@@ -1538,12 +1538,24 @@ describe('User', () => {
       });
 
       it('should retrieve a list of maps in the local users favorites with expanded PBs if the user has a PB', async () => {
+        await db.createRunAndRankForMap({
+          map: m1,
+          user,
+          ticks: 10,
+          rank: 2
+        });
+
         const res = await req.get({
           url: 'user/maps/favorites',
           status: 200,
-          query: { expand: 'thumbnail' },
           validatePaged: MapFavoriteDto,
-          token: token
+          query: { expand: 'personalBest' },
+          token
+        });
+
+        const map = res.body.data.find((map) => map.mapID === m1.id).map;
+        expect(map).toMatchObject({
+          personalBest: { rank: 2 }
         });
       });
 
