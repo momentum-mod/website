@@ -4,6 +4,7 @@ import { ActivityService } from '@momentum/frontend/data';
 import { ReplaySubject } from 'rxjs';
 import { Activity, User } from '@momentum/constants';
 import { ActivityType } from '@momentum/constants';
+import { SharedModule } from '../../../shared.module';
 
 describe('ActivityCardComponent', () => {
   let component: ActivityCardComponent;
@@ -21,6 +22,7 @@ describe('ActivityCardComponent', () => {
 
   beforeEach(async () => {
     TestBed.configureTestingModule({
+      imports: [SharedModule],
       declarations: [ActivityCardComponent],
       providers: [
         {

@@ -2,6 +2,7 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { CommunityTwitchStreamComponent } from './community-twitch-stream.component';
 import { of } from 'rxjs';
 import { TwitchAPIService } from '@momentum/frontend/data';
+import { SharedModule } from '../../../../shared.module';
 
 // Avast! Here be the tests for the CommunityTwitchStreamComponent
 describe('CommunityTwitchStreamComponent', () => {
@@ -12,6 +13,7 @@ describe('CommunityTwitchStreamComponent', () => {
   // Before each test, we be setting up the test bed
   beforeEach(async () => {
     TestBed.configureTestingModule({
+      imports: [SharedModule],
       declarations: [CommunityTwitchStreamComponent],
       providers: [
         {

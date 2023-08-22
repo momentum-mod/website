@@ -1,8 +1,8 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { ProfileNotifyEditComponent } from './profile-notify-edit.component';
-import { ThemeModule } from '@momentum/frontend/theme';
 import { NbDialogRef, NbStatusService } from '@nebular/theme';
+import { SharedModule } from '../../../../../shared.module';
 
 describe('ProfileNotifyEditComponent', () => {
   let component: ProfileNotifyEditComponent;
@@ -10,7 +10,7 @@ describe('ProfileNotifyEditComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [ThemeModule],
+      imports: [SharedModule],
       declarations: [ProfileNotifyEditComponent],
       providers: [NbStatusService, { provide: NbDialogRef, useValue: {} }]
     }).compileComponents();

@@ -3,7 +3,7 @@ import { HomeUserMapsComponent } from './home-user-maps.component';
 import { LocalUserService } from '@momentum/frontend/data';
 import { of } from 'rxjs';
 import { MapStatus } from '@momentum/constants';
-import { ThemeModule } from '@momentum/frontend/theme';
+import { SharedModule } from '../../../../shared.module';
 
 describe('HomeUserMapsComponent', () => {
   let component: HomeUserMapsComponent;
@@ -12,7 +12,7 @@ describe('HomeUserMapsComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [ThemeModule],
+      imports: [SharedModule],
       declarations: [HomeUserMapsComponent],
       providers: [
         {
