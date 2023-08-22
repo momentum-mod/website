@@ -45,7 +45,15 @@ export class AdminCtlMapsGetAllQueryDto implements AdminMapsGetAllQuery {
   @IntQueryProperty({ description: 'Filter by submitter ID' })
   readonly submitterID?: number;
 
-  @ExpandQueryProperty(['submitter', 'credits'])
+  @ExpandQueryProperty([
+    'submitter',
+    'credits',
+    'thumbnail',
+    'stats',
+    'images',
+    'tracks',
+    'info'
+  ])
   readonly expand?: AdminMapsGetAllExpand;
 
   @EnumQueryProperty(MapStatusNew, {
