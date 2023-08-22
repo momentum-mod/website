@@ -853,6 +853,51 @@ describe('Admin', () => {
         });
       });
 
+      it('should respond with expanded map data using the thumbnail expand parameter', () =>
+        req.expandTest({
+          url: 'admin/maps',
+          expand: 'thumbnail',
+          paged: true,
+          validate: MapDto,
+          token: adminToken
+        }));
+
+      it('should respond with expanded map data using the images expand parameter', () =>
+        req.expandTest({
+          url: 'admin/maps',
+          expand: 'images',
+          paged: true,
+          validate: MapDto,
+          token: adminToken
+        }));
+
+      it('should respond with expanded map data using the stats expand parameter', () =>
+        req.expandTest({
+          url: 'admin/maps',
+          expand: 'stats',
+          paged: true,
+          validate: MapDto,
+          token: adminToken
+        }));
+
+      it('should respond with expanded map data using the tracks expand parameter', () =>
+        req.expandTest({
+          url: 'admin/maps',
+          expand: 'tracks',
+          paged: true,
+          validate: MapDto,
+          token: adminToken
+        }));
+
+      it('should respond with expanded map data using the info expand parameter', () =>
+        req.expandTest({
+          url: 'admin/maps',
+          expand: 'info',
+          paged: true,
+          validate: MapDto,
+          token: adminToken
+        }));
+
       it('should return 403 if a non admin access token is given', () =>
         req.get({
           url: 'admin/maps',

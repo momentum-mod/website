@@ -9,7 +9,15 @@ type MapsGetAllBaseQuery = {
   submitterID?: number;
 };
 
-export type AdminMapsGetAllExpand = ('submitter' | 'credits')[];
+export type AdminMapsGetAllExpand = (
+  | 'submitter'
+  | 'credits'
+  | 'thumbnail'
+  | 'stats'
+  | 'images'
+  | 'tracks'
+  | 'info'
+)[];
 
 export type AdminMapsGetAllQuery = MapsGetAllBaseQuery & {
   expand?: AdminMapsGetAllExpand;
