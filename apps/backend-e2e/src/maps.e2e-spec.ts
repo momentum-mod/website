@@ -244,7 +244,7 @@ describe('Maps', () => {
           token: u1Token
         }));
 
-      it('should respond with expanded map data using the tracks info parameter', () =>
+      it('should respond with expanded map data using the info expand parameter', () =>
         req.expandTest({
           url: 'maps',
           expand: 'info',
