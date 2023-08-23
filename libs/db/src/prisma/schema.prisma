@@ -472,6 +472,8 @@ model MapSubmissionVersion {
   submission   MapSubmission? @relation(fields: [submissionID], references: [mapID], onDelete: Cascade)
   submissionID Int
 
+  createdAt DateTime @default(now())
+
   @@index([submissionID])
 }
 
