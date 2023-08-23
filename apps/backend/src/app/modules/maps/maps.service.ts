@@ -295,7 +295,6 @@ export class MapsService {
       submitter: { connect: { id: submitterID } },
       name: mapCreateDto.name,
       fileName: mapCreateDto.fileName,
-      type: mapCreateDto.type,
       stats: { create: { baseStats: { create: {} } } }, // Just init empty entry
       status: MapStatus.NEEDS_REVISION,
       info: {

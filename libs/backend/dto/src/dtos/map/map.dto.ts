@@ -135,7 +135,6 @@ export class MapDto implements MMap {
 export class UpdateMapDto extends PickType(MapDto, ['status'] as const) {}
 
 export class CreateMapDto
-  extends PickType(MapDto, ['name', 'fileName', 'type'] as const)
   implements CreateMap
 {
   @NestedProperty(CreateMapInfoDto, { required: true })
