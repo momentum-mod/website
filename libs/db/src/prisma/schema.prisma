@@ -449,9 +449,8 @@ model MapSubmission {
 
   type Int @db.SmallInt /// map-submission-type.enum.ts
 
-  suggestions         Json /// map-submission-suggestions.model.ts
-  wantsPrivateTesting Boolean
-  placeholders        Json?
+  suggestions  Json /// map-submission-suggestions.model.ts
+  placeholders Json?
 
   versions MapSubmissionVersion[]
 
@@ -485,7 +484,7 @@ model MapReview {
   mainText    String
   comments    MapReviewComment[]
   suggestions Json               @default("{}") // map-submission-suggestions.model.ts
-  editHistory Json? // map-review-edit-history.model.ts
+  editHistory Json? // Array of map-review-edit-history.model.ts
 
   mmap  MMap @relation(fields: [mapID], references: [id], onDelete: Cascade)
   mapID Int
