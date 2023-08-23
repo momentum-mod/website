@@ -1,6 +1,12 @@
 import { Bitfield, Role, User } from '@momentum/constants';
 import { ApiProperty, ApiPropertyOptional, PickType } from '@nestjs/swagger';
-import { IsInt, IsISO31661Alpha2, IsOptional, IsString } from 'class-validator';
+import {
+  IsInt,
+  IsISO31661Alpha2,
+  IsOptional,
+  IsString,
+  MaxLength
+} from 'class-validator';
 import { Exclude, Expose } from 'class-transformer';
 import { ProfileDto } from './profile.dto';
 import { RankDto } from '../run/rank.dto';
@@ -102,6 +108,7 @@ export class UpdateUserDto {
     description: 'The new alias to set'
   })
   @IsString()
+  @MaxLength(32)
   @IsOptional()
   alias?: string;
 
