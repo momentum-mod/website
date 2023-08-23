@@ -3135,7 +3135,15 @@ describe('Maps', () => {
         reviewOfficial = await prisma.mapReview.create({
           data: {
             mainText: 'Great map!',
-            suggestions: {},
+            suggestions: [
+              {
+                track: 1,
+                gamemode: Gamemode.SURF,
+                tier: 2,
+                comment: 'What',
+                gameplayRating: 5
+              }
+            ],
             mmap: { connect: { id: map.id } },
             reviewer: { connect: { id: u2.id } },
             resolved: true
@@ -3146,7 +3154,15 @@ describe('Maps', () => {
         reviewUnofficial = await prisma.mapReview.create({
           data: {
             mainText: 'Wow, what a shit map.',
-            suggestions: {},
+            suggestions: [
+              {
+                track: 1,
+                gamemode: Gamemode.SURF,
+                tier: 9,
+                comment: 'The second ramp gave me cholera',
+                gameplayRating: 1
+              }
+            ],
             mmap: { connect: { id: map.id } },
             reviewer: { connect: { id: u1.id } },
             resolved: true
