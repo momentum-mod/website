@@ -62,7 +62,5 @@ export class CreateMapInfoDto
   implements CreateMapInfo {}
 
 export class UpdateMapInfoDto
-  extends PartialType(
-    PickType(MapInfoDto, ['description', 'youtubeID', 'creationDate'] as const)
-  )
+  extends PartialType(CreateMapInfoDto)
   implements UpdateMapInfo {}

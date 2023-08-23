@@ -4,8 +4,8 @@ import { CreatedAtProperty } from '../../decorators';
 
 export class MapReviewEditDto implements MapReviewEdit {
   @IsString()
-  mainText: string;
+  readonly mainText: string;
 
   @CreatedAtProperty()
-  createdAt: Date;
+  readonly createdAt: Date;
 }

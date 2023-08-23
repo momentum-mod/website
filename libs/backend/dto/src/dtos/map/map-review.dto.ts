@@ -8,28 +8,9 @@ import {
 import { UserDto } from '../user/user.dto';
 import { Exclude, Expose } from 'class-transformer';
 import { MapDto } from './map.dto';
-import { MapReviewSuggestionsDto } from './map-review-suggestions.dto';
 import { MapReviewEditDto } from './map-review-edit.dto';
-
-export class MapReviewCommentDto {
-  @IdProperty()
-  readonly id: number;
-
-  @IsString()
-  readonly text: string;
-
-  @NestedProperty(UserDto, { lazy: true })
-  readonly user: UserDto;
-
-  @IdProperty()
-  readonly userID: number;
-
-  @CreatedAtProperty()
-  readonly createdAt: Date;
-
-  @UpdatedAtProperty()
-  readonly updatedAt: Date;
-}
+import { MapReviewCommentDto } from './map-review-comment.dto';
+import { MapReviewSuggestionDto } from './map-review-suggestions.dto';
 
 export class MapReviewDto {
   @IdProperty()
@@ -38,13 +19,21 @@ export class MapReviewDto {
   @IsString()
   readonly mainText: string;
 
-  @NestedProperty(MapReviewCommentDto, { lazy: true, required: true })
+  @NestedProperty(MapReviewCommentDto, {
+    lazy: true,
+    required: true,
+    isArray: true
+  })
   readonly comments: MapReviewCommentDto[];
 
-  @NestedProperty(MapReviewSuggestionsDto, { lazy: true, required: true })
-  readonly suggestions: MapReviewSuggestionsDto;
+  @NestedProperty(MapReviewSuggestionDto, {
+    lazy: true,
+    required: true,
+    isArray: true
+  })
+  readonly suggestions: MapReviewSuggestionDto[];
 
-  @NestedProperty(MapReviewEditDto, { lazy: true })
+  @NestedProperty(MapReviewEditDto, { lazy: true, isArray: true })
   readonly editHistory?: MapReviewEditDto[];
 
   @NestedProperty(MapDto, { lazy: true, required: true })

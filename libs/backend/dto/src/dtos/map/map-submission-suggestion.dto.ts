@@ -1,5 +1,6 @@
-import { Gamemode, MapReviewSuggestion } from '@momentum/constants';
+import { Gamemode, MapSubmissionSuggestion } from '@momentum/constants';
 import {
+  IsBoolean,
   IsInt,
   IsOptional,
   IsString,
@@ -10,27 +11,25 @@ import {
 import { ApiProperty } from '@nestjs/swagger';
 import { EnumProperty } from '../../decorators';
 
-export class MapReviewSuggestionDto implements MapReviewSuggestion {
+export class MapSubmissionSuggestionDto implements MapSubmissionSuggestion {
   @ApiProperty({ description: 'Track number the suggestion refers to' })
   @IsInt()
-  track: number;
+  readonly track: number;
 
   @EnumProperty(Gamemode, { description: 'Gamemode the suggestion is for' })
-  gamemode: Gamemode;
+  readonly gamemode: Gamemode;
 
-  @ApiProperty({ description: 'Track number the suggestion refers to' })
+  @ApiProperty({ description: 'Suggested tier for the track and gamemode' })
   @IsInt()
-  @IsOptional()
   @Min(1)
   @Max(10)
-  tier: number;
+  readonly tier: number;
 
-  @ApiProperty({ description: 'Gameplay rating out of 10' })
-  @IsInt()
-  @IsOptional()
-  @Min(1)
-  @Max(10)
-  gameplayRating: number;
+  @ApiProperty({
+    description: 'Whether the track should be ranked for this gamemode'
+  })
+  @IsBoolean()
+  readonly ranked: boolean;
 
   @ApiProperty({
     description: 'General comments about the track on this gamemode'
@@ -38,5 +37,5 @@ export class MapReviewSuggestionDto implements MapReviewSuggestion {
   @IsString()
   @MaxLength(500)
   @IsOptional()
-  comment: string;
+  readonly comment: string;
 }
