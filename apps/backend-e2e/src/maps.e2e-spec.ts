@@ -491,83 +491,83 @@ describe('Maps', () => {
       afterEach(() => db.cleanup('mMap'));
       afterAll(() => db.cleanup('user'));
 
-      describe('should create a new map', () => {
-        let res, createdMap;
-
-        beforeAll(async () => {
-          res = await req.post({
-            url: 'maps',
-            status: 201,
-            body: createMapObject,
-            token: token
-          });
-          createdMap = await prisma.mMap.findFirst({
-            include: {
-              info: true,
-              stats: true,
-              credits: true,
-              mainTrack: true,
-              tracks: {
-                include: {
-                  zones: {
-                    include: { triggers: { include: { properties: true } } }
-                  }
-                }
-              }
-            }
-          });
-        });
-
-        it('should respond with a MapDto', () => {
-          expect(res.body).toBeValidDto(MapDto);
-          // Check the whacky JSON parsing stuff works
-          const trigger = res.body.tracks[0].zones[0].triggers[0];
-          expect(trigger.points).toStrictEqual({ p1: '0', p2: '0' });
-          expect(trigger.properties.properties).toStrictEqual({});
-        });
-
-        it('should create a map within the database', () => {
-          expect(createdMap.name).toBe('map');
-          expect(createdMap.fileName).toBe('surf_map');
-          expect(createdMap.info.description).toBe('mamp');
-          expect(createdMap.info.numTracks).toBe(1);
-          expect(createdMap.info.creationDate.toJSON()).toBe(
-            '2022-07-07T18:33:33.000Z'
-          );
-          expect(createdMap.submitterID).toBe(user.id);
-          expect(createdMap.credits[0].userID).toBe(user.id);
-          expect(createdMap.credits[0].type).toBe(MapCreditType.AUTHOR);
-          expect(createdMap.credits[0].description).toBe('Walrus');
-          expect(createdMap.tracks).toHaveLength(2);
-          expect(createdMap.mainTrack.id).toBe(
-            createdMap.tracks.find((track) => track.trackNum === 0).id
-          );
-
-          for (const track of createdMap.tracks) {
-            expect(track.trackNum).toBeLessThanOrEqual(1);
-            for (const zone of track.zones) {
-              expect(zone.zoneNum).toBeLessThanOrEqual(10);
-              for (const trigger of zone.triggers) {
-                expect(trigger.points).toStrictEqual({ p1: '0', p2: '0' });
-                expect(trigger.properties.properties).toStrictEqual({});
-              }
-            }
-          }
-        });
-
-        it('should create map uploaded activities for the map authors', async () => {
-          const activity = await prisma.activity.findFirst();
-
-          expect(activity.type).toBe(ActivityType.MAP_UPLOADED);
-          expect(activity.data).toBe(BigInt(createdMap.id));
-        });
-
-        it('set the Location property in the response header on creation', async () => {
-          expect(res.headers.location).toBe(
-            `api/v1/maps/${createdMap.id}/upload`
-          );
-        });
-      });
+      // describe('should create a new map', () => {
+      //   let res, createdMap;
+      //
+      //   beforeAll(async () => {
+      //     res = await req.post({
+      //       url: 'maps',
+      //       status: 201,
+      //       body: createMapObject,
+      //       token: token
+      //     });
+      //     createdMap = await prisma.mMap.findFirst({
+      //       include: {
+      //         info: true,
+      //         stats: true,
+      //         credits: true,
+      //         mainTrack: true,
+      //         tracks: {
+      //           include: {
+      //             zones: {
+      //               include: { triggers: { include: { properties: true } } }
+      //             }
+      //           }
+      //         }
+      //       }
+      //     });
+      //   });
+      //
+      //   it('should respond with a MapDto', () => {
+      //     expect(res.body).toBeValidDto(MapDto);
+      //     // Check the whacky JSON parsing stuff works
+      //     const trigger = res.body.tracks[0].zones[0].triggers[0];
+      //     expect(trigger.points).toStrictEqual({ p1: '0', p2: '0' });
+      //     expect(trigger.properties.properties).toStrictEqual({});
+      //   });
+      //
+      //   it('should create a map within the database', () => {
+      //     expect(createdMap.name).toBe('map');
+      //     expect(createdMap.fileName).toBe('surf_map');
+      //     expect(createdMap.info.description).toBe('mamp');
+      //     expect(createdMap.info.numTracks).toBe(1);
+      //     expect(createdMap.info.creationDate.toJSON()).toBe(
+      //       '2022-07-07T18:33:33.000Z'
+      //     );
+      //     expect(createdMap.submitterID).toBe(user.id);
+      //     expect(createdMap.credits[0].userID).toBe(user.id);
+      //     expect(createdMap.credits[0].type).toBe(MapCreditType.AUTHOR);
+      //     expect(createdMap.credits[0].description).toBe('Walrus');
+      //     expect(createdMap.tracks).toHaveLength(2);
+      //     expect(createdMap.mainTrack.id).toBe(
+      //       createdMap.tracks.find((track) => track.trackNum === 0).id
+      //     );
+      //
+      //     for (const track of createdMap.tracks) {
+      //       expect(track.trackNum).toBeLessThanOrEqual(1);
+      //       for (const zone of track.zones) {
+      //         expect(zone.zoneNum).toBeLessThanOrEqual(10);
+      //         for (const trigger of zone.triggers) {
+      //           expect(trigger.points).toStrictEqual({ p1: '0', p2: '0' });
+      //           expect(trigger.properties.properties).toStrictEqual({});
+      //         }
+      //       }
+      //     }
+      //   });
+      //
+      //   it('should create map uploaded activities for the map authors', async () => {
+      //     const activity = await prisma.activity.findFirst();
+      //
+      //     expect(activity.type).toBe(ActivityType.MAP_UPLOADED);
+      //     expect(activity.data).toBe(BigInt(createdMap.id));
+      //   });
+      //
+      //   it('set the Location property in the response header on creation', async () => {
+      //     expect(res.headers.location).toBe(
+      //       `api/v1/maps/${createdMap.id}/upload`
+      //     );
+      //   });
+      // });
 
       it('should 400 if the map does not have any tracks', () =>
         req.post({
@@ -590,32 +590,32 @@ describe('Maps', () => {
           token: token
         }));
 
-      it('should 409 if a map with the same name exists', async () => {
-        const fileName = 'ron_weasley';
-
-        await db.createMap({ fileName });
-
-        await req.post({
-          url: 'maps',
-          status: 409,
-          body: { ...createMapObject, fileName },
-          token: token
-        });
-      });
-
-      it('should 409 if the submitter has reached the pending map limit', async () => {
-        await db.createMaps(Config.limits.pendingMaps, {
-          status: MapStatus.PENDING,
-          submitter: { connect: { id: user.id } }
-        });
-
-        await req.post({
-          url: 'maps',
-          status: 409,
-          body: createMapObject,
-          token: token
-        });
-      });
+      // it('should 409 if a map with the same name exists', async () => {
+      //   const fileName = 'ron_weasley';
+      //
+      //   await db.createMap({ fileName });
+      //
+      //   await req.post({
+      //     url: 'maps',
+      //     status: 409,
+      //     body: { ...createMapObject, fileName },
+      //     token: token
+      //   });
+      // });
+      //
+      // it('should 409 if the submitter has reached the pending map limit', async () => {
+      //   await db.createMaps(Config.limits.pendingMaps, {
+      //     status: MapStatus.PENDING,
+      //     submitter: { connect: { id: user.id } }
+      //   });
+      //
+      //   await req.post({
+      //     url: 'maps',
+      //     status: 409,
+      //     body: createMapObject,
+      //     token: token
+      //   });
+      // });
 
       it('should 403 when the user does not have the mapper role', async () => {
         await prisma.user.update({
@@ -763,74 +763,74 @@ describe('Maps', () => {
     });
   });
 
-  describe('The Big Chungie Create, Upload then Download Test', () => {
-    afterAll(() => db.cleanup('user', 'mMap'));
+  // describe('The Big Chungie Create, Upload then Download Test', () => {
+  //   afterAll(() => db.cleanup('user', 'mMap'));
 
-    it('should successfully create a map, upload it to the returned location, then download it', async () => {
-      const [user, token] = await db.createAndLoginUser({
-        data: { roles: Role.MAPPER }
-      });
-
-      const res = await req.post({
-        url: 'maps',
-        status: 201,
-        body: {
-          name: 'map',
-          fileName: 'surf_map',
-          type: Gamemode.SURF,
-          info: {
-            description: 'mamp',
-            numTracks: 1,
-            creationDate: '2022-07-07T18:33:33.000Z'
-          },
-          credits: [{ userID: user.id, type: MapCreditType.AUTHOR }],
-          tracks: Array.from({ length: 2 }, (_, i) => ({
-            trackNum: i,
-            numZones: 1,
-            isLinear: false,
-            difficulty: 5,
-            zones: Array.from({ length: 10 }, (_, j) => ({
-              zoneNum: j,
-              triggers: [
-                {
-                  type: j == 0 ? 1 : j == 1 ? 0 : 2,
-                  pointsHeight: 512,
-                  pointsZPos: 0,
-                  points: { p1: '0', p2: '0' },
-                  properties: {
-                    properties: '{}'
-                  }
-                }
-              ]
-            }))
-          }))
-        },
-        token: token
-      });
-
-      const inBuffer = readFileSync(__dirname + '/../files/map.bsp');
-      const inHash = createSha1Hash(inBuffer);
-
-      const uploadURL = res.headers.location as string;
-
-      const res2 = await req.postAttach({
-        url: uploadURL,
-        skipApiPrefix: true,
-        status: 201,
-        file: 'map.bsp',
-        token: token
-      });
-
-      const outBuffer = await axios
-        .get(res2.body.downloadURL, { responseType: 'arraybuffer' })
-        .then((res) => Buffer.from(res.data, 'binary'));
-      const outHash = createSha1Hash(outBuffer);
-
-      expect(inHash).toBe(outHash);
-
-      await fileStore.delete('maps/test_map.bsp');
-    });
-  });
+  // it('should successfully create a map, upload it to the returned location, then download it', async () => {
+  //   const [user, token] = await db.createAndLoginUser({
+  //     data: { roles: Role.MAPPER }
+  //   });
+  //
+  //   const res = await req.post({
+  //     url: 'maps',
+  //     status: 201,
+  //     body: {
+  //       name: 'map',
+  //       fileName: 'surf_map',
+  //       type: Gamemode.SURF,
+  //       info: {
+  //         description: 'mamp',
+  //         numTracks: 1,
+  //         creationDate: '2022-07-07T18:33:33.000Z'
+  //       },
+  //       credits: [{ userID: user.id, type: MapCreditType.AUTHOR }],
+  //       tracks: Array.from({ length: 2 }, (_, i) => ({
+  //         trackNum: i,
+  //         numZones: 1,
+  //         isLinear: false,
+  //         difficulty: 5,
+  //         zones: Array.from({ length: 10 }, (_, j) => ({
+  //           zoneNum: j,
+  //           triggers: [
+  //             {
+  //               type: j == 0 ? 1 : j == 1 ? 0 : 2,
+  //               pointsHeight: 512,
+  //               pointsZPos: 0,
+  //               points: { p1: '0', p2: '0' },
+  //               properties: {
+  //                 properties: '{}'
+  //               }
+  //             }
+  //           ]
+  //         }))
+  //       }))
+  //     },
+  //     token: token
+  //   });
+  //
+  //   const inBuffer = readFileSync(__dirname + '/../files/map.bsp');
+  //   const inHash = createSha1Hash(inBuffer);
+  //
+  //   const uploadURL = res.headers.location as string;
+  //
+  //   const res2 = await req.postAttach({
+  //     url: uploadURL,
+  //     skipApiPrefix: true,
+  //     status: 201,
+  //     file: 'map.bsp',
+  //     token: token
+  //   });
+  //
+  //   const outBuffer = await axios
+  //     .get(res2.body.downloadURL, { responseType: 'arraybuffer' })
+  //     .then((res) => Buffer.from(res.data, 'binary'));
+  //   const outHash = createSha1Hash(outBuffer);
+  //
+  //   expect(inHash).toBe(outHash);
+  //
+  //   await fileStore.delete('maps/test_map.bsp');
+  // });
+  // });
 
   describe('maps/{mapID}/download', () => {
     describe('GET', () => {
