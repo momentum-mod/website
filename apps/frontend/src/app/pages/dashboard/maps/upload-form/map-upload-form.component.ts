@@ -16,8 +16,7 @@ import {
   MapImage,
   MapZoneTrigger,
   CreateMapTrack,
-  CreateMapZone,
-  CreateMap
+  CreateMapZone
 } from '@momentum/constants';
 import { LocalUserService, MapsService } from '@momentum/frontend/data';
 import {
@@ -248,10 +247,11 @@ export class MapUploadFormComponent implements OnInit, AfterViewInit {
     let mapCreated = false;
     let mapID = -1;
 
-    const mapObject: CreateMap = {
+    const mapObject: any = {
+      // CreateMap = {
       name: this.name.value,
       fileName: this.name.value, // TODO: Proper filename field
-      type: this.type.value,
+      // type: this.type.value,
       info: {
         description: this.description.value,
         youtubeID: this.mapPreview.map.info.youtubeID,

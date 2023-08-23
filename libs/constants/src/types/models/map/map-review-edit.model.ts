@@ -1,4 +1,4 @@
-export type MapReviewEdit = {
+export interface MapReviewEdit {
   mainText: string;
   createdAt: Date;
-};
+}

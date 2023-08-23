@@ -10,6 +10,9 @@ import { CreateMapCredit, MapCredit } from './map-credit.model';
 import { MapFavorite } from './map-favorite.model';
 import { MapLibraryEntry } from './map-library-entry';
 import { Rank } from '../run/rank.model';
+import { MapSubmissionType } from '../../../enums/map-submission-type.enum';
+import { MapCreditType } from '../../../enums/map-credit-type.enum';
+import { MapSubmissionSuggestion } from './map-submission-suggestion.model';
 
 /**
  * The term "MMap" (Momentum Map)  is used just in cases where we would use
@@ -33,10 +36,16 @@ export interface MMap extends Omit<PrismaMMap, 'thumbnailID' | 'mainTrackID'> {
   personalBest?: Rank;
 }
 
-export type UpdateMap = Pick<MMap, 'status'>;
-
-export interface CreateMap extends Pick<MMap, 'name' | 'fileName' | 'type'> {
+export interface CreateMap extends Pick<MMap, 'name' | 'fileName'> {
+  submissionType: MapSubmissionType;
+  suggestions: MapSubmissionSuggestion[];
+  wantsPrivateTesting: boolean;
+  placeholders: { alias: string; type: MapCreditType }[];
+  testInvites?: number[];
   info: CreateMapInfo;
   tracks: CreateMapTrack[];
   credits: CreateMapCredit[];
 }
+
+// TODO: redo during /maps patch
+export type UpdateMap = Pick<MMap, 'status'>;
