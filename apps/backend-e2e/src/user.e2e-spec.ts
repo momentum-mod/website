@@ -1505,7 +1505,7 @@ describe('User', () => {
         req.expandTest({
           url: 'user/maps/favorites',
           expand: 'thumbnail',
-          expectedPropertyName: 'map.thumbnail',
+          expectedPropertyName: 'map.thumbnail.small',
           paged: true,
           validate: MapFavoriteDto,
           token: token
