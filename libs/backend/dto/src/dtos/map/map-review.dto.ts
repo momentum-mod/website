@@ -6,7 +6,7 @@ import {
   UpdatedAtProperty
 } from '../../decorators';
 import { UserDto } from '../user/user.dto';
-import { Exclude, Expose } from 'class-transformer';
+import { Exclude, Expose, plainToInstance } from 'class-transformer';
 import { MapDto } from './map.dto';
 import { MapReviewEditDto } from './map-review-edit.dto';
 import { MapReviewCommentDto } from './map-review-comment.dto';
@@ -39,7 +39,7 @@ export class MapReviewDto {
   @NestedProperty(MapDto, { lazy: true, required: true })
   @Expose()
   get map(): MapDto {
-    return this.mmap;
+    return plainToInstance(MapDto, this.mmap);
   }
 
   @Exclude()

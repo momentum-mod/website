@@ -8,7 +8,7 @@ import { MapDto } from './map.dto';
 import { ApiProperty, PickType } from '@nestjs/swagger';
 import { EnumProperty, IdProperty, NestedProperty } from '../../decorators';
 import { MapCreditType } from '@momentum/constants';
-import { Exclude, Expose } from 'class-transformer';
+import { Exclude, Expose, plainToInstance } from 'class-transformer';
 import { IsOptional, IsString, MaxLength } from 'class-validator';
 
 export class MapCreditDto implements MapCredit {
@@ -36,7 +36,7 @@ export class MapCreditDto implements MapCredit {
   @NestedProperty(MapDto, { lazy: true, required: false })
   @Expose()
   get map(): MapDto {
-    return this.mmap;
+    return plainToInstance(MapDto, this.mmap);
   }
 
   @Exclude()

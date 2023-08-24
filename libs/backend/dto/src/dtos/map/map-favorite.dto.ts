@@ -7,7 +7,7 @@ import {
 } from '../../decorators';
 import { UserDto } from '../user/user.dto';
 import { MapDto } from './map.dto';
-import { Exclude, Expose } from 'class-transformer';
+import { Exclude, Expose, plainToInstance } from 'class-transformer';
 
 export class MapFavoriteDto implements MapFavorite {
   @IdProperty()
@@ -19,7 +19,7 @@ export class MapFavoriteDto implements MapFavorite {
   @NestedProperty(MapDto, { lazy: true, required: false })
   @Expose()
   get map(): MapDto {
-    return this.mmap;
+    return plainToInstance(MapDto, this.mmap);
   }
 
   @Exclude()
