@@ -21,6 +21,7 @@ import {
   IsString
 } from 'class-validator';
 import { IsBigintValidator } from '@momentum/backend/validators';
+import { intersection } from '@momentum/util-fn';
 
 /**
  * Well, kind of safe. This is an annoying transform we do to ensure that we
@@ -227,9 +228,7 @@ export function ExpandQueryProperty(expansions: string[]): PropertyDecorator {
       enum: expansions,
       description: `Expands, comma-separated (${expansions.join(', ')}))`
     }),
-    Transform(({ value }) =>
-      value.split(',').filter((exp) => expansions.includes(exp))
-    ),
+    Transform(({ value }) => intersection(value.split(','), expansions)),
     IsArray(),
     IsOptional()
   );
