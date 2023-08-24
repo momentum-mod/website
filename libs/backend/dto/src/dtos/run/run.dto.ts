@@ -14,7 +14,7 @@ import {
 import { MapDto } from '../map/map.dto';
 import { BaseStatsDto } from '../stats/base-stats.dto';
 import { RunZoneStatsDto } from './run-zone-stats.dto';
-import { Exclude, Expose } from 'class-transformer';
+import { Exclude, Expose, plainToInstance } from 'class-transformer';
 import {
   CreatedAtProperty,
   IdProperty,
@@ -99,7 +99,7 @@ export class RunDto implements Run {
   @NestedProperty(MapDto, { required: false })
   @Expose()
   get map(): MapDto {
-    return this.mmap;
+    return plainToInstance(MapDto, this.mmap);
   }
 
   @Exclude()

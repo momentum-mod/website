@@ -12,7 +12,7 @@ import {
   UpdatedAtProperty
 } from '../../decorators';
 import { Gamemode } from '@momentum/constants';
-import { Exclude, Expose } from 'class-transformer';
+import { Exclude, Expose, plainToInstance } from 'class-transformer';
 
 export class RankDto implements Rank {
   @IdProperty()
@@ -53,7 +53,7 @@ export class RankDto implements Rank {
   @NestedProperty(MapDto, { lazy: true, required: false })
   @Expose()
   get map(): MapDto {
-    return this.mmap;
+    return plainToInstance(MapDto, this.mmap);
   }
 
   @Exclude()
