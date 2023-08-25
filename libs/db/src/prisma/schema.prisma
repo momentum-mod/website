@@ -445,8 +445,8 @@ model MapTestingRequest {
 }
 
 model MapSubmission {
-  mapID Int
   mmap  MMap @relation(fields: [mapID], references: [id], onDelete: Cascade)
+  mapID Int
 
   type Int @db.SmallInt /// map-submission-type.enum.ts
 
@@ -456,7 +456,7 @@ model MapSubmission {
   versions MapSubmissionVersion[]
 
   currentVersion   MapSubmissionVersion? @relation(name: "current_version", fields: [currentVersionID], references: [id])
-  currentVersionID String                @unique
+  currentVersionID String?               @unique
 
   @@id([mapID])
 }
@@ -466,12 +466,12 @@ model MapSubmissionVersion {
 
   currentVersion MapSubmission? @relation(name: "current_version")
 
-  versionNum Int    @db.SmallInt
-  changelog  String
+  versionNum Int     @db.SmallInt
+  changelog  String?
   hash       String  @db.Char(40)
   hasVmf     Boolean @default(false)
 
-  submission   MapSubmission? @relation(fields: [submissionID], references: [mapID], onDelete: Cascade)
+  submission   MapSubmission @relation(fields: [submissionID], references: [mapID], onDelete: Cascade)
   submissionID Int
 
   createdAt DateTime @default(now())
