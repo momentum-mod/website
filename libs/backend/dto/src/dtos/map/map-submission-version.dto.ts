@@ -24,6 +24,10 @@ export class MapSubmissionVersionDto implements MapSubmissionVersion {
   @Exclude()
   readonly submissionID: number;
 
+  @ApiProperty({ description: 'SHA1 hash of the BSP file', type: String })
+  @IsHash('sha1')
+  @IsOptional()
+  readonly hash: string;
   @ApiProperty({ type: String, description: 'URL to VMF in cloud storage' })
   @Expose()
   @IsOptional()
