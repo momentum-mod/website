@@ -13,6 +13,7 @@ import {
   Put,
   Query,
   UploadedFile,
+  UploadedFiles,
   UseGuards,
   UseInterceptors
 } from '@nestjs/common';
@@ -33,8 +34,11 @@ import {
   ApiTags
 } from '@nestjs/swagger';
 import { MapsService } from './maps.service';
-import { FastifyReply } from 'fastify';
-import { FileInterceptor } from '@nest-lab/fastify-multer';
+import {
+  File,
+  FileFieldsInterceptor,
+  FileInterceptor
+} from '@nest-lab/fastify-multer';
 import { RanksService } from '../ranks/ranks.service';
 import { RolesGuard } from '../auth/roles.guard';
 import {
@@ -58,15 +62,18 @@ import {
   RankDto,
   UpdateMapDto,
   UpdateMapInfoDto,
-  VALIDATION_PIPE_CONFIG
+  VALIDATION_PIPE_CONFIG,
+  CreateMapWithFilesDto
 } from '@momentum/backend/dto';
 import { LoggedInUser, Roles } from '@momentum/backend/decorators';
 import { Role, User } from '@momentum/constants';
 import { ParseIntSafePipe } from '@momentum/backend/pipes';
-import { Config } from '@momentum/backend/config';
 import { MapCreditsService } from './map-credits.service';
 import { MapReviewService } from './map-review.service';
 import { MapImageService } from './map-image.service';
+import { MapSubmissionService } from './map-submission.service';
+import { FormDataJsonInterceptor } from '../../form-data-json.interceptor';
+import { ConfigService } from '@nestjs/config';
 
 @Controller('maps')
 @UseGuards(RolesGuard)
@@ -74,14 +81,16 @@ import { MapImageService } from './map-image.service';
 @ApiBearerAuth()
 export class MapsController {
   constructor(
+    private readonly config: ConfigService,
     private readonly mapsService: MapsService,
+    private readonly mapSubmissionService: MapSubmissionService,
     private readonly mapCreditsService: MapCreditsService,
     private readonly mapReviewService: MapReviewService,
     private readonly mapImageService: MapImageService,
     private readonly ranksService: RanksService
   ) {}
 
-  //#region Main Map Endpoints
+  //#region Get Maps
 
   @Get()
   @ApiOperation({ summary: 'Returns all maps' })
@@ -91,37 +100,6 @@ export class MapsController {
     @Query() query?: MapsCtlGetAllQueryDto
   ): Promise<PagedResponseDto<MapDto>> {
     return this.mapsService.getAll(userID, query);
-  }
-
-  @Post()
-  @Roles(Role.MAPPER, Role.MODERATOR, Role.ADMIN)
-  @ApiOperation({ summary: 'Creates a single map' })
-  @ApiOkResponse({ type: MapDto, description: 'The newly created map' })
-  @ApiForbiddenResponse({ description: 'User does not have the Mapper role' })
-  @ApiBadRequestResponse({ description: 'Map object is invalid' })
-  @ApiConflictResponse({ description: 'Map already exists' })
-  @ApiConflictResponse({
-    description: 'Submitter has reached pending map limit'
-  })
-  @ApiBody({
-    type: CreateMapDto,
-    description: 'The create map data transfer object',
-    required: true
-  })
-  async createMap(
-    @Res({ passthrough: true }) res: FastifyReply,
-    @Body() body: CreateMapDto,
-    @LoggedInUser('id') userID: number
-  ): Promise<MapDto> {
-    const map = await this.mapsService.create(body, userID);
-
-    // TODO: This is pointless, frontend knows this URL from the map ID.
-    // However we are going to want this and the getUploadLocation endpoints
-    // in the future when (if?) we move to direct upload to s3 using presigned
-    // URLs.
-    this.setMapUploadLocationHeader(res, map.id);
-
-    return map;
   }
 
   @Get('/:mapID')
@@ -140,6 +118,66 @@ export class MapsController {
     @Query() query?: MapsGetQueryDto
   ): Promise<MapDto> {
     return this.mapsService.get(mapID, userID, query.expand);
+  }
+
+  //#endregion
+
+  //#region Map Submission
+
+  @Post()
+  @ApiConsumes('multipart/form-data')
+  @ApiOperation({ summary: 'Submits a map' })
+  @ApiOkResponse({ type: MapDto, description: 'The newly created map' })
+  @ApiBody({
+    type: CreateMapWithFilesDto,
+    description: 'The create map data transfer object',
+    required: true
+  })
+  @UseInterceptors(
+    FileFieldsInterceptor([
+      { name: 'bsp', maxCount: 1 },
+      { name: 'vmfs', maxCount: 40 }
+    ]),
+    FormDataJsonInterceptor('data')
+  )
+  async submitMap(
+    @Body('data') data: CreateMapDto,
+    @UploadedFiles() files: { bsp: File[]; vmfs: File[] },
+    @LoggedInUser('id') userID: number
+  ): Promise<MapDto> {
+    const bspFile = files.bsp?.[0];
+
+    this.mapSubmissionFileValidation(bspFile, files.vmfs);
+
+    return this.mapSubmissionService.submitMap(
+      data,
+      userID,
+      bspFile,
+      files.vmfs
+    );
+  }
+
+  private mapSubmissionFileValidation(bspFile: File, vmfFiles: File[]) {
+    if (!bspFile || !Buffer.isBuffer(bspFile.buffer)) {
+      throw new BadRequestException('Missing BSP file');
+    }
+
+    // Don't see a way to apply FileSizeValidationPipe to files individually,
+    // just doing it manually. We could grab the validations from
+    // https://github.com/dmitriy-nz/nestjs-form-data/tree/master/src/decorators/validation
+    // if we wanted, but given the likelihood of us moving off class-validator,
+    // it doesn't seem worth the effort.
+    const maxBspSize = this.config.getOrThrow('limits.bspSize');
+    if (bspFile.size > maxBspSize) {
+      throw new BadRequestException(`BSP file too large (> ${maxBspSize})`);
+    }
+
+    const maxVmfSize = this.config.getOrThrow('limits.vmfSize');
+    for (const vmfFile of vmfFiles ?? []) {
+      if (vmfFile.size > maxVmfSize) {
+        throw new BadRequestException(`VMF file too large (> ${maxVmfSize})`);
+      }
+    }
   }
 
   @Patch('/:mapID')
