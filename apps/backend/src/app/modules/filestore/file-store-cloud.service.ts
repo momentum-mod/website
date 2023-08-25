@@ -6,8 +6,8 @@ import {
   DeleteObjectCommand,
   GetObjectCommand
 } from '@aws-sdk/client-s3';
-import { FileStoreUtils } from './file-store.utility';
 import { ConfigService } from '@nestjs/config';
+import { createHash } from 'node:crypto';
 
 @Injectable()
 export class FileStoreCloudService {
@@ -39,7 +39,7 @@ export class FileStoreCloudService {
 
     return {
       fileKey: fileKey,
-      hash: FileStoreUtils.getBufferHash(fileBuffer)
+      hash: FileStoreCloudService.getHashForBuffer(fileBuffer)
     };
   }
 
@@ -70,5 +70,9 @@ export class FileStoreCloudService {
       if (error?.Code === 'NoSuchKey') return;
       throw error;
     }
+  }
+
+  static getHashForBuffer(buffer: Buffer): string {
+    return createHash('sha1').update(buffer).digest('hex');
   }
 }
