@@ -13,5 +13,7 @@ export enum Role {
 export const CombinedRoles = Object.freeze({
   MOD_OR_ADMIN: Role.MODERATOR | Role.ADMIN,
   REVIEWER_AND_ABOVE: Role.REVIEWER | Role.MODERATOR | Role.ADMIN,
-  MAPPER_OR_PORTER: Role.MAPPER | Role.PORTER
+  MAPPER_OR_PORTER: Role.MAPPER | Role.PORTER,
+  MAPPER_AND_ABOVE:
+    Role.MAPPER | Role.PORTER | Role.REVIEWER | Role.MODERATOR | Role.ADMIN
 });
