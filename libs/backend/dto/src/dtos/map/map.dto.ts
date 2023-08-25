@@ -2,8 +2,9 @@ import {
   approvedBspPath,
   approvedVmfsPath,
   CreateMap,
+  CreateMapWithFiles,
   Gamemode,
-  MapStatus,
+  MapStatusNew,
   MapSubmissionType,
   MMap
 } from '@momentum/constants';
@@ -13,6 +14,8 @@ import { ApiProperty, PickType } from '@nestjs/swagger';
 import {
   ArrayMinSize,
   IsArray,
+  IsBoolean,
+  IsDefined,
   IsHash,
   IsInt,
   IsLowercase,
@@ -71,8 +74,8 @@ export class MapDto implements MMap {
   @EnumProperty(Gamemode)
   readonly type: Gamemode;
 
-  @EnumProperty(MapStatus)
-  readonly status: MapStatus;
+  @EnumProperty(MapStatusNew)
+  readonly status: MapStatusNew;
 
   @ApiProperty({ type: String, description: 'URL to BSP in storage' })
   @Expose()
@@ -80,15 +83,17 @@ export class MapDto implements MMap {
   @IsString()
   @IsUrl({ require_tld: false })
   get downloadURL() {
-    return `${ENDPOINT_URL}/${BUCKET}/${approvedBspPath(this.fileName)}`;
+    return this.status === MapStatusNew.APPROVED
+      ? `${ENDPOINT_URL}/${BUCKET}/${approvedBspPath(this.fileName)}`
+      : undefined;
   }
 
-  @ApiProperty({ description: 'SHA1 hash of the map file', type: String })
+  @ApiProperty({ description: 'SHA1 hash of the BSP file', type: String })
   @IsHash('sha1')
   @IsOptional()
   readonly hash: string;
 
-  @ApiProperty({ type: String, description: 'URL to VMF in cloud storage' })
+  @ApiProperty({ type: String, description: 'URL to VMF in storage' })
   @Expose()
   @IsOptional()
   @IsString()
@@ -101,6 +106,7 @@ export class MapDto implements MMap {
 
   @Exclude()
   readonly hasVmf: boolean;
+
   @Exclude()
   readonly thumbnailID: number;
 
@@ -165,7 +171,7 @@ export class CreateMapDto
   extends PickType(MapDto, ['name', 'fileName'] as const)
   implements CreateMap
 {
-  @ApiProperty({
+  @EnumProperty(MapSubmissionType, {
     description:
       'Whether the submission is an original map, a port, or something unusual'
   })
@@ -177,9 +183,13 @@ export class CreateMapDto
   @ApiProperty({
     description: 'Whether the map should go into private testing'
   })
+  @IsBoolean()
   wantsPrivateTesting: boolean;
 
   @ApiProperty({
+    description: 'Aliases for which new placeholder users should be made'
+  })
+  @NestedProperty(PlaceholderSuggestionDto, {
     description: 'Aliases for which new placeholder users should be made'
   })
   placeholders: PlaceholderSuggestionDto[];
@@ -191,12 +201,6 @@ export class CreateMapDto
   @IsArray()
   @IsInt({ each: true })
   testInvites?: number[];
-
-  @NestedProperty(UserDto)
-  submitter?: UserDto;
-
-  @IdProperty()
-  submitterID: number;
 
   @NestedProperty(CreateMapInfoDto, { required: true })
   info: CreateMapInfoDto;
@@ -210,6 +214,30 @@ export class CreateMapDto
   @IsArray()
   @ArrayMinSize(1)
   credits: CreateMapCreditDto[];
+}
+
+export class CreateMapWithFilesDto implements CreateMapWithFiles {
+  @ApiProperty({
+    type: 'string',
+    format: 'binary',
+    description: 'BSP for the map. MUST be run through bspzip!'
+  })
+  @IsDefined()
+  bsp: any;
+
+  @ApiProperty({
+    type: 'string',
+    format: 'binary',
+    description:
+      'VMFs for the map. Usually a single file, but takes an array to allow instances.'
+  })
+  @IsOptional()
+  vmfs: any[];
+
+  @NestedProperty(CreateMapDto, {
+    description: 'The JSON part of the body'
+  })
+  data: CreateMapDto;
 }
 
 // TODO: Shit

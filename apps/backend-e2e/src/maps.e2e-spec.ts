@@ -33,13 +33,16 @@ import {
   MapStatus,
   Gamemode,
   Role,
-  MapStatusNew
+  MapStatusNew,
+  MapSubmissionType,
+  Ban
 } from '@momentum/constants';
 import { Config } from '@momentum/backend/config';
 // See auth.e2e-spec.ts for justification of this sin
 // eslint-disable-next-line @nx/enforce-module-boundaries
 import { SteamService } from '../../backend/src/app/modules/steam/steam.service';
 import path from 'node:path';
+import Zip from 'adm-zip';
 
 describe('Maps', () => {
   let app,
@@ -442,22 +445,47 @@ describe('Maps', () => {
     });
 
     describe('POST', () => {
-      let user, token, createMapObject;
+      let user,
+        token,
+        createMapObject,
+        u2,
+        u3,
+        bspBuffer,
+        bspHash,
+        vmfBuffer,
+        vmfHash;
 
       beforeAll(async () => {
-        [user, token] = await db.createAndLoginUser({
-          data: { roles: Role.MAPPER }
-        });
+        [user, token] = await db.createAndLoginUser();
+        [u2, u3] = await db.createUsers(2);
+
+        bspBuffer = readFileSync(path.join(FILES_PATH, 'map.bsp'));
+        bspHash = createSha1Hash(bspBuffer);
+
+        vmfBuffer = readFileSync(path.join(FILES_PATH, 'map.vmf'));
+        vmfHash = createSha1Hash(vmfBuffer);
 
         createMapObject = {
           name: 'map',
           fileName: 'surf_map',
-          type: Gamemode.SURF,
           info: {
             description: 'mamp',
             numTracks: 1,
             creationDate: '2022-07-07T18:33:33.000Z'
           },
+          submissionType: MapSubmissionType.ORIGINAL,
+          placeholders: [{ alias: 'God', type: MapCreditType.AUTHOR }],
+          suggestions: [
+            {
+              track: 1,
+              gamemode: Gamemode.SURF,
+              tier: 1,
+              ranked: true,
+              comment: 'I love you'
+            }
+          ],
+          wantsPrivateTesting: true,
+          testInvites: [u2.id, u3.id],
           credits: [
             {
               userID: user.id,
@@ -488,245 +516,474 @@ describe('Maps', () => {
         };
       });
 
-      afterEach(() => db.cleanup('mMap'));
-      afterAll(() => db.cleanup('user'));
-
-      // describe('should create a new map', () => {
-      //   let res, createdMap;
-      //
-      //   beforeAll(async () => {
-      //     res = await req.post({
-      //       url: 'maps',
-      //       status: 201,
-      //       body: createMapObject,
-      //       token: token
-      //     });
-      //     createdMap = await prisma.mMap.findFirst({
-      //       include: {
-      //         info: true,
-      //         stats: true,
-      //         credits: true,
-      //         mainTrack: true,
-      //         tracks: {
-      //           include: {
-      //             zones: {
-      //               include: { triggers: { include: { properties: true } } }
-      //             }
-      //           }
-      //         }
-      //       }
-      //     });
-      //   });
-      //
-      //   it('should respond with a MapDto', () => {
-      //     expect(res.body).toBeValidDto(MapDto);
-      //     // Check the whacky JSON parsing stuff works
-      //     const trigger = res.body.tracks[0].zones[0].triggers[0];
-      //     expect(trigger.points).toStrictEqual({ p1: '0', p2: '0' });
-      //     expect(trigger.properties.properties).toStrictEqual({});
-      //   });
-      //
-      //   it('should create a map within the database', () => {
-      //     expect(createdMap.name).toBe('map');
-      //     expect(createdMap.fileName).toBe('surf_map');
-      //     expect(createdMap.info.description).toBe('mamp');
-      //     expect(createdMap.info.numTracks).toBe(1);
-      //     expect(createdMap.info.creationDate.toJSON()).toBe(
-      //       '2022-07-07T18:33:33.000Z'
-      //     );
-      //     expect(createdMap.submitterID).toBe(user.id);
-      //     expect(createdMap.credits[0].userID).toBe(user.id);
-      //     expect(createdMap.credits[0].type).toBe(MapCreditType.AUTHOR);
-      //     expect(createdMap.credits[0].description).toBe('Walrus');
-      //     expect(createdMap.tracks).toHaveLength(2);
-      //     expect(createdMap.mainTrack.id).toBe(
-      //       createdMap.tracks.find((track) => track.trackNum === 0).id
-      //     );
-      //
-      //     for (const track of createdMap.tracks) {
-      //       expect(track.trackNum).toBeLessThanOrEqual(1);
-      //       for (const zone of track.zones) {
-      //         expect(zone.zoneNum).toBeLessThanOrEqual(10);
-      //         for (const trigger of zone.triggers) {
-      //           expect(trigger.points).toStrictEqual({ p1: '0', p2: '0' });
-      //           expect(trigger.properties.properties).toStrictEqual({});
-      //         }
-      //       }
-      //     }
-      //   });
-      //
-      //   it('should create map uploaded activities for the map authors', async () => {
-      //     const activity = await prisma.activity.findFirst();
-      //
-      //     expect(activity.type).toBe(ActivityType.MAP_UPLOADED);
-      //     expect(activity.data).toBe(BigInt(createdMap.id));
-      //   });
-      //
-      //   it('set the Location property in the response header on creation', async () => {
-      //     expect(res.headers.location).toBe(
-      //       `api/v1/maps/${createdMap.id}/upload`
-      //     );
-      //   });
-      // });
-
-      it('should 400 if the map does not have any tracks', () =>
-        req.post({
-          url: 'maps',
-          status: 400,
-          body: { ...createMapObject, tracks: [] },
-          token: token
-        }));
-
-      it('should 400 if a map track has less than 2 zones', () =>
-        req.post({
-          url: 'maps',
-          status: 400,
-          body: {
-            createMapObject,
-            tracks: [
-              { createMapObject, zones: createMapObject.tracks[0].zones[0] }
-            ]
-          },
-          token: token
-        }));
-
-      // it('should 409 if a map with the same name exists', async () => {
-      //   const fileName = 'ron_weasley';
-      //
-      //   await db.createMap({ fileName });
-      //
-      //   await req.post({
-      //     url: 'maps',
-      //     status: 409,
-      //     body: { ...createMapObject, fileName },
-      //     token: token
-      //   });
-      // });
-      //
-      // it('should 409 if the submitter has reached the pending map limit', async () => {
-      //   await db.createMaps(Config.limits.pendingMaps, {
-      //     status: MapStatus.PENDING,
-      //     submitter: { connect: { id: user.id } }
-      //   });
-      //
-      //   await req.post({
-      //     url: 'maps',
-      //     status: 409,
-      //     body: createMapObject,
-      //     token: token
-      //   });
-      // });
-
-      it('should 403 when the user does not have the mapper role', async () => {
-        await prisma.user.update({
-          where: { id: user.id },
-          data: { roles: 0 }
-        });
-
-        await req.post({
-          url: 'maps',
-          status: 403,
-          body: createMapObject,
-          token: token
-        });
+      afterAll(() => {
+        db.cleanup('user');
+        fileStore.deleteDirectory('submissions');
       });
 
-      it('should 401 when no access token is provided', () =>
-        req.unauthorizedTest('maps', 'post'));
-    });
-  });
+      describe('should submit a map', () => {
+        let res, createdMap;
 
-
-
-
-        });
-
-
-
-
-        });
-
-        });
-
-        });
-      });
-
-
-        });
-
-
-
-
-        await fileStore.delete(`maps/${map.name}.bsp`);
-      });
-
-      it('should 400 when no map file is provided', () =>
-        req.post({
-          url: `maps/${map.id}/upload`,
-          status: 400,
-          token: u1Token
-        }));
-
-      it("should 400 when the map file is greater than the config's max map file size", () =>
-        req.postAttach({
-          url: `maps/${map.id}/upload`,
-          status: 400,
-          file: Buffer.alloc(Config.limits.mapSize + 1),
-          token: u1Token
-        }));
-
-      it('should 403 when the submitterID does not match the userID', () =>
-        req.postAttach({
-          url: `maps/${map.id}/upload`,
-          status: 403,
-          file: 'map.bsp',
-          token: u2Token
-        }));
-
-      it('should 403 when the map is not accepting uploads', async () => {
-        await prisma.mMap.update({
-          where: { id: map.id },
-          data: { status: MapStatus.REJECTED }
-        });
-
-        await req.postAttach({
-          url: `maps/${map.id}/upload`,
-          status: 403,
-          file: 'map.bsp',
-          token: u1Token
-        });
-      });
-
-      it('should 401 when no access token is provided', () =>
-        req.unauthorizedTest('maps/1/upload', 'post'));
-    });
-  });
-
-
-      beforeAll(
-        async () =>
-          ([token, map] = await Promise.all([
-            db.loginNewUser(),
-            db.createMap()
-          ]))
-      );
-
-      afterAll(() => db.cleanup('user', 'mMap'));
-
-
-
+        beforeAll(async () => {
+          res = await req.postAttach({
+            url: 'maps',
+            status: 201,
+            data: createMapObject,
+            files: [
+              { file: bspBuffer, field: 'bsp', fileName: 'surf_map.bsp' },
+              {
+                file: vmfBuffer,
+                field: 'vmfs',
+                fileName: 'surf_map_main.vmf'
+              },
+              {
+                file: vmfBuffer,
+                field: 'vmfs',
+                fileName: 'surf_map_instance.vmf'
+              }
+            ],
+            token
           });
 
-
+          createdMap = await prisma.mMap.findFirst({
+            include: {
+              info: true,
+              stats: true,
+              credits: true,
+              mainTrack: true,
+              submission: true,
+              tracks: {
+                include: {
+                  zones: {
+                    include: { triggers: { include: { properties: true } } }
+                  }
+                }
+              }
+            }
+          });
         });
 
+        afterAll(() => db.cleanup('mMap'));
+
+        it('should respond with a MapDto', () => {
+          expect(res.body).toBeValidDto(MapDto);
+          // Check the whacky JSON parsing stuff works
+          const trigger = res.body.tracks[0].zones[0].triggers[0];
+          expect(trigger.points).toStrictEqual({ p1: '0', p2: '0' });
+          expect(trigger.properties.properties).toStrictEqual({});
+        });
+
+        it('should create a map within the database', () => {
+          expect(createdMap).toMatchObject({
+            name: 'map',
+            fileName: 'surf_map',
+            status: MapStatusNew.PRIVATE_TESTING,
+            submission: {
+              type: MapSubmissionType.ORIGINAL,
+              placeholders: [{ alias: 'God', type: MapCreditType.AUTHOR }],
+              suggestions: [
+                {
+                  track: 1,
+                  gamemode: Gamemode.SURF,
+                  tier: 1,
+                  ranked: true,
+                  comment: 'I love you'
+                }
+              ]
+            },
+            info: {
+              description: 'mamp',
+              numTracks: 1,
+              creationDate: new Date('2022-07-07T18:33:33.000Z')
+            },
+            submitterID: user.id,
+            credits: [
+              {
+                userID: user.id,
+                type: MapCreditType.AUTHOR,
+                description: 'Walrus'
+              }
+            ],
+            mainTrack: {
+              id: createdMap.tracks.find((track) => track.trackNum === 0).id
+            }
           });
 
+          expect(createdMap.tracks).toHaveLength(2);
+          for (const track of createdMap.tracks) {
+            expect(track.trackNum).toBeLessThanOrEqual(1);
+            for (const zone of track.zones) {
+              expect(zone.zoneNum).toBeLessThanOrEqual(10);
+              for (const trigger of zone.triggers) {
+                expect(trigger.points).toStrictEqual({ p1: '0', p2: '0' });
+                expect(trigger.properties.properties).toStrictEqual({});
+              }
+            }
+          }
         });
 
+        it('should upload the BSP file', async () => {
+          expect(res.body.downloadURL).toBeUndefined();
+          const currentVersion = res.body.submission.currentVersion;
 
+          expect(currentVersion.downloadURL.split('/').slice(-2)).toEqual([
+            'submissions',
+            `${currentVersion.id}.bsp`
+          ]);
 
+          const downloadBuffer = await axios
+            .get(currentVersion.downloadURL, { responseType: 'arraybuffer' })
+            .then((res) => Buffer.from(res.data, 'binary'));
+          const downloadHash = createSha1Hash(downloadBuffer);
 
+          expect(bspHash).toBe(currentVersion.hash);
+          expect(downloadHash).toBe(currentVersion.hash);
+        });
+
+        it('should upload the VMF file', async () => {
+          const currentVersion = res.body.submission.currentVersion;
+
+          expect(currentVersion.vmfDownloadURL.split('/').slice(-2)).toEqual([
+            'submissions',
+            `${currentVersion.id}_VMFs.zip`
+          ]);
+
+          const downloadBuffer = await axios
+            .get(currentVersion.vmfDownloadURL, { responseType: 'arraybuffer' })
+            .then((res) => Buffer.from(res.data, 'binary'));
+
+          const zip = new Zip(downloadBuffer);
+
+          const extractedVmf = zip.getEntry('surf_map_main.vmf').getData();
+          expect(createSha1Hash(extractedVmf)).toBe(vmfHash);
+        });
+
+        it('should create map uploaded activities for the map authors', async () => {
+          const activity = await prisma.activity.findFirst();
+
+          expect(activity.type).toBe(ActivityType.MAP_UPLOADED);
+          expect(activity.data).toBe(BigInt(createdMap.id));
+        });
+
+        it('should create map review invites for the invitees', async () => {
+          const invites = await prisma.mapTestingRequest.findMany();
+          const invitees = invites.map((u) => u.userID);
+          expect(invitees).toEqual(expect.arrayContaining([u2.id, u3.id]));
+          expect(invitees).toHaveLength(2);
+        });
+      });
+
+      describe('Permission checks', () => {
+        for (const status of [
+          MapStatusNew.PRIVATE_TESTING,
+          MapStatusNew.PUBLIC_TESTING,
+          MapStatusNew.CONTENT_APPROVAL,
+          MapStatusNew.FINAL_APPROVAL
+        ]) {
+          it(`should 403 if the user already has a map in ${MapStatusNew[status]} and is not a MAPPER`, async () => {
+            await db.createMap({
+              submitter: { connect: { id: user.id } },
+              status
+            });
+
+            await req.postAttach({
+              url: 'maps',
+              status: 403,
+              data: createMapObject,
+              files: [
+                { file: bspBuffer, field: 'bsp', fileName: 'surf_map.bsp' },
+                { file: vmfBuffer, field: 'vmfs', fileName: 'surf_map.vmf' }
+              ],
+              token
+            });
+
+            await prisma.mMap.deleteMany();
+          });
+
+          for (const role of [
+            Role.MAPPER,
+            Role.PORTER,
+            Role.REVIEWER,
+            Role.MODERATOR,
+            Role.ADMIN
+          ]) {
+            it(`should allow if the user already has a map in ${MapStatusNew[status]} and is a ${Role[role]}`, async () => {
+              await prisma.user.update({
+                where: { id: user.id },
+                data: { roles: role }
+              });
+
+              await db.createMap({
+                submitter: { connect: { id: user.id } },
+                status
+              });
+
+              await req.postAttach({
+                url: 'maps',
+                status: 201,
+                data: createMapObject,
+                files: [
+                  { file: bspBuffer, field: 'bsp', fileName: 'surf_map.bsp' },
+                  { file: vmfBuffer, field: 'vmfs', fileName: 'surf_map.vmf' }
+                ],
+                token
+              });
+
+              await prisma.user.update({
+                where: { id: user.id },
+                data: { roles: 0 }
+              });
+
+              await prisma.mMap.deleteMany();
+            });
+          }
+        }
+      });
+
+      describe('Other tests', () => {
+        afterEach(() => db.cleanup('mMap'));
+
+        it("should put a map straight in CONTENT_APPROVAL if user doesn't request private testing", async () => {
+          const res = await req.postAttach({
+            url: 'maps',
+            status: 201,
+            data: { ...createMapObject, wantsPrivateTesting: false },
+            files: [
+              { file: bspBuffer, field: 'bsp', fileName: 'surf_map.bsp' },
+              { file: vmfBuffer, field: 'vmfs', fileName: 'surf_map.vmf' }
+            ],
+            token
+          });
+
+          expect(res.body.status).toBe(MapStatusNew.CONTENT_APPROVAL);
+        });
+
+        it('should 400 if BSP filename does not start with the fileName on the DTO', async () => {
+          await req.postAttach({
+            url: 'maps',
+            status: 400,
+            data: createMapObject,
+            files: [
+              { file: bspBuffer, field: 'bsp', fileName: 'bhop_map.bsp' },
+              { file: vmfBuffer, field: 'vmfs', fileName: 'surf_map.vmf' }
+            ],
+            token
+          });
+        });
+
+        it('should succeed if BSP filename starts with but does not equal the fileName on the DTO', async () => {
+          await req.postAttach({
+            url: 'maps',
+            status: 201,
+            data: createMapObject,
+            files: [
+              { file: bspBuffer, field: 'bsp', fileName: 'surf_map_a1.bsp' },
+              { file: vmfBuffer, field: 'vmfs', fileName: 'surf_map.vmf' }
+            ],
+            token
+          });
+        });
+
+        it('should 400 if a BSP filename does not end in .BSP', async () => {
+          await req.postAttach({
+            url: 'maps',
+            status: 400,
+            data: createMapObject,
+            files: [
+              { file: bspBuffer, field: 'bsp', fileName: 'surf_map.zip' },
+              { file: vmfBuffer, field: 'vmfs', fileName: 'surf_map.vmf' }
+            ],
+            token
+          });
+        });
+
+        it('should 400 if BSP file is missing', async () => {
+          await req.postAttach({
+            url: 'maps',
+            status: 400,
+            data: createMapObject,
+            files: [
+              { file: vmfBuffer, field: 'vmfs', fileName: 'surf_map.vmf' }
+            ],
+            token
+          });
+
+          await req.post({
+            url: 'maps',
+            status: 400,
+            body: createMapObject,
+            token
+          });
+        });
+
+        it("should 400 if BSP file is greater than the config's max bsp file size", async () => {
+          await req.postAttach({
+            url: 'maps',
+            status: 400,
+            data: createMapObject,
+            files: [
+              {
+                file: Buffer.alloc(Config.limits.bspSize + 1),
+                field: 'bsp',
+                fileName: 'surf_map.bsp'
+              },
+              { file: vmfBuffer, field: 'vmfs', fileName: 'surf_map.vmf' },
+              { file: vmfBuffer, field: 'vmfs', fileName: 'surf_map.vmf' }
+            ],
+            token
+          });
+        });
+
+        it('should succeed if VMF file is missing', async () =>
+          req.postAttach({
+            url: 'maps',
+            status: 201,
+            data: createMapObject,
+            files: [
+              { file: bspBuffer, field: 'bsp', fileName: 'surf_map.bsp' }
+            ],
+            token
+          }));
+
+        it('should 400 if VMF file is invalid', () =>
+          req.postAttach({
+            url: 'maps',
+            status: 400,
+            data: createMapObject,
+            files: [
+              { file: bspBuffer, field: 'bsp', fileName: 'surf_map.bsp' },
+              {
+                file: Buffer.from('{' + vmfBuffer.toString()),
+                field: 'vmfs',
+                fileName: 'surf_map.vmf'
+              }
+            ],
+            token
+          }));
+
+        it("should 400 if a VMF file is greater than the config's max vmf file size", () =>
+          req.postAttach({
+            url: 'maps',
+            status: 400,
+            data: createMapObject,
+            files: [
+              { file: bspBuffer, field: 'bsp', fileName: 'surf_map.bsp' },
+              {
+                file: Buffer.alloc(Config.limits.vmfSize + 1),
+                field: 'vmfs',
+                fileName: 'surf_map.vmf'
+              }
+            ],
+            token
+          }));
+
+        it('should 400 if a VMF filename does not end in .vmf', async () => {
+          await req.postAttach({
+            url: 'maps',
+            status: 400,
+            data: createMapObject,
+            files: [
+              { file: bspBuffer, field: 'bsp', fileName: 'surf_map.bsp' },
+              { file: vmfBuffer, field: 'vmfs', fileName: 'surf_map.blend' }
+            ],
+            token
+          });
+        });
+
+        // This shouldn't ever really occur - on map approval the user is made a
+        // MAPPER or PORTER - but may as well have precise behaviour anyway.
+        it('should succeed if the user already has an APPROVED map and is not a mapper', async () => {
+          await db.createMap({
+            submitter: { connect: { id: user.id } },
+            status: MapStatusNew.APPROVED
+          });
+
+          await req.postAttach({
+            url: 'maps',
+            status: 201,
+            data: createMapObject,
+            files: [
+              { file: bspBuffer, field: 'bsp', fileName: 'surf_map.bsp' },
+              { file: vmfBuffer, field: 'vmfs', fileName: 'surf_map.vmf' }
+            ],
+            token
+          });
+
+          await prisma.mMap.deleteMany();
+        });
+
+        it('should 409 if the user has a MAP_SUBMISSION ban', async () => {
+          await prisma.user.update({
+            where: { id: user.id },
+            data: { bans: Ban.MAP_SUBMISSION }
+          });
+
+          await req.postAttach({
+            url: 'maps',
+            status: 403,
+            data: createMapObject,
+            files: [
+              { file: bspBuffer, field: 'bsp', fileName: 'surf_map.bsp' },
+              { file: vmfBuffer, field: 'vmfs', fileName: 'surf_map.vmf' }
+            ],
+            token
+          });
+
+          await prisma.user.update({
+            where: { id: user.id },
+            data: { bans: 0 }
+          });
+        });
+
+        it('should 400 if the map does not have any tracks', () =>
+          req.postAttach({
+            url: 'maps',
+            status: 400,
+            data: { ...createMapObject, tracks: [] },
+            files: [
+              { file: bspBuffer, field: 'bsp', fileName: 'surf_map.bsp' },
+              { file: vmfBuffer, field: 'vmfs', fileName: 'surf_map.vmf' }
+            ],
+            token
+          }));
+
+        it('should 400 if a map track has less than 2 zones', () =>
+          req.postAttach({
+            url: 'maps',
+            status: 400,
+            data: {
+              createMapObject,
+              tracks: [
+                { createMapObject, zones: createMapObject.tracks[0].zones[0] }
+              ]
+            },
+            files: [
+              { file: bspBuffer, field: 'bsp', fileName: 'surf_map.bsp' },
+              { file: vmfBuffer, field: 'vmfs', fileName: 'surf_map.vmf' }
+            ],
+            token
+          }));
+
+        it('should 409 if a map with the same name exists', async () => {
+          const fileName = 'ron_weasley';
+
+          await db.createMap({ fileName });
+
+          await req.postAttach({
+            url: 'maps',
+            status: 409,
+            data: { ...createMapObject, fileName },
+            files: [
+              { file: bspBuffer, field: 'bsp', fileName: 'surf_map.bsp' },
+              { file: vmfBuffer, field: 'vmfs', fileName: 'surf_map.vmf' }
+            ],
+            token
+          });
+        });
+
+        it('should 401 when no access token is provided', () =>
+          req.unauthorizedTest('maps', 'post'));
+      });
     });
   });
 

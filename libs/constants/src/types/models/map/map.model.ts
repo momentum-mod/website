@@ -1,5 +1,5 @@
 import { MMap as PrismaMMap } from '@prisma/client';
-import { MapStatus } from '../../../enums/map-status.enum';
+import { MapStatusNew } from '../../../enums/map-status.enum';
 import { Gamemode } from '../../../enums/gamemode.enum';
 import { MapImage } from './map-image.model';
 import { CreateMapTrack, MapTrack } from './map-track.model';
@@ -20,7 +20,7 @@ import { MapSubmissionSuggestion } from './map-submission-suggestion.model';
  */
 export interface MMap extends Omit<PrismaMMap, 'thumbnailID' | 'mainTrackID'> {
   type: Gamemode;
-  status: MapStatus;
+  status: MapStatusNew;
   downloadURL: string;
   thumbnail?: MapImage;
   mainTrack?: MapTrack;
@@ -34,6 +34,12 @@ export interface MMap extends Omit<PrismaMMap, 'thumbnailID' | 'mainTrackID'> {
   libraryEntries?: MapLibraryEntry[];
   worldRecord?: Rank;
   personalBest?: Rank;
+}
+
+export interface CreateMapWithFiles {
+  bsp: any;
+  vmfs: any[];
+  data: CreateMap;
 }
 
 export interface CreateMap extends Pick<MMap, 'name' | 'fileName'> {
