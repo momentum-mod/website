@@ -1,5 +1,6 @@
 import {
   approvedBspPath,
+  approvedVmfsPath,
   CreateMap,
   Gamemode,
   MapStatus,
@@ -87,6 +88,19 @@ export class MapDto implements MMap {
   @IsOptional()
   readonly hash: string;
 
+  @ApiProperty({ type: String, description: 'URL to VMF in cloud storage' })
+  @Expose()
+  @IsOptional()
+  @IsString()
+  @IsUrl({ require_tld: false })
+  get vmfDownloadURL() {
+    return this.status === MapStatusNew.APPROVED && this.hasVmf
+      ? `${ENDPOINT_URL}/${BUCKET}/${approvedVmfsPath(this.fileName)}`
+      : undefined;
+  }
+
+  @Exclude()
+  readonly hasVmf: boolean;
   @Exclude()
   readonly thumbnailID: number;
 
