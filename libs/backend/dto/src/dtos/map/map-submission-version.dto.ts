@@ -24,6 +24,20 @@ export class MapSubmissionVersionDto implements MapSubmissionVersion {
   @Exclude()
   readonly submissionID: number;
 
+  @ApiProperty({ type: String, description: 'URL to VMF in cloud storage' })
+  @Expose()
+  @IsOptional()
+  @IsString()
+  @IsUrl({ require_tld: false })
+  get vmfDownloadURL() {
+    return this.hasVmf
+      ? `${ENDPOINT_URL}/${BUCKET}/submissions/${this.id}_VMFs.zip`
+      : undefined;
+  }
+
+  @Exclude()
+  readonly hasVmf: boolean;
+
   @CreatedAtProperty()
   readonly createdAt: Date;
 }

@@ -185,6 +185,7 @@ model MMap {
   type     Int     @default(0) @db.SmallInt /// gamemodes.enum.ts
   status   Int     @db.SmallInt /// map-status.enum.ts
   hash     String? @db.Char(40)
+  hasVmf   Boolean @default(false)
 
   thumbnail   MapImage? @relation("mapimage_thumbnail", fields: [thumbnailID], references: [id], onDelete: SetNull)
   thumbnailID Int?      @unique
@@ -467,6 +468,8 @@ model MapSubmissionVersion {
 
   versionNum Int    @db.SmallInt
   changelog  String
+  hash       String  @db.Char(40)
+  hasVmf     Boolean @default(false)
 
   submission   MapSubmission? @relation(fields: [submissionID], references: [mapID], onDelete: Cascade)
   submissionID Int
