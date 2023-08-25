@@ -1,16 +1,13 @@
 import {
   BadRequestException,
-  ConflictException,
   ForbiddenException,
   forwardRef,
   Inject,
   Injectable,
   InternalServerErrorException,
-  NotFoundException,
-  StreamableFile
+  NotFoundException
 } from '@nestjs/common';
 import {
-  MMap,
   MapTrack,
   MapZone,
   MapZoneTrigger,
@@ -22,7 +19,6 @@ import { ConfigService } from '@nestjs/config';
 import { RunsService } from '../runs/runs.service';
 import {
   AdminCtlMapsGetAllQueryDto,
-  CreateMapDto,
   DtoFactory,
   MapDto,
   MapInfoDto,
@@ -245,223 +241,6 @@ export class MapsService {
     delete mapObj.ranks;
   }
 
-  async create(
-    mapCreateDto: CreateMapDto,
-    submitterID: number
-  ): Promise<MapDto> {
-    // Check there's no map with same name
-    const mapExists = await this.db.mMap.exists({
-      where: {
-        fileName: mapCreateDto.fileName,
-        NOT: { status: { in: [MapStatus.REJECTED, MapStatus.REMOVED] } }
-      }
-    });
-
-    if (mapExists)
-      throw new ConflictException('Map with this name already exists');
-
-    // Limit the number of pending maps a user can have at any one time
-    const pendingMapLimit = this.config.get('limits.pendingMaps');
-    const submittedMaps: number = await this.db.mMap.count({
-      where: {
-        submitterID: submitterID,
-        status: { in: [MapStatus.PENDING, MapStatus.NEEDS_REVISION] }
-      }
-    });
-
-    if (submittedMaps >= pendingMapLimit)
-      throw new ConflictException(
-        `You can't have more than ${pendingMapLimit} maps pending at once`
-      );
-
-    // Extra checks...
-    //// Note: We should add further checks here when working on map submission.
-    //// Though need to decide if we're going to do
-    //// any BSP parsing on this API, or have mods check using Lumper.
-    const trackNums = mapCreateDto.tracks.map((track) => track.trackNum);
-    // Set construction ensures uniqueness, so just compare the lengths
-    if (trackNums.length !== new Set(trackNums).size)
-      throw new BadRequestException(
-        'All map tracks must have unique track numbers'
-      );
-
-    // Actually build our input. Prisma doesn't let you do nested createMany
-    // (https://github.com/prisma/prisma/issues/5455)
-    // so we have to do it in parts... Fortunately this doesn't run often.
-    const createInput: Prisma.MMapCreateInput & {
-      info: NonNullable<Prisma.MMapCreateInput['info']>;
-      tracks: NonNullable<Prisma.MMapCreateInput['tracks']>;
-    } = {
-      submitter: { connect: { id: submitterID } },
-      name: mapCreateDto.name,
-      fileName: mapCreateDto.fileName,
-      stats: { create: { baseStats: { create: {} } } }, // Just init empty entry
-      status: MapStatus.NEEDS_REVISION,
-      info: {
-        create: {
-          numTracks: mapCreateDto.info.numTracks,
-          description: mapCreateDto.info.description,
-          creationDate: mapCreateDto.info.creationDate,
-          youtubeID: mapCreateDto.info.youtubeID
-        }
-      },
-      credits: {
-        createMany: {
-          data: mapCreateDto.credits.map((credit) => {
-            return {
-              type: credit.type,
-              userID: credit.userID,
-              description: credit.description
-            };
-          })
-        }
-      },
-      tracks: {
-        createMany: {
-          data: mapCreateDto.tracks.map(
-            (track): Prisma.MapTrackCreateManyMmapInput => {
-              return {
-                isLinear: track.isLinear,
-                numZones: track.numZones,
-                trackNum: track.trackNum,
-                difficulty: track.difficulty
-              };
-            }
-          )
-        }
-      }
-    };
-
-    const initialMap = await this.db.mMap.create({
-      data: createInput,
-      select: { id: true, tracks: true }
-    });
-
-    const mainTrack = initialMap.tracks.find((track) => track.trackNum === 0);
-
-    const mapDB = await this.db.mMap.update({
-      where: { id: initialMap.id },
-      data: {
-        mainTrack: {
-          connect: {
-            id: mainTrack.id
-          }
-        }
-      },
-      include: {
-        info: true,
-        credits: true,
-        tracks: true
-      }
-    });
-
-    await Promise.all(
-      mapDB.tracks.map(async (track: MapTrack) => {
-        const dtoTrack = mapCreateDto.tracks.find(
-          (dtoTrack) => dtoTrack.trackNum === track.trackNum
-        );
-
-        await this.db.mapTrack.update({
-          where: { id: track.id },
-          data: { stats: { create: { baseStats: { create: {} } } } }
-        }); // Init empty MapTrackStats entry
-
-        await Promise.all(
-          dtoTrack.zones.map(async (zone) => {
-            const zoneDB = await this.db.mapZone.create({
-              data: {
-                track: { connect: { id: track.id } },
-                zoneNum: zone.zoneNum,
-                stats: { create: { baseStats: { create: {} } } }
-              }
-            });
-
-            // We could do a `createMany` for the triggers in the above input
-            // but we then need to attach a `MapZoneTriggerProperties` to each
-            // using the DTO properties, and I'm not certain the data we get
-            // back from the `createMany` is in the order we inserted. For
-            // tracks we use the find w/ `trackNum` above, but
-            // `MapZoneTriggerProperties` don't have any distinguishing features
-            // like that. So I'm doing the triggers with looped `create`s so I
-            // can include the `MapZoneTriggerProperties`. Hopefully
-            // `MapZoneTriggerProperties` will be removed in 0.10.0 anyway
-            // (they're stupid) in which case we should be able to use a
-            // `createMany` for the triggers.
-            await Promise.all(
-              zone.triggers.map(async (trigger) => {
-                await this.db.mapZoneTrigger.create({
-                  data: {
-                    zone: { connect: { id: zoneDB.id } },
-                    type: trigger.type,
-                    pointsHeight: trigger.pointsHeight,
-                    pointsZPos: trigger.pointsZPos,
-                    points: trigger.points,
-                    properties: {
-                      create: {
-                        // This will create an empty table for triggers with no
-                        // properties, probably bad, revisit in 0.10.0
-                        properties: trigger?.zoneProps?.properties ?? {}
-                      }
-                    }
-                  }
-                });
-              })
-            );
-          })
-        );
-      })
-    );
-
-    // Create MAP_UPLOADED activities for each author
-    await this.db.activity.createMany({
-      data: mapDB.credits
-        .filter((credit) => credit.type === MapCreditType.AUTHOR)
-        .map((credit): Prisma.ActivityCreateManyInput => {
-          return {
-            type: ActivityType.MAP_UPLOADED,
-            userID: credit.userID,
-            data: mapDB.id
-          };
-        })
-    });
-
-    const finalizedMap = await this.db.mMap.findUnique({
-      where: { id: mapDB.id },
-      include: {
-        info: true,
-        stats: { include: { baseStats: true } },
-        submitter: true,
-        images: true,
-        thumbnail: true,
-        credits: { include: { user: true } },
-        tracks: {
-          include: {
-            zones: {
-              include: {
-                triggers: { include: { properties: true } },
-                stats: { include: { baseStats: true } }
-              }
-            },
-            stats: { include: { baseStats: true } }
-          }
-        },
-        mainTrack: {
-          include: {
-            zones: {
-              include: {
-                triggers: { include: { properties: true } },
-                stats: { include: { baseStats: true } }
-              }
-            },
-            stats: { include: { baseStats: true } }
-          }
-        }
-      }
-    });
-
-    return DtoFactory(MapDto, finalizedMap);
-  }
-
   async update(
     mapID: number,
     userID: number,
@@ -486,7 +265,7 @@ export class MapsService {
       // very strict.
       if (map.status !== MapStatus.NEEDS_REVISION)
         throw new ForbiddenException('Map is not in NEEDS_REVISION state');
-      if (update.status !== MapStatus.READY_FOR_RELEASE)
+      if (update.status !== (MapStatus as any).READY_FOR_RELEASE)
         throw new ForbiddenException();
     }
 
@@ -536,101 +315,9 @@ export class MapsService {
     await this.runsService.deleteStoredMapRuns(mapID);
 
     // Delete stored map file
-    const fileKey = this.getMapFileKey(map.fileName);
-    await this.fileStoreService.deleteFile(fileKey);
+    await this.fileStoreService.deleteFile(`maps/${map.fileName}.bsp`);
 
     await this.db.mMap.delete({ where: { id: mapID } });
-  }
-
-  //#endregion
-
-  //#region Upload/Download
-
-  async canUploadMap(mapID: number, userID: number): Promise<void> {
-    const mapDB = await this.db.mMap.findUnique({ where: { id: mapID } });
-
-    this.uploadMapChecks(mapDB, userID);
-  }
-
-  async upload(
-    mapID: number,
-    userID: number,
-    mapFileBuffer: Buffer
-  ): Promise<MapDto> {
-    const mapDB = await this.db.mMap.findUnique({ where: { id: mapID } });
-
-    this.uploadMapChecks(mapDB, userID);
-
-    const hash = await this.storeMapFile(mapFileBuffer, mapDB);
-
-    return DtoFactory(
-      MapDto,
-      await this.db.mMap.update({
-        where: { id: mapDB.id },
-        data: {
-          status: MapStatus.PENDING,
-          hash
-        }
-      })
-    );
-  }
-
-  async download(mapID: number): Promise<StreamableFile> {
-    const map = await this.db.mMap.findUnique({ where: { id: mapID } });
-
-    if (!map) throw new NotFoundException('Map not found');
-
-    const mapDataStream = await this.getMapFileFromStore(map.name);
-
-    if (!mapDataStream)
-      throw new NotFoundException(`Couldn't find BSP file for ${map.name}.bsp`);
-
-    await this.db.mapStats.update({
-      where: { mapID },
-      data: { downloads: { increment: 1 } }
-    });
-
-    return mapDataStream;
-  }
-
-  private async storeMapFile(
-    mapFileBuffer: Buffer,
-    mapModel: MMap
-  ): Promise<string> {
-    const fileKey = this.getMapFileKey(mapModel.fileName);
-
-    const result = await this.fileStoreService.storeFile(
-      mapFileBuffer,
-      fileKey
-    );
-
-    return result.hash;
-  }
-
-  private getMapFileKey(mapName: string): string {
-    return `maps/${mapName}.bsp`;
-  }
-
-  private async getMapFileFromStore(mapName: string): Promise<StreamableFile> {
-    const fileKey = this.getMapFileKey(mapName);
-
-    const file = await this.fileStoreService.getFile(fileKey);
-
-    if (!file) throw new NotFoundException();
-
-    return new StreamableFile(file);
-  }
-
-  private uploadMapChecks(map: MMap, userID: number): void {
-    if (!map) throw new NotFoundException('Map not found');
-
-    if (userID !== map.submitterID)
-      throw new ForbiddenException('You are not the submitter of this map');
-
-    if (map.status !== MapStatus.NEEDS_REVISION)
-      throw new ForbiddenException(
-        'Map file cannot be uploaded, the map is not accepting revisions'
-      );
   }
 
   //#endregion

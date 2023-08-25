@@ -636,87 +636,26 @@ describe('Maps', () => {
     });
   });
 
-  describe('maps/{mapID}/upload', () => {
-    let u1, u1Token, u2Token, map;
 
-    beforeAll(async () => {
-      [[u1, u1Token], u2Token] = await Promise.all([
-        db.createAndLoginUser({ data: { roles: Role.MAPPER } }),
-        db.loginNewUser()
-      ]);
-      map = await db.createMap({
-        status: MapStatus.NEEDS_REVISION,
-        submitter: { connect: { id: u1.id } }
-      });
-    });
 
-    afterAll(() => db.cleanup('user', 'mMap'));
 
-    describe('GET', () => {
-      it('should set the response header location to the map upload endpoint', async () => {
-        const res = await req.get({
-          url: `maps/${map.id}/upload`,
-          status: 204,
-          token: u1Token
         });
 
-        expect(res.headers.location).toBe(`api/v1/maps/${map.id}/upload`);
-      });
 
-      it('should 403 when the submitterID does not match the userID', async () => {
-        const u2Token = await db.loginNewUser();
 
-        await req.get({
-          url: `maps/${map.id}/upload`,
-          status: 403,
-          token: u2Token
+
+        });
+
+        });
+
         });
       });
 
-      it('should 403 when the map is not accepting uploads', async () => {
-        await prisma.mMap.update({
-          where: { id: map.id },
-          data: { status: MapStatus.REJECTED }
+
         });
 
-        await req.get({
-          url: `maps/${map.id}/upload`,
-          status: 403,
-          token: u2Token
-        });
 
-        await prisma.mMap.update({
-          where: { id: map.id },
-          data: { status: MapStatus.NEEDS_REVISION }
-        });
-      });
 
-      it('should 401 when no access token is provided', () =>
-        req.unauthorizedTest('maps/1/upload', 'get'));
-    });
-
-    describe('POST', () => {
-      it('should upload the map file', async () => {
-        const inBuffer = readFileSync(path.join(FILES_PATH, 'map.bsp'));
-        const inHash = createSha1Hash(inBuffer);
-
-        const res = await req.postAttach({
-          url: `maps/${map.id}/upload`,
-          status: 201,
-          file: inBuffer,
-          token: u1Token
-        });
-
-        const url: string = res.body.downloadURL;
-        expect(url.split('/').at(-1)).toBe(res.body.fileName + '.bsp');
-
-        const outBuffer = await axios
-          .get(url, { responseType: 'arraybuffer' })
-          .then((res) => Buffer.from(res.data, 'binary'));
-        const outHash = createSha1Hash(outBuffer);
-
-        expect(inHash).toBe(res.body.hash);
-        expect(outHash).toBe(res.body.hash);
 
         await fileStore.delete(`maps/${map.name}.bsp`);
       });
@@ -763,78 +702,6 @@ describe('Maps', () => {
     });
   });
 
-  // describe('The Big Chungie Create, Upload then Download Test', () => {
-  //   afterAll(() => db.cleanup('user', 'mMap'));
-
-  // it('should successfully create a map, upload it to the returned location, then download it', async () => {
-  //   const [user, token] = await db.createAndLoginUser({
-  //     data: { roles: Role.MAPPER }
-  //   });
-  //
-  //   const res = await req.post({
-  //     url: 'maps',
-  //     status: 201,
-  //     body: {
-  //       name: 'map',
-  //       fileName: 'surf_map',
-  //       type: Gamemode.SURF,
-  //       info: {
-  //         description: 'mamp',
-  //         numTracks: 1,
-  //         creationDate: '2022-07-07T18:33:33.000Z'
-  //       },
-  //       credits: [{ userID: user.id, type: MapCreditType.AUTHOR }],
-  //       tracks: Array.from({ length: 2 }, (_, i) => ({
-  //         trackNum: i,
-  //         numZones: 1,
-  //         isLinear: false,
-  //         difficulty: 5,
-  //         zones: Array.from({ length: 10 }, (_, j) => ({
-  //           zoneNum: j,
-  //           triggers: [
-  //             {
-  //               type: j == 0 ? 1 : j == 1 ? 0 : 2,
-  //               pointsHeight: 512,
-  //               pointsZPos: 0,
-  //               points: { p1: '0', p2: '0' },
-  //               properties: {
-  //                 properties: '{}'
-  //               }
-  //             }
-  //           ]
-  //         }))
-  //       }))
-  //     },
-  //     token: token
-  //   });
-  //
-  //   const inBuffer = readFileSync(__dirname + '/../files/map.bsp');
-  //   const inHash = createSha1Hash(inBuffer);
-  //
-  //   const uploadURL = res.headers.location as string;
-  //
-  //   const res2 = await req.postAttach({
-  //     url: uploadURL,
-  //     skipApiPrefix: true,
-  //     status: 201,
-  //     file: 'map.bsp',
-  //     token: token
-  //   });
-  //
-  //   const outBuffer = await axios
-  //     .get(res2.body.downloadURL, { responseType: 'arraybuffer' })
-  //     .then((res) => Buffer.from(res.data, 'binary'));
-  //   const outHash = createSha1Hash(outBuffer);
-  //
-  //   expect(inHash).toBe(outHash);
-  //
-  //   await fileStore.delete('maps/test_map.bsp');
-  // });
-  // });
-
-  describe('maps/{mapID}/download', () => {
-    describe('GET', () => {
-      let token, map, file;
 
       beforeAll(
         async () =>
@@ -846,57 +713,20 @@ describe('Maps', () => {
 
       afterAll(() => db.cleanup('user', 'mMap'));
 
-      describe('should download a map', () => {
-        it("should respond with the map's BSP file", async () => {
-          const key = `maps/${map.name}.bsp`;
-          file = readFileSync(__dirname + '/../files/map.bsp');
 
-          await fileStore.add(key, file);
 
-          const res = await req.get({
-            url: `maps/${map.id}/download`,
-            status: 200,
-            token: token,
-            contentType: 'octet-stream'
           });
 
-          const inHash = createSha1Hash(file);
-          const outHash = createSha1Hash(res.rawPayload);
-          expect(inHash).toEqual(outHash);
 
-          await fileStore.delete(key);
         });
 
-        it('should update the map download stats', async () => {
-          const stats = await prisma.mapStats.findFirst({
-            where: { mapID: map.id }
           });
 
-          expect(stats.downloads).toBe(1);
         });
-      });
 
-      it("should 404 when the map's BSP file is not found", async () => {
-        const map2 = await db.createMap();
 
-        await req.get({
-          url: `maps/${map2.id}/download`,
-          status: 404,
-          token: token,
-          contentType: 'json'
-        });
-      });
 
-      it('should 404 when the map is not found', () =>
-        req.get({
-          url: `maps/${NULL_ID}/download`,
-          status: 404,
-          token: token,
-          contentType: 'json'
-        }));
 
-      it('should 401 when no access token is provided', () =>
-        req.unauthorizedTest('maps/1/download', 'get'));
     });
   });
 

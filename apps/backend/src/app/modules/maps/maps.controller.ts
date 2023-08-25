@@ -4,19 +4,14 @@ import {
   Controller,
   Delete,
   Get,
-  Header,
   HttpCode,
   HttpStatus,
-  MaxFileSizeValidator,
   Param,
   ParseArrayPipe,
-  ParseFilePipe,
   Patch,
   Post,
   Put,
   Query,
-  Res,
-  StreamableFile,
   UploadedFile,
   UseGuards,
   UseInterceptors
@@ -169,105 +164,6 @@ export class MapsController {
     @Body() body: UpdateMapDto
   ): Promise<void> {
     return this.mapsService.update(mapID, userID, body);
-  }
-
-  //#endregion
-
-  //#region Upload/Download
-
-  @Get('/:mapID/upload')
-  @Roles(Role.MAPPER, Role.MODERATOR, Role.ADMIN)
-  @HttpCode(HttpStatus.NO_CONTENT)
-  @ApiOperation({ summary: 'Get the map upload endpoint in response header' })
-  @ApiNoContentResponse({
-    description: 'The Location in header was set to the upload endpoint'
-  })
-  @ApiNotFoundResponse({ description: 'Map was not found' })
-  @ApiForbiddenResponse({ description: 'User does not have the Mapper role' })
-  @ApiForbiddenResponse({ description: 'User is not the submitter of the map' })
-  @ApiForbiddenResponse({ description: 'Map is not in ACCEPTS_REVISION state' })
-  @ApiParam({
-    name: 'mapID',
-    type: Number,
-    description: 'Target Map ID',
-    required: true
-  })
-  async getUploadLocation(
-    @Res({ passthrough: true }) res,
-    @LoggedInUser('id') userID: number,
-    @Param('mapID', ParseIntSafePipe) mapID: number
-  ): Promise<void> {
-    await this.mapsService.canUploadMap(mapID, userID);
-
-    this.setMapUploadLocationHeader(res, mapID);
-  }
-
-  @Post('/:mapID/upload')
-  @UseInterceptors(FileInterceptor('file'))
-  @ApiOperation({ summary: 'Uploads a map' })
-  @ApiParam({
-    name: 'mapID',
-    type: Number,
-    description: 'Target Map ID',
-    required: true
-  })
-  @ApiConsumes('multipart/form-data')
-  @ApiBody({
-    schema: {
-      type: 'object',
-      properties: {
-        file: {
-          type: 'string',
-          format: 'binary'
-        }
-      }
-    }
-  })
-  @ApiOkResponse({
-    type: MapDto,
-    description: 'The map object with updated downloadURL'
-  })
-  @ApiNotFoundResponse({ description: 'Map was not found' })
-  @ApiForbiddenResponse({ description: 'User does not have the Mapper role' })
-  @ApiForbiddenResponse({ description: 'User is not the submitter of the map' })
-  @ApiForbiddenResponse({ description: 'Map is not in ACCEPTS_REVISION state' })
-  uploadMap(
-    @LoggedInUser('id') userID: number,
-    @Param('mapID', ParseIntSafePipe) mapID: number,
-    @UploadedFile(
-      new ParseFilePipe({
-        validators: [
-          new MaxFileSizeValidator({ maxSize: Config.limits.mapSize })
-        ]
-      })
-    )
-    file
-  ): Promise<MapDto> {
-    // We could do a great more validation here in the future using a custom
-    // pipe, probably when we work on map submission. Anyone fancy writing a BSP
-    // parser in JS?
-    if (!file || !file.buffer || !Buffer.isBuffer(file.buffer))
-      throw new BadRequestException('Map is not valid');
-
-    return this.mapsService.upload(mapID, userID, file.buffer);
-  }
-
-  @Get('/:mapID/download')
-  @ApiOperation({ summary: "Download the map's BSP file" })
-  @Header('Content-Type', 'application/octet-stream')
-  @ApiOkResponse({ description: "The map's BSP file" })
-  @ApiNotFoundResponse({ description: 'Map was not found' })
-  @ApiNotFoundResponse({ description: "Map's BSP file could not be found" })
-  @ApiParam({
-    name: 'mapID',
-    type: Number,
-    description: 'Target Map ID',
-    required: true
-  })
-  downloadMap(
-    @Param('mapID', ParseIntSafePipe) mapID: number
-  ): Promise<StreamableFile> {
-    return this.mapsService.download(mapID);
   }
 
   //#endregion
@@ -774,13 +670,4 @@ export class MapsController {
     return this.mapReviewService.deleteReview(mapID, reviewID, userID);
   }
   //endregion
-
-  //#region Private
-
-  // Frontend reads this header property and sends upload POST to that endpoint
-  private setMapUploadLocationHeader(res: FastifyReply, mapID: number): void {
-    res.header('Location', `api/v1/maps/${mapID}/upload`);
-  }
-
-  //#endregion
 }
