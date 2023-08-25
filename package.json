@@ -35,7 +35,6 @@
     "@nestjs/jwt": "10.1.0",
     "@nestjs/platform-fastify": "10.0.4",
     "@nestjs/swagger": "7.0.12",
-    "@node-steam/vdf": "2.2.0",
     "@nx/esbuild": "16.5.2",
     "@prisma/client": "4.16.2",
     "@sentry/node": "7.57.0",
