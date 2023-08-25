@@ -10,7 +10,7 @@ export enum Role {
   PORTER      = 0b10000000,
 }
 
-export const CombinedRoles: Readonly<Record<string, Role>> = Object.freeze({
+export const CombinedRoles = Object.freeze({
   MOD_OR_ADMIN: Role.MODERATOR | Role.ADMIN,
   REVIEWER_AND_ABOVE: Role.REVIEWER | Role.MODERATOR | Role.ADMIN,
   MAPPER_OR_PORTER: Role.MAPPER | Role.PORTER
