@@ -1,6 +1,9 @@
 export const MAX_DAILY_REPORTS = 5;
 export const MAX_MAP_IMAGE_UPLOADS = 5;
 export const MAX_PENDING_MAPS = 3;
-export const MAX_MAP_SIZE = 3e8;
+export const MAX_BSP_SIZE = 300_000_000;
+export const MAX_VMF_SIZE = 100_000_000;
 export const MAX_IMAGE_SIZE = 1e7;
 export const MAX_CREDIT_DESCRIPTION_LENGTH = 64;
+export const MAX_REVIEW_LENGTH = 50_000;
+export const MAX_TESTING_REQUESTS = 20;

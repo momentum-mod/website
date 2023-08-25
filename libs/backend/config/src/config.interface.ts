@@ -37,7 +37,10 @@ export interface ConfigInterface {
     dailyReports: number;
     mapImageUploads: number;
     pendingMaps: number;
-    mapSize: number;
+    bspSize: number;
+    vmfSize: number;
     imageSize: number;
+    reviewLength: number;
+    testingRequests: number;
   };
 }

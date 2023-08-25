@@ -2,9 +2,12 @@
 import {
   MAX_IMAGE_SIZE,
   MAX_MAP_IMAGE_UPLOADS,
-  MAX_MAP_SIZE,
+  MAX_BSP_SIZE,
   MAX_DAILY_REPORTS,
-  MAX_PENDING_MAPS
+  MAX_PENDING_MAPS,
+  MAX_VMF_SIZE,
+  MAX_REVIEW_LENGTH,
+  MAX_TESTING_REQUESTS
 } from '@momentum/constants';
 
 export const ConfigFactory = (): ConfigInterface => {
@@ -48,13 +51,16 @@ export const ConfigFactory = (): ConfigInterface => {
       secretAccessKey: process.env['STORAGE_SECRET_ACCESS_KEY'] ?? ''
     },
     limits: {
-      maxDailyReports: MAX_DAILY_REPORTS,
+      dailyReports: MAX_DAILY_REPORTS,
       mapImageUploads: MAX_MAP_IMAGE_UPLOADS,
       pendingMaps: MAX_PENDING_MAPS,
       // Keep low for tests, as we'll be generating buffers of slightly
       // above this size to test make file size validation
-      mapSize: isTest ? 1e6 : MAX_MAP_SIZE,
-      imageSize: isTest ? 1e6 : MAX_IMAGE_SIZE
+      bspSize: isTest ? 1e6 : MAX_BSP_SIZE,
+      vmfSize: isTest ? 1e6 : MAX_VMF_SIZE,
+      imageSize: isTest ? 1e6 : MAX_IMAGE_SIZE,
+      reviewLength: MAX_REVIEW_LENGTH,
+      testingRequests: MAX_TESTING_REQUESTS
     }
   };
 };
