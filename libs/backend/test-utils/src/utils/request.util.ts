@@ -8,6 +8,7 @@ import * as http from 'node:http';
 import path from 'node:path';
 import { FILES_PATH } from '../files-path.const';
 import { isEmpty } from '@momentum/util-fn';
+import { MergeExclusive } from 'type-fest';
 
 export const URL_PREFIX = '/api/v1/';
 
@@ -110,20 +111,43 @@ export class RequestUtil {
     }
 
     if (['POST', 'PUT', 'PATCH'].includes(injectOptions.method)) {
-      if ('file' in options && options.file) {
-        const form = new FormData();
-        const field = options.field ?? 'file';
+      if (
+        ('file' in options && options.file) ||
+        ('files' in options && options.files)
+      ) {
+        const attachFile = (
+          form: FormData,
+          file: Buffer | File | string,
+          field: string,
+          fileName?: string
+        ) => {
+          if (typeof file == 'string') {
+            const fileBuffer = fs.readFileSync(path.join(FILES_PATH, file));
+            form.append(field, fileBuffer, fileName ?? 'dummyFileName');
+          } else {
+            form.append(field, file, fileName ?? 'dummyFileName');
+          }
+        };
 
-        if (typeof options.file === 'string') {
-          const file = fs.readFileSync(path.join(FILES_PATH, options.file));
-          form.append(field, file, 'dummyFileName');
-        } else {
-          form.append(field, options.file, 'dummyFileName');
+        const form = new FormData();
+        if (options.file) {
+          attachFile(
+            form,
+            options.file,
+            options.field ?? 'file',
+            options.fileName
+          );
+        } else if ('files' in options) {
+          for (const { file, field, fileName } of options.files) {
+            attachFile(form, file, field, fileName);
+          }
         }
 
-        injectOptions.payload = form;
-
+        if (options.data) {
+          form.append('data', JSON.stringify(options.data));
+        }
         Object.assign(injectOptions.headers, form.getHeaders());
+        injectOptions.payload = form;
       } else {
         injectOptions.payload = 'body' in options ? options.body ?? {} : {};
       }
@@ -367,11 +391,12 @@ export class RequestUtil {
 
 //#region Types
 
-export interface ParsedResponse extends Omit<Response, 'body'> {
-  body: Record<string, any> | any;
-}
-
 type Query = Record<string, string | number | boolean | bigint>;
+type Body = Record<string, unknown> | Record<string, unknown>[];
+
+export interface ParsedResponse extends Omit<Response, 'body'> {
+  body: Body | any;
+}
 
 export interface RequestOptions {
   url: string;
@@ -390,17 +415,23 @@ export interface RequestOptions {
 }
 
 export interface JsonBodyRequestOptions extends RequestOptions {
-  body?: Record<string, unknown> | Record<string, unknown>[];
+  body?: Body;
 }
 
 export interface RawBodyBufferRequestOptions extends RequestOptions {
   body?: Buffer;
 }
 
-export type AttachRequestOptions = Omit<RequestOptions, 'contentType'> & {
+type FileWithOptions = {
   file: Buffer | string;
   field?: string;
+  fileName?: string;
 };
+
+export type AttachRequestOptions = Omit<RequestOptions, 'contentType'> &
+  MergeExclusive<FileWithOptions, { files?: FileWithOptions[] }> & {
+    data?: Body;
+  };
 
 export interface E2ETestOptions {
   url: string;
