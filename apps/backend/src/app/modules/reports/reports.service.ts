@@ -24,7 +24,7 @@ export class ReportsService {
       }
     });
 
-    if (recentReports >= this.config.get('limits.maxDailyReports'))
+    if (recentReports >= this.config.get('limits.dailyReports'))
       throw new ConflictException(
         'You have reached the limit of daily reports'
       );

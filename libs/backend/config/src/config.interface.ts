@@ -34,7 +34,7 @@ export interface ConfigInterface {
     dsn: string;
   };
   limits: {
-    maxDailyReports: number;
+    dailyReports: number;
     mapImageUploads: number;
     pendingMaps: number;
     mapSize: number;
