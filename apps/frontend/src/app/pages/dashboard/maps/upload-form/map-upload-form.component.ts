@@ -6,7 +6,6 @@ import {
 } from '@angular/common/http';
 import { Router } from '@angular/router';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
-import * as VDF from '@node-steam/vdf';
 import { NbToastrService } from '@nebular/theme';
 import { mergeMap } from 'rxjs/operators';
 import { forkJoin } from 'rxjs';
@@ -28,6 +27,7 @@ import {
 import { PartialDeep } from 'type-fest';
 import { MapTypePrefix } from '@momentum/constants';
 import { SortedMapCredits } from '../map-credits/sorted-map-credits.class';
+import { vdf } from 'fast-vdf';
 
 export interface ImageFilePreview {
   dataBlobURL: string;
@@ -225,7 +225,7 @@ export class MapUploadFormComponent implements OnInit, AfterViewInit {
     this.tracks = [];
     this.zoneFile = file;
     const zoneData = await (file as Blob).text();
-    const zoneFile = VDF.parse(zoneData);
+    const zoneFile = vdf.parse(zoneData) as any;
     const tracks = zoneFile.tracks;
     for (const trackNum in tracks) {
       if (Object.hasOwn(tracks, trackNum)) {
