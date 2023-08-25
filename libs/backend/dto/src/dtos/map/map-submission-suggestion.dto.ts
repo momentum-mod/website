@@ -10,8 +10,11 @@ import {
 } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 import { EnumProperty } from '../../decorators';
+import { JsonValue } from 'type-fest';
 
 export class MapSubmissionSuggestionDto implements MapSubmissionSuggestion {
+  [k: string]: JsonValue;
+
   @ApiProperty({ description: 'Track number the suggestion refers to' })
   @IsInt()
   readonly track: number;

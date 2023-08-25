@@ -15,8 +15,11 @@ import {
 import { MapSubmissionSuggestionDto } from './map-submission-suggestion.dto';
 import { Exclude } from 'class-transformer';
 import { MapSubmissionVersionDto } from './map-submission-version.dto';
+import { JsonValue } from 'type-fest';
 
 export class PlaceholderSuggestionDto {
+  [k: string]: JsonValue;
+
   @ApiProperty()
   @IsString()
   @MaxLength(32)
