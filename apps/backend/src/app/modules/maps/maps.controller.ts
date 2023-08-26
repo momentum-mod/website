@@ -46,6 +46,7 @@ import {
   CreateMapCreditDto,
   CreateMapDto,
   CreateMapSubmissionVersionDto,
+  CreateMapTestingRequestDto,
   MapCreditDto,
   MapCreditsGetQueryDto,
   MapDto,
@@ -239,10 +240,29 @@ export class MapsController {
     return this.mapsService.update(mapID, userID, body);
   }
 
+  @Put('/:mapID/testRequest')
+  @HttpCode(HttpStatus.NO_CONTENT)
+  @ApiOperation({ summary: 'Update the private testing invites for the map' })
+  @ApiParam({
+    name: 'mapID',
+    type: Number,
+    description: 'Target Map ID',
+    required: true
+  })
+  async updateTestingRequests(
+    @Param('mapID', ParseIntSafePipe) mapID: number,
+    @Body() body: CreateMapTestingRequestDto,
+    @LoggedInUser('id') userID: number
+  ) {
+    await this.mapSubmissionService.updateTestingRequests(
+      mapID,
+      body.userIDs,
+      userID
+    );
+  }
   //#endregion
 
   //#region Credits
-
   @Get('/:mapID/credits')
   @ApiOperation({ summary: "Gets a single map's credits" })
   @ApiParam({

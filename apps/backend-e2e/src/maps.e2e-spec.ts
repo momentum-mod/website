@@ -36,7 +36,8 @@ import {
   MapStatusNew,
   MapSubmissionType,
   Ban,
-  CombinedMapStatuses
+  CombinedMapStatuses,
+  MapTestingRequestState
 } from '@momentum/constants';
 import { Config } from '@momentum/backend/config';
 // See auth.e2e-spec.ts for justification of this sin
@@ -44,6 +45,8 @@ import { Config } from '@momentum/backend/config';
 import { SteamService } from '../../backend/src/app/modules/steam/steam.service';
 import path from 'node:path';
 import Zip from 'adm-zip';
+import { difference } from 'lodash'; 
+import { Enum } from "@momentum/enum";
 
 describe('Maps', () => {
   let app,
@@ -3711,6 +3714,167 @@ describe('Maps', () => {
 
       it('should 401 when no access token is provided', () =>
         req.unauthorizedTest('maps/1/reviews', 'get'));
+    });
+  });
+
+  describe('maps/{mapID}/testRequest', () => {
+    describe('PUT', () => {
+      let u1, u1Token, u2, u2Token, u3, u4, map;
+      beforeEach(async () => {
+        [[u1, u1Token], [u2, u2Token], u3, u4] = await Promise.all([
+          db.createAndLoginUser(),
+          db.createAndLoginUser(),
+          db.createUser(),
+          db.createUser()
+        ]);
+
+        map = await db.createMap({
+          status: MapStatusNew.PRIVATE_TESTING,
+          submitter: { connect: { id: u1.id } }
+        });
+      });
+
+      afterEach(() => db.cleanup('mMap', 'user'));
+
+      it('should create MapTestingRequests', async () => {
+        await req.put({
+          url: `maps/${map.id}/testRequest`,
+          status: 204,
+          body: { userIDs: [u2.id, u3.id, u4.id] },
+          token: u1Token
+        });
+
+        const createdRequests = await prisma.mapTestingRequest.findMany();
+        expect(createdRequests).toMatchObject([
+          { userID: u2.id, state: MapTestingRequestState.UNREAD },
+          { userID: u3.id, state: MapTestingRequestState.UNREAD },
+          { userID: u4.id, state: MapTestingRequestState.UNREAD }
+        ]);
+      });
+
+      it('should remove any MapTestingRequests not on the userID', async () => {
+        await prisma.mapTestingRequest.create({
+          data: {
+            mapID: map.id,
+            userID: u2.id,
+            state: MapTestingRequestState.ACCEPTED
+          }
+        });
+
+        await req.put({
+          url: `maps/${map.id}/testRequest`,
+          status: 204,
+          body: { userIDs: [u3.id] },
+          token: u1Token
+        });
+
+        const createdRequests = await prisma.mapTestingRequest.findMany();
+        expect(createdRequests).toMatchObject([
+          { userID: u3.id, state: MapTestingRequestState.UNREAD }
+        ]);
+      });
+
+      it('should remove all MapTestingRequests for an empty array', async () => {
+        await prisma.mapTestingRequest.create({
+          data: {
+            mapID: map.id,
+            userID: u2.id,
+            state: MapTestingRequestState.ACCEPTED
+          }
+        });
+
+        await req.put({
+          url: `maps/${map.id}/testRequest`,
+          status: 204,
+          body: { userIDs: [] },
+          token: u1Token
+        });
+
+        const createdRequests = await prisma.mapTestingRequest.findMany();
+        expect(createdRequests.length).toBe(0);
+      });
+
+      it('should leave any existing MapTestingRequests contained in the userIDs unaffected', async () => {
+        await prisma.mapTestingRequest.createMany({
+          data: [
+            {
+              mapID: map.id,
+              userID: u2.id,
+              state: MapTestingRequestState.DECLINED
+            },
+            {
+              mapID: map.id,
+              userID: u3.id,
+              state: MapTestingRequestState.ACCEPTED
+            }
+          ]
+        });
+
+        await req.put({
+          url: `maps/${map.id}/testRequest`,
+          status: 204,
+          body: { userIDs: [u3.id, u4.id] },
+          token: u1Token
+        });
+
+        const createdRequests = await prisma.mapTestingRequest.findMany();
+        expect(createdRequests).toMatchObject([
+          { userID: u3.id, state: MapTestingRequestState.ACCEPTED },
+          { userID: u4.id, state: MapTestingRequestState.UNREAD }
+        ]);
+      });
+
+      it('should 404 in the map does not exist', () =>
+        req.put({
+          url: `maps/${NULL_ID}/testRequest`,
+          status: 404,
+          body: { userIDs: [] },
+          token: u1Token
+        }));
+
+      it('should 400 if userIDs array is missing', () =>
+        req.put({
+          url: `maps/${map.id}/testRequest`,
+          status: 400,
+          body: {},
+          token: u1Token
+        }));
+
+      it('should 403 if the user is not the submitter of the map', () =>
+        req.put({
+          url: `maps/${map.id}/testRequest`,
+          status: 403,
+          body: { userIDs: [u3.id] },
+          token: u2Token
+        }));
+
+      it('should 400 if the userIDs contains an ID that does not exist', () =>
+        req.put({
+          url: `maps/${map.id}/testRequest`,
+          status: 400,
+          body: { userIDs: [NULL_ID] },
+          token: u1Token
+        }));
+
+      for (const status of difference(Enum.values(MapStatusNew), [
+        MapStatusNew.PRIVATE_TESTING
+      ]))
+        it(`should 403 if the map is in ${MapStatusNew[status]}`, async () => {
+          await prisma.mMap.update({
+            where: { id: map.id },
+            data: { status }
+          });
+
+          await req.put({
+            url: `maps/${map.id}/testRequest`,
+            status: 403,
+            body: { userIDs: [u3.id] },
+            token: u1Token
+          });
+        });
+
+      it('should 401 when no access token is provided', () =>
+        req.unauthorizedTest(`maps/${map.id}/testRequest`, 'put'));
     });
   });
 
