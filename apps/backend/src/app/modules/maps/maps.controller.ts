@@ -64,6 +64,7 @@ import {
   RankDto,
   UpdateMapDto,
   UpdateMapInfoDto,
+  UpdateMapTestingRequestDto,
   VALIDATION_PIPE_CONFIG,
   CreateMapWithFilesDto
 } from '@momentum/backend/dto';
@@ -260,6 +261,28 @@ export class MapsController {
       userID
     );
   }
+
+  @Patch('/:mapID/testRequestResponse')
+  @HttpCode(HttpStatus.NO_CONTENT)
+  @ApiOperation({ summary: 'Accept or decline a MapTestingRequest' })
+  @ApiParam({
+    name: 'mapID',
+    type: Number,
+    description: 'Target Map ID',
+    required: true
+  })
+  async testingRequestResponse(
+    @Param('mapID', ParseIntSafePipe) mapID: number,
+    @Body() body: UpdateMapTestingRequestDto,
+    @LoggedInUser('id') userID: number
+  ) {
+    await this.mapSubmissionService.testingRequestResponse(
+      mapID,
+      userID,
+      body.accept
+    );
+  }
+
   //#endregion
 
   //#region Credits

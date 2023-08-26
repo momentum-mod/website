@@ -3716,6 +3716,113 @@ describe('Maps', () => {
         req.unauthorizedTest('maps/1/reviews', 'get'));
     });
   });
+  
+  
+  describe('maps/{mapID}/reviews/{reviewID}', () => {
+    describe('GET', () => {
+      let u1, u2, u2Token, map, review;
+      beforeAll(async () => {
+        [u1, [u2, u2Token]] = await Promise.all([
+          db.createUser({ data: { roles: Role.MAPPER } }),
+          db.createAndLoginUser({ data: { roles: Role.REVIEWER } })
+        ]);
+
+        map = await db.createMap({
+          status: MapStatusNew.PUBLIC_TESTING,
+          submitter: { connect: { id: u1.id } }
+        });
+
+        review = await prisma.mapReview.create({
+          data: {
+            mainText:
+              'Sync speedshot into sync speedshot, what substance did you take mapper?!?!',
+            suggestions: [
+              {
+                track: 1,
+                gamemode: Gamemode.RJ,
+                tier: 2,
+                comment: 'True',
+                gameplayRating: 1
+              }
+            ],
+            mmap: { connect: { id: map.id } },
+            reviewer: { connect: { id: u2.id } },
+            resolved: false
+          }
+        });
+      });
+
+      afterAll(() => db.cleanup('mMap', 'user'));
+
+      it('should return the requested review', async () => {
+        const response = await req.get({
+          url: `maps/${map.id}/reviews/${review.id}`,
+          status: 200,
+          validate: MapReviewDto,
+          token: u2Token
+        });
+        expect(response.body).toMatchObject({
+          mainText: review.mainText,
+          mapID: map.id,
+          id: review.id
+        });
+      });
+
+      it('should return the requested review including author information', async () => {
+        await req.expandTest({
+          url: `maps/${map.id}/reviews/${review.id}`,
+          token: u2Token,
+          expand: 'reviewer',
+          validate: MapReviewDto
+        });
+      });
+
+      it('should return the requested review including map information', async () => {
+        await req.expandTest({
+          url: `maps/${map.id}/reviews/${review.id}`,
+          token: u2Token,
+          expand: 'map',
+          validate: MapReviewDto
+        });
+      });
+
+      // Test that permissions checks are getting called
+      it('should 403 if the user does not have permission to access to the map', async () => {
+        await prisma.mMap.update({
+          where: { id: map.id },
+          data: { status: MapStatusNew.PRIVATE_TESTING }
+        });
+
+        await req.get({
+          url: `maps/${map.id}/reviews/${review.id}`,
+          status: 403,
+          token: u2Token
+        });
+
+        await prisma.mMap.update({
+          where: { id: map.id },
+          data: { status: MapStatusNew.APPROVED }
+        });
+      });
+
+      it('should return 404 for a nonexistent map', () =>
+        req.get({
+          url: `maps/${NULL_ID}/reviews/${review.id}`,
+          status: 404,
+          token: u2Token
+        }));
+
+      it('should return 404 for a nonexistent review', () =>
+        req.get({
+          url: `maps/${map.id}/reviews/${NULL_ID}`,
+          status: 404,
+          token: u2Token
+        }));
+
+      it('should 401 when no access token is provided', () =>
+        req.unauthorizedTest('maps/1/reviews/1', 'get'));
+    });
+  });
 
   describe('maps/{mapID}/testRequest', () => {
     describe('PUT', () => {
