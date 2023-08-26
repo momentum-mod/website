@@ -45,6 +45,7 @@ import {
   ApiOkPagedResponse,
   CreateMapCreditDto,
   CreateMapDto,
+  CreateMapSubmissionVersionDto,
   MapCreditDto,
   MapCreditsGetQueryDto,
   MapDto,
@@ -150,6 +151,40 @@ export class MapsController {
     this.mapSubmissionFileValidation(bspFile, files.vmfs);
 
     return this.mapSubmissionService.submitMap(
+      data,
+      userID,
+      bspFile,
+      files.vmfs
+    );
+  }
+
+  @Post('/:mapID')
+  @ApiConsumes('multipart/form-data')
+  @ApiOperation({ summary: 'Submits an updated map version' })
+  @ApiBody({
+    type: CreateMapSubmissionVersionDto,
+    required: true
+  })
+  @ApiOkResponse({ type: MapDto, description: 'Map with new version attached' })
+  @UseInterceptors(
+    FileFieldsInterceptor([
+      { name: 'bsp', maxCount: 1 },
+      { name: 'vmfs', maxCount: 40 }
+    ]),
+    FormDataJsonInterceptor('data')
+  )
+  submitMapVersion(
+    @Param('mapID', ParseIntSafePipe) mapID: number,
+    @Body('data') data: CreateMapSubmissionVersionDto,
+    @UploadedFiles() files: { bsp: File[]; vmfs: File[] },
+    @LoggedInUser('id') userID: number
+  ): Promise<MapDto> {
+    const bspFile = files.bsp?.[0];
+
+    this.mapSubmissionFileValidation(bspFile, files.vmfs);
+
+    return this.mapSubmissionService.submitMapSubmissionVersion(
+      mapID,
       data,
       userID,
       bspFile,

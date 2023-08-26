@@ -1,5 +1,8 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { MapSubmissionVersion } from '@momentum/constants';
+import {
+  CreateMapSubmissionVersion,
+  MapSubmissionVersion
+} from '@momentum/constants';
 import {
   IsHash,
   IsInt,
@@ -69,4 +72,12 @@ export class MapSubmissionVersionDto implements MapSubmissionVersion {
 
   @CreatedAtProperty()
   readonly createdAt: Date;
+}
+
+export class CreateMapSubmissionVersionDto
+  implements CreateMapSubmissionVersion
+{
+  @ApiProperty()
+  @IsString()
+  readonly changelog: string;
 }

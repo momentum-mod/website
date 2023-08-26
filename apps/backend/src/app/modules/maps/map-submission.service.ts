@@ -8,6 +8,7 @@ import {
 } from '@nestjs/common';
 import {
   CreateMapDto,
+  CreateMapSubmissionVersionDto,
   DtoFactory,
   MapDto,
   MapSummaryDto,
