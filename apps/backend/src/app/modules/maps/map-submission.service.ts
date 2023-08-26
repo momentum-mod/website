@@ -496,6 +496,41 @@ export class MapSubmissionService {
 
     await this.createOrUpdatePrivateTestingInvites(this.db, mapID, requestIDs);
   }
+
+  async testingRequestResponse(mapID: number, userID: number, accept: boolean) {
+    const map = await this.db.mMap.findUnique({
+      where: { id: mapID },
+      include: { testingRequests: true }
+    });
+
+    if (!map) {
+      throw new NotFoundException('Map does not exist');
+    }
+
+    if (map.status !== MapStatusNew.PRIVATE_TESTING) {
+      throw new ForbiddenException('Map is not in private testing');
+    }
+
+    const matchingRequest = map.testingRequests.find(
+      (t) => t.userID === userID
+    );
+
+    if (!matchingRequest) {
+      throw new NotFoundException(
+        'User does not have a testing request for map'
+      );
+    }
+
+    await this.db.mapTestingRequest.update({
+      where: { mapID_userID: { mapID, userID } },
+      data: {
+        state: accept
+          ? MapTestingRequestState.ACCEPTED
+          : MapTestingRequestState.DECLINED
+      }
+    });
+  }
+
   private async createOrUpdatePrivateTestingInvites(
     // When not in a transasction, just pass `this.db`.
     tx: ExtendedPrismaServiceTransaction,
