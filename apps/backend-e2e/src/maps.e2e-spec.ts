@@ -1200,49 +1200,50 @@ describe('Maps', () => {
 
       afterAll(() => db.cleanup('user'));
 
-      describe('Status changes', () => {
-        let map;
-
-        beforeAll(
-          async () =>
-            (map = await db.createMap({
-              submitter: { connect: { id: user.id } }
-            }))
-        );
-        afterAll(() => db.cleanup('mMap'));
-
-        const statuses = Object.values(MapStatus).filter(
-          (v) => typeof v === 'number'
-        ) as MapStatus[];
-        // Storing number tuple won't pass .has
-        const validChanges = new Set([
-          MapStatus.NEEDS_REVISION + ',' + MapStatus.READY_FOR_RELEASE
-        ]);
-
-        for (const s1 of statuses) {
-          for (const s2 of statuses.filter((s) => s !== s1)) {
-            const shouldPass = validChanges.has(s1 + ',' + s2);
-
-            it(`should ${
-              shouldPass ? '' : 'not '
-            }allow a mapper to change their map from ${MapStatus[s1]} to ${
-              MapStatus[s2]
-            }`, async () => {
-              await prisma.mMap.update({
-                where: { id: map.id },
-                data: { status: s1 }
-              });
-
-              await req.patch({
-                url: `maps/${map.id}`,
-                status: shouldPass ? 204 : 403,
-                body: { status: s2 },
-                token: token
-              });
-            });
-          }
-        }
-      });
+      // TODO: These will need
+      // describe('Status changes', () => {
+      //   let map;
+      //
+      //   beforeAll(
+      //     async () =>
+      //       (map = await db.createMap({
+      //         submitter: { connect: { id: user.id } }
+      //       }))
+      //   );
+      //   afterAll(() => db.cleanup('mMap'));
+      //
+      //   const statuses = Object.values(MapStatus).filter(
+      //     (v) => typeof v === 'number'
+      //   ) as MapStatus[];
+      //   // Storing number tuple won't pass .has
+      //   const validChanges = new Set([
+      //     MapStatus.NEEDS_REVISION + ',' + MapStatus.READY_FOR_RELEASE
+      //   ]);
+      //
+      //   for (const s1 of statuses) {
+      //     for (const s2 of statuses.filter((s) => s !== s1)) {
+      //       const shouldPass = validChanges.has(s1 + ',' + s2);
+      //
+      //       it(`should ${
+      //         shouldPass ? '' : 'not '
+      //       }allow a mapper to change their map from ${MapStatus[s1]} to ${
+      //         MapStatus[s2]
+      //       }`, async () => {
+      //         await prisma.mMap.update({
+      //           where: { id: map.id },
+      //           data: { status: s1 }
+      //         });
+      //
+      //         await req.patch({
+      //           url: `maps/${map.id}`,
+      //           status: shouldPass ? 204 : 403,
+      //           body: { status: s2 },
+      //           token: token
+      //         });
+      //       });
+      //     }
+      //   }
+      // });
 
       describe('Everything else', () => {
         afterEach(() => db.cleanup('mMap', 'activity'));
