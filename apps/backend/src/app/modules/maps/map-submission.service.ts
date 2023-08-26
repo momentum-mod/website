@@ -24,6 +24,7 @@ import { Bitflags } from '@momentum/bitflags';
 import {
   ActivityType,
   Ban,
+  CombinedMapStatuses,
   CombinedRoles,
   MapCreditType,
   MapStatus,
@@ -90,6 +91,88 @@ export class MapSubmissionService {
     });
   }
 
+  async submitMapSubmissionVersion(
+    mapID: number,
+    dto: CreateMapSubmissionVersionDto,
+    userID: number,
+    bspFile: File,
+    vmfFiles?: File[]
+  ): Promise<MapDto> {
+    const map = await this.db.mMap.findUnique({
+      where: { id: mapID },
+      include: { submission: { include: { currentVersion: true } } }
+    });
+
+    if (!map) {
+      throw new NotFoundException('Map does not exist');
+    }
+
+    if (map.submitterID !== userID)
+      throw new ForbiddenException('User is not the map submitter');
+
+    const { bans: userBans } = await this.db.user.findUnique({
+      where: { id: userID },
+      select: { bans: true }
+    });
+
+    // If the user is banned from map submission, this map was *probably*
+    // already rejected. But do this check just in case a mod bans them first
+    // and hasn't yet rejected the map.
+    if (Bitflags.has(userBans, Ban.MAP_SUBMISSION)) {
+      throw new ForbiddenException('User is banned from map submission');
+    }
+
+    if (!CombinedMapStatuses.IN_SUBMISSION.includes(map.status)) {
+      throw new ForbiddenException('Map does not allow editing');
+    }
+
+    this.fileChecks(map.fileName, bspFile, vmfFiles);
+
+    const hasVmf = vmfFiles?.length > 0;
+    const bspHash = FileStoreCloudService.getHashForBuffer(bspFile.buffer);
+
+    const oldVersion = map.submission.currentVersion;
+    const newVersionNum = oldVersion.versionNum + 1;
+    const newVersion = await this.db.mapSubmissionVersion.create({
+      data: {
+        versionNum: newVersionNum,
+        hasVmf,
+        hash: bspHash,
+        changelog: dto.changelog,
+        submission: { connect: { mapID } }
+      }
+    });
+
+    await Promise.all([
+      (async () => {
+        const zippedVmf = hasVmf
+          ? await this.zipVmfFiles(map.fileName, newVersionNum, vmfFiles)
+          : undefined;
+
+        await this.uploadMapSubmissionVersionFiles(
+          newVersion.id,
+          bspFile,
+          zippedVmf
+        );
+      })(),
+
+      this.db.mapSubmission.update({
+        where: { mapID },
+        data: { currentVersion: { connect: { id: newVersion.id } } }
+      })
+    ]);
+
+    return DtoFactory(
+      MapDto,
+      await this.db.mMap.findUnique({
+        where: { id: mapID },
+        include: {
+          submission: { include: { currentVersion: true, versions: true } }
+        }
+      })
+    );
+  }
+
   private async createDtoChecks(userID: number, dto: CreateMapDto) {
     const user = await this.db.user.findUnique({
       where: { id: userID },
@@ -107,12 +190,7 @@ export class MapSubmissionService {
     if (
       !Bitflags.has(user.roles, CombinedRoles.MAPPER_AND_ABOVE) &&
       user.submittedMaps.some((map) =>
-        [
-          MapStatusNew.PRIVATE_TESTING,
-          MapStatusNew.CONTENT_APPROVAL,
-          MapStatusNew.PUBLIC_TESTING,
-          MapStatusNew.FINAL_APPROVAL
-        ].includes(map.status)
+        CombinedMapStatuses.IN_SUBMISSION.includes(map.status)
       )
     ) {
       throw new ForbiddenException(
