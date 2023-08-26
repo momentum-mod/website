@@ -35,7 +35,8 @@ import {
   Role,
   MapStatusNew,
   MapSubmissionType,
-  Ban
+  Ban,
+  CombinedMapStatuses
 } from '@momentum/constants';
 import { Config } from '@momentum/backend/config';
 // See auth.e2e-spec.ts for justification of this sin
@@ -674,12 +675,7 @@ describe('Maps', () => {
       });
 
       describe('Permission checks', () => {
-        for (const status of [
-          MapStatusNew.PRIVATE_TESTING,
-          MapStatusNew.PUBLIC_TESTING,
-          MapStatusNew.CONTENT_APPROVAL,
-          MapStatusNew.FINAL_APPROVAL
-        ]) {
+        for (const status of CombinedMapStatuses.IN_SUBMISSION) {
           it(`should 403 if the user already has a map in ${MapStatusNew[status]} and is not a MAPPER`, async () => {
             await db.createMap({
               submitter: { connect: { id: user.id } },

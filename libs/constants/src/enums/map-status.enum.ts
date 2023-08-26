@@ -30,3 +30,12 @@ export enum MapStatusNew {
    * to keep it in DB whilst it gets patched, rather than outright deleted. */
   DISABLED = 6
 }
+
+export const CombinedMapStatuses = Object.freeze({
+  IN_SUBMISSION: [
+    MapStatusNew.PRIVATE_TESTING,
+    MapStatusNew.PUBLIC_TESTING,
+    MapStatusNew.CONTENT_APPROVAL,
+    MapStatusNew.FINAL_APPROVAL
+  ]
+});
