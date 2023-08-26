@@ -1184,6 +1184,355 @@ describe('Maps', () => {
         req.unauthorizedTest('maps/1', 'get'));
     });
 
+    describe('POST', () => {
+      let u1, u1Token, u2Token, map, bspBuffer, bspHash, vmfBuffer, vmfHash;
+
+      beforeAll(async () => {
+        [[u1, u1Token], u2Token] = await Promise.all([
+          db.createAndLoginUser(),
+          db.loginNewUser()
+        ]);
+
+        bspBuffer = readFileSync(path.join(FILES_PATH, 'map.bsp'));
+        bspHash = createSha1Hash(bspBuffer);
+
+        vmfBuffer = readFileSync(path.join(FILES_PATH, 'map.vmf'));
+        vmfHash = createSha1Hash(vmfBuffer);
+      });
+
+      afterAll(() => {
+        db.cleanup('user');
+        fileStore.deleteDirectory('submissions');
+      });
+
+      beforeEach(async () => {
+        const m = await db.createMap({
+          name: 'map',
+          fileName: 'surf_map',
+          submitter: { connect: { id: u1.id } },
+          status: MapStatusNew.PRIVATE_TESTING,
+          submission: {
+            create: {
+              type: MapSubmissionType.ORIGINAL,
+              suggestions: [
+                { track: 1, gamemode: Gamemode.SURF, tier: 10, ranked: true }
+              ],
+              versions: {
+                create: {
+                  versionNum: 1,
+                  hash: createSha1Hash(Buffer.from('hash browns'))
+                }
+              }
+            }
+          }
+        });
+
+        map = await prisma.mMap.update({
+          where: { id: m.id },
+          data: {
+            submission: {
+              update: {
+                currentVersion: { connect: { id: m.submission.versions[0].id } }
+              }
+            }
+          }
+        });
+      });
+
+      afterEach(() => db.cleanup('mMap'));
+
+      it('should add a new map submission version', async () => {
+        const changelog = 'Added walls, floors etc...';
+        const res = await req.postAttach({
+          url: `maps/${map.id}`,
+          status: 201,
+          data: { changelog },
+          files: [
+            { file: bspBuffer, field: 'bsp', fileName: 'surf_map.bsp' },
+            { file: vmfBuffer, field: 'vmfs', fileName: 'surf_map.vmf' }
+          ],
+          validate: MapDto,
+          token: u1Token
+        });
+
+        expect(res.body.submission).toMatchObject({
+          currentVersion: {
+            versionNum: 2,
+            changelog
+          },
+          versions: [{ versionNum: 1 }, { versionNum: 2, changelog }]
+        });
+
+        const submissionDB = await prisma.mapSubmission.findUnique({
+          where: { mapID: map.id },
+          include: { currentVersion: true }
+        });
+
+        expect(submissionDB.currentVersion.versionNum).toBe(2);
+        expect(res.body.submission.currentVersion.id).toBe(
+          submissionDB.currentVersion.id
+        );
+      });
+
+      it('should upload the BSP and VMF files', async () => {
+        const res = await req.postAttach({
+          url: `maps/${map.id}`,
+          status: 201,
+          data: { changelog: 'Added lights, spawn entity etc...' },
+          files: [
+            { file: bspBuffer, field: 'bsp', fileName: 'surf_map.bsp' },
+            { file: vmfBuffer, field: 'vmfs', fileName: 'surf_map.vmf' }
+          ],
+          validate: MapDto,
+          token: u1Token
+        });
+
+        const currentVersion = res.body.submission.currentVersion;
+
+        expect(currentVersion.downloadURL.split('/').slice(-2)).toEqual([
+          'submissions',
+          `${currentVersion.id}.bsp`
+        ]);
+
+        const bspDownloadBuffer = await axios
+          .get(currentVersion.downloadURL, { responseType: 'arraybuffer' })
+          .then((res) => Buffer.from(res.data, 'binary'));
+        const bspDownloadHash = createSha1Hash(bspDownloadBuffer);
+
+        expect(bspHash).toBe(currentVersion.hash);
+        expect(bspDownloadHash).toBe(currentVersion.hash);
+
+        expect(currentVersion.vmfDownloadURL.split('/').slice(-2)).toEqual([
+          'submissions',
+          `${currentVersion.id}_VMFs.zip`
+        ]);
+
+        const vmfDownloadBuffer = await axios
+          .get(currentVersion.vmfDownloadURL, { responseType: 'arraybuffer' })
+          .then((res) => Buffer.from(res.data, 'binary'));
+
+        const zip = new Zip(vmfDownloadBuffer);
+
+        const extractedVmf = zip.getEntry('surf_map.vmf').getData();
+        expect(createSha1Hash(extractedVmf)).toBe(vmfHash);
+      });
+
+      it('should 400 if BSP filename does not start with the fileName on the DTO', async () => {
+        await req.postAttach({
+          url: `maps/${map.id}`,
+          status: 400,
+          data: { changelog: 'EEEE' },
+          files: [
+            { file: bspBuffer, field: 'bsp', fileName: 'bhop_map.vmf' },
+            { file: vmfBuffer, field: 'vmfs', fileName: 'surf_map.vmf' }
+          ],
+          token: u1Token
+        });
+      });
+
+      it('should succeed if BSP filename starts with but does not equal the fileName on the DTO', async () => {
+        await req.postAttach({
+          url: `maps/${map.id}`,
+          status: 201,
+          data: { changelog: 'mombo man' },
+          files: [
+            { file: bspBuffer, field: 'bsp', fileName: 'surf_map_a3.bsp' },
+            { file: vmfBuffer, field: 'vmfs', fileName: 'surf_map.vmf' }
+          ],
+          token: u1Token
+        });
+      });
+
+      it('should 400 if BSP filename does not end in .bsp', async () => {
+        await req.postAttach({
+          url: `maps/${map.id}`,
+          status: 400,
+          data: { changelog: 'dogecoin' },
+          files: [
+            { file: bspBuffer, field: 'bsp', fileName: 'surf_map.com' },
+            { file: vmfBuffer, field: 'vmfs', fileName: 'surf_map.vmf' }
+          ],
+          token: u1Token
+        });
+      });
+
+      it('should 404 if the map does not exist', () =>
+        req.postAttach({
+          url: `maps/${NULL_ID}`,
+          status: 404,
+          data: { changelog: 'what is this' },
+          files: [
+            { file: bspBuffer, field: 'bsp', fileName: 'surf_map.bsp' },
+            { file: vmfBuffer, field: 'vmfs', fileName: 'surf_map.vmf' }
+          ],
+          token: u2Token
+        }));
+
+      it('should 403 if the user is not the map submitter', () =>
+        req.postAttach({
+          url: `maps/${map.id}`,
+          status: 403,
+          data: { changelog: 'let me touch your map' },
+          files: [
+            { file: bspBuffer, field: 'bsp', fileName: 'surf_map.bsp' },
+            { file: vmfBuffer, field: 'vmfs', fileName: 'surf_map.vmf' }
+          ],
+          token: u2Token
+        }));
+
+      it('should 403 if the user has a MAP_SUBMISSION ban', async () => {
+        await prisma.user.update({
+          where: { id: u1.id },
+          data: { bans: Ban.MAP_SUBMISSION }
+        });
+
+        await req.postAttach({
+          url: `maps/${map.id}`,
+          status: 403,
+          data: { changelog: 'guhhh' },
+          files: [
+            { file: bspBuffer, field: 'bsp', fileName: 'surf_map.bsp' },
+            { file: vmfBuffer, field: 'vmfs', fileName: 'surf_map.vmf' }
+          ],
+          token: u1Token
+        });
+
+        await prisma.user.update({
+          where: { id: u1.id },
+          data: { bans: 0 }
+        });
+      });
+
+      it('should 400 if BSP file is missing', async () => {
+        await req.postAttach({
+          url: `maps/${map.id}`,
+          status: 400,
+          data: { changelog: 'help me' },
+          files: [{ file: vmfBuffer, field: 'vmfs', fileName: 'surf_map.vmf' }],
+          token: u1Token
+        });
+
+        await req.post({
+          url: 'maps',
+          status: 400,
+          body: { changelog: 'im bored' },
+          token: u1Token
+        });
+      });
+
+      it("should 400 if BSP file is greater than the config's max bsp file size", async () => {
+        await req.postAttach({
+          url: `maps/${map.id}`,
+          status: 400,
+          data: { changelog: 'so very bored' },
+          files: [
+            {
+              file: Buffer.alloc(Config.limits.bspSize + 1),
+              field: 'bsp',
+              fileName: 'surf_map.bsp'
+            },
+            { file: vmfBuffer, field: 'vmfs', fileName: 'surf_map.bsp' },
+            { file: vmfBuffer, field: 'vmfs', fileName: 'surf_map.vmf' }
+          ],
+          token: u1Token
+        });
+      });
+
+      it('should succeed if VMF file is missing', async () =>
+        req.postAttach({
+          url: `maps/${map.id}`,
+          status: 201,
+          data: { changelog: 'who needs tests anyway' },
+          files: [{ file: bspBuffer, field: 'bsp', fileName: 'surf_map.bsp' }],
+          token: u1Token
+        }));
+
+      it('should 400 if VMF file is invalid', () =>
+        req.postAttach({
+          url: `maps/${map.id}`,
+          status: 400,
+          data: { changelog: 'just hope it works' },
+          files: [
+            { file: bspBuffer, field: 'bsp', fileName: 'surf_map.bsp' },
+            {
+              file: Buffer.from('{' + vmfBuffer.toString()),
+              field: 'vmfs',
+              fileName: 'surf_map.vmf'
+            }
+          ],
+          token: u1Token
+        }));
+
+      it('should 400 if a VMF filename does not end in .vmf', async () => {
+        await req.postAttach({
+          url: `maps/${map.id}`,
+          status: 400,
+          data: { changelog: 'shoutout to winrar' },
+          files: [
+            { file: bspBuffer, field: 'bsp', fileName: 'surf_map.bsp' },
+            { file: vmfBuffer, field: 'vmfs', fileName: 'surf_map.rar' }
+          ],
+          token: u1Token
+        });
+      });
+
+      it("should 400 if a VMF file is greater than the config's max vmf file size", () =>
+        req.postAttach({
+          url: `maps/${map.id}`,
+          status: 400,
+          data: { changelog: 'kill me' },
+          files: [
+            { file: bspBuffer, field: 'bsp', fileName: 'surf_map.bsp' },
+            {
+              file: Buffer.alloc(Config.limits.vmfSize + 1),
+              field: 'vmfs',
+              fileName: 'surf_map.vmf'
+            }
+          ],
+          token: u1Token
+        }));
+
+      it('should 400 if the changelog is missing', () =>
+        req.postAttach({
+          url: `maps/${map.id}`,
+          status: 400,
+          data: {},
+          files: [
+            { file: bspBuffer, field: 'bsp', fileName: 'surf_map.bsp' },
+            { file: vmfBuffer, field: 'vmfs', fileName: 'surf_map.vmf' }
+          ],
+          token: u1Token
+        }));
+
+      for (const status of [
+        MapStatusNew.APPROVED,
+        MapStatusNew.DISABLED,
+        MapStatusNew.REJECTED
+      ]) {
+        it(`should 403 if the map status is ${MapStatusNew[status]}`, async () => {
+          await prisma.mMap.update({ where: { id: map.id }, data: { status } });
+
+          await req.postAttach({
+            url: `maps/${map.id}`,
+            status: 403,
+            data: { changelog: 'awoooooga' },
+            files: [
+              { file: bspBuffer, field: 'bsp', fileName: 'surf_map.bsp' }
+            ],
+            token: u1Token
+          });
+
+          await prisma.mMap.update({
+            where: { id: map.id },
+            data: { status: MapStatusNew.PRIVATE_TESTING }
+          });
+        });
+      }
+
+      it('should 401 when no access token is provided', () =>
+        req.unauthorizedTest('maps/1', 'post'));
+    });
+
     describe('PATCH', () => {
       let user, token;
 
