@@ -8,7 +8,9 @@
   MapTrack,
   Rank,
   Run,
-  PrismaClient
+  PrismaClient,
+  MapSubmission,
+  MapSubmissionVersion
 } from '@prisma/client';
 import { CamelCase, PartialDeep } from 'type-fest';
 import { merge } from 'lodash';
@@ -110,6 +112,7 @@ export class DbUtil {
       images: MapImage[];
       thumbnail: MapImage;
       mainTrack: MapTrack;
+      submission: MapSubmission & { versions: MapSubmissionVersion[] };
     }
   > {
     const createdMap = await this.prisma.mMap.create({
@@ -143,7 +146,11 @@ export class DbUtil {
           ) as any // I'm sorry these types are just so annoying. They're valid!!
         } as any
       } as any,
-      include: { images: true, tracks: true }
+      include: {
+        images: true,
+        tracks: true,
+        submission: { include: { versions: true } }
+      }
     });
 
     return this.prisma.mMap.update({
@@ -161,7 +168,8 @@ export class DbUtil {
         images: true,
         stats: true,
         thumbnail: true,
-        mainTrack: { include: { zones: true } }
+        mainTrack: { include: { zones: true } },
+        submission: { include: { versions: true } }
       }
     });
   }
