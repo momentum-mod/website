@@ -2310,7 +2310,7 @@ describe('Maps', () => {
 
       it("should 400 when the image file is greater than the config's max image file size", () =>
         req.postAttach({
-          url: `maps/${map.id}/upload`,
+          url: `maps/${map.id}/images`,
           status: 400,
           file: Buffer.alloc(Config.limits.imageSize + 1),
           token: token
