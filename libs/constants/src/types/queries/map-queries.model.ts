@@ -50,7 +50,7 @@ export type MapsGetAllQuery = MapsGetAllBaseQuery & {
 export type MapsGetExpand = MapsGetAllExpand;
 
 export type MapsGetQuery = {
-  expand?: string[];
+  expand?: MapsGetExpand;
 };
 
 export type MapCreditsGetExpand = ['user'];
