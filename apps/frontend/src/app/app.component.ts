@@ -13,6 +13,6 @@ import { initIconPacks } from '@momentum/frontend/icons';
 })
 export class AppComponent {
   constructor(private iconLibraries: NbIconLibraries) {
-    initIconPacks(iconLibraries);
+    initIconPacks(this.iconLibraries);
   }
 }
