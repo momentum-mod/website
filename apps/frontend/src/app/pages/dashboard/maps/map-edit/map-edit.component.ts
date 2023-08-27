@@ -7,7 +7,7 @@ import { NbDialogService, NbToastrService } from '@nebular/theme';
 import { ConfirmDialogComponent } from '../../../../components/confirm-dialog/confirm-dialog.component';
 import { Subject } from 'rxjs';
 import { MMap, MapImage } from '@momentum/constants';
-import { FileUploadType } from '../upload-form/file-upload/file-upload.component';
+import { FileUploadType } from '../../../../components/file-upload/file-upload.component';
 import {
   AdminService,
   LocalUserService,
