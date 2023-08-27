@@ -18,7 +18,6 @@ import {
   NbToggleModule
 } from '@nebular/theme';
 import { MapCreditsComponent } from './map-credits/map-credits.component';
-import { FileUploadComponent } from './upload-form/file-upload/file-upload.component';
 import { MapLeaderboardComponent } from './map-info/map-leaderboard/map-leaderboard.component';
 import { NgxPaginationModule } from 'ngx-pagination';
 import { MapInfoDescriptionComponent } from './map-info/map-info-description/map-info-description.component';
@@ -52,7 +51,6 @@ import { SharedModule } from '../../../shared.module';
     MapInfoComponent,
     MapNotifyEditComponent,
     MapCreditsComponent,
-    FileUploadComponent,
     MapLeaderboardComponent,
     MapInfoDescriptionComponent,
     MapInfoCreditsComponent,

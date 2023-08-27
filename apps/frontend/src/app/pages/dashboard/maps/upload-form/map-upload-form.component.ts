@@ -9,7 +9,7 @@ import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { NbToastrService } from '@nebular/theme';
 import { mergeMap } from 'rxjs/operators';
 import { forkJoin } from 'rxjs';
-import { FileUploadType } from './file-upload/file-upload.component';
+import { FileUploadType } from '../../../../components/file-upload/file-upload.component';
 import { LocalUserService, MapsService } from '@momentum/frontend/data';
 import {
   MapCreditType,
