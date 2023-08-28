@@ -96,7 +96,6 @@ export class MapsService {
     // Include
     const include: Prisma.MMapInclude = {
       mainTrack: true,
-      info: true,
       ...expandToIncludes(query.expand, {
         without: ['personalBest', 'worldRecord'],
         mappings: [

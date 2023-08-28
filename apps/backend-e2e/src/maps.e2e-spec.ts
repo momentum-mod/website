@@ -101,10 +101,8 @@ describe('Maps', () => {
           token: u1Token
         });
 
-        for (const item of res.body.data) {
+        for (const item of res.body.data)
           expect(item).toHaveProperty('mainTrack');
-          expect(item).toHaveProperty('info');
-        }
       });
 
       it('should only include APPROVED maps', async () => {
