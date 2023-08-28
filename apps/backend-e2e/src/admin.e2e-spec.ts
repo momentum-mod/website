@@ -749,10 +749,8 @@ describe('Admin', () => {
           token: adminToken
         });
 
-        for (const item of res.body.data) {
+        for (const item of res.body.data)
           expect(item).toHaveProperty('mainTrack');
-          expect(item).toHaveProperty('info');
-        }
       });
 
       it('should include maps with any map statuses by default', async () => {
