@@ -18,7 +18,8 @@ import {
   ValidateNested,
   IsEnum,
   IsDateString,
-  IsString
+  IsString,
+  Max
 } from 'class-validator';
 import { IsBigintValidator } from '@momentum/backend/validators';
 import { intersection } from '@momentum/util-fn';
@@ -179,8 +180,8 @@ export function UpdatedAtProperty(): PropertyDecorator {
 }
 
 /**
- * Decorator collection for skip queries
- * @param def - The default skip value
+ * Decorator collection for `skip` queries
+ * @param def - The default `skip` value
  */
 export function SkipQueryProperty(def: number): PropertyDecorator {
   return applyDecorators(
@@ -198,9 +199,10 @@ export function SkipQueryProperty(def: number): PropertyDecorator {
 
 /**
  * Decorator collection for take queries
- * @param def - The default take value
+ * @param def - The default `take` value
+ * @param max - The maximum allowed `take` value
  */
-export function TakeQueryProperty(def: number): PropertyDecorator {
+export function TakeQueryProperty(def: number, max = 100): PropertyDecorator {
   return applyDecorators(
     ApiPropertyOptional({
       name: 'take',
@@ -210,6 +212,7 @@ export function TakeQueryProperty(def: number): PropertyDecorator {
     }),
     TypeDecorator(() => Number),
     IsPositive(),
+    Max(max),
     IsOptional()
   );
 }
