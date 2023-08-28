@@ -218,8 +218,8 @@ export function TakeQueryProperty(def: number, max = 100): PropertyDecorator {
 }
 
 /**
- * Transform comma-separared DB expansion strings into <string, bool> record
- * for Prisma, and set Swagger properties
+ * Transforms comma-separated string into an array of strings contained in
+ * `expansions`.
  *
  * @param expansions - String array of all the allowed expansions
  */
@@ -229,7 +229,8 @@ export function ExpandQueryProperty(expansions: string[]): PropertyDecorator {
       name: 'expand',
       type: String,
       enum: expansions,
-      description: `Expands, comma-separated (${expansions.join(', ')}))`
+      description: `Nested properties belonging to the found items to include.
+        Comma-separated ${expansions.join(', ')}`
     }),
     Transform(({ value }) => intersection(value.split(','), expansions)),
     IsArray(),
