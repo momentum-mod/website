@@ -239,6 +239,50 @@ export function ExpandQueryProperty(expansions: string[]): PropertyDecorator {
 }
 
 /**
+ * Transforms comma-separated string into an array of strings contained in
+ * `filters`.
+ *
+ * @param filters - String array of all allowed filters
+ */
+export function FilterQueryProperty(filters: string[]): PropertyDecorator {
+  return applyDecorators(
+    ApiPropertyOptional({
+      name: 'filter',
+      type: String,
+      enum: filters,
+      description: `Properties to by which to filter the relevant items by.
+        Comma-separated ${filters.join(', ')}`
+    }),
+    Transform(({ value }) => intersection(value.split(','), filters)),
+    IsArray(),
+    IsOptional()
+  );
+}
+
+/**
+ * Transforms comma-separated string of numbers into an array of numbers
+ * contained in `filters`.
+ *
+ * @param filters - Array of numeric enum values of all allowed filters
+ */
+export function EnumFilterQueryProperty(filters: number[]): PropertyDecorator {
+  return applyDecorators(
+    ApiPropertyOptional({
+      name: 'filter',
+      type: String,
+      enum: filters,
+      description: `Enum members to filter items by.
+        Comma-separated numeric enum values ${filters.join(', ')}`
+    }),
+    Transform(({ value }) =>
+      intersection(value.split(',').map(Number), filters)
+    ),
+    IsArray(),
+    IsOptional()
+  );
+}
+
+/**
  * Transforms boolean queries.
  *
  * Optional by default!
