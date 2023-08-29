@@ -145,7 +145,10 @@ export class AdminController {
 
   @Roles(RolesEnum.ADMIN, RolesEnum.MODERATOR)
   @Get('/maps')
-  @ApiOperation({ description: 'Retrieve a list of maps' })
+  @ApiOperation({
+    description:
+      'Retrieve a paginated list of approved maps with extra admin filtration'
+  })
   @ApiOkPagedResponse(MapDto, { description: 'Paginated list of maps' })
   @ApiBadRequestResponse({ description: 'Invalid query data' })
   getMaps(
