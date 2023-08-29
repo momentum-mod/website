@@ -18,30 +18,40 @@ import { FileStoreService } from '../filestore/file-store.service';
 import { ConfigService } from '@nestjs/config';
 import { RunsService } from '../runs/runs.service';
 import {
-  AdminCtlMapsGetAllQueryDto,
   DtoFactory,
   MapDto,
+  MapsGetAllSubmissionQueryDto,
   MapInfoDto,
-  MapsCtlGetAllQueryDto,
+  MapsGetAllAdminQueryDto,
+  MapsGetAllQueryDto,
   MapTrackDto,
   PagedResponseDto,
   UpdateMapDto,
-  UpdateMapInfoDto
+  UpdateMapInfoDto,
+  MapsGetAllSubmissionAdminQueryDto
 } from '@momentum/backend/dto';
 import {
   ActivityType,
+  CombinedMapStatuses,
   CombinedRoles,
   MapCreditType,
+  MapsGetAllSubmissionAdminFilter,
   MapsGetExpand,
   MapStatus,
-  MapStatusNew
+  MapStatusNew,
+  Role
 } from '@momentum/constants';
 import { MapImageService } from './map-image.service';
 import { EXTENDED_PRISMA_SERVICE } from '../database/db.constants';
 import { ExtendedPrismaService } from '../database/prisma.extension';
 import { Bitflags } from '@momentum/bitflags';
 import { MapTestingRequestState } from '@momentum/constants';
-import { expandToIncludes, undefinedIfEmpty } from '@momentum/util-fn';
+import {
+  expandToIncludes,
+  intersection,
+  isEmpty,
+  undefinedIfEmpty
+} from '@momentum/util-fn';
 
 @Injectable()
 export class MapsService {
@@ -56,15 +66,23 @@ export class MapsService {
 
   //#region Maps
 
+  //
   async getAll(
     userID: number,
-    query: MapsCtlGetAllQueryDto | AdminCtlMapsGetAllQueryDto
+    query:
+      | MapsGetAllQueryDto
+      | MapsGetAllAdminQueryDto
+      | MapsGetAllSubmissionQueryDto
+      | MapsGetAllSubmissionAdminQueryDto
   ): Promise<PagedResponseDto<MapDto>> {
     // Where
     const where: Prisma.MMapWhereInput = {};
     if (query.search) where.name = { contains: query.search };
     if (query.submitterID) where.submitterID = query.submitterID;
-    if (query instanceof MapsCtlGetAllQueryDto) {
+    if (query instanceof MapsGetAllQueryDto) {
+      // /maps only returns approved maps
+      where.status = MapStatusNew.APPROVED;
+
       if (query.type) where.type = query.type;
 
       if (query.difficultyHigh && query.difficultyLow)
@@ -84,20 +102,156 @@ export class MapsService {
         where.mainTrack = where.mainTrack
           ? { is: { ...where.mainTrack.is, isLinear: query.isLinear } }
           : { isLinear: query.isLinear };
+    } else if (
+      query instanceof MapsGetAllSubmissionQueryDto ||
+      query instanceof MapsGetAllSubmissionAdminQueryDto
+    ) {
+      const { roles } = await this.db.user.findUnique({
+        where: { id: userID },
+        select: { roles: true }
+      });
+
+      // Logic here is a nightmare, for a breakdown of permissions see
+      // MapsService.getMapAndCheckReadAccess.
+      const filter = query.filter;
+      const privateTestingConditions = {
+        AND: [
+          { status: MapStatusNew.PRIVATE_TESTING },
+          {
+            OR: [
+              { submitterID: userID },
+              { credits: { some: { userID } } },
+              {
+                testingRequests: {
+                  some: { userID, state: MapTestingRequestState.ACCEPTED }
+                }
+              }
+            ]
+          }
+        ]
+      };
+      if (Bitflags.has(CombinedRoles.MOD_OR_ADMIN, roles)) {
+        where.status = {
+          in: filter
+            ? intersection(filter, CombinedMapStatuses.IN_SUBMISSION)
+            : CombinedMapStatuses.IN_SUBMISSION
+        };
+      } else if (Bitflags.has(Role.REVIEWER, roles)) {
+        const adminFilter = filter as MapsGetAllSubmissionAdminFilter;
+        if (adminFilter?.length > 0) {
+          if (adminFilter?.includes(MapStatusNew.FINAL_APPROVAL))
+            throw new ForbiddenException();
+
+          const ORs = [];
+          if (adminFilter?.includes(MapStatusNew.PUBLIC_TESTING)) {
+            if (adminFilter?.includes(MapStatusNew.CONTENT_APPROVAL)) {
+              ORs.push({
+                status: {
+                  in: [
+                    MapStatusNew.PUBLIC_TESTING,
+                    MapStatusNew.CONTENT_APPROVAL
+                  ]
+                }
+              });
+            } else {
+              ORs.push({ status: MapStatusNew.PUBLIC_TESTING });
+            }
+          } else if (adminFilter?.includes(MapStatusNew.CONTENT_APPROVAL)) {
+            ORs.push({ status: MapStatusNew.CONTENT_APPROVAL });
+          }
+
+          if (adminFilter?.includes(MapStatusNew.PRIVATE_TESTING)) {
+            ORs.push({
+              AND: [
+                { status: MapStatusNew.PRIVATE_TESTING },
+                {
+                  OR: [
+                    { submitterID: userID },
+                    { credits: { some: { userID } } },
+                    {
+                      testingRequests: {
+                        some: { userID, state: MapTestingRequestState.ACCEPTED }
+                      }
+                    }
+                  ]
+                }
+              ]
+            });
+          }
+          where.OR = ORs;
+        } else {
+          where.OR = [
+            {
+              status: {
+                in: [MapStatusNew.PUBLIC_TESTING, MapStatusNew.CONTENT_APPROVAL]
+              }
+            },
+            {
+              AND: [
+                { status: MapStatusNew.PRIVATE_TESTING },
+                {
+                  OR: [
+                    { submitterID: userID },
+                    { credits: { some: { userID } } },
+                    {
+                      testingRequests: {
+                        some: { userID, state: MapTestingRequestState.ACCEPTED }
+                      }
+                    }
+                  ]
+                }
+              ]
+            }
+          ];
+        }
+      } else {
+        // Regular user filters can only be public, private, both or none (last two are equiv)
+        if (filter?.[0] === MapStatusNew.PUBLIC_TESTING) {
+          where.status = MapStatusNew.PUBLIC_TESTING;
+        } else if (filter?.[0] === MapStatusNew.PRIVATE_TESTING) {
+          where.AND = privateTestingConditions;
+        } else {
+          where.OR = [
+            { status: MapStatusNew.PUBLIC_TESTING },
+            {
+              AND: [
+                { status: MapStatusNew.PRIVATE_TESTING },
+                {
+                  OR: [
+                    { submitterID: userID },
+                    { credits: { some: { userID } } },
+                    {
+                      testingRequests: {
+                        some: { userID, state: MapTestingRequestState.ACCEPTED }
+                      }
+                    }
+                  ]
+                }
+              ]
+            }
+          ];
+        }
+      }
+    } else {
+      // /admin/maps can filter by any map statuses
+      if (query.filter) {
+        where.status = { in: query.filter };
+      }
     }
 
-    // Allow /admin/maps GET to filter by status, otherwise return *every*
-    // status. /maps GET only returns APPROVED.
-    where.status =
-      query instanceof AdminCtlMapsGetAllQueryDto
-        ? query.status
-        : MapStatusNew.APPROVED;
+    const submissionInclude: Prisma.MapSubmissionInclude = expandToIncludes(
+      query.expand,
+      { only: ['currentVersion', 'versions'] }
+    );
 
     // Include
     const include: Prisma.MMapInclude = {
       mainTrack: true,
+      submission: isEmpty(submissionInclude)
+        ? true
+        : { include: submissionInclude },
       ...expandToIncludes(query.expand, {
-        without: ['personalBest', 'worldRecord'],
+        without: ['currentVersion', 'versions', 'personalBest', 'worldRecord'],
         mappings: [
           { expand: 'credits', value: { include: { user: true } } },
           {
@@ -115,7 +269,11 @@ export class MapsService {
     };
 
     let incPB: boolean, incWR: boolean;
-    if (query instanceof MapsCtlGetAllQueryDto) {
+
+    if (
+      query instanceof MapsGetAllQueryDto ||
+      query instanceof MapsGetAllSubmissionQueryDto
+    ) {
       incPB = query.expand?.includes('personalBest');
       incWR = query.expand?.includes('worldRecord');
       this.handleMapGetIncludes(include, incPB, incWR, userID);
@@ -402,7 +560,7 @@ export class MapsService {
    * permission to access this data.
    *
    * Always requires query for the specified map, to save calling DB twice we
-   * return that object, so we let you pass in an `include`.However we'll need
+   * return that object, so we let you pass in an `include`. However we'll need
    * to cast the return type to manually add for included models for
    * now; I can't figure out the crazy Prisma type stuff. By following
    * https://www.prisma.io/docs/concepts/components/prisma-client/advanced-type-safety

@@ -50,6 +50,7 @@ import {
   MapCreditDto,
   MapCreditsGetQueryDto,
   MapDto,
+  MapsGetAllSubmissionQueryDto,
   MapImageDto,
   MapInfoDto,
   MapRankGetNumberQueryDto,
@@ -126,6 +127,23 @@ export class MapsController {
   //#endregion
 
   //#region Map Submission
+
+  @Get('/submissions')
+  @ApiOperation({
+    summary: 'Retrieve a paginated list of maps in submission'
+  })
+  @ApiParam({
+    name: 'mapID',
+    type: Number,
+    description: 'Target Map ID',
+    required: true
+  })
+  getSubmissions(
+    @Query() query: MapsGetAllSubmissionQueryDto,
+    @LoggedInUser('id') userID: number
+  ) {
+    return this.mapsService.getAll(userID, query);
+  }
 
   @Post()
   @ApiConsumes('multipart/form-data')
