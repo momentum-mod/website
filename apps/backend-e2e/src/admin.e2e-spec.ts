@@ -716,15 +716,28 @@ describe('Admin', () => {
 
   describe('admin/maps', () => {
     describe('GET', () => {
-      let modToken, adminToken, u1, u1Token, m1, m2, m3, m4, privateMap;
+      let modToken,
+        adminToken,
+        reviewerToken,
+        u1,
+        u1Token,
+        m1,
+        m2,
+        m3,
+        m4,
+        privateMap,
+        pubMap,
+        caMap,
+        faMap;
 
       beforeAll(async () => {
-        [modToken, adminToken, [u1, u1Token], [m1, m2, m3, m4]] =
+        [modToken, adminToken, reviewerToken, [u1, u1Token], [m1, m2, m3, m4]] =
           await Promise.all([
             db.loginNewUser({
               data: { roles: Role.MODERATOR }
             }),
             db.loginNewUser({ data: { roles: Role.ADMIN } }),
+            db.loginNewUser({ data: { roles: Role.REVIEWER } }),
             db.createAndLoginUser(),
             db.createMaps(4)
           ]);
@@ -911,17 +924,24 @@ describe('Admin', () => {
           token: adminToken
         }));
 
-      it('should return 403 if a non admin access token is given', () =>
+      it('should return 403 if a regular access token is given', () =>
         req.get({
           url: 'admin/maps',
           status: 403,
           token: u1Token
         }));
 
-      it('should return 403 if a mod access token is given', () =>
+      it('should return 403 if a reviewer token is given', () =>
         req.get({
           url: 'admin/maps',
           status: 403,
+          token: u1Token
+        }));
+
+      it('should accept if a mod access token is given', () =>
+        req.get({
+          url: 'admin/maps',
+          status: 200,
           token: modToken
         }));
 

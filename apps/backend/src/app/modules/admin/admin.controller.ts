@@ -143,6 +143,7 @@ export class AdminController {
     return;
   }
 
+  @Roles(RolesEnum.ADMIN, RolesEnum.MODERATOR)
   @Get('/maps')
   @ApiOperation({ description: 'Retrieve a list of maps' })
   @ApiOkPagedResponse(MapDto, { description: 'Paginated list of maps' })
