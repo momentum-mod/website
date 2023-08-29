@@ -4,6 +4,7 @@ import { readFileSync } from 'node:fs';
 import { PrismaClient } from '@prisma/client';
 import {
   AuthUtil,
+  createSha1Hash,
   DbUtil,
   FileStoreUtil,
   NULL_ID,
@@ -22,9 +23,12 @@ import {
 import {
   ActivityType,
   Ban,
+  Gamemode,
   MapCreditType,
   MapStatus,
   MapStatusNew,
+  MapSubmissionType,
+  MapTestingRequestState,
   ReportCategory,
   ReportType,
   Role
@@ -725,29 +729,23 @@ describe('Admin', () => {
         m2,
         m3,
         m4,
-        privateMap,
-        pubMap,
         caMap,
         faMap;
 
       beforeAll(async () => {
         [modToken, adminToken, reviewerToken, [u1, u1Token], [m1, m2, m3, m4]] =
           await Promise.all([
-            db.loginNewUser({
-              data: { roles: Role.MODERATOR }
-            }),
+            db.loginNewUser({ data: { roles: Role.MODERATOR } }),
             db.loginNewUser({ data: { roles: Role.ADMIN } }),
             db.loginNewUser({ data: { roles: Role.REVIEWER } }),
             db.createAndLoginUser(),
             db.createMaps(4)
           ]);
 
-        privateMap = await db.createMap({
-          status: MapStatusNew.PRIVATE_TESTING
-        });
-        await db.createMap({ status: MapStatusNew.CONTENT_APPROVAL });
+        await db.createMap({ status: MapStatusNew.PRIVATE_TESTING });
+        caMap = await db.createMap({ status: MapStatusNew.CONTENT_APPROVAL });
+        faMap = await db.createMap({ status: MapStatusNew.FINAL_APPROVAL });
         await db.createMap({ status: MapStatusNew.PUBLIC_TESTING });
-        await db.createMap({ status: MapStatusNew.FINAL_APPROVAL });
         await db.createMap({ status: MapStatusNew.REJECTED });
         await db.createMap({ status: MapStatusNew.DISABLED });
       });
@@ -766,14 +764,21 @@ describe('Admin', () => {
           expect(item).toHaveProperty('mainTrack');
       });
 
-      it('should include maps with any map statuses by default', async () => {
-        const res = await req.get({
+      it('should include maps with any map statuses by default', () =>
+        req.get({
           url: 'admin/maps',
           status: 200,
           validatePaged: { type: MapDto, count: 10 },
           token: adminToken
-        });
-      });
+        }));
+
+      it('should include maps with any map statuses by default', () =>
+        req.get({
+          url: 'admin/maps',
+          status: 200,
+          validatePaged: { type: MapDto, count: 10 },
+          token: adminToken
+        }));
 
       it('should be ordered by date', () =>
         req.sortByDateTest({
@@ -832,19 +837,22 @@ describe('Admin', () => {
         });
       });
 
-      it('should respond with filtered map data based on the status', async () => {
+      it('should filter by maps when given the filter paramete', async () => {
         const res = await req.get({
-          url: 'admin/maps',
+          url: 'admin/maps/submissions',
           status: 200,
-          query: { status: MapStatusNew.PRIVATE_TESTING },
-          validatePaged: { type: MapDto, count: 1 },
+          query: {
+            filter: `${MapStatusNew.CONTENT_APPROVAL},${MapStatusNew.FINAL_APPROVAL}`
+          },
+          validatePaged: { type: MapDto, count: 2 },
           token: adminToken
         });
 
-        expect(res.body.data[0]).toMatchObject({
-          status: MapStatusNew.PRIVATE_TESTING,
-          id: privateMap.id
-        });
+        expect(res.body.data).toEqual(
+          expect.arrayContaining([
+            expect.objectContaining({ id: caMap.id }),
+            expect.objectContaining({ id: faMap.id })
+          ])
       });
 
       it('should respond with expanded submitter data using the submitter expand parameter', async () => {

@@ -43,7 +43,7 @@ export class MapQueueComponent implements OnInit {
           this.pageLimit,
         take: this.pageLimit,
         priority: priority,
-        status: MapStatus.PENDING as any // Just getting this compiling til we work on frontend map submissions
+        filter: MapStatus.PENDING as any // Just getting this compiling til we work on frontend map submissions
       })
       .subscribe({
         next: (response) => {
