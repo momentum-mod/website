@@ -96,7 +96,7 @@ export class MapsController {
   //#region Get Maps
 
   @Get()
-  @ApiOperation({ summary: 'Returns all maps' })
+  @ApiOperation({ summary: 'Retrieve a paginated list of approved maps' })
   @ApiOkPagedResponse(MapDto, { description: 'Paginated list of maps' })
   getAllMaps(
     @LoggedInUser('id') userID: number,
