@@ -274,7 +274,7 @@ describe('Maps', () => {
         });
       });
 
-      it("should respond with expanded map data if the map is in the logged in user's library when using the inFavorites expansion", async () => {
+      it("should respond with expanded map data if the map is in the logged in user's favorites when using the inFavorites expansion", async () => {
         await prisma.mapFavorite.create({
           data: { userID: u1.id, mapID: m1.id }
         });
@@ -1089,7 +1089,7 @@ describe('Maps', () => {
         });
       });
 
-      it("should respond with expanded map data if the map is in the logged in user's library when using the inFavorites expansion", async () => {
+      it("should respond with expanded map data if the map is in the logged in user's favorites when using the inFavorites expansion", async () => {
         await prisma.mapFavorite.create({
           data: { userID: u1.id, mapID: map.id }
         });
