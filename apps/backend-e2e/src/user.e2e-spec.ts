@@ -1441,11 +1441,11 @@ describe('User', () => {
 
   describe('user/maps/favorites', () => {
     describe('GET', () => {
-      let user, token, m1, m2;
+      let user, token, m1;
 
       beforeAll(async () => {
         [user, token] = await db.createAndLoginUser();
-        [m1, m2] = await Promise.all([
+        [m1] = await Promise.all([
           db.createMap({
             name: 'ahop_aaaaaaaa',
             favorites: { create: { userID: user.id } },
