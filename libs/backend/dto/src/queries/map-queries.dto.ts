@@ -132,6 +132,7 @@ export class MapsGetAllSubmissionQueryDto
     'images',
     'tracks',
     'inFavorites',
+    'inLibrary',
     'personalBest',
     'worldRecord',
     'currentVersion',

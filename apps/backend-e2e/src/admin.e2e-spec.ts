@@ -853,6 +853,7 @@ describe('Admin', () => {
             expect.objectContaining({ id: caMap.id }),
             expect.objectContaining({ id: faMap.id })
           ])
+        );
       });
 
       it('should respond with expanded submitter data using the submitter expand parameter', async () => {
@@ -943,7 +944,7 @@ describe('Admin', () => {
         req.get({
           url: 'admin/maps',
           status: 403,
-          token: u1Token
+          token: reviewerToken
         }));
 
       it('should accept if a mod access token is given', () =>
@@ -955,6 +956,598 @@ describe('Admin', () => {
 
       it('should 401 when no access token is provided', () =>
         req.unauthorizedTest('admin/maps', 'get'));
+    });
+  });
+
+  describe('admin/maps/submissions', () => {
+    describe('GET', () => {
+      let user,
+        token,
+        reviewer,
+        reviewerToken,
+        modToken,
+        adminToken,
+        pubMap1,
+        pubMap2,
+        privMap,
+        caMap,
+        faMap;
+
+      beforeAll(async () => {
+        [[user, token], [reviewer, reviewerToken], [modToken], adminToken] =
+          await Promise.all([
+            db.createAndLoginUser(),
+            db.createAndLoginUser({ data: { roles: Role.REVIEWER } }),
+            db.createAndLoginUser({ data: { roles: Role.MODERATOR } }),
+            db.loginNewUser({ data: { roles: Role.ADMIN } })
+          ]);
+
+        const submissionCreate = {
+          create: {
+            type: MapSubmissionType.ORIGINAL,
+            suggestions: {
+              track: 1,
+              gamemode: Gamemode.DEFRAG,
+              tier: 1,
+              ranked: true,
+              comment: 'This stage was built by children'
+            },
+            versions: {
+              createMany: {
+                data: [
+                  { versionNum: 1, hash: createSha1Hash('chips') },
+                  { versionNum: 2, hash: createSha1Hash('fries') }
+                ]
+              }
+            }
+          }
+        };
+        await db.createMap({ status: MapStatusNew.APPROVED });
+        pubMap1 = await db.createMap({
+          status: MapStatusNew.PUBLIC_TESTING,
+          submission: submissionCreate,
+          reviews: {
+            create: {
+              mainText: 'Atrocious',
+              reviewer: { connect: { id: user.id } }
+            }
+          }
+        });
+        pubMap2 = await db.createMap({
+          status: MapStatusNew.PUBLIC_TESTING,
+          submission: submissionCreate
+        });
+        privMap = await db.createMap({
+          status: MapStatusNew.PRIVATE_TESTING,
+          submission: submissionCreate
+        });
+        caMap = await db.createMap({
+          status: MapStatusNew.CONTENT_APPROVAL,
+          submission: submissionCreate
+        });
+        faMap = await db.createMap({
+          status: MapStatusNew.FINAL_APPROVAL,
+          submission: submissionCreate
+        });
+
+        await Promise.all(
+          [pubMap1, pubMap2, privMap, caMap, faMap].map((map) =>
+            prisma.mapSubmission.update({
+              where: { mapID: map.id },
+              data: {
+                currentVersion: {
+                  connect: { id: map.submission.versions[1].id }
+                }
+              }
+            })
+          )
+        );
+      });
+
+      afterAll(() => db.cleanup('user', 'mMap', 'run'));
+      afterEach(() => db.cleanup('mapTestingRequest', 'mapCredit'));
+
+      it('should respond with map data', async () => {
+        const res = await req.get({
+          url: 'admin/maps/submissions',
+          status: 200,
+          validatePaged: { type: MapDto },
+          token: reviewerToken
+        });
+
+        for (const item of res.body.data) {
+          expect(item).toHaveProperty('mainTrack');
+          expect(item).toHaveProperty('submission');
+        }
+      });
+
+      it('should 403 if the user is not reviewer, mod, or admin', () =>
+        req.get({
+          url: 'admin/maps/submissions',
+          status: 403,
+          validatePaged: { type: MapDto },
+          token
+        }));
+
+      it('should be ordered by date', () =>
+        req.sortByDateTest({
+          url: 'admin/maps/submissions',
+          validate: MapDto,
+          token: reviewerToken
+        }));
+
+      it('should respond with filtered map data using the take parameter', () =>
+        req.takeTest({
+          url: 'admin/maps/submissions',
+          validate: MapDto,
+          token: reviewerToken
+        }));
+
+      it('should respond with filtered map data using the skip parameter', () =>
+        req.skipTest({
+          url: 'admin/maps/submissions',
+          validate: MapDto,
+          token: reviewerToken
+        }));
+
+      it('should respond with filtered map data using the search parameter', async () => {
+        await prisma.mMap.update({
+          where: { id: pubMap1.id },
+          data: { name: 'aaaaa' }
+        });
+
+        await req.searchTest({
+          url: 'admin/maps/submissions',
+          token: reviewerToken,
+          searchMethod: 'contains',
+          searchString: 'aaaaa',
+          searchPropertyName: 'name',
+          validate: { type: MapDto, count: 1 }
+        });
+      });
+
+      it('should respond with filtered map data using the submitter id parameter', async () => {
+        await prisma.mMap.update({
+          where: { id: pubMap1.id },
+          data: { submitterID: user.id }
+        });
+
+        const res = await req.get({
+          url: 'admin/maps/submissions',
+          status: 200,
+          query: { submitterID: user.id },
+          validatePaged: { type: MapDto, count: 1 },
+          token: reviewerToken
+        });
+
+        expect(res.body.data[0]).toMatchObject({
+          submitterID: user.id,
+          id: pubMap1.id
+        });
+
+        await prisma.mMap.update({
+          where: { id: pubMap1.id },
+          data: { submitterID: null }
+        });
+      });
+
+      it('should respond with expanded current submission version data using the currentVersion expand parameter', () =>
+        req.expandTest({
+          url: 'admin/maps/submissions',
+          expand: 'currentVersion',
+          expectedPropertyName: 'submission.currentVersion',
+          paged: true,
+          validate: MapDto,
+          token: reviewerToken
+        }));
+
+      it('should respond with expanded submission versions data using the version expand parameter', () =>
+        req.expandTest({
+          url: 'admin/maps/submissions',
+          expand: 'versions',
+          expectedPropertyName: 'submission.versions[1]',
+          paged: true,
+          validate: MapDto,
+          token: reviewerToken
+        }));
+
+      it('should respond with expanded review data using the reviews expand parameter', () =>
+        req.expandTest({
+          url: 'admin/maps/submissions',
+          expand: 'reviews',
+          paged: true,
+          some: true,
+          validate: MapDto,
+          token: reviewerToken
+        }));
+
+      it('should respond with expanded map data using the credits expand parameter', async () => {
+        await prisma.mapCredit.createMany({
+          data: [
+            {
+              mapID: pubMap1.id,
+              userID: reviewer.id,
+              type: MapCreditType.AUTHOR
+            }
+          ]
+        });
+
+        await req.expandTest({
+          url: 'admin/maps/submissions',
+          expand: 'credits',
+          expectedPropertyName: 'credits[0].user', // This should always include user as well
+          paged: true,
+          some: true,
+          validate: MapDto,
+          token: reviewerToken
+        });
+
+        await db.cleanup('mapCredit');
+      });
+
+      it('should respond with expanded submitter data using the submitter expand parameter', async () => {
+        await prisma.mMap.update({
+          where: { id: pubMap1.id },
+          data: { submitterID: reviewer.id }
+        });
+
+        await req.expandTest({
+          url: 'admin/maps/submissions',
+          expand: 'submitter',
+          paged: true,
+          validate: MapDto,
+          token: reviewerToken
+        });
+
+        await prisma.mMap.update({
+          where: { id: pubMap1.id },
+          data: { submitterID: null }
+        });
+      });
+
+      it('should respond with expanded map data using the thumbnail expand parameter', () =>
+        req.expandTest({
+          url: 'admin/maps/submissions',
+          expand: 'thumbnail',
+          paged: true,
+          validate: MapDto,
+          token: reviewerToken
+        }));
+
+      it('should respond with expanded map data using the images expand parameter', () =>
+        req.expandTest({
+          url: 'admin/maps/submissions',
+          expand: 'images',
+          paged: true,
+          validate: MapDto,
+          token: reviewerToken
+        }));
+
+      it('should respond with expanded map data using the stats expand parameter', () =>
+        req.expandTest({
+          url: 'admin/maps/submissions',
+          expand: 'stats',
+          paged: true,
+          validate: MapDto,
+          token: reviewerToken
+        }));
+
+      it('should respond with expanded map data using the tracks expand parameter', () =>
+        req.expandTest({
+          url: 'admin/maps/submissions',
+          expand: 'tracks',
+          paged: true,
+          validate: MapDto,
+          token: reviewerToken
+        }));
+
+      it('should respond with expanded map data using the info expand parameter', () =>
+        req.expandTest({
+          url: 'admin/maps/submissions',
+          expand: 'info',
+          paged: true,
+          validate: MapDto,
+          token: reviewerToken
+        }));
+
+      it("should respond with expanded map data if the map is in the logged in user's library when using the inFavorites expansion", async () => {
+        await prisma.mapFavorite.create({
+          data: { userID: user.id, mapID: pubMap1.id }
+        });
+      });
+
+      describe('Reviewer checks', () => {
+        it('should respond with public testing and CONTENT_APPROVAL maps if the reviewer has no special relations', async () => {
+          const res = await req.get({
+            url: 'admin/maps/submissions',
+            status: 200,
+            validatePaged: { type: MapDto, count: 3 },
+            token: reviewerToken
+          });
+
+          expect(res.body.data).toEqual(
+            expect.arrayContaining([
+              expect.objectContaining({ id: pubMap1.id }),
+              expect.objectContaining({ id: pubMap2.id }),
+              expect.objectContaining({ id: caMap.id })
+            ])
+          );
+        });
+
+        it('should include private testing maps for which the user has an accepted invite', async () => {
+          await prisma.mapTestingRequest.create({
+            data: {
+              userID: reviewer.id,
+              mapID: privMap.id,
+              state: MapTestingRequestState.ACCEPTED
+            }
+          });
+
+          const res = await req.get({
+            url: 'admin/maps/submissions',
+            status: 200,
+            validatePaged: { type: MapDto, count: 4 },
+            token: reviewerToken
+          });
+
+          expect(res.body.data).toEqual(
+            expect.arrayContaining([
+              expect.objectContaining({ id: pubMap1.id }),
+              expect.objectContaining({ id: pubMap2.id }),
+              expect.objectContaining({ id: caMap.id }),
+              expect.objectContaining({ id: privMap.id })
+            ])
+          );
+        });
+
+        it('should not include a private testing map if the user has an declined invite', async () => {
+          await prisma.mapTestingRequest.create({
+            data: {
+              userID: reviewer.id,
+              mapID: privMap.id,
+              state: MapTestingRequestState.DECLINED
+            }
+          });
+
+          const res = await req.get({
+            url: 'admin/maps/submissions',
+            status: 200,
+            validatePaged: { type: MapDto, count: 3 },
+            token: reviewerToken
+          });
+
+          expect(res.body.data).toEqual(
+            expect.arrayContaining([
+              expect.objectContaining({ id: pubMap1.id }),
+              expect.objectContaining({ id: pubMap2.id }),
+              expect.objectContaining({ id: caMap.id })
+            ])
+          );
+        });
+
+        it('should include private testing maps for which the user is in the credits', async () => {
+          await prisma.mapCredit.create({
+            data: {
+              userID: reviewer.id,
+              mapID: privMap.id,
+              type: MapCreditType.TESTER
+            }
+          });
+
+          const res = await req.get({
+            url: 'admin/maps/submissions',
+            status: 200,
+            validatePaged: { type: MapDto, count: 4 },
+            token: reviewerToken
+          });
+
+          expect(res.body.data).toEqual(
+            expect.arrayContaining([
+              expect.objectContaining({ id: pubMap1.id }),
+              expect.objectContaining({ id: pubMap2.id }),
+              expect.objectContaining({ id: caMap.id }),
+              expect.objectContaining({ id: privMap.id })
+            ])
+          );
+        });
+
+        it('should include private testing maps for which the user is the submitter', async () => {
+          await prisma.mMap.update({
+            where: { id: privMap.id },
+            data: { submitter: { connect: { id: reviewer.id } } }
+          });
+
+          const res = await req.get({
+            url: 'admin/maps/submissions',
+            status: 200,
+            validatePaged: { type: MapDto, count: 4 },
+            token: reviewerToken
+          });
+
+          expect(res.body.data).toEqual(
+            expect.arrayContaining([
+              expect.objectContaining({ id: pubMap1.id }),
+              expect.objectContaining({ id: pubMap2.id }),
+              expect.objectContaining({ id: caMap.id }),
+              expect.objectContaining({ id: privMap.id })
+            ])
+          );
+
+          await prisma.mMap.update({
+            where: { id: privMap.id },
+            data: { submitter: { disconnect: true } }
+          });
+        });
+
+        it('should filter by public maps when given the public filter', async () => {
+          const res = await req.get({
+            url: 'admin/maps/submissions',
+            status: 200,
+            query: { filter: MapStatusNew.PUBLIC_TESTING },
+            validatePaged: { type: MapDto, count: 2 },
+            token: reviewerToken
+          });
+
+          expect(res.body.data).toEqual(
+            expect.arrayContaining([
+              expect.objectContaining({ id: pubMap1.id }),
+              expect.objectContaining({ id: pubMap2.id })
+            ])
+          );
+        });
+
+        it('should filter by private maps when given the private filter', async () => {
+          await prisma.mapTestingRequest.create({
+            data: {
+              mapID: privMap.id,
+              userID: reviewer.id,
+              state: MapTestingRequestState.ACCEPTED
+            }
+          });
+
+          const res = await req.get({
+            url: 'admin/maps/submissions',
+            status: 200,
+            query: { filter: MapStatusNew.PRIVATE_TESTING },
+            validatePaged: { type: MapDto, count: 1 },
+            token: reviewerToken
+          });
+
+          expect(res.body.data[0]).toEqual(
+            expect.objectContaining({ id: privMap.id })
+          );
+        });
+
+        it('should filter by CONTENT_APPROVAL maps when given the CONTENT_APPROVAL filter', async () => {
+          const res = await req.get({
+            url: 'admin/maps/submissions',
+            status: 200,
+            query: { filter: MapStatusNew.CONTENT_APPROVAL },
+            validatePaged: { type: MapDto, count: 1 },
+            token: reviewerToken
+          });
+
+          expect(res.body.data[0]).toEqual(
+            expect.objectContaining({ id: caMap.id })
+          );
+        });
+
+        // This is just because this endpoint is same for reviewer and admins.
+        it('should 403 if given the FINAL_APPROVAL filter', async () => {
+          await req.get({
+            url: 'admin/maps/submissions',
+            status: 403,
+            query: { filter: MapStatusNew.FINAL_APPROVAL },
+            token: reviewerToken
+          });
+        });
+      });
+
+      describe('Mod/Admin checks', () => {
+        it('should respond with maps of all submission statuses by default for mods', async () => {
+          const res = await req.get({
+            url: 'admin/maps/submissions',
+            status: 200,
+            validatePaged: { type: MapDto, count: 5 },
+            token: modToken
+          });
+
+          expect(res.body.data).toEqual(
+            expect.arrayContaining([
+              expect.objectContaining({ id: pubMap1.id }),
+              expect.objectContaining({ id: pubMap2.id }),
+              expect.objectContaining({ id: privMap.id }),
+              expect.objectContaining({ id: caMap.id }),
+              expect.objectContaining({ id: faMap.id })
+            ])
+          );
+        });
+
+        // Role.ADMIN and Role.MODERATOR are treated exactly the same in code,
+        // so just this should be sufficient to test
+        it('should respond the same way for admins', async () => {
+          const res = await req.get({
+            url: 'admin/maps/submissions',
+            status: 200,
+            validatePaged: { type: MapDto, count: 5 },
+            token: adminToken
+          });
+
+          expect(res.body.data).toEqual(
+            expect.arrayContaining([
+              expect.objectContaining({ id: pubMap1.id }),
+              expect.objectContaining({ id: pubMap2.id }),
+              expect.objectContaining({ id: privMap.id }),
+              expect.objectContaining({ id: caMap.id }),
+              expect.objectContaining({ id: faMap.id })
+            ])
+          );
+        });
+
+        it('should filter by public maps when given the public filter', async () => {
+          const res = await req.get({
+            url: 'admin/maps/submissions',
+            status: 200,
+            query: { filter: MapStatusNew.PUBLIC_TESTING },
+            validatePaged: { type: MapDto, count: 2 },
+            token: adminToken
+          });
+
+          expect(res.body.data).toEqual(
+            expect.arrayContaining([
+              expect.objectContaining({ id: pubMap1.id }),
+              expect.objectContaining({ id: pubMap2.id })
+            ])
+          );
+        });
+
+        it('should filter by private maps when given the private filter', async () => {
+          const res = await req.get({
+            url: 'admin/maps/submissions',
+            status: 200,
+            query: { filter: MapStatusNew.PRIVATE_TESTING },
+            validatePaged: { type: MapDto, count: 1 },
+            token: adminToken
+          });
+
+          expect(res.body.data).toEqual(
+            expect.arrayContaining([
+              expect.objectContaining({ id: privMap.id })
+            ])
+          );
+        });
+
+        it('should filter by CONTENT_APPROVAL maps when given the CONTENT_APPROVAL filter', async () => {
+          const res = await req.get({
+            url: 'admin/maps/submissions',
+            status: 200,
+            query: { filter: MapStatusNew.CONTENT_APPROVAL },
+            validatePaged: { type: MapDto, count: 1 },
+            token: adminToken
+          });
+
+          expect(res.body.data).toEqual(
+            expect.arrayContaining([expect.objectContaining({ id: caMap.id })])
+          );
+        });
+
+        it('should filter by FINAL_APPROVAL maps when given the FINAL_APPROVAL filter', async () => {
+          const res = await req.get({
+            url: 'admin/maps/submissions',
+            status: 200,
+            query: { filter: MapStatusNew.FINAL_APPROVAL },
+            validatePaged: { type: MapDto, count: 1 },
+            token: adminToken
+          });
+
+          expect(res.body.data).toEqual(
+            expect.arrayContaining([expect.objectContaining({ id: faMap.id })])
+          );
+        });
+      });
+
+      it('should 401 when no access token is provided', () =>
+        req.unauthorizedTest('admin/maps/submissions', 'get'));
     });
   });
 
