@@ -301,7 +301,7 @@ export class MapsService {
     expand?: MapsGetExpand
   ): Promise<MapDto> {
     const include: Prisma.MMapInclude = expandToIncludes(expand, {
-      without: ['personalBest', 'worldRecord'],
+      without: ['currentVersion', 'versions', 'personalBest', 'worldRecord'],
       mappings: [
         {
           expand: 'tracks',
@@ -326,6 +326,15 @@ export class MapsService {
         }
       ]
     });
+
+    const submissionIncludes: Prisma.MapSubmissionInclude = expandToIncludes(
+      expand,
+      { only: ['currentVersion', 'versions'] }
+    );
+
+    if (!isEmpty(submissionIncludes)) {
+      include.submission = { include: submissionIncludes };
+    }
 
     const incPB = expand?.includes('personalBest');
     const incWR = expand?.includes('worldRecord');

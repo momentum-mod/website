@@ -988,14 +988,48 @@ describe('Maps', () => {
     describe('GET', () => {
       let u1, u1Token, u2, map;
 
-      beforeAll(
-        async () =>
-          ([[u1, u1Token], u2, map] = await Promise.all([
-            db.createAndLoginUser(),
-            db.createUser(),
-            db.createMap()
-          ]))
-      );
+      beforeAll(async () => {
+        [[u1, u1Token], u2] = await Promise.all([
+          db.createAndLoginUser(),
+          db.createUser()
+        ]);
+
+        map = await db.createMap({
+          submission: {
+            create: {
+              type: MapSubmissionType.ORIGINAL,
+              suggestions: {
+                track: 1,
+                gamemode: Gamemode.SURF,
+                tier: 1,
+                ranked: true,
+                comment: 'I will kill again'
+              },
+              versions: {
+                createMany: {
+                  data: [
+                    { versionNum: 1, hash: createSha1Hash('bats') },
+                    { versionNum: 2, hash: createSha1Hash('wigs') }
+                  ]
+                }
+              }
+            }
+          },
+          reviews: {
+            create: {
+              reviewer: { connect: { id: u2.id } },
+              mainText: 'No! No!!'
+            }
+          }
+        });
+
+        await prisma.mapSubmission.update({
+          where: { mapID: map.id },
+          data: {
+            currentVersion: { connect: { id: map.submission.versions[1].id } }
+          }
+        });
+      });
 
       afterAll(() => db.cleanup('user', 'mMap', 'run'));
 
@@ -1156,6 +1190,44 @@ describe('Maps', () => {
           personalBest: { rank: 2, user: { id: u1.id } }
         });
       });
+
+      it('should respond with expanded map data using the submission expand parameter', () =>
+        req.expandTest({
+          url: `maps/${map.id}`,
+          validate: MapDto,
+          expand: 'submission',
+          token: u1Token
+        }));
+
+      it('should respond with expanded map data using the reviews expand parameter', () =>
+        req.expandTest({
+          url: `maps/${map.id}`,
+          validate: MapDto,
+          expand: 'reviews',
+          token: u1Token
+        }));
+
+      it('should respond with expanded map data using the versions expand parameter', () =>
+        req.expandTest({
+          url: `maps/${map.id}`,
+          validate: MapDto,
+          expand: 'versions',
+          expectedPropertyName: 'submission.versions[1]',
+          token: u1Token
+        }));
+
+      // This map is APPROVED but has a currentVersion, which will usually
+      // be removed when a map gets approval. We only really need to test
+      // that the expand works however - is the user has read access to the map,
+      // they can access submission/submission versions/reviews if they exist.
+      it('should respond with expanded map data using the currentVersion expand parameter', () =>
+        req.expandTest({
+          url: `maps/${map.id}`,
+          validate: MapDto,
+          expand: 'currentVersion',
+          expectedPropertyName: 'submission.currentVersion',
+          token: u1Token
+        }));
 
       // This test is sufficient to test that getMapAndCheckReadAccess is being
       // called, so we don't need to test the endless variations of states/perms
