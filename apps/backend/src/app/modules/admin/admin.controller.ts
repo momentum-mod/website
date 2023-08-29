@@ -32,12 +32,12 @@ import { XpSystemsService } from '../xp-systems/xp-systems.service';
 import { MapsService } from '../maps/maps.service';
 import { UsersService } from '../users/users.service';
 import {
-  AdminCtlMapsGetAllQueryDto,
   AdminGetReportsQueryDto,
   AdminUpdateUserDto,
   ApiOkPagedResponse,
   CreateUserDto,
   MapDto,
+  MapsGetAllAdminQueryDto,
   MergeUserDto,
   PagedResponseDto,
   ReportDto,
@@ -150,7 +150,7 @@ export class AdminController {
   @ApiBadRequestResponse({ description: 'Invalid query data' })
   getMaps(
     @LoggedInUser('id') userID: number,
-    @Query() query: AdminCtlMapsGetAllQueryDto
+    @Query() query: MapsGetAllAdminQueryDto
   ): Promise<PagedResponseDto<MapDto>> {
     return this.mapsService.getAll(userID, query);
   }

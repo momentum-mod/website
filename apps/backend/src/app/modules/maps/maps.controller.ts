@@ -57,7 +57,7 @@ import {
   MapReviewDto,
   MapReviewGetIdDto,
   MapReviewsGetQueryDto,
-  MapsCtlGetAllQueryDto,
+  MapsGetAllQueryDto,
   MapsGetQueryDto,
   MapTrackDto,
   PagedResponseDto,
@@ -100,7 +100,7 @@ export class MapsController {
   @ApiOkPagedResponse(MapDto, { description: 'Paginated list of maps' })
   getAllMaps(
     @LoggedInUser('id') userID: number,
-    @Query() query?: MapsCtlGetAllQueryDto
+    @Query() query?: MapsGetAllQueryDto
   ): Promise<PagedResponseDto<MapDto>> {
     return this.mapsService.getAll(userID, query);
   }
