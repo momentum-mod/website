@@ -2,8 +2,8 @@ import { Injectable } from '@angular/core';
 import { EMPTY, Observable } from 'rxjs';
 import {
   AdminGetReportsQuery,
-  AdminMapsGetAllQuery,
   AdminUpdateUser,
+  MapsGetAllAdminQuery,
   MMap,
   Report,
   UpdateMap,
@@ -23,7 +23,7 @@ export class AdminService {
     return this.http.patch(`admin/maps/${mapID}`, { body });
   }
 
-  getMaps(query: AdminMapsGetAllQuery): Observable<PagedResponse<MMap>> {
+  getMaps(query: MapsGetAllAdminQuery): Observable<PagedResponse<MMap>> {
     return this.http.get<PagedResponse<MMap>>('admin/maps', { query });
   }
 
