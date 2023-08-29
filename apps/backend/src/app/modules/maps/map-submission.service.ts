@@ -11,8 +11,7 @@ import {
   CreateMapSubmissionVersionDto,
   DtoFactory,
   MapDto,
-  MapSummaryDto,
-  PagedResponseDto
+  MapSummaryDto
 } from '@momentum/backend/dto';
 import { MapCredit, MapTrack, Prisma } from '@prisma/client';
 import { EXTENDED_PRISMA_SERVICE } from '../database/db.constants';
@@ -20,7 +19,7 @@ import {
   ExtendedPrismaService,
   ExtendedPrismaServiceTransaction
 } from '../database/prisma.extension';
-import { difference, expandToIncludes } from '@momentum/util-fn';
+import { difference } from '@momentum/util-fn';
 import { Bitflags } from '@momentum/bitflags';
 import {
   ActivityType,
@@ -580,27 +579,6 @@ export class MapSubmissionService {
   //#endregion
 
   //#region Get Submitted
-
-  async getSubmittedMaps(
-    userID: number,
-    skip?: number,
-    take?: number,
-    search?: string,
-    expand?: string[]
-  ): Promise<PagedResponseDto<MapDto>> {
-    const where: Prisma.MMapWhereInput = { submitterID: userID };
-
-    if (search) where.name = { contains: search };
-
-    const submittedMapsRes = await this.db.mMap.findManyAndCount({
-      where,
-      include: expandToIncludes(expand),
-      skip,
-      take
-    });
-
-    return new PagedResponseDto(MapDto, submittedMapsRes);
-  }
 
   async getSubmittedMapsSummary(userID: number): Promise<MapSummaryDto[]> {
     const result = await this.db.mMap.groupBy({

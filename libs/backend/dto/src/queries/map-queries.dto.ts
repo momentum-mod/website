@@ -15,6 +15,7 @@ import {
   MapsGetAllSubmissionAdminFilter,
   MapsGetAllSubmissionAdminQuery,
   MapsGetAllAdminFilter,
+  MapsGetAllUserSubmissionQuery,
   MapReviewGetIdQuery
 } from '@momentum/constants';
 import {
@@ -37,6 +38,7 @@ import {
 } from '../decorators';
 import { PagedQueryDto } from './pagination.dto';
 import { QueryDto } from './query.dto';
+import { OmitType } from '@nestjs/swagger';
 
 //#region Get All
 
@@ -147,6 +149,10 @@ export class MapsGetAllSubmissionQueryDto
   ])
   readonly filter?: MapsGetAllSubmissionFilter;
 }
+
+export class MapsGetAllUserSubmissionQueryDto
+  extends OmitType(MapsGetAllSubmissionQueryDto, ['submitterID'] as const)
+  implements MapsGetAllUserSubmissionQuery {}
 
 export class MapsGetAllSubmissionAdminQueryDto
   extends MapsGetAllBaseQueryDto

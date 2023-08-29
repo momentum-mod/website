@@ -69,6 +69,11 @@ export type MapsGetAllSubmissionQuery = MapsGetAllBaseQuery & {
   filter?: MapsGetAllSubmissionFilter;
 };
 
+export type MapsGetAllUserSubmissionQuery = Omit<
+  MapsGetAllSubmissionQuery,
+  'submitterID'
+>;
+
 export type MapsGetAllSubmissionAdminFilter = (
   | MapStatusNew.PUBLIC_TESTING
   | MapStatusNew.PRIVATE_TESTING

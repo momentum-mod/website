@@ -18,11 +18,12 @@ import {
   UpdateUserDto,
   UserDto,
   UserMapLibraryGetQueryDto,
-  UserMapSubmittedGetQueryDto,
   UsersGetActivitiesQueryDto,
   UsersGetQueryDto,
   UserMapFavoritesGetQueryDto,
-  FollowDto
+  FollowDto,
+  MapsGetAllUserSubmissionQueryDto,
+  MapsGetAllSubmissionQueryDto
 } from '@momentum/backend/dto';
 import { ParseIntSafePipe } from '@momentum/backend/pipes';
 import {
@@ -52,6 +53,7 @@ import {
 import { MapLibraryService } from '../maps/map-library.service';
 import { UsersService } from '../users/users.service';
 import { MapSubmissionService } from '../maps/map-submission.service';
+import { MapsService } from '../maps/maps.service';
 
 @Controller('user')
 @ApiTags('User')
@@ -60,6 +62,7 @@ export class UserController {
   constructor(
     private readonly usersService: UsersService,
     private readonly mapLibraryService: MapLibraryService,
+    private readonly mapsService: MapsService,
     private readonly mapSubmissionService: MapSubmissionService
   ) {}
 
@@ -555,15 +558,12 @@ export class UserController {
   })
   getSubmittedMaps(
     @LoggedInUser('id') userID: number,
-    @Query() query?: UserMapSubmittedGetQueryDto
+    @Query() query?: MapsGetAllUserSubmissionQueryDto
   ): Promise<PagedResponseDto<MapDto>> {
-    return this.mapSubmissionService.getSubmittedMaps(
-      userID,
-      query.skip,
-      query.take,
-      query.search,
-      query.expand
-    );
+    return this.mapsService.getAll(userID, {
+      ...query,
+      submitterID: userID
+    } as MapsGetAllSubmissionQueryDto);
   }
 
   @Get('/maps/submitted/summary')
