@@ -991,6 +991,23 @@ describe('Maps', () => {
           });
         });
 
+        it('should 400 if the name does not contain the fileName', async () => {
+          await req.postAttach({
+            url: 'maps',
+            status: 400,
+            data: {
+              ...createMapObject,
+              fileName: 'ron_weasley',
+              name: 'hagrid'
+            },
+            files: [
+              { file: bspBuffer, field: 'bsp', fileName: 'surf_map.bsp' },
+              { file: vmfBuffer, field: 'vmfs', fileName: 'surf_map.vmf' }
+            ],
+            token
+          });
+        });
+
         it('should 401 when no access token is provided', () =>
           req.unauthorizedTest('maps', 'post'));
       });

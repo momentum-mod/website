@@ -54,6 +54,7 @@ export class MapSubmissionService {
   ): Promise<MapDto> {
     await this.createDtoChecks(userID, dto);
     this.fileChecks(dto.fileName, bspFile, vmfFiles);
+    this.fileNameChecks(dto.name, dto.fileName);
 
     const hasVmf = vmfFiles?.length > 0;
     const bspHash = FileStoreCloudService.getHashForBuffer(bspFile.buffer);
@@ -419,6 +420,17 @@ export class MapSubmissionService {
           })
         )
     });
+  }
+
+  fileNameChecks(name: string, fileName: string) {
+    // Could probably do some more here, but we want to be relatively lax with
+    // naming, especially as moderators can bring up any issues.
+
+    if (name.length < 3 || fileName.length < 3)
+      throw new BadRequestException('Name/Filename is too short (< 3)');
+
+    if (!fileName.includes(name))
+      throw new BadRequestException("Filename must contain the map's name");
   }
 
   private fileChecks(fileName: string, bspFile: File, vmfFiles: File[]) {
