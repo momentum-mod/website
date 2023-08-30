@@ -16,6 +16,7 @@ import { MapSubmissionSuggestionDto } from './map-submission-suggestion.dto';
 import { Exclude } from 'class-transformer';
 import { MapSubmissionVersionDto } from './map-submission-version.dto';
 import { JsonValue } from 'type-fest';
+import { MapSubmissionDatesDto } from './map-submission-dates.dto';
 
 export class PlaceholderSuggestionDto {
   [k: string]: JsonValue;
@@ -43,6 +44,9 @@ export class MapSubmissionDto implements MapSubmission {
   @IsArray()
   @IsOptional()
   readonly placeholders: PlaceholderSuggestionDto[];
+
+  @NestedProperty(MapSubmissionDatesDto)
+  readonly dates: MapSubmissionDatesDto;
 
   @Exclude()
   readonly mapID: number;

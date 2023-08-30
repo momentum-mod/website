@@ -239,7 +239,13 @@ export class MapSubmissionService {
             type: createMapDto.submissionType,
             placeholders: createMapDto.placeholders,
             suggestions: createMapDto.suggestions,
-            versions: { create: { versionNum: 1, hash: bspHash, hasVmf } }
+            versions: { create: { versionNum: 1, hash: bspHash, hasVmf } },
+            dates: {
+              submitted: new Date().toJSON(),
+              contentApproval: createMapDto.wantsPrivateTesting
+                ? undefined
+                : new Date().toJSON()
+            }
           }
         },
         stats: { create: { baseStats: { create: {} } } },

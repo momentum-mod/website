@@ -591,7 +591,8 @@ describe('Maps', () => {
                   ranked: true,
                   comment: 'I love you'
                 }
-              ]
+              ],
+              dates: { submitted: expect.any(String) }
             },
             info: {
               description: 'mamp',
@@ -611,6 +612,10 @@ describe('Maps', () => {
             }
           });
 
+          expect(
+            Date.now() -
+              new Date(createdMap.submission.dates.submitted).getTime()
+          ).toBeLessThan(1000);
           expect(createdMap.tracks).toHaveLength(2);
           for (const track of createdMap.tracks) {
             expect(track.trackNum).toBeLessThanOrEqual(1);
@@ -753,6 +758,14 @@ describe('Maps', () => {
           });
 
           expect(res.body.status).toBe(MapStatusNew.CONTENT_APPROVAL);
+
+          expect(
+            Date.now() - new Date(res.body.submission.dates.submitted).getTime()
+          ).toBeLessThan(1000);
+          expect(
+            Date.now() -
+              new Date(res.body.submission.dates.contentApproval).getTime()
+          ).toBeLessThan(1000);
         });
 
         it('should 400 if BSP filename does not start with the fileName on the DTO', async () => {
