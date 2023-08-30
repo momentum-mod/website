@@ -452,6 +452,7 @@ model MapSubmission {
 
   suggestions  Json /// map-submission-suggestions.model.ts
   placeholders Json?
+  dates        Json  @default("{}") /// Keys of map-submission-dates.model.ts, number values
 
   versions MapSubmissionVersion[]
 
