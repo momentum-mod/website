@@ -65,5 +65,5 @@ export class CreateMapTrackDto
   @NestedProperty(CreateMapZoneDto, { isArray: true })
   @IsArray()
   @ArrayMinSize(2)
-  zones: CreateMapZoneDto[];
+  readonly zones: CreateMapZoneDto[];
 }

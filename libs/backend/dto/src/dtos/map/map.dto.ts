@@ -175,16 +175,16 @@ export class CreateMapDto
     description:
       'Whether the submission is an original map, a port, or something unusual'
   })
-  submissionType: MapSubmissionType;
+  readonly submissionType: MapSubmissionType;
 
   @NestedProperty(MapSubmissionSuggestionDto)
-  suggestions: MapSubmissionSuggestionDto[];
+  readonly suggestions: MapSubmissionSuggestionDto[];
 
   @ApiProperty({
     description: 'Whether the map should go into private testing'
   })
   @IsBoolean()
-  wantsPrivateTesting: boolean;
+  readonly wantsPrivateTesting: boolean;
 
   @ApiProperty({
     description: 'Aliases for which new placeholder users should be made'
@@ -192,7 +192,7 @@ export class CreateMapDto
   @NestedProperty(PlaceholderSuggestionDto, {
     description: 'Aliases for which new placeholder users should be made'
   })
-  placeholders: PlaceholderSuggestionDto[];
+  readonly placeholders: PlaceholderSuggestionDto[];
 
   @ApiProperty({
     description: 'Array of user IDs to invite to private testing',
@@ -200,20 +200,20 @@ export class CreateMapDto
   })
   @IsArray()
   @IsInt({ each: true })
-  testInvites?: number[];
+  readonly testInvites?: number[];
 
   @NestedProperty(CreateMapInfoDto, { required: true })
-  info: CreateMapInfoDto;
+  readonly info: CreateMapInfoDto;
 
   @NestedProperty(CreateMapTrackDto, { required: true, isArray: true })
   @IsArray()
   @ArrayMinSize(1)
-  tracks: CreateMapTrackDto[];
+  readonly tracks: CreateMapTrackDto[];
 
   @NestedProperty(CreateMapCreditDto, { required: true, isArray: true })
   @IsArray()
   @ArrayMinSize(1)
-  credits: CreateMapCreditDto[];
+  readonly credits: CreateMapCreditDto[];
 }
 
 export class CreateMapWithFilesDto implements CreateMapWithFiles {
@@ -223,7 +223,7 @@ export class CreateMapWithFilesDto implements CreateMapWithFiles {
     description: 'BSP for the map. MUST be run through bspzip!'
   })
   @IsDefined()
-  bsp: any;
+  readonly bsp: any;
 
   @ApiProperty({
     type: 'string',
@@ -232,12 +232,12 @@ export class CreateMapWithFilesDto implements CreateMapWithFiles {
       'VMFs for the map. Usually a single file, but takes an array to allow instances.'
   })
   @IsOptional()
-  vmfs: any[];
+  readonly vmfs: any[];
 
   @NestedProperty(CreateMapDto, {
     description: 'The JSON part of the body'
   })
-  data: CreateMapDto;
+  readonly data: CreateMapDto;
 }
 
 // TODO: Shit

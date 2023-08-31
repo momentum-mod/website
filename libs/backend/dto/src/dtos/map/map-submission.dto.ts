@@ -24,10 +24,10 @@ export class PlaceholderSuggestionDto {
   @ApiProperty()
   @IsString()
   @MaxLength(32)
-  alias: string;
+  readonly alias: string;
 
   @EnumProperty(MapCreditType)
-  type: MapCreditType;
+  readonly type: MapCreditType;
 }
 
 export class MapSubmissionDto implements MapSubmission {

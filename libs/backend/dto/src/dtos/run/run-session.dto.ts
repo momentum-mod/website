@@ -61,7 +61,7 @@ export class CreateRunSessionDto extends PickType(RunSessionDto, [
     required: true
   })
   @IsPositive()
-  mapID: number;
+  readonly mapID: number;
 }
 
 export class UpdateRunSessionDto {
@@ -71,7 +71,7 @@ export class UpdateRunSessionDto {
     required: true
   })
   @IsInt()
-  zoneNum: number;
+  readonly zoneNum: number;
 
   @ApiProperty({
     description: 'The run tick at time of request',
@@ -79,5 +79,5 @@ export class UpdateRunSessionDto {
     required: true
   })
   @IsPositive()
-  tick: number;
+  readonly tick: number;
 }

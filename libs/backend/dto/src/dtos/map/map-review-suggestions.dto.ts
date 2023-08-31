@@ -13,24 +13,24 @@ import { EnumProperty } from '../../decorators';
 export class MapReviewSuggestionDto implements MapReviewSuggestion {
   @ApiProperty({ description: 'Track number the suggestion refers to' })
   @IsInt()
-  track: number;
+  readonly track: number;
 
   @EnumProperty(Gamemode, { description: 'Gamemode the suggestion is for' })
-  gamemode: Gamemode;
+  readonly gamemode: Gamemode;
 
   @ApiProperty({ description: 'Track number the suggestion refers to' })
   @IsInt()
   @IsOptional()
   @Min(1)
   @Max(10)
-  tier: number;
+  readonly tier: number;
 
   @ApiProperty({ description: 'Gameplay rating out of 10' })
   @IsInt()
   @IsOptional()
   @Min(1)
   @Max(10)
-  gameplayRating: number;
+  readonly gameplayRating: number;
 
   @ApiProperty({
     description: 'General comments about the track on this gamemode'
@@ -38,5 +38,5 @@ export class MapReviewSuggestionDto implements MapReviewSuggestion {
   @IsString()
   @MaxLength(500)
   @IsOptional()
-  comment: string;
+  readonly comment: string;
 }
