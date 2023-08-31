@@ -8,6 +8,7 @@ import {
   MAX_VMF_SIZE,
   MAX_REVIEW_LENGTH,
   MAX_TESTING_REQUESTS
+  MAX_CREDITS_EXCEPT_TESTERS
 } from '@momentum/constants';
 
 export const ConfigFactory = (): ConfigInterface => {
@@ -61,6 +62,7 @@ export const ConfigFactory = (): ConfigInterface => {
       imageSize: isTest ? 1e6 : MAX_IMAGE_SIZE,
       reviewLength: MAX_REVIEW_LENGTH,
       testingRequests: MAX_TESTING_REQUESTS
+      maxCreditsExceptTesters: MAX_CREDITS_EXCEPT_TESTERS
     }
   };
 };

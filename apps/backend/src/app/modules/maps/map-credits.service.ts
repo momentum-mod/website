@@ -25,12 +25,14 @@ import { EXTENDED_PRISMA_SERVICE } from '../database/db.constants';
 import { ExtendedPrismaService } from '../database/prisma.extension';
 import { MapsService } from './maps.service';
 import { expandToIncludes, findWithIndex } from '@momentum/util-fn';
+import { ConfigService } from '@nestjs/config';
 
 @Injectable()
 export class MapCreditsService {
   constructor(
     @Inject(EXTENDED_PRISMA_SERVICE) private readonly db: ExtendedPrismaService,
-    private readonly mapsService: MapsService
+    private readonly mapsService: MapsService,
+    private readonly config: ConfigService
   ) {}
 
   async getCredits(
@@ -78,10 +80,24 @@ export class MapCreditsService {
     if (!body.some((credit) => credit.type === MapCreditType.AUTHOR))
       throw new BadRequestException('Credits do not contain an AUTHOR');
 
+    const maxCredits = this.config.getOrThrow('limits.maxCreditsExceptTesters');
+    for (const type of [
+      MapCreditType.AUTHOR,
+      MapCreditType.CONTRIBUTOR,
+      MapCreditType.SPECIAL_THANKS
+    ]) {
+      if (body.filter((credit) => credit.type === type).length > maxCredits) {
+        throw new BadRequestException(
+          `Cannot have more than ${maxCredits} per type.`
+        );
+      }
+    }
+
     const map = await this.db.mMap.findUnique({
       where: { id: mapID },
       include: { credits: true }
     });
+
     if (!map) {
       throw new NotFoundException('Map not found');
     }
