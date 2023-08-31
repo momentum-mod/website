@@ -2556,7 +2556,7 @@ describe('Maps', () => {
         modToken = await db.loginNewUser({ data: { roles: Role.MODERATOR } });
         map = await db.createMap({
           submitter: { connect: { id: u1.id } },
-          status: MapStatus.NEEDS_REVISION
+          status: MapStatusNew.APPROVED
         });
         newMapCredit = [
           {
@@ -2812,44 +2812,6 @@ describe('Maps', () => {
           token: u2Token
         }));
 
-      it("should 403 if the user doesn't have the mapper role", async () => {
-        await prisma.user.update({
-          where: { id: u1.id },
-          data: { roles: 0 }
-        });
-
-        await req.put({
-          url: `maps/${map.id}/credits`,
-          status: 403,
-          body: newMapCredit,
-          token: u1Token
-        });
-
-        await prisma.user.update({
-          where: { id: u1.id },
-          data: { roles: Role.MAPPER }
-        });
-      });
-
-      it('should 403 if the map is not in NEEDS_REVISION state', async () => {
-        await prisma.mMap.update({
-          where: { id: map.id },
-          data: { status: MapStatus.APPROVED }
-        });
-
-        await req.put({
-          url: `maps/${map.id}/credits`,
-          status: 403,
-          body: newMapCredit,
-          token: u1Token
-        });
-
-        await prisma.mMap.update({
-          where: { id: map.id },
-          data: { status: MapStatus.NEEDS_REVISION }
-        });
-      });
-
       it('should 400 if the map credit object is invalid', async () => {
         await req.put({
           url: `maps/${map.id}/credits`,
@@ -2901,14 +2863,58 @@ describe('Maps', () => {
         req.put({
           url: `maps/${map.id}/credits`,
           status: 400,
-          body: {
-            userID: u2.id,
-            type: MapCreditType.AUTHOR,
-            description:
-              'Momentum Man; The fabled master of every gamemode, with more records than ever seen. Scientist, lover, Source movement legend. But how did he die? Follow in his footsteps, unlock the mystery.'
-          },
+          body: [
+            {
+              userID: u2.id,
+              type: MapCreditType.AUTHOR,
+              description:
+                'Momentum Man; The fabled master of every gamemode, with more records than ever seen. Scientist, lover, Source movement legend. But how did he die? Follow in his footsteps, unlock the mystery.'
+            }
+          ],
           token: u1Token
         }));
+
+      for (const [term, forbidden] of [
+        ['regular user', [MapStatusNew.DISABLED, MapStatusNew.REJECTED]],
+        ['moderator', []],
+        ['admin', []]
+      ]) {
+        for (const status of Enum.values(MapStatusNew)) {
+          const allow = !(forbidden as MapStatusNew[]).includes(status);
+
+          it(`should ${
+            allow ? 'allow' : 'reject'
+          } a ${term} if map has status of ${
+            MapStatusNew[status]
+          }`, async () => {
+            await prisma.mMap.update({
+              where: { id: map.id },
+              data: { status }
+            });
+
+            // Can't store tokens in above tuple as they're only known during test
+            // executions.
+            const token =
+              term == 'moderator'
+                ? modToken
+                : term == 'admin'
+                ? adminToken
+                : u1Token;
+
+            await req.put({
+              url: `maps/${map.id}/credits`,
+              status: allow ? 201 : 403,
+              body: [{ userID: u2.id, type: MapCreditType.AUTHOR }],
+              token
+            });
+
+            await prisma.mMap.update({
+              where: { id: map.id },
+              data: { status: MapStatusNew.APPROVED }
+            });
+          });
+        }
+      }
 
       for (const type of [
         MapCreditType.AUTHOR,
@@ -2927,6 +2933,7 @@ describe('Maps', () => {
             token: u1Token
           }));
       }
+
       it('should 400 if the credited user does not exist', () =>
         req.put({
           url: `maps/${map.id}/credits`,

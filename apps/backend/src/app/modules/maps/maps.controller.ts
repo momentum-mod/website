@@ -377,10 +377,11 @@ export class MapsController {
   @ApiBadRequestResponse({ description: 'Map credit object is invalid' })
   @ApiBadRequestResponse({ description: 'Credited user does not exist' })
   @ApiBadRequestResponse({ description: 'No update data provided' })
-  @ApiForbiddenResponse({ description: 'Map is not in NEEDS_REVISION state' })
-  @ApiForbiddenResponse({ description: 'User does not have the mapper role' })
   @ApiForbiddenResponse({
     description: 'User is not the submitter of this map'
+  })
+  @ApiForbiddenResponse({
+    description: 'Map is not accepting updates (DISABLED, REJECTED)'
   })
   @ApiConflictResponse({ description: 'Cannot have duplicate map credits' })
   updateCredits(

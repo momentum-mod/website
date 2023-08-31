@@ -12,14 +12,12 @@ import {
   MapCreditDto
 } from '@momentum/backend/dto';
 import { Prisma } from '@prisma/client';
-import { MMap } from '.prisma/client';
 import { Bitflags } from '@momentum/bitflags';
 import {
   ActivityType,
+  CombinedRoles,
   MapCreditsGetExpand,
-  MapCreditType,
-  MapStatus,
-  Role
+  MapCreditType
 } from '@momentum/constants';
 import { EXTENDED_PRISMA_SERVICE } from '../database/db.constants';
 import { ExtendedPrismaService } from '../database/prisma.extension';
@@ -102,7 +100,24 @@ export class MapCreditsService {
       throw new NotFoundException('Map not found');
     }
 
-    await this.checkCreditChangePermissions(map, loggedInUserID);
+    const { roles } = await this.db.user.findUnique({
+      where: { id: loggedInUserID },
+      select: { roles: true }
+    });
+
+    // Let admins/mods update in any state
+    if (!Bitflags.has(roles, CombinedRoles.MOD_OR_ADMIN)) {
+      if (map.submitterID !== loggedInUserID) {
+        throw new ForbiddenException('User is not the submitter of this map');
+      }
+
+      if (
+        map.status === MapStatusNew.DISABLED ||
+        map.status === MapStatusNew.REJECTED
+      ) {
+        throw new ForbiddenException('Cannot change map in its current state');
+      }
+    }
 
     const oldCredits = map.credits;
 
@@ -175,25 +190,5 @@ export class MapCreditsService {
 
       return response;
     });
-  }
-
-  private async checkCreditChangePermissions(map: MMap, userID: number) {
-    const user = await this.db.user.findUnique({
-      where: { id: userID },
-      select: { roles: true }
-    });
-
-    // Let admins/mods update in any state
-    if (
-      !(
-        Bitflags.has(user.roles, Role.MODERATOR) ||
-        Bitflags.has(user.roles, Role.ADMIN)
-      )
-    ) {
-      if (map.submitterID !== userID)
-        throw new ForbiddenException('User is not the submitter of this map');
-      if (map.status !== MapStatus.NEEDS_REVISION)
-        throw new ForbiddenException('Map is not in NEEDS_REVISION state');
-    }
   }
 }
