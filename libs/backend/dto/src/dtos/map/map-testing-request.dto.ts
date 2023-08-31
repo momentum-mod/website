@@ -19,11 +19,11 @@ export class CreateMapTestingRequestDto implements CreateMapTestingRequest {
   @IsArray()
   @ArrayMaxSize(MAX_TESTING_REQUESTS)
   @IsInt({ each: true })
-  userIDs: number[];
+  readonly userIDs: number[];
 }
 
 export class UpdateMapTestingRequestDto implements UpdateMapTestingRequest {
   @ApiProperty({ description: 'Whether to accept the request or not' })
   @IsBoolean()
-  accept: boolean;
+  readonly accept: boolean;
 }

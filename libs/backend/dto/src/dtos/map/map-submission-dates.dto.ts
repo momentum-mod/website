@@ -9,29 +9,29 @@ export class MapSubmissionDatesDto implements MapSubmissionDates {
   @ApiProperty({ description: 'Date the map was submitted' })
   @IsDate()
   @Transform(({ value }) => new Date(value))
-  submitted: DateString;
+  readonly submitted: DateString;
 
   @ApiProperty({ description: 'Date the map entered Content Approval' })
   @IsDate()
   @IsOptional()
   @Transform(({ value }) => new Date(value))
-  contentApproval: DateString;
+  readonly contentApproval: DateString;
 
   @ApiProperty({ description: 'Date the map entered Final Approval' })
   @IsDate()
   @IsOptional()
   @Transform(({ value }) => new Date(value))
-  finalApproval: DateString;
+  readonly finalApproval: DateString;
 
   @ApiProperty({ description: 'Date the map entered Public Testing' })
   @IsDate()
   @IsOptional()
   @Transform(({ value }) => new Date(value))
-  publicTesting: DateString;
+  readonly publicTesting: DateString;
 
   @ApiProperty({ description: 'Date the map was approved' })
   @IsDate()
   @IsOptional()
   @Transform(({ value }) => new Date(value))
-  approved: DateString;
+  readonly approved: DateString;
 }
