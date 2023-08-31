@@ -7,3 +7,4 @@ export const MAX_IMAGE_SIZE = 1e7;
 export const MAX_CREDIT_DESCRIPTION_LENGTH = 64;
 export const MAX_REVIEW_LENGTH = 50_000;
 export const MAX_TESTING_REQUESTS = 20;
+export const MAX_CREDITS_EXCEPT_TESTERS = 20;

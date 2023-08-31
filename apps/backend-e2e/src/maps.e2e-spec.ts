@@ -2910,6 +2910,23 @@ describe('Maps', () => {
           token: u1Token
         }));
 
+      for (const type of [
+        MapCreditType.AUTHOR,
+        MapCreditType.CONTRIBUTOR,
+        MapCreditType.SPECIAL_THANKS
+      ]) {
+        it(`should 400 if there are more than ${MAX_CREDITS_EXCEPT_TESTERS} ${MapCreditType[type]} credits`, () =>
+          req.put({
+            url: `maps/${map.id}/credits`,
+            status: 400,
+            // Too long to create > 20 users, this check hits earlier than user existence. allow it
+            body: Array.from(
+              { length: MAX_CREDITS_EXCEPT_TESTERS + 1 },
+              (_, i) => ({ userID: i + 100, type })
+            ),
+            token: u1Token
+          }));
+      }
       it('should 400 if the credited user does not exist', () =>
         req.put({
           url: `maps/${map.id}/credits`,

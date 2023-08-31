@@ -42,5 +42,6 @@ export interface ConfigInterface {
     imageSize: number;
     reviewLength: number;
     testingRequests: number;
+    maxCreditsExceptTesters: number;
   };
 }
