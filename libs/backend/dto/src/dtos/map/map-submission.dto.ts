@@ -1,4 +1,4 @@
-import { ApiProperty } from '@nestjs/swagger';
+import { ApiProperty, PartialType } from '@nestjs/swagger';
 import {
   MapCreditType,
   MapSubmission,
@@ -29,6 +29,10 @@ export class PlaceholderSuggestionDto {
   @EnumProperty(MapCreditType)
   readonly type: MapCreditType;
 }
+
+export class UpdatePlaceholderSuggestionDto extends PartialType(
+  PlaceholderSuggestionDto
+) {}
 
 export class MapSubmissionDto implements MapSubmission {
   @ApiProperty({

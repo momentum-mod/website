@@ -15,7 +15,6 @@ import {
   Prisma
 } from '@prisma/client';
 import { FileStoreService } from '../filestore/file-store.service';
-import { ConfigService } from '@nestjs/config';
 import { RunsService } from '../runs/runs.service';
 import {
   DtoFactory,
@@ -48,18 +47,21 @@ import { Bitflags } from '@momentum/bitflags';
 import { MapTestingRequestState } from '@momentum/constants';
 import {
   expandToIncludes,
+  flattenObject,
   intersection,
   isEmpty,
+  throwIfEmpty,
   undefinedIfEmpty
 } from '@momentum/util-fn';
+import { MapSubmissionService } from './map-submission.service';
 
 @Injectable()
 export class MapsService {
   constructor(
     @Inject(EXTENDED_PRISMA_SERVICE) private readonly db: ExtendedPrismaService,
     private readonly fileStoreService: FileStoreService,
-    private readonly config: ConfigService,
     private readonly runsService: RunsService,
+    private readonly mapSubmissionService: MapSubmissionService,
     @Inject(forwardRef(() => MapImageService))
     private readonly mapImageService: MapImageService
   ) {}
@@ -407,6 +409,55 @@ export class MapsService {
     delete mapObj.ranks;
   }
 
+  async updateAsSubmitter(mapID: number, userID: number, dto: UpdateMapDto) {
+    throwIfEmpty(dto);
+
+    const map = await this.db.mMap.findUnique({
+      where: { id: mapID },
+      include: { submission: true }
+    });
+
+    if (!map) {
+      throw new NotFoundException('Map does not exist');
+    }
+
+    if (userID !== map.submitterID) {
+      throw new ForbiddenException('User is not the map submitter');
+    }
+
+    let update: Prisma.MMapUpdateInput;
+    if (CombinedMapStatuses.IN_SUBMISSION.includes(map.status)) {
+      update = this.mapSubmissionService.getSubmitterUpdateDuringSubmission(
+        map,
+        dto
+      );
+    } else if (map.status === MapStatusNew.APPROVED) {
+      update = this.getSubmitterUpdatePostSubmission(dto);
+    } else {
+      throw new ForbiddenException('Map does not allow editing');
+    }
+
+    await this.db.mMap.update({ where: { id: mapID }, data: update });
+  }
+
+  private getSubmitterUpdatePostSubmission(
+    dto: UpdateMapDto
+  ): Prisma.MMapUpdateInput {
+    const update: Prisma.MapInfoUpdateInput = {};
+
+    for (const [k, v] of Object.entries(flattenObject(dto)))
+      if (v === undefined) continue;
+      else if (k === 'info.description') update.description = v as string;
+      else if (k === 'info.youtubeID') update.youtubeID = v as string;
+      else
+        throw new ForbiddenException(
+          `Modifying property '${k}' is not allowed post-submission`
+        );
+
+    return { info: { update } };
+  }
+
+  // TODO: Delete once /admin/maps PATCH is done.
   async update(
     mapID: number,
     userID: number,
@@ -498,9 +549,7 @@ export class MapsService {
       info: true
     });
 
-    const mapInfo = map.info;
-
-    return DtoFactory(MapInfoDto, mapInfo);
+    return DtoFactory(MapInfoDto, map.info);
   }
 
   async updateInfo(

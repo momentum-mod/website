@@ -4,6 +4,7 @@ import {
   ForbiddenException,
   Inject,
   Injectable,
+  InternalServerErrorException,
   NotFoundException
 } from '@nestjs/common';
 import {
@@ -11,9 +12,16 @@ import {
   CreateMapSubmissionVersionDto,
   DtoFactory,
   MapDto,
-  MapSummaryDto
+  MapSummaryDto,
+  UpdateMapDto
 } from '@momentum/backend/dto';
-import { MapCredit, MapTrack, Prisma } from '@prisma/client';
+import {
+  MapCredit,
+  MapSubmission,
+  MapTrack,
+  MMap,
+  Prisma
+} from '@prisma/client';
 import { EXTENDED_PRISMA_SERVICE } from '../database/db.constants';
 import {
   ExtendedPrismaService,
@@ -29,6 +37,7 @@ import {
   MapCreditType,
   MapStatus,
   MapStatusNew,
+  MapSubmissionDates,
   MapTestingRequestState
 } from '@momentum/constants';
 import { FileStoreCloudService } from '../filestore/file-store-cloud.service';
@@ -36,12 +45,14 @@ import { FileStoreCloudFile } from '../filestore/file-store.interface';
 import { File } from '@nest-lab/fastify-multer';
 import { vdf } from 'fast-vdf';
 import Zip from 'adm-zip';
+import { ConfigService } from '@nestjs/config';
 
 @Injectable()
 export class MapSubmissionService {
   constructor(
     @Inject(EXTENDED_PRISMA_SERVICE) private readonly db: ExtendedPrismaService,
-    private readonly fileStore: FileStoreCloudService
+    private readonly fileStore: FileStoreCloudService,
+    private readonly config: ConfigService
   ) {}
 
   //#region Create/New Versions
@@ -490,6 +501,88 @@ export class MapSubmissionService {
 
   //#endregion
 
+  //#region Updates
+
+  getSubmitterUpdateDuringSubmission(
+    map: MMap & { submission: MapSubmission },
+    dto: UpdateMapDto
+  ): Prisma.MMapUpdateInput {
+    const update: Prisma.MMapUpdateInput = {};
+
+    if (dto.status !== undefined && dto.status !== map.status) {
+      if (
+        map.status === MapStatusNew.PRIVATE_TESTING &&
+        dto.status === MapStatusNew.CONTENT_APPROVAL
+      ) {
+        update.status = MapStatusNew.CONTENT_APPROVAL;
+      } else if (
+        map.status === MapStatusNew.PUBLIC_TESTING &&
+        dto.status === MapStatusNew.FINAL_APPROVAL
+      ) {
+        const currentTime = Date.now();
+        const pubTestTime = new Date(
+          (map.submission.dates as MapSubmissionDates).publicTesting
+        ).getTime();
+
+        if (!pubTestTime) {
+          throw new InternalServerErrorException(
+            'Map is in PUBLIC_TESTING, but has no enteredPublicTesting value'
+          );
+        }
+
+        if (
+          currentTime - pubTestTime <
+          this.config.getOrThrow('limits.minPublicTestingDuration')
+        ) {
+          throw new ForbiddenException(
+            'Map has not been in public testing for mandatory time period'
+          );
+        } else {
+          update.status = MapStatusNew.FINAL_APPROVAL;
+        }
+      } else {
+        throw new ForbiddenException('Invalid status change');
+      }
+    }
+
+    if (dto.name || dto.fileName) {
+      this.fileNameChecks(
+        dto.name ?? dto.fileName,
+        dto.fileName ?? map.fileName
+      );
+    }
+
+    update.fileName = dto.fileName;
+    update.name = dto.name;
+
+    if (dto.info) {
+      update.info = {
+        update: {
+          description: dto.info.description,
+          youtubeID: dto.info.youtubeID,
+          creationDate: dto.info.creationDate
+        }
+      };
+    }
+
+    if (dto.placeholders || dto.suggestions) {
+      update.submission = {
+        update: {
+          placeholders: dto.placeholders,
+          suggestions: dto.suggestions
+        }
+      };
+    }
+
+    if (dto.tracks) {
+      // TODO: Not bothering writing complex DB code for this as the track system is changing so soon.
+    }
+
+    return update;
+  }
+
+  //#endregion
+
   //#region Testing Requests
 
   async updateTestingRequests(
@@ -589,10 +682,6 @@ export class MapSubmissionService {
       }
     });
   }
-
-  //#endregion
-
-  //#region Updates
 
   //#endregion
 
