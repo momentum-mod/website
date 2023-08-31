@@ -7,7 +7,8 @@ import {
   MAX_PENDING_MAPS,
   MAX_VMF_SIZE,
   MAX_REVIEW_LENGTH,
-  MAX_TESTING_REQUESTS
+  MAX_TESTING_REQUESTS,
+  MIN_PUBLIC_TESTING_DURATION,
   MAX_CREDITS_EXCEPT_TESTERS
 } from '@momentum/constants';
 
@@ -61,7 +62,8 @@ export const ConfigFactory = (): ConfigInterface => {
       vmfSize: isTest ? 1e6 : MAX_VMF_SIZE,
       imageSize: isTest ? 1e6 : MAX_IMAGE_SIZE,
       reviewLength: MAX_REVIEW_LENGTH,
-      testingRequests: MAX_TESTING_REQUESTS
+      testingRequests: MAX_TESTING_REQUESTS,
+      minPublicTestingDuration: MIN_PUBLIC_TESTING_DURATION,
       maxCreditsExceptTesters: MAX_CREDITS_EXCEPT_TESTERS
     }
   };

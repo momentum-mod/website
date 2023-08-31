@@ -9,3 +9,5 @@ export interface CreateMapTrack
   extends Pick<MapTrack, 'trackNum' | 'isLinear' | 'numZones' | 'difficulty'> {
   zones: CreateMapZone[];
 }
+
+export type UpdateMapTrack = Partial<CreateMapTrack>;

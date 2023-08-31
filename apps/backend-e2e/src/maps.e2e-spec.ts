@@ -37,7 +37,9 @@ import {
   MapSubmissionType,
   Ban,
   CombinedMapStatuses,
-  MapTestingRequestState
+  MapTestingRequestState,
+  MAX_CREDITS_EXCEPT_TESTERS,
+  MIN_PUBLIC_TESTING_DURATION
 } from '@momentum/constants';
 import { Config } from '@momentum/backend/config';
 // See auth.e2e-spec.ts for justification of this sin
@@ -1637,134 +1639,279 @@ describe('Maps', () => {
     });
 
     describe('PATCH', () => {
-      let user, token;
+      let user, token, u2, u2Token, adminToken, map, createMapData;
 
-      beforeAll(
-        async () =>
-          ([user, token] = await db.createAndLoginUser({
-            data: { roles: Role.MAPPER }
-          }))
-      );
+      beforeAll(async () => {
+        [[user, token], [u2, u2Token], adminToken] = await Promise.all([
+          db.createAndLoginUser(),
+          db.createAndLoginUser(),
+          db.loginNewUser({ data: { roles: Role.ADMIN } })
+        ]);
 
-      afterAll(() => db.cleanup('user'));
+        createMapData = {
+          name: 'map',
+          fileName: 'surf_map',
+          submitter: { connect: { id: user.id } },
+          submission: {
+            create: {
+              type: MapSubmissionType.ORIGINAL,
+              dates: { submitted: new Date().toJSON() },
+              suggestions: {
+                track: 1,
+                gamemode: Gamemode.SURF,
+                tier: 1,
+                ranked: true
+              }
+            }
+          }
+        };
+      });
 
-      // TODO: These will need
-      // describe('Status changes', () => {
-      //   let map;
-      //
-      //   beforeAll(
-      //     async () =>
-      //       (map = await db.createMap({
-      //         submitter: { connect: { id: user.id } }
-      //       }))
-      //   );
-      //   afterAll(() => db.cleanup('mMap'));
-      //
-      //   const statuses = Object.values(MapStatus).filter(
-      //     (v) => typeof v === 'number'
-      //   ) as MapStatus[];
-      //   // Storing number tuple won't pass .has
-      //   const validChanges = new Set([
-      //     MapStatus.NEEDS_REVISION + ',' + MapStatus.READY_FOR_RELEASE
-      //   ]);
-      //
-      //   for (const s1 of statuses) {
-      //     for (const s2 of statuses.filter((s) => s !== s1)) {
-      //       const shouldPass = validChanges.has(s1 + ',' + s2);
-      //
-      //       it(`should ${
-      //         shouldPass ? '' : 'not '
-      //       }allow a mapper to change their map from ${MapStatus[s1]} to ${
-      //         MapStatus[s2]
-      //       }`, async () => {
-      //         await prisma.mMap.update({
-      //           where: { id: map.id },
-      //           data: { status: s1 }
-      //         });
-      //
-      //         await req.patch({
-      //           url: `maps/${map.id}`,
-      //           status: shouldPass ? 204 : 403,
-      //           body: { status: s2 },
-      //           token: token
-      //         });
-      //       });
-      //     }
-      //   }
-      // });
+      afterAll(() => db.cleanup('user', 'mMap'));
 
-      describe('Everything else', () => {
-        afterEach(() => db.cleanup('mMap', 'activity'));
+      afterEach(() => db.cleanup('mMap'));
 
-        it('should allow a mapper set their map status to ready for release', async () => {
-          const map = await db.createMap({
-            status: MapStatus.NEEDS_REVISION,
-            submitter: { connect: { id: user.id } }
-          });
+      for (const status of CombinedMapStatuses.IN_SUBMISSION) {
+        it(`should allow the submitter to change most data during ${MapStatusNew[status]}`, async () => {
+          const map = await db.createMap({ ...createMapData, status });
 
-          const newStatus = MapStatus.READY_FOR_RELEASE;
           await req.patch({
             url: `maps/${map.id}`,
             status: 204,
-            body: { status: newStatus },
-            token: token
+            body: {
+              fileName: 'surf_ostrich',
+              name: 'ostrich',
+              info: {
+                description:
+                  'Ostriches are large flightless birds. They are the heaviest living birds, and lay the largest eggs of any living land animal.',
+                youtubeID: 'rq9WnDq0ap8'
+              },
+              suggestions: [
+                {
+                  track: 1,
+                  gamemode: Gamemode.CONC,
+                  tier: 1,
+                  ranked: true
+                }
+              ],
+              placeholders: [{ type: MapCreditType.CONTRIBUTOR, alias: 'eee' }]
+            },
+            token
           });
 
           const updatedMap = await prisma.mMap.findUnique({
-            where: { id: map.id }
+            where: { id: map.id },
+            include: { info: true, submission: true }
           });
-          expect(updatedMap.status).toEqual(newStatus);
-        });
-
-        it('should return 400 if the status flag is invalid', async () => {
-          const map = await db.createMap({
-            submitter: { connect: { id: user.id } }
-          });
-
-          await req.patch({
-            url: `maps/${map.id}`,
-            status: 400,
-            body: { status: 3000 },
-            token: token
-          });
-        });
-
-        it('should return 403 if the map was not submitted by that user', async () => {
-          const map = await db.createMap({ status: MapStatus.NEEDS_REVISION });
-
-          await req.patch({
-            url: `maps/${map.id}`,
-            status: 403,
-            body: { status: MapStatus.READY_FOR_RELEASE },
-            token: token
+          expect(updatedMap).toMatchObject({
+            name: 'ostrich',
+            fileName: 'surf_ostrich',
+            info: {
+              description:
+                'Ostriches are large flightless birds. They are the heaviest living birds, and lay the largest eggs of any living land animal.',
+              youtubeID: 'rq9WnDq0ap8'
+            },
+            submission: {
+              suggestions: [
+                {
+                  track: 1,
+                  gamemode: Gamemode.CONC,
+                  tier: 1,
+                  ranked: true
+                }
+              ],
+              placeholders: [{ type: MapCreditType.CONTRIBUTOR, alias: 'eee' }]
+            }
           });
         });
+      }
 
-        it('should return 403 if the user does not have the mapper role', async () => {
-          const [u2, u2Token] = await db.createAndLoginUser();
-          const map2 = await db.createMap({
-            submitter: { connect: { id: u2.id } }
-          });
-
-          await req.patch({
-            url: `maps/${map2.id}`,
-            status: 403,
-            body: { status: MapStatus.READY_FOR_RELEASE },
-            token: u2Token
-          });
+      it('should only allow updating minor info once APPROVED', async () => {
+        const map = await db.createMap({
+          ...createMapData,
+          status: MapStatusNew.APPROVED
         });
 
-        it('should 404 when the map is not found', () =>
-          req.patch({
-            url: `maps/${NULL_ID}`,
-            status: 404,
-            body: { status: MapStatus.READY_FOR_RELEASE },
-            token: token
-          }));
+        await req.patch({
+          url: `maps/${map.id}`,
+          status: 204,
+          body: {
+            info: {
+              description:
+                'Ostriches are large flightless birds. They are the heaviest living birds, and lay the largest eggs of any living land animal.',
+              youtubeID: 'rq9WnDq0ap8'
+            }
+          },
+          token
+        });
 
-        it('should 401 when no access token is provided', () =>
-          req.unauthorizedTest('maps/1', 'patch'));
+        await req.patch({
+          url: `maps/${map.id}`,
+          status: 403,
+          body: { fileName: 'eeeee' },
+          token
+        });
       });
+
+      it('should always 409 if map is DISABLED', async () => {
+        const map = await db.createMap({
+          ...createMapData,
+          status: MapStatusNew.DISABLED
+        });
+
+        await req.patch({
+          url: `maps/${map.id}`,
+          status: 403,
+          body: { info: { youtubeID: 'rq9WnDq0ap8' } },
+          token
+        });
+      });
+
+      it('should always 409 if map is REJECTED', async () => {
+        const map = await db.createMap({
+          ...createMapData,
+          status: MapStatusNew.REJECTED
+        });
+
+        await req.patch({
+          url: `maps/${map.id}`,
+          status: 403,
+          body: { info: { youtubeID: 'rq9WnDq0ap8' } },
+          token
+        });
+      });
+
+      const statuses = Enum.values(MapStatusNew);
+      // Storing number tuple won't pass .has
+      const validChanges = new Set([
+        MapStatusNew.PRIVATE_TESTING + ',' + MapStatusNew.CONTENT_APPROVAL
+      ]);
+
+      for (const s1 of statuses) {
+        for (const s2 of statuses.filter((s) => s !== s1)) {
+          const shouldPass = validChanges.has(s1 + ',' + s2);
+
+          it(`should ${
+            shouldPass ? '' : 'not '
+          }allow a user to change their map from ${MapStatusNew[s1]} to ${
+            MapStatusNew[s2]
+          }`, async () => {
+            const map = await db.createMap({
+              ...createMapData,
+              status: s1,
+              submission: {
+                create: {
+                  dates: { submission: Date.now(), publicTesting: Date.now() },
+                  type: MapSubmissionType.PORT,
+                  suggestions: {
+                    track: 1,
+                    gamemode: Gamemode.SURF,
+                    tier: 10,
+                    ranked: true
+                  }
+                }
+              }
+            });
+
+            await req.patch({
+              url: `maps/${map.id}`,
+              status: shouldPass ? 204 : 403,
+              body: { status: s2 },
+              token
+            });
+
+            if (shouldPass) {
+              const updatedMap = await prisma.mMap.findUnique({
+                where: { id: map.id }
+              });
+              expect(updatedMap.status).toBe(s2);
+            }
+          });
+        }
+      }
+
+      it("should allow a user to change to their map from PUBLIC_TESTING to FINAL_APPROVAL if it's been in testing for required time period", async () => {
+        const map = await db.createMap({
+          ...createMapData,
+          status: MapStatusNew.PUBLIC_TESTING,
+          submission: {
+            create: {
+              dates: {
+                publicTesting: Date.now() - (MIN_PUBLIC_TESTING_DURATION + 1000)
+              },
+              type: MapSubmissionType.PORT,
+              suggestions: {
+                track: 1,
+                gamemode: Gamemode.SURF,
+                tier: 10,
+                ranked: true
+              }
+            }
+          }
+        });
+
+        await req.patch({
+          url: `maps/${map.id}`,
+          status: 204,
+          body: { status: MapStatusNew.FINAL_APPROVAL },
+          token
+        });
+
+        const updatedMap = await prisma.mMap.findUnique({
+          where: { id: map.id }
+        });
+        expect(updatedMap.status).toBe(MapStatusNew.FINAL_APPROVAL);
+      });
+
+      it('should return 400 if the status flag is invalid', async () => {
+        const map = await db.createMap({
+          submitter: { connect: { id: user.id } }
+        });
+
+        await req.patch({
+          url: `maps/${map.id}`,
+          status: 400,
+          body: { status: 3000 },
+          token: token
+        });
+      });
+
+      it('should return 403 if the map was not submitted by that user', async () => {
+        const map = await db.createMap({
+          status: MapStatusNew.PRIVATE_TESTING
+        });
+
+        await req.patch({
+          url: `maps/${map.id}`,
+          status: 403,
+          body: { status: MapStatusNew.CONTENT_APPROVAL },
+          token: u2Token
+        });
+      });
+
+      it('should return 403 if the map was not submitted by that user even for an admin', async () => {
+        const map = await db.createMap({
+          status: MapStatusNew.PRIVATE_TESTING
+        });
+
+        await req.patch({
+          url: `maps/${map.id}`,
+          status: 403,
+          body: { status: MapStatusNew.CONTENT_APPROVAL },
+          token: adminToken
+        });
+      });
+
+      it('should 404 when the map is not found', () =>
+        req.patch({
+          url: `maps/${NULL_ID}`,
+          status: 404,
+          body: { status: MapStatusNew.CONTENT_APPROVAL },
+          token: token
+        }));
+
+      it('should 401 when no access token is provided', () =>
+        req.unauthorizedTest('maps/1', 'patch'));
     });
   });
 

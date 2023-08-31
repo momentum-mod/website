@@ -94,7 +94,7 @@ export class MapsController {
     private readonly ranksService: RanksService
   ) {}
 
-  //#region Get Maps
+  //#region Maps
 
   @Get()
   @ApiOperation({ summary: 'Retrieve a paginated list of approved maps' })
@@ -122,6 +122,29 @@ export class MapsController {
     @Query() query?: MapsGetQueryDto
   ): Promise<MapDto> {
     return this.mapsService.get(mapID, userID, query.expand);
+  }
+
+  @Patch('/:mapID')
+  @HttpCode(HttpStatus.NO_CONTENT)
+  @ApiOperation({ summary: "Updates a single map's status flag" })
+  @ApiParam({
+    name: 'mapID',
+    type: Number,
+    description: 'Target Map ID',
+    required: true
+  })
+  @ApiNoContentResponse({ description: 'Map status updated successfully' })
+  @ApiNotFoundResponse({ description: 'Map was not found' })
+  @ApiForbiddenResponse({ description: 'User is not the submitter of the map' })
+  @ApiBadRequestResponse({
+    description: "Map's status does not allow updating"
+  })
+  updateMap(
+    @LoggedInUser('id') userID: number,
+    @Param('mapID', ParseIntSafePipe) mapID: number,
+    @Body() body: UpdateMapDto
+  ): Promise<void> {
+    return this.mapsService.updateAsSubmitter(mapID, userID, body);
   }
 
   //#endregion
@@ -233,30 +256,6 @@ export class MapsController {
         throw new BadRequestException(`VMF file too large (> ${maxVmfSize})`);
       }
     }
-  }
-
-  @Patch('/:mapID')
-  @HttpCode(HttpStatus.NO_CONTENT)
-  @Roles(Role.MAPPER, Role.MODERATOR, Role.ADMIN)
-  @ApiOperation({ summary: "Updates a single map's status flag" })
-  @ApiParam({
-    name: 'mapID',
-    type: Number,
-    description: 'Target Map ID',
-    required: true
-  })
-  @ApiNoContentResponse({ description: 'Map status updated successfully' })
-  @ApiNotFoundResponse({ description: 'Map was not found' })
-  @ApiForbiddenResponse({ description: 'User is not the submitter of the map' })
-  @ApiBadRequestResponse({
-    description: "Map's status does not allow updating"
-  })
-  updateMap(
-    @LoggedInUser('id') userID: number,
-    @Param('mapID', ParseIntSafePipe) mapID: number,
-    @Body() body: UpdateMapDto
-  ): Promise<void> {
-    return this.mapsService.update(mapID, userID, body);
   }
 
   @Put('/:mapID/testRequest')

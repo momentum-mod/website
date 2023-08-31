@@ -1,6 +1,6 @@
-﻿import { CreateMapTrack, MapTrack } from '@momentum/constants';
+﻿import { CreateMapTrack, MapTrack, UpdateMapTrack } from '@momentum/constants';
 import { Exclude } from 'class-transformer';
-import { ApiProperty, PickType } from '@nestjs/swagger';
+import { ApiProperty, PartialType, PickType } from '@nestjs/swagger';
 import {
   ArrayMinSize,
   IsArray,
@@ -67,3 +67,7 @@ export class CreateMapTrackDto
   @ArrayMinSize(2)
   readonly zones: CreateMapZoneDto[];
 }
+
+export class UpdateMapTrackDto
+  extends PartialType(CreateMapTrackDto)
+  implements UpdateMapTrack {}

@@ -53,5 +53,18 @@ export interface CreateMap extends Pick<MMap, 'name' | 'fileName'> {
   credits: CreateMapCredit[];
 }
 
-// TODO: redo during /maps patch
-export type UpdateMap = Pick<MMap, 'status'>;
+export type UpdateMap = Partial<
+  Pick<
+    CreateMap,
+    | 'name'
+    | 'fileName'
+    | 'suggestions'
+    | 'placeholders'
+    | 'testInvites'
+    | 'info'
+    | 'credits'
+    | 'tracks'
+  >
+> & {
+  status: MapStatusNew;
+};

@@ -10,7 +10,7 @@ import {
 } from '@momentum/constants';
 import { UserDto } from '../user/user.dto';
 import { MapImageDto } from './map-image.dto';
-import { ApiProperty, PickType } from '@nestjs/swagger';
+import { ApiProperty, PartialType, PickType } from '@nestjs/swagger';
 import {
   ArrayMinSize,
   IsArray,
@@ -24,8 +24,12 @@ import {
   IsString,
   IsUrl
 } from 'class-validator';
-import { CreateMapInfoDto, MapInfoDto } from './map-info.dto';
-import { CreateMapTrackDto, MapTrackDto } from './map-track.dto';
+import { CreateMapInfoDto, MapInfoDto, UpdateMapInfoDto } from './map-info.dto';
+import {
+  CreateMapTrackDto,
+  MapTrackDto,
+  UpdateMapTrackDto
+} from './map-track.dto';
 import { CreateMapCreditDto, MapCreditDto } from './map-credit.dto';
 import { MapFavoriteDto } from './map-favorite.dto';
 import { MapLibraryEntryDto } from './map-library-entry';
@@ -43,7 +47,8 @@ import {
 import { IsMapName } from '@momentum/backend/validators';
 import {
   MapSubmissionDto,
-  PlaceholderSuggestionDto
+  PlaceholderSuggestionDto,
+  UpdatePlaceholderSuggestionDto
 } from './map-submission.dto';
 import { MapSubmissionSuggestionDto } from './map-submission-suggestion.dto';
 
@@ -240,5 +245,23 @@ export class CreateMapWithFilesDto implements CreateMapWithFiles {
   readonly data: CreateMapDto;
 }
 
-// TODO: Shit
-export class UpdateMapDto extends PickType(MapDto, ['status'] as const) {}
+export class UpdateMapDto extends PartialType(
+  PickType(CreateMapDto, ['name', 'fileName', 'suggestions'] as const)
+) {
+  @NestedProperty(UpdatePlaceholderSuggestionDto, { required: true })
+  readonly placeholders: UpdatePlaceholderSuggestionDto[];
+
+  @NestedProperty(UpdateMapInfoDto)
+  @IsOptional()
+  readonly info: UpdateMapInfoDto;
+
+  @NestedProperty(CreateMapTrackDto, { isArray: true })
+  @IsArray()
+  @ArrayMinSize(1)
+  @IsOptional()
+  readonly tracks: UpdateMapTrackDto[];
+
+  @EnumProperty(MapStatusNew)
+  @IsOptional()
+  readonly status: MapStatusNew;
+}
