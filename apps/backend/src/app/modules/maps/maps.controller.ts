@@ -418,33 +418,6 @@ export class MapsController {
     return this.mapsService.getInfo(mapID, userID);
   }
 
-  @Patch('/:mapID/info')
-  @Roles(Role.MAPPER, Role.MODERATOR, Role.ADMIN)
-  @HttpCode(HttpStatus.NO_CONTENT)
-  @ApiOperation({ summary: 'Update the map info' })
-  @ApiBody({
-    type: UpdateMapInfoDto,
-    description: 'Update map info data transfer object',
-    required: true
-  })
-  @ApiNoContentResponse({
-    description: 'The map info was successfully updated'
-  })
-  @ApiBadRequestResponse({ description: 'Invalid update data' })
-  @ApiForbiddenResponse({ description: 'Map is not in NEEDS_REVISION state' })
-  @ApiForbiddenResponse({ description: 'User does not have the mapper role' })
-  @ApiForbiddenResponse({
-    description: 'User is not the submitter of this map'
-  })
-  @ApiNotFoundResponse({ description: 'Map not found' })
-  updateInfo(
-    @LoggedInUser('id') userID: number,
-    @Body() updateDto: UpdateMapInfoDto,
-    @Param('mapID', ParseIntSafePipe) mapID: number
-  ): Promise<void> {
-    return this.mapsService.updateInfo(mapID, updateDto, userID);
-  }
-
   //#endregion
 
   //#region Zones

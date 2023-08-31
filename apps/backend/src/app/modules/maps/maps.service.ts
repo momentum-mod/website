@@ -1,5 +1,4 @@
 import {
-  BadRequestException,
   ForbiddenException,
   forwardRef,
   Inject,
@@ -26,7 +25,6 @@ import {
   MapTrackDto,
   PagedResponseDto,
   UpdateMapDto,
-  UpdateMapInfoDto,
   MapsGetAllSubmissionAdminQueryDto
 } from '@momentum/backend/dto';
 import {
@@ -550,34 +548,6 @@ export class MapsService {
     });
 
     return DtoFactory(MapInfoDto, map.info);
-  }
-
-  async updateInfo(
-    mapID: number,
-    mapInfo: UpdateMapInfoDto,
-    userID: number
-  ): Promise<void> {
-    if (!mapInfo.description && !mapInfo.youtubeID && !mapInfo.creationDate)
-      throw new BadRequestException('Request contains no valid update data');
-
-    const map = await this.db.mMap.findUnique({ where: { id: mapID } });
-
-    if (!map) throw new NotFoundException('Map not found');
-
-    if (map.submitterID !== userID)
-      throw new ForbiddenException('User is not the submitter of the map');
-
-    if (map.status !== MapStatus.NEEDS_REVISION)
-      throw new ForbiddenException('Map is not in NEEDS_REVISION state');
-
-    const data: Prisma.MapInfoUpdateInput = {};
-
-    if (mapInfo.description) data.description = mapInfo.description;
-    if (mapInfo.youtubeID) data.youtubeID = mapInfo.youtubeID;
-    if (mapInfo.creationDate)
-      data.creationDate = new Date(mapInfo.creationDate);
-
-    await this.db.mapInfo.update({ where: { mapID }, data });
   }
 
   //#endregion
