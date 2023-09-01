@@ -29,11 +29,11 @@ export interface ImageFilePreview {
 const youtubeRegex = /[\w-]{11}/;
 
 @Component({
-  selector: 'mom-map-upload-form',
-  templateUrl: './map-upload-form.component.html',
-  styleUrls: ['./map-upload-form.component.scss']
+  selector: 'mom-map-submission-form',
+  templateUrl: './map-submission-form.component.html',
+  styleUrls: ['./map-submission-form.component.scss']
 })
-export class MapUploadFormComponent implements OnInit, AfterViewInit {
+export class MapSubmissionFormComponent implements OnInit, AfterViewInit {
   protected readonly FileUploadType = FileUploadType;
   protected readonly MapType = Gamemode;
 

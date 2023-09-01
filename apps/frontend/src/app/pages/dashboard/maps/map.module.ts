@@ -6,8 +6,8 @@ import { MapRoutingModule } from './map-routing.module';
 import { GalleryModule } from 'ng-gallery';
 import { LightboxModule } from 'ng-gallery/lightbox';
 import { ViewMapsComponent } from './view-maps/view-maps.component';
-import { MapUploadFormComponent } from './upload-form/map-upload-form.component';
-import { UploadStatusComponent } from './upload-status/upload-status.component';
+import { MapSubmissionFormComponent } from './submission-form/map-submission-form.component';
+import { MapSubmissionStatusComponent } from './submission-status/map-submission-status.component';
 import { MapInfoComponent } from './map-info/map-info.component';
 import { MapNotifyEditComponent } from './map-info/map-info-notify-edit/map-info-notify-edit.component';
 import {
@@ -46,8 +46,8 @@ import { SharedModule } from '../../../shared.module';
   declarations: [
     MapComponent,
     ViewMapsComponent,
-    MapUploadFormComponent,
-    UploadStatusComponent,
+    MapSubmissionFormComponent,
+    MapSubmissionStatusComponent,
     MapInfoComponent,
     MapNotifyEditComponent,
     MapCreditsComponent,
