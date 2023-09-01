@@ -85,6 +85,11 @@
                 >Ban submitting to leaderboards</nb-checkbox
               >
             </li>
+            <li>
+              <nb-checkbox (change)="toggleBan(Ban.MAP_SUBMISSION)" formControlName="banMapSubmission"
+                >Ban submitting maps</nb-checkbox
+              >
+            </li>
           </ul>
         </div>
         <div class="col col-md-3">
