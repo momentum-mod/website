@@ -107,7 +107,7 @@ export class MapSubmissionFormComponent implements OnInit, AfterViewInit {
   constructor(
     private mapsService: MapsService,
     private router: Router,
-    private localUsrService: LocalUserService,
+    private localUserService: LocalUserService,
     private toasterService: NbToastrService,
     private fb: FormBuilder
   ) {
@@ -378,7 +378,7 @@ export class MapSubmissionFormComponent implements OnInit, AfterViewInit {
             user: credit.user
           }))
         ),
-        submitter: this.localUsrService.localUser
+        submitter: this.localUserService.localUser
       },
       images: []
     };
