@@ -173,7 +173,7 @@ export class AdminService {
 
     const updateInput: Prisma.UserUpdateInput = {};
 
-    if (update.bans) updateInput.bans = update.bans;
+    if (update.bans !== undefined) updateInput.bans = update.bans;
 
     let newRoles: number;
 
