@@ -38,10 +38,7 @@ export const MENU_ITEMS: NbMenuItem[] = [
         title: 'Map Uploads',
         icon: 'cloud-upload-outline',
         link: '/dashboard/maps/uploads',
-        pathMatch: 'prefix',
-        data: {
-          roles: [Role.MAPPER, Role.ADMIN]
-        }
+        pathMatch: 'prefix'
       },
       {
         title: 'Browse Maps',
