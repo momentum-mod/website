@@ -3,8 +3,16 @@
     <div class="row">
       <h2 class="col-auto">Uploads</h2>
       <div class="col">
-        <button nbButton outline status="info" class="float-right" type="button" routerLink="/dashboard/maps/uploads/new">
+        <button
+          nbButton
+          outline
+          status="info"
+          class="float-right"
+          type="button"
           routerLink="/dashboard/maps/submissions/submit"
+          [disabled]="hasSubmissionBan"
+          [nbTooltip]="hasSubmissionBan && 'You are banned from map submission'"
+        >
           Upload a Map
         </button>
       </div>
