@@ -37,7 +37,7 @@ export const MENU_ITEMS: NbMenuItem[] = [
       {
         title: 'Map Uploads',
         icon: 'cloud-upload-outline',
-        link: '/dashboard/maps/uploads',
+        link: '/dashboard/maps/submissions',
         pathMatch: 'prefix'
       },
       {
