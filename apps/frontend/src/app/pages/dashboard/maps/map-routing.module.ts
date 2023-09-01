@@ -7,8 +7,6 @@ import { MapSubmissionFormComponent } from './submission-form/map-submission-for
 import { MapSubmissionStatusComponent } from './submission-status/map-submission-status.component';
 import { MapInfoComponent } from './map-info/map-info.component';
 import { MapEditComponent } from './map-edit/map-edit.component';
-import { RoleGuard } from '../../../guards/role.guard';
-import { Role } from '@momentum/constants';
 
 @NgModule({
   imports: [
@@ -20,8 +18,6 @@ import { Role } from '@momentum/constants';
           { path: '', pathMatch: 'full', component: ViewMapsComponent },
           {
             path: 'uploads',
-            canActivate: [RoleGuard],
-            data: { roles: [Role.MAPPER, Role.ADMIN] },
             children: [
               { path: '', component: MapSubmissionStatusComponent },
               { path: 'new', component: MapSubmissionFormComponent }
