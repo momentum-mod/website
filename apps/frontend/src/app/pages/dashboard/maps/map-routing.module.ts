@@ -3,8 +3,8 @@ import { NgModule } from '@angular/core';
 import { MapComponent } from './map.component';
 import { NotFoundDashboardComponent } from '../../not-found/dashboard/not-found-dashboard.component';
 import { ViewMapsComponent } from './view-maps/view-maps.component';
-import { MapUploadFormComponent } from './upload-form/map-upload-form.component';
-import { UploadStatusComponent } from './upload-status/upload-status.component';
+import { MapSubmissionFormComponent } from './submission-form/map-submission-form.component';
+import { MapSubmissionStatusComponent } from './submission-status/map-submission-status.component';
 import { MapInfoComponent } from './map-info/map-info.component';
 import { MapEditComponent } from './map-edit/map-edit.component';
 import { RoleGuard } from '../../../guards/role.guard';
@@ -23,8 +23,8 @@ import { Role } from '@momentum/constants';
             canActivate: [RoleGuard],
             data: { roles: [Role.MAPPER, Role.ADMIN] },
             children: [
-              { path: '', component: UploadStatusComponent },
-              { path: 'new', component: MapUploadFormComponent }
+              { path: '', component: MapSubmissionStatusComponent },
+              { path: 'new', component: MapSubmissionFormComponent }
             ]
           },
           { path: ':id', component: MapInfoComponent },
