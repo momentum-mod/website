@@ -17,10 +17,10 @@ import { MapEditComponent } from './map-edit/map-edit.component';
         children: [
           { path: '', pathMatch: 'full', component: ViewMapsComponent },
           {
-            path: 'uploads',
+            path: 'submissions',
             children: [
               { path: '', component: MapSubmissionStatusComponent },
-              { path: 'new', component: MapSubmissionFormComponent }
+              { path: 'submit', component: MapSubmissionFormComponent }
             ]
           },
           { path: ':id', component: MapInfoComponent },
