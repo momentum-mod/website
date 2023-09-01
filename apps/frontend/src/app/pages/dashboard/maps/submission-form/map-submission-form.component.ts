@@ -13,8 +13,11 @@ import { FileUploadType } from '../../../../components/file-upload/file-upload.c
 import { LocalUserService, MapsService } from '@momentum/frontend/data';
 import {
   MapCreditType,
-  Gamemode,
+  MapImage,
   GamemodeName,
+  MapTypePrefix,
+  MapZoneTrigger,
+  MMap,
   ZoneType
 } from '@momentum/constants';
 import { GamemodePrefix } from '@momentum/constants';
@@ -133,6 +136,11 @@ export class MapSubmissionFormComponent implements OnInit, AfterViewInit {
     this.youtubeURL.valueChanges.subscribe(() => this.generatePreviewMap());
     this.creditsForm.valueChanges.subscribe(() => this.generatePreviewMap());
     this.infoForm.valueChanges.subscribe(() => this.generatePreviewMap());
+
+    if (this.localUserService.hasBan(Ban.MAP_SUBMISSION)) {
+      this.router.navigate(['/dashboard']);
+      this.toasterService.danger('You are banned from map submission');
+    }
   }
 
   onMapFileSelected(file: File) {
