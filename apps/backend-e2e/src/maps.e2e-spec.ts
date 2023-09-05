@@ -3459,4 +3459,86 @@ describe('Maps', () => {
         }));
     });
   });
+  describe('POST', () => {
+    let u1,
+      u1Token,
+      u2,
+      u2Token,
+      u3,
+      u3Token,
+      u4,
+      u4Token,
+      map1,
+      map2,
+      map3,
+      map4,
+      map5;
+    beforeAll(async () => {
+      [[u1, u1Token], [u2, u2Token], [u3, u3Token], [u4, u4Token]] =
+        await Promise.all([
+          db.createAndLoginUser({ data: { roles: Role.MAPPER } }),
+          db.createAndLoginUser({ data: { roles: Role.REVIEWER } }),
+          db.createAndLoginUser({ data: { roles: Role.ADMIN } }),
+          db.createAndLoginUser()
+        ]);
+      // public testing map
+      map1 = await db.createMap({
+        status: MapStatusNew.PUBLIC_TESTING,
+        submitter: { connect: { id: u1.id } }
+      });
+
+      // private testing
+      map2 = await db.createMap({
+        status: MapStatusNew.PRIVATE_TESTING,
+        submitter: { connect: { id: u1.id } }
+      });
+
+      // content approval
+      map3 = await db.createMap({
+        status: MapStatusNew.CONTENT_APPROVAL,
+        submitter: { connect: { id: u1.id } }
+      });
+
+      // final approval
+      map4 = await db.createMap({
+        status: MapStatusNew.FINAL_APPROVAL,
+        submitter: { connect: { id: u1.id } }
+      });
+
+      // rejected (review writes are not allowed)
+      map5 = await db.createMap({
+        status: MapStatusNew.REJECTED,
+        submitter: { connect: { id: u1.id } }
+      });
+    });
+
+    it('should create a review on map currently under public testing', async () => {
+      req.post({
+        url: `maps/${map1.id}/reviews`,
+        status: 201,
+        body: { mainText: 'Public testing review test' },
+        token: u4Token
+      });
+    });
+
+    it('should create a review on map currently under private testing', async () => {
+      req.post({
+        url: `maps/${map2.id}/reviews`,
+        status: 201,
+        body: { mainText: 'Private testing review test' },
+        token: u3Token
+      });
+    });
+
+    it('should throw unauthorized exception for u4 when creating review for private testing map', async () => {
+      req.post({
+        url: `maps/${map2.id}/reviews`,
+        status: 401,
+        body: { mainText: 'Private testing review test' },
+        token: u4Token
+      });
+    });
+
+    afterAll(() => db.cleanup('mMap', 'user', 'mapReview'));
+  });
 });

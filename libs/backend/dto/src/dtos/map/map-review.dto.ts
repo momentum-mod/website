@@ -11,6 +11,7 @@ import { MapDto } from './map.dto';
 import { MapReviewEditDto } from './map-review-edit.dto';
 import { MapReviewCommentDto } from './map-review-comment.dto';
 import { MapReviewSuggestionDto } from './map-review-suggestions.dto';
+import { PickType } from '@nestjs/swagger';
 
 export class MapReviewDto {
   @IdProperty()
@@ -70,3 +71,5 @@ export class MapReviewDto {
   @UpdatedAtProperty()
   readonly updatedAt: Date;
 }
+
+export class CreateMapReviewDto extends PickType(MapReviewDto, ['mainText']) {}
