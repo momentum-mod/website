@@ -14,6 +14,7 @@ export * from './map/map-favorite.model';
 export * from './map/map-submission.model';
 export * from './map/map-submission-suggestion.model';
 export * from './map/map-submission-version.model';
+export * from './map/map-review.model';
 export * from './map/map-review-edit.model';
 export * from './map/map-review-comment.model';
 export * from './map/map-review-suggestion.model';
