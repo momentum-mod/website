@@ -18,7 +18,7 @@ export class MapReviewService {
     private readonly mapsService: MapsService
   ) {}
 
-  async getReviews(
+  async getAllReviews(
     mapID: number,
     userID: number,
     query: MapReviewsGetQueryDto
