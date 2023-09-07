@@ -721,7 +721,7 @@ export class MapsController {
     @LoggedInUser('id') userID: number,
     @Query() query?: MapReviewsGetQueryDto
   ): Promise<PagedResponseDto<MapReviewDto>> {
-    return this.mapReviewService.getReviews(mapID, userID, query);
+    return this.mapReviewService.getAllReviews(mapID, userID, query);
   }
 
   //endregion
