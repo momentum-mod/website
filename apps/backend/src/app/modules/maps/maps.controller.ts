@@ -54,6 +54,7 @@ import {
   MapRankGetNumberQueryDto,
   MapRanksGetQueryDto,
   MapReviewDto,
+  MapReviewGetIdDto,
   MapReviewsGetQueryDto,
   MapsCtlGetAllQueryDto,
   MapsGetQueryDto,
@@ -722,6 +723,33 @@ export class MapsController {
     @Query() query?: MapReviewsGetQueryDto
   ): Promise<PagedResponseDto<MapReviewDto>> {
     return this.mapReviewService.getAllReviews(mapID, userID, query);
+  }
+
+  @Get('/:mapID/reviews/:reviewID')
+  @ApiOperation({ summary: 'Returns the requested review' })
+  @ApiParam({
+    name: 'mapID',
+    type: Number,
+    description: 'Target Map ID',
+    required: true
+  })
+  @ApiParam({
+    name: 'reviewID',
+    type: Number,
+    description: 'Target Review ID',
+    required: true
+  })
+  @ApiOkResponse({ description: 'The requested review of the map' })
+  @ApiNotFoundResponse({
+    description: 'Either the map or review was not found'
+  })
+  getReview(
+    @Param('mapID', ParseIntSafePipe) mapID: number,
+    @Param('reviewID', ParseIntSafePipe) reviewID: number,
+    @LoggedInUser('id') userID: number,
+    @Query() query?: MapReviewGetIdDto
+  ): Promise<MapReviewDto> {
+    return this.mapReviewService.getReview(mapID, reviewID, userID, query);
   }
 
   //endregion

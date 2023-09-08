@@ -6,7 +6,8 @@ import {
   MapReviewsGetExpand,
   MapCreditsGetExpand,
   MapsGetExpand,
-  AdminMapsGetAllExpand
+  AdminMapsGetAllExpand,
+  MapReviewGetIdQuery
 } from '@momentum/constants';
 import {
   AdminMapsGetAllQuery,
@@ -178,6 +179,11 @@ export class MapReviewsGetQueryDto
   })
   readonly official?: boolean;
 
+  @ExpandQueryProperty(['map', 'reviewer'])
+  readonly expand?: MapReviewsGetExpand;
+}
+
+export class MapReviewGetIdDto implements MapReviewGetIdQuery {
   @ExpandQueryProperty(['map', 'reviewer'])
   readonly expand?: MapReviewsGetExpand;
 }

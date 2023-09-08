@@ -78,3 +78,7 @@ export type MapReviewsGetQuery = {
   official?: boolean;
   expand?: string[];
 };
+
+export type MapReviewGetIdQuery = {
+  expand?: string[];
+};
