@@ -1,6 +1,8 @@
-import { Inject, Injectable } from '@nestjs/common';
+import { Inject, Injectable, NotFoundException } from '@nestjs/common';
 import {
+  DtoFactory,
   MapReviewDto,
+  MapReviewGetIdDto,
   MapReviewsGetQueryDto,
   PagedResponseDto
 } from '@momentum/backend/dto';
@@ -70,5 +72,25 @@ export class MapReviewService {
       for (const review of filteredResponse) delete review.reviewer;
 
     return new PagedResponseDto(MapReviewDto, [paginatedResponse, totalCount]);
+  }
+
+  async getReview(
+    mapID: number,
+    reviewID: number,
+    userID: number,
+    query: MapReviewGetIdDto
+  ): Promise<MapReviewDto> {
+    await this.mapsService.getMapAndCheckReadAccess(mapID, userID);
+
+    const review = await this.db.mapReview.findFirst({
+      where: { id: reviewID, mapID },
+      include: expandToIncludes(query.expand, {
+        mappings: [{ expand: 'map', model: 'mmap' }]
+      })
+    });
+
+    if (!review) throw new NotFoundException('Review not found');
+
+    return DtoFactory(MapReviewDto, review);
   }
 }
