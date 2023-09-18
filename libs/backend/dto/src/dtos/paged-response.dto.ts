@@ -3,6 +3,7 @@ import { ApiOkResponse, ApiProperty, getSchemaPath } from '@nestjs/swagger';
 import { SchemaObject } from '@nestjs/swagger/dist/interfaces/open-api-spec.interface';
 import { IsArray, IsInt } from 'class-validator';
 import { DtoFactory } from '../functions';
+import { PagedResponse } from '@momentum/constants';
 
 export const ApiOkPagedResponse = <TModel extends Type>(
   model: TModel,
@@ -29,7 +30,7 @@ export const ApiOkPagedResponse = <TModel extends Type>(
   );
 };
 
-export class PagedResponseDto<T> {
+export class PagedResponseDto<T> implements PagedResponse<T> {
   @ApiProperty({
     type: Number,
     description: 'The total number of results found'
