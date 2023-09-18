@@ -450,8 +450,8 @@ model MapSubmission {
 
   type Int @db.SmallInt /// map-submission-type.enum.ts
 
-  suggestions  Json /// map-submission-suggestions.model.ts
-  placeholders Json?
+  suggestions  Json  @default("[]") /// Array of map-submission-suggestions.model.ts
+  placeholders Json? /// Array of map-submission-placeholder.model.ts
   dates        Json  @default("[]") /// Array of map-submission-dates.model.ts
 
   versions MapSubmissionVersion[]
