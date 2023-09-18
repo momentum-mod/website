@@ -15,6 +15,7 @@ import { Prisma } from '@prisma/client';
 import { Bitflags } from '@momentum/bitflags';
 import {
   ActivityType,
+  CombinedMapStatuses,
   CombinedRoles,
   MapCreditsGetExpand,
   MapCreditType
@@ -111,10 +112,7 @@ export class MapCreditsService {
         throw new ForbiddenException('User is not the submitter of this map');
       }
 
-      if (
-        map.status === MapStatusNew.DISABLED ||
-        map.status === MapStatusNew.REJECTED
-      ) {
+      if (!CombinedMapStatuses.IN_SUBMISSION.includes(map.status)) {
         throw new ForbiddenException('Cannot change map in its current state');
       }
     }
