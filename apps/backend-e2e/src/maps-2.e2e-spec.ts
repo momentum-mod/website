@@ -228,7 +228,7 @@ describe('Maps Part 2', () => {
         modToken = await db.loginNewUser({ data: { roles: Role.MODERATOR } });
         map = await db.createMap({
           submitter: { connect: { id: u1.id } },
-          status: MapStatusNew.APPROVED
+          status: MapStatusNew.PRIVATE_TESTING
         });
         newMapCredit = [
           {
