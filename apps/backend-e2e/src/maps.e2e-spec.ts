@@ -70,7 +70,6 @@ describe('Maps', () => {
             credits: { create: { type: 0, userID: u1.id } }
           }),
           db.createMap({ status: MapStatusNew.PRIVATE_TESTING }),
-          db.createMap({ status: MapStatusNew.REJECTED }),
           db.createMap({ status: MapStatusNew.DISABLED }),
           db.createMap({ status: MapStatusNew.FINAL_APPROVAL }),
           db.createMap({ status: MapStatusNew.CONTENT_APPROVAL }),
@@ -1594,11 +1593,7 @@ describe('Maps', () => {
           token: u1Token
         }));
 
-      for (const status of [
-        MapStatusNew.APPROVED,
-        MapStatusNew.DISABLED,
-        MapStatusNew.REJECTED
-      ]) {
+      for (const status of [MapStatusNew.APPROVED, MapStatusNew.DISABLED]) {
         it(`should 403 if the map status is ${MapStatusNew[status]}`, async () => {
           await prisma.mMap.update({ where: { id: map.id }, data: { status } });
 
@@ -1752,10 +1747,8 @@ describe('Maps', () => {
         });
       });
 
-      it('should always 409 if map is REJECTED', async () => {
         const map = await db.createMap({
           ...createMapData,
-          status: MapStatusNew.REJECTED
         });
 
         await req.patch({

@@ -663,9 +663,8 @@ export class MapsService {
 
         break;
       }
-      // DISABLED/REJECTED, only allow:
+      // DISABLED, only allow:
       // - Moderator/Admin
-      case MapStatusNew.REJECTED:
       case MapStatusNew.DISABLED: {
         if (Bitflags.has(user.roles, CombinedRoles.MOD_OR_ADMIN)) return map;
         break;

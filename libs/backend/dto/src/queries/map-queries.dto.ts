@@ -112,8 +112,7 @@ export class MapsGetAllAdminQueryDto
     MapStatusNew.CONTENT_APPROVAL,
     MapStatusNew.PUBLIC_TESTING,
     MapStatusNew.FINAL_APPROVAL,
-    MapStatusNew.DISABLED,
-    MapStatusNew.REJECTED
+    MapStatusNew.DISABLED
   ])
   readonly filter?: MapsGetAllAdminFilter;
 
