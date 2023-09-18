@@ -20,6 +20,7 @@ export * from './maps/map-credit-name.map';
 export * from './maps/tickrates.map';
 export * from './maps/map-status-name.map';
 export * from './maps/allowed-modes.map';
+export * from './maps/map-status-changers.map';
 export * from './types/models';
 export * from './types/queries';
 export * from './types/utils/';
