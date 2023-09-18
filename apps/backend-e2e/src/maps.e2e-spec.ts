@@ -34,7 +34,6 @@ import { Config } from '@momentum/backend/config';
 import path from 'node:path';
 import Zip from 'adm-zip';
 import { Enum } from '@momentum/enum';
-import { difference } from '@momentum/util-fn';
 
 describe('Maps', () => {
   let app,
@@ -758,6 +757,47 @@ describe('Maps', () => {
                 ).date
               ).getTime()
           ).toBeLessThan(1000);
+        });
+
+        it('should accept a submission with no placeholders or test invites', async () => {
+          const obj = structuredClone(createMapObject);
+          delete obj.testInvites;
+          delete obj.placeholders;
+          await req.postAttach({
+            url: 'maps',
+            status: 201,
+            data: obj,
+            files: [
+              { file: bspBuffer, field: 'bsp', fileName: 'surf_map.bsp' }
+            ],
+            token
+          });
+        });
+
+        it('should reject a submission with no credits or suggestions', async () => {
+          const obj1 = structuredClone(createMapObject);
+          delete obj1.suggestions;
+          await req.postAttach({
+            url: 'maps',
+            status: 400,
+            data: obj1,
+            files: [
+              { file: bspBuffer, field: 'bsp', fileName: 'surf_map.bsp' }
+            ],
+            token
+          });
+
+          const obj2 = structuredClone(createMapObject);
+          delete obj2.credits;
+          await req.postAttach({
+            url: 'maps',
+            status: 400,
+            data: obj2,
+            files: [
+              { file: bspBuffer, field: 'bsp', fileName: 'surf_map.bsp' }
+            ],
+            token
+          });
         });
 
         it('should 400 if BSP filename does not start with the fileName on the DTO', async () => {
@@ -1634,7 +1674,7 @@ describe('Maps', () => {
     });
 
     describe('PATCH', () => {
-      let user, token, u2, u2Token, adminToken, map, createMapData;
+      let user, token, u2, u2Token, adminToken, createMapData;
 
       beforeAll(async () => {
         [[user, token], [u2, u2Token], adminToken] = await Promise.all([
@@ -1667,7 +1707,7 @@ describe('Maps', () => {
         };
       });
 
-      afterAll(() => db.cleanup('user', 'mMap'));
+      afterAll(() => db.cleanup('user'));
 
       afterEach(() => db.cleanup('mMap'));
 
@@ -1703,6 +1743,7 @@ describe('Maps', () => {
             where: { id: map.id },
             include: { info: true, submission: true }
           });
+
           expect(updatedMap).toMatchObject({
             name: 'ostrich',
             fileName: 'surf_ostrich',
@@ -1726,7 +1767,7 @@ describe('Maps', () => {
         });
       }
 
-      it('should only allow updating minor info once APPROVED', async () => {
+      it('should always 403 if map is APPROVED', async () => {
         const map = await db.createMap({
           ...createMapData,
           status: MapStatusNew.APPROVED
@@ -1734,26 +1775,13 @@ describe('Maps', () => {
 
         await req.patch({
           url: `maps/${map.id}`,
-          status: 204,
-          body: {
-            info: {
-              description:
-                'Ostriches are large flightless birds. They are the heaviest living birds, and lay the largest eggs of any living land animal.',
-              youtubeID: 'rq9WnDq0ap8'
-            }
-          },
-          token
-        });
-
-        await req.patch({
-          url: `maps/${map.id}`,
           status: 403,
-          body: { fileName: 'eeeee' },
+          body: { info: { description: 'Fuck ostriches' } },
           token
         });
       });
 
-      it('should always 409 if map is DISABLED', async () => {
+      it('should always 403 if map is DISABLED', async () => {
         const map = await db.createMap({
           ...createMapData,
           status: MapStatusNew.DISABLED
@@ -1767,40 +1795,12 @@ describe('Maps', () => {
         });
       });
 
-        const map = await db.createMap({
-          ...createMapData,
-          status: MapStatusNew.PRIVATE_TESTING,
-          submission: {
-            create: {
-              type: MapSubmissionType.PORT,
-              suggestions: {
-                track: 1,
-                gamemode: Gamemode.SURF,
-                tier: 10,
-                ranked: true
-              },
-              dates: [
-                {
-                  status: MapStatusNew.PRIVATE_TESTING,
-                  date: new Date().toJSON()
-                }
-              ]
-            }
-          }
-        });
-
-        await req.patch({
-          url: `maps/${map.id}`,
-          status: 403,
-          body: { info: { youtubeID: 'rq9WnDq0ap8' } },
-          token
-        });
-      });
-
       const statuses = Enum.values(MapStatusNew);
       // Storing number tuple won't pass .has
       const validChanges = new Set([
-        MapStatusNew.PRIVATE_TESTING + ',' + MapStatusNew.CONTENT_APPROVAL
+        MapStatusNew.PRIVATE_TESTING + ',' + MapStatusNew.CONTENT_APPROVAL,
+        MapStatusNew.CONTENT_APPROVAL + ',' + MapStatusNew.PRIVATE_TESTING,
+        MapStatusNew.FINAL_APPROVAL + ',' + MapStatusNew.PUBLIC_TESTING
       ]);
 
       for (const s1 of statuses) {

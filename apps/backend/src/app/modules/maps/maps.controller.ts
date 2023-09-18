@@ -64,7 +64,6 @@ import {
   PagedResponseDto,
   RankDto,
   UpdateMapDto,
-  UpdateMapInfoDto,
   UpdateMapTestingRequestDto,
   VALIDATION_PIPE_CONFIG,
   CreateMapWithFilesDto
@@ -75,9 +74,9 @@ import { ParseIntSafePipe } from '@momentum/backend/pipes';
 import { MapCreditsService } from './map-credits.service';
 import { MapReviewService } from './map-review.service';
 import { MapImageService } from './map-image.service';
-import { MapSubmissionService } from './map-submission.service';
-import { FormDataJsonInterceptor } from '../../form-data-json.interceptor';
+import { FormDataJsonInterceptor } from '../../interceptors/form-data-json.interceptor';
 import { ConfigService } from '@nestjs/config';
+import { MapTestingRequestService } from './map-testing-request.service';
 
 @Controller('maps')
 @UseGuards(RolesGuard)
@@ -87,10 +86,10 @@ export class MapsController {
   constructor(
     private readonly config: ConfigService,
     private readonly mapsService: MapsService,
-    private readonly mapSubmissionService: MapSubmissionService,
     private readonly mapCreditsService: MapCreditsService,
     private readonly mapReviewService: MapReviewService,
     private readonly mapImageService: MapImageService,
+    private readonly mapTestingRequestService: MapTestingRequestService,
     private readonly ranksService: RanksService
   ) {}
 
@@ -193,12 +192,7 @@ export class MapsController {
 
     this.mapSubmissionFileValidation(bspFile, files.vmfs);
 
-    return this.mapSubmissionService.submitMap(
-      data,
-      userID,
-      bspFile,
-      files.vmfs
-    );
+    return this.mapsService.submitMap(data, userID, bspFile, files.vmfs);
   }
 
   @Post('/:mapID')
@@ -226,7 +220,7 @@ export class MapsController {
 
     this.mapSubmissionFileValidation(bspFile, files.vmfs);
 
-    return this.mapSubmissionService.submitMapSubmissionVersion(
+    return this.mapsService.submitMapSubmissionVersion(
       mapID,
       data,
       userID,
@@ -272,7 +266,7 @@ export class MapsController {
     @Body() body: CreateMapTestingRequestDto,
     @LoggedInUser('id') userID: number
   ) {
-    await this.mapSubmissionService.updateTestingRequests(
+    await this.mapTestingRequestService.updateTestingRequests(
       mapID,
       body.userIDs,
       userID
@@ -293,7 +287,7 @@ export class MapsController {
     @Body() body: UpdateMapTestingRequestDto,
     @LoggedInUser('id') userID: number
   ) {
-    await this.mapSubmissionService.testingRequestResponse(
+    await this.mapTestingRequestService.testingRequestResponse(
       mapID,
       userID,
       body.accept
@@ -380,7 +374,7 @@ export class MapsController {
     description: 'User is not the submitter of this map'
   })
   @ApiForbiddenResponse({
-    description: 'Map is not accepting updates (DISABLED, REJECTED)'
+    description: 'Map is not accepting updates (APPROVED/DISABLED)'
   })
   @ApiConflictResponse({ description: 'Cannot have duplicate map credits' })
   updateCredits(

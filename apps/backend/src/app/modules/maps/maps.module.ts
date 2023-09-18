@@ -11,7 +11,7 @@ import { RanksModule } from '../ranks/ranks.module';
 import { MapReviewService } from './map-review.service';
 import { MapCreditsService } from './map-credits.service';
 import { MapImageService } from './map-image.service';
-import { MapSubmissionService } from './map-submission.service';
+import { MapTestingRequestService } from './map-testing-request.service';
 
 @Module({
   imports: [
@@ -29,8 +29,8 @@ import { MapSubmissionService } from './map-submission.service';
     MapReviewService,
     MapCreditsService,
     MapImageService,
-    MapSubmissionService
+    MapTestingRequestService
   ],
-  exports: [MapsService, MapLibraryService, MapSubmissionService]
+  exports: [MapsService, MapLibraryService]
 })
 export class MapsModule {}

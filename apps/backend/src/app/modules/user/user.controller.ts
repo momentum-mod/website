@@ -52,7 +52,6 @@ import {
 } from '@nestjs/swagger';
 import { MapLibraryService } from '../maps/map-library.service';
 import { UsersService } from '../users/users.service';
-import { MapSubmissionService } from '../maps/map-submission.service';
 import { MapsService } from '../maps/maps.service';
 
 @Controller('user')
@@ -62,8 +61,7 @@ export class UserController {
   constructor(
     private readonly usersService: UsersService,
     private readonly mapLibraryService: MapLibraryService,
-    private readonly mapsService: MapsService,
-    private readonly mapSubmissionService: MapSubmissionService
+    private readonly mapsService: MapsService
   ) {}
 
   //#region Main User Endpoints
@@ -582,7 +580,7 @@ export class UserController {
   getSubmittedMapsSummary(
     @LoggedInUser('id') userID: number
   ): Promise<MapSummaryDto[]> {
-    return this.mapSubmissionService.getSubmittedMapsSummary(userID);
+    return this.mapsService.getSubmittedMapsSummary(userID);
   }
 
   //#endregion

@@ -53,8 +53,8 @@ describe('MapsService', () => {
       [MapStatusNew.APPROVED]: 'any',
       [MapStatusNew.PUBLIC_TESTING]: 'any',
       [MapStatusNew.PRIVATE_TESTING]: ['admin', 'moderator', 'submitter', 'acceptedRequest', 'inCredits'],
-      [MapStatusNew.CONTENT_APPROVAL]: ['admin', 'moderator', 'submitter'],
-      [MapStatusNew.FINAL_APPROVAL]: ['admin', 'moderator', 'submitter'],
+      [MapStatusNew.CONTENT_APPROVAL]: ['admin', 'moderator', 'submitter' ,'reviewer'],
+      [MapStatusNew.FINAL_APPROVAL]: ['admin', 'moderator', 'submitter', 'reviewer'],
       [MapStatusNew.DISABLED]: ['admin', 'moderator']
     };
 

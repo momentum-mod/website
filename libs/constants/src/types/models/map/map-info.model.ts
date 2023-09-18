@@ -8,5 +8,5 @@ export type CreateMapInfo = Pick<
 >;
 
 export type UpdateMapInfo = Partial<
-  Pick<MapInfo, 'description' | 'youtubeID' | 'creationDate'>
+  Pick<CreateMapInfo, 'description' | 'youtubeID' | 'creationDate'>
 >;
