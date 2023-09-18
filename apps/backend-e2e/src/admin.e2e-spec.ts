@@ -746,7 +746,6 @@ describe('Admin', () => {
         caMap = await db.createMap({ status: MapStatusNew.CONTENT_APPROVAL });
         faMap = await db.createMap({ status: MapStatusNew.FINAL_APPROVAL });
         await db.createMap({ status: MapStatusNew.PUBLIC_TESTING });
-        await db.createMap({ status: MapStatusNew.REJECTED });
         await db.createMap({ status: MapStatusNew.DISABLED });
       });
 

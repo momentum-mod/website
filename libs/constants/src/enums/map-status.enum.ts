@@ -23,12 +23,10 @@ export enum MapStatusNew {
   PUBLIC_TESTING = 3,
   /* Awaiting final approval from a MODERATOR/ADMIN */
   FINAL_APPROVAL = 4,
-  /* Rejected for being unsalvagable crap, rule-breaking etc. */
-  REJECTED = 5,
-  /* Previously approved but subsequentially disabled for some reason.
-   * This could be due to a critical bug or some other reason that makes us want
-   * to keep it in DB whilst it gets patched, rather than outright deleted. */
-  DISABLED = 6
+  /* Anything that has been disabled for some reason, such as rejected map
+  submissions, maps with critical bugs (that may often be fixed and re-enabled),
+  maps with a DMCA claim, etc. */
+  DISABLED = 5
 }
 
 export const CombinedMapStatuses = Object.freeze({

@@ -55,7 +55,6 @@ describe('MapsService', () => {
       [MapStatusNew.PRIVATE_TESTING]: ['admin', 'moderator', 'submitter', 'acceptedRequest', 'inCredits'],
       [MapStatusNew.CONTENT_APPROVAL]: ['admin', 'moderator', 'submitter'],
       [MapStatusNew.FINAL_APPROVAL]: ['admin', 'moderator', 'submitter'],
-      [MapStatusNew.REJECTED]: ['admin', 'moderator'],
       [MapStatusNew.DISABLED]: ['admin', 'moderator']
     };
 
