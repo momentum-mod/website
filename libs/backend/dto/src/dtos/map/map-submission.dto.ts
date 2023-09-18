@@ -1,38 +1,12 @@
-import { ApiProperty, PartialType } from '@nestjs/swagger';
-import {
-  MapCreditType,
-  MapSubmission,
-  MapSubmissionType
-} from '@momentum/constants';
-import { EnumProperty, NestedProperty } from '../../decorators';
-import {
-  IsArray,
-  IsOptional,
-  IsString,
-  IsUUID,
-  MaxLength
-} from 'class-validator';
+import { ApiProperty } from '@nestjs/swagger';
+import { MapSubmission, MapSubmissionType } from '@momentum/constants';
+import { NestedProperty } from '../../decorators';
+import { IsArray, IsOptional, IsUUID } from 'class-validator';
 import { MapSubmissionSuggestionDto } from './map-submission-suggestion.dto';
 import { Exclude } from 'class-transformer';
 import { MapSubmissionVersionDto } from './map-submission-version.dto';
-import { JsonValue } from 'type-fest';
-import { MapSubmissionDatesDto } from './map-submission-dates.dto';
-
-export class PlaceholderSuggestionDto {
-  [k: string]: JsonValue;
-
-  @ApiProperty()
-  @IsString()
-  @MaxLength(32)
-  readonly alias: string;
-
-  @EnumProperty(MapCreditType)
-  readonly type: MapCreditType;
-}
-
-export class UpdatePlaceholderSuggestionDto extends PartialType(
-  PlaceholderSuggestionDto
-) {}
+import { MapSubmissionDateDto } from './map-submission-dates.dto';
+import { MapSubmissionPlaceholderDto } from './map-submission-placeholder.dto';
 
 export class MapSubmissionDto implements MapSubmission {
   @ApiProperty({
@@ -44,10 +18,10 @@ export class MapSubmissionDto implements MapSubmission {
   @NestedProperty(MapSubmissionSuggestionDto, { isArray: true })
   readonly suggestions: MapSubmissionSuggestionDto[];
 
-  @NestedProperty(PlaceholderSuggestionDto, { required: true, isArray: true })
+  @NestedProperty(MapSubmissionPlaceholderDto, { isArray: true })
   @IsArray()
   @IsOptional()
-  readonly placeholders: PlaceholderSuggestionDto[];
+  readonly placeholders: MapSubmissionPlaceholderDto[];
 
   @NestedProperty(MapSubmissionDateDto, { isArray: true })
   @IsArray()

@@ -11,8 +11,8 @@ import { MapFavorite } from './map-favorite.model';
 import { MapLibraryEntry } from './map-library-entry';
 import { Rank } from '../run/rank.model';
 import { MapSubmissionType } from '../../../enums/map-submission-type.enum';
-import { MapCreditType } from '../../../enums/map-credit-type.enum';
 import { MapSubmissionSuggestion } from './map-submission-suggestion.model';
+import { MapSubmissionPlaceholder } from './map-submission-placeholder.model';
 
 /**
  * The term "MMap" (Momentum Map)  is used just in cases where we would use
@@ -46,7 +46,7 @@ export interface CreateMap extends Pick<MMap, 'name' | 'fileName'> {
   submissionType: MapSubmissionType;
   suggestions: MapSubmissionSuggestion[];
   wantsPrivateTesting: boolean;
-  placeholders: { alias: string; type: MapCreditType }[];
+  placeholders: MapSubmissionPlaceholder[];
   testInvites?: number[];
   info: CreateMapInfo;
   tracks: CreateMapTrack[];

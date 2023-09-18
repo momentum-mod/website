@@ -45,12 +45,9 @@ import {
   UpdatedAtProperty
 } from '../../decorators';
 import { IsMapName } from '@momentum/backend/validators';
-import {
-  MapSubmissionDto,
-  PlaceholderSuggestionDto,
-  UpdatePlaceholderSuggestionDto
-} from './map-submission.dto';
+import { MapSubmissionDto } from './map-submission.dto';
 import { MapSubmissionSuggestionDto } from './map-submission-suggestion.dto';
+import { MapSubmissionPlaceholderDto } from './map-submission-placeholder.dto';
 
 const ENDPOINT_URL = Config.storage.endpointUrl;
 const BUCKET = Config.storage.bucketName;
@@ -182,7 +179,8 @@ export class CreateMapDto
   })
   readonly submissionType: MapSubmissionType;
 
-  @NestedProperty(MapSubmissionSuggestionDto)
+  @NestedProperty(MapSubmissionSuggestionDto, { isArray: true })
+  @IsArray()
   readonly suggestions: MapSubmissionSuggestionDto[];
 
   @ApiProperty({
@@ -194,10 +192,12 @@ export class CreateMapDto
   @ApiProperty({
     description: 'Aliases for which new placeholder users should be made'
   })
-  @NestedProperty(PlaceholderSuggestionDto, {
-    description: 'Aliases for which new placeholder users should be made'
+  @NestedProperty(MapSubmissionPlaceholderDto, {
+    description: 'Aliases for which new placeholder users should be made',
+    isArray: true
   })
-  readonly placeholders: PlaceholderSuggestionDto[];
+  @IsArray()
+  readonly placeholders: MapSubmissionPlaceholderDto[];
 
   @ApiProperty({
     description: 'Array of user IDs to invite to private testing',
