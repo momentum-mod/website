@@ -2,8 +2,8 @@ import { MMap as PrismaMMap } from '@prisma/client';
 import { MapStatusNew } from '../../../enums/map-status.enum';
 import { Gamemode } from '../../../enums/gamemode.enum';
 import { MapImage } from './map-image.model';
-import { CreateMapTrack, MapTrack } from './map-track.model';
-import { CreateMapInfo, MapInfo } from './map-info.model';
+import { CreateMapTrack, MapTrack, UpdateMapTrack } from './map-track.model';
+import { CreateMapInfo, MapInfo, UpdateMapInfo } from './map-info.model';
 import { User } from '../user/user.model';
 import { MapStats } from './map-stats.model';
 import { CreateMapCredit, MapCredit } from './map-credit.model';
@@ -61,10 +61,14 @@ export type UpdateMap = Partial<
     | 'suggestions'
     | 'placeholders'
     | 'testInvites'
-    | 'info'
     | 'credits'
-    | 'tracks'
   >
 > & {
-  status: MapStatusNew;
+  status?: MapStatusNew.CONTENT_APPROVAL | MapStatusNew.FINAL_APPROVAL;
+  info?: UpdateMapInfo;
+  tracks?: UpdateMapTrack[];
+};
+
+export type UpdateMapAdmin = Omit<UpdateMap, 'status'> & {
+  status?: MapStatusNew;
 };

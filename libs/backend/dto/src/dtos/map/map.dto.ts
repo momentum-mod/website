@@ -6,11 +6,13 @@ import {
   Gamemode,
   MapStatusNew,
   MapSubmissionType,
-  MMap
+  MMap,
+  UpdateMap,
+  UpdateMapAdmin
 } from '@momentum/constants';
 import { UserDto } from '../user/user.dto';
 import { MapImageDto } from './map-image.dto';
-import { ApiProperty, PartialType, PickType } from '@nestjs/swagger';
+import { ApiProperty, OmitType, PartialType, PickType } from '@nestjs/swagger';
 import {
   ArrayMinSize,
   IsArray,
@@ -245,11 +247,14 @@ export class CreateMapWithFilesDto implements CreateMapWithFiles {
   readonly data: CreateMapDto;
 }
 
-export class UpdateMapDto extends PartialType(
-  PickType(CreateMapDto, ['name', 'fileName', 'suggestions'] as const)
-) {
-  @NestedProperty(UpdatePlaceholderSuggestionDto, { required: true })
-  readonly placeholders: UpdatePlaceholderSuggestionDto[];
+export class UpdateMapDto
+  extends PartialType(
+    PickType(CreateMapDto, ['name', 'fileName', 'suggestions'] as const)
+  )
+  implements UpdateMap
+{
+  @NestedProperty(MapSubmissionPlaceholderDto)
+  readonly placeholders: MapSubmissionPlaceholderDto[];
 
   @NestedProperty(UpdateMapInfoDto)
   @IsOptional()
@@ -263,5 +268,22 @@ export class UpdateMapDto extends PartialType(
 
   @EnumProperty(MapStatusNew)
   @IsOptional()
+  readonly status: MapStatusNew.CONTENT_APPROVAL | MapStatusNew.FINAL_APPROVAL;
+}
+
+export class UpdateMapAdminDto
+  extends OmitType(UpdateMapDto, ['status'] as const)
+  implements UpdateMapAdmin
+{
+  @EnumProperty(MapStatusNew)
+  @IsOptional()
   readonly status: MapStatusNew;
+
+  @ApiProperty({ description: 'UserID to update the submitter to' })
+  @IsPositive()
+  @IsOptional()
+  readonly submitterID: number;
+
+  // TODO: Once we do zoning refactor work, this will take a certain version of UpdateMapTracks.
+  // This will be used to generate/modify leaderboards.
 }

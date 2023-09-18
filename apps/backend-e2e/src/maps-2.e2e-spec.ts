@@ -547,7 +547,7 @@ describe('Maps Part 2', () => {
         }));
 
       for (const [term, forbidden] of [
-        ['regular user', [MapStatusNew.DISABLED]],
+        ['regular user', [MapStatusNew.DISABLED, MapStatusNew.APPROVED]],
         ['moderator', []],
         ['admin', []]
       ]) {
