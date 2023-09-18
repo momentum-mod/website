@@ -1,11 +1,7 @@
 import { DateString } from '../../utils';
+import { MapStatusNew } from '../../../enums/map-status.enum';
 
-export interface MapSubmissionDates {
-  [k: string]: string;
-
-  submitted: DateString;
-  contentApproval: DateString;
-  publicTesting: DateString;
-  finalApproval: DateString;
-  approved: DateString;
-}
+export type MapSubmissionDate = {
+  status: MapStatusNew;
+  date: DateString;
+};
