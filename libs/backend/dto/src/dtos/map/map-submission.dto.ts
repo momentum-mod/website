@@ -49,8 +49,10 @@ export class MapSubmissionDto implements MapSubmission {
   @IsOptional()
   readonly placeholders: PlaceholderSuggestionDto[];
 
-  @NestedProperty(MapSubmissionDatesDto)
-  readonly dates: MapSubmissionDatesDto;
+  @NestedProperty(MapSubmissionDateDto, { isArray: true })
+  @IsArray()
+  @IsOptional()
+  readonly dates: MapSubmissionDateDto[];
 
   @Exclude()
   readonly mapID: number;

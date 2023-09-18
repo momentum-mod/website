@@ -27,7 +27,8 @@ import {
   Ban,
   CombinedMapStatuses,
   MapTestingRequestState,
-  MIN_PUBLIC_TESTING_DURATION
+  MIN_PUBLIC_TESTING_DURATION,
+  MapSubmissionDate
 } from '@momentum/constants';
 import { Config } from '@momentum/backend/config';
 import path from 'node:path';
@@ -578,7 +579,12 @@ describe('Maps', () => {
                   comment: 'I love you'
                 }
               ],
-              dates: { submitted: expect.any(String) }
+              dates: [
+                {
+                  status: MapStatusNew.PRIVATE_TESTING,
+                  date: expect.any(String)
+                }
+              ]
             },
             info: {
               description: 'mamp',
@@ -599,8 +605,7 @@ describe('Maps', () => {
           });
 
           expect(
-            Date.now() -
-              new Date(createdMap.submission.dates.submitted).getTime()
+            Date.now() - new Date(createdMap.submission.dates[0].date).getTime()
           ).toBeLessThan(1000);
           expect(createdMap.tracks).toHaveLength(2);
           for (const track of createdMap.tracks) {
@@ -746,11 +751,12 @@ describe('Maps', () => {
           expect(res.body.status).toBe(MapStatusNew.CONTENT_APPROVAL);
 
           expect(
-            Date.now() - new Date(res.body.submission.dates.submitted).getTime()
-          ).toBeLessThan(1000);
-          expect(
             Date.now() -
-              new Date(res.body.submission.dates.contentApproval).getTime()
+              new Date(
+                (res.body.submission.dates as MapSubmissionDate[]).find(
+                  ({ status }) => status === MapStatusNew.CONTENT_APPROVAL
+                ).date
+              ).getTime()
           ).toBeLessThan(1000);
         });
 
@@ -1028,7 +1034,10 @@ describe('Maps', () => {
                     { versionNum: 2, hash: createSha1Hash('wigs') }
                   ]
                 }
-              }
+              },
+              dates: [
+                { status: MapStatusNew.APPROVED, date: new Date().toJSON() }
+              ]
             }
           },
           reviews: {
@@ -1311,7 +1320,13 @@ describe('Maps', () => {
                   versionNum: 1,
                   hash: createSha1Hash(Buffer.from('hash browns'))
                 }
-              }
+              },
+              dates: [
+                {
+                  status: MapStatusNew.PRIVATE_TESTING,
+                  date: new Date().toJSON()
+                }
+              ]
             }
           }
         });
@@ -1635,7 +1650,12 @@ describe('Maps', () => {
           submission: {
             create: {
               type: MapSubmissionType.ORIGINAL,
-              dates: { submitted: new Date().toJSON() },
+              dates: [
+                {
+                  status: MapStatusNew.PRIVATE_TESTING,
+                  date: new Date().toJSON()
+                }
+              ],
               suggestions: {
                 track: 1,
                 gamemode: Gamemode.SURF,
@@ -1749,6 +1769,24 @@ describe('Maps', () => {
 
         const map = await db.createMap({
           ...createMapData,
+          status: MapStatusNew.PRIVATE_TESTING,
+          submission: {
+            create: {
+              type: MapSubmissionType.PORT,
+              suggestions: {
+                track: 1,
+                gamemode: Gamemode.SURF,
+                tier: 10,
+                ranked: true
+              },
+              dates: [
+                {
+                  status: MapStatusNew.PRIVATE_TESTING,
+                  date: new Date().toJSON()
+                }
+              ]
+            }
+          }
         });
 
         await req.patch({
@@ -1779,14 +1817,19 @@ describe('Maps', () => {
               status: s1,
               submission: {
                 create: {
-                  dates: { submission: Date.now(), publicTesting: Date.now() },
                   type: MapSubmissionType.PORT,
                   suggestions: {
                     track: 1,
                     gamemode: Gamemode.SURF,
                     tier: 10,
                     ranked: true
-                  }
+                  },
+                  dates: [
+                    {
+                      status: s1,
+                      date: new Date().toJSON()
+                    }
+                  ]
                 }
               }
             });
@@ -1814,9 +1857,12 @@ describe('Maps', () => {
           status: MapStatusNew.PUBLIC_TESTING,
           submission: {
             create: {
-              dates: {
-                publicTesting: Date.now() - (MIN_PUBLIC_TESTING_DURATION + 1000)
-              },
+              dates: [
+                {
+                  status: MapStatusNew.PUBLIC_TESTING,
+                  date: Date.now() - (MIN_PUBLIC_TESTING_DURATION + 1000)
+                }
+              ],
               type: MapSubmissionType.PORT,
               suggestions: {
                 track: 1,
@@ -1906,6 +1952,12 @@ describe('Maps', () => {
         const submissionCreate = {
           create: {
             type: MapSubmissionType.ORIGINAL,
+            dates: [
+              {
+                status: MapStatusNew.PRIVATE_TESTING,
+                date: new Date().toJSON()
+              }
+            ],
             suggestions: {
               track: 1,
               gamemode: Gamemode.CONC,
