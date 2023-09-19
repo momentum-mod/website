@@ -1,6 +1,14 @@
 import { PrismaClient } from '@prisma/client';
 import { prismaWrapper } from './prisma-wrapper';
-import { MapCreditType, MapStatus, Gamemode } from '@momentum/constants';
+import {
+  MapCreditType,
+  MapStatus,
+  Gamemode,
+  imgMediumPath,
+  imgSmallPath,
+  imgLargePath,
+  approvedBspPath
+} from '@momentum/constants';
 import { PutObjectCommand, S3Client } from '@aws-sdk/client-s3';
 import * as fs from 'node:fs';
 import sharp from 'sharp';
@@ -144,11 +152,11 @@ prismaWrapper(async (prisma: PrismaClient) => {
   const imageID = map.images[0].id;
   await Promise.all(
     [
-      { Bucket, Key: 'maps/bhop_apitest.bsp', Body: mapBuffer },
-      { Bucket, Key: `img/${imageID}-large.jpg`, Body: imageBuffer },
+      { Bucket, Key: approvedBspPath('bhop_apitest'), Body: mapBuffer },
+      { Bucket, Key: imgLargePath(imageID), Body: imageBuffer },
       {
         Bucket,
-        Key: `img/${imageID}-medium.jpg`,
+        Key: imgMediumPath(imageID),
         Body: await sharp(imageBuffer)
           .resize(1280, 720, { fit: 'inside' })
           .jpeg({ mozjpeg: true })
@@ -156,7 +164,7 @@ prismaWrapper(async (prisma: PrismaClient) => {
       },
       {
         Bucket,
-        Key: `img/${imageID}-small.jpg`,
+        Key: imgSmallPath(imageID),
         Body: await sharp(imageBuffer)
           .resize(480, 360, { fit: 'inside' })
           .jpeg({ mozjpeg: true })

@@ -1,4 +1,11 @@
-import { CreateMap, MapSubmissionType, MMap } from '@momentum/constants';
+import {
+  approvedBspPath,
+  CreateMap,
+  Gamemode,
+  MapStatus,
+  MapSubmissionType,
+  MMap
+} from '@momentum/constants';
 import { UserDto } from '../user/user.dto';
 import { MapImageDto } from './map-image.dto';
 import { ApiProperty, PickType } from '@nestjs/swagger';
@@ -30,7 +37,6 @@ import {
   UpdatedAtProperty
 } from '../../decorators';
 import { IsMapName } from '@momentum/backend/validators';
-import { MapStatus, Gamemode } from '@momentum/constants';
 import {
   MapSubmissionDto,
   PlaceholderSuggestionDto
@@ -67,13 +73,13 @@ export class MapDto implements MMap {
   @EnumProperty(MapStatus)
   readonly status: MapStatus;
 
-  @ApiProperty({ type: String, description: 'URL to S3 storage' })
+  @ApiProperty({ type: String, description: 'URL to BSP in storage' })
   @Expose()
   @IsOptional()
   @IsString()
   @IsUrl({ require_tld: false })
   get downloadURL() {
-    return `${ENDPOINT_URL}/${BUCKET}/maps/${this.fileName}.bsp`;
+    return `${ENDPOINT_URL}/${BUCKET}/${approvedBspPath(this.fileName)}`;
   }
 
   @ApiProperty({ description: 'SHA1 hash of the map file', type: String })

@@ -16,7 +16,7 @@ import {
 import { EXTENDED_PRISMA_SERVICE } from '../database/db.constants';
 import { ExtendedPrismaService } from '../database/prisma.extension';
 import { expandToIncludes } from '@momentum/util-fn';
-import { RunsGetAllExpand } from '@momentum/constants';
+import { runPath, RunsGetAllExpand } from '@momentum/constants';
 
 @Injectable()
 export class RunsService {
@@ -117,7 +117,7 @@ export class RunsService {
     const runs = await this.db.run.findMany({ where: { mapID } });
 
     await Promise.all(
-      runs.map((run) => this.fileCloudService.deleteFileCloud(`runs/${run.id}`))
+      runs.map((run) => this.fileCloudService.deleteFile(runPath(run.id)))
     );
   }
 }

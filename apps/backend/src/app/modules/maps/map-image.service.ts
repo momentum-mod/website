@@ -9,7 +9,12 @@ import {
   NotFoundException
 } from '@nestjs/common';
 import { DtoFactory, MapImageDto } from '@momentum/backend/dto';
-import { MapStatus } from '@momentum/constants';
+import {
+  imgLargePath,
+  imgMediumPath,
+  imgSmallPath,
+  MapStatus
+} from '@momentum/constants';
 import { FileStoreCloudFile } from '../filestore/file-store.interface';
 import sharp from 'sharp';
 import { FileStoreCloudService } from '../filestore/file-store-cloud.service';
@@ -151,22 +156,17 @@ export class MapImageService {
     imgID: number
   ): Promise<FileStoreCloudFile[]> {
     return Promise.all([
-      this.editSaveMapImageFile(imgBuffer, `img/${imgID}-small.jpg`, 480, 360),
-      this.editSaveMapImageFile(
-        imgBuffer,
-        `img/${imgID}-medium.jpg`,
-        1280,
-        720
-      ),
-      this.editSaveMapImageFile(imgBuffer, `img/${imgID}-large.jpg`, 1920, 1080)
+      this.editSaveMapImageFile(imgBuffer, imgSmallPath(imgID), 480, 360),
+      this.editSaveMapImageFile(imgBuffer, imgMediumPath(imgID), 1280, 720),
+      this.editSaveMapImageFile(imgBuffer, imgLargePath(imgID), 1920, 1080)
     ]);
   }
 
   async deleteStoredMapImage(imgID: number): Promise<void> {
     await Promise.all([
-      this.fileCloudService.deleteFileCloud(`img/${imgID}-small.jpg`),
-      this.fileCloudService.deleteFileCloud(`img/${imgID}-medium.jpg`),
-      this.fileCloudService.deleteFileCloud(`img/${imgID}-large.jpg`)
+      this.fileCloudService.deleteFileCloud(imgSmallPath(imgID)),
+      this.fileCloudService.deleteFileCloud(imgMediumPath(imgID)),
+      this.fileCloudService.deleteFileCloud(imgLargePath(imgID))
     ]);
   }
 

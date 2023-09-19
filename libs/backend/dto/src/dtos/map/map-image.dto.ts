@@ -7,7 +7,12 @@ import {
   IdProperty,
   UpdatedAtProperty
 } from '../../decorators';
-import { MapImage } from '@momentum/constants';
+import {
+  imgLargePath,
+  imgMediumPath,
+  imgSmallPath,
+  MapImage
+} from '@momentum/constants';
 
 const ENDPOINT_URL = Config.storage.endpointUrl;
 const BUCKET = Config.storage.bucketName;
@@ -26,7 +31,7 @@ export class MapImageDto implements MapImage {
   @Expose()
   @IsUrl({ require_tld: false })
   get small(): string {
-    return `${ENDPOINT_URL}/${BUCKET}/img/${this.id}-small.jpg`;
+    return `${ENDPOINT_URL}/${BUCKET}/${imgSmallPath(this.id)}`;
   }
 
   @ApiProperty({
@@ -36,7 +41,7 @@ export class MapImageDto implements MapImage {
   @Expose()
   @IsUrl({ require_tld: false })
   get medium(): string {
-    return `${ENDPOINT_URL}/${BUCKET}/img/${this.id}-medium.jpg`;
+    return `${ENDPOINT_URL}/${BUCKET}/${imgMediumPath(this.id)}`;
   }
 
   @ApiProperty({
@@ -46,7 +51,7 @@ export class MapImageDto implements MapImage {
   @Expose()
   @IsUrl({ require_tld: false })
   get large(): string {
-    return `${ENDPOINT_URL}/${BUCKET}/img/${this.id}-large.jpg`;
+    return `${ENDPOINT_URL}/${BUCKET}/${imgLargePath(this.id)}`;
   }
 
   @CreatedAtProperty()
