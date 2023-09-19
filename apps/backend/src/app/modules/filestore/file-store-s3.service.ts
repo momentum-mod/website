@@ -5,6 +5,8 @@ import {
   PutObjectCommand,
   DeleteObjectCommand,
   GetObjectCommand,
+  CopyObjectCommand,
+  DeleteObjectsCommand
 } from '@aws-sdk/client-s3';
 import { ConfigService } from '@nestjs/config';
 import { FileStoreService } from './file-store.service';
@@ -45,10 +47,39 @@ export class FileStoreS3Service extends FileStoreService {
     };
   }
 
+  async copyFile(fromKey: string, toKey: string): Promise<boolean> {
+    try {
+      await this.s3Client.send(
+        new CopyObjectCommand({
+          Bucket: this.bucket,
+          CopySource: `${this.bucket}/${fromKey}`,
+          Key: toKey
+        })
+      );
+      return true;
+    } catch (error) {
+      // If file isn't found, just return undefined and let the service handle
+      // 404 behaviour.
+      if (error?.Code === 'NoSuchKey') return false;
+      throw error;
+    }
+  }
+
   async deleteFile(fileKey: string): Promise<boolean> {
     return this.isMissingHandler(
       this.s3Client.send(
         new DeleteObjectCommand({ Bucket: this.bucket, Key: fileKey })
+      )
+    );
+  }
+
+  async deleteFiles(fileKeys: string[]): Promise<boolean> {
+    return this.isMissingHandler(
+      this.s3Client.send(
+        new DeleteObjectsCommand({
+          Bucket: this.bucket,
+          Delete: { Objects: fileKeys.map((Key) => ({ Key })) }
+        })
       )
     );
   }
