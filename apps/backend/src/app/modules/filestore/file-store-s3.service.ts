@@ -1,20 +1,22 @@
 import { Injectable } from '@nestjs/common';
-import { FileStoreCloudFile } from './file-store.interface';
+import { FileStoreFile } from './file-store.interface';
 import {
   S3Client,
   PutObjectCommand,
   DeleteObjectCommand,
-  GetObjectCommand
+  GetObjectCommand,
 } from '@aws-sdk/client-s3';
 import { ConfigService } from '@nestjs/config';
-import { createHash } from 'node:crypto';
+import { FileStoreService } from './file-store.service';
 
 @Injectable()
-export class FileStoreCloudService {
-  s3Client: S3Client;
-  bucket: string;
+export class FileStoreS3Service extends FileStoreService {
+  private readonly s3Client: S3Client;
+  private readonly bucket: string;
 
   constructor(private readonly config: ConfigService) {
+    super();
+
     this.s3Client = new S3Client({
       region: this.config.get('storage.region'),
       endpoint: this.config.get('storage.endpointUrl'),
@@ -27,11 +29,8 @@ export class FileStoreCloudService {
 
     this.bucket = this.config.get('storage.bucketName');
   }
-  
-  async storeFile(
-    fileBuffer: Buffer,
-    fileKey: string
-  ): Promise<FileStoreCloudFile> {
+
+  async storeFile(fileBuffer: Buffer, fileKey: string): Promise<FileStoreFile> {
     await this.s3Client.send(
       new PutObjectCommand({
         Bucket: this.bucket,
@@ -42,16 +41,10 @@ export class FileStoreCloudService {
 
     return {
       fileKey,
-      hash: FileStoreCloudService.getHashForBuffer(fileBuffer)
+      hash: FileStoreService.getHashForBuffer(fileBuffer)
     };
   }
 
-  /**
-   * Delete a file from cloud storage.
-   *
-   * @returns `true` if file was found and deleted, `false` if file was missing.
-   * @throws S3ServiceException
-   */
   async deleteFile(fileKey: string): Promise<boolean> {
     return this.isMissingHandler(
       this.s3Client.send(
@@ -71,7 +64,7 @@ export class FileStoreCloudService {
 
       return commandResponse.Body.transformToByteArray();
     } catch (error) {
-      // If file isn't found, just return undefined and let the service handle
+      // If file isn't found, just return null and let the service handle
       // 404 behaviour.
       if (error?.Code === 'NoSuchKey') return null;
       throw error;
@@ -90,9 +83,5 @@ export class FileStoreCloudService {
       if (error?.Code === 'NoSuchKey') return false;
       throw error;
     }
-  }
-
-  static getHashForBuffer(buffer: Buffer): string {
-    return createHash('sha1').update(buffer).digest('hex');
   }
 }

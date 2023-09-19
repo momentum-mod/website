@@ -17,7 +17,7 @@ import {
   MapZoneTriggerProperties,
   Prisma
 } from '@prisma/client';
-import { FileStoreCloudService } from '../filestore/file-store-cloud.service';
+import { FileStoreService } from '../filestore/file-store.service';
 import { ConfigService } from '@nestjs/config';
 import { RunsService } from '../runs/runs.service';
 import {
@@ -51,7 +51,7 @@ import { expandToIncludes, undefinedIfEmpty } from '@momentum/util-fn';
 export class MapsService {
   constructor(
     @Inject(EXTENDED_PRISMA_SERVICE) private readonly db: ExtendedPrismaService,
-    private readonly fileCloudService: FileStoreCloudService,
+    private readonly fileStoreService: FileStoreService,
     private readonly config: ConfigService,
     private readonly runsService: RunsService,
     @Inject(forwardRef(() => MapImageService))
@@ -537,7 +537,7 @@ export class MapsService {
 
     // Delete stored map file
     const fileKey = this.getMapFileKey(map.fileName);
-    await this.fileCloudService.deleteFileCloud(fileKey);
+    await this.fileStoreService.deleteFile(fileKey);
 
     await this.db.mMap.delete({ where: { id: mapID } });
   }
@@ -599,7 +599,7 @@ export class MapsService {
   ): Promise<string> {
     const fileKey = this.getMapFileKey(mapModel.fileName);
 
-    const result = await this.fileCloudService.storeFileCloud(
+    const result = await this.fileStoreService.storeFile(
       mapFileBuffer,
       fileKey
     );
