@@ -12,6 +12,7 @@ import { createHash } from 'node:crypto';
 @Injectable()
 export class FileStoreCloudService {
   s3Client: S3Client;
+  bucket: string;
 
   constructor(private readonly config: ConfigService) {
     this.s3Client = new S3Client({
@@ -23,6 +24,8 @@ export class FileStoreCloudService {
       },
       forcePathStyle: true
     });
+
+    this.bucket = this.config.get('storage.bucketName');
   }
 
   async storeFileCloud(
@@ -31,14 +34,14 @@ export class FileStoreCloudService {
   ): Promise<FileStoreCloudFile> {
     await this.s3Client.send(
       new PutObjectCommand({
-        Bucket: this.config.get('storage.bucketName'),
+        Bucket: this.bucket,
         Key: fileKey,
         Body: fileBuffer
       })
     );
 
     return {
-      fileKey: fileKey,
+      fileKey,
       hash: FileStoreCloudService.getHashForBuffer(fileBuffer)
     };
   }
@@ -46,7 +49,7 @@ export class FileStoreCloudService {
   async deleteFileCloud(fileKey: string): Promise<void> {
     await this.s3Client.send(
       new DeleteObjectCommand({
-        Bucket: this.config.get('storage.bucketName'),
+        Bucket: this.bucket,
         Key: fileKey
       })
   /**
@@ -62,7 +65,7 @@ export class FileStoreCloudService {
     try {
       const commandResponse = await this.s3Client.send(
         new GetObjectCommand({
-          Bucket: this.config.get('storage.bucketName'),
+          Bucket: this.bucket,
           Key: fileKey
         })
       );
