@@ -27,8 +27,8 @@ export class FileStoreCloudService {
 
     this.bucket = this.config.get('storage.bucketName');
   }
-
-  async storeFileCloud(
+  
+  async storeFile(
     fileBuffer: Buffer,
     fileKey: string
   ): Promise<FileStoreCloudFile> {
@@ -52,13 +52,11 @@ export class FileStoreCloudService {
    * @returns `true` if file was found and deleted, `false` if file was missing.
    * @throws S3ServiceException
    */
-  async deleteFileCloud(fileKey: string): Promise<boolean> {
+  async deleteFile(fileKey: string): Promise<boolean> {
     return this.isMissingHandler(
       this.s3Client.send(
         new DeleteObjectCommand({ Bucket: this.bucket, Key: fileKey })
       )
-    );
-  }
     );
   }
 
