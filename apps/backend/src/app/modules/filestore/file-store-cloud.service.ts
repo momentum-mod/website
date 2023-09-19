@@ -1,4 +1,4 @@
-import { Injectable, StreamableFile } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { FileStoreCloudFile } from './file-store.interface';
 import {
   S3Client,
@@ -49,10 +49,16 @@ export class FileStoreCloudService {
         Bucket: this.config.get('storage.bucketName'),
         Key: fileKey
       })
+  /**
+   * Delete a file from cloud storage.
+   *
+   * @returns `true` if file was found and deleted, `false` if file was missing.
+   * @throws S3ServiceException
+   */
     );
   }
 
-  async getFileCloud(fileKey: string): Promise<StreamableFile | undefined> {
+  async getFile(fileKey: string): Promise<Uint8Array | null> {
     try {
       const commandResponse = await this.s3Client.send(
         new GetObjectCommand({
@@ -61,9 +67,7 @@ export class FileStoreCloudService {
         })
       );
 
-      return new StreamableFile(
-        await commandResponse.Body.transformToByteArray()
-      );
+      return commandResponse.Body.transformToByteArray();
     } catch (error) {
       // If file isn't found, just return undefined and let the service handle
       // 404 behaviour.

@@ -611,10 +611,14 @@ export class MapsService {
     return `maps/${mapName}.bsp`;
   }
 
-  private getMapFileFromStore(mapName: string): Promise<StreamableFile> {
+  private async getMapFileFromStore(mapName: string): Promise<StreamableFile> {
     const fileKey = this.getMapFileKey(mapName);
 
-    return this.fileCloudService.getFileCloud(fileKey);
+    const file = await this.fileStoreService.getFile(fileKey);
+
+    if (!file) throw new NotFoundException();
+
+    return new StreamableFile(file);
   }
 
   private uploadMapChecks(map: MMap, userID: number): void {
