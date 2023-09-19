@@ -6,7 +6,7 @@ import {
 } from '@nestjs/common';
 import { Prisma } from '@prisma/client';
 import { ConfigService } from '@nestjs/config';
-import { FileStoreCloudService } from '../filestore/file-store-cloud.service';
+import { FileStoreService } from '../filestore/file-store.service';
 import {
   DtoFactory,
   PagedResponseDto,
@@ -23,7 +23,7 @@ export class RunsService {
   constructor(
     @Inject(EXTENDED_PRISMA_SERVICE) private readonly db: ExtendedPrismaService,
     private readonly configService: ConfigService,
-    private readonly fileCloudService: FileStoreCloudService
+    private readonly fileStoreService: FileStoreService
   ) {}
 
   async get(runID: number, expand: RunsGetAllExpand): Promise<RunDto> {
@@ -117,7 +117,7 @@ export class RunsService {
     const runs = await this.db.run.findMany({ where: { mapID } });
 
     await Promise.all(
-      runs.map((run) => this.fileCloudService.deleteFile(runPath(run.id)))
+      runs.map((run) => this.fileStoreService.deleteFile(runPath(run.id)))
     );
   }
 }

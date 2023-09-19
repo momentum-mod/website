@@ -15,9 +15,9 @@ import {
   imgSmallPath,
   MapStatus
 } from '@momentum/constants';
-import { FileStoreCloudFile } from '../filestore/file-store.interface';
+import { FileStoreFile } from '../filestore/file-store.interface';
 import sharp from 'sharp';
-import { FileStoreCloudService } from '../filestore/file-store-cloud.service';
+import { FileStoreService } from '../filestore/file-store.service';
 import { ConfigService } from '@nestjs/config';
 import { EXTENDED_PRISMA_SERVICE } from '../database/db.constants';
 import { ExtendedPrismaService } from '../database/prisma.extension';
@@ -29,7 +29,7 @@ export class MapImageService {
     @Inject(EXTENDED_PRISMA_SERVICE) private readonly db: ExtendedPrismaService,
     @Inject(forwardRef(() => MapsService))
     private readonly mapsService: MapsService,
-    private readonly fileCloudService: FileStoreCloudService,
+    private readonly fileStoreService: FileStoreService,
     private readonly config: ConfigService
   ) {}
 
@@ -136,9 +136,9 @@ export class MapImageService {
     fileName: string,
     width: number,
     height: number
-  ): Promise<FileStoreCloudFile> {
+  ): Promise<FileStoreFile> {
     try {
-      return this.fileCloudService.storeFileCloud(
+      return this.fileStoreService.storeFile(
         await sharp(imgBuffer)
           .resize(width, height, { fit: 'inside' })
           .jpeg({ mozjpeg: true })
@@ -154,7 +154,7 @@ export class MapImageService {
   async storeMapImage(
     imgBuffer: Buffer,
     imgID: number
-  ): Promise<FileStoreCloudFile[]> {
+  ): Promise<FileStoreFile[]> {
     return Promise.all([
       this.editSaveMapImageFile(imgBuffer, imgSmallPath(imgID), 480, 360),
       this.editSaveMapImageFile(imgBuffer, imgMediumPath(imgID), 1280, 720),
@@ -164,9 +164,9 @@ export class MapImageService {
 
   async deleteStoredMapImage(imgID: number): Promise<void> {
     await Promise.all([
-      this.fileCloudService.deleteFileCloud(imgSmallPath(imgID)),
-      this.fileCloudService.deleteFileCloud(imgMediumPath(imgID)),
-      this.fileCloudService.deleteFileCloud(imgLargePath(imgID))
+      this.fileStoreService.deleteFile(imgSmallPath(imgID)),
+      this.fileStoreService.deleteFile(imgMediumPath(imgID)),
+      this.fileStoreService.deleteFile(imgLargePath(imgID))
     ]);
   }
 

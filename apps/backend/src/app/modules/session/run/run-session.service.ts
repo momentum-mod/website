@@ -14,7 +14,7 @@ import {
   User
 } from '@prisma/client';
 import { RunProcessor } from './run-processor';
-import { FileStoreCloudService } from '../../filestore/file-store-cloud.service';
+import { FileStoreService } from '../../filestore/file-store.service';
 import { XpSystemsService } from '../../xp-systems/xp-systems.service';
 import {
   CompletedRunDto,
@@ -44,7 +44,7 @@ import { MapsService } from '../../maps/maps.service';
 export class RunSessionService {
   constructor(
     @Inject(EXTENDED_PRISMA_SERVICE) private readonly db: ExtendedPrismaService,
-    private readonly fileCloudService: FileStoreCloudService,
+    private readonly fileStoreService: FileStoreService,
     private readonly xpSystems: XpSystemsService,
     private readonly mapsService: MapsService
   ) {}
@@ -662,7 +662,7 @@ export class RunSessionService {
     // at the same time...
     await Promise.all([
       (async () => {
-        const uploadResult = await this.fileCloudService.storeFileCloud(
+        const uploadResult = await this.fileStoreService.storeFile(
           buffer,
           runPath(run.id)
         );
