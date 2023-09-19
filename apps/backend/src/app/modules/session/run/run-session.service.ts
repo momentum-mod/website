@@ -31,7 +31,7 @@ import {
   RUN_SESSION_COMPLETED_INCLUDE,
   StatsUpdateReturn
 } from './run-session.interface';
-import { ActivityType, RunValidationError } from '@momentum/constants';
+import { ActivityType, runPath, RunValidationError } from '@momentum/constants';
 import { BaseStats } from '@momentum/replay';
 import { EXTENDED_PRISMA_SERVICE } from '../../database/db.constants';
 import {
@@ -664,7 +664,7 @@ export class RunSessionService {
       (async () => {
         const uploadResult = await this.fileCloudService.storeFileCloud(
           buffer,
-          'runs/' + run.id
+          runPath(run.id)
         );
 
         await tx.run.update({
