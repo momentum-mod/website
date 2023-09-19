@@ -46,18 +46,19 @@ export class FileStoreCloudService {
     };
   }
 
-  async deleteFileCloud(fileKey: string): Promise<void> {
-    await this.s3Client.send(
-      new DeleteObjectCommand({
-        Bucket: this.bucket,
-        Key: fileKey
-      })
   /**
    * Delete a file from cloud storage.
    *
    * @returns `true` if file was found and deleted, `false` if file was missing.
    * @throws S3ServiceException
    */
+  async deleteFileCloud(fileKey: string): Promise<boolean> {
+    return this.isMissingHandler(
+      this.s3Client.send(
+        new DeleteObjectCommand({ Bucket: this.bucket, Key: fileKey })
+      )
+    );
+  }
     );
   }
 
@@ -74,7 +75,21 @@ export class FileStoreCloudService {
     } catch (error) {
       // If file isn't found, just return undefined and let the service handle
       // 404 behaviour.
-      if (error?.Code === 'NoSuchKey') return;
+      if (error?.Code === 'NoSuchKey') return null;
+      throw error;
+    }
+  }
+
+  private async isMissingHandler(
+    commandOutput: Promise<unknown>
+  ): Promise<boolean> {
+    try {
+      await commandOutput;
+      return true;
+    } catch (error) {
+      // If file isn't found, just return false and let the service handle
+      // 404 behaviour.
+      if (error?.Code === 'NoSuchKey') return false;
       throw error;
     }
   }
