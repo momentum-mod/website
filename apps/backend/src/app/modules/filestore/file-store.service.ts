@@ -13,12 +13,29 @@ export abstract class FileStoreService {
   ): Promise<FileStoreFile>;
 
   /**
+   * Copy an object from one key to another.
+   *
+   * @returns true - if successful, `false` if the source file was missing.
+   * @throws S3ServiceException
+   */
+  abstract copyFile(fromKey: string, toKey: string): Promise<boolean>;
+
+  /**
    * Delete a file from cloud storage.
    *
    * @returns `true` if file was found and deleted, `false` if file was missing.
    * @throws S3ServiceException
    */
   abstract deleteFile(fileKey: string): Promise<boolean>;
+
+  /**
+   * Delete multiple files from cloud storage.
+   *
+   * @returns `true` - if all files were found and deleted, `false` if any files
+   * were missing.
+   * @throws S3ServiceException
+   */
+  abstract deleteFiles(fileKeys: string[]): Promise<boolean>;
 
   /**
    * Get a file (as a byte array) from cloud storage.
