@@ -142,7 +142,9 @@ module.exports = {
         'unicorn/no-empty-file': ['off'],
         'unicorn/prefer-export-from': ['error', { ignoreUsedVariables: true }],
         // Abusable, but fine in some cases. Prefer to handle in review.
-        'unicorn/no-array-callback-reference': ['off']
+        'unicorn/no-array-callback-reference': ['off'],
+        // A class may still wish to extend a class with only static members.
+        'unicorn/no-static-only-class': ['off']
       }
     },
     {
