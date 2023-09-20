@@ -181,8 +181,9 @@ export class CreateMapDto
   })
   readonly submissionType: MapSubmissionType;
 
-  @NestedProperty(MapSubmissionSuggestionDto, { isArray: true })
+  @NestedProperty(MapSubmissionSuggestionDto, { required: true, isArray: true })
   @IsArray()
+  @ArrayMinSize(1)
   readonly suggestions: MapSubmissionSuggestionDto[];
 
   @ApiProperty({
@@ -199,6 +200,7 @@ export class CreateMapDto
     isArray: true
   })
   @IsArray()
+  @IsOptional()
   readonly placeholders: MapSubmissionPlaceholderDto[];
 
   @ApiProperty({
@@ -207,6 +209,7 @@ export class CreateMapDto
   })
   @IsArray()
   @IsInt({ each: true })
+  @IsOptional()
   readonly testInvites?: number[];
 
   @NestedProperty(CreateMapInfoDto, { required: true })
