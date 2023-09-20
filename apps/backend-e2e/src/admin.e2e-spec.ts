@@ -6,6 +6,7 @@ import {
   AuthUtil,
   createSha1Hash,
   DbUtil,
+  FILES_PATH,
   FileStoreUtil,
   NULL_ID,
   RequestUtil
@@ -34,6 +35,9 @@ import {
   Role
 } from '@momentum/constants';
 import { Bitflags } from '@momentum/bitflags';
+import { Enum } from '@momentum/enum';
+import path from 'node:path';
+import Zip from 'adm-zip';
 
 describe('Admin', () => {
   let app,
@@ -767,7 +771,7 @@ describe('Admin', () => {
         req.get({
           url: 'admin/maps',
           status: 200,
-          validatePaged: { type: MapDto, count: 10 },
+          validatePaged: { type: MapDto, count: 9 },
           token: adminToken
         }));
 
@@ -775,7 +779,7 @@ describe('Admin', () => {
         req.get({
           url: 'admin/maps',
           status: 200,
-          validatePaged: { type: MapDto, count: 10 },
+          validatePaged: { type: MapDto, count: 9 },
           token: adminToken
         }));
 
@@ -1552,93 +1556,442 @@ describe('Admin', () => {
 
   describe('admin/maps/{mapID}', () => {
     describe('PATCH', () => {
-      let mod, modToken, admin, adminToken, u1, u1Token, m1, m2;
+      //prettier-ignore
+      let mod, modToken, admin, adminToken, reviewer, reviewerToken, u1, u1Token, u2, createMapData;
 
-      beforeAll(
-        async () =>
-          ([[mod, modToken], [admin, adminToken], [u1, u1Token], [m1, m2]] =
-            await Promise.all([
-              db.createAndLoginUser({
-                data: { roles: Role.MODERATOR }
-              }),
-              db.createAndLoginUser({
-                data: { roles: Role.ADMIN }
-              }),
-              db.createAndLoginUser(),
-              db.createMaps(2)
-            ]))
+      beforeAll(async () => {
+        [
+          [mod, modToken],
+          [admin, adminToken],
+          [reviewer, reviewerToken],
+          [u1, u1Token],
+          u2
+        ] = await Promise.all([
+          db.createAndLoginUser({
+            data: { roles: Role.MODERATOR }
+          }),
+          db.createAndLoginUser({
+            data: { roles: Role.ADMIN }
+          }),
+          db.createAndLoginUser({
+            data: { roles: Role.REVIEWER }
+          }),
+          db.createAndLoginUser(),
+          db.createUser()
+        ]);
+
+        createMapData = {
+          name: 'map',
+          fileName: 'surf_map',
+          submitter: { connect: { id: u1.id } },
+          submission: {
+            create: {
+              type: MapSubmissionType.ORIGINAL,
+              dates: [
+                {
+                  status: MapStatusNew.PRIVATE_TESTING,
+                  date: new Date().toJSON()
+                }
+              ],
+              suggestions: {
+                track: 1,
+                gamemode: Gamemode.SURF,
+                tier: 1,
+                ranked: true
+              }
+            }
+          }
+        };
+      });
+
+      afterAll(() => db.cleanup('user', 'run'));
+
+      afterEach(() =>
+        Promise.all([db.cleanup('mMap'), fileStore.deleteDirectory('maps')])
       );
 
-      afterAll(() => db.cleanup('user', 'mMap', 'run'));
+      for (const status of Enum.values(MapStatusNew)) {
+        it(`should allow an admin to update map data during ${MapStatusNew[status]}`, async () => {
+          const map = await db.createMap({ ...createMapData, status });
 
-      it('should successfully update a map status', async () => {
+          await req.patch({
+            url: `admin/maps/${map.id}`,
+            status: 204,
+            body: {
+              fileName: 'surf_dogs',
+              name: 'dogs',
+              info: {
+                description:
+                  'Dogs are large flightless birds. They are the heaviest living birds, and lay the largest eggs of any living land animal.',
+                youtubeID: 'Rt460jKi4Bk'
+              },
+              suggestions: [
+                { track: 1, gamemode: Gamemode.CONC, tier: 1, ranked: true }
+              ],
+              placeholders: [{ type: MapCreditType.CONTRIBUTOR, alias: 'eee' }]
+            },
+            token: adminToken
+          });
+
+          const changedMap = await prisma.mMap.findFirst({
+            where: { id: map.id },
+            include: { info: true, submission: true }
+          });
+
+          expect(changedMap).toMatchObject({
+            name: 'dogs',
+            fileName: 'surf_dogs',
+            info: {
+              description:
+                'Dogs are large flightless birds. They are the heaviest living birds, and lay the largest eggs of any living land animal.',
+              youtubeID: 'Rt460jKi4Bk'
+            },
+            submission: {
+              suggestions: [
+                { track: 1, gamemode: Gamemode.CONC, tier: 1, ranked: true }
+              ],
+              placeholders: [{ type: MapCreditType.CONTRIBUTOR, alias: 'eee' }]
+            }
+          });
+        });
+
+        it(`should allow a mod to update map data during ${MapStatusNew[status]}`, async () => {
+          const map = await db.createMap({ ...createMapData, status });
+
+          await req.patch({
+            url: `admin/maps/${map.id}`,
+            status: 204,
+            body: {
+              fileName: 'surf_whelks',
+              name: 'whelks',
+              info: {
+                description:
+                  'Whelks are large flightless dogs. They are the heaviest living dogs, and lay the largest dogs of any living land animal.',
+                youtubeID: 'IUfBBCkl_QI'
+              },
+              suggestions: [
+                { track: 1, gamemode: Gamemode.BHOP, tier: 1, ranked: true }
+              ],
+              placeholders: [{ type: MapCreditType.CONTRIBUTOR, alias: 'eee' }]
+            },
+            token: modToken
+          });
+
+          const changedMap = await prisma.mMap.findFirst({
+            where: { id: map.id },
+            include: { info: true, submission: true }
+          });
+
+          expect(changedMap).toMatchObject({
+            name: 'whelks',
+            fileName: 'surf_whelks',
+            info: {
+              description:
+                'Whelks are large flightless dogs. They are the heaviest living dogs, and lay the largest dogs of any living land animal.',
+              youtubeID: 'IUfBBCkl_QI'
+            },
+            submission: {
+              suggestions: [
+                { track: 1, gamemode: Gamemode.BHOP, tier: 1, ranked: true }
+              ],
+              placeholders: [{ type: MapCreditType.CONTRIBUTOR, alias: 'eee' }]
+            }
+          });
+        });
+
+        it(`should not allow a reviewer to update map data during ${MapStatusNew[status]}`, async () => {
+          const map = await db.createMap({ ...createMapData, status });
+
+          await prisma.mMap.update({ where: { id: map.id }, data: { status } });
+
+          await req.patch({
+            url: `admin/maps/${map.id}`,
+            status: 403,
+            body: { fileName: 'surf_albatross' },
+            token: reviewerToken
+          });
+        });
+      }
+
+      const statuses = Enum.values(MapStatusNew);
+      //prettier-ignore
+      const validChanges = new Set([
+        `${MapStatusNew.APPROVED        },${MapStatusNew.DISABLED        },${Role.MODERATOR}`,
+        `${MapStatusNew.APPROVED        },${MapStatusNew.DISABLED        },${Role.ADMIN}`,
+        `${MapStatusNew.PRIVATE_TESTING },${MapStatusNew.DISABLED        },${Role.ADMIN}`,
+        `${MapStatusNew.PRIVATE_TESTING },${MapStatusNew.DISABLED        },${Role.MODERATOR}`,
+        `${MapStatusNew.CONTENT_APPROVAL},${MapStatusNew.PUBLIC_TESTING  },${Role.ADMIN}`,
+        `${MapStatusNew.CONTENT_APPROVAL},${MapStatusNew.PUBLIC_TESTING  },${Role.MODERATOR}`,
+        `${MapStatusNew.CONTENT_APPROVAL},${MapStatusNew.PUBLIC_TESTING  },${Role.REVIEWER}`,
+        `${MapStatusNew.CONTENT_APPROVAL},${MapStatusNew.FINAL_APPROVAL  },${Role.MODERATOR}`,
+        `${MapStatusNew.CONTENT_APPROVAL},${MapStatusNew.FINAL_APPROVAL  },${Role.ADMIN}`,
+        `${MapStatusNew.CONTENT_APPROVAL},${MapStatusNew.DISABLED        },${Role.MODERATOR}`,
+        `${MapStatusNew.CONTENT_APPROVAL},${MapStatusNew.DISABLED        },${Role.ADMIN}`,
+        `${MapStatusNew.PUBLIC_TESTING  },${MapStatusNew.CONTENT_APPROVAL},${Role.MODERATOR}`,
+        `${MapStatusNew.PUBLIC_TESTING  },${MapStatusNew.CONTENT_APPROVAL},${Role.ADMIN}`,
+        `${MapStatusNew.PUBLIC_TESTING  },${MapStatusNew.DISABLED        },${Role.MODERATOR}`,
+        `${MapStatusNew.PUBLIC_TESTING  },${MapStatusNew.DISABLED        },${Role.ADMIN}`,
+        `${MapStatusNew.FINAL_APPROVAL  },${MapStatusNew.APPROVED        },${Role.MODERATOR}`,
+        `${MapStatusNew.FINAL_APPROVAL  },${MapStatusNew.APPROVED        },${Role.ADMIN}`,
+        `${MapStatusNew.FINAL_APPROVAL  },${MapStatusNew.DISABLED        },${Role.MODERATOR}`,
+        `${MapStatusNew.FINAL_APPROVAL  },${MapStatusNew.DISABLED        },${Role.ADMIN}`,
+        `${MapStatusNew.DISABLED        },${MapStatusNew.APPROVED        },${Role.ADMIN}`,
+        `${MapStatusNew.DISABLED        },${MapStatusNew.PRIVATE_TESTING },${Role.ADMIN}`,
+        `${MapStatusNew.DISABLED        },${MapStatusNew.CONTENT_APPROVAL},${Role.ADMIN}`,
+        `${MapStatusNew.DISABLED        },${MapStatusNew.PUBLIC_TESTING  },${Role.ADMIN}`,
+        `${MapStatusNew.DISABLED        },${MapStatusNew.FINAL_APPROVAL  },${Role.ADMIN}`
+      ]);
+
+      for (const s1 of statuses) {
+        for (const s2 of statuses.filter((s) => s !== s1)) {
+          for (const role of [Role.MODERATOR, Role.ADMIN, Role.REVIEWER]) {
+            const shouldPass = validChanges.has(`${s1},${s2},${role}`);
+
+            it(`should ${shouldPass ? '' : 'not '}allow a ${
+              role === Role.ADMIN
+                ? 'admin'
+                : role === Role.MODERATOR
+                ? 'mod'
+                : 'reviewer'
+            } to change a map from ${MapStatusNew[s1]} to ${
+              MapStatusNew[s2]
+            }`, async () => {
+              const bspBuffer = readFileSync(path.join(FILES_PATH, 'map.bsp'));
+
+              const map = await db.createMap({
+                ...createMapData,
+                submission: {
+                  create: {
+                    ...createMapData.submission.create,
+                    versions: {
+                      create: { versionNum: 1, hash: createSha1Hash(bspBuffer) }
+                    }
+                  }
+                },
+                status: s1
+              });
+
+              await prisma.mapSubmission.update({
+                where: { mapID: map.id },
+                data: { currentVersionID: map.submission.versions[0].id }
+              });
+
+              // Annoying to have to do this for every test but FA -> Approved
+              // will throw otherwise.
+              await fileStore.add(
+                `submissions/${map.submission.versions[0].id}.bsp`,
+                bspBuffer
+              );
+
+              await req.patch({
+                url: `admin/maps/${map.id}`,
+                status: shouldPass ? 204 : 403,
+                body: { status: s2 },
+                token:
+                  role === Role.ADMIN
+                    ? adminToken
+                    : role === Role.MODERATOR
+                    ? modToken
+                    : reviewerToken
+              });
+
+              if (shouldPass) {
+                const updatedMap = await prisma.mMap.findUnique({
+                  where: { id: map.id }
+                });
+                expect(updatedMap.status).toBe(s2);
+              }
+            });
+          }
+        }
+      }
+
+      it('should create placeholder users after map status changed from FA to approved', async () => {
+        const bspBuffer = readFileSync(path.join(FILES_PATH, 'map.bsp'));
+
+        const map = await db.createMap({
+          ...createMapData,
+          submission: {
+            create: {
+              ...createMapData.submission.create,
+              versions: {
+                create: { versionNum: 1, hash: createSha1Hash(bspBuffer) }
+              },
+              placeholders: [
+                {
+                  type: MapCreditType.CONTRIBUTOR,
+                  alias: 'Bungus',
+                  description: 'What'
+                }
+              ]
+            }
+          },
+          status: MapStatusNew.FINAL_APPROVAL
+        });
+
+        await prisma.mapSubmission.update({
+          where: { mapID: map.id },
+          data: { currentVersionID: map.submission.versions[0].id }
+        });
+
+        await fileStore.add(
+          `submissions/${map.submission.versions[0].id}.bsp`,
+          bspBuffer
+        );
+
         await req.patch({
-          url: `admin/maps/${m1.id}`,
+          url: `admin/maps/${map.id}`,
           status: 204,
-          body: { status: MapStatus.PUBLIC_TESTING },
+          body: { status: MapStatus.APPROVED },
           token: adminToken
         });
 
-        const changedMap = await prisma.mMap.findFirst({
-          where: { id: m1.id }
+        const bungus = await prisma.user.findFirst({
+          where: { alias: 'Bungus' },
+          include: { mapCredits: true }
         });
 
-        expect(changedMap.status).toBe(MapStatus.PUBLIC_TESTING);
+        expect(bungus).toMatchObject({
+          mapCredits: [
+            {
+              mapID: map.id,
+              type: MapCreditType.CONTRIBUTOR,
+              description: 'What'
+            }
+          ]
+        });
       });
 
-      it('should create activities for map authors with map approved type after map status changed from pending to approved', async () => {
-        await prisma.mMap.update({
-          where: { id: m1.id },
-          data: { status: MapStatus.PENDING }
+      it('should copy latest submission version files to maps/ after map status changed from FA to approved', async () => {
+        const bspBuffer = readFileSync(path.join(FILES_PATH, 'map.bsp'));
+        const bspHash = createSha1Hash(bspBuffer);
+        const vmfBuffer = readFileSync(path.join(FILES_PATH, 'map.vmf'));
+        const vmfHash = createSha1Hash(vmfBuffer);
+        const vmfZip = new Zip();
+        vmfZip.addFile('map.vmf', vmfBuffer);
+
+        const map = await db.createMap({
+          ...createMapData,
+          submission: {
+            create: {
+              ...createMapData.submission.create,
+              versions: {
+                create: {
+                  versionNum: 1,
+                  hash: createSha1Hash(bspBuffer),
+                  hasVmf: true
+                }
+              }
+            }
+          },
+          status: MapStatusNew.FINAL_APPROVAL
         });
+
+        await prisma.mapSubmission.update({
+          where: { mapID: map.id },
+          data: { currentVersionID: map.submission.versions[0].id }
+        });
+
+        await fileStore.add(
+          `submissions/${map.submission.versions[0].id}.bsp`,
+          bspBuffer
+        );
+
+        await fileStore.add(
+          `submissions/${map.submission.versions[0].id}_VMFs.zip`,
+          vmfZip.toBuffer()
+        );
+
+        await req.patch({
+          url: `admin/maps/${map.id}`,
+          status: 204,
+          body: { status: MapStatus.APPROVED },
+          token: adminToken
+        });
+
+        const updatedMap = await prisma.mMap.findUnique({
+          where: { id: map.id }
+        });
+
+        expect(updatedMap).toMatchObject({
+          status: MapStatusNew.APPROVED,
+          hash: bspHash,
+          hasVmf: true
+        });
+
+        expect(
+          await fileStore.exists(
+            `submissions/${map.submission.versions[0].id}.bsp`
+          )
+        ).toBeFalsy();
+        expect(
+          await fileStore.exists(
+            `submissions/${map.submission.versions[0].id}_VMFs.zip`
+          )
+        ).toBeFalsy();
+
+        expect(
+          createSha1Hash(await fileStore.get(`maps/${map.fileName}.bsp`))
+        ).toBe(bspHash);
+
+        expect(
+          createSha1Hash(
+            new Zip(await fileStore.get(`maps/${map.fileName}_VMFs.zip`))
+              .getEntry('map.vmf')
+              .getData()
+          )
+        ).toBe(vmfHash);
+      });
+
+      it('should create MAP_APPROVED activities for authors after map status changed from FA to approved', async () => {
+        const bspBuffer = readFileSync(path.join(FILES_PATH, 'map.bsp'));
+
+        const map = await db.createMap({
+          ...createMapData,
+          submission: {
+            create: {
+              ...createMapData.submission.create,
+              versions: {
+                create: { versionNum: 1, hash: createSha1Hash(bspBuffer) }
+              }
+            }
+          },
+          status: MapStatusNew.FINAL_APPROVAL
+        });
+
+        await prisma.mapSubmission.update({
+          where: { mapID: map.id },
+          data: { currentVersionID: map.submission.versions[0].id }
+        });
+
+        await fileStore.add(
+          `submissions/${map.submission.versions[0].id}.bsp`,
+          bspBuffer
+        );
 
         await prisma.mapCredit.createMany({
           data: [
-            { type: MapCreditType.AUTHOR, mapID: m1.id, userID: u1.id },
-            { type: MapCreditType.AUTHOR, mapID: m1.id, userID: admin.id },
-            { type: MapCreditType.AUTHOR, mapID: m1.id, userID: mod.id }
+            { type: MapCreditType.AUTHOR, mapID: map.id, userID: u1.id },
+            { type: MapCreditType.AUTHOR, mapID: map.id, userID: admin.id },
+            { type: MapCreditType.AUTHOR, mapID: map.id, userID: mod.id }
           ]
         });
 
         await req.patch({
-          url: `admin/maps/${m1.id}`,
+          url: `admin/maps/${map.id}`,
           status: 204,
           body: { status: MapStatus.APPROVED },
           token: adminToken
         });
 
         const mapApprovedActvities = await prisma.activity.findMany({
-          where: { type: ActivityType.MAP_APPROVED, data: m1.id }
+          where: { type: ActivityType.MAP_APPROVED, data: map.id }
         });
 
         expect(mapApprovedActvities.length).toBe(3);
         expect(
           mapApprovedActvities.map((activity) => activity.userID).sort()
         ).toEqual([u1.id, admin.id, mod.id].sort());
-      });
-
-      it('should return 403 if rejected or removed map is being updated', async () => {
-        await prisma.mMap.update({
-          where: { id: m1.id },
-          data: { status: MapStatus.REJECTED }
-        });
-        await req.patch({
-          url: `admin/maps/${m1.id}`,
-          status: 403,
-          body: { status: MapStatus.PUBLIC_TESTING },
-          token: adminToken
-        });
-
-        await prisma.mMap.update({
-          where: { id: m2.id },
-          data: { status: MapStatus.REMOVED }
-        });
-        await req.patch({
-          url: `admin/maps/${m2.id}`,
-          status: 403,
-          body: { status: MapStatus.PUBLIC_TESTING },
-          token: adminToken
-        });
       });
 
       it('should return 404 if map not found', () =>
@@ -1649,23 +2002,17 @@ describe('Admin', () => {
           token: adminToken
         }));
 
-      it('should return 403 if a non admin access token is given', () =>
+      it('should return 403 for a non-admin/mod/reviewer access token is given', () =>
         req.patch({
-          url: `admin/maps/${m1.id}`,
+          url: `admin/maps/${NULL_ID}`,
           status: 403,
           token: u1Token
-        }));
-
-      it('should return 403 if a mod access token is given', () =>
-        req.patch({
-          url: `admin/maps/${m1.id}`,
-          status: 403,
-          token: modToken
         }));
 
       it('should 401 when no access token is provided', () =>
         req.unauthorizedTest('admin/maps/1', 'patch'));
     });
+
     describe('DELETE', () => {
       let modToken, adminToken, u1, u1Token, m1;
 

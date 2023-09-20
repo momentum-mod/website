@@ -42,7 +42,7 @@ import {
   MergeUserDto,
   PagedResponseDto,
   ReportDto,
-  UpdateMapDto,
+  UpdateMapAdminDto,
   UpdateReportDto,
   UpdateXpSystemsDto,
   UserDto,
@@ -176,16 +176,12 @@ export class AdminController {
 
   @Patch('/maps/:mapID')
   @HttpCode(HttpStatus.NO_CONTENT)
-  @ApiOperation({ summary: "Update the target map's status flags" })
+  @Roles(RolesEnum.REVIEWER, RolesEnum.MODERATOR, RolesEnum.ADMIN)
+  @ApiOperation({ summary: "Update a map's data / change its status" })
   @ApiParam({
     name: 'mapID',
     type: Number,
     description: 'ID of the map to update',
-    required: true
-  })
-  @ApiBody({
-    type: MapDto,
-    description: 'The new status flags to update on the map',
     required: true
   })
   @ApiNoContentResponse({ description: 'The map was updated successfully' })
@@ -193,9 +189,9 @@ export class AdminController {
   updateMap(
     @Param('mapID', ParseIntSafePipe) mapID: number,
     @LoggedInUser('id') userID: number,
-    @Body() body: UpdateMapDto
+    @Body() body: UpdateMapAdminDto
   ) {
-    return this.mapsService.update(mapID, userID, body, true);
+    return this.mapsService.updateAsAdmin(mapID, userID, body);
   }
 
   @Delete('/maps/:mapID')
