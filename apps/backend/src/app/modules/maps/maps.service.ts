@@ -77,6 +77,7 @@ import { MapTestingRequestService } from './map-testing-request.service';
 import { ConfigService } from '@nestjs/config';
 import { OverrideProperties } from 'type-fest';
 import { deepmerge } from '@fastify/deepmerge';
+import { MapCreditsService } from './map-credits.service';
 
 type MapWithSubmission = MMap & {
   submission: OverrideProperties<
@@ -98,7 +99,9 @@ export class MapsService {
     @Inject(forwardRef(() => MapImageService))
     private readonly mapImageService: MapImageService,
     @Inject(forwardRef(() => MapTestingRequestService))
-    private readonly mapTestingRequestService: MapTestingRequestService
+    private readonly mapTestingRequestService: MapTestingRequestService,
+    @Inject(forwardRef(() => MapTestingRequestService))
+    private readonly mapCreditService: MapCreditsService
   ) {}
 
   //#region Gets
@@ -938,8 +941,80 @@ export class MapsService {
     });
   }
 
+  /**
+   * Handles updating the map data as admin/moderator/reviewer. All map status
+   * changes are done here, so a lot can happen.
+   */
+  async updateAsAdmin(mapID: number, userID: number, dto: UpdateMapAdminDto) {
+    throwIfEmpty(dto);
 
+    const map = (await this.db.mMap.findUnique({
+      where: { id: mapID },
+      include: { submission: true }
+    })) as MapWithSubmission;
+
+    if (!map) {
+      throw new NotFoundException('Map does not exist');
+    }
+
+    const { roles } = await this.db.user.findUnique({ where: { id: userID } });
+
+    if (!Bitflags.has(roles, CombinedRoles.MOD_OR_ADMIN)) {
+      if (Bitflags.has(roles, Role.REVIEWER)) {
+        // The *only* things reviewer is allowed is to go from
+        // content approval -> public testing or rejected
+        if (
+          dto.status !== MapStatusNew.PUBLIC_TESTING || // updating to status other public testing
+          Object.values(dto).filter((x) => x !== undefined).length !== 1 // anything else on the DTO
+        ) {
+          throw new ForbiddenException(
+            'Reviewer may only change status to PUBLIC_TESTING'
+          );
+        }
+      } else {
+        throw new ForbiddenException();
+      }
+    }
+
+    await this.db.$transaction(async (tx) => {
+      const update: Prisma.MMapUpdateInput = {};
+
+      if (dto.submitterID) {
+        const newUser = await this.db.user.findUnique({
+          where: { id: dto.submitterID }
         });
+        if (!newUser)
+          throw new BadRequestException('New submitter does not exist');
+        if (Bitflags.has(newUser.roles, Role.PLACEHOLDER))
+          throw new BadRequestException(
+            'New submitter is a placeholder! If you want to take over a map submission, set yourself as submitter.'
+          );
+        if (Bitflags.has(newUser.bans, Ban.MAP_SUBMISSION))
+          throw new BadRequestException(
+            'New submitter is banned from map submission'
+          );
+        update.submitter = { connect: { id: dto.submitterID } };
+      }
+
+      const generalChanges = this.getGeneralMapDataUpdate(map, dto);
+      const statusChanges = await this.mapStatusUpdateHandler(
+        tx,
+        map,
+        dto,
+        roles,
+        false
+      );
+
+      await tx.mMap.update({
+        where: { id: mapID },
+        data: deepmerge({ all: true })(
+          update,
+          generalChanges,
+          statusChanges
+        ) as Prisma.MMapUpdateInput
+      });
+    });
+  }
 
   private getGeneralMapDataUpdate(
     map: MapWithSubmission,
