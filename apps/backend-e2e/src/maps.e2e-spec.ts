@@ -3385,5 +3385,78 @@ describe('Maps', () => {
       it('should 401 when no access token is provided', () =>
         req.unauthorizedTest('maps/1/reviews/1', 'get'));
     });
+    describe('DELETE', () => {
+      let u1, u1Token, u2, u2Token, modToken, adminToken, map, review;
+
+      beforeEach(async () => {
+        [[u1, u1Token], [u2, u2Token], modToken, adminToken] =
+          await Promise.all([
+            db.createAndLoginUser({ data: { roles: Role.MAPPER } }),
+            db.createAndLoginUser(),
+            db.loginNewUser({ data: { roles: Role.MODERATOR } }),
+            db.loginNewUser({ data: { roles: Role.ADMIN } })
+          ]);
+
+        map = await db.createMap({
+          status: MapStatusNew.APPROVED,
+          submitter: { connect: { id: u1.id } }
+        });
+
+        review = await prisma.mapReview.create({
+          data: {
+            mainText: 'This map was E Z',
+            suggestions: [
+              {
+                track: 1,
+                gamemode: Gamemode.SURF,
+                tier: 1,
+                comment: 'I surfed this backwards',
+                gameplayRating: 10
+              }
+            ],
+            mmap: { connect: { id: map.id } },
+            reviewer: { connect: { id: u2.id } },
+            resolved: true
+          }
+        });
+      });
+
+      afterEach(() => db.cleanup('mMap', 'user'));
+
+      it('should return 404 for trying to delete a nonexistent review for a map', () =>
+        req.del({
+          url: `maps/${map.id}/reviews/${NULL_ID}`,
+          status: 404,
+          token: u2Token
+        }));
+
+      it('should return 403 for when the user is not the author of the review', () =>
+        req.del({
+          url: `maps/${map.id}/reviews/${review.id}`,
+          status: 403,
+          token: u1Token
+        }));
+
+      it('should return 204 when a user deletes their review', async () =>
+        await req.del({
+          url: `maps/${map.id}/reviews/${review.id}`,
+          status: 204,
+          token: u2Token
+        }));
+
+      it('should return 204 when a mod deletes a review', async () =>
+        await req.del({
+          url: `maps/${map.id}/reviews/${review.id}`,
+          status: 204,
+          token: modToken
+        }));
+
+      it('should return 204 when an admin deletes a review', async () =>
+        await req.del({
+          url: `maps/${map.id}/reviews/${review.id}`,
+          status: 204,
+          token: adminToken
+        }));
+    });
   });
 });

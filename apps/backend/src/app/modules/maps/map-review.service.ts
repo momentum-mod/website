@@ -1,4 +1,9 @@
-import { Inject, Injectable, NotFoundException } from '@nestjs/common';
+import {
+  Inject,
+  Injectable,
+  NotFoundException,
+  ForbiddenException
+} from '@nestjs/common';
 import {
   DtoFactory,
   MapReviewDto,
@@ -6,12 +11,13 @@ import {
   MapReviewsGetQueryDto,
   PagedResponseDto
 } from '@momentum/backend/dto';
-import { Role } from '@momentum/constants';
+import { Role, CombinedRoles } from '@momentum/constants';
 import { MapReview, Prisma, User } from '@prisma/client';
 import { MapsService } from './maps.service';
 import { EXTENDED_PRISMA_SERVICE } from '../database/db.constants';
 import { ExtendedPrismaService } from '../database/prisma.extension';
 import { expandToIncludes, undefinedIfEmpty } from '@momentum/util-fn';
+import { Bitflags } from '@momentum/bitflags';
 
 @Injectable()
 export class MapReviewService {
@@ -92,5 +98,29 @@ export class MapReviewService {
     if (!review) throw new NotFoundException('Review not found');
 
     return DtoFactory(MapReviewDto, review);
+  }
+
+  async deleteReview(
+    mapID: number,
+    reviewID: number,
+    userID: number
+  ): Promise<void> {
+    await this.mapsService.getMapAndCheckReadAccess(mapID, userID);
+    const user = await this.db.user.findUnique({ where: { id: userID } });
+
+    const review = await this.db.mapReview.findFirst({
+      where: { id: reviewID, mapID }
+    });
+
+    if (!review) throw new NotFoundException('Review not found');
+
+    if (
+      review.reviewerID === userID ||
+      Bitflags.has(user.roles, CombinedRoles.MOD_OR_ADMIN)
+    ) {
+      await this.db.mapReview.delete({ where: { id: reviewID } });
+    } else {
+      throw new ForbiddenException('User is not the submitter of this review');
+    }
   }
 }
