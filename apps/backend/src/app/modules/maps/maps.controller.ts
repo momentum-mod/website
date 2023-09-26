@@ -752,6 +752,27 @@ export class MapsController {
     return this.mapReviewService.getReview(mapID, reviewID, userID, query);
   }
 
+  @Delete('/:mapID/reviews/:reviewID')
+  @HttpCode(HttpStatus.NO_CONTENT)
+  @ApiOperation({ summary: 'Deletes a map review' })
+  @ApiNoContentResponse({ description: 'Review deleted successfully' })
+  @ApiNotFoundResponse({ description: 'Review not found' })
+  @ApiForbiddenResponse({
+    description: 'User is not the submitter of the map review'
+  })
+  @ApiParam({
+    name: 'reviewID',
+    type: Number,
+    description: 'Target Review ID',
+    required: true
+  })
+  deleteReview(
+    @Param('mapID', ParseIntSafePipe) mapID: number,
+    @Param('reviewID', ParseIntSafePipe) reviewID: number,
+    @LoggedInUser('id') userID: number
+  ): Promise<void> {
+    return this.mapReviewService.deleteReview(mapID, reviewID, userID);
+  }
   //endregion
 
   //#region Private
