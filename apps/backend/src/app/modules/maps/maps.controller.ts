@@ -752,32 +752,6 @@ export class MapsController {
     return review;
   }
 
-  @Post('/:mapID/reviews')
-  @ApiOperation({ summary: 'Creates a review for a map' })
-  @ApiOkResponse({ type: MapReviewDto, description: 'The created review' })
-  @ApiForbiddenResponse({
-    description: 'User does not have the required role to review'
-  })
-  @ApiBadRequestResponse({ description: 'Invalid map' })
-  @ApiBody({
-    type: CreateMapReviewDto,
-    description: 'The create map review data transfer object',
-    required: true
-  })
-  async createReview(
-    @Body() body: CreateMapReviewDto,
-    @Param('mapID', ParseIntSafePipe) mapID: number,
-    @LoggedInUser('id') userID: number
-  ): Promise<MapReviewDto> {
-    const review = await this.mapReviewService.createReview(
-      userID,
-      mapID,
-      body
-    );
-
-    return review;
-  }
-
   @Get('/:mapID/reviews/:reviewID')
   @ApiOperation({ summary: 'Returns the requested review' })
   @ApiParam({
