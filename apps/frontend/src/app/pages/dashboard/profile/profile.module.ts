@@ -8,11 +8,13 @@ import { ProfileRoutingModule } from './profile-routing.module';
 import { ProfileComponent } from './profile.component';
 import { ProfileNotifyEditComponent } from './profile-follow/profile-notify-edit/profile-notify-edit.component';
 import { SharedModule } from '../../../shared.module';
+import { ProfileRedirectComponent } from './profile-redirect.component';
 
 @NgModule({
   imports: [SharedModule, ProfileRoutingModule],
   declarations: [
     ProfileComponent,
+    ProfileRedirectComponent,
     UserProfileComponent,
     ProfileEditComponent,
     ProfileFollowComponent,

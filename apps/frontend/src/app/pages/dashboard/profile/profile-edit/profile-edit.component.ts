@@ -231,9 +231,7 @@ export class ProfileEditComponent implements OnInit, OnDestroy {
   }
 
   returnToProfile() {
-    this.router.navigate([
-      `/dashboard/profile${this.isLocal ? '' : '/' + this.user.id}`
-    ]);
+    this.router.navigate([`/dashboard/profile/${this.user.id}`]);
   }
 
   deleteUser() {

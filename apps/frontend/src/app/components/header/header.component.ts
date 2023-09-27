@@ -18,7 +18,11 @@ export class HeaderComponent implements OnInit, OnDestroy {
   userMenu: NbMenuItem[] = [
     {
       title: 'Profile',
-      link: '/dashboard/profile'
+      // If `user` hasn't been fetched yet, just navigate to ProfileRedirect
+      // component, which will await the user result then redirect to relatived URL.
+      link: this.user?.id
+        ? `/dashboard/profile/${this.user.id}`
+        : '/dashboard/profile'
     },
     {
       title: 'Edit Profile',
@@ -29,7 +33,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
     }
   ];
 
-  user: User;
+  user?: User;
   notifications: Notification[];
   numUnreadNotifs: number;
 

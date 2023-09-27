@@ -5,6 +5,7 @@ import { NotFoundDashboardComponent } from '../../not-found/dashboard/not-found-
 import { NgModule } from '@angular/core';
 import { ProfileComponent } from './profile.component';
 import { Role } from '@momentum/constants';
+import { ProfileRedirectComponent } from './profile-redirect.component';
 
 @NgModule({
   imports: [
@@ -25,7 +26,7 @@ import { Role } from '@momentum/constants';
               }
             ]
           },
-          { path: '', component: UserProfileComponent },
+          { path: '', component: ProfileRedirectComponent },
           { path: '**', component: NotFoundDashboardComponent }
         ]
       }
