@@ -658,3 +658,7 @@ model XpSystems {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
+
+model DeletedSteamID {
+  steamID BigInt @id @unique @db.BigInt
+}

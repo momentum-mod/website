@@ -509,7 +509,16 @@ describe('Admin', () => {
 
       afterEach(() => prisma.user.deleteMany());
 
-      afterAll(() => db.cleanup('mMap', 'rank', 'run', 'report', 'activity'));
+      afterAll(() =>
+        db.cleanup(
+          'mMap',
+          'rank',
+          'run',
+          'report',
+          'activity',
+          'deletedSteamID'
+        )
+      );
 
       it('should delete user data. leaving user with Role.DELETED', async () => {
         const followeeUser = await db.createUser();
@@ -657,6 +666,10 @@ describe('Admin', () => {
           }
         });
 
+        const deletedSteamIDEntry = await prisma.deletedSteamID.findUnique({
+          where: { steamID: userBeforeDeletion.steamID }
+        });
+
         expect(deletedUser).toMatchObject({
           roles: Role.DELETED,
           bans: userBeforeDeletion.bans,
@@ -683,6 +696,8 @@ describe('Admin', () => {
           reportSubmitted: userBeforeDeletion.reportSubmitted,
           reportResolved: userBeforeDeletion.reportResolved
         });
+
+        expect(deletedSteamIDEntry).toBeTruthy();
       });
 
       it('should 403 when the user requesting only is a moderator', () =>
