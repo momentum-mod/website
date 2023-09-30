@@ -476,9 +476,9 @@ export class MapsService {
     bspFile: File,
     vmfFiles?: File[]
   ): Promise<MapDto> {
-    await this.createDtoChecks(userID, dto);
-    this.fileChecks(dto.fileName, bspFile, vmfFiles);
-    this.fileNameChecks(dto.name, dto.fileName);
+    await this.checkCreateDto(userID, dto);
+    this.checkMapFiles(dto.fileName, bspFile, vmfFiles);
+    this.checkMapFileNames(dto.name, dto.fileName);
 
     const hasVmf = vmfFiles?.length > 0;
     const bspHash = FileStoreService.getHashForBuffer(bspFile.buffer);
@@ -555,7 +555,7 @@ export class MapsService {
       throw new ForbiddenException('Map does not allow editing');
     }
 
-    this.fileChecks(map.fileName, bspFile, vmfFiles);
+    this.checkMapFiles(map.fileName, bspFile, vmfFiles);
 
     const hasVmf = vmfFiles?.length > 0;
     const bspHash = FileStoreService.getHashForBuffer(bspFile.buffer);
@@ -602,7 +602,7 @@ export class MapsService {
     );
   }
 
-  private async createDtoChecks(userID: number, dto: CreateMapDto) {
+  private async checkCreateDto(userID: number, dto: CreateMapDto) {
     const user = await this.db.user.findUnique({
       where: { id: userID },
       include: { submittedMaps: true }
@@ -847,7 +847,7 @@ export class MapsService {
     });
   }
 
-  private fileChecks(fileName: string, bspFile: File, vmfFiles: File[]) {
+  private checkMapFiles(fileName: string, bspFile: File, vmfFiles: File[]) {
     if (
       !bspFile.originalname.startsWith(fileName) ||
       !bspFile.originalname.endsWith('.bsp')
@@ -1023,7 +1023,7 @@ export class MapsService {
     const update: Prisma.MMapUpdateInput = {};
 
     if (dto.name || dto.fileName) {
-      this.fileNameChecks(
+      this.checkMapFileNames(
         dto.name ?? dto.fileName,
         dto.fileName ?? map.fileName
       );
@@ -1418,7 +1418,7 @@ export class MapsService {
     throw new ForbiddenException('User not authorized to access map data');
   }
 
-  fileNameChecks(name: string, fileName: string) {
+  checkMapFileNames(name: string, fileName: string) {
     // Simple checks that the name on the DTO and the uploaded File match up,
     // and a length check. All instances of `fileName` will have passed an
     // IsMapName validator so is only be alphanumeric, dashes and underscores.
