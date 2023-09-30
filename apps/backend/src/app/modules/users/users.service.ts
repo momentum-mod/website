@@ -183,6 +183,13 @@ export class UsersService {
         'We do not authenticate Steam accounts without a profile. Set up your community profile on Steam!'
       );
 
+    const deletedSteamID = await this.db.deletedSteamID.findUnique({
+      where: { steamID: BigInt(profile.steamid) }
+    });
+
+    if (deletedSteamID)
+      throw new ForbiddenException('Account with this SteamID was deleted.');
+
     const user = await this.findOrCreateUser({
       steamID: BigInt(profile.steamid),
       alias: profile.personaname,
@@ -334,6 +341,11 @@ export class UsersService {
       this.db.userAuth.deleteMany({
         where: {
           userID
+        }
+      }),
+      this.db.deletedSteamID.create({
+        data: {
+          steamID: user.steamID
         }
       })
     ]);

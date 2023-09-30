@@ -178,7 +178,7 @@ describe('Auth', () => {
           response = await request();
         });
 
-        afterAll(() => db.cleanup('user'));
+        afterAll(() => db.cleanup('user', 'deletedSteamID'));
 
         it('should succeed and redirect to dashboard', () => {
           expect(response.statusCode).toBe(302);
@@ -226,6 +226,19 @@ describe('Auth', () => {
         });
         const res = await request();
         expect(res.statusCode).toBe(403);
+      });
+
+      it('should throw a ForbiddenException if account with this steamID was deleted', async () => {
+        await prisma.deletedSteamID.create({
+          data: { steamID: BigInt(steamID) }
+        });
+
+        const res = await request();
+        expect(res.statusCode).toBe(403);
+
+        await prisma.deletedSteamID.delete({
+          where: { steamID: BigInt(steamID) }
+        });
       });
 
       it('should throw a ForbiddenException if the user is a limited account and preventLimited is true', async () => {

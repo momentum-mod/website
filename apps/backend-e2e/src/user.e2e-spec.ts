@@ -334,6 +334,17 @@ describe('User', () => {
     });
 
     describe('DELETE', () => {
+      afterAll(() =>
+        db.cleanup(
+          'mMap',
+          'rank',
+          'run',
+          'report',
+          'activity',
+          'deletedSteamID'
+        )
+      );
+
       it('should delete user data, leaving user with Role.DELETED', async () => {
         const followeeUser = await db.createUser();
         const map = await db.createMap();
@@ -481,6 +492,10 @@ describe('User', () => {
           }
         });
 
+        const deletedSteamIDEntry = await prisma.deletedSteamID.findUnique({
+          where: { steamID: userBeforeDeletion.steamID }
+        });
+
         expect(deletedUser).toMatchObject({
           roles: Role.DELETED,
           bans: userBeforeDeletion.bans,
@@ -507,6 +522,8 @@ describe('User', () => {
           reportSubmitted: userBeforeDeletion.reportSubmitted,
           reportResolved: userBeforeDeletion.reportResolved
         });
+
+        expect(deletedSteamIDEntry).toBeTruthy();
       });
 
       it('should 401 when no access token is provided', () =>
