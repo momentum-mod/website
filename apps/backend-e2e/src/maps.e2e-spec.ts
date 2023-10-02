@@ -3282,16 +3282,16 @@ describe('Maps', () => {
     });
 
     describe('POST', () => {
-      let u1,
-        u1Token,
-        u2,
-        u2Token,
+      let mapper,
+        mapperToken,
+        reviewer,
+        reviewerToken,
         mod,
         modToken,
-        u4,
-        u4Token,
-        u5,
-        u5Token,
+        user,
+        userToken,
+        mapTester,
+        mapTesterToken,
         map1,
         map2,
         map3,
@@ -3300,34 +3300,38 @@ describe('Maps', () => {
         map6;
 
       beforeAll(async () => {
-        [[u1, u1Token], [u2, u2Token], [mod, modToken], [u4, u4Token]] =
-          await Promise.all([
-            db.createAndLoginUser({ data: { roles: Role.MAPPER } }),
-            db.createAndLoginUser({ data: { roles: Role.REVIEWER } }),
-            db.createAndLoginUser({ data: { roles: Role.MODERATOR } }),
-            db.createAndLoginUser()
-          ]);
+        [
+          [mapper, mapperToken],
+          [reviewer, reviewerToken],
+          [mod, modToken],
+          [user, userToken]
+        ] = await Promise.all([
+          db.createAndLoginUser({ data: { roles: Role.MAPPER } }),
+          db.createAndLoginUser({ data: { roles: Role.REVIEWER } }),
+          db.createAndLoginUser({ data: { roles: Role.MODERATOR } }),
+          db.createAndLoginUser()
+        ]);
 
         //public map
         map1 = await db.createMap({
           status: MapStatusNew.APPROVED,
-          submitter: { connect: { id: u1.id } }
+          submitter: { connect: { id: mapper.id } }
         });
 
         // public testing map
         map2 = await db.createMap({
           status: MapStatusNew.PUBLIC_TESTING,
-          submitter: { connect: { id: u1.id } }
+          submitter: { connect: { id: mapper.id } }
         });
 
         // private testing
         map3 = await db.createMap({
           status: MapStatusNew.PRIVATE_TESTING,
-          submitter: { connect: { id: u1.id } }
+          submitter: { connect: { id: mapper.id } }
         });
 
         //user with testing invite
-        [[u5, u5Token]] = await Promise.all([
+        [[mapTester, mapTesterToken]] = await Promise.all([
           db.createAndLoginUser({
             data: {
               testingRequests: {
@@ -3343,19 +3347,19 @@ describe('Maps', () => {
         // content approval
         map4 = await db.createMap({
           status: MapStatusNew.CONTENT_APPROVAL,
-          submitter: { connect: { id: u1.id } }
+          submitter: { connect: { id: mapper.id } }
         });
 
         // final approval
         map5 = await db.createMap({
           status: MapStatusNew.FINAL_APPROVAL,
-          submitter: { connect: { id: u1.id } }
+          submitter: { connect: { id: mapper.id } }
         });
 
         // rejected (review writes are not allowed)
         map6 = await db.createMap({
           status: MapStatusNew.REJECTED,
-          submitter: { connect: { id: u1.id } }
+          submitter: { connect: { id: mapper.id } }
         });
       });
 
@@ -3366,7 +3370,7 @@ describe('Maps', () => {
           url: `maps/${NULL_ID}/reviews`,
           status: 404,
           body: { mainText: '404 review test' },
-          token: u4Token
+          token: userToken
         });
       });
 
@@ -3375,7 +3379,7 @@ describe('Maps', () => {
           url: `maps/${map1.id}/reviews`,
           status: 201,
           body: { mainText: 'Public review test' },
-          token: u4Token
+          token: userToken
         });
       });
 
@@ -3384,7 +3388,7 @@ describe('Maps', () => {
           url: `maps/${map2.id}/reviews`,
           status: 201,
           body: { mainText: 'Public testing review test' },
-          token: u4Token
+          token: userToken
         });
       });
 
@@ -3393,7 +3397,7 @@ describe('Maps', () => {
           url: `maps/${map3.id}/reviews`,
           status: 403,
           body: { mainText: 'Forbidden private testing review test' },
-          token: u4Token
+          token: userToken
         });
       });
 
@@ -3402,7 +3406,7 @@ describe('Maps', () => {
           url: `maps/${map3.id}/reviews`,
           status: 201,
           body: { mainText: 'Success private testing review test' },
-          token: u5Token
+          token: mapTesterToken
         });
       });
 
@@ -3411,7 +3415,7 @@ describe('Maps', () => {
           url: `maps/${map4.id}/reviews`,
           status: 201,
           body: { mainText: 'Success content approval testing review test' },
-          token: u2Token
+          token: reviewerToken
         });
       });
 
@@ -3420,7 +3424,7 @@ describe('Maps', () => {
           url: `maps/${map4.id}/reviews`,
           status: 403,
           body: { mainText: 'Forbidden content approval testing review test' },
-          token: u4Token
+          token: userToken
         });
       });
 
@@ -3438,7 +3442,7 @@ describe('Maps', () => {
           url: `maps/${map5.id}/reviews`,
           status: 403,
           body: { mainText: 'Final approval testing review test' },
-          token: u2Token
+          token: reviewerToken
         });
       });
 
