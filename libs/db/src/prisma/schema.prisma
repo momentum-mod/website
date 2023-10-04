@@ -43,8 +43,6 @@ model User {
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-
-  @@index([steamID])
 }
 
 model Profile {
@@ -102,8 +100,6 @@ model Follow {
   updatedAt DateTime @updatedAt
 
   @@id([followeeID, followedID])
-  @@unique([followeeID, followedID], map: "follow_unique")
-  @@index([followeeID, followedID])
 }
 
 model Notification {
@@ -144,7 +140,6 @@ model Report {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  @@unique(id)
   @@index([resolverID, submitterID])
 }
 
@@ -224,7 +219,6 @@ model MapFavorite {
   updatedAt DateTime @updatedAt
 
   @@unique([mapID, userID])
-  @@index([mapID, userID])
 }
 
 model MapImage {
@@ -247,7 +241,6 @@ model MapInfo {
   mmap  MMap @relation(fields: [mapID], references: [id], onDelete: Cascade)
   mapID Int  @unique
 
-
   @@id([mapID])
 }
 
@@ -264,7 +257,6 @@ model MapLibraryEntry {
   updatedAt DateTime @updatedAt
 
   @@unique([mapID, userID])
-  @@index([mapID, userID])
 }
 
 model MapNotify {
@@ -280,8 +272,6 @@ model MapNotify {
   updatedAt DateTime @updatedAt
 
   @@id([userID, mapID])
-  @@unique([userID, mapID], map: "mapnotify_unique")
-  @@index([userID, mapID])
 }
 
 model MapTrack {
@@ -630,5 +620,5 @@ model XpSystems {
 }
 
 model DeletedSteamID {
-  steamID BigInt @id @unique @db.BigInt
+  steamID BigInt @id @db.BigInt
 }
