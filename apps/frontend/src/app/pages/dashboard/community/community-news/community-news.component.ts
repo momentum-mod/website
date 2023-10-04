@@ -1,7 +1,7 @@
 import { Component, OnInit, ViewEncapsulation } from '@angular/core';
 import { BlogService } from '@momentum/frontend/data';
 import { finalize } from 'rxjs/operators';
-import { parse, simplify } from 'txml/dist/txml';
+import { parse, simplify } from 'txml';
 
 @Component({
   selector: 'mom-community-news',
