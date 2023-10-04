@@ -57,7 +57,6 @@ model Profile {
 
   socials Json? /// socials.model.ts
 
-  createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
   @@index([userID])
@@ -75,9 +74,6 @@ model UserStats {
 
   user   User @relation(fields: [userID], references: [id], onDelete: Cascade)
   userID Int  @unique
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
 
   @@index([userID])
 }
@@ -169,9 +165,6 @@ model UserAuth {
   user   User @relation(fields: [userID], references: [id], onDelete: Cascade)
   userID Int  @unique
 
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
   @@index([userID])
 }
 
@@ -255,9 +248,6 @@ model MapImage {
   mmap  MMap @relation(fields: [mapID], references: [id], onDelete: Cascade)
   mapID Int
 
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
   @@index([mapID])
 }
 
@@ -272,8 +262,6 @@ model MapInfo {
   mmap  MMap @relation(fields: [mapID], references: [id], onDelete: Cascade)
   mapID Int  @unique
 
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
 
   @@index([mapID])
 }
@@ -612,7 +600,6 @@ model RunSession {
   trackID Int
 
   createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
 
   @@index([trackID, userID])
 }
@@ -627,7 +614,6 @@ model RunSessionTimestamp {
   sessionID BigInt
 
   createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
 
   @@index([sessionID])
 }
@@ -658,9 +644,6 @@ model XpSystems {
   id     Int   @id
   rankXP Json?
   cosXP  Json?
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
 }
 
 model DeletedSteamID {
