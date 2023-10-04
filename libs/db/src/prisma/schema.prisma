@@ -48,23 +48,16 @@ model User {
 }
 
 model Profile {
-  id Int @id @default(autoincrement())
-
-  bio String @default("")
-
-  user   User @relation(fields: [userID], references: [id], onDelete: Cascade)
-  userID Int  @unique
-
+  bio     String @default("")
   socials Json? /// socials.model.ts
 
-  updatedAt DateTime @updatedAt
+  user   User @relation(fields: [userID], references: [id], onDelete: Cascade)
+  userID Int  @id
 
-  @@index([userID])
+  updatedAt DateTime @updatedAt
 }
 
 model UserStats {
-  id Int @id @default(autoincrement())
-
   totalJumps    BigInt @default(0) @db.BigInt
   totalStrafes  BigInt @default(0) @db.BigInt
   level         Int    @default(1) @db.SmallInt
@@ -73,9 +66,7 @@ model UserStats {
   runsSubmitted Int    @default(0)
 
   user   User @relation(fields: [userID], references: [id], onDelete: Cascade)
-  userID Int  @unique
-
-  @@index([userID])
+  userID Int  @id
 }
 
 model Activity {
@@ -158,14 +149,10 @@ model Report {
 }
 
 model UserAuth {
-  id Int @id @default(autoincrement())
-
   refreshToken String?
 
   user   User @relation(fields: [userID], references: [id], onDelete: Cascade)
-  userID Int  @unique
-
-  @@index([userID])
+  userID Int  @id
 }
 
 /// The term 'MMap' is used to avoid collisions with the JS data structure, just
@@ -252,8 +239,6 @@ model MapImage {
 }
 
 model MapInfo {
-  id Int @id @default(autoincrement())
-
   description  String   @default("")
   youtubeID    String?
   numTracks    Int      @db.SmallInt
@@ -263,7 +248,7 @@ model MapInfo {
   mapID Int  @unique
 
 
-  @@index([mapID])
+  @@id([mapID])
 }
 
 model MapLibraryEntry {
@@ -396,8 +381,6 @@ model MapZoneStats {
 }
 
 model MapStats {
-  id Int @id @default(autoincrement())
-
   reviews           Int    @default(0)
   downloads         Int    @default(0)
   subscriptions     Int    @default(0)
@@ -408,12 +391,12 @@ model MapStats {
   timePlayed        BigInt @default(0) @db.BigInt
 
   mmap  MMap @relation(fields: [mapID], references: [id], onDelete: Cascade)
-  mapID Int  @unique
 
   baseStats   BaseStats? @relation(fields: [baseStatsID], references: [id], onDelete: Cascade)
   baseStatsID BigInt?    @unique
 
   @@index([baseStatsID, mapID])
+  mapID Int  @id
 }
 
 model MapTestingRequest {
