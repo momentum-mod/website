@@ -1,11 +1,7 @@
 ﻿import { RunSessionTimestamp } from '@momentum/constants';
 import { ApiProperty } from '@nestjs/swagger';
-import { IsInt } from 'class-validator';
-import {
-  CreatedAtProperty,
-  IdProperty,
-  UpdatedAtProperty
-} from '../../decorators';
+import { IsInt, IsNumber } from 'class-validator';
+import { CreatedAtProperty, IdProperty } from '../../decorators';
 
 export class RunSessionTimestampDto implements RunSessionTimestamp {
   @IdProperty({ bigint: true })
@@ -13,18 +9,19 @@ export class RunSessionTimestampDto implements RunSessionTimestamp {
 
   @ApiProperty()
   @IsInt()
-  readonly zone: number;
+  readonly segment: number;
 
   @ApiProperty()
   @IsInt()
-  readonly tick: number;
+  readonly checkpoint: number;
+
+  @ApiProperty()
+  @IsNumber()
+  readonly time: number;
 
   @IdProperty({ bigint: true })
   readonly sessionID: number;
 
   @CreatedAtProperty()
   readonly createdAt: Date;
-
-  @UpdatedAtProperty()
-  readonly updatedAt: Date;
 }
