@@ -402,7 +402,6 @@ model MapTestingRequest {
   updatedAt DateTime @updatedAt
 
   @@id([mapID, userID])
-  @@index([mapID])
 }
 
 model MapSubmission {
