@@ -80,11 +80,11 @@ export class UserDto implements User {
   })
   readonly userStats: UserStatsDto;
 
-  @ApiProperty({ type: Number, description: "The user's roles, as bitflags" })
+  @ApiProperty({ type: Number, description: "Bitfield of user's roles" })
   @IsInt()
   readonly roles: Bitfield;
 
-  @ApiProperty({ type: Number, description: "The user's bans, as bitflags" })
+  @ApiProperty({ type: Number, description: "Bitfield of user's bans" })
   @IsInt()
   readonly bans: Bitfield;
 
