@@ -26,11 +26,9 @@ import {
   IsUrl
 } from 'class-validator';
 import { CreateMapInfoDto, MapInfoDto, UpdateMapInfoDto } from './map-info.dto';
-import { CreateMapTrackDto, UpdateMapTrackDto } from './map-track.dto';
 import { CreateMapCreditDto, MapCreditDto } from './map-credit.dto';
 import { MapFavoriteDto } from './map-favorite.dto';
 import { MapLibraryEntryDto } from './map-library-entry';
-import { RankDto } from '../run/rank.dto';
 import { Exclude, Expose } from 'class-transformer';
 import { Config } from '@momentum/backend/config';
 import { MapStatsDto } from './map-stats.dto';
@@ -45,6 +43,9 @@ import { IsMapName } from '@momentum/backend/validators';
 import { MapSubmissionDto } from './map-submission.dto';
 import { MapSubmissionSuggestionDto } from './map-submission-suggestion.dto';
 import { MapSubmissionPlaceholderDto } from './map-submission-placeholder.dto';
+import { MapZonesDto } from './map-zones.dto';
+import { LeaderboardDto } from '../run/leaderboard.dto';
+import { LeaderboardRunDto } from '../run/leaderboard-run.dto';
 
 const ENDPOINT_URL = Config.storage.endpointUrl;
 const BUCKET = Config.storage.bucketName;
@@ -147,11 +148,14 @@ export class MapDto implements MMap {
   @NestedProperty(MapLibraryEntryDto, { isArray: true })
   readonly libraryEntries: MapLibraryEntryDto[];
 
-  @NestedProperty(RankDto, { lazy: true })
-  readonly worldRecord: RankDto;
+  @NestedProperty(LeaderboardDto, { isArray: true })
+  readonly leaderboards: LeaderboardDto[];
 
-  @NestedProperty(RankDto, { lazy: true })
-  readonly personalBest: RankDto;
+  @NestedProperty(LeaderboardRunDto, { lazy: true })
+  readonly worldRecord: LeaderboardRunDto;
+
+  @NestedProperty(LeaderboardRunDto, { lazy: true })
+  readonly personalBest: LeaderboardRunDto;
 
   @CreatedAtProperty()
   readonly createdAt: Date;
@@ -252,12 +256,6 @@ export class UpdateMapDto
   @NestedProperty(UpdateMapInfoDto)
   @IsOptional()
   readonly info: UpdateMapInfoDto;
-
-  @NestedProperty(CreateMapTrackDto, { isArray: true })
-  @IsArray()
-  @ArrayMinSize(1)
-  @IsOptional()
-  readonly tracks: UpdateMapTrackDto[];
 
   @EnumProperty(MapStatusNew)
   @IsOptional()

@@ -1,9 +1,8 @@
 ﻿import { ApiProperty } from '@nestjs/swagger';
 import { IsBoolean, IsInt } from 'class-validator';
-import { RunDto } from './run.dto';
-import { RankDto } from './rank.dto';
 import { NestedProperty } from '../../decorators';
-import { CompletedRun } from '@momentum/constants';
+import { CompletedRun, XpGain } from '@momentum/constants';
+import { LeaderboardRunDto } from './leaderboard-run.dto';
 
 class CosXpGain {
   @ApiProperty({ type: Number, description: 'Integer amount of levels gained' })
@@ -50,11 +49,8 @@ export class CompletedRunDto implements CompletedRun {
   @IsBoolean()
   readonly isNewPersonalBest: boolean;
 
-  @NestedProperty(RankDto)
-  readonly rank: RankDto;
-
-  @NestedProperty(RunDto)
-  readonly run: RunDto;
+  @NestedProperty(LeaderboardRunDto)
+  readonly run: LeaderboardRunDto;
 
   @NestedProperty(XpGainDto)
   readonly xp: XpGainDto;
