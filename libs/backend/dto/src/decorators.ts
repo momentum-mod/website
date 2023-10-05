@@ -122,6 +122,24 @@ export function IdProperty(
 }
 
 /**
+ * Decorator combo for
+ *  - ApiProperty
+ *  - IsString
+ *  - Optional-ness
+ * Required by default!
+ */
+export function StringIdProperty(
+  options?: Omit<ApiPropertyOptions, 'type'>
+): PropertyDecorator {
+  const required = options?.required ?? true;
+  return applyDecorators(
+    ApiProperty({ type: String, ...options, required }),
+    IsString(),
+    conditionalDecorator(!required, IsOptional)
+  );
+}
+
+/**
  * Decorator combo for numeric enums using
  *  - ApiProperty with nice Swagger type type/enum handling
  *  - Type handling for queries
