@@ -407,7 +407,7 @@ model MapTestingRequest {
 
 model MapSubmission {
   mmap  MMap @relation(fields: [mapID], references: [id], onDelete: Cascade)
-  mapID Int
+  mapID Int  @id
 
   type Int @db.SmallInt /// map-submission-type.enum.ts
 
@@ -419,8 +419,6 @@ model MapSubmission {
 
   currentVersion   MapSubmissionVersion? @relation(name: "current_version", fields: [currentVersionID], references: [id])
   currentVersionID String?               @unique
-
-  @@id([mapID])
 }
 
 model MapSubmissionVersion {
