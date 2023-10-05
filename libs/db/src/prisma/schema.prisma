@@ -417,11 +417,11 @@ model MapSubmission {
   versions MapSubmissionVersion[]
 
   currentVersion   MapSubmissionVersion? @relation(name: "current_version", fields: [currentVersionID], references: [id])
-  currentVersionID String?               @unique
+  currentVersionID String?               @unique @db.Uuid
 }
 
 model MapSubmissionVersion {
-  id String @id @default(uuid()) // BSP file stored relative to this
+  id String @id @default(uuid()) @db.Uuid // BSP file stored relative to this
 
   currentVersion MapSubmission? @relation(name: "current_version")
 
