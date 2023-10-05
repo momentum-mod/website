@@ -1,4 +1,17 @@
-﻿import { BaseStats as PrismaBaseStats } from '@prisma/client';
-import { NumberifyBigInt } from '../../utils';
-
-export type BaseStats = NumberifyBigInt<PrismaBaseStats>;
+﻿// TODO: Some of these stats are really silly but whatever, we don't want to total refactor stats yet.
+export interface BaseStats {
+  jumps: number;
+  strafes: number;
+  avgStrafeSync: number;
+  avgStrafeSync2: number;
+  enterTime: number;
+  totalTime: number;
+  velAvg3D: number;
+  velAvg2D: number;
+  velMax3D: number;
+  velMax2D: number;
+  velEnter3D: number;
+  velEnter2D: number;
+  velExit3D: number;
+  velExit2D: number;
+}
