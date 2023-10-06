@@ -66,7 +66,8 @@ import {
   UpdateMapDto,
   UpdateMapTestingRequestDto,
   VALIDATION_PIPE_CONFIG,
-  CreateMapWithFilesDto
+  CreateMapWithFilesDto,
+  MapZonesDto
 } from '@momentum/backend/dto';
 import { LoggedInUser, Roles } from '@momentum/backend/decorators';
 import { Role, User } from '@momentum/constants';
@@ -417,9 +418,7 @@ export class MapsController {
   //#region Zones
 
   @Get('/:mapID/zones')
-  @ApiOperation({
-    summary: "Gets a single map's TRACKS (yes, tracks), containing their zones"
-  })
+  @ApiOperation({ summary: "Gets a single map's zones" })
   @ApiParam({
     name: 'mapID',
     type: Number,
@@ -427,14 +426,13 @@ export class MapsController {
     required: true
   })
   @ApiOkResponse({
-    type: MapTrackDto,
-    isArray: true,
-    description: "The found map's tracks"
+    type: MapZonesDto,
+    description: "The map's zones"
   })
   @ApiNotFoundResponse({ description: 'Map not found' })
   getZones(
     @Param('mapID', ParseIntSafePipe) mapID: number
-  ): Promise<MapTrackDto[]> {
+  ): Promise<MapZonesDto> {
     return this.mapsService.getZones(mapID);
   }
   //#endregion

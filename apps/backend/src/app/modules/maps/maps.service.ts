@@ -51,6 +51,7 @@ import {
   MapSubmissionDate,
   MapSubmissionPlaceholder,
   MapTestingRequestState,
+  MapZones,
   Role,
   submissionBspPath,
   submissionVmfsPath
@@ -1297,29 +1298,16 @@ export class MapsService {
 
   //#region Zones
 
-  // TODO: haven't done 0.10.0 perms checks here since this endpoint is changing
-  // drastically, needs doing eventually
-  async getZones(mapID: number): Promise<MapTrackDto[]> {
-    const tracks = await this.db.mapTrack.findMany({
-      where: { mapID },
-      include: {
-        zones: { include: { triggers: { include: { properties: true } } } }
-      }
+  async getZones(mapID: number): Promise<MapZones> {
+    const mapWithZones = await this.db.mMap.findUnique({
+      where: { id: mapID },
+      select: { zones: true }
     });
 
-    if (!tracks || tracks.length === 0)
+    if (!mapWithZones || mapWithZones.zones)
       throw new NotFoundException('Map not found');
 
-    // This is dumb but it's what the old api does
-    // \server\src\models\map.js Line 499
-    // TODO_POST_REWRITE: When map sessions are done this should be removed
-
-    await this.db.mapStats.update({
-      where: { mapID },
-      data: { plays: { increment: 1 } }
-    });
-
-    return tracks.map((x) => DtoFactory(MapTrackDto, x));
+    return mapWithZones.zones as MapZones;
   }
 
   //#endregion
