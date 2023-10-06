@@ -705,19 +705,14 @@ describe('Maps Part 2', () => {
 
   describe('maps/{mapID}/zones', () => {
     describe('GET', () => {
+      const zones = ZonesStub;
+
       let token, map;
       beforeAll(
         async () =>
           ([token, map] = await Promise.all([
             db.loginNewUser(),
-            db.createMap(
-              {},
-              {
-                zones: {
-                  createMany: { data: [{ zoneNum: 0 }, { zoneNum: 1 }] }
-                }
-              }
-            )
+            db.createMap({ zones: ZonesStub })
           ]))
       );
 
@@ -727,12 +722,11 @@ describe('Maps Part 2', () => {
         const res = await req.get({
           url: `maps/${map.id}/zones`,
           status: 200,
-          token: token
+          validate: MapZonesDto,
+          token
         });
 
-        expect(res.body).toHaveLength(1);
-        expect(res.body[0]).toBeValidDto(MapTrackDto);
-        expect(res.body[0].zones).toHaveLength(2);
+        expect(res.body).toMatchObject(zones);
       });
 
       it('should 404 if the map does not exist', () =>
