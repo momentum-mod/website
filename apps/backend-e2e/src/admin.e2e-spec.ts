@@ -32,7 +32,8 @@ import {
   MapTestingRequestState,
   ReportCategory,
   ReportType,
-  Role
+  Role,
+  TrackType
 } from '@momentum/constants';
 import { Bitflags } from '@momentum/bitflags';
 import { Enum } from '@momentum/enum';
@@ -515,24 +516,17 @@ describe('Admin', () => {
         ]);
       });
 
-      afterEach(() => prisma.user.deleteMany());
+      afterEach(() => db.cleanup('leaderboardRun', 'pastRun', 'user'));
 
       afterAll(() =>
-        db.cleanup(
-          'mMap',
-          'rank',
-          'run',
-          'report',
-          'activity',
-          'deletedSteamID'
-        )
+        db.cleanup('mMap', 'report', 'activity', 'deletedSteamID')
       );
 
       it('should delete user data. leaving user with Role.DELETED', async () => {
         const followeeUser = await db.createUser();
         const map = await db.createMap();
 
-        const newUser = await prisma.user.create({
+        const user = await prisma.user.create({
           data: {
             roles: Role.MAPPER,
             bans: Ban.BIO,
@@ -582,15 +576,21 @@ describe('Admin', () => {
             },
             runSessions: {
               create: {
+                mapID: map.id,
+                gamemode: Gamemode.AHOP,
                 trackNum: 1,
-                zoneNum: 1,
-                track: { connect: { id: map.mainTrackID } }
+                trackType: TrackType.MAIN
               }
             }
           }
         });
 
-        await db.createRunAndRankForMap({ map: map, user: newUser });
+        await db.createPastRun({
+          map: map,
+          user: user,
+          createLbRun: true,
+          lbRank: 1
+        });
         await prisma.activity.create({
           data: {
             type: ActivityType.MAP_APPROVED,
@@ -598,10 +598,10 @@ describe('Admin', () => {
             notifications: {
               create: {
                 read: true,
-                user: { connect: { id: newUser.id } }
+                user: { connect: { id: user.id } }
               }
             },
-            user: { connect: { id: newUser.id } }
+            user: { connect: { id: user.id } }
           }
         });
 
@@ -613,13 +613,13 @@ describe('Admin', () => {
             message: 'yeeeee',
             resolved: true,
             resolutionMessage: 'yeeeeee',
-            submitter: { connect: { id: newUser.id } },
-            resolver: { connect: { id: newUser.id } }
+            submitter: { connect: { id: user.id } },
+            resolver: { connect: { id: user.id } }
           }
         });
 
         const userBeforeDeletion = await prisma.user.findUnique({
-          where: { id: newUser.id },
+          where: { id: user.id },
           include: {
             userAuth: true,
             profile: true,
@@ -628,7 +628,8 @@ describe('Admin', () => {
             mapCredits: true,
             mapFavorites: true,
             mapLibraryEntries: true,
-            mapRanks: true,
+            pastRuns: true,
+            leaderboardRuns: true,
             reviewsResolved: true,
             reviewsSubmitted: true,
             activities: true,
@@ -637,7 +638,6 @@ describe('Admin', () => {
             mapNotifies: true,
             notifications: true,
             runSessions: true,
-            runs: true,
             reportSubmitted: true,
             reportResolved: true
           }
@@ -650,7 +650,7 @@ describe('Admin', () => {
         });
 
         const deletedUser = await prisma.user.findUnique({
-          where: { id: newUser.id },
+          where: { id: user.id },
           include: {
             userAuth: true,
             profile: true,
@@ -659,7 +659,8 @@ describe('Admin', () => {
             mapCredits: true,
             mapFavorites: true,
             mapLibraryEntries: true,
-            mapRanks: true,
+            pastRuns: true,
+            leaderboardRuns: true,
             reviewsSubmitted: true,
             reviewsResolved: true,
             activities: true,
@@ -668,7 +669,6 @@ describe('Admin', () => {
             mapNotifies: true,
             notifications: true,
             runSessions: true,
-            runs: true,
             reportSubmitted: true,
             reportResolved: true
           }
@@ -692,7 +692,6 @@ describe('Admin', () => {
           mapCredits: userBeforeDeletion.mapCredits,
           mapFavorites: [],
           mapLibraryEntries: [],
-          mapRanks: userBeforeDeletion.mapRanks,
           reviewsSubmitted: userBeforeDeletion.reviewsSubmitted,
           activities: [],
           follows: [],
@@ -700,7 +699,8 @@ describe('Admin', () => {
           mapNotifies: userBeforeDeletion.mapNotifies,
           notifications: [],
           runSessions: [],
-          runs: userBeforeDeletion.runs,
+          leaderboardRuns: userBeforeDeletion.leaderboardRuns,
+          pastRuns: userBeforeDeletion.pastRuns,
           reportSubmitted: userBeforeDeletion.reportSubmitted,
           reportResolved: userBeforeDeletion.reportResolved
         });
@@ -753,7 +753,7 @@ describe('Admin', () => {
         await db.createMap({ status: MapStatusNew.DISABLED });
       });
 
-      afterAll(() => db.cleanup('user', 'mMap', 'run'));
+      afterAll(() => db.cleanup('leaderboardRun', 'user', 'mMap'));
 
       it('should respond with map data', async () => {
         const res = await req.get({
@@ -763,8 +763,7 @@ describe('Admin', () => {
           token: adminToken
         });
 
-        for (const item of res.body.data)
-          expect(item).toHaveProperty('mainTrack');
+        expect(res.body).not.toHaveProperty('zones');
       });
 
       it('should include maps with any map statuses by default', () =>
@@ -918,10 +917,19 @@ describe('Admin', () => {
           token: adminToken
         }));
 
-      it('should respond with expanded map data using the tracks expand parameter', () =>
+      it('should respond with expanded map data using the leaderboards expand parameter', () =>
         req.expandTest({
           url: 'admin/maps',
-          expand: 'tracks',
+          expand: 'leaderboards',
+          paged: true,
+          validate: MapDto,
+          token: adminToken
+        }));
+
+      it('should respond with expanded map data using the zones expand parameter', () =>
+        req.expandTest({
+          url: 'admin/maps',
+          expand: 'zones',
           paged: true,
           validate: MapDto,
           token: adminToken
@@ -988,13 +996,16 @@ describe('Admin', () => {
         const submissionCreate = {
           create: {
             type: MapSubmissionType.ORIGINAL,
-            suggestions: {
-              track: 1,
-              gamemode: Gamemode.DEFRAG,
-              tier: 1,
-              ranked: true,
-              comment: 'This stage was built by children'
-            },
+            suggestions: [
+              {
+                trackNum: 0,
+                trackType: TrackType.MAIN,
+                gamemode: Gamemode.DEFRAG,
+                tier: 1,
+                ranked: true,
+                comment: 'This stage was built by children'
+              }
+            ],
             versions: {
               createMany: {
                 data: [
@@ -1047,7 +1058,7 @@ describe('Admin', () => {
         );
       });
 
-      afterAll(() => db.cleanup('user', 'mMap', 'run'));
+      afterAll(() => db.cleanup('leaderboardRun', 'user', 'mMap'));
       afterEach(() => db.cleanup('mapTestingRequest', 'mapCredit'));
 
       it('should respond with map data', async () => {
@@ -1059,7 +1070,7 @@ describe('Admin', () => {
         });
 
         for (const item of res.body.data) {
-          expect(item).toHaveProperty('mainTrack');
+          expect(item).not.toHaveProperty('zones');
           expect(item).toHaveProperty('submission');
         }
       });
@@ -1235,10 +1246,19 @@ describe('Admin', () => {
           token: reviewerToken
         }));
 
-      it('should respond with expanded map data using the tracks expand parameter', () =>
+      it('should respond with expanded map data using the leaderboards expand parameter', () =>
         req.expandTest({
           url: 'admin/maps/submissions',
-          expand: 'tracks',
+          expand: 'leaderboards',
+          paged: true,
+          validate: MapDto,
+          token: reviewerToken
+        }));
+
+      it('should respond with expanded map data using the zones expand parameter', () =>
+        req.expandTest({
+          url: 'admin/maps/submissions',
+          expand: 'zones',
           paged: true,
           validate: MapDto,
           token: reviewerToken
