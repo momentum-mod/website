@@ -504,6 +504,8 @@ describe('Maps', () => {
         vmfBuffer,
         vmfHash;
 
+      const zones = structuredClone(ZonesStub);
+
       beforeAll(async () => {
         [user, token] = await db.createAndLoginUser();
         [u2, u3] = await db.createUsers(2);
@@ -519,18 +521,26 @@ describe('Maps', () => {
           fileName: 'surf_map',
           info: {
             description: 'mamp',
-            numTracks: 1,
             creationDate: '2022-07-07T18:33:33.000Z'
           },
           submissionType: MapSubmissionType.ORIGINAL,
           placeholders: [{ alias: 'God', type: MapCreditType.AUTHOR }],
           suggestions: [
             {
-              track: 1,
-              gamemode: Gamemode.SURF,
+              trackType: TrackType.MAIN,
+              trackNum: 0,
+              gamemode: Gamemode.RJ,
               tier: 1,
               ranked: true,
               comment: 'I love you'
+            },
+            {
+              trackType: TrackType.BONUS,
+              trackNum: 0,
+              gamemode: Gamemode.DEFRAG_CPM,
+              tier: 2,
+              ranked: false,
+              comment: 'comment'
             }
           ],
           wantsPrivateTesting: true,
@@ -542,26 +552,7 @@ describe('Maps', () => {
               description: 'Walrus'
             }
           ],
-          tracks: Array.from({ length: 2 }, (_, i) => ({
-            trackNum: i,
-            numZones: 1,
-            isLinear: false,
-            difficulty: 5,
-            zones: Array.from({ length: 10 }, (_, j) => ({
-              zoneNum: j,
-              triggers: [
-                {
-                  type: j == 0 ? 1 : j == 1 ? 0 : 2,
-                  pointsHeight: 512,
-                  pointsZPos: 0,
-                  points: { p1: '0', p2: '0' },
-                  properties: {
-                    properties: {}
-                  }
-                }
-              ]
-            }))
-          }))
+          zones
         };
       });
 
@@ -594,20 +585,14 @@ describe('Maps', () => {
             token
           });
 
-          createdMap = await prisma.mMap.findFirst({
+          createdMap = await prisma.mMap.findUnique({
+            where: { id: res.body.id },
             include: {
               info: true,
               stats: true,
               credits: true,
-              mainTrack: true,
-              submission: true,
-              tracks: {
-                include: {
-                  zones: {
-                    include: { triggers: { include: { properties: true } } }
-                  }
-                }
-              }
+              leaderboards: true,
+              submission: { include: { currentVersion: true, versions: true } }
             }
           });
         });
@@ -616,10 +601,6 @@ describe('Maps', () => {
 
         it('should respond with a MapDto', () => {
           expect(res.body).toBeValidDto(MapDto);
-          // Check the whacky JSON parsing stuff works
-          const trigger = res.body.tracks[0].zones[0].triggers[0];
-          expect(trigger.points).toStrictEqual({ p1: '0', p2: '0' });
-          expect(trigger.properties.properties).toStrictEqual({});
         });
 
         it('should create a map within the database', () => {
@@ -632,11 +613,20 @@ describe('Maps', () => {
               placeholders: [{ alias: 'God', type: MapCreditType.AUTHOR }],
               suggestions: [
                 {
-                  track: 1,
-                  gamemode: Gamemode.SURF,
+                  trackType: TrackType.MAIN,
+                  trackNum: 0,
+                  gamemode: Gamemode.RJ,
                   tier: 1,
                   ranked: true,
                   comment: 'I love you'
+                },
+                {
+                  trackType: TrackType.BONUS,
+                  trackNum: 0,
+                  gamemode: Gamemode.DEFRAG_CPM,
+                  tier: 2,
+                  ranked: false,
+                  comment: 'comment'
                 }
               ],
               dates: [
@@ -648,7 +638,6 @@ describe('Maps', () => {
             },
             info: {
               description: 'mamp',
-              numTracks: 1,
               creationDate: new Date('2022-07-07T18:33:33.000Z')
             },
             submitterID: user.id,
@@ -658,26 +647,37 @@ describe('Maps', () => {
                 type: MapCreditType.AUTHOR,
                 description: 'Walrus'
               }
-            ],
-            mainTrack: {
-              id: createdMap.tracks.find((track) => track.trackNum === 0).id
-            }
+            ]
           });
 
           expect(
             Date.now() - new Date(createdMap.submission.dates[0].date).getTime()
           ).toBeLessThan(1000);
-          expect(createdMap.tracks).toHaveLength(2);
-          for (const track of createdMap.tracks) {
-            expect(track.trackNum).toBeLessThanOrEqual(1);
-            for (const zone of track.zones) {
-              expect(zone.zoneNum).toBeLessThanOrEqual(10);
-              for (const trigger of zone.triggers) {
-                expect(trigger.points).toStrictEqual({ p1: '0', p2: '0' });
-                expect(trigger.properties.properties).toStrictEqual({});
-              }
-            }
-          }
+          expect(createdMap.submission.currentVersion.zones).toMatchObject(
+            zones
+          );
+          expect(createdMap.submission.versions[0]).toMatchObject(
+            createdMap.submission.currentVersion
+          );
+          expect(createdMap.submission.versions).toHaveLength(1);
+        });
+
+        it('should create a ton of leaderboards', async () => {
+          const leaderboards = await prisma.leaderboard.findMany({
+            where: { mapID: createdMap.id }
+          });
+
+          const expected = ZonesStubLeaderboards.map((x) => ({
+            ...x,
+            mapID: createdMap.id,
+            style: 0,
+            tier: null,
+            ranked: false,
+            tags: []
+          }));
+
+          expect(leaderboards).toEqual(expect.arrayContaining(expected));
+          expect(leaderboards).toHaveLength(expected.length);
         });
 
         it('should upload the BSP file', async () => {
@@ -1038,34 +1038,64 @@ describe('Maps', () => {
           });
         });
 
-        it('should 400 if the map does not have any tracks', () =>
-          req.postAttach({
-            url: 'maps',
-            status: 400,
-            data: { ...createMapObject, tracks: [] },
-            files: [
-              { file: bspBuffer, field: 'bsp', fileName: 'surf_map.bsp' },
-              { file: vmfBuffer, field: 'vmfs', fileName: 'surf_map.vmf' }
-            ],
-            token
-          }));
+        it('should 400 if the map has invalid zones', async () => {
+          const zones = structuredClone(ZonesStub);
+          // Silly values that pass class-validator but get caught by zone-validator.ts
+          zones.volumes.push({
+            regions: [
+              {
+                points: [
+                  [Number.MIN_SAFE_INTEGER ** 4, 4],
+                  [4, 4],
+                  [4, 4]
+                ],
+                height: 4444,
+                teleportPos: [-4, -4, -4],
+                bottom: 100000000000,
+                teleportYaw: 4
+              }
+            ]
+          });
 
-        it('should 400 if a map track has less than 2 zones', () =>
-          req.postAttach({
+          await req.postAttach({
             url: 'maps',
             status: 400,
-            data: {
-              createMapObject,
-              tracks: [
-                { createMapObject, zones: createMapObject.tracks[0].zones[0] }
-              ]
-            },
+            data: { ...createMapObject, zones },
             files: [
               { file: bspBuffer, field: 'bsp', fileName: 'surf_map.bsp' },
               { file: vmfBuffer, field: 'vmfs', fileName: 'surf_map.vmf' }
             ],
             token
-          }));
+          });
+        });
+
+        it('should 400 if the map has conflicting suggestions', async () => {
+          const suggs = structuredClone(createMapObject.suggestions);
+
+          suggs.push(
+            {
+              gamemode: Gamemode.SURF,
+              trackNum: 0,
+              trackType: TrackType.MAIN
+            },
+            {
+              gamemode: Gamemode.BHOP,
+              trackNum: 0,
+              trackType: TrackType.MAIN
+            }
+          );
+
+          await req.postAttach({
+            url: 'maps',
+            status: 400,
+            data: { ...createMapObject, suggestions: suggs },
+            files: [
+              { file: bspBuffer, field: 'bsp', fileName: 'surf_map.bsp' },
+              { file: vmfBuffer, field: 'vmfs', fileName: 'surf_map.vmf' }
+            ],
+            token
+          });
+        });
 
         it('should 409 if a map with the same name exists', async () => {
           const fileName = 'ron_weasley';
@@ -1121,13 +1151,16 @@ describe('Maps', () => {
           submission: {
             create: {
               type: MapSubmissionType.ORIGINAL,
-              suggestions: {
-                track: 1,
-                gamemode: Gamemode.SURF,
-                tier: 1,
-                ranked: true,
-                comment: 'I will kill again'
-              },
+              suggestions: [
+                {
+                  trackType: TrackType.MAIN,
+                  trackNum: 0,
+                  gamemode: Gamemode.SURF,
+                  tier: 1,
+                  ranked: true,
+                  comment: 'I will kill again'
+                }
+              ],
               versions: {
                 createMany: {
                   data: [
@@ -1157,15 +1190,18 @@ describe('Maps', () => {
         });
       });
 
-      afterAll(() => db.cleanup('user', 'mMap', 'run'));
+      afterAll(() => db.cleanup('leaderboardRun', 'pastRun', 'user', 'mMap'));
 
-      it('should respond with map data', () =>
-        req.get({
+      it('should respond with map data', async () => {
+        const res = await req.get({
           url: `maps/${map.id}`,
           status: 200,
           validate: MapDto,
           token: u1Token
-        }));
+        });
+
+        expect(res.body).not.toHaveProperty('zones');
+      });
 
       it('should respond with expanded map data using the credits expand parameter', async () => {
         await prisma.mapCredit.create({
@@ -1392,7 +1428,15 @@ describe('Maps', () => {
     });
 
     describe('POST', () => {
-      let u1, u1Token, u2Token, map, bspBuffer, bspHash, vmfBuffer, vmfHash;
+      let u1,
+        u1Token,
+        u2Token,
+        map,
+        bspBuffer,
+        bspHash,
+        vmfBuffer,
+        vmfHash,
+        leaderboards;
 
       beforeAll(async () => {
         [[u1, u1Token], u2Token] = await Promise.all([
@@ -1413,43 +1457,42 @@ describe('Maps', () => {
       });
 
       beforeEach(async () => {
-        const m = await db.createMap({
-          name: 'map',
-          fileName: 'surf_map',
-          submitter: { connect: { id: u1.id } },
-          status: MapStatusNew.PRIVATE_TESTING,
-          submission: {
-            create: {
-              type: MapSubmissionType.ORIGINAL,
-              suggestions: [
-                { track: 1, gamemode: Gamemode.SURF, tier: 10, ranked: true }
-              ],
-              versions: {
-                create: {
-                  versionNum: 1,
-                  hash: createSha1Hash(Buffer.from('hash browns'))
-                }
-              },
-              dates: [
-                {
-                  status: MapStatusNew.PRIVATE_TESTING,
-                  date: new Date().toJSON()
-                }
-              ]
-            }
-          }
-        });
-
-        map = await prisma.mMap.update({
-          where: { id: m.id },
-          data: {
+        map = await db.createMap(
+          {
+            name: 'map',
+            fileName: 'surf_map', // This is actually RJ now. deal with it lol
+            submitter: { connect: { id: u1.id } },
+            status: MapStatusNew.PRIVATE_TESTING,
             submission: {
-              update: {
-                currentVersion: { connect: { id: m.submission.versions[0].id } }
+              create: {
+                type: MapSubmissionType.ORIGINAL,
+                suggestions: [
+                  {
+                    trackType: TrackType.MAIN,
+                    trackNum: 0,
+                    gamemode: Gamemode.RJ,
+                    tier: 10,
+                    ranked: true
+                  }
+                ],
+                versions: {
+                  create: {
+                    zones: ZonesStub,
+                    versionNum: 1,
+                    hash: createSha1Hash(Buffer.from('hash browns'))
+                  }
+                },
+                dates: [
+                  {
+                    status: MapStatusNew.PRIVATE_TESTING,
+                    date: new Date().toJSON()
+                  }
+                ]
               }
             }
-          }
-        });
+          },
+          true
+        );
       });
 
       afterEach(() => db.cleanup('mMap'));
@@ -1529,6 +1572,188 @@ describe('Maps', () => {
         const extractedVmf = zip.getEntry('surf_map.vmf').getData();
         expect(createSha1Hash(extractedVmf)).toBe(vmfHash);
       });
+
+      it('should generate new leaderboards for new zones', async () => {
+        await prisma.leaderboard.createMany({
+          data: ZonesStubLeaderboards.map((lb) => ({
+            mapID: map.id,
+            style: 0,
+            ranked: false,
+            ...lb
+          }))
+        });
+
+        await db.createLbRun({
+          map,
+          user: u1,
+          rank: 1,
+          gamemode: Gamemode.RJ,
+          trackType: TrackType.MAIN,
+          trackNum: 0
+        });
+
+        await db.createLbRun({
+          map,
+          user: u1,
+          rank: 1,
+          gamemode: Gamemode.CONC,
+          trackType: TrackType.BONUS,
+          trackNum: 0
+        });
+
+        expect(
+          await prisma.leaderboardRun.findMany({
+            where: { mapID: map.id, gamemode: Gamemode.RJ }
+          })
+        ).toHaveLength(1);
+
+        expect(
+          await prisma.leaderboardRun.findMany({
+            where: { mapID: map.id, gamemode: Gamemode.CONC }
+          })
+        ).toHaveLength(1);
+
+        // Add a third major CP, setting end zone to end of major CP 3 - a
+        // mapper could very realistically do this!
+        // Then we're gonna delete the bonus. Should get new leaderboard for
+        // stage 3, and bonus leaderboards and runs should be deleted.
+
+        const newZones = structuredClone(ZonesStub);
+
+        // Delete bonus volumes
+        newZones.volumes.pop();
+        newZones.volumes.pop();
+
+        // New S3 end
+        newZones.volumes.push({
+          regions: [
+            {
+              bottom: 0,
+              height: 512,
+              points: [
+                [5120, 0],
+                [5120, 256],
+                [5632, 512],
+                [5632, 0]
+              ]
+            }
+          ]
+        });
+
+        // S2 end is now also a start zone so needs this:
+        Object.assign(newZones.volumes[4].regions[0], {
+          teleportYaw: 0,
+          teleportPos: [4352, 256, 0]
+        });
+
+        // Major CP for main track
+        newZones.tracks.main.zones.segments.push({
+          limitStartGroundSpeed: true,
+          checkpoints: [{ volumeIndex: 4 }]
+        });
+
+        // Main track end is now end of S3
+        newZones.tracks.main.zones.end.volumeIndex = 5;
+
+        // Stage 2's end zone becomes S3 start, not the old end zone
+        newZones.tracks.stages[1].zones.end.volumeIndex = 4;
+        newZones.tracks.stages.push({
+          name: 'Stage 3',
+          minorRequired: true,
+          zones: {
+            segments: [
+              {
+                limitStartGroundSpeed: true,
+                checkpoints: [{ volumeIndex: 4 }]
+              }
+            ],
+            end: { volumeIndex: 5 }
+          }
+        });
+
+        // Nuke the bonus
+        newZones.tracks.bonuses = [];
+
+        await req.postAttach({
+          url: `maps/${map.id}`,
+          status: 201,
+          data: { changelog: 'Added Stage 3, removed bonus', zones: newZones },
+          files: [
+            { file: bspBuffer, field: 'bsp', fileName: 'surf_map.bsp' },
+            { file: vmfBuffer, field: 'vmfs', fileName: 'surf_map.vmf' }
+          ],
+          validate: MapDto,
+          token: u1Token
+        });
+
+        // prettier-ignore
+        const expected = [GM.RJ, GM.SJ, GM.CONC, GM.DEFRAG_CPM, GM.DEFRAG_VQ3]
+          .flatMap((gamemode) => [
+            { gamemode, trackType: TrackType.MAIN,  trackNum: 0, linear: false },
+            { gamemode, trackType: TrackType.STAGE, trackNum: 0, linear: null },
+            { gamemode, trackType: TrackType.STAGE, trackNum: 1, linear: null },
+            { gamemode, trackType: TrackType.STAGE, trackNum: 2, linear: null }
+          ]);
+
+        const leaderboards = await prisma.leaderboard.findMany({
+          where: { mapID: map.id },
+          select: {
+            gamemode: true,
+            trackType: true,
+            trackNum: true,
+            linear: true
+          }
+        });
+
+        expect(leaderboards).toEqual(expect.arrayContaining(expected));
+        expect(leaderboards).toHaveLength(expected.length);
+
+        expect(
+          await prisma.leaderboardRun.findMany({
+            where: { mapID: map.id, gamemode: Gamemode.RJ }
+          })
+        ).toHaveLength(1);
+
+        expect(
+          await prisma.leaderboardRun.findMany({
+            where: { mapID: map.id, gamemode: Gamemode.CONC }
+          })
+        ).toHaveLength(0);
+      });
+
+      it('should 400 for bad zones', () =>
+        req.postAttach({
+          url: `maps/${map.id}`,
+          status: 400,
+          data: {
+            changelog: 'done fucked it',
+            zones: {
+              ...ZonesStub,
+              volumes: [
+                ...ZonesStub.volumes,
+                {
+                  regions: [
+                    {
+                      bottom: 0,
+                      height: 100,
+                      points: [
+                        [-100000000, 0],
+                        [-100000000, 0],
+                        [1283764512678, 0.000000001],
+                        [5652345234537, 2]
+                      ]
+                    }
+                  ]
+                }
+              ]
+            } as MapZones
+          },
+          files: [
+            { file: bspBuffer, field: 'bsp', fileName: 'surf_map.bsp' },
+            { file: vmfBuffer, field: 'vmfs', fileName: 'surf_map.vmf' }
+          ],
+          token: u1Token
+        }));
 
       it('should 400 if BSP filename does not start with the fileName on the DTO', async () => {
         await req.postAttach({
@@ -1765,11 +1990,28 @@ describe('Maps', () => {
                   date: new Date().toJSON()
                 }
               ],
-              suggestions: {
-                track: 1,
-                gamemode: Gamemode.SURF,
-                tier: 1,
-                ranked: true
+              suggestions: [
+                {
+                  trackType: TrackType.MAIN,
+                  trackNum: 0,
+                  gamemode: Gamemode.RJ,
+                  tier: 1,
+                  ranked: true
+                },
+                {
+                  trackType: TrackType.BONUS,
+                  trackNum: 0,
+                  gamemode: Gamemode.DEFRAG_CPM,
+                  tier: 1,
+                  ranked: true
+                }
+              ],
+              versions: {
+                create: {
+                  zones: ZonesStub,
+                  versionNum: 1,
+                  hash: createSha1Hash(Buffer.from('shashashs'))
+                }
               }
             }
           }
@@ -1793,12 +2035,20 @@ describe('Maps', () => {
               info: {
                 description:
                   'Ostriches are large flightless birds. They are the heaviest living birds, and lay the largest eggs of any living land animal.',
-                youtubeID: 'rq9WnDq0ap8'
+                youtubeID: '8k-zNGuiatA'
               },
               suggestions: [
                 {
-                  track: 1,
+                  trackType: TrackType.MAIN,
+                  trackNum: 0,
                   gamemode: Gamemode.CONC,
+                  tier: 1,
+                  ranked: true
+                },
+                {
+                  trackType: TrackType.BONUS,
+                  trackNum: 0,
+                  gamemode: Gamemode.DEFRAG_CPM,
                   tier: 1,
                   ranked: true
                 }
@@ -1819,13 +2069,21 @@ describe('Maps', () => {
             info: {
               description:
                 'Ostriches are large flightless birds. They are the heaviest living birds, and lay the largest eggs of any living land animal.',
-              youtubeID: 'rq9WnDq0ap8'
+              youtubeID: '8k-zNGuiatA'
             },
             submission: {
               suggestions: [
                 {
-                  track: 1,
+                  trackType: TrackType.MAIN,
+                  trackNum: 0,
                   gamemode: Gamemode.CONC,
+                  tier: 1,
+                  ranked: true
+                },
+                {
+                  trackType: TrackType.BONUS,
+                  trackNum: 0,
+                  gamemode: Gamemode.DEFRAG_CPM,
                   tier: 1,
                   ranked: true
                 }
@@ -1888,7 +2146,8 @@ describe('Maps', () => {
                 create: {
                   type: MapSubmissionType.PORT,
                   suggestions: {
-                    track: 1,
+                    trackType: TrackType.MAIN,
+                    trackNum: 0,
                     gamemode: Gamemode.SURF,
                     tier: 10,
                     ranked: true
@@ -1934,7 +2193,8 @@ describe('Maps', () => {
               ],
               type: MapSubmissionType.PORT,
               suggestions: {
-                track: 1,
+                trackType: TrackType.MAIN,
+                trackNum: 0,
                 gamemode: Gamemode.SURF,
                 tier: 10,
                 ranked: true
@@ -1956,6 +2216,306 @@ describe('Maps', () => {
         expect(updatedMap.status).toBe(MapStatusNew.FINAL_APPROVAL);
       });
 
+      it('should generate new leaderboards if suggestions change', async () => {
+        const map = await db.createMap({
+          ...createMapData,
+          status: MapStatusNew.PRIVATE_TESTING
+        });
+
+        await prisma.leaderboard.createMany({
+          data: ZonesStubLeaderboards.map((lb) => ({
+            mapID: map.id,
+            style: 0,
+            ranked: false,
+            ...lb
+          }))
+        });
+
+        await db.createLbRun({
+          map,
+          user,
+          rank: 1,
+          gamemode: Gamemode.CONC,
+          trackType: TrackType.MAIN
+        });
+
+        // Map starts with main track leaderboards for modes compat with RJ
+        // (not bhop), main track suggestion changes to CPM Defrag,
+        // which *does* support bhop, check leaderboards are created.
+        // Bonus is CPM, so we should have 1 LB before, 4 after.
+
+        expect(
+          await prisma.leaderboard.findMany({
+            where: { mapID: map.id, gamemode: Gamemode.BHOP, style: 0 }
+          })
+        ).toHaveLength(1);
+
+        // Conc LBs shouldn't change
+
+        expect(
+          await prisma.leaderboard.findMany({
+            where: { mapID: map.id, gamemode: Gamemode.CONC }
+          })
+        ).toHaveLength(4);
+
+        await req.patch({
+          url: `maps/${map.id}`,
+          status: 204,
+          body: {
+            info: {
+              youtubeID: 'Ea992vtCqTs'
+            },
+            suggestions: [
+              {
+                trackType: TrackType.MAIN,
+                trackNum: 0,
+                gamemode: Gamemode.DEFRAG_CPM,
+                tier: 10,
+                ranked: true
+              },
+              {
+                trackType: TrackType.BONUS,
+                trackNum: 0,
+                gamemode: Gamemode.DEFRAG_CPM,
+                tier: 1,
+                ranked: true
+              }
+            ]
+          },
+          token
+        });
+
+        expect(
+          await prisma.leaderboard.findMany({
+            where: { mapID: map.id, gamemode: Gamemode.BHOP, style: 0 }
+          })
+        ).toHaveLength(4);
+
+        expect(
+          await prisma.leaderboard.findMany({
+            where: { mapID: map.id, gamemode: Gamemode.CONC }
+          })
+        ).toHaveLength(4);
+
+        // Check existing runs weren't deleted
+
+        expect(
+          await prisma.leaderboardRun.findMany({
+            where: { mapID: map.id, gamemode: Gamemode.CONC }
+          })
+        ).toHaveLength(1);
+      });
+
+      it('should wipe leaderboards if resetLeaderboards is true', async () => {
+        const map = await db.createMap({
+          ...createMapData,
+          status: MapStatusNew.PRIVATE_TESTING,
+          leaderboards: {
+            create: {
+              gamemode: Gamemode.AHOP,
+              trackType: TrackType.MAIN,
+              trackNum: 0,
+              style: 0,
+              ranked: false,
+              runs: {
+                create: {
+                  userID: user.id,
+                  time: 1,
+                  stats: {},
+                  rank: 1
+                }
+              }
+            }
+          }
+        });
+
+        expect(
+          await prisma.leaderboardRun.findMany({
+            where: { mapID: map.id }
+          })
+        ).toHaveLength(1);
+
+        await req.patch({
+          url: `maps/${map.id}`,
+          status: 204,
+          body: {
+            info: {
+              description: 'all your runs SUCK',
+              youtubeID: 'Xcz-rVPvL2Y'
+            },
+            resetLeaderboards: true
+          },
+          token
+        });
+
+        expect(
+          await prisma.leaderboardRun.findMany({
+            where: { mapID: map.id }
+          })
+        ).toHaveLength(0);
+      });
+
+      it('should block resetting leaderboards if the map has previously been approved', async () => {
+        const map = await db.createMap({
+          ...createMapData,
+          status: MapStatusNew.PRIVATE_TESTING,
+          submission: {
+            create: {
+              type: MapSubmissionType.ORIGINAL,
+              dates: [
+                {
+                  status: MapStatusNew.APPROVED,
+                  date: new Date(Date.now() - 3000)
+                },
+                {
+                  status: MapStatusNew.DISABLED,
+                  date: new Date(Date.now() - 2000)
+                },
+                {
+                  status: MapStatusNew.PRIVATE_TESTING,
+                  date: new Date(Date.now() - 1000)
+                }
+              ]
+            }
+          },
+          leaderboards: {
+            create: {
+              gamemode: Gamemode.AHOP,
+              trackType: TrackType.MAIN,
+              trackNum: 0,
+              style: 0,
+              ranked: false,
+              runs: {
+                create: {
+                  userID: user.id,
+                  time: 1,
+                  stats: {},
+                  rank: 1
+                }
+              }
+            }
+          }
+        });
+
+        expect(
+          await prisma.leaderboardRun.findMany({
+            where: { mapID: map.id }
+          })
+        ).toHaveLength(1);
+
+        await req.patch({
+          url: `maps/${map.id}`,
+          status: 403,
+          body: {
+            info: {
+              description: 'PLEASE let me delete these runs',
+              youtubeID: 'OC9RI8_QYmw'
+            },
+            resetLeaderboards: true
+          },
+          token
+        });
+
+        expect(
+          await prisma.leaderboardRun.findMany({
+            where: { mapID: map.id }
+          })
+        ).toHaveLength(1);
+      });
+
+      it('should 400 for invalid suggestions', async () => {
+        const map = await db.createMap({
+          ...createMapData,
+          submitter: { connect: { id: user.id } },
+          status: MapStatusNew.PRIVATE_TESTING
+        });
+
+        // Lots of checks here but is unit tested, just remove the bonus
+        await req.patch({
+          url: `maps/${map.id}`,
+          status: 204,
+          body: {
+            suggestions: [
+              {
+                trackType: TrackType.MAIN,
+                trackNum: 0,
+                gamemode: Gamemode.DEFRAG_CPM,
+                tier: 10,
+                ranked: true
+              },
+              {
+                trackType: TrackType.BONUS,
+                trackNum: 0,
+                gamemode: Gamemode.DEFRAG_CPM,
+                tier: 1,
+                ranked: true
+              }
+            ]
+          },
+          token
+        });
+      });
+
+      it('should not wipe leaderboards if resetLeaderboards is false or undefined', async () => {
+        const map = await db.createMap({
+          ...createMapData,
+          status: MapStatusNew.PRIVATE_TESTING,
+          leaderboards: {
+            create: {
+              gamemode: Gamemode.AHOP,
+              trackType: TrackType.MAIN,
+              trackNum: 0,
+              style: 0,
+              ranked: false,
+              runs: {
+                create: {
+                  userID: user.id,
+                  time: 1,
+                  stats: {},
+                  rank: 1
+                }
+              }
+            }
+          }
+        });
+
+        expect(
+          await prisma.leaderboardRun.findMany({
+            where: { mapID: map.id }
+          })
+        ).toHaveLength(1);
+
+        await req.patch({
+          url: `maps/${map.id}`,
+          status: 204,
+          body: {
+            info: {
+              description: 'damn these runs are great. i love you guys',
+              youtubeID: 'ICZG33IxtgE'
+            },
+            resetLeaderboards: false
+          },
+          token
+        });
+
+        await req.patch({
+          url: `maps/${map.id}`,
+          status: 204,
+          body: {
+            info: {
+              youtubeID: 'oBSGEl-yB7A'
+            }
+          },
+          token
+        });
+
+        expect(
+          await prisma.leaderboardRun.findMany({
+            where: { mapID: map.id }
+          })
+        ).toHaveLength(1);
+      });
+
       it('should return 400 if the status flag is invalid', async () => {
         const map = await db.createMap({
           submitter: { connect: { id: user.id } }
@@ -1965,7 +2525,7 @@ describe('Maps', () => {
           url: `maps/${map.id}`,
           status: 400,
           body: { status: 3000 },
-          token: token
+          token
         });
       });
 
@@ -2000,7 +2560,7 @@ describe('Maps', () => {
           url: `maps/${NULL_ID}`,
           status: 404,
           body: { status: MapStatusNew.CONTENT_APPROVAL },
-          token: token
+          token
         }));
 
       it('should 401 when no access token is provided', () =>

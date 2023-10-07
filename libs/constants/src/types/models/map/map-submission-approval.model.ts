@@ -1,10 +1,9 @@
 import { Gamemode, TrackType } from '../../../';
 
-export interface MapSubmissionSuggestion {
+export interface MapSubmissionApproval {
   trackType: TrackType;
   trackNum: number;
   gamemode: Gamemode;
   tier: number;
-  comment: string;
   ranked: boolean;
 }

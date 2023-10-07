@@ -150,15 +150,7 @@ export class MapsController {
   //#region Map Submission
 
   @Get('/submissions')
-  @ApiOperation({
-    summary: 'Retrieve a paginated list of maps in submission'
-  })
-  @ApiParam({
-    name: 'mapID',
-    type: Number,
-    description: 'Target Map ID',
-    required: true
-  })
+  @ApiOperation({ summary: 'Retrieve a paginated list of maps in submission' })
   getSubmissions(
     @Query() query: MapsGetAllSubmissionQueryDto,
     @LoggedInUser('id') userID: number

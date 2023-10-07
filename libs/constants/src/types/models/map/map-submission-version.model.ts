@@ -1,6 +1,10 @@
 import { MapSubmissionVersion as PrismaMapSubmissionVersion } from '@prisma/client';
+import { MapZones } from './map-zones.model';
 
-export type MapSubmissionVersion = PrismaMapSubmissionVersion;
+export interface MapSubmissionVersion
+  extends Omit<PrismaMapSubmissionVersion, 'zones'> {
+  zones: MapZones;
+}
 
 export type CreateMapSubmissionVersion = Pick<
   MapSubmissionVersion,
