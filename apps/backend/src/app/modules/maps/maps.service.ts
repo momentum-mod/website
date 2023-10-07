@@ -563,34 +563,37 @@ export class MapsService {
 
     const oldVersion = map.submission.currentVersion;
     const newVersionNum = oldVersion.versionNum + 1;
-    const newVersion = await this.db.mapSubmissionVersion.create({
-      data: {
-        versionNum: newVersionNum,
-        hasVmf,
-        hash: bspHash,
-        changelog: dto.changelog,
-        submission: { connect: { mapID } }
-      }
+
+    await this.db.$transaction(async (tx) => {
+      const newVersion = await tx.mapSubmissionVersion.create({
+        data: {
+          versionNum: newVersionNum,
+          hasVmf,
+          hash: bspHash,
+          changelog: dto.changelog,
+          submission: { connect: { mapID } }
+        }
+      });
+
+      await Promise.all([
+        (async () => {
+          const zippedVmf = hasVmf
+            ? await this.zipVmfFiles(map.fileName, newVersionNum, vmfFiles)
+            : undefined;
+
+          await this.uploadMapSubmissionVersionFiles(
+            newVersion.id,
+            bspFile,
+            zippedVmf
+          );
+        })(),
+
+        tx.mapSubmission.update({
+          where: { mapID },
+          data: { currentVersion: { connect: { id: newVersion.id } } }
+        })
+      ]);
     });
-
-    await Promise.all([
-      (async () => {
-        const zippedVmf = hasVmf
-          ? await this.zipVmfFiles(map.fileName, newVersionNum, vmfFiles)
-          : undefined;
-
-        await this.uploadMapSubmissionVersionFiles(
-          newVersion.id,
-          bspFile,
-          zippedVmf
-        );
-      })(),
-
-      this.db.mapSubmission.update({
-        where: { mapID },
-        data: { currentVersion: { connect: { id: newVersion.id } } }
-      })
-    ]);
 
     return DtoFactory(
       MapDto,
