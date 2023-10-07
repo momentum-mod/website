@@ -1,16 +1,18 @@
 /**
- * All the gamemodes, and in the future, submodes, available in Momentum.
+ * All the submodes available in Momentum.
+ *
+ * It's simplest to store submodes in a flat structure, rather than nested based
+ * on gamemode, e.g. we don't have an outer "DEFRAG" gamemode that includes CPM
+ * and VQ3. If you like, think of our "submodes" as "gamemodes", and "gamemodes"
+ * as "gamemode categories".
  */
 export enum Gamemode {
-  UNKNOWN = 0,
   SURF = 1,
   BHOP = 2,
-  KZ = 3,
   RJ = 4,
   SJ = 5,
-  TRICKSURF = 6,
   AHOP = 7,
-  PARKOUR = 8,
   CONC = 9,
-  DEFRAG = 10
+  DEFRAG_CPM = 10,
+  DEFRAG_VQ3 = 11
 }
