@@ -1007,7 +1007,7 @@ describe('Admin', () => {
               {
                 trackNum: 0,
                 trackType: TrackType.MAIN,
-                gamemode: Gamemode.DEFRAG,
+                gamemode: Gamemode.DEFRAG_CPM,
                 tier: 1,
                 ranked: true,
                 comment: 'This stage was built by children'
