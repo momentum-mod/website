@@ -1,22 +1,14 @@
 import {
   Gamemode,
-  MapSubmissionSuggestion,
+  MapSubmissionApproval,
   TrackType
 } from '@momentum/constants';
-import {
-  IsBoolean,
-  IsInt,
-  IsOptional,
-  IsString,
-  Max,
-  MaxLength,
-  Min
-} from 'class-validator';
+import { IsBoolean, IsInt, IsOptional, Max, Min } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 import { EnumProperty } from '../../decorators';
 import { JsonValue } from 'type-fest';
 
-export class MapSubmissionSuggestionDto implements MapSubmissionSuggestion {
+export class MapSubmissionApprovalDto implements MapSubmissionApproval {
   [k: string]: JsonValue;
 
   @ApiProperty({ description: 'Track number the suggestion refers to' })
@@ -35,7 +27,6 @@ export class MapSubmissionSuggestionDto implements MapSubmissionSuggestion {
   @IsInt()
   @Min(1)
   @Max(10)
-  @IsOptional() // Optional because could be a stage
   readonly tier: number;
 
   @ApiProperty({
@@ -44,12 +35,4 @@ export class MapSubmissionSuggestionDto implements MapSubmissionSuggestion {
   @IsBoolean()
   @IsOptional()
   readonly ranked: boolean;
-
-  @ApiProperty({
-    description: 'General comments about the track on this gamemode'
-  })
-  @IsString()
-  @MaxLength(500)
-  @IsOptional()
-  readonly comment: string;
 }
