@@ -30,8 +30,10 @@ import {
   EnumFilterQueryProperty,
   EnumQueryProperty,
   ExpandQueryProperty,
+  FilterQueryProperty,
   IntCsvQueryProperty,
   IntQueryProperty,
+  SingleExpandQueryProperty,
   SkipQueryProperty,
   StringQueryProperty,
   TakeQueryProperty
@@ -50,10 +52,16 @@ class MapsGetAllBaseQueryDto extends QueryDto {
   take = 100;
 
   @StringQueryProperty({
-    description: 'Filter by partial map name match',
-    example: 'de_dust2'
+    description: 'Filter by partial map name match (contains)',
+    example: 'dust2'
   })
   readonly search?: string;
+
+  @StringQueryProperty({
+    description: 'Filter by partial map file name match (startsWith)',
+    example: 'de_dust2'
+  })
+  readonly fileName?: string;
 
   @IntQueryProperty({ description: 'Filter by submitter ID' })
   readonly submitterID?: number;
@@ -64,13 +72,14 @@ export class MapsGetAllQueryDto
   implements MapsGetAllQuery
 {
   @ExpandQueryProperty([
+    'zones',
+    'leaderboards',
     'info',
     'stats',
     'submitter',
     'credits',
     'thumbnail',
     'images',
-    'tracks',
     'inFavorites',
     'inLibrary',
     'personalBest',
@@ -79,7 +88,7 @@ export class MapsGetAllQueryDto
   readonly expand?: MapsGetAllExpand;
 
   @EnumQueryProperty(Gamemode, { description: 'Filter by map type (gamemode)' })
-  readonly type?: Gamemode;
+  readonly gamemode?: Gamemode;
 
   @IntQueryProperty({ description: 'Filter by tier (lower bound)' })
   readonly difficultyLow?: number;
@@ -88,7 +97,7 @@ export class MapsGetAllQueryDto
   readonly difficultyHigh?: number;
 
   @BooleanQueryProperty({ description: 'Filter by linear or staged' })
-  readonly isLinear?: boolean;
+  readonly linear?: boolean;
 }
 
 export class MapsGetAllAdminQueryDto
@@ -96,13 +105,14 @@ export class MapsGetAllAdminQueryDto
   implements MapsGetAllAdminQuery
 {
   @ExpandQueryProperty([
+    'zones',
+    'leaderboards',
     'info',
     'stats',
     'submitter',
     'credits',
     'thumbnail',
-    'images',
-    'tracks'
+    'images'
   ])
   readonly expand?: MapsGetAllAdminExpand;
 
@@ -125,13 +135,14 @@ export class MapsGetAllSubmissionQueryDto
   implements MapsGetAllSubmissionQuery
 {
   @ExpandQueryProperty([
+    'zones',
+    'leaderboards',
     'info',
     'stats',
     'submitter',
     'credits',
     'thumbnail',
     'images',
-    'tracks',
     'inFavorites',
     'inLibrary',
     'personalBest',
@@ -158,13 +169,14 @@ export class MapsGetAllSubmissionAdminQueryDto
   implements MapsGetAllSubmissionAdminQuery
 {
   @ExpandQueryProperty([
+    'zones',
+    'leaderboards',
     'info',
     'stats',
     'submitter',
     'credits',
     'thumbnail',
     'images',
-    'tracks',
     'currentVersion',
     'versions',
     'reviews'
@@ -185,6 +197,8 @@ export class MapsGetAllSubmissionAdminQueryDto
 
 export class MapsGetQueryDto extends QueryDto implements MapsGetQuery {
   @ExpandQueryProperty([
+    'zones',
+    'leaderboards',
     'info',
     'credits',
     'submitter',

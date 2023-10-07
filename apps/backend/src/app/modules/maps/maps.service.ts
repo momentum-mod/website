@@ -6,18 +6,10 @@ import {
   Inject,
   Injectable,
   InternalServerErrorException,
-  NotFoundException
+  NotFoundException,
+  NotImplementedException
 } from '@nestjs/common';
-import {
-  MapCredit,
-  MapSubmission,
-  MapTrack,
-  MapZone,
-  MapZoneTrigger,
-  MapZoneTriggerProperties,
-  MMap,
-  Prisma
-} from '@prisma/client';
+import { MapCredit, MapSubmission, MMap, Prisma, Run } from '@prisma/client';
 import { FileStoreService } from '../filestore/file-store.service';
 import { RunsService } from '../runs/runs.service';
 import {
@@ -31,7 +23,6 @@ import {
   MapsGetAllSubmissionAdminQueryDto,
   MapsGetAllSubmissionQueryDto,
   MapSummaryDto,
-  MapTrackDto,
   PagedResponseDto,
   UpdateMapAdminDto,
   UpdateMapDto
@@ -51,10 +42,13 @@ import {
   MapSubmissionDate,
   MapSubmissionPlaceholder,
   MapTestingRequestState,
-  MapZones,
   Role,
   submissionBspPath,
-  submissionVmfsPath
+  submissionVmfsPath,
+  TrackType,
+  Gamemode,
+  IncompatibleGamemodes,
+  MapZones
 } from '@momentum/constants';
 import { MapImageService } from './map-image.service';
 import { EXTENDED_PRISMA_SERVICE } from '../database/db.constants';
@@ -105,6 +99,19 @@ export class MapsService {
     private readonly mapCreditService: MapCreditsService
   ) {}
 
+  private readonly baseMapsSelect: Prisma.MMapSelect = {
+    id: true,
+    name: true,
+    fileName: true,
+    status: true,
+    hash: true,
+    hasVmf: true,
+    createdAt: true,
+    updatedAt: true,
+    submitterID: true,
+    thumbnailID: true
+  };
+
   //#region Gets
 
   //
@@ -119,38 +126,54 @@ export class MapsService {
     // Where
     const where: Prisma.MMapWhereInput = {};
     if (query.search) where.name = { contains: query.search };
+    if (query.fileName) where.fileName = { startsWith: query.fileName };
     if (query.submitterID) where.submitterID = query.submitterID;
     if (query instanceof MapsGetAllQueryDto) {
       // /maps only returns approved maps
       where.status = MapStatusNew.APPROVED;
 
-      if (query.type) where.type = query.type;
+      const leaderboardSome: Prisma.LeaderboardWhereInput = {
+        // These extra params allow apply to main tracks for now - I'm not sure
+        // what future stage/bonus-specific searches will behave so not sure
+        // exactly how to implement
+        trackType: TrackType.MAIN
+      };
 
-      if (query.difficultyHigh && query.difficultyLow)
-        where.mainTrack = {
-          is: {
-            difficulty: { lt: query.difficultyHigh, gt: query.difficultyLow }
-          }
+      if (query.gamemode) {
+        leaderboardSome.gamemode = query.gamemode;
+      }
+
+      if (query.difficultyHigh && query.difficultyLow) {
+        leaderboardSome.tier = {
+          lt: query.difficultyHigh,
+          gt: query.difficultyLow
         };
-      else if (query.difficultyLow)
-        where.mainTrack = { is: { difficulty: { gt: query.difficultyLow } } };
-      else if (query.difficultyHigh)
-        where.mainTrack = { is: { difficulty: { lt: query.difficultyHigh } } };
+      } else if (query.difficultyLow) {
+        leaderboardSome.tier = { gt: query.difficultyLow };
+      } else if (query.difficultyHigh) {
+        leaderboardSome.tier = { lt: query.difficultyHigh };
+      }
 
-      // If we have difficulty filters we have to construct quite a complicated
-      // filter...
-      if (typeof query.isLinear === 'boolean')
-        where.mainTrack = where.mainTrack
-          ? { is: { ...where.mainTrack.is, isLinear: query.isLinear } }
-          : { isLinear: query.isLinear };
+      if (typeof query.linear === 'boolean') {
+        leaderboardSome.linear = query.linear;
+      }
+
+      // Starts with 1 key so check g.t.
+      if (Object.keys(leaderboardSome).length > 1) {
+        where.leaderboards = { some: leaderboardSome };
+      }
     } else if (
       query instanceof MapsGetAllSubmissionQueryDto ||
       query instanceof MapsGetAllSubmissionAdminQueryDto
     ) {
-      const { roles } = await this.db.user.findUnique({
+      const user = await this.db.user.findUnique({
         where: { id: userID },
         select: { roles: true }
       });
+
+      const roles = user?.roles;
+
+      if (roles == null) throw new BadRequestException();
 
       // Logic here is a nightmare, for a breakdown of permissions see
       // MapsService.getMapAndCheckReadAccess.
@@ -282,12 +305,34 @@ export class MapsService {
 
     const submissionInclude: Prisma.MapSubmissionInclude = expandToIncludes(
       query.expand,
-      { only: ['currentVersion', 'versions'] }
+      {
+        only: ['currentVersion', 'versions'],
+        mappings: [
+          {
+            expand: 'versions',
+            model: 'versions',
+            value: {
+              select: {
+                hash: true,
+                hasVmf: true,
+                versionNum: true,
+                id: true,
+                createdAt: true,
+                // Changelog and zones are quite large structures so not worth
+                // ever including on the paginated query - make clients query
+                // for a specific submission if they want all that stuff
+                zones: false,
+                changelog: false
+              }
+            }
+          }
+        ]
+      }
     );
 
-    // Include
-    const include: Prisma.MMapInclude = {
-      mainTrack: true,
+    // Select (and include)
+    const select: Prisma.MMapSelect = {
+      ...this.baseMapsSelect,
       submission: isEmpty(submissionInclude)
         ? true
         : { include: submissionInclude },
@@ -317,19 +362,19 @@ export class MapsService {
     ) {
       incPB = query.expand?.includes('personalBest');
       incWR = query.expand?.includes('worldRecord');
-      this.handleMapGetIncludes(include, incPB, incWR, userID);
+      this.handleMapGetIncludes(select, incPB, incWR, userID);
     }
 
     const dbResponse = await this.db.mMap.findManyAndCount({
       where,
-      include,
+      select,
       orderBy: { createdAt: 'desc' },
       skip: query.skip,
       take: query.take
     });
 
     if (incPB || incWR) {
-      for (const map of dbResponse[0])
+      for (const map of dbResponse[0] as MMap[])
         this.handleMapGetPrismaResponse(map, userID, incPB, incWR);
     }
 
@@ -341,32 +386,25 @@ export class MapsService {
     userID?: number,
     expand?: MapsGetExpand
   ): Promise<MapDto> {
-    const include: Prisma.MMapInclude = expandToIncludes(expand, {
-      without: ['currentVersion', 'versions', 'personalBest', 'worldRecord'],
-      mappings: [
-        {
-          expand: 'tracks',
-          value: {
-            include: {
-              zones: {
-                include: { triggers: { include: { properties: true } } }
-              }
-            }
+    const select: Prisma.MMapSelect = {
+      ...this.baseMapsSelect,
+      ...expandToIncludes(expand, {
+        without: ['currentVersion', 'versions', 'personalBest', 'worldRecord'],
+        mappings: [
+          { expand: 'credits', value: { include: { user: true } } },
+          {
+            expand: 'inFavorites',
+            model: 'favorites',
+            value: { where: { userID: userID } }
+          },
+          {
+            expand: 'inLibrary',
+            model: 'libraryEntries',
+            value: { where: { userID: userID } }
           }
-        },
-        { expand: 'credits', value: { include: { user: true } } },
-        {
-          expand: 'inFavorites',
-          model: 'favorites',
-          value: { where: { userID: userID } }
-        },
-        {
-          expand: 'inLibrary',
-          model: 'libraryEntries',
-          value: { where: { userID: userID } }
-        }
-      ]
-    });
+        ]
+      })
+    };
 
     const submissionIncludes: Prisma.MapSubmissionInclude = expandToIncludes(
       expand,
@@ -374,36 +412,15 @@ export class MapsService {
     );
 
     if (!isEmpty(submissionIncludes)) {
-      include.submission = { include: submissionIncludes };
+      select.submission = { include: submissionIncludes };
     }
 
     const incPB = expand?.includes('personalBest');
     const incWR = expand?.includes('worldRecord');
 
-    this.handleMapGetIncludes(include, incPB, incWR, userID);
+    this.handleMapGetIncludes(select, incPB, incWR, userID);
 
-    const map = await this.getMapAndCheckReadAccess(
-      mapID,
-      userID,
-      undefinedIfEmpty(include)
-    );
-
-    // We'll delete this stupid shit soon
-    if (expand?.includes('tracks'))
-      for (const track of map.tracks as (MapTrack & {
-        zones: (MapZone & {
-          triggers: MapZoneTrigger &
-            {
-              properties: MapZoneTriggerProperties;
-              zoneProps: MapZoneTriggerProperties;
-            }[];
-        })[];
-      })[])
-        for (const zone of track.zones)
-          for (const trigger of zone.triggers) {
-            trigger.zoneProps = structuredClone(trigger.properties);
-            delete trigger.properties;
-          }
+    const map = await this.getMapAndCheckReadAccess({ mapID, userID, select });
 
     if (incPB || incWR) {
       this.handleMapGetPrismaResponse(map, userID, incPB, incWR);
@@ -412,40 +429,61 @@ export class MapsService {
     return DtoFactory(MapDto, map);
   }
 
+  // Weird name I know, but we're doing include stuff, which are subsets of selects
   private handleMapGetIncludes(
-    include: Prisma.MMapInclude,
+    select: Prisma.MMapSelect,
     PB: boolean,
     WR: boolean,
     userID?: number
   ): void {
     if (!(PB || WR)) return;
 
-    include.ranks = { include: { run: true, user: true } };
+    select.leaderboardRuns = { include: { user: true } };
     if (PB && WR) {
-      include.ranks.where = { OR: [{ userID: userID }, { rank: 1 }] };
+      select.leaderboardRuns.where = {
+        AND: [
+          { trackType: TrackType.MAIN },
+          { OR: [{ userID: userID }, { rank: 1 }] }
+        ]
+      };
     } else if (PB) {
-      include.ranks.where = { userID: userID };
+      select.leaderboardRuns.where = {
+        trackType: TrackType.MAIN, // Probs fastest to omit trackNum here (can't be != 0)
+        style: 0,
+        userID: userID
+      };
     } else {
-      include.ranks.where = { rank: 1 };
+      select.leaderboardRuns.where = {
+        trackType: TrackType.MAIN,
+        style: 0,
+        rank: 1
+      };
     }
   }
 
   private handleMapGetPrismaResponse(
-    mapObj: any,
+    mapObj: MMap & {
+      worldRecords?: LeaderboardRun[];
+      personalBests?: LeaderboardRun[];
+      leaderboardRuns?: LeaderboardRun[];
+    },
     userID: number,
     PB: boolean,
     WR: boolean
   ): void {
     if (PB && WR) {
       // Annoying to have to do this but we don't know what's what
-      mapObj.worldRecord = mapObj.ranks.find((r) => r.rank === 1);
-      mapObj.personalBest = mapObj.ranks.find((r) => r.userID === userID);
+      mapObj.worldRecords = mapObj.leaderboardRuns.filter((r) => r.rank === 1);
+      mapObj.personalBests = mapObj.leaderboardRuns.filter(
+        (r) => r.userID === userID
+      );
     } else if (PB) {
-      mapObj.personalBest = mapObj.ranks[0];
+      mapObj.personalBests = mapObj.leaderboardRuns;
     } else {
-      mapObj.worldRecord = mapObj.ranks[0];
+      mapObj.worldRecords = mapObj.leaderboardRuns;
     }
-    delete mapObj.ranks;
+
+    delete mapObj.leaderboardRuns;
   }
 
   async getSubmittedMapsSummary(userID: number): Promise<MapSummaryDto[]> {
@@ -1333,11 +1371,13 @@ export class MapsService {
   async getMapAndCheckReadAccess(
     mapID: number,
     userID: number,
-    include?: Prisma.MMapInclude
+    include?: Prisma.MMapInclude,
+    select?: Prisma.MMapSelect
   ) {
     const map = await this.db.mMap.findUnique({
       where: { id: mapID },
-      include
+      include,
+      select
     });
 
     if (!map) {
