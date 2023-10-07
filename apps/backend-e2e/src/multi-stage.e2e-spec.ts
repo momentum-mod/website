@@ -14,7 +14,8 @@ import {
   MapSubmissionDate,
   MapSubmissionType,
   MIN_PUBLIC_TESTING_DURATION,
-  Role
+  Role,
+  TrackType
 } from '@momentum/constants';
 import { PrismaClient } from '@prisma/client';
 import {
@@ -25,6 +26,7 @@ import { readFileSync } from 'node:fs';
 import path from 'node:path';
 import axios from 'axios';
 import Zip from 'adm-zip';
+import { BabyZonesStub } from '@momentum/formats';
 
 describe('Multi-stage E2E tests', () => {
   let app, prisma: PrismaClient, req: RequestUtil, db: DbUtil;
@@ -66,38 +68,24 @@ describe('Multi-stage E2E tests', () => {
         fileName: 'surf_todd_howard',
         info: {
           description: 'fallout',
-          numTracks: 1,
           creationDate: '2023-02-01T12:43:33.410Z'
         },
         submissionType: MapSubmissionType.ORIGINAL,
         placeholders: [{ alias: 'todd howard', type: MapCreditType.AUTHOR }],
         suggestions: [
-          { track: 1, gamemode: Gamemode.RJ, tier: 1, ranked: true }
+          {
+            gamemode: Gamemode.SURF,
+            trackType: TrackType.MAIN,
+            trackNum: 0,
+            tier: 1,
+            ranked: true
+          }
         ],
         wantsPrivateTesting: true,
         credits: [
           { userID: user.id, type: MapCreditType.AUTHOR, description: 'Walrus' }
         ],
-        tracks: Array.from({ length: 2 }, (_, i) => ({
-          trackNum: i,
-          numZones: 1,
-          isLinear: false,
-          difficulty: 5,
-          zones: Array.from({ length: 10 }, (_, j) => ({
-            zoneNum: j,
-            triggers: [
-              {
-                type: j == 0 ? 1 : j == 1 ? 0 : 2,
-                pointsHeight: 512,
-                pointsZPos: 0,
-                points: { p1: '0', p2: '0' },
-                properties: {
-                  properties: {}
-                }
-              }
-            ]
-          }))
-        }))
+        zones: BabyZonesStub
       },
       files: [
         { file: bspBuffer, field: 'bsp', fileName: 'surf_todd_howard.bsp' },
@@ -114,6 +102,16 @@ describe('Multi-stage E2E tests', () => {
       ],
       token
     });
+
+    expect(await prisma.leaderboard.findMany({ where: { mapID } })).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          gamemode: Gamemode.SURF,
+          trackType: TrackType.MAIN,
+          trackNum: 0
+        })
+      ])
+    );
 
     await req.patch({
       url: `maps/${mapID}`,
@@ -187,16 +185,28 @@ describe('Multi-stage E2E tests', () => {
       token
     });
 
+    // Aaaaactually this is a bhop map lol. owned!
     await req.patch({
       url: `admin/maps/${mapID}`,
       status: 204,
-      body: { status: MapStatusNew.APPROVED },
+      body: {
+        status: MapStatusNew.APPROVED,
+        finalLeaderboards: [
+          {
+            gamemode: Gamemode.BHOP,
+            trackType: TrackType.MAIN,
+            trackNum: 0,
+            tier: 10,
+            ranked: true
+          }
+        ]
+      },
       token: adminToken
     });
 
     const { body: mapRes } = await req.get({
       url: `maps/${mapID}`,
-      query: { expand: 'credits,info' },
+      query: { expand: 'credits,info,leaderboards' },
       status: 200,
       token
     });
@@ -215,9 +225,20 @@ describe('Multi-stage E2E tests', () => {
       ],
       info: {
         description: 'fallout',
-        numTracks: 1,
         creationDate: '2023-02-01T12:43:33.410Z'
-      }
+      },
+      leaderboards: [
+        {
+          gamemode: Gamemode.BHOP,
+          trackType: TrackType.MAIN,
+          trackNum: 0,
+          linear: true,
+          style: 0,
+          tier: 10,
+          ranked: true,
+          tags: []
+        }
+      ]
     });
 
     expect(bsp2Hash).not.toBe(bspHash);

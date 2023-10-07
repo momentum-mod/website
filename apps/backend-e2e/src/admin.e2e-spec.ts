@@ -1,7 +1,7 @@
 // noinspection DuplicatedCode
 
 import { readFileSync } from 'node:fs';
-import { PrismaClient } from '@prisma/client';
+import { Prisma, PrismaClient } from '@prisma/client';
 import {
   AuthUtil,
   createSha1Hash,
@@ -33,12 +33,19 @@ import {
   ReportCategory,
   ReportType,
   Role,
+  runPath,
   TrackType
 } from '@momentum/constants';
 import { Bitflags } from '@momentum/bitflags';
 import { Enum } from '@momentum/enum';
 import path from 'node:path';
 import Zip from 'adm-zip';
+import {
+  BabyZonesStub,
+  ZonesStub,
+  ZonesStubLeaderboards
+} from '@momentum/formats';
+import { JsonValue } from 'type-fest';
 
 describe('Admin', () => {
   let app,
@@ -1576,29 +1583,26 @@ describe('Admin', () => {
 
   describe('admin/maps/{mapID}', () => {
     describe('PATCH', () => {
-      //prettier-ignore
-      let mod, modToken, admin, adminToken, reviewer, reviewerToken, u1, u1Token, u2, createMapData;
+      const bspBuffer = readFileSync(path.join(FILES_PATH, 'map.bsp'));
+      const vmfBuffer = readFileSync(path.join(FILES_PATH, 'map.vmf'));
+
+      let mod,
+        modToken,
+        admin,
+        adminToken,
+        reviewerToken,
+        u1,
+        u1Token,
+        createMapData: Partial<Prisma.MMapCreateInput>;
 
       beforeAll(async () => {
-        [
-          [mod, modToken],
-          [admin, adminToken],
-          [reviewer, reviewerToken],
-          [u1, u1Token],
-          u2
-        ] = await Promise.all([
-          db.createAndLoginUser({
-            data: { roles: Role.MODERATOR }
-          }),
-          db.createAndLoginUser({
-            data: { roles: Role.ADMIN }
-          }),
-          db.createAndLoginUser({
-            data: { roles: Role.REVIEWER }
-          }),
-          db.createAndLoginUser(),
-          db.createUser()
-        ]);
+        [[mod, modToken], [admin, adminToken], reviewerToken, [u1, u1Token]] =
+          await Promise.all([
+            db.createAndLoginUser({ data: { roles: Role.MODERATOR } }),
+            db.createAndLoginUser({ data: { roles: Role.ADMIN } }),
+            db.loginNewUser({ data: { roles: Role.REVIEWER } }),
+            db.createAndLoginUser()
+          ]);
 
         createMapData = {
           name: 'map',
@@ -1613,21 +1617,37 @@ describe('Admin', () => {
                   date: new Date().toJSON()
                 }
               ],
-              suggestions: {
-                track: 1,
-                gamemode: Gamemode.SURF,
-                tier: 1,
-                ranked: true
+              suggestions: [
+                {
+                  gamemode: Gamemode.RJ,
+                  trackType: TrackType.MAIN,
+                  trackNum: 0,
+                  tier: 1,
+                  ranked: true
+                }
+              ],
+              versions: {
+                create: {
+                  versionNum: 1,
+                  hash: createSha1Hash(
+                    'apple banana cat dog elephant fox grape hat igloo joker'
+                  ),
+                  zones: BabyZonesStub as unknown as JsonValue // TODO: #855
+                }
               }
             }
           }
         };
       });
 
-      afterAll(() => db.cleanup('user', 'run'));
+      afterAll(() => db.cleanup('leaderboardRun', 'user'));
 
       afterEach(() =>
-        Promise.all([db.cleanup('mMap'), fileStore.deleteDirectory('maps')])
+        Promise.all([
+          db.cleanup('mMap'),
+          fileStore.deleteDirectory('maps'),
+          fileStore.deleteDirectory('submissions')
+        ])
       );
 
       for (const status of Enum.values(MapStatusNew)) {
@@ -1646,7 +1666,13 @@ describe('Admin', () => {
                 youtubeID: 'Rt460jKi4Bk'
               },
               suggestions: [
-                { track: 1, gamemode: Gamemode.CONC, tier: 1, ranked: true }
+                {
+                  trackNum: 0,
+                  trackType: TrackType.MAIN,
+                  gamemode: Gamemode.CONC,
+                  tier: 1,
+                  ranked: true
+                }
               ],
               placeholders: [{ type: MapCreditType.CONTRIBUTOR, alias: 'eee' }]
             },
@@ -1668,7 +1694,13 @@ describe('Admin', () => {
             },
             submission: {
               suggestions: [
-                { track: 1, gamemode: Gamemode.CONC, tier: 1, ranked: true }
+                {
+                  trackNum: 0,
+                  trackType: TrackType.MAIN,
+                  gamemode: Gamemode.CONC,
+                  tier: 1,
+                  ranked: true
+                }
               ],
               placeholders: [{ type: MapCreditType.CONTRIBUTOR, alias: 'eee' }]
             }
@@ -1690,7 +1722,13 @@ describe('Admin', () => {
                 youtubeID: 'IUfBBCkl_QI'
               },
               suggestions: [
-                { track: 1, gamemode: Gamemode.BHOP, tier: 1, ranked: true }
+                {
+                  trackNum: 0,
+                  trackType: TrackType.MAIN,
+                  gamemode: Gamemode.BHOP,
+                  tier: 1,
+                  ranked: true
+                }
               ],
               placeholders: [{ type: MapCreditType.CONTRIBUTOR, alias: 'eee' }]
             },
@@ -1712,7 +1750,13 @@ describe('Admin', () => {
             },
             submission: {
               suggestions: [
-                { track: 1, gamemode: Gamemode.BHOP, tier: 1, ranked: true }
+                {
+                  trackNum: 0,
+                  trackType: TrackType.MAIN,
+                  gamemode: Gamemode.BHOP,
+                  tier: 1,
+                  ranked: true
+                }
               ],
               placeholders: [{ type: MapCreditType.CONTRIBUTOR, alias: 'eee' }]
             }
@@ -1784,7 +1828,11 @@ describe('Admin', () => {
                   create: {
                     ...createMapData.submission.create,
                     versions: {
-                      create: { versionNum: 1, hash: createSha1Hash(bspBuffer) }
+                      create: {
+                        zones: BabyZonesStub,
+                        versionNum: 1,
+                        hash: createSha1Hash(bspBuffer)
+                      }
                     }
                   }
                 },
@@ -1806,7 +1854,21 @@ describe('Admin', () => {
               await req.patch({
                 url: `admin/maps/${map.id}`,
                 status: shouldPass ? 204 : 403,
-                body: { status: s2 },
+                body: {
+                  status: s2,
+                  finalLeaderboards:
+                    s2 === MapStatusNew.APPROVED
+                      ? [
+                          {
+                            gamemode: Gamemode.RJ,
+                            trackNum: 0,
+                            trackType: 0,
+                            tier: 1,
+                            ranked: false
+                          }
+                        ]
+                      : undefined
+                },
                 token:
                   role === Role.ADMIN
                     ? adminToken
@@ -1835,7 +1897,11 @@ describe('Admin', () => {
             create: {
               ...createMapData.submission.create,
               versions: {
-                create: { versionNum: 1, hash: createSha1Hash(bspBuffer) }
+                create: {
+                  versionNum: 1,
+                  hash: createSha1Hash(bspBuffer),
+                  zones: BabyZonesStub
+                }
               },
               placeholders: [
                 {
@@ -1862,7 +1928,25 @@ describe('Admin', () => {
         await req.patch({
           url: `admin/maps/${map.id}`,
           status: 204,
-          body: { status: MapStatus.APPROVED },
+          body: {
+            status: MapStatus.APPROVED,
+            finalLeaderboards: [
+              {
+                gamemode: Gamemode.RJ,
+                trackType: TrackType.MAIN,
+                trackNum: 0,
+                tier: 1,
+                ranked: true
+              },
+              {
+                gamemode: Gamemode.RJ,
+                trackType: TrackType.BONUS,
+                trackNum: 0,
+                tier: 1,
+                ranked: true
+              }
+            ]
+          },
           token: adminToken
         });
 
@@ -1882,136 +1966,252 @@ describe('Admin', () => {
         });
       });
 
-      it('should copy latest submission version files to maps/ after map status changed from FA to approved', async () => {
-        const bspBuffer = readFileSync(path.join(FILES_PATH, 'map.bsp'));
-        const bspHash = createSha1Hash(bspBuffer);
-        const vmfBuffer = readFileSync(path.join(FILES_PATH, 'map.vmf'));
-        const vmfHash = createSha1Hash(vmfBuffer);
-        const vmfZip = new Zip();
-        vmfZip.addFile('map.vmf', vmfBuffer);
+      describe('Map Approval', () => {
+        let map;
+        const finalLeaderboards = [
+          {
+            gamemode: Gamemode.RJ,
+            trackType: TrackType.MAIN,
+            trackNum: 0,
+            tier: 5,
+            ranked: true
+          },
+          {
+            gamemode: Gamemode.DEFRAG_CPM,
+            trackType: TrackType.BONUS,
+            trackNum: 0,
+            tier: 10,
+            ranked: false
+          }
+        ];
 
-        const map = await db.createMap({
-          ...createMapData,
-          submission: {
-            create: {
-              ...createMapData.submission.create,
-              versions: {
-                create: {
-                  versionNum: 1,
-                  hash: createSha1Hash(bspBuffer),
-                  hasVmf: true
+        // cleanup for this is done in outer afterEach
+        beforeEach(async () => {
+          map = await db.createMap({
+            ...createMapData,
+            submission: {
+              create: {
+                ...createMapData.submission.create,
+                versions: {
+                  create: {
+                    versionNum: 1,
+                    hash: createSha1Hash(bspBuffer),
+                    zones: ZonesStub,
+                    hasVmf: true
+                  }
                 }
               }
-            }
-          },
-          status: MapStatusNew.FINAL_APPROVAL
+            },
+            status: MapStatusNew.FINAL_APPROVAL
+          });
+
+          const vmfZip = new Zip();
+          vmfZip.addFile('map.vmf', vmfBuffer);
+
+          await fileStore.add(
+            `submissions/${map.submission.versions[0].id}_VMFs.zip`,
+            vmfZip.toBuffer()
+          );
+
+          await fileStore.add(
+            `submissions/${map.submission.versions[0].id}.bsp`,
+            bspBuffer
+          );
+
+          await prisma.leaderboard.createMany({
+            data: ZonesStubLeaderboards.map((lb) => ({
+              mapID: map.id,
+              style: 0,
+              ranked: false,
+              ...lb
+            }))
+          });
         });
 
-        await prisma.mapSubmission.update({
-          where: { mapID: map.id },
-          data: { currentVersionID: map.submission.versions[0].id }
+        it('should copy latest submission version files to maps/ after map status changed from FA to approved', async () => {
+          const bspHash = createSha1Hash(bspBuffer);
+          const vmfHash = createSha1Hash(vmfBuffer);
+
+          await req.patch({
+            url: `admin/maps/${map.id}`,
+            status: 204,
+            body: { status: MapStatus.APPROVED, finalLeaderboards },
+            token: adminToken
+          });
+
+          const updatedMap = await prisma.mMap.findUnique({
+            where: { id: map.id }
+          });
+
+          expect(updatedMap).toMatchObject({
+            status: MapStatusNew.APPROVED,
+            hash: bspHash,
+            hasVmf: true
+          });
+
+          expect(
+            await fileStore.exists(
+              `submissions/${map.submission.versions[0].id}.bsp`
+            )
+          ).toBeFalsy();
+          expect(
+            await fileStore.exists(
+              `submissions/${map.submission.versions[0].id}_VMFs.zip`
+            )
+          ).toBeFalsy();
+
+          expect(
+            createSha1Hash(await fileStore.get(`maps/${map.fileName}.bsp`))
+          ).toBe(bspHash);
+
+          expect(
+            createSha1Hash(
+              new Zip(await fileStore.get(`maps/${map.fileName}_VMFs.zip`))
+                .getEntry('map.vmf')
+                .getData()
+            )
+          ).toBe(vmfHash);
         });
 
-        await fileStore.add(
-          `submissions/${map.submission.versions[0].id}.bsp`,
-          bspBuffer
-        );
+        it('should create MAP_APPROVED activities for authors after map status changed from FA to approved', async () => {
+          await prisma.mapCredit.createMany({
+            data: [
+              { type: MapCreditType.AUTHOR, mapID: map.id, userID: u1.id },
+              { type: MapCreditType.AUTHOR, mapID: map.id, userID: admin.id },
+              { type: MapCreditType.AUTHOR, mapID: map.id, userID: mod.id }
+            ]
+          });
 
-        await fileStore.add(
-          `submissions/${map.submission.versions[0].id}_VMFs.zip`,
-          vmfZip.toBuffer()
-        );
+          await req.patch({
+            url: `admin/maps/${map.id}`,
+            status: 204,
+            body: { status: MapStatus.APPROVED, finalLeaderboards },
+            token: adminToken
+          });
 
-        await req.patch({
-          url: `admin/maps/${map.id}`,
-          status: 204,
-          body: { status: MapStatus.APPROVED },
-          token: adminToken
+          const mapApprovedActvities = await prisma.activity.findMany({
+            where: { type: ActivityType.MAP_APPROVED, data: map.id }
+          });
+
+          expect(mapApprovedActvities).toHaveLength(3);
+          expect(
+            mapApprovedActvities.map((activity) => activity.userID).sort()
+          ).toEqual([u1.id, admin.id, mod.id].sort());
         });
 
-        const updatedMap = await prisma.mMap.findUnique({
-          where: { id: map.id }
-        });
+        it('should create leaderboards based on finalLeaderboards and clear all existing', async () => {
+          await db.createLbRun({
+            map,
+            user: u1,
+            rank: 1,
+            gamemode: Gamemode.RJ,
+            trackType: TrackType.MAIN,
+            trackNum: 0
+          });
 
-        expect(updatedMap).toMatchObject({
-          status: MapStatusNew.APPROVED,
-          hash: bspHash,
-          hasVmf: true
-        });
+          await db.createLbRun({
+            map,
+            user: u1,
+            rank: 1,
+            gamemode: Gamemode.CONC,
+            trackType: TrackType.MAIN,
+            trackNum: 0
+          });
 
-        expect(
-          await fileStore.exists(
-            `submissions/${map.submission.versions[0].id}.bsp`
-          )
-        ).toBeFalsy();
-        expect(
-          await fileStore.exists(
-            `submissions/${map.submission.versions[0].id}_VMFs.zip`
-          )
-        ).toBeFalsy();
+          expect(
+            await prisma.leaderboardRun.findMany({
+              where: { mapID: map.id, gamemode: Gamemode.RJ }
+            })
+          ).toHaveLength(1);
 
-        expect(
-          createSha1Hash(await fileStore.get(`maps/${map.fileName}.bsp`))
-        ).toBe(bspHash);
+          expect(
+            await prisma.leaderboardRun.findMany({
+              where: { mapID: map.id, gamemode: Gamemode.CONC }
+            })
+          ).toHaveLength(1);
 
-        expect(
-          createSha1Hash(
-            new Zip(await fileStore.get(`maps/${map.fileName}_VMFs.zip`))
-              .getEntry('map.vmf')
-              .getData()
-          )
-        ).toBe(vmfHash);
-      });
+          await req.patch({
+            url: `admin/maps/${map.id}`,
+            status: 204,
+            body: { status: MapStatus.APPROVED, finalLeaderboards },
+            token: adminToken
+          });
 
-      it('should create MAP_APPROVED activities for authors after map status changed from FA to approved', async () => {
-        const bspBuffer = readFileSync(path.join(FILES_PATH, 'map.bsp'));
-
-        const map = await db.createMap({
-          ...createMapData,
-          submission: {
-            create: {
-              ...createMapData.submission.create,
-              versions: {
-                create: { versionNum: 1, hash: createSha1Hash(bspBuffer) }
+          const leaderboards = await prisma.leaderboard.findMany({
+            where: { mapID: map.id }
+          });
+          expect(leaderboards).toEqual(
+            expect.arrayContaining([
+              {
+                mapID: map.id,
+                gamemode: Gamemode.RJ,
+                trackType: TrackType.MAIN,
+                trackNum: 0,
+                linear: false,
+                style: 0,
+                tier: 5,
+                ranked: true,
+                tags: []
+              },
+              {
+                mapID: map.id,
+                gamemode: Gamemode.RJ,
+                trackType: TrackType.STAGE,
+                trackNum: 0,
+                linear: null,
+                tier: null,
+                ranked: true,
+                style: 0,
+                tags: []
+              },
+              {
+                mapID: map.id,
+                gamemode: Gamemode.RJ,
+                trackType: TrackType.STAGE,
+                trackNum: 1,
+                linear: null,
+                tier: null,
+                ranked: true,
+                style: 0,
+                tags: []
+              },
+              {
+                mapID: map.id,
+                gamemode: Gamemode.DEFRAG_CPM,
+                trackType: TrackType.BONUS,
+                trackNum: 0,
+                linear: null,
+                tier: 10,
+                ranked: false,
+                style: 0,
+                tags: []
               }
-            }
-          },
-          status: MapStatusNew.FINAL_APPROVAL
+            ])
+          );
+
+          expect(leaderboards).toHaveLength(4);
+
+          expect(
+            await prisma.leaderboardRun.findMany({
+              where: { mapID: map.id, gamemode: Gamemode.RJ }
+            })
+          ).toHaveLength(0);
+
+          expect(
+            await prisma.leaderboardRun.findMany({
+              where: { mapID: map.id, gamemode: Gamemode.CONC }
+            })
+          ).toHaveLength(0);
         });
 
-        await prisma.mapSubmission.update({
-          where: { mapID: map.id },
-          data: { currentVersionID: map.submission.versions[0].id }
+        it('should 400 when moving from FA to approved if leaderboards are not provided', async () => {
+          await req.patch({
+            url: `admin/maps/${map.id}`,
+            status: 400,
+            body: { status: MapStatus.APPROVED },
+            token: adminToken
+          });
         });
-
-        await fileStore.add(
-          `submissions/${map.submission.versions[0].id}.bsp`,
-          bspBuffer
-        );
-
-        await prisma.mapCredit.createMany({
-          data: [
-            { type: MapCreditType.AUTHOR, mapID: map.id, userID: u1.id },
-            { type: MapCreditType.AUTHOR, mapID: map.id, userID: admin.id },
-            { type: MapCreditType.AUTHOR, mapID: map.id, userID: mod.id }
-          ]
-        });
-
-        await req.patch({
-          url: `admin/maps/${map.id}`,
-          status: 204,
-          body: { status: MapStatus.APPROVED },
-          token: adminToken
-        });
-
-        const mapApprovedActvities = await prisma.activity.findMany({
-          where: { type: ActivityType.MAP_APPROVED, data: map.id }
-        });
-
-        expect(mapApprovedActvities.length).toBe(3);
-        expect(
-          mapApprovedActvities.map((activity) => activity.userID).sort()
-        ).toEqual([u1.id, admin.id, mod.id].sort());
       });
 
       it('should return 404 if map not found', () =>
@@ -2044,14 +2244,14 @@ describe('Admin', () => {
         ]);
       });
 
-      afterAll(() => db.cleanup('user', 'mMap', 'run'));
+      afterAll(() => db.cleanup('leaderboardRun', 'user', 'mMap'));
 
       beforeEach(async () => {
         m1 = await db.createMap({
           submitter: { connect: { id: u1.id } },
           images: { create: {} }
         });
-        await db.createRun({ map: m1, user: u1 });
+        await db.createLbRun({ map: m1, user: u1, time: 1, rank: 1 });
       });
 
       afterEach(() => db.cleanup('mMap'));
@@ -2075,8 +2275,10 @@ describe('Admin', () => {
           );
         }
 
-        const run = await prisma.run.findFirst({ where: { mapID: m1.id } });
-        await fileStore.add(`runs/${run.id}`, Buffer.alloc(123));
+        const run = await prisma.leaderboardRun.findFirst({
+          where: { mapID: m1.id }
+        });
+        await fileStore.add(runPath(run.replayHash), Buffer.alloc(123));
 
         await req.del({
           url: `admin/maps/${m1.id}`,
@@ -2089,16 +2291,16 @@ describe('Admin', () => {
         ).toBeNull();
         expect(await fileStore.exists(`maps/${fileName}.bsp`)).toBeFalsy();
 
-        const relatedRuns = await prisma.run.findMany({
+        const relatedRuns = await prisma.leaderboardRun.findMany({
           where: { mapID: m1.id }
         });
-        expect(relatedRuns.length).toBe(0);
-        expect(await fileStore.exists(`runs/${run.id}`)).toBeFalsy();
+        expect(relatedRuns).toHaveLength(0);
+        expect(await fileStore.exists(runPath(run.replayHash))).toBeFalsy();
 
         const relatedImages = await prisma.mapImage.findMany({
           where: { mapID: m1.id }
         });
-        expect(relatedImages.length).toBe(0);
+        expect(relatedImages).toHaveLength(0);
         for (const size of ['small', 'medium', 'large']) {
           expect(
             await fileStore.exists(`img/${img.id}-${size}.jpg`)
@@ -2379,9 +2581,7 @@ describe('Admin', () => {
               },
               unique: { tierScale: { linear: 2500, staged: 2500 } }
             }
-          },
-          createdAt: new Date('12/24/2021'),
-          updatedAt: new Date('12/25/2021')
+          }
         }
       });
     });

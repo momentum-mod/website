@@ -6,8 +6,7 @@ import {
   Inject,
   Injectable,
   InternalServerErrorException,
-  NotFoundException,
-  NotImplementedException
+  NotFoundException
 } from '@nestjs/common';
 import { MapCredit, MapSubmission, MMap, Prisma, Run } from '@prisma/client';
 import { FileStoreService } from '../filestore/file-store.service';
@@ -23,6 +22,7 @@ import {
   MapsGetAllSubmissionAdminQueryDto,
   MapsGetAllSubmissionQueryDto,
   MapSummaryDto,
+  MapZonesDto,
   PagedResponseDto,
   UpdateMapAdminDto,
   UpdateMapDto
@@ -41,14 +41,13 @@ import {
   MapStatusNew,
   MapSubmissionDate,
   MapSubmissionPlaceholder,
+  MapSubmissionSuggestion,
   MapTestingRequestState,
+  MapZones,
   Role,
   submissionBspPath,
   submissionVmfsPath,
-  TrackType,
-  Gamemode,
-  IncompatibleGamemodes,
-  MapZones
+  TrackType
 } from '@momentum/constants';
 import { MapImageService } from './map-image.service';
 import { EXTENDED_PRISMA_SERVICE } from '../database/db.constants';
@@ -61,8 +60,7 @@ import {
   expandToIncludes,
   intersection,
   isEmpty,
-  throwIfEmpty,
-  undefinedIfEmpty
+  throwIfEmpty
 } from '@momentum/util-fn';
 import { File } from '@nest-lab/fastify-multer';
 import { vdf } from 'fast-vdf';
@@ -72,7 +70,16 @@ import { MapTestingRequestService } from './map-testing-request.service';
 import { ConfigService } from '@nestjs/config';
 import { OverrideProperties } from 'type-fest';
 import { deepmerge } from '@fastify/deepmerge';
-import { MapCreditsService } from './map-credits.service';
+import {
+  SuggestionValidationError,
+  validateSuggestions,
+  validateZoneFile,
+  ZoneValidationError
+} from '@momentum/formats';
+import {
+  LeaderboardHandler,
+  LeaderboardProps
+} from './leaderboard-handler.util';
 
 type MapWithSubmission = MMap & {
   submission: OverrideProperties<
@@ -90,6 +97,7 @@ export class MapsService {
     @Inject(EXTENDED_PRISMA_SERVICE) private readonly db: ExtendedPrismaService,
     private readonly config: ConfigService,
     private readonly fileStoreService: FileStoreService,
+    @Inject(forwardRef(() => LeaderboardRunsService))
     private readonly runsService: RunsService,
     @Inject(forwardRef(() => MapImageService))
     private readonly mapImageService: MapImageService,
@@ -519,11 +527,29 @@ export class MapsService {
     this.checkMapFiles(dto.fileName, bspFile, vmfFiles);
     this.checkMapFileNames(dto.name, dto.fileName);
 
+    this.checkSuggestionsAndZones(dto.suggestions, dto.zones);
+
     const hasVmf = vmfFiles?.length > 0;
     const bspHash = FileStoreService.getHashForBuffer(bspFile.buffer);
 
     return this.db.$transaction(async (tx) => {
       const map = await this.createMapDbEntry(tx, dto, userID, bspHash, hasVmf);
+
+      await tx.leaderboard.createMany({
+        data: LeaderboardHandler.getMaximalLeaderboards(
+          dto.suggestions.map(({ gamemode, trackType, trackNum }) => ({
+            gamemode,
+            trackType,
+            trackNum
+          })),
+          dto.zones
+        ).map((obj) => ({
+          mapID: map.id,
+          ...obj,
+          style: 0, // When we add styles support getMaximalLeaderboards should generate all variations of this
+          ranked: false
+        }))
+      });
 
       const version = map.submission.currentVersion;
 
@@ -599,6 +625,14 @@ export class MapsService {
     const hasVmf = vmfFiles?.length > 0;
     const bspHash = FileStoreService.getHashForBuffer(bspFile.buffer);
 
+    let zones: MapZones;
+    if (dto.zones) {
+      this.checkZones(dto.zones);
+      zones = dto.zones;
+    } else {
+      zones = map.submission.currentVersion.zones as unknown as MapZones; // TODO: #855
+    }
+
     const oldVersion = map.submission.currentVersion;
     const newVersionNum = oldVersion.versionNum + 1;
 
@@ -607,11 +641,19 @@ export class MapsService {
         data: {
           versionNum: newVersionNum,
           hasVmf,
+          zones: zones as unknown as JsonValue, // TODO: #855
           hash: bspHash,
           changelog: dto.changelog,
           submission: { connect: { mapID } }
         }
       });
+
+      await this.generateSubmissionLeaderboards(
+        tx,
+        mapID,
+        map.submission.suggestions as unknown as MapSubmissionSuggestion[], // TODO: #855
+        zones
+      );
 
       await Promise.all([
         (async () => {
@@ -679,18 +721,8 @@ export class MapsService {
       })
     )
       throw new ConflictException('Map with this file name already exists');
-
-    // Extra checks...
-    // TODO: Let's add more here when doing zoning refactor.
-    const trackNums = dto.tracks.map((track) => track.trackNum);
-    // Set construction ensures uniqueness, so just compare the lengths
-    if (trackNums.length !== new Set(trackNums).size)
-      throw new BadRequestException(
-        'All map tracks must have unique track numbers'
-      );
   }
 
-  // This function will get much less insane once we do 0.10.0 zoning!
   private async createMapDbEntry(
     tx: ExtendedPrismaServiceTransaction,
     createMapDto: CreateMapDto,
@@ -714,11 +746,18 @@ export class MapsService {
             type: createMapDto.submissionType,
             placeholders: createMapDto.placeholders,
             suggestions: createMapDto.suggestions,
-            versions: { create: { versionNum: 1, hash: bspHash, hasVmf } },
+            versions: {
+              create: {
+                versionNum: 1,
+                hash: bspHash,
+                hasVmf,
+                zones: createMapDto.zones as unknown as JsonValue // TODO: #855
+              }
+            },
             dates: [{ status, date: new Date().toJSON() }]
           }
         },
-        stats: { create: { baseStats: { create: {} } } },
+        stats: { create: {} },
         status,
         info: {
           create: {
@@ -736,33 +775,18 @@ export class MapsService {
               description: credit.description
             }))
           }
-        },
-        tracks: {
-          createMany: {
-            data: createMapDto.tracks.map(
-              (track): Prisma.MapTrackCreateManyMmapInput => ({
-                isLinear: track.isLinear,
-                numZones: track.numZones,
-                trackNum: track.trackNum,
-                difficulty: track.difficulty
-              })
-            )
-          }
         }
       },
       select: {
         id: true,
-        tracks: true,
+        zones: true,
         submission: { select: { versions: true } }
       }
     });
 
-    const mainTrack = initialMap.tracks.find((track) => track.trackNum === 0);
-
     const map = await tx.mMap.update({
       where: { id: initialMap.id },
       data: {
-        mainTrack: { connect: { id: mainTrack.id } },
         submission: {
           update: {
             currentVersion: {
@@ -773,102 +797,82 @@ export class MapsService {
       },
       include: {
         info: true,
-        credits: true,
-        tracks: true
+        credits: true
       }
     });
-
-    await Promise.all(
-      map.tracks.map(async (track: MapTrack) => {
-        const dtoTrack = createMapDto.tracks.find(
-          (dtoTrack) => dtoTrack.trackNum === track.trackNum
-        );
-
-        await tx.mapTrack.update({
-          where: { id: track.id },
-          data: { stats: { create: { baseStats: { create: {} } } } }
-        }); // Init empty MapTrackStats entry
-
-        await Promise.all(
-          dtoTrack.zones.map(async (zone) => {
-            const zoneDB = await tx.mapZone.create({
-              data: {
-                track: { connect: { id: track.id } },
-                zoneNum: zone.zoneNum,
-                stats: { create: { baseStats: { create: {} } } }
-              }
-            });
-
-            // We could do a `createMany` for the triggers in the above input
-            // but we then need to attach a `MapZoneTriggerProperties` to each
-            // using the DTO properties, and I'm not certain the data we get
-            // back from the `createMany` is in the order we inserted. For
-            // tracks we use the find w/ `trackNum` above, but
-            // `MapZoneTriggerProperties` don't have any distinguishing features
-            // like that. So I'm doing the triggers with looped `create`s so I
-            // can include the `MapZoneTriggerProperties`. Hopefully
-            // `MapZoneTriggerProperties` will be removed in 0.10.0 anyway
-            // (they're stupid) in which case we should be able to use a
-            // `createMany` for the triggers.
-            await Promise.all(
-              zone.triggers.map(async (trigger) => {
-                await tx.mapZoneTrigger.create({
-                  data: {
-                    zone: { connect: { id: zoneDB.id } },
-                    type: trigger.type,
-                    pointsHeight: trigger.pointsHeight,
-                    pointsZPos: trigger.pointsZPos,
-                    points: trigger.points,
-                    properties: {
-                      create: {
-                        // This will create an empty table for triggers with no
-                        // properties, probably bad, revisit in 0.10.0
-                        properties: trigger?.zoneProps?.properties ?? {}
-                      }
-                    }
-                  }
-                });
-              })
-            );
-          })
-        );
-      })
-    );
 
     return tx.mMap.findUnique({
       where: { id: map.id },
       include: {
         info: true,
-        stats: { include: { baseStats: true } },
+        stats: true,
         submission: { include: { currentVersion: true } },
         submitter: true,
         images: true,
         thumbnail: true,
-        credits: { include: { user: true } },
-        tracks: {
-          include: {
-            zones: {
-              include: {
-                triggers: { include: { properties: true } },
-                stats: { include: { baseStats: true } }
-              }
-            },
-            stats: { include: { baseStats: true } }
-          }
-        },
-        mainTrack: {
-          include: {
-            zones: {
-              include: {
-                triggers: { include: { properties: true } },
-                stats: { include: { baseStats: true } }
-              }
-            },
-            stats: { include: { baseStats: true } }
-          }
-        }
+        credits: { include: { user: true } }
       }
     });
+  }
+
+  /**
+   * Creates new and updates and deletes existing leaderboards for whenever
+   * map submissions change
+   */
+  private async generateSubmissionLeaderboards(
+    tx: ExtendedPrismaServiceTransaction,
+    mapID: number,
+    suggestions: MapSubmissionSuggestion[],
+    zones: MapZones
+  ): Promise<void> {
+    const existingLeaderboards: LeaderboardProps[] =
+      await this.db.leaderboard.findMany({
+        where: { mapID },
+        select: { gamemode: true, trackNum: true, trackType: true }
+      });
+
+    const desiredLeaderboards = LeaderboardHandler.getMaximalLeaderboards(
+      suggestions as unknown as LeaderboardProps[], // TODO: #855
+      zones
+    );
+
+    const toCreate = desiredLeaderboards.filter(
+      (x) => !existingLeaderboards.some((y) => LeaderboardHandler.isEqual(x, y))
+    );
+    const toUpdate = desiredLeaderboards.filter((x) =>
+      existingLeaderboards.some((y) => LeaderboardHandler.isEqual(x, y))
+    );
+    const toDelete = existingLeaderboards.filter(
+      (x) => !desiredLeaderboards.some((y) => LeaderboardHandler.isEqual(x, y))
+    );
+
+    if (toCreate.length > 0)
+      await tx.leaderboard.createMany({
+        data: toCreate.map((obj) => ({
+          mapID,
+          ...obj,
+          style: 0, // TODO: Styles
+          ranked: false
+        }))
+      });
+
+    // Rare that this actual happens, currently just in case inLinear changes
+    if (toUpdate.length > 0)
+      for (const { gamemode, trackType, trackNum, linear } of toUpdate) {
+        // updateMany rather than update (and deleteMany below) ensures this
+        // handles styles in the future
+        await tx.leaderboard.updateMany({
+          where: { mapID, gamemode, trackType, trackNum },
+          data: { linear }
+        });
+      }
+
+    if (toDelete.length > 0)
+      for (const { gamemode, trackType, trackNum } of toDelete) {
+        await tx.leaderboard.deleteMany({
+          where: { mapID, gamemode, trackType, trackNum }
+        });
+      }
   }
 
   private async createMapUploadedActivities(
@@ -980,6 +984,57 @@ export class MapsService {
         where: { id: mapID },
         data: deepmerge()(generalUpdate, statusUpdate) as Prisma.MMapUpdateInput
       });
+
+      const mapDB = await this.db.mapSubmission.findUnique({
+        where: { mapID: map.id },
+        include: { currentVersion: true }
+      });
+
+      if (dto.suggestions) {
+        const zones = mapDB.currentVersion.zones as unknown as MapZones; // TODO: #855
+        try {
+          validateSuggestions(dto.suggestions, zones);
+        } catch (error) {
+          if (error instanceof SuggestionValidationError) {
+            throw new BadRequestException(
+              `Invalid suggestions: ${error.message}`
+            );
+          } else {
+            throw error;
+          }
+        }
+
+        // It's very uncommon we actually need to do this, but someone *could*
+        // change their suggestions from one mode to another *incompatible mode),
+        // so leaderboards would change. Usually there won't be any changes
+        // required though.
+        await this.generateSubmissionLeaderboards(
+          tx,
+          map.id,
+          dto.suggestions,
+          zones
+        );
+      }
+
+      if (dto.resetLeaderboards === true) {
+        // If it's been approved before, deleting runs is a majorly destructive
+        // action that we probably don't want to allow the submitter to do.
+        // If the submitter is fixing the maps in a significant enough way to
+        // still require a leaderboard reset, they should just get an admin to
+        // do it.
+        if (
+          map.submission.dates.some(
+            (date) => date.status === MapStatusNew.APPROVED
+          )
+        ) {
+          throw new ForbiddenException(
+            'Cannot reset leaderboards on a previously approved map.' +
+              ' Talk about it with an admin!'
+          );
+        }
+
+        await tx.leaderboardRun.deleteMany({ where: { mapID: map.id } });
+      }
     });
   }
 
@@ -1093,10 +1148,6 @@ export class MapsService {
       };
     }
 
-    if (dto.tracks) {
-      // TODO: Not bothering writing complex DB code for this as the track system is changing so soon.
-    }
-
     return update;
   }
 
@@ -1139,7 +1190,7 @@ export class MapsService {
       oldStatus === MapStatusNew.FINAL_APPROVAL &&
       newStatus === MapStatusNew.APPROVED
     ) {
-      await this.updateStatusFromFAToApproved(tx, map);
+      await this.updateStatusFromFAToApproved(tx, map, dto);
     }
 
     return {
@@ -1210,7 +1261,8 @@ export class MapsService {
    */
   private async updateStatusFromFAToApproved(
     tx: ExtendedPrismaServiceTransaction,
-    map: MapWithSubmission
+    map: MapWithSubmission,
+    dto: UpdateMapAdminDto
   ) {
     // Create placeholder users for all the users the submitter requested
     // Can't use createMany due to nesting (thanks Prisma!!)
@@ -1247,12 +1299,13 @@ export class MapsService {
 
     // Copy final MapSubmissionVersion BSP and VMFs to maps/
     const {
-      currentVersion: { id: currentVersionID, hash, hasVmf },
+      currentVersion: { id: currentVersionID, hash, hasVmf, zones: dbZones },
       versions
     } = await this.db.mapSubmission.findFirst({
       where: { mapID: map.id },
       include: { currentVersion: true, versions: true }
     });
+    const zones = dbZones as unknown as MapZones; // TODO: #855
 
     const [bspSuccess, vmfSuccess] = await Promise.all([
       this.fileStoreService.copyFile(
@@ -1278,7 +1331,10 @@ export class MapsService {
 
     // Set hash of MMap to final version BSP's hash, and hasVmf is just whether
     // final version had a VMF.
-    await tx.mMap.update({ where: { id: map.id }, data: { hash, hasVmf } });
+    await tx.mMap.update({
+      where: { id: map.id },
+      data: { hash, hasVmf, zones: dbZones } // TODO: e2e test zoines
+    });
 
     // Delete all the submission files - these would take up a LOT of space otherwise
     try {
@@ -1293,7 +1349,53 @@ export class MapsService {
       throw new InternalServerErrorException(error);
     }
 
-    // TODO: Soon we'll have some leaderboards stuff on DTO, handle those.
+    // Is it getting approved for first time?
+    if (
+      !map.submission.dates.some(
+        (date) => date.status === MapStatusNew.APPROVED
+      )
+    ) {
+      if (!dto.finalLeaderboards || dto.finalLeaderboards.length === 0)
+        throw new BadRequestException('Missing finalized leaderboards');
+
+      // Shouldn't be possible that zones are invalid but doesn't hurt to
+      // re-check
+      this.checkSuggestionsAndZones(dto.finalLeaderboards, zones);
+
+      // Leaderboards always get wiped, easiest to just delete and remake, let
+      // Postgres cascade delete all leaderboardRuns (pastRuns can stay)
+      await tx.leaderboard.deleteMany({ where: { mapID: map.id } });
+
+      // Okay, got a clean slate, make new leaderboards from finalLeaderboards
+      await tx.leaderboard.createMany({
+        data: [
+          ...LeaderboardHandler.getStageLeaderboards(
+            dto.finalLeaderboards,
+            zones
+          ),
+          ...LeaderboardHandler.setLeaderboardLinearity(
+            dto.finalLeaderboards,
+            zones
+          )
+        ].map((lb) => ({ ...lb, mapID: map.id, style: 0 }))
+      });
+    }
+
+    // If the map has previously been approved, it must have then been disabled,
+    // by an admin, and moved back into submission pipeline, so that the
+    // submitter can modify it. So, we have leaderboards already, which admins
+    // can manipulate via separate endpoints. So we don't need to do much, just
+    // check the zones are still good and let it go back to APPROVED,
+    // effectively re-enabling those leaderboards.
+    else {
+      if (dto.finalLeaderboards)
+        throw new BadRequestException(
+          'This map has previously been approved, ' +
+            'leaderboards should be changed individually'
+        );
+
+      this.checkZones(zones);
+    }
   }
 
   //#endregion
@@ -1339,16 +1441,19 @@ export class MapsService {
 
   //#region Zones
 
-  async getZones(mapID: number): Promise<MapZones> {
+  async getZones(mapID: number): Promise<MapZonesDto> {
     const mapWithZones = await this.db.mMap.findUnique({
       where: { id: mapID },
       select: { zones: true }
     });
 
-    if (!mapWithZones || mapWithZones.zones)
+    if (!mapWithZones || !mapWithZones.zones)
       throw new NotFoundException('Map not found');
 
-    return mapWithZones.zones as MapZones;
+    return DtoFactory(
+      MapZonesDto,
+      mapWithZones.zones as Record<string, unknown>
+    );
   }
 
   //#endregion
@@ -1458,6 +1563,44 @@ export class MapsService {
 
     if (!fileName.includes(name))
       throw new BadRequestException("Filename must contain the map's name");
+  }
+
+  /**
+   * Validate both suggestion and zone validation, throw if either fails
+   * @throws BadRequestException
+   */
+  checkZones(zones: MapZones) {
+    try {
+      validateZoneFile(zones);
+    } catch (error) {
+      if (error instanceof ZoneValidationError) {
+        throw new BadRequestException(`Invalid zone file: ${error.message}`);
+      } else {
+        throw error;
+      }
+    }
+  }
+
+  /**
+   * Validate both suggestion and zone validation, throw if either fails
+   * @throws BadRequestException
+   */
+  checkSuggestionsAndZones(
+    suggestions: MapSubmissionSuggestion[],
+    zones: MapZones
+  ) {
+    try {
+      validateZoneFile(zones);
+      validateSuggestions(suggestions, zones);
+    } catch (error) {
+      if (error instanceof ZoneValidationError) {
+        throw new BadRequestException(`Invalid zone files: ${error.message}`);
+      } else if (error instanceof SuggestionValidationError) {
+        throw new BadRequestException(`Invalid suggestions: ${error.message}`);
+      } else {
+        throw error;
+      }
+    }
   }
 
   //#endregion

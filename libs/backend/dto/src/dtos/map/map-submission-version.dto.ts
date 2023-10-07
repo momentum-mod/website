@@ -13,8 +13,9 @@ import {
 } from 'class-validator';
 import { MapSubmissionDto } from './map-submission.dto';
 import { Exclude, Expose } from 'class-transformer';
-import { CreatedAtProperty } from '../../decorators';
+import { CreatedAtProperty, NestedProperty } from '../../decorators';
 import { Config } from '@momentum/backend/config';
+import { MapZonesDto } from './map-zones.dto';
 
 const ENDPOINT_URL = Config.storage.endpointUrl;
 const BUCKET = Config.storage.bucketName;
@@ -32,6 +33,13 @@ export class MapSubmissionVersionDto implements MapSubmissionVersion {
   @IsString()
   @IsOptional()
   readonly changelog: string;
+
+  @NestedProperty(MapZonesDto, {
+    required: true,
+    description: 'The contents of the map zone file as JSON'
+  })
+  @IsOptional() // We don't include this on /submissions GET expand=zones due to size
+  readonly zones: MapZonesDto;
 
   @Exclude()
   readonly submission: MapSubmissionDto;
@@ -77,6 +85,12 @@ export class MapSubmissionVersionDto implements MapSubmissionVersion {
 export class CreateMapSubmissionVersionDto
   implements CreateMapSubmissionVersion
 {
+  @NestedProperty(MapZonesDto, {
+    required: false,
+    description: 'The contents of the map zone file as JSON'
+  })
+  readonly zones: MapZonesDto;
+
   @ApiProperty()
   @IsString()
   readonly changelog: string;

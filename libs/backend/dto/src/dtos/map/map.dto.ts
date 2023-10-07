@@ -46,6 +46,7 @@ import { MapSubmissionPlaceholderDto } from './map-submission-placeholder.dto';
 import { MapZonesDto } from './map-zones.dto';
 import { LeaderboardDto } from '../run/leaderboard.dto';
 import { LeaderboardRunDto } from '../run/leaderboard-run.dto';
+import { MapSubmissionApprovalDto } from './map-submission-approval.dto';
 
 const ENDPOINT_URL = Config.storage.endpointUrl;
 const BUCKET = Config.storage.bucketName;
@@ -260,6 +261,11 @@ export class UpdateMapDto
   @EnumProperty(MapStatusNew)
   @IsOptional()
   readonly status: MapStatusNew.CONTENT_APPROVAL | MapStatusNew.FINAL_APPROVAL;
+
+  @ApiProperty({ description: 'Clear the existing leaderboards' })
+  @IsBoolean()
+  @IsOptional()
+  readonly resetLeaderboards?: boolean;
 }
 
 export class UpdateMapAdminDto
@@ -275,6 +281,13 @@ export class UpdateMapAdminDto
   @IsOptional()
   readonly submitterID: number;
 
-  // TODO: Once we do zoning refactor work, this will take a certain version of UpdateMapTracks.
-  // This will be used to generate/modify leaderboards.
+  @NestedProperty(MapZonesDto, {
+    required: false,
+    description: 'Zones for the map'
+  })
+  readonly zones: MapZonesDto;
+
+  @NestedProperty(MapSubmissionApprovalDto, { required: false, isArray: true })
+  @ArrayMinSize(1)
+  finalLeaderboards?: MapSubmissionApprovalDto[];
 }

@@ -13,6 +13,7 @@ import { MapSubmissionPlaceholder } from './map-submission-placeholder.model';
 import { MapZones } from './map-zones.model';
 import { LeaderboardRun } from '../run/leaderboard-run.model';
 import { Leaderboard } from '../run/leaderboard.model';
+import { MapSubmissionApproval } from './map-submission-approval.model';
 
 /**
  * The term "MMap" (Momentum Map)  is used just in cases where we would use
@@ -68,8 +69,10 @@ export type UpdateMap = Partial<
   status?: MapStatusNew.CONTENT_APPROVAL | MapStatusNew.FINAL_APPROVAL;
   info?: UpdateMapInfo;
   zones?: MapZones;
+  resetLeaderboards?: boolean;
 };
 
 export type UpdateMapAdmin = Omit<UpdateMap, 'status'> & {
   status?: MapStatusNew;
+  finalLeaderboards?: MapSubmissionApproval[];
 };
