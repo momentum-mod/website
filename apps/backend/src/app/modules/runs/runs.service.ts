@@ -41,7 +41,7 @@ export class RunsService {
       })
     };
 
-    const dbResponse = await this.db.run.findUnique({
+    const dbResponse = await this.db.pastRun.findUnique({
       where: { id: runID },
       include
     });
@@ -100,17 +100,6 @@ export class RunsService {
     });
 
     return new PagedResponseDto(RunDto, dbResponse);
-  }
-
-  async getURL(runID: number): Promise<string> {
-    const run = await this.db.run.findUnique({ where: { id: runID } });
-
-    if (!run) throw new NotFoundException('Run not found.');
-
-    const cdnURL = this.configService.get('storage.endpointUrl');
-    const bucketName = this.configService.get('storage.bucketName');
-
-    return `${cdnURL}/${bucketName}/${run.file}`;
   }
 
   async deleteStoredMapRuns(mapID: number): Promise<void> {
