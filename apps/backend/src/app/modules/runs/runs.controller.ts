@@ -48,20 +48,4 @@ export class RunsController {
   ): Promise<RunDto> {
     return this.runsService.get(runID, query.expand);
   }
-
-  @Get('/:runID/download')
-  @Redirect()
-  @ApiOperation({ summary: 'Downloads the replay file for a run' })
-  @ApiParam({
-    name: 'runID',
-    type: Number,
-    description: 'Target Run ID',
-    required: true
-  })
-  @ApiOkResponse({ description: 'A run replay file in binary format' })
-  @ApiNotFoundResponse({ description: 'Run replay was not found' })
-  async downloadRun(@Param('runID', ParseIntSafePipe) runID: number) {
-    const runURL = await this.runsService.getURL(runID);
-    return { url: runURL };
-  }
 }
