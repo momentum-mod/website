@@ -7,8 +7,8 @@ import {
   AuthUtil,
   createSha1Hash,
   DbUtil,
-  FileStoreUtil,
   FILES_PATH,
+  FileStoreUtil,
   NULL_ID,
   RequestUtil
 } from '@momentum/backend/test-utils';
@@ -19,21 +19,25 @@ import {
 import { MapDto } from '@momentum/backend/dto';
 import {
   ActivityType,
-  MapCreditType,
-  Gamemode,
-  Role,
-  MapStatusNew,
-  MapSubmissionType,
   Ban,
   CombinedMapStatuses,
+  Gamemode as GM,
+  Gamemode,
+  MapCreditType,
+  MapStatusNew,
+  MapSubmissionDate,
+  MapSubmissionType,
   MapTestingRequestState,
   MIN_PUBLIC_TESTING_DURATION,
-  MapSubmissionDate
+  Role,
+  TrackType,
+  MapZones
 } from '@momentum/constants';
 import { Config } from '@momentum/backend/config';
 import path from 'node:path';
 import Zip from 'adm-zip';
 import { Enum } from '@momentum/enum';
+import { ZonesStub, ZonesStubLeaderboards } from '@momentum/formats';
 
 describe('Maps', () => {
   let app,
@@ -77,7 +81,7 @@ describe('Maps', () => {
         ]);
       });
 
-      afterAll(() => db.cleanup('user', 'mMap', 'run'));
+      afterAll(() => db.cleanup('leaderboardRun', 'pastRun', 'user', 'mMap'));
 
       it('should respond with map data', async () => {
         const res = await req.get({
@@ -87,8 +91,22 @@ describe('Maps', () => {
           token: u1Token
         });
 
-        for (const item of res.body.data)
-          expect(item).toHaveProperty('mainTrack');
+        for (const item of res.body.data) {
+          for (const prop of [
+            'id',
+            'name',
+            'fileName',
+            'status',
+            'hash',
+            'downloadURL',
+            'submitterID',
+            'createdAt',
+            'updatedAt'
+          ]) {
+            expect(item).toHaveProperty(prop);
+          }
+          expect(item).not.toHaveProperty('zones');
+        }
       });
 
       it('should only include APPROVED maps', async () => {
@@ -123,8 +141,25 @@ describe('Maps', () => {
           url: 'maps',
           token: u1Token,
           searchMethod: 'contains',
-          searchString: 'aaaaa',
+          searchString: 'aa',
           searchPropertyName: 'name',
+          validate: { type: MapDto, count: 1 }
+        });
+      });
+
+      it('should respond with filtered map data using the fileName parameter', async () => {
+        m1 = await prisma.mMap.update({
+          where: { id: m1.id },
+          data: { fileName: 'surf_bbbbb' }
+        });
+
+        await req.searchTest({
+          url: 'maps',
+          token: u1Token,
+          searchMethod: 'startsWith',
+          searchString: 'surf_bb',
+          searchPropertyName: 'fileName',
+          searchQueryName: 'fileName',
           validate: { type: MapDto, count: 1 }
         });
       });
@@ -149,22 +184,53 @@ describe('Maps', () => {
         });
       });
 
-      it('should respond with filtered map data based on the map type', async () => {
-        const newType = Gamemode.BHOP;
-        await prisma.mMap.update({
-          where: { id: m2.id },
-          data: { type: newType }
+      it('should respond with filtered map data based on the supported gamemodes', async () => {
+        const gamemode = Gamemode.BHOP;
+        const map = await db.createMap({
+          leaderboards: {
+            create: {
+              gamemode: gamemode,
+              trackType: TrackType.MAIN,
+              trackNum: 0,
+              style: 0,
+              ranked: true
+            }
+          }
         });
 
-        const res = await req.get({
+        await req.get({
           url: 'maps',
           status: 200,
-          query: { type: newType },
+          query: { gamemode: gamemode },
           validatePaged: { type: MapDto, count: 1 },
           token: u1Token
         });
 
-        expect(res.body.data[0].type).toBe(newType);
+        await prisma.mMap.delete({ where: { id: map.id } });
+      });
+
+      it('should respond with expanded submitter data using the zones expand parameter', async () => {
+        await prisma.mMap.updateMany({ data: { submitterID: u2.id } });
+
+        await req.expandTest({
+          url: 'maps',
+          expand: 'zones',
+          paged: true,
+          validate: MapDto,
+          token: u1Token
+        });
+      });
+
+      it('should respond with expanded submitter data using the leaderboards expand parameter', async () => {
+        await prisma.mMap.updateMany({ data: { submitterID: u2.id } });
+
+        await req.expandTest({
+          url: 'maps',
+          expand: 'leaderboards',
+          paged: true,
+          validate: MapDto,
+          token: u1Token
+        });
       });
 
       it('should respond with expanded map data using the credits expand parameter', async () => {
@@ -226,15 +292,6 @@ describe('Maps', () => {
           token: u1Token
         }));
 
-      it('should respond with expanded map data using the tracks expand parameter', () =>
-        req.expandTest({
-          url: 'maps',
-          expand: 'tracks',
-          paged: true,
-          validate: MapDto,
-          token: u1Token
-        }));
-
       it('should respond with expanded map data using the info expand parameter', () =>
         req.expandTest({
           url: 'maps',
@@ -277,10 +334,10 @@ describe('Maps', () => {
       });
 
       it("should respond with the map's WR when using the worldRecord expansion", async () => {
-        await db.createRunAndRankForMap({
+        await db.createLbRun({
           map: m1,
           user: u2,
-          ticks: 5,
+          time: 5,
           rank: 1
         });
 
@@ -294,15 +351,17 @@ describe('Maps', () => {
 
         const map = res.body.data.find((map) => map.id === m1.id);
         expect(map).toMatchObject({
-          worldRecord: { rank: 1, user: { id: u2.id } }
+          worldRecords: [
+            { rank: 1, gamemode: Gamemode.AHOP, user: { id: u2.id } }
+          ]
         });
       });
 
       it("should respond with the logged in user's PB when using the personalBest expansion", async () => {
-        await db.createRunAndRankForMap({
+        await db.createLbRun({
           map: m1,
           user: u1,
-          ticks: 10,
+          time: 10,
           rank: 2
         });
 
@@ -316,7 +375,7 @@ describe('Maps', () => {
 
         const map = res.body.data.find((map) => map.id === m1.id);
         expect(map).toMatchObject({
-          personalBest: { rank: 2, user: { id: u1.id } }
+          personalBests: [{ rank: 2, user: { id: u1.id } }]
         });
       });
 
@@ -331,28 +390,28 @@ describe('Maps', () => {
 
         const map = res.body.data.find((map) => map.id === m1.id);
         expect(map).toMatchObject({
-          worldRecord: { rank: 1, user: { id: u2.id } },
-          personalBest: { rank: 2, user: { id: u1.id } }
+          worldRecords: [{ rank: 1, user: { id: u2.id } }],
+          personalBests: [{ rank: 2, user: { id: u1.id } }]
         });
       });
 
       it('should respond with filtered maps when using the difficultyLow filter', async () => {
         await Promise.all([
-          prisma.mMap.update({
-            where: { id: m1.id },
-            data: { mainTrack: { update: { difficulty: 1 } } }
+          prisma.leaderboard.updateMany({
+            where: { mapID: m1.id },
+            data: { tier: 1 }
           }),
-          prisma.mMap.update({
-            where: { id: m2.id },
-            data: { mainTrack: { update: { difficulty: 3 } } }
+          prisma.leaderboard.updateMany({
+            where: { mapID: m2.id },
+            data: { tier: 3 }
           }),
-          prisma.mMap.update({
-            where: { id: m3.id },
-            data: { mainTrack: { update: { difficulty: 3 } } }
+          prisma.leaderboard.updateMany({
+            where: { mapID: m3.id },
+            data: { tier: 3 }
           }),
-          prisma.mMap.update({
-            where: { id: m4.id },
-            data: { mainTrack: { update: { difficulty: 5 } } }
+          prisma.leaderboard.updateMany({
+            where: { mapID: m4.id },
+            data: { tier: 5 }
           })
         ]);
 
@@ -383,44 +442,46 @@ describe('Maps', () => {
           validatePaged: { type: MapDto, count: 2 }
         }));
 
-      it('should respond with filtered maps when the isLinear filter', async () => {
+      it('should respond with filtered maps when the linear filter', async () => {
         await Promise.all([
-          prisma.mMap.update({
-            where: { id: m1.id },
-            data: { mainTrack: { update: { isLinear: false } } }
+          prisma.leaderboard.updateMany({
+            where: { mapID: m1.id },
+            data: { linear: false }
           }),
-          prisma.mMap.update({
-            where: { id: m2.id },
-            data: { mainTrack: { update: { isLinear: false } } }
+          prisma.leaderboard.updateMany({
+            where: { mapID: m2.id },
+            data: { linear: false }
           })
         ]);
 
         const res = await req.get({
           url: 'maps',
           status: 200,
-          query: { isLinear: false },
+          query: { linear: false, expand: 'leaderboards' },
           validatePaged: { type: MapDto, count: 2 },
           token: u1Token
         });
 
-        for (const r of res.body.data) expect(r.mainTrack.isLinear).toBe(false);
+        for (const r of res.body.data)
+          for (const l of r.leaderboards) expect(l.linear).toBe(false);
 
         const res2 = await req.get({
           url: 'maps',
           status: 200,
-          query: { isLinear: true },
+          query: { linear: true, expand: 'leaderboards' },
           validatePaged: { type: MapDto, count: 2 },
           token: u1Token
         });
 
-        expect(res2.body.data[0].mainTrack.isLinear).toBe(true);
+        for (const r of res2.body.data)
+          for (const l of r.leaderboards) expect(l.linear).toBe(true);
       });
 
-      it('should respond with filtered maps when using both the difficultyLow, difficultyHigh and isLinear filters', async () => {
+      it('should respond with filtered maps when using both the difficultyLow, difficultyHigh and linear filters', async () => {
         const res = await req.get({
           url: 'maps',
           status: 200,
-          query: { difficultyLow: 2, difficultyHigh: 4, isLinear: false },
+          query: { difficultyLow: 2, difficultyHigh: 4, linear: false },
           token: u1Token
         });
 
@@ -1158,7 +1219,7 @@ describe('Maps', () => {
           token: u1Token
         }));
 
-      it('should respond with expanded map data using the stats expand info parameter', () =>
+      it('should respond with expanded map data using the stats expand parameter', () =>
         req.expandTest({
           url: `maps/${map.id}`,
           validate: MapDto,
@@ -1166,11 +1227,19 @@ describe('Maps', () => {
           token: u1Token
         }));
 
-      it('should respond with expanded map data using the tracks expand info parameter', () =>
+      it('should respond with expanded map data using the leaderboards expand parameter', () =>
         req.expandTest({
           url: `maps/${map.id}`,
           validate: MapDto,
-          expand: 'tracks',
+          expand: 'leaderboards',
+          token: u1Token
+        }));
+
+      it('should respond with expanded map data using the zones expand parameter', () =>
+        req.expandTest({
+          url: `maps/${map.id}`,
+          validate: MapDto,
+          expand: 'zones',
           token: u1Token
         }));
 
@@ -1203,10 +1272,10 @@ describe('Maps', () => {
       });
 
       it("should respond with the map's WR when using the worldRecord expansion", async () => {
-        await db.createRunAndRankForMap({
+        await db.createLbRun({
           map: map,
           user: u2,
-          ticks: 5,
+          time: 5,
           rank: 1
         });
 
@@ -1218,15 +1287,15 @@ describe('Maps', () => {
         });
 
         expect(res.body).toMatchObject({
-          worldRecord: { rank: 1, user: { id: u2.id } }
+          worldRecords: [{ rank: 1, user: { id: u2.id } }]
         });
       });
 
       it("should respond with the logged in user's PB when using the personalBest expansion", async () => {
-        await db.createRunAndRankForMap({
+        await db.createLbRun({
           map: map,
           user: u1,
-          ticks: 10,
+          time: 10,
           rank: 2
         });
 
@@ -1238,7 +1307,7 @@ describe('Maps', () => {
         });
 
         expect(res.body).toMatchObject({
-          personalBest: { rank: 2, user: { id: u1.id } }
+          personalBests: [{ rank: 2, user: { id: u1.id } }]
         });
       });
 
@@ -1251,8 +1320,8 @@ describe('Maps', () => {
         });
 
         expect(res.body).toMatchObject({
-          worldRecord: { rank: 1, user: { id: u2.id } },
-          personalBest: { rank: 2, user: { id: u1.id } }
+          worldRecords: [{ rank: 1, user: { id: u2.id } }],
+          personalBests: [{ rank: 2, user: { id: u1.id } }]
         });
       });
 
@@ -1958,13 +2027,17 @@ describe('Maps', () => {
                 date: new Date().toJSON()
               }
             ],
-            suggestions: {
-              track: 1,
-              gamemode: Gamemode.CONC,
-              tier: 1,
-              ranked: true,
-              comment: 'My dad made this'
-            },
+            suggestions: [
+              {
+                track: 1,
+                trackType: TrackType.MAIN,
+                trackNum: 0,
+                gamemode: Gamemode.CONC,
+                tier: 1,
+                ranked: true,
+                comment: 'My dad made this'
+              }
+            ],
             versions: {
               createMany: {
                 data: [
@@ -2009,7 +2082,7 @@ describe('Maps', () => {
         );
       });
 
-      afterAll(() => db.cleanup('user', 'mMap', 'run'));
+      afterAll(() => db.cleanup('pastRun', 'leaderboardRun', 'user', 'mMap'));
       afterEach(() => db.cleanup('mapTestingRequest', 'mapCredit'));
 
       it('should respond with map data', async () => {
@@ -2021,8 +2094,20 @@ describe('Maps', () => {
         });
 
         for (const item of res.body.data) {
-          expect(item).toHaveProperty('mainTrack');
-          expect(item).toHaveProperty('submission');
+          for (const prop of [
+            'submission',
+            'id',
+            'name',
+            'fileName',
+            'status',
+            'hash',
+            'submitterID',
+            'createdAt',
+            'updatedAt'
+          ]) {
+            expect(item).toHaveProperty(prop);
+          }
+          expect(item).not.toHaveProperty('zones');
         }
       });
 
@@ -2057,8 +2142,25 @@ describe('Maps', () => {
           url: 'maps/submissions',
           token: u1Token,
           searchMethod: 'contains',
-          searchString: 'aaaaa',
+          searchString: 'aa',
           searchPropertyName: 'name',
+          validate: { type: MapDto, count: 1 }
+        });
+      });
+
+      it('should respond with filtered map data using the fileName parameter', async () => {
+        await prisma.mMap.update({
+          where: { id: pubMap1.id },
+          data: { fileName: 'Bingus' }
+        });
+
+        await req.searchTest({
+          url: 'maps/submissions',
+          token: u1Token,
+          searchMethod: 'startsWith',
+          searchString: 'Bingu',
+          searchPropertyName: 'fileName',
+          searchQueryName: 'fileName',
           validate: { type: MapDto, count: 1 }
         });
       });
@@ -2098,15 +2200,28 @@ describe('Maps', () => {
           token: u1Token
         }));
 
-      it('should respond with expanded submission versions data using the version expand parameter', () =>
-        req.expandTest({
+      it('should respond with expanded submission versions data using the version expand parameter', async () => {
+        const res = await req.expandTest({
           url: 'maps/submissions',
           expand: 'versions',
           expectedPropertyName: 'submission.versions[1]',
           paged: true,
           validate: MapDto,
           token: u1Token
-        }));
+        });
+
+        for (const item of res.body.data) {
+          for (const version of item.submission.versions) {
+            expect(version).toHaveProperty('id');
+            expect(version).toHaveProperty('downloadURL');
+            expect(version).toHaveProperty('hash');
+            expect(version).toHaveProperty('versionNum');
+            expect(version).toHaveProperty('createdAt');
+            expect(version).not.toHaveProperty('zones');
+            expect(version).not.toHaveProperty('changelog');
+          }
+        }
+      });
 
       it('should respond with expanded review data using the reviews expand parameter', () =>
         req.expandTest({
@@ -2185,15 +2300,6 @@ describe('Maps', () => {
           token: u1Token
         }));
 
-      it('should respond with expanded map data using the tracks expand parameter', () =>
-        req.expandTest({
-          url: 'maps/submissions',
-          expand: 'tracks',
-          paged: true,
-          validate: MapDto,
-          token: u1Token
-        }));
-
       it('should respond with expanded map data using the info expand parameter', () =>
         req.expandTest({
           url: 'maps/submissions',
@@ -2236,10 +2342,10 @@ describe('Maps', () => {
       });
 
       it("should respond with the map's WR when using the worldRecord expansion", async () => {
-        await db.createRunAndRankForMap({
+        await db.createLbRun({
           map: pubMap1,
           user: u2,
-          ticks: 5,
+          time: 5,
           rank: 1
         });
 
@@ -2253,15 +2359,15 @@ describe('Maps', () => {
 
         const map = res.body.data.find((map) => map.id === pubMap1.id);
         expect(map).toMatchObject({
-          worldRecord: { rank: 1, user: { id: u2.id } }
+          worldRecords: [{ rank: 1, user: { id: u2.id } }]
         });
       });
 
       it("should respond with the logged in user's PB when using the personalBest expansion", async () => {
-        await db.createRunAndRankForMap({
+        await db.createLbRun({
           map: pubMap1,
           user: u1,
-          ticks: 10,
+          time: 10,
           rank: 2
         });
 
@@ -2275,7 +2381,7 @@ describe('Maps', () => {
 
         const map = res.body.data.find((map) => map.id === pubMap1.id);
         expect(map).toMatchObject({
-          personalBest: { rank: 2, user: { id: u1.id } }
+          personalBests: [{ rank: 2, user: { id: u1.id } }]
         });
       });
 
@@ -2290,11 +2396,11 @@ describe('Maps', () => {
 
         const map = res.body.data.find((map) => map.id === pubMap1.id);
         expect(map).toMatchObject({
-          worldRecord: { rank: 1, user: { id: u2.id } },
-          personalBest: { rank: 2, user: { id: u1.id } }
+          worldRecords: [{ rank: 1, user: { id: u2.id } }],
+          personalBests: [{ rank: 2, user: { id: u1.id } }]
         });
 
-        await db.cleanup('run');
+        await db.cleanup('leaderboardRun');
       });
 
       it('should respond with only public testing maps if the user has no special relations', async () => {

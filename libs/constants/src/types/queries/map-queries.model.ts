@@ -5,13 +5,14 @@ import { MapStatusNew } from '../../enums/map-status.enum';
 //#region Get All
 
 type BaseMapsGetAllExpand =
+  | 'zones'
+  | 'leaderboards'
   | 'info'
   | 'stats'
   | 'submitter'
   | 'credits'
   | 'thumbnail'
-  | 'images'
-  | 'tracks';
+  | 'images';
 
 export type MapsGetAllExpand = (
   | BaseMapsGetAllExpand
