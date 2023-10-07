@@ -125,9 +125,6 @@ export class MapsGetAllAdminQueryDto
     MapStatusNew.DISABLED
   ])
   readonly filter?: MapsGetAllAdminFilter;
-
-  @BooleanQueryProperty({ description: 'Filter by priority or non-priority' })
-  readonly priority?: boolean;
 }
 
 export class MapsGetAllSubmissionQueryDto
