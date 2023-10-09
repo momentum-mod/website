@@ -1,6 +1,8 @@
 import { PagedQuery } from './pagination.model';
 import { Gamemode } from '../../enums/gamemode.enum';
 import { MapStatusNew } from '../../enums/map-status.enum';
+import { TrackType } from '../../enums/track-type.enum';
+import { Style } from '../../enums/style.enum';
 
 //#region Get All
 
@@ -41,6 +43,7 @@ type MapsGetAllBaseQuery = {
   skip?: number;
   take?: number;
   search?: string;
+  fileName?: string;
   submitterID?: number;
 };
 
@@ -49,7 +52,7 @@ export type MapsGetAllQuery = MapsGetAllBaseQuery & {
   type?: Gamemode;
   difficultyLow?: number;
   difficultyHigh?: number;
-  isLinear?: boolean;
+  linear?: boolean;
 };
 
 export type MapsGetAllAdminFilter = MapStatusNew[];
@@ -99,26 +102,36 @@ export type MapsGetQuery = {
 //#endregion
 //#region Credits
 
-export type MapCreditsGetExpand = ['user'];
+export type MapCreditsGetExpand = 'user';
 
 export type MapCreditsGetQuery = {
   expand?: MapCreditsGetExpand;
 };
 
 //#endregion
-//#region Ranks
+//#region Runs
 
-export type MapRanksGetQuery = PagedQuery & {
-  playerID?: number;
-  playerIDs?: number[];
-  flags?: number;
+export type MapRunsGetExpand = 'stats';
+export type MapRunsGetFilter = 'around' | 'friends';
+
+export type MapLeaderboardGetQuery = PagedQuery & {
+  gamemode: Gamemode;
+  trackType?: TrackType; // Default 0
+  trackNum?: number; // Default 0
+  style?: Style; // Default 0
+  expand?: MapRunsGetExpand;
+  filter?: MapRunsGetFilter;
   orderByDate?: boolean;
 };
 
-export type MapRankGetNumberQuery = {
-  trackNum?: number;
-  zoneNum?: number;
-  flags?: number;
+export type MapLeaderboardGetRun = PagedQuery & {
+  gamemode: Gamemode;
+  trackType?: TrackType; // Default 0
+  trackNum?: number; // Default 0
+  style?: Style; // Default 0
+  expand?: MapRunsGetExpand;
+  userID?: number;
+  rank?: number;
 };
 
 //#endregion
@@ -128,7 +141,7 @@ export type MapReviewsGetExpand = ('map' | 'reviewer')[];
 
 export type MapReviewsGetQuery = {
   official?: boolean;
-  expand?: string[];
+  expand?: MapReviewsGetExpand;
 };
 
 export type MapReviewGetIdQuery = {

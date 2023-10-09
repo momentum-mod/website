@@ -16,12 +16,16 @@ import {
   MapsGetAllSubmissionAdminQuery,
   MapsGetAllAdminFilter,
   MapsGetAllUserSubmissionQuery,
-  MapReviewGetIdQuery
+  MapReviewGetIdQuery,
+  TrackType,
+  Style,
+  MapLeaderboardGetQuery,
+  MapRunsGetExpand,
+  MapRunsGetFilter,
+  MapLeaderboardGetRun
 } from '@momentum/constants';
 import {
   MapCreditsGetQuery,
-  MapRankGetNumberQuery,
-  MapRanksGetQuery,
   MapsGetAllQuery,
   MapsGetQuery
 } from '@momentum/constants';
@@ -31,7 +35,6 @@ import {
   EnumQueryProperty,
   ExpandQueryProperty,
   FilterQueryProperty,
-  IntCsvQueryProperty,
   IntQueryProperty,
   SingleExpandQueryProperty,
   SkipQueryProperty,
@@ -227,22 +230,34 @@ export class MapCreditsGetQueryDto
 }
 
 //#endregion
-//#region Ranks
+//#region Leaderboards
 
-export class MapRanksGetQueryDto
+export class MapLeaderboardGetQueryDto
   extends PagedQueryDto
-  implements MapRanksGetQuery
+  implements MapLeaderboardGetQuery
 {
-  @IntQueryProperty({ description: 'Steam ID of player to get rank for' })
-  readonly playerID?: number;
+  @EnumQueryProperty(Gamemode, { required: true })
+  gamemode: Gamemode;
 
-  @IntCsvQueryProperty({
-    description: 'CSV list of steam IDs of players to get rank for'
+  @EnumQueryProperty(TrackType, { required: false })
+  trackType = TrackType.MAIN;
+
+  @IntQueryProperty({ required: false })
+  trackNum = 0;
+
+  @EnumQueryProperty(Style, { required: false })
+  style = Style.NONE;
+
+  @SingleExpandQueryProperty('stats')
+  readonly expand?: MapRunsGetExpand;
+
+  @FilterQueryProperty(['friends', 'around'], {
+    example: 'around',
+    description:
+      "Filter by *either* Steam friends or runs around the logged in user's PB." +
+      "If around is used, 'skip' and 'take' are ignored."
   })
-  readonly playerIDs?: number[];
-
-  @IntQueryProperty({ description: 'Rank flags', default: 0 })
-  readonly flags?: number;
+  readonly filter?: MapRunsGetFilter;
 
   @BooleanQueryProperty({
     description: 'Whether to order by date or not (false for reverse)'
@@ -250,18 +265,36 @@ export class MapRanksGetQueryDto
   readonly orderByDate?: boolean;
 }
 
-export class MapRankGetNumberQueryDto
+export class MapLeaderboardGetRunQuery
   extends QueryDto
-  implements MapRankGetNumberQuery
+  implements MapLeaderboardGetRun
 {
-  @IntQueryProperty({ description: 'Track number', default: 0 })
-  readonly trackNum?: number;
+  @EnumQueryProperty(Gamemode, { required: true })
+  gamemode: Gamemode;
 
-  @IntQueryProperty({ description: 'Zone number', default: 0 })
-  readonly zoneNum?: number;
+  @EnumQueryProperty(TrackType, { required: false })
+  trackType = TrackType.MAIN;
 
-  @IntQueryProperty({ description: 'Rank flags', default: 0 })
-  readonly flags?: number;
+  @IntQueryProperty({ required: false })
+  trackNum = 0;
+
+  @EnumQueryProperty(Style, { required: false })
+  style = Style.NONE;
+
+  @IntQueryProperty({
+    required: false,
+    description: "Get run for this userID. Either this or 'rank' is required."
+  })
+  readonly userID?: number;
+
+  @IntQueryProperty({
+    required: false,
+    description: "Get run at this rank. Either this or 'userID' is required."
+  })
+  readonly rank?: number;
+
+  @SingleExpandQueryProperty('stats')
+  readonly expand?: MapRunsGetExpand;
 }
 
 //#endregion

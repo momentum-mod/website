@@ -10,7 +10,6 @@ import { AuthModule } from './modules/auth/auth.module';
 import { ActivitiesModule } from './modules/activities/activities.module';
 import { AdminModule } from './modules/admin/admin.module';
 import { MapsModule } from './modules/maps/maps.module';
-import { RanksModule } from './modules/ranks/ranks.module';
 import { ReportsModule } from './modules/reports/reports.module';
 import { RunsModule } from './modules/runs/runs.module';
 import { StatsModule } from './modules/stats/stats.module';
@@ -44,7 +43,6 @@ import { XpSystemsModule } from './modules/xp-systems/xp-systems.module';
     ActivitiesModule,
     AdminModule,
     MapsModule,
-    RanksModule,
     ReportsModule,
     RunsModule,
     StatsModule,

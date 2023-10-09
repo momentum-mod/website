@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { forwardRef, Module } from '@nestjs/common';
 import { MapsController } from './maps.controller';
 import { MapsService } from './maps.service';
 import { DbModule } from '../database/db.module';
@@ -7,7 +7,6 @@ import { SessionModule } from '../session/session.module';
 import { MapLibraryService } from './map-library.service';
 import { SteamModule } from '../steam/steam.module';
 import { RunsModule } from '../runs/runs.module';
-import { RanksModule } from '../ranks/ranks.module';
 import { MapReviewService } from './map-review.service';
 import { MapCreditsService } from './map-credits.service';
 import { MapImageService } from './map-image.service';
@@ -19,8 +18,7 @@ import { MapTestingRequestService } from './map-testing-request.service';
     FileStoreModule,
     SteamModule,
     SessionModule,
-    RunsModule,
-    RanksModule
+    forwardRef(() => RunsModule)
   ],
   controllers: [MapsController],
   providers: [
