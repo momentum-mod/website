@@ -65,6 +65,9 @@ export class RolesGuard implements CanActivate {
     // This method saves making an SQL table full of booleans, and is easy to
     // work with once you get the general concept. Remember, rows of binary
     // digits, not decimals!
+
+    // This non-strict check is type-safe, may as well save a few CPU cycles...
+    // eslint-disable-next-line eqeqeq
     return (Bitflags.join(...requiredRoles) & user.roles) != 0;
   }
 }
