@@ -1,7 +1,6 @@
 // noinspection DuplicatedCode
 
-import { Config } from '@momentum/backend/config';
-import { RunDto } from '@momentum/backend/dto';
+import { PastRunDto } from '@momentum/backend/dto';
 import {
   AuthUtil,
   futureDateOffset,
@@ -14,6 +13,7 @@ import {
   setupE2ETestEnvironment,
   teardownE2ETestEnvironment
 } from './support/environment';
+import { MapStatusNew, Order, RunsGetAllOrder } from '@momentum/constants';
 
 describe('Runs', () => {
   let app, prisma: PrismaClient, req: RequestUtil, db: DbUtil, auth: AuthUtil;
@@ -31,69 +31,161 @@ describe('Runs', () => {
 
   describe('runs', () => {
     describe('GET', () => {
-      let users, token, maps;
+      let users, token, maps, testingMap;
 
       beforeAll(async () => {
-        [users, maps] = await Promise.all([
+        [users, maps, testingMap] = await Promise.all([
           db.createUsers(2),
-          db.createMaps(2)
+          db.createMaps(2),
+          db.createMap({ status: MapStatusNew.PUBLIC_TESTING })
         ]);
         token = auth.login(users[0]);
 
-        await Promise.all([
-          db.createRunAndRankForMap({
-            map: maps[0],
-            user: users[0],
-            createdAt: futureDateOffset(4),
-            flags: 1
-          }),
-          db.createRun({
-            map: maps[0],
-            user: users[1],
-            createdAt: futureDateOffset(3)
-          }),
-          db.createRunAndRankForMap({
-            map: maps[1],
-            user: users[0],
-            createdAt: futureDateOffset(2)
-          }),
-          db.createRun({
-            map: maps[1],
-            user: users[1],
-            createdAt: futureDateOffset(1)
-          })
-        ]);
-      });
-
-      afterAll(() => db.cleanup('user', 'mMap', 'run'));
-
-      it('should respond with a list of runs', async () => {
-        const res = await req.get({
-          url: 'runs',
-          status: 200,
-          validatePaged: { type: RunDto, count: 4 },
-          token: token
+        await db.createPastRun({
+          createLbRun: true,
+          lbRank: 1,
+          map: maps[0],
+          user: users[0],
+          createdAt: futureDateOffset(4),
+          time: 1,
+          flags: [1]
         });
 
-        for (const run of res.body.data) expect(run).toHaveProperty('user');
+        await db.createPastRun({
+          createLbRun: true,
+          lbRank: 2,
+          map: maps[0],
+          user: users[1],
+          createdAt: futureDateOffset(3),
+          time: 2
+        });
+
+        await db.createPastRun({
+          createLbRun: false,
+          map: maps[0],
+          user: users[1],
+          createdAt: futureDateOffset(2),
+          time: 3
+        });
+
+        await db.createPastRun({
+          map: maps[1],
+          user: users[0],
+          createdAt: futureDateOffset(2),
+          time: 1
+        });
+
+        await db.createPastRun({
+          map: maps[1],
+          user: users[1],
+          createdAt: futureDateOffset(1),
+          time: 2
+        });
+
+        await db.createPastRun({
+          map: testingMap,
+          user: users[1],
+          createdAt: futureDateOffset(1),
+          time: 2
+        });
+      });
+
+      afterAll(() => db.cleanup('leaderboardRun', 'pastRun', 'user', 'mMap'));
+
+      it('should respond with a list of runs', async () => {
+        const {
+          body: { data }
+        } = await req.get({
+          url: 'runs',
+          status: 200,
+          validatePaged: { type: PastRunDto, count: 5 },
+          token
+        });
+
+        for (const x of data) expect(x).toHaveProperty('isPB');
+        expect(data.filter((x) => x.isPB === true).length).toBe(2);
+        expect(data.filter((x) => x.isPB === false).length).toBe(3);
       });
 
       it('should respond with a list of runs with take parameter', () =>
-        req.takeTest({ url: 'runs', validate: RunDto, token: token }));
+        req.takeTest({
+          url: 'runs',
+          validate: PastRunDto,
+          token
+        }));
 
       it('should respond with a list of runs with skip parameter', () =>
-        req.skipTest({ url: 'runs', validate: RunDto, token: token }));
+        req.skipTest({
+          url: 'runs',
+          validate: PastRunDto,
+          token
+        }));
+
+      it('should include user data if using the user expand parameter', () =>
+        req.expandTest({
+          url: 'runs',
+          expand: 'user',
+          validate: PastRunDto,
+          paged: true,
+          token
+        }));
+
+      it('should include map data if using the map expand parameter', () =>
+        req.expandTest({
+          url: 'runs',
+          expand: 'map',
+          validate: PastRunDto,
+          paged: true,
+          token
+        }));
+
+      it('should include leaderboardRun data if using the leaderboardRun expand parameter', () =>
+        req.expandTest({
+          url: 'runs',
+          expand: 'leaderboardRun',
+          validate: PastRunDto,
+          paged: true,
+          token
+        }));
 
       it('should respond with list of runs filtered by mapID parameter', async () => {
         const res = await req.get({
           url: 'runs',
           status: 200,
           query: { mapID: maps[0].id },
-          validatePaged: { type: RunDto, count: 2 },
-          token: token
+          validatePaged: { type: PastRunDto, count: 3 },
+          token
         });
 
         for (const run of res.body.data) expect(run.mapID).toBe(maps[0].id);
+      });
+
+      it('should be able to fetch non-approved maps if using mapID param', async () =>
+        req.get({
+          url: 'runs',
+          status: 200,
+          query: { mapID: testingMap.id },
+          validatePaged: { type: PastRunDto, count: 1 },
+          token
+        }));
+
+      it("should refuse to return non-approved maps the user can't access", async () => {
+        await prisma.mMap.update({
+          where: { id: testingMap.id },
+          data: { status: MapStatusNew.PRIVATE_TESTING }
+        });
+
+        await req.get({
+          url: 'runs',
+          status: 403,
+          query: { mapID: testingMap.id },
+          token
+        });
+
+        await prisma.mMap.update({
+          where: { id: testingMap.id },
+          data: { status: MapStatusNew.PUBLIC_TESTING }
+        });
       });
 
       it('should respond with a list of runs filtered by userID parameter', async () => {
@@ -101,21 +193,21 @@ describe('Runs', () => {
           url: 'runs',
           status: 200,
           query: { userID: users[0].id },
-          validatePaged: { type: RunDto, count: 2 },
-          token: token
+          validatePaged: { type: PastRunDto, count: 2 },
+          token
         });
 
         for (const run of res.body.data) expect(run.userID).toBe(users[0].id);
       });
 
       it('should respond with a list of runs filtered by a list of user ids', async () => {
-        const ids = `${users[0].id},${users[1].id}`;
+        const ids = `${users[0].id}`;
         const res = await req.get({
           url: 'runs',
           status: 200,
           query: { userIDs: ids },
-          validatePaged: { type: RunDto, count: 4 },
-          token: token
+          validatePaged: { type: PastRunDto, count: 2 },
+          token
         });
 
         for (const run of res.body.data)
@@ -127,12 +219,12 @@ describe('Runs', () => {
           url: 'runs',
           status: 200,
           query: { flags: 1 },
-          validatePaged: { type: RunDto, count: 1 },
-          token: token
+          validatePaged: { type: PastRunDto, count: 1 },
+          token
         });
 
         expect(res.body.data[0]).toMatchObject({
-          flags: 1,
+          flags: [1],
           userID: users[0].id,
           mapID: maps[0].id
         });
@@ -141,93 +233,57 @@ describe('Runs', () => {
       it('should respond with a list of runs with the map include', () =>
         req.expandTest({
           url: 'runs',
-          validate: RunDto,
+          validate: PastRunDto,
           expand: 'map',
           paged: true,
-          token: token
+          token
         }));
-
-      it('should respond with a list of runs with the rank include', async () => {
-        const res = await req.get({
-          url: 'runs',
-          status: 200,
-          query: { expand: 'rank' },
-          validatePaged: { type: RunDto, count: 4 },
-          token: token
-        });
-
-        expect(res.body.data.filter((x) => x.rank !== null).length).toBe(2);
-      });
-
-      it('should respond with a list of runs with the zoneStats include', () =>
-        req.expandTest({
-          url: 'runs',
-          validate: RunDto,
-          expand: 'zoneStats',
-          paged: true,
-          token: token
-        }));
-
-      it('should respond with a list of runs with the overallStats include', () =>
-        req.expandTest({
-          url: 'runs',
-          validate: RunDto,
-          expand: 'overallStats',
-          paged: true,
-          token: token
-        }));
-
-      it('should respond with a list of runs with the mapWithInfo include', async () => {
-        const res = await req.get({
-          url: 'runs',
-          status: 200,
-          query: { expand: 'mapWithInfo' },
-          validatePaged: { type: RunDto, count: 4 },
-          token: token
-        });
-
-        for (const run of res.body.data) expect(run.map).toHaveProperty('info');
-      });
 
       it('should respond with a list of runs filtered by partial mapName match', async () => {
         const res = await req.get({
           url: 'runs',
           status: 200,
           query: { mapName: maps[0].name.slice(-3) },
-          validatePaged: { type: RunDto, count: 2 },
-          token: token
+          validatePaged: { type: PastRunDto, count: 3 },
+          token
         });
 
         expect(res.body.data[0].mapID).toBe(maps[0].id);
       });
 
-      it('should respond with a list of runs that are personal bests', async () => {
-        const res = await req.get({
+      it('should respond with a list of runs filtered by PBs', async () =>
+        req.get({
           url: 'runs',
           status: 200,
-          query: { isPB: true, expand: 'rank' },
-          validatePaged: { type: RunDto, count: 2 },
-          token: token
-        });
+          query: { isPB: true },
+          validatePaged: { type: PastRunDto, count: 2 },
+          token
+        }));
 
-        for (const run of res.body.data) expect(run).toHaveProperty('rank');
-      });
+      it('should respond with a list of runs filtered by non-PBs', async () =>
+        req.get({
+          url: 'runs',
+          status: 200,
+          query: { isPB: false },
+          validatePaged: { type: PastRunDto, count: 3 },
+          token
+        }));
 
       it('should respond with a list of runs sorted by date', () =>
         req.sortByDateTest({
           url: 'runs',
-          query: { order: 'date' },
-          validate: RunDto,
-          token: token
+          query: { orderBy: RunsGetAllOrder.DATE },
+          validate: PastRunDto,
+          token
         }));
 
       it('should respond with a list of runs sorted by time', () =>
         req.sortTest({
           url: 'runs',
-          query: { order: 'date' },
-          validate: RunDto,
+          query: { orderBy: RunsGetAllOrder.RUN_TIME, order: Order.ASC },
+          validate: PastRunDto,
           sortFn: (n1, n2) => n1.ticks - n2.ticks,
-          token: token
+          token
         }));
 
       it('should 401 when no access token is provided', () =>
@@ -237,128 +293,104 @@ describe('Runs', () => {
 
   describe('runs/{runID}', () => {
     describe('GET', () => {
-      let user, token, map, run;
+      let user, token, map, run1, run2;
 
       beforeAll(async () => {
-        run = await db.createRunAndRankForMap({
-          map: map,
-          rank: 1,
-          user: user,
-          ticks: 1
+        run1 = await db.createPastRun({
+          time: 1,
+          createLbRun: true,
+          lbRank: 1
         });
-        user = run.user;
-        map = run.map;
+
+        user = run1.user;
+        map = run1.mmap;
+
+        run2 = await db.createPastRun({
+          map: map,
+          user: user,
+          time: 2
+        });
         token = auth.login(user);
       });
 
-      afterAll(() =>
-        Promise.all([
-          prisma.user.deleteMany(),
-          prisma.mMap.deleteMany(),
-          prisma.run.deleteMany()
-        ])
-      );
+      afterAll(() => db.cleanup('leaderboardRun', 'pastRun', 'mMap', 'user'));
 
-      it('should return a valid run', () =>
-        req.get({
-          url: 'runs/' + run.id,
+      it('should return a valid run', async () => {
+        const res = await req.get({
+          url: `runs/${run1.id}`,
           status: 200,
-          validate: RunDto,
-          token: token
-        }));
+          validate: PastRunDto,
+          token
+        });
+      });
 
-      it('should respond with a run using the overallStats include', () =>
+      it('should include whether the run is a PB', async () => {
+        const res = await req.get({
+          url: `runs/${run1.id}`,
+          status: 200,
+          validate: PastRunDto,
+          token
+        });
+
+        expect(res.body.isPB).toBe(true);
+
+        const res2 = await req.get({
+          url: `runs/${run2.id}`,
+          status: 200,
+          validate: PastRunDto,
+          token
+        });
+
+        expect(res2.body.isPB).toBe(false);
+      });
+
+      it('should respond with a run using the user include', () =>
         req.expandTest({
-          url: 'runs/' + run.id,
-          validate: RunDto,
-          expand: 'overallStats',
-          token: token
+          url: `runs/${run1.id}`,
+          validate: PastRunDto,
+          expand: 'user',
+          token
         }));
 
       it('should respond with a run using the map include', () =>
         req.expandTest({
-          url: 'runs/' + run.id,
-          validate: RunDto,
+          url: `runs/${run1.id}`,
+          validate: PastRunDto,
           expand: 'map',
-          token: token
+          token
         }));
 
-      it('should respond with a run using the rank include', () =>
+      it('should respond with a run using the leaderboardRun include', () =>
         req.expandTest({
-          url: 'runs/' + run.id,
-          validate: RunDto,
-          expand: 'rank',
-          token: token
+          url: `runs/${run1.id}`,
+          validate: PastRunDto,
+          expand: 'leaderboardRun',
+          token
         }));
 
-      it('should respond with a run using the zoneStats include', () =>
-        req.expandTest({
-          url: 'runs/' + run.id,
-          validate: RunDto,
-          expand: 'zoneStats',
-          token: token
-        }));
-
-      it('should respond with a run using the mapWithInfo include', async () => {
-        const res = await req.get({
-          url: 'runs/' + run.id,
-          status: 200,
-          query: { expand: 'mapWithInfo' },
-          validate: RunDto,
-          token: token
+      it("should refuse to return non-approved maps the user can't access", async () => {
+        await prisma.mMap.update({
+          where: { id: map.id },
+          data: { status: MapStatusNew.PRIVATE_TESTING }
         });
 
-        expect(res.body.map).toHaveProperty('info');
+        await req.get({
+          url: `runs/${run1.id}`,
+          status: 403,
+          token
+        });
+
+        await prisma.mMap.update({
+          where: { id: map.id },
+          data: { status: MapStatusNew.PUBLIC_TESTING }
+        });
       });
 
       it('should 404 when no run is found', () =>
-        req.get({ url: `runs/${NULL_ID}`, status: 404, token: token }));
+        req.get({ url: `runs/${NULL_ID}`, status: 404, token }));
 
       it('should 401 when no access token is provided', () =>
         req.unauthorizedTest('runs/1', 'get'));
-    });
-  });
-
-  describe('runs/{runID}/download', () => {
-    describe('GET', () => {
-      let user, token, map, run;
-
-      beforeAll(async () => {
-        run = await db.createRunAndRankForMap({
-          map: map,
-          rank: 1,
-          user: user,
-          ticks: 1,
-          file: 'dogathan_large.png'
-        });
-        user = run.user;
-        map = run.map;
-        token = auth.login(user);
-      });
-
-      afterAll(() => db.cleanup('user', 'mMap', 'run'));
-
-      it('should redirect to the download url of the run', async () => {
-        const res = await req.get({
-          url: `runs/${run.id}/download`,
-          status: 302,
-          token: token
-        });
-
-        expect(res.headers.location).toEqual(
-          `${Config.storage.endpointUrl}/${Config.storage.bucketName}/${run.file}`
-        );
-      });
-
-      it('should 404 when no run is found', () =>
-        req.get({
-          url: `runs/${NULL_ID}/download`,
-          status: 404,
-          token: token
-        }));
-
-      it('should 401 when no access token is provided', () =>
-        req.unauthorizedTest('runs/1/download', 'get'));
     });
   });
 });

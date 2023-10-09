@@ -30,7 +30,6 @@ import {
   ApiOkResponse,
   ApiOperation,
   ApiParam,
-  ApiResponse,
   ApiTags
 } from '@nestjs/swagger';
 import { MapsService } from './maps.service';
@@ -39,7 +38,7 @@ import {
   FileFieldsInterceptor,
   FileInterceptor
 } from '@nest-lab/fastify-multer';
-import { RanksService } from '../ranks/ranks.service';
+import { LeaderboardRunsService } from '../runs/leaderboard-runs.service';
 import { RolesGuard } from '../auth/roles.guard';
 import {
   ApiOkPagedResponse,
@@ -53,8 +52,7 @@ import {
   MapsGetAllSubmissionQueryDto,
   MapImageDto,
   MapInfoDto,
-  MapRankGetNumberQueryDto,
-  MapRanksGetQueryDto,
+  MapLeaderboardGetQueryDto,
   MapReviewDto,
   MapReviewGetIdDto,
   MapReviewsGetQueryDto,
@@ -65,10 +63,13 @@ import {
   UpdateMapTestingRequestDto,
   VALIDATION_PIPE_CONFIG,
   CreateMapWithFilesDto,
-  MapZonesDto
+  MapZonesDto,
+  LeaderboardRunDto,
+  MapLeaderboardGetRunQuery,
+  MinimalLeaderboardRunDto
 } from '@momentum/backend/dto';
 import { LoggedInUser, Roles } from '@momentum/backend/decorators';
-import { Role, User } from '@momentum/constants';
+import { Role } from '@momentum/constants';
 import { ParseIntSafePipe } from '@momentum/backend/pipes';
 import { MapCreditsService } from './map-credits.service';
 import { MapReviewService } from './map-review.service';
@@ -76,6 +77,7 @@ import { MapImageService } from './map-image.service';
 import { FormDataJsonInterceptor } from '../../interceptors/form-data-json.interceptor';
 import { ConfigService } from '@nestjs/config';
 import { MapTestingRequestService } from './map-testing-request.service';
+import { UserJwtAccessPayload } from '../auth/auth.interface';
 
 @Controller('maps')
 @UseGuards(RolesGuard)
@@ -89,7 +91,7 @@ export class MapsController {
     private readonly mapReviewService: MapReviewService,
     private readonly mapImageService: MapImageService,
     private readonly mapTestingRequestService: MapTestingRequestService,
-    private readonly ranksService: RanksService
+    private readonly runsService: LeaderboardRunsService
   ) {}
 
   //#region Maps
@@ -186,9 +188,17 @@ export class MapsController {
     return this.mapsService.submitMap(data, userID, bspFile, files.vmfs);
   }
 
+  // TODO FRONTEND: Frontend will likely multiple requests to  /:mapID PATCH,
+  // then this. Make sure that former completes before the latter. Yes this is an
+  // upload so bound to take longer, but don't rely on that.
   @Post('/:mapID')
   @ApiConsumes('multipart/form-data')
-  @ApiOperation({ summary: 'Submits an updated map version' })
+  @ApiOperation({
+    summary:
+      'Submits an updated map version.' +
+      " This may generate new leaderboards, which uses the submission's suggestions, " +
+      'if those are being changed by the user, be sure to send the /:id PATCH first!'
+  })
   @ApiBody({
     type: CreateMapSubmissionVersionDto,
     required: true
@@ -609,83 +619,47 @@ export class MapsController {
 
   //#endregion
 
-  //#region Ranks
+  //#region Runs
 
-  @Get('/:mapID/ranks')
-  @ApiOperation({ summary: "Returns a paginated list of a map's ranks" })
+  @Get('/:mapID/leaderboard')
+  @ApiOperation({
+    summary:
+      "Returns a paginated list of a leaderboard's runs. Some data the client " +
+      'should already know is omitted for performance.' +
+      "Warning: if the leaderboard itself doesn't exist, this endpoint will" +
+      'return a 0 length PaginatedResponseDto.'
+  })
   @ApiParam({
     name: 'mapID',
     type: Number,
     description: 'Target Map ID',
     required: true
   })
-  @ApiOkResponse({ description: "The found map's ranks" })
-  getRanks(
+  @ApiOkResponse({ description: "The found leaderboard's runs" })
+  getLeaderboards(
+    @Param('mapID', ParseIntSafePipe) mapID: number,
+    @LoggedInUser() { id, steamID }: UserJwtAccessPayload,
+    @Query() query?: MapLeaderboardGetQueryDto
+  ): Promise<PagedResponseDto<MinimalLeaderboardRunDto>> {
+    return this.runsService.getRuns(mapID, query, id, steamID);
+  }
+
+  @Get('/:mapID/leaderboard/run')
+  @ApiOperation({ summary: 'Returns the data for a specific leaderboard run' })
+  @ApiParam({
+    name: 'mapID',
+    type: Number,
+    description: 'Target Map ID',
+    required: true
+  })
+  @ApiOkResponse({ description: 'The found run' })
+  @ApiNotFoundResponse({ description: 'Either map or run not found' })
+  getLeaderboardRun(
     @Param('mapID', ParseIntSafePipe) mapID: number,
     @LoggedInUser('id') userID: number,
-    @Query() query?: MapRanksGetQueryDto
-  ): Promise<PagedResponseDto<RankDto>> {
-    return this.ranksService.getRanks(mapID, userID, query);
-  }
-
-  @Get('/:mapID/ranks/around')
-  @ApiOperation({ summary: 'Returns the 9 ranks around the user' })
-  @ApiParam({
-    name: 'mapID',
-    type: Number,
-    description: 'Target Map ID',
-    required: true
-  })
-  @ApiOkResponse({ description: 'The 9 ranks around your rank for a map' })
-  getRanksAround(
-    @LoggedInUser('id') userID: number,
-    @Param('mapID') mapID: number,
-    @Query() query?: MapRankGetNumberQueryDto
-  ): Promise<PagedResponseDto<RankDto>> {
-    return this.ranksService.getRankAround(userID, mapID, query);
-  }
-
-  @Get('/:mapID/ranks/friends')
-  @ApiOperation({ summary: 'Returns the ranks for the users steam friends' })
-  @ApiParam({
-    name: 'mapID',
-    type: Number,
-    description: 'Target Map ID',
-    required: true
-  })
-  @ApiOkResponse({ description: "The ranks of the user's steam friends" })
-  @ApiResponse({ status: 418, description: 'The user has no friends' })
-  getRanksFriends(
-    @LoggedInUser() { id, steamID }: User,
-    @Param('mapID') mapID: number,
-    @Query() query?: MapRankGetNumberQueryDto
-  ): Promise<PagedResponseDto<RankDto>> {
-    return this.ranksService.getRankFriends(id, steamID, mapID, query);
-  }
-
-  @Get('/:mapID/ranks/:rankNumber')
-  @ApiOperation({ summary: 'Returns the data for a specific rank' })
-  @ApiParam({
-    name: 'mapID',
-    type: Number,
-    description: 'Target Map ID',
-    required: true
-  })
-  @ApiParam({
-    name: 'rankNumber',
-    type: Number,
-    description: 'Target Rank',
-    required: true
-  })
-  @ApiOkResponse({ description: 'The found rank data' })
-  @ApiNotFoundResponse({ description: 'Either map or rank not found' })
-  getRankNumber(
-    @Param('mapID', ParseIntSafePipe) mapID: number,
-    @Param('rankNumber', ParseIntSafePipe) rankNumber: number,
-    @LoggedInUser('id') userID: number,
-    @Query() query?: MapRankGetNumberQueryDto
-  ): Promise<RankDto> {
-    return this.ranksService.getRankNumber(mapID, userID, rankNumber, query);
+    @Query() query?: MapLeaderboardGetRunQuery
+  ): Promise<LeaderboardRunDto> {
+    return this.runsService.getRun(mapID, query, userID);
   }
 
   //#endregion

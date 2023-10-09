@@ -8,9 +8,14 @@ import {
   InternalServerErrorException,
   NotFoundException
 } from '@nestjs/common';
-import { MapCredit, MapSubmission, MMap, Prisma, Run } from '@prisma/client';
+import {
+  LeaderboardRun,
+  MapCredit,
+  MapSubmission,
+  MMap,
+  Prisma
+} from '@prisma/client';
 import { FileStoreService } from '../filestore/file-store.service';
-import { RunsService } from '../runs/runs.service';
 import {
   CreateMapDto,
   CreateMapSubmissionVersionDto,
@@ -80,6 +85,7 @@ import {
   LeaderboardHandler,
   LeaderboardProps
 } from './leaderboard-handler.util';
+import { LeaderboardRunsService } from '../runs/leaderboard-runs.service';
 
 type MapWithSubmission = MMap & {
   submission: OverrideProperties<
@@ -98,7 +104,7 @@ export class MapsService {
     private readonly config: ConfigService,
     private readonly fileStoreService: FileStoreService,
     @Inject(forwardRef(() => LeaderboardRunsService))
-    private readonly runsService: RunsService,
+    private readonly leaderboardRunService: LeaderboardRunsService,
     @Inject(forwardRef(() => MapImageService))
     private readonly mapImageService: MapImageService,
     @Inject(forwardRef(() => MapTestingRequestService))
@@ -1414,7 +1420,7 @@ export class MapsService {
     );
 
     // Delete all run files
-    await this.runsService.deleteStoredMapRuns(mapID);
+    await this.leaderboardRunService.deleteStoredMapRuns(mapID);
 
     // Delete stored map file
     await this.fileStoreService.deleteFile(approvedBspPath(map.fileName));
