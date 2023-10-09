@@ -92,13 +92,6 @@ export class UsersService {
 
     const include: Prisma.UserInclude = expandToIncludes(query.expand) ?? {};
 
-    if (query.mapRank) {
-      include.mapRanks = {
-        where: { mapID: query.mapRank },
-        include: { run: true }
-      };
-    }
-
     const dbResponse = await this.db.user.findManyAndCount({
       where,
       include: undefinedIfEmpty(include),
@@ -106,35 +99,11 @@ export class UsersService {
       take
     });
 
-    // If had the mapRank expand, and the first attached rank
-    // (should be PB? Is this guaranteed?)
-    // TODO: MapRank handling does make much sense. We're not selecting for
-    // mainTrack specifically, and not confident the ordering is always right.
-    // This will change in future ranking system refactors anyway (in fact this
-    // entire endpoint is going to change)
-    if (query.mapRank) {
-      for (const user of dbResponse[0] as (User & {
-        mapRank?: Rank; // Doesn't exist on Prisma User but does on UserDto
-        mapRanks: Rank[];
-      })[]) {
-        if (user.mapRanks) {
-          user.mapRank = user.mapRanks[0];
-          delete user.mapRanks;
-        }
-      }
-    }
     return new PagedResponseDto(UserDto, dbResponse);
   }
 
-  async get(id: number, expand?: string[], mapRank?: number): Promise<UserDto> {
+  async get(id: number, expand?: string[]): Promise<UserDto> {
     const include: Prisma.UserInclude = expandToIncludes(expand) ?? {};
-
-    if (mapRank) {
-      include.mapRanks = {
-        where: { mapID: mapRank },
-        include: { run: true }
-      };
-    }
 
     const dbResponse: any = await this.db.user.findUnique({
       where: { id },
@@ -142,11 +111,6 @@ export class UsersService {
     });
 
     if (!dbResponse) throw new NotFoundException('User not found');
-
-    if (dbResponse.mapRanks) {
-      dbResponse.mapRank = dbResponse.mapRanks[0];
-      delete dbResponse.mapRanks;
-    }
 
     return DtoFactory(UserDto, dbResponse);
   }

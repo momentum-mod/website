@@ -1,7 +1,6 @@
 import { User as PrismaUser } from '@prisma/client';
 import { Profile } from './profile.model';
 import { UserStats } from './user-stats.model';
-import { Rank } from '../run/rank.model';
 import { Socials } from './socials.model';
 import { Bitfield } from '../../utils';
 import { Role } from '../../../enums/role.enum';
@@ -13,7 +12,6 @@ export interface User extends Omit<PrismaUser, 'avatar'> {
   avatarURL: string;
   profile?: Profile;
   userStats?: UserStats;
-  mapRank?: Rank;
 }
 
 export type CreateUser = Pick<User, 'alias'>;
