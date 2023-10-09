@@ -1,5 +1,4 @@
-import { Controller, Get, Param, Query, Redirect } from '@nestjs/common';
-import { RunsService } from './runs.service';
+import { Controller, Get, Param, Query } from '@nestjs/common';
 import {
   ApiBearerAuth,
   ApiNotFoundResponse,
@@ -11,28 +10,37 @@ import {
 import {
   ApiOkPagedResponse,
   PagedResponseDto,
-  RunDto,
-  RunsGetAllQueryDto,
-  RunsGetQueryDto
+  PastRunDto,
+  PastRunsGetAllQueryDto,
+  PastRunsGetQueryDto
 } from '@momentum/backend/dto';
+import { PastRunsService } from './past-runs.service';
+import { LoggedInUser } from '@momentum/backend/decorators';
 import { ParseIntSafePipe } from '@momentum/backend/pipes';
 
 @Controller('runs')
 @ApiTags('Runs')
 @ApiBearerAuth()
 export class RunsController {
-  constructor(private readonly runsService: RunsService) {}
+  constructor(private readonly pastRunsService: PastRunsService) {}
 
   @Get()
-  @ApiOperation({ summary: 'Returns a paginated list of runs' })
-  @ApiOkPagedResponse(RunDto, { description: 'Paginated list of runs' })
+  @ApiOperation({
+    summary:
+      'Returns a paginated list of all submitted runs, include non-PBs.' +
+      'By default only returns APPROVED maps, unless mapID is specified.'
+  })
+  @ApiOkPagedResponse(PastRunDto, {
+    description: 'Paginated list of runs'
+  })
   getRuns(
-    @Query() query?: RunsGetAllQueryDto
-  ): Promise<PagedResponseDto<RunDto>> {
-    return this.runsService.getAll(query);
+    @LoggedInUser('id') userID: number,
+    @Query() query?: PastRunsGetAllQueryDto
+  ): Promise<PagedResponseDto<PastRunDto>> {
+    return this.pastRunsService.getAll(userID, query);
   }
 
-  @Get('/:runID')
+  @Get('/:id')
   @ApiOperation({ summary: 'Returns a single run' })
   @ApiParam({
     name: 'runID',
@@ -40,12 +48,13 @@ export class RunsController {
     description: 'Target Run ID',
     required: true
   })
-  @ApiOkResponse({ type: RunDto, description: 'The found run' })
+  @ApiOkResponse({ type: PastRunDto, description: 'The found run' })
   @ApiNotFoundResponse({ description: 'Run was not found' })
   getRun(
-    @Param('runID', ParseIntSafePipe) runID: number,
-    @Query() query?: RunsGetQueryDto
-  ): Promise<RunDto> {
-    return this.runsService.get(runID, query.expand);
+    @Param('id', ParseIntSafePipe) pastRunID: number,
+    @Query() query: PastRunsGetQueryDto,
+    @LoggedInUser('id') userID: number
+  ): Promise<PastRunDto> {
+    return this.pastRunsService.get(pastRunID, query, userID);
   }
 }

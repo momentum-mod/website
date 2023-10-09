@@ -1,22 +1,29 @@
 ﻿import { PagedQuery } from './pagination.model';
+import { Gamemode } from '../../enums/gamemode.enum';
+import { TrackType } from '../../enums/track-type.enum';
+import { Style } from '../../enums/style.enum';
+import { Order } from './order.model';
 
-export type RunsGetAllExpand = (
-  | 'overallStats'
-  | 'map'
-  | 'mapWithInfo'
-  | 'rank'
-  | 'zoneStats'
-)[];
+export type RunsGetAllExpand = Array<'user' | 'map' | 'leaderboardRun'>;
+export enum RunsGetAllOrder {
+  DATE = 'createdAt',
+  RUN_TIME = 'time'
+}
 
 export type RunsGetAllQuery = PagedQuery & {
   expand?: RunsGetAllExpand;
   mapID?: number;
   mapName?: string;
+  gamemode?: Gamemode;
+  trackType?: TrackType; // Default 0
+  trackNum?: number; // Default 0
+  style?: Style; // Default 0
+  flags?: number[];
   userID?: number;
   userIDs?: number[];
   isPB?: boolean;
-  flags?: number;
-  order?: string;
+  orderBy?: RunsGetAllOrder;
+  order?: Order;
 };
 
 export type RunsGetExpand = RunsGetAllExpand;

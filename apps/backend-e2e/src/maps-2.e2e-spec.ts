@@ -5,9 +5,9 @@ import { PrismaClient } from '@prisma/client';
 import {
   AuthUtil,
   createSha1Hash,
-  futureDateOffset,
   DbUtil,
   FileStoreUtil,
+  futureDateOffset,
   NULL_ID,
   RequestUtil
 } from '@momentum/backend/test-utils';
@@ -16,23 +16,25 @@ import {
   teardownE2ETestEnvironment
 } from './support/environment';
 import {
+  LeaderboardRunDto,
   MapCreditDto,
   MapImageDto,
   MapInfoDto,
   MapReviewDto,
-  MapTrackDto,
-  RankDto,
+  MapZonesDto,
+  MinimalLeaderboardRunDto,
   UserDto
 } from '@momentum/backend/dto';
 import {
   ActivityType,
+  Gamemode,
   MapCreditType,
   MapStatus,
-  Gamemode,
-  Role,
   MapStatusNew,
   MapTestingRequestState,
-  MAX_CREDITS_EXCEPT_TESTERS
+  MAX_CREDITS_EXCEPT_TESTERS,
+  Role,
+  TrackType
 } from '@momentum/constants';
 import { Config } from '@momentum/backend/config';
 // See auth.e2e-spec.ts for justification of this sin
@@ -40,6 +42,7 @@ import { Config } from '@momentum/backend/config';
 import { SteamService } from '../../backend/src/app/modules/steam/steam.service';
 import { Enum } from '@momentum/enum';
 import { difference } from '@momentum/util-fn';
+import { ZonesStub } from '@momentum/formats';
 
 describe('Maps Part 2', () => {
   let app,
@@ -1322,125 +1325,120 @@ describe('Maps Part 2', () => {
     });
   });
 
-  describe('maps/{mapID}/ranks', () => {
+  describe('maps/{mapID}/leaderboard', () => {
     describe('GET', () => {
-      let u1, u1Token, u2, u3, map;
+      let u1, token, u2, u3, map;
+
       beforeAll(async () => {
-        [[u1, u1Token], u2, u3, map] = await Promise.all([
+        [[u1, token], u2, u3, map] = await Promise.all([
           db.createAndLoginUser(),
           db.createUser(),
           db.createUser(),
-          db.createMap()
+          db.createMapWithFullLeaderboards() // Creates a bunch of ahop leaderboards
         ]);
-        await Promise.all([
-          db.createRunAndRankForMap({
-            map: map,
-            user: u1,
-            rank: 1,
-            ticks: 10,
-            flags: 1,
-            createdAt: futureDateOffset(3)
-          }),
-          db.createRunAndRankForMap({
-            map: map,
-            user: u2,
-            rank: 2,
-            ticks: 20,
-            flags: 1,
-            createdAt: futureDateOffset(2)
-          }),
-          db.createRunAndRankForMap({
-            map: map,
-            user: u3,
-            rank: 3,
-            ticks: 30,
-            flags: 2,
-            createdAt: futureDateOffset(1)
-          })
-        ]);
+
+        await db.createLbRun({
+          map: map,
+          user: u1,
+          rank: 1,
+          time: 10,
+          createdAt: futureDateOffset(3)
+        });
+
+        await db.createLbRun({
+          map: map,
+          user: u2,
+          rank: 2,
+          time: 20,
+          createdAt: futureDateOffset(2)
+        });
+
+        await db.createLbRun({
+          map: map,
+          user: u3,
+          rank: 3,
+          time: 30,
+          flags: [1],
+          createdAt: futureDateOffset(1)
+        });
+
+        await db.createLbRun({
+          map: map,
+          user: u1,
+          rank: 1,
+          time: 1,
+          trackType: TrackType.STAGE,
+          trackNum: 1,
+          style: 0,
+          createdAt: futureDateOffset(1)
+        });
       });
 
-      afterAll(() => db.cleanup('user', 'mMap', 'run'));
+      afterAll(() => db.cleanup('leaderboardRun', 'pastRun', 'user', 'mMap'));
 
-      it("should return a list of a map's ranks", () =>
-        req.get({
-          url: `maps/${map.id}/ranks`,
+      it("should return a list of a leaderboard's runs", async () => {
+        const res = await req.get({
+          url: `maps/${map.id}/leaderboard`,
           status: 200,
-          validatePaged: { type: RankDto, count: 3 },
-          token: u1Token
+          query: { gamemode: Gamemode.AHOP },
+          validatePaged: { type: MinimalLeaderboardRunDto, count: 3 },
+          token
+        });
+
+        for (const item of res.body.data) expect(item).toHaveProperty('user');
+      });
+
+      it("should return a list of a leaderboard's runs for a non-default trackType/Num", () =>
+        req.get({
+          url: `maps/${map.id}/leaderboard`,
+          status: 200,
+          query: {
+            gamemode: Gamemode.AHOP,
+            trackType: TrackType.STAGE,
+            trackNum: 1
+          },
+          validatePaged: { type: MinimalLeaderboardRunDto, count: 1 },
+          token
         }));
 
-      it('should return only runs for a single player when given the query param playerID', async () => {
-        const res = await req.get({
-          url: `maps/${map.id}/ranks`,
-          status: 200,
-          query: { playerID: u2.id },
-          validatePaged: { type: RankDto, count: 1 },
-          token: u1Token
-        });
-
-        expect(res.body.data[0]).toMatchObject({
-          mapID: map.id,
-          userID: u2.id,
-          flags: 1,
-          rank: 2
-        });
-      });
-
-      it('should return only runs for a set of players when given the query param playerIDs', async () => {
-        const res = await req.get({
-          url: `maps/${map.id}/ranks`,
-          status: 200,
-          query: { playerIDs: `${u1.id},${u2.id}` },
-          validatePaged: { type: RankDto, count: 2 },
-          token: u1Token
-        });
-
-        for (const rank of res.body.data)
-          expect([u1.id, u2.id]).toContain(rank.userID);
-      });
-
-      it('should return only runs with specific flags when given the query param flags', async () => {
-        const res = await req.get({
-          url: `maps/${map.id}/ranks`,
-          status: 200,
-          query: { flags: 1 },
-          validatePaged: { type: RankDto, count: 2 },
-          token: u1Token
-        });
-
-        for (const rank of res.body.data)
-          expect([u1.id, u2.id]).toContain(rank.userID);
-      });
+      it('should 400 if missing a gamemode', () =>
+        req.get({
+          url: `maps/${map.id}/leaderboard`,
+          status: 400,
+          token
+        }));
 
       it('should order the list by date when given the query param orderByDate', () =>
         req.sortByDateTest({
-          url: `maps/${map.id}/ranks`,
-          query: { orderByDate: true },
-          validate: RankDto,
-          token: u1Token
+          url: `maps/${map.id}/leaderboard`,
+          query: { gamemode: Gamemode.AHOP, orderByDate: true },
+          validate: MinimalLeaderboardRunDto,
+          token
         }));
 
       it('should be ordered by rank by default', () =>
         req.sortTest({
-          url: `maps/${map.id}/ranks`,
-          validate: RankDto,
+          url: `maps/${map.id}/leaderboard`,
+          validate: MinimalLeaderboardRunDto,
+          query: { gamemode: Gamemode.AHOP },
           sortFn: (a, b) => a.time - b.time,
-          token: u1Token
+          token
         }));
 
       it('should respond with filtered map data using the skip parameter', () =>
         req.skipTest({
-          url: `maps/${map.id}/ranks`,
-          validate: RankDto,
-          token: u1Token
+          url: `maps/${map.id}/leaderboard`,
+          query: { gamemode: Gamemode.AHOP },
+          validate: MinimalLeaderboardRunDto,
+          token
         }));
 
       it('should respond with filtered map data using the take parameter', () =>
         req.takeTest({
-          url: `maps/${map.id}/ranks`,
-          validate: RankDto,
-          token: u1Token
+          url: `maps/${map.id}/leaderboard`,
+          query: { gamemode: Gamemode.AHOP },
+          validate: MinimalLeaderboardRunDto,
+          token
         }));
 
       // Test that permissions checks are getting called
@@ -1452,9 +1450,10 @@ describe('Maps Part 2', () => {
         });
 
         await req.get({
-          url: `maps/${map.id}/ranks`,
+          url: `maps/${map.id}/leaderboard`,
+          query: { gamemode: Gamemode.AHOP },
           status: 403,
-          token: u1Token
+          token
         });
 
         await prisma.mMap.update({
@@ -1464,304 +1463,60 @@ describe('Maps Part 2', () => {
       });
 
       it('should return 404 for a nonexistent map', () =>
-        req.get({ url: `maps/${NULL_ID}/ranks`, status: 404, token: u1Token }));
-
-      it('should 401 when no access token is provided', () =>
-        req.unauthorizedTest('maps/1/ranks', 'get'));
-    });
-  });
-
-  describe('maps/{mapID}/ranks/{rankNumber}', () => {
-    describe('GET', () => {
-      let user, token, map;
-
-      beforeAll(
-        async () =>
-          ([[user, token], map] = await Promise.all([
-            db.createAndLoginUser(),
-            prisma.mMap.create({
-              data: {
-                name: 'surf_ronweasley',
-                status: MapStatus.APPROVED,
-                tracks: {
-                  createMany: {
-                    data: [
-                      {
-                        trackNum: 0,
-                        numZones: 2,
-                        isLinear: true,
-                        difficulty: 1
-                      },
-                      {
-                        trackNum: 1,
-                        numZones: 1,
-                        isLinear: false,
-                        difficulty: 2
-                      }
-                    ]
-                  }
-                }
-              }
-            })
-          ]))
-      );
-
-      afterAll(() => db.cleanup('user', 'mMap'));
-      afterEach(() => db.cleanup('run'));
-
-      it('should return the rank info for the rank and map specified', async () => {
-        await db.createRunAndRankForMap({
-          map: map,
-          user: user,
-          rank: 1,
-          ticks: 1
-        });
-
-        const res = await req.get({
-          url: `maps/${map.id}/ranks/1`,
-          status: 200,
-          validate: RankDto,
-          token: token
-        });
-
-        expect(res.body).toMatchObject({
-          rank: 1,
-          mapID: map.id,
-          userID: user.id
-        });
-
-        const run2 = await db.createRunAndRankForMap({
-          map: map,
-          rank: 2,
-          ticks: 2
-        });
-
-        const res2 = await req.get({
-          url: `maps/${map.id}/ranks/2`,
-          status: 200,
-          validate: RankDto,
-          token: token
-        });
-
-        expect(res2.body).toMatchObject({
-          rank: 2,
-          mapID: map.id,
-          userID: run2.user.id
-        });
-      });
-
-      it('should return the rank info for the rank and map and flags specified', async () => {
-        await db.createRunAndRankForMap({
-          map: map,
-          user: user,
-          rank: 1,
-          ticks: 1,
-          flags: 0
-        });
-        const flagRun = await db.createRunAndRankForMap({
-          map: map,
-          rank: 1,
-          ticks: 1,
-          flags: 1
-        });
-
-        const res = await req.get({
-          url: `maps/${map.id}/ranks/1`,
-          status: 200,
-          validate: RankDto,
-          query: { flags: 1 },
-          token: token
-        });
-
-        // Check that we actually get the run with the special flags back, not
-        // `user`'s run with flags: 0
-        expect(res.body).toMatchObject({
-          rank: 1,
-          flags: 1,
-          mapID: map.id,
-          userID: flagRun.user.id,
-          runID: Number(flagRun.id)
-        });
-      });
-
-      it('should return the rank info for the rank and map and trackNum specified', async () => {
-        await db.createRunAndRankForMap({
-          map: map,
-          user: user,
-          rank: 1,
-          ticks: 1,
-          trackNum: 0
-        });
-        const trackNumRun = await db.createRunAndRankForMap({
-          map: map,
-          rank: 1,
-          ticks: 1,
-          trackNum: 1
-        });
-
-        const res = await req.get({
-          url: `maps/${map.id}/ranks/1`,
-          status: 200,
-          validate: RankDto,
-          query: { trackNum: 1 },
-          token: token
-        });
-
-        expect(res.body).toMatchObject({
-          rank: 1,
-          trackNum: 1,
-          mapID: map.id,
-          userID: trackNumRun.user.id,
-          runID: Number(trackNumRun.id)
-        });
-      });
-
-      it('should return the rank info for the rank and map and zoneNum specified', async () => {
-        await db.createRunAndRankForMap({
-          map: map,
-          user: user,
-          rank: 1,
-          ticks: 1,
-          zoneNum: 0
-        });
-        const zoneNum = await db.createRunAndRankForMap({
-          map: map,
-          rank: 1,
-          ticks: 1,
-          zoneNum: 1
-        });
-
-        const res = await req.get({
-          url: `maps/${map.id}/ranks/1`,
-          status: 200,
-          validate: RankDto,
-          query: { zoneNum: 1 },
-          token: token
-        });
-
-        expect(res.body).toMatchObject({
-          rank: 1,
-          zoneNum: 1,
-          mapID: map.id,
-          userID: zoneNum.user.id,
-          runID: Number(zoneNum.id)
-        });
-      });
-
-      // Test that permissions checks are getting called
-      it('should 403 if the user does not have permission to access to the map', async () => {
-        await prisma.mMap.update({
-          where: { id: map.id },
-          data: { status: MapStatusNew.PRIVATE_TESTING }
-        });
-
-        await req.get({
-          url: `maps/${map.id}/ranks/1`,
-          status: 403,
-          token: token
-        });
-
-        await prisma.mMap.update({
-          where: { id: map.id },
-          data: { status: MapStatusNew.APPROVED }
-        });
-      });
-
-      it('should 404 for a nonexistent map', () =>
-        req.get({ url: `maps/${NULL_ID}/ranks/1`, status: 404, token: token }));
-
-      it('should 404 for a nonexistent rank', () =>
         req.get({
-          url: `maps/${map.id}/ranks/${NULL_ID}`,
+          url: `maps/${NULL_ID}/leaderboard`,
+          query: { gamemode: Gamemode.AHOP },
           status: 404,
-          token: token
+          token
         }));
 
       it('should 401 when no access token is provided', () =>
-        req.unauthorizedTest('maps/1/ranks/1', 'get'));
+        req.unauthorizedTest('maps/1/leaderboard', 'get'));
     });
-  });
 
-  describe('maps/{mapID}/ranks/around', () => {
-    describe('GET', () => {
+    describe("GET - 'around' filter", () => {
       let map, user7Token, runs;
 
       beforeAll(async () => {
         map = await db.createMap();
         runs = await Promise.all(
-          Array.from({ length: 12 }, (_, i) =>
-            db.createRunAndRankForMap({
+          Array.from({ length: 20 }, (_, i) =>
+            db.createLbRun({
               map: map,
               rank: i + 1,
-              ticks: (i + 1) * 100
+              time: (i + 1) * 100
             })
           )
         );
         user7Token = auth.login(runs[6].user);
       });
 
-      afterAll(() => db.cleanup('user', 'mMap', 'run'));
+      afterAll(() => db.cleanup('leaderboardRun', 'pastRun', 'user', 'mMap'));
 
       it('should return a list of ranks around your rank', async () => {
         const res = await req.get({
-          url: `maps/${map.id}/ranks/around`,
+          url: `maps/${map.id}/leaderboard`,
+          query: { gamemode: Gamemode.AHOP, filter: 'around', take: 8 },
           status: 200,
           token: user7Token,
-          validatePaged: { type: RankDto, count: 11 }
+          validatePaged: { type: MinimalLeaderboardRunDto, count: 9 }
         });
 
-        // We're calling as user 7, so we expect ranks 2-6, our rank, then 8-12
-        let rankIndex = 2;
+        // We're calling as user 7, taking 4 on each side, so we expect ranks
+        // 3, 4, 5, 6, our rank, 8, 9, 10, 11
+        let rankIndex = 3;
         for (const rank of res.body.data) {
-          expect(rank).toBeValidDto(RankDto);
+          expect(rank).toBeValidDto(MinimalLeaderboardRunDto);
           expect(rank.rank).toBe(rankIndex);
           rankIndex++;
         }
-        // Last tested was 12, then incremented once more, should be sitting on
-        // 13.
-        expect(rankIndex).toBe(13);
+        // Last tested was 11, then incremented once more, should be sitting on
+        // 12.
+        expect(rankIndex).toBe(12);
       });
-
-      // Test that permissions checks are getting called
-      it('should 403 if the user does not have permission to access to the map', async () => {
-        await prisma.mMap.update({
-          where: { id: map.id },
-          data: { status: MapStatusNew.PRIVATE_TESTING }
-        });
-
-        await req.get({
-          url: `maps/${map.id}/ranks/around`,
-          status: 403,
-          token: user7Token
-        });
-
-        await prisma.mMap.update({
-          where: { id: map.id },
-          data: { status: MapStatusNew.APPROVED }
-        });
-      });
-
-      it('should return 404 for a nonexistent map', () =>
-        req.get({
-          url: `maps/${NULL_ID}/ranks/around`,
-          status: 404,
-          token: user7Token
-        }));
-
-      it("should return 400 if rankNum isn't a number or around or friends", () =>
-        req.get({
-          url: `maps/${map.id}/ranks/abcd`,
-          status: 400,
-          token: user7Token
-        }));
-
-      it('should 401 when no access token is provided', () =>
-        req.unauthorizedTest('maps/1/ranks/around', 'get'));
     });
-  });
 
-  describe('maps/{mapID}/ranks/friends', () => {
-    describe('GET', () => {
+    describe("GET - 'friends' filter", () => {
       const mockSteamIDs = [1n, 2n, 3n, 4n, 5n, 6n, 7n, 8n, 9n, 10n] as const;
       let map, user, token, steamService: SteamService;
 
@@ -1777,23 +1532,23 @@ describe('Maps Part 2', () => {
 
         // Make our user rank 1, friends have subsequent ranks 2-11.
         for (const [i, user] of friends.entries())
-          await db.createRunAndRankForMap({
+          await db.createLbRun({
             map: map,
             user: user,
             rank: i + 2,
-            ticks: (i + 2) * 1000
+            time: (i + 2) * 1000
           });
 
-        await db.createRunAndRankForMap({
+        await db.createLbRun({
           user: user,
           map: map,
-          ticks: 1,
+          time: 1,
           rank: 1
         });
       });
 
       it("should return a list of the user's Steam friend's ranks", async () => {
-        // Obviously our test users aren't real Steam users, so we can't use their API. So just mock the API call.
+        // Mock the call to Steam's API
         jest.spyOn(steamService, 'getSteamFriends').mockResolvedValueOnce(
           mockSteamIDs.map((id) => ({
             steamid: id.toString(),
@@ -1803,25 +1558,135 @@ describe('Maps Part 2', () => {
         );
 
         const res = await req.get({
-          url: `maps/${map.id}/ranks/friends`,
+          url: `maps/${map.id}/leaderboard`,
+          query: { gamemode: Gamemode.AHOP, filter: 'friends' },
           status: 200,
           token,
-          validatePaged: { type: RankDto, count: 10 }
+          validatePaged: { type: MinimalLeaderboardRunDto, count: 10 }
         });
 
-        for (const rank of res.body.data)
-          expect(mockSteamIDs).toContain(BigInt(rank.user.steamID));
+        for (const run of res.body.data)
+          expect(mockSteamIDs).toContain(BigInt(run.user.steamID));
       });
 
       it('should 418 if the user has no Steam friends', async () => {
         jest.spyOn(steamService, 'getSteamFriends').mockResolvedValueOnce([]);
 
         return req.get({
-          url: `maps/${map.id}/ranks/friends`,
+          url: `maps/${map.id}/leaderboard`,
+          query: { gamemode: Gamemode.AHOP, filter: 'friends' },
           status: 418,
           token
         });
       });
+    });
+  });
+
+  describe('maps/{mapID}/leaderboard/run', () => {
+    describe('GET', () => {
+      let u1, token, u2, map;
+
+      beforeAll(async () => {
+        [[u1, token], u2, map] = await Promise.all([
+          db.createAndLoginUser(),
+          db.createUser(),
+          db.createMapWithFullLeaderboards()
+        ]);
+
+        await db.createLbRun({
+          map: map,
+          user: u1,
+          rank: 1,
+          time: 1
+        });
+
+        await db.createLbRun({
+          map: map,
+          user: u2,
+          rank: 2,
+          time: 2
+        });
+
+        await db.createLbRun({
+          map: map,
+          user: u2,
+          trackType: TrackType.STAGE,
+          trackNum: 1,
+          rank: 1,
+          time: 2
+        });
+      });
+
+      afterAll(() => db.cleanup('leaderboardRun', 'pastRun', 'user', 'mMap'));
+
+      it('should return a run for a specific userID', async () => {
+        const res = await req.get({
+          url: `maps/${map.id}/leaderboard/run`,
+          status: 200,
+          query: { gamemode: Gamemode.AHOP, userID: u1.id },
+          validate: LeaderboardRunDto,
+          token
+        });
+
+        expect(res.body).toMatchObject({
+          rank: 1,
+          mapID: map.id,
+          userID: u1.id
+        });
+      });
+
+      it('should return a run on a stage track', async () => {
+        const res = await req.get({
+          url: `maps/${map.id}/leaderboard/run`,
+          status: 200,
+          query: {
+            gamemode: Gamemode.AHOP,
+            userID: u2.id,
+            trackType: TrackType.STAGE,
+            trackNum: 1
+          },
+          validate: LeaderboardRunDto,
+          token
+        });
+
+        expect(res.body).toMatchObject({
+          rank: 1,
+          mapID: map.id,
+          userID: u2.id
+        });
+      });
+
+      it('should return a run for a specific rank', async () => {
+        const res = await req.get({
+          url: `maps/${map.id}/leaderboard/run`,
+          status: 200,
+          query: { gamemode: Gamemode.AHOP, rank: 2 },
+          validate: LeaderboardRunDto,
+          token
+        });
+
+        expect(res.body).toMatchObject({
+          rank: 2,
+          mapID: map.id,
+          userID: u2.id
+        });
+      });
+
+      it('should 400 if given both userID and rank', async () =>
+        req.get({
+          url: `maps/${map.id}/leaderboard/run`,
+          status: 400,
+          query: { gamemode: Gamemode.AHOP, rank: 1, userID: u1.id },
+          token
+        }));
+
+      it('should 400 if given neither userID or rank', async () =>
+        req.get({
+          url: `maps/${map.id}/leaderboard/run`,
+          status: 400,
+          query: { gamemode: Gamemode.AHOP },
+          token
+        }));
 
       // Test that permissions checks are getting called
       it('should 403 if the user does not have permission to access to the map', async () => {
@@ -1831,7 +1696,8 @@ describe('Maps Part 2', () => {
         });
 
         await req.get({
-          url: `maps/${map.id}/ranks/friends`,
+          url: `maps/${map.id}/leaderboard/run`,
+          query: { gamemode: Gamemode.AHOP, userID: u1.id },
           status: 403,
           token
         });
@@ -1842,17 +1708,23 @@ describe('Maps Part 2', () => {
         });
       });
 
-      it('should return 404 for a nonexistent map', () =>
+      it('should 404 for a nonexistent map', () =>
         req.get({
-          url: `maps/${NULL_ID}/ranks/friends`,
+          url: `maps/${NULL_ID}/leaderboard/run`,
+          query: { gamemode: Gamemode.AHOP, userID: u1.id },
+          status: 404,
+          token
+        }));
+
+      it('should 404 for a nonexistent rank', () =>
+        req.get({
+          url: `maps/${map.id}/leaderboard/${NULL_ID}/run`,
           status: 404,
           token
         }));
 
       it('should 401 when no access token is provided', () =>
-        req.unauthorizedTest('maps/1/ranks/friends', 'get'));
-
-      afterAll(() => db.cleanup('user', 'mMap', 'run'));
+        req.unauthorizedTest('maps/1/leaderboard/run', 'get'));
     });
   });
 
