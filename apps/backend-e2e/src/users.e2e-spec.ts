@@ -45,7 +45,7 @@ describe('Users', () => {
         token = auth.login(users[0]);
       });
 
-      afterAll(() => db.cleanup('user', 'mMap', 'run'));
+      afterAll(() => db.cleanup('user', 'mMap'));
 
       it('should respond with paged list of users', async () => {
         const res = await req.get({
@@ -163,30 +163,6 @@ describe('Users', () => {
           token: token
         }));
 
-      it('should respond with the specified user with with a corresponding map rank and run when given a mapRank mapid', async () => {
-        const map = await db.createMap();
-        const run = await db.createRunAndRankForMap({
-          map: map,
-          user: users[0],
-          rank: 1,
-          ticks: 1
-        });
-
-        const res = await req.get({
-          url: 'users',
-          status: 200,
-          query: { mapRank: map.id, steamID: users[0].steamID },
-          token: token
-        });
-
-        expect(res.body.data[0].mapRank).toMatchObject({
-          mapID: map.id,
-          userID: users[0].id,
-          runID: Number(run.id),
-          rank: 1
-        });
-      });
-
       it('should 401 when no access token is provided', () =>
         req.unauthorizedTest('users', 'get'));
     });
@@ -206,7 +182,7 @@ describe('Users', () => {
           }))
       );
 
-      afterAll(() => db.cleanup('user', 'mMap', 'run'));
+      afterAll(() => db.cleanup('user', 'mMap'));
 
       it('should respond with the specified user', async () => {
         const res = await req.get({
@@ -239,31 +215,6 @@ describe('Users', () => {
           expand: 'profile',
           token: token
         }));
-
-      it('should respond with the specified user with with a corresponding map rank and run when given a mapRank mapid', async () => {
-        const map = await db.createMap();
-        const run = await db.createRunAndRankForMap({
-          map: map,
-          user: user,
-          rank: 1,
-          ticks: 1
-        });
-
-        const res = await req.get({
-          url: `users/${user.id}`,
-          status: 200,
-          query: { mapRank: map.id },
-          validate: UserDto,
-          token: token
-        });
-
-        expect(res.body.mapRank).toMatchObject({
-          mapID: map.id,
-          userID: user.id,
-          runID: Number(run.id),
-          rank: 1
-        });
-      });
 
       it('should 404 if the user is not found', () =>
         req.get({ url: `users/${NULL_ID}`, status: 404, token: token }));

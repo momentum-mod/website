@@ -61,7 +61,7 @@ export class UsersController {
     @Param('userID', ParseIntSafePipe) userID: number,
     @Query() query?: UsersGetQueryDto
   ): Promise<UserDto> {
-    return this.usersService.get(userID, query.expand, query.mapRank);
+    return this.usersService.get(userID, query.expand);
   }
 
   //#endregion
