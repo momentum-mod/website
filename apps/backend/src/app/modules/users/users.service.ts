@@ -10,10 +10,10 @@ import {
 } from '@nestjs/common';
 import {
   Follow,
+  LeaderboardRun,
   MapFavorite,
   MMap,
   Prisma,
-  Rank,
   User,
   UserAuth
 } from '@prisma/client';
@@ -703,7 +703,7 @@ export class UsersService {
         },
         {
           expand: 'personalBest',
-          model: 'ranks',
+          model: 'leaderboardRuns',
           value: { where: { userID } }
         }
       ]
@@ -715,7 +715,7 @@ export class UsersService {
     };
 
     const dbResponse: [
-      (MapFavorite & { mmap?: MMap & { personalBest?: Rank } })[],
+      (MapFavorite & { mmap?: MMap & { personalBest?: LeaderboardRun } })[],
       number
     ] = await this.db.mapFavorite.findManyAndCount({
       where,
@@ -726,10 +726,13 @@ export class UsersService {
 
     if (expand?.includes('personalBest')) {
       for (const { mmap } of dbResponse[0] as (MapFavorite & {
-        mmap?: MMap & { personalBest?: Rank; ranks?: Rank[] };
+        mmap?: MMap & {
+          personalBest?: LeaderboardRun;
+          leaderboardRuns?: LeaderboardRun[];
+        };
       })[]) {
-        mmap.personalBest = mmap.ranks[0];
-        delete mmap.ranks;
+        mmap.personalBest = mmap.leaderboardRuns[0];
+        delete mmap.leaderboardRuns;
       }
     }
 
