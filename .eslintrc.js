@@ -49,6 +49,7 @@ module.exports = {
             allowEmptyCatch: true
           }
         ],
+        eqeqeq: ['error', 'smart'],
         '@typescript-eslint/no-empty-function': [
           'error',
           {
@@ -156,7 +157,8 @@ module.exports = {
         // Sometimes we want things like `mockResolvedValue(undefined)` in
         // tests. Rule below this handles the actually bad cases.
         'unicorn/no-useless-undefined': ['off'],
-        'no-undef-init': ['error']
+        'no-undef-init': ['error'],
+        eqeqeq: ['off']
       }
     },
     {
