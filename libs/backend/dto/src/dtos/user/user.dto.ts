@@ -9,7 +9,6 @@ import {
 } from 'class-validator';
 import { Exclude, Expose } from 'class-transformer';
 import { ProfileDto } from './profile.dto';
-import { RankDto } from '../run/rank.dto';
 import { UserStatsDto } from './user-stats.dto';
 import {
   CreatedAtProperty,
@@ -87,11 +86,6 @@ export class UserDto implements User {
   @ApiProperty({ type: Number, description: "Bitfield of user's bans" })
   @IsInt()
   readonly bans: Bitfield;
-
-  @NestedProperty(RankDto, {
-    description: 'The map rank data for the user on a specific map'
-  })
-  readonly mapRank: RankDto;
 
   @CreatedAtProperty()
   readonly createdAt: Date;
