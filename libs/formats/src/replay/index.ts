@@ -1,3 +1,6 @@
+export * from './replay-reader';
+export * from './replay-writer';
+
 export interface Replay {
   magic: number;
   version: number;
