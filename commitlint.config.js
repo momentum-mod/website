@@ -32,6 +32,7 @@ module.exports = {
         'deps',
         'db',
         'utils',
+        'formats',
         'discord',
         'twitch'
       ]
