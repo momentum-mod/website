@@ -165,9 +165,7 @@ export class MapEditComponent implements OnInit, OnDestroy {
         mapID: -1,
         small: blobURL,
         medium: '',
-        large: '',
-        createdAt: undefined,
-        updatedAt: undefined
+        large: ''
         // file: img,
       });
     });

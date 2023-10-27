@@ -2,11 +2,7 @@ import { ApiProperty } from '@nestjs/swagger';
 import { IsUrl } from 'class-validator';
 import { Expose } from 'class-transformer';
 import { Config } from '@momentum/backend/config';
-import {
-  CreatedAtProperty,
-  IdProperty,
-  UpdatedAtProperty
-} from '../../decorators';
+import { IdProperty } from '../../decorators';
 import {
   imgLargePath,
   imgMediumPath,
@@ -53,10 +49,4 @@ export class MapImageDto implements MapImage {
   get large(): string {
     return `${ENDPOINT_URL}/${BUCKET}/${imgLargePath(this.id)}`;
   }
-
-  @CreatedAtProperty()
-  readonly createdAt: Date;
-
-  @UpdatedAtProperty()
-  readonly updatedAt: Date;
 }

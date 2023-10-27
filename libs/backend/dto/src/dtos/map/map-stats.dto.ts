@@ -6,10 +6,6 @@ import { MapStats } from '@momentum/constants';
 import { BaseStatsDto } from '../stats/base-stats.dto';
 
 export class MapStatsDto implements MapStats {
-  @ApiProperty()
-  @IsPositive()
-  readonly id: number;
-
   @Exclude()
   readonly mapID: number;
 
@@ -47,9 +43,6 @@ export class MapStatsDto implements MapStats {
   })
   @IsNumberString()
   readonly timePlayed: bigint;
-
-  @IdProperty({ bigint: true })
-  readonly baseStatsID: number;
 
   @NestedProperty(BaseStatsDto)
   readonly baseStats: BaseStatsDto;

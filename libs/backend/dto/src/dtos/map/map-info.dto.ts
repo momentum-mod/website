@@ -1,23 +1,9 @@
 ﻿import { CreateMapInfo, MapInfo, UpdateMapInfo } from '@momentum/constants';
 import { ApiProperty, PartialType, PickType } from '@nestjs/swagger';
 import { Exclude } from 'class-transformer';
-import {
-  IsDateString,
-  IsOptional,
-  IsPositive,
-  IsString,
-  Matches
-} from 'class-validator';
-import {
-  CreatedAtProperty,
-  IdProperty,
-  UpdatedAtProperty
-} from '../../decorators';
+import { IsDateString, IsOptional, IsString, Matches } from 'class-validator';
 
 export class MapInfoDto implements MapInfo {
-  @IdProperty()
-  readonly id: number;
-
   @Exclude()
   readonly mapID: number;
 
@@ -38,25 +24,14 @@ export class MapInfoDto implements MapInfo {
   readonly youtubeID: string;
 
   @ApiProperty()
-  @IsPositive()
-  readonly numTracks: number;
-
-  @ApiProperty()
   @IsDateString()
   readonly creationDate: Date;
-
-  @CreatedAtProperty()
-  readonly createdAt: Date;
-
-  @UpdatedAtProperty()
-  readonly updatedAt: Date;
 }
 
 export class CreateMapInfoDto
   extends PickType(MapInfoDto, [
     'description',
     'youtubeID',
-    'numTracks',
     'creationDate'
   ] as const)
   implements CreateMapInfo {}

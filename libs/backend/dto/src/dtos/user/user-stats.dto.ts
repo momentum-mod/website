@@ -45,10 +45,4 @@ export class UserStatsDto implements UserStats {
   })
   @IsNumberString()
   readonly totalStrafes: bigint;
-
-  @CreatedAtProperty()
-  readonly createdAt: Date;
-
-  @UpdatedAtProperty()
-  readonly updatedAt: Date;
 }
