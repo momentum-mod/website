@@ -126,9 +126,8 @@ module.exports = {
         'unicorn/prefer-module': ['off'],
         // Because of above.
         'unicorn/prefer-top-level-await': ['off'],
-        // Even though unicorn has a rule for no nested ternaries, it's
-        // insisting I make them due to this rule.
-        'unicorn/prefer-ternary': ['error', 'only-single-line'],
+        // Horrible for rethrowing errors
+        'unicorn/prefer-ternary': ['off'],
         // Better parity with other langauges, we use `1 << 0` frequently next
         // to other shifts when defining bit fields.
         'unicorn/prefer-math-trunc': ['off'],
