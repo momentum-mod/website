@@ -31,7 +31,7 @@ export interface ExpandToIncludesOptions<
 }
 
 /**
- * Transform an array of expansion strings into Prisma includes.
+ * Transform an array of expansion strings into Prisma includes/selects.
  *
  * Without `options`, just maps to an object containing each string as a key,
  * with `true` as its value, e.g:
