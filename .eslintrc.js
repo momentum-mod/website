@@ -144,15 +144,16 @@ module.exports = {
         // Abusable, but fine in some cases. Prefer to handle in review.
         'unicorn/no-array-callback-reference': ['off'],
         // A class may still wish to extend a class with only static members.
-        'unicorn/no-static-only-class': ['off']
+        'unicorn/no-static-only-class': ['off'],
+        // Methods scoped inside each other is often far better for readability
+        // of a class.
+        'unicorn/consistent-function-scoping': ['off']
       }
     },
     {
       files: ['*.spec.ts', '*.spec.js', '*.e2e-spec.ts'],
       env: { jest: true },
       rules: {
-        // These are very useful in tests and don't care about the perf hit.
-        'unicorn/consistent-function-scoping': ['off'],
         // Sometimes we want things like `mockResolvedValue(undefined)` in
         // tests. Rule below this handles the actually bad cases.
         'unicorn/no-useless-undefined': ['off'],
