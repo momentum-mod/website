@@ -65,7 +65,7 @@ export interface ExpandToIncludesOptions<
  */
 export function expandToIncludes<
   ModelInclude extends object,
-  Expansions extends string[]
+  Expansions extends string[] = string[]
 >(
   expansions?: Expansions,
   options?: ExpandToIncludesOptions<Expansions, ModelInclude>
