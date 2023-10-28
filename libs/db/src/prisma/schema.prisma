@@ -32,6 +32,8 @@ model User {
   mapNotifies       MapNotify[]
   notifications     Notification[]
   runSessions       RunSession[]
+  leaderboardRuns   LeaderboardRun[]
+  pastRuns          PastRun[]
   reportSubmitted   Report[]            @relation("report_submitter")
   reportResolved    Report[]            @relation("report_resolver")
   testingRequests   MapTestingRequest[]
@@ -169,6 +171,9 @@ model MMap {
   stats MapStats?
   info  MapInfo?
 
+  leaderboards    Leaderboard[]
+  leaderboardRuns LeaderboardRun[]
+  pastRuns        PastRun[]
   credits         MapCredit[]
   favorites       MapFavorite[]
   images          MapImage[]
@@ -372,6 +377,175 @@ model MapReviewComment {
   createdAt DateTime @default(now())
 
   @@index([reviewID])
+}
+
+/// This table stores what a tracks on a map a run can be submitted to, in what
+/// gamemode and style, plus metadata about that track in that gamemode e.g. its
+/// tier.
+///
+/// For example, surf_utopia probably just gets gamemode = Gamemode.SURF,
+/// trackType = TrackType.MAIN, trackNum = 0 entries, for all the styles surf
+/// supports, with ranked = true.
+/// A mode that supports several different gamemodes, and has stages,
+/// bonuses etc. is likely to have dozens of different entries, perhaps some
+/// ranked, others unranked.
+model Leaderboard {
+  mmap  MMap @relation(fields: [mapID], references: [id], onDelete: Cascade)
+  mapID Int
+
+  gamemode  Int @db.SmallInt
+  trackType Int @db.SmallInt
+  trackNum  Int @db.SmallInt
+  style     Int @db.SmallInt
+
+  // Optional as these don't necessarily apply to stages/bonuses
+  tier   Int?     @db.SmallInt
+  linear Boolean?
+
+  ranked Boolean
+
+  tags Json @default("[]")
+
+  runs LeaderboardRun[]
+
+  @@id([mapID, gamemode, trackType, trackNum, style])
+}
+
+/// This table stores runs _on a leaderboard_. An entry is a unique
+/// instance of a userID and the fields that constitute a Leaderboard (`mapID`,
+/// `gamemode`, `trackType`, `trackNum`, `style`). By using that combination in
+/// our PK, we ensure those entries are unique at a DB level.
+///
+/// We use B-Tree two indexes
+///   - (userID, gamemode, style, mapID, trackType, trackNum): For fetching runs by user for e.g. profile page.
+///     Also is a UNIQUE constraint.
+///   - (mapID, gamemode, trackType, trackNum, style, time (asc), createdAt (asc)): Indexes in leaderboard order.
+///     The idea is we get every distinct leaderboard stacked on top of each other, then ordered by time within the chunk,
+///     where ties are simply handled by whatever was submitted first. Note that we store any actual "rank" values - incrementing
+///     ranks for all slower runs on a leaderboard is an incredibly slow operation. (TODO: This hasn't been implemented yet).
+///     Instead, we index this way to allow us to very efficiently compute ranks per query using window functions. 
+model LeaderboardRun {
+  leaderboard Leaderboard @relation(fields: [mapID, gamemode, trackType, trackNum, style], references: [mapID, gamemode, trackType, trackNum, style], onDelete: Cascade)
+
+  user   User @relation(fields: [userID], references: [id], onDelete: Restrict)
+  userID Int
+
+  mmap  MMap @relation(fields: [mapID], references: [id], onDelete: Cascade)
+  mapID Int
+
+  gamemode  Int @db.SmallInt
+  trackType Int @db.SmallInt
+  trackNum  Int @db.SmallInt
+  style     Int @db.SmallInt
+
+  /// We don't store ticks in anticipation of future sub-tick system. If ticks 
+  /// are required, they can be calculated with `time * tickrate of gamemode`.
+  time Float @db.Real
+
+  /// We store this for LeaderboardRun and *not* PastRun for space efficiency.
+  stats Json /// run-stats.model.ts
+
+  // validated  Boolean // TODO: We'll be using this in future and blocking a bunch of stuff from DTO if false
+  replayHash String? @db.Char(40) /// SHA1
+
+  /// Flags are all the styles are run qualifies for. A styled run may qualify
+  /// for multiple leaderboards, and an separate entry is made for each. 
+  /// For example, a sideways surf run (for some track) would be added to the
+  /// sideways leaderboard and unstyled leaderboard. This field is used to "tag"
+  /// runs one leaderboard as also qualifying for another, e.g. the sideways 
+  /// run would get a "Sideways" tag on the unstyled leaderboard.
+  // This is an array because (a) it allows easier queries for specific flag(s)
+  // in Prisma (writing the paginated PastRuns get query raw would be really
+  // rough, though we could if absolutely needed), (b) we could conceivable
+  // exceed 64 flags at some point. This is of course a very large table where
+  // we care about size a great deal, though we expect the *majority* of runs
+  // to not to have any non-zero flags.
+  // If we need to cut back on the size of this table in the future, we could
+  // consider moving this to a bitfield (or adopting pguint for small values).
+  // But most runs submitted will not to have any flags, so it's probably okay.
+  flags Int[] @db.SmallInt
+
+  rank   Int  @db.Integer // TODO: SoonTM we'll stop storing this and just use a window function over the `time` column.
+  rankXP Int? @default(0) // TODO: And this shit will live in redis
+
+  createdAt DateTime @default(now())
+
+  pastRun   PastRun? @relation(fields: [pastRunID], references: [id])
+  pastRunID BigInt?  @unique
+
+  // Tempting to add a (userID, createdAt) index here for e.g. user profile
+  // page, but the PK index starting with `userID` will do some of the work
+  // anyway, proooobably not worth the space. Worth testing out on live DB in
+  // future!
+
+  // Unique index starting with userID then profile, for queries like a user's
+  // run history.
+  @@id([userID, gamemode, style, mapID, trackType, trackNum])
+  @@index([mapID, gamemode, trackType, trackNum, style, time(sort: Asc), createdAt(sort: Asc)])
+}
+
+/// Very similar to `LeaderboardRun`, but also includes non-PB runs, and
+/// therefore doesn't really correspond to a leaderboard - rather all the runs
+///that ever qualified for that leaderboard in the past. Used for tracking
+/// user's run history.
+model PastRun {
+  // We could use a composite PK here as `LeaderboardRun` does, using createdAt
+  // in the key to ensure uniqueness, but that has several disadvantages:
+  //   - Postgres would have to handle a much more expensive unique index, on
+  //     a table with very frequent inserts - doubling the already painful cost
+  //     of inserts into the LBRun table.
+  //   - To maintain a relation between LBRuns and PastRuns (which we use), we'd
+  //     need a uniqueness constraint on LeaderboardRun consisting of the
+  //     current PK, with createdAt tacked the end - since Prisma/Postgres can't
+  //     infer that [userID, gamemode, style, mapID, trackType, trackNum, createdAt]
+  //     is unique from [userID, gamemode, style, mapID, trackType, trackNum]
+  //     being unique. So we'd have add another very expensive index on
+  //     LBRun, or make the PK include createdAt as well, but losing the
+  //     uniqueness *without* the createdAt makes backend code more annoying
+  //     and frustrating not to have enforced by the DB.
+  //   - HTTP queries for specific PastRuns would have to include the
+  //     createdAt.
+  //   - Using a createdAt in a PK just feels wrong.
+  // For now we're not querying this table all that often (the game never does,
+  // and nobody even uses the frontend) so we should prioritize speedy inserts
+  // over selects - so a incrementing int PK makes the most sense. If we find
+  // ourselves querying this more in the future (depends what direction game UI
+  // goes in), we should consider more indexing or maybe switching a composite
+  // PK.
+  id BigInt @id @default(autoincrement())
+
+  user   User @relation(fields: [userID], references: [id], onDelete: Restrict)
+  userID Int
+
+  mmap  MMap @relation(fields: [mapID], references: [id], onDelete: Cascade)
+  mapID Int
+
+  gamemode  Int @db.SmallInt
+  trackType Int @db.SmallInt
+  trackNum  Int @db.SmallInt
+  style     Int @db.SmallInt
+
+  time Float @db.Real
+
+  flags Int[] @db.SmallInt
+
+  leaderboardRun LeaderboardRun?
+
+  createdAt DateTime @default(now())
+
+  // Index for any query that's not specific to a user. But since id is strongly
+  // correlated with insertion date (so stuff is generally on same index pages),
+  // we probably don't gain much from this - worth testing at some point.
+  // @@index([createdAt(sort: Desc)])
+
+  // Not adding more fields to this index due to its size and frequency of
+  // insertion. [userID, createdAt, gamemode, style, mapID, trackType, trackNum]
+  // would speed up fetches quite a lot, but is an expensive index that'd hurt
+  // insertion times during run submission a lot.
+  // If we do a per-gamemode user page in the game UI in the future (that'd be
+  // queried *very* frequently and is user-specific so bad caching), indexing
+  // over [userID, gamemode, createdAt(desc)] would make a lot of sense.
+  @@index([userID])
 }
 
 model RunSession {
