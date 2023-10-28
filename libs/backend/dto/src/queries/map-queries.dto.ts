@@ -225,7 +225,7 @@ export class MapCreditsGetQueryDto
   extends QueryDto
   implements MapCreditsGetQuery
 {
-  @ExpandQueryProperty(['user'])
+  @SingleExpandQueryProperty('user')
   readonly expand?: MapCreditsGetExpand;
 }
 
