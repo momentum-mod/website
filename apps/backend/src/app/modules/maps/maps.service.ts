@@ -108,9 +108,7 @@ export class MapsService {
     @Inject(forwardRef(() => MapImageService))
     private readonly mapImageService: MapImageService,
     @Inject(forwardRef(() => MapTestingRequestService))
-    private readonly mapTestingRequestService: MapTestingRequestService,
-    @Inject(forwardRef(() => MapTestingRequestService))
-    private readonly mapCreditService: MapCreditsService
+    private readonly mapTestingRequestService: MapTestingRequestService
   ) {}
 
   private readonly baseMapsSelect: Prisma.MMapSelect = {
