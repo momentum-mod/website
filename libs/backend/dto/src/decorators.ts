@@ -89,7 +89,8 @@ export function NestedProperty<T>(
     }),
     TypeDecorator(() => type), // Note we rename the import, this is just class-transformer's @Type.
     ValidateNested(),
-    conditionalDecorator(!required, IsOptional)
+    conditionalDecorator(!required, IsOptional),
+    conditionalDecorator(options.isArray, IsArray)
   );
 }
 
