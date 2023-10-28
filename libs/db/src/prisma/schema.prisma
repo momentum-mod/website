@@ -276,11 +276,6 @@ model MapStats {
 
   mmap  MMap @relation(fields: [mapID], references: [id], onDelete: Cascade)
   mapID Int  @id
-
-  baseStats   BaseStats? @relation(fields: [baseStatsID], references: [id], onDelete: Cascade)
-  baseStatsID BigInt?    @unique
-
-  @@index([baseStatsID, mapID])
 }
 
 model MapTestingRequest {
@@ -372,30 +367,6 @@ model MapReviewComment {
   createdAt DateTime @default(now())
 
   @@index([reviewID])
-}
-
-model BaseStats {
-  id BigInt @id @default(autoincrement())
-
-  jumps          Int   @default(0)
-  strafes        Int   @default(0)
-  avgStrafeSync  Float @default(0) @db.Real
-  avgStrafeSync2 Float @default(0) @db.Real
-  enterTime      Float @default(0) @db.Real
-  totalTime      Float @default(0) @db.Real
-  velAvg3D       Float @default(0) @db.Real
-  velAvg2D       Float @default(0) @db.Real
-  velMax3D       Float @default(0) @db.Real
-  velMax2D       Float @default(0) @db.Real
-  velEnter3D     Float @default(0) @db.Real
-  velEnter2D     Float @default(0) @db.Real
-  velExit3D      Float @default(0) @db.Real
-  velExit2D      Float @default(0) @db.Real
-
-  mapStats MapStats?
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
 }
 
 model RunSession {
