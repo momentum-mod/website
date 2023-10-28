@@ -23,6 +23,7 @@ import {
 } from 'class-validator';
 import { IsBigintValidator } from '@momentum/backend/validators';
 import { intersection } from '@momentum/util-fn';
+import { Enum } from '@momentum/enum';
 
 /**
  * Well, kind of safe. This is an annoying transform we do to ensure that we
@@ -132,21 +133,26 @@ export function IdProperty(
  *                                       of `@IsOptional()`
  */
 export function EnumProperty(
-  type: { [key: number]: string },
+  type: { [key: number]: string | number },
+  options?: Omit<ApiPropertyOptions, 'type' | 'enum'>
+): PropertyDecorator;
+
+export function EnumProperty(
+  type: { [key: string]: string | number },
   options: Omit<ApiPropertyOptions, 'type' | 'enum'> = {}
 ): PropertyDecorator {
   const required = options?.required ?? true;
-  return applyDecorators(
-    ApiProperty({
-      type: Number,
-      enum: type,
-      ...options,
-      required: required
-    }),
-    TypeDecorator(() => Number),
+
+  const decorators = [
+    ApiProperty({ type: Number, enum: type, ...options, required }),
     IsEnum(type),
     conditionalDecorator(!required, IsOptional)
-  );
+  ];
+
+  if (typeof Enum.values(type)[0] == 'number')
+    decorators.push(TypeDecorator(() => Number));
+
+  return applyDecorators(...decorators);
 }
 
 /**
@@ -414,7 +420,7 @@ export function BigIntQueryProperty(
  * Optional by default!
  * */
 export function EnumQueryProperty(
-  type: { [key: number]: string },
+  type: { [key: number]: string | number },
   options: Omit<ApiPropertyOptions, 'type' | 'enum'> = {}
 ) {
   const opts = { required: false, ...options };
