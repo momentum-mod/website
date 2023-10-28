@@ -181,7 +181,10 @@ model MMap {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
+  // This table is quite small but queried very frequently, so makes sense to index quite a few things.
   @@index([submitterID])
+  @@index([name])
+  @@index([status, createdAt(sort: Desc)])
 }
 
 model MapCredit {
