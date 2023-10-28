@@ -4,7 +4,7 @@ export type MapInfo = Omit<PrismaMapInfo, 'mapID'>;
 
 export type CreateMapInfo = Pick<
   MapInfo,
-  'description' | 'youtubeID' | 'numTracks' | 'creationDate'
+  'description' | 'youtubeID' | 'creationDate'
 >;
 
 export type UpdateMapInfo = Partial<
