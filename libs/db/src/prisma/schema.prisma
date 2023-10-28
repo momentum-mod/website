@@ -26,14 +26,12 @@ model User {
   mapCredits        MapCredit[]
   mapFavorites      MapFavorite[]
   mapLibraryEntries MapLibraryEntry[]
-  mapRanks          Rank[]
   activities        Activity[]
   follows           Follow[]            @relation("follow_follow")
   followers         Follow[]            @relation("follow_follower")
   mapNotifies       MapNotify[]
   notifications     Notification[]
   runSessions       RunSession[]
-  runs              Run[]
   reportSubmitted   Report[]            @relation("report_submitter")
   reportResolved    Report[]            @relation("report_resolver")
   testingRequests   MapTestingRequest[]
@@ -179,10 +177,8 @@ model MMap {
   images          MapImage[]
   libraryEntries  MapLibraryEntry[]
   notifies        MapNotify[]
-  ranks           Rank[]
   reviews         MapReview[]
   tracks          MapTrack[]
-  runs            Run[]
   submission      MapSubmission?
   testingRequests MapTestingRequest[]
 
@@ -380,13 +376,13 @@ model MapStats {
   uniqueCompletions Int    @default(0)
   timePlayed        BigInt @default(0) @db.BigInt
 
-  mmap  MMap @relation(fields: [mapID], references: [id], onDelete: Cascade)
+  mmap MMap @relation(fields: [mapID], references: [id], onDelete: Cascade)
 
   baseStats   BaseStats? @relation(fields: [baseStatsID], references: [id], onDelete: Cascade)
   baseStatsID BigInt?    @unique
+  mapID       Int        @id
 
   @@index([baseStatsID, mapID])
-  mapID Int  @id
 }
 
 model MapTestingRequest {
@@ -501,59 +497,9 @@ model BaseStats {
   mapTrackStats MapTrackStats?
   mapStats      MapStats?
   mapZoneStats  MapZoneStats?
-  runZoneStats  RunZoneStats?
-  run           Run?
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-}
-
-model Run {
-  id BigInt @id @default(autoincrement())
-
-  trackNum Int    @db.SmallInt
-  zoneNum  Int    @db.SmallInt
-  ticks    Int
-  tickRate Float  @db.Real
-  time     Float  @db.Real
-  flags    Int
-  file     String
-  hash     String @db.Char(40)
-
-  rank Rank?
-
-  overallStats   BaseStats? @relation(fields: [overallStatsID], references: [id], onDelete: Cascade)
-  overallStatsID BigInt?    @unique
-
-  zoneStats RunZoneStats[]
-
-  mmap  MMap @relation(fields: [mapID], references: [id], onDelete: Cascade)
-  mapID Int
-
-  user   User? @relation(fields: [userID], references: [id], map: "run_user_fk", onDelete: SetNull)
-  userID Int?
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  @@index([overallStatsID, mapID, userID, flags])
-}
-
-model RunZoneStats {
-  id Int @id @default(autoincrement())
-
-  zoneNum Int @default(0) @db.SmallInt
-
-  run   Run    @relation(fields: [runID], references: [id], onDelete: Cascade)
-  runID BigInt
-
-  baseStats   BaseStats? @relation(fields: [baseStatsID], references: [id], onDelete: Cascade)
-  baseStatsID BigInt?    @unique
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  @@index([baseStatsID, runID])
 }
 
 model RunSession {
@@ -586,28 +532,6 @@ model RunSessionTimestamp {
   createdAt DateTime @default(now())
 
   @@index([sessionID])
-}
-
-model Rank {
-  id       Int  @id @default(autoincrement())
-  gameType Int  @db.SmallInt
-  flags    Int  @default(0)
-  rank     Int? // Making this @unique would be quite nice but it'd probably shit itself when doing batch rank +1 increases
-  rankXP   Int? @default(0)
-
-  mmap  MMap @relation(fields: [mapID], references: [id], onDelete: Cascade)
-  mapID Int
-
-  user   User @relation(fields: [userID], references: [id], onDelete: Cascade)
-  userID Int
-
-  run   Run    @relation(fields: [runID], references: [id], onDelete: Cascade)
-  runID BigInt @unique
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  @@index([runID, userID])
 }
 
 model XpSystems {
