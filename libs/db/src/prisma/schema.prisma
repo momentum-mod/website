@@ -158,6 +158,7 @@ model MMap {
   status   Int     @db.SmallInt /// map-status.enum.ts
   hash     String? @db.Char(40)
   hasVmf   Boolean @default(false)
+  zones    Json? /// map-zones.model.ts
 
   thumbnail   MapImage? @relation("mapimage_thumbnail", fields: [thumbnailID], references: [id], onDelete: SetNull)
   thumbnailID Int?      @unique
@@ -318,6 +319,7 @@ model MapSubmissionVersion {
   changelog  String?
   hash       String  @db.Char(40)
   hasVmf     Boolean @default(false)
+  zones      Json? /// map-zones.model.ts
 
   submission   MapSubmission @relation(fields: [submissionID], references: [mapID], onDelete: Cascade)
   submissionID Int
