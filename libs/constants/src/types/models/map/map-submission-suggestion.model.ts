@@ -1,10 +1,11 @@
 import { Gamemode, TrackType } from '../../../';
 
 export interface MapSubmissionSuggestion {
+  // TODO: #855 extends JsonObject {
   trackType: TrackType;
   trackNum: number;
   gamemode: Gamemode;
   tier: number;
-  comment: string;
   ranked: boolean;
+  comment?: string;
 }
