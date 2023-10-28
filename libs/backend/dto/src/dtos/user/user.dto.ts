@@ -1,4 +1,4 @@
-import { Bitfield, Role, User } from '@momentum/constants';
+import { Bitfield, MergeUser, Role, User } from '@momentum/constants';
 import { ApiProperty, ApiPropertyOptional, PickType } from '@nestjs/swagger';
 import {
   IsInt,
@@ -146,7 +146,7 @@ export class AdminUpdateUserDto extends UpdateUserDto {
   bans?: Bitfield<Ban>;
 }
 
-export class MergeUserDto {
+export class MergeUserDto implements MergeUser {
   @IdProperty({
     description: 'The ID of the placeholder user to merge into the actual user'
   })
