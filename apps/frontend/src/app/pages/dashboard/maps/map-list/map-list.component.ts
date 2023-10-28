@@ -78,7 +78,6 @@ export class MapListComponent implements OnInit {
     this.types = [
       { value: undefined, text: 'All' },
       ...Enum.values(Gamemode)
-        .filter((status) => status !== Gamemode.UNKNOWN)
         .map((status) => ({ value: status, text: GamemodeName.get(status) }))
         .sort((a, b) => (a.text > b.text ? 1 : -1))
     ];
