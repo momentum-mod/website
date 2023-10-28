@@ -15,6 +15,7 @@ export * from './map/map-review-edit.model';
 export * from './map/map-review-comment.model';
 export * from './map/map-review-suggestion.model';
 export * from './map/map-testing-request.model';
+export * from './map/map-zones.model';
 export * from './run/run.model';
 export * from './run/rank.model';
 export * from './run/run-session.model';

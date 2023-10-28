@@ -73,6 +73,12 @@ export class MapDto implements MMap {
   @EnumProperty(MapStatusNew)
   readonly status: MapStatusNew;
 
+  @NestedProperty(MapZonesDto, {
+    required: false,
+    description: 'Zones for the map'
+  })
+  readonly zones: MapZonesDto;
+
   @ApiProperty({ type: String, description: 'URL to BSP in storage' })
   @Expose()
   @IsOptional()
@@ -198,6 +204,11 @@ export class CreateMapDto
   @NestedProperty(CreateMapInfoDto, { required: true })
   readonly info: CreateMapInfoDto;
 
+  @NestedProperty(MapZonesDto, {
+    required: true,
+    description: 'The contents of the map zone file as JSON'
+  })
+  readonly zones: MapZonesDto;
 
   @NestedProperty(CreateMapCreditDto, { required: true, isArray: true })
   @IsArray()

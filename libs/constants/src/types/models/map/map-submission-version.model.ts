@@ -4,5 +4,5 @@ export type MapSubmissionVersion = PrismaMapSubmissionVersion;
 
 export type CreateMapSubmissionVersion = Pick<
   MapSubmissionVersion,
-  'changelog'
+  'changelog' | 'zones'
 >;
