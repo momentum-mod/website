@@ -87,6 +87,8 @@ export async function setupE2ETestEnvironment(
   await app.getHttpAdapter().getInstance().ready();
 
   const server = app.getHttpServer();
+  // Uncomment to output Prisma's raw queries
+  // const prisma = new PrismaClient({ log: [{ level: 'query', emit: 'stdout' }] });
   const prisma = new PrismaClient();
   const auth = new AuthUtil();
   return {
