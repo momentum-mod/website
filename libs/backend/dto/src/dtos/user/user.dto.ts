@@ -1,4 +1,10 @@
-import { Bitfield, MergeUser, Role, User } from '@momentum/constants';
+import {
+  Bitfield,
+  MAX_BIO_LENGTH,
+  MergeUser,
+  Role,
+  User
+} from '@momentum/constants';
 import { ApiProperty, ApiPropertyOptional, PickType } from '@nestjs/swagger';
 import {
   IsInt,
@@ -111,6 +117,7 @@ export class UpdateUserDto {
     description: 'The new bio to set'
   })
   @IsString()
+  @MaxLength(MAX_BIO_LENGTH)
   @IsOptional()
   bio?: string;
 
