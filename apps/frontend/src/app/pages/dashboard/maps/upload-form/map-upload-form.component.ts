@@ -10,13 +10,6 @@ import { NbToastrService } from '@nebular/theme';
 import { mergeMap } from 'rxjs/operators';
 import { forkJoin } from 'rxjs';
 import { FileUploadType } from './file-upload/file-upload.component';
-import {
-  MMap,
-  MapImage,
-  MapZoneTrigger,
-  CreateMapTrack,
-  CreateMapZone
-} from '@momentum/constants';
 import { LocalUserService, MapsService } from '@momentum/frontend/data';
 import {
   MapCreditType,
@@ -24,7 +17,6 @@ import {
   GamemodeName,
   ZoneType
 } from '@momentum/constants';
-import { PartialDeep } from 'type-fest';
 import { GamemodePrefix } from '@momentum/constants';
 import { SortedMapCredits } from '../map-credits/sorted-map-credits.class';
 import { vdf } from 'fast-vdf';
@@ -60,11 +52,12 @@ export class MapUploadFormComponent implements OnInit, AfterViewInit {
   isUploadingMap: boolean;
   credits: SortedMapCredits;
   inferredMapType: boolean;
-  mapPreview: PartialDeep<
-    { map: MMap; images: MapImage[] },
-    { recurseIntoArrays: true }
-  >;
-  tracks: CreateMapTrack[];
+  mapPreview: any;
+  // mapPreview: PartialDeep<
+  //   { map: MMap; images: MapImage[] },
+  //   { recurseIntoArrays: true }
+  // >;
+  tracks: any; // CreateMapTrack[];
 
   filesForm: FormGroup = this.fb.group({
     map: ['', [Validators.required, Validators.pattern(/.+(\.bsp)/)]],
@@ -76,7 +69,7 @@ export class MapUploadFormComponent implements OnInit, AfterViewInit {
   });
   infoForm: FormGroup = this.fb.group({
     name: ['', [Validators.required, Validators.maxLength(32)]],
-    type: [Gamemode.UNKNOWN, Validators.required],
+    type: [Gamemode.AHOP, Validators.required],
     description: ['', [Validators.required, Validators.maxLength(1000)]],
     creationDate: [
       new Date(),
@@ -149,7 +142,7 @@ export class MapUploadFormComponent implements OnInit, AfterViewInit {
     this.name.patchValue(nameVal);
 
     // Infer type from name
-    let type = Gamemode.UNKNOWN;
+    let type = Gamemode.AHOP;
     for (const [key, prefix] of GamemodePrefix.entries()) {
       if (nameVal.startsWith(prefix + '_')) {
         type = key;
@@ -158,7 +151,7 @@ export class MapUploadFormComponent implements OnInit, AfterViewInit {
     }
 
     this.type.patchValue(type);
-    this.inferredMapType = type !== Gamemode.UNKNOWN;
+    this.inferredMapType = false; // TODO: was this: type !== Gamemode.UNKNOWN;
   }
 
   async onAvatarFileSelected(file: File) {
@@ -175,8 +168,9 @@ export class MapUploadFormComponent implements OnInit, AfterViewInit {
     trackNum: number,
     // TODO: For 0.10.0 zon files, make types for the parsed kv1/kv3 file
     track: object
-  ): CreateMapTrack {
-    const trackReturn: CreateMapTrack = {
+  ) {
+    //: CreateMapTrack {
+    const trackReturn: any /* CreateMapTrack */ = {
       trackNum: trackNum,
       numZones: 0,
       isLinear: false,
@@ -190,7 +184,7 @@ export class MapUploadFormComponent implements OnInit, AfterViewInit {
         const zoneNum = Number(zone);
         trackReturn.numZones = Math.max(trackReturn.numZones, zoneNum);
 
-        const zoneMdl: CreateMapZone = {
+        const zoneMdl: any /* CreateMapZone */ = {
           zoneNum: zoneNum,
           triggers: []
         };
@@ -200,7 +194,7 @@ export class MapUploadFormComponent implements OnInit, AfterViewInit {
             if (!trackReturn.isLinear)
               trackReturn.isLinear =
                 triggerObj.type === ZoneType.ZONE_CHECKPOINT;
-            const zoneMdlTrigger: PartialDeep<MapZoneTrigger> = {
+            const zoneMdlTrigger: any = {
               type: triggerObj.type,
               points: triggerObj.points,
               pointsZPos: triggerObj.pointsZPos,
@@ -210,7 +204,7 @@ export class MapUploadFormComponent implements OnInit, AfterViewInit {
               zoneMdlTrigger.zoneProps = {
                 properties: triggerObj.zoneProps.properties
               };
-            zoneMdl.triggers.push(zoneMdlTrigger as MapZoneTrigger);
+            zoneMdl.triggers.push(zoneMdlTrigger as any);
           }
         }
         // Old code - wtf is this?
@@ -366,7 +360,7 @@ export class MapUploadFormComponent implements OnInit, AfterViewInit {
       map: {
         id: 0,
         name: this.name.value,
-        type: this.type.value,
+        type: this.type.value as any, // TODO
         hash: 'not-important-yet',
         status: 0,
         info: {
