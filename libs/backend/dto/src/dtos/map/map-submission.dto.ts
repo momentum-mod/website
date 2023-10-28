@@ -31,13 +31,13 @@ export class MapSubmissionDto implements MapSubmission {
   @Exclude()
   readonly mapID: number;
 
-  @NestedProperty(MapSubmissionVersionDto, { required: true })
+  @NestedProperty(MapSubmissionVersionDto, { required: false })
   readonly currentVersion: MapSubmissionVersionDto;
 
   @ApiProperty()
   @IsUUID()
   readonly currentVersionID: string;
 
-  @NestedProperty(MapSubmissionVersionDto, { required: true, isArray: true })
+  @NestedProperty(MapSubmissionVersionDto, { required: false, isArray: true })
   readonly versions: MapSubmissionVersionDto[];
 }
