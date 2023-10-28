@@ -73,7 +73,7 @@ import Zip from 'adm-zip';
 import { FileStoreFile } from '../filestore/file-store.interface';
 import { MapTestingRequestService } from './map-testing-request.service';
 import { ConfigService } from '@nestjs/config';
-import { OverrideProperties } from 'type-fest';
+import { JsonValue, MergeExclusive, OverrideProperties } from 'type-fest';
 import { deepmerge } from '@fastify/deepmerge';
 import {
   SuggestionValidationError,
@@ -1434,8 +1434,10 @@ export class MapsService {
     // Checks need to fetch map anyway and we have no includes on mapInfo, so
     // may as well just have this function include mapInfo and pull that off the
     // return value.
-    const map = await this.getMapAndCheckReadAccess(mapID, userID, {
-      info: true
+    const map = await this.getMapAndCheckReadAccess({
+      mapID,
+      userID,
+      include: { info: true }
     });
 
     return DtoFactory(MapInfoDto, map.info);
@@ -1476,22 +1478,31 @@ export class MapsService {
    * and some of our existing stuff in extended-client.ts we could probably
    * figure it out eventually, but the TS language server takes so long to
    * resolve everything it's a nightmare to work with. Leaving for now!
+   *
+   * @throws ForbiddenException
    */
   async getMapAndCheckReadAccess(
-    mapID: number,
-    userID: number,
-    include?: Prisma.MMapInclude,
-    select?: Prisma.MMapSelect
-  ) {
-    const map = await this.db.mMap.findUnique({
-      where: { id: mapID },
-      include,
-      select
-    });
+    args: { userID: number } & MergeExclusive<
+      { map: MMap },
+      { mapID: number } & MergeExclusive<
+        { select?: Prisma.MMapSelect },
+        { include?: Prisma.MMapInclude }
+      >
+    >
+  ): Promise<
+    typeof args extends { map: MMap }
+      ? MMap
+      : ReturnType<typeof this.getMMapPrisma>
+  > {
+    const map =
+      args.map ??
+      (await this.getMMapPrisma(args.mapID, args.include, args.select));
 
     if (!map) {
       throw new NotFoundException('Map does not exist');
     }
+
+    const mapID = map.id;
 
     if (map.status === undefined) {
       throw new InternalServerErrorException('Invalid map data');
@@ -1506,7 +1517,7 @@ export class MapsService {
     }
 
     // For any other state, we need to know roles
-    const user = await this.db.user.findUnique({ where: { id: userID } });
+    const user = await this.db.user.findUnique({ where: { id: args.userID } });
 
     switch (map.status) {
       // PRIVATE_TESTING, only allow:
@@ -1516,19 +1527,27 @@ export class MapsService {
       // - Has an accepted MapTestingRequest
       case MapStatusNew.PRIVATE_TESTING: {
         if (
-          map.submitterID === userID ||
+          map.submitterID === args.userID ||
           Bitflags.has(user.roles, CombinedRoles.MOD_OR_ADMIN)
         )
           return map;
 
         if (
           await this.db.mapTestingRequest.exists({
-            where: { mapID, userID, state: MapTestingRequestState.ACCEPTED }
+            where: {
+              mapID,
+              userID: args.userID,
+              state: MapTestingRequestState.ACCEPTED
+            }
           })
         )
           return map;
 
-        if (await this.db.mapCredit.exists({ where: { mapID, userID } }))
+        if (
+          await this.db.mapCredit.exists({
+            where: { mapID, userID: args.userID }
+          })
+        )
           return map;
 
         break;
@@ -1540,7 +1559,7 @@ export class MapsService {
       case MapStatusNew.CONTENT_APPROVAL:
       case MapStatusNew.FINAL_APPROVAL: {
         if (
-          map.submitterID === userID ||
+          map.submitterID === args.userID ||
           Bitflags.has(user.roles, CombinedRoles.REVIEWER_AND_ABOVE)
         )
           return map;
@@ -1558,6 +1577,24 @@ export class MapsService {
     throw new ForbiddenException('User not authorized to access map data');
   }
 
+  /**
+   * Separate method used by getMapAndCheckReadAccess so we can access the full
+   * ReturnType with includes and selects.
+   */
+  private getMMapPrisma(
+    mapID: number,
+    include?: Prisma.MMapInclude,
+    select?: Prisma.MMapSelect
+  ) {
+    return this.db.mMap.findUnique({ where: { id: mapID }, include, select });
+  }
+
+  /**
+   *  Simple checks that the name on the DTO and the uploaded File match up,
+   *  and a length check. All instances of `fileName` will have already passed
+   *  an IsMapName validator so is only be alphanumeric, dashes and underscores.
+   *  @throws BadRequestException
+   */
   checkMapFileNames(name: string, fileName: string) {
     // Simple checks that the name on the DTO and the uploaded File match up,
     // and a length check. All instances of `fileName` will have passed an

@@ -37,11 +37,11 @@ export class MapImageService {
     mapID: number,
     loggedInUserID: number
   ): Promise<MapImageDto[]> {
-    const { images } = await this.mapsService.getMapAndCheckReadAccess(
+    const { images } = await this.mapsService.getMapAndCheckReadAccess({
       mapID,
-      loggedInUserID,
-      { images: true }
-    );
+      userID: loggedInUserID,
+      include: { images: true }
+    });
 
     return images.map((x) => DtoFactory(MapImageDto, x));
   }
@@ -51,7 +51,10 @@ export class MapImageService {
 
     if (!img) throw new NotFoundException('Map image not found');
 
-    await this.mapsService.getMapAndCheckReadAccess(img.mapID, loggedInUserID);
+    await this.mapsService.getMapAndCheckReadAccess({
+      mapID: img.mapID,
+      userID: loggedInUserID
+    });
 
     return DtoFactory(MapImageDto, img);
   }
