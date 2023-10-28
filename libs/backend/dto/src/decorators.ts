@@ -246,6 +246,27 @@ export function ExpandQueryProperty(expansions: string[]): PropertyDecorator {
 
 /**
  * Transforms comma-separated string into an array of strings contained in
+ * `expansions`.
+ *
+ * @param expansion - String array of all the allowed expansions
+ */
+export function SingleExpandQueryProperty(
+  expansion: string
+): PropertyDecorator {
+  return applyDecorators(
+    ApiPropertyOptional({
+      name: 'expand',
+      type: String,
+      enum: [expansion],
+      description: `Expand by ${expansion}`
+    }),
+    IsString(),
+    IsOptional()
+  );
+}
+
+/**
+ * Transforms comma-separated string into an array of strings contained in
  * `filters`.
  *
  * @param filters - String array of all allowed filters
