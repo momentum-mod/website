@@ -2,7 +2,6 @@ import {
   BadRequestException,
   ConflictException,
   ForbiddenException,
-  forwardRef,
   Inject,
   Injectable,
   NotFoundException
@@ -31,7 +30,6 @@ import { ConfigService } from '@nestjs/config';
 export class MapCreditsService {
   constructor(
     @Inject(EXTENDED_PRISMA_SERVICE) private readonly db: ExtendedPrismaService,
-    @Inject(forwardRef(() => MapsService))
     private readonly mapsService: MapsService,
     private readonly config: ConfigService
   ) {}
