@@ -249,15 +249,20 @@ export function ExpandQueryProperty(expansions: string[]): PropertyDecorator {
  * `filters`.
  *
  * @param filters - String array of all allowed filters
+ * @param options - Swagger options
  */
-export function FilterQueryProperty(filters: string[]): PropertyDecorator {
+export function FilterQueryProperty(
+  filters: string[],
+  options?: Omit<ApiPropertyOptions, 'enum' | 'name' | 'type'>
+): PropertyDecorator {
   return applyDecorators(
     ApiPropertyOptional({
       name: 'filter',
       type: String,
       enum: filters,
       description: `Properties to by which to filter the relevant items by.
-        Comma-separated ${filters.join(', ')}`
+        Comma-separated ${filters.join(', ')}`,
+      ...options
     }),
     Transform(({ value }) => intersection(value.split(','), filters)),
     IsArray(),
@@ -270,15 +275,20 @@ export function FilterQueryProperty(filters: string[]): PropertyDecorator {
  * contained in `filters`.
  *
  * @param filters - Array of numeric enum values of all allowed filters
+ * @param options - Swagger options
  */
-export function EnumFilterQueryProperty(filters: number[]): PropertyDecorator {
+export function EnumFilterQueryProperty(
+  filters: number[],
+  options?: Omit<ApiPropertyOptions, 'enum' | 'name' | 'type'>
+): PropertyDecorator {
   return applyDecorators(
     ApiPropertyOptional({
       name: 'filter',
       type: String,
       enum: filters,
       description: `Enum members to filter items by.
-        Comma-separated numeric enum values ${filters.join(', ')}`
+        Comma-separated numeric enum values ${filters.join(', ')}`,
+      ...options
     }),
     Transform(({ value }) =>
       intersection(value.split(',').map(Number), filters)
@@ -319,7 +329,7 @@ export function BooleanQueryProperty(
 export function IntQueryProperty(options?: Omit<ApiPropertyOptions, 'type'>) {
   const required = options?.required ?? false;
   return applyDecorators(
-    ApiProperty({ type: Number, required: required }),
+    ApiProperty({ ...options, type: Number, required: required }),
     // Even if this is a BigInt to Prisma, we treat it as a Number in service
     // logic handling incoming data; all Prisma args for a stored BigInt take
     // `bigint | number`.
