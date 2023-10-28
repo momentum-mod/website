@@ -174,6 +174,7 @@ model MMap {
   leaderboards    Leaderboard[]
   leaderboardRuns LeaderboardRun[]
   pastRuns        PastRun[]
+  runSessions     RunSession[]
   credits         MapCredit[]
   favorites       MapFavorite[]
   images          MapImage[]
@@ -548,15 +549,23 @@ model PastRun {
   @@index([userID])
 }
 
+/// This model doesn't have a unique constraint on
+/// (userID, mapID, gamemode, trackType, trackNum) due to the cost of an
+/// index on a table that we insert into so frequently.
 model RunSession {
   id BigInt @id @default(autoincrement())
 
-  trackNum   Int                   @db.SmallInt
-  zoneNum    Int                   @db.SmallInt
+  trackType Int @db.SmallInt
+  trackNum  Int @db.SmallInt
+  gamemode  Int @db.SmallInt
+
   timestamps RunSessionTimestamp[]
 
   user   User @relation(fields: [userID], references: [id], onDelete: Cascade)
-  userID Int  @unique
+  userID Int
+
+  mmap  MMap @relation(fields: [mapID], references: [id], onDelete: Cascade)
+  mapID Int
 
   createdAt DateTime @default(now())
 
@@ -566,8 +575,9 @@ model RunSession {
 model RunSessionTimestamp {
   id BigInt @id @default(autoincrement())
 
-  zone Int @db.SmallInt
-  tick Int
+  segment    Int   @db.SmallInt
+  checkpoint Int   @db.SmallInt
+  time       Float @db.DoublePrecision
 
   session   RunSession @relation(fields: [sessionID], references: [id], onDelete: Cascade)
   sessionID BigInt
