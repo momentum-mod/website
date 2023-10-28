@@ -154,8 +154,7 @@ model MMap {
   id Int @id @default(autoincrement())
 
   name     String
-  fileName String?
-  type     Int     @default(0) @db.SmallInt /// gamemodes.enum.ts
+  fileName String? // Optional as isn't set until map is approved
   status   Int     @db.SmallInt /// map-status.enum.ts
   hash     String? @db.Char(40)
   hasVmf   Boolean @default(false)
@@ -169,16 +168,12 @@ model MMap {
   stats MapStats?
   info  MapInfo?
 
-  mainTrack   MapTrack? @relation("map_maintrack", fields: [mainTrackID], references: [id], onDelete: SetNull)
-  mainTrackID Int?      @unique
-
   credits         MapCredit[]
   favorites       MapFavorite[]
   images          MapImage[]
   libraryEntries  MapLibraryEntry[]
   notifies        MapNotify[]
   reviews         MapReview[]
-  tracks          MapTrack[]
   submission      MapSubmission?
   testingRequests MapTestingRequest[]
 
@@ -231,7 +226,6 @@ model MapImage {
 model MapInfo {
   description  String   @default("")
   youtubeID    String?
-  numTracks    Int      @db.SmallInt
   creationDate DateTime
 
   mmap  MMap @relation(fields: [mapID], references: [id], onDelete: Cascade)
@@ -270,102 +264,6 @@ model MapNotify {
   @@id([userID, mapID])
 }
 
-model MapTrack {
-  id Int @id @default(autoincrement())
-
-  trackNum   Int     @db.SmallInt
-  numZones   Int     @db.SmallInt
-  isLinear   Boolean
-  difficulty Int     @db.SmallInt
-
-  mainTrack MMap? @relation("map_maintrack")
-
-  mmap  MMap @relation(fields: [mapID], references: [id], onDelete: Cascade)
-  mapID Int
-
-  stats       MapTrackStats?
-  zones       MapZone[]
-  runSessions RunSession[]
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  @@index([mapID])
-}
-
-model MapTrackStats {
-  id Int @id @default(autoincrement())
-
-  completions       Int @default(0)
-  uniqueCompletions Int @default(0)
-
-  track   MapTrack @relation(fields: [trackID], references: [id], onDelete: Cascade)
-  trackID Int      @unique
-
-  baseStats   BaseStats @relation(fields: [baseStatsID], references: [id], onDelete: Cascade)
-  baseStatsID BigInt    @unique
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  @@index([baseStatsID, trackID])
-}
-
-model MapZone {
-  id Int @id @default(autoincrement())
-
-  zoneNum Int @db.SmallInt
-
-  track   MapTrack @relation(fields: [trackID], references: [id], onDelete: Cascade)
-  trackID Int
-
-  stats    MapZoneStats[]
-  triggers MapZoneTrigger[]
-
-  @@index([trackID, zoneNum])
-}
-
-model MapZoneTrigger {
-  id Int @id @default(autoincrement())
-
-  type         Int                       @db.SmallInt // Old api says this is int 0-4, probs start/end/cp/stage/?
-  pointsHeight Float                     @db.Real
-  pointsZPos   Float                     @db.Real
-  points       Json? // TODO_0.10: Validate these. On current zone system, should have max 32 values and match /p\d+/
-  properties   MapZoneTriggerProperties?
-
-  zone   MapZone @relation(fields: [zoneID], references: [id], onDelete: Cascade)
-  zoneID Int     @unique
-
-  @@index([zoneID])
-}
-
-model MapZoneTriggerProperties {
-  id Int @id @default(autoincrement())
-
-  properties Json?
-
-  trigger   MapZoneTrigger @relation(fields: [triggerID], references: [id], onDelete: Cascade)
-  triggerID Int            @unique
-
-  @@index([triggerID])
-}
-
-model MapZoneStats {
-  id Int @id @default(autoincrement())
-
-  completions       Int @default(0)
-  uniqueCompletions Int @default(0)
-
-  zone   MapZone @relation(fields: [zoneID], references: [id], onDelete: Cascade)
-  zoneID Int     @unique
-
-  baseStats   BaseStats? @relation(fields: [baseStatsID], references: [id], onDelete: Cascade)
-  baseStatsID BigInt?    @unique
-
-  @@index([baseStatsID, zoneID])
-}
-
 model MapStats {
   reviews           Int    @default(0)
   downloads         Int    @default(0)
@@ -376,11 +274,11 @@ model MapStats {
   uniqueCompletions Int    @default(0)
   timePlayed        BigInt @default(0) @db.BigInt
 
-  mmap MMap @relation(fields: [mapID], references: [id], onDelete: Cascade)
+  mmap  MMap @relation(fields: [mapID], references: [id], onDelete: Cascade)
+  mapID Int  @id
 
   baseStats   BaseStats? @relation(fields: [baseStatsID], references: [id], onDelete: Cascade)
   baseStatsID BigInt?    @unique
-  mapID       Int        @id
 
   @@index([baseStatsID, mapID])
 }
@@ -494,9 +392,7 @@ model BaseStats {
   velExit3D      Float @default(0) @db.Real
   velExit2D      Float @default(0) @db.Real
 
-  mapTrackStats MapTrackStats?
-  mapStats      MapStats?
-  mapZoneStats  MapZoneStats?
+  mapStats MapStats?
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -512,12 +408,9 @@ model RunSession {
   user   User @relation(fields: [userID], references: [id], onDelete: Cascade)
   userID Int  @unique
 
-  track   MapTrack @relation(fields: [trackID], references: [id], onDelete: Cascade)
-  trackID Int
-
   createdAt DateTime @default(now())
 
-  @@index([trackID, userID])
+  @@index([userID])
 }
 
 model RunSessionTimestamp {
