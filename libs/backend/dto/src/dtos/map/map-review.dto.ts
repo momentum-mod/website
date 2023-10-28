@@ -21,7 +21,7 @@ export class MapReviewDto {
 
   @NestedProperty(MapReviewCommentDto, {
     lazy: true,
-    required: true,
+    required: false,
     isArray: true
   })
   readonly comments: MapReviewCommentDto[];
