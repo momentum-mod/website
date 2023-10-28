@@ -35,14 +35,12 @@ export class MapSubmissionSuggestionDto implements MapSubmissionSuggestion {
   @IsInt()
   @Min(1)
   @Max(10)
-  @IsOptional() // Optional because could be a stage
   readonly tier: number;
 
   @ApiProperty({
     description: 'Whether the track should be ranked for this gamemode'
   })
   @IsBoolean()
-  @IsOptional()
   readonly ranked: boolean;
 
   @ApiProperty({
@@ -51,5 +49,5 @@ export class MapSubmissionSuggestionDto implements MapSubmissionSuggestion {
   @IsString()
   @MaxLength(500)
   @IsOptional()
-  readonly comment: string;
+  readonly comment?: string;
 }
