@@ -55,6 +55,13 @@ model Profile {
   updatedAt DateTime @updatedAt
 }
 
+model UserAuth {
+  refreshToken String?
+
+  user   User @relation(fields: [userID], references: [id], onDelete: Cascade)
+  userID Int  @id
+}
+
 model UserStats {
   totalJumps    BigInt @default(0) @db.BigInt
   totalStrafes  BigInt @default(0) @db.BigInt
@@ -65,6 +72,34 @@ model UserStats {
 
   user   User @relation(fields: [userID], references: [id], onDelete: Cascade)
   userID Int  @id
+}
+
+model DeletedSteamID {
+  steamID BigInt @id @db.BigInt
+}
+
+model Report {
+  id Int @id @default(autoincrement())
+
+  type              Int      @db.SmallInt /// report-type.enum.ts
+  /// This is used as a primary key into one of many possible tables,
+  /// determined by the value of `type`.
+  data              BigInt   @db.BigInt
+  category          Int      @db.SmallInt
+  message           String?
+  resolved          Boolean? @default(false)
+  resolutionMessage String?
+
+  submitter   User? @relation("report_submitter", fields: [submitterID], references: [id], onDelete: SetNull)
+  submitterID Int?
+
+  resolver   User? @relation("report_resolver", fields: [resolverID], references: [id], onDelete: SetNull)
+  resolverID Int?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([resolverID, submitterID])
 }
 
 model Activity {
@@ -119,35 +154,19 @@ model Notification {
   @@index([activityID, userID])
 }
 
-model Report {
-  id Int @id @default(autoincrement())
+model MapNotify {
+  notifyOn Int @db.SmallInt /// Bitfield of activity-type.enum.ts
 
-  type              Int      @db.SmallInt /// report-type.enum.ts
-  /// This is used as a primary key into one of many possible tables,
-  /// determined by the value of `type`.
-  data              BigInt   @db.BigInt
-  category          Int      @db.SmallInt
-  message           String?
-  resolved          Boolean? @default(false)
-  resolutionMessage String?
+  mmap  MMap @relation(fields: [mapID], references: [id], onDelete: Cascade)
+  mapID Int
 
-  submitter   User? @relation("report_submitter", fields: [submitterID], references: [id], onDelete: SetNull)
-  submitterID Int?
-
-  resolver   User? @relation("report_resolver", fields: [resolverID], references: [id], onDelete: SetNull)
-  resolverID Int?
+  user   User @relation(fields: [userID], references: [id], onDelete: Cascade)
+  userID Int
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  @@index([resolverID, submitterID])
-}
-
-model UserAuth {
-  refreshToken String?
-
-  user   User @relation(fields: [userID], references: [id], onDelete: Cascade)
-  userID Int  @id
+  @@id([userID, mapID])
 }
 
 /// The term 'MMap' is used to avoid collisions with the JS data structure, just
@@ -257,21 +276,6 @@ model MapLibraryEntry {
   updatedAt DateTime @updatedAt
 
   @@unique([mapID, userID])
-}
-
-model MapNotify {
-  notifyOn Int @db.SmallInt /// Bitfield of activity-type.enum.ts
-
-  mmap  MMap @relation(fields: [mapID], references: [id], onDelete: Cascade)
-  mapID Int
-
-  user   User @relation(fields: [userID], references: [id], onDelete: Cascade)
-  userID Int
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  @@id([userID, mapID])
 }
 
 model MapStats {
@@ -591,8 +595,4 @@ model XpSystems {
   id     Int   @id
   rankXP Json?
   cosXP  Json?
-}
-
-model DeletedSteamID {
-  steamID BigInt @id @db.BigInt
 }
