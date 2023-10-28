@@ -38,13 +38,13 @@ describe('MapsService', () => {
     it('should 404 for a missing map', async () => {
       db.mMap.findUnique.mockResolvedValueOnce(undefined);
 
-      await expect(service.getMapAndCheckReadAccess(1, 99999999, {})).rejects.toThrow(NotFoundException);
+      await expect(service.getMapAndCheckReadAccess({ mapID: 1, userID: 1 })).rejects.toThrow(NotFoundException);
     });
 
     it('should 500 for invalid map data', async () => {
       db.mMap.findUnique.mockResolvedValueOnce('sausage' as any);
 
-      await expect(service.getMapAndCheckReadAccess(1, 1, {})).rejects.toThrow(InternalServerErrorException);
+      await expect(service.getMapAndCheckReadAccess({ mapID: 1, userID: 1 })).rejects.toThrow(InternalServerErrorException);
     });
 
     // Map of what states should PASS access checks for each MapStatus,
@@ -60,8 +60,8 @@ describe('MapsService', () => {
 
     const expects = async (pass: boolean, map: any, userID = 1) =>
       pass
-        ? expect(await service.getMapAndCheckReadAccess(map.id, userID, {})).toMatchObject(map)
-        : await expect(service.getMapAndCheckReadAccess(map.id, userID, {})).rejects.toThrow(ForbiddenException);
+        ? expect(await service.getMapAndCheckReadAccess({ mapID: map.id, userID })).toMatchObject(map)
+        : await expect(service.getMapAndCheckReadAccess({ mapID: map.id, userID })).rejects.toThrow(ForbiddenException);
     
     const mockMapValue = (map) => db.mMap.findUnique.mockResolvedValueOnce(map);
     const mockUserValue = (user) => db.user.findUnique.mockResolvedValueOnce(user);

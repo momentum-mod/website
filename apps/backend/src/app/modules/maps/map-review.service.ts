@@ -31,7 +31,7 @@ export class MapReviewService {
     userID: number,
     query: MapReviewsGetQueryDto
   ): Promise<PagedResponseDto<MapReviewDto>> {
-    await this.mapsService.getMapAndCheckReadAccess(mapID, userID);
+    await this.mapsService.getMapAndCheckReadAccess({ mapID, userID });
 
     const include: Prisma.MapReviewInclude =
       expandToIncludes(query.expand, {
@@ -86,7 +86,7 @@ export class MapReviewService {
     userID: number,
     query: MapReviewGetIdDto
   ): Promise<MapReviewDto> {
-    await this.mapsService.getMapAndCheckReadAccess(mapID, userID);
+    await this.mapsService.getMapAndCheckReadAccess({ mapID, userID });
 
     const review = await this.db.mapReview.findFirst({
       where: { id: reviewID, mapID },
@@ -105,7 +105,7 @@ export class MapReviewService {
     reviewID: number,
     userID: number
   ): Promise<void> {
-    await this.mapsService.getMapAndCheckReadAccess(mapID, userID);
+    await this.mapsService.getMapAndCheckReadAccess({ mapID, userID });
     const user = await this.db.user.findUnique({ where: { id: userID } });
 
     const review = await this.db.mapReview.findFirst({

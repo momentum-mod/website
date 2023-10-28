@@ -73,7 +73,7 @@ import Zip from 'adm-zip';
 import { FileStoreFile } from '../filestore/file-store.interface';
 import { MapTestingRequestService } from './map-testing-request.service';
 import { ConfigService } from '@nestjs/config';
-import { OverrideProperties } from 'type-fest';
+import { JsonValue, MergeExclusive, OverrideProperties } from 'type-fest';
 import { deepmerge } from '@fastify/deepmerge';
 import {
   SuggestionValidationError,
@@ -86,16 +86,6 @@ import {
   LeaderboardProps
 } from './leaderboard-handler.util';
 import { LeaderboardRunsService } from '../runs/leaderboard-runs.service';
-
-type MapWithSubmission = MMap & {
-  submission: OverrideProperties<
-    MapSubmission,
-    {
-      dates: MapSubmissionDate[];
-      placeholders: MapSubmissionPlaceholder[];
-    }
-  >;
-};
 
 @Injectable()
 export class MapsService {
@@ -1434,8 +1424,10 @@ export class MapsService {
     // Checks need to fetch map anyway and we have no includes on mapInfo, so
     // may as well just have this function include mapInfo and pull that off the
     // return value.
-    const map = await this.getMapAndCheckReadAccess(mapID, userID, {
-      info: true
+    const map = await this.getMapAndCheckReadAccess({
+      mapID,
+      userID,
+      include: { info: true }
     });
 
     return DtoFactory(MapInfoDto, map.info);
@@ -1469,29 +1461,35 @@ export class MapsService {
    * permission to access this data.
    *
    * Always requires query for the specified map, to save calling DB twice we
-   * return that object, so we let you pass in an `include`. However we'll need
-   * to cast the return type to manually add for included models for
-   * now; I can't figure out the crazy Prisma type stuff. By following
-   * https://www.prisma.io/docs/concepts/components/prisma-client/advanced-type-safety
-   * and some of our existing stuff in extended-client.ts we could probably
-   * figure it out eventually, but the TS language server takes so long to
-   * resolve everything it's a nightmare to work with. Leaving for now!
+   * return that object, so we let you pass in a select/include so this method
+   * can do the desired fetch for you - hence the types having to be a little
+   * insane.
+   *
+   * @throws ForbiddenException
    */
-  async getMapAndCheckReadAccess(
-    mapID: number,
-    userID: number,
-    include?: Prisma.MMapInclude,
-    select?: Prisma.MMapSelect
-  ) {
-    const map = await this.db.mMap.findUnique({
-      where: { id: mapID },
-      include,
-      select
-    });
+  async getMapAndCheckReadAccess<
+    M extends MMap,
+    S extends Prisma.MMapSelect,
+    I extends Prisma.MMapInclude
+  >(
+    args: { userID: number } & MergeExclusive<
+      { map: M },
+      { mapID: number } & MergeExclusive<{ select?: S }, { include?: I }>
+    >
+  ): Promise<typeof args extends { map: M } ? M : GetMMapUnique<S, I>> {
+    const map =
+      args.map ??
+      (await this.db.mMap.findUnique({
+        where: { id: args.mapID },
+        include: args.include,
+        select: args.select
+      }));
 
     if (!map) {
       throw new NotFoundException('Map does not exist');
     }
+
+    const mapID = map.id;
 
     if (map.status === undefined) {
       throw new InternalServerErrorException('Invalid map data');
@@ -1502,11 +1500,11 @@ export class MapsService {
       map.status === MapStatusNew.APPROVED ||
       map.status === MapStatusNew.PUBLIC_TESTING
     ) {
-      return map;
+      return map as GetMMapUnique<S, I>;
     }
 
     // For any other state, we need to know roles
-    const user = await this.db.user.findUnique({ where: { id: userID } });
+    const user = await this.db.user.findUnique({ where: { id: args.userID } });
 
     switch (map.status) {
       // PRIVATE_TESTING, only allow:
@@ -1516,20 +1514,28 @@ export class MapsService {
       // - Has an accepted MapTestingRequest
       case MapStatusNew.PRIVATE_TESTING: {
         if (
-          map.submitterID === userID ||
+          map.submitterID === args.userID ||
           Bitflags.has(user.roles, CombinedRoles.MOD_OR_ADMIN)
         )
-          return map;
+          return map as GetMMapUnique<S, I>;
 
         if (
           await this.db.mapTestingRequest.exists({
-            where: { mapID, userID, state: MapTestingRequestState.ACCEPTED }
+            where: {
+              mapID,
+              userID: args.userID,
+              state: MapTestingRequestState.ACCEPTED
+            }
           })
         )
-          return map;
+          return map as GetMMapUnique<S, I>;
 
-        if (await this.db.mapCredit.exists({ where: { mapID, userID } }))
-          return map;
+        if (
+          await this.db.mapCredit.exists({
+            where: { mapID, userID: args.userID }
+          })
+        )
+          return map as GetMMapUnique<S, I>;
 
         break;
       }
@@ -1540,17 +1546,18 @@ export class MapsService {
       case MapStatusNew.CONTENT_APPROVAL:
       case MapStatusNew.FINAL_APPROVAL: {
         if (
-          map.submitterID === userID ||
+          map.submitterID === args.userID ||
           Bitflags.has(user.roles, CombinedRoles.REVIEWER_AND_ABOVE)
         )
-          return map;
+          return map as GetMMapUnique<S, I>;
 
         break;
       }
       // DISABLED, only allow:
       // - Moderator/Admin
       case MapStatusNew.DISABLED: {
-        if (Bitflags.has(user.roles, CombinedRoles.MOD_OR_ADMIN)) return map;
+        if (Bitflags.has(user.roles, CombinedRoles.MOD_OR_ADMIN))
+          return map as GetMMapUnique<S, I>;
         break;
       }
     }
@@ -1558,6 +1565,12 @@ export class MapsService {
     throw new ForbiddenException('User not authorized to access map data');
   }
 
+  /**
+   *  Simple checks that the name on the DTO and the uploaded File match up,
+   *  and a length check. All instances of `fileName` will have already passed
+   *  an IsMapName validator so is only be alphanumeric, dashes and underscores.
+   *  @throws BadRequestException
+   */
   checkMapFileNames(name: string, fileName: string) {
     // Simple checks that the name on the DTO and the uploaded File match up,
     // and a length check. All instances of `fileName` will have passed an
@@ -1609,3 +1622,19 @@ export class MapsService {
 
   //#endregion
 }
+
+type MapWithSubmission = MMap & {
+  submission: OverrideProperties<
+    MapSubmission,
+    {
+      dates: MapSubmissionDate[];
+      placeholders: MapSubmissionPlaceholder[];
+    }
+  >;
+};
+
+type GetMMapUnique<S, I> = Prisma.Result<
+  ExtendedPrismaService['mMap'],
+  { select: S; include: I },
+  'findUnique'
+>;
