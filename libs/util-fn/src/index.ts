@@ -5,3 +5,4 @@ export * from './expand-to-includes';
 export * from './array-set-operations';
 export * from './is-object';
 export * from './flatten-object';
+export * from './vector';
