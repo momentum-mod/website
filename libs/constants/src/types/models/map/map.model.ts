@@ -2,7 +2,6 @@ import { MMap as PrismaMMap } from '@prisma/client';
 import { MapStatusNew } from '../../../enums/map-status.enum';
 import { Gamemode } from '../../../enums/gamemode.enum';
 import { MapImage } from './map-image.model';
-import { CreateMapTrack, MapTrack, UpdateMapTrack } from './map-track.model';
 import { CreateMapInfo, MapInfo, UpdateMapInfo } from './map-info.model';
 import { User } from '../user/user.model';
 import { MapStats } from './map-stats.model';
@@ -18,16 +17,13 @@ import { MapSubmissionPlaceholder } from './map-submission-placeholder.model';
  * The term "MMap" (Momentum Map)  is used just in cases where we would use
  * "Map" to avoid collision with the "Map" data structure.
  */
-export interface MMap extends Omit<PrismaMMap, 'thumbnailID' | 'mainTrackID'> {
   type: Gamemode;
   status: MapStatusNew;
   downloadURL: string;
   thumbnail?: MapImage;
-  mainTrack?: MapTrack;
   info?: MapInfo;
   submitter?: User;
   images?: MapImage[];
-  tracks?: MapTrack[];
   stats?: MapStats;
   credits?: MapCredit[];
   favorites?: MapFavorite[];
@@ -49,7 +45,6 @@ export interface CreateMap extends Pick<MMap, 'name' | 'fileName'> {
   placeholders: MapSubmissionPlaceholder[];
   testInvites?: number[];
   info: CreateMapInfo;
-  tracks: CreateMapTrack[];
   credits: CreateMapCredit[];
 }
 
@@ -66,7 +61,6 @@ export type UpdateMap = Partial<
 > & {
   status?: MapStatusNew.CONTENT_APPROVAL | MapStatusNew.FINAL_APPROVAL;
   info?: UpdateMapInfo;
-  tracks?: UpdateMapTrack[];
 };
 
 export type UpdateMapAdmin = Omit<UpdateMap, 'status'> & {

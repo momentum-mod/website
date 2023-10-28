@@ -3,7 +3,6 @@ import {
   approvedVmfsPath,
   CreateMap,
   CreateMapWithFiles,
-  Gamemode,
   MapStatusNew,
   MapSubmissionType,
   MMap,
@@ -27,11 +26,7 @@ import {
   IsUrl
 } from 'class-validator';
 import { CreateMapInfoDto, MapInfoDto, UpdateMapInfoDto } from './map-info.dto';
-import {
-  CreateMapTrackDto,
-  MapTrackDto,
-  UpdateMapTrackDto
-} from './map-track.dto';
+import { CreateMapTrackDto, UpdateMapTrackDto } from './map-track.dto';
 import { CreateMapCreditDto, MapCreditDto } from './map-credit.dto';
 import { MapFavoriteDto } from './map-favorite.dto';
 import { MapLibraryEntryDto } from './map-library-entry';
@@ -74,9 +69,6 @@ export class MapDto implements MMap {
   })
   @IsMapName()
   readonly fileName: string;
-
-  @EnumProperty(Gamemode)
-  readonly type: Gamemode;
 
   @EnumProperty(MapStatusNew)
   readonly status: MapStatusNew;
@@ -122,12 +114,6 @@ export class MapDto implements MMap {
   @IsOptional()
   readonly submitterID: number;
 
-  @Exclude()
-  readonly mainTrackID: number;
-
-  @NestedProperty(MapTrackDto)
-  readonly mainTrack: MapTrackDto;
-
   @NestedProperty(MapInfoDto)
   readonly info: MapInfoDto;
 
@@ -142,9 +128,6 @@ export class MapDto implements MMap {
 
   @NestedProperty(MapImageDto, { isArray: true })
   readonly images: MapImageDto[];
-
-  @NestedProperty(MapTrackDto, { isArray: true })
-  readonly tracks: MapTrackDto[];
 
   @NestedProperty(MapStatsDto)
   readonly stats: MapStatsDto;
@@ -215,10 +198,6 @@ export class CreateMapDto
   @NestedProperty(CreateMapInfoDto, { required: true })
   readonly info: CreateMapInfoDto;
 
-  @NestedProperty(CreateMapTrackDto, { required: true, isArray: true })
-  @IsArray()
-  @ArrayMinSize(1)
-  readonly tracks: CreateMapTrackDto[];
 
   @NestedProperty(CreateMapCreditDto, { required: true, isArray: true })
   @IsArray()
