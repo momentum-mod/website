@@ -285,9 +285,7 @@ export class UsersService {
       alias: 'Deleted User',
       avatar: null,
       country: null,
-      profile: {
-        update: { bio: '', socials: {} }
-      },
+      profile: { update: { bio: '', socials: {} } },
       mapFavorites: { deleteMany: {} },
       mapLibraryEntries: { deleteMany: {} },
       activities: { deleteMany: {} },
@@ -302,16 +300,8 @@ export class UsersService {
         where: { id: userID },
         data: updateInputToClean
       }),
-      this.db.userAuth.deleteMany({
-        where: {
-          userID
-        }
-      }),
-      this.db.deletedSteamID.create({
-        data: {
-          steamID: user.steamID
-        }
-      })
+      this.db.userAuth.deleteMany({ where: { userID } }),
+      this.db.deletedSteamID.create({ data: { steamID: user.steamID } })
     ]);
   }
 
