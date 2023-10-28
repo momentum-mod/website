@@ -24,7 +24,7 @@ import {
 import { EXTENDED_PRISMA_SERVICE } from '../database/db.constants';
 import { ExtendedPrismaService } from '../database/prisma.extension';
 import { MapsService } from './maps.service';
-import { expandToIncludes, findWithIndex } from '@momentum/util-fn';
+import { findWithIndex } from '@momentum/util-fn';
 import { ConfigService } from '@nestjs/config';
 
 @Injectable()
@@ -45,7 +45,7 @@ export class MapCreditsService {
 
     const dbResponse = await this.db.mapCredit.findMany({
       where: { mapID },
-      include: expandToIncludes(expand)
+      include: expand ? { user: true } : undefined
     });
 
     return dbResponse.map((x) => DtoFactory(MapCreditDto, x));
@@ -61,7 +61,7 @@ export class MapCreditsService {
 
     const dbResponse = await this.db.mapCredit.findUnique({
       where: { mapID_userID: { mapID, userID } },
-      include: expandToIncludes(expand)
+      include: expand ? { user: true } : undefined
     });
 
     if (!dbResponse) throw new NotFoundException('Map credit not found');
