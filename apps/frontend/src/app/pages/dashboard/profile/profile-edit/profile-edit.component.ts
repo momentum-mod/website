@@ -6,7 +6,12 @@ import { of, Subject } from 'rxjs';
 import { ConfirmDialogComponent } from '../../../../components/confirm-dialog/confirm-dialog.component';
 import { DeleteUserDialogComponent } from '../../../../components/delete-user-dialog/delete-user-dialog.component';
 import { NbDialogService, NbToastrService } from '@nebular/theme';
-import { AdminUpdateUser, UpdateUser, User } from '@momentum/constants';
+import {
+  AdminUpdateUser,
+  MAX_BIO_LENGTH,
+  UpdateUser,
+  User
+} from '@momentum/constants';
 import {
   AdminService,
   AuthService,
@@ -94,7 +99,7 @@ export class ProfileEditComponent implements OnInit, OnDestroy {
         '',
         [Validators.required, Validators.minLength(3), Validators.maxLength(32)]
       ],
-      bio: ['', [Validators.maxLength(1000)]],
+      bio: ['', [Validators.maxLength(MAX_BIO_LENGTH)]],
       country: [''],
       socials: this.fb.group(socialsForm)
     });

@@ -9,3 +9,4 @@ export const MAX_REVIEW_LENGTH = 50_000;
 export const MAX_TESTING_REQUESTS = 20;
 export const MIN_PUBLIC_TESTING_DURATION = 7 * 24 * 60 * 60 * 1000;
 export const MAX_CREDITS_EXCEPT_TESTERS = 20;
+export const MAX_BIO_LENGTH = 2000;
