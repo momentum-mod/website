@@ -39,7 +39,10 @@ export class MapCreditsService {
     loggedInUserID: number,
     expand: MapCreditsGetExpand
   ): Promise<MapCreditDto[]> {
-    await this.mapsService.getMapAndCheckReadAccess(mapID, loggedInUserID);
+    await this.mapsService.getMapAndCheckReadAccess({
+      mapID,
+      userID: loggedInUserID
+    });
 
     const dbResponse = await this.db.mapCredit.findMany({
       where: { mapID },
@@ -55,7 +58,10 @@ export class MapCreditsService {
     loggedInUserID: number,
     expand: MapCreditsGetExpand
   ): Promise<MapCreditDto> {
-    await this.mapsService.getMapAndCheckReadAccess(mapID, loggedInUserID);
+    await this.mapsService.getMapAndCheckReadAccess({
+      mapID,
+      userID: loggedInUserID
+    });
 
     const dbResponse = await this.db.mapCredit.findUnique({
       where: { mapID_userID: { mapID, userID } },
