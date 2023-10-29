@@ -1,22 +1,29 @@
 ﻿import {
-  Prisma,
-  User,
-  MMap,
+  Leaderboard,
+  LeaderboardRun,
+  MapImage,
   MapInfo,
   MapStats,
-  MapImage,
-  MapTrack,
-  Rank,
-  Run,
-  PrismaClient,
   MapSubmission,
-  MapSubmissionVersion
+  MapSubmissionVersion,
+  MMap,
+  PastRun,
+  Prisma,
+  PrismaClient,
+  User
 } from '@prisma/client';
-import { CamelCase, PartialDeep } from 'type-fest';
-import { merge } from 'lodash';
+import { CamelCase, JsonValue, PartialDeep } from 'type-fest';
+import { merge } from 'lodash'; // TODO: Replace with fastify deepmerge when everything is passing!
 import { AuthUtil } from './auth.util';
 import { randomHash, randomSteamID } from './random.util';
-import { MapStatus, Gamemode } from '@momentum/constants';
+import {
+  Gamemode,
+  MapStatus,
+  RunStats,
+  Style,
+  TrackType
+} from '@momentum/constants';
+import { ZonesStub } from '@momentum/formats';
 
 export const NULL_ID = 999999999;
 
@@ -42,8 +49,8 @@ export class DbUtil {
   private users: number;
   private maps: number;
 
-  cleanup(...models: CamelCase<Prisma.ModelName>[]) {
-    return this.prisma.$transaction(
+  async cleanup(...models: CamelCase<Prisma.ModelName>[]) {
+    return await this.prisma.$transaction(
       models.map((name) =>
         (this.prisma[name] as any) // >:D
           .deleteMany()
@@ -64,7 +71,12 @@ export class DbUtil {
 
   createUser(args: CreateUserArgs = {}): Promise<User> {
     return this.prisma.user.create(
-      merge({ data: this.createUserData() }, args) as Prisma.UserCreateArgs
+      merge(
+        {
+          data: this.createUserData()
+        },
+        args
+      ) as Prisma.UserCreateArgs
     );
   }
 
@@ -104,14 +116,14 @@ export class DbUtil {
    */
   async createMap(
     mmap: CreateMapMMapArgs = {},
-    track: CreateMapMapTrackArgs = {}
+    noLeaderboards: boolean = false
   ): Promise<
     MMap & {
       info: MapInfo;
       stats: MapStats;
       images: MapImage[];
       thumbnail: MapImage;
-      mainTrack: MapTrack;
+      leaderboards: Leaderboard[];
       submission: MapSubmission & { versions: MapSubmissionVersion[] };
     }
   > {
@@ -120,37 +132,34 @@ export class DbUtil {
         ...merge(
           {
             name: `map${++this.maps}`,
+            zones: ZonesStub,
             fileName: `ahop_map${this.maps}`,
-            type: Gamemode.AHOP,
             status: MapStatus.APPROVED,
             hash: randomHash(),
-            info: { create: { numTracks: 1, creationDate: new Date() } },
+            info: { create: { creationDate: new Date() } },
             images: mmap?.images ?? { create: {} },
-            stats: mmap?.stats ?? { create: { baseStats: { create: {} } } }
-          },
+            stats: mmap?.stats ?? { create: {} },
+            // Just creating the one leaderboard here, most maps will have more,
+            // but isn't needed or worth the test perf hit
+            leaderboards:
+              mmap?.leaderboards ?? noLeaderboards
+                ? undefined
+                : {
+                    create: {
+                      gamemode: Gamemode.AHOP,
+                      trackType: TrackType.MAIN,
+                      trackNum: 0,
+                      style: 0,
+                      tier: 1,
+                      linear: true,
+                      ranked: true
+                    }
+                  }
+          } as CreateMapMMapArgs,
           mmap
-        ),
-        tracks: {
-          create: merge(
-            {
-              trackNum: 0,
-              numZones: 2,
-              isLinear: true,
-              difficulty: 1,
-              stats: track?.stats ?? { create: { baseStats: { create: {} } } },
-              zones: track?.zones ?? {
-                createMany: { data: [{ zoneNum: 0 }, { zoneNum: 1 }] }
-              }
-            },
-            track
-          ) as any // I'm sorry these types are just so annoying. They're valid!!
-        } as any
+        )
       } as any,
-      include: {
-        images: true,
-        tracks: true,
-        submission: { include: { versions: true } }
-      }
+      include: { images: true, submission: { include: { versions: true } } }
     });
 
     return this.prisma.mMap.update({
@@ -159,8 +168,14 @@ export class DbUtil {
         thumbnail: createdMap.images[0]
           ? { connect: { id: createdMap.images[0].id } }
           : undefined,
-        mainTrack: createdMap.tracks[0]
-          ? { connect: { id: createdMap.tracks[0].id } }
+        submission: createdMap?.submission?.versions?.[0]
+          ? {
+              update: {
+                currentVersion: {
+                  connect: { id: createdMap.submission.versions[0].id }
+                }
+              }
+            }
           : undefined
       },
       include: {
@@ -168,125 +183,194 @@ export class DbUtil {
         images: true,
         stats: true,
         thumbnail: true,
-        mainTrack: { include: { zones: true } },
-        submission: { include: { versions: true } }
+        leaderboards: true,
+        submission: { include: { versions: true, currentVersion: true } }
       }
     });
   }
 
   createMaps(
     count: number,
-    map: CreateMapMMapArgs = {},
-    track: CreateMapMapTrackArgs = {}
+    map: CreateMapMMapArgs = {}
   ): Promise<
-    (MMap & {
-      info: MapInfo;
-      stats: MapStats;
-      images: MapImage[];
-      thumbnail: MapImage;
-      mainTrack: MapTrack;
-    })[]
+    Array<
+      MMap & {
+        info: MapInfo;
+        stats: MapStats;
+        images: MapImage[];
+        thumbnail: MapImage;
+        leaderboards: Leaderboard[];
+      }
+    >
   > {
     return Promise.all(
-      Array.from({ length: count }, () => this.createMap(map, track))
+      Array.from({ length: count }, () => this.createMap(map))
     );
+  }
+
+  /**
+   * Create a map with all the leaderboards that would be generated from
+   * ZonesStub, in Ahop
+   */
+  createMapWithFullLeaderboards(
+    mmap?: Omit<CreateMapMMapArgs, 'leaderboards' | 'zones'>
+  ) {
+    return this.createMap({
+      ...mmap,
+      zones: ZonesStub,
+      leaderboards: {
+        createMany: {
+          data: [
+            {
+              gamemode: Gamemode.AHOP,
+              trackType: TrackType.MAIN,
+              trackNum: 0,
+              style: 0,
+              tier: 1,
+              linear: true,
+              ranked: true
+            },
+            {
+              gamemode: Gamemode.AHOP,
+              trackType: TrackType.STAGE,
+              trackNum: 0,
+              style: 0,
+              ranked: true
+            },
+            {
+              gamemode: Gamemode.AHOP,
+              trackType: TrackType.STAGE,
+              trackNum: 1,
+              style: 0,
+              ranked: true
+            },
+            {
+              gamemode: Gamemode.AHOP,
+              trackType: TrackType.BONUS,
+              trackNum: 0,
+              style: 0,
+              tier: 5,
+              ranked: true
+            }
+          ]
+        }
+      }
+    });
   }
 
   //#endregion
 
   //#region Runs
 
-  async createRun(args: {
-    map: MMap;
-    user: User;
-    ticks?: number;
-    flags?: number;
+  async createLbRun(args: {
+    rank: number; // TODO: Will be removed eventually
+    map?: MMap;
+    user?: User;
+    time?: number;
     createdAt?: Date;
+    gamemode?: Gamemode;
+    trackType?: TrackType;
     trackNum?: number;
-    zoneNum?: number;
-  }): Promise<Run & { user: User; mmap: MMap }> {
+    style?: Style;
+    flags?: number[];
+    stats?: RunStats;
+  }): Promise<LeaderboardRun & { user: User; mmap: MMap }> {
     // Wanna create a user, map, AND run? Go for it!
-    const user = args.user ?? (await this.createUser());
-    const map = args.map ?? (await this.createMap());
-    const ticks = args.ticks ?? 1;
+    const user = args?.user ?? (await this.createUser());
+    const map = args?.map ?? (await this.createMap());
 
-    return this.prisma.run.create({
+    return this.prisma.leaderboardRun.create({
       data: {
-        mmap: { connect: { id: map.id } },
         user: { connect: { id: user.id } },
-        trackNum: args.trackNum ?? 0,
-        zoneNum: args.zoneNum ?? 0,
-        ticks: ticks,
-        tickRate: ticks * 100,
-        flags: args.flags ?? 0,
-        file: '',
-        time: ticks,
-        hash: randomHash(),
-        createdAt: args.createdAt ?? undefined,
-        overallStats: { create: { jumps: 1 } },
-        zoneStats: {
-          create: { baseStats: { create: {} }, zoneNum: args.zoneNum ?? 0 }
+        mmap: { connect: { id: map.id } },
+        time: args?.time ?? 1,
+        flags: args?.flags ?? [0],
+        stats: (args?.stats as unknown as JsonValue) ?? {},
+        replayHash: randomHash(),
+        rank: args?.rank,
+        rankXP: 0,
+        createdAt: args?.createdAt ?? undefined,
+        leaderboard: {
+          connect: {
+            mapID_gamemode_trackType_trackNum_style: {
+              mapID: map.id,
+              gamemode: args?.gamemode ?? Gamemode.AHOP,
+              trackType: args?.trackType ?? TrackType.MAIN,
+              trackNum: args?.trackNum ?? 0,
+              style: args?.style ?? 0
+            }
+          }
+        },
+        pastRun: {
+          create: {
+            mmap: { connect: { id: map.id } },
+            user: { connect: { id: user.id } },
+            gamemode: args?.gamemode ?? Gamemode.AHOP,
+            trackType: args?.trackType ?? TrackType.MAIN,
+            trackNum: args?.trackNum ?? 0,
+            style: args?.style ?? 0,
+            time: args?.time ?? 1
+          }
         }
       },
       include: { user: true, mmap: true }
     });
   }
 
-  /**
-   * Create a run with attached UMR for a specific map. If a Prisma `User` is
-   * passed in, use that. Otherwise, create one.
-   */
-  async createRunAndRankForMap(
-    args: {
-      map?: MMap;
-      user?: User;
-      ticks?: number;
-      rank?: number;
-      flags?: number;
-      trackNum?: number;
-      zoneNum?: number;
-      createdAt?: Date;
-      file?: string;
-    } = {}
-  ): Promise<Run & { rank: Rank; user: User; mmap: MMap }> {
-    // Prisma unfortunately doesn't seem clever enough to let us do nested User
-    // -> Run -> UMR creation; UMR needs a User to connect. So when we want to
-    // create users for this, we to create one first.
-    const user = args.user ?? (await this.createUser());
+  async createPastRun(args?: {
+    map?: MMap;
+    user?: User;
+    createLbRun?: boolean; // default false
+    lbRank?: number;
+    time?: number;
+    createdAt?: Date;
+    gamemode?: Gamemode;
+    trackType?: TrackType;
+    trackNum?: number;
+    style?: Style;
+    flags?: number[];
+  }): Promise<PastRun & { user: User; mmap: MMap }> {
+    const user = args?.user ?? (await this.createUser());
+    const map = args?.map ?? (await this.createMap());
 
-    const map = args.map ?? (await this.createMap());
+    if (args?.createLbRun && !args?.lbRank)
+      throw new Error('Must supply a rank if creating a leaderboard entry.');
 
-    const ticks = args.ticks ?? 1;
-
-    return this.prisma.run.create({
+    return this.prisma.pastRun.create({
       data: {
-        mmap: { connect: { id: map.id } },
         user: { connect: { id: user.id } },
-        trackNum: args.trackNum ?? 0,
-        zoneNum: args.zoneNum ?? 0,
-        ticks: ticks ?? 1,
-        tickRate: 100,
-        flags: args.flags ?? 0,
-        file: args.file ?? '',
-        time: ticks * 100,
-        hash: randomHash(),
-        createdAt: args.createdAt ?? undefined,
-        rank: {
-          create: {
-            mmap: { connect: { id: map.id } },
-            user: { connect: { id: user.id } },
-            rank: args.rank ?? 1,
-            gameType: map.type,
-            flags: args.flags ?? 0,
-            createdAt: args.createdAt ?? undefined
-          }
-        },
-        overallStats: { create: { jumps: 1 } },
-        zoneStats: {
-          create: { baseStats: { create: {} }, zoneNum: args.zoneNum ?? 0 }
-        }
-      },
-      include: { rank: true, user: true, mmap: true }
+        mmap: { connect: { id: map.id } },
+        gamemode: args?.gamemode ?? Gamemode.AHOP,
+        trackNum: args?.trackNum ?? 0,
+        trackType: args?.trackType ?? 0,
+        style: args?.style ?? 0,
+        time: args?.time ?? 1,
+        flags: args?.flags ?? [0],
+        leaderboardRun: args?.createLbRun
+          ? {
+              create: {
+                mmap: { connect: { id: map.id } },
+                user: { connect: { id: user.id } },
+                time: args?.time ?? 1,
+                flags: args?.flags ?? [0],
+                rank: args?.lbRank,
+                stats: {},
+                leaderboard: {
+                  connect: {
+                    mapID_gamemode_trackType_trackNum_style: {
+                      mapID: map.id,
+                      gamemode: args?.gamemode ?? Gamemode.AHOP,
+                      trackNum: args?.trackNum ?? 0,
+                      trackType: args?.trackType ?? 0,
+                      style: args?.style ?? 0
+                    }
+                  }
+                }
+              } as Prisma.LeaderboardRunCreateWithoutPastRunInput
+            }
+          : undefined
+      } as Prisma.PastRunCreateInput,
+      include: { user: true, mmap: true, leaderboardRun: true }
     });
   }
 
@@ -296,7 +380,6 @@ export class DbUtil {
 //#region Types
 
 type CreateUserArgs = PartialDeep<Prisma.UserCreateArgs>;
-type CreateMapMMapArgs = PartialDeep<Omit<Prisma.MMapCreateInput, 'tracks'>>;
-type CreateMapMapTrackArgs = PartialDeep<Prisma.MapTrackCreateWithoutMmapInput>;
+type CreateMapMMapArgs = PartialDeep<Prisma.MMapCreateInput>;
 
 //#endregion
