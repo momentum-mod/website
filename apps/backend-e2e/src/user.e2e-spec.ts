@@ -68,9 +68,10 @@ describe('User', () => {
         const res = await req.get({
           url: 'user',
           status: 200,
-          token: token,
-          validate: UserDto
+          validate: UserDto,
+          token
         });
+
         expect(res.body.alias).toBe(user.alias);
         expect(res.body).not.toHaveProperty('profile');
       });
@@ -80,7 +81,7 @@ describe('User', () => {
           url: 'user',
           validate: UserDto,
           expand: 'profile',
-          token: token
+          token
         }));
 
       it('should respond with user data and expand userStats data', () =>
@@ -88,7 +89,7 @@ describe('User', () => {
           url: 'user',
           validate: UserDto,
           expand: 'userStats',
-          token: token
+          token
         }));
 
       it('should 401 when no access token is provided', () =>
@@ -106,7 +107,7 @@ describe('User', () => {
           url: 'user',
           status: 204,
           body: { alias: newAlias },
-          token: token
+          token
         });
 
         const updatedUser = await prisma.user.findFirst({
@@ -125,7 +126,7 @@ describe('User', () => {
           url: 'user',
           status: 204,
           body: { bio: newBio },
-          token: token
+          token
         });
 
         const updatedUser = await prisma.user.findFirst({
@@ -157,7 +158,7 @@ describe('User', () => {
           url: 'user',
           status: 204,
           body: { socials: socialNames },
-          token: token
+          token
         });
 
         const updatedUser = await prisma.user.findFirst({
@@ -183,7 +184,7 @@ describe('User', () => {
           url: 'user',
           status: 204,
           body: { socials: { LinkedIn: 'thegamerCEO2003' } },
-          token: token
+          token
         });
 
         const updatedUser = await prisma.user.findFirst({
@@ -205,7 +206,7 @@ describe('User', () => {
           url: 'user',
           status: 204,
           body: { bio: newBio, socials: { Discord: discordUsername } },
-          token: token
+          token
         });
 
         const updatedUser = await prisma.user.findFirst({
@@ -226,7 +227,7 @@ describe('User', () => {
           url: 'user',
           status: 400,
           body: { socials: { rateyourmusic: 'acdcfan1965' } },
-          token: token
+          token
         });
       });
 
@@ -239,7 +240,7 @@ describe('User', () => {
           url: 'user',
           status: 403,
           body: { bio: 'Gamer Words' },
-          token: token
+          token
         });
       });
 
@@ -252,7 +253,7 @@ describe('User', () => {
           url: 'user',
           status: 403,
           body: { alias: 'Gamer Words' },
-          token: token
+          token
         });
       });
 
@@ -311,7 +312,7 @@ describe('User', () => {
           url: 'user',
           status: 204,
           body: { country: newCountryCode },
-          token: token
+          token
         });
 
         const updatedUser = await prisma.user.findFirst({
@@ -330,7 +331,7 @@ describe('User', () => {
           url: 'user',
           status: 400,
           body: { countryCode: newCountryCode },
-          token: token
+          token
         });
       });
     });
@@ -554,7 +555,7 @@ describe('User', () => {
         const res = await req.get({
           url: 'user/profile',
           status: 200,
-          token: token,
+          token,
           validate: ProfileDto
         });
 
@@ -840,7 +841,7 @@ describe('User', () => {
         const res = await req.get({
           url: `user/notifyMap/${map.id}`,
           status: 200,
-          token: token,
+          token,
           validate: MapNotifyDto
         });
 
@@ -853,14 +854,14 @@ describe('User', () => {
         req.get({
           url: `user/notifyMap/${map.id}`,
           status: 404,
-          token: token
+          token
         }));
 
       it('should 404 if the target map does not exist', () =>
         req.get({
           url: `user/notifyMap/${NULL_ID}`,
           status: 404,
-          token: token
+          token
         }));
 
       it('should 401 when no access token is provided', () =>
@@ -894,7 +895,7 @@ describe('User', () => {
           url: `user/notifyMap/${map.id}`,
           status: 204,
           body: { notifyOn: newActivityType },
-          token: token
+          token
         });
 
         const mapNotify = await prisma.mapNotify.findFirst({
@@ -911,7 +912,7 @@ describe('User', () => {
           url: `user/notifyMap/${map.id}`,
           status: 204,
           body: { notifyOn: activityType },
-          token: token
+          token
         });
 
         const mapNotify = await prisma.mapNotify.findFirst({
@@ -927,7 +928,7 @@ describe('User', () => {
           url: `user/notifyMap/${map.id}`,
           status: 400,
           body: { notifyOn: 'this is a sausage' },
-          token: token
+          token
         });
       });
 
@@ -936,7 +937,7 @@ describe('User', () => {
           url: `user/notifyMap/${NULL_ID}`,
           status: 404,
           body: { notifyOn: ActivityType.PB_ACHIEVED },
-          token: token
+          token
         }));
 
       it('should 401 when no access token is provided', () =>
@@ -968,7 +969,7 @@ describe('User', () => {
         await req.del({
           url: `user/notifyMap/${map.id}`,
           status: 204,
-          token: token
+          token
         });
 
         const mapNotify = await prisma.mapNotify.findFirst({
@@ -981,14 +982,14 @@ describe('User', () => {
         req.del({
           url: `user/notifyMap/${map.id}`,
           status: 404,
-          token: token
+          token
         }));
 
       it('should 404 if the target map does not exist', () =>
         req.del({
           url: `user/notifyMap/${NULL_ID}`,
           status: 404,
-          token: token
+          token
         }));
 
       it('should 401 when no access token is provided', () =>
@@ -1017,7 +1018,7 @@ describe('User', () => {
         const res = await req.get({
           url: 'user/activities',
           status: 200,
-          token: token,
+          token,
           validatePaged: ActivityDto
         });
 
@@ -1030,14 +1031,14 @@ describe('User', () => {
         req.takeTest({
           url: 'user/activities',
           validate: ActivityDto,
-          token: token
+          token
         }));
 
       it('should respond with a different list of activities for the local user when using the skip query param', () =>
         req.skipTest({
           url: 'user/activities',
           validate: ActivityDto,
-          token: token
+          token
         }));
 
       it('should respond with a filtered list of activities for the local user when using the type query param', async () => {
@@ -1046,7 +1047,7 @@ describe('User', () => {
           status: 200,
           validatePaged: ActivityDto,
           query: { type: ActivityType.MAP_UPLOADED },
-          token: token
+          token
         });
 
         expect(res.body).toMatchObject({
@@ -1062,7 +1063,7 @@ describe('User', () => {
           status: 200,
           validatePaged: ActivityDto,
           query: { data: 2 },
-          token: token
+          token
         });
 
         expect(res.body).toMatchObject({ totalCount: 2, returnCount: 2 });
@@ -1073,7 +1074,7 @@ describe('User', () => {
           url: 'user/activities',
           status: 200,
           query: { data: NULL_ID },
-          token: token
+          token
         });
 
         expect(res.body).toMatchObject({ totalCount: 0, returnCount: 0 });
@@ -1230,7 +1231,7 @@ describe('User', () => {
         req.get({
           url: 'user/maps/library',
           status: 200,
-          token: token,
+          token,
           validatePaged: { type: MapLibraryEntryDto, count: 2 }
         }));
 
@@ -1238,14 +1239,14 @@ describe('User', () => {
         req.takeTest({
           url: 'user/maps/library',
           validate: MapLibraryEntryDto,
-          token: token
+          token
         }));
 
       it('should retrieve a filtered list of maps in the local users library using the skip query', () =>
         req.skipTest({
           url: 'user/maps/library',
           validate: MapLibraryEntryDto,
-          token: token
+          token
         }));
 
       it('should retrieve a filtered list of maps in the local users library using the search query', async () => {
@@ -1256,7 +1257,7 @@ describe('User', () => {
 
         await req.searchTest({
           url: 'user/maps/library',
-          token: token,
+          token,
           searchMethod: 'contains',
           searchString: 'fuck',
           searchPropertyName: 'map.name',
@@ -1277,7 +1278,7 @@ describe('User', () => {
           expectedPropertyName: 'map.submitter',
           paged: true,
           validate: MapLibraryEntryDto,
-          token: token
+          token
         });
       });
 
@@ -1288,7 +1289,7 @@ describe('User', () => {
           expectedPropertyName: 'map.thumbnail',
           paged: true,
           validate: MapLibraryEntryDto,
-          token: token
+          token
         });
       });
 
@@ -1308,7 +1309,7 @@ describe('User', () => {
           expectedPropertyName: 'map.favorites',
           paged: true,
           validate: MapLibraryEntryDto,
-          token: token
+          token
         });
       });
 
@@ -1339,7 +1340,7 @@ describe('User', () => {
         await req.get({
           url: `user/maps/library/${map.id}`,
           status: 204,
-          token: token
+          token
         });
 
         await prisma.mapLibraryEntry.deleteMany();
@@ -1349,14 +1350,14 @@ describe('User', () => {
         req.get({
           url: `user/maps/library/${map.id}`,
           status: 404,
-          token: token
+          token
         }));
 
       it('should 400 if the map is not in the database', () =>
         req.get({
           url: `user/maps/library/${NULL_ID}`,
           status: 400,
-          token: token
+          token
         }));
 
       it('should 401 when no access token is provided', () =>
@@ -1380,7 +1381,7 @@ describe('User', () => {
         await req.put({
           url: `user/maps/library/${map.id}`,
           status: 204,
-          token: token
+          token
         });
 
         const entry = await prisma.mapLibraryEntry.findFirst({
@@ -1395,7 +1396,7 @@ describe('User', () => {
         req.put({
           url: `user/maps/library/${NULL_ID}`,
           status: 404,
-          token: token
+          token
         }));
 
       it('should 401 when no access token is provided', () =>
@@ -1423,7 +1424,7 @@ describe('User', () => {
         await req.del({
           url: `user/maps/library/${map.id}`,
           status: 204,
-          token: token
+          token
         });
 
         const entry = await prisma.mapLibraryEntry.findFirst({
@@ -1436,14 +1437,14 @@ describe('User', () => {
         req.del({
           url: `user/maps/library/${map.id}`,
           status: 404,
-          token: token
+          token
         }));
 
       it('should 404 if the map is not in the database', () =>
         req.del({
           url: `user/maps/library/${NULL_ID}`,
           status: 404,
-          token: token
+          token
         }));
 
       it('should 401 when no access token is provided', () =>
@@ -1481,7 +1482,7 @@ describe('User', () => {
         req.get({
           url: 'user/maps/favorites',
           status: 200,
-          token: token,
+          token,
           validatePaged: { type: MapFavoriteDto, count: 2 }
         }));
 
@@ -1489,20 +1490,20 @@ describe('User', () => {
         req.takeTest({
           url: 'user/maps/favorites',
           validate: MapFavoriteDto,
-          token: token
+          token
         }));
 
       it('should retrieve a filtered list of maps in the local users favorites using the skip query', () =>
         req.skipTest({
           url: 'user/maps/favorites',
           validate: MapFavoriteDto,
-          token: token
+          token
         }));
 
       it('should retrieve a list of maps in the local users favorites filtered using a search string', () =>
         req.searchTest({
           url: 'user/maps/favorites',
-          token: token,
+          token,
           searchString: 'bbb',
           searchMethod: 'contains',
           searchPropertyName: 'map.name',
@@ -1516,7 +1517,7 @@ describe('User', () => {
           expectedPropertyName: 'map.info',
           paged: true,
           validate: MapFavoriteDto,
-          token: token
+          token
         }));
 
       it('should retrieve a list of maps in the local users favorites with expanded credits', () =>
@@ -1526,7 +1527,7 @@ describe('User', () => {
           expectedPropertyName: 'map.credits',
           paged: true,
           validate: MapFavoriteDto,
-          token: token,
+          token,
           some: true
         }));
 
@@ -1537,7 +1538,7 @@ describe('User', () => {
           expectedPropertyName: 'map.thumbnail.small',
           paged: true,
           validate: MapFavoriteDto,
-          token: token
+          token
         }));
 
       it('should retrieve a list of maps in the local users favorites with expanded submitter', () =>
@@ -1547,7 +1548,7 @@ describe('User', () => {
           expectedPropertyName: 'map.submitter',
           paged: true,
           validate: MapFavoriteDto,
-          token: token
+          token
         }));
 
       it("should retrieve a list of maps in the local users favorites with expanded library entries if its in the user's library", async () => {
@@ -1561,7 +1562,7 @@ describe('User', () => {
           expectedPropertyName: 'map.libraryEntries',
           paged: true,
           validate: MapFavoriteDto,
-          token: token,
+          token,
           some: true
         });
       });
@@ -1614,7 +1615,7 @@ describe('User', () => {
 
         const res = await req.get({
           url: `user/maps/favorites/${map.id}`,
-          token: token,
+          token,
           status: 200
         });
 
@@ -1626,14 +1627,14 @@ describe('User', () => {
       it('should return 404 if the map is not in library', () =>
         req.get({
           url: `user/maps/favorites/${map.id}`,
-          token: token,
+          token,
           status: 404
         }));
 
       it("should return 404 if the map doesn't exist", () =>
         req.get({
           url: `user/maps/favorites/${NULL_ID}`,
-          token: token,
+          token,
           status: 404
         }));
 
@@ -1658,7 +1659,7 @@ describe('User', () => {
         await req.put({
           url: `user/maps/favorites/${map.id}`,
           status: 204,
-          token: token
+          token
         });
 
         const favorite = await prisma.mapFavorite.findFirst({
@@ -1671,7 +1672,7 @@ describe('User', () => {
         req.put({
           url: `user/maps/favorites/${NULL_ID}`,
           status: 404,
-          token: token
+          token
         }));
 
       it('should 401 when no access token is provided', () =>
@@ -1699,7 +1700,7 @@ describe('User', () => {
         await req.del({
           url: `user/maps/favorites/${map.id}`,
           status: 204,
-          token: token
+          token
         });
 
         const favorite = await prisma.mapFavorite.findFirst({
@@ -1712,14 +1713,14 @@ describe('User', () => {
         req.del({
           url: `user/maps/favorites/${map.id}`,
           status: 404,
-          token: token
+          token
         }));
 
       it('should 404 if the map is not in the database', () =>
         req.del({
           url: `user/maps/favorites/${NULL_ID}`,
           status: 404,
-          token: token
+          token
         }));
 
       it('should 401 when no access token is provided', () =>
@@ -1912,7 +1913,7 @@ describe('User', () => {
           url: 'user/notifications',
           status: 200,
           validatePaged: { type: NotificationDto, count: 2 },
-          token: token
+          token
         });
 
         expect(res.body.data).toMatchObject([{ read: false }, { read: true }]);
@@ -1922,14 +1923,14 @@ describe('User', () => {
         req.takeTest({
           url: 'user/notifications',
           validate: NotificationDto,
-          token: token
+          token
         }));
 
       it('should respond with a different list of notifications for the user when using the skip query param', () =>
         req.skipTest({
           url: 'user/notifications',
           validate: NotificationDto,
-          token: token
+          token
         }));
 
       it('should 401 when no access token is provided', () =>
@@ -1960,7 +1961,7 @@ describe('User', () => {
           url: `user/notifications/${notification.id}`,
           status: 204,
           body: { read: true },
-          token: token
+          token
         });
 
         const updatedNotification = await prisma.notification.findFirst({
@@ -1974,7 +1975,7 @@ describe('User', () => {
           url: `user/notifications/${notification.id}`,
           status: 400,
           body: { read: 'horse' },
-          token: token
+          token
         }));
 
       it('should 404 if the notification does not exist', () =>
@@ -1982,7 +1983,7 @@ describe('User', () => {
           url: `user/notifications/${NULL_ID}`,
           status: 404,
           body: { read: true },
-          token: token
+          token
         }));
 
       it('should 401 when no access token is provided', () =>
@@ -2010,7 +2011,7 @@ describe('User', () => {
         await req.del({
           url: `user/notifications/${notification.id}`,
           status: 204,
-          token: token
+          token
         });
 
         const updatedNotification = await prisma.notification.findFirst({
@@ -2023,7 +2024,7 @@ describe('User', () => {
         req.del({
           url: `user/notifications/${NULL_ID}`,
           status: 404,
-          token: token
+          token
         }));
 
       it('should 401 when no access token is provided', () =>
