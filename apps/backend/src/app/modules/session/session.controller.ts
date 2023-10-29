@@ -17,6 +17,7 @@ import {
   ApiBody,
   ApiConsumes,
   ApiForbiddenResponse,
+  ApiNoContentResponse,
   ApiOkResponse,
   ApiOperation,
   ApiParam,
@@ -28,7 +29,6 @@ import {
   CompletedRunDto,
   CreateRunSessionDto,
   RunSessionDto,
-  RunSessionTimestampDto,
   UpdateRunSessionDto
 } from '@momentum/backend/dto';
 import { LoggedInUser } from '@momentum/backend/decorators';
@@ -66,17 +66,14 @@ export class SessionController {
   }
 
   @Post('/run/:sessionID')
-  @HttpCode(HttpStatus.OK)
+  @HttpCode(HttpStatus.NO_CONTENT)
   @ApiParam({
     name: 'sessionID',
     type: Number,
     description: 'Target Session ID',
     required: true
   })
-  @ApiOkResponse({
-    type: RunSessionTimestampDto,
-    description: 'Timestamp of Run Session'
-  })
+  @ApiNoContentResponse({ description: 'Timestamp subitted successfully' })
   @ApiBadRequestResponse({ description: 'Session does not exist' })
   @ApiBadRequestResponse({ description: 'Timestamps are invalid' })
   @ApiForbiddenResponse({ description: 'Session does not belong to user' })
@@ -84,7 +81,7 @@ export class SessionController {
     @LoggedInUser('id') userID: number,
     @Param('sessionID', ParseIntSafePipe) sessionID: number,
     @Body() body: UpdateRunSessionDto
-  ): Promise<RunSessionTimestampDto> {
+  ): Promise<void> {
     return this.runSessionService.updateSession(userID, sessionID, body);
   }
 

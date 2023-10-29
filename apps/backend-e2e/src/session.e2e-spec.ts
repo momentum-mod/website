@@ -296,12 +296,11 @@ describe('Session', () => {
       afterAll(() => db.cleanup('user', 'run'));
 
       it('should update an existing run with the zone and tick', async () => {
-        const res = await req.post({
+        await req.post({
           url: `session/run/${session.id}`,
-          status: 200,
           body: { zoneNum: 2, tick: 510 },
-          validate: RunSessionTimestampDto,
           token: token
+          status: 204,
         });
 
         expect(res.body).toMatchObject({
