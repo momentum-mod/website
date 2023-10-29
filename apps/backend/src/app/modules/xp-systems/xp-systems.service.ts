@@ -7,6 +7,7 @@ import {
   CosXpParams,
   RankXpGain,
   RankXpParams,
+  TrackType,
   XpSystems
 } from '@momentum/constants';
 import { Inject, Injectable, Logger, OnModuleInit } from '@nestjs/common';
@@ -167,15 +168,14 @@ export class XpSystemsService implements OnModuleInit {
 
   getCosmeticXpForCompletion(
     tier: number,
+    type: TrackType,
     isLinear: boolean,
-    isBonus: boolean,
-    isUnique: boolean,
-    isStageIL: boolean
+    isUnique: boolean
   ): number {
     let xp: number;
     const initialScale = XpSystemsService.getInitialScale(tier);
 
-    if (isBonus) {
+    if (type === TrackType.BONUS) {
       // This needs to probably change (0.9.0+)
       const baseBonus = Math.ceil(
         (this._cosXpParams.completions.unique.tierScale.linear *
@@ -195,7 +195,7 @@ export class XpSystemsService implements OnModuleInit {
           ? this._cosXpParams.completions.unique.tierScale.linear
           : this._cosXpParams.completions.unique.tierScale.staged) *
         initialScale;
-      if (isStageIL) {
+      if (type === TrackType.STAGE) {
         // Unique counts as a repeat
         xp = Math.ceil(
           baseXP /
