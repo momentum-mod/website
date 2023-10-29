@@ -173,7 +173,7 @@ describe('Maps Part 2', () => {
         });
 
         expect(res.body).toBeInstanceOf(Array);
-        expect(res.body.length).toBe(0);
+        expect(res.body).toHaveLength(0);
       });
 
       // Test that permissions checks are getting called
@@ -279,7 +279,7 @@ describe('Maps Part 2', () => {
         });
 
         const credits = await prisma.mapCredit.findMany();
-        expect(credits.length).toBe(1);
+        expect(credits).toHaveLength(1);
         expect(credits[0].userID).toBe(u2.id);
       });
 
@@ -2146,7 +2146,7 @@ describe('Maps Part 2', () => {
         });
 
         const createdRequests = await prisma.mapTestingRequest.findMany();
-        expect(createdRequests.length).toBe(0);
+        expect(createdRequests).toHaveLength(0);
       });
 
       it('should leave any existing MapTestingRequests contained in the userIDs unaffected', async () => {

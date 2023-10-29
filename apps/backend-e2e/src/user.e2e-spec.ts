@@ -1874,7 +1874,7 @@ describe('User', () => {
         });
 
         expect(res.body).toBeInstanceOf(Array);
-        expect(res.body.length).toBe(0);
+        expect(res.body).toHaveLength(0);
       });
 
       it('should 401 when no access token is provided', () =>
