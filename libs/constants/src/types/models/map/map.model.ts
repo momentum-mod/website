@@ -55,24 +55,25 @@ export interface CreateMap extends Pick<MMap, 'name' | 'fileName'> {
   credits: CreateMapCredit[];
 }
 
-export type UpdateMap = Partial<
-  Pick<
-    CreateMap,
-    | 'name'
-    | 'fileName'
-    | 'suggestions'
-    | 'placeholders'
-    | 'testInvites'
-    | 'credits'
-  >
-> & {
+export interface UpdateMap
+  extends Partial<
+    Pick<
+      CreateMap,
+      | 'name'
+      | 'fileName'
+      | 'suggestions'
+      | 'placeholders'
+      | 'testInvites'
+      | 'credits'
+    >
+  > {
   status?: MapStatusNew.CONTENT_APPROVAL | MapStatusNew.FINAL_APPROVAL;
   info?: UpdateMapInfo;
   zones?: MapZones;
   resetLeaderboards?: boolean;
-};
+}
 
-export type UpdateMapAdmin = Omit<UpdateMap, 'status'> & {
+export interface UpdateMapAdmin extends Omit<UpdateMap, 'status'> {
   status?: MapStatusNew;
   finalLeaderboards?: MapSubmissionApproval[];
-};
+}
