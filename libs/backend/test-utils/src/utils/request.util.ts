@@ -267,7 +267,7 @@ export class RequestUtil {
       expectedPropertyValue?: any;
       some?: boolean; // Only test that one or more paged entry passes
     }
-  ): Promise<void> {
+  ): Promise<ParsedResponse> {
     options.expectedPropertyName ??= options.expand;
 
     const res = await this.get({
@@ -310,6 +310,8 @@ export class RequestUtil {
         test(getDeep(res.body, options.expectedPropertyName))
       ).toBeTruthy();
     }
+
+    return res;
   }
 
   async sortTest(
