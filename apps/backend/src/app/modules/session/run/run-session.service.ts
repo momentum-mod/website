@@ -101,8 +101,8 @@ export class RunSessionService {
   async updateSession(
     userID: number,
     sessionID: number,
-    body: UpdateRunSessionDto
-  ): Promise<RunSessionTimestampDto> {
+    { segment, checkpoint, time }: UpdateRunSessionDto
+  ): Promise<void> {
     const session = await this.db.runSession.findUnique({
       where: { id: sessionID },
       include: {
@@ -127,15 +127,9 @@ export class RunSessionService {
     )
       throw new BadRequestException('Timestamp already exists');
 
-    const dbResponse = await this.db.runSessionTimestamp.create({
-      data: {
-        session: { connect: { id: sessionID } },
-        zone: body.zoneNum,
-        tick: body.tick
-      }
+    await this.db.runSessionTimestamp.create({
+      data: { sessionID, segment, checkpoint, time }
     });
-
-    return DtoFactory(RunSessionTimestampDto, dbResponse);
   }
 
   //#endregion
