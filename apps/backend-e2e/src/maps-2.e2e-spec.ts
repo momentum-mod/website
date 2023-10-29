@@ -83,7 +83,7 @@ describe('Maps Part 2', () => {
           url: `maps/${map.id}/info`,
           status: 200,
           validate: MapInfoDto,
-          token: token
+          token
         }));
 
       // Test that permissions checks are getting called
@@ -96,7 +96,7 @@ describe('Maps Part 2', () => {
         await req.get({
           url: `maps/${map.id}/info`,
           status: 403,
-          token: token
+          token
         });
 
         await prisma.mMap.update({
@@ -106,7 +106,7 @@ describe('Maps Part 2', () => {
       });
 
       it('should return 404 if the map is not found', () =>
-        req.get({ url: `maps/${NULL_ID}/info`, status: 404, token: token }));
+        req.get({ url: `maps/${NULL_ID}/info`, status: 404, token }));
 
       it('should 401 when no access token is provided', () =>
         req.unauthorizedTest('maps/1/info', 'get'));
@@ -650,7 +650,7 @@ describe('Maps Part 2', () => {
           url: `maps/${map.id}/credits/${user.id}`,
           status: 200,
           validate: MapCreditDto,
-          token: token
+          token
         });
 
         expect(res.body).toMatchObject({
@@ -665,7 +665,7 @@ describe('Maps Part 2', () => {
           url: `maps/${map.id}/credits/${user.id}`,
           expand: 'user',
           validate: MapCreditDto,
-          token: token
+          token
         }));
 
       // Test that permissions checks are getting called
@@ -691,14 +691,14 @@ describe('Maps Part 2', () => {
         req.get({
           url: `maps/${NULL_ID}/credits/${user.id}`,
           status: 404,
-          token: token
+          token
         }));
 
       it('should return a 404 if the user is not found', () =>
         req.get({
           url: `maps/${map.id}/credits/${NULL_ID}`,
           status: 404,
-          token: token
+          token
         }));
 
       it('should 401 when no access token is provided', () =>
@@ -733,7 +733,7 @@ describe('Maps Part 2', () => {
       });
 
       it('should 404 if the map does not exist', () =>
-        req.get({ url: `maps/${NULL_ID}/zones`, status: 404, token: token }));
+        req.get({ url: `maps/${NULL_ID}/zones`, status: 404, token }));
 
       it('should 401 when no access token is provided', () =>
         req.unauthorizedTest('maps/1/zones', 'get'));
@@ -760,7 +760,7 @@ describe('Maps Part 2', () => {
           url: `maps/${map.id}/thumbnail`,
           status: 204,
           file: 'image_jpg.jpg',
-          token: token
+          token
         }));
 
       it('should create a thumbnail if one does not exist already', async () => {
@@ -773,7 +773,7 @@ describe('Maps Part 2', () => {
           url: `maps/${map.id}/thumbnail`,
           status: 204,
           file: 'image_png.png',
-          token: token
+          token
         });
 
         map = await prisma.mMap.findFirst();
@@ -789,7 +789,7 @@ describe('Maps Part 2', () => {
         req.put({
           url: `maps/${map.id}/thumbnail`,
           status: 400,
-          token: token
+          token
         }));
 
       it('should 403 if the user is not the submitter of the map', async () => {
@@ -802,7 +802,7 @@ describe('Maps Part 2', () => {
           url: `maps/${map.id}/thumbnail`,
           status: 403,
           file: 'image_png.png',
-          token: token
+          token
         });
 
         await prisma.mMap.update({
@@ -821,7 +821,7 @@ describe('Maps Part 2', () => {
           url: `maps/${map.id}/thumbnail`,
           status: 403,
           file: 'image_jpg.jpg',
-          token: token
+          token
         });
 
         await prisma.user.update({
@@ -840,7 +840,7 @@ describe('Maps Part 2', () => {
           url: `maps/${map.id}/thumbnail`,
           status: 403,
           file: 'image_jpg.jpg',
-          token: token
+          token
         });
 
         await prisma.mMap.update({
@@ -871,7 +871,7 @@ describe('Maps Part 2', () => {
           url: `maps/${map.id}/images`,
           status: 200,
           validateArray: { type: MapImageDto, length: 2 },
-          token: token
+          token
         }));
 
       // Test that permissions checks are getting called
@@ -884,7 +884,7 @@ describe('Maps Part 2', () => {
         await req.get({
           url: `maps/${map.id}/images`,
           status: 403,
-          token: token
+          token
         });
 
         await prisma.mMap.update({
@@ -894,7 +894,7 @@ describe('Maps Part 2', () => {
       });
 
       it('should 404 if map does not exist', () =>
-        req.get({ url: `maps/${NULL_ID}/images`, status: 404, token: token }));
+        req.get({ url: `maps/${NULL_ID}/images`, status: 404, token }));
 
       it('should 401 when no access token is provided', () =>
         req.unauthorizedTest('maps/1/images', 'get'));
@@ -928,7 +928,7 @@ describe('Maps Part 2', () => {
           status: 201,
           file: 'image_png.png',
           validate: MapImageDto,
-          token: token
+          token
         });
 
         const updatedMap = await prisma.mMap.findFirst({
@@ -951,7 +951,7 @@ describe('Maps Part 2', () => {
           url: `maps/${map.id}/images`,
           status: 409,
           file: 'image_png.png',
-          token: token
+          token
         });
       });
 
@@ -960,18 +960,18 @@ describe('Maps Part 2', () => {
           url: `maps/${map.id}/images`,
           status: 400,
           file: 'map.zon',
-          token: token
+          token
         }));
 
       it('should 400 if no file is provided', () =>
-        req.post({ url: `maps/${map.id}/images`, status: 400, token: token }));
+        req.post({ url: `maps/${map.id}/images`, status: 400, token }));
 
       it("should 400 when the image file is greater than the config's max image file size", () =>
         req.postAttach({
           url: `maps/${map.id}/images`,
           status: 400,
           file: Buffer.alloc(Config.limits.imageSize + 1),
-          token: token
+          token
         }));
 
       it('should 403 if the user is not a mapper', async () => {
@@ -984,7 +984,7 @@ describe('Maps Part 2', () => {
           url: `maps/${map.id}/images`,
           status: 403,
           file: 'image_jpg.jpg',
-          token: token
+          token
         });
 
         await prisma.user.update({
@@ -1003,7 +1003,7 @@ describe('Maps Part 2', () => {
           url: `maps/${map.id}/images`,
           status: 403,
           file: 'image_jpg.jpg',
-          token: token
+          token
         });
 
         await prisma.mMap.update({
@@ -1022,7 +1022,7 @@ describe('Maps Part 2', () => {
           url: `maps/${map.id}/images`,
           status: 403,
           file: 'image_jpg.jpg',
-          token: token
+          token
         });
 
         await prisma.mMap.update({
@@ -1055,7 +1055,7 @@ describe('Maps Part 2', () => {
           url: `maps/images/${map.images[0].id}`,
           status: 200,
           validate: MapImageDto,
-          token: token
+          token
         }));
 
       // Test that permissions checks are getting called
@@ -1068,7 +1068,7 @@ describe('Maps Part 2', () => {
         await req.get({
           url: `maps/images/${map.images[0].id}`,
           status: 403,
-          token: token
+          token
         });
 
         await prisma.mMap.update({
@@ -1078,7 +1078,7 @@ describe('Maps Part 2', () => {
       });
 
       it('should 404 when the image is not found', () =>
-        req.get({ url: `maps/images/${NULL_ID}`, status: 404, token: token }));
+        req.get({ url: `maps/images/${NULL_ID}`, status: 404, token }));
 
       it('should 401 when no access token is provided', () =>
         req.unauthorizedTest('maps/images/1', 'get'));
@@ -1116,7 +1116,7 @@ describe('Maps Part 2', () => {
           url: `maps/images/${image.id}`,
           status: 204,
           file: 'image_jpg.jpg',
-          token: token
+          token
         });
 
         for (const size of ['small', 'medium', 'large']) {
@@ -1134,18 +1134,18 @@ describe('Maps Part 2', () => {
           url: `maps/images/${NULL_ID}`,
           status: 404,
           file: 'image_jpg.jpg',
-          token: token
+          token
         }));
 
       it('should 400 when no map image is provided', () =>
-        req.put({ url: `maps/images/${image.id}`, status: 400, token: token }));
+        req.put({ url: `maps/images/${image.id}`, status: 400, token }));
 
       it('should 400 if the map image is invalid', () =>
         req.putAttach({
           url: `maps/images/${image.id}`,
           status: 400,
           file: 'map.zon',
-          token: token
+          token
         }));
 
       it('should 403 if the user is not a mapper', async () => {
@@ -1158,7 +1158,7 @@ describe('Maps Part 2', () => {
           url: `maps/images/${image.id}`,
           status: 403,
           file: 'image_jpg.jpg',
-          token: token
+          token
         });
 
         await prisma.user.update({
@@ -1177,7 +1177,7 @@ describe('Maps Part 2', () => {
           url: `maps/images/${image.id}`,
           status: 403,
           file: 'image_png.png',
-          token: token
+          token
         });
 
         await prisma.mMap.update({
@@ -1196,7 +1196,7 @@ describe('Maps Part 2', () => {
           url: `maps/images/${image.id}`,
           status: 403,
           file: 'image_png.png',
-          token: token
+          token
         });
 
         await prisma.mMap.update({
@@ -1242,7 +1242,7 @@ describe('Maps Part 2', () => {
         await req.del({
           url: `maps/images/${image.id}`,
           status: 204,
-          token: token
+          token
         });
 
         const updatedMap = await prisma.mMap.findFirst({
@@ -1264,7 +1264,7 @@ describe('Maps Part 2', () => {
       });
 
       it('should 404 when the image is not found', () =>
-        req.del({ url: `maps/images/${NULL_ID}`, status: 404, token: token }));
+        req.del({ url: `maps/images/${NULL_ID}`, status: 404, token }));
 
       it('should 403 if the user is not a mapper', async () => {
         await prisma.user.update({
@@ -1275,7 +1275,7 @@ describe('Maps Part 2', () => {
         await req.del({
           url: `maps/images/${image.id}`,
           status: 403,
-          token: token
+          token
         });
 
         await prisma.user.update({
@@ -1293,7 +1293,7 @@ describe('Maps Part 2', () => {
         await req.del({
           url: `maps/images/${image.id}`,
           status: 403,
-          token: token
+          token
         });
 
         await prisma.mMap.update({
@@ -1311,7 +1311,7 @@ describe('Maps Part 2', () => {
         await req.del({
           url: `maps/images/${image.id}`,
           status: 403,
-          token: token
+          token
         });
 
         await prisma.mMap.update({
@@ -2295,7 +2295,7 @@ describe('Maps Part 2', () => {
           url: `maps/${NULL_ID}/testRequestResponse`,
           status: 404,
           body: { accept: true },
-          token: token
+          token
         }));
 
       for (const status of difference(Enum.values(MapStatusNew), [

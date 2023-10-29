@@ -44,7 +44,7 @@ export class JwtAuthService {
     });
 
     return DtoFactory(JWTResponseGameDto, {
-      token: token,
+      token,
       length: token.length
     });
   }

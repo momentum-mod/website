@@ -52,7 +52,7 @@ describe('Users', () => {
           url: 'users',
           status: 200,
           validatePaged: { type: UserDto, count: 3 },
-          token: token
+          token
         });
 
         // Quick check we're not sending back stuff that wasn't included.
@@ -62,10 +62,10 @@ describe('Users', () => {
       });
 
       it('should respond with a paged list of users with take parameter', () =>
-        req.takeTest({ url: 'users', validate: UserDto, token: token }));
+        req.takeTest({ url: 'users', validate: UserDto, token }));
 
       it('should respond with a paged list of users with skip parameter', async () =>
-        req.skipTest({ url: 'users', validate: UserDto, token: token }));
+        req.skipTest({ url: 'users', validate: UserDto, token }));
 
       it('should respond with a paged list of users with search by alias parameter', async () => {
         const res = await req.get({
@@ -73,7 +73,7 @@ describe('Users', () => {
           status: 200,
           query: { search: users[0].alias },
           validatePaged: { type: UserDto, count: 1 },
-          token: token
+          token
         });
 
         expect(res.body.data[0].id).toBe(users[0].id);
@@ -85,7 +85,7 @@ describe('Users', () => {
           status: 200,
           query: { search: users[0].alias.toUpperCase() },
           validatePaged: { type: UserDto, count: 1 },
-          token: token
+          token
         });
 
         expect(res.body.data[0].id).toBe(users[0].id);
@@ -97,7 +97,7 @@ describe('Users', () => {
           status: 200,
           query: { search: 'Abstract Barry' },
           validatePaged: { type: UserDto, count: 0 },
-          token: token
+          token
         }));
 
       it('should respond with a paged list of users with expanded profiles when using an expand parameter', () =>
@@ -106,7 +106,7 @@ describe('Users', () => {
           expand: 'profile',
           validate: UserDto,
           paged: true,
-          token: token
+          token
         }));
 
       it('should respond with a paged list of users with expanded stats when using an expand parameter', () =>
@@ -115,7 +115,7 @@ describe('Users', () => {
           expand: 'userStats',
           validate: UserDto,
           paged: true,
-          token: token
+          token
         }));
 
       it('should respond with an array of one user for a matching SteamID parameter', async () => {
@@ -124,7 +124,7 @@ describe('Users', () => {
           status: 200,
           query: { steamID: users[0].steamID },
           validatePaged: { type: UserDto, count: 1 },
-          token: token
+          token
         });
 
         expect(res.body.data[0].id).toBe(users[0].id);
@@ -136,7 +136,7 @@ describe('Users', () => {
           status: 200,
           query: { steamID: 3141592612921 },
           validatePaged: { type: UserDto, count: 0 },
-          token: token
+          token
         }));
 
       it('should respond with an array of multiple users for multiple matching SteamID parameters', async () => {
@@ -145,7 +145,7 @@ describe('Users', () => {
           status: 200,
           query: { steamIDs: users[0].steamID + ',' + users[1].steamID },
           validatePaged: { type: UserDto, count: 2 },
-          token: token
+          token
         });
 
         for (const user of res.body.data)
@@ -160,7 +160,7 @@ describe('Users', () => {
           status: 200,
           query: { steamIDs: 1111111111111111 + ',' + 2222222222222222 },
           validatePaged: { type: UserDto, count: 0 },
-          token: token
+          token
         }));
 
       it('should 401 when no access token is provided', () =>
@@ -189,7 +189,7 @@ describe('Users', () => {
           url: `users/${user.id}`,
           status: 200,
           validate: UserDto,
-          token: token
+          token
         });
 
         expect(res.body.alias).toBe('Arthur Weasley');
@@ -200,7 +200,7 @@ describe('Users', () => {
           url: `users/${user.id}`,
           status: 200,
           validate: UserDto,
-          token: token
+          token
         });
 
         expect(res.body.avatarURL).toBe(
@@ -213,11 +213,11 @@ describe('Users', () => {
           url: `users/${user.id}`,
           validate: UserDto,
           expand: 'profile',
-          token: token
+          token
         }));
 
       it('should 404 if the user is not found', () =>
-        req.get({ url: `users/${NULL_ID}`, status: 404, token: token }));
+        req.get({ url: `users/${NULL_ID}`, status: 404, token }));
 
       it('should 401 when no access token is provided', () =>
         req.unauthorizedTest('users/1', 'get'));
@@ -241,14 +241,14 @@ describe('Users', () => {
         url: `users/${user.id}/profile`,
         status: 200,
         validate: ProfileDto,
-        token: token
+        token
       });
 
       expect(res.body.bio).toBe('Sausages');
     });
 
     it('should 404 if the profile is not found', () =>
-      req.get({ url: `users/${NULL_ID}/profile`, status: 404, token: token }));
+      req.get({ url: `users/${NULL_ID}/profile`, status: 404, token }));
 
     it('should 401 when no access token is provided', () =>
       req.unauthorizedTest('users/1/profile', 'get'));
@@ -290,7 +290,7 @@ describe('Users', () => {
         url: `users/${user.id}/activities`,
         status: 200,
         validatePaged: { type: ActivityDto, count: 3 },
-        token: token
+        token
       }));
 
     it('should order the list by descending date', () =>
@@ -304,14 +304,14 @@ describe('Users', () => {
       req.takeTest({
         url: `users/${user.id}/activities`,
         validate: ActivityDto,
-        token: token
+        token
       }));
 
     it('should respond with a different list of activities for the user when using the skip query param', () =>
       req.skipTest({
         url: `users/${user.id}/activities`,
         validate: ActivityDto,
-        token: token
+        token
       }));
 
     it('should respond with a filtered list of activities for the user when using the type query param', async () => {
@@ -320,7 +320,7 @@ describe('Users', () => {
         status: 200,
         query: { type: ActivityType.MAP_UPLOADED },
         validatePaged: { type: ActivityDto, count: 1 },
-        token: token
+        token
       });
 
       expect(res.body.data[0].type).toBe(ActivityType.MAP_UPLOADED);
@@ -332,7 +332,7 @@ describe('Users', () => {
         status: 200,
         query: { data: 2n },
         validatePaged: { type: ActivityDto, count: 2 },
-        token: token
+        token
       }));
 
     it('should respond with an empty list of activities for the user when using the data query param with nonexistent data', () =>
@@ -341,7 +341,7 @@ describe('Users', () => {
         status: 200,
         query: { data: NULL_ID },
         validatePaged: { type: ActivityDto, count: 0 },
-        token: token
+        token
       }));
 
     it('should not include REPORT_FILED activities', async () => {
@@ -353,7 +353,7 @@ describe('Users', () => {
         url: `users/${user.id}/activities`,
         status: 200,
         validatePaged: { type: ActivityDto, count: 3 },
-        token: token
+        token
       });
 
       for (const act of res.body.data)
@@ -516,7 +516,7 @@ describe('Users', () => {
           url: `users/${user.id}/credits`,
           status: 200,
           validatePaged: { type: MapCreditDto, count: 2 },
-          token: token
+          token
         });
       });
 
@@ -524,14 +524,14 @@ describe('Users', () => {
         req.takeTest({
           url: `users/${user.id}/credits`,
           validate: MapCreditDto,
-          token: token
+          token
         }));
 
       it('should respond with different list of credits with skip parameter', () =>
         req.skipTest({
           url: `users/${user.id}/credits`,
           validate: MapCreditDto,
-          token: token
+          token
         }));
 
       it('should respond with list of credits with map expand', () =>
@@ -540,7 +540,7 @@ describe('Users', () => {
           expand: 'map',
           validate: MapCreditDto,
           paged: true,
-          token: token
+          token
         }));
 
       it('should respond with list of credits with info expand', () =>
@@ -550,7 +550,7 @@ describe('Users', () => {
           expectedPropertyName: 'map.info',
           validate: MapCreditDto,
           paged: true,
-          token: token
+          token
         }));
 
       it('should respond with list of credits with thumbnail expand', () =>
@@ -560,7 +560,7 @@ describe('Users', () => {
           expectedPropertyName: 'map.thumbnail',
           validate: MapCreditDto,
           paged: true,
-          token: token
+          token
         }));
 
       it('should 401 when no access token is provided', () =>
