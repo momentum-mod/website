@@ -353,12 +353,13 @@ export class RequestUtil {
       searchString: string;
       searchMethod: 'startsWith' | 'contains';
       searchPropertyName: string;
+      searchQueryName?: string;
       validate: { type: Type; count?: number };
     }
   ): Promise<void> {
     const res = await this.get({
       url: options.url,
-      query: { search: options.searchString },
+      query: { [options.searchQueryName ?? 'search']: options.searchString },
       status: 200,
       token: options.token,
       validatePaged: {
