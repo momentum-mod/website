@@ -103,8 +103,8 @@ describe('Runs', () => {
         });
 
         for (const x of data) expect(x).toHaveProperty('isPB');
-        expect(data.filter((x) => x.isPB === true).length).toBe(2);
-        expect(data.filter((x) => x.isPB === false).length).toBe(3);
+        expect(data.filter((x) => x.isPB === true)).toHaveLength(2);
+        expect(data.filter((x) => x.isPB === false)).toHaveLength(3);
       });
 
       it('should respond with a list of runs with take parameter', () =>
