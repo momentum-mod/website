@@ -1,6 +1,6 @@
 ﻿import { registerDecorator, ValidationOptions } from 'class-validator';
 
-export function IsBigintValidator(validationOptions?: ValidationOptions) {
+export function IsBigInt(validationOptions?: ValidationOptions) {
   return function (object: object, propertyName: string) {
     registerDecorator({
       name: 'isBigInt',

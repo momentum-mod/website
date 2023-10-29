@@ -21,7 +21,7 @@ import {
   IsString,
   Max
 } from 'class-validator';
-import { IsBigintValidator } from '@momentum/backend/validators';
+import { IsBigInt } from '@momentum/backend/validators';
 import { intersection } from '@momentum/util-fn';
 import { Enum } from '@momentum/enum';
 
@@ -460,7 +460,7 @@ export function BigIntQueryProperty(
     ApiProperty({ ...options, type: String, required: required }),
     Transform(({ value }) => BigInt(value)),
     conditionalDecorator(!required, IsOptional),
-    IsBigintValidator()
+    IsBigInt()
   );
 }
 
