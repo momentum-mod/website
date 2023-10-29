@@ -1,4 +1,4 @@
-﻿// TODO: Clean this up. Some stuff can probs just live in the module.
+﻿// These live in here as service logic and E2E need access.
 
 export enum RunValidationErrorType {
   BAD_TIMESTAMPS,
@@ -7,7 +7,8 @@ export enum RunValidationErrorType {
   INVALID_STATS,
   OUT_OF_SYNC,
   UNSUPPORTED_MODE,
-  FUCKY_BEHAVIOUR
+  FUCKY_BEHAVIOUR,
+  INTERNAL_ERROR
 }
 
 interface ErrorData {
@@ -37,6 +38,10 @@ export const RunValidationErrors: Record<RunValidationErrorType, ErrorData> = {
   [RunValidationErrorType.FUCKY_BEHAVIOUR]: {
     code: 6,
     message: 'unusual behaviour in replay'
+  },
+  [RunValidationErrorType.INTERNAL_ERROR]: {
+    code: 7,
+    message: 'an internal server error occurred'
   }
 } as const;
 

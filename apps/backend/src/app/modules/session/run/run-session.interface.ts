@@ -1,17 +1,10 @@
-﻿import { BaseStats, ZoneStats } from '@momentum/replay';
-import { Prisma, Rank, Run as RunDB } from '@prisma/client';
-import { XpGainDto } from '@momentum/backend/dto';
+﻿import { Prisma, LeaderboardRun } from '@prisma/client';
+import { RunStats, Style } from '@momentum/constants';
 
 export const RUN_SESSION_COMPLETED_INCLUDE = {
   timestamps: true,
-  track: {
-    include: {
-      mmap: { include: { info: true, stats: true } },
-      stats: { include: { baseStats: true } },
-      zones: { include: { stats: { include: { baseStats: true } } } }
-    }
-  },
-  user: true
+  user: true,
+  mmap: true
 };
 
 const runSessionCompletedIncludeValidator =
@@ -23,18 +16,11 @@ export type CompletedRunSession = Prisma.RunSessionGetPayload<
   typeof runSessionCompletedIncludeValidator
 >;
 
-export type ProcessedRun = Omit<
-  RunDB,
-  'id' | 'createdAt' | 'updatedAt' | 'overallStatsID' | 'file' | 'hash'
-> & {
-  overallStats: BaseStats;
-  zoneStats: ZoneStats[];
-};
-
-export interface StatsUpdateReturn {
-  isPersonalBest: boolean;
-  isWorldRecord: boolean;
-  existingRank: Rank;
-  rankCreate: Prisma.RankCreateWithoutRunInput;
-  xp: XpGainDto;
+export interface ProcessedRun
+  extends Pick<
+    LeaderboardRun,
+    'userID' | 'mapID' | 'gamemode' | 'trackType' | 'trackNum' | 'time'
+  > {
+  stats: RunStats;
+  flags: Style[];
 }
