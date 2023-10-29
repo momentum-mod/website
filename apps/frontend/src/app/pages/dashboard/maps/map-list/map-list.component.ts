@@ -9,7 +9,7 @@ import {
   MapStatus,
   MapStatusName,
   Gamemode,
-  MapTypeName
+  GamemodeName
 } from '@momentum/constants';
 import {
   MMap,
@@ -79,7 +79,7 @@ export class MapListComponent implements OnInit {
       { value: undefined, text: 'All' },
       ...Enum.values(Gamemode)
         .filter((status) => status !== Gamemode.UNKNOWN)
-        .map((status) => ({ value: status, text: MapTypeName.get(status) }))
+        .map((status) => ({ value: status, text: GamemodeName.get(status) }))
         .sort((a, b) => (a.text > b.text ? 1 : -1))
     ];
   }

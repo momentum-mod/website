@@ -11,7 +11,7 @@ import {
   MapCreditType,
   MapStatus,
   Gamemode,
-  MapTypePrefix,
+  GamemodePrefix,
   ReportCategory,
   ReportType,
   Role
@@ -102,7 +102,7 @@ async function main(prisma: PrismaClient) {
         name,
         type,
         status: Random.enumValue(MapStatus),
-        fileName: `${MapTypePrefix.get(type)}_${name}`,
+        fileName: `${GamemodePrefix.get(type)}_${name}`,
         hash: faker.string.alphanumeric(),
         submitterID,
         ...Random.createdUpdatedDates()

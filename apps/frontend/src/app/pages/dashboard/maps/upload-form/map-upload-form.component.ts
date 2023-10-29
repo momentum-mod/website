@@ -21,11 +21,11 @@ import { LocalUserService, MapsService } from '@momentum/frontend/data';
 import {
   MapCreditType,
   Gamemode,
-  MapTypeName,
+  GamemodeName,
   ZoneType
 } from '@momentum/constants';
 import { PartialDeep } from 'type-fest';
-import { MapTypePrefix } from '@momentum/constants';
+import { GamemodePrefix } from '@momentum/constants';
 import { SortedMapCredits } from '../map-credits/sorted-map-credits.class';
 import { vdf } from 'fast-vdf';
 
@@ -45,7 +45,7 @@ export class MapUploadFormComponent implements OnInit, AfterViewInit {
   protected readonly FileUploadType = FileUploadType;
   protected readonly MapType = Gamemode;
 
-  protected readonly MapTypeName = MapTypeName;
+  protected readonly MapTypeName = GamemodeName;
 
   @ViewChild('datepicker', { static: false }) datePicker;
   @ViewChild('stepper', { static: false }) stepper;
@@ -150,7 +150,7 @@ export class MapUploadFormComponent implements OnInit, AfterViewInit {
 
     // Infer type from name
     let type = Gamemode.UNKNOWN;
-    for (const [key, prefix] of MapTypePrefix.entries()) {
+    for (const [key, prefix] of GamemodePrefix.entries()) {
       if (nameVal.startsWith(prefix + '_')) {
         type = key;
         break;
