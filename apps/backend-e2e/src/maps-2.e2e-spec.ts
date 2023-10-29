@@ -1229,7 +1229,7 @@ describe('Maps Part 2', () => {
       });
 
       afterAll(async () => {
-        await db.cleanup('user', 'mMap', 'run');
+        await db.cleanup('user', 'mMap');
         await fileStore.deleteDirectory('img');
       });
 
