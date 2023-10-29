@@ -44,7 +44,7 @@ describe('Reports', () => {
           status: 201,
           body: report,
           validate: ReportDto,
-          token: token
+          token
         });
 
         expect(res.body).toMatchObject(report);
@@ -65,7 +65,7 @@ describe('Reports', () => {
           url: 'reports',
           status: 409,
           body: report,
-          token: token
+          token
         });
       });
 
@@ -86,7 +86,7 @@ describe('Reports', () => {
           status: 201,
           body: report,
           validate: ReportDto,
-          token: token
+          token
         });
       });
 
@@ -107,7 +107,7 @@ describe('Reports', () => {
           status: 201,
           body: report,
           validate: ReportDto,
-          token: token
+          token
         });
       });
 

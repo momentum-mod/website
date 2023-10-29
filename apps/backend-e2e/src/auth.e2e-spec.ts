@@ -707,7 +707,7 @@ describe('Auth', () => {
       const res = await req.post({
         url: 'auth/refresh',
         skipApiPrefix: true,
-        token: token,
+        token,
         body: { refreshToken: originalRefreshToken },
         status: 201,
         validate: JWTResponseWebDto
