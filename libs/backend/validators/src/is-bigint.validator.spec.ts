@@ -1,8 +1,8 @@
 import { validate } from 'class-validator';
-import { IsBigintValidator } from './is-bigint.validator';
+import { IsBigInt } from './is-big.int';
 
 class TestClass {
-  @IsBigintValidator()
+  @IsBigInt()
   value: unknown;
 
   constructor(value: unknown) {

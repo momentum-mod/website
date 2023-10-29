@@ -9,7 +9,7 @@ import {
   IntCsvQueryProperty,
   IntQueryProperty
 } from '../decorators';
-import { IsBigintValidator } from '@momentum/backend/validators';
+import { IsBigInt } from '@momentum/backend/validators';
 import {
   UserMapFavoritesGetExpand,
   UserMapFavoritesGetQuery,
@@ -64,7 +64,7 @@ export class UsersGetAllQueryDto
     description: 'Filter by Steam Community ID',
     example: '123135674'
   })
-  @IsBigintValidator()
+  @IsBigInt()
   @IsOptional()
   readonly steamID?: string;
 
@@ -73,7 +73,7 @@ export class UsersGetAllQueryDto
     example: '123135674,7987347263,98312287631',
     bigint: true
   })
-  @IsBigintValidator({ each: true })
+  @IsBigInt({ each: true })
   @IsOptional()
   readonly steamIDs: string[];
 
