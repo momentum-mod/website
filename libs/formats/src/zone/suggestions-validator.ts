@@ -1,7 +1,7 @@
 import {
   IncompatibleGamemodes,
   MapSubmissionSuggestion,
-  MapTypeName,
+  GamemodeName,
   MapZones,
   TrackType as TT,
   TrackTypeName as TTName
@@ -42,7 +42,7 @@ export function validateSuggestions(
             continue;
           } else {
             throw new SuggestionValidationError(
-              `Duplicate suggestion for gamemode ${MapTypeName.get(gm)}, ` +
+              `Duplicate suggestion for gamemode ${GamemodeName.get(gm)}, ` +
                 `trackType ${TTName.get(tt)}, ` +
                 `trackNum ${tn}`
             );
@@ -52,7 +52,7 @@ export function validateSuggestions(
         if (IncompatibleGamemodes.get(gm).includes(gm2)) {
           throw new SuggestionValidationError(
             'Incompatible gamemodes ' +
-              `${MapTypeName.get(gm)} and ${MapTypeName.get(gm2)} on ` +
+              `${GamemodeName.get(gm)} and ${GamemodeName.get(gm2)} on ` +
               `trackType: ${TTName.get(tt)}, ` +
               `trackNum: ${tn}`
           );

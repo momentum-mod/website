@@ -1,6 +1,6 @@
 import { Gamemode } from '../enums/gamemode.enum';
 
-export const MapTypePrefix: ReadonlyMap<Gamemode, string> = new Map([
+export const GamemodePrefix: ReadonlyMap<Gamemode, string> = new Map([
   [Gamemode.SURF, 'surf'],
   [Gamemode.BHOP, 'bhop'],
   [Gamemode.RJ, 'rj'],
