@@ -227,7 +227,7 @@ export class RequestUtil {
     const res = await this.get({
       url: options.url,
       status: 200,
-      query: { take: 1 },
+      query: { ...options.query, take: 1 },
       token: options.token,
       validatePaged: options.validate
     });
@@ -239,7 +239,7 @@ export class RequestUtil {
     const res = await this.get({
       url: options.url,
       status: 200,
-      query: { take: 1 },
+      query: { ...options.query, take: 1 },
       token: options.token,
       validatePaged: options.validate
     });
@@ -247,7 +247,7 @@ export class RequestUtil {
     const res2 = await this.get({
       url: options.url,
       status: 200,
-      query: { skip: 1, take: 1 },
+      query: { ...options.query, skip: 1, take: 1 },
       token: options.token,
       validatePaged: options.validate
     });
@@ -439,6 +439,7 @@ export interface E2ETestOptions {
   url: string;
   token: string;
   validate: Type;
+  query?: Query;
 }
 
 //#endregion
