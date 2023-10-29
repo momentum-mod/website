@@ -1742,7 +1742,7 @@ describe('Maps Part 2', () => {
           submitter: { connect: { id: u1.id } }
         });
 
-        // official review
+        // Official review
         reviewOfficial = await prisma.mapReview.create({
           data: {
             mainText: 'Great map!',
@@ -1761,7 +1761,7 @@ describe('Maps Part 2', () => {
           }
         });
 
-        // unofficial review
+        // Unofficial review
         reviewUnofficial = await prisma.mapReview.create({
           data: {
             mainText: 'Wow, what a shit map.',
