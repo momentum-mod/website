@@ -4,13 +4,16 @@
   ReplayFileWriter,
   RunFrame,
   ZoneStats
-} from '@momentum/replay';
+} from '@momentum/formats';
 import { ParsedResponse, RequestUtil } from './request.util';
 import { Random } from '@momentum/random';
+import { Gamemode, Tickrates, TrackType } from '@momentum/constants';
 
-const DEFAULT_DELAY_MS = 100;
+const DEFAULT_DELAY_MS = 10;
 const MAGIC = 0x524d4f4d;
 
+// Wish we could use Jest fake timers here, but won't work with a live DB, as we
+// rely on createdAt values generated from Prisma/Postgres
 const sleep = (duration: number) =>
   new Promise((resolve) => setTimeout(resolve, duration));
 
@@ -21,12 +24,13 @@ export interface RunTesterProps {
   mapHash: string;
   steamID: bigint;
   playerName: string;
-  tickRate: number;
-  runFlags: number;
   runDate: string;
+  gamemode: Gamemode;
+  trackType: TrackType;
   trackNum: number;
-  zoneNum: number;
+  runFlags: number;
   startTick: number;
+  tickRate?: number; // Otherwise uses gamemode's tickrate
 }
 
 /**
@@ -41,11 +45,14 @@ export class RunTester {
 
   sessionID: number;
 
+  tickrate: number;
+
   startTime: number;
   startTick: number;
   stopTick: number;
 
-  currZone: number;
+  currSeg: number;
+  currCP: number;
   currTime: number;
 
   private req: RequestUtil;
@@ -54,6 +61,7 @@ export class RunTester {
     this.req = req;
     this.props = props;
     this.replayFile = new ReplayFileWriter();
+    this.tickrate = this.props.tickRate ?? Tickrates.get(props.gamemode);
     this.replay = {
       magic: null,
       version: null,
@@ -76,30 +84,24 @@ export class RunTester {
     };
   }
 
-  static async run(
-    req: RequestUtil,
-    props: RunTesterProps,
-    zones: number,
-    delay = DEFAULT_DELAY_MS
-  ) {
-    const runTester = new RunTester(req, props);
-    await runTester.startRun();
-    await runTester.doZones(zones, delay);
-    return runTester.endRun({ delay: delay });
+  static async run(args: {
+    req: RequestUtil;
+    props: RunTesterProps;
+    zones: number[]; // array of number of minor checkpoints. 4 cp linear would be [0, 0, 0, 0]
+    delay?: number;
+    startSeg?: number;
+  }) {
+    const runTester = new RunTester(args.req, args.props);
+    await runTester.startRun({ startSeg: args.startSeg });
+
+    await runTester.doZones(args.zones, args.delay ?? DEFAULT_DELAY_MS);
+
+    return runTester.endRun({ delay: args.delay ?? DEFAULT_DELAY_MS });
   }
 
-  async doRun(zones: number, delay = DEFAULT_DELAY_MS) {
-    await this.startRun();
-    await this.doZones(zones, delay);
-    return this.endRun({ delay: delay });
-  }
-
-  async doZones(zones: number, delay = DEFAULT_DELAY_MS) {
-    for (let i = 0; i < zones; i++) await this.doZone(delay);
-  }
-
-  async startRun() {
-    this.currZone = 0;
+  async startRun(args?: { startSeg?: number }) {
+    this.currSeg = args?.startSeg ?? 0;
+    this.currCP = 0;
     this.startTick = this.props.startTick ?? 0;
     this.startTime = Date.now();
 
@@ -107,8 +109,10 @@ export class RunTester {
       url: 'session/run',
       body: {
         mapID: this.props.mapID,
+        gamemode: this.props.gamemode,
+        trackType: this.props.trackType,
         trackNum: this.props.trackNum,
-        zoneNum: 0
+        segment: args?.startSeg ?? 0
       },
       status: 200,
       token: this.props.token ?? ''
@@ -116,24 +120,47 @@ export class RunTester {
     this.sessionID = res.body.id;
   }
 
-  async doZone(delay = DEFAULT_DELAY_MS) {
+  async doZones(zones: number[], delay = DEFAULT_DELAY_MS) {
+    for (const [i, zone] of zones.entries()) {
+      if (i > 0) await this.startSegment({ delay });
+      for (let j = 0; j < zone; j++) {
+        await this.doCP({ delay });
+      }
+    }
+  }
+
+  async doCP(args?: { delay?: number; setCP?: number }) {
+    this.currCP = args?.setCP ?? this.currCP + 1;
+    return this.doUpdate(args?.delay ?? DEFAULT_DELAY_MS);
+  }
+
+  async startSegment(args?: {
+    delay?: number;
+    setSeg?: number;
+    setCP?: number;
+  }) {
+    this.currSeg = args?.setSeg ?? this.currSeg + 1;
+    this.currCP = args?.setCP ?? 0;
+    return this.doUpdate(args?.delay ?? DEFAULT_DELAY_MS);
+  }
+
+  async doUpdate(delay = DEFAULT_DELAY_MS) {
     await sleep(delay);
-    this.currZone++;
 
     this.currTime = Date.now();
 
     const timeTotal = Date.now() - this.startTime;
-    const tickTotal = Math.ceil(timeTotal / 1000 / this.props.tickRate);
+    const tickTotal = Math.ceil(timeTotal / 1000 / this.tickrate);
 
     await this.req.post({
       url: `session/run/${this.sessionID}`,
-      body: { zoneNum: this.currZone, tick: tickTotal },
-      status: 200,
+      body: { segment: this.currSeg, checkpoint: this.currCP, time: timeTotal },
+      status: 204,
       token: this.props.token ?? ''
     });
 
     this.replay.zoneStats.push({
-      zoneNum: this.currZone,
+      zoneNum: 0, // TODO: This doesn't make sense but I don't know how we're changing replays for 0.10.0 yet.
       baseStats: RunTester.createStats(
         new Date(),
         this.replay.zoneStats.length > 0
@@ -154,7 +181,7 @@ export class RunTester {
 
     await sleep(delay);
     const timeTotal = Date.now() - this.startTime;
-    this.stopTick = Math.ceil(timeTotal / 1000 / this.props.tickRate);
+    this.stopTick = Math.ceil(timeTotal / 1000 / this.tickrate);
 
     this.replay.magic = MAGIC;
     this.replay.version = 1;
@@ -163,43 +190,45 @@ export class RunTester {
       mapHash: this.props.mapHash,
       playerName: this.props.playerName,
       steamID: this.props.steamID,
-      tickRate: this.props.tickRate,
+      tickRate: this.tickrate,
       runFlags: this.props.runFlags,
       runDate: this.props.runDate,
       startTick: this.startTick,
       stopTick: this.stopTick,
       trackNum: this.props.trackNum,
-      zoneNum: this.props.zoneNum
+      zoneNum: 0 // TODO: See above TODO
     };
 
-    if (this.replay.zoneStats.length > 0) {
-      this.replay.zoneStats.push({
-        zoneNum: this.currZone,
-        baseStats: RunTester.createStats(
-          new Date(),
-          this.replay.zoneStats.at(-1).baseStats.totalTime
-        )
-      });
-
-      this.replay.overallStats = {
-        jumps: this.sumField('jumps'),
-        strafes: this.sumField('strafes'),
-        avgStrafeSync: this.sumField('avgStrafeSync'),
-        avgStrafeSync2: this.sumField('avgStrafeSync2'),
-        enterTime: 0,
-        totalTime: this.replay.zoneStats.at(-1).baseStats.totalTime,
-        velMax3D: this.sumField('velMax3D'),
-        velMax2D: this.sumField('velMax2D'),
-        velAvg3D: this.sumField('velAvg3D'),
-        velAvg2D: this.sumField('velAvg2D'),
-        velEnter3D: this.sumField('velEnter3D'),
-        velEnter2D: this.sumField('velEnter2D'),
-        velExit3D: this.sumField('velExit3D'),
-        velExit2D: this.sumField('velExit2D')
-      };
-    } else {
-      this.replay.overallStats = RunTester.createStats(new Date(), 0);
-    }
+    // TODO: Leaving several parts of this file commented out until we refactor
+    // replay file to support new zones!
+    // if (this.replay.zoneStats.length > 0) {
+    //   this.replay.zoneStats.push({
+    //     zoneNum: this.currZone,
+    //     baseStats: RunTester.createStats(
+    //       new Date(),
+    //       this.replay.zoneStats.at(-1).baseStats.totalTime
+    //     )
+    //   });
+    //
+    //   this.replay.overallStats = {
+    //     jumps: this.sumField('jumps'),
+    //     strafes: this.sumField('strafes'),
+    //     avgStrafeSync: this.sumField('avgStrafeSync'),
+    //     avgStrafeSync2: this.sumField('avgStrafeSync2'),
+    //     enterTime: 0,
+    //     totalTime: this.replay.zoneStats.at(-1).baseStats.totalTime,
+    //     velMax3D: this.sumField('velMax3D'),
+    //     velMax2D: this.sumField('velMax2D'),
+    //     velAvg3D: this.sumField('velAvg3D'),
+    //     velAvg2D: this.sumField('velAvg2D'),
+    //     velEnter3D: this.sumField('velEnter3D'),
+    //     velEnter2D: this.sumField('velEnter2D'),
+    //     velExit3D: this.sumField('velExit3D'),
+    //     velExit2D: this.sumField('velExit2D')
+    //   };
+    // } else {
+    //   this.replay.overallStats = RunTester.createStats(new Date(), 0);
+    // }
 
     this.replay.frames = Array.from({ length: this.stopTick }, () =>
       RunTester.createFrame()
@@ -233,29 +262,30 @@ export class RunTester {
     // Header
     this.replayFile.writeHeader(this.replay);
 
-    // Stats
-    if (writeStats) {
-      this.replayFile.writeInt8(1, false); // hasStats
-      this.replayFile.writeInt8(this.replay.zoneStats.length); // numZones
-
-      // Only testing non-IL for now
-      this.replayFile.writeBaseStats(
-        this.replay.overallStats,
-        this.replay.header.tickRate
-      );
-      for (const zone of this.replay.zoneStats)
-        this.replayFile.writeBaseStats(
-          zone.baseStats,
-          this.replay.header.tickRate
-        );
-    }
-
-    if (writeFrames) {
-      this.replayFile.writeInt32(this.replay.frames.length);
-      // Frames
-      for (const frame of this.replay.frames)
-        this.replayFile.writeRunFrame(frame);
-    }
+    // TODO: See above
+    // // Stats
+    // if (writeStats) {
+    //   this.replayFile.writeInt8(1, false); // hasStats
+    //   this.replayFile.writeInt8(this.replay.zoneStats.length); // numZones
+    //
+    //   // Only testing non-IL for now
+    //   this.replayFile.writeBaseStats(
+    //     this.replay.overallStats,
+    //     this.replay.header.tickRate
+    //   );
+    //   for (const zone of this.replay.zoneStats)
+    //     this.replayFile.writeBaseStats(
+    //       zone.baseStats,
+    //       this.replay.header.tickRate
+    //     );
+    // }
+    //
+    // if (writeFrames) {
+    //   this.replayFile.writeInt32(this.replay.frames.length);
+    //   // Frames
+    //   for (const frame of this.replay.frames)
+    //     this.replayFile.writeRunFrame(frame);
+    // }
   }
 
   private static createStats(startDate: Date, previousTime: number): BaseStats {
