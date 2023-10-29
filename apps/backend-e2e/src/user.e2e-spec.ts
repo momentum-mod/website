@@ -1475,7 +1475,7 @@ describe('User', () => {
         ]);
       });
 
-      afterAll(() => db.cleanup('user', 'mMap'));
+      afterAll(() => db.cleanup('leaderboardRun', 'pastRun', 'user', 'mMap'));
 
       it('should retrieve the list of maps in the local users favorites', () =>
         req.get({
@@ -1567,10 +1567,10 @@ describe('User', () => {
       });
 
       it('should retrieve a list of maps in the local users favorites with expanded PBs if the user has a PB', async () => {
-        await db.createRunAndRankForMap({
+        await db.createLbRun({
           map: m1,
           user,
-          ticks: 10,
+          time: 10,
           rank: 2
         });
 
