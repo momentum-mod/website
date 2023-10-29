@@ -24,11 +24,13 @@ import {
 import {
   ActivityType,
   Ban,
+  Gamemode,
   MapCreditType,
   ReportCategory,
   ReportType,
   Role,
-  Socials
+  Socials,
+  TrackType
 } from '@momentum/constants';
 import { PrismaClient } from '@prisma/client';
 import {
@@ -336,9 +338,9 @@ describe('User', () => {
     describe('DELETE', () => {
       afterAll(() =>
         db.cleanup(
+          'leaderboardRun',
+          'pastRun',
           'mMap',
-          'rank',
-          'run',
           'report',
           'activity',
           'deletedSteamID'
@@ -348,7 +350,7 @@ describe('User', () => {
       it('should delete user data, leaving user with Role.DELETED', async () => {
         const followeeUser = await db.createUser();
         const map = await db.createMap();
-        const newUser = await prisma.user.create({
+        const user = await prisma.user.create({
           data: {
             roles: Role.MAPPER,
             bans: Ban.BIO,
@@ -398,16 +400,26 @@ describe('User', () => {
             },
             runSessions: {
               create: {
+                mapID: map.id,
                 trackNum: 1,
-                zoneNum: 1,
-                track: { connect: { id: map.mainTrackID } }
+                gamemode: Gamemode.AHOP,
+                trackType: 0
               }
             }
           }
         });
 
-        const token = auth.login(newUser);
-        await db.createRunAndRankForMap({ map, user: newUser });
+        const token = auth.login(user);
+        await db.createPastRun({
+          map,
+          user,
+          trackNum: 0,
+          trackType: TrackType.MAIN,
+          lbRank: 1,
+          createLbRun: true,
+          time: 1,
+          gamemode: Gamemode.AHOP
+        });
 
         await prisma.activity.create({
           data: {
@@ -416,10 +428,10 @@ describe('User', () => {
             notifications: {
               create: {
                 read: true,
-                user: { connect: { id: newUser.id } }
+                user: { connect: { id: user.id } }
               }
             },
-            user: { connect: { id: newUser.id } }
+            user: { connect: { id: user.id } }
           }
         });
 
@@ -431,13 +443,13 @@ describe('User', () => {
             message: 'yeeeee',
             resolved: true,
             resolutionMessage: 'yeeeeee',
-            submitter: { connect: { id: newUser.id } },
-            resolver: { connect: { id: newUser.id } }
+            submitter: { connect: { id: user.id } },
+            resolver: { connect: { id: user.id } }
           }
         });
 
         const userBeforeDeletion = await prisma.user.findUnique({
-          where: { id: newUser.id },
+          where: { id: user.id },
           include: {
             userAuth: true,
             profile: true,
@@ -446,7 +458,8 @@ describe('User', () => {
             mapCredits: true,
             mapFavorites: true,
             mapLibraryEntries: true,
-            mapRanks: true,
+            leaderboardRuns: true,
+            pastRuns: true,
             reviewsResolved: true,
             reviewsSubmitted: true,
             activities: true,
@@ -455,7 +468,6 @@ describe('User', () => {
             mapNotifies: true,
             notifications: true,
             runSessions: true,
-            runs: true,
             reportSubmitted: true,
             reportResolved: true
           }
@@ -468,7 +480,7 @@ describe('User', () => {
         });
 
         const deletedUser = await prisma.user.findUnique({
-          where: { id: newUser.id },
+          where: { id: user.id },
           include: {
             userAuth: true,
             profile: true,
@@ -477,7 +489,8 @@ describe('User', () => {
             mapCredits: true,
             mapFavorites: true,
             mapLibraryEntries: true,
-            mapRanks: true,
+            leaderboardRuns: true,
+            pastRuns: true,
             reviewsSubmitted: true,
             reviewsResolved: true,
             activities: true,
@@ -486,7 +499,6 @@ describe('User', () => {
             mapNotifies: true,
             notifications: true,
             runSessions: true,
-            runs: true,
             reportSubmitted: true,
             reportResolved: true
           }
@@ -510,7 +522,8 @@ describe('User', () => {
           mapCredits: userBeforeDeletion.mapCredits,
           mapFavorites: [],
           mapLibraryEntries: [],
-          mapRanks: userBeforeDeletion.mapRanks,
+          leaderboardRuns: userBeforeDeletion.leaderboardRuns,
+          pastRuns: userBeforeDeletion.pastRuns,
           reviewsSubmitted: userBeforeDeletion.reviewsSubmitted,
           activities: [],
           follows: [],
@@ -518,7 +531,6 @@ describe('User', () => {
           mapNotifies: userBeforeDeletion.mapNotifies,
           notifications: [],
           runSessions: [],
-          runs: userBeforeDeletion.runs,
           reportSubmitted: userBeforeDeletion.reportSubmitted,
           reportResolved: userBeforeDeletion.reportResolved
         });
