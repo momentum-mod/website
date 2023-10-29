@@ -106,7 +106,7 @@ describe('ActivityCardComponent', () => {
       ];
       component.filterValue = ActivityType.MAP_UPLOADED;
       component.filterActivites(component.activities);
-      expect(component.filteredActivities.length).toBe(1);
+      expect(component.filteredActivities).toHaveLength(1);
       expect(component.filteredActivities[0].type).toBe(
         ActivityType.MAP_UPLOADED
       );
@@ -120,7 +120,7 @@ describe('ActivityCardComponent', () => {
       ];
       component.filterValue = ActivityType.ALL;
       component.filterActivites(component.activities);
-      expect(component.filteredActivities.length).toBe(3);
+      expect(component.filteredActivities).toHaveLength(3);
     });
   });
 
@@ -197,7 +197,7 @@ describe('ActivityCardComponent', () => {
       component.onGetActivities(response);
       expect(component.initialActivity).toBe(true);
       expect(component.activities).toEqual(response.data);
-      expect(component.filteredActivities.length).toBe(1);
+      expect(component.filteredActivities).toHaveLength(1);
       expect(component.filteredActivities[0].type).toBe(
         ActivityType.REVIEW_MADE
       );

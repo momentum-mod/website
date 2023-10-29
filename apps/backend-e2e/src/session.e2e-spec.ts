@@ -483,7 +483,7 @@ describe('Session', () => {
             }
           });
 
-          expect(ranksBefore.length).toBe(10);
+          expect(ranksBefore).toHaveLength(10);
 
           await submitRun();
 
@@ -497,7 +497,7 @@ describe('Session', () => {
             }
           });
 
-          expect(ranksAfter.length).toBe(11);
+          expect(ranksAfter).toHaveLength(11);
           expect(ranksAfter.find((rank) => rank.userID === user.id).rank).toBe(
             2
           );
@@ -534,7 +534,7 @@ describe('Session', () => {
             }
           });
 
-          expect(ranksBefore.length).toBe(10);
+          expect(ranksBefore).toHaveLength(10);
 
           const res = await submitRun();
 
@@ -554,7 +554,7 @@ describe('Session', () => {
 
           // It should have *updated* our existing rank, so this should still
           // be 10
-          expect(ranksAfter.length).toBe(10);
+          expect(ranksAfter).toHaveLength(10);
 
           // So, it should have shifted rank 2, 3 to rank 3, 4, our rank (4)
           // now becoming 2. prettier-ignore
@@ -600,7 +600,7 @@ describe('Session', () => {
             }
           });
 
-          expect(ranksBefore.length).toBe(10);
+          expect(ranksBefore).toHaveLength(10);
 
           const res = await submitRun();
 
