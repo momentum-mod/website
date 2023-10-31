@@ -33,6 +33,7 @@ import {
 import { MapsService } from '../../maps/maps.service';
 import { RunProcessor } from './run-processor.class';
 import { JsonValue } from 'type-fest';
+import { parallel } from '@momentum/util-fn';
 
 @Injectable()
 export class RunSessionService {
@@ -238,20 +239,10 @@ export class RunSessionService {
 
     // We have two quite expensive, independent operations here, including a
     // file store. So we may as well run in parallel and await them both.
-    const [{ run, xpGain, isWR }] = await Promise.all([
-      await this.updateLeaderboards(
-        tx,
-        submittedRun,
-        isPB,
-        existingRun,
-        replayHash
-      ),
-      await this.updateReplayFiles(
-        replayBuffer,
-        replayHash,
-        existingRun?.replayHash
-      )
-    ]);
+    const [{ run, xpGain, isWR }] = await parallel(
+      this.updateLeaderboards(tx, submittedRun, isPB, existingRun, replayHash),
+      this.updateReplayFiles(replayBuffer, replayHash, existingRun?.replayHash)
+    );
 
     if (isWR) {
       await tx.activity.create({

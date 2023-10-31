@@ -65,6 +65,7 @@ import {
   expandToIncludes,
   intersection,
   isEmpty,
+  parallel,
   throwIfEmpty
 } from '@momentum/util-fn';
 import { File } from '@nest-lab/fastify-multer';
@@ -649,8 +650,8 @@ export class MapsService {
         zones
       );
 
-      await Promise.all([
-        (async () => {
+      await parallel(
+        async () => {
           const zippedVmf = hasVmf
             ? await this.zipVmfFiles(map.fileName, newVersionNum, vmfFiles)
             : undefined;
@@ -660,13 +661,13 @@ export class MapsService {
             bspFile,
             zippedVmf
           );
-        })(),
+        },
 
         tx.mapSubmission.update({
           where: { mapID },
           data: { currentVersion: { connect: { id: newVersion.id } } }
         })
-      ]);
+      );
     });
 
     return DtoFactory(
@@ -755,7 +756,6 @@ export class MapsService {
         status,
         info: {
           create: {
-            numTracks: createMapDto.info.numTracks,
             description: createMapDto.info.description,
             creationDate: createMapDto.info.creationDate,
             youtubeID: createMapDto.info.youtubeID
@@ -1301,7 +1301,7 @@ export class MapsService {
     });
     const zones = dbZones as unknown as MapZones; // TODO: #855
 
-    const [bspSuccess, vmfSuccess] = await Promise.all([
+    const [bspSuccess, vmfSuccess] = await parallel(
       this.fileStoreService.copyFile(
         submissionBspPath(currentVersionID),
         approvedBspPath(map.fileName)
@@ -1312,7 +1312,7 @@ export class MapsService {
             approvedVmfsPath(map.fileName)
           )
         : () => Promise.resolve(true)
-    ]);
+    );
 
     if (!bspSuccess)
       throw new InternalServerErrorException(
