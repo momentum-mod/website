@@ -6,3 +6,4 @@ export * from './array-set-operations';
 export * from './is-object';
 export * from './flatten-object';
 export * from './vector';
+export * from './from';
