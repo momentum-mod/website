@@ -3,8 +3,8 @@ import { Observable } from 'rxjs';
 import { finalize } from 'rxjs/operators';
 import { FormBuilder, FormGroup } from '@angular/forms';
 import { NbToastrService } from '@nebular/theme';
-import { Run, User } from '@momentum/constants';
-import { RunsService } from '@momentum/frontend/data';
+import { Order, PastRun, RunsGetAllOrder, User } from '@momentum/constants';
+import { PastRunsService } from '@momentum/frontend/data';
 
 @Component({
   selector: 'mom-profile-run-history',
@@ -12,28 +12,33 @@ import { RunsService } from '@momentum/frontend/data';
   styleUrls: ['./profile-run-history.component.scss']
 })
 export class ProfileRunHistoryComponent implements OnInit {
+  protected readonly OrderBy = RunsGetAllOrder;
+  protected readonly Order = Order;
+
   @Input() userSubj: Observable<User>;
   user: User;
-  runHistory: Run[];
+  runHistory: PastRun[];
   loadedRuns: boolean;
   pageLimit: number;
   currentPage: number;
   runCount: number;
   showFilters: boolean;
   currentFilter: {
-    isPersonalBest: boolean;
+    isPB: boolean;
     map: string;
-    order: string;
+    orderBy: RunsGetAllOrder;
+    order: Order;
   };
 
   filterFG: FormGroup = this.fb.group({
     isPersonalBest: [false],
     map: [''],
-    order: ['date']
+    orderBy: [RunsGetAllOrder.DATE],
+    order: [Order.DESC]
   });
 
   constructor(
-    private runsService: RunsService,
+    private pastRunsService: PastRunsService,
     private toastService: NbToastrService,
     private fb: FormBuilder
   ) {
@@ -44,8 +49,9 @@ export class ProfileRunHistoryComponent implements OnInit {
     this.showFilters = false;
     this.runHistory = [];
     this.currentFilter = {
-      isPersonalBest: this.filterFG.value.isPersonalBest,
+      isPB: this.filterFG.value.isPersonalBest,
       map: this.filterFG.value.map,
+      orderBy: this.filterFG.value.orderBy,
       order: this.filterFG.value.order
     };
   }
@@ -58,12 +64,13 @@ export class ProfileRunHistoryComponent implements OnInit {
   }
 
   loadRunHistory() {
-    this.runsService
+    this.pastRunsService
       .getRuns({
         userID: this.user.id,
         expand: ['map'],
         mapName: this.currentFilter.map,
-        isPB: this.currentFilter.isPersonalBest,
+        isPB: this.currentFilter.isPB,
+        orderBy: this.currentFilter.orderBy,
         order: this.currentFilter.order,
         take: this.pageLimit,
         skip: (this.currentPage - 1) * this.pageLimit
@@ -85,16 +92,16 @@ export class ProfileRunHistoryComponent implements OnInit {
   }
 
   onFilterApply() {
-    // Some destructuring to shorten the upcoming if statement
-    const { isPersonalBest, map, order } = this.filterFG.value;
+    const { isPersonalBest, map, order, orderBy } = this.filterFG.value;
     if (
       // Don't do anything if the filters didn't change
-      this.currentFilter.isPersonalBest === isPersonalBest &&
+      this.currentFilter.isPB === isPersonalBest &&
       this.currentFilter.map === map &&
+      this.currentFilter.orderBy === orderBy &&
       this.currentFilter.order === order
     )
       return;
-    this.currentFilter = { isPersonalBest, map, order };
+    this.currentFilter = { isPB: isPersonalBest, map, order, orderBy };
     this.currentPage = 1; // Reset page back to 1 so you don't potentially pull a page past the last filtered page
     this.loadRunHistory();
   }

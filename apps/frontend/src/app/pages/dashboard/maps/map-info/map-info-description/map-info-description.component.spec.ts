@@ -1,7 +1,8 @@
 import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 import { MapInfoDescriptionComponent } from './map-info-description.component';
 import { NbUserModule } from '@nebular/theme';
-import { Gamemode } from '@momentum/constants';
+import { Gamemode, MapStatusNew, MMap, TrackType } from '@momentum/constants';
+import { ZonesStub } from '@momentum/formats';
 
 describe('MapInfoDescriptionComponent', () => {
   let component: MapInfoDescriptionComponent;
@@ -22,23 +23,33 @@ describe('MapInfoDescriptionComponent', () => {
       name: 'test',
       type: Gamemode.SURF,
       hash: 'no thanks',
-      statusFlag: 0,
+      status: MapStatusNew.APPROVED,
+      zones: ZonesStub,
+      hasVmf: false,
+      downloadURL: 'bing.com',
+      fileName: 'e',
+      submitterID: 1,
+      createdAt: new Date(),
+      updatedAt: new Date(),
       info: {
-        id: 1,
         description: 'Test',
-        numTracks: 1,
-        creationDate: new Date().toString()
+        youtubeID: '',
+        creationDate: new Date()
       },
-      tracks: [
+      leaderboards: [
         {
-          trackNum: 0,
           mapID: 1,
-          numZones: 1,
-          isLinear: false,
-          difficulty: 5
+          gamemode: Gamemode.AHOP,
+          tier: 5,
+          trackNum: 0,
+          trackType: TrackType.MAIN,
+          style: 0,
+          tags: [],
+          linear: true,
+          ranked: false
         }
       ]
-    } as any;
+    } as MMap;
     fixture.detectChanges();
   });
 
