@@ -1,7 +1,7 @@
 <nb-card>
   <nb-card-header>
     <div class="row">
-      <h2 class="col">LEADERBOARD</h2>
+      <h2 class="col">Leaderboards</h2>
       <div class="col-auto ml-auto">
         <button nbButton outline status="info" type="button" (click)="filterActive = !filterActive">Filter</button>
       </div>
@@ -18,6 +18,11 @@
     >
       <div class="p-3">
         <div class="row mb-3">
+          <div class="col-md mb-2 mb-md-0">
+            <nb-select [(selected)]="selectedMode">
+              <nb-option *ngFor="let mode of availableModes">{{ GamemodeName.get(mode) }}</nb-option>
+            </nb-select>
+          </div>
           <div class="col-md mb-2 mb-md-0">
             <input nbInput fullWidth type="text" class="form-control" placeholder="Rank" />
           </div>
@@ -43,8 +48,8 @@
       </div>
     </div>
     <h4 *ngIf="!searchedRanks" class="text-center">Waiting for API response</h4>
-    <h4 *ngIf="searchedRanks && leaderboardRanks.length === 0" class="text-center">No runs found</h4>
-    <div *ngIf="searchedRanks && leaderboardRanks.length > 0" class="table-responsive">
+    <h4 *ngIf="searchedRanks && leaderboardRuns.length === 0" class="text-center">No runs found</h4>
+    <div *ngIf="searchedRanks && leaderboardRuns.length > 0" class="table-responsive">
       <table>
         <tr>
           <th>Rank</th>
@@ -54,18 +59,18 @@
           <th>Achieved</th>
           <th>View</th>
         </tr>
-        <tr *ngFor="let rank of leaderboardRanks">
-          <td>{{ rank.rank }}</td>
+        <tr *ngFor="let run of leaderboardRuns">
+          <td>{{ run.rank }}</td>
           <td>
-            <a [routerLink]="'/dashboard/profile/' + rank.user.id">
-              <nb-user [name]="rank.user.alias" [picture]="rank.user.avatarURL" size="large"></nb-user>
+            <a [routerLink]="'/dashboard/profile/' + run.user.id">
+              <nb-user [name]="run.user.alias" [picture]="run.user.avatarURL" size="large"></nb-user>
             </a>
           </td>
-          <td>{{ rank.run.time | timing }}</td>
+          <td>{{ run.time | timing }}</td>
           <td></td>
-          <td>{{ rank.run.createdAt | timeAgo }}</td>
+          <td>{{ run.createdAt | timeAgo }}</td>
           <td>
-            <button nbButton outline status="info" shape="round" type="button" (click)="viewRun(rank.run)">
+            <button nbButton outline status="info" shape="round" type="button" (click)="viewRun(run)">
               <nb-icon icon="arrow-right-thick"></nb-icon>
             </button>
           </td>

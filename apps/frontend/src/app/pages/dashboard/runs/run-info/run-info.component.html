@@ -12,14 +12,6 @@
           </h2>
         </div>
       </div>
-      <div class="col" *ngIf="personalBestRun && personalBestRun.id !== run.id">
-        <div class="d-flex justify-content-end align-items-center">
-          <h4 class="mr-3 text-right d-none d-sm-block notice">Note: Not viewing their personal best!</h4>
-          <button nbButton outline status="info" type="button" routerLink="/dashboard/runs/{{ personalBestRun.id }}">
-            Go&nbsp;to PB&nbsp;run
-          </button>
-        </div>
-      </div>
     </div>
   </nb-card-header>
   <nb-card-body>
@@ -29,20 +21,22 @@
         <h1>{{ run.time | timing }}</h1>
       </div>
 
-      <div class="base mx-1 mb-3">
-        <h5>Jumps</h5>
-        <h1>{{ run.overallStats.jumps }}</h1>
-      </div>
+      <ng-container *ngIf="run.leaderboardRun">
+        <div class="base mx-1 mb-3">
+          <h5>Jumps</h5>
+          <h1>{{ run.leaderboardRun?.stats?.overall?.jumps }}</h1>
+        </div>
 
-      <div class="base mx-1 mb-3">
-        <h5>Strafes</h5>
-        <h1>{{ run.overallStats.strafes }}</h1>
-      </div>
+        <div class="base mx-1 mb-3">
+          <h5>Strafes</h5>
+          <h1>{{ run.leaderboardRun?.stats?.overall?.strafes }}</h1>
+        </div>
 
-      <div class="base mx-1 mb-3">
-        <h5>Rank</h5>
-        <h1>{{ run.rank?.rank || 'N/A' }}</h1>
-      </div>
+        <div class="base mx-1 mb-3">
+          <h5>Rank</h5>
+          <h1>{{ run?.leaderboardRun?.rank || 'N/A' }}</h1>
+        </div>
+      </ng-container>
     </div>
   </nb-card-body>
 </nb-card>

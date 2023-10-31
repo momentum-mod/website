@@ -1,9 +1,11 @@
-.desc {
-  overflow-y: auto;
-  max-height: 197px;
-  background-color: #101010;
+@use 'theme' as *;
 
-  p {
-    white-space: pre-wrap;
-  }
+.block {
+  border-radius: 0.5rem;
+  background-color: rgba(0, 0, 0, 0.25);
+}
+
+h3 {
+  font-family: nb-theme(font-family-secondary);
+  text-align: center;
 }
