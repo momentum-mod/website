@@ -21,9 +21,13 @@
         <input nbInput class="form-control" type="text" placeholder="Map" formControlName="map" />
       </div>
       <div class="col-md text-left text-md-center">
-        <nb-select placeholder="Sort by" formControlName="order">
-          <nb-option [value]="'date'">Sort by Date</nb-option>
-          <nb-option [value]="'time'">Sort by Time</nb-option>
+        <nb-select placeholder="Sort by" formControlName="orderBy">
+          <nb-option [value]="OrderBy.DATE">Sort by Date</nb-option>
+          <nb-option [value]="OrderBy.RUN_TIME">Sort by Time</nb-option>
+        </nb-select>
+        <nb-select placeholder="Order" formControlName="order">
+          <nb-option [value]="Order.ASC">Ascending</nb-option>
+          <nb-option [value]="Order.DESC">Descending</nb-option>
         </nb-select>
       </div>
       <div class="col col-md-auto mr-6 mt-2 mt-md-0">
@@ -46,7 +50,7 @@
     >
       <div class="row no-gutters align-items-center">
         <div class="col-2 col-sm-1 icon pl-0 pl-md-3">
-          <nb-icon *ngIf="run.rank" icon="trophy-outline" nbPopover="Personal Best" nbPopoverTrigger="hint" />
+          <nb-icon *ngIf="run.leaderboardRun" icon="trophy-outline" nbPopover="Personal Best" nbPopoverTrigger="hint" />
         </div>
         <div class="col">
           <a routerLink="/dashboard/runs/{{ run.id }}">

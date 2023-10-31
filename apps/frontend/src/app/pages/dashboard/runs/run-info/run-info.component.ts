@@ -1,8 +1,9 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, ParamMap } from '@angular/router';
-import { RanksService, RunsService } from '@momentum/frontend/data';
-import { Run } from '@momentum/constants';
+import { LeaderboardsService, PastRunsService } from '@momentum/frontend/data';
+import { LeaderboardRun, PastRun } from '@momentum/constants';
 import { switchMap } from 'rxjs/operators';
+import { firstValueFrom } from 'rxjs';
 
 @Component({
   selector: 'mom-run-info',
@@ -10,44 +11,37 @@ import { switchMap } from 'rxjs/operators';
   styleUrls: ['./run-info.component.scss']
 })
 export class RunInfoComponent implements OnInit {
-  run: Run;
-  personalBestRun: Run;
+  run: PastRun;
+  pbRun: LeaderboardRun;
+
   constructor(
     private route: ActivatedRoute,
-    private runService: RunsService,
-    private rankService: RanksService
-  ) {
-    this.run = null;
-    this.personalBestRun = null;
-  }
+    private runService: PastRunsService,
+    private leaderboardsService: LeaderboardsService
+  ) {}
 
   ngOnInit() {
     this.route.paramMap
       .pipe(
         switchMap((params: ParamMap) =>
           this.runService.getRun(params.get('id'), {
-            expand: ['map', 'overallStats', 'zoneStats', 'rank']
+            expand: ['map', 'user', 'leaderboardRun']
           })
         )
       )
-      .subscribe((run) => {
+      .subscribe(async (run) => {
         this.run = run;
-        if (this.run.rank) this.personalBestRun = this.run;
-        else {
-          const options = {
-            userID: this.run.userID,
-            track: this.run.trackNum,
-            zone: this.run.zoneNum,
-            flags: this.run.flags,
-            take: 1
-          };
-          this.rankService
-            .getRanks(this.run.mapID, options)
-            .subscribe((response) => {
-              if (response.totalCount && response.totalCount === 1)
-                this.personalBestRun = response.data[0].run;
-            });
-        }
+        this.pbRun = this.run.isPB
+          ? run.leaderboardRun
+          : await firstValueFrom(
+              this.leaderboardsService.getRun(this.run.mapID, {
+                userID: this.run.userID,
+                gamemode: this.run.gamemode,
+                trackType: this.run.trackType,
+                trackNum: this.run.trackNum,
+                style: this.run.style
+              })
+            );
       });
   }
 }
