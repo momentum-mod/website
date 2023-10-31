@@ -19,6 +19,7 @@ import {
 } from '../auth.interface';
 import { EXTENDED_PRISMA_SERVICE } from '../../database/db.constants';
 import { ExtendedPrismaService } from '../../database/prisma.extension';
+import { parallel } from '@momentum/util-fn';
 
 @Injectable()
 export class JwtAuthService {
@@ -85,10 +86,10 @@ export class JwtAuthService {
     id: number,
     steamID: bigint
   ): Promise<JWTResponseWebDto> {
-    const [accessToken, refreshToken] = await Promise.all([
+    const [accessToken, refreshToken] = await parallel(
       this.generateAccessToken({ id, steamID: steamID, gameAuth: false }),
       this.generateRefreshToken({ id })
-    ]);
+    );
 
     return DtoFactory(JWTResponseWebDto, {
       accessToken: accessToken,

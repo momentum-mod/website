@@ -22,6 +22,7 @@ import { ConfigService } from '@nestjs/config';
 import { EXTENDED_PRISMA_SERVICE } from '../database/db.constants';
 import { ExtendedPrismaService } from '../database/prisma.extension';
 import { MapsService } from './maps.service';
+import { parallel } from '@momentum/util-fn';
 
 @Injectable()
 export class MapImageService {
@@ -158,19 +159,19 @@ export class MapImageService {
     imgBuffer: Buffer,
     imgID: number
   ): Promise<FileStoreFile[]> {
-    return Promise.all([
+    return parallel(
       this.editSaveMapImageFile(imgBuffer, imgSmallPath(imgID), 480, 360),
       this.editSaveMapImageFile(imgBuffer, imgMediumPath(imgID), 1280, 720),
       this.editSaveMapImageFile(imgBuffer, imgLargePath(imgID), 1920, 1080)
-    ]);
+    );
   }
 
   async deleteStoredMapImage(imgID: number): Promise<void> {
-    await Promise.all([
+    await parallel(
       this.fileStoreService.deleteFile(imgSmallPath(imgID)),
       this.fileStoreService.deleteFile(imgMediumPath(imgID)),
       this.fileStoreService.deleteFile(imgLargePath(imgID))
-    ]);
+    );
   }
 
   //#endregion
