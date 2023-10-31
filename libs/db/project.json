@@ -44,8 +44,7 @@
         "format": ["cjs"],
         "additionalEntryPoints": [
           "libs/db/src/scripts/reset.ts",
-          "libs/db/src/scripts/make-me-admin.ts",
-          "libs/db/src/scripts/add-real-map.ts"
+          "libs/db/src/scripts/make-me-admin.ts"
         ]
       }
     },
