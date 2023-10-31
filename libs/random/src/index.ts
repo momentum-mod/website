@@ -20,6 +20,22 @@ export function float(max: number, min = 0, decimalPlaces?: number): number {
 export function element<T>(array: readonly T[]): T {
   return array[Math.floor(Math.random() * array.length)];
 }
+
+export function weighted<T>(choices: [T, number][]): T {
+  const len = choices.length;
+  const summedWeights = [choices[0][1]];
+
+  for (let i = 1; i < len; i++) {
+    summedWeights[i] = summedWeights[i - 1] + choices[i][1];
+  }
+
+  const random = Math.random() * summedWeights[len - 1];
+
+  let i;
+  for (i = 0; i < len; i++) {
+    if (summedWeights[i] > random) {
+      break;
+    }
   }
 
   return choices[i][0];
@@ -63,4 +79,11 @@ export function createdUpdatedDates(startDateYearsBack?: number): {
     createdAt: createdAtDate,
     updatedAt: date(createdAtDate, Date.now())
   };
+}
+
+export function shuffle<T>(arr: T[]): T[] {
+  return [...arr]
+    .map((value) => ({ value, sort: Math.random() }))
+    .sort((a, b) => a.sort - b.sort)
+    .map(({ value }) => value);
 }
