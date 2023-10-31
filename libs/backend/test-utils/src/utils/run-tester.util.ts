@@ -6,8 +6,8 @@
   ZoneStats
 } from '@momentum/formats';
 import { ParsedResponse, RequestUtil } from './request.util';
-import { Random } from '@momentum/random';
 import { Gamemode, Tickrates, TrackType } from '@momentum/constants';
+import * as Random from '@momentum/random';
 
 const DEFAULT_DELAY_MS = 10;
 const MAGIC = 0x524d4f4d;
