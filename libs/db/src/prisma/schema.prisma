@@ -426,7 +426,7 @@ model Leaderboard {
 ///     The idea is we get every distinct leaderboard stacked on top of each other, then ordered by time within the chunk,
 ///     where ties are simply handled by whatever was submitted first. Note that we store any actual "rank" values - incrementing
 ///     ranks for all slower runs on a leaderboard is an incredibly slow operation. (TODO: This hasn't been implemented yet).
-///     Instead, we index this way to allow us to very efficiently compute ranks per query using window functions. 
+///     Instead, we index this way to allow us to very efficiently compute ranks per query using window functions.
 model LeaderboardRun {
   leaderboard Leaderboard @relation(fields: [mapID, gamemode, trackType, trackNum, style], references: [mapID, gamemode, trackType, trackNum, style], onDelete: Cascade)
 
@@ -441,7 +441,7 @@ model LeaderboardRun {
   trackNum  Int @db.SmallInt
   style     Int @db.SmallInt
 
-  /// We don't store ticks in anticipation of future sub-tick system. If ticks 
+  /// We don't store ticks in anticipation of future sub-tick system. If ticks
   /// are required, they can be calculated with `time * tickrate of gamemode`.
   time Float @db.Real
 
@@ -452,10 +452,10 @@ model LeaderboardRun {
   replayHash String? @db.Char(40) /// SHA1
 
   /// Flags are all the styles are run qualifies for. A styled run may qualify
-  /// for multiple leaderboards, and an separate entry is made for each. 
+  /// for multiple leaderboards, and an separate entry is made for each.
   /// For example, a sideways surf run (for some track) would be added to the
   /// sideways leaderboard and unstyled leaderboard. This field is used to "tag"
-  /// runs one leaderboard as also qualifying for another, e.g. the sideways 
+  /// runs one leaderboard as also qualifying for another, e.g. the sideways
   /// run would get a "Sideways" tag on the unstyled leaderboard.
   // This is an array because (a) it allows easier queries for specific flag(s)
   // in Prisma (writing the paginated PastRuns get query raw would be really
