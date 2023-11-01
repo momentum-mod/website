@@ -17,7 +17,6 @@
         "tsConfig": "apps/frontend/tsconfig.app.json",
         "assets": ["apps/frontend/src/favicon.ico", "apps/frontend/src/assets"],
         "styles": [
-          "node_modules/bootstrap/dist/css/bootstrap.css",
           "node_modules/@fontsource/bebas-neue/index.css",
           "node_modules/@fontsource/roboto/index.css",
           "node_modules/flag-icons/css/flag-icons.min.css",
