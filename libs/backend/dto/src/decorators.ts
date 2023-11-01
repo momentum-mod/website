@@ -19,7 +19,8 @@ import {
   IsEnum,
   IsDateString,
   IsString,
-  Max
+  Max,
+  Min
 } from 'class-validator';
 import { IsBigInt } from '@momentum/backend/validators';
 import { intersection } from '@momentum/util-fn';
@@ -217,6 +218,7 @@ export function SkipQueryProperty(def: number): PropertyDecorator {
       description: 'Skip this many records'
     }),
     TypeDecorator(() => Number),
+    IsPositive(),
     IsInt(),
     IsOptional()
   );
