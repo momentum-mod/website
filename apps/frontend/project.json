@@ -19,7 +19,6 @@
         "styles": [
           "node_modules/@fontsource/bebas-neue/index.css",
           "node_modules/@fontsource/roboto/index.css",
-          "node_modules/flag-icons/css/flag-icons.min.css",
           "libs/frontend/theme/src/styles/styles.scss"
         ],
         "scripts": [],
