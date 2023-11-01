@@ -373,8 +373,8 @@ export class RequestUtil {
       const propertyValue: string = getDeep(item, options.searchPropertyName);
       const stringCheck =
         options.searchMethod === 'startsWith'
-          ? propertyValue.startsWith(options.searchString)
-          : propertyValue.includes(options.searchString);
+          ? propertyValue?.startsWith(options.searchString)
+          : propertyValue?.includes(options.searchString);
       expect(stringCheck).toBe(true);
     }
   }
