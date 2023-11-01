@@ -1,5 +1,4 @@
 @use 'theme' as *;
-@import 'bootstrap/scss/mixins/breakpoints';
 @import '@nebular/theme/styles/global/breakpoints';
 
 nb-tabset ::ng-deep .tabset {
@@ -79,7 +78,7 @@ nb-card-header {
   height: 15rem;
 }
 
-@include media-breakpoint-down(sm) {
+@media (max-width: 996px) {
   .user-image {
     width: 12rem;
     height: 12rem;
