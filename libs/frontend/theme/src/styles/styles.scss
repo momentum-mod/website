@@ -11,6 +11,10 @@
 @use '../../../../../apps/frontend/src/app/components/search/search.component.theme'
   as search;
 
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
 // Install the framework and custom global styles
 @include nb-install() {
   @include nb-theme-global();
