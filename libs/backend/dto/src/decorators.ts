@@ -239,6 +239,7 @@ export function TakeQueryProperty(def: number, max = 100): PropertyDecorator {
     }),
     TypeDecorator(() => Number),
     IsPositive(),
+    IsInt(),
     Max(max),
     IsOptional()
   );
