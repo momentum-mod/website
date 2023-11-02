@@ -64,8 +64,14 @@ iframe {
   padding: 0 !important;
 }
 
-input[nbInput].ng-invalid {
-  color: nb-theme(red);
+input[nbInput] {
+  &::placeholder {
+    opacity: 0.6;
+  }
+
+  &.ng-invalid {
+    color: nb-theme(red);
+  }
 }
 
 nb-card-header {
