@@ -32,6 +32,8 @@ module.exports = {
         'deps',
         'db',
         'utils',
+        'tools',
+        'eslint',
         'formats',
         'discord',
         'twitch'
