@@ -53,7 +53,12 @@ module.exports = {
         '@typescript-eslint/no-empty-function': [
           'error',
           {
-            allow: ['arrowFunctions']
+            // Arrow functions: () => {} is identical to () => void 0, but
+            // easier to understand.
+            // Ctors: Private empty ctors are often useful for classes with
+            // async static method to create instances that want to mark their
+            // ctor as private.
+            allow: ['arrowFunctions', 'constructors']
           }
         ],
         '@typescript-eslint/naming-convention': [
