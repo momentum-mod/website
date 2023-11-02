@@ -4,12 +4,12 @@ export const Vec = {
   add: <V extends Vector | Vector2D>(v1: V, v2: V): V =>
     (v1.length === 2
       ? [v1[0] + v2[0], v1[1] + v2[1]]
-      : [v1[0] + v2[0], v1[1] + v2[1], v1[2] + v2[2]]) as V, // Can't be bothered to fix "could be instantiated with different subtype" crap here.
+      : [v1[0] + v2[0], v1[1] + v2[1], v1[2] + (v2 as Vector)[2]]) as V, // Can't be bothered to fix "could be instantiated with different subtype" crap here.
 
   sub: <V extends Vector | Vector2D>(v1: V, v2: V): V =>
     (v1.length === 2
       ? [v1[0] - v2[0], v1[1] - v2[1]]
-      : [v1[0] - v2[0], v1[1] - v2[1], v1[2] - v2[2]]) as V,
+      : [v1[0] - v2[0], v1[1] - v2[1], v1[2] - (v2 as Vector)[2]]) as V,
 
   len(vec: Vector | Vector2D): number {
     return Math.hypot(...vec);
@@ -18,7 +18,7 @@ export const Vec = {
   dot: <V extends Vector | Vector2D>(v1: V, v2: V): number =>
     v1.length === 2
       ? v1[0] * v2[0] + v1[1] * v2[1]
-      : v1[0] * v2[0] + v1[1] * v2[1] + v1[2] * v2[2],
+      : v1[0] * v2[0] + v1[1] * v2[1] + v1[2] * (v2 as Vector)[2],
 
   /**
    * Get the orientation between three points

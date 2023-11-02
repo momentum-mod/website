@@ -21,7 +21,8 @@ import { MapSubmissionApproval } from './map-submission-approval.model';
  */
 export interface MMap extends Omit<PrismaMMap, 'thumbnailID' | 'zones'> {
   status: MapStatusNew;
-  downloadURL: string;
+  downloadURL: string | null;
+  vmfDownloadURL: string | null;
   thumbnail?: MapImage;
   info?: MapInfo;
   // Omit then redefine zones so can be nullable - even though it's a regular

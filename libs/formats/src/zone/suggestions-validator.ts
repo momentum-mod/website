@@ -49,7 +49,7 @@ export function validateSuggestions(
           }
         }
 
-        if (IncompatibleGamemodes.get(gm).includes(gm2)) {
+        if (IncompatibleGamemodes.get(gm)?.includes(gm2)) {
           throw new SuggestionValidationError(
             'Incompatible gamemodes ' +
               `${GamemodeName.get(gm)} and ${GamemodeName.get(gm2)} on ` +

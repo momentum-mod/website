@@ -64,7 +64,7 @@ export interface ExpandToIncludesOptions<
  * });
  */
 export function expandToIncludes<
-  ModelInclude extends object,
+  ModelInclude extends Record<string, unknown>,
   Expansions extends string[] = string[]
 >(
   expansions?: Expansions,
@@ -73,7 +73,7 @@ export function expandToIncludes<
   if (!expansions || !Array.isArray(expansions) || expansions.length === 0)
     return undefined;
 
-  const includes: Partial<ModelInclude> = {};
+  const includes: Partial<Record<string, unknown>> = {};
 
   for (const expansion of expansions) {
     if (

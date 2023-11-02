@@ -11,7 +11,7 @@ function flattenRecursive(
     depth.counter++;
   }
 
-  const result = {};
+  const result: Record<string, Primitive | unknown[]> = {};
   for (const [key, value] of Object.entries(obj)) {
     if (isObject(value)) {
       for (const [innerKey, innerValue] of Object.entries(

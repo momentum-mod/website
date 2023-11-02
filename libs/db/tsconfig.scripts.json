@@ -5,6 +5,7 @@
     "outDir": "../../dist/out-tsc",
     "declaration": true,
     "types": ["node"],
+    "strict": false,
     "esModuleInterop": true
   },
   "exclude": ["src/prisma/**/*.ts"],

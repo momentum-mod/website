@@ -89,7 +89,7 @@ export class MapDto implements MMap {
   get downloadURL() {
     return this.status === MapStatusNew.APPROVED
       ? `${ENDPOINT_URL}/${BUCKET}/${approvedBspPath(this.fileName)}`
-      : undefined;
+      : null;
   }
 
   @ApiProperty({ description: 'SHA1 hash of the BSP file', type: String })
@@ -105,7 +105,7 @@ export class MapDto implements MMap {
   get vmfDownloadURL() {
     return this.status === MapStatusNew.APPROVED && this.hasVmf
       ? `${ENDPOINT_URL}/${BUCKET}/${approvedVmfsPath(this.fileName)}`
-      : undefined;
+      : null;
   }
 
   @Exclude()

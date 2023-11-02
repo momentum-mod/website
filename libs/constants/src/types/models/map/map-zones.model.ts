@@ -1,22 +1,22 @@
 import { Vector, Vector2D } from '../../utils';
+import { JsonObject } from 'type-fest';
 
-export interface MapZones {
-  // extends JsonObject { // TODO: #855
+export interface MapZones extends JsonObject {
   formatVersion: number;
   dataTimestamp: number;
   tracks: Tracks;
   volumes: Volume[];
 }
 
-export interface Tracks {
-  // extends JsonObject { // TODO: #855
+export interface Tracks extends JsonObject {
+  // TODO: #855
   main: TrackEx;
   stages: Track[];
   bonuses: TrackEx[];
 }
 
-export interface Track {
-  // extends JsonObject { // TODO: #855
+export interface Track extends JsonObject {
+  // TODO: #855
   name?: string;
   majorOrdered?: boolean;
   minorRequired?: boolean;
@@ -28,30 +28,28 @@ export interface Track {
 }
 
 export interface TrackEx extends Track {
-  // extends JsonObject { // TODO: #855
   maxVelocity?: number;
   defragFlags?: number;
 }
 
-export interface Segment {
-  // extends JsonObject { // TODO: #855
+export interface Segment extends JsonObject {
+  // TODO: #855
   limitStartGroundSpeed: boolean;
   checkpoints: Zone[];
 }
 
-export interface Zone {
-  // extends JsonObject { // TODO: #855
+export interface Zone extends JsonObject {
+  // TODO: #855
   volumeIndex: number;
   filterName?: string;
 }
 
-export interface Volume {
-  // extends JsonObject { // TODO: #855
+export interface Volume extends JsonObject {
+  // TODO: #855
   regions: Region[];
 }
 
-export interface Region {
-  // extends JsonObject { // TODO: #855
+export interface Region extends JsonObject {
   points: Vector2D[];
   bottom: number;
   height: number;
