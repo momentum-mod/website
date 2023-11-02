@@ -152,7 +152,10 @@ module.exports = {
         'unicorn/no-static-only-class': ['off'],
         // Methods scoped inside each other is often far better for readability
         // of a class.
-        'unicorn/consistent-function-scoping': ['off']
+        'unicorn/consistent-function-scoping': ['off'],
+        // Usually for-const-of is preferred but forEach is sometimes far more
+        // readable, often identical performance on V8.
+        'unicorn/no-array-for-each': ['off']
       }
     },
     {
