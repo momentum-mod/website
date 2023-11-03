@@ -77,3 +77,117 @@ input[nbInput] {
 nb-card-header {
   background-color: #171718;
 }
+
+// TODO: Tailwind almost supports this, remove me once we're on a release with it
+// has it!
+.text-balance {
+  text-wrap: balance;
+}
+
+.btn {
+  display: flex;
+  justify-content: center;
+  padding: 0.5rem 0.75rem;
+  border-radius: 0.25rem;
+  font-weight: 500;
+  align-self: center;
+  box-shadow: inset 0 1px 1px white;
+  @apply shadow-lg;
+}
+
+.input {
+  padding: 0.5rem 1rem;
+  line-height: 1.25rem;
+  border-radius: 0.25rem;
+
+  @apply border border-white border-opacity-[0.025];
+
+  transition-duration: 0.15s;
+  transition-property: border, background-color, color, box-shadow;
+  transition-timing-function: ease-in;
+
+  @apply bg-gray-800;
+
+  &:hover {
+    @apply bg-gray-700;
+    @apply border-opacity-[0.05];
+  }
+
+  &:focus {
+    outline: none !important;
+    @apply border-opacity-[0.25];
+  }
+
+  &-validated {
+    //&.ng-valid.ng-dirty {
+    //  @apply border-green-500 #{!important};
+    //}
+    &.ng-invalid.ng-dirty {
+      @apply border-red-500 #{!important};
+    }
+    &.ng-pending.ng-dirty {
+      @apply border-orange-500 #{!important};
+    }
+  }
+}
+
+// Using techniques from https://moderncss.dev/pure-css-custom-checkbox-style/
+input[type='checkbox'] {
+  -webkit-appearance: none;
+  appearance: none;
+  margin: 0;
+  font: inherit;
+  color: #1896d3;
+  content: ' ';
+  padding: 1.125rem;
+  border-radius: 0.25rem;
+  position: relative;
+  float: left;
+
+  @apply border border-white border-opacity-[0.025];
+  @apply bg-gray-800;
+
+  &:hover {
+    @apply bg-gray-700;
+    @apply border-opacity-[0.05];
+  }
+
+  &:focus {
+    outline: none !important;
+    @apply border-opacity-[0.1];
+  }
+
+  &::before {
+    position: absolute;
+    content: ' ';
+    width: 60%;
+    height: 60%;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%) scale(0);
+    transition: 0.1s transform ease-in-out;
+    background-color: currentColor;
+    transform-origin: center;
+    clip-path: polygon(14% 44%, 0 65%, 50% 100%, 100% 16%, 80% 0%, 43% 62%);
+  }
+
+  &:checked::before {
+    transform: translate(-50%, -50%) scale(1);
+  }
+}
+
+// nb-select has a nested button that forces a min-width for some reason, revert...
+nb-select > button {
+  min-width: revert !important;
+}
+
+// Useful class that uses grid to stack children without requiring
+// `position: absolute`
+.stack {
+  display: grid;
+
+  > * {
+    grid-row: 1;
+    grid-column: 1;
+  }
+}
