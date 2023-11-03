@@ -37,8 +37,8 @@ import path = require('node:path');
 //#region Configuration
 const vars = {
   imageFetches: 25,
-  users: { min: 50, max: 50 },
-  maps: { min: 20, max: 30 },
+  users: { min: 100, max: 100 },
+  maps: { min: 20, max: 20 },
   usersThatSubmitMaps: { min: 15, max: 20 },
   randomImagesToDownload: { min: 20, max: 20 },
   credits: { min: 2, max: 20 },
@@ -55,8 +55,8 @@ const vars = {
   runsPerMap: { min: 1, max: 30 },
   pastRunsPerMap: { min: 1, max: 100 },
   userReportChance: 0.05, // Chance that u1 reports u2 (this game is TOXIC)
-  userFollowChance: 0.1,
-  mapReportChance: 0.05,
+  userFollowChance: 0.01,
+  mapReportChance: 0.005,
   mapFollowChance: 0.05,
   mapFavoriteChance: 0.05,
   mapStatusWeights: [
