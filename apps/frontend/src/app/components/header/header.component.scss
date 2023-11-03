@@ -1,5 +1,5 @@
 @use 'theme' as *;
-@import 'bootstrap/scss/mixins/breakpoints';
+//@import 'bootstrap/scss/mixins/breakpoints';
 @import '@nebular/theme/styles/global/breakpoints';
 
 @include nb-install-component() {
@@ -49,11 +49,11 @@
     }
   }
 
-  @include media-breakpoint-down(sm) {
-    nb-user ::ng-deep .user-name {
-      display: none;
-    }
-  }
+  //@include media-breakpoint-down(sm) {
+  //  nb-user ::ng-deep .user-name {
+  //    display: none;
+  //  }
+  //}
 
   @media (max-width: 667px) {
     .control-item {
@@ -64,10 +64,10 @@
     }
   }
 
-  @include media-breakpoint-down(xs) {
-    .logo > img {
-      height: auto !important;
-      width: 100%;
-    }
-  }
+  //@include media-breakpoint-down(xs) {
+  //  .logo > img {
+  //    height: auto !important;
+  //    width: 100%;
+  //  }
+  //}
 }
