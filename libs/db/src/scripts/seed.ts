@@ -693,6 +693,26 @@ prismaWrapper(async (prisma: PrismaClient) => {
     //#endregion
   }
 
+  //#region Make me admin
+
+  const personalSteamIDs = process.env['ADMIN_STEAM_ID64S'];
+  if (!personalSteamIDs) return;
+
+  const steamIDs = personalSteamIDs.split(',');
+  for (const [i, steamID] of steamIDs.entries()) {
+    console.log(`Making user ${steamID} an admin`);
+    await prisma.user.create({
+      data: {
+        steamID: BigInt(steamID),
+        roles: Role.ADMIN,
+        alias: `Admin User ${i + 1}`,
+        profile: { create: {} },
+        userStats: { create: {} }
+      }
+    });
+  }
+
+  //#endregion
   //#endregion
 
   console.log('Done!');
