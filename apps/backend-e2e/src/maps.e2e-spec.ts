@@ -558,7 +558,7 @@ describe('Maps', () => {
       });
 
       afterAll(() => {
-        db.cleanup('user');
+        db.cleanup('user', 'mMap');
         fileStore.deleteDirectory('submissions');
       });
 
@@ -1165,7 +1165,7 @@ describe('Maps', () => {
           });
         });
 
-        it('should 400 if the zones are too large', async () => {
+        it('should 400 if the zones are too large', async () =>
           req.postAttach({
             url: 'maps',
             status: 400,
@@ -1185,8 +1185,7 @@ describe('Maps', () => {
               { file: bspBuffer, field: 'bsp', fileName: 'surf_map.bsp' }
             ],
             token
-          });
-        });
+          }));
 
         it('should 401 when no access token is provided', () =>
           req.unauthorizedTest('maps', 'post'));
@@ -1508,9 +1507,9 @@ describe('Maps', () => {
         vmfHash = createSha1Hash(vmfBuffer);
       });
 
-      afterAll(() => {
-        db.cleanup('user');
-        fileStore.deleteDirectory('submissions');
+      afterAll(async () => {
+        await db.cleanup('user');
+        await fileStore.deleteDirectory('submissions');
       });
 
       beforeEach(async () => {
