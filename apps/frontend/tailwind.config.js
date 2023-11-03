@@ -17,6 +17,67 @@ module.exports = {
         display: ['Bebas Neue']
       }
     },
+    //prettier-ignore
+    colors: {
+      transparent: 'transparent',
+      current: 'currentColor',
+      black: '#000',
+      white: '#fff',
+
+      // Tailwind defaults for now, do custom versions in the future!
+      red: colors.red,
+      indigo: colors.indigo,
+      orange: colors.orange,
+      green: colors.green,
+      yellow: colors.yellow,
+
+      // Our stuff - all created using https://palettte.app/
+      // Very neutral grays, no sat for dark tones, slightly blue for lighter
+      gray: {
+        50:  '#E7F0F4',
+        100: '#D3DFE6',
+        200: '#BDCAD1',
+        300: '#9BA8AE',
+        400: '#737C81',
+        500: '#53585B',
+        600: '#3C3D3E',
+        700: '#282828',
+        800: '#1C1C1C',
+        900: '#141414',
+        950: '#080808'
+      },
+      // Very pale blues
+      pale: {
+        50:  '#B9DEFF',
+        100: '#A6CBEF',
+        200: '#93B6DB',
+        300: '#7D9CC3',
+        400: '#6380AB',
+        500: '#4E658F',
+        600: '#364568',
+        700: '#252F48',
+        800: '#181D2C',
+        900: '#10121A',
+        950: '#0A0B0F'
+      },
+      // Based on our signature blue #1896d3 (sometimes #1795d2) which is 400,
+      // then darker tones have a slightly more purpleish hue based on colors
+      // in our dark 3D background render
+      blue: {
+        50:  '#ECF6FF',
+        100: '#BFE3FA',
+        200: '#92D4F3',
+        300: '#5ABBE5',
+        400: '#329ED3',
+        500: '#1582B7',
+        600: '#074D8C',
+        700: '#052B62',
+        800: '#041435',
+        900: '#02091A',
+        950: '#01050F'
+      }
+    }
+  },
   corePlugins: {
     preflight: true
   },
