@@ -160,7 +160,6 @@ prismaWrapper(async (prisma: PrismaClient) => {
           alias: faker.internet.userName(),
           avatar: '0227a240393e6d62f539ee7b306dd048b0830eeb',
           country: faker.location.countryCode(),
-          createdAt: Random.pastDateInYears(2),
           roles: Bitflags.join(
             Random.chance(0.1) ? Role.VERIFIED : 0,
             Random.chance(0.1) ? Role.PLACEHOLDER : 0,
