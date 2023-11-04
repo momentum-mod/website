@@ -24,7 +24,7 @@ import {
 } from '@momentum/constants';
 import { PutObjectCommand, S3Client } from '@aws-sdk/client-s3';
 import { Bitflags } from '@momentum/bitflags';
-import { from, parallel } from '@momentum/util-fn';
+import { from, parallel, promiseAllSync } from '@momentum/util-fn';
 import axios from 'axios';
 import sharp from 'sharp';
 import { nuke } from '../prisma/utils';
@@ -153,47 +153,46 @@ prismaWrapper(async (prisma: PrismaClient) => {
   console.log('Creating users');
   const usersToCreate = randRange(vars.users);
   await parallel(
-    async () => {
-      for (let i = 0; i < usersToCreate; i++)
-        await prisma.user.create({
-          data: {
-            steamID: Random.int(1000000000, 99999999999),
-            alias: faker.internet.userName(),
-            avatar: '0227a240393e6d62f539ee7b306dd048b0830eeb',
-            country: faker.location.countryCode(),
-            roles: Bitflags.join(
-              Random.chance(0.1) ? Role.VERIFIED : 0,
-              Random.chance(0.1) ? Role.PLACEHOLDER : 0,
-              Random.chance(0.1) ? Role.ADMIN : 0,
-              Random.chance(0.1) ? Role.MODERATOR : 0
-            ),
-            bans: Bitflags.join(
-              Random.chance(0.1) ? Ban.BIO : 0,
-              Random.chance(0.1) ? Ban.AVATAR : 0,
-              Random.chance(0.1) ? Ban.LEADERBOARDS : 0,
-              Random.chance(0.1) ? Ban.ALIAS : 0
-            ),
-            profile: {
-              create: {
-                bio: faker.lorem
-                  .paragraphs({ min: 1, max: 2 })
-                  .slice(0, MAX_BIO_LENGTH)
-              }
-            },
-            userStats: {
-              create: {
-                totalJumps: Random.int(10000),
-                totalStrafes: Random.int(10000),
-                level: Random.int(0, 1000),
-                cosXP: Random.int(10000),
-                mapsCompleted: Random.int(10000),
-                runsSubmitted: Random.int(10000)
-              }
+    ...from(usersToCreate, () =>
+      prisma.user.create({
+        data: {
+          steamID: Random.int(1000000000, 99999999999),
+          alias: faker.internet.userName(),
+          avatar: '0227a240393e6d62f539ee7b306dd048b0830eeb',
+          country: faker.location.countryCode(),
           createdAt: Random.pastDateInYears(2),
+          roles: Bitflags.join(
+            Random.chance(0.1) ? Role.VERIFIED : 0,
+            Random.chance(0.1) ? Role.PLACEHOLDER : 0,
+            Random.chance(0.1) ? Role.ADMIN : 0,
+            Random.chance(0.1) ? Role.MODERATOR : 0
+          ),
+          bans: Bitflags.join(
+            Random.chance(0.1) ? Ban.BIO : 0,
+            Random.chance(0.1) ? Ban.AVATAR : 0,
+            Random.chance(0.1) ? Ban.LEADERBOARDS : 0,
+            Random.chance(0.1) ? Ban.ALIAS : 0
+          ),
+          profile: {
+            create: {
+              bio: faker.lorem
+                .paragraphs({ min: 1, max: 2 })
+                .slice(0, MAX_BIO_LENGTH)
+            }
+          },
+          userStats: {
+            create: {
+              totalJumps: Random.int(10000),
+              totalStrafes: Random.int(10000),
+              level: Random.int(0, 1000),
+              cosXP: Random.int(10000),
+              mapsCompleted: Random.int(10000),
+              runsSubmitted: Random.int(10000)
             }
           }
-        });
-    },
+        }
+      })
+    ),
 
     doFileUploads
       ? async () => {
@@ -227,9 +226,9 @@ prismaWrapper(async (prisma: PrismaClient) => {
   //#region Interactions
 
   console.log('Creating user interactions');
-  await Promise.all(
+  await promiseAllSync(
     userIDs.flatMap((id1) =>
-      userIDs.map(async (id2) => {
+      userIDs.map((id2) => async () => {
         if (id1 === id2) return;
         if (Random.chance(vars.userReportChance))
           await prisma.follow.create({
@@ -713,6 +712,7 @@ prismaWrapper(async (prisma: PrismaClient) => {
   }
 
   //#endregion
+
   //#endregion
 
   console.log('Done!');
