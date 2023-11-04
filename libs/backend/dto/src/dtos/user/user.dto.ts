@@ -95,9 +95,6 @@ export class UserDto implements User {
 
   @CreatedAtProperty()
   readonly createdAt: Date;
-
-  @UpdatedAtProperty()
-  readonly updatedAt: Date;
 }
 
 export class CreateUserDto extends PickType(UserDto, ['alias'] as const) {}
