@@ -1,7 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { IsInt, IsString } from 'class-validator';
-import { Exclude } from 'class-transformer';
-import { NestedProperty, UpdatedAtProperty } from '../../decorators';
+import { NestedProperty } from '../../decorators';
 import { Profile } from '@momentum/constants';
 import { SocialsDto } from './socials.dto';
 
@@ -19,7 +18,4 @@ export class ProfileDto implements Profile {
 
   @NestedProperty(SocialsDto)
   readonly socials: SocialsDto;
-
-  @UpdatedAtProperty()
-  readonly updatedAt: Date;
 }
