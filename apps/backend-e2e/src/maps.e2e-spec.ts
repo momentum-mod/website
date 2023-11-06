@@ -37,7 +37,8 @@ import { Config } from '@momentum/backend/config';
 import path from 'node:path';
 import Zip from 'adm-zip';
 import { Enum } from '@momentum/enum';
-import { ZonesStub, ZonesStubLeaderboards } from '@momentum/formats';
+import { ZonesStub, ZonesStubLeaderboards, ZoneUtil } from '@momentum/formats';
+import { from } from '@momentum/util-fn';
 
 describe('Maps', () => {
   let app,
@@ -835,25 +836,58 @@ describe('Maps', () => {
           });
         });
 
-        it('should reject a submission with no credits or suggestions', async () => {
-          const obj1 = structuredClone(createMapObject);
-          delete obj1.suggestions;
+        it('should accept a submission with placeholders but no credits', async () => {
+          // Missing one of credits/placeholders is fine so long as there's one
+          // of either.
+          const create = structuredClone(createMapObject);
+          delete create.credits;
           await req.postAttach({
             url: 'maps',
-            status: 400,
-            data: obj1,
+            status: 201,
+            data: create,
             files: [
               { file: bspBuffer, field: 'bsp', fileName: 'surf_map.bsp' }
             ],
             token
           });
+        });
 
-          const obj2 = structuredClone(createMapObject);
-          delete obj2.credits;
+        it('should accept a submission with credits but no placeholders', async () => {
+          const create = structuredClone(createMapObject);
+          delete create.placeholders;
+          await req.postAttach({
+            url: 'maps',
+            status: 201,
+            data: create,
+            files: [
+              { file: bspBuffer, field: 'bsp', fileName: 'surf_map.bsp' }
+            ],
+            token
+          });
+        });
+
+        it('should reject a submission with no placeholders or credits', async () => {
+          const create = structuredClone(createMapObject);
+          delete create.credits;
+          delete create.placeholders;
           await req.postAttach({
             url: 'maps',
             status: 400,
-            data: obj2,
+            data: create,
+            files: [
+              { file: bspBuffer, field: 'bsp', fileName: 'surf_map.bsp' }
+            ],
+            token
+          });
+        });
+
+        it('should reject a submission with no suggestions', async () => {
+          const obj = structuredClone(createMapObject);
+          delete obj.suggestions;
+          await req.postAttach({
+            url: 'maps',
+            status: 400,
+            data: obj,
             files: [
               { file: bspBuffer, field: 'bsp', fileName: 'surf_map.bsp' }
             ],
@@ -1126,6 +1160,29 @@ describe('Maps', () => {
             files: [
               { file: bspBuffer, field: 'bsp', fileName: 'surf_map.bsp' },
               { file: vmfBuffer, field: 'vmfs', fileName: 'surf_map.vmf' }
+            ],
+            token
+          });
+        });
+
+        it('should 400 if the zones are too large', async () => {
+          req.postAttach({
+            url: 'maps',
+            status: 400,
+            data: {
+              ...createMapObject,
+              // 10,000 zones :D
+              zones: ZoneUtil.generateRandomMapZones(
+                100,
+                from(100, () => 100),
+                0,
+                1024 ** 2,
+                1024,
+                1024
+              )
+            },
+            files: [
+              { file: bspBuffer, field: 'bsp', fileName: 'surf_map.bsp' }
             ],
             token
           });

@@ -217,7 +217,7 @@ export class CreateMapDto
 
   @NestedProperty(CreateMapCreditDto, { required: true, isArray: true })
   @IsArray()
-  @ArrayMinSize(1)
+  @IsOptional()
   readonly credits: CreateMapCreditDto[];
 }
 

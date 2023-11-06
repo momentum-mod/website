@@ -719,6 +719,12 @@ export class MapsService {
       })
     )
       throw new ConflictException('Map with this file name already exists');
+
+    if (!(dto.credits?.length > 0 || dto.placeholders?.length > 0)) {
+      throw new BadRequestException(
+        'Submission must a least one credit or placeholder'
+      );
+    }
   }
 
   private async createMapDbEntry(
@@ -764,15 +770,18 @@ export class MapsService {
             youtubeID: createMapDto.info.youtubeID
           }
         },
-        credits: {
-          createMany: {
-            data: createMapDto.credits.map((credit) => ({
-              type: credit.type,
-              userID: credit.userID,
-              description: credit.description
-            }))
-          }
-        }
+        credits:
+          createMapDto.credits?.length > 0
+            ? {
+                createMany: {
+                  data: createMapDto.credits?.map((credit) => ({
+                    type: credit.type,
+                    userID: credit.userID,
+                    description: credit.description
+                  }))
+                }
+              }
+            : undefined
       },
       select: {
         id: true,
@@ -963,7 +972,7 @@ export class MapsService {
       throw new ForbiddenException('User is not the map submitter');
 
     if (!CombinedMapStatuses.IN_SUBMISSION.includes(map.status))
-      throw new ForbiddenException('Map can only be editted during submission');
+      throw new ForbiddenException('Map can only be edited during submission');
 
     const { roles } = await this.db.user.findUnique({ where: { id: userID } });
 
