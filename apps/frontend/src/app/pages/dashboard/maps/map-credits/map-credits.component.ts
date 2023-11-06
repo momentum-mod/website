@@ -1,6 +1,6 @@
 import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { MapCreditNames, MapCreditType, User } from '@momentum/constants';
-import { SortedMapCredits } from './sorted-map-credits.class';
+import { SortedMapCredits } from '../../../../components/map-credits-selection/sorted-map-credits.class';
 import { CdkDragDrop, moveItemInArray } from '@angular/cdk/drag-drop';
 
 enum SearchState {
@@ -8,6 +8,11 @@ enum SearchState {
   VISIBLE,
   USER_ALREADY_SELECTED
 }
+
+/**
+ * TODO: This component can be removed soon once every instance has been replaced
+ * with map-credits-selection.
+ */
 
 @Component({
   selector: 'mom-map-credits',
@@ -55,7 +60,7 @@ export class MapCreditsComponent {
     }
   }
 
-  removeUser(type: MapCreditType, user: User) {
+  removeUser(type: MapCreditType, user: Partial<User>) {
     const userIndex = this.credits[type].findIndex(
       (credit) => credit.user.id === user.id
     );

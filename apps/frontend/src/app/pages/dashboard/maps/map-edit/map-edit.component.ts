@@ -7,14 +7,16 @@ import { NbDialogService, NbToastrService } from '@nebular/theme';
 import { ConfirmDialogComponent } from '../../../../components/confirm-dialog/confirm-dialog.component';
 import { Subject } from 'rxjs';
 import { MMap, MapImage } from '@momentum/constants';
-import { FileUploadType } from '../../../../components/file-upload/file-upload.component';
 import {
   AdminService,
   LocalUserService,
   MapsService
 } from '@momentum/frontend/data';
 import { MapCreditType, Role } from '@momentum/constants';
-import { SortedMapCredits } from '../map-credits/sorted-map-credits.class';
+import {
+  EditableMapCredit,
+  SortedMapCredits
+} from '../../../../components/map-credits-selection/sorted-map-credits.class';
 
 const youtubeRegex = /[\w-]{11}/;
 
@@ -24,7 +26,6 @@ const youtubeRegex = /[\w-]{11}/;
   styleUrls: ['./map-edit.component.scss']
 })
 export class MapEditComponent implements OnInit, OnDestroy {
-  protected readonly FileUploadType = FileUploadType;
   private ngUnsub = new Subject<void>();
   map: MMap;
   images: MapImage[];
@@ -97,7 +98,7 @@ export class MapEditComponent implements OnInit, OnDestroy {
             this.infoForm.patchValue(map.info);
             this.images = map.images;
 
-            this.credits.set(map.credits);
+            this.credits.set(map.credits as EditableMapCredit[]);
 
             this.creditsForm
               .get('authors')
@@ -130,11 +131,11 @@ export class MapEditComponent implements OnInit, OnDestroy {
     saveButton.disabled = true;
 
     this.mapService
-      .updateMapCredits(this.map.id, this.credits.getAllSubmittable())
+      .updateMapCredits(this.map.id, this.credits.getSubmittableRealUsers())
       .pipe(finalize(() => (saveButton.disabled = false)))
       .subscribe({
         next: (credits) => {
-          this.credits.set(credits);
+          this.credits.set(credits as EditableMapCredit[]);
           this.toasterService.success('Updated map credits!', 'Success');
         },
         error: (error) =>
@@ -156,19 +157,19 @@ export class MapEditComponent implements OnInit, OnDestroy {
     reader.readAsDataURL(img);
   }
 
-  onMapImageSelected(file: File) {
-    this.getImageSource(file, (blobURL) => {
-      if (this.images.length >= this.imagesLimit) return;
-      // ????????? what
-      this.images.push({
-        id: -1,
-        mapID: -1,
-        small: blobURL,
-        medium: '',
-        large: ''
-        // file: img,
-      });
-    });
+  onMapImageSelected() {
+    // this.getImageSource(file[0], (blobURL) => {
+    //   if (this.images.length >= this.imagesLimit) return;
+    //   // ????????? what
+    //   this.images.push({
+    //     id: -1,
+    //     mapID: -1,
+    //     small: blobURL,
+    //     medium: '',
+    //     large: ''
+    //     // file: img,
+    //   });
+    // });
   }
 
   removeMapImage(img: MapImage) {
