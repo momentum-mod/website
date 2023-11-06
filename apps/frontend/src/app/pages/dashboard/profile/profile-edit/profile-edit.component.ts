@@ -155,7 +155,7 @@ export class ProfileEditComponent implements OnInit, OnDestroy {
   onSubmit(): void {
     if (!this.form.valid) return;
 
-    const update: UpdateUser = this.form.value;
+    const update: AdminUpdateUser | UpdateUser = this.form.value; // Intersection to skip annoying casts
 
     // Don't include empty values on update input (they'd fail backend
     // validation!)
@@ -163,7 +163,13 @@ export class ProfileEditComponent implements OnInit, OnDestroy {
       if (v === '') delete update.socials[k];
     }
 
-    if (this.isLocal && !this.isAdmin) {
+    // We log /admin queries separately so really worth using the /user endpoint
+    // whenever possible. So only do the /admin call is it's got admin-specific
+    // stuff on.
+    if (
+      this.isLocal &&
+      (!this.isAdmin || !(this.user.bans || this.user.roles))
+    ) {
       this.localUserService.updateUser(update).subscribe({
         next: () => {
           this.localUserService.refreshLocal();
