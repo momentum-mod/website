@@ -27,9 +27,9 @@ import {
 } from '@momentum/backend/dto';
 import {
   ActivityType,
+  CombinedMapStatuses,
   Gamemode,
   MapCreditType,
-  MapStatus,
   MapStatusNew,
   MapTestingRequestState,
   MAX_CREDITS_EXCEPT_TESTERS,
@@ -422,10 +422,10 @@ describe('Maps Part 2', () => {
           token: adminToken
         }));
 
-      it('should allow an admin to update a credit even if the map is not in the NEEDS_REVISION state', async () => {
+      it('should allow an admin to update a credit even if the map is not in submission', async () => {
         await prisma.mMap.update({
           where: { id: map.id },
-          data: { status: MapStatus.APPROVED }
+          data: { status: MapStatusNew.APPROVED }
         });
 
         await req.put({
@@ -438,7 +438,7 @@ describe('Maps Part 2', () => {
 
         await prisma.mMap.update({
           where: { id: map.id },
-          data: { status: MapStatus.NEEDS_REVISION }
+          data: { status: MapStatusNew.PRIVATE_TESTING }
         });
       });
 
@@ -451,10 +451,10 @@ describe('Maps Part 2', () => {
           token: modToken
         }));
 
-      it('should allow a mod to update the credit even if the map is not in the NEEDS_REVISION state', async () => {
+      it('should allow a mod to update the credit even if the map is not in submission', async () => {
         await prisma.mMap.update({
           where: { id: map.id },
-          data: { status: MapStatus.APPROVED }
+          data: { status: MapStatusNew.APPROVED }
         });
 
         await req.put({
@@ -467,7 +467,7 @@ describe('Maps Part 2', () => {
 
         await prisma.mMap.update({
           where: { id: map.id },
-          data: { status: MapStatus.NEEDS_REVISION }
+          data: { status: MapStatusNew.PRIVATE_TESTING }
         });
       });
 
@@ -748,7 +748,7 @@ describe('Maps Part 2', () => {
           data: { roles: Role.MAPPER }
         });
         map = await db.createMap({
-          status: MapStatus.NEEDS_REVISION,
+          status: MapStatusNew.PRIVATE_TESTING,
           submitter: { connect: { id: user.id } }
         });
       });
@@ -830,24 +830,29 @@ describe('Maps Part 2', () => {
         });
       });
 
-      it('should 403 if the map is not in the NEEDS_REVISION state', async () => {
-        await prisma.mMap.update({
-          where: { id: map.id },
-          data: { status: MapStatus.APPROVED }
-        });
+      for (const status of Enum.values(MapStatusNew)) {
+        const shouldPass = CombinedMapStatuses.IN_SUBMISSION.includes(status);
+        const expectedStatus = shouldPass ? 204 : 403;
 
-        await req.putAttach({
-          url: `maps/${map.id}/thumbnail`,
-          status: 403,
-          file: 'image_jpg.jpg',
-          token
-        });
+        it(`should ${expectedStatus} if the map is not in the ${MapStatusNew[status]} state`, async () => {
+          await prisma.mMap.update({
+            where: { id: map.id },
+            data: { status }
+          });
 
-        await prisma.mMap.update({
-          where: { id: map.id },
-          data: { status: MapStatus.NEEDS_REVISION }
+          await req.putAttach({
+            url: `maps/${map.id}/thumbnail`,
+            status: expectedStatus,
+            file: 'image_jpg.jpg',
+            token
+          });
+
+          await prisma.mMap.update({
+            where: { id: map.id },
+            data: { status: MapStatusNew.PRIVATE_TESTING }
+          });
         });
-      });
+      }
 
       it('should 401 when no access token is provided', () =>
         req.unauthorizedTest('maps/1/thumbnail', 'put'));
@@ -907,7 +912,7 @@ describe('Maps Part 2', () => {
           data: { roles: Role.MAPPER }
         });
         map = await db.createMap({
-          status: MapStatus.NEEDS_REVISION,
+          status: MapStatusNew.PRIVATE_TESTING,
           submitter: { connect: { id: user.id } },
           images: {}
         });
@@ -1012,24 +1017,29 @@ describe('Maps Part 2', () => {
         });
       });
 
-      it('should 403 if the map is not in the NEEDS_REVISION state', async () => {
-        await prisma.mMap.update({
-          where: { id: map.id },
-          data: { status: MapStatus.APPROVED }
-        });
+      for (const status of Enum.values(MapStatusNew)) {
+        const shouldPass = CombinedMapStatuses.IN_SUBMISSION.includes(status);
+        const expectedStatus = shouldPass ? 201 : 403;
 
-        await req.postAttach({
-          url: `maps/${map.id}/images`,
-          status: 403,
-          file: 'image_jpg.jpg',
-          token
-        });
+        it(`should ${expectedStatus} if the map is not in the ${MapStatusNew[status]} state`, async () => {
+          await prisma.mMap.update({
+            where: { id: map.id },
+            data: { status }
+          });
 
-        await prisma.mMap.update({
-          where: { id: map.id },
-          data: { status: MapStatus.NEEDS_REVISION }
+          await req.postAttach({
+            url: `maps/${map.id}/images`,
+            status: expectedStatus,
+            file: 'image_jpg.jpg',
+            token
+          });
+
+          await prisma.mMap.update({
+            where: { id: map.id },
+            data: { status: MapStatusNew.PRIVATE_TESTING }
+          });
         });
-      });
+      }
 
       it('should 401 when no access token is provided', () =>
         req.unauthorizedTest('maps/1/images', 'post'));
@@ -1091,7 +1101,7 @@ describe('Maps Part 2', () => {
           data: { roles: Role.MAPPER }
         });
         map = await db.createMap({
-          status: MapStatus.NEEDS_REVISION,
+          status: MapStatusNew.PRIVATE_TESTING,
           submitter: { connect: { id: user.id } },
           images: { create: {} }
         });
@@ -1186,24 +1196,29 @@ describe('Maps Part 2', () => {
         });
       });
 
-      it('should 403 if the map is not in the NEEDS_REVISION state', async () => {
-        await prisma.mMap.update({
-          where: { id: map.id },
-          data: { status: MapStatus.APPROVED }
-        });
+      for (const status of Enum.values(MapStatusNew)) {
+        const shouldPass = CombinedMapStatuses.IN_SUBMISSION.includes(status);
+        const expectedStatus = shouldPass ? 204 : 403;
 
-        await req.putAttach({
-          url: `maps/images/${image.id}`,
-          status: 403,
-          file: 'image_png.png',
-          token
-        });
+        it(`should ${expectedStatus} if the map is not in the ${MapStatusNew[status]} state`, async () => {
+          await prisma.mMap.update({
+            where: { id: map.id },
+            data: { status }
+          });
 
-        await prisma.mMap.update({
-          where: { id: map.id },
-          data: { status: MapStatus.NEEDS_REVISION }
+          await req.putAttach({
+            url: `maps/images/${image.id}`,
+            status: expectedStatus,
+            file: 'image_png.png',
+            token
+          });
+
+          await prisma.mMap.update({
+            where: { id: map.id },
+            data: { status: MapStatusNew.PRIVATE_TESTING }
+          });
         });
-      });
+      }
 
       it('should 401 when no access token is provided', () =>
         req.unauthorizedTest('maps/images/1', 'put'));
@@ -1212,12 +1227,12 @@ describe('Maps Part 2', () => {
     describe('DELETE', () => {
       let user, token, map, image;
 
-      beforeAll(async () => {
+      beforeEach(async () => {
         [user, token] = await db.createAndLoginUser({
           data: { roles: Role.MAPPER }
         });
         map = await db.createMap({
-          status: MapStatus.NEEDS_REVISION,
+          status: MapStatusNew.PRIVATE_TESTING,
           submitter: { connect: { id: user.id } },
           images: { create: {} }
         });
@@ -1228,7 +1243,7 @@ describe('Maps Part 2', () => {
           await fileStore.add(`img/${image.id}-${size}.jpg`, fileBuffer);
       });
 
-      afterAll(async () => {
+      afterEach(async () => {
         await db.cleanup('user', 'mMap');
         await fileStore.deleteDirectory('img');
       });
@@ -1302,23 +1317,28 @@ describe('Maps Part 2', () => {
         });
       });
 
-      it('should 403 if the map is not in the NEEDS_REVISION state', async () => {
-        await prisma.mMap.update({
-          where: { id: map.id },
-          data: { status: MapStatus.APPROVED }
-        });
+      for (const status of Enum.values(MapStatusNew)) {
+        const shouldPass = CombinedMapStatuses.IN_SUBMISSION.includes(status);
+        const expectedStatus = shouldPass ? 204 : 403;
 
-        await req.del({
-          url: `maps/images/${image.id}`,
-          status: 403,
-          token
-        });
+        it(`should ${expectedStatus} if the map is not in the ${MapStatusNew[status]} state`, async () => {
+          await prisma.mMap.update({
+            where: { id: map.id },
+            data: { status }
+          });
 
-        await prisma.mMap.update({
-          where: { id: map.id },
-          data: { status: MapStatus.NEEDS_REVISION }
+          await req.del({
+            url: `maps/images/${image.id}`,
+            status: expectedStatus,
+            token
+          });
+
+          await prisma.mMap.update({
+            where: { id: map.id },
+            data: { status: MapStatusNew.PRIVATE_TESTING }
+          });
         });
-      });
+      }
 
       it('should 401 when no access token is provided', () =>
         req.unauthorizedTest('maps/images/1', 'del'));
