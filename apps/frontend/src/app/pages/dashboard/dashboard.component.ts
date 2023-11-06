@@ -3,6 +3,7 @@ import { NbMenuItem } from '@nebular/theme';
 import { MENU_ITEMS } from './dashboard-menu';
 import { NotificationsService } from '../../services/notifications.service';
 import { LocalUserService } from '@momentum/frontend/data';
+import { Role } from '@momentum/constants';
 
 @Component({
   selector: 'mom-dashboard',
@@ -26,7 +27,7 @@ export class DashboardComponent implements OnInit {
   }
 
   authMenuItem(menuItem: NbMenuItem) {
-    const allowedRoles = menuItem?.data?.roles;
+    const allowedRoles = menuItem?.data?.roles as Role[];
     menuItem.hidden =
       allowedRoles &&
       !allowedRoles.some((role) => this.userService.hasRole(role));
