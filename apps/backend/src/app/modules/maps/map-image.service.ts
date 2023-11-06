@@ -10,10 +10,10 @@ import {
 } from '@nestjs/common';
 import { DtoFactory, MapImageDto } from '@momentum/backend/dto';
 import {
+  CombinedMapStatuses,
   imgLargePath,
   imgMediumPath,
-  imgSmallPath,
-  MapStatus
+  imgSmallPath
 } from '@momentum/constants';
 import { FileStoreFile } from '../filestore/file-store.interface';
 import sharp from 'sharp';
@@ -72,8 +72,8 @@ export class MapImageService {
     if (map.submitterID !== userID)
       throw new ForbiddenException('User is not the submitter of the map');
 
-    if (map.status !== MapStatus.NEEDS_REVISION)
-      throw new ForbiddenException('Map is not in NEEDS_REVISION state');
+    if (!CombinedMapStatuses.IN_SUBMISSION.includes(map.status))
+      throw new ForbiddenException('Map can only be edited during submission');
 
     const images = await this.db.mapImage.findMany({ where: { mapID } });
     let imageCount = images.length;
@@ -131,8 +131,8 @@ export class MapImageService {
     if (map.submitterID !== userID)
       throw new ForbiddenException('User is not the submitter of the map');
 
-    if (map.status !== MapStatus.NEEDS_REVISION)
-      throw new ForbiddenException('Map is not in NEEDS_REVISION state');
+    if (!CombinedMapStatuses.IN_SUBMISSION.includes(map.status))
+      throw new ForbiddenException('Map can only be edited during submission');
   }
 
   private async editSaveMapImageFile(
@@ -189,10 +189,12 @@ export class MapImageService {
     });
 
     if (!map) throw new NotFoundException('Map not found');
+
     if (map.submitterID !== userID)
       throw new ForbiddenException('User is not the submitter of the map');
-    if (map.status !== MapStatus.NEEDS_REVISION)
-      throw new ForbiddenException('Map is not in NEEDS_REVISION state');
+
+    if (!CombinedMapStatuses.IN_SUBMISSION.includes(map.status))
+      throw new ForbiddenException('Map can only be edited during submission');
 
     if (!map.thumbnailID) {
       const newThumbnail = await this.db.mapImage.create({ data: { mapID } });
