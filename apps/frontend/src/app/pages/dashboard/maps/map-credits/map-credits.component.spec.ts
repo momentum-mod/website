@@ -10,7 +10,7 @@ import {
 } from '@nebular/theme';
 import { UserSearchComponent } from '../../../../components/user-search/user-search.component';
 import { HttpClientTestingModule } from '@angular/common/http/testing';
-import { SortedMapCredits } from './sorted-map-credits.class';
+import { SortedMapCredits } from '../../../../components/map-credits-selection/sorted-map-credits.class';
 
 describe('MapCreditsComponent', () => {
   let component: MapCreditsComponent;

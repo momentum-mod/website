@@ -8,7 +8,7 @@
           <div class="main">
             <span class="name">{{ credit.user.alias }}</span>
             <span class="description" *ngIf="!editable">{{ credit.description }}</span>
-            <input class="description" *ngIf="editable" nbInput [(ngModel)]="credit.description" />
+            <input class="description" placeholder="Description" *ngIf="editable" nbInput [(ngModel)]="credit.description" />
           </div>
           <button nbButton class="delete" status="danger" outline size="tiny" *ngIf="editable" (click)="removeUser(type.key, credit.user)">
             <nb-icon icon="close-thick" />
@@ -18,7 +18,7 @@
     </ng-container>
     <div class="search-wrapper" *ngIf="searchStates[type.key] !== SearchState.HIDDEN">
       <div class="selected-warning" *ngIf="searchStates[type.key] === SearchState.USER_ALREADY_SELECTED">User already selected!</div>
-      <mom-user-search (selectedUserEmit)="addUser(type.key, $event)" />
+      <mom-user-search paginatorID="map-credits" (userSelected)="addUser(type.key, $event)" />
       <button class="cancel" nbButton status="danger" (click)="hideUserSearch(type.key)">Cancel</button>
     </div>
     <button
