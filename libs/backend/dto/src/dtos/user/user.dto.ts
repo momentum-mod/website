@@ -3,6 +3,7 @@ import {
   MAX_BIO_LENGTH,
   MergeUser,
   Role,
+  STEAM_MISSING_AVATAR,
   User
 } from '@momentum/constants';
 import { ApiProperty, ApiPropertyOptional, PickType } from '@nestjs/swagger';
@@ -26,9 +27,6 @@ import { IsSteamCommunityID } from '@momentum/backend/validators';
 import { Ban } from '@momentum/constants';
 import { Bitflags } from '@momentum/bitflags';
 
-// This is the specific key Steam uses for all missing avatars.
-// They even kept it when migrating to Cloudflare!
-const STEAM_MISSING_AVATAR = 'fef49e7fa7e1997310d705b2a6158ff8dc1cdfeb';
 import { UpdateSocialsDto } from './socials.dto';
 
 export class UserDto implements User {
