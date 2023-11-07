@@ -1,6 +1,7 @@
 export * from './consts/file-store-paths.const';
 export * from './consts/limits.const';
 export * from './consts/socials.const';
+export * from './consts/steam-default-avatar.const';
 export * from './enums/gamemode.enum';
 export * from './enums/run.enum';
 export * from './enums/role.enum';
