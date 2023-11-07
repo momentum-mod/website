@@ -1,34 +1,38 @@
 <div
-  class="pt-2 px-2 text-center drop_zone"
-  (drop)="dropHandler($event)"
-  (dragover)="dragOverHandler($event)"
-  (dragenter)="dragOver = dragOver + 1"
-  (dragleave)="dragOver = dragOver - 1"
-  [ngClass]="{ 'files-ready': dragOver }"
+  [ngClass]="{
+    'dragging !border-blue-400': dragOverCounter > 0,
+    'disabled saturate-50': disabled,
+    '[&.ng-valid.ng-dirty]:border-green-500': hasSelection()
+  }"
+  class="group flex flex-grow flex-col justify-around rounded border-2 border-dashed border-pale-700 bg-pale-900 p-3 text-center shadow-md transition-colors [&:not(.disabled)]:cursor-pointer [&:not(.disabled)]:hover:border-pale-400 [&:not(.disabled)]:hover:bg-pale-800 [.ng-invalid.ng-dirty>&]:border-red-500 [.ng-valid.ng-dirty>&]:border-green-500"
 >
-  <input
-    nbInput
-    [hidden]="true"
-    type="file"
-    [accept]="acceptString"
-    [multiple]="multiple"
-    (change)="onFileSelected($event)"
-    #fileUploadInput
-  />
-  <h4 *ngIf="showSelected && selectedFile">{{ selectedFile.name }}</h4>
-  <h4 *ngIf="invalidSize" class="text-danger">File too big!</h4>
-  <h4 *ngIf="invalidType" class="text-danger">Wrong type of file!</h4>
-  <button
-    nbButton
-    outline
-    status="info"
-    class="fileUpload mt-1 mb-2"
-    type="button"
-    (click)="fileUploadInput.click(); invalidType = false; invalidSize = false"
-  >
-    Choose {{ type }} File{{ multiple ? 's' : '' }}
-  </button>
-  <h6>
-    <i>Or drag {{ type }} file{{ multiple ? 's' : '' }} here</i>
-  </h6>
+  <div>
+    <!-- This is totally hidden but element needs to exist for browser to open a file picker window -->
+    <input #fileInput (change)="onFilesSelected($event)" [accept]="accept" [multiple]="multiple" hidden type="file" />
+    <div *ngIf="showSelected && hasSelection()" class="rounded border-black border-opacity-50 bg-gray-950 px-2 py-2 shadow-inner">
+      <div *ngFor="let file of getIterableFiles()" class="flex pl-2 [&:not(:last-child)]:mb-2">
+        <p class="align-middle text-lg">{{ file.name }}</p>
+        <p class="my-auto ml-auto mr-3 pt-0.5 italic opacity-75">
+          {{ size(file) }}
+        </p>
+        <nb-icon
+          (click)="removeFile(file, $event)"
+          class="my-auto mr-0.5 h-6 w-6 rounded bg-blue-700 transition-colors hover:bg-blue-600"
+          icon="close"
+        />
+      </div>
+    </div>
+    <ng-container *ngIf="showSelected || multiple || !value">
+      <nb-icon
+        [icon]="icon"
+        [ngClass]="{ 'mt-3': showSelected && hasSelection() }"
+        class="h-16 w-16 text-blue-200 drop-shadow-md transition-colors duration-150 ease-in group-hover:text-pale-50 group-[.dragging]:text-pale-100"
+      ></nb-icon>
+      <p *ngIf="!disabled" class="mt-1 pb-1">
+        <span *ngIf="!disabled" class="font-medium">Select {{ multiple ? '' : 'a ' }}{{ typeName }} file</span>{{ multiple ? 's' : '' }} or
+        drag here
+      </p>
+      <p *ngIf="disabledBecauseReachedMax" class="mt-1 pb-1">File limit reached</p>
+    </ng-container>
+  </div>
 </div>
