@@ -1,149 +1,74 @@
-import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
+import { Component, forwardRef, HostListener } from '@angular/core';
+import { NG_VALUE_ACCESSOR } from '@angular/forms';
+import { AbstractFileUploadComponent } from './abstract-file-upload.component';
 
-export enum FileUploadType {
-  ALL = '',
-  MAP = 'map',
-  IMAGE = 'image',
-  ZONES = 'zones'
-}
-
+/**
+ * A form control for file selection/uploading with support for drag and drop.
+ */
 @Component({
   selector: 'mom-file-upload',
-  templateUrl: './file-upload.component.html',
-  styleUrls: ['./file-upload.component.scss']
+  templateUrl: 'file-upload.component.html',
+  providers: [
+    {
+      provide: NG_VALUE_ACCESSOR,
+      useExisting: forwardRef(() => FileUploadComponent),
+      multi: true
+    }
+  ]
 })
-export class FileUploadComponent implements OnInit {
-  /**
-   * The type of files this component allows to be uploaded
-   */
-  @Input() type: FileUploadType;
-  /**
-   * The total size, in MB, allowed for the size of the file
-   */
-  @Input() limitSize: number;
-  /**
-   * Whether this component should show the selected file's name
-   */
-  @Input() showSelected: boolean;
-  /**
-   * Whether allow multiple selections
-   */
-  @Input() multiple: boolean;
-  @Output() fileSelected: EventEmitter<File>;
-  dragOver: number;
-  invalidSize: boolean;
-  invalidType: boolean;
-  selectedFile: File;
-  acceptString: string;
-  matchString: any;
-  constructor() {
-    this.selectedFile = null;
-    this.limitSize = 0;
-    this.fileSelected = new EventEmitter<File>();
-    this.dragOver = 0;
-    this.acceptString = '';
-    this.matchString = '';
-    this.type = FileUploadType.ALL;
-    this.invalidType = false;
-    this.invalidSize = false;
-    this.showSelected = false;
-    this.multiple = false;
-  }
+export class FileUploadComponent extends AbstractFileUploadComponent<File> {
+  public value: File = null;
+  protected readonly multiple = false;
+  protected readonly max = null;
 
-  ngOnInit() {
-    switch (this.type) {
-      case FileUploadType.MAP: {
-        this.acceptString = '.bsp';
-        this.matchString = /.+(\.bsp)/;
-        break;
-      }
-      case FileUploadType.IMAGE: {
-        this.acceptString = 'image/png,image/jpeg';
-        this.matchString = /.+(\.(pn|jpe?)g)/i;
-        break;
-      }
-      case FileUploadType.ZONES: {
-        this.acceptString = '.zon';
-        this.matchString = /.+(\.zon)/;
-        break;
-      }
-      // No default
-    }
-  }
-
-  validateFile(file: File): boolean {
-    const size = file.size / 1048576;
-    if (this.limitSize > 0 && size > this.limitSize) {
-      this.invalidSize = true;
-      return false;
-    }
-    const match = file.name.match(this.matchString);
-    if (!match) {
-      this.invalidType = true;
-      return false;
-    }
-    return true;
-  }
-
-  dropHandler($event) {
-    this.invalidSize = false;
-    this.invalidType = false;
+  @HostListener('drop', ['$event'])
+  onDrop(event: DragEvent) {
     // Prevent default behavior (Prevent file from being opened)
-    $event.preventDefault();
+    event.preventDefault();
+    this.removeDragData(event);
 
-    if ($event.dataTransfer.items) {
-      // Use DataTransferItemList interface to access the file(s)
-      for (const item of $event.dataTransfer.items) {
-        // If dropped items aren't files, reject them
-        if (item.kind === 'file') {
-          const file = item.getAsFile();
-          if (this.validateFile(file)) {
-            this.selectedFile = file;
-            this.fileSelected.emit(file);
-          }
-          if (!this.multiple) break;
-        }
-      }
-    } else {
-      // Use DataTransfer interface to access the file(s)
-      for (const file of $event.dataTransfer.files) {
-        if (this.validateFile(file)) {
-          this.selectedFile = file;
-          this.fileSelected.emit(file);
-        }
-        if (!this.multiple) break;
-      }
-    }
+    if (this.disabled) return;
 
-    this.dragOver = 0;
+    // `.items` seems to be the correct approach but try files if missing
+    const useItems = !!event.dataTransfer.items;
+    const items = event.dataTransfer.items ?? event.dataTransfer.files;
 
-    // Pass event to removeDragData for cleanup
-    this.removeDragData($event);
+    const item = items[0];
+    // Ignore anything that isn't a file. We could keep this method in abstract
+    // class to handle cases where first item isn't a file but others are, but I
+    // don't think that could ever actually happen
+    if (useItems && (item as DataTransferItem).kind !== 'file') return;
+
+    this.value = useItems
+      ? (item as DataTransferItem).getAsFile()
+      : (item as File);
+
+    this.onChange(this.value);
   }
 
-  dragOverHandler($event) {
-    // Prevent default behavior (Prevent file from being opened)
-    $event.preventDefault();
+  onFilesSelected(event: Event) {
+    this.value = (event.target as HTMLInputElement).files[0];
+
+    this.onChange(this.value);
+
+    (event.target as HTMLInputElement).value = '';
   }
 
-  removeDragData(ev) {
-    if (ev.dataTransfer.items) {
-      // Use DataTransferItemList interface to remove the drag data
-      ev.dataTransfer.items.clear();
-    } else {
-      // Use DataTransfer interface to remove the drag data
-      ev.dataTransfer.clearData();
-    }
+  writeValue(value: File): void {
+    this.value = value == null || (value as any) === '' ? null : value;
   }
 
-  onFileSelected($event) {
-    for (const file of $event.target.files) {
-      if (this.validateFile(file)) {
-        this.selectedFile = file;
-        this.fileSelected.emit(file);
-      }
-    }
-    // Clear value to allow same file(s) selected
-    $event.target.value = '';
+  hasSelection(): boolean {
+    return !!this.value;
+  }
+
+  getIterableFiles(): File[] {
+    return [this.value];
+  }
+
+  removeFile(file: File, event?: Event): void {
+    event?.stopPropagation();
+    this.value = null;
+    this.onChange(this.value);
   }
 }
