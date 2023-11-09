@@ -5,6 +5,8 @@ import {
   CreateMapWithFiles,
   MapStatusNew,
   MapSubmissionType,
+  MAX_MAP_NAME_LENGTH,
+  MIN_MAP_NAME_LENGTH,
   MMap,
   UpdateMap,
   UpdateMapAdmin
@@ -23,7 +25,9 @@ import {
   IsOptional,
   IsPositive,
   IsString,
-  IsUrl
+  IsUrl,
+  MaxLength,
+  MinLength
 } from 'class-validator';
 import { CreateMapInfoDto, MapInfoDto, UpdateMapInfoDto } from './map-info.dto';
 import { CreateMapCreditDto, MapCreditDto } from './map-credit.dto';
@@ -58,9 +62,11 @@ export class MapDto implements MMap {
   @ApiProperty({
     type: String,
     description:
-      'The name of the map, without gamemode prefix and any extra embellishments e.g. "_final"',
+      'The name of the map without any extra embellishments e.g. "_final"',
     example: 'arcane'
   })
+  @MinLength(MIN_MAP_NAME_LENGTH)
+  @MaxLength(MAX_MAP_NAME_LENGTH)
   @IsLowercase()
   readonly name: string;
 
@@ -70,6 +76,8 @@ export class MapDto implements MMap {
     example: 'bhop_arcane'
   })
   @IsMapName()
+  @MinLength(MIN_MAP_NAME_LENGTH)
+  @MaxLength(MAX_MAP_NAME_LENGTH)
   readonly fileName: string;
 
   @EnumProperty(MapStatusNew)

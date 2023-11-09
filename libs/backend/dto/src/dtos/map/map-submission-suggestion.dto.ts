@@ -1,6 +1,7 @@
 import {
   Gamemode,
   MapSubmissionSuggestion,
+  MAX_MAP_SUGGESTION_COMMENT_LENGTH,
   TrackType
 } from '@momentum/constants';
 import {
@@ -47,7 +48,7 @@ export class MapSubmissionSuggestionDto implements MapSubmissionSuggestion {
     description: 'General comments about the track on this gamemode'
   })
   @IsString()
-  @MaxLength(500)
+  @MaxLength(MAX_MAP_SUGGESTION_COMMENT_LENGTH)
   @IsOptional()
   readonly comment?: string;
 }
