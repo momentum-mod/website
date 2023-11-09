@@ -218,7 +218,7 @@ export function SkipQueryProperty(def: number): PropertyDecorator {
       description: 'Skip this many records'
     }),
     TypeDecorator(() => Number),
-    IsPositive(),
+    Min(0),
     IsInt(),
     IsOptional()
   );
@@ -238,7 +238,7 @@ export function TakeQueryProperty(def: number, max = 100): PropertyDecorator {
       description: 'Take this many records'
     }),
     TypeDecorator(() => Number),
-    IsPositive(),
+    Min(0),
     IsInt(),
     Max(max),
     IsOptional()

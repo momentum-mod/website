@@ -1,7 +1,18 @@
-﻿import { CreateMapInfo, MapInfo, UpdateMapInfo } from '@momentum/constants';
+﻿import {
+  CreateMapInfo,
+  MapInfo,
+  MAX_MAP_DESCRIPTION_LENGTH,
+  UpdateMapInfo
+} from '@momentum/constants';
 import { ApiProperty, PartialType, PickType } from '@nestjs/swagger';
 import { Exclude } from 'class-transformer';
-import { IsDateString, IsOptional, IsString, Matches } from 'class-validator';
+import {
+  IsDateString,
+  IsOptional,
+  IsString,
+  Matches,
+  MaxLength
+} from 'class-validator';
 
 export class MapInfoDto implements MapInfo {
   @Exclude()
@@ -12,6 +23,7 @@ export class MapInfoDto implements MapInfo {
     description: 'Author-submitted description of the map'
   })
   @IsString()
+  @MaxLength(MAX_MAP_DESCRIPTION_LENGTH)
   readonly description: string;
 
   @ApiProperty({

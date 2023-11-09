@@ -20,8 +20,7 @@ import { UserStatsDto } from './user-stats.dto';
 import {
   CreatedAtProperty,
   IdProperty,
-  NestedProperty,
-  UpdatedAtProperty
+  NestedProperty
 } from '../../decorators';
 import { IsSteamCommunityID } from '@momentum/backend/validators';
 import { Ban } from '@momentum/constants';
@@ -45,9 +44,11 @@ export class UserDto implements User {
   @ApiProperty({
     type: String,
     description:
-      "The user's alias, which is either a current or previous Steam name, or something they set themselves"
+      "The user's alias, which is either a current or previous Steam name, or something they set themselves",
+    maxLength: 32
   })
   @IsString()
+  @MaxLength(32)
   readonly alias: string;
 
   @ApiPropertyOptional({

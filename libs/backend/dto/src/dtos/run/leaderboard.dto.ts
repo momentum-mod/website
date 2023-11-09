@@ -39,7 +39,7 @@ export class LeaderboardDto implements Leaderboard {
   @ApiProperty({
     type: String,
     isArray: true,
-    description: 'The tier of the leaderboard'
+    description: 'The tags of the leaderboard (WIP)'
   })
   @IsString({ each: true })
   readonly tags: MapTags;

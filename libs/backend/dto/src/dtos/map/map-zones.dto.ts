@@ -29,7 +29,8 @@ import {
   MAX_SEGMENT_CHECKPOINTS,
   MAX_STAGE_TRACKS,
   MAX_TRACK_SEGMENTS,
-  MAX_ZONE_REGION_POINTS
+  MAX_ZONE_REGION_POINTS,
+  MAX_ZONES_ALL_TRACKS
 } from '@momentum/formats';
 
 export class RegionDto /* extends JsonifiableDto */ implements Region {
@@ -152,6 +153,7 @@ export class TrackDto /* extends JsonifiableDto */ implements Track {
 
   @ApiProperty({ description: "Whether it's possible to skip a minor zone" })
   @IsBoolean()
+  @IsOptional()
   readonly minorRequired: boolean;
 
   @ApiProperty({
@@ -229,5 +231,7 @@ export class MapZonesDto /* extends JsonifiableDto */ implements MapZones {
     required: true,
     isArray: true
   })
+  @ArrayMinSize(0)
+  @ArrayMaxSize(MAX_ZONES_ALL_TRACKS)
   readonly volumes: Volume[];
 }

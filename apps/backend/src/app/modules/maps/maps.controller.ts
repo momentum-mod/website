@@ -6,8 +6,10 @@ import {
   Get,
   HttpCode,
   HttpStatus,
+  MaxFileSizeValidator,
   Param,
   ParseArrayPipe,
+  ParseFilePipe,
   Patch,
   Post,
   Put,
@@ -70,6 +72,7 @@ import {
 } from '@momentum/backend/dto';
 import { LoggedInUser, Roles } from '@momentum/backend/decorators';
 import { Role } from '@momentum/constants';
+import { MAX_IMAGE_SIZE, Role } from '@momentum/constants';
 import { ParseIntSafePipe } from '@momentum/backend/pipes';
 import { MapCreditsService } from './map-credits.service';
 import { MapReviewService } from './map-review.service';
@@ -505,7 +508,12 @@ export class MapsController {
   createImage(
     @LoggedInUser('id') userID: number,
     @Param('mapID', ParseIntSafePipe) mapID: number,
-    @UploadedFile() file
+    @UploadedFile(
+      new ParseFilePipe({
+        validators: [new MaxFileSizeValidator({ maxSize: MAX_IMAGE_SIZE })]
+      })
+    )
+    file: File
   ): Promise<MapImageDto> {
     if (!file || !file.buffer || !Buffer.isBuffer(file.buffer))
       throw new BadRequestException('Invalid image data');
