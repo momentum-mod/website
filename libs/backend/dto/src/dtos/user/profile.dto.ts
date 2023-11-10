@@ -5,9 +5,6 @@ import { Profile } from '@momentum/constants';
 import { SocialsDto } from './socials.dto';
 
 export class ProfileDto implements Profile {
-  @Exclude()
-  readonly id: number;
-
   @ApiProperty({ type: Number, description: 'The ID of the user' })
   @IsInt()
   readonly userID: number;
