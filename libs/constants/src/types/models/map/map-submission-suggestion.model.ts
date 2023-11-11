@@ -8,4 +8,5 @@ export interface MapSubmissionSuggestion {
   tier: number;
   ranked: boolean;
   comment?: string;
+  //  TODO: Tags!
 }

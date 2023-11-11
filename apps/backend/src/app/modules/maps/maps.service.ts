@@ -405,7 +405,7 @@ export class MapsService {
   }
 
   async get(
-    mapID: number,
+    mapID: number | string,
     userID?: number,
     expand?: MapsGetExpand
   ): Promise<MapDto> {
@@ -1521,13 +1521,19 @@ export class MapsService {
   >(
     args: { userID: number } & MergeExclusive<
       { map: M },
-      { mapID: number } & MergeExclusive<{ select?: S }, { include?: I }>
+      { mapID: number | string } & MergeExclusive<
+        { select?: S },
+        { include?: I }
+      >
     >
   ): Promise<typeof args extends { map: M } ? M : GetMMapUnique<S, I>> {
     const map =
       args.map ??
       (await this.db.mMap.findUnique({
-        where: { id: args.mapID },
+        where:
+          typeof args.mapID == 'number'
+            ? { id: args.mapID }
+            : { name: args.mapID },
         include: args.include,
         select: args.select
       }));

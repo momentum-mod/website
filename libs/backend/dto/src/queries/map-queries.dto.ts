@@ -43,7 +43,7 @@ import {
 } from '../decorators';
 import { PagedQueryDto } from './pagination.dto';
 import { QueryDto } from './query.dto';
-import { OmitType } from '@nestjs/swagger';
+import { ApiProperty, OmitType } from '@nestjs/swagger';
 
 //#region Get All
 
@@ -216,6 +216,13 @@ export class MapsGetQueryDto extends QueryDto implements MapsGetQuery {
     'reviews'
   ])
   readonly expand?: MapsGetExpand;
+
+  @ApiProperty({
+    description:
+      'Whether to search based on map name. This will safely handle a map name that is a numeric string.'
+  })
+  @BooleanQueryProperty({ required: false })
+  readonly byName?: boolean;
 }
 
 //#endregion
