@@ -1,99 +1,139 @@
 import {
   Component,
-  ElementRef,
   EventEmitter,
+  Input,
   OnInit,
   Output,
   ViewChild
 } from '@angular/core';
-import { FormBuilder, FormGroup } from '@angular/forms';
+import { FormControl } from '@angular/forms';
 import { UsersService } from '@momentum/frontend/data';
 import { User } from '@momentum/constants';
-import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
+import {
+  debounceTime,
+  distinctUntilChanged,
+  filter,
+  switchMap,
+  takeUntil,
+  tap
+} from 'rxjs/operators';
+import { NbPopoverDirective } from '@nebular/theme';
+import { merge, of, Subject } from 'rxjs';
+import { PagedResponseDto } from '@momentum/backend/dto';
+import { showPopover } from '../../utils/popover-utils';
 
 @Component({
   selector: 'mom-user-search',
-  templateUrl: './user-search.component.html',
-  styleUrls: ['./user-search.component.scss']
+  templateUrl: './user-search.component.html'
 })
 export class UserSearchComponent implements OnInit {
-  userSearchForm: FormGroup = this.fb.group({ search: [''] });
-  get nameSearch() {
-    return this.userSearchForm.get('search');
-  }
+  constructor(private readonly usersService: UsersService) {}
 
-  get isSteamId() {
-    return (
-      typeof this.userSearchForm.get('search').value == 'string' &&
-      this.userSearchForm.get('search').value.startsWith('steam:')
-    );
-  }
+  /**
+   * ngx-pagination can break for multiple instances if they don't have explicit
+   * IDs, so each component instance that uses one needs to specify an ID.
+   * https://github.com/michaelbromley/ngx-pagination/blob/master/README.md#multiple-instances
+   */
+  @Input({ required: true }) paginatorID!: string;
+  @Output() public readonly userSelected = new EventEmitter<User>();
+  public readonly search: FormControl<string> = new FormControl();
+  protected readonly pageChange = new Subject<number>();
+  private readonly stopSearch = new Subject<void>();
 
-  foundUsers: User[];
+  searchBySteam = false;
+  foundUsers: User[] = [];
+  userSearchCount = 0;
+  userSearchPage = 1;
 
-  pageLimit: number;
-  userSearchCount: number;
-  userSearchPage: number;
+  readonly pageSize = 5;
 
-  @Output() selectedUserEmit: EventEmitter<User>;
-  @ViewChild('searchInput', { static: true }) searchInput: ElementRef;
-  constructor(
-    private fb: FormBuilder,
-    private usersService: UsersService
-  ) {
-    this.selectedUserEmit = new EventEmitter<User>();
-    this.foundUsers = [];
-    this.pageLimit = 5;
-    this.userSearchCount = 0;
-    this.userSearchPage = 1;
-  }
-
-  findUsers(val: string) {
-    val = val.trim();
-    if (val.length > 0)
-      if (
-        val.startsWith('steam:') &&
-        !Number.isNaN(Number.parseInt(val.slice(6)))
-      )
-        this.usersService
-          .getUsers({
-            steamID: val.slice(6)
-          })
-          .subscribe((resp) => {
-            this.foundUsers = resp.data;
-            this.userSearchCount = resp.totalCount;
-          });
-      else
-        this.usersService
-          .getUsers({
-            search: val,
-            take: this.pageLimit,
-            skip: (this.userSearchPage - 1) * this.pageLimit
-          })
-          .subscribe((resp) => {
-            this.foundUsers = resp.data;
-            this.userSearchCount = resp.totalCount;
-          });
-    else {
-      this.foundUsers = [];
-      this.userSearchPage = 1;
-      this.userSearchCount = 0;
-    }
-  }
+  @ViewChild(NbPopoverDirective) readonly popover: NbPopoverDirective;
 
   ngOnInit() {
-    this.searchInput.nativeElement.focus();
-    this.nameSearch.valueChanges
-      .pipe(debounceTime(500), distinctUntilChanged())
-      .subscribe((val: string) => this.findUsers(val));
+    this.search.statusChanges.subscribe((status) => {
+      if (status !== 'INVALID') {
+        this.popover.hide();
+        return;
+      }
+      showPopover(
+        this.popover,
+        Object.values(this.search.errors)[0] ?? 'Unknown error'
+      );
+    });
+
+    merge(
+      this.pageChange.pipe(
+        filter((page) => page !== this.userSearchPage),
+        tap((page: number) => (this.userSearchPage = page))
+      ),
+      this.search.valueChanges.pipe(
+        distinctUntilChanged(),
+        filter((value) => {
+          if (value?.trim().length > 0) return true;
+          this.resetSearchData();
+          return false;
+        }),
+        debounceTime(200)
+      )
+    )
+      .pipe(
+        switchMap(() => {
+          const value = this.search.value;
+          this.search.markAsPending();
+
+          if (this.searchBySteam) {
+            if (Number.isNaN(+value)) {
+              this.search.setErrors({ error: 'Input is not a Steam ID!' });
+              return of(null);
+            }
+            return this.usersService
+              .getUsers({ steamID: value })
+              .pipe(takeUntil(this.stopSearch));
+          } else
+            return this.usersService
+              .getUsers({
+                search: value,
+                take: this.pageSize,
+                skip: (this.userSearchPage - 1) * this.pageSize
+              })
+              .pipe(takeUntil(this.stopSearch));
+        })
+      )
+      .subscribe({
+        next: (response: PagedResponseDto<User> | null) => {
+          if (!response) {
+            this.resetSearchData();
+          } else if (response.returnCount > 0) {
+            this.foundUsers = response.data;
+            this.userSearchCount = response.totalCount;
+            this.search.setErrors(null);
+          } else {
+            this.resetSearchData();
+            this.search.setErrors({ error: 'No users found!' });
+          }
+        },
+        error: (err) => {
+          console.log(err);
+          this.search.setErrors({ error: 'Error fetching users!' });
+        }
+      });
   }
 
-  confirmUser(user: User) {
-    this.selectedUserEmit.emit(user);
+  public resetSearchBox() {
+    this.resetSearchData();
+    this.stopSearch.next();
+    // emitEvent ... TODO
+    this.search.setValue('', { emitEvent: true });
+    // this.search.reset();
   }
 
-  onPageChange(pageNum) {
-    this.userSearchPage = pageNum;
-    this.findUsers(this.nameSearch.value);
+  protected resetSearchData() {
+    this.foundUsers = [];
+    this.userSearchPage = 1;
+    this.userSearchCount = 0;
+  }
+
+  protected confirmUser(user: User) {
+    this.userSelected.emit(user);
   }
 }
