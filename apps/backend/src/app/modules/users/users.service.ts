@@ -659,7 +659,12 @@ export class UsersService {
   ) {
     const where: Prisma.MapFavoriteWhereInput = { userID: userID };
 
-    if (search) where.mmap = { name: { contains: search } };
+    const include: Prisma.MapFavoriteInclude = { user: true };
+
+    if (search) {
+      where.mmap = { name: { contains: search } };
+      include.mmap = true;
+    }
 
     const mapIncludes: Prisma.MMapInclude = expandToIncludes(expand, {
       mappings: [
@@ -676,10 +681,9 @@ export class UsersService {
       ]
     });
 
-    const include: Prisma.MapFavoriteInclude = {
-      user: true,
-      mmap: !isEmpty(mapIncludes) ? { include: mapIncludes } : undefined
-    };
+    if (!isEmpty(mapIncludes)) {
+      include.mmap = { include: mapIncludes };
+    }
 
     const dbResponse: [
       (MapFavorite & { mmap?: MMap & { personalBest?: LeaderboardRun } })[],
