@@ -131,6 +131,7 @@ export class PastRunsService {
 }
 
 type PastRunWithPbData = PastRun & {
+  user?: unknown;
   leaderboardRun?: unknown;
   mmap?: unknown;
   isPB: boolean;
