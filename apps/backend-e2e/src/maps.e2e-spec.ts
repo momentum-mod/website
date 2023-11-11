@@ -1204,6 +1204,7 @@ describe('Maps', () => {
         ]);
 
         map = await db.createMap({
+          name: 'my_epic_map',
           submission: {
             create: {
               type: MapSubmissionType.ORIGINAL,
@@ -1257,6 +1258,37 @@ describe('Maps', () => {
         });
 
         expect(res.body).not.toHaveProperty('zones');
+      });
+
+      it('should search by name when passed a string', () =>
+        req.get({
+          url: 'maps/my_epic_map',
+          status: 200,
+          validate: MapDto,
+          token: u1Token
+        }));
+
+      it('should search by name when passed a number and byName is true', async () => {
+        const map2 = await db.createMap({ name: '111' });
+
+        const mapGet = await req.get({
+          url: `maps/${map.id}`,
+          status: 200,
+          validate: MapDto,
+          token: u1Token
+        });
+
+        expect(mapGet.body.id).toBe(map.id);
+
+        const map2Get = await req.get({
+          url: 'maps/111',
+          query: { byName: true },
+          status: 200,
+          validate: MapDto,
+          token: u1Token
+        });
+
+        expect(map2Get.body.id).toBe(map2.id);
       });
 
       it('should respond with expanded map data using the credits expand parameter', async () => {

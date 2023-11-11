@@ -71,7 +71,6 @@ import {
   MinimalLeaderboardRunDto
 } from '@momentum/backend/dto';
 import { LoggedInUser, Roles } from '@momentum/backend/decorators';
-import { Role } from '@momentum/constants';
 import { MAX_IMAGE_SIZE, Role } from '@momentum/constants';
 import { ParseIntSafePipe } from '@momentum/backend/pipes';
 import { MapCreditsService } from './map-credits.service';
@@ -110,21 +109,27 @@ export class MapsController {
   }
 
   @Get('/:mapID')
-  @ApiOperation({ summary: 'Returns a single map' })
+  @ApiOperation({ summary: 'Find a single map, by either ID or name' })
   @ApiParam({
     name: 'mapID',
-    type: Number,
-    description: 'Target Map ID',
+    type: 'number/string',
+    description: 'Target Map ID or name',
     required: true
   })
   @ApiOkResponse({ type: MapDto, description: 'The found map' })
   @ApiNotFoundResponse({ description: 'Map was not found' })
   getMap(
     @LoggedInUser('id') userID: number,
-    @Param('mapID', ParseIntSafePipe) mapID: number,
+    @Param('mapID') mapParam: number | string,
     @Query() query?: MapsGetQueryDto
   ): Promise<MapDto> {
-    return this.mapsService.get(mapID, userID, query.expand);
+    // Use a string ID if param isn't numeric or if explicitly stated to use a string,
+    // and we'll search by map name.
+    const id =
+      Number.isNaN(+mapParam) || query?.byName === true
+        ? mapParam.toString()
+        : +mapParam;
+    return this.mapsService.get(id, userID, query.expand);
   }
 
   @Patch('/:mapID')
