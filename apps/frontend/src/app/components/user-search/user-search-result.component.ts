@@ -4,8 +4,7 @@ import { LocalUserService } from '@momentum/frontend/data';
 
 @Component({
   selector: 'mom-user-search-result',
-  templateUrl: './user-search-result.component.html',
-  styleUrls: ['./user-search-result.component.scss']
+  templateUrl: './user-search-result.component.html'
 })
 export class UserSearchResultComponent implements OnInit {
   @Input() user: User;
