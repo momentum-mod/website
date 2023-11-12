@@ -184,22 +184,6 @@ export class MapsService {
       // Logic here is a nightmare, for a breakdown of permissions see
       // MapsService.getMapAndCheckReadAccess.
       const filter = query.filter;
-      const privateTestingConditions = {
-        AND: [
-          { status: MapStatusNew.PRIVATE_TESTING },
-          {
-            OR: [
-              { submitterID: userID },
-              { credits: { some: { userID } } },
-              {
-                testingRequests: {
-                  some: { userID, state: MapTestingRequestState.ACCEPTED }
-                }
-              }
-            ]
-          }
-        ]
-      };
       if (Bitflags.has(CombinedRoles.MOD_OR_ADMIN, roles)) {
         where.status = {
           in: filter
@@ -279,7 +263,22 @@ export class MapsService {
         if (filter?.[0] === MapStatusNew.PUBLIC_TESTING) {
           where.status = MapStatusNew.PUBLIC_TESTING;
         } else if (filter?.[0] === MapStatusNew.PRIVATE_TESTING) {
-          where.AND = privateTestingConditions;
+          where.AND = {
+            AND: [
+              { status: MapStatusNew.PRIVATE_TESTING },
+              {
+                OR: [
+                  { submitterID: userID },
+                  { credits: { some: { userID } } },
+                  {
+                    testingRequests: {
+                      some: { userID, state: MapTestingRequestState.ACCEPTED }
+                    }
+                  }
+                ]
+              }
+            ]
+          };
         } else {
           where.OR = [
             { status: MapStatusNew.PUBLIC_TESTING },
@@ -298,6 +297,24 @@ export class MapsService {
                   ]
                 }
               ]
+            },
+            {
+              AND: {
+                status: MapStatusNew.CONTENT_APPROVAL,
+                submitterID: userID
+              }
+            },
+            {
+              AND: {
+                status: MapStatusNew.FINAL_APPROVAL,
+                submitterID: userID
+              }
+            },
+            {
+              AND: {
+                status: MapStatusNew.DISABLED,
+                submitterID: userID
+              }
             }
           ];
         }

@@ -2626,7 +2626,7 @@ describe('Maps', () => {
 
   describe('maps/submissions', () => {
     describe('GET', () => {
-      let u1, u1Token, u2, pubMap1, pubMap2, privMap;
+      let u1, u1Token, u2, pubMap1, pubMap2, privMap, caMap, faMap;
 
       beforeAll(async () => {
         [[u1, u1Token], u2] = await Promise.all([
@@ -2681,6 +2681,14 @@ describe('Maps', () => {
         });
         privMap = await db.createMap({
           status: MapStatusNew.PRIVATE_TESTING,
+          submission: submissionCreate
+        });
+        faMap = await db.createMap({
+          status: MapStatusNew.CONTENT_APPROVAL,
+          submission: submissionCreate
+        });
+        caMap = await db.createMap({
+          status: MapStatusNew.FINAL_APPROVAL,
           submission: submissionCreate
         });
 
@@ -3132,6 +3140,60 @@ describe('Maps', () => {
 
         await prisma.mMap.update({
           where: { id: privMap.id },
+          data: { submitter: { disconnect: true } }
+        });
+      });
+
+      it('should include final approval maps for which the user is the submitter', async () => {
+        await prisma.mMap.update({
+          where: { id: faMap.id },
+          data: { submitter: { connect: { id: u1.id } } }
+        });
+
+        const res = await req.get({
+          url: 'maps/submissions',
+          status: 200,
+          validatePaged: { type: MapDto, count: 3 },
+          token: u1Token
+        });
+
+        expect(res.body.data).toEqual(
+          expect.arrayContaining([
+            expect.objectContaining({ id: pubMap1.id }),
+            expect.objectContaining({ id: pubMap2.id }),
+            expect.objectContaining({ id: faMap.id })
+          ])
+        );
+
+        await prisma.mMap.update({
+          where: { id: faMap.id },
+          data: { submitter: { disconnect: true } }
+        });
+      });
+
+      it('should include content approval maps for which the user is the submitter', async () => {
+        await prisma.mMap.update({
+          where: { id: caMap.id },
+          data: { submitter: { connect: { id: u1.id } } }
+        });
+
+        const res = await req.get({
+          url: 'maps/submissions',
+          status: 200,
+          validatePaged: { type: MapDto, count: 3 },
+          token: u1Token
+        });
+
+        expect(res.body.data).toEqual(
+          expect.arrayContaining([
+            expect.objectContaining({ id: pubMap1.id }),
+            expect.objectContaining({ id: pubMap2.id }),
+            expect.objectContaining({ id: caMap.id })
+          ])
+        );
+
+        await prisma.mMap.update({
+          where: { id: caMap.id },
           data: { submitter: { disconnect: true } }
         });
       });
