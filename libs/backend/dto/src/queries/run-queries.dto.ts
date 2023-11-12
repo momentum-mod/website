@@ -53,7 +53,7 @@ export class PastRunsGetAllQueryDto
   @EnumQueryProperty(Style, { description: 'Filter by style' })
   style?: Style;
 
-  @IntQueryProperty({ description: 'Filter by run flags', isArray: true })
+  @IntCsvQueryProperty({ description: 'Filter by run flags', isArray: true })
   flags?: number[];
 
   @IntQueryProperty({ description: 'Filter by user ID' })
