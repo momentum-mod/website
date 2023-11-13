@@ -45,6 +45,25 @@ describe('validateSuggestions', () => {
     );
   });
 
+  it('should throw for if a suggested bonus does not correspond to zone', () => {
+    expect(() =>
+      validateSuggestions(
+        [
+          ...validSuggestions,
+          {
+            trackType: TT.BONUS,
+            trackNum: 1,
+            gamemode: Gamemode.BHOP,
+            tier: 1,
+            comment: 'This track doesnt exist',
+            ranked: true
+          }
+        ],
+        zones
+      )
+    ).toThrow('Suggestion refers to bonus track (1) that does not exist');
+  });
+
   it('should throw for duplicate suggestions', () => {
     expect(() =>
       validateSuggestions(
