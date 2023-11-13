@@ -12,8 +12,13 @@ describe('validateSuggestions', () => {
   const zones = ZonesStub;
 
   jest.spyOn(IncompatibleGamemodes, 'get').mockImplementation((key) =>
-    // Ahop incompat with Bhop, nothing else is incompatible
-    key === Gamemode.AHOP ? [Gamemode.BHOP] : []
+    // Ahop and Bhop mutually imcompatible, Ahop also incompatible with Surf,
+    // nothing else is incompatible
+    {
+      if (key === Gamemode.AHOP) return [Gamemode.BHOP, Gamemode.SURF];
+      else if (key === Gamemode.BHOP) return [Gamemode.AHOP];
+      else return [];
+    }
   );
 
   const validSuggestions: MapSubmissionSuggestion[] = [
@@ -161,7 +166,7 @@ describe('validateSuggestions', () => {
           {
             trackType: TT.MAIN,
             trackNum: 0,
-            gamemode: Gamemode.CONC,
+            gamemode: Gamemode.SURF,
             tier: 1,
             comment: 'someComment',
             ranked: true
