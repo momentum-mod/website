@@ -1,7 +1,7 @@
 import {
+  GamemodeName,
   IncompatibleGamemodes,
   MapSubmissionSuggestion,
-  GamemodeName,
   MapZones,
   TrackType as TT,
   TrackType,
@@ -50,7 +50,17 @@ export function validateSuggestions(
           }
         }
 
-        if (IncompatibleGamemodes.get(gm).includes(gm2)) {
+        // Throw for any tracks that are *mutually incompatible* e.g. surf and
+        // bhop. This *won't* throw for something only incomp. one way - without
+        // a "primary mode" or similar would can't distinguish between say, a
+        // surf map playable in defrag (which is compat) vs a defrag map
+        // playable in surf (incomp since may as well play in bhop instead).
+        // So this check is quite weak, but not the end of the world as a
+        // reviewer can just ignore/reject stupid suggestions.
+        if (
+          IncompatibleGamemodes.get(gm).includes(gm2) &&
+          IncompatibleGamemodes.get(gm2).includes(gm)
+        ) {
           throw new SuggestionValidationError(
             'Incompatible gamemodes ' +
               `${GamemodeName.get(gm)} and ${GamemodeName.get(gm2)} on ` +
