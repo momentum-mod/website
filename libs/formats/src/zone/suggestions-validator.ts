@@ -4,6 +4,7 @@ import {
   GamemodeName,
   MapZones,
   TrackType as TT,
+  TrackType,
   TrackTypeName as TTName
 } from '@momentum/constants';
 
@@ -94,4 +95,13 @@ export function validateSuggestions(
       );
     }
   }
+  suggestions
+    .filter(({ trackType }) => trackType === TrackType.BONUS)
+    .forEach(({ trackNum }, i) => {
+      if (!zoneData.tracks.bonuses[trackNum]) {
+        throw new SuggestionValidationError(
+          `Suggestion refers to bonus track (${trackNum}) that does not exist`
+        );
+      }
+    });
 }
