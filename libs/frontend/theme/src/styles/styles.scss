@@ -11,10 +11,28 @@
 @use '../../../../../apps/frontend/src/app/components/search/search.component.theme'
   as search;
 
-
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+@layer components {
+  .drag-n-drop-trans {
+    transition: transform 250ms cubic-bezier(0, 0, 0.2, 1);
+  }
+}
+
+.cdk-drag-animating {
+  transition: transform 250ms cubic-bezier(0, 0, 0.2, 1);
+}
+
+.cdk-drop-list-dragging :not(.cdk-drag-placeholder) {
+  transition: transform 250ms cubic-bezier(0, 0, 0.2, 1);
+}
+
+.cdk-drag-placeholder {
+  opacity: 0;
+}
+
 /* If the user prefers dark mode,
 we of course apply color-scheme: dark, as usual */
 @media (prefers-color-scheme: dark) {
