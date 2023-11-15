@@ -89,6 +89,15 @@ module.exports = {
         h2: { fontSize: theme('fontSize.4xl') },
         h3: { fontSize: theme('fontSize.3lg') }
       });
+    }),
+    plugin(function ({ addVariant }) {
+      addVariant('valid', '&.ng-valid.ng-dirty');
+      addVariant('invalid', '&.ng-invalid.ng-dirty');
+      addVariant('pending', '&.ng-pending.ng-dirty');
+      // No FF support for :has yet but probably coming in the next year
+      addVariant('validchild', '&:has( .ng-valid.ng-dirty)');
+      addVariant('invalidchild', '&:has( .ng-invalid.ng-dirty)');
+      addVariant('pendingchild', '&:has( .ng-pending.ng-dirty)');
     })
   ]
 };
