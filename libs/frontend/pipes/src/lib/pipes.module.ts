@@ -6,6 +6,7 @@ import { TimingPipe } from './timing.pipe';
 import { NumberWithCommasPipe } from './number-with-commas.pipe';
 import { TimeAgoPipe } from './time-ago.pipe';
 import { UnsortedKeyvaluePipe } from './unsorted-keyvalue.pipe';
+import { EnumValuePipe } from './enum-value.pipe';
 
 const PIPES = [
   NumberWithCommasPipe,
@@ -13,7 +14,8 @@ const PIPES = [
   ThousandsSuffixPipe,
   TimingPipe,
   TimeAgoPipe,
-  UnsortedKeyvaluePipe
+  UnsortedKeyvaluePipe,
+  EnumValuePipe
 ];
 
 @NgModule({
