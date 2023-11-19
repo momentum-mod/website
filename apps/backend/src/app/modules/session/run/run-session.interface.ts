@@ -8,7 +8,7 @@ export const RUN_SESSION_COMPLETED_INCLUDE = {
 };
 
 const runSessionCompletedIncludeValidator =
-  Prisma.validator<Prisma.RunSessionArgs>()({
+  Prisma.validator<Prisma.RunSessionDefaultArgs>()({
     include: RUN_SESSION_COMPLETED_INCLUDE
   });
 

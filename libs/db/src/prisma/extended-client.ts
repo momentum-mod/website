@@ -1,6 +1,5 @@
 import { Prisma, PrismaClient } from '@prisma/client';
 import { deepmerge } from '@fastify/deepmerge';
-import { ITXClientDenyList } from '@prisma/client/runtime';
 
 const merge = deepmerge();
 export const PRISMA_CLIENT_EXTENSIONS = {
@@ -64,7 +63,7 @@ export const prismaExtensionFactory = (client: PrismaClient) => {
 export type ExtendedPrismaClient = ReturnType<typeof prismaExtensionFactory>;
 export type ExtendedTransactionClient = Omit<
   ExtendedPrismaClient,
-  ITXClientDenyList
+  '$extends' | '$transaction' | '$disconnect' | '$connect' | '$on' | '$use'
 >;
 
 export const getExtendedPrismaClient = () => {

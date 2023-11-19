@@ -172,7 +172,7 @@ model MapNotify {
 model MMap {
   id Int @id @default(autoincrement())
 
-  name     String
+  name     String  @unique
   fileName String? // Optional as isn't set until map is approved
   status   Int     @db.SmallInt /// map-status.enum.ts
   hash     String? @db.Char(40)
@@ -205,8 +205,8 @@ model MMap {
   updatedAt DateTime @updatedAt
 
   // This table is quite small but queried very frequently, so makes sense to index quite a few things.
+  // @unique on name provides an index.
   @@index([submitterID])
-  @@index([name])
   @@index([status, createdAt(sort: Desc)])
 }
 
