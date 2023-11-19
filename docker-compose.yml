@@ -3,7 +3,7 @@ version: '3.8'
 services:
   db:
     container_name: Postgres
-    image: postgres:14-alpine
+    image: postgres:15-alpine
     restart: unless-stopped
     healthcheck:
       test:
