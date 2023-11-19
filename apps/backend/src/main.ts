@@ -17,8 +17,6 @@ import helmet from '@fastify/helmet';
 import cors from '@fastify/cors';
 import { FastifyReply } from 'fastify';
 import { VALIDATION_PIPE_CONFIG } from '@momentum/backend/dto';
-import { EXTENDED_PRISMA_SERVICE } from './app/modules/database/db.constants';
-import { ExtendedPrismaService } from './app/modules/database/prisma.extension';
 
 async function bootstrap() {
   // Transforms `BigInt`s to strings in JSON.stringify, for cases that haven't
@@ -109,10 +107,7 @@ async function bootstrap() {
   // Cookies for transferring JWTs back to client after OpenID auth
   await app.register(cookie, { secret: configService.get('sessionSecret') });
 
-  // Hooks to ensure Nest and Prisma both shut down cleanly on exit
-  // https://docs.nestjs.com/recipes/prisma#issues-with-enableshutdownhooks
-  const prismaDalc: ExtendedPrismaService = app.get(EXTENDED_PRISMA_SERVICE);
-  await prismaDalc.enableShutdownHooks(app);
+  await app.enableShutdownHooks();
 
   // Swagger stuff
   const swaggerConfig = new DocumentBuilder()
