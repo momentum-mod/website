@@ -8,7 +8,7 @@ import { LocalUserService } from '@momentum/frontend/data';
 import { LayoutService } from '../../services/layout.service';
 
 @Component({
-  selector: 'ngx-header',
+  selector: 'mom-header',
   styleUrls: ['./header.component.scss'],
   templateUrl: './header.component.html'
 })
