@@ -1,5 +1,7 @@
 import { Component } from '@angular/core';
-import { NB_LAYOUT_WRAPPED_OUTLET } from '../page-outlet';
 
-@Component({ selector: 'mom-admin', template: NB_LAYOUT_WRAPPED_OUTLET })
+@Component({
+  selector: 'mom-admin',
+  template: '<router-outlet></router-outlet>'
+})
 export class AdminComponent {}
