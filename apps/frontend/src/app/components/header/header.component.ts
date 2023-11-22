@@ -1,16 +1,41 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
-import { NbMenuItem, NbMenuService, NbSidebarService } from '@nebular/theme';
+import {
+  NbMenuItem,
+  NbMenuService,
+  NbSidebarService,
+  NbIconModule,
+  NbActionsModule,
+  NbPopoverModule,
+  NbUserModule,
+  NbContextMenuModule
+} from '@nebular/theme';
 import { NotificationsService } from '../../services/notifications.service';
 import { takeUntil } from 'rxjs/operators';
 import { Subject } from 'rxjs';
 import { Notification, User } from '@momentum/constants';
 import { LocalUserService } from '@momentum/frontend/data';
 import { LayoutService } from '../../services/layout.service';
+import { NotificationComponent } from '../notification/notification.component';
+import { SearchComponent } from '../search/search.component';
+import { RouterLink } from '@angular/router';
+import { NbIconIconDirective } from '../../../../../../libs/frontend/directives/src/lib/icons/nb-icon-icon.directive';
 
 @Component({
   selector: 'mom-header',
   styleUrls: ['./header.component.scss'],
-  templateUrl: './header.component.html'
+  templateUrl: './header.component.html',
+  standalone: true,
+  imports: [
+    NbIconModule,
+    NbIconIconDirective,
+    RouterLink,
+    NbActionsModule,
+    SearchComponent,
+    NbPopoverModule,
+    NotificationComponent,
+    NbUserModule,
+    NbContextMenuModule
+  ]
 })
 export class HeaderComponent implements OnInit, OnDestroy {
   private ngUnsub = new Subject<void>();

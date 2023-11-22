@@ -1,13 +1,37 @@
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
-import { NbToastrService } from '@nebular/theme';
+import {
+  NbToastrService,
+  NbUserModule,
+  NbButtonModule,
+  NbPopoverModule,
+  NbIconModule,
+  NbCardModule
+} from '@nebular/theme';
 import { MMap } from '@momentum/constants';
 import { LocalUserService } from '@momentum/frontend/data';
 import { MapStatusName } from '@momentum/constants';
+import { NbIconIconDirective } from '../../../../../../../../libs/frontend/directives/src/lib/icons/nb-icon-icon.directive';
+import { RouterLink } from '@angular/router';
+import { NgIf, NgClass, NgOptimizedImage, DatePipe } from '@angular/common';
 
 @Component({
   selector: 'mom-map-list-item',
   templateUrl: './map-list-item.component.html',
-  styleUrls: ['./map-list-item.component.scss']
+  styleUrls: ['./map-list-item.component.scss'],
+  standalone: true,
+  imports: [
+    NgIf,
+    NgClass,
+    RouterLink,
+    NgOptimizedImage,
+    NbUserModule,
+    NbButtonModule,
+    NbPopoverModule,
+    NbIconModule,
+    NbIconIconDirective,
+    NbCardModule,
+    DatePipe
+  ]
 })
 export class MapListItemComponent implements OnInit {
   @Input() map: MMap;

@@ -1,7 +1,23 @@
 import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { MapCreditNames, MapCreditType, User } from '@momentum/constants';
 import { SortedMapCredits } from '../../../components/map-credits-selection/sorted-map-credits.class';
-import { CdkDragDrop, moveItemInArray } from '@angular/cdk/drag-drop';
+import {
+  CdkDragDrop,
+  moveItemInArray,
+  CdkDropList,
+  CdkDrag
+} from '@angular/cdk/drag-drop';
+import { UserSearchComponent } from '../../../components/user-search/user-search.component';
+import { NbIconIconDirective } from '../../../../../../../libs/frontend/directives/src/lib/icons/nb-icon-icon.directive';
+import { FormsModule } from '@angular/forms';
+import {
+  NbListModule,
+  NbUserModule,
+  NbInputModule,
+  NbButtonModule,
+  NbIconModule
+} from '@nebular/theme';
+import { NgFor, NgIf, KeyValuePipe } from '@angular/common';
 
 enum SearchState {
   HIDDEN,
@@ -17,7 +33,23 @@ enum SearchState {
 @Component({
   selector: 'mom-map-credits',
   templateUrl: './map-credits.component.html',
-  styleUrls: ['./map-credits.component.scss']
+  styleUrls: ['./map-credits.component.scss'],
+  standalone: true,
+  imports: [
+    NgFor,
+    NgIf,
+    NbListModule,
+    CdkDropList,
+    CdkDrag,
+    NbUserModule,
+    NbInputModule,
+    FormsModule,
+    NbButtonModule,
+    NbIconModule,
+    NbIconIconDirective,
+    UserSearchComponent,
+    KeyValuePipe
+  ]
 })
 export class MapCreditsComponent {
   protected readonly MapCreditType = MapCreditType;

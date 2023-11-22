@@ -9,12 +9,30 @@ import {
 import { MapStatus } from '@momentum/constants';
 import { AdminService, MapsService } from '@momentum/frontend/data';
 import { MMap } from '@momentum/constants';
-import { NbToastrService } from '@nebular/theme';
+import {
+  NbToastrService,
+  NbUserModule,
+  NbButtonModule,
+  NbIconModule
+} from '@nebular/theme';
+import { NbIconIconDirective } from '../../../../../../../../libs/frontend/directives/src/lib/icons/nb-icon-icon.directive';
+import { NgOptimizedImage, DatePipe } from '@angular/common';
+import { RouterLink } from '@angular/router';
 
 @Component({
   selector: 'mom-queued-map',
   templateUrl: './queued-map.component.html',
-  styleUrls: ['./queued-map.component.scss']
+  styleUrls: ['./queued-map.component.scss'],
+  standalone: true,
+  imports: [
+    RouterLink,
+    NgOptimizedImage,
+    NbUserModule,
+    NbButtonModule,
+    NbIconModule,
+    NbIconIconDirective,
+    DatePipe
+  ]
 })
 export class QueuedMapComponent {
   MapUploadStatus: typeof MapStatus = MapStatus;

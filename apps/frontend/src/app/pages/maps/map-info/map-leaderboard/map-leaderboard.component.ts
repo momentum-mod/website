@@ -1,7 +1,17 @@
 import { Component, Input } from '@angular/core';
-import { Router } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import { finalize } from 'rxjs/operators';
-import { NbToastrService } from '@nebular/theme';
+import {
+  NbToastrService,
+  NbCardModule,
+  NbButtonModule,
+  NbSelectModule,
+  NbOptionModule,
+  NbInputModule,
+  NbRadioModule,
+  NbUserModule,
+  NbIconModule
+} from '@nebular/theme';
 import {
   Gamemode,
   GamemodeName,
@@ -12,6 +22,10 @@ import {
 } from '@momentum/constants';
 import { LeaderboardsService } from '@momentum/frontend/data';
 import { Observable } from 'rxjs';
+import { TimeAgoPipe } from '../../../../../../../../libs/frontend/pipes/src/lib/time-ago.pipe';
+import { TimingPipe } from '../../../../../../../../libs/frontend/pipes/src/lib/timing.pipe';
+import { NbIconIconDirective } from '../../../../../../../../libs/frontend/directives/src/lib/icons/nb-icon-icon.directive';
+import { NgClass, NgStyle, NgFor, NgIf } from '@angular/common';
 
 enum LeaderboardType {
   TOP10,
@@ -22,7 +36,26 @@ enum LeaderboardType {
 @Component({
   selector: 'mom-map-leaderboard',
   templateUrl: './map-leaderboard.component.html',
-  styleUrls: ['./map-leaderboard.component.scss']
+  styleUrls: ['./map-leaderboard.component.scss'],
+  standalone: true,
+  imports: [
+    NbCardModule,
+    NbButtonModule,
+    NgClass,
+    NgStyle,
+    NbSelectModule,
+    NgFor,
+    NbOptionModule,
+    NbInputModule,
+    NbRadioModule,
+    NgIf,
+    RouterLink,
+    NbUserModule,
+    NbIconModule,
+    NbIconIconDirective,
+    TimingPipe,
+    TimeAgoPipe
+  ]
 })
 export class MapLeaderboardComponent {
   protected readonly LeaderboardType = LeaderboardType;

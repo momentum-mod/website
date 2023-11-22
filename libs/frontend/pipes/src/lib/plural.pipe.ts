@@ -1,6 +1,9 @@
 import { Pipe, PipeTransform } from '@angular/core';
 
-@Pipe({ name: 'plural' })
+@Pipe({
+  name: 'plural',
+  standalone: true
+})
 export class PluralPipe implements PipeTransform {
   transform(input = 0, label: string, pluralLabel: string = ''): string {
     if (input === 1) return `${input} ${label}`;

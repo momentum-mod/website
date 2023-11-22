@@ -1,14 +1,19 @@
 import { Component, OnInit } from '@angular/core';
-import { ActivatedRoute, ParamMap } from '@angular/router';
+import { ActivatedRoute, ParamMap, RouterLink } from '@angular/router';
 import { LeaderboardsService, PastRunsService } from '@momentum/frontend/data';
 import { LeaderboardRun, PastRun } from '@momentum/constants';
 import { switchMap } from 'rxjs/operators';
 import { firstValueFrom } from 'rxjs';
+import { TimingPipe } from '../../../../../../../libs/frontend/pipes/src/lib/timing.pipe';
+import { NbCardModule, NbUserModule } from '@nebular/theme';
+import { NgIf } from '@angular/common';
 
 @Component({
   selector: 'mom-run-info',
   templateUrl: './run-info.component.html',
-  styleUrls: ['./run-info.component.scss']
+  styleUrls: ['./run-info.component.scss'],
+  standalone: true,
+  imports: [NgIf, NbCardModule, RouterLink, NbUserModule, TimingPipe]
 })
 export class RunInfoComponent implements OnInit {
   run: PastRun;

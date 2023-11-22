@@ -1,10 +1,15 @@
 import { Component, Input, OnInit } from '@angular/core';
 import { User, Role } from '@momentum/constants';
 import { LocalUserService } from '@momentum/frontend/data';
+import { NbTooltipModule } from '@nebular/theme';
+import { NgIf, NgOptimizedImage } from '@angular/common';
+import { RouterLink } from '@angular/router';
 
 @Component({
   selector: 'mom-user-search-result',
-  templateUrl: './user-search-result.component.html'
+  templateUrl: './user-search-result.component.html',
+  standalone: true,
+  imports: [RouterLink, NgIf, NgOptimizedImage, NbTooltipModule]
 })
 export class UserSearchResultComponent implements OnInit {
   @Input() user: User;

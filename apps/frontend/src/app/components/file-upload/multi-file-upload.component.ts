@@ -1,6 +1,9 @@
 import { Component, forwardRef, HostListener, Input } from '@angular/core';
 import { NG_VALUE_ACCESSOR } from '@angular/forms';
 import { AbstractFileUploadComponent } from './abstract-file-upload.component';
+import { NbIconIconDirective } from '../../../../../../libs/frontend/directives/src/lib/icons/nb-icon-icon.directive';
+import { NbIconModule } from '@nebular/theme';
+import { NgClass, NgIf, NgFor } from '@angular/common';
 
 /**
  * A form control for multiple file selection/uploading with support for drag
@@ -15,7 +18,9 @@ import { AbstractFileUploadComponent } from './abstract-file-upload.component';
       useExisting: forwardRef(() => MultiFileUploadComponent),
       multi: true
     }
-  ]
+  ],
+  standalone: true,
+  imports: [NgClass, NgIf, NgFor, NbIconModule, NbIconIconDirective]
 })
 export class MultiFileUploadComponent extends AbstractFileUploadComponent<
   File[]

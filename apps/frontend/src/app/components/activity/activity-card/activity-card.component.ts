@@ -3,11 +3,15 @@ import { ReplaySubject } from 'rxjs';
 import { ActivityService } from '@momentum/frontend/data';
 import { ActivityType } from '@momentum/constants';
 import { Activity, PagedResponse, User } from '@momentum/constants';
+import { ActivityListComponent } from '../activity-list/activity-list.component';
+import { NbCardModule, NbSelectModule, NbOptionModule } from '@nebular/theme';
 
 @Component({
   selector: 'mom-activity-card',
   templateUrl: './activity-card.component.html',
-  styleUrls: ['./activity-card.component.scss']
+  styleUrls: ['./activity-card.component.scss'],
+  standalone: true,
+  imports: [NbCardModule, NbSelectModule, NbOptionModule, ActivityListComponent]
 })
 export class ActivityCardComponent implements OnInit {
   @Input() headerTitle: string;

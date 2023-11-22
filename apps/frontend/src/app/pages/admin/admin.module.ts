@@ -10,8 +10,9 @@ import { UpdateReportDialogComponent } from './report-queue/update-report-dialog
 import { UtilitiesComponent } from './utilities/utilities.component';
 
 @NgModule({
-  imports: [SharedModule, AdminRoutingModule],
-  declarations: [
+  imports: [
+    SharedModule,
+    AdminRoutingModule,
     MapQueueComponent,
     AdminComponent,
     QueuedMapComponent,

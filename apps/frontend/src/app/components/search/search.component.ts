@@ -24,8 +24,11 @@ import {
   NbOverlayRef,
   NbOverlayService,
   NbPortalDirective,
-  NbThemeService
+  NbThemeService,
+  NbIconModule,
+  NbCdkMappingModule
 } from '@nebular/theme';
+import { SearchFieldComponent } from './search-field.component';
 /**
  * Beautiful full-page search control.
  *
@@ -71,7 +74,9 @@ import {
 @Component({
   selector: 'mom-search',
   styleUrls: ['styles/search.component.scss'],
-  templateUrl: './search.component.html'
+  templateUrl: './search.component.html',
+  standalone: true,
+  imports: [NbIconModule, NbCdkMappingModule, SearchFieldComponent]
 })
 export class SearchComponent implements OnInit, OnDestroy {
   private alive = true;

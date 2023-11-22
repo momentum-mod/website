@@ -1,10 +1,15 @@
 import { Component, Input, Output, EventEmitter } from '@angular/core';
 import { Activity } from '@momentum/constants';
+import { ActivityContentComponent } from '../activity-content/activity-content.component';
+import { NgIf, NgFor } from '@angular/common';
+import { NbListModule } from '@nebular/theme';
 
 @Component({
   selector: 'mom-activity-list',
   templateUrl: './activity-list.component.html',
-  styleUrls: ['./activity-list.component.scss']
+  styleUrls: ['./activity-list.component.scss'],
+  standalone: true,
+  imports: [NbListModule, NgIf, NgFor, ActivityContentComponent]
 })
 export class ActivityListComponent {
   @Input() activities: Activity[];

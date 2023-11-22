@@ -1,11 +1,15 @@
 import { Component, OnInit } from '@angular/core';
 import { LocalUserService } from '@momentum/frontend/data';
 import { MMap } from '@momentum/constants';
+import { NgIf } from '@angular/common';
+import { NbAccordionModule } from '@nebular/theme';
 
 @Component({
   selector: 'mom-home-user-library',
   templateUrl: './home-user-library.component.html',
-  styleUrls: ['./home-user-library.component.scss']
+  styleUrls: ['./home-user-library.component.scss'],
+  standalone: true,
+  imports: [NbAccordionModule, NgIf]
 })
 export class HomeUserLibraryComponent implements OnInit {
   mapLibraryCount: number;

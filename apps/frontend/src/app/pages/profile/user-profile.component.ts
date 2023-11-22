@@ -1,8 +1,17 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { switchMap, takeUntil } from 'rxjs/operators';
-import { ActivatedRoute, ParamMap, Router } from '@angular/router';
+import { ActivatedRoute, ParamMap, Router, RouterLink } from '@angular/router';
 import { ReplaySubject, Subject } from 'rxjs';
-import { NbToastrService } from '@nebular/theme';
+import {
+  NbToastrService,
+  NbCardModule,
+  NbButtonModule,
+  NbIconModule,
+  NbTooltipModule,
+  NbTabsetModule,
+  NbListModule,
+  NbUserModule
+} from '@nebular/theme';
 import {
   Ban,
   ISOCountryCode,
@@ -14,11 +23,41 @@ import {
 import { Follow, User } from '@momentum/constants';
 import { LocalUserService, UsersService } from '@momentum/frontend/data';
 import { Icon } from '@momentum/frontend/icons';
+import { UnsortedKeyvaluePipe } from '../../../../../../libs/frontend/pipes/src/lib/unsorted-keyvalue.pipe';
+import { ActivityCardComponent } from '../../components/activity/activity-card/activity-card.component';
+import { ProfileCreditsComponent } from './profile-credits/profile-credits.component';
+import { ProfileRunHistoryComponent } from './profile-run-history/profile-run-history.component';
+import { ProfileFollowComponent } from './profile-follow/profile-follow.component';
+import { NbIconIconDirective } from '../../../../../../libs/frontend/directives/src/lib/icons/nb-icon-icon.directive';
+import { ReportButtonComponent } from '../../components/report/report-button/report-button.component';
+import { NgIf, NgStyle, NgOptimizedImage, NgFor } from '@angular/common';
 
 @Component({
   selector: 'mom-user-profile',
   templateUrl: './user-profile.component.html',
-  styleUrls: ['./user-profile.component.scss']
+  styleUrls: ['./user-profile.component.scss'],
+  standalone: true,
+  imports: [
+    NgIf,
+    NbCardModule,
+    ReportButtonComponent,
+    NbButtonModule,
+    NbIconModule,
+    NbIconIconDirective,
+    NgStyle,
+    NgOptimizedImage,
+    NbTooltipModule,
+    NgFor,
+    ProfileFollowComponent,
+    NbTabsetModule,
+    NbListModule,
+    RouterLink,
+    NbUserModule,
+    ProfileRunHistoryComponent,
+    ProfileCreditsComponent,
+    ActivityCardComponent,
+    UnsortedKeyvaluePipe
+  ]
 })
 export class UserProfileComponent implements OnInit, OnDestroy {
   private ngUnsub = new Subject<void>();

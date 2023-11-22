@@ -13,6 +13,9 @@ import {
 import { Router } from '@angular/router';
 import { UsersService, MapsService } from '@momentum/frontend/data';
 import { User, MMap } from '@momentum/constants';
+import { SearchResultsComponent } from './search-results.component';
+import { NgIf } from '@angular/common';
+import { NbIconModule } from '@nebular/theme';
 
 /**
  * search-field-component is used under the hood by nb-search component
@@ -30,7 +33,9 @@ import { User, MMap } from '@momentum/constants';
     'styles/search.component.modal-half.scss',
     './search-field.component.scss'
   ],
-  templateUrl: './search-field.component.html'
+  templateUrl: './search-field.component.html',
+  standalone: true,
+  imports: [NbIconModule, NgIf, SearchResultsComponent]
 })
 export class SearchFieldComponent implements OnChanges, AfterViewInit {
   static readonly TYPE_MODAL_ZOOMIN = 'modal-zoomin';

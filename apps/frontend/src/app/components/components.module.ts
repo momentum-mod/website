@@ -15,7 +15,7 @@ import { ThemeModule } from '@momentum/frontend/theme';
 import { DirectivesModule } from '@momentum/frontend/directives';
 import { PipesModule } from '@momentum/frontend/pipes';
 import { RouterModule } from '@angular/router';
-import { NbSearchModule } from './search/search.module';
+
 import { UserSearchComponent } from './user-search/user-search.component';
 import { UserSearchResultComponent } from './user-search/user-search-result.component';
 import { NbFormFieldModule, NbSpinnerModule } from '@nebular/theme';
@@ -59,13 +59,12 @@ const COMPONENTS = [
     DirectivesModule,
     PipesModule,
     RouterModule,
-    NbSearchModule,
     NbFormFieldModule,
     NgxPaginationModule,
     DragDropModule,
-    NbSpinnerModule
+    NbSpinnerModule,
+    ...COMPONENTS
   ],
-  exports: [...COMPONENTS, NbSearchModule],
-  declarations: COMPONENTS
+  exports: [...COMPONENTS]
 })
 export class ComponentsModule {}

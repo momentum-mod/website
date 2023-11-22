@@ -1,9 +1,14 @@
 import { Component, forwardRef, ViewChild } from '@angular/core';
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 import { MAX_TESTING_REQUESTS, User } from '@momentum/constants';
-import { NbPopoverDirective } from '@nebular/theme';
+import {
+  NbPopoverDirective,
+  NbPopoverModule,
+  NbUserModule
+} from '@nebular/theme';
 import { UserSearchComponent } from '../user-search/user-search.component';
 import { showPopoverDuration } from '../../utils/popover-utils';
+import { NgClass, NgFor } from '@angular/common';
 
 @Component({
   selector: 'mom-map-testing-request-selection',
@@ -14,7 +19,9 @@ import { showPopoverDuration } from '../../utils/popover-utils';
       useExisting: forwardRef(() => MapTestingRequestSelectionComponent),
       multi: true
     }
-  ]
+  ],
+  standalone: true,
+  imports: [NgClass, UserSearchComponent, NbPopoverModule, NgFor, NbUserModule]
 })
 export class MapTestingRequestSelectionComponent
   implements ControlValueAccessor

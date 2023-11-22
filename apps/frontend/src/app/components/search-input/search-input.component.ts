@@ -18,7 +18,8 @@ import {
       (blur)="hideInput()"
       (input)="onInput($event)"
     />
-  `
+  `,
+  standalone: true
 })
 export class SearchInputComponent {
   @ViewChild('input', { static: false }) input: ElementRef;

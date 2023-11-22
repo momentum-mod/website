@@ -6,8 +6,8 @@ import { HomeStatsComponent } from './stats/home-stats.component';
 import { HomeUserMapsComponent } from './user-maps/home-user-maps.component';
 
 @NgModule({
-  imports: [SharedModule],
-  declarations: [
+  imports: [
+    SharedModule,
     HomeComponent,
     HomeUserLibraryComponent,
     HomeStatsComponent,

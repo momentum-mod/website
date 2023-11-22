@@ -5,7 +5,7 @@ import { NbIconIconDirective } from './icons/nb-icon-icon.directive';
 const DIRECTIVES = [NbIconIconDirective, NbTabIconDirective];
 
 @NgModule({
-  declarations: DIRECTIVES,
+  imports: [...DIRECTIVES],
   exports: DIRECTIVES
 })
 export class DirectivesModule {}
