@@ -8,3 +8,4 @@ export * from './flatten-object';
 export * from './vector';
 export * from './parallel';
 export * from './from';
+export * from './kebab-case';
