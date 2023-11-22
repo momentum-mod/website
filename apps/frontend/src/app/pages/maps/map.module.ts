@@ -41,9 +41,7 @@ import { SharedModule } from '../../shared.module';
     NgxPaginationModule,
     GalleryModule,
     LightboxModule,
-    MapRoutingModule
-  ],
-  declarations: [
+    MapRoutingModule,
     MapComponent,
     ViewMapsComponent,
     MapSubmissionFormComponent,

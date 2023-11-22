@@ -11,8 +11,9 @@ import { SharedModule } from '../../shared.module';
 import { ProfileRedirectComponent } from './profile-redirect.component';
 
 @NgModule({
-  imports: [SharedModule, ProfileRoutingModule],
-  declarations: [
+  imports: [
+    SharedModule,
+    ProfileRoutingModule,
     ProfileComponent,
     ProfileRedirectComponent,
     UserProfileComponent,

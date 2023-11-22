@@ -1,4 +1,8 @@
-import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
+import {
+  ControlValueAccessor,
+  NG_VALUE_ACCESSOR,
+  FormsModule
+} from '@angular/forms';
 import { Component, forwardRef, QueryList, ViewChildren } from '@angular/core';
 import { SortedMapCredits } from './sorted-map-credits.class';
 import {
@@ -10,12 +14,21 @@ import {
 import {
   CdkDragDrop,
   moveItemInArray,
-  transferArrayItem
+  transferArrayItem,
+  CdkDropList,
+  CdkDrag
 } from '@angular/cdk/drag-drop';
-import { NbPopoverDirective } from '@nebular/theme';
+import {
+  NbPopoverDirective,
+  NbPopoverModule,
+  NbUserModule,
+  NbIconModule
+} from '@nebular/theme';
 import { UserSearchComponent } from '../user-search/user-search.component';
 import { Enum } from '@momentum/enum';
 import { showPopoverDuration } from '../../utils/popover-utils';
+import { NbIconIconDirective } from '../../../../../../libs/frontend/directives/src/lib/icons/nb-icon-icon.directive';
+import { NgFor, NgIf, KeyValuePipe } from '@angular/common';
 
 @Component({
   selector: 'mom-map-credits-selection',
@@ -26,6 +39,20 @@ import { showPopoverDuration } from '../../utils/popover-utils';
       useExisting: forwardRef(() => MapCreditsSelectionComponent),
       multi: true
     }
+  ],
+  standalone: true,
+  imports: [
+    NgFor,
+    CdkDropList,
+    NbPopoverModule,
+    CdkDrag,
+    NbUserModule,
+    NbIconModule,
+    NbIconIconDirective,
+    FormsModule,
+    UserSearchComponent,
+    NgIf,
+    KeyValuePipe
   ]
 })
 export class MapCreditsSelectionComponent implements ControlValueAccessor {

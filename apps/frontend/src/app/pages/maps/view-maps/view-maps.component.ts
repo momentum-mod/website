@@ -1,4 +1,6 @@
 import { Component } from '@angular/core';
+import { MapListComponent } from '../map-list/map-list.component';
+import { NbCardModule } from '@nebular/theme';
 
 @Component({
   selector: 'mom-view-map-queue',
@@ -7,6 +9,8 @@ import { Component } from '@angular/core';
     <nb-card-body>
       <mom-map-list [isUpload]="false" />
     </nb-card-body>
-  </nb-card>`
+  </nb-card>`,
+  standalone: true,
+  imports: [NbCardModule, MapListComponent]
 })
 export class ViewMapsComponent {}

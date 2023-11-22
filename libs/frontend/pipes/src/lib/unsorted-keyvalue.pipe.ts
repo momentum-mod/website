@@ -9,7 +9,10 @@ import { KeyValuePipe } from '@angular/common';
  * must define a `() => 0` or similar in any component using it. This pipe has
  * the same effect, without requiring that clutter.
  */
-@Pipe({ name: 'unsortedKeyvalue' })
+@Pipe({
+  name: 'unsortedKeyvalue',
+  standalone: true
+})
 export class UnsortedKeyvaluePipe
   extends KeyValuePipe
   implements PipeTransform

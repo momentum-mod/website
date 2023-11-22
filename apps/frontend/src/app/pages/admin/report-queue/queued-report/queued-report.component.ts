@@ -1,13 +1,17 @@
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { ReportCategory, ReportType } from '@momentum/constants';
 import { Report } from '@momentum/constants';
-import { NbDialogService } from '@nebular/theme';
+import { NbDialogService, NbUserModule, NbButtonModule } from '@nebular/theme';
 import { UpdateReportDialogComponent } from '../update-report-dialog/update-report-dialog.component';
+import { RouterLink } from '@angular/router';
+import { NgIf } from '@angular/common';
 
 @Component({
   selector: 'mom-queued-report',
   templateUrl: './queued-report.component.html',
-  styleUrls: ['./queued-report.component.scss']
+  styleUrls: ['./queued-report.component.scss'],
+  standalone: true,
+  imports: [NbUserModule, NgIf, NbButtonModule, RouterLink]
 })
 export class QueuedReportComponent implements OnInit {
   @Input() report: Report;

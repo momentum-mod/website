@@ -1,14 +1,34 @@
 import { Component } from '@angular/core';
-import { NbIconLibraries, NbMenuItem } from '@nebular/theme';
+import {
+  NbIconLibraries,
+  NbMenuItem,
+  NbLayoutModule,
+  NbSidebarModule,
+  NbMenuModule,
+  NbIconModule
+} from '@nebular/theme';
 import { initIconPacks } from '@momentum/frontend/icons';
 import { LocalUserService } from '@momentum/frontend/data';
 import { NotificationsService } from './services/notifications.service';
 import { Role } from '@momentum/constants';
 import { MENU_ITEMS } from './app-menu';
+import { RouterOutlet } from '@angular/router';
+import { NbIconIconDirective } from '../../../../libs/frontend/directives/src/lib/icons/nb-icon-icon.directive';
+import { HeaderComponent } from './components/header/header.component';
 
 @Component({
   selector: 'mom-app',
-  templateUrl: 'app.component.html'
+  templateUrl: 'app.component.html',
+  standalone: true,
+  imports: [
+    NbLayoutModule,
+    HeaderComponent,
+    NbSidebarModule,
+    NbMenuModule,
+    NbIconModule,
+    NbIconIconDirective,
+    RouterOutlet
+  ]
 })
 export class AppComponent {
   constructor(

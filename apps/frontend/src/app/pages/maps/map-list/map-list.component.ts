@@ -1,9 +1,23 @@
 import { Component, Input, OnInit } from '@angular/core';
-import { FormBuilder, FormGroup } from '@angular/forms';
+import {
+  FormBuilder,
+  FormGroup,
+  FormsModule,
+  ReactiveFormsModule
+} from '@angular/forms';
 import { finalize, map } from 'rxjs/operators';
-import { ActivatedRoute, ParamMap } from '@angular/router';
+import { ActivatedRoute, ParamMap, RouterLink } from '@angular/router';
 import { Observable } from 'rxjs';
-import { NbLayoutScrollService, NbToastrService } from '@nebular/theme';
+import {
+  NbLayoutScrollService,
+  NbToastrService,
+  NbInputModule,
+  NbSelectModule,
+  NbOptionModule,
+  NbToggleModule,
+  NbButtonModule,
+  NbListModule
+} from '@nebular/theme';
 import { LocalUserService, MapsService } from '@momentum/frontend/data';
 import {
   MapStatus,
@@ -18,11 +32,30 @@ import {
   UserMapSubmittedGetQuery
 } from '@momentum/constants';
 import { Enum } from '@momentum/enum';
+import { NgxPaginationModule } from 'ngx-pagination';
+import { MapListItemComponent } from './map-list-item/map-list-item.component';
+import { NgFor, NgIf } from '@angular/common';
 
 @Component({
   selector: 'mom-map-list',
   templateUrl: './map-list.component.html',
-  styleUrls: ['./map-list.component.scss']
+  styleUrls: ['./map-list.component.scss'],
+  standalone: true,
+  imports: [
+    FormsModule,
+    ReactiveFormsModule,
+    NbInputModule,
+    NbSelectModule,
+    NgFor,
+    NbOptionModule,
+    NgIf,
+    NbToggleModule,
+    NbButtonModule,
+    NbListModule,
+    MapListItemComponent,
+    NgxPaginationModule,
+    RouterLink
+  ]
 })
 export class MapListComponent implements OnInit {
   @Input() isUpload: boolean;

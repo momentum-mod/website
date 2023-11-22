@@ -2,11 +2,26 @@ import { Component, Input, OnInit } from '@angular/core';
 import { Icon } from '@momentum/frontend/icons';
 import { Activity } from '@momentum/constants';
 import { ActivityType } from '@momentum/constants';
+import { TimeAgoPipe } from '../../../../../../../libs/frontend/pipes/src/lib/time-ago.pipe';
+import { NbIconIconDirective } from '../../../../../../../libs/frontend/directives/src/lib/icons/nb-icon-icon.directive';
+import { NbUserModule, NbIconModule } from '@nebular/theme';
+import { RouterLink } from '@angular/router';
+import { NgClass, NgStyle } from '@angular/common';
 
 @Component({
   selector: 'mom-activity-content',
   templateUrl: './activity-content.component.html',
-  styleUrls: ['./activity-content.component.scss']
+  styleUrls: ['./activity-content.component.scss'],
+  standalone: true,
+  imports: [
+    NgClass,
+    RouterLink,
+    NbUserModule,
+    NgStyle,
+    NbIconModule,
+    NbIconIconDirective,
+    TimeAgoPipe
+  ]
 })
 export class ActivityContentComponent implements OnInit {
   @Input() activity: Activity;

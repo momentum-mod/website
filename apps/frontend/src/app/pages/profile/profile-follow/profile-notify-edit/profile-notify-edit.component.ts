@@ -1,12 +1,20 @@
 import { Component, Input, OnInit } from '@angular/core';
 import { ActivityType } from '@momentum/constants';
-import { NbDialogRef } from '@nebular/theme';
+import {
+  NbDialogRef,
+  NbCardModule,
+  NbCheckboxModule,
+  NbButtonModule
+} from '@nebular/theme';
 import { Bitflags } from '@momentum/bitflags';
+import { FormsModule } from '@angular/forms';
 
 @Component({
   selector: 'mom-profile-notify-edit-modal',
   templateUrl: './profile-notify-edit.component.html',
-  styleUrls: ['./profile-notify-edit.component.scss']
+  styleUrls: ['./profile-notify-edit.component.scss'],
+  standalone: true,
+  imports: [NbCardModule, NbCheckboxModule, FormsModule, NbButtonModule]
 })
 export class ProfileNotifyEditComponent implements OnInit {
   @Input() flags: number;

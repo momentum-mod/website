@@ -7,7 +7,11 @@ import { firstValueFrom } from 'rxjs';
  * Redirects `/profile` to `/profile/<logged-in-ID>` if has a logged in user,
  * otherwise to home page.
  */
-@Component({ selector: 'mom-profile-redirect-local', template: '' })
+@Component({
+  selector: 'mom-profile-redirect-local',
+  template: '',
+  standalone: true
+})
 export class ProfileRedirectComponent implements OnInit {
   constructor(
     private readonly router: Router,

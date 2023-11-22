@@ -1,6 +1,9 @@
 import { Component, forwardRef, HostListener } from '@angular/core';
 import { NG_VALUE_ACCESSOR } from '@angular/forms';
 import { AbstractFileUploadComponent } from './abstract-file-upload.component';
+import { NbIconIconDirective } from '../../../../../../libs/frontend/directives/src/lib/icons/nb-icon-icon.directive';
+import { NbIconModule } from '@nebular/theme';
+import { NgClass, NgIf, NgFor } from '@angular/common';
 
 /**
  * A form control for file selection/uploading with support for drag and drop.
@@ -14,7 +17,9 @@ import { AbstractFileUploadComponent } from './abstract-file-upload.component';
       useExisting: forwardRef(() => FileUploadComponent),
       multi: true
     }
-  ]
+  ],
+  standalone: true,
+  imports: [NgClass, NgIf, NgFor, NbIconModule, NbIconIconDirective]
 })
 export class FileUploadComponent extends AbstractFileUploadComponent<File> {
   public value: File = null;

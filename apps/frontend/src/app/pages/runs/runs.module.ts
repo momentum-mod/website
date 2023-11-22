@@ -4,7 +4,6 @@ import { RunInfoComponent } from './run-info/run-info.component';
 import { RunsRoutingModule } from './runs-routing.module';
 
 @NgModule({
-  imports: [SharedModule, RunsRoutingModule],
-  declarations: [RunInfoComponent]
+  imports: [SharedModule, RunsRoutingModule, RunInfoComponent]
 })
 export class RunsModule {}

@@ -1,13 +1,32 @@
 import { Component } from '@angular/core';
-import { NbDialogService, NbToastrService } from '@nebular/theme';
+import {
+  NbDialogService,
+  NbToastrService,
+  NbCardModule,
+  NbInputModule,
+  NbButtonModule
+} from '@nebular/theme';
 import { ConfirmDialogComponent } from '../../../components/confirm-dialog/confirm-dialog.component';
-import { FormControl, FormGroup } from '@angular/forms';
+import {
+  FormControl,
+  FormGroup,
+  FormsModule,
+  ReactiveFormsModule
+} from '@angular/forms';
 import { AdminService } from '@momentum/frontend/data';
 
 @Component({
   selector: 'mom-utilities',
   templateUrl: './utilities.component.html',
-  styleUrls: ['./utilities.component.scss']
+  styleUrls: ['./utilities.component.scss'],
+  standalone: true,
+  imports: [
+    NbCardModule,
+    FormsModule,
+    ReactiveFormsModule,
+    NbInputModule,
+    NbButtonModule
+  ]
 })
 export class UtilitiesComponent {
   userForm: FormGroup = new FormGroup({

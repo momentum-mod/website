@@ -1,6 +1,9 @@
 import { Pipe, PipeTransform } from '@angular/core';
 
-@Pipe({ name: 'timing' })
+@Pipe({
+  name: 'timing',
+  standalone: true
+})
 export class TimingPipe implements PipeTransform {
   private static padNum(num: number): string {
     return num.toString().padStart(2, '0');

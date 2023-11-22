@@ -5,15 +5,23 @@ import {
   FormControl,
   FormGroup,
   FormGroupDirective,
-  NG_VALUE_ACCESSOR
+  NG_VALUE_ACCESSOR,
+  FormsModule,
+  ReactiveFormsModule
 } from '@angular/forms';
 import { AbstractFileUploadComponent } from '../file-upload/abstract-file-upload.component';
 import {
   CdkDragDrop,
   moveItemInArray,
-  transferArrayItem
+  transferArrayItem,
+  CdkDropList,
+  CdkDrag
 } from '@angular/cdk/drag-drop';
 import { ImageSelectionItem } from './image-selection-item.class';
+import { NgFor } from '@angular/common';
+import { NbIconIconDirective } from '../../../../../../libs/frontend/directives/src/lib/icons/nb-icon-icon.directive';
+import { NbIconModule } from '@nebular/theme';
+import { MultiFileUploadComponent } from '../file-upload/multi-file-upload.component';
 
 enum ImageType {
   THUMBNAIL,
@@ -32,6 +40,17 @@ enum ImageType {
   ],
   viewProviders: [
     { provide: ControlContainer, useExisting: FormGroupDirective }
+  ],
+  standalone: true,
+  imports: [
+    MultiFileUploadComponent,
+    FormsModule,
+    ReactiveFormsModule,
+    NbIconModule,
+    NbIconIconDirective,
+    CdkDropList,
+    NgFor,
+    CdkDrag
   ]
 })
 export class MapImageSelectionComponent implements OnInit {

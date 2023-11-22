@@ -8,8 +8,9 @@ import { TwitchDataComponent } from './community-twitch-stream/twitch-data/twitc
 import { SharedModule } from '../../shared.module';
 
 @NgModule({
-  imports: [SharedModule, CommunityRoutingModule],
-  declarations: [
+  imports: [
+    SharedModule,
+    CommunityRoutingModule,
     CommunityComponent,
     CommunityNewsComponent,
     CommunityTwitchStreamComponent,

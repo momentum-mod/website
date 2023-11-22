@@ -1,13 +1,33 @@
 import { Component, Input, OnInit } from '@angular/core';
-import { FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { NbDialogRef, NbToastrService } from '@nebular/theme';
+import {
+  FormBuilder,
+  FormGroup,
+  Validators,
+  FormsModule,
+  ReactiveFormsModule
+} from '@angular/forms';
+import {
+  NbDialogRef,
+  NbToastrService,
+  NbCardModule,
+  NbRadioModule,
+  NbInputModule
+} from '@nebular/theme';
 import { Report } from '@momentum/constants';
 import { AdminService } from '@momentum/frontend/data';
 
 @Component({
   selector: 'mom-update-report-dialog',
   templateUrl: './update-report-dialog.component.html',
-  styleUrls: ['./update-report-dialog.component.scss']
+  styleUrls: ['./update-report-dialog.component.scss'],
+  standalone: true,
+  imports: [
+    NbCardModule,
+    FormsModule,
+    ReactiveFormsModule,
+    NbRadioModule,
+    NbInputModule
+  ]
 })
 export class UpdateReportDialogComponent implements OnInit {
   @Input() report: Report;

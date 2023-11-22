@@ -6,7 +6,7 @@ import {
   Output,
   ViewChild
 } from '@angular/core';
-import { FormControl } from '@angular/forms';
+import { FormControl, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { UsersService } from '@momentum/frontend/data';
 import { User } from '@momentum/constants';
 import {
@@ -17,14 +17,42 @@ import {
   takeUntil,
   tap
 } from 'rxjs/operators';
-import { NbPopoverDirective } from '@nebular/theme';
+import {
+  NbPopoverDirective,
+  NbFormFieldModule,
+  NbPopoverModule,
+  NbSpinnerModule,
+  NbInputModule,
+  NbIconModule,
+  NbTooltipModule
+} from '@nebular/theme';
 import { merge, of, Subject } from 'rxjs';
 import { PagedResponseDto } from '@momentum/backend/dto';
 import { showPopover } from '../../utils/popover-utils';
+import { NgxPaginationModule } from 'ngx-pagination';
+import { UserSearchResultComponent } from './user-search-result.component';
+import { NgClass, NgFor } from '@angular/common';
+import { NbIconIconDirective } from '../../../../../../libs/frontend/directives/src/lib/icons/nb-icon-icon.directive';
 
 @Component({
   selector: 'mom-user-search',
-  templateUrl: './user-search.component.html'
+  templateUrl: './user-search.component.html',
+  standalone: true,
+  imports: [
+    NbFormFieldModule,
+    NbPopoverModule,
+    NbSpinnerModule,
+    NbInputModule,
+    FormsModule,
+    ReactiveFormsModule,
+    NbIconModule,
+    NbIconIconDirective,
+    NbTooltipModule,
+    NgClass,
+    NgFor,
+    UserSearchResultComponent,
+    NgxPaginationModule
+  ]
 })
 export class UserSearchComponent implements OnInit {
   constructor(private readonly usersService: UsersService) {}

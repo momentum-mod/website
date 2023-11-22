@@ -8,7 +8,11 @@ import {
 
 // From https://github.com/AndrewPoyntz/time-ago-pipe
 // Didn't want the extra dependency for something so basic
-@Pipe({ name: 'timeAgo', pure: false })
+@Pipe({
+  name: 'timeAgo',
+  pure: false,
+  standalone: true
+})
 export class TimeAgoPipe implements PipeTransform, OnDestroy {
   private timer: number | undefined;
   constructor(

@@ -1,13 +1,37 @@
 import { Component, Input, OnInit } from '@angular/core';
-import { NbDialogRef, NbToastrService } from '@nebular/theme';
-import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import {
+  NbDialogRef,
+  NbToastrService,
+  NbCardModule,
+  NbSelectModule,
+  NbOptionModule,
+  NbInputModule,
+  NbButtonModule
+} from '@nebular/theme';
+import {
+  FormBuilder,
+  FormGroup,
+  Validators,
+  FormsModule,
+  ReactiveFormsModule
+} from '@angular/forms';
 import { ReportService } from '@momentum/frontend/data';
 import { ReportCategory, ReportType } from '@momentum/constants';
 
 @Component({
   selector: 'mom-create-report-dialog',
   templateUrl: './create-report-dialog.component.html',
-  styleUrls: ['./create-report-dialog.component.scss']
+  styleUrls: ['./create-report-dialog.component.scss'],
+  standalone: true,
+  imports: [
+    NbCardModule,
+    FormsModule,
+    ReactiveFormsModule,
+    NbSelectModule,
+    NbOptionModule,
+    NbInputModule,
+    NbButtonModule
+  ]
 })
 export class CreateReportDialogComponent implements OnInit {
   @Input() reportType: ReportType;

@@ -1,5 +1,9 @@
 import { Component, forwardRef, Input } from '@angular/core';
-import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
+import {
+  ControlValueAccessor,
+  NG_VALUE_ACCESSOR,
+  FormsModule
+} from '@angular/forms';
 import {
   Gamemode,
   GamemodeName,
@@ -8,6 +12,9 @@ import {
   MAX_MAP_SUGGESTION_COMMENT_LENGTH,
   TrackType
 } from '@momentum/constants';
+import { EnumValuePipe } from '../../../../../../libs/frontend/pipes/src/lib/enum-value.pipe';
+import { NbSelectModule, NbOptionModule } from '@nebular/theme';
+import { NgClass, NgFor } from '@angular/common';
 
 @Component({
   selector: 'mom-map-leaderboards-selection',
@@ -18,6 +25,15 @@ import {
       useExisting: forwardRef(() => MapLeaderboardSelectionComponent),
       multi: true
     }
+  ],
+  standalone: true,
+  imports: [
+    NgClass,
+    NgFor,
+    NbSelectModule,
+    NbOptionModule,
+    FormsModule,
+    EnumValuePipe
   ]
 })
 export class MapLeaderboardSelectionComponent implements ControlValueAccessor {

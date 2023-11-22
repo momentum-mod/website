@@ -1,10 +1,21 @@
 import { Component, OnInit } from '@angular/core';
 import { LocalUserService } from '@momentum/frontend/data';
 import { Ban } from '@momentum/constants';
+import { MapListComponent } from '../map-list/map-list.component';
+import { RouterLink } from '@angular/router';
+import { NbCardModule, NbButtonModule, NbTooltipModule } from '@nebular/theme';
 
 @Component({
   selector: 'mom-map-submission-status',
-  templateUrl: './map-submission-status.component.html'
+  templateUrl: './map-submission-status.component.html',
+  standalone: true,
+  imports: [
+    NbCardModule,
+    NbButtonModule,
+    RouterLink,
+    NbTooltipModule,
+    MapListComponent
+  ]
 })
 export class MapSubmissionStatusComponent implements OnInit {
   constructor(private readonly localUserService: LocalUserService) {}

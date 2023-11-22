@@ -1,15 +1,33 @@
 import { Component, Input, OnInit } from '@angular/core';
 import { ReplaySubject } from 'rxjs';
-import { NbDialogService, NbToastrService } from '@nebular/theme';
+import {
+  NbDialogService,
+  NbToastrService,
+  NbPopoverModule,
+  NbButtonModule,
+  NbIconModule
+} from '@nebular/theme';
 import { finalize } from 'rxjs/operators';
 import { ProfileNotifyEditComponent } from './profile-notify-edit/profile-notify-edit.component';
 import { Follow, User } from '@momentum/constants';
 import { LocalUserService } from '@momentum/frontend/data';
+import { NbIconIconDirective } from '../../../../../../../libs/frontend/directives/src/lib/icons/nb-icon-icon.directive';
+import { NgIf, NgClass, DatePipe } from '@angular/common';
 
 @Component({
   selector: 'mom-profile-follow',
   templateUrl: './profile-follow.component.html',
-  styleUrls: ['./profile-follow.component.scss']
+  styleUrls: ['./profile-follow.component.scss'],
+  standalone: true,
+  imports: [
+    NgIf,
+    NbPopoverModule,
+    NgClass,
+    NbButtonModule,
+    NbIconModule,
+    NbIconIconDirective,
+    DatePipe
+  ]
 })
 export class ProfileFollowComponent implements OnInit {
   @Input() userSubj: ReplaySubject<User>;

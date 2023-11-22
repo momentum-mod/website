@@ -1,15 +1,27 @@
 import { Component, Input, OnInit } from '@angular/core';
 import { finalize } from 'rxjs/operators';
 import { Observable } from 'rxjs';
-import { NbToastrService } from '@nebular/theme';
+import { NbToastrService, NbListModule } from '@nebular/theme';
 import { MapCredit, User } from '@momentum/constants';
 import { MapCreditType } from '@momentum/constants';
 import { UsersService } from '@momentum/frontend/data';
+import { NgxPaginationModule } from 'ngx-pagination';
+import { RouterLink } from '@angular/router';
+import { NgIf, NgFor, NgOptimizedImage } from '@angular/common';
 
 @Component({
   selector: 'mom-profile-credits',
   templateUrl: './profile-credits.component.html',
-  styleUrls: ['./profile-credits.component.scss']
+  styleUrls: ['./profile-credits.component.scss'],
+  standalone: true,
+  imports: [
+    NgIf,
+    NbListModule,
+    NgFor,
+    RouterLink,
+    NgOptimizedImage,
+    NgxPaginationModule
+  ]
 })
 export class ProfileCreditsComponent implements OnInit {
   @Input() userSubj: Observable<User>;
