@@ -1,11 +1,6 @@
-import { importProvidersFrom } from '@angular/core';
 import { AppComponent } from './app/app.component';
-import { HomeModule } from './app/pages/home/home.module';
-import { AppRoutingModule } from './app/app-routing.module';
-import { NotFoundModule } from './app/pages/not-found/not-found.module';
 import { provideAnimations } from '@angular/platform-browser/animations';
-import { BrowserModule, bootstrapApplication } from '@angular/platform-browser';
-import { SharedModule } from './app/shared.module';
+import { bootstrapApplication, BrowserModule } from '@angular/platform-browser';
 import { AuthInterceptor } from './app/services/auth.interceptor';
 import {
   HTTP_INTERCEPTORS,
@@ -13,22 +8,21 @@ import {
   provideHttpClient
 } from '@angular/common/http';
 import { APP_BASE_HREF } from '@angular/common';
+import { APP_ROUTES } from './app/app.routes';
+import { provideRouter } from '@angular/router';
+import { importProvidersFrom } from '@angular/core';
+import { SharedModule } from './app/shared.module';
 
 bootstrapApplication(AppComponent, {
   providers: [
-    importProvidersFrom(
-      SharedModule,
-      BrowserModule,
-      NotFoundModule,
-      AppRoutingModule,
-      HomeModule
-    ),
+    importProvidersFrom(SharedModule, BrowserModule),
     { provide: APP_BASE_HREF, useValue: '/' },
     {
       provide: HTTP_INTERCEPTORS,
       useClass: AuthInterceptor,
       multi: true
     },
+    provideRouter(APP_ROUTES),
     provideAnimations(),
     provideHttpClient(withInterceptorsFromDi())
   ]
