@@ -9,9 +9,11 @@ List of SVG icons to bundle, as strings. We use icons from 3 sources:
    other two sources. Usually made by Traz or Tom, feel free to reach out to us
    if you need anything specific.
 
-Any icons used within the Angular application _must_ be exported here so it gets
-bundled properly - an Angular directive will yell at you if you don't!
+Any icons used within the Angular application _must_ be imported and re-exported
+from the above sources or bundling won't work and you'll get a type error. We
+could provide everything from each icon pack and tree-shake but running our type
+manipulation in `index.ts` on the entirety of @mdi/js will cause the TypeScript
+language server to lock up, so we manually re-export just what we need.
 
-We could provide everything here and tree-shake but running our type
-manipulation in `index.ts` on the entirety of @mdi/js causes `tsc` to shit
-itself, so we manually re-export just what we need.
+Also provides a directive for `<svg>` tags that adds a `[icon]`/`[pack]`
+attributes that will fill the SVG tag with the given icon.

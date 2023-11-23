@@ -25,10 +25,10 @@ import {
   NbOverlayService,
   NbPortalDirective,
   NbThemeService,
-  NbIconModule,
   NbCdkMappingModule
 } from '@nebular/theme';
 import { SearchFieldComponent } from './search-field.component';
+import { IconComponent } from '@momentum/frontend/icons';
 /**
  * Beautiful full-page search control.
  *
@@ -76,7 +76,7 @@ import { SearchFieldComponent } from './search-field.component';
   styleUrls: ['styles/search.component.scss'],
   templateUrl: './search.component.html',
   standalone: true,
-  imports: [NbIconModule, NbCdkMappingModule, SearchFieldComponent]
+  imports: [IconComponent, NbCdkMappingModule, SearchFieldComponent]
 })
 export class SearchComponent implements OnInit, OnDestroy {
   private alive = true;

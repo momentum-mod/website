@@ -1,5 +1,5 @@
 import { Component, Input, OnInit } from '@angular/core';
-import { Icon } from '@momentum/frontend/icons';
+import { Icon, IconComponent } from '@momentum/frontend/icons';
 import {
   ControlContainer,
   FormControl,
@@ -19,8 +19,6 @@ import {
 } from '@angular/cdk/drag-drop';
 import { ImageSelectionItem } from './image-selection-item.class';
 import { NgFor } from '@angular/common';
-import { NbIconIconDirective } from '../../../../../../libs/frontend/directives/src/lib/icons/nb-icon-icon.directive';
-import { NbIconModule } from '@nebular/theme';
 import { MultiFileUploadComponent } from '../file-upload/multi-file-upload.component';
 
 enum ImageType {
@@ -46,8 +44,7 @@ enum ImageType {
     MultiFileUploadComponent,
     FormsModule,
     ReactiveFormsModule,
-    NbIconModule,
-    NbIconIconDirective,
+    IconComponent,
     CdkDropList,
     NgFor,
     CdkDrag

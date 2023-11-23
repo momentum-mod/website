@@ -1,13 +1,14 @@
 import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { NgIf, NgFor } from '@angular/common';
-import { NbIconModule, NbUserModule } from '@nebular/theme';
+import { NbUserModule } from '@nebular/theme';
+import { IconComponent } from '@momentum/frontend/icons';
 
 @Component({
   selector: 'mom-search-results',
   templateUrl: './search-results.component.html',
   styleUrls: ['./search-results.component.scss'],
   standalone: true,
-  imports: [NbIconModule, NgIf, NgFor, NbUserModule]
+  imports: [IconComponent, NgIf, NgFor, NbUserModule]
 })
 export class SearchResultsComponent {
   @Input() usersResults: boolean;

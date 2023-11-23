@@ -3,7 +3,6 @@ import { CommonModule } from '@angular/common';
 import { ThemeModule } from '@momentum/frontend/theme';
 import { RouterTestingModule } from '@angular/router/testing';
 import { ConfirmDialogComponent } from './confirm-dialog.component';
-import { DirectivesModule } from '@momentum/frontend/directives';
 import { NbDialogRef } from '@nebular/theme';
 
 describe('ConfirmDialogComponent', () => {
@@ -12,12 +11,7 @@ describe('ConfirmDialogComponent', () => {
 
   beforeEach(async () => {
     TestBed.configureTestingModule({
-      imports: [
-        CommonModule,
-        ThemeModule.forRoot(),
-        RouterTestingModule,
-        DirectivesModule
-      ],
+      imports: [CommonModule, ThemeModule.forRoot(), RouterTestingModule],
       declarations: [ConfirmDialogComponent],
       providers: [{ provide: NbDialogRef, useValue: {} }]
     });

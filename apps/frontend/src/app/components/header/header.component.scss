@@ -33,7 +33,7 @@
       @include nb-rtl(border-left, 1px solid nb-theme(divider-color));
       text-decoration: none;
       color: nb-theme(text-hint-color);
-      nb-icon {
+      mom-icon {
         font-size: 2rem;
       }
     }

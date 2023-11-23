@@ -1,9 +1,8 @@
 import { Component, Input, OnInit } from '@angular/core';
-import { Icon } from '@momentum/frontend/icons';
+import { Icon, IconComponent } from '@momentum/frontend/icons';
 import { Activity } from '@momentum/constants';
 import { ActivityType } from '@momentum/constants';
-import { NbIconIconDirective } from '../../../../../../../libs/frontend/directives/src/lib/icons/nb-icon-icon.directive';
-import { NbUserModule, NbIconModule } from '@nebular/theme';
+import { NbUserModule } from '@nebular/theme';
 import { RouterLink } from '@angular/router';
 import { NgClass, NgStyle } from '@angular/common';
 import { PipesModule } from '@momentum/frontend/pipes';
@@ -18,8 +17,7 @@ import { PipesModule } from '@momentum/frontend/pipes';
     RouterLink,
     NbUserModule,
     NgStyle,
-    NbIconModule,
-    NbIconIconDirective,
+    IconComponent,
     PipesModule
   ]
 })

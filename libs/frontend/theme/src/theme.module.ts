@@ -12,7 +12,6 @@ import {
   NbDatepickerModule,
   NbDialogModule,
   NbGlobalPhysicalPosition,
-  NbIconModule,
   NbInputModule,
   NbLayoutModule,
   NbListModule,
@@ -31,7 +30,6 @@ import {
 } from '@nebular/theme';
 
 const NEBULAR_MODULES = [
-  NbIconModule,
   NbCardModule,
   NbLayoutModule,
   NbTabsetModule,

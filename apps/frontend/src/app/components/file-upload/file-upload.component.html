@@ -15,7 +15,7 @@
         <p class="my-auto ml-auto mr-3 pt-0.5 italic opacity-75">
           {{ size(file) }}
         </p>
-        <nb-icon
+        <mom-icon
           (click)="removeFile(file, $event)"
           class="my-auto mr-0.5 h-6 w-6 rounded bg-blue-700 transition-colors hover:bg-blue-600"
           icon="close"
@@ -23,11 +23,11 @@
       </div>
     </div>
     <ng-container *ngIf="showSelected || multiple || !value">
-      <nb-icon
+      <mom-icon
         [icon]="icon"
         [ngClass]="{ 'mt-3': showSelected && hasSelection() }"
         class="h-16 w-16 text-blue-200 drop-shadow-md transition-colors duration-150 ease-in group-hover:text-pale-50 group-[.dragging]:text-pale-100"
-      ></nb-icon>
+      ></mom-icon>
       <p *ngIf="!disabled" class="mt-1 pb-1">
         <span *ngIf="!disabled" class="font-medium">Select {{ multiple ? '' : 'a ' }}{{ typeName }} file</span>{{ multiple ? 's' : '' }} or
         drag here

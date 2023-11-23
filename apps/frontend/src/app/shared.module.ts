@@ -7,13 +7,15 @@ import { NgxEchartsModule } from 'ngx-echarts';
 import * as echarts from 'echarts';
 import { NgxPaginationModule } from 'ngx-pagination';
 import { RouterModule } from '@angular/router';
+import { IconComponent } from '@momentum/frontend/icons';
 
 const MODULES = [
   CommonModule,
   PipesModule,
   NgOptimizedImage,
   NgxPaginationModule,
-  RouterModule
+  RouterModule,
+  IconComponent
 ];
 
 @NgModule({
@@ -22,7 +24,6 @@ const MODULES = [
     ThemeModule.forRoot(),
     NgxEchartsModule.forRoot({ echarts })
   ],
-  declarations: [],
   exports: [
     ...MODULES,
     ThemeModule,

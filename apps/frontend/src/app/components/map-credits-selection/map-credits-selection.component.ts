@@ -21,14 +21,13 @@ import {
 import {
   NbPopoverDirective,
   NbPopoverModule,
-  NbUserModule,
-  NbIconModule
+  NbUserModule
 } from '@nebular/theme';
 import { UserSearchComponent } from '../user-search/user-search.component';
 import { Enum } from '@momentum/enum';
 import { showPopoverDuration } from '../../utils/popover-utils';
-import { NbIconIconDirective } from '../../../../../../libs/frontend/directives/src/lib/icons/nb-icon-icon.directive';
 import { NgFor, NgIf, KeyValuePipe } from '@angular/common';
+import { IconComponent } from '@momentum/frontend/icons';
 
 @Component({
   selector: 'mom-map-credits-selection',
@@ -47,8 +46,7 @@ import { NgFor, NgIf, KeyValuePipe } from '@angular/common';
     NbPopoverModule,
     CdkDrag,
     NbUserModule,
-    NbIconModule,
-    NbIconIconDirective,
+    IconComponent,
     FormsModule,
     UserSearchComponent,
     NgIf,

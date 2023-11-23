@@ -49,7 +49,7 @@
             [nbPopover]="mapInFavorites ? 'Remove map from favorites' : 'Add map to favorites'"
             nbPopoverTrigger="hint"
           >
-            <nb-icon [icon]="mapInFavorites ? 'star' : 'star-outline'"></nb-icon>
+            <mom-icon [icon]="mapInFavorites ? 'star' : 'star-outline'"></mom-icon>
           </button>
           <button
             nbButton
@@ -60,7 +60,7 @@
             [nbPopover]="libraryPopover"
             nbPopoverTrigger="hint"
           >
-            <nb-icon [icon]="mapInLibrary ? 'folder' : 'folder-outline'"></nb-icon>
+            <mom-icon [icon]="mapInLibrary ? 'folder' : 'folder-outline'"></mom-icon>
           </button>
           <ng-template #libraryPopover>
             <nb-card class="library-popover mb-0">

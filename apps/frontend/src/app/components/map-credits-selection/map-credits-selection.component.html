@@ -21,7 +21,7 @@
         <div class="flex">
           <span class="mr-3 flex-grow">{{ credit.user.alias }}</span>
           <button (click)="removeUser(type.key, credit.user)">
-            <nb-icon icon="close-thick" class="h-5 w-5 transition-colors hover:text-red-400" />
+            <mom-icon icon="close-thick" class="h-5 w-5 transition-colors hover:text-red-400" />
           </button>
         </div>
         <input class="input !px-3 !py-0.5 text-sm" placeholder="Description" [(ngModel)]="credit.description" />
@@ -43,7 +43,7 @@
     >
       Add
     </button>
-    <nb-icon
+    <mom-icon
       class="my-auto ml-3 h-6 w-6 opacity-80 transition-opacity hover:opacity-100"
       [nbPopover]="creditsInfo"
       nbPopoverTrigger="hover"

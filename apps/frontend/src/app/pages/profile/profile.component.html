@@ -12,7 +12,7 @@
           <div *ngIf="canEdit()">
             <button nbButton outline status="info" class="ml-2" type="button" (click)="onEditProfile()">
               <span class="hidden md:inline-block">Edit Profile</span>
-              <nb-icon class="inline-block md:hidden" icon="note-edit" />
+              <mom-icon class="inline-block md:hidden" icon="note-edit" />
             </button>
           </div>
         </div>
@@ -55,7 +55,7 @@
               <div class="socials">
                 <div>
                   <a href="https://steamcommunity.com/profiles/{{ user.steamID }}" target="_blank" nbTooltip="Steam">
-                    <nb-icon icon="steam" pack="si" />
+                    <mom-icon icon="steam" pack="si" />
                   </a>
                 </div>
                 <div *ngFor="let social of user.profile.socials | unsortedKeyvalue">
@@ -65,7 +65,7 @@
                     target="_blank"
                     [nbTooltip]="social.key"
                   >
-                    <nb-icon [icon]="SocialsData[social.key].icon" pack="si" />
+                    <mom-icon [icon]="SocialsData[social.key].icon" pack="si" />
                   </a>
                 </div>
                 <div class="ml-auto" *ngIf="!isLocal">
