@@ -6,15 +6,14 @@ import {
   MMap,
   TrackType
 } from '@momentum/constants';
-import { NbTabsetModule } from '@nebular/theme';
-import { NgIf, NgFor, KeyValuePipe } from '@angular/common';
+import { SharedModule } from '../../../../shared.module';
 
 @Component({
   selector: 'mom-map-info-description',
   templateUrl: './map-info-description.component.html',
   styleUrls: ['./map-info-description.component.scss'],
   standalone: true,
-  imports: [NgIf, NbTabsetModule, NgFor, KeyValuePipe]
+  imports: [SharedModule]
 })
 export class MapInfoDescriptionComponent implements OnInit {
   protected readonly GamemodeName = GamemodeName;

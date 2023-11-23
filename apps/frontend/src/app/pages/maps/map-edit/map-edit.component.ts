@@ -1,29 +1,14 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { finalize, switchMap, takeUntil } from 'rxjs/operators';
-import { ActivatedRoute, ParamMap, Router, RouterLink } from '@angular/router';
+import { ActivatedRoute, ParamMap, Router } from '@angular/router';
+import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import {
-  FormBuilder,
-  FormGroup,
-  Validators,
-  FormsModule,
-  ReactiveFormsModule
-} from '@angular/forms';
-import {
+  CdkDrag,
   CdkDragDrop,
-  moveItemInArray,
   CdkDropList,
-  CdkDrag
+  moveItemInArray
 } from '@angular/cdk/drag-drop';
-import {
-  NbDialogService,
-  NbToastrService,
-  NbCardModule,
-  NbButtonModule,
-  NbTabsetModule,
-  NbInputModule,
-  NbAlertModule,
-  NbIconModule
-} from '@nebular/theme';
+import { NbDialogService, NbToastrService } from '@nebular/theme';
 import { ConfirmDialogComponent } from '../../../components/confirm-dialog/confirm-dialog.component';
 import { Subject } from 'rxjs';
 import { MMap, MapImage } from '@momentum/constants';
@@ -37,11 +22,9 @@ import {
   EditableMapCredit,
   SortedMapCredits
 } from '../../../components/map-credits-selection/sorted-map-credits.class';
-import { PluralPipe } from '../../../../../../../libs/frontend/pipes/src/lib/plural.pipe';
+import { SharedModule } from '../../../shared.module';
 import { MapCreditsComponent } from '../map-credits/map-credits.component';
 import { FileUploadComponent } from '../../../components/file-upload/file-upload.component';
-import { NbIconIconDirective } from '../../../../../../../libs/frontend/directives/src/lib/icons/nb-icon-icon.directive';
-import { NgClass, NgIf, NgFor, NgOptimizedImage } from '@angular/common';
 
 const youtubeRegex = /[\w-]{11}/;
 
@@ -51,25 +34,11 @@ const youtubeRegex = /[\w-]{11}/;
   styleUrls: ['./map-edit.component.scss'],
   standalone: true,
   imports: [
-    NbCardModule,
-    NbButtonModule,
-    RouterLink,
-    NbTabsetModule,
-    FormsModule,
-    ReactiveFormsModule,
-    NbInputModule,
-    NgClass,
-    NgIf,
-    NbAlertModule,
-    CdkDropList,
-    NgFor,
+    SharedModule,
     CdkDrag,
-    NgOptimizedImage,
-    NbIconModule,
-    NbIconIconDirective,
-    FileUploadComponent,
+    CdkDropList,
     MapCreditsComponent,
-    PluralPipe
+    FileUploadComponent
   ]
 })
 export class MapEditComponent implements OnInit, OnDestroy {

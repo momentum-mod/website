@@ -1,28 +1,18 @@
 import { Component, OnInit } from '@angular/core';
 import { finalize } from 'rxjs/operators';
-import { NbToastrService, NbCardModule, NbListModule } from '@nebular/theme';
+import { NbToastrService } from '@nebular/theme';
 import { ReportType } from '@momentum/constants';
 import { Report } from '@momentum/constants';
 import { AdminService } from '@momentum/frontend/data';
-import { NgxPaginationModule } from 'ngx-pagination';
 import { QueuedReportComponent } from './queued-report/queued-report.component';
-import { NgIf, NgFor } from '@angular/common';
-import { FormsModule } from '@angular/forms';
+import { SharedModule } from '../../../shared.module';
 
 @Component({
   selector: 'mom-report-queue',
   templateUrl: './report-queue.component.html',
   styleUrls: ['./report-queue.component.scss'],
   standalone: true,
-  imports: [
-    NbCardModule,
-    FormsModule,
-    NgIf,
-    NbListModule,
-    NgFor,
-    QueuedReportComponent,
-    NgxPaginationModule
-  ]
+  imports: [SharedModule, QueuedReportComponent]
 })
 export class ReportQueueComponent implements OnInit {
   ReportType: typeof ReportType;

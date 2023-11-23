@@ -2,8 +2,7 @@ import { Component, OnInit, ViewEncapsulation } from '@angular/core';
 import { BlogService } from '@momentum/frontend/data';
 import { finalize } from 'rxjs/operators';
 import { parse, simplify } from 'txml';
-import { NgFor, NgIf } from '@angular/common';
-import { NbCardModule } from '@nebular/theme';
+import { SharedModule } from '../../../shared.module';
 
 @Component({
   selector: 'mom-community-news',
@@ -11,7 +10,7 @@ import { NbCardModule } from '@nebular/theme';
   styleUrls: ['./community-news.component.scss'],
   encapsulation: ViewEncapsulation.None,
   standalone: true,
-  imports: [NbCardModule, NgFor, NgIf]
+  imports: [SharedModule]
 })
 export class CommunityNewsComponent implements OnInit {
   // The number of blog posts to display on this component

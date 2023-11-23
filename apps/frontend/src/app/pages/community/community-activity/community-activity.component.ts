@@ -1,4 +1,5 @@
 import { Component } from '@angular/core';
+import { SharedModule } from '../../../shared.module';
 import { ActivityCardComponent } from '../../../components/activity/activity-card/activity-card.component';
 
 @Component({
@@ -6,6 +7,6 @@ import { ActivityCardComponent } from '../../../components/activity/activity-car
   templateUrl: './community-activity.component.html',
   styleUrls: ['./community-activity.component.scss'],
   standalone: true,
-  imports: [ActivityCardComponent]
+  imports: [SharedModule, ActivityCardComponent]
 })
 export class CommunityActivityComponent {}

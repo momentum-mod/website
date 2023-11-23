@@ -8,30 +8,31 @@ import { ComponentsModule } from './components/components.module';
 import { NgxEchartsModule } from 'ngx-echarts';
 import * as echarts from 'echarts';
 import { NgxPaginationModule } from 'ngx-pagination';
+import { RouterModule } from '@angular/router';
+
+const MODULES = [
+  CommonModule,
+  ComponentsModule,
+  DirectivesModule,
+  PipesModule,
+  NgOptimizedImage,
+  NgxPaginationModule,
+  RouterModule
+];
 
 @NgModule({
   imports: [
-    CommonModule,
+    ...MODULES,
     ThemeModule.forRoot(),
-    ComponentsModule,
-    DirectivesModule,
-    PipesModule,
-    NgOptimizedImage,
-    NgxEchartsModule.forRoot({ echarts }),
-    NgxPaginationModule
+    NgxEchartsModule.forRoot({ echarts })
   ],
   declarations: [],
   exports: [
-    CommonModule,
-    FormsModule,
-    ReactiveFormsModule,
+    ...MODULES,
     ThemeModule,
-    ComponentsModule,
-    DirectivesModule,
-    PipesModule,
-    NgOptimizedImage,
     NgxEchartsModule,
-    NgxPaginationModule
+    FormsModule,
+    ReactiveFormsModule
   ]
 })
 export class SharedModule {}
