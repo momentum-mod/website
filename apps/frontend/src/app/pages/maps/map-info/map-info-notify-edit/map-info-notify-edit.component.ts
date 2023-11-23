@@ -1,15 +1,15 @@
 import { Component, Input, OnInit } from '@angular/core';
 import { ActivityType } from '@momentum/constants';
-import { NbDialogRef, NbCardModule, NbCheckboxModule } from '@nebular/theme';
+import { NbDialogRef } from '@nebular/theme';
 import { Bitflags } from '@momentum/bitflags';
-import { FormsModule } from '@angular/forms';
+import { SharedModule } from '../../../../shared.module';
 
 @Component({
   selector: 'mom-map-info-notify-edit-modal',
   templateUrl: './map-info-notify-edit.component.html',
   styleUrls: ['./map-info-notify-edit.component.scss'],
   standalone: true,
-  imports: [NbCardModule, NbCheckboxModule, FormsModule]
+  imports: [SharedModule]
 })
 export class MapNotifyEditComponent implements OnInit {
   @Input() flags: number;

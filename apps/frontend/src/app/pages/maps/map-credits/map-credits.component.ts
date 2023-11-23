@@ -7,17 +7,9 @@ import {
   CdkDropList,
   CdkDrag
 } from '@angular/cdk/drag-drop';
+
+import { SharedModule } from '../../../shared.module';
 import { UserSearchComponent } from '../../../components/user-search/user-search.component';
-import { NbIconIconDirective } from '../../../../../../../libs/frontend/directives/src/lib/icons/nb-icon-icon.directive';
-import { FormsModule } from '@angular/forms';
-import {
-  NbListModule,
-  NbUserModule,
-  NbInputModule,
-  NbButtonModule,
-  NbIconModule
-} from '@nebular/theme';
-import { NgFor, NgIf, KeyValuePipe } from '@angular/common';
 
 enum SearchState {
   HIDDEN,
@@ -35,21 +27,7 @@ enum SearchState {
   templateUrl: './map-credits.component.html',
   styleUrls: ['./map-credits.component.scss'],
   standalone: true,
-  imports: [
-    NgFor,
-    NgIf,
-    NbListModule,
-    CdkDropList,
-    CdkDrag,
-    NbUserModule,
-    NbInputModule,
-    FormsModule,
-    NbButtonModule,
-    NbIconModule,
-    NbIconIconDirective,
-    UserSearchComponent,
-    KeyValuePipe
-  ]
+  imports: [SharedModule, CdkDropList, CdkDrag, UserSearchComponent]
 })
 export class MapCreditsComponent {
   protected readonly MapCreditType = MapCreditType;

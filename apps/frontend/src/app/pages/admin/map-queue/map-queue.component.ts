@@ -1,30 +1,16 @@
 import { Component, OnInit } from '@angular/core';
-import {
-  NbToastrService,
-  NbCardModule,
-  NbTabsetModule,
-  NbListModule
-} from '@nebular/theme';
+import { NbToastrService } from '@nebular/theme';
 import { MMap } from '@momentum/constants';
 import { AdminService } from '@momentum/frontend/data';
 import { MapStatus } from '@momentum/constants';
-import { NgxPaginationModule } from 'ngx-pagination';
+import { SharedModule } from '../../../shared.module';
 import { QueuedMapComponent } from './queued-map/queued-map.component';
-import { NgFor, NgIf } from '@angular/common';
 
 @Component({
   templateUrl: './map-queue.component.html',
   styleUrls: ['./map-queue.component.scss'],
   standalone: true,
-  imports: [
-    NbCardModule,
-    NbTabsetModule,
-    NbListModule,
-    NgFor,
-    QueuedMapComponent,
-    NgxPaginationModule,
-    NgIf
-  ]
+  imports: [SharedModule, QueuedMapComponent]
 })
 export class MapQueueComponent implements OnInit {
   priorityQueue: MMap[];

@@ -1,30 +1,11 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
-import {
-  FormBuilder,
-  FormGroup,
-  Validators,
-  FormsModule,
-  ReactiveFormsModule
-} from '@angular/forms';
+import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute, ParamMap, Router } from '@angular/router';
 import { switchMap, takeUntil } from 'rxjs/operators';
 import { of, Subject } from 'rxjs';
 import { ConfirmDialogComponent } from '../../../components/confirm-dialog/confirm-dialog.component';
 import { DeleteUserDialogComponent } from '../../../components/delete-user-dialog/delete-user-dialog.component';
-import {
-  NbDialogService,
-  NbToastrService,
-  NbCardModule,
-  NbButtonModule,
-  NbInputModule,
-  NbAlertModule,
-  NbSelectModule,
-  NbOptionModule,
-  NbTooltipModule,
-  NbIconModule,
-  NbCheckboxModule,
-  NbUserModule
-} from '@nebular/theme';
+import { NbDialogService, NbToastrService } from '@nebular/theme';
 import {
   AdminUpdateUser,
   MAX_BIO_LENGTH,
@@ -47,39 +28,15 @@ import {
 import { Bitflags } from '@momentum/bitflags';
 import { Icon } from '@momentum/frontend/icons';
 import { omit } from 'lodash-es';
-import { UnsortedKeyvaluePipe } from '../../../../../../../libs/frontend/pipes/src/lib/unsorted-keyvalue.pipe';
-import { PluralPipe } from '../../../../../../../libs/frontend/pipes/src/lib/plural.pipe';
+import { SharedModule } from '../../../shared.module';
 import { UserSearchComponent } from '../../../components/user-search/user-search.component';
-import { NbIconIconDirective } from '../../../../../../../libs/frontend/directives/src/lib/icons/nb-icon-icon.directive';
-import { NgIf, NgClass, NgFor, KeyValuePipe } from '@angular/common';
 
 @Component({
   selector: 'mom-profile-edit',
   templateUrl: './profile-edit.component.html',
   styleUrls: ['./profile-edit.component.scss'],
   standalone: true,
-  imports: [
-    NgIf,
-    NbCardModule,
-    NbButtonModule,
-    FormsModule,
-    ReactiveFormsModule,
-    NgClass,
-    NbInputModule,
-    NbAlertModule,
-    NbSelectModule,
-    NgFor,
-    NbOptionModule,
-    NbTooltipModule,
-    NbIconModule,
-    NbIconIconDirective,
-    NbCheckboxModule,
-    UserSearchComponent,
-    NbUserModule,
-    KeyValuePipe,
-    PluralPipe,
-    UnsortedKeyvaluePipe
-  ]
+  imports: [SharedModule, UserSearchComponent]
 })
 export class ProfileEditComponent implements OnInit, OnDestroy {
   protected readonly AlphabeticalCountryCode = Object.fromEntries(

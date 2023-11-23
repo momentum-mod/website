@@ -1,16 +1,7 @@
 import { Component, Input, OnDestroy, OnInit } from '@angular/core';
-import { ActivatedRoute, ParamMap, Router, RouterLink } from '@angular/router';
+import { ActivatedRoute, ParamMap, Router } from '@angular/router';
 import { switchMap, takeUntil } from 'rxjs/operators';
-import {
-  NbDialogService,
-  NbToastrService,
-  NbCardModule,
-  NbButtonModule,
-  NbIconModule,
-  NbPopoverModule,
-  NbTabsetModule,
-  NbUserModule
-} from '@nebular/theme';
+import { NbDialogService, NbToastrService } from '@nebular/theme';
 import { Subject } from 'rxjs';
 import { MapNotifyEditComponent } from './map-info-notify-edit/map-info-notify-edit.component';
 import { MMap, MapImage, MapNotify } from '@momentum/constants';
@@ -19,22 +10,18 @@ import { LocalUserService, MapsService } from '@momentum/frontend/data';
 import { PartialDeep } from 'type-fest';
 import {
   Gallery,
+  GalleryComponent,
   GalleryRef,
   ImageItem,
-  YoutubeItem,
-  GalleryComponent
+  YoutubeItem
 } from 'ng-gallery';
-import { ThousandsSuffixPipe } from '../../../../../../../libs/frontend/pipes/src/lib/thousands-suffix.pipe';
-import { PluralPipe } from '../../../../../../../libs/frontend/pipes/src/lib/plural.pipe';
-import { MapLeaderboardComponent } from './map-leaderboard/map-leaderboard.component';
 import { MapInfoStatsComponent } from './map-info-stats/map-info-stats.component';
 import { MapInfoCreditsComponent } from './map-info-credits/map-info-credits.component';
 import { MapInfoDescriptionComponent } from './map-info-description/map-info-description.component';
-import { NbTabIconDirective } from '../../../../../../../libs/frontend/directives/src/lib/icons/nb-tab-icon.directive';
+import { SharedModule } from '../../../shared.module';
+import { MapLeaderboardComponent } from './map-leaderboard/map-leaderboard.component';
 import { GallerizeDirective } from 'ng-gallery/lightbox';
-import { NbIconIconDirective } from '../../../../../../../libs/frontend/directives/src/lib/icons/nb-icon-icon.directive';
 import { ReportButtonComponent } from '../../../components/report/report-button/report-button.component';
-import { NgIf, NgClass, DatePipe } from '@angular/common';
 
 @Component({
   selector: 'mom-map-info',
@@ -42,27 +29,14 @@ import { NgIf, NgClass, DatePipe } from '@angular/common';
   styleUrls: ['./map-info.component.scss'],
   standalone: true,
   imports: [
-    NgIf,
-    NbCardModule,
-    ReportButtonComponent,
-    NbButtonModule,
-    NbIconModule,
-    NbIconIconDirective,
-    NbPopoverModule,
+    SharedModule,
     GalleryComponent,
     GallerizeDirective,
-    NbTabsetModule,
-    NbTabIconDirective,
+    MapLeaderboardComponent,
     MapInfoDescriptionComponent,
     MapInfoCreditsComponent,
     MapInfoStatsComponent,
-    RouterLink,
-    NbUserModule,
-    NgClass,
-    MapLeaderboardComponent,
-    DatePipe,
-    PluralPipe,
-    ThousandsSuffixPipe
+    ReportButtonComponent
   ]
 })
 export class MapInfoComponent implements OnInit, OnDestroy {

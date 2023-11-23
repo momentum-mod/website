@@ -1,58 +1,18 @@
 import { Component, Input, OnInit } from '@angular/core';
 import { Observable } from 'rxjs';
 import { finalize } from 'rxjs/operators';
-import {
-  FormBuilder,
-  FormGroup,
-  FormsModule,
-  ReactiveFormsModule
-} from '@angular/forms';
-import {
-  NbToastrService,
-  NbButtonModule,
-  NbCheckboxModule,
-  NbInputModule,
-  NbSelectModule,
-  NbOptionModule,
-  NbListModule,
-  NbIconModule,
-  NbPopoverModule
-} from '@nebular/theme';
+import { FormBuilder, FormGroup } from '@angular/forms';
+import { NbToastrService } from '@nebular/theme';
 import { Order, PastRun, RunsGetAllOrder, User } from '@momentum/constants';
 import { PastRunsService } from '@momentum/frontend/data';
-import { TimeAgoPipe } from '../../../../../../../libs/frontend/pipes/src/lib/time-ago.pipe';
-import { TimingPipe } from '../../../../../../../libs/frontend/pipes/src/lib/timing.pipe';
-import { NgxPaginationModule } from 'ngx-pagination';
-import { RouterLink } from '@angular/router';
-import { NbIconIconDirective } from '../../../../../../../libs/frontend/directives/src/lib/icons/nb-icon-icon.directive';
-import { NgIf, NgClass, NgStyle, NgFor } from '@angular/common';
+import { SharedModule } from '../../../shared.module';
 
 @Component({
   selector: 'mom-profile-run-history',
   templateUrl: './profile-run-history.component.html',
   styleUrls: ['./profile-run-history.component.scss'],
   standalone: true,
-  imports: [
-    NgIf,
-    NbButtonModule,
-    NgClass,
-    NgStyle,
-    FormsModule,
-    ReactiveFormsModule,
-    NbCheckboxModule,
-    NbInputModule,
-    NbSelectModule,
-    NbOptionModule,
-    NbListModule,
-    NgFor,
-    NbIconModule,
-    NbIconIconDirective,
-    NbPopoverModule,
-    RouterLink,
-    NgxPaginationModule,
-    TimingPipe,
-    TimeAgoPipe
-  ]
+  imports: [SharedModule]
 })
 export class ProfileRunHistoryComponent implements OnInit {
   protected readonly OrderBy = RunsGetAllOrder;

@@ -12,22 +12,12 @@ import {
   FormControl,
   FormControlStatus,
   FormGroup,
-  Validators,
-  FormsModule,
-  ReactiveFormsModule
+  Validators
 } from '@angular/forms';
 import {
-  NbPopoverDirective,
-  NbToastrService,
-  NbCardModule,
-  NbAlertModule,
-  NbIconModule,
-  NbPopoverModule,
-  NbSelectModule,
-  NbOptionModule,
   NbDatepickerModule,
-  NbInputModule,
-  NbProgressBarModule
+  NbPopoverDirective,
+  NbToastrService
 } from '@nebular/theme';
 import { LocalUserService, MapsService } from '@momentum/frontend/data';
 import {
@@ -63,14 +53,12 @@ import {
   HttpEventType
 } from '@angular/common/http';
 import { forkJoin } from 'rxjs';
-import { PluralPipe } from '../../../../../../../libs/frontend/pipes/src/lib/plural.pipe';
 import { MapTestingRequestSelectionComponent } from '../../../components/map-testing-request-selection/map-testing-request-selection.component';
 import { MapCreditsSelectionComponent } from '../../../components/map-credits-selection/map-credits-selection.component';
 import { MapImageSelectionComponent } from '../../../components/map-image-selection/map-image-selection.component';
 import { MultiFileUploadComponent } from '../../../components/file-upload/multi-file-upload.component';
 import { FileUploadComponent } from '../../../components/file-upload/file-upload.component';
-import { NbIconIconDirective } from '../../../../../../../libs/frontend/directives/src/lib/icons/nb-icon-icon.directive';
-import { NgIf, NgClass } from '@angular/common';
+import { SharedModule } from '../../../shared.module';
 
 // TODO: "are you sure you wnat to leave this page" thingy!
 
@@ -80,27 +68,14 @@ import { NgIf, NgClass } from '@angular/common';
   styleUrls: ['./map-submission-form.component.scss'],
   standalone: true,
   imports: [
-    NbCardModule,
-    NgIf,
-    NbAlertModule,
-    FormsModule,
-    ReactiveFormsModule,
-    NbIconModule,
-    NbIconIconDirective,
-    NbPopoverModule,
-    NgClass,
+    SharedModule,
+    NbDatepickerModule,
     FileUploadComponent,
     MultiFileUploadComponent,
-    NbSelectModule,
-    NbOptionModule,
-    NbDatepickerModule,
-    NbInputModule,
     MapImageSelectionComponent,
     MapCreditsSelectionComponent,
     MapLeaderboardSelectionComponent,
-    MapTestingRequestSelectionComponent,
-    NbProgressBarModule,
-    PluralPipe
+    MapTestingRequestSelectionComponent
   ]
 })
 export class MapSubmissionFormComponent implements OnInit {
