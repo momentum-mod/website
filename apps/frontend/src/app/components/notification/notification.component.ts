@@ -1,11 +1,11 @@
 import { Component, Input, OnInit } from '@angular/core';
 import { NotificationsService } from '../../services/notifications.service';
 import { Notification } from '@momentum/constants';
-import { TimeAgoPipe } from '../../../../../../libs/frontend/pipes/src/lib/time-ago.pipe';
 import { NbIconIconDirective } from '../../../../../../libs/frontend/directives/src/lib/icons/nb-icon-icon.directive';
 import { ActivityContentComponent } from '../activity/activity-content/activity-content.component';
 import { NgIf, NgFor, NgClass } from '@angular/common';
 import { NbListModule, NbButtonModule, NbIconModule } from '@nebular/theme';
+import { PipesModule } from '@momentum/frontend/pipes';
 
 @Component({
   selector: 'mom-notifications',
@@ -21,7 +21,7 @@ import { NbListModule, NbButtonModule, NbIconModule } from '@nebular/theme';
     NbButtonModule,
     NbIconModule,
     NbIconIconDirective,
-    TimeAgoPipe
+    PipesModule
   ]
 })
 export class NotificationComponent implements OnInit {
