@@ -3,7 +3,6 @@ import {
   NbMenuItem,
   NbMenuService,
   NbSidebarService,
-  NbIconModule,
   NbActionsModule,
   NbPopoverModule,
   NbUserModule,
@@ -18,7 +17,7 @@ import { LayoutService } from '../../services/layout.service';
 import { NotificationComponent } from '../notification/notification.component';
 import { SearchComponent } from '../search/search.component';
 import { RouterLink } from '@angular/router';
-import { NbIconIconDirective } from '../../../../../../libs/frontend/directives/src/lib/icons/nb-icon-icon.directive';
+import { IconComponent } from '@momentum/frontend/icons';
 
 @Component({
   selector: 'mom-header',
@@ -26,8 +25,7 @@ import { NbIconIconDirective } from '../../../../../../libs/frontend/directives/
   templateUrl: './header.component.html',
   standalone: true,
   imports: [
-    NbIconModule,
-    NbIconIconDirective,
+    IconComponent,
     RouterLink,
     NbActionsModule,
     SearchComponent,

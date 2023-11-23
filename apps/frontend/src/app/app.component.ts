@@ -1,20 +1,23 @@
 import { Component } from '@angular/core';
 import {
-  NbIconLibraries,
   NbMenuItem,
   NbLayoutModule,
   NbSidebarModule,
-  NbMenuModule,
-  NbIconModule
+  NbMenuModule
 } from '@nebular/theme';
-import { initIconPacks } from '@momentum/frontend/icons';
 import { LocalUserService } from '@momentum/frontend/data';
 import { NotificationsService } from './services/notifications.service';
 import { Role } from '@momentum/constants';
 import { MENU_ITEMS } from './app-menu';
+import {
+  MaterialDesignIcons,
+  MomentumIcons,
+  SimpleIcons,
+  IconComponent
+} from '@momentum/frontend/icons';
+import { kebabCase } from '@momentum/util-fn';
 import { HeaderComponent } from './components/header/header.component';
 import { RouterOutlet } from '@angular/router';
-import { NbIconIconDirective } from '../../../../libs/frontend/directives/src/lib/icons/nb-icon-icon.directive';
 
 @Component({
   selector: 'mom-app',
@@ -25,19 +28,16 @@ import { NbIconIconDirective } from '../../../../libs/frontend/directives/src/li
     HeaderComponent,
     NbSidebarModule,
     NbMenuModule,
-    NbIconModule, // TODO: KILL ME!!
-    NbIconIconDirective,
+    IconComponent,
     RouterOutlet
   ]
 })
 export class AppComponent {
   constructor(
     private userService: LocalUserService,
-    private notificationService: NotificationsService,
-    private iconLibraries: NbIconLibraries
+    private notificationService: NotificationsService
   ) {
     this.notificationService.inject();
-    initIconPacks(this.iconLibraries);
   }
 
   menu = MENU_ITEMS;

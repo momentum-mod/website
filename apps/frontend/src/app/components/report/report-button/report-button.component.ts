@@ -1,15 +1,15 @@
 import { Component, Input } from '@angular/core';
 import { ReportType } from '@momentum/constants';
-import { NbDialogService, NbButtonModule, NbIconModule } from '@nebular/theme';
+import { NbDialogService, NbButtonModule } from '@nebular/theme';
 import { CreateReportDialogComponent } from '../create-report-dialog/create-report-dialog.component';
-import { NbIconIconDirective } from '../../../../../../../libs/frontend/directives/src/lib/icons/nb-icon-icon.directive';
+import { IconComponent } from '@momentum/frontend/icons';
 
 @Component({
   selector: 'mom-report-button',
   templateUrl: './report-button.component.html',
   styleUrls: ['./report-button.component.scss'],
   standalone: true,
-  imports: [NbButtonModule, NbIconModule, NbIconIconDirective]
+  imports: [NbButtonModule, IconComponent]
 })
 export class ReportButtonComponent {
   @Input() reportType: ReportType;

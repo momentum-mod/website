@@ -23,21 +23,21 @@
           class="ml-16 flex items-center before:h-3 before:border-r-2 before:border-gray-700 before:content-[''] after:h-3 after:border-l-2 after:border-gray-700 after:content-['']"
         >
           <div class="stack absolute -translate-x-16 rounded border-2 border-gray-700 bg-gray-800 p-2">
-            <nb-icon
+            <mom-icon
               class="scale-0 text-3xl text-green-500 transition-transform"
               [icon]="'check-outline'"
               [ngClass]="{ 'scale-100': isGroupValid(files) }"
               nbPopover="Section is complete!"
               nbPopoverTrigger="hover"
             />
-            <nb-icon
+            <mom-icon
               class="scale-0 text-3xl text-red-500 transition-transform"
               [icon]="'alert-outline'"
               [ngClass]="{ 'scale-100': isGroupInvalid(files) }"
               nbPopover="Section contains invalid items!"
               nbPopoverTrigger="hover"
             />
-            <nb-icon
+            <mom-icon
               class="scale-0 text-3xl text-blue-400 transition-transform"
               [icon]="'pencil-outline'"
               [ngClass]="{ 'scale-100': isGroupAwaitingEditing(files) }"
@@ -50,7 +50,7 @@
         <div class="flex flex-col">
           <h5 class="mb-1 text-center">
             BSP File
-            <nb-icon icon="asterisk" class="mb-1 align-middle" nbPopover="Required" nbPopoverTrigger="hover" />
+            <mom-icon icon="asterisk" class="mb-1 align-middle" nbPopover="Required" nbPopoverTrigger="hover" />
           </h5>
           <p class="text-balance mb-4 mt-3 block w-auto flex-grow px-3 text-center">
             This is the main map file for your map. It should have all custom assets packed into it, and <i>must</i> be compressed.
@@ -79,7 +79,7 @@
         <div class="flex flex-col">
           <h5 class="mb-1 text-center">
             Zones File
-            <nb-icon icon="asterisk" class="mb-1 align-middle" nbPopover="Required" nbPopoverTrigger="hover" />
+            <mom-icon icon="asterisk" class="mb-1 align-middle" nbPopover="Required" nbPopoverTrigger="hover" />
           </h5>
           <p class="text-balance mb-4 mt-3 block w-auto flex-grow px-3 text-center">The zones for your map</p>
           <div>
@@ -122,21 +122,21 @@
           class="ml-16 flex items-center before:h-3 before:border-r-2 before:border-gray-700 before:content-[''] after:h-3 after:border-l-2 after:border-gray-700 after:content-['']"
         >
           <div class="stack absolute -translate-x-16 rounded border-2 border-gray-700 bg-gray-800 p-2">
-            <nb-icon
+            <mom-icon
               class="scale-0 text-3xl text-green-500 transition-transform"
               [icon]="'check-outline'"
               [ngClass]="{ 'scale-100': isGroupValid(info) }"
               nbPopover="Section is complete!"
               nbPopoverTrigger="hover"
             />
-            <nb-icon
+            <mom-icon
               class="scale-0 text-3xl text-red-500 transition-transform"
               [icon]="'alert-outline'"
               [ngClass]="{ 'scale-100': isGroupInvalid(info) }"
               nbPopover="Section contains invalid items!"
               nbPopoverTrigger="hover"
             />
-            <nb-icon
+            <mom-icon
               class="scale-0 text-3xl text-blue-400 transition-transform"
               [icon]="'pencil-outline'"
               [ngClass]="{ 'scale-100': isGroupAwaitingEditing(info) }"
@@ -151,7 +151,7 @@
             <div class="flex flex-col">
               <label class="my-auto text-lg leading-4">
                 Map Name
-                <nb-icon icon="tooltip-question-outline" class="ml-1 align-middle" [nbPopover]="mapNameInfo" nbPopoverTrigger="hover" />
+                <mom-icon icon="tooltip-question-outline" class="ml-1 align-middle" [nbPopover]="mapNameInfo" nbPopoverTrigger="hover" />
                 <ng-template #mapNameInfo>
                   <div class="prose p-3">
                     <p>
@@ -180,7 +180,7 @@
             <div class="flex flex-col">
               <label class="my-auto text-lg leading-4">
                 Submission Type
-                <nb-icon
+                <mom-icon
                   icon="tooltip-question-outline"
                   class="mb-[1px] ml-0.5 align-middle"
                   nbPopover="Ports are any map originally made for another game, e.g. CS:S, TF2, Defrag, etc..."
@@ -197,7 +197,7 @@
             <div class="flex flex-col">
               <label for="creationDate" class="my-auto text-lg leading-4">
                 Creation Date
-                <nb-icon
+                <mom-icon
                   icon="tooltip-question-outline"
                   class="ml-1 align-middle"
                   [nbPopover]="mapCreationDateInfo"
@@ -230,7 +230,7 @@
             </div>
             <label for="youtubeID" class="my-auto text-lg leading-4">
               Youtube ID
-              <nb-icon
+              <mom-icon
                 icon="tooltip-question-outline"
                 class="mb-[1px] ml-0.5 align-middle"
                 [nbPopover]="youtubeIDInfo"
@@ -256,7 +256,7 @@
               <div class="my-auto -mt-1 mb-1 flex flex-grow items-center">
                 <label for="description" class="text-lg">
                   Description
-                  <nb-icon
+                  <mom-icon
                     icon="tooltip-question-outline"
                     class="ml-1 align-middle"
                     [nbPopover]="descriptionInfo"
@@ -297,21 +297,21 @@
           class="ml-16 flex items-center before:h-3 before:border-r-2 before:border-gray-700 before:content-[''] after:h-3 after:border-l-2 after:border-gray-700 after:content-['']"
         >
           <div class="stack absolute -translate-x-16 rounded border-2 border-gray-700 bg-gray-800 p-2">
-            <nb-icon
+            <mom-icon
               class="scale-0 text-3xl text-green-500 transition-transform"
               [icon]="'check-outline'"
               [ngClass]="{ 'scale-100': images.valid && images.dirty }"
               nbPopover="Section is complete!"
               nbPopoverTrigger="hover"
             />
-            <nb-icon
+            <mom-icon
               class="scale-0 text-3xl text-red-500 transition-transform"
               [icon]="'alert-outline'"
               [ngClass]="{ 'scale-100': images.invalid && images.dirty }"
               nbPopover="Section contains invalid items!"
               nbPopoverTrigger="hover"
             />
-            <nb-icon
+            <mom-icon
               class="scale-0 text-3xl text-blue-400 transition-transform"
               [icon]="'pencil-outline'"
               [ngClass]="{ 'scale-100': images.pristine }"
@@ -349,21 +349,21 @@
           class="ml-16 flex items-center before:h-3 before:border-r-2 before:border-gray-700 before:content-[''] after:h-3 after:border-l-2 after:border-gray-700 after:content-['']"
         >
           <div class="stack absolute -translate-x-16 rounded border-2 border-gray-700 bg-gray-800 p-2">
-            <nb-icon
+            <mom-icon
               class="scale-0 text-3xl text-green-500 transition-transform"
               [icon]="'check-outline'"
               [ngClass]="{ 'scale-100': credits.valid && credits.dirty }"
               nbPopover="Section is complete!"
               nbPopoverTrigger="hover"
             />
-            <nb-icon
+            <mom-icon
               class="scale-0 text-3xl text-red-500 transition-transform"
               [icon]="'alert-outline'"
               [ngClass]="{ 'scale-100': credits.invalid && credits.dirty }"
               nbPopover="Section contains invalid items!"
               nbPopoverTrigger="hover"
             />
-            <nb-icon
+            <mom-icon
               class="scale-0 text-3xl text-blue-400 transition-transform"
               [icon]="'pencil-outline'"
               [ngClass]="{ 'scale-100': credits.pristine }"
@@ -372,7 +372,7 @@
             />
           </div>
           <span class="mx-3 text-3xl">Credits</span>
-          <nb-icon icon="tooltip-question-outline" class="mr-3 align-middle" [nbPopover]="creditsInfo" nbPopoverTrigger="hover" />
+          <mom-icon icon="tooltip-question-outline" class="mr-3 align-middle" [nbPopover]="creditsInfo" nbPopoverTrigger="hover" />
           <ng-template #creditsInfo>
             <div class="prose prose-invert p-3">
               <p>Our credits system lets you link to the Momentum profile of everyone who's contributed to your map.</p>
@@ -398,7 +398,7 @@
         </legend>
         <p class="mb-4">
           At least one author credit is required. For more info see the
-          <nb-icon icon="tooltip-question-outline" class="mx-1 align-middle" /> icon!
+          <mom-icon icon="tooltip-question-outline" class="mx-1 align-middle" /> icon!
         </p>
         <mom-map-credits-selection class="grid h-full min-h-[24rem] gap-4 md:grid-cols-1 lg:grid-cols-4" [formControl]="credits" />
       </fieldset>
@@ -408,28 +408,28 @@
           class="ml-16 flex items-center before:h-3 before:border-r-2 before:border-gray-700 before:content-[''] after:h-3 after:border-l-2 after:border-gray-700 after:content-['']"
         >
           <div class="stack absolute -translate-x-16 rounded border-2 border-gray-700 bg-gray-800 p-2">
-            <nb-icon
+            <mom-icon
               class="scale-0 text-3xl text-green-500 transition-transform"
               [icon]="'check-outline'"
               [ngClass]="{ 'scale-100': suggestions.valid }"
               nbPopover="Section is complete!"
               nbPopoverTrigger="hover"
             />
-            <nb-icon
+            <mom-icon
               class="scale-0 text-3xl text-red-500 transition-transform"
               [icon]="'alert-outline'"
               [ngClass]="{ 'scale-100': suggestions.dirty && suggestions.invalid }"
               nbPopover="Section contains invalid items!"
               nbPopoverTrigger="hover"
             />
-            <nb-icon
+            <mom-icon
               class="scale-0 text-3xl text-blue-400 transition-transform"
               [icon]="'pencil-outline'"
               [ngClass]="{ 'scale-100': suggestions.pristine && suggestions.invalid && suggestions.enabled }"
               nbPopover="Section is incomplete!"
               nbPopoverTrigger="hover"
             />
-            <nb-icon
+            <mom-icon
               class="scale-0 text-3xl text-orange-400 transition-transform"
               [icon]="'lock-outline'"
               [ngClass]="{ 'scale-100': suggestions.disabled }"
@@ -438,7 +438,7 @@
             />
           </div>
           <span class="mx-3 text-3xl">Leaderboards</span>
-          <nb-icon icon="tooltip-question-outline" class="mr-2 align-middle" [nbPopover]="leaderboardsInfo" nbPopoverTrigger="hover" />
+          <mom-icon icon="tooltip-question-outline" class="mr-2 align-middle" [nbPopover]="leaderboardsInfo" nbPopoverTrigger="hover" />
           <ng-template #leaderboardsInfo>
             <div class="prose prose-invert p-3">
               <p>wow</p>
@@ -456,21 +456,21 @@
           class="ml-16 flex items-center before:h-3 before:border-r-2 before:border-gray-700 before:content-[''] after:h-3 after:border-l-2 after:border-gray-700 after:content-['']"
         >
           <div class="stack absolute -translate-x-16 rounded border-2 border-gray-700 bg-gray-800 p-2">
-            <nb-icon
+            <mom-icon
               class="scale-0 text-3xl text-green-500 transition-transform"
               [icon]="'check-outline'"
               [ngClass]="{ 'scale-100': privateTesting.valid }"
               nbPopover="Section is complete!"
               nbPopoverTrigger="hover"
             />
-            <nb-icon
+            <mom-icon
               class="scale-0 text-3xl text-red-500 transition-transform"
               [icon]="'alert-outline'"
               [ngClass]="{ 'scale-100': testInvites.dirty && privateTesting.invalid }"
               nbPopover="Section contains invalid items!"
               nbPopoverTrigger="hover"
             />
-            <nb-icon
+            <mom-icon
               class="scale-0 text-3xl text-blue-400 transition-transform"
               [icon]="'pencil-outline'"
               [ngClass]="{ 'scale-100': !testInvites.dirty && privateTesting.invalid }"
@@ -529,7 +529,7 @@
           (click)="onSubmit()"
         >
           Submit Map
-          <nb-icon class="ml-1 text-3xl" icon="upload" />
+          <mom-icon class="ml-1 text-3xl" icon="upload" />
         </button>
       </div>
     </div>

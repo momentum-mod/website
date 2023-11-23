@@ -11,7 +11,7 @@
             <input class="description" placeholder="Description" *ngIf="editable" nbInput [(ngModel)]="credit.description" />
           </div>
           <button nbButton class="delete" status="danger" outline size="tiny" *ngIf="editable" (click)="removeUser(type.key, credit.user)">
-            <nb-icon icon="close-thick" />
+            <mom-icon icon="close-thick" />
           </button>
         </nb-list-item>
       </nb-list>
@@ -28,7 +28,7 @@
       status="primary"
       (click)="showUserSearch(type.key)"
     >
-      <nb-icon icon="plus-thick" />
+      <mom-icon icon="plus-thick" />
     </button>
   </div>
 </div>

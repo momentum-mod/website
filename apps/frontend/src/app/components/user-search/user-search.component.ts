@@ -23,7 +23,6 @@ import {
   NbPopoverModule,
   NbSpinnerModule,
   NbInputModule,
-  NbIconModule,
   NbTooltipModule
 } from '@nebular/theme';
 import { merge, of, Subject } from 'rxjs';
@@ -32,7 +31,7 @@ import { showPopover } from '../../utils/popover-utils';
 import { NgxPaginationModule } from 'ngx-pagination';
 import { UserSearchResultComponent } from './user-search-result.component';
 import { NgClass, NgFor } from '@angular/common';
-import { NbIconIconDirective } from '../../../../../../libs/frontend/directives/src/lib/icons/nb-icon-icon.directive';
+import { IconComponent } from '@momentum/frontend/icons';
 
 @Component({
   selector: 'mom-user-search',
@@ -45,8 +44,7 @@ import { NbIconIconDirective } from '../../../../../../libs/frontend/directives/
     NbInputModule,
     FormsModule,
     ReactiveFormsModule,
-    NbIconModule,
-    NbIconIconDirective,
+    IconComponent,
     NbTooltipModule,
     NgClass,
     NgFor,

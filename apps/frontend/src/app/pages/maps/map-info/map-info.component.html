@@ -8,7 +8,7 @@
           <div *ngIf="isSubmitter || isAdmin || isModerator">
             <button nbButton outline status="info" class="ml-2" type="button" (click)="onEditMap()">
               <span class="hidden md:inline-block">Edit Map</span>
-              <nb-icon icon="image-edit" class="inline-block md:hidden" />
+              <mom-icon icon="image-edit" class="inline-block md:hidden" />
             </button>
           </div>
           <div class="m-2">
@@ -21,7 +21,7 @@
               nbPopover="{{ mapNotifications ? 'Disable Notifications' : 'Enable Notifications' }}"
               nbPopoverTrigger="hint"
             >
-              <nb-icon [icon]="mapNotifications ? 'bell-alert' : 'bell-outline'" />
+              <mom-icon [icon]="mapNotifications ? 'bell-alert' : 'bell-outline'" />
             </button>
           </div>
         </div>
@@ -67,19 +67,19 @@
           <div *ngIf="!previewMap" class="relative w-full sm:flex-1 sm:flex-grow">
             <div class="mb-3 mt-1 flex flex-wrap justify-around sm:justify-end">
               <div class="stat" nbPopover="{{ map.stats?.subscriptions | plural: 'Library' : 'Libraries' }}" nbPopoverTrigger="hint">
-                <nb-icon icon="folder"></nb-icon>
+                <mom-icon icon="folder"></mom-icon>
                 {{ map.stats?.subscriptions | thousandsSuffix: 1 }}
               </div>
               <div class="stat sm:ml-6" nbPopover="{{ map.stats?.favorites | plural: 'Favorite' }}" nbPopoverTrigger="hint">
-                <nb-icon icon="star"></nb-icon>
+                <mom-icon icon="star"></mom-icon>
                 {{ map.stats?.favorites | thousandsSuffix: 1 }}
               </div>
               <div class="stat sm:ml-6" nbPopover="{{ map.stats?.downloads | plural: 'Download' }}" nbPopoverTrigger="hint">
-                <nb-icon icon="download-outline"></nb-icon>
+                <mom-icon icon="download-outline"></mom-icon>
                 {{ map.stats?.downloads | thousandsSuffix: 1 }}
               </div>
               <div class="stat sm:ml-6" nbPopover="{{ map.stats?.plays | plural: 'Play' }}" nbPopoverTrigger="hint">
-                <nb-icon icon="play-circle-outline"></nb-icon>
+                <mom-icon icon="play-circle-outline"></mom-icon>
                 {{ map.stats?.plays | thousandsSuffix: 1 }}
               </div>
             </div>
@@ -105,7 +105,7 @@
                 nbPopover="{{ mapInFavorites ? 'Remove from Favorites' : 'Add to Favorites' }}"
                 nbPopoverTrigger="hint"
               >
-                <nb-icon [icon]="mapInFavorites ? 'star' : 'star-outline'"></nb-icon>
+                <mom-icon [icon]="mapInFavorites ? 'star' : 'star-outline'"></mom-icon>
               </button>
             </div>
           </div>

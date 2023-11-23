@@ -45,14 +45,14 @@ nb-card-header {
     font-size: 2rem;
     margin-right: 1rem;
 
-    nb-icon {
+    mom-icon {
       color: nb-theme(text-control-color);
       transition: color ease-out 0.1s;
       width: 2rem;
       height: 2rem;
     }
 
-    &:hover nb-icon {
+    &:hover mom-icon {
       color: nb-theme(color-primary-default);
     }
   }

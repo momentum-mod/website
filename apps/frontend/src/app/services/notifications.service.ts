@@ -19,6 +19,7 @@ export class NotificationsService {
     this.notificationsSubject = new ReplaySubject<Notification[]>(1);
   }
 
+  // TODO: Needed?
   public inject(): void {
     this.router.events
       .pipe(filter((event) => event instanceof NavigationEnd))

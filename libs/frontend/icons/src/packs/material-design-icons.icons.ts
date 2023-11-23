@@ -14,6 +14,7 @@ export {
   mdiEarth,
   mdiTrophy,
   mdiTrophyOutline,
+  mdiAccountMultiple,
   mdiAccountMultipleOutline,
   mdiGiftOutline,
   mdiBellAlert,

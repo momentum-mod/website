@@ -51,7 +51,7 @@
               <div class="map-image-cont mx-2" *ngFor="let img of images" cdkDrag>
                 <img class="map-image" [ngSrc]="img.small" width="192" height="108" />
                 <button nbButton outline status="danger" (click)="removeMapImage(img)">
-                  <nb-icon class="full" icon="close"></nb-icon>
+                  <mom-icon class="full" icon="close"></mom-icon>
                 </button>
               </div>
               <div class="upload-box mx-2" *ngIf="images.length < imagesLimit">
@@ -62,7 +62,7 @@
         </div>
         <div class="submit-btn inline-flex items-center">
           <button nbButton outline status="info" class="mr-2" type="submit">Save images</button>
-          <nb-icon class="text-yellow-500" icon="alert" title="Under Construction"></nb-icon>
+          <mom-icon class="text-yellow-500" icon="alert" title="Under Construction"></mom-icon>
           <!-- TODO: Remove when images submitting is added -->
         </div>
       </form>

@@ -12,9 +12,9 @@ import {
   MAX_MAP_SUGGESTION_COMMENT_LENGTH,
   TrackType
 } from '@momentum/constants';
-import { EnumValuePipe } from '../../../../../../libs/frontend/pipes/src/lib/enum-value.pipe';
 import { NbSelectModule, NbOptionModule } from '@nebular/theme';
 import { NgClass, NgFor } from '@angular/common';
+import { PipesModule } from '@momentum/frontend/pipes';
 
 @Component({
   selector: 'mom-map-leaderboards-selection',
@@ -33,7 +33,7 @@ import { NgClass, NgFor } from '@angular/common';
     NbSelectModule,
     NbOptionModule,
     FormsModule,
-    EnumValuePipe
+    PipesModule
   ]
 })
 export class MapLeaderboardSelectionComponent implements ControlValueAccessor {
