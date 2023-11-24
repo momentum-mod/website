@@ -450,6 +450,71 @@
           <b>Error: </b>{{ suggestions.errors['error'] }}
         </p>
       </fieldset>
+
+      <fieldset class="mt-10 rounded border-2 border-gray-700 bg-gray-900 p-4 pt-2">
+        <legend
+          class="ml-16 flex items-center before:h-3 before:border-r-2 before:border-gray-700 before:content-[''] after:h-3 after:border-l-2 after:border-gray-700 after:content-['']"
+        >
+          <div class="stack absolute -translate-x-16 rounded border-2 border-gray-700 bg-gray-800 p-2">
+            <nb-icon
+              class="scale-0 text-3xl text-green-500 transition-transform"
+              [icon]="'check-outline'"
+              [ngClass]="{ 'scale-100': privateTesting.valid }"
+              nbPopover="Section is complete!"
+              nbPopoverTrigger="hover"
+            />
+            <nb-icon
+              class="scale-0 text-3xl text-red-500 transition-transform"
+              [icon]="'alert-outline'"
+              [ngClass]="{ 'scale-100': testInvites.dirty && privateTesting.invalid }"
+              nbPopover="Section contains invalid items!"
+              nbPopoverTrigger="hover"
+            />
+            <nb-icon
+              class="scale-0 text-3xl text-blue-400 transition-transform"
+              [icon]="'pencil-outline'"
+              [ngClass]="{ 'scale-100': !testInvites.dirty && privateTesting.invalid }"
+              nbPopover="Section is incomplete!"
+              nbPopoverTrigger="hover"
+            />
+          </div>
+          <span class="mx-3 text-3xl">Private Testing</span>
+        </legend>
+        <div class="flex gap-4" [formGroup]="privateTesting">
+          <div class="flex flex-col md:w-full lg:flex-grow">
+            <div class="prose max-w-none pt-4">
+              <p>
+                Private testing is an optional first phase of map submission wherein only players you personally invite can play and review
+                your map.
+              </p>
+              <p>
+                This is intended to make sharing and versioning your map files simpler - rather than sharing files over e.g. Discord and
+                requiring friends manually redownload files for each iteration, you can just submit new versions via this site and their
+                game clients will automatically update.
+              </p>
+              <p>
+                If you want to start in Private Testing, select the checkbox below. You can keep the submission in Private Testing for as
+                long as you still, so long as you're still actively working on the map. Once you're done, you can move the map forward to
+                the Content Approval stage (TODO: link). If you don't care about Private Testing, leave the box unchecked and the submission
+                will go straight to Content Approval.
+              </p>
+            </div>
+            <div class="ml-auto">
+              <div class="flex items-center justify-end">
+                <span class="mr-4 text-lg">Enable Private Testing</span>
+                <input type="checkbox" [formControl]="wantsPrivateTesting" />
+              </div>
+              <p class="mt-2 text-right text-lg text-red-400" *ngIf="testInvites.dirty && privateTesting.errors">
+                <b>Error: </b>{{ privateTesting.errors['error'] }}
+              </p>
+            </div>
+          </div>
+          <span class="h-auto bg-gray-700 md:w-0 lg:w-[0.125rem]"></span>
+          <mom-map-testing-request-selection [formControl]="testInvites" class="disabled:opacity-25 md:w-full lg:flex-grow" />
+        </div>
+      </fieldset>
+    </form>
+
     <div class="mt-4 flex">
       <div class="flex flex-grow flex-col" *ngIf="isUploading">
         <nb-progress-bar status="info" [value]="uploadPercentage" size="giant" [displayValue]="true" class="mr-6"> </nb-progress-bar>
