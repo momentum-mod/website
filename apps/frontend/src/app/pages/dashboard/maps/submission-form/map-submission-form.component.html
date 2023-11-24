@@ -17,6 +17,105 @@
         <a href="https://discord.gg/momentummod">Discord</a>, where you can also find all sorts of mapping support and helpful people!
       </p>
     </nb-alert>
+    <form [formGroup]="form">
+      <fieldset class="grid gap-4 rounded border-2 border-gray-700 bg-gray-900 p-4 md:grid-cols-1 lg:grid-cols-3" [formGroup]="files">
+        <legend
+          class="ml-16 flex items-center before:h-3 before:border-r-2 before:border-gray-700 before:content-[''] after:h-3 after:border-l-2 after:border-gray-700 after:content-['']"
+        >
+          <div class="stack absolute -translate-x-16 rounded border-2 border-gray-700 bg-gray-800 p-2">
+            <nb-icon
+              class="scale-0 text-3xl text-green-500 transition-transform"
+              [icon]="'check-outline'"
+              [ngClass]="{ 'scale-100': isGroupValid(files) }"
+              nbPopover="Section is complete!"
+              nbPopoverTrigger="hover"
+            />
+            <nb-icon
+              class="scale-0 text-3xl text-red-500 transition-transform"
+              [icon]="'alert-outline'"
+              [ngClass]="{ 'scale-100': isGroupInvalid(files) }"
+              nbPopover="Section contains invalid items!"
+              nbPopoverTrigger="hover"
+            />
+            <nb-icon
+              class="scale-0 text-3xl text-blue-400 transition-transform"
+              [icon]="'pencil-outline'"
+              [ngClass]="{ 'scale-100': isGroupAwaitingEditing(files) }"
+              nbPopover="Section is incomplete!"
+              nbPopoverTrigger="hover"
+            />
+          </div>
+          <span class="mx-3 text-3xl">Files</span>
+        </legend>
+        <div class="flex flex-col">
+          <h5 class="mb-1 text-center">
+            BSP File
+            <nb-icon icon="asterisk" class="mb-1 align-middle" nbPopover="Required" nbPopoverTrigger="hover" />
+          </h5>
+          <p class="text-balance mb-4 mt-3 block w-auto flex-grow px-3 text-center">
+            This is the main map file for your map. It should have all custom assets packed into it, and <i>must</i> be compressed.
+            <!-- TODO: Link to docs pages for these-->
+          </p>
+          <div>
+            <p class="mb-1 text-right text-lg text-red-400" *ngIf="bsp.errors?.['required'] && bsp.dirty">
+              <b>Error: </b>A BSP file is required.
+            </p>
+            <p class="mb-1 text-right text-lg text-red-400" *ngIf="bsp.errors?.['fileName']">
+              <b>Error: </b>File name must be alphanumeric + hyphens + underscores, and end in <b>.bsp</b>.
+            </p>
+            <p class="mb-1 text-right text-lg text-red-400" *ngIf="bsp.errors?.['fileMaxSize']">
+              <b>Error: </b>Maximum allowed file size is {{ MAX_BSP_SIZE / (1024 * 1024) }} MB.
+            </p>
+            <p class="mb-1 text-right text-lg text-red-400" *ngIf="bsp.errors?.['bspFileNotCompressed']">
+              <b>Error: </b>BSP file is not compressed. TODO: Docs link!
+            </p>
+            <p class="mb-1 text-right text-lg text-red-400" *ngIf="bsp.errors?.['bspFileReadError']">
+              <b>Error: </b>Could not parse file, are you sure it's a valid BSP?
+            </p>
+            <p class="mb-1 text-right text-lg text-red-400" *ngIf="bsp.errors?.['fileReadError']"><b>Error: </b>Could not read file.</p>
+          </div>
+          <mom-file-upload [formControl]="bsp" typeName="BSP" accept=".bsp" icon="land-plots" />
+        </div>
+        <div class="flex flex-col">
+          <h5 class="mb-1 text-center">
+            Zones File
+            <nb-icon icon="asterisk" class="mb-1 align-middle" nbPopover="Required" nbPopoverTrigger="hover" />
+          </h5>
+          <p class="text-balance mb-4 mt-3 block w-auto flex-grow px-3 text-center">The zones for your map</p>
+          <div>
+            <p class="mb-1 text-right text-lg text-red-400" *ngIf="zon.errors?.['required'] && zon.dirty">
+              <b>Error: </b>A zone file is required.
+            </p>
+            <p class="mb-1 text-right text-lg text-red-400" *ngIf="zon.errors?.['zoneFileValidationError']">
+              <b>Error: </b> {{ zon.errors?.['zoneFileValidationError'][0].message }}.
+            </p>
+            <p class="mb-1 text-right text-lg text-red-400" *ngIf="zon.errors?.['zonFileNotJsonError']">
+              <b>Error: </b>Could not parse file, it's not valid JSON!
+            </p>
+            <p class="mb-1 text-right text-lg text-red-400" *ngIf="zon.errors?.['fileReadError']"><b>Error: </b>Could not read file.</p>
+          </div>
+          <mom-file-upload [formControl]="zon" typeName=".zon.json" icon="vector-polygon" accept=".zon.json" />
+        </div>
+        <div class="flex flex-col">
+          <h5 class="mb-1 text-center">VMF File(s)</h5>
+          <p class="text-balance mb-4 mt-3 block w-auto flex-grow px-3 text-center">
+            The VMF source files your map. Not required, but helps us archive file maps, and may be helpful for other mappers!
+          </p>
+          <div>
+            <p class="mb-1 text-right text-lg text-red-400" *ngIf="vmfs.errors?.['fileExtension']">
+              <b>Error: </b>File extension must end in <b>.vmf</b>.
+            </p>
+            <p class="mb-1 text-right text-lg text-red-400" *ngIf="zon.errors?.['fileMaxSize']">
+              <b>Error: </b>Maximum allowed file size is {{ MAX_VMF_SIZE / (1024 * 1024) }} MB.
+            </p>
+            <p class="mb-1 text-right text-lg text-red-400" *ngIf="zon.errors?.['vdfFileValidationError']">
+              <b>Error: </b>Could not parse file, it's not a valid VDF/KeyValues file!
+            </p>
+            <p class="mb-1 text-right text-lg text-red-400" *ngIf="zon.errors?.['fileReadError']"><b>Error: </b>Could not read file.</p>
+          </div>
+          <mom-multi-file-upload [formControl]="vmfs" typeName="VMF" accept=".vmf" icon="hammer" [max]="20" />
+        </div>
+      </fieldset>
 
     <div class="mt-4 flex">
       <div class="flex flex-grow flex-col" *ngIf="isUploading">
