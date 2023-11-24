@@ -18,9 +18,11 @@ import { RouterModule } from '@angular/router';
 import { NbSearchModule } from './search/search.module';
 import { UserSearchComponent } from './user-search/user-search.component';
 import { UserSearchResultComponent } from './user-search/user-search-result.component';
-import { NbFormFieldModule } from '@nebular/theme';
+import { NbFormFieldModule, NbSpinnerModule } from '@nebular/theme';
+import { DragDropModule } from '@angular/cdk/drag-drop';
 import { NgxPaginationModule } from 'ngx-pagination';
 import { FileUploadComponent } from './file-upload/file-upload.component';
+import { MultiFileUploadComponent } from './file-upload/multi-file-upload.component';
 
 const COMPONENTS = [
   HeaderComponent,
@@ -50,7 +52,9 @@ const COMPONENTS = [
     RouterModule,
     NbSearchModule,
     NbFormFieldModule,
-    NgxPaginationModule
+    NgxPaginationModule,
+    DragDropModule,
+    NbSpinnerModule
   ],
   exports: [...COMPONENTS, NbSearchModule],
   declarations: COMPONENTS

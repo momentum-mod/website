@@ -58,6 +58,8 @@ import { forkJoin } from 'rxjs';
   styleUrls: ['./map-submission-form.component.scss']
 })
 export class MapSubmissionFormComponent implements OnInit {
+  protected readonly MAX_BSP_SIZE = MAX_BSP_SIZE;
+  protected readonly MAX_VMF_SIZE = MAX_VMF_SIZE;
 
   constructor(
     private readonly mapsService: MapsService,
@@ -83,6 +85,23 @@ export class MapSubmissionFormComponent implements OnInit {
   hasMapInSubmission: boolean;
 
   form: FormGroup = this.fb.group({
+    files: this.fb.group({
+      bsp: [
+        null,
+        [
+          Validators.required,
+          FileValidators.maxSize(MAX_BSP_SIZE),
+          FileValidators.namePattern(/^[\w-]+\.bsp$/)
+        ],
+        [FileValidators.isCompressedBsp()]
+      ],
+      zon: [null, [Validators.required], [FileValidators.isValidZones()]],
+      vmfs: [
+        [],
+        [FileValidators.maxSize(MAX_VMF_SIZE), FileValidators.extension('vmf')],
+        [FileValidators.isValidVdf()]
+      ]
+    }),
   });
 
   ngOnInit(): void {
