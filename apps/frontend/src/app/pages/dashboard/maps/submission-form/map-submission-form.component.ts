@@ -58,8 +58,10 @@ import { forkJoin } from 'rxjs';
   styleUrls: ['./map-submission-form.component.scss']
 })
 export class MapSubmissionFormComponent implements OnInit {
+  protected readonly MapSubmissionType = MapSubmissionType;
   protected readonly MAX_BSP_SIZE = MAX_BSP_SIZE;
   protected readonly MAX_VMF_SIZE = MAX_VMF_SIZE;
+  protected readonly MAX_MAP_DESCRIPTION_LENGTH = MAX_MAP_DESCRIPTION_LENGTH;
 
   constructor(
     private readonly mapsService: MapsService,
@@ -69,6 +71,9 @@ export class MapSubmissionFormComponent implements OnInit {
     private readonly fb: FormBuilder
   ) {}
 
+
+  @ViewChildren(NbPopoverDirective)
+  popovers: QueryList<NbPopoverDirective>;
 
   isUploading = false;
   uploadPercentage = 0;
@@ -102,9 +107,74 @@ export class MapSubmissionFormComponent implements OnInit {
         [FileValidators.isValidVdf()]
       ]
     }),
+    info: this.fb.group({
+      name: [
+        '',
+        [
+          Validators.required,
+          Validators.minLength(MIN_MAP_NAME_LENGTH),
+          Validators.maxLength(MAX_MAP_NAME_LENGTH)
+        ],
+        [BackendValidators.uniqueMapName(this.mapsService)]
+      ],
+      description: [
+        '',
+        [Validators.required, Validators.maxLength(MAX_MAP_DESCRIPTION_LENGTH)]
+      ],
+      creationDate: [
+        new Date(),
+        [Validators.required, Validators.max(Date.now())]
+      ],
+      submissionType: [null, [Validators.required]],
+      youtubeID: ['', [Validators.pattern(/[\w-]{11}/)]]
+    }),
   });
 
+  get info() {
+    return this.form.get('info') as FormGroup;
+  }
+  get youtubeID() {
+    return this.form.get('info.youtubeID') as FormControl<string>;
+  }
+
+  get name() {
+    return this.form.get('info.name') as FormControl<string>;
+  }
+
+  get description() {
+    return this.form.get('info.description') as FormControl<string>;
+  }
+
+  get creationDate() {
+    return this.form.get('info.creationDate') as FormControl<Date>;
+  }
+
+  get submissionType() {
+    return this.form.get(
+      'info.submissionType'
+    ) as FormControl<MapSubmissionType>;
+  }
   ngOnInit(): void {
+    this.youtubeID.valueChanges.subscribe(() => this.generatePreviewMap());
+    this.form
+      .get('credits')
+      .valueChanges.subscribe(() => this.generatePreviewMap());
+    this.form
+      .get('info')
+      .valueChanges.subscribe(this.generatePreviewMap.bind(this));
+
+    this.zon.statusChanges.pipe(distinctUntilChanged()).subscribe((status) => {
+      if (status === 'VALID') {
+        this.onValidZoneFileSelected();
+        this.suggestions.enable();
+      } else {
+        this.suggestions.disable();
+      }
+    });
+
+    this.bsp.valueChanges.subscribe(this.onBspFileSelected.bind(this));
+
+    this.name.statusChanges.subscribe(this.onNameStatusChange.bind(this));
 
     this.isMapperOrPorter = this.localUserService.hasRole(
       CombinedRoles.MAPPER_AND_ABOVE
@@ -123,6 +193,85 @@ export class MapSubmissionFormComponent implements OnInit {
     }
   }
 
+  async onBspFileSelected() {
+    const name = this.bsp.value.name.replaceAll('.bsp', '').toLowerCase();
+
+    // Fill name field with map name if pristine
+    if (this.name.pristine) {
+      this.name.setValue(name, { emitEvent: true });
+    }
+  }
+
+  async onValidZoneFileSelected() {
+    // This has been validated already
+    this.zones = JSON.parse(await this.zon.value.text()) as MapZones;
+    this.lbSelection.zones = this.zones;
+
+    // A zone file *coooould* have a different filename from the BSP so try the
+    // BSP first
+    const mapName = this.bsp.value?.name ?? this.zon.value?.name;
+    // Guess at the mode(s). Using Ahop if there's no prefix since it's first
+    // alphabetically.
+    const inferredModes = this.inferGamemode(mapName) ?? [Gamemode.AHOP];
+
+    if (!this.suggestions.pristine) return;
+
+    this.suggestions.setValue(
+      inferredModes.flatMap((gamemode) => [
+        {
+          gamemode,
+          trackType: TrackType.MAIN,
+          trackNum: 0,
+          ranked: true,
+          tier: 1
+        },
+        ...this.zones.tracks.bonuses.map((_, i) => ({
+          gamemode,
+          trackType: TrackType.BONUS,
+          trackNum: i,
+          ranked: true,
+          tier: 1
+        }))
+      ])
+    );
+  }
+
+  /**
+   * Show error popover for any map name errors
+   */
+  onNameStatusChange(status: FormControlStatus) {
+    const popover = this.popovers.find((p) => p.context === 'mapNameError');
+    if (status !== 'INVALID') {
+      popover.hide();
+      return;
+    }
+
+    if (this.name.errors['uniqueMapName']) {
+      showPopover(popover, 'Map name is in use!');
+    } else if (this.name.errors['maxlength'] || this.name.errors['minlength']) {
+      showPopover(
+        popover,
+        `Map name must be between ${MIN_MAP_NAME_LENGTH} and ${MAX_MAP_NAME_LENGTH} characters.`
+      );
+    } else {
+      popover.hide();
+    }
+  }
+
+  /**
+   * Infer a gamemode(s) from a potential gamemode prefixes on a file name.
+   * Returns an array to support defrag VQ3/CPM
+   */
+  inferGamemode(fileName: string): Gamemode[] | null {
+    if (!fileName.includes('_')) return null;
+
+    const fileNamePrefix = fileName.split('_')[0];
+    const modes = [...GamemodePrefix.entries()]
+      .filter(([_, prefix]) => fileNamePrefix === prefix)
+      .map(([mode]) => mode);
+
+    return modes.length > 0 ? modes : null;
+  }
   generatePreviewMap(): void {
     // const youtubeIDMatch = this.youtubeURL.value.match(this.youtubeRegex);
     // this.mapPreview = {
@@ -168,6 +317,19 @@ export class MapSubmissionFormComponent implements OnInit {
     //     medium: image.dataBlobUrl,//
     //     large: image.dataBlobUrl
     //   });
+  }
+
+  /**
+   * Remove any extra crap from Youtube ID field if a full URL is pasted in,
+   * e.g. https://youtu.be/JhPPHchfhQY?t=5 becomes JhPPHchfhQY
+   */
+  stripYoutubeUrl() {
+    const url = this.youtubeID.value;
+    if (/.*youtube\.com\/watch\?v=[\w-]{11}.*/.test(url)) {
+      this.youtubeID.setValue(/(?<=v=)[\w-]{11}/.exec(url)[0]);
+    } else if (/youtu\.be\/[\w-]{11}.*/.test(url)) {
+      this.youtubeID.setValue(/(?<=youtu\.be\/)[\w-]{11}/.exec(url)[0]);
+    }
   }
 
   /**
