@@ -18,12 +18,19 @@ import { HttpService } from './http.service';
 export class MapsService {
   constructor(private http: HttpService) {}
 
-  getMap(id: number, query?: MapsGetQuery): Observable<MMap> {
+  getMap(id: number | string, query?: MapsGetQuery): Observable<MMap> {
     return this.http.get<MMap>(`maps/${id}`, { query });
   }
 
-  getMaps(query?: MapsGetAllQuery): Observable<PagedResponse<MMap>> {
-    return this.http.get<PagedResponse<MMap>>('maps', { query });
+  testMapExists(
+    id: number | string,
+    query?: MapsGetQuery
+  ): Observable<boolean> {
+    return this.http.get<MMap>(`maps/${id}`, { query }).pipe(
+      map(() => true),
+      catchError(() => of(false))
+    );
+  }
   getMapSubmissions(
     query?: MapsGetAllSubmissionQuery
   ): Observable<PagedResponse<MMap>> {
@@ -34,7 +41,7 @@ export class MapsService {
     return this.http.post<MMap>('maps', { body, observe: 'response' });
   }
 
-  updateMapInfo(mapID: number, body: MapInfo): Observable<any> {
+  updateMapInfo(mapID: number, body: MapInfo): Observable<void> {
     return this.http.patch(`maps/${mapID}/info`, { body });
   }
 

@@ -117,6 +117,180 @@
         </div>
       </fieldset>
 
+      <fieldset class="mt-10 rounded border-2 border-gray-700 bg-gray-900 p-4 pt-6" [formGroup]="info">
+        <legend
+          class="ml-16 flex items-center before:h-3 before:border-r-2 before:border-gray-700 before:content-[''] after:h-3 after:border-l-2 after:border-gray-700 after:content-['']"
+        >
+          <div class="stack absolute -translate-x-16 rounded border-2 border-gray-700 bg-gray-800 p-2">
+            <nb-icon
+              class="scale-0 text-3xl text-green-500 transition-transform"
+              [icon]="'check-outline'"
+              [ngClass]="{ 'scale-100': isGroupValid(info) }"
+              nbPopover="Section is complete!"
+              nbPopoverTrigger="hover"
+            />
+            <nb-icon
+              class="scale-0 text-3xl text-red-500 transition-transform"
+              [icon]="'alert-outline'"
+              [ngClass]="{ 'scale-100': isGroupInvalid(info) }"
+              nbPopover="Section contains invalid items!"
+              nbPopoverTrigger="hover"
+            />
+            <nb-icon
+              class="scale-0 text-3xl text-blue-400 transition-transform"
+              [icon]="'pencil-outline'"
+              [ngClass]="{ 'scale-100': isGroupAwaitingEditing(info) }"
+              nbPopover="Section is incomplete!"
+              nbPopoverTrigger="hover"
+            />
+          </div>
+          <span class="mx-3 text-3xl">Details</span>
+        </legend>
+        <div class="flex gap-4 md:flex-wrap">
+          <div class="grid h-fit flex-grow gap-4 [grid-template-columns:auto_1fr]">
+            <div class="flex flex-col">
+              <label class="my-auto text-lg leading-4">
+                Map Name
+                <nb-icon icon="tooltip-question-outline" class="ml-1 align-middle" [nbPopover]="mapNameInfo" nbPopoverTrigger="hover" />
+                <ng-template #mapNameInfo>
+                  <div class="prose p-3">
+                    <p>
+                      Gamemode <b>prefixes</b> should typically be the primary gamemode they're made for, but may be omitted if the map
+                      plays well in multiple modes. E.g. <i>bhop_canals</i> plays well in many modes, so could be named just <i>canals</i>.
+                    </p>
+                    <p><b>Suffixes</b> must be <b>removed</b>, e.g. <i>surf_utopia_njv</i> should be <i>surf_utopia.</i></p>
+                    <p>
+                      This isn't required to match the exact name of your BSP file, but should be similar. So for
+                      <i>surf_utopia_njv.bsp</i>, the name should be <i>surf_utopia</i>.
+                    </p>
+                  </div>
+                </ng-template>
+              </label>
+              <span class="text-sm italic leading-4 text-gray-500">Required</span>
+            </div>
+            <input
+              id="name"
+              class="input input-validated !max-w-full"
+              type="text"
+              nbPopover
+              nbPopoverContext="mapNameError"
+              nbPopoverTrigger="noop"
+              [formControl]="name"
+            />
+            <div class="flex flex-col">
+              <label class="my-auto text-lg leading-4">
+                Submission Type
+                <nb-icon
+                  icon="tooltip-question-outline"
+                  class="mb-[1px] ml-0.5 align-middle"
+                  nbPopover="Ports are any map originally made for another game, e.g. CS:S, TF2, Defrag, etc..."
+                  nbPopoverTrigger="hover"
+                />
+              </label>
+              <span class="text-sm italic leading-4 text-gray-500">Required</span>
+            </div>
+            <nb-select class="!max-w-full" [formControl]="submissionType">
+              <nb-option [value]="MapSubmissionType.ORIGINAL">Original</nb-option>
+              <nb-option [value]="MapSubmissionType.PORT">Port</nb-option>
+              <nb-option *ngIf="isModOrAdmin" [value]="MapSubmissionType.SPECIAL">Special</nb-option>
+            </nb-select>
+            <div class="flex flex-col">
+              <label for="creationDate" class="my-auto text-lg leading-4">
+                Creation Date
+                <nb-icon
+                  icon="tooltip-question-outline"
+                  class="ml-1 align-middle"
+                  [nbPopover]="mapCreationDateInfo"
+                  nbPopoverTrigger="hover"
+                />
+                <ng-template #mapCreationDateInfo>
+                  <div class="prose p-3">
+                    <p>This is the date the map was first released, in any game, not just Momentum.</p>
+                    <p>
+                      If it's your map and you're first releasing for Momentum, use today's date. If the map is a port and was originally
+                      published on, say, GameBanana, use the exact date on GameBanana.
+                    </p>
+                    <p>
+                      If you don't know the exact date, just take a guess. For a Conc map published sometime around 2002, Jan 1st 2002 is
+                      fine.
+                    </p>
+                  </div>
+                </ng-template>
+              </label>
+              <span class="text-sm italic leading-4 text-gray-500">Required</span>
+            </div>
+            <div>
+              <input
+                id="creationDate"
+                class="input input-validated w-full !max-w-full"
+                [nbDatepicker]="datepicker"
+                [formControl]="creationDate"
+              />
+              <nb-datepicker #datepicker [boundingMonth]="false"></nb-datepicker>
+            </div>
+            <label for="youtubeID" class="my-auto text-lg leading-4">
+              Youtube ID
+              <nb-icon
+                icon="tooltip-question-outline"
+                class="mb-[1px] ml-0.5 align-middle"
+                [nbPopover]="youtubeIDInfo"
+                nbPopoverTrigger="hover"
+              />
+              <ng-template #youtubeIDInfo>
+                <div class="prose p-3">
+                  <p>An optional Youtube video showcasing your map.</p>
+                  <p>Must be a single 11 character Youtube video ID.</p>
+                </div>
+              </ng-template>
+            </label>
+            <input
+              id="youtubeID"
+              type="text"
+              class="input input-validated !max-w-full"
+              [formControl]="youtubeID"
+              (change)="stripYoutubeUrl()"
+            />
+          </div>
+          <div class="flex flex-grow-5 flex-col">
+            <div class="-mt-1 mb-1 flex">
+              <div class="my-auto -mt-1 mb-1 flex flex-grow items-center">
+                <label for="description" class="text-lg">
+                  Description
+                  <nb-icon
+                    icon="tooltip-question-outline"
+                    class="ml-1 align-middle"
+                    [nbPopover]="descriptionInfo"
+                    nbPopoverTrigger="hover"
+                  />
+                  <ng-template #descriptionInfo>
+                    <div class="prose p-3">
+                      <p>
+                        A general description of your map. You can include pretty much anything you want here, just keep in mind we have
+                        dedicated sections for credits, including special thanks!
+                      </p>
+                      <p>
+                        If you can't think of anything at all, just do something super simple like
+                        <i>"A short bhop map based on the life and works of Anthony Hopkins"</i>.
+                      </p>
+                    </div>
+                  </ng-template>
+                </label>
+                <span class="ml-2 text-sm italic text-gray-500">Required</span>
+              </div>
+              <span class="mr-2">{{ MAX_MAP_DESCRIPTION_LENGTH - description.value.length | plural: 'character' }} remaining</span>
+            </div>
+            <textarea
+              id="description"
+              nbInput
+              class="input input-validated flex-grow"
+              fullWidth
+              rows="4"
+              [formControl]="description"
+              [maxLength]="MAX_MAP_DESCRIPTION_LENGTH"
+            ></textarea>
+          </div>
+        </div>
+      </fieldset>
     <div class="mt-4 flex">
       <div class="flex flex-grow flex-col" *ngIf="isUploading">
         <nb-progress-bar status="info" [value]="uploadPercentage" size="giant" [displayValue]="true" class="mr-6"> </nb-progress-bar>
