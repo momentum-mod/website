@@ -24,6 +24,7 @@ import { NgxPaginationModule } from 'ngx-pagination';
 import { FileUploadComponent } from './file-upload/file-upload.component';
 import { MultiFileUploadComponent } from './file-upload/multi-file-upload.component';
 import { MapImageSelectionComponent } from './map-image-selection/map-image-selection.component';
+import { MapCreditsSelectionComponent } from './map-credits-selection/map-credits-selection.component';
 
 
 const COMPONENTS = [
@@ -42,6 +43,7 @@ const COMPONENTS = [
   FileUploadComponent,
   MultiFileUploadComponent,
   MapImageSelectionComponent,
+  MapCreditsSelectionComponent,
 ];
 
 @NgModule({
