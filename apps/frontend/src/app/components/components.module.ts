@@ -23,6 +23,8 @@ import { DragDropModule } from '@angular/cdk/drag-drop';
 import { NgxPaginationModule } from 'ngx-pagination';
 import { FileUploadComponent } from './file-upload/file-upload.component';
 import { MultiFileUploadComponent } from './file-upload/multi-file-upload.component';
+import { MapImageSelectionComponent } from './map-image-selection/map-image-selection.component';
+
 
 const COMPONENTS = [
   HeaderComponent,
@@ -37,7 +39,9 @@ const COMPONENTS = [
   DeleteUserDialogComponent,
   UserSearchComponent,
   UserSearchResultComponent,
-  FileUploadComponent
+  FileUploadComponent,
+  MultiFileUploadComponent,
+  MapImageSelectionComponent,
 ];
 
 @NgModule({

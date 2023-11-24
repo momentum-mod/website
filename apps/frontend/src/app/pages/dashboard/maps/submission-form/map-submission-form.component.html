@@ -291,6 +291,58 @@
           </div>
         </div>
       </fieldset>
+
+      <fieldset class="mt-10 rounded border-2 border-gray-700 bg-gray-900 p-4 pt-6">
+        <legend
+          class="ml-16 flex items-center before:h-3 before:border-r-2 before:border-gray-700 before:content-[''] after:h-3 after:border-l-2 after:border-gray-700 after:content-['']"
+        >
+          <div class="stack absolute -translate-x-16 rounded border-2 border-gray-700 bg-gray-800 p-2">
+            <nb-icon
+              class="scale-0 text-3xl text-green-500 transition-transform"
+              [icon]="'check-outline'"
+              [ngClass]="{ 'scale-100': images.valid && images.dirty }"
+              nbPopover="Section is complete!"
+              nbPopoverTrigger="hover"
+            />
+            <nb-icon
+              class="scale-0 text-3xl text-red-500 transition-transform"
+              [icon]="'alert-outline'"
+              [ngClass]="{ 'scale-100': images.invalid && images.dirty }"
+              nbPopover="Section contains invalid items!"
+              nbPopoverTrigger="hover"
+            />
+            <nb-icon
+              class="scale-0 text-3xl text-blue-400 transition-transform"
+              [icon]="'pencil-outline'"
+              [ngClass]="{ 'scale-100': images.pristine }"
+              nbPopover="Section is incomplete!"
+              nbPopoverTrigger="hover"
+            />
+          </div>
+          <span class="mx-3 text-3xl">Images</span>
+        </legend>
+        <p class="mb-4">
+          A thumbnail, and up to four additional images. You can drag slected images around to change their order, make sure the image in
+          the thumbnail slot is your favorite, as it gets used very frequently in our UI.
+        </p>
+        <mom-map-image-selection innerFormControlName="images" icon="image-multiple-outline" />
+        <div>
+          <p class="mt-2 text-right text-lg text-red-400" *ngIf="images.errors?.['required'] && images.dirty">
+            <b>Error: </b>Must include at least a thumbnail image.
+          </p>
+          <p class="mt-2 text-right text-lg text-red-400" *ngIf="images.errors?.['fileExtension']">
+            <b>Error: </b>All images must be PNG or JPEG.
+          </p>
+          <p class="mt-2 text-right text-lg text-red-400" *ngIf="images.errors?.['fileMaxSize']">
+            <b>Error: </b>Maximum allowed image file size is {{ MAX_MAP_IMAGE_SIZE / (1024 * 1024) }} MiB.
+          </p>
+          <p class="mt-2 text-right text-lg text-red-400" *ngIf="images.errors?.['imageFileDimensionsError']">
+            <b>Error: </b>All images must be 2560x1440 - TODO: Docs link!
+          </p>
+          <p class="mt-2 text-right text-lg text-red-400" *ngIf="bsp.errors?.['imageFileReadError']"><b>Error: </b>Bad image file.</p>
+          <p class="mt-2 text-right text-lg text-red-400" *ngIf="bsp.errors?.['fileReadError']"><b>Error: </b>Could not read file.</p>
+        </div>
+      </fieldset>
     <div class="mt-4 flex">
       <div class="flex flex-grow flex-col" *ngIf="isUploading">
         <nb-progress-bar status="info" [value]="uploadPercentage" size="giant" [displayValue]="true" class="mr-6"> </nb-progress-bar>

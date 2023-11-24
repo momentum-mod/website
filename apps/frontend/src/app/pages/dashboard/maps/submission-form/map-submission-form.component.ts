@@ -61,6 +61,7 @@ export class MapSubmissionFormComponent implements OnInit {
   protected readonly MapSubmissionType = MapSubmissionType;
   protected readonly MAX_BSP_SIZE = MAX_BSP_SIZE;
   protected readonly MAX_VMF_SIZE = MAX_VMF_SIZE;
+  protected readonly MAX_MAP_IMAGE_SIZE = MAX_MAP_IMAGE_SIZE;
   protected readonly MAX_MAP_DESCRIPTION_LENGTH = MAX_MAP_DESCRIPTION_LENGTH;
 
   constructor(
@@ -128,6 +129,15 @@ export class MapSubmissionFormComponent implements OnInit {
       submissionType: [null, [Validators.required]],
       youtubeID: ['', [Validators.pattern(/[\w-]{11}/)]]
     }),
+    images: [
+      '',
+      [
+        Validators.required,
+        FileValidators.maxSize(MAX_MAP_IMAGE_SIZE),
+        FileValidators.extension(['png', 'jpg', 'jpeg'])
+      ],
+      [FileValidators.imageDimensions([{ width: 2560, height: 1440 }])]
+    ],
   });
 
   get info() {
@@ -153,6 +163,10 @@ export class MapSubmissionFormComponent implements OnInit {
     return this.form.get(
       'info.submissionType'
     ) as FormControl<MapSubmissionType>;
+  }
+
+  get images() {
+    return this.form.get('images') as FormControl<File[]>;
   }
   ngOnInit(): void {
     this.youtubeID.valueChanges.subscribe(() => this.generatePreviewMap());
