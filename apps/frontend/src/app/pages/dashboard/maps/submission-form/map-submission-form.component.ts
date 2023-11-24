@@ -75,6 +75,9 @@ export class MapSubmissionFormComponent implements OnInit {
   @ViewChild(MapLeaderboardSelectionComponent)
   lbSelection: MapLeaderboardSelectionComponent;
 
+  @ViewChild('submitButton', { static: true })
+  submitButton: ElementRef<HTMLButtonElement>;
+
   @ViewChildren(NbPopoverDirective)
   popovers: QueryList<NbPopoverDirective>;
 
@@ -166,6 +169,7 @@ export class MapSubmissionFormComponent implements OnInit {
   get privateTesting() {
     return this.form.get('privateTesting') as FormGroup;
   }
+
   get bsp() {
     return this.form.get('files.bsp') as FormControl<File>;
   }
@@ -223,7 +227,7 @@ export class MapSubmissionFormComponent implements OnInit {
   get testInvites() {
     return this.privateTesting.get('testInvites') as FormControl<number[]>;
   }
-  
+
   ngOnInit(): void {
     this.youtubeID.valueChanges.subscribe(() => this.generatePreviewMap());
     this.form
@@ -346,6 +350,114 @@ export class MapSubmissionFormComponent implements OnInit {
 
     return modes.length > 0 ? modes : null;
   }
+
+  onSubmit() {
+    this.form.markAllAsTouched();
+    if (!this.form.valid) return;
+
+    this.isUploading = true;
+    let mapID;
+
+    this.mapsService
+      .submitMap({
+        data: {
+          name: this.name.value,
+          fileName: this.bsp.value.name.replaceAll('.bsp', ''),
+          submissionType: this.submissionType.value,
+          wantsPrivateTesting: this.wantsPrivateTesting.value,
+          testInvites: this.testInvites.value ?? [],
+          zones: this.zones,
+          credits: this.credits.value.getSubmittableRealUsers(),
+          placeholders: this.credits.value.getSubmittablePlaceholders(),
+          suggestions: this.suggestions.value,
+          info: {
+            description: this.description.value,
+            youtubeID: this.youtubeID.value || undefined,
+            creationDate: this.creationDate.value
+          }
+        },
+        bsp: this.bsp.value,
+        vmfs: this.vmfs.value
+      })
+      .pipe(
+        tap({
+          next: (event: HttpEvent<string>) => {
+            switch (event.type) {
+              case HttpEventType.Sent:
+                this.isUploading = true;
+                // Okay, we already started senting the BSP file here since it's
+                // all one request but whatever this looks good
+                this.uploadStatusDescription = 'Submitting map...';
+                break;
+              case HttpEventType.UploadProgress:
+                this.uploadStatusDescription = 'Uploading BSP file...';
+                // Let this bar go 90% of the way, then images will be final 10%
+                this.uploadPercentage = Math.round(
+                  (event['loaded'] / event['total']) * 80
+                );
+                break;
+              case HttpEventType.Response:
+                mapID = JSON.parse(event.body).id;
+                this.uploadStatusDescription = 'Uploading images...';
+                this.uploadPercentage = 90;
+                break;
+            }
+          },
+          error: (httpError: HttpErrorResponse) =>
+            this.onUploadError(httpError, 'Map')
+        }),
+        last(),
+        mergeMap(() =>
+          forkJoin([
+            this.mapsService.updateMapThumbnail(mapID, this.images.value[0]),
+            ...this.images.value
+              .slice(1)
+              .map((image) => this.mapsService.createMapImage(mapID, image))
+          ])
+        )
+      )
+      .subscribe({
+        next: () => {
+          // Not being fancy with upload progress here, just wait for all images
+          // to complete then set to 100.
+          this.uploadPercentage = 100;
+          this.isUploading = false;
+          this.uploadStatusDescription = 'Upload completed!';
+          this.toasterService.success('Map upload complete!', null, {
+            duration: 5000
+          });
+        },
+        error: (httpError: HttpErrorResponse) =>
+          this.onUploadError(
+            httpError,
+            'Map image',
+            'You will have to resubmit some images on the map edit page!'
+          ),
+        complete: () => {
+          this.resetUploadStatus();
+          this.router.navigate([`/dashboard/maps/${mapID}`]);
+        }
+      });
+  }
+
+  onUploadError(error: HttpErrorResponse, type: string, extraMessage?: string) {
+    const errorMessage = JSON.parse(error?.error)?.message ?? 'Unknown error';
+    this.toasterService.danger(
+      `Image submission failed with error: ${errorMessage}. ${extraMessage}`,
+      `${type} upload failed!`,
+      { duration: 0 }
+    );
+    console.error(`${type} upload failure: ${errorMessage}`);
+
+    this.resetUploadStatus();
+  }
+
+  private resetUploadStatus() {
+    this.isUploading = false;
+    this.uploadStatusDescription = '';
+    this.uploadPercentage = 0;
+  }
+
   generatePreviewMap(): void {
     // const youtubeIDMatch = this.youtubeURL.value.match(this.youtubeRegex);
     // this.mapPreview = {

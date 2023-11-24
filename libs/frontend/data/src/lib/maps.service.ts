@@ -1,15 +1,16 @@
 import { Injectable } from '@angular/core';
-import { Observable } from 'rxjs';
-import { HttpEvent, HttpResponse } from '@angular/common/http';
+import { Observable, map, catchError, of } from 'rxjs';
+import { HttpEvent } from '@angular/common/http';
 import {
-  CreateMap,
   CreateMapCredit,
   MMap,
   MapCredit,
   MapImage,
   MapInfo,
   MapsGetAllQuery,
-  MapsGetQuery
+  MapsGetQuery,
+  CreateMapWithFiles,
+  MapsGetAllSubmissionQuery
 } from '@momentum/constants';
 import { PagedResponse } from '@momentum/constants';
 import { HttpService } from './http.service';
@@ -31,14 +32,15 @@ export class MapsService {
       catchError(() => of(false))
     );
   }
+
   getMapSubmissions(
     query?: MapsGetAllSubmissionQuery
   ): Observable<PagedResponse<MMap>> {
     return this.http.get<PagedResponse<MMap>>('maps/submissions', { query });
   }
 
-  createMap(body: CreateMap): Observable<HttpResponse<MMap>> {
-    return this.http.post<MMap>('maps', { body, observe: 'response' });
+  getMaps(query?: MapsGetAllQuery): Observable<PagedResponse<MMap>> {
+    return this.http.get<PagedResponse<MMap>>('maps', { query });
   }
 
   updateMapInfo(mapID: number, body: MapInfo): Observable<void> {
@@ -56,17 +58,15 @@ export class MapsService {
     return this.http.put<MapCredit[]>(`maps/${mapID}/credits`, { body });
   }
 
-  // TODO
-  getMapFileUploadLocation(id: number): Observable<any> {
-    return this.http.get(`maps/${id}/upload`, {
-      observe: 'response'
-    });
-  }
-
-  uploadMapFile(mapID: number, mapFile: File): Observable<HttpEvent<string>> {
+  submitMap(createMapData: CreateMapWithFiles): Observable<HttpEvent<string>> {
     const formData = new FormData();
-    formData.append('file', mapFile, mapFile.name);
-    return this.http.post(`maps/${mapID}/upload`, {
+
+    formData.append('data', JSON.stringify(createMapData.data));
+    formData.append('bsp', createMapData.bsp, createMapData.bsp.name);
+    for (const vmf of createMapData.vmfs ?? [])
+      formData.append('vmfs', vmf, vmf.name);
+
+    return this.http.post('maps', {
       body: formData,
       reportProgress: true,
       observe: 'events',
