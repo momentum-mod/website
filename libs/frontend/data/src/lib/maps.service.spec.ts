@@ -57,7 +57,7 @@ describe('MapsService', () => {
     it('#createMap should return expected map ', () => {
       httpClientSpy.post.and.returnValue(of(expectedCreatedMap));
       mapsService
-        .createMap(expectedMap)
+        .submitMap(expectedMap)
         .subscribe(
           (value) => expect(value).toEqual(expectedCreatedMap, 'expected map'),
           fail
