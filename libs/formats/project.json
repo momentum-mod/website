@@ -24,13 +24,7 @@
     "test": {
       "executor": "@nx/jest:jest",
       "options": {
-        "jestConfig": "libs/formats/jest.config.ts",
-        "passWithNoTests": true
-      },
-      "configurations": {
-        "ci": {
-          "ci": true
-        }
+        "jestConfig": "libs/formats/jest.config.ts"
       }
     }
   },
