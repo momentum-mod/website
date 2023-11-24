@@ -72,6 +72,8 @@ export class MapSubmissionFormComponent implements OnInit {
     private readonly fb: FormBuilder
   ) {}
 
+  @ViewChild(MapLeaderboardSelectionComponent)
+  lbSelection: MapLeaderboardSelectionComponent;
 
   @ViewChildren(NbPopoverDirective)
   popovers: QueryList<NbPopoverDirective>;
@@ -156,6 +158,7 @@ export class MapSubmissionFormComponent implements OnInit {
   get files() {
     return this.form.get('files') as FormGroup;
   }
+
   get info() {
     return this.form.get('info') as FormGroup;
   }
@@ -171,6 +174,7 @@ export class MapSubmissionFormComponent implements OnInit {
   get zon() {
     return this.form.get('files.zon') as FormControl<File>;
   }
+
   get youtubeID() {
     return this.form.get('info.youtubeID') as FormControl<string>;
   }
@@ -216,7 +220,7 @@ export class MapSubmissionFormComponent implements OnInit {
   get testInvites() {
     return this.privateTesting.get('testInvites') as FormControl<number[]>;
   }
-
+  
   ngOnInit(): void {
     this.youtubeID.valueChanges.subscribe(() => this.generatePreviewMap());
     this.form

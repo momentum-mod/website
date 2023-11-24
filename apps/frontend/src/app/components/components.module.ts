@@ -25,6 +25,7 @@ import { FileUploadComponent } from './file-upload/file-upload.component';
 import { MultiFileUploadComponent } from './file-upload/multi-file-upload.component';
 import { MapImageSelectionComponent } from './map-image-selection/map-image-selection.component';
 import { MapCreditsSelectionComponent } from './map-credits-selection/map-credits-selection.component';
+import { MapLeaderboardSelectionComponent } from './map-leaderboard-selection/map-leaderboard-selection.component';
 
 
 const COMPONENTS = [
@@ -44,6 +45,7 @@ const COMPONENTS = [
   MultiFileUploadComponent,
   MapImageSelectionComponent,
   MapCreditsSelectionComponent,
+  MapLeaderboardSelectionComponent
 ];
 
 @NgModule({
