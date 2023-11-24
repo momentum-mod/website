@@ -163,6 +163,9 @@ export class MapSubmissionFormComponent implements OnInit {
     return this.form.get('info') as FormGroup;
   }
 
+  get privateTesting() {
+    return this.form.get('privateTesting') as FormGroup;
+  }
   get bsp() {
     return this.form.get('files.bsp') as FormControl<File>;
   }
@@ -242,6 +245,10 @@ export class MapSubmissionFormComponent implements OnInit {
     this.bsp.valueChanges.subscribe(this.onBspFileSelected.bind(this));
 
     this.name.statusChanges.subscribe(this.onNameStatusChange.bind(this));
+
+    this.wantsPrivateTesting.valueChanges.subscribe((value) =>
+      value ? this.testInvites.enable() : this.testInvites.disable()
+    );
 
     this.isMapperOrPorter = this.localUserService.hasRole(
       CombinedRoles.MAPPER_AND_ABOVE
