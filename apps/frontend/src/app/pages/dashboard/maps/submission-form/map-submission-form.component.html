@@ -1,0 +1,54 @@
+<nb-card>
+  <nb-card-header><h2>Map Submission</h2></nb-card-header>
+  <nb-card-body *ngIf="isMapperOrPorter || !hasMapInSubmission" class="p-6 pt-8">
+    <nb-alert *ngIf="!isMapperOrPorter" class="prose prose-invert mb-8 max-w-none p-5" accent="info">
+      <h4>Welcome to the Momentum Mod map submission page!</h4>
+      <p>
+        This is where you can submit maps to the game, and if your submission is approved, it'll be hosted by us and will appear in the
+        in-game map selector and leaderboards. We want to keep the maps in Momentum to high standard (higher than, say, some of the stuff on
+        Steam Workshop), so all maps go through a short review pipeline where community members and official testers can test you map and
+        bring up any issues.
+      </p>
+      <p>
+        If this is your first time using the system, please check out our docs page (TODO: LINK!) to get a basic understanding of the
+        pipeline. u can also read the little ? icon thinies. Reviewing maps is a community effort; please respect everybody's time by
+        actually reading this stuff instead of sending in a total disaster of a submission that we have to reject in review. We're happy to
+        answer any questions in our
+        <a href="https://discord.gg/momentummod">Discord</a>, where you can also find all sorts of mapping support and helpful people!
+      </p>
+    </nb-alert>
+
+    <div class="mt-4 flex">
+      <div class="flex flex-grow flex-col" *ngIf="isUploading">
+        <nb-progress-bar status="info" [value]="uploadPercentage" size="giant" [displayValue]="true" class="mr-6"> </nb-progress-bar>
+        <p class="mt-2 text-center italic">{{ uploadStatusDescription }}</p>
+      </div>
+      <div class="ml-auto h-full">
+        <button
+          #submitButton
+          class="btn flex h-auto items-center bg-green-500 !pl-4 text-xl disabled:bg-gray-500 disabled:opacity-50"
+          type="button"
+          [disabled]="form.invalid || isUploading"
+          (click)="onSubmit()"
+        >
+          Submit Map
+          <nb-icon class="ml-1 text-3xl" icon="upload" />
+        </button>
+      </div>
+    </div>
+  </nb-card-body>
+  <nb-card-body *ngIf="!isMapperOrPorter && hasMapInSubmission" class="prose max-w-none">
+    <p>
+      You currently have a map in submission. As you don't yet have any approved maps, you are only allowed to have one map in submission at
+      a time.
+    </p>
+    <p>
+      Please either continue working on that submission (or waiting on its approval), or if you're not happy with that map, you can delete
+      it and start a new submission.
+    </p>
+    <p>
+      Once you've had a submission approved, thereby demonstrating your capability as a mapper, you'll be allowed to have an unlimited
+      number of submissions at once.
+    </p>
+  </nb-card-body>
+</nb-card>

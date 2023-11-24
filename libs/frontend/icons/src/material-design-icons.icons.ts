@@ -41,4 +41,7 @@ export {
   mdiRunFast,
   mdiBookOpenVariant,
   mdiShieldCrownOutline
+  mdiCheckOutline,
+  mdiPencilOutline,
+  mdiLockOutline
 } from '@mdi/js';
