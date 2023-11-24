@@ -402,6 +402,54 @@
         </p>
         <mom-map-credits-selection class="grid h-full min-h-[24rem] gap-4 md:grid-cols-1 lg:grid-cols-4" [formControl]="credits" />
       </fieldset>
+
+      <fieldset class="mt-10 rounded border-2 border-gray-700 bg-gray-900 p-4 pt-2">
+        <legend
+          class="ml-16 flex items-center before:h-3 before:border-r-2 before:border-gray-700 before:content-[''] after:h-3 after:border-l-2 after:border-gray-700 after:content-['']"
+        >
+          <div class="stack absolute -translate-x-16 rounded border-2 border-gray-700 bg-gray-800 p-2">
+            <nb-icon
+              class="scale-0 text-3xl text-green-500 transition-transform"
+              [icon]="'check-outline'"
+              [ngClass]="{ 'scale-100': suggestions.valid }"
+              nbPopover="Section is complete!"
+              nbPopoverTrigger="hover"
+            />
+            <nb-icon
+              class="scale-0 text-3xl text-red-500 transition-transform"
+              [icon]="'alert-outline'"
+              [ngClass]="{ 'scale-100': suggestions.dirty && suggestions.invalid }"
+              nbPopover="Section contains invalid items!"
+              nbPopoverTrigger="hover"
+            />
+            <nb-icon
+              class="scale-0 text-3xl text-blue-400 transition-transform"
+              [icon]="'pencil-outline'"
+              [ngClass]="{ 'scale-100': suggestions.pristine && suggestions.invalid && suggestions.enabled }"
+              nbPopover="Section is incomplete!"
+              nbPopoverTrigger="hover"
+            />
+            <nb-icon
+              class="scale-0 text-3xl text-orange-400 transition-transform"
+              [icon]="'lock-outline'"
+              [ngClass]="{ 'scale-100': suggestions.disabled }"
+              nbPopover="Add a zones file to enable leaderboard editing!"
+              nbPopoverTrigger="hover"
+            />
+          </div>
+          <span class="mx-3 text-3xl">Leaderboards</span>
+          <nb-icon icon="tooltip-question-outline" class="mr-2 align-middle" [nbPopover]="leaderboardsInfo" nbPopoverTrigger="hover" />
+          <ng-template #leaderboardsInfo>
+            <div class="prose prose-invert p-3">
+              <p>wow</p>
+            </div>
+          </ng-template>
+        </legend>
+        <mom-map-leaderboards-selection [formControl]="suggestions" />
+        <p class="mb-1 ml-auto text-right text-lg text-red-400" *ngIf="suggestions.dirty && suggestions.errors">
+          <b>Error: </b>{{ suggestions.errors['error'] }}
+        </p>
+      </fieldset>
     <div class="mt-4 flex">
       <div class="flex flex-grow flex-col" *ngIf="isUploading">
         <nb-progress-bar status="info" [value]="uploadPercentage" size="giant" [displayValue]="true" class="mr-6"> </nb-progress-bar>
