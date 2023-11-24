@@ -48,12 +48,10 @@
       "executor": "@nx/jest:jest",
       "outputs": ["{workspaceRoot}/coverage/{projectRoot}"],
       "options": {
-        "jestConfig": "apps/backend/jest.config.ts",
-        "passWithNoTests": true
+        "jestConfig": "apps/backend/jest.config.ts"
       },
       "configurations": {
         "ci": {
-          "ci": true,
           "codeCoverage": false
         }
       }
