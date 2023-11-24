@@ -86,6 +86,7 @@ export class MapSubmissionFormComponent implements OnInit {
   //   { map: MMap; images: MapImage[] },
   //   { recurseIntoArrays: true }
   // >;
+
   isMapperOrPorter: boolean;
   isModOrAdmin: boolean;
   hasMapInSubmission: boolean;
@@ -138,10 +139,37 @@ export class MapSubmissionFormComponent implements OnInit {
       ],
       [FileValidators.imageDimensions([{ width: 2560, height: 1440 }])]
     ],
+    credits: [null, [creditsValidator]],
+    suggestions: new FormControl(
+      { value: [], disabled: true },
+      { validators: [suggestionsValidator(() => this.zones)] }
+    ),
+    privateTesting: this.fb.group(
+      {
+        wantsPrivateTesting: [false],
+        testInvites: new FormControl({ value: [], disabled: true })
+      },
+      { validators: [testInvitesValidator] }
+    )
   });
 
+  get files() {
+    return this.form.get('files') as FormGroup;
+  }
   get info() {
     return this.form.get('info') as FormGroup;
+  }
+
+  get bsp() {
+    return this.form.get('files.bsp') as FormControl<File>;
+  }
+
+  get vmfs() {
+    return this.form.get('files.vmfs') as FormControl<File[]>;
+  }
+
+  get zon() {
+    return this.form.get('files.zon') as FormControl<File>;
   }
   get youtubeID() {
     return this.form.get('info.youtubeID') as FormControl<string>;
@@ -168,6 +196,27 @@ export class MapSubmissionFormComponent implements OnInit {
   get images() {
     return this.form.get('images') as FormControl<File[]>;
   }
+
+  get credits() {
+    return this.form.get('credits') as FormControl<SortedMapCredits>;
+  }
+
+  get suggestions() {
+    return this.form.get('suggestions') as FormControl<
+      MapSubmissionSuggestion[]
+    >;
+  }
+
+  get wantsPrivateTesting() {
+    return this.privateTesting.get(
+      'wantsPrivateTesting'
+    ) as FormControl<boolean>;
+  }
+
+  get testInvites() {
+    return this.privateTesting.get('testInvites') as FormControl<number[]>;
+  }
+
   ngOnInit(): void {
     this.youtubeID.valueChanges.subscribe(() => this.generatePreviewMap());
     this.form

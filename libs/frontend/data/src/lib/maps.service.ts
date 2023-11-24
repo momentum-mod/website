@@ -81,7 +81,7 @@ export class MapsService {
     });
   }
 
-  updateMapAvatar(id: number, thumbnailFile: File): Observable<any> {
+  updateMapThumbnail(id: number, thumbnailFile: File): Observable<void> {
     const formData = new FormData();
     formData.append('file', thumbnailFile, thumbnailFile.name);
     return this.http.put(`maps/${id}/thumbnail`, {

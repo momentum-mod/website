@@ -1,0 +1,69 @@
+<div class="flex h-full flex-col" *ngFor="let type of MapCreditNames | keyvalue">
+  <p class="mb-2 ml-2 text-3xl">{{ type.value }}</p>
+  <div
+    class="flex-grow rounded bg-black bg-opacity-25"
+    id="{{ type.key }}"
+    cdkDropList
+    [cdkDropListData]="value[type.key]"
+    (cdkDropListDropped)="drop($event)"
+    [cdkDropListConnectedTo]="connectedTo"
+    nbPopover
+    [nbPopoverContext]="type.key"
+    nbPopoverTrigger="noop"
+  >
+    <div
+      *ngFor="let credit of value[type.key]"
+      class="w-100 flex cursor-move bg-white bg-opacity-0 p-3 transition-colors hover:bg-opacity-5"
+      cdkDrag
+    >
+      <nb-user class="mr-2" [picture]="credit.user.avatarURL" onlyPicture />
+      <div class="flex flex-grow flex-col">
+        <div class="flex">
+          <span class="mr-3 flex-grow">{{ credit.user.alias }}</span>
+          <button (click)="removeUser(type.key, credit.user)">
+            <nb-icon icon="close-thick" class="h-5 w-5 transition-colors hover:text-red-400" />
+          </button>
+        </div>
+        <input class="input !px-3 !py-0.5 text-sm" placeholder="Description" [(ngModel)]="credit.description" />
+      </div>
+    </div>
+  </div>
+  <mom-user-search
+    #searchInput
+    [paginatorID]="type.key.toString()"
+    (userSelected)="addUser(type.key, $event, searchInput)"
+    class="mb-2 mt-4"
+  />
+  <div class="flex">
+    <input #placeHolderInput class="input flex-grow" placeholder="Create placeholder..." />
+    <button
+      class="btn ml-3 bg-green-600 transition-colors hover:bg-green-500"
+      *ngIf="placeHolderInput.value.length > 0"
+      (click)="addPlaceholder(type.key, placeHolderInput)"
+    >
+      Add
+    </button>
+    <nb-icon
+      class="my-auto ml-3 h-6 w-6 opacity-80 transition-opacity hover:opacity-100"
+      [nbPopover]="creditsInfo"
+      nbPopoverTrigger="hover"
+      icon="tooltip-question-outline"
+    />
+  </div>
+  <ng-template #creditsInfo>
+    <div class="prose prose-invert p-3">
+      <p>
+        Placeholder users are a way to credit someone that doesn't have a Momentum account. Just submit an alias and a 'placeholder' account
+        will be created on approval.
+      </p>
+      <p>
+        If that person signs up for Momentum in the future, they can contact an admin to have any placeholder accounts merged into their
+        real account.
+      </p>
+      <p>
+        If the placeholder you want to credit may have been involved with other maps in the past, search for their username to see if you
+        have find any existing placeholders (marked by the little purple ghost icon).
+      </p>
+    </div>
+  </ng-template>
+</div>
