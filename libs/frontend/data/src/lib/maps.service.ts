@@ -24,6 +24,10 @@ export class MapsService {
 
   getMaps(query?: MapsGetAllQuery): Observable<PagedResponse<MMap>> {
     return this.http.get<PagedResponse<MMap>>('maps', { query });
+  getMapSubmissions(
+    query?: MapsGetAllSubmissionQuery
+  ): Observable<PagedResponse<MMap>> {
+    return this.http.get<PagedResponse<MMap>>('maps/submissions', { query });
   }
 
   createMap(body: CreateMap): Observable<HttpResponse<MMap>> {
