@@ -41,6 +41,7 @@ export enum ISOCountryCode {
   CC = 'Cocos (Keeling) Islands',
   CD = 'Congo',
   CF = 'Central African Republic',
+  // eslint-disable-next-line @typescript-eslint/no-duplicate-enum-values
   CG = 'Congo',
   CH = 'Switzerland',
   CI = 'Ivory Coast',
