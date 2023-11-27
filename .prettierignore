@@ -5,3 +5,5 @@
 
 # Prettier's YAML formatting is atrocious
 **/*.yml
+
+apps/frontend/src/app/theme/shared_styling
