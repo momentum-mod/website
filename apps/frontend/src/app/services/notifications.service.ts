@@ -1,42 +1,61 @@
 import { Injectable } from '@angular/core';
 import { NavigationEnd, Router } from '@angular/router';
-import { filter, finalize } from 'rxjs/operators';
-import { Observable, ReplaySubject } from 'rxjs';
+import {
+  filter,
+  finalize,
+  repeat,
+  switchMap,
+  tap,
+  throttleTime
+} from 'rxjs/operators';
+import { Observable, ReplaySubject, timer } from 'rxjs';
 import { NbToastrService } from '@nebular/theme';
 import { Notification } from '@momentum/constants';
 import { AuthService, LocalUserService } from '@momentum/frontend/data';
 
 @Injectable({ providedIn: 'root' })
 export class NotificationsService {
-  notificationsSubject: ReplaySubject<Notification[]>;
+  notificationsSubject: ReplaySubject<Notification[]> = new ReplaySubject<
+    Notification[]
+  >(1);
 
   constructor(
     private router: Router,
     private authService: AuthService,
     private localUserService: LocalUserService,
     private toasterService: NbToastrService
-  ) {
-    this.notificationsSubject = new ReplaySubject<Notification[]>(1);
-  }
+  ) {}
 
-  // TODO: Needed?
-  public inject(): void {
+  inject() {
+    // this.checkNotifications();
+
+    // Fetch notifications after each page load, so long as
+    // user hasn't previously switched page in last 10 seconds. Then refreshes
+    // every 3 minutes so long as user stays on page.
+    // TODO: Clean this up some more, have other checkNotification calls reset
+    // timer.
     this.router.events
-      .pipe(filter((event) => event instanceof NavigationEnd))
-      .subscribe(() => this.checkNotifications());
-    setInterval(
-      () => {
-        if (document.hasFocus()) this.checkNotifications();
-      },
-      1000 * 60 * 3
-    );
+      .pipe(
+        filter((event) => event instanceof NavigationEnd),
+        throttleTime(10 * 1000)
+      )
+      .pipe(
+        switchMap(() => {
+          this.checkNotifications();
+          return timer(180 * 1000).pipe(
+            tap(() => this.checkNotifications()),
+            repeat()
+          );
+        })
+      )
+      .subscribe();
   }
 
   checkNotifications() {
-    if (this.authService.isAuthenticated())
-      this.localUserService.getNotifications().subscribe((resp) => {
-        if (resp) this.notificationsSubject.next(resp.data);
-      });
+    if (!this.authService.isAuthenticated()) return;
+    this.localUserService.getNotifications().subscribe((resp) => {
+      if (resp) this.notificationsSubject.next(resp.data);
+    });
   }
 
   get notifications(): Observable<Notification[]> {
