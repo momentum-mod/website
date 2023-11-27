@@ -14,7 +14,7 @@ module.exports = {
     extend: {
       fontFamily: {
         sans: ['Roboto', ...defaultTheme.fontFamily.sans],
-        display: ['Bebas Neue']
+        display: ['Bebas Neue Momentum', ...defaultTheme.fontFamily.sans]
       },
       flexGrow: {
         2: '2',
