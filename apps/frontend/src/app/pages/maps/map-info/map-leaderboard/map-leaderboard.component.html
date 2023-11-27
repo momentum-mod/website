@@ -74,7 +74,7 @@
         <tr *ngFor="let run of leaderboardRuns">
           <td>{{ run.rank }}</td>
           <td>
-            <a [routerLink]="'/dashboard/profile/' + run.user.id">
+            <a [routerLink]="'/profile/' + run.user.id">
               <nb-user [name]="run.user.alias" [picture]="run.user.avatarURL" size="large"></nb-user>
             </a>
           </td>

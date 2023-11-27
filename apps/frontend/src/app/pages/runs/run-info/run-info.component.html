@@ -3,12 +3,12 @@
     <div class="flex flex-wrap items-center">
       <div class="col-auto">
         <div class="flex flex-wrap items-center">
-          <a [routerLink]="'/dashboard/profile/' + run.user.id">
+          <a [routerLink]="'/profile/' + run.user.id">
             <nb-user [picture]="run.user.avatarURL" [name]="run.user.alias" size="large" />
           </a>
           <h2 class="ml-2">on</h2>
           <h2 class="ml-2">
-            <a [routerLink]="'/dashboard/maps/' + run.mapID">{{ run.map.name }}</a>
+            <a [routerLink]="'/maps/' + run.mapID">{{ run.map.name }}</a>
           </h2>
         </div>
       </div>

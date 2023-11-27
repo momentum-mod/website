@@ -63,7 +63,7 @@
 <div class="text-center" *ngIf="requestSent && maps?.length === 0 && !isSearchFiltered()">
   <h3 class="m-0">
     <ng-template *ngIf="isUpload; else elseBlock">
-      <i>You have not uploaded any maps. Try <a routerLink="/dashboard/maps/uploads/new">uploading a new one!</a></i>
+      <i>You have not uploaded any maps. Try <a routerLink="/maps/uploads/new">uploading a new one!</a></i>
     </ng-template>
     <ng-template #elseBlock>
       <h3>No maps found!</h3>

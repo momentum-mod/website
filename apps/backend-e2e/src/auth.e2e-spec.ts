@@ -133,7 +133,7 @@ describe('Auth', () => {
 
         it('should succeed and redirect to dashboard', () => {
           expect(response.statusCode).toBe(302);
-          expect(response.headers.location).toBe('/dashboard');
+          expect(response.headers.location).toBe('/');
         });
 
         it('should create a new user', async () => {
@@ -182,7 +182,7 @@ describe('Auth', () => {
 
         it('should succeed and redirect to dashboard', () => {
           expect(response.statusCode).toBe(302);
-          expect(response.headers.location).toBe('/dashboard');
+          expect(response.headers.location).toBe('/');
         });
 
         it('should create a new user', async () => {

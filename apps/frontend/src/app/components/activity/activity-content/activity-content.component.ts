@@ -53,21 +53,21 @@ export class ActivityContentComponent implements OnInit {
         this.eventText = 'map';
         this.activityIcon = 'panorama-outline';
         this.eventColor = 'green';
-        this.eventLink = '/dashboard/maps/' + this.activity.data;
+        this.eventLink = '/maps/' + this.activity.data;
         break;
       case ActivityType.WR_ACHIEVED:
         this.actionText = ' achieved a ';
         this.eventText = 'world record';
         this.activityIcon = 'earth';
         this.eventColor = 'yellow';
-        this.eventLink = '/dashboard/runs/' + this.activity.data;
+        this.eventLink = '/runs/' + this.activity.data;
         break;
       case ActivityType.PB_ACHIEVED:
         this.actionText = ' achieved a ';
         this.eventText = 'personal best';
         this.activityIcon = 'trophy';
         this.eventColor = 'silver';
-        this.eventLink = '/dashboard/runs/' + this.activity.data;
+        this.eventLink = '/runs/' + this.activity.data;
         break;
       case ActivityType.USER_JOINED:
         this.actionText = ' has ';

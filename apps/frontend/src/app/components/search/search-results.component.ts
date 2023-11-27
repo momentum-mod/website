@@ -21,9 +21,7 @@ export class SearchResultsComponent {
     return this.usersResults ? elem.alias : elem.name;
   }
   getElemURL(elem: any): string {
-    return this.usersResults
-      ? '/dashboard/profile/' + elem.id
-      : '/dashboard/maps/' + elem.id;
+    return this.usersResults ? '/profile/' + elem.id : '/maps/' + elem.id;
   }
 
   getElemPicture(elem: any) {

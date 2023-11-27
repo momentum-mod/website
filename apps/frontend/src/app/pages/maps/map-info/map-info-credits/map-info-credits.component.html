@@ -3,7 +3,7 @@
     <h6>{{ type.value }}</h6>
     <ul class="list-unstyled">
       <li *ngFor="let credit of filterMapCredits(map?.credits, type.key)">
-        <a class="credit-entry" [routerLink]="'/dashboard/profile/' + credit?.user.id">
+        <a class="credit-entry" [routerLink]="'/profile/' + credit?.user.id">
           <nb-user class="avatar" [picture]="credit?.user.avatarURL" onlyPicture />
           <div class="main">
             <span class="name">{{ credit.user.alias }}</span>

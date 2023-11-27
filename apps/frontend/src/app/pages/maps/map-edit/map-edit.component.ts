@@ -109,7 +109,7 @@ export class MapEditComponent implements OnInit, OnDestroy {
             this.isSubmitter = this.map.submitterID === localUser.id;
 
             if (!(this.isSubmitter || this.isAdmin || this.isModerator))
-              this.router.navigate(['/dashboard/maps/' + this.map.id]);
+              this.router.navigate(['/maps' + this.map.id]);
 
             this.infoForm.patchValue(map.info);
             this.images = map.images;

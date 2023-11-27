@@ -28,15 +28,15 @@ export class QueuedReportComponent implements OnInit {
     switch (this.report.type) {
       case ReportType.USER_PROFILE_REPORT:
         this.typeText = 'User Profile Report';
-        this.reportedResourceURL = '/dashboard/profile/' + this.report.data;
+        this.reportedResourceURL = '/profile/' + this.report.data;
         break;
       case ReportType.MAP_REPORT:
         this.typeText = 'Map Report';
-        this.reportedResourceURL = '/dashboard/maps/' + this.report.data;
+        this.reportedResourceURL = '/maps/' + this.report.data;
         break;
       case ReportType.MAP_COMMENT_REPORT:
         this.typeText = 'Map Comment Report';
-        this.reportedResourceURL = '/dashboard/';
+        this.reportedResourceURL = '/';
         break;
     }
     switch (this.report.category) {

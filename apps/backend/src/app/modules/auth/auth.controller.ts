@@ -74,7 +74,7 @@ export class AuthController {
   }
 
   @Get('/web/return')
-  @Redirect('/dashboard', HttpStatus.FOUND)
+  @Redirect('/', HttpStatus.FOUND)
   @BypassJwtAuth()
   @UseGuards(SteamWebGuard)
   @ApiOperation({ summary: 'Assigns a JWT using OpenID data from Steam login' })

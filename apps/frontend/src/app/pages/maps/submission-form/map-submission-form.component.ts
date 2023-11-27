@@ -287,7 +287,7 @@ export class MapSubmissionFormComponent implements OnInit {
       .subscribe((value) => (this.hasMapInSubmission = value.totalCount > 0));
 
     if (this.localUserService.hasBan(Ban.MAP_SUBMISSION)) {
-      this.router.navigate(['/dashboard']);
+      this.router.navigate(['/']);
       this.toasterService.danger('You are banned from map submission.');
     }
   }
@@ -456,7 +456,7 @@ export class MapSubmissionFormComponent implements OnInit {
           ),
         complete: () => {
           this.resetUploadStatus();
-          this.router.navigate([`/dashboard/maps/${mapID}`]);
+          this.router.navigate([`/maps/${mapID}`]);
         }
       });
   }

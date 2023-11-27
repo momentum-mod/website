@@ -54,7 +54,7 @@
             <h6>Original Release Date: {{ map.info?.creationDate | date }}</h6>
             <h6>
               Submitted By:
-              <a [routerLink]="'/dashboard/profile/' + map.submitter?.id">
+              <a [routerLink]="'/' + map.submitter?.id">
                 <nb-user
                   [name]="map.submitter?.alias"
                   [picture]="map.submitter?.avatarURL"
