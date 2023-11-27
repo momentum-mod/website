@@ -69,8 +69,7 @@ async function bootstrap() {
     // Since TS 5 / Nest 10 this `any` cast has been necessary. May be possible
     // to remove once `@nestjs/platform-fastify` is on latest `fastify`.
     const fastify = app.getHttpAdapter().getInstance() as any as FastifyAdapter;
-    fastify.get('/', (_, reply: FastifyReply) => reply.redirect('/dashboard'));
-    fastify.get('/dashboard', (_, reply: FastifyReply) =>
+    fastify.get('/', (_, reply: FastifyReply) =>
       reply
         .type('text/html')
         .send("<script>window.location.port = '4200';</script>")

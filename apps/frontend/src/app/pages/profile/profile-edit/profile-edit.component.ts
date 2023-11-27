@@ -248,7 +248,7 @@ export class ProfileEditComponent implements OnInit, OnDestroy {
   }
 
   returnToProfile() {
-    this.router.navigate([`/dashboard/profile/${this.user.id}`]);
+    this.router.navigate([`/profile/${this.user.id}`]);
   }
 
   deleteUser() {
@@ -265,7 +265,7 @@ export class ProfileEditComponent implements OnInit, OnDestroy {
     this.adminService.deleteUser(this.user.id).subscribe({
       next: () => {
         this.toasterService.success('Successfully deleted user!');
-        this.router.navigate(['/dashboard']);
+        this.router.navigate(['/']);
       },
       error: () => this.toasterService.danger('Failed to delete user!')
     });
@@ -306,7 +306,7 @@ export class ProfileEditComponent implements OnInit, OnDestroy {
         this.adminService.mergeUsers(this.user, this.mergeUser).subscribe({
           next: () => {
             this.toasterService.success('Successfully merged the two users!');
-            this.router.navigate([`/dashboard/profile/${this.mergeUser.id}`]);
+            this.router.navigate([`/profile/${this.mergeUser.id}`]);
             this.mergeUser = null;
           },
           error: () => this.toasterService.danger('Failed to merge users!')

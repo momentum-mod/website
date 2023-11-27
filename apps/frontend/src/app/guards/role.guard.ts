@@ -21,6 +21,6 @@ export const RoleGuard: CanActivateFn = (route: ActivatedRouteSnapshot) => {
     // any specific page, NbToastrService can't find an <nb-layout> and errors.
     alert('You are not authorized to view this.');
     // Return UrlTree, which fails guard and redirects.
-    return router.parseUrl('/dashboard');
+    return router.parseUrl('/');
   }
 };

@@ -91,7 +91,7 @@
           </h5>
           <nb-list>
             <nb-list-item *ngFor="let usr of followingUsers">
-              <a [routerLink]="'/dashboard/profile/' + usr.followed?.id">
+              <a [routerLink]="'/profile/' + usr.followed?.id">
                 <nb-user [name]="usr.followed?.alias" [picture]="usr.followed?.avatarURL"></nb-user>
               </a>
             </nb-list-item>
@@ -103,7 +103,7 @@
           </h5>
           <nb-list>
             <nb-list-item *ngFor="let usr of followedByUsers">
-              <a [routerLink]="'/dashboard/profile/' + usr.followee?.id">
+              <a [routerLink]="'/profile/' + usr.followee?.id">
                 <nb-user [name]="usr.followee?.alias" [picture]="usr.followee?.avatarURL"></nb-user>
               </a>
             </nb-list-item>

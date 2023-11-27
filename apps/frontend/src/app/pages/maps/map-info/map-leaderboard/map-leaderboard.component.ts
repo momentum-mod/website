@@ -106,6 +106,6 @@ export class MapLeaderboardComponent {
   }
 
   viewRun(run: LeaderboardRun) {
-    this.router.navigate(['/dashboard/runs/' + run.pastRunID]);
+    this.router.navigate(['/runs/' + run.pastRunID]);
   }
 }

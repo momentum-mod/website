@@ -22,7 +22,7 @@ export class ProfileRedirectComponent implements OnInit {
     const localUser = await firstValueFrom(this.localUserService.getLocal());
 
     await this.router.navigate([
-      localUser?.id ? `/dashboard/profile/${localUser.id}` : '/dashboard'
+      localUser?.id ? `/profile/${localUser.id}` : '/'
     ]);
   }
 }

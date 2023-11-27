@@ -17,10 +17,10 @@
     <div class="flex flex-wrap items-center justify-center">
       <div class="type-col text flex-grow">
         <div class="mb-3">{{ MapCreditType[mapCredit.type] }} ON</div>
-        <a routerLink="/dashboard/maps/{{ mapCredit.map?.id }}">{{ mapCredit.map?.name }}</a>
+        <a routerLink="/maps/{{ mapCredit.map?.id }}">{{ mapCredit.map?.name }}</a>
       </div>
       <div>
-        <a routerLink="/dashboard/maps/{{ mapCredit.map?.id }}">
+        <a routerLink="/maps/{{ mapCredit.map?.id }}">
           <img class="map-image rounded" [ngSrc]="mapCredit.map?.thumbnail?.small" fill />
         </a>
       </div>

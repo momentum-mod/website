@@ -59,7 +59,7 @@
           <mom-icon *ngIf="run.leaderboardRun" icon="trophy-outline" nbPopover="Personal Best" nbPopoverTrigger="hint" />
         </div>
         <div class="relative max-w-full flex-1 flex-grow px-4">
-          <a routerLink="/dashboard/runs/{{ run.id }}">
+          <a routerLink="/runs/{{ run.id }}">
             <span class="text">{{ run.time | timing }} on {{ run.map?.name }}</span>
           </a>
         </div>

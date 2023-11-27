@@ -263,6 +263,6 @@ export class MapInfoComponent implements OnInit, OnDestroy {
   }
 
   onEditMap() {
-    this.router.navigate(['/dashboard/maps/' + this.map.id + '/edit']);
+    this.router.navigate(['/maps/' + this.map.id + '/edit']);
   }
 }
