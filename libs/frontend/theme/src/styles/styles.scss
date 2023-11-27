@@ -1,3 +1,5 @@
+@use 'sass:color';
+
 // Themes - our custom/out of the box themes
 @use 'theme' as *;
 
@@ -10,6 +12,19 @@
 // TODO: Delete!!! https://github.com/momentum-mod/website/issues/746
 @use '../../../../../apps/frontend/src/app/components/search/search.component.theme'
   as search;
+
+@import '@fontsource/roboto/300.css';
+@import '@fontsource/roboto/300-italic.css';
+@import '@fontsource/roboto/400.css';
+@import '@fontsource/roboto/400-italic.css';
+@import '@fontsource/roboto/500.css';
+@import '@fontsource/roboto/500-italic.css';
+@import '@fontsource/roboto/700.css';
+@import '@fontsource/roboto/700-italic.css';
+
+@import '../styling/fonts/BebasNeue/300.css';
+@import '../styling/fonts/BebasNeue/400.css';
+@import '../styling/fonts/BebasNeue/700.css';
 
 @tailwind base;
 @tailwind components;
