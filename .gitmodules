@@ -1,0 +1,3 @@
+[submodule "libs/frontend/theme/src/styling"]
+	path = libs/frontend/theme/src/styling
+	url = https://github.com/momentum-mod/styling
