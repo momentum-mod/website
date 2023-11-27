@@ -12,8 +12,8 @@ export type NumberifyBigInt<
   [K in keyof Model]: K extends Exclude
     ? Model[K] // If excluded, do nothing
     : Model[K] extends bigint
-    ? number // Replace bigint with number
-    : Model[K] extends bigint | null
-    ? number | null // Replace nullable bigint with nullable bigint
-    : Model[K];
+      ? number // Replace bigint with number
+      : Model[K] extends bigint | null
+        ? number | null // Replace nullable bigint with nullable bigint
+        : Model[K];
 };

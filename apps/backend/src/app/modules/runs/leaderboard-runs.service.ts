@@ -112,9 +112,8 @@ export class LeaderboardRunsService {
     } else if (query.filter?.[0] === 'friends') {
       // Regular skip/take should work fine here.
 
-      const steamFriends = await this.steamService.getSteamFriends(
-        loggedInUserSteamID
-      );
+      const steamFriends =
+        await this.steamService.getSteamFriends(loggedInUserSteamID);
 
       if (steamFriends.length === 0)
         throw new ImATeapotException('No friends detected :(');

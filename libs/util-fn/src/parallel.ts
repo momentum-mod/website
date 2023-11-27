@@ -4,8 +4,8 @@ type AwaitedReturnTypes<
   [P in keyof T]: T[P] extends (..._: any[]) => infer R
     ? Awaited<R>
     : T[P] extends PromiseLike<any>
-    ? Awaited<T[P]>
-    : never;
+      ? Awaited<T[P]>
+      : never;
 };
 
 /**

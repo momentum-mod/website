@@ -35,7 +35,7 @@
             Text cannot exceed 1000 characters.
           </nb-alert>
           <span class="form-text d-flex justify-content-end mt-2 mr-2"
-            >{{ 1000 - description.value.length | plural : 'character' }} remaining</span
+            >{{ 1000 - description.value.length | plural: 'character' }} remaining</span
           >
         </div>
         <button nbButton outline status="info" class="submit-btn" type="submit" [disabled]="infoForm.invalid">Save info</button>

@@ -37,7 +37,10 @@ export class UserSearchComponent implements OnInit {
 
   @Output() selectedUserEmit: EventEmitter<User>;
   @ViewChild('searchInput', { static: true }) searchInput: ElementRef;
-  constructor(private fb: FormBuilder, private usersService: UsersService) {
+  constructor(
+    private fb: FormBuilder,
+    private usersService: UsersService
+  ) {
     this.selectedUserEmit = new EventEmitter<User>();
     this.foundUsers = [];
     this.pageLimit = 5;

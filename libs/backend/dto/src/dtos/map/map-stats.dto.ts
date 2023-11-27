@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsInt, IsNumberString } from 'class-validator';
+import { IsInt } from 'class-validator';
 import { Exclude } from 'class-transformer';
 import { NestedProperty, SafeBigIntToNumber } from '../../decorators';
 import { MapStats } from '@momentum/constants';

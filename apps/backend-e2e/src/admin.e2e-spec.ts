@@ -1886,8 +1886,8 @@ describe('Admin', () => {
               role === Role.ADMIN
                 ? 'admin'
                 : role === Role.MODERATOR
-                ? 'mod'
-                : 'reviewer'
+                  ? 'mod'
+                  : 'reviewer'
             } to change a map from ${MapStatusNew[s1]} to ${
               MapStatusNew[s2]
             }`, async () => {
@@ -1944,8 +1944,8 @@ describe('Admin', () => {
                   role === Role.ADMIN
                     ? adminToken
                     : role === Role.MODERATOR
-                    ? modToken
-                    : reviewerToken
+                      ? modToken
+                      : reviewerToken
               });
 
               if (shouldPass) {
