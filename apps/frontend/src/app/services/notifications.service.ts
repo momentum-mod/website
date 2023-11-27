@@ -23,9 +23,12 @@ export class NotificationsService {
     this.router.events
       .pipe(filter((event) => event instanceof NavigationEnd))
       .subscribe(() => this.checkNotifications());
-    setInterval(() => {
-      if (document.hasFocus()) this.checkNotifications();
-    }, 1000 * 60 * 3);
+    setInterval(
+      () => {
+        if (document.hasFocus()) this.checkNotifications();
+      },
+      1000 * 60 * 3
+    );
   }
 
   checkNotifications() {

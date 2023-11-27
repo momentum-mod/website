@@ -154,7 +154,7 @@
                     }"
                   ></textarea>
                   <span class="form-text d-flex justify-content-end mt-2 mr-2"
-                    >{{ 1000 - description.value.length | plural : 'character' }} remaining</span
+                    >{{ 1000 - description.value.length | plural: 'character' }} remaining</span
                   >
                 </div>
               </div>
@@ -169,7 +169,7 @@
                         <div class="col mr-1">
                           {{ track.trackNum ? 'Bonus Track ' + track.trackNum : 'Main Track' }}
                           with
-                          {{ track.numZones | plural : (track.isLinear ? 'checkpoint' : 'stage') }}.
+                          {{ track.numZones | plural: (track.isLinear ? 'checkpoint' : 'stage') }}.
                         </div>
                         <div class="col-auto">
                           <label class="mr-1 mb-0" [for]="'trackDiff' + track.trackNum">Difficulty:</label>

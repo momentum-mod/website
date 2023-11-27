@@ -66,21 +66,21 @@
           </div>
           <div *ngIf="!previewMap" class="col-12 col-sm">
             <div class="d-flex flex-wrap justify-content-around justify-content-sm-end mt-1 mb-3">
-              <div class="stat" nbPopover="{{ map.stats?.subscriptions | plural : 'Library' : 'Libraries' }}" nbPopoverTrigger="hint">
+              <div class="stat" nbPopover="{{ map.stats?.subscriptions | plural: 'Library' : 'Libraries' }}" nbPopoverTrigger="hint">
                 <nb-icon icon="folder"></nb-icon>
-                {{ map.stats?.subscriptions | thousandsSuffix : 1 }}
+                {{ map.stats?.subscriptions | thousandsSuffix: 1 }}
               </div>
-              <div class="ml-sm-4 stat" nbPopover="{{ map.stats?.favorites | plural : 'Favorite' }}" nbPopoverTrigger="hint">
+              <div class="ml-sm-4 stat" nbPopover="{{ map.stats?.favorites | plural: 'Favorite' }}" nbPopoverTrigger="hint">
                 <nb-icon icon="star"></nb-icon>
-                {{ map.stats?.favorites | thousandsSuffix : 1 }}
+                {{ map.stats?.favorites | thousandsSuffix: 1 }}
               </div>
-              <div class="ml-sm-4 stat" nbPopover="{{ map.stats?.downloads | plural : 'Download' }}" nbPopoverTrigger="hint">
+              <div class="ml-sm-4 stat" nbPopover="{{ map.stats?.downloads | plural: 'Download' }}" nbPopoverTrigger="hint">
                 <nb-icon icon="download-outline"></nb-icon>
-                {{ map.stats?.downloads | thousandsSuffix : 1 }}
+                {{ map.stats?.downloads | thousandsSuffix: 1 }}
               </div>
-              <div class="ml-sm-4 stat" nbPopover="{{ map.stats?.plays | plural : 'Play' }}" nbPopoverTrigger="hint">
+              <div class="ml-sm-4 stat" nbPopover="{{ map.stats?.plays | plural: 'Play' }}" nbPopoverTrigger="hint">
                 <nb-icon icon="play-circle-outline"></nb-icon>
-                {{ map.stats?.plays | thousandsSuffix : 1 }}
+                {{ map.stats?.plays | thousandsSuffix: 1 }}
               </div>
             </div>
             <div class="btn-group text-center text-sm-right">

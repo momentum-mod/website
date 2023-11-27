@@ -79,7 +79,7 @@ export const LeaderboardHandler = {
               ranked: (lb as T & { ranked?: boolean }).ranked,
               trackType: TrackType.STAGE,
               trackNum: i
-            } as unknown as T)
+            }) as unknown as T
         )
       ),
 

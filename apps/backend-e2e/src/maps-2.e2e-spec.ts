@@ -573,8 +573,8 @@ describe('Maps Part 2', () => {
               term == 'moderator'
                 ? modToken
                 : term == 'admin'
-                ? adminToken
-                : u1Token;
+                  ? adminToken
+                  : u1Token;
 
             await req.put({
               url: `maps/${map.id}/credits`,

@@ -15,7 +15,9 @@ nb-list-item {
   padding: 1rem;
   cursor: move;
   background-color: rgba(255, 255, 255, 0.05);
-  transition: background-color ease-out 0.1s, box-shadow 0.2s $timing-func;
+  transition:
+    background-color ease-out 0.1s,
+    box-shadow 0.2s $timing-func;
 
   .avatar {
     flex: 0 1 auto;
