@@ -1,6 +1,6 @@
 @use 'sass:color';
 
-// Themes - our custom/out of the box themes
+// Nebular themes - deleting soon...
 @use 'theme' as *;
 
 // Framework component themes (styles tied to theme variables)
@@ -25,6 +25,9 @@
 @import '../styling/fonts/BebasNeue/300.css';
 @import '../styling/fonts/BebasNeue/400.css';
 @import '../styling/fonts/BebasNeue/700.css';
+
+@import "primeng/resources/themes/md-dark-indigo/theme.css";
+@import "primeng/resources/primeng.css";
 
 @tailwind base;
 @tailwind components;
