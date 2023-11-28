@@ -23,6 +23,7 @@ import { MapLeaderboardComponent } from './map-leaderboard/map-leaderboard.compo
 import { GallerizeDirective } from 'ng-gallery/lightbox';
 import { ReportButtonComponent } from '../../../components/report/report-button/report-button.component';
 import { PageHeaderComponent } from '../../../components/page-header.component';
+import { TooltipDirective } from '../../../directives/tooltip/tooltip.directive';
 
 @Component({
   selector: 'mom-map-info',
