@@ -22,8 +22,7 @@ import {
   NbFormFieldModule,
   NbPopoverModule,
   NbSpinnerModule,
-  NbInputModule,
-  NbTooltipModule
+  NbInputModule
 } from '@nebular/theme';
 import { merge, of, Subject } from 'rxjs';
 import { PagedResponseDto } from '@momentum/backend/dto';
@@ -45,7 +44,6 @@ import { IconComponent } from '@momentum/frontend/icons';
     FormsModule,
     ReactiveFormsModule,
     IconComponent,
-    NbTooltipModule,
     NgClass,
     NgFor,
     UserSearchResultComponent,
