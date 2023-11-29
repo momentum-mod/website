@@ -20,7 +20,6 @@ export class MapInfoDescriptionComponent implements OnInit {
   sortedLeaderboards: Map<Gamemode, Map<TrackType, Leaderboard[]>> = new Map();
 
   ngOnInit(): void {
-    console.log(this.map);
     for (const lb of this.map.leaderboards) {
       if (!this.sortedLeaderboards.get(lb.gamemode)) {
         this.sortedLeaderboards.set(
