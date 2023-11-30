@@ -1,7 +1,7 @@
 <nb-card>
   <nb-card-header>
-    <div class="row">
-      <h2 class="col">Leaderboards</h2>
+    <div class="flex flex-wrap">
+      <h2 class="relative max-w-full flex-1 flex-grow px-4">Leaderboards</h2>
       <div class="col-auto ml-auto">
         <button nbButton outline status="info" type="button" (click)="filterActive = !filterActive">Filter</button>
       </div>
@@ -16,20 +16,32 @@
       }"
       #filterContent
     >
-      <div class="p-3">
-        <div class="row mb-3">
-          <div class="col-md mb-2 mb-md-0">
+      <div class="p-6">
+        <div class="mb-3 flex flex-wrap">
+          <div class="relative mb-2 md:mb-0 md:flex-1 md:flex-grow">
             <nb-select [(selected)]="selectedMode">
               <nb-option *ngFor="let mode of availableModes">{{ GamemodeName.get(mode) }}</nb-option>
             </nb-select>
           </div>
-          <div class="col-md mb-2 mb-md-0">
-            <input nbInput fullWidth type="text" class="form-control" placeholder="Rank" />
+          <div class="relative mb-2 md:mb-0 md:flex-1 md:flex-grow">
+            <input
+              nbInput
+              fullWidth
+              type="text"
+              class="mb-1 block w-full appearance-none rounded border border-gray-200 bg-white px-2 py-1 text-base leading-normal text-gray-800"
+              placeholder="Rank"
+            />
           </div>
-          <div class="col-md mb-2 mb-md-0">
-            <input nbInput fullWidth type="text" class="form-control" placeholder="Name" />
+          <div class="relative mb-2 md:mb-0 md:flex-1 md:flex-grow">
+            <input
+              nbInput
+              fullWidth
+              type="text"
+              class="mb-1 block w-full appearance-none rounded border border-gray-200 bg-white px-2 py-1 text-base leading-normal text-gray-800"
+              placeholder="Name"
+            />
           </div>
-          <div class="col-md">
+          <div class="relative md:flex-1 md:flex-grow">
             <nb-radio-group [(value)]="filterLeaderboardType">
               <nb-radio [value]="LeaderboardType.TOP10">Show top 10 times</nb-radio>
               <nb-radio [value]="LeaderboardType.AROUND">Show ranks around me</nb-radio>
@@ -37,19 +49,19 @@
             </nb-radio-group>
           </div>
         </div>
-        <div class="row no-gutters">
-          <div class="col col-md-auto pr-2">
-            <button nbButton outline status="info" class="w-100" (click)="loadLeaderboardRuns()">Update</button>
+        <div class="no-gutters flex flex-wrap">
+          <div class="col-md-auto relative max-w-full flex-1 flex-grow px-4 pr-2">
+            <button nbButton outline status="info" class="w-full" (click)="loadLeaderboardRuns()">Update</button>
           </div>
-          <div class="col col-md-auto pl-2">
-            <button nbButton outline status="warning" class="w-100">Clear</button>
+          <div class="col-md-auto relative max-w-full flex-1 flex-grow px-4 pl-2">
+            <button nbButton outline status="warning" class="w-full">Clear</button>
           </div>
         </div>
       </div>
     </div>
     <h4 *ngIf="!searchedRanks" class="text-center">Waiting for API response</h4>
     <h4 *ngIf="searchedRanks && leaderboardRuns.length === 0" class="text-center">No runs found</h4>
-    <div *ngIf="searchedRanks && leaderboardRuns.length > 0" class="table-responsive">
+    <div *ngIf="searchedRanks && leaderboardRuns.length > 0" class="scrolling-touch block w-full overflow-auto">
       <table>
         <tr>
           <th>Rank</th>

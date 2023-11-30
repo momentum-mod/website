@@ -1,9 +1,9 @@
 <nb-card>
   <nb-card-header>
-    <div class="row no-gutters">
+    <div class="no-gutters flex flex-wrap">
       <h2 class="col-auto">{{ headerTitle }}</h2>
       <div class="col-auto ml-auto">
-        <div class="d-flex align-items-center">
+        <div class="flex items-center">
           <span class="mr-2">Filter:</span>
           <nb-select placeholder="All" [(selected)]="filterValue" (selectedChange)="filterActivites(activities)">
             <nb-option [value]="ActivityType.ALL">All</nb-option>

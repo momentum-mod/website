@@ -1,10 +1,10 @@
-<div class="shadow overlay-backdrop outer">
+<div class="overlay-backdrop outer shadow">
   <a [href]="getURL()" target="_blank">
-    <h5 class="py-1 px-2 text-truncate text-center twitch-text title">
+    <h5 class="twitch-text title truncate px-2 py-1 text-center">
       {{ getTitle() }}
     </h5>
-    <span class="py-1 px-2 twitch-text user">{{ getUserName() }}</span>
-    <span class="py-1 px-2 twitch-text views">{{ getViewCount() }}</span>
+    <span class="twitch-text user px-2 py-1">{{ getUserName() }}</span>
+    <span class="twitch-text views px-2 py-1">{{ getViewCount() }}</span>
     <img [src]="getImage()" fill />
   </a>
 </div>

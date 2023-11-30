@@ -1,5 +1,5 @@
-<div class="row">
-  <div *ngFor="let type of MapCreditNames | keyvalue" class="col-6 col-md-3">
+<div class="flex flex-wrap">
+  <div *ngFor="let type of MapCreditNames | keyvalue" class="w-1/2 pl-4 pr-4 md:w-1/4">
     <h6>{{ type.value }}</h6>
     <ul class="list-unstyled">
       <li *ngFor="let credit of filterMapCredits(map?.credits, type.key)">

@@ -8,9 +8,9 @@
         <input class="search-input" #searchInput autocomplete="off" [attr.placeholder]="placeholder" tabindex="-1" (blur)="focusInput()" />
       </div>
       <span class="info">{{ hint }}</span>
-      <div class="mx-auto mt-4 content">
-        <div class="row justify-content-center results">
-          <div class="col-10 col-md-6" *ngIf="users?.length">
+      <div class="content mx-auto mt-4">
+        <div class="results flex flex-wrap justify-center">
+          <div class="w-4/5 pl-4 pr-4 md:w-1/2" *ngIf="users?.length">
             <mom-search-results
               [usersResults]="true"
               [onlyMaps]="onlyMaps"
@@ -19,7 +19,7 @@
               (selectedURL)="selectedElem($event)"
             />
           </div>
-          <div class="col-10 col-md-6" *ngIf="maps?.length">
+          <div class="w-4/5 pl-4 pr-4 md:w-1/2" *ngIf="maps?.length">
             <mom-search-results
               [usersResults]="false"
               [onlyMaps]="onlyMaps"

@@ -4,7 +4,7 @@
   </nb-card-header>
   <nb-card-body>
     <div class="mb-3">Notify me when a</div>
-    <ul class="m-0 list-unstyled">
+    <ul class="list-unstyled m-0">
       <li>
         <nb-checkbox [(ngModel)]="checkboxFlags.PB.checked"> personal best is set </nb-checkbox>
       </li>
@@ -14,12 +14,22 @@
     </ul>
   </nb-card-body>
   <nb-card-footer>
-    <div class="row no-gutters">
-      <div class="col-6 pr-1">
-        <button class="btn btn-danger w-100" (click)="close()">Close</button>
+    <div class="no-gutters flex flex-wrap">
+      <div class="w-1/2 pr-1">
+        <button
+          class="whitespace-no-wrap inline-block w-full select-none rounded border bg-red-600 px-3 py-1 text-center align-middle font-normal leading-normal text-white no-underline hover:bg-red-700"
+          (click)="close()"
+        >
+          Close
+        </button>
       </div>
-      <div class="col-6 pl-1">
-        <button class="btn btn-primary w-100" (click)="submit()">Submit</button>
+      <div class="w-1/2 pl-1">
+        <button
+          class="whitespace-no-wrap inline-block w-full select-none rounded border bg-blue-600 px-3 py-1 text-center align-middle font-normal leading-normal text-white no-underline hover:bg-blue-600"
+          (click)="submit()"
+        >
+          Submit
+        </button>
       </div>
     </div>
   </nb-card-footer>

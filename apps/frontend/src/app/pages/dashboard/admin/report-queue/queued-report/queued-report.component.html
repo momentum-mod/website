@@ -1,18 +1,23 @@
-<div class="row no-gutters align-items-center">
-  <div class="col-1 text-left">{{ report.id }}</div>
-  <div class="col-1 text-left">{{ typeText }}</div>
-  <div class="col-1 text-left">{{ categoryText }}</div>
-  <div class="col-1 text-left">{{ report.data }}</div>
-  <div class="col-1 text-left">
+<div class="no-gutters flex flex-wrap items-center">
+  <div class="w-1/6 text-left">{{ report.id }}</div>
+  <div class="w-1/6 text-left">{{ typeText }}</div>
+  <div class="w-1/6 text-left">{{ categoryText }}</div>
+  <div class="w-1/6 text-left">{{ report.data }}</div>
+  <div class="w-1/6 text-left">
     <nb-user [name]="report.submitter.alias" [picture]="report.submitter.avatarURL" size="medium"></nb-user>
   </div>
-  <div class="col-1 text-left">
+  <div class="w-1/6 text-left">
     <nb-user *ngIf="report.resolver" [name]="report.resolver.alias" [picture]="report.resolver.avatarURL" size="medium"></nb-user>
   </div>
-  <div class="col-2 text-center">{{ report.message }}</div>
-  <div class="col-2 text-center">{{ report.resolutionMessage }}</div>
-  <div class="col-2 text-center">
+  <div class="w-1/5 text-center">{{ report.message }}</div>
+  <div class="w-1/5 text-center">{{ report.resolutionMessage }}</div>
+  <div class="w-1/5 text-center">
     <button nbButton outline status="info" (click)="update()">Update</button>
-    <a [routerLink]="reportedResourceURL" target="_blank" class="btn btn-outline-info">View Reported Resource</a>
+    <a
+      [routerLink]="reportedResourceURL"
+      target="_blank"
+      class="whitespace-no-wrap text-teal-500 border-teal-500 hover:bg-teal-500 hover:bg-teal-600 inline-block select-none rounded border bg-white px-3 py-1 text-center align-middle font-normal leading-normal no-underline hover:text-white"
+      >View Reported Resource</a
+    >
   </div>
 </div>

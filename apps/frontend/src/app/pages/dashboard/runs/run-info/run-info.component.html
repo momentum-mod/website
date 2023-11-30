@@ -1,8 +1,8 @@
 <nb-card *ngIf="run">
   <nb-card-header>
-    <div class="row align-items-center">
+    <div class="flex flex-wrap items-center">
       <div class="col-auto">
-        <div class="d-flex flex-wrap align-items-center">
+        <div class="flex flex-wrap items-center">
           <a [routerLink]="'/dashboard/profile/' + run.user.id">
             <nb-user [picture]="run.user.avatarURL" [name]="run.user.alias" size="large" />
           </a>
@@ -15,7 +15,7 @@
     </div>
   </nb-card-header>
   <nb-card-body>
-    <div class="d-flex flex-wrap justify-content-around text-center">
+    <div class="flex flex-wrap justify-around text-center">
       <div class="base mx-1 mb-3">
         <h5>Time</h5>
         <h1>{{ run.time | timing }}</h1>

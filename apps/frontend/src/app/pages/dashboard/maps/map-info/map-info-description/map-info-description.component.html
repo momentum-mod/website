@@ -1,24 +1,24 @@
-<p class="block p-3 mb-3">{{ map.info.description }}</p>
+<p class="mb-3 block p-6">{{ map.info.description }}</p>
 <!-- TODO: Styling here is terrible, needs doing properly! -->
 <nb-tabset class="block" *ngIf="map.leaderboards.length > 0; else elseBlock">
   <nb-tab *ngFor="let kv of sortedLeaderboards | keyvalue" [tabTitle]="GamemodeName.get(kv.key)">
-    <div class="row">
-      <div class="col-6">
+    <div class="flex flex-wrap">
+      <div class="w-1/2">
         <h3>{{ kv.value.get(TrackType.MAIN)[0].linear ? 'Linear' : 'Staged' }} main track</h3>
-        <div class="row p-3">
-          <h4 class="col-6" *ngIf="kv.value.get(TrackType.MAIN)[0].linear; else stagesBlock">
+        <div class="flex flex-wrap p-6">
+          <h4 class="w-1/2" *ngIf="kv.value.get(TrackType.MAIN)[0].linear; else stagesBlock">
             {{ map.zones.tracks.main.zones.segments[0].checkpoints.length }} checkpoints
           </h4>
           <ng-template #stagesBlock
             ><h4>{{ map.zones.tracks.main.zones.segments.length }} stages</h4></ng-template
           >
-          <h4 class="col-6 align-content-end">Tier {{ kv.value.get(TrackType.MAIN)[0].tier }}</h4>
+          <h4 class="w-1/2 content-end">Tier {{ kv.value.get(TrackType.MAIN)[0].tier }}</h4>
         </div>
       </div>
-      <div class="col-6" *ngIf="kv.value.get(TrackType.BONUS).length > 1">
+      <div class="w-1/2" *ngIf="kv.value.get(TrackType.BONUS).length > 1">
         <h3>{{ kv.value.get(TrackType.BONUS).length }} bonuses</h3>
-        <div class="row">
-          <div class="col-lg-4 col-md-2" *ngFor="let bonusKV of kv.value.get(TrackType.BONUS).entries()">
+        <div class="flex flex-wrap">
+          <div class="pl-4 pl-4 pr-4 pr-4 md:w-1/5 lg:w-1/3" *ngFor="let bonusKV of kv.value.get(TrackType.BONUS).entries()">
             <h6>Bonus {{ bonusKV[0] + 1 }}</h6>
             <p>Tier {{ bonusKV[1].tier }}</p>
           </div>

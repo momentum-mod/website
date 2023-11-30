@@ -1,41 +1,49 @@
-<div class="row no-gutters py-2 pt-sm-0 pb-lg-0 align-items-center">
-  <div class="col-12 col-lg-6 mb-3 mb-lg-0">
-    <div class="row align-items-sm-center">
-      <div class="col-12 col-sm-4 col-lg-5 mb-3 mb-sm-0 text-center text-sm-left map-image-container">
+<div class="no-gutters flex flex-wrap items-center py-2 sm:pt-0 lg:pb-0">
+  <div class="mb-3 w-full pl-4 pr-4 lg:mb-0 lg:w-1/2">
+    <div class="flex flex-wrap sm:items-center">
+      <div class="map-image-container mb-3 w-full pl-4 pl-4 pr-4 pr-4 text-center sm:mb-0 sm:w-1/3 sm:text-left lg:w-2/5">
         <a [routerLink]="'/dashboard/maps/' + map?.id">
           <img [ngSrc]="map?.thumbnail?.small" priority width="186" height="105" />
         </a>
       </div>
-      <div class="col-6 col-sm-4 col-lg-3 text-right text-sm-left">
+      <div class="w-1/2 pl-4 pl-4 pr-4 pr-4 text-right sm:w-1/3 sm:text-left lg:w-1/4">
         <ul>
           <li>Map Name:</li>
           <li>Submitted:</li>
           <li>Submitted By:</li>
         </ul>
       </div>
-      <div class="col-6 col-sm-4 col-lg-3">
+      <div class="w-1/2 pl-4 pl-4 pr-4 pr-4 sm:w-1/3 lg:w-1/4">
         <ul>
           <li>{{ map?.name }}</li>
           <li>{{ map?.createdAt | date }}</li>
           <li>
-            <nb-user class="d-inline-block" [name]="map?.submitter.alias" [picture]="map?.submitter.avatarURL" size="small" />
+            <nb-user class="inline-block" [name]="map?.submitter.alias" [picture]="map?.submitter.avatarURL" size="small" />
           </li>
         </ul>
       </div>
     </div>
   </div>
-  <div class="col-12 col-lg-6">
-    <div class="row no-gutters align-items-sm-center">
-      <div class="col-12 col-sm mb-2 mb-sm-0 text-center">
+  <div class="w-full pl-4 pr-4 lg:w-1/2">
+    <div class="no-gutters flex flex-wrap sm:items-center">
+      <div class="relative mb-2 w-full text-center sm:mb-0 sm:flex-1 sm:flex-grow">
         <a #mapFileDownloadLink class="allowed"></a>
         <button nbButton outline status="info" (click)="onMapFileDownload(map?.id)">Download</button>
       </div>
-      <div class="col-auto mx-auto mr-sm-2">
-        <div class="d-flex flex-lg-column button-group">
-          <button type="button" class="btn btn-success mr-2 mr-lg-0 mb-lg-2" (click)="updateMapStatus(map?.id, MapUploadStatus.APPROVED)">
+      <div class="col-auto mx-auto sm:mr-2">
+        <div class="button-group flex lg:flex-col">
+          <button
+            type="button"
+            class="whitespace-no-wrap mr-2 inline-block select-none rounded border bg-green-500 px-3 py-1 text-center align-middle font-normal leading-normal text-white no-underline hover:bg-green-600 lg:mb-2 lg:mr-0"
+            (click)="updateMapStatus(map?.id, MapUploadStatus.APPROVED)"
+          >
             <nb-icon icon="check-circle-outline" />
           </button>
-          <button type="button" class="btn btn-danger" (click)="updateMapStatus(map?.id, MapUploadStatus.REJECTED)">
+          <button
+            type="button"
+            class="whitespace-no-wrap inline-block select-none rounded border bg-red-600 px-3 py-1 text-center align-middle font-normal leading-normal text-white no-underline hover:bg-red-700"
+            (click)="updateMapStatus(map?.id, MapUploadStatus.REJECTED)"
+          >
             <nb-icon icon="close" />
           </button>
         </div>

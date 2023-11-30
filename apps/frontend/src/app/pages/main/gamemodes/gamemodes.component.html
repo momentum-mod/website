@@ -1,12 +1,16 @@
 <section id="gamemodes" class="gamemodes-section bg-black">
-  <div class="container">
-    <div class="row justify-content-center mb-5 mb-lg-5">
-      <div class="col-sm-12 col-md-11 col-lg-10 mb-2 mb-lg-2">
-        <div class="display-4 font-weight-normal gamemodes-header text-center">Supported Game Modes</div>
+  <div class="container mx-auto sm:px-4">
+    <div class="mb-5 flex flex-wrap justify-center lg:mb-12">
+      <div class="mb-2 pl-4 pl-4 pl-4 pr-4 pr-4 pr-4 sm:w-full md:w-5/6 lg:mb-2 lg:w-4/5">
+        <div class="gamemodes-header text-center text-4xl font-normal">Supported Game Modes</div>
       </div>
     </div>
-    <div class="row justify-content-center mb-5 mb-lg-5">
-      <div class="col-3 col-sm-3 col-md-2 col-lg-1 gamemode" *ngFor="let gamemode of gameModes; index as i" (click)="setCurrentGamemode(i)">
+    <div class="mb-5 flex flex-wrap justify-center lg:mb-12">
+      <div
+        class="gamemode w-1/4 pl-4 pl-4 pl-4 pr-4 pr-4 pr-4 sm:w-1/4 md:w-1/5 lg:w-1/6"
+        *ngFor="let gamemode of gameModes; index as i"
+        (click)="setCurrentGamemode(i)"
+      >
         <div class="base-timer" *ngIf="gameModeIndex === i">
           <svg class="base-timer__svg" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
             <path
@@ -32,13 +36,13 @@
         <span *ngIf="!gamemode.isImplemented" class="gamemode-coming-soon">soon™</span>
       </div>
     </div>
-    <div class="row justify-content-center mb-5 mb-lg-5">
-      <div class="display-5 font-weight-normal gamemodes-header text-center">
+    <div class="mb-5 flex flex-wrap justify-center lg:mb-12">
+      <div class="display-5 gamemodes-header text-center font-normal">
         {{ this.currentGameMode.modeTitle }}
       </div>
     </div>
-    <div class="row align-items-center justify-content-center mb-5 mb-lg-5">
-      <div class="row align-items-center col-sm-12 col-md-6 mb-3 mb-md-0">
+    <div class="mb-5 flex flex-wrap items-center justify-center lg:mb-12">
+      <div class="mb-3 flex flex-wrap items-center pl-4 pl-4 pr-4 pr-4 sm:w-full md:mb-0 md:w-1/2">
         <ng-container *ngIf="this.currentGameMode.useYoutubeEmbed; then youtubeTemplate; else webmTemplate"></ng-container>
         <ng-template #webmTemplate>
           <video
@@ -72,7 +76,7 @@
           </iframe>
         </ng-template>
       </div>
-      <div class="col-12 col-md-6 gamemode-description">
+      <div class="gamemode-description w-full pl-4 pr-4 md:w-1/2">
         {{ this.currentGameMode.modeDescription }}
       </div>
     </div>
