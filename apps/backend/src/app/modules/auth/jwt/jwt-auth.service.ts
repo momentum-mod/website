@@ -94,20 +94,20 @@ export class JwtAuthService {
     return DtoFactory(JWTResponseWebDto, {
       accessToken: accessToken,
       refreshToken: refreshToken,
-      expiresIn: this.config.get('jwt.expTime')
+      expiresIn: this.config.getOrThrow('jwt.expTime')
     });
   }
 
   private generateAccessToken(payload: UserJwtAccessPayload): Promise<string> {
     return this.jwtService.signAsync(payload, {
-      expiresIn: payload.gameAuth
-        ? this.config.get('jwt.gameExpTime')
-        : this.config.get('jwt.expTime')
+      expiresIn: this.config.getOrThrow(
+        payload.gameAuth ? 'jwt.gameExpTime' : 'jwt.expTime'
+      )
     });
   }
 
   private async generateRefreshToken(payload: UserJwtPayload): Promise<string> {
-    const options = { expiresIn: this.config.get('jwt.refreshExpTime') };
+    const options = { expiresIn: this.config.getOrThrow('jwt.refreshExpTime') };
     const refreshToken = await this.jwtService.signAsync(payload, options);
 
     await this.db.userAuth.upsert({

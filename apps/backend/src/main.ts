@@ -34,7 +34,7 @@ async function bootstrap() {
   );
 
   const configService = app.get(ConfigService);
-  const env: Environment = configService.get('env');
+  const env: Environment = configService.getOrThrow('env');
 
   // Steam game auth and replay submission from game send raw octet-streams.
   // Steam auth we could limit to 2kb, but replays can be massive. Limiting
@@ -90,7 +90,7 @@ async function bootstrap() {
   await app.register(cors, {
     origin:
       env === Environment.PRODUCTION
-        ? this.config.get('url')
+        ? this.config.getOrThrow('url')
         : 'http://localhost:4200',
     allowedHeaders: [
       'Origin',
@@ -105,7 +105,9 @@ async function bootstrap() {
   });
 
   // Cookies for transferring JWTs back to client after OpenID auth
-  await app.register(cookie, { secret: configService.get('sessionSecret') });
+  await app.register(cookie, {
+    secret: configService.getOrThrow('sessionSecret')
+  });
 
   await app.enableShutdownHooks();
 
@@ -128,7 +130,7 @@ async function bootstrap() {
   });
 
   // Here we fucking go!!!
-  await app.listen(configService.get('port'));
+  await app.listen(configService.getOrThrow('port'));
 }
 
 bootstrap().then();

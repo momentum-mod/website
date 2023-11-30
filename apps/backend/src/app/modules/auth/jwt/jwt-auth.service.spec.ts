@@ -59,7 +59,7 @@ describe('JwtAuthService', () => {
       .useMocker((token) => {
         if (token === ConfigService)
           return {
-            get: jest.fn((key) => {
+            getOrThrow: jest.fn((key) => {
               switch (key) {
                 case 'jwt.expTime':
                   return jwtConfig.expTime;

@@ -18,7 +18,7 @@ describe('SteamOpenIDService', () => {
       .useMocker((token) => {
         if (token === ConfigService)
           return {
-            get: jest.fn((key) => {
+            getOrThrow: jest.fn((key) => {
               switch (key) {
                 case 'url.auth':
                   return 'ratemyowl.com';

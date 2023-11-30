@@ -78,7 +78,7 @@ export class MapImageService {
     const images = await this.db.mapImage.findMany({ where: { mapID } });
     let imageCount = images.length;
     if (map.thumbnailID) imageCount--; // Don't count the thumbnail towards this limit
-    if (imageCount >= this.config.get('limits.mapImageUploads'))
+    if (imageCount >= this.config.getOrThrow('limits.mapImageUploads'))
       throw new ConflictException('Map image file limit reached');
 
     // It may seem strange to create an entry with nothing but a key into Map,

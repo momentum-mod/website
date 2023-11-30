@@ -2,14 +2,22 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { FileStoreS3Service } from './file-store-s3.service';
 import { ConfigService } from '@nestjs/config';
 import { createHash } from 'node:crypto';
+import { mockDeep } from 'jest-mock-extended';
 
 describe('FileStoreS3Service', () => {
   let service: FileStoreS3Service;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
-      providers: [FileStoreS3Service, ConfigService]
-    }).compile();
+      providers: [FileStoreS3Service]
+    })
+      .useMocker((token) => {
+        return token === ConfigService
+          ? // Just mocking every S3 config value to a random string is fine here
+            { getOrThrow: jest.fn(() => 'sausage') }
+          : mockDeep(token);
+      })
+      .compile();
 
     service = module.get<FileStoreS3Service>(FileStoreS3Service);
   });
