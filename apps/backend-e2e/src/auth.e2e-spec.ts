@@ -122,7 +122,7 @@ describe('Auth', () => {
         });
       });
 
-      afterAll(() => jest.resetAllMocks());
+      afterAll(() => jest.restoreAllMocks());
 
       describe('when given a valid login for a new user', () => {
         beforeAll(async () => {
@@ -502,7 +502,7 @@ describe('Auth', () => {
 
       afterEach(async () => db.cleanup('user'));
 
-      afterAll(() => jest.resetAllMocks());
+      afterAll(() => jest.restoreAllMocks());
 
       it('should create a new user and respond with a game JWT', async () => {
         const userSteamID = 1n;
