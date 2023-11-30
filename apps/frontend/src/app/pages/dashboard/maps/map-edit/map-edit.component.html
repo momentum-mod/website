@@ -1,7 +1,7 @@
 <nb-card>
   <nb-card-header>
-    <div class="row align-items-center">
-      <h2 class="col">Edit Map</h2>
+    <div class="flex flex-wrap items-center">
+      <h2 class="relative max-w-full flex-1 flex-grow px-4">Edit Map</h2>
       <div class="col-auto ml-auto">
         <button nbButton outline status="info" [routerLink]="'/dashboard/maps/' + map?.id">Return to Map</button>
       </div>
@@ -10,66 +10,59 @@
   <nb-tabset class="overflow-hidden">
     <nb-tab tabTitle="Info">
       <form (ngSubmit)="onInfoSubmit()" [formGroup]="infoForm">
-        <div class="form-group mt-2 mb-4">
+        <div class="mb-4 mb-4 mt-2">
           <h5>YouTube URL / ID</h5>
           <input
             nbInput
-            class="form-control youtube-inp"
+            class="youtube-inp mb-1 block w-full appearance-none rounded border border-gray-200 bg-white px-2 py-1 text-base leading-normal text-gray-800"
             formControlName="youtubeID"
             type="text"
             [ngClass]="{ 'form-control-danger': youtubeID.invalid }"
           />
         </div>
-        <div class="form-group">
+        <div class="mb-4">
           <h5>Map Description</h5>
           <textarea
             nbInput
             fullWidth
             rows="6"
-            class="form-control"
+            class="mb-1 block w-full appearance-none rounded border border-gray-200 bg-white px-2 py-1 text-base leading-normal text-gray-800"
             formControlName="description"
             type="description"
             [ngClass]="{ 'form-control-danger': description.invalid }"
           ></textarea>
-          <nb-alert class="mb-0 mt-2 py-2 px-3 text-danger" outline="danger" *ngIf="description.hasError('maxlength')">
+          <nb-alert class="mb-0 mt-2 px-3 py-2 text-red-600" outline="danger" *ngIf="description.hasError('maxlength')">
             Text cannot exceed 1000 characters.
           </nb-alert>
-          <span class="form-text d-flex justify-content-end mt-2 mr-2"
-            >{{ 1000 - description.value.length | plural: 'character' }} remaining</span
-          >
+          <span class="mr-2 mt-1 mt-2 block flex justify-end">{{ 1000 - description.value.length | plural: 'character' }} remaining</span>
         </div>
         <button nbButton outline status="info" class="submit-btn" type="submit" [disabled]="infoForm.invalid">Save info</button>
       </form>
     </nb-tab>
     <nb-tab tabTitle="Images">
       <form (ngSubmit)="onImagesSubmit()">
-        <div class="text-center overflow-auto mt-2">
-          <div class="d-inline-block text-left mb-3">
+        <div class="mt-2 overflow-auto text-center">
+          <div class="mb-3 inline-block text-left">
             <h5 class="font-weight-lighter mx-2">
-              <div class="d-inline-block font-weight-normal thumb-text">Thumbnail&nbsp;</div>
-              <div class="d-inline-block">Extra Images</div>
+              <div class="thumb-text inline-block font-normal">Thumbnail&nbsp;</div>
+              <div class="inline-block">Extra Images</div>
             </h5>
-            <div
-              class="d-inline-flex align-items-center"
-              cdkDropList
-              cdkDropListOrientation="horizontal"
-              (cdkDropListDropped)="imageDrop($event)"
-            >
+            <div class="inline-flex items-center" cdkDropList cdkDropListOrientation="horizontal" (cdkDropListDropped)="imageDrop($event)">
               <div class="map-image-cont mx-2" *ngFor="let img of images" cdkDrag>
                 <img class="map-image" [ngSrc]="img.small" width="192" height="108" />
                 <button nbButton outline status="danger" (click)="removeMapImage(img)">
                   <nb-icon class="full" icon="close"></nb-icon>
                 </button>
               </div>
-              <div class="mx-2 upload-box" *ngIf="images.length < imagesLimit">
-                <mom-file-upload [type]="FileUploadType.IMAGE" [multiple]="true" (fileSelected)="onMapImageSelected($event)" />
+              <div class="upload-box mx-2" *ngIf="images.length < imagesLimit">
+                <mom-file-upload (change)="onMapImageSelected()" accept=".jpg,.jpeg" />
               </div>
             </div>
           </div>
         </div>
-        <div class="d-inline-flex align-items-center submit-btn">
+        <div class="submit-btn inline-flex items-center">
           <button nbButton outline status="info" class="mr-2" type="submit">Save images</button>
-          <nb-icon class="text-warning" icon="alert" title="Under Construction"></nb-icon>
+          <nb-icon class="text-yellow-500" icon="alert" title="Under Construction"></nb-icon>
           <!-- TODO: Remove when images submitting is added -->
         </div>
       </form>

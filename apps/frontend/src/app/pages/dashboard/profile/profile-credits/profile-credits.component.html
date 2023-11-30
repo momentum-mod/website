@@ -14,14 +14,14 @@
             }
     "
   >
-    <div class="d-flex flex-wrap align-items-center justify-content-center">
-      <div class="flex-grow-1 type-col text">
+    <div class="flex flex-wrap items-center justify-center">
+      <div class="type-col text flex-grow">
         <div class="mb-3">{{ MapCreditType[mapCredit.type] }} ON</div>
         <a routerLink="/dashboard/maps/{{ mapCredit.map?.id }}">{{ mapCredit.map?.name }}</a>
       </div>
       <div>
         <a routerLink="/dashboard/maps/{{ mapCredit.map?.id }}">
-          <img class="rounded map-image" [ngSrc]="mapCredit.map?.thumbnail?.small" fill />
+          <img class="map-image rounded" [ngSrc]="mapCredit.map?.thumbnail?.small" fill />
         </a>
       </div>
     </div>

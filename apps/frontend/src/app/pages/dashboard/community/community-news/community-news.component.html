@@ -1,20 +1,20 @@
-<div class="row">
-  <div class="col-12 col-lg">
+<div class="flex flex-wrap">
+  <div class="relative w-full lg:flex-1 lg:flex-grow">
     <nb-card>
       <nb-card-header>
         <h2>Blog Posts</h2>
       </nb-card-header>
       <nb-card-body>
         <div *ngFor="let blogPost of feed.item.slice(0, POSTS_DISPLAYED)">
-          <div class="row align-items-end">
-            <h2 class="col">{{ blogPost.title }}</h2>
-            <h5 class="col-auto ml-auto d-none d-sm-block pubDate">
+          <div class="flex flex-wrap items-end">
+            <h2 class="relative max-w-full flex-1 flex-grow px-4">{{ blogPost.title }}</h2>
+            <h5 class="pubDate col-auto ml-auto hidden sm:block">
               {{ blogPost.pubDate }}
             </h5>
           </div>
-          <p class="pb-3 post-separator">
-            <span class="mr-2 md-override" [innerHTML]="blogPost['content:encoded']"></span>
-            <a [href]="blogPost.link" target="_blank" class="text-nowrap">Read More</a>
+          <p class="post-separator pb-3">
+            <span class="md-override mr-2" [innerHTML]="blogPost['content:encoded']"></span>
+            <a [href]="blogPost.link" target="_blank" class="whitespace-nowrap">Read More</a>
           </p>
         </div>
         <h3 class="m-0 text-center" *ngIf="loaded">
@@ -25,7 +25,7 @@
       </nb-card-body>
     </nb-card>
   </div>
-  <div class="col-12 col-lg-auto">
+  <div class="col-lg-auto w-full">
     <div class="mb-4">
       <iframe
         src="https://discordapp.com/widget?id=235111289435717633&theme=dark"

@@ -1,19 +1,19 @@
-<div *ngIf="map" class="row no-gutters py-2 pt-sm-0 pb-lg-0 align-items-center outer" [ngClass]="isUpload ? status : ''">
-  <div class="col-12 col-lg-6 mb-3 mb-lg-0">
-    <div class="row align-items-sm-center">
-      <div class="col-12 col-sm-4 col-lg-5 mb-3 mb-sm-0 text-center text-sm-left map-image-container">
+<div *ngIf="map" class="no-gutters outer flex flex-wrap items-center py-2 sm:pt-0 lg:pb-0" [ngClass]="isUpload ? status : ''">
+  <div class="mb-3 w-full pl-4 pr-4 lg:mb-0 lg:w-1/2">
+    <div class="flex flex-wrap sm:items-center">
+      <div class="map-image-container mb-3 w-full pl-4 pl-4 pr-4 pr-4 text-center sm:mb-0 sm:w-1/3 sm:text-left lg:w-2/5">
         <a [routerLink]="'/dashboard/maps/' + map?.id">
           <img [ngSrc]="map.thumbnail?.small" priority width="186" height="105" />
         </a>
       </div>
-      <div class="col-6 col-sm-4 col-lg-3 text-right text-sm-left">
+      <div class="w-1/2 pl-4 pl-4 pr-4 pr-4 text-right sm:w-1/3 sm:text-left lg:w-1/4">
         <ul>
           <li>Map Name:</li>
           <li>Submitted:</li>
           <li>Submitted By:</li>
         </ul>
       </div>
-      <div class="col-6 col-sm-4 col-lg-3">
+      <div class="w-1/2 pl-4 pl-4 pr-4 pr-4 sm:w-1/3 lg:w-1/4">
         <ul>
           <li>
             <a [routerLink]="'/dashboard/maps/' + map?.id">{{ map.name }}</a>
@@ -21,29 +21,29 @@
           <li>{{ map.createdAt | date }}</li>
           <li>
             <a [routerLink]="'/dashboard/profile/' + map.submitter?.id">
-              <nb-user class="d-inline-block" [name]="map.submitter?.alias" [picture]="map.submitter?.avatarURL" size="small"></nb-user>
+              <nb-user class="inline-block" [name]="map.submitter?.alias" [picture]="map.submitter?.avatarURL" size="small"></nb-user>
             </a>
           </li>
         </ul>
       </div>
     </div>
   </div>
-  <div class="col-12 col-lg-6">
-    <div class="row no-gutters align-items-sm-center">
-      <div class="col-12 col-sm mb-3 mb-sm-0 text-center" *ngIf="isUpload">
+  <div class="w-full pl-4 pr-4 lg:w-1/2">
+    <div class="no-gutters flex flex-wrap sm:items-center">
+      <div class="relative mb-3 w-full text-center sm:mb-0 sm:flex-1 sm:flex-grow" *ngIf="isUpload">
         <span class="mapStatus">{{ status }}</span>
       </div>
-      <div class="col-12 col-sm mb-2 mb-sm-0 text-center" *ngIf="showDownloadButton">
+      <div class="relative mb-2 w-full text-center sm:mb-0 sm:flex-1 sm:flex-grow" *ngIf="showDownloadButton">
         <a #mapFileDownloadLink class="allowed"></a>
         <button nbButton outline status="info">DOWNLOAD</button>
       </div>
-      <div class="col-auto mx-auto mr-sm-2">
-        <div class="d-flex flex-lg-column button-group">
+      <div class="col-auto mx-auto sm:mr-2">
+        <div class="button-group flex lg:flex-col">
           <button
             nbButton
             status="primary"
             type="button"
-            class="mr-2 mr-lg-0 mb-lg-2"
+            class="mr-2 lg:mb-2 lg:mr-0"
             (click)="toggleMapInFavorites()"
             size="large"
             [nbPopover]="mapInFavorites ? 'Remove map from favorites' : 'Add map to favorites'"
@@ -54,7 +54,7 @@
           <button
             nbButton
             type="button"
-            class="btn btn-dark"
+            class="whitespace-no-wrap inline-block select-none rounded border bg-gray-900 px-3 py-1 text-center align-middle font-normal leading-normal text-white no-underline hover:bg-gray-900"
             (click)="toggleMapInLibrary()"
             size="large"
             [nbPopover]="libraryPopover"

@@ -1,14 +1,14 @@
 <nb-card *ngIf="previewMap || map">
   <nb-card-header>
-    <div class="row">
-      <h2 class="col my-auto">{{ map.name }}</h2>
+    <div class="flex flex-wrap">
+      <h2 class="relative my-auto max-w-full flex-1 flex-grow px-4">{{ map.name }}</h2>
       <div class="col-auto ml-auto">
-        <div class="d-flex align-items-center" *ngIf="!previewMap">
+        <div class="flex items-center" *ngIf="!previewMap">
           <mom-report-button *ngIf="!isSubmitter" [reportType]="ReportType.MAP_REPORT" [reportData]="map.id.toString()" />
           <div *ngIf="isSubmitter || isAdmin || isModerator">
             <button nbButton outline status="info" class="ml-2" type="button" (click)="onEditMap()">
-              <span class="d-none d-md-inline-block">Edit Map</span>
-              <nb-icon icon="image-edit" class="d-inline-block d-md-none" />
+              <span class="hidden md:inline-block">Edit Map</span>
+              <nb-icon icon="image-edit" class="inline-block md:hidden" />
             </button>
           </div>
           <div class="m-2">
@@ -29,12 +29,12 @@
     </div>
   </nb-card-header>
   <nb-card-body>
-    <div class="row">
-      <div class="col-12 col-lg-5 mb-3 mb-lg-0">
+    <div class="flex flex-wrap">
+      <div class="mb-3 w-full pl-4 pr-4 lg:mb-0 lg:w-2/5">
         <gallery id="image-gallery" [skipInitConfig]="true" gallerize></gallery>
       </div>
-      <div class="col-12 col-lg-7">
-        <nb-tabset [fullWidth]="true" class="shadow overflow-hidden mb-4">
+      <div class="w-full pl-4 pr-4 lg:w-3/5">
+        <nb-tabset [fullWidth]="true" class="mb-4 overflow-hidden shadow">
           <nb-tab tabTitle="Description" [tabIcon]="{ icon: 'file-outline', pack: 'mdi' }" responsive>
             <mom-map-info-description [map]="map" />
           </nb-tab>
@@ -45,8 +45,8 @@
             <mom-map-info-stats [map]="map" />
           </nb-tab>
         </nb-tabset>
-        <div class="row no-gutters">
-          <div class="col-12 col-sm">
+        <div class="no-gutters flex flex-wrap">
+          <div class="relative w-full sm:flex-1 sm:flex-grow">
             <h6>
               Added On:
               {{ previewMap ? '(some future date)' : (map.createdAt | date) }}
@@ -59,32 +59,39 @@
                   [name]="map.submitter?.alias"
                   [picture]="map.submitter?.avatarURL"
                   size="small"
-                  class="d-inline-block align-middle"
+                  class="inline-block align-middle"
                 />
               </a>
             </h6>
           </div>
-          <div *ngIf="!previewMap" class="col-12 col-sm">
-            <div class="d-flex flex-wrap justify-content-around justify-content-sm-end mt-1 mb-3">
+          <div *ngIf="!previewMap" class="relative w-full sm:flex-1 sm:flex-grow">
+            <div class="mb-3 mt-1 flex flex-wrap justify-around sm:justify-end">
               <div class="stat" nbPopover="{{ map.stats?.subscriptions | plural: 'Library' : 'Libraries' }}" nbPopoverTrigger="hint">
                 <nb-icon icon="folder"></nb-icon>
                 {{ map.stats?.subscriptions | thousandsSuffix: 1 }}
               </div>
-              <div class="ml-sm-4 stat" nbPopover="{{ map.stats?.favorites | plural: 'Favorite' }}" nbPopoverTrigger="hint">
+              <div class="stat sm:ml-6" nbPopover="{{ map.stats?.favorites | plural: 'Favorite' }}" nbPopoverTrigger="hint">
                 <nb-icon icon="star"></nb-icon>
                 {{ map.stats?.favorites | thousandsSuffix: 1 }}
               </div>
-              <div class="ml-sm-4 stat" nbPopover="{{ map.stats?.downloads | plural: 'Download' }}" nbPopoverTrigger="hint">
+              <div class="stat sm:ml-6" nbPopover="{{ map.stats?.downloads | plural: 'Download' }}" nbPopoverTrigger="hint">
                 <nb-icon icon="download-outline"></nb-icon>
                 {{ map.stats?.downloads | thousandsSuffix: 1 }}
               </div>
-              <div class="ml-sm-4 stat" nbPopover="{{ map.stats?.plays | plural: 'Play' }}" nbPopoverTrigger="hint">
+              <div class="stat sm:ml-6" nbPopover="{{ map.stats?.plays | plural: 'Play' }}" nbPopoverTrigger="hint">
                 <nb-icon icon="play-circle-outline"></nb-icon>
                 {{ map.stats?.plays | thousandsSuffix: 1 }}
               </div>
             </div>
-            <div class="btn-group text-center text-sm-right">
-              <button nbButton outline status="info" type="button" class="btn" (click)="onLibraryUpdate()">
+            <div class="relative inline-flex text-center align-middle sm:text-right">
+              <button
+                nbButton
+                outline
+                status="info"
+                type="button"
+                class="whitespace-no-wrap inline-block select-none rounded border px-3 py-1 text-center align-middle font-normal leading-normal no-underline"
+                (click)="onLibraryUpdate()"
+              >
                 <span [ngClass]="{ 'c-anim-btn': mapInLibrary }">{{ mapInLibrary ? 'In Library' : 'Add Map to Library' }}</span>
                 <span *ngIf="mapInLibrary">Remove from Library</span>
               </button>
@@ -93,7 +100,7 @@
                 outline
                 status="info"
                 type="button"
-                class="btn"
+                class="whitespace-no-wrap inline-block select-none rounded border px-3 py-1 text-center align-middle font-normal leading-normal no-underline"
                 (click)="onFavoriteUpdate()"
                 nbPopover="{{ mapInFavorites ? 'Remove from Favorites' : 'Add to Favorites' }}"
                 nbPopoverTrigger="hint"

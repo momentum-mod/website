@@ -10,7 +10,7 @@
       (click)="onClickNotif(notification)"
     >
     </mom-activity-content>
-    <div class="text-center date">
+    <div class="date text-center">
       {{ notification.activity.createdAt | timeAgo }}
     </div>
     <button nbButton outline status="danger" size="tiny" (click)="removeNotif(notification)">

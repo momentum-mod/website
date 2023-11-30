@@ -1,9 +1,9 @@
 <nb-list nbInfiniteList [threshold]="0" (bottomThreshold)="loadMore()" listenWindowScroll>
   <nb-list-item *ngIf="activities.length === 0 && hasRequested">
-    <h4 class="m-0 text-center text"><i>No activities found</i></h4>
+    <h4 class="text m-0 text-center"><i>No activities found</i></h4>
   </nb-list-item>
   <nb-list-item *ngIf="!hasRequested">
-    <h4 class="m-0 text-center text">Waiting for API response</h4>
+    <h4 class="text m-0 text-center">Waiting for API response</h4>
   </nb-list-item>
   <nb-list-item *ngFor="let act of activities">
     <mom-activity-content [activity]="act" />

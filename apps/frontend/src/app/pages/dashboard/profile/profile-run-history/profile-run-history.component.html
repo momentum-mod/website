@@ -13,14 +13,20 @@
     }"
     #filterContent
   >
-    <div class="row row-cols-md-3 align-items-center p-3" [formGroup]="filterFG">
-      <div class="col-md-2">
+    <div class="row-cols-md-3 flex flex-wrap items-center p-6" [formGroup]="filterFG">
+      <div class="pl-4 pr-4 md:w-1/5">
         <nb-checkbox formControlName="isPersonalBest">Is PB</nb-checkbox>
       </div>
-      <div class="col-md mb-2 mb-md-0 text-left text-md-center">
-        <input nbInput class="form-control" type="text" placeholder="Map" formControlName="map" />
+      <div class="relative mb-2 text-left md:mb-0 md:flex-1 md:flex-grow md:text-center">
+        <input
+          nbInput
+          class="mb-1 block w-full appearance-none rounded border border-gray-200 bg-white px-2 py-1 text-base leading-normal text-gray-800"
+          type="text"
+          placeholder="Map"
+          formControlName="map"
+        />
       </div>
-      <div class="col-md text-left text-md-center">
+      <div class="relative text-left md:flex-1 md:flex-grow md:text-center">
         <nb-select placeholder="Sort by" formControlName="orderBy">
           <nb-option [value]="OrderBy.DATE">Sort by Date</nb-option>
           <nb-option [value]="OrderBy.RUN_TIME">Sort by Time</nb-option>
@@ -30,7 +36,7 @@
           <nb-option [value]="Order.DESC">Descending</nb-option>
         </nb-select>
       </div>
-      <div class="col col-md-auto mr-6 mt-2 mt-md-0">
+      <div class="col-md-auto relative mr-6 mt-2 max-w-full flex-1 flex-grow px-4 md:mt-0">
         <button nbButton outline status="info" (click)="onFilterApply()">Apply</button>
       </div>
     </div>
@@ -48,16 +54,16 @@
               }
       "
     >
-      <div class="row no-gutters align-items-center">
-        <div class="col-2 col-sm-1 icon pl-0 pl-md-3">
+      <div class="no-gutters flex flex-wrap items-center">
+        <div class="icon w-1/5 pl-0 pl-4 pr-4 sm:w-1/6 md:pl-4">
           <nb-icon *ngIf="run.leaderboardRun" icon="trophy-outline" nbPopover="Personal Best" nbPopoverTrigger="hint" />
         </div>
-        <div class="col">
+        <div class="relative max-w-full flex-1 flex-grow px-4">
           <a routerLink="/dashboard/runs/{{ run.id }}">
             <span class="text">{{ run.time | timing }} on {{ run.map?.name }}</span>
           </a>
         </div>
-        <div class="col-auto ml-auto text">{{ run.createdAt | timeAgo }}</div>
+        <div class="text col-auto ml-auto">{{ run.createdAt | timeAgo }}</div>
       </div>
     </nb-list-item>
   </nb-list>

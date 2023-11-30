@@ -3,13 +3,13 @@
     <h2>XP Systems</h2>
   </nb-card-header>
   <nb-card-body>
-    <form class="row" *ngIf="xpSystems" [formGroup]="xpSystemsFormGroup">
-      <div class="col-5" formGroupName="rankXP">
-        <div class="row">
-          <h4 class="text-center d-block m-auto">Rank XP</h4>
+    <form class="flex flex-wrap" *ngIf="xpSystems" [formGroup]="xpSystemsFormGroup">
+      <div class="w-2/5" formGroupName="rankXP">
+        <div class="flex flex-wrap">
+          <h4 class="m-auto block text-center">Rank XP</h4>
         </div>
-        <div class="row">
-          <div class="col-3" formGroupName="top10">
+        <div class="flex flex-wrap">
+          <div class="w-1/4" formGroupName="top10">
             <label>
               WR Points:
               <input nbInput type="number" formControlName="WRPoints" />
@@ -23,7 +23,7 @@
               </div>
             </div>
           </div>
-          <div class="col-3" formGroupName="formula">
+          <div class="w-1/4" formGroupName="formula">
             <label>
               A:
               <input nbInput type="number" formControlName="A" />
@@ -33,7 +33,7 @@
               <input nbInput type="number" formControlName="B" />
             </label>
           </div>
-          <div class="col-3" formGroupName="groups">
+          <div class="w-1/4" formGroupName="groups">
             <label>
               Max groups:
               <input nbInput type="number" formControlName="maxGroups" />
@@ -76,12 +76,12 @@
           </div>
         </div>
       </div>
-      <div class="col-7" formGroupName="cosXP">
-        <div class="row">
-          <h4 class="text-center d-block m-auto">Cosmetic XP</h4>
+      <div class="w-3/5" formGroupName="cosXP">
+        <div class="flex flex-wrap">
+          <h4 class="m-auto block text-center">Cosmetic XP</h4>
         </div>
-        <div class="row">
-          <div class="col-6" formGroupName="levels">
+        <div class="flex flex-wrap">
+          <div class="w-1/2" formGroupName="levels">
             <label>
               Max Levels:
               <input nbInput type="number" formControlName="maxLevels" />
@@ -119,9 +119,9 @@
               <input nbInput type="number" formControlName="staticScaleIntervalMultiplier" />
             </label>
           </div>
-          <div class="col-6" formGroupName="completions">
-            <div class="row">
-              <div class="col-6" formGroupName="unique">
+          <div class="w-1/2" formGroupName="completions">
+            <div class="flex flex-wrap">
+              <div class="w-1/2" formGroupName="unique">
                 <div formGroupName="tierScale">
                   <label>
                     Unique Linear Scale:
@@ -133,7 +133,7 @@
                   </label>
                 </div>
               </div>
-              <div class="col-6" formGroupName="repeat">
+              <div class="w-1/2" formGroupName="repeat">
                 <div formGroupName="tierScale">
                   <label>
                     Repeat Linear Scale:
@@ -157,7 +157,7 @@
           </div>
         </div>
       </div>
-      <button nbButton class="d-block m-auto" type="button" (click)="submitXPSystems()">Submit</button>
+      <button nbButton class="m-auto block" type="button" (click)="submitXPSystems()">Submit</button>
     </form>
   </nb-card-body>
 </nb-card>
