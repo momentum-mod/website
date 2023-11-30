@@ -16,8 +16,10 @@ export class SteamService {
     private readonly http: HttpService,
     private readonly config: ConfigService
   ) {
-    this.steamApiKey = this.config.get('steam.webAPIKey');
-    this.steamTicketsSecretKey = this.config.get('steam.ticketsSecretKey');
+    this.steamApiKey = this.config.getOrThrow('steam.webAPIKey');
+    this.steamTicketsSecretKey = this.config.getOrThrow(
+      'steam.ticketsSecretKey'
+    );
   }
 
   private readonly steamApiKey: string;
@@ -33,7 +35,7 @@ export class SteamService {
       this.http
         .get('https://api.steampowered.com/ISteamUser/GetPlayerSummaries/v2/', {
           params: {
-            key: this.config.get('steam.webAPIKey'),
+            key: this.config.getOrThrow('steam.webAPIKey'),
             steamids: steamID.toString()
           }
         })
@@ -99,7 +101,7 @@ export class SteamService {
           'https://api.steampowered.com/ISteamUserAuth/AuthenticateUserTicket/v1/',
           {
             params: {
-              key: this.config.get('steam.webAPIKey'),
+              key: this.config.getOrThrow('steam.webAPIKey'),
               appid: appID,
               ticket: ticket
             }

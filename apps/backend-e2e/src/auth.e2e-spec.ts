@@ -110,7 +110,7 @@ describe('Auth', () => {
         );
         steamIsLimitedSpy.mockResolvedValue(false);
 
-        jest.spyOn(configService, 'get').mockImplementation((key) => {
+        jest.spyOn(configService, 'getOrThrow').mockImplementation((key) => {
           switch (key) {
             case 'steam.preventLimited':
               return true;
@@ -250,16 +250,18 @@ describe('Auth', () => {
 
       it('should create an account if the user is a limited account and preventLimited is false', async () => {
         steamIsLimitedSpy.mockResolvedValueOnce(true);
-        jest.spyOn(configService, 'get').mockImplementationOnce((key) => {
-          switch (key) {
-            case 'steam.preventLimited':
-              return false;
-            case 'jwt.expTime':
-              return '1m';
-            case 'jwt.refreshExpTime':
-              return '5m';
-          }
-        });
+        jest
+          .spyOn(configService, 'getOrThrow')
+          .mockImplementationOnce((key) => {
+            switch (key) {
+              case 'steam.preventLimited':
+                return false;
+              case 'jwt.expTime':
+                return '1m';
+              case 'jwt.refreshExpTime':
+                return '5m';
+            }
+          });
 
         steamIsLimitedSpy.mockResolvedValueOnce(true);
 
@@ -287,7 +289,7 @@ describe('Auth', () => {
 
     describe('Online API', () => {
       beforeEach(() =>
-        jest.spyOn(configService, 'get').mockImplementation((key) => {
+        jest.spyOn(configService, 'getOrThrow').mockImplementation((key) => {
           switch (key) {
             case 'steam.useSteamTicketLibrary':
               return false;
@@ -486,7 +488,7 @@ describe('Auth', () => {
 
     describe('Local Library', () => {
       beforeEach(() =>
-        jest.spyOn(configService, 'get').mockImplementation((key) => {
+        jest.spyOn(configService, 'getOrThrow').mockImplementation((key) => {
           switch (key) {
             case 'steam.useSteamTicketLibrary':
               return true;

@@ -191,7 +191,7 @@ export class UsersService {
       });
     } else {
       if (
-        this.config.get('steam.preventLimited') &&
+        this.config.getOrThrow('steam.preventLimited') &&
         (await this.steamService.isAccountLimited(userData.steamID))
       )
         throw new ForbiddenException(

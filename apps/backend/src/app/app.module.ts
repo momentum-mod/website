@@ -29,9 +29,9 @@ import { XpSystemsModule } from './modules/xp-systems/xp-systems.module';
     }),
     SentryModule.forRootAsync({
       useFactory: async (config: ConfigService) => ({
-        environment: config.get('env'),
+        environment: config.getOrThrow('env'),
         sentryOpts: {
-          dsn: config.get('sentry.dsn'),
+          dsn: config.getOrThrow('sentry.dsn'),
           debug: false,
           tracesSampleRate: 1
         }

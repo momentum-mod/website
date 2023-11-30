@@ -557,9 +557,9 @@ describe('Maps', () => {
         };
       });
 
-      afterAll(() => {
-        db.cleanup('user', 'mMap');
-        fileStore.deleteDirectory('submissions');
+      afterAll(async () => {
+        await db.cleanup('user', 'mMap');
+        await fileStore.deleteDirectory('submissions');
       });
 
       describe('should submit a map', () => {

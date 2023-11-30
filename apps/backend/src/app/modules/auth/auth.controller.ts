@@ -49,7 +49,7 @@ export class AuthController {
     private readonly steamOpenID: SteamOpenIDService
   ) {
     this.cookieOptions = {
-      domain: this.configService.get('domain'),
+      domain: this.configService.getOrThrow('domain'),
       // The value on the cookies gets transferred to local storage immediately,
       // so just use a short lifetime of 10s.
       maxAge: 10000,

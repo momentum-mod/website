@@ -20,16 +20,16 @@ export class FileStoreS3Service extends FileStoreService {
     super();
 
     this.s3Client = new S3Client({
-      region: this.config.get('storage.region'),
-      endpoint: this.config.get('storage.endpointUrl'),
+      region: this.config.getOrThrow('storage.region'),
+      endpoint: this.config.getOrThrow('storage.endpointUrl'),
       credentials: {
-        accessKeyId: this.config.get('storage.accessKeyID'),
-        secretAccessKey: this.config.get('storage.secretAccessKey')
+        accessKeyId: this.config.getOrThrow('storage.accessKeyID'),
+        secretAccessKey: this.config.getOrThrow('storage.secretAccessKey')
       },
       forcePathStyle: true
     });
 
-    this.bucket = this.config.get('storage.bucketName');
+    this.bucket = this.config.getOrThrow('storage.bucketName');
   }
 
   async storeFile(fileBuffer: Buffer, fileKey: string): Promise<FileStoreFile> {
