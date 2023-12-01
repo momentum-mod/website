@@ -2,7 +2,7 @@ import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 
 import { UserSearchResultComponent } from './user-search-result.component';
 import { HttpClientTestingModule } from '@angular/common/http/testing';
-import { SharedModule } from '../../shared.module';
+import { SharedModule } from '../../../shared.module';
 import { LocalUserService } from '@momentum/frontend/data';
 import { mock } from 'jest-mock-extended';
 import { RouterTestingModule } from '@angular/router/testing';

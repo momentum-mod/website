@@ -6,7 +6,7 @@ import {
   NbPopoverModule,
   NbUserModule
 } from '@nebular/theme';
-import { UserSearchComponent } from '../user-search/user-search.component';
+import { UserSearchComponent } from '../search/user-search/user-search.component';
 import { showPopoverDuration } from '../../utils/popover-utils';
 import { NgClass, NgFor } from '@angular/common';
 

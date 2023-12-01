@@ -9,7 +9,7 @@ import {
 } from '@angular/cdk/drag-drop';
 
 import { SharedModule } from '../../../shared.module';
-import { UserSearchComponent } from '../../../components/user-search/user-search.component';
+import { UserSearchComponent } from '../../../components/search/user-search/user-search.component';
 
 enum SearchState {
   HIDDEN,

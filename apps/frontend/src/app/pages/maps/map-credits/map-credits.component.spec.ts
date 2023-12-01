@@ -8,7 +8,7 @@ import {
   NbThemeModule,
   NbUserModule
 } from '@nebular/theme';
-import { UserSearchComponent } from '../../../components/user-search/user-search.component';
+import { UserSearchComponent } from '../../../components/search/user-search/user-search.component';
 import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { SortedMapCredits } from '../../../components/map-credits-selection/sorted-map-credits.class';
 
