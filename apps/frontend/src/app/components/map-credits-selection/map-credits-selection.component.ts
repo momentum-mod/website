@@ -23,7 +23,7 @@ import {
   NbPopoverModule,
   NbUserModule
 } from '@nebular/theme';
-import { UserSearchComponent } from '../user-search/user-search.component';
+import { UserSearchComponent } from '../search/user-search/user-search.component';
 import { Enum } from '@momentum/enum';
 import { showPopoverDuration } from '../../utils/popover-utils';
 import { NgFor, NgIf, KeyValuePipe } from '@angular/common';

@@ -26,7 +26,7 @@ import {
 } from '@nebular/theme';
 import { merge, of, Subject } from 'rxjs';
 import { PagedResponseDto } from '@momentum/backend/dto';
-import { showPopover } from '../../utils/popover-utils';
+import { showPopover } from '../../../utils/popover-utils';
 import { NgxPaginationModule } from 'ngx-pagination';
 import { UserSearchResultComponent } from './user-search-result.component';
 import { NgClass, NgFor } from '@angular/common';

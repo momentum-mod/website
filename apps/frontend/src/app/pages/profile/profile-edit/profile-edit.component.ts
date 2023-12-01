@@ -29,7 +29,7 @@ import { Bitflags } from '@momentum/bitflags';
 import { Icon } from '@momentum/frontend/icons';
 import { omit } from 'lodash-es';
 import { SharedModule } from '../../../shared.module';
-import { UserSearchComponent } from '../../../components/user-search/user-search.component';
+import { UserSearchComponent } from '../../../components/search/user-search/user-search.component';
 
 @Component({
   selector: 'mom-profile-edit',
