@@ -1,4 +1,4 @@
-import { isEmpty, throwIfEmpty, undefinedIfEmpty } from './is-empty';
+import { isEmpty, undefinedIfEmpty } from './is-empty';
 
 const testObj = { a: 1 };
 
@@ -10,16 +10,6 @@ describe('isEmpty', () => {
 
   test('should return false if object is not empty', () => {
     expect(isEmpty(testObj)).toBe(false);
-  });
-});
-
-describe('throwIfEmpty', () => {
-  test('should throw BadRequestException if object is empty', () => {
-    expect(() => throwIfEmpty({})).toThrow();
-  });
-
-  test('should not throw BadRequestException if object is not empty', () => {
-    expect(() => throwIfEmpty(testObj)).not.toThrow();
   });
 });
 

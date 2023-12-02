@@ -1,5 +1,3 @@
-import { BadRequestException } from '@nestjs/common';
-
 /**
  * Check if an object contains no enumerable properties.
  */
@@ -10,15 +8,6 @@ export function isEmpty(obj?: object) {
     return false;
   }
   return true;
-}
-
-/**
- * Throw a BadRequestException (400) of the provided object is empty.
- */
-export function throwIfEmpty(obj: object) {
-  if (isEmpty(obj)) {
-    throw new BadRequestException();
-  }
 }
 
 /**

@@ -19,7 +19,7 @@ import { Bitflags } from '@momentum/bitflags';
 import { AdminActivityType, Role } from '@momentum/constants';
 import { EXTENDED_PRISMA_SERVICE } from '../database/db.constants';
 import { ExtendedPrismaService } from '../database/prisma.extension';
-import { expandToIncludes, throwIfEmpty } from '@momentum/util-fn';
+import { expandToIncludes, isEmpty } from '@momentum/util-fn';
 import { AdminActivityService } from './admin-activity.service';
 
 @Injectable()
@@ -184,7 +184,9 @@ export class AdminService {
     userID: number,
     update: AdminUpdateUserDto
   ) {
-    throwIfEmpty(update);
+    if (isEmpty(update)) {
+      throw new BadRequestException('Empty body');
+    }
 
     const user = await this.db.user.findUnique({
       where: { id: userID },
