@@ -16,10 +16,7 @@
         "polyfills": ["zone.js"],
         "tsConfig": "apps/frontend/tsconfig.app.json",
         "assets": ["apps/frontend/src/favicon.ico", "apps/frontend/src/assets"],
-        "styles": [
-          "node_modules/@fontsource/roboto/index.css",
-          "libs/frontend/theme/src/styles/styles.scss"
-        ],
+        "styles": ["libs/frontend/theme/src/styles/styles.css"],
         "aot": true,
         "statsJson": true
       },
