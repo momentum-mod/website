@@ -49,8 +49,8 @@ export class DbUtil {
   private users: number;
   private maps: number;
 
-  async cleanup(...models: CamelCase<Prisma.ModelName>[]) {
-    return await this.prisma.$transaction(
+  cleanup(...models: CamelCase<Prisma.ModelName>[]) {
+    return this.prisma.$transaction(
       models.map((name) =>
         (this.prisma[name] as any) // >:D
           .deleteMany()
